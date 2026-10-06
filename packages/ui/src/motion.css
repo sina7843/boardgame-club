@@ -1,0 +1,86 @@
+/* Motion layer. Every animation answers "what does this communicate?":
+   arrival (page, panels), dealing (game cards), feedback (press, dialogs, toasts, turn change), game moments.
+   Only transform/opacity are animated. Everything collapses to instant under reduced motion (bottom of file). */
+:root {
+  --spring: cubic-bezier(0.22, 1.2, 0.36, 1);   /* slight overshoot: things "land" */
+  --out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Theme switch: colours cross-fade instead of flashing. */
+html, body, .panel, .game-card, .sidenav, .topbar, .bottomnav, .btn, .input, .select, .seat, .chip, .badge, .turn {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: var(--dur-slow);
+  transition-timing-function: var(--ease);
+}
+
+/* Page arrival: the new page rises in; its first sections follow one after another. */
+.page-enter { animation: rise 420ms var(--out) both; }
+.page-enter > * { animation: rise 460ms var(--out) both; animation-delay: calc(var(--n, 0) * 50ms); }
+.page-enter > :nth-child(2) { --n: 1; } .page-enter > :nth-child(3) { --n: 2; } .page-enter > :nth-child(4) { --n: 3; } .page-enter > :nth-child(n + 5) { --n: 4; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* Signature: game cards are dealt onto the table one by one, each landing with a small tilt. */
+.grid-cards > * { animation: deal 560ms var(--spring) both; animation-delay: calc(var(--i, 0) * 70ms + 80ms); transform-origin: 50% 100%; }
+.grid-cards > :nth-child(1) { --i: 0; --r: -3deg; } .grid-cards > :nth-child(2) { --i: 1; --r: 2.5deg; }
+.grid-cards > :nth-child(3) { --i: 2; --r: -2deg; } .grid-cards > :nth-child(4) { --i: 3; --r: 3deg; }
+.grid-cards > :nth-child(5) { --i: 4; --r: -2.5deg; } .grid-cards > :nth-child(n + 6) { --i: 5; --r: 2deg; }
+@keyframes deal { from { opacity: 0; transform: translateY(-36px) rotate(var(--r, -2deg)) scale(0.96); } }
+
+/* Lists and panels appear softly (no stagger: content, not a show). */
+.list > li, .achievements > li, .seats > * { animation: fade-up 320ms var(--out) both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(6px); } }
+
+/* Navigation: the active "card on the wood" settles; hover gives a small nudge toward the content. */
+.sidenav__link.active { animation: settle 380ms var(--spring); }
+@keyframes settle { from { transform: rotate(-3deg) translateX(10px); opacity: 0.6; } }
+.sidenav__link:not(.active):hover { transform: translateX(-3px); }
+:root[dir='ltr'] .sidenav__link:not(.active):hover { transform: translateX(3px); }
+.bottomnav__link.active svg { animation: hop 340ms var(--spring); }
+@keyframes hop { 40% { transform: translateY(-5px); } }
+
+/* Buttons: hover lift on primary; press is in components.css. */
+.btn--primary:hover:not(:disabled) { transform: translateY(-1px); }
+.game-card:active { transform: translateY(0) scale(0.99); }
+
+/* Dialogs, drawers and toasts spring in. */
+.dialog[open]:not(.drawer) { animation: pop-in 260ms var(--spring); }
+.dialog[open]::backdrop { animation: fade 200ms ease-out; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(10px) scale(0.96); } }
+@keyframes fade { from { opacity: 0; } }
+.toast { animation: toast-in 320ms var(--spring); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(16px) scale(0.95); } }
+
+/* Turn change: when it becomes your turn the indicator pops once and glows twice (attention, then it rests). */
+.turn--mine { animation: your-turn 1400ms var(--out); }
+@keyframes your-turn {
+  0% { transform: scale(0.94); box-shadow: 0 0 0 0 color-mix(in srgb, var(--action) 55%, transparent); }
+  20% { transform: scale(1.03); }
+  35% { transform: scale(1); box-shadow: 0 0 0 10px transparent; }
+  50% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--action) 45%, transparent); }
+  80%, 100% { box-shadow: 0 0 0 10px transparent; }
+}
+.seat--active { animation: seat-on 500ms var(--out); }
+@keyframes seat-on { from { box-shadow: 0 0 0 6px color-mix(in srgb, var(--brand) 35%, transparent); } }
+.timer--low { animation: tick 1s steps(1) infinite; }
+@keyframes tick { 50% { opacity: 0.7; } }
+
+/* Result: the panel lands and its heading gets a single gold sweep. */
+.result { animation: pop-in 420ms var(--spring); }
+.result h2, .result h1 { background: linear-gradient(100deg, currentColor 40%, var(--gold) 50%, currentColor 60%) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; color: var(--text);
+  -webkit-text-fill-color: transparent; animation: shine 1400ms 300ms var(--out) both; }
+@keyframes shine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+/* State blocks and skeletons */
+.state { animation: fade 300ms ease-out both; }
+.badge--premium, .badge--success { animation: pop-in 300ms var(--spring) both; }
+
+/* ---------- Reduced motion: everything instant (the spinner keeps a slow essential rotation) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) *:not(.spinner),
+  :root:not([data-motion='full']) *::before, :root:not([data-motion='full']) *::after, :root:not([data-motion='full']) ::backdrop {
+    animation: none !important; transition-duration: 0ms !important;
+  }
+}
+:root[data-motion='reduce'] *:not(.spinner), :root[data-motion='reduce'] *::before, :root[data-motion='reduce'] *::after, :root[data-motion='reduce'] ::backdrop {
+  animation: none !important; transition-duration: 0ms !important;
+}

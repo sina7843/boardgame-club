@@ -10,3 +10,11 @@
 .lt__cell--win { background: color-mix(in srgb, var(--gold) 35%, var(--table-felt)); border-color: var(--gold); }
 .lt__x { color: var(--text); }
 .lt__o { color: var(--gold); }
+
+/* A placed sign is stamped onto the board; the winning line pulses once. */
+.lt__mark { display: inline-block; animation: lt-stamp 320ms cubic-bezier(0.22, 1.2, 0.36, 1); }
+@keyframes lt-stamp { from { transform: scale(1.6) rotate(-12deg); opacity: 0; } }
+.lt__cell--win { animation: lt-win 900ms ease-out; }
+@keyframes lt-win { 30% { transform: scale(1.06); } }
+.lt__cell { transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease); }
+.lt__cell:not([aria-disabled='true']):active { transform: scale(0.96); }

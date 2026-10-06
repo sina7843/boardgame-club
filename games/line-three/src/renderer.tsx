@@ -62,7 +62,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
                     onClick={() => { if (isLegal) setSelected(selected === i ? null : i); }}
                     onDoubleClick={() => { if (isLegal) { setSelected(i); onAction({ type: 'place', cell: i }); setSelected(null); } }}
                     onKeyDown={(e) => onKey(e, i)}>
-                    <span aria-hidden className={mark === 'X' || preview === 'X' ? 'lt__x' : 'lt__o'} style={preview ? { opacity: 0.4 } : undefined}>{mark ?? preview ?? ''}</span>
+                    <span aria-hidden key={mark ? `m${mark}` : 'p'} className={[mark === 'X' || preview === 'X' ? 'lt__x' : 'lt__o', mark ? 'lt__mark' : ''].join(' ')} style={preview ? { opacity: 0.4 } : undefined}>{mark ?? preview ?? ''}</span>
                   </button>
                 </div>
               );

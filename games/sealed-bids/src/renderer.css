@@ -4,3 +4,9 @@
 .sb__prize { display: grid; }
 .sb__prize strong { font-size: var(--fs-xl); color: var(--gold); }
 .sb__history summary { cursor: pointer; min-block-size: var(--touch); display: flex; align-items: center; font-weight: 700; }
+
+/* Choosing a token bounces it up; revealed rounds slide in like a turned card. */
+.token--selected { animation: sb-pick 300ms cubic-bezier(0.22, 1.2, 0.36, 1); }
+@keyframes sb-pick { from { transform: translateY(0) scale(0.9); } }
+.sb__history tbody tr:last-child { animation: sb-reveal 520ms cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes sb-reveal { from { opacity: 0; transform: rotateX(70deg); } }

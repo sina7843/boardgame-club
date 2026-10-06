@@ -83,7 +83,7 @@ export function Layout() {
           ? <StateBlock kind="error" title="ارتباط با سرور برقرار نشد" action={<Button onClick={() => void refresh()}>تلاش دوباره</Button>}>
               وضعیت حساب شما دریافت نشد. اتصال را بررسی کنید.
             </StateBlock>
-          : <Outlet />}
+          : <div key={pathname} className="page-enter"><Outlet /></div>}
       </main>
 
       <nav className="bottomnav" aria-label="ناوبری اصلی">
