@@ -65,3 +65,9 @@ pnpm-debug.log*
 
 # evidence logs are part of the QA record
 !/docs/evidence/**/*.log
+
+# private product/package material (owner decision 2026-10-07: never published)
+/PRD-source.html
+/PACKAGE_VALIDATION.txt
+/0[1-6]-*.cmd
+/Rulebooks/
