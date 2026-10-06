@@ -1,0 +1,66 @@
+/* Semantic design tokens (docs/DESIGN_SYSTEM.md). Dark is the default product theme.
+   WCAG contrast, measured (see docs/UI_INVENTORY.md): text/bg 16.9, text-2/surface 8.7, text-2/surface-2 7.3,
+   white/action #7C4DEB 5.1 (brand #8B5CF6 is only 4.2 with white, so it is used for borders/focus, not button fills),
+   gold/bg 8.7, danger/surface 6.3, success/surface 8.0. Light theme: all text pairs >= 4.96. */
+:root {
+  color-scheme: dark;
+  --bg: #101522;
+  --surface: #1b2233;
+  --surface-2: #252f44;
+  --surface-raised: #2c3850;
+  --line: #34405a;
+  --text: #f4f6fc;
+  --text-2: #b6c0d4;
+  --brand: #8b5cf6;
+  --action: #7c4deb;
+  --action-hover: #6d3fe0;
+  --on-action: #ffffff;
+  --gold: #d6ad60;
+  --success: #4ccf8f;
+  --warning: #f2b84b;
+  --danger: #ff7a7a;
+  --focus: #b79bff;
+  --table-felt: #14372f;
+
+  --font: 'Vazirmatn', 'Vazir', Tahoma, 'Segoe UI', sans-serif;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.625rem;
+  --fs-2xl: 2.25rem;
+  --lh: 1.75;
+
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px;
+  --touch: 44px;
+  --shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+  --dur-fast: 120ms; --dur: 180ms; --dur-slow: 200ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --nav-w: 248px;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f4f9;
+  --surface: #ffffff;
+  --surface-2: #e9ecf4;
+  --surface-raised: #ffffff;
+  --line: #cfd5e3;
+  --text: #141a2a;
+  --text-2: #4a5570;
+  --action: #6a3fd6;
+  --action-hover: #5a32c0;
+  --gold: #8a6420;
+  --success: #17804f;
+  --warning: #8a5a00;
+  --danger: #c0303a;
+  --focus: #6a3fd6;
+  --table-felt: #d6eadf;
+  --shadow: 0 6px 18px rgb(20 26 42 / 0.10);
+}
+
+:root[data-motion='reduce'] { --dur-fast: 0ms; --dur: 0ms; --dur-slow: 0ms; }
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) { --dur-fast: 0ms; --dur: 0ms; --dur-slow: 0ms; }
+}

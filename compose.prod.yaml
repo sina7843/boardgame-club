@@ -1,0 +1,128 @@
+# Production-shaped stack. All secrets come from the deployment environment (Coolify secret store,
+# systemd EnvironmentFile outside the repo, CI secrets) — never from a committed file.
+#   docker compose -f compose.prod.yaml build
+#   docker compose -f compose.prod.yaml up -d
+# PostgreSQL has no published port and sits on an internal-only network.
+# NOTE: NODE_ENV=production refuses to start while OTP_PROVIDER has only the development fixture
+# (real SMS adapter is an open release blocker) — this is intentional fail-closed behaviour.
+name: boardgame
+
+x-hardening: &hardening
+  read_only: true
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  tmpfs: ["/tmp:size=16m"]
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+x-server-env: &server-env
+  NODE_ENV: ${NODE_ENV:-production}
+  DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must come from the secret store}
+  WEB_ORIGINS: ${WEB_ORIGINS:?set WEB_ORIGINS (https origin of the site)}
+  PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-}
+  PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-none}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+services:
+  postgres:
+    build: { context: docker/postgres }
+    image: ${IMAGE_PREFIX:-boardgame}-postgres:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    # Continuous encrypted WAL archive (PITR). archive_timeout bounds RPO while traffic is low.
+    command: ["postgres", "-c", "wal_level=replica", "-c", "archive_mode=on",
+              "-c", "archive_command=archive-wal.sh %p %f", "-c", "archive_timeout=${ARCHIVE_TIMEOUT:-60}"]
+    secrets: [backup_recipient]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must come from the secret store}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      # Must be replicated off-host (object storage / second site) — see docs/OPERATIONS.md#backups.
+      - pgarchive:/archive
+    networks: [backend]
+    shm_size: 256m
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: { context: ., dockerfile: docker/Dockerfile, target: migrate }
+    image: ${IMAGE_PREFIX:-boardgame}-migrate:${IMAGE_TAG:-local}
+    <<: *hardening
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+    networks: [backend]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    build: { context: ., dockerfile: docker/Dockerfile, target: api }
+    image: ${IMAGE_PREFIX:-boardgame}-api:${IMAGE_TAG:-local}
+    <<: *hardening
+    environment:
+      <<: *server-env
+      OTP_HASH_SECRET: ${OTP_HASH_SECRET:?OTP_HASH_SECRET must come from the secret store}
+      OTP_PROVIDER: ${OTP_PROVIDER:?set OTP_PROVIDER}
+      OTP_FIXTURE_CODE: ${OTP_FIXTURE_CODE:-}
+      OTP_REQUESTS_PER_IP_PER_10_MIN: ${OTP_REQUESTS_PER_IP_PER_10_MIN:-10}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      TURN_TABLE_LIMIT: ${TURN_TABLE_LIMIT:-10}
+      TURN_TABLE_LIMIT_PREMIUM: ${TURN_TABLE_LIMIT_PREMIUM:-30}
+    networks: [backend, edge]
+    stop_grace_period: 20s
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: { context: ., dockerfile: docker/Dockerfile, target: worker }
+    image: ${IMAGE_PREFIX:-boardgame}-worker:${IMAGE_TAG:-local}
+    <<: *hardening
+    environment:
+      <<: *server-env
+      WORKER_INTERVAL_SECONDS: ${WORKER_INTERVAL_SECONDS:-60}
+    # edge = outbound access for payment-gateway reconciliation.
+    networks: [backend, edge]
+    stop_grace_period: 20s
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  web:
+    build: { context: ., dockerfile: docker/Dockerfile, target: web }
+    image: ${IMAGE_PREFIX:-boardgame}-web:${IMAGE_TAG:-local}
+    <<: *hardening
+    cap_add: [NET_BIND_SERVICE]
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:8080}
+      API_UPSTREAM: api:3000
+    ports:
+      - "${HTTP_BIND:-127.0.0.1:8080}:8080"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+    depends_on:
+      api: { condition: service_healthy }
+
+networks:
+  backend:
+    internal: true
+  edge: {}
+
+secrets:
+  # age PUBLIC key (recipient). The private identity never lives on this host.
+  backup_recipient:
+    file: ${BACKUP_RECIPIENT_FILE:?path to the age recipient (public key) file}
+
+volumes:
+  pgdata:
+  pgarchive:
+  caddy_data:
+  caddy_config:

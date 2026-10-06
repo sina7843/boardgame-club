@@ -1,0 +1,12 @@
+.lt { display: grid; gap: var(--sp-4); justify-items: center; }
+.lt__board { display: grid; gap: 8px; padding: 12px; border-radius: var(--r-lg); background: var(--table-felt); inline-size: min(100%, 360px); }
+.lt__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.lt__cell { inline-size: 100%; aspect-ratio: 1; border-radius: var(--r-md); border: 2px solid color-mix(in srgb, var(--text) 18%, transparent);
+  background: color-mix(in srgb, var(--bg) 55%, var(--table-felt)); color: var(--text); font: inherit; font-size: clamp(2rem, 9vw, 3.25rem); font-weight: 800; cursor: pointer; }
+.lt__cell[aria-disabled='true'] { cursor: default; }
+.lt__cell:not([aria-disabled='true']):hover { border-color: var(--brand); }
+.lt__cell--selected { border-color: var(--brand); box-shadow: inset 0 0 0 3px var(--brand); }
+.lt__cell--hint { border-style: dashed; border-color: var(--gold); }
+.lt__cell--win { background: color-mix(in srgb, var(--gold) 35%, var(--table-felt)); border-color: var(--gold); }
+.lt__x { color: var(--text); }
+.lt__o { color: var(--gold); }

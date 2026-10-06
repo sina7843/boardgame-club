@@ -1,0 +1,58 @@
+{
+ "host": {
+  "cpus": 16,
+  "model": "12th Gen Intel(R) Core(TM) i7-12650H",
+  "ramGb": 15.6
+ },
+ "profile": {
+  "base": "http://127.0.0.1:18080",
+  "lineThreeTables": 100,
+  "sealedBidsTables": 66,
+  "players": 398,
+  "durationS": 108.3,
+  "thinkMs": 1500,
+  "reconnectPct": 2,
+  "duplicatePct": 3,
+  "workerRestart": false
+ },
+ "results": {
+  "commands": 9458,
+  "accepted": 8410,
+  "acceptedPerSec": 77.7,
+  "gamesFinished": 857,
+  "gamesStalled": 0,
+  "reconnects": 172,
+  "peakSocketConnections": 398,
+  "outcomes": {
+   "accepted": 8410,
+   "STALE_REVISION": 785,
+   "duplicate-same-receipt": 263
+  },
+  "unexpectedErrors": 0,
+  "errorRatePct": 0,
+  "sampleErrors": [],
+  "clientRoundTripMs": {
+   "p50": 299.4,
+   "p95": 586.5,
+   "p99": 782.2,
+   "max": 974.6
+  },
+  "serverCommandMs": {
+   "mean": 124.3,
+   "shareUnder50ms": 11.3,
+   "shareUnder250ms": 96
+  },
+  "hiddenInfo": {
+   "checks": 18939,
+   "violations": 0
+  },
+  "afterRun": {
+   "outboxBacklog": 4,
+   "deadlinesOverdue": 0,
+   "moduleFailures": 0
+  }
+ },
+ "log": [
+  "logged in 398 users"
+ ]
+}

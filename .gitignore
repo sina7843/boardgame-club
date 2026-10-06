@@ -49,49 +49,19 @@ pnpm-debug.log*
 /runner.sh
 /starter.config.json
 
-# process documentation (docs/operations/ is deliberately kept: the operator
-# needs the deployment, backup and runbook procedures on the server)
+# packaging / source-input documents (kept out of the product repository)
 /CHATGPT_GENERATOR_INSTRUCTIONS.md
 /GENERATION_SUMMARY.md
-/PROJECT_STATUS.md
-/IMPLEMENTATION_STATUS.md
 /IMPLEMENTATION_DECISIONS.md
-/DECISIONS.md
 /ARCHITECTURE_BASELINE.md
-/REQUIREMENTS_TRACEABILITY.md
 /SOURCE_DISCOVERY.md
 /Requirements.md
 /README_START_HERE_FA.md
-/README.md
 /CLAUDE.md
 /VERSION.txt
-/docs/architecture/
-/docs/discovery/
-/docs/quality/
 
-# tests and test-only fixtures
-/apps/api/test/
-/apps/api/vitest.config.ts
-/apps/api/vitest.e2e.config.ts
-/apps/api/tsconfig.test.json
-/apps/api/src/excel/testing/
-**/*.spec.ts
-**/*.test.ts
-**/*.test.tsx
-/apps/web/src/test/
-/e2e/
-/playwright.config.ts
+# Tracked on purpose (owner decision 2026-10-07): tests, e2e, lint/editor config and the status,
+# decision and traceability documents, so a fresh clone can lint, test and audit the release.
 
-# lint / format / editor config. Git plumbing (.gitignore, .gitattributes,
-# .github/) stays tracked.
-/eslint.config.mjs
-/.prettierrc.json
-/.prettierignore
-/.editorconfig
-
-# dev-only scripts and stacks
-/compose.dev.yaml
-/apps/api/src/scripts/verify-projection.ts
-/apps/api/src/scripts/verify-reference-inputs.ts
-/docker/make-self-signed-cert.sh
-/docker/rehearse-restore.sh
+# evidence logs are part of the QA record
+!/docs/evidence/**/*.log

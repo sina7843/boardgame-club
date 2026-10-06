@@ -1,0 +1,2 @@
+ALTER TABLE "matchmaking_tickets" DROP CONSTRAINT "matchmaking_status_chk";--> statement-breakpoint
+ALTER TABLE "matchmaking_tickets" ADD CONSTRAINT "matchmaking_status_chk" CHECK ("matchmaking_tickets"."status" in ('queued', 'matched', 'started', 'cancelled', 'expired'));

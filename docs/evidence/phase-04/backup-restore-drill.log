@@ -1,0 +1,27 @@
+[08:30:46] 1. encrypted base backup
+NOTICE:  all required WAL segments have been archived
+[08:30:49]    /archive/base/20261006T083047Z.tar.zst.age in 2.3s; header: age-encryption.org/v1
+[08:30:49] 2. post-backup gameplay (40 s load)
+[08:31:34]    T1=2026-10-06 08:31:34.224847+00
+[08:31:34] 3. idle live tables (120 s turns, nobody moves → deadlines fall due DURING the outage); markers every 2 s; SIGKILL
+NOTICE:  schema "drill" already exists, skipping
+NOTICE:  relation "marker" already exists, skipping
+[08:31:46]    idle tables active=6
+[08:33:02]    killed; last marker written 2026-10-06 08:32:59.432471+00
+[08:33:02] 4. restore into a NEW volume from base backup + WAL archive (archive mounted read-only)
+[08:33:05]    database promoted after 3.1s
+[08:33:05] 5. compare data final at T1
+[08:33:05]    fingerprint IDENTICAL: {"receipts" : "149857:f9b70720f9cd4e8e0517eadbd052490e", "finishedTables" : "11334:5b148d1250ef0763e105281e30b4974c", "results" : "11334:55cfe3f1d3173f0d637d60f648e50894", "rewards" : "61722:4a422cc15184bd98aced840777d0b238"}
+[08:33:05]    last marker restored 2026-10-06 08:32:29.905364+00 (written 2026-10-06 08:32:59.432471+00)
+[08:33:05] 6. switch api + worker to the restored database
+[08:33:21]    API ready on restored data; RTO (kill → serving) 19.5s
+[08:33:21] 7. recovery behaviour
+[08:33:21]    idle tables restored active: 6 (were 6); waiting for their deadlines
+[08:33:36]    idle tables finished by the resumed worker: 6
+[08:33:37]    overdue deadlines: 0; outbox backlog: 6
+[08:33:37]    duplicate reward source keys: 0
+[08:33:37]    tables whose pinned version is missing: 0
+"accepted":588,"accepted":588,"unexpectedErrors":0,"violations":0
+RESULT rpo_seconds=32.1 rto_db_seconds=3.1 rto_app_seconds=19.5
+[08:33:55] 8. return the smoke stack to its original database (drill volume kept for inspection)
+[08:33:56] done

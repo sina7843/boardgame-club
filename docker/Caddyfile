@@ -1,0 +1,53 @@
+# SITE_ADDRESS:
+#   ":8080"            plain HTTP behind another TLS proxy (Coolify/Traefik, load balancer) — default
+#   "play.example.ir"  Caddy terminates HTTPS itself (publish 80 and 443, persist /data)
+# API_UPSTREAM: internal address of the API container.
+{
+	admin off
+	servers {
+		# Only private-network proxies may supply X-Forwarded-For; public clients cannot spoof it.
+		trusted_proxies static private_ranges
+	}
+}
+
+:8081 {
+	respond /healthz "ok" 200
+}
+
+{$SITE_ADDRESS::8080} {
+	encode zstd gzip
+
+	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+	}
+
+	# Metrics are scraped on the internal network (api:3000), never through the public site.
+	handle /api/metrics* {
+		respond 404
+	}
+
+	# REST + Socket.IO (WebSocket upgrade is proxied automatically). Generous read timeout for long-lived sockets.
+	handle /api/* {
+		reverse_proxy {$API_UPSTREAM:api:3000} {
+			transport http {
+				read_timeout 0
+			}
+		}
+	}
+
+	handle {
+		root * /srv
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@shell path / /index.html
+		header @shell Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
