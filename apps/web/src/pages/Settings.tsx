@@ -71,7 +71,7 @@ export function Settings() {
         <section className="panel stack" aria-labelledby="display-h">
           <h2 id="display-h" className="section-title">نمایش و دسترس‌پذیری</h2>
           <Segmented legend="پوسته" name="theme" value={prefs.theme} onChange={(theme) => update({ theme })}
-            options={[{ value: 'dark', label: 'تیره' }, { value: 'light', label: 'روشن' }, { value: 'system', label: 'مطابق دستگاه' }]} />
+            options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'light', label: 'روشن' }, { value: 'dark', label: 'تیره' }]} />
           <Segmented legend="حرکت و انیمیشن" name="motion" value={prefs.motion} onChange={(motion) => update({ motion })}
             options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'reduce', label: 'کاهش‌یافته' }, { value: 'full', label: 'کامل' }]} />
           <Switch label="بی‌صدا" hint="صداهای بازی از مرحله بعدی توسعه پخش می‌شوند و این تنظیم را رعایت می‌کنند."

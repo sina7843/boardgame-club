@@ -152,7 +152,7 @@ export function MissionsAdmin() {
       <p className="muted" style={{ margin: 0 }}>تعریف‌ها نسخه‌دارند؛ تغییر قاعده با نسخه تازه منتشر می‌شود و پاداش‌های قبلی دست نمی‌خورند.</p>
       {missions.data.items.map((m) => (
         <div key={m.id} className="row">
-          <span style={{ flex: 1 }}><strong>{m.titleFa}</strong> <span className="muted">v{faNum(m.ruleVersion)} — {m.descriptionFa}</span></span>
+          <span style={{ flex: 1 }}><strong>{m.titleFa}</strong> <span className="muted">v{faNum(m.ruleVersion)}: {m.descriptionFa}</span></span>
           <Badge tone={m.active ? 'success' : undefined}>{m.active ? 'فعال' : 'غیرفعال'}</Badge>
           <Button size="sm" variant="ghost" onClick={async () => { if (await call(`/admin/missions/${m.id}`, 'PATCH', { active: !m.active, reason: 'تغییر از پنل مدیریت' }, 'ذخیره شد.')) missions.reload(); }}>
             {m.active ? 'غیرفعال‌سازی' : 'فعال‌سازی'}

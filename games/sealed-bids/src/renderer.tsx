@@ -56,7 +56,7 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
               <tr key={s}>
                 <th scope="row" style={{ fontWeight: s === mySeat ? 800 : 600 }}><bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}</th>
                 <td className="num">{fa(view.scores[s] ?? 0)}</td>
-                <td>{view.outcome ? '—' : view.resigned[s] ? 'انصراف (ثبت خودکار)' : view.submitted[s] ? '✓ مهر شد' : '… در انتظار'}</td>
+                <td>{view.outcome ? '-' : view.resigned[s] ? 'انصراف (ثبت خودکار)' : view.submitted[s] ? '✓ مهر شد' : '… در انتظار'}</td>
               </tr>
             ))}
           </tbody>
@@ -88,7 +88,7 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
       {view.myHand && !view.outcome && (
         <ActionBar label="دست شما">
           {view.myBid !== null ? (
-            <span>پیشنهاد مهرشده شما: <strong className="num">{fa(view.myBid)}</strong> — تا پایان دور قابل تغییر نیست.</span>
+            <span>پیشنهاد مهرشده شما: <strong className="num">{fa(view.myBid)}</strong>؛ تا پایان دور قابل تغییر نیست.</span>
           ) : (
             <>
               <Hand label="ژتون‌های شما">

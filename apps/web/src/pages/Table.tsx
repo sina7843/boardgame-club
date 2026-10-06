@@ -67,7 +67,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
           <h2 id="seats-h" className="section-title">بازیکنان ({faNum(t.seats.length)} از {faNum(t.capacity)})</h2>
           <div className="seats">
             {t.seats.map((s) => (
-              <PlayerSeat key={s.seat} name={s.user?.displayName ?? '—'} avatarKey={s.user?.avatarKey ?? 'meeple'} me={s.seat === t.mySeat}
+              <PlayerSeat key={s.seat} name={s.user?.displayName ?? '-'} avatarKey={s.user?.avatarKey ?? 'meeple'} me={s.seat === t.mySeat}
                 label={s.ready ? 'آماده' : 'هنوز آماده نیست'} done={s.ready} />
             ))}
             {Array.from({ length: empty }, (_, i) => <div key={i} className="seat seat--empty">جایگاه خالی</div>)}
@@ -125,7 +125,7 @@ function RewardsSummary({ tableId, isTutorial }: { tableId: string; isTutorial: 
   return (
     <div className="stack" style={{ gap: 'var(--sp-1)' }} aria-label="پاداش این بازی">
       {r.data.rating && <p style={{ margin: 0 }}>امتیاز رتبه‌دار: <strong className="num">{faNum(r.data.rating.before)} → {faNum(r.data.rating.after)}</strong>{r.data.rating.provisional ? ' (موقت)' : ''}</p>}
-      {r.data.rewards.map((x, i) => <p key={i} style={{ margin: 0 }}>{x.amount > 0 ? `+${faNum(x.amount)} XP — ` : ''}{x.reason}</p>)}
+      {r.data.rewards.map((x, i) => <p key={i} style={{ margin: 0 }}>{x.amount > 0 ? `+${faNum(x.amount)} XP: ` : ''}{x.reason}</p>)}
       <Link to="/progress">{isTutorial ? 'پیشرفت من' : 'جزئیات پیشرفت و مأموریت‌ها'}</Link>
     </div>
   );
@@ -144,7 +144,7 @@ function ResultPanel({ snap }: { snap: TableSnapshot }) {
       {snap.game?.tutorial && <p style={{ margin: 0 }}>{snap.game.tutorial.instructionFa}</p>}
       <ol className="placements">
         {[...r.placements].sort((a, b) => a.place - b.place).map((p) => (
-          <li key={p.seat}><span className="num">{faNum(p.place)}.</span> <bdi>{name(p.seat)}</bdi>{p.seat === t.mySeat ? ' (شما)' : ''}{p.score !== undefined ? ` — ${faNum(p.score)} امتیاز` : ''}</li>
+          <li key={p.seat}><span className="num">{faNum(p.place)}.</span> <bdi>{name(p.seat)}</bdi>{p.seat === t.mySeat ? ' (شما)' : ''}{p.score !== undefined ? `، ${faNum(p.score)} امتیاز` : ''}</li>
         ))}
       </ol>
       {t.mySeat !== null && <RewardsSummary tableId={t.id} isTutorial={t.isTutorial} />}
@@ -230,7 +230,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         {g.tutorial && !finished && (
           <section className="panel tutorial" aria-labelledby="tut-h">
             <div className="row" style={{ justifyContent: 'space-between' }}>
-              <h2 id="tut-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}><Icon name="book" />آموزش — مرحله {faNum(Math.min(g.tutorial.step + 1, g.tutorial.total))} از {faNum(g.tutorial.total)}</h2>
+              <h2 id="tut-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}><Icon name="book" />آموزش: مرحله {faNum(Math.min(g.tutorial.step + 1, g.tutorial.total))} از {faNum(g.tutorial.total)}</h2>
               <div className="row">
                 <Button size="sm" variant="ghost" disabled={tutorialBusy} onClick={() => tutorial('start')}>از اول</Button>
                 <Button size="sm" variant="ghost" disabled={tutorialBusy} onClick={() => tutorial('skip')}>رد کردن آموزش</Button>

@@ -192,3 +192,18 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Tutorial uses a fixed teaching deal through the new `TutorialScript.options` (never offered to hosts/admins).
 - Card faces are original vector designs (no bitmap assets); every face carries the colour's Persian initial and a
   spoken label so colour is never the only signal.
+
+## Visual redesign "board-game café" (2026-10-07, owner request)
+
+- Owner choices: café mood, theme follows the device, cobalt accent, Estedad font.
+- Materials as the system: walnut wood for navigation (CSS-only grain), green felt for game tables and the "start a game"
+  panel, card stock for panels. One accent (cobalt); the old purple palette was removed everywhere.
+- Light "café by day" and dark "café at night"; with no saved choice the theme follows `prefers-color-scheme` live
+  (no data-theme attribute), a saved choice overrides it. Default preference changed from dark to system.
+- Shape rule: interactive controls are pills, inputs 12px, panels and cards 16px. Game cards read as game-box lids.
+- Contrast is measured by `apps/web/scripts/contrast.mjs` (fails below AA) and checked in the browser with axe in both
+  themes (`e2e/release.spec.ts` light, `e2e/theme.spec.ts` dark).
+- Estedad (`@fontsource-variable/estedad` 5.3.0, OFL) is self-hosted; Vazirmatn removed.
+- Visible em/en dashes replaced with Persian punctuation per the design brief.
+- `docs/DESIGN_SYSTEM.md` is a protected source document and was not edited; this entry and the tokens file are
+  the current reference.

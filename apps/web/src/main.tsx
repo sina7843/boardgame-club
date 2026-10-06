@@ -1,6 +1,4 @@
-import '@fontsource/vazirmatn/400.css';
-import '@fontsource/vazirmatn/600.css';
-import '@fontsource/vazirmatn/800.css';
+import '@fontsource-variable/estedad/index.css';
 import '@bg/ui/tokens.css';
 import '@bg/ui/components.css';
 import './styles.css';

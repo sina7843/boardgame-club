@@ -16,7 +16,7 @@
     "@bg/game-sealed-bids": "workspace:*",
     "@bg/game-uno": "workspace:*",
     "@bg/ui": "workspace:*",
-    "@fontsource/vazirmatn": "5.3.0",
+    "@fontsource-variable/estedad": "5.3.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-router": "8.4.0",

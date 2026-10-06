@@ -16,7 +16,7 @@ export default function UnoCover({ title }: { title: string }) {
         <g key={c.x} transform={`rotate(${c.r} ${c.x + 26} 170)`}>
           <rect x={c.x} y="42" width="52" height="78" rx="8" fill={c.fill} stroke="#fff" strokeWidth="4" />
           <ellipse cx={c.x + 26} cy="81" rx="18" ry="30" fill="#fff" transform={`rotate(-28 ${c.x + 26} 81)`} />
-          <text x={c.x + 26} y="90" textAnchor="middle" fontSize="24" fontWeight="900" fill={c.dark ? '#8a6a00' : c.fill} fontFamily="Vazirmatn, Tahoma, sans-serif">{c.label}</text>
+          <text x={c.x + 26} y="90" textAnchor="middle" fontSize="24" fontWeight="900" fill={c.dark ? '#8a6a00' : c.fill} fontFamily="Estedad Variable, Vazirmatn, Tahoma, sans-serif">{c.label}</text>
         </g>
       ))}
       <g transform="rotate(-10 262 70)">

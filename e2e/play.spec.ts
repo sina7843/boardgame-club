@@ -97,7 +97,7 @@ test('interactive tutorial: guided moves against the scripted opponent', async (
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/line-three');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش — مرحله ۱ از ۳/)).toBeVisible();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
   await p.screenshot({ path: shot('tutorial-step1', info.project.name), fullPage: true });
   for (const cell of [4, 2, 6]) {
     await p.locator('.lt__cell').nth(cell).click();

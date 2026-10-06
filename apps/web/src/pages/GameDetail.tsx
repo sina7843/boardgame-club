@@ -76,7 +76,7 @@ export function GameDetailPage() {
             <div><dt>تعداد نفر</dt><dd>{range(g.minPlayers, g.maxPlayers, 'نفر')}</dd></div>
             <div><dt>زمان</dt><dd>{range(g.minMinutes, g.maxMinutes, 'دقیقه')}</dd></div>
             <div><dt>دشواری</dt><dd>{DIFFICULTY_FA[g.difficulty]}</dd></div>
-            <div><dt>دسترسی</dt><dd>{ACCESS_FA[g.access]}{g.access === 'premium' ? ' — نیازمند اشتراک' : ' — بدون اشتراک'}</dd></div>
+            <div><dt>دسترسی</dt><dd>{ACCESS_FA[g.access]}{g.access === 'premium' ? '، نیازمند اشتراک' : '، بدون اشتراک'}</dd></div>
             <div><dt>حالت‌ها</dt><dd>{g.paces.map((p) => PACE_FA[p]).join('، ')}</dd></div>
             <div><dt>نوع رقابت</dt><dd>{g.competitions.map((c) => COMPETITION_FA[c]).join('، ')}</dd></div>
           </dl>

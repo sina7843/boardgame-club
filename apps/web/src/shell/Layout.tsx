@@ -46,7 +46,7 @@ export function Layout() {
   return (
     <div className="shell">
       <a className="skip-link" href="#main">پرش به محتوای اصلی</a>
-      <aside className="sidenav" aria-label="ناوبری اصلی">
+      <aside className="sidenav wood" aria-label="ناوبری اصلی">
         <NavLink to="/" className="brand"><Icon name="meeple" size={28} /><span>{APP_NAME}</span></NavLink>
         <nav>
           <ul>
@@ -70,7 +70,7 @@ export function Layout() {
         </div>
       </aside>
 
-      <header className="topbar">
+      <header className="topbar wood">
         <NavLink to="/" className="brand"><Icon name="meeple" size={24} /><span>{APP_NAME}</span></NavLink>
         {me ? <NavLink to="/settings" aria-label="حساب و تنظیمات"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={36} /></NavLink>
           : status !== 'loading' && <NavLink className="btn btn--secondary btn--sm" to={`/login?next=${encodeURIComponent(pathname)}`}>ورود</NavLink>}

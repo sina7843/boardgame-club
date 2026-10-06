@@ -12,7 +12,7 @@ type Hint = { type: string; card?: unknown; seat?: unknown; needsColor?: unknown
 function describe(e: LogEntry, name: (s: number) => string): string {
   switch (e.t) {
     case 'start': return `دست ${fa(e.hand)} شروع شد؛ کارت رو: ${cardLabel(e.top)}.`;
-    case 'play': return `${name(e.seat)} ${cardLabel(e.card)} گذاشت${e.card.color ? '' : ` و رنگ ${COLOR_FA[e.color]} را انتخاب کرد`}${e.uno ? ' — «اونو!»' : ''}.`;
+    case 'play': return `${name(e.seat)} ${cardLabel(e.card)} گذاشت${e.card.color ? '' : ` و رنگ ${COLOR_FA[e.color]} را انتخاب کرد`}${e.uno ? ' و گفت «اونو!»' : ''}.`;
     case 'draw': {
       const why = { turn: '', d2: ' (+۲)', wd4: ' (+۴)', start: ' (کارت شروع)', penalty: ' (جریمه)', challenge: ' (نتیجه اعتراض)' }[e.reason];
       return e.n === 0 ? `${name(e.seat)} کارتی برای کشیدن نبود.` : `${name(e.seat)} ${fa(e.n)} کارت کشید${why}.`;
@@ -21,7 +21,7 @@ function describe(e: LogEntry, name: (s: number) => string): string {
     case 'skip': return `نوبت ${name(e.seat)} سوخت.`;
     case 'uno': return `${name(e.seat)} گفت «اونو!»`;
     case 'caught': return `${name(e.by)} ${name(e.seat)} را گرفت؛ «اونو» نگفته بود و ${fa(e.n)} کارت جریمه شد.`;
-    case 'challenge': return `${name(e.by)} به +۴ ${name(e.seat)} اعتراض کرد — ${e.guilty ? 'حق با معترض بود' : 'بازی درست بود'}.`;
+    case 'challenge': return `${name(e.by)} به +۴ ${name(e.seat)} اعتراض کرد: ${e.guilty ? 'حق با معترض بود' : 'بازی درست بود'}.`;
     case 'color': return `${name(e.seat)} رنگ ${COLOR_FA[e.color]} را انتخاب کرد.`;
     case 'timeout': return `زمان ${name(e.seat)} تمام شد.`;
     case 'left': return `${name(e.seat)} ${e.reason === 'resign' ? 'انصراف داد' : 'به‌دلیل غیبت کنار گذاشته شد'}.`;
@@ -77,7 +77,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   else if (myTurn && view.phase === 'chooseColor') status = { tone: 'mine', text: 'کارت شروع «رنگی» است؛ رنگ را انتخاب کنید' };
   else if (myTurn && view.phase === 'drawn') status = { tone: 'mine', text: 'کارت کشیده‌شده قابل بازی است' };
   else if (myTurn) status = { tone: 'mine', text: playableIds.size ? 'نوبت شماست: کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید' : 'کارت مناسبی ندارید؛ یک کارت بکشید' };
-  else status = { tone: 'wait', text: `نوبت ${seatName(view.current)}${view.phase === 'wd4' ? ' — تصمیم درباره +۴' : ''}` };
+  else status = { tone: 'wait', text: `نوبت ${seatName(view.current)}${view.phase === 'wd4' ? '، تصمیم درباره +۴' : ''}` };
 
   return (
     <div className="uno">

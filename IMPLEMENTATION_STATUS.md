@@ -1,5 +1,12 @@
 # Implementation status
 
+## Visual redesign "board-game café" (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New tokens (light/dark following the device), Estedad, walnut navigation, felt and card-stock materials, pill controls.
+Checks run: contrast script 0 failures (42 pairs, both themes); axe 0 serious/critical in light (21 pages × 4 widths) and
+dark (6 pages × 2 widths); lint, typecheck, build clean; unit/integration 165 passed; E2E 52 passed, 10 skipped by design.
+Screenshots: `docs/evidence/redesign/` (dark) and `docs/evidence/phase-04/screenshots/` (light).
+
 ## UNO (2026-10-07): DONE locally — real devices UNVERIFIED
 
 New module `games/uno` (rules, original card faces, renderer, cover, tutorial) registered in engine, catalog and web.

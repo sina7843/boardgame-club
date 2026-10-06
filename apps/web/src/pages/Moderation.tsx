@@ -45,7 +45,7 @@ function ReportReview({ id, onDone }: { id: string; onDone: () => void }) {
             </li>))}
         </ol>
       )}
-      {x.evidence?.game && <p style={{ margin: 0 }}>میز {x.evidence.game} — بازیکنان: {x.evidence.players?.map((p) => p.name).join('، ')}</p>}
+      {x.evidence?.game && <p style={{ margin: 0 }}>میز {x.evidence.game}؛ بازیکنان: {x.evidence.players?.map((p) => p.name).join('، ')}</p>}
       {x.evidence?.displayName !== undefined && <p style={{ margin: 0 }}>نام نمایشی فعلی: <bdi>{x.evidence.displayName}</bdi></p>}
       <p className="muted" style={{ margin: 0 }}>
         نشانه‌های ۳۰ روز اخیر: {Object.keys(x.signals).length ? Object.entries(x.signals).map(([k, n]) => `${SIGNAL_FA[k] ?? k} ${faNum(n)}`).join('، ') : 'ندارد'} (فقط برای اطلاع؛ جریمه خودکار ندارد)
@@ -77,7 +77,7 @@ function Queue() {
       {q.data && (q.data.items.length === 0 ? <StateBlock kind="empty" title="گزارشی در این وضعیت نیست" /> : (
         <DataTable caption="گزارش‌ها" rowKey={(r) => r.id} rows={q.data.items} columns={[
           { key: 'type', title: 'نوع', render: (r) => TARGET_FA[r.targetType] },
-          { key: 'subject', title: 'موضوع', render: (r) => r.subject ? <bdi>{r.subject.displayName}</bdi> : '—' },
+          { key: 'subject', title: 'موضوع', render: (r) => r.subject ? <bdi>{r.subject.displayName}</bdi> : '-' },
           { key: 'reason', title: 'توضیح', render: (r) => r.reason.slice(0, 60) },
           { key: 'date', title: 'تاریخ', render: (r) => jalaliDate(r.createdAt) },
           { key: 'act', title: 'اقدام', render: (r) => <Button size="sm" variant="secondary" onClick={() => setOpen(r.id)}>بررسی</Button> }

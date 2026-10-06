@@ -61,7 +61,7 @@ export function SupportPage() {
                       {!s.active && <Badge>غیرفعال</Badge>}
                     </div>
                     <p style={{ margin: 0 }}>علت: {s.reason}</p>
-                    {s.appeal ? <p className="muted" style={{ margin: 0 }}>{APPEAL_FA[s.appeal.status]}{s.appeal.decisionNote ? ` — ${s.appeal.decisionNote}` : ''}</p>
+                    {s.appeal ? <p className="muted" style={{ margin: 0 }}>{APPEAL_FA[s.appeal.status]}{s.appeal.decisionNote ? `: ${s.appeal.decisionNote}` : ''}</p>
                       : s.active && <AppealForm sanctionId={s.id} onDone={sanctions.reload} />}
                   </li>))}</ul>
               ))}

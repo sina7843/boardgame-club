@@ -8,13 +8,14 @@ export interface Prefs {
 }
 
 const KEY = 'bg.prefs';
-const DEFAULTS: Prefs = { theme: 'dark', motion: 'system', muted: false };
+const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false };
+const THEME_COLOR = { light: '#efeeea', dark: '#15120f' };
 
 export function readPrefs(raw: string | null): Prefs {
   try {
     const p = JSON.parse(raw ?? '{}') as Partial<Prefs>;
     return {
-      theme: p.theme === 'light' || p.theme === 'system' ? p.theme : 'dark',
+      theme: p.theme === 'light' || p.theme === 'dark' ? p.theme : 'system',
       motion: p.motion === 'reduce' || p.motion === 'full' ? p.motion : 'system',
       muted: p.muted === true
     };
@@ -25,11 +26,15 @@ export function readPrefs(raw: string | null): Prefs {
 
 function apply(p: Prefs): void {
   const root = document.documentElement;
-  const light = p.theme === 'light' || (p.theme === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
-  root.dataset.theme = light ? 'light' : 'dark';
+  // "system": no data-theme, so tokens.css follows prefers-color-scheme live without JavaScript.
+  if (p.theme === 'system') delete root.dataset.theme;
+  else root.dataset.theme = p.theme;
   if (p.motion === 'system') delete root.dataset.motion;
   else root.dataset.motion = p.motion;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#f3f4f9' : '#101522');
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+    const scheme = m.getAttribute('media')?.includes('dark') ? 'dark' : 'light';
+    m.setAttribute('content', THEME_COLOR[p.theme === 'system' ? scheme : p.theme]);
+  });
 }
 
 const Ctx = createContext<{ prefs: Prefs; update: (p: Partial<Prefs>) => void } | null>(null);
@@ -41,11 +46,6 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     apply(prefs);
     try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch { /* storage unavailable: keep in memory */ }
-    if (prefs.theme !== 'system') return;
-    const mq = matchMedia('(prefers-color-scheme: light)');
-    const on = () => apply(prefs);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
   }, [prefs]);
   const value = useMemo(() => ({ prefs, update: (p: Partial<Prefs>) => setPrefs((x) => ({ ...x, ...p })) }), [prefs]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

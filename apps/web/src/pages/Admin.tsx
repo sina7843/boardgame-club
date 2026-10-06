@@ -97,7 +97,7 @@ function TutorialToggle({ game, onDone }: { game: GameSummary; onDone: () => voi
       onDone();
     } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
   };
-  return <Button size="sm" variant="ghost" onClick={toggle}>{game.tutorialEnabled ? 'فعال — غیرفعال کن' : 'غیرفعال — فعال کن'}</Button>;
+  return <Button size="sm" variant="ghost" onClick={toggle}>{game.tutorialEnabled ? 'فعال (غیرفعال کن)' : 'غیرفعال (فعال کن)'}</Button>;
 }
 
 interface Version { id: string; rulesVersion: string; status: 'active' | 'retired' | 'disabled'; inRegistry: boolean; publishedAt: string }

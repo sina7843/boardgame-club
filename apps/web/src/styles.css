@@ -1,18 +1,32 @@
 /* App shell: right-side navigation on desktop (inline-start in RTL), bottom navigation under 900px. */
 .shell { min-block-size: 100dvh; display: grid; grid-template-columns: var(--nav-w) minmax(0, 1fr); grid-template-areas: 'nav main'; }
+/* Signature: the navigation is a walnut rail. Grain = two soft repeating gradients over the wood tone (no images).
+   The current page sits on it like a card laid on the table. */
+.wood {
+  background-color: var(--wood);
+  background-image:
+    repeating-linear-gradient(92deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(88deg, rgb(0 0 0 / 0.07) 0 2px, transparent 2px 23px),
+    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 40%, rgb(0 0 0 / 0.12));
+  color: var(--wood-text);
+}
 .sidenav { grid-area: nav; position: sticky; inset-block-start: 0; block-size: 100dvh; display: flex; flex-direction: column; gap: var(--sp-5);
-  padding: var(--sp-5) var(--sp-4); background: var(--surface); border-inline-end: 1px solid var(--line); }
+  padding: var(--sp-5) var(--sp-4); box-shadow: inset -1px 0 0 rgb(0 0 0 / 0.25), 2px 0 18px rgb(0 0 0 / 0.12); }
 .sidenav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); }
-.sidenav__link { display: flex; align-items: center; gap: var(--sp-3); min-block-size: var(--touch); padding-inline: var(--sp-3);
-  border-radius: var(--r-md); color: var(--text-2); text-decoration: none; font-weight: 600; }
-.sidenav__link:hover { background: var(--surface-2); color: var(--text); }
-.sidenav__link.active { background: var(--surface-2); color: var(--text); box-shadow: inset -3px 0 0 var(--brand); }
-:root[dir='ltr'] .sidenav__link.active { box-shadow: inset 3px 0 0 var(--brand); }
+.sidenav__link { display: flex; align-items: center; gap: var(--sp-3); min-block-size: var(--touch); padding-inline: var(--sp-4);
+  border-radius: var(--r-pill); color: var(--wood-text-2); text-decoration: none; font-weight: 600;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.sidenav__link:hover { background: rgb(255 255 255 / 0.08); color: var(--wood-text); }
+.sidenav__link.active { background: var(--surface); color: var(--text); font-weight: 800; box-shadow: 0 2px 0 rgb(0 0 0 / 0.25), 0 8px 16px -8px rgb(0 0 0 / 0.5); transform: rotate(-0.6deg); }
+.sidenav__link.active svg { color: var(--action); }
+.sidenav :focus-visible { outline-color: #f2c46b; }
+.sidenav .btn--ghost { color: var(--wood-text-2); }
+.sidenav .btn--ghost:hover:not(:disabled) { background: rgb(255 255 255 / 0.08); color: var(--wood-text); }
 .sidenav__account { margin-block-start: auto; display: grid; gap: var(--sp-2); }
 .account-chip { display: flex; align-items: center; gap: var(--sp-2); min-inline-size: 0; }
 .account-chip__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-.brand { display: flex; align-items: center; gap: var(--sp-2); font-weight: 800; font-size: var(--fs-lg); text-decoration: none; color: var(--text); }
-.brand svg { color: var(--gold); }
+.brand { display: flex; align-items: center; gap: var(--sp-2); font-weight: 900; font-size: var(--fs-lg); text-decoration: none; color: inherit; }
+.brand svg { color: #f2c46b; }
 
 .topbar { display: none; }
 .main { grid-area: main; padding: var(--sp-6) clamp(var(--sp-4), 4vw, var(--sp-7)); max-inline-size: 1240px; inline-size: 100%; margin-inline: auto; }
@@ -23,14 +37,15 @@
   .shell { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'top' 'main'; grid-template-rows: auto 1fr; }
   .sidenav { display: none; }
   .topbar { grid-area: top; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
-    padding: var(--sp-2) var(--sp-4); background: var(--surface); border-block-end: 1px solid var(--line); position: sticky; inset-block-start: 0; z-index: 10; }
+    padding: var(--sp-2) var(--sp-4); padding-block-start: calc(var(--sp-2) + env(safe-area-inset-top)); position: sticky; inset-block-start: 0; z-index: 10;
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.18); }
   .main { padding: var(--sp-4) var(--sp-4) calc(76px + env(safe-area-inset-bottom)); }
   .bottomnav { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; inset-inline: 0; inset-block-end: 0; z-index: 20;
     background: var(--surface); border-block-start: 1px solid var(--line); padding-block-end: env(safe-area-inset-bottom); }
   .bottomnav__link { display: grid; justify-items: center; gap: 2px; padding-block: var(--sp-2); min-block-size: 60px; text-decoration: none;
     color: var(--text-2); font-size: var(--fs-xs); font-weight: 600; }
-  .bottomnav__link.active { color: var(--text); }
-  .bottomnav__link.active svg { color: var(--brand); }
+  .bottomnav__link.active { color: var(--text); font-weight: 800; }
+  .bottomnav__link.active svg { color: var(--action); }
 }
 
 .skip-link { position: absolute; inset-inline-start: var(--sp-4); inset-block-start: -100px; z-index: 100; padding: var(--sp-2) var(--sp-4);
@@ -44,7 +59,7 @@
 
 /* Page scaffolding */
 .page-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--sp-3); margin-block-end: var(--sp-5); }
-.page-title { font-size: var(--fs-2xl); font-weight: 800; }
+.page-title { font-size: var(--fs-2xl); font-weight: 900; line-height: 1.3; }
 .page-sub { color: var(--text-2); margin: var(--sp-1) 0 0; }
 .section { display: grid; gap: var(--sp-4); margin-block-end: var(--sp-6); }
 .section-title { font-size: var(--fs-lg); font-weight: 800; display: flex; align-items: center; gap: var(--sp-2); }
@@ -56,7 +71,10 @@
 /* Dashboard */
 .dash { display: grid; gap: var(--sp-5); grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
 @media (max-width: 1099px) { .dash { grid-template-columns: minmax(0, 1fr); } }
-.cta-panel { background: linear-gradient(160deg, color-mix(in srgb, var(--action) 22%, var(--surface)) 0%, var(--surface) 70%); }
+/* "Start a game" sits on felt: the one place outside the game table that uses the table material. */
+.cta-panel { background: radial-gradient(120% 100% at 20% 0%, color-mix(in srgb, var(--table-felt) 82%, #fff 6%), var(--table-felt)); color: var(--felt-text); border-color: transparent; }
+.cta-panel .muted, .cta-panel .section-title { color: var(--felt-text); }
+.cta-panel .btn--secondary { background: rgb(255 255 255 / 0.12); color: var(--felt-text); border-color: rgb(255 255 255 / 0.35); }
 
 /* Catalog filters */
 .filters { display: grid; gap: var(--sp-3); grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)); align-items: end; margin-block-end: var(--sp-5); }
@@ -67,9 +85,9 @@
 /* Game detail */
 .detail { display: grid; gap: var(--sp-6); grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr); align-items: start; }
 @media (max-width: 899px) { .detail { grid-template-columns: minmax(0, 1fr); } }
-.detail__cover { border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid var(--line); }
+.detail__cover { border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-block-end: 6px solid var(--wood); box-shadow: var(--shadow-lift); }
 .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); margin: 0; }
-.facts div { background: var(--surface-2); border-radius: var(--r-md); padding: var(--sp-3); }
+.facts div { background: var(--surface-2); border-radius: var(--r-md); padding: var(--sp-3); border: 1px solid var(--line); }
 .facts dt { color: var(--text-2); font-size: var(--fs-sm); }
 .facts dd { margin: 0; font-weight: 700; }
 .rules { list-style: persian; margin: 0; padding-inline-start: var(--sp-5); display: grid; gap: var(--sp-2); }
@@ -106,7 +124,7 @@
 
 /* Game table: board centre, side panel collapses into a drawer on small screens */
 .game { display: grid; gap: var(--sp-5); grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
-.game__board { min-inline-size: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: clamp(var(--sp-3), 3vw, var(--sp-6)); }
+.game__board { min-inline-size: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: clamp(var(--sp-3), 3vw, var(--sp-6)); box-shadow: var(--shadow); }
 .game__status { justify-content: flex-start; }
 .game__drawer-btn { display: none; }
 .conn { display: inline-flex; align-items: center; gap: var(--sp-1); font-size: var(--fs-sm); color: var(--text-2); }
@@ -158,5 +176,5 @@
 /* Progress */
 .progress-grid { display: grid; gap: var(--sp-5); grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); align-items: start; }
 .achievements { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-.ach { display: grid; gap: 2px; padding: var(--sp-3); border-radius: var(--r-md); border: 1px dashed var(--line); opacity: 0.7; }
-.ach--on { border: 1px solid var(--gold); opacity: 1; }
+.ach { display: grid; gap: 2px; padding: var(--sp-3); border-radius: var(--r-md); border: 1px dashed var(--text-2); background: var(--surface-2); }
+.ach--on { border: 1px solid var(--gold); background: var(--surface); box-shadow: var(--shadow); }

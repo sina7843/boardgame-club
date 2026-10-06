@@ -5,7 +5,7 @@ import { readPrefs } from '../src/lib/prefs.tsx';
 describe('display formatting', () => {
   it('renders Persian digits', () => {
     expect(faNum(1405)).toBe('۱٬۴۰۵');
-    expect(range(2, 4, 'نفر')).toBe('۲–۴ نفر');
+    expect(range(2, 4, 'نفر')).toBe('۲-۴ نفر');
     expect(range(2, 2, 'نفر')).toBe('۲ نفر');
   });
   it('shows UTC instants as Jalali dates in Tehran time', () => {
@@ -23,8 +23,8 @@ describe('safeNext', () => {
 
 describe('readPrefs', () => {
   it('falls back to safe defaults on bad input', () => {
-    expect(readPrefs('not json')).toEqual({ theme: 'dark', motion: 'system', muted: false });
+    expect(readPrefs('not json')).toEqual({ theme: 'system', motion: 'system', muted: false });
     expect(readPrefs('{"theme":"light","motion":"reduce","muted":true}')).toEqual({ theme: 'light', motion: 'reduce', muted: true });
-    expect(readPrefs('{"theme":"neon"}').theme).toBe('dark');
+    expect(readPrefs('{"theme":"neon"}').theme).toBe('system');
   });
 });

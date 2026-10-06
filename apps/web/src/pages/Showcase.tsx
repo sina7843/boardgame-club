@@ -13,7 +13,7 @@ const SAMPLE_GAME: GameSummary = {
   minMinutes: 2, maxMinutes: 5, difficulty: 'easy', access: 'free', paces: ['live', 'turn'], competitions: ['friendly'], isTestGame: true, status: 'active', tutorialEnabled: true,
   liveSeconds: [60], turnSeconds: [86400]
 };
-const TOKENS = ['--bg', '--surface', '--surface-2', '--text', '--text-2', '--brand', '--action', '--gold', '--success', '--warning', '--danger', '--focus'];
+const TOKENS = ['--bg', '--surface', '--surface-2', '--text', '--text-2', '--brand', '--action', '--link', '--wood', '--table-felt', '--gold', '--success', '--warning', '--danger', '--focus'];
 
 export function Showcase() {
   usePageTitle('اجزای طراحی');

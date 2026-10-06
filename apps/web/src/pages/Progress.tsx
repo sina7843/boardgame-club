@@ -29,7 +29,7 @@ export function ProgressPage() {
 
         <section className="panel stack" aria-labelledby="skill-h">
           <h2 id="skill-h" className="section-title">مهارت (رتبه‌دار)</h2>
-          {d.season && <p className="muted" style={{ margin: 0 }}>فصل فعال: {d.season.nameFa} — تا {jalaliDate(d.season.endsAt)}</p>}
+          {d.season && <p className="muted" style={{ margin: 0 }}>فصل فعال: {d.season.nameFa}، تا {jalaliDate(d.season.endsAt)}</p>}
           {d.ratings.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز بازی رتبه‌داری نکرده‌اید. از <Link to="/play">حریف‌یابی</Link> «رتبه‌دار» را انتخاب کنید.</p> : (
             <ul className="list">{d.ratings.map((r) => (
               <li key={`${r.gameId}-${r.mode}`} className="list__item list__item--compact">
@@ -53,7 +53,7 @@ export function ProgressPage() {
 
         <section className="panel stack" aria-labelledby="missions-h">
           <h2 id="missions-h" className="section-title">مأموریت‌های این هفته</h2>
-          <p className="muted" style={{ margin: 0 }}>تا {jalaliDate(d.missions.endsAt)} — هیچ مأموریتی برد اجباری ندارد.</p>
+          <p className="muted" style={{ margin: 0 }}>تا {jalaliDate(d.missions.endsAt)}؛ هیچ مأموریتی برد اجباری ندارد.</p>
           {d.missions.items.map((m) => (
             <div key={m.key} className="stack" style={{ gap: 'var(--sp-1)' }}>
               <div className="row"><strong style={{ flex: 1 }}>{m.titleFa}</strong>{m.completed ? <Badge tone="success">کامل (+{faNum(m.xp)} XP)</Badge> : <span className="muted">+{faNum(m.xp)} XP</span>}</div>

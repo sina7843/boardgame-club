@@ -38,7 +38,7 @@ function TicketStatus({ t, onChange }: { t: TicketView; onChange: () => void }) 
     return (
       <section className="panel stack cta-panel" aria-labelledby="m-h">
         <TurnIndicator tone="mine">حریف پیدا شد!</TurnIndicator>
-        <h2 id="m-h" className="section-title">«{t.gameNameFa}» — آمادگی خود را اعلام کنید</h2>
+        <h2 id="m-h" className="section-title">«{t.gameNameFa}»: آمادگی خود را اعلام کنید</h2>
         <p style={{ margin: 0 }}>زمان باقی‌مانده برای پذیرش: <strong className="num" role="timer">{mmss(left)}</strong></p>
         <div className="row">
           <Button onClick={() => navigate(`/tables/${t.matchedTableId}`)}>رفتن به میز و اعلام آمادگی</Button>

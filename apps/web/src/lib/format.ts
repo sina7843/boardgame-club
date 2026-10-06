@@ -8,7 +8,7 @@ export const faNum = (n: number) => n.toLocaleString('fa-IR');
 export const jalaliDate = (iso: string | Date) => jalaliLong.format(typeof iso === 'string' ? new Date(iso) : iso);
 export const jalaliToday = (now = new Date()) => `${weekday.format(now)}، ${jalaliLong.format(now)}`;
 
-export const range = (a: number, b: number, unit: string) => (a === b ? `${faNum(a)} ${unit}` : `${faNum(a)}–${faNum(b)} ${unit}`);
+export const range = (a: number, b: number, unit: string) => (a === b ? `${faNum(a)} ${unit}` : `${faNum(a)}-${faNum(b)} ${unit}`);
 
 export const DIFFICULTY_FA: Record<GameSummary['difficulty'], string> = { easy: 'آسان', medium: 'متوسط', hard: 'دشوار' };
 export const PACE_FA: Record<GameSummary['paces'][number], string> = { live: 'زنده', turn: 'نوبتی' };

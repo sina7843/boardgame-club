@@ -41,7 +41,7 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
   }
   // After the game (never during it): rating change and XP with reasons, computed by the worker.
   await expect(a.getByText(/امتیاز رتبه‌دار: ۱٬?۵۰۰ →/)).toBeVisible({ timeout: 20_000 });
-  await expect(a.getByText(/XP — بازی کامل شد/)).toBeVisible();
+  await expect(a.getByText(/XP: بازی کامل شد/)).toBeVisible();
   await a.screenshot({ path: shot('01-result-rewards', info.project.name), fullPage: true });
 
   await a.goto('/progress');

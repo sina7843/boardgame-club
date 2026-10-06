@@ -57,7 +57,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
                 <div role="gridcell" key={i}>
                   <button type="button" ref={(el) => { cells.current[i] = el; }}
                     className={['lt__cell', win && 'lt__cell--win', selected === i && 'lt__cell--selected', expectedCell === i && !mark && 'lt__cell--hint'].filter(Boolean).join(' ')}
-                    aria-label={`${cellName(i)}: ${mark ?? (preview ? `انتخاب‌شده برای ${preview}` : 'خالی')}${expectedCell === i && !mark ? ' — پیشنهاد آموزش' : ''}`}
+                    aria-label={`${cellName(i)}: ${mark ?? (preview ? `انتخاب‌شده برای ${preview}` : 'خالی')}${expectedCell === i && !mark ? '، پیشنهاد آموزش' : ''}`}
                     aria-disabled={!isLegal}
                     onClick={() => { if (isLegal) setSelected(selected === i ? null : i); }}
                     onDoubleClick={() => { if (isLegal) { setSelected(i); onAction({ type: 'place', cell: i }); setSelected(null); } }}

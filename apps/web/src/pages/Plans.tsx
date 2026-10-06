@@ -41,7 +41,7 @@ export function PlansPage() {
         {me && s && (
           <section className="panel stack" aria-labelledby="mine-h">
             <h2 id="mine-h" className="section-title">وضعیت من</h2>
-            {s.premium ? <p style={{ margin: 0 }}><Badge tone="premium">پریمیوم فعال</Badge> {s.premiumUntil ? `تا ${jalaliDate(s.premiumUntil)}` : ''} — پس از پایان، بازی‌های در جریان قطع نمی‌شوند.</p>
+            {s.premium ? <p style={{ margin: 0 }}><Badge tone="premium">پریمیوم فعال</Badge> {s.premiumUntil ? `تا ${jalaliDate(s.premiumUntil)}` : ''}؛ پس از پایان، بازی‌های در جریان قطع نمی‌شوند.</p>
               : <p className="muted" style={{ margin: 0 }}>اشتراک فعالی ندارید.</p>}
           </section>
         )}
@@ -96,7 +96,7 @@ export function PaymentResultPage() {
   return (
     <div className="stack" style={{ maxInlineSize: 560 }}>
       <h1 className="page-title">نتیجه پرداخت</h1>
-      {d.fixture && <div className="banner banner--warn" role="note">پرداخت آزمایشی توسعه — پول واقعی جابه‌جا نشده است.</div>}
+      {d.fixture && <div className="banner banner--warn" role="note">پرداخت آزمایشی توسعه: پول واقعی جابه‌جا نشده است.</div>}
       <section className="panel stack" aria-live="polite">
         <div className="row"><Badge tone={d.status === 'verified' ? 'success' : d.status === 'failed' ? 'danger' : undefined}>{PAYMENT_STATUS_FA[d.status]}</Badge><span>{d.planTitleFa}</span></div>
         {d.status === 'verified' && <p style={{ margin: 0 }}>پرداخت روی سرور تأیید شد و اشتراک شما فعال است.</p>}

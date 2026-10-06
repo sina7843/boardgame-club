@@ -65,7 +65,7 @@ export function RankingPage() {
       {board.data && (
         <section className="stack" aria-label="جدول رتبه‌بندی">
           <p className="muted" style={{ margin: 0 }}>
-            {board.data.season ? `${board.data.season.nameFa}${board.data.season.status === 'closed' ? ' — نتایج نهایی و ثابت' : ''}. ` : ''}
+            {board.data.season ? `${board.data.season.nameFa}${board.data.season.status === 'closed' ? ' (نتایج نهایی و ثابت)' : ''}. ` : ''}
             فقط بازیکنانی که حداقل {faNum(board.data.rules.minGames)} بازی رتبه‌دار دارند و رتبه‌شان قطعیت کافی دارد نمایش داده می‌شوند؛ تعداد بازی به‌تنهایی رتبه را بالا نمی‌برد.
           </p>
           {board.data.items.length === 0 ? <StateBlock kind="empty" title="هنوز کسی واجد شرایط جدول نیست" /> : (
@@ -73,7 +73,7 @@ export function RankingPage() {
               { key: 'rank', title: 'رتبه', render: (r) => faNum(r.rank) },
               { key: 'user', title: 'بازیکن', render: (r) => <span className="row" style={{ gap: 8 }}><Avatar avatarKey={r.user.avatarKey} name={r.user.displayName} size={28} /><Link to={`/users/${r.user.id}`}><bdi>{r.user.displayName}</bdi></Link></span> },
               { key: 'rating', title: 'امتیاز', render: (r) => <span className="num">{faNum(r.rating)}</span> },
-              { key: 'league', title: 'لیگ', render: (r) => (r.league ? <LeagueBadge league={r.league} /> : '—') },
+              { key: 'league', title: 'لیگ', render: (r) => (r.league ? <LeagueBadge league={r.league} /> : '-') },
               { key: 'games', title: 'بازی', render: (r) => faNum(r.games) }
             ]} />
           )}
