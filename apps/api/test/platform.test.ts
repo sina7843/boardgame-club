@@ -10,10 +10,10 @@ const get = (url: string) => ctx.app.inject({ method: 'GET', url });
 describe('catalog search and filters (FR-02)', () => {
   const ids = async (qs: string) => (await get(`/api/games${qs}`)).json().items.map((g: { id: string }) => g.id).sort();
 
-  it('lists both labelled test games', async () => {
-    const items = (await get('/api/games')).json().items;
-    expect(items).toHaveLength(2);
-    expect(items.every((g: { isTestGame: boolean }) => g.isTestGame)).toBe(true);
+  it('lists the catalog; only the engine fixtures are labelled test games', async () => {
+    const items = (await get('/api/games')).json().items as { id: string; isTestGame: boolean }[];
+    expect(items.map((g) => g.id)).toEqual(['uno', 'line-three', 'sealed-bids']);
+    expect(items.filter((g) => g.isTestGame).map((g) => g.id)).toEqual(['line-three', 'sealed-bids']);
   });
 
   it('matches Persian names regardless of Arabic ي/ك and original names case-insensitively', async () => {
@@ -24,10 +24,11 @@ describe('catalog search and filters (FR-02)', () => {
   });
 
   it('filters by players, time, difficulty, mode and access', async () => {
-    expect(await ids('?players=4')).toEqual(['sealed-bids']);
+    expect(await ids('?players=4')).toEqual(['sealed-bids', 'uno']);
+    expect(await ids('?players=8')).toEqual(['uno']);
     expect(await ids('?maxMinutes=3')).toEqual(['line-three']);
     expect(await ids('?difficulty=medium')).toEqual(['sealed-bids']);
-    expect(await ids('?mode=turn')).toEqual(['line-three', 'sealed-bids']);
+    expect(await ids('?mode=turn')).toEqual(['line-three', 'sealed-bids', 'uno']);
     expect(await ids('?access=premium')).toEqual([]);
     expect((await get('/api/games?players=abc')).json().errorCode).toBe('VALIDATION_FAILED');
   });

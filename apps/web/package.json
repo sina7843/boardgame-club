@@ -14,6 +14,7 @@
     "@bg/contracts": "workspace:*",
     "@bg/game-line-three": "workspace:*",
     "@bg/game-sealed-bids": "workspace:*",
+    "@bg/game-uno": "workspace:*",
     "@bg/ui": "workspace:*",
     "@fontsource/vazirmatn": "5.3.0",
     "react": "19.3.0",

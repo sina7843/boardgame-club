@@ -163,7 +163,7 @@ test('admin chooses a game\'s modes and rule variants; players only see what is 
   try {
     await admin.goto('/admin');
     const panel = admin.locator('section[aria-labelledby="game-settings-h"]');
-    await panel.getByLabel('بازی').selectOption('line-three');
+    await panel.getByLabel('بازی', { exact: true }).selectOption('line-three');
     await panel.getByRole('group', { name: 'حالت بازی' }).getByText('زنده').click();
     const variant = panel.getByRole('region', { name: 'شروع‌کننده' });
     await variant.getByRole('group', { name: 'گزینه‌های مجاز' }).getByText('تصادفی').click();

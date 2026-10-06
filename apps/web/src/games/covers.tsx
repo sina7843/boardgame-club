@@ -1,11 +1,13 @@
 import type { ComponentType } from 'react';
 import LineThreeCover from '@bg/game-line-three/cover';
 import SealedBidsCover from '@bg/game-sealed-bids/cover';
+import UnoCover from '@bg/game-uno/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
   'line-three': LineThreeCover,
-  'sealed-bids': SealedBidsCover
+  'sealed-bids': SealedBidsCover,
+  uno: UnoCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

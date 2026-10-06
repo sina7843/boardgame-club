@@ -152,8 +152,8 @@ async function startTable(tx: Tx, locked: Awaited<ReturnType<typeof lockTable>>,
         .where(and(eq(matchmakingTickets.matchedTableId, table.id), eq(matchmakingTickets.status, 'matched')));
     }
   }
-  // Tutorials always use the standard rules (their script assumes them).
-  const options = table.isTutorial ? {} : ((table.settings as { options?: Record<string, OptionValue> }).options ?? {});
+  // Tutorials use the module's own tutorial setup (standard rules unless the script needs a fixed deal).
+  const options: Record<string, unknown> = table.isTutorial ? (module.tutorial.options ?? {}) : ((table.settings as { options?: Record<string, OptionValue> }).options ?? {});
   const step = startGame(module, { playerCount: table.capacity, seed, options });
   await tx.update(gameTables).set({ status: 'active', startedAt: sql`now()` }).where(eq(gameTables.id, table.id));
   table.status = 'active';

@@ -175,3 +175,20 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 
 - **Commit at the end of every successfully completed request**, after the relevant checks pass, on the current
   working branch. Nothing is pushed or merged unless the owner asks.
+
+## UNO (2026-10-07, owner request; owner states the game is licensed)
+
+- Source: official Mattel rulebook 42001 (2001 edition, English section) supplied by the owner in `Rulebooks/`
+  (kept out of git like other source inputs).
+- Implemented as written: 108 cards (the 4 blank house-rule cards are not used), 7-card deal, start-card effects
+  (Wild Draw 4 returned and redrawn; Draw 2 / Skip / Reverse / Wild as described), draw-one then optionally play
+  only the drawn card, voluntary draw, two-player rules, UNO call with a catch window that closes when the next
+  player begins their turn, self-catch, Wild Draw 4 bluff + challenge (hand shown only to the challenger),
+  reshuffle of the discard pile, scoring to a target.
+- Deviations (platform needs): the dealer is drawn by the engine RNG instead of a high-card draw; on timeout the
+  engine draws one card and passes (accepts a pending +4); three consecutive timeouts remove the player; a resigning
+  player's cards go back into the draw pile. Not implemented: partners and multi-table tournament variants.
+- Admin variants: match length (500 official / 200 / one hand) and UNO penalty (4 per this rulebook / 2).
+- Tutorial uses a fixed teaching deal through the new `TutorialScript.options` (never offered to hosts/admins).
+- Card faces are original vector designs (no bitmap assets); every face carries the colour's Persian initial and a
+  spoken label so colour is never the only signal.

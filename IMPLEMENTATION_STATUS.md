@@ -1,5 +1,12 @@
 # Implementation status
 
+## UNO (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New module `games/uno` (rules, original card faces, renderer, cover, tutorial) registered in engine, catalog and web.
+Checks run: rules unit tests 24 (`packages/game-engine/test/uno.test.ts`), API integration 3 (`apps/api/test/uno.test.ts`:
+catalog/variants, hidden hands over HTTP, server tutorial to completion), E2E `e2e/uno.spec.ts`: three browsers play a
+full hand through the UI at 360 and 1440 (screenshots `docs/evidence/uno/`). Not yet in the load-test driver.
+
 ## After DRAGON-04 — admin-controlled game settings (2026-10-07): DONE
 
 Admin panel «تنظیمات بازی‌ها» chooses per game, within what the module supports: paces, friendly/ranked, player

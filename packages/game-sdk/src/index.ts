@@ -128,6 +128,8 @@ export interface TutorialStep<Action> {
 export interface TutorialScript<Action> {
   /** Fixed seed so setup is reproducible (e.g. the learner moves first). */
   seed: number;
+  /** Setup options for tutorial tables only (e.g. a fixed teaching deal). Never offered to hosts or admins. */
+  options?: Record<string, unknown>;
   introFa: string;
   steps: TutorialStep<Action>[];
   completedFa: string;

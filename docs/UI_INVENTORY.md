@@ -92,5 +92,7 @@ width: `docs/evidence/phase-04/a11y-*.json` (0 violations). Admin panels: games/
 plans and prices, seasons (+ correction), missions, support (manual XP/premium, subscriptions, payments), platform
 incident; moderator queue with audit filters.
 
+UNO: `docs/evidence/uno/*.png` — three-player hand at 360 and 1440 (start, each player's own view mid-game, result).
+
 Devices actually tested: desktop Chromium (Playwright 1.63) with emulated viewports only. **Safari iOS and real
 Android Chrome: UNVERIFIED** — no devices were available; viewport emulation is not counted as a device test.

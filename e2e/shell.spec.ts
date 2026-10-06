@@ -29,7 +29,7 @@ test('login → catalog → game detail', async ({ page }, info) => {
   // Back to the catalog the user came from, signed in.
   await expect(page).toHaveURL(/\/games$/);
   await expect(page.getByRole('heading', { name: 'بازی‌ها', level: 1 })).toBeVisible();
-  await expect(page.getByText('۲ بازی')).toBeVisible();
+  await expect(page.getByText('۳ بازی')).toBeVisible();
   await page.screenshot({ path: shot('03-catalog', p), fullPage: true });
 
   // Arabic yeh in the query still finds the Persian name (FR-02).

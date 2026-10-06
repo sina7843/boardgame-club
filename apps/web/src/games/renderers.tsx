@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import LineThreeRenderer from '@bg/game-line-three/renderer';
 import SealedBidsRenderer from '@bg/game-sealed-bids/renderer';
+import UnoRenderer from '@bg/game-uno/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -10,5 +11,6 @@ import type { GameRendererProps } from '@bg/ui';
  */
 export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> = {
   'line-three@1.0.0': LineThreeRenderer as ComponentType<GameRendererProps<never>>,
-  'sealed-bids@1.0.0': SealedBidsRenderer as ComponentType<GameRendererProps<never>>
+  'sealed-bids@1.0.0': SealedBidsRenderer as ComponentType<GameRendererProps<never>>,
+  'uno@1.0.0': UnoRenderer as ComponentType<GameRendererProps<never>>
 };
