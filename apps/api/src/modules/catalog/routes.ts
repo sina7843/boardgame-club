@@ -3,10 +3,13 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  adminUpdateGameBody, apiErrorSchema, catalogQuery, gameDetail, gameListResponse, normalizeSearch,
-  type CatalogQuery, type GameDetail, type GameSummary
+  adminGameSettingsBody, adminGameSettingsView, adminUpdateGameBody, apiErrorSchema, catalogQuery, gameDetail, gameListResponse,
+  normalizeSearch, TIME_OPTIONS, type AdminGameSettingsView, type CatalogQuery, type GameDetail, type GameSummary
 } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
+import type { GameRegistry } from '@bg/game-engine';
+type GameManifest = ReturnType<GameRegistry['resolve']>['manifest'];
+import { effectiveSettings, validateAdminSettings, type EffectiveSettings } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireRole } from '../auth/session.ts';
@@ -29,28 +32,47 @@ export function catalogFilters(q: CatalogQuery): SQL[] {
   return where;
 }
 
-function toSummary(g: GameRow): GameSummary {
+/** Manifest of each game's active version, from the reviewed registry (null: no active/registered version). */
+async function activeManifests(db: Db, registry: GameRegistry): Promise<Map<string, { rulesVersion: string; manifest: GameManifest | null }>> {
+  const rows = await db.select({ gameId: gameVersions.gameId, rulesVersion: gameVersions.rulesVersion }).from(gameVersions)
+    .where(eq(gameVersions.status, 'active')).orderBy(desc(gameVersions.publishedAt));
+  const out = new Map<string, { rulesVersion: string; manifest: GameManifest | null }>();
+  for (const r of rows) {
+    if (out.has(r.gameId)) continue;
+    out.set(r.gameId, { rulesVersion: r.rulesVersion, manifest: registry.has(r.gameId, r.rulesVersion) ? registry.resolve(r.gameId, r.rulesVersion).manifest : null });
+  }
+  return out;
+}
+
+function toSummary(g: GameRow, eff: EffectiveSettings): GameSummary {
   return {
     id: g.id, nameFa: g.nameFa, nameOriginal: g.nameOriginal, summaryFa: g.summaryFa,
-    minPlayers: g.minPlayers, maxPlayers: g.maxPlayers, minMinutes: g.minMinutes, maxMinutes: g.maxMinutes,
-    difficulty: g.difficulty, access: g.access, paces: g.paces, competitions: g.competitions,
-    isTestGame: g.isTestGame, status: g.status, tutorialEnabled: g.tutorialEnabled
+    minPlayers: eff.minPlayers, maxPlayers: eff.maxPlayers, minMinutes: g.minMinutes, maxMinutes: g.maxMinutes,
+    difficulty: g.difficulty, access: g.access, paces: eff.paces, competitions: eff.competitions,
+    isTestGame: g.isTestGame, status: g.status, tutorialEnabled: g.tutorialEnabled,
+    liveSeconds: eff.liveSeconds, turnSeconds: eff.turnSeconds
   };
 }
 
-async function loadDetail(db: Db, g: GameRow): Promise<GameDetail> {
+async function loadDetail(db: Db, registry: GameRegistry, g: GameRow): Promise<GameDetail> {
+  const eff = effectiveSettings(g, (await activeManifests(db, registry)).get(g.id)?.manifest ?? null);
   const [v] = await db.select({ rulesVersion: gameVersions.rulesVersion, stateSchemaVersion: gameVersions.stateSchemaVersion })
     .from(gameVersions).where(and(eq(gameVersions.gameId, g.id), eq(gameVersions.status, 'active')))
     .orderBy(desc(gameVersions.publishedAt)).limit(1);
   return {
-    ...toSummary(g),
+    ...toSummary(g, eff),
+    options: eff.options.map(({ allowed: _allowed, ...o }) => o),
     rulesFa: g.rulesFa, timeoutPolicyFa: g.timeoutPolicyFa, resignPolicyFa: g.resignPolicyFa, tutorialFa: g.tutorialFa,
     activeVersion: v ?? null,
     acceptingNewTables: g.status === 'active' && !!v
   };
 }
 
-export function catalogRoutes(app: FastifyInstance, { db }: Deps): void {
+export function catalogRoutes(app: FastifyInstance, { db, registry }: Deps): void {
+  const summaries = async (rows: GameRow[]) => {
+    const manifests = await activeManifests(db, registry);
+    return rows.map((g) => toSummary(g, effectiveSettings(g, manifests.get(g.id)?.manifest ?? null)));
+  };
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get('/games', {
@@ -59,7 +81,7 @@ export function catalogRoutes(app: FastifyInstance, { db }: Deps): void {
   }, async (req) => {
     const rows = await db.select().from(games)
       .where(and(eq(games.status, 'active'), ...catalogFilters(req.query))).orderBy(asc(games.nameFa));
-    return { items: rows.map(toSummary) };
+    return { items: await summaries(rows) };
   });
 
   r.get('/games/:id', {
@@ -69,7 +91,7 @@ export function catalogRoutes(app: FastifyInstance, { db }: Deps): void {
     const [g] = await db.select().from(games).where(eq(games.id, req.params.id));
     // Suspended games stay viewable (history kept) but accept no new tables; drafts are admin-only.
     if (!g || g.status === 'draft') throw new AppError('NOT_FOUND');
-    return loadDetail(db, g);
+    return loadDetail(db, registry, g);
   });
 
   r.get('/admin/games', {
@@ -78,7 +100,7 @@ export function catalogRoutes(app: FastifyInstance, { db }: Deps): void {
   }, async (req) => {
     requireRole(req, 'admin');
     const rows = await db.select().from(games).orderBy(asc(games.nameFa));
-    return { items: rows.map(toSummary) };
+    return { items: await summaries(rows) };
   });
 
   r.patch('/admin/games/:id/tutorial', {
@@ -91,7 +113,7 @@ export function catalogRoutes(app: FastifyInstance, { db }: Deps): void {
     if (!row) throw new AppError('NOT_FOUND');
     await db.insert(auditLog).values({ actorId: auth.userId, action: 'game.tutorial', targetType: 'game', targetId: row.id,
       metadata: { enabled: req.body.enabled, reason: req.body.reason }, requestId: req.id });
-    return loadDetail(db, row);
+    return loadDetail(db, registry, row);
   });
 
   r.patch('/admin/games/:id', {
@@ -112,6 +134,62 @@ export function catalogRoutes(app: FastifyInstance, { db }: Deps): void {
       return row!;
     });
     if (!updated) throw new AppError('NOT_FOUND');
-    return loadDetail(db, updated);
+    return loadDetail(db, registry, updated);
+  });
+
+  const settingsView = async (g: GameRow): Promise<AdminGameSettingsView> => {
+    const active = (await activeManifests(db, registry)).get(g.id);
+    const m = active?.manifest ?? null;
+    const eff = effectiveSettings(g, m);
+    return {
+      gameId: g.id, rulesVersion: active?.rulesVersion ?? null,
+      supported: {
+        paces: m?.supportedModes.pace ?? eff.paces, competitions: m?.supportedModes.competition ?? eff.competitions,
+        minPlayers: m?.playerCounts.min ?? eff.minPlayers, maxPlayers: m?.playerCounts.max ?? eff.maxPlayers,
+        liveSeconds: [...TIME_OPTIONS.live], turnSeconds: [...TIME_OPTIONS.turn],
+        options: (m?.options ?? []).map((o) => ({ key: o.key, labelFa: o.labelFa, descriptionFa: o.descriptionFa ?? null, choices: o.choices, default: o.default }))
+      },
+      current: {
+        paces: eff.paces, competitions: eff.competitions, minPlayers: eff.minPlayers, maxPlayers: eff.maxPlayers,
+        liveSeconds: eff.liveSeconds, turnSeconds: eff.turnSeconds,
+        options: Object.fromEntries(eff.options.map((o) => [o.key, { allowed: o.allowed, default: o.default, hostChooses: o.hostChooses }]))
+      }
+    };
+  };
+
+  r.get('/admin/games/:id/settings', {
+    schema: { tags: ['admin'], summary: 'Play settings: what the module supports and what this game currently offers',
+      params: z.object({ id: z.string().max(64) }), response: { 200: adminGameSettingsView, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema } }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    const [g] = await db.select().from(games).where(eq(games.id, req.params.id));
+    if (!g) throw new AppError('NOT_FOUND');
+    return settingsView(g);
+  });
+
+  r.put('/admin/games/:id/settings', {
+    schema: { tags: ['admin'], summary: 'Choose offered modes, player range, time budgets and rule variants within the module bounds (audited; running tables keep theirs)',
+      params: z.object({ id: z.string().max(64) }), body: adminGameSettingsBody,
+      response: { 200: adminGameSettingsView, 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema } }
+  }, async (req) => {
+    const admin = requireRole(req, 'admin');
+    const manifest = (await activeManifests(db, registry)).get(req.params.id)?.manifest;
+    const row = await db.transaction(async (tx) => {
+      const [before] = await tx.select().from(games).where(eq(games.id, req.params.id)).for('update');
+      if (!before) throw new AppError('NOT_FOUND');
+      if (!manifest) throw new AppError('GAME_NOT_ACCEPTING_TABLES');
+      const next = validateAdminSettings(req.body, manifest);
+      const [after] = await tx.update(games).set({ ...next, updatedAt: sql`now()` }).where(eq(games.id, before.id)).returning();
+      await tx.insert(auditLog).values({
+        actorId: admin.userId, action: 'game.settings', targetType: 'game', targetId: before.id, requestId: req.id,
+        metadata: {
+          reason: req.body.reason,
+          before: { paces: before.paces, competitions: before.competitions, minPlayers: before.minPlayers, maxPlayers: before.maxPlayers, playSettings: before.playSettings },
+          after: next
+        }
+      });
+      return after!;
+    });
+    return settingsView(row);
   });
 }

@@ -25,7 +25,10 @@ export const lineThree = defineGame({
   manifest: {
     gameId: 'line-three', rulesVersion: '1.0.0', stateSchemaVersion: 1,
     supportedModes: { pace: ['live', 'turn'], competition: ['friendly', 'ranked'] },
-    playerCounts: { min: 2, max: 2 }, optionSchema: {},
+    playerCounts: { min: 2, max: 2 },
+    options: [{ key: 'firstMove', labelFa: 'شروع‌کننده', descriptionFa: 'چه کسی حرکت اول را انجام می‌دهد.',
+      choices: [{ value: 'random', labelFa: 'تصادفی' }, { value: 'host', labelFa: 'میزبان (صندلی اول)' }],
+      default: 'random' }],
     capabilities: ['public-state', 'seeded-rng'],
     clientBundleRef: 'line-three@1.0.0', assetsRef: 'line-three/1'
   },
@@ -34,6 +37,18 @@ export const lineThree = defineGame({
     timeoutPolicyFa: '…', resignPolicyFa: '…', tutorialFa: '…' }
 });
 ```
+
+### What the module declares vs what the admin decides
+
+The manifest declares everything the rules **can** do: paces, competitions, player range and rule variants
+(`options`; each has Persian labels, its choices and a `default` that reproduces the standard rules). The admin
+panel («تنظیمات بازی‌ها») then chooses, per game, what players are **offered**: paces, friendly/ranked, player range,
+live time budgets and turn deadlines (from `TIME_OPTIONS`), and for every variant the allowed choices, the default and
+whether the host may choose. The server enforces the offer on table creation and matchmaking; matchmade tables use the
+admin default; every table stores its chosen variants, which reach `setup({ options })` and are recorded with the
+start input (exact replay). Running tables never change. Re-seeding/deploying never overwrites admin choices — it only
+narrows them if a new version supports less. Read options defensively in `setup` (`options.x === 'y'`), because
+tutorials and old tables pass `{}` and must get the standard rules.
 
 `defineGame` validates both with zod at import time. Timeout and resignation policies are shown to players before
 they ready up, so write them precisely.

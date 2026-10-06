@@ -71,6 +71,31 @@ export function Segmented<T extends string>({ legend, name, value, options, onCh
   );
 }
 
+/** Multi-select as toggle chips (native checkboxes). Selected state shows a check mark, not colour alone. */
+export function CheckChips<T extends string>({ legend, hint, values, options, onChange }: {
+  legend: string; hint?: string; values: T[]; options: { value: T; label: string }[]; onChange: (v: T[]) => void;
+}) {
+  const hintId = useId();
+  return (
+    <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }} aria-describedby={hint ? hintId : undefined}>
+      <legend className="field__label" style={{ marginBlockEnd: 4 }}>{legend}</legend>
+      <div className="chips">
+        {options.map((o) => {
+          const on = values.includes(o.value);
+          return (
+            <label key={o.value} className={on ? 'chip chip--on' : 'chip'}>
+              <input type="checkbox" checked={on} onChange={() => onChange(on ? values.filter((v) => v !== o.value) : [...values, o.value])} />
+              <span aria-hidden="true" className="chip__mark">{on ? '✓' : '+'}</span>
+              <span>{o.label}</span>
+            </label>
+          );
+        })}
+      </div>
+      {hint && <span id={hintId} className="field__hint">{hint}</span>}
+    </fieldset>
+  );
+}
+
 export function Switch({ label, hint, checked, onChange }: { label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void }) {
   const id = useId();
   return (

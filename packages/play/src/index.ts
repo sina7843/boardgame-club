@@ -7,3 +7,4 @@ export * from './sanctions.ts';
 export * from './rating.ts';
 export * from './progression.ts';
 export * from './billing.ts';
+export * from './game-settings.ts';

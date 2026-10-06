@@ -59,6 +59,16 @@ export function GameDetailPage() {
             <p className="policy"><strong>اتمام زمان: </strong>{g.timeoutPolicyFa}</p>
             <p className="policy"><strong>انصراف: </strong>{g.resignPolicyFa}</p>
           </section>
+          {g.options.length > 0 && (
+            <section className="section" aria-labelledby="variants-h">
+              <h2 id="variants-h" className="section-title"><Icon name="settings" />گزینه‌های قانون</h2>
+              {g.options.map((o) => (
+                <p key={o.key} className="policy"><strong>{o.labelFa}: </strong>
+                  {o.hostChooses && o.choices.length > 1 ? `به انتخاب میزبان (${o.choices.map((c) => c.labelFa).join('، ')})` : o.choices.find((c) => c.value === o.default)?.labelFa}
+                </p>
+              ))}
+            </section>
+          )}
         </article>
 
         <aside className="panel stack" aria-label="مشخصات و شروع">

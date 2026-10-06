@@ -36,6 +36,13 @@
       "when": 1791268651094,
       "tag": "0004_progression_commerce",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791322224924,
+      "tag": "0005_game_play_settings",
+      "breakpoints": true
     }
   ]
 }

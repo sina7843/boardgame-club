@@ -160,3 +160,11 @@ h1, h2, h3 { line-height: 1.35; margin: 0; }
 .token:hover:not(:disabled) { transform: translateY(-2px); }
 .token--selected { background: var(--action); border-color: var(--on-action); color: var(--on-action); transform: translateY(-4px); }
 .token:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Multi-select chips */
+.chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.chip { position: relative; min-block-size: 44px; display: inline-flex; align-items: center; gap: var(--sp-2); padding-inline: var(--sp-3); border-radius: 999px; border: 1px solid var(--border, var(--surface-2)); background: var(--surface-2); color: var(--text-2); cursor: pointer; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip__mark { inline-size: 1.25em; text-align: center; font-weight: 700; }
+.chip--on { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 14%, var(--surface-2)); color: var(--text); font-weight: 700; }
+.chip:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }

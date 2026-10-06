@@ -32,7 +32,7 @@ export async function loadSnapshot(tx: Tx | Db, tableId: string, revision: numbe
 
 /** Recorded engine input, kept for deterministic replay (internal only). */
 export type EngineInput =
-  | { kind: 'start'; seed: number; playerCount: number }
+  | { kind: 'start'; seed: number; playerCount: number; options?: Record<string, unknown> }
   | { kind: 'action'; seat: number; action: unknown; logicalTime: number }
   | { kind: 'timeout'; deadlineToken: string; logicalTime: number };
 

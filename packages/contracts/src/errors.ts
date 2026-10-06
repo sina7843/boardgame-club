@@ -27,6 +27,8 @@ export const ERRORS = {
   TURN_TABLE_LIMIT: 'به سقف میزهای نوبتی هم‌زمان رسیده‌اید.',
   ALREADY_IN_LIVE_TABLE: 'شما در یک میز زنده دیگر حضور دارید.',
   INVALID_TIME_SETTING: 'زمان نوبت انتخاب‌شده مجاز نیست.',
+  OPTION_NOT_ALLOWED: 'گزینه قانون انتخاب‌شده برای این بازی مجاز نیست.',
+  GAME_SETTINGS_INVALID: 'این تنظیمات خارج از قابلیت‌های این بازی است.',
   COMMAND_ID_REUSED: 'شناسه این حرکت قبلاً برای حرکت دیگری استفاده شده است.',
   INCIDENT_ALREADY_OPEN: 'یک توقف سراسری از قبل فعال است.',
   BLOCKED: 'امکان ارتباط با این کاربر وجود ندارد.',
@@ -65,7 +67,7 @@ export type ApiError = z.infer<typeof apiErrorSchema>;
 
 const STATUS: Partial<Record<ErrorCode, number>> = {
   VALIDATION_FAILED: 400, INVALID_MOBILE: 400, OTP_INVALID: 400, OTP_EXPIRED: 400, OTP_ALREADY_USED: 400,
-  MODE_NOT_SUPPORTED: 400, RANKED_NOT_AVAILABLE: 400, INVALID_TIME_SETTING: 400,
+  MODE_NOT_SUPPORTED: 400, RANKED_NOT_AVAILABLE: 400, INVALID_TIME_SETTING: 400, OPTION_NOT_ALLOWED: 400, GAME_SETTINGS_INVALID: 400,
   OTP_TOO_MANY_ATTEMPTS: 429, OTP_RESEND_TOO_SOON: 429, RATE_LIMITED: 429,
   UNAUTHENTICATED: 401,
   FORBIDDEN: 403, CSRF_ORIGIN_REJECTED: 403, NOT_PARTICIPANT: 403, INVITE_REQUIRED: 403, PREMIUM_REQUIRED: 403,

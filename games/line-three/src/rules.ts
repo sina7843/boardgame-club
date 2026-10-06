@@ -43,9 +43,12 @@ export const lineThreeModule: GameModule<LineThreeState, LineThreeAction, LineTh
   manifest: lineThree.manifest,
   actionSchema: lineThreeAction,
 
-  setup({ playerCount, rng }) {
+  setup({ playerCount, rng, options }) {
     if (playerCount !== 2) throw new Error('line-three needs exactly 2 players');
-    const first = rng.nextInt(2) as Mark;
+    // Variant "firstMove": random (standard, default) or the host (seat 0). The RNG is drawn either way so the
+    // stream stays identical to the standard rules.
+    const drawn = rng.nextInt(2) as Mark;
+    const first: Mark = options.firstMove === 'host' ? 0 : drawn;
     const symbols: LineThreeState['symbols'] = first === 0 ? ['X', 'O'] : ['O', 'X'];
     return { board: Array<Mark | null>(9).fill(null), symbols, current: first, outcome: null };
   },

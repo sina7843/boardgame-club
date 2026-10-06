@@ -8,7 +8,7 @@ export const sealedBids = defineGame({
     stateSchemaVersion: 1,
     supportedModes: { pace: ['live', 'turn'], competition: ['friendly', 'ranked'] },
     playerCounts: { min: 2, max: 4 },
-    optionSchema: {},
+    options: [],
     capabilities: ['hidden-information', 'simultaneous-actions', 'seeded-rng'],
     clientBundleRef: 'sealed-bids@1.0.0',
     assetsRef: 'sealed-bids/1'

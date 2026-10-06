@@ -6,6 +6,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { GameAccessAdmin, MissionsAdmin, PlansAdmin, SeasonsAdmin, SupportAdmin } from './AdminCommerce.tsx';
+import { GameSettingsAdmin } from './AdminGameSettings.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
 
@@ -64,6 +65,7 @@ export function Admin() {
         <p className="muted" style={{ margin: 0 }}>فقط میزهای تازه از نسخه فعال استفاده می‌کنند؛ میزهای جاری روی نسخه شروع خود می‌مانند.</p>
         {games.data.items.map((g) => <Versions key={g.id} gameId={g.id} name={g.nameFa} />)}
       </section>}
+      {games.data && games.data.items.length > 0 && <GameSettingsAdmin games={games.data.items} />}
       {games.data && <GameAccessAdmin games={games.data.items} onDone={games.reload} />}
       <PlansAdmin />
       <SeasonsAdmin />

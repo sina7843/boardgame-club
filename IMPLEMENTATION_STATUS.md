@@ -1,5 +1,15 @@
 # Implementation status
 
+## After DRAGON-04 — admin-controlled game settings (2026-10-07): DONE
+
+Admin panel «تنظیمات بازی‌ها» chooses per game, within what the module supports: paces, friendly/ranked, player
+range, offered live time budgets and turn deadlines, and each rule variant's allowed choices / default / host choice.
+Enforced server-side on create, matchmaking and start; running tables unchanged; variants shown on detail, create and
+lobby; audited. Fixed: re-seeding no longer overwrites admin choices (access, modes, players).
+Checks run: lint clean, typecheck 0 errors, build OK, `pnpm test` 138 passed (new `game-settings.test.ts` 4),
+E2E 47 passed / 6 skipped in the full run plus one a11y timeout at 1920 (bounded `networkidle` wait added; 4/4 passed on rerun),
+new E2E: admin restricts Line Three → player sees only the offered mode and fixed variant (360 and 1440).
+
 ## DRAGON-04 — release candidate: LOCAL CANDIDATE COMPLETE; public release NOT READY
 
 ### Checklist

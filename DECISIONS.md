@@ -158,3 +158,20 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - **axe-core**: `@axe-core/playwright@4.13.0` pinned (stable, outside the release-age window).
 - **Cover art accessibility**: covers with an empty title are decorative (`aria-hidden`) because the surrounding
   link already carries the game name (axe `svg-img-alt`).
+
+## After DRAGON-04: admin-controlled game settings (2026-10-07, owner request)
+
+- **Owner request**: game choices (modes, time per move, player count, rule variants) must be adjustable in the admin
+  panel. Implemented as "module declares the possible, admin chooses the offered": manifest `options` (replacing the
+  unused `optionSchema`) + `games.play_settings` (migration 0005, additive) + `PUT /api/admin/games/:id/settings`.
+- Validation lives in `@bg/play/game-settings.ts`; stored choices are clamped to the active module at read time.
+- **Seed bug fixed**: re-seeding overwrote admin-owned `access`, modes and player range with code defaults on every
+  deploy. Admin-owned fields are now written only on first insert (and narrowed to module support afterwards).
+- Line Three gained variant `firstMove` (random | host). Default `random` draws the same RNG value as before, so
+  existing tables and replays are unchanged; rulesVersion stays 1.0.0 (additive, default-preserving change).
+- Chosen variants are stored per table, shown in the lobby and recorded with the engine start input.
+
+## Working agreement (owner, 2026-10-07)
+
+- **Commit at the end of every successfully completed request**, after the relevant checks pass, on the current
+  working branch. Nothing is pushed or merged unless the owner asks.

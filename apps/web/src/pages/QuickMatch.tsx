@@ -1,9 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import { TIME_OPTIONS, type GameSummary, type TicketView } from '@bg/contracts';
+import type { GameSummary, TicketView } from '@bg/contracts';
 import { Button, Icon, Segmented, Select, StateBlock, TurnIndicator, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
+import { defaultTime, durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
@@ -66,7 +66,7 @@ export function QuickMatch() {
   const [pace, setPace] = useState<'live' | 'turn'>('live');
   const [competition, setCompetition] = useState<'friendly' | 'ranked'>('friendly');
   const [players, setPlayers] = useState(2);
-  const [turnSeconds, setTurnSeconds] = useState<number>(TIME_OPTIONS.live[2]);
+  const [turnSeconds, setTurnSeconds] = useState<number>(60);
   const [busy, setBusy] = useState(false);
   const reload = tickets.reload;
 
@@ -74,7 +74,8 @@ export function QuickMatch() {
   useEffect(() => { if (!gameId && games.data?.items[0]) setGameId(games.data.items[0].id); }, [games.data, gameId]);
   const game = games.data?.items.find((g) => g.id === gameId);
   useEffect(() => { if (game) setPlayers((p) => Math.min(Math.max(p, game.minPlayers), game.maxPlayers)); }, [game]);
-  useEffect(() => { setTurnSeconds(pace === 'live' ? TIME_OPTIONS.live[2] : TIME_OPTIONS.turn[1]); }, [pace]);
+  useEffect(() => { if (game && !game.paces.includes(pace)) setPace(game.paces[0]!); }, [game, pace]);
+  useEffect(() => { if (game) setTurnSeconds(defaultTime(pace === 'live' ? game.liveSeconds : game.turnSeconds, pace)); }, [pace, game]);
 
   if (status !== 'loading' && !me) return <StateBlock kind="denied" title="برای حریف‌یابی وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/play">ورود</Link>} />;
   if (games.error) return <StateBlock kind="error" title="فهرست بازی‌ها دریافت نشد" action={<Button onClick={games.reload}>تلاش دوباره</Button>} />;
@@ -105,7 +106,7 @@ export function QuickMatch() {
                   options={Array.from({ length: game.maxPlayers - game.minPlayers + 1 }, (_, i) => game.minPlayers + i).map((n) => ({ value: String(n), label: `${faNum(n)} نفر` }))} />
               )}
               <Select label={pace === 'live' ? 'زمان هر حرکت' : 'مهلت هر نوبت'} value={String(turnSeconds)} onChange={(e) => setTurnSeconds(Number(e.target.value))}
-                options={TIME_OPTIONS[pace].map((s) => ({ value: String(s), label: durationFa(s) }))} />
+                options={(game ? (pace === 'live' ? game.liveSeconds : game.turnSeconds) : []).map((s) => ({ value: String(s), label: durationFa(s) }))} />
               {game?.competitions.includes('ranked') && <Segmented legend="نوع رقابت" name="competition" value={competition} onChange={setCompetition} options={[{ value: 'friendly', label: 'دوستانه' }, { value: 'ranked', label: 'رتبه‌دار' }]} />}
               <p className="muted" style={{ margin: 0 }}><Icon name="shield" size={16} /> {competition === 'ranked' ? 'نتیجه روی رتبه مهارتی همین بازی و حالت اثر دارد. حریف بر اساس مهارت انتخاب می‌شود؛ اشتراک اولویتی نمی‌دهد.' : 'میز دوستانه روی رتبه اثری ندارد.'}</p>
               <div><Button type="submit" busy={busy} disabled={!gameId}>شروع جست‌وجو</Button></div>

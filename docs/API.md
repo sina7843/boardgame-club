@@ -95,6 +95,7 @@ TUTORIAL_DISABLED / APPEAL_EXISTS 409`, `CANNOT_TARGET_SELF 400`; billing: `PAYM
 | POST / DELETE | `/admin/entitlements`, `/admin/entitlements/:id` | admin | manual premium grant/revoke (audited) |
 | GET | `/admin/payments` | admin | recent payments |
 | PATCH | `/admin/games/:id/access` | admin | free/premium + host-invites-free (audited) |
+| GET / PUT | `/admin/games/:id/settings` | admin | module bounds + offered modes, player range, time budgets and rule variants; PUT validated against the active version's manifest, audited (`game.settings`); new tables only |
 | GET | `/admin/subscriptions?userId=` | admin | subscriptions + manual grants for support (phase 04) |
 | GET / PATCH | `/admin/missions`, `/admin/missions/:id` | admin | list / activate-deactivate mission definitions `{active, reason}` (audited, phase 04) |
 | GET | `/mod/audit?action=&targetType=&targetId=&actorId=` | admin, moderator | audit history with filters (`action` is a prefix) |

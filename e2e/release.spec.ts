@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
@@ -7,11 +8,13 @@ import { newPage, player, signIn } from './helpers.ts';
 // Real iOS Safari / Android Chrome are NOT covered here — viewport emulation is not a device test.
 const DIR = 'docs/evidence/phase-04';
 mkdirSync(`${DIR}/screenshots`, { recursive: true });
+const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 const shot = (project: string, name: string) => `${DIR}/screenshots/${project}-${name}.png`;
 
 async function audit(page: Page, name: string, project: string, found: object[]) {
   await expect(page.locator('main h1, main .state__title').first()).toBeVisible();
-  await page.waitForLoadState('networkidle');
+  // Bounded: a realtime socket can keep the network from ever going idle.
+  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   for (const v of r.violations) found.push({ page: name, id: v.id, impact: v.impact, nodes: v.nodes.length, sample: v.nodes[0]?.target });
   await page.screenshot({ path: shot(project, name), fullPage: true });
@@ -148,4 +151,38 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   await waiter.getByRole('button', { name: 'ثبت حرکت' }).click();
   await expect(mover.locator('.lt__cell').nth(0)).not.toHaveText('');
   await a.context().close(); await b.context().close();
+});
+
+test('admin chooses a game\'s modes and rule variants; players only see what is offered', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'admin flow runs at 360 and 1440');
+  const vp = info.project.use.viewport ?? null;
+  const admin = await newPage(browser, vp);
+  const mobile = await signIn(admin, `Admin${Date.now() % 100000}`);
+  execFileSync('node', ['packages/db/src/grant-role.ts', mobile, 'admin'], { env: { ...process.env, DATABASE_URL }, stdio: 'pipe' });
+  const original = (await (await admin.request.get('/api/admin/games/line-three/settings')).json()).current;
+  try {
+    await admin.goto('/admin');
+    const panel = admin.locator('section[aria-labelledby="game-settings-h"]');
+    await panel.getByLabel('بازی').selectOption('line-three');
+    await panel.getByRole('group', { name: 'حالت بازی' }).getByText('زنده').click();
+    const variant = panel.getByRole('region', { name: 'شروع‌کننده' });
+    await variant.getByRole('group', { name: 'گزینه‌های مجاز' }).getByText('تصادفی').click();
+    await variant.getByLabel('میزبان می‌تواند انتخاب کند').click();
+    await panel.getByLabel('علت تغییر (در سابقه ثبت می‌شود)').fill('آزمون مرورگر تنظیمات');
+    await panel.screenshot({ path: shot(info.project.name, 'admin-game-settings') });
+    await panel.getByRole('button', { name: 'ذخیره تنظیمات' }).click();
+    await expect(admin.getByText('تنظیمات بازی ذخیره شد')).toBeVisible();
+
+    const player = await newPage(browser, vp);
+    await signIn(player, `Host${Date.now() % 100000}`);
+    await player.goto('/games/line-three/new');
+    await expect(player.getByText('حالت بازی: نوبتی')).toBeVisible();
+    await expect(player.getByRole('radio', { name: 'زنده' })).toHaveCount(0);
+    await expect(player.getByText('شروع‌کننده: میزبان (صندلی اول) (تعیین‌شده برای این بازی)')).toBeVisible();
+    await player.screenshot({ path: shot(info.project.name, 'create-table-restricted'), fullPage: true });
+    await player.context().close();
+  } finally {
+    await admin.request.put('/api/admin/games/line-three/settings', { data: { ...original, reason: 'بازگرداندن پس از آزمون' }, headers: { origin: 'http://127.0.0.1:5173' } });
+    await admin.context().close();
+  }
 });

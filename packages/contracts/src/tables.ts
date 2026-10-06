@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { competitionSchema, paceSchema } from '@bg/game-sdk';
+import { competitionSchema, optionValueSchema, paceSchema } from '@bg/game-sdk';
 import { publicProfile } from './api.ts';
 
 /** Allowed per-turn time budgets. Live: seconds per move/round; turn-based: durable deadline per turn. */
@@ -18,11 +18,13 @@ export const createTableBody = z.strictObject({
   visibility: visibilitySchema.default('private'),
   capacity: z.number().int().min(1).max(16),
   turnSeconds: z.number().int().positive(),
-  reminders: z.boolean().default(true)
+  reminders: z.boolean().default(true),
+  /** Rule variants chosen by the host; omitted keys use the game's default. */
+  options: z.record(z.string().max(32), optionValueSchema).default({})
 });
 export type CreateTableBody = z.infer<typeof createTableBody>;
 
-export const tableSettings = z.object({ turnSeconds: z.number().int(), reminders: z.boolean() });
+export const tableSettings = z.object({ turnSeconds: z.number().int(), reminders: z.boolean(), options: z.record(z.string(), optionValueSchema).optional() });
 
 export const seatView = z.object({
   seat: z.number().int(),
@@ -55,6 +57,8 @@ export const tableLobby = z.object({
   /** Only returned to participants of a private table. */
   inviteCode: z.string().nullable(),
   policies: z.object({ timeoutFa: z.string(), resignFa: z.string(), disconnectFa: z.string() }),
+  /** Rule variants of this table in words (chosen at creation, or the game's defaults for matchmade tables). */
+  variants: z.array(z.object({ labelFa: z.string(), valueFa: z.string() })),
   createdAt: z.iso.datetime()
 });
 export type TableLobby = z.infer<typeof tableLobby>;

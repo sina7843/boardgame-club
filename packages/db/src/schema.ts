@@ -199,6 +199,12 @@ export const games = pgTable('games', {
   tutorialEnabled: boolean().notNull().default(true),
   /** Premium games only: a premium host's invitees may join (and play) without their own subscription. */
   premiumHostInvitesFree: boolean().notNull().default(true),
+  /** Admin choices within the module's bounds: offered time budgets and rule-variant policy (see @bg/play game-settings). */
+  playSettings: jsonb().$type<{
+    liveSeconds?: number[];
+    turnSeconds?: number[];
+    options?: Record<string, { allowed: (string | number | boolean)[]; default: string | number | boolean; hostChooses: boolean }>;
+  }>().notNull().default({}),
   createdAt: createdAt(),
   updatedAt: createdAt()
 }, (t) => [

@@ -2,7 +2,8 @@
 // SKIP LOCKED row locks, so concurrent matchers and cancellations never double-assign a player.
 import { randomUUID } from 'node:crypto';
 import { and, asc, eq, inArray, lte, sql } from 'drizzle-orm';
-import { AppError, TIME_OPTIONS, type EnqueueBody, type TicketView } from '@bg/contracts';
+import { AppError, type EnqueueBody, type TicketView } from '@bg/contracts';
+import { assertTimeAllowed } from './game-settings.ts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
 import { activeVersion, assertLimits, type PlayConfig } from './tables.ts';
@@ -39,13 +40,13 @@ export function windowFor(cfg: MatchConfig, pace: 'live' | 'turn', waitSeconds: 
 
 export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, cfg: MatchConfig, userId: string, body: EnqueueBody): Promise<string> {
   const id = await db.transaction(async (tx) => {
-    const { game } = await activeVersion(tx, registry, body.gameId);
-    if (!game.paces.includes(body.pace)) throw new AppError('MODE_NOT_SUPPORTED');
+    const { game, settings } = await activeVersion(tx, registry, body.gameId);
+    if (!settings.paces.includes(body.pace)) throw new AppError('MODE_NOT_SUPPORTED');
     // Premium decides access to a premium game only — never queue priority or rating (no pay-to-win).
     if (game.access === 'premium' && !(await isPremium(tx, userId))) throw new AppError('PREMIUM_REQUIRED');
-    if (!game.competitions.includes(body.competition)) throw new AppError('MODE_NOT_SUPPORTED');
-    if (body.playerCount < game.minPlayers || body.playerCount > game.maxPlayers) throw new AppError('VALIDATION_FAILED');
-    if (!(TIME_OPTIONS[body.pace] as readonly number[]).includes(body.turnSeconds)) throw new AppError('INVALID_TIME_SETTING');
+    if (!settings.competitions.includes(body.competition)) throw new AppError('MODE_NOT_SUPPORTED');
+    if (body.playerCount < settings.minPlayers || body.playerCount > settings.maxPlayers) throw new AppError('VALIDATION_FAILED');
+    assertTimeAllowed(settings, body.pace, body.turnSeconds);
     await assertLimits(tx, userId, body.pace, play, { forQueue: true }); // also refuses a second active ticket
     const [r] = await tx.select({ mu: ratings.mu, sigma: ratings.sigma }).from(ratings)
       .where(and(eq(ratings.userId, userId), eq(ratings.gameId, game.id), eq(ratings.mode, body.pace)));

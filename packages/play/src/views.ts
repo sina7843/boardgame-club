@@ -22,6 +22,16 @@ export async function currentIncident(db: Db) {
   return i ? { reasonFa: i.reasonFa, startedAt: i.startedAt.toISOString() } : null;
 }
 
+/** Labels of the table's rule variants; options not chosen yet (matchmade, before start) show the module default. */
+function describeVariants(registry: GameRegistry, table: { gameId: string; isTutorial: boolean; settings: unknown }, rulesVersion: string) {
+  if (table.isTutorial || !registry.has(table.gameId, rulesVersion)) return [];
+  const chosen = (table.settings as { options?: Record<string, unknown> }).options ?? {};
+  return registry.resolve(table.gameId, rulesVersion).manifest.options.map((o) => {
+    const value = o.key in chosen ? chosen[o.key] : o.default;
+    return { labelFa: o.labelFa, valueFa: o.choices.find((c) => c.value === value)?.labelFa ?? String(value) };
+  });
+}
+
 export interface ViewRequest { tableId: string; userId: string; inviteCode?: string | undefined }
 
 /**
@@ -84,6 +94,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       timeoutFa: game.timeoutPolicyFa, resignFa: game.resignPolicyFa,
       disconnectFa: `${table.isTutorial ? DISCONNECT_FA.tutorial : DISCONNECT_FA[table.pace as 'live' | 'turn']} ${table.isTutorial ? '' : INCIDENT_FA}`.trim()
     },
+    variants: describeVariants(registry, table, version.rulesVersion),
     createdAt: table.createdAt.toISOString()
   };
 

@@ -34,6 +34,7 @@ function Policies({ table }: { table: Lobby }) {
       <p className="policy"><strong>اتمام زمان: </strong>{table.policies.timeoutFa}</p>
       <p className="policy"><strong>انصراف: </strong>{table.policies.resignFa}</p>
       <p className="policy"><strong>قطع اتصال: </strong>{table.policies.disconnectFa}</p>
+      {table.variants.map((v) => <p key={v.labelFa} className="policy"><strong>{v.labelFa}: </strong>{v.valueFa}</p>)}
     </section>
   );
 }

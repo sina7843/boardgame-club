@@ -8,6 +8,24 @@ export const competitionSchema = z.enum(['friendly', 'ranked']);
 export const difficultySchema = z.enum(['easy', 'medium', 'hard']);
 export const accessSchema = z.enum(['free', 'premium']);
 
+/** A value a rule variant can take. */
+export const optionValueSchema = z.union([z.string().max(40), z.number(), z.boolean()]);
+export type OptionValue = z.infer<typeof optionValueSchema>;
+
+/**
+ * A rule variant the module supports (e.g. who moves first). The module declares every possible choice and the
+ * default that reproduces its standard rules; the admin panel narrows what is offered per game, and the chosen
+ * values reach `setup` through `SetupContext.options` (recorded with the start input, so replay is exact).
+ */
+export const gameOptionSchema = z.strictObject({
+  key: z.string().regex(/^[a-z][a-zA-Z0-9]{0,30}$/),
+  labelFa: z.string().min(1),
+  descriptionFa: z.string().min(1).optional(),
+  choices: z.array(z.strictObject({ value: optionValueSchema, labelFa: z.string().min(1) })).min(2),
+  default: optionValueSchema
+}).refine((o) => o.choices.some((c) => c.value === o.default), 'default must be one of the choices');
+export type GameOption = z.infer<typeof gameOptionSchema>;
+
 export const gameManifestSchema = z.strictObject({
   gameId: z.string().regex(/^[a-z][a-z0-9-]{1,40}$/),
   rulesVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
@@ -18,7 +36,7 @@ export const gameManifestSchema = z.strictObject({
   }),
   playerCounts: z.strictObject({ min: z.number().int().min(1), max: z.number().int().min(1) })
     .refine((p) => p.min <= p.max, 'min must be <= max'),
-  optionSchema: z.record(z.string(), z.unknown()),
+  options: z.array(gameOptionSchema).default([]),
   capabilities: z.array(z.enum(['public-state', 'hidden-information', 'simultaneous-actions', 'seeded-rng'])),
   clientBundleRef: z.string().min(1),
   assetsRef: z.string().min(1)

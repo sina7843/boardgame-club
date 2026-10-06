@@ -54,9 +54,22 @@ export async function seed(db: Db): Promise<void> {
       tutorialFa: c.tutorialFa
     };
     await db.transaction(async (tx) => {
-      // status is only set on first insert so an admin suspension survives re-seeding.
-      await tx.insert(games).values({ ...row, status: 'active' })
-        .onConflictDoUpdate({ target: games.id, set: { ...row, updatedAt: sql`now()` } });
+      // Admin-owned product choices (status, access, modes, player range, play settings) are written only on first
+      // insert; re-seeding refreshes content and only narrows those choices to what the module still supports.
+      const [prev] = await tx.select().from(games).where(eq(games.id, m.gameId)).for('update');
+      if (!prev) {
+        await tx.insert(games).values({ ...row, status: 'active' });
+      } else {
+        const keep = <T>(chosen: T[], supported: readonly T[]) => { const v = chosen.filter((x) => supported.includes(x)); return v.length ? v : [...supported]; };
+        let minPlayers = Math.max(prev.minPlayers, m.playerCounts.min);
+        let maxPlayers = Math.min(prev.maxPlayers, m.playerCounts.max);
+        if (minPlayers > maxPlayers) [minPlayers, maxPlayers] = [m.playerCounts.min, m.playerCounts.max];
+        const { access: _access, paces: _p, competitions: _c, minPlayers: _mi, maxPlayers: _ma, ...content } = row;
+        await tx.update(games).set({
+          ...content, paces: keep(prev.paces, m.supportedModes.pace), competitions: keep(prev.competitions, m.supportedModes.competition),
+          minPlayers, maxPlayers, updatedAt: sql`now()`
+        }).where(eq(games.id, m.gameId));
+      }
       const existing = await tx.select({ id: gameVersions.id }).from(gameVersions)
         .where(and(eq(gameVersions.gameId, m.gameId), eq(gameVersions.rulesVersion, m.rulesVersion)));
       if (existing.length === 0) {

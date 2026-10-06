@@ -10,7 +10,8 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 // Sample data below is visibly labelled as sample; it is never presented as user data.
 const SAMPLE_GAME: GameSummary = {
   id: 'line-three', nameFa: 'سه‌خطی (نمونه)', nameOriginal: 'Line Three', summaryFa: '', minPlayers: 2, maxPlayers: 2,
-  minMinutes: 2, maxMinutes: 5, difficulty: 'easy', access: 'free', paces: ['live', 'turn'], competitions: ['friendly'], isTestGame: true, status: 'active', tutorialEnabled: true
+  minMinutes: 2, maxMinutes: 5, difficulty: 'easy', access: 'free', paces: ['live', 'turn'], competitions: ['friendly'], isTestGame: true, status: 'active', tutorialEnabled: true,
+  liveSeconds: [60], turnSeconds: [86400]
 };
 const TOKENS = ['--bg', '--surface', '--surface-2', '--text', '--text-2', '--brand', '--action', '--gold', '--success', '--warning', '--danger', '--focus'];
 

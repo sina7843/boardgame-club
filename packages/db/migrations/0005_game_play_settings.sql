@@ -1,0 +1,1 @@
+ALTER TABLE "games" ADD COLUMN "play_settings" jsonb DEFAULT '{}'::jsonb NOT NULL;

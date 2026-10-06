@@ -125,7 +125,7 @@ export type ReplayInput =
   | { kind: 'timeout'; logicalTime: number };
 
 /** Deterministic replay from seed + recorded inputs (debugging / verification; internal only). */
-export function replay(module: AnyModule, setup: { playerCount: number; seed: number }, inputs: ReplayInput[]): EngineSnapshot {
+export function replay(module: AnyModule, setup: { playerCount: number; seed: number; options?: Record<string, unknown> }, inputs: ReplayInput[]): EngineSnapshot {
   let snap = startGame(module, setup).snapshot;
   for (const input of inputs) {
     const r = input.kind === 'timeout' ? applyTimeout(module, snap, input.logicalTime) : applyAction(module, snap, input.actor, input.action, input.logicalTime);

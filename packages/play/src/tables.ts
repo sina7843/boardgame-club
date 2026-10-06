@@ -1,13 +1,15 @@
 // Table lifecycle: create, join (public / invite), leave, ready → start, and server-side tutorial tables.
 import { randomBytes, randomInt } from 'node:crypto';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
-import { AppError, TIME_OPTIONS, type CreateTableBody } from '@bg/contracts';
+import { AppError, type CreateTableBody } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { startGame, type GameRegistry } from '@bg/game-engine';
+import type { OptionValue } from '@bg/game-sdk';
 import { failMatch } from './matchmaking.ts';
 import { lockTable, persistStep, type Tx } from './runtime.ts';
 import { activeSuspension } from './sanctions.ts';
 import { isPremium } from './billing.ts';
+import { assertTimeAllowed, effectiveSettings, resolveOptions } from './game-settings.ts';
 
 const { games, gameVersions, gameTables, participants, tutorialProgress, matchmakingTickets, tableInvites, blocks } = schema;
 
@@ -27,7 +29,7 @@ export async function activeVersion(tx: Tx, registry: GameRegistry, gameId: stri
   // A suspended game, a game without an active version, or a version missing from the reviewed registry
   // never accepts new tables. Existing tables keep their pinned version.
   if (game.status !== 'active' || !version || !registry.has(gameId, version.rulesVersion)) throw new AppError('GAME_NOT_ACCEPTING_TABLES');
-  return { game, version };
+  return { game, version, settings: effectiveSettings(game, registry.resolve(gameId, version.rulesVersion).manifest) };
 }
 
 /** Lock the user's own membership rows so two concurrent joins cannot bypass the limits. */
@@ -48,22 +50,23 @@ export async function assertLimits(tx: Tx, userId: string, pace: 'live' | 'turn'
   }
 }
 
-export async function createTable(db: Db, registry: GameRegistry, cfg: PlayConfig, userId: string, body: CreateTableBody): Promise<string> {
+export async function createTable(db: Db, registry: GameRegistry, cfg: PlayConfig, userId: string, body: Omit<CreateTableBody, 'options'> & { options?: CreateTableBody['options'] }): Promise<string> {
   return db.transaction(async (tx) => {
-    const { game, version } = await activeVersion(tx, registry, body.gameId);
-    if (!game.paces.includes(body.pace)) throw new AppError('MODE_NOT_SUPPORTED');
-    if (!game.competitions.includes(body.competition)) throw new AppError('MODE_NOT_SUPPORTED');
+    const { game, version, settings } = await activeVersion(tx, registry, body.gameId);
+    if (!settings.paces.includes(body.pace)) throw new AppError('MODE_NOT_SUPPORTED');
+    if (!settings.competitions.includes(body.competition)) throw new AppError('MODE_NOT_SUPPORTED');
     // Ranked tables come only from ranked matchmaking (skill-based pairing, no hand-picked opponents).
     if (body.competition === 'ranked') throw new AppError('RANKED_NOT_AVAILABLE');
     // Premium games: the host needs premium to create a table (FR-15 / §13).
     if (game.access === 'premium' && !(await isPremium(tx, userId))) throw new AppError('PREMIUM_REQUIRED');
-    if (body.capacity < game.minPlayers || body.capacity > game.maxPlayers) throw new AppError('VALIDATION_FAILED');
-    if (!(TIME_OPTIONS[body.pace] as readonly number[]).includes(body.turnSeconds)) throw new AppError('INVALID_TIME_SETTING');
+    if (body.capacity < settings.minPlayers || body.capacity > settings.maxPlayers) throw new AppError('VALIDATION_FAILED');
+    assertTimeAllowed(settings, body.pace, body.turnSeconds);
+    const options = resolveOptions(settings, body.options);
     await assertLimits(tx, userId, body.pace, cfg);
     const [t] = await tx.insert(gameTables).values({
       gameId: game.id, gameVersionId: version.id, pace: body.pace, competition: body.competition,
       visibility: body.visibility, status: 'open', hostId: userId, capacity: body.capacity,
-      settings: { turnSeconds: body.turnSeconds, reminders: body.reminders },
+      settings: { turnSeconds: body.turnSeconds, reminders: body.reminders, options },
       inviteCode: body.visibility === 'private' ? randomBytes(12).toString('base64url') : null
     }).returning({ id: gameTables.id });
     await tx.insert(participants).values({ tableId: t!.id, seat: 0, userId, kind: 'human' });
@@ -133,23 +136,28 @@ async function startTable(tx: Tx, locked: Awaited<ReturnType<typeof lockTable>>,
   const { table, module } = locked;
   if (!table.isTutorial) {
     // Re-check at start: the game may have been suspended, or a player sanctioned, since the table opened.
-    const [game] = await tx.select({ status: games.status }).from(games).where(eq(games.id, table.gameId));
+    const [game] = await tx.select().from(games).where(eq(games.id, table.gameId));
     if (game?.status !== 'active') throw new AppError('GAME_NOT_ACCEPTING_TABLES');
+    // Rule variants: chosen at creation; matchmade tables get the game's current defaults here.
+    const chosen = (table.settings as { options?: Record<string, OptionValue> }).options;
+    const options = chosen ?? resolveOptions(effectiveSettings(game, module.manifest));
     const seats = await tx.select({ userId: participants.userId }).from(participants).where(eq(participants.tableId, table.id));
     for (const s of seats) if (s.userId && await activeSuspension(tx, s.userId)) throw new AppError('ACCOUNT_SUSPENDED');
     // Snapshot access at start: later expiry of a subscription never interrupts this game.
     const eligibility = await startEligibility(tx, table, seats.map((s) => s.userId).filter((u): u is string => !!u));
-    table.settings = { ...(table.settings as object), eligibility };
+    table.settings = { ...(table.settings as object), eligibility, options };
     await tx.update(gameTables).set({ settings: table.settings }).where(eq(gameTables.id, table.id));
     if (table.isMatchmade) {
       await tx.update(matchmakingTickets).set({ status: 'started', updatedAt: sql`now()` })
         .where(and(eq(matchmakingTickets.matchedTableId, table.id), eq(matchmakingTickets.status, 'matched')));
     }
   }
-  const step = startGame(module, { playerCount: table.capacity, seed });
+  // Tutorials always use the standard rules (their script assumes them).
+  const options = table.isTutorial ? {} : ((table.settings as { options?: Record<string, OptionValue> }).options ?? {});
+  const step = startGame(module, { playerCount: table.capacity, seed, options });
   await tx.update(gameTables).set({ status: 'active', startedAt: sql`now()` }).where(eq(gameTables.id, table.id));
   table.status = 'active';
-  await persistStep(tx, locked, step, { kind: 'start', seed, playerCount: table.capacity });
+  await persistStep(tx, locked, step, { kind: 'start', seed, playerCount: table.capacity, options });
 }
 
 // ---------- Tutorials: a private, friendly, untimed table against the module's fixed script ----------

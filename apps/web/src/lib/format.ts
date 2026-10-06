@@ -36,3 +36,9 @@ export function remainingFa(iso: string, now = Date.now()): string {
   if (s >= 60) return `${faNum(Math.floor(s / 60))} دقیقه`;
   return 'کمتر از یک دقیقه';
 }
+
+/** Prefer one minute (live) / one day (turn-based) when offered, else the first offered budget. */
+export function defaultTime(offered: number[], pace: 'live' | 'turn'): number {
+  const preferred = pace === 'live' ? 60 : 86400;
+  return offered.includes(preferred) ? preferred : offered[0]!;
+}
