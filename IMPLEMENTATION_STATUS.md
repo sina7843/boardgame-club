@@ -71,10 +71,10 @@ New module `games/amlak` (board data, rules, renderer, cover, tutorial) register
 run: engine 14 (`packages/game-engine/test/amlak.test.ts`: rent cases, auction, building/selling evenly with bank supply,
 mortgages, jail, cards, multi-party debts, bankruptcy, trades with mortgage interest, house rules, round limit,
 timeouts, tutorial, 30 random 2–6 player games with money/supply/card invariants and replay); API 3
-(`apps/api/test/amlak.test.ts`); catalog test updated (now also lists risk);
+(`apps/api/test/amlak.test.ts`); catalog test updated (now also lists risk and ticket-to-ride from parallel sessions);
 E2E `e2e/amlak.spec.ts` — 20-round two-player game incl. a trade offer through the UI at 360 and 1440 (screenshots
 `docs/evidence/amlak/`). Engine suite 173/173. Found and fixed a shared `SegmentedControl` overflow at 360px.
-Not run: full web typecheck (a game module from a parallel session did not compile at the time).
+Not run: full web typecheck (ticket-to-ride renderer from another session does not compile yet).
 
 ## Snakes and Ladders + Ludo (2026-10-07): DONE locally — real devices UNVERIFIED
 
@@ -440,3 +440,21 @@ DRAGON-00 complete. Next: DRAGON-01.
 - [ ] full device/browser matrix incl. Safari iOS and Android Chrome (NFR-07)
 - [ ] load test with stated hardware (NFR-03/04), availability plan (NFR-05), encrypted backup + restore test (NFR-08)
 - [ ] production Docker/Compose, reverse proxy (HTTPS + WebSocket), observability, runbooks
+
+## Ticket to Ride (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/ticket-to-ride` (classic rules, three selectable maps: North America, Europe, Iran; zoomable map,
+face-up market, hand, tickets, claim panel with colour/locomotive choice, final score table, tutorial) registered in
+engine, catalog and web. Checks run: engine 21 (`packages/game-engine/test/ticket-to-ride.test.ts`: map integrity on
+all maps, longest path, setup/card conservation, simultaneous ticket choice, draw rules incl. locomotive rules and
+redeal, claiming/payment/double routes, last round + scoring + ties, timeouts, resign, redaction, tutorial, 15 random
+games + replay); full engine suite 173 passed; API 3 (`apps/api/test/ticket-to-ride.test.ts`) + catalog test 16 passed
+together; E2E `e2e/ticket-to-ride.spec.ts`: three browsers keep tickets and claim 3 routes — Iran at 360, Europe and
+North America at 1440, 3/3 passed (screenshots `docs/evidence/ticket-to-ride/`). A full game to the end through the
+browser not run (engine-tested). Persian texts for the new rejection codes added to `GAME_ERRORS_FA`.
+Visual overhaul (2026-10-08, owner request, three review rounds with screenshots): real simplified coastlines, lakes,
+inland seas, borders, mountains/forests/deserts per map (`geo.ts`), wooden frame with 0–99 score track and markers,
+compass and cartouche, 3D route slots and claimed cars, station plaques; illustrated train cards (a different wagon per
+colour, steam locomotive, card back), ticket stubs with a mini-map, wooden face-up rack, stacked hand, player boards
+with train-stock bars, claim preview, styled log, scoring legend, final medals, new cover. Re-checked: engine 21,
+E2E 3/3 at 360/1440, lint and typecheck clean.

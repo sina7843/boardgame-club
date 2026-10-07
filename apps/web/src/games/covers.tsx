@@ -9,6 +9,7 @@ import AmlakCover from '@bg/game-amlak/cover';
 import UnmatchedCover from '@bg/game-unmatched/cover';
 import CatanCover from '@bg/game-catan/cover';
 import RiskCover from '@bg/game-risk/cover';
+import TtrCover from '@bg/game-ticket-to-ride/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -18,6 +19,7 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   unmatched: UnmatchedCover,
   catan: CatanCover,
   risk: RiskCover,
+  'ticket-to-ride': TtrCover,
   chess: ChessCover,
   'snakes-ladders': SnakesCover,
   ludo: LudoCover,

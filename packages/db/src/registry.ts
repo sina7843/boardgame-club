@@ -10,6 +10,7 @@ import { amlak } from '@bg/game-amlak';
 import { unmatched } from '@bg/game-unmatched';
 import { catan } from '@bg/game-catan';
 import { risk } from '@bg/game-risk';
+import { ticketToRide } from '@bg/game-ticket-to-ride';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide];

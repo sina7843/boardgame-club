@@ -378,3 +378,23 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   jackpot (taxes and card fees), doubleGo (landing exactly on Go pays double).
 - Timeouts play passively (roll, decline, pass, reject trade, end turn; debts: sell buildings then mortgage, else
   bankrupt); three in a row = bankrupt to the bank. Card deck order is never projected.
+
+## Ticket to Ride (2026-10-08, owner request)
+
+- No rulebook supplied; classic base rules: 2–5 players, 45 trains, 110 cards (12 × 8 colours + 14 locomotives),
+  5 face-up (3 face-up locomotives → redeal), turn = draw 2 cards / claim a route / draw 3 tickets (keep ≥1), face-up
+  locomotive first ends the drawing and is not allowed as the second card, double routes never both for one player and
+  closed for 2–3 players, last round when someone ends a turn with ≤2 trains (everyone incl. the trigger plays once
+  more), route points 1/2/4/7/10/15/18/21, tickets ±, longest continuous path +10 (ties all), tie-break completed
+  tickets then longest path. No tunnels, ferries or stations on any map (owner chose classic rules).
+- Maps (option `map`, default `usa`): North America, Europe, Iran. Cities use real longitude/latitude; the route
+  networks are our own data; ticket values are computed as the shortest connection in train cars, not hand-typed.
+  The map art (projected cities, curved routes, land silhouette) is original vector art.
+- Platform deviations: first player drawn by the engine; initial ticket choice is simultaneous; a turn with no possible
+  action is passed and the game ends if every active player passes in a row.
+- Timeouts: ticket choice keeps the cheapest minimum; a turn draws blind cards; three in a row or resigning leaves the
+  seat `abandoned` (routes stay, cards discarded, ranked after active players).
+- Tutorial: Iran map, two seats, learner has 7 trains, seven steps to a win in the last round with a scripted opponent.
+- Shared UI fix found by the املاک 360px E2E: `SegmentedControl` used `whitespace-nowrap` in equal-width grid columns,
+  so long option labels (any game's variants) overflowed the screen and the create-table button was covered. Labels
+  now wrap inside their column (`whitespace-normal`, `min-h`), short labels look unchanged.
