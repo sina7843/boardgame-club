@@ -1,3 +1,5 @@
+/* Sealed Bids: poker-chip bid tokens (rim notches, edge shading), wax-sealed envelopes, a reveal row.
+   Lit from the top-left. Face/ink pairs are chosen for >= 4.5:1 text contrast. */
 .sb { display: grid; gap: var(--sp-4); grid-template-columns: minmax(0, 1fr); }
 .sb > * { min-inline-size: 0; }
 .sb__round { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); }
@@ -5,8 +7,63 @@
 .sb__prize strong { font-size: var(--fs-xl); color: var(--gold); }
 .sb__history summary { cursor: pointer; min-block-size: var(--touch); display: flex; align-items: center; font-weight: 700; }
 
-/* Choosing a token bounces it up; revealed rounds slide in like a turned card. */
-.token--selected { animation: sb-pick 300ms cubic-bezier(0.22, 1.2, 0.36, 1); }
-@keyframes sb-pick { from { transform: translateY(0) scale(0.9); } }
+/* Chip palette per value (1 ivory, 2 red, 3 blue, 4 green, 5 black) */
+.sb .token:nth-child(1), .sb-chip--1 { --chip: #c9bfa0; --face: #f6f1e1; --ink: #1b1300; }
+.sb .token:nth-child(2), .sb-chip--2 { --chip: #8f1a20; --face: #b3232a; --ink: #fff; }
+.sb .token:nth-child(3), .sb-chip--3 { --chip: #113f82; --face: #174f9e; --ink: #fff; }
+.sb .token:nth-child(4), .sb-chip--4 { --chip: #14522a; --face: #1b6e34; --ink: #fff; }
+.sb .token:nth-child(5), .sb-chip--5 { --chip: #0b0b10; --face: #22222c; --ink: #fff; }
+
+.sb .token, .sb-chip { position: relative; isolation: isolate; display: inline-grid; place-items: center;
+  inline-size: 3.75rem; block-size: 3.75rem; border: 0; border-radius: 50%; color: var(--ink); font-weight: 900; font-size: 1.3rem; line-height: 1;
+  background:
+    repeating-conic-gradient(var(--chip) 0 14deg, #f7f3e6 14deg 30deg);
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.35), inset 0 3px 3px rgb(255 255 255 / 0.35), inset 0 -4px 5px rgb(0 0 0 / 0.35),
+    0 1px 1px rgb(0 0 0 / 0.5), 0 4px 6px rgb(0 0 0 / 0.3), 0 8px 14px rgb(0 0 0 / 0.2); }
+/* printed face */
+.sb .token::before, .sb-chip::before { content: ''; position: absolute; inset: 15%; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.28), transparent 55%), var(--face);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.18), inset 0 -3px 4px rgb(0 0 0 / 0.3), 0 0 0 1.5px rgb(0 0 0 / 0.4); }
+/* dashed inner ring */
+.sb .token::after, .sb-chip::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; z-index: -1; border: 1.5px dashed color-mix(in srgb, var(--ink) 55%, transparent); }
+.sb .token { transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), filter var(--dur) var(--ease); cursor: pointer; }
+.sb .token:not(:disabled):hover { transform: translateY(-3px) rotate(-6deg); }
+.sb .token[aria-pressed='true'] { transform: translateY(-8px) scale(1.08);
+  box-shadow: 0 0 0 3px var(--gold), inset 0 3px 3px rgb(255 255 255 / 0.35), inset 0 -4px 5px rgb(0 0 0 / 0.35), 0 14px 18px rgb(0 0 0 / 0.4); }
+.sb .token:disabled { filter: grayscale(0.7) brightness(0.8); }
+.sb .token:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.sb .hand { gap: 10px; padding-block: 10px 4px; }
+
+/* Revealed round: chips flip in from the sealed envelopes; the winner sits on a gold ring with a star. */
+.sb-reveal { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-3); padding: var(--sp-3);
+  border-radius: var(--r-lg); background: var(--table-felt);
+  background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px), radial-gradient(100% 120% at 50% 20%, rgb(255 255 255 / 0.1), transparent 70%);
+  box-shadow: inset 0 6px 20px rgb(0 0 0 / 0.45), inset 0 0 0 2px rgb(0 0 0 / 0.25); }
+.sb-chip { animation: sb-flip 640ms cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--k, 0) * 120ms); }
+.sb-chip--win { box-shadow: 0 0 0 3px var(--gold), 0 0 18px color-mix(in srgb, var(--gold) 70%, transparent), inset 0 3px 3px rgb(255 255 255 / 0.35), inset 0 -4px 5px rgb(0 0 0 / 0.35); }
+@keyframes sb-flip { from { opacity: 0; transform: translateY(-14px) rotateY(180deg) scale(0.8); } }
+
+/* Wax-sealed envelope: paper with a V flap and a wax disc */
+.sb-env { position: relative; display: inline-block; inline-size: 56px; block-size: 40px; border-radius: 4px; flex: none; animation: sb-seal 480ms cubic-bezier(0.22, 1.2, 0.36, 1);
+  background: linear-gradient(145deg, #f3e8d0, #e1d2b0); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15), 0 1px 1px rgb(0 0 0 / 0.4), 0 4px 8px rgb(0 0 0 / 0.3); }
+.sb-env::before { content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(to bottom right, transparent 49.2%, rgb(0 0 0 / 0.22) 50%, transparent 52%) 0 0 / 50% 62% no-repeat,
+    linear-gradient(to bottom left, transparent 49.2%, rgb(0 0 0 / 0.22) 50%, transparent 52%) 100% 0 / 50% 62% no-repeat; }
+.sb-wax { position: absolute; inset-block-start: 50%; inset-inline-start: 50%; inline-size: 20px; block-size: 20px; border-radius: 50% 46% 52% 48%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 34% 30%, #e0505f, #9e2b3b 55%, #6e1624); box-shadow: inset 0 0 0 3px rgb(0 0 0 / 0.12), inset 0 1px 2px rgb(255 255 255 / 0.45), 0 2px 3px rgb(0 0 0 / 0.45); }
+.sb-wax::after { content: ''; position: absolute; inset: 5px; border-radius: 50%; border: 1.5px solid rgb(255 255 255 / 0.4); }
+.sb-wax--sm { position: relative; display: inline-block; inset: auto; inline-size: 12px; block-size: 12px; transform: none; margin-inline-end: 6px; vertical-align: -1px; }
+.sb-wax--sm::after { inset: 3px; border-width: 1px; }
+
+/* Revealed rounds slide in like a turned card. */
 .sb__history tbody tr:last-child { animation: sb-reveal 520ms cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes sb-reveal { from { opacity: 0; transform: rotateX(70deg); } }
+@keyframes sb-seal { from { opacity: 0; transform: translateY(-12px) rotate(-8deg) scale(0.8); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-chip, .sb-env, .sb__history tbody tr:last-child { animation: none; }
+  .sb .token { transition: none; }
+  .sb .token:not(:disabled):hover { transform: none; }
+}
+:root[data-motion='reduce'] .sb-chip, :root[data-motion='reduce'] .sb-env, :root[data-motion='reduce'] .sb__history tbody tr:last-child { animation: none; }
+.sb-chip__star { position: absolute; inset-block-start: -10px; inset-inline-end: -6px; font-size: 1.1rem; color: var(--gold); text-shadow: 0 1px 2px #000; }

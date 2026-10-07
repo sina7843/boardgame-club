@@ -1,0 +1,27 @@
+/* ZoomBoard: the viewport clips the scaled board; a small toolbar sits above it. */
+.zb { position: relative; min-inline-size: 0; display: flex; flex-direction: column; gap: 6px; }
+.zb__viewport { position: relative; overflow: hidden; touch-action: pan-x pan-y; border-radius: inherit; }
+.zb--zoomed .zb__viewport { touch-action: none; cursor: grab; }
+.zb--zoomed .zb__viewport:active { cursor: grabbing; }
+.zb__content { transform-origin: 0 0; will-change: transform; }
+/* Toolbar sits above the board (never on top of it, so it cannot cover a space). */
+.zb__controls { order: -1; align-self: flex-end; display: flex; gap: 6px; }
+.zb__controls button { inline-size: 36px; block-size: 36px; border-radius: 12px; border: 1px solid rgb(0 0 0 / 0.25);
+  background: linear-gradient(180deg, #fffdf6, #eadfc4); color: #2a2520; font: 900 1.2rem/1 system-ui, sans-serif; cursor: pointer;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 3px 8px rgb(0 0 0 / 0.35); }
+.zb__controls button:hover:not(:disabled) { background: linear-gradient(180deg, #fff, #f2e8cf); }
+.zb__controls button:disabled { opacity: 0.45; cursor: default; }
+.zb__controls button:focus-visible { outline: 3px solid var(--focus, #ffd34d); outline-offset: 2px; }
+.zb__tip { position: absolute; inset-block-end: 8px; inset-inline: 0; margin: 0 auto; inline-size: fit-content; padding: 4px 12px; border-radius: 999px;
+  background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.75rem; pointer-events: none; }
+
+/* Full screen: the board fills the screen on a dark table; it scales to fit width and height. */
+.zb--full { justify-content: center; align-items: center; padding: 8px; background: radial-gradient(120% 90% at 50% 30%, #235c43, #10301f); inline-size: 100vw; block-size: 100dvh; }
+.zb--full .zb__viewport { max-inline-size: 100%; max-block-size: calc(100dvh - 58px); }
+.zb--full .zb__content > svg { max-block-size: calc(100dvh - 58px); inline-size: auto; max-inline-size: 100%; }
+
+/* Phones held sideways: keep the whole board inside the screen height. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .zb__viewport { max-block-size: calc(100dvh - 66px); }
+  .zb__content > svg { max-block-size: calc(100dvh - 66px); inline-size: auto; max-inline-size: 100%; margin-inline: auto; }
+}

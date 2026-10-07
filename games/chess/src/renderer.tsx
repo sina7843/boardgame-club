@@ -98,7 +98,10 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
       <div className="ch-main">
         <div className="ch-boardcol">
           <PlayerBar name={seatName(opponent)} color={view.colors[opponent]!} captured={view.captured[view.colors[1 - opponent]!]} active={view.current === opponent} />
-          <div className="ch-board" role="grid" aria-label={`صفحه شطرنج، از سمت ${COLOR_FA[myColor ?? 'w']}`} dir="ltr">
+          <div className="ch-frame" dir="ltr">
+          {(['top', 'bottom'] as const).map((side) => <div key={side} className={`ch-edge ch-edge--files ch-edge--${side}`} aria-hidden="true">{cols.map((f) => <span key={f}>{FILES[f]}</span>)}</div>)}
+          {(['start', 'end'] as const).map((side) => <div key={side} className={`ch-edge ch-edge--ranks ch-edge--${side}`} aria-hidden="true">{rows.map((r) => <span key={r}>{r + 1}</span>)}</div>)}
+          <div className="ch-board" role="grid"aria-label={`صفحه شطرنج، از سمت ${COLOR_FA[myColor ?? 'w']}`} dir="ltr">
             {rows.map((r) => (
               <div key={r} role="row" className="ch-row">
                 {cols.map((f) => {
@@ -126,6 +129,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
               </div>
             ))}
           </div>
+          </div>
           <PlayerBar name={seatName(bottomSeat)} color={view.colors[bottomSeat]!} captured={view.captured[view.colors[1 - bottomSeat]!]} active={view.current === bottomSeat} me={mySeat !== null} />
         </div>
 
@@ -150,9 +154,12 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
           <section className="ch-panel" aria-labelledby="ch-moves-h">
             <h3 id="ch-moves-h">حرکت‌ها {view.halfmove >= 80 && !view.outcome ? <small>({fa(view.halfmove)} نیم‌حرکت بدون زدن یا حرکت سرباز)</small> : null}</h3>
             {pairs.length ? (
-              <ol className="ch-moves" dir="ltr">
-                {pairs.map(([w, b], i) => <li key={i}><span className="ch-moves__n">{i + 1}.</span><span>{w}</span><span>{b ?? ''}</span></li>)}
-              </ol>
+              <div className="ch-sheet" dir="ltr">
+                <div className="ch-sheet__head" aria-hidden="true"><span>#</span><span>{COLOR_FA.w}</span><span>{COLOR_FA.b}</span></div>
+                <ol className="ch-moves">
+                  {pairs.map(([w, b], i) => <li key={i}><span className="ch-moves__n">{i + 1}.</span><span>{w}</span><span>{b ?? ''}</span></li>)}
+                </ol>
+              </div>
             ) : <p className="ch-help">هنوز حرکتی انجام نشده است.</p>}
           </section>
         </div>

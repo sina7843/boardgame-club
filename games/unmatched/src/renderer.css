@@ -1,8 +1,9 @@
-/* Unmatched renderer. The battlefield is a physical object: it keeps its own light "parchment" palette in both
-   themes (dark lines #2a2520 on #efe7d6 ≈ 12:1). Card type colours always come with an icon + text label. */
+/* Unmatched renderer: "premium physical tabletop". The battlefield, cards and tokens are physical objects lit from
+   the top-left; they keep their own parchment/ink palette in both themes (ink #2a2520 on paper #f6efdc ~ 13:1).
+   Card type colours always come with an icon + text label. Artwork lives in art.tsx (pure SVG, aria-hidden). */
 .um {
-  --um-attack: #c0392b; --um-defense: #2563a8; --um-versatile: #7a3fa0; --um-scheme: #b7791f;
-  --um-board: #efe7d6; --um-ink: #2a2520;
+  --um-attack: #a93226; --um-defense: #1f559a; --um-versatile: #6b3591; --um-scheme: #8a5a0b;
+  --um-board: #efe7d6; --um-ink: #2a2520; --um-paper: #f6efdc; --um-paper-2: #e8dcbc; --um-gold: #f2b705;
   display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size;
 }
 .um__meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); color: var(--text-2); font-size: var(--fs-sm); }
@@ -10,25 +11,37 @@
 .um-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
 .um-warn { color: var(--warning); font-size: var(--fs-sm); font-weight: 700; }
 
-/* Players */
-.um-players { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
-.um-player { display: grid; gap: 6px; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: var(--surface-2);
-  border: 2px solid transparent; border-inline-start: 6px solid var(--hc); }
+/* Players: hero dashboard cards (portrait with health-dial ring, track/pips, card stacks) */
+.um-players { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+.um-player { display: grid; gap: 8px; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: var(--surface-2);
+  border: 2px solid transparent; border-inline-start: 6px solid var(--hc); box-shadow: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 2px 6px rgb(0 0 0 / 0.14); }
 .um-player--turn { border-color: var(--brand); border-inline-start-color: var(--hc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
 .um-player--out { opacity: 0.55; }
+.um-player__top { display: flex; align-items: center; gap: var(--sp-3); }
+.um-player__id { display: grid; gap: 2px; min-inline-size: 0; }
+.um-portrait { flex: none; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.35)); }
 .um-player__head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
 .um-player__name { font-weight: 800; max-inline-size: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .um-player__hero { font-weight: 700; }
-.um-player__counts { color: var(--text-2); font-size: var(--fs-xs); }
 .um-badge { font-size: var(--fs-xs); font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--brand); color: var(--brand-foreground, #fff); }
 .um-badge--out { background: var(--text-2); }
-.um-hp { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
-.um-hp__row { display: grid; grid-template-columns: minmax(0, 8ch) 1fr auto; align-items: center; gap: var(--sp-2); font-size: var(--fs-xs); }
+.um-hp { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.um-hp__row { display: grid; grid-template-columns: minmax(0, 9ch) 1fr auto; align-items: center; gap: var(--sp-2); font-size: var(--fs-xs); }
 .um-hp__row--dead { opacity: 0.5; text-decoration: line-through; }
 .um-hp__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.um-hp__bar { block-size: 8px; border-radius: 999px; background: color-mix(in srgb, var(--text-2) 25%, transparent); overflow: hidden; }
-.um-hp__bar > span { display: block; block-size: 100%; background: var(--hc); transition: inline-size var(--dur-slow, 400ms) var(--ease, ease); }
+.um-hp__bar { block-size: 12px; border-radius: 999px; background: color-mix(in srgb, var(--text-2) 25%, transparent); overflow: hidden; box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.35); }
+.um-hp__bar > span { display: block; block-size: 100%; background: linear-gradient(180deg, rgb(255 255 255 / 0.35), transparent 55%), var(--hc); box-shadow: inset 0 -2px 2px rgb(0 0 0 / 0.25); transition: inline-size var(--dur-slow, 400ms) var(--ease, ease); }
+.um-hp__pips { display: flex; flex-wrap: wrap; gap: 3px; }
+.um-pip { inline-size: 12px; block-size: 12px; border-radius: 50%; border: 2px solid var(--hc); background: transparent; box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.3); }
+.um-pip--on { background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.55), transparent 55%), var(--hc); }
 .um-hp__num { font-weight: 700; font-variant-numeric: tabular-nums; }
+.um-player__counts { display: flex; flex-wrap: wrap; gap: 4px var(--sp-3); }
+.um-stackc { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); color: var(--text-2); }
+.um-stackc b { color: var(--text); font-size: var(--fs-sm); }
+.um-stackc__ic { display: inline-block; inline-size: 13px; block-size: 18px; margin-inline-end: 8px; border-radius: 3px; border: 2px solid var(--hc); background: var(--surface); }
+.um-stackc__ic--deck { box-shadow: 3px -3px 0 -1px var(--surface), 3px -3px 0 var(--hc), 6px -6px 0 -1px var(--surface), 6px -6px 0 var(--hc); }
+.um-stackc__ic--discard { transform: rotate(8deg); box-shadow: -3px 2px 0 -1px var(--surface), -3px 2px 0 var(--hc); background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--hc) 35%, var(--surface))); }
+.um-stackc__ic--hand { transform: rotate(-12deg); box-shadow: 5px 0 0 -1px var(--surface), 5px 0 0 var(--hc), 10px 1px 0 -1px var(--surface), 10px 1px 0 var(--hc); }
 
 /* Main area: board + side panel */
 .um-main { display: grid; gap: var(--sp-4); }
@@ -36,43 +49,80 @@
 @container (min-width: 1150px) { .um-main { grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr); align-items: start; } }
 .um-board-wrap { display: grid; gap: var(--sp-2); min-inline-size: 0; }
 .um-side { display: grid; gap: var(--sp-3); min-inline-size: 0; }
-.um-board { inline-size: 100%; block-size: auto; display: block; border-radius: var(--r-lg); box-shadow: var(--shadow); touch-action: manipulation; }
-.um-board__bg { fill: var(--um-board); }
-.um-edge { stroke: var(--um-ink); stroke-width: 9; stroke-linecap: round; }
+
+/* Battlefield: illustrated map (scenery in art.tsx), trodden footpaths with stepping stones, engraved stone medallions
+   with a brass rim, standees on round bases with a numbered health dial */
+.um-board { inline-size: 100%; block-size: auto; display: block; border-radius: var(--r-lg); touch-action: manipulation; }
+.um-board-wrap .zb { border-radius: var(--r-lg); box-shadow: 0 1px 0 rgb(255 255 255 / 0.25) inset, 0 14px 30px -10px rgb(30 18 6 / 0.55), 0 3px 6px rgb(30 18 6 / 0.3); }
+.um-edge-under { stroke-width: 26; stroke-linecap: round; opacity: 0.75; }
+.um-edge { stroke-width: 18; stroke-linecap: round; }
+.um-edge-stone { stroke-width: 9; stroke-linecap: round; stroke-dasharray: 1 15; opacity: 0.95; }
+.um-space__shadow { fill: rgb(30 20 8 / 0.5); }
 .um-space__ring { fill: none; stroke: var(--um-ink); stroke-width: 5; }
-.um-space__num { font: 800 30px/1 var(--font, sans-serif); fill: color-mix(in srgb, var(--um-ink) 55%, transparent); text-anchor: middle; pointer-events: none; }
-.um-start rect { fill: var(--um-ink); }
-.um-start text { font: 800 20px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
+.um-space__brass { fill: none; stroke-width: 5; }
+.um-space__engrave { fill: none; stroke: rgb(42 37 32 / 0.4); stroke-width: 3; }
+.um-space__split { stroke: var(--um-ink); stroke-opacity: 0.55; stroke-width: 3; }
+.um-space__shine { fill: none; stroke: rgb(255 255 255 / 0.6); stroke-width: 4; stroke-linecap: round; }
+.um-space__num { font: 900 31px/1 var(--font, sans-serif); fill: var(--um-ink); text-anchor: middle; pointer-events: none;
+  paint-order: stroke; stroke: rgb(255 255 255 / 0.75); stroke-width: 3px; stroke-linejoin: round; }
+.um-start path:first-child { stroke: var(--um-ink); stroke-width: 2.5; }
+.um-start__seam { stroke: rgb(0 0 0 / 0.25); stroke-width: 1.5; }
+.um-start text { font: 900 20px/1 var(--font, sans-serif); fill: var(--um-ink); text-anchor: middle; paint-order: stroke; stroke: rgb(255 240 190 / 0.8); stroke-width: 2px; }
 .um-space--target { cursor: pointer; }
+.um-space__glow { fill: rgb(242 183 5 / 0.28); stroke: none; filter: drop-shadow(0 0 8px rgb(242 183 5 / 0.8)); animation: um-glow 1.6s ease-in-out infinite; }
+@keyframes um-glow { 50% { fill: rgb(242 183 5 / 0.12); } }
 .um-space--target .um-space__ring { stroke: #f2b705; stroke-width: 12; }
 .um-space--target:hover .um-space__ring, .um-space--target:focus-visible .um-space__ring { stroke: #ffde59; stroke-width: 16; }
 .um-space:focus-visible { outline: none; }
 .um-space--hint .um-space__ring { animation: um-blink 900ms ease-in-out infinite; }
 @keyframes um-blink { 50% { stroke: #fff; } }
 
-.um-fighter { transition: transform 420ms cubic-bezier(0.22, 1.1, 0.36, 1); }
-.um-fighter__disc { stroke: #fff; stroke-width: 6; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.35)); }
-.um-fighter__inner { fill: none; stroke: rgb(255 255 255 / 0.55); stroke-width: 3; }
-.um-fighter__label { font: 900 22px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; pointer-events: none; }
-.um-fighter__label--sm { font-size: 22px; }
+/* Fighters: standee bases (hero colour, plastic gloss, emblem portrait, name plate) with a numbered health dial */
+.um-fighter { transition: transform 560ms cubic-bezier(0.22, 1.1, 0.36, 1); }
+.um-fighter__shadow { fill: rgb(30 18 6 / 0.55); pointer-events: none; }
+.um-fighter__glow { fill: none; stroke: none; pointer-events: none; }
+.um-fighter__disc { stroke: #fff; stroke-width: 5; }
+.um-fighter__gloss { pointer-events: none; }
+.um-fighter__rim { fill: none; stroke: rgb(0 0 0 / 0.3); stroke-width: 2; pointer-events: none; }
+.um-fighter__inner { fill: #f6efdc; stroke: var(--um-ink); stroke-width: 2.5; pointer-events: none; }
+.um-fighter__body > g { pointer-events: none; }
+.um-fighter__spec { fill: rgb(255 255 255 / 0.55); pointer-events: none; }
+.um-fighter__plate { pointer-events: none; }
+.um-fighter__plate-bg { fill: rgb(29 24 18 / 0.92); stroke-width: 3; }
+.um-fighter__label { font: 800 18px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
 .um-fighter__hpbg { fill: var(--um-ink); stroke: #fff; stroke-width: 3; }
-.um-fighter__hp { font: 900 22px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
+.um-fighter__dialring { fill: none; stroke-width: 4; }
+.um-fighter__dialtrack { fill: none; stroke: rgb(255 255 255 / 0.2); stroke-width: 5; }
+.um-fighter__dialarc { fill: none; stroke: #fff; stroke-width: 5; }
+.um-fighter__ticks { fill: none; stroke: rgb(255 255 255 / 0.6); stroke-width: 3; }
+.um-fighter__hp { font: 900 20px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
+.um-fighter__badge { transform-box: fill-box; transform-origin: center; animation: um-pop 380ms cubic-bezier(0.3, 1.6, 0.5, 1); }
+.um-fighter__body { animation: um-shake 360ms ease-out; }
+.um-fighter__dmg { font: 900 40px/1 var(--font, sans-serif); fill: #ff5a4a; text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 6px; stroke-linejoin: round;
+  pointer-events: none; opacity: 0; animation: um-dmg 1500ms ease-out; }
+@keyframes um-pop { from { transform: scale(0.6); } }
+@keyframes um-shake { 20% { transform: translateX(-5px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
+@keyframes um-dmg { 0% { opacity: 0; transform: translateY(12px) scale(0.5); } 18% { opacity: 1; transform: translateY(-8px) scale(1.25); } 70% { opacity: 1; transform: translateY(-26px) scale(1); } 100% { opacity: 0; transform: translateY(-42px); } }
+.um-fighter--turn .um-fighter__glow { stroke: rgb(255 255 255 / 0.55); stroke-width: 3; stroke-dasharray: 6 8; }
 .um-fighter--target { cursor: pointer; }
 .um-fighter--target .um-fighter__disc { stroke: #f2b705; stroke-width: 10; }
+.um-fighter--target .um-fighter__glow { fill: rgb(242 183 5 / 0.3); filter: drop-shadow(0 0 8px rgb(242 183 5 / 0.9)); }
 .um-fighter--selected .um-fighter__disc { stroke: #ffde59; stroke-width: 14; }
+.um-fighter--selected .um-fighter__glow { fill: rgb(255 222 89 / 0.4); stroke: #ffde59; stroke-width: 3; stroke-dasharray: none; filter: drop-shadow(0 0 10px #ffde59); }
 .um-fighter--hint .um-fighter__disc { animation: um-blink 900ms ease-in-out infinite; }
 .um-fighter:focus-visible { outline: none; }
 .um-fighter:focus-visible .um-fighter__disc { stroke: var(--focus, #ffde59); stroke-width: 14; }
 
 .um-zones { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px var(--sp-3); font-size: var(--fs-xs); color: var(--text-2); }
 .um-zones li { display: inline-flex; align-items: center; gap: 4px; }
-.um-zones__dot { inline-size: 12px; block-size: 12px; border-radius: 50%; border: 1px solid var(--um-ink); }
+.um-zones__dot { inline-size: 14px; block-size: 14px; border-radius: 50%; border: 1px solid var(--um-ink);
+  box-shadow: inset 1px 2px 2px rgb(255 255 255 / 0.5), inset -1px -2px 2px rgb(0 0 0 / 0.25); }
 
 /* Panels */
 .um-panel { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); }
 .um-panel h3 { margin: 0; font-size: var(--fs-md); }
 .um-panel p { margin: 0; }
-.um-panel--decide { border: 2px solid var(--brand); animation: um-rise 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+.um-panel--decide { border: 2px solid var(--brand); box-shadow: 0 6px 16px rgb(0 0 0 / 0.2); animation: um-rise 300ms cubic-bezier(0.16, 1, 0.3, 1); }
 .um-panel--quiet { color: var(--text-2); font-size: var(--fs-sm); }
 @keyframes um-rise { from { opacity: 0; transform: translateY(10px); } }
 .um-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
@@ -81,7 +131,7 @@
 .um-choices legend { font-size: var(--fs-sm); font-weight: 700; margin-block-end: 4px; padding: 0; }
 .um-choices--compact { max-block-size: 200px; overflow-y: auto; }
 .um-choice { min-block-size: var(--touch, 44px); padding: 6px 12px; border-radius: var(--r-sm, 8px); border: 2px solid var(--border); background: var(--surface);
-  color: var(--text); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
+  color: var(--text); font: inherit; font-size: var(--fs-sm); cursor: pointer; box-shadow: 0 2px 0 rgb(0 0 0 / 0.15); }
 .um-choice:hover { border-color: var(--brand); }
 .um-choice--on { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 16%, var(--surface)); font-weight: 700; }
 .um-choice--hint { box-shadow: 0 0 0 3px var(--gold); }
@@ -91,60 +141,95 @@
 .um-option { display: flex; align-items: center; gap: var(--sp-2); min-block-size: var(--touch, 44px); }
 .um-option input { inline-size: 20px; block-size: 20px; }
 
+/* Hero pick: illustrated panels (shield emblem with the hero's portrait, stat chips with icons) */
 .um-heroes { display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
-.um-hero { display: grid; gap: 4px; text-align: start; padding: var(--sp-3); border-radius: var(--r-md); border: 2px solid var(--border);
-  border-inline-start: 8px solid var(--hc); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
-.um-hero:hover, .um-hero:focus-visible { border-color: var(--brand); border-inline-start-color: var(--hc); outline: none; }
+.um-hero { position: relative; display: grid; gap: 6px; text-align: start; padding: var(--sp-3); padding-inline-end: 68px; border-radius: var(--r-md); border: 2px solid var(--border);
+  border-inline-start: 8px solid var(--hc); color: var(--text); font: inherit; cursor: pointer;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--hc) 14%, var(--surface)), var(--surface) 60%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.16); transition: transform var(--dur, 160ms) var(--ease, ease), box-shadow var(--dur, 160ms) var(--ease, ease); }
+.um-hero:hover, .um-hero:focus-visible { border-color: var(--brand); border-inline-start-color: var(--hc); transform: translateY(-2px); box-shadow: 0 8px 16px rgb(0 0 0 / 0.22); }
+.um-hero:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .um-hero span, .um-hero small { color: var(--text-2); font-size: var(--fs-xs); line-height: 1.6; }
+.um-hero__emblem { position: absolute; inset-block-start: 10px; inset-inline-end: 10px; inline-size: 48px; block-size: 56px; filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.35)); }
+.um-hero__stats { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.um-stat { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; white-space: nowrap;
+  background: color-mix(in srgb, var(--hc) 14%, var(--surface-2)); border: 1px solid color-mix(in srgb, var(--hc) 40%, transparent); }
+.um-stat > span { color: var(--hc); filter: brightness(0.85); }
 .um-hero--hint { box-shadow: 0 0 0 3px var(--gold); }
-.um-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-2); padding: var(--sp-4); border-radius: var(--r-lg); background: var(--um-board); }
-.um-gallery__hero { display: grid; gap: 4px; padding: var(--sp-3); border-radius: var(--r-md); background: var(--hc); color: #fff; }
+.um-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-2); padding: var(--sp-4); border-radius: var(--r-lg); border: 6px solid #4a2f18;
+  background: linear-gradient(135deg, var(--um-paper), var(--um-paper-2)); box-shadow: var(--shadow); }
+.um-gallery__hero { display: grid; gap: 4px; padding: var(--sp-3); border-radius: var(--r-md); color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.22), transparent 50%, rgb(0 0 0 / 0.3)), var(--hc); box-shadow: 0 2px 5px rgb(0 0 0 / 0.3); }
 .um-gallery__hero--taken { opacity: 0.45; }
 
-/* Cards */
+/* Cards: framed card stock - value medallion, type chip, illustrated art window (owner emblem + type seal), title
+   banner, parchment rules panel, boost gem and a glossy sheen. The hand is a fanned row that lifts on hover/focus. */
 .um-cards { display: flex; flex-wrap: wrap; gap: 8px; }
-.um-cards--hand { gap: 10px; }
-.um-card { --tc: var(--um-versatile); position: relative; display: grid; align-content: start; gap: 4px; inline-size: 148px; min-block-size: 170px;
-  padding: 8px 10px 26px; border-radius: 12px; border: 2px solid var(--tc); background: var(--surface); color: var(--text);
-  text-align: start; font: inherit; box-shadow: 0 3px 8px rgb(0 0 0 / 0.18); transition: transform var(--dur, 160ms) var(--ease, ease), box-shadow var(--dur, 160ms) var(--ease, ease); }
+.um-card { --tc: var(--um-versatile); --ty: var(--ty0, 0px); --rot: var(--rot0, 0deg); position: relative; display: grid; align-content: start; gap: 4px; inline-size: 148px; min-block-size: 262px; overflow: hidden; isolation: isolate;
+  padding: 8px 10px 32px; border-radius: 12px; border: 3px solid var(--tc); color: var(--um-ink); text-align: start; font: inherit;
+  background: radial-gradient(rgb(106 74 28 / 0.09) 1px, transparent 1.4px) 0 0 / 7px 7px, linear-gradient(170deg, var(--um-paper), var(--um-paper-2));
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), inset 0 0 0 2px rgb(255 255 255 / 0.55), 0 4px 10px rgb(0 0 0 / 0.28);
+  transform: translateY(var(--ty)) rotate(var(--rot)); transform-origin: 50% 110%;
+  transition: transform var(--dur, 160ms) var(--ease, ease), box-shadow var(--dur, 160ms) var(--ease, ease); }
 button.um-card { cursor: pointer; }
 .um-card--attack { --tc: var(--um-attack); } .um-card--defense { --tc: var(--um-defense); } .um-card--scheme { --tc: var(--um-scheme); }
-.um-card__top { display: flex; justify-content: space-between; align-items: center; gap: 4px; margin: -8px -10px 2px; padding: 4px 10px; background: var(--tc); color: #fff; border-radius: 9px 9px 0 0; }
+.um-card__top { display: flex; justify-content: space-between; align-items: center; gap: 4px; margin: -8px -10px 2px; padding: 4px 8px 4px 10px; color: #fff; text-shadow: 0 1px 1px rgb(0 0 0 / 0.5);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.25), transparent 50%), linear-gradient(180deg, var(--tc), color-mix(in srgb, var(--tc) 70%, #000)); box-shadow: 0 2px 3px rgb(0 0 0 / 0.3); }
 .um-card__type { font-size: var(--fs-xs); font-weight: 800; }
-.um-card__value { font-size: 1.4rem; font-weight: 900; line-height: 1; }
-.um-card__name { font-weight: 800; font-size: var(--fs-sm); line-height: 1.4; }
-.um-card__banner { font-size: var(--fs-xs); color: var(--text-2); }
-.um-card__text { font-size: 11px; line-height: 1.6; color: var(--text); }
-.um-card__boost { position: absolute; inset-block-end: 6px; inset-inline-end: 8px; inline-size: 24px; block-size: 24px; border-radius: 50%;
-  display: grid; place-items: center; background: var(--text); color: var(--surface); font-size: 13px; font-weight: 900; }
-.um-card--sm { inline-size: 112px; min-block-size: 92px; }
-.um-card--playable { box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc) 45%, transparent), 0 3px 8px rgb(0 0 0 / 0.18); }
-.um-card--playable:hover { transform: translateY(-4px); }
-.um-card--selected { transform: translateY(-8px); box-shadow: 0 0 0 4px #f2b705, 0 8px 16px rgb(0 0 0 / 0.25); }
-.um-card--boost { transform: translateY(-4px) rotate(-3deg); box-shadow: 0 0 0 4px var(--um-scheme), 0 8px 16px rgb(0 0 0 / 0.25); }
-.um-card--dim { opacity: 0.45; cursor: not-allowed; }
-.um-card--hint { box-shadow: 0 0 0 4px var(--gold); animation: um-pulse 1.2s ease-in-out infinite; }
-@keyframes um-pulse { 50% { transform: translateY(-4px); } }
+.um-card__value { display: grid; place-items: center; inline-size: 36px; block-size: 36px; margin-block: -2px; border-radius: 50%; font-size: 1.3rem; font-weight: 900; line-height: 1; text-shadow: none;
+  color: var(--um-ink); background: radial-gradient(circle at 35% 30%, #fff6d0, #e0b23a 60%, #9a6b0c); border: 2px solid #5a3d08; box-shadow: 0 2px 3px rgb(0 0 0 / 0.4), inset 0 1px 1px rgb(255 255 255 / 0.7); }
+.um-card__art { display: block; inline-size: 100%; block-size: auto; border-radius: 8px; border: 2px solid color-mix(in srgb, var(--tc) 75%, #000); box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.4), 0 1px 0 rgb(255 255 255 / 0.6); }
+.um-card__art-bg { fill: var(--tc); }
+.um-card__name { margin-inline: -4px; padding: 2px 8px; text-align: center; font-weight: 800; font-size: var(--fs-sm); line-height: 1.4; color: var(--um-ink);
+  background: linear-gradient(180deg, #fffaf0, #efe2c1); border-block: 1.5px solid color-mix(in srgb, var(--tc) 70%, #000); box-shadow: 0 1px 2px rgb(0 0 0 / 0.2); }
+.um-card__banner { font-size: var(--fs-xs); color: #4d443a; text-align: center; }
+.um-card__text { font-size: 11px; line-height: 1.6; color: var(--um-ink); padding: 4px 6px; border-radius: 6px; background: rgb(255 252 240 / 0.8);
+  border: 1px solid rgb(106 74 28 / 0.3); box-shadow: inset 0 1px 2px rgb(106 74 28 / 0.15); }
+.um-card__boost { position: absolute; inset-block-end: 6px; inset-inline-end: 8px; inline-size: 28px; block-size: 28px; display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 900;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.6); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--tc) 40%, #fff), var(--tc) 55%, color-mix(in srgb, var(--tc) 60%, #000)); }
+.um-card__sheen { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(115deg, rgb(255 255 255 / 0.28) 0%, rgb(255 255 255 / 0) 38%); }
+.um-card--sm { inline-size: 112px; min-block-size: 96px; }
+.um-card--playable { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), inset 0 0 0 2px rgb(255 255 255 / 0.55), 0 0 0 4px color-mix(in srgb, var(--tc) 45%, transparent), 0 4px 10px rgb(0 0 0 / 0.28); }
+button.um-card--playable:hover, button.um-card--playable:focus-visible { --ty: -16px; --rot: 0deg; z-index: 5; }
+.um-card--selected { --ty: -22px; --rot: 0deg; z-index: 6; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 0 0 4px #f2b705, 0 12px 20px rgb(0 0 0 / 0.35); }
+.um-card--boost { --ty: -14px; --rot: -3deg; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 0 0 4px var(--um-scheme), 0 12px 20px rgb(0 0 0 / 0.35); }
+.um-card--dim { opacity: 0.55; filter: grayscale(0.5); cursor: not-allowed; }
+.um-card--hint { box-shadow: 0 0 0 4px var(--gold), 0 4px 10px rgb(0 0 0 / 0.28); animation: um-pulse 1.2s ease-in-out infinite; }
+@keyframes um-pulse { 50% { translate: 0 -6px; } }
 .um-card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-.um-card--back { --tc: #2a2520; inline-size: 64px; min-block-size: 90px; padding: 0; place-content: center; background: repeating-linear-gradient(45deg, #2a2520 0 8px, #3a332c 8px 16px);
-  color: #f2b705; font-size: 28px; }
+/* Card back: dark stock with the owner's hero colour border and emblem crest */
+.um-card--back { --tc: var(--hc, #c8921a); inline-size: 66px; min-block-size: 92px; padding: 0; place-content: center; color: var(--um-gold); font-size: 28px; border-color: #14110e;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--tc) 40%, transparent), transparent 58%), repeating-linear-gradient(45deg, #2a2520 0 6px, #3a322a 6px 12px), #2a2520;
+  box-shadow: inset 0 0 0 3px #2a2520, inset 0 0 0 5px var(--tc), 0 4px 10px rgb(0 0 0 / 0.35); }
+.um-card__crest { display: grid; place-items: center; inline-size: 40px; block-size: 40px; border-radius: 50%; background: #f6efdc; border: 2px solid var(--tc); text-shadow: none; color: var(--um-ink); }
 .um-pickwrap { position: relative; display: inline-block; }
-.um-pickwrap__n { position: absolute; inset-block-start: -8px; inset-inline-start: -8px; inline-size: 26px; block-size: 26px; border-radius: 50%; display: grid; place-items: center;
-  background: #f2b705; color: #1b1300; font-weight: 900; }
+.um-pickwrap__n { position: absolute; inset-block-start: -8px; inset-inline-start: -8px; z-index: 7; inline-size: 26px; block-size: 26px; border-radius: 50%; display: grid; place-items: center;
+  background: #f2b705; color: #1b1300; font-weight: 900; box-shadow: 0 2px 4px rgb(0 0 0 / 0.4); }
 
-.um-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border); }
+.um-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border); box-shadow: inset 0 3px 8px rgb(0 0 0 / 0.18); min-inline-size: 0; }
 .um-hand__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); }
-@media (max-width: 520px) {
-  .um-cards--hand { flex-wrap: nowrap; overflow-x: auto; padding-block: 10px 4px; scroll-snap-type: x proximity; }
-  .um-cards--hand > .um-card { flex: none; scroll-snap-align: start; inline-size: 136px; }
-}
+/* Fanned hand: overlapping cards on a shallow arc; --fd is the card's offset from the middle of the hand */
+.um-cards--hand { flex-wrap: nowrap; justify-content: safe center; gap: 0; overflow-x: auto; padding: 28px 22px 12px; }
+.um-cards--hand > .um-card { flex: none; --rot0: calc(var(--fd, 0) * 2.2deg); --ty0: calc(var(--fd, 0) * var(--fd, 0) * 1.4px); margin-inline-start: -34px; }
+.um-cards--hand > .um-card:first-child { margin-inline-start: 0; }
+@media (max-width: 520px) { .um-cards--hand > .um-card { inline-size: 132px; margin-inline-start: -44px; } }
 
-/* Combat */
+/* Combat: a duel stage - both fighters' portraits, the cards facing off on a felt mat, flip reveal and a damage number */
 .um-combat { border: 2px solid var(--um-attack); }
-.um-combat__row { display: flex; align-items: center; justify-content: center; gap: var(--sp-3); flex-wrap: wrap; }
+.um-combat__row { position: relative; display: flex; align-items: center; justify-content: center; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-3); border-radius: var(--r-md);
+  background: radial-gradient(ellipse at 50% 40%, #2f5a4a, #1b3a2f 75%); box-shadow: inset 0 3px 10px rgb(0 0 0 / 0.55), inset 0 0 0 3px #4a2f18; }
+.um-combat__row .um-muted, .um-combat__boost { color: #f1e7cf; }
 .um-combat__side { display: grid; justify-items: center; gap: 4px; }
+.um-combat__who { filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.5)); }
+.um-combat__side > .um-card:not(.um-card--back) { animation: um-flip 560ms cubic-bezier(0.2, 0.8, 0.3, 1); }
 .um-combat__boost { display: grid; justify-items: center; font-size: var(--fs-xs); }
-.um-vs { font-weight: 900; font-size: 1.4rem; color: var(--um-attack); }
+@keyframes um-flip { 0% { transform: perspective(600px) rotateY(90deg) scale(0.9); } 60% { transform: perspective(600px) rotateY(-8deg) scale(1.05); } 100% { transform: perspective(600px) rotateY(0); } }
+.um-vs { display: grid; place-items: center; inline-size: 48px; block-size: 48px; border-radius: 50%; font-weight: 900; font-size: 1rem; color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+  background: radial-gradient(circle at 35% 28%, #e8685a, var(--um-attack) 55%, #5a130c); border: 3px solid #f2b705; box-shadow: 0 3px 8px rgb(0 0 0 / 0.5), inset 0 1px 2px rgb(255 255 255 / 0.5); }
+.um-combat__dmg { position: absolute; inset-inline: 0; inset-block-start: 6px; margin-inline: auto; inline-size: fit-content; font: 900 2.4rem/1 var(--font, sans-serif); color: #ff6a58; pointer-events: none;
+  text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 4px 10px rgb(0 0 0 / 0.5); animation: um-dmgpop 700ms cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+@keyframes um-dmgpop { from { opacity: 0; transform: scale(0.3) translateY(14px); } }
 .um-combat__result { text-align: center; }
 
 .um-discards summary, .um-log summary { cursor: pointer; font-weight: 700; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
@@ -152,20 +237,36 @@ button.um-card { cursor: pointer; }
 .um-log ol { margin: 0; padding-inline-start: var(--sp-5); color: var(--text-2); display: grid; gap: 2px; font-size: var(--fs-sm); list-style-type: persian; }
 .um-log li:first-child { color: var(--text); }
 
+/* Motion: every animation and transition here is switched off for reduced motion (OS setting or the site toggle) */
 @media (prefers-reduced-motion: reduce) {
-  .um-fighter, .um-card, .um-hp__bar > span { transition: none; }
-  .um-space--hint .um-space__ring, .um-fighter--hint .um-fighter__disc, .um-card--hint, .um-panel--decide { animation: none; }
+  .um *, .um *::before, .um *::after { animation: none !important; transition: none !important; }
+  .um-fighter__dmg { display: none; }
 }
-:root[data-motion='reduce'] .um-fighter, :root[data-motion='reduce'] .um-card { transition: none; }
-:root[data-motion='reduce'] .um-card--hint, :root[data-motion='reduce'] .um-space--hint .um-space__ring { animation: none; }
+:root[data-motion='reduce'] .um *, :root[data-motion='reduce'] .um *::before, :root[data-motion='reduce'] .um *::after { animation: none !important; transition: none !important; }
+:root[data-motion='reduce'] .um-fighter__dmg { display: none; }
+
+/* Phone held sideways: board and decision panel side by side, board fitted to the screen height (ZoomBoard caps the svg) */
+@media (orientation: landscape) and (max-height: 560px) {
+  .um { gap: var(--sp-2); }
+  .um-main { grid-template-columns: minmax(0, 1.5fr) minmax(250px, 1fr); align-items: start; gap: var(--sp-2); }
+  .um-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; position: sticky; inset-block-start: 8px; }
+  .um-players { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+  .um-player__top .um-portrait { inline-size: 44px; block-size: 44px; }
+  .um-zones { display: none; }
+  .um-card { min-block-size: 214px; }
+  .um-cards--hand { padding-block-start: 22px; }
+}
 
 /* Cobble & Fog: fog tokens (cloud + text label in aria), secret passages, hero sets */
-.um-fog ellipse { fill: rgb(255 255 255 / 0.85); stroke: var(--um-ink); stroke-width: 3; }
+.um-fog ellipse { fill: rgb(255 255 255 / 0.9); stroke: var(--um-ink); stroke-width: 3; filter: drop-shadow(0 3px 2px rgb(0 0 0 / 0.3)); }
+.um-fog ellipse.um-fog__puff { fill: rgb(235 240 245 / 0.9); stroke-width: 2.5; }
 .um-fog text { font: 900 20px/1 var(--font, sans-serif); fill: var(--um-ink); text-anchor: middle; pointer-events: none; }
 .um-fog--target { cursor: pointer; }
 .um-fog--target ellipse { stroke: #f2b705; stroke-width: 7; }
 .um-fog:focus-visible { outline: none; }
 .um-fog:focus-visible ellipse { stroke: var(--focus, #ffde59); stroke-width: 9; }
-.um-passage circle { fill: var(--um-ink); stroke: #f2b705; stroke-width: 3; }
-.um-passage text { font: 900 18px/1 sans-serif; fill: #f2b705; text-anchor: middle; }
+.um-passage { pointer-events: none; }
+.um-passage circle { fill: var(--um-ink); stroke: #c8921a; stroke-width: 3; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.4)); }
+.um-passage circle.um-passage__inner { fill: none; stroke: rgb(242 183 5 / 0.5); stroke-width: 1.5; filter: none; }
+.um-passage .um-passage__key { fill: #f2b705; stroke: none; filter: none; }
 .um-heroes__set { grid-column: 1 / -1; margin: var(--sp-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }

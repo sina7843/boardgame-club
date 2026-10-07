@@ -8,15 +8,24 @@
 }
 .ct__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); color: var(--text-2); font-size: var(--fs-sm); }
 .ct-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
-.ct-dice { display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
-.ct-die { display: inline-grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: 6px; background: #f3d34a; color: #1b1300; font-weight: 900; }
-.ct-die--red { background: #c8323c; color: #fff; }
+.ct-dice { display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
+/* Lacquered die: bevelled face (light top-left, dark bottom-right), 3x3 pip grid, soft shadow. */
+.ct-die { --die: #fbf5e4; --pip: #1b130b; display: inline-grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); place-items: center; inline-size: 34px; block-size: 34px; padding: 5px; border-radius: 9px;
+  background: radial-gradient(circle at 30% 25%, #fff 0, var(--die) 45%, color-mix(in srgb, var(--die) 80%, #6b5a3a) 100%);
+  box-shadow: inset 1.5px 1.5px 1px rgb(255 255 255 / 0.9), inset -2px -2px 2px rgb(0 0 0 / 0.28), 0 1px 0 rgb(0 0 0 / 0.25), 1px 4px 6px rgb(0 0 0 / 0.35);
+  animation: ct-roll 480ms cubic-bezier(0.22, 1.2, 0.36, 1); }
+.ct-die--red { --die: #d63a44; --pip: #fff; animation-delay: 60ms; }
+.ct-die i { inline-size: 6px; block-size: 6px; border-radius: 50%; }
+.ct-die .ct-die__pip { background: radial-gradient(circle at 35% 30%, #5b5148, var(--pip) 70%); box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.5), 0 0.5px 0 rgb(255 255 255 / 0.35); }
+.ct-die--red .ct-die__pip { background: radial-gradient(circle at 35% 30%, #fff, #f6dcd8 80%); box-shadow: inset 0 -1px 1px rgb(0 0 0 / 0.25); }
+@keyframes ct-roll { from { transform: rotate(-220deg) scale(0.5); opacity: 0.2; } }
 .ct-bank { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ct-mini { display: inline-flex; gap: 2px; align-items: center; font-variant-numeric: tabular-nums; }
-.ct-mini > span { color: var(--rc); }
+.ct-ico { display: block; inline-size: 1.15em; block-size: 1.15em; flex: none; filter: drop-shadow(0 1px 0.5px rgb(0 0 0 / 0.3)); }
+.ct-mini > span, .ct-chip > span, .ct-res__icon { display: inline-flex; }
 
-.ct-res--brick { --rc: var(--ct-brick); } .ct-res--lumber { --rc: var(--ct-lumber); } .ct-res--wool { --rc: #5e8f2f; }
-.ct-res--grain { --rc: #a8820f; } .ct-res--ore { --rc: #5f6670; }
+.ct-res--brick { --rc: var(--ct-brick); --rb: #dd8656; } .ct-res--lumber { --rc: var(--ct-lumber); --rb: #438f51; } .ct-res--wool { --rc: #5e8f2f; --rb: #b2da78; }
+.ct-res--grain { --rc: #a8820f; --rb: #f3d263; } .ct-res--ore { --rc: #5f6670; --rb: #abb1bc; }
 
 /* Players */
 /* Board first: on phones the players strip follows it in compact cards. */
@@ -34,8 +43,9 @@
 .ct-player__counts { color: var(--text-2); font-size: var(--fs-xs); }
 .ct-player__awards { display: flex; flex-wrap: wrap; gap: 4px; }
 .ct-player__awards:empty { display: none; }
-.ct-swatch { display: inline-grid; place-items: center; inline-size: 22px; block-size: 22px; border-radius: 50%; background: var(--pc); color: #fff;
-  font-size: var(--fs-xs); font-weight: 900; box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.35); }
+.ct-swatch { display: inline-grid; place-items: center; inline-size: 24px; block-size: 24px; border-radius: 50%; color: #fff;
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.55), transparent 55%), var(--pc);
+  font-size: var(--fs-xs); font-weight: 900; text-shadow: 0 1px 1px rgb(0 0 0 / 0.6); box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.35), inset -2px -3px 3px rgb(0 0 0 / 0.25), 0 2px 3px rgb(0 0 0 / 0.3); }
 .ct-player:nth-child(3) .ct-swatch { color: var(--ct-ink); }
 .ct-badge { font-size: var(--fs-xs); font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--brand); color: var(--brand-foreground, #fff); }
 .ct-badge--out { background: var(--text-2); }
@@ -47,24 +57,48 @@
 @container (min-width: 1100px) { .ct-main { grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); align-items: start; } }
 .ct-board-wrap { display: grid; gap: var(--sp-2); min-inline-size: 0; }
 .ct-side { display: grid; gap: var(--sp-3); min-inline-size: 0; align-content: start; }
-.ct-board { inline-size: 100%; max-inline-size: 720px; margin-inline: auto; block-size: auto; display: block; touch-action: manipulation; }
-.ct-sea { fill: var(--ct-sea); stroke: #1d4f6d; stroke-width: 6; stroke-linejoin: round; }
-.ct-hex__tile { stroke: #f2e6c8; stroke-width: 3; }
-.ct-hex__name { font-size: 10px; font-weight: 700; fill: rgb(0 0 0 / 0.65); text-anchor: middle; pointer-events: none; }
-.ct-token circle:first-child { fill: var(--ct-token); stroke: #b9a77c; stroke-width: 1.5; }
+.ct-board { inline-size: 100%; max-inline-size: 720px; margin-inline: auto; block-size: auto; display: block; touch-action: manipulation; filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.35)); }
+/* Wooden frame with mitred corners and brass studs. */
+.ct-frame { stroke: #2e1a09; stroke-width: 2.5; stroke-linejoin: round; }
+.ct-frame__miter { stroke: rgb(30 14 3 / 0.55); stroke-width: 1.4; }
+.ct-frame__edge { fill: none; stroke: rgb(255 235 200 / 0.4); stroke-width: 1.4; stroke-linejoin: round; }
+.ct-stud { stroke: #4f3908; stroke-width: 0.8; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); }
+.ct-sea { stroke: #0f3a52; stroke-width: 4; stroke-linejoin: round; }
+.ct-hex__tile { stroke: #f2e6c8; stroke-width: 2.5; stroke-linejoin: round; }
+/* Ink on an ivory halo keeps the label legible on every terrain. */
+.ct-hex__name { font-size: 10px; font-weight: 800; fill: var(--ct-ink); stroke: rgb(246 239 220 / 0.92); stroke-width: 3.2px; paint-order: stroke; stroke-linejoin: round; text-anchor: middle; pointer-events: none; }
+.ct-token__ring { fill: none; stroke: #b9a77c; stroke-width: 0.9; }
+.ct-token__disc { stroke: #a8946a; stroke-width: 1.2; }
 .ct-token text { font-size: 16px; font-weight: 900; fill: var(--ct-ink); text-anchor: middle; pointer-events: none; }
 .ct-token--hot text, .ct-token--hot .ct-pip { fill: var(--ct-hot); }
 .ct-pip { fill: var(--ct-ink); }
-.ct-robber { fill: #2a2520; stroke: #f6efdc; stroke-width: 1.5; pointer-events: none; }
-.ct-harbor line { stroke: #f2e6c8; stroke-width: 3; stroke-dasharray: 4 3; }
-.ct-harbor circle { fill: #f6efdc; stroke: #1d4f6d; stroke-width: 2; }
+.ct-robber__body { animation: ct-drop 420ms cubic-bezier(0.3, 1.4, 0.5, 1); }
+@keyframes ct-drop { from { transform: translateY(-18px); opacity: 0; } }
+/* Harbours: plank pier + little boat + coin; coin rim takes the resource colour. */
+.ct-pier__under { stroke: #3b230f; stroke-width: 6; stroke-linecap: butt; }
+.ct-pier { stroke: #d9ae72; stroke-width: 3.6; stroke-dasharray: 4.5 1.5; }
+.ct-boat { fill: url(#ctb-wood); stroke: #2e1a09; stroke-width: 1; stroke-linejoin: round; }
+.ct-harbor__coin { fill: url(#ctb-token); stroke: #1d4f6d; stroke-width: 2.4; filter: drop-shadow(0 1.5px 1.5px rgb(0 0 0 / 0.45)); }
+.ct-harbor.ct-res--brick .ct-harbor__coin, .ct-harbor.ct-res--lumber .ct-harbor__coin, .ct-harbor.ct-res--wool .ct-harbor__coin,
+.ct-harbor.ct-res--grain .ct-harbor__coin, .ct-harbor.ct-res--ore .ct-harbor__coin { stroke: var(--rb); }
 .ct-harbor__rate { font-size: 10px; font-weight: 900; fill: var(--ct-ink); text-anchor: middle; }
-.ct-harbor__res { font-size: 7px; font-weight: 700; fill: var(--ct-ink); text-anchor: middle; }
+.ct-harbor__res { font-size: 7.5px; font-weight: 800; fill: var(--ct-ink); text-anchor: middle; }
+/* Roads: dark wooden plank, seat-colour top, light edge from the top-left. */
+.ct-road__shadow { stroke: rgb(0 0 0 / 0.35); stroke-width: 10; stroke-linecap: round; transform: translate(1.2px, 2.2px); }
 .ct-road { stroke-width: 7; stroke-linecap: round; }
 .ct-road__edge { stroke: #1b1611; stroke-width: 10; stroke-linecap: round; }
-.ct-piece { stroke: #1b1611; stroke-width: 2; stroke-linejoin: round; }
-.ct-piece__n { font-size: 9px; font-weight: 900; fill: #fff; text-anchor: middle; pointer-events: none; }
-.ct-piece__n--dark { fill: var(--ct-ink); }
+.ct-road__hl { stroke: #fff; stroke-opacity: 0.4; stroke-width: 1.8; stroke-linecap: round; pointer-events: none; }
+.ct-piece { stroke: #1b1611; stroke-width: 1.5; stroke-linejoin: round; }
+.ct-piece__shadow { fill: rgb(0 0 0 / 0.32); }
+.ct-roof { fill: #000; fill-opacity: 0.16; pointer-events: none; }
+.ct-piece__n { font-size: 9px; font-weight: 900; fill: #fff; stroke: rgb(0 0 0 / 0.55); stroke-width: 2px; paint-order: stroke; text-anchor: middle; pointer-events: none; }
+.ct-piece__n--dark { fill: var(--ct-ink); stroke: rgb(255 255 255 / 0.6); }
+.ct-bld { transform-box: fill-box; transform-origin: 50% 100%; animation: ct-pop 320ms cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes ct-pop { from { transform: scale(0.3); opacity: 0; } }
+.ct-plank { animation: ct-fade 300ms ease-out; }
+@keyframes ct-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ct-die, .ct-robber__body, .ct-bld, .ct-plank { animation: none; } }
+:root[data-motion='reduce'] .ct-die, :root[data-motion='reduce'] .ct-robber__body, :root[data-motion='reduce'] .ct-bld, :root[data-motion='reduce'] .ct-plank { animation: none; }
 
 /* Interactive targets */
 .ct-target { cursor: pointer; }
@@ -120,14 +154,26 @@
 /* Hand */
 .ct-hand { display: grid; gap: var(--sp-2); }
 .ct-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.ct-card { display: grid; justify-items: center; gap: 2px; padding: 8px 4px; border-radius: var(--r-md); background: var(--surface-2);
-  border-block-start: 5px solid var(--rc); }
-.ct-card__icon { color: var(--rc); font-size: 1.2em; }
-.ct-card__name { font-size: var(--fs-xs); font-weight: 700; }
+/* Printed resource cards: ivory stock (fixed palette, ink #2a2520 ≈ 13:1), illustrated art band, count. */
+.ct-card { display: grid; justify-items: center; gap: 2px; padding: 0 0 6px; overflow: hidden; border-radius: 9px; color: var(--ct-ink);
+  background: linear-gradient(160deg, #fffaea, #efe3c3); border: 1px solid #b9a77c;
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.8), 0 3px 6px rgb(0 0 0 / 0.28); transition: transform 150ms ease; }
+.ct-card:hover { transform: translateY(-2px); }
+.ct-card--empty { filter: grayscale(0.7) brightness(0.96); }
+.ct-card__icon { display: grid; place-items: center; inline-size: 100%; padding-block: 6px; font-size: 1.5em;
+  background: radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.45), transparent 60%), var(--rb); border-block-end: 2px solid rgb(0 0 0 / 0.25); }
+.ct-card__name { font-size: var(--fs-xs); font-weight: 800; }
 .ct-card__n { font-size: 1.3em; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .ct-card { transition: none; } .ct-card:hover { transform: none; } }
 .ct-devs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.ct-dev { display: grid; gap: 2px; padding: var(--sp-2); border-radius: var(--r-md); background: var(--surface-2); border-inline-start: 4px solid #7a3fa0; }
+.ct-dev { display: grid; gap: 2px; padding: var(--sp-2); border-radius: var(--r-md); background: var(--surface-2); border-inline-start: 4px solid #7a3fa0; box-shadow: 0 2px 4px rgb(0 0 0 / 0.18); }
 .ct-dev button { justify-self: start; }
 
 .ct-log ol { margin: var(--sp-2) 0 0; padding-inline-start: 1.2em; display: grid; gap: 4px; font-size: var(--fs-sm); color: var(--text-2); }
 .ct-log summary { cursor: pointer; font-weight: 700; }
+
+/* Phone held sideways: island and action panel side by side, island fits the screen height. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .ct-main { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+  .ct-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
+}

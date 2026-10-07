@@ -2,7 +2,8 @@
 // over it, numbered player tokens (colour + number, never colour alone), die and roll button.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { BoardDefs, LadderArt, PawnArt, SnakeArt, pipsOf } from './art.tsx';
 import { LADDERS, SNAKES, type LogEntry, type SnakesView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -17,52 +18,15 @@ function center(n: number): [number, number] {
   return [col * CELL + CELL / 2, (9 - row) * CELL + CELL / 2];
 }
 
-function Ladder({ from, to }: { from: number; to: number }) {
-  const [x1, y1] = center(from);
-  const [x2, y2] = center(to);
-  const len = Math.hypot(x2 - x1, y2 - y1);
-  const [nx, ny] = [(-(y2 - y1) / len) * 9, ((x2 - x1) / len) * 9];
-  const rungs = Math.max(2, Math.floor(len / 22));
-  return (
-    <g className="sl-ladder">
-      <line x1={x1 + nx} y1={y1 + ny} x2={x2 + nx} y2={y2 + ny} />
-      <line x1={x1 - nx} y1={y1 - ny} x2={x2 - nx} y2={y2 - ny} />
-      {Array.from({ length: rungs }, (_, i) => {
-        const t = (i + 0.5) / rungs;
-        const [x, y] = [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t];
-        return <line key={i} className="sl-ladder__rung" x1={x + nx} y1={y + ny} x2={x - nx} y2={y - ny} />;
-      })}
-    </g>
-  );
-}
-
-function Snake({ head, tail, i }: { head: number; tail: number; i: number }) {
-  const [x1, y1] = center(head);
-  const [x2, y2] = center(tail);
-  const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2];
-  const len = Math.hypot(x2 - x1, y2 - y1);
-  const [nx, ny] = [(-(y2 - y1) / len) * 34, ((x2 - x1) / len) * 34];
-  const d = `M ${x1} ${y1} C ${(x1 + mx) / 2 + nx} ${(y1 + my) / 2 + ny}, ${(mx + x2) / 2 - nx} ${(my + y2) / 2 - ny}, ${x2} ${y2}`;
-  const hue = ['#2f8f4e', '#7a3fa0', '#c0392b', '#1c63c9', '#b7791f'][i % 5];
-  return (
-    <g className="sl-snake">
-      <path d={d} stroke={hue} className="sl-snake__body" />
-      <path d={d} className="sl-snake__pattern" />
-      <circle cx={x1} cy={y1} r="11" fill={hue} />
-      <circle cx={x1 - 4} cy={y1 - 3} r="2.4" fill="#fff" /><circle cx={x1 + 4} cy={y1 - 3} r="2.4" fill="#fff" />
-    </g>
-  );
-}
-
 export function Die({ value, rolling }: { value: number | null; rolling?: boolean }) {
-  const pips: Record<number, [number, number][]> = {
-    1: [[2, 2]], 2: [[1, 1], [3, 3]], 3: [[1, 1], [2, 2], [3, 3]], 4: [[1, 1], [3, 1], [1, 3], [3, 3]],
-    5: [[1, 1], [3, 1], [2, 2], [1, 3], [3, 3]], 6: [[1, 1], [3, 1], [1, 2], [3, 2], [1, 3], [3, 3]]
-  };
   return (
-    <svg className={rolling ? 'sl-die sl-die--roll' : 'sl-die'} viewBox="0 0 40 40" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
-      <rect x="2" y="2" width="36" height="36" rx="8" />
-      {(value ? pips[value]! : []).map(([x, y], i) => <circle key={i} cx={x * 10} cy={y * 10} r="3.6" />)}
+    <svg className={rolling ? 'sl-die sl-die--roll' : 'sl-die'} viewBox="0 0 44 44" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
+      <rect x="5" y="7" width="36" height="36" rx="9" className="sl-die__shadow" />
+      <rect x="3" y="3" width="36" height="36" rx="9" fill="url(#sl-die-face)" stroke="#8f7f58" strokeWidth="1.2" />
+      <rect x="5" y="5" width="32" height="32" rx="7" fill="none" stroke="url(#sl-bevel)" strokeWidth="2" />
+      {pipsOf(value).map(([x, y], i) => (
+        <g key={i}><circle cx={x * 9 + 3} cy={y * 9 + 3} r="3.5" fill="url(#sl-pip)" /><circle cx={x * 9 + 2} cy={y * 9 + 2} r="0.9" fill="#fff" opacity="0.5" /></g>
+      ))}
     </svg>
   );
 }
@@ -108,31 +72,45 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="sl-main">
-        <svg className="sl-board" viewBox="0 0 600 600" role="img" aria-label={`صفحه مارپله؛ ${view.pos.map((p, s) => `${seatName(s)} روی ${p ? `خانه ${fa(p)}` : 'شروع'}`).join('، ')}`} style={{ direction: 'ltr' }}>
+        <ZoomBoard label="صفحه مارپله">
+        <svg className="sl-board" viewBox="-18 -18 636 636" role="img" aria-label={`صفحه مارپله؛ ${view.pos.map((p, s) => `${seatName(s)} روی ${p ? `خانه ${fa(p)}` : 'شروع'}`).join('، ')}`} style={{ direction: 'ltr' }}>
+          <BoardDefs />
+          <rect x="-18" y="-18" width="636" height="636" rx="16" fill="url(#sl-wood)" className="sl-frame" />
+          <rect x="-18" y="-18" width="636" height="636" rx="16" fill="url(#sl-grain)" />
+          <rect x="-4" y="-4" width="608" height="608" rx="5" className="sl-frame__lip" />
           {Array.from({ length: 100 }, (_, i) => {
             const n = i + 1;
             const [cx, cy] = center(n);
+            const [x, y] = [cx - CELL / 2, cy - CELL / 2];
             return (
               <g key={n}>
-                <rect x={cx - CELL / 2} y={cy - CELL / 2} width={CELL} height={CELL} className={(Math.floor(i / 10) + (i % 10)) % 2 ? 'sl-cell sl-cell--a' : 'sl-cell sl-cell--b'} />
-                <text x={cx - CELL / 2 + 5} y={cy - CELL / 2 + 15} className="sl-cell__n">{fa(n)}</text>
+                <rect x={x} y={y} width={CELL} height={CELL} className={`sl-cell sl-cell--${(Math.floor(i / 10) + 2 * (i % 10)) % 4}`} />
+                <rect x={x + 1.5} y={y + 1.5} width={CELL - 3} height={CELL - 3} rx="2" fill="none" stroke="url(#sl-bevel)" strokeWidth="2" />
+                <text x={x + 5} y={y + 15} className="sl-cell__n">{fa(n)}</text>
               </g>
             );
           })}
-          {Object.entries(LADDERS).map(([a, b]) => <Ladder key={a} from={Number(a)} to={b} />)}
-          {Object.entries(SNAKES).map(([a, b], i) => <Snake key={a} head={Number(a)} tail={b} i={i} />)}
+          <rect width="600" height="600" fill="url(#sl-paper)" pointerEvents="none" />
+          <rect width="600" height="600" fill="url(#sl-vignette)" pointerEvents="none" />
+          <g aria-hidden="true" className="sl-cell__tag">
+            <text x={center(1)[0]} y={center(1)[1] + 22}>شروع</text>
+            <text x={center(100)[0]} y={center(100)[1] + 22}>پایان ★</text>
+          </g>
+          {Object.entries(LADDERS).map(([a, b]) => { const [x1, y1] = center(Number(a)), [x2, y2] = center(b); return <LadderArt key={a} x1={x1} y1={y1} x2={x2} y2={y2} />; })}
+          {Object.entries(SNAKES).map(([a, b], i) => { const [x1, y1] = center(Number(a)), [x2, y2] = center(b); return <SnakeArt key={a} x1={x1} y1={y1} x2={x2} y2={y2} hue={i % 5} />; })}
           {[...bySquare.entries()].flatMap(([sq, seats]) => seats.map((seat, k) => {
             const [cx, cy] = center(sq);
             const angle = (k / seats.length) * Math.PI * 2;
             const r = seats.length > 1 ? 12 : 0;
             return (
               <g key={seat} className="sl-token" style={{ transform: `translate(${cx + Math.cos(angle) * r}px, ${cy + Math.sin(angle) * r}px)` }}>
-                <circle r="13" fill={TOKEN_COLORS[seat]} />
-                <text y="5">{fa(seat + 1)}</text>
+                <PawnArt color={TOKEN_COLORS[seat]!} label={fa(seat + 1)} dark={seat === 3} />
               </g>
             );
           }))}
+          {[[-9, -9], [609, -9], [-9, 609], [609, 609]].map(([x, y]) => <circle key={`${x}${y}`} className="sl-stud" cx={x} cy={y} r="5" fill="url(#sl-brass)" aria-hidden="true" />)}
         </svg>
+        </ZoomBoard>
 
         <div className="sl-side">
           <div className="sl-roll">
@@ -144,7 +122,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
           <ul className="sl-players" aria-label="بازیکنان">
             {view.pos.map((p, seat) => (
               <li key={seat} className={[view.current === seat && !view.outcome ? 'sl-player--turn' : '', view.active[seat] ? '' : 'sl-player--out'].join(' ')}>
-                <span className="sl-dot" style={{ background: TOKEN_COLORS[seat] }} aria-hidden="true">{fa(seat + 1)}</span>
+                <span className="sl-dot" style={{ background: TOKEN_COLORS[seat], ...(seat === 3 ? { color: '#1b1300' } : {}) }} aria-hidden="true">{fa(seat + 1)}</span>
                 <bdi>{seatName(seat)}</bdi>{seat === mySeat ? ' (شما)' : ''}
                 <span className="sl-players__pos">{view.active[seat] ? (p ? `خانه ${fa(p)}` : 'شروع') : 'بیرون'}</span>
               </li>

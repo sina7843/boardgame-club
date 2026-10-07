@@ -193,6 +193,14 @@
   @keyframes turn-nudge { 50% { transform: translateX(-4px); } }
   .pboards--strip { display: none; }
 
+  /* Phones held sideways: height is scarce — compact bar, status strip scrolls away instead of sticking. */
+  @media (orientation: landscape) and (max-height: 560px) {
+    .gamebar__title p { display: none; }
+    .statusbar { position: static; padding-block: 0.35rem; }
+    .statusbar__icon { inline-size: 32px; block-size: 32px; }
+    .game__board { padding: 0.6rem; border-width: 7px; border-radius: 20px; }
+  }
+
   @media (max-width: 1099px) {
     .game { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "status" "main"; gap: 0.75rem; }
     .game__side { display: none; }

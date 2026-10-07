@@ -1,22 +1,25 @@
-/* Snakes and Ladders. The board keeps its own light palette in both themes (dark numbers on pastel squares ≥ 7:1). */
+/* Snakes and Ladders. The board is a physical object (wooden frame, printed card) and keeps its own palette in both
+   themes: dark ink #3a2a1a on pastel squares ≥ 7:1. Light comes from the top-left. */
 .sl { display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
 .sl-main { display: grid; gap: var(--sp-4); }
 @container (min-width: 820px) { .sl-main { grid-template-columns: minmax(0, 600px) minmax(220px, 1fr); align-items: start; } }
-.sl-board { inline-size: min(100%, 600px); block-size: auto; border-radius: var(--r-lg); box-shadow: var(--shadow); border: 5px solid #3a2a1a; background: #fff; }
-.sl-cell--a { fill: #fbe9c6; } .sl-cell--b { fill: #d9ecd2; }
-.sl-cell__n { font: 700 13px/1 var(--font, sans-serif); fill: #3a2a1a; }
-.sl-ladder line { stroke: #8a5a2b; stroke-width: 6; stroke-linecap: round; }
-.sl-ladder .sl-ladder__rung { stroke-width: 4; }
-.sl-snake__body { fill: none; stroke-width: 12; stroke-linecap: round; opacity: 0.92; }
-.sl-snake__pattern { fill: none; stroke: rgb(255 255 255 / 0.55); stroke-width: 3; stroke-dasharray: 2 9; stroke-linecap: round; }
+.sl-board { inline-size: min(100%, 600px); block-size: auto; display: block; margin-inline: auto; filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.35)); }
+.sl-frame { stroke: #2e1a09; stroke-width: 2.5; }
+.sl-frame__lip { fill: none; stroke: #2e1a09; stroke-width: 3; }
+.sl-stud { stroke: #4f3908; stroke-width: 0.8; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); }
+.sl-cell { stroke: rgb(58 42 26 / 0.28); stroke-width: 0.8; }
+.sl-cell--0 { fill: #fbe3b0; } .sl-cell--1 { fill: #cfe8c6; } .sl-cell--2 { fill: #f7cdbb; } .sl-cell--3 { fill: #cfe1f2; }
+.sl-cell__n { font: 800 13px/1 var(--font, sans-serif); fill: #3a2a1a; stroke: rgb(255 255 255 / 0.55); stroke-width: 2.4px; paint-order: stroke; stroke-linejoin: round; }
+.sl-cell__tag text { font: 800 10px/1 var(--font, sans-serif); fill: #3a2a1a; text-anchor: middle; stroke: rgb(255 255 255 / 0.7); stroke-width: 2.6px; paint-order: stroke; stroke-linejoin: round; }
 .sl-token { transition: transform 600ms cubic-bezier(0.22, 1.1, 0.36, 1); }
-.sl-token circle { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.4)); }
-.sl-token text { font: 900 14px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
+.sl-token__body { animation: sl-land 360ms cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes sl-land { from { transform: translateY(-10px) scale(0.85); } }
+.sl-token__n { font: 900 14px/1 var(--font, sans-serif); fill: #fff; stroke: rgb(0 0 0 / 0.65); stroke-width: 3px; paint-order: stroke; stroke-linejoin: round; text-anchor: middle; }
+.sl-token__n--dark { fill: #1b1300; stroke: rgb(255 255 255 / 0.7); }
 .sl-side { display: grid; gap: var(--sp-3); align-content: start; }
 .sl-roll { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
-.sl-die { inline-size: 64px; block-size: 64px; }
-.sl-die rect { fill: #fffdf7; stroke: #3a2a1a; stroke-width: 2.5; }
-.sl-die circle { fill: #1b130b; }
+.sl-die { inline-size: 68px; block-size: 68px; overflow: visible; }
+.sl-die__shadow { fill: rgb(0 0 0 / 0.3); filter: blur(1.6px); }
 .sl-die--roll { animation: sl-roll 420ms cubic-bezier(0.22, 1.2, 0.36, 1); }
 @keyframes sl-roll { from { transform: rotate(-200deg) scale(0.6); } }
 .sl-players { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
@@ -24,11 +27,18 @@
 .sl-player--turn { border-color: var(--brand) !important; }
 .sl-player--out { opacity: 0.55; }
 .sl-players__pos { margin-inline-start: auto; color: var(--text-2); font-size: var(--fs-sm); }
-.sl-dot { display: inline-grid; place-items: center; inline-size: 24px; block-size: 24px; border-radius: 50%; color: #fff; font-weight: 900; font-size: 13px; border: 2px solid #fff; box-shadow: 0 0 0 1px #0004; }
+.sl-dot { display: inline-grid; place-items: center; inline-size: 26px; block-size: 26px; border-radius: 50%; color: #fff; font-weight: 900; font-size: 13px; border: 2px solid #fff;
+  background-image: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.55), transparent 55%); box-shadow: 0 0 0 1px #0004, inset -2px -3px 3px rgb(0 0 0 / 0.25), 0 2px 3px rgb(0 0 0 / 0.3); }
 .sl-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
 .sl-log summary { cursor: pointer; font-weight: 700; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
 .sl-log ol { margin: 0; padding-inline-start: var(--sp-5); color: var(--text-2); display: grid; gap: 2px; font-size: var(--fs-sm); list-style-type: persian; }
 .sl-log li:first-child { color: var(--text); }
-@media (prefers-reduced-motion: reduce) { .sl-token { transition: none; } .sl-die--roll { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .sl-token { transition: none; } .sl-token__body { animation: none; } .sl-die--roll { animation: none; } }
 :root[data-motion='reduce'] .sl-token { transition: none; }
+:root[data-motion='reduce'] .sl-token__body { animation: none; }
 :root[data-motion='reduce'] .sl-die--roll { animation: none; }
+
+/* Phone held sideways: board and panel side by side, board fits the screen height. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .sl-main { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+}

@@ -3,8 +3,9 @@
 // other players' hands and development cards are counts, never contents.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
 import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
+import { BoardDefs, DieFace, ResIcon, RobberPawn, TerrainArt } from './art.tsx';
 import { COST, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -12,8 +13,6 @@ type Hint = { type: string; [k: string]: unknown };
 
 export const SEAT_COLOR = ['#c8323c', '#2f62c9', '#f1ece0', '#e0861a'];
 const SEAT_FA = ['قرمز', 'آبی', 'سفید', 'نارنجی'];
-const TERRAIN_FILL = { hills: '#c4683b', forest: '#2f6b3a', pasture: '#93c463', fields: '#e3bf4a', mountains: '#8b919c', desert: '#dfcb9c' } as const;
-const RES_ICON: Record<Res, string> = { brick: '▮', lumber: '♣', wool: '☁', grain: '⁂', ore: '◆' };
 const DEV_FA: Record<Dev, string> = { knight: 'شوالیه', vp: 'امتیاز پیروزی', road: 'جاده‌سازی', plenty: 'سال فراوانی', monopoly: 'انحصار' };
 const DEV_HELP: Record<Dev, string> = {
   knight: 'راهزن را جابه‌جا کنید و از صاحب یک ساختمان کنارش یک کارت بدزدید.',
@@ -64,23 +63,45 @@ function describe(e: LogEntry, view: CatanView, name: (s: number) => string): st
 type Sel = { kind: 'vertex' | 'edge' | 'hex'; id: number } | null;
 interface Targets { vertices: Set<number>; edges: Set<number>; hexes: Set<number>; hint: Sel; sel: Sel }
 
+const FRAME = [[0, -309], [277, -154], [277, 154], [0, 309], [-277, 154], [-277, -154]] as const;
+const SEA = [[0, -285], [255, -142], [255, 142], [0, 285], [-255, 142], [-255, -142]] as const;
+const ptsOf = (a: readonly (readonly [number, number])[], k = 1) => a.map(([x, y]) => `${x * k},${y * k}`).join(' ');
+const HOUSE = ['M-8 8 V-1 H8 V8Z', 'M-10.5 -1 L0 -11 L10.5 -1Z'];
+const CITY = ['M-13.5 8 V-1 H-4 V8Z', 'M-15 -1 L-8.7 -7 L-2.5 -1Z', 'M-4 8 V-8 H13 V8Z', 'M-5.6 -8 L4.5 -17 L14.6 -8Z'];
+
 function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPick: (s: NonNullable<Sel>) => void; mySeat: number | null }) {
   const key = (fn: () => void) => (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } };
   const btn = (s: NonNullable<Sel>, label: string) => ({ role: 'button', tabIndex: 0, 'aria-label': label, 'aria-pressed': t.sel?.kind === s.kind && t.sel.id === s.id, onClick: () => onPick(s), onKeyDown: key(() => onPick(s)) });
   const is = (s: Sel, kind: string, id: number) => s?.kind === kind && s.id === id;
-  const pts = (h: number) => hexCorners(h).map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const pts = (h: number, k = 1) => {
+    const c = hexCenter(h);
+    return hexCorners(h).map((p) => `${(c.x + (p.x - c.x) * k).toFixed(1)},${(c.y + (p.y - c.y) * k).toFixed(1)}`).join(' ');
+  };
   const R = HEX_SIZE;
   return (
-    <svg className="ct-board" viewBox="-300 -290 600 580" role="group" aria-label="نقشه جزیره کاتان" style={{ direction: 'ltr' }}>
-      <polygon className="ct-sea" points="0,-285 255,-142 255,142 0,285 -255,142 -255,-142" />
+    <svg className="ct-board" viewBox="-320 -316 640 632" role="group" aria-label="نقشه جزیره کاتان" style={{ direction: 'ltr' }}>
+      <BoardDefs />
+      <g aria-hidden="true" pointerEvents="none">
+        <polygon className="ct-frame" points={ptsOf(FRAME)} fill="url(#ctb-wood)" />
+        <polygon points={ptsOf(FRAME)} fill="url(#ctb-grain)" />
+        {FRAME.map(([x, y], i) => <line key={i} className="ct-frame__miter" x1={x} y1={y} x2={SEA[i]![0]} y2={SEA[i]![1]} />)}
+        <polygon className="ct-frame__edge" points={ptsOf(FRAME, 0.992)} />
+      </g>
+      <polygon className="ct-sea" points={ptsOf(SEA)} fill="url(#ctb-sea)" />
+      <polygon points={ptsOf(SEA)} fill="url(#ctb-waves)" pointerEvents="none" aria-hidden="true" />
+      <g aria-hidden="true" pointerEvents="none">
+        {FRAME.map(([x, y], i) => <circle key={i} className="ct-stud" cx={x * 0.955} cy={y * 0.955} r="4.6" fill="url(#ctb-brass)" />)}
+      </g>
       {view.harbors.map((h, i) => {
         const e = EDGES[h.edge]!, a = VERTICES[e.a]!, b = VERTICES[e.b]!;
         const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, len = Math.hypot(mx, my);
         const hx = mx + (mx / len) * 30, hy = my + (my / len) * 30;
         return (
-          <g key={`h${i}`} className="ct-harbor" role="img" aria-label={`بندر ${HARBOR_FA(h.kind)}`}>
-            <line x1={a.x} y1={a.y} x2={hx} y2={hy} /><line x1={b.x} y1={b.y} x2={hx} y2={hy} />
-            <circle cx={hx} cy={hy} r="17" />
+          <g key={`h${i}`} className={h.kind === 'any' ? 'ct-harbor' : `ct-harbor ct-res--${h.kind}`} role="img" aria-label={`بندر ${HARBOR_FA(h.kind)}`}>
+            <line x1={a.x} y1={a.y} x2={hx} y2={hy} className="ct-pier__under" /><line x1={b.x} y1={b.y} x2={hx} y2={hy} className="ct-pier__under" />
+            <line x1={a.x} y1={a.y} x2={hx} y2={hy} className="ct-pier" /><line x1={b.x} y1={b.y} x2={hx} y2={hy} className="ct-pier" />
+            <path className="ct-boat" d={`M${hx - 15} ${hy + 10} H${hx + 15} L${hx + 10} ${hy + 19} H${hx - 10}Z`} filter="url(#ctb-soft)" />
+            <circle cx={hx} cy={hy} r="17" className="ct-harbor__coin" />
             <text x={hx} y={hy - 1} className="ct-harbor__rate">{h.kind === 'any' ? '۳:۱' : '۲:۱'}</text>
             {h.kind !== 'any' && <text x={hx} y={hy + 10} className="ct-harbor__res">{RES_FA[h.kind]}</text>}
           </g>
@@ -92,19 +113,21 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         return (
           <g key={`x${i}`} className={['ct-hex', target ? 'ct-target' : '', is(t.sel, 'hex', i) ? 'ct-selected' : '', is(t.hint, 'hex', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، راهزن را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? '، راهزن اینجاست' : ''}` })}>
-            <polygon points={pts(i)} fill={TERRAIN_FILL[h.terrain]} className="ct-hex__tile" />
+            <polygon points={pts(i)} fill={`url(#ctb-g-${h.terrain})`} filter="url(#ctb-shadow)" className="ct-hex__tile" />
+            <polygon points={pts(i)} fill={`url(#ctb-p-${h.terrain})`} pointerEvents="none" aria-hidden="true" />
+            <polygon points={pts(i, 0.95)} className="ct-hex__bevel" fill="none" stroke="url(#ctb-bevel)" strokeWidth="2.6" strokeLinejoin="round" pointerEvents="none" aria-hidden="true" />
+            <g transform={`translate(${c.x} ${c.y})`}><TerrainArt terrain={h.terrain} /></g>
             <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>
             {h.number !== null && (
               <g className={h.number === 6 || h.number === 8 ? 'ct-token ct-token--hot' : 'ct-token'}>
-                <circle cx={c.x} cy={c.y + 4} r="17" />
+                <circle className="ct-token__disc" cx={c.x} cy={c.y + 4} r="17" fill="url(#ctb-token)" filter="url(#ctb-soft)" />
+                <circle className="ct-token__ring" cx={c.x} cy={c.y + 4} r="14" />
                 <text x={c.x} y={c.y + 9}>{fa(h.number)}</text>
                 {Array.from({ length: pips(h.number) }, (_, k) => <circle key={k} className="ct-pip" cx={c.x + (k - (pips(h.number) - 1) / 2) * 4.5} cy={c.y + 16} r="1.6" />)}
               </g>
             )}
             {view.robber === i && (
-              <g className="ct-robber" transform={`translate(${c.x + (h.number === null ? 0 : 24)}, ${c.y + 6})`} aria-hidden="true">
-                <ellipse cx="0" cy="10" rx="9" ry="4" /><path d="M-7 10 Q-8 -4 0 -6 Q8 -4 7 10 Z" /><circle cx="0" cy="-10" r="6" />
-              </g>
+              <g transform={`translate(${c.x + (h.number === null ? 0 : 24)}, ${c.y + 6})`} aria-hidden="true" pointerEvents="none"><RobberPawn /></g>
             )}
           </g>
         );
@@ -117,7 +140,14 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         return (
           <g key={`e${i}`} className={['ct-edge', target ? 'ct-target' : '', is(t.sel, 'edge', i) ? 'ct-selected' : '', is(t.hint, 'edge', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'edge', id: i }, `${edgeLabel(view, i)}، ساخت جاده`) : { role: 'img', 'aria-label': `جاده ${SEAT_FA[owner!]}` })}>
-            {owner !== null && <><line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__edge" /><line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road" stroke={SEAT_COLOR[owner]} /></>}
+            {owner !== null && (
+              <g className="ct-plank">
+                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__shadow" />
+                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__edge" />
+                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road" stroke={SEAT_COLOR[owner]} />
+                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__hl" transform="translate(-1 -1.5)" />
+              </g>
+            )}
             {target && <rect x={-HEX_SIZE / 2 + 9} y="-7" width={HEX_SIZE - 18} height="14" rx="7" className="ct-edge__hit"
               transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2}) rotate(${(Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI})`} />}
           </g>
@@ -128,14 +158,20 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         const target = t.vertices.has(i);
         if (!bld && !target) return null;
         const label = bld ? `${bld.city ? 'شهر' : 'آبادی'} ${SEAT_FA[bld.seat]}${bld.seat === mySeat ? ' (شما)' : ''}، ${vertexLabel(view, i)}` : vertexLabel(view, i);
+        const shape = bld?.city ? CITY : HOUSE;
         return (
           <g key={`v${i}`} transform={`translate(${v.x}, ${v.y})`} className={['ct-vertex', target ? 'ct-target' : '', is(t.sel, 'vertex', i) ? 'ct-selected' : '', is(t.hint, 'vertex', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'vertex', id: i }, `${label}، ${bld ? 'تبدیل به شهر' : 'ساخت آبادی'}`) : { role: 'img', 'aria-label': label })}>
             {target && <circle r="16" className="ct-vertex__ring" />}
-            {bld && (bld.city
-              ? <path d="M-12 8 L-12 -4 L-4 -4 L-4 -12 L4 -16 L12 -12 L12 8 Z" fill={SEAT_COLOR[bld.seat]} className="ct-piece" />
-              : <path d="M-8 7 L-8 -3 L0 -10 L8 -3 L8 7 Z" fill={SEAT_COLOR[bld.seat]} className="ct-piece" />)}
-            {bld && <text y={bld.city ? 5 : 5} className={bld.seat === 2 ? 'ct-piece__n ct-piece__n--dark' : 'ct-piece__n'}>{fa(bld.seat + 1)}</text>}
+            {bld && (
+              <g className="ct-bld" key={bld.city ? 'city' : 'house'}>
+                <ellipse cx="1" cy="8.8" rx={bld.city ? 15 : 12} ry="3.1" className="ct-piece__shadow" />
+                {shape.map((d) => <path key={d} d={d} fill={SEAT_COLOR[bld.seat]} className="ct-piece" />)}
+                {shape.map((d) => <path key={`s${d}`} d={d} fill="url(#ctb-shine)" pointerEvents="none" />)}
+                <path d={shape[shape.length - 1]} className="ct-roof" />
+                <text x={bld.city ? 4.5 : 0} y="6.2" className={bld.seat === 2 ? 'ct-piece__n ct-piece__n--dark' : 'ct-piece__n'}>{fa(bld.seat + 1)}</text>
+              </g>
+            )}
           </g>
         );
       })}
@@ -161,7 +197,7 @@ function HandPicker({ title, limit, values, onChange }: { title: string; limit: 
       <legend>{title}</legend>
       {RESOURCES.map((r) => (
         <span key={r} className={`ct-picker__row ct-res--${r}`}>
-          <span><span aria-hidden="true" className="ct-res__icon">{RES_ICON[r]}</span> {RES_FA[r]}</span>
+          <span><span aria-hidden="true" className="ct-res__icon"><ResIcon r={r} /></span> {RES_FA[r]}</span>
           <Stepper label={RES_FA[r]} value={values[r]} max={limit(r)} onChange={(n) => onChange({ ...values, [r]: n })} />
         </span>
       ))}
@@ -175,7 +211,7 @@ function ResChoice({ label, value, options, onChange }: { label: string; value: 
       <legend>{label}</legend>
       {RESOURCES.map((r) => (
         <button key={r} type="button" className={`ct-chip ct-res--${r}`} aria-pressed={value === r} disabled={!options.includes(r)} onClick={() => onChange(r)}>
-          <span aria-hidden="true">{RES_ICON[r]}</span> {RES_FA[r]}
+          <span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}
         </button>
       ))}
     </fieldset>
@@ -280,13 +316,13 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
       <div className="ct__meta">
         <span>نوبت {fa(view.turn)}</span>
         {view.dice && (
-          <span className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
-            <span aria-hidden="true" className="ct-die">{fa(view.dice[0])}</span><span aria-hidden="true" className="ct-die ct-die--red">{fa(view.dice[1])}</span>
+          <span key={`${view.turn}${view.dice[0]}${view.dice[1]}`} className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
+            <DieFace value={view.dice[0]} /><DieFace value={view.dice[1]} red />
             <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
           </span>
         )}
         <span>کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
-        <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true">{RES_ICON[r]}</span>{fa(view.bank[r])}</span>)}</span>
+        <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>
       </div>
 
       <ul className="ct-players" aria-label="بازیکنان">
@@ -317,7 +353,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
 
       <div className="ct-main">
         <div className="ct-board-wrap">
-          <Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} />
+          <ZoomBoard label="نقشه جزیره کاتان"><Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} /></ZoomBoard>
           {sel && myTurn && (
             <div className="ct-confirm" role="group" aria-label="تأیید">
               <span>{sel.kind === 'hex' ? hexLabel(view, sel.id) : sel.kind === 'edge' ? 'مسیر انتخاب‌شده' : vertexLabel(view, sel.id)}</span>
@@ -417,8 +453,8 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
               <h3>منابع شما ({fa(sum(hand))})</h3>
               <ul className="ct-cards">
                 {RESOURCES.map((r) => (
-                  <li key={r} className={`ct-card ct-res--${r}`} aria-label={`${RES_FA[r]}: ${fa(hand[r])}`}>
-                    <span aria-hidden="true" className="ct-card__icon">{RES_ICON[r]}</span>
+                  <li key={r} className={`ct-card ct-res--${r}${hand[r] === 0 ? ' ct-card--empty' : ''}`} aria-label={`${RES_FA[r]}: ${fa(hand[r])}`}>
+                    <span aria-hidden="true" className="ct-card__icon"><ResIcon r={r} /></span>
                     <span className="ct-card__name">{RES_FA[r]}</span>
                     <strong className="ct-card__n">{fa(hand[r])}</strong>
                   </li>
@@ -448,7 +484,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
               {devPick === 'plenty' && (
                 <Panel title="سال فراوانی: ۲ منبع انتخاب کنید" tone="decide">
                   <div className="ct-choice">
-                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={pick.length >= 2 || view.bank[r] < 1 + pick.filter((x) => x === r).length} onClick={() => setPick([...pick, r])}><span aria-hidden="true">{RES_ICON[r]}</span> {RES_FA[r]}</button>)}
+                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={pick.length >= 2 || view.bank[r] < 1 + pick.filter((x) => x === r).length} onClick={() => setPick([...pick, r])}><span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}</button>)}
                   </div>
                   <p>انتخاب: {pick.map((r) => RES_FA[r]).join(' + ') || '—'}</p>
                   <div className="row">
@@ -460,7 +496,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
               {devPick === 'monopoly' && (
                 <Panel title="انحصار: کدام منبع؟" tone="decide">
                   <div className="ct-choice">
-                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={busy} onClick={() => { act({ type: 'playMonopoly', res: r }); setDevPick(null); }}><span aria-hidden="true">{RES_ICON[r]}</span> {RES_FA[r]}</button>)}
+                    {RESOURCES.map((r) => <button key={r} type="button" className={`ct-chip ct-res--${r}`} disabled={busy} onClick={() => { act({ type: 'playMonopoly', res: r }); setDevPick(null); }}><span aria-hidden="true"><ResIcon r={r} /></span> {RES_FA[r]}</button>)}
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setDevPick(null)}>انصراف</Button>
                 </Panel>

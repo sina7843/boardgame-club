@@ -115,12 +115,14 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
       <div className={`uno-table ${colorClass}`}>
         <button type="button" className="uno-pile uno-pile--draw" onClick={() => canDraw && !busy && onAction({ type: 'draw' })}
           aria-disabled={!canDraw || busy || undefined} aria-label={`دسته کشیدن، ${fa(view.drawCount)} کارت${canDraw ? '؛ یک کارت بکشید' : ''}`}>
+          <span className="uno-stack" aria-hidden="true"><span /><span /><span /></span>
           <CardBack size="lg" />
           <span className="uno-pile__count">{fa(view.drawCount)}</span>
           {canDraw && <span className="uno-pile__cta">کشیدن</span>}
         </button>
         <div className="uno-pile uno-pile--discard">
           <span className="uno-halo" aria-hidden="true" />
+          <span className="uno-under" aria-hidden="true"><span /><span /></span>
           {view.top && <span key={lastPlaySeq} className="uno-pile__top"><CardFace card={view.top} size="lg" /></span>}
           <span className="uno-pile__label">{view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}</span>
         </div>

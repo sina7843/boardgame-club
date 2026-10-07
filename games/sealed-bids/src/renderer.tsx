@@ -56,7 +56,10 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
               <tr key={s}>
                 <th scope="row" style={{ fontWeight: s === mySeat ? 800 : 600 }}><bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}</th>
                 <td className="num">{fa(view.scores[s] ?? 0)}</td>
-                <td>{view.outcome ? '-' : view.resigned[s] ? 'انصراف (ثبت خودکار)' : view.submitted[s] ? '✓ مهر شد' : '… در انتظار'}</td>
+                <td>
+                  {!view.outcome && view.submitted[s] && !view.resigned[s] && <span className="sb-wax sb-wax--sm" aria-hidden="true" />}
+                  {view.outcome ? '-' : view.resigned[s] ? 'انصراف (ثبت خودکار)' : view.submitted[s] ? '✓ مهر شد' : '… در انتظار'}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -64,6 +67,13 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
       </div>
 
       <p className="visually-hidden" role="status" aria-live="assertive">{announce}</p>
+      {view.history.length > 0 && (
+        <div key={view.history.length} className="sb-reveal" aria-hidden="true">
+          {view.history[view.history.length - 1]!.bids.map((b, s) => (
+            <span key={s} className={`sb-chip sb-chip--${b}${view.history[view.history.length - 1]!.winner === s ? ' sb-chip--win' : ''}`} style={{ ['--k' as string]: s }}>{fa(b)}{view.history[view.history.length - 1]!.winner === s && <span className="sb-chip__star">★</span>}</span>
+          ))}
+        </div>
+      )}
       {view.history.length > 0 && (
         <details className="sb__history" open={view.history.length <= 2 || !!view.outcome}>
           <summary>دورهای آشکارشده ({fa(view.history.length)})</summary>
@@ -88,7 +98,10 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
       {view.myHand && !view.outcome && (
         <ActionBar label="دست شما">
           {view.myBid !== null ? (
-            <span>پیشنهاد مهرشده شما: <strong className="num">{fa(view.myBid)}</strong>؛ تا پایان دور قابل تغییر نیست.</span>
+            <>
+              <span className="sb-env" aria-hidden="true"><span className="sb-wax" /></span>
+              <span>پیشنهاد مهرشده شما: <strong className="num">{fa(view.myBid)}</strong>؛ تا پایان دور قابل تغییر نیست.</span>
+            </>
           ) : (
             <>
               <Hand label="ژتون‌های شما">

@@ -30,6 +30,16 @@ Checks run: contrast script 0 failures (42 pairs, both themes); axe 0 serious/cr
 dark (6 pages × 2 widths); lint, typecheck, build clean; unit/integration 165 passed; E2E 52 passed, 10 skipped by design.
 Screenshots: `docs/evidence/redesign/` (dark) and `docs/evidence/phase-04/screenshots/` (light).
 
+## Game visuals, board zoom, phone landscape (2026-10-07): DONE locally — real devices UNVERIFIED
+
+All eight renderers redrawn as physical tabletop objects (wood frames, illustrated terrain/maps, 3D pieces, real dice,
+illustrated cards); Unmatched gets thematic battlefields, hero/sidekick emblems and illustrated cards. Shared
+`ZoomBoard` (`packages/ui/src/zoom.tsx`): buttons, ctrl+wheel, pinch, drag-pan, double-tap, full screen (landscape
+lock where allowed); used by Catan, Ludo, Snakes and Ladders, Unmatched. Phone landscape (`max-height: 560px`): board
+and panel side by side, board fits the screen height, shell status strip stops sticking. Checks run: E2E 26 game flows
+at 360/1440 + `e2e/board-zoom.spec.ts` (780×360 landscape: fit, zoom, pan without a move, tap after zoom) — all passed;
+engine 113/113; typecheck; lint (games, ui). Screenshots refreshed under `docs/evidence/*`.
+
 ## Catan (2026-10-07): DONE locally — real devices UNVERIFIED
 
 New module `games/catan` (base game rules from the owner-supplied rulebook, 3–4 players, variable or beginners' map,

@@ -31,3 +31,4 @@ export { Alert } from './vf/ui/alert.tsx';
 export { OtpField } from './vf/ui/otp-field.tsx';
 export { PhoneInput } from './vf/ui/phone-input.tsx';
 export { Tooltip } from './vf/ui/tooltip.tsx';
+export { ZoomBoard } from './zoom.tsx';

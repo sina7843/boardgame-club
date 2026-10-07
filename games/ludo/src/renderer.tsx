@@ -1,8 +1,9 @@
 // Ludo (منچ) renderer: classic cross board on an 11×11 grid. Pieces carry their colour, a number and a text label;
 // movable pieces are buttons and their landing square is outlined. Board coordinates are literal (ltr).
+// Visuals: printed card board in a wooden frame, recessed home yards, bevelled squares, glossy pawns (SVG only).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
 import { TRACK, trackSquare, type LogEntry, type LudoView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -49,10 +50,47 @@ function Die({ value, rolling }: { value: number | null; rolling?: boolean }) {
     5: [[1, 1], [3, 1], [2, 2], [1, 3], [3, 3]], 6: [[1, 1], [3, 1], [1, 2], [3, 2], [1, 3], [3, 3]]
   };
   return (
-    <svg className={rolling ? 'ld-die ld-die--roll' : 'ld-die'} viewBox="0 0 40 40" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس'}>
-      <rect x="2" y="2" width="36" height="36" rx="8" />
-      {(value ? pips[value]! : []).map(([x, y], i) => <circle key={i} cx={x * 10} cy={y * 10} r="3.6" />)}
+    <svg className={rolling ? 'ld-die ld-die--roll' : 'ld-die'} viewBox="0 0 48 48" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس'}>
+      <defs>
+        <linearGradient id="ldd-face" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="0.6" stopColor="#f6efdc" /><stop offset="1" stopColor="#d8cdb0" /></linearGradient>
+        <radialGradient id="ldd-pip" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#5a4a3c" /><stop offset="1" stopColor="#120c06" /></radialGradient>
+        <filter id="ldd-shadow" x="-30%" y="-30%" width="170%" height="170%"><feGaussianBlur stdDeviation="1.6" /></filter>
+      </defs>
+      <rect x="6" y="8" width="38" height="38" rx="9" fill="#000" opacity="0.35" filter="url(#ldd-shadow)" aria-hidden="true" />
+      <rect className="ld-die__body" x="4" y="4" width="38" height="38" rx="9" fill="url(#ldd-face)" />
+      <rect x="6" y="6" width="34" height="34" rx="7" fill="none" stroke="#fff" strokeOpacity="0.8" strokeWidth="1.2" aria-hidden="true" />
+      {(value ? pips[value]! : []).map(([x, y], i) => <circle key={i} cx={x * 10 + 2} cy={y * 10 + 2} r="3.7" fill="url(#ldd-pip)" />)}
     </svg>
+  );
+}
+
+const CELL = 19;
+const ROT = [0, 90, 180, 270];
+const STAR = '0,-9 2.6,-2.6 9,0 2.6,2.6 0,9 -2.6,2.6 -9,0 -2.6,-2.6';
+const HOME = 28;
+
+/** One bevelled printed square; `tint` marks start and goal squares in the player's colour. */
+function Cell({ xy, tint }: { xy: [number, number]; tint?: string }) {
+  const [x, y] = px(xy);
+  return (
+    <g>
+      <rect x={x - CELL} y={y - CELL} width={CELL * 2} height={CELL * 2} rx="8" className="ld-cell" fill="url(#ldg-cell)" />
+      {tint && <rect x={x - CELL} y={y - CELL} width={CELL * 2} height={CELL * 2} rx="8" className="ld-cell__tint" fill={tint} />}
+      <rect x={x - CELL + 2} y={y - CELL + 2} width={CELL * 2 - 4} height={CELL * 2 - 4} rx="6" className="ld-cell__hi" />
+    </g>
+  );
+}
+
+/** Top-down glossy pawn: rim, dome, specular highlight. */
+function Pawn({ color }: { color: string }) {
+  return (
+    <g className="ld-pawn" aria-hidden="true">
+      <circle r="17" fill={color} />
+      <circle r="17" fill="url(#ldg-rim)" />
+      <circle r="12.5" fill={color} />
+      <circle r="12.5" fill="url(#ldg-dome)" />
+      <ellipse cx="-4.5" cy="-7" rx="5.5" ry="2.8" transform="rotate(-35 -4.5 -7)" fill="#fff" opacity="0.6" />
+    </g>
   );
 }
 
@@ -79,19 +117,68 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="ld-main">
-        <svg className="ld-board" viewBox="0 0 550 550" role="group" aria-label="صفحه منچ" style={{ direction: 'ltr' }}>
-          <rect width="550" height="550" rx="18" className="ld-board__bg" />
-          {YARD_XY.map((cells, slot) => (
-            <rect key={slot} x={Math.min(...cells.map((c) => c[0])) * C + 2} y={Math.min(...cells.map((c) => c[1])) * C + 2} width={2 * C - 4} height={2 * C - 4} rx="14"
-              fill={SLOT_COLORS[slot]} opacity={view.slots.includes(slot) ? 0.28 : 0.1} />
-          ))}
-          {TRACK_XY.map((xy, i) => {
-            const startSlot = i % 10 === 0 ? i / 10 : -1;
-            const [x, y] = px(xy);
-            return <circle key={i} cx={x} cy={y} r="19" className="ld-cell" style={startSlot >= 0 ? { fill: SLOT_COLORS[startSlot], fillOpacity: 0.55 } : undefined} />;
+        <ZoomBoard label="صفحه منچ">
+        <svg className="ld-board" viewBox="-16 -16 582 582" role="group" aria-label="صفحه منچ" style={{ direction: 'ltr' }}>
+          <defs>
+            <linearGradient id="ldg-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a8754a" /><stop offset="0.5" stopColor="#8a5a32" /><stop offset="1" stopColor="#5e3a1e" /></linearGradient>
+            <pattern id="ldg-grain" width="90" height="9" patternUnits="userSpaceOnUse">
+              <path d="M0 2 Q22 0 45 2 T90 2 M0 6 Q30 8 60 6 T90 6" fill="none" stroke="#2a1608" strokeOpacity="0.18" strokeWidth="0.8" />
+              <path d="M0 4 H90" stroke="#fff" strokeOpacity="0.05" strokeWidth="0.8" />
+            </pattern>
+            <pattern id="ldg-linen" width="6" height="6" patternUnits="userSpaceOnUse">
+              <path d="M0 0 H6 M0 3 H6" stroke="#8a6a3a" strokeOpacity="0.07" strokeWidth="0.6" /><path d="M0 0 V6 M3 0 V6" stroke="#8a6a3a" strokeOpacity="0.05" strokeWidth="0.6" />
+            </pattern>
+            <linearGradient id="ldg-paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fffaf0" /><stop offset="1" stopColor="#f2e6c8" /></linearGradient>
+            <linearGradient id="ldg-edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.55" /></linearGradient>
+            <linearGradient id="ldg-inner" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#000" stopOpacity="0.5" /><stop offset="0.5" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#fff" stopOpacity="0.5" /></linearGradient>
+            <linearGradient id="ldg-cell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#e6dbc0" /></linearGradient>
+            <linearGradient id="ldg-well" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b3a487" /><stop offset="1" stopColor="#fffdf7" /></linearGradient>
+            <linearGradient id="ldg-tri" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.4" /><stop offset="1" stopColor="#000" stopOpacity="0.3" /></linearGradient>
+            <radialGradient id="ldg-dome" cx="0.35" cy="0.3" r="0.85"><stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.45" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.5" /></radialGradient>
+            <linearGradient id="ldg-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.5" /><stop offset="1" stopColor="#000" stopOpacity="0.55" /></linearGradient>
+            <radialGradient id="ldg-gold" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#fff2b0" /><stop offset="1" stopColor="#b8860b" /></radialGradient>
+            <filter id="ldg-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" /></filter>
+          </defs>
+          {/* wooden frame, bevelled, with grain */}
+          <g aria-hidden="true">
+            <rect x="-16" y="-16" width="582" height="582" rx="22" fill="url(#ldg-wood)" />
+            <rect x="-16" y="-16" width="582" height="582" rx="22" fill="url(#ldg-grain)" />
+            <rect x="-15" y="-15" width="580" height="580" rx="21" fill="none" stroke="url(#ldg-edge)" strokeWidth="2.5" />
+            {/* printed card board inset into the frame */}
+            <rect width="550" height="550" rx="6" className="ld-board__bg" fill="url(#ldg-paper)" />
+            <rect width="550" height="550" rx="6" fill="url(#ldg-linen)" />
+            <rect x="-1" y="-1" width="552" height="552" rx="7" fill="none" stroke="url(#ldg-inner)" strokeWidth="3" />
+          </g>
+          {YARD_XY.map((cells, slot) => {
+            const x = Math.min(...cells.map((c) => c[0])) * C + 2, y = Math.min(...cells.map((c) => c[1])) * C + 2;
+            const inGame = view.slots.includes(slot);
+            const turn = !view.outcome && view.slots[view.current] === slot;
+            return (
+              <g key={slot} className={turn ? 'ld-yard ld-yard--turn' : 'ld-yard'} style={{ color: SLOT_COLORS[slot] }} opacity={inGame ? 1 : 0.45} aria-hidden="true">
+                <rect x={x} y={y} width={2 * C - 4} height={2 * C - 4} rx="14" fill={SLOT_COLORS[slot]} />
+                <rect x={x} y={y} width={2 * C - 4} height={2 * C - 4} rx="14" fill="url(#ldg-tri)" />
+                <rect x={x + 8} y={y + 8} width={2 * C - 20} height={2 * C - 20} rx="10" fill="#fffaf0" fillOpacity="0.88" />
+                <rect x={x + 8} y={y + 8} width={2 * C - 20} height={2 * C - 20} rx="10" fill="none" stroke="url(#ldg-inner)" strokeWidth="2.5" />
+                <rect x={x} y={y} width={2 * C - 4} height={2 * C - 4} rx="14" fill="none" stroke="#000" strokeOpacity="0.35" strokeWidth="1.5" />
+              </g>
+            );
           })}
-          {GOAL_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <circle key={`${slot}${i}`} cx={x} cy={y} r="19" className="ld-cell" style={{ fill: SLOT_COLORS[slot], fillOpacity: 0.45 }} />; }))}
-          {YARD_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <circle key={`y${slot}${i}`} cx={x} cy={y} r="17" className="ld-cell ld-cell--yard" />; }))}
+          <g className="ld-track" aria-hidden="true">
+            {TRACK_XY.map((xy, i) => <Cell key={i} xy={xy} {...(i % 10 === 0 ? { tint: SLOT_COLORS[i / 10]! } : {})} />)}
+            {GOAL_XY.map((cells, slot) => cells.map((xy, i) => <Cell key={`${slot}${i}`} xy={xy} tint={SLOT_COLORS[slot]!} />))}
+          </g>
+          <g aria-hidden="true">
+            {TRACK_XY.map((xy, i) => { if (i % 10) return null; const [x, y] = px(xy); return <polygon key={`s${i}`} points={STAR} transform={`translate(${x} ${y})`} className="ld-start" />; })}
+            {GOAL_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <g key={`a${slot}${i}`} transform={`translate(${x} ${y}) rotate(${ROT[slot]})`}><polyline points="-5,-7 4,0 -5,7" className="ld-arrow ld-arrow--under" /><polyline points="-5,-7 4,0 -5,7" className="ld-arrow" /></g>; }))}
+            {SLOT_COLORS.map((color, slot) => {
+              const [cx, cy] = px([5, 5]), h = HOME;
+              const pts = [[[-h, -h], [-h, h]], [[-h, -h], [h, -h]], [[h, -h], [h, h]], [[-h, h], [h, h]]][slot]!;
+              const d = `${cx},${cy} ${cx + pts[0]![0]!},${cy + pts[0]![1]!} ${cx + pts[1]![0]!},${cy + pts[1]![1]!}`;
+              return <g key={`h${slot}`}><polygon points={d} fill={color} /><polygon points={d} fill="url(#ldg-tri)" stroke="#3a2a1a" strokeWidth="1.5" strokeLinejoin="round" /></g>;
+            })}
+            <g transform="translate(275 275)"><circle r="10" fill="url(#ldg-gold)" stroke="#3a2a1a" strokeWidth="1.5" /><polygon points={STAR} transform="scale(0.55)" fill="#fff" fillOpacity="0.9" /></g>
+            {YARD_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <circle key={`y${slot}${i}`} cx={x} cy={y} r="17" className="ld-cell ld-cell--yard" fill="url(#ldg-well)" />; }))}
+          </g>
           {moves.map((m) => { const [x, y] = where(mine!, m.piece, m.to); return <circle key={`t${m.piece}`} cx={x} cy={y} r="23" className="ld-target" />; })}
           {view.pieces.flatMap((ps, seat) => !view.active[seat] ? [] : ps.map((p, i) => {
             const slot = view.slots[seat]!;
@@ -103,12 +190,15 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             return (
               <g key={`${seat}-${i}`} className={['ld-piece', move ? 'ld-piece--movable' : '', hint ? 'ld-piece--hint' : ''].join(' ')} style={{ transform: `translate(${x}px, ${y}px)` }}
                 {...(move ? { role: 'button', tabIndex: 0, 'aria-label': label, onClick: act, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } } } : { role: 'img', 'aria-label': label })}>
-                <circle r="16" fill={SLOT_COLORS[slot]} />
-                <text y="6">{fa(i + 1)}</text>
+                <circle r="22" className="ld-piece__ring" />
+                <ellipse cx="2.5" cy="5.5" rx="16" ry="12" className="ld-piece__shadow" filter="url(#ldg-blur)" aria-hidden="true" />
+                <Pawn color={SLOT_COLORS[slot]!} />
+                <text y="6" aria-hidden="true">{fa(i + 1)}</text>
               </g>
             );
           }))}
         </svg>
+        </ZoomBoard>
 
         <div className="ld-side">
           <div className="ld-roll">
