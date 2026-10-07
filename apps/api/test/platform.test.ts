@@ -12,7 +12,7 @@ describe('catalog search and filters (FR-02)', () => {
 
   it('lists the catalog; only the engine fixtures are labelled test games', async () => {
     const items = (await get('/api/games')).json().items as { id: string; isTestGame: boolean }[];
-    expect(items.map((g) => g.id)).toEqual(['uno', 'line-three', 'sealed-bids']);
+    expect(items.map((g) => g.id)).toEqual(['unmatched', 'uno', 'line-three', 'chess', 'snakes-ladders', 'sealed-bids', 'ludo', 'catan']);
     expect(items.filter((g) => g.isTestGame).map((g) => g.id)).toEqual(['line-three', 'sealed-bids']);
   });
 
@@ -24,11 +24,11 @@ describe('catalog search and filters (FR-02)', () => {
   });
 
   it('filters by players, time, difficulty, mode and access', async () => {
-    expect(await ids('?players=4')).toEqual(['sealed-bids', 'uno']);
+    expect(await ids('?players=4')).toEqual(['catan', 'ludo', 'sealed-bids', 'snakes-ladders', 'unmatched', 'uno']);
     expect(await ids('?players=8')).toEqual(['uno']);
     expect(await ids('?maxMinutes=3')).toEqual(['line-three']);
-    expect(await ids('?difficulty=medium')).toEqual(['sealed-bids']);
-    expect(await ids('?mode=turn')).toEqual(['line-three', 'sealed-bids', 'uno']);
+    expect(await ids('?difficulty=medium')).toEqual(['catan', 'chess', 'sealed-bids', 'unmatched']);
+    expect(await ids('?mode=turn')).toEqual(['catan', 'chess', 'line-three', 'ludo', 'sealed-bids', 'snakes-ladders', 'unmatched', 'uno']);
     expect(await ids('?access=premium')).toEqual([]);
     expect((await get('/api/games?players=abc')).json().errorCode).toBe('VALIDATION_FAILED');
   });

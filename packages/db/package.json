@@ -20,7 +20,12 @@
     "@bg/game-sealed-bids": "workspace:*",
     "@bg/game-uno": "workspace:*",
     "drizzle-orm": "0.45.3",
-    "postgres": "3.4.9"
+    "postgres": "3.4.9",
+    "@bg/game-unmatched": "workspace:*",
+    "@bg/game-catan": "workspace:*",
+    "@bg/game-chess": "workspace:*",
+    "@bg/game-snakes-ladders": "workspace:*",
+    "@bg/game-ludo": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

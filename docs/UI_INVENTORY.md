@@ -92,6 +92,10 @@ width: `docs/evidence/phase-04/a11y-*.json` (0 violations). Admin panels: games/
 plans and prices, seasons (+ correction), missions, support (manual XP/premium, subscriptions, payments), platform
 incident; moderator queue with audit filters.
 
+Snakes and Ladders / Ludo: `docs/evidence/race/*.png` — full games at 360 and 1440 (start, each player mid-game, result).
+Catan: `docs/evidence/catan/*.png` — three players at 360 and 1440 (start, each player's view after set-up and after regular turns).
+Chess: `docs/evidence/chess/*.png` — Fool’s Mate at 360 and 1440 (start, Black’s legal targets, result).
+Unmatched: `docs/evidence/unmatched/*.png` — duel at 360 and 1440 (hero pick, board for each player, combat, result).
 UNO: `docs/evidence/uno/*.png` — three-player hand at 360 and 1440 (start, each player's own view mid-game, result).
 
 Redesign (café): `docs/evidence/redesign/*-dark-*.png` — dark theme at 360 and 1440 (catalog, detail, dashboard, quick match, progress, settings); light theme in phase-04 screenshots.

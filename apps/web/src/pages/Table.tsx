@@ -21,7 +21,7 @@ function ReadyCountdown({ until }: { until: string }) {
 }
 
 type Lobby = TableSnapshot['table'];
-const REASON_FA: Record<string, string> = { win: 'برد با چیدن سه نشان', draw: 'مساوی', score: 'پایان دورها و شمارش امتیاز', timeout: 'اتمام زمان', resign: 'انصراف' };
+const REASON_FA: Record<string, string> = { win: 'پیروزی', draw: 'مساوی', score: 'پایان دورها و شمارش امتیاز', timeout: 'اتمام زمان', resign: 'انصراف' };
 
 const seatNameOf = (t: Lobby) => (seat: number) => {
   const s = t.seats.find((x) => x.seat === seat);

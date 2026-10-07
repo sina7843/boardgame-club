@@ -245,3 +245,99 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   abandoned payments expire after the 30-minute TTL.
 - Production refuses `ZARINPAL_SANDBOX=true`. Merchant ids are validated by shape, not RFC UUID rules (Zarinpal ids
   are not guaranteed RFC-valid).
+
+## Unmatched (2026-10-07, owner request)
+
+- Sources: core rulebook `Rulebooks/Unmatched/rules_EN_Light.pdf` (owner-supplied, kept out of git); card values, BOOST
+  and copy counts from the unmatched.cards deck database. Scope chosen by the owner: core rules + Battle of Legends
+  Vol. 1 (Arthur, Medusa, Sinbad, Alice), duel and free-for-all. Team play and the other ~70 heroes / 24 maps are not
+  implemented.
+- The database lists a joke "mirror" variant of Medusa's ability, Gaze of Stone and A Momentary Glance; the official
+  printed text is used instead.
+- Battlefields: space centres and zones taken from published map geometry; adjacency lines and start spaces read by
+  hand from the board art. The board is drawn as original vector shapes (no board art shipped).
+- Platform deviations: the first player (start space 1) is drawn by the engine RNG instead of "youngest player"; heroes
+  are picked in turn order, no duplicates; the map is a table option (random / Marmoreal / Sarpedon).
+- Every decision is a server prompt with a fresh turn deadline. Timeout = most passive choice (maneuver without moving,
+  no defence, skip "may"); three in a row remove the player. A leaver's fighters leave the board.
+- Prophecy: the two kept cards are the first two picked; any further picks set the order on top of the deck.
+  Bewilderment prevents all damage to its fighter until the combat ends (after-combat effects included).
+  Restless Spirits may target any space in Merlin's zone(s), then one adjacent space.
+- The defender is always asked for a defence card unless their hand is empty, so the attacker never learns that no
+  usable card was held.
+- Shell fix: the result screen's generic `win` reason no longer says "three in a row" (was Line Three wording for all games).
+
+## Unmatched — Cobble & Fog (2026-10-07, owner request)
+
+- Added Sherlock Holmes (+ Dr. Watson), Dracula (+ 3 Sisters), Jekyll & Hyde and the Invisible Man (all 30-card decks,
+  values from the unmatched.cards database) and the SoHo and Baskerville Manor battlefields.
+- Board data: the published map geometry lacks one zone on each new map (SoHo rooftops, Baskerville garden); those
+  spaces/halves were added by hand from the board art (`navy` zone). Baskerville's four secret-passage spaces are
+  mutually adjacent for movement only (never for attacks).
+- "Your opponent" on a scheme in free-for-all (Invisible Man fog moves) = the next player in turn order; Holmes's
+  "Choose an opponent" is a real choice. In combat it is always the other combatant.
+- Elementary is played face up with a prediction 0–8 of the attack card's printed value; a correct guess cancels the
+  attack card's effects (unless they are uncancellable Holmes effects) and its value is ignored.
+- Do My Bidding: the returned attack card was already revealed, so it stays visible; the defender picks from the
+  attacker's attack/versatile cards usable by the attacking fighter.
+- Calming Research keeps the first picked card and puts the rest on the bottom (choosing "fewer than 3" is not offered).
+  Coded Notes: the first picked card ends on top. Confirm Suspicion values offered: 0–8.
+- Ravening Seduction: choose the fighter first, then move it up to 2 (0 allowed), then damage per adjacent Sister.
+- Vanish: the Invisible Man is off the board (not defeated, cannot be targeted, his cards cannot be played) until he is
+  placed at the start of his next turn; played as the first action, it ends the turn.
+- "Started this turn in a space" (Momentous Shift, Emerge From Mist) is measured after start-of-turn effects.
+
+## Chess (2026-10-07, owner request)
+
+- FIDE basic rules: castling (not out of/through check), en passant, promotion to Q/R/B/N, check, checkmate, stalemate.
+  Move generator verified by perft against the standard reference positions (start, Kiwipete, positions 3–5).
+- Draws are automatic (no claim step): threefold repetition (key includes castling rights and a *capturable*
+  en-passant square), fifty-move rule (100 half-moves), insufficient material (K v K, K+minor v K, K+B v K+B same
+  shade), stalemate, and an accepted draw offer. An offer is sent with a move and lapses when the receiver moves.
+- Time: the platform's per-turn deadline. On timeout the side to move loses (FIDE 6.9), or the game is drawn if the
+  opponent has no mating material (lone king, or king + one bishop/knight). Variant: White = random (default) or host.
+- `setup` accepts a `fen` option for engine tests only; the API rejects undeclared options (`OPTION_NOT_ALLOWED`),
+  covered by `apps/api/test/chess.test.ts`.
+- Pieces are Unicode chess glyphs (text presentation forced with U+FE0E), coloured by CSS; no image assets.
+- Board coordinates stay literal (ltr); the board is shown from the viewer's side. Notation is standard SAN (Latin).
+
+## Snakes and Ladders (مارپله) and Ludo (منچ) (2026-10-07, owner request)
+
+- Both are traditional public-domain games; dice are rolled by the server RNG (never the client). Tutorials use a short
+  scripted dice list (tutorial tables only; never projected).
+- Snakes and Ladders: 2–6 players, classic 1943 "Chutes and Ladders" layout (9 ladders, 10 snakes), any number of
+  tokens per square, start off the board, first player drawn by the engine. Variants: reaching 100 needs an exact roll
+  (default: an overshoot does not move) or bounces back; optional extra roll on a 6 (default off). Ranking: the winner,
+  then by square.
+- Ludo / منچ: 2–4 players, Mensch ärgere Dich nicht rules — 40-square track, 4-square goal per colour, enter on a 6,
+  a 6 rolls again (also when blocked), three tries when nothing can move without a 6, capture sends the piece to its
+  yard, no landing on own pieces, no jumping over own pieces in the goal, exact count into the goal. Two players sit
+  opposite. Not enforced (common house rules vary): compulsory capture and compulsory clearing of the start square;
+  the player chooses freely, and a single possible move is played automatically. The game ends when the first player
+  has all four pieces home; the others are ranked by total progress.
+- Timeouts: the turn is played for the absent player (roll; Ludo moves the most advanced movable piece); three in a row
+  remove the player. Resign: the player leaves (Ludo: their pieces leave the board); the last player standing wins.
+
+## Catan (2026-10-07, owner request)
+
+- Source: base-game rulebook `Rulebooks/Catan/catan_base_rules_2020_200707.pdf` (owner-supplied, kept out of git).
+  Scope: base game for 3–4 players. The 5–6 player extension and Seafarers/Cities & Knights are not implemented.
+- Maps: variable set-up (default) uses the rulebook's "fully random" option — terrain and number tokens shuffled,
+  re-shuffled until no 6/8 are adjacent; harbor types shuffled over 9 fixed frame positions. "Beginners' map" uses the
+  terrain/number layout of Illustration A; its harbor order and the preset starting pieces are not reproduced —
+  everyone places with the normal set-up phase. The board is original vector art.
+- Platform deviations: the starting player is drawn by the engine RNG (rulebook: highest roll). The almanac's combined
+  trade/build phase is used (trade and build in any order after rolling). Domestic trade is an open offer from the
+  current player; others accept/decline and the current player picks one partner; counter-offers go through table
+  chat. Any other move by the current player withdraws the open offer.
+- Resource counts of other players are public (counts only, as at a real table); which card was stolen is shown only
+  to the thief and the victim. Development cards are hidden until played; victory point cards are revealed at the end.
+- A 7 asks every player above 7 cards to discard at once (simultaneous decision, shared deadline). Robber victims are
+  limited to adjacent players who hold cards; with one candidate the steal is automatic.
+- Win: checked after every action of the current player and at the start of a turn, so Longest Road gained on another
+  player's turn wins on your own turn. Largest Army set aside when its holder leaves and the rest tie.
+- Timeout = minimum play for the absent player (best-dot set-up spot + first road; roll; robber on the hex hurting
+  opponents most; steal from the first candidate; end turn; discards from the largest piles). Three in a row remove
+  the player; a removed player's pieces stay (they block) but no longer produce.
+- Tutorial tables have two seats: a fixed position on the beginners' map (learner at 8 VP, scripted roll of 8), five
+  steps to 10 VP. Two players are only accepted for that tutorial deal.

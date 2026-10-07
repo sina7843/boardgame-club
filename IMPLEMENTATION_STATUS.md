@@ -30,6 +30,56 @@ Checks run: contrast script 0 failures (42 pairs, both themes); axe 0 serious/cr
 dark (6 pages × 2 widths); lint, typecheck, build clean; unit/integration 165 passed; E2E 52 passed, 10 skipped by design.
 Screenshots: `docs/evidence/redesign/` (dark) and `docs/evidence/phase-04/screenshots/` (light).
 
+## Catan (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New module `games/catan` (base game rules from the owner-supplied rulebook, 3–4 players, variable or beginners' map,
+renderer with vector island, cover, tutorial) registered in engine, catalog and web. Checks run: engine tests 22
+(`packages/game-engine/test/catan.test.ts`: geometry, both maps, 6/8 rule over 200 seeds, snake set-up + starting
+resources, road/settlement/city rules and limits, production incl. robber and bank shortage, 7 discard/robber/steal
+redaction, 4:1/3:1/2:1 and domestic trade, development cards, Longest Road break, Largest Army, hidden-VP win, timeouts,
+resign, projection redaction, tutorial, 30 random games to a winner with card conservation + replay); API 3
+(`apps/api/test/catan.test.ts`); E2E `e2e/catan.spec.ts`: three browsers create a live
+beginners'-map table, do the whole set-up phase and 8 regular turns (roll, discard/robber/steal on 7) through the UI at 360
+and 1440 — 2/2 passed (screenshots `docs/evidence/catan/`). Run on an isolated API/Vite/worker (ports 3100/5175/3110)
+because the shared dev Vite on 5173 was serving another session's catan stub. Engine suite 113/113, typecheck, lint
+(catan files), web build clean. Not done: full game to 10 VP through the browser
+(engine-tested only), load-test driver entry, 5–6 player extension.
+
+## Snakes and Ladders + Ludo (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New modules `games/snakes-ladders` and `games/ludo` (rules, vector boards, renderers, covers, tutorials) registered in
+engine, catalog and web. Checks run: engine tests 12 (`packages/game-engine/test/race-games.test.ts`: board data, moves,
+ladders/snakes, exact/bounce finish, entering on 6, extra roll, three tries, capture, own-piece blocking, goal rules,
+ranking, timeouts, resign, tutorials, 30 + 40 random games with replay and a no-stacking invariant); API 6
+(`apps/api/test/race-games.test.ts`); catalog test updated; E2E `e2e/race-games.spec.ts` — 3-player Snakes and Ladders and
+2-player Ludo played to the result through the UI at 360 and 1440 (screenshots `docs/evidence/race/`). Engine suite
+113/113; lint/typecheck clean.
+
+## Chess (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New module `games/chess` (rules, renderer, cover, tutorial) registered in engine, catalog and web. Checks run: engine tests
+13 (`packages/game-engine/test/chess.test.ts`: perft on 5 reference positions, SAN, castling/en passant/promotion, all draw
+rules, timeout, tutorial, 40 random games + replay); API 3 (`apps/api/test/chess.test.ts`: catalog, option injection refused,
+command path, server tutorial to mate); catalog test updated (now lists chess and catan); E2E `e2e/chess.spec.ts`: Fool’s Mate
+through the UI at 360 and 1440, Black’s board orientation checked (screenshots `docs/evidence/chess/`). Lint/typecheck clean.
+
+## Unmatched — Battle of Legends Vol. 1 (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New module `games/unmatched`: core rules (owner-supplied core rulebook) for duel and free-for-all (2–4 players), heroes
+King Arthur, Medusa, Sinbad, Alice with all 30-card decks and effects, battlefields Marmoreal and Sarpedon (original
+vector board), in-game hero pick, deployment, Alice size, tutorial. Registered in engine, catalog and web.
+Checks run: engine tests 17 (`packages/game-engine/test/unmatched.test.ts`, incl. rulebook combat example and a 60-game
+random-play fuzz checking no hand leaks + deterministic replay), API integration 3 (`apps/api/test/unmatched.test.ts`),
+E2E `e2e/unmatched.spec.ts`: two browsers pick, deploy and fight a duel to the result at 360 and 1440
+(screenshots `docs/evidence/unmatched/`). Full workspace `pnpm test` 195 passed; typecheck clean; lint 0 errors.
+Not done: team mode, other Unmatched sets/maps, load-test driver entry, FFA E2E (FFA covered by engine tests only).
+
+**Cobble & Fog added (2026-10-07):** Sherlock Holmes, Dracula, Jekyll & Hyde, Invisible Man; maps SoHo and Baskerville
+Manor (secret passages). Engine tests now 25 (8 targeted Cobble & Fog tests + a 160-game random fuzz over all 8 heroes and
+4 maps); API 3/3; E2E three duels (Vol. 1 on Marmoreal, Invisible Man vs Jekyll on Baskerville, Holmes vs Dracula on SoHo)
+at 360 and 1440 — 6/6 passed. Note: E2E ran with a temporary Vite alias stubbing `@bg/game-catan` cover/renderer, which
+another session was still building; full-workspace `pnpm test`/build were not re-run because that module is incomplete.
+
 ## UNO (2026-10-07): DONE locally — real devices UNVERIFIED
 
 New module `games/uno` (rules, original card faces, renderer, cover, tutorial) registered in engine, catalog and web.

@@ -1,0 +1,687 @@
+// Unmatched renderer: players strip, vector battlefield (spaces, zones, lines, fighters), one decision panel driven by
+// the server prompt, combat panel, own hand and event log. Shows only the projection; other hands are counts.
+import './renderer.css';
+import { Fragment, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { BOARDS, type Board } from './boards.ts';
+import { HEROES, type CardDef } from './heroes.ts';
+import type { CardRef, Fighter, LogEntry, Prompt, UnmatchedView } from './rules.ts';
+
+const fa = (n: number) => n.toLocaleString('fa-IR');
+type Hint = { type: string; [k: string]: unknown };
+
+const TYPE_FA: Record<CardDef['type'], string> = { attack: 'حمله', defense: 'دفاع', versatile: 'همه‌کاره', scheme: 'نقشه' };
+const TYPE_ICON: Record<CardDef['type'], string> = { attack: '✷', defense: '⛨', versatile: '✷⛨', scheme: 'ϟ' };
+const WHY_FA: Record<string, string> = {
+  maneuver: 'مبارزانتان را یکی‌یکی جابه‌جا کنید',
+  effectMove: 'جابه‌جایی اثر کارت',
+  combatantMove: 'یکی از دو مبارز نبرد را جابه‌جا کنید',
+  storms: 'فرمان طوفان‌ها: هر مبارزی را می‌توانید جابه‌جا کنید',
+  deploy: 'یاورتان را در منطقه قهرمان بگذارید',
+  bewilderment: 'سردرگمی: می‌توانید مبارزتان را در هر خانه خالی بگذارید',
+  lookingGlass: 'آینه: آلیس را در خانه‌ای دیگر بگذارید',
+  harpyReturn: 'یک هارپی را به منطقه مدوسا برگردانید',
+  medusaGaze: 'توانایی مدوسا: می‌توانید به یک مبارز حریف در منطقه‌اش ۱ آسیب بزنید',
+  glance: 'نگاهی گذرا: به یک مبارز در منطقه مدوسا ۲ آسیب بزنید',
+  jaws: 'آرواره‌ها: به یک مبارز مجاور جبرواک ۲ آسیب بزنید',
+  spiritsFirst: 'ارواح ناآرام: یک خانه در منطقه مرلین انتخاب کنید',
+  spiritsSecond: 'ارواح ناآرام: یک خانه مجاور آن را انتخاب کنید',
+  handLimit: 'پایان نوبت: کارت‌های اضافه بر ۷ را دور بریزید',
+  effect: 'اثر کارت حریف: کارت(هایی) برای دور ریختن انتخاب کنید',
+  prophecy: 'پیشگویی: ۲ کارت را برای دست انتخاب کنید؛ بقیه به همان ترتیبِ انتخاب روی دسته برمی‌گردند',
+  snicker: 'شرق‌شرق: کارتی از دست حریف را برای دور ریختن انتخاب کنید',
+  boostMove: 'تقویت حرکت: یک کارت دور بریزید تا ارزش تقویتش به حرکت اضافه شود (اختیاری)',
+  boostAttack: 'می‌توانید این حمله را با دور ریختن یک کارت تقویت کنید',
+  defend: 'به شما حمله شده: کارت دفاع رو به پایین بگذارید یا بدون دفاع ادامه دهید',
+  size: 'آلیس بزرگ شروع کند یا کوچک؟',
+  pickHero: 'قهرمانتان را انتخاب کنید',
+  fogDeploy: 'نشان مه را در یک خانه از منطقه مرد نامرئی بگذارید',
+  bloodthirsty: 'تشنه خون: می‌توانید به یک مبارز مجاور دراکولا ۱ آسیب بزنید و ۱ کارت بکشید',
+  serum: 'سرم: در قالب فعلی بمانید یا تغییر شکل دهید؟',
+  deduce: 'استنتاج نقشه: ارزش کارت حریف برابر ارزش تقویتش شود؟',
+  beastform: 'هیبت جانور: هر تعداد کارت دور بریزید؛ هر کدام ۱+',
+  foreverHyde: 'هاید برای همیشه: کارت‌های «دکتر جکیل» را دور بریزید؛ هر کدام ۲+',
+  bidding: 'فرمانم را ببر: کارتی را که حریف باید با آن حمله کند انتخاب کنید',
+  confirm: 'تأیید سوءظن: یک کارت با ارزش اعلام‌شده دور بریزید',
+  nameValue: 'تأیید سوءظن: یک عدد (ارزش حمله یا دفاع) بگویید',
+  chooseOpponent: 'یک حریف انتخاب کنید',
+  eliminate: 'حذف ناممکن‌ها: کارتی از دست حریف را برای دور ریختن انتخاب کنید',
+  administerAid: 'کمک‌رسانی: دکتر واتسون را کنار هولمز بگذارید',
+  mistform: 'هیبت مه: دراکولا را در هر خانه‌ای بگذارید',
+  sisterReturn: 'یک خواهر را به منطقه دراکولا برگردانید',
+  thirst: 'عطش خوراک: دراکولا را کنار مبارز حریف بگذارید',
+  seduction: 'اغوای درنده: مبارزی را انتخاب و تا ۲ خانه جابه‌جا کنید',
+  hydeZone: 'هاید را در خانه‌ای از منطقه‌اش بگذارید (یا بمانید)',
+  calming: 'پژوهش آرام‌بخش: اولین انتخاب به دست می‌آید؛ بقیه به ترتیب انتخاب زیر دسته می‌روند',
+  strangeCase: 'ماجرای عجیب: به یک مبارز مجاور آسیب بزنید',
+  fogMove: 'یک نشان مه را جابه‌جا کنید',
+  fogMoveOpp: 'اثر کارت حریف: یک نشان مه را جابه‌جا کنید',
+  confound: 'سردرگم کردن: یک کارت دور بریزید، یا هیچ (آن‌وقت حریف می‌تواند مه‌ها را جابه‌جا کند)',
+  surpriseFog: 'نشان مه زیر مرد نامرئی را به خانه دیگری ببرید',
+  slipAway: 'گریز: یک نشان مه را به خانه‌ای بی‌مبارز ببرید؛ مرد نامرئی همان‌جا می‌رود',
+  lurking: 'کمین‌نشستن: یک اثر را انتخاب کنید',
+  codedNotes: 'یادداشت‌های رمزی: ۲ کارت را روی دسته بگذارید (اولین انتخاب بالاتر)',
+  reign: 'حکومت وحشت: به یک مبارز حریف ۲ آسیب بزنید',
+  stepLightly: 'آهسته قدم بردار: به یک مبارز مجاور آسیب بزنید',
+  rollingFog: 'مه غلتان: یک نشان مه را به هر خانه دیگری ببرید',
+  vanishReturn: 'مرد نامرئی برمی‌گردد: او را در هر خانه‌ای بگذارید',
+  lurkingPlace: 'مرد نامرئی را به خانه‌ای مه‌دار ببرید',
+  action: 'یک اقدام انتخاب کنید'
+};
+const OPTION_FA: Record<string, string> = {
+  draw: '۲ کارت بکشید', heal: 'آلیس ۳ سلامتی بازیابد', place: 'آلیس را در خانه دیگری بگذارید',
+  stay: 'همین قالب بماند', switch: 'تغییر شکل', apply: 'بله، تغییر بده', skip: 'نه',
+  toFog: 'رفتن به خانه مه‌دار', fogMove: 'جابه‌جایی یک مه تا ۳ خانه'
+};
+const optionLabel = (p: Prompt, o: string, seatName: (s: number) => string) =>
+  p.why === 'chooseOpponent' ? seatName(Number(o)) : p.why === 'nameValue' ? fa(Number(o)) : p.why === 'serum' && o === 'switch' ? 'تغییر شکل (جکیل ⇄ هاید)' : OPTION_FA[o] ?? o;
+const formFa = (f: 'jekyll' | 'hyde' | null | undefined) => (f === 'hyde' ? 'آقای هاید' : 'دکتر جکیل');
+
+function cardDefOf(view: UnmatchedView, c: CardRef): CardDef | undefined {
+  return HEROES[view.heroes[c.seat] ?? '']?.cards.find((d) => d.slug === c.slug);
+}
+function bannerFa(view: UnmatchedView, seat: number, d: CardDef) {
+  const h = HEROES[view.heroes[seat] ?? ''];
+  if (!h || d.banner === 'any') return 'هر مبارز';
+  return d.banner === 'hero' ? h.hero.nameFa : h.sidekick.nameFa;
+}
+function fighterName(view: UnmatchedView, fid: string) {
+  const f = view.fighters.find((x) => x.id === fid);
+  const h = f ? HEROES[view.heroes[f.seat] ?? ''] : undefined;
+  if (!f || !h) return fid;
+  if (f.hero) return view.heroes[f.seat] === 'jekyll' ? formFa(view.form[f.seat]) : h.hero.nameFa;
+  return h.sidekick.count > 1 ? `${h.sidekick.nameFa} ${fa(f.idx + 1)}` : h.sidekick.nameFa;
+}
+const spaceLabel = (board: Board, i: number) => `خانه ${fa(i + 1)} (${board.spaces[i]!.zones.map((z) => board.zones.find((x) => x.id === z)?.nameFa ?? z).join('/')})`;
+const anyCardName = (slug: string) => Object.values(HEROES).flatMap((h) => h.cards).find((d) => d.slug === slug)?.nameFa ?? slug;
+const slugName = (view: UnmatchedView, seat: number, slug: string) => HEROES[view.heroes[seat] ?? '']?.cards.find((d) => d.slug === slug)?.nameFa ?? slug;
+
+function describe(e: LogEntry, view: UnmatchedView, seatName: (s: number) => string): string {
+  const fn = (fid: string) => fighterName(view, fid);
+  const seatOf = (fid: string) => Number(fid[0]);
+  switch (e.t) {
+    case 'pick': return `${seatName(e.seat)} ${HEROES[e.hero]?.hero.nameFa ?? e.hero} را انتخاب کرد.`;
+    case 'turn': return `نوبت ${fa(e.n)}: ${seatName(e.seat)}.`;
+    case 'maneuver': return `${seatName(e.seat)} مانور داد${e.boost ? ` و با «${slugName(view, e.seat, e.boost)}» تقویت کرد` : ''}.`;
+    case 'move': return `${fn(e.fighter)} از خانه ${fa(e.from + 1)} به خانه ${fa(e.to + 1)} رفت.`;
+    case 'place': return `${fn(e.fighter)} در خانه ${fa(e.to + 1)} قرار گرفت.`;
+    case 'scheme': return `${fn(e.fighter)} نقشه «${slugName(view, seatOf(e.fighter), e.card)}» را بازی کرد.`;
+    case 'attack': return `${fn(e.fighter)} به ${fn(e.target)} ${e.ranged ? 'از دور ' : ''}حمله کرد.`;
+    case 'reveal': return `کارت‌ها رو شد: حمله ${fa(e.aVal)} در برابر دفاع ${fa(e.dVal)}؛ ${e.damage ? `${fa(e.damage)} آسیب نبرد` : 'بدون آسیب نبرد'}${e.cancelA || e.cancelD ? ' (اثری لغو شد)' : ''}.`;
+    case 'damage': return `${fn(e.fighter)} ${fa(e.n)} آسیب دید.`;
+    case 'heal': return `سلامتی ${fn(e.fighter)} به ${fa(e.to)} رسید.`;
+    case 'defeated': return `${fn(e.fighter)} شکست خورد!`;
+    case 'draw': return `${seatName(e.seat)} ${fa(e.n)} کارت کشید.`;
+    case 'exhausted': return `دسته ${seatName(e.seat)} تمام شده؛ هر مبارزش ${fa(e.n)} آسیب می‌بیند.`;
+    case 'discard': return `${seatName(e.seat)} «${slugName(view, e.seat, e.card)}» را دور ریخت${e.why === 'boost' ? ' (تقویت)' : e.why === 'random' ? ' (تصادفی)' : ''}.`;
+    case 'fetch': return `${seatName(e.seat)} «${slugName(view, e.seat, e.card)}» را به دست برگرداند.`;
+    case 'size': return `آلیس ${e.size === 'big' ? 'بزرگ' : 'کوچک'} شد.`;
+    case 'sawHand': return `${seatName(e.seat)} دست ${seatName(e.of)} را دید.`;
+    case 'eliminated': return `${seatName(e.seat)} از بازی بیرون رفت${e.reason === 'resign' ? ' (انصراف)' : e.reason === 'timeout' ? ' (غیبت)' : ''}.`;
+    case 'timeout': return `زمان ${seatName(e.seat)} تمام شد.`;
+    case 'form': return `${seatName(e.seat)} به ${formFa(e.form)} تبدیل شد.`;
+    case 'fog': return `یک نشان مه به خانه ${fa(e.to + 1)} رفت.`;
+    case 'vanish': return `مرد نامرئی ناپدید شد.`;
+    case 'revealTop': return `${seatName(e.seat)} کارت «${slugName(view, e.seat, e.card)}» را از بالای دسته رو کرد.`;
+    case 'swap': return `${fn(e.a)} با ${fn(e.b)} جا عوض کرد.`;
+    case 'extraAction': return `${seatName(e.seat)} یک اقدام اضافه گرفت.`;
+    case 'named': return `${seatName(e.seat)} عدد ${fa(e.value)} را گفت.`;
+    case 'shownHand': return `${seatName(e.seat)} دستش را به ${seatName(e.to)} نشان داد.`;
+    case 'bidding': return `${seatName(e.seat)} «${anyCardName(e.card)}» را برای حمله حریف تعیین کرد.`;
+  }
+}
+
+// ---------- card ----------
+
+function UmCard({ view, card, state, onClick, hint, small }: {
+  view: UnmatchedView; card: CardRef; state?: 'selected' | 'playable' | 'dim' | 'boost'; onClick?: () => void; hint?: boolean; small?: boolean;
+}) {
+  const d = cardDefOf(view, card);
+  if (!d) return null;
+  const label = `${d.nameFa}، ${TYPE_FA[d.type]}${d.value !== null ? ` ${fa(d.value)}` : ''}، تقویت ${fa(d.boost)}، ${bannerFa(view, card.seat, d)}${d.textFa ? `. ${d.textFa}` : ''}`;
+  const body = (
+    <>
+      <span className="um-card__top">
+        <span className="um-card__type"><span aria-hidden="true">{TYPE_ICON[d.type]}</span> {TYPE_FA[d.type]}</span>
+        {d.value !== null && <span className="um-card__value">{fa(d.value)}</span>}
+      </span>
+      <span className="um-card__name">{d.nameFa}</span>
+      <span className="um-card__banner">{bannerFa(view, card.seat, d)}</span>
+      {!small && d.textFa && <span className="um-card__text">{d.textFa}</span>}
+      <span className="um-card__boost" title="ارزش تقویت">{fa(d.boost)}</span>
+    </>
+  );
+  const cls = ['um-card', `um-card--${d.type}`, small ? 'um-card--sm' : '', state ? `um-card--${state}` : '', hint ? 'um-card--hint' : ''].join(' ');
+  if (!onClick) return <span className={cls} role="img" aria-label={label}>{body}</span>;
+  return <button type="button" className={cls} aria-label={label} aria-pressed={state === 'selected' || state === 'boost'} onClick={onClick} disabled={state === 'dim'}>{body}</button>;
+}
+const CardBack = ({ label }: { label: string }) => <span className="um-card um-card--back" role="img" aria-label={label}><span aria-hidden="true">⚔</span></span>;
+
+// ---------- board ----------
+
+function slicePath(cx: number, cy: number, r: number, a0: number, a1: number) {
+  const p = (a: number) => `${cx + r * Math.cos(a)} ${cy + r * Math.sin(a)}`;
+  return `M ${cx} ${cy} L ${p(a0)} A ${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${p(a1)} Z`;
+}
+
+interface BoardMarks { spaces: Set<number>; fighters: Set<string>; fogs: Set<number>; selected: string | null; hintSpace: number | null; hintFighter: string | null }
+
+function Battlefield({ view, marks, onSpace, onFighter, onFog }: { view: UnmatchedView; marks: BoardMarks; onSpace: (i: number) => void; onFighter: (fid: string) => void; onFog: (t: number) => void }) {
+  const board = BOARDS[view.mapId]!;
+  const color = (z: string) => board.zones.find((x) => x.id === z)?.color ?? '#ccc';
+  const R = 58;
+  const key = (fn: () => void) => (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } };
+  const byspace = new Map(view.fighters.filter((f) => f.space !== null && f.hp > 0).map((f) => [f.space!, f]));
+  return (
+    <svg className="um-board" viewBox="0 0 1337 866" role="group" aria-label={`میدان نبرد ${board.nameFa}`} style={{ direction: 'ltr' }}>
+      <rect x="0" y="0" width="1337" height="866" rx="28" className="um-board__bg" />
+      {board.edges.map(([a, b]) => (
+        <line key={`${a}-${b}`} x1={board.spaces[a]!.x} y1={board.spaces[a]!.y} x2={board.spaces[b]!.x} y2={board.spaces[b]!.y} className="um-edge" />
+      ))}
+      {board.spaces.map((sp, i) => {
+        const k = sp.zones.length;
+        const target = marks.spaces.has(i);
+        const occ = byspace.get(i);
+        const start = board.starts.indexOf(i);
+        return (
+          <g key={i} className={['um-space', target ? 'um-space--target' : '', marks.hintSpace === i ? 'um-space--hint' : ''].join(' ')}
+            {...(target ? { role: 'button', tabIndex: 0, 'aria-label': `${spaceLabel(board, i)}، انتخاب`, onClick: () => onSpace(i), onKeyDown: key(() => onSpace(i)) } : { 'aria-hidden': true })}>
+            {k === 1 ? <circle cx={sp.x} cy={sp.y} r={R} fill={color(sp.zones[0]!)} />
+              : sp.zones.map((z, j) => <path key={z} d={slicePath(sp.x, sp.y, R, -Math.PI / 2 + (j * 2 * Math.PI) / k, -Math.PI / 2 + ((j + 1) * 2 * Math.PI) / k)} fill={color(z)} />)}
+            <circle cx={sp.x} cy={sp.y} r={R} className="um-space__ring" />
+            {!occ && <text x={sp.x} y={sp.y + 10} className="um-space__num">{fa(i + 1)}</text>}
+            {start >= 0 && <g className="um-start"><rect x={sp.x - R - 6} y={sp.y - 13} width="26" height="26" transform={`rotate(45 ${sp.x - R + 7} ${sp.y})`} /><text x={sp.x - R + 7} y={sp.y + 7}>{fa(start + 1)}</text></g>}
+          </g>
+        );
+      })}
+      {board.passages.map((i) => (
+        <g key={`p${i}`} className="um-passage" aria-hidden="true"><circle cx={board.spaces[i]!.x + R - 6} cy={board.spaces[i]!.y + R - 6} r="16" /><text x={board.spaces[i]!.x + R - 6} y={board.spaces[i]!.y + R + 1}>⚿</text></g>
+      ))}
+      {view.fog.map((sp, t) => (
+        <g key={`fog${t}`} className={marks.fogs.has(t) ? 'um-fog um-fog--target' : 'um-fog'} transform={`translate(${board.spaces[sp]!.x - R + 14 + t * 6}, ${board.spaces[sp]!.y - R + 14})`}
+          {...(marks.fogs.has(t) ? { role: 'button', tabIndex: 0, 'aria-label': `نشان مه ${fa(t + 1)} در ${spaceLabel(board, sp)}، انتخاب`, onClick: () => onFog(t), onKeyDown: key(() => onFog(t)) } : { role: 'img', 'aria-label': `نشان مه در ${spaceLabel(board, sp)}` })}>
+          <ellipse rx="24" ry="15" /><text y="7">☁</text>
+        </g>
+      ))}
+      {view.fighters.filter((f) => f.space !== null && f.hp > 0).map((f) => {
+        const sp = board.spaces[f.space!]!;
+        const h = HEROES[view.heroes[f.seat] ?? '']!;
+        const sel = marks.selected === f.id;
+        const target = marks.fighters.has(f.id);
+        const name = fighterName(view, f.id);
+        const r = f.hero ? 46 : 34;
+        return (
+          <g key={f.id} className={['um-fighter', target ? 'um-fighter--target' : '', sel ? 'um-fighter--selected' : '', marks.hintFighter === f.id ? 'um-fighter--hint' : '', f.seat === view.current ? 'um-fighter--turn' : ''].join(' ')}
+            style={{ transform: `translate(${sp.x}px, ${sp.y}px)` }}
+            {...(target ? { role: 'button', tabIndex: 0, 'aria-label': `${name}، ${fa(f.hp)} سلامتی، ${spaceLabel(board, f.space!)}، انتخاب`, onClick: () => onFighter(f.id), onKeyDown: key(() => onFighter(f.id)) }
+              : { role: 'img', 'aria-label': `${name}، ${fa(f.hp)} سلامتی، ${spaceLabel(board, f.space!)}` })}>
+            <circle r={r} fill={h.color} className="um-fighter__disc" />
+            {f.hero && <circle r={r - 8} className="um-fighter__inner" />}
+            <text y={f.hero ? 4 : 2} className={f.hero ? 'um-fighter__label' : 'um-fighter__label um-fighter__label--sm'}>{f.hero ? (view.heroes[f.seat] === 'jekyll' ? formFa(view.form[f.seat]) : h.hero.nameFa).split(' ').at(-1) : h.sidekick.count > 1 ? fa(f.idx + 1) : h.sidekick.nameFa.slice(0, 2)}</text>
+            <g transform={`translate(${r * 0.72}, ${-r * 0.72})`}><circle r="20" className="um-fighter__hpbg" /><text y="8" className="um-fighter__hp">{fa(f.hp)}</text></g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ---------- renderer ----------
+
+export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<UnmatchedView>) {
+  const hints = legalActions as Hint[];
+  const p = view.prompt;
+  const mine = !!p && p.seat === mySeat && !view.outcome;
+  const board = BOARDS[view.mapId]!;
+  const hand = view.myHand ?? [];
+  const exp = expected as Hint | null;
+
+  // Local selection state, reset whenever the prompt changes.
+  const [mode, setMode] = useState<'attack' | 'scheme' | null>(null);
+  const [selFighter, setSelFighter] = useState<string | null>(null);
+  const [selTarget, setSelTarget] = useState<string | null>(null);
+  const [selCard, setSelCard] = useState<string | null>(null);
+  const [selBoost, setSelBoost] = useState<string | null>(null);
+  const [boostPick, setBoostPick] = useState(false);
+  const [selFog, setSelFog] = useState<number | null>(null);
+  const [predict, setPredict] = useState<number | null>(null);
+  const [picks, setPicks] = useState<string[]>([]);
+  const promptKey = JSON.stringify(p) + view.log.at(-1)?.seq;
+  // Changes whenever a new decision is shown (lets tests and assistive tooling detect identical consecutive prompts).
+  const promptHash = [...promptKey].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 0).toString(36);
+  useEffect(() => { setMode(null); setSelFighter(null); setSelTarget(null); setSelCard(null); setSelBoost(null); setBoostPick(false); setPicks([]); setSelFog(null); setPredict(null); }, [promptKey]);
+
+  const send = (a: Hint) => { if (!busy) onAction(a); };
+  const attacks = hints.filter((h) => h.type === 'attack') as unknown as { fighter: string; target: string; card: string; boostable: boolean }[];
+  const schemes = hints.filter((h) => h.type === 'scheme') as unknown as { card: string; fighter: string }[];
+  const moves = hints.filter((h) => h.type === 'move') as unknown as { fighter: string; to: number[] }[];
+  const chooseIds = hints.filter((h) => h.type === 'choose' && Array.isArray(h.ids)).map((h) => (h.ids as string[])[0]!);
+
+  // Announce new events politely.
+  const latest = view.log.at(-1);
+  const [announce, setAnnounce] = useState('');
+  const seen = useRef(latest?.seq ?? 0);
+  useEffect(() => {
+    if (latest && latest.seq > seen.current) setAnnounce(describe(latest, view, seatName));
+    seen.current = latest?.seq ?? 0;
+  }, [latest, view, seatName]);
+
+  // ----- board marks + clicks -----
+  const marks: BoardMarks = { spaces: new Set(), fighters: new Set(), fogs: new Set(), selected: selFighter, hintSpace: null, hintFighter: null };
+  const fogOpts = p?.kind === 'fog' ? p.fogs ?? [] : [];
+  const curFog = fogOpts.length === 1 ? fogOpts[0]! : fogOpts.find((o) => o.token === selFog);
+  if (mine && p?.kind === 'fog') {
+    for (const o of fogOpts) marks.fogs.add(o.token);
+    for (const t of curFog?.to ?? []) marks.spaces.add(t);
+  }
+  if (mine && p) {
+    if (p.kind === 'move') {
+      for (const mv of moves) marks.fighters.add(mv.fighter);
+      const cur = moves.find((mv) => mv.fighter === selFighter);
+      if (cur) for (const t of cur.to) marks.spaces.add(t);
+    }
+    if (p.kind === 'place' || p.kind === 'space') for (const s of p.spaces ?? []) marks.spaces.add(s);
+    if (p.kind === 'fighter') for (const f of p.fighters ?? []) marks.fighters.add(f);
+    if (p.kind === 'action' && mode === 'attack') {
+      for (const a of attacks) {
+        marks.fighters.add(a.fighter);
+        if (a.fighter === selFighter) marks.fighters.add(a.target);
+      }
+    }
+  }
+  if (exp?.type === 'move') { marks.hintSpace = (exp.to as number) ?? null; marks.hintFighter = exp.fighter as string; }
+  if (exp?.type === 'attack') marks.hintFighter = (selFighter ? exp.target : exp.fighter) as string;
+  const onSpace = (i: number) => {
+    if (!mine || !p) return;
+    if (p.kind === 'move' && selFighter) send({ type: 'move', fighter: selFighter, to: i });
+    if (p.kind === 'place' || p.kind === 'space') send({ type: 'choose', ids: [String(i)] });
+    if (p.kind === 'fog' && curFog) send({ type: 'choose', ids: [`${curFog.token}@${i}`] });
+  };
+  const onFighter = (fid: string) => {
+    if (!mine || !p) return;
+    if (p.kind === 'move') setSelFighter(fid === selFighter ? null : fid);
+    if (p.kind === 'fighter') send({ type: 'choose', ids: [fid] });
+    if (p.kind === 'action' && mode === 'attack') {
+      // Own fighters choose the attacker; opposing fighters choose the target.
+      if (attacks.some((a) => a.fighter === fid)) { setSelFighter(fid === selFighter ? null : fid); setSelTarget(null); setSelCard(null); setSelBoost(null); }
+      else if (selFighter && attacks.some((a) => a.fighter === selFighter && a.target === fid)) { setSelTarget(fid); setSelCard(null); }
+    }
+  };
+  // Single movable fighter: select it automatically.
+  useEffect(() => {
+    if (mine && p?.kind === 'move' && !selFighter && moves.length === 1) setSelFighter(moves[0]!.fighter);
+  }, [mine, p?.kind, moves, selFighter]);
+
+  // ----- hand interaction -----
+  const handState = (c: CardRef): 'selected' | 'playable' | 'dim' | 'boost' | undefined => {
+    if (!mine || !p) return undefined;
+    if (selBoost === c.id) return 'boost';
+    if (p.kind === 'action' && mode === 'attack' && selFighter && selTarget) {
+      if (selCard === c.id) return 'selected';
+      if (boostPick) return 'playable';
+      return attacks.some((a) => a.fighter === selFighter && a.target === selTarget && a.card === c.id) ? 'playable' : 'dim';
+    }
+    if (p.kind === 'action' && mode === 'scheme') return schemes.some((s) => s.card === c.id) ? (selCard === c.id ? 'selected' : 'playable') : 'dim';
+    if (p.kind === 'defend') return hints.some((h) => h.type === 'defend' && h.card === c.id) ? (selCard === c.id ? 'selected' : 'playable') : 'dim';
+    if (p.kind === 'boost' || p.kind === 'cards') return picks.includes(c.id) ? 'selected' : (p.cards ?? []).includes(c.id) ? 'playable' : 'dim';
+    return undefined;
+  };
+  const tapHand = (c: CardRef) => {
+    if (!mine || !p || busy) return;
+    const st = handState(c);
+    if (st === 'dim') return;
+    if (p.kind === 'action' && mode === 'attack') {
+      if (boostPick) { if (c.id !== selCard) setSelBoost(selBoost === c.id ? null : c.id); setBoostPick(false); return; }
+      setSelCard(selCard === c.id ? null : c.id);
+      if (selBoost === c.id) setSelBoost(null);
+      return;
+    }
+    if (p.kind === 'action' && mode === 'scheme') {
+      const opts = schemes.filter((s) => s.card === c.id);
+      if (opts.length === 1) send({ type: 'scheme', card: c.id, fighter: opts[0]!.fighter });
+      else setSelCard(c.id);
+      return;
+    }
+    if (p.kind === 'defend') { setSelCard(selCard === c.id ? null : c.id); return; }
+    if (p.kind === 'boost' || p.kind === 'cards') togglePick(c.id, p.max ?? 1);
+  };
+  const togglePick = (cardId: string, max: number) =>
+    setPicks((cur) => (cur.includes(cardId) ? cur.filter((x) => x !== cardId) : max === 1 ? [cardId] : cur.length < max ? [...cur, cardId] : cur));
+
+  // ----- status line -----
+  let status: { tone: 'mine' | 'wait'; text: string } | null = null;
+  if (!view.outcome && p) {
+    if (mine) status = { tone: 'mine', text: p.kind === 'action' ? `نوبت شماست — اقدام ${fa(3 - view.actionsLeft)} از ۲` : WHY_FA[p.why] ?? 'تصمیم شما' };
+    else status = { tone: 'wait', text: `در انتظار ${seatName(p.seat)}${p.kind === 'defend' ? ' (انتخاب دفاع)' : p.kind === 'pickHero' ? ' (انتخاب قهرمان)' : ''}` };
+  }
+
+  const lastReveal = useMemo(() => [...view.log].reverse().find((e) => e.t === 'reveal') as Extract<LogEntry, { t: 'reveal' }> | undefined, [view.log]);
+  const fromHand = (p?.cards ?? []).every((id) => hand.some((h) => h.id === id));
+  const selectedAttack = attacks.find((a) => a.fighter === selFighter && a.target === selTarget && a.card === selCard);
+
+  return (
+    <div className="um" data-prompt={promptHash}>
+      <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
+
+      <div className="um__meta">
+        <span>میدان: <strong>{board.nameFa}</strong></span>
+        {view.turnNo > 0 && <span>نوبت {fa(view.turnNo)}</span>}
+        <span>{view.players === 2 ? 'نبرد تن‌به‌تن' : 'همه علیه همه'}</span>
+      </div>
+
+      <ul className="um-players" aria-label="بازیکنان">
+        {view.order.map((seat) => <PlayerPanel key={seat} view={view} seat={seat} me={seat === mySeat} name={seatName(seat)} />)}
+      </ul>
+
+      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+
+      <div className="um-main">
+        <div className="um-board-wrap">
+          {view.heroes.some((h) => h) ? <Battlefield view={view} marks={marks} onSpace={onSpace} onFighter={onFighter} onFog={(t) => setSelFog(t === selFog ? null : t)} /> : <HeroGallery view={view} />}
+          <ul className="um-zones" aria-label="منطقه‌ها">
+            {board.zones.map((z) => <li key={z.id}><span className="um-zones__dot" style={{ background: z.color }} aria-hidden="true" />{z.nameFa}</li>)}
+          </ul>
+        </div>
+
+        <div className="um-side">
+          {view.combat && <CombatPanel view={view} mySeat={mySeat} />}
+          {!view.combat && lastReveal && <LastCombat e={lastReveal} />}
+
+          {view.reveal && (
+            <section className="um-panel" aria-labelledby="um-reveal-h">
+              <h3 id="um-reveal-h">دست <bdi>{seatName(view.reveal.seat)}</bdi> (فقط برای شما)</h3>
+              <div className="um-cards">{view.reveal.cards.map((c) => <UmCard key={c.id} view={view} card={c} small />)}</div>
+            </section>
+          )}
+
+          {mine && p && (
+            <DecisionPanel title={p.kind === 'action' ? `اقدام ${fa(3 - view.actionsLeft)} از ۲` : WHY_FA[p.why] ?? 'تصمیم'}>
+              {p.kind === 'pickHero' && (
+                <div className="um-heroes">
+                  {hints.filter((h) => h.type === 'pickHero').map((h, i, all) => {
+                    const hero = HEROES[h.hero as string]!;
+                    const newSet = i === 0 || HEROES[all[i - 1]!.hero as string]!.set !== hero.set;
+                    return (<Fragment key={hero.id}>{newSet && <h4 className="um-heroes__set"><bdi>{hero.set}</bdi></h4>}
+                      <button type="button" className={['um-hero', exp?.hero === hero.id ? 'um-hero--hint' : ''].join(' ')} style={{ ['--hc' as string]: hero.color }} disabled={busy} onClick={() => send({ type: 'pickHero', hero: hero.id })}>
+                        <strong>{hero.hero.nameFa}</strong>
+                        <span>سلامتی {fa(hero.hero.hp)} · حرکت {fa(hero.move)} · {hero.hero.ranged ? 'دوربرد' : 'نزدیک‌زن'}</span>
+                        <span>{hero.sidekick.count ? <>یاور: {hero.sidekick.nameFa}{hero.sidekick.count > 1 ? ` ×${fa(hero.sidekick.count)}` : ''} ({fa(hero.sidekick.hp)} سلامتی، {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'})</> : 'بدون یاور'}</span>
+                        <small>{hero.abilityFa}</small>
+                      </button></Fragment>
+                    );
+                  })}
+                </div>
+              )}
+
+              {p.kind === 'size' && (
+                <div className="row">
+                  <Button disabled={busy} onClick={() => send({ type: 'size', size: 'big' })}>بزرگ (حمله ۲+)</Button>
+                  <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'size', size: 'small' })}>کوچک (دفاع ۱+)</Button>
+                </div>
+              )}
+
+              {p.kind === 'action' && (
+                <>
+                  <div className="um-actions" role="group" aria-label="اقدام‌ها">
+                    <Button disabled={busy} variant={exp?.type === 'maneuver' ? 'brand' : 'primary'} onClick={() => send({ type: 'maneuver' })}>مانور (کشیدن + حرکت)</Button>
+                    <Button disabled={busy || !schemes.length} variant={mode === 'scheme' ? 'brand' : 'secondary'} onClick={() => setMode(mode === 'scheme' ? null : 'scheme')}>نقشه{schemes.length ? '' : ' (کارتی نیست)'}</Button>
+                    <Button disabled={busy || !attacks.length} variant={mode === 'attack' || exp?.type === 'attack' ? 'brand' : 'secondary'} onClick={() => { setMode(mode === 'attack' ? null : 'attack'); setSelFighter(null); setSelTarget(null); setSelCard(null); setSelBoost(null); }}>
+                      حمله{attacks.length ? '' : ' (هدفی نیست)'}
+                    </Button>
+                  </div>
+                  {mode === 'scheme' && (
+                    <>
+                      <p className="um-help">یک کارت نقشه از دستتان انتخاب کنید.</p>
+                      {selCard && (
+                        <ChoiceList label="کدام مبارز نقشه را اجرا کند؟" items={schemes.filter((s) => s.card === selCard).map((s) => ({ id: s.fighter, label: fighterName(view, s.fighter) }))}
+                          onPick={(fid) => send({ type: 'scheme', card: selCard, fighter: fid })} busy={busy} />
+                      )}
+                    </>
+                  )}
+                  {mode === 'attack' && (
+                    <div className="um-attack">
+                      <ChoiceList label="مبارز مهاجم" selected={selFighter} items={[...new Set(attacks.map((a) => a.fighter))].map((f) => ({ id: f, label: fighterName(view, f) }))}
+                        onPick={(f) => { setSelFighter(f); setSelTarget(null); setSelCard(null); setSelBoost(null); }} busy={busy} hint={exp?.fighter as string} />
+                      {selFighter && (
+                        <ChoiceList label="هدف" selected={selTarget} items={[...new Set(attacks.filter((a) => a.fighter === selFighter).map((a) => a.target))].map((t) => ({ id: t, label: fighterName(view, t) }))}
+                          onPick={(t) => { setSelTarget(t); setSelCard(null); }} busy={busy} hint={exp?.target as string} />
+                      )}
+                      {selFighter && selTarget && <p className="um-help">{boostPick ? 'کارت تقویت را از دستتان بزنید.' : 'کارت حمله را از دستتان انتخاب کنید.'}</p>}
+                      {selectedAttack?.boostable && (
+                        <Button size="sm" variant={boostPick ? 'brand' : 'ghost'} disabled={busy} onClick={() => setBoostPick(!boostPick)}>
+                          {selBoost ? 'تغییر کارت تقویت (توانایی آرتور)' : 'افزودن تقویت رو به پایین (توانایی آرتور)'}
+                        </Button>
+                      )}
+                      {selectedAttack && (
+                        <Button disabled={busy} onClick={() => send({ type: 'attack', fighter: selFighter, target: selTarget, card: selCard, ...(selBoost ? { boost: selBoost } : {}) })}>
+                          ثبت حمله{selBoost ? ' با تقویت' : ''}
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {p.kind === 'defend' && selCard && selCard.split('.')[1] === 'elementary' && (
+                <div className="um-choices" role="group" aria-label="پیش‌بینی ارزش چاپی حمله حریف">
+                  <span className="um-help">بدیهی است: ارزش چاپی حمله حریف را پیش‌بینی کنید (کارت شما رو به بالا بازی می‌شود).</span>
+                  {Array.from({ length: 9 }, (_, v) => <button key={v} type="button" className={predict === v ? 'um-choice um-choice--on' : 'um-choice'} aria-pressed={predict === v} onClick={() => setPredict(v)}>{fa(v)}</button>)}
+                </div>
+              )}
+              {p.kind === 'defend' && (
+                <div className="row">
+                  <Button disabled={busy || !selCard || (selCard.split('.')[1] === 'elementary' && predict === null)}
+                    onClick={() => send({ type: 'defend', card: selCard, ...(selCard?.split('.')[1] === 'elementary' && predict !== null ? { predict } : {}) })}>دفاع با کارت انتخاب‌شده</Button>
+                  <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'defend', card: null })}>بدون دفاع</Button>
+                </div>
+              )}
+
+              {p.kind === 'boost' && (
+                <div className="row">
+                  <Button disabled={busy || !picks.length} onClick={() => send({ type: 'choose', ids: picks })}>تقویت با کارت انتخاب‌شده</Button>
+                  <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'choose', ids: [] })}>بدون تقویت</Button>
+                </div>
+              )}
+
+              {p.kind === 'move' && (
+                <>
+                  <ChoiceList label="کدام مبارز؟" selected={selFighter} items={moves.map((mv) => ({ id: mv.fighter, label: fighterName(view, mv.fighter) }))} onPick={setSelFighter} busy={busy} hint={exp?.fighter as string} />
+                  {selFighter && (
+                    <ChoiceList label="مقصد (روی صفحه هم می‌توانید بزنید)" items={(moves.find((mv) => mv.fighter === selFighter)?.to ?? []).map((t) => ({ id: String(t), label: spaceLabel(board, t) }))}
+                      onPick={(t) => send({ type: 'move', fighter: selFighter, to: Number(t) })} busy={busy} hint={exp?.type === 'move' && exp.fighter === selFighter ? String(exp.to) : undefined} compact />
+                  )}
+                  <Button variant={exp?.type === 'done' ? 'brand' : 'secondary'} disabled={busy} onClick={() => send({ type: 'done' })}>پایان حرکت</Button>
+                </>
+              )}
+
+              {(p.kind === 'place' || p.kind === 'space') && (
+                <>
+                  {p.fighter && <p className="um-help">{fighterName(view, p.fighter)}: یک خانه روشن روی صفحه را بزنید.</p>}
+                  <ChoiceList label="خانه‌ها" items={(p.spaces ?? []).map((s) => ({ id: String(s), label: spaceLabel(board, s) }))} onPick={(s) => send({ type: 'choose', ids: [s] })} busy={busy} compact />
+                  {p.may && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'done' })}>رد کردن</Button>}
+                </>
+              )}
+
+              {p.kind === 'fog' && (
+                <>
+                  {fogOpts.length > 1 && <ChoiceList label="کدام نشان مه؟ (روی صفحه هم می‌توانید بزنید)" selected={selFog === null ? null : String(selFog)}
+                    items={fogOpts.map((o) => ({ id: String(o.token), label: `مه ${fa(o.token + 1)} — ${spaceLabel(board, view.fog[o.token]!)}` }))} onPick={(t) => setSelFog(Number(t))} busy={busy} />}
+                  {curFog && <ChoiceList label="مقصد" items={curFog.to.map((t) => ({ id: String(t), label: spaceLabel(board, t) }))} onPick={(t) => send({ type: 'choose', ids: [`${curFog.token}@${t}`] })} busy={busy} compact />}
+                  {p.may && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'done' })}>جابه‌جا نکن</Button>}
+                </>
+              )}
+
+              {p.kind === 'fighter' && (
+                <>
+                  <ChoiceList label="مبارز" items={chooseIds.map((f) => ({ id: f, label: `${fighterName(view, f)} (${fa(view.fighters.find((x) => x.id === f)?.hp ?? 0)} سلامتی)` }))} onPick={(f) => send({ type: 'choose', ids: [f] })} busy={busy} />
+                  {p.may && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'done' })}>رد کردن</Button>}
+                </>
+              )}
+
+              {p.kind === 'cards' && (
+                <>
+                  {!fromHand && (
+                    <div className="um-cards">{(p.cards ?? []).map((id) => {
+                      const c = { id, seat: Number(id.split('.')[0]), slug: id.split('.')[1] ?? '' };
+                      const order = picks.indexOf(id);
+                      return (
+                        <span key={id} className="um-pickwrap">
+                          <UmCard view={view} card={c} state={order >= 0 ? 'selected' : 'playable'} onClick={() => togglePick(id, p.max ?? 1)} />
+                          {order >= 0 && <span className="um-pickwrap__n">{fa(order + 1)}</span>}
+                        </span>
+                      );
+                    })}</div>
+                  )}
+                  {fromHand && <p className="um-help">کارت‌ها را از دستتان (پایین) انتخاب کنید{(p.max ?? 0) > (p.min ?? 0) ? '؛ می‌توانید کمتر هم انتخاب کنید' : ''}.</p>}
+                  <Button disabled={busy || picks.length < (p.min ?? 0) || picks.length > (p.max ?? 1)} onClick={() => send({ type: 'choose', ids: picks })}>
+                    تأیید ({fa(picks.length)} از {fa(p.min ?? 0)}{(p.max ?? 0) > (p.min ?? 0) ? `–${fa(p.max ?? 0)}` : ''})
+                  </Button>
+                </>
+              )}
+
+              {p.kind === 'option' && (p.max ?? 1) === 1 && (
+                <div className="um-actions">{(p.options ?? []).map((o) => (
+                  <Button key={o} variant="secondary" disabled={busy} onClick={() => send({ type: 'choose', ids: [o] })}>{optionLabel(p, o, seatName)}</Button>
+                ))}</div>
+              )}
+              {p.kind === 'option' && (p.max ?? 1) > 1 && (
+                <>
+                  <div className="um-options">{(p.options ?? []).map((o) => (
+                    <label key={o} className="um-option"><input type="checkbox" checked={picks.includes(o)} onChange={() => togglePick(o, p.max ?? 1)} />{optionLabel(p, o, seatName)}</label>
+                  ))}</div>
+                  <Button disabled={busy || picks.length !== (p.min ?? 1)} onClick={() => send({ type: 'choose', ids: picks })}>تأیید</Button>
+                </>
+              )}
+            </DecisionPanel>
+          )}
+        </div>
+      </div>
+
+      {view.myHand && mySeat !== null && view.heroes[mySeat] && !view.outcome && (
+        <section className="um-hand" aria-label={`دست شما، ${fa(hand.length)} کارت`}>
+          <div className="um-hand__bar"><strong>دست شما ({fa(hand.length)})</strong>{hand.length > 7 && <span className="um-warn">بیش از ۷ کارت: پایان نوبت باید دور بریزید</span>}</div>
+          <div className="um-cards um-cards--hand">
+            {hand.map((c) => {
+              const st = handState(c);
+              const hinted = (exp?.type === 'choose' && (exp.ids as string[]).includes(c.id)) || (exp?.type === 'attack' && exp.card === c.id);
+              return <UmCard key={c.id} view={view} card={c} state={st} hint={hinted} onClick={st && st !== 'dim' ? () => tapHand(c) : undefined} />;
+            })}
+          </div>
+        </section>
+      )}
+
+      <details className="um-discards">
+        <summary>کارت‌های دورریخته</summary>
+        {view.order.map((seat) => (
+          <div key={seat} className="um-discards__row">
+            <strong><bdi>{seatName(seat)}</bdi> ({fa(view.discards[seat]?.length ?? 0)})</strong>
+            <div className="um-cards">{(view.discards[seat] ?? []).slice().reverse().map((c) => <UmCard key={c.id} view={view} card={c} small />)}</div>
+          </div>
+        ))}
+      </details>
+
+      <details className="um-log" open>
+        <summary>رویدادها</summary>
+        <ol>{view.log.slice(-8).reverse().map((e) => <li key={e.seq}>{describe(e, view, seatName)}</li>)}</ol>
+      </details>
+    </div>
+  );
+}
+
+function DecisionPanel({ title, children }: { title: string; children: ReactNode }) {
+  return <section className="um-panel um-panel--decide" aria-label={title}><h3>{title}</h3>{children}</section>;
+}
+
+function ChoiceList({ label, items, onPick, busy, selected, hint, compact }: {
+  label: string; items: { id: string; label: string }[]; onPick: (id: string) => void; busy: boolean; selected?: string | null; hint?: string; compact?: boolean;
+}) {
+  return (
+    <fieldset className={compact ? 'um-choices um-choices--compact' : 'um-choices'}>
+      <legend>{label}</legend>
+      {items.map((it) => (
+        <button key={it.id} type="button" className={['um-choice', selected === it.id ? 'um-choice--on' : '', hint === it.id ? 'um-choice--hint' : ''].join(' ')}
+          aria-pressed={selected === it.id} disabled={busy} onClick={() => onPick(it.id)}>{it.label}</button>
+      ))}
+    </fieldset>
+  );
+}
+
+function PlayerPanel({ view, seat, me, name }: { view: UnmatchedView; seat: number; me: boolean; name: string }) {
+  const hero = HEROES[view.heroes[seat] ?? ''];
+  const fighters = view.fighters.filter((f) => f.seat === seat);
+  const turn = view.current === seat && !view.outcome && view.turnNo > 0;
+  return (
+    <li className={['um-player', turn ? 'um-player--turn' : '', view.alive[seat] ? '' : 'um-player--out', me ? 'um-player--me' : ''].join(' ')} style={{ ['--hc' as string]: hero?.color ?? 'var(--text-2)' }}>
+      <div className="um-player__head">
+        <bdi className="um-player__name">{name}</bdi>{me && <span className="um-muted"> (شما)</span>}
+        {turn && <span className="um-badge">نوبت</span>}
+        {!view.alive[seat] && <span className="um-badge um-badge--out">بیرون</span>}
+      </div>
+      {hero ? (
+        <>
+          <div className="um-player__hero">{hero.hero.nameFa}{view.size[seat] ? ` · ${view.size[seat] === 'big' ? 'بزرگ' : 'کوچک'}` : ''}{view.form[seat] ? ` · اکنون ${formFa(view.form[seat])}` : ''}{view.vanished[seat] ? ' · ناپدید' : ''}{view.fogSeat === seat ? ` · ${fa(view.fog.length)} نشان مه` : ''}</div>
+          <ul className="um-hp">
+            {fighters.map((f) => <HpRow key={f.id} f={f} name={fighterName(view, f.id)} />)}
+          </ul>
+          <div className="um-player__counts">دست {fa(view.handCounts[seat] ?? 0)} · دسته {fa(view.deckCounts[seat] ?? 0)}{(view.deckCounts[seat] ?? 0) === 0 ? ' (خسته!)' : ''} · دورریخته {fa(view.discards[seat]?.length ?? 0)}</div>
+        </>
+      ) : <div className="um-muted">در حال انتخاب قهرمان…</div>}
+    </li>
+  );
+}
+
+function HpRow({ f, name }: { f: Fighter; name: string }) {
+  const pct = Math.round((f.hp / f.maxHp) * 100);
+  return (
+    <li className={f.hp === 0 ? 'um-hp__row um-hp__row--dead' : 'um-hp__row'}>
+      <span className="um-hp__name">{name}</span>
+      <span className="um-hp__bar" role="meter" aria-valuemin={0} aria-valuemax={f.maxHp} aria-valuenow={f.hp} aria-label={`سلامتی ${name}`}><span style={{ inlineSize: `${pct}%` }} /></span>
+      <span className="um-hp__num">{f.hp === 0 ? 'شکست' : `${fa(f.hp)}/${fa(f.maxHp)}`}</span>
+    </li>
+  );
+}
+
+function HeroGallery({ view }: { view: UnmatchedView }) {
+  return (
+    <div className="um-gallery">
+      {Object.values(HEROES).map((h) => (
+        <div key={h.id} className={view.heroes.includes(h.id) ? 'um-gallery__hero um-gallery__hero--taken' : 'um-gallery__hero'} style={{ ['--hc' as string]: h.color }}>
+          <strong>{h.hero.nameFa}</strong><span>{view.heroes.includes(h.id) ? 'انتخاب شد' : 'آزاد'}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | null }) {
+  const c = view.combat!;
+  const fn = (f: string) => fighterName(view, f);
+  return (
+    <section className="um-panel um-combat" aria-labelledby="um-combat-h">
+      <h3 id="um-combat-h">نبرد: {fn(c.attacker)} <span aria-hidden="true">⚔</span> {fn(c.defender)}{c.ranged ? ' (از دور)' : ''}</h3>
+      <div className="um-combat__row">
+        <div className="um-combat__side">
+          <span className="um-muted">حمله</span>
+          {c.aCard ? <UmCard view={view} card={c.aCard} small /> : <CardBack label="کارت حمله رو به پایین" />}
+          {c.hasBoost && (c.boost ? <span className="um-combat__boost">تقویت: <UmCard view={view} card={c.boost} small /></span> : <CardBack label="کارت تقویت رو به پایین" />)}
+        </div>
+        <span className="um-vs" aria-hidden="true">VS</span>
+        <div className="um-combat__side">
+          <span className="um-muted">دفاع</span>
+          {c.dCard ? <UmCard view={view} card={c.dCard} small /> : c.defended ? (c.revealed ? <span className="um-muted">بدون کارت دفاع</span> : <CardBack label="کارت دفاع رو به پایین" />) : <span className="um-muted">{c.dSeat === mySeat ? 'انتخاب کنید…' : 'مدافع در حال انتخاب…'}</span>}
+        </div>
+      </div>
+      {c.aVal !== null && <p className="um-combat__result">حمله {fa(c.aVal)} − دفاع {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong> · {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
+    </section>
+  );
+}
+
+function LastCombat({ e }: { e: Extract<LogEntry, { t: 'reveal' }> }) {
+  return (
+    <section className="um-panel um-panel--quiet" aria-label="آخرین نبرد">
+      <p>آخرین نبرد: حمله {fa(e.aVal)} در برابر دفاع {fa(e.dVal)} — {e.damage ? `${fa(e.damage)} آسیب` : 'بدون آسیب'}.</p>
+    </section>
+  );
+}
+
+export type { Prompt };

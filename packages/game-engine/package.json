@@ -14,7 +14,12 @@
     "@bg/game-line-three": "workspace:*",
     "@bg/game-sdk": "workspace:*",
     "@bg/game-sealed-bids": "workspace:*",
-    "@bg/game-uno": "workspace:*"
+    "@bg/game-uno": "workspace:*",
+    "@bg/game-unmatched": "workspace:*",
+    "@bg/game-catan": "workspace:*",
+    "@bg/game-chess": "workspace:*",
+    "@bg/game-snakes-ladders": "workspace:*",
+    "@bg/game-ludo": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

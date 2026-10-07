@@ -1,0 +1,38 @@
+/* Ludo (منچ). The board keeps a light palette in both themes; pieces show a number as well as colour. */
+.ld { display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+.ld-main { display: grid; gap: var(--sp-4); }
+@container (min-width: 820px) { .ld-main { grid-template-columns: minmax(0, 560px) minmax(220px, 1fr); align-items: start; } }
+.ld-board { inline-size: min(100%, 560px); block-size: auto; border-radius: var(--r-lg); box-shadow: var(--shadow); touch-action: manipulation; }
+.ld-board__bg { fill: #fdf6e3; stroke: #3a2a1a; stroke-width: 6; }
+.ld-cell { fill: #fff; stroke: #3a2a1a; stroke-width: 2.5; }
+.ld-cell--yard { fill: #fffdf7; stroke-dasharray: 3 3; }
+.ld-target { fill: none; stroke: #3a2a1a; stroke-width: 3; stroke-dasharray: 5 4; }
+.ld-piece { transition: transform 450ms cubic-bezier(0.22, 1.1, 0.36, 1); }
+.ld-piece circle { stroke: #fff; stroke-width: 3.5; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.45)); }
+.ld-piece text { font: 900 16px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; pointer-events: none; }
+.ld-piece--movable { cursor: pointer; }
+.ld-piece--movable circle { stroke: #1b130b; stroke-width: 4; animation: ld-bob 900ms ease-in-out infinite; }
+.ld-piece--hint circle { stroke: var(--gold, #f2b705); stroke-width: 6; }
+.ld-piece:focus-visible { outline: none; }
+.ld-piece:focus-visible circle { stroke: var(--focus, #1d6fd6); stroke-width: 6; }
+@keyframes ld-bob { 50% { transform: translateY(-3px); } }
+.ld-side { display: grid; gap: var(--sp-3); align-content: start; }
+.ld-roll { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.ld-die { inline-size: 64px; block-size: 64px; }
+.ld-die rect { fill: #fffdf7; stroke: #3a2a1a; stroke-width: 2.5; }
+.ld-die circle { fill: #1b130b; }
+.ld-die--roll { animation: ld-roll 420ms cubic-bezier(0.22, 1.2, 0.36, 1); }
+@keyframes ld-roll { from { transform: rotate(-200deg) scale(0.6); } }
+.ld-choices { display: grid; gap: 6px; }
+.ld-players { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ld-players li { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: var(--surface-2); border: 2px solid transparent; }
+.ld-player--turn { border-color: var(--brand) !important; }
+.ld-player--out { opacity: 0.55; }
+.ld-players__info { margin-inline-start: auto; color: var(--text-2); font-size: var(--fs-sm); }
+.ld-dot { inline-size: 18px; block-size: 18px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #0004; }
+.ld-log summary { cursor: pointer; font-weight: 700; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
+.ld-log ol { margin: 0; padding-inline-start: var(--sp-5); color: var(--text-2); display: grid; gap: 2px; font-size: var(--fs-sm); list-style-type: persian; }
+.ld-log li:first-child { color: var(--text); }
+@media (prefers-reduced-motion: reduce) { .ld-piece { transition: none; } .ld-piece--movable circle, .ld-die--roll { animation: none; } }
+:root[data-motion='reduce'] .ld-piece { transition: none; }
+:root[data-motion='reduce'] .ld-piece--movable circle, :root[data-motion='reduce'] .ld-die--roll { animation: none; }
