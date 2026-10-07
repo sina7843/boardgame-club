@@ -93,6 +93,12 @@ describe('configuration fails closed', () => {
   it('refuses the OTP fixture in production', () => {
     expect(() => testConfig(prod)).toThrow(/OTP_PROVIDER=fixture is development-only/);
   });
+  it('a test server may opt in to the OTP fixture and the fake gateway, but not with an obvious code', () => {
+    const test = { ...prod, ALLOW_TEST_PROVIDERS: 'true', PAYMENT_PROVIDER: 'fake' };
+    expect(testConfig({ ...test, OTP_FIXTURE_CODE: '482917' })).toMatchObject({ isProd: true, allowTestProviders: true });
+    expect(() => testConfig({ ...test, OTP_FIXTURE_CODE: '123456' })).toThrow(/private, non-obvious code/);
+    expect(testConfig({ ...prod, PAYMENT_PROVIDER: 'none', OTP_PROVIDER: 'kavenegar', KAVENEGAR_API_KEY: 'k'.repeat(30), KAVENEGAR_VERIFY_TEMPLATE: 'verify' }).allowTestProviders).toBe(false);
+  });
   it('refuses placeholder secrets and http origins in production', () => {
     expect(() => testConfig({ ...prod, OTP_HASH_SECRET: 'local-only-otp-hash-secret-change-me-0000', WEB_ORIGINS: 'http://x.example' }))
       .toThrow(/placeholder secrets.*https/);

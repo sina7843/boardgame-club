@@ -41,7 +41,7 @@ export interface Deps {
 export function billingFor(config: Config, db: Db): BillingConfig {
   const web = config.payments.publicWebUrl;
   const zp = config.payments.zarinpal;
-  const gateway = config.payments.provider === 'fake' && !config.isProd ? fakeGateway(db, web)
+  const gateway = config.payments.provider === 'fake' && config.allowTestProviders ? fakeGateway(db, web)
     : zp ? zarinpalGateway({ ...zp, callbackUrl: `${web}/api/payments/callback/zarinpal` })
       : null;
   return {

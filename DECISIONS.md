@@ -398,3 +398,10 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Shared UI fix found by the املاک 360px E2E: `SegmentedControl` used `whitespace-nowrap` in equal-width grid columns,
   so long option labels (any game's variants) overflowed the screen and the create-table button was covered. Labels
   now wrap inside their column (`whitespace-normal`, `min-h`), short labels look unchanged.
+
+## Test server switch (2026-10-08, owner request)
+
+- `ALLOW_TEST_PROVIDERS=true` (default `false`) lets `NODE_ENV=production` start with the OTP fixture (fixed code,
+  no SMS), the fake payment gateway and the Zarinpal sandbox, so a public test deployment works before Kavenegar and
+  Zarinpal are configured. With the fixture in production the code must not be an obvious one (123456/000000/111111).
+  Without the switch production still fails closed. Login and plans pages label the test mode. Never on the live site.

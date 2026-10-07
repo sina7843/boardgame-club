@@ -140,7 +140,7 @@ export function Login() {
             {step.fixture && (
               <div className="flex items-start gap-2 rounded-field bg-warning/10 px-4 py-3 text-xs leading-6 text-foreground ring-1 ring-warning/40" role="note">
                 <MessageSquareText className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
-                حالت توسعه: پیامکی ارسال نشد. کد آزمایشی در پیکربندی محلی تعیین شده است.
+                حالت آزمایشی: پیامکی ارسال نشد. کد ورود آزمایشی را از مدیر سایت بگیرید.
               </div>
             )}
             <ErrorShake error={error ?? null} revertAfter={0} className="flex justify-center">

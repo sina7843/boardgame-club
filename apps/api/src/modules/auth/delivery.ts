@@ -20,7 +20,7 @@ export function fixtureDelivery(fixedCode: string): OtpDelivery {
 
 export function createDelivery(config: Config): OtpDelivery {
   if (config.otp.provider === 'fixture') {
-    if (config.isProd || !config.otp.fixtureCode) throw new Error('OTP fixture provider is not allowed here');
+    if (!config.allowTestProviders || !config.otp.fixtureCode) throw new Error('OTP fixture provider is not allowed here');
     return fixtureDelivery(config.otp.fixtureCode);
   }
   if (config.otp.provider === 'kavenegar' && config.otp.kavenegar) return kavenegarDelivery(config.otp.kavenegar);

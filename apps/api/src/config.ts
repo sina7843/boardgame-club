@@ -25,6 +25,11 @@ const envSchema = z.object({
   ZARINPAL_SANDBOX: z.enum(['true', 'false']).default('false'),
   /** Public URL of the web app for gateway return/redirect URLs (default: first WEB_ORIGINS entry). */
   PUBLIC_WEB_URL: z.url().optional(),
+  /**
+   * Test server switch: true lets production run with the OTP fixture (fixed code, no SMS) and the fake payment
+   * gateway, so a public test deployment works before Kavenegar and Zarinpal are configured. Never on a live site.
+   */
+  ALLOW_TEST_PROVIDERS: z.enum(['true', 'false']).default('false'),
   /** Bearer token for GET /api/metrics. Unset in production → endpoint disabled; unset elsewhere → open. */
   METRICS_TOKEN: z.string().min(24).optional(),
   /** Reverse-proxy hops in front of the API in production (Caddy = 1; Caddy behind Coolify/Traefik = 2). */
@@ -47,13 +52,17 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   }
   const c = parsed.data;
   const isProd = c.NODE_ENV === 'production';
+  const testProviders = c.ALLOW_TEST_PROVIDERS === 'true';
   if (isProd) {
     const problems: string[] = [];
-    if (c.OTP_PROVIDER === 'fixture') {
-      problems.push('OTP_PROVIDER=fixture is development-only; configure a real SMS provider adapter');
+    if (c.OTP_PROVIDER === 'fixture' && !testProviders) {
+      problems.push('OTP_PROVIDER=fixture is development-only; configure a real SMS provider adapter (or ALLOW_TEST_PROVIDERS=true on a test server)');
     }
-    if (c.PAYMENT_PROVIDER === 'fake') problems.push('PAYMENT_PROVIDER=fake is development-only');
-    if (c.PAYMENT_PROVIDER === 'zarinpal' && c.ZARINPAL_SANDBOX === 'true') problems.push('ZARINPAL_SANDBOX=true moves no money and is not allowed in production');
+    if (c.OTP_PROVIDER === 'fixture' && testProviders && ['123456', '000000', '111111'].includes(c.OTP_FIXTURE_CODE ?? '')) {
+      problems.push('OTP_FIXTURE_CODE must be a private, non-obvious code on a public test server');
+    }
+    if (c.PAYMENT_PROVIDER === 'fake' && !testProviders) problems.push('PAYMENT_PROVIDER=fake is development-only (or ALLOW_TEST_PROVIDERS=true on a test server)');
+    if (c.PAYMENT_PROVIDER === 'zarinpal' && c.ZARINPAL_SANDBOX === 'true' && !testProviders) problems.push('ZARINPAL_SANDBOX=true moves no money and is not allowed in production');
     if (c.OTP_HASH_SECRET.includes('local-only') || c.DATABASE_URL.includes('local-only')) {
       problems.push('placeholder secrets from .env.example are not allowed');
     }
@@ -72,6 +81,8 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   return {
     env: c.NODE_ENV,
     isProd,
+    /** Test fixtures (OTP fixture, fake payments) are allowed: everywhere outside production, or on a test server. */
+    allowTestProviders: !isProd || testProviders,
     databaseUrl: c.DATABASE_URL,
     host: c.API_HOST,
     port: c.API_PORT,

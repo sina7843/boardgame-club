@@ -41,7 +41,7 @@ export function PlansPage() {
   return (
     <>
       <div className="page-head"><div><h1 className="page-title">اشتراک پریمیوم</h1><p className="page-sub">پریمیوم امتیاز مهارتی، اولویت صف یا کمک حین بازی نمی‌دهد. تمدید خودکار ندارد.</p></div></div>
-      {plans.data.checkout.fixture && <div className="banner banner--warn" role="note">حالت توسعه: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
+      {plans.data.checkout.fixture && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
       {!plans.data.checkout.available && <div className="banner banner--info" role="status">{plans.data.checkout.reasonFa}</div>}
       <div className="grid gap-6">
         {me && s && (
@@ -121,7 +121,7 @@ export function PaymentResultPage() {
   return (
     <div className="mx-auto grid max-w-lg gap-4">
       <h1 className="page-title">نتیجه پرداخت</h1>
-      {d.fixture && <div className="banner banner--warn" role="note">پرداخت آزمایشی توسعه: پول واقعی جابه‌جا نشده است.</div>}
+      {d.fixture && <div className="banner banner--warn" role="note">پرداخت آزمایشی: پول واقعی جابه‌جا نشده است.</div>}
       <section className="relative isolate grid justify-items-center gap-4 overflow-hidden rounded-surface border-line border-border bg-card px-6 pt-10 pb-6 text-center shadow-overlay animate-fade-up" aria-live="polite">
         {ok && <Confetti count={70} colors={['var(--brand)', 'var(--primary)', 'var(--success)', '#e9c46a', '#d1495b']} />}
         {ok ? <SuccessCheck size={84} />

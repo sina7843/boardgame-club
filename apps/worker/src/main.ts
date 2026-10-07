@@ -15,17 +15,18 @@ const env = z.object({
   PAYMENT_PROVIDER: z.enum(['none', 'fake', 'zarinpal']).default('none'),
   ZARINPAL_MERCHANT_ID: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'must be a 36-character merchant id').optional(),
   ZARINPAL_SANDBOX: z.enum(['true', 'false']).default('false'),
+  ALLOW_TEST_PROVIDERS: z.enum(['true', 'false']).default('false'),
   WEB_ORIGINS: z.string().default('http://localhost:5173'),
   PUBLIC_WEB_URL: z.url().optional()
 }).parse(Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== '')));
 
 const { db, close } = createDb(env.DATABASE_URL, { max: 4 });
 const registry = createDefaultRegistry();
-if (env.NODE_ENV === 'production' && env.PAYMENT_PROVIDER === 'fake') {
-  console.error('Refusing to start: PAYMENT_PROVIDER=fake is development-only.');
+if (env.NODE_ENV === 'production' && env.PAYMENT_PROVIDER === 'fake' && env.ALLOW_TEST_PROVIDERS !== 'true') {
+  console.error('Refusing to start: PAYMENT_PROVIDER=fake is development-only (or ALLOW_TEST_PROVIDERS=true on a test server).');
   process.exit(1);
 }
-if (env.PAYMENT_PROVIDER === 'zarinpal' && (!env.ZARINPAL_MERCHANT_ID || (env.NODE_ENV === 'production' && env.ZARINPAL_SANDBOX === 'true'))) {
+if (env.PAYMENT_PROVIDER === 'zarinpal' && (!env.ZARINPAL_MERCHANT_ID || (env.NODE_ENV === 'production' && env.ZARINPAL_SANDBOX === 'true' && env.ALLOW_TEST_PROVIDERS !== 'true'))) {
   console.error('Refusing to start: PAYMENT_PROVIDER=zarinpal needs ZARINPAL_MERCHANT_ID (and no sandbox in production).');
   process.exit(1);
 }

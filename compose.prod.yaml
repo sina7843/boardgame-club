@@ -23,6 +23,8 @@ x-server-env: &server-env
   WEB_ORIGINS: ${WEB_ORIGINS:?set WEB_ORIGINS (https origin of the site)}
   PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-}
   PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-none}
+  # Test server only: lets production run with the OTP fixture and the fake payment gateway.
+  ALLOW_TEST_PROVIDERS: ${ALLOW_TEST_PROVIDERS:-false}
   ZARINPAL_MERCHANT_ID: ${ZARINPAL_MERCHANT_ID:-}
   ZARINPAL_SANDBOX: ${ZARINPAL_SANDBOX:-false}
   LOG_LEVEL: ${LOG_LEVEL:-info}
