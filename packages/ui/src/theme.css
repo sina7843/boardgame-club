@@ -92,7 +92,9 @@
     --depth-overlay: inset 0 1px 0 0 rgb(255 255 255 / 8%), 0 30px 60px -22px rgb(0 0 0 / 80%);
   }
 }
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+/* The game table is always lit like a café at night: renderers on it get the dark tokens in either theme. */
+.table-night {
   color-scheme: dark;
   --background: #111a15;
   --foreground: #eef3ec;
@@ -130,7 +132,7 @@
 @media (prefers-reduced-motion: reduce) { :root:not([data-motion='full']) { --motion: 0ms; } }
 
 /* Legacy token names used by not-yet-migrated CSS and the game renderers: point them at the new system. */
-:root {
+:root, .table-night {
   --bg: var(--background);
   --surface: var(--card);
   --surface-2: var(--secondary);
@@ -159,3 +161,6 @@
   --touch: 44px;
   --nav-w: 264px;
 }
+
+/* On the felt, secondary text is lifted so it stays above 4.5:1 even under the lamp highlight. */
+.table-night { --muted-foreground: #c8d4cc; color: var(--foreground); }

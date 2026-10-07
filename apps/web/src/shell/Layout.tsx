@@ -70,12 +70,12 @@ export function Layout() {
   const login = () => navigate(`/login?next=${encodeURIComponent(pathname)}`);
 
   return (
-    <div className="relative isolate min-h-dvh lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+    <div className="shell relative isolate min-h-dvh lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
       {/* Signature: a faint Persian girih tile pattern behind the whole café. */}
       <GirihBackground size={64} className="fixed -z-10 opacity-60" />
       <a className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-primary focus:px-5 focus:py-2 focus:text-primary-foreground" href="#main">پرش به محتوای اصلی</a>
 
-      <aside aria-label="ناوبری اصلی" className="sticky top-4 m-4 hidden h-[calc(100dvh-2rem)] flex-col gap-5 rounded-surface border-line border-border bg-card p-4 shadow-surface lg:flex">
+      <aside aria-label="ناوبری اصلی" className="shell-nav sticky top-4 m-4 hidden h-[calc(100dvh-2rem)] flex-col gap-5 rounded-surface border-line border-border bg-card p-4 shadow-surface lg:flex">
         <div className="px-1 pt-1"><Brand /></div>
         <nav className="-me-2 flex-1 overflow-y-auto pe-2">
           <ul className="grid gap-1">
@@ -99,13 +99,13 @@ export function Layout() {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 backdrop-blur-md lg:hidden">
+      <header className="shell-nav sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 backdrop-blur-md lg:hidden">
         <Brand compact />
         {me ? <NavLink to="/settings" aria-label="حساب و تنظیمات" className="rounded-full"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} /></NavLink>
           : status !== 'loading' && <NavLink className={buttonClass('primary', 'sm')} to={`/login?next=${encodeURIComponent(pathname)}`}>ورود</NavLink>}
       </header>
 
-      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] outline-none lg:px-8 lg:pb-12">
+      <main id="main" tabIndex={-1} className="shell-main mx-auto w-full max-w-6xl px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] outline-none lg:px-8 lg:pb-12">
         {me?.suspended && <Banner tone="warn">حساب شما موقتاً تعلیق شده است. جزئیات و اعتراض در <NavLink to="/support" className="font-bold underline">پشتیبانی</NavLink>.</Banner>}
         {!online && <Banner tone="warn">اتصال اینترنت قطع است؛ اطلاعات نمایش‌داده‌شده ممکن است قدیمی باشد.</Banner>}
         {status === 'error'
@@ -115,7 +115,7 @@ export function Layout() {
           : <div key={pathname} className="page-enter animate-fade-up"><Outlet /></div>}
       </main>
 
-      <nav aria-label="ناوبری اصلی" className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-5 gap-1 rounded-control border-line border-border bg-card/95 p-1.5 shadow-overlay backdrop-blur-md lg:hidden">
+      <nav aria-label="ناوبری اصلی" className="shell-nav fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-5 gap-1 rounded-control border-line border-border bg-card/95 p-1.5 shadow-overlay backdrop-blur-md lg:hidden">
         {mobileItems.map((i) => (
           <NavLink key={i.to} to={i.to} end={i.end ?? false}
             className={({ isActive }) => cn('flex h-14 flex-col items-center justify-center gap-0.5 rounded-control text-[11px] font-semibold no-underline transition-all duration-(--motion) ease-motion',

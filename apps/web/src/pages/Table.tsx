@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { TableSnapshot } from '@bg/contracts';
-import { Medal, Trophy } from 'lucide-react';
-import { Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
+import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Medal, Trophy } from 'lucide-react';
+import { Avatar, Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
@@ -28,14 +28,25 @@ const seatNameOf = (t: Lobby) => (seat: number) => {
   return s?.kind === 'script' ? 'حریف آموزشی' : s?.user?.displayName ?? `جایگاه ${faNum(seat + 1)}`;
 };
 
-function Policies({ table }: { table: Lobby }) {
-  return (
-    <section className="panel stack" aria-labelledby="pol-h" style={{ gap: 'var(--sp-2)' }}>
-      <h2 id="pol-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}><Icon name="shield" />قوانین زمان و ترک میز</h2>
+function Policies({ table, collapsible }: { table: Lobby; collapsible?: boolean }) {
+  const rules = <>
       <p className="policy"><strong>اتمام زمان: </strong>{table.policies.timeoutFa}</p>
       <p className="policy"><strong>انصراف: </strong>{table.policies.resignFa}</p>
       <p className="policy"><strong>قطع اتصال: </strong>{table.policies.disconnectFa}</p>
       {table.variants.map((v) => <p key={v.labelFa} className="policy"><strong>{v.labelFa}: </strong>{v.valueFa}</p>)}
+  </>;
+  if (collapsible) {
+    return (
+      <details className="panel rules-box">
+        <summary className="section-title" style={{ fontSize: 'var(--fs-md)' }}><Icon name="shield" />قوانین زمان و ترک میز</summary>
+        <div className="stack" style={{ gap: 'var(--sp-2)', marginBlockStart: 'var(--sp-3)' }}>{rules}</div>
+      </details>
+    );
+  }
+  return (
+    <section className="panel stack" aria-labelledby="pol-h" style={{ gap: 'var(--sp-2)' }}>
+      <h2 id="pol-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}><Icon name="shield" />قوانین زمان و ترک میز</h2>
+      {rules}
     </section>
   );
 }
@@ -165,7 +176,48 @@ function ResultPanel({ snap }: { snap: TableSnapshot }) {
   );
 }
 
+/** Seat colours (BGA-style player colours). Used for stripes and rings only, never for text, so contrast holds in both themes. */
+const SEAT_COLORS = ['#d1495b', '#2f80c8', '#e0a030', '#3c9d61', '#8e5cc2', '#d36aa0', '#1f9ca6', '#7f8c8d', '#c46a2d', '#5b6bd6'];
+
+/** While a game is on the table the shell steps aside (no sidebar or dock): the table is the whole screen. */
+function useImmersive() {
+  useEffect(() => {
+    document.documentElement.dataset.immersive = 'true';
+    return () => { delete document.documentElement.dataset.immersive; };
+  }, []);
+}
+
+function PlayerBoards({ snap, strip }: { snap: TableSnapshot; strip?: boolean }) {
+  const t = snap.table;
+  const g = snap.game!;
+  const name = seatNameOf(t);
+  return (
+    <ol className={cn('pboards', strip && 'pboards--strip')} aria-label="بازیکنان">
+      {t.seats.map((x) => {
+        const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
+        const me = x.seat === t.mySeat;
+        return (
+          <li key={x.seat} className={cn('pboard', active && 'pboard--active', me && 'pboard--me')} aria-current={active ? 'true' : undefined}
+            style={{ '--seat': SEAT_COLORS[x.seat % SEAT_COLORS.length] } as React.CSSProperties}>
+            <span className="pboard__ring"><Avatar avatarKey={x.user?.avatarKey ?? 'dice'} name={name(x.seat)} size={strip ? 34 : 42} /></span>
+            <span className="pboard__who">
+              <span className="pboard__name"><bdi>{name(x.seat)}</bdi>{me && <span className="pboard__you"> (شما)</span>}</span>
+              <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : me ? 'پشت میز' : 'آماده'}</span>
+            </span>
+            {active && <ChevronLeft className="pboard__turn" aria-hidden />}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function tableMeta(t: Lobby) {
+  return t.isTutorial ? 'میز آموزشی بدون زمان و بدون اثر بر رتبه' : `${PACE_FA[t.pace]} · ${t.visibility === 'private' ? 'خصوصی' : 'عمومی'} · دوستانه · ${durationFa(t.settings.turnSeconds)} برای هر نوبت`;
+}
+
 function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
+  useImmersive();
   const snap = s.snapshot!;
   const t = snap.table;
   const g = snap.game!;
@@ -181,6 +233,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const canResign = !finished && g.legalActions.some((a) => a.type === 'resign');
   const myTurn = t.mySeat !== null && g.pendingSeats.includes(t.mySeat);
   const busy = !!s.pending || t.status !== 'active' || !!snap.incident;
+  const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
 
   const tutorial = async (path: 'start' | 'skip') => {
     setTutorialBusy(true);
@@ -190,15 +243,16 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     } finally { setTutorialBusy(false); }
   };
 
+  // Status strip, as on Board Game Arena: one line that always says whose move it is.
+  const tone = finished ? 'done' : myTurn ? 'mine' : 'wait';
+  const statusText = finished ? 'بازی تمام شد'
+    : myTurn ? 'حرکت با شماست'
+      : waitingFor.length ? `منتظر حرکت ${waitingFor.join('، ')}` : 'منتظر حرکت دیگران';
+
   const side = (
     <div className="stack">
-      <section className="stack" aria-label="بازیکنان" style={{ gap: 'var(--sp-2)' }}>
-        {t.seats.map((x) => (
-          <PlayerSeat key={x.seat} name={name(x.seat)} avatarKey={x.user?.avatarKey ?? 'dice'} me={x.seat === t.mySeat}
-            active={g.pendingSeats.includes(x.seat)} label={g.pendingSeats.includes(x.seat) ? 'در انتظار حرکت' : undefined} />
-        ))}
-      </section>
-      <Policies table={t} />
+      <PlayerBoards snap={snap} />
+      <Policies table={t} collapsible />
       {canResign && <Button variant="danger" onClick={() => { setDrawer(false); setConfirmResign(true); }}>انصراف از بازی</Button>}
       {t.mySeat !== null && !t.isTutorial && <Button variant="ghost" onClick={() => { setDrawer(false); setReporting(true); }}>گزارش این میز</Button>}
     </div>
@@ -206,20 +260,30 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
   return (
     <div className="game">
-      <div className="game__main stack">
-        <div className="game__status row">
-          {finished ? <TurnIndicator tone="done">بازی تمام شد</TurnIndicator>
-            : t.mySeat === null ? <Badge>تماشاگر</Badge>
-              : myTurn ? null : <TurnIndicator tone="wait">منتظر حرکت دیگران</TurnIndicator>}
-          {g.deadline && !finished && (g.deadline.frozen
-            ? <Badge tone="danger" icon="clock">زمان منجمد (توقف سراسری)</Badge>
-            : <Timer deadline={new Date(new Date(g.deadline.dueAt).getTime() - s.clockOffset)} label="مهلت نوبت" lowSeconds={t.pace === 'live' ? 10 : 3600} />)}
-          <span className={`conn ${s.live ? 'conn--on' : 'conn--off'}`} role="status">
-            <Icon name={s.live ? 'turn' : 'offline'} size={16} />{s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}
-          </span>
-          <Button className="game__drawer-btn" variant="secondary" size="sm" icon="players" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
-          {t.mySeat !== null && !t.isTutorial && <Button variant="secondary" size="sm" icon="card" onClick={() => setChat(true)}>گفت‌وگوی میز</Button>}
+      <header className="gamebar">
+        <Link to="/" className="gamebar__icon" aria-label="بازگشت به داشبورد"><ArrowRight aria-hidden /></Link>
+        <div className="gamebar__title">
+          <h1><span className="gamebar__mark" aria-hidden><Dices /></span>{t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa}</h1>
+          <p>{tableMeta(t)}</p>
         </div>
+        <span className={cn('gamebar__conn', s.live ? 'is-on' : 'is-off')} role="status" title={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}>
+          <span className="gamebar__dot" aria-hidden /><span className="gamebar__conn-text">{s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}</span>
+        </span>
+        {t.mySeat !== null && !t.isTutorial && <Button variant="secondary" size="sm" icon="card" onClick={() => setChat(true)}>گفت‌وگوی میز</Button>}
+        <Button className="game__drawer-btn" variant="secondary" size="sm" icon="players" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
+      </header>
+
+      <div className={cn('statusbar', `statusbar--${tone}`)} role="status" aria-live="polite">
+        <span className="statusbar__icon" aria-hidden>{finished ? <Flag /> : myTurn ? <Hand /> : <Hourglass />}</span>
+        <strong className="statusbar__text">{t.mySeat === null && !finished ? `تماشاگر · ${statusText}` : statusText}</strong>
+        {g.tutorial && !finished && <span className="statusbar__hint">{g.tutorial.instructionFa}</span>}
+        {g.deadline && !finished && (g.deadline.frozen
+          ? <Badge tone="danger" icon="clock">زمان منجمد (توقف سراسری)</Badge>
+          : <Timer deadline={new Date(new Date(g.deadline.dueAt).getTime() - s.clockOffset)} label="مهلت نوبت" lowSeconds={t.pace === 'live' ? 10 : 3600} />)}
+      </div>
+
+      <div className="game__main stack">
+        <PlayerBoards snap={snap} strip />
 
         {snap.incident && <div className="banner banner--warn" role="status" style={{ margin: 0 }}><Icon name="alert" />توقف سراسری: {snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.</div>}
         {s.notice && <div className="banner banner--warn" role="alert" style={{ margin: 0 }}>{s.notice} <Button variant="ghost" size="sm" onClick={() => s.setNotice(null)}>باشه</Button></div>}
@@ -251,7 +315,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
         {finished && g.result && <ResultPanel snap={snap} />}
 
-        <div className="game__board">
+        {/* The table: walnut rim, felt cloth, lamp light. Renderers sit on it in the night palette. */}
+        <div className={cn('game__board table-night', myTurn && 'game__board--mine')}>
           {Renderer
             ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} />
             : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست">این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</StateBlock>}
@@ -289,13 +354,14 @@ export function TablePage() {
   if (!snap) return <StateBlock kind="loading" title="در حال بارگذاری میز…" />;
 
   const t = snap.table;
+  if (t.status !== 'cancelled' && t.status !== 'open' && snap.game) return <GameView s={s} />;
   return (
     <>
       <div className="page-head" style={{ marginBlockEnd: 'var(--sp-4)' }}>
         <div>
           <h1 className="page-title" style={{ fontSize: 'var(--fs-xl)' }}>{t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa}</h1>
           <p className="page-sub">
-            {t.isTutorial ? 'میز آموزشی بدون زمان و بدون اثر بر رتبه' : `${PACE_FA[t.pace]} · ${t.visibility === 'private' ? 'خصوصی' : 'عمومی'} · دوستانه · ${durationFa(t.settings.turnSeconds)} برای هر نوبت`}
+            {tableMeta(t)}
           </p>
         </div>
       </div>

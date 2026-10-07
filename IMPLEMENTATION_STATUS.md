@@ -1,5 +1,15 @@
 # Implementation status
 
+## Game table, Board Game Arena style (2026-10-07): DONE locally — real devices UNVERIFIED
+
+While a game is running the shell hides its sidebar and dock and the table takes the screen: game bar (back, title,
+connection, chat, rules), sticky status strip that always says whose move it is (brass when it is yours, with timer
+and tutorial hint), a walnut-rimmed felt table with grain and lamp light, and player boards with per-seat colour
+stripes and a turn chevron (horizontal strip on phones). Renderers sit on the table in the night palette.
+Checks run: lint, typecheck, build clean; E2E 52 passed, 10 skipped by design (axe light and dark included).
+Full-page screenshots draw sticky bars at the scroll position; a viewport capture at 360px confirmed the mobile
+header stays at the top, so the "header in the middle" seen in evidence images is a capture artifact.
+
 ## VibeFarsi "Anar" redesign (2026-10-07): DONE locally — real devices UNVERIFIED
 
 Whole site moved to the VibeFarsi Anar (pomegranate) design language with an owner-requested custom café palette

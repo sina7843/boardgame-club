@@ -193,6 +193,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Card faces are original vector designs (no bitmap assets); every face carries the colour's Persian initial and a
   spoken label so colour is never the only signal.
 
+## Game table like Board Game Arena (2026-10-07, owner request)
+
+- Immersive mode is a `data-immersive` attribute set by the game view; shell parts carry `shell-nav`/`shell-main`
+  classes. Lobby and result pages keep the normal shell.
+- The table is always the "night" palette (`.table-night` reuses the dark tokens in either theme) so every renderer
+  stays readable on felt without per-game changes; muted text on felt is lifted to #c8d4cc for contrast.
+- Seat colours are only stripes and rings, never text colour. The status strip says «حرکت با شماست», not
+  «نوبت شماست», because renderers already show the latter and tests match it in strict mode.
+
 ## VibeFarsi Anar redesign (2026-10-07, owner request) — supersedes the cobalt café entry below
 
 - Source: VibeFarsi registry and MCP (vibefarsi.ir, MIT). Design language "Anar": clay depth shadows, pill controls,
