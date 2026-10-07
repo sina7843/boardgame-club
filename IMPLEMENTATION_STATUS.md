@@ -75,6 +75,10 @@ timeouts, tutorial, 30 random 2–6 player games with money/supply/card invarian
 E2E `e2e/amlak.spec.ts` — 20-round two-player game incl. a trade offer through the UI at 360 and 1440 (screenshots
 `docs/evidence/amlak/`). Engine suite 173/173. Found and fixed a shared `SegmentedControl` overflow at 360px.
 Not run: full web typecheck (ticket-to-ride renderer from another session does not compile yet).
+Visual pass (same day): new `board-art.tsx`, which adds a walnut-framed board, Tehran skyline centre, chance/chest decks,
+illustrated corners, houses/hotels, owner ribbons, mortgage stamp and domed pawns, plus title-deed cards, drawn-card
+face, wallets and bid chips in `renderer.tsx`/`renderer.css`. Board is now inside `ZoomBoard`. Re-run: amlak tsc + eslint clean;
+E2E passed at 360 and 1440 after the change.
 
 ## Snakes and Ladders + Ludo (2026-10-07): DONE locally — real devices UNVERIFIED
 

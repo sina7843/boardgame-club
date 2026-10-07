@@ -2,24 +2,14 @@
 // the phase; property management, trade composer and responder; players and log. All state shown is public.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
-import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf, type Square } from './board.ts';
+import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { AmlakBoard, SEAT_COLORS } from './board-art.tsx';
+import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf } from './board.ts';
 import { unmortgageCost, type AmlakView, type LogEntry, type TradeSide } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const money = (n: number) => `${fa(n)} هزار تومان`;
-export const SEAT_COLORS = ['#d62f35', '#1c63c9', '#23843f', '#e0a400', '#7a3fa0', '#e06a1b', '#0f8f8f', '#6b4f3a'];
 type Hint = { type: string; sq?: number; to?: number; min?: number; max?: number };
-
-/** Grid cell (col,row on 11×11) of a square: 0 bottom-right, counter-clockwise like the classic board. */
-function cellOf(i: number): [number, number] {
-  if (i <= 10) return [10 - i, 10];
-  if (i <= 20) return [0, 10 - (i - 10)];
-  if (i <= 30) return [i - 20, 0];
-  return [10, i - 30];
-}
-const K = 100;
-const ICON: Partial<Record<Square['kind'], string>> = { go: '⟵', jail: '⛓', parking: 'P', goToJail: '⇲', chance: '؟', chest: '▣', tax: '٪', station: '🚉︎', utility: '⚡︎' };
 
 function describe(e: LogEntry, name: (s: number) => string): string {
   const who = (s: number) => (s === -1 ? 'بانک' : s === -2 ? 'صندوق پارکینگ' : name(s));
@@ -46,56 +36,14 @@ function describe(e: LogEntry, name: (s: number) => string): string {
   }
 }
 
-function rentLines(i: number): string[] {
+/** Title-deed rows: [label, value]. */
+function rentRows(i: number): [string, string][] {
   const b = BOARD[i]!;
-  if (b.kind === 'street') return [`اجاره زمین ${money(b.rents[0])} (با کل رنگ ×۲)`, ...[1, 2, 3, 4].map((h) => `${fa(h)} خانه: ${money(b.rents[h]!)}`), `هتل: ${money(b.rents[5])}`, `هزینه هر خانه: ${money(b.house)}`];
-  if (b.kind === 'station') return STATION_RENT.slice(1).map((r, k) => `با ${fa(k + 1)} ایستگاه: ${money(r)}`);
-  if (b.kind === 'utility') return ['با یک شرکت: ۴ برابر عدد تاس', 'با هر دو: ۱۰ برابر عدد تاس'];
-  if (b.kind === 'tax') return [`پرداخت ${money(b.amount)}`];
+  if (b.kind === 'street') return [['اجاره زمین', money(b.rents[0])], ['با کل رنگ', money(b.rents[0] * 2)], ...[1, 2, 3, 4].map((h): [string, string] => [`با ${fa(h)} خانه`, money(b.rents[h]!)]), ['با هتل', money(b.rents[5])]];
+  if (b.kind === 'station') return STATION_RENT.slice(1).map((r, k): [string, string] => [`با ${fa(k + 1)} ایستگاه`, money(r)]);
+  if (b.kind === 'utility') return [['با یک شرکت', '۴ × عدد تاس'], ['با هر دو شرکت', '۱۰ × عدد تاس']];
+  if (b.kind === 'tax') return [['پرداخت', money(b.amount)]];
   return [];
-}
-
-function Board({ view, selected, onSelect, seatName }: { view: AmlakView; selected: number | null; onSelect: (i: number) => void; seatName: (s: number) => string }) {
-  const last = view.lastRoll;
-  return (
-    <svg className="am-board" viewBox="0 0 1100 1100" role="group" aria-label="صفحه املاک" style={{ direction: 'ltr' }}>
-      <rect x="0" y="0" width="1100" height="1100" rx="18" className="am-board__bg" />
-      <g className="am-center">
-        <text x="550" y="440" className="am-center__title">املاک</text>
-        <text x="550" y="490" className="am-center__sub">خیابان‌های تهران</text>
-        {last && <text x="550" y="600" className="am-center__dice" aria-label={`آخرین تاس: ${fa(last[0])} و ${fa(last[1])}`}>{['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][last[0] - 1]}{['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][last[1] - 1]}</text>}
-        {view.rules.freeParking && <text x="550" y="680" className="am-center__sub">صندوق پارکینگ: {money(view.pot)}</text>}
-      </g>
-      {BOARD.map((b, i) => {
-        const [c, r] = cellOf(i);
-        const x = c * K, y = r * K;
-        const owner = view.owner[i];
-        const h = view.houses[i]!;
-        const tokens = view.p.map((pl, seat) => ({ pl, seat })).filter((t) => !t.pl.bankrupt && t.pl.pos === i);
-        const label = `${b.nameFa}${'price' in b ? `، ${money(b.price)}` : ''}${owner !== null && owner !== undefined ? `، مالک ${seatName(owner)}` : ''}${h ? `، ${h === 5 ? 'هتل' : `${fa(h)} خانه`}` : ''}${view.mortgaged[i] ? '، در رهن' : ''}${tokens.length ? `، اینجا: ${tokens.map((t) => seatName(t.seat)).join('، ')}` : ''}`;
-        return (
-          <g key={i} className={selected === i ? 'am-sq am-sq--sel' : 'am-sq'} role="button" tabIndex={0} aria-label={label} aria-pressed={selected === i}
-            onClick={() => onSelect(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(i); } }}>
-            <rect x={x} y={y} width={K} height={K} className="am-sq__bg" />
-            {b.kind === 'street' && <rect x={x + 3} y={y + 3} width={K - 6} height="22" fill={GROUP_COLOR[b.group]} />}
-            {view.mortgaged[i] && <rect x={x} y={y} width={K} height={K} className="am-sq__mortgage" />}
-            {b.kind !== 'street' && <text x={x + K / 2} y={y + 34} className="am-sq__icon">{ICON[b.kind] ?? ''}</text>}
-            <text x={x + K / 2} y={y + 52} className="am-sq__name">{b.nameFa.length > 10 ? b.nameFa.split(' ').slice(-1)[0] : b.nameFa}</text>
-            {'price' in b && <text x={x + K / 2} y={y + 72} className="am-sq__price">{fa(b.price)}</text>}
-            {owner !== null && owner !== undefined && <path d={`M ${x + K - 26} ${y + K} L ${x + K} ${y + K} L ${x + K} ${y + K - 26} Z`} fill={SEAT_COLORS[owner]} className="am-sq__owner" />}
-            {h > 0 && h < 5 && Array.from({ length: h }, (_, k) => <rect key={k} x={x + 8 + k * 16} y={y + 7} width="12" height="12" className="am-house" />)}
-            {h === 5 && <rect x={x + 30} y={y + 6} width="40" height="14" rx="3" className="am-hotel" />}
-            {tokens.map((t, k) => (
-              <g key={t.seat} className="am-token" transform={`translate(${x + 18 + (k % 4) * 21} ${y + 88 - Math.floor(k / 4) * 20})`}>
-                <circle r="10" fill={SEAT_COLORS[t.seat]} />
-                <text y="4">{fa(t.seat + 1)}</text>
-              </g>
-            ))}
-          </g>
-        );
-      })}
-    </svg>
-  );
 }
 
 export default function AmlakRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<AmlakView>) {
@@ -132,6 +80,11 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
   const pos = me ? me.pos : 0;
   const debt = view.debts[0];
   const card = view.lastCard ? cardById(view.lastCard.card) : null;
+  const lastOf = (t: LogEntry['t']) => [...view.log].reverse().find((e) => e.t === t)?.seq ?? 0;
+  const rollKey = lastOf('roll');
+  const cardSeq = lastOf('card');
+  // Show the drawn card during the turn it was drawn in.
+  const showCard = !!card && cardSeq > lastOf('turn');
 
   return (
     <div className="am">
@@ -139,11 +92,13 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="am-main">
         <div className="am-boardcol">
-          <Board view={view} selected={selected} onSelect={(i) => setSelected(i === selected ? null : i)} seatName={seatName} />
+          <ZoomBoard label="صفحه املاک">
+            <AmlakBoard view={view} selected={selected} onSelect={(i) => setSelected(i === selected ? null : i)} seatName={seatName} rollKey={rollKey} />
+          </ZoomBoard>
           {selected !== null && <SquareCard view={view} i={selected} seatName={seatName} onClose={() => setSelected(null)} />}
         </div>
         <div className="am-side">
-          {card && view.log.at(-1)?.t !== 'turn' && <p className="am-card" role="note"><strong>{card.id.startsWith('ch') ? 'شانس' : 'صندوق'}:</strong> {card.textFa}</p>}
+          {showCard && card && <CardFace key={cardSeq} id={card.id} text={card.textFa} who={view.lastCard ? seatName(view.lastCard.seat) : ''} />}
 
           {mine && (
             <section className="am-panel am-panel--decide" aria-label="تصمیم">
@@ -167,8 +122,8 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
               )}
               {!view.trade && view.phase === 'buy' && (
                 <>
-                  <h3>«{BOARD[pos]!.nameFa}» صاحب ندارد</h3>
-                  <ul className="am-rents">{rentLines(pos).map((l) => <li key={l}>{l}</li>)}</ul>
+                  <h3>این ملک صاحب ندارد</h3>
+                  <Deed view={view} i={pos} seatName={seatName} />
                   <div className="am-row">
                     <Button disabled={busy || !has('buy')} variant={expected?.type === 'buy' ? 'brand' : 'primary'} onClick={() => send({ type: 'buy' })}>خرید به {money(priceOf(pos))}</Button>
                     <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'decline' })}>{view.rules.auction ? 'نمی‌خرم (مزایده)' : 'نمی‌خرم'}</Button>
@@ -177,11 +132,18 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
               )}
               {!view.trade && view.phase === 'auction' && bidHint && (
                 <>
-                  <h3>مزایده «{BOARD[view.auction!.sq]!.nameFa}» (قیمت {money(priceOf(view.auction!.sq))})</h3>
+                  <h3>مزایده</h3>
+                  <Deed view={view} i={view.auction!.sq} seatName={seatName} compact />
                   <p className="am-help">بالاترین پیشنهاد: {view.auction!.leader === null ? 'هنوز نیست' : `${money(view.auction!.high)} از ${seatName(view.auction!.leader)}`}</p>
                   <label className="am-field">پیشنهاد شما (هزار تومان)
                     <input type="number" inputMode="numeric" min={bidHint.min} max={bidHint.max} value={bid} onChange={(e) => setBid(Number(e.target.value))} />
                   </label>
+                  <div className="am-chips" role="group" aria-label="افزایش سریع پیشنهاد">
+                    {[1, 10, 50, 100].map((d) => (
+                      <button key={d} type="button" className="am-chip" disabled={busy || bidHint.min! + d - 1 > bidHint.max!}
+                        onClick={() => setBid(Math.min(bidHint.max!, Math.max(bid, bidHint.min! - 1) + d))}>+{fa(d)}</button>
+                    ))}
+                  </div>
                   <div className="am-row">
                     <Button disabled={busy || bid < bidHint.min! || bid > bidHint.max!} onClick={() => send({ type: 'bid', amount: bid })}>ثبت پیشنهاد</Button>
                     <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'pass' })}>کنار می‌کشم</Button>
@@ -220,17 +182,29 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
             </>
           )}
 
-          <ul className="am-players" aria-label="بازیکنان">
+          <ul className="am-wallets" aria-label="بازیکنان">
             {view.order.map((seat) => {
               const pl = view.p[seat]!;
-              const props = view.owner.filter((o) => o === seat).length;
+              const owned = view.owner.map((o, i) => (o === seat ? i : -1)).filter((i) => i >= 0);
               return (
-                <li key={seat} className={[seat === view.current && !view.outcome ? 'am-player--turn' : '', pl.bankrupt ? 'am-player--out' : ''].join(' ')}>
-                  <span className="am-dot" style={{ background: SEAT_COLORS[seat] }} aria-hidden="true">{fa(seat + 1)}</span>
-                  <bdi className="am-player__name">{seatName(seat)}</bdi>{seat === mySeat ? ' (شما)' : ''}
-                  <span className="am-player__info">
-                    {pl.bankrupt ? 'ورشکسته' : `${money(pl.cash)} · ${fa(props)} ملک${pl.inJail ? ' · زندان' : ''}${pl.jailCards.length ? ' · کارت آزادی' : ''}`}
+                <li key={seat} className={['am-wallet', seat === view.current && !view.outcome ? 'am-wallet--turn' : '', pl.bankrupt ? 'am-wallet--out' : ''].join(' ')} style={{ ['--seat' as string]: SEAT_COLORS[seat] }}>
+                  <span className="am-wallet__pawn" aria-hidden="true">{fa(seat + 1)}</span>
+                  <span className="am-wallet__who">
+                    <bdi className="am-wallet__name">{seatName(seat)}</bdi>{seat === mySeat && <span className="am-wallet__me"> (شما)</span>}
+                    {pl.inJail && <span className="am-tag">زندان</span>}
+                    {pl.jailCards.length > 0 && <span className="am-tag am-tag--card">کارت آزادی</span>}
+                    {pl.bankrupt && <span className="am-tag am-tag--out">ورشکسته</span>}
                   </span>
+                  <span className="am-wallet__cash" aria-label={money(pl.cash)}>{fa(pl.cash)}<small>هزار تومان</small></span>
+                  {owned.length > 0 && (
+                    <span className="am-wallet__deeds" aria-label={`املاک: ${owned.map((i) => BOARD[i]!.nameFa).join('، ')}`}>
+                      {owned.map((i) => {
+                        const b = BOARD[i]!;
+                        const bg = b.kind === 'street' ? GROUP_COLOR[b.group] : b.kind === 'station' ? '#2b2f36' : '#6b7c8f';
+                        return <span key={i} className={view.mortgaged[i] ? 'am-deedchip am-deedchip--mortgaged' : 'am-deedchip'} style={{ background: bg }} title={b.nameFa} />;
+                      })}
+                    </span>
+                  )}
                 </li>
               );
             })}
@@ -249,15 +223,48 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
 
 function SquareCard({ view, i, seatName, onClose }: { view: AmlakView; i: number; seatName: (s: number) => string; onClose: () => void }) {
   const b = BOARD[i]!;
+  if (!('price' in b) && b.kind !== 'tax') {
+    return <section className="am-panel" aria-label={b.nameFa}><h3>{b.nameFa}</h3><Button size="sm" variant="ghost" onClick={onClose}>بستن</Button></section>;
+  }
+  return <div className="am-sqcard"><Deed view={view} i={i} seatName={seatName} /><Button size="sm" variant="ghost" onClick={onClose}>بستن</Button></div>;
+}
+
+/** Title deed («سند مالکیت»): colour header, rent table with leaders, price / mortgage / house cost, owner. */
+function Deed({ view, i, seatName, compact }: { view: AmlakView; i: number; seatName: (s: number) => string; compact?: boolean }) {
+  const b = BOARD[i]!;
+  const head = b.kind === 'street' ? GROUP_COLOR[b.group] : b.kind === 'station' ? '#2b2f36' : b.kind === 'utility' ? '#5d6f84' : '#8a6b12';
+  const dark = b.kind === 'street' && ['yellow', 'lightBlue'].includes(b.group);
   const owner = view.owner[i];
+  const kicker = b.kind === 'street' ? `سند مالکیت · ${GROUP_FA[b.group]}` : b.kind === 'station' ? 'سند ایستگاه' : b.kind === 'utility' ? 'سند شرکت' : 'مالیات';
   return (
-    <section className="am-panel am-sqcard" aria-label={`جزئیات ${b.nameFa}`}>
-      <h3>{b.kind === 'street' && <span className="am-swatch" style={{ background: GROUP_COLOR[b.group] }} aria-hidden="true" />}{b.nameFa}{b.kind === 'street' ? ` (${GROUP_FA[b.group]})` : ''}</h3>
-      {'price' in b && <p>قیمت {money(b.price)} · رهن {money(b.price / 2)} · فک رهن {money(unmortgageCost(i))}</p>}
-      {owner !== null && owner !== undefined && <p>مالک: <bdi>{seatName(owner)}</bdi>{view.mortgaged[i] ? ' (در رهن)' : ''}{view.houses[i] ? ` · ${view.houses[i] === 5 ? 'هتل' : `${fa(view.houses[i]!)} خانه`}` : ''}</p>}
-      <ul className="am-rents">{rentLines(i).map((l) => <li key={l}>{l}</li>)}</ul>
-      <Button size="sm" variant="ghost" onClick={onClose}>بستن</Button>
-    </section>
+    <article className={compact ? 'am-deed am-deed--compact' : 'am-deed'} aria-label={`سند ${b.nameFa}`}>
+      <header className="am-deed__head" style={{ background: head, color: dark ? '#1b130b' : '#fff' }}>
+        <span className="am-deed__kicker">{kicker}</span>
+        <strong className="am-deed__name">{b.nameFa}</strong>
+      </header>
+      {!compact && <dl className="am-deed__rows">{rentRows(i).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>}
+      {'price' in b && (
+        <footer className="am-deed__foot">
+          <span>قیمت <b>{money(b.price)}</b></span>
+          <span>رهن {money(b.price / 2)}</span>
+          {b.kind === 'street' && <span>هر خانه {money(b.house)}</span>}
+          {owner !== null && owner !== undefined && (
+            <span>مالک <bdi>{seatName(owner)}</bdi>{view.mortgaged[i] ? ` · در رهن (فک رهن ${money(unmortgageCost(i))})` : ''}{view.houses[i] ? ` · ${view.houses[i] === 5 ? 'هتل' : `${fa(view.houses[i]!)} خانه`}` : ''}</span>
+          )}
+        </footer>
+      )}
+    </article>
+  );
+}
+
+/** The drawn card, face up: «شانس» or «صندوق». */
+function CardFace({ id, text, who }: { id: string; text: string; who: string }) {
+  const chance = id.startsWith('ch');
+  return (
+    <figure className={chance ? 'am-cardface am-cardface--chance' : 'am-cardface am-cardface--chest'} aria-label={`${chance ? 'شانس' : 'صندوق'}: ${text}`}>
+      <span className="am-cardface__badge" aria-hidden="true">{chance ? '؟' : '▣'}</span>
+      <figcaption><span className="am-cardface__kind">{chance ? 'شانس' : 'صندوق'} · <bdi>{who}</bdi></span>{text}</figcaption>
+    </figure>
   );
 }
 

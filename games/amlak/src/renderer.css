@@ -1,45 +1,148 @@
-/* «املاک». The board is a physical object with its own light palette in both themes (dark ink on cream ≥ 10:1);
-   ownership uses a coloured corner + the owner's name in the square's label and detail card (never colour alone). */
-.am { display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+/* «املاک» — a printed Tehran board on Persian tilework, in a walnut frame. The board is a physical object and keeps its
+   own palette in both themes (ink #1f1a14 on paper ≥ 12:1). Palette: walnut #6b4423, celadon #d6e9df, turquoise
+   #0f7f86 (girih), pomegranate #9b1c31 (title), saffron #e2a53b (selection / turn). Ownership is a coloured ribbon plus
+   the owner's name in every label and deed — never colour alone. */
+.am { --am-ink: #1f1a14; --am-turq: #0f7f86; --am-anar: #9b1c31; --am-saffron: #e2a53b; --am-paper: #fffaf0;
+  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
 .am-main { display: grid; gap: var(--sp-4); }
-@container (min-width: 900px) { .am-main { grid-template-columns: minmax(0, 640px) minmax(260px, 1fr); align-items: start; } }
+@container (min-width: 900px) { .am-main { grid-template-columns: minmax(0, 660px) minmax(280px, 1fr); align-items: start; } }
 .am-boardcol { display: grid; gap: var(--sp-3); min-inline-size: 0; }
 .am-side { display: grid; gap: var(--sp-3); align-content: start; min-inline-size: 0; }
-.am-board { inline-size: min(100%, 640px); block-size: auto; touch-action: manipulation; filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.3)); }
-.am-board__bg { fill: #e9f2e4; stroke: #2a1d12; stroke-width: 6; }
-.am-center__title { font: 900 96px/1 var(--font, sans-serif); fill: #8b1e2d; text-anchor: middle; }
-.am-center__sub { font: 700 32px/1 var(--font, sans-serif); fill: #2a1d12; text-anchor: middle; }
-.am-center__dice { font: 400 110px/1 'Segoe UI Symbol', 'DejaVu Sans', serif; fill: #2a1d12; text-anchor: middle; }
-.am-sq { cursor: pointer; }
-.am-sq__bg { fill: #fffaf0; stroke: #2a1d12; stroke-width: 2; }
-.am-sq:hover .am-sq__bg, .am-sq:focus-visible .am-sq__bg { fill: #fff2c8; }
-.am-sq:focus-visible { outline: none; }
-.am-sq--sel .am-sq__bg { fill: #ffe38a; stroke-width: 5; }
-.am-sq__mortgage { fill: rgb(40 40 40 / 0.28); pointer-events: none; }
-.am-sq__icon { font: 400 28px/1 'Segoe UI Symbol', 'DejaVu Sans', serif; fill: #2a1d12; text-anchor: middle; }
-.am-sq__name { font: 800 15px/1 var(--font, sans-serif); fill: #2a1d12; text-anchor: middle; }
-.am-sq__price { font: 700 14px/1 var(--font, sans-serif); fill: #5a4a3a; text-anchor: middle; }
-.am-sq__owner { stroke: #2a1d12; stroke-width: 1.5; }
-.am-house { fill: #23843f; stroke: #fff; stroke-width: 2; }
-.am-hotel { fill: #d62f35; stroke: #fff; stroke-width: 2; }
-.am-token { transition: transform 500ms cubic-bezier(0.22, 1.1, 0.36, 1); }
-.am-token circle { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.45)); }
-.am-token text { font: 900 12px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
 
+/* ---------- board ---------- */
+.amb { inline-size: min(100%, 660px); block-size: auto; display: block; margin-inline: auto; touch-action: manipulation;
+  filter: drop-shadow(0 14px 22px rgb(0 0 0 / 0.38)); }
+.amb-frame { stroke: #2a170a; stroke-width: 3; }
+.amb-frame__inlay { fill: none; stroke: #c9a24a; stroke-width: 3; opacity: 0.8; }
+.amb-print { stroke: var(--am-ink); stroke-width: 3; }
+.amb-girih { fill: none; stroke: var(--am-turq); stroke-width: 2; opacity: 0.2; }
+.amb-sky__mount { fill: #a9cfcd; opacity: 0.85; }
+.amb-sky__snow { fill: #fff; opacity: 0.9; }
+.amb-sky__city { fill: #5f8f93; opacity: 0.55; }
+.amb-sky__ink { fill: #1f4e5a; }
+.amb-title__fa { font: 900 132px/1 var(--font, 'Estedad Variable', sans-serif); fill: var(--am-anar); text-anchor: middle; letter-spacing: -2px;
+  paint-order: stroke; stroke: #fffaf0; stroke-width: 8px; stroke-linejoin: round; }
+.amb-title__sub { font: 800 34px/1 var(--font, sans-serif); fill: var(--am-ink); text-anchor: middle; letter-spacing: 1px; }
+
+.amb-deck__shadow { fill: rgb(0 0 0 / 0.28); transform: translate(6px, 8px); }
+.amb-deck__card { stroke: var(--am-ink); stroke-width: 3; }
+.amb-deck--chance .amb-deck__card { fill: #f39c3d; }
+.amb-deck--chest .amb-deck__card { fill: #1f8a9b; }
+.amb-deck__inner { fill: none; stroke: #fff; stroke-width: 3; stroke-dasharray: 10 6; opacity: 0.85; }
+.amb-deck__label { font: 900 44px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.35); stroke-width: 4px; }
+.amb-deck__count { font: 700 18px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; opacity: 0.9; }
+
+.amb-die__shadow { fill: rgb(0 0 0 / 0.3); filter: blur(3px); }
+.amb-die__face { fill: #fffdf7; stroke: #3a2a1a; stroke-width: 2.5; }
+.amb-die__pip { fill: var(--am-anar); }
+.amb-die { animation: amb-roll 620ms cubic-bezier(0.2, 1.3, 0.4, 1); transform-box: fill-box; transform-origin: center; }
+@keyframes amb-roll { 0% { transform: translate(-60px, -80px) rotate(-260deg) scale(0.7); opacity: 0.2; } 60% { transform: translate(4px, 4px) rotate(14deg) scale(1.06); opacity: 1; } 100% { transform: none; } }
+
+.amb-pot circle { fill: #f2c94c; stroke: #8a6b12; stroke-width: 3; }
+.amb-pot text { font: 800 16px/1 var(--font, sans-serif); fill: #3a2a0a; text-anchor: middle; }
+
+/* squares */
+.amb-sq { cursor: pointer; }
+.amb-sq__bg { fill: transparent; stroke: var(--am-ink); stroke-width: 2; transition: fill var(--dur, 160ms) var(--ease, ease); }
+.amb-sq:hover .amb-sq__bg, .amb-sq:focus-visible .amb-sq__bg { fill: rgb(226 165 59 / 0.18); }
+.amb-sq:focus-visible { outline: none; }
+.amb-sq:focus-visible .amb-sq__bg, .amb-sq--sel .amb-sq__bg { fill: rgb(226 165 59 / 0.28); stroke: var(--am-saffron); stroke-width: 6; }
+.amb-band { stroke: var(--am-ink); stroke-width: 2; }
+.amb-sq__name { font: 800 17px/1 var(--font, sans-serif); fill: var(--am-ink); text-anchor: middle; }
+.amb-sq__name--sm { font-size: 15px; font-weight: 700; }
+.amb-sq__price { font: 800 16px/1 var(--font, sans-serif); fill: #5a4a3a; text-anchor: middle; }
+.amb-ico--chance { font: 900 52px/1 var(--font, sans-serif); fill: #e67e22; text-anchor: middle; paint-order: stroke; stroke: var(--am-ink); stroke-width: 2px; }
+.amb-corner__title { font: 900 26px/1 var(--font, sans-serif); fill: var(--am-ink); text-anchor: middle; }
+.amb-corner__title--jail { fill: #fff; paint-order: stroke; stroke: var(--am-ink); stroke-width: 5px; }
+.amb-corner__small { font: 700 14px/1 var(--font, sans-serif); fill: #5a4a3a; text-anchor: middle; }
+.amb-go-arrow { fill: none; stroke: var(--am-anar); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.amb-jail { fill: #f39c3d; stroke: var(--am-ink); stroke-width: 3; }
+.amb-jail__bar { stroke: var(--am-ink); stroke-width: 5; }
+.amb-park { fill: #1c63c9; stroke: var(--am-ink); stroke-width: 3; }
+.amb-park__p { font: 900 40px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
+.amb-police { fill: #1f4e5a; stroke: var(--am-ink); stroke-width: 3; }
+
+.amb-house { fill: #23843f; stroke: #fff; stroke-width: 2; filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.45)); }
+.amb-hotel { fill: #d62f35; stroke: #fff; stroke-width: 2.5; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.45)); }
+.amb-owner rect { stroke: var(--am-ink); stroke-width: 1.5; }
+.amb-mortgage__stamp { font: 900 26px/1 var(--font, sans-serif); fill: #b0262f; text-anchor: middle; opacity: 0.85;
+  paint-order: stroke; stroke: #fffaf0; stroke-width: 4px; letter-spacing: 2px; }
+
+.amb-pawn { transition: transform 520ms cubic-bezier(0.22, 1.1, 0.36, 1); }
+.amb-pawn__shadow { fill: rgb(0 0 0 / 0.35); filter: blur(1.5px); }
+.amb-pawn__body { stroke: #fff; stroke-width: 3; }
+.amb-pawn__n { font: 900 15px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.55); stroke-width: 3px; }
+.amb-pawn--turn .amb-pawn__body { stroke: var(--am-saffron); stroke-width: 5; }
+.amb-pawn--turn { animation: amb-bob 1.4s ease-in-out infinite; }
+@keyframes amb-bob { 50% { translate: 0 -4px; } }
+
+/* ---------- panels ---------- */
 .am-panel { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); }
 .am-panel h3 { margin: 0; font-size: var(--fs-md); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .am-panel p { margin: 0; }
 .am-panel summary { cursor: pointer; font-weight: 800; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
-.am-panel--decide { border: 2px solid var(--brand); }
+.am-panel--decide { border: 2px solid var(--am-saffron); box-shadow: 0 0 0 4px rgb(226 165 59 / 0.15); animation: am-rise 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes am-rise { from { opacity: 0; transform: translateY(8px); } }
 .am-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .am-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
-.am-card { margin: 0; padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: color-mix(in srgb, var(--gold) 16%, var(--surface)); border: 2px solid var(--gold); }
-.am-rents { margin: 0; padding-inline-start: var(--sp-4); display: grid; gap: 2px; font-size: var(--fs-sm); }
-.am-swatch { display: inline-block; inline-size: 14px; block-size: 14px; border-radius: 3px; border: 1px solid #0006; margin-inline-end: 4px; vertical-align: middle; }
 .am-field { display: grid; gap: 4px; font-size: var(--fs-sm); font-weight: 700; }
-.am-field input, .am-field select { min-block-size: var(--touch, 44px); padding: 0 var(--sp-3); border-radius: var(--r-sm, 8px); border: 2px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+.am-field input, .am-field select { min-block-size: var(--touch, 44px); padding: 0 var(--sp-3); border-radius: var(--r-sm, 8px); border: 2px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-variant-numeric: tabular-nums; }
+.am-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.am-chip { min-block-size: 36px; min-inline-size: 52px; padding: 0 10px; border-radius: 999px; border: 2px solid #8a6b12; font: inherit; font-weight: 800; cursor: pointer;
+  color: #3a2a0a; background: radial-gradient(circle at 35% 30%, #fff3c4, #f2c94c 60%, #c99a1e); box-shadow: 0 2px 0 #8a6b12; }
+.am-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+.am-chip:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.am-swatch { display: inline-block; inline-size: 14px; block-size: 14px; border-radius: 3px; border: 1px solid #0006; margin-inline-end: 4px; vertical-align: middle; }
+
+/* title deed: printed card stock with a colour header, like the physical deed cards */
+.am-deed { display: grid; border-radius: 10px; overflow: hidden; background: var(--am-paper); color: var(--am-ink);
+  border: 2px solid var(--am-ink); box-shadow: 0 6px 14px rgb(0 0 0 / 0.25); max-inline-size: 340px; }
+.am-deed__head { display: grid; justify-items: center; gap: 2px; padding: 8px 12px 10px; border-block-end: 2px solid var(--am-ink); }
+.am-deed__kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.9; }
+.am-deed__name { font-size: 1.2rem; font-weight: 900; }
+.am-deed__rows { margin: 0; padding: 8px 14px; display: grid; gap: 3px; font-size: var(--fs-sm); }
+.am-deed__rows div { display: flex; align-items: baseline; gap: 6px; }
+.am-deed__rows dt { white-space: nowrap; }
+.am-deed__rows div::after { content: ''; order: 1; flex: 1; border-block-end: 2px dotted rgb(31 26 20 / 0.35); }
+.am-deed__rows dd { order: 2; margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.am-deed__foot { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 14px 10px; border-block-start: 1px solid rgb(31 26 20 / 0.25); font-size: var(--fs-xs); color: #4a3d2e; }
+.am-deed--compact .am-deed__foot { border-block-start: 0; }
+.am-sqcard { display: grid; gap: var(--sp-2); justify-items: start; }
+
+/* drawn card */
+.am-cardface { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: center; padding: 14px 16px; border-radius: 14px;
+  border: 3px solid var(--am-ink); color: #fff; box-shadow: 0 8px 18px rgb(0 0 0 / 0.3); animation: am-flip 520ms cubic-bezier(0.2, 1.2, 0.4, 1); transform-origin: center; }
+.am-cardface--chance { background: linear-gradient(135deg, #f6a64a, #e07b14); }
+.am-cardface--chest { background: linear-gradient(135deg, #2a9bb0, #146a79); }
+.am-cardface__badge { display: grid; place-items: center; inline-size: 52px; block-size: 52px; border-radius: 12px; background: rgb(255 255 255 / 0.2);
+  border: 2px dashed rgb(255 255 255 / 0.8); font-size: 30px; font-weight: 900; }
+.am-cardface figcaption { display: grid; gap: 4px; font-weight: 700; line-height: 1.7; text-shadow: 0 1px 1px rgb(0 0 0 / 0.3); }
+.am-cardface__kind { font-size: var(--fs-xs); font-weight: 800; opacity: 0.9; }
+@keyframes am-flip { from { transform: perspective(600px) rotateY(80deg) scale(0.9); opacity: 0; } }
+
+/* wallets */
+.am-wallets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.am-wallet { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'pawn who cash' 'deeds deeds deeds'; align-items: center; gap: 4px 10px;
+  padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 2px solid transparent; border-inline-start: 6px solid var(--seat); }
+.am-wallet--turn { border-color: var(--am-saffron); border-inline-start-color: var(--seat); box-shadow: 0 0 0 3px rgb(226 165 59 / 0.18); }
+.am-wallet--out { opacity: 0.5; }
+.am-wallet__pawn { grid-area: pawn; display: grid; place-items: center; inline-size: 30px; block-size: 30px; border-radius: 50%; color: #fff; font-weight: 900;
+  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.65), transparent 45%), var(--seat); border: 2px solid #fff; box-shadow: 0 2px 4px rgb(0 0 0 / 0.35); }
+.am-wallet__who { grid-area: who; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-inline-size: 0; }
+.am-wallet__name { font-weight: 800; max-inline-size: 13ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.am-wallet__me { color: var(--text-2); font-size: var(--fs-sm); }
+.am-wallet__cash { grid-area: cash; display: grid; justify-items: end; font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.am-wallet__cash small { font-size: 10px; font-weight: 700; color: var(--text-2); }
+.am-wallet__deeds { grid-area: deeds; display: flex; flex-wrap: wrap; gap: 3px; }
+.am-deedchip { inline-size: 14px; block-size: 18px; border-radius: 3px; border: 1.5px solid rgb(0 0 0 / 0.45); box-shadow: inset 0 3px 0 rgb(255 255 255 / 0.35); }
+.am-deedchip--mortgaged { opacity: 0.45; background-image: repeating-linear-gradient(45deg, transparent 0 3px, rgb(0 0 0 / 0.45) 3px 5px) !important; }
+.am-tag { font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: #1f4e5a; color: #fff; }
+.am-tag--card { background: #8a6b12; }
+.am-tag--out { background: #6b6b6b; }
+
+/* management, trade */
 .am-manage { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.am-manage li { display: grid; gap: 4px; padding-block: 4px; border-block-end: 1px solid var(--border); font-size: var(--fs-sm); }
+.am-manage li { display: grid; gap: 4px; padding-block: 6px; border-block-end: 1px solid var(--border); font-size: var(--fs-sm); }
 .am-manage__acts { display: flex; flex-wrap: wrap; gap: 4px; }
 .am-trade { display: grid; gap: var(--sp-3); }
 .am-trade__sides { display: grid; gap: var(--sp-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
@@ -47,15 +150,19 @@
 .am-tradeside legend { font-weight: 800; padding: 0 4px; }
 .am-check { display: flex; align-items: center; gap: var(--sp-2); min-block-size: 36px; font-size: var(--fs-sm); }
 .am-check input { inline-size: 18px; block-size: 18px; }
-.am-players { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.am-players li { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: var(--surface-2); border: 2px solid transparent; }
-.am-player--turn { border-color: var(--brand) !important; }
-.am-player--out { opacity: 0.55; }
-.am-player__name { font-weight: 800; max-inline-size: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.am-player__info { margin-inline-start: auto; color: var(--text-2); font-size: var(--fs-sm); }
-.am-dot { display: inline-grid; place-items: center; inline-size: 24px; block-size: 24px; border-radius: 50%; color: #fff; font-weight: 900; font-size: 12px; border: 2px solid #fff; box-shadow: 0 0 0 1px #0004; }
+.am-rents { margin: 0; padding-inline-start: var(--sp-4); display: grid; gap: 2px; font-size: var(--fs-sm); }
 .am-log summary { cursor: pointer; font-weight: 700; min-block-size: var(--touch, 44px); display: flex; align-items: center; }
 .am-log ol { margin: 0; padding-inline-start: var(--sp-5); color: var(--text-2); display: grid; gap: 2px; font-size: var(--fs-sm); list-style-type: persian; }
 .am-log li:first-child { color: var(--text); }
-@media (prefers-reduced-motion: reduce) { .am-token { transition: none; } }
-:root[data-motion='reduce'] .am-token { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .amb-pawn, .amb-sq__bg { transition: none; }
+  .amb-die, .amb-pawn--turn, .am-cardface, .am-panel--decide { animation: none; }
+}
+:root[data-motion='reduce'] .amb-die, :root[data-motion='reduce'] .amb-pawn--turn, :root[data-motion='reduce'] .am-cardface { animation: none; }
+:root[data-motion='reduce'] .amb-pawn { transition: none; }
+
+/* Phone held sideways: board and panel side by side. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .am-main { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+}

@@ -44,7 +44,7 @@ test('two players play «املاک» for 20 rounds to the result', async ({ bro
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
   for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
-  await expect(host.locator('.am-board')).toBeVisible();
+  await expect(host.locator('.amb')).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'start'), fullPage: true });
 
   let offered = false;

@@ -378,6 +378,10 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   jackpot (taxes and card fees), doubleGo (landing exactly on Go pays double).
 - Timeouts play passively (roll, decline, pass, reject trade, end turn; debts: sell buildings then mortgage, else
   bankrupt); three in a row = bankrupt to the bank. Card deck order is never projected.
+- Visual identity: physical board-game look, consistent with the other tabletop modules. It uses a walnut frame, a cream
+  board with a faint girih pattern, and a Tehran skyline in the centre (Alborz, Milad, Azadi) drawn as original SVG,
+  not taken from the branded game. Property info is shown as a «سند مالکیت» title-deed card. The drawn
+  chance/chest card animates face up, and that animation is turned off under reduced motion.
 
 ## Ticket to Ride (2026-10-08, owner request)
 
