@@ -156,5 +156,16 @@ export const GAME_ERRORS_FA: Record<string, string> = {
   ALREADY_COMMITTED: 'پیشنهاد این دور را قبلاً ثبت کرده‌اید.',
   TOKEN_UNAVAILABLE: 'این ژتون را قبلاً مصرف کرده‌اید.',
   ALREADY_RESIGNED: 'شما از این بازی انصراف داده‌اید.',
-  TUTORIAL_EXPECTED_OTHER: 'در این مرحله آموزش، حرکت مشخص‌شده را انجام دهید.'
+  TUTORIAL_EXPECTED_OTHER: 'در این مرحله آموزش، حرکت مشخص‌شده را انجام دهید.',
+  WRONG_PHASE: 'این حرکت در این مرحله از نوبت ممکن نیست.',
+  NOT_ENOUGH_RESOURCES: 'منابع کافی ندارید.',
+  ILLEGAL_PLACEMENT: 'اینجا نمی‌توانید بسازید.',
+  MUST_TRADE: 'با ۵ کارت یا بیشتر باید پیش از جای‌گذاری یک دست کارت معاوضه کنید.',
+  NOT_A_SET: 'این سه کارت یک دست معتبر نیستند.',
+  WRONG_ARMY_COUNT: 'تعداد سربازها درست نیست.',
+  NOT_YOUR_TERRITORY: 'این سرزمین مال شما نیست.',
+  NOT_ADJACENT: 'این دو سرزمین همسایه نیستند.',
+  NOT_CONNECTED: 'مسیری از سرزمین‌های خودتان بین این دو نیست.',
+  TOO_FEW_ARMIES: 'سرباز کافی در این سرزمین نیست.',
+  TOO_MANY_DICE: 'با این تعداد سرباز نمی‌توانید این‌قدر تاس بریزید.'
 };

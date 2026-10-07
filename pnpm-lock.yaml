@@ -87,6 +87,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-risk':
+        specifier: workspace:*
+        version: link:../../games/risk
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
@@ -120,6 +123,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-risk':
+        specifier: workspace:*
+        version: link:../../games/risk
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
@@ -274,6 +280,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/risk:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/sealed-bids:
     dependencies:
       '@bg/game-sdk':
@@ -380,6 +405,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-risk':
+        specifier: workspace:*
+        version: link:../../games/risk
       '@bg/game-sdk':
         specifier: workspace:*
         version: link:../game-sdk
@@ -420,6 +448,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-risk':
+        specifier: workspace:*
+        version: link:../../games/risk
       '@bg/game-sdk':
         specifier: workspace:*
         version: link:../game-sdk

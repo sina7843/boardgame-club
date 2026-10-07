@@ -7,6 +7,7 @@ import SnakesCover from '@bg/game-snakes-ladders/cover';
 import LudoCover from '@bg/game-ludo/cover';
 import UnmatchedCover from '@bg/game-unmatched/cover';
 import CatanCover from '@bg/game-catan/cover';
+import RiskCover from '@bg/game-risk/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -15,6 +16,7 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   uno: UnoCover,
   unmatched: UnmatchedCover,
   catan: CatanCover,
+  risk: RiskCover,
   chess: ChessCover,
   'snakes-ladders': SnakesCover,
   ludo: LudoCover

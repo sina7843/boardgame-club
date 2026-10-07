@@ -17,6 +17,7 @@
     "@bg/game-uno": "workspace:*",
     "@bg/game-unmatched": "workspace:*",
     "@bg/game-catan": "workspace:*",
+    "@bg/game-risk": "workspace:*",
     "@bg/game-chess": "workspace:*",
     "@bg/game-snakes-ladders": "workspace:*",
     "@bg/game-ludo": "workspace:*"

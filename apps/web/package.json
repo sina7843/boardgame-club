@@ -24,6 +24,7 @@
     "socket.io-client": "4.8.4",
     "@bg/game-unmatched": "workspace:*",
     "@bg/game-catan": "workspace:*",
+    "@bg/game-risk": "workspace:*",
     "@bg/game-chess": "workspace:*",
     "@bg/game-snakes-ladders": "workspace:*",
     "@bg/game-ludo": "workspace:*"

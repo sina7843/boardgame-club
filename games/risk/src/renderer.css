@@ -1,0 +1,149 @@
+/* RISK renderer. The map is a physical object (wood frame, parchment land, sea): its colours stay the same in both
+   themes. Owner colours always come with the seat number on the token and the colour name in text. Map labels are
+   ink #2a2520 on an ivory halo (≈ 13:1); panel text uses the theme tokens. */
+.rk {
+  --rk-ink: #2a2520; --rk-ivory: #f6efdc;
+  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size;
+}
+.rk__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); color: var(--text-2); font-size: var(--fs-sm); }
+.rk-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
+.rk-warn { margin: 0; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: color-mix(in srgb, var(--warning, #b7791f) 16%, var(--surface)); color: var(--text); font-weight: 700; font-size: var(--fs-sm); }
+.rk-big { margin: 0; }
+.rk-big strong { font-size: 1.6em; font-variant-numeric: tabular-nums; }
+
+/* Main: map + side panel; side by side only when the game area itself is wide. */
+.rk-main { display: grid; gap: var(--sp-4); }
+@container (min-width: 1100px) { .rk-main { grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr); align-items: start; } }
+.rk-board-wrap { display: grid; gap: var(--sp-3); min-inline-size: 0; }
+.rk-side { display: grid; gap: var(--sp-3); min-inline-size: 0; align-content: start; }
+
+/* ---------- map ---------- */
+.rk-map { inline-size: 100%; block-size: auto; display: block; touch-action: manipulation; filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.35)); font-family: inherit; }
+.rk-frame { stroke: #2e1a09; stroke-width: 2.5; }
+.rk-stud { stroke: #4f3908; stroke-width: 0.8; }
+.rk-sea { stroke: #0f3a52; stroke-width: 3; }
+.rk-grid { stroke: #fff; stroke-opacity: 0.07; stroke-width: 0.8; }
+.rk-compass__n { font-size: 11px; font-weight: 900; fill: var(--rk-ivory); text-anchor: middle; }
+/* Shallow-water halo around every coast, then the land's drop shadow. */
+.rk-coast { fill: none; stroke: #8fd0e6; stroke-opacity: 0.35; stroke-width: 9; stroke-linejoin: round; }
+.rk-land { fill: #d9c48f; stroke: #3b2a14; stroke-width: 2; stroke-linejoin: round; }
+.rk-lane { fill: none; stroke: var(--rk-ivory); stroke-opacity: 0.85; stroke-width: 1.8; stroke-dasharray: 5 4; stroke-linecap: round; }
+.rk-lane__wrap { font-size: 9px; font-weight: 800; fill: var(--rk-ivory); }
+.rk-lane__wrap--end { text-anchor: end; }
+
+.rk-terr__fill { stroke: none; }
+/* Inner owner border: a wide stroke clipped to the territory reads as a coloured rim on the inside. */
+.rk-terr__owner { fill: none; stroke-width: 6; stroke-opacity: 0.85; stroke-linejoin: round; }
+.rk-terr__edge { fill: none; stroke: #3b2a14; stroke-width: 1.2; stroke-linejoin: round; }
+.rk-terr__name { font-size: 8.5px; font-weight: 800; fill: var(--rk-ink); stroke: rgb(246 239 220 / 0.92); stroke-width: 3px; paint-order: stroke; stroke-linejoin: round; text-anchor: middle; }
+.rk-banner__t { font-size: 10.5px; font-weight: 900; fill: var(--rk-ink); text-anchor: middle; }
+.rk-banner rect:first-child { stroke: #3b2a14; stroke-width: 1.2; filter: drop-shadow(0 1.5px 1.5px rgb(0 0 0 / 0.45)); }
+.rk-banner--held rect:first-child { stroke: #fff4c2; stroke-width: 2; }
+
+.rk-token__n { font-size: 11px; font-weight: 900; text-anchor: middle; stroke-width: 2px; paint-order: stroke; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
+.rk-token__seat { font-size: 7.5px; font-weight: 900; fill: var(--rk-ink); text-anchor: middle; }
+.rk-piece__token { animation: rk-pop 300ms cubic-bezier(0.3, 1.5, 0.5, 1); transform-box: fill-box; transform-origin: 50% 60%; }
+@keyframes rk-pop { from { transform: scale(0.7); } }
+.rk-piece--battle .rk-token circle:nth-of-type(3) { stroke: #fff5d6; stroke-width: 2; }
+.rk-draft { font-size: 10px; font-weight: 900; fill: #fff5d6; stroke: #1b1611; stroke-width: 2.5px; paint-order: stroke; text-anchor: middle; }
+.rk-arrow { fill: none; stroke: #b3261e; stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 9 5; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); animation: rk-march 900ms linear infinite; }
+.rk-arrow--won { stroke: #7a1414; stroke-dasharray: none; animation: none; }
+@keyframes rk-march { to { stroke-dashoffset: -14; } }
+
+/* Interactive territories */
+.rk-target { cursor: pointer; }
+.rk-target:focus { outline: none; }
+.rk-target .rk-terr__edge { stroke: #fff; stroke-width: 2.2; stroke-dasharray: 6 4; }
+.rk-target:hover .rk-terr__fill, .rk-target:focus-visible .rk-terr__fill { filter: brightness(1.12); }
+.rk-target:focus-visible .rk-terr__edge { stroke: var(--focus, #ffd34d); stroke-width: 3.5; stroke-dasharray: none; }
+.rk-selected .rk-terr__edge { stroke: #ffd34d; stroke-width: 3.5; stroke-dasharray: none; }
+.rk-aimed .rk-terr__edge { stroke: #ff6b5e; stroke-width: 3.5; stroke-dasharray: none; }
+.rk-aimed .rk-terr__fill { filter: brightness(0.92) saturate(1.2); }
+.rk-hint .rk-terr__edge { animation: rk-pulse 1.1s ease-in-out infinite; stroke: #ffd34d; stroke-width: 3; }
+@keyframes rk-pulse { 50% { stroke-opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) { .rk-piece__token, .rk-arrow, .rk-hint .rk-terr__edge, .rk-die, .rk-card { animation: none; transition: none; } }
+:root[data-motion='reduce'] .rk-piece__token, :root[data-motion='reduce'] .rk-arrow, :root[data-motion='reduce'] .rk-hint .rk-terr__edge,
+:root[data-motion='reduce'] .rk-die, :root[data-motion='reduce'] .rk-card { animation: none; transition: none; }
+
+/* ---------- panels ---------- */
+.rk-panel, .rk-tray, .rk-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-md); background: var(--surface-2); }
+.rk-panel--decide { box-shadow: inset 0 0 0 2px var(--brand); }
+.rk-panel h3, .rk-tray h3, .rk-hand h3 { margin: 0; font-size: var(--fs-md, 1rem); }
+.rk-panel p { margin: 0; }
+.rk-hintbtn { box-shadow: 0 0 0 3px var(--gold); }
+.rk-draftlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.rk-draftlist li { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); padding: 2px var(--sp-2); border-radius: var(--r-sm, 8px); }
+.rk-draftlist .rk-draftlist--sel { background: color-mix(in srgb, var(--brand) 12%, transparent); }
+.rk-step { display: inline-flex; align-items: center; gap: 4px; }
+.rk-step button { inline-size: 40px; block-size: 40px; border-radius: 50%; border: 0; background: var(--surface); color: var(--text); font-size: 1.1em; font-weight: 900; cursor: pointer; }
+.rk-step button:disabled { opacity: 0.4; cursor: default; }
+.rk-step output { min-inline-size: 3ch; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rk-step button:focus-visible, .rk-chip:focus-visible, .rk-card:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.rk-dice-pick { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.rk-dice-pick legend { font-size: var(--fs-sm); font-weight: 700; margin-block-end: 4px; padding: 0; }
+.rk-chip { padding: 6px 14px; min-block-size: 40px; border-radius: 999px; border: 2px solid var(--border, transparent); background: var(--surface); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+.rk-chip[aria-pressed='true'] { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 16%, var(--surface)); }
+.rk-chip:disabled { opacity: 0.45; cursor: default; }
+
+/* Dice tray: lacquered dice, red for the attacker, ivory for the defender; every die carries ✓ / ✗ as text. */
+.rk-tray__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+.rk-tray__who { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.rk-tray__who small { color: var(--text-2); font-weight: 500; }
+.rk-tray__dice { display: inline-flex; gap: 10px; }
+.rk-tray__die { display: inline-grid; justify-items: center; gap: 2px; }
+.rk-mark { font-size: var(--fs-xs); font-weight: 900; color: var(--text-2); }
+.rk-tray__die--win .rk-mark { color: var(--success, #1f7a3a); }
+.rk-tray__die--loss .rk-mark { color: var(--danger, #b3261e); }
+.rk-tray__die--loss .rk-die { filter: grayscale(0.6) brightness(0.85); }
+.rk-die { --die: #fbf5e4; --pip: #1b130b; display: inline-grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); place-items: center; inline-size: 36px; block-size: 36px; padding: 5px; border-radius: 9px;
+  background: radial-gradient(circle at 30% 25%, #fff 0, var(--die) 45%, color-mix(in srgb, var(--die) 80%, #6b5a3a) 100%);
+  box-shadow: inset 1.5px 1.5px 1px rgb(255 255 255 / 0.9), inset -2px -2px 2px rgb(0 0 0 / 0.28), 0 1px 0 rgb(0 0 0 / 0.25), 1px 4px 6px rgb(0 0 0 / 0.35);
+  animation: rk-roll 480ms cubic-bezier(0.22, 1.2, 0.36, 1); }
+.rk-die--att { --die: #c62f3a; --pip: #fff; }
+.rk-die i { inline-size: 6px; block-size: 6px; border-radius: 50%; }
+.rk-die .rk-die__pip { background: radial-gradient(circle at 35% 30%, #5b5148, var(--pip) 70%); box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.5); }
+.rk-die--att .rk-die__pip { background: radial-gradient(circle at 35% 30%, #fff, #f6dcd8 80%); box-shadow: inset 0 -1px 1px rgb(0 0 0 / 0.25); }
+@keyframes rk-roll { from { transform: rotate(-220deg) scale(0.5); opacity: 0.2; } }
+
+/* Cards: printed ivory stock with an illustrated band (fixed palette, ink ≈ 13:1). */
+.rk-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.rk-card { display: grid; justify-items: center; gap: 2px; inline-size: 100%; padding: 0 4px 6px; overflow: hidden; border-radius: 10px; color: var(--rk-ink); font: inherit; cursor: pointer;
+  background: linear-gradient(160deg, #fffaea, #efe3c3); border: 1px solid #b9a77c;
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.8), 0 3px 6px rgb(0 0 0 / 0.28); transition: transform 150ms ease; }
+.rk-card:disabled { cursor: default; }
+.rk-card:not(:disabled):hover { transform: translateY(-2px); }
+.rk-card[aria-pressed='true'] { transform: translateY(-5px); border: 2px solid var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 30%, transparent), 0 6px 10px rgb(0 0 0 / 0.3); }
+.rk-card__art { display: grid; place-items: center; inline-size: calc(100% + 8px); padding-block: 6px; font-size: 1.9em; border-block-end: 2px solid rgb(0 0 0 / 0.25);
+  background: radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.5), transparent 60%), var(--cb, #d9c48f); }
+.rk-card--infantry { --cb: #b9cf94; } .rk-card--cavalry { --cb: #e2bf8e; } .rk-card--artillery { --cb: #b8c3d4; } .rk-card--wild { --cb: #f0d27a; }
+.rk-card__kind { font-size: var(--fs-xs); font-weight: 800; }
+.rk-card__terr { font-size: var(--fs-xs); text-align: center; line-height: 1.3; }
+.rk-ico { display: block; inline-size: 1em; block-size: 1em; filter: drop-shadow(0 1px 0.5px rgb(0 0 0 / 0.3)); }
+
+/* Players */
+.rk-players { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+.rk-player { display: grid; gap: 4px; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: var(--surface-2); border: 2px solid transparent; border-inline-start: 6px solid var(--pc); }
+.rk-player--turn { border-color: var(--brand); border-inline-start-color: var(--pc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
+.rk-player--out { opacity: 0.6; }
+.rk-player__head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.rk-player__name { font-weight: 800; max-inline-size: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-player__color, .rk-player__counts { color: var(--text-2); font-size: var(--fs-xs); }
+.rk-player__conts { display: flex; flex-wrap: wrap; gap: 4px; }
+.rk-swatch { display: inline-grid; place-items: center; inline-size: 24px; block-size: 24px; border-radius: 50%; color: #fff; flex: none;
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.55), transparent 55%), var(--pc);
+  font-size: var(--fs-xs); font-weight: 900; text-shadow: 0 0 2px #000, 0 1px 1px #000; box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.35), 0 2px 3px rgb(0 0 0 / 0.3); }
+.rk-badge { font-size: var(--fs-xs); font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--brand); color: var(--brand-foreground, #fff); }
+.rk-badge--out { background: var(--text-2); color: var(--surface); }
+.rk-badge--c { color: var(--rk-ink); border: 1px solid rgb(0 0 0 / 0.25); }
+.rk-badge--na { background: #ecc977; } .rk-badge--sa { background: #e09878; } .rk-badge--eu { background: #a7bfdc; }
+.rk-badge--af { background: #e2b884; } .rk-badge--as { background: #b2cc8c; } .rk-badge--au { background: #c8acd6; }
+
+.rk-log ol { margin: var(--sp-2) 0 0; padding-inline-start: 1.2em; display: grid; gap: 4px; font-size: var(--fs-sm); color: var(--text-2); }
+.rk-log summary { cursor: pointer; font-weight: 700; }
+
+/* Phone held sideways: map and action panel side by side, the panel scrolls on its own. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .rk-main { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+  .rk-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
+}

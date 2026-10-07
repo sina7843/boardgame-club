@@ -341,3 +341,20 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   the player; a removed player's pieces stay (they block) but no longer produce.
 - Tutorial tables have two seats: a fixed position on the beginners' map (learner at 8 VP, scripted roll of 8), five
   steps to 10 VP. Two players are only accepted for that tutorial deal.
+
+## Risk (2026-10-07, owner request)
+
+- No rulebook was supplied (`Rulebooks/` has none); classic Hasbro world-domination rules are implemented: 42
+  territories / 6 continents (bonuses NA 5, SA 2, EU 5, AF 3, AS 7, AU 2), 3–6 players, starting armies 35/30/25/20,
+  reinforcements max(3, ⌊territories/3⌋) + continents + card sets (4, 6, 8, 10, 12, 15, then +5; +2 on one pictured
+  owned territory per turn), forced trade at 5+ cards, attack 1–3 dice vs defender up to 2 (ties to defender),
+  occupation of at least the dice rolled, one fortify per turn, a card per turn with a conquest, eliminated players'
+  cards pass to the eliminator (6+ → trade down immediately). The world map is original vector art.
+- Platform deviations: first player and the territory deal use the engine RNG ("deal the cards" set-up); each player
+  places all remaining starting armies in one action; the defender always rolls the maximum allowed; occupation is
+  skipped when only one count is possible; the +2 card bonus goes to the lowest-index pictured territory you own.
+- Variants: goal `world` (default) or `majority` (30 territories at the end of your own turn, a shorter online game);
+  fortify through `connected` own territories (default) or `adjacent` only.
+- Timeouts play the minimum (forced trade, all armies on the most threatened own territory, minimum occupation, no
+  attack, no fortify); three in a row or resigning leaves the seat `abandoned` (its territories stay, can be conquered).
+- Tutorial: two-seat fixed position, scripted dice, six steps to a majority win.

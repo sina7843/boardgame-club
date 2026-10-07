@@ -30,6 +30,16 @@ Checks run: contrast script 0 failures (42 pairs, both themes); axe 0 serious/cr
 dark (6 pages × 2 widths); lint, typecheck, build clean; unit/integration 165 passed; E2E 52 passed, 10 skipped by design.
 Screenshots: `docs/evidence/redesign/` (dark) and `docs/evidence/phase-04/screenshots/` (light).
 
+## Risk (2026-10-07): DONE locally — real devices UNVERIFIED
+
+New module `games/risk` (classic rules, original world map with sea lanes, zoomable, cards, dice tray, tutorial)
+registered in engine, catalog and web. Checks run: engine 25 (`packages/game-engine/test/risk.test.ts`: map integrity
+and geometry/adjacency match, setup, reinforcement + card values, forced trades, dice rules, blitz, occupy, elimination,
+fortify modes, both goals, timeouts, resign, redaction, tutorial, 20 random games + replay); API 3
+(`apps/api/test/risk.test.ts`); catalog test updated; E2E `e2e/risk.spec.ts`: three browsers place starting armies and
+play 6 turns incl. a blitz attack at 360 and 1440 — 2/2 passed (screenshots `docs/evidence/risk/`). Full world conquest
+through the browser not run (engine-tested). Error texts for the new codes added to `GAME_ERRORS_FA`.
+
 ## Game visuals, board zoom, phone landscape (2026-10-07): DONE locally — real devices UNVERIFIED
 
 All eight renderers redrawn as physical tabletop objects (wood frames, illustrated terrain/maps, 3D pieces, real dice,

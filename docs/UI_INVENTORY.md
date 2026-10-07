@@ -93,6 +93,7 @@ plans and prices, seasons (+ correction), missions, support (manual XP/premium, 
 incident; moderator queue with audit filters.
 
 Snakes and Ladders / Ludo: `docs/evidence/race/*.png` — full games at 360 and 1440 (start, each player mid-game, result).
+Risk: `docs/evidence/risk/*.png` — three players at 360 and 1440 (start, after a blitz battle, after regular turns).
 Catan: `docs/evidence/catan/*.png` — three players at 360 and 1440 (start, each player's view after set-up and after regular turns).
 Chess: `docs/evidence/chess/*.png` — Fool’s Mate at 360 and 1440 (start, Black’s legal targets, result).
 Unmatched: `docs/evidence/unmatched/*.png` — duel at 360 and 1440 (hero pick, board for each player, combat, result).
