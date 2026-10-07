@@ -71,3 +71,4 @@ pnpm-debug.log*
 /PACKAGE_VALIDATION.txt
 /0[1-6]-*.cmd
 /Rulebooks/
+/docs
