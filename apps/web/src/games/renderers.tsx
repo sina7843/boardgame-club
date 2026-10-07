@@ -5,6 +5,7 @@ import UnoRenderer from '@bg/game-uno/renderer';
 import ChessRenderer from '@bg/game-chess/renderer';
 import SnakesRenderer from '@bg/game-snakes-ladders/renderer';
 import LudoRenderer from '@bg/game-ludo/renderer';
+import AmlakRenderer from '@bg/game-amlak/renderer';
 import UnmatchedRenderer from '@bg/game-unmatched/renderer';
 import CatanRenderer from '@bg/game-catan/renderer';
 import RiskRenderer from '@bg/game-risk/renderer';
@@ -24,5 +25,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'risk@1.0.0': RiskRenderer as ComponentType<GameRendererProps<never>>,
   'chess@1.0.0': ChessRenderer as ComponentType<GameRendererProps<never>>,
   'snakes-ladders@1.0.0': SnakesRenderer as ComponentType<GameRendererProps<never>>,
-  'ludo@1.0.0': LudoRenderer as ComponentType<GameRendererProps<never>>
+  'ludo@1.0.0': LudoRenderer as ComponentType<GameRendererProps<never>>,
+  'amlak@1.0.0': AmlakRenderer as ComponentType<GameRendererProps<never>>
 };

@@ -6,6 +6,7 @@ import { unoModule } from '@bg/game-uno';
 import { chessModule } from '@bg/game-chess';
 import { snakesModule } from '@bg/game-snakes-ladders';
 import { ludoModule } from '@bg/game-ludo';
+import { amlakModule } from '@bg/game-amlak';
 import { unmatchedModule } from '@bg/game-unmatched';
 import { catanModule } from '@bg/game-catan';
 import { riskModule } from '@bg/game-risk';
@@ -67,7 +68,7 @@ export class GameRegistry {
 }
 
 /** Reviewed in-repo modules. Adding a game = adding its module here (docs/ADDING_A_GAME.md). */
-export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule] as unknown as GameModule<never, never, never>[];
+export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule] as unknown as GameModule<never, never, never>[];
 export const createDefaultRegistry = () => new GameRegistry(reviewedModules);
 
 // ---------- Running the game ----------

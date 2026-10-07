@@ -5,6 +5,7 @@ import UnoCover from '@bg/game-uno/cover';
 import ChessCover from '@bg/game-chess/cover';
 import SnakesCover from '@bg/game-snakes-ladders/cover';
 import LudoCover from '@bg/game-ludo/cover';
+import AmlakCover from '@bg/game-amlak/cover';
 import UnmatchedCover from '@bg/game-unmatched/cover';
 import CatanCover from '@bg/game-catan/cover';
 import RiskCover from '@bg/game-risk/cover';
@@ -19,7 +20,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   risk: RiskCover,
   chess: ChessCover,
   'snakes-ladders': SnakesCover,
-  ludo: LudoCover
+  ludo: LudoCover,
+  amlak: AmlakCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

@@ -65,6 +65,17 @@ because the shared dev Vite on 5173 was serving another session's catan stub. En
 (catan files), web build clean. Not done: full game to 10 VP through the browser
 (engine-tested only), load-test driver entry, 5–6 player extension.
 
+## «املاک» (Monopoly-style, 2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/amlak` (board data, rules, renderer, cover, tutorial) registered in engine, catalog and web. Checks
+run: engine 14 (`packages/game-engine/test/amlak.test.ts`: rent cases, auction, building/selling evenly with bank supply,
+mortgages, jail, cards, multi-party debts, bankruptcy, trades with mortgage interest, house rules, round limit,
+timeouts, tutorial, 30 random 2–6 player games with money/supply/card invariants and replay); API 3
+(`apps/api/test/amlak.test.ts`); catalog test updated (now also lists risk);
+E2E `e2e/amlak.spec.ts` — 20-round two-player game incl. a trade offer through the UI at 360 and 1440 (screenshots
+`docs/evidence/amlak/`). Engine suite 173/173. Found and fixed a shared `SegmentedControl` overflow at 360px.
+Not run: full web typecheck (a game module from a parallel session did not compile at the time).
+
 ## Snakes and Ladders + Ludo (2026-10-07): DONE locally — real devices UNVERIFIED
 
 New modules `games/snakes-ladders` and `games/ludo` (rules, vector boards, renderers, covers, tutorials) registered in

@@ -92,6 +92,7 @@ width: `docs/evidence/phase-04/a11y-*.json` (0 violations). Admin panels: games/
 plans and prices, seasons (+ correction), missions, support (manual XP/premium, subscriptions, payments), platform
 incident; moderator queue with audit filters.
 
+املاک: `docs/evidence/amlak/*.png` — 20-round game at 360 and 1440 (start, trade composer, each player mid-game, result).
 Snakes and Ladders / Ludo: `docs/evidence/race/*.png` — full games at 360 and 1440 (start, each player mid-game, result).
 Risk: `docs/evidence/risk/*.png` — three players at 360 and 1440 (start, after a blitz battle, after regular turns).
 Catan: `docs/evidence/catan/*.png` — three players at 360 and 1440 (start, each player's view after set-up and after regular turns).

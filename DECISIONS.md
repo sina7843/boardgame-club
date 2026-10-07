@@ -358,3 +358,23 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Timeouts play the minimum (forced trade, all armies on the most threatened own territory, minimum occupation, no
   attack, no fortify); three in a row or resigning leaves the seat `abandoned` (its territories stay, can be conquered).
 - Tutorial: two-seat fixed position, scripted dice, six steps to a majority win.
+
+## «املاک» — Monopoly-style property trading (2026-10-08, owner request)
+
+- Owner choices: Tehran streets and toman (original board, names and art; not the branded game), full trading,
+  official rules by default with house rules as table options, and both end conditions as an option.
+- Board: classic 40-square layout and economics (prices, rents, building costs, stations, utilities, taxes, 16 + 16
+  cards adapted to Persian); money in units of 1,000 toman (salary 200 = ۲۰۰ هزار تومان, start 1,500).
+- Rules: two server-rolled dice, doubles roll again, three doubles → jail; jail exits by doubles, bail (50), card, or
+  forced bail after the third failed roll; buy or auction (sequential ascending, seats from the current player; a
+  bidder must have the cash); rent doubles for a complete unimproved group (also if one is mortgaged); even building
+  and selling, 32 houses / 12 hotels; mortgage half price, unmortgage +10%; multi-party debts (birthday, chairman).
+- Simplifications: a debtor who could not pay even after selling and mortgaging everything is declared bankrupt
+  automatically; on bankruptcy to the bank properties return unowned (no auction of them); assets passed to a player
+  keep their mortgages without the 10% transfer fee; mortgaged property received in a trade costs the receiver 10%
+  interest at once (the trade is refused if they cannot pay). Building/trading happen on your own turn (before or after
+  rolling), not at any time. Selling a hotel needs 4 houses in the bank.
+- Options: gameLength (bankruptcy | 35 rounds | 20 rounds → highest net worth), auction (on | off), freeParking
+  jackpot (taxes and card fees), doubleGo (landing exactly on Go pays double).
+- Timeouts play passively (roll, decline, pass, reject trade, end turn; debts: sell buildings then mortgage, else
+  bankrupt); three in a row = bankrupt to the bank. Card deck order is never projected.

@@ -34,6 +34,7 @@
     "@bg/game-risk": "workspace:*",
     "@bg/game-chess": "workspace:*",
     "@bg/game-snakes-ladders": "workspace:*",
-    "@bg/game-ludo": "workspace:*"
+    "@bg/game-ludo": "workspace:*",
+    "@bg/game-amlak": "workspace:*"
   }
 }

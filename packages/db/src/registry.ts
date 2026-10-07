@@ -6,9 +6,10 @@ import { uno } from '@bg/game-uno';
 import { chess } from '@bg/game-chess';
 import { snakesLadders } from '@bg/game-snakes-ladders';
 import { ludo } from '@bg/game-ludo';
+import { amlak } from '@bg/game-amlak';
 import { unmatched } from '@bg/game-unmatched';
 import { catan } from '@bg/game-catan';
 import { risk } from '@bg/game-risk';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak];

@@ -91,10 +91,11 @@ export function SegmentedControl({ options, value, defaultValue, onChange, size 
             tabIndex={on ? 0 : -1}
             onClick={() => select(o.value)}
             className={cn(
-              "relative cursor-pointer rounded-control font-medium whitespace-nowrap transition-colors duration-(--motion) ease-motion",
+              // Long labels wrap inside their equal-width column instead of widening every column past the screen.
+              "relative min-w-0 cursor-pointer rounded-control font-medium whitespace-normal text-center leading-tight transition-colors duration-(--motion) ease-motion",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
               "disabled:cursor-not-allowed disabled:opacity-40",
-              size === "sm" ? "h-7 px-2.5 text-xs" : "h-8 px-3.5 text-sm",
+              size === "sm" ? "min-h-7 px-2.5 py-0.5 text-xs" : "min-h-8 px-3.5 py-1 text-sm",
               on ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
