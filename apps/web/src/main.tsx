@@ -1,8 +1,5 @@
-import '@fontsource-variable/estedad/index.css';
-import '@bg/ui/tokens.css';
-import '@bg/ui/components.css';
-import '@bg/ui/motion.css';
-import './styles.css';
+import '@fontsource-variable/vazirmatn/index.css';
+import './app.css';
 import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';

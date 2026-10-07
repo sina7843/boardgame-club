@@ -18,9 +18,8 @@ test('login → catalog → game detail', async ({ page }, info) => {
   await page.getByRole('button', { name: 'دریافت کد' }).click();
 
   await expect(page.getByText('حالت توسعه: پیامکی ارسال نشد')).toBeVisible();
-  await page.getByLabel('کد تأیید').fill('123456');
+  await page.getByRole('group', { name: 'کد تأیید' }).getByRole('textbox').first().fill('123456');
   await page.screenshot({ path: shot('02-otp', p), fullPage: true });
-  await page.getByRole('button', { name: 'ورود', exact: true }).click();
 
   await expect(page.getByRole('heading', { name: 'خوش آمدید' })).toBeVisible();
   await page.getByLabel('نام نمایشی').fill('مهره‌باز');

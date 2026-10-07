@@ -78,7 +78,7 @@
 .uno-wild__plus { position: relative; color: #fff; font-size: calc(var(--w) * 0.3); text-shadow: 0 0 6px #000, 2px 2px 0 #000; }
 
 /* Hand */
-.uno-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line);
+.uno-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border);
   position: sticky; inset-block-end: calc(var(--sp-2) + env(safe-area-inset-bottom)); z-index: 2; }
 .uno-hand__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
 .uno-hand__bar > strong { margin-inline-end: auto; }

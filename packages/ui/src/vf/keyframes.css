@@ -1,0 +1,32 @@
+/* Keyframes the VibeFarsi animations reference by name (from vibefarsi.ir's own stylesheet, MIT).
+   Global on purpose: components start them from inline styles, which a CSS tree-shaker cannot see. */
+@property --beam-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes badge-slide { 0% { transform: translate(var(--bx, -8px), 12px); } to { transform: translate(0); } }
+@keyframes beam { to { --beam-angle: 360deg; } }
+@keyframes bell-ring { 0%, to { transform: rotate(0); } 15% { transform: rotate(14deg); } 30% { transform: rotate(-10deg); } 45% { transform: rotate(6deg); } 60% { transform: rotate(-3deg); } 75% { transform: rotate(1deg); } }
+@keyframes confetti {
+  0% { opacity: 1; animation-timing-function: cubic-bezier(.15, .6, .4, 1); transform: translate(-50%) translate(0) rotate(0); }
+  40% { transform: translate(-50%, 0) translate(calc(var(--spread-x) * .7), var(--peak-y)) rotate(var(--rotate-mid)); opacity: 1; animation-timing-function: cubic-bezier(.6, 0, .9, .4); }
+  to { transform: translate(-50%, 0) translate(var(--spread-x), var(--fall-y)) rotate(var(--rotate)); opacity: 0; }
+}
+@keyframes digit-pop { 0% { opacity: 0; filter: blur(2px); transform: translate(calc(var(--pop-x, 0) * 8px), calc(var(--pop-y, 1) * 8px)); } to { opacity: 1; filter: blur(0); transform: translate(0); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes leak { 0% { opacity: .6; transform: translate(-30%) rotate(-12deg); } 50% { opacity: 1; transform: translate(20%) rotate(-12deg); } to { opacity: .6; transform: translate(-30%) rotate(-12deg); } }
+@keyframes pop { 0% { opacity: 0; transform: scale(.6); } 60% { opacity: 1; transform: scale(1.08); } to { transform: scale(1); } }
+@keyframes pulse-ring { 0% { opacity: .6; transform: scale(1); } to { opacity: 0; transform: scale(1.4); } }
+@keyframes pulse-soft { 0%, to { opacity: .55; } 50% { opacity: 1; } }
+@keyframes shimmer { 0% { background-position: 200%; } to { background-position: -200%; } }
+@keyframes shine { 0% { transform: translate(-120%) skew(-15deg); } 60%, to { transform: translate(220%) skew(-15deg); } }
+/* Enters from the inline-start edge; in RTL that edge is on the right. */
+@keyframes slide-in { 0% { opacity: 0; transform: translate(14px); } to { opacity: 1; transform: translate(0); } }
+@keyframes word-in { 0% { opacity: 0; filter: blur(4px); transform: translateY(.6em); } to { opacity: 1; filter: blur(0); transform: translateY(0); } }
+@keyframes error-shake {
+  0% { animation-timing-function: cubic-bezier(.36, .07, .19, .97); transform: translate(0); }
+  20% { animation-timing-function: cubic-bezier(.36, .07, .19, .97); transform: translate(8px); }
+  40% { animation-timing-function: cubic-bezier(.36, .07, .19, .97); transform: translate(-7px); }
+  60% { animation-timing-function: cubic-bezier(.36, .07, .19, .97); transform: translate(5px); }
+  80% { animation-timing-function: cubic-bezier(.36, .07, .19, .97); transform: translate(-3px); }
+  to { transform: translate(0); }
+}
+@keyframes fade-up { 0% { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes deal { from { opacity: 0; transform: translateY(-28px) rotate(var(--deal-r, -3deg)) scale(0.95); } }

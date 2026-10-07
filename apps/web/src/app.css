@@ -1,0 +1,101 @@
+@import "tailwindcss";
+@import "@bg/ui/theme.css";
+@import "@bg/ui/keyframes.css";
+@import "./styles.css";
+
+/* Tailwind scans these for class names (shared UI package and the game renderers live outside apps/web). */
+@source "../../../packages/ui/src";
+@source "../../../games";
+
+/* VibeFarsi token → utility mapping (https://vibefarsi.ir/docs, "نگاشت Tailwind"). */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-felt: var(--felt);
+  --color-felt-foreground: var(--felt-foreground);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-control: var(--shape-control);
+  --radius-field: var(--shape-field);
+  --radius-surface: var(--shape-surface);
+  --radius-overlay: var(--shape-overlay);
+  --border-width-line: var(--line);
+  --border-width-line-field: var(--line-field);
+  --color-field: var(--field);
+  --shadow-control: var(--depth-control);
+  --shadow-press: var(--depth-press);
+  --shadow-field: var(--depth-field);
+  --shadow-surface: var(--depth-surface);
+  --shadow-overlay: var(--depth-overlay);
+  --ease-motion: var(--motion-ease);
+  --font-display: var(--type-display);
+  --font-sans: var(--type-body);
+
+  /* Shared animations the VibeFarsi components reference (defined here; the registry does not ship them). */
+  /* Timings as on vibefarsi.ir; keyframes live in @bg/ui/keyframes.css. */
+  --animate-fade-up: fade-up 0.8s cubic-bezier(.16, 1, .3, 1) both;
+  --animate-slide-in: slide-in 0.6s cubic-bezier(.16, 1, .3, 1) both;
+  --animate-shine: shine 2.2s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-pop: pop 0.5s cubic-bezier(.16, 1, .3, 1) both;
+  --animate-deal: deal 560ms var(--motion-ease) both;
+}
+
+@layer base {
+  html { background: var(--background); color: var(--foreground); }
+  body {
+    font-size: 16.5px;
+    line-height: 1.8;
+    letter-spacing: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--type-body, inherit);
+    background-image: var(--backdrop, none);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--type-display, inherit);
+    font-weight: var(--type-display-weight, 700);
+    line-height: 1.25;
+    font-synthesis-weight: none;
+  }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  /* iOS Safari zooms into any focused field smaller than 16px; only iOS matches this query. */
+  @supports (-webkit-touch-callout: none) {
+    input, textarea, select { --text-xs: 1rem; --text-sm: 1rem; font-size: max(1rem, 1em); }
+  }
+  html, body, .bg-card, .bg-background, .bg-popover { transition: background-color var(--motion) ease, color var(--motion) ease; }
+}
+
+/* Reduced motion: no enter/loop animations, no transitions. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) *, :root:not([data-motion='full']) *::before, :root:not([data-motion='full']) *::after {
+    animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important;
+  }
+}
+:root[data-motion='reduce'] *, :root[data-motion='reduce'] *::before, :root[data-motion='reduce'] *::after {
+  animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important;
+}
+

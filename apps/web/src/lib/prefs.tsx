@@ -26,7 +26,7 @@ export function readPrefs(raw: string | null): Prefs {
 
 function apply(p: Prefs): void {
   const root = document.documentElement;
-  // "system": no data-theme, so tokens.css follows prefers-color-scheme live without JavaScript.
+  // "system": no data-theme, so theme.css follows prefers-color-scheme live without JavaScript.
   if (p.theme === 'system') delete root.dataset.theme;
   else root.dataset.theme = p.theme;
   if (p.motion === 'system') delete root.dataset.motion;

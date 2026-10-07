@@ -9,8 +9,7 @@ export async function signIn(page: Page, displayName: string, next = '/'): Promi
   await page.goto(`/login?next=${encodeURIComponent(next)}`);
   await page.getByLabel('شماره موبایل').fill(mobile);
   await page.getByRole('button', { name: 'دریافت کد' }).click();
-  await page.getByLabel('کد تأیید').fill('123456');
-  await page.getByRole('button', { name: 'ورود', exact: true }).click();
+  await page.getByRole('group', { name: 'کد تأیید' }).getByRole('textbox').first().fill('123456');
   await expect(page.getByRole('heading', { name: 'خوش آمدید' })).toBeVisible();
   await page.getByLabel('نام نمایشی').fill(displayName);
   await page.getByRole('button', { name: 'ذخیره و ادامه' }).click();
@@ -20,12 +19,12 @@ export async function signIn(page: Page, displayName: string, next = '/'): Promi
 
 /** A separate browser context = an independent client with its own session cookie. */
 export async function newPage(browser: Browser, viewport: { width: number; height: number } | null) {
-  const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', baseURL: 'http://127.0.0.1:5173' });
+  const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: 'http://127.0.0.1:5173' });
   return ctx.newPage();
 }
 
 export async function player(browser: Browser, viewport: { width: number; height: number } | null, name: string) {
-  const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', baseURL: 'http://127.0.0.1:5173' });
+  const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: 'http://127.0.0.1:5173' });
   const page = await ctx.newPage();
   await signIn(page, name);
   return page;

@@ -193,6 +193,21 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Card faces are original vector designs (no bitmap assets); every face carries the colour's Persian initial and a
   spoken label so colour is never the only signal.
 
+## VibeFarsi Anar redesign (2026-10-07, owner request) — supersedes the cobalt café entry below
+
+- Source: VibeFarsi registry and MCP (vibefarsi.ir, MIT). Design language "Anar": clay depth shadows, pill controls,
+  16px fields, 28px surfaces, 420ms spring motion, Vazirmatn (display 800). Registry files are vendored, not fetched at
+  runtime; header comment in each file names the source.
+- Colors are the owner's override of the MCP palette: "classy game café" — felt green primary (#21563e light,
+  #5cbf8c dark), brass accent (#8a5d10 / #dcab4f), warm sage paper backgrounds. Tokens live in
+  `packages/ui/src/theme.css`; `apps/web/scripts/contrast.mjs` measures them.
+- Tailwind CSS v4 (`@tailwindcss/vite`) added for the vendored components; page classes in `styles.css` live in
+  `@layer components` so utilities win.
+- Prices are stored in Rial (what Zarinpal charges) and displayed in Toman (Rial / 10).
+- E2E contexts run with `reducedMotion: 'reduce'` so screenshots show settled UI; the reduced-motion path is thereby
+  covered too.
+- VibeFarsi `cn` has no tailwind-merge; conflicting overrides use Tailwind's `!` modifier.
+
 ## Visual redesign "board-game café" (2026-10-07, owner request)
 
 - Owner choices: café mood, theme follows the device, cobalt accent, Estedad font.

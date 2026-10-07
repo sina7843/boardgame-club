@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { TableSnapshot } from '@bg/contracts';
-import { Badge, Button, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, useToast } from '@bg/ui';
+import { Medal, Trophy } from 'lucide-react';
+import { Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
@@ -137,14 +138,21 @@ function ResultPanel({ snap }: { snap: TableSnapshot }) {
   const name = seatNameOf(t);
   const mine = r.placements.find((p) => p.seat === t.mySeat);
   const headline = t.isTutorial ? 'آموزش کامل شد' : !mine ? 'بازی تمام شد' : mine.place === 1 ? (r.placements.filter((p) => p.place === 1).length > 1 ? 'مساوی شد' : 'شما بردید') : 'این دست را باختید';
+  const won = !t.isTutorial && headline === 'شما بردید';
   return (
-    <section className="panel stack result" aria-labelledby="res-h">
-      <h2 id="res-h" className="page-title" style={{ fontSize: 'var(--fs-xl)' }}>{headline}</h2>
+    <section className={cn('panel stack result relative isolate overflow-hidden animate-fade-up', won && 'ring-2 ring-brand')} aria-labelledby="res-h">
+      {won && <Confetti count={80} colors={['var(--brand)', 'var(--primary)', '#e9c46a', '#d1495b', '#3d8bd4']} />}
+      <div className="flex items-center gap-3">
+        <span className={cn('flex size-12 shrink-0 items-center justify-center rounded-field shadow-control animate-pop', won ? 'bg-brand text-brand-foreground' : 'bg-secondary text-muted-foreground')}>
+          {won ? <Trophy className="size-6" aria-hidden /> : <Medal className="size-6" aria-hidden />}
+        </span>
+        <h2 id="res-h" className="page-title" style={{ fontSize: 'var(--fs-xl)' }}>{headline}</h2>
+      </div>
       <p className="muted" style={{ margin: 0 }}>علت پایان: {REASON_FA[r.reason] ?? r.reason}</p>
       {snap.game?.tutorial && <p style={{ margin: 0 }}>{snap.game.tutorial.instructionFa}</p>}
       <ol className="placements">
         {[...r.placements].sort((a, b) => a.place - b.place).map((p) => (
-          <li key={p.seat}><span className="num">{faNum(p.place)}.</span> <bdi>{name(p.seat)}</bdi>{p.seat === t.mySeat ? ' (شما)' : ''}{p.score !== undefined ? `، ${faNum(p.score)} امتیاز` : ''}</li>
+          <li key={p.seat} className={cn(p.seat === t.mySeat && 'font-bold')}><span className={cn('num inline-flex size-7 items-center justify-center rounded-full text-xs', p.place === 1 ? 'bg-brand text-brand-foreground' : 'bg-secondary')}>{faNum(p.place)}</span><span><bdi>{name(p.seat)}</bdi>{p.seat === t.mySeat ? ' (شما)' : ''}{p.score !== undefined ? `، ${faNum(p.score)} امتیاز` : ''}</span></li>
         ))}
       </ol>
       {t.mySeat !== null && <RewardsSummary tableId={t.id} isTutorial={t.isTutorial} />}

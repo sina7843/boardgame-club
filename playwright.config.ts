@@ -24,7 +24,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
-  use: { baseURL: 'http://127.0.0.1:5173', locale: 'fa-IR', timezoneId: 'Asia/Tehran', trace: 'retain-on-failure' },
+  use: { baseURL: 'http://127.0.0.1:5173', locale: 'fa-IR', timezoneId: 'Asia/Tehran', trace: 'retain-on-failure', contextOptions: { reducedMotion: 'reduce' } },
   projects: [
     { name: 'mobile-360', use: { ...devices['Pixel 7'], viewport: { width: 360, height: 780 } } },
     { name: 'tablet-768', testIgnore: /(play|social|progress)\.spec/, use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 }, hasTouch: true } },

@@ -2,7 +2,7 @@
 //   node apps/web/scripts/contrast.mjs
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('../../../packages/ui/src/tokens.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../../packages/ui/src/theme.css', import.meta.url), 'utf8');
 const block = (selector) => {
   const start = css.indexOf(selector);
   const body = css.slice(css.indexOf('{', start) + 1, css.indexOf('}', start));
@@ -19,10 +19,11 @@ const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
 
 // [foreground, background, minimum]
 const PAIRS = [
-  ['text', 'bg', 7], ['text', 'surface', 7], ['text', 'surface-2', 7], ['text-2', 'surface', 4.5], ['text-2', 'surface-2', 4.5], ['text-2', 'bg', 4.5],
-  ['on-action', 'action', 4.5], ['on-action', 'action-hover', 4.5], ['link', 'surface', 4.5], ['link', 'bg', 4.5], ['brand', 'surface', 3],
-  ['focus', 'bg', 3], ['gold', 'surface', 4.5], ['success', 'surface', 4.5], ['warning', 'surface', 4.5], ['danger', 'surface', 4.5],
-  ['wood-text', 'wood', 7], ['wood-text-2', 'wood', 4.5], ['wood-text-2', 'wood-dark', 4.5], ['felt-text', 'table-felt', 4.5], ['line', 'surface', 1.2]
+  ['foreground', 'background', 7], ['foreground', 'card', 7], ['foreground', 'secondary', 7], ['foreground', 'popover', 7],
+  ['muted-foreground', 'card', 4.5], ['muted-foreground', 'background', 4.5], ['muted-foreground', 'secondary', 4.5], ['muted-foreground', 'muted', 4.5],
+  ['primary-foreground', 'primary', 4.5], ['brand-foreground', 'brand', 4.5], ['primary', 'card', 4.5], ['primary', 'background', 4.5],
+  ['brand', 'card', 4.5], ['ring', 'background', 3], ['destructive', 'card', 4.5], ['destructive-foreground', 'destructive', 4.5],
+  ['success', 'card', 4.5], ['warning', 'card', 4.5], ['felt-foreground', 'felt', 4.5]
 ];
 
 let failed = 0;

@@ -1,5 +1,18 @@
 # Implementation status
 
+## VibeFarsi "Anar" redesign (2026-10-07): DONE locally — real devices UNVERIFIED
+
+Whole site moved to the VibeFarsi Anar (pomegranate) design language with an owner-requested custom café palette
+(felt green + brass); Tailwind v4, Vazirmatn, lucide icons, 58 VibeFarsi registry files vendored under
+`packages/ui/src/vf/` (MIT) and VibeFarsi's own keyframes. Hand-redesigned: shell (girih background, clay sidebar,
+floating mobile dock), login (step dots, +98 phone field, six-cell OTP with paste/SMS autofill, error shake),
+dashboard (felt hero), plans (Toman prices, featured plan), payment result (success check + confetti), table result
+(winner confetti, podium). Every other page inherits the language through the rewritten shared components and
+`apps/web/src/styles.css`.
+Checks run: lint clean (2 upstream VibeFarsi hook warnings); typecheck clean; build OK; contrast script 0 failures;
+unit/integration 175 passed; E2E 52 passed, 10 skipped by design (includes axe light at 4 widths, axe dark).
+Supersedes the cobalt/Estedad café redesign below.
+
 ## Visual redesign "board-game café" (2026-10-07): DONE locally — real devices UNVERIFIED
 
 New tokens (light/dark following the device), Estedad, walnut navigation, felt and card-stock materials, pill controls.

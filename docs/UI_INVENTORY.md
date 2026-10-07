@@ -95,6 +95,7 @@ incident; moderator queue with audit filters.
 UNO: `docs/evidence/uno/*.png` — three-player hand at 360 and 1440 (start, each player's own view mid-game, result).
 
 Redesign (café): `docs/evidence/redesign/*-dark-*.png` — dark theme at 360 and 1440 (catalog, detail, dashboard, quick match, progress, settings); light theme in phase-04 screenshots.
+Redesign (VibeFarsi Anar): light screenshots in `docs/evidence/phase-04/screenshots/` and `docs/evidence/phase-00/` (login, OTP); dark in `docs/evidence/redesign/`.
 
 Devices actually tested: desktop Chromium (Playwright 1.63) with emulated viewports only. **Safari iOS and real
 Android Chrome: UNVERIFIED** — no devices were available; viewport emulation is not counted as a device test.

@@ -1,0 +1,161 @@
+/* Design system: VibeFarsi «انار» (pomegranate) design LANGUAGE — claymorphism: puffy layered shadows, pill controls,
+   16px fields, 28px cards, recessed fields, sinking press, spring motion — with an owner-chosen game-café PALETTE:
+   bottle-green felt (primary), brass (brand accent), sage-stone and card stock (surfaces).
+   Light = lounge by day, dark = lounge at night; follows the device unless the player picks one.
+   Contrast is measured by apps/web/scripts/contrast.mjs (fails below WCAG AA). Hex values on purpose (measurable). */
+:root {
+  color-scheme: light;
+  --background: #eef1ea;
+  --foreground: #1c2a23;
+  --card: #fbfcf8;
+  --card-foreground: #1c2a23;
+  --popover: #ffffff;
+  --popover-foreground: #1c2a23;
+  --primary: #21563e;
+  --primary-foreground: #f6faf3;
+  --secondary: #e0e7da;
+  --secondary-foreground: #1c2a23;
+  --muted: #e5eadf;
+  --muted-foreground: #4f5d55;
+  --accent: #dbe5d4;
+  --accent-foreground: #1c2a23;
+  --destructive: #b8322a;
+  --destructive-foreground: #ffffff;
+  --success: #24744a;
+  --warning: #8a5a00;
+  --border: rgb(28 42 35 / 10%);
+  --input: rgb(28 42 35 / 14%);
+  --ring: #21563e;
+  --brand: #8a5d10;
+  --brand-foreground: #ffffff;
+  --felt: #285e46;
+  --felt-foreground: #f2f7f0;
+
+  /* Language (from «انار», recoloured to the café hue) */
+  --radius: 1.25rem;
+  --type-body: "Vazirmatn Variable", "Vazirmatn", "IRANSans", Tahoma, sans-serif;
+  --type-display: "Vazirmatn Variable", "Vazirmatn", "IRANSans", Tahoma, sans-serif;
+  --type-display-weight: 800;
+  --shape-control: 999px;
+  --shape-field: 1rem;
+  --shape-surface: 1.75rem;
+  --shape-overlay: 1.5rem;
+  --line: 1px;
+  --line-field: 1px;
+  --line-style: solid;
+  --field: var(--card);
+  --depth-control: inset 0 -3px 0 0 rgb(12 32 22 / 18%), inset 0 2px 0 0 rgb(255 255 255 / 30%), 0 10px 20px -10px rgb(20 70 46 / 55%);
+  --depth-press: inset 0 2px 5px 0 rgb(12 32 22 / 24%);
+  --depth-field: inset 0 2px 5px 0 rgb(20 50 35 / 9%);
+  --depth-surface: inset 0 2px 0 0 rgb(255 255 255 / 80%), inset 0 -4px 10px 0 rgb(30 80 55 / 7%), 0 24px 44px -24px rgb(25 70 48 / 38%);
+  --depth-overlay: inset 0 2px 0 0 rgb(255 255 255 / 80%), 0 30px 60px -22px rgb(25 70 48 / 42%);
+  --surface-filter: none;
+  --press: scale(0.95);
+  --motion: 420ms;
+  --motion-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --backdrop: none;
+  --spacing: 0.275rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --background: #111a15;
+    --foreground: #eef3ec;
+    --card: #1a251f;
+    --card-foreground: #eef3ec;
+    --popover: #1f2c25;
+    --popover-foreground: #eef3ec;
+    --primary: #5cbf8c;
+    --primary-foreground: #0b1a11;
+    --secondary: #24332b;
+    --secondary-foreground: #eef3ec;
+    --muted: #1f2c25;
+    --muted-foreground: #aebcb3;
+    --accent: #2a3a31;
+    --accent-foreground: #eef3ec;
+    --destructive: #ff7f73;
+    --destructive-foreground: #1d0a07;
+    --success: #5fd39b;
+    --warning: #f0b955;
+    --border: rgb(238 243 236 / 11%);
+    --input: rgb(238 243 236 / 16%);
+    --ring: #5cbf8c;
+    --brand: #dcab4f;
+    --brand-foreground: #1d1406;
+    --felt: #1d4836;
+    --felt-foreground: #eef4ef;
+    --depth-control: inset 0 -3px 0 0 rgb(0 0 0 / 28%), inset 0 2px 0 0 rgb(255 255 255 / 18%), 0 10px 22px -10px rgb(0 0 0 / 70%);
+    --depth-press: inset 0 2px 6px 0 rgb(0 0 0 / 45%);
+    --depth-field: inset 0 2px 6px 0 rgb(0 0 0 / 30%);
+    --depth-surface: inset 0 1px 0 0 rgb(255 255 255 / 7%), inset 0 -4px 10px 0 rgb(0 0 0 / 18%), 0 24px 44px -24px rgb(0 0 0 / 75%);
+    --depth-overlay: inset 0 1px 0 0 rgb(255 255 255 / 8%), 0 30px 60px -22px rgb(0 0 0 / 80%);
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #111a15;
+  --foreground: #eef3ec;
+  --card: #1a251f;
+  --card-foreground: #eef3ec;
+  --popover: #1f2c25;
+  --popover-foreground: #eef3ec;
+  --primary: #5cbf8c;
+  --primary-foreground: #0b1a11;
+  --secondary: #24332b;
+  --secondary-foreground: #eef3ec;
+  --muted: #1f2c25;
+  --muted-foreground: #aebcb3;
+  --accent: #2a3a31;
+  --accent-foreground: #eef3ec;
+  --destructive: #ff7f73;
+  --destructive-foreground: #1d0a07;
+  --success: #5fd39b;
+  --warning: #f0b955;
+  --border: rgb(238 243 236 / 11%);
+  --input: rgb(238 243 236 / 16%);
+  --ring: #5cbf8c;
+  --brand: #dcab4f;
+  --brand-foreground: #1d1406;
+  --felt: #1d4836;
+  --felt-foreground: #eef4ef;
+  --depth-control: inset 0 -3px 0 0 rgb(0 0 0 / 28%), inset 0 2px 0 0 rgb(255 255 255 / 18%), 0 10px 22px -10px rgb(0 0 0 / 70%);
+  --depth-press: inset 0 2px 6px 0 rgb(0 0 0 / 45%);
+  --depth-field: inset 0 2px 6px 0 rgb(0 0 0 / 30%);
+  --depth-surface: inset 0 1px 0 0 rgb(255 255 255 / 7%), inset 0 -4px 10px 0 rgb(0 0 0 / 18%), 0 24px 44px -24px rgb(0 0 0 / 75%);
+  --depth-overlay: inset 0 1px 0 0 rgb(255 255 255 / 8%), 0 30px 60px -22px rgb(0 0 0 / 80%);
+}
+
+:root[data-motion='reduce'] { --motion: 0ms; }
+@media (prefers-reduced-motion: reduce) { :root:not([data-motion='full']) { --motion: 0ms; } }
+
+/* Legacy token names used by not-yet-migrated CSS and the game renderers: point them at the new system. */
+:root {
+  --bg: var(--background);
+  --surface: var(--card);
+  --surface-2: var(--secondary);
+  --surface-raised: var(--popover);
+  --text: var(--foreground);
+  --text-2: var(--muted-foreground);
+  --link: var(--primary);
+  --action: var(--primary);
+  --action-hover: color-mix(in srgb, var(--primary) 88%, black);
+  --on-action: var(--primary-foreground);
+  --gold: var(--brand);
+  --danger: var(--destructive);
+  --focus: var(--ring);
+  --table-felt: var(--felt);
+  --felt-text: var(--felt-foreground);
+  --wood: var(--primary);
+  --wood-text: var(--primary-foreground);
+  --shadow: var(--depth-surface);
+  --shadow-lift: var(--depth-overlay);
+  --font: var(--type-body);
+  --r-sm: 0.75rem; --r-md: var(--shape-field); --r-lg: var(--shape-surface); --r-pill: var(--shape-control);
+  --dur-fast: 160ms; --dur: 240ms; --dur-slow: var(--motion); --ease: var(--motion-ease);
+  --fs-xs: 0.75rem; --fs-sm: 0.875rem; --fs-md: 1rem; --fs-lg: 1.25rem; --fs-xl: 1.625rem; --fs-2xl: 2rem;
+  --lh: 1.8;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --touch: 44px;
+  --nav-w: 264px;
+}
