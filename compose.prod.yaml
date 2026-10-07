@@ -3,8 +3,8 @@
 #   docker compose -f compose.prod.yaml build
 #   docker compose -f compose.prod.yaml up -d
 # PostgreSQL has no published port and sits on an internal-only network.
-# NOTE: NODE_ENV=production refuses to start while OTP_PROVIDER has only the development fixture
-# (real SMS adapter is an open release blocker) — this is intentional fail-closed behaviour.
+# Production needs real providers: OTP_PROVIDER=kavenegar (+ key and template) and, for paid plans,
+# PAYMENT_PROVIDER=zarinpal (+ merchant id, no sandbox). The API refuses development fixtures (fail-closed).
 name: boardgame
 
 x-hardening: &hardening
@@ -23,6 +23,8 @@ x-server-env: &server-env
   WEB_ORIGINS: ${WEB_ORIGINS:?set WEB_ORIGINS (https origin of the site)}
   PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-}
   PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-none}
+  ZARINPAL_MERCHANT_ID: ${ZARINPAL_MERCHANT_ID:-}
+  ZARINPAL_SANDBOX: ${ZARINPAL_SANDBOX:-false}
   LOG_LEVEL: ${LOG_LEVEL:-info}
 
 services:
@@ -71,6 +73,8 @@ services:
       OTP_HASH_SECRET: ${OTP_HASH_SECRET:?OTP_HASH_SECRET must come from the secret store}
       OTP_PROVIDER: ${OTP_PROVIDER:?set OTP_PROVIDER}
       OTP_FIXTURE_CODE: ${OTP_FIXTURE_CODE:-}
+      KAVENEGAR_API_KEY: ${KAVENEGAR_API_KEY:-}
+      KAVENEGAR_VERIFY_TEMPLATE: ${KAVENEGAR_VERIFY_TEMPLATE:-}
       OTP_REQUESTS_PER_IP_PER_10_MIN: ${OTP_REQUESTS_PER_IP_PER_10_MIN:-10}
       METRICS_TOKEN: ${METRICS_TOKEN:-}
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}

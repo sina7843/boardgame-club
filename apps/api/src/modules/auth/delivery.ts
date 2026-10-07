@@ -1,4 +1,5 @@
 import type { Config } from '../../config.ts';
+import { kavenegarDelivery } from './kavenegar.ts';
 
 /** Boundary for SMS providers. A real provider adapter is required before production (see DECISIONS.md). */
 export interface OtpDelivery {
@@ -22,5 +23,6 @@ export function createDelivery(config: Config): OtpDelivery {
     if (config.isProd || !config.otp.fixtureCode) throw new Error('OTP fixture provider is not allowed here');
     return fixtureDelivery(config.otp.fixtureCode);
   }
+  if (config.otp.provider === 'kavenegar' && config.otp.kavenegar) return kavenegarDelivery(config.otp.kavenegar);
   throw new Error(`Unknown OTP provider ${String(config.otp.provider)}`);
 }

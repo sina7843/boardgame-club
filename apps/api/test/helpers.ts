@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { createDb, schema, seed, type Db } from '@bg/db';
 import { createDefaultRegistry, type GameRegistry } from '@bg/game-engine';
-import { defaultMatchConfig, type MatchConfig } from '@bg/play';
+import { defaultMatchConfig, type BillingConfig, type MatchConfig } from '@bg/play';
 import { billingFor, buildApp } from '../src/app.ts';
 import { loadConfig } from '../src/config.ts';
 import { fixtureDelivery } from '../src/modules/auth/delivery.ts';
@@ -27,12 +27,12 @@ export const testConfig = (overrides: Record<string, string> = {}) => loadConfig
 
 export interface TestCtx { app: FastifyInstance; db: Db; close: () => Promise<void>; logs: string[] }
 
-export async function setup(overrides: Record<string, string> = {}, registry: GameRegistry = createDefaultRegistry(), opts: { reset?: boolean; match?: MatchConfig } = {}): Promise<TestCtx> {
+export async function setup(overrides: Record<string, string> = {}, registry: GameRegistry = createDefaultRegistry(), opts: { reset?: boolean; match?: MatchConfig; billing?: (db: Db) => BillingConfig } = {}): Promise<TestCtx> {
   const config = testConfig(overrides);
   const { db, close } = createDb(TEST_DATABASE_URL, { max: 5 });
   if (opts.reset !== false) await resetData(db);
   const logs: string[] = [];
-  const app = await buildApp({ config, db, delivery: fixtureDelivery(FIXTURE_CODE), registry, play: config.play, match: opts.match ?? defaultMatchConfig, billing: billingFor(config, db) },
+  const app = await buildApp({ config, db, delivery: fixtureDelivery(FIXTURE_CODE), registry, play: config.play, match: opts.match ?? defaultMatchConfig, billing: opts.billing ? opts.billing(db) : billingFor(config, db) },
     { logStream: { write: (m: string) => { logs.push(m); } } });
   await app.ready();
   return { app, db, logs, close: async () => { await app.close(); await close(); } };

@@ -207,3 +207,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Visible em/en dashes replaced with Persian punctuation per the design brief.
 - `docs/DESIGN_SYSTEM.md` is a protected source document and was not edited; this entry and the tokens file are
   the current reference.
+
+## Real providers: Kavenegar and Zarinpal (2026-10-07, owner choice)
+
+- Implemented from the VibeFarsi registry guides (`kavenegar-otp`, `zarinpal-payment`) behind the existing
+  `OtpDelivery` and `PaymentGateway` boundaries; no SDK dependency, plain `fetch` with a 10 s timeout.
+- Kavenegar: Verify Lookup with an approved template; logical errors arrive inside `return.status` (often HTTP 200)
+  and are treated as delivery failures. The API key sits in the URL path, so URLs never reach logs or error text.
+- Zarinpal: amounts stay in Rial end to end (our storage unit and Zarinpal's API unit; no Toman conversion).
+  Callback `/api/payments/callback/zarinpal?Authority&Status`: NOK fails the payment without a verify call; OK verifies.
+  Verify codes 100/101 are paid (101 = duplicate, idempotent), -50/-54/-55 are final failures, and **-51 stays pending**
+  because Zarinpal also returns it for an unfinished payment (reconciliation runs while buyers may still be paying);
+  abandoned payments expire after the 30-minute TTL.
+- Production refuses `ZARINPAL_SANDBOX=true`. Merchant ids are validated by shape, not RFC UUID rules (Zarinpal ids
+  are not guaranteed RFC-valid).

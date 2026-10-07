@@ -7,8 +7,8 @@ where it matters; **LIMIT** = deliberate bound of this delivery.
 
 | Item | Status | What is needed |
 |---|---|---|
-| SMS / OTP provider | BLOCKED | Only the development fixture exists; production refuses to start with it. Choose a provider, implement the `OtpDelivery` adapter, test delivery, rate limits and costs. |
-| Payment gateway | BLOCKED | Only the labelled development fake gateway exists (refused in production). Real gateway adapter, merchant credentials, sandbox + real-money test, reconciliation with the provider's API. |
+| SMS / OTP provider | IMPLEMENTED — needs credentials | Kavenegar Verify Lookup adapter (`OTP_PROVIDER=kavenegar`), tested against a scripted network stand-in only. Needs an API key, an approved template, and one real SMS sent to confirm delivery and cost. |
+| Payment gateway | IMPLEMENTED — needs credentials | Zarinpal REST v4 adapter (`PAYMENT_PROVIDER=zarinpal`): request, StartPay redirect, callback OK/NOK, server verify (100/101), reconciliation. Tested end to end through the API against a scripted stand-in only. Needs a merchant id, a sandbox run, then one low-value real payment. |
 | Prices and plans | BLOCKED (owner) | Plans are seeded inactive with no price; an admin must set approved prices. Currency is stored in Rial; Toman display is a product decision. |
 | Hosting, domain, TLS | BLOCKED (owner) | No target environment exists. Deployment is documented (Compose / optional Coolify) but not performed. |
 | Off-host backup storage | BLOCKED (owner) | Encrypted WAL archive works locally; it must be synced to independent storage, and the private backup key needs named custodians. RPO/RTO must be re-measured there. |

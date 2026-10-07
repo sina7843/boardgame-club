@@ -6,7 +6,7 @@ import swagger from '@fastify/swagger';
 import { jsonSchemaTransform, serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import type { Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
-import { fakeGateway, type BillingConfig, type MatchConfig, type PlayConfig } from '@bg/play';
+import { fakeGateway, zarinpalGateway, type BillingConfig, type MatchConfig, type PlayConfig } from '@bg/play';
 import type { Config } from './config.ts';
 import { AppError, registerErrorHandling } from './http/errors.ts';
 import { registerOriginGuard } from './http/origin-guard.ts';
@@ -40,7 +40,10 @@ export interface Deps {
  * provider adapter, credentials and approved prices exist (recorded blocker). */
 export function billingFor(config: Config, db: Db): BillingConfig {
   const web = config.payments.publicWebUrl;
-  const gateway = config.payments.provider === 'fake' && !config.isProd ? fakeGateway(db, web) : null;
+  const zp = config.payments.zarinpal;
+  const gateway = config.payments.provider === 'fake' && !config.isProd ? fakeGateway(db, web)
+    : zp ? zarinpalGateway({ ...zp, callbackUrl: `${web}/api/payments/callback/zarinpal` })
+      : null;
   return {
     gateway,
     unavailableReasonFa: gateway ? null : 'درگاه پرداخت واقعی هنوز انتخاب و پیکربندی نشده است؛ خرید اشتراک غیرفعال است.',

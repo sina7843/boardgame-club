@@ -8,3 +8,4 @@ export * from './rating.ts';
 export * from './progression.ts';
 export * from './billing.ts';
 export * from './game-settings.ts';
+export * from './zarinpal.ts';

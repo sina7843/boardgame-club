@@ -93,7 +93,7 @@ export type VerifyOutcome = 'verified' | 'already_verified' | 'pending' | 'faile
  * Idempotent: the payment row is locked; a verified payment is never processed again; a provider reference can be
  * used once (unique index). Amount and currency must match the order exactly.
  */
-export async function verifyPayment(db: Db, cfg: BillingConfig, ref: { provider: string; authority: string; via: 'callback' | 'reconcile' | 'user' }): Promise<{ outcome: VerifyOutcome; orderId?: string }> {
+export async function verifyPayment(db: Db, cfg: BillingConfig, ref: { provider: string; authority: string; via: 'callback' | 'reconcile' | 'user'; payerCancelled?: boolean }): Promise<{ outcome: VerifyOutcome; orderId?: string }> {
   const gateway = cfg.gateway;
   return db.transaction(async (tx) => {
     const [p] = await tx.select().from(payments).where(and(eq(payments.provider, ref.provider), eq(payments.authority, ref.authority))).for('update');
@@ -101,6 +101,14 @@ export async function verifyPayment(db: Db, cfg: BillingConfig, ref: { provider:
     if (!p || !gateway || gateway.id !== ref.provider) { await log('unknown'); return { outcome: 'unknown' as const }; }
     if (p.status === 'verified') { await log('duplicate'); return { outcome: 'already_verified' as const, orderId: p.orderId }; }
     if (p.status === 'failed' || p.status === 'expired') { await log('ignored_final', { status: p.status }); return { outcome: p.status, orderId: p.orderId }; }
+
+    const fail = async (reason: string, detail: object = {}) => {
+      await tx.update(payments).set({ status: 'failed', failureReason: reason, updatedAt: sql`now()` }).where(eq(payments.id, p.id));
+      await log('failed', { reason, ...detail });
+      return { outcome: 'failed' as const, orderId: p.orderId };
+    };
+    // The gateway told the buyer's browser the payment was cancelled (e.g. Zarinpal Status=NOK): nothing to verify.
+    if (ref.payerCancelled) return fail('CANCELLED_BY_PAYER');
 
     const v = await gateway.verify({ authority: ref.authority, amount: p.amount });
     if (v.status === 'pending') {
@@ -112,11 +120,6 @@ export async function verifyPayment(db: Db, cfg: BillingConfig, ref: { provider:
       await log('pending');
       return { outcome: 'pending' as const, orderId: p.orderId };
     }
-    const fail = async (reason: string, detail: object = {}) => {
-      await tx.update(payments).set({ status: 'failed', failureReason: reason, updatedAt: sql`now()` }).where(eq(payments.id, p.id));
-      await log('failed', { reason, ...detail });
-      return { outcome: 'failed' as const, orderId: p.orderId };
-    };
     if (v.status === 'failed') return fail(v.reason);
     if (v.paidAmount !== p.amount) return fail('AMOUNT_MISMATCH', { expected: p.amount, paid: v.paidAmount });
     const [dup] = await tx.select({ id: payments.id }).from(payments).where(and(eq(payments.provider, p.provider), eq(payments.providerRef, v.refId)));

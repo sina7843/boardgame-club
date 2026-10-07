@@ -4,9 +4,8 @@ Production-shaped stack: `docker/Dockerfile` (targets `api`, `worker`, `migrate`
 (PostgreSQL + encrypted archiving), `docker/Caddyfile`, `compose.prod.yaml`. Nothing has been deployed to a real
 host; hosting, domain and providers are owner decisions.
 
-> **Production currently refuses to start**: `NODE_ENV=production` rejects the development OTP fixture and the fake
-> payment gateway. A real SMS adapter (and, for paid plans, a real gateway) must be implemented first. This is
-> intentional fail-closed behaviour, not a bug.
+> **Production needs real providers**: `NODE_ENV=production` rejects the development OTP fixture, the fake payment
+> gateway and the Zarinpal sandbox. Configure Kavenegar (SMS) and, for paid plans, Zarinpal before starting.
 
 ## Images
 
@@ -33,8 +32,10 @@ port. `api` and `worker` also join `edge` for outbound provider calls.
 | `WEB_ORIGINS` | api, worker | yes | comma list; **https only** in production (CSRF + socket origin check) |
 | `PUBLIC_WEB_URL` | api | no | defaults to first origin; used for payment return URLs |
 | `OTP_HASH_SECRET` | api | yes | ≥ 32 chars, secret |
-| `OTP_PROVIDER` | api | yes | only `fixture` exists today → production refuses it (blocker) |
-| `PAYMENT_PROVIDER` | api, worker | no | `none` (default, checkout disabled) or `fake` (refused in production) |
+| `OTP_PROVIDER` | api | yes | `kavenegar` in production (`fixture` is refused there) |
+| `KAVENEGAR_API_KEY`, `KAVENEGAR_VERIFY_TEMPLATE` | api | with kavenegar | secret key + approved Verify Lookup template name |
+| `PAYMENT_PROVIDER` | api, worker | no | `none` (checkout disabled), `zarinpal`, or `fake` (refused in production) |
+| `ZARINPAL_MERCHANT_ID`, `ZARINPAL_SANDBOX` | api, worker | with zarinpal | secret merchant id; sandbox `true` only outside production. Callback: `https://<site>/api/payments/callback/zarinpal` |
 | `METRICS_TOKEN` | api | recommended | ≥ 24 chars; without it `/api/metrics` is disabled in production |
 | `TURN_TABLE_LIMIT`, `TURN_TABLE_LIMIT_PREMIUM` | api | no | 10 / 30 |
 | `SITE_ADDRESS` | web | no | `:8080` (behind a TLS proxy, default) or a domain → Caddy obtains certificates itself (publish 80/443) |

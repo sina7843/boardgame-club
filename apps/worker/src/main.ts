@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { z } from 'zod';
 import { createDb } from '@bg/db';
 import { createDefaultRegistry } from '@bg/game-engine';
-import { defaultMatchConfig, expireSubscriptions, fakeGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, type BillingConfig } from '@bg/play';
+import { defaultMatchConfig, expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, type BillingConfig } from '@bg/play';
 import { runMaintenance } from './maintenance.ts';
 
 const env = z.object({
@@ -12,9 +12,12 @@ const env = z.object({
   /** Optional liveness endpoint (GET /health) for orchestrators and E2E runs. */
   WORKER_HEALTH_PORT: z.coerce.number().int().min(1).max(65535).optional(),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PAYMENT_PROVIDER: z.enum(['none', 'fake']).default('none'),
-  WEB_ORIGINS: z.string().default('http://localhost:5173')
-}).parse(process.env);
+  PAYMENT_PROVIDER: z.enum(['none', 'fake', 'zarinpal']).default('none'),
+  ZARINPAL_MERCHANT_ID: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'must be a 36-character merchant id').optional(),
+  ZARINPAL_SANDBOX: z.enum(['true', 'false']).default('false'),
+  WEB_ORIGINS: z.string().default('http://localhost:5173'),
+  PUBLIC_WEB_URL: z.url().optional()
+}).parse(Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== '')));
 
 const { db, close } = createDb(env.DATABASE_URL, { max: 4 });
 const registry = createDefaultRegistry();
@@ -22,9 +25,15 @@ if (env.NODE_ENV === 'production' && env.PAYMENT_PROVIDER === 'fake') {
   console.error('Refusing to start: PAYMENT_PROVIDER=fake is development-only.');
   process.exit(1);
 }
-const web = env.WEB_ORIGINS.split(',')[0]!.trim();
+if (env.PAYMENT_PROVIDER === 'zarinpal' && (!env.ZARINPAL_MERCHANT_ID || (env.NODE_ENV === 'production' && env.ZARINPAL_SANDBOX === 'true'))) {
+  console.error('Refusing to start: PAYMENT_PROVIDER=zarinpal needs ZARINPAL_MERCHANT_ID (and no sandbox in production).');
+  process.exit(1);
+}
+const web = (env.PUBLIC_WEB_URL ?? env.WEB_ORIGINS.split(',')[0]!.trim()).replace(/\/$/, '');
 const billing: BillingConfig = {
-  gateway: env.PAYMENT_PROVIDER === 'fake' ? fakeGateway(db, web) : null,
+  gateway: env.PAYMENT_PROVIDER === 'fake' ? fakeGateway(db, web)
+    : env.PAYMENT_PROVIDER === 'zarinpal' ? zarinpalGateway({ merchantId: env.ZARINPAL_MERCHANT_ID!, sandbox: env.ZARINPAL_SANDBOX === 'true', callbackUrl: `${web}/api/payments/callback/zarinpal` })
+      : null,
   unavailableReasonFa: null, callbackUrl: `${web}/api/payments/callback`, paymentTtlMinutes: 30
 };
 const log = (msg: string, data: object = {}) => console.log(JSON.stringify({ time: new Date().toISOString(), msg, ...data }));

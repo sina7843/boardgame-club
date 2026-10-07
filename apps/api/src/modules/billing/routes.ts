@@ -42,6 +42,15 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
     return reply.redirect(out.orderId ? `${web}/payments/result?order=${encodeURIComponent(out.orderId)}` : `${web}/payments/result?error=unknown`, 303);
   });
 
+  // Zarinpal return URL: Zarinpal appends ?Authority=…&Status=OK|NOK to the configured callback.
+  r.get('/payments/callback/zarinpal', {
+    schema: { tags: ['billing'], summary: 'Zarinpal return URL: NOK fails the payment, OK verifies server-to-server; then redirects to the result page',
+      querystring: z.object({ Authority: z.string().max(64), Status: z.enum(['OK', 'NOK']) }).loose() }
+  }, async (req, reply) => {
+    const out = await verifyPayment(db, billing, { provider: 'zarinpal', authority: req.query.Authority, via: 'callback', payerCancelled: req.query.Status === 'NOK' });
+    return reply.redirect(out.orderId ? `${web}/payments/result?order=${encodeURIComponent(out.orderId)}` : `${web}/payments/result?error=unknown`, 303);
+  });
+
   const ownPayment = async (userId: string, orderId: string) => {
     const [row] = await db.select({ p: payments, title: plans.titleFa }).from(payments).innerJoin(plans, eq(plans.id, payments.planId))
       .where(and(eq(payments.orderId, orderId), eq(payments.userId, userId)));
