@@ -409,3 +409,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   no SMS), the fake payment gateway and the Zarinpal sandbox, so a public test deployment works before Kavenegar and
   Zarinpal are configured. With the fixture in production the code must not be an obvious one (123456/000000/111111).
   Without the switch production still fails closed. Login and plans pages label the test mode. Never on the live site.
+
+## Coolify test deployment (2026-10-08, owner request)
+
+- `compose.coolify.yaml` is for the current low-traffic TEST server: plain `postgres:18.6-alpine` with one named volume
+  `boardgame_pgdata` (`PGDATA` pinned to `/var/lib/postgresql/data` because postgres 18 defaults elsewhere), no WAL
+  archiving / PITR / off-site backup. `compose.prod.yaml` and `docker/postgres` stay unchanged for hardened production.
+- No host ports; only `web` (Caddy, `expose: 8080`) gets the Coolify domain. Caddy `/data` and `/config` are tmpfs
+  (Traefik terminates TLS, nothing to persist). Default Compose network instead of the prod internal/edge split,
+  since Coolify attaches its own network to every service. `TRUST_PROXY_HOPS` defaults to 2 (Traefik -> Caddy).
