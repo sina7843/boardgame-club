@@ -1,0 +1,61 @@
+/* ارگ‌ها: an illuminated city chronicle — parchment district cards with coloured banners, gilded character seals. */
+.ct2 { --ink: #2a1d10; display: grid; gap: 0.6rem; inline-size: 100%; color: #f6efdf; text-align: center; }
+.ct2 > :first-child { justify-self: center; }
+.ct2 > .ct2__cities, .ct2 > .ct2__me { justify-self: stretch; }
+.ct2-c--yellow { --c: #d9a520; } .ct2-c--blue { --c: #2f6fd6; } .ct2-c--green { --c: #3f9a4a; } .ct2-c--red { --c: #c0392b; }
+.ct2__round { margin: 0; font-size: 0.8rem; color: #e3d6b8; }
+
+.ct2-d { position: relative; display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 7px; color: var(--ink);
+  background: linear-gradient(180deg, var(--c) 0 26%, #f6ead0 26%); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 70%, black 30%), 0 3px 6px -3px #000; }
+.ct2-d--md { inline-size: 4.2rem; block-size: 5.4rem; padding-block-start: 0.3rem; }
+.ct2-d--sm { inline-size: 2.9rem; block-size: 3.4rem; padding-block-start: 0.15rem; }
+.ct2-d__cost { inline-size: 1.4rem; block-size: 1.4rem; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a520 60%, #8a6408); font-size: 0.8rem; font-weight: 900; }
+.ct2-d--sm .ct2-d__cost { inline-size: 1rem; block-size: 1rem; font-size: 0.6rem; }
+.ct2-d__name { font-size: 0.66rem; font-weight: 800; line-height: 1.2; padding-inline: 0.15rem; }
+.ct2-d--sm .ct2-d__name { font-size: 0.5rem; }
+
+.ct2__track { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 0.25rem; }
+.ct2-slot { display: grid; justify-items: center; gap: 0.1rem; font-size: 0.6rem; }
+.ct2-slot__who { font-weight: 800; color: #ffe1a0; }
+.ct2-slot__tag { color: #ffb3a8; }
+.ct2-ch { display: grid; justify-items: center; gap: 0; inline-size: 100%; max-inline-size: 4rem; padding: 0.25rem 0.1rem; border-radius: 10px; background: radial-gradient(circle at 50% 30%, #5a3d22, #2a1a0c); box-shadow: inset 0 0 0 2px #c9a46a; }
+.ct2-ch b { font-size: 1rem; color: #ffe1a0; }
+.ct2-ch small { font-size: 0.56rem; color: #f2e4c4; }
+.ct2-ch.is-out { opacity: 0.3; }
+.ct2-ch.is-dead { opacity: 0.5; box-shadow: inset 0 0 0 2px #c0392b; background: repeating-linear-gradient(45deg, #3a1a14 0 4px, #2a1210 4px 8px); }
+.ct2-ch.is-done { opacity: 0.7; }
+.ct2-ch.is-now { box-shadow: inset 0 0 0 2px #ffe1a0, 0 0 14px #ffd98a; animation: ct2-glow 1.6s ease-in-out infinite; }
+
+.ct2__pool, .ct2__bar { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; animation: ct2-drop 0.3s ease-out both; }
+.ct2__pool .ct2-ch { inline-size: 4.2rem; max-inline-size: none; }
+.ct2-pick { padding: 0; border: 0; background: transparent; border-radius: 9px; color: inherit; font: inherit; line-height: 0; }
+button.ct2-pick { cursor: pointer; }
+.ct2-pick--can { box-shadow: 0 0 0 2px rgb(255 217 138 / 0.65); }
+.ct2-pick--on { box-shadow: 0 0 0 3px #ff9d6b; transform: translateY(-4px); }
+.ct2__ability { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; padding: 0.45rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); font-size: 0.78rem; }
+.ct2__ability button { padding: 0.25rem 0.55rem; border-radius: 8px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.12); color: inherit; font: inherit; font-size: 0.75rem; cursor: pointer; }
+.ct2__ability button:disabled { opacity: 0.45; cursor: default; }
+
+.ct2__cities { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.ct2-city { display: grid; gap: 0.35rem; padding: 0.45rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+.ct2-city--me { background: rgb(201 164 106 / 0.12); }
+.ct2-city--win { box-shadow: 0 0 0 2px #ffd98a; }
+.ct2-city__head { display: flex; flex-wrap: wrap; gap: 0.25rem 0.55rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.ct2-city__name { font-weight: 800; }
+.ct2-crown { color: #ffd23f; font-size: 1rem; }
+.ct2-gold { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: ct2-bump 0.4s ease-out; }
+.ct2-score { color: #ffe1a0; font-weight: 800; }
+.ct2-city__row { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; min-block-size: 3.4rem; align-items: center; }
+.ct2__me { display: grid; gap: 0.5rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(201 164 106 / 0.4); }
+.ct2__mine { display: flex; gap: 0.3rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.ct2__mine .ct2-ch { inline-size: 3.6rem; }
+.ct2__hand { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+.ct2-hint { animation: ct2-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@media (max-width: 480px) { .ct2-ch small { font-size: 0.48rem; } }
+@keyframes ct2-glow { 50% { box-shadow: inset 0 0 0 2px #ffe1a0, 0 0 4px #ffd98a; } }
+@keyframes ct2-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes ct2-bump { 40% { transform: scale(1.25); } }
+@keyframes ct2-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ct2 * { animation: none !important; transition: none !important; } }
+.ct2 > .ct2__track { inline-size: min(100%, 36rem); justify-self: center; }

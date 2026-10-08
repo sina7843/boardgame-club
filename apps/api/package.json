@@ -56,7 +56,8 @@
     "@bg/game-hanabi": "workspace:*",
     "@bg/game-camel-up": "workspace:*",
     "@bg/game-machi-koro": "workspace:*",
-    "@bg/game-king-of-tokyo": "workspace:*"
+    "@bg/game-king-of-tokyo": "workspace:*",
+    "@bg/game-citadels": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

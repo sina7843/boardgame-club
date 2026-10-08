@@ -717,3 +717,10 @@ New module `games/king-of-tokyo` registered in engine, catalog and web. Checks r
 yield, power cards/sweep/20 VP/last standing, timeouts/resign, tutorial, 25 random 2–6 player games with replay);
 API 3 (`apps/api/test/king-of-tokyo.test.ts`); catalog test updated; E2E `e2e/king-of-tokyo.spec.ts` — tutorial and a
 full three-player game at 360 and 1440 (`docs/evidence/king-of-tokyo/`).
+## «ارگ‌ها» Citadels (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/citadels` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/citadels.test.ts`:
+deck and draft rules, hidden picks and pool, calling order/income/assassin, building/duplicates/warlord vs bishop/
+scoring, timeouts/resign, tutorial, 15 random 2–7 player games with district conservation and replay); API 3
+(`apps/api/test/citadels.test.ts`); catalog test updated; E2E `e2e/citadels.spec.ts` — tutorial and a full
+three-player game at 360 and 1440 (`docs/evidence/citadels/`).

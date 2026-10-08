@@ -44,6 +44,7 @@ import HanabiCover from '@bg/game-hanabi/cover';
 import CamelUpCover from '@bg/game-camel-up/cover';
 import MachiKoroCover from '@bg/game-machi-koro/cover';
 import KingOfTokyoCover from '@bg/game-king-of-tokyo/cover';
+import CitadelsCover from '@bg/game-citadels/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -91,7 +92,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   hanabi: HanabiCover,
   'camel-up': CamelUpCover,
   'machi-koro': MachiKoroCover,
-  'king-of-tokyo': KingOfTokyoCover
+  'king-of-tokyo': KingOfTokyoCover,
+  citadels: CitadelsCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

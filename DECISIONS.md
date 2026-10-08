@@ -862,3 +862,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: neon city at night; skyline arena showing the monster in Tokyo (stomp animation), monster panels in their own
   hue with health and 20-point star bars and energy, chunky dice that lift when kept, comic-style power cards.
 - Polish (360/1440): bar labels centred on the bars.
+## «ارگ‌ها» (Citadels, 2026-10-08, owner list batch 7)
+
+- 2–7 players with the eight base characters and the 54 coloured districts; purple special districts are left out
+  (so the colour bonus is +3 for all four colours). Draft from the crowned player: one character removed face down,
+  2/1 face up with 4/5 players (never the King); 2–3 players each take two characters in turn order (a simplified
+  draft without the 2-player discard sequence). Characters called 1→8: 2 gold or draw 2 keep 1; build one district
+  (Architect: +2 cards, three builds); Assassin kill, Thief rob (paid when the victim is called), Magician swap/redraw,
+  King crown (also at round end if killed), Bishop protected, Merchant +1, Warlord destroy at cost − 1 (not completed
+  cities, not the living Bishop); colour income automatic. No duplicate districts. Eighth district ends the game
+  after the round: costs + 3 four colours + 4 first / + 2 other completed cities. Timeouts: first character, gold, end.
+- Look: illuminated city chronicle; parchment district cards with colour banners and gold-coin costs, gilded
+  character seals in a 1–8 track marking called, killed and robbed characters and their holders, the draft pool only
+  for the picker, an ability panel for the active character.
