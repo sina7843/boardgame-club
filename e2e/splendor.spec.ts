@@ -24,9 +24,9 @@ test('interactive tutorial: gems, then the winning card', async ({ browser }, in
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const giveBack = p.getByRole('button', { name: 'پس دادن' });
+  const giveBack = p.getByRole('button', { name: 'پس دادن', exact: true });
   if (await giveBack.count()) {
-    const toks = p.locator('.sp-col__tok--btn');
+    const toks = p.locator('.sp-col__tok--btn:not([disabled])');
     for (let i = 0; i < 6 && !(await giveBack.isEnabled()); i++) await toks.first().click();
     await giveBack.click();
     return true;
@@ -40,7 +40,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     for (let i = 0; i < k && !(await take.isEnabled()); i++) await gems.nth((i + n) % k).click();
     if (await take.isEnabled()) { await take.click(); return true; }
   }
-  const deck = p.locator('.sp-deck:not([disabled])');
+  const deck = p.locator('button.sp-deck:not([disabled])');
   if (await deck.count()) { await deck.first().click(); return true; }
   const pass = p.getByRole('button', { name: 'رد کردن نوبت' });
   if (await pass.count()) { await pass.click(); return true; }

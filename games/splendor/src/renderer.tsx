@@ -165,12 +165,12 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
                   <span key={g} className={`sp-col sp-t--${g}`}>
                     <span className="sp-col__bonus" title="کارت">{fa(b[g])}</span>
                     {isMe && ret && t[g] > 0
-                      ? <button type="button" className={`sp-col__tok sp-col__tok--btn ${back.filter((x) => x === g).length ? 'on' : ''}`} onClick={() => setBack(back.length < ret.count ? [...back, g] : back)}>{fa(t[g] - back.filter((x) => x === g).length)}</button>
+                      ? <button type="button" className={`sp-col__tok sp-col__tok--btn ${back.filter((x) => x === g).length ? 'on' : ''}`} disabled={back.filter((x) => x === g).length >= t[g]} aria-label={`پس دادن ${GEM_FA[g]}، ${fa(t[g] - back.filter((x) => x === g).length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === g).length < t[g] ? [...back, g] : back)}>{fa(t[g] - back.filter((x) => x === g).length)}</button>
                       : <span className="sp-col__tok">{fa(t[g])}</span>}
                   </span>
                 ))}
                 <span className="sp-col sp-t--o"><span className="sp-col__bonus">&nbsp;</span>
-                  {isMe && ret && t.o > 0 ? <button type="button" className="sp-col__tok sp-col__tok--btn" onClick={() => setBack(back.length < ret.count ? [...back, 'o'] : back)}>{fa(t.o - back.filter((x) => x === 'o').length)}</button> : <span className="sp-col__tok">{fa(t.o)}</span>}</span>
+                  {isMe && ret && t.o > 0 ? <button type="button" className="sp-col__tok sp-col__tok--btn" disabled={back.filter((x) => x === 'o').length >= t.o} aria-label={`پس دادن ${GEM_FA.o}، ${fa(t.o - back.filter((x) => x === 'o').length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === 'o').length < t.o ? [...back, 'o'] : back)}>{fa(t.o - back.filter((x) => x === 'o').length)}</button> : <span className="sp-col__tok">{fa(t.o)}</span>}</span>
               </div>
               {view.reserved[s]!.length > 0 && (
                 <div className="sp-pl__res" aria-label="رزروها">

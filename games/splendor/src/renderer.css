@@ -139,3 +139,10 @@
 @keyframes sp-bump { 40% { transform: scale(1.25); } }
 @keyframes sp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sp * { animation: none !important; transition: none !important; } .sp-slot--on, .sp-bankgem--on, .sp-bankgem:not(:disabled):hover { transform: none; } }
+
+/* Narrow screens: smaller cost bubbles so a five-cost card fits its column. */
+@media (max-width: 520px) {
+  .sp-card--md .sp-cost { inline-size: 0.95rem; block-size: 0.95rem; font-size: 0.58rem; }
+  .sp-card--md .sp-card__cost { gap: 1px; padding: 0.15rem 0.2rem 0.2rem; }
+  .sp-card--md .sp-card__pts { font-size: 0.95rem; }
+}
