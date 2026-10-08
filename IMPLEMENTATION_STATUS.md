@@ -574,3 +574,10 @@ setup by player count, auction raise/pass/half refund/last pays full, hidden sim
 timeouts/resign, tutorial, 30 random 2–6 player games with card/coin invariants and replay); API 3
 (`apps/api/test/for-sale.test.ts`); catalog test updated; E2E `e2e/for-sale.spec.ts` — tutorial and a full
 three-player game at 360 and 1440 (`docs/evidence/for-sale/`).
+## «اشرافی» High Society (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/high-society` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/high-society.test.ts`: status maths, normal and disgrace auctions, faux pas now/later,
+fourth red card and poorest elimination, privacy/timeouts/resign, tutorial, 40 random 2–5 player games with money
+conservation and replay); API 3 (`apps/api/test/high-society.test.ts`); catalog test updated; E2E
+`e2e/high-society.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/high-society/`).

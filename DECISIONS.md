@@ -621,3 +621,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Polish passes (360/1440): (1) SVG text clipped — card SVGs forced to LTR so text anchors are right; sell buttons
   hug the cards; (2) result screen: player strip hidden, totals sorted by place with the winner framed and an
   explicit "cheques + coins = total" line.
+## «اشرافی» (High Society, 2026-10-08, owner list batch 4)
+
+- Official 3–5 players plus an unofficial 2-player game (for the 2-seat tutorial). Money 1 2 3 4 6 8 10 12 15 20 25;
+  16 status cards (luxury 1–10, prestige ×3, passé, scandal, faux pas); the 4th red-frame card (prestige/scandal)
+  ends the game unauctioned. Bids add money cards; passing takes them back. Normal cards: last bidder pays and wins;
+  disgrace: the first to pass takes the card and keeps their money, everyone else pays. The winner/taker starts the
+  next auction. Faux pas discards the owner's lowest luxury automatically (always optimal: status is monotonic in the
+  luxury sum and the tie-break uses the highest card) or the next luxury won. End: the poorest player(s) are out
+  unless everyone is equally poor; then status, money, highest luxury card. Hands are private, bids/spent/won public.
+- Look: art-deco salon; ivory status cards with gilt numerals (red frames for prestige/scandal, grey for disgrace),
+  four red lamps counting red cards, guilloché banknotes (20/25 in gold), tap-to-select note fan that lifts, the bid
+  button states the total and the minimum, stage turns red for disgrace auctions, card reveal flip.
+- Polish passes (360/1440): (1) stage card enlarged on wide screens; red-frame lamps labelled "قاب قرمز: n از ۴";
+  (2) result: players sorted by place, final money shown with "کم‌پول‌ترین" marking the eliminated.

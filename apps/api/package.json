@@ -38,7 +38,8 @@
     "@bg/game-love-letter": "workspace:*",
     "@bg/game-skull": "workspace:*",
     "@bg/game-coup": "workspace:*",
-    "@bg/game-for-sale": "workspace:*"
+    "@bg/game-for-sale": "workspace:*",
+    "@bg/game-high-society": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

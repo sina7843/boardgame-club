@@ -26,6 +26,7 @@ import LoveLetterRenderer from '@bg/game-love-letter/renderer';
 import SkullRenderer from '@bg/game-skull/renderer';
 import CoupRenderer from '@bg/game-coup/renderer';
 import ForSaleRenderer from '@bg/game-for-sale/renderer';
+import HighSocietyRenderer from '@bg/game-high-society/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -60,5 +61,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'love-letter@1.0.0': LoveLetterRenderer as ComponentType<GameRendererProps<never>>,
   'skull@1.0.0': SkullRenderer as ComponentType<GameRendererProps<never>>,
   'coup@1.0.0': CoupRenderer as ComponentType<GameRendererProps<never>>,
-  'for-sale@1.0.0': ForSaleRenderer as ComponentType<GameRendererProps<never>>
+  'for-sale@1.0.0': ForSaleRenderer as ComponentType<GameRendererProps<never>>,
+  'high-society@1.0.0': HighSocietyRenderer as ComponentType<GameRendererProps<never>>
 };
