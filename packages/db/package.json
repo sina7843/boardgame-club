@@ -37,7 +37,8 @@
     "@bg/game-go": "workspace:*",
     "@bg/game-santorini": "workspace:*",
     "@bg/game-tak": "workspace:*",
-    "@bg/game-abalone": "workspace:*"
+    "@bg/game-abalone": "workspace:*",
+    "@bg/game-hive": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

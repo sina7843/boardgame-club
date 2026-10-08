@@ -1,0 +1,44 @@
+/* کندو: bakelite hex tiles with drawn bugs on the felt; the view follows the hive. Geometry LTR. */
+.hv { display: grid; gap: 0.7rem; text-align: center; color: #f6efe2; inline-size: 100%; }
+.hv > :first-child { justify-self: center; }
+.hv-board { display: block; inline-size: 100%; max-inline-size: 760px; min-block-size: 280px; max-block-size: 70vh; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.hv-cell { outline: none; }
+.hv-cell--mine { cursor: pointer; }
+.hv-cell--sel polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
+.hv-cell--hint polygon:not(.hv-under) { stroke-width: 6px; animation: hv-hint 1s ease-in-out infinite; }
+.hv-cell:focus-visible polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
+.hv-cell--placed { transform-box: fill-box; transform-origin: center; animation: hv-pop 0.4s cubic-bezier(.2, 1.4, .4, 1) both; }
+.hv-cell--moved { animation: hv-slide 0.45s cubic-bezier(.3, .9, .3, 1.05) both; }
+.hv-cell--trapped polygon:not(.hv-under) { stroke: #ff6b5b; stroke-width: 7px; animation: hv-hint 0.8s ease-in-out infinite; }
+.hv-under--w { fill: #cfc4ad; }
+.hv-under--b { fill: #22201d; }
+.hv-height { font: 900 20px/1 var(--font, sans-serif); fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; }
+.hv-target { cursor: pointer; outline: none; }
+.hv-target polygon { fill: rgb(255 210 122 / 0.18); stroke: #ffd27a; stroke-width: 3px; stroke-dasharray: 8 6; animation: hv-march 1.1s linear infinite; }
+.hv-target:hover polygon, .hv-target:focus-visible polygon { fill: rgb(255 210 122 / 0.4); }
+.hv-target--hint polygon { fill: rgb(255 210 122 / 0.45); }
+
+.hv-reserve { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+.hv-reserve__item { position: relative; display: grid; place-items: center; inline-size: 3.6rem; block-size: 3.6rem; padding: 0; border-radius: 12px; border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(0 0 0 / 0.25); color: inherit; font: inherit; }
+button.hv-reserve__item { cursor: pointer; }
+button.hv-reserve__item:disabled { opacity: 0.35; cursor: not-allowed; }
+button.hv-reserve__item[aria-pressed="true"] { background: rgb(201 164 106 / 0.35); box-shadow: 0 0 0 2px #ffd27a; }
+.hv-reserve__item--hint { animation: hv-pulse 1s ease-in-out infinite; }
+.hv-reserve__item svg { inline-size: 2.9rem; block-size: 2.9rem; }
+.hv-reserve__n { position: absolute; inset-block-end: 2px; inset-inline-end: 4px; font-size: 0.75rem; font-weight: 900; color: #ffd27a; }
+.hv-reserve--small .hv-reserve__item { inline-size: 2.6rem; block-size: 2.6rem; }
+.hv-reserve--small .hv-reserve__item svg { inline-size: 2rem; block-size: 2rem; }
+.hv__note { margin: 0; color: #ffd27a; }
+@media (max-width: 480px) { .hv-reserve__item { inline-size: 3rem; block-size: 3rem; } .hv-reserve__item svg { inline-size: 2.4rem; block-size: 2.4rem; } .hv-reserve { gap: 0.3rem; } }
+.hv__end { margin: 0; color: #ffd27a; font-weight: 800; }
+
+@keyframes hv-pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes hv-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
+@keyframes hv-march { to { stroke-dashoffset: -28; } }
+@keyframes hv-hint { 50% { stroke: #ffd27a; } }
+@keyframes hv-pulse { 50% { box-shadow: 0 0 0 3px #ffd27a; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hv-cell--placed, .hv-cell--moved, .hv-target polygon, .hv-cell--hint polygon, .hv-cell--trapped polygon, .hv-reserve__item--hint { animation: none; }
+}

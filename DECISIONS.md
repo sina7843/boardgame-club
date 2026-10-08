@@ -535,3 +535,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: flat-topped walnut tray with brass rim and dimples, black glass vs white pearl marbles, six-slot trays of
   marbles pushed off, selection rings, direction arrows only where a move is legal, sliding marbles (pushed ones too),
   the marble pushed off fades at the edge; board turned so the viewer's marbles start at the bottom.
+## «کندو» (Hive, 2026-10-08, owner list batch 2)
+
+- Base game (no Mosquito/Ladybug/Pillbug): 1 Q, 2 S, 2 B, 3 G, 3 A each; first piece in the centre, second next to it,
+  then placements touching only own pieces; Queen by the fourth own turn; no moves before the Queen; One Hive and
+  Freedom to Move (ground slides need exactly one occupied common neighbour; beetles respect the climbing gate);
+  queen 1, beetle 1 (climbs), grasshopper jumps, spider exactly 3, ant any distance; surround the Queen to win, both
+  at once draws; forced pass when nothing is legal (two in a row draws). House limit: 300 turns → draw. No tournament
+  "no queen on the first turn" rule. Timeouts play a random legal action; three in a row lose.
+- Look: bakelite hex tiles (ivory/charcoal) with drawn insects in the classic bug colours, stacked tiles show the piece
+  underneath and a height badge, the view fits the hive as it grows (zoomable), reserve strips for both players,
+  dashed gold targets, placed tiles pop in, moved tiles slide, the trapped queen glows red.
+- Fixed during polish: tiles had `pointer-events: none`, so pieces on the board could not be tapped (caught by E2E).

@@ -31,7 +31,8 @@
     "@bg/game-go": "workspace:*",
     "@bg/game-santorini": "workspace:*",
     "@bg/game-tak": "workspace:*",
-    "@bg/game-abalone": "workspace:*"
+    "@bg/game-abalone": "workspace:*",
+    "@bg/game-hive": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

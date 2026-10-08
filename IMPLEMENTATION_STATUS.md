@@ -528,3 +528,10 @@ New module `games/abalone` registered in engine, catalog and web. Checks run: en
 off, move limit, timeouts/resign, view, tutorial, 20 random games to the end with marble conservation and replay); API
 3 (`apps/api/test/abalone.test.ts`); catalog test updated; E2E `e2e/abalone.spec.ts` — tutorial and moves through
 arrows ending in a resignation at 360 and 1440 (`docs/evidence/abalone/`). Polish: tray orientation and margin.
+## «کندو» Hive (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/hive` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/hive.test.ts`:
+opening placements, queen by turn four, one hive, every bug's movement, freedom to move, surround win, resign/timeout,
+view, tutorial, 12 random games with piece conservation, connectivity and replay); API 3 (`apps/api/test/hive.test.ts`);
+catalog test updated; E2E `e2e/hive.spec.ts` — tutorial and placements + board moves ending in a resignation at 360
+and 1440 (`docs/evidence/hive/`). Polish: tap targets on tiles, compact reserve on phones.

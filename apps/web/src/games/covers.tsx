@@ -19,6 +19,7 @@ import GoCover from '@bg/game-go/cover';
 import SantoriniCover from '@bg/game-santorini/cover';
 import TakCover from '@bg/game-tak/cover';
 import AbaloneCover from '@bg/game-abalone/cover';
+import HiveCover from '@bg/game-hive/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -41,7 +42,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   go: GoCover,
   santorini: SantoriniCover,
   tak: TakCover,
-  abalone: AbaloneCover
+  abalone: AbaloneCover,
+  hive: HiveCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {
