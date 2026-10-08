@@ -54,7 +54,7 @@
 .rk-ribbon__seat { font-size: 10px; font-weight: 900; text-anchor: middle; }
 .rk-ribbon--held .rk-ribbon__body { stroke: #c4900f; stroke-width: 3; }
 
-.rk-token__n { font-weight: 900; text-anchor: middle; paint-order: stroke; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
+.rk-token__n { font-weight: 900; text-anchor: middle; font-variant-numeric: tabular-nums; }
 .rk-token__seat { font-weight: 900; fill: var(--rk-ink); text-anchor: middle; }
 .rk-piece__token { animation: rk-pop 320ms cubic-bezier(0.3, 1.6, 0.5, 1); transform-box: fill-box; transform-origin: 50% 60%; }
 @keyframes rk-pop { from { transform: scale(0.65); } }
@@ -164,6 +164,9 @@
 .rk-card:not(:has(.rk-sil)) .rk-ico { position: static; inline-size: 38px; block-size: 38px; border: 0; background: none; }
 .rk-card--infantry { --cb: #c3d5a0; } .rk-card--cavalry { --cb: #e6c595; } .rk-card--artillery { --cb: #bcc8da; } .rk-card--wild { --cb: #f2d77f; }
 .rk-card__terr { padding-inline: 3px; font-size: 0.68rem; font-weight: 700; text-align: center; line-height: 1.25; }
+.rk-ico--mini { object-fit: contain; }
+.rk-deck { inline-size: 0.9em; block-size: 1.1em; vertical-align: middle; object-fit: contain; }
+.rk-stat__ico--card { object-fit: contain; }
 .rk-ico { display: block; inline-size: 1em; block-size: 1em; filter: drop-shadow(0 1px 0.5px rgb(0 0 0 / 0.3)); }
 
 /* Players: compact plaques with a colour seal. */

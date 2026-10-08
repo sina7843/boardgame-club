@@ -11,7 +11,7 @@ import {
 import {
   CONTINENT_LABEL, CONTINENT_LINES, COASTS, DECOR_PATHS, LAKE_PATHS, MAP_H, MAP_W, REGIONS, SEA_LANES, WRAP_LANE, project, type Pt
 } from './geometry.ts';
-import { ArmyToken, CardIcon, Cartouche, Compass, DieFace, INK, MapDefs, SEAT_COLOR, SEAT_FA, SEAT_WASH, Serpent, Ship, StatIcon } from './art.tsx';
+import { ArmyToken, CARD_BACK, CardIcon, Cartouche, Compass, DieFace, INK, MapDefs, Parchment, SEAT_COLOR, SEAT_FA, SEAT_WASH, Serpent, Ship, StatIcon } from './art.tsx';
 import { income, ownsContinent, territoriesOf, type LogEntry, type Phase, type RiskView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -156,8 +156,7 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
       <MapDefs />
       <g aria-hidden="true" pointerEvents="none">
         <rect x={-PAD} y={-PAD} width={VIEW_W} height={MAP_H + PAD * 2} rx="10" className="rk-paper" />
-        <rect width={MAP_W} height={MAP_H} fill="url(#rkm-sea)" />
-        <rect width={MAP_W} height={MAP_H} fill="url(#rkm-waves)" />
+        <Parchment w={MAP_W} h={MAP_H} />
         {GRAT_LAT.map((la) => { const y = project(0, la)[1]; return <line key={`la${la}`} x1="0" x2={MAP_W} y1={y} y2={y} className="rk-grid" />; })}
         {GRAT_LON.map((lo) => { const x = project(lo, 0)[0]; return <line key={`lo${lo}`} y1="0" y2={MAP_H} x1={x} x2={x} className="rk-grid" />; })}
         <rect width={MAP_W} height={MAP_H} fill="url(#rkm-vignette)" />
@@ -423,7 +422,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
         <span className="rk-chipmeta rk-chipmeta--turn">نوبت {fa(view.turn)} · {PHASE_FA[view.phase]}</span>
         <span className="rk-chipmeta">هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}</span>
         <span className="rk-chipmeta">دسته بعدی: {fa(view.nextSetValue)} ارتش</span>
-        <span className="rk-chipmeta">کارت در دسته: {fa(view.deckCount)}</span>
+        <span className="rk-chipmeta"><img src={CARD_BACK} alt="" aria-hidden="true" className="rk-deck" /> کارت در دسته: {fa(view.deckCount)}</span>
         <span className="rk-chipmeta">جابه‌جایی: {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}</span>
       </div>
 

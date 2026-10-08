@@ -1,7 +1,7 @@
-// Catalog cover: the antique world map on a wavy sea with a few army tokens, a battle arrow and two dice
-// (vector only; shares the map defs and token art from art.tsx).
+// Catalog cover: the antique world map on aged parchment with a few army tokens, a battle arrow and two dice
+// (parchment and army miniatures are painted WebP; shares the map defs and token art from art.tsx).
 import { CONTINENT_OF } from './board.ts';
-import { ArmyToken, INK, MapDefs } from './art.tsx';
+import { ArmyToken, INK, MapDefs, Parchment } from './art.tsx';
 import { COASTS, CONTINENT_LINES, MAP_H, MAP_W, REGIONS } from './geometry.ts';
 
 const TOKENS: [number, number][] = [[11, 0], [20, 1], [35, 4], [4, 3], [19, 5]];
@@ -24,8 +24,7 @@ export default function RiskCover({ title }: { title: string }) {
   return (
     <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true })} style={{ inlineSize: '100%', blockSize: '100%', direction: 'ltr' }}>
       <MapDefs />
-      <rect width="320" height="180" fill="url(#rkm-sea)" />
-      <rect width="320" height="180" fill="url(#rkm-waves)" />
+      <Parchment w={320} h={180} />
       <g transform={`translate(${(320 - MAP_W * S) / 2} ${(180 - MAP_H * S) / 2 - 2}) scale(${S})`}>
         {COASTS.map((d, i) => <path key={i} d={d} fill="none" stroke="#f3e7c6" strokeOpacity="0.35" strokeWidth="14" strokeLinejoin="round" />)}
         {COASTS.map((d, i) => <path key={`l${i}`} d={d} fill="#e9dcb4" stroke={INK} strokeWidth="3" filter="url(#rkm-land)" />)}

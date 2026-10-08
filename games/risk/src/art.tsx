@@ -1,7 +1,20 @@
-// RISK vector art: antique-map defs (aged ocean, engraved waves, continent watercolours, paper grain), 3D army tokens,
+// RISK vector art: antique-map defs (engraved waves removed: the sea is a painted parchment), 3D army tokens carrying a painted miniature,
 // compass rose, cartouche, ships and a sea serpent, card illustrations and dice. Decorative only: every part is
 // aria-hidden or sits inside an element that carries the label.
 import type { CardKind, ContinentId } from './board.ts';
+import infantry from './art/infantry.webp';
+import cavalry from './art/cavalry.webp';
+import artillery from './art/artillery.webp';
+import cardBack from './art/card-back.webp';
+import parchment from './art/bd-parchment.webp';
+
+// The miniatures, card back and parchment sea are painted WebP cut from a generated sheet (see DECISIONS.md).
+const MINI: Record<'infantry' | 'cavalry' | 'artillery', string> = { infantry, cavalry, artillery };
+export const CARD_BACK = cardBack;
+/** The aged world-map parchment that lies under the territories (decorative). */
+export function Parchment({ w, h }: { w: number; h: number }) {
+  return <image href={parchment} width={w} height={h} preserveAspectRatio="xMidYMid slice" />;
+}
 
 /** Seat colours (always shown with the seat number and the colour name in text): [light, base, dark]. */
 export const SEAT_SHADES: [string, string, string][] = [
@@ -9,7 +22,6 @@ export const SEAT_SHADES: [string, string, string][] = [
   ['#62626c', '#26262b', '#0b0b0e'], ['#f8d870', '#e2a91e', '#a06c00'], ['#68d6c3', '#1f9a87', '#0d5a4d']
 ];
 export const SEAT_COLOR = SEAT_SHADES.map((s) => s[1]!);
-export const SEAT_INK = ['#fff', '#fff', '#2a2520', '#fff', '#2a2520', '#fff'];
 export const SEAT_FA = ['قرمز', 'آبی', 'سفید', 'مشکی', 'زرد', 'سبزآبی'];
 /** How strongly the owner colour washes over the continent tint. */
 export const SEAT_WASH = [0.46, 0.46, 0.62, 0.52, 0.5, 0.46];
@@ -24,12 +36,6 @@ export const INK = '#3a2a16';
 export function MapDefs() {
   return (
     <defs>
-      <radialGradient id="rkm-sea" cx="50%" cy="46%" r="75%"><stop offset="0" stopColor="#bcd8cf" /><stop offset="0.6" stopColor="#9bc0bd" /><stop offset="1" stopColor="#6f9ea4" /></radialGradient>
-      <pattern id="rkm-waves" width="30" height="13" patternUnits="userSpaceOnUse">
-        <path d="M0 6 q3.75 -3.2 7.5 0 t7.5 0 t7.5 0 t7.5 0" fill="none" stroke="#2f5e66" strokeOpacity="0.2" strokeWidth="0.8" />
-        <path d="M-7.5 12.5 q3.75 -3.2 7.5 0 t7.5 0 t7.5 0 t7.5 0 t7.5 0" fill="none" stroke="#2f5e66" strokeOpacity="0.12" strokeWidth="0.7" />
-      </pattern>
-      <pattern id="rkm-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0 V5" stroke="#2f5e66" strokeOpacity="0.1" strokeWidth="1" /></pattern>
       <linearGradient id="rkm-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffe9a0" /><stop offset="0.5" stopColor="#d9a62e" /><stop offset="1" stopColor="#8d6210" /></linearGradient>
       {(Object.keys(CONTINENT_TINT) as ContinentId[]).map((c) => (
         <linearGradient key={c} id={`rkm-c-${c}`} x1="0" y1="0" x2="0.7" y2="1"><stop offset="0" stopColor={CONTINENT_TINT[c][0]} /><stop offset="1" stopColor={CONTINENT_TINT[c][1]} /></linearGradient>
@@ -118,17 +124,19 @@ export function Serpent() {
  * small ivory seat tab. `r` is the disc radius in map units.
  */
 export function ArmyToken({ seat, n, r = 14, lift = false }: { seat: number; n: number; r?: number; lift?: boolean }) {
-  const ink = SEAT_INK[seat] ?? '#fff';
   const dark = SEAT_SHADES[seat]?.[2] ?? '#333';
-  const f = n >= 10 ? r * 1.12 : r * 1.42;
+  const mini = MINI[n >= 10 ? 'artillery' : n >= 5 ? 'cavalry' : 'infantry'];
   return (
     <g className="rk-token" transform={lift ? `translate(0 ${(-r * 0.25).toFixed(1)})` : undefined}>
       <ellipse cx={r * 0.12} cy={r * 0.82 + 2} rx={r * 1.05} ry={r * 0.45} fill="#1c1208" opacity="0.4" />
       <circle cy={r * 0.22} r={r} fill={dark} stroke="#140d05" strokeWidth={r * 0.1} />
       <circle r={r} fill={`url(#rkm-tok-${seat})`} stroke="#140d05" strokeWidth={r * 0.1} />
-      <circle r={r * 0.8} fill="none" stroke={ink} strokeOpacity="0.5" strokeWidth={r * 0.07} strokeDasharray={`${(r * 0.2).toFixed(1)} ${(r * 0.17).toFixed(1)}`} />
       <circle r={r} fill="url(#rkm-shine)" />
-      <text y={f * 0.36} fontSize={f} className="rk-token__n" fill={ink} stroke={ink === '#fff' ? 'rgb(10 8 6 / 0.75)' : 'rgb(255 255 255 / 0.8)'} strokeWidth={r * 0.16}>{n.toLocaleString('fa-IR')}</text>
+      <image href={mini} x={-r * 0.85} y={-r * 1.05} width={r * 1.7} height={r * 1.7} />
+      <g transform={`translate(0 ${(r * 0.72).toFixed(1)})`}>
+        <rect x={-r * 0.62} y={-r * 0.36} width={r * 1.24} height={r * 0.72} rx={r * 0.36} fill="#fbf3dc" stroke="#140d05" strokeWidth={r * 0.08} />
+        <text y={r * 0.26} fontSize={r * 0.82} className="rk-token__n" fill={INK}>{n.toLocaleString('fa-IR')}</text>
+      </g>
       <g transform={`translate(${(r * 0.8).toFixed(1)} ${(-r * 0.8).toFixed(1)})`}>
         <circle r={r * 0.42} fill="#fbf3dc" stroke="#140d05" strokeWidth={r * 0.08} />
         <text y={r * 0.15} fontSize={r * 0.5} className="rk-token__seat">{(seat + 1).toLocaleString('fa-IR')}</text>
@@ -138,39 +146,11 @@ export function ArmyToken({ seat, n, r = 14, lift = false }: { seat: number; n: 
 }
 
 const STROKE = '#2a2520';
-/** Card illustration (24×24): infantry soldier, cavalry horse, artillery cannon, wild star. */
+/** Card illustration (24×24): pewter miniature for infantry, cavalry, artillery; a star for the wild card. */
 export function CardIcon({ kind }: { kind: CardKind }) {
+  if (kind !== 'wild') return <img src={MINI[kind]} alt="" aria-hidden="true" className="rk-ico rk-ico--mini" />;
   const common = { viewBox: '0 0 24 24', 'aria-hidden': true, focusable: false as const, className: 'rk-ico' };
   switch (kind) {
-    case 'infantry': return (
-      <svg {...common}>
-        <circle cx="11" cy="5" r="2.6" fill="#e8c39a" stroke={STROKE} strokeWidth="0.9" />
-        <path d="M8.2 4.2 Q11 0.8 13.8 4.2 Z" fill="#4f6b3a" stroke={STROKE} strokeWidth="0.8" />
-        <path d="M7.5 9 Q11 7.2 14.5 9 L14 15 H8 Z" fill="#5d7a43" stroke={STROKE} strokeWidth="0.9" strokeLinejoin="round" />
-        <path d="M8.5 15 L7.6 22 H10 L11 16.5 L12 22 H14.4 L13.5 15 Z" fill="#3f5530" stroke={STROKE} strokeWidth="0.9" strokeLinejoin="round" />
-        <path d="M16.5 2.5 L16.5 17" stroke="#6b4423" strokeWidth="1.5" strokeLinecap="round" /><path d="M16.5 1.5 L16.5 3.5" stroke="#9aa3ad" strokeWidth="1.2" />
-        <path d="M14 10.5 L16.5 9.5" stroke={STROKE} strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
-    );
-    case 'cavalry': return (
-      <svg {...common}>
-        <path d="M5 21 L6.5 13 Q5 9 8 6 L10 3 L11 5.5 Q15 4.5 17.5 8 L20 11.5 Q20.6 13 19 13.4 L16.6 12.4 Q15 13.6 14 15.5 L15 21 Z" fill="#8a5a2b" stroke={STROKE} strokeWidth="0.9" strokeLinejoin="round" />
-        <path d="M8 6 Q6.5 10 7.2 14 M10 3 Q8.5 7 9 11" fill="none" stroke="#3a2412" strokeWidth="1.4" strokeLinecap="round" />
-        <circle cx="15.4" cy="8.4" r="0.9" fill={STROKE} />
-        <path d="M17.5 8 Q15 10 13 9.5" fill="none" stroke="#c8a35a" strokeWidth="0.9" />
-      </svg>
-    );
-    case 'artillery': return (
-      <svg {...common}>
-        <path d="M3 13.5 L17.5 6.5 L19 9.5 L5 16.5 Z" fill="#4c5260" stroke={STROKE} strokeWidth="0.9" strokeLinejoin="round" />
-        <path d="M4 14 L17.8 7.3" stroke="#fff" strokeOpacity="0.35" strokeWidth="0.9" />
-        <ellipse cx="18.4" cy="8" rx="1.3" ry="1.9" transform="rotate(-26 18.4 8)" fill="#1b1611" />
-        <circle cx="9" cy="17" r="4.6" fill="#8a5a2b" stroke={STROKE} strokeWidth="0.9" />
-        <circle cx="9" cy="17" r="1.3" fill="#c8a35a" stroke={STROKE} strokeWidth="0.6" />
-        <path d="M9 12.4 V21.6 M4.4 17 H13.6 M5.8 13.8 L12.2 20.2 M12.2 13.8 L5.8 20.2" stroke={STROKE} strokeWidth="0.7" />
-        <circle cx="20" cy="19.5" r="1.4" fill="#2a2520" /><circle cx="17.4" cy="20.2" r="1.4" fill="#2a2520" /><circle cx="18.7" cy="17.9" r="1.4" fill="#2a2520" />
-      </svg>
-    );
     case 'wild': return (
       <svg {...common}>
         <path d="M12 2 L14.6 8.6 L21.6 9 L16.2 13.4 L18 20.4 L12 16.5 L6 20.4 L7.8 13.4 L2.4 9 L9.4 8.6 Z" fill="#e2b020" stroke={STROKE} strokeWidth="0.9" strokeLinejoin="round" />
@@ -185,7 +165,7 @@ export function StatIcon({ kind }: { kind: 'terr' | 'army' | 'card' }) {
   const p = { viewBox: '0 0 16 16', 'aria-hidden': true, focusable: false as const, className: 'rk-stat__ico', fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   if (kind === 'terr') return <svg {...p}><path d="M4 14 V2.5 M4 3 H12 L10.2 5.6 L12 8.2 H4" /></svg>;
   if (kind === 'army') return <svg {...p}><path d="M3 3 L12.5 12.5 M13 3 L3.5 12.5 M2.5 11 L5 13.5 M13.5 11 L11 13.5" /></svg>;
-  return <svg {...p}><rect x="3.5" y="2" width="9" height="12" rx="1.6" /><path d="M6 6 H10 M6 9 H9" /></svg>;
+  return <img src={cardBack} alt="" aria-hidden="true" className="rk-stat__ico rk-stat__ico--card" />;
 }
 
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
