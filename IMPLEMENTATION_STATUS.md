@@ -486,3 +486,11 @@ New module `games/othello` registered in engine, catalog and web. Checks run: en
 (`packages/game-engine/test/othello.test.ts`: start, eight-direction flips, auto pass, end with empties to the
 winner, draw, resign/timeout, view, tutorial, 40 random games with replay); API 3 (`apps/api/test/othello.test.ts`);
 catalog test updated; E2E `e2e/othello.spec.ts` — full game and tutorial at 360 and 1440 (`docs/evidence/othello/`).
+## «کوریدور» Quoridor (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/quoridor` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/quoridor.test.ts`: setup for 2/3/4, wall blocking/overlap/cross, path rule, jumps,
+win and placements, turn order/resign/timeouts, view, tutorial, 30 random games with walls keeping paths and replay);
+API 3 (`apps/api/test/quoridor.test.ts`); catalog test updated; E2E `e2e/quoridor.spec.ts` — tutorial and a
+two-player race with walls at 360 and 1440 (`docs/evidence/quoridor/`). Polish: wall contrast, pawn size, shorter
+mobile status, move mode after each turn.

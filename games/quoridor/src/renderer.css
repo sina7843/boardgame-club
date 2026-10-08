@@ -1,0 +1,49 @@
+/* کوریدور: oiled wood tiles in a dark frame, raised maple walls, glossy pawns in seat colours. Geometry LTR. */
+.qd { display: grid; gap: 0.75rem; text-align: center; color: #f6efe2; inline-size: 100%; }
+.qd > :first-child { justify-self: center; }
+.qd__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.qd-pl { display: flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgb(0 0 0 / 0.28);
+  border: 1px solid rgb(255 255 255 / 0.08); font-size: 0.85rem; transition: box-shadow 0.25s; }
+.qd-pl--turn { box-shadow: 0 0 0 2px var(--pc), 0 6px 18px -6px var(--pc); }
+.qd-pl--out { opacity: 0.45; text-decoration: line-through; }
+.qd-pl__pawn { inline-size: 14px; block-size: 18px; border-radius: 50% 50% 30% 30%; background: var(--pc); box-shadow: inset 0 -3px 3px rgb(0 0 0 / 0.3); }
+.qd-pl__name { font-weight: 800; }
+.qd-pl__walls { display: inline-flex; gap: 2px; }
+.qd-pl__walls i { inline-size: 3px; block-size: 12px; border-radius: 1px; background: #d9b37b; }
+.qd-pl__dist { color: #d9ccb4; font-size: 0.78rem; }
+
+.qd-board { display: block; inline-size: 100%; max-inline-size: 760px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.qd-tile { outline: none; }
+.qd-tile__inset { fill: none; stroke: rgb(255 255 255 / 0.18); stroke-width: 2px; }
+.qd-tile--lit { cursor: pointer; }
+.qd-tile--lit rect:first-child { filter: brightness(1.12); }
+.qd-tile--lit:hover rect:first-child, .qd-tile--lit:focus-visible rect:first-child { filter: brightness(1.28); }
+.qd-tile:focus-visible .qd-tile__inset { stroke: #ffd27a; stroke-width: 4px; }
+.qd-step { opacity: 0.8; animation: qd-pulse 1s ease-in-out infinite; }
+.qd-tile--hint rect:first-child { animation: qd-hint 1.1s ease-in-out infinite; }
+.qd-goal { opacity: 0.85; filter: drop-shadow(0 0 6px currentColor); }
+.qd-wall--new { transform-box: fill-box; transform-origin: center; animation: qd-drop 0.4s cubic-bezier(.2, 1.4, .4, 1) both; }
+.qd-wall--preview { fill: rgb(255 210 122 / 0.55); stroke: #ffd27a; stroke-width: 2px; stroke-dasharray: 6 4; pointer-events: none; }
+.qd-pawn { transition: transform 0.35s cubic-bezier(.3, .9, .3, 1.1); }
+.qd-pawn__n { font: 900 20px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.4); stroke-width: 3px; }
+.qd-x { outline: none; }
+.qd-x--ok { cursor: pointer; }
+.qd-x__dot { fill: #ffd27a; opacity: 0.75; }
+.qd-x--no .qd-x__dot { fill: #5b3a1e; opacity: 0.4; }
+.qd-x--ok:hover .qd-x__dot, .qd-x--ok:focus-visible .qd-x__dot { opacity: 1; r: 12px; }
+.qd-x--hint .qd-x__dot { animation: qd-pulse 0.9s ease-in-out infinite; fill: #fff3c4; }
+
+.qd__tools { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; }
+.qd__orient { display: inline-flex; border-radius: 999px; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.2); }
+.qd__orient button { padding: 0.35rem 0.8rem; background: transparent; color: #f6efe2; border: 0; cursor: pointer; font: inherit; font-size: 0.85rem; }
+.qd__orient button[aria-pressed="true"] { background: #c9a46a; color: #2a1a0d; font-weight: 800; }
+.qd__end { margin: 0; color: #ffd27a; font-weight: 800; }
+
+@keyframes qd-drop { from { transform: scale(1.35) translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes qd-pulse { 50% { opacity: 0.4; } }
+@keyframes qd-hint { 50% { filter: brightness(1.5) drop-shadow(0 0 10px #ffd27a); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .qd-step, .qd-tile--hint rect:first-child, .qd-wall--new, .qd-x--hint .qd-x__dot { animation: none; }
+  .qd-pawn { transition: none; }
+}

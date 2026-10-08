@@ -14,6 +14,7 @@ import { ticketToRide } from '@bg/game-ticket-to-ride';
 import { backgammon } from '@bg/game-backgammon';
 import { checkers } from '@bg/game-checkers';
 import { othello } from '@bg/game-othello';
+import { quoridor } from '@bg/game-quoridor';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor];

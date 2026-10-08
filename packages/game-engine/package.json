@@ -25,7 +25,8 @@
     "@bg/game-amlak": "workspace:*",
     "@bg/game-backgammon": "workspace:*",
     "@bg/game-checkers": "workspace:*",
-    "@bg/game-othello": "workspace:*"
+    "@bg/game-othello": "workspace:*",
+    "@bg/game-quoridor": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

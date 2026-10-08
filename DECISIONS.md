@@ -477,3 +477,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   that wipes out white.
 - Look: green baize with brass lines and star points, glossy discs that drop in; outflanked discs turn over in a
   ripple from the new disc; legal squares dotted (ghost disc on hover); live disc counts with a black/white bar.
+## «کوریدور» (Quoridor, 2026-10-08, owner list batch 1)
+
+- Official rules for 2 and 4 players (10 / 5 walls), plus the common unofficial 3-player setup (bottom, left, top;
+  7 walls). Pawn step or wall per turn; walls may not overlap/cross or cut any active pawn off its goal (BFS check);
+  straight jumps over an adjacent pawn, diagonal side-steps when a wall or the edge is behind it.
+- Others are placed by remaining distance when someone wins; resign / three timeouts remove a player (their pawn
+  leaves the board); a timeout steps along a shortest path. Legal walls are computed on the client with the same
+  `wallOk`; the server re-validates every wall.
+- Look: oiled wooden tiles in grooves, dark walnut walls that drop in, glossy pawns in seat colours that slide,
+  goal edges glowing in each player's colour, board turned so the viewer's start edge is at the bottom; walls are
+  placed by tapping the groove crossings (preview on hover), with a horizontal/vertical toggle in viewer terms.

@@ -25,7 +25,8 @@
     "zod": "4.6.5",
     "@bg/game-backgammon": "workspace:*",
     "@bg/game-checkers": "workspace:*",
-    "@bg/game-othello": "workspace:*"
+    "@bg/game-othello": "workspace:*",
+    "@bg/game-quoridor": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",
