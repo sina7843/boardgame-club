@@ -113,6 +113,13 @@ export function Layout() {
               وضعیت حساب شما دریافت نشد. اتصال را بررسی کنید.
             </StateBlock>
           : <div key={pathname} className="page-enter animate-fade-up"><Outlet /></div>}
+        <footer className="shell-foot mt-10 flex justify-center">
+          {/* eNamad trust seal, markup as issued by enamad.ir (the img `code` attribute is part of their snippet). */}
+          <a referrerPolicy="origin" target="_blank" rel="noopener" href="https://trustseal.enamad.ir/?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" aria-label="نماد اعتماد الکترونیکی (اینماد)">
+            <img referrerPolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" alt="نماد اعتماد الکترونیکی" style={{ cursor: 'pointer' }}
+              {...{ code: 'zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi' }} />
+          </a>
+        </footer>
       </main>
 
       <nav aria-label="ناوبری اصلی" className="shell-nav fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-5 gap-1 rounded-control border-line border-border bg-card/95 p-1.5 shadow-overlay backdrop-blur-md lg:hidden">
