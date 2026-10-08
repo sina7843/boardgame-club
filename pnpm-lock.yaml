@@ -116,6 +116,9 @@ importers:
       '@bg/game-scout':
         specifier: workspace:*
         version: link:../../games/scout
+      '@bg/game-sea-salt-paper':
+        specifier: workspace:*
+        version: link:../../games/sea-salt-paper
       '@bg/game-six-nimmt':
         specifier: workspace:*
         version: link:../../games/six-nimmt
@@ -291,6 +294,9 @@ importers:
       '@bg/game-scout':
         specifier: workspace:*
         version: link:../../games/scout
+      '@bg/game-sea-salt-paper':
+        specifier: workspace:*
+        version: link:../../games/sea-salt-paper
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
@@ -941,6 +947,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/sea-salt-paper:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/sealed-bids:
     dependencies:
       '@bg/game-sdk':
@@ -1258,6 +1283,9 @@ importers:
       '@bg/game-sdk':
         specifier: workspace:*
         version: link:../game-sdk
+      '@bg/game-sea-salt-paper':
+        specifier: workspace:*
+        version: link:../../games/sea-salt-paper
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
@@ -1394,6 +1422,9 @@ importers:
       '@bg/game-sdk':
         specifier: workspace:*
         version: link:../game-sdk
+      '@bg/game-sea-salt-paper':
+        specifier: workspace:*
+        version: link:../../games/sea-salt-paper
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids

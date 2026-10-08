@@ -685,3 +685,10 @@ note above: a route occasionally has no `main h1` within 5 s, or a navigation ne
 Follow-up risk worth fixing: ten of the new catalog covers import their game's `renderer.tsx` to reuse drawings, so the
 catalog chunk pulls those renderers and their CSS; covers should import small shared drawing modules instead.
 Batch 6 status: «بازار سبزی»، «بلوف حشره‌ها»، «سیرک»، «راه ادویه» done; Sea Salt & Paper not started.
+## «کاغذ و دریا» Sea Salt & Paper (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/sea-salt-paper` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/sea-salt-paper.test.ts`: card set and scoring, draw/keep/pile rules, duo effects, stop
+and last chance, four mermaids, resign, tutorial, 20 random 2–4 player games with card conservation and replay);
+API 3 (`apps/api/test/sea-salt-paper.test.ts`); catalog test updated; E2E `e2e/sea-salt-paper.spec.ts` — tutorial and
+a full three-player game at 360 and 1440 (`docs/evidence/sea-salt-paper/`).

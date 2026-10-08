@@ -803,3 +803,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Polish passes (360/1440): (1) a renderer crash when a selected card stopped being playable for one render (stale
   selection read with a non-null assertion) — the selection is now only used while legal; (2) order and market rows
   are capped at 38rem on desktop.
+## «کاغذ و دریا» (Sea Salt & Paper, 2026-10-08, owner list batch 6)
+
+- 2–4 players; 58 cards (duos crab/boat/fish/swimmer/shark, collectors shell/octopus/penguin/sailor, multipliers
+  lighthouse/shoal/colony/captain, four mermaids). Card colours follow a fixed rotation over nine colours (mermaids
+  white) instead of the printed colours. Draw two (keep one; the other goes to an empty discard pile first) or take a
+  pile top; play duos (crab: search a pile, boat: extra turn, fish: draw, swimmer+shark: steal at random); with 7+
+  points «بس» or «آخرین فرصت» with the original's caller/others scoring; an exhausted deck ends the round with no
+  points; four mermaids win immediately (others share second). Target 40/35/30. Duo pairs count in hand and played.
+  Hidden: hands, deck, the two drawn cards and a crab-searched pile (except to the searcher). Timeout: take a pile
+  top (or draw and keep the first), then end the turn.
+- Look: origami on a paper sea; folded-paper cards (two-tone crease) with geometric creatures, a striped paper deck,
+  two discard piles on a watercolour sea, private draw-two choice, duo actions offered from the two selected cards,
+  live hand points and «بس!» / «آخرین فرصت» once at 7.
