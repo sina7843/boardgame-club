@@ -759,3 +759,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   vegetables below; players show vegetable counts and their rules each with live points; tap a rule to flip it.
 - Polish passes (360/1440): (1) at 360 the crates overflowed (two fixed 3rem vegetable slots plus a wide rule card) —
   slots now shrink to fit and rule cards on piles are compact.
+## «بلوف حشره‌ها» (Cockroach Poker, 2026-10-08, owner list batch 6)
+
+- 2–6 players; 64 cards (eight creatures × 8) all dealt. Give a hand card face down with a claim; the receiver calls
+  «راست»/«دروغ» (a right call puts the card in front of the giver, a wrong one in front of the receiver, who then
+  starts) or looks («peek», after which they must pass) and passes it on with a new claim to someone who has not seen
+  it (never possible with two players; a blind pass is also accepted). Four of one creature face up, or having to give
+  with an empty hand, loses. Hidden: hands and the card in play except to those who have seen it.
+- Outcome convention: the loser is place 2 and everyone else shares place 1 with reason 'win'; the generic result
+  panel now treats any shared first place under reason 'win' as a win (cooperative teams included) — draws keep
+  reason 'draw'/'score' and still read «مساوی».
+- Look: a smoky card room; creature cards with bold silhouettes on colour fields, the card in play sliding in with
+  the claim in a speech bubble and who has seen it, face-up stacks grouped per creature with a throbbing warning at
+  three, give/pass built from card + player + claim.

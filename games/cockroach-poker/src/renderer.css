@@ -1,0 +1,59 @@
+/* بلوف حشره‌ها: a smoky card room — dark plum felt, creature cards with a bold silhouette on a coloured field. */
+.cr { --ink: #1e1622; display: grid; gap: 0.7rem; inline-size: 100%; color: #f3ecf6; text-align: center; }
+.cr > :first-child { justify-self: center; }
+.cr > .cr__players, .cr > .cr__me { justify-self: stretch; }
+.cr-c--cockroach { --c: #8a5a2b; } .cr-c--bat { --c: #4a4a6a; } .cr-c--fly { --c: #3f8f8a; } .cr-c--toad { --c: #5a8a2e; }
+.cr-c--rat { --c: #7a7a80; } .cr-c--scorpion { --c: #c46a1e; } .cr-c--spider { --c: #8e2f4a; } .cr-c--stinkbug { --c: #4f6a2a; }
+
+.cr-card { display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 9px; color: #1a1416;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 35%, white 65%), color-mix(in srgb, var(--c) 70%, white 30%)); box-shadow: inset 0 0 0 3px var(--c), 0 4px 8px -4px #000; }
+.cr-card svg { fill: #1a1416; stroke: #1a1416; }
+.cr-card--lg { inline-size: 5.4rem; block-size: 7.4rem; }
+.cr-card--lg svg { inline-size: 3.6rem; block-size: 3.6rem; }
+.cr-card--md { inline-size: 3.4rem; block-size: 4.6rem; }
+.cr-card--md svg { inline-size: 2.2rem; block-size: 2.2rem; }
+.cr-card--sm { inline-size: 1.7rem; block-size: 2.2rem; border-radius: 5px; box-shadow: inset 0 0 0 2px var(--c); }
+.cr-card--sm svg { inline-size: 1.3rem; block-size: 1.3rem; }
+.cr-card__n { font-size: 0.68rem; font-weight: 900; }
+.cr-card--back { background: repeating-linear-gradient(45deg, #4a2a4a 0 6px, #3a1f3a 6px 12px); box-shadow: inset 0 0 0 3px #c9a46a, 0 4px 8px -4px #000; }
+
+.cr__play { display: grid; gap: 0.45rem; justify-items: center; animation: cr-slide 0.45s cubic-bezier(.2,.8,.3,1.2) both; }
+.cr__bubble { position: relative; padding: 0.4rem 0.9rem; border-radius: 14px; background: #f3ecf6; color: var(--ink); font-size: 0.9rem; box-shadow: 0 4px 10px -6px #000; }
+.cr__bubble::before { content: ''; position: absolute; inset-block-start: -0.4rem; inset-inline-start: 50%; translate: -50% 0; border: 0.4rem solid transparent; border-block-end-color: #f3ecf6; border-block-start: 0; }
+.cr__bubble b { color: #8e2f4a; }
+.cr__path { font-size: 0.75rem; color: #cbb8d6; }
+.cr__last { margin: 0; justify-self: center; padding: 0.35rem 0.9rem; border-radius: 12px; background: rgb(0 0 0 / 0.3); font-size: 0.86rem; animation: cr-drop 0.35s ease-out both; }
+
+.cr__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.cr-pl { display: grid; gap: 0.35rem; padding: 0.45rem 0.55rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); }
+.cr-pl--me { background: rgb(201 164 106 / 0.12); }
+.cr-pl--turn { box-shadow: 0 0 0 2px #c9a46a; }
+.cr-pl--lost { box-shadow: 0 0 0 2px #ff6b6b; background: rgb(255 107 107 / 0.15); }
+.cr-pl__head { display: flex; flex-wrap: wrap; gap: 0.35rem 0.6rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.cr-pl__name { font-weight: 800; }
+.cr-pl__hand { color: #cbb8d6; }
+.cr-pl__out { color: #ff8f8f; font-weight: 900; }
+.cr-target { padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.15); color: #f6e3bf; font: inherit; font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+.cr-target--on { background: #c9a46a; color: var(--ink); }
+.cr-pl__table { display: flex; flex-wrap: wrap; gap: 0.3rem 0.5rem; justify-content: center; min-block-size: 2.3rem; align-items: center; }
+.cr-stack { display: inline-flex; align-items: center; gap: 0.15rem; font-size: 0.8rem; }
+.cr-stack--danger { padding: 0.1rem 0.25rem; border-radius: 6px; background: rgb(255 80 80 / 0.25); box-shadow: 0 0 0 1px #ff8f8f; animation: cr-throb 1.4s ease-in-out infinite; }
+.cr-empty { color: #8a7a92; }
+
+.cr__me { display: grid; gap: 0.55rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(201 164 106 / 0.35); }
+.cr__respond { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+.cr__claims { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; font-size: 0.82rem; }
+.cr-claim { display: grid; justify-items: center; gap: 0.05rem; padding: 0.2rem; border: 0; border-radius: 8px; background: rgb(0 0 0 / 0.2); color: inherit; font: inherit; cursor: pointer; }
+.cr-claim small { font-size: 0.6rem; }
+.cr-claim--on { box-shadow: 0 0 0 2px #f6e3bf; background: rgb(246 227 191 / 0.15); }
+.cr__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.cr-pick { display: inline-grid; justify-items: center; gap: 0.1rem; padding: 0.15rem; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; font-size: 0.8rem; }
+button.cr-pick { cursor: pointer; }
+.cr-pick--on { box-shadow: 0 0 0 3px #f6e3bf; transform: translateY(-5px); }
+.cr-hint { animation: cr-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes cr-slide { from { opacity: 0; transform: translateX(-30px) rotate(-8deg); } }
+@keyframes cr-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes cr-throb { 50% { box-shadow: 0 0 0 3px rgb(255 143 143 / 0.4); } }
+@keyframes cr-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .cr * { animation: none !important; transition: none !important; } }

@@ -655,3 +655,10 @@ New module `games/point-salad` registered in engine, catalog and web. Checks run
 timeouts/resign/privacy, tutorial, 25 random 2–6 player games with card conservation, winner = top score, replay);
 API 3 (`apps/api/test/point-salad.test.ts`); catalog test updated; E2E `e2e/point-salad.spec.ts` — tutorial and a full
 three-player game at 360 and 1440 (`docs/evidence/point-salad/`).
+## «بلوف حشره‌ها» Cockroach Poker (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/cockroach-poker` registered in engine, catalog and web; result headline handles shared wins.
+Checks run: engine 6 (`packages/game-engine/test/cockroach-poker.test.ts`: deal, right/wrong calls, peek-then-pass
+and pass targets, four-of-a-kind loss with shared win, timeouts/resign, tutorial, 30 random 2–6 player games with
+card conservation and replay); API 3 (`apps/api/test/cockroach-poker.test.ts`); catalog test updated; E2E
+`e2e/cockroach-poker.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/cockroach-poker/`).
