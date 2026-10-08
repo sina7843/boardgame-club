@@ -501,3 +501,10 @@ New module `games/onitama` registered in engine, catalog and web. Checks run: en
 student on temple, pass, repetition/resign/timeout, view, tutorial, 40 random games with replay); API 3
 (`apps/api/test/onitama.test.ts`); catalog test updated; E2E `e2e/onitama.spec.ts` — tutorial and a full duel at 360
 and 1440 (`docs/evidence/onitama/`). Polish: compact cards on phones.
+## «گو» Go (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/go` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/go.test.ts`:
+sizes/komi, captures and suicide, superko, area score with dead stones, scoring phase mark/accept/resume, timeouts,
+view, tutorial, 15 random 9×9 games with liberty invariant and replay); API 3 (`apps/api/test/go.test.ts`); catalog
+test updated; E2E `e2e/go.spec.ts` — tutorial and a short game through pass/mark/accept at 360 and 1440
+(`docs/evidence/go/`). Polish: coordinate labels clear of edge stones.

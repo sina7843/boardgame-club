@@ -497,3 +497,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: rice paper and ink lines, temple gates on both temples, vermilion vs indigo tokens (crowned masters), move
   cards with a 5×5 pattern and colour stamp (opponent's cards upside down, the side card labelled with who gets it
   next); targets coloured by card, a card picker when two cards reach the same square, sliding last move.
+## «گو» (Go, 2026-10-08, owner list batch 2)
+
+- Area (Chinese-style) scoring with komi (7.5 default; 6.5 / 5.5 / 0.5 options), board 9×9 default (13 / 19 options),
+  suicide illegal, positional superko (server keeps every earlier board hash; the client shows the simple-ko point).
+- End: two passes open a scoring phase; either player toggles dead groups (any change clears both acceptances),
+  both accept to score, either may resume play (opponent of the resumer moves). Timeouts pass (three in a row lose);
+  a timeout during scoring accepts the current marking. No handicap stones in this version.
+- Look: kaya board with grain, ink lines, star points and coordinates; slate and shell stones that drop in; captured
+  stones fade; last-move ring; ko square; territory squares and live score in the scoring phase; dead stones marked ×.

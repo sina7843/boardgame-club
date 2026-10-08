@@ -33,7 +33,8 @@
     "@bg/game-checkers": "workspace:*",
     "@bg/game-othello": "workspace:*",
     "@bg/game-quoridor": "workspace:*",
-    "@bg/game-onitama": "workspace:*"
+    "@bg/game-onitama": "workspace:*",
+    "@bg/game-go": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

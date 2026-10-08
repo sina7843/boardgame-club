@@ -27,7 +27,8 @@
     "@bg/game-checkers": "workspace:*",
     "@bg/game-othello": "workspace:*",
     "@bg/game-quoridor": "workspace:*",
-    "@bg/game-onitama": "workspace:*"
+    "@bg/game-onitama": "workspace:*",
+    "@bg/game-go": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"
