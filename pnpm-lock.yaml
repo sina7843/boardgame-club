@@ -74,6 +74,9 @@ importers:
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
+      '@bg/game-hanabi':
+        specifier: workspace:*
+        version: link:../../games/hanabi
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -243,6 +246,9 @@ importers:
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
+      '@bg/game-hanabi':
+        specifier: workspace:*
+        version: link:../../games/hanabi
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -606,6 +612,25 @@ importers:
         version: 19.3.0
 
   games/go:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
+  games/hanabi:
     dependencies:
       '@bg/game-sdk':
         specifier: workspace:*
@@ -1229,6 +1254,9 @@ importers:
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
+      '@bg/game-hanabi':
+        specifier: workspace:*
+        version: link:../../games/hanabi
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -1368,6 +1396,9 @@ importers:
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
+      '@bg/game-hanabi':
+        specifier: workspace:*
+        version: link:../../games/hanabi
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society

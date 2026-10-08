@@ -58,7 +58,8 @@
     "@bg/game-cockroach-poker": "workspace:*",
     "@bg/game-scout": "workspace:*",
     "@bg/game-century": "workspace:*",
-    "@bg/game-sea-salt-paper": "workspace:*"
+    "@bg/game-sea-salt-paper": "workspace:*",
+    "@bg/game-hanabi": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

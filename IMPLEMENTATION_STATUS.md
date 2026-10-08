@@ -692,3 +692,9 @@ New module `games/sea-salt-paper` registered in engine, catalog and web. Checks 
 and last chance, four mermaids, resign, tutorial, 20 random 2–4 player games with card conservation and replay);
 API 3 (`apps/api/test/sea-salt-paper.test.ts`); catalog test updated; E2E `e2e/sea-salt-paper.spec.ts` — tutorial and
 a full three-player game at 360 and 1440 (`docs/evidence/sea-salt-paper/`).
+## «آتش‌بازی» Hanabi (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/hanabi` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/hanabi.test.ts`:
+deal and own-hand hiding, clues, plays/fuses/discards, last round, timeouts/resign, tutorial, 25 random 2–5 player
+games with card conservation and replay); API 3 (`apps/api/test/hanabi.test.ts`); catalog test updated; E2E
+`e2e/hanabi.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/hanabi/`).

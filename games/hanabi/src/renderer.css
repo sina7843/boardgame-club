@@ -1,0 +1,65 @@
+/* آتش‌بازی: a night sky — deep navy, firework cards with radiating sparks, glowing clue tokens and fuses. */
+.hb { --ink: #0c1530; display: grid; gap: 0.7rem; inline-size: 100%; color: #eef2ff; text-align: center; }
+.hb > :first-child { justify-self: center; }
+.hb > .hb__team, .hb > .hb__me, .hb > .hb__sky { justify-self: stretch; }
+.hb-c--r { --c: #ff5a4f; } .hb-c--y { --c: #ffd23f; } .hb-c--g { --c: #4fd17a; } .hb-c--b { --c: #4fa3ff; } .hb-c--w { --c: #f2f4ff; }
+
+.hb__sky { display: grid; gap: 0.6rem; padding: 0.7rem 0.5rem; border-radius: 16px; background: radial-gradient(ellipse at 50% 0%, #26306a, #0c1530 70%); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+.hb__tokens { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; justify-content: center; font-size: 0.82rem; }
+.hb__clues, .hb__fuses { display: inline-flex; gap: 3px; }
+.hb__clues i { inline-size: 0.8rem; block-size: 0.8rem; border-radius: 50%; background: rgb(255 255 255 / 0.12); }
+.hb__clues i.on { background: radial-gradient(circle at 35% 30%, #c9e2ff, #4fa3ff); box-shadow: 0 0 6px #4fa3ff; }
+.hb__fuses i { inline-size: 0.5rem; block-size: 1rem; border-radius: 3px; background: rgb(255 255 255 / 0.12); }
+.hb__fuses i.on { background: linear-gradient(#ffd23f, #ff5a4f); box-shadow: 0 0 6px #ff5a4f; }
+.hb__score { color: #ffd23f; font-weight: 900; }
+.hb__stacks { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.35rem; }
+.hb-stack { position: relative; display: grid; justify-items: center; gap: 0.1rem; padding: 0.4rem 0.2rem; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--c) 50%, transparent); background: rgb(0 0 0 / 0.25); overflow: hidden; }
+.hb-stack b { font-size: 1.5rem; font-weight: 900; color: var(--c); text-shadow: 0 0 10px var(--c); }
+.hb-stack small { font-size: 0.65rem; color: #c4cbe8; }
+.hb-stack__burst { position: absolute; inset: 0; margin: auto; inline-size: 120%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--c) 60%, transparent), transparent 60%); opacity: 0; }
+.hb-stack--lit .hb-stack__burst { animation: hb-burst 0.9s ease-out; }
+.hb__last { margin: 0; font-size: 0.85rem; color: #dfe5ff; animation: hb-drop 0.35s ease-out both; }
+
+.hb-card { position: relative; display: inline-grid; place-items: center; border-radius: 7px; background: linear-gradient(160deg, #1d2552, #0f1736); box-shadow: inset 0 0 0 2px var(--c), 0 3px 6px -3px #000; }
+.hb-card--md { inline-size: 2.7rem; block-size: 3.8rem; }
+.hb-card--sm { inline-size: 1.5rem; block-size: 2.1rem; border-radius: 4px; }
+.hb-card svg { position: absolute; inset: 0; margin: auto; inline-size: 75%; stroke: var(--c); stroke-width: 1.4; stroke-linecap: round; fill: var(--c); opacity: 0.55; }
+.hb-card b { position: relative; font-size: 1.3rem; font-weight: 900; color: var(--c); text-shadow: 0 0 6px #000; }
+.hb-card--sm b { font-size: 0.8rem; }
+
+.hb__team { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.hb-mate { display: grid; gap: 0.35rem; padding: 0.5rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); }
+.hb-mate--turn { box-shadow: 0 0 0 2px #9fb8ff; }
+.hb-mate--on { background: rgb(79 163 255 / 0.12); }
+.hb-mate__head { display: flex; gap: 0.5rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.hb-mate__name { font-weight: 800; }
+.hb-clueBtn { padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px solid #4fa3ff; background: rgb(79 163 255 / 0.15); color: #dfe9ff; font: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
+.hb-mate__hand { display: flex; gap: 0.25rem; justify-content: center; }
+.hb-slot { display: grid; justify-items: center; gap: 1px; border-radius: 8px; }
+.hb-slot--touched { box-shadow: 0 0 0 2px #ffd23f; animation: hb-glow 1.2s ease-out; }
+.hb-know { min-block-size: 0.9rem; font-size: 0.55rem; color: #c4cbe8; }
+.hb-clues { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; animation: hb-drop 0.25s ease-out both; }
+.hb-cl { min-inline-size: 2.2rem; padding: 0.25rem 0.45rem; border-radius: 8px; border: 1px solid var(--c, #c4cbe8); background: rgb(0 0 0 / 0.3); color: var(--c, #fff); font: inherit; font-weight: 900; cursor: pointer; }
+.hb-cl--n { --c: #f2f4ff; }
+
+.hb__me { display: grid; gap: 0.5rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(159 184 255 / 0.4); }
+.hb__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.hb-mine { display: grid; gap: 0.1rem; justify-items: center; align-content: center; inline-size: 3.6rem; min-block-size: 4.6rem; padding: 0.2rem; border: 0; border-radius: 9px; color: #eef2ff; font: inherit; cursor: pointer;
+  background: repeating-linear-gradient(45deg, #1d2552 0 6px, #16204a 6px 12px); box-shadow: inset 0 0 0 2px var(--c, #5a64a0); transition: transform 0.15s, box-shadow 0.15s; }
+.hb-mine:disabled { cursor: default; }
+.hb-mine--on { transform: translateY(-6px); box-shadow: inset 0 0 0 2px var(--c, #5a64a0), 0 0 0 3px #ffd23f; }
+.hb-mine__face { font-size: 1.4rem; font-weight: 900; color: var(--c, #c4cbe8); }
+.hb-mine small { font-size: 0.6rem; }
+.hb-mine__not { color: #8f98c4; }
+.hb__bar { display: flex; gap: 0.45rem; justify-content: center; }
+.hb__final { display: grid; gap: 0.3rem; justify-items: center; }
+.hb__finalHand, .hb__discard { display: flex; flex-wrap: wrap; gap: 0.2rem; align-items: center; justify-content: center; font-size: 0.78rem; }
+.hb-hint { animation: hb-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes hb-burst { 0% { opacity: 1; transform: scale(0.2); } 100% { opacity: 0; transform: scale(1.4); } }
+@keyframes hb-glow { 0% { box-shadow: 0 0 0 6px #ffd23f; } }
+@keyframes hb-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes hb-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .hb * { animation: none !important; transition: none !important; } }
+.hb__stacks { inline-size: min(100%, 30rem); justify-self: center; }
+.hb-card svg { opacity: 0.32; }

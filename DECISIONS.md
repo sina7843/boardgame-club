@@ -816,3 +816,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: origami on a paper sea; folded-paper cards (two-tone crease) with geometric creatures, a striped paper deck,
   two discard piles on a watercolour sea, private draw-two choice, duo actions offered from the two selected cards,
   live hand points and «بس!» / «آخرین فرصت» once at 7.
+## «آتش‌بازی» (Hanabi, 2026-10-08, owner list batch 7)
+
+- Cooperative 2–5, friendly only; 50 cards, hands of 5 (4 with 4–5 players), 8 clue tokens, 3 fuses. Clue a colour or
+  number (must touch a card; marks positive and negative knowledge), discard (+1 clue, not at 8), or play (wrong play
+  burns a fuse; a finished colour returns a clue). Deck out → everyone one more turn. Outcome: three fuses (or resign)
+  → team loss (everyone place 2); otherwise a team win carrying the stack total as score. Each viewer sees every hand
+  but their own (own cards carry only the clue knowledge). Timeout: discard the oldest card (or clue at 8 tokens).
+- Look: night sky; firework stacks that burst as they grow, glowing clue tokens and fuses, teammates' firework cards
+  with the clues they hold (freshly clued cards flash), your own cards as patterned backs showing what you know,
+  including «نه: …» negatives; discard pile shown.
+- Polish (360/1440): stacks capped at 30rem; card sparks dimmed so numbers read clearly.

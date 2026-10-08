@@ -40,6 +40,7 @@ import CockroachPokerRenderer from '@bg/game-cockroach-poker/renderer';
 import ScoutRenderer from '@bg/game-scout/renderer';
 import CenturyRenderer from '@bg/game-century/renderer';
 import SeaSaltPaperRenderer from '@bg/game-sea-salt-paper/renderer';
+import HanabiRenderer from '@bg/game-hanabi/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -88,5 +89,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'cockroach-poker@1.0.0': CockroachPokerRenderer as ComponentType<GameRendererProps<never>>,
   'scout@1.0.0': ScoutRenderer as ComponentType<GameRendererProps<never>>,
   'century@1.0.0': CenturyRenderer as ComponentType<GameRendererProps<never>>,
-  'sea-salt-paper@1.0.0': SeaSaltPaperRenderer as ComponentType<GameRendererProps<never>>
+  'sea-salt-paper@1.0.0': SeaSaltPaperRenderer as ComponentType<GameRendererProps<never>>,
+  'hanabi@1.0.0': HanabiRenderer as ComponentType<GameRendererProps<never>>
 };

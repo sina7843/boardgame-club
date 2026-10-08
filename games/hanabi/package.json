@@ -1,0 +1,26 @@
+{
+  "name": "@bg/game-hanabi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cover": "./src/cover.tsx",
+    "./renderer": "./src/renderer.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bg/game-sdk": "workspace:*",
+    "zod": "4.6.5",
+    "@bg/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "react": "19.3.0"
+  }
+}
