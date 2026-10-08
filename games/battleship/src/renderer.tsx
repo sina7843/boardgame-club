@@ -3,12 +3,22 @@
 // and list. Placement uses a fleet tray (pick a ship, rotate, tap a cell) with a local random layout to start from.
 import './renderer.css';
 import { useEffect, useMemo, useState } from 'react';
+import bdOcean from './art/bd-ocean.webp';
+import fxHit from './art/fx-hit.webp';
+import fxMiss from './art/fx-miss.webp';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { FLEET, SIZE, cellsOf, validFleet, type BsView, type Dir, type SeaView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const ROWS = ['الف', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د'];
 const cellName = (c: number) => `${ROWS[Math.floor(c / SIZE)]}${fa((c % SIZE) + 1)}`;
+
+/** Painted shot marker centred on (x, y): fire burst for a hit, white splash for a miss. */
+export function Shot({ x, y, hit }: { x: number; y: number; hit: boolean }) {
+  return hit
+    ? <image href={fxHit} x={x - 5} y={y - 5} width="10" height="10" className="bs-fx bs-fx--hit" />
+    : <image href={fxMiss} x={x - 4.5} y={y - 2.1} width="9" height="4.2" className="bs-fx bs-fx--miss" />;
+}
 
 /** A ship hull spanning its cells (10 units per cell), drawn horizontally and rotated when vertical. */
 export function Hull({ s, sunk }: { s: Ship; sunk?: boolean }) {
@@ -43,20 +53,11 @@ function Chart({ sea, mine, label, onCell, canCell, hint, draft, ghost }: {
         {Array.from({ length: SIZE }, (_, i) => <span key={`r${i}`} className="bs-coord bs-coord--row" style={{ gridRow: i + 2 }} aria-hidden>{ROWS[i]}</span>)}
         <div className="bs-sea" style={{ gridRow: '2 / span 10', gridColumn: '2 / span 10' }}>
           <svg viewBox="0 0 100 100" className="bs-sea__art" aria-hidden>
-            <defs>
-              <pattern id={`bs-waves-${mine ? 'm' : 'e'}`} width="10" height="6" patternUnits="userSpaceOnUse"><path d="M0 4 Q2.5 2 5 4 T10 4" className="bs-wave" /></pattern>
-            </defs>
-            <rect width="100" height="100" className="bs-water" />
-            <rect width="100" height="100" fill={`url(#bs-waves-${mine ? 'm' : 'e'})`} />
+            <image href={bdOcean} width="100" height="100" preserveAspectRatio="xMidYMid slice" />
             {Array.from({ length: SIZE - 1 }, (_, i) => <g key={i}><path d={`M${(i + 1) * 10} 0 V100`} className="bs-grid" /><path d={`M0 ${(i + 1) * 10} H100`} className="bs-grid" /></g>)}
             {ships.map((s) => <Hull key={s.ship} s={s} sunk={sea.sunk.includes(s.ship)} />)}
             {ghost && ghost.cells.map((c) => <rect key={c} x={(c % SIZE) * 10 + 0.8} y={Math.floor(c / SIZE) * 10 + 0.8} width="8.4" height="8.4" rx="1.5" className={`bs-ghost ${ghost.ok ? '' : 'is-bad'}`} />)}
-            {[...shots].map(([c, hit]) => {
-              const x = (c % SIZE) * 10 + 5, y = Math.floor(c / SIZE) * 10 + 5;
-              return hit
-                ? <g key={c} className="bs-hit" transform={`translate(${x} ${y})`}><circle r="3.9" className="bs-hit__glow" /><path d="M0 -3.6 L1 -1 L3.4 -1.9 L1.8 0.3 L3.2 2.6 L0.6 1.6 L-0.4 3.8 L-1.2 1.4 L-3.6 2.4 L-2 0.2 L-3.4 -2 L-0.9 -1.2 Z" className="bs-hit__flame" /></g>
-                : <g key={c} className="bs-miss" transform={`translate(${x} ${y})`}><circle r="2.6" className="bs-miss__ring" /><circle r="0.9" className="bs-miss__dot" /></g>;
-            })}
+            {[...shots].map(([c, hit]) => <Shot key={c} x={(c % SIZE) * 10 + 5} y={Math.floor(c / SIZE) * 10 + 5} hit={hit} />)}
           </svg>
           <div className="bs-cells">
             {Array.from({ length: SIZE * SIZE }, (_, c) => {

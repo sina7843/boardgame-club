@@ -1,7 +1,8 @@
 /* نبرد دریایی: vintage nautical charts — parchment frame and sepia coordinates around deep water,
-   steel-grey hulls, flame bursts for hits, white splash rings for misses. */
+   steel-grey hulls, painted fire bursts for hits and white splashes for misses (art cut from a generated sheet,
+   see DECISIONS.md). */
 .bs { --paper: #efe2c2; --paper-ink: #6b4a22; --sea-1: #1d5d82; --sea-2: #0d3550; --steel: #9aa7b2; --steel-d: #4f5a66;
-  --flame: #ff7a2a; --ember: #ffd27a; display: grid; gap: 0.6rem; inline-size: 100%; color: #eef3f6; text-align: center; }
+  --flame: #ff7a2a; display: grid; gap: 0.6rem; inline-size: 100%; color: #eef3f6; text-align: center; }
 .bs > :first-child { justify-self: center; }
 
 .bs-report { margin: 0; justify-self: center; padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 800; background: rgb(255 255 255 / 0.08);
@@ -28,8 +29,6 @@
 .bs-sea { position: relative; aspect-ratio: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--paper-ink); }
 .bs-sea__art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
 .bs-sea { background: radial-gradient(120% 120% at 30% 25%, var(--sea-1), var(--sea-2)); }
-.bs-sea__art .bs-water { fill: transparent; }
-.bs-wave { fill: none; stroke: rgb(190 225 245 / 0.18); stroke-width: 0.35; }
 .bs-grid { stroke: rgb(220 240 250 / 0.22); stroke-width: 0.25; }
 
 .bs-hull__body { fill: var(--steel); stroke: #26303a; stroke-width: 0.35; }
@@ -41,10 +40,8 @@
 .bs-hull.is-sunk { opacity: 0.75; filter: grayscale(0.6) brightness(0.55); }
 .bs-hull.is-sunk .bs-hull__body { fill: #5a4a46; }
 
-.bs-hit__glow { fill: rgb(255 122 42 / 0.35); animation: bs-pulse 1.6s ease-in-out infinite; }
-.bs-hit__flame { fill: var(--flame); stroke: var(--ember); stroke-width: 0.45; transform-origin: center; animation: bs-burst 0.45s cubic-bezier(.3,1.6,.5,1) both; }
-.bs-miss__ring { fill: none; stroke: rgb(255 255 255 / 0.8); stroke-width: 0.5; animation: bs-splash 0.6s ease-out both; }
-.bs-miss__dot { fill: rgb(255 255 255 / 0.9); }
+.bs-fx { transform-box: fill-box; transform-origin: center; animation: bs-burst 0.45s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; }
+.bs-fx--hit { filter: drop-shadow(0 0 0.6px rgb(255 122 42 / 0.8)); }
 .bs-ghost { fill: rgb(126 231 160 / 0.35); stroke: #7ee7a0; stroke-width: 0.5; }
 .bs-ghost.is-bad { fill: rgb(255 107 107 / 0.3); stroke: #ff6b6b; }
 
@@ -75,8 +72,6 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 @keyframes bs-rise { from { opacity: 0; transform: translateY(6px); } }
 @keyframes bs-shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 @keyframes bs-burst { from { transform: scale(0.2); opacity: 0; } }
-@keyframes bs-splash { from { r: 0.5; opacity: 0; } }
-@keyframes bs-pulse { 50% { opacity: 0.4; } }
 @keyframes bs-launch { from { opacity: 0; } }
 @keyframes bs-hintpulse { 50% { box-shadow: inset 0 0 0 2px transparent; } }
 @media (prefers-reduced-motion: reduce) { .bs * { animation: none !important; transition: none !important; } }
