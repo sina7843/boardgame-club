@@ -515,3 +515,9 @@ New module `games/santorini` registered in engine, catalog and web. Checks run: 
 loss, timeouts/resign, view, tutorial, 30 random games with supply invariant and replay); API 3
 (`apps/api/test/santorini.test.ts`); catalog test updated; E2E `e2e/santorini.spec.ts` — tutorial and a full game at
 360 and 1440 (`docs/evidence/santorini/`). Polish: level badges, larger workers.
+## «تاک» Tak (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/tak` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/tak.test.ts`:
+opening, move rules incl. flattening, roads, flat count, timeouts/resign, view, tutorial, 25 random games on all sizes
+with stone conservation and replay); API 3 (`apps/api/test/tak.test.ts`); catalog test updated; E2E `e2e/tak.spec.ts`
+— tutorial and a full game with stack moves at 360 and 1440 (`docs/evidence/tak/`). Polish: stones redrawn as tiles.

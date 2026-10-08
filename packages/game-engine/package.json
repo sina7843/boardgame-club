@@ -29,7 +29,8 @@
     "@bg/game-quoridor": "workspace:*",
     "@bg/game-onitama": "workspace:*",
     "@bg/game-go": "workspace:*",
-    "@bg/game-santorini": "workspace:*"
+    "@bg/game-santorini": "workspace:*",
+    "@bg/game-tak": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

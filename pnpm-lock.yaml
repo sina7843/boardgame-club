@@ -68,6 +68,9 @@ importers:
       '@bg/game-santorini':
         specifier: workspace:*
         version: link:../../games/santorini
+      '@bg/game-tak':
+        specifier: workspace:*
+        version: link:../../games/tak
       '@bg/play':
         specifier: workspace:*
         version: link:../../packages/play
@@ -183,6 +186,9 @@ importers:
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
+      '@bg/game-tak':
+        specifier: workspace:*
+        version: link:../../games/tak
       '@bg/game-ticket-to-ride':
         specifier: workspace:*
         version: link:../../games/ticket-to-ride
@@ -543,6 +549,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/tak:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/ticket-to-ride:
     dependencies:
       '@bg/game-sdk':
@@ -666,6 +691,9 @@ importers:
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
+      '@bg/game-tak':
+        specifier: workspace:*
+        version: link:../../games/tak
       '@bg/game-ticket-to-ride':
         specifier: workspace:*
         version: link:../../games/ticket-to-ride
@@ -736,6 +764,9 @@ importers:
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
+      '@bg/game-tak':
+        specifier: workspace:*
+        version: link:../../games/tak
       '@bg/game-ticket-to-ride':
         specifier: workspace:*
         version: link:../../games/ticket-to-ride

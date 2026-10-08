@@ -17,6 +17,7 @@ import QuoridorCover from '@bg/game-quoridor/cover';
 import OnitamaCover from '@bg/game-onitama/cover';
 import GoCover from '@bg/game-go/cover';
 import SantoriniCover from '@bg/game-santorini/cover';
+import TakCover from '@bg/game-tak/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -37,7 +38,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   quoridor: QuoridorCover,
   onitama: OnitamaCover,
   go: GoCover,
-  santorini: SantoriniCover
+  santorini: SantoriniCover,
+  tak: TakCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

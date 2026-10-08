@@ -515,3 +515,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: grassy island in an Aegean sea, whitewashed tiered towers with columns on level 3 and blue domes, level
   badges, workers that slide and stand on the towers, dashed gold move targets and blue build targets, ghost worker
   while choosing the build, new levels rise in.
+## «تاک» (Tak, 2026-10-08, owner list batch 2)
+
+- Standard rules: sizes 4/5/6 (15/21/30 stones, 0/1/1 capstones; 5×5 default), opening places an opponent flat,
+  place flat/wall/capstone or move a controlled stack (carry limit = size, ≥ 1 per square, walls and capstones block,
+  a lone capstone as the last drop flattens a wall), roads of flats and capstones between opposite edges win (the
+  mover wins a double road), else full board / empty reserve → most top flats (equal = draw). No komi.
+- Moves and placements are computed on the client (`allMoves`, `moveOk`) and re-validated on the server. Timeouts
+  place a flat (or a random move); three in a row lose.
+- Look: walnut board; birch and ebony stones drawn as square tiles with thickness, stacked in layers with a height
+  badge; walls lean, capstones are domed; moves are built by tapping drop squares (dashed gold), the lifted part of
+  the stack rises; the winning road glows.
