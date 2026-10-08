@@ -1055,3 +1055,9 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Tokens (car, samovar, ship, horse, plane, top hat), house/hotel, space icons and corner art are WebP cut-outs from one 5×4 sheet (`amlak-icons`, 1.25 credits); background removed by border-connected flood-fill keying in `.playwright/art/crop.cjs` (`cutout` tolerance), so dark interiors survive.
 - Centre is the Tehran-skyline quadrant of the shared 2×2 `backdrops` sheet (57 KB); a translucent paper plate keeps the title readable.
 - Seats 7–8 keep the vector pawn silhouettes (only six token objects were generated); seat colour is carried by the disc under each token.
+
+## Priority A generated-art redesign (24 games)
+- Art for 24 games comes from 13 GPT-Image sheets (5×4 or 2×2, 4K medium, 1.25 credits each, ~16 credits total), several games per sheet. Each sheet is cut into per-asset WebP files under `games/<slug>/src/art/` (`.playwright/art/crop.cjs`; raw sheets stay out of git).
+- Background removal on pieces: border-connected flood fill (`cutout`). Dark pieces on the charcoal sheet background (ebony chess set, robber, onyx, skull discs, risk miniatures) use an edge-aware mode (`step`), which grows only across smooth gradients so the piece outline stops it. Irregular sheets are cut with explicit `rect`s; `inset` trims bleed from neighbouring cells.
+- Painted art is decoration only: board geometry (routes, hex polygons, tracks, territories, carcassonne tile features) stays vector and code-defined, so rules and hit areas do not depend on generated images. Text, numbers and aria stay in code.
+- Not used: TtR cartouche/ticket/city/station (the vector versions stay readable or the game has no such element), Battleship ship (came with a water rectangle; the vector hulls stay), Dominion curse (the game has no curse card).
