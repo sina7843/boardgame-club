@@ -15,6 +15,7 @@ import { backgammonModule } from '@bg/game-backgammon';
 import { checkersModule } from '@bg/game-checkers';
 import { othelloModule } from '@bg/game-othello';
 import { quoridorModule } from '@bg/game-quoridor';
+import { onitamaModule } from '@bg/game-onitama';
 import type { Actor, ActionHint, EngineRng, GameModule, Outcome, ScheduleChange, Viewer } from '@bg/game-sdk';
 
 // ---------- Deterministic RNG (mulberry32). State is one uint32, persisted with each snapshot, never projected. ----------
@@ -73,7 +74,7 @@ export class GameRegistry {
 }
 
 /** Reviewed in-repo modules. Adding a game = adding its module here (docs/ADDING_A_GAME.md). */
-export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule, ttrModule, backgammonModule, checkersModule, othelloModule, quoridorModule] as unknown as GameModule<never, never, never>[];
+export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule, ttrModule, backgammonModule, checkersModule, othelloModule, quoridorModule, onitamaModule] as unknown as GameModule<never, never, never>[];
 export const createDefaultRegistry = () => new GameRegistry(reviewedModules);
 
 // ---------- Running the game ----------

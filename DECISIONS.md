@@ -488,3 +488,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: oiled wooden tiles in grooves, dark walnut walls that drop in, glossy pawns in seat colours that slide,
   goal edges glowing in each player's colour, board turned so the viewer's start edge is at the bottom; walls are
   placed by tapping the groove crossings (preview on hover), with a horizontal/vertical toggle in viewer terms.
+## «اونیتاما» (Onitama, 2026-10-08, owner list batch 1)
+
+- Base game with the 16 standard cards (offsets from the owner's side, mirrored for blue), deal 2 + 2 + 1, the side
+  card's colour starts, the used card swaps with the side card, pass = card exchange when no move exists, wins by
+  the Way of the Stone and the Way of the Stream. House safety: threefold repetition (board + cards) is a draw.
+  A flag fall loses. Cards are public information, so nothing is hidden in the view.
+- Look: rice paper and ink lines, temple gates on both temples, vermilion vs indigo tokens (crowned masters), move
+  cards with a 5×5 pattern and colour stamp (opponent's cards upside down, the side card labelled with who gets it
+  next); targets coloured by card, a card picker when two cards reach the same square, sliding last move.

@@ -33,7 +33,8 @@
     "@bg/game-backgammon": "workspace:*",
     "@bg/game-checkers": "workspace:*",
     "@bg/game-othello": "workspace:*",
-    "@bg/game-quoridor": "workspace:*"
+    "@bg/game-quoridor": "workspace:*",
+    "@bg/game-onitama": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

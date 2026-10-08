@@ -494,3 +494,10 @@ win and placements, turn order/resign/timeouts, view, tutorial, 30 random games 
 API 3 (`apps/api/test/quoridor.test.ts`); catalog test updated; E2E `e2e/quoridor.spec.ts` — tutorial and a
 two-player race with walls at 360 and 1440 (`docs/evidence/quoridor/`). Polish: wall contrast, pawn size, shorter
 mobile status, move mode after each turn.
+## «اونیتاما» Onitama (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/onitama` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/onitama.test.ts`: cards/deal/start colour, mirrored offsets, card swap, both win ways,
+student on temple, pass, repetition/resign/timeout, view, tutorial, 40 random games with replay); API 3
+(`apps/api/test/onitama.test.ts`); catalog test updated; E2E `e2e/onitama.spec.ts` — tutorial and a full duel at 360
+and 1440 (`docs/evidence/onitama/`). Polish: compact cards on phones.

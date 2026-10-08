@@ -1,0 +1,63 @@
+/* اونیتاما: rice paper and ink, vermilion vs indigo, move cards like scroll tiles. Board geometry LTR. */
+.oni { display: grid; gap: 0.7rem; text-align: center; color: #f4ead2; inline-size: 100%; }
+.oni > :first-child { justify-self: center; }
+.oni__hand { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+.oni__middle { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; }
+@media (max-width: 640px) {
+  .oni__middle { grid-template-columns: minmax(0, 1fr); }
+  .oni__hand { flex-wrap: nowrap; gap: 0.4rem; }
+  .oni-card { inline-size: 7rem; padding: 0.3rem 0.4rem 0.4rem; }
+  .oni-card__name { font-size: 0.85rem; }
+  .oni-card__grid { gap: 1px; }
+  .oni__side { grid-auto-flow: column; align-items: center; justify-content: center; gap: 0.6rem; }
+}
+.oni__side { display: grid; gap: 0.35rem; justify-items: center; }
+.oni__side-label { font-size: 0.75rem; color: #d9c9a3; }
+
+.oni-board { display: block; inline-size: 100%; max-inline-size: 620px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.oni-ink line { stroke: #3a2a22; stroke-width: 3px; stroke-linecap: round; opacity: 0.75; }
+.oni-temple path { fill: none; stroke-width: 6px; stroke-linecap: round; opacity: 0.32; }
+.oni-temple--red path { stroke: #c8361f; }
+.oni-temple--blue path { stroke: #2b3f8c; }
+.oni-sq { outline: none; }
+.oni-sq--src { cursor: pointer; }
+.oni-sq--src rect:first-child { fill: rgb(200 54 31 / 0.06); }
+.oni-sq--sel rect:first-child { fill: rgb(255 210 122 / 0.35); }
+.oni-sq:focus-visible rect:first-child { stroke: #b8860b; stroke-width: 5px; }
+.oni-sq--hint rect:first-child { animation: oni-hint 1.1s ease-in-out infinite; }
+.oni-last { fill: rgb(184 134 11 / 0.16); stroke: rgb(184 134 11 / 0.6); stroke-width: 3px; stroke-dasharray: 8 6; }
+.oni-target { cursor: pointer; stroke: #f4ead2; stroke-width: 3px; animation: oni-pulse 1s ease-in-out infinite; }
+.oni-target--red { fill: #c8361f; }
+.oni-target--blue { fill: #2b3f8c; }
+.oni-pc--moved { animation: oni-slide 0.42s cubic-bezier(.3, .9, .3, 1.05) both; }
+
+.oni-card { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; gap: 0.15rem 0.5rem;
+  padding: 0.45rem 0.6rem 0.55rem; inline-size: 9.5rem; border-radius: 10px; background: linear-gradient(160deg, #f6ecd4, #e2cfa6); color: #2a1d15;
+  border: 2px solid #8a6a43; box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.6); font: inherit; text-align: start; transition: transform 0.2s, box-shadow 0.2s; }
+.oni-card--upside { transform: rotate(180deg); --rot: 180deg; }
+button.oni-card { cursor: pointer; }
+button.oni-card:hover { transform: translateY(-3px); }
+.oni-card--sel { box-shadow: 0 0 0 3px #ffd27a, 0 10px 22px -8px rgb(0 0 0 / 0.7); transform: translateY(-4px); }
+.oni-card--incoming { animation: oni-in 0.45s ease-out both; }
+.oni-card__stamp { grid-row: 1 / 3; inline-size: 14px; block-size: 14px; border-radius: 3px; transform: rotate(45deg); }
+.oni-card__stamp--red { background: #c8361f; }
+.oni-card__stamp--blue { background: #2b3f8c; }
+.oni-card__name { font-weight: 900; font-size: 0.95rem; }
+.oni-card__en { font-size: 0.68rem; color: #6b5640; }
+.oni-card__grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-block-start: 0.25rem; direction: ltr; }
+.oni-card__grid i { aspect-ratio: 1; border-radius: 2px; background: rgb(58 42 34 / 0.12); }
+.oni-card__grid i.is-me { background: #2a1d15; }
+.oni-card__grid i.is-red { background: #c8361f; }
+.oni-card__grid i.is-blue { background: #2b3f8c; }
+
+.oni__choice { display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+.oni__end { margin: 0; color: #ffd27a; font-weight: 800; }
+
+@keyframes oni-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
+@keyframes oni-pulse { 50% { opacity: 0.55; } }
+@keyframes oni-hint { 50% { fill: rgb(255 210 122 / 0.55); } }
+@keyframes oni-in { from { opacity: 0; transform: translateY(-14px) rotate(var(--rot, 0deg)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .oni-pc--moved, .oni-target, .oni-sq--hint rect:first-child, .oni-card--incoming { animation: none; }
+}

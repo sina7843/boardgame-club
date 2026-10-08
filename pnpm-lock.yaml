@@ -53,6 +53,9 @@ importers:
       '@bg/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
+      '@bg/game-onitama':
+        specifier: workspace:*
+        version: link:../../games/onitama
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
@@ -150,6 +153,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-onitama':
+        specifier: workspace:*
+        version: link:../../games/onitama
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
@@ -373,6 +379,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/onitama:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/othello:
     dependencies:
       '@bg/game-sdk':
@@ -564,6 +589,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-onitama':
+        specifier: workspace:*
+        version: link:../../games/onitama
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
@@ -625,6 +653,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-onitama':
+        specifier: workspace:*
+        version: link:../../games/onitama
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello

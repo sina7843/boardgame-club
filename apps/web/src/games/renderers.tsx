@@ -14,6 +14,7 @@ import BackgammonRenderer from '@bg/game-backgammon/renderer';
 import CheckersRenderer from '@bg/game-checkers/renderer';
 import OthelloRenderer from '@bg/game-othello/renderer';
 import QuoridorRenderer from '@bg/game-quoridor/renderer';
+import OnitamaRenderer from '@bg/game-onitama/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -36,5 +37,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'backgammon@1.0.0': BackgammonRenderer as ComponentType<GameRendererProps<never>>,
   'checkers@1.0.0': CheckersRenderer as ComponentType<GameRendererProps<never>>,
   'othello@1.0.0': OthelloRenderer as ComponentType<GameRendererProps<never>>,
-  'quoridor@1.0.0': QuoridorRenderer as ComponentType<GameRendererProps<never>>
+  'quoridor@1.0.0': QuoridorRenderer as ComponentType<GameRendererProps<never>>,
+  'onitama@1.0.0': OnitamaRenderer as ComponentType<GameRendererProps<never>>
 };

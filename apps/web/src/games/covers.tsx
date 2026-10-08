@@ -14,6 +14,7 @@ import BackgammonCover from '@bg/game-backgammon/cover';
 import CheckersCover from '@bg/game-checkers/cover';
 import OthelloCover from '@bg/game-othello/cover';
 import QuoridorCover from '@bg/game-quoridor/cover';
+import OnitamaCover from '@bg/game-onitama/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -31,7 +32,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   backgammon: BackgammonCover,
   checkers: CheckersCover,
   othello: OthelloCover,
-  quoridor: QuoridorCover
+  quoridor: QuoridorCover,
+  onitama: OnitamaCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {
