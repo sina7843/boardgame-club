@@ -1,6 +1,8 @@
 /* سیرک: a circus ring — candy stripes, a sawdust ring for the show, cards with a big top number and a small upside-down
    other number, colour rising with the value. */
-.sc { --ink: #2a1a14; display: grid; gap: 0.7rem; inline-size: 100%; color: #fbf1e3; text-align: center; }
+.sc { --ink: #2a1a14; display: grid; padding: 0.5rem; border-radius: 16px;
+  /* Backdrop is cut from a generated sheet (see DECISIONS.md). */
+  background: linear-gradient(rgb(28 10 8 / 0.5), rgb(28 10 8 / 0.72)), url('./art/bd-circus.webp') center / cover #2a1210; gap: 0.7rem; inline-size: 100%; color: #fbf1e3; text-align: center; }
 .sc > :first-child { justify-self: center; }
 .sc > .sc__players, .sc > .sc__me { justify-self: stretch; }
 .sc__round { margin: 0; font-size: 0.82rem; color: #e3d2b8; }
