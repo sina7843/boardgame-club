@@ -1,0 +1,63 @@
+/* قلعه‌سازان: a wheat-field map on a dark oak table; sandstone cities with terracotta walls, cream roads. */
+.cc { display: grid; gap: 0.55rem; inline-size: 100%; color: #f6efdf; text-align: center; }
+.cc > :first-child + * { justify-self: center; }
+
+.cc-tile { display: block; inline-size: 100%; block-size: 100%; }
+.cc-road-edge { fill: none; stroke: #6d5a3a; stroke-width: 13; stroke-linecap: butt; }
+.cc-road { fill: none; stroke: #f3e6c4; stroke-width: 9; stroke-linecap: butt; }
+.cc-well { fill: #8a7a5c; stroke: #3d3222; stroke-width: 2; }
+.cc-city { fill: #e3c48d; }
+.cc-wall { fill: none; stroke: #a8552f; stroke-width: 3.5; stroke-dasharray: 5 2.5; }
+.cc-shield { fill: #2f6fd6; stroke: #f6efdf; stroke-width: 1.5; }
+.cc-abbey rect { fill: #f1e6cf; stroke: #6a4a2a; stroke-width: 1.5; }
+.cc-abbey__roof { fill: #b8432e; stroke: #6a2a1a; stroke-width: 1.5; }
+.cc-abbey .cc-abbey__door { fill: #5a3a1e; stroke: none; }
+.cc-meeple { animation: cc-hop 0.45s cubic-bezier(.3,1.6,.5,1) both; transform-box: fill-box; }
+
+.cc__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.cc-player { display: flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; border-radius: 999px; background: rgb(0 0 0 / 0.28); font-size: 0.8rem; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--who) 45%, transparent); transition: box-shadow 0.25s; }
+.cc-player--now { box-shadow: inset 0 0 0 2px var(--who), 0 0 12px color-mix(in srgb, var(--who) 60%, transparent); }
+.cc-player--win { background: rgb(255 217 138 / 0.18); }
+.cc-player__meeple { inline-size: 0.9rem; block-size: 1.05rem; }
+.cc-player__name { font-weight: 800; }
+.cc-player__score { min-inline-size: 1.6rem; padding: 0 0.4rem; border-radius: 999px; background: #f3e6c4; color: #2a1d10; font-weight: 900; animation: cc-bump 0.45s ease-out; }
+.cc-player__left { color: #e3d6b8; font-size: 0.72rem; }
+
+.cc__news { margin: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; font-size: 0.8rem; animation: cc-rise 0.4s ease-out both; }
+.cc__news span { padding: 0.15rem 0.55rem; border-radius: 8px; background: color-mix(in srgb, var(--who) 30%, #1c140c); font-weight: 700; }
+
+.cc__map { --cell: 4rem; overflow: auto; max-block-size: min(62vh, 34rem); padding: 0.6rem; border-radius: 14px; overscroll-behavior: contain;
+  background: radial-gradient(circle at 50% 40%, #4d3520, #24170b 75%); box-shadow: inset 0 0 0 3px #6b4a2a, inset 0 0 28px #000; }
+.cc__grid { display: grid; grid-auto-rows: var(--cell); inline-size: max-content; margin-inline: auto; }
+.cc-cell { inline-size: var(--cell); block-size: var(--cell); padding: 0; border: 0; background: transparent; }
+.cc-cell--tile { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.35); animation: cc-land 0.35s ease-out both; }
+.cc-cell--last { position: relative; z-index: 1; box-shadow: 0 0 0 2px var(--who), 0 4px 14px rgb(0 0 0 / 0.6); }
+.cc-spot { position: relative; border-radius: 4px; outline: 1.5px dashed rgb(243 230 196 / 0.28); outline-offset: -4px; cursor: pointer; transition: background 0.2s; }
+.cc-spot--fit { outline-color: rgb(255 217 138 / 0.8); background: rgb(255 217 138 / 0.1); }
+.cc-spot:hover, .cc-spot:focus-visible { background: rgb(255 217 138 / 0.25); }
+.cc-spot--on { outline: 2px solid #ffd98a; outline-offset: 0; background: transparent; z-index: 2; }
+.cc-spot--on .cc-tile { opacity: 0.88; animation: cc-turn 0.25s ease-out; }
+.cc-spot:disabled { cursor: default; }
+
+.cc__dock { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
+.cc__zoom { display: flex; gap: 0.25rem; }
+.cc__zoom button { inline-size: 2rem; block-size: 2rem; border-radius: 50%; border: 1px solid #c9a46a; background: rgb(0 0 0 / 0.3); color: inherit; font-size: 1.1rem; cursor: pointer; }
+.cc__drawn { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); font-size: 0.75rem; }
+.cc__drawn-tile { display: block; inline-size: 3.6rem; block-size: 3.6rem; border-radius: 4px; box-shadow: 0 4px 10px rgb(0 0 0 / 0.55); animation: cc-draw 0.45s ease-out both; }
+.cc__drawn-tile .cc-tile g { transition: transform 0.25s ease-out; }
+.cc__follow { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
+.cc-chip { padding: 0.3rem 0.65rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.12); color: inherit; font: inherit; font-size: 0.75rem; cursor: pointer; }
+.cc-chip--on { background: #ffd98a; color: #2a1d10; font-weight: 800; }
+.cc-chip:disabled { opacity: 0.4; cursor: default; }
+.cc__discard { color: #e3d6b8; }
+.cc-hint { animation: cc-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes cc-hop { from { transform: translateY(-14px) scale(0.6); opacity: 0; } }
+@keyframes cc-bump { 40% { transform: scale(1.3); } }
+@keyframes cc-rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes cc-land { from { transform: scale(1.15); opacity: 0; } }
+@keyframes cc-draw { from { transform: rotateY(90deg) scale(0.8); opacity: 0; } }
+@keyframes cc-turn { from { transform: rotate(-90deg); } }
+@keyframes cc-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (max-width: 480px) { .cc__map { --cell: 3.2rem; max-block-size: 52vh; } }
+@media (prefers-reduced-motion: reduce) { .cc * { animation: none !important; transition: none !important; } }

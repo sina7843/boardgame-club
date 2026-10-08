@@ -875,3 +875,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: illuminated city chronicle; parchment district cards with colour banners and gold-coin costs, gilded
   character seals in a 1–8 track marking called, killed and robbed characters and their holders, the draft pool only
   for the picker, an ability panel for the active character.
+
+## «قلعه‌سازان» (Carcassonne, 2026-10-08, owner list batch 8)
+
+- 2–5 players, base game's 72 tiles (24 types, counts as published) with the start tile in the middle; farmers and
+  fields are left out (the common beginner rule). Each player has 7 followers. Placing: the drawn tile must touch the
+  map and match every touching edge; a tile with no legal spot anywhere is discarded. One follower may go on a city,
+  road or monastery of the placed tile if that city/road has no follower yet. Completion: city 2 per tile + 2 per
+  pennant, road 1 per tile, monastery 9 when surrounded; most followers score (ties all), followers return. End: city
+  1 per tile + 1 per pennant, road 1 per tile, monastery 1 + neighbours. The stack order is hidden; the drawn tile is
+  public. Timeout: first legal spot, no follower.
+- Look: wheat-field tiles drawn in SVG (sandstone cities with dashed terracotta walls, cream roads, red-roofed
+  monasteries, blue pennants) on a dark oak, scrollable/zoomable map (LTR, module coordinates); legal spots glow, the
+  chosen spot shows a live preview of the rotated tile and follower; the last tile is outlined in its owner's colour.

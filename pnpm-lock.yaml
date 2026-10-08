@@ -56,6 +56,9 @@ importers:
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
+      '@bg/game-carcassonne':
+        specifier: workspace:*
+        version: link:../../games/carcassonne
       '@bg/game-century':
         specifier: workspace:*
         version: link:../../games/century
@@ -237,6 +240,9 @@ importers:
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
+      '@bg/game-carcassonne':
+        specifier: workspace:*
+        version: link:../../games/carcassonne
       '@bg/game-catan':
         specifier: workspace:*
         version: link:../../games/catan
@@ -503,6 +509,25 @@ importers:
         version: 19.3.0
 
   games/camel-up:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
+  games/carcassonne:
     dependencies:
       '@bg/game-sdk':
         specifier: workspace:*
@@ -1333,6 +1358,9 @@ importers:
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
+      '@bg/game-carcassonne':
+        specifier: workspace:*
+        version: link:../../games/carcassonne
       '@bg/game-catan':
         specifier: workspace:*
         version: link:../../games/catan
@@ -1487,6 +1515,9 @@ importers:
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
+      '@bg/game-carcassonne':
+        specifier: workspace:*
+        version: link:../../games/carcassonne
       '@bg/game-catan':
         specifier: workspace:*
         version: link:../../games/catan

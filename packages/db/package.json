@@ -63,7 +63,8 @@
     "@bg/game-camel-up": "workspace:*",
     "@bg/game-machi-koro": "workspace:*",
     "@bg/game-king-of-tokyo": "workspace:*",
-    "@bg/game-citadels": "workspace:*"
+    "@bg/game-citadels": "workspace:*",
+    "@bg/game-carcassonne": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"
