@@ -7,13 +7,13 @@
 
 .cr-card { display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 9px; color: #1a1416;
   background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 35%, white 65%), color-mix(in srgb, var(--c) 70%, white 30%)); box-shadow: inset 0 0 0 3px var(--c), 0 4px 8px -4px #000; }
-.cr-card svg { fill: #1a1416; stroke: #1a1416; }
+.cr-card img { object-fit: contain; }
 .cr-card--lg { inline-size: 5.4rem; block-size: 7.4rem; }
-.cr-card--lg svg { inline-size: 3.6rem; block-size: 3.6rem; }
+.cr-card--lg img { inline-size: 3.6rem; block-size: 3.6rem; }
 .cr-card--md { inline-size: 3.4rem; block-size: 4.6rem; }
-.cr-card--md svg { inline-size: 2.2rem; block-size: 2.2rem; }
+.cr-card--md img { inline-size: 2.2rem; block-size: 2.2rem; }
 .cr-card--sm { inline-size: 1.7rem; block-size: 2.2rem; border-radius: 5px; box-shadow: inset 0 0 0 2px var(--c); }
-.cr-card--sm svg { inline-size: 1.3rem; block-size: 1.3rem; }
+.cr-card--sm img { inline-size: 1.3rem; block-size: 1.3rem; }
 .cr-card__n { font-size: 0.68rem; font-weight: 900; }
 .cr-card--back { background: repeating-linear-gradient(45deg, #4a2a4a 0 6px, #3a1f3a 6px 12px); box-shadow: inset 0 0 0 3px #c9a46a, 0 4px 8px -4px #000; }
 

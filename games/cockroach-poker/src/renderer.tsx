@@ -4,29 +4,27 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import cockroach from './art/cockroach.webp';
+import bat from './art/bat.webp';
+import fly from './art/fly.webp';
+import toad from './art/toad.webp';
+import rat from './art/rat.webp';
+import scorpion from './art/scorpion.webp';
+import spider from './art/spider.webp';
+import stinkbug from './art/stinkbug.webp';
 import { CREATURES, type CockroachView, type Creature } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const CREATURE_FA: Record<Creature, string> = { cockroach: 'سوسک', bat: 'خفاش', fly: 'مگس', toad: 'وزغ', rat: 'موش', scorpion: 'عقرب', spider: 'عنکبوت', stinkbug: 'سن' };
 
-function Bug({ c }: { c: Creature }) {
-  switch (c) {
-    case 'cockroach': return <g><ellipse rx="5" ry="8" /><path d="M-4 -3 L-10 -6 M-5 1 L-11 1 M-4 5 L-10 8 M4 -3 L10 -6 M5 1 L11 1 M4 5 L10 8 M-1 -8 L-5 -13 M1 -8 L5 -13" strokeWidth="1.2" fill="none" /></g>;
-    case 'bat': return <path d="M0 -3 Q-4 -9 -11 -6 Q-8 -2 -11 3 Q-6 1 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 1 11 3 Q8 -2 11 -6 Q4 -9 0 -3 Z" />;
-    case 'fly': return <g><ellipse rx="4" ry="6" cy="2" /><ellipse rx="5" ry="3" cx="-5" cy="-4" opacity=".6" /><ellipse rx="5" ry="3" cx="5" cy="-4" opacity=".6" /><circle r="2.5" cy="-5" /></g>;
-    case 'toad': return <g><ellipse rx="9" ry="6" cy="2" /><circle cx="-4" cy="-4" r="2.5" /><circle cx="4" cy="-4" r="2.5" /></g>;
-    case 'rat': return <g><ellipse rx="7" ry="4.5" cx="1" /><circle cx="-7" cy="-1" r="3" /><path d="M8 1 Q12 5 10 9" strokeWidth="1.2" fill="none" /><circle cx="-8" cy="-4" r="1.6" /></g>;
-    case 'scorpion': return <g><ellipse rx="4" ry="5" cy="3" /><path d="M0 -2 Q-1 -8 3 -10 Q6 -11 6 -7" strokeWidth="2" fill="none" /><path d="M-3 6 L-9 9 M3 6 L9 9 M-4 1 L-10 -1 M4 1 L10 -1" strokeWidth="1.2" fill="none" /></g>;
-    case 'spider': return <g><circle r="4" cy="2" /><circle r="2.5" cy="-3" /><path d="M-3 0 L-9 -6 M-3 2 L-10 1 M-3 4 L-9 8 M3 0 L9 -6 M3 2 L10 1 M3 4 L9 8" strokeWidth="1.2" fill="none" /></g>;
-    case 'stinkbug': return <g><path d="M0 -6 L7 -1 L5 8 L-5 8 L-7 -1 Z" /><path d="M-2 -6 L-5 -10 M2 -6 L5 -10" strokeWidth="1.2" fill="none" /></g>;
-  }
-}
+// Creature art is cut from a generated sprite sheet (see DECISIONS.md).
+const ART: Record<Creature, string> = { cockroach, bat, fly, toad, rat, scorpion, spider, stinkbug };
 
 export function CritterCard({ c, size = 'md', back }: { c?: Creature | null; size?: 'sm' | 'md' | 'lg'; back?: boolean }) {
   if (back || !c) return <span className={`cr-card cr-card--${size} cr-card--back`} aria-label="کارت پشت‌ورو" />;
   return (
     <span className={`cr-card cr-card--${size} cr-c--${c}`} aria-label={CREATURE_FA[c]}>
-      <svg viewBox="-14 -14 28 28" aria-hidden="true"><Bug c={c} /></svg>
+      <img src={ART[c]} alt="" aria-hidden="true" draggable={false} />
       {size !== 'sm' && <span className="cr-card__n">{CREATURE_FA[c]}</span>}
     </span>
   );
