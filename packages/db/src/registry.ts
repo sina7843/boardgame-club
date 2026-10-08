@@ -23,6 +23,7 @@ import { abalone } from '@bg/game-abalone';
 import { hive } from '@bg/game-hive';
 import { noThanks } from '@bg/game-no-thanks';
 import { sixNimmt } from '@bg/game-six-nimmt';
+import { loveLetter } from '@bg/game-love-letter';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter];

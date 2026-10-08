@@ -1,0 +1,57 @@
+/* نامه عاشقانه: parchment cards with wax seals and crimson ink, a quiet candle-lit table. */
+.ll { display: grid; gap: 0.8rem; text-align: center; color: #f6efe2; inline-size: 100%; }
+.ll > :first-child { justify-self: center; }
+.ll__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.ll-pl { display: grid; gap: 0.4rem; padding: 0.55rem 0.7rem; border-radius: 14px; background: rgb(0 0 0 / 0.25); border: 1px solid rgb(255 255 255 / 0.08); text-align: start; }
+.ll-pl--turn { box-shadow: 0 0 0 2px #c9a46a, 0 8px 20px -8px rgb(201 164 106 / 0.6); }
+.ll-pl--me { background: rgb(155 34 66 / 0.18); }
+.ll-pl--out { opacity: 0.55; }
+.ll-pl__head { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; font-size: 0.85rem; }
+.ll-pl__name { font-weight: 800; }
+.ll-pl__state { color: #ff9b8f; font-size: 0.78rem; }
+.ll-pl__tokens { display: inline-flex; gap: 2px; margin-inline-start: auto; }
+.ll-pl__tokens i { inline-size: 12px; block-size: 11px; background: rgb(255 255 255 / 0.15); clip-path: path('M6 11 C1 7 0 4 2 2 C4 0 6 2 6 3 C6 2 8 0 10 2 C12 4 11 7 6 11 Z'); }
+.ll-pl__tokens i.on { background: #e0475f; }
+.ll-pl__discards { display: flex; flex-wrap: wrap; gap: 0.25rem; min-block-size: 2.4rem; }
+
+.ll__table { display: flex; gap: 1rem; justify-content: center; align-items: center; }
+.ll-deck { position: relative; inline-size: 3.6rem; block-size: 5rem; }
+.ll-deck__back { position: absolute; inset: 0; border-radius: 9px; background: radial-gradient(circle at 50% 50%, #9b2242 0 18%, transparent 19%), repeating-linear-gradient(45deg, #5b1428 0 6px, #6e1a32 6px 12px);
+  border: 3px solid #e9d6b0; box-shadow: 3px 3px 0 #3a0c18, 6px 6px 0 #2a0811; }
+.ll-deck__n { position: absolute; inset-block-end: -1.3rem; inset-inline: 0; font-size: 0.78rem; color: #d9ccb4; }
+.ll__faceup { display: flex; gap: 0.25rem; }
+
+.ll-card { --ink: #7a1530; position: relative; display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; gap: 0.1rem; border-radius: 12px; color: var(--ink);
+  background: linear-gradient(165deg, #fbf3df, #ead6ad); border: 2px solid #c9a46a; box-shadow: 0 6px 14px -5px rgb(0 0 0 / 0.6); font: inherit; text-align: center; padding: 0.4rem; }
+.ll-card--md { inline-size: 8rem; block-size: 11.5rem; }
+.ll-card--sm { inline-size: 2.4rem; block-size: 3.3rem; padding: 0.1rem; border-radius: 6px; grid-template-rows: auto 1fr; }
+.ll-card--sm .ll-card__name, .ll-card--sm .ll-card__seal { display: none; }
+.ll-card--sm .ll-card__v { font-size: 0.85rem; }
+.ll-card__v { justify-self: start; font-weight: 900; font-size: 1.4rem; line-height: 1; }
+.ll-card__art { inline-size: 70%; block-size: auto; }
+.ll-card--sm .ll-card__art { inline-size: 85%; }
+.ll-card__name { font-weight: 900; font-size: 1rem; }
+.ll-card__fx { font-size: 0.68rem; color: #6b4a33; line-height: 1.3; }
+.ll-card__seal { position: absolute; inset-block-end: -10px; inset-inline-end: -8px; inline-size: 26px; block-size: 26px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #d64560, #9b2242 60%, #5b1428); box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
+.ll-card--v8 { --ink: #a01e5a; border-color: #e0475f; }
+.ll-card--v7 { --ink: #4a2a7a; }
+.ll-card--v6, .ll-card--v5 { --ink: #8a5a00; }
+button.ll-card { cursor: pointer; transition: transform 0.15s; }
+button.ll-card:hover, button.ll-card:focus-visible { transform: translateY(-8px) rotate(-1deg); outline: none; box-shadow: 0 0 0 3px #ffd27a, 0 12px 20px -8px rgb(0 0 0 / 0.6); }
+.ll-card--sel { transform: translateY(-12px); box-shadow: 0 0 0 3px #ffd27a, 0 12px 20px -8px rgb(0 0 0 / 0.6); }
+.ll-card--hint { animation: ll-pulse 1s ease-in-out infinite; }
+.ll__hand { display: flex; gap: 0.8rem; justify-content: center; align-items: flex-end; flex-wrap: wrap; padding-block: 0.8rem 0.4rem; }
+.ll__hand .ll-card { animation: ll-deal 0.4s ease-out both; }
+
+.ll__seen { margin: 0; padding: 0.45rem 0.8rem; border-radius: 12px; background: rgb(155 34 66 / 0.35); border: 1px dashed #e0475f; animation: ll-deal 0.4s ease-out both; }
+.ll__guess { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.ll-guess { padding: 0.4rem 0.7rem; border-radius: 999px; border: 1px solid #c9a46a; background: #fbf3df; color: #7a1530; font: inherit; font-weight: 800; cursor: pointer; }
+.ll-guess:hover, .ll-guess:focus-visible { background: #ffd27a; outline: none; }
+.ll-guess--hint, .ll-target--hint { animation: ll-pulse 1s ease-in-out infinite; }
+.ll__log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; font-size: 0.8rem; color: #d9ccb4; }
+
+@keyframes ll-deal { from { transform: translateY(-14px) rotate(-4deg); opacity: 0; } to { opacity: 1; } }
+@keyframes ll-pulse { 50% { box-shadow: 0 0 0 4px #ffd27a; } }
+@media (max-width: 480px) { .ll-card--md { inline-size: 6.8rem; block-size: 10rem; } }
+@media (prefers-reduced-motion: reduce) { .ll-card--hint, .ll__hand .ll-card, .ll__seen, .ll-guess--hint, .ll-target--hint { animation: none; } }

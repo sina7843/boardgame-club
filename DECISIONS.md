@@ -566,3 +566,13 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   waits on. Resign ends the game with the resigner last.
 - Look: classic numbered cards coloured by penalty with bull heads, rows with a red «۶» danger slot and a bullhead
   total, revealed choices in order with who took what, rows turn into buttons for a forced choice, tap-to-play hand.
+## «نامه عاشقانه» (Love Letter, 2026-10-08, owner list batch 3)
+
+- Classic 16-card edition for 2–4 players (Guard ×5 … Princess), one card set aside (two players: three more face up),
+  draw-and-play turns, all card effects incl. Handmaid protection, Prince on yourself, the set-aside card when the
+  deck is empty, the Countess rule; round by last standing or highest card (tie → discard total; still tied → all tied
+  win); tokens 7/5/4, option "short" (3 tokens). Hidden: hands, deck, set-aside card; a Priest look (and a Baron tie)
+  is projected only to the players concerned. Timeouts play the lowest legal card (never the Princess) on a random
+  target. Resign leaves the game; the last remaining player wins.
+- Look: parchment cards with value, drawn emblem, name, effect and a wax seal; opponents with heart tokens, Handmaid
+  shield, discard rows; private "only you see" banner; target buttons on players and a guess strip for the Guard.

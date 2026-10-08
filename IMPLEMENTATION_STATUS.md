@@ -548,3 +548,10 @@ New module `games/six-nimmt` registered in engine, catalog and web. Checks run: 
 choice, private round penalties, round scoring and 66, timeouts/resign, tutorial, 15 random 2–10 player games with
 card conservation and replay); API 3 (`apps/api/test/six-nimmt.test.ts`); catalog test updated; E2E
 `e2e/six-nimmt.spec.ts` — tutorial and a one-round three-player game at 360 and 1440 (`docs/evidence/six-nimmt/`).
+## «نامه عاشقانه» Love Letter (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/love-letter` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/love-letter.test.ts`: setup, Guard, Priest privacy, Baron, Handmaid, Prince/Princess, King,
+Countess, hidden info, timeouts, tutorial, 25 random 2–4 player games with 16-card conservation and replay); API 3
+(`apps/api/test/love-letter.test.ts`); catalog test updated; E2E `e2e/love-letter.spec.ts` — tutorial and a short
+three-player game at 360 and 1440 (`docs/evidence/love-letter/`).
