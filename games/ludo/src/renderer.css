@@ -23,8 +23,8 @@
 /* pawns */
 .ld-piece { transition: transform 450ms cubic-bezier(0.22, 1.1, 0.36, 1); }
 .ld-piece__shadow { fill: #000; opacity: 0.4; }
-.ld-pawn { stroke: none; }
-.ld-pawn > circle:first-child { stroke: rgb(0 0 0 / 0.55); stroke-width: 1.2; }
+.ld-pawn { pointer-events: none; }
+.ld-btn-die { inline-size: 1.6em; block-size: 1.6em; object-fit: contain; margin-inline-end: 0.4em; vertical-align: middle; }
 .ld-piece text { font: 900 15px/1 var(--font, sans-serif); fill: #fff; stroke: #1b130b; stroke-width: 3.2px; paint-order: stroke; stroke-linejoin: round; text-anchor: middle; pointer-events: none; }
 .ld-piece__ring { fill: transparent; stroke: none; }
 .ld-piece--movable { cursor: pointer; }

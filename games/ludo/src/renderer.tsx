@@ -1,14 +1,22 @@
 // Ludo (منچ) renderer: classic cross board on an 11×11 grid. Pieces carry their colour, a number and a text label;
 // movable pieces are buttons and their landing square is outlined. Board coordinates are literal (ltr).
-// Visuals: printed card board in a wooden frame, recessed home yards, bevelled squares, glossy pawns (SVG only).
+// Visuals: wooden frame, painted carpet under a semi-opaque printed board, vector squares and yards, painted pawns
+// (WebP cut from a generated sheet, see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import carpet from './art/bd-carpet.webp';
+import dieArt from './art/die.webp';
+import pawnRed from './art/pawn-red.webp';
+import pawnGreen from './art/pawn-green.webp';
+import pawnYellow from './art/pawn-yellow.webp';
+import pawnBlue from './art/pawn-blue.webp';
 import { TRACK, trackSquare, type LogEntry, type LudoView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const C = 50;
 export const SLOT_COLORS = ['#d62f35', '#23843f', '#e0a400', '#1c63c9'];
+const PAWN_ART = [pawnRed, pawnGreen, pawnYellow, pawnBlue]; // same order as SLOT_COLORS
 export const SLOT_FA = ['قرمز', 'سبز', 'زرد', 'آبی'];
 const TRACK_XY: [number, number][] = [
   [0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [4, 3], [4, 2], [4, 1], [4, 0], [5, 0],
@@ -81,17 +89,9 @@ function Cell({ xy, tint }: { xy: [number, number]; tint?: string }) {
   );
 }
 
-/** Top-down glossy pawn: rim, dome, specular highlight. */
-function Pawn({ color }: { color: string }) {
-  return (
-    <g className="ld-pawn" aria-hidden="true">
-      <circle r="17" fill={color} />
-      <circle r="17" fill="url(#ldg-rim)" />
-      <circle r="12.5" fill={color} />
-      <circle r="12.5" fill="url(#ldg-dome)" />
-      <ellipse cx="-4.5" cy="-7" rx="5.5" ry="2.8" transform="rotate(-35 -4.5 -7)" fill="#fff" opacity="0.6" />
-    </g>
-  );
+/** Painted pawn, centred on the origin (aria-hidden: the piece group carries the label). */
+function Pawn({ slot }: { slot: number }) {
+  return <image className="ld-pawn" href={PAWN_ART[slot]} x="-24" y="-26" width="48" height="48" aria-hidden="true" />;
 }
 
 export default function LudoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<LudoView>) {
@@ -134,8 +134,6 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             <linearGradient id="ldg-cell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#e6dbc0" /></linearGradient>
             <linearGradient id="ldg-well" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b3a487" /><stop offset="1" stopColor="#fffdf7" /></linearGradient>
             <linearGradient id="ldg-tri" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.4" /><stop offset="1" stopColor="#000" stopOpacity="0.3" /></linearGradient>
-            <radialGradient id="ldg-dome" cx="0.35" cy="0.3" r="0.85"><stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.45" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.5" /></radialGradient>
-            <linearGradient id="ldg-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.5" /><stop offset="1" stopColor="#000" stopOpacity="0.55" /></linearGradient>
             <radialGradient id="ldg-gold" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#fff2b0" /><stop offset="1" stopColor="#b8860b" /></radialGradient>
             <filter id="ldg-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" /></filter>
           </defs>
@@ -145,7 +143,8 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             <rect x="-16" y="-16" width="582" height="582" rx="22" fill="url(#ldg-grain)" />
             <rect x="-15" y="-15" width="580" height="580" rx="21" fill="none" stroke="url(#ldg-edge)" strokeWidth="2.5" />
             {/* printed card board inset into the frame */}
-            <rect width="550" height="550" rx="6" className="ld-board__bg" fill="url(#ldg-paper)" />
+            <image href={carpet} width="550" height="550" preserveAspectRatio="xMidYMid slice" />
+            <rect width="550" height="550" rx="6" className="ld-board__bg" fill="url(#ldg-paper)" fillOpacity="0.6" />
             <rect width="550" height="550" rx="6" fill="url(#ldg-linen)" />
             <rect x="-1" y="-1" width="552" height="552" rx="7" fill="none" stroke="url(#ldg-inner)" strokeWidth="3" />
           </g>
@@ -192,7 +191,7 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
                 {...(move ? { role: 'button', tabIndex: 0, 'aria-label': label, onClick: act, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } } } : { role: 'img', 'aria-label': label })}>
                 <circle r="22" className="ld-piece__ring" />
                 <ellipse cx="2.5" cy="5.5" rx="16" ry="12" className="ld-piece__shadow" filter="url(#ldg-blur)" aria-hidden="true" />
-                <Pawn color={SLOT_COLORS[slot]!} />
+                <Pawn slot={slot} />
                 <text y="6" aria-hidden="true">{fa(i + 1)}</text>
               </g>
             );
@@ -203,7 +202,7 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
         <div className="ld-side">
           <div className="ld-roll">
             <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll} />
-            {canRoll && <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => onAction({ type: 'roll' })}>تاس بریز</Button>}
+            {canRoll && <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => onAction({ type: 'roll' })}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>}
           </div>
           {moves.length > 0 && (
             <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
