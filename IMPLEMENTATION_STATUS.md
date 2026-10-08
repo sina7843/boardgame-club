@@ -648,3 +648,10 @@ reaches `load` until the 180 s test timeout (once it instead found no `main h1`)
 (`release.spec.ts` 6/6) and page-by-page timings measured separately are all fast; a larger Node heap did not help.
 Suspected dev-server (Vite) resource stall in a long session, not yet proven; no product code was changed for it.
 The one API failure seen in the full suite was a flaky «هم‌فکر» test (fixed in 2efa355).
+## «بازار سبزی» Point Salad (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/point-salad` registered in engine, catalog and web. Checks run: engine 6
+(`packages/game-engine/test/point-salad.test.ts`: card set and counts, rule-family scoring, take/flip/refill,
+timeouts/resign/privacy, tutorial, 25 random 2–6 player games with card conservation, winner = top score, replay);
+API 3 (`apps/api/test/point-salad.test.ts`); catalog test updated; E2E `e2e/point-salad.spec.ts` — tutorial and a full
+three-player game at 360 and 1440 (`docs/evidence/point-salad/`).

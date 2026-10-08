@@ -746,3 +746,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: illuminated map; painted terrain squares (wheat stalks, tree crowns, lake ripples, meadow dots, reeds, ore),
   gold crowns, castle tile, numbered dominoes with coloured king markers in «این دور» / «دور بعد» lines; your 9×9
   field highlights every cell where the domino can start for the current rotation, with a live preview.
+## «بازار سبزی» (Point Salad, 2026-10-08, owner list batch 6)
+
+- 2–6 players; 108 double-sided cards (six vegetables × 18). The scoring rules are generated from the original's rule
+  families — vegetable sets, ± per vegetable, even/odd, most/fewest of a vegetable, full sets, most/fewest in total —
+  not a card-for-card copy. Three cards of each vegetable per player are used (2 players 36 … 6 players 108). Market:
+  three rule piles with two vegetables under each; take a top rule or two vegetables (one if only one is left), then
+  optionally flip one of your rules into its vegetable (sent in the same action). Slots refill from the pile above;
+  an empty pile borrows from the bottom of the largest. Game ends when all cards are taken; most/fewest compare with
+  everyone and ties share. Public information apart from pile order. Timeout: take the first vegetables.
+- Look: greengrocer's stall; slatted crates with chalkboard rule cards (rules drawn with vegetable icons) and
+  vegetables below; players show vegetable counts and their rules each with live points; tap a rule to flip it.
+- Polish passes (360/1440): (1) at 360 the crates overflowed (two fixed 3rem vegetable slots plus a wide rule card) —
+  slots now shrink to fit and rule cards on piles are compact.

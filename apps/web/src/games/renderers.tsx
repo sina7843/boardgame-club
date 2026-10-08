@@ -35,6 +35,7 @@ import AzulRenderer from '@bg/game-azul/renderer';
 import JaipurRenderer from '@bg/game-jaipur/renderer';
 import PatchworkRenderer from '@bg/game-patchwork/renderer';
 import KingdominoRenderer from '@bg/game-kingdomino/renderer';
+import PointSaladRenderer from '@bg/game-point-salad/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -78,5 +79,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'azul@1.0.0': AzulRenderer as ComponentType<GameRendererProps<never>>,
   'jaipur@1.0.0': JaipurRenderer as ComponentType<GameRendererProps<never>>,
   'patchwork@1.0.0': PatchworkRenderer as ComponentType<GameRendererProps<never>>,
-  'kingdomino@1.0.0': KingdominoRenderer as ComponentType<GameRendererProps<never>>
+  'kingdomino@1.0.0': KingdominoRenderer as ComponentType<GameRendererProps<never>>,
+  'point-salad@1.0.0': PointSaladRenderer as ComponentType<GameRendererProps<never>>
 };

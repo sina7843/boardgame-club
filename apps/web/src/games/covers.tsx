@@ -35,6 +35,7 @@ import AzulCover from '@bg/game-azul/cover';
 import JaipurCover from '@bg/game-jaipur/cover';
 import PatchworkCover from '@bg/game-patchwork/cover';
 import KingdominoCover from '@bg/game-kingdomino/cover';
+import PointSaladCover from '@bg/game-point-salad/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -73,7 +74,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   azul: AzulCover,
   jaipur: JaipurCover,
   patchwork: PatchworkCover,
-  kingdomino: KingdominoCover
+  kingdomino: KingdominoCover,
+  'point-salad': PointSaladCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

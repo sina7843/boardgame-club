@@ -1,0 +1,52 @@
+/* بازار سبزی: a greengrocer's stall — slatted wooden crates, chalkboard rule cards, bright vegetables. */
+.ps { --ink: #2a2116; display: grid; gap: 0.7rem; inline-size: 100%; color: #f6efdf; text-align: center; }
+.ps > :first-child { justify-self: center; }
+.ps > .ps__market, .ps > .ps__players { justify-self: stretch; }
+.ps-veg { display: inline-block; vertical-align: middle; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.4)); }
+
+.ps__market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; inline-size: min(100%, 34rem); justify-self: center !important; }
+.ps-crate { display: grid; gap: 0.35rem; padding: 0.4rem; border-radius: 10px; background: repeating-linear-gradient(0deg, #a87a45 0 10px, #8f6638 10px 12px); box-shadow: inset 0 0 0 2px #6a4824, 0 6px 12px -8px #000; }
+.ps-pile { display: grid; gap: 0.2rem; justify-items: center; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; border-radius: 8px; }
+.ps-pile:disabled { cursor: default; }
+.ps-pile small { font-size: 0.65rem; color: #fff4dc; text-shadow: 0 1px 1px #000; }
+.ps-pile--empty { display: grid; place-items: center; min-block-size: 4rem; color: #3a2a14; font-size: 0.75rem; }
+.ps-crate__veg { display: flex; gap: 0.25rem; justify-content: center; }
+.ps-slot { display: grid; place-items: center; inline-size: 3rem; block-size: 3rem; padding: 0; border: 0; border-radius: 50%; background: radial-gradient(circle, rgb(255 255 255 / 0.25), rgb(0 0 0 / 0.15)); cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+.ps-slot:disabled { cursor: default; }
+.ps-slot--on { transform: translateY(-4px); box-shadow: 0 0 0 3px #fff6c9, 0 6px 12px -4px rgb(255 246 201 / 0.8); }
+.ps-slot--empty { background: rgb(0 0 0 / 0.2); }
+
+.ps-rule { position: relative; display: grid; place-items: center; inline-size: 100%; min-inline-size: 5.5rem; min-block-size: 3.4rem; padding: 0.35rem 0.4rem; border-radius: 6px;
+  background: radial-gradient(circle at 30% 20%, #3f4a3f, #252c25); color: #f2f0e4; box-shadow: inset 0 0 0 3px #8a6438, 0 3px 6px -3px #000; font-size: 0.78rem; line-height: 1.5; }
+.ps-rule__t { display: inline-flex; flex-wrap: wrap; gap: 0.15rem 0.3rem; align-items: center; justify-content: center; font-weight: 800; }
+.ps-term { display: inline-flex; align-items: center; gap: 0.05rem; direction: ltr; }
+.ps-rule__pts { position: absolute; inset-block-start: -0.45rem; inset-inline-end: -0.35rem; min-inline-size: 1.3rem; padding: 0 0.3rem; border-radius: 999px; background: #f2c230; color: var(--ink); font-size: 0.72rem; }
+
+.ps__bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
+.ps__flipnote { font-size: 0.78rem; color: #fff1b0; }
+
+.ps__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.ps-pl { display: grid; gap: 0.4rem; padding: 0.5rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+.ps-pl--me { background: rgb(242 194 48 / 0.12); }
+.ps-pl--turn { box-shadow: 0 0 0 2px #f2c230; }
+.ps-pl--win { box-shadow: 0 0 0 2px #f2c230; background: rgb(242 194 48 / 0.18); }
+.ps-pl__head { display: flex; gap: 0.5rem; align-items: center; justify-content: center; font-size: 0.88rem; }
+.ps-pl__name { font-weight: 800; }
+.ps-pl__score { padding: 0 0.55rem; border-radius: 999px; background: #f2c230; color: var(--ink); font-weight: 900; animation: ps-bump 0.4s ease-out; }
+.ps-pl__veg { display: flex; flex-wrap: wrap; gap: 0.2rem 0.55rem; justify-content: center; font-weight: 800; font-size: 0.85rem; }
+.ps-pl__veg > span { display: inline-flex; align-items: center; gap: 0.1rem; }
+.ps-zero { opacity: 0.4; }
+.ps-pl__rules { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+.ps-pl__rules .ps-rule { inline-size: auto; }
+.ps-flip { padding: 0; border: 0; background: transparent; border-radius: 7px; cursor: pointer; }
+.ps-flip--on { box-shadow: 0 0 0 3px #ff9d6b; transform: rotate(-3deg); }
+.ps-hint { animation: ps-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes ps-bump { 40% { transform: scale(1.25); } }
+@keyframes ps-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ps * { animation: none !important; transition: none !important; } }
+.ps-pile .ps-rule { min-inline-size: 0; padding: 0.3rem 0.25rem; font-size: 0.7rem; }
+.ps-pile { min-inline-size: 0; inline-size: 100%; }
+.ps-crate { min-inline-size: 0; }
+.ps-slot { inline-size: min(3rem, 46%); block-size: auto; aspect-ratio: 1; }
+.ps-slot .ps-veg { inline-size: 75% !important; block-size: 75% !important; }

@@ -47,7 +47,8 @@
     "@bg/game-azul": "workspace:*",
     "@bg/game-jaipur": "workspace:*",
     "@bg/game-patchwork": "workspace:*",
-    "@bg/game-kingdomino": "workspace:*"
+    "@bg/game-kingdomino": "workspace:*",
+    "@bg/game-point-salad": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"
