@@ -4,17 +4,22 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import camelBlue from './art/camel-blue.webp';
+import camelGreen from './art/camel-green.webp';
+import camelOrange from './art/camel-orange.webp';
+import camelYellow from './art/camel-yellow.webp';
+import camelWhite from './art/camel-white.webp';
+import pyramid from './art/pyramid.webp';
 import { CAMELS, TRACK, type Camel, type CamelView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const CAMEL_FA: Record<Camel, string> = { blue: 'آبی', green: 'سبز', orange: 'نارنجی', yellow: 'زرد', white: 'سفید' };
 
+// Painted camels and pyramid are cut from a generated sheet (see DECISIONS.md).
+const CAMEL_ART: Record<Camel, string> = { blue: camelBlue, green: camelGreen, orange: camelOrange, yellow: camelYellow, white: camelWhite };
+
 export function CamelIcon({ c, size = 1.6 }: { c: Camel; size?: number }) {
-  return (
-    <svg viewBox="-14 -10 28 20" className={`cu-camel cu-c--${c}`} style={{ inlineSize: `${size}rem`, blockSize: `${size * 0.72}rem` }} role="img" aria-label={`شتر ${CAMEL_FA[c]}`}>
-      <path d="M-12 6 V0 Q-12 -3 -9 -3 L-7 -7 Q-5 -9 -3 -5 Q-1 -9 2 -5 L5 -7 L9 -8 Q12 -8 12 -5 L10 -3 V6 H7 V1 H-8 V6 Z" />
-    </svg>
-  );
+  return <img src={CAMEL_ART[c]} alt={`شتر ${CAMEL_FA[c]}`} draggable={false} className={`cu-camel cu-c--${c}`} style={{ inlineSize: `${size}rem`, blockSize: `${size * 0.72}rem` }} />;
 }
 
 export default function CamelRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CamelView>) {
@@ -79,7 +84,7 @@ export default function CamelRenderer({ view, legalActions, mySeat, seatName, bu
 
       {myTurn && (
         <div className="cu__actions">
-          <Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'cu-hint' : ''} onClick={() => onAction({ type: 'roll' })}>تاس از هرم (+۱ سکه)</Button>
+          <Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'cu-hint' : ''} onClick={() => onAction({ type: 'roll' })}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button>
           {desert && <Button size="sm" variant="secondary" className={placing === 'oasis' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}>واحه +۱</Button>}
           {desert && <Button size="sm" variant="secondary" className={placing === 'mirage' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}>سراب −۱</Button>}
         </div>
