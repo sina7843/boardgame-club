@@ -902,3 +902,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   or draw, all fields are harvested and the most coins win (ties share). Other players cannot start their own trades.
 - Look: market-garden table — tall seed-packet bean cards with beanometer strips (thresholds light up as a field
   grows), furrowed soil plots, a burlap trade cloth with the deck, an offer builder and a paper offer slip.
+
+## «شگفتی‌ها: دوئل» (7 Wonders Duel, 2026-10-08, owner list batch 8)
+
+- Two players; the 12 base wonders (8 drafted 4 + 4 in the A·B·B·A / B·A·A·B order), 10 progress tokens (5 on the
+  board), 66 age cards + 7 guilds with Persian names and effects modelled on the base game (costs/values close to the
+  published ones but not a verified one-to-one reproduction). Card structures: Age I 2-3-4-5-6, Age II 6-5-4-3-2,
+  Age III 2-3-4-2-4-3-2 with 3 random guilds; alternate rows face down, revealed when uncovered. Build (resources,
+  choice producers, trades at 2 + opponent brown/grey or 1 with a reserve; chains free), discard for 2 + yellow cards,
+  or a wonder (max 7 total; Theology/replay wonders give another turn). Military tokens at 3/6 (2/5 coins), supremacy at
+  9; science pairs → progress token, six symbols (law counts) win; civilian VP with blue tie-break otherwise.
+- Simplifications: the weaker military player starts the next age (no choice prompt; tie → the player who did not
+  take the last card); the Great Library offers three random out-of-game tokens only to its builder.
+- Look: sandstone court with lapis wonder plates (gold when built), coloured effect bands on cards, age-specific card
+  backs, a bronze conflict track with coin tokens and a sliding pawn, green progress discs.

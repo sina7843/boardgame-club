@@ -738,3 +738,11 @@ New module `games/bohnanza` registered in engine, catalog and web. Checks run: e
 third field, offers/accept/decline/settle, hidden hands, timeouts/resign, tutorial, 12 random 2–5 player games with
 card conservation and replay); API 3 (`apps/api/test/bohnanza.test.ts`); catalog test updated; E2E
 `e2e/bohnanza.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/bohnanza/`).
+## «شگفتی‌ها: دوئل» 7 Wonders Duel (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/wonders-duel` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/wonders-duel.test.ts`: card/wonder sets and layouts, draft order, trade prices/
+reserves/choices/chains, military tokens and supremacy with a progress choice, hidden face-down cards, timeouts/
+resign, tutorial, 30 random games with ≤7 wonders, score breakdown and replay); API 3 (`apps/api/test/wonders-duel.test.ts`);
+catalog test updated; E2E `e2e/wonders-duel.spec.ts` — tutorial and a full game from the draft at 360 and 1440
+(`docs/evidence/wonders-duel/`).

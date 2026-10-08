@@ -48,6 +48,7 @@ import { kingOfTokyo } from '@bg/game-king-of-tokyo';
 import { citadels } from '@bg/game-citadels';
 import { carcassonne } from '@bg/game-carcassonne';
 import { bohnanza } from '@bg/game-bohnanza';
+import { wondersDuel } from '@bg/game-wonders-duel';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo, lostCities, theMind, splendor, azul, jaipur, patchwork, kingdomino, pointSalad, cockroachPoker, scout, century, seaSaltPaper, hanabi, camelUp, machiKoro, kingOfTokyo, citadels, carcassonne, bohnanza];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo, lostCities, theMind, splendor, azul, jaipur, patchwork, kingdomino, pointSalad, cockroachPoker, scout, century, seaSaltPaper, hanabi, camelUp, machiKoro, kingOfTokyo, citadels, carcassonne, bohnanza, wondersDuel];
