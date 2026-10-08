@@ -5,7 +5,31 @@ import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { CARD_DEFS, DEF, LANDMARKS, type CardKey, type Landmark, type MachiView } from './rules.ts';
 
+// Art is cut from a generated sprite sheet (see DECISIONS.md).
+import wheatArt from './art/wheat.webp';
+import ranchArt from './art/ranch.webp';
+import bakeryArt from './art/bakery.webp';
+import cafeArt from './art/cafe.webp';
+import storeArt from './art/store.webp';
+import forestArt from './art/forest.webp';
+import stadiumArt from './art/stadium.webp';
+import tvArt from './art/tv.webp';
+import businessArt from './art/business.webp';
+import cheeseArt from './art/cheese.webp';
+import furnitureArt from './art/furniture.webp';
+import mineArt from './art/mine.webp';
+import restaurantArt from './art/restaurant.webp';
+import orchardArt from './art/orchard.webp';
+import marketArt from './art/market.webp';
+import lmstationArt from './art/lm-station.webp';
+import lmmallArt from './art/lm-mall.webp';
+import lmparkArt from './art/lm-park.webp';
+import lmradioArt from './art/lm-radio.webp';
+import coins from './art/coins.webp';
+
 const fa = (n: number) => n.toLocaleString('fa-IR');
+const ART: Record<CardKey, string> = { wheat: wheatArt, ranch: ranchArt, bakery: bakeryArt, cafe: cafeArt, store: storeArt, forest: forestArt, stadium: stadiumArt, tv: tvArt, business: businessArt, cheese: cheeseArt, furniture: furnitureArt, mine: mineArt, restaurant: restaurantArt, orchard: orchardArt, market: marketArt };
+const LM_ART: Record<Landmark, string> = { station: lmstationArt, mall: lmmallArt, park: lmparkArt, radio: lmradioArt };
 export const CARD_FA: Record<CardKey, string> = {
   wheat: 'گندم‌زار', ranch: 'دامداری', bakery: 'نانوایی', cafe: 'قهوه‌خانه', store: 'بقالی', forest: 'جنگل', stadium: 'ورزشگاه', tv: 'ایستگاه تلویزیون',
   business: 'مرکز تجاری', cheese: 'پنیرسازی', furniture: 'مبل‌سازی', mine: 'معدن', restaurant: 'رستوران', orchard: 'باغ میوه', market: 'بازار میوه'
@@ -26,6 +50,7 @@ export function TownCard({ k, count }: { k: CardKey; count?: number }) {
   return (
     <span className={`mk-card mk-col--${d.color}`}>
       <b className="mk-card__rolls">{d.rolls.map(fa).join('–')}</b>
+      <img className="mk-card__art" src={ART[k]} alt="" draggable={false} />
       <span className="mk-card__name">{CARD_FA[k]}</span>
       <small>{EFFECT[k]}</small>
       {count !== undefined && <i className="mk-card__count">×{fa(count)}</i>}
@@ -90,7 +115,7 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
           {CARD_DEFS.map((d) => (
             <button key={d.key} type="button" className={['mk-buy', hint?.card === d.key ? 'mk-hint' : ''].join(' ')} disabled={!builds.has(d.key) || busy}
               onClick={() => onAction({ type: 'build', card: d.key })} aria-label={`ساختن ${CARD_FA[d.key]} به قیمت ${fa(d.cost)}`}>
-              <TownCard k={d.key} /><span className="mk-buy__cost">{fa(d.cost)} سکه، {fa(view.supply[d.key])} مانده</span>
+              <TownCard k={d.key} /><span className="mk-buy__cost"><img src={coins} alt="" draggable={false} />{fa(d.cost)} سکه، {fa(view.supply[d.key])} مانده</span>
             </button>
           ))}
         </section>
@@ -107,8 +132,8 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
       <ul className="mk__players" aria-label="شهرها">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
           <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
-            <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><span className="mk-pl__coins" key={view.coins[s]}>{fa(view.coins[s]!)} سکه</span></div>
-            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={l.key} className={`mk-lm ${view.landmarks[s]![l.key] ? 'mk-lm--on' : ''}`} title={LANDMARK_FA[l.key]}>{LANDMARK_FA[l.key]}</span>)}</div>
+            <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><span className="mk-pl__coins" key={view.coins[s]}><img src={coins} alt="" draggable={false} />{fa(view.coins[s]!)} سکه</span></div>
+            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={l.key} className={`mk-lm ${view.landmarks[s]![l.key] ? 'mk-lm--on' : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key]} alt="" draggable={false} />{LANDMARK_FA[l.key]}</span>)}</div>
             <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} />)}</div>
           </li>
         ))}
