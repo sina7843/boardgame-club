@@ -787,3 +787,19 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   versions of your hand; scouting shows pulsing «+» gaps in the hand.
 - Polish passes (360/1440): (1) the upside-down bottom number was pushed outside the card — now anchored inside;
   playing-card glyph replaced with words (it rendered as a box); the ring is visible while choosing the orientation.
+## «راه ادویه» (Century: Spice Road, 2026-10-08, owner list batch 6)
+
+- 2–5 players; spices turmeric < saffron < cardamom < cinnamon; caravan limit 10 (excess discarded — the UI offers
+  the cheapest). Merchant cards (spice / upgrade N / repeatable trade) and 36 order cards (points = y1 r2 g3 b4 summed)
+  are generated sets following the original's kinds and value curve, not copies. Starting hands «2 turmeric» +
+  «upgrade 2»; starting spices by seat from the first player 3y, 4y, 4y, 3y+1r, 3y+1r. Play / acquire (one spice
+  on each earlier market card; the UI pays the cheapest) / rest / claim (first slot gold 3, second silver 1 while
+  2×players of each last). The 6th order (5th with 4–5 players) finishes the round. Score: orders + coins + non-turmeric
+  spices; tie → later in turn order. Only deck orders are hidden. Timeout: rest, else play a spice card, else take the
+  first market card.
+- Look: caravanserai on the spice road; sandstone merchant cards (blue for upgrades, terracotta for trades), golden
+  order cards with points and needed cubes, brass gold/silver coin badges, spice cubes left on market cards, a
+  trade-count stepper and an upgrade picker with a live preview.
+- Polish passes (360/1440): (1) a renderer crash when a selected card stopped being playable for one render (stale
+  selection read with a non-null assertion) — the selection is now only used while legal; (2) order and market rows
+  are capped at 38rem on desktop.

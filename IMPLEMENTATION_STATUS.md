@@ -669,3 +669,10 @@ card set and decks, show strength, hand flip, show/capture/scout/chip and Scout 
 with scoring, timeouts/resign, tutorial, 25 random 2–5 player games through all rounds with replay); API 3
 (`apps/api/test/scout.test.ts`); catalog test updated; E2E `e2e/scout.spec.ts` — tutorial and a full three-player
 game (three rounds) at 360 and 1440 (`docs/evidence/scout/`).
+## «راه ادویه» Century: Spice Road (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/century` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/century.test.ts`:
+card sets and setup, upgrade/trade/spice/rest, acquiring with payment along the row, claiming with coins, caravan
+discard, round end, timeouts/resign/privacy, tutorial, 20 random 2–5 player games with replay); API 3
+(`apps/api/test/century.test.ts`); catalog test updated; E2E `e2e/century.spec.ts` — tutorial and a full two-player
+game at 360 and 1440 (`docs/evidence/century/`).

@@ -12,7 +12,7 @@ describe('catalog search and filters (FR-02)', () => {
 
   it('lists the catalog; only the engine fixtures are labelled test games', async () => {
     const items = (await get('/api/games')).json().items as { id: string; isTestGame: boolean }[];
-    expect(items.map((g) => g.id)).toEqual(['abalone', 'unmatched', 'othello', 'high-society', 'amlak', 'uno', 'onitama', 'point-salad', 'cockroach-poker', 'ticket-to-ride', 'for-sale', 'tak', 'backgammon', 'skull', 'risk', 'santorini', 'line-three', 'sushi-go', 'scout', 'chess', 'kingdomino', 'snakes-ladders', 'sealed-bids', 'ludo', 'love-letter', 'no-thanks', 'the-mind', 'patchwork', 'checkers', 'catan', 'jaipur', 'azul', 'lost-cities', 'hive', 'coup', 'quoridor', 'six-nimmt', 'go', 'splendor']);
+    expect(items.map((g) => g.id)).toEqual(['abalone', 'unmatched', 'othello', 'high-society', 'amlak', 'uno', 'onitama', 'point-salad', 'cockroach-poker', 'ticket-to-ride', 'for-sale', 'tak', 'backgammon', 'skull', 'century', 'risk', 'santorini', 'line-three', 'sushi-go', 'scout', 'chess', 'kingdomino', 'snakes-ladders', 'sealed-bids', 'ludo', 'love-letter', 'no-thanks', 'the-mind', 'patchwork', 'checkers', 'catan', 'jaipur', 'azul', 'lost-cities', 'hive', 'coup', 'quoridor', 'six-nimmt', 'go', 'splendor']);
     expect(items.filter((g) => g.isTestGame).map((g) => g.id)).toEqual(['line-three', 'sealed-bids']);
   });
 
@@ -24,11 +24,11 @@ describe('catalog search and filters (FR-02)', () => {
   });
 
   it('filters by players, time, difficulty, mode and access', async () => {
-    expect(await ids('?players=4')).toEqual(['amlak', 'azul', 'catan', 'cockroach-poker', 'coup', 'for-sale', 'high-society', 'kingdomino', 'love-letter', 'ludo', 'no-thanks', 'point-salad', 'quoridor', 'risk', 'scout', 'sealed-bids', 'six-nimmt', 'skull', 'snakes-ladders', 'splendor', 'sushi-go', 'the-mind', 'ticket-to-ride', 'unmatched', 'uno']);
+    expect(await ids('?players=4')).toEqual(['amlak', 'azul', 'catan', 'century', 'cockroach-poker', 'coup', 'for-sale', 'high-society', 'kingdomino', 'love-letter', 'ludo', 'no-thanks', 'point-salad', 'quoridor', 'risk', 'scout', 'sealed-bids', 'six-nimmt', 'skull', 'snakes-ladders', 'splendor', 'sushi-go', 'the-mind', 'ticket-to-ride', 'unmatched', 'uno']);
     expect(await ids('?players=8')).toEqual(['amlak', 'six-nimmt', 'uno']);
     expect(await ids('?maxMinutes=3')).toEqual(['line-three']);
-    expect(await ids('?difficulty=medium')).toEqual(['abalone', 'amlak', 'azul', 'backgammon', 'catan', 'chess', 'hive', 'patchwork', 'risk', 'scout', 'sealed-bids', 'splendor', 'tak', 'unmatched']);
-    expect(await ids('?mode=turn')).toEqual(['abalone', 'amlak', 'azul', 'backgammon', 'catan', 'checkers', 'chess', 'cockroach-poker', 'coup', 'for-sale', 'go', 'high-society', 'hive', 'jaipur', 'kingdomino', 'line-three', 'lost-cities', 'love-letter', 'ludo', 'no-thanks', 'onitama', 'othello', 'patchwork', 'point-salad', 'quoridor', 'risk', 'santorini', 'scout', 'sealed-bids', 'six-nimmt', 'skull', 'snakes-ladders', 'splendor', 'sushi-go', 'tak', 'ticket-to-ride', 'unmatched', 'uno']);
+    expect(await ids('?difficulty=medium')).toEqual(['abalone', 'amlak', 'azul', 'backgammon', 'catan', 'century', 'chess', 'hive', 'patchwork', 'risk', 'scout', 'sealed-bids', 'splendor', 'tak', 'unmatched']);
+    expect(await ids('?mode=turn')).toEqual(['abalone', 'amlak', 'azul', 'backgammon', 'catan', 'century', 'checkers', 'chess', 'cockroach-poker', 'coup', 'for-sale', 'go', 'high-society', 'hive', 'jaipur', 'kingdomino', 'line-three', 'lost-cities', 'love-letter', 'ludo', 'no-thanks', 'onitama', 'othello', 'patchwork', 'point-salad', 'quoridor', 'risk', 'santorini', 'scout', 'sealed-bids', 'six-nimmt', 'skull', 'snakes-ladders', 'splendor', 'sushi-go', 'tak', 'ticket-to-ride', 'unmatched', 'uno']);
     expect(await ids('?access=premium')).toEqual([]);
     expect((await get('/api/games?players=abc')).json().errorCode).toBe('VALIDATION_FAILED');
   });

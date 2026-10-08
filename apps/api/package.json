@@ -50,7 +50,8 @@
     "@bg/game-kingdomino": "workspace:*",
     "@bg/game-point-salad": "workspace:*",
     "@bg/game-cockroach-poker": "workspace:*",
-    "@bg/game-scout": "workspace:*"
+    "@bg/game-scout": "workspace:*",
+    "@bg/game-century": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

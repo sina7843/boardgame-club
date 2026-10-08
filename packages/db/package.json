@@ -56,7 +56,8 @@
     "@bg/game-kingdomino": "workspace:*",
     "@bg/game-point-salad": "workspace:*",
     "@bg/game-cockroach-poker": "workspace:*",
-    "@bg/game-scout": "workspace:*"
+    "@bg/game-scout": "workspace:*",
+    "@bg/game-century": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

@@ -1,0 +1,66 @@
+/* راه ادویه: a caravanserai on the spice road — warm sandstone cards, spice cubes in turmeric, saffron, cardamom
+   and cinnamon, brass coins. */
+.ct { --sand: #f1e2c2; --ink: #33220f; display: grid; gap: 0.7rem; inline-size: 100%; color: #f8eedb; text-align: center; }
+.ct > :first-child { justify-self: center; }
+.ct > .ct__players, .ct > .ct__me { justify-self: stretch; }
+.ct-s--y { --s: #e8b923; --s2: #8a6408; } .ct-s--r { --s: #c8321f; --s2: #6e140a; } .ct-s--g { --s: #3f9a4a; --s2: #1b5224; } .ct-s--b { --s: #7a4a2a; --s2: #3a200c; }
+
+.ct-cubes { display: inline-flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
+.ct-cube { display: inline-block; inline-size: 0.8rem; block-size: 0.8rem; border-radius: 3px; background: linear-gradient(145deg, color-mix(in srgb, var(--s) 70%, white 30%), var(--s) 55%, var(--s2)); box-shadow: 0 1px 2px rgb(0 0 0 / 0.5); }
+.ct-cubes--sm .ct-cube { inline-size: 0.55rem; block-size: 0.55rem; border-radius: 2px; }
+.ct-cube--btn { inline-size: 1.6rem; block-size: 1.6rem; border: 0; cursor: pointer; }
+.ct-cube--btn:disabled { opacity: 0.35; cursor: default; }
+
+.ct-card, .ct-order { display: grid; gap: 0.2rem; justify-items: center; align-content: center; inline-size: 100%; min-block-size: 4rem; padding: 0.3rem; border-radius: 8px; color: var(--ink);
+  background: linear-gradient(170deg, #fbf1dc, var(--sand)); box-shadow: inset 0 0 0 2px #b8904a, 0 3px 6px -3px #000; }
+.ct-card small { font-size: 0.62rem; font-weight: 800; color: #7a5a2a; }
+.ct-card--upgrade { background: linear-gradient(170deg, #eef4ff, #d8e2f2); box-shadow: inset 0 0 0 2px #5a7ab8, 0 3px 6px -3px #000; }
+.ct-card--trade { background: linear-gradient(170deg, #fdeee6, #f2d6c4); box-shadow: inset 0 0 0 2px #b8604a, 0 3px 6px -3px #000; }
+.ct-up { color: #3a5a9a; letter-spacing: 1px; }
+.ct-trade { display: grid; justify-items: center; gap: 1px; }
+.ct-trade b { font-size: 0.7rem; color: #7a3a2a; }
+.ct-order { background: linear-gradient(170deg, #fff6df, #f0dba8); box-shadow: inset 0 0 0 2px #c9962a, 0 3px 6px -3px #000; }
+.ct-order__pts { font-size: 1.15rem; font-weight: 900; color: #7a4a0a; }
+
+.ct__orders { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; }
+.ct__market { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.3rem; }
+.ct-slot { position: relative; display: grid; gap: 0.15rem; justify-items: center; padding: 0; border: 0; border-radius: 9px; background: transparent; color: inherit; font: inherit; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+.ct-slot:disabled { cursor: default; }
+.ct-slot--can { box-shadow: 0 0 0 2px rgb(255 217 138 / 0.65); }
+.ct-slot--can:hover, .ct-slot--can:focus-visible { box-shadow: 0 0 0 3px #ffd98a; outline: none; }
+.ct-slot--on { box-shadow: 0 0 0 3px #ffd98a; transform: translateY(-5px); }
+.ct-on { padding: 1px 3px; border-radius: 4px; background: rgb(0 0 0 / 0.35); }
+.ct-cost { font-size: 0.6rem; color: #e8d6b4; }
+.ct-coin { display: inline-grid; place-items: center; min-inline-size: 1.25rem; block-size: 1.25rem; padding: 0 0.2rem; border-radius: 999px; font-size: 0.65rem; font-weight: 900; color: var(--ink); box-shadow: 0 1px 3px rgb(0 0 0 / 0.5); }
+.ct-slot .ct-coin { position: absolute; inset-block-start: -0.4rem; inset-inline-end: -0.3rem; }
+.ct-slot .ct-coin--silver { inset-inline-end: auto; inset-inline-start: -0.3rem; }
+.ct-coin--gold { background: radial-gradient(circle at 35% 30%, #fff1b0, #e3b23a 60%, #9a6f1f); }
+.ct-coin--silver { background: radial-gradient(circle at 35% 30%, #ffffff, #c4ccd6 60%, #7a8494); }
+
+.ct__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.ct-pl { display: grid; gap: 0.3rem; padding: 0.45rem 0.55rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); }
+.ct-pl--me { background: rgb(232 185 35 / 0.12); }
+.ct-pl--turn { box-shadow: 0 0 0 2px #ffd98a; }
+.ct-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.18); }
+.ct-pl__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.82rem; }
+.ct-pl__name { font-weight: 800; }
+.ct-pl__score { padding: 0 0.5rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: ct-bump 0.4s ease-out; }
+.ct-caravan { display: flex; gap: 0.5rem; align-items: center; justify-content: center; min-block-size: 1.2rem; }
+.ct-caravan small { color: #e3d2b2; font-size: 0.7rem; }
+
+.ct__me { display: grid; gap: 0.55rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(255 217 138 / 0.35); }
+.ct__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.ct__hand .ct-slot { inline-size: 4.4rem; }
+.ct__tool { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; justify-content: center; padding: 0.4rem 0.6rem; border-radius: 10px; background: rgb(0 0 0 / 0.25); animation: ct-drop 0.25s ease-out both; }
+.ct__tool > button:not(.ct-cube) { inline-size: 1.8rem; block-size: 1.8rem; border-radius: 50%; border: 1px solid #ffd98a; background: rgb(0 0 0 / 0.3); color: inherit; font: inherit; font-weight: 900; cursor: pointer; }
+.ct__preview { display: inline-flex; align-items: center; gap: 0.2rem; }
+.ct__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+.ct__played { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; justify-content: center; opacity: 0.6; }
+.ct__played .ct-card { inline-size: 3.2rem; min-block-size: 2.8rem; }
+.ct-hint { animation: ct-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes ct-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes ct-bump { 40% { transform: scale(1.25); } }
+@keyframes ct-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ct * { animation: none !important; transition: none !important; } }
+.ct > .ct__orders, .ct > .ct__market { inline-size: min(100%, 38rem); justify-self: center; align-items: start; }

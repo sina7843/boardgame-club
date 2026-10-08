@@ -38,6 +38,7 @@ import KingdominoCover from '@bg/game-kingdomino/cover';
 import PointSaladCover from '@bg/game-point-salad/cover';
 import CockroachPokerCover from '@bg/game-cockroach-poker/cover';
 import ScoutCover from '@bg/game-scout/cover';
+import CenturyCover from '@bg/game-century/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -79,7 +80,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   kingdomino: KingdominoCover,
   'point-salad': PointSaladCover,
   'cockroach-poker': CockroachPokerCover,
-  scout: ScoutCover
+  scout: ScoutCover,
+  century: CenturyCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {
