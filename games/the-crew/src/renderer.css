@@ -1,6 +1,7 @@
 /* خدمه: a mission console. Space theme (Planet Nine) — violet/navy; sea theme (Deep Sea) — teal depths. */
 .cw { --bg1: #1a1440; --bg2: #070a1f; --accent: #b8a4ff; display: grid; gap: 0.6rem; inline-size: 100%; color: #eef0ff; text-align: center; padding: 0.5rem; border-radius: 16px;
-  background: radial-gradient(circle at 70% 0%, var(--bg1), var(--bg2) 75%); }
+  /* Backdrop is cut from a generated sheet (see DECISIONS.md); the deep-sea edition passes its own via --cw-bd. */
+  background: linear-gradient(rgb(7 10 31 / 0.55), rgb(7 10 31 / 0.75)), var(--cw-bd, url('./art/bd-space.webp')) center / cover var(--bg2); }
 .cw--sea { --bg1: #0f5a6a; --bg2: #031a26; --accent: #7fe3d0; }
 .cw > :first-child { justify-self: center; }
 .cw-s--p { --s: #e85a9b; } .cw-s--b { --s: #3a7bd5; } .cw-s--g { --s: #3fae5a; } .cw-s--y { --s: #f2c230; } .cw-s--r { --s: #23233a; }

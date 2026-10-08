@@ -2,7 +2,7 @@
 // top; the trick in progress fans in the centre with each player's name; crew strips show hand size, tricks and the
 // one communicated card; your hand is below with a radio-style "ارتباط" mode for showing a card.
 import './renderer.css';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { cardFa, rank, suit } from './trick.ts';
 import type { CrewTask, CrewView } from './rules.ts';
@@ -23,7 +23,7 @@ const nineLabel = (t: CrewTask) => (t.card ? <CrewCard c={t.card} size="sm" /> :
 
 type Hint = { type: string; card?: string; task?: number } | null;
 
-export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction, expected, label, theme }: GameRendererProps<CrewView> & { label: (t: CrewTask) => ReactNode; theme: 'space' | 'sea' }) {
+export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction, expected, label, theme, backdrop }: GameRendererProps<CrewView> & { label: (t: CrewTask) => ReactNode; theme: 'space' | 'sea'; backdrop?: string }) {
   const me = mySeat ?? -1;
   const hint = expected as unknown as Hint;
   const [talk, setTalk] = useState(false);
@@ -41,7 +41,7 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
   const order = (t: CrewTask) => (t.order === 'last' ? 'Ω' : t.order !== undefined ? fa(t.order) : null);
 
   return (
-    <div className={`cw cw--${theme}`} data-seq={view.seq} data-phase={view.phase}>
+    <div className={`cw cw--${theme}`} style={backdrop ? ({ '--cw-bd': `url(${backdrop})` } as CSSProperties) : undefined} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="cw-tasks" aria-label="وظیفه‌ها">
