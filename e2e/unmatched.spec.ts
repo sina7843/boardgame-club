@@ -44,7 +44,9 @@ async function decide(p: Page, n: number, heroes: string[]) {
       await fieldset('مبارز مهاجم').first().click();
       await fieldset('هدف').first().click();
       await p.locator('.um-hand .um-card--playable').first().click();
-      return button(/^ثبت حمله/).click();
+      // Plain attacks send on the card tap; boostable ones (Arthur) still need «ثبت حمله».
+      if (await button(/^ثبت حمله/).count()) return button(/^ثبت حمله/).click();
+      return;
     }
     return button(/^مانور/).click();
   }
@@ -54,8 +56,9 @@ async function decide(p: Page, n: number, heroes: string[]) {
     if (await card.count() && n % 2) {
       await card.click();
       const predict = d.getByRole('group', { name: 'پیش‌بینی ارزش چاپی حمله حریف' }).locator('.um-choice');
-      if (await predict.count()) await predict.nth(3).click(); // Elementary: guess 3
-      return button('دفاع با کارت انتخاب‌شده').click();
+      // The tap defends; only Elementary asks for a predicted value first.
+      if (await predict.count()) { await predict.nth(3).click(); return button('دفاع با کارت انتخاب‌شده').click(); }
+      return;
     }
     return button('بدون دفاع').click();
   }

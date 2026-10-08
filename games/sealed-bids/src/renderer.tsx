@@ -2,13 +2,12 @@
 import './renderer.css';
 // Shows only what the projection contains; opponents' bids appear only in revealed history.
 import { useEffect, useRef, useState } from 'react';
-import { ActionBar, Button, Hand, Token, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { ActionBar, Hand, Token, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { ROUNDS, type SealedBidsView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
 export default function SealedBidsRenderer({ view, legalActions, mySeat, seatName, busy, onAction }: GameRendererProps<SealedBidsView>) {
-  const [picked, setSelected] = useState<number | null>(null);
   const playable = new Set(legalActions.filter((a) => a.type === 'bid').map((a) => a.token as number));
   const seats = Array.from({ length: view.players }, (_, i) => i);
   const [announce, setAnnounce] = useState('');
@@ -22,14 +21,6 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
     }
     seen.current = view.history.length;
   }, [view.history, seatName]);
-
-  const selected = picked !== null && playable.has(picked) ? picked : null;
-
-  const submit = () => {
-    if (selected === null || busy) return;
-    onAction({ type: 'bid', token: selected });
-    setSelected(null);
-  };
 
   const iSubmitted = mySeat !== null && view.submitted[mySeat];
   const status = view.outcome ? null
@@ -106,14 +97,12 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
             <>
               <Hand label="ژتون‌های شما">
                 {[1, 2, 3, 4, 5].map((t) => (
-                  <Token key={t} value={t} selected={selected === t} disabled={!playable.has(t) || busy}
+                  <Token key={t} value={t} disabled={!playable.has(t) || busy}
                     label={`ژتون ${fa(t)}${view.myHand!.includes(t) ? '' : ' (مصرف‌شده)'}`}
-                    onSelect={() => setSelected(selected === t ? null : t)} />
+                    onSelect={() => { if (playable.has(t) && !busy) onAction({ type: 'bid', token: t }); }} />
                 ))}
               </Hand>
-              <Button onClick={submit} disabled={selected === null || busy}>
-                {selected === null ? 'یک ژتون انتخاب کنید' : `مهر و ثبت ${fa(selected)}`}
-              </Button>
+              <span className="muted">ژتون پیشنهادتان را بزنید تا مهر شود.</span>
             </>
           )}
         </ActionBar>

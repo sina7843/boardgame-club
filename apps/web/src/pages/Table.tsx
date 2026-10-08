@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
-import type { TableSnapshot } from '@bg/contracts';
+import type { MessageItem, TableSnapshot } from '@bg/contracts';
 import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Medal, Trophy } from 'lucide-react';
 import { Avatar, Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
+import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { useTableSession } from '../lib/useTableSession.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
@@ -212,6 +213,38 @@ function PlayerBoards({ snap, strip }: { snap: TableSnapshot; strip?: boolean })
   );
 }
 
+/**
+ * Table chat alerts while the chat drawer is closed: unread count for the chat button, a short toast with the sender
+ * and text, and (if enabled in settings) a browser notification when the tab is hidden. Returns the unread count.
+ */
+function useTableChatAlerts(tableId: string | null, open: boolean): number {
+  const { me } = useSession();
+  const toast = useToast();
+  const [unread, setUnread] = useState(0);
+  const [conversationId, setConversationId] = useState<string>();
+  useEffect(() => {
+    if (!tableId) return;
+    api<{ conversationId: string }>(`/tables/${tableId}/chat`).then((r) => setConversationId(r.conversationId), () => { /* chat unavailable */ });
+  }, [tableId]);
+  useEffect(() => { if (open) setUnread(0); }, [open]);
+  useEffect(() => {
+    if (!conversationId) return;
+    const on = (e: Event) => {
+      const m = (e as CustomEvent<MessageItem>).detail;
+      if (m.conversationId !== conversationId || m.sender.id === me?.id || m.deleted || open) return;
+      setUnread((n) => n + 1);
+      const text = `${m.sender.displayName}: ${m.body.length > 80 ? `${m.body.slice(0, 80)}…` : m.body}`;
+      toast('info', `پیام در میز — ${text}`);
+      if (document.hidden && browserNotificationsEnabled()) {
+        try { new Notification('گفت‌وگوی میز', { body: text, tag: m.id, lang: 'fa', dir: 'rtl' }); } catch { /* unsupported */ }
+      }
+    };
+    window.addEventListener('bg:message', on);
+    return () => window.removeEventListener('bg:message', on);
+  }, [conversationId, me?.id, open, toast]);
+  return unread;
+}
+
 function tableMeta(t: Lobby) {
   return t.isTutorial ? 'میز آموزشی بدون زمان و بدون اثر بر رتبه' : `${PACE_FA[t.pace]} · ${t.visibility === 'private' ? 'خصوصی' : 'عمومی'} · دوستانه · ${durationFa(t.settings.turnSeconds)} برای هر نوبت`;
 }
@@ -232,8 +265,19 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const finished = t.status === 'finished';
   const canResign = !finished && g.legalActions.some((a) => a.type === 'resign');
   const myTurn = t.mySeat !== null && g.pendingSeats.includes(t.mySeat);
-  const busy = !!s.pending || t.status !== 'active' || !!snap.incident;
+  const busy = !!s.pending || !!s.queued || t.status !== 'active' || !!snap.incident;
   const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
+  const hasChat = t.mySeat !== null && !t.isTutorial;
+  const unread = useTableChatAlerts(hasChat ? t.id : null, chat);
+
+  // Escape cancels a move that is still inside its undo window.
+  const { queued, cancelQueued } = s;
+  useEffect(() => {
+    if (!queued) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cancelQueued(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [queued, cancelQueued]);
 
   const tutorial = async (path: 'start' | 'skip') => {
     setTutorialBusy(true);
@@ -269,7 +313,12 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         <span className={cn('gamebar__conn', s.live ? 'is-on' : 'is-off')} role="status" title={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}>
           <span className="gamebar__dot" aria-hidden /><span className="gamebar__conn-text">{s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}</span>
         </span>
-        {t.mySeat !== null && !t.isTutorial && <Button variant="secondary" size="sm" icon="card" onClick={() => setChat(true)}>گفت‌وگوی میز</Button>}
+        {hasChat && (
+          <Button className={cn('gamebar__chat', unread > 0 && 'gamebar__chat--unread')} variant="secondary" size="sm" icon="card" onClick={() => setChat(true)}
+            aria-label={unread > 0 ? `گفت‌وگوی میز، ${faNum(unread)} پیام تازه` : undefined}>
+            گفت‌وگوی میز{unread > 0 && <span className="chatbadge" aria-hidden>{faNum(unread)}</span>}
+          </Button>
+        )}
         <Button className="game__drawer-btn" variant="secondary" size="sm" icon="players" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
       </header>
 
@@ -287,6 +336,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
         {snap.incident && <div className="banner banner--warn" role="status" style={{ margin: 0 }}><Icon name="alert" />توقف سراسری: {snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.</div>}
         {s.notice && <div className="banner banner--warn" role="alert" style={{ margin: 0 }}>{s.notice} <Button variant="ghost" size="sm" onClick={() => s.setNotice(null)}>باشه</Button></div>}
+        {s.queued && (
+          <div className="banner banner--info undo" role="status" style={{ margin: 0, ['--undo-ms' as string]: `${s.queued.ms}ms` }}>
+            <span className="undo__bar" aria-hidden />
+            <Icon name="clock" /> حرکت شما تا لحظه‌ای دیگر ثبت می‌شود.
+            <Button size="sm" variant="secondary" onClick={s.cancelQueued}>انصراف</Button>
+          </div>
+        )}
         {s.pending && (
           <div className="banner banner--info" role="status" style={{ margin: 0 }}>
             {s.pending.status === 'sending' ? <><span className="spinner" aria-hidden /> در حال ارسال حرکت…</> : (
@@ -329,7 +385,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
       <Dialog open={confirmResign} onClose={() => setConfirmResign(false)} title="انصراف از بازی؟"
         footer={<><Button variant="ghost" onClick={() => setConfirmResign(false)}>ادامه بازی</Button>
-          <Button variant="danger" onClick={() => { setConfirmResign(false); s.act({ type: 'resign' }); }}>انصراف قطعی</Button></>}>
+          <Button variant="danger" onClick={() => { setConfirmResign(false); s.act({ type: 'resign' }, true); }}>انصراف قطعی</Button></>}>
         {t.policies.resignFa} این کار قابل بازگشت نیست.
       </Dialog>
     </div>

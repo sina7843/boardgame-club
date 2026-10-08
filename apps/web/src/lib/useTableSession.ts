@@ -66,10 +66,21 @@ export function useTableSession(tableId: string, invite: string | null) {
     }
   }, [tableId, accept]);
 
-  const act = useCallback((action: GameAction) => {
-    if (pending || !snapshot?.game) return;
-    void send({ commandId: crypto.randomUUID(), expectedRevision: snapshot.game.revision, action, status: 'sending' });
-  }, [pending, snapshot, send]);
+  // Undo window: a move waits UNDO_MS before it is sent, so renderers act on a single tap without a confirm step.
+  const [queued, setQueued] = useState<{ cmd: PendingCommand; ms: number } | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  /** `now` skips the undo window (the action was already confirmed elsewhere, e.g. the resign dialog). */
+  const act = useCallback((action: GameAction, now = false) => {
+    if (pending || queued || !snapshot?.game) return;
+    const cmd: PendingCommand = { commandId: crypto.randomUUID(), expectedRevision: snapshot.game.revision, action, status: 'sending' };
+    const ms = now ? 0 : undoMs();
+    if (ms <= 0) { void send(cmd); return; }
+    setQueued({ cmd, ms });
+    timer.current = setTimeout(() => { setQueued(null); void send(cmd); }, ms);
+  }, [pending, queued, snapshot, send]);
+  const cancelQueued = useCallback(() => { clearTimeout(timer.current); setQueued(null); }, []);
 
   // Unconfirmed command: poll the receipt until the server tells us what happened.
   useEffect(() => {
@@ -90,5 +101,10 @@ export function useTableSession(tableId: string, invite: string | null) {
   const resendPending = useCallback(() => { if (pending) void send(pending); }, [pending, send]);
   const dropPending = useCallback(() => { setPending(null); void reload(); }, [reload]);
 
-  return { snapshot, accept, loadError, reload, pending, notice, setNotice, act, resendPending, dropPending, live, clockOffset };
+  return { snapshot, accept, loadError, reload, pending, queued, cancelQueued, notice, setNotice, act, resendPending, dropPending, live, clockOffset };
+}
+
+/** Undo window in ms (default 2 s). `bg.undoMs` in localStorage overrides it; E2E runs set 0. */
+function undoMs(): number {
+  try { const v = Number(localStorage.getItem('bg.undoMs') ?? NaN); return Number.isFinite(v) ? v : 2000; } catch { return 2000; }
 }

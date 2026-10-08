@@ -96,7 +96,6 @@ test('three-player sealed bids: each client sees only its own sealed value', asy
       for (let attempt = 0; ; attempt++) {
         await expect(p.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
         await p.getByRole('button', { name: `ژتون ${tokens[i]!.toLocaleString('fa-IR')}`, exact: true }).click();
-        await p.getByRole('button', { name: /^مهر و ثبت/ }).click();
         if (await expect.poll(sealed, { timeout: 5000 }).toBe(true).then(() => true, () => false)) break;
         expect(attempt, 'bid still not accepted after re-sealing').toBeLessThan(2);
         test.info().annotations.push({ type: 'stale-resubmit', description: `round ${round + 1}, client ${i}` });
@@ -141,14 +140,12 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   const [mover, waiter] = (await turnOf()) === 'a' ? [a, b] : [b, a];
   await waiter.goto('/');
   await mover.locator('.lt__cell').nth(4).click();
-  await mover.getByRole('button', { name: 'ثبت حرکت' }).click();
   const panel = waiter.locator('section[aria-labelledby="my-turn-h"]');
   await expect(panel.getByRole('link').first()).toBeVisible({ timeout: 15_000 });
   await waiter.screenshot({ path: shot(info.project.name, 'my-turn-dashboard'), fullPage: true });
   await panel.getByRole('link').first().click();
   await expect(waiter.getByText('نوبت شماست')).toBeVisible();
   await waiter.locator('.lt__cell').nth(0).click();
-  await waiter.getByRole('button', { name: 'ثبت حرکت' }).click();
   await expect(mover.locator('.lt__cell').nth(0)).not.toHaveText('');
   await a.context().close(); await b.context().close();
 });

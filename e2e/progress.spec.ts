@@ -36,7 +36,6 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
     let mover: Page | null = null;
     for (let i = 0; i < 60 && !mover; i++) { if (await myTurn(a)) mover = a; else if (await myTurn(b)) mover = b; else await a.waitForTimeout(150); }
     await mover!.locator('.lt__cell').nth(cell).click();
-    await mover!.getByRole('button', { name: 'ثبت حرکت' }).click();
     await expect(mover!.locator('.lt__cell').nth(cell)).not.toHaveText('');
   }
   // After the game (never during it): rating change and XP with reasons, computed by the worker.

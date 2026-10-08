@@ -46,7 +46,6 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   await a.getByRole('button', { name: 'آموزش تعاملی' }).click();
   for (const cell of [4, 2, 6]) {
     await a.locator('.lt__cell').nth(cell).click();
-    await a.getByRole('button', { name: 'ثبت حرکت' }).click();
     await expect(a.locator('.lt__cell').nth(cell)).toHaveText('X');
   }
   await expect(a.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
@@ -64,7 +63,6 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   for (const cell of [0, 3, 1, 4, 2]) {
     const m = await mover(a, b);
     await m.locator('.lt__cell').nth(cell).click();
-    await m.getByRole('button', { name: 'ثبت حرکت' }).click();
     await expect(m.locator('.lt__cell').nth(cell)).not.toHaveText('');
   }
   await expect(a.getByRole('heading', { name: /شما بردید|این دست را باختید/ })).toBeVisible();
@@ -79,7 +77,6 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
     for (const [pg, t] of [[a, ta], [b, tb]] as const) {
       await expect(pg.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
       await pg.getByRole('button', { name: `ژتون ${t!.toLocaleString('fa-IR')}`, exact: true }).click();
-      await pg.getByRole('button', { name: /^مهر و ثبت/ }).click();
     }
   }
   await expect(b.getByRole('heading', { name: 'مساوی شد' })).toBeVisible();

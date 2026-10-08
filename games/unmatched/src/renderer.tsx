@@ -420,6 +420,9 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
     if (st === 'dim') return;
     if (p.kind === 'action' && mode === 'attack') {
       if (boostPick) { if (c.id !== selCard) setSelBoost(selBoost === c.id ? null : c.id); setBoostPick(false); return; }
+      // One tap attacks, unless the attack can also take a boost (Arthur): then the card is selected and «ثبت حمله» sends it.
+      const atk = attacks.find((a) => a.fighter === selFighter && a.target === selTarget && a.card === c.id);
+      if (atk && !atk.boostable) { send({ type: 'attack', fighter: selFighter, target: selTarget, card: c.id }); return; }
       setSelCard(selCard === c.id ? null : c.id);
       if (selBoost === c.id) setSelBoost(null);
       return;
@@ -430,8 +433,18 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
       else setSelCard(c.id);
       return;
     }
-    if (p.kind === 'defend') { setSelCard(selCard === c.id ? null : c.id); return; }
-    if (p.kind === 'boost' || p.kind === 'cards') togglePick(c.id, p.max ?? 1);
+    // Defending: one tap plays the card, except Elementary, which also needs a predicted value.
+    if (p.kind === 'defend') {
+      if (c.slug !== 'elementary') { send({ type: 'defend', card: c.id }); return; }
+      setSelCard(selCard === c.id ? null : c.id);
+      return;
+    }
+    if (p.kind === 'boost' || p.kind === 'cards') pickCard(c.id);
+  };
+  /** Exactly one card to choose → the tap is the choice; otherwise toggle and send with «تأیید». */
+  const pickCard = (id: string) => {
+    if (p && (p.max ?? 1) === 1 && (p.kind === 'boost' || (p.min ?? 0) === 1)) send({ type: 'choose', ids: [id] });
+    else togglePick(id, p?.max ?? 1);
   };
   const togglePick = (cardId: string, max: number) =>
     setPicks((cur) => (cur.includes(cardId) ? cur.filter((x) => x !== cardId) : max === 1 ? [cardId] : cur.length < max ? [...cur, cardId] : cur));
@@ -568,15 +581,18 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
               )}
               {p.kind === 'defend' && (
                 <div className="row">
-                  <Button disabled={busy || !selCard || (selCard.split('.')[1] === 'elementary' && predict === null)}
-                    onClick={() => send({ type: 'defend', card: selCard, ...(selCard?.split('.')[1] === 'elementary' && predict !== null ? { predict } : {}) })}>دفاع با کارت انتخاب‌شده</Button>
+                  {!selCard && <p className="um-help">کارت دفاع را از دستتان بزنید.</p>}
+                  {selCard && (
+                    <Button disabled={busy || predict === null}
+                      onClick={() => send({ type: 'defend', card: selCard, predict })}>دفاع با کارت انتخاب‌شده</Button>
+                  )}
                   <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'defend', card: null })}>بدون دفاع</Button>
                 </div>
               )}
 
               {p.kind === 'boost' && (
                 <div className="row">
-                  <Button disabled={busy || !picks.length} onClick={() => send({ type: 'choose', ids: picks })}>تقویت با کارت انتخاب‌شده</Button>
+                  <p className="um-help">کارت تقویت را از دستتان بزنید.</p>
                   <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'choose', ids: [] })}>بدون تقویت</Button>
                 </div>
               )}
@@ -624,7 +640,7 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
                       const order = picks.indexOf(id);
                       return (
                         <span key={id} className="um-pickwrap">
-                          <UmCard view={view} card={c} state={order >= 0 ? 'selected' : 'playable'} onClick={() => togglePick(id, p.max ?? 1)} />
+                          <UmCard view={view} card={c} state={order >= 0 ? 'selected' : 'playable'} onClick={() => pickCard(id)} />
                           {order >= 0 && <span className="um-pickwrap__n">{fa(order + 1)}</span>}
                         </span>
                       );

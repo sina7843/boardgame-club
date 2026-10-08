@@ -274,14 +274,14 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
     sel,
     hint: exp?.type === 'buildRoad' ? { kind: 'edge', id: exp.edge as number } : exp && 'vertex' in exp ? { kind: 'vertex', id: exp.vertex as number } : exp?.type === 'moveRobber' ? { kind: 'hex', id: exp.hex as number } : null
   };
-  const pickTarget = (s: NonNullable<Sel>) => { if (!busy) setSel(s); };
-  const confirmAction = (): Hint | null => {
-    if (!sel) return null;
-    if (sel.kind === 'edge') return { type: 'buildRoad', edge: sel.id };
-    if (sel.kind === 'hex') return { type: 'moveRobber', hex: sel.id };
-    return active === 'city' ? { type: 'buildCity', vertex: sel.id } : { type: 'buildSettlement', vertex: sel.id };
+  // One tap builds / moves the robber; the shell's undo window replaces a confirm step. The spot stays highlighted meanwhile.
+  const pickTarget = (s: NonNullable<Sel>) => {
+    if (busy) return;
+    const a: Hint = s.kind === 'edge' ? { type: 'buildRoad', edge: s.id } : s.kind === 'hex' ? { type: 'moveRobber', hex: s.id }
+      : active === 'city' ? { type: 'buildCity', vertex: s.id } : { type: 'buildSettlement', vertex: s.id };
+    setSel(s);
+    onAction(a);
   };
-  const confirmLabel = sel?.kind === 'edge' ? 'ساخت جاده' : sel?.kind === 'hex' ? 'بردن راهزن' : active === 'city' ? 'ساخت شهر' : 'ساخت آبادی';
 
   // Status line.
   const owed = mySeat !== null ? view.owed[mySeat] ?? 0 : 0;
@@ -354,13 +354,6 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
       <div className="ct-main">
         <div className="ct-board-wrap">
           <ZoomBoard label="نقشه جزیره کاتان"><Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} /></ZoomBoard>
-          {sel && myTurn && (
-            <div className="ct-confirm" role="group" aria-label="تأیید">
-              <span>{sel.kind === 'hex' ? hexLabel(view, sel.id) : sel.kind === 'edge' ? 'مسیر انتخاب‌شده' : vertexLabel(view, sel.id)}</span>
-              <Button disabled={busy} onClick={() => { const a = confirmAction(); if (a) act(a); }}>{confirmLabel}</Button>
-              <Button variant="ghost" size="sm" onClick={() => setSel(null)}>انصراف</Button>
-            </div>
-          )}
         </div>
 
         <div className="ct-side">

@@ -38,7 +38,6 @@ async function playLineThree(a: Page, b: Page, project: string, label: string) {
     const [mover, other] = await whoseTurn(a, b);
     await mover.locator('.lt__cell').nth(cell).click();
     if (cell === 1) await mover.screenshot({ path: shot(`${label}-selecting`, project), fullPage: true });
-    await mover.getByRole('button', { name: 'ثبت حرکت' }).click();
     await expect(other.locator('.lt__cell').nth(cell)).not.toHaveText(''); // opponent sees it via push
   }
   await expect(first.getByRole('heading', { name: 'شما بردید' })).toBeVisible();
@@ -54,7 +53,6 @@ async function playSealedBids(a: Page, b: Page, project: string, label: string) 
     for (const [p, token] of [[a, ta], [b, tb]] as const) {
       await expect(p.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
       await p.getByRole('button', { name: `ژتون ${token!.toLocaleString('fa-IR')}`, exact: true }).click();
-      await p.getByRole('button', { name: /^مهر و ثبت/ }).click();
       if (p === a) {
         await expect(a.getByText('پیشنهاد مهرشده شما')).toBeVisible();
         // The opponent sees only that A has sealed — never the value.
@@ -93,6 +91,40 @@ for (const [pace, paceFa] of [['live', 'زنده'], ['turn', 'نوبتی']] as c
   });
 }
 
+test('undo window cancels a tapped move; table chat alerts the other player', async ({ browser }, info) => {
+  const vp = info.project.use.viewport ?? null;
+  const a = await player(browser, vp, 'نیما');
+  const b = await player(browser, vp, 'Sara');
+  await createAndStart(a, b, 'line-three', 'زنده');
+  await expect(a.locator('.lt__board')).toBeVisible();
+  const [mover, other] = await whoseTurn(a, b);
+  await mover.evaluate(() => localStorage.setItem('bg.undoMs', '2000'));
+
+  // Tap → held for 2 s with «انصراف» → cancelled: nothing reaches the server.
+  await mover.locator('.lt__cell').nth(4).click();
+  await expect(mover.getByText('حرکت شما تا لحظه‌ای دیگر ثبت می‌شود.')).toBeVisible();
+  await mover.screenshot({ path: shot('undo-window', info.project.name), fullPage: true });
+  await mover.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await mover.waitForTimeout(2500);
+  await expect(other.locator('.lt__cell').nth(4)).toHaveText('');
+  await expect(mover.getByText('حرکت با شماست')).toBeVisible();
+
+  // Tap and wait: the move is sent when the window ends.
+  await mover.locator('.lt__cell').nth(4).click();
+  await expect(other.locator('.lt__cell').nth(4)).not.toHaveText('', { timeout: 8000 });
+
+  // Chat from the other player → unread badge and toast on the mover's table.
+  await other.getByRole('button', { name: 'گفت‌وگوی میز' }).click();
+  await other.getByLabel('متن پیام').fill('سلام، بازی خوبی بود');
+  await other.getByRole('button', { name: 'ارسال', exact: true }).click();
+  await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' })).toBeVisible();
+  await expect(mover.getByText(/پیام در میز — (Sara|نیما): سلام، بازی خوبی بود/)).toBeVisible();
+  await mover.screenshot({ path: shot('chat-alert', info.project.name), fullPage: true });
+  await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();
+  await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز', exact: true })).toBeAttached();
+  await a.context().close(); await b.context().close();
+});
+
 test('interactive tutorial: guided moves against the scripted opponent', async ({ browser }, info) => {
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/line-three');
@@ -101,7 +133,6 @@ test('interactive tutorial: guided moves against the scripted opponent', async (
   await p.screenshot({ path: shot('tutorial-step1', info.project.name), fullPage: true });
   for (const cell of [4, 2, 6]) {
     await p.locator('.lt__cell').nth(cell).click();
-    await p.getByRole('button', { name: 'ثبت حرکت' }).click();
     await expect(p.locator('.lt__cell').nth(cell)).toHaveText('X');
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

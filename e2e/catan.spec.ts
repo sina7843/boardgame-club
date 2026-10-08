@@ -36,7 +36,6 @@ async function move(p: Page): Promise<string | null> {
     const t = p.locator(target);
     if (await t.count()) {
       await t.first().click({ timeout: 5000 });
-      await p.getByRole('button', { name: confirm, exact: true }).click();
       return confirm;
     }
   }

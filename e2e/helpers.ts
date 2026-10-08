@@ -25,6 +25,8 @@ export async function newPage(browser: Browser, viewport: { width: number; heigh
 
 export async function player(browser: Browser, viewport: { width: number; height: number } | null, name: string) {
   const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: 'http://127.0.0.1:5173' });
+  // Moves are sent at once in E2E (no 2 s undo window); the undo test turns it back on per page.
+  await ctx.addInitScript(() => { try { localStorage.setItem('bg.undoMs', '0'); } catch { /* storage unavailable */ } });
   const page = await ctx.newPage();
   await signIn(page, name);
   return page;

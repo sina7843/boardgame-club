@@ -418,3 +418,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - No host ports; only `web` (Caddy, `expose: 8080`) gets the Coolify domain. Caddy `/data` and `/config` are tmpfs
   (Traefik terminates TLS, nothing to persist). Default Compose network instead of the prod internal/edge split,
   since Coolify attaches its own network to every service. `TRUST_PROXY_HOPS` defaults to 2 (Traefik -> Caddy).
+
+## One-tap moves with an undo window; table chat alerts (2026-10-08, owner request)
+
+- Moves no longer need a confirm step. The table shell holds every renderer action for 2 s ("حرکت شما تا لحظه‌ای دیگر
+  ثبت می‌شود" + «انصراف», Escape also cancels) and only then sends it; the board is `busy` meanwhile. Resign keeps its
+  dialog and skips the window. `localStorage bg.undoMs` overrides the delay (E2E sets 0; the undo test sets 2000).
+- Confirm buttons removed where they only confirmed a single choice: line-three cell, sealed-bids chip, Catan
+  settlement/city/road/robber, Unmatched attack and defence card and single-card boost/choice. Kept where a second real
+  input exists: Arthur's boost, Elementary's prediction, multi-card picks, amounts (bids, trades, armies).
+- Table chat: while the chat drawer is closed, a new message from another participant shows a toast
+  («پیام در میز — نام: متن»), an unread count on «گفت‌وگوی میز», and a browser notification if enabled and the tab is
+  hidden. Only on the table page; no server-side notification for table chat (it would flood turn-based players).
