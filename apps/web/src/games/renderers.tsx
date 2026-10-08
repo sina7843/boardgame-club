@@ -42,6 +42,7 @@ import CenturyRenderer from '@bg/game-century/renderer';
 import SeaSaltPaperRenderer from '@bg/game-sea-salt-paper/renderer';
 import HanabiRenderer from '@bg/game-hanabi/renderer';
 import CamelUpRenderer from '@bg/game-camel-up/renderer';
+import MachiKoroRenderer from '@bg/game-machi-koro/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -92,5 +93,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'century@1.0.0': CenturyRenderer as ComponentType<GameRendererProps<never>>,
   'sea-salt-paper@1.0.0': SeaSaltPaperRenderer as ComponentType<GameRendererProps<never>>,
   'hanabi@1.0.0': HanabiRenderer as ComponentType<GameRendererProps<never>>,
-  'camel-up@1.0.0': CamelUpRenderer as ComponentType<GameRendererProps<never>>
+  'camel-up@1.0.0': CamelUpRenderer as ComponentType<GameRendererProps<never>>,
+  'machi-koro@1.0.0': MachiKoroRenderer as ComponentType<GameRendererProps<never>>
 };

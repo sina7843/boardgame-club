@@ -840,3 +840,13 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   oasis/mirage badges, pyramid button with remaining dice and the last roll announced, leg-bet tiles in camel colours,
   secret overall-bet buttons per unused camel card.
 - Polish (360/1440): «پایان» marker moved onto space 16; track capped at 42rem; bigger camels on desktop.
+## «شهر تاس» (Machi Koro, 2026-10-08, owner list batch 7)
+
+- Base game, 2–4 players, perfect information: start Wheat Field + Bakery + 3 coins; all 15 establishments on display
+  (6 each; majors one per player); landmarks Train Station 4, Shopping Mall 10, Amusement Park 16, Radio Tower 22. Roll
+  1 (or 2 with the station) dice; Radio Tower: one reroll; resolution red (counter-clockwise from the roller) → blue/
+  green → purple (Stadium automatic; TV Station and Business Center ask the roller). Mall +1 for cup/bread cards.
+  Build one card or landmark, or pass; doubles with the Amusement Park give another turn; four landmarks win.
+  Timeout: roll one die, decline purple choices, build nothing.
+- Look: toy town; establishment cards in their colours with activation numbers and effect lines, tumbling dice with
+  the sum and everyone's income from the roll, supply grid with prices and stock, landmarks that light up gold.
