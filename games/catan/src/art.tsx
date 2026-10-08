@@ -39,6 +39,7 @@ export function BoardDefs() {
       <linearGradient id="ctb-pine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#55a561" /><stop offset="1" stopColor="#1b4b27" /></linearGradient>
       <linearGradient id="ctb-brick" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#dd6a40" /><stop offset="1" stopColor="#9b391d" /></linearGradient>
       <linearGradient id="ctb-dune" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fbefc9" /><stop offset="1" stopColor="#d3b676" /></linearGradient>
+      <radialGradient id="ctb-light" cx="35%" cy="28%" r="85%"><stop offset="0" stopColor="#fff6d6" stopOpacity="0.38" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#10202a" stopOpacity="0.3" /></radialGradient>
       <filter id="ctb-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="1" dy="3" stdDeviation="2.4" floodColor="#001a2b" floodOpacity="0.45" /></filter>
       <filter id="ctb-soft" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0.8" dy="1.6" stdDeviation="1" floodColor="#000" floodOpacity="0.5" /></filter>
 

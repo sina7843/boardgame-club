@@ -107,6 +107,9 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
           </g>
         );
       })}
+      <g aria-hidden="true" pointerEvents="none">
+        {view.hexes.map((_, i) => <polygon key={`b${i}`} points={pts(i, 1.13)} className="ct-shore" strokeLinejoin="round" />)}
+      </g>
       {view.hexes.map((h, i) => {
         const c = hexCenter(i);
         const target = t.hexes.has(i);
@@ -115,6 +118,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
             {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، راهزن را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? '، راهزن اینجاست' : ''}` })}>
             <polygon points={pts(i)} fill={`url(#ctb-g-${h.terrain})`} filter="url(#ctb-shadow)" className="ct-hex__tile" />
             <polygon points={pts(i)} fill={`url(#ctb-p-${h.terrain})`} pointerEvents="none" aria-hidden="true" />
+            <polygon points={pts(i)} fill="url(#ctb-light)" pointerEvents="none" aria-hidden="true" />
             <polygon points={pts(i, 0.95)} className="ct-hex__bevel" fill="none" stroke="url(#ctb-bevel)" strokeWidth="2.6" strokeLinejoin="round" pointerEvents="none" aria-hidden="true" />
             <g transform={`translate(${c.x} ${c.y})`}><TerrainArt terrain={h.terrain} /></g>
             <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>

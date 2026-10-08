@@ -1,53 +1,83 @@
-/* قلعه‌سازان: a wheat-field map on a dark oak table; sandstone cities with terracotta walls, cream roads. */
-.cc { display: grid; gap: 0.55rem; inline-size: 100%; color: #f6efdf; text-align: center; }
+/* قلعه‌سازان — art direction: an illuminated-manuscript countryside. Sunlit meadow (#b3cc66 → #7a9d3f), sandstone towns
+   (#e6c88c) with terracotta roofs (#c4553a) behind crenellated walls (#c98d58 on #6b4126), packed-earth roads (#ecd9a8),
+   all laid on a walnut table (#3a2615) under a green baize cloth (#2c3d2a). Gold (#ffd98a) is the only interactive accent. */
+.cc { --gold: #ffd98a; --parch: #f3e6c4; --ink: #2a1d10; --wood: #3a2615;
+  display: grid; gap: 0.6rem; inline-size: 100%; color: #f6efdf; text-align: center; }
 .cc > :first-child + * { justify-self: center; }
 
 .cc-tile { display: block; inline-size: 100%; block-size: 100%; }
-.cc-road-edge { fill: none; stroke: #6d5a3a; stroke-width: 13; stroke-linecap: butt; }
-.cc-road { fill: none; stroke: #f3e6c4; stroke-width: 9; stroke-linecap: butt; }
-.cc-well { fill: #8a7a5c; stroke: #3d3222; stroke-width: 2; }
-.cc-city { fill: #e3c48d; }
-.cc-wall { fill: none; stroke: #a8552f; stroke-width: 3.5; stroke-dasharray: 5 2.5; }
-.cc-shield { fill: #2f6fd6; stroke: #f6efdf; stroke-width: 1.5; }
-.cc-abbey rect { fill: #f1e6cf; stroke: #6a4a2a; stroke-width: 1.5; }
-.cc-abbey__roof { fill: #b8432e; stroke: #6a2a1a; stroke-width: 1.5; }
-.cc-abbey .cc-abbey__door { fill: #5a3a1e; stroke: none; }
-.cc-meeple { animation: cc-hop 0.45s cubic-bezier(.3,1.6,.5,1) both; transform-box: fill-box; }
+/* Roads: dark shoulder, packed-earth surface, cobble dashes. */
+.cc-road-edge { fill: none; stroke: #7a5d33; stroke-width: 14; stroke-linecap: butt; }
+.cc-road { fill: none; stroke: #ecd9a8; stroke-width: 10; stroke-linecap: butt; }
+.cc-road-cobble { fill: none; stroke: #b99a5c; stroke-width: 6.5; stroke-linecap: butt; stroke-dasharray: 1.6 5; opacity: 0.7; }
+.cc-well { fill: #9b8a68; stroke: #3d3222; stroke-width: 1.6; }
+.cc-well__in { fill: #2f6f8f; stroke: #3d3222; stroke-width: 1; }
+/* Cities: sandstone with a roofscape, shaded under a crenellated wall. */
+.cc-city { fill: #e3c488; }
+.cc-wall__shade { fill: none; stroke: #4a2a12; stroke-opacity: 0.35; stroke-width: 16; }
+.cc-wall__base { fill: none; stroke: #5a3720; stroke-width: 8; stroke-linejoin: round; }
+.cc-wall { fill: none; stroke: #d9aa72; stroke-width: 5; stroke-linejoin: round; }
+.cc-wall__crenel { fill: none; stroke: #5a3720; stroke-width: 1.3; stroke-dasharray: 3 2.5; stroke-linejoin: round; opacity: 0.7; }
+.cc-shield { fill: #2f62c9; stroke: #f3e6c4; stroke-width: 1.3; stroke-linejoin: round; }
+.cc-shield__cross { fill: #ffd98a; }
+/* Monastery: whitewashed chapel, red roof, cross. */
+.cc-abbey__shadow { fill: #1f3a10; opacity: 0.28; }
+.cc-abbey__wall { fill: #f4ead3; stroke: #6a4a2a; stroke-width: 1.4; }
+.cc-abbey__side { fill: #c9b891; opacity: 0.55; }
+.cc-abbey__roof { fill: #c4553a; stroke: #5d2616; stroke-width: 1.4; stroke-linejoin: round; }
+.cc-abbey__roof-shade { fill: #7a2a18; opacity: 0.45; }
+.cc-abbey__door { fill: #5a3a1e; }
+.cc-abbey__cross { fill: #ffd98a; stroke: #6a4a2a; stroke-width: 0.6; }
+.cc-meeple { animation: cc-hop 0.45s cubic-bezier(.3,1.6,.5,1) both; }
 
-.cc__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.cc-player { display: flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; border-radius: 999px; background: rgb(0 0 0 / 0.28); font-size: 0.8rem; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--who) 45%, transparent); transition: box-shadow 0.25s; }
-.cc-player--now { box-shadow: inset 0 0 0 2px var(--who), 0 0 12px color-mix(in srgb, var(--who) 60%, transparent); }
-.cc-player--win { background: rgb(255 217 138 / 0.18); }
-.cc-player__meeple { inline-size: 0.9rem; block-size: 1.05rem; }
+/* Players: small heraldic plaques, the active one lit in its follower colour. */
+.cc__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+.cc-player { display: flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem 0.25rem 0.5rem; border-radius: 10px; font-size: 0.82rem;
+  background: linear-gradient(180deg, rgb(255 244 214 / 0.1), rgb(0 0 0 / 0.3)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--who) 45%, transparent), 0 2px 5px rgb(0 0 0 / 0.35); transition: box-shadow 0.25s; }
+.cc-player--now { box-shadow: inset 0 0 0 2px var(--who), 0 0 14px color-mix(in srgb, var(--who) 65%, transparent); }
+.cc-player--win { background: linear-gradient(180deg, rgb(255 217 138 / 0.3), rgb(0 0 0 / 0.25)); }
+.cc-player__meeple { inline-size: 0.95rem; block-size: 1.1rem; overflow: visible; }
 .cc-player__name { font-weight: 800; }
-.cc-player__score { min-inline-size: 1.6rem; padding: 0 0.4rem; border-radius: 999px; background: #f3e6c4; color: #2a1d10; font-weight: 900; animation: cc-bump 0.45s ease-out; }
+.cc-player__score { min-inline-size: 1.7rem; padding: 0 0.45rem; border-radius: 999px; background: linear-gradient(180deg, #fff6dc, #e3cf9d); color: var(--ink); font-weight: 900; box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.2); animation: cc-bump 0.45s ease-out; }
 .cc-player__left { color: #e3d6b8; font-size: 0.72rem; }
 
 .cc__news { margin: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; font-size: 0.8rem; animation: cc-rise 0.4s ease-out both; }
-.cc__news span { padding: 0.15rem 0.55rem; border-radius: 8px; background: color-mix(in srgb, var(--who) 30%, #1c140c); font-weight: 700; }
+.cc__news span { padding: 0.15rem 0.6rem; border-radius: 8px; background: color-mix(in srgb, var(--who) 30%, #1c140c); border-inline-start: 3px solid var(--who); font-weight: 700; }
 
-.cc__map { --cell: 4rem; overflow: auto; max-block-size: min(62vh, 34rem); padding: 0.6rem; border-radius: 14px; overscroll-behavior: contain;
-  background: radial-gradient(circle at 50% 40%, #4d3520, #24170b 75%); box-shadow: inset 0 0 0 3px #6b4a2a, inset 0 0 28px #000; }
+/* The table: green baize with a woven texture inside a walnut rim. */
+.cc__map { --cell: 4rem; overflow: auto; max-block-size: min(62vh, 34rem); padding: 0.7rem; border-radius: 14px; overscroll-behavior: contain;
+  background:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.025) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.05) 0 2px, transparent 2px 5px),
+    radial-gradient(circle at 50% 42%, #3e5638, #1f2d1d 80%);
+  box-shadow: inset 0 0 0 3px #7a5230, inset 0 0 0 5px #2b1a0b, inset 0 0 34px #000; }
 .cc__grid { display: grid; grid-auto-rows: var(--cell); inline-size: max-content; margin-inline: auto; }
-.cc-cell { inline-size: var(--cell); block-size: var(--cell); padding: 0; border: 0; background: transparent; }
-.cc-cell--tile { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.35); animation: cc-land 0.35s ease-out both; }
-.cc-cell--last { position: relative; z-index: 1; box-shadow: 0 0 0 2px var(--who), 0 4px 14px rgb(0 0 0 / 0.6); }
-.cc-spot { position: relative; border-radius: 4px; outline: 1.5px dashed rgb(243 230 196 / 0.28); outline-offset: -4px; cursor: pointer; transition: background 0.2s; }
-.cc-spot--fit { outline-color: rgb(255 217 138 / 0.8); background: rgb(255 217 138 / 0.1); }
-.cc-spot:hover, .cc-spot:focus-visible { background: rgb(255 217 138 / 0.25); }
-.cc-spot--on { outline: 2px solid #ffd98a; outline-offset: 0; background: transparent; z-index: 2; }
-.cc-spot--on .cc-tile { opacity: 0.88; animation: cc-turn 0.25s ease-out; }
+.cc-cell { position: relative; inline-size: var(--cell); block-size: var(--cell); padding: 0; border: 0; background: transparent; }
+/* Tile edge: hairline plus a lit top-left rim, drawn over the art. */
+.cc-cell--tile { animation: cc-land 0.35s ease-out both; box-shadow: 0 2px 5px rgb(0 0 0 / 0.45); }
+.cc-cell--tile::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 0.5px rgb(35 22 6 / 0.55), inset 1px 1px 0 rgb(255 255 255 / 0.22), inset -1px -1px 0 rgb(0 0 0 / 0.14); }
+.cc-cell--last { z-index: 1; box-shadow: 0 0 0 2px var(--who), 0 0 16px color-mix(in srgb, var(--who) 70%, transparent), 0 4px 14px rgb(0 0 0 / 0.6); }
+.cc-spot { border-radius: 4px; outline: 1.5px dashed rgb(243 230 196 / 0.3); outline-offset: -4px; cursor: pointer; transition: background 0.2s; }
+.cc-spot--fit { outline-color: rgb(255 217 138 / 0.85); background: radial-gradient(circle, rgb(255 217 138 / 0.3), rgb(255 217 138 / 0.06) 70%); }
+.cc-spot--fit:not(.cc-spot--on)::before { content: ''; position: absolute; inset: 38%; border-radius: 50%; background: var(--gold); opacity: 0.6; animation: cc-glow 1.8s ease-in-out infinite; }
+.cc-spot:hover, .cc-spot:focus-visible { background: rgb(255 217 138 / 0.3); }
+.cc-spot:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+.cc-spot--on { outline: 2.5px solid var(--gold); outline-offset: 0; background: transparent; z-index: 2; box-shadow: 0 0 18px rgb(255 217 138 / 0.65); }
+.cc-spot--on .cc-tile { animation: cc-turn 0.25s ease-out; }
 .cc-spot:disabled { cursor: default; }
 
+/* Dock: the drawn tile on a little stack, zoom, follower picker. */
 .cc__dock { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
 .cc__zoom { display: flex; gap: 0.25rem; }
-.cc__zoom button { inline-size: 2rem; block-size: 2rem; border-radius: 50%; border: 1px solid #c9a46a; background: rgb(0 0 0 / 0.3); color: inherit; font-size: 1.1rem; cursor: pointer; }
-.cc__drawn { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); font-size: 0.75rem; }
-.cc__drawn-tile { display: block; inline-size: 3.6rem; block-size: 3.6rem; border-radius: 4px; box-shadow: 0 4px 10px rgb(0 0 0 / 0.55); animation: cc-draw 0.45s ease-out both; }
+.cc__zoom button { inline-size: 2.1rem; block-size: 2.1rem; border-radius: 50%; border: 1px solid #c9a46a; background: linear-gradient(180deg, rgb(255 244 214 / 0.14), rgb(0 0 0 / 0.3)); color: inherit; font-size: 1.1rem; cursor: pointer; }
+.cc__zoom button:focus-visible, .cc-chip:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.cc__drawn { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.7rem; border-radius: 12px; background: linear-gradient(180deg, rgb(255 244 214 / 0.1), rgb(0 0 0 / 0.3)); box-shadow: inset 0 0 0 1px rgb(201 164 106 / 0.35); font-size: 0.78rem; }
+.cc__drawn-tile { display: block; inline-size: 3.8rem; block-size: 3.8rem; border-radius: 3px; animation: cc-draw 0.45s ease-out both;
+  box-shadow: 0 0 0 1px rgb(35 22 6 / 0.7), 3px 3px 0 -1px #cdbb8f, 3px 3px 0 0 rgb(35 22 6 / 0.6), 6px 6px 0 -1px #b3a176, 6px 6px 0 0 rgb(35 22 6 / 0.6), 8px 10px 12px rgb(0 0 0 / 0.5); }
 .cc__drawn-tile .cc-tile g { transition: transform 0.25s ease-out; }
-.cc__follow { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
-.cc-chip { padding: 0.3rem 0.65rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.12); color: inherit; font: inherit; font-size: 0.75rem; cursor: pointer; }
-.cc-chip--on { background: #ffd98a; color: #2a1d10; font-weight: 800; }
+.cc__follow { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; animation: cc-rise 0.3s ease-out both; }
+.cc-chip { padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.14); color: inherit; font: inherit; font-size: 0.78rem; cursor: pointer; }
+.cc-chip--on { background: linear-gradient(180deg, #ffe5a8, #f0c566); color: var(--ink); font-weight: 800; border-color: #fff1c9; }
 .cc-chip:disabled { opacity: 0.4; cursor: default; }
 .cc__discard { color: #e3d6b8; }
 .cc-hint { animation: cc-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
@@ -59,5 +89,6 @@
 @keyframes cc-draw { from { transform: rotateY(90deg) scale(0.8); opacity: 0; } }
 @keyframes cc-turn { from { transform: rotate(-90deg); } }
 @keyframes cc-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@keyframes cc-glow { 50% { transform: scale(1.5); opacity: 0.15; } }
 @media (max-width: 480px) { .cc__map { --cell: 3.2rem; max-block-size: 52vh; } }
-@media (prefers-reduced-motion: reduce) { .cc * { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .cc *, .cc *::before, .cc *::after { animation: none !important; transition: none !important; } }

@@ -1,4 +1,5 @@
-// Catalog cover: a 3×3 patch of countryside — a walled city, a road and a monastery with followers on them.
+// Catalog cover: a 3×3 patch of countryside — a walled city, a road and a monastery with followers on them,
+// lying on green baize with a walnut rim.
 import { TileArt, TileDefs } from './renderer.tsx';
 
 const PATCH: [string, number, Record<string, number>][] = [
@@ -10,9 +11,11 @@ const PATCH: [string, number, Record<string, number>][] = [
 export default function CarcassonneCover({ title }: { title: string }) {
   return (
     <div {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true })} className="cc"
-      style={{ display: 'grid', placeItems: 'center', inlineSize: '100%', blockSize: '100%', overflow: 'hidden', background: 'radial-gradient(circle at 50% 40%, #4d3520, #1c1208)' }}>
+      style={{ display: 'grid', placeItems: 'center', inlineSize: '100%', blockSize: '100%', overflow: 'hidden',
+        background: 'repeating-linear-gradient(45deg, rgb(255 255 255 / 0.03) 0 2px, transparent 2px 5px), radial-gradient(circle at 50% 40%, #46623f, #1b281a)',
+        boxShadow: 'inset 0 0 0 3px #7a5230, inset 0 0 0 5px #2b1a0b, inset 0 0 30px #000' }}>
       <TileDefs />
-      <div dir="ltr" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', inlineSize: '64%', aspectRatio: '1', transform: 'rotate(-8deg)', boxShadow: '0 10px 24px #000' }}>
+      <div dir="ltr" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', inlineSize: '64%', aspectRatio: '1', transform: 'rotate(-8deg)', boxShadow: '0 10px 24px #000, 0 0 0 1px rgb(35 22 6 / 0.7)' }}>
         {PATCH.map(([t, r, m], i) => <TileArt key={i} t={t} rot={r} meeples={m} />)}
       </div>
     </div>

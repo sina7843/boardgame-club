@@ -177,3 +177,25 @@
   .ct-main { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
   .ct-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
 }
+
+/* ---- Illustrated pass: cartographer's island. Sandy shore + foam, gilded panels, ivory build cards. ---- */
+.ct-shore { fill: #e8d49b; fill-opacity: 0.55; stroke: #f4fbff; stroke-opacity: 0.5; stroke-width: 3; }
+.ct-hex__tile { stroke: #f6ecd0; }
+.ct-main { --ct-gild: rgb(226 190 120 / 0.4); }
+.ct-panel { background: linear-gradient(180deg, #2b3b31, #212e27); box-shadow: inset 0 0 0 1px var(--ct-gild), 0 3px 8px rgb(0 0 0 / 0.3); }
+.ct-panel--decide { box-shadow: inset 0 0 0 2px #e2be78, 0 0 14px rgb(226 190 120 / 0.25); }
+.ct-panel h3, .ct-hand h3 { display: flex; align-items: center; gap: 0.5em; color: #f0d9a2; font-size: var(--fs-md, 1rem); letter-spacing: 0.01em; }
+.ct-panel h3::before, .ct-hand h3::before { content: ''; inline-size: 0.5em; block-size: 0.5em; background: #e2be78; transform: rotate(45deg); flex: none; }
+.ct-buildbtn { background: linear-gradient(160deg, #fffaea, #ecdfbc); color: var(--ct-ink); border: 1px solid #b9a77c; border-radius: 10px;
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.8), 0 3px 6px rgb(0 0 0 / 0.3); transition: transform 150ms ease; }
+.ct-buildbtn:not(:disabled):hover { transform: translateY(-2px); }
+.ct-buildbtn[aria-pressed='true'] { background: linear-gradient(160deg, #fff1c4, #f0cf7a); border-color: #8a6a1c; box-shadow: 0 0 0 3px #e2be78, 0 3px 8px rgb(0 0 0 / 0.35); }
+.ct-buildbtn .ct-cost { color: #5a4e3c; }
+.ct-player { background: linear-gradient(180deg, #2a3a30, #1f2b24); box-shadow: inset 0 0 0 1px var(--ct-gild); }
+.ct-player--turn { box-shadow: 0 0 0 2px #e2be78, 0 0 16px rgb(226 190 120 / 0.35); }
+.ct-badge:not(.ct-badge--award):not(.ct-badge--out):not(.ct-badge--warn) { background: #e2be78; color: #2a1d08; }
+.ct-dev { background: linear-gradient(180deg, #2b3b31, #212e27); box-shadow: inset 0 0 0 1px var(--ct-gild); }
+.ct-board { filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.5)); }
+.ct-token__disc { stroke: #8c7646; }
+.ct-token--hot .ct-token__ring { stroke: #b3261e; stroke-width: 1.1; }
+@media (prefers-reduced-motion: reduce) { .ct-buildbtn { transition: none; } .ct-buildbtn:hover { transform: none; } }
