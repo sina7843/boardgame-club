@@ -1,4 +1,4 @@
-/* جمجمه: tavern coasters — leather faces with a rose or a skull, patterned backs in the seat colour. */
+/* جمجمه: tavern coasters — painted faces with a rose or a skull, patterned backs in the seat colour. */
 .sk { display: grid; gap: 0.8rem; text-align: center; color: #f3eadb; inline-size: 100%; }
 .sk > :first-child { justify-self: center; }
 .sk__bid { margin: 0; font-size: 1rem; }
@@ -31,7 +31,6 @@
 .sk-disc--md svg { inline-size: 3.8rem; block-size: 3.8rem; }
 .sk-disc--sm svg { inline-size: 2.4rem; block-size: 2.4rem; }
 .sk-disc__back { fill: var(--seat); stroke: #1a120b; stroke-width: 3; }
-.sk-disc__face { fill: #6b4a2b; stroke: #2a1d12; stroke-width: 3; }
 .sk-disc--flip { animation: sk-flip 0.55s ease-out both; }
 
 .sk__mine { display: grid; gap: 0.6rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(255 255 255 / 0.15); }

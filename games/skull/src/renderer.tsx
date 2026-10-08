@@ -3,31 +3,25 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import rose from './art/disc-rose.webp';
+import skull from './art/disc-skull.webp';
 import type { Disc, SkullView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const SEAT = ['#d1495b', '#2f80c9', '#3fa34d', '#e0a526', '#8e5bd1', '#e07a2f'];
 
+// Revealed faces are cut from a generated sprite sheet (see DECISIONS.md); backs stay vector in the seat colour.
 function Coaster({ face, color, size = 'md', flip }: { face: Disc | 'back'; color: string; size?: 'sm' | 'md'; flip?: boolean }) {
   return (
     <span className={['sk-disc', `sk-disc--${size}`, flip ? 'sk-disc--flip' : ''].join(' ')} style={{ ['--seat' as string]: color }}>
       <svg viewBox="-50 -50 100 100" aria-hidden="true">
-        <circle r="47" className={face === 'back' ? 'sk-disc__back' : 'sk-disc__face'} />
-        <circle r="40" fill="none" stroke={face === 'back' ? 'rgb(255 255 255 / .35)' : '#7a5b3a'} strokeWidth="3" strokeDasharray={face === 'back' ? '6 6' : 'none'} />
-        {face === 'back' && <path d="M0 -22 L19 11 L-19 11 Z M0 22 L-19 -11 L19 -11 Z" fill="rgb(255 255 255 / .28)" />}
-        {face === 'rose' && (
-          <g>
-            <path d="M0 6 Q-2 26 -10 34 M0 18 Q8 16 12 10" fill="none" stroke="#3d7a3d" strokeWidth="4" strokeLinecap="round" />
-            <circle cx="0" cy="-6" r="17" fill="#c0263c" /><path d="M-10 -8 Q0 -22 10 -8 Q0 4 -10 -8 Z" fill="#e0475f" /><path d="M-5 -6 Q0 -12 5 -6" fill="none" stroke="#7a1525" strokeWidth="2" />
-          </g>
-        )}
-        {face === 'skull' && (
-          <g>
-            <path d="M-20 -4 Q-20 -28 0 -28 Q20 -28 20 -4 Q20 8 12 12 L12 22 L-12 22 L-12 12 Q-20 8 -20 -4 Z" fill="#f2ead8" stroke="#3a2a1a" strokeWidth="2.5" />
-            <circle cx="-8" cy="-6" r="6" fill="#2a1d12" /><circle cx="8" cy="-6" r="6" fill="#2a1d12" /><path d="M0 2 L-3 8 L3 8 Z" fill="#2a1d12" />
-            <path d="M-7 22 V16 M0 22 V16 M7 22 V16" stroke="#3a2a1a" strokeWidth="2" />
-          </g>
-        )}
+        {face === 'back' ? (
+          <>
+            <circle r="47" className="sk-disc__back" />
+            <circle r="40" fill="none" stroke="rgb(255 255 255 / .35)" strokeWidth="3" strokeDasharray="6 6" />
+            <path d="M0 -22 L19 11 L-19 11 Z M0 22 L-19 -11 L19 -11 Z" fill="rgb(255 255 255 / .28)" />
+          </>
+        ) : <image href={face === 'rose' ? rose : skull} x="-50" y="-50" width="100" height="100" />}
       </svg>
     </span>
   );
