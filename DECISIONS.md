@@ -850,3 +850,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   Timeout: roll one die, decline purple choices, build nothing.
 - Look: toy town; establishment cards in their colours with activation numbers and effect lines, tumbling dice with
   the sum and everyone's income from the roll, supply grid with prices and stock, landmarks that light up gold.
+## «غول‌های شهر» (King of Tokyo, 2026-10-08, owner list batch 7)
+
+- 2–6 players, base rules with a single Tokyo spot at every count (no Tokyo Bay for 5–6 — a stated simplification).
+  Six dice, up to three rolls keeping any; numbers score on three of a kind (+1 per extra), hearts heal outside Tokyo,
+  bolts give energy, claws hit Tokyo from outside or everyone from Tokyo; a hit Tokyo monster may yield (the attacker
+  enters); entering +1 VP, starting a turn inside +2 VP. Power cards: a curated 23-card set of base-style discard and
+  keep effects with Persian names (not the full 66): VP/energy/heal/damage discards and keeps like armour, acid,
+  regeneration, extra energy, bigger, herbivore, urbavore, alpha, solar, underdog. 2 energy sweeps the market. 20 VP
+  or last monster alive wins. Timeouts: resolve what is on the table, stay in Tokyo, buy nothing.
+- Look: neon city at night; skyline arena showing the monster in Tokyo (stomp animation), monster panels in their own
+  hue with health and 20-point star bars and energy, chunky dice that lift when kept, comic-style power cards.
+- Polish (360/1440): bar labels centred on the bars.

@@ -1,0 +1,54 @@
+/* غول‌های شهر: a neon city at night — skyline silhouette, monster panels in their own hue, chunky dice, comic cards. */
+.kt { --ink: #14102a; display: grid; gap: 0.65rem; inline-size: 100%; color: #f2eeff; text-align: center; }
+.kt > :first-child { justify-self: center; }
+.kt > .kt__monsters, .kt > .kt__market { justify-self: stretch; }
+
+.kt__arena { position: relative; display: grid; place-items: center; min-block-size: 5.2rem; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(180deg, #2a1f5a, #120c2a); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12); }
+.kt__skyline { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: 45%; background: linear-gradient(90deg, #0c0820 0 6%, transparent 6% 9%, #0c0820 9% 16%, transparent 16% 18%, #0c0820 18% 30%, transparent 30% 33%, #0c0820 33% 41%, transparent 41% 44%, #0c0820 44% 60%, transparent 60% 63%, #0c0820 63% 75%, transparent 75% 77%, #0c0820 77% 90%, transparent 90% 92%, #0c0820 92%); opacity: 0.9; }
+.kt__king { position: relative; display: grid; gap: 0.1rem; padding: 0.4rem 1rem; border-radius: 12px; background: hsl(var(--h) 70% 45%); box-shadow: 0 0 22px hsl(var(--h) 90% 60%); font-size: 0.82rem; animation: kt-stomp 0.5s ease-out; }
+.kt__king b { font-size: 1.1rem; }
+.kt__empty { position: relative; color: #b9b0e0; }
+
+.kt__monsters { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.kt-mon { display: grid; gap: 0.3rem; padding: 0.5rem; border-radius: 12px; background: linear-gradient(160deg, hsl(var(--h) 45% 25%), rgb(0 0 0 / 0.35)); border: 1px solid hsl(var(--h) 60% 50% / 0.5); }
+.kt-mon--turn { box-shadow: 0 0 0 2px hsl(var(--h) 90% 65%); }
+.kt-mon--tokyo { box-shadow: 0 0 16px hsl(var(--h) 90% 60%); }
+.kt-mon--dead { opacity: 0.35; filter: grayscale(1); }
+.kt-mon--win { box-shadow: 0 0 0 3px #ffd98a; }
+.kt-mon__head { display: flex; gap: 0.4rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.kt-mon__bars { display: grid; gap: 3px; }
+.kt-bar { position: relative; display: block; block-size: 1rem; border-radius: 999px; background: rgb(0 0 0 / 0.4); overflow: hidden; }
+.kt-bar i { position: absolute; inset-block: 0; inset-inline-start: 0; transition: inline-size 0.4s; }
+.kt-bar--hp i { background: linear-gradient(90deg, #ff4f6a, #ff8a9a); }
+.kt-bar--vp i { background: linear-gradient(90deg, #ffd23f, #ffe98a); }
+.kt-bar em { position: relative; font-style: normal; font-size: 0.68rem; font-weight: 900; color: #fff; text-shadow: 0 1px 2px #000; }
+.kt-mon__energy { font-weight: 900; color: #7fe0ff; font-size: 0.85rem; }
+.kt-mon__kept { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; }
+.kt-mon__kept small { padding: 0 0.35rem; border-radius: 6px; background: rgb(127 224 255 / 0.15); font-size: 0.62rem; }
+
+.kt__dice { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.kt-keep { padding: 0; border: 0; background: transparent; border-radius: 10px; line-height: 0; cursor: pointer; transition: transform 0.15s; }
+.kt-keep--on { transform: translateY(-6px); }
+.kt-keep--on .kt-die { box-shadow: 0 0 0 3px #ffd23f; }
+.kt-die { display: inline-grid; place-items: center; inline-size: 2.6rem; block-size: 2.6rem; border-radius: 9px; background: linear-gradient(160deg, #23194a, #110b26); box-shadow: inset 0 0 0 2px #6c5bd4; font-size: 1.35rem; font-weight: 900; line-height: 1; animation: kt-roll 0.4s ease-out; }
+.kt-f--heart { color: #ff5a7a; } .kt-f--bolt { color: #7fe0ff; } .kt-f--claw { color: #ffb23f; } .kt-f--1, .kt-f--2, .kt-f--3 { color: #fff; }
+
+.kt__bar { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+.kt__market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; inline-size: min(100%, 32rem); justify-self: center !important; }
+.kt-buy { padding: 0; border: 0; background: transparent; border-radius: 10px; color: inherit; font: inherit; cursor: pointer; }
+.kt-buy:disabled { opacity: 0.5; cursor: default; }
+.kt-card { display: grid; gap: 0.15rem; justify-items: center; inline-size: 100%; min-block-size: 5.2rem; padding: 0.35rem 0.3rem; border-radius: 10px; color: var(--ink);
+  background: linear-gradient(170deg, #fff6d6, #ffe08a); box-shadow: inset 0 0 0 3px #14102a, 0 4px 8px -4px #000; }
+.kt-card--keep { background: linear-gradient(170deg, #e6f6ff, #9fdcff); }
+.kt-card__cost { padding: 0 0.4rem; border-radius: 999px; background: #14102a; color: #7fe0ff; font-size: 0.75rem; }
+.kt-card__name { font-size: 0.75rem; font-weight: 900; }
+.kt-card small { font-size: 0.6rem; line-height: 1.3; }
+.kt-hint { animation: kt-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes kt-roll { 0% { transform: rotate(-180deg) scale(0.5); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes kt-stomp { 0% { transform: translateY(-14px) scale(1.1); } 60% { transform: translateY(2px); } }
+@keyframes kt-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .kt * { animation: none !important; transition: none !important; } }
+.kt-bar { display: flex; align-items: center; justify-content: center; block-size: 1.05rem; }
+.kt-bar em { line-height: 1; }

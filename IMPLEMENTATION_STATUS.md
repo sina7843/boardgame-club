@@ -710,3 +710,10 @@ New module `games/machi-koro` registered in engine, catalog and web. Checks run:
 setup and station rule, wheat/café income, building/majors/landmarks/win, radio tower and TV station, timeouts/resign,
 tutorial, 15 random 2–4 player games with replay); API 3 (`apps/api/test/machi-koro.test.ts`); catalog test
 updated; E2E `e2e/machi-koro.spec.ts` — tutorial and a full two-player game at 360 and 1440 (`docs/evidence/machi-koro/`).
+## «غول‌های شهر» King of Tokyo (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/king-of-tokyo` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/king-of-tokyo.test.ts`: rolling/keeping, dice resolution and entering Tokyo, attacks and
+yield, power cards/sweep/20 VP/last standing, timeouts/resign, tutorial, 25 random 2–6 player games with replay);
+API 3 (`apps/api/test/king-of-tokyo.test.ts`); catalog test updated; E2E `e2e/king-of-tokyo.spec.ts` — tutorial and a
+full three-player game at 360 and 1440 (`docs/evidence/king-of-tokyo/`).

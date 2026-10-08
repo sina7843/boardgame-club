@@ -62,7 +62,8 @@
     "@bg/game-sea-salt-paper": "workspace:*",
     "@bg/game-hanabi": "workspace:*",
     "@bg/game-camel-up": "workspace:*",
-    "@bg/game-machi-koro": "workspace:*"
+    "@bg/game-machi-koro": "workspace:*",
+    "@bg/game-king-of-tokyo": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
