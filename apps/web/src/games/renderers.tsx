@@ -18,6 +18,7 @@ import OnitamaRenderer from '@bg/game-onitama/renderer';
 import GoRenderer from '@bg/game-go/renderer';
 import SantoriniRenderer from '@bg/game-santorini/renderer';
 import TakRenderer from '@bg/game-tak/renderer';
+import AbaloneRenderer from '@bg/game-abalone/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -44,5 +45,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'onitama@1.0.0': OnitamaRenderer as ComponentType<GameRendererProps<never>>,
   'go@1.0.0': GoRenderer as ComponentType<GameRendererProps<never>>,
   'santorini@1.0.0': SantoriniRenderer as ComponentType<GameRendererProps<never>>,
-  'tak@1.0.0': TakRenderer as ComponentType<GameRendererProps<never>>
+  'tak@1.0.0': TakRenderer as ComponentType<GameRendererProps<never>>,
+  'abalone@1.0.0': AbaloneRenderer as ComponentType<GameRendererProps<never>>
 };

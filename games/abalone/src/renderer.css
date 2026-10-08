@@ -1,0 +1,43 @@
+/* آبالون: walnut hex tray with dimples, black glass and white pearl marbles. Geometry LTR. */
+.abl { display: grid; gap: 0.75rem; text-align: center; color: #f6efe2; inline-size: 100%; }
+.abl > :first-child { justify-self: center; }
+.abl__bar { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.abl-side { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.8rem; border-radius: 999px; background: rgb(0 0 0 / 0.28); border: 1px solid rgb(255 255 255 / 0.08); }
+.abl-side--turn { box-shadow: 0 0 0 2px #c9a46a, 0 6px 18px -6px rgb(201 164 106 / 0.6); }
+.abl-side__m { inline-size: 18px; block-size: 18px; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
+.abl-side__m--b { background: radial-gradient(circle at 33% 28%, #7c8290, #262a33 35%, #05060a); }
+.abl-side__m--w { background: radial-gradient(circle at 33% 28%, #fff, #ece8df 55%, #b8b0a0); }
+.abl-side__name { font-weight: 800; }
+.abl-side__tray { display: inline-flex; gap: 3px; padding: 3px 5px; border-radius: 999px; background: rgb(0 0 0 / 0.35); }
+.abl-side__tray i { inline-size: 10px; block-size: 10px; border-radius: 50%; background: rgb(255 255 255 / 0.12); }
+.abl-side__tray i.is-b { background: radial-gradient(circle at 33% 28%, #7c8290, #05060a); }
+.abl-side__tray i.is-w { background: radial-gradient(circle at 33% 28%, #fff, #b8b0a0); }
+
+.abl-board { display: block; inline-size: 100%; max-inline-size: 720px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.abl-cell { outline: none; }
+.abl-cell--mine { cursor: pointer; }
+.abl-cell:focus-visible circle { stroke: #ffd27a; stroke-width: 4px; }
+.abl-cell--hint circle { stroke: #ffd27a; stroke-width: 4px; animation: abl-pulse 1s ease-in-out infinite; }
+.abl-ring { fill: none; stroke: #ffd27a; stroke-width: 5px; filter: drop-shadow(0 0 6px rgb(255 210 122 / 0.9)); }
+.abl-m--sel { transform-box: fill-box; transform-origin: center; transform: translateY(-4px); }
+.abl-m--moved { animation: abl-slide 0.38s cubic-bezier(.3, .9, .3, 1.05) both; }
+.abl-lost { opacity: 0; animation: abl-fall 0.8s ease-in both; transform-box: fill-box; transform-origin: center; }
+.abl-lost--b { fill: #262a33; }
+.abl-lost--w { fill: #ece8df; }
+.abl-arrow { cursor: pointer; outline: none; }
+.abl-arrow circle { fill: #c9a46a; stroke: #fff3c4; stroke-width: 3px; filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5)); }
+.abl-arrow path { fill: #2a1a0d; }
+.abl-arrow:hover circle, .abl-arrow:focus-visible circle { fill: #ffd27a; }
+.abl-arrow--hint circle { animation: abl-pulse 0.9s ease-in-out infinite; fill: #ffd27a; }
+
+.abl__actions { display: flex; justify-content: center; min-block-size: 2.25rem; }
+.abl__end { margin: 0; color: #ffd27a; font-weight: 800; }
+
+@keyframes abl-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
+@keyframes abl-fall { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(0.4); } }
+@keyframes abl-pulse { 50% { opacity: 0.55; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .abl-m--moved, .abl-arrow--hint circle, .abl-cell--hint circle { animation: none; }
+  .abl-lost { animation: none; }
+}

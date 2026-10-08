@@ -12,7 +12,7 @@ describe('catalog search and filters (FR-02)', () => {
 
   it('lists the catalog; only the engine fixtures are labelled test games', async () => {
     const items = (await get('/api/games')).json().items as { id: string; isTestGame: boolean }[];
-    expect(items.map((g) => g.id)).toEqual(['unmatched', 'othello', 'amlak', 'uno', 'onitama', 'ticket-to-ride', 'tak', 'backgammon', 'risk', 'santorini', 'line-three', 'chess', 'snakes-ladders', 'sealed-bids', 'ludo', 'checkers', 'catan', 'quoridor', 'go']);
+    expect(items.map((g) => g.id)).toEqual(['abalone', 'unmatched', 'othello', 'amlak', 'uno', 'onitama', 'ticket-to-ride', 'tak', 'backgammon', 'risk', 'santorini', 'line-three', 'chess', 'snakes-ladders', 'sealed-bids', 'ludo', 'checkers', 'catan', 'quoridor', 'go']);
     expect(items.filter((g) => g.isTestGame).map((g) => g.id)).toEqual(['line-three', 'sealed-bids']);
   });
 
@@ -27,8 +27,8 @@ describe('catalog search and filters (FR-02)', () => {
     expect(await ids('?players=4')).toEqual(['amlak', 'catan', 'ludo', 'quoridor', 'risk', 'sealed-bids', 'snakes-ladders', 'ticket-to-ride', 'unmatched', 'uno']);
     expect(await ids('?players=8')).toEqual(['amlak', 'uno']);
     expect(await ids('?maxMinutes=3')).toEqual(['line-three']);
-    expect(await ids('?difficulty=medium')).toEqual(['amlak', 'backgammon', 'catan', 'chess', 'risk', 'sealed-bids', 'tak', 'unmatched']);
-    expect(await ids('?mode=turn')).toEqual(['amlak', 'backgammon', 'catan', 'checkers', 'chess', 'go', 'line-three', 'ludo', 'onitama', 'othello', 'quoridor', 'risk', 'santorini', 'sealed-bids', 'snakes-ladders', 'tak', 'ticket-to-ride', 'unmatched', 'uno']);
+    expect(await ids('?difficulty=medium')).toEqual(['abalone', 'amlak', 'backgammon', 'catan', 'chess', 'risk', 'sealed-bids', 'tak', 'unmatched']);
+    expect(await ids('?mode=turn')).toEqual(['abalone', 'amlak', 'backgammon', 'catan', 'checkers', 'chess', 'go', 'line-three', 'ludo', 'onitama', 'othello', 'quoridor', 'risk', 'santorini', 'sealed-bids', 'snakes-ladders', 'tak', 'ticket-to-ride', 'unmatched', 'uno']);
     expect(await ids('?access=premium')).toEqual([]);
     expect((await get('/api/games?players=abc')).json().errorCode).toBe('VALIDATION_FAILED');
   });

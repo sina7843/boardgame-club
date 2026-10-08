@@ -37,7 +37,8 @@
     "@bg/game-onitama": "workspace:*",
     "@bg/game-go": "workspace:*",
     "@bg/game-santorini": "workspace:*",
-    "@bg/game-tak": "workspace:*"
+    "@bg/game-tak": "workspace:*",
+    "@bg/game-abalone": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

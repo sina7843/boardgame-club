@@ -526,3 +526,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: walnut board; birch and ebony stones drawn as square tiles with thickness, stacked in layers with a height
   badge; walls lean, capstones are domed; moves are built by tapping drop squares (dashed gold), the lifted part of
   the stack rises; the winning road glows.
+## «آبالون» (Abalone, 2026-10-08, owner list batch 2)
+
+- Standard layout on the 61-cell board, 1–3 marbles in a line move in-line or broadside, sumito (2>1, 3>1, 3>2) with
+  an empty cell or the edge behind, six marbles off wins. House rule: after 200 moves, more marbles pushed off wins
+  (equal = draw), so games always end. Moves are enumerated on the client (`legalMoves`), re-validated on the server.
+  Timeouts play a random legal move; three in a row lose.
+- Look: flat-topped walnut tray with brass rim and dimples, black glass vs white pearl marbles, six-slot trays of
+  marbles pushed off, selection rings, direction arrows only where a move is legal, sliding marbles (pushed ones too),
+  the marble pushed off fades at the edge; board turned so the viewer's marbles start at the bottom.

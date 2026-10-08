@@ -30,7 +30,8 @@
     "@bg/game-onitama": "workspace:*",
     "@bg/game-go": "workspace:*",
     "@bg/game-santorini": "workspace:*",
-    "@bg/game-tak": "workspace:*"
+    "@bg/game-tak": "workspace:*",
+    "@bg/game-abalone": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

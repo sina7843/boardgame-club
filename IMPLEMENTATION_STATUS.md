@@ -521,3 +521,10 @@ New module `games/tak` registered in engine, catalog and web. Checks run: engine
 opening, move rules incl. flattening, roads, flat count, timeouts/resign, view, tutorial, 25 random games on all sizes
 with stone conservation and replay); API 3 (`apps/api/test/tak.test.ts`); catalog test updated; E2E `e2e/tak.spec.ts`
 — tutorial and a full game with stack moves at 360 and 1440 (`docs/evidence/tak/`). Polish: stones redrawn as tiles.
+## «آبالون» Abalone (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/abalone` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/abalone.test.ts`: layout, in-line/broadside, sumito cases incl. push-off and blocks, six
+off, move limit, timeouts/resign, view, tutorial, 20 random games to the end with marble conservation and replay); API
+3 (`apps/api/test/abalone.test.ts`); catalog test updated; E2E `e2e/abalone.spec.ts` — tutorial and moves through
+arrows ending in a resignation at 360 and 1440 (`docs/evidence/abalone/`). Polish: tray orientation and margin.
