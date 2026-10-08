@@ -49,7 +49,8 @@
     "@bg/game-patchwork": "workspace:*",
     "@bg/game-kingdomino": "workspace:*",
     "@bg/game-point-salad": "workspace:*",
-    "@bg/game-cockroach-poker": "workspace:*"
+    "@bg/game-cockroach-poker": "workspace:*",
+    "@bg/game-scout": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

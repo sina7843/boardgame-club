@@ -772,3 +772,18 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: a smoky card room; creature cards with bold silhouettes on colour fields, the card in play sliding in with
   the claim in a speech bubble and who has seen it, face-up stacks grouped per creature with a throbbing warning at
   three, give/pass built from card + player + claim.
+## «سیرک» (Scout, 2026-10-08, owner list batch 6)
+
+- 45 cards (every pair of distinct numbers 1–10). 3 players drop the cards with a 10, 4 players the 9/10, 5 use all;
+  2 players are an unofficial variant (cards with 9 or 10 removed, two rounds). Random orientation on the deal; each
+  player decides once per round, simultaneously, whether to turn the whole hand over (reversing its order). Hand order
+  is fixed. Show adjacent cards forming a set or a run (either direction) that beats the ring's show (more cards → set
+  over run → higher lowest number) and capture it; or scout an end card (optionally flipped) into any gap, giving the
+  show's owner a chip; Scout & Show once per round (if no show is then possible the turn simply ends). The round ends
+  on an emptied hand or when everyone else scouted in a row back to the show's owner, who is then exempt from the
+  hand penalty. Score: captured + chips − hand. One round per player.
+- Look: circus ring — candy-striped ring with a sawdust centre holding the show, cards with the big top number, a
+  star and the other number upside down at the bottom, hue rising with the value; orient choice shows both
+  versions of your hand; scouting shows pulsing «+» gaps in the hand.
+- Polish passes (360/1440): (1) the upside-down bottom number was pushed outside the card — now anchored inside;
+  playing-card glyph replaced with words (it rendered as a box); the ring is visible while choosing the orientation.

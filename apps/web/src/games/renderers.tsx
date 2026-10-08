@@ -37,6 +37,7 @@ import PatchworkRenderer from '@bg/game-patchwork/renderer';
 import KingdominoRenderer from '@bg/game-kingdomino/renderer';
 import PointSaladRenderer from '@bg/game-point-salad/renderer';
 import CockroachPokerRenderer from '@bg/game-cockroach-poker/renderer';
+import ScoutRenderer from '@bg/game-scout/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -82,5 +83,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'patchwork@1.0.0': PatchworkRenderer as ComponentType<GameRendererProps<never>>,
   'kingdomino@1.0.0': KingdominoRenderer as ComponentType<GameRendererProps<never>>,
   'point-salad@1.0.0': PointSaladRenderer as ComponentType<GameRendererProps<never>>,
-  'cockroach-poker@1.0.0': CockroachPokerRenderer as ComponentType<GameRendererProps<never>>
+  'cockroach-poker@1.0.0': CockroachPokerRenderer as ComponentType<GameRendererProps<never>>,
+  'scout@1.0.0': ScoutRenderer as ComponentType<GameRendererProps<never>>
 };

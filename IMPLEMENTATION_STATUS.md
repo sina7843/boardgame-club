@@ -662,3 +662,10 @@ Checks run: engine 6 (`packages/game-engine/test/cockroach-poker.test.ts`: deal,
 and pass targets, four-of-a-kind loss with shared win, timeouts/resign, tutorial, 30 random 2–6 player games with
 card conservation and replay); API 3 (`apps/api/test/cockroach-poker.test.ts`); catalog test updated; E2E
 `e2e/cockroach-poker.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/cockroach-poker/`).
+## «سیرک» Scout (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/scout` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/scout.test.ts`:
+card set and decks, show strength, hand flip, show/capture/scout/chip and Scout & Show, round end back at the owner
+with scoring, timeouts/resign, tutorial, 25 random 2–5 player games through all rounds with replay); API 3
+(`apps/api/test/scout.test.ts`); catalog test updated; E2E `e2e/scout.spec.ts` — tutorial and a full three-player
+game (three rounds) at 360 and 1440 (`docs/evidence/scout/`).
