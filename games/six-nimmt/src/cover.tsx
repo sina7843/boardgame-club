@@ -1,9 +1,12 @@
+import bull from './art/bull.webp';
+
 // Catalog cover: a row of five cards and the dreaded sixth one landing, bull heads on every card.
 export default function SixNimmtCover({ title }: { title: string }) {
   const card = (x: number, y: number, n: number, bg: string, ink: string, heads: number, rot = 0, k = '') => (
     <g key={k} transform={`translate(${x} ${y}) rotate(${rot})`} filter="url(#snc-sh)">
       <rect x="-22" y="-31" width="44" height="62" rx="6" fill={bg} stroke="#e2d6c2" strokeWidth="2" />
-      {Array.from({ length: heads }, (_, i) => <path key={i} d={`M${-12 + i * 8} -22 q4 -3 8 0 l-1 5 q-3 2 -6 0 z`} fill={ink} />)}
+      <image href={bull} x="-18" y="-12" width="36" height="36" opacity=".18" />
+      {Array.from({ length: heads }, (_, i) => <image key={i} href={bull} x={-12 + i * 8} y="-26" width="8" height="8" />)}
       <text x="0" y="12" textAnchor="middle" fontSize="20" fontWeight="900" fill={ink} fontFamily="Vazirmatn, sans-serif">{n.toLocaleString('fa-IR')}</text>
     </g>
   );

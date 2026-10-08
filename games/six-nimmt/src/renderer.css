@@ -6,7 +6,7 @@
 .sn-score--ready { box-shadow: inset 0 0 0 1px rgb(143 224 163 / 0.6); }
 .sn-score--turn { box-shadow: 0 0 0 2px #c9a46a; }
 .sn-score__n { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 800; color: #ffb4d0; }
-.sn-score__n .sn-bull { inline-size: 14px; block-size: 12px; }
+.sn-score__n .sn-bull { inline-size: 16px; block-size: 16px; }
 .sn-score__state { color: #8fe0a3; }
 
 .sn__rows { display: grid; gap: 0.45rem; }
@@ -15,7 +15,7 @@
 .sn-row--take:hover, .sn-row--take:focus-visible { background: rgb(255 210 122 / 0.2); outline: none; }
 .sn-row--hint { background: rgb(255 210 122 / 0.28); }
 .sn-row__heads { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 900; color: #ffb4d0; padding-inline: 0.3rem; }
-.sn-row__heads .sn-bull { inline-size: 16px; block-size: 13px; }
+.sn-row__heads .sn-bull { inline-size: 18px; block-size: 18px; }
 .sn-slot { flex: none; inline-size: 2.6rem; block-size: 3.6rem; border-radius: 8px; border: 2px dashed rgb(255 255 255 / 0.12); }
 .sn-slot--danger { display: grid; place-items: center; border-color: rgb(255 107 91 / 0.55); color: rgb(255 107 91 / 0.7); font-weight: 900; }
 
@@ -31,8 +31,10 @@ button.sn-card:hover, button.sn-card:focus-visible { transform: translateY(-8px)
 .sn-card__n { font-size: 1.7rem; font-weight: 900; line-height: 1; }
 .sn-card--small { inline-size: 2.6rem; block-size: 3.6rem; padding: 0.15rem; border-radius: 7px; }
 .sn-card--small .sn-card__n { font-size: 1rem; }
-.sn-card--small .sn-bull { inline-size: 8px; block-size: 7px; }
-.sn-bull { inline-size: 12px; block-size: 10px; }
+.sn-card--small .sn-bull { inline-size: 9px; block-size: 9px; }
+.sn-bull { inline-size: 13px; block-size: 13px; object-fit: contain; }
+.sn-card__bg { position: absolute; inset: 18% 8% 6%; inline-size: 84%; block-size: 76%; object-fit: contain; opacity: 0.16; pointer-events: none; }
+.sn-card__heads, .sn-card__n { position: relative; }
 .sn-card--new { animation: sn-drop 0.45s cubic-bezier(.2, 1.3, .4, 1) both; }
 .sn-card--up { transform: translateY(-12px); box-shadow: 0 0 0 3px #8fe0a3, 0 10px 18px -6px rgb(0 0 0 / 0.6); }
 .sn-card--hint { box-shadow: 0 0 0 3px #ffd27a; animation: sn-pulse 1s ease-in-out infinite; }

@@ -2,25 +2,22 @@
 // revealed choices in order, and rows that become buttons when you must take one.
 import './renderer.css';
 import { TurnIndicator, type GameRendererProps } from '@bg/ui';
+import bull from './art/bull.webp';
 import { bullheads, type SixNimmtView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const tier = (c: number) => ({ 1: 't1', 2: 't2', 3: 't3', 5: 't5', 7: 't7' }[bullheads(c)] ?? 't1');
 
+// Bull head art is cut from a generated sprite sheet (see DECISIONS.md).
 function Bull() {
-  return (
-    <svg viewBox="0 0 24 20" className="sn-bull" aria-hidden="true">
-      <path d="M3 3 Q1 8 6 9 M21 3 Q23 8 18 9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M6 7 Q12 4 18 7 L17 15 Q12 19 7 15 Z" fill="currentColor" />
-      <circle cx="9.5" cy="10" r="1.2" fill="#fff" /><circle cx="14.5" cy="10" r="1.2" fill="#fff" />
-    </svg>
-  );
+  return <img src={bull} className="sn-bull" alt="" aria-hidden="true" draggable={false} />;
 }
 
 function Card({ c, small, onClick, state, hint }: { c: number; small?: boolean; onClick?: () => void; state?: 'new' | 'take' | 'up'; hint?: boolean }) {
   const b = bullheads(c);
   const body = (
     <>
+      <img src={bull} className="sn-card__bg" alt="" aria-hidden="true" draggable={false} />
       <span className="sn-card__heads" aria-hidden="true">{Array.from({ length: b }, (_, k) => <Bull key={k} />)}</span>
       <strong className="sn-card__n">{fa(c)}</strong>
     </>
