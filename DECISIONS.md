@@ -1026,3 +1026,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - The table stage is a single graphite panel instead of walnut rim + felt + the game's own panel; the status strip
   is one slim sticky line with an accent edge for "your move" (no full-colour slab covering the board on phones);
   tutorial text appears once, in the tutorial panel. Phones hide the table subtitle line.
+
+## «نبرد دریایی» (Battleship, 2026-10-08, owner request)
+
+- Two players, 10×10 sea each, fleet 5/4/3/3/2 (aircraft carrier, battleship, destroyer, submarine, patrol boat),
+  horizontal or vertical, no overlaps (touching allowed). Placement is simultaneous and secret (manual with a
+  rotate toggle, or a local random layout to start from, then confirm); then single alternating shots — no extra
+  shot on a hit (the classic rule). Sunk ships are announced and revealed; first to sink the whole fleet wins.
+  Timeouts place a random fleet or fire at the first open cell.
+- Look: two vintage nautical charts — parchment frame with sepia Persian coordinates (rows الف…د, columns ۱…۱۰),
+  deep water with wave hatching, drawn steel hulls with deck guns, flame bursts for hits, splash rings for misses,
+  darkened hulls when sunk; a fleet tray for placement.

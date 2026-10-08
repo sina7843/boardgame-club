@@ -57,6 +57,7 @@ import DiceThroneRenderer from '@bg/game-dice-throne/renderer';
 import ElDoradoRenderer from '@bg/game-el-dorado/renderer';
 import ResArcanaRenderer from '@bg/game-res-arcana/renderer';
 import RaceGalaxyRenderer from '@bg/game-race-galaxy/renderer';
+import BattleshipRenderer from '@bg/game-battleship/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -122,5 +123,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'dice-throne@1.0.0': DiceThroneRenderer as ComponentType<GameRendererProps<never>>,
   'el-dorado@1.0.0': ElDoradoRenderer as ComponentType<GameRendererProps<never>>,
   'res-arcana@1.0.0': ResArcanaRenderer as ComponentType<GameRendererProps<never>>,
-  'race-galaxy@1.0.0': RaceGalaxyRenderer as ComponentType<GameRendererProps<never>>
+  'race-galaxy@1.0.0': RaceGalaxyRenderer as ComponentType<GameRendererProps<never>>,
+  'battleship@1.0.0': BattleshipRenderer as ComponentType<GameRendererProps<never>>
 };

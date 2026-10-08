@@ -806,3 +806,10 @@ explore keep, settle payment/military/picker draw, produce/consume, hidden hands
 waiting players/resign, tutorial, 12 random 2–4 player games with card conservation and replay); API 3
 (`apps/api/test/race-galaxy.test.ts`); catalog test updated; E2E `e2e/race-galaxy.spec.ts` — tutorial and a full
 three-player game at 360 and 1440 (`docs/evidence/race-galaxy/`).
+## «نبرد دریایی» Battleship (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/battleship` registered in engine, catalog and web. Checks run: engine 6
+(`packages/game-engine/test/battleship.test.ts`: fleet validation and random fleets, secret simultaneous placement,
+alternating fire with hit/miss/sunk reporting, fleet-sunk win and resign, timeouts, tutorial, 20 random games with
+replay); API 3 (`apps/api/test/battleship.test.ts`); catalog test updated; E2E `e2e/battleship.spec.ts` — tutorial
+and a full two-player game from placement at 360 and 1440 (`docs/evidence/battleship/`).

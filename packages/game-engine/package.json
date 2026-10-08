@@ -69,7 +69,8 @@
     "@bg/game-dice-throne": "workspace:*",
     "@bg/game-el-dorado": "workspace:*",
     "@bg/game-res-arcana": "workspace:*",
-    "@bg/game-race-galaxy": "workspace:*"
+    "@bg/game-race-galaxy": "workspace:*",
+    "@bg/game-battleship": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"
