@@ -1,0 +1,60 @@
+/* نه، مرسی!: bold numbered cards from cool to hot, a pile of red chips, runs fanned per player. */
+.nt { display: grid; gap: 0.85rem; text-align: center; color: #f6efe2; inline-size: 100%; }
+.nt > :first-child { justify-self: center; }
+.nt__middle { display: flex; gap: 1.5rem; justify-content: center; align-items: center; padding-block: 0.5rem; }
+.nt-deck { position: relative; inline-size: 4.6rem; block-size: 6.6rem; }
+.nt-deck__card { position: absolute; inset: 0; border-radius: 10px; background: repeating-linear-gradient(45deg, #2b3f8c 0 8px, #22337a 8px 16px); border: 3px solid #f6efe2;
+  transform: translate(calc(var(--k) * -2px), calc(var(--k) * -2px)); box-shadow: 0 4px 8px rgb(0 0 0 / 0.4); }
+.nt-deck__n { position: absolute; inset-block-end: -1.4rem; inset-inline: 0; font-size: 0.8rem; color: #d9ccb4; }
+
+.nt-card { --l: 52%; position: relative; display: inline-grid; place-items: center; border-radius: 10px; font-weight: 900; color: #fff;
+  background: linear-gradient(160deg, hsl(var(--h) 75% calc(var(--l) + 10%)), hsl(var(--h) 80% calc(var(--l) - 12%))); border: 3px solid #fff8ea;
+  box-shadow: 0 6px 14px -4px rgb(0 0 0 / 0.55); text-shadow: 0 2px 2px rgb(0 0 0 / 0.35); }
+.nt-card--big { inline-size: 9rem; block-size: 12.5rem; font-size: 4.2rem; animation: nt-flip 0.5s cubic-bezier(.2, 1.2, .4, 1) both; }
+.nt-card__n { font-size: inherit; }
+.nt-card__corner { position: absolute; inset-block-start: 0.4rem; inset-inline-start: 0.55rem; font-size: 1.05rem; }
+.nt-card__corner--b { inset-block: auto 0.4rem; inset-inline: auto 0.55rem; transform: rotate(180deg); }
+.nt-card--empty { inline-size: 9rem; block-size: 12.5rem; background: rgb(0 0 0 / 0.3); color: #d9ccb4; font-size: 1.2rem; border-style: dashed; }
+.nt-pot { position: absolute; inset-block-end: -1.2rem; inset-inline-start: 50%; transform: translateX(50%); display: grid; place-items: center; inline-size: 3.6rem; block-size: 3.2rem;
+  animation: nt-bump 0.35s ease-out; }
+.nt-pot i { position: absolute; inline-size: 2.4rem; block-size: 0.9rem; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #ff7a6b, #c0392b 60%, #7d1e14);
+  border: 2px solid #ffd2c8; inset-block-end: calc(var(--k) * 4px); box-shadow: 0 2px 2px rgb(0 0 0 / 0.4); }
+.nt-pot b { position: relative; z-index: 1; margin-block-end: 3rem; padding: 0.05rem 0.45rem; border-radius: 999px; background: #2a1a0d; color: #ffd27a; font-size: 0.85rem; }
+
+.nt__actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-block-start: 0.6rem; }
+.nt-btn { display: grid; gap: 0.15rem; min-inline-size: 9rem; padding: 0.7rem 1.2rem; border-radius: 16px; border: 0; font: inherit; font-weight: 900; font-size: 1.05rem; cursor: pointer;
+  box-shadow: 0 6px 0 rgb(0 0 0 / 0.35), 0 10px 18px -8px rgb(0 0 0 / 0.6); transition: transform 0.1s; }
+.nt-btn small { font-weight: 600; font-size: 0.75rem; opacity: 0.85; }
+.nt-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 rgb(0 0 0 / 0.35); }
+.nt-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.nt-btn--take { background: #f3e2b8; color: #2a1a0d; }
+.nt-btn--pass { background: #c0392b; color: #fff; }
+.nt-btn--hint { outline: 3px solid #ffd27a; outline-offset: 3px; animation: nt-pulse 1s ease-in-out infinite; }
+.nt-btn:focus-visible { outline: 3px solid #ffd27a; outline-offset: 3px; }
+
+.nt__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.nt-pl { display: grid; gap: 0.45rem; padding: 0.6rem 0.75rem; border-radius: 14px; background: rgb(0 0 0 / 0.25); border: 1px solid rgb(255 255 255 / 0.08); text-align: start; }
+.nt-pl--turn { box-shadow: 0 0 0 2px #c9a46a, 0 8px 20px -8px rgb(201 164 106 / 0.6); }
+.nt-pl--me { background: rgb(201 164 106 / 0.12); }
+.nt-pl--out { opacity: 0.45; }
+.nt-pl__head { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.85rem; }
+.nt-pl__name { font-weight: 800; font-size: 0.95rem; }
+.nt-pl__chips { display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 800; color: #ffb4a8; }
+.nt-pl__chips i { inline-size: 0.9rem; block-size: 0.9rem; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ff7a6b, #c0392b 60%, #7d1e14); border: 1.5px solid #ffd2c8; }
+.nt-pl__pts { color: #d9ccb4; }
+.nt-pl__score { color: #ffd27a; margin-inline-start: auto; }
+.nt-pl__runs { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; direction: ltr; justify-content: flex-end; }
+.nt-run { display: inline-flex; }
+.nt-run .nt-card + .nt-card { margin-inline-start: -0.9rem; }
+.nt-card--small { inline-size: 2.2rem; block-size: 3rem; font-size: 0.95rem; border-width: 2px; filter: saturate(0.55) brightness(0.8); }
+.nt-card--counts { filter: none; z-index: 1; }
+.nt-card--new { animation: nt-in 0.45s ease-out both; }
+.nt-pl__none { color: #a89a80; font-size: 0.8rem; }
+.nt__last { margin: 0; color: #d9ccb4; font-size: 0.85rem; }
+
+@keyframes nt-flip { from { transform: rotateY(90deg) scale(0.8); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes nt-bump { 40% { transform: translateX(50%) scale(1.15); } }
+@keyframes nt-in { from { transform: translateY(-20px) scale(1.2); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes nt-pulse { 50% { outline-color: transparent; } }
+
+@media (prefers-reduced-motion: reduce) { .nt-card--big, .nt-pot, .nt-card--new, .nt-btn--hint { animation: none; } }

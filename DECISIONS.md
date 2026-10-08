@@ -547,3 +547,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   underneath and a height badge, the view fits the hive as it grows (zoomable), reserve strips for both players,
   dashed gold targets, placed tiles pop in, moved tiles slide, the trapped queen glows red.
 - Fixed during polish: tiles had `pointer-events: none`, so pieces on the board could not be tapped (caught by E2E).
+## «نه، مرسی!» (No Thanks!, 2026-10-08, owner list batch 3)
+
+- Standard rules: cards 3–35 with nine removed unseen, 11 chips (9 for six, 7 for seven players), take with the chips or
+  pay one to refuse, the taker continues, runs score only their lowest card, chips subtract, lowest total wins.
+  Chip counts are secret until the end (projected only to their owner); deck and removed cards are never projected.
+  The 2-player game is offered (unofficial, common) because tutorial tables have two seats. Result scores are shown
+  as positive totals (lower is better). Timeouts refuse while chips last, otherwise take (no elimination).
+- Look: bold numbered cards from cool to hot, a stacked red chip pile with a count, a face-down deck, players' cards
+  grouped in runs with only the scoring card bright, big take/refuse buttons with the score impact of taking.

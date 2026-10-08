@@ -535,3 +535,9 @@ opening placements, queen by turn four, one hive, every bug's movement, freedom 
 view, tutorial, 12 random games with piece conservation, connectivity and replay); API 3 (`apps/api/test/hive.test.ts`);
 catalog test updated; E2E `e2e/hive.spec.ts` — tutorial and placements + board moves ending in a resignation at 360
 and 1440 (`docs/evidence/hive/`). Polish: tap targets on tiles, compact reserve on phones.
+## «نه، مرسی!» No Thanks! (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/no-thanks` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/no-thanks.test.ts`:
+setup per count, run scoring, take/pass flow, hidden chips/deck, end and placement, resign, timeout, tutorial, 30
+random 2–7 player games with chip conservation and replay); API 3 (`apps/api/test/no-thanks.test.ts`); catalog test
+updated; E2E `e2e/no-thanks.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/no-thanks/`).
