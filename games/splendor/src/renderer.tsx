@@ -14,8 +14,12 @@ export function Chip({ t, n, size = 'md', on }: { t: Token; n?: number; size?: '
   return (
     <span className={['sp-chip', `sp-chip--${size}`, `sp-t--${t}`, on ? 'sp-chip--on' : ''].join(' ')} aria-label={n === undefined ? GEM_FA[t] : `${fa(n)} ${GEM_FA[t]}`}>
       <svg viewBox="-20 -20 40 40" aria-hidden="true">
-        <circle r="18" className="sp-chip__rim" /><circle r="13" className="sp-chip__face" />
-        {t === 'o' ? <path d="M-6 -3 L0 -9 L6 -3 L4 7 H-4 Z" className="sp-chip__gem" /> : <path d="M0 -9 L8 -3 L5 8 H-5 L-8 -3 Z M-8 -3 H8 M0 -9 L-3 -3 L0 8 L3 -3 Z" className="sp-chip__gem" />}
+        <circle r="18.5" className="sp-chip__rim" /><circle r="15.5" className="sp-chip__edge" /><circle r="13" className="sp-chip__face" />
+        {t === 'o'
+          ? <g><path d="M0 -10 L2.9 -3.6 L9.5 -3 L4.5 1.6 L6 8.3 L0 5 L-6 8.3 L-4.5 1.6 L-9.5 -3 L-2.9 -3.6 Z" className="sp-chip__star" /><circle r="12" className="sp-chip__ring" /></g>
+          : <g><path d="M-5 -9 H5 L3 -3.5 H-3 Z" className="sp-f sp-f1" /><path d="M-9 -3.5 L-5 -9 L-3 -3.5 Z" className="sp-f sp-f2" /><path d="M5 -9 L9 -3.5 L3 -3.5 Z" className="sp-f sp-f3" />
+            <path d="M-9 -3.5 H-3 L0 9.5 Z" className="sp-f sp-f2" /><path d="M-3 -3.5 H3 L0 9.5 Z" className="sp-f sp-f1" /><path d="M3 -3.5 H9 L0 9.5 Z" className="sp-f sp-f4" />
+            <path d="M-9 -3.5 L-5 -9 H5 L9 -3.5 L0 9.5 Z" className="sp-chip__gem" /></g>}
       </svg>
       {n !== undefined && <b>{fa(n)}</b>}
     </span>
@@ -27,7 +31,8 @@ export function DevCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' })
   return (
     <span className={['sp-card', `sp-card--${size}`, `sp-t--${c.color}`, `sp-l--${c.level}`].join(' ')} aria-label={`${GEM_FA[c.color]}، ${fa(c.points)} اعتبار، قیمت: ${GEMS.filter((g) => c.cost[g]).map((g) => `${fa(c.cost[g]!)} ${GEM_FA[g]}`).join('، ')}`}>
       <span className="sp-card__top"><b className="sp-card__pts">{c.points ? fa(c.points) : ''}</b><Chip t={c.color} size="sm" /></span>
-      <svg viewBox="-10 -10 20 20" className="sp-card__mark" aria-hidden="true"><path d="M0 -9 L8 -3 L5 8 H-5 L-8 -3 Z" /></svg>
+      <svg viewBox="-10 -10 20 20" className="sp-card__mark" aria-hidden="true"><path d="M0 -9 L8 -3 L5 8 H-5 L-8 -3 Z" /><path d="M-8 -3 H8 M0 -9 L-3 -3 L0 8 L3 -3 Z" className="sp-card__cut" /></svg>
+      <span className="sp-card__tier" aria-hidden="true">{Array.from({ length: c.level }, (_, i) => <i key={i} />)}</span>
       <span className="sp-card__cost">{GEMS.filter((g) => c.cost[g]).map((g) => <span key={g} className={`sp-cost sp-t--${g}`}>{fa(c.cost[g]!)}</span>)}</span>
     </span>
   );
@@ -37,8 +42,13 @@ export function NobleTile({ id }: { id: number }) {
   const n = NOBLES[id]!;
   return (
     <span className="sp-noble" aria-label={`بزرگ: ${GEMS.filter((g) => n.need[g]).map((g) => `${fa(n.need[g]!)} ${GEM_FA[g]}`).join('، ')}`}>
-      <svg viewBox="-20 -20 40 40" className="sp-noble__face" aria-hidden="true"><path d="M-10 -2 Q-12 -14 0 -16 Q12 -14 10 -2 Z" className="sp-noble__turban" /><circle cx="0" cy="3" r="7" className="sp-noble__skin" /><path d="M-12 18 Q0 6 12 18 Z" className="sp-noble__robe" /></svg>
-      <b className="sp-noble__pts">۳</b>
+      <svg viewBox="-20 -20 40 40" className="sp-noble__face" aria-hidden="true">
+        <ellipse rx="16" ry="18.5" className="sp-noble__frame" /><ellipse rx="13.5" ry="16" className="sp-noble__cameo" />
+        <path d="M-12 16 Q-11 7 0 6 Q11 7 12 16 Q0 20 -12 16 Z" className="sp-noble__robe" /><path d="M-3 6.5 L0 12 L3 6.5 Z" className="sp-noble__ruff" />
+        <ellipse cx="0" cy="-1" rx="5.4" ry="6.4" className="sp-noble__skin" />
+        <path d="M-6.5 -2 Q-8 -12 0 -12.5 Q8 -12 6.5 -2 Q4 -7 0 -7 Q-4 -7 -6.5 -2 Z" className="sp-noble__hair" /><path d="M-7 -9 L-4 -14 L-1.5 -10.5 L0 -15 L1.5 -10.5 L4 -14 L7 -9 Z" className="sp-noble__crown" />
+      </svg>
+      <b className="sp-noble__pts"><span>۳</span></b>
       <span className="sp-noble__need">{GEMS.filter((g) => n.need[g]).map((g) => <span key={g} className={`sp-req sp-t--${g}`}>{fa(n.need[g]!)}</span>)}</span>
     </span>
   );
