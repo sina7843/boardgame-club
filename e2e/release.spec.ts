@@ -139,12 +139,14 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   await expect.poll(turnOf).not.toBeNull();
   const [mover, waiter] = (await turnOf()) === 'a' ? [a, b] : [b, a];
   await waiter.goto('/');
+  await expect(mover.locator('.lt__cell').nth(4)).not.toHaveAttribute('aria-disabled', 'true');
   await mover.locator('.lt__cell').nth(4).click();
   const panel = waiter.locator('section[aria-labelledby="my-turn-h"]');
   await expect(panel.getByRole('link').first()).toBeVisible({ timeout: 15_000 });
   await waiter.screenshot({ path: shot(info.project.name, 'my-turn-dashboard'), fullPage: true });
   await panel.getByRole('link').first().click();
   await expect(waiter.getByText('نوبت شماست')).toBeVisible();
+  await expect(waiter.locator('.lt__cell').nth(0)).not.toHaveAttribute('aria-disabled', 'true');
   await waiter.locator('.lt__cell').nth(0).click();
   await expect(mover.locator('.lt__cell').nth(0)).not.toHaveText('');
   await a.context().close(); await b.context().close();

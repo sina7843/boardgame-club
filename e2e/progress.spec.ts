@@ -35,6 +35,7 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
   for (const cell of [0, 3, 1, 4, 2]) {
     let mover: Page | null = null;
     for (let i = 0; i < 60 && !mover; i++) { if (await myTurn(a)) mover = a; else if (await myTurn(b)) mover = b; else await a.waitForTimeout(150); }
+    await expect(mover!.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await mover!.locator('.lt__cell').nth(cell).click();
     await expect(mover!.locator('.lt__cell').nth(cell)).not.toHaveText('');
   }
@@ -68,7 +69,7 @@ test('development checkout: labelled fake gateway, server verification activates
   const u = await newPage(browser, vp);
   await signIn(u, `Payam${uniq()}`);
   await u.goto('/plans');
-  await expect(u.getByText('حالت توسعه: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.')).toBeVisible();
+  await expect(u.getByText('حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.')).toBeVisible();
   await u.screenshot({ path: shot('04-plans', info.project.name), fullPage: true });
 
   // Failed attempt first: nothing is activated.

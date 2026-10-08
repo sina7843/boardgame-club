@@ -2,6 +2,17 @@
 
 Execution defaults are in IMPLEMENTATION_DECISIONS.md. Exact dependency versions, rating algorithm, provider selection and operational capacity are to be recorded with evidence during implementation. Product name, real launch games, commercial prices and final limits remain open.
 
+## Standing owner rule: polish every new game (2026-10-08, owner instruction, applies to all future work)
+
+> «هر بازی که گفتم اضافه کن تا ۴ بار زیباتر و حرفه‌ای‌ترش می‌کنی، UI/UX بازی بهبود می‌دی، انیمیشن‌های جذاب می‌ذاری.»
+
+Every game the owner asks to add is not done at "rules + working renderer". After it works, run up to **four**
+successive visual/UX polish passes on it. Each pass: take screenshots at 360 and 1440, critique them, then improve the
+look (physical board/pieces/cards, typography, colour), the UX (fewer taps, clear turn state, readable at 360,
+one-tap moves within the shell's undo window) and add purposeful animations (moves, dice, card draws, captures,
+scoring, result), always respecting `prefers-reduced-motion`. Stop early only when a pass finds nothing worth
+changing. Re-run that game's E2E at 360 and 1440 after the passes and record what changed.
+
 ## DRAGON-00 (2026-10-06)
 
 ### Stack (exact versions, checked against npm registry peer ranges on 2026-10-06)
@@ -430,3 +441,7 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Table chat: while the chat drawer is closed, a new message from another participant shows a toast
   («پیام در میز — نام: متن»), an unread count on «گفت‌وگوی میز», and a browser notification if enabled and the tab is
   hidden. Only on the table page; no server-side notification for table chat (it would flood turn-based players).
+- Fullscreen: a game-bar button puts the whole page (`document.documentElement`) in fullscreen, so the status strip,
+  hand, chat drawer, dialogs and toasts stay usable; ZoomBoard's own board-only fullscreen remains. Hidden where the
+  Fullscreen API is missing (iPhone Safari). Leaving the table exits fullscreen.
+- Catan shows no build targets while a move is held or in flight (a tap then would be ignored).

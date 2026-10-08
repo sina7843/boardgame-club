@@ -85,7 +85,10 @@ async function decide(p: Page, n: number, heroes: string[]) {
     const need = faNum((await button(/^تأیید/).textContent())?.match(/از ([۰-۹]+)/)?.[1] ?? '۱');
     const pool = (await d.locator('.um-card').count()) ? d.locator('.um-card') : p.locator('.um-hand .um-card--playable');
     for (let i = 0; i < need; i++) await pool.nth(i).click();
-    return button(/^تأیید/).click();
+    // A single-card choice is sent by the tap itself; only multi-card picks still need «تأیید».
+    const ok = button(/^تأیید/);
+    if (await ok.count() && await ok.isEnabled({ timeout: 1000 }).catch(() => false)) return ok.click();
+    return;
   }
   // Single-choice options (Jekyll's serum, Deduce Strategy, Lurking, opponent, value) are buttons.
   const option = d.locator('.um-actions button').first();

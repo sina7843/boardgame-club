@@ -45,6 +45,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   // Learn
   await a.getByRole('button', { name: 'آموزش تعاملی' }).click();
   for (const cell of [4, 2, 6]) {
+    await expect(a.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await a.locator('.lt__cell').nth(cell).click();
     await expect(a.locator('.lt__cell').nth(cell)).toHaveText('X');
   }
@@ -62,6 +63,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   await expect(a.locator('.lt__board')).toBeVisible();
   for (const cell of [0, 3, 1, 4, 2]) {
     const m = await mover(a, b);
+    await expect(m.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await m.locator('.lt__cell').nth(cell).click();
     await expect(m.locator('.lt__cell').nth(cell)).not.toHaveText('');
   }

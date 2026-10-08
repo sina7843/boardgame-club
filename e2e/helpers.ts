@@ -20,6 +20,7 @@ export async function signIn(page: Page, displayName: string, next = '/'): Promi
 /** A separate browser context = an independent client with its own session cookie. */
 export async function newPage(browser: Browser, viewport: { width: number; height: number } | null) {
   const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: 'http://127.0.0.1:5173' });
+  await ctx.addInitScript(() => { try { localStorage.setItem('bg.undoMs', '0'); } catch { /* storage unavailable */ } });
   return ctx.newPage();
 }
 

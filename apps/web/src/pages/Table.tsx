@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { MessageItem, TableSnapshot } from '@bg/contracts';
-import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Medal, Trophy } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Maximize2, Medal, Minimize2, Trophy } from 'lucide-react';
 import { Avatar, Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
@@ -245,6 +245,30 @@ function useTableChatAlerts(tableId: string | null, open: boolean): number {
   return unread;
 }
 
+/**
+ * Whole-page fullscreen for the game screen (status strip, board, hand, chat drawer and dialogs all stay visible).
+ * `supported` is false where the API is missing (e.g. iPhone Safari); leaving the table exits fullscreen.
+ */
+function useFullscreen() {
+  const supported = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
+  const [on, setOn] = useState(() => typeof document !== 'undefined' && !!document.fullscreenElement);
+  useEffect(() => {
+    const sync = () => setOn(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', sync);
+    return () => {
+      document.removeEventListener('fullscreenchange', sync);
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => { /* already left */ });
+    };
+  }, []);
+  const toggle = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+    } catch { /* refused by the browser; nothing to do */ }
+  }, []);
+  return { supported, on, toggle };
+}
+
 function tableMeta(t: Lobby) {
   return t.isTutorial ? 'میز آموزشی بدون زمان و بدون اثر بر رتبه' : `${PACE_FA[t.pace]} · ${t.visibility === 'private' ? 'خصوصی' : 'عمومی'} · دوستانه · ${durationFa(t.settings.turnSeconds)} برای هر نوبت`;
 }
@@ -269,6 +293,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
   const hasChat = t.mySeat !== null && !t.isTutorial;
   const unread = useTableChatAlerts(hasChat ? t.id : null, chat);
+  const full = useFullscreen();
 
   // Escape cancels a move that is still inside its undo window.
   const { queued, cancelQueued } = s;
@@ -313,6 +338,12 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         <span className={cn('gamebar__conn', s.live ? 'is-on' : 'is-off')} role="status" title={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}>
           <span className="gamebar__dot" aria-hidden /><span className="gamebar__conn-text">{s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}</span>
         </span>
+        {full.supported && (
+          <button type="button" className="gamebar__icon gamebar__full" onClick={() => void full.toggle()} aria-pressed={full.on}
+            aria-label={full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'} title={full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}>
+            {full.on ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />}
+          </button>
+        )}
         {hasChat && (
           <Button className={cn('gamebar__chat', unread > 0 && 'gamebar__chat--unread')} variant="secondary" size="sm" icon="card" onClick={() => setChat(true)}
             aria-label={unread > 0 ? `گفت‌وگوی میز، ${faNum(unread)} پیام تازه` : undefined}>

@@ -138,6 +138,11 @@
     background: var(--card); border: 1px solid var(--border); box-shadow: var(--depth-control); transition: transform var(--motion) var(--motion-ease); }
   .gamebar__icon:hover { transform: translateX(3px); }
   .gamebar__icon svg { inline-size: 20px; block-size: 20px; }
+  .gamebar__full { cursor: pointer; }
+  .gamebar__full:hover { transform: scale(1.06); }
+  .gamebar__full:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  /* Whole-page fullscreen keeps the page background and scrolling. */
+  :root:fullscreen { background: var(--background); overflow-y: auto; }
   .gamebar__title { flex: 1 1 14rem; min-inline-size: 0; }
   .gamebar__title h1 { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 1.35rem; }
   .gamebar__mark { display: grid; place-items: center; inline-size: 34px; block-size: 34px; border-radius: var(--shape-field);

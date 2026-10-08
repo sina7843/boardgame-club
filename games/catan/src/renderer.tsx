@@ -266,11 +266,13 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
   const act = (a: Hint) => { if (!busy) { onAction(a); setSel(null); setMode(null); } };
 
   // Which targets the board offers right now.
+  // No targets while a move is held or in flight: a tap then would be swallowed.
+  const canPick = myTurn && !busy;
   const active = view.phase === 'setupSettlement' ? 'settlement' : view.phase === 'setupRoad' || view.phase === 'roadBuilding' ? 'road' : view.phase === 'robber' ? 'robber' : mode;
   const targets: Targets = {
-    vertices: myTurn && active === 'settlement' ? legal.settlement : myTurn && active === 'city' ? legal.city : new Set(),
-    edges: myTurn && active === 'road' ? legal.road : new Set(),
-    hexes: myTurn && active === 'robber' ? legal.robber : new Set(),
+    vertices: canPick && active === 'settlement' ? legal.settlement : canPick && active === 'city' ? legal.city : new Set(),
+    edges: canPick && active === 'road' ? legal.road : new Set(),
+    hexes: canPick && active === 'robber' ? legal.robber : new Set(),
     sel,
     hint: exp?.type === 'buildRoad' ? { kind: 'edge', id: exp.edge as number } : exp && 'vertex' in exp ? { kind: 'vertex', id: exp.vertex as number } : exp?.type === 'moveRobber' ? { kind: 'hex', id: exp.hex as number } : null
   };

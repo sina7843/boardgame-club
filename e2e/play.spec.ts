@@ -36,6 +36,7 @@ async function playLineThree(a: Page, b: Page, project: string, label: string) {
   // First mover takes the top row: 0, 1, 2; the opponent plays 3, 4.
   for (const cell of [0, 3, 1, 4, 2]) {
     const [mover, other] = await whoseTurn(a, b);
+    await expect(mover.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await mover.locator('.lt__cell').nth(cell).click();
     if (cell === 1) await mover.screenshot({ path: shot(`${label}-selecting`, project), fullPage: true });
     await expect(other.locator('.lt__cell').nth(cell)).not.toHaveText(''); // opponent sees it via push
@@ -101,6 +102,7 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await mover.evaluate(() => localStorage.setItem('bg.undoMs', '2000'));
 
   // Tap → held for 2 s with «انصراف» → cancelled: nothing reaches the server.
+  await expect(mover.locator('.lt__cell').nth(4)).not.toHaveAttribute('aria-disabled', 'true');
   await mover.locator('.lt__cell').nth(4).click();
   await expect(mover.getByText('حرکت شما تا لحظه‌ای دیگر ثبت می‌شود.')).toBeVisible();
   await mover.screenshot({ path: shot('undo-window', info.project.name), fullPage: true });
@@ -110,6 +112,7 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await expect(mover.getByText('حرکت با شماست')).toBeVisible();
 
   // Tap and wait: the move is sent when the window ends.
+  await expect(mover.locator('.lt__cell').nth(4)).not.toHaveAttribute('aria-disabled', 'true');
   await mover.locator('.lt__cell').nth(4).click();
   await expect(other.locator('.lt__cell').nth(4)).not.toHaveText('', { timeout: 8000 });
 
@@ -122,6 +125,14 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await mover.screenshot({ path: shot('chat-alert', info.project.name), fullPage: true });
   await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();
   await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز', exact: true })).toBeAttached();
+
+  // Whole-page fullscreen from the game bar, and back.
+  await mover.keyboard.press('Escape'); // close the chat drawer
+  await mover.getByRole('button', { name: 'تمام‌صفحه', exact: true }).click();
+  await expect.poll(() => mover.evaluate(() => document.fullscreenElement === document.documentElement)).toBe(true);
+  await mover.screenshot({ path: shot('fullscreen', info.project.name), fullPage: true });
+  await mover.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
+  await expect.poll(() => mover.evaluate(() => document.fullscreenElement)).toBeNull();
   await a.context().close(); await b.context().close();
 });
 
@@ -132,6 +143,7 @@ test('interactive tutorial: guided moves against the scripted opponent', async (
   await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
   await p.screenshot({ path: shot('tutorial-step1', info.project.name), fullPage: true });
   for (const cell of [4, 2, 6]) {
+    await expect(p.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await p.locator('.lt__cell').nth(cell).click();
     await expect(p.locator('.lt__cell').nth(cell)).toHaveText('X');
   }
