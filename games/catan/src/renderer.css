@@ -21,8 +21,10 @@
 @keyframes ct-roll { from { transform: rotate(-220deg) scale(0.5); opacity: 0.2; } }
 .ct-bank { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ct-mini { display: inline-flex; gap: 2px; align-items: center; font-variant-numeric: tabular-nums; }
-.ct-ico { display: block; inline-size: 1.15em; block-size: 1.15em; flex: none; filter: drop-shadow(0 1px 0.5px rgb(0 0 0 / 0.3)); }
+.ct-ico { display: block; inline-size: 1.5em; block-size: 1.5em; object-fit: contain; flex: none; }
 .ct-mini > span, .ct-chip > span, .ct-res__icon { display: inline-flex; }
+.ct-deck { display: inline-flex; align-items: center; gap: 6px; }
+.ct-deck img { inline-size: 22px; block-size: 22px; object-fit: contain; }
 
 .ct-res--brick { --rc: var(--ct-brick); --rb: #dd8656; } .ct-res--lumber { --rc: var(--ct-lumber); --rb: #438f51; } .ct-res--wool { --rc: #5e8f2f; --rb: #b2da78; }
 .ct-res--grain { --rc: #a8820f; --rb: #f3d263; } .ct-res--ore { --rc: #5f6670; --rb: #abb1bc; }
@@ -64,6 +66,7 @@
 .ct-frame__edge { fill: none; stroke: rgb(255 235 200 / 0.4); stroke-width: 1.4; stroke-linejoin: round; }
 .ct-stud { stroke: #4f3908; stroke-width: 0.8; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); }
 .ct-sea { stroke: #0f3a52; stroke-width: 4; stroke-linejoin: round; }
+.ct-hex__art { filter: drop-shadow(0 2px 2px rgb(0 20 40 / 0.4)); }
 .ct-hex__tile { stroke: #f2e6c8; stroke-width: 2.5; stroke-linejoin: round; }
 /* Ink on an ivory halo keeps the label legible on every terrain. */
 .ct-hex__name { font-size: 10px; font-weight: 800; fill: var(--ct-ink); stroke: rgb(246 239 220 / 0.92); stroke-width: 3.2px; paint-order: stroke; stroke-linejoin: round; text-anchor: middle; pointer-events: none; }
@@ -74,10 +77,9 @@
 .ct-pip { fill: var(--ct-ink); }
 .ct-robber__body { animation: ct-drop 420ms cubic-bezier(0.3, 1.4, 0.5, 1); }
 @keyframes ct-drop { from { transform: translateY(-18px); opacity: 0; } }
-/* Harbours: plank pier + little boat + coin; coin rim takes the resource colour. */
+/* Harbours: plank pier + painted dock + coin; coin rim takes the resource colour. */
 .ct-pier__under { stroke: #3b230f; stroke-width: 6; stroke-linecap: butt; }
 .ct-pier { stroke: #d9ae72; stroke-width: 3.6; stroke-dasharray: 4.5 1.5; }
-.ct-boat { fill: url(#ctb-wood); stroke: #2e1a09; stroke-width: 1; stroke-linejoin: round; }
 .ct-harbor__coin { fill: url(#ctb-token); stroke: #1d4f6d; stroke-width: 2.4; filter: drop-shadow(0 1.5px 1.5px rgb(0 0 0 / 0.45)); }
 .ct-harbor.ct-res--brick .ct-harbor__coin, .ct-harbor.ct-res--lumber .ct-harbor__coin, .ct-harbor.ct-res--wool .ct-harbor__coin,
 .ct-harbor.ct-res--grain .ct-harbor__coin, .ct-harbor.ct-res--ore .ct-harbor__coin { stroke: var(--rb); }
@@ -104,7 +106,7 @@
 .ct-target { cursor: pointer; }
 .ct-target:focus { outline: none; }
 .ct-hex.ct-target .ct-hex__tile { stroke: #fff; stroke-width: 5; stroke-dasharray: 8 5; }
-.ct-hex.ct-target:hover .ct-hex__tile, .ct-hex.ct-target:focus-visible .ct-hex__tile { filter: brightness(1.15); }
+.ct-hex.ct-target:hover .ct-hex__art, .ct-hex.ct-target:focus-visible .ct-hex__art { filter: brightness(1.15); }
 .ct-hex.ct-selected .ct-hex__tile { stroke: var(--focus, #ffd34d); stroke-width: 6; stroke-dasharray: none; }
 .ct-edge__hit { fill: rgb(255 255 255 / 0.6); stroke: #fff; stroke-width: 1.5; }
 .ct-edge.ct-target:hover .ct-edge__hit, .ct-edge.ct-target:focus-visible .ct-edge__hit { fill: #fff; }
@@ -112,7 +114,7 @@
 .ct-vertex__ring { fill: rgb(255 255 255 / 0.55); stroke: #fff; stroke-width: 2.5; }
 .ct-vertex.ct-target:hover .ct-vertex__ring, .ct-vertex.ct-target:focus-visible .ct-vertex__ring { fill: #fff; }
 .ct-vertex.ct-selected .ct-vertex__ring { fill: #ffd34d; stroke: #1b1611; }
-.ct-hint .ct-vertex__ring, .ct-hint .ct-edge__hit, .ct-hint.ct-hex .ct-hex__tile { animation: ct-pulse 1.1s ease-in-out infinite; }
+.ct-hint .ct-vertex__ring, .ct-hint .ct-edge__hit, .ct-hint.ct-hex .ct-hex__art { animation: ct-pulse 1.1s ease-in-out infinite; }
 @keyframes ct-pulse { 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { .ct-hint * { animation: none !important; } }
 
@@ -160,13 +162,16 @@
   box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.8), 0 3px 6px rgb(0 0 0 / 0.28); transition: transform 150ms ease; }
 .ct-card:hover { transform: translateY(-2px); }
 .ct-card--empty { filter: grayscale(0.7) brightness(0.96); }
-.ct-card__icon { display: grid; place-items: center; inline-size: 100%; padding-block: 6px; font-size: 1.5em;
+.ct-card__icon { display: grid; place-items: center; inline-size: 100%; padding-block: 2px;
   background: radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.45), transparent 60%), var(--rb); border-block-end: 2px solid rgb(0 0 0 / 0.25); }
+.ct-card .ct-ico { inline-size: 100%; block-size: auto; aspect-ratio: 1; }
 .ct-card__name { font-size: var(--fs-xs); font-weight: 800; }
 .ct-card__n { font-size: 1.3em; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .ct-card { transition: none; } .ct-card:hover { transform: none; } }
 .ct-devs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .ct-dev { display: grid; gap: 2px; padding: var(--sp-2); border-radius: var(--r-md); background: var(--surface-2); border-inline-start: 4px solid #7a3fa0; box-shadow: 0 2px 4px rgb(0 0 0 / 0.18); }
+.ct-dev { grid-template-columns: 56px 1fr; align-items: center; column-gap: var(--sp-2); }
+.ct-dev__art { grid-row: 1 / span 3; inline-size: 56px; block-size: 56px; object-fit: contain; }
 .ct-dev button { justify-self: start; }
 
 .ct-log ol { margin: var(--sp-2) 0 0; padding-inline-start: 1.2em; display: grid; gap: 4px; font-size: var(--fs-sm); color: var(--text-2); }

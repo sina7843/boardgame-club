@@ -1,11 +1,11 @@
-// Catan renderer: players strip, vector island (hexes, number tokens, harbors, roads, buildings, robber), one action
+// Catan renderer: players strip, painted island (hexes, number tokens, harbors, roads, buildings, robber), one action
 // panel driven by the phase and legal actions, own hand and development cards, event log. Shows only the projection:
 // other players' hands and development cards are counts, never contents.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
 import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
-import { BoardDefs, DieFace, ResIcon, RobberPawn, TerrainArt } from './art.tsx';
+import { BoardDefs, CARD_BACK, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import { COST, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -87,8 +87,8 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         {FRAME.map(([x, y], i) => <line key={i} className="ct-frame__miter" x1={x} y1={y} x2={SEA[i]![0]} y2={SEA[i]![1]} />)}
         <polygon className="ct-frame__edge" points={ptsOf(FRAME, 0.992)} />
       </g>
-      <polygon className="ct-sea" points={ptsOf(SEA)} fill="url(#ctb-sea)" />
-      <polygon points={ptsOf(SEA)} fill="url(#ctb-waves)" pointerEvents="none" aria-hidden="true" />
+      <Ocean points={ptsOf(SEA)} box={300} />
+      <polygon className="ct-sea" points={ptsOf(SEA)} fill="none" pointerEvents="none" aria-hidden="true" />
       <g aria-hidden="true" pointerEvents="none">
         {FRAME.map(([x, y], i) => <circle key={i} className="ct-stud" cx={x * 0.955} cy={y * 0.955} r="4.6" fill="url(#ctb-brass)" />)}
       </g>
@@ -100,7 +100,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
           <g key={`h${i}`} className={h.kind === 'any' ? 'ct-harbor' : `ct-harbor ct-res--${h.kind}`} role="img" aria-label={`بندر ${HARBOR_FA(h.kind)}`}>
             <line x1={a.x} y1={a.y} x2={hx} y2={hy} className="ct-pier__under" /><line x1={b.x} y1={b.y} x2={hx} y2={hy} className="ct-pier__under" />
             <line x1={a.x} y1={a.y} x2={hx} y2={hy} className="ct-pier" /><line x1={b.x} y1={b.y} x2={hx} y2={hy} className="ct-pier" />
-            <path className="ct-boat" d={`M${hx - 15} ${hy + 10} H${hx + 15} L${hx + 10} ${hy + 19} H${hx - 10}Z`} filter="url(#ctb-soft)" />
+            <HarborArt x={hx} y={hy + 6} />
             <circle cx={hx} cy={hy} r="17" className="ct-harbor__coin" />
             <text x={hx} y={hy - 1} className="ct-harbor__rate">{h.kind === 'any' ? '۳:۱' : '۲:۱'}</text>
             {h.kind !== 'any' && <text x={hx} y={hy + 10} className="ct-harbor__res">{RES_FA[h.kind]}</text>}
@@ -116,11 +116,8 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         return (
           <g key={`x${i}`} className={['ct-hex', target ? 'ct-target' : '', is(t.sel, 'hex', i) ? 'ct-selected' : '', is(t.hint, 'hex', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، راهزن را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? '، راهزن اینجاست' : ''}` })}>
-            <polygon points={pts(i)} fill={`url(#ctb-g-${h.terrain})`} filter="url(#ctb-shadow)" className="ct-hex__tile" />
-            <polygon points={pts(i)} fill={`url(#ctb-p-${h.terrain})`} pointerEvents="none" aria-hidden="true" />
-            <polygon points={pts(i)} fill="url(#ctb-light)" pointerEvents="none" aria-hidden="true" />
-            <polygon points={pts(i, 0.95)} className="ct-hex__bevel" fill="none" stroke="url(#ctb-bevel)" strokeWidth="2.6" strokeLinejoin="round" pointerEvents="none" aria-hidden="true" />
-            <g transform={`translate(${c.x} ${c.y})`}><TerrainArt terrain={h.terrain} /></g>
+            <HexArt terrain={h.terrain} cx={c.x} cy={c.y} r={R} className="ct-hex__art" />
+            <polygon points={pts(i)} fill="#000" fillOpacity="0.001" className="ct-hex__tile" />
             <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>
             {h.number !== null && (
               <g className={h.number === 6 || h.number === 8 ? 'ct-token ct-token--hot' : 'ct-token'}>
@@ -131,7 +128,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
               </g>
             )}
             {view.robber === i && (
-              <g transform={`translate(${c.x + (h.number === null ? 0 : 24)}, ${c.y + 6})`} aria-hidden="true" pointerEvents="none"><RobberPawn /></g>
+              <g transform={`translate(${c.x + (h.number === null ? 0 : 26)}, ${c.y + 14})`} aria-hidden="true" pointerEvents="none"><RobberPawn /></g>
             )}
           </g>
         );
@@ -327,7 +324,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
             <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
           </span>
         )}
-        <span>کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
+        <span className="ct-deck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
         <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>
       </div>
 
@@ -468,6 +465,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
                       const can = !!t && has(t);
                       return (
                         <li key={d} className="ct-dev">
+                          <img className="ct-dev__art" src={DEV_ART[d]} alt="" aria-hidden="true" draggable={false} />
                           <span><strong>{DEV_FA[d]}</strong> ×{fa(devCounts[d]!.n)}{devCounts[d]!.fresh ? ` (${fa(devCounts[d]!.fresh)} تازه)` : ''}</span>
                           <span className="ct-help">{DEV_HELP[d]}</span>
                           {can && <Button size="sm" disabled={busy} onClick={() => {

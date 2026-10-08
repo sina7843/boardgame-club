@@ -1,6 +1,6 @@
-// Catalog cover: a small cluster of illustrated terrain hexes with a number token, a settlement, a city and roads
-// on a wavy sea (vector only; shares the board's defs and motifs from art.tsx).
-import { BoardDefs, TerrainArt } from './art.tsx';
+// Catalog cover: a small cluster of painted terrain hexes with a number token, a settlement, a city and roads
+// on the painted ocean (shares the board's art and defs from art.tsx).
+import { BoardDefs, HexArt, Ocean } from './art.tsx';
 import type { Terrain } from './board.ts';
 
 const SQ3 = Math.sqrt(3);
@@ -14,10 +14,6 @@ const CITY = ['M-13.5 8 V-1 H-4 V8Z', 'M-15 -1 L-8.7 -7 L-2.5 -1Z', 'M-4 8 V-8 H
 
 export default function CatanCover({ title }: { title: string }) {
   const s = 30;
-  const corners = (cx: number, cy: number, k = 1) => Array.from({ length: 6 }, (_, i) => {
-    const a = ((-90 + 60 * i) * Math.PI) / 180;
-    return `${(cx + s * k * Math.cos(a)).toFixed(1)},${(cy + s * k * Math.sin(a)).toFixed(1)}`;
-  }).join(' ');
   const at = (q: number, r: number) => ({ x: 160 + SQ3 * s * (q + r / 2), y: 90 + 1.5 * s * r });
   const c = at(0, 0);
   const road = (x1: number, y1: number, x2: number, y2: number, fill: string) => (
@@ -38,17 +34,11 @@ export default function CatanCover({ title }: { title: string }) {
   return (
     <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true })} style={{ inlineSize: '100%', blockSize: '100%', direction: 'ltr' }}>
       <BoardDefs />
-      <rect width="320" height="180" fill="url(#ctb-sea)" />
-      <rect width="320" height="180" fill="url(#ctb-waves)" />
+      <g transform="translate(160 90)"><Ocean points="-160,-90 160,-90 160,90 -160,90" box={160} /></g>
       {TILES.map((t) => {
         const p = at(t.q, t.r);
         return (
-          <g key={`${t.q}${t.r}`}>
-            <polygon points={corners(p.x, p.y)} fill={`url(#ctb-g-${t.terrain})`} stroke="#f2e6c8" strokeWidth="2" strokeLinejoin="round" filter="url(#ctb-shadow)" />
-            <polygon points={corners(p.x, p.y)} fill={`url(#ctb-p-${t.terrain})`} />
-            <polygon points={corners(p.x, p.y, 0.94)} fill="none" stroke="url(#ctb-bevel)" strokeWidth="1.4" strokeLinejoin="round" />
-            <g transform={`translate(${p.x} ${p.y}) scale(0.5)`}><TerrainArt terrain={t.terrain} /></g>
-          </g>
+          <g key={`${t.q}${t.r}`} filter="url(#ctb-shadow)"><HexArt terrain={t.terrain} cx={p.x} cy={p.y} r={s} /></g>
         );
       })}
       <circle cx={c.x} cy={c.y + 2} r="12" fill="url(#ctb-token)" stroke="#a8946a" strokeWidth="1" filter="url(#ctb-soft)" />
