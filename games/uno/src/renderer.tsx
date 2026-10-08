@@ -122,8 +122,14 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         </button>
         <div className="uno-pile uno-pile--discard">
           <span className="uno-halo" aria-hidden="true" />
+          <span className={view.direction === 1 ? 'uno-ring' : 'uno-ring uno-ring--rev'} aria-hidden="true">
+            <svg viewBox="0 0 200 200" className="uno-ring__spin">
+              <circle cx="100" cy="100" r="88" className="uno-ring__arc" strokeDasharray="226 51" />
+              {[151, 331].map((a) => <polygon key={a} points="179,96 197,96 188,116" transform={`rotate(${a} 100 100)`} className="uno-ring__head" />)}
+            </svg>
+          </span>
           <span className="uno-under" aria-hidden="true"><span /><span /></span>
-          {view.top && <span key={lastPlaySeq} className="uno-pile__top"><CardFace card={view.top} size="lg" /></span>}
+          {view.top && <span key={lastPlaySeq} className="uno-pile__top" style={{ ['--rot' as string]: `${((lastPlaySeq * 37) % 17) - 8}deg` }}><CardFace card={view.top} size="lg" /></span>}
           <span className="uno-pile__label">{view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}</span>
         </div>
       </div>
@@ -176,10 +182,13 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
           </div>
           {needsUno && !unoArmed && <p className="uno-hand__tip">یکی‌مانده به آخر! پیش از گذاشتن کارت «اونو!» را بزنید.</p>}
           <div className="uno-hand__cards">
-            {hand.map((c) => {
+            {hand.map((c, i) => {
+              const t = i - (hand.length - 1) / 2;
+              const step = Math.min(4, 40 / hand.length);
               const ok = playableIds.has(c.id) && !busy;
               return (
                 <CardFace key={c.id} card={c} onClick={() => tap(c)} disabled={!ok}
+                  style={{ ['--fan' as string]: (t * step).toFixed(2), ['--arc' as string]: (t * t * step * 0.14).toFixed(2) }}
                   state={picked === c.id ? 'selected' : ok ? 'playable' : myTurn ? 'dim' : undefined}
                   hint={exp?.type === 'play' && exp.card === c.id} />
               );

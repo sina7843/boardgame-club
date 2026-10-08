@@ -1,6 +1,8 @@
 // «املاک» board art: a printed Tehran board in a walnut frame. Real-board geometry (large corners, colour bands on the
 // inner edge, owner ribbons on the outer edge), a girih-tile centre with the Alborz, Milad and Azadi skyline, the two
-// card decks, 3D dice, houses/hotels, mortgage stamps and domed pawns. Coordinates are literal (ltr); 1100×1100.
+// card decks, 3D dice, houses/hotels, mortgage stamps and eight distinct pawn tokens (pawn, tea glass, car, top hat, tower,
+// crown, boat, pomegranate). Coordinates are literal (ltr); 1100×1100.
+import type React from 'react';
 import { BOARD, GROUP_COLOR, type Square } from './board.ts';
 import type { AmlakView } from './rules.ts';
 
@@ -100,10 +102,61 @@ function Icon({ kind, nameFa }: { kind: Square['kind']; nameFa: string }) {
 }
 
 function House({ x, y }: { x: number; y: number }) {
-  return <path className="amb-house" d={`M ${x - 7} ${y + 6} L ${x - 7} ${y - 1} L ${x} ${y - 8} L ${x + 7} ${y - 1} L ${x + 7} ${y + 6} Z`} />;
+  return (
+    <g>
+      <path className="amb-house" d={`M ${x - 7} ${y + 7} L ${x - 7} ${y - 1} L ${x + 7} ${y - 1} L ${x + 7} ${y + 7} Z`} />
+      <path className="amb-house__roof" d={`M ${x - 9} ${y - 1} L ${x} ${y - 9} L ${x + 9} ${y - 1} Z`} />
+      <rect x={x - 1.8} y={y + 2} width="3.6" height="5" fill="#1f1a14" opacity="0.6" />
+    </g>
+  );
 }
 function Hotel({ x, y }: { x: number; y: number }) {
-  return <path className="amb-hotel" d={`M ${x - 16} ${y + 7} L ${x - 16} ${y - 2} L ${x} ${y - 10} L ${x + 16} ${y - 2} L ${x + 16} ${y + 7} Z`} />;
+  return (
+    <g>
+      <path className="amb-hotel" d={`M ${x - 16} ${y + 8} L ${x - 16} ${y - 4} L ${x} ${y - 11} L ${x + 16} ${y - 4} L ${x + 16} ${y + 8} Z`} />
+      {[-9, -2.5, 4].map((dx) => <rect key={dx} x={x + dx} y={y - 3} width="5.5" height="6" rx="1" fill="#fff4c9" />)}
+    </g>
+  );
+}
+
+/** Pawn silhouettes, one per seat; `shine` adds the dome highlight (board only: its gradient lives in the board defs). */
+export function Token({ seat, shine }: { seat: number; shine?: boolean }) {
+  const fill = SEAT_COLORS[seat] ?? '#888';
+  const shapes = (f: string, cls?: string) => {
+    const k = seat % 8;
+    const g = (kids: React.ReactNode) => <g fill={f} className={cls}>{kids}</g>;
+    switch (k) {
+      case 0: return g(<><circle cy="-10" r="6" /><path d="M-5 -4 Q-3 4 -9 11 H9 Q3 4 5 -4Z" /><rect x="-11" y="10" width="22" height="4.5" rx="2.2" /></>);
+      case 1: return g(<><path d="M-9 -13 H9 L7 8 Q0 12 -7 8Z" /><ellipse cy="12" rx="14" ry="3.6" /></>);
+      case 2: return g(<><path d="M-16 9 V1 L-10 -2 L-6 -10 H5 L10 -2 L16 1 V9Z" /><circle cx="-8" cy="9" r="4" /><circle cx="8" cy="9" r="4" /></>);
+      case 3: return g(<><rect x="-8" y="-13" width="16" height="19" rx="2" /><ellipse cy="7" rx="15" ry="4.2" /></>);
+      case 4: return g(<path d="M-10 13 V1 H-8 V-13 H-4.5 V-8.5 H-1.8 V-13 H1.8 V-8.5 H4.5 V-13 H8 V1 H10 V13Z" />);
+      case 5: return g(<path d="M-13 11 L-15 -9 L-7 -2 L0 -13 L7 -2 L15 -9 L13 11Z" />);
+      case 6: return g(<><path d="M-15 4 H15 L10 13 H-10Z" /><path d="M1 -14 V2 H12Z" /><path d="M-1 -9 V2 H-11Z" /></>);
+      default: return g(<><circle cy="3" r="11" /><path d="M-6 -7 L-4 -13 L0 -9 L4 -13 L6 -7Z" /></>);
+    }
+  };
+  return (
+    <g strokeLinejoin="round">
+      <g className="amb-pawn__body" strokeWidth="3" paintOrder="stroke">{shapes(fill)}</g>
+      {seat % 8 === 2 && <path d="M-8 -3.5 H-4 V-8 H-6 Z M-1 -3.5 H4 L6 -3.5 L3 -8 H-1 Z" fill="#dff3fb" />}
+      {seat % 8 === 3 && <rect x="-8" y="0" width="16" height="4" fill="rgb(0 0 0 / 0.35)" />}
+      {shine && shapes('url(#amb-dome)', 'amb-pawn__shine')}
+    </g>
+  );
+}
+
+/** Azadi Tower and Milad Tower silhouettes (centre of the board, deed watermark, cover). Origin at the ground, ~100 tall. */
+export function Landmarks({ fill }: { fill: string }) {
+  return (
+    <g fill={fill}>
+      <path d="M-46 0 L-34 -42 Q-22 -62 -10 -42 L2 0 L-12 0 Q-22 -26 -32 0 Z" />
+      <rect x="-30" y="-52" width="16" height="6" rx="2" />
+      <path d="M18 0 L21 -74 L25 -74 L28 0 Z" />
+      <path d="M12 -84 Q23 -100 34 -84 L31 -74 L15 -74 Z" />
+      <rect x="22" y="-124" width="2" height="42" />
+    </g>
+  );
 }
 
 function Corner({ i, g }: { i: number; g: Geo }) {
@@ -140,22 +193,30 @@ function Corner({ i, g }: { i: number; g: Geo }) {
 }
 
 function Skyline() {
-  // Alborz ridge, low city, Milad Tower and Azadi Tower — the centre's signature.
+  // Dusk over Tehran: sun, three Alborz ridges, low city, Milad Tower and Azadi Tower — the centre's signature.
   const base = 836;
   return (
     <g className="amb-sky" aria-hidden="true">
-      <path d={`M 190 ${base - 80} L 260 ${base - 150} L 320 ${base - 110} L 400 ${base - 190} L 470 ${base - 120} L 540 ${base - 170} L 620 ${base - 100} L 700 ${base - 175} L 790 ${base - 105} L 860 ${base - 140} L 910 ${base - 85} L 910 ${base} L 190 ${base} Z`} className="amb-sky__mount" />
-      <path d={`M 400 ${base - 190} L 380 ${base - 172} L 392 ${base - 168} L 400 ${base - 176} L 410 ${base - 165} L 422 ${base - 172} Z M 700 ${base - 175} L 683 ${base - 160} L 696 ${base - 158} L 708 ${base - 166} Z`} className="amb-sky__snow" />
-      {[[200, 40], [236, 62], [268, 34], [300, 52], [330, 28], [612, 44], [640, 70], [672, 38], [720, 56], [752, 30], [786, 48], [820, 36], [852, 58], [880, 32]].map(([x, h]) => (
-        <rect key={x} x={x} y={base - h!} width="26" height={h} className="amb-sky__city" />
+      <circle cx="560" cy={base - 150} r="150" fill="url(#amb-sun)" />
+      <circle cx="560" cy={base - 150} r="62" className="amb-sky__sun" />
+      <path d={`M 170 ${base - 120} L 250 ${base - 190} L 310 ${base - 150} L 390 ${base - 240} L 470 ${base - 150} L 540 ${base - 200} L 620 ${base - 130} L 700 ${base - 225} L 790 ${base - 140} L 870 ${base - 190} L 930 ${base - 110} L 930 ${base} L 170 ${base} Z`} className="amb-sky__far" />
+      <path d={`M 170 ${base - 70} L 260 ${base - 150} L 330 ${base - 105} L 400 ${base - 190} L 480 ${base - 110} L 560 ${base - 160} L 640 ${base - 90} L 710 ${base - 175} L 800 ${base - 100} L 870 ${base - 135} L 930 ${base - 70} L 930 ${base} L 170 ${base} Z`} className="amb-sky__mount" />
+      <path d={`M 400 ${base - 190} L 378 ${base - 170} L 391 ${base - 165} L 400 ${base - 175} L 411 ${base - 163} L 424 ${base - 170} Z M 710 ${base - 175} L 691 ${base - 158} L 704 ${base - 154} L 714 ${base - 163} Z`} className="amb-sky__snow" />
+      {[[190, 36], [222, 58], [252, 32], [284, 48], [316, 26], [612, 40], [640, 66], [672, 36], [720, 54], [752, 28], [786, 46], [820, 34], [852, 56], [884, 30]].map(([x, h]) => (
+        <g key={x}>
+          <rect x={x} y={base - h!} width="26" height={h} className="amb-sky__city" />
+          {h! > 40 && <rect x={x! + 6} y={base - h! + 8} width="4" height="5" className="amb-sky__win" />}
+        </g>
       ))}
-      {/* Milad Tower */}
-      <path d={`M 470 ${base} L 476 ${base - 150} L 484 ${base - 150} L 490 ${base} Z`} className="amb-sky__ink" />
-      <path d={`M 456 ${base - 168} Q 480 ${base - 196} 504 ${base - 168} L 498 ${base - 150} L 462 ${base - 150} Z`} className="amb-sky__ink" />
-      <rect x="478" y={base - 262} width="4" height="96" className="amb-sky__ink" />
-      {/* Azadi Tower */}
-      <path d={`M 548 ${base} L 572 ${base - 86} Q 600 ${base - 128} 628 ${base - 86} L 652 ${base} L 618 ${base} Q 600 ${base - 52} 582 ${base} Z`} className="amb-sky__ink" />
-      <rect x="586" y={base - 104} width="28" height="12" rx="3" className="amb-sky__ink" />
+      <rect x="170" y={base - 8} width="760" height="8" className="amb-sky__ink" />
+      <g transform={`translate(520 ${base - 6})`}>
+        {/* Milad: shaft, pod, mast; Azadi: legs, arch and lantern */}
+        <Landmarks fill="#1d3a5f" />
+        <path d="M-32 -48 Q-22 -64 -12 -48" fill="none" stroke="#f7d9a8" strokeWidth="2" opacity="0.7" />
+        <circle cx="23" cy="-90" r="2.2" fill="#f7d9a8" /><circle cx="23" cy="-80" r="2.2" fill="#f7d9a8" />
+        <rect x="22" y="-126" width="2" height="8" fill="#c8372d" />
+      </g>
+      <g transform={`translate(780 ${base - 6}) scale(0.6)`} opacity="0.55"><Landmarks fill="#1d3a5f" /></g>
     </g>
   );
 }
@@ -197,7 +258,11 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
     <svg className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه املاک" style={{ direction: 'ltr' }}>
       <defs>
         <linearGradient id="amb-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8a5a32" /><stop offset="0.5" stopColor="#6b4423" /><stop offset="1" stopColor="#3d2410" /></linearGradient>
-        <linearGradient id="amb-field" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#e3f1ea" /><stop offset="1" stopColor="#c9e1d5" /></linearGradient>
+        <linearGradient id="amb-field" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#bfd9e6" /><stop offset="0.55" stopColor="#f8eed6" /><stop offset="1" stopColor="#f3cf9f" /></linearGradient>
+        <radialGradient id="amb-sun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stopColor="#ffd98a" stopOpacity="0.9" /><stop offset="1" stopColor="#ffd98a" stopOpacity="0" /></radialGradient>
+        <linearGradient id="amb-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dc8e" /><stop offset="0.5" stopColor="#b88a2e" /><stop offset="1" stopColor="#7a5a14" /></linearGradient>
+        <pattern id="amb-grain" width="60" height="10" patternUnits="userSpaceOnUse"><path d="M0 3 Q15 0 30 3 T60 3 M0 8 Q15 5 30 8 T60 8" fill="none" stroke="#000" strokeOpacity="0.16" strokeWidth="1.2" /></pattern>
+        <pattern id="amb-arches" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 10 V6 A5 5 0 0 1 10 6 V10" fill="none" stroke="#fff" strokeOpacity="0.5" strokeWidth="1.4" /><circle cx="5" cy="3.4" r="0.9" fill="#fff" fillOpacity="0.6" /></pattern>
         <linearGradient id="amb-paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fffdf6" /><stop offset="1" stopColor="#f3ead2" /></linearGradient>
         <linearGradient id="amb-band-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.45" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.18" /></linearGradient>
         <linearGradient id="amb-die-sheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.85" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.18" /></linearGradient>
@@ -215,16 +280,24 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
 
       {/* frame */}
       <rect x="-28" y="-28" width="1156" height="1156" rx="26" fill="url(#amb-wood)" className="amb-frame" />
+      <rect x="-28" y="-28" width="1156" height="1156" rx="26" fill="url(#amb-grain)" />
       <rect x="-10" y="-10" width="1120" height="1120" rx="10" className="amb-frame__inlay" />
+      <rect x="-17" y="-17" width="1134" height="1134" rx="16" fill="none" stroke="#c9a24a" strokeWidth="1.2" opacity="0.55" />
+      {[[-15, -15], [1115, -15], [-15, 1115], [1115, 1115]].map(([cx, cy]) => <circle key={`${cx}${cy}`} cx={cx} cy={cy} r="7" fill="url(#amb-brass)" stroke="#2a170a" strokeWidth="1.5" />)}
       <rect x="0" y="0" width={S} height={S} fill="url(#amb-paper)" className="amb-print" />
 
       {/* centre */}
       <rect x={C} y={C} width={S - 2 * C} height={S - 2 * C} fill="url(#amb-field)" />
       <rect x={C} y={C} width={S - 2 * C} height={S - 2 * C} fill="url(#amb-girih)" />
       <Skyline />
+      <rect x={C + 12} y={C + 12} width={S - 2 * C - 24} height={S - 2 * C - 24} className="amb-tiles amb-tiles--a" />
+      <rect x={C + 12} y={C + 12} width={S - 2 * C - 24} height={S - 2 * C - 24} className="amb-tiles amb-tiles--b" />
+      <rect x={C + 21} y={C + 21} width={S - 2 * C - 42} height={S - 2 * C - 42} className="amb-tiles__line" />
       <g className="amb-title">
         <text x="550" y="452" className="amb-title__fa">املاک</text>
-        <text x="550" y="506" className="amb-title__sub">خیابان‌های تهران</text>
+        <path d="M 400 478 H 520 M 580 478 H 700" className="amb-title__rule" />
+        <path d="M 550 468 L 560 478 L 550 488 L 540 478 Z" className="amb-title__gem" />
+        <text x="550" y="528" className="amb-title__sub">خیابان‌های تهران</text>
       </g>
       <Deck x={318} y={318} label="شانس" kind="chance" count={view.deckCounts.chance} />
       <Deck x={782} y={782} label="صندوق" kind="chest" count={view.deckCounts.chest} />
@@ -258,6 +331,7 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
             {b.kind === 'street' && bd && (
               <>
                 <rect x={bd.x} y={bd.y} width={bd.w} height={bd.h} fill={GROUP_COLOR[b.group]} className="amb-band" />
+                <rect x={bd.x} y={bd.y} width={bd.w} height={bd.h} fill="url(#amb-arches)" />
                 <rect x={bd.x} y={bd.y} width={bd.w} height={bd.h} fill="url(#amb-band-sheen)" />
               </>
             )}
@@ -301,10 +375,9 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
               const ty = by + (n > 3 && i !== 10 ? (Math.floor(k / 3) - 0.5) * 24 : i === 10 ? Math.floor(k / 2) * 20 - 10 : 0);
               return (
                 <g key={t.seat} className={t.seat === view.current && !view.outcome ? 'amb-pawn amb-pawn--turn' : 'amb-pawn'} transform={`translate(${tx} ${ty})`}>
-                  <ellipse cx="2" cy="12" rx="15" ry="6" className="amb-pawn__shadow" />
-                  <circle r="15" fill={SEAT_COLORS[t.seat]} className="amb-pawn__body" />
-                  <circle r="15" fill="url(#amb-dome)" />
-                  <text y="5" className="amb-pawn__n">{fa(t.seat + 1)}</text>
+                  <ellipse cx="1" cy="14" rx="16" ry="5" className="amb-pawn__shadow" />
+                  <Token seat={t.seat} shine />
+                  <g transform="translate(13 -12)"><circle r="8" className="amb-pawn__badge" /><text y="4" className="amb-pawn__n">{fa(t.seat + 1)}</text></g>
                 </g>
               );
             })}

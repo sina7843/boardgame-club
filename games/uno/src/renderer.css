@@ -1,9 +1,10 @@
 /* UNO renderer. Card colours are game colours (not theme tokens); text on cards is checked for contrast:
    white on #d62f35 4.9, on #1c63c9 5.6, on #23843f 4.6; dark #1b1300 on #f2c230 11.6.
-   Art direction: printed card stock on a felt table, lit from the top-left. */
+   Art direction «چاپ آرکید»: glossy printed card stock (cream #fdf6e3 border, halftone dots, tilted white oval) on an ink-violet
+   mat (#1b1540 / #2a1f5c) with a rotating direction ring in the live colour; lit from the top-left. */
 .uno {
   --uno-r: #d62f35; --uno-y: #f2c230; --uno-g: #23843f; --uno-b: #1c63c9;
-  --uno-back: #1a1426;
+  --uno-back: #15102e; --uno-cream: #fdf6e3;
   --card-w: 64px;
   display: grid; gap: var(--sp-4); min-inline-size: 0;
 }
@@ -11,8 +12,8 @@
 .uno-pill { padding: 2px 10px; border-radius: 999px; font-weight: 700; color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), inset 0 -2px 3px rgb(0 0 0 / 0.25), 0 1px 3px rgb(0 0 0 / 0.3); }
 .uno-pill--r { background: var(--uno-r); } .uno-pill--g { background: var(--uno-g); } .uno-pill--b { background: var(--uno-b); }
 .uno-pill--y { background: var(--uno-y); color: #1b1300; }
-.uno-dir { display: inline-flex; align-items: center; gap: 4px; }
-.uno-dir__icon { display: inline-block; font-size: 1.1em; }
+.uno-dir { display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px 2px 8px; border-radius: 999px; font-weight: 700; color: var(--uno-cream); background: linear-gradient(180deg, #2a1f5c, #1b1540); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18); }
+.uno-dir__icon { display: inline-block; font-size: 1.25em; line-height: 1; color: var(--gold); }
 .uno-dir__icon--rev { transform: scaleX(-1); }
 
 /* Opponents: horizontal rail on phones, wraps on wide screens */
@@ -33,18 +34,19 @@
 .uno-badge--uno { background: var(--gold); color: #1b1300; }
 @media (min-width: 900px) { .uno-rail { flex-wrap: wrap; overflow: visible; } }
 
-/* Table felt with the two piles; the halo shows the active colour */
-.uno-table { position: relative; display: flex; justify-content: center; align-items: center; gap: clamp(24px, 8vw, 72px);
-  padding: clamp(20px, 5vw, 40px) var(--sp-4); border-radius: var(--r-lg);
+/* Mat with the two piles; the halo and the ring show the active colour */
+.uno-table { --lgw: clamp(78px, 22vw, 108px); position: relative; display: flex; justify-content: center; align-items: center; gap: clamp(24px, 8vw, 72px);
+  padding: clamp(24px, 6vw, 44px) var(--sp-4) clamp(20px, 5vw, 36px); border-radius: var(--r-lg); isolation: isolate; overflow: hidden;
   background:
-    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.04) 0 1px, transparent 1px 3px),
-    radial-gradient(120% 90% at 50% 40%, color-mix(in srgb, var(--table-felt) 80%, #fff 8%), var(--table-felt) 70%, color-mix(in srgb, var(--table-felt) 70%, #000));
-  box-shadow: inset 0 0 0 3px rgb(0 0 0 / 0.25), inset 0 0 0 5px rgb(255 255 255 / 0.06), inset 0 8px 30px rgb(0 0 0 / 0.45), var(--shadow);
-  --halo: var(--text-2); }
+    radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1.4px) 0 0 / 14px 14px,
+    radial-gradient(70% 90% at 50% 45%, color-mix(in srgb, var(--halo) 22%, #2a1f5c), #1b1540 62%, #0f0b26);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.08), inset 0 0 0 7px rgb(0 0 0 / 0.25), inset 0 0 0 8px rgb(255 255 255 / 0.07), inset 0 10px 40px rgb(0 0 0 / 0.5), var(--shadow);
+  --halo: #8f86c9; transition: background var(--dur-slow) var(--ease); }
+.uno-table::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.5;
+  background: repeating-conic-gradient(from 0deg at 62% 50%, rgb(255 255 255 / 0.05) 0 6deg, transparent 6deg 15deg); }
 .uno-table--r { --halo: var(--uno-r); } .uno-table--y { --halo: var(--uno-y); } .uno-table--g { --halo: var(--uno-g); } .uno-table--b { --halo: var(--uno-b); }
 .uno-pile { position: relative; display: grid; justify-items: center; gap: var(--sp-2); }
-.uno-pile--draw { background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; border-radius: var(--r-md); }
+.uno-pile--draw { z-index: 1; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; border-radius: var(--r-md); }
 .uno-pile--draw[aria-disabled='true'] { cursor: default; }
 .uno-pile--draw:not([aria-disabled='true']) .uno-card { box-shadow: 0 0 0 3px var(--gold), 0 6px 14px rgb(0 0 0 / 0.4); }
 .uno-pile--draw:not([aria-disabled='true']):hover .uno-card { transform: translateY(-3px); }
@@ -53,29 +55,35 @@
   background: var(--surface-raised); color: var(--text); font-size: var(--fs-xs); font-weight: 800; text-align: center;
   box-shadow: 0 2px 4px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.25); }
 .uno-pile__cta { font-weight: 800; color: var(--gold); }
-.uno-pile__label { font-size: var(--fs-sm); font-weight: 700; color: var(--text); }
-.uno-halo { position: absolute; inset: -14px -14px 22px; border-radius: 24px; border: 4px solid var(--halo);
-  box-shadow: 0 0 28px color-mix(in srgb, var(--halo) 55%, transparent); transition: border-color var(--dur-slow) var(--ease), box-shadow var(--dur-slow) var(--ease); }
-.uno-pile__top { display: block; animation: uno-land 260ms var(--ease); }
-@keyframes uno-land { from { transform: translateY(26px) rotate(-8deg) scale(0.9); opacity: 0; } to { transform: none; opacity: 1; } }
+.uno-pile__label { font-size: var(--fs-sm); font-weight: 800; color: var(--uno-cream); padding: 2px 12px; border-radius: 999px; background: rgb(0 0 0 / 0.35); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--halo) 70%, transparent); }
+.uno-halo { position: absolute; inset-inline: -34px; inset-block: -30px 0; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--halo) 55%, transparent), transparent 85%); transition: background var(--dur-slow) var(--ease); }
+.uno-ring { position: absolute; inset-inline: 0; margin-inline: auto; inline-size: calc(var(--lgw) * 2.3); aspect-ratio: 1; inset-block-start: calc(var(--lgw) * 0.74 - var(--lgw) * 1.15); pointer-events: none; display: block; }
+.uno-ring--rev { scale: -1 1; }
+.uno-ring__spin { inline-size: 100%; block-size: 100%; overflow: visible; animation: uno-spin 28s linear infinite; }
+.uno-ring__arc { fill: none; stroke: var(--halo); stroke-width: 7; stroke-linecap: round; opacity: 0.8; transition: stroke var(--dur-slow) var(--ease); }
+.uno-ring__head { fill: var(--halo); stroke: var(--uno-cream); stroke-width: 2; stroke-linejoin: round; paint-order: stroke; transition: fill var(--dur-slow) var(--ease); }
+@keyframes uno-spin { to { transform: rotate(360deg); } }
+.uno-pile__top { display: block; rotate: var(--rot, 0deg); animation: uno-land 300ms var(--ease); }
+@keyframes uno-land { from { transform: translateY(30px) rotate(-14deg) scale(0.88); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* Draw pile = a stack of offset card backs; discard pile = loose cards under the top one (decorative) */
 .uno-stack, .uno-under { position: absolute; inset-block-start: 0; inset-inline: 0; display: block; pointer-events: none; }
 .uno-stack > span, .uno-under > span { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; aspect-ratio: 5 / 7.4; border-radius: 8% / 5.5%; }
-.uno-stack > span { background: var(--uno-back); border: 2px solid #fdfcf8; box-shadow: 0 2px 3px rgb(0 0 0 / 0.4); }
+.uno-stack > span { background: var(--uno-back); border: 2px solid var(--uno-cream); box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
 .uno-stack > span:nth-child(1) { transform: translate(5px, 6px); }
 .uno-stack > span:nth-child(2) { transform: translate(3px, 4px); }
 .uno-stack > span:nth-child(3) { transform: translate(1.5px, 2px); }
-.uno-under > span { background: linear-gradient(135deg, #fdfcf8, #e6e1d2); border: 1px solid rgb(0 0 0 / 0.2); box-shadow: 0 3px 6px rgb(0 0 0 / 0.35); }
-.uno-under > span:nth-child(1) { transform: rotate(-9deg) translate(-6px, 3px); }
-.uno-under > span:nth-child(2) { transform: rotate(7deg) translate(5px, 1px); }
-.uno-pile__top { position: relative; }
+.uno-under > span { background: linear-gradient(135deg, var(--uno-cream), #d9d1b8); border: 1px solid rgb(0 0 0 / 0.2); box-shadow: 0 3px 6px rgb(0 0 0 / 0.35); }
+.uno-under > span:nth-child(1) { transform: rotate(-13deg) translate(-8px, 4px); }
+.uno-under > span:nth-child(2) { transform: rotate(10deg) translate(7px, 2px); }
 
 /* Cards: printed card stock (white border, inner bevel, grain, gloss) */
 .uno-card { --w: var(--card-w); --cd: #222; position: relative; display: inline-grid; place-items: center; flex: none; inline-size: var(--w); aspect-ratio: 5 / 7.4;
-  border-radius: calc(var(--w) * 0.13); border: calc(var(--w) * 0.06) solid #fdfcf8; color: #fff; font-weight: 900; overflow: hidden; padding: 0; font-family: inherit;
+  border-radius: calc(var(--w) * 0.13); border: calc(var(--w) * 0.06) solid var(--uno-cream); color: #fff; font-weight: 900; overflow: hidden; padding: 0; font-family: inherit;
   background:
-    radial-gradient(rgb(255 255 255 / 0.10) 0.6px, transparent 0.8px) 0 0 / 3px 3px,
+    radial-gradient(rgb(255 255 255 / 0.16) 0.7px, transparent 1px) 0 0 / 4px 4px,
+    radial-gradient(circle at 100% 100%, rgb(0 0 0 / 0.22) 0 28%, transparent 29%),
     linear-gradient(135deg, rgb(255 255 255 / 0.22), transparent 42%, rgb(0 0 0 / 0.20)),
     var(--c, #333);
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.28), inset 0 3px 5px rgb(0 0 0 / 0.22), 0 1px 1px rgb(0 0 0 / 0.35), 0 3px 6px rgb(0 0 0 / 0.3), 0 8px 16px rgb(0 0 0 / 0.2);
@@ -87,10 +95,12 @@
 .uno-card--back, .uno-opp__back {
   --c: var(--uno-back);
   background:
-    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 7px),
-    repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 7px),
-    linear-gradient(135deg, rgb(255 255 255 / 0.18), transparent 45%, rgb(0 0 0 / 0.3)),
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.06) 0 2px, transparent 2px 8px),
+    repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.06) 0 2px, transparent 2px 8px),
+    linear-gradient(135deg, rgb(255 255 255 / 0.2), transparent 45%, rgb(0 0 0 / 0.3)),
     var(--uno-back); }
+.uno-card__rays { position: absolute; inset: 7%; border-radius: calc(var(--w) * 0.08);
+  background: repeating-conic-gradient(from 0deg at 50% 50%, rgb(242 194 48 / 0.22) 0 7deg, transparent 7deg 20deg); }
 .uno-card__frame { position: absolute; inset: 7%; border-radius: calc(var(--w) * 0.08); border: 1px solid rgb(255 255 255 / 0.35); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.06); }
 .uno-card__oval { position: absolute; inset: 14% 6%; border-radius: 50%; transform: rotate(-28deg);
   background: radial-gradient(ellipse at 35% 28%, #fff, #f1ede2 70%, #e4dfd0);
@@ -99,7 +109,7 @@
 .uno-card--wild .uno-card__oval { background: radial-gradient(ellipse at 35% 28%, #3a3348, #17131f 75%); box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.25); color: #fff; }
 .uno-card__oval > * { transform: rotate(28deg); }
 .uno-card__oval--back { background: radial-gradient(ellipse at 35% 28%, #f0555a, var(--uno-r) 60%, #9c1d22);
-  box-shadow: inset 0 2px 4px rgb(255 255 255 / 0.3), inset 0 -3px 5px rgb(0 0 0 / 0.35), 0 0 0 2px #fdfcf8; }
+  box-shadow: inset 0 2px 4px rgb(255 255 255 / 0.3), inset 0 -3px 5px rgb(0 0 0 / 0.35), 0 0 0 2px var(--uno-cream), 0 0 0 4px rgb(0 0 0 / 0.35); }
 .uno-back__mark { color: var(--uno-y); font-weight: 900; font-size: calc(var(--w) * 0.26); text-shadow: 1px 1px 0 #1a1426, 2px 2px 0 rgb(0 0 0 / 0.35); }
 .uno-card__num { font-size: calc(var(--w) * 0.52); line-height: 1; color: var(--c); text-shadow: 1px 1px 0 rgb(255 255 255 / 0.7), 2px 3px 0 rgb(0 0 0 / 0.22); }
 .uno-card--wild .uno-card__num { color: #fff; text-shadow: 1px 2px 0 rgb(0 0 0 / 0.6); }
@@ -107,11 +117,15 @@
 .uno-card__corner { position: absolute; font-size: calc(var(--w) * 0.2); line-height: 1; display: flex; text-shadow: 0 1px 1px rgb(0 0 0 / 0.35); }
 .uno-card__corner--start { inset-block-start: 6%; inset-inline-start: 9%; }
 .uno-card__corner--end { inset-block-end: 6%; inset-inline-end: 9%; transform: rotate(180deg); }
-.uno-card__initial { position: absolute; inset-block-start: 5%; inset-inline-end: 9%; font-size: calc(var(--w) * 0.17); opacity: 0.9; }
+.uno-card__initial { position: absolute; inset-block-start: 5%; inset-inline-end: 8%; font-size: calc(var(--w) * 0.17); display: flex; align-items: center; gap: 2px; }
+.uno-pip { inline-size: calc(var(--w) * 0.2); block-size: calc(var(--w) * 0.2); color: var(--cd); filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.3)); }
+.uno-card--y .uno-pip { color: #8a6a00; }
 .uno-card--sm .uno-card__corner, .uno-card--sm .uno-card__initial { display: none; }
 /* Corner symbols stay small whatever the centre symbol is */
 .uno-card__corner .uno-card__num { font-size: inherit; color: inherit; text-shadow: none; }
-.uno-icon { filter: drop-shadow(1px 1.5px 0 rgb(0 0 0 / 0.2)); }
+.uno-icon { filter: drop-shadow(1.5px 2px 0 rgb(0 0 0 / 0.22)); }
+.uno-card__oval .uno-icon { inline-size: 62%; block-size: auto; color: var(--cd); }
+.uno-card--wild .uno-card__oval .uno-icon { color: #fff; }
 .uno-card__sheen { position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
   background: linear-gradient(115deg, rgb(255 255 255 / 0.38) 0, rgb(255 255 255 / 0.08) 32%, transparent 33%, transparent 62%, rgb(255 255 255 / 0.1) 100%); }
 .uno-wild { position: relative; inline-size: 82%; aspect-ratio: 1; display: grid; place-items: center; transform: none !important; filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5)); }
@@ -124,19 +138,19 @@
 
 /* Hand: overlapping fan, playable cards lift */
 .uno-hand { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, #fff 5%), var(--surface));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, #fff 5%), color-mix(in srgb, var(--surface) 88%, #1b1540));
   position: sticky; inset-block-end: calc(var(--sp-2) + env(safe-area-inset-bottom)); z-index: 2; }
 .uno-hand__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
 .uno-hand__bar > strong { margin-inline-end: auto; }
 .uno-hand__tip { margin: 0; color: var(--gold); font-weight: 700; font-size: var(--fs-sm); }
-.uno-hand__cards { display: flex; gap: 6px; overflow-x: auto; padding: 22px 14px 8px; scroll-snap-type: x proximity; }
-.uno-hand__cards > .uno-card { scroll-snap-align: center; cursor: pointer; }
+.uno-hand__cards { display: flex; gap: 6px; overflow-x: auto; padding: 24px 18px 10px; scroll-snap-type: x proximity; }
+.uno-hand__cards > .uno-card { scroll-snap-align: center; cursor: pointer; rotate: calc(var(--fan, 0) * 1deg); translate: 0 calc(var(--arc, 0) * 1px); transform-origin: 50% 130%; }
 .uno-hand__cards > .uno-card + .uno-card { margin-inline-start: -16px; }
 @media (max-width: 599px) { .uno { --card-w: 58px; } }
-@media (min-width: 900px) { .uno { --card-w: 74px; } .uno-hand__cards { flex-wrap: wrap; overflow: visible; justify-content: center; } }
+@media (min-width: 900px) { .uno { --card-w: 74px; } .uno-hand__cards { flex-wrap: wrap; overflow: visible; justify-content: center; row-gap: 14px; } }
 .uno-card--playable { transform: translateY(-10px); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.28), 0 0 0 2px color-mix(in srgb, var(--gold) 70%, transparent), 0 12px 20px rgb(0 0 0 / 0.4); }
-.uno-card--selected { transform: translateY(-18px) scale(1.06); box-shadow: 0 0 0 3px var(--gold), 0 18px 26px rgb(0 0 0 / 0.5); z-index: 3; }
-.uno-card--dim { filter: saturate(0.35) brightness(0.65); cursor: not-allowed; }
+.uno-card--selected { rotate: 0deg; transform: translateY(-18px) scale(1.08); box-shadow: 0 0 0 3px var(--gold), 0 18px 26px rgb(0 0 0 / 0.5); z-index: 3; }
+.uno-card--dim { filter: saturate(0.55) brightness(0.72); cursor: not-allowed; }
 .uno-card--hint { outline: 3px dashed var(--gold); outline-offset: 3px; }
 button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; z-index: 4; }
 @media (hover: hover) { .uno-hand__cards > .uno-card:hover { z-index: 2; } .uno-card--playable:hover { transform: translateY(-18px) rotate(-2deg); } }
@@ -185,8 +199,9 @@ button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset:
 
 @media (prefers-reduced-motion: reduce) {
   .uno-pile__top, .uno-hand__cards > .uno-card, .uno-badge--uno, .uno-opp .btn--danger, .uno-opp--turn .uno-opp__fan,
-  .uno-call--on, .uno-panel--decide, .uno-alert { animation: none; }
+  .uno-call--on, .uno-panel--decide, .uno-alert, .uno-ring__spin { animation: none; }
   .uno-card, .uno-halo, .uno-color, .uno-dir__icon { transition: none; }
 }
 :root[data-motion='reduce'] .uno-pile__top, :root[data-motion='reduce'] .uno-hand__cards > .uno-card { animation: none; }
 :root[data-motion='reduce'] .uno-card { transition: none; }
+:root[data-motion='reduce'] .uno-ring__spin { animation: none; }

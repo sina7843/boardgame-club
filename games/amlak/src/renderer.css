@@ -1,4 +1,6 @@
-/* «املاک» — a printed Tehran board on Persian tilework, in a walnut frame. The board is a physical object and keeps its
+/* Art direction «تهران، کاشی و اسکناس»: dusk over Tehran (Alborz, Milad, Azadi), tile borders, arch-patterned colour bands,
+   brass-and-walnut frame, banknote wallets, illustrated deeds and eight pawn silhouettes.
+   «املاک» — a printed Tehran board on Persian tilework, in a walnut frame. The board is a physical object and keeps its
    own palette in both themes (ink #1f1a14 on paper ≥ 12:1). Palette: walnut #6b4423, celadon #d6e9df, turquoise
    #0f7f86 (girih), pomegranate #9b1c31 (title), saffron #e2a53b (selection / turn). Ownership is a coloured ribbon plus
    the owner's name in every label and deed — never colour alone. */
@@ -13,12 +15,21 @@
 .amb { inline-size: min(100%, 660px); block-size: auto; display: block; margin-inline: auto; touch-action: manipulation;
   filter: drop-shadow(0 14px 22px rgb(0 0 0 / 0.38)); }
 .amb-frame { stroke: #2a170a; stroke-width: 3; }
-.amb-frame__inlay { fill: none; stroke: #c9a24a; stroke-width: 3; opacity: 0.8; }
+.amb-frame__inlay { fill: none; stroke: #c9a24a; stroke-width: 3; opacity: 0.9; }
+.amb-tiles { fill: none; stroke-width: 12; stroke-dasharray: 18 18; }
+.amb-tiles--a { stroke: #1d3f8f; }
+.amb-tiles--b { stroke: var(--am-turq); stroke-dashoffset: 18; }
+.amb-tiles__line { fill: none; stroke: #b88a2e; stroke-width: 2; opacity: 0.8; }
+.amb-title__rule { stroke: #b88a2e; stroke-width: 3; stroke-linecap: round; fill: none; }
+.amb-title__gem { fill: var(--am-turq); stroke: #b88a2e; stroke-width: 2; }
 .amb-print { stroke: var(--am-ink); stroke-width: 3; }
 .amb-girih { fill: none; stroke: var(--am-turq); stroke-width: 2; opacity: 0.2; }
-.amb-sky__mount { fill: #a9cfcd; opacity: 0.85; }
+.amb-sky__far { fill: #b9c9de; opacity: 0.7; }
+.amb-sky__sun { fill: #ffcf7a; opacity: 0.85; }
+.amb-sky__win { fill: #ffe29a; }
+.amb-sky__mount { fill: #7fa9b3; opacity: 0.9; }
 .amb-sky__snow { fill: #fff; opacity: 0.9; }
-.amb-sky__city { fill: #5f8f93; opacity: 0.55; }
+.amb-sky__city { fill: #4a7c86; opacity: 0.8; }
 .amb-sky__ink { fill: #1f4e5a; }
 .amb-title__fa { font: 900 132px/1 var(--font, 'Estedad Variable', sans-serif); fill: var(--am-anar); text-anchor: middle; letter-spacing: -2px;
   paint-order: stroke; stroke: #fffaf0; stroke-width: 8px; stroke-linejoin: round; }
@@ -26,8 +37,8 @@
 
 .amb-deck__shadow { fill: rgb(0 0 0 / 0.28); transform: translate(6px, 8px); }
 .amb-deck__card { stroke: var(--am-ink); stroke-width: 3; }
-.amb-deck--chance .amb-deck__card { fill: #f39c3d; }
-.amb-deck--chest .amb-deck__card { fill: #1f8a9b; }
+.amb-deck--chance .amb-deck__card { fill: #e8832a; }
+.amb-deck--chest .amb-deck__card { fill: #167a8a; }
 .amb-deck__inner { fill: none; stroke: #fff; stroke-width: 3; stroke-dasharray: 10 6; opacity: 0.85; }
 .amb-deck__label { font: 900 44px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.35); stroke-width: 4px; }
 .amb-deck__count { font: 700 18px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; opacity: 0.9; }
@@ -62,17 +73,20 @@
 .amb-park__p { font: 900 40px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
 .amb-police { fill: #1f4e5a; stroke: var(--am-ink); stroke-width: 3; }
 
-.amb-house { fill: #23843f; stroke: #fff; stroke-width: 2; filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.45)); }
-.amb-hotel { fill: #d62f35; stroke: #fff; stroke-width: 2.5; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.45)); }
+.amb-house { fill: #f6efe0; stroke: #1f1a14; stroke-width: 1.4; filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.45)); }
+.amb-house__roof { fill: #23843f; stroke: #1f1a14; stroke-width: 1.4; stroke-linejoin: round; }
+.amb-hotel { fill: #c8372d; stroke: #1f1a14; stroke-width: 1.6; stroke-linejoin: round; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.45)); }
 .amb-owner rect { stroke: var(--am-ink); stroke-width: 1.5; }
 .amb-mortgage__stamp { font: 900 26px/1 var(--font, sans-serif); fill: #b0262f; text-anchor: middle; opacity: 0.85;
   paint-order: stroke; stroke: #fffaf0; stroke-width: 4px; letter-spacing: 2px; }
 
 .amb-pawn { transition: transform 520ms cubic-bezier(0.22, 1.1, 0.36, 1); }
 .amb-pawn__shadow { fill: rgb(0 0 0 / 0.35); filter: blur(1.5px); }
-.amb-pawn__body { stroke: #fff; stroke-width: 3; }
-.amb-pawn__n { font: 900 15px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.55); stroke-width: 3px; }
-.amb-pawn--turn .amb-pawn__body { stroke: var(--am-saffron); stroke-width: 5; }
+.amb-pawn__body { stroke: #fff; filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.45)); }
+.amb-pawn__badge { fill: #1f1a14; stroke: #fff; stroke-width: 1.5; }
+.amb-pawn__n { font: 900 11px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
+.amb-pawn--turn .amb-pawn__body { stroke: var(--am-saffron); }
+.amb-pawn--turn .amb-pawn__badge { fill: var(--am-anar); }
 .amb-pawn--turn { animation: amb-bob 1.4s ease-in-out infinite; }
 @keyframes amb-bob { 50% { translate: 0 -4px; } }
 
@@ -94,47 +108,60 @@
 .am-chip:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .am-swatch { display: inline-block; inline-size: 14px; block-size: 14px; border-radius: 3px; border: 1px solid #0006; margin-inline-end: 4px; vertical-align: middle; }
 
-/* title deed: printed card stock with a colour header, like the physical deed cards */
-.am-deed { display: grid; border-radius: 10px; overflow: hidden; background: var(--am-paper); color: var(--am-ink);
-  border: 2px solid var(--am-ink); box-shadow: 0 6px 14px rgb(0 0 0 / 0.25); max-inline-size: 340px; }
-.am-deed__head { display: grid; justify-items: center; gap: 2px; padding: 8px 12px 10px; border-block-end: 2px solid var(--am-ink); }
-.am-deed__kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.9; }
-.am-deed__name { font-size: 1.2rem; font-weight: 900; }
-.am-deed__rows { margin: 0; padding: 8px 14px; display: grid; gap: 3px; font-size: var(--fs-sm); }
+/* title deed: printed card stock, colour header with tile pattern and a landmark watermark, double rule */
+.am-deed { position: relative; display: grid; border-radius: 12px; overflow: hidden; color: var(--am-ink); max-inline-size: 340px;
+  background: radial-gradient(rgb(184 138 46 / 0.12) 1px, transparent 1.4px) 0 0 / 9px 9px, linear-gradient(180deg, #fffdf6, #f5ecd3);
+  border: 2px solid var(--am-ink); box-shadow: inset 0 0 0 4px #fffaf0, inset 0 0 0 5px rgb(184 138 46 / 0.7), 0 8px 18px rgb(0 0 0 / 0.35); }
+.am-deed__head { position: relative; display: grid; justify-items: center; gap: 2px; padding: 12px 14px 12px; border-block-end: 2px solid var(--am-ink); overflow: hidden;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16V11a4 4 0 0 1 8 0v5M8 16v-5a4 4 0 0 1 8 0v5' fill='none' stroke='%23fff' stroke-opacity='.28' stroke-width='1.4'/%3E%3C/svg%3E"), linear-gradient(180deg, rgb(255 255 255 / 0.25), transparent 55%, rgb(0 0 0 / 0.2)); }
+.am-deed__kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; }
+.am-deed__name { font-size: 1.25rem; font-weight: 900; text-shadow: 0 1px 0 rgb(255 255 255 / 0.25); }
+.am-deed__mark { position: absolute; inset-block-end: -2px; inset-inline-start: 8px; inline-size: 38px; block-size: auto; opacity: 0.28; pointer-events: none; }
+.am-deed__rows { margin: 0; padding: 10px 16px 6px; display: grid; gap: 3px; font-size: var(--fs-sm); }
 .am-deed__rows div { display: flex; align-items: baseline; gap: 6px; }
 .am-deed__rows dt { white-space: nowrap; }
 .am-deed__rows div::after { content: ''; order: 1; flex: 1; border-block-end: 2px dotted rgb(31 26 20 / 0.35); }
 .am-deed__rows dd { order: 2; margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.am-deed__foot { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 14px 10px; border-block-start: 1px solid rgb(31 26 20 / 0.25); font-size: var(--fs-xs); color: #4a3d2e; }
+.am-deed__foot { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 16px 12px; border-block-start: 1px solid rgb(31 26 20 / 0.25); font-size: var(--fs-xs); color: #4a3d2e; }
+.am-deed__foot b { color: var(--am-anar); }
 .am-deed--compact .am-deed__foot { border-block-start: 0; }
 .am-sqcard { display: grid; gap: var(--sp-2); justify-items: start; }
 
 /* drawn card */
 .am-cardface { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: center; padding: 14px 16px; border-radius: 14px;
   border: 3px solid var(--am-ink); color: #fff; box-shadow: 0 8px 18px rgb(0 0 0 / 0.3); animation: am-flip 520ms cubic-bezier(0.2, 1.2, 0.4, 1); transform-origin: center; }
-.am-cardface--chance { background: linear-gradient(135deg, #f6a64a, #e07b14); }
-.am-cardface--chest { background: linear-gradient(135deg, #2a9bb0, #146a79); }
+.am-cardface--chance { background: radial-gradient(rgb(255 255 255 / 0.18) 1.2px, transparent 1.6px) 0 0 / 10px 10px, linear-gradient(135deg, #f6a64a, #d9710f); }
+.am-cardface--chest { background: radial-gradient(rgb(255 255 255 / 0.18) 1.2px, transparent 1.6px) 0 0 / 10px 10px, linear-gradient(135deg, #2a9bb0, #0f5f6d); }
 .am-cardface__badge { display: grid; place-items: center; inline-size: 52px; block-size: 52px; border-radius: 12px; background: rgb(255 255 255 / 0.2);
   border: 2px dashed rgb(255 255 255 / 0.8); font-size: 30px; font-weight: 900; }
 .am-cardface figcaption { display: grid; gap: 4px; font-weight: 700; line-height: 1.7; text-shadow: 0 1px 1px rgb(0 0 0 / 0.3); }
 .am-cardface__kind { font-size: var(--fs-xs); font-weight: 800; opacity: 0.9; }
 @keyframes am-flip { from { transform: perspective(600px) rotateY(80deg) scale(0.9); opacity: 0; } }
 
-/* wallets */
-.am-wallets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.am-wallet { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'pawn who cash' 'deeds deeds deeds'; align-items: center; gap: 4px 10px;
-  padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 2px solid transparent; border-inline-start: 6px solid var(--seat); }
-.am-wallet--turn { border-color: var(--am-saffron); border-inline-start-color: var(--seat); box-shadow: 0 0 0 3px rgb(226 165 59 / 0.18); }
-.am-wallet--out { opacity: 0.5; }
-.am-wallet__pawn { grid-area: pawn; display: grid; place-items: center; inline-size: 30px; block-size: 30px; border-radius: 50%; color: #fff; font-weight: 900;
-  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.65), transparent 45%), var(--seat); border: 2px solid #fff; box-shadow: 0 2px 4px rgb(0 0 0 / 0.35); }
+/* wallets: each player's cash is a banknote (guilloche rings, seat-coloured end band, token medallion) */
+.am-wallets { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.am-wallet { position: relative; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'pawn who cash' 'deeds deeds deeds'; align-items: center; gap: 4px 10px;
+  padding: 10px 14px 10px 16px; border-radius: 10px; color: var(--am-ink); border: 2px solid #5a4a3a; border-inline-start: 12px solid var(--seat); overflow: hidden;
+  background:
+    repeating-radial-gradient(circle at 18% 50%, transparent 0 5px, rgb(15 127 134 / 0.16) 5px 6px),
+    repeating-radial-gradient(circle at 92% 20%, transparent 0 7px, rgb(155 28 49 / 0.10) 7px 8px),
+    linear-gradient(135deg, #fbf3de, #efe3c1);
+  box-shadow: inset 0 0 0 3px #fffaf0, inset 0 0 0 4px rgb(15 127 134 / 0.45), 0 3px 8px rgb(0 0 0 / 0.35); }
+.am-wallet--turn { border-color: var(--am-saffron); box-shadow: inset 0 0 0 3px #fffaf0, inset 0 0 0 4px rgb(15 127 134 / 0.45), 0 0 0 3px rgb(226 165 59 / 0.55), 0 3px 10px rgb(0 0 0 / 0.4); }
+.am-wallet--out { opacity: 0.5; filter: grayscale(0.7); }
+.am-wallet__pawn { grid-area: pawn; position: relative; display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #e6d9b4); border: 2px solid #b88a2e; box-shadow: inset 0 0 0 2px #fffaf0, 0 1px 3px rgb(0 0 0 / 0.3); }
+.am-wallet__pawn svg { inline-size: 32px; block-size: 29px; overflow: visible; }
+.am-wallet__pawn i { position: absolute; inset-block-end: -4px; inset-inline-end: -4px; min-inline-size: 18px; block-size: 18px; border-radius: 9px; display: grid; place-items: center;
+  background: var(--am-ink); color: #fff; font: 900 11px/1 var(--font, sans-serif); border: 1.5px solid #fff; }
 .am-wallet__who { grid-area: who; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-inline-size: 0; }
 .am-wallet__name { font-weight: 800; max-inline-size: 13ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.am-wallet__me { color: var(--text-2); font-size: var(--fs-sm); }
-.am-wallet__cash { grid-area: cash; display: grid; justify-items: end; font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.am-wallet__cash small { font-size: 10px; font-weight: 700; color: var(--text-2); }
+.am-wallet__me { color: #5a4a3a; font-size: var(--fs-sm); }
+.am-wallet__cash { grid-area: cash; display: grid; justify-items: end; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.am-wallet__cash b { font-size: 1.6rem; font-weight: 900; color: var(--am-anar); text-shadow: 0 1px 0 #fffaf0, 1px 2px 0 rgb(0 0 0 / 0.12); letter-spacing: -0.5px; }
+.am-wallet__cash small { font-size: 10px; font-weight: 800; color: #5a4a3a; }
 .am-wallet__deeds { grid-area: deeds; display: flex; flex-wrap: wrap; gap: 3px; }
-.am-deedchip { inline-size: 14px; block-size: 18px; border-radius: 3px; border: 1.5px solid rgb(0 0 0 / 0.45); box-shadow: inset 0 3px 0 rgb(255 255 255 / 0.35); }
+.am-deedchip { inline-size: 14px; block-size: 18px; border-radius: 3px; border: 1.5px solid rgb(0 0 0 / 0.55); box-shadow: inset 0 3px 0 rgb(255 255 255 / 0.35); }
 .am-deedchip--mortgaged { opacity: 0.45; background-image: repeating-linear-gradient(45deg, transparent 0 3px, rgb(0 0 0 / 0.45) 3px 5px) !important; }
 .am-tag { font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: #1f4e5a; color: #fff; }
 .am-tag--card { background: #8a6b12; }

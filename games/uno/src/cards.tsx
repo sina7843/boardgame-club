@@ -1,5 +1,6 @@
 // Original UNO-style card faces (vector, no bitmap assets). Colour is never the only signal: every face carries
 // the colour's Persian initial and a full spoken label.
+import type { CSSProperties } from 'react';
 import type { Card, Color } from './rules.ts';
 
 export const COLOR_FA: Record<Color, string> = { r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی' };
@@ -18,6 +19,12 @@ export function cardLabel(c: Card): string {
   }
 }
 
+/** Colour-blind cue next to the initial: diamond (red), star (yellow), triangle (green), circle (blue). */
+function Pip({ c }: { c: Color }) {
+  const d = { r: 'M8 1 15 8 8 15 1 8Z', y: 'M8 .6 10 6 15.4 8 10 10 8 15.4 6 10 .6 8 6 6Z', g: 'M8 1.5 15 14H1Z', b: 'M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Z' }[c];
+  return <svg className="uno-pip" viewBox="0 0 16 16" aria-hidden="true"><path d={d} fill="currentColor" stroke="#fdf6e3" strokeWidth="1.6" strokeLinejoin="round" paintOrder="stroke" /></svg>;
+}
+
 function Symbol({ card, big }: { card: Card; big: boolean }) {
   const size = big ? 46 : 16;
   switch (card.kind) {
@@ -28,15 +35,17 @@ function Symbol({ card, big }: { card: Card; big: boolean }) {
     case 'skip':
       return (
         <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className="uno-icon">
-          <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="3.2" />
-          <path d="M6.2 17.8 17.8 6.2" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
+          <circle cx="12" cy="12" r="8.6" fill="currentColor" fillOpacity="0.14" stroke="currentColor" strokeWidth="3.8" />
+          <path d="M5.8 18.2 18.2 5.8" stroke="currentColor" strokeWidth="3.8" strokeLinecap="round" />
         </svg>
       );
     case 'rev':
       return (
         <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className="uno-icon">
-          <path d="M4 8.5h12.5M13 4.8l3.8 3.7-3.8 3.7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M20 15.5H7.5M11 11.8l-3.8 3.7 3.8 3.7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M3 8.5h11" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M13 3.6 21.4 8.5 13 13.4Z" fill="currentColor" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+          <path d="M21 15.5H10" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M11 10.6 2.6 15.5 11 20.4Z" fill="currentColor" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
         </svg>
       );
   }
@@ -80,7 +89,8 @@ function WildDisc({ plus = false }: { plus?: boolean }) {
 }
 
 /** A face-up card. `as="button"` makes it a hand card; otherwise it is a static picture with a label. */
-export function CardFace({ card, size = 'md', state, onClick, disabled, hint }: {
+export function CardFace({ card, size = 'md', state, onClick, disabled, hint, style }: {
+  style?: CSSProperties;
   card: Card;
   size?: 'sm' | 'md' | 'lg';
   state?: 'playable' | 'selected' | 'dim';
@@ -94,13 +104,13 @@ export function CardFace({ card, size = 'md', state, onClick, disabled, hint }: 
       <span className="uno-card__corner uno-card__corner--start" aria-hidden="true"><Symbol card={card} big={false} /></span>
       <span className="uno-card__oval" aria-hidden="true"><Symbol card={card} big /></span>
       <span className="uno-card__corner uno-card__corner--end" aria-hidden="true"><Symbol card={card} big={false} /></span>
-      {card.color && <span className="uno-card__initial" aria-hidden="true">{COLOR_INITIAL[card.color]}</span>}
+      {card.color && <span className="uno-card__initial" aria-hidden="true"><Pip c={card.color} />{COLOR_INITIAL[card.color]}</span>}
       <span className="uno-card__sheen" aria-hidden="true" />
     </>
   );
-  if (!onClick) return <span className={cls} role="img" aria-label={cardLabel(card)}>{inner}</span>;
+  if (!onClick) return <span className={cls} role="img" aria-label={cardLabel(card)} style={style}>{inner}</span>;
   return (
-    <button type="button" className={cls} onClick={onClick} aria-disabled={disabled || undefined} aria-pressed={state === 'selected'}
+    <button type="button" className={cls} style={style} onClick={onClick} aria-disabled={disabled || undefined} aria-pressed={state === 'selected'}
       aria-label={`${cardLabel(card)}${disabled ? ' (قابل بازی نیست)' : ''}`}>
       {inner}
     </button>
@@ -111,6 +121,7 @@ export function CardBack({ size = 'md', label }: { size?: 'sm' | 'md' | 'lg'; la
   return (
     <span className={`uno-card uno-card--${size} uno-card--back`} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
       <span className="uno-card__frame" aria-hidden="true" />
+      <span className="uno-card__rays" aria-hidden="true" />
       <span className="uno-card__oval uno-card__oval--back"><span className="uno-back__mark">اونو</span></span>
       <span className="uno-card__sheen" aria-hidden="true" />
     </span>

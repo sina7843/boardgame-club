@@ -3,7 +3,7 @@
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
-import { AmlakBoard, SEAT_COLORS } from './board-art.tsx';
+import { AmlakBoard, Landmarks, SEAT_COLORS, Token } from './board-art.tsx';
 import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf } from './board.ts';
 import { unmortgageCost, type AmlakView, type LogEntry, type TradeSide } from './rules.ts';
 
@@ -188,14 +188,14 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
               const owned = view.owner.map((o, i) => (o === seat ? i : -1)).filter((i) => i >= 0);
               return (
                 <li key={seat} className={['am-wallet', seat === view.current && !view.outcome ? 'am-wallet--turn' : '', pl.bankrupt ? 'am-wallet--out' : ''].join(' ')} style={{ ['--seat' as string]: SEAT_COLORS[seat] }}>
-                  <span className="am-wallet__pawn" aria-hidden="true">{fa(seat + 1)}</span>
+                  <span className="am-wallet__pawn" aria-hidden="true"><svg viewBox="-20 -19 40 36"><Token seat={seat} /></svg><i>{fa(seat + 1)}</i></span>
                   <span className="am-wallet__who">
                     <bdi className="am-wallet__name">{seatName(seat)}</bdi>{seat === mySeat && <span className="am-wallet__me"> (شما)</span>}
                     {pl.inJail && <span className="am-tag">زندان</span>}
                     {pl.jailCards.length > 0 && <span className="am-tag am-tag--card">کارت آزادی</span>}
                     {pl.bankrupt && <span className="am-tag am-tag--out">ورشکسته</span>}
                   </span>
-                  <span className="am-wallet__cash" aria-label={money(pl.cash)}>{fa(pl.cash)}<small>هزار تومان</small></span>
+                  <span className="am-wallet__cash" aria-label={money(pl.cash)}><b>{fa(pl.cash)}</b><small>هزار تومان</small></span>
                   {owned.length > 0 && (
                     <span className="am-wallet__deeds" aria-label={`املاک: ${owned.map((i) => BOARD[i]!.nameFa).join('، ')}`}>
                       {owned.map((i) => {
@@ -241,6 +241,7 @@ function Deed({ view, i, seatName, compact }: { view: AmlakView; i: number; seat
       <header className="am-deed__head" style={{ background: head, color: dark ? '#1b130b' : '#fff' }}>
         <span className="am-deed__kicker">{kicker}</span>
         <strong className="am-deed__name">{b.nameFa}</strong>
+        <svg className="am-deed__mark" viewBox="-50 -130 100 135" aria-hidden="true"><Landmarks fill="currentColor" /></svg>
       </header>
       {!compact && <dl className="am-deed__rows">{rentRows(i).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>}
       {'price' in b && (
