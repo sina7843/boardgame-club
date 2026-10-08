@@ -1,0 +1,93 @@
+/* کودتا: palace intrigue — plum velvet, gilt frames, one colour per court role. */
+.cp { --gold: #e3bd6b; --duke: #7b3fa0; --assassin: #34343e; --captain: #1f6fa8; --ambassador: #2e8b57; --contessa: #b8323f;
+  display: grid; gap: 0.75rem; inline-size: 100%; color: #f4ead8; text-align: center; }
+.cp > :first-child { justify-self: center; }
+.cp > .cp__court, .cp > .cp__me, .cp > .cp-log { justify-self: stretch; }
+.cp-tag--duke { --role: var(--duke); } .cp-tag--assassin { --role: var(--assassin); } .cp-tag--captain { --role: var(--captain); }
+.cp-tag--ambassador { --role: var(--ambassador); } .cp-tag--contessa { --role: var(--contessa); }
+b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color: #fff; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25); }
+
+.cp-claim { justify-self: center; max-inline-size: 36rem; padding: 0.55rem 1rem; border-radius: 12px; line-height: 1.9;
+  background: linear-gradient(180deg, rgb(227 189 107 / 0.18), rgb(0 0 0 / 0.35)); border: 1px solid rgb(227 189 107 / 0.55);
+  box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.8); animation: cp-drop 0.35s ease-out both; }
+.cp-claim__who { font-weight: 800; color: var(--gold); }
+.cp-claim__block { display: block; font-size: 0.9rem; color: #f9dca0; }
+
+.cp__court { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; grid-template-columns: repeat(auto-fit, minmax(8.4rem, 1fr)); }
+.cp-pl { border-radius: 14px; background: radial-gradient(circle at 50% 0%, rgb(255 255 255 / 0.07), rgb(0 0 0 / 0.35)); border: 1px solid rgb(255 255 255 / 0.08); transition: box-shadow 0.25s, opacity 0.25s; }
+.cp-pl > *:not(button), .cp-pl__aim { padding: 0.5rem 0.6rem; }
+.cp-pl--turn { box-shadow: 0 0 0 2px var(--gold), 0 8px 22px -10px rgb(227 189 107 / 0.7); }
+.cp-pl--target { box-shadow: 0 0 0 2px #ff7a6b, 0 8px 22px -10px rgb(255 122 107 / 0.7); }
+.cp-pl--out { opacity: 0.55; filter: grayscale(0.6); }
+.cp-pl__aim { display: grid; gap: 0.3rem; inline-size: 100%; border: 0; border-radius: inherit; color: inherit; font: inherit; cursor: pointer;
+  background: rgb(255 122 107 / 0.14); box-shadow: inset 0 0 0 2px #ff9d8f; animation: cp-aim 1.1s ease-in-out infinite; }
+.cp-pl__aim:hover, .cp-pl__aim:focus-visible { background: rgb(255 122 107 / 0.3); outline: none; }
+.cp-pl__head, .cp-me__head { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.cp-pl__name { font-weight: 800; }
+.cp-pl__out { color: #ff8f80; font-weight: 800; }
+.cp-pl__cards, .cp-me__cards { display: flex; gap: 0.4rem; justify-content: center; }
+
+.cp-coins { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.05rem 0.45rem 0.05rem 0.3rem; border-radius: 999px; background: rgb(0 0 0 / 0.35); font-weight: 900; color: #ffe2a0; }
+.cp-coins b { display: inline-block; animation: cp-bump 0.4s ease-out; }
+.cp-coin { inline-size: 0.95rem; block-size: 0.95rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1c2, #e3bd6b 45%, #9a6f1f); box-shadow: inset 0 0 0 1.5px #7a5410; }
+
+.cp-card { position: relative; display: inline-grid; justify-items: center; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.5)); }
+.cp-card svg { display: block; }
+.cp-card--md svg { inline-size: 4.6rem; block-size: 6.6rem; }
+.cp-card--sm svg { inline-size: 2.6rem; block-size: 3.7rem; }
+.cp-card__bg { fill: var(--role, #4a1f3c); stroke: #1a0d16; stroke-width: 2; }
+.cp-card--back .cp-card__bg { fill: #4a1f3c; }
+.cp-card__frame { stroke: var(--gold); stroke-width: 1.6; }
+.cp-card__mark { fill: rgb(227 189 107 / 0.55); }
+.cp-card__emblem { fill: #fbeccb; }
+.cp-card--duke { --role: var(--duke); } .cp-card--assassin { --role: var(--assassin); } .cp-card--captain { --role: var(--captain); }
+.cp-card--ambassador { --role: var(--ambassador); } .cp-card--contessa { --role: var(--contessa); }
+.cp-card__name { position: absolute; inset-block-end: 0.45rem; font-size: 0.72rem; font-weight: 800; color: #fff; text-shadow: 0 1px 2px #000; }
+.cp-card--sm .cp-card__name { inset-block-end: 0.15rem; font-size: 0.55rem; }
+.cp-card--lost { filter: grayscale(0.75) brightness(0.7); }
+.cp-card__x { position: absolute; inset-block-start: -0.35rem; inset-inline-end: -0.35rem; inline-size: 1.15rem; block-size: 1.15rem; border-radius: 50%; background: #c8352a; box-shadow: 0 0 0 2px #1c0a17; }
+.cp-card__x::before { content: '✕'; display: grid; place-items: center; block-size: 100%; font-size: 0.7rem; font-weight: 900; color: #fff; }
+.cp-card--sm .cp-card__x { inline-size: 0.9rem; block-size: 0.9rem; }
+.cp-card--sm .cp-card__x::before { font-size: 0.55rem; }
+.cp-card--fresh { animation: cp-flip 0.6s ease-out both; }
+
+.cp__me { display: grid; gap: 0.65rem; justify-items: center; padding-block: 0.6rem 0.2rem; border-block-start: 1px dashed rgb(227 189 107 / 0.3); }
+.cp-me__deck { color: #cbb99a; }
+.cp-lose { position: relative; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 10px; box-shadow: 0 0 0 3px #ff7a6b; animation: cp-aim 1s ease-in-out infinite; }
+.cp-lose:hover, .cp-lose:focus-visible { box-shadow: 0 0 0 4px #ffb3a8; outline: none; }
+.cp-lose__cta { position: absolute; inset-block-start: -0.7rem; inset-inline-start: 50%; translate: 50% 0; padding: 0 0.45rem; border-radius: 999px; background: #ff7a6b; color: #1b0b10; font-size: 0.72rem; font-weight: 900; }
+
+.cp-ex { display: grid; gap: 0.5rem; justify-items: center; padding: 0.6rem; border-radius: 14px; background: rgb(46 139 87 / 0.14); border: 1px solid rgb(46 139 87 / 0.5); animation: cp-drop 0.35s ease-out both; }
+.cp-ex__cards { display: flex; gap: 0.45rem; }
+.cp-ex__card { padding: 0.15rem; border: 0; border-radius: 9px; background: transparent; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.cp-ex__card--on { transform: translateY(-6px); box-shadow: 0 0 0 3px var(--gold); }
+
+.cp-resp { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+.cp-resp__btn { min-block-size: 2.75rem; padding: 0.4rem 0.9rem; border-radius: 12px; border: 0; font: inherit; font-weight: 900; cursor: pointer; color: #fff; transition: filter 0.12s, box-shadow 0.12s; }
+.cp-resp__btn:hover:not(:disabled), .cp-resp__btn:focus-visible { filter: brightness(1.15); box-shadow: 0 0 0 2px rgb(255 255 255 / 0.6); outline: none; }
+.cp-resp__btn:disabled { opacity: 0.5; cursor: default; }
+.cp-resp__btn--challenge { background: linear-gradient(180deg, #e2463a, #a3231b); box-shadow: 0 6px 16px -8px #e2463a; }
+.cp-resp__btn--block { background: var(--role); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.25); }
+.cp-resp__btn--pass { background: rgb(255 255 255 / 0.12); color: #f4ead8; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
+
+.cp-acts { display: grid; gap: 0.4rem; inline-size: min(100%, 34rem); grid-template-columns: repeat(auto-fit, minmax(7.2rem, 1fr)); }
+.cp-act { display: grid; gap: 0.1rem; padding: 0.45rem 0.5rem; border-radius: 12px; border: 0; font: inherit; color: #fff; cursor: pointer; text-align: center;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--role) 85%, white 15%), var(--role)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 4px 10px -6px #000; transition: filter 0.12s, box-shadow 0.12s; }
+.cp-act--plain { --role: #6b5a3e; }
+.cp-act--coup { --role: #8c1c2b; }
+.cp-act:hover:not(:disabled), .cp-act:focus-visible { filter: brightness(1.15); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 0 0 2px rgb(255 255 255 / 0.55); outline: none; }
+.cp-act:disabled { opacity: 0.35; cursor: default; filter: grayscale(0.5); }
+.cp-act--on { box-shadow: 0 0 0 3px var(--gold); }
+.cp-act__name { font-weight: 900; }
+.cp-act__note { font-size: 0.7rem; opacity: 0.85; }
+
+.cp-log { list-style: none; margin: 0; padding: 0.4rem 0.6rem; display: grid; gap: 0.15rem; font-size: 0.8rem; color: #d8c8ad; border-radius: 10px; background: rgb(0 0 0 / 0.22); text-align: start; }
+.cp-log li:first-child { color: #fff3d6; font-weight: 700; animation: cp-drop 0.3s ease-out both; }
+.cp-hint { animation: cp-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
+
+@keyframes cp-flip { 0% { transform: rotateY(90deg) scale(1.15); } 100% { transform: none; } }
+@keyframes cp-drop { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes cp-bump { 40% { transform: scale(1.35); color: #fff; } }
+@keyframes cp-aim { 50% { box-shadow: inset 0 0 0 2px transparent, 0 0 0 3px rgb(255 122 107 / 0.25); } }
+@keyframes cp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .cp *, .cp-claim, .cp-ex { animation: none !important; transition: none !important; } }

@@ -586,4 +586,23 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   public); owners see their own stack. Timeouts place a rose, pass, or flip the first possible stack.
 - Look: tavern coasters — leather faces with a drawn rose or skull, patterned backs in seat colours, stacked per
   player, two-point mats, a bid strip with number chips, opponents' stacks become "turn" buttons in the reveal,
-  turned discs flip up.
+  turned discs flip up.## «کودتا» (Coup, 2026-10-08, owner list batch 3)
+
+- Base game for 2–6 players: 15-card court (3 of each role), two influence and two coins each (two players: the
+  starting player has one coin). Income, Foreign Aid (any Duke claim blocks), Coup (7, forced at 10+), Tax, Assassinate
+  (3; Contessa blocks), Steal (2; Captain/Ambassador block), Exchange (draw 2, keep as many as held). One response
+  window per claim: every other living player may challenge or accept, the target (anyone for Foreign Aid) may block;
+  a block opens its own challenge window. A true claim costs the challenger an influence and the claimer reshuffles
+  the shown card and redraws; a false one costs the claimer and cancels the action. A failed Assassin claim refunds
+  the 3 coins; after a lost challenge on Assassinate/Steal the target still gets the chance to block. The first
+  player to respond wins the window (no priority ordering between simultaneous challengers). Players choose which
+  card to lose when two are face down. Hidden: face-down cards, the deck and the Ambassador's options.
+  Timeouts: Income (or Coup on the first opponent at 10+), accept every response, lose the first face-down card,
+  keep the first cards offered. Resign reveals both cards.
+- Look: plum velvet court, gilt-framed role cards with drawn emblems (crown, dagger, anchor, scroll, fan) in role
+  colours, coin pills that bump on change, a claim banner with role tags, action board coloured by claimed role,
+  red challenge button, lost cards greyed with a ✕ badge and a flip-in animation, target players pulse while aiming.
+- Polish passes (screenshots 360/1440): (1) lost cards keep their emblem readable with a ✕ badge instead of a cross
+  over the art; the court uses two columns at 360; (2) the empty event log is hidden and "resolved" lines are dropped;
+  (3) hover lifts on action/response buttons replaced by glow — the lift made a button "unstable" under the pointer
+  (e2e click stalled at 1440); (4) the court/hand no longer shrink to a narrow column on the result screen.

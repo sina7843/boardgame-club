@@ -43,7 +43,8 @@
     "@bg/game-no-thanks": "workspace:*",
     "@bg/game-six-nimmt": "workspace:*",
     "@bg/game-love-letter": "workspace:*",
-    "@bg/game-skull": "workspace:*"
+    "@bg/game-skull": "workspace:*",
+    "@bg/game-coup": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

@@ -560,4 +560,10 @@ three-player game at 360 and 1440 (`docs/evidence/love-letter/`).
 New module `games/skull` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/skull.test.ts`:
 first placements, bidding, own discs first, skull and private lost disc, elimination, timeouts/resign, tutorial, 30
 random 2–6 player games with disc conservation and replay); API 3 (`apps/api/test/skull.test.ts`); catalog test
-updated; E2E `e2e/skull.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/skull/`).
+updated; E2E `e2e/skull.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/skull/`).## «کودتا» Coup (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/coup` registered in engine, catalog and web. Checks run: engine 10 (`packages/game-engine/test/coup.test.ts`:
+setup, income/foreign aid/block/tax, true and false challenges with redraw, assassination block/refund and forced
+coup, steal with block after a lost challenge, private exchange, hidden info, timeouts/resign, tutorial, 40 random
+2–6 player games with 15-card court conservation and replay); API 3 (`apps/api/test/coup.test.ts`); catalog test
+updated; E2E `e2e/coup.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/coup/`).
