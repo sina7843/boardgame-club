@@ -1,12 +1,11 @@
+// Checkers are painted art cut from a generated sheet (see DECISIONS.md).
+import ivoryImg from './art/checker-ivory.webp';
+import redImg from './art/checker-red.webp';
 // Catalog cover: half a rosewood khatam-inlaid backgammon board, lapis field, bone and crimson-lacquer checkers, two dice.
 export default function BackgammonCover({ title }: { title: string }) {
   const pts = Array.from({ length: 7 }, (_, k) => k);
   const checker = (x: number, y: number, ivory: boolean, key: string) => (
-    <g key={key} filter="url(#bgc-shadow)">
-      <circle cx={x} cy={y} r="17" fill={ivory ? 'url(#bgc-iv)' : 'url(#bgc-eb)'} stroke={ivory ? '#5a3b16' : '#e0b341'} strokeWidth="1.6" />
-      <circle cx={x} cy={y} r="12" fill="none" stroke={ivory ? '#b99a62' : '#f0c75e'} strokeWidth="1.2" />
-      <path d={`M${x} ${y - 7} L${x + 2} ${y - 2} L${x + 7} ${y} L${x + 2} ${y + 2} L${x} ${y + 7} L${x - 2} ${y + 2} L${x - 7} ${y} L${x - 2} ${y - 2} Z`} fill={ivory ? '#c9ab6e' : '#f0c75e'} />
-    </g>
+    <image key={key} href={ivory ? ivoryImg : redImg} x={x - 17} y={y - 17} width="34" height="34" filter="url(#bgc-shadow)" />
   );
   const pip = (cx: number, cy: number, k: string) => <circle key={k} cx={cx} cy={cy} r="3.4" fill="#2a1a0d" />;
   return (
@@ -19,8 +18,6 @@ export default function BackgammonCover({ title }: { title: string }) {
         <pattern id="bgc-kh" width="14" height="14" patternUnits="userSpaceOnUse">
           <rect width="14" height="14" fill="#2d140c" /><path d="M7 1 L9 5 L13 7 L9 9 L7 13 L5 9 L1 7 L5 5 Z" fill="#e6d4a6" /><circle cx="7" cy="7" r="1.5" fill="#1f8a86" />
         </pattern>
-        <radialGradient id="bgc-iv" cx=".36" cy=".3" r=".8"><stop offset="0" stopColor="#fff" /><stop offset=".55" stopColor="#f3e7c9" /><stop offset="1" stopColor="#c7ae7c" /></radialGradient>
-        <radialGradient id="bgc-eb" cx=".36" cy=".3" r=".8"><stop offset="0" stopColor="#e5555d" /><stop offset=".5" stopColor="#a8222c" /><stop offset="1" stopColor="#4d0a10" /></radialGradient>
         <radialGradient id="bgc-vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".5" /></radialGradient>
         <filter id="bgc-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="1.5" dy="3" stdDeviation="2" floodOpacity=".55" /></filter>
       </defs>

@@ -1,6 +1,8 @@
 // تخته‌نرد renderer: an inlaid walnut board (SVG, LTR geometry), ivory/ebony checkers, rolling dice.
 // A turn is built locally step by step (tap a checker → it moves; two possible landings → tap the landing) and sent
 // as one `play` once the dice are used up; the table shell then holds it for the undo window.
+import ivoryImg from './art/checker-ivory.webp';
+import redImg from './art/checker-red.webp';
 import './renderer.css';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
@@ -157,12 +159,6 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
               <circle cx="0" cy="0" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" /><circle cx="48" cy="48" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" />
               <circle cx="48" cy="0" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" /><circle cx="0" cy="48" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" />
             </pattern>
-            <radialGradient id="bgm-ivory" cx=".36" cy=".3" r=".8">
-              <stop offset="0" stopColor="#ffffff" /><stop offset=".55" stopColor="#f3e7c9" /><stop offset="1" stopColor="#c7ae7c" />
-            </radialGradient>
-            <radialGradient id="bgm-ebony" cx=".36" cy=".3" r=".8">
-              <stop offset="0" stopColor="#e5555d" /><stop offset=".5" stopColor="#a8222c" /><stop offset="1" stopColor="#4d0a10" />
-            </radialGradient>
             <filter id="bgm-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" floodOpacity=".55" /></filter>
           </defs>
 
@@ -303,18 +299,11 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   );
 }
 
-const star = (x: number, y: number, r: number) =>
-  Array.from({ length: 16 }, (_, k) => { const a = (k * Math.PI) / 8 - Math.PI / 2; const q = k % 2 ? r * 0.55 : r; return `${(x + q * Math.cos(a)).toFixed(1)},${(y + q * Math.sin(a)).toFixed(1)}`; }).join(' ');
-
-/** Turned-bone (seat 0) or crimson-lacquer (seat 1) checker with a gold rim and an engraved eight-point rosette. */
+/** Painted bone (seat 0) or crimson-lacquer (seat 1) checker; art cut from a generated sheet (see DECISIONS.md). */
 function Checker({ x, y, seat }: { x: number; y: number; seat: number }) {
-  const ivory = seat === 0;
   return (
     <g filter="url(#bgm-shadow)">
-      <circle cx={x} cy={y} r={R} fill={ivory ? 'url(#bgm-ivory)' : 'url(#bgm-ebony)'} stroke={ivory ? '#5a3b16' : '#e0b341'} strokeWidth="2" />
-      <circle cx={x} cy={y} r={R * 0.72} fill="none" stroke={ivory ? '#b99a62' : '#f0c75e'} strokeWidth="1.6" />
-      <polygon points={star(x, y, R * 0.5)} fill={ivory ? '#c9ab6e' : '#f0c75e'} fillOpacity={ivory ? 0.75 : 0.85} />
-      <ellipse cx={x - R * 0.3} cy={y - R * 0.42} rx={R * 0.3} ry={R * 0.16} fill="#fff" opacity=".35" />
+      <image href={seat === 0 ? ivoryImg : redImg} x={x - R} y={y - R} width={2 * R} height={2 * R} />
     </g>
   );
 }
