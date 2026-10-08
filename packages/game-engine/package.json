@@ -45,7 +45,8 @@
     "@bg/game-the-mind": "workspace:*",
     "@bg/game-splendor": "workspace:*",
     "@bg/game-azul": "workspace:*",
-    "@bg/game-jaipur": "workspace:*"
+    "@bg/game-jaipur": "workspace:*",
+    "@bg/game-patchwork": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

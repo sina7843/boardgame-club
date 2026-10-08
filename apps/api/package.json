@@ -45,7 +45,8 @@
     "@bg/game-the-mind": "workspace:*",
     "@bg/game-splendor": "workspace:*",
     "@bg/game-azul": "workspace:*",
-    "@bg/game-jaipur": "workspace:*"
+    "@bg/game-jaipur": "workspace:*",
+    "@bg/game-patchwork": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

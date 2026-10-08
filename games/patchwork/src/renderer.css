@@ -1,0 +1,59 @@
+/* چهل‌تکه: a quilter's table — printed fabrics in many hues, stitched seams, wooden buttons, a linen time track. */
+.pw { --linen: #efe5d2; --ink: #33261a; display: grid; gap: 0.7rem; inline-size: 100%; color: #f6ecdb; text-align: center; }
+.pw > :first-child { justify-self: center; }
+.fabric { background: repeating-linear-gradient(45deg, hsl(var(--h) 55% 52%) 0 4px, hsl(var(--h) 55% 46%) 4px 8px); box-shadow: inset 0 0 0 1px hsl(var(--h) 50% 30% / 0.7); }
+.fabric-leather { background: radial-gradient(circle at 40% 35%, #b07a45, #6e4423); box-shadow: inset 0 0 0 1px #3e2510; }
+.fabric-plain { background: repeating-linear-gradient(90deg, #8a7f6e 0 3px, #7d7262 3px 6px); box-shadow: inset 0 0 0 1px #4a4236; }
+.pw-btn { display: inline-block; inline-size: 0.55rem; block-size: 0.55rem; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f3d9a6, #b7863f); box-shadow: inset 0 0 0 1px #6e4a1a; vertical-align: middle; }
+
+.pw-track { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 2px; padding: 0.4rem; border-radius: 12px; background: var(--linen); inline-size: min(100%, 34rem); justify-self: center; }
+.pw-track__sq { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-block-size: 1rem; border-radius: 3px; background: #ddd0b6; }
+.pw-track__sq--inc { background: #c79a4a; box-shadow: inset 0 0 0 2px #8a5f1a; }
+.pw-track__sq--lea { background: #8a5a2b; }
+.pw-pawn { position: absolute; inline-size: 70%; block-size: 70%; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); transition: all 0.3s; }
+.pw-pawn--me { background: #2f7fc1; border: 2px solid #fff; }
+.pw-pawn--opp { background: #d2452f; border: 2px solid #fff; translate: 25% 25%; }
+
+.pw__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.pw-pl { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; align-items: center; justify-content: center; padding: 0.45rem 0.6rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); font-size: 0.82rem; }
+.pw-pl--turn { box-shadow: 0 0 0 2px #ffd98a; }
+.pw-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.15); }
+.pw-pl__name { font-weight: 800; }
+.pw-pl__btns { display: inline-flex; gap: 0.2rem; align-items: center; font-weight: 900; color: #ffe1a0; animation: pw-bump 0.4s ease-out; }
+.pw-pl__btns .pw-btn { inline-size: 0.9rem; block-size: 0.9rem; }
+.pw-pl__bonus { padding: 0 0.4rem; border-radius: 999px; background: #3f9a4a; color: #fff; font-weight: 800; }
+.pw-pl__score { color: #ffe1a0; font-weight: 800; }
+
+.pw__market { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: stretch; justify-content: center; }
+.pw-patch { display: grid; justify-items: center; align-content: space-between; gap: 0.3rem; min-inline-size: 4.2rem; padding: 0.4rem; border: 1px solid rgb(255 255 255 / 0.1); border-radius: 10px;
+  background: rgb(0 0 0 / 0.22); color: inherit; font: inherit; cursor: pointer; opacity: 0.55; transition: box-shadow 0.15s, opacity 0.15s; }
+.pw-patch--offer { opacity: 1; background: rgb(239 229 210 / 0.12); border-color: rgb(239 229 210 / 0.35); }
+.pw-patch:disabled { cursor: default; }
+.pw-patch--offer:disabled { opacity: 0.6; }
+.pw-patch--on { box-shadow: 0 0 0 3px #ffd98a; }
+.pw-patch__meta { display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 800; }
+.pw__left { align-self: center; font-size: 0.75rem; color: #d8cbb0; }
+.pw-shape { display: inline-grid; gap: 1px; }
+.pw-shape i { display: grid; place-items: center; border-radius: 2px; }
+.pw-shape .pw-btn { inline-size: 45%; block-size: 45%; }
+
+.pw__tools { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; justify-content: center; animation: pw-drop 0.25s ease-out both; }
+.pw__preview { display: inline-grid; place-items: center; min-inline-size: 4rem; min-block-size: 3rem; padding: 0.3rem; border-radius: 8px; background: rgb(0 0 0 / 0.25); }
+
+.pw__quilts { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-start; justify-content: center; }
+.pw-quilt { display: grid; grid-template-columns: repeat(9, 1rem); grid-template-rows: repeat(9, 1rem); gap: 1px; padding: 4px; border-radius: 6px; background: #5a4630; box-shadow: inset 0 0 0 2px #a8834e, 0 6px 14px -8px #000; }
+.pw-quilt--big { grid-template-columns: repeat(9, minmax(0, 2.2rem)); grid-template-rows: repeat(9, auto); inline-size: min(100%, 20rem); }
+.pw-quilt--big .pw-cell { aspect-ratio: 1; }
+.pw-cell { display: block; padding: 0; border: 0; border-radius: 2px; }
+.pw-cell:not(.fabric, .fabric-leather, .fabric-plain) { background: var(--linen); }
+button.pw-cell { cursor: pointer; }
+.pw-cell--ok { outline: 2px solid #7be08a; outline-offset: -2px; background: rgb(123 224 138 / 0.55) !important; }
+.pw-cell--bad { outline: 2px solid #ff7a6b; outline-offset: -2px; background: rgb(255 122 107 / 0.5) !important; }
+.pw__opp { display: grid; gap: 0.25rem; justify-items: center; font-size: 0.8rem; }
+.pw__actions { display: flex; justify-content: center; }
+.pw-hint { animation: pw-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes pw-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes pw-bump { 40% { transform: scale(1.25); } }
+@keyframes pw-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .pw * { animation: none !important; transition: none !important; } }

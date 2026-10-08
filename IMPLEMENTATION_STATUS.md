@@ -624,3 +624,10 @@ setup, take/camels/exchange rules and refill, selling with tokens and bonus priv
 timeouts/resign, tutorial, 25 random games with token conservation and replay); API 3 (`apps/api/test/jaipur.test.ts`);
 catalog test updated; E2E `e2e/jaipur.spec.ts` — tutorial and a full one-round game at 360 and 1440
 (`docs/evidence/jaipur/`).
+## «چهل‌تکه» Patchwork (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/patchwork` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/patchwork.test.ts`: patch set and orientation, turn order and advancing with income,
+buying/placing/time/token, leather and 7×7 scoring, timeouts/resign, tutorial, 15 random games to 53 with replay);
+API 3 (`apps/api/test/patchwork.test.ts`); catalog test updated; E2E `e2e/patchwork.spec.ts` — tutorial and a full
+two-player game at 360 and 1440 (`docs/evidence/patchwork/`).

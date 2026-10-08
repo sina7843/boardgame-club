@@ -92,6 +92,9 @@ importers:
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
+      '@bg/game-patchwork':
+        specifier: workspace:*
+        version: link:../../games/patchwork
       '@bg/game-quoridor':
         specifier: workspace:*
         version: link:../../games/quoridor
@@ -246,6 +249,9 @@ importers:
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
+      '@bg/game-patchwork':
+        specifier: workspace:*
+        version: link:../../games/patchwork
       '@bg/game-quoridor':
         specifier: workspace:*
         version: link:../../games/quoridor
@@ -734,6 +740,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/patchwork:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/quoridor:
     dependencies:
       '@bg/game-sdk':
@@ -1078,6 +1103,9 @@ importers:
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
+      '@bg/game-patchwork':
+        specifier: workspace:*
+        version: link:../../games/patchwork
       '@bg/game-quoridor':
         specifier: workspace:*
         version: link:../../games/quoridor
@@ -1196,6 +1224,9 @@ importers:
       '@bg/game-othello':
         specifier: workspace:*
         version: link:../../games/othello
+      '@bg/game-patchwork':
+        specifier: workspace:*
+        version: link:../../games/patchwork
       '@bg/game-quoridor':
         specifier: workspace:*
         version: link:../../games/quoridor

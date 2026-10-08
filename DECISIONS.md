@@ -720,3 +720,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   earnings). Selecting cards drives one action button (take / exchange n / sell n), a camel stepper for exchanges,
   and a separate «همهٔ شترها».
 - Polish passes (360/1440): (1) the result screen shows both stalls (yours was hidden with the hand).
+## «چهل‌تکه» (Patchwork, 2026-10-08, owner list batch 5)
+
+- Two-player Patchwork, perfect information: 33 patches in a circle — a generated set following the original's sizes
+  and cost/time/income ranges, not a piece-for-piece copy — the smallest one right after the neutral token; 9×9
+  quilts; 53-space time track. The player behind moves (tie: whoever arrived last). Buy one of the three patches after
+  the token (rotate/flip; must fit) or advance one past the opponent for one button per space. Income spaces 5…53 pay
+  the buttons sewn on the quilt; the first to pass each leather space (20, 26, 32, 38, 44) places a 1×1 patch at
+  once. First complete 7×7 square +7. End when both reach 53: buttons − 2 × empty squares; a score tie goes to the
+  player who reached the end first. Timeout: advance (leather on the first empty cell). Resign loses.
+- Look: quilter's table; printed fabrics per patch hue with stitched seams and wooden buttons, a linen time track
+  (income squares in ochre, leather in brown, blue/red pawns), the next six patches with the first three
+  highlighted, rotate/flip tools, green/red placement preview and «بدوز».
+- Polish passes (360/1440): (1) sewn cells rendered as plain linen (the empty-cell background overrode the fabric
+  classes) — fixed; (2) the time track is capped at 34rem so its squares are not huge on desktop.
