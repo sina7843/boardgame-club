@@ -1,7 +1,24 @@
-// Ticket to Ride vector art: map defs (sea, land watercolours, paper, wood), terrain symbols, compass, cartouche,
-// illustrated train cards, claimed train cars and the seat colours. Decorative only: every part is aria-hidden or
+// Ticket to Ride art: vector map defs (sea, land watercolours, paper, wood), terrain symbols, cartouche and claimed
+// train cars, plus painted WebP train cards, compass and seat train pieces cut from a generated sheet (see DECISIONS.md). Decorative only: every part is aria-hidden or
 // inside an element that carries the label.
-import { COLORS, LOCO } from './board.ts';
+import { useId } from 'react';
+import { COLORS } from './board.ts';
+import carRed from './art/car-red.webp';
+import carOrange from './art/car-orange.webp';
+import carYellow from './art/car-yellow.webp';
+import carGreen from './art/car-green.webp';
+import carBlue from './art/car-blue.webp';
+import carPink from './art/car-pink.webp';
+import carBlack from './art/car-black.webp';
+import carWhite from './art/car-white.webp';
+import carLoco from './art/car-loco.webp';
+import cardBack from './art/card-back.webp';
+import compassImg from './art/compass.webp';
+import trainRed from './art/train-red.webp';
+import trainBlue from './art/train-blue.webp';
+import trainYellow from './art/train-yellow.webp';
+import trainGreen from './art/train-green.webp';
+import trainBlack from './art/train-black.webp';
 
 /** Card / route colours: [light, base, dark]. Index = colour index (0–7), 8 = locomotive, 9 = gray route. */
 export const SHADES: [string, string, string][] = [
@@ -45,9 +62,6 @@ export function MapDefs({ map = 'usa' }: { map?: string }) {
         <circle cx="10" cy="21" r="0.5" fill="#fff" fillOpacity="0.45" /><circle cx="22" cy="4" r="0.5" fill="#fff" fillOpacity="0.4" />
         <path d="M1 15 q4 -1.5 8 0 M13 25 q5 -1.2 10 0" stroke="#5a3b14" strokeOpacity="0.09" strokeWidth="0.6" fill="none" />
       </pattern>
-      <linearGradient id="ttr-loco" x1="0" y1="0" x2="1" y2="1">
-        {['#d23a3a', '#ee8424', '#f0c92a', '#3d9a4a', '#2f6fd0', '#9b59c9'].map((c, i) => <stop key={c} offset={i / 5} stopColor={c} />)}
-      </linearGradient>
       {SHADES.map(([a, b, c], i) => (
         <linearGradient key={i} id={`ttr-c-${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={a} /><stop offset="0.45" stopColor={b} /><stop offset="1" stopColor={c} /></linearGradient>
       ))}
@@ -91,22 +105,13 @@ export function MapDefs({ map = 'usa' }: { map?: string }) {
   );
 }
 
-/** Compass rose (decorative), radius ~36. */
+/** Painted compass medallion (decorative), clipped to a circle of radius ~36 around the origin. */
 export function Compass() {
-  const star = (len: number, w: number, rot: number, dark: boolean) => (
-    <g transform={`rotate(${rot})`}>
-      <path d={`M0 ${-len} L${w} 0 L0 0 Z M0 ${len} L${-w} 0 L0 0 Z M${-len} 0 L0 ${-w} L0 0 Z M${len} 0 L0 ${w} L0 0 Z`} fill={dark ? INK : '#f3e7c6'} stroke={INK} strokeWidth="0.7" strokeLinejoin="round" />
-      <path d={`M0 ${-len} L${-w} 0 L0 0 Z M0 ${len} L${w} 0 L0 0 Z M${-len} 0 L0 ${w} L0 0 Z M${len} 0 L0 ${-w} L0 0 Z`} fill={dark ? '#f3e7c6' : INK} stroke={INK} strokeWidth="0.7" strokeLinejoin="round" />
-    </g>
-  );
   return (
-    <g aria-hidden="true" pointerEvents="none" opacity="0.92">
-      <circle r="31" fill="#f3e7c6" fillOpacity="0.35" stroke={INK} strokeWidth="1.1" />
-      <circle r="26" fill="none" stroke={INK} strokeWidth="0.7" strokeDasharray="1.5 2.6" />
-      {star(24, 5, 45, false)}
-      {star(36, 6, 0, true)}
-      <circle r="3.2" fill="url(#ttr-gold)" stroke={INK} strokeWidth="0.9" />
-      <text y="-40" fontSize="11" fontWeight="900" fill={INK} textAnchor="middle">ش</text>
+    <g aria-hidden="true" pointerEvents="none" opacity="0.95">
+      <clipPath id="ttr-compass-clip"><circle cx="0" cy="3" r="34" /></clipPath>
+      <image href={compassImg} x="-60" y="-60" width="120" height="120" clipPath="url(#ttr-compass-clip)" preserveAspectRatio="xMidYMid slice" />
+      <circle cx="0" cy="3" r="34" fill="none" stroke={INK} strokeWidth="1" />
     </g>
   );
 }
@@ -128,9 +133,6 @@ export function Cartouche({ title, sub }: { title: string; sub: string }) {
   );
 }
 
-/** Fill for a card colour index (locomotive = rainbow). */
-export const cardFill = (c: number) => (c === LOCO ? 'url(#ttr-loco)' : `url(#ttr-c-${c})`);
-
 /** A small locomotive or wagon silhouette, centred on the origin, about 30 × 16. */
 export function TrainGlyph({ loco, color = '#fff' }: { loco?: boolean; color?: string }) {
   return loco ? (
@@ -149,136 +151,29 @@ export function TrainGlyph({ loco, color = '#fff' }: { loco?: boolean; color?: s
   );
 }
 
-type WagonKind = 'box' | 'hopper' | 'tank' | 'caboose' | 'coach' | 'logs' | 'coal' | 'reefer';
-/** Which wagon each card colour shows (colour index order). */
-const WAGON: WagonKind[] = ['box', 'hopper', 'tank', 'caboose', 'coach', 'logs', 'coal', 'reefer'];
-const WINK = '#1d140a';
+const CAR_IMG = [carRed, carOrange, carYellow, carGreen, carBlue, carPink, carBlack, carWhite, carLoco];
+/** Painted train piece per seat (seat 5, violet, wears the black piece). */
+export const SEAT_TRAIN = [trainRed, trainBlue, trainYellow, trainGreen, trainBlack];
 
-function Wheels({ xs }: { xs: number[] }) {
-  return <>{xs.map((x) => <g key={x}><circle cx={x} cy="4.2" r="2.9" fill="#2a2420" stroke={WINK} strokeWidth="0.6" /><circle cx={x} cy="4.2" r="1" fill="#9c9389" /></g>)}</>;
-}
-const Under = () => <><rect x="-17" y="1" width="34" height="1.8" fill="#3a302a" /><rect x="-19" y="0.4" width="2" height="1.6" fill={WINK} /><rect x="17" y="0.4" width="2" height="1.6" fill={WINK} /></>;
-
-/** A wagon about 36 wide, wheels on y = 4, painted in the card colour. */
-function Wagon({ kind, c }: { kind: WagonKind; c: number }) {
-  const [l, b, d] = SHADES[c]!;
-  const sw = 0.9;
-  switch (kind) {
-    case 'box': return (
-      <g><Under /><rect x="-16.5" y="-13" width="33" height="14" rx="1" fill={b} stroke={WINK} strokeWidth={sw} />
-        <rect x="-16.5" y="-13" width="33" height="2.4" fill={d} /><path d="M-12 -10 V0.5 M-8 -10 V0.5 M8 -10 V0.5 M12 -10 V0.5" stroke={d} strokeWidth="0.7" />
-        <rect x="-4.5" y="-10" width="9" height="10.5" fill={l} stroke={WINK} strokeWidth="0.7" /><path d="M-4.5 -10 L4.5 0.5 M4.5 -10 L-4.5 0.5" stroke={d} strokeWidth="0.7" />
-        <Wheels xs={[-11, -6, 6, 11]} /></g>
-    );
-    case 'hopper': return (
-      <g><Under /><path d="M-17 -12 H17 L13 1 H-13 Z" fill={b} stroke={WINK} strokeWidth={sw} strokeLinejoin="round" />
-        <path d="M-17 -12 H17 V-10 H-17 Z" fill={d} /><path d="M-9 -10 L-7.5 1 M0 -10 V1 M9 -10 L7.5 1" stroke={d} strokeWidth="0.8" />
-        <path d="M-15 -12 Q-8 -17 0 -14.5 Q8 -17.5 15 -12 Z" fill="#e6c36a" stroke={WINK} strokeWidth="0.6" />
-        <Wheels xs={[-10, -5, 5, 10]} /></g>
-    );
-    case 'tank': return (
-      <g><Under /><rect x="-17" y="-11.5" width="34" height="12" rx="6" fill={b} stroke={WINK} strokeWidth={sw} />
-        <path d="M-14 -9 H14" stroke={l} strokeWidth="1.6" strokeLinecap="round" opacity="0.8" /><path d="M-8 -11.5 V0.5 M8 -11.5 V0.5" stroke={d} strokeWidth="0.8" />
-        <rect x="-2.5" y="-15" width="5" height="4" rx="1" fill={b} stroke={WINK} strokeWidth="0.7" />
-        <Wheels xs={[-11, -6, 6, 11]} /></g>
-    );
-    case 'caboose': return (
-      <g><Under /><rect x="-15" y="-11" width="30" height="12" rx="1" fill={b} stroke={WINK} strokeWidth={sw} />
-        <rect x="-6" y="-16.5" width="12" height="6" rx="0.8" fill={b} stroke={WINK} strokeWidth="0.8" /><path d="M-7.5 -16.5 H7.5" stroke={WINK} strokeWidth="1.4" />
-        <rect x="-4" y="-15" width="3" height="2.6" fill={l} stroke={WINK} strokeWidth="0.4" /><rect x="1" y="-15" width="3" height="2.6" fill={l} stroke={WINK} strokeWidth="0.4" />
-        <rect x="-12" y="-8" width="4" height="4" fill={l} stroke={WINK} strokeWidth="0.5" /><rect x="8" y="-8" width="4" height="4" fill={l} stroke={WINK} strokeWidth="0.5" />
-        <path d="M-17 -11 H-15 M15 -11 H17 M-16.5 -11 V1 M16.5 -11 V1" stroke={WINK} strokeWidth="0.7" />
-        <Wheels xs={[-9, 9]} /></g>
-    );
-    case 'coach': return (
-      <g><Under /><path d="M-17 -10 Q0 -15.5 17 -10 V1 H-17 Z" fill={b} stroke={WINK} strokeWidth={sw} strokeLinejoin="round" />
-        <path d="M-17 -10 Q0 -15.5 17 -10" fill="none" stroke={d} strokeWidth="1.6" />
-        {[-13, -7.5, -2, 3.5, 9].map((x) => <rect key={x} x={x} y="-8" width="4" height="4.5" rx="0.8" fill="#fff6d8" stroke={WINK} strokeWidth="0.5" />)}
-        <path d="M-17 -1.5 H17" stroke={l} strokeWidth="1" />
-        <Wheels xs={[-12, -8, 8, 12]} /></g>
-    );
-    case 'logs': return (
-      <g><Under /><rect x="-17" y="-2.5" width="34" height="3.5" fill={b} stroke={WINK} strokeWidth={sw} />
-        <path d="M-16 -2.5 V-12 M16 -2.5 V-12" stroke={d} strokeWidth="1.4" />
-        {[[-4.6, 0], [-8.8, -1.5], [-8.8, 1.5], [-13, 0]].map(([y, dx], i) => (
-          <g key={i}><rect x={-15 + dx!} y={y! - 2.2} width="30" height="4.4" rx="2.2" fill="#9a6a3a" stroke={WINK} strokeWidth="0.5" /><circle cx={15 + dx!} cy={y} r="2.1" fill="#e2bd86" stroke={WINK} strokeWidth="0.5" /></g>
-        ))}
-        <Wheels xs={[-11, -6, 6, 11]} /></g>
-    );
-    case 'coal': return (
-      <g><Under /><path d="M-17 -10 H17 L15 1 H-15 Z" fill={b} stroke={WINK} strokeWidth={sw} strokeLinejoin="round" />
-        <path d="M-17 -10 Q-12 -16 -6 -12.5 Q-1 -17 4 -12.8 Q10 -16.5 17 -10 Z" fill="#1b1b1e" stroke={WINK} strokeWidth="0.6" />
-        <circle cx="-9" cy="-12.5" r="0.8" fill="#8b8b92" /><circle cx="2" cy="-14" r="0.7" fill="#8b8b92" /><circle cx="10" cy="-12.5" r="0.8" fill="#8b8b92" />
-        <path d="M-8 -10 L-7 1 M8 -10 L7 1" stroke="#55555c" strokeWidth="0.8" />
-        <Wheels xs={[-10, -5, 5, 10]} /></g>
-    );
-    case 'reefer': return (
-      <g><Under /><rect x="-16.5" y="-13" width="33" height="14" rx="1" fill={b} stroke={WINK} strokeWidth={sw} />
-        <rect x="-16.5" y="-13" width="33" height="2.6" fill="#8fb7d6" /><rect x="-16.5" y="-1.6" width="33" height="2.2" fill="#8fb7d6" />
-        <path d="M-6 -6 H-2 M-4 -8 V-4 M-5.4 -7.4 L-2.6 -4.6 M-2.6 -7.4 L-5.4 -4.6" stroke="#4a7ea6" strokeWidth="0.8" strokeLinecap="round" />
-        <rect x="3" y="-9.5" width="9" height="8" fill={l} stroke={WINK} strokeWidth="0.6" />
-        <Wheels xs={[-11, -6, 6, 11]} /></g>
-    );
-  }
-}
-
-/** Steam locomotive about 38 wide, wheels on y = 4. */
-function Locomotive() {
+/** Painted card face inside a rounded 48 × 72 card; the matching colour fills the part the square art does not reach. */
+function Painted({ src, fill, uid }: { src: string; fill: string; uid: string }) {
   return (
-    <g>
-      <circle cx="-9" cy="-24" r="3.2" fill="#fff" opacity="0.85" /><circle cx="-4" cy="-27" r="4" fill="#fff" opacity="0.7" /><circle cx="2" cy="-29" r="3.2" fill="#fff" opacity="0.55" />
-      <rect x="-15" y="-9" width="22" height="9.5" rx="4.5" fill="#2c2c31" stroke={WINK} strokeWidth="0.9" />
-      <path d="M-15 -6 H7" stroke="#6b6b72" strokeWidth="1" /><path d="M-6 -9 V0.5 M1 -9 V0.5" stroke="#d9a62e" strokeWidth="1.2" />
-      <rect x="-12.5" y="-19" width="4.5" height="10.5" fill="#2c2c31" stroke={WINK} strokeWidth="0.8" /><rect x="-13.5" y="-20.5" width="6.5" height="2.2" rx="0.6" fill="#d9a62e" stroke={WINK} strokeWidth="0.5" />
-      <path d="M-3 -9 Q-1.5 -14 0 -9 Z" fill="#d9a62e" stroke={WINK} strokeWidth="0.5" />
-      <rect x="6" y="-16" width="11" height="17" rx="1" fill="#c42a2a" stroke={WINK} strokeWidth="0.9" /><rect x="5" y="-17.5" width="13" height="2.4" rx="0.8" fill="#2c2c31" />
-      <rect x="8.5" y="-13" width="6" height="5" rx="0.8" fill="#fff6d8" stroke={WINK} strokeWidth="0.5" />
-      <path d="M-15 0 L-20 4.5 H-15 Z" fill="#c42a2a" stroke={WINK} strokeWidth="0.6" />
-      <rect x="-16.5" y="-7" width="2.5" height="3" rx="1" fill="#ffe08a" stroke={WINK} strokeWidth="0.4" />
-      {[-10, -2.5, 5].map((x) => <g key={x}><circle cx={x} cy="3.4" r="3.6" fill="#c42a2a" stroke={WINK} strokeWidth="0.8" /><circle cx={x} cy="3.4" r="1.1" fill="#2a2420" /></g>)}
-      <circle cx="13" cy="4.4" r="2.6" fill="#c42a2a" stroke={WINK} strokeWidth="0.7" />
-      <path d="M-10 3.4 H5" stroke="#9c9389" strokeWidth="1.2" strokeLinecap="round" />
-    </g>
+    <svg viewBox="0 0 48 72" className="ttr-cardart" aria-hidden="true" focusable="false">
+      <clipPath id={uid}><rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" /></clipPath>
+      <g clipPath={`url(#${uid})`}><rect width="48" height="72" fill={fill} /><image href={src} x="-4" y="8" width="56" height="56" /></g>
+      <rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" fill="none" stroke="#1d140a" strokeWidth="1.1" />
+    </svg>
   );
 }
 
-/** Illustrated train card (SVG), 48 × 72 view box: frame in the card colour, a scene with the wagon on rails. */
+/** Train card face (painted car in the card colour, rainbow locomotive for LOCO). */
 export function CardArt({ c }: { c: number }) {
-  const loco = c === LOCO;
-  const id = `ttr-card-sky-${c}`;
-  const [l, , d] = SHADES[c]!;
-  return (
-    <svg viewBox="0 0 48 72" className="ttr-cardart" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fdf7e6" /><stop offset="1" stopColor={loco ? '#f2d9a0' : l} stopOpacity={loco ? 1 : 0.6} /></linearGradient>
-      </defs>
-      <rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" fill={cardFill(c)} stroke={WINK} strokeWidth="1.1" />
-      <rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" fill="url(#ttr-paper)" />
-      <rect x="4" y="4" width="40" height="52" rx="3.5" fill={`url(#${id})`} stroke={WINK} strokeWidth="0.8" />
-      <path d="M4 38 Q14 31 22 36 T44 33 V55 H4 Z" fill={loco ? '#c9b27a' : d} opacity="0.2" />
-      <path d="M4 44 Q16 39 28 43 T44 42 V55 H4 Z" fill="#8a6f45" opacity="0.2" />
-      <path d="M5 49.6 H43" stroke="#5a3b14" strokeWidth="1" />
-      {[7, 11, 15, 19, 23, 27, 31, 35, 39].map((x) => <rect key={x} x={x} y="49.8" width="2" height="1.6" fill="#7a5a30" />)}
-      <g transform={`translate(24 44.4) scale(${loco ? 0.92 : 0.98})`}>{loco ? <Locomotive /> : <Wagon kind={WAGON[c]!} c={c} />}</g>
-      <rect x="6" y="59" width="36" height="9.5" rx="2" fill="#fbf5e4" fillOpacity="0.92" stroke={WINK} strokeWidth="0.6" />
-      <g transform="translate(24 63.8) scale(0.36)"><TrainGlyph loco={loco} color="#3b2a17" /></g>
-    </svg>
-  );
+  return <Painted src={CAR_IMG[c]!} fill={SHADES[c]![1]} uid={`ttr-cc-${useId().replace(/:/g, '')}`} />;
 }
 
-/** Back of a train card (the closed deck), 48 × 72 view box. */
+/** Back of a train card (the closed deck). */
 export function CardBack() {
-  return (
-    <svg viewBox="0 0 48 72" className="ttr-cardart" aria-hidden="true" focusable="false">
-      <rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" fill="#24402f" stroke={WINK} strokeWidth="1.1" />
-      <rect x="3.5" y="3.5" width="41" height="65" rx="4" fill="none" stroke="url(#ttr-gold)" strokeWidth="1.6" />
-      <rect x="6.5" y="6.5" width="35" height="59" rx="3" fill="none" stroke="#d9a62e" strokeOpacity="0.5" strokeWidth="0.6" strokeDasharray="1.5 1.5" />
-      <path d="M24 12 L36 36 L24 60 L12 36 Z" fill="#2f5a40" stroke="#d9a62e" strokeWidth="0.8" />
-      <circle cx="24" cy="36" r="10" fill="#1b3024" stroke="url(#ttr-gold)" strokeWidth="1.4" />
-      <g transform="translate(24 36.5) scale(0.42)"><TrainGlyph loco color="#e8c35f" /></g>
-      {[[10, 10], [38, 10], [10, 62], [38, 62]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="1.6" fill="#d9a62e" />)}
-    </svg>
-  );
+  return <Painted src={cardBack} fill="#24402f" uid={`ttr-cb-${useId().replace(/:/g, '')}`} />;
 }
 
 /** One claimed train car in the owner's colour, centred on the origin, rotated by the caller. */

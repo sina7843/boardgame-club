@@ -165,7 +165,8 @@
 .ttr-seal { flex: none; display: grid; place-items: center; inline-size: 42px; block-size: 42px; border-radius: 50%;
   background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / 0.55), transparent 55%), var(--pc);
   box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.4), 0 0 0 2px #f3e7c6, 0 0 0 3.5px rgb(0 0 0 / 0.45), 0 3px 6px rgb(0 0 0 / 0.4); }
-.ttr-seal svg { inline-size: 28px; block-size: auto; }
+.ttr-seal { overflow: hidden; }
+.ttr-seal img { inline-size: 100%; block-size: 100%; object-fit: cover; border-radius: 50%; }
 .ttr-player__head { display: grid; min-inline-size: 0; flex: 1; }
 .ttr-player__name { font-weight: 900; max-inline-size: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ttr-player__color { color: var(--text-2); font-size: var(--fs-xs); }

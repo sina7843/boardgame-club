@@ -6,7 +6,7 @@ import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type Re
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
 import { BOARDS, COLORS, COLOR_FA, LOCO, ROUTE_POINTS, TRAINS, type Board, type MapId } from './board.ts';
 import { CAR_H, CITY_R, layoutOf, type Pt } from './geometry.ts';
-import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, TrainGlyph, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SHADES, colorIx } from './art.tsx';
+import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SEAT_TRAIN, SHADES, colorIx } from './art.tsx';
 import type { LogEntry, TtrView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -516,7 +516,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
               return (
                 <li key={s} className={['ttr-player', turn ? 'ttr-player--turn' : '', view.status[s] !== 'active' ? 'ttr-player--out' : ''].join(' ')} style={{ ['--pc' as string]: SEAT_COLOR[s] }}>
                   <span className="ttr-player__top">
-                    <span className="ttr-seal" aria-hidden="true"><svg viewBox="-16 -12 32 22" aria-hidden="true"><g transform="scale(0.9)"><TrainGlyph loco color={SEAT_INK[s]} /></g></svg></span>
+                    <span className="ttr-seal" aria-hidden="true"><img src={SEAT_TRAIN[s]} alt="" /></span>
                     <span className="ttr-player__head">
                       <bdi className="ttr-player__name">{seatName(s)}</bdi>
                       <span className="ttr-player__color">{SEAT_FA[s]} · صندلی {fa(s + 1)}{s === mySeat ? ' · شما' : ''}</span>
