@@ -3,6 +3,14 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import guard from './art/ll-guard.webp';
+import priest from './art/ll-priest.webp';
+import baron from './art/ll-baron.webp';
+import handmaid from './art/ll-handmaid.webp';
+import prince from './art/ll-prince.webp';
+import king from './art/ll-king.webp';
+import countess from './art/ll-countess.webp';
+import princess from './art/ll-princess.webp';
 import { CARD_FA, type LogEntry, type LoveLetterView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -11,25 +19,14 @@ const EFFECT_FA: Record<number, string> = {
   5: 'یک نفر کارتش را عوض کند', 6: 'دست‌تان را عوض کنید', 7: 'با شاه یا شاهزاده باید بازی شود', 8: 'دور بیندازید، می‌بازید'
 };
 
-function Emblem({ v }: { v: number }) {
-  const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-  switch (v) {
-    case 1: return <path {...p} d="M20 6 L34 12 V24 C34 32 27 37 20 40 C13 37 6 32 6 24 V12 Z" />;
-    case 2: return <g {...p}><path d="M20 6 V38 M10 16 H30" /><circle cx="20" cy="16" r="3" fill="currentColor" /></g>;
-    case 3: return <g {...p}><path d="M8 34 L30 10 M26 8 L32 14 M12 26 L16 30" /><path d="M32 34 L10 10" opacity=".5" /></g>;
-    case 4: return <g {...p}><circle cx="20" cy="17" r="8" /><path d="M20 25 V38 M20 31 Q14 29 12 33 M20 31 Q26 29 28 33" /></g>;
-    case 5: return <path {...p} d="M8 30 L10 14 L16 22 L20 10 L24 22 L30 14 L32 30 Z" />;
-    case 6: return <g {...p}><path d="M6 32 L8 12 L15 20 L20 6 L25 20 L32 12 L34 32 Z" /><path d="M6 36 H34" /></g>;
-    case 7: return <g {...p}><path d="M6 18 Q20 8 34 18 Q20 30 6 18 Z" /><circle cx="14" cy="18" r="2.5" fill="currentColor" /><circle cx="26" cy="18" r="2.5" fill="currentColor" /></g>;
-    default: return <g {...p}><path d="M20 36 C6 26 6 14 13 12 C17 11 20 15 20 15 C20 15 23 11 27 12 C34 14 34 26 20 36 Z" fill="currentColor" fillOpacity=".25" /><path d="M12 8 L16 12 L20 6 L24 12 L28 8" /></g>;
-  }
-}
+// Portraits are cut from a generated sheet (see DECISIONS.md); decorative, the card name and value stay as text.
+const ART: Record<number, string> = { 1: guard, 2: priest, 3: baron, 4: handmaid, 5: prince, 6: king, 7: countess, 8: princess };
 
 function LLCard({ v, size = 'md', onClick, selected, hint, disabled }: { v: number; size?: 'sm' | 'md'; onClick?: () => void; selected?: boolean; hint?: boolean; disabled?: boolean }) {
   const body = (
     <>
       <span className="ll-card__v">{fa(v)}</span>
-      <svg viewBox="0 0 40 44" className="ll-card__art" aria-hidden="true"><Emblem v={v} /></svg>
+      <img className="ll-card__art" src={ART[v] ?? princess} alt="" aria-hidden="true" />
       <strong className="ll-card__name">{CARD_FA[v]}</strong>
       {size === 'md' && <small className="ll-card__fx">{EFFECT_FA[v]}</small>}
       <span className="ll-card__seal" aria-hidden="true" />

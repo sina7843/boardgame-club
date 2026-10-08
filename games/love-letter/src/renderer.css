@@ -16,8 +16,9 @@
 
 .ll__table { display: flex; gap: 1rem; justify-content: center; align-items: center; }
 .ll-deck { position: relative; inline-size: 3.6rem; block-size: 5rem; }
-.ll-deck__back { position: absolute; inset: 0; border-radius: 9px; background: radial-gradient(circle at 50% 50%, #9b2242 0 18%, transparent 19%), repeating-linear-gradient(45deg, #5b1428 0 6px, #6e1a32 6px 12px);
+.ll-deck__back { position: absolute; inset: 0; border-radius: 9px; background: repeating-linear-gradient(45deg, #5b1428 0 6px, #6e1a32 6px 12px);
   border: 3px solid #e9d6b0; box-shadow: 3px 3px 0 #3a0c18, 6px 6px 0 #2a0811; }
+.ll-deck__back::after { content: ''; position: absolute; inset: 20%; border-radius: 50%; background: url('./art/letter.webp') center / cover; box-shadow: 0 0 0 2px #e9d6b0; }
 .ll-deck__n { position: absolute; inset-block-end: -1.3rem; inset-inline: 0; font-size: 0.78rem; color: #d9ccb4; }
 .ll__faceup { display: flex; gap: 0.25rem; }
 
@@ -28,8 +29,8 @@
 .ll-card--sm .ll-card__name, .ll-card--sm .ll-card__seal { display: none; }
 .ll-card--sm .ll-card__v { font-size: 0.85rem; }
 .ll-card__v { justify-self: start; font-weight: 900; font-size: 1.4rem; line-height: 1; }
-.ll-card__art { inline-size: 70%; block-size: auto; }
-.ll-card--sm .ll-card__art { inline-size: 85%; }
+.ll-card__art { inline-size: 100%; block-size: 100%; min-block-size: 0; object-fit: cover; border-radius: 7px; border: 1px solid #c9a46a; }
+.ll-card--sm .ll-card__art { border-radius: 4px; }
 .ll-card__name { font-weight: 900; font-size: 1rem; }
 .ll-card__fx { font-size: 0.68rem; color: #6b4a33; line-height: 1.3; }
 .ll-card__seal { position: absolute; inset-block-end: -10px; inset-inline-end: -8px; inline-size: 26px; block-size: 26px; border-radius: 50%;
