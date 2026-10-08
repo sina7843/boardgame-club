@@ -1037,3 +1037,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: two vintage nautical charts — parchment frame with sepia Persian coordinates (rows الف…د, columns ۱…۱۰),
   deep water with wave hatching, drawn steel hulls with deck guns, flame bursts for hits, splash rings for misses,
   darkened hulls when sunk; a fleet tray for placement.
+
+## Generated art pipeline — pilot on «آنمچد» (Unmatched), 2026-10-09
+
+- Art is generated with Higgsfield (GPT Image 2.5, 4K, medium quality, 1.25 credits per image) as **sprite sheets**:
+  one sheet per asset family (here: 14 portraits + 4 card-type seals in a 5×4 grid; 4 arenas in a 2×2 grid).
+  Prompts ask for original artwork (public-domain characters, no copying of the published game's art).
+- `.playwright/art/crop.cjs` crops sheets with Chromium's canvas (no image library) — even grid cells, or panels
+  found by scanning for the dark gutter — and encodes WebP into `games/<slug>/src/art/`. Raw sheets stay in the
+  gitignored `.playwright/art/`.
+- WebP, not traced SVG: tracing painted art either balloons the file or posterises it; WebP portraits are 8–15 KB.
+  Vite emits each image as its own hashed file, loaded only when shown (one arena per match).
+- Unmatched: `art.tsx` now frames the portraits/seals/arenas in SVG (`<image>`), replacing ~25 KB of hand-drawn
+  vector art; the board's space network and paths are still drawn in code on top of the painted arena.
