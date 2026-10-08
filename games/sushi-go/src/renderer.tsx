@@ -3,6 +3,16 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { TurnIndicator, type GameRendererProps } from '@bg/ui';
+import tempura from './art/tempura.webp';
+import sashimi from './art/sashimi.webp';
+import dumpling from './art/dumpling.webp';
+import maki from './art/maki.webp';
+import salmon from './art/salmon.webp';
+import squid from './art/squid.webp';
+import egg from './art/egg.webp';
+import pudding from './art/pudding.webp';
+import wasabi from './art/wasabi.webp';
+import chopsticks from './art/chopsticks.webp';
 import { MAKI, setScore, type Kind, type Played, type SushiGoView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -16,26 +26,16 @@ const NOTE: Record<Kind, string> = {
 };
 const ORDER: Kind[] = ['wasabi', 'squid', 'salmon', 'egg', 'tempura', 'sashimi', 'dumpling', 'maki3', 'maki2', 'maki1', 'pudding', 'chopsticks'];
 
+// Dish art is cut from a generated sprite sheet (see DECISIONS.md); maki repeats the roll by its count.
+const ART: Record<Kind, string> = {
+  tempura, sashimi, dumpling, maki1: maki, maki2: maki, maki3: maki, salmon, squid, egg, pudding, wasabi, chopsticks
+};
+
 function Dish({ k }: { k: Kind }) {
-  switch (k) {
-    case 'tempura': return <g><path d="M-18 8 Q-20 -14 4 -16 Q18 -14 16 -4 Q6 -8 -2 -2 Q-8 4 -6 12 Z" fill="#e8a33d" stroke="#9a5f12" strokeWidth="1.5" /><path d="M14 -6 L22 -14 M16 -2 L24 -6" stroke="#e3582f" strokeWidth="3" strokeLinecap="round" /></g>;
-    case 'sashimi': return <g>{[-10, 0, 10].map((x) => <path key={x} d={`M${x - 7} 10 Q${x - 9} -10 ${x} -12 Q${x + 9} -10 ${x + 7} 10 Z`} fill="#f08a6b" stroke="#b9533a" strokeWidth="1.2" />)}{[-10, 0, 10].map((x) => <path key={`s${x}`} d={`M${x - 4} -4 L${x + 4} 2`} stroke="#ffd6c8" strokeWidth="1.5" />)}</g>;
-    case 'dumpling': return <g><path d="M-20 6 Q0 -22 20 6 Z" fill="#f2e2be" stroke="#a88a52" strokeWidth="1.5" />{[-12, -6, 0, 6, 12].map((x) => <path key={x} d={`M${x} ${-10 + Math.abs(x) * 0.6} q2 4 0 6`} stroke="#a88a52" strokeWidth="1.2" fill="none" />)}</g>;
-    case 'maki1': case 'maki2': case 'maki3': {
-      const c = MAKI[k]!;
-      const xs = c === 1 ? [0] : c === 2 ? [-10, 10] : [-14, 0, 14];
-      return <g>{xs.map((x) => <g key={x} transform={`translate(${x} 0)`}><circle r="8" fill="#1f2b22" /><circle r="6" fill="#fbf7ee" /><circle r="2.6" fill="#e5533f" /></g>)}</g>;
-    }
-    case 'salmon': case 'squid': case 'egg': {
-      const top = k === 'salmon' ? '#f28c5b' : k === 'squid' ? '#f3eee6' : '#f4cf47';
-      return <g><rect x="-17" y="0" width="34" height="11" rx="5" fill="#fbf7ee" stroke="#cfc6b2" /><path d="M-19 2 Q-18 -12 0 -12 Q18 -12 19 2 Z" fill={top} stroke="rgb(0 0 0 / .25)" />
-        {k === 'egg' && <rect x="-3" y="-12" width="6" height="23" fill="#1f2b22" />}{k === 'salmon' && <path d="M-10 -8 L-4 -2 M0 -9 L6 -3 M9 -8 L13 -4" stroke="#ffd0b5" strokeWidth="1.5" />}
-        {k === 'squid' && <path d="M-12 -6 H12 M-12 -2 H12" stroke="#d9cfc0" strokeWidth="1" />}</g>;
-    }
-    case 'pudding': return <g><path d="M-14 10 L-10 -8 H10 L14 10 Z" fill="#f2c46a" stroke="#a36d1c" strokeWidth="1.5" /><path d="M-10 -8 Q0 -14 10 -8 L9 -4 Q0 -8 -9 -4 Z" fill="#7a3d10" /></g>;
-    case 'wasabi': return <path d="M-14 10 Q-16 -2 -6 -6 Q-4 -16 6 -12 Q16 -8 14 4 Q14 12 -14 10 Z" fill="#7cb342" stroke="#4d7a22" strokeWidth="1.5" />;
-    case 'chopsticks': return <g stroke="#b5762f" strokeWidth="3" strokeLinecap="round"><path d="M-18 14 L14 -16" /><path d="M-12 16 L20 -12" /></g>;
-  }
+  const c = MAKI[k] ?? 0;
+  if (!c) return <image href={ART[k]} x="-19" y="-19" width="38" height="38" />;
+  const xs = c === 1 ? [0] : c === 2 ? [-9, 9] : [-12, 0, 12], w = c === 1 ? 36 : c === 2 ? 24 : 20;
+  return <g>{xs.map((x) => <image key={x} href={maki} x={x - w / 2} y={-w / 2} width={w} height={w} />)}</g>;
 }
 
 export function Plate({ k, size = 'md', fresh, wasabi }: { k: Kind; size?: 'sm' | 'md'; fresh?: boolean; wasabi?: boolean }) {
