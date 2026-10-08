@@ -1016,3 +1016,13 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   tableau or an empty chip pool (12 per player). Not included: trade, search, takeovers, 6-cost dev bonuses, goals.
 - Look: star-chart command deck — five phase tiles with emoji glyphs (secret choice, then lit when chosen), planet
   orbs coloured by good with glowing goods, violet hex developments, empires waiting on others outlined in amber.
+
+## Game screen: fullscreen target and stage restyle (2026-10-08)
+
+- Fullscreen now targets the `.game` container, which fills the screen and scrolls itself. Fullscreen on `<html>`
+  hid the board: browsers force `overflow: hidden` on a fullscreen root (measured: computed `overflow-y: hidden`),
+  so anything below the fold could not be reached. Dialogs/drawers are native modal `<dialog>`s in the top layer and
+  still show; toasts (fixed in `<body>`) are not visible while fullscreen.
+- The table stage is a single graphite panel instead of walnut rim + felt + the game's own panel; the status strip
+  is one slim sticky line with an accent edge for "your move" (no full-colour slab covering the board on phones);
+  tutorial text appears once, in the tutorial panel. Phones hide the table subtitle line.

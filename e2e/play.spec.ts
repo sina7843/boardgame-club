@@ -126,11 +126,13 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();
   await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز', exact: true })).toBeAttached();
 
-  // Whole-page fullscreen from the game bar, and back.
+  // Fullscreen from the game bar (the game container, which scrolls itself so the board stays reachable), and back.
   await mover.keyboard.press('Escape'); // close the chat drawer
   await mover.getByRole('button', { name: 'تمام‌صفحه', exact: true }).click();
-  await expect.poll(() => mover.evaluate(() => document.fullscreenElement === document.documentElement)).toBe(true);
-  await mover.screenshot({ path: shot('fullscreen', info.project.name), fullPage: true });
+  await expect.poll(() => mover.evaluate(() => document.fullscreenElement?.classList.contains('game') ?? false)).toBe(true);
+  await mover.locator('.game').evaluate((el) => { el.scrollTop = el.scrollHeight; });
+  await expect(mover.locator('.game__board')).toBeInViewport();
+  await mover.screenshot({ path: shot('fullscreen', info.project.name) });
   await mover.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
   await expect.poll(() => mover.evaluate(() => document.fullscreenElement)).toBeNull();
   await a.context().close(); await b.context().close();

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { MessageItem, TableSnapshot } from '@bg/contracts';
 import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Maximize2, Medal, Minimize2, Trophy } from 'lucide-react';
@@ -249,10 +249,12 @@ function useTableChatAlerts(tableId: string | null, open: boolean): number {
 }
 
 /**
- * Whole-page fullscreen for the game screen (status strip, board, hand, chat drawer and dialogs all stay visible).
- * `supported` is false where the API is missing (e.g. iPhone Safari); leaving the table exits fullscreen.
+ * Fullscreen for the game screen. The game container itself goes fullscreen and scrolls on its own: browsers may
+ * force `overflow: hidden` on a fullscreen <html>, which hid the board below the fold. Dialogs and drawers are
+ * native modal <dialog>s in the top layer, so they still show above it. `supported` is false where the API is
+ * missing (e.g. iPhone Safari); leaving the table exits fullscreen.
  */
-function useFullscreen() {
+function useFullscreen(target: RefObject<HTMLElement | null>) {
   const supported = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
   const [on, setOn] = useState(() => typeof document !== 'undefined' && !!document.fullscreenElement);
   useEffect(() => {
@@ -266,9 +268,9 @@ function useFullscreen() {
   const toggle = useCallback(async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
-      else await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+      else await (target.current ?? document.documentElement).requestFullscreen({ navigationUI: 'hide' });
     } catch { /* refused by the browser; nothing to do */ }
-  }, []);
+  }, [target]);
   return { supported, on, toggle };
 }
 
@@ -296,7 +298,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
   const hasChat = t.mySeat !== null && !t.isTutorial;
   const unread = useTableChatAlerts(hasChat ? t.id : null, chat);
-  const full = useFullscreen();
+  const gameRef = useRef<HTMLDivElement>(null);
+  const full = useFullscreen(gameRef);
 
   // Escape cancels a move that is still inside its undo window.
   const { queued, cancelQueued } = s;
@@ -331,7 +334,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   );
 
   return (
-    <div className="game">
+    <div className="game" ref={gameRef}>
       <header className="gamebar">
         <Link to="/" className="gamebar__icon" aria-label="بازگشت به داشبورد"><ArrowRight aria-hidden /></Link>
         <div className="gamebar__title">
@@ -405,7 +408,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
         {finished && g.result && <ResultPanel snap={snap} />}
 
-        {/* The table: walnut rim, felt cloth, lamp light. Renderers sit on it in the night palette. */}
+        {/* The stage: a graphite panel; renderers sit on it in the night palette. */}
         <div className={cn('game__board table-night', myTurn && 'game__board--mine')}>
           {Renderer
             ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} />
