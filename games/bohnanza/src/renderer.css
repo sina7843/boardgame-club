@@ -9,7 +9,7 @@
 .bn-card--sm { inline-size: 3rem; block-size: 3.9rem; padding-block: 0.3rem 0.2rem; }
 .bn-card__name { font-size: 0.66rem; font-weight: 900; }
 .bn-card--sm .bn-card__name { font-size: 0.52rem; }
-.bn-bean { inline-size: 70%; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.3)); }
+.bn-bean { inline-size: 74%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.3)); }
 .bn-card__meter { display: flex; gap: 0.1rem; font-size: 0.55rem; font-weight: 800; margin-block-start: auto; }
 .bn-card__meter span { inline-size: 0.85rem; border-radius: 3px; background: rgb(0 0 0 / 0.08); }
 .bn-card__meter .is-on { background: #e8b931; }

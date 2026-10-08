@@ -4,6 +4,16 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import coffee from './art/coffee.webp';
+import wax from './art/wax.webp';
+import blue from './art/blue.webp';
+import chili from './art/chili.webp';
+import stink from './art/stink.webp';
+import green from './art/green.webp';
+import soy from './art/soy.webp';
+import blackeye from './art/blackeye.webp';
+import red from './art/red.webp';
+import garden from './art/garden.webp';
 import { BEANS, BEAN_INFO, payout, type Bean, type BeanView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -12,22 +22,15 @@ const SEED: Record<Bean, string> = {
   green: '#4caf50', soy: '#d9b26a', blackeye: '#f2ede0', red: '#a8202a', garden: '#c77fa8'
 };
 
-export function BeanIcon({ b }: { b: Bean }) {
-  return (
-    <svg viewBox="0 0 40 28" className="bn-bean" aria-hidden>
-      <path d="M6 16C2 8 10 1 19 4c5 2 7 0 11-1 7-1 10 7 6 13-4 7-14 10-22 9C9 24 8 20 6 16Z" fill={SEED[b]} stroke="rgb(0 0 0 / 0.45)" strokeWidth="1.5" />
-      <path d="M12 9c3-2 7-2 9 0" stroke="rgb(255 255 255 / 0.55)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      {b === 'blackeye' && <ellipse cx="22" cy="15" rx="4" ry="3" fill="#1c1410" />}
-    </svg>
-  );
-}
+// Bean art is cut from a generated sprite sheet (see DECISIONS.md).
+const ART: Record<Bean, string> = { coffee, wax, blue, chili, stink, green, soy, blackeye, red, garden };
 
 export function BeanCard({ b, size = 'md', count }: { b: Bean; size?: 'sm' | 'md'; count?: number }) {
   const info = BEAN_INFO[b];
   return (
     <span className={`bn-card bn-card--${size}`} style={{ ['--seed' as string]: SEED[b] }} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
       <span className="bn-card__name">{info.name}</span>
-      <BeanIcon b={b} />
+      <img src={ART[b]} className="bn-bean" alt="" aria-hidden="true" draggable={false} />
       {size === 'md' && (
         <span className="bn-card__meter" aria-hidden>
           {info.meter.map((t, i) => <span key={i} className={t === null ? 'is-off' : count !== undefined && count >= t ? 'is-on' : ''}>{t === null ? '·' : fa(t)}</span>)}
