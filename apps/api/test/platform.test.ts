@@ -12,7 +12,7 @@ describe('catalog search and filters (FR-02)', () => {
 
   it('lists the catalog; only the engine fixtures are labelled test games', async () => {
     const items = (await get('/api/games')).json().items as { id: string; isTestGame: boolean }[];
-    expect(items.map((g) => g.id)).toEqual(['abalone', 'unmatched', 'othello', 'high-society', 'amlak', 'uno', 'onitama', 'ticket-to-ride', 'for-sale', 'tak', 'backgammon', 'skull', 'risk', 'santorini', 'line-three', 'sushi-go', 'chess', 'snakes-ladders', 'sealed-bids', 'ludo', 'love-letter', 'no-thanks', 'checkers', 'catan', 'lost-cities', 'hive', 'coup', 'quoridor', 'six-nimmt', 'go']);
+    expect(items.map((g) => g.id)).toEqual(['abalone', 'unmatched', 'othello', 'high-society', 'amlak', 'uno', 'onitama', 'ticket-to-ride', 'for-sale', 'tak', 'backgammon', 'skull', 'risk', 'santorini', 'line-three', 'sushi-go', 'chess', 'snakes-ladders', 'sealed-bids', 'ludo', 'love-letter', 'no-thanks', 'the-mind', 'checkers', 'catan', 'lost-cities', 'hive', 'coup', 'quoridor', 'six-nimmt', 'go']);
     expect(items.filter((g) => g.isTestGame).map((g) => g.id)).toEqual(['line-three', 'sealed-bids']);
   });
 
@@ -24,7 +24,7 @@ describe('catalog search and filters (FR-02)', () => {
   });
 
   it('filters by players, time, difficulty, mode and access', async () => {
-    expect(await ids('?players=4')).toEqual(['amlak', 'catan', 'coup', 'for-sale', 'high-society', 'love-letter', 'ludo', 'no-thanks', 'quoridor', 'risk', 'sealed-bids', 'six-nimmt', 'skull', 'snakes-ladders', 'sushi-go', 'ticket-to-ride', 'unmatched', 'uno']);
+    expect(await ids('?players=4')).toEqual(['amlak', 'catan', 'coup', 'for-sale', 'high-society', 'love-letter', 'ludo', 'no-thanks', 'quoridor', 'risk', 'sealed-bids', 'six-nimmt', 'skull', 'snakes-ladders', 'sushi-go', 'the-mind', 'ticket-to-ride', 'unmatched', 'uno']);
     expect(await ids('?players=8')).toEqual(['amlak', 'six-nimmt', 'uno']);
     expect(await ids('?maxMinutes=3')).toEqual(['line-three']);
     expect(await ids('?difficulty=medium')).toEqual(['abalone', 'amlak', 'backgammon', 'catan', 'chess', 'hive', 'risk', 'sealed-bids', 'tak', 'unmatched']);

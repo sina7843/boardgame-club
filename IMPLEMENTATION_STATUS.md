@@ -595,3 +595,11 @@ New module `games/lost-cities` registered in engine, catalog and web. Checks run
 redraw of a fresh discard, privacy, round end/three rounds/timeouts/resign, tutorial, 20 random games with 60-card
 conservation and replay); API 3 (`apps/api/test/lost-cities.test.ts`); catalog test updated; E2E
 `e2e/lost-cities.spec.ts` — tutorial and a full one-round game at 360 and 1440 (`docs/evidence/lost-cities/`).
+## «هم‌فکر» The Mind (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/the-mind` registered in engine, catalog and web; result panel shows a team win. Checks run:
+engine 6 (`packages/game-engine/test/the-mind.test.ts`: setup by player count, out-of-turn play and mistakes,
+throwing star and level rewards, team loss/privacy/timeouts/resign, tutorial, 30 random 2–4 player games incl.
+perfect play winning, replay); API 3 (`apps/api/test/the-mind.test.ts`); catalog test updated; E2E
+`e2e/the-mind.spec.ts` — tutorial and a full three-player game with mistakes and a star at 360 and 1440
+(`docs/evidence/the-mind/`).

@@ -48,7 +48,8 @@
     "@bg/game-for-sale": "workspace:*",
     "@bg/game-high-society": "workspace:*",
     "@bg/game-sushi-go": "workspace:*",
-    "@bg/game-lost-cities": "workspace:*"
+    "@bg/game-lost-cities": "workspace:*",
+    "@bg/game-the-mind": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

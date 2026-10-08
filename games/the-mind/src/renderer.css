@@ -1,0 +1,58 @@
+/* هم‌فکر: a quiet night table — deep indigo, numbers that warm in hue as they climb, a soft breathing glow. */
+.tm { display: grid; gap: 0.8rem; inline-size: 100%; color: #e9e6ff; text-align: center; border-radius: 18px; padding: 0.4rem;
+  background: radial-gradient(circle at 50% 35%, rgb(120 110 220 / 0.22), transparent 65%); }
+.tm > :first-child { justify-self: center; }
+.tm--oops { animation: tm-oops 0.6s ease-out; }
+.tm__hud { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: center; font-size: 0.9rem; }
+.tm__level b { font-size: 1.3rem; color: #fff; }
+.tm__lives, .tm__stars { display: inline-flex; gap: 0.15rem; }
+.tm-ico { inline-size: 1.25rem; block-size: 1.25rem; }
+.tm-ico--life { fill: rgb(255 255 255 / 0.12); }
+.tm-ico--life.on { fill: #ff6b8a; filter: drop-shadow(0 0 4px #ff6b8a); }
+.tm-ico--star { fill: rgb(255 255 255 / 0.12); }
+.tm-ico--star.on { fill: #c9d2e3; filter: drop-shadow(0 0 3px #9fb3ff); }
+.tm-ico__hole { fill: #1b1838; }
+
+.tm__center { display: grid; gap: 0.5rem; justify-items: center; }
+.tm__pile { display: grid; gap: 0.4rem; justify-items: center; min-block-size: 9.5rem; align-content: center; }
+.tm__under { font-size: 0.8rem; color: #a9a3d8; }
+.tm__empty { color: #a9a3d8; font-size: 0.9rem; }
+.tm-card { display: inline-grid; place-items: center; border-radius: 12px; color: #fff; font-weight: 900;
+  background: radial-gradient(circle at 50% 30%, hsl(var(--h) 75% 62%), hsl(var(--h) 60% 34%)); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.35), 0 8px 18px -8px hsl(var(--h) 80% 40%); }
+.tm-card--lg { inline-size: 6.2rem; block-size: 8.6rem; font-size: 3rem; animation: tm-breathe 3.2s ease-in-out infinite; }
+.tm-card--md { inline-size: 3.6rem; block-size: 5rem; font-size: 1.6rem; }
+.tm-card--sm { inline-size: 2.6rem; block-size: 3.6rem; font-size: 1.05rem; opacity: 0.85; }
+.tm-card--fresh { animation: tm-land 0.5s cubic-bezier(.2,.8,.3,1.3) both, tm-breathe 3.2s ease-in-out 0.5s infinite; }
+.tm__note { margin: 0; padding: 0.4rem 0.9rem; border-radius: 12px; font-size: 0.88rem; animation: tm-drop 0.35s ease-out both; }
+.tm__note--mistake { background: rgb(255 80 110 / 0.18); border: 1px solid rgb(255 107 138 / 0.5); }
+.tm__note--star { background: rgb(159 179 255 / 0.16); border: 1px solid rgb(159 179 255 / 0.45); }
+.tm__lost { display: inline-block; margin-inline: 0.3rem; font-weight: 800; }
+
+.tm__team { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.tm-mate { display: grid; gap: 0.3rem; justify-items: center; min-inline-size: 7.5rem; padding: 0.5rem 0.7rem; border-radius: 14px; background: rgb(255 255 255 / 0.06); border: 1px solid rgb(255 255 255 / 0.1); }
+.tm-mate--done { opacity: 0.55; }
+.tm-mate__name { font-weight: 800; font-size: 0.88rem; }
+.tm-mate__cards { display: inline-flex; gap: 3px; min-block-size: 1.6rem; align-items: center; font-size: 0.8rem; color: #a9a3d8; }
+.tm-mate__cards i { inline-size: 0.9rem; block-size: 1.3rem; border-radius: 3px; background: linear-gradient(160deg, #4d4799, #2a2660); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
+.tm-mate__vote { display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.75rem; color: #c9d2ff; }
+.tm-mate__vote .tm-ico { inline-size: 0.95rem; block-size: 0.95rem; }
+
+.tm__me { display: grid; gap: 0.65rem; justify-items: center; padding-block: 0.6rem 0.2rem; border-block-start: 1px dashed rgb(255 255 255 / 0.15); }
+.tm__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; }
+.tm__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.tm-play { min-inline-size: 9rem; min-block-size: 3rem; padding: 0.5rem 1.4rem; border: 0; border-radius: 999px; font: inherit; font-size: 1.1rem; font-weight: 900; color: #16133a; cursor: pointer;
+  background: linear-gradient(180deg, #f2efff, #c8c1ff); box-shadow: 0 0 0 2px rgb(255 255 255 / 0.6), 0 10px 24px -10px #8f86ff; transition: filter 0.15s, box-shadow 0.15s; }
+.tm-play b { font-size: 1.35rem; }
+.tm-play:hover:not(:disabled), .tm-play:focus-visible { filter: brightness(1.05); box-shadow: 0 0 0 3px #fff, 0 10px 28px -8px #8f86ff; outline: none; }
+.tm-play:disabled { opacity: 0.5; cursor: default; }
+.tm-star { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid rgb(159 179 255 / 0.5); background: rgb(159 179 255 / 0.1); color: #dfe5ff; font: inherit; font-weight: 800; cursor: pointer; }
+.tm-star--on { background: rgb(159 179 255 / 0.35); }
+.tm-star .tm-ico { inline-size: 1rem; block-size: 1rem; }
+.tm-hint { animation: tm-pulse 1s ease-in-out infinite; }
+
+@keyframes tm-breathe { 50% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.45), 0 0 34px -4px hsl(var(--h) 85% 60%); } }
+@keyframes tm-land { from { opacity: 0; transform: translateY(26px) scale(0.85); } }
+@keyframes tm-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes tm-oops { 20% { background-color: rgb(255 60 90 / 0.18); } }
+@keyframes tm-pulse { 50% { box-shadow: 0 0 0 6px rgb(255 210 122 / 0.6); } }
+@media (prefers-reduced-motion: reduce) { .tm, .tm *, .tm__note { animation: none !important; transition: none !important; } }

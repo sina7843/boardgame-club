@@ -662,3 +662,18 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Polish passes (360/1440): (1) stacked small cards show their value strip (top-aligned content, smaller overlap);
   (2) the rival's stack cascades the same way and sits against the map, so every card's value stays readable.
 - `simultaneous-actions` capability declared for «سوشی گردان» and «بنگاه» (manifest is descriptive only).
+## «هم‌فکر» (The Mind, 2026-10-08, owner list batch 4)
+
+- Cooperative 2–4 players, live and friendly only (a team result has no rating meaning; asynchronous play makes no
+  sense for a timing game). Level n deals n cards of 1–100; anyone may play their lowest card at any time — actions
+  are ordered by arrival at the server. A card played while someone holds a lower one costs a life and discards
+  every lower card. Throwing star: everyone still holding cards must agree; each discards their lowest card. Levels
+  12/10/8; lives = players; one star; star after levels 2/5/8, life after 3/6/9 (max 5 lives, 3 stars).
+  Turn timeout (a minute of silence): the lowest card on the table is played for its holder (never a mistake).
+  Resign ends the game as a team loss.
+- Team outcome convention (no SDK change): a team win is every seat at place 1 with reason 'win'; a loss is every
+  seat at place 2. The generic result panel now shows «شما بردید» when every seat is first with reason 'win'
+  (otherwise a shared first place stays «مساوی»). Server progression already treats equal places neutrally.
+- Look: a quiet night table — the pile's top number glows and "breathes", card hue warms as numbers climb, hearts and
+  throwing stars in the HUD, teammates show only face-down counts and star votes, one large «بگذار n» button, a red
+  flash and a list of discarded cards on a mistake.

@@ -149,7 +149,9 @@ function ResultPanel({ snap }: { snap: TableSnapshot }) {
   const r = snap.game!.result!;
   const name = seatNameOf(t);
   const mine = r.placements.find((p) => p.seat === t.mySeat);
-  const headline = t.isTutorial ? 'آموزش کامل شد' : !mine ? 'بازی تمام شد' : mine.place === 1 ? (r.placements.filter((p) => p.place === 1).length > 1 ? 'مساوی شد' : 'شما بردید') : 'این دست را باختید';
+  // A cooperative team win is everyone in first place with reason 'win' (a shared first place otherwise is a draw).
+  const teamWin = r.reason === 'win' && r.placements.every((p) => p.place === 1);
+  const headline = t.isTutorial ? 'آموزش کامل شد' : !mine ? 'بازی تمام شد' : mine.place === 1 ? (r.placements.filter((p) => p.place === 1).length > 1 && !teamWin ? 'مساوی شد' : 'شما بردید') : 'این دست را باختید';
   const won = !t.isTutorial && headline === 'شما بردید';
   return (
     <section className={cn('panel stack result relative isolate overflow-hidden animate-fade-up', won && 'ring-2 ring-brand')} aria-labelledby="res-h">
