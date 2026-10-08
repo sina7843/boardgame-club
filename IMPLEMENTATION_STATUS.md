@@ -617,3 +617,10 @@ placement/floor/bonus scoring, setup, drafting and line rules, a full round with
 timeouts/resign, tutorial, 20 random 2–4 player games with 100-tile conservation, row-completion end and replay);
 API 3 (`apps/api/test/azul.test.ts`); catalog test updated; E2E `e2e/azul.spec.ts` — tutorial and a full three-player
 game at 360 and 1440 (`docs/evidence/azul/`).
+## «کاروان» Jaipur (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/jaipur` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/jaipur.test.ts`:
+setup, take/camels/exchange rules and refill, selling with tokens and bonus privacy, round end/camel bonus/seals,
+timeouts/resign, tutorial, 25 random games with token conservation and replay); API 3 (`apps/api/test/jaipur.test.ts`);
+catalog test updated; E2E `e2e/jaipur.spec.ts` — tutorial and a full one-round game at 360 and 1440
+(`docs/evidence/jaipur/`).

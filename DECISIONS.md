@@ -707,3 +707,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   allowed lines glow; round gains summary.
 - Polish passes (360/1440): (1) factory tile groups overflowed the fixed round plates and covered the boards (clicks
   intercepted at both sizes) — each factory tile is now its own button in a 2×2 grid.
+## «کاروان» (Jaipur, 2026-10-08, owner list batch 5)
+
+- Two-player Jaipur: 55 cards, market of five (three camels to start), hands of five with camels to the herd, take
+  one good (hand limit 7), take all camels, exchange ≥2 market goods for hand goods and/or camels (no camels taken, no
+  same type given), sell one type (precious goods need two) for the top tokens plus a hidden 3/4/5+ bonus. The round
+  ends with three empty token piles or an unrefillable market; most camels +5; round winner by rupees, then bonus
+  tokens, then goods tokens. Two seals win (or three rounds); option «یک دست». The round's loser starts the next.
+  Hands, deck and bonus values are hidden (owners see their own bonus values; everything is shown at the end).
+- Look: caravanserai market — a red carpet with an indigo and gold border holds the market, goods cards with drawn
+  wares, brass-ringed token stacks showing the next value and how many remain, the rival's stall (card backs, herd,
+  earnings). Selecting cards drives one action button (take / exchange n / sell n), a camel stepper for exchanges,
+  and a separate «همهٔ شترها».
+- Polish passes (360/1440): (1) the result screen shows both stalls (yours was hidden with the hand).

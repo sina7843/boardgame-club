@@ -1,0 +1,61 @@
+/* کاروان: a caravanserai market — terracotta and indigo carpet, goods cards with drawn wares, brass token stacks. */
+.jp { --ink: #2b1a10; display: grid; gap: 0.7rem; inline-size: 100%; color: #f6ead6; text-align: center; }
+.jp > :first-child { justify-self: center; }
+.jp > .jp__market, .jp > .jp__me, .jp > .jp__tokens { justify-self: stretch; }
+.jp-c--diamond { --c: #c92a4a; --c2: #6e1023; } .jp-c--gold { --c: #e2b33c; --c2: #7a5a0e; } .jp-c--silver { --c: #b8c2cc; --c2: #5a6470; }
+.jp-c--cloth { --c: #8e4bb8; --c2: #46205e; } .jp-c--spice { --c: #3d9a4a; --c2: #1b5224; } .jp-c--leather { --c: #8a5a2b; --c2: #3e2510; }
+.jp-c--camel { --c: #d8b47a; --c2: #7a5a2a; }
+.jp__round { margin: 0; font-size: 0.85rem; color: #e3d2b2; }
+
+.jp-card { display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 9px; color: #fff;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--c) 80%, white 20%), var(--c) 50%, var(--c2)); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.35), inset 0 0 0 5px rgb(0 0 0 / 0.08), 0 4px 8px -4px #000; }
+.jp-c--silver.jp-card, .jp-c--camel.jp-card, .jp-c--gold.jp-card { color: var(--ink); }
+.jp-card svg { fill: currentColor; stroke: none; }
+.jp-card--md { inline-size: 3.6rem; block-size: 5rem; }
+.jp-card--md svg { inline-size: 2.2rem; block-size: 2.2rem; }
+.jp-card--sm { inline-size: 1.6rem; block-size: 2.1rem; border-radius: 5px; vertical-align: middle; }
+.jp-card--sm svg { inline-size: 1.2rem; block-size: 1.2rem; }
+.jp-card__n { font-size: 0.68rem; font-weight: 800; }
+
+.jp__tokens { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.jp-stack { position: relative; display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 0.15rem 0.25rem; padding: 0.25rem 0.5rem; border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 60%, white 40%), var(--c) 60%, var(--c2)); color: #fff; box-shadow: inset 0 0 0 2px rgb(255 230 170 / 0.6), 0 3px 6px -3px #000; }
+.jp-c--silver.jp-stack, .jp-c--gold.jp-stack { color: var(--ink); }
+.jp-stack svg { inline-size: 1.2rem; block-size: 1.2rem; fill: currentColor; }
+.jp-stack b { font-size: 1rem; font-weight: 900; }
+.jp-stack small { position: absolute; inset-block-start: -0.4rem; inset-inline-end: -0.3rem; padding: 0 0.3rem; border-radius: 999px; background: var(--ink); color: #f6ead6; font-size: 0.62rem; }
+.jp-stack--out { filter: grayscale(1) brightness(0.6); }
+.jp-stack--bonus { --c: #6b4a2b; --c2: #3a2414; display: inline-flex; font-size: 0.72rem; }
+
+.jp-stall { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: center; padding: 0.45rem 0.7rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); font-size: 0.85rem; }
+.jp-stall__name { font-weight: 800; }
+.jp-stall__hand { display: inline-flex; gap: 2px; }
+.jp-stall__hand i { inline-size: 0.95rem; block-size: 1.35rem; border-radius: 3px; background: repeating-linear-gradient(45deg, #7a2e2a 0 4px, #5e211e 4px 8px); box-shadow: inset 0 0 0 1px #e9c48a; }
+.jp-stall__coins { color: #ffe1a0; font-weight: 800; }
+
+.jp__market { display: grid; gap: 0.3rem; justify-items: center; }
+.jp__carpet { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; padding: 0.7rem 0.6rem; border-radius: 14px;
+  background: radial-gradient(circle at 50% 50%, #9c2f2a 0 30%, transparent 31%), repeating-linear-gradient(45deg, #7a1f1f 0 10px, #6a1919 10px 20px);
+  box-shadow: inset 0 0 0 4px #1f2f5a, inset 0 0 0 7px #e3b96a, 0 6px 14px -8px #000; }
+.jp__deck { font-size: 0.75rem; color: #d8c6a4; }
+.jp-pick { padding: 0; border: 0; background: transparent; border-radius: 10px; line-height: 0; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.jp-pick:disabled { cursor: default; }
+.jp-pick--on { transform: translateY(-8px); box-shadow: 0 0 0 3px #ffe1a0, 0 8px 14px -6px rgb(255 225 160 / 0.8); }
+.jp-pick:focus-visible { outline: 3px solid #ffe1a0; outline-offset: 2px; }
+.jp__last { margin: 0; justify-self: center; padding: 0.3rem 0.9rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); font-size: 0.85rem; animation: jp-drop 0.35s ease-out both; }
+.jp__results { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2rem; font-size: 0.82rem; color: #e3d2b2; }
+
+.jp__me { display: grid; gap: 0.55rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(227 185 106 / 0.4); }
+.jp__hand { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; min-block-size: 3rem; }
+.jp__empty { align-self: center; color: #c9b693; font-size: 0.85rem; }
+.jp__herd { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.jp__camgive { display: inline-flex; gap: 0.3rem; align-items: center; }
+.jp__camgive button { inline-size: 1.8rem; block-size: 1.8rem; border-radius: 50%; border: 1px solid #e3b96a; background: rgb(0 0 0 / 0.3); color: inherit; font: inherit; font-weight: 900; cursor: pointer; }
+.jp__camgive button:disabled { opacity: 0.4; cursor: default; }
+.jp__earn b { color: #ffe1a0; }
+.jp__actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; min-block-size: 2.4rem; }
+.jp-hint { animation: jp-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
+
+@keyframes jp-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes jp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .jp * { animation: none !important; transition: none !important; } }

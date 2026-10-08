@@ -44,7 +44,8 @@
     "@bg/game-lost-cities": "workspace:*",
     "@bg/game-the-mind": "workspace:*",
     "@bg/game-splendor": "workspace:*",
-    "@bg/game-azul": "workspace:*"
+    "@bg/game-azul": "workspace:*",
+    "@bg/game-jaipur": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"
