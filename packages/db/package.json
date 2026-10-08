@@ -68,7 +68,9 @@
     "@bg/game-bohnanza": "workspace:*",
     "@bg/game-wonders-duel": "workspace:*",
     "@bg/game-dominion": "workspace:*",
-    "@bg/game-star-realms": "workspace:*"
+    "@bg/game-star-realms": "workspace:*",
+    "@bg/game-the-crew": "workspace:*",
+    "@bg/game-crew-deep-sea": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

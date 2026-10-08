@@ -761,3 +761,12 @@ New module `games/star-realms` registered in engine, catalog and web. Checks run
 scrap abilities and opponent discard, hidden hands/trade deck, timeouts/resign, tutorial, 12 random games with card
 conservation and replay); API 3 (`apps/api/test/star-realms.test.ts`); catalog test updated; E2E
 `e2e/star-realms.spec.ts` — tutorial and a full game at 360 and 1440 (`docs/evidence/star-realms/`).
+## «خدمه: سیارهٔ نهم» The Crew: Planet Nine and «خدمه: اعماق دریا» Mission Deep Sea (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New modules `games/the-crew` (shared trick core + Planet Nine) and `games/crew-deep-sea`, registered in engine,
+catalog and web. Checks run: engine 11 (`packages/game-engine/test/the-crew.test.ts`: trick core, draft/communication/
+follow suit, task failure and order, hidden hands, timeouts/resign, both tutorials, Deep Sea difficulty targets and
+condition resolution, 20 random missions per edition with replay); API 6 (`apps/api/test/the-crew.test.ts`, both
+editions); catalog test updated (order now taken from the server's sort); E2E `e2e/the-crew.spec.ts` and
+`e2e/crew-deep-sea.spec.ts` — tutorial and a full three-player mission each at 360 and 1440 (`docs/evidence/the-crew/`,
+`docs/evidence/crew-deep-sea/`).

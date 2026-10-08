@@ -940,3 +940,20 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   of their owner's turns; outposts must fall before other bases or the player. Authority ≤ 0 loses.
 - Look: starfield bridge — faction-framed glowing cards with a faction emblem, red/blue authority orbs, trade row
   band, pooled trade/combat pills, fleet line of played ships.
+
+## «خدمه: سیارهٔ نهم» and «خدمه: اعماق دریا» (The Crew ×2, 2026-10-08, owner list batch 9)
+
+- Shared trick core in `games/the-crew/src/trick.ts` and a module factory (`crewModule`) used by both editions:
+  40 cards (four colours 1–9, rockets 1–4 as trumps), follow suit, rocket 4 holder is commander and leads; one
+  communication per player per mission between tricks (highest/lowest/only card of a colour, shown publicly).
+  3–5 players; with 3 the one card that does not divide evenly is set aside face up (never rocket 4). The tutorial
+  tables have two seats, so setup accepts 2 players only for the scripted tutorial deal. Cooperative outcome:
+  success = everyone place 1 (reason win), failure/resign = everyone place 2. One mission per table.
+- Planet Nine: host picks mission 1–10 (task count and order tokens: relative numbered order and "last");
+  tasks are task cards drafted from the commander clockwise; a task fails if anyone but its owner wins it.
+  Not the 50-mission logbook (no dead-zone/distress rules) — a compact mission ladder instead.
+- Deep Sea: host picks a difficulty target (3–11); condition tasks (15 original conditions such as win a nine,
+  win no tricks, exactly N tricks, last trick, no rockets, more pink than blue) are revealed until their difficulty
+  sum reaches the target, then drafted. Not the published task-card list.
+- Look: mission console — space theme (violet nebula) for Planet Nine, sea theme (teal depths) for Deep Sea; task
+  cards with order tokens and ✓/✗ status, a trick table with player names, crew pills showing the communicated card.

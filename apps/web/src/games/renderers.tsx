@@ -50,6 +50,8 @@ import BohnanzaRenderer from '@bg/game-bohnanza/renderer';
 import WondersDuelRenderer from '@bg/game-wonders-duel/renderer';
 import DominionRenderer from '@bg/game-dominion/renderer';
 import StarRealmsRenderer from '@bg/game-star-realms/renderer';
+import TheCrewRenderer from '@bg/game-the-crew/renderer';
+import CrewDeepSeaRenderer from '@bg/game-crew-deep-sea/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -108,5 +110,7 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'bohnanza@1.0.0': BohnanzaRenderer as ComponentType<GameRendererProps<never>>,
   'wonders-duel@1.0.0': WondersDuelRenderer as ComponentType<GameRendererProps<never>>,
   'dominion@1.0.0': DominionRenderer as ComponentType<GameRendererProps<never>>,
-  'star-realms@1.0.0': StarRealmsRenderer as ComponentType<GameRendererProps<never>>
+  'star-realms@1.0.0': StarRealmsRenderer as ComponentType<GameRendererProps<never>>,
+  'the-crew@1.0.0': TheCrewRenderer as ComponentType<GameRendererProps<never>>,
+  'crew-deep-sea@1.0.0': CrewDeepSeaRenderer as ComponentType<GameRendererProps<never>>
 };
