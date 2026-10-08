@@ -34,7 +34,7 @@ export function MapDefs({ map = 'usa' }: { map?: string }) {
   const [l, d] = LAND[map] ?? LAND.usa!;
   return (
     <defs>
-      <linearGradient id="ttr-sea" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stopColor="#a9cfcb" /><stop offset="0.6" stopColor="#86b4b4" /><stop offset="1" stopColor="#6a9ea3" /></linearGradient>
+      <linearGradient id="ttr-sea" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stopColor="#9fd0c8" /><stop offset="0.55" stopColor="#6fa9ae" /><stop offset="1" stopColor="#487f92" /></linearGradient>
       <pattern id="ttr-waves" width="34" height="15" patternUnits="userSpaceOnUse">
         <path d="M2 7 q4 -3.4 8 0 t8 0" fill="none" stroke="#244f58" strokeOpacity="0.22" strokeWidth="0.9" strokeLinecap="round" />
         <path d="M19 14 q3 -2.6 6 0" fill="none" stroke="#244f58" strokeOpacity="0.14" strokeWidth="0.8" strokeLinecap="round" />
@@ -61,6 +61,15 @@ export function MapDefs({ map = 'usa' }: { map?: string }) {
       <linearGradient id="ttr-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffe9a0" /><stop offset="0.5" stopColor="#d9a62e" /><stop offset="1" stopColor="#8d6210" /></linearGradient>
       <radialGradient id="ttr-vignette" cx="50%" cy="50%" r="72%"><stop offset="0.6" stopColor="#4a2f10" stopOpacity="0" /><stop offset="1" stopColor="#4a2f10" stopOpacity="0.34" /></radialGradient>
       <radialGradient id="ttr-station" cx="38%" cy="32%" r="70%"><stop offset="0" stopColor="#fffaf0" /><stop offset="1" stopColor="#e2d3ae" /></radialGradient>
+      {/* Girih-style tile lattice for the frame, a surveyor's graticule and age stains for the chart. */}
+      <pattern id="ttr-tile" width="20" height="20" patternUnits="userSpaceOnUse">
+        <rect width="20" height="20" fill="#2a1a0b" fillOpacity="0.55" />
+        <path d="M10 1 L12.6 7.4 L19 10 L12.6 12.6 L10 19 L7.4 12.6 L1 10 L7.4 7.4 Z" fill="none" stroke="#e8c35f" strokeOpacity="0.55" strokeWidth="0.7" />
+        <path d="M10 5 L15 10 L10 15 L5 10 Z" fill="#2f7a82" fillOpacity="0.6" stroke="#e8c35f" strokeOpacity="0.4" strokeWidth="0.5" />
+        <circle cx="10" cy="10" r="1.3" fill="#e8c35f" fillOpacity="0.8" /><circle cx="0" cy="0" r="1" fill="#e8c35f" fillOpacity="0.5" /><circle cx="20" cy="20" r="1" fill="#e8c35f" fillOpacity="0.5" /><circle cx="20" cy="0" r="1" fill="#e8c35f" fillOpacity="0.5" /><circle cx="0" cy="20" r="1" fill="#e8c35f" fillOpacity="0.5" />
+      </pattern>
+      <pattern id="ttr-graticule" width="72" height="72" patternUnits="userSpaceOnUse"><path d="M72 0 V72 H0" fill="none" stroke="#5a3b14" strokeOpacity="0.14" strokeWidth="0.7" strokeDasharray="6 4" /></pattern>
+      <radialGradient id="ttr-stain1" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#8a5a1c" stopOpacity="0.2" /><stop offset="1" stopColor="#8a5a1c" stopOpacity="0" /></radialGradient>
       <filter id="ttr-landshadow" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="1" dy="2.2" stdDeviation="2" floodColor="#1c3a3c" floodOpacity="0.45" /></filter>
       {/* Terrain glyphs, reused with <use>. */}
       <symbol id="ttr-mtn" viewBox="-12 -10 24 15" width="24" height="15" overflow="visible">

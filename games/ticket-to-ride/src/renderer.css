@@ -30,6 +30,7 @@
 .ttr-land { fill: url(#ttr-land); }
 .ttr-water { fill: url(#ttr-sea); }
 .ttr-coast { fill: none; stroke: var(--ttr-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.ttr-hachure { fill: none; stroke: #1f5560; stroke-opacity: 0.4; stroke-width: 7; stroke-dasharray: 0.8 3.2; stroke-linejoin: round; }
 .ttr-coast--water { stroke-width: 1.2; }
 .ttr-border { fill: none; stroke: #8e2f1f; stroke-width: 1.6; stroke-dasharray: 7 3 1.5 3; stroke-linecap: round; stroke-opacity: 0.7; }
 .ttr-outside { fill: #6b4a2a; fill-opacity: 0.13; }
@@ -238,3 +239,19 @@
   .ttr-board-wrap { margin-inline: 0; }
   .ttr-side { max-block-size: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
 }
+
+/* ---------- illustrated finish: atlas-room panels ---------- */
+.ttr-panel, .ttr-market, .ttr-hand, .ttr-mytickets, .ttr-final {
+  background: radial-gradient(120% 90% at 50% -20%, rgb(217 166 46 / 0.12), transparent 60%), linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 92%, #fff), var(--surface-2));
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--surface-2) 90%, #000), inset 0 0 0 4px color-mix(in srgb, var(--ttr-gold) 38%, transparent), 0 6px 14px rgb(0 0 0 / 0.28); }
+.ttr-side h3::after { content: ''; flex: 1; block-size: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--ttr-gold) 55%, transparent), transparent); }
+.ttr-hand { background: repeating-radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 4px), linear-gradient(180deg, #1f4a37, #163628); }
+.ttr-cards { background: repeating-linear-gradient(92deg, rgb(255 255 255 / 0.05) 0 2px, transparent 2px 7px), repeating-linear-gradient(92deg, rgb(0 0 0 / 0.12) 0 1px, transparent 1px 13px), linear-gradient(180deg, #8a5a2e, #5b3518 65%, #3b2008);
+  box-shadow: inset 0 3px 0 #e8c35f, inset 0 4px 0 rgb(0 0 0 / 0.35), inset 0 -10px 0 #331b08, inset 0 -12px 0 rgb(232 195 95 / 0.35), 0 6px 12px rgb(0 0 0 / 0.4); }
+.ttr-card:not(:disabled):hover .ttr-cardart { filter: drop-shadow(0 0 5px #ffd34d) drop-shadow(0 6px 6px rgb(0 0 0 / 0.5)); }
+.ttr-card:nth-child(odd) .ttr-cardart { rotate: -1deg; } .ttr-card:nth-child(even) .ttr-cardart { rotate: 1deg; }
+.ttr-ticket { background: repeating-linear-gradient(0deg, rgb(90 59 20 / 0.04) 0 2px, transparent 2px 4px), radial-gradient(circle at 12% 50%, rgb(217 166 46 / 0.22), transparent 45%), linear-gradient(160deg, #fffaea, #ecdcb4); filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.35)); }
+.ttr-ticket__city { font-family: Georgia, 'Times New Roman', serif; letter-spacing: 0.01em; }
+.ttr-player { background: radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--pc) 22%, transparent), transparent 60%), linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 90%, #fff), var(--surface-2)); }
+.ttr-player__score { font-family: Georgia, serif; }
+.ttr-log { background: repeating-linear-gradient(0deg, transparent 0 25px, rgb(255 255 255 / 0.04) 25px 26px), rgb(0 0 0 / 0.2); border-inline-start: 3px double color-mix(in srgb, var(--ttr-gold) 50%, transparent); }

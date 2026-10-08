@@ -59,6 +59,7 @@ const MapArt = memo(function MapArt({ map, title }: { map: MapId; title: string 
       <rect x={-FRAME} y={-FRAME} width={L.w + FRAME * 2} height={L.h + FRAME * 2} rx="12" fill="url(#ttr-wood)" />
       <rect x={-FRAME} y={-FRAME} width={L.w + FRAME * 2} height={L.h + FRAME * 2} rx="12" fill="url(#ttr-grain)" />
       <rect x={-FRAME + 3} y={-FRAME + 3} width={L.w + FRAME * 2 - 6} height={L.h + FRAME * 2 - 6} rx="10" fill="none" stroke="#c99a5c" strokeOpacity="0.5" strokeWidth="1.2" />
+      <path d={`M${-FRAME + 5} ${-FRAME + 5} H${L.w + FRAME - 5} V${L.h + FRAME - 5} H${-FRAME + 5} Z M-16 -16 V${L.h + 16} H${L.w + 16} V-16 Z`} fillRule="evenodd" fill="url(#ttr-tile)" />
       <rect x="-16" y="-16" width={L.w + 32} height={L.h + 32} rx="3" className="ttr-band" />
       {L.track.map(([x, y], i) => (
         <g key={i} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)})`}>
@@ -80,6 +81,7 @@ const MapArt = memo(function MapArt({ map, title }: { map: MapId; title: string 
         <path d={T.water} fill="url(#ttr-waves)" />
         <path d={T.islands} className="ttr-land" />
         <path d={T.islands} fill="url(#ttr-paper)" />
+        <path d={`${T.land} ${T.islands}`} className="ttr-hachure" />
         <path d={`${T.land} ${T.islands}`} className="ttr-coast" />
         <path d={T.water} className="ttr-coast ttr-coast--water" />
         {T.outside && <path d={T.outside} fillRule="evenodd" className="ttr-outside" />}
@@ -88,6 +90,8 @@ const MapArt = memo(function MapArt({ map, title }: { map: MapId; title: string 
         {T.trees.map((p, i) => <use key={`t${i}`} href="#ttr-tree" x={p.x - 6 * p.s} y={p.y - 9 * p.s} width={12 * p.s} height={13 * p.s} />)}
         {T.mountains.map((p, i) => <use key={`m${i}`} href="#ttr-mtn" x={p.x - 12 * p.s} y={p.y - 10 * p.s} width={24 * p.s} height={15 * p.s} />)}
         {T.seas.map((s) => <text key={s.text} x={s.x} y={s.y} className="ttr-sea-name">{s.text}</text>)}
+        <rect width={L.w} height={L.h} fill="url(#ttr-graticule)" />
+        {[[0.2, 0.3, 0.35], [0.78, 0.2, 0.3], [0.6, 0.85, 0.4], [0.1, 0.9, 0.28]].map(([x, y, s], i) => <ellipse key={i} cx={x! * L.w} cy={y! * L.h} rx={s! * L.w} ry={s! * L.h * 0.8} fill="url(#ttr-stain1)" />)}
         <rect width={L.w} height={L.h} fill="url(#ttr-vignette)" />
         <g transform={`translate(${cx} ${cy})`}><Compass /></g>
         <g transform={`translate(${tx} ${ty})`}><Cartouche title={title} sub="بلیت قطار · نقشه راه‌آهن" /></g>
