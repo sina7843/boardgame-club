@@ -3,12 +3,12 @@
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
-import { PieceArt, PieceDefs } from './pieces.tsx';
+import { pieceSrc } from './pieces.tsx';
 import type { ChessView, Color, Piece, PieceType, PromoType } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const FILES = 'abcdefgh';
-const Glyph = ({ t, c }: { t: PieceType; c: Color }) => <svg className="ch-pc" viewBox="0 0 100 100" focusable="false"><PieceArt type={t} color={c} idp="chp" /></svg>;
+const Glyph = ({ t, c }: { t: PieceType; c: Color }) => <img className="ch-pc" src={pieceSrc(t, c)} alt="" draggable={false} />;
 const NAME_FA: Record<PieceType, string> = { K: 'شاه', Q: 'وزیر', R: 'رخ', B: 'فیل', N: 'اسب', P: 'سرباز' };
 const COLOR_FA: Record<Color, string> = { w: 'سفید', b: 'سیاه' };
 const DRAW_FA = { stalemate: 'پات', repetition: 'تکرار سه‌باره وضعیت', fiftyMove: 'قانون ۵۰ حرکت', material: 'مهره ناکافی برای مات', agreement: 'توافق دو بازیکن', timeoutMaterial: 'اتمام زمان، ولی حریف مهره کافی برای مات نداشت' } as const;
@@ -80,7 +80,6 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
 
   return (
     <div className="ch">
-      <svg className="visually-hidden" width="0" height="0" aria-hidden="true" focusable="false"><PieceDefs idp="chp" /></svg>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {endText && <p className="ch__end">{endText}</p>}

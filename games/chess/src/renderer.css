@@ -64,9 +64,9 @@
 /* coordinates live on the frame */
 .ch-coord { display: none; }
 
-/* carved pieces: SVG silhouettes with lamplight shading */
+/* painted pieces (generated art, see DECISIONS.md) with a soft drop shadow */
 .ch-piece { position: relative; z-index: 1; display: grid; place-items: center; inline-size: 92%; aspect-ratio: 1; pointer-events: none; }
-.ch-pc { inline-size: 100%; block-size: 100%; overflow: visible; }
+.ch-pc { inline-size: 100%; block-size: 100%; object-fit: contain; user-select: none; }
 .ch-piece--w { filter: drop-shadow(1px 3px 1.5px rgb(30 12 0 / 0.55)); }
 .ch-piece--b { filter: drop-shadow(0 0 0.8px rgb(255 235 200 / 0.7)) drop-shadow(1px 3px 1.5px rgb(0 0 0 / 0.6)); }
 .ch-board .ch-piece { animation: ch-land 220ms cubic-bezier(0.22, 1.2, 0.36, 1); }
