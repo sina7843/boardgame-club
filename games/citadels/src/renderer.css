@@ -7,10 +7,12 @@
 
 .ct2-d { position: relative; display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 7px; color: var(--ink);
   background: linear-gradient(180deg, var(--c) 0 26%, #f6ead0 26%); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 70%, black 30%), 0 3px 6px -3px #000; }
-.ct2-d--md { inline-size: 4.2rem; block-size: 5.4rem; padding-block-start: 0.3rem; }
+.ct2-d--md { inline-size: 4.2rem; block-size: 5.4rem; padding-block-start: 0.35rem; }
 .ct2-d--sm { inline-size: 2.9rem; block-size: 3.4rem; padding-block-start: 0.15rem; }
-.ct2-d__cost { inline-size: 1.4rem; block-size: 1.4rem; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a520 60%, #8a6408); font-size: 0.8rem; font-weight: 900; }
-.ct2-d--sm .ct2-d__cost { inline-size: 1rem; block-size: 1rem; font-size: 0.6rem; }
+.ct2-d__art { inline-size: 76%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 1.5px var(--ink); }
+.ct2-d--sm .ct2-d__art { inline-size: 70%; }
+.ct2-d__cost { position: absolute; inset-block-start: 0.15rem; inset-inline-start: 0.15rem; z-index: 1; inline-size: 1.4rem; block-size: 1.4rem; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a520 60%, #8a6408); font-size: 0.8rem; font-weight: 900; }
+.ct2-d--sm .ct2-d__cost { inline-size: 1rem; block-size: 1rem; font-size: 0.6rem; inset-block-start: 0.05rem; inset-inline-start: 0.05rem; }
 .ct2-d__name { font-size: 0.66rem; font-weight: 800; line-height: 1.2; padding-inline: 0.15rem; }
 .ct2-d--sm .ct2-d__name { font-size: 0.5rem; }
 
@@ -18,8 +20,9 @@
 .ct2-slot { display: grid; justify-items: center; gap: 0.1rem; font-size: 0.6rem; }
 .ct2-slot__who { font-weight: 800; color: #ffe1a0; }
 .ct2-slot__tag { color: #ffb3a8; }
-.ct2-ch { display: grid; justify-items: center; gap: 0; inline-size: 100%; max-inline-size: 4rem; padding: 0.25rem 0.1rem; border-radius: 10px; background: radial-gradient(circle at 50% 30%, #5a3d22, #2a1a0c); box-shadow: inset 0 0 0 2px #c9a46a; }
-.ct2-ch b { font-size: 1rem; color: #ffe1a0; }
+.ct2-ch { position: relative; display: grid; justify-items: center; gap: 0; inline-size: 100%; max-inline-size: 4rem; padding: 0.25rem 0.1rem; border-radius: 10px; background: radial-gradient(circle at 50% 30%, #5a3d22, #2a1a0c); box-shadow: inset 0 0 0 2px #c9a46a; }
+.ct2-ch__art { inline-size: 88%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1.5px #c9a46a; }
+.ct2-ch b { position: absolute; inset-block-start: 0.1rem; inset-inline-start: 0.2rem; min-inline-size: 1.1rem; border-radius: 999px; background: rgb(26 15 6 / 0.8); font-size: 0.75rem; line-height: 1.1rem; color: #ffe1a0; }
 .ct2-ch small { font-size: 0.56rem; color: #f2e4c4; }
 .ct2-ch.is-out { opacity: 0.3; }
 .ct2-ch.is-dead { opacity: 0.5; box-shadow: inset 0 0 0 2px #c0392b; background: repeating-linear-gradient(45deg, #3a1a14 0 4px, #2a1210 4px 8px); }
@@ -42,8 +45,9 @@ button.ct2-pick { cursor: pointer; }
 .ct2-city--win { box-shadow: 0 0 0 2px #ffd98a; }
 .ct2-city__head { display: flex; flex-wrap: wrap; gap: 0.25rem 0.55rem; align-items: center; justify-content: center; font-size: 0.8rem; }
 .ct2-city__name { font-weight: 800; }
-.ct2-crown { color: #ffd23f; font-size: 1rem; }
-.ct2-gold { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: ct2-bump 0.4s ease-out; }
+.ct2-crown { inline-size: 1.4rem; block-size: 1.4rem; object-fit: contain; }
+.ct2-gold { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: ct2-bump 0.4s ease-out; display: inline-flex; align-items: center; gap: 0.2rem; }
+.ct2-gold img { inline-size: 1.1rem; block-size: 1.1rem; object-fit: contain; }
 .ct2-score { color: #ffe1a0; font-weight: 800; }
 .ct2-city__row { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; min-block-size: 3.4rem; align-items: center; }
 .ct2__me { display: grid; gap: 0.5rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(201 164 106 / 0.4); }
@@ -59,3 +63,4 @@ button.ct2-pick { cursor: pointer; }
 @keyframes ct2-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ct2 * { animation: none !important; transition: none !important; } }
 .ct2 > .ct2__track { inline-size: min(100%, 36rem); justify-self: center; }
+.ct2-thumb { inline-size: 1.4rem; block-size: 1.4rem; margin-inline-end: 0.3rem; vertical-align: middle; object-fit: cover; border-radius: 50%; }

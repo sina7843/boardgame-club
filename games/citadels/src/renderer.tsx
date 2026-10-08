@@ -5,6 +5,24 @@ import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
+// Paintings are cut from a generated sheet (see DECISIONS.md).
+import assassin from './art/ch-assassin.webp';
+import thief from './art/ch-thief.webp';
+import magician from './art/ch-magician.webp';
+import king from './art/ch-king.webp';
+import bishop from './art/ch-bishop.webp';
+import merchant from './art/ch-merchant.webp';
+import architect from './art/ch-architect.webp';
+import warlord from './art/ch-warlord.webp';
+import yellow from './art/d-yellow.webp';
+import blue from './art/d-blue.webp';
+import green from './art/d-green.webp';
+import red from './art/d-red.webp';
+import crown from './art/crown.webp';
+import coin from './art/coin.webp';
+
+const PORTRAIT = [assassin, thief, magician, king, bishop, merchant, architect, warlord]; // CHARACTERS index 1..8
+const DISTRICT_ART: Record<string, string> = { yellow, blue, green, red };
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
@@ -13,13 +31,16 @@ export function DistrictCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'm
   return (
     <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
       <b className="ct2-d__cost">{fa(d.cost)}</b>
+      <img className="ct2-d__art" src={DISTRICT_ART[d.color]} alt="" draggable={false} />
       <span className="ct2-d__name">{d.name}</span>
     </span>
   );
 }
 
+const Thumb = ({ c }: { c: number }) => <img className="ct2-thumb" src={PORTRAIT[c - 1]} alt="" draggable={false} />;
+
 export function CharToken({ c, state }: { c: number; state?: string }) {
-  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`}><b>{fa(c)}</b><small>{CHARACTERS[c]}</small></span>;
+  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt="" draggable={false} /><b>{fa(c)}</b><small>{CHARACTERS[c]}</small></span>;
 }
 
 export default function CitadelsRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CitadelsView>) {
@@ -76,8 +97,8 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
       {ability && (
         <section className="ct2__ability" aria-label="توانایی">
           <small>توانایی {CHARACTERS[ability.char]}:</small>
-          {ability.char === 1 && [2, 3, 4, 5, 6, 7, 8].map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'kill', char: c })}>کشتن {CHARACTERS[c]}</button>)}
-          {ability.char === 2 && [3, 4, 5, 6, 7, 8].filter((c) => c !== view.killed).map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'rob', char: c })}>دزدی از {CHARACTERS[c]}</button>)}
+          {ability.char === 1 && [2, 3, 4, 5, 6, 7, 8].map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'kill', char: c })}><Thumb c={c} />کشتن {CHARACTERS[c]}</button>)}
+          {ability.char === 2 && [3, 4, 5, 6, 7, 8].filter((c) => c !== view.killed).map((c) => <button key={c} type="button" disabled={busy} onClick={() => onAction({ type: 'rob', char: c })}><Thumb c={c} />دزدی از {CHARACTERS[c]}</button>)}
           {ability.char === 3 && <>
             {others.map((k) => <button key={k} type="button" disabled={busy} onClick={() => onAction({ type: 'swap', target: k })}>عوض کردن دست با <bdi>{who(k)}</bdi></button>)}
             <button type="button" disabled={busy || !redraw.length} onClick={() => onAction({ type: 'redraw', cards: redraw })}>کشیدن دوبارهٔ {fa(redraw.length)} کارت انتخابی</button>
@@ -93,9 +114,9 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.cities.map((_, k) => k)).map((s) => (
           <li key={s} className={['ct2-city', s === me ? 'ct2-city--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct2-city--win' : ''].join(' ')}>
             <div className="ct2-city__head">
-              {view.crown === s && <span className="ct2-crown" title="تاج">♛</span>}
+              {view.crown === s && <img className="ct2-crown" src={crown} alt="تاج" title="تاج" />}
               <bdi className="ct2-city__name">{who(s)}</bdi>
-              <span className="ct2-gold" key={view.gold[s]}>{fa(view.gold[s]!)} طلا</span>
+              <span className="ct2-gold" key={view.gold[s]}><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</span>
               <span>{fa(view.handCount[s]!)} کارت</span>
               <span className="ct2-score">{fa(view.scores[s]!)} امتیاز</span>
               <span>{fa(view.cities[s]!.length)}/۸</span>
