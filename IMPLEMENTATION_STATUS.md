@@ -541,3 +541,10 @@ New module `games/no-thanks` registered in engine, catalog and web. Checks run: 
 setup per count, run scoring, take/pass flow, hidden chips/deck, end and placement, resign, timeout, tutorial, 30
 random 2–7 player games with chip conservation and replay); API 3 (`apps/api/test/no-thanks.test.ts`); catalog test
 updated; E2E `e2e/no-thanks.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/no-thanks/`).
+## «گاو شش» 6 nimmt! (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/six-nimmt` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/six-nimmt.test.ts`: bullheads, deal, simultaneous hidden choice, sixth card, forced row
+choice, private round penalties, round scoring and 66, timeouts/resign, tutorial, 15 random 2–10 player games with
+card conservation and replay); API 3 (`apps/api/test/six-nimmt.test.ts`); catalog test updated; E2E
+`e2e/six-nimmt.spec.ts` — tutorial and a one-round three-player game at 360 and 1440 (`docs/evidence/six-nimmt/`).

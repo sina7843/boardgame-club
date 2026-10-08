@@ -556,3 +556,13 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   as positive totals (lower is better). Timeouts refuse while chips last, otherwise take (no elimination).
 - Look: bold numbered cards from cool to hot, a stacked red chip pile with a count, a face-down deck, players' cards
   grouped in runs with only the scoring card bright, big take/refuse buttons with the score impact of taking.
+## «گاو شش» (6 nimmt!, 2026-10-08, owner list batch 3)
+
+- Standard rules for 2–10 players: 104 cards with bullheads, ten cards each, four rows, simultaneous hidden choice,
+  placement lowest first, the sixth card takes the row, a card below every row makes its owner choose a row, rounds
+  until someone reaches 66 (option: one round), fewest bullheads wins. Hands, pending choices, the undealt deck and
+  penalties collected in the running round are private; all choices of a turn are revealed together (including cards
+  still waiting while a row choice is pending). Timeouts play the lowest card / the cheapest row for everyone the game
+  waits on. Resign ends the game with the resigner last.
+- Look: classic numbered cards coloured by penalty with bull heads, rows with a red «۶» danger slot and a bullhead
+  total, revealed choices in order with who took what, rows turn into buttons for a forced choice, tap-to-play hand.

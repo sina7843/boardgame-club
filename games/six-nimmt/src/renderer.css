@@ -1,0 +1,55 @@
+/* گاو شش: white cards with bull heads, colour by penalty; four rows with a red sixth slot. */
+.sn { display: grid; gap: 0.8rem; text-align: center; color: #f6efe2; inline-size: 100%; }
+.sn > :first-child { justify-self: center; }
+.sn__scores { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+.sn-score { display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 999px; background: rgb(0 0 0 / 0.28); font-size: 0.85rem; }
+.sn-score--ready { box-shadow: inset 0 0 0 1px rgb(143 224 163 / 0.6); }
+.sn-score--turn { box-shadow: 0 0 0 2px #c9a46a; }
+.sn-score__n { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 800; color: #ffb4d0; }
+.sn-score__n .sn-bull { inline-size: 14px; block-size: 12px; }
+.sn-score__state { color: #8fe0a3; }
+
+.sn__rows { display: grid; gap: 0.45rem; }
+.sn-row { display: flex; align-items: center; gap: 0.3rem; padding: 0.4rem; border-radius: 14px; background: rgb(0 0 0 / 0.22); direction: ltr; border: 0; font: inherit; color: inherit; }
+.sn-row--take { cursor: pointer; box-shadow: 0 0 0 2px #ffd27a; animation: sn-pulse 1.2s ease-in-out infinite; }
+.sn-row--take:hover, .sn-row--take:focus-visible { background: rgb(255 210 122 / 0.2); outline: none; }
+.sn-row--hint { background: rgb(255 210 122 / 0.28); }
+.sn-row__heads { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 900; color: #ffb4d0; padding-inline: 0.3rem; }
+.sn-row__heads .sn-bull { inline-size: 16px; block-size: 13px; }
+.sn-slot { flex: none; inline-size: 2.6rem; block-size: 3.6rem; border-radius: 8px; border: 2px dashed rgb(255 255 255 / 0.12); }
+.sn-slot--danger { display: grid; place-items: center; border-color: rgb(255 107 91 / 0.55); color: rgb(255 107 91 / 0.7); font-weight: 900; }
+
+.sn-card { --bg: #fffdf8; --ink: #5a2a5f; position: relative; flex: none; display: grid; grid-template-rows: auto 1fr; place-items: center; inline-size: 4.2rem; block-size: 5.8rem;
+  padding: 0.3rem 0.2rem; border-radius: 10px; background: var(--bg); color: var(--ink); border: 2px solid #e2d6c2; box-shadow: 0 4px 10px -3px rgb(0 0 0 / 0.5); font: inherit; }
+button.sn-card { cursor: pointer; transition: transform 0.15s; }
+button.sn-card:hover, button.sn-card:focus-visible { transform: translateY(-8px); outline: none; box-shadow: 0 0 0 3px #ffd27a, 0 10px 18px -6px rgb(0 0 0 / 0.6); }
+.sn-card--t2 { --bg: #e8f1ff; --ink: #1f4f9a; }
+.sn-card--t3 { --bg: #fff5d6; --ink: #8a6200; }
+.sn-card--t5 { --bg: #ffe2dd; --ink: #b42318; }
+.sn-card--t7 { --bg: #f1e2ff; --ink: #6b1fa8; border-color: #b77de0; }
+.sn-card__heads { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; min-block-size: 0.9rem; }
+.sn-card__n { font-size: 1.7rem; font-weight: 900; line-height: 1; }
+.sn-card--small { inline-size: 2.6rem; block-size: 3.6rem; padding: 0.15rem; border-radius: 7px; }
+.sn-card--small .sn-card__n { font-size: 1rem; }
+.sn-card--small .sn-bull { inline-size: 8px; block-size: 7px; }
+.sn-bull { inline-size: 12px; block-size: 10px; }
+.sn-card--new { animation: sn-drop 0.45s cubic-bezier(.2, 1.3, .4, 1) both; }
+.sn-card--up { transform: translateY(-12px); box-shadow: 0 0 0 3px #8fe0a3, 0 10px 18px -6px rgb(0 0 0 / 0.6); }
+.sn-card--hint { box-shadow: 0 0 0 3px #ffd27a; animation: sn-pulse 1s ease-in-out infinite; }
+
+.sn__reveal { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.sn-rev { display: grid; justify-items: center; gap: 0.15rem; font-size: 0.75rem; color: #d9ccb4; animation: sn-drop 0.4s ease-out both; }
+.sn-rev--waiting { opacity: 0.6; }
+.sn-rev--took small { color: #ff8f80; font-weight: 800; }
+.sn__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; direction: ltr; padding-block: 0.6rem 0.2rem; }
+.sn__meta { margin: 0; font-size: 0.78rem; color: #c9b998; }
+
+@keyframes sn-drop { from { transform: translateY(-16px) scale(1.15); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes sn-pulse { 50% { box-shadow: 0 0 0 2px transparent; } }
+
+@media (max-width: 480px) {
+  .sn-card { inline-size: 3.4rem; block-size: 4.8rem; }
+  .sn-card__n { font-size: 1.35rem; }
+  .sn-slot, .sn-card--small { inline-size: 2.1rem; block-size: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) { .sn-card--new, .sn-rev, .sn-row--take, .sn-card--hint { animation: none; } }

@@ -40,7 +40,8 @@
     "@bg/game-tak": "workspace:*",
     "@bg/game-abalone": "workspace:*",
     "@bg/game-hive": "workspace:*",
-    "@bg/game-no-thanks": "workspace:*"
+    "@bg/game-no-thanks": "workspace:*",
+    "@bg/game-six-nimmt": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

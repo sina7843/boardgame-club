@@ -33,7 +33,8 @@
     "@bg/game-tak": "workspace:*",
     "@bg/game-abalone": "workspace:*",
     "@bg/game-hive": "workspace:*",
-    "@bg/game-no-thanks": "workspace:*"
+    "@bg/game-no-thanks": "workspace:*",
+    "@bg/game-six-nimmt": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",
