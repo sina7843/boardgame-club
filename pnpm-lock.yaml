@@ -47,6 +47,9 @@ importers:
       '@bg/game-backgammon':
         specifier: workspace:*
         version: link:../../games/backgammon
+      '@bg/game-checkers':
+        specifier: workspace:*
+        version: link:../../games/checkers
       '@bg/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
@@ -129,6 +132,9 @@ importers:
       '@bg/game-catan':
         specifier: workspace:*
         version: link:../../games/catan
+      '@bg/game-checkers':
+        specifier: workspace:*
+        version: link:../../games/checkers
       '@bg/game-chess':
         specifier: workspace:*
         version: link:../../games/chess
@@ -496,6 +502,9 @@ importers:
       '@bg/game-catan':
         specifier: workspace:*
         version: link:../../games/catan
+      '@bg/game-checkers':
+        specifier: workspace:*
+        version: link:../../games/checkers
       '@bg/game-chess':
         specifier: workspace:*
         version: link:../../games/chess
@@ -548,6 +557,9 @@ importers:
       '@bg/game-catan':
         specifier: workspace:*
         version: link:../../games/catan
+      '@bg/game-checkers':
+        specifier: workspace:*
+        version: link:../../games/checkers
       '@bg/game-chess':
         specifier: workspace:*
         version: link:../../games/chess

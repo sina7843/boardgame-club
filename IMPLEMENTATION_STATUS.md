@@ -472,3 +472,11 @@ projection, tutorial, 40 random games with checker conservation and replay); API
 catalog test updated; E2E `e2e/backgammon.spec.ts` — full two-player game through the board and the tutorial at 360
 and 1440 (screenshots `docs/evidence/backgammon/`). Three polish passes from screenshots (board width, movable rings,
 dice size, stack spacing).
+## «چکرز» Checkers (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/checkers` registered in engine, catalog and web. Checks run: engine 9
+(`packages/game-engine/test/checkers.test.ts`: start, compulsory and multi-jump captures, crowning, kings, Brazilian
+backward captures / flying kings / longest capture, win, blocked, repetition, draw offer, resign, timeout, view,
+tutorial, 30 random games in both variants with replay); API 3 (`apps/api/test/checkers.test.ts`); catalog test
+updated; E2E `e2e/checkers.spec.ts` — full game through the board and the tutorial at 360 and 1440
+(`docs/evidence/checkers/`).

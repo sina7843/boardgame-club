@@ -458,3 +458,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   play). The tutorial is an endgame that ends in a win, because tutorials complete only on a finished game.
 - Look: walnut frame with a khatam inlay, ivory/ebony checkers, red/ivory points, dice that roll in, gold rings on
   movable checkers, dashed landings, move trails, bear-off slabs in the tray; reduced motion turns animations off.
+## «چکرز» (Checkers, 2026-10-08, owner list batch 1)
+
+- Default English/American draughts (WCDF): dark moves first, men move/capture forward only, compulsory capture
+  (free choice between capture sequences), multi-jumps, crowning ends the move, kings move one square.
+- Option "brazilian" (8×8 international rules): men capture backwards, flying kings, the longest capture is
+  compulsory, crowning only when the move ends on the last row. Option firstMove (random / host plays dark).
+- Draws: threefold repetition, 40 moves each without a capture or man move, or an accepted offer made with a move.
+  A flag fall loses (like chess). The tutorial is a forced double jump followed by the winning capture.
+- Look: maple/walnut board in a dark frame with coordinates, lacquered red vs ivory discs, gold rings on movable
+  pieces, dots on next squares (multi-jumps tapped square by square, sent as soon as the path is unique), the last
+  move slides in, captured pieces fade, a crown pops on promotion; board seen from the viewer's side.
