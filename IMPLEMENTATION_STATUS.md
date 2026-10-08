@@ -462,3 +462,13 @@ compass and cartouche, 3D route slots and claimed cars, station plaques; illustr
 colour, steam locomotive, card back), ticket stubs with a mini-map, wooden face-up rack, stacked hand, player boards
 with train-stock bars, claim preview, styled log, scoring legend, final medals, new cover. Re-checked: engine 21,
 E2E 3/3 at 360/1440, lint and typecheck clean.
+
+## «تخته‌نرد» Backgammon (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/backgammon` registered in engine, catalog and web. Checks run: engine 12
+(`packages/game-engine/test/backgammon.test.ts`: start/opening, full-turn validation, larger-die rule, doubles, bar
+entry and closed board, hits, bearing off, single/gammon/backgammon and the option, cube take/drop, timeouts, resign,
+projection, tutorial, 40 random games with checker conservation and replay); API 3 (`apps/api/test/backgammon.test.ts`);
+catalog test updated; E2E `e2e/backgammon.spec.ts` — full two-player game through the board and the tutorial at 360
+and 1440 (screenshots `docs/evidence/backgammon/`). Three polish passes from screenshots (board width, movable rings,
+dice size, stack spacing).

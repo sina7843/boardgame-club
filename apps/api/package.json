@@ -22,7 +22,8 @@
     "fastify": "5.12.5",
     "fastify-type-provider-zod": "7.0.0",
     "socket.io": "4.8.4",
-    "zod": "4.6.5"
+    "zod": "4.6.5",
+    "@bg/game-backgammon": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

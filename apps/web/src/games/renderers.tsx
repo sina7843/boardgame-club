@@ -10,6 +10,7 @@ import UnmatchedRenderer from '@bg/game-unmatched/renderer';
 import CatanRenderer from '@bg/game-catan/renderer';
 import RiskRenderer from '@bg/game-risk/renderer';
 import TtrRenderer from '@bg/game-ticket-to-ride/renderer';
+import BackgammonRenderer from '@bg/game-backgammon/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -28,5 +29,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'chess@1.0.0': ChessRenderer as ComponentType<GameRendererProps<never>>,
   'snakes-ladders@1.0.0': SnakesRenderer as ComponentType<GameRendererProps<never>>,
   'ludo@1.0.0': LudoRenderer as ComponentType<GameRendererProps<never>>,
-  'amlak@1.0.0': AmlakRenderer as ComponentType<GameRendererProps<never>>
+  'amlak@1.0.0': AmlakRenderer as ComponentType<GameRendererProps<never>>,
+  'backgammon@1.0.0': BackgammonRenderer as ComponentType<GameRendererProps<never>>
 };

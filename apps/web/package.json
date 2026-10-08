@@ -29,7 +29,8 @@
     "@bg/game-chess": "workspace:*",
     "@bg/game-snakes-ladders": "workspace:*",
     "@bg/game-ludo": "workspace:*",
-    "@bg/game-amlak": "workspace:*"
+    "@bg/game-amlak": "workspace:*",
+    "@bg/game-backgammon": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

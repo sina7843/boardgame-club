@@ -445,3 +445,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   hand, chat drawer, dialogs and toasts stay usable; ZoomBoard's own board-only fullscreen remains. Hidden where the
   Fullscreen API is missing (iPhone Safari). Leaving the table exits fullscreen.
 - Catan shows no build targets while a move is held or in flight (a tap then would be ignored).
+## «تخته‌نرد» (Backgammon, 2026-10-08, owner list batch 1)
+
+- Standard rules: 15 checkers, server dice, opening roll (one die each, re-rolled on a tie, the higher die moves with
+  both), "use as many dice as possible / the larger die" enforced by enumerating complete plays, hits and bar entry,
+  bearing off (higher die only from the farthest point), gammon ×2 and backgammon ×3.
+- A whole turn is one `play` action (the list of checker steps). The renderer builds it locally and sends it when no
+  dice are left, so the 2 s undo window covers the whole turn instead of every checker.
+- Options: gammons counted (default) or always 1 point; doubling cube off by default (common casual play in Iran),
+  on as an option (double before rolling, take = ×2 and cube passes, drop = lose at the current value).
+- Resign and three timeouts in a row concede a single game × cube; a timeout plays passively (take, roll, first legal
+  play). The tutorial is an endgame that ends in a win, because tutorials complete only on a finished game.
+- Look: walnut frame with a khatam inlay, ivory/ebony checkers, red/ivory points, dice that roll in, gold rings on
+  movable checkers, dashed landings, move trails, bear-off slabs in the tray; reduced motion turns animations off.

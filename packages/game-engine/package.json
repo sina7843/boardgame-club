@@ -22,7 +22,8 @@
     "@bg/game-chess": "workspace:*",
     "@bg/game-snakes-ladders": "workspace:*",
     "@bg/game-ludo": "workspace:*",
-    "@bg/game-amlak": "workspace:*"
+    "@bg/game-amlak": "workspace:*",
+    "@bg/game-backgammon": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"
