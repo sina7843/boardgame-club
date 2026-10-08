@@ -770,3 +770,10 @@ condition resolution, 20 random missions per edition with replay); API 6 (`apps/
 editions); catalog test updated (order now taken from the server's sort); E2E `e2e/the-crew.spec.ts` and
 `e2e/crew-deep-sea.spec.ts` — tutorial and a full three-player mission each at 360 and 1440 (`docs/evidence/the-crew/`,
 `docs/evidence/crew-deep-sea/`).
+## «پایگاه فضایی» Space Base (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/space-base` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/space-base.test.ts`: ship set/shop, roll/choose/buy with blue and red rewards and
+deployment, income floor and goal, hidden decks, timeouts/resign, tutorial, 12 random 2–5 player games with replay);
+API 3 (`apps/api/test/space-base.test.ts`); catalog test updated; E2E `e2e/space-base.spec.ts` — tutorial and a full
+three-player game at 360 and 1440 (`docs/evidence/space-base/`).

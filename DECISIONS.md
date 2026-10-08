@@ -957,3 +957,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   sum reaches the target, then drafted. Not the published task-card list.
 - Look: mission console — space theme (violet nebula) for Planet Nine, sea theme (teal depths) for Deep Sea; task
   cards with order tokens and ✓/✗ status, a trick table with player names, crew pills showing the communicated card.
+
+## «پایگاه فضایی» (Space Base, 2026-10-08, owner list batch 10)
+
+- 2–5 players, 12 sectors each with a starting ship; roll 2d6 and choose separate sectors or the sum — the roller's
+  choice applies to everyone (simplification: in the published game each player chooses for themselves). Blue
+  rewards for the roller's stations, red rewards for everyone else's deployed ships; buy at most one ship per turn
+  (the old station is deployed); credits rise to income at the end of your turn; the game ends after the turn in
+  which someone reaches 40 VP. Starting credits 3, 4, 5… in turn order.
+- The ship list is generated (sector × level 1–3 × 2 variants = 72 shop ships with original names; rarer sectors pay
+  more); no charge, colony or special-ability cards.
+- Look: hangar console — gunmetal panels, cyan station rewards and amber deployed rewards per bay, dice that light
+  up the bays they hit, a shipyard with level-coloured frames.

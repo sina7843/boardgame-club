@@ -52,6 +52,7 @@ import DominionCover from '@bg/game-dominion/cover';
 import StarRealmsCover from '@bg/game-star-realms/cover';
 import TheCrewCover from '@bg/game-the-crew/cover';
 import CrewDeepSeaCover from '@bg/game-crew-deep-sea/cover';
+import SpaceBaseCover from '@bg/game-space-base/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -107,7 +108,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   dominion: DominionCover,
   'star-realms': StarRealmsCover,
   'the-crew': TheCrewCover,
-  'crew-deep-sea': CrewDeepSeaCover
+  'crew-deep-sea': CrewDeepSeaCover,
+  'space-base': SpaceBaseCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

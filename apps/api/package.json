@@ -64,7 +64,8 @@
     "@bg/game-dominion": "workspace:*",
     "@bg/game-star-realms": "workspace:*",
     "@bg/game-the-crew": "workspace:*",
-    "@bg/game-crew-deep-sea": "workspace:*"
+    "@bg/game-crew-deep-sea": "workspace:*",
+    "@bg/game-space-base": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",
