@@ -139,33 +139,43 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
         <svg className="bgm-board" viewBox={`0 0 ${W} ${H}`} role="group" aria-label="صفحه تخته‌نرد" style={{ direction: 'ltr' }}>
           <defs>
             <linearGradient id="bgm-wood" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#6b4223" /><stop offset=".5" stopColor="#4c2d16" /><stop offset="1" stopColor="#5d3a1d" />
+              <stop offset="0" stopColor="#5a2c1b" /><stop offset=".5" stopColor="#3a1b10" /><stop offset="1" stopColor="#4a2316" />
             </linearGradient>
-            <linearGradient id="bgm-field" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#2f5a45" /><stop offset=".5" stopColor="#24493a" /><stop offset="1" stopColor="#2f5a45" />
-            </linearGradient>
+            <radialGradient id="bgm-field" cx=".5" cy=".5" r=".75">
+              <stop offset="0" stopColor="#1d4468" /><stop offset=".7" stopColor="#12304c" /><stop offset="1" stopColor="#0a1d33" />
+            </radialGradient>
+            <linearGradient id="bgm-tq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#35b5ac" /><stop offset=".55" stopColor="#1f8a86" /><stop offset="1" stopColor="#146461" /></linearGradient>
+            <linearGradient id="bgm-sf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f2c36b" /><stop offset=".55" stopColor="#d9983a" /><stop offset="1" stopColor="#a8701f" /></linearGradient>
             <pattern id="bgm-khatam" width="22" height="22" patternUnits="userSpaceOnUse">
-              <rect width="22" height="22" fill="#3b2412" />
-              <path d="M11 1 L14 8 L21 11 L14 14 L11 21 L8 14 L1 11 L8 8 Z" fill="#c9a46a" />
-              <path d="M11 6 L13 11 L11 16 L9 11 Z" fill="#6e1f1a" />
-              <circle cx="11" cy="11" r="1.6" fill="#f3e6c8" />
+              <rect width="22" height="22" fill="#2d140c" />
+              <path d="M11 1 L14 8 L21 11 L14 14 L11 21 L8 14 L1 11 L8 8 Z" fill="#e6d4a6" />
+              <path d="M11 5 L13.5 11 L11 17 L8.5 11 Z" fill="#1f8a86" />
+              <circle cx="11" cy="11" r="1.7" fill="#d9983a" />
             </pattern>
-            <radialGradient id="bgm-ivory" cx=".38" cy=".32" r=".75">
-              <stop offset="0" stopColor="#fffaf0" /><stop offset=".6" stopColor="#efe2c4" /><stop offset="1" stopColor="#c9b48c" />
+            <pattern id="bgm-arab" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M24 4 L28 20 L44 24 L28 28 L24 44 L20 28 L4 24 L20 20 Z" fill="none" stroke="#9fd8e8" strokeWidth="1" />
+              <circle cx="0" cy="0" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" /><circle cx="48" cy="48" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" />
+              <circle cx="48" cy="0" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" /><circle cx="0" cy="48" r="5" fill="none" stroke="#9fd8e8" strokeWidth=".8" />
+            </pattern>
+            <radialGradient id="bgm-ivory" cx=".36" cy=".3" r=".8">
+              <stop offset="0" stopColor="#ffffff" /><stop offset=".55" stopColor="#f3e7c9" /><stop offset="1" stopColor="#c7ae7c" />
             </radialGradient>
-            <radialGradient id="bgm-ebony" cx=".38" cy=".32" r=".75">
-              <stop offset="0" stopColor="#5b5550" /><stop offset=".55" stopColor="#25211e" /><stop offset="1" stopColor="#0f0d0b" />
+            <radialGradient id="bgm-ebony" cx=".36" cy=".3" r=".8">
+              <stop offset="0" stopColor="#e5555d" /><stop offset=".5" stopColor="#a8222c" /><stop offset="1" stopColor="#4d0a10" />
             </radialGradient>
-            <filter id="bgm-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" floodOpacity=".45" /></filter>
+            <filter id="bgm-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" floodOpacity=".55" /></filter>
           </defs>
 
-          {/* Frame with khatam inlay, field, bar and tray. */}
+          {/* Rosewood frame with khatam inlay, lapis field with arabesque, brass fillets, bar and tray. */}
           <rect x="0" y="0" width={W} height={H} rx="22" fill="url(#bgm-wood)" />
           <rect x="8" y="8" width={W - 16} height={H - 16} rx="16" fill="none" stroke="url(#bgm-khatam)" strokeWidth="14" />
+          <rect x="1.5" y="1.5" width={W - 3} height={H - 3} rx="21" fill="none" stroke="#d9983a" strokeOpacity=".7" strokeWidth="1.5" />
           <rect x={F} y={F} width={RIGHT - F} height={H - 2 * F} fill="url(#bgm-field)" />
+          <rect x={F} y={F} width={RIGHT - F} height={H - 2 * F} fill="url(#bgm-arab)" opacity=".1" />
+          <rect x={F - 2} y={F - 2} width={RIGHT - F + 4} height={H - 2 * F + 4} fill="none" stroke="#d9983a" strokeWidth="2" />
           <rect x={BAR_L} y={F} width={BAR} height={H - 2 * F} fill="url(#bgm-wood)" />
-          <rect x={BAR_L + 8} y={F} width={BAR - 16} height={H - 2 * F} fill="url(#bgm-khatam)" opacity=".55" />
-          <rect x={RIGHT + 8} y={F} width={TRAY - 16} height={H - 2 * F} rx="8" fill="#2a1a0d" />
+          <rect x={BAR_L + 8} y={F} width={BAR - 16} height={H - 2 * F} fill="url(#bgm-khatam)" opacity=".8" />
+          <rect x={RIGHT + 8} y={F} width={TRAY - 16} height={H - 2 * F} rx="8" fill="#170a05" stroke="#d9983a" strokeOpacity=".5" />
 
           {/* Points. */}
           {Array.from({ length: 24 }, (_, i) => {
@@ -293,12 +303,18 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   );
 }
 
+const star = (x: number, y: number, r: number) =>
+  Array.from({ length: 16 }, (_, k) => { const a = (k * Math.PI) / 8 - Math.PI / 2; const q = k % 2 ? r * 0.55 : r; return `${(x + q * Math.cos(a)).toFixed(1)},${(y + q * Math.sin(a)).toFixed(1)}`; }).join(' ');
+
+/** Turned-bone (seat 0) or crimson-lacquer (seat 1) checker with a gold rim and an engraved eight-point rosette. */
 function Checker({ x, y, seat }: { x: number; y: number; seat: number }) {
+  const ivory = seat === 0;
   return (
     <g filter="url(#bgm-shadow)">
-      <circle cx={x} cy={y} r={R} fill={seat === 0 ? 'url(#bgm-ivory)' : 'url(#bgm-ebony)'} stroke={seat === 0 ? '#a8936b' : '#000'} strokeWidth="1.5" />
-      <circle cx={x} cy={y} r={R * 0.68} fill="none" stroke={seat === 0 ? '#c4ad84' : '#4a433d'} strokeWidth="2" />
-      <circle cx={x} cy={y} r={R * 0.3} fill={seat === 0 ? '#e6d5b0' : '#38322d'} />
+      <circle cx={x} cy={y} r={R} fill={ivory ? 'url(#bgm-ivory)' : 'url(#bgm-ebony)'} stroke={ivory ? '#5a3b16' : '#e0b341'} strokeWidth="2" />
+      <circle cx={x} cy={y} r={R * 0.72} fill="none" stroke={ivory ? '#b99a62' : '#f0c75e'} strokeWidth="1.6" />
+      <polygon points={star(x, y, R * 0.5)} fill={ivory ? '#c9ab6e' : '#f0c75e'} fillOpacity={ivory ? 0.75 : 0.85} />
+      <ellipse cx={x - R * 0.3} cy={y - R * 0.42} rx={R * 0.3} ry={R * 0.16} fill="#fff" opacity=".35" />
     </g>
   );
 }

@@ -3,12 +3,12 @@
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { PieceArt, PieceDefs } from './pieces.tsx';
 import type { ChessView, Color, Piece, PieceType, PromoType } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const FILES = 'abcdefgh';
-// Solid glyphs for both colours (coloured by CSS); U+FE0E keeps them as text, never emoji.
-const GLYPH: Record<PieceType, string> = { K: '♚︎', Q: '♛︎', R: '♜︎', B: '♝︎', N: '♞︎', P: '♟︎' };
+const Glyph = ({ t, c }: { t: PieceType; c: Color }) => <svg className="ch-pc" viewBox="0 0 100 100" focusable="false"><PieceArt type={t} color={c} idp="chp" /></svg>;
 const NAME_FA: Record<PieceType, string> = { K: 'شاه', Q: 'وزیر', R: 'رخ', B: 'فیل', N: 'اسب', P: 'سرباز' };
 const COLOR_FA: Record<Color, string> = { w: 'سفید', b: 'سیاه' };
 const DRAW_FA = { stalemate: 'پات', repetition: 'تکرار سه‌باره وضعیت', fiftyMove: 'قانون ۵۰ حرکت', material: 'مهره ناکافی برای مات', agreement: 'توافق دو بازیکن', timeoutMaterial: 'اتمام زمان، ولی حریف مهره کافی برای مات نداشت' } as const;
@@ -80,6 +80,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
 
   return (
     <div className="ch">
+      <svg className="visually-hidden" width="0" height="0" aria-hidden="true" focusable="false"><PieceDefs idp="chp" /></svg>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {endText && <p className="ch__end">{endText}</p>}
@@ -101,7 +102,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
           <div className="ch-frame" dir="ltr">
           {(['top', 'bottom'] as const).map((side) => <div key={side} className={`ch-edge ch-edge--files ch-edge--${side}`} aria-hidden="true">{cols.map((f) => <span key={f}>{FILES[f]}</span>)}</div>)}
           {(['start', 'end'] as const).map((side) => <div key={side} className={`ch-edge ch-edge--ranks ch-edge--${side}`} aria-hidden="true">{rows.map((r) => <span key={r}>{r + 1}</span>)}</div>)}
-          <div className="ch-board" role="grid"aria-label={`صفحه شطرنج، از سمت ${COLOR_FA[myColor ?? 'w']}`} dir="ltr">
+          <div className="ch-board" role="grid" aria-label={`صفحه شطرنج، از سمت ${COLOR_FA[myColor ?? 'w']}`} dir="ltr">
             {rows.map((r) => (
               <div key={r} role="row" className="ch-row">
                 {cols.map((f) => {
@@ -120,7 +121,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
                     <button key={f} type="button" role="gridcell" className={cls} onClick={() => tap(name)} aria-disabled={!interactive || busy || undefined}
                       aria-pressed={selected === name || undefined}
                       aria-label={`${name}، ${piece ? pieceLabel(piece) : 'خالی'}${target ? (piece ? '، زدن' : '، حرکت به اینجا') : ''}${i === kingInCheck ? '، کیش' : ''}`}>
-                      {piece && <span className={`ch-piece ch-piece--${piece[0]}`} aria-hidden="true">{GLYPH[piece[1] as PieceType]}</span>}
+                      {piece && <span className={`ch-piece ch-piece--${piece[0]}`} aria-hidden="true"><Glyph t={piece[1] as PieceType} c={piece[0] as Color} /></span>}
                       {f === (flip ? 7 : 0) && <span className="ch-coord ch-coord--rank" aria-hidden="true">{r + 1}</span>}
                       {r === (flip ? 7 : 0) && <span className="ch-coord ch-coord--file" aria-hidden="true">{FILES[f]}</span>}
                     </button>
@@ -140,7 +141,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
               <div className="ch-promo">
                 {(['Q', 'R', 'B', 'N'] as PromoType[]).map((t) => (
                   <button key={t} type="button" className="ch-promo__btn" disabled={busy} onClick={() => send({ from: selected, to: promoTo, promotion: t })}>
-                    <span className={`ch-piece ch-piece--${view.turn}`} aria-hidden="true">{GLYPH[t]}</span>{NAME_FA[t]}
+                    <span className={`ch-piece ch-piece--${view.turn}`} aria-hidden="true"><Glyph t={t} c={view.turn} /></span>{NAME_FA[t]}
                   </button>
                 ))}
               </div>
@@ -176,7 +177,7 @@ function PlayerBar({ name, color, captured, active, me }: { name: string; color:
       <span className="ch-player__color">{COLOR_FA[color]}{me ? ' (شما)' : ''}</span>
       {captured.length > 0 && (
         <span className="ch-player__captured" aria-label={`مهره‌های زده‌شده: ${captured.map(pieceLabel).join('، ')}`}>
-          {captured.map((p, i) => <span key={i} className={`ch-piece ch-piece--${p[0]}`} aria-hidden="true">{GLYPH[p[1] as PieceType]}</span>)}
+          {captured.map((p, i) => <span key={i} className={`ch-piece ch-piece--${p[0]}`} aria-hidden="true"><Glyph t={p[1] as PieceType} c={p[0] as Color} /></span>)}
         </span>
       )}
     </div>
