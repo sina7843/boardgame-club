@@ -969,3 +969,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   more); no charge, colony or special-ability cards.
 - Look: hangar console — gunmetal panels, cyan station rewards and amber deployed rewards per bay, dice that light
   up the bays they hit, a shipyard with level-coloured frames.
+
+## «نبرد تاس» (Dice Throne, 2026-10-08, owner list batch 10)
+
+- Two players; four original heroes (mountain warrior, shadow runner, fire-starter, guardian of light) with their own
+  die faces, five abilities each (symbol counts with tiers, combos, small/large straights, an undefendable ultimate)
+  and defence dice. 30 HP (shortened from 50 for a single-session duel), 2 CP (max 15), +1 CP per turn. Up to three
+  rolls keeping any dice, extra rolls for 2 CP; defendable attacks wait for the defender's defence roll. Statuses:
+  wound (1 HP per stack at upkeep, max 3), stun (lose the next offensive phase), shield (prevent 3 once). No card
+  deck — CP only buys extra rolls and moves through abilities. Hero pick: first picker also plays first.
+- Look: arena — stone floor, hero-coloured banners with a sliding health bar and status badges, chunky dice showing
+  the hero's symbols (tap to keep), an ability board that lights up the combos your dice make.

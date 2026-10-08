@@ -53,6 +53,7 @@ import StarRealmsRenderer from '@bg/game-star-realms/renderer';
 import TheCrewRenderer from '@bg/game-the-crew/renderer';
 import CrewDeepSeaRenderer from '@bg/game-crew-deep-sea/renderer';
 import SpaceBaseRenderer from '@bg/game-space-base/renderer';
+import DiceThroneRenderer from '@bg/game-dice-throne/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -114,5 +115,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'star-realms@1.0.0': StarRealmsRenderer as ComponentType<GameRendererProps<never>>,
   'the-crew@1.0.0': TheCrewRenderer as ComponentType<GameRendererProps<never>>,
   'crew-deep-sea@1.0.0': CrewDeepSeaRenderer as ComponentType<GameRendererProps<never>>,
-  'space-base@1.0.0': SpaceBaseRenderer as ComponentType<GameRendererProps<never>>
+  'space-base@1.0.0': SpaceBaseRenderer as ComponentType<GameRendererProps<never>>,
+  'dice-throne@1.0.0': DiceThroneRenderer as ComponentType<GameRendererProps<never>>
 };

@@ -777,3 +777,10 @@ New module `games/space-base` registered in engine, catalog and web. Checks run:
 deployment, income floor and goal, hidden decks, timeouts/resign, tutorial, 12 random 2–5 player games with replay);
 API 3 (`apps/api/test/space-base.test.ts`); catalog test updated; E2E `e2e/space-base.spec.ts` — tutorial and a full
 three-player game at 360 and 1440 (`docs/evidence/space-base/`).
+## «نبرد تاس» Dice Throne (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/dice-throne` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/dice-throne.test.ts`: hero set and ability patterns/tiers, hero pick, rolls/keep/extra
+roll cost, defence with shield and strike-back, nothing hidden, timeouts/resign, tutorial, 30 random duels with
+replay); API 3 (`apps/api/test/dice-throne.test.ts`); catalog test updated; E2E `e2e/dice-throne.spec.ts` — tutorial
+and a full duel from the hero pick at 360 and 1440 (`docs/evidence/dice-throne/`).

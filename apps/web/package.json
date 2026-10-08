@@ -72,7 +72,8 @@
     "@bg/game-star-realms": "workspace:*",
     "@bg/game-the-crew": "workspace:*",
     "@bg/game-crew-deep-sea": "workspace:*",
-    "@bg/game-space-base": "workspace:*"
+    "@bg/game-space-base": "workspace:*",
+    "@bg/game-dice-throne": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
