@@ -4,6 +4,20 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import crab from './art/crab.webp';
+import boat from './art/boat.webp';
+import fish from './art/fish.webp';
+import swimmer from './art/swimmer.webp';
+import shark from './art/shark.webp';
+import shell from './art/shell.webp';
+import octopus from './art/octopus.webp';
+import penguin from './art/penguin.webp';
+import sailor from './art/sailor.webp';
+import lighthouse from './art/lighthouse.webp';
+import shoal from './art/shoal.webp';
+import colony from './art/colony.webp';
+import captain from './art/captain.webp';
+import mermaid from './art/mermaid.webp';
 import { CARDS, duoKind, type Kind, type SspView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -11,21 +25,17 @@ export const KIND_FA: Record<Kind, string> = {
   crab: 'خرچنگ', boat: 'قایق', fish: 'ماهی', swimmer: 'شناگر', shark: 'کوسه', shell: 'صدف', octopus: 'هشت‌پا', penguin: 'پنگوئن',
   sailor: 'ملوان', lighthouse: 'فانوس', shoal: 'دسته‌ماهی', colony: 'کلونی', captain: 'ناخدا', mermaid: 'پری دریایی'
 };
-const SHAPE: Record<Kind, string> = {
-  crab: 'M-9 4 L-4 -3 L4 -3 L9 4 L4 7 L-4 7 Z M-9 4 L-12 -4 M9 4 L12 -4', boat: 'M-10 2 L10 2 L6 8 L-6 8 Z M0 2 L0 -10 L7 0 Z',
-  fish: 'M-9 0 L0 -6 L7 0 L0 6 Z M7 0 L11 -5 L11 5 Z', swimmer: 'M-10 3 L-3 -2 L4 1 L10 -3 M-2 -5 L1 -8 L3 -5 Z', shark: 'M-11 4 L9 4 L4 -1 L0 -9 L-3 -1 Z',
-  shell: 'M0 8 L-9 -2 L-5 -7 L0 -9 L5 -7 L9 -2 Z M0 8 L0 -9 M0 8 L-5 -7 M0 8 L5 -7', octopus: 'M-7 -1 L0 -9 L7 -1 L5 3 L8 9 L3 4 L0 9 L-3 4 L-8 9 L-5 3 Z',
-  penguin: 'M0 -9 L5 -3 L5 6 L0 9 L-5 6 L-5 -3 Z M-2 -6 L2 -6', sailor: 'M-6 -4 L6 -4 L4 -9 L-4 -9 Z M-4 -4 L-5 8 L5 8 L4 -4',
-  lighthouse: 'M-3 9 L-5 -2 L5 -2 L3 9 Z M-3 -2 L-2 -7 L2 -7 L3 -2 M-9 -6 L-3 -5 M9 -6 L3 -5', shoal: 'M-10 -3 L-5 -6 L-1 -3 L-5 0 Z M1 3 L6 0 L10 3 L6 6 Z M-6 5 L-2 3 L1 5 L-2 7 Z',
-  colony: 'M-6 -7 L-3 -3 L-3 6 L-9 6 L-9 -3 Z M5 -7 L8 -3 L8 6 L2 6 L2 -3 Z', captain: 'M-8 -2 L8 -2 L6 -8 L-6 -8 Z M-6 -2 L-6 8 L6 8 L6 -2 M-2 -6 L2 -6',
-  mermaid: 'M0 -9 L4 -5 L2 0 L5 6 L9 9 L0 7 L-9 9 L-5 6 L-2 0 L-4 -5 Z'
+// Origami art is cut from a generated sprite sheet (see DECISIONS.md).
+const ART: Record<Kind, string> = {
+  crab, boat, fish, swimmer, shark, shell, octopus,
+  penguin, sailor, lighthouse, shoal, colony, captain, mermaid
 };
 
 export function PaperCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }) {
   const c = CARDS[id]!;
   return (
     <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} aria-label={KIND_FA[c.kind]}>
-      <svg viewBox="-14 -14 28 28" aria-hidden="true"><path d={SHAPE[c.kind]} className="sp2-card__fold" /></svg>
+      <img src={ART[c.kind]} className="sp2-card__art" alt="" aria-hidden="true" draggable={false} />
       {size === 'md' && <small>{KIND_FA[c.kind]}</small>}
     </span>
   );

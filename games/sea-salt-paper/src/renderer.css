@@ -11,9 +11,8 @@
 .sp2-c--white.sp2-card, .sp2-c--yellow.sp2-card, .sp2-c--sky.sp2-card { color: var(--ink); }
 .sp2-card--md { inline-size: 3.4rem; block-size: 4.6rem; }
 .sp2-card--sm { inline-size: 1.6rem; block-size: 2.1rem; border-radius: 4px; }
-.sp2-card svg { inline-size: 70%; block-size: auto; }
-.sp2-card__fold { fill: rgb(255 255 255 / 0.85); stroke: rgb(0 0 0 / 0.35); stroke-width: 0.8; stroke-linejoin: round; }
-.sp2-c--white .sp2-card__fold, .sp2-c--yellow .sp2-card__fold, .sp2-c--sky .sp2-card__fold { fill: rgb(20 48 63 / 0.75); }
+.sp2-card--sm .sp2-card__art { inline-size: 80%; border-radius: 2px; }
+.sp2-card__art { inline-size: 84%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25); }
 .sp2-card small { font-size: 0.58rem; font-weight: 800; }
 
 .sp2__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
