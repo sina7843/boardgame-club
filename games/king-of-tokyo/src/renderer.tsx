@@ -5,7 +5,7 @@ import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { POWERS, type Face, type KotView } from './rules.ts';
-import { Bolt, DieGlyph, Monster, Skyline } from './art.tsx';
+import { Bolt, DieGlyph, Monster } from './art.tsx';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'خفاش غول', 'دایناسور'];
@@ -50,7 +50,6 @@ export default function KotRenderer({ view, legalActions, mySeat, seatName, busy
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="kt__arena" aria-label="شهر">
-        <Skyline />
         {view.tokyo !== null
           ? <span className="kt__king" style={{ ['--h' as string]: HUE[view.tokyo % 6] }} key={view.tokyo}><span className="kt__burst" aria-hidden="true" /><Monster k={view.tokyo} className="kt-art--king" /><b>{MONSTERS[view.tokyo % 6]}</b><bdi>{who(view.tokyo)}</bdi> در شهر</span>
           : <span className="kt__empty">شهر خالی است</span>}
