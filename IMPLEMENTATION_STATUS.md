@@ -791,3 +791,10 @@ New module `games/el-dorado` registered in engine, catalog and web. Checks run: 
 camp/buying, hidden hands, timeouts/resign, tutorial, 12 greedy random races with card conservation and replay);
 API 3 (`apps/api/test/el-dorado.test.ts`); catalog test updated; E2E `e2e/el-dorado.spec.ts` — tutorial and a full
 three-player race at 360 and 1440 (`docs/evidence/el-dorado/`).
+## «آرکانا» Res Arcana (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/res-arcana` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/res-arcana.test.ts`: card set/deal, action rotation/taps/discards, pass/draw/first player/
+collect, places and monuments to 10 VP, hidden hands and monument deck, timeouts/resign, tutorial, 12 random 2–4 player
+games with replay); API 3 (`apps/api/test/res-arcana.test.ts`); catalog test updated; E2E `e2e/res-arcana.spec.ts` —
+tutorial and a full three-player game at 360 and 1440 (`docs/evidence/res-arcana/`).

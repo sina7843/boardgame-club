@@ -993,3 +993,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   arrivals share first place, the rest rank by distance.
 - Look: explorer's map — parchment frame around an SVG hex jungle, glowing reachable hexes for the selected card,
   coloured expedition pawns, seed-packet style cards and a market strip.
+
+## «آرکانا» (Res Arcana, 2026-10-08, owner list batch 10)
+
+- 2–4 players. Original card set in the spirit of the game: 24 artifacts (each player is dealt 6: 3 in hand, 3 in a
+  private deck), 4 mages (collect two essences), 5 places of power (cost, VP, collect or a VP power) and 6 monuments
+  (4 gold, 2 VP, two face up). Essences fire/life/calm/death/gold, everyone starts with one of each. Round: collect,
+  then single actions in turn until all pass (play, tap once per round, buy, discard for 1 gold or 2 of an essence,
+  pass = draw 1; first to pass leads next round). Ends at the end of a round with someone on 10+ VP; most VP wins,
+  ties share. Not included: attacks, dragons/creatures, reactions, "any essence" costs, mage/item drafting.
+- Look: alchemist's table — faceted essence gems, vellum card plates (cost / collect / power rows), a velvet shelf
+  for places of power and monuments, tapped cards tilt.

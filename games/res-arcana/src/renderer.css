@@ -1,0 +1,60 @@
+/* آرکانا: an alchemist's table — dark walnut, vellum plates, faceted essence gems. */
+.ra { display: grid; gap: 0.55rem; inline-size: 100%; color: #f2e8d6; text-align: center; padding: 0.5rem; border-radius: 16px;
+  background: radial-gradient(circle at 50% 0%, #4a2f3f, #1c1218 75%); }
+.ra > :first-child { justify-self: center; }
+.ra-e--e { --e: #e2552b; } .ra-e--l { --e: #3fae5a; } .ra-e--c { --e: #3a8fd6; } .ra-e--d { --e: #6b4a8a; } .ra-e--g { --e: #e6b54a; }
+.ra-round { margin: 0; font-size: 0.75rem; color: #c9b8a6; }
+
+.ra-gems { display: inline-flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
+.ra-gem { display: inline-grid; place-items: center; min-inline-size: 1.15rem; block-size: 1.15rem; padding: 0 0.15rem; border: 0; font: inherit; font-size: 0.62rem; font-weight: 900; color: #fff;
+  clip-path: polygon(50% 0, 100% 30%, 100% 70%, 50% 100%, 0 70%, 0 30%); background: linear-gradient(160deg, color-mix(in srgb, var(--e) 60%, white 40%), var(--e) 55%, color-mix(in srgb, var(--e) 70%, black 30%));
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.5); animation: ra-glint 0.4s ease-out; }
+button.ra-gem { min-inline-size: 1.7rem; block-size: 1.7rem; cursor: pointer; font-size: 0.75rem; }
+.ra-none { font-size: 0.6rem; color: #c9b8a6; }
+
+.ra-card { position: relative; display: grid; gap: 0.15rem; align-content: start; justify-items: center; border-radius: 8px; color: #2a1d18; line-height: 1.25;
+  background: linear-gradient(180deg, #fbf1dc, #eadbb8); box-shadow: inset 0 0 0 2px var(--k), 0 3px 7px -3px #000; }
+.ra-k--artifact { --k: #8a6a3a; } .ra-k--mage { --k: #6b4a8a; } .ra-k--place { --k: #c0392b; } .ra-k--monument { --k: #e6b54a; }
+.ra-card--md { inline-size: 6.4rem; min-block-size: 5.4rem; padding: 0.35rem 0.3rem; }
+.ra-card--sm { inline-size: 4.6rem; padding: 0.2rem; }
+.ra-card__name { font-size: 0.68rem; font-weight: 900; }
+.ra-card--sm .ra-card__name { font-size: 0.52rem; }
+.ra-card__vp { position: absolute; inset-block-start: -0.4rem; inset-inline-end: -0.3rem; padding: 0 0.3rem; border-radius: 999px; background: #e6b54a; color: #2a1d18; font-size: 0.62rem; }
+.ra-card__row { display: flex; flex-wrap: wrap; gap: 0.15rem; align-items: center; justify-content: center; }
+.ra-card__row small { font-size: 0.5rem; color: #6a5a48; }
+.ra-card__pw i { font-style: normal; font-size: 0.6rem; }
+.ra-card__pw b { font-size: 0.6rem; color: #a87b1e; }
+.ra-card--sm .ra-gem { min-inline-size: 0.85rem; block-size: 0.85rem; font-size: 0.48rem; }
+
+.ra-rivals { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.ra-rival { display: grid; gap: 0.3rem; padding: 0.35rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+.ra-rival.is-now { box-shadow: inset 0 0 0 2px #e6b54a; }
+.ra-rival.is-passed { opacity: 0.7; }
+.ra-rival__head, .ra-me__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.ra-vp { padding: 0 0.45rem; border-radius: 999px; background: #e6b54a; color: #2a1d18; animation: ra-bump 0.4s ease-out; }
+.ra-vp--lg { font-size: 0.95rem; }
+.ra-row, .ra-hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; align-items: flex-start; }
+.is-tapped { transform: rotate(-8deg); opacity: 0.65; transition: transform 0.3s, opacity 0.3s; }
+
+.ra-shelf { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; align-items: flex-start; padding: 0.5rem; border-radius: 14px;
+  background: linear-gradient(180deg, #5a1e2e, #3a1220); box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 20px rgb(0 0 0 / 0.5); }
+.ra-shelf__left { inline-size: 100%; font-size: 0.62rem; color: #e3d0b8; }
+.ra-pick { padding: 0; border: 0; background: none; border-radius: 9px; line-height: 0; opacity: 0.6; transition: transform 0.18s; }
+.ra-pick.is-can { opacity: 1; cursor: pointer; filter: drop-shadow(0 0 6px rgb(230 181 74 / 0.6)); }
+.ra-pick.is-can:hover { transform: translateY(-4px); }
+.ra-me { display: grid; gap: 0.45rem; justify-items: center; padding: 0.45rem; border-radius: 12px; background: rgb(230 181 74 / 0.06); box-shadow: inset 0 0 0 1px rgb(230 181 74 / 0.3); }
+.ra-me.is-now { box-shadow: inset 0 0 0 2px #e6b54a; }
+.ra-slot { display: grid; gap: 0.2rem; justify-items: center; }
+.ra-hand .ra-slot { animation: ra-draw 0.35s ease-out both; }
+.ra-slot__acts { display: flex; gap: 0.2rem; }
+.ra-mini { padding: 0.12rem 0.45rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.15); color: inherit; font: inherit; font-size: 0.62rem; cursor: pointer; }
+.ra-mini:disabled { opacity: 0.4; cursor: default; }
+.ra-drop { display: flex; gap: 0.2rem; animation: ra-draw 0.25s ease-out both; }
+.ra-hint { animation: ra-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes ra-glint { from { filter: brightness(1.8); } }
+@keyframes ra-bump { 40% { transform: scale(1.25); } }
+@keyframes ra-draw { from { opacity: 0; transform: translateY(8px); } }
+@keyframes ra-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (max-width: 480px) { .ra-card--md { inline-size: 5.4rem; } }
+@media (prefers-reduced-motion: reduce) { .ra * { animation: none !important; transition: none !important; } }

@@ -74,7 +74,8 @@
     "@bg/game-crew-deep-sea": "workspace:*",
     "@bg/game-space-base": "workspace:*",
     "@bg/game-dice-throne": "workspace:*",
-    "@bg/game-el-dorado": "workspace:*"
+    "@bg/game-el-dorado": "workspace:*",
+    "@bg/game-res-arcana": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
