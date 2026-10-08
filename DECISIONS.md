@@ -635,3 +635,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   button states the total and the minimum, stage turns red for disgrace auctions, card reveal flip.
 - Polish passes (360/1440): (1) stage card enlarged on wide screens; red-frame lamps labelled "قاب قرمز: n از ۴";
   (2) result: players sorted by place, final money shown with "کم‌پول‌ترین" marking the eliminated.
+## «سوشی گردان» (Sushi Go!, 2026-10-08, owner list batch 4)
+
+- Original Sushi Go! for 2–5: 108 cards, hands 10/9/8/7, three rounds, simultaneous hidden picks, hands pass to the
+  next seat. Chopsticks: pick two, chopsticks return to the passed hand. Wasabi triples the next nigiri. Maki most 6
+  / second 3 with ties split (rounded down); a tie for most gives no second. Puddings kept; most +6, fewest −6 (no
+  penalty with two players), ties split; all equal → nothing. Score tie → more puddings, else shared place.
+  Timeouts pick the first card. Resign ends the game with the resigner last.
+- Look: sushi bar; dishes drawn on plates with rim colours per dish family, your hand on a moving conveyor belt
+  (plates slide in), tableaux on wooden geta boards grouped by dish with running set points and maki count,
+  freshly revealed plates pop in, per-round score table.
+- Polish passes (360/1440): (1) pudding counter uses a plate icon instead of an emoji; (2) the middle dot " · "
+  next to Persian numerals reads like «۰» — replaced with «،» here and in «کودتا»، «بنگاه»، «اشرافی»; (3) the round
+  line is hidden on the result screen.

@@ -1,0 +1,63 @@
+/* سوشی گردان: a sushi bar — hinoki counter, coloured plate rims per dish, a moving conveyor for your hand. */
+.sg { --hinoki: #e9d3a8; --ink: #2a1f14; display: grid; gap: 0.7rem; inline-size: 100%; color: #f6eedf; text-align: center; }
+.sg > :first-child { justify-self: center; }
+.sg > .sg__players, .sg > .sg__me { justify-self: stretch; }
+.sg__round { margin: 0; font-size: 0.82rem; color: #d8cbb0; }
+
+.sg-k--tempura { --rim: #e8a33d; } .sg-k--sashimi { --rim: #e5664a; } .sg-k--dumpling { --rim: #8e7cc3; }
+.sg-k--maki1, .sg-k--maki2, .sg-k--maki3 { --rim: #d64545; } .sg-k--salmon, .sg-k--squid, .sg-k--egg { --rim: #f2c14e; }
+.sg-k--pudding { --rim: #e58fb3; } .sg-k--wasabi { --rim: #7cb342; } .sg-k--chopsticks { --rim: #4fa3c7; }
+
+.sg-plate { display: inline-grid; justify-items: center; gap: 0.1rem; line-height: 1.2; }
+.sg-plate svg { display: block; filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.45)); }
+.sg-plate--md svg { inline-size: 4.4rem; block-size: 4.4rem; }
+.sg-plate--sm svg { inline-size: 1.9rem; block-size: 1.9rem; }
+.sg-plate__rim { fill: var(--rim); stroke: rgb(0 0 0 / 0.3); stroke-width: 1; }
+.sg-plate__in { fill: #fbf7ee; }
+.sg-plate__name { font-size: 0.72rem; font-weight: 800; }
+.sg-plate__note { font-size: 0.62rem; color: #d8cbb0; }
+.sg-plate--fresh svg { animation: sg-pop 0.45s cubic-bezier(.2,.8,.3,1.4) both; }
+
+.sg__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.sg-pl { display: grid; gap: 0.35rem; padding: 0.5rem 0.6rem; border-radius: 14px; background: linear-gradient(180deg, rgb(233 211 168 / 0.16), rgb(0 0 0 / 0.3)); border: 1px solid rgb(233 211 168 / 0.2); }
+.sg-pl--me { background: linear-gradient(180deg, rgb(233 211 168 / 0.26), rgb(0 0 0 / 0.25)); }
+.sg-pl--win { box-shadow: 0 0 0 2px #f2c14e; }
+.sg-pl__head { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.sg-pl__name { font-weight: 800; }
+.sg-pl__place { inline-size: 1.5rem; block-size: 1.5rem; display: grid; place-items: center; border-radius: 50%; background: #f2c14e; color: var(--ink); }
+.sg-pl__score { padding: 0 0.5rem; border-radius: 999px; background: #f2c14e; color: var(--ink); font-weight: 900; animation: sg-bump 0.4s ease-out; }
+.sg-pl__pud { display: inline-flex; align-items: center; gap: 0.15rem; color: #f5c6da; font-weight: 800; }
+.sg-pl__flag { font-size: 0.75rem; color: #b9ab90; }
+.sg-pl__flag--ok { color: #a7e08a; }
+.sg-tab { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; justify-content: center; min-block-size: 2.2rem; padding: 0.3rem; border-radius: 8px;
+  background: repeating-linear-gradient(90deg, #b98b52 0 22px, #ad7f47 22px 24px); box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.2), 0 3px 0 #6d4a22; }
+.sg-tab--empty { color: rgb(0 0 0 / 0.4); }
+.sg-tab__g { display: inline-flex; }
+.sg-tab__g > * + * { margin-inline-start: -0.7rem; }
+.sg-tab__sum { inline-size: 100%; font-size: 0.72rem; font-weight: 800; color: var(--ink); }
+
+.sg__scores { justify-self: center; border-collapse: collapse; font-size: 0.8rem; background: rgb(0 0 0 / 0.25); border-radius: 10px; overflow: hidden; }
+.sg__scores th, .sg__scores td { padding: 0.25rem 0.6rem; }
+.sg__scores thead th { background: rgb(242 193 78 / 0.25); }
+.sg__scores tbody tr:nth-child(even) { background: rgb(255 255 255 / 0.05); }
+
+.sg__me { display: grid; gap: 0.5rem; justify-items: center; padding-block: 0.5rem 0.2rem; }
+.sg__picked { margin: 0; color: #a7e08a; font-size: 0.85rem; }
+.sg-chop { padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid #4fa3c7; background: rgb(79 163 199 / 0.15); color: #d9f0fa; font: inherit; font-weight: 800; cursor: pointer; }
+.sg-chop--on { background: #4fa3c7; color: #08222e; }
+.sg-belt { position: relative; inline-size: 100%; display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; justify-content: center; padding: 0.7rem 0.4rem 0.9rem; border-radius: 16px;
+  background: repeating-linear-gradient(90deg, #3b3f45 0 26px, #33363c 26px 28px), #3b3f45; background-size: 56px 100%; box-shadow: inset 0 4px 0 #575c63, inset 0 -6px 0 #22252a, 0 6px 14px -8px #000;
+  animation: sg-belt 3s linear infinite; }
+.sg-belt--done { opacity: 0.75; }
+.sg-pick { padding: 0.15rem; border: 0; background: transparent; color: inherit; font: inherit; border-radius: 12px; cursor: pointer; animation: sg-slide 0.45s ease-out both; animation-delay: calc(var(--i) * 0.04s); transition: box-shadow 0.15s; }
+.sg-pick:hover:not(:disabled), .sg-pick:focus-visible { box-shadow: 0 0 0 3px #f2c14e; outline: none; }
+.sg-pick:disabled { cursor: default; }
+.sg-pick--on { box-shadow: 0 0 0 3px #4fa3c7; }
+.sg-hint { animation: sg-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
+
+@keyframes sg-belt { to { background-position: 56px 0; } }
+@keyframes sg-slide { from { opacity: 0; transform: translateX(-24px); } }
+@keyframes sg-pop { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: none; } }
+@keyframes sg-bump { 40% { transform: scale(1.3); } }
+@keyframes sg-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .sg *, .sg-belt { animation: none !important; transition: none !important; } }

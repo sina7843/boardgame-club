@@ -28,6 +28,7 @@ import { skull } from '@bg/game-skull';
 import { coup } from '@bg/game-coup';
 import { forSale } from '@bg/game-for-sale';
 import { highSociety } from '@bg/game-high-society';
+import { sushiGo } from '@bg/game-sushi-go';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo];

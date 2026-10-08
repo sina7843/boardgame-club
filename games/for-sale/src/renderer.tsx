@@ -93,7 +93,7 @@ export default function ForSaleRenderer({ view, legalActions, mySeat, seatName, 
 
       {!view.outcome && (
         <section className={`fs__market fs__market--${view.phase}`} aria-label={buying ? 'املاک روی میز' : 'چک‌های روی میز'}>
-          <div className="fs__deck">{buying ? `مرحله خرید · ${fa(view.propsLeft)} ملک در دسته` : `مرحله فروش · ${fa(view.chequesLeft)} چک در دسته`}{buying && view.high > 0 && <> · بالاترین پیشنهاد <b>{fa(view.high)}</b></>}</div>
+          <div className="fs__deck">{buying ? `مرحله خرید، ${fa(view.propsLeft)} ملک در دسته` : `مرحله فروش، ${fa(view.chequesLeft)} چک در دسته`}{buying && view.high > 0 && <>، بالاترین پیشنهاد <b>{fa(view.high)}</b></>}</div>
           <div className="fs__row">
             {view.market.map((v, i) => (buying ? <Prop key={`${view.seq}-${v}`} v={v} fresh /> : <Cheque key={`${view.seq}-${i}`} v={v} fresh />))}
           </div>

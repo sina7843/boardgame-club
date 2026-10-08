@@ -152,7 +152,7 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
                   <button key={a} type="button" disabled={busy || !ok} aria-pressed={aim === a}
                     className={['cp-act', `cp-act--${a}`, claim ? `cp-tag--${claim}` : 'cp-act--plain', aim === a ? 'cp-act--on' : '', hint?.type === 'act' && hint.act === a ? 'cp-hint' : ''].join(' ')} onClick={() => pick(a)}>
                     <span className="cp-act__name">{ACT_FA[a]}</span>
-                    <span className="cp-act__note">{claim ? `${ROLE_FA[claim]} · ` : ''}{ACT_NOTE[a]}</span>
+                    <span className="cp-act__note">{claim ? `${ROLE_FA[claim]}، ` : ''}{ACT_NOTE[a]}</span>
                   </button>
                 );
               })}

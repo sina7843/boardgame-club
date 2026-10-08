@@ -56,7 +56,7 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
           <Card c={view.card} key={view.seq + view.card} fresh />
           <div className="hs__terms">
             {disgrace ? <>رسوایی: <b>اولین کسی که کنار بکشد</b> آن را می‌گیرد؛ بقیه پولشان را از دست می‌دهند</> : <>آخرین نفر باقی‌مانده می‌خرد</>}
-            {view.high > 0 && <> · بالاترین پیشنهاد <b className="hs__high" key={view.high}>{fa(view.high)}</b></>}
+            {view.high > 0 && <>، بالاترین پیشنهاد <b className="hs__high" key={view.high}>{fa(view.high)}</b></>}
           </div>
           <span className="hs__deck">{fa(view.deckCount)} کارت در دسته</span>
         </section>
@@ -78,7 +78,7 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
                 {place && <b className="hs-pl__place">{fa(place)}</b>}
                 <bdi className="hs-pl__name">{who(s)}</bdi>
                 <span className="hs-pl__status" title="امتیاز">★ {fmtStatus(status(view.won[s]!))}</span>
-                {view.money ? <span className={`hs-pl__money ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} پول{poorest ? ' · کم‌پول‌ترین' : ''}</span>
+                {view.money ? <span className={`hs-pl__money ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} پول{poorest ? '، کم‌پول‌ترین' : ''}</span>
                   : <span className="hs-pl__meta">{fa(view.handCount[s]!)} اسکناس</span>}
                 {view.faux[s] && <span className="hs-pl__flag">گاف در انتظار</span>}
                 {!view.outcome && view.passed[s] && <span className="hs-pl__flag">کنار کشید</span>}

@@ -581,3 +581,10 @@ New module `games/high-society` registered in engine, catalog and web. Checks ru
 fourth red card and poorest elimination, privacy/timeouts/resign, tutorial, 40 random 2–5 player games with money
 conservation and replay); API 3 (`apps/api/test/high-society.test.ts`); catalog test updated; E2E
 `e2e/high-society.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/high-society/`).
+## «سوشی گردان» Sushi Go! (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/sushi-go` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/sushi-go.test.ts`: set scoring, maki/pudding ties, hidden simultaneous picks and passing,
+chopsticks and wasabi, three rounds/timeouts/resign, tutorial, 25 random 2–5 player games with card conservation and
+replay); API 3 (`apps/api/test/sushi-go.test.ts`); catalog test updated; E2E `e2e/sushi-go.spec.ts` — tutorial and a
+full three-player game at 360 and 1440 (`docs/evidence/sushi-go/`).
