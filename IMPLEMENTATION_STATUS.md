@@ -638,3 +638,13 @@ New module `games/kingdomino` registered in engine, catalog and web. Checks run:
 region scoring, pick-then-play order, timeouts/resign/privacy, tutorial, 20 random 2–4 player games using every
 domino, replay); API 3 (`apps/api/test/kingdomino.test.ts`); catalog test updated; E2E `e2e/kingdomino.spec.ts` —
 tutorial and a full three-player game at 360 and 1440 (`docs/evidence/kingdomino/`).
+## Regression after owner batches 4–5 (2026-10-08)
+
+Checks run: `pnpm typecheck` 0 errors; `npx eslint . --ignore-pattern ".playwright/**"` 0 errors (2 existing
+warnings); `pnpm test` all green (engine 360, API 205 + workers/packages); `e2e/release.spec.ts` + `e2e/play.spec.ts`
+at 1440: 11/12 — **OPEN**: the release accessibility/screenshot test fails only in this long combined run (three runs):
+the trace shows every route loading and auditing in ~0.5–2.5 s, then `page.goto('/more')` after `/settings` never
+reaches `load` until the 180 s test timeout (once it instead found no `main h1`). The same test passes alone
+(`release.spec.ts` 6/6) and page-by-page timings measured separately are all fast; a larger Node heap did not help.
+Suspected dev-server (Vite) resource stall in a long session, not yet proven; no product code was changed for it.
+The one API failure seen in the full suite was a flaky «هم‌فکر» test (fixed in 2efa355).
