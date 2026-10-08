@@ -53,7 +53,8 @@
     "@bg/game-splendor": "workspace:*",
     "@bg/game-azul": "workspace:*",
     "@bg/game-jaipur": "workspace:*",
-    "@bg/game-patchwork": "workspace:*"
+    "@bg/game-patchwork": "workspace:*",
+    "@bg/game-kingdomino": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

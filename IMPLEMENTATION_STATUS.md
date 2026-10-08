@@ -631,3 +631,10 @@ New module `games/patchwork` registered in engine, catalog and web. Checks run: 
 buying/placing/time/token, leather and 7×7 scoring, timeouts/resign, tutorial, 15 random games to 53 with replay);
 API 3 (`apps/api/test/patchwork.test.ts`); catalog test updated; E2E `e2e/patchwork.spec.ts` — tutorial and a full
 two-player game at 360 and 1440 (`docs/evidence/patchwork/`).
+## «قلمرو» Kingdomino (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/kingdomino` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/kingdomino.test.ts`: domino set and deck sizes, placement adjacency and 5×5 limit,
+region scoring, pick-then-play order, timeouts/resign/privacy, tutorial, 20 random 2–4 player games using every
+domino, replay); API 3 (`apps/api/test/kingdomino.test.ts`); catalog test updated; E2E `e2e/kingdomino.spec.ts` —
+tutorial and a full three-player game at 360 and 1440 (`docs/evidence/kingdomino/`).

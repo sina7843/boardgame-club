@@ -46,7 +46,8 @@
     "@bg/game-splendor": "workspace:*",
     "@bg/game-azul": "workspace:*",
     "@bg/game-jaipur": "workspace:*",
-    "@bg/game-patchwork": "workspace:*"
+    "@bg/game-patchwork": "workspace:*",
+    "@bg/game-kingdomino": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

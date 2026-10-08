@@ -734,3 +734,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   highlighted, rotate/flip tools, green/red placement preview and «بدوز».
 - Polish passes (360/1440): (1) sewn cells rendered as plain linen (the empty-cell background overrode the fabric
   classes) — fixed; (2) the time track is capped at 34rem so its squares are not huge on desktop.
+## «قلمرو» (Kingdomino, 2026-10-08, owner list batch 5)
+
+- Kingdomino for 2–4: 48 dominoes — a generated set following the original's terrain mix (wheat, forest, lake,
+  grassland, swamp, mine; crowns concentrated on rarer terrain and higher numbers), not a copy. 2 players: 24
+  dominoes and two kings each; 3 players: 36 and lines of three; 4 players: 48. The first line is picked in random
+  king order; afterwards kings act in line order: place the domino (one half next to the castle or matching terrain,
+  kingdom within 5×5; discard only when it cannot be placed) then pick from the next line, as one action. Score:
+  region size × crowns; tie → largest region, then crowns. Only the deck order is hidden. Timeout: first legal
+  placement (or discard) and the first free domino. Resign ends the game with the resigner last.
+- Look: illuminated map; painted terrain squares (wheat stalks, tree crowns, lake ripples, meadow dots, reeds, ore),
+  gold crowns, castle tile, numbered dominoes with coloured king markers in «این دور» / «دور بعد» lines; your 9×9
+  field highlights every cell where the domino can start for the current rotation, with a live preview.

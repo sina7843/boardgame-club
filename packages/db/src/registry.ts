@@ -35,6 +35,7 @@ import { splendor } from '@bg/game-splendor';
 import { azul } from '@bg/game-azul';
 import { jaipur } from '@bg/game-jaipur';
 import { patchwork } from '@bg/game-patchwork';
+import { kingdomino } from '@bg/game-kingdomino';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo, lostCities, theMind, splendor, azul, jaipur, patchwork];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo, lostCities, theMind, splendor, azul, jaipur, patchwork, kingdomino];
