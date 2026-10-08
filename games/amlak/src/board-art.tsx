@@ -1,10 +1,29 @@
 // «املاک» board art: a printed Tehran board in a walnut frame. Real-board geometry (large corners, colour bands on the
-// inner edge, owner ribbons on the outer edge), a girih-tile centre with the Alborz, Milad and Azadi skyline, the two
-// card decks, 3D dice, houses/hotels, mortgage stamps and eight distinct pawn tokens (pawn, tea glass, car, top hat, tower,
-// crown, boat, pomegranate). Coordinates are literal (ltr); 1100×1100.
+// inner edge, owner ribbons on the outer edge), a painted Tehran skyline centre, the two
+// card decks, 3D dice, houses/hotels, mortgage stamps and painted pewter tokens (car, samovar,
+// ship, horse, plane, top hat; vector pawns for seats 7-8). Coordinates are literal (ltr); 1100×1100.
 import type React from 'react';
 import { BOARD, GROUP_COLOR, type Square } from './board.ts';
 import type { AmlakView } from './rules.ts';
+import tokCar from './art/tok-car.webp';
+import tokSamovar from './art/tok-samovar.webp';
+import tokShip from './art/tok-ship.webp';
+import tokHorse from './art/tok-horse.webp';
+import tokPlane from './art/tok-plane.webp';
+import tokHat from './art/tok-hat.webp';
+import houseImg from './art/house.webp';
+import hotelImg from './art/hotel.webp';
+import stationImg from './art/station.webp';
+import waterImg from './art/water.webp';
+import powerImg from './art/power.webp';
+import chanceImg from './art/chance.webp';
+import chestImg from './art/chest.webp';
+import taxImg from './art/tax.webp';
+import goImg from './art/go.webp';
+import jailImg from './art/jail.webp';
+import parkingImg from './art/parking.webp';
+import policeImg from './art/police.webp';
+import centreImg from './art/centre.webp';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const SEAT_COLORS = ['#d62f35', '#1c63c9', '#23843f', '#e0a400', '#7a3fa0', '#e06a1b', '#0f8f8f', '#6b4f3a'];
@@ -59,68 +78,31 @@ function body(g: Geo) {
 }
 const lines = (name: string) => { const p = name.split(' '); return p.length < 2 ? [name] : [p.slice(0, -1).join(' '), p.at(-1)!]; };
 
-// ---------- small vector icons (centred at 0,0, ~40px) ----------
+// ---------- painted icons (WebP cut-outs from a generated sheet, see DECISIONS.md), centred at 0,0 ----------
+const ICON: Partial<Record<Square['kind'], string>> = { station: stationImg, chance: chanceImg, chest: chestImg, tax: taxImg };
 function Icon({ kind, nameFa }: { kind: Square['kind']; nameFa: string }) {
-  switch (kind) {
-    case 'station':
-      return (
-        <g className="amb-ico">
-          <rect x="-15" y="-20" width="30" height="34" rx="7" fill="#2b2f36" />
-          <rect x="-10" y="-14" width="20" height="11" rx="2" fill="#bfe3ef" />
-          <circle cx="-7" cy="5" r="3" fill="#ffd36b" /><circle cx="7" cy="5" r="3" fill="#ffd36b" />
-          <path d="M-12 14 L-17 22 M12 14 L17 22" stroke="#2b2f36" strokeWidth="3" strokeLinecap="round" />
-        </g>
-      );
-    case 'utility':
-      return nameFa.includes('آب')
-        ? <path className="amb-ico" d="M0 -22 C 10 -8 16 0 16 8 A 16 16 0 0 1 -16 8 C -16 0 -10 -8 0 -22 Z" fill="#2a8fd6" stroke="#145a8a" strokeWidth="2" />
-        : (
-          <g className="amb-ico">
-            <circle cx="0" cy="-6" r="14" fill="#ffd94a" stroke="#a8860a" strokeWidth="2" />
-            <rect x="-7" y="7" width="14" height="10" rx="2" fill="#7c7f86" />
-            <path d="M-4 -8 L0 -2 L4 -8" fill="none" stroke="#a8860a" strokeWidth="2" />
-          </g>
-        );
-    case 'chance':
-      return <text className="amb-ico amb-ico--chance" y="16">؟</text>;
-    case 'chest':
-      return (
-        <g className="amb-ico">
-          <rect x="-18" y="-8" width="36" height="24" rx="3" fill="#1f7a8c" stroke="#0d3e48" strokeWidth="2" />
-          <path d="M-18 -8 Q0 -26 18 -8 Z" fill="#2a9bb0" stroke="#0d3e48" strokeWidth="2" />
-          <rect x="-4" y="-4" width="8" height="9" rx="1.5" fill="#f2c94c" />
-        </g>
-      );
-    case 'tax':
-      return (
-        <g className="amb-ico">
-          {[0, 1, 2].map((k) => <ellipse key={k} cx="0" cy={10 - k * 9} rx="16" ry="6" fill="#e2b43b" stroke="#8a6b12" strokeWidth="2" />)}
-        </g>
-      );
-    default: return null;
-  }
+  const href = kind === 'utility' ? (nameFa.includes('آب') ? waterImg : powerImg) : ICON[kind];
+  return href ? <image className="amb-ico" href={href} x="-26" y="-26" width="52" height="52" /> : null;
 }
 
 function House({ x, y }: { x: number; y: number }) {
-  return (
-    <g>
-      <path className="amb-house" d={`M ${x - 7} ${y + 7} L ${x - 7} ${y - 1} L ${x + 7} ${y - 1} L ${x + 7} ${y + 7} Z`} />
-      <path className="amb-house__roof" d={`M ${x - 9} ${y - 1} L ${x} ${y - 9} L ${x + 9} ${y - 1} Z`} />
-      <rect x={x - 1.8} y={y + 2} width="3.6" height="5" fill="#1f1a14" opacity="0.6" />
-    </g>
-  );
+  return <image className="amb-house" href={houseImg} x={x - 11} y={y - 12} width="22" height="22" />;
 }
 function Hotel({ x, y }: { x: number; y: number }) {
-  return (
-    <g>
-      <path className="amb-hotel" d={`M ${x - 16} ${y + 8} L ${x - 16} ${y - 4} L ${x} ${y - 11} L ${x + 16} ${y - 4} L ${x + 16} ${y + 8} Z`} />
-      {[-9, -2.5, 4].map((dx) => <rect key={dx} x={x + dx} y={y - 3} width="5.5" height="6" rx="1" fill="#fff4c9" />)}
-    </g>
-  );
+  return <image className="amb-hotel" href={hotelImg} x={x - 17} y={y - 19} width="34" height="34" />;
 }
 
+const TOKENS = [tokCar, tokSamovar, tokShip, tokHorse, tokPlane, tokHat];
 /** Pawn silhouettes, one per seat; `shine` adds the dome highlight (board only: its gradient lives in the board defs). */
 export function Token({ seat, shine }: { seat: number; shine?: boolean }) {
+  // Seats 1-6: painted pewter tokens on a disc in the seat colour; seats 7-8 keep the vector silhouettes below.
+  const img = TOKENS[seat];
+  if (img) return (
+    <g>
+      <ellipse cy="9" rx="15" ry="6" fill={SEAT_COLORS[seat]} stroke="#1d1812" strokeWidth="1.6" />
+      <image href={img} x="-17" y="-19" width="34" height="34" className="amb-pawn__img" />
+    </g>
+  );
   const fill = SEAT_COLORS[seat] ?? '#888';
   const shapes = (f: string, cls?: string) => {
     const k = seat % 8;
@@ -163,60 +145,29 @@ function Corner({ i, g }: { i: number; g: Geo }) {
   const cx = g.x + g.w / 2, cy = g.y + g.h / 2;
   if (i === 0) return (
     <g>
-      <text x={cx} y={cy - 26} className="amb-corner__title">شروع</text>
-      <text x={cx} y={cy - 2} className="amb-corner__small">۲۰۰ هزار تومان حقوق</text>
-      <path d={`M ${cx + 46} ${cy + 34} L ${cx - 30} ${cy + 34} M ${cx - 30} ${cy + 34} l 18 -14 M ${cx - 30} ${cy + 34} l 18 14`} className="amb-go-arrow" />
+      <text x={cx} y={g.y + 34} className="amb-corner__title">شروع</text>
+      <image href={goImg} x={cx - 44} y={cy - 36} width="88" height="88" />
+      <text x={cx} y={g.y + g.h - 10} className="amb-corner__small">۲۰۰ هزار تومان حقوق</text>
     </g>
   );
   if (i === 10) return (
     <g>
       <rect x={g.x + 46} y={g.y + 8} width="96" height="96" rx="6" className="amb-jail" />
-      {[0, 1, 2, 3].map((k) => <line key={k} x1={g.x + 62 + k * 21} y1={g.y + 12} x2={g.x + 62 + k * 21} y2={g.y + 100} className="amb-jail__bar" />)}
-      <text x={g.x + 94} y={g.y + 62} className="amb-corner__title amb-corner__title--jail">زندان</text>
+      <image href={jailImg} x={g.x + 48} y={g.y + 10} width="92" height="92" />
+      <text x={g.x + 94} y={g.y + 124} className="amb-corner__title amb-corner__title--jail">زندان</text>
       <text x={g.x + 24} y={g.y + 132} className="amb-corner__small">ملاقات</text>
     </g>
   );
   if (i === 20) return (
     <g>
-      <rect x={cx - 34} y={cy - 46} width="68" height="56" rx="10" className="amb-park" />
-      <text x={cx} y={cy - 4} className="amb-park__p">P</text>
-      <text x={cx} y={cy + 42} className="amb-corner__title">پارکینگ</text>
+      <image href={parkingImg} x={cx - 50} y={cy - 62} width="100" height="100" />
+      <text x={cx} y={cy + 52} className="amb-corner__title">پارکینگ</text>
     </g>
   );
   return (
     <g>
-      <circle cx={cx} cy={cy - 18} r="30" className="amb-police" />
-      <path d={`M ${cx - 12} ${cy - 22} l 12 -10 l 12 10 v 12 h -24 z`} fill="#fff" />
-      <text x={cx} y={cy + 36} className="amb-corner__title">برو به زندان</text>
-    </g>
-  );
-}
-
-function Skyline() {
-  // Dusk over Tehran: sun, three Alborz ridges, low city, Milad Tower and Azadi Tower — the centre's signature.
-  const base = 836;
-  return (
-    <g className="amb-sky" aria-hidden="true">
-      <circle cx="560" cy={base - 150} r="150" fill="url(#amb-sun)" />
-      <circle cx="560" cy={base - 150} r="62" className="amb-sky__sun" />
-      <path d={`M 170 ${base - 120} L 250 ${base - 190} L 310 ${base - 150} L 390 ${base - 240} L 470 ${base - 150} L 540 ${base - 200} L 620 ${base - 130} L 700 ${base - 225} L 790 ${base - 140} L 870 ${base - 190} L 930 ${base - 110} L 930 ${base} L 170 ${base} Z`} className="amb-sky__far" />
-      <path d={`M 170 ${base - 70} L 260 ${base - 150} L 330 ${base - 105} L 400 ${base - 190} L 480 ${base - 110} L 560 ${base - 160} L 640 ${base - 90} L 710 ${base - 175} L 800 ${base - 100} L 870 ${base - 135} L 930 ${base - 70} L 930 ${base} L 170 ${base} Z`} className="amb-sky__mount" />
-      <path d={`M 400 ${base - 190} L 378 ${base - 170} L 391 ${base - 165} L 400 ${base - 175} L 411 ${base - 163} L 424 ${base - 170} Z M 710 ${base - 175} L 691 ${base - 158} L 704 ${base - 154} L 714 ${base - 163} Z`} className="amb-sky__snow" />
-      {[[190, 36], [222, 58], [252, 32], [284, 48], [316, 26], [612, 40], [640, 66], [672, 36], [720, 54], [752, 28], [786, 46], [820, 34], [852, 56], [884, 30]].map(([x, h]) => (
-        <g key={x}>
-          <rect x={x} y={base - h!} width="26" height={h} className="amb-sky__city" />
-          {h! > 40 && <rect x={x! + 6} y={base - h! + 8} width="4" height="5" className="amb-sky__win" />}
-        </g>
-      ))}
-      <rect x="170" y={base - 8} width="760" height="8" className="amb-sky__ink" />
-      <g transform={`translate(520 ${base - 6})`}>
-        {/* Milad: shaft, pod, mast; Azadi: legs, arch and lantern */}
-        <Landmarks fill="#1d3a5f" />
-        <path d="M-32 -48 Q-22 -64 -12 -48" fill="none" stroke="#f7d9a8" strokeWidth="2" opacity="0.7" />
-        <circle cx="23" cy="-90" r="2.2" fill="#f7d9a8" /><circle cx="23" cy="-80" r="2.2" fill="#f7d9a8" />
-        <rect x="22" y="-126" width="2" height="8" fill="#c8372d" />
-      </g>
-      <g transform={`translate(780 ${base - 6}) scale(0.6)`} opacity="0.55"><Landmarks fill="#1d3a5f" /></g>
+      <image href={policeImg} x={cx - 48} y={cy - 64} width="96" height="96" />
+      <text x={cx} y={cy + 50} className="amb-corner__title">برو به زندان</text>
     </g>
   );
 }
@@ -258,8 +209,6 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
     <svg className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه املاک" style={{ direction: 'ltr' }}>
       <defs>
         <linearGradient id="amb-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8a5a32" /><stop offset="0.5" stopColor="#6b4423" /><stop offset="1" stopColor="#3d2410" /></linearGradient>
-        <linearGradient id="amb-field" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#bfd9e6" /><stop offset="0.55" stopColor="#f8eed6" /><stop offset="1" stopColor="#f3cf9f" /></linearGradient>
-        <radialGradient id="amb-sun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stopColor="#ffd98a" stopOpacity="0.9" /><stop offset="1" stopColor="#ffd98a" stopOpacity="0" /></radialGradient>
         <linearGradient id="amb-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dc8e" /><stop offset="0.5" stopColor="#b88a2e" /><stop offset="1" stopColor="#7a5a14" /></linearGradient>
         <pattern id="amb-grain" width="60" height="10" patternUnits="userSpaceOnUse"><path d="M0 3 Q15 0 30 3 T60 3 M0 8 Q15 5 30 8 T60 8" fill="none" stroke="#000" strokeOpacity="0.16" strokeWidth="1.2" /></pattern>
         <pattern id="amb-arches" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 10 V6 A5 5 0 0 1 10 6 V10" fill="none" stroke="#fff" strokeOpacity="0.5" strokeWidth="1.4" /><circle cx="5" cy="3.4" r="0.9" fill="#fff" fillOpacity="0.6" /></pattern>
@@ -267,12 +216,6 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
         <linearGradient id="amb-band-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.45" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.18" /></linearGradient>
         <linearGradient id="amb-die-sheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.85" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.18" /></linearGradient>
         <radialGradient id="amb-dome" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#fff" stopOpacity="0.75" /><stop offset="0.4" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.45" /></radialGradient>
-        <pattern id="amb-girih" width="88" height="88" patternUnits="userSpaceOnUse">
-          <path d="M44 6 L54 34 L82 44 L54 54 L44 82 L34 54 L6 44 L34 34 Z" className="amb-girih" />
-          <rect x="26" y="26" width="36" height="36" transform="rotate(45 44 44)" className="amb-girih" />
-          <circle cx="0" cy="0" r="8" className="amb-girih" /><circle cx="88" cy="0" r="8" className="amb-girih" />
-          <circle cx="0" cy="88" r="8" className="amb-girih" /><circle cx="88" cy="88" r="8" className="amb-girih" />
-        </pattern>
         <pattern id="amb-hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <line x1="0" y1="0" x2="0" y2="12" stroke="#3a2a1a" strokeOpacity="0.35" strokeWidth="5" />
         </pattern>
@@ -287,9 +230,8 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
       <rect x="0" y="0" width={S} height={S} fill="url(#amb-paper)" className="amb-print" />
 
       {/* centre */}
-      <rect x={C} y={C} width={S - 2 * C} height={S - 2 * C} fill="url(#amb-field)" />
-      <rect x={C} y={C} width={S - 2 * C} height={S - 2 * C} fill="url(#amb-girih)" />
-      <Skyline />
+      <image href={centreImg} x={C} y={C} width={S - 2 * C} height={S - 2 * C} preserveAspectRatio="xMidYMid slice" />
+      <rect x={350} y={372} width={400} height={186} rx="22" className="amb-title__plate" />
       <rect x={C + 12} y={C + 12} width={S - 2 * C - 24} height={S - 2 * C - 24} className="amb-tiles amb-tiles--a" />
       <rect x={C + 12} y={C + 12} width={S - 2 * C - 24} height={S - 2 * C - 24} className="amb-tiles amb-tiles--b" />
       <rect x={C + 21} y={C + 21} width={S - 2 * C - 42} height={S - 2 * C - 42} className="amb-tiles__line" />

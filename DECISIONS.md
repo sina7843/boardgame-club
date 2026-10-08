@@ -1050,3 +1050,8 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   Vite emits each image as its own hashed file, loaded only when shown (one arena per match).
 - Unmatched: `art.tsx` now frames the portraits/seals/arenas in SVG (`<image>`), replacing ~25 KB of hand-drawn
   vector art; the board's space network and paths are still drawn in code on top of the painted arena.
+
+## املاک generated art (Priority A)
+- Tokens (car, samovar, ship, horse, plane, top hat), house/hotel, space icons and corner art are WebP cut-outs from one 5×4 sheet (`amlak-icons`, 1.25 credits); background removed by border-connected flood-fill keying in `.playwright/art/crop.cjs` (`cutout` tolerance), so dark interiors survive.
+- Centre is the Tehran-skyline quadrant of the shared 2×2 `backdrops` sheet (57 KB); a translucent paper plate keeps the title readable.
+- Seats 7–8 keep the vector pawn silhouettes (only six token objects were generated); seat colour is carried by the disc under each token.

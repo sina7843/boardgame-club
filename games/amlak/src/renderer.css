@@ -23,14 +23,6 @@
 .amb-title__rule { stroke: #b88a2e; stroke-width: 3; stroke-linecap: round; fill: none; }
 .amb-title__gem { fill: var(--am-turq); stroke: #b88a2e; stroke-width: 2; }
 .amb-print { stroke: var(--am-ink); stroke-width: 3; }
-.amb-girih { fill: none; stroke: var(--am-turq); stroke-width: 2; opacity: 0.2; }
-.amb-sky__far { fill: #b9c9de; opacity: 0.7; }
-.amb-sky__sun { fill: #ffcf7a; opacity: 0.85; }
-.amb-sky__win { fill: #ffe29a; }
-.amb-sky__mount { fill: #7fa9b3; opacity: 0.9; }
-.amb-sky__snow { fill: #fff; opacity: 0.9; }
-.amb-sky__city { fill: #4a7c86; opacity: 0.8; }
-.amb-sky__ink { fill: #1f4e5a; }
 .amb-title__fa { font: 900 132px/1 var(--font, 'Estedad Variable', sans-serif); fill: var(--am-anar); text-anchor: middle; letter-spacing: -2px;
   paint-order: stroke; stroke: #fffaf0; stroke-width: 8px; stroke-linejoin: round; }
 .amb-title__sub { font: 800 34px/1 var(--font, sans-serif); fill: var(--am-ink); text-anchor: middle; letter-spacing: 1px; }
@@ -62,20 +54,18 @@
 .amb-sq__name { font: 800 17px/1 var(--font, sans-serif); fill: var(--am-ink); text-anchor: middle; }
 .amb-sq__name--sm { font-size: 15px; font-weight: 700; }
 .amb-sq__price { font: 800 16px/1 var(--font, sans-serif); fill: #5a4a3a; text-anchor: middle; }
-.amb-ico--chance { font: 900 52px/1 var(--font, sans-serif); fill: #e67e22; text-anchor: middle; paint-order: stroke; stroke: var(--am-ink); stroke-width: 2px; }
 .amb-corner__title { font: 900 26px/1 var(--font, sans-serif); fill: var(--am-ink); text-anchor: middle; }
 .amb-corner__title--jail { fill: #fff; paint-order: stroke; stroke: var(--am-ink); stroke-width: 5px; }
 .amb-corner__small { font: 700 14px/1 var(--font, sans-serif); fill: #5a4a3a; text-anchor: middle; }
-.amb-go-arrow { fill: none; stroke: var(--am-anar); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.amb-jail { fill: #f39c3d; stroke: var(--am-ink); stroke-width: 3; }
+.amb-jail { fill: #f6efe0; stroke: var(--am-ink); stroke-width: 3; }
 .amb-jail__bar { stroke: var(--am-ink); stroke-width: 5; }
-.amb-park { fill: #1c63c9; stroke: var(--am-ink); stroke-width: 3; }
-.amb-park__p { font: 900 40px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
-.amb-police { fill: #1f4e5a; stroke: var(--am-ink); stroke-width: 3; }
 
-.amb-house { fill: #f6efe0; stroke: #1f1a14; stroke-width: 1.4; filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.45)); }
-.amb-house__roof { fill: #23843f; stroke: #1f1a14; stroke-width: 1.4; stroke-linejoin: round; }
-.amb-hotel { fill: #c8372d; stroke: #1f1a14; stroke-width: 1.6; stroke-linejoin: round; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.45)); }
+.amb-house { filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.5)); }
+.amb-hotel { filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.5)); }
+.amb-ico { filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.35)); }
+.amb-title__plate { fill: rgb(255 250 236 / 0.86); stroke: #b88a2e; stroke-width: 3; filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.3)); }
+.amb-pawn__img { filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.5)); }
+.amb-pawn--turn .amb-pawn__img { filter: drop-shadow(0 0 4px var(--am-saffron)) drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.5)); }
 .amb-owner rect { stroke: var(--am-ink); stroke-width: 1.5; }
 .amb-mortgage__stamp { font: 900 26px/1 var(--font, sans-serif); fill: #b0262f; text-anchor: middle; opacity: 0.85;
   paint-order: stroke; stroke: #fffaf0; stroke-width: 4px; letter-spacing: 2px; }

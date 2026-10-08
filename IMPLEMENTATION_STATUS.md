@@ -813,3 +813,4 @@ New module `games/battleship` registered in engine, catalog and web. Checks run:
 alternating fire with hit/miss/sunk reporting, fleet-sunk win and resign, timeouts, tutorial, 20 random games with
 replay); API 3 (`apps/api/test/battleship.test.ts`); catalog test updated; E2E `e2e/battleship.spec.ts` — tutorial
 and a full two-player game from placement at 360 and 1440 (`docs/evidence/battleship/`).
+- املاک: generated-art redesign (tokens, buildings, icons, corners, painted centre). Checks run: `pnpm typecheck`, `eslint games/amlak`, `e2e/amlak.spec.ts` at mobile-360 and desktop-1440 (2 passed).
