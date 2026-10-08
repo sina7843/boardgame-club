@@ -1,0 +1,91 @@
+/* گوهرفروش: a jeweller's counter — deep velvet, faceted gem chips, ivory cards with a coloured crown band. */
+.sp { --ivory: #f8f1e1; --ink: #2a2116; display: grid; gap: 0.7rem; inline-size: 100%; color: #f4ecdc; text-align: center; }
+.sp > :first-child { justify-self: center; }
+.sp > .sp__market, .sp > .sp__players, .sp > .sp__bank { justify-self: stretch; }
+.sp-t--w { --gem: #e9eef5; --gem2: #8a96a8; --on: #2a2f38; } .sp-t--u { --gem: #2f6fd6; --gem2: #163b7a; --on: #fff; }
+.sp-t--g { --gem: #1f9d55; --gem2: #0d5a2e; --on: #fff; } .sp-t--r { --gem: #d23a3a; --gem2: #7a1515; --on: #fff; }
+.sp-t--k { --gem: #3a3a42; --gem2: #0e0e12; --on: #fff; } .sp-t--o { --gem: #e8b923; --gem2: #8a6408; --on: #2a2116; }
+.sp-l--1 { --lv: #3f8f5a; } .sp-l--2 { --lv: #c9a227; } .sp-l--3 { --lv: #3a6fb8; }
+
+.sp-chip { display: inline-flex; align-items: center; gap: 0.15rem; }
+.sp-chip svg { display: block; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.5)); }
+.sp-chip--md svg { inline-size: 2.4rem; block-size: 2.4rem; }
+.sp-chip--sm svg { inline-size: 1.15rem; block-size: 1.15rem; }
+.sp-chip__rim { fill: var(--gem2); }
+.sp-chip__face { fill: var(--gem); }
+.sp-chip__gem { fill: rgb(255 255 255 / 0.35); stroke: rgb(0 0 0 / 0.35); stroke-width: 1; }
+.sp-chip b { font-weight: 900; font-size: 0.9rem; }
+
+.sp__nobles { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.sp-noble { position: relative; display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 0.2rem; padding: 0.25rem 0.4rem; border-radius: 8px;
+  background: linear-gradient(160deg, #f3e3c0, #d9bf8a); color: var(--ink); box-shadow: inset 0 0 0 1.5px #8a6a32, 0 3px 6px -3px #000; }
+.sp-noble__face { inline-size: 2rem; block-size: 2rem; grid-row: span 2; }
+.sp-noble__turban { fill: #7a2e3a; } .sp-noble__skin { fill: #d9a77a; } .sp-noble__robe { fill: #2f4f6e; }
+.sp-noble__pts { font-size: 1rem; }
+.sp-noble__need { display: flex; gap: 2px; }
+.sp-req { inline-size: 1rem; block-size: 1.15rem; display: grid; place-items: center; border-radius: 3px; background: var(--gem); color: var(--on); font-size: 0.7rem; font-weight: 900; box-shadow: inset 0 0 0 1px var(--gem2); }
+
+.sp__market { display: grid; gap: 0.4rem; inline-size: min(100%, 36rem); justify-self: center !important; }
+.sp__row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; align-items: stretch; }
+.sp-deck { display: grid; place-items: center; align-content: center; gap: 0.1rem; border-radius: 9px; border: 0; color: #fff; font: inherit; font-size: 0.68rem; font-weight: 800;
+  background: repeating-linear-gradient(135deg, var(--lv) 0 6px, color-mix(in srgb, var(--lv) 75%, black 25%) 6px 12px); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.35); cursor: pointer; }
+.sp-deck b { font-size: 1rem; }
+.sp-deck:disabled { cursor: default; opacity: 0.85; }
+.sp-deck--sm { display: inline-grid; inline-size: 2.6rem; block-size: 3.5rem; font-size: 0.55rem; }
+.sp-slot { padding: 0; border: 0; background: transparent; border-radius: 9px; line-height: 0; cursor: pointer; transition: box-shadow 0.15s, filter 0.15s; inline-size: 100%; }
+.sp-slot:disabled { cursor: default; }
+.sp-slot--empty { display: block; min-block-size: 4rem; border: 1px dashed rgb(255 255 255 / 0.15); }
+.sp-slot--buy { box-shadow: 0 0 0 2px rgb(255 217 138 / 0.55); }
+.sp-slot--on { box-shadow: 0 0 0 3px #ffd98a, 0 0 14px rgb(255 217 138 / 0.6); }
+.sp-slot:focus-visible { outline: 3px solid #ffd98a; outline-offset: 2px; }
+.sp-fresh .sp-card { animation: sp-in 0.45s cubic-bezier(.2,.8,.3,1.3) both; }
+
+.sp-card { display: grid; grid-template-rows: auto 1fr; inline-size: 100%; border-radius: 9px; overflow: hidden; line-height: 1.1; color: var(--ink);
+  background: var(--ivory); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--lv) 70%, black 30%), 0 3px 6px -3px #000; }
+.sp-card--md { aspect-ratio: 5 / 7; min-block-size: 5.2rem; }
+.sp-card { position: relative; }
+.sp-card__mark { position: absolute; inset-block-end: 8%; inset-inline-end: 10%; inline-size: 45%; block-size: auto; fill: var(--gem); opacity: 0.22; }
+.sp-card--sm .sp-card__mark { display: none; }
+.sp-card--sm { inline-size: 2.8rem; min-block-size: 3.6rem; display: inline-grid; }
+.sp-card__top { display: flex; align-items: center; justify-content: space-between; padding: 0.15rem 0.3rem; background: linear-gradient(180deg, var(--gem), var(--gem2)); color: var(--on); }
+.sp-card__pts { font-size: 1.1rem; font-weight: 900; min-inline-size: 0.6rem; text-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.sp-t--w .sp-card__pts { text-shadow: none; }
+.sp-card__cost { display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; justify-content: flex-end; gap: 2px; padding: 0.2rem; block-size: 100%; }
+.sp-cost { inline-size: 1.15rem; block-size: 1.15rem; display: grid; place-items: center; border-radius: 50%; background: var(--gem); color: var(--on); font-size: 0.68rem; font-weight: 900; box-shadow: inset 0 0 0 1.5px var(--gem2); }
+.sp-card--sm .sp-card__pts { font-size: 0.8rem; }
+.sp-card--sm .sp-cost { inline-size: 0.8rem; block-size: 0.8rem; font-size: 0.5rem; }
+
+.sp__cardbar, .sp__takebar { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; justify-content: center; animation: sp-drop 0.25s ease-out both; }
+.sp__short { font-size: 0.82rem; color: #ffb3a8; }
+.sp__bank { display: flex; flex-wrap: wrap; gap: 0.3rem 0.5rem; justify-content: center; padding: 0.45rem; border-radius: 14px; background: rgb(0 0 0 / 0.25); }
+.sp-bankgem { position: relative; padding: 0.15rem 0.3rem; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; cursor: pointer; transition: box-shadow 0.15s; }
+.sp-bankgem:disabled { cursor: default; opacity: 0.85; }
+.sp-bankgem--on { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.15); }
+.sp-bankgem__sel { position: absolute; inset-block-start: -0.35rem; inset-inline-end: -0.15rem; padding: 0 0.25rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-size: 0.65rem; font-weight: 900; }
+
+.sp__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.sp-pl { display: grid; gap: 0.35rem; padding: 0.45rem 0.55rem; border-radius: 14px; background: rgb(0 0 0 / 0.28); border: 1px solid rgb(255 255 255 / 0.08); }
+.sp-pl--turn { box-shadow: 0 0 0 2px #ffd98a; }
+.sp-pl--me { background: rgb(255 217 138 / 0.1); }
+.sp-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.18); }
+.sp-pl__head { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; align-items: center; justify-content: center; font-size: 0.85rem; }
+.sp-pl__name { font-weight: 800; }
+.sp-pl__place { inline-size: 1.5rem; block-size: 1.5rem; display: grid; place-items: center; border-radius: 50%; background: #ffd98a; color: var(--ink); }
+.sp-pl__pts { padding: 0 0.5rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: sp-bump 0.4s ease-out; }
+.sp-pl__nob { font-size: 0.78rem; color: #f3e3c0; }
+.sp-pl__grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.2rem; }
+.sp-col { display: grid; gap: 2px; justify-items: center; }
+.sp-col__bonus { inline-size: 100%; max-inline-size: 2.2rem; padding: 0.1rem 0; border-radius: 4px; background: var(--gem); color: var(--on); font-weight: 900; font-size: 0.8rem; box-shadow: inset 0 0 0 1px var(--gem2); }
+.sp-t--o .sp-col__bonus { background: transparent; box-shadow: none; }
+.sp-col__tok { inline-size: 1.6rem; block-size: 1.6rem; display: grid; place-items: center; border-radius: 50%; border: 0; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gem) 70%, white 30%), var(--gem) 60%, var(--gem2)); color: var(--on); font: inherit; font-size: 0.75rem; font-weight: 900; }
+.sp-col__tok--btn { cursor: pointer; box-shadow: 0 0 0 2px #ffb3a8; }
+.sp-col__tok--btn.on { box-shadow: 0 0 0 3px #ff7a6b; }
+.sp-pl__res { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+.sp-pl__res .sp-slot { inline-size: 4.2rem; }
+.sp-hint { animation: sp-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
+
+@keyframes sp-in { from { opacity: 0; transform: translateY(-14px) scale(0.9); } }
+@keyframes sp-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes sp-bump { 40% { transform: scale(1.25); } }
+@keyframes sp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .sp * { animation: none !important; transition: none !important; } }

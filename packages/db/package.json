@@ -48,7 +48,8 @@
     "@bg/game-high-society": "workspace:*",
     "@bg/game-sushi-go": "workspace:*",
     "@bg/game-lost-cities": "workspace:*",
-    "@bg/game-the-mind": "workspace:*"
+    "@bg/game-the-mind": "workspace:*",
+    "@bg/game-splendor": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

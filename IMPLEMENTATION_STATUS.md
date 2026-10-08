@@ -603,3 +603,10 @@ throwing star and level rewards, team loss/privacy/timeouts/resign, tutorial, 30
 perfect play winning, replay); API 3 (`apps/api/test/the-mind.test.ts`); catalog test updated; E2E
 `e2e/the-mind.spec.ts` — tutorial and a full three-player game with mistakes and a star at 360 and 1440
 (`docs/evidence/the-mind/`).
+## «گوهرفروش» Splendor (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/splendor` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/splendor.test.ts`:
+card/noble set, setup, take rules, buy with bonuses and gold, reserve and blind privacy, ten-token return, noble
+visit and final round, timeouts/resign, tutorial, 20 random 2–4 player games with token and card conservation and
+replay); API 3 (`apps/api/test/splendor.test.ts`); catalog test updated; E2E `e2e/splendor.spec.ts` — tutorial and a
+full three-player game at 360 and 1440 (`docs/evidence/splendor/`).

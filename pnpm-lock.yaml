@@ -98,6 +98,9 @@ importers:
       '@bg/game-skull':
         specifier: workspace:*
         version: link:../../games/skull
+      '@bg/game-splendor':
+        specifier: workspace:*
+        version: link:../../games/splendor
       '@bg/game-sushi-go':
         specifier: workspace:*
         version: link:../../games/sushi-go
@@ -252,6 +255,9 @@ importers:
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
+      '@bg/game-splendor':
+        specifier: workspace:*
+        version: link:../../games/splendor
       '@bg/game-sushi-go':
         specifier: workspace:*
         version: link:../../games/sushi-go
@@ -811,6 +817,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/splendor:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/sushi-go:
     dependencies:
       '@bg/game-sdk':
@@ -1021,6 +1046,9 @@ importers:
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
+      '@bg/game-splendor':
+        specifier: workspace:*
+        version: link:../../games/splendor
       '@bg/game-sushi-go':
         specifier: workspace:*
         version: link:../../games/sushi-go
@@ -1130,6 +1158,9 @@ importers:
       '@bg/game-snakes-ladders':
         specifier: workspace:*
         version: link:../../games/snakes-ladders
+      '@bg/game-splendor':
+        specifier: workspace:*
+        version: link:../../games/splendor
       '@bg/game-sushi-go':
         specifier: workspace:*
         version: link:../../games/sushi-go

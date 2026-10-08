@@ -677,3 +677,19 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: a quiet night table — the pile's top number glows and "breathes", card hue warms as numbers climb, hearts and
   throwing stars in the HUD, teammates show only face-down counts and star votes, one large «بگذار n» button, a red
   flash and a list of discarded cards on a mistake.
+## «گوهرفروش» (Splendor, 2026-10-08, owner list batch 5)
+
+- 2–4 players; gems 4/5/7 per colour plus 5 gold; 90 development cards in three levels (40/30/20) and 10 nobles.
+  The cards are generated from per-colour cost patterns that follow the original's distribution (levels, prestige,
+  cost shapes) rather than a card-for-card copy; nobles are 4+4 of adjacent colours or 3+3+3. Take three different
+  gems (fewer only when fewer colours remain), two of a pile with four or more, reserve (face up or blind; max three;
+  +1 gold) or buy (bonuses discount, gold is wild). Over ten tokens → return phase. The first eligible noble visits
+  automatically at the end of the turn (a choice between two simultaneous nobles is not offered — rare; noted).
+  Reaching 15 finishes the round; tie → fewer cards. A `pass` exists only when no other action is legal. Blind
+  reserves are hidden from others ({ level } only); deck order hidden. Timeouts: take gems / buy / reserve blind.
+- Look: jeweller's velvet; faceted gem chips, ivory cards with a gem-coloured crown band, points and cost pips, a
+  faint gem watermark; level decks as striped tiles (معدن / کارگاه / کاروان) that reserve blind; nobles as turbaned
+  portrait tiles; rival ledgers show bonuses (squares) and tokens (chips); tap gems to build a take (tap twice for a
+  pair), tap a card for «خرید» / «رزرو», shortfall shown when unaffordable.
+- Polish passes (360/1440): (1) cards keep a 5:7 shape and the market is capped at 36rem so desktop cards are not
+  stretched; a gem watermark fills the card body.
