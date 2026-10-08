@@ -1,9 +1,13 @@
-// قلعه‌سازان renderer: an open map of square tiles drawn in SVG (wheat fields, sandstone cities with terracotta
-// walls, cream roads, red-roofed monasteries). Legal spots for the drawn tile glow; tap one, rotate, choose where your
+// قلعه‌سازان renderer: an open map of square tiles drawn in SVG (painted meadow, terracotta-roofed cities behind
+// walls, cobbled roads, monastery gardens; textures cut from a generated sheet, see DECISIONS.md). Legal spots for the drawn tile glow; tap one, rotate, choose where your
 // follower stands (or none), then place. Board coordinates are module-defined, so the map itself is LTR.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import texCity from './art/tex-city.webp';
+import texField from './art/tex-field.webp';
+import texMonastery from './art/tex-monastery.webp';
+import texRoad from './art/tex-road.webp';
 import { TILES, feature, groups, key, segments, type CarcView, type Placed } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -69,12 +73,11 @@ export function TileArt({ t, rot = 0, meeples = {}, title }: { t: string; rot?: 
     <svg viewBox="0 0 100 100" className="cc-tile" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
       <g transform={`rotate(${rot * 90} 50 50)`}>
         <rect width="100" height="100" fill="url(#cc-field)" />
-        <rect width="100" height="100" fill="url(#cc-grass)" />
         {tile.roads.map((g, i) => {
           const [a, b] = g;
           const da = MID[a!]!;
           const p = b === undefined ? `M${da[0]},${da[1]} L50,50` : `M${da[0]},${da[1]} Q50,50 ${MID[b]![0]},${MID[b]![1]}`;
-          return <g key={`r${i}`}><path d={p} className="cc-road-edge" /><path d={p} className="cc-road" /><path d={p} className="cc-road-cobble" /></g>;
+          return <g key={`r${i}`}><path d={p} className="cc-road-edge" /><path d={p} className="cc-road" stroke="url(#cc-road)" /></g>;
         })}
         {crossing && <g><circle cx="50" cy="50" r="10" className="cc-well" /><circle cx="50" cy="50" r="5.5" className="cc-well__in" /></g>}
         {tile.cities.map((g, i) => {
@@ -84,7 +87,6 @@ export function TileArt({ t, rot = 0, meeples = {}, title }: { t: string; rot?: 
           return (
             <g key={`c${i}`}>
               <g transform={`rotate(${s.rot * 90} 50 50)`}>
-                <path d={sh.d} className="cc-city" />
                 <path d={sh.d} fill="url(#cc-roofs)" />
                 {sh.wall && <g clipPath={`url(#cc-cl-${s.i})`}><path d={sh.wall} className="cc-wall__shade" /></g>}
                 {sh.wall && <><path d={sh.wall} className="cc-wall__base" /><path d={sh.wall} className="cc-wall" /><path d={sh.wall} className="cc-wall__crenel" /></>}
@@ -98,17 +100,8 @@ export function TileArt({ t, rot = 0, meeples = {}, title }: { t: string; rot?: 
             </g>
           );
         })}
-        {tile.monastery && (
-          <g className="cc-abbey" transform={`rotate(${-rot * 90} 50 50)`}>
-            <ellipse cx="50" cy="63" rx="22" ry="5" className="cc-abbey__shadow" />
-            <rect x="36" y="44" width="28" height="19" className="cc-abbey__wall" />
-            <rect x="52" y="44" width="12" height="19" className="cc-abbey__side" />
-            <path d="M32 46 50 31 68 46Z" className="cc-abbey__roof" />
-            <path d="M50 31 68 46H59Z" className="cc-abbey__roof-shade" />
-            <path d="M46 63V54a4 4 0 0 1 8 0v9Z" className="cc-abbey__door" />
-            <path d="M49.2 20h1.6v7h3.4v1.6h-3.4V34h-1.6v-5.4h-3.4V27h3.4Z" className="cc-abbey__cross" />
-          </g>
-        )}
+        {tile.monastery && <image href={texMonastery} x="22" y="22" width="56" height="56" clipPath="url(#cc-abbey-clip)" />}
+        {tile.monastery && <rect x="22" y="22" width="56" height="56" rx="10" className="cc-abbey__frame" />}
         {Object.entries(meeples).map(([seg, seat]) => { const [x, y] = anchor(t, seg); return <g key={seg} transform={`rotate(${-rot * 90} ${x} ${y})`}><Meeple color={SEAT_COLORS[seat]!} x={x} y={y} /></g>; })}
       </g>
     </svg>
@@ -120,21 +113,11 @@ export function TileDefs() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
       <defs>
-        <linearGradient id="cc-field" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b3cc66" /><stop offset="0.55" stopColor="#8fb04c" /><stop offset="1" stopColor="#7a9d3f" /></linearGradient>
-        <pattern id="cc-grass" width="46" height="46" patternUnits="userSpaceOnUse">
-          <ellipse cx="12" cy="14" rx="13" ry="8" fill="#c9de86" opacity="0.28" />
-          <ellipse cx="36" cy="34" rx="12" ry="7" fill="#5d8a2b" opacity="0.2" />
-          <path d="M8 24l-1.5-4M8 24v-5M8 24l1.5-4M33 11l-1.5-4M33 11V6M33 11l1.5-4M22 42l-1.5-4M22 42v-5M22 42l1.5-4M42 22l-1.5-3M42 22l1.5-3" stroke="#4f7a24" strokeWidth="1" strokeLinecap="round" opacity="0.55" />
-          <circle cx="19" cy="30" r="1.1" fill="#fff6d0" /><circle cx="4" cy="42" r="1" fill="#ffe27a" /><circle cx="40" cy="6" r="1" fill="#fff" opacity="0.85" />
-        </pattern>
-        <pattern id="cc-roofs" width="26" height="22" patternUnits="userSpaceOnUse">
-          <rect width="26" height="22" fill="#e6c88c" />
-          <g stroke="#6a3b1f" strokeWidth="0.6" strokeLinejoin="round" opacity="0.62">
-            <rect x="3" y="9" width="9" height="7" fill="#f4e3bb" /><path d="M1.5 9.5 7.5 3.5 13.5 9.5Z" fill="#c4553a" />
-            <rect x="16" y="20" width="9" height="7" fill="#f4e3bb" /><path d="M14.5 20.5 20.5 14.5 26.5 20.5Z" fill="#a9432c" />
-            <rect x="16" y="-2" width="9" height="7" fill="#f4e3bb" /><path d="M14.5 -1.5 20.5 -7.5 26.5 -1.5Z" fill="#a9432c" />
-          </g>
-        </pattern>
+        {/* Textures are cut from a generated sheet (see DECISIONS.md); tiled in tile units (a tile is 100 wide). */}
+        <pattern id="cc-field" width="50" height="50" patternUnits="userSpaceOnUse"><image href={texField} width="50" height="50" /></pattern>
+        <pattern id="cc-roofs" width="50" height="50" patternUnits="userSpaceOnUse"><image href={texCity} width="50" height="50" /></pattern>
+        <pattern id="cc-road" width="30" height="30" patternUnits="userSpaceOnUse"><image href={texRoad} width="30" height="30" /></pattern>
+        <clipPath id="cc-abbey-clip"><rect x="22" y="22" width="56" height="56" rx="10" /></clipPath>
         <linearGradient id="cc-shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.6" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.35" /></linearGradient>
         {SHAPES.map((s, i) => <clipPath key={i} id={`cc-cl-${i}`}><path d={s.d} /></clipPath>)}
       </defs>
