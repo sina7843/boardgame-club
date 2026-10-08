@@ -65,7 +65,6 @@ describe('dice throne rules', () => {
     expect(st(snap).fighters[1 - c]!.hp).toBe(hp - (8 - 3));
     expect(st(snap).fighters[c]!.hp).toBe(MAX_HP - 1);
     expect(st(snap).current).toBe(1 - c);
-    snap = edit(snap, (s) => { s.fighters[s.current]!.wound = 2; });
   });
 
   it('dice are public; nothing is hidden except the test-only fixed dice', () => {
