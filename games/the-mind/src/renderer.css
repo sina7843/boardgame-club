@@ -6,12 +6,8 @@
 .tm__hud { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: center; font-size: 0.9rem; }
 .tm__level b { font-size: 1.3rem; color: #fff; }
 .tm__lives, .tm__stars { display: inline-flex; gap: 0.15rem; }
-.tm-ico { inline-size: 1.25rem; block-size: 1.25rem; }
-.tm-ico--life { fill: rgb(255 255 255 / 0.12); }
-.tm-ico--life.on { fill: #ff6b8a; filter: drop-shadow(0 0 4px #ff6b8a); }
-.tm-ico--star { fill: rgb(255 255 255 / 0.12); }
-.tm-ico--star.on { fill: #c9d2e3; filter: drop-shadow(0 0 3px #9fb3ff); }
-.tm-ico__hole { fill: #1b1838; }
+.tm-ico { inline-size: 1.4rem; block-size: 1.4rem; object-fit: contain; opacity: 0.25; filter: grayscale(1); }
+.tm-ico.on { opacity: 1; filter: drop-shadow(0 0 4px rgb(159 179 255 / 0.6)); }
 
 .tm__center { display: grid; gap: 0.5rem; justify-items: center; }
 .tm__pile { display: grid; gap: 0.4rem; justify-items: center; min-block-size: 9.5rem; align-content: center; }
@@ -33,7 +29,7 @@
 .tm-mate--done { opacity: 0.55; }
 .tm-mate__name { font-weight: 800; font-size: 0.88rem; }
 .tm-mate__cards { display: inline-flex; gap: 3px; min-block-size: 1.6rem; align-items: center; font-size: 0.8rem; color: #a9a3d8; }
-.tm-mate__cards i { inline-size: 0.9rem; block-size: 1.3rem; border-radius: 3px; background: linear-gradient(160deg, #4d4799, #2a2660); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
+.tm-mate__cards img { inline-size: 1.1rem; aspect-ratio: 5 / 7; object-fit: cover; border-radius: 3px; }
 .tm-mate__vote { display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.75rem; color: #c9d2ff; }
 .tm-mate__vote .tm-ico { inline-size: 0.95rem; block-size: 0.95rem; }
 

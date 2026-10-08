@@ -2,16 +2,16 @@
 // teammates show only how many cards they still hold; your cards are at the bottom with one big "play" button.
 import './renderer.css';
 import { TurnIndicator, type GameRendererProps } from '@bg/ui';
+import cardBack from './art/card-back.webp';
+import heart from './art/heart.webp';
+import star from './art/star.webp';
 import type { TheMindView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
-const Heart = ({ on }: { on: boolean }) => (
-  <svg viewBox="-12 -11 24 22" className={`tm-ico tm-ico--life ${on ? 'on' : ''}`} aria-hidden="true"><path d="M0 9 L-9 0 Q-13 -6 -7 -9 Q-3 -10 0 -6 Q3 -10 7 -9 Q13 -6 9 0 Z" /></svg>
-);
-const Star = ({ on }: { on: boolean }) => (
-  <svg viewBox="-12 -12 24 24" className={`tm-ico tm-ico--star ${on ? 'on' : ''}`} aria-hidden="true"><path d="M0 -11 L3 -3 L11 0 L3 3 L0 11 L-3 3 L-11 0 L-3 -3 Z" /><circle r="2.2" className="tm-ico__hole" /></svg>
-);
+// Art is cut from a generated sprite sheet (see DECISIONS.md).
+const Heart = ({ on }: { on: boolean }) => <img src={heart} alt="" className={`tm-ico tm-ico--life ${on ? 'on' : ''}`} aria-hidden="true" />;
+const Star = ({ on }: { on: boolean }) => <img src={star} alt="" className={`tm-ico tm-ico--star ${on ? 'on' : ''}`} aria-hidden="true" />;
 
 export function Num({ n, size = 'md', fresh }: { n: number; size?: 'sm' | 'md' | 'lg'; fresh?: boolean }) {
   return <span className={['tm-card', `tm-card--${size}`, fresh ? 'tm-card--fresh' : ''].join(' ')} style={{ ['--h' as string]: Math.round(220 + n * 1.3) }}><b>{fa(n)}</b></span>;
@@ -58,7 +58,7 @@ export default function TheMindRenderer({ view, legalActions, mySeat, seatName, 
           <li key={s} className={`tm-mate ${view.handCount[s] ? '' : 'tm-mate--done'}`}>
             <bdi className="tm-mate__name">{who(s)}</bdi>
             <span className="tm-mate__cards" aria-label={`${fa(view.handCount[s]!)} کارت`}>
-              {Array.from({ length: view.handCount[s]! }, (_, k) => <i key={k} />)}{!view.handCount[s] && 'تمام'}
+              {Array.from({ length: view.handCount[s]! }, (_, k) => <img key={k} src={cardBack} alt="" aria-hidden="true" />)}{!view.handCount[s] && 'تمام'}
             </span>
             {view.votes[s] && <span className="tm-mate__vote"><Star on /> موافق ستاره</span>}
           </li>
