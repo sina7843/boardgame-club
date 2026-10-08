@@ -41,6 +41,7 @@ import ScoutCover from '@bg/game-scout/cover';
 import CenturyCover from '@bg/game-century/cover';
 import SeaSaltPaperCover from '@bg/game-sea-salt-paper/cover';
 import HanabiCover from '@bg/game-hanabi/cover';
+import CamelUpCover from '@bg/game-camel-up/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -85,7 +86,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   scout: ScoutCover,
   century: CenturyCover,
   'sea-salt-paper': SeaSaltPaperCover,
-  hanabi: HanabiCover
+  hanabi: HanabiCover,
+  'camel-up': CamelUpCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

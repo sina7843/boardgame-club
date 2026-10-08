@@ -827,3 +827,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   with the clues they hold (freshly clued cards flash), your own cards as patterned backs showing what you know,
   including «نه: …» negatives; discard pile shown.
 - Polish (360/1440): stacks capped at 30rem; card sparks dimmed so numbers read clearly.
+## «مسابقهٔ شترها» (Camel Up, 2026-10-08, owner list batch 7)
+
+- First edition without crazy camels, 2–8 players (2 unofficial). Five camels on 16 spaces stack and carry the camels
+  on top; five 1–3 dice drawn at random from the pyramid (+1 coin). Leg-bet tiles 5/3/2 per camel; one desert tile per
+  player (oasis +1 on top / mirage −1 underneath; not space 1, not under camels, not on or beside another tile; owner
+  +1 coin on landing), reset each leg. Leg scoring: tile value for the leader, 1 for second, −1 otherwise. Crossing
+  space 16 ends the game; overall winner/loser bets pay 8, 5, 3, 2, 1, 1… in placing order, −1 if wrong. Coins never
+  drop below 0. Start 3 coins. Hidden: overall bets (count public; own bets shown to you); all revealed at the end.
+  Timeout: roll a die.
+- Look: desert race course; 16 sand tiles in two rows with painted camels stacked (top drawn highest, hop animation),
+  oasis/mirage badges, pyramid button with remaining dice and the last roll announced, leg-bet tiles in camel colours,
+  secret overall-bet buttons per unused camel card.
+- Polish (360/1440): «پایان» marker moved onto space 16; track capped at 42rem; bigger camels on desktop.

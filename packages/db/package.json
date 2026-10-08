@@ -59,7 +59,8 @@
     "@bg/game-scout": "workspace:*",
     "@bg/game-century": "workspace:*",
     "@bg/game-sea-salt-paper": "workspace:*",
-    "@bg/game-hanabi": "workspace:*"
+    "@bg/game-hanabi": "workspace:*",
+    "@bg/game-camel-up": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

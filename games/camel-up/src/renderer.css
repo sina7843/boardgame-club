@@ -1,0 +1,54 @@
+/* مسابقهٔ شترها: a desert race course — warm sand tiles, painted camels that stack, a pyramid of dice. */
+.cu { --sand: #f0d39a; --ink: #3a2410; display: grid; gap: 0.65rem; inline-size: 100%; color: #fbf1df; text-align: center; }
+.cu > :first-child { justify-self: center; }
+.cu-c--blue { --c: #2f7fc1; } .cu-c--green { --c: #3f9a4a; } .cu-c--orange { --c: #e8873a; } .cu-c--yellow { --c: #e8c33a; } .cu-c--white { --c: #f2efe6; }
+.cu__leg { margin: 0; font-size: 0.78rem; color: #e8d8b8; }
+.cu-camel { fill: var(--c); stroke: #3a2410; stroke-width: 1; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); display: block; }
+
+.cu__track { position: relative; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; padding: 0.5rem; border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 120%, #e0b46a, #b88440); box-shadow: inset 0 0 0 2px #8a5a20; }
+.cu-sp { position: relative; display: grid; align-content: end; justify-items: center; min-block-size: 5.6rem; padding: 0.15rem 0 0.2rem; border: 0; border-radius: 6px; font: inherit; color: var(--ink);
+  background: linear-gradient(180deg, #f7e2b4, var(--sand)); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.12); }
+.cu-sp--can { cursor: pointer; box-shadow: 0 0 0 2px #2f7fc1; }
+.cu-sp--last { box-shadow: inset -4px 0 0 #2a2a2a; }
+.cu-sp__n { position: absolute; inset-block-start: 2px; inset-inline-start: 4px; font-size: 0.6rem; font-weight: 800; opacity: 0.7; }
+.cu-stack { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.cu-stack .cu-camel { margin-block-end: -0.25rem; animation: cu-hop 0.45s ease-out; }
+.cu-tile { position: absolute; inset-block-start: 1.1rem; inset-inline-end: 3px; padding: 0 0.25rem; border-radius: 4px; font-size: 0.65rem; font-weight: 900; color: #fff; }
+.cu-tile--oasis { background: #3f9a4a; } .cu-tile--mirage { background: #a2452f; }
+.cu-finish { position: absolute; inset-block-start: 2px; inset-inline-end: 4px; padding: 0 0.3rem; border-radius: 999px; background: #2a2a2a; color: #fff; font-size: 0.55rem; }
+.cu__roll { margin: 0; display: inline-flex; gap: 0.4rem; align-items: center; justify-self: center; padding: 0.25rem 0.8rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); font-size: 0.86rem; animation: cu-drop 0.35s ease-out both; }
+.cu__roll b { font-size: 1.15rem; color: #ffd98a; }
+
+.cu__bets { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.cu-legtile { display: grid; justify-items: center; gap: 0.1rem; min-inline-size: 3.2rem; padding: 0.3rem; border: 0; border-radius: 9px; color: var(--ink); font: inherit; cursor: pointer;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 30%, white 70%), color-mix(in srgb, var(--c) 55%, white 45%)); box-shadow: inset 0 0 0 2px var(--c), 0 3px 6px -3px #000; }
+.cu-legtile b { font-size: 1.05rem; }
+.cu-legtile:disabled { opacity: 0.45; cursor: default; }
+.cu__actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+.cu-on { box-shadow: 0 0 0 3px #ffd98a !important; }
+.cu__overall { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; padding: 0.4rem; border-radius: 10px; background: rgb(0 0 0 / 0.22); font-size: 0.78rem; }
+.cu-ov { display: inline-flex; gap: 0.2rem; align-items: center; }
+.cu-ov button { padding: 0.15rem 0.45rem; border-radius: 6px; border: 1px solid #e8d8b8; background: rgb(0 0 0 / 0.25); color: inherit; font: inherit; font-size: 0.72rem; cursor: pointer; }
+
+.cu__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.cu-pl { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; justify-content: center; padding: 0.4rem 0.5rem; border-radius: 10px; background: rgb(0 0 0 / 0.25); font-size: 0.82rem; }
+.cu-pl--me { background: rgb(240 211 154 / 0.15); }
+.cu-pl--turn { box-shadow: 0 0 0 2px #ffd98a; }
+.cu-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.18); }
+.cu-pl__name { font-weight: 800; }
+.cu-pl__coins { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: cu-bump 0.4s ease-out; }
+.cu-chip { padding: 0 0.35rem; border-radius: 4px; background: var(--c); color: var(--ink); font-size: 0.7rem; font-weight: 900; }
+.cu-pyr { font-size: 0.72rem; color: #e8d8b8; }
+.cu__mine, .cu__log { margin: 0; font-size: 0.78rem; color: #e8d8b8; }
+.cu-hint { animation: cu-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@media (max-width: 480px) { .cu-sp { min-block-size: 4.6rem; } .cu-stack .cu-camel { inline-size: 1.25rem !important; block-size: 0.9rem !important; } }
+@keyframes cu-hop { 0% { transform: translateY(-10px); } 60% { transform: translateY(2px); } }
+@keyframes cu-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes cu-bump { 40% { transform: scale(1.25); } }
+@keyframes cu-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
+
+.cu > .cu__track { inline-size: min(100%, 42rem); justify-self: center; }
+@media (min-width: 900px) { .cu-stack .cu-camel { inline-size: 2.4rem !important; block-size: 1.75rem !important; } }
