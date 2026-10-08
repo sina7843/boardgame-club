@@ -676,3 +676,12 @@ card sets and setup, upgrade/trade/spice/rest, acquiring with payment along the 
 discard, round end, timeouts/resign/privacy, tutorial, 20 random 2–5 player games with replay); API 3
 (`apps/api/test/century.test.ts`); catalog test updated; E2E `e2e/century.spec.ts` — tutorial and a full two-player
 game at 360 and 1440 (`docs/evidence/century/`).
+## Final regression of the overnight run (2026-10-08, after batch 6 partial)
+
+Checks run: `pnpm typecheck` 0 errors; `npx eslint . --ignore-pattern ".playwright/**"` 0 errors (2 existing
+warnings); `pnpm test` all green (engine 387, API 217, packages/workers green); `e2e/play.spec.ts` at 1440 6/6;
+`e2e/release.spec.ts` at 1440: 5/6 then 6/6 on rerun — the accessibility/screenshot test is **intermittent** (see the
+note above: a route occasionally has no `main h1` within 5 s, or a navigation never reaches `load`, on the dev server).
+Follow-up risk worth fixing: ten of the new catalog covers import their game's `renderer.tsx` to reuse drawings, so the
+catalog chunk pulls those renderers and their CSS; covers should import small shared drawing modules instead.
+Batch 6 status: «بازار سبزی»، «بلوف حشره‌ها»، «سیرک»، «راه ادویه» done; Sea Salt & Paper not started.
