@@ -50,7 +50,8 @@
     "@bg/game-sushi-go": "workspace:*",
     "@bg/game-lost-cities": "workspace:*",
     "@bg/game-the-mind": "workspace:*",
-    "@bg/game-splendor": "workspace:*"
+    "@bg/game-splendor": "workspace:*",
+    "@bg/game-azul": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

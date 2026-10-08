@@ -31,6 +31,7 @@ import SushiGoCover from '@bg/game-sushi-go/cover';
 import LostCitiesCover from '@bg/game-lost-cities/cover';
 import TheMindCover from '@bg/game-the-mind/cover';
 import SplendorCover from '@bg/game-splendor/cover';
+import AzulCover from '@bg/game-azul/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -65,7 +66,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   'sushi-go': SushiGoCover,
   'lost-cities': LostCitiesCover,
   'the-mind': TheMindCover,
-  splendor: SplendorCover
+  splendor: SplendorCover,
+  azul: AzulCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

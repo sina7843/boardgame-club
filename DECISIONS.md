@@ -693,3 +693,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   pair), tap a card for «خرید» / «رزرو», shortfall shown when unaffordable.
 - Polish passes (360/1440): (1) cards keep a 5:7 shape and the market is capped at 36rem so desktop cards are not
   stretched; a gem watermark fills the card body.
+## «کاشی‌کار» (Azul, 2026-10-08, owner list batch 5)
+
+- Standard Azul for 2–4 (fixed coloured wall side): 100 tiles, 5/7/9 factories, factory or centre drafting with the
+  first-player marker, pattern lines (one colour, not already on that wall row), floor penalties −1 −1 −2 −2 −2 −3 −3
+  (excess tiles beyond seven go to the lid), automatic wall tiling with adjacency scoring, score floored at 0, bag
+  refilled from the lid. Ends after the round in which a wall row is completed; bonuses rows 2 / columns 7 /
+  colours 10; tie → more complete rows. Only the bag order is hidden (the manifest has no hidden-information flag).
+  Timeout: take the smallest group onto the first legal line. Resign ends the game with the resigner last.
+- Look: Isfahan tile-work; glazed tiles with an eight-point star (lapis, saffron, pomegranate, black-and-gold,
+  turquoise), factories as round kiln plates in a 2×2 grid, a brass centre tray with the «۱» marker, boards in deep
+  indigo with stepped pattern lines, a ghost-glazed 5×5 wall and the floor with penalty labels; pick a tile group,
+  allowed lines glow; round gains summary.
+- Polish passes (360/1440): (1) factory tile groups overflowed the fixed round plates and covered the boards (clicks
+  intercepted at both sizes) — each factory tile is now its own button in a 2×2 grid.

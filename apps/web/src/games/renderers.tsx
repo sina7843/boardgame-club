@@ -31,6 +31,7 @@ import SushiGoRenderer from '@bg/game-sushi-go/renderer';
 import LostCitiesRenderer from '@bg/game-lost-cities/renderer';
 import TheMindRenderer from '@bg/game-the-mind/renderer';
 import SplendorRenderer from '@bg/game-splendor/renderer';
+import AzulRenderer from '@bg/game-azul/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -70,5 +71,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'sushi-go@1.0.0': SushiGoRenderer as ComponentType<GameRendererProps<never>>,
   'lost-cities@1.0.0': LostCitiesRenderer as ComponentType<GameRendererProps<never>>,
   'the-mind@1.0.0': TheMindRenderer as ComponentType<GameRendererProps<never>>,
-  'splendor@1.0.0': SplendorRenderer as ComponentType<GameRendererProps<never>>
+  'splendor@1.0.0': SplendorRenderer as ComponentType<GameRendererProps<never>>,
+  'azul@1.0.0': AzulRenderer as ComponentType<GameRendererProps<never>>
 };

@@ -610,3 +610,10 @@ card/noble set, setup, take rules, buy with bonuses and gold, reserve and blind 
 visit and final round, timeouts/resign, tutorial, 20 random 2–4 player games with token and card conservation and
 replay); API 3 (`apps/api/test/splendor.test.ts`); catalog test updated; E2E `e2e/splendor.spec.ts` — tutorial and a
 full three-player game at 360 and 1440 (`docs/evidence/splendor/`).
+## «کاشی‌کار» Azul (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/azul` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/azul.test.ts`:
+placement/floor/bonus scoring, setup, drafting and line rules, a full round with tiling and the next starter,
+timeouts/resign, tutorial, 20 random 2–4 player games with 100-tile conservation, row-completion end and replay);
+API 3 (`apps/api/test/azul.test.ts`); catalog test updated; E2E `e2e/azul.spec.ts` — tutorial and a full three-player
+game at 360 and 1440 (`docs/evidence/azul/`).
