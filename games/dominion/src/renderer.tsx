@@ -6,7 +6,30 @@ import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { CARDS, KINGDOM, type CardId, type DomView } from './rules.ts';
 
+// Art is cut from a generated sprite sheet (see DECISIONS.md).
+import copperArt from './art/copper.webp';
+import silverArt from './art/silver.webp';
+import goldArt from './art/gold.webp';
+import estateArt from './art/estate.webp';
+import duchyArt from './art/duchy.webp';
+import provinceArt from './art/province.webp';
+import cellarArt from './art/cellar.webp';
+import moatArt from './art/moat.webp';
+import merchantArt from './art/merchant.webp';
+import villageArt from './art/village.webp';
+import workshopArt from './art/workshop.webp';
+import militiaArt from './art/militia.webp';
+import remodelArt from './art/remodel.webp';
+import smithyArt from './art/smithy.webp';
+import marketArt from './art/market.webp';
+import mineArt from './art/mine.webp';
+import cardBack from './art/card-back.webp';
+import coin from './art/coin.webp';
+import vp from './art/vp.webp';
+
 const fa = (n: number) => n.toLocaleString('fa-IR');
+
+const ART: Record<CardId, string> = { copper: copperArt, silver: silverArt, gold: goldArt, estate: estateArt, duchy: duchyArt, province: provinceArt, cellar: cellarArt, moat: moatArt, merchant: merchantArt, village: villageArt, workshop: workshopArt, militia: militiaArt, remodel: remodelArt, smithy: smithyArt, market: marketArt, mine: mineArt };
 
 export function DomCard({ c, size = 'md', count }: { c: CardId; size?: 'sm' | 'md'; count?: number }) {
   const info = CARDS[c];
@@ -14,6 +37,7 @@ export function DomCard({ c, size = 'md', count }: { c: CardId; size?: 'sm' | 'm
   return (
     <span className={`dm-card dm-card--${size} dm-k--${kind}`} aria-label={`${info.name}، قیمت ${fa(info.cost)}${count !== undefined ? `، ${fa(count)} مانده` : ''}`}>
       <b className="dm-card__cost">{fa(info.cost)}</b>
+      <img className="dm-card__art" src={ART[c]} alt="" draggable={false} />
       <span className="dm-card__name">{info.name}</span>
       {size === 'md' && <span className="dm-card__text">{info.kind === 'treasure' ? `${fa(info.coins!)} سکه` : info.kind === 'victory' ? `${fa(info.vp!)} امتیاز` : info.text}</span>}
       {count !== undefined && <i className="dm-card__count">{fa(count)}</i>}
@@ -85,9 +109,9 @@ export default function DominionRenderer({ view, legalActions, mySeat, seatName,
         {view.others.map((o, k) => (
           <li key={k} className={['dm-player', k === view.current && !view.outcome ? 'dm-player--now' : '', k === me ? 'dm-player--me' : ''].join(' ')}>
             <bdi className="dm-player__name">{who(k)}</bdi>
-            <span>دسته {fa(o.deck)}</span><span>دست {fa(o.hand)}</span><span>دورریز {fa(o.discard)}</span>
+            <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />دسته {fa(o.deck)}</span><span>دست {fa(o.hand)}</span><span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />دورریز {fa(o.discard)}</span>
             {o.top && <span className="dm-player__top">{CARDS[o.top].name}</span>}
-            {view.vp && <b className="dm-player__vp">{fa(view.vp[k]!)} امتیاز</b>}
+            {view.vp && <b className="dm-player__vp"><img className="dm-ico" src={vp} alt="" draggable={false} />{fa(view.vp[k]!)} امتیاز</b>}
           </li>
         ))}
       </ul>
@@ -116,7 +140,7 @@ export default function DominionRenderer({ view, legalActions, mySeat, seatName,
 
       {view.hand && !view.outcome && (
         <section className="dm__me" aria-label="دست شما">
-          {myTurn && <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins" key={view.coins}>{fa(view.coins)} سکه</span></p>}
+          {myTurn && <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>}
           <div className="dm__hand">
             {hand.map((c, i) => {
               const sel = picked.includes(i) || mode?.index === i;
