@@ -1,8 +1,10 @@
 // Snakes and Ladders renderer: 10×10 vector board (square 1 bottom-left, alternating rows), ladders and snakes drawn
-// over it, numbered player tokens (colour + number, never colour alone), die and roll button.
+// over it on a painted jungle backdrop (WebP cut from a generated sheet, see DECISIONS.md), numbered player tokens (colour + number, never colour alone), die and roll button.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import jungle from './art/bd-jungle.webp';
+import dieArt from './art/die.webp';
 import { BoardDefs, LadderArt, PawnArt, SnakeArt, pipsOf } from './art.tsx';
 import { LADDERS, SNAKES, type LogEntry, type SnakesView } from './rules.ts';
 
@@ -78,6 +80,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
           <rect x="-18" y="-18" width="636" height="636" rx="16" fill="url(#sl-wood)" className="sl-frame" />
           <rect x="-18" y="-18" width="636" height="636" rx="16" fill="url(#sl-grain)" />
           <rect x="-4" y="-4" width="608" height="608" rx="5" className="sl-frame__lip" />
+          <image href={jungle} width="600" height="600" preserveAspectRatio="xMidYMid slice" aria-hidden="true" />
           {Array.from({ length: 100 }, (_, i) => {
             const n = i + 1;
             const [cx, cy] = center(n);
@@ -116,7 +119,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
           <div className="sl-roll">
             <Die key={latest?.seq} value={view.lastDie} rolling={!!latest} />
             {canRoll && (
-              <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => onAction({ type: 'roll' })}>تاس بریز</Button>
+              <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => onAction({ type: 'roll' })}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>
             )}
           </div>
           <ul className="sl-players" aria-label="بازیکنان">

@@ -8,6 +8,8 @@
 .sl-frame__lip { fill: none; stroke: #2e1a09; stroke-width: 3; }
 .sl-stud { stroke: #4f3908; stroke-width: 0.8; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); }
 .sl-cell { stroke: rgb(58 42 26 / 0.28); stroke-width: 0.8; }
+.sl-cell { fill-opacity: 0.72; } /* jungle backdrop shows through */
+.sl-btn-die { inline-size: 1.6em; block-size: 1.6em; object-fit: contain; margin-inline-end: 0.4em; vertical-align: middle; }
 .sl-cell--0 { fill: #fbe3b0; } .sl-cell--1 { fill: #cfe8c6; } .sl-cell--2 { fill: #f7cdbb; } .sl-cell--3 { fill: #cfe1f2; }
 .sl-cell__n { font: 800 13px/1 var(--font, sans-serif); fill: #3a2a1a; stroke: rgb(255 255 255 / 0.55); stroke-width: 2.4px; paint-order: stroke; stroke-linejoin: round; }
 .sl-cell__tag text { font: 800 10px/1 var(--font, sans-serif); fill: #3a2a1a; text-anchor: middle; stroke: rgb(255 255 255 / 0.7); stroke-width: 2.6px; paint-order: stroke; stroke-linejoin: round; }
