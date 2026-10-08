@@ -4,29 +4,28 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import duke from './art/coup-duke.webp';
+import assassin from './art/coup-assassin.webp';
+import captain from './art/coup-captain.webp';
+import ambassador from './art/coup-ambassador.webp';
+import contessa from './art/coup-contessa.webp';
 import { ACT_FA, CLAIM, ROLE_FA, type Act, type CoupView, type Role } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const ACTS: Act[] = ['income', 'foreignAid', 'tax', 'steal', 'exchange', 'assassinate', 'coup'];
 const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ سکه', coup: '۷ سکه', tax: '+۳ سکه', assassinate: '۳ سکه', steal: '۲ سکه از حریف', exchange: '۲ کارت از دسته' };
 
-function Emblem({ role }: { role: Role }) {
-  switch (role) {
-    case 'duke': return <path d="M-22 12 L-22 -10 L-11 2 L0 -18 L11 2 L22 -10 L22 12 Z M-22 16 H22 V22 H-22 Z" />;
-    case 'assassin': return <path d="M-3 -26 L3 -26 L4 8 L-4 8 Z M-14 8 H14 V13 H-14 Z M-3 13 H3 V24 H-3 Z" />;
-    case 'captain': return <path d="M-2 -24 a6 6 0 1 1 4 0 V16 Q14 14 20 2 L24 6 Q16 24 0 26 Q-16 24 -24 6 L-20 2 Q-14 14 -2 16 Z M-12 -10 H12 V-5 H-12 Z" />;
-    case 'ambassador': return <path d="M-20 -20 H16 Q22 -20 22 -14 V20 H-14 Q-20 20 -20 14 Z M-12 -10 H14 V-6 H-12 Z M-12 0 H14 V4 H-12 Z M-12 10 H6 V14 H-12 Z" fillRule="evenodd" />;
-    case 'contessa': return <path d="M0 -24 L22 -2 L0 6 L-22 -2 Z M-2 6 H2 V24 H-2 Z M-10 20 H10 V24 H-10 Z" />;
-  }
-}
+// Portraits are cut from a generated sheet (see DECISIONS.md); decorative, the role name stays as text.
+const ART: Record<Role, string> = { duke, assassin, captain, ambassador, contessa };
 
 function Card({ role, lost, size = 'md', fresh }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean }) {
   return (
     <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'cp-card--fresh' : ''].join(' ')}>
       <svg viewBox="-35 -50 70 100" aria-hidden="true">
         <rect x="-33" y="-48" width="66" height="96" rx="7" className="cp-card__bg" />
+        {role && <image href={ART[role]} x="-28" y="-43" width="56" height="56" preserveAspectRatio="xMidYMid slice" />}
         <rect x="-28" y="-43" width="56" height="86" rx="4" fill="none" className="cp-card__frame" />
-        {role ? <g className="cp-card__emblem" transform="translate(0 -6)"><Emblem role={role} /></g>
+        {role ? <rect x="-28" y="13" width="56" height="1.6" className="cp-card__frame" fill="var(--gold)" />
           : <path d="M0 -26 L20 0 L0 26 L-20 0 Z M0 -14 L10 0 L0 14 L-10 0 Z" className="cp-card__mark" fillRule="evenodd" />}
       </svg>
       {role && <span className="cp-card__name">{ROLE_FA[role]}</span>}
@@ -34,6 +33,8 @@ function Card({ role, lost, size = 'md', fresh }: { role: Role | null; lost?: bo
     </span>
   );
 }
+
+const Thumb = ({ role }: { role: Role }) => <img className="cp-thumb" src={ART[role]} alt="" aria-hidden="true" />;
 
 const Coins = ({ n }: { n: number }) => (
   <span className="cp-coins" aria-label={`${fa(n)} سکه`}><span className="cp-coin" aria-hidden="true" /><b key={n}>{fa(n)}</b></span>
@@ -79,9 +80,9 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
   const banner = p && view.phase !== 'action' && !view.outcome ? (
     <div className="cp-claim" role="status" key={`${p.actor}-${p.act}-${p.block?.by ?? ''}`}>
       <span className="cp-claim__who"><bdi>{who(p.actor)}</bdi></span>
-      {p.claim ? <> ادعای <b className={`cp-tag cp-tag--${p.claim}`}>{ROLE_FA[p.claim]}</b> — </> : ' '}
+      {p.claim ? <> ادعای <b className={`cp-tag cp-tag--${p.claim}`}><Thumb role={p.claim} />{ROLE_FA[p.claim]}</b> — </> : ' '}
       <b>{ACT_FA[p.act]}</b>{p.target !== null && <> روی <bdi>{who(p.target)}</bdi></>}
-      {p.block && <span className="cp-claim__block"><bdi>{who(p.block.by)}</bdi> با ادعای <b className={`cp-tag cp-tag--${p.block.role}`}>{ROLE_FA[p.block.role]}</b> جلویش را گرفت</span>}
+      {p.block && <span className="cp-claim__block"><bdi>{who(p.block.by)}</bdi> با ادعای <b className={`cp-tag cp-tag--${p.block.role}`}><Thumb role={p.block.role} />{ROLE_FA[p.block.role]}</b> جلویش را گرفت</span>}
     </div>
   ) : null;
 
@@ -138,7 +139,7 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
           {(canChallenge || blocks.length > 0 || canPass) && (
             <div className="cp-resp" role="group" aria-label="پاسخ">
               {canChallenge && <button type="button" className={['cp-resp__btn cp-resp__btn--challenge', hint?.type === 'challenge' ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'challenge' })}>چالش! «دروغ می‌گویی»</button>}
-              {blocks.map((r) => <button key={r} type="button" className={['cp-resp__btn cp-resp__btn--block', `cp-tag--${r}`, hint?.type === 'block' && hint.role === r ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'block', role: r })}>جلوگیری با {ROLE_FA[r]}</button>)}
+              {blocks.map((r) => <button key={r} type="button" className={['cp-resp__btn cp-resp__btn--block', `cp-tag--${r}`, hint?.type === 'block' && hint.role === r ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'block', role: r })}><Thumb role={r} />جلوگیری با {ROLE_FA[r]}</button>)}
               {canPass && <button type="button" className="cp-resp__btn cp-resp__btn--pass" disabled={busy} onClick={() => onAction({ type: 'pass' })}>قبول</button>}
             </div>
           )}

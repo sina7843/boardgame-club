@@ -29,7 +29,7 @@ b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color
 
 .cp-coins { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.05rem 0.45rem 0.05rem 0.3rem; border-radius: 999px; background: rgb(0 0 0 / 0.35); font-weight: 900; color: #ffe2a0; }
 .cp-coins b { display: inline-block; animation: cp-bump 0.4s ease-out; }
-.cp-coin { inline-size: 0.95rem; block-size: 0.95rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1c2, #e3bd6b 45%, #9a6f1f); box-shadow: inset 0 0 0 1.5px #7a5410; }
+.cp-coin { inline-size: 0.95rem; block-size: 0.95rem; border-radius: 50%; background: url('./art/coins.webp') center / cover; box-shadow: 0 0 0 1px #7a5410; }
 
 .cp-card { position: relative; display: inline-grid; justify-items: center; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.5)); }
 .cp-card svg { display: block; }
@@ -39,9 +39,9 @@ b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color
 .cp-card--back .cp-card__bg { fill: #4a1f3c; }
 .cp-card__frame { stroke: var(--gold); stroke-width: 1.6; }
 .cp-card__mark { fill: rgb(227 189 107 / 0.55); }
-.cp-card__emblem { fill: #fbeccb; }
 .cp-card--duke { --role: var(--duke); } .cp-card--assassin { --role: var(--assassin); } .cp-card--captain { --role: var(--captain); }
 .cp-card--ambassador { --role: var(--ambassador); } .cp-card--contessa { --role: var(--contessa); }
+.cp-thumb { inline-size: 1.2rem; block-size: 1.2rem; margin-inline-end: 0.3rem; border-radius: 50%; object-fit: cover; vertical-align: middle; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.5); }
 .cp-card__name { position: absolute; inset-block-end: 0.45rem; font-size: 0.72rem; font-weight: 800; color: #fff; text-shadow: 0 1px 2px #000; }
 .cp-card--sm .cp-card__name { inset-block-end: 0.15rem; font-size: 0.55rem; }
 .cp-card--lost { filter: grayscale(0.75) brightness(0.7); }
