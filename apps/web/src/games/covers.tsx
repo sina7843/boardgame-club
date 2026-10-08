@@ -23,6 +23,7 @@ import HiveCover from '@bg/game-hive/cover';
 import NoThanksCover from '@bg/game-no-thanks/cover';
 import SixNimmtCover from '@bg/game-six-nimmt/cover';
 import LoveLetterCover from '@bg/game-love-letter/cover';
+import SkullCover from '@bg/game-skull/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -49,7 +50,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   hive: HiveCover,
   'no-thanks': NoThanksCover,
   'six-nimmt': SixNimmtCover,
-  'love-letter': LoveLetterCover
+  'love-letter': LoveLetterCover,
+  skull: SkullCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

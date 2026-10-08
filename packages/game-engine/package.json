@@ -35,7 +35,8 @@
     "@bg/game-hive": "workspace:*",
     "@bg/game-no-thanks": "workspace:*",
     "@bg/game-six-nimmt": "workspace:*",
-    "@bg/game-love-letter": "workspace:*"
+    "@bg/game-love-letter": "workspace:*",
+    "@bg/game-skull": "workspace:*"
   },
   "devDependencies": {
     "vitest": "5.0.3"

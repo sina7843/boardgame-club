@@ -24,6 +24,7 @@ import { hiveModule } from '@bg/game-hive';
 import { noThanksModule } from '@bg/game-no-thanks';
 import { sixNimmtModule } from '@bg/game-six-nimmt';
 import { loveLetterModule } from '@bg/game-love-letter';
+import { skullModule } from '@bg/game-skull';
 import type { Actor, ActionHint, EngineRng, GameModule, Outcome, ScheduleChange, Viewer } from '@bg/game-sdk';
 
 // ---------- Deterministic RNG (mulberry32). State is one uint32, persisted with each snapshot, never projected. ----------
@@ -82,7 +83,7 @@ export class GameRegistry {
 }
 
 /** Reviewed in-repo modules. Adding a game = adding its module here (docs/ADDING_A_GAME.md). */
-export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule, ttrModule, backgammonModule, checkersModule, othelloModule, quoridorModule, onitamaModule, goModule, santoriniModule, takModule, abaloneModule, hiveModule, noThanksModule, sixNimmtModule, loveLetterModule] as unknown as GameModule<never, never, never>[];
+export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule, ttrModule, backgammonModule, checkersModule, othelloModule, quoridorModule, onitamaModule, goModule, santoriniModule, takModule, abaloneModule, hiveModule, noThanksModule, sixNimmtModule, loveLetterModule, skullModule] as unknown as GameModule<never, never, never>[];
 export const createDefaultRegistry = () => new GameRegistry(reviewedModules);
 
 // ---------- Running the game ----------

@@ -555,3 +555,9 @@ New module `games/love-letter` registered in engine, catalog and web. Checks run
 Countess, hidden info, timeouts, tutorial, 25 random 2–4 player games with 16-card conservation and replay); API 3
 (`apps/api/test/love-letter.test.ts`); catalog test updated; E2E `e2e/love-letter.spec.ts` — tutorial and a short
 three-player game at 360 and 1440 (`docs/evidence/love-letter/`).
+## «جمجمه» Skull (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/skull` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/skull.test.ts`:
+first placements, bidding, own discs first, skull and private lost disc, elimination, timeouts/resign, tutorial, 30
+random 2–6 player games with disc conservation and replay); API 3 (`apps/api/test/skull.test.ts`); catalog test
+updated; E2E `e2e/skull.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/skull/`).

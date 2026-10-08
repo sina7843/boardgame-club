@@ -23,6 +23,7 @@ import HiveRenderer from '@bg/game-hive/renderer';
 import NoThanksRenderer from '@bg/game-no-thanks/renderer';
 import SixNimmtRenderer from '@bg/game-six-nimmt/renderer';
 import LoveLetterRenderer from '@bg/game-love-letter/renderer';
+import SkullRenderer from '@bg/game-skull/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -54,5 +55,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'hive@1.0.0': HiveRenderer as ComponentType<GameRendererProps<never>>,
   'no-thanks@1.0.0': NoThanksRenderer as ComponentType<GameRendererProps<never>>,
   'six-nimmt@1.0.0': SixNimmtRenderer as ComponentType<GameRendererProps<never>>,
-  'love-letter@1.0.0': LoveLetterRenderer as ComponentType<GameRendererProps<never>>
+  'love-letter@1.0.0': LoveLetterRenderer as ComponentType<GameRendererProps<never>>,
+  'skull@1.0.0': SkullRenderer as ComponentType<GameRendererProps<never>>
 };

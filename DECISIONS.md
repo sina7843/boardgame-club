@@ -576,3 +576,14 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   target. Resign leaves the game; the last remaining player wins.
 - Look: parchment cards with value, drawn emblem, name, effect and a wax seal; opponents with heart tokens, Handmaid
   shield, discard rows; private "only you see" banner; target buttons on players and a guess strip for the Guard.
+## «جمجمه» (Skull, 2026-10-08, owner list batch 3)
+
+- Standard rules for 3–6 (2-player offered as unofficial for tutorials): everyone places a first disc in turn order,
+  then place or bid (bids from 1 up to every disc on the table; the maximum ends bidding at once), raise or pass,
+  the challenger turns all their own discs first and then picks opponents' top discs; all roses → a point (two win);
+  a skull → the challenger loses a random disc (only they learn which; engine RNG so replay is exact) and the skull's
+  owner starts the next round; no discs left → out; last standing wins. Hidden: hands and placed stacks (counts
+  public); owners see their own stack. Timeouts place a rose, pass, or flip the first possible stack.
+- Look: tavern coasters — leather faces with a drawn rose or skull, patterned backs in seat colours, stacked per
+  player, two-point mats, a bid strip with number chips, opponents' stacks become "turn" buttons in the reveal,
+  turned discs flip up.
