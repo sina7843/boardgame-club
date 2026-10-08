@@ -72,7 +72,8 @@
     "@bg/game-the-crew": "workspace:*",
     "@bg/game-crew-deep-sea": "workspace:*",
     "@bg/game-space-base": "workspace:*",
-    "@bg/game-dice-throne": "workspace:*"
+    "@bg/game-dice-throne": "workspace:*",
+    "@bg/game-el-dorado": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

@@ -980,3 +980,16 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   deck — CP only buys extra rolls and moves through abilities. Hero pick: first picker also plays first.
 - Look: arena — stone floor, hero-coloured banners with a sliding health bar and status badges, chunky dice showing
   the hero's symbols (tap to keep), an ability board that lights up the combos your dice make.
+
+## «راه الدورادو» (The Quest for El Dorado, 2026-10-08, owner list batch 10)
+
+- 2–4 players on one fixed 11×6 hex map (odd-r offset; jungle/water/village costs 1–3, rubble = discard N cards,
+  base camp = remove N cards, mountains blocked, four start hexes and four El Dorado hexes). The map is shorter than
+  the published modular boards so an online race fits one session; no blockade tiles or caves.
+- Start deck 3 explorers, 1 sailor, 4 travellers; hand of 4. A card's points can be spread over consecutive hexes of
+  its colour (jokers fix their colour on first use), cards are never combined for one hex; occupied hexes are blocked.
+  One purchase per turn with coin points (other cards count ½); the whole market (18 types, 3 each) is open from the
+  start; single-use cards leave the game when used. Reaching El Dorado ends the game at the end of the round:
+  arrivals share first place, the rest rank by distance.
+- Look: explorer's map — parchment frame around an SVG hex jungle, glowing reachable hexes for the selected card,
+  coloured expedition pawns, seed-packet style cards and a market strip.

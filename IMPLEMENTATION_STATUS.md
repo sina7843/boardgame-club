@@ -784,3 +784,10 @@ New module `games/dice-throne` registered in engine, catalog and web. Checks run
 roll cost, defence with shield and strike-back, nothing hidden, timeouts/resign, tutorial, 30 random duels with
 replay); API 3 (`apps/api/test/dice-throne.test.ts`); catalog test updated; E2E `e2e/dice-throne.spec.ts` — tutorial
 and a full duel from the hero pick at 360 and 1440 (`docs/evidence/dice-throne/`).
+## «راه الدورادو» The Quest for El Dorado (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/el-dorado` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/el-dorado.test.ts`: map/starts/goal reachability, movement points and blocking, rubble/
+camp/buying, hidden hands, timeouts/resign, tutorial, 12 greedy random races with card conservation and replay);
+API 3 (`apps/api/test/el-dorado.test.ts`); catalog test updated; E2E `e2e/el-dorado.spec.ts` — tutorial and a full
+three-player race at 360 and 1440 (`docs/evidence/el-dorado/`).

@@ -1,0 +1,61 @@
+/* راه الدورادو: an explorer's map — parchment border, saturated terrain hexes, a golden city crown. */
+.ed { display: grid; gap: 0.55rem; inline-size: 100%; color: #2a1d10; text-align: center; padding: 0.5rem; border-radius: 16px;
+  background: linear-gradient(160deg, #efe0bd, #d9c49a); box-shadow: inset 0 0 0 2px #a8875a; }
+.ed > :first-child { justify-self: center; }
+.ed-s--g { --s: #3f8a3a; } .ed-s--b { --s: #2f7fc4; } .ed-s--y { --s: #d9a520; } .ed-s--any { --s: #8a5ad6; }
+
+.ed-crew { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.ed-crew__p { display: flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgb(255 255 255 / 0.45); font-size: 0.78rem; font-weight: 700; }
+.ed-crew__p small { font-weight: 500; color: #5a4a2a; }
+.ed-crew__p.is-now { box-shadow: inset 0 0 0 2px var(--pawn); }
+.ed-dot { inline-size: 0.7rem; block-size: 0.7rem; border-radius: 50%; background: var(--pawn); box-shadow: 0 0 0 1.5px #fff; }
+
+.ed-board { justify-self: center; inline-size: min(100%, 26rem); padding: 0.4rem; border-radius: 14px; background: #1f3a2a; box-shadow: inset 0 0 0 3px #a8875a, inset 0 0 22px #000; }
+.ed-map { display: block; inline-size: 100%; block-size: auto; }
+.ed-hex polygon { stroke: #1a140c; stroke-width: 1.2; transition: filter 0.2s; }
+.ed-hex text { font-size: 9px; font-weight: 800; fill: #fff; paint-order: stroke; stroke: rgb(0 0 0 / 0.5); stroke-width: 2px; pointer-events: none; }
+.ed-k--g polygon { fill: #3f8a3a; } .ed-k--b polygon { fill: #2f7fc4; } .ed-k--y polygon { fill: #d9a520; } .ed-k--r polygon { fill: #8a7a6a; }
+.ed-k--c polygon { fill: #b5543a; } .ed-k--m polygon { fill: #4a4038; } .ed-k--s polygon { fill: #c9b48a; } .ed-k--E polygon { fill: #ffd75a; }
+.ed-star { fill: #8a5a08 !important; font-size: 12px !important; stroke: none !important; }
+.ed-hex--can { cursor: pointer; }
+.ed-hex--can polygon { stroke: #fff1b0; stroke-width: 2.5; filter: brightness(1.25) drop-shadow(0 0 3px #fff1b0); animation: ed-glow 1.2s ease-in-out infinite; }
+.ed-hex--can:focus-visible { outline: none; }
+.ed-hex--can:focus-visible polygon { stroke: #ff9d6b; }
+.ed-pawn { stroke: #fff; stroke-width: 1.8; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.6)); transition: cx 0.4s ease-out, cy 0.4s ease-out; }
+
+.ed-card { display: grid; justify-items: center; align-content: start; gap: 0.1rem; border-radius: 8px; line-height: 1.2; color: #2a1d10;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--s) 35%, #fbf3df) 0 45%, #fbf3df 45%); box-shadow: inset 0 0 0 2px var(--s), 0 3px 6px -3px #000; }
+.ed-card--md { inline-size: 4.2rem; block-size: 5.4rem; padding-block-start: 0.3rem; }
+.ed-card--sm { inline-size: 3.3rem; block-size: 3.6rem; padding-block-start: 0.2rem; }
+.ed-card__pts { inline-size: 1.6rem; block-size: 1.6rem; display: grid; place-items: center; border-radius: 50%; background: var(--s); color: #fff; font-size: 0.9rem; }
+.ed-card--sm .ed-card__pts { inline-size: 1.2rem; block-size: 1.2rem; font-size: 0.7rem; }
+.ed-card__name { font-size: 0.62rem; font-weight: 800; }
+.ed-card--sm .ed-card__name { font-size: 0.5rem; }
+.ed-card small { font-size: 0.5rem; color: #5a4a2a; }
+
+.ed-me { display: grid; gap: 0.4rem; justify-items: center; }
+.ed-active { padding: 0.25rem 0.7rem; border-radius: 999px; border: 1px dashed #8a5a08; background: rgb(255 215 90 / 0.35); color: inherit; font: inherit; font-size: 0.75rem; cursor: pointer; }
+.ed-active.is-on { border-style: solid; background: #ffd75a; font-weight: 800; }
+.ed-hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.ed-slot { display: grid; gap: 0.15rem; justify-items: center; }
+.ed-pick { padding: 0; border: 0; background: none; border-radius: 9px; line-height: 0; cursor: pointer; transition: transform 0.18s; animation: ed-draw 0.35s ease-out both; }
+.ed-pick:disabled { cursor: default; }
+.ed-pick.is-on { transform: translateY(-6px); box-shadow: 0 0 0 3px #ff9d6b; }
+.ed-pick.is-pay { transform: translateY(-4px); box-shadow: 0 0 0 3px #8a7a6a; }
+.ed-mini { padding: 0.1rem 0.4rem; border-radius: 999px; border: 1px solid #8a5a08; background: rgb(255 255 255 / 0.5); color: inherit; font: inherit; font-size: 0.6rem; cursor: pointer; }
+.ed-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.ed-market { display: grid; gap: 0.3rem; padding: 0.45rem; border-radius: 12px; background: rgb(255 255 255 / 0.35); }
+.ed-market__title { margin: 0; font-size: 0.75rem; font-weight: 700; }
+.ed-market__row { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+.ed-buy { position: relative; display: grid; justify-items: center; gap: 0.1rem; padding: 0; border: 0; background: none; color: inherit; font: inherit; line-height: 1; border-radius: 9px; opacity: 0.55; }
+.ed-buy.is-can { opacity: 1; cursor: pointer; }
+.ed-buy.is-can:hover { transform: translateY(-3px); }
+.ed-buy__cost { position: absolute; inset-block-start: -0.35rem; inset-inline-end: -0.35rem; inline-size: 1.1rem; block-size: 1.1rem; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a520 60%, #8a6408); font-size: 0.6rem; font-style: normal; font-weight: 900; }
+.ed-buy small { font-size: 0.55rem; }
+.ed-hint { animation: ed-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ff7a2a !important; }
+
+@keyframes ed-glow { 50% { filter: brightness(1.05); } }
+@keyframes ed-draw { from { opacity: 0; transform: translateY(10px); } }
+@keyframes ed-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ed * { animation: none !important; transition: none !important; } }
