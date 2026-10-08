@@ -56,6 +56,7 @@ import SpaceBaseCover from '@bg/game-space-base/cover';
 import DiceThroneCover from '@bg/game-dice-throne/cover';
 import ElDoradoCover from '@bg/game-el-dorado/cover';
 import ResArcanaCover from '@bg/game-res-arcana/cover';
+import RaceGalaxyCover from '@bg/game-race-galaxy/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -115,7 +116,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   'space-base': SpaceBaseCover,
   'dice-throne': DiceThroneCover,
   'el-dorado': ElDoradoCover,
-  'res-arcana': ResArcanaCover
+  'res-arcana': ResArcanaCover,
+  'race-galaxy': RaceGalaxyCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

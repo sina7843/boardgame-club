@@ -1,0 +1,66 @@
+/* رقابت کهکشانی: a star-chart command deck — midnight indigo, planet orbs by good colour, violet developments. */
+.rg { display: grid; gap: 0.55rem; inline-size: 100%; color: #e9ecff; text-align: center; padding: 0.5rem; border-radius: 16px;
+  background: radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent), radial-gradient(1px 1px at 70% 60%, #fff 50%, transparent), radial-gradient(circle at 50% 0%, #2a2a6a, #0a0a22 75%); }
+.rg > :first-child { justify-self: center; }
+.rg-w--n { --g: #4fc3ff; } .rg-w--r { --g: #c08a5a; } .rg-w--g { --g: #6fd38a; } .rg-w--a { --g: #ffd75a; }
+.rg-info { margin: 0; font-size: 0.72rem; color: #b5bbe6; }
+
+.rg-phases { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; }
+.rg-phase { display: grid; gap: 0.1rem; justify-items: center; padding: 0.4rem 0.2rem; border: 0; border-radius: 12px; color: inherit; font: inherit;
+  background: rgb(255 255 255 / 0.06); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15); transition: opacity 0.25s, box-shadow 0.25s; }
+.rg-phase b { font-size: 1.2rem; }
+.rg-phase span { font-size: 0.75rem; font-weight: 800; }
+.rg-phase small { font-size: 0.52rem; color: #b5bbe6; line-height: 1.3; }
+.rg-phase.is-can { cursor: pointer; box-shadow: inset 0 0 0 1.5px #9c8cff; }
+.rg-phase.is-can:hover { background: rgb(156 140 255 / 0.2); }
+.rg-phase.is-off { opacity: 0.35; }
+.rg-phase.is-on { box-shadow: inset 0 0 0 1.5px #9c8cff; }
+.rg-phase.is-active { background: rgb(156 140 255 / 0.3); box-shadow: inset 0 0 0 2px #fff, 0 0 14px -4px #9c8cff; animation: rg-pulse-soft 1.6s ease-in-out infinite; }
+.rg-phase.is-mine span { color: #ffd75a; }
+
+.rg-empires { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.rg-empire { display: grid; gap: 0.3rem; padding: 0.4rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+.rg-empire.is-me { background: rgb(156 140 255 / 0.1); }
+.rg-empire.is-waiting { box-shadow: inset 0 0 0 1.5px rgb(255 215 90 / 0.6); }
+.rg-empire__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.rg-empire__head small { color: #b5bbe6; }
+.rg-vp { padding: 0 0.45rem; border-radius: 999px; background: #ffd75a; color: #1a1a3a; animation: rg-bump 0.4s ease-out; }
+.rg-row { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+
+.rg-card { position: relative; display: grid; justify-items: center; align-content: start; gap: 0.1rem; border-radius: 9px; line-height: 1.25;
+  background: linear-gradient(170deg, #22225a, #12122e); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--g, #9c8cff) 70%, transparent), 0 3px 6px -3px #000; }
+.rg-card--md { inline-size: 5rem; min-block-size: 5.6rem; padding: 0.4rem 0.2rem; }
+.rg-card--sm { inline-size: 3.7rem; padding: 0.25rem 0.1rem 0.4rem; }
+.rg-dev { --g: #b48cff; }
+.rg-k--mil { box-shadow: inset 0 0 0 2px #ff6b6b, 0 3px 6px -3px #000; }
+.rg-card__orb { position: relative; display: grid; place-items: center; inline-size: 1.7rem; block-size: 1.7rem; border-radius: 50%; color: #b48cff; font-size: 1.1rem;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--g) 50%, white 50%), var(--g) 55%, color-mix(in srgb, var(--g) 50%, black 50%)); }
+.rg-dev .rg-card__orb { background: none; }
+.rg-card--sm .rg-card__orb { inline-size: 1.2rem; block-size: 1.2rem; font-size: 0.8rem; }
+.rg-good { position: absolute; inset-block-end: -0.2rem; inset-inline-end: -0.2rem; inline-size: 0.6rem; block-size: 0.6rem; border-radius: 3px; background: #fff; box-shadow: 0 0 6px #fff; animation: rg-pop 0.4s ease-out; }
+.rg-card__name { font-size: 0.6rem; font-weight: 800; }
+.rg-card--sm .rg-card__name { font-size: 0.48rem; }
+.rg-card__tag { font-size: 0.5rem; color: #b5bbe6; }
+.rg-card__cost, .rg-card__vp { position: absolute; inset-block-start: 0.15rem; font-size: 0.55rem; padding: 0 0.25rem; border-radius: 999px; }
+.rg-card__cost { inset-inline-start: 0.15rem; background: #e9ecff; color: #12122e; }
+.rg-card__vp { inset-inline-end: 0.15rem; background: #ffd75a; color: #12122e; }
+.rg-card--sm .rg-card__cost, .rg-card--sm .rg-card__vp { font-size: 0.45rem; }
+
+.rg-drawn { display: flex; gap: 0.4rem; justify-content: center; padding: 0.45rem; border-radius: 12px; background: rgb(156 140 255 / 0.12); animation: rg-warp 0.35s ease-out both; }
+.rg-hand { display: grid; gap: 0.4rem; justify-items: center; padding-block-start: 0.45rem; border-block-start: 1px dashed rgb(255 255 255 / 0.2); }
+.rg-pick { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 10px; line-height: 0; transition: transform 0.18s; }
+.rg-pick:disabled { opacity: 0.55; cursor: default; }
+.rg-pick.is-can { cursor: pointer; filter: drop-shadow(0 0 6px rgb(156 140 255 / 0.7)); }
+.rg-pick.is-can:hover { transform: translateY(-4px); }
+.rg-pick.is-sel { transform: translateY(-6px); box-shadow: 0 0 0 3px #6fd38a; }
+.rg-pick.is-pay { transform: translateY(-3px); box-shadow: 0 0 0 3px #ff9d6b; opacity: 0.75; }
+.rg-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.rg-hint { animation: rg-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@media (max-width: 480px) { .rg-phase small { display: none; } .rg-card--md { inline-size: 4.4rem; } }
+@keyframes rg-pulse-soft { 50% { box-shadow: inset 0 0 0 2px #9c8cff, 0 0 6px -4px #9c8cff; } }
+@keyframes rg-bump { 40% { transform: scale(1.25); } }
+@keyframes rg-pop { from { transform: scale(0); } }
+@keyframes rg-warp { from { opacity: 0; transform: scale(0.95); } }
+@keyframes rg-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .rg * { animation: none !important; transition: none !important; } }

@@ -68,7 +68,8 @@
     "@bg/game-space-base": "workspace:*",
     "@bg/game-dice-throne": "workspace:*",
     "@bg/game-el-dorado": "workspace:*",
-    "@bg/game-res-arcana": "workspace:*"
+    "@bg/game-res-arcana": "workspace:*",
+    "@bg/game-race-galaxy": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

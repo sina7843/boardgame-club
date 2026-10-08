@@ -1004,3 +1004,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   ties share. Not included: attacks, dragons/creatures, reactions, "any essence" costs, mage/item drafting.
 - Look: alchemist's table — faceted essence gems, vellum card plates (cost / collect / power rows), a velvet shelf
   for places of power and monuments, tapped cards tilt.
+
+## «رقابت کهکشانی» (Race for the Galaxy, 2026-10-08, owner list batch 10)
+
+- 2–4 players. Original generated card set: 3 start worlds, 32 worlds (production/windfall/military with four good
+  colours) and 20 developments with simple powers (develop −1, settle −1, military, explore +1, consume +1). Hand of
+  4 at start (no draw-6-discard-2). Each round every player secretly chooses one of five phases; chosen phases run
+  in order for everyone with a bonus for the chooser (explore 4 instead of 2, develop −1, settle draws 1 afterwards,
+  consume ×2, produce also fills windfalls). Placement pays in cards from hand; military worlds need military ≥
+  defence. Consume turns each good into VP chips (no trade); hand limit 10. Ends after a round with a 12-card
+  tableau or an empty chip pool (12 per player). Not included: trade, search, takeovers, 6-cost dev bonuses, goals.
+- Look: star-chart command deck — five phase tiles with emoji glyphs (secret choice, then lit when chosen), planet
+  orbs coloured by good with glowing goods, violet hex developments, empires waiting on others outlined in amber.

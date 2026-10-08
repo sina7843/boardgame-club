@@ -75,7 +75,8 @@
     "@bg/game-space-base": "workspace:*",
     "@bg/game-dice-throne": "workspace:*",
     "@bg/game-el-dorado": "workspace:*",
-    "@bg/game-res-arcana": "workspace:*"
+    "@bg/game-res-arcana": "workspace:*",
+    "@bg/game-race-galaxy": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

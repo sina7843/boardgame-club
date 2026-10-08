@@ -57,6 +57,7 @@ import { spaceBase } from '@bg/game-space-base';
 import { diceThrone } from '@bg/game-dice-throne';
 import { elDorado } from '@bg/game-el-dorado';
 import { resArcana } from '@bg/game-res-arcana';
+import { raceGalaxy } from '@bg/game-race-galaxy';
 import type { GameDefinition } from '@bg/game-sdk';
 
-export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo, lostCities, theMind, splendor, azul, jaipur, patchwork, kingdomino, pointSalad, cockroachPoker, scout, century, seaSaltPaper, hanabi, camelUp, machiKoro, kingOfTokyo, citadels, carcassonne, bohnanza, wondersDuel, dominion, starRealms, theCrew, crewDeepSea, spaceBase, diceThrone, elDorado, resArcana];
+export const gameRegistry: readonly GameDefinition[] = [lineThree, sealedBids, uno, unmatched, catan, chess, snakesLadders, ludo, risk, amlak, ticketToRide, backgammon, checkers, othello, quoridor, onitama, go, santorini, tak, abalone, hive, noThanks, sixNimmt, loveLetter, skull, coup, forSale, highSociety, sushiGo, lostCities, theMind, splendor, azul, jaipur, patchwork, kingdomino, pointSalad, cockroachPoker, scout, century, seaSaltPaper, hanabi, camelUp, machiKoro, kingOfTokyo, citadels, carcassonne, bohnanza, wondersDuel, dominion, starRealms, theCrew, crewDeepSea, spaceBase, diceThrone, elDorado, resArcana, raceGalaxy];

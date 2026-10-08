@@ -798,3 +798,11 @@ New module `games/res-arcana` registered in engine, catalog and web. Checks run:
 collect, places and monuments to 10 VP, hidden hands and monument deck, timeouts/resign, tutorial, 12 random 2–4 player
 games with replay); API 3 (`apps/api/test/res-arcana.test.ts`); catalog test updated; E2E `e2e/res-arcana.spec.ts` —
 tutorial and a full three-player game at 360 and 1440 (`docs/evidence/res-arcana/`).
+## «رقابت کهکشانی» Race for the Galaxy (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/race-galaxy` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/race-galaxy.test.ts`: card set/setup, secret simultaneous choice and phase queue,
+explore keep, settle payment/military/picker draw, produce/consume, hidden hands and choices, timeouts for all
+waiting players/resign, tutorial, 12 random 2–4 player games with card conservation and replay); API 3
+(`apps/api/test/race-galaxy.test.ts`); catalog test updated; E2E `e2e/race-galaxy.spec.ts` — tutorial and a full
+three-player game at 360 and 1440 (`docs/evidence/race-galaxy/`).
