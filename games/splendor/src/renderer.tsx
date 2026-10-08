@@ -4,23 +4,35 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import gemW from './art/gem-diamond.webp';
+import gemU from './art/gem-sapphire.webp';
+import gemG from './art/gem-emerald.webp';
+import gemR from './art/gem-ruby.webp';
+import gemK from './art/gem-onyx.webp';
+import gemO from './art/gem-gold.webp';
+import mineW from './art/mine-diamond.webp';
+import mineU from './art/mine-sapphire.webp';
+import mineG from './art/mine-emerald.webp';
+import mineR from './art/mine-ruby.webp';
+import mineK from './art/mine-onyx.webp';
+import noble0 from './art/noble-0.webp';
+import noble1 from './art/noble-1.webp';
+import noble2 from './art/noble-2.webp';
+import noble3 from './art/noble-3.webp';
 import { CARDS, GEMS, NOBLES, bonuses, type Gem, type SplendorView, type Token } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const GEM_FA: Record<Token, string> = { w: 'الماس', u: 'یاقوت کبود', g: 'زمرد', r: 'یاقوت سرخ', k: 'عقیق سیاه', o: 'طلا' };
+// Painted art cut from a generated sheet (see DECISIONS.md). Gems/mines are keyed by token colour; nobles by index mod 4.
+const GEM_ART: Record<Token, string> = { w: gemW, u: gemU, g: gemG, r: gemR, k: gemK, o: gemO };
+const MINE_ART: Record<Gem, string> = { w: mineW, u: mineU, g: mineG, r: mineR, k: mineK };
+const NOBLE_ART = [noble0, noble1, noble2, noble3];
 const LEVEL_FA = ['', 'معدن', 'کارگاه', 'کاروان'];
 
 export function Chip({ t, n, size = 'md', on }: { t: Token; n?: number; size?: 'sm' | 'md'; on?: boolean }) {
   return (
     <span className={['sp-chip', `sp-chip--${size}`, `sp-t--${t}`, on ? 'sp-chip--on' : ''].join(' ')} aria-label={n === undefined ? GEM_FA[t] : `${fa(n)} ${GEM_FA[t]}`}>
-      <svg viewBox="-20 -20 40 40" aria-hidden="true">
-        <circle r="18.5" className="sp-chip__rim" /><circle r="15.5" className="sp-chip__edge" /><circle r="13" className="sp-chip__face" />
-        {t === 'o'
-          ? <g><path d="M0 -10 L2.9 -3.6 L9.5 -3 L4.5 1.6 L6 8.3 L0 5 L-6 8.3 L-4.5 1.6 L-9.5 -3 L-2.9 -3.6 Z" className="sp-chip__star" /><circle r="12" className="sp-chip__ring" /></g>
-          : <g><path d="M-5 -9 H5 L3 -3.5 H-3 Z" className="sp-f sp-f1" /><path d="M-9 -3.5 L-5 -9 L-3 -3.5 Z" className="sp-f sp-f2" /><path d="M5 -9 L9 -3.5 L3 -3.5 Z" className="sp-f sp-f3" />
-            <path d="M-9 -3.5 H-3 L0 9.5 Z" className="sp-f sp-f2" /><path d="M-3 -3.5 H3 L0 9.5 Z" className="sp-f sp-f1" /><path d="M3 -3.5 H9 L0 9.5 Z" className="sp-f sp-f4" />
-            <path d="M-9 -3.5 L-5 -9 H5 L9 -3.5 L0 9.5 Z" className="sp-chip__gem" /></g>}
-      </svg>
+      <img src={GEM_ART[t]} alt="" draggable={false} />
       {n !== undefined && <b>{fa(n)}</b>}
     </span>
   );
@@ -30,8 +42,8 @@ export function DevCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' })
   const c = CARDS[id]!;
   return (
     <span className={['sp-card', `sp-card--${size}`, `sp-t--${c.color}`, `sp-l--${c.level}`].join(' ')} aria-label={`${GEM_FA[c.color]}، ${fa(c.points)} اعتبار، قیمت: ${GEMS.filter((g) => c.cost[g]).map((g) => `${fa(c.cost[g]!)} ${GEM_FA[g]}`).join('، ')}`}>
+      <img className="sp-card__art" src={MINE_ART[c.color]} alt="" draggable={false} />
       <span className="sp-card__top"><b className="sp-card__pts">{c.points ? fa(c.points) : ''}</b><Chip t={c.color} size="sm" /></span>
-      <svg viewBox="-10 -10 20 20" className="sp-card__mark" aria-hidden="true"><path d="M0 -9 L8 -3 L5 8 H-5 L-8 -3 Z" /><path d="M-8 -3 H8 M0 -9 L-3 -3 L0 8 L3 -3 Z" className="sp-card__cut" /></svg>
       <span className="sp-card__tier" aria-hidden="true">{Array.from({ length: c.level }, (_, i) => <i key={i} />)}</span>
       <span className="sp-card__cost">{GEMS.filter((g) => c.cost[g]).map((g) => <span key={g} className={`sp-cost sp-t--${g}`}>{fa(c.cost[g]!)}</span>)}</span>
     </span>
@@ -42,12 +54,7 @@ export function NobleTile({ id }: { id: number }) {
   const n = NOBLES[id]!;
   return (
     <span className="sp-noble" aria-label={`بزرگ: ${GEMS.filter((g) => n.need[g]).map((g) => `${fa(n.need[g]!)} ${GEM_FA[g]}`).join('، ')}`}>
-      <svg viewBox="-20 -20 40 40" className="sp-noble__face" aria-hidden="true">
-        <ellipse rx="16" ry="18.5" className="sp-noble__frame" /><ellipse rx="13.5" ry="16" className="sp-noble__cameo" />
-        <path d="M-12 16 Q-11 7 0 6 Q11 7 12 16 Q0 20 -12 16 Z" className="sp-noble__robe" /><path d="M-3 6.5 L0 12 L3 6.5 Z" className="sp-noble__ruff" />
-        <ellipse cx="0" cy="-1" rx="5.4" ry="6.4" className="sp-noble__skin" />
-        <path d="M-6.5 -2 Q-8 -12 0 -12.5 Q8 -12 6.5 -2 Q4 -7 0 -7 Q-4 -7 -6.5 -2 Z" className="sp-noble__hair" /><path d="M-7 -9 L-4 -14 L-1.5 -10.5 L0 -15 L1.5 -10.5 L4 -14 L7 -9 Z" className="sp-noble__crown" />
-      </svg>
+      <img className="sp-noble__face" src={NOBLE_ART[id % 4]} alt="" draggable={false} />
       <b className="sp-noble__pts"><span>۳</span></b>
       <span className="sp-noble__need">{GEMS.filter((g) => n.need[g]).map((g) => <span key={g} className={`sp-req sp-t--${g}`}>{fa(n.need[g]!)}</span>)}</span>
     </span>

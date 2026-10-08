@@ -1,4 +1,4 @@
-/* گوهرفروش — a Renaissance jeweller's counter.
+/* گوهرفروش — a Renaissance jeweller's counter (painted gems, mines and nobles cut from a generated sheet, see DECISIONS.md).
    Palette: oxblood velvet #2b0f18 / #4a1626, gilt #d8b25a / #8a6420, parchment #f4e8c8 / #e2cf9e, sepia ink #2d2013,
    verdigris #3f8f7a (tier I), burnished gold #c9a227 (tier II), lapis #3a5fa8 (tier III).
    Signature: milled-edge gem coins with cut facets, engraved parchment cards with a tier-pip frame, cameo nobles. */
@@ -19,18 +19,9 @@
 
 /* gem coins */
 .sp-chip { display: inline-flex; align-items: center; gap: 0.2rem; }
-.sp-chip svg { display: block; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.55)); }
-.sp-chip--md svg { inline-size: 2.5rem; block-size: 2.5rem; }
-.sp-chip--sm svg { inline-size: 1.15rem; block-size: 1.15rem; }
-.sp-chip__rim { fill: color-mix(in srgb, var(--gem2) 70%, black 30%); }
-.sp-chip__edge { fill: none; stroke: color-mix(in srgb, var(--gem) 55%, white 45%); stroke-width: 2.4; stroke-dasharray: 2.2 1.6; opacity: 0.75; }
-.sp-chip__face { fill: color-mix(in srgb, var(--gem) 45%, var(--gem2)); stroke: rgb(0 0 0 / 0.35); stroke-width: 0.8; }
-.sp-f { stroke: rgb(0 0 0 / 0.22); stroke-width: 0.5; stroke-linejoin: round; }
-.sp-f1 { fill: color-mix(in srgb, var(--gem) 40%, white); } .sp-f2 { fill: color-mix(in srgb, var(--gem) 78%, white); }
-.sp-f3 { fill: var(--gem); } .sp-f4 { fill: color-mix(in srgb, var(--gem) 70%, var(--gem2)); }
-.sp-chip__gem { fill: none; stroke: rgb(255 255 255 / 0.55); stroke-width: 0.8; stroke-linejoin: round; }
-.sp-chip__star { fill: #fff3b8; stroke: #8a6408; stroke-width: 0.9; stroke-linejoin: round; }
-.sp-chip__ring { fill: none; stroke: rgb(138 100 8 / 0.6); stroke-width: 0.8; }
+.sp-chip img { display: block; object-fit: contain; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.55)); }
+.sp-chip--md img { inline-size: 2.5rem; block-size: 2.5rem; }
+.sp-chip--sm img { inline-size: 1.15rem; block-size: 1.15rem; }
 .sp-chip b { font-weight: 900; font-size: 0.95rem; text-shadow: 0 1px 2px #000; }
 
 /* nobles */
@@ -38,10 +29,7 @@
 .sp-noble { position: relative; display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 0.1rem 0.3rem; padding: 0.3rem 0.5rem 0.3rem 0.35rem; border-radius: 6px 6px 14px 14px; color: var(--ink);
   background: radial-gradient(circle at 30% 20%, #fff6dc, transparent 60%), linear-gradient(160deg, var(--ivory), #d4b974);
   box-shadow: inset 0 0 0 1.5px var(--gilt2), inset 0 0 0 3.5px #f8edd0, inset 0 0 0 4.5px var(--gilt), 0 5px 8px -4px #000; }
-.sp-noble__face { inline-size: 2.5rem; block-size: 2.5rem; grid-row: span 2; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35)); }
-.sp-noble__frame { fill: var(--gilt); stroke: var(--gilt2); stroke-width: 1; } .sp-noble__cameo { fill: #3b4f66; }
-.sp-noble__robe { fill: #7a2335; } .sp-noble__ruff { fill: #f4e8c8; } .sp-noble__skin { fill: #e8c298; }
-.sp-noble__hair { fill: #4a3020; } .sp-noble__crown { fill: var(--gilt); stroke: var(--gilt2); stroke-width: 0.6; }
+.sp-noble__face { inline-size: 2.5rem; block-size: 2.5rem; grid-row: span 2; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--gilt2), 0 1px 2px rgb(0 0 0 / 0.4); }
 .sp-noble__pts { display: grid; place-items: center; inline-size: 1.25rem; block-size: 1.4rem; margin-inline: auto; font-size: 0.95rem; color: #fff6dc;
   background: #7a2335; clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%); }
 .sp-noble__pts span { translate: 0 -1px; }
@@ -73,19 +61,17 @@
 
 /* engraved development card */
 .sp-card { position: relative; display: grid; grid-template-rows: auto 1fr; inline-size: 100%; border-radius: 8px; overflow: hidden; line-height: 1.1; color: var(--ink);
-  background:
-    repeating-linear-gradient(0deg, rgb(120 85 30 / 0.07) 0 1px, transparent 1px 3px),
-    radial-gradient(circle at 70% 75%, color-mix(in srgb, var(--gem) 22%, transparent), transparent 62%),
-    linear-gradient(170deg, #fbf2d8, var(--ivory2));
+  background: var(--gem2);
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--lv) 75%, black 25%), inset 0 0 0 3px #f9efd2, inset 0 0 0 3.8px color-mix(in srgb, var(--lv) 45%, #f4e8c8), 0 4px 7px -3px #000; }
 .sp-card--md { aspect-ratio: 5 / 7; min-block-size: 5.2rem; }
 .sp-card--sm { inline-size: 2.8rem; min-block-size: 3.6rem; display: inline-grid; }
-.sp-card__mark { position: absolute; inset-block-end: 12%; inset-inline-end: 8%; inline-size: 50%; block-size: auto; fill: var(--gem); stroke: var(--gem2); stroke-width: 0.5; opacity: 0.4; filter: drop-shadow(0 1px 0 rgb(255 255 255 / 0.6)); }
-.sp-card__cut { fill: none; stroke: #fff; stroke-width: 0.6; opacity: 0.8; }
-.sp-card--sm .sp-card__mark, .sp-card--sm .sp-card__tier { display: none; }
+.sp-card__art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.sp-card::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgb(0 0 0 / 0.1) 30%, rgb(0 0 0 / 0.6)); }
+.sp-card > :not(.sp-card__art) { z-index: 1; }
+.sp-card--sm .sp-card__tier { display: none; }
 .sp-card__tier { position: absolute; inset-block-start: 1.55rem; inset-inline-start: 0.28rem; display: flex; flex-direction: column; gap: 2px; }
 .sp-card__tier i { inline-size: 0.28rem; block-size: 0.28rem; rotate: 45deg; background: var(--lv); box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.4); }
-.sp-card__top { display: flex; align-items: center; justify-content: space-between; padding: 0.15rem 0.35rem; margin: 3.5px 3.5px 0; border-radius: 5px 5px 0 0;
+.sp-card__top { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0.15rem 0.35rem; margin: 3.5px 3.5px 0; border-radius: 5px 5px 0 0;
   background: linear-gradient(180deg, color-mix(in srgb, var(--gem) 82%, white), var(--gem) 45%, var(--gem2)); color: var(--on); box-shadow: inset 0 -1.5px 0 rgb(0 0 0 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.45); }
 .sp-card__pts { font-size: 1.15rem; font-weight: 900; min-inline-size: 0.6rem; text-shadow: 0 1px 2px rgb(0 0 0 / 0.45); }
 .sp-t--w .sp-card__pts { text-shadow: 0 1px 0 #fff; }
@@ -124,10 +110,11 @@
 .sp-col__bonus { inline-size: 100%; max-inline-size: 2.2rem; padding: 0.15rem 0; border-radius: 3px 3px 8px 8px; font-weight: 900; font-size: 0.82rem; color: var(--on);
   background: linear-gradient(160deg, color-mix(in srgb, var(--gem) 65%, white), var(--gem) 55%, var(--gem2)); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.3), 0 2px 3px -1px #000; }
 .sp-t--o .sp-col__bonus { background: transparent; box-shadow: none; }
-.sp-col__tok { inline-size: 1.65rem; block-size: 1.65rem; display: grid; place-items: center; border-radius: 50%; border: 0; color: var(--on); font: inherit; font-size: 0.78rem; font-weight: 900;
-  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gem) 55%, white 45%), var(--gem) 55%, var(--gem2));
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--gem2) 70%, black), inset 0 0 0 3px rgb(255 255 255 / 0.18), 0 2px 3px #000; }
-.sp-col__tok--btn { cursor: pointer; outline: 2px solid #ffb3a8; outline-offset: 1px; }
+.sp-col__tok { inline-size: 1.9rem; block-size: 1.9rem; display: grid; place-items: center; border: 0; background: center / contain no-repeat; color: #fff; font: inherit; font-size: 0.8rem; font-weight: 900; text-shadow: 0 0 3px #000, 0 1px 2px #000; filter: drop-shadow(0 2px 2px #000); }
+.sp-t--w .sp-col__tok { background-image: url('./art/gem-diamond.webp'); } .sp-t--u .sp-col__tok { background-image: url('./art/gem-sapphire.webp'); }
+.sp-t--g .sp-col__tok { background-image: url('./art/gem-emerald.webp'); } .sp-t--r .sp-col__tok { background-image: url('./art/gem-ruby.webp'); }
+.sp-t--k .sp-col__tok { background-image: url('./art/gem-onyx.webp'); } .sp-t--o .sp-col__tok { background-image: url('./art/gem-gold.webp'); }
+.sp-col__tok--btn { cursor: pointer; outline: 2px solid #ffb3a8; outline-offset: 1px; border-radius: 50%; }
 .sp-col__tok--btn:focus-visible { outline: 3px solid #fff; }
 .sp-col__tok--btn.on { outline: 3px solid #ff7a6b; }
 .sp-pl__res { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
