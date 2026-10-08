@@ -4,15 +4,24 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import fwR from './art/fw-red.webp';
+import fwY from './art/fw-yellow.webp';
+import fwG from './art/fw-green.webp';
+import fwB from './art/fw-blue.webp';
+import fwW from './art/fw-white.webp';
+import fuse from './art/fuse.webp';
+import clue from './art/clue.webp';
 import { CARDS, COLORS, type Color, type HanabiView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
+// Art is cut from a generated sprite sheet (see DECISIONS.md).
+const BURST: Record<Color, string> = { r: fwR, y: fwY, g: fwG, b: fwB, w: fwW };
 export const COLOR_FA: Record<Color, string> = { r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی', w: 'سفید' };
 
 export function Firework({ c, n, size = 'md' }: { c: Color; n: number | null; size?: 'sm' | 'md' }) {
   return (
     <span className={`hb-card hb-card--${size} hb-c--${c}`} aria-label={`${COLOR_FA[c]} ${n ? fa(n) : ''}`}>
-      <svg viewBox="-12 -12 24 24" aria-hidden="true">{Array.from({ length: 8 }, (_, i) => <path key={i} d="M0 -2 L0 -9" transform={`rotate(${i * 45})`} />)}<circle r="2.2" /></svg>
+      <img src={BURST[c]} alt="" aria-hidden="true" />
       {n !== null && <b>{fa(n)}</b>}
     </span>
   );
@@ -44,15 +53,15 @@ export default function HanabiRenderer({ view, legalActions, mySeat, seatName, b
 
       <section className="hb__sky" aria-label="آتش‌بازی‌ها">
         <div className="hb__tokens">
-          <span className="hb__clues" aria-label={`${fa(view.clues)} ژتون سرنخ`}>{Array.from({ length: 8 }, (_, i) => <i key={i} className={i < view.clues ? 'on' : ''} />)}</span>
-          <span className="hb__fuses" aria-label={`${fa(view.fuses)} فیوز`}>{Array.from({ length: 3 }, (_, i) => <i key={i} className={i < view.fuses ? 'on' : ''} />)}</span>
+          <span className="hb__clues" aria-label={`${fa(view.clues)} ژتون سرنخ`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
+          <span className="hb__fuses" aria-label={`${fa(view.fuses)} فیوز`}>{Array.from({ length: 3 }, (_, i) => <img key={i} src={fuse} alt="" className={i < view.fuses ? 'on' : ''} />)}</span>
           <span>دسته: {fa(view.deckCount)}</span>
           <span className="hb__score">امتیاز {fa(view.score)} از ۲۵</span>
         </div>
         <div className="hb__stacks">
           {COLORS.map((c) => (
             <span key={c} className={`hb-stack hb-c--${c} ${view.stacks[c] ? 'hb-stack--lit' : ''}`}>
-              <span className="hb-stack__burst" key={view.stacks[c]} />
+              <img className="hb-stack__burst" key={view.stacks[c]} src={BURST[c]} alt="" aria-hidden="true" />
               <b>{view.stacks[c] ? fa(view.stacks[c]) : '–'}</b>
               <small>{COLOR_FA[c]}</small>
             </span>
