@@ -480,3 +480,9 @@ backward captures / flying kings / longest capture, win, blocked, repetition, dr
 tutorial, 30 random games in both variants with replay); API 3 (`apps/api/test/checkers.test.ts`); catalog test
 updated; E2E `e2e/checkers.spec.ts` — full game through the board and the tutorial at 360 and 1440
 (`docs/evidence/checkers/`).
+## «اتللو» Othello (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/othello` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/othello.test.ts`: start, eight-direction flips, auto pass, end with empties to the
+winner, draw, resign/timeout, view, tutorial, 40 random games with replay); API 3 (`apps/api/test/othello.test.ts`);
+catalog test updated; E2E `e2e/othello.spec.ts` — full game and tutorial at 360 and 1440 (`docs/evidence/othello/`).

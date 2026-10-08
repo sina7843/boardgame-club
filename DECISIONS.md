@@ -469,3 +469,11 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: maple/walnut board in a dark frame with coordinates, lacquered red vs ivory discs, gold rings on movable
   pieces, dots on next squares (multi-jumps tapped square by square, sent as soon as the path is unique), the last
   move slides in, captured pieces fade, a crown pops on promotion; board seen from the viewer's side.
+## «اتللو» (Othello, 2026-10-08, owner list batch 1)
+
+- World Othello Federation rules: standard centre start, black first, outflanking in eight directions, automatic
+  pass when a player has no move, game over when neither can move; empty squares go to the winner; equal = draw.
+  Option firstMove (random / host plays black). A flag fall loses. Tutorial: one outflank, then a three-disc capture
+  that wipes out white.
+- Look: green baize with brass lines and star points, glossy discs that drop in; outflanked discs turn over in a
+  ripple from the new disc; legal squares dotted (ghost disc on hover); live disc counts with a black/white bar.

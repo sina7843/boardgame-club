@@ -53,6 +53,9 @@ importers:
       '@bg/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
+      '@bg/game-othello':
+        specifier: workspace:*
+        version: link:../../games/othello
       '@bg/play':
         specifier: workspace:*
         version: link:../../packages/play
@@ -144,6 +147,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-othello':
+        specifier: workspace:*
+        version: link:../../games/othello
       '@bg/game-risk':
         specifier: workspace:*
         version: link:../../games/risk
@@ -361,6 +367,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/othello:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/risk:
     dependencies:
       '@bg/game-sdk':
@@ -514,6 +539,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-othello':
+        specifier: workspace:*
+        version: link:../../games/othello
       '@bg/game-risk':
         specifier: workspace:*
         version: link:../../games/risk
@@ -569,6 +597,9 @@ importers:
       '@bg/game-ludo':
         specifier: workspace:*
         version: link:../../games/ludo
+      '@bg/game-othello':
+        specifier: workspace:*
+        version: link:../../games/othello
       '@bg/game-risk':
         specifier: workspace:*
         version: link:../../games/risk
