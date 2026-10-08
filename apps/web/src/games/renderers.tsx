@@ -28,6 +28,7 @@ import CoupRenderer from '@bg/game-coup/renderer';
 import ForSaleRenderer from '@bg/game-for-sale/renderer';
 import HighSocietyRenderer from '@bg/game-high-society/renderer';
 import SushiGoRenderer from '@bg/game-sushi-go/renderer';
+import LostCitiesRenderer from '@bg/game-lost-cities/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -64,5 +65,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'coup@1.0.0': CoupRenderer as ComponentType<GameRendererProps<never>>,
   'for-sale@1.0.0': ForSaleRenderer as ComponentType<GameRendererProps<never>>,
   'high-society@1.0.0': HighSocietyRenderer as ComponentType<GameRendererProps<never>>,
-  'sushi-go@1.0.0': SushiGoRenderer as ComponentType<GameRendererProps<never>>
+  'sushi-go@1.0.0': SushiGoRenderer as ComponentType<GameRendererProps<never>>,
+  'lost-cities@1.0.0': LostCitiesRenderer as ComponentType<GameRendererProps<never>>
 };

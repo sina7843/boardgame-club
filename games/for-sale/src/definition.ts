@@ -9,7 +9,7 @@ export const forSale = defineGame({
     supportedModes: { pace: ['live', 'turn'], competition: ['friendly', 'ranked'] },
     playerCounts: { min: 2, max: 6 },
     options: [],
-    capabilities: ['hidden-information', 'seeded-rng'],
+    capabilities: ['hidden-information', 'simultaneous-actions', 'seeded-rng'],
     clientBundleRef: 'for-sale@1.0.0',
     assetsRef: 'for-sale/1'
   },

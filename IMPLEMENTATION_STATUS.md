@@ -588,3 +588,10 @@ New module `games/sushi-go` registered in engine, catalog and web. Checks run: e
 chopsticks and wasabi, three rounds/timeouts/resign, tutorial, 25 random 2–5 player games with card conservation and
 replay); API 3 (`apps/api/test/sushi-go.test.ts`); catalog test updated; E2E `e2e/sushi-go.spec.ts` — tutorial and a
 full three-player game at 360 and 1440 (`docs/evidence/sushi-go/`).
+## «کاوشگران» Lost Cities (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/lost-cities` registered in engine, catalog and web. Checks run: engine 6
+(`packages/game-engine/test/lost-cities.test.ts`: expedition scoring, place/draw order, ascending and wager rules, no
+redraw of a fresh discard, privacy, round end/three rounds/timeouts/resign, tutorial, 20 random games with 60-card
+conservation and replay); API 3 (`apps/api/test/lost-cities.test.ts`); catalog test updated; E2E
+`e2e/lost-cities.spec.ts` — tutorial and a full one-round game at 360 and 1440 (`docs/evidence/lost-cities/`).

@@ -9,7 +9,7 @@ export const sushiGo = defineGame({
     supportedModes: { pace: ['live', 'turn'], competition: ['friendly', 'ranked'] },
     playerCounts: { min: 2, max: 5 },
     options: [],
-    capabilities: ['hidden-information', 'seeded-rng'],
+    capabilities: ['hidden-information', 'simultaneous-actions', 'seeded-rng'],
     clientBundleRef: 'sushi-go@1.0.0',
     assetsRef: 'sushi-go/1'
   },

@@ -648,3 +648,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Polish passes (360/1440): (1) pudding counter uses a plate icon instead of an emoji; (2) the middle dot " · "
   next to Persian numerals reads like «۰» — replaced with «،» here and in «کودتا»، «بنگاه»، «اشرافی»; (3) the round
   line is hidden on the result screen.
+## «کاوشگران» (Lost Cities, 2026-10-08, owner list batch 4)
+
+- Classic two-player game: five colours (2–10 plus three wagers), hands of 8, place (expedition strictly ascending,
+  wagers only before numbers) or discard, then draw from the deck or a discard pile other than the one just used.
+  The round ends with the last deck card; expedition = (sum − 20) × (1 + wagers), +20 for 8+ cards. Three rounds
+  (option «یک دست»). The loser of a round starts the next (tie alternates) — the published rules differ between
+  editions; this is recorded as our choice. Hands/deck hidden. Timeout: discard the lowest card, draw from the deck.
+  Resign loses.
+- Look: explorer's map table; five colour columns (desert/sea/mountain/jungle/volcano glyphs) with the rival's
+  expedition above, parchment discard piles on the map, yours below, live per-expedition scores; striped wager cards;
+  pick a card then «روی سفر …» / «دور بینداز» (or tap the glowing pile), piles and deck glow in the draw phase.
+- Polish passes (360/1440): (1) stacked small cards show their value strip (top-aligned content, smaller overlap);
+  (2) the rival's stack cascades the same way and sits against the map, so every card's value stays readable.
+- `simultaneous-actions` capability declared for «سوشی گردان» and «بنگاه» (manifest is descriptive only).
