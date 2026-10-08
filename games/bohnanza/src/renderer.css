@@ -1,0 +1,78 @@
+/* لوبیاکاری: a market-garden table — tall seed-packet cards, furrowed soil plots, a burlap trade cloth. */
+.bn { --soil: #4a2f1c; display: grid; gap: 0.6rem; inline-size: 100%; color: #f6efdf; text-align: center; }
+.bn > :first-child { justify-self: center; }
+
+.bn-card { position: relative; line-height: 1.25; display: inline-grid; justify-items: center; align-content: start; gap: 0.15rem; border-radius: 8px; color: #2a1d10;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--seed) 32%, #fbf3df) 0 62%, #fbf3df 62%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--seed) 75%, black 25%), 0 3px 7px -3px #000; }
+.bn-card--md { inline-size: 4.4rem; block-size: 6rem; padding-block: 0.3rem; }
+.bn-card--sm { inline-size: 3rem; block-size: 3.9rem; padding-block: 0.3rem 0.2rem; }
+.bn-card__name { font-size: 0.66rem; font-weight: 900; }
+.bn-card--sm .bn-card__name { font-size: 0.52rem; }
+.bn-bean { inline-size: 70%; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.3)); }
+.bn-card__meter { display: flex; gap: 0.1rem; font-size: 0.55rem; font-weight: 800; margin-block-start: auto; }
+.bn-card__meter span { inline-size: 0.85rem; border-radius: 3px; background: rgb(0 0 0 / 0.08); }
+.bn-card__meter .is-on { background: #e8b931; }
+.bn-card__meter .is-off { opacity: 0.35; }
+.bn-card__count { position: absolute; inset-block-start: -0.45rem; inset-inline-end: -0.45rem; min-inline-size: 1.4rem; block-size: 1.4rem; display: grid; place-items: center;
+  border-radius: 50%; background: #2a1d10; color: #ffe1a0; font-size: 0.75rem; box-shadow: 0 0 0 2px #e8b931; animation: bn-bump 0.4s ease-out; }
+
+.bn__rivals { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.bn-rival { display: grid; gap: 0.3rem; padding: 0.4rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+.bn-rival--now { box-shadow: inset 0 0 0 2px #e8b931; }
+.bn-rival--win { background: rgb(232 185 49 / 0.2); }
+.bn-rival__head, .bn__me-head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.bn-rival__name { font-weight: 800; }
+.bn-rival__hand, .bn-rival__pending { color: #e3d6b8; font-size: 0.72rem; }
+.bn-coin { min-inline-size: 1.5rem; padding: 0 0.4rem; border-radius: 999px; font-weight: 900; color: #2a1d10;
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #e8b931 60%, #9a6c08); animation: bn-bump 0.45s ease-out; }
+.bn-coin--lg { font-size: 1rem; padding: 0.05rem 0.6rem; }
+
+.bn-fields { display: flex; gap: 0.5rem; justify-content: center; }
+.bn-field { display: grid; justify-items: center; gap: 0.3rem; padding: 0.45rem 0.4rem; border-radius: 10px;
+  background: repeating-linear-gradient(0deg, #5a3a22 0 6px, #4a2f1c 6px 12px); box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.5); }
+.bn-fields--mine .bn-field { min-inline-size: 6rem; padding-block-start: 0.75rem; }
+.bn-field--open { box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.5), 0 0 0 2px rgb(232 185 49 / 0.75); }
+.bn-field__acts { display: grid; gap: 0.25rem; justify-items: center; }
+.bn-plot { display: grid; place-items: center; border-radius: 8px; border: 1.5px dashed rgb(246 239 223 / 0.35); color: #e3d6b8; font-size: 0.65rem; }
+.bn-plot--md { inline-size: 4.4rem; block-size: 6rem; }
+.bn-plot--sm { inline-size: 3rem; block-size: 3.9rem; }
+
+.bn__market { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center; padding: 0.6rem; border-radius: 14px;
+  background: repeating-linear-gradient(45deg, #9a7a4c 0 3px, #8a6b40 3px 6px); box-shadow: inset 0 0 0 2px #6b4f2a, inset 0 0 20px rgb(0 0 0 / 0.35); }
+.bn-deck { display: grid; place-items: center; inline-size: 3.2rem; block-size: 4.2rem; border-radius: 8px; color: #ffe1a0;
+  background: repeating-linear-gradient(135deg, #3a5a2a 0 5px, #2f4a22 5px 10px); box-shadow: inset 0 0 0 2px #e8b931, 2px 3px 0 #2a1d10; }
+.bn-deck b { font-size: 1rem; }
+.bn-deck small { font-size: 0.6rem; }
+.bn__faceup { display: flex; gap: 0.4rem; min-block-size: 6rem; align-items: center; }
+.bn__cloth { color: #2a1d10; font-weight: 700; font-size: 0.75rem; }
+.bn__last { inline-size: 100%; color: #2a1d10; font-weight: 700; animation: bn-rise 0.35s ease-out both; }
+
+.bn-pick { padding: 0; border: 0; background: transparent; border-radius: 9px; color: inherit; font: inherit; line-height: 0; transition: transform 0.18s; }
+button.bn-pick { cursor: pointer; }
+button.bn-pick:hover { transform: translateY(-3px); }
+.bn-pick--on { box-shadow: 0 0 0 3px #ff9d6b; transform: translateY(-5px); }
+.bn-pick--first { box-shadow: 0 0 0 2px #e8b931; }
+.bn-flip { animation: bn-flip 0.45s ease-out both; }
+
+.bn__offer, .bn__slip { display: grid; gap: 0.4rem; padding: 0.55rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); animation: bn-rise 0.3s ease-out both; }
+.bn__slip { background: #fbf3df; color: #2a1d10; box-shadow: 0 6px 16px rgb(0 0 0 / 0.5); justify-self: center; min-inline-size: min(100%, 20rem); }
+.bn__slip p { margin: 0; font-weight: 800; }
+.bn__row { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; font-size: 0.78rem; }
+.bn__summary { margin: 0; font-size: 0.78rem; color: #f2e4c4; }
+.bn-chip { padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid #c9a46a; background: rgb(201 164 106 / 0.12); color: inherit; font: inherit; font-size: 0.72rem; cursor: pointer; }
+.bn-chip--on { background: #e8b931; color: #2a1d10; font-weight: 800; }
+.bn-chip--bean { border-color: var(--seed); box-shadow: inset 0.35rem 0 0 var(--seed); }
+.bn-link { border: 0; background: none; color: #ffe1a0; font: inherit; font-size: 0.72rem; text-decoration: underline; cursor: pointer; }
+.bn-link:disabled { opacity: 0.4; cursor: default; }
+
+.bn__me { display: grid; gap: 0.5rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(201 164 106 / 0.4); }
+.bn__hand { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
+.bn__pending { padding: 0.35rem; border-radius: 10px; background: rgb(255 157 107 / 0.15); }
+.bn-hint { animation: bn-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@keyframes bn-bump { 40% { transform: scale(1.3); } }
+@keyframes bn-rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes bn-flip { from { transform: rotateY(90deg); opacity: 0; } }
+@keyframes bn-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .bn * { animation: none !important; transition: none !important; } }

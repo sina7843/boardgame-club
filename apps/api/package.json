@@ -58,7 +58,8 @@
     "@bg/game-machi-koro": "workspace:*",
     "@bg/game-king-of-tokyo": "workspace:*",
     "@bg/game-citadels": "workspace:*",
-    "@bg/game-carcassonne": "workspace:*"
+    "@bg/game-carcassonne": "workspace:*",
+    "@bg/game-bohnanza": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

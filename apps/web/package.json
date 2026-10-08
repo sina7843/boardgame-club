@@ -65,7 +65,8 @@
     "@bg/game-machi-koro": "workspace:*",
     "@bg/game-king-of-tokyo": "workspace:*",
     "@bg/game-citadels": "workspace:*",
-    "@bg/game-carcassonne": "workspace:*"
+    "@bg/game-carcassonne": "workspace:*",
+    "@bg/game-bohnanza": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

@@ -46,6 +46,7 @@ import MachiKoroCover from '@bg/game-machi-koro/cover';
 import KingOfTokyoCover from '@bg/game-king-of-tokyo/cover';
 import CitadelsCover from '@bg/game-citadels/cover';
 import CarcassonneCover from '@bg/game-carcassonne/cover';
+import BohnanzaCover from '@bg/game-bohnanza/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -95,7 +96,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   'machi-koro': MachiKoroCover,
   'king-of-tokyo': KingOfTokyoCover,
   citadels: CitadelsCover,
-  carcassonne: CarcassonneCover
+  carcassonne: CarcassonneCover,
+  bohnanza: BohnanzaCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {

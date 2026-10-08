@@ -888,3 +888,17 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Look: wheat-field tiles drawn in SVG (sandstone cities with dashed terracotta walls, cream roads, red-roofed
   monasteries, blue pennants) on a dark oak, scrollable/zoomable map (LTR, module coordinates); legal spots glow, the
   chosen spot shows a live preview of the rotated tile and follower; the last tile is outlined in its owner's colour.
+
+## «لوبیاکاری» (Bohnanza, 2026-10-08, owner list batch 8)
+
+- 2–5 players (the 2-player count uses the same rules), the ten base bean types (150 cards, published counts and
+  beanometers; no cocoa/expansion beans). Five cards each; hand order is fixed and private. Turn: plant the first
+  card (must) and the second (may) into a field holding the same bean or empty; flip two; the active player makes
+  offers to one player at a time (face-up and/or hand cards given, bean types wanted; an empty want is a donation)
+  that the target accepts (first matching cards from hand) or declines; ending the trade gives the active player the
+  remaining face-up cards; everyone then plants what they received (any order, harvesting first if needed); the
+  active player draws three. Harvest any time with the single-bean protection rule; coin cards leave play. Third
+  field for 3 coins. Simplification: one pass through the deck (no reshuffles) — when the deck cannot supply a flip
+  or draw, all fields are harvested and the most coins win (ties share). Other players cannot start their own trades.
+- Look: market-garden table — tall seed-packet bean cards with beanometer strips (thresholds light up as a field
+  grows), furrowed soil plots, a burlap trade cloth with the deck, an offer builder and a paper offer slip.

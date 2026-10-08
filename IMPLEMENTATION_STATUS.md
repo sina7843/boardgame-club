@@ -731,3 +731,10 @@ New module `games/carcassonne` registered in engine, catalog and web. Checks run
 return, occupied roads, monastery/feature helpers, hidden stack, timeouts/resign, tutorial, 8 random 2–5 player games
 using every tile with follower conservation and replay); API 3 (`apps/api/test/carcassonne.test.ts`); catalog test
 updated; E2E `e2e/carcassonne.spec.ts` — tutorial and a full two-player game at 360 and 1440 (`docs/evidence/carcassonne/`).
+## «لوبیاکاری» Bohnanza (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/bohnanza` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/bohnanza.test.ts`: deck/beanometer, plant order and field types, harvest protection/
+third field, offers/accept/decline/settle, hidden hands, timeouts/resign, tutorial, 12 random 2–5 player games with
+card conservation and replay); API 3 (`apps/api/test/bohnanza.test.ts`); catalog test updated; E2E
+`e2e/bohnanza.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/bohnanza/`).
