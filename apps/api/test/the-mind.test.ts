@@ -22,7 +22,8 @@ describe('the mind through the platform', () => {
     expect(v.view.handCount).toEqual([1, 1, 1]);
     expect((await command(ctx, bySeat(2), t.tableId, v.revision, { type: 'play' })).json()).toMatchObject({ status: 'accepted' });
     const after = (await view(ctx, bySeat(0), t.tableId)).game.view;
-    expect(after.pile).toEqual([v.view.hand[0]]);
+    // Either the card is on the pile, or it ended level 1 (both other cards were lower and got discarded).
+    expect(after.pile.includes(v.view.hand[0]) || after.level === 2).toBe(true);
   });
 
   it('the interactive tutorial runs on the server to a team win', async () => {

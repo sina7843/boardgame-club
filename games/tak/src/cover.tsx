@@ -1,7 +1,7 @@
 // Catalog cover: a walnut Tak board with a birch road across, a black wall and a tall stack crowned by a capstone.
 export default function TakCover({ title }: { title: string }) {
   const S = 44;
-  const flat = (x: number, y: number, w: boolean, k = 0) => <rect x={x - 15} y={y - 4 - k * 5} width="30" height="9" rx="3" fill={w ? 'url(#takc-w)' : 'url(#takc-b)'} stroke={w ? '#a8916a' : '#000'} />;
+  const flat = (x: number, y: number, w: boolean, k = 0) => <rect key={`${x}-${y}-${k}`} x={x - 15} y={y - 4 - k * 5} width="30" height="9" rx="3" fill={w ? 'url(#takc-w)' : 'url(#takc-b)'} stroke={w ? '#a8916a' : '#000'} />;
   return (
     <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true })} style={{ inlineSize: '100%', blockSize: '100%', direction: 'ltr' }}>
       <defs>
