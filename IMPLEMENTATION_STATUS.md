@@ -754,3 +754,10 @@ Workshop/Remodel/Mine/Merchant/Market, Militia with parallel discards and Moat, 
 tutorial, 10 random 2–4 player games with conservation and replay); API 3 (`apps/api/test/dominion.test.ts`); catalog
 test updated; E2E `e2e/dominion.spec.ts` — tutorial and a full three-player game at 360 and 1440
 (`docs/evidence/dominion/`). Fixed during E2E: a parallel Militia discard by another player reset your selection.
+## «نبرد ستاره‌ها» Star Realms (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/star-realms` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/star-realms.test.ts`: setup, play/buy/explorer/attack/turn pass, allies/bases/outposts,
+scrap abilities and opponent discard, hidden hands/trade deck, timeouts/resign, tutorial, 12 random games with card
+conservation and replay); API 3 (`apps/api/test/star-realms.test.ts`); catalog test updated; E2E
+`e2e/star-realms.spec.ts` — tutorial and a full game at 360 and 1440 (`docs/evidence/star-realms/`).

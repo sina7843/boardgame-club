@@ -928,3 +928,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   (no fewer-turns tie-break). Hidden: hands, deck order and discard piles below the top card.
 - Look: royal ledger — parchment cards with a wax cost seal and a type band (gold treasure, green victory, red
   attack, blue reaction), supply piles on a crimson velvet board, the turn tally as pills.
+
+## «نبرد ستاره‌ها» (Star Realms, 2026-10-08, owner list batch 9)
+
+- Two players, 50 authority, 8 Scouts + 2 Vipers; first player draws 3. The 65-card trade deck is generated (original
+  Persian names; costs and effects modelled on the four factions of the base game, not a verified reproduction; "or"
+  choices folded into fixed effects; no base-destroy effects on ships). Explorers unlimited. Ally abilities fire
+  automatically once per card per turn when another card of the faction is in play (bases included); scrap abilities
+  are optional one-shots; Machine Cult scrap and Blob trade-row scrap are allowances; Star Empire discards are
+  resolved by the opponent at the start of their next turn. Bases re-apply their primary ability at the start of each
+  of their owner's turns; outposts must fall before other bases or the player. Authority ≤ 0 loses.
+- Look: starfield bridge — faction-framed glowing cards with a faction emblem, red/blue authority orbs, trade row
+  band, pooled trade/combat pills, fleet line of played ships.

@@ -1,0 +1,66 @@
+/* نبرد ستاره‌ها: a starfield bridge — deep navy space, faction-framed cards that glow when they can act. */
+.sr { --space: #070b1f; display: grid; gap: 0.55rem; inline-size: 100%; color: #e6ecff; text-align: center; padding: 0.4rem; border-radius: 16px;
+  background: radial-gradient(1px 1px at 12% 20%, #fff 50%, transparent), radial-gradient(1px 1px at 78% 35%, #cfe 50%, transparent), radial-gradient(1.5px 1.5px at 40% 80%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 90% 85%, #fff 50%, transparent), radial-gradient(circle at 30% 0%, #2a1f5a, transparent 60%), radial-gradient(circle at 80% 100%, #0f3a4f, transparent 60%), var(--space); }
+.sr > :first-child { justify-self: center; }
+.sr-f--fed { --f: #3aa0ff; } .sr-f--blob { --f: #5bd16a; } .sr-f--cult { --f: #ff5a4a; } .sr-f--emp { --f: #ffc93a; } .sr-f--none { --f: #9aa6c4; }
+
+.sr-card { position: relative; display: grid; align-content: start; justify-items: center; gap: 0.15rem; overflow: hidden; border-radius: 8px; line-height: 1.25; color: #e6ecff;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--f) 30%, #10183a), #0b1029 70%); box-shadow: inset 0 0 0 1.5px var(--f), 0 0 10px -2px color-mix(in srgb, var(--f) 60%, transparent); }
+.sr-card--md { inline-size: 5.2rem; min-block-size: 5.6rem; padding: 0.35rem 0.25rem; }
+.sr-card::after { content: var(--glyph); position: absolute; inset-block-end: -0.35rem; inset-inline-end: 0.1rem; font-size: 2.6rem; line-height: 1; color: var(--f); opacity: 0.16; pointer-events: none; }
+.sr-card--sm::after { font-size: 1.4rem; }
+.sr-f--fed { --glyph: "⬡"; } .sr-f--blob { --glyph: "◉"; } .sr-f--cult { --glyph: "⚙"; } .sr-f--emp { --glyph: "✦"; } .sr-f--none { --glyph: "◌"; }
+.sr-card--sm { inline-size: 4rem; min-block-size: 2.6rem; padding: 0.2rem; }
+.sr-card--base { border-radius: 14px 14px 8px 8px; }
+.sr-card__cost { position: absolute; inset-block-start: 0.2rem; inset-inline-end: 0.2rem; inline-size: 1.15rem; block-size: 1.15rem; display: grid; place-items: center; border-radius: 50%; background: #ffd75a; color: #2a1d10; font-size: 0.65rem; }
+.sr-card__name { font-size: 0.66rem; font-weight: 900; color: color-mix(in srgb, var(--f) 55%, white); padding-inline-end: 0.9rem; }
+.sr-card--sm .sr-card__name { font-size: 0.52rem; padding: 0; }
+.sr-card__fx { font-size: 0.66rem; font-weight: 800; }
+.sr-card--sm .sr-card__fx { font-size: 0.5rem; }
+.sr-card__ally, .sr-card__scrap { font-size: 0.52rem; padding: 0.05rem 0.25rem; border-radius: 4px; background: rgb(255 255 255 / 0.08); }
+.sr-card__scrap { color: #ffb3a8; }
+.sr-card__def { position: absolute; inset-block-end: 0.2rem; inset-inline-start: 0.2rem; min-inline-size: 1.2rem; padding-inline: 0.2rem; border-radius: 4px; font-style: normal; font-size: 0.62rem; font-weight: 900; background: #e6ecff; color: #0b1029; }
+.sr-card__def.is-outpost { background: #ff5a4a; color: #fff; box-shadow: 0 0 0 1.5px #fff; }
+
+.sr-side { display: grid; gap: 0.4rem; padding: 0.45rem; border-radius: 12px; background: rgb(255 255 255 / 0.04); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); transition: box-shadow 0.25s; }
+.sr-side--now { box-shadow: inset 0 0 0 1.5px #7fd0ff, 0 0 16px -6px #7fd0ff; }
+.sr-side__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.sr-side__head small { color: #a9b4d6; }
+.sr-side__name { font-weight: 800; }
+.sr-auth { min-inline-size: 2.4rem; padding: 0.05rem 0.55rem; border-radius: 999px; font-size: 1.1rem; background: linear-gradient(#ff7a6b, #a81e10); color: #fff; box-shadow: 0 0 12px rgb(255 90 74 / 0.5); animation: sr-hit 0.45s ease-out; }
+.sr-auth--me { background: linear-gradient(#5fc6ff, #1f5fae); box-shadow: 0 0 12px rgb(58 160 255 / 0.5); }
+.sr-bases, .sr-hand, .sr-fleet, .sr-row { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; align-items: flex-start; }
+.sr-row { padding: 0.45rem; border-radius: 12px; background: rgb(127 208 255 / 0.06); box-shadow: inset 0 0 0 1px rgb(127 208 255 / 0.25); }
+.sr-slot { display: grid; gap: 0.2rem; justify-items: center; }
+.sr-empty { inline-size: 5.2rem; min-block-size: 5.6rem; border-radius: 8px; border: 1px dashed rgb(255 255 255 / 0.2); }
+.sr-deckcount { font-size: 0.62rem; color: #a9b4d6; }
+.sr-pick { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 9px; line-height: 0; transition: transform 0.18s, filter 0.18s; }
+.sr-pick:disabled { cursor: default; }
+.sr-pick--can { cursor: pointer; filter: drop-shadow(0 0 6px rgb(127 208 255 / 0.55)); }
+.sr-pick--can:hover, .sr-pick--can:focus-visible { transform: translateY(-4px); }
+.sr-pick--atk { cursor: pointer; filter: drop-shadow(0 0 8px rgb(255 90 74 / 0.8)); }
+.sr-pick--drop { filter: drop-shadow(0 0 6px rgb(255 157 107 / 0.8)); }
+.sr-hand .sr-pick { animation: sr-warp 0.35s ease-out both; }
+.sr-fleet .sr-card { animation: sr-warp 0.3s ease-out both; }
+.sr-mini { padding: 0.15rem 0.45rem; border-radius: 999px; border: 1px solid #ffb3a8; background: rgb(255 90 74 / 0.12); color: #ffd7d0; font: inherit; font-size: 0.62rem; cursor: pointer; }
+.sr-mini:disabled { opacity: 0.4; cursor: default; }
+.sr-pool { display: flex; gap: 0.5rem; justify-content: center; font-size: 0.85rem; font-weight: 800; }
+.sr-pool span { padding: 0.15rem 0.7rem; border-radius: 999px; animation: sr-bump 0.4s ease-out; }
+.sr-pool__trade { background: #ffd75a; color: #2a1d10; }
+.sr-pool__combat { background: #ff5a4a; color: #fff; }
+.sr-scrap { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; padding: 0.4rem; border-radius: 10px; background: rgb(255 90 74 / 0.08); font-size: 0.75rem; }
+.sr-bar { display: flex; gap: 0.35rem; justify-content: center; }
+.sr-last { margin: 0; font-size: 0.75rem; color: #a9b4d6; animation: sr-warp 0.35s ease-out both; }
+.sr-hint { animation: sr-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@media (max-width: 480px) {
+  .sr-card--md, .sr-empty { inline-size: 4.2rem; min-block-size: 4.8rem; }
+  .sr-card__ally, .sr-card__scrap { font-size: 0.46rem; }
+  .sr-card__name { font-size: 0.56rem; }
+}
+@keyframes sr-hit { 30% { transform: scale(1.3); filter: brightness(1.6); } }
+@keyframes sr-bump { 40% { transform: scale(1.2); } }
+@keyframes sr-warp { from { opacity: 0; transform: translateY(8px) scale(0.92); filter: blur(2px); } }
+@keyframes sr-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .sr * { animation: none !important; transition: none !important; } }
