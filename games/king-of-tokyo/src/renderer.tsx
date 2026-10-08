@@ -5,21 +5,21 @@ import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { POWERS, type Face, type KotView } from './rules.ts';
+import { Bolt, DieGlyph, Monster, Skyline } from './art.tsx';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'خفاش غول', 'دایناسور'];
 const HUE = [350, 200, 30, 170, 280, 100];
-const FACE: Record<Face, string> = { '1': '۱', '2': '۲', '3': '۳', heart: '♥', bolt: 'ϟ', claw: '✶' };
 
 export function DieFace({ f }: { f: Face }) {
-  return <span className={`kt-die kt-f--${f}`} aria-label={f === 'heart' ? 'قلب' : f === 'bolt' ? 'انرژی' : f === 'claw' ? 'چنگ' : f}>{FACE[f]}</span>;
+  return <span className={`kt-die kt-f--${f}`} role="img" aria-label={f === 'heart' ? 'قلب' : f === 'bolt' ? 'انرژی' : f === 'claw' ? 'چنگ' : f}><DieGlyph f={f} /></span>;
 }
 
 export function PowerCard({ id }: { id: number }) {
   const p = POWERS[id]!;
   return (
     <span className={`kt-card ${p.effect.kind === 'keep' ? 'kt-card--keep' : ''}`}>
-      <b className="kt-card__cost">{fa(p.cost)}ϟ</b>
+      <b className="kt-card__cost">{fa(p.cost)}<Bolt /></b>
       <span className="kt-card__name">{p.nameFa}</span>
       <small>{p.textFa}</small>
     </span>
@@ -50,21 +50,23 @@ export default function KotRenderer({ view, legalActions, mySeat, seatName, busy
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="kt__arena" aria-label="شهر">
-        <span className="kt__skyline" aria-hidden="true" />
+        <Skyline />
         {view.tokyo !== null
-          ? <span className="kt__king" style={{ ['--h' as string]: HUE[view.tokyo % 6] }} key={view.tokyo}><b>{MONSTERS[view.tokyo % 6]}</b><bdi>{who(view.tokyo)}</bdi> در شهر</span>
+          ? <span className="kt__king" style={{ ['--h' as string]: HUE[view.tokyo % 6] }} key={view.tokyo}><span className="kt__burst" aria-hidden="true" /><Monster k={view.tokyo} className="kt-art--king" /><b>{MONSTERS[view.tokyo % 6]}</b><bdi>{who(view.tokyo)}</bdi> در شهر</span>
           : <span className="kt__empty">شهر خالی است</span>}
       </section>
 
       <ul className="kt__monsters" aria-label="غول‌ها">
         {view.hp.map((hp, k) => (
           <li key={k} className={['kt-mon', view.current === k && !view.outcome ? 'kt-mon--turn' : '', !view.alive[k] ? 'kt-mon--dead' : '', view.tokyo === k ? 'kt-mon--tokyo' : '', view.outcome?.placements[0]?.seat === k ? 'kt-mon--win' : ''].join(' ')} style={{ ['--h' as string]: HUE[k % 6] }}>
+            <div className="kt-mon__pic"><Monster k={k} /></div>
             <div className="kt-mon__head"><b>{MONSTERS[k % 6]}</b><bdi>{who(k)}</bdi></div>
-            <div className="kt-mon__bars">
-              <span className="kt-bar kt-bar--hp" aria-label={`${fa(hp)} جان`}><i style={{ inlineSize: `${(hp / view.maxHp[k]!) * 100}%` }} /><em>♥ {fa(hp)}</em></span>
-              <span className="kt-bar kt-bar--vp" aria-label={`${fa(view.vp[k]!)} امتیاز`}><i style={{ inlineSize: `${Math.min(100, (view.vp[k]! / 20) * 100)}%` }} /><em>★ {fa(view.vp[k]!)}</em></span>
+            <div className="kt-mon__stats">
+              <span className="kt-badge kt-badge--hp" aria-label={`${fa(hp)} جان`}><i aria-hidden="true">♥</i><em>{fa(hp)}</em></span>
+              <span className="kt-badge kt-badge--vp" aria-label={`${fa(view.vp[k]!)} امتیاز`}><i aria-hidden="true">★</i><em>{fa(view.vp[k]!)}</em></span>
+              <span className="kt-badge kt-badge--en" aria-label={`${fa(view.energy[k]!)} انرژی`}><Bolt /><em>{fa(view.energy[k]!)}</em></span>
             </div>
-            <span className="kt-mon__energy">ϟ {fa(view.energy[k]!)}</span>
+            <span className="kt-meter" aria-hidden="true"><i style={{ inlineSize: `${Math.max(0, Math.min(100, (hp / view.maxHp[k]!) * 100))}%` }} /></span>
             {view.kept[k]!.length > 0 && <div className="kt-mon__kept">{view.kept[k]!.map((id) => <small key={id}>{POWERS[id]!.nameFa}</small>)}</div>}
           </li>
         ))}
@@ -73,8 +75,8 @@ export default function KotRenderer({ view, legalActions, mySeat, seatName, busy
       {view.dice.length > 0 && (
         <section className="kt__dice" aria-label="تاس‌ها">
           {view.dice.map((f, i) => (myTurn && view.phase === 'roll' && view.rolls < 3
-            ? <button key={i} type="button" className={`kt-keep ${keep[i] ? 'kt-keep--on' : ''}`} aria-pressed={keep[i]} onClick={() => setKeep(keep.map((x, j) => (j === i ? !x : x)))}><DieFace f={f} /></button>
-            : <span key={i} className="kt-keep"><DieFace f={f} /></span>))}
+            ? <button key={i} type="button" style={{ ['--i' as string]: i }} className={`kt-keep ${keep[i] ? 'kt-keep--on' : ''}`} aria-pressed={keep[i]} onClick={() => setKeep(keep.map((x, j) => (j === i ? !x : x)))}><DieFace f={f} /></button>
+            : <span key={i} className="kt-keep" style={{ ['--i' as string]: i }}><DieFace f={f} /></span>))}
         </section>
       )}
 

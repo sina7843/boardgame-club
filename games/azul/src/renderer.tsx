@@ -2,18 +2,30 @@
 // board has a stepped set of pattern lines, the 5×5 wall with faint glazes for empty spots, and the floor with its
 // penalties. Tap a tile group, then the line (or floor) to put it on.
 import './renderer.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { TurnIndicator, type GameRendererProps } from '@bg/ui';
 import { FLOOR, wallColor, type AzulView, type Color } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const COLOR_FA: Record<Color, string> = { b: 'لاجوردی', y: 'زعفرانی', r: 'اناری', k: 'مشکی', w: 'فیروزه‌ای' };
 
+/* One illustrated motif per glaze so colour is never the only signal: lapis star, saffron sun, pomegranate flower,
+   black lozenges, turquoise mihrab arch. */
+const MOTIF: Record<Color, ReactNode> = {
+  b: <><path d="M-5 -5H5V5H-5Z M0 -7.2L7.2 0L0 7.2L-7.2 0Z" className="az-m az-m--fill" /><circle r="2.2" className="az-m az-m--dark" /><circle r="0.8" className="az-m az-m--fill" /></>,
+  y: <><circle r="3.1" className="az-m az-m--fill" /><circle r="1.4" className="az-m az-m--dark" /><path d="M0 -7.2V-4.8M0 4.8V7.2M-7.2 0H-4.8M4.8 0H7.2M-5.1 -5.1L-3.5 -3.5M5.1 -5.1L3.5 -3.5M-5.1 5.1L-3.5 3.5M5.1 5.1L3.5 3.5" className="az-m az-m--line" /></>,
+  r: <><circle cx="0" cy="-3.1" r="3" className="az-m az-m--fill" /><circle cx="0" cy="3.1" r="3" className="az-m az-m--fill" /><circle cx="-3.1" cy="0" r="3" className="az-m az-m--fill" /><circle cx="3.1" cy="0" r="3" className="az-m az-m--fill" /><circle r="1.7" className="az-m az-m--dark" /></>,
+  k: <><path d="M0 -7.4L7.4 0L0 7.4L-7.4 0Z" className="az-m az-m--line" /><path d="M0 -4.4L4.4 0L0 4.4L-4.4 0Z" className="az-m az-m--fill" /><path d="M0 -1.7L1.7 0L0 1.7L-1.7 0Z" className="az-m az-m--dark" /></>,
+  w: <><path d="M-5 7.3V-1Q-5 -6.5 0 -7.6Q5 -6.5 5 -1V7.3Z" className="az-m az-m--line" /><path d="M-2.3 5.3V-0.6Q-2.3 -3.6 0 -4.4Q2.3 -3.6 2.3 -0.6V5.3Z" className="az-m az-m--fill" /><circle cy="0.4" r="0.9" className="az-m az-m--dark" /></>,
+};
+
 export function Tile({ c, size = 'md', ghost, fresh }: { c: Color | 'first'; size?: 'sm' | 'md'; ghost?: boolean; fresh?: boolean }) {
   return (
     <span className={['az-tile', `az-tile--${size}`, `az-c--${c}`, ghost ? 'az-tile--ghost' : '', fresh ? 'az-tile--fresh' : ''].join(' ')} aria-hidden="true">
-      {c === 'first' ? <b>۱</b> : (
-        <svg viewBox="-10 -10 20 20"><path d="M0 -8 L2.3 -2.3 L8 0 L2.3 2.3 L0 8 L-2.3 2.3 L-8 0 L-2.3 -2.3 Z" className="az-tile__star" /><circle r="1.8" className="az-tile__dot" /></svg>
+      {c === 'first' ? (
+        <svg viewBox="-10 -10 20 20"><path d="M0 -7.5L2 -2.2L7.5 -2.2L3.2 1.2L4.8 6.8L0 3.5L-4.8 6.8L-3.2 1.2L-7.5 -2.2L-2 -2.2Z" className="az-m az-m--fill" /><text y="2.6" textAnchor="middle" className="az-first">۱</text></svg>
+      ) : (
+        <svg viewBox="-10 -10 20 20"><rect x="-8.2" y="-8.2" width="16.4" height="16.4" rx="1.6" className="az-frame" />{MOTIF[c]}</svg>
       )}
     </span>
   );

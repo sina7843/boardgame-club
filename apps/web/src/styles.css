@@ -227,6 +227,8 @@
     .pboards--strip .pboard--active { transform: translateY(-2px); }
     .pboards--strip .pboard__turn { display: none; }
     .statusbar__text { font-size: 0.95rem; }
+    /* Phones: the strip scrolls away instead of floating over the board; each renderer shows its own turn line. */
+    .statusbar { position: static; }
   }
   @media (max-width: 599px) {
     .gamebar { gap: 0.4rem; }

@@ -1,54 +1,81 @@
-/* غول‌های شهر: a neon city at night — skyline silhouette, monster panels in their own hue, chunky dice, comic cards. */
-.kt { --ink: #14102a; display: grid; gap: 0.65rem; inline-size: 100%; color: #f2eeff; text-align: center; }
+/* غول‌های شهر — comic-book kaiju city. Palette: night violet #120c2a / #2a1f5a, ink #14102a, acid yellow #ffd23f,
+   hot pink #ff3d7f, neon cyan #3fe0ff, cream #fff6d6. Signature: thick ink outlines, hard offset shadows, halftone dots. */
+.kt { --ink: #14102a; --dots: radial-gradient(rgb(255 255 255 / 0.1) 1.2px, transparent 1.6px) 0 0 / 7px 7px; display: grid; gap: 0.7rem; inline-size: 100%; padding: 0.4rem; border-radius: 14px; color: #f2eeff; text-align: center;
+  background: var(--dots), linear-gradient(180deg, #1c1442, #0e0824); }
 .kt > :first-child { justify-self: center; }
 .kt > .kt__monsters, .kt > .kt__market { justify-self: stretch; }
 
-.kt__arena { position: relative; display: grid; place-items: center; min-block-size: 5.2rem; border-radius: 16px; overflow: hidden;
-  background: linear-gradient(180deg, #2a1f5a, #120c2a); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12); }
-.kt__skyline { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: 45%; background: linear-gradient(90deg, #0c0820 0 6%, transparent 6% 9%, #0c0820 9% 16%, transparent 16% 18%, #0c0820 18% 30%, transparent 30% 33%, #0c0820 33% 41%, transparent 41% 44%, #0c0820 44% 60%, transparent 60% 63%, #0c0820 63% 75%, transparent 75% 77%, #0c0820 77% 90%, transparent 90% 92%, #0c0820 92%); opacity: 0.9; }
-.kt__king { position: relative; display: grid; gap: 0.1rem; padding: 0.4rem 1rem; border-radius: 12px; background: hsl(var(--h) 70% 45%); box-shadow: 0 0 22px hsl(var(--h) 90% 60%); font-size: 0.82rem; animation: kt-stomp 0.5s ease-out; }
-.kt__king b { font-size: 1.1rem; }
-.kt__empty { position: relative; color: #b9b0e0; }
+/* portraits share one ink language; the hue comes from each monster's --h */
+.kt-art { display: block; inline-size: 100%; block-size: 100%; stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; paint-order: stroke; overflow: visible; }
+.m-b { fill: hsl(var(--h) 68% 52%); } .m-d { fill: hsl(var(--h) 62% 30%); } .m-l { fill: hsl(var(--h) 80% 80%); }
+.m-w { fill: #fff; } .m-k { fill: var(--ink); } .m-glow { fill: #ffe45e; } .m-line { fill: none; }
+.kt-art .m-line { stroke-width: 2.2; }
+.kt-art .m-k, .kt-art .m-glow { stroke-width: 0; }
 
-.kt__monsters { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
-.kt-mon { display: grid; gap: 0.3rem; padding: 0.5rem; border-radius: 12px; background: linear-gradient(160deg, hsl(var(--h) 45% 25%), rgb(0 0 0 / 0.35)); border: 1px solid hsl(var(--h) 60% 50% / 0.5); }
-.kt-mon--turn { box-shadow: 0 0 0 2px hsl(var(--h) 90% 65%); }
-.kt-mon--tokyo { box-shadow: 0 0 16px hsl(var(--h) 90% 60%); }
-.kt-mon--dead { opacity: 0.35; filter: grayscale(1); }
-.kt-mon--win { box-shadow: 0 0 0 3px #ffd98a; }
-.kt-mon__head { display: flex; gap: 0.4rem; align-items: center; justify-content: center; font-size: 0.85rem; }
-.kt-mon__bars { display: grid; gap: 3px; }
-.kt-bar { position: relative; display: block; block-size: 1rem; border-radius: 999px; background: rgb(0 0 0 / 0.4); overflow: hidden; }
-.kt-bar i { position: absolute; inset-block: 0; inset-inline-start: 0; transition: inline-size 0.4s; }
-.kt-bar--hp i { background: linear-gradient(90deg, #ff4f6a, #ff8a9a); }
-.kt-bar--vp i { background: linear-gradient(90deg, #ffd23f, #ffe98a); }
-.kt-bar em { position: relative; font-style: normal; font-size: 0.68rem; font-weight: 900; color: #fff; text-shadow: 0 1px 2px #000; }
-.kt-mon__energy { font-weight: 900; color: #7fe0ff; font-size: 0.85rem; }
-.kt-mon__kept { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; }
-.kt-mon__kept small { padding: 0 0.35rem; border-radius: 6px; background: rgb(127 224 255 / 0.15); font-size: 0.62rem; }
+.kt__arena { position: relative; display: grid; place-items: center; min-block-size: 8.2rem; border-radius: 14px; overflow: hidden;
+  background: radial-gradient(70% 90% at 50% 100%, #5a2b8f, transparent 70%), linear-gradient(180deg, #2a1f5a, #120c2a); box-shadow: 0 0 0 3px var(--ink), 0 0 0 4px rgb(255 255 255 / 0.2), 4px 5px 0 4px #000; }
+.kt__skyline { position: absolute; inset-inline: 0; inset-block-end: 0; inline-size: 100%; block-size: 62%; }
+.kt-bolt { inline-size: 1.05rem; block-size: 1.05rem; flex: none; }
+.kt-badge--en .kt-bolt { color: #ffe45e; } .kt-card__cost .kt-bolt { inline-size: 0.85rem; block-size: 0.85rem; color: #ffe45e; }
+.kt__king { position: relative; display: grid; justify-items: center; gap: 0.1rem; padding: 0.3rem 1rem 0.4rem; font-size: 0.82rem; animation: kt-stomp 0.5s ease-out; text-shadow: 0 2px 0 var(--ink); }
+.kt__king b { font-size: 1.1rem; padding: 0 0.6rem; background: var(--ink); border-radius: 4px; transform: skewX(-8deg); box-shadow: 2px 2px 0 hsl(var(--h) 90% 60%); }
+.kt__king .kt-art--king { inline-size: 5rem; block-size: 5rem; filter: drop-shadow(0 4px 0 rgb(0 0 0 / 0.5)); position: relative; }
+.kt__burst { position: absolute; inset-inline-start: 50%; inset-block-start: 0.1rem; inline-size: 8rem; block-size: 8rem; translate: -50% 0; opacity: 0.85;
+  background: repeating-conic-gradient(hsl(var(--h) 95% 62%) 0 9deg, transparent 9deg 22deg); -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%); animation: kt-spin 14s linear infinite; }
+.kt__empty { position: relative; padding: 0.2rem 0.8rem; background: var(--ink); border-radius: 4px; color: #d8d0ff; font-weight: 800; transform: skewX(-8deg); }
 
-.kt__dice { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.kt-keep { padding: 0; border: 0; background: transparent; border-radius: 10px; line-height: 0; cursor: pointer; transition: transform 0.15s; }
-.kt-keep--on { transform: translateY(-6px); }
-.kt-keep--on .kt-die { box-shadow: 0 0 0 3px #ffd23f; }
-.kt-die { display: inline-grid; place-items: center; inline-size: 2.6rem; block-size: 2.6rem; border-radius: 9px; background: linear-gradient(160deg, #23194a, #110b26); box-shadow: inset 0 0 0 2px #6c5bd4; font-size: 1.35rem; font-weight: 900; line-height: 1; animation: kt-roll 0.4s ease-out; }
-.kt-f--heart { color: #ff5a7a; } .kt-f--bolt { color: #7fe0ff; } .kt-f--claw { color: #ffb23f; } .kt-f--1, .kt-f--2, .kt-f--3 { color: #fff; }
+.kt__monsters { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.kt-mon { position: relative; display: grid; grid-template-columns: 4.4rem 1fr; grid-template-areas: 'pic head' 'pic stats' 'meter meter' 'kept kept'; align-items: center; gap: 0.2rem 0.55rem; padding: 0.5rem; border-radius: 10px; text-align: start;
+  background: var(--dots), linear-gradient(160deg, hsl(var(--h) 50% 30%), hsl(var(--h) 45% 14%)); box-shadow: 0 0 0 3px var(--ink), 3px 4px 0 3px #000; }
+.kt-mon--turn { box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px hsl(var(--h) 95% 65%), 3px 4px 0 6px #000; }
+.kt-mon--tokyo::after { content: 'در شهر'; position: absolute; inset-block-start: -0.55rem; inset-inline-end: 0.6rem; padding: 0 0.5rem; font-size: 0.65rem; font-weight: 900; background: #ffd23f; color: var(--ink); border-radius: 3px; box-shadow: 0 0 0 2px var(--ink); transform: skewX(-8deg); }
+.kt-mon--dead { opacity: 0.4; filter: grayscale(1); }
+.kt-mon--win { box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px #ffd23f, 3px 4px 0 6px #000; }
+.kt-mon__pic { grid-area: pic; inline-size: 4.4rem; block-size: 4.4rem; border-radius: 50%; padding: 0.25rem; background: radial-gradient(circle at 50% 40%, hsl(var(--h) 90% 82%), hsl(var(--h) 70% 50%)); box-shadow: 0 0 0 3px var(--ink); overflow: hidden; }
+.kt-mon__head { grid-area: head; display: flex; flex-wrap: wrap; gap: 0.1rem 0.4rem; align-items: baseline; font-size: 0.85rem; }
+.kt-mon__head b { font-size: 1rem; text-shadow: 0 2px 0 var(--ink); }
+.kt-mon__head bdi { color: hsl(var(--h) 90% 85%); }
+.kt-mon__stats { grid-area: stats; display: flex; gap: 0.35rem; }
+.kt-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.15rem; min-inline-size: 2.6rem; padding: 0.1rem 0.45rem; border-radius: 999px 999px 999px 4px; font-weight: 900; color: var(--ink); box-shadow: 0 0 0 2px var(--ink), 2px 2px 0 2px #000; }
+.kt-badge i { font-style: normal; font-size: 0.85rem; line-height: 1; }
+.kt-badge em { font-style: normal; font-size: 0.95rem; line-height: 1.2; }
+.kt-badge--hp { background: linear-gradient(180deg, #ff8aa5, #ff3d65); } .kt-badge--vp { background: linear-gradient(180deg, #ffe97a, #ffc61a); } .kt-badge--en { background: linear-gradient(180deg, #a8f0ff, #3fc8ee); }
+.kt-meter { grid-area: meter; display: block; block-size: 0.5rem; border-radius: 999px; background: var(--ink); box-shadow: 0 0 0 2px var(--ink); overflow: hidden; }
+.kt-meter i { display: block; block-size: 100%; background: repeating-linear-gradient(135deg, #ff3d65 0 6px, #ff7d97 6px 12px); transition: inline-size 0.4s; }
+.kt-mon__kept { grid-area: kept; display: flex; flex-wrap: wrap; gap: 0.2rem; }
+.kt-mon__kept small { padding: 0 0.4rem; border-radius: 4px; background: #3fe0ff; color: var(--ink); font-weight: 800; font-size: 0.64rem; box-shadow: 0 0 0 1.5px var(--ink); }
+
+/* chunky dice: ivory cube, thick ink edge, hard drop shadow; each face carries an illustrated glyph */
+.kt__dice { display: flex; flex-wrap: wrap; gap: 0.55rem; justify-content: center; padding-block: 0.3rem; }
+.kt-keep { position: relative; padding: 0; border: 0; background: transparent; border-radius: 12px; line-height: 0; cursor: pointer; transition: transform 0.15s; }
+.kt-keep:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.kt-keep--on { transform: translateY(-8px) rotate(-3deg); }
+.kt-keep--on .kt-die { box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px #ffd23f, 3px 5px 0 6px #000; }
+.kt-die { display: inline-grid; place-items: center; inline-size: 2.9rem; block-size: 2.9rem; border-radius: 11px; background: linear-gradient(145deg, #fffdf2, #f1e3b0 70%, #d9c487); box-shadow: 0 0 0 3px var(--ink), inset 0 -3px 0 rgb(0 0 0 / 0.15), inset 0 2px 0 #fff, 3px 4px 0 3px #000; animation: kt-roll 0.45s calc(var(--i, 0) * 50ms) ease-out both; }
+.kt-glyph { inline-size: 78%; block-size: 78%; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; paint-order: stroke; overflow: visible; }
+.d-heart { fill: #ff3d65; } .d-bolt { fill: #ffd23f; } .d-claw { fill: none; stroke: #ff7a1a; stroke-width: 8; }
+.d-num { font: 900 40px sans-serif; fill: var(--ink); stroke: none; }
+.kt-f--claw { background: linear-gradient(145deg, #fff0d6, #f1c58a); }
+.kt-f--heart { background: linear-gradient(145deg, #fff0f3, #f6bfcb); } .kt-f--bolt { background: linear-gradient(145deg, #f0fdff, #b4ecf7); }
 
 .kt__bar { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
-.kt__market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; inline-size: min(100%, 32rem); justify-self: center !important; }
-.kt-buy { padding: 0; border: 0; background: transparent; border-radius: 10px; color: inherit; font: inherit; cursor: pointer; }
-.kt-buy:disabled { opacity: 0.5; cursor: default; }
-.kt-card { display: grid; gap: 0.15rem; justify-items: center; inline-size: 100%; min-block-size: 5.2rem; padding: 0.35rem 0.3rem; border-radius: 10px; color: var(--ink);
-  background: linear-gradient(170deg, #fff6d6, #ffe08a); box-shadow: inset 0 0 0 3px #14102a, 0 4px 8px -4px #000; }
-.kt-card--keep { background: linear-gradient(170deg, #e6f6ff, #9fdcff); }
-.kt-card__cost { padding: 0 0.4rem; border-radius: 999px; background: #14102a; color: #7fe0ff; font-size: 0.75rem; }
-.kt-card__name { font-size: 0.75rem; font-weight: 900; }
-.kt-card small { font-size: 0.6rem; line-height: 1.3; }
+.kt__market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; inline-size: min(100%, 32rem); justify-self: center !important; padding-block-start: 0.4rem; }
+.kt-buy { padding: 0; border: 0; background: transparent; border-radius: 10px; color: inherit; font: inherit; cursor: pointer; transition: transform 0.15s; }
+.kt-buy:not(:disabled):hover { transform: translateY(-3px) rotate(-1deg); }
+.kt-buy:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.kt-buy:disabled { opacity: 0.55; cursor: default; }
+.kt-card { position: relative; display: grid; gap: 0.15rem; justify-items: center; align-content: start; inline-size: 100%; min-block-size: 6rem; padding: 1.1rem 0.3rem 0.4rem; border-radius: 10px; color: var(--ink);
+  background: radial-gradient(rgb(0 0 0 / 0.08) 1px, transparent 1.4px) 0 0 / 6px 6px, linear-gradient(170deg, #fff6d6, #ffd75e); box-shadow: 0 0 0 3px var(--ink), 3px 4px 0 3px #000; }
+.kt-card--keep { background: radial-gradient(rgb(0 0 0 / 0.08) 1px, transparent 1.4px) 0 0 / 6px 6px, linear-gradient(170deg, #eaf9ff, #8fdcf5); }
+.kt-card__cost { position: absolute; inset-block-start: -0.45rem; inset-inline-start: -0.35rem; display: inline-flex; align-items: center; gap: 1px; padding: 0 0.45rem; border-radius: 999px; background: var(--ink); color: #3fe0ff; font-size: 0.8rem; box-shadow: 0 0 0 2px #3fe0ff; }
+.kt-card__cost i { font-style: normal; }
+.kt-card__name { font-size: 0.78rem; font-weight: 900; line-height: 1.25; }
+.kt-card small { font-size: 0.62rem; line-height: 1.3; font-weight: 600; }
 .kt-hint { animation: kt-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@keyframes kt-roll { 0% { transform: rotate(-180deg) scale(0.5); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes kt-roll { 0% { transform: rotate(-200deg) scale(0.4); opacity: 0; } 70% { transform: rotate(8deg) scale(1.08); } 100% { transform: none; opacity: 1; } }
 @keyframes kt-stomp { 0% { transform: translateY(-14px) scale(1.1); } 60% { transform: translateY(2px); } }
+@keyframes kt-spin { to { rotate: 360deg; } }
 @keyframes kt-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (min-width: 900px) { .kt { padding: 0.8rem; } .kt-die { inline-size: 3.3rem; block-size: 3.3rem; } }
 @media (prefers-reduced-motion: reduce) { .kt * { animation: none !important; transition: none !important; } }
-.kt-bar { display: flex; align-items: center; justify-content: center; block-size: 1.05rem; }
-.kt-bar em { line-height: 1; }
