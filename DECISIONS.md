@@ -916,3 +916,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   take the last card); the Great Library offers three random out-of-game tokens only to its builder.
 - Look: sandstone court with lapis wonder plates (gold when built), coloured effect bands on cards, age-specific card
   backs, a bronze conflict track with coin tokens and a sliding pawn, green progress discs.
+
+## «قلمرو» (Dominion, 2026-10-08, owner list batch 9)
+
+- 2–4 players with the base treasures/victory cards (no Curse pile, since no kingdom card gives curses) and the
+  "first game" kingdom: Cellar, Moat, Merchant, Village, Workshop, Militia, Remodel, Smithy, Market, Mine (10 each).
+  Province/Duchy/Estate piles 8 (2 players) or 12. Turn phases action → buy (playing treasures or buying ends the
+  action phase) → cleanup. Choices of Cellar/Workshop/Remodel/Mine travel with the play command. Militia: every other
+  player with more than 3 cards discards to 3 at the same time; Moat in hand reveals automatically. Merchant's +1
+  applies to the first Silver played. End after the turn in which Provinces or three piles run out; ties share
+  (no fewer-turns tie-break). Hidden: hands, deck order and discard piles below the top card.
+- Look: royal ledger — parchment cards with a wax cost seal and a type band (gold treasure, green victory, red
+  attack, blue reaction), supply piles on a crimson velvet board, the turn tally as pills.

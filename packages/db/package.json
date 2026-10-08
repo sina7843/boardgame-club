@@ -66,7 +66,8 @@
     "@bg/game-citadels": "workspace:*",
     "@bg/game-carcassonne": "workspace:*",
     "@bg/game-bohnanza": "workspace:*",
-    "@bg/game-wonders-duel": "workspace:*"
+    "@bg/game-wonders-duel": "workspace:*",
+    "@bg/game-dominion": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

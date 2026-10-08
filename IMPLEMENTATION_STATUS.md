@@ -746,3 +746,11 @@ reserves/choices/chains, military tokens and supremacy with a progress choice, h
 resign, tutorial, 30 random games with ≤7 wonders, score breakdown and replay); API 3 (`apps/api/test/wonders-duel.test.ts`);
 catalog test updated; E2E `e2e/wonders-duel.spec.ts` — tutorial and a full game from the draft at 360 and 1440
 (`docs/evidence/wonders-duel/`).
+## «قلمرو» Dominion (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/dominion` registered in engine, catalog and web. Checks run: engine 8
+(`packages/game-engine/test/dominion.test.ts`: setup/supply, action/buy/cleanup with card conservation, Cellar/
+Workshop/Remodel/Mine/Merchant/Market, Militia with parallel discards and Moat, hidden hands, timeouts/resign,
+tutorial, 10 random 2–4 player games with conservation and replay); API 3 (`apps/api/test/dominion.test.ts`); catalog
+test updated; E2E `e2e/dominion.spec.ts` — tutorial and a full three-player game at 360 and 1440
+(`docs/evidence/dominion/`). Fixed during E2E: a parallel Militia discard by another player reset your selection.

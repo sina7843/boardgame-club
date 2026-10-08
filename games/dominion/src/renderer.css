@@ -1,0 +1,65 @@
+/* قلمرو: a royal ledger — parchment cards with a wax cost seal and a band per type, laid out as supply piles. */
+.dm { display: grid; gap: 0.6rem; inline-size: 100%; color: #f6efdf; text-align: center; }
+.dm > :first-child { justify-self: center; }
+.dm-k--treasure { --band: #d9a520; } .dm-k--victory { --band: #3f9a4a; } .dm-k--action { --band: #b9a27a; }
+.dm-k--attack { --band: #c0392b; } .dm-k--reaction { --band: #2f6fd6; }
+
+.dm-card { position: relative; display: grid; grid-template-rows: auto auto 1fr; justify-items: center; overflow: hidden; border-radius: 7px; color: #2a1d10; line-height: 1.25;
+  background: linear-gradient(180deg, #fbf3df, #efe0bd); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--band) 75%, black 25%), 0 3px 6px -3px #000; }
+.dm-card--md { inline-size: 5.4rem; block-size: 7.2rem; }
+.dm-card--sm { inline-size: 3.4rem; block-size: 2.4rem; }
+.dm-card__cost { position: absolute; inset-block-start: 0.2rem; inset-inline-start: 0.2rem; inline-size: 1.3rem; block-size: 1.3rem; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a520 60%, #8a6408); font-size: 0.72rem; font-weight: 900; }
+.dm-card--sm .dm-card__cost { inline-size: 0.95rem; block-size: 0.95rem; font-size: 0.55rem; }
+.dm-card__name { align-self: stretch; justify-self: stretch; margin-block-start: 1.6rem; padding: 0.15rem 0.1rem; background: var(--band); color: #fff; font-size: 0.72rem; font-weight: 900; text-shadow: 0 1px 1px rgb(0 0 0 / 0.5); }
+.dm-card--sm .dm-card__name { margin-block-start: 1rem; font-size: 0.5rem; padding: 0.05rem; }
+.dm-card__text { padding: 0.25rem; font-size: 0.55rem; font-weight: 600; }
+.dm-card__count { position: absolute; inset-block-start: 0.2rem; inset-inline-end: 0.2rem; padding: 0 0.3rem; border-radius: 999px; background: #2a1d10; color: #ffe1a0; font-size: 0.6rem; font-style: normal; font-weight: 800; }
+
+.dm__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.dm-player { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; align-items: center; padding: 0.3rem 0.6rem; border-radius: 10px; background: rgb(0 0 0 / 0.25); font-size: 0.72rem; color: #e3d6b8; }
+.dm-player--now { box-shadow: inset 0 0 0 2px #e6b54a; }
+.dm-player--me { background: rgb(230 181 74 / 0.12); }
+.dm-player__name { font-weight: 800; color: #f6efdf; font-size: 0.8rem; }
+.dm-player__top { padding: 0 0.35rem; border-radius: 4px; background: #efe0bd; color: #2a1d10; }
+.dm-player__vp { color: #ffe1a0; }
+
+.dm__supply { display: grid; gap: 0.4rem; padding: 0.5rem; border-radius: 14px; background: linear-gradient(180deg, #5a1e1e, #3a1010); box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 24px rgb(0 0 0 / 0.45); }
+.dm__row { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.dm-pile { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 8px; line-height: 0; transition: transform 0.18s, opacity 0.2s; }
+.dm-pile:disabled { opacity: 0.55; cursor: default; }
+.dm-pile--can { cursor: pointer; box-shadow: 0 0 0 2px rgb(230 181 74 / 0.75); }
+.dm-pile--can:hover, .dm-pile--can:focus-visible { transform: translateY(-3px); }
+.dm-pile--on { box-shadow: 0 0 0 3px #ff9d6b; transform: translateY(-4px); }
+.dm-pile--empty { opacity: 0.25; }
+
+.dm__play { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; padding: 0.35rem; border-radius: 10px; background: rgb(0 0 0 / 0.2); }
+.dm__play .dm-card { animation: dm-play 0.35s ease-out both; }
+.dm__me { display: grid; gap: 0.45rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(201 164 106 / 0.4); }
+.dm__tally { margin: 0; display: flex; gap: 0.5rem; font-size: 0.8rem; }
+.dm__tally span { padding: 0.1rem 0.55rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); }
+.dm .dm-coins { background: #e6b54a; color: #2a1d10; font-weight: 900; animation: dm-bump 0.4s ease-out; }
+.dm__hand { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+.dm-hand { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 8px; line-height: 0; animation: dm-draw 0.35s ease-out both; transition: transform 0.18s; }
+.dm-hand:disabled { cursor: default; }
+.dm-hand--can { cursor: pointer; box-shadow: 0 0 0 2px rgb(230 181 74 / 0.75); }
+.dm-hand--can:hover { transform: translateY(-4px); }
+.dm-hand--on { box-shadow: 0 0 0 3px #ff9d6b; transform: translateY(-6px); }
+.dm__bar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.dm-hint { animation: dm-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+
+@media (max-width: 480px) {
+  .dm-card--md { inline-size: 3.9rem; block-size: 5.4rem; }
+  .dm__supply { padding: 0.35rem; }
+  .dm__row { gap: 0.25rem; }
+  .dm__row--base .dm-card--md { inline-size: 3.2rem; block-size: 3.6rem; }
+  .dm__row--base .dm-card__text { display: none; }
+  .dm__row--base .dm-card__name { font-size: 0.55rem; }
+  .dm-card__text { font-size: 0.44rem; padding: 0.1rem; }
+  .dm-card__name { font-size: 0.62rem; }
+}
+@keyframes dm-bump { 40% { transform: scale(1.25); } }
+@keyframes dm-draw { from { opacity: 0; transform: translateY(10px); } }
+@keyframes dm-play { from { opacity: 0; transform: scale(0.8); } }
+@keyframes dm-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .dm * { animation: none !important; transition: none !important; } }

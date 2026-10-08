@@ -77,6 +77,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-dominion':
+        specifier: workspace:*
+        version: link:../../games/dominion
       '@bg/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
@@ -273,6 +276,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-dominion':
+        specifier: workspace:*
+        version: link:../../games/dominion
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale
@@ -692,6 +698,25 @@ importers:
         version: 19.3.0
 
   games/coup:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
+  games/dominion:
     dependencies:
       '@bg/game-sdk':
         specifier: workspace:*
@@ -1435,6 +1460,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-dominion':
+        specifier: workspace:*
+        version: link:../../games/dominion
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale
@@ -1598,6 +1626,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-dominion':
+        specifier: workspace:*
+        version: link:../../games/dominion
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale

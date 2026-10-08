@@ -48,6 +48,7 @@ import CitadelsRenderer from '@bg/game-citadels/renderer';
 import CarcassonneRenderer from '@bg/game-carcassonne/renderer';
 import BohnanzaRenderer from '@bg/game-bohnanza/renderer';
 import WondersDuelRenderer from '@bg/game-wonders-duel/renderer';
+import DominionRenderer from '@bg/game-dominion/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -104,5 +105,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'citadels@1.0.0': CitadelsRenderer as ComponentType<GameRendererProps<never>>,
   'carcassonne@1.0.0': CarcassonneRenderer as ComponentType<GameRendererProps<never>>,
   'bohnanza@1.0.0': BohnanzaRenderer as ComponentType<GameRendererProps<never>>,
-  'wonders-duel@1.0.0': WondersDuelRenderer as ComponentType<GameRendererProps<never>>
+  'wonders-duel@1.0.0': WondersDuelRenderer as ComponentType<GameRendererProps<never>>,
+  'dominion@1.0.0': DominionRenderer as ComponentType<GameRendererProps<never>>
 };

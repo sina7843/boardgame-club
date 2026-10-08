@@ -48,6 +48,7 @@ import CitadelsCover from '@bg/game-citadels/cover';
 import CarcassonneCover from '@bg/game-carcassonne/cover';
 import BohnanzaCover from '@bg/game-bohnanza/cover';
 import WondersDuelCover from '@bg/game-wonders-duel/cover';
+import DominionCover from '@bg/game-dominion/cover';
 
 // Client-side registry of reviewed game renderers. Only covers for now; table renderers join in DRAGON-01.
 const COVERS: Record<string, ComponentType<{ title: string }>> = {
@@ -99,7 +100,8 @@ const COVERS: Record<string, ComponentType<{ title: string }>> = {
   citadels: CitadelsCover,
   carcassonne: CarcassonneCover,
   bohnanza: BohnanzaCover,
-  'wonders-duel': WondersDuelCover
+  'wonders-duel': WondersDuelCover,
+  dominion: DominionCover
 };
 
 export function GameCover({ gameId, title }: { gameId: string; title: string }) {
