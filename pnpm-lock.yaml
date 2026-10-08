@@ -65,6 +65,9 @@ importers:
       '@bg/game-quoridor':
         specifier: workspace:*
         version: link:../../games/quoridor
+      '@bg/game-santorini':
+        specifier: workspace:*
+        version: link:../../games/santorini
       '@bg/play':
         specifier: workspace:*
         version: link:../../packages/play
@@ -171,6 +174,9 @@ importers:
       '@bg/game-risk':
         specifier: workspace:*
         version: link:../../games/risk
+      '@bg/game-santorini':
+        specifier: workspace:*
+        version: link:../../games/santorini
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
@@ -480,6 +486,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/santorini:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/sealed-bids:
     dependencies:
       '@bg/game-sdk':
@@ -629,6 +654,9 @@ importers:
       '@bg/game-risk':
         specifier: workspace:*
         version: link:../../games/risk
+      '@bg/game-santorini':
+        specifier: workspace:*
+        version: link:../../games/santorini
       '@bg/game-sdk':
         specifier: workspace:*
         version: link:../game-sdk
@@ -696,6 +724,9 @@ importers:
       '@bg/game-risk':
         specifier: workspace:*
         version: link:../../games/risk
+      '@bg/game-santorini':
+        specifier: workspace:*
+        version: link:../../games/santorini
       '@bg/game-sdk':
         specifier: workspace:*
         version: link:../game-sdk

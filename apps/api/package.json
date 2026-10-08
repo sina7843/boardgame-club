@@ -28,7 +28,8 @@
     "@bg/game-othello": "workspace:*",
     "@bg/game-quoridor": "workspace:*",
     "@bg/game-onitama": "workspace:*",
-    "@bg/game-go": "workspace:*"
+    "@bg/game-go": "workspace:*",
+    "@bg/game-santorini": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

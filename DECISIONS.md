@@ -506,3 +506,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   a timeout during scoring accepts the current marking. No handicap stones in this version.
 - Look: kaya board with grain, ink lines, star points and coordinates; slate and shell stones that drop in; captured
   stones fade; last-move ring; ko square; territory squares and live score in the scoring phase; dead stones marked ×.
+## «سانتورینی» (Santorini, 2026-10-08, owner list batch 2)
+
+- Base game for two without god powers (stated in the rules text): setup placements, move (8 directions, up ≤ 1,
+  down any) then build next to the moved worker (vacated square allowed), domes on level 3, piece supply 22/18/14/18,
+  win by climbing onto level 3, lose when no whole turn exists. A turn is one action (from, to, build) composed on the
+  board; a winning climb needs no build. Timeouts play a random legal turn (a winning one if available); three lose.
+- Look: grassy island in an Aegean sea, whitewashed tiered towers with columns on level 3 and blue domes, level
+  badges, workers that slide and stand on the towers, dashed gold move targets and blue build targets, ghost worker
+  while choosing the build, new levels rise in.

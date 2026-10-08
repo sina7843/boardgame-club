@@ -16,6 +16,7 @@ import OthelloRenderer from '@bg/game-othello/renderer';
 import QuoridorRenderer from '@bg/game-quoridor/renderer';
 import OnitamaRenderer from '@bg/game-onitama/renderer';
 import GoRenderer from '@bg/game-go/renderer';
+import SantoriniRenderer from '@bg/game-santorini/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -40,5 +41,6 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'othello@1.0.0': OthelloRenderer as ComponentType<GameRendererProps<never>>,
   'quoridor@1.0.0': QuoridorRenderer as ComponentType<GameRendererProps<never>>,
   'onitama@1.0.0': OnitamaRenderer as ComponentType<GameRendererProps<never>>,
-  'go@1.0.0': GoRenderer as ComponentType<GameRendererProps<never>>
+  'go@1.0.0': GoRenderer as ComponentType<GameRendererProps<never>>,
+  'santorini@1.0.0': SantoriniRenderer as ComponentType<GameRendererProps<never>>
 };

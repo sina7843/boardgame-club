@@ -508,3 +508,10 @@ sizes/komi, captures and suicide, superko, area score with dead stones, scoring 
 view, tutorial, 15 random 9×9 games with liberty invariant and replay); API 3 (`apps/api/test/go.test.ts`); catalog
 test updated; E2E `e2e/go.spec.ts` — tutorial and a short game through pass/mark/accept at 360 and 1440
 (`docs/evidence/go/`). Polish: coordinate labels clear of edge stones.
+## «سانتورینی» Santorini (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/santorini` registered in engine, catalog and web. Checks run: engine 7
+(`packages/game-engine/test/santorini.test.ts`: setup order, move/build rules, domes and supply, climb win, stuck
+loss, timeouts/resign, view, tutorial, 30 random games with supply invariant and replay); API 3
+(`apps/api/test/santorini.test.ts`); catalog test updated; E2E `e2e/santorini.spec.ts` — tutorial and a full game at
+360 and 1440 (`docs/evidence/santorini/`). Polish: level badges, larger workers.
