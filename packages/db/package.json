@@ -43,7 +43,8 @@
     "@bg/game-six-nimmt": "workspace:*",
     "@bg/game-love-letter": "workspace:*",
     "@bg/game-skull": "workspace:*",
-    "@bg/game-coup": "workspace:*"
+    "@bg/game-coup": "workspace:*",
+    "@bg/game-for-sale": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.11"

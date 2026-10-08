@@ -606,3 +606,18 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   over the art; the court uses two columns at 360; (2) the empty event log is hidden and "resolved" lines are dropped;
   (3) hover lifts on action/response buttons replaced by glow — the lift made a button "unstable" under the pointer
   (e2e click stalled at 1440); (4) the court/hand no longer shrink to a narrow column on the result screen.
+## «بنگاه» (For Sale, 2026-10-08, owner list batch 4)
+
+- Official 3–6 players plus an unofficial 2-player game (10 property and 10 cheque cards removed; needed for the
+  2-seat tutorial). Properties 1–30, cheques 0,0,2–15 ×2; 3 players drop 6 of each, 4 players 2. Coins 18 (5–6: 14).
+  Buying: raise or pass in turn; passing takes the cheapest card and refunds half the bid rounded down; the last
+  bidder pays in full for the top card and starts the next round. Selling: simultaneous hidden picks, highest
+  property takes the highest cheque. Score = cheques + coins; tie → more coins, else shared place. Properties in hand
+  and won cheques are private until the end (counts and coins public). Timeouts pass / sell the cheapest property.
+  Resign ends the game with the resigner last (same convention as «گاو شش»).
+- Look: estate agent's desk; cream property cards with a building that grows by tier (reed hut → house → apartment
+  → tower → domed palace), banknote-green cheques (0 is a red «باطل»), cards deal in with a stagger, coin and bid
+  bumps, a −/+ bid stepper, pass button shows which card you'd get and what it costs.
+- Polish passes (360/1440): (1) SVG text clipped — card SVGs forced to LTR so text anchors are right; sell buttons
+  hug the cards; (2) result screen: player strip hidden, totals sorted by place with the winner framed and an
+  explicit "cheques + coins = total" line.

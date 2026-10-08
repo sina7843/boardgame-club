@@ -567,3 +567,10 @@ setup, income/foreign aid/block/tax, true and false challenges with redraw, assa
 coup, steal with block after a lost challenge, private exchange, hidden info, timeouts/resign, tutorial, 40 random
 2–6 player games with 15-card court conservation and replay); API 3 (`apps/api/test/coup.test.ts`); catalog test
 updated; E2E `e2e/coup.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/coup/`).
+## «بنگاه» For Sale (2026-10-08): DONE locally — real devices UNVERIFIED
+
+New module `games/for-sale` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/for-sale.test.ts`:
+setup by player count, auction raise/pass/half refund/last pays full, hidden simultaneous sale, scoring and tie,
+timeouts/resign, tutorial, 30 random 2–6 player games with card/coin invariants and replay); API 3
+(`apps/api/test/for-sale.test.ts`); catalog test updated; E2E `e2e/for-sale.spec.ts` — tutorial and a full
+three-player game at 360 and 1440 (`docs/evidence/for-sale/`).

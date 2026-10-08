@@ -59,6 +59,9 @@ importers:
       '@bg/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
+      '@bg/game-for-sale':
+        specifier: workspace:*
+        version: link:../../games/for-sale
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
@@ -183,6 +186,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-for-sale':
+        specifier: workspace:*
+        version: link:../../games/for-sale
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
@@ -858,6 +864,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-for-sale':
+        specifier: workspace:*
+        version: link:../../games/for-sale
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
@@ -952,6 +961,9 @@ importers:
       '@bg/game-coup':
         specifier: workspace:*
         version: link:../../games/coup
+      '@bg/game-for-sale':
+        specifier: workspace:*
+        version: link:../../games/for-sale
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
