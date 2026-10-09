@@ -13,12 +13,11 @@
 .ct-die { --die: #fbf5e4; --pip: #1b130b; display: inline-grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); place-items: center; inline-size: 34px; block-size: 34px; padding: 5px; border-radius: 9px;
   background: radial-gradient(circle at 30% 25%, #fff 0, var(--die) 45%, color-mix(in srgb, var(--die) 80%, #6b5a3a) 100%);
   box-shadow: inset 1.5px 1.5px 1px rgb(255 255 255 / 0.9), inset -2px -2px 2px rgb(0 0 0 / 0.28), 0 1px 0 rgb(0 0 0 / 0.25), 1px 4px 6px rgb(0 0 0 / 0.35);
-  animation: ct-roll 480ms cubic-bezier(0.22, 1.2, 0.36, 1); }
-.ct-die--red { --die: #d63a44; --pip: #fff; animation-delay: 60ms; }
+  }
+.ct-die--red { --die: #d63a44; --pip: #fff; }
 .ct-die i { inline-size: 6px; block-size: 6px; border-radius: 50%; }
 .ct-die .ct-die__pip { background: radial-gradient(circle at 35% 30%, #5b5148, var(--pip) 70%); box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.5), 0 0.5px 0 rgb(255 255 255 / 0.35); }
 .ct-die--red .ct-die__pip { background: radial-gradient(circle at 35% 30%, #fff, #f6dcd8 80%); box-shadow: inset 0 -1px 1px rgb(0 0 0 / 0.25); }
-@keyframes ct-roll { from { transform: rotate(-220deg) scale(0.5); opacity: 0.2; } }
 .ct-bank { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ct-mini { display: inline-flex; gap: 2px; align-items: center; font-variant-numeric: tabular-nums; }
 .ct-ico { display: block; inline-size: 1.5em; block-size: 1.5em; object-fit: contain; flex: none; }
@@ -75,8 +74,6 @@
 .ct-token text { font-size: 16px; font-weight: 900; fill: var(--ct-ink); text-anchor: middle; pointer-events: none; }
 .ct-token--hot text, .ct-token--hot .ct-pip { fill: var(--ct-hot); }
 .ct-pip { fill: var(--ct-ink); }
-.ct-robber__body { animation: ct-drop 420ms cubic-bezier(0.3, 1.4, 0.5, 1); }
-@keyframes ct-drop { from { transform: translateY(-18px); opacity: 0; } }
 /* Harbours: plank pier + painted dock + coin; coin rim takes the resource colour. */
 .ct-pier__under { stroke: #3b230f; stroke-width: 6; stroke-linecap: butt; }
 .ct-pier { stroke: #d9ae72; stroke-width: 3.6; stroke-dasharray: 4.5 1.5; }
@@ -95,12 +92,7 @@
 .ct-roof { fill: #000; fill-opacity: 0.16; pointer-events: none; }
 .ct-piece__n { font-size: 9px; font-weight: 900; fill: #fff; stroke: rgb(0 0 0 / 0.55); stroke-width: 2px; paint-order: stroke; text-anchor: middle; pointer-events: none; }
 .ct-piece__n--dark { fill: var(--ct-ink); stroke: rgb(255 255 255 / 0.6); }
-.ct-bld { transform-box: fill-box; transform-origin: 50% 100%; animation: ct-pop 320ms cubic-bezier(0.3, 1.5, 0.5, 1); }
-@keyframes ct-pop { from { transform: scale(0.3); opacity: 0; } }
-.ct-plank { animation: ct-fade 300ms ease-out; }
-@keyframes ct-fade { from { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .ct-die, .ct-robber__body, .ct-bld, .ct-plank { animation: none; } }
-:root[data-motion='reduce'] .ct-die, :root[data-motion='reduce'] .ct-robber__body, :root[data-motion='reduce'] .ct-bld, :root[data-motion='reduce'] .ct-plank { animation: none; }
+
 
 /* Interactive targets */
 .ct-target { cursor: pointer; }
@@ -204,3 +196,4 @@
 .ct-token__disc { stroke: #8c7646; }
 .ct-token--hot .ct-token__ring { stroke: #b3261e; stroke-width: 1.1; }
 @media (prefers-reduced-motion: reduce) { .ct-buildbtn { transition: none; } .ct-buildbtn:hover { transform: none; } }
+.ct-card__n, .ct-player__vp strong { display: inline-block; }

@@ -93,7 +93,7 @@ const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0,
 /** CSS-drawn die face (3x3 pip grid). Decorative: the parent carries the label. */
 export function DieFace({ value, red }: { value: number; red?: boolean }) {
   return (
-    <span aria-hidden="true" className={red ? 'ct-die ct-die--red' : 'ct-die'}>
+    <span aria-hidden="true" className={red ? 'ct-die ct-die--red bg-roll' : 'ct-die bg-roll'} style={{ ['--i' as string]: red ? 1 : 0 }}>
       {Array.from({ length: 9 }, (_, k) => <i key={k} className={PIPS[value]?.includes(k) ? 'ct-die__pip' : ''} />)}
     </span>
   );

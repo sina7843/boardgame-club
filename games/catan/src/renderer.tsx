@@ -3,7 +3,7 @@
 // other players' hands and development cards are counts, never contents.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePop, type GameRendererProps } from '@bg/ui';
 import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
 import { BoardDefs, CARD_BACK, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import { COST, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
@@ -78,6 +78,8 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
     return hexCorners(h).map((p) => `${(c.x + (p.x - c.x) * k).toFixed(1)},${(c.y + (p.y - c.y) * k).toFixed(1)}`).join(' ');
   };
   const R = HEX_SIZE;
+  // Pieces placed by the latest change drop in (bg-land); everything else is static.
+  const fresh = useFresh([...view.roads.flatMap((o, i) => (o === null || o === undefined ? [] : [`e${i}`])), ...view.buildings.flatMap((b, i) => (b ? [`v${i}${b.city ? 'c' : 'h'}`] : []))]);
   return (
     <svg className="ct-board" viewBox="-320 -316 640 632" role="group" aria-label="نقشه جزیره کاتان" style={{ direction: 'ltr' }}>
       <BoardDefs />
@@ -128,7 +130,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
               </g>
             )}
             {view.robber === i && (
-              <g transform={`translate(${c.x + (h.number === null ? 0 : 26)}, ${c.y + 14})`} aria-hidden="true" pointerEvents="none"><RobberPawn /></g>
+              <g transform={`translate(${c.x + (h.number === null ? 0 : 26)}, ${c.y + 14})`} aria-hidden="true" pointerEvents="none"><g data-flip="robber"><RobberPawn /></g></g>
             )}
           </g>
         );
@@ -142,7 +144,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
           <g key={`e${i}`} className={['ct-edge', target ? 'ct-target' : '', is(t.sel, 'edge', i) ? 'ct-selected' : '', is(t.hint, 'edge', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'edge', id: i }, `${edgeLabel(view, i)}، ساخت جاده`) : { role: 'img', 'aria-label': `جاده ${SEAT_FA[owner!]}` })}>
             {owner !== null && (
-              <g className="ct-plank">
+              <g className={fresh.has(`e${i}`) ? 'ct-plank bg-land' : 'ct-plank'}>
                 <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__shadow" />
                 <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__edge" />
                 <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road" stroke={SEAT_COLOR[owner]} />
@@ -165,7 +167,7 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
             {...(target ? btn({ kind: 'vertex', id: i }, `${label}، ${bld ? 'تبدیل به شهر' : 'ساخت آبادی'}`) : { role: 'img', 'aria-label': label })}>
             {target && <circle r="16" className="ct-vertex__ring" />}
             {bld && (
-              <g className="ct-bld" key={bld.city ? 'city' : 'house'}>
+              <g className={fresh.has(`v${i}${bld.city ? 'c' : 'h'}`) ? 'ct-bld bg-land' : 'ct-bld'} key={bld.city ? 'city' : 'house'}>
                 <ellipse cx="1" cy="8.8" rx={bld.city ? 15 : 12} ry="3.1" className="ct-piece__shadow" />
                 {shape.map((d) => <path key={d} d={d} fill={SEAT_COLOR[bld.seat]} className="ct-piece" />)}
                 {shape.map((d) => <path key={`s${d}`} d={d} fill="url(#ctb-shine)" pointerEvents="none" />)}
@@ -181,6 +183,11 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
 }
 
 // ---------- small controls ----------
+
+/** A number that bumps when it changes (key remounts it so the animation replays). */
+function Pop({ v, text, className = '' }: { v: number; text: string; className?: string }) {
+  return <strong key={v} className={`${className} ${usePop(v)}`.trim()}>{text}</strong>;
+}
 
 function Stepper({ label, value, max, onChange }: { label: string; value: number; max: number; onChange: (n: number) => void }) {
   return (
@@ -264,6 +271,10 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName, view]);
 
+  // The robber glides between hexes; a bought development card flies in from the deck.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, latest?.seq ?? 0);
+
   const act = (a: Hint) => { if (!busy) { onAction(a); setSel(null); setMode(null); } };
 
   // Which targets the board offers right now.
@@ -313,7 +324,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
   const playType: Record<Dev, string | null> = { knight: 'playKnight', road: 'playRoadBuilding', plenty: 'playPlenty', monopoly: 'playMonopoly', vp: null };
 
   return (
-    <div className="ct">
+    <div className="ct" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       <div className="ct__meta">
@@ -324,7 +335,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
             <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
           </span>
         )}
-        <span className="ct-deck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
+        <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
         <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>
       </div>
 
@@ -340,7 +351,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
                 {turn && <span className="ct-badge">نوبت</span>}
                 {!view.active[s] && <span className="ct-badge ct-badge--out">کنار رفته</span>}
               </span>
-              <span className="ct-player__vp"><strong>{fa(s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0))}</strong> امتیاز</span>
+              <span className="ct-player__vp"><Pop v={s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0)} text={fa(s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0))} /> امتیاز</span>
               <span className="ct-player__counts">
                 {fa(view.handCounts[s] ?? 0)} کارت منبع · {fa(view.devCounts[s] ?? 0)} کارت توسعه · {fa(view.knights[s] ?? 0)} شوالیه · جاده {fa(view.roadLength[s] ?? 0)}
               </span>
@@ -452,7 +463,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
                   <li key={r} className={`ct-card ct-res--${r}${hand[r] === 0 ? ' ct-card--empty' : ''}`} aria-label={`${RES_FA[r]}: ${fa(hand[r])}`}>
                     <span aria-hidden="true" className="ct-card__icon"><ResIcon r={r} /></span>
                     <span className="ct-card__name">{RES_FA[r]}</span>
-                    <strong className="ct-card__n">{fa(hand[r])}</strong>
+                    <Pop v={hand[r]} text={fa(hand[r])} className="ct-card__n" />
                   </li>
                 ))}
               </ul>
@@ -464,7 +475,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
                       const t = playType[d];
                       const can = !!t && has(t);
                       return (
-                        <li key={d} className="ct-dev">
+                        <li key={d} className="ct-dev" data-flip={`dev-${d}`} data-flip-from="devdeck">
                           <img className="ct-dev__art" src={DEV_ART[d]} alt="" aria-hidden="true" draggable={false} />
                           <span><strong>{DEV_FA[d]}</strong> ×{fa(devCounts[d]!.n)}{devCounts[d]!.fresh ? ` (${fa(devCounts[d]!.fresh)} تازه)` : ''}</span>
                           <span className="ct-help">{DEV_HELP[d]}</span>
