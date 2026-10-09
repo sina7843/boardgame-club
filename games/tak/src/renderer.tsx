@@ -3,15 +3,25 @@
 // squares along one line — tap the current square again to drop another stone there; the move is sent when the
 // hand is empty.
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import bF from './art/b-F.webp';
+import bS from './art/b-S.webp';
+import bC from './art/b-C.webp';
+import wF from './art/w-F.webp';
+import wS from './art/w-S.webp';
+import wC from './art/w-C.webp';
+import texWalnut from './art/tex-walnut.webp';
 import { allMoves, step, type Color, type Dir, type Kind, type Stone, type TakView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 130, M = 36;
+// Stone and walnut art are cut from a generated sheet (see DECISIONS.md).
+const STONE: Record<Color, Record<Kind, string>> = { w: { F: wF, S: wS, C: wC }, b: { F: bF, S: bS, C: bC } };
 const KIND_FA: Record<Kind, string> = { F: 'سنگ تخت', S: 'دیوار', C: 'سرستون' };
 
 export default function TakRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<TakView>) {
+  const walnut = `${useId()}-walnut`;
   const n = view.size;
   const SIZE = n * S + 2 * M;
   const me = mySeat ?? 0;
@@ -92,9 +102,7 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
         <svg className="tak-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه تاک" style={{ direction: 'ltr' }}>
           <defs>
             <linearGradient id="tak-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#5b3a1e" /><stop offset="1" stopColor="#2b190c" /></linearGradient>
-            <linearGradient id="tak-sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8a5a33" /><stop offset="1" stopColor="#6b4223" /></linearGradient>
-            <linearGradient id="tak-w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbf1dc" /><stop offset="1" stopColor="#d9c39a" /></linearGradient>
-            <linearGradient id="tak-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4a4038" /><stop offset="1" stopColor="#15110d" /></linearGradient>
+            <pattern id={walnut} patternUnits="userSpaceOnUse" width="256" height="256"><image href={texWalnut} width="256" height="256" /></pattern>
             <filter id="tak-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity=".45" /></filter>
           </defs>
           <rect width={SIZE} height={SIZE} rx="20" fill="url(#tak-frame)" />
@@ -108,7 +116,7 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
                 className={['tak-sq', lit ? 'tak-sq--lit' : '', moveTargets.has(i) ? 'tak-sq--drop' : '', sel?.from === i ? 'tak-sq--sel' : '', road.has(i) ? 'tak-sq--road' : '', isHint ? 'tak-sq--hint' : '',
                   last && ((last.t === 'place' && last.at === i) || (last.t === 'move' && last.from === i)) ? 'tak-sq--last' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
-                <rect x={x - S / 2 + 5} y={y - S / 2 + 5} width={S - 10} height={S - 10} rx="10" fill="url(#tak-sq)" className="tak-sq__bg" />
+                <rect x={x - S / 2 + 5} y={y - S / 2 + 5} width={S - 10} height={S - 10} rx="10" fill={`url(#${walnut})`} className="tak-sq__bg" />
                 <StackShape x={x} y={y} stack={stack} lifted={sel?.from === i ? sel.lift : 0} />
                 {stack.length > 1 && <text x={x + S / 2 - 18} y={y + S / 2 - 14} className="tak-height">{fa(stack.length)}</text>}
               </g>
@@ -134,7 +142,7 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
           <span className="tak__kinds" role="group" aria-label="نوع سنگ">
             {(['F', 'S', 'C'] as Kind[]).map((k) => (
               <button key={k} type="button" aria-pressed={kind === k} disabled={k === 'C' ? !reserve.caps : !reserve.stones} onClick={() => setKind(k)}>
-                <span className={`tak-kind tak-kind--${k} tak-kind--${myColor}`} aria-hidden="true" />{KIND_FA[k]}
+                <img className="tak-kind" src={STONE[myColor][k]} alt="" aria-hidden="true" />{KIND_FA[k]}
               </button>
             ))}
           </span>
@@ -153,15 +161,12 @@ function StackShape({ x, y, stack, lifted }: { x: number; y: number; stack: Ston
     <g filter="url(#tak-shadow)" pointerEvents="none">
       {shown.map((st, k) => {
         const idx = base + k;
-        // Each layer is a square tile seen from above, lifted a little so the stack reads as a pile.
+        // Each layer sits a little higher so the stack reads as a pile.
         const up = k * 8 + (idx >= stack.length - lifted ? 18 : 0);
         const cy = y + 10 - up;
-        const fill = st.c === 'w' ? 'url(#tak-w)' : 'url(#tak-b)';
-        const edge = st.c === 'w' ? '#b49a6d' : '#000';
         const isTop = k === shown.length - 1;
-        if (isTop && st.t === 'S') return <g key={k}><rect x={x - 14} y={cy - 40} width="28" height="62" rx="5" fill={edge} transform={`rotate(-22 ${x} ${cy - 9})`} /><rect x={x - 14} y={cy - 46} width="28" height="62" rx="5" fill={fill} stroke={edge} strokeWidth="2" transform={`rotate(-22 ${x} ${cy - 15})`} /></g>;
-        if (isTop && st.t === 'C') return <g key={k}><circle cx={x} cy={cy - 2} r="30" fill={edge} /><circle cx={x} cy={cy - 8} r="30" fill={fill} stroke={edge} strokeWidth="2" /><circle cx={x - 9} cy={cy - 18} r="9" fill="#fff" opacity={st.c === 'w' ? 0.55 : 0.15} /></g>;
-        return <g key={k}><rect x={x - 36} y={cy - 30} width="72" height="66" rx="10" fill={edge} /><rect x={x - 36} y={cy - 36} width="72" height="66" rx="10" fill={fill} stroke={edge} strokeWidth="1.5" /></g>;
+        // Only the top stone shows its kind; everything beneath reads as a flat.
+        return <image key={k} href={STONE[st.c][isTop ? st.t : 'F']} x={x - 56} y={cy - 62} width="112" height="112" />;
       })}
     </g>
   );
