@@ -18,7 +18,6 @@
 .tm-card--lg { inline-size: 6.2rem; block-size: 8.6rem; font-size: 3rem; animation: tm-breathe 3.2s ease-in-out infinite; }
 .tm-card--md { inline-size: 3.6rem; block-size: 5rem; font-size: 1.6rem; }
 .tm-card--sm { inline-size: 2.6rem; block-size: 3.6rem; font-size: 1.05rem; opacity: 0.85; }
-.tm-card--fresh { animation: tm-land 0.5s cubic-bezier(.2,.8,.3,1.3) both, tm-breathe 3.2s ease-in-out 0.5s infinite; }
 .tm__note { margin: 0; padding: 0.4rem 0.9rem; border-radius: 12px; font-size: 0.88rem; animation: tm-drop 0.35s ease-out both; }
 .tm__note--mistake { background: rgb(255 80 110 / 0.18); border: 1px solid rgb(255 107 138 / 0.5); }
 .tm__note--star { background: rgb(159 179 255 / 0.16); border: 1px solid rgb(159 179 255 / 0.45); }
@@ -47,7 +46,6 @@
 .tm-hint { animation: tm-pulse 1s ease-in-out infinite; }
 
 @keyframes tm-breathe { 50% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.45), 0 0 34px -4px hsl(var(--h) 85% 60%); } }
-@keyframes tm-land { from { opacity: 0; transform: translateY(26px) scale(0.85); } }
 @keyframes tm-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes tm-oops { 20% { background-color: rgb(255 60 90 / 0.18); } }
 @keyframes tm-pulse { 50% { box-shadow: 0 0 0 6px rgb(255 210 122 / 0.6); } }
