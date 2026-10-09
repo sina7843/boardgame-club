@@ -27,7 +27,7 @@
 .ck-coord text { font: 700 18px/1 var(--font, sans-serif); fill: #e3cfa4; text-anchor: middle; opacity: 0.8; }
 .ck-ring { fill: none; stroke: #ffd27a; stroke-width: 4px; filter: drop-shadow(0 0 6px rgb(255 210 122 / 0.8)); animation: ck-pulse 1.2s ease-in-out infinite; }
 .ck-ring--sel { stroke: #fff3c4; stroke-width: 6px; animation: none; }
-.ck-pc--moved { animation: ck-slide 0.42s cubic-bezier(.3, .9, .3, 1.05) both; }
+.ck-pc--moved { animation: ck-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .ck-pc--crowned .ck-crown { transform-box: fill-box; transform-origin: center; animation: ck-crown 0.6s 0.35s cubic-bezier(.2, 1.5, .4, 1) both; }
 .ck-ghost { animation: ck-ghost 0.6s 0.2s ease-in forwards; }
 

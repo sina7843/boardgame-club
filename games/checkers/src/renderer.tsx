@@ -2,7 +2,7 @@
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
 import { useEffect, useId, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFresh, usePop, type GameRendererProps } from '@bg/ui';
 import manD from './art/man-d.webp';
 import kingD from './art/king-d.webp';
 import manL from './art/man-l.webp';
@@ -17,6 +17,16 @@ const S = 100, M = 34, SIZE = 8 * S + 2 * M;
 const PIECE: Record<Piece, string> = { d: manD, D: kingD, l: manL, L: kingL };
 const FILES = 'abcdefgh';
 const name = (i: number) => `${FILES[colOf(i)]}${rowOf(i) + 1}`;
+
+// Captured-count readout: the number bumps and each new captured disc lands.
+function Caps({ n, color }: { n: number; color: Color }) {
+  const fresh = useFresh(Array.from({ length: n }, (_, k) => String(k)));
+  return <>{Array.from({ length: n }, (_, k) => <i key={k} className={`ck-cap ck-cap--${color}${fresh.has(String(k)) ? ' bg-land' : ''}`} />)}</>;
+}
+function Stat({ n, children }: { n: number; children: React.ReactNode }) {
+  const pop = usePop(n);
+  return <span key={n} className={`ck-side__stat ${pop}`}>{children}</span>;
+}
 
 export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CheckersView>) {
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
@@ -83,9 +93,9 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
             <span className={`ck-side__chip ck-side__chip--${c}`} aria-hidden="true" />
             <bdi className="ck-side__name">{who(c)}</bdi>
-            <span className="ck-side__stat">{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? ` · ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</span>
+            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? ` · ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</Stat>
             <span className="ck-side__caps" aria-label={`${fa(captured[c === 'd' ? 'l' : 'd'])} مهره زده`}>
-              {Array.from({ length: captured[c === 'd' ? 'l' : 'd'] }, (_, k) => <i key={k} className={`ck-cap ck-cap--${c === 'd' ? 'l' : 'd'}`} />)}
+              <Caps n={captured[c === 'd' ? 'l' : 'd']} color={c === 'd' ? 'l' : 'd'} />
             </span>
           </div>
         ))}
