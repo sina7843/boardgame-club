@@ -2,11 +2,11 @@
 // deep water; ships are drawn steel hulls with deck guns, hits burn, misses leave splash rings, sunk hulls darken
 // and list. Placement uses a fleet tray (pick a ship, rotate, tap a cell) with a local random layout to start from.
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import bdOcean from './art/bd-ocean.webp';
 import fxHit from './art/fx-hit.webp';
 import fxMiss from './art/fx-miss.webp';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { FLEET, SIZE, cellsOf, validFleet, type BsView, type Dir, type SeaView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -14,10 +14,14 @@ const ROWS = ['الف', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د'];
 const cellName = (c: number) => `${ROWS[Math.floor(c / SIZE)]}${fa((c % SIZE) + 1)}`;
 
 /** Painted shot marker centred on (x, y): fire burst for a hit, white splash for a miss. */
-export function Shot({ x, y, hit }: { x: number; y: number; hit: boolean }) {
-  return hit
-    ? <image href={fxHit} x={x - 5} y={y - 5} width="10" height="10" className="bs-fx bs-fx--hit" />
-    : <image href={fxMiss} x={x - 4.5} y={y - 2.1} width="9" height="4.2" className="bs-fx bs-fx--miss" />;
+export function Shot({ x, y, hit, fresh }: { x: number; y: number; hit: boolean; fresh?: boolean }) {
+  return (
+    <g className={fresh ? 'bg-land' : undefined}>
+      {hit
+        ? <image href={fxHit} x={x - 5} y={y - 5} width="10" height="10" className="bs-fx bs-fx--hit" />
+        : <image href={fxMiss} x={x - 4.5} y={y - 2.1} width="9" height="4.2" className="bs-fx bs-fx--miss" />}
+    </g>
+  );
 }
 
 /** A ship hull spanning its cells (10 units per cell), drawn horizontally and rotated when vertical. */
@@ -38,8 +42,8 @@ export function Hull({ s, sunk }: { s: Ship; sunk?: boolean }) {
   );
 }
 
-function Chart({ sea, mine, label, onCell, canCell, hint, draft, ghost }: {
-  sea: SeaView; mine: boolean; label: string; onCell?: (c: number) => void; canCell?: (c: number) => boolean; hint?: number | null;
+function Chart({ sea, mine, label, onCell, canCell, hint, draft, ghost, lastShot }: {
+  sea: SeaView; mine: boolean; lastShot?: BsView['last']; label: string; onCell?: (c: number) => void; canCell?: (c: number) => boolean; hint?: number | null;
   draft?: Ship[]; ghost?: { cells: number[]; ok: boolean } | null;
 }) {
   const shots = new Map(sea.shots.map((x) => [x.cell, x.hit]));
@@ -51,13 +55,17 @@ function Chart({ sea, mine, label, onCell, canCell, hint, draft, ghost }: {
         <span className="bs-corner" aria-hidden />
         {Array.from({ length: SIZE }, (_, i) => <span key={`c${i}`} className="bs-coord bs-coord--col" aria-hidden>{fa(i + 1)}</span>)}
         {Array.from({ length: SIZE }, (_, i) => <span key={`r${i}`} className="bs-coord bs-coord--row" style={{ gridRow: i + 2 }} aria-hidden>{ROWS[i]}</span>)}
-        <div className="bs-sea" style={{ gridRow: '2 / span 10', gridColumn: '2 / span 10' }}>
+        <div className={`bs-sea ${lastShot?.hit ? 'bg-hit' : ''}`} style={{ gridRow: '2 / span 10', gridColumn: '2 / span 10' }}>
           <svg viewBox="0 0 100 100" className="bs-sea__art" aria-hidden>
             <image href={bdOcean} width="100" height="100" preserveAspectRatio="xMidYMid slice" />
             {Array.from({ length: SIZE - 1 }, (_, i) => <g key={i}><path d={`M${(i + 1) * 10} 0 V100`} className="bs-grid" /><path d={`M0 ${(i + 1) * 10} H100`} className="bs-grid" /></g>)}
-            {ships.map((s) => <Hull key={s.ship} s={s} sunk={sea.sunk.includes(s.ship)} />)}
+            {ships.map((s) => (
+              <g key={s.ship} data-flip={draft ? `ship-${s.ship}` : undefined} className={lastShot?.sunk === s.ship ? (mine ? 'bg-pop' : 'bg-flip-in') : undefined}>
+                <Hull s={s} sunk={sea.sunk.includes(s.ship)} />
+              </g>
+            ))}
             {ghost && ghost.cells.map((c) => <rect key={c} x={(c % SIZE) * 10 + 0.8} y={Math.floor(c / SIZE) * 10 + 0.8} width="8.4" height="8.4" rx="1.5" className={`bs-ghost ${ghost.ok ? '' : 'is-bad'}`} />)}
-            {[...shots].map(([c, hit]) => <Shot key={c} x={(c % SIZE) * 10 + 5} y={Math.floor(c / SIZE) * 10 + 5} hit={hit} />)}
+            {[...shots].map(([c, hit]) => <Shot key={c} x={(c % SIZE) * 10 + 5} y={Math.floor(c / SIZE) * 10 + 5} hit={hit} fresh={lastShot?.cell === c} />)}
           </svg>
           <div className="bs-cells">
             {Array.from({ length: SIZE * SIZE }, (_, c) => {
@@ -97,6 +105,8 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
   const placing = legalActions.some((a) => a.type === 'place');
   const firing = legalActions.some((a) => a.type === 'fire');
   const [draft, setDraft] = useState<Ship[]>([]);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, `${view.seq}:${draft.map((s) => `${s.ship}${s.x}${s.y}${s.dir}`).join()}`);
   const [pick, setPick] = useState<number | null>(0);
   const [dir, setDir] = useState<Dir>('h');
   const [hover, setHover] = useState<number | null>(null);
@@ -118,6 +128,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
   const ghostShip = hover !== null ? trial(hover) : null;
   const ghost = placing && ghostShip ? { cells: (cellsOf(ghostShip) ?? []).filter((c) => c < SIZE * SIZE), ok: fits(ghostShip) } : null;
   const last = view.last;
+  const shotOn = (k: number) => (last && last.seat !== k ? last : null);
   const status = view.outcome ? null
     : placing ? { tone: 'mine' as const, text: draft.length < FLEET.length ? `ناوگان را بچینید: ${FLEET[pick ?? 0]!.name}` : 'ناوگان آماده است؛ چیدمان را تأیید کنید' }
       : view.phase === 'place' ? { tone: 'wait' as const, text: 'منتظر چیدمان حریف…' }
@@ -125,7 +136,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
           : { tone: 'wait' as const, text: `${seatName(view.current)} نشانه می‌گیرد…` };
 
   return (
-    <div className="bs" data-seq={view.seq} data-phase={view.phase}>
+    <div className="bs" data-seq={view.seq} data-phase={view.phase} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {last && view.phase === 'fire' && (
         <p className={`bs-report ${last.sunk !== null ? 'is-sunk' : last.hit ? 'is-hit' : 'is-miss'}`} key={view.seq} role="status">
@@ -135,11 +146,11 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
 
       <div className="bs-seas">
         {view.phase === 'fire' || view.outcome ? (
-          <Chart sea={view.seas[opp]!} mine={false} label={`دریای ${who(opp)}`} hint={hint?.type === 'fire' ? hint.cell ?? null : null}
+          <Chart sea={view.seas[opp]!} mine={false} lastShot={shotOn(opp)} label={`دریای ${who(opp)}`} hint={hint?.type === 'fire' ? hint.cell ?? null : null}
             onCell={firing && !busy ? (c) => onAction({ type: 'fire', cell: c }) : undefined} canCell={(c) => !view.seas[opp]!.shots.some((x) => x.cell === c)} />
         ) : null}
         <div onMouseLeave={() => setHover(null)} onMouseOver={placing ? (e) => { const c = (e.target as HTMLElement).closest('.bs-cell'); if (c?.parentElement) setHover([...c.parentElement.children].indexOf(c)); } : undefined}>
-          <Chart sea={placing ? { ...view.seas[me]!, afloat: draft.length } : view.seas[me]!} mine label={placing ? 'چیدمان ناوگان شما' : 'دریای شما'}
+          <Chart sea={placing ? { ...view.seas[me]!, afloat: draft.length } : view.seas[me]!} mine lastShot={shotOn(me)} label={placing ? 'چیدمان ناوگان شما' : 'دریای شما'}
             draft={placing ? draft : undefined} ghost={ghost}
             onCell={placing && !busy ? placeAt : undefined} />
         </div>
