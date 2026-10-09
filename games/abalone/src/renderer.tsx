@@ -2,7 +2,7 @@
 // Tap up to three of your marbles in a line; arrows appear for the legal directions; tap an arrow to move.
 import './renderer.css';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
 import marbleB from './art/marble-b.webp';
 import marbleW from './art/marble-w.webp';
 import { CELLS, DIRS, WIN, legalMoves, neighbor, type AbaloneView, type Color } from './rules.ts';
@@ -14,6 +14,15 @@ const marbleImg = (c: Color, x: number, y: number, cls?: string) => (
   <image className={cls} href={c === 'b' ? marbleB : marbleW} x={x - R * 0.86} y={y - R * 0.86} width={R * 1.72} height={R * 1.72} />
 );
 const DIR_FA = ['راست', 'بالا راست', 'بالا چپ', 'چپ', 'پایین چپ', 'پایین راست'];
+
+function Tray({ n, color }: { n: number; color: Color }) {
+  const pop = usePop(n);
+  return (
+    <span className="abl-side__tray" aria-label={`${fa(n)} گوی حریف بیرون انداخته`}>
+      {Array.from({ length: WIN }, (_, k) => <i key={k === n - 1 ? `${k}-${n}` : k} className={`${k < n ? `is-${color}` : ''}${k === n - 1 && pop ? ` ${pop}` : ''}`} />)}
+    </span>
+  );
+}
 
 export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<AbaloneView>) {
   const me = mySeat ?? 0;
@@ -73,9 +82,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
           <div key={c} className={['abl-side', view.turn === c && !view.outcome ? 'abl-side--turn' : ''].join(' ')}>
             <span className={`abl-side__m abl-side__m--${c}`} aria-hidden="true" />
             <bdi className="abl-side__name">{who(c)}</bdi>
-            <span className="abl-side__tray" aria-label={`${fa(view.off[c === 'b' ? 'w' : 'b'])} گوی حریف بیرون انداخته`}>
-              {Array.from({ length: WIN }, (_, k) => <i key={k} className={k < view.off[c === 'b' ? 'w' : 'b'] ? `is-${c === 'b' ? 'w' : 'b'}` : ''} />)}
-            </span>
+            <Tray n={view.off[c === 'b' ? 'w' : 'b']} color={c === 'b' ? 'w' : 'b'} />
           </div>
         ))}
       </div>
