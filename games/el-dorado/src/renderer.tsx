@@ -17,7 +17,7 @@ const hexPath = (x: number, y: number) => Array.from({ length: 6 }, (_, k) => { 
 
 export function EdCard({ t, size = 'md' }: { t: CardType; size?: 'sm' | 'md' }) {
   return (
-    <span className={`ed-card ed-card--${size} ed-s--${t.sym}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${SYM_FA[t.sym]}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
+    <span className={`ed-card ed-card--${size} ed-s--${t.sym} ed-a--${t.key}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${SYM_FA[t.sym]}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
       <b className="ed-card__pts">{t.pts ? fa(t.pts) : t.native ? '➜' : `+${fa(t.draw!)}`}</b>
       <span className="ed-card__name">{t.name}</span>
       {size === 'md' && <small>{t.pts ? SYM_FA[t.sym] : t.native ? 'یک خانه، بی‌هزینه' : t.trash ? 'کشیدن و حذف' : 'کشیدن کارت'}{t.once ? ' · یک‌بار' : ''}</small>}
