@@ -43,7 +43,6 @@ button.ll-card:hover, button.ll-card:focus-visible { transform: translateY(-8px)
 .ll-card--sel { transform: translateY(-12px); box-shadow: 0 0 0 3px #ffd27a, 0 12px 20px -8px rgb(0 0 0 / 0.6); }
 .ll-card--hint { animation: ll-pulse 1s ease-in-out infinite; }
 .ll__hand { display: flex; gap: 0.8rem; justify-content: center; align-items: flex-end; flex-wrap: wrap; padding-block: 0.8rem 0.4rem; }
-.ll__hand .ll-card { animation: ll-deal 0.4s ease-out both; }
 
 .ll__seen { margin: 0; padding: 0.45rem 0.8rem; border-radius: 12px; background: rgb(155 34 66 / 0.35); border: 1px dashed #e0475f; animation: ll-deal 0.4s ease-out both; }
 .ll__guess { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
@@ -55,4 +54,4 @@ button.ll-card:hover, button.ll-card:focus-visible { transform: translateY(-8px)
 @keyframes ll-deal { from { transform: translateY(-14px) rotate(-4deg); opacity: 0; } to { opacity: 1; } }
 @keyframes ll-pulse { 50% { box-shadow: 0 0 0 4px #ffd27a; } }
 @media (max-width: 480px) { .ll-card--md { inline-size: 6.8rem; block-size: 10rem; } }
-@media (prefers-reduced-motion: reduce) { .ll-card--hint, .ll__hand .ll-card, .ll__seen, .ll-guess--hint, .ll-target--hint { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ll-card--hint, .ll__seen, .ll-guess--hint, .ll-target--hint { animation: none; } }
