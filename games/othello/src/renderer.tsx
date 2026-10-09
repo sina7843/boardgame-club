@@ -1,16 +1,22 @@
 // اتللو renderer: a green baize board with brass lines (SVG, LTR geometry). One tap on a dotted square places a disc;
 // the outflanked discs turn over one after another, rippling out from the new disc.
 import './renderer.css';
-import { Fragment } from 'react';
+import { Fragment, useId } from 'react';
 import { TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import discB from './art/disc-b.webp';
+import discW from './art/disc-w.webp';
+import texBaize from './art/tex-baize.webp';
 import { flips, type Disc, type OthelloView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 100, M = 34, SIZE = 8 * S + 2 * M;
+// Disc and baize art are cut from a generated sheet (see DECISIONS.md).
+const DISC = { b: discB, w: discW };
 const FILES = 'abcdefgh';
 const name = (i: number) => `${FILES[i % 8]}${Math.floor(i / 8) + 1}`;
 
 export default function OthelloRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<OthelloView>) {
+  const felt = `${useId()}-felt`;
   const myDisc: Disc = mySeat === null ? 'b' : view.colors[mySeat]!;
   const legal = new Set(legalActions.filter((a) => a.type === 'place').map((a) => a.sq as number));
   const myTurn = legal.size > 0;
@@ -39,7 +45,7 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
       <div className="oth__score" role="group" aria-label={`سیاه ${fa(view.counts.b)}، سفید ${fa(view.counts.w)}`}>
         {(['b', 'w'] as Disc[]).map((d) => (
           <div key={d} className={['oth-side', `oth-side--${d}`, view.turn === d && !view.outcome ? 'oth-side--turn' : ''].join(' ')}>
-            <span className={`oth-side__disc oth-side__disc--${d}`} aria-hidden="true" />
+            <img className="oth-side__disc" src={DISC[d]} alt="" aria-hidden="true" />
             <bdi className="oth-side__name">{who(d)}</bdi>
             <strong key={view.counts[d]} className="oth-side__count">{fa(view.counts[d])}</strong>
           </div>
@@ -51,13 +57,11 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
         <svg className="oth-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه اتللو" style={{ direction: 'ltr' }}>
           <defs>
             <linearGradient id="oth-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b2a1a" /><stop offset="1" stopColor="#1d140b" /></linearGradient>
-            <radialGradient id="oth-felt" cx=".5" cy=".45" r=".75"><stop offset="0" stopColor="#2f8a5a" /><stop offset="1" stopColor="#14583a" /></radialGradient>
-            <radialGradient id="oth-b" cx=".35" cy=".3" r=".8"><stop offset="0" stopColor="#5c5f63" /><stop offset=".45" stopColor="#1d1f22" /><stop offset="1" stopColor="#060708" /></radialGradient>
-            <radialGradient id="oth-w" cx=".35" cy=".3" r=".8"><stop offset="0" stopColor="#ffffff" /><stop offset=".6" stopColor="#ecebe6" /><stop offset="1" stopColor="#b9b6ac" /></radialGradient>
+            <pattern id={felt} patternUnits="userSpaceOnUse" x={M} y={M} width="256" height="256"><image href={texBaize} width="256" height="256" /></pattern>
             <filter id="oth-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".55" /></filter>
           </defs>
           <rect width={SIZE} height={SIZE} rx="22" fill="url(#oth-frame)" />
-          <rect x={M} y={M} width={8 * S} height={8 * S} fill="url(#oth-felt)" />
+          <rect x={M} y={M} width={8 * S} height={8 * S} fill={`url(#${felt})`} />
           {Array.from({ length: 9 }, (_, k) => (
             <Fragment key={k}>
               <line x1={M + k * S} y1={M} x2={M + k * S} y2={M + 8 * S} className="oth-line" />
@@ -123,12 +127,6 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
 }
 
 function DiscShape({ x, y, d }: { x: number; y: number; d: Disc }) {
-  const r = 40;
-  return (
-    <g filter="url(#oth-shadow)">
-      <ellipse cx={x} cy={y + 6} rx={r} ry={r * 0.96} fill={d === 'b' ? '#000' : '#8f8b80'} />
-      <circle cx={x} cy={y} r={r} fill={d === 'b' ? 'url(#oth-b)' : 'url(#oth-w)'} stroke={d === 'b' ? '#000' : '#a19d92'} strokeWidth="1.5" />
-      <ellipse cx={x - r * 0.3} cy={y - r * 0.38} rx={r * 0.34} ry={r * 0.16} fill="#fff" opacity={d === 'b' ? 0.16 : 0.55} transform={`rotate(-28 ${x - r * 0.3} ${y - r * 0.38})`} />
-    </g>
-  );
+  const r = 44;
+  return <image href={DISC[d]} x={x - r} y={y - r} width={2 * r} height={2 * r} filter="url(#oth-shadow)" />;
 }
