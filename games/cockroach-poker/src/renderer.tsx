@@ -2,8 +2,8 @@
 // the path it has travelled; each player's face-up creatures are grouped with danger at three. Give: pick a card, a
 // player and a claim. Respond: «راست می‌گوید» / «دروغ می‌گوید», or look at it and pass it on with a new claim.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import cockroach from './art/cockroach.webp';
 import bat from './art/bat.webp';
 import fly from './art/fly.webp';
@@ -20,10 +20,10 @@ export const CREATURE_FA: Record<Creature, string> = { cockroach: 'سوسک', ba
 // Creature art is cut from a generated sprite sheet (see DECISIONS.md).
 const ART: Record<Creature, string> = { cockroach, bat, fly, toad, rat, scorpion, spider, stinkbug };
 
-export function CritterCard({ c, size = 'md', back }: { c?: Creature | null; size?: 'sm' | 'md' | 'lg'; back?: boolean }) {
-  if (back || !c) return <span className={`cr-card cr-card--${size} cr-card--back`} aria-label="کارت پشت‌ورو" />;
+export function CritterCard({ c, size = 'md', back, flip, flipFrom, cls = '' }: { c?: Creature | null; size?: 'sm' | 'md' | 'lg'; back?: boolean; flip?: string; flipFrom?: string; cls?: string }) {
+  if (back || !c) return <span className={`cr-card cr-card--${size} cr-card--back ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label="کارت پشت‌ورو" />;
   return (
-    <span className={`cr-card cr-card--${size} cr-c--${c}`} aria-label={CREATURE_FA[c]}>
+    <span className={`cr-card cr-card--${size} cr-c--${c} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={CREATURE_FA[c]}>
       <img src={ART[c]} alt="" aria-hidden="true" draggable={false} />
       {size !== 'sm' && <span className="cr-card__n">{CREATURE_FA[c]}</span>}
     </span>
@@ -51,21 +51,24 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
         : { tone: 'wait' as const, text: `نوبت ${who(ch ? ch.to : view.current)}` };
   const order = mySeat === null ? view.table.map((_, k) => k) : [...view.table.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const last = view.last;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const loser = view.outcome?.placements.find((x) => x.place === 2)?.seat;
 
   return (
-    <div className="cr" data-seq={view.seq}>
+    <div className="cr" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {ch && !view.outcome && (
-        <section className="cr__play" aria-label="کارت در جریان" key={`${view.seq}-${ch.to}`}>
-          <CritterCard c={ch.card} back={!ch.card} size="lg" />
+        <section className="cr__play" data-flip-anchor="play" aria-label="کارت در جریان">
+          <CritterCard c={ch.card} back={!ch.card} size="lg" flip={`play-${view.seq}`} flipFrom={`seat-${ch.from}`} cls={ch.card ? 'bg-flip-in' : ''} />
           <div className="cr__bubble"><bdi>{who(ch.from)}</bdi> به <bdi>{who(ch.to)}</bdi>: «این یک <b>{CREATURE_FA[ch.claim]}</b> است»</div>
           {ch.seen.length > 1 && <div className="cr__path">دیده‌اند: {ch.seen.map((k) => who(k)).join('، ')}</div>}
         </section>
       )}
       {last?.kind === 'call' && !ch && (
-        <p className="cr__last" role="status" key={view.seq}>
+        <p className="cr__last" data-flip-anchor="play" role="status" key={view.seq}>
+          <CritterCard c={last.card} size="sm" cls="bg-flip-in" />{' '}
           <bdi>{who(last.seat)}</bdi> گفت «{last.truth ? 'راست' : 'دروغ'}». کارت {CREATURE_FA[last.card]} بود ({last.card === last.claim ? 'راست' : 'بلوف'}) و جلوی <bdi>{who(last.taker)}</bdi> ماند.
         </p>
       )}
@@ -75,10 +78,10 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
           const groups = CREATURES.map((c) => ({ c, n: view.table[s]!.filter((x) => x === c).length })).filter((g) => g.n);
           const canTarget = targets.includes(s) && !busy;
           return (
-            <li key={s} className={['cr-pl', (ch ? ch.to : view.current) === s && !view.outcome ? 'cr-pl--turn' : '', s === mySeat ? 'cr-pl--me' : '', loser === s ? 'cr-pl--lost' : ''].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['cr-pl', last?.kind === 'call' && !ch && last.taker === s ? 'bg-hit' : '', (ch ? ch.to : view.current) === s && !view.outcome ? 'cr-pl--turn' : '', s === mySeat ? 'cr-pl--me' : '', loser === s ? 'cr-pl--lost' : ''].join(' ')}>
               <div className="cr-pl__head">
                 <bdi className="cr-pl__name">{who(s)}</bdi>
-                <span className="cr-pl__hand">{fa(view.handCount[s]!)} کارت</span>
+                <span className="cr-pl__hand bg-pop" key={view.handCount[s]}>{fa(view.handCount[s]!)} کارت</span>
                 {loser === s && <span className="cr-pl__out">باخت</span>}
                 {canTarget && (
                   <button type="button" className={['cr-target', to === s ? 'cr-target--on' : '', hint?.to === s && to !== s ? 'cr-hint' : ''].join(' ')} onClick={() => setTo(to === s ? null : s)} aria-pressed={to === s}>
@@ -87,7 +90,7 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
                 )}
               </div>
               <div className="cr-pl__table">
-                {groups.map((g) => <span key={g.c} className={`cr-stack ${g.n >= 3 ? 'cr-stack--danger' : ''}`}><CritterCard c={g.c} size="sm" /><b>×{fa(g.n)}</b></span>)}
+                {groups.map((g) => <span key={g.c} data-flip={`tb-${s}-${g.c}`} data-flip-from="play" className={`cr-stack ${g.n >= 3 ? 'cr-stack--danger' : ''}`}><CritterCard c={g.c} size="sm" /><b className="bg-pop" key={g.n}>×{fa(g.n)}</b></span>)}
                 {!groups.length && <span className="cr-empty">—</span>}
               </div>
             </li>
@@ -125,8 +128,8 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
               const n = view.hand!.filter((x) => x === c).length;
               if (!n) return null;
               return give
-                ? <button key={c} type="button" className={['cr-pick', card === c ? 'cr-pick--on' : '', hint?.card === c && card !== c ? 'cr-hint' : ''].join(' ')} aria-pressed={card === c} onClick={() => setCard(card === c ? null : c)}><CritterCard c={c} /><b>×{fa(n)}</b></button>
-                : <span key={c} className="cr-pick"><CritterCard c={c} /><b>×{fa(n)}</b></span>;
+                ? <button key={c} type="button" data-flip={`hand-${c}`} className={['cr-pick', card === c ? 'cr-pick--on' : '', hint?.card === c && card !== c ? 'cr-hint' : ''].join(' ')} aria-pressed={card === c} onClick={() => setCard(card === c ? null : c)}><CritterCard c={c} /><b>×{fa(n)}</b></button>
+                : <span key={c} data-flip={`hand-${c}`} className="cr-pick"><CritterCard c={c} /><b>×{fa(n)}</b></span>;
             })}
           </div>
         </section>
