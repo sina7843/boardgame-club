@@ -4,6 +4,9 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import luxuryArt from './art/luxury.webp';
+import prestigeArt from './art/prestige.webp';
+import disgraceArt from './art/disgrace.webp';
 import { isDisgrace, isRed, lux, status, type HighSocietyView, type StatusCard } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -11,6 +14,8 @@ const LUX = ['', 'گلاب‌پاش', 'کلاه', 'دستکش', 'عطر', 'شا�
 const SPECIAL: Record<string, { big: string; name: string }> = {
   prestige: { big: '×۲', name: 'افتخار' }, passe: { big: '−۵', name: 'از مد افتاده' }, scandal: { big: '½', name: 'رسوایی' }, faux: { big: '✕', name: 'گاف' }
 };
+// Painted art cut from a generated sheet (see DECISIONS.md), chosen by card type.
+const ART = { lux: luxuryArt, good: prestigeArt, bad: disgraceArt };
 const fmtStatus = (v: number) => (Number.isInteger(v) ? fa(v) : v.toLocaleString('fa-IR', { maximumFractionDigits: 2 }));
 
 export function Card({ c, size = 'md', fresh }: { c: StatusCard; size?: 'sm' | 'md'; fresh?: boolean }) {
@@ -20,6 +25,7 @@ export function Card({ c, size = 'md', fresh }: { c: StatusCard; size?: 'sm' | '
   return (
     <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : '', fresh ? 'hs-card--fresh' : ''].join(' ')}
       aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}>
+      <img className="hs-card__art" src={ART[kind]} alt="" draggable={false} />
       <span className="hs-card__big">{v ? fa(v) : sp!.big}</span>
       <span className="hs-card__name">{v ? LUX[v] : sp!.name}</span>
     </span>

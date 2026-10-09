@@ -16,17 +16,17 @@
 .hs__deck { font-size: 0.75rem; color: #b8a888; }
 .hs__last { margin: 0; justify-self: center; padding: 0.35rem 0.9rem; border-radius: 999px; background: rgb(0 0 0 / 0.32); font-size: 0.88rem; animation: hs-drop 0.35s ease-out both; }
 
-.hs-card { position: relative; display: inline-grid; place-items: center; align-content: center; gap: 0.15rem; border-radius: 10px; color: var(--lacquer);
+.hs-card { position: relative; isolation: isolate; overflow: hidden; display: inline-grid; place-items: center; align-content: center; gap: 0.15rem; border-radius: 10px; color: var(--lacquer);
   background: linear-gradient(160deg, #fffaf0, var(--ivory) 55%, #e8d9b8); box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 0 5px var(--ivory), inset 0 0 0 6px rgb(0 0 0 / 0.35), 0 6px 14px -6px #000; }
 .hs-card--md { inline-size: 6.4rem; block-size: 8.8rem; }
 .hs-card--sm { inline-size: 2.6rem; block-size: 3.5rem; border-radius: 6px; box-shadow: inset 0 0 0 1.5px var(--gold), 0 2px 5px -2px #000; }
 .hs-card--red { box-shadow: inset 0 0 0 3px var(--red), inset 0 0 0 6px var(--ivory), inset 0 0 0 7px var(--gold), 0 6px 14px -6px #000; }
 .hs-card--sm.hs-card--red { box-shadow: inset 0 0 0 2px var(--red), 0 2px 5px -2px #000; }
-.hs-card--bad { background: linear-gradient(160deg, #e9e2d5, #cfc5b2); }
-.hs-card__big { font-size: 2.6rem; font-weight: 900; line-height: 1; background: linear-gradient(180deg, #b8892c, #6b4a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hs-card--bad .hs-card__big { background: none; color: var(--red); }
-.hs-card--good .hs-card__big { background: linear-gradient(180deg, #d9a13a, #8a5a0e); -webkit-background-clip: text; background-clip: text; }
-.hs-card__name { font-size: 0.8rem; font-weight: 800; color: #5a4520; }
+.hs-card::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; box-shadow: inherit; pointer-events: none; }
+.hs-card__art { position: absolute; inset: 0; z-index: -1; inline-size: 100%; block-size: 100%; object-fit: cover; filter: brightness(0.62); }
+.hs-card__big { font-size: 2.6rem; font-weight: 900; line-height: 1; color: #fff3cf; text-shadow: 0 0 6px #000, 0 2px 3px #000; }
+.hs-card--bad .hs-card__big { color: #ffb3a8; }
+.hs-card__name { font-size: 0.8rem; font-weight: 800; color: #fff; text-shadow: 0 0 4px #000, 0 1px 2px #000; }
 .hs-card--sm .hs-card__big { font-size: 1.05rem; }
 .hs-card--sm .hs-card__name { font-size: 0.45rem; }
 @media (min-width: 900px) { .hs__stage .hs-card--md { inline-size: 8rem; block-size: 11rem; } .hs__stage .hs-card__big { font-size: 3.4rem; } .hs__stage .hs-card__name { font-size: 1rem; } }
