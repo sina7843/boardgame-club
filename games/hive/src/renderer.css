@@ -1,4 +1,4 @@
-/* کندو: bakelite hex tiles with drawn bugs on the felt; the view follows the hive. Geometry LTR. */
+/* کندو: bakelite hex tiles with painted bugs on the felt; the view follows the hive. Geometry LTR. */
 .hv { display: grid; gap: 0.7rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .hv > :first-child { justify-self: center; }
 .hv-board { display: block; inline-size: 100%; max-inline-size: 760px; min-block-size: 280px; max-block-size: 70vh; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; }

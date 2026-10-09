@@ -1,14 +1,21 @@
 // کندو renderer: hexagonal tiles with drawn bugs on a felt table; the view fits the hive as it grows.
 // Place: tap a bug in your reserve, then a lit spot. Move: tap one of your pieces, then a lit destination.
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import bugQ from './art/bug-Q.webp';
+import bugS from './art/bug-S.webp';
+import bugB from './art/bug-B.webp';
+import bugG from './art/bug-G.webp';
+import bugA from './art/bug-A.webp';
+import texFelt from './art/tex-felt.webp';
 import { DIRS, START_RESERVE, destinations, key, parse, placements, type Bug, type Color, type Hex, type HiveView, type Piece } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const R = 46;
 const BUG_FA: Record<Bug, string> = { Q: 'ملکه زنبور', S: 'عنکبوت', B: 'سوسک', G: 'ملخ', A: 'مورچه' };
-const BUG_COLOR: Record<Bug, string> = { Q: '#e0a526', S: '#8a5a2b', B: '#7d4fb0', G: '#3fa34d', A: '#2f80c9' };
+// Bug and felt art are cut from a generated sheet (see DECISIONS.md).
+const BUG_IMG: Record<Bug, string> = { Q: bugQ, S: bugS, B: bugB, G: bugG, A: bugA };
 const px = ([q, r]: Hex) => ({ x: R * Math.sqrt(3) * (q + r / 2), y: R * 1.5 * r });
 const hexPoints = (x: number, y: number, rr: number) => Array.from({ length: 6 }, (_, k) => {
   const a = (Math.PI / 3) * k + Math.PI / 6;
@@ -16,6 +23,7 @@ const hexPoints = (x: number, y: number, rr: number) => Array.from({ length: 6 }
 }).join(' ');
 
 export default function HiveRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<HiveView>) {
+  const felt = `${useId()}-felt`;
   const me = mySeat ?? 0;
   const myColor: Color = view.colors[me]!;
   const canPlace = legalActions.some((a) => a.type === 'place') && !busy;
@@ -71,10 +79,12 @@ export default function HiveRenderer({ view, legalActions, mySeat, seatName, bus
       <ZoomBoard label="کندو">
         <svg className="hv-board" viewBox={vb} role="grid" aria-label="کندو" style={{ direction: 'ltr' }}>
           <defs>
+            <pattern id={felt} patternUnits="userSpaceOnUse" width="256" height="256"><image href={texFelt} width="256" height="256" /></pattern>
             <linearGradient id="hv-w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fffaf0" /><stop offset="1" stopColor="#ddd2bc" /></linearGradient>
-            <linearGradient id="hv-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3c3833" /><stop offset="1" stopColor="#141210" /></linearGradient>
+            <linearGradient id="hv-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#77716a" /><stop offset="1" stopColor="#45403a" /></linearGradient>
             <filter id="hv-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".5" /></filter>
           </defs>
+          <rect x={(minX + maxX) / 2 - w / 2} y={(minY + maxY) / 2 - h / 2} width={w} height={h} fill={`url(#${felt})`} />
           {[...targets.values()].map((hx) => {
             const { x, y } = px(hx);
             const isHint = hint && key(hint.to) === key(hx);
@@ -138,50 +148,10 @@ function Reserve({ view, color, label, selected, onPick, only, hint, small }: { 
 }
 
 function Tile({ x, y, p }: { x: number; y: number; p: Piece }) {
-  const ink = BUG_COLOR[p.t];
   return (
     <g filter="url(#hv-shadow)">
       <polygon points={hexPoints(x, y, R * 0.9)} fill={p.c === 'w' ? 'url(#hv-w)' : 'url(#hv-b)'} stroke={p.c === 'w' ? '#a99b80' : '#000'} strokeWidth="2.5" strokeLinejoin="round" />
-      <g transform={`translate(${x} ${y})`} fill={ink} stroke={ink}><BugIcon t={p.t} /></g>
+      <image href={BUG_IMG[p.t]} x={x - 33} y={y - 33} width="66" height="66" />
     </g>
   );
-}
-
-/** Simple drawn insects, centred at 0,0, about 50 units tall. */
-function BugIcon({ t }: { t: Bug }) {
-  switch (t) {
-    case 'Q': return (
-      <g strokeWidth="0">
-        <ellipse cx="-12" cy="-10" rx="11" ry="7" opacity=".45" transform="rotate(-25 -12 -10)" /><ellipse cx="12" cy="-10" rx="11" ry="7" opacity=".45" transform="rotate(25 12 -10)" />
-        <ellipse cx="0" cy="6" rx="10" ry="16" /><circle cx="0" cy="-14" r="7" />
-        <rect x="-10" y="2" width="20" height="4" fill="#2a1d0e" /><rect x="-9" y="10" width="18" height="4" fill="#2a1d0e" />
-      </g>
-    );
-    case 'A': return (
-      <g strokeWidth="3" strokeLinecap="round">
-        <circle cx="0" cy="-16" r="6" stroke="none" /><ellipse cx="0" cy="-3" rx="6" ry="7" stroke="none" /><ellipse cx="0" cy="15" rx="9" ry="11" stroke="none" />
-        {[-1, 1].map((sx) => <g key={sx}><path d={`M0 -4 L${sx * 16} -14`} fill="none" /><path d={`M0 -2 L${sx * 18} 0`} fill="none" /><path d={`M0 0 L${sx * 16} 12`} fill="none" /></g>)}
-      </g>
-    );
-    case 'S': return (
-      <g>
-        <g strokeWidth="3" strokeLinecap="round" fill="none">
-          {[-1, 1].map((sx) => [-14, -6, 4, 12].map((dy, k) => <path key={`${sx}${k}`} d={`M0 0 Q${sx * 14} ${dy - 6} ${sx * 22} ${dy + 4}`} />))}
-        </g>
-        <circle cx="0" cy="6" r="10" stroke="none" /><circle cx="0" cy="-9" r="6" stroke="none" />
-      </g>
-    );
-    case 'G': return (
-      <g strokeWidth="3" strokeLinecap="round">
-        <ellipse cx="0" cy="2" rx="7" ry="20" stroke="none" /><circle cx="0" cy="-20" r="6" stroke="none" />
-        {[-1, 1].map((sx) => <g key={sx} fill="none"><path d={`M0 8 L${sx * 18} -2 L${sx * 14} 22`} /><path d={`M0 -6 L${sx * 12} -14`} /></g>)}
-      </g>
-    );
-    case 'B': return (
-      <g strokeWidth="0">
-        <circle cx="0" cy="-17" r="6" /><ellipse cx="0" cy="4" rx="16" ry="19" />
-        <path d="M0 -14 L0 22" stroke="#140f0a" strokeWidth="2.5" /><ellipse cx="-6" cy="-4" rx="4" ry="7" fill="#fff" opacity=".35" />
-      </g>
-    );
-  }
 }
