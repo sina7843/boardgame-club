@@ -38,12 +38,10 @@
 .bgm-bar--src circle:first-child { animation: bgm-pulse 1s ease-in-out infinite; }
 .bgm-slab--ivory { fill: #efe2c4; stroke: #a8936b; }
 .bgm-slab--ebony { fill: #a8222c; stroke: #e0b341; }
-.bgm-slab { animation: bgm-slab 0.35s ease-out both; }
 .bgm-tray--land { cursor: pointer; }
 .bgm-tray__glow { fill: rgb(255 255 255 / 0.14); stroke: #fff; stroke-width: 3px; stroke-dasharray: 8 6; animation: bgm-pulse 1s ease-in-out infinite; }
 .bgm-trail { stroke: #fff3c4; filter: drop-shadow(0 0 2px #000); stroke-width: 5px; stroke-linecap: round; stroke-dasharray: 2 12; opacity: 0.85;
   animation: bgm-trail 0.9s ease-out calc(var(--k) * 0.15s) both; }
-.bgm-ck--landed { transform-box: fill-box; transform-origin: center; animation: bgm-land 0.45s cubic-bezier(.2, 1.4, .4, 1) both; }
 
 .bgm-dieface--ivory { fill: #fbf6ea; stroke: #b9a37a; stroke-width: 2px; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.45)); }
 .bgm-dieface--ebony { fill: #8f1823; stroke: #e0b341; stroke-width: 2px; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.45)); }
@@ -51,24 +49,9 @@
 .bgm-pip--light { fill: #f6d98a; }
 .bgm-die { transition: opacity 0.3s; }
 .bgm-die--used { opacity: 0.32; }
-.bgm-die__spin { transform-box: fill-box; transform-origin: center; animation: bgm-roll 0.7s cubic-bezier(.2, .9, .3, 1.15) calc(var(--k) * 0.08s) both; }
 .bgm-passnote { font: 800 20px/1 var(--font, sans-serif); fill: #ffd27a; text-anchor: middle; }
 
 .bgm__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; min-block-size: 2.75rem; }
 .bgm__help { margin: 0; font-size: 0.85rem; color: #d9ccb4; text-align: center; }
 .bgm__win { margin: 0; font-weight: 800; font-size: 1.1rem; color: #ffd27a; }
 
-@keyframes bgm-roll {
-  0% { transform: translate(-60px, -40px) rotate(-200deg) scale(0.6); opacity: 0; }
-  60% { transform: translate(6px, 4px) rotate(18deg) scale(1.08); opacity: 1; }
-  100% { transform: none; }
-}
-@keyframes bgm-land { 0% { transform: translateY(-16px) scale(1.12); } 100% { transform: none; } }
-@keyframes bgm-pulse { 50% { opacity: 0.45; } }
-@keyframes bgm-hint { 50% { filter: brightness(1.6) drop-shadow(0 0 12px #ffd27a); } }
-@keyframes bgm-trail { from { opacity: 0; stroke-dashoffset: 40; } to { opacity: 0.85; stroke-dashoffset: 0; } }
-@keyframes bgm-slab { from { transform: translateX(14px); opacity: 0; } to { transform: none; opacity: 1; } }
-
-@media (prefers-reduced-motion: reduce) {
-  .bgm-die__spin, .bgm-ck--landed, .bgm-trail, .bgm-slab, .bgm-landing, .bgm-tray__glow, .bgm-pt--hint .bgm-tri, .bgm-bar--src circle:first-child, .bgm-ring { animation: none; }
-}

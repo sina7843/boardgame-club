@@ -4,8 +4,8 @@
 import ivoryImg from './art/checker-ivory.webp';
 import redImg from './art/checker-red.webp';
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
 import { CHECKERS, nextSteps, pipCount, step as applyStep, target, type BgView, type From, type LogEntry, type Pos, type Step } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -98,6 +98,11 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   const lastPass = view.log.at(-1)?.t === 'pass' ? (view.log.at(-1) as Extract<LogEntry, { t: 'pass' }>) : null;
 
   const pos = myMove ? local.pos : view;
+  // Checkers glide: a landed checker flies in from the point (or bar) it left; keyed on every local step too.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, `${lastSeq}-${steps.length}`);
+  const trailSeat = myMove && steps.length ? me : 1 - me;
+  const offTrail = trails.find((t) => t.to === 'off');
   const pips: [number, number] = [pipCount(pos, 0), pipCount(pos, 1)];
   const name = (s: number) => (s === mySeat ? 'شما' : seatName(s));
 
@@ -117,7 +122,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   };
 
   return (
-    <div className="bgm" data-seq={lastSeq}>
+    <div className="bgm" data-seq={lastSeq} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="bgm__players">
@@ -173,6 +178,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
           <rect x={BAR_L + 8} y={F} width={BAR - 16} height={H - 2 * F} fill="url(#bgm-khatam)" opacity=".8" />
           <rect x={RIGHT + 8} y={F} width={TRAY - 16} height={H - 2 * F} rx="8" fill="#170a05" stroke="#d9983a" strokeOpacity=".5" />
 
+          <rect x={BAR_L} y={H / 2 - 10} width={BAR} height={20} fill="transparent" pointerEvents="none" data-flip-anchor="bar" />
           {/* Points. */}
           {Array.from({ length: 24 }, (_, i) => {
             const v = vOf(i);
@@ -188,7 +194,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
                 role="button" tabIndex={isSrc || isLand ? 0 : -1} aria-label={describePoint(i)}
                 onClick={() => (isLand ? tapLanding(i) : tapSource(i))}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (isLand) tapLanding(i); else tapSource(i); } }}>
-                <rect x={g.x - PW / 2} y={g.bottom ? H - F - PH - 20 : F} width={PW} height={PH + 20} fill="transparent" />
+                <rect x={g.x - PW / 2} y={g.bottom ? H - F - PH - 20 : F} width={PW} height={PH + 20} fill="transparent" data-flip-anchor={`pt-${v}`} />
                 <path d={`M${g.x - PW / 2 + 2} ${base} L${g.x} ${tip} L${g.x + PW / 2 - 2} ${base} Z`} className={dark ? 'bgm-tri bgm-tri--dark' : 'bgm-tri bgm-tri--light'} />
                 <text x={g.x} y={g.bottom ? H - 12 : 25} className="bgm-num">{fa(me === 0 ? i + 1 : 24 - i)}</text>
                 {isLand && <circle cx={g.x} cy={slot(v, Math.abs(pos.pts[i]!) > 0 && Math.sign(pos.pts[i]!) === (me === 0 ? 1 : -1) ? Math.abs(pos.pts[i]!) : 0).y} r={R * 0.75} className="bgm-landing" />}
@@ -210,13 +216,14 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
             const seat = n > 0 ? 0 : 1;
             const count = Math.abs(n);
             const v = vOf(i);
-            const landed = trails.some((t) => t.to === i);
+            const landTrail = trails.find((t) => t.to === i);
             const movable = sources.has(String(i)) && !busy && !sent;
             return Array.from({ length: Math.min(count, 5) }, (_, k) => {
               const c = slot(v, k);
               const top = k === Math.min(count, 5) - 1;
               return (
-                <g key={`${i}-${k}`} className={['bgm-ck', top && landed ? 'bgm-ck--landed' : ''].join(' ')} pointerEvents="none">
+                <g key={`${i}-${k}`} className="bgm-ck" pointerEvents="none" data-flip={`ck-${seat}-${i}-${k}`}
+                  {...(top && landTrail ? { 'data-flip-from': landTrail.from === 'bar' ? 'bar' : `pt-${vOf(landTrail.from)}` } : {})}>
                   <Checker x={c.x} y={c.y} seat={seat} />
                   {top && count > 5 && <text x={c.x} y={c.y + 7} className={`bgm-count bgm-count--${seat === 0 ? 'ivory' : 'ebony'}`}>{fa(count)}</text>}
                   {top && movable && <circle cx={c.x} cy={c.y} r={R + 4} className={sel?.from === i ? 'bgm-ring bgm-ring--sel' : 'bgm-ring'} />}
@@ -236,7 +243,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
                 aria-label={`بار: ${fa(n)} مهره ${seat === me ? 'شما' : 'حریف'}${isSrc ? '، اول این را وارد کنید' : ''}`}
                 onClick={() => seat === me && tapSource('bar')} onKeyDown={(e) => { if (seat === me && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapSource('bar'); } }}>
                 {Array.from({ length: Math.min(n, 3) }, (_, k) => (
-                  <Checker key={k} x={(BAR_L + BAR_R) / 2} y={bottom ? H / 2 + 46 + k * 2 * R * 0.9 : H / 2 - 46 - k * 2 * R * 0.9} seat={seat} />
+                  <g key={k} data-flip={`bar-${seat}-${k}`}><Checker x={(BAR_L + BAR_R) / 2} y={bottom ? H / 2 + 46 + k * 2 * R * 0.9 : H / 2 - 46 - k * 2 * R * 0.9} seat={seat} /></g>
                 ))}
                 {n > 1 && <text x={(BAR_L + BAR_R) / 2} y={bottom ? H / 2 + 26 : H / 2 - 16} className="bgm-barcount">{fa(n)}</text>}
               </g>
@@ -254,7 +261,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
                 onClick={() => land && tapLanding('off')} onKeyDown={(e) => { if (land && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapLanding('off'); } }}>
                 <rect x={RIGHT + 8} y={bottom ? H / 2 + 6 : F} width={TRAY - 16} height={H / 2 - F - 6} rx="8" fill="transparent" />
                 {Array.from({ length: n }, (_, k) => (
-                  <rect key={k} x={RIGHT + 14} y={bottom ? H - F - 6 - (k + 1) * 17 : F + 6 + k * 17} width={TRAY - 28} height={14} rx="4"
+                  <rect key={k} data-flip={`slab-${seat}-${k}`} {...(offTrail && trailSeat === seat && k === n - 1 ? { 'data-flip-from': `pt-${vOf(offTrail.from as number)}` } : {})} x={RIGHT + 14} y={bottom ? H - F - 6 - (k + 1) * 17 : F + 6 + k * 17} width={TRAY - 28} height={14} rx="4"
                     className={`bgm-slab bgm-slab--${seat === 0 ? 'ivory' : 'ebony'}`} />
                 ))}
                 {land && <rect x={RIGHT + 10} y={bottom ? H / 2 + 8 : F + 2} width={TRAY - 20} height={H / 2 - F - 10} rx="8" className="bgm-tray__glow" />}
@@ -268,7 +275,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
               {diceList.map((d, k) => (
                 <g key={k} className={['bgm-die', diceUsed[k] ? 'bgm-die--used' : ''].join(' ')} style={{ ['--k' as string]: k }}
                   transform={`translate(${(k - (diceList.length - 1) / 2) * 72} 0) scale(1.2)`}>
-                  <g className="bgm-die__spin"><Die value={d} light={view.current === 0} /></g>
+                  <g className="bg-roll" style={{ ['--i' as string]: k }}><Die value={d} light={view.current === 0} /></g>
                 </g>
               ))}
             </g>
