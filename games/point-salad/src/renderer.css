@@ -32,7 +32,7 @@
 .ps-pl--win { box-shadow: 0 0 0 2px #f2c230; background: rgb(242 194 48 / 0.18); }
 .ps-pl__head { display: flex; gap: 0.5rem; align-items: center; justify-content: center; font-size: 0.88rem; }
 .ps-pl__name { font-weight: 800; }
-.ps-pl__score { padding: 0 0.55rem; border-radius: 999px; background: #f2c230; color: var(--ink); font-weight: 900; animation: ps-bump 0.4s ease-out; }
+.ps-pl__score { padding: 0 0.55rem; border-radius: 999px; background: #f2c230; color: var(--ink); font-weight: 900; display: inline-block; }
 .ps-pl__veg { display: flex; flex-wrap: wrap; gap: 0.2rem 0.55rem; justify-content: center; font-weight: 800; font-size: 0.85rem; }
 .ps-pl__veg > span { display: inline-flex; align-items: center; gap: 0.1rem; }
 .ps-zero { opacity: 0.4; }
@@ -42,7 +42,6 @@
 .ps-flip--on { box-shadow: 0 0 0 3px #ff9d6b; transform: rotate(-3deg); }
 .ps-hint { animation: ps-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@keyframes ps-bump { 40% { transform: scale(1.25); } }
 @keyframes ps-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ps * { animation: none !important; transition: none !important; } }
 .ps-pile .ps-rule { min-inline-size: 0; padding: 0.3rem 0.25rem; font-size: 0.7rem; }
@@ -50,3 +49,5 @@
 .ps-crate { min-inline-size: 0; }
 .ps-slot { inline-size: min(3rem, 46%); block-size: auto; aspect-ratio: 1; }
 .ps-slot .ps-veg { inline-size: 75% !important; block-size: 75% !important; }
+
+.ps-pl__veg b { display: inline-block; font-weight: inherit; }
