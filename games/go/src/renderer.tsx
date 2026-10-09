@@ -1,15 +1,21 @@
 // گو renderer: kaya wood board with ink lines and star points; slate and shell stones (SVG, LTR geometry).
 // Play: tap an intersection. Scoring: tap a group to mark it dead/alive; territory and the running score are shown.
 import './renderer.css';
+import { useId } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import stoneB from './art/stone-b.webp';
+import stoneW from './art/stone-w.webp';
+import texKaya from './art/tex-kaya.webp';
 import { areaScore, play, type GoView, type Stone } from './rules.ts';
 
+// Stones and the kaya wood are cut from a generated sheet (see DECISIONS.md).
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const COLS = 'ABCDEFGHJKLMNOPQRST';
 const STARS: Record<number, number[]> = { 9: [2, 4, 6], 13: [3, 6, 9], 19: [3, 9, 15] };
 
 export default function GoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<GoView>) {
   const n = view.size;
+  const kaya = `go-kaya-${useId().replace(/:/g, '')}`;
   const G = 60, M = 74, SIZE = (n - 1) * G + 2 * M;
   const pos = (i: number) => ({ x: M + (i % n) * G, y: M + Math.floor(i / n) * G });
   const has = (t: string) => legalActions.some((a) => a.type === t);
@@ -48,16 +54,10 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
       <ZoomBoard label="صفحه گو">
         <svg className="go-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label={`صفحه گو ${fa(n)}×${fa(n)}`} style={{ direction: 'ltr' }}>
           <defs>
-            <linearGradient id="go-kaya" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#e9c27a" /><stop offset=".5" stopColor="#dcae62" /><stop offset="1" stopColor="#c99848" /></linearGradient>
-            <pattern id="go-grain" width="220" height="40" patternUnits="userSpaceOnUse">
-              <path d="M0 10 Q55 4 110 12 T220 10 M0 28 Q60 22 120 30 T220 27" fill="none" stroke="#b9873b" strokeWidth="2" opacity=".25" />
-            </pattern>
-            <radialGradient id="go-b" cx=".35" cy=".3" r=".8"><stop offset="0" stopColor="#6b6e73" /><stop offset=".4" stopColor="#25272a" /><stop offset="1" stopColor="#050506" /></radialGradient>
-            <radialGradient id="go-w" cx=".35" cy=".3" r=".85"><stop offset="0" stopColor="#ffffff" /><stop offset=".65" stopColor="#efede6" /><stop offset="1" stopColor="#c3bfb3" /></radialGradient>
+            <pattern id={kaya} width="400" height="400" patternUnits="userSpaceOnUse"><image href={texKaya} width="400" height="400" preserveAspectRatio="xMidYMid slice" /></pattern>
             <filter id="go-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="2" dy="4" stdDeviation="2.5" floodOpacity=".45" /></filter>
           </defs>
-          <rect width={SIZE} height={SIZE} rx="14" fill="url(#go-kaya)" />
-          <rect width={SIZE} height={SIZE} rx="14" fill="url(#go-grain)" />
+          <rect width={SIZE} height={SIZE} rx="14" fill={`url(#${kaya})`} />
           {Array.from({ length: n }, (_, k) => (
             <g key={k} className="go-line">
               <line x1={M} y1={M + k * G} x2={M + (n - 1) * G} y2={M + k * G} />
@@ -85,7 +85,7 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
                 onClick={() => { if (ok) onAction({ type: 'place', at: i }); else if (markable) onAction({ type: 'mark', at: i }); }}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (ok) onAction({ type: 'place', at: i }); else if (markable) onAction({ type: 'mark', at: i }); } }}>
                 <rect x={x - G / 2} y={y - G / 2} width={G} height={G} fill="transparent" />
-                {ok && <circle cx={x} cy={y} r={G * 0.45} className={`go-ghost go-ghost--${myColor}`} />}
+                {ok && <image href={myColor === 'b' ? stoneB : stoneW} x={x - G * 0.47} y={y - G * 0.47} width={G * 0.94} height={G * 0.94} className="go-ghost" />}
                 {captured && !s && <g className="go-gone" pointerEvents="none"><StoneShape x={x} y={y} c={view.turn} r={G * 0.47} /></g>}
                 {s && (
                   <g key={`${i}-${s}`} className={['go-stone', last?.at === i ? 'go-stone--new' : '', dead.has(i) ? 'go-stone--dead' : ''].join(' ')} pointerEvents="none">
@@ -114,11 +114,5 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
 }
 
 function StoneShape({ x, y, c, r }: { x: number; y: number; c: Stone; r: number }) {
-  return (
-    <g filter="url(#go-shadow)">
-      <circle cx={x} cy={y} r={r} fill={c === 'b' ? 'url(#go-b)' : 'url(#go-w)'} />
-      {c === 'w' && <path d={`M${x - r * 0.7} ${y - r * 0.2} Q${x} ${y - r * 0.45} ${x + r * 0.7} ${y - r * 0.2} M${x - r * 0.75} ${y + r * 0.15} Q${x} ${y - r * 0.08} ${x + r * 0.75} ${y + r * 0.15}`} fill="none" stroke="#d8d3c5" strokeWidth="1.5" opacity=".7" />}
-      <ellipse cx={x - r * 0.32} cy={y - r * 0.38} rx={r * 0.3} ry={r * 0.14} fill="#fff" opacity={c === 'b' ? 0.18 : 0.6} transform={`rotate(-30 ${x - r * 0.32} ${y - r * 0.38})`} />
-    </g>
-  );
+  return <image href={c === 'b' ? stoneB : stoneW} x={x - r} y={y - r} width={2 * r} height={2 * r} filter="url(#go-shadow)" />;
 }
