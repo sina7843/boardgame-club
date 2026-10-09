@@ -1,4 +1,6 @@
-// Catalog cover art for line-three: an engraved wooden board mid-game, ivory X and brass O inlays, winning diagonal.
+import markX from './art/mark-x.webp';
+import markO from './art/mark-o.webp';
+// Catalog cover art (marks cut from a generated sheet, see DECISIONS.md) for line-three: an engraved wooden board mid-game, wooden X and O marks, winning diagonal.
 // Board coordinates are literal (never mirrored in the RTL shell).
 export default function LineThreeCover({ title }: { title: string }) {
   const cell = (c: number, r: number) => ({ x: 70 + c * 60, y: 20 + r * 60 });
@@ -8,8 +10,6 @@ export default function LineThreeCover({ title }: { title: string }) {
       <defs>
         <linearGradient id="lt-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a56c3a" /><stop offset="0.5" stopColor="#7a4b25" /><stop offset="1" stopColor="#4b2a12" /></linearGradient>
         <linearGradient id="lt-pit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#35200f" /><stop offset="1" stopColor="#5f3a1b" /></linearGradient>
-        <linearGradient id="lt-ivory" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fffdf4" /><stop offset="1" stopColor="#bfb28d" /></linearGradient>
-        <linearGradient id="lt-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f7dd8d" /><stop offset="0.55" stopColor="#c8963a" /><stop offset="1" stopColor="#8b5e17" /></linearGradient>
         <pattern id="lt-grain" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M1 0v7" stroke="#fff" strokeOpacity="0.06" /><path d="M4.5 0v7" stroke="#000" strokeOpacity="0.09" /></pattern>
         <filter id="lt-drop" x="-30%" y="-30%" width="170%" height="170%"><feDropShadow dx="0" dy="2" stdDeviation="1.6" floodOpacity="0.65" /></filter>
         <filter id="lt-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" /></filter>
@@ -27,9 +27,7 @@ export default function LineThreeCover({ title }: { title: string }) {
         }))}
         {marks.map(([c, r, m]) => {
           const { x, y } = cell(c, r);
-          return m === 'x'
-            ? <path key={`${c}${r}`} d={`M${x + 16} ${y + 16}l28 28M${x + 44} ${y + 16}l-28 28`} stroke="url(#lt-ivory)" strokeWidth="9" strokeLinecap="round" filter="url(#lt-drop)" />
-            : <circle key={`${c}${r}`} cx={x + 30} cy={y + 30} r="15" fill="none" stroke="url(#lt-brass)" strokeWidth="8" filter="url(#lt-drop)" />;
+          return <image key={`${c}${r}`} href={m === 'x' ? markX : markO} x={x + 6} y={y + 6} width="48" height="48" filter="url(#lt-drop)" />;
         })}
         <line x1="88" y1="38" x2="232" y2="182" stroke="#f2c230" strokeWidth="12" strokeLinecap="round" opacity="0.35" filter="url(#lt-glow)" />
         <line x1="88" y1="38" x2="232" y2="182" stroke="#f2c230" strokeWidth="4" strokeLinecap="round" opacity="0.9" />

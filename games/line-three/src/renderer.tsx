@@ -4,6 +4,9 @@ import './renderer.css';
 import { useRef, type KeyboardEvent } from 'react';
 import { ActionBar, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import type { LineThreeView } from './rules.ts';
+// Mark art is cut from a generated sheet (see DECISIONS.md).
+import markX from './art/mark-x.webp';
+import markO from './art/mark-o.webp';
 
 const ROW = ['بالا', 'وسط', 'پایین'];
 const COL = ['چپ', 'وسط', 'راست'];
@@ -47,7 +50,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
                     aria-disabled={!isLegal}
                     onClick={() => { if (isLegal) onAction({ type: 'place', cell: i }); }}
                     onKeyDown={(e) => onKey(e, i)}>
-                    <span aria-hidden key={mark ? `m${mark}` : 'p'} className={[mark === 'X' ? 'lt__x' : 'lt__o', mark ? 'lt__mark' : ''].join(' ')}>{mark ?? ''}</span>
+                    <span aria-hidden key={mark ? `m${mark}` : 'p'} className={mark ? 'lt__mark' : undefined}>{mark && <>{mark}<img src={mark === 'X' ? markX : markO} alt="" draggable={false} /></>}</span>
                   </button>
                 </div>
               );

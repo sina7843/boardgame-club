@@ -1,5 +1,4 @@
-/* Line Three: an engraved wooden board lit from the top-left. X = ivory inlay, O = brass ring.
-   The mark glyph stays in the DOM (tests and screen readers) but is drawn by pseudo-elements. */
+/* Line Three: an engraved wooden board lit from the top-left. X = crimson wooden cross, O = navy wooden ring. */
 .lt { display: grid; gap: var(--sp-4); justify-items: center; }
 .lt__board { --wood: #7a4b25; --wood-d: #4b2a12; --wood-l: #a56c3a;
   display: grid; gap: 8px; padding: clamp(12px, 4vw, 18px); border-radius: var(--r-lg); inline-size: min(100%, 360px);
@@ -25,18 +24,10 @@
 .lt__cell--hint { box-shadow: inset 0 4px 8px rgb(0 0 0 / 0.55), inset 0 0 0 2px var(--gold), 0 1px 0 rgb(255 255 255 / 0.28); outline: 2px dashed var(--gold); outline-offset: -6px; }
 .lt__cell--win { box-shadow: inset 0 4px 8px rgb(0 0 0 / 0.4), inset 0 0 0 3px var(--gold), 0 0 18px 2px color-mix(in srgb, var(--gold) 70%, transparent); animation: lt-win 900ms ease-out; }
 
-/* Inlaid marks */
-.lt__x, .lt__o { position: absolute; inset: 0; display: block; }
-.lt__x:not(:empty)::before, .lt__x:not(:empty)::after { content: ''; position: absolute; inset-block-start: 50%; inset-inline-start: 50%; inline-size: 66cqi; block-size: 15cqi; border-radius: 99px;
-  background: linear-gradient(180deg, #fffdf4, #e8dfc6 55%, #bfb28d);
-  box-shadow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 -2px 2px rgb(0 0 0 / 0.25) inset, 0 3px 4px rgb(0 0 0 / 0.6), 0 1px 1px rgb(0 0 0 / 0.7); }
-.lt__x:not(:empty)::before { transform: translate(-50%, -50%) rotate(45deg); }
-.lt__x:not(:empty)::after { transform: translate(-50%, -50%) rotate(-45deg); }
-.lt__o:not(:empty)::before { content: ''; position: absolute; inset: 17cqi; border-radius: 50%; border: 14cqi solid transparent;
-  background: linear-gradient(145deg, #f7dd8d, #c8963a 55%, #8b5e17) border-box; -webkit-mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
-  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.6)) drop-shadow(0 -1px 0 rgb(255 255 255 / 0.35)); }
-.lt__cell--win .lt__x:not(:empty)::before, .lt__cell--win .lt__x:not(:empty)::after { box-shadow: 0 0 10px 2px color-mix(in srgb, var(--gold) 80%, transparent), 0 3px 4px rgb(0 0 0 / 0.5); }
-.lt__cell--win .lt__o:not(:empty)::before { filter: drop-shadow(0 0 8px var(--gold)) drop-shadow(0 3px 3px rgb(0 0 0 / 0.5)); }
+/* Painted wooden marks (the glyph text stays in the DOM for tests; the cell's font-size is 0) */
+.lt__mark { position: absolute; inset: 0; display: block; }
+.lt__mark img { position: absolute; inset: 8%; inline-size: 84%; block-size: 84%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.55)); }
+.lt__cell--win .lt__mark img { filter: drop-shadow(0 0 8px var(--gold)) drop-shadow(0 3px 3px rgb(0 0 0 / 0.5)); }
 
 /* A placed token drops into its recess; the winning line pulses once. */
 .lt__mark { animation: lt-stamp 320ms cubic-bezier(0.22, 1.2, 0.36, 1); }
