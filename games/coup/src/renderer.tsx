@@ -2,8 +2,8 @@
 // pending claim sits in a gilded banner, and your hand has the action board, the response buttons, the "which card do
 // you lose" choice and the Ambassador's exchange.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import duke from './art/coup-duke.webp';
 import assassin from './art/coup-assassin.webp';
 import captain from './art/coup-captain.webp';
@@ -18,9 +18,9 @@ const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ �
 // Portraits are cut from a generated sheet (see DECISIONS.md); decorative, the role name stays as text.
 const ART: Record<Role, string> = { duke, assassin, captain, ambassador, contessa };
 
-function Card({ role, lost, size = 'md', fresh }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean }) {
+function Card({ role, lost, size = 'md', fresh, flip, flipFrom }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean; flip?: string; flipFrom?: string }) {
   return (
-    <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'cp-card--fresh' : ''].join(' ')}>
+    <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'bg-flip-in' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom}>
       <svg viewBox="-35 -50 70 100" aria-hidden="true">
         <rect x="-33" y="-48" width="66" height="96" rx="7" className="cp-card__bg" />
         {role && <image href={ART[role]} x="-28" y="-43" width="56" height="56" preserveAspectRatio="xMidYMid slice" />}
@@ -37,7 +37,7 @@ function Card({ role, lost, size = 'md', fresh }: { role: Role | null; lost?: bo
 const Thumb = ({ role }: { role: Role }) => <img className="cp-thumb" src={ART[role]} alt="" aria-hidden="true" />;
 
 const Coins = ({ n }: { n: number }) => (
-  <span className="cp-coins" aria-label={`${fa(n)} سکه`}><span className="cp-coin" aria-hidden="true" /><b key={n}>{fa(n)}</b></span>
+  <span className="cp-coins" aria-label={`${fa(n)} سکه`}><span className="cp-coin" aria-hidden="true" /><b key={n} className="bg-pop">{fa(n)}</b></span>
 );
 
 export default function CoupRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CoupView>) {
@@ -56,6 +56,8 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
   const order = mySeat === null ? view.coins.map((_, k) => k) : [...view.coins.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const targets = aim ? acts.get(aim) ?? [] : [];
   const p = view.pending;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, lastSeq);
   const lastReveal = view.log.at(-1)?.t === 'reveal' ? view.log.at(-1) : null;
 
   const pick = (a: Act) => {
@@ -87,7 +89,7 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
   ) : null;
 
   return (
-    <div className="cp" data-seq={lastSeq} data-phase={view.phase}>
+    <div className="cp" ref={root} data-seq={lastSeq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {banner}
 
@@ -99,7 +101,7 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
           const body = (
             <>
               <div className="cp-pl__head"><bdi className="cp-pl__name">{who(s)}</bdi><Coins n={view.coins[s]!} />{out && <span className="cp-pl__out">بیرون</span>}</div>
-              <div className="cp-pl__cards">
+              <div className={['cp-pl__cards', lastReveal?.seat === s ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === s ? lastSeq : 'c'}>
                 {Array.from({ length: c.hidden }, (_, k) => <Card key={`h${k}`} role={null} size="sm" />)}
                 {c.revealed.map((r, k) => <Card key={`r${k}`} role={r} lost size="sm" fresh={lastReveal?.seat === s && k === c.revealed.length - 1} />)}
               </div>
@@ -117,8 +119,8 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
 
       {mySeat !== null && view.myCards && (
         <section className="cp__me" aria-label="دست شما">
-          <div className="cp-me__head"><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck">دسته دربار: {fa(view.deckCount)}</span></div>
-          <div className="cp-me__cards" role="group" aria-label="کارت‌های نفوذ شما">
+          <div className="cp-me__head" data-flip-anchor="deck"><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck">دسته دربار: {fa(view.deckCount)}</span></div>
+          <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label="کارت‌های نفوذ شما">
             {view.myCards.map((c, i) => loseCards.has(i)
               ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`از دست دادن ${ROLE_FA[c.role]}`}><Card role={c.role} /><span className="cp-lose__cta">رو کن</span></button>
               : <Card key={i} role={c.role} lost={c.revealed} fresh={c.revealed && lastReveal?.seat === mySeat && lastReveal.role === c.role} />)}
@@ -129,7 +131,7 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
               <div className="cp-ex__cards">
                 {keepHint.options.map((r, i) => (
                   <button key={i} type="button" aria-pressed={keep.includes(i)} className={['cp-ex__card', keep.includes(i) ? 'cp-ex__card--on' : ''].join(' ')}
-                    onClick={() => setKeep(keep.includes(i) ? keep.filter((k) => k !== i) : [...keep, i].slice(-keepHint.keep))}><Card role={r} size="sm" /></button>
+                    onClick={() => setKeep(keep.includes(i) ? keep.filter((k) => k !== i) : [...keep, i].slice(-keepHint.keep))}><Card role={r} size="sm" flip={`ex-${i}`} flipFrom="deck" /></button>
                 ))}
               </div>
               <Button size="sm" disabled={busy || keep.length !== keepHint.keep} onClick={() => onAction({ type: 'keep', roles: keep.map((i) => keepHint.options[i]!) })}>نگه داشتن {fa(keep.length)} از {fa(keepHint.keep)}</Button>
