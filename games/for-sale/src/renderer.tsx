@@ -1,37 +1,28 @@
-// بنگاه renderer: an estate agent's desk. Property cards climb from a reed hut (۱) to a domed palace (۳۰); cheques are
+// بنگاه renderer: an estate agent's desk. Property cards climb from a cottage (۱) to a floating castle (۳۰); cheques are
 // banknote-green slips. Players sit along the top with coins, bids and cards in hand; the market is in the middle and
 // your hand (and bid stepper) at the bottom.
 import './renderer.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import type { ForSaleView } from './rules.ts';
+import cottage from './art/prop-cottage.webp';
+import castle from './art/prop-castle.webp';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const TIER = ['کپر', 'کلبه', 'خانه', 'آپارتمان', 'برج', 'کاخ'];
+// Painted art cut from a generated sheet (see DECISIONS.md): cottage for 1-15, castle for 16-30.
 const tier = (v: number) => Math.min(5, Math.floor((v - 1) / 5));
 
-function Building({ v }: { v: number }) {
-  const t = tier(v);
-  return (
-    <g className={`fs-bld fs-bld--${t}`}>
-      <rect x="-40" y="30" width="80" height="4" rx="2" className="fs-bld__ground" />
-      {t === 0 && <path d="M-22 30 L0 2 L22 30 Z M-4 30 V20 H4 V30 Z" />}
-      {t === 1 && <><path d="M-22 30 V10 H22 V30 Z" /><path d="M-27 11 L0 -10 L27 11 Z" className="fs-bld__roof" /><rect x="-4" y="18" width="8" height="12" className="fs-bld__win" /></>}
-      {t === 2 && <><path d="M-28 30 V4 H28 V30 Z" /><path d="M-33 5 L0 -18 L33 5 Z" className="fs-bld__roof" /><rect x="-20" y="10" width="9" height="8" className="fs-bld__win" /><rect x="11" y="10" width="9" height="8" className="fs-bld__win" /><rect x="-5" y="17" width="10" height="13" className="fs-bld__win" /></>}
-      {t === 3 && <><path d="M-24 30 V-22 H24 V30 Z" />{[-14, 0, 14].flatMap((x) => [-14, -2, 10].map((y) => <rect key={`${x}${y}`} x={x - 4} y={y} width="8" height="7" className="fs-bld__win" />))}</>}
-      {t === 4 && <><path d="M-30 30 V-6 H-12 V30 Z M-10 30 V-34 H12 V30 Z M14 30 V-16 H30 V30 Z" />{[-26, -2, 0, 18].map((y, i) => <rect key={i} x="-5" y={y} width="10" height="6" className="fs-bld__win" />)}<rect x="-25" y="2" width="8" height="5" className="fs-bld__win" /><rect x="18" y="-8" width="8" height="5" className="fs-bld__win" /></>}
-      {t === 5 && <><path d="M-34 30 V0 H34 V30 Z" /><path d="M-16 0 Q-16 -30 0 -32 Q16 -30 16 0 Z" className="fs-bld__dome" /><path d="M0 -32 V-40" stroke="currentColor" strokeWidth="2" /><path d="M-30 0 V-14 H-24 V0 Z M24 0 V-14 H30 V0 Z" className="fs-bld__roof" /><path d="M-7 30 V16 Q0 8 7 16 V30 Z" className="fs-bld__win" /><path d="M-26 22 V14 Q-22 9 -18 14 V22 Z M18 22 V14 Q22 9 26 14 V22 Z" className="fs-bld__win" /></>}
-    </g>
-  );
-}
-
 export function Prop({ v, size = 'md', fresh }: { v: number; size?: 'sm' | 'md'; fresh?: boolean }) {
+  const clip = useId();
   return (
-    <span className={['fs-card', 'fs-card--prop', `fs-card--${size}`, `fs-tier-${tier(v)}`, fresh ? 'fs-card--fresh' : ''].join(' ')} aria-label={`ملک ${fa(v)} (${TIER[tier(v)]})`}>
+    <span className={['fs-card', 'fs-card--prop', `fs-card--${size}`, fresh ? 'fs-card--fresh' : ''].join(' ')} aria-label={`ملک ${fa(v)} (${TIER[tier(v)]})`}>
       <svg viewBox="-45 -62 90 124" aria-hidden="true" direction="ltr">
+        <clipPath id={clip}><rect x="-43" y="-60" width="86" height="120" rx="8" /></clipPath>
         <rect x="-43" y="-60" width="86" height="120" rx="8" className="fs-card__bg" />
-        <text x="-36" y="-42" className="fs-card__num">{fa(v)}</text>
-        <g transform="translate(0 6)"><Building v={v} /></g>
+        <image href={v > 15 ? castle : cottage} x="-43" y="-60" width="86" height="120" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clip})`} />
+        <rect x="-43" y="-60" width="86" height="120" rx="8" className="fs-card__shade" />
+        <text x="-36" y="-34" className="fs-card__num">{fa(v)}</text>
         <text x="0" y="54" textAnchor="middle" className="fs-card__label">{TIER[tier(v)]}</text>
       </svg>
     </span>

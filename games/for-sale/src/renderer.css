@@ -38,20 +38,9 @@
 .fs__row > :nth-child(4) { animation-delay: 0.18s; } .fs__row > :nth-child(5) { animation-delay: 0.24s; } .fs__row > :nth-child(6) { animation-delay: 0.3s; }
 
 .fs-card--prop .fs-card__bg { fill: #f6ecd6; stroke: #6b5232; stroke-width: 2; }
-.fs-card__num { font-size: 15px; font-weight: 900; fill: var(--ink); }
-.fs-card__label { font-size: 10px; font-weight: 800; fill: #6b5232; }
-.fs-bld { fill: var(--wall); color: var(--ink); }
-.fs-bld__ground { fill: #8aa86b; }
-.fs-bld__roof { fill: var(--roof); }
-.fs-bld__win { fill: #fff3c4; stroke: rgb(0 0 0 / 0.25); stroke-width: 0.8; }
-.fs-bld__dome { fill: #2f8fa8; }
-.fs-tier-0 { --wall: #b88a4e; --roof: #8a6230; }
-.fs-tier-1 { --wall: #c79a64; --roof: #a2452f; }
-.fs-tier-2 { --wall: #e2c7a0; --roof: #b8492f; }
-.fs-tier-3 { --wall: #9fb3c4; --roof: #5c6f80; }
-.fs-tier-4 { --wall: #6f8fb3; --roof: #3e5c80; }
-.fs-tier-5 { --wall: #efe2c4; --roof: #2f8fa8; }
-.fs-tier-5 .fs-card__bg { fill: #fff6de; stroke: #b8902f; stroke-width: 3; }
+.fs-card__shade { fill: rgb(0 0 0 / 0.18); stroke: #6b5232; stroke-width: 2; }
+.fs-card__num { font-size: 28px; font-weight: 900; fill: #fff; stroke: #000; stroke-width: 3px; paint-order: stroke; }
+.fs-card__label { font-size: 10px; font-weight: 800; fill: #fff; stroke: #000; stroke-width: 2.5px; paint-order: stroke; }
 
 .fs-card--cheque .fs-card__bg { fill: #d9ecd4; stroke: #2f6b45; stroke-width: 2; }
 .fs-cheque__guil { stroke: #6aa37c; stroke-width: 1.2; stroke-dasharray: 3 2; }
