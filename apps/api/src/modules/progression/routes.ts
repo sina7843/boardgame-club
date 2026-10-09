@@ -4,7 +4,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { AppError, apiErrorSchema, leaderboardResponse, progressionResponse, tableRewards } from '@bg/contracts';
+import { AppError, apiErrorSchema, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
   activeSeason, closeSeason, DEFAULT_SEASON, displayRating, ELIGIBILITY, isPremium, levelFor, manualReward, masteryFor, ratingRows,
@@ -18,6 +18,15 @@ const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, mission
   userAchievements, games, gameResults, auditLog, users } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const modeSchema = z.enum(['live', 'turn']);
+type AchievementDef = typeof achievementDefinitions.$inferSelect;
+type AchievementCriteria = { type: string; count: number; tier?: string };
+const TRACKS = ['matches', 'wins', 'distinct_games', 'tutorials', 'ranked'];
+const tierOf = (a: AchievementDef): TrophyTier => trophyTier.catch('bronze').parse((a.criteria as AchievementCriteria).tier);
+/** Group achievements by track, easiest first inside each track. */
+const byTrack = (x: AchievementDef, y: AchievementDef) => {
+  const a = x.criteria as AchievementCriteria, b = y.criteria as AchievementCriteria;
+  return TRACKS.indexOf(a.type) - TRACKS.indexOf(b.type) || a.count - b.count;
+};
 const toLedger = (r: typeof rewardLedger.$inferSelect) => ({ kind: r.kind, ruleId: r.ruleId, amount: r.amount, reason: r.reason, gameId: r.gameId, createdAt: r.createdAt.toISOString() });
 
 export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
@@ -63,7 +72,7 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
       xp, level: lvl.level, levelFloor: lvl.currentFloor, nextLevelAt: lvl.nextAt,
       ratings: ratingList, mastery,
       missions: { periodKey: week.key, endsAt: week.endsAt.toISOString(), items: missions },
-      achievements: achDefs.map((a) => ({ key: a.key, titleFa: a.titleFa, descriptionFa: a.descriptionFa,
+      achievements: achDefs.sort(byTrack).map((a) => ({ key: a.key, titleFa: a.titleFa, descriptionFa: a.descriptionFa, tier: tierOf(a),
         grantedAt: mine.find((m) => m.achievementId === a.id)?.grantedAt.toISOString() ?? null })),
       ledger: ledger.slice(0, 30).map(toLedger),
       season: season ? { id: season.id, nameFa: season.nameFa, endsAt: season.endsAt.toISOString() } : null
@@ -89,13 +98,14 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
 
   r.get('/users/:userId/achievements', {
     schema: { tags: ['progression'], summary: 'Achievements a player shows on their public profile', params: z.object({ userId: z.uuid() }),
-      response: { 200: z.object({ level: z.number().int(), items: z.array(z.object({ key: z.string(), titleFa: z.string(), grantedAt: z.iso.datetime() })) }), 401: apiErrorSchema } }
+      response: { 200: z.object({ level: z.number().int(), items: z.array(z.object({ key: z.string(), titleFa: z.string(), tier: trophyTier, grantedAt: z.iso.datetime() })) }), 401: apiErrorSchema } }
   }, async (req) => {
     requireUser(req);
     const rows = await db.select({ a: achievementDefinitions, u: userAchievements }).from(userAchievements)
       .innerJoin(achievementDefinitions, eq(achievementDefinitions.id, userAchievements.achievementId))
       .where(and(eq(userAchievements.userId, req.params.userId), eq(userAchievements.showOnProfile, true)));
-    return { level: levelFor(await totalXp(db, req.params.userId)).level, items: rows.map(({ a, u }) => ({ key: a.key, titleFa: a.titleFa, grantedAt: u.grantedAt.toISOString() })) };
+    return { level: levelFor(await totalXp(db, req.params.userId)).level, items: rows.sort((x, y) => TROPHY_TIERS.indexOf(tierOf(y.a)) - TROPHY_TIERS.indexOf(tierOf(x.a)))
+      .map(({ a, u }) => ({ key: a.key, titleFa: a.titleFa, tier: tierOf(a), grantedAt: u.grantedAt.toISOString() })) };
   });
 
   r.get('/games/:id/leaderboard', {

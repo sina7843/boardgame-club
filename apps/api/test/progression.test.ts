@@ -170,6 +170,9 @@ describe('XP, missions and achievements (FR-14)', () => {
     const p = (await call(ctx, 'GET', '/api/me/progression', a)).json();
     expect(p.missions.items.find((m: { key: string }) => m.key === 'weekly_complete_3')).toMatchObject({ progress: 3, completed: true });
     expect(p.achievements.find((x: { key: string }) => x.key === 'first_game').grantedAt).not.toBeNull();
+    expect(p.achievements[0]).toMatchObject({ key: 'first_game', tier: 'bronze' }); // grouped by track, easiest first
+    expect(p.achievements.find((x: { key: string }) => x.key === 'warm_up').grantedAt).toBeNull(); // 3 of 5 games
+    expect(p.achievements.find((x: { key: string }) => x.key === 'table_legend').tier).toBe('diamond');
     expect(p.mastery.find((m: { gameId: string }) => m.gameId === 'line-three')).toMatchObject({ completed: 3, tierFa: 'آشنا' });
     expect(p.ledger.some((l: { reason: string }) => l.reason.includes('مأموریت'))).toBe(true);
     const missionRows = (await xpRows(a!.id)).filter((r) => r.ruleId === 'mission.weekly_complete_3');

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import type { PublicProfile, UserCard } from '@bg/contracts';
+import type { PublicProfile, TrophyTier, UserCard } from '@bg/contracts';
 import { Avatar, Badge, Button, Input, StateBlock, Tabs, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
+import { TIER_FA, Trophy } from './Progress.tsx';
 
 interface Friends { friends: PublicProfile[]; incoming: PublicProfile[]; outgoing: PublicProfile[]; blocked: PublicProfile[]; muted: PublicProfile[] }
 
@@ -106,7 +107,7 @@ export function FriendsPage() {
 export function ProfilePage() {
   const { id = '' } = useParams();
   const card = useApi<UserCard>(`/users/${id}/card`);
-  const ach = useApi<{ level: number; items: { key: string; titleFa: string }[] }>(`/users/${id}/achievements`);
+  const ach = useApi<{ level: number; items: { key: string; titleFa: string; tier: TrophyTier }[] }>(`/users/${id}/achievements`);
   usePageTitle(card.data?.displayName ?? 'پروفایل');
   const navigate = useNavigate();
   const toast = useToast();
@@ -126,7 +127,7 @@ export function ProfilePage() {
         <div style={{ flex: 1 }}>
           <h1 className="page-title" style={{ fontSize: 'var(--fs-xl)' }}><bdi>{u.displayName}</bdi></h1>
           <p className="page-sub">عضو از {jalaliDate(u.joinedAt)}{ach.data ? ` · سطح ${ach.data.level.toLocaleString('fa-IR')}` : ''}</p>
-          {ach.data && ach.data.items.length > 0 && <div className="row" style={{ gap: 4 }}>{ach.data.items.map((a) => <Badge key={a.key} tone="premium">{a.titleFa}</Badge>)}</div>}
+          {ach.data && ach.data.items.length > 0 && <div className="row" style={{ gap: 4 }}>{ach.data.items.map((a) => <span key={a.key} className={`trophy-chip tier--${a.tier}`} title={TIER_FA[a.tier]}><Trophy tier={a.tier} />{a.titleFa}</span>)}</div>}
         </div>
         {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
       </section>

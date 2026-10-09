@@ -10,6 +10,10 @@ export const ledgerItem = z.object({
   kind: z.string(), ruleId: z.string(), amount: z.number().int(), reason: z.string(), gameId: z.string().nullable(), createdAt: z.iso.datetime()
 });
 export type LedgerItem = z.infer<typeof ledgerItem>;
+/** Achievement trophy art tier, lowest to highest. */
+export const TROPHY_TIERS = ['bronze', 'silver', 'gold', 'turquoise', 'diamond'] as const;
+export const trophyTier = z.enum(TROPHY_TIERS);
+export type TrophyTier = z.infer<typeof trophyTier>;
 
 /** Three separate kinds of progress (Requirements §12): skill (ratings), account level (XP) and per-game mastery. */
 export const progressionResponse = z.object({
@@ -22,7 +26,7 @@ export const progressionResponse = z.object({
     wins: z.number().int(), ranked: z.number().int(), tutorial: z.boolean() })),
   missions: z.object({ periodKey: z.string(), endsAt: z.iso.datetime(), items: z.array(z.object({
     key: z.string(), titleFa: z.string(), descriptionFa: z.string(), progress: z.number().int(), target: z.number().int(), xp: z.number().int(), completed: z.boolean() })) }),
-  achievements: z.array(z.object({ key: z.string(), titleFa: z.string(), descriptionFa: z.string(), grantedAt: z.iso.datetime().nullable() })),
+  achievements: z.array(z.object({ key: z.string(), titleFa: z.string(), descriptionFa: z.string(), tier: trophyTier, grantedAt: z.iso.datetime().nullable() })),
   ledger: z.array(ledgerItem),
   season: z.object({ id: z.uuid(), nameFa: z.string(), endsAt: z.iso.datetime() }).nullable()
 });

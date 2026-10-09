@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import type { Progression } from '@bg/contracts';
+import type { Progression, TrophyTier } from '@bg/contracts';
 import { Badge, Button, LeagueBadge, Progress, StateBlock } from '@bg/ui';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
@@ -7,6 +7,13 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 
 export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('achievement.') ? 'دستاورد'
   : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
+
+export const TIER_FA: Record<TrophyTier, string> = { bronze: 'برنزی', silver: 'نقره‌ای', gold: 'طلایی', turquoise: 'فیروزه‌ای', diamond: 'الماس' };
+
+/** Trophy art on a tier-coloured medallion; decorative, the title next to it carries the meaning. */
+export function Trophy({ tier, locked = false }: { tier: TrophyTier; locked?: boolean }) {
+  return <span className={`trophy${locked ? ' trophy--locked' : ''}`}><img src={`/trophies/${tier}.webp`} alt="" width={256} height={256} loading="lazy" decoding="async" /></span>;
+}
 
 /** Three separate kinds of progress (Requirements §12): skill per game, account level from XP, and mastery per game. */
 export function ProgressPage() {
@@ -63,10 +70,13 @@ export function ProgressPage() {
           ))}
         </section>
 
-        <section className="panel stack" aria-labelledby="ach-h">
-          <h2 id="ach-h" className="section-title">دستاوردها</h2>
-          <ul className="achievements">{d.achievements.map((a) => (
-            <li key={a.key} className={a.grantedAt ? 'ach ach--on' : 'ach'}>
+        <section className="panel stack progress-grid__wide" aria-labelledby="ach-h">
+          <div className="row"><h2 id="ach-h" className="section-title" style={{ flex: 1 }}>دستاوردها</h2>
+            <span className="muted">{faNum(d.achievements.filter((a) => a.grantedAt).length)} از {faNum(d.achievements.length)} جام</span></div>
+          <ul className="achievements">{d.achievements.map((a, i) => (
+            <li key={a.key} className={`ach tier--${a.tier}${a.grantedAt ? ' ach--on' : ''}`} style={{ '--sheen-delay': `${(i % 7) * 0.7}s` } as React.CSSProperties}>
+              <Trophy tier={a.tier} locked={!a.grantedAt} />
+              <span className="ach__tier">{TIER_FA[a.tier]}</span>
               <strong>{a.titleFa}</strong><span className="muted">{a.descriptionFa}</span>
               <span className="muted">{a.grantedAt ? `کسب‌شده ${jalaliDate(a.grantedAt)}` : 'هنوز کسب نشده'}</span>
             </li>))}</ul>
