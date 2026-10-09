@@ -14,7 +14,7 @@ export const spaceBase = defineGame({
     assetsRef: 'space-base/1'
   },
   catalog: {
-    nameFa: 'پایگاه فضایی',
+    nameFa: 'اسپیس بیس',
     nameOriginal: 'Space Base',
     summaryFa: 'دو تاس، دوازده بخش. ناو بخرید و در بخش‌ها بگذارید؛ ناوهای قدیمی به مأموریت می‌روند و در نوبت دیگران هم برایتان درآمد می‌آورند.',
     rulesFa: [

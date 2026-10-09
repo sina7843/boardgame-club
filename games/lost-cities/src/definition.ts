@@ -18,7 +18,7 @@ export const lostCities = defineGame({
     assetsRef: 'lost-cities/1'
   },
   catalog: {
-    nameFa: 'کاوشگران',
+    nameFa: 'لاست سیتیز',
     nameOriginal: 'Lost Cities',
     summaryFa: 'دو کاوشگر، پنج سفر پرخطر: کارت‌ها را به ترتیب صعودی بچینید، روی سفرهای خوب شرط ببندید و سفری را که خرجش درنمی‌آید شروع نکنید.',
     rulesFa: [

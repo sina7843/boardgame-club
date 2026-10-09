@@ -14,7 +14,7 @@ export const dominion = defineGame({
     assetsRef: 'dominion/1'
   },
   catalog: {
-    nameFa: 'قلمرو',
+    nameFa: 'دومینیون',
     nameOriginal: 'Dominion',
     summaryFa: 'با ده کارت ساده شروع کنید و دسته‌تان را بسازید: کارت‌های کنش، گنج و زمین بخرید تا بیشترین ایالت‌ها مال شما شود.',
     rulesFa: [

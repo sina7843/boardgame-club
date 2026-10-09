@@ -14,7 +14,7 @@ export const seaSaltPaper = defineGame({
     assetsRef: 'sea-salt-paper/1'
   },
   catalog: {
-    nameFa: 'کاغذ و دریا',
+    nameFa: 'سی سالت اند پیپر',
     nameOriginal: 'Sea Salt & Paper',
     summaryFa: 'کارت‌های اوریگامی دریایی جمع کنید: جفت‌ها اثر دارند، صدف و هشت‌پا مجموعه می‌سازند و پری‌های دریایی رنگ‌ها را می‌شمارند. وقتی امتیازتان کافی شد، دست را تمام کنید — یا «آخرین فرصت» بدهید.',
     rulesFa: [

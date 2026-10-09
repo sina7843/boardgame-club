@@ -14,7 +14,7 @@ export const theMind = defineGame({
     assetsRef: 'the-mind/1'
   },
   catalog: {
-    nameFa: 'هم‌فکر',
+    nameFa: 'د مایند',
     nameOriginal: 'The Mind',
     summaryFa: 'بازی گروهی بی‌کلام: همه با هم کارت‌های ۱ تا ۱۰۰ را به ترتیب صعودی زمین بگذارید — بدون حرف زدن، فقط با حس زمان.',
     rulesFa: [

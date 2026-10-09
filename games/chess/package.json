@@ -5,7 +5,6 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./cover": "./src/cover.tsx",
     "./renderer": "./src/renderer.tsx"
   },
   "scripts": {

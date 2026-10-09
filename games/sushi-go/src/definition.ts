@@ -14,7 +14,7 @@ export const sushiGo = defineGame({
     assetsRef: 'sushi-go/1'
   },
   catalog: {
-    nameFa: 'سوشی گردان',
+    nameFa: 'سوشی گو!',
     nameOriginal: 'Sushi Go!',
     summaryFa: 'بشقاب‌ها دور میز می‌چرخند: از هر دست یک کارت بردارید، بقیه را رد کنید و بهترین ترکیب سوشی را بچینید.',
     rulesFa: [

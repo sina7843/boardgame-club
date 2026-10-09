@@ -14,7 +14,7 @@ export const raceGalaxy = defineGame({
     assetsRef: 'race-galaxy/1'
   },
   catalog: {
-    nameFa: 'رقابت کهکشانی',
+    nameFa: 'ریس فور د گلکسی',
     nameOriginal: 'Race for the Galaxy',
     summaryFa: 'امپراتوری کهکشانی‌تان را با جهان‌ها و پیشرفت‌ها بسازید. هر دور همه پنهانی یک مرحله انتخاب می‌کنند و فقط مرحله‌های انتخاب‌شده اجرا می‌شوند.',
     rulesFa: [

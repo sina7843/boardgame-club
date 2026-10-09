@@ -14,7 +14,7 @@ export const citadels = defineGame({
     assetsRef: 'citadels/1'
   },
   catalog: {
-    nameFa: 'ارگ‌ها',
+    nameFa: 'سیتادلز',
     nameOriginal: 'Citadels',
     summaryFa: 'هر دور نقش مخفی انتخاب کنید — آدم‌کش، دزد، شعبده‌باز، شاه، اسقف، بازرگان، معمار یا سردار — طلا جمع کنید و محله‌های شهرتان را بسازید.',
     rulesFa: [

@@ -14,7 +14,7 @@ export const patchwork = defineGame({
     assetsRef: 'patchwork/1'
   },
   catalog: {
-    nameFa: 'چهل‌تکه',
+    nameFa: 'پچ‌ورک',
     nameOriginal: 'Patchwork',
     summaryFa: 'لحاف چهل‌تکه بدوزید: تکه‌پارچه بخرید، زمان صرف کنید و صفحهٔ ۹×۹ را طوری پر کنید که دکمه بیشتری درآمد داشته باشید و جای خالی کمتری بماند.',
     rulesFa: [

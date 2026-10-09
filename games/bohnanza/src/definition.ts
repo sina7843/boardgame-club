@@ -14,7 +14,7 @@ export const bohnanza = defineGame({
     assetsRef: 'bohnanza/1'
   },
   catalog: {
-    nameFa: 'لوبیاکاری',
+    nameFa: 'بوهنانزا',
     nameOriginal: 'Bohnanza',
     summaryFa: 'لوبیا بکارید، معامله کنید و به‌موقع برداشت کنید. ترتیب کارت‌های دستتان را نمی‌توانید عوض کنید؛ پس معاملهٔ خوب نجاتتان می‌دهد.',
     rulesFa: [

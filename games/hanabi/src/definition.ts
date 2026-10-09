@@ -14,7 +14,7 @@ export const hanabi = defineGame({
     assetsRef: 'hanabi/1'
   },
   catalog: {
-    nameFa: 'آتش‌بازی',
+    nameFa: 'هانابی',
     nameOriginal: 'Hanabi',
     summaryFa: 'بازی گروهی: کارت‌های خودتان را نمی‌بینید ولی کارت هم‌تیمی‌ها را می‌بینید. با سرنخ دادن کمک کنید فشفشه‌های پنج رنگ به ترتیب ۱ تا ۵ آتش شوند.',
     rulesFa: [

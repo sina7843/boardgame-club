@@ -14,7 +14,7 @@ export const starRealms = defineGame({
     assetsRef: 'star-realms/1'
   },
   catalog: {
-    nameFa: 'نبرد ستاره‌ها',
+    nameFa: 'استار رلمز',
     nameOriginal: 'Star Realms',
     summaryFa: 'ناوگانتان را از ردیف بازار بسازید، پایگاه برپا کنید و اقتدار حریف را از ۵۰ به صفر برسانید.',
     rulesFa: [

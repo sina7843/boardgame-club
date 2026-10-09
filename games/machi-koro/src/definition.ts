@@ -14,7 +14,7 @@ export const machiKoro = defineGame({
     assetsRef: 'machi-koro/1'
   },
   catalog: {
-    nameFa: 'شهر تاس',
+    nameFa: 'ماچی کورو',
     nameOriginal: 'Machi Koro',
     summaryFa: 'شهردار شده‌اید: با تاس درآمد بگیرید، مزرعه و نانوایی و کارخانه بسازید و اولین کسی باشید که چهار بنای بزرگ شهر را تمام می‌کند.',
     rulesFa: [

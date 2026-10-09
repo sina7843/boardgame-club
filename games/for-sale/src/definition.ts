@@ -14,7 +14,7 @@ export const forSale = defineGame({
     assetsRef: 'for-sale/1'
   },
   catalog: {
-    nameFa: 'بنگاه',
+    nameFa: 'فور سیل',
     nameOriginal: 'For Sale',
     summaryFa: 'اول در مزایده خانه بخرید — از کپر تا کاخ — بعد همان‌ها را به بالاترین چک بفروشید. پولدارترین بنگاه‌دار برنده است.',
     rulesFa: [

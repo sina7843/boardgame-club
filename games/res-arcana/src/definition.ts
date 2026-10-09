@@ -14,7 +14,7 @@ export const resArcana = defineGame({
     assetsRef: 'res-arcana/1'
   },
   catalog: {
-    nameFa: 'آرکانا',
+    nameFa: 'رس آرکانا',
     nameOriginal: 'Res Arcana',
     summaryFa: 'جادوگری با هشت شیء جادویی. جوهرهای آتش، زندگی، آرامش، مرگ و طلا را جمع کنید، اشیا را فعال کنید و مکان‌های قدرت و بناهای یادبود بخرید تا به ۱۰ امتیاز برسید.',
     rulesFa: [

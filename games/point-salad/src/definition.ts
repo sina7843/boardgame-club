@@ -14,7 +14,7 @@ export const pointSalad = defineGame({
     assetsRef: 'point-salad/1'
   },
   catalog: {
-    nameFa: 'بازار سبزی',
+    nameFa: 'پوینت سالاد',
     nameOriginal: 'Point Salad',
     summaryFa: 'هر کارت یا یک سبزی است یا یک دستور امتیاز. سبزی بخرید، دستورهای خوب جمع کنید و سالادی بسازید که بیشترین امتیاز را بیاورد.',
     rulesFa: [

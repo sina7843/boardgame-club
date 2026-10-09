@@ -206,7 +206,7 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
 }) {
   const roll = view.lastRoll;
   return (
-    <svg className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه املاک" style={{ direction: 'ltr' }}>
+    <svg className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه مونوپولی" style={{ direction: 'ltr' }}>
       <defs>
         <linearGradient id="amb-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8a5a32" /><stop offset="0.5" stopColor="#6b4423" /><stop offset="1" stopColor="#3d2410" /></linearGradient>
         <linearGradient id="amb-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dc8e" /><stop offset="0.5" stopColor="#b88a2e" /><stop offset="1" stopColor="#7a5a14" /></linearGradient>
@@ -236,7 +236,7 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
       <rect x={C + 12} y={C + 12} width={S - 2 * C - 24} height={S - 2 * C - 24} className="amb-tiles amb-tiles--b" />
       <rect x={C + 21} y={C + 21} width={S - 2 * C - 42} height={S - 2 * C - 42} className="amb-tiles__line" />
       <g className="amb-title">
-        <text x="550" y="452" className="amb-title__fa">املاک</text>
+        <text x="550" y="452" className="amb-title__fa">مونوپولی</text>
         <path d="M 400 478 H 520 M 580 478 H 700" className="amb-title__rule" />
         <path d="M 550 468 L 560 478 L 550 488 L 540 478 Z" className="amb-title__gem" />
         <text x="550" y="528" className="amb-title__sub">خیابان‌های تهران</text>

@@ -14,7 +14,7 @@ export const battleship = defineGame({
     assetsRef: 'battleship/1'
   },
   catalog: {
-    nameFa: 'نبرد دریایی',
+    nameFa: 'بتل‌شیپ',
     nameOriginal: 'Battleship',
     summaryFa: 'ناوگانتان را پنهانی در دریا بچینید و با شلیک‌های حساب‌شده کشتی‌های حریف را پیدا و غرق کنید.',
     rulesFa: [

@@ -40,8 +40,8 @@ export const amlak = defineGame({
     assetsRef: 'amlak/1'
   },
   catalog: {
-    nameFa: 'املاک',
-    nameOriginal: 'Amlak (Monopoly-style property trading)',
+    nameFa: 'مونوپولی',
+    nameOriginal: 'Monopoly',
     summaryFa: 'بازی خرید و فروش ملک به سبک مونوپولی با خیابان‌های تهران؛ ۲ تا ۸ نفر. ملک بخرید، رنگ‌ها را کامل کنید، خانه و هتل بسازید و بقیه را ورشکست کنید.',
     rulesFa: [
       'هر بازیکن با ۱٫۵ میلیون تومان شروع می‌کند. در نوبت خود دو تاس می‌ریزید (تاس را سرور می‌ریزد) و جلو می‌روید؛ با هر بار رد شدن از «شروع» ۲۰۰ هزار تومان حقوق می‌گیرید.',

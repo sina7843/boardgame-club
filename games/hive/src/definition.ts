@@ -19,7 +19,7 @@ export const hive = defineGame({
     assetsRef: 'hive/1'
   },
   catalog: {
-    nameFa: 'کندو',
+    nameFa: 'هایو',
     nameOriginal: 'Hive',
     summaryFa: 'بازی حشرات بدون صفحه؛ با زنبور، مورچه، عنکبوت، ملخ و سوسک، ملکه حریف را از شش طرف محاصره کنید.',
     rulesFa: [

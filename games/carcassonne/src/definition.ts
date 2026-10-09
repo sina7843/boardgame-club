@@ -14,7 +14,7 @@ export const carcassonne = defineGame({
     assetsRef: 'carcassonne/1'
   },
   catalog: {
-    nameFa: 'قلعه‌سازان',
+    nameFa: 'کارکاسون',
     nameOriginal: 'Carcassonne',
     summaryFa: 'کاشی به کاشی سرزمین بسازید: جاده بکشید، شهرهای بارودار را کامل کنید و صومعه بسازید. پیروان خود را به‌موقع بگذارید و به‌موقع پس بگیرید.',
     rulesFa: [

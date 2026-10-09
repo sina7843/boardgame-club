@@ -14,7 +14,7 @@ export const diceThrone = defineGame({
     assetsRef: 'dice-throne/1'
   },
   catalog: {
-    nameFa: 'نبرد تاس',
+    nameFa: 'دایس ترون',
     nameOriginal: 'Dice Throne',
     summaryFa: 'یک قهرمان انتخاب کنید و با پنج تاس ترکیب‌های حمله بسازید. سه بار بریزید، تاس‌های خوب را نگه دارید و جان حریف را از ۳۰ به صفر برسانید.',
     rulesFa: [

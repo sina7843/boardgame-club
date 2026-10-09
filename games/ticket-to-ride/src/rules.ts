@@ -599,7 +599,7 @@ export const ttrModule: GameModule<TtrState, TtrAction, TtrView> = {
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial', map: 'iran' },
-    introFa: 'در بلیت قطار با کارت‌های رنگی مسیر ریلی بین شهرها می‌سازید و بلیت‌های مقصدتان را کامل می‌کنید. این آموزش روی نقشه ایران است؛ شما فقط ۷ واگن دارید تا بازی زود به دور پایانی برسد.',
+    introFa: 'در تیکت تو راید با کارت‌های رنگی مسیر ریلی بین شهرها می‌سازید و بلیت‌های مقصدتان را کامل می‌کنید. این آموزش روی نقشه ایران است؛ شما فقط ۷ واگن دارید تا بازی زود به دور پایانی برسد.',
     steps: [
       { instructionFa: 'سه بلیت مقصد گرفته‌اید و باید دست‌کم ۲ تا را نگه دارید. «تهران–اصفهان» و «تهران–شهرکرد» را نگه دارید؛ هر دو از یک راه می‌گذرند. بلیت برگشتی زیر دسته بلیت‌ها می‌رود.', expected: { type: 'keep', keep: [TUTORIAL.learnerOffer[0]!, TUTORIAL.learnerOffer[1]!] }, reply: { type: 'keep', keep: [TUTORIAL.scriptOffer[0]!, TUTORIAL.scriptOffer[1]!] } },
       { instructionFa: 'در هر نوبت یکی از سه کار را می‌کنید. اینجا کارت می‌کشیم: کارت قرمز رو (خانه اول) را بردارید.', expected: { type: 'drawMarket', slot: 0 }, reply: null },

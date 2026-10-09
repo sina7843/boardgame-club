@@ -14,7 +14,7 @@ export const azul = defineGame({
     assetsRef: 'azul/1'
   },
   catalog: {
-    nameFa: 'کاشی‌کار',
+    nameFa: 'آزول',
     nameOriginal: 'Azul',
     summaryFa: 'استادکار کاشی معرق هستید: از کارگاه‌ها کاشی بردارید، ردیف‌ها را پر کنید و دیوار را طوری بچینید که کاشی‌ها کنار هم امتیاز بیاورند.',
     rulesFa: [

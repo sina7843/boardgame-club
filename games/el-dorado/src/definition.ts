@@ -14,7 +14,7 @@ export const elDorado = defineGame({
     assetsRef: 'el-dorado/1'
   },
   catalog: {
-    nameFa: 'راه الدورادو',
+    nameFa: 'در جست‌وجوی الدورادو',
     nameOriginal: 'The Quest for El Dorado',
     summaryFa: 'گروه کاوشتان را از جنگل، رودخانه و روستاها به شهر طلایی برسانید. با کارت‌های بهتر سریع‌تر می‌روید؛ آن‌ها را با سکه بخرید.',
     rulesFa: [

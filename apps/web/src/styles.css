@@ -68,6 +68,7 @@
   .game-card:hover { transform: translateY(-4px) rotate(-0.6deg); box-shadow: var(--depth-overlay); }
   .game-card:active { transform: var(--press); }
   .game-card__cover { aspect-ratio: 16 / 9; display: grid; place-items: center; margin: 0.5rem 0.5rem 0; border-radius: calc(var(--shape-surface) - 0.5rem); overflow: hidden; }
+  .game-cover { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; background: var(--muted); }
   .game-card__body { padding: 1rem 1.25rem 1.25rem; display: grid; gap: 0.5rem; align-content: start; }
   .game-card__title { font-family: var(--type-display); font-size: 1.25rem; font-weight: 800; }
   .game-card__original { color: var(--muted-foreground); font-size: 0.875rem; }

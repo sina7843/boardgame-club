@@ -24,7 +24,7 @@ export const theCrew = defineGame({
     assetsRef: 'the-crew/1'
   },
   catalog: {
-    nameFa: 'خدمه: سیارهٔ نهم',
+    nameFa: 'کرو: در جست‌وجوی سیارهٔ نهم',
     nameOriginal: 'The Crew: The Quest for Planet Nine',
     summaryFa: 'بازی دست‌گیری تیمی: همه با هم می‌برید یا می‌بازید. هر کس باید کارت‌های وظیفه‌اش را در دست‌ها ببرد، بی‌آنکه حرف بزنید.',
     rulesFa: [

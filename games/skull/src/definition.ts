@@ -14,7 +14,7 @@ export const skull = defineGame({
     assetsRef: 'skull/1'
   },
   catalog: {
-    nameFa: 'جمجمه',
+    nameFa: 'اسکال',
     nameOriginal: 'Skull',
     summaryFa: 'بازی بلوف خالص: سه گل و یک جمجمه؛ قول بدهید چند گل رو می‌کنید و دعا کنید به جمجمه نرسید.',
     rulesFa: [

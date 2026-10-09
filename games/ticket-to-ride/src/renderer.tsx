@@ -94,7 +94,7 @@ const MapArt = memo(function MapArt({ map, title }: { map: MapId; title: string 
         {[[0.2, 0.3, 0.35], [0.78, 0.2, 0.3], [0.6, 0.85, 0.4], [0.1, 0.9, 0.28]].map(([x, y, s], i) => <ellipse key={i} cx={x! * L.w} cy={y! * L.h} rx={s! * L.w} ry={s! * L.h * 0.8} fill="url(#ttr-stain1)" />)}
         <rect width={L.w} height={L.h} fill="url(#ttr-vignette)" />
         <g transform={`translate(${cx} ${cy})`}><Compass /></g>
-        <g transform={`translate(${tx} ${ty})`}><Cartouche title={title} sub="بلیت قطار · نقشه راه‌آهن" /></g>
+        <g transform={`translate(${tx} ${ty})`}><Cartouche title={title} sub="تیکت تو راید · نقشه راه‌آهن" /></g>
       </g>
       <rect x="-1.5" y="-1.5" width={L.w + 3} height={L.h + 3} fill="none" stroke={INK} strokeWidth="2.4" />
     </g>

@@ -14,7 +14,7 @@ export const scout = defineGame({
     assetsRef: 'scout/1'
   },
   catalog: {
-    nameFa: 'سیرک',
+    nameFa: 'اسکات',
     nameOriginal: 'Scout',
     summaryFa: 'ترتیب کارت‌های دستتان را نمی‌شود عوض کرد: بهترین نمایش را با کارت‌های کنار هم بدهید یا از نمایش حریف کارت بقاپید تا دستتان کامل شود.',
     rulesFa: [

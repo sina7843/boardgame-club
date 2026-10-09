@@ -14,7 +14,7 @@ export const highSociety = defineGame({
     assetsRef: 'high-society/1'
   },
   catalog: {
-    nameFa: 'اشرافی',
+    nameFa: 'های سوسایتی',
     nameOriginal: 'High Society',
     summaryFa: 'برای تابلو، قایق تفریحی و کاخ تابستانی مزایده بدهید و از رسوایی فرار کنید — ولی کسی که آخر بازی کم‌پول‌ترین باشد، هر چه داشته باشد باخته است.',
     rulesFa: [

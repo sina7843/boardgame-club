@@ -19,7 +19,7 @@ export const loveLetter = defineGame({
     assetsRef: 'love-letter/1'
   },
   catalog: {
-    nameFa: 'نامه عاشقانه',
+    nameFa: 'لاو لتر',
     nameOriginal: 'Love Letter',
     summaryFa: 'شانزده کارت، کلی حدس و بلوف؛ نامه‌تان را به دست شاهزاده‌خانم برسانید و رقیبان را از دربار بیرون کنید.',
     rulesFa: [

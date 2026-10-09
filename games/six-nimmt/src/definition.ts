@@ -18,7 +18,7 @@ export const sixNimmt = defineGame({
     assetsRef: 'six-nimmt/1'
   },
   catalog: {
-    nameFa: 'گاو شش',
+    nameFa: 'شش نیمت!',
     nameOriginal: '6 nimmt!',
     summaryFa: 'همه با هم کارت می‌گذارند و هیچ‌کس نمی‌خواهد ششمین کارت ردیف باشد؛ تا ۱۰ نفر، شلوغ و خنده‌دار.',
     rulesFa: [

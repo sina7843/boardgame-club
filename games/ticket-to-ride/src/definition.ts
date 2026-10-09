@@ -21,7 +21,7 @@ export const ticketToRide = defineGame({
     assetsRef: 'ticket-to-ride/1'
   },
   catalog: {
-    nameFa: 'بلیت قطار',
+    nameFa: 'تیکت تو راید',
     nameOriginal: 'Ticket to Ride',
     summaryFa: 'بازی مسیرسازی ۲ تا ۵ نفره؛ کارت واگن جمع کنید، مسیر ریلی بین شهرها بسازید و بلیت‌های مقصدتان را کامل کنید. روی نقشه آمریکا، اروپا یا ایران.',
     rulesFa: [

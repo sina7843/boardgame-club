@@ -14,7 +14,7 @@ export const coup = defineGame({
     assetsRef: 'coup/1'
   },
   catalog: {
-    nameFa: 'کودتا',
+    nameFa: 'کوپ',
     nameOriginal: 'Coup',
     summaryFa: 'دسیسه در دربار: ادعا کنید دوک یا آدم‌کش هستید، سکه جمع کنید و رقبا را یکی‌یکی کنار بزنید — اگر کسی دروغتان را رو نکند.',
     rulesFa: [

@@ -18,7 +18,7 @@ export const jaipur = defineGame({
     assetsRef: 'jaipur/1'
   },
   catalog: {
-    nameFa: 'کاروان',
+    nameFa: 'جیپور',
     nameOriginal: 'Jaipur',
     summaryFa: 'دو تاجر در بازار: کالا بخرید، با شتر معاوضه کنید و درست به‌موقع بفروشید — اولین فروشنده بهترین قیمت را می‌گیرد.',
     rulesFa: [

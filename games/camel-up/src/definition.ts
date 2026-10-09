@@ -14,7 +14,7 @@ export const camelUp = defineGame({
     assetsRef: 'camel-up/1'
   },
   catalog: {
-    nameFa: 'مسابقهٔ شترها',
+    nameFa: 'کمل آپ',
     nameOriginal: 'Camel Up',
     summaryFa: 'پنج شتر در کویر مسابقه می‌دهند و روی هم سوار می‌شوند. روی شتر برندهٔ هر مرحله و برنده و بازندهٔ کل مسابقه شرط ببندید و پولدارترین تماشاگر باشید.',
     rulesFa: [

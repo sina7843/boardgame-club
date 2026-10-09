@@ -14,7 +14,7 @@ export const kingdomino = defineGame({
     assetsRef: 'kingdomino/1'
   },
   catalog: {
-    nameFa: 'قلمرو',
+    nameFa: 'کینگدومینو',
     nameOriginal: 'Kingdomino',
     summaryFa: 'سرزمینی ۵×۵ دور قلعه‌تان بسازید: دومینوی گندم‌زار و جنگل و دریاچه انتخاب کنید و زمین‌های تاج‌دار را به هم وصل کنید.',
     rulesFa: [

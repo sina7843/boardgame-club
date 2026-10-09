@@ -14,7 +14,7 @@ export const century = defineGame({
     assetsRef: 'century/1'
   },
   catalog: {
-    nameFa: 'راه ادویه',
+    nameFa: 'سنچری: جادهٔ ادویه',
     nameOriginal: 'Century: Spice Road',
     summaryFa: 'کاروان‌دار جادهٔ ادویه‌اید: زردچوبه را به زعفران و هل و دارچین تبدیل کنید، تاجرهای بهتر استخدام کنید و سفارش‌های پرسود را تحویل بدهید.',
     rulesFa: [

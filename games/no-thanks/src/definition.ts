@@ -14,7 +14,7 @@ export const noThanks = defineGame({
     assetsRef: 'no-thanks/1'
   },
   catalog: {
-    nameFa: 'نه، مرسی!',
+    nameFa: 'نو تنکس!',
     nameOriginal: 'No Thanks!',
     summaryFa: 'بازی کارتی کوتاه و پرتنش؛ کارت‌های منفی را با ژتون رد کنید یا با ژتون‌های رویش بردارید.',
     rulesFa: [

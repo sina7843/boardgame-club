@@ -22,7 +22,7 @@ export const crewDeepSea = defineGame({
     assetsRef: 'crew-deep-sea/1'
   },
   catalog: {
-    nameFa: 'خدمه: اعماق دریا',
+    nameFa: 'کرو: مأموریت اعماق دریا',
     nameOriginal: 'The Crew: Mission Deep Sea',
     summaryFa: 'دست‌گیری تیمی در اعماق اقیانوس: وظیفه‌ها شرط‌اند — «هیچ ۹ نبر»، «دست آخر را ببر»، «دقیقاً دو دست ببر» — و همه با هم می‌برید یا می‌بازید.',
     rulesFa: [

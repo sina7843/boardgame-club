@@ -14,7 +14,7 @@ export const splendor = defineGame({
     assetsRef: 'splendor/1'
   },
   catalog: {
-    nameFa: 'گوهرفروش',
+    nameFa: 'اسپلندور',
     nameOriginal: 'Splendor',
     summaryFa: 'از معدن تا حجره: گوهر جمع کنید، معدن و کارگاه و کاروان بخرید و نظر بزرگان را جلب کنید. اولین کسی که به ۱۵ اعتبار برسد بازار را می‌برد.',
     rulesFa: [
