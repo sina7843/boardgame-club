@@ -1,55 +1,125 @@
-/* مسابقهٔ شترها: a desert race course — warm sand tiles, painted camels that stack, a pyramid of dice. */
-.cu { --sand: #f0d39a; --ink: #3a2410; display: grid; gap: 0.65rem; inline-size: 100%; color: #fbf1df; text-align: center; }
+/* مسابقهٔ شترها: sand tiles looping around the pyramid on a painted desert; stacked leg-bet tiles; brass-and-sand panels. */
+.cu {
+  --sand: #f3dfb1; --sand-dk: #d9ac63; --dune: #a8692d; --ink: #3a2410; --terra: #9c3f22; --gold: #f2c35b;
+  display: grid; gap: 0.75rem; inline-size: 100%; color: #fbf1df; text-align: center;
+}
 .cu > :first-child { justify-self: center; }
-.cu-c--blue { --c: #2f7fc1; } .cu-c--green { --c: #3f9a4a; } .cu-c--orange { --c: #e8873a; } .cu-c--yellow { --c: #e8c33a; } .cu-c--white { --c: #f2efe6; }
-.cu__leg { margin: 0; font-size: 0.78rem; color: #e8d8b8; }
-.cu-camel { object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); display: block; }
-.cu-pyramid { inline-size: 1.4rem; block-size: 1.4rem; margin-inline-end: 0.3rem; vertical-align: middle; object-fit: contain; }
+.cu-c--blue { --c: #2f7fc1; --c-dk: #1c4f7c; } .cu-c--green { --c: #3f9a4a; --c-dk: #245c2b; } .cu-c--orange { --c: #e8873a; --c-dk: #9a4f16; }
+.cu-c--yellow { --c: #eec53e; --c-dk: #9c7b12; } .cu-c--white { --c: #f2efe6; --c-dk: #9a937f; }
+.cu-camel { object-fit: contain; display: block; filter: drop-shadow(0 2px 1px rgb(40 20 0 / 0.55)); }
+.cu-pyramid { inline-size: 1.4rem; block-size: 1.4rem; margin-inline-end: 0.35rem; vertical-align: middle; object-fit: contain; }
 
-.cu__track { position: relative; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; padding: 0.5rem; border-radius: 14px;
-  background: linear-gradient(rgb(60 36 10 / 0.25), rgb(60 36 10 / 0.25)), url('./art/bd-desert.webp') center / cover #b88440; box-shadow: inset 0 0 0 2px #8a5a20; }
-.cu-sp { position: relative; display: grid; align-content: end; justify-items: center; min-block-size: 5.6rem; padding: 0.15rem 0 0.2rem; border: 0; border-radius: 6px; font: inherit; color: var(--ink);
-  background: linear-gradient(180deg, rgb(247 226 180 / 0.55), rgb(232 200 140 / 0.7)); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.12); }
-.cu-sp--can { cursor: pointer; box-shadow: 0 0 0 2px #2f7fc1; }
-.cu-sp--last { box-shadow: inset -4px 0 0 #2a2a2a; }
-.cu-sp__n { position: absolute; inset-block-start: 2px; inset-inline-start: 4px; font-size: 0.6rem; font-weight: 800; opacity: 0.7; }
-.cu-stack { display: flex; flex-direction: column; align-items: center; gap: 0; }
-.cu-stack .cu-camel { margin-block-end: -0.7rem; animation: cu-hop 0.45s ease-out; }
-.cu-tile { position: absolute; inset-block-start: 1.1rem; inset-inline-end: 3px; padding: 0 0.25rem; border-radius: 4px; font-size: 0.65rem; font-weight: 900; color: #fff; }
-.cu-tile--oasis { background: #3f9a4a; } .cu-tile--mirage { background: #a2452f; }
-.cu-finish { position: absolute; inset-block-start: 2px; inset-inline-end: 4px; padding: 0 0.3rem; border-radius: 999px; background: #2a2a2a; color: #fff; font-size: 0.55rem; }
-.cu__roll { margin: 0; display: inline-flex; gap: 0.4rem; align-items: center; justify-self: center; padding: 0.25rem 0.8rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); font-size: 0.86rem; animation: cu-drop 0.35s ease-out both; }
-.cu__roll b { font-size: 1.15rem; color: #ffd98a; }
+/* ---------- the course ---------- */
+.cu__track {
+  direction: ltr; position: relative; display: grid; inline-size: min(100%, 46rem); justify-self: center;
+  grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(4, 6.2rem); gap: 5px; padding: 0.7rem; border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 50%, rgb(255 214 140 / 0.15), rgb(60 30 5 / 0.45) 75%), url('./art/bd-desert.webp') center / cover #b88440;
+  box-shadow: inset 0 0 0 2px rgb(255 226 170 / 0.35), inset 0 0 40px rgb(40 18 0 / 0.5), 0 14px 30px -18px #000;
+}
+.cu-sp {
+  position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-inline-size: 0; padding: 0 0 0.25rem;
+  border: 0; border-radius: 10px; font: inherit; color: var(--ink);
+  background: linear-gradient(160deg, rgb(255 244 214 / 0.8), rgb(230 196 128 / 0.66));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.55), 0 3px 0 var(--dune), 0 5px 8px -4px rgb(30 12 0 / 0.7);
+}
+.cu-sp--can { cursor: pointer; outline: 3px solid #2f7fc1; outline-offset: -3px; animation: cu-glow 1.2s ease-in-out infinite; }
+.cu-sp--can:hover, .cu-sp--can:focus-visible { background: linear-gradient(160deg, #fff7df, #f0d49a); }
+.cu-sp__n { position: absolute; inset-block-start: 4px; inset-inline-start: 6px; font-size: 0.68rem; font-weight: 900; color: var(--terra); opacity: 0.85; }
+/* start flag on 1, chequered finish line under 16 (the loop closes between them) */
+.cu-sp--first::before { content: ''; position: absolute; inset-block-start: 5px; inset-inline-end: 6px; inline-size: 0.6rem; block-size: 0.45rem; background: #3f9a4a; border-radius: 1px; }
+.cu-sp--last::after {
+  content: ''; position: absolute; inset-inline: 0; inset-block-end: -6px; block-size: 7px; border-radius: 2px;
+  background: repeating-conic-gradient(#1d1208 0 25%, #fff7df 0 50%) 0 0 / 7px 7px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+.cu-stack { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
+.cu-stack .cu-camel { inline-size: 3.8rem !important; block-size: 3.8rem !important; margin-block-end: -2.1rem; animation: cu-hop 0.45s ease-out; }
+.cu-stack .cu-camel:last-child { margin-block-end: 0; }
+.cu-tile { position: absolute; inset-block-start: 4px; inset-inline-end: 5px; padding: 0.05rem 0.35rem; border-radius: 999px; font-size: 0.7rem; font-weight: 900; color: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.cu-tile--oasis { background: linear-gradient(#4fb35b, #2d7a37); }
+.cu-tile--mirage { background: linear-gradient(#c75a3a, #8a2f1a); }
 
-.cu__bets { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
-.cu-legtile { display: grid; justify-items: center; gap: 0.1rem; min-inline-size: 3.2rem; padding: 0.3rem; border: 0; border-radius: 9px; color: var(--ink); font: inherit; cursor: pointer;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 30%, white 70%), color-mix(in srgb, var(--c) 55%, white 45%)); box-shadow: inset 0 0 0 2px var(--c), 0 3px 6px -3px #000; }
-.cu-legtile b { font-size: 1.05rem; }
-.cu-legtile:disabled { opacity: 0.45; cursor: default; }
-.cu__actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
-.cu-on { box-shadow: 0 0 0 3px #ffd98a !important; }
-.cu__overall { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; padding: 0.4rem; border-radius: 10px; background: rgb(0 0 0 / 0.22); font-size: 0.78rem; }
-.cu-ov { display: inline-flex; gap: 0.2rem; align-items: center; }
-.cu-ov button { padding: 0.15rem 0.45rem; border-radius: 6px; border: 1px solid #e8d8b8; background: rgb(0 0 0 / 0.25); color: inherit; font: inherit; font-size: 0.72rem; cursor: pointer; }
+/* ---------- the pyramid in the middle ---------- */
+.cu-centre {
+  grid-column: 2 / 6; grid-row: 2 / 4; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto auto; align-items: center; align-content: center; column-gap: 0.75rem;
+  padding: 0.4rem 0.9rem; border-radius: 16px; background: radial-gradient(ellipse at 30% 60%, rgb(255 220 150 / 0.35), rgb(40 18 0 / 0.35)); direction: rtl;
+}
+.cu-centre__pyr { grid-row: 1 / 4; grid-column: 2; justify-self: center; inline-size: 8.5rem; block-size: 8.5rem; object-fit: contain; filter: drop-shadow(0 8px 10px rgb(30 12 0 / 0.6)); }
+.cu-centre__dice { grid-column: 1; display: flex; gap: 0.3rem; justify-content: center; }
+.cu-die { inline-size: 1.7rem; block-size: 1.7rem; filter: drop-shadow(0 2px 1px rgb(0 0 0 / 0.5)); }
+.cu-die__body { fill: var(--c); stroke: var(--c-dk); stroke-width: 1.5; }
+.cu-die__pip { fill: #fff; }
+.cu-c--white .cu-die__pip, .cu-c--yellow .cu-die__pip { fill: #3a2410; }
+.cu-die--in { opacity: 0.3; filter: grayscale(0.4); }
+.cu__roll {
+  grid-column: 1; margin: 0.45rem 0 0; display: inline-flex; gap: 0.35rem; align-items: center; justify-self: center; padding: 0.2rem 0.75rem;
+  border-radius: 999px; background: rgb(29 18 8 / 0.7); font-size: 0.82rem; animation: cu-drop 0.35s ease-out both;
+}
+.cu__roll b { font-size: 1.2rem; color: var(--gold); }
+.cu-centre__leg { grid-column: 1; margin-block-start: 0.3rem; font-size: 0.72rem; font-weight: 800; color: #fff3d6; text-shadow: 0 1px 2px #000; }
 
-.cu__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
-.cu-pl { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; justify-content: center; padding: 0.4rem 0.5rem; border-radius: 10px; background: rgb(0 0 0 / 0.25); font-size: 0.82rem; }
-.cu-pl--me { background: rgb(240 211 154 / 0.15); }
-.cu-pl--turn { box-shadow: 0 0 0 2px #ffd98a; }
-.cu-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.18); }
-.cu-pl__name { font-weight: 800; }
-.cu-pl__coins { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: cu-bump 0.4s ease-out; }
-.cu-chip { padding: 0 0.35rem; border-radius: 4px; background: var(--c); color: var(--ink); font-size: 0.7rem; font-weight: 900; }
-.cu-pyr { font-size: 0.72rem; color: #e8d8b8; }
+/* ---------- leg-bet tiles: a stack per camel, its height shows how many are left ---------- */
+.cu__bets { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; padding-block-end: 0.4rem; }
+.cu-legtile {
+  position: relative; display: grid; justify-items: center; gap: 0.05rem; inline-size: 4.6rem; padding: 0.35rem 0.3rem 0.4rem; border: 0; border-radius: 12px; font: inherit; cursor: pointer; color: var(--ink);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--c) 35%, #fff8e6), color-mix(in srgb, var(--c) 70%, #fff8e6));
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.65), 0 calc(min(var(--left, 1), 4) * 2px) 0 var(--c-dk), 0 calc(min(var(--left, 1), 4) * 2px + 6px) 10px -6px #000;
+  transition: transform 0.15s ease;
+}
+.cu-legtile:not(:disabled):hover { transform: translateY(-2px); }
+.cu-legtile b { display: grid; place-items: center; inline-size: 1.7rem; block-size: 1.7rem; border-radius: 50%; font-size: 1rem; background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.cu-legtile:disabled { opacity: 0.78; cursor: default; filter: saturate(0.75); }
+
+.cu__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.cu-on { box-shadow: 0 0 0 3px var(--gold) !important; }
+
+.cu__overall { display: grid; gap: 0.45rem; padding: 0.6rem 0.7rem; border-radius: 14px; background: linear-gradient(rgb(255 236 200 / 0.08), rgb(255 236 200 / 0.03)); box-shadow: inset 0 0 0 1px rgb(242 195 91 / 0.35); }
+.cu__overall h3 { margin: 0; font-size: 0.85rem; color: var(--gold); }
+.cu__overall h3 small { color: #e8d8b8; font-weight: 600; margin-inline-start: 0.4rem; }
+.cu__ovlist { display: flex; flex-wrap: wrap; gap: 0.4rem 0.7rem; justify-content: center; }
+.cu-ov { display: inline-flex; gap: 0.2rem; align-items: center; padding: 0.15rem 0.35rem 0.15rem 0.2rem; border-radius: 999px; background: rgb(0 0 0 / 0.25); box-shadow: inset 0 0 0 1px var(--c); }
+.cu-ov button { padding: 0.15rem 0.5rem; border-radius: 999px; border: 0; background: rgb(255 255 255 / 0.12); color: inherit; font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+.cu-ov button:hover:not(:disabled) { background: var(--c); color: var(--ink); }
+
+/* ---------- spectators ---------- */
+.cu__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
+.cu-pl { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.6rem; border-radius: 12px; background: rgb(255 236 200 / 0.06); box-shadow: inset 0 0 0 1px rgb(255 236 200 / 0.12); font-size: 0.82rem; text-align: start; }
+.cu-pl--me { background: rgb(242 195 91 / 0.12); }
+.cu-pl--turn { box-shadow: inset 0 0 0 2px var(--gold); }
+.cu-pl--win { box-shadow: inset 0 0 0 2px var(--gold); background: rgb(242 195 91 / 0.2); }
+.cu-pl__name { font-weight: 800; flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cu-pl__coins {
+  display: inline-grid; place-items: center; min-inline-size: 1.9rem; block-size: 1.9rem; padding: 0 0.3rem; border-radius: 999px; font-weight: 900; color: var(--ink);
+  background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); box-shadow: 0 1px 2px rgb(0 0 0 / 0.5); animation: cu-bump 0.4s ease-out;
+}
+.cu-pl__bets { display: inline-flex; flex-wrap: wrap; gap: 0.2rem; align-items: center; }
+.cu-chip { min-inline-size: 1.2rem; padding: 0 0.3rem; border-radius: 5px; background: var(--c); color: var(--ink); font-size: 0.7rem; font-weight: 900; box-shadow: inset 0 -2px 0 var(--c-dk); }
+.cu-pyr { display: inline-flex; align-items: center; gap: 0.1rem; font-size: 0.72rem; color: #e8d8b8; }
+.cu-pyr img { inline-size: 1rem; block-size: 1rem; object-fit: contain; }
 .cu__mine, .cu__log { margin: 0; font-size: 0.78rem; color: #e8d8b8; }
 .cu-hint { animation: cu-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@media (max-width: 480px) { .cu-sp { min-block-size: 4.6rem; } .cu-stack .cu-camel { inline-size: 1.9rem !important; block-size: 1.9rem !important; margin-block-end: -0.95rem; } }
-@keyframes cu-hop { 0% { transform: translateY(-10px); } 60% { transform: translateY(2px); } }
-@keyframes cu-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes cu-bump { 40% { transform: scale(1.25); } }
-@keyframes cu-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
-@media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
+/* ---------- phones ---------- */
+@media (max-width: 480px) {
+  .cu__track { grid-template-rows: repeat(4, 4.4rem); gap: 3px; padding: 0.45rem; border-radius: 14px; }
+  .cu-sp { border-radius: 7px; padding-block-end: 0.15rem; }
+  .cu-sp__n { font-size: 0.58rem; inset-block-start: 2px; inset-inline-start: 4px; }
+  .cu-stack .cu-camel { inline-size: 2rem !important; block-size: 2rem !important; margin-block-end: -1.3rem; }
+  .cu-tile { font-size: 0.58rem; padding: 0 0.25rem; }
+  .cu-centre { column-gap: 0.4rem; padding: 0.25rem 0.4rem; }
+  .cu-centre__pyr { inline-size: 4.6rem; block-size: 4.6rem; }
+  .cu-die { inline-size: 1.15rem; block-size: 1.15rem; }
+  .cu-centre__dice { gap: 0.15rem; }
+  .cu__roll { font-size: 0.72rem; padding: 0.1rem 0.5rem; margin-block-start: 0.25rem; }
+  .cu__roll b { font-size: 1rem; }
+  .cu__bets { gap: 0.3rem; }
+  .cu-legtile { inline-size: 3.25rem; padding-inline: 0.15rem; }
+  .cu-legtile b { inline-size: 1.45rem; block-size: 1.45rem; font-size: 0.85rem; }
+  .cu-legtile .cu-camel { inline-size: 1.6rem !important; block-size: 1.6rem !important; }
+}
 
-.cu > .cu__track { inline-size: min(100%, 42rem); justify-self: center; }
-@media (min-width: 900px) { .cu-stack .cu-camel { inline-size: 3rem !important; block-size: 3rem !important; margin-block-end: -1.4rem; } }
+@keyframes cu-hop { 0% { transform: translateY(-12px); } 60% { transform: translateY(2px); } }
+@keyframes cu-drop { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes cu-bump { 40% { transform: scale(1.2); } }
+@keyframes cu-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@keyframes cu-glow { 50% { outline-color: rgb(47 127 193 / 0.35); } }
+@media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
