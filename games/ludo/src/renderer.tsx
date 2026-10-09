@@ -4,7 +4,7 @@
 // (WebP cut from a generated sheet, see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
 import carpet from './art/bd-carpet.webp';
 import dieArt from './art/die.webp';
 import pawnRed from './art/pawn-red.webp';
@@ -58,7 +58,7 @@ function Die({ value, rolling }: { value: number | null; rolling?: boolean }) {
     5: [[1, 1], [3, 1], [2, 2], [1, 3], [3, 3]], 6: [[1, 1], [3, 1], [1, 2], [3, 2], [1, 3], [3, 3]]
   };
   return (
-    <svg className={rolling ? 'ld-die ld-die--roll' : 'ld-die'} viewBox="0 0 48 48" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس'}>
+    <svg className={rolling ? 'ld-die bg-roll' : 'ld-die'} viewBox="0 0 48 48" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس'}>
       <defs>
         <linearGradient id="ldd-face" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="0.6" stopColor="#f6efdc" /><stop offset="1" stopColor="#d8cdb0" /></linearGradient>
         <radialGradient id="ldd-pip" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#5a4a3c" /><stop offset="1" stopColor="#120c06" /></radialGradient>
@@ -104,6 +104,8 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
     if (latest && latest.seq > seen.current) setAnnounce(describe(latest, seatName));
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, latest?.seq ?? 0);
   const lastRoll = [...view.log].reverse().find((e) => e.t === 'roll');
 
   const mine = mySeat !== null ? view.slots[mySeat]! : null;
@@ -113,7 +115,7 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)} (${SLOT_FA[view.slots[view.current]!]})` };
 
   return (
-    <div className="ld">
+    <div className="ld" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="ld-main">
@@ -187,13 +189,13 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             const hint = expected?.type === 'move' && expected.piece === i && seat === mySeat;
             const act = () => !busy && onAction({ type: 'move', piece: i });
             return (
-              <g key={`${seat}-${i}`} className={['ld-piece', move ? 'ld-piece--movable' : '', hint ? 'ld-piece--hint' : ''].join(' ')} style={{ transform: `translate(${x}px, ${y}px)` }}
+              <g key={`${seat}-${i}`} style={{ transform: `translate(${x}px, ${y}px)` }}><g data-flip={`pawn-${seat}-${i}`} className={['ld-piece', move ? 'ld-piece--movable' : '', hint ? 'ld-piece--hint' : ''].join(' ')}
                 {...(move ? { role: 'button', tabIndex: 0, 'aria-label': label, onClick: act, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } } } : { role: 'img', 'aria-label': label })}>
                 <circle r="22" className="ld-piece__ring" />
                 <ellipse cx="2.5" cy="5.5" rx="16" ry="12" className="ld-piece__shadow" filter="url(#ldg-blur)" aria-hidden="true" />
                 <Pawn slot={slot} />
                 <text y="6" aria-hidden="true">{fa(i + 1)}</text>
-              </g>
+              </g></g>
             );
           }))}
         </svg>
