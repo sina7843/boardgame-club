@@ -2,7 +2,7 @@
 // One tap places the mark; the table shell holds every move for a short undo window before sending it.
 import './renderer.css';
 import { useRef, type KeyboardEvent } from 'react';
-import { ActionBar, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { ActionBar, TurnIndicator, useFresh, type GameRendererProps } from '@bg/ui';
 import type { LineThreeView } from './rules.ts';
 // Mark art is cut from a generated sheet (see DECISIONS.md).
 import markX from './art/mark-x.webp';
@@ -17,6 +17,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
   const legal = new Set(legalActions.filter((a) => a.type === 'place').map((a) => a.cell as number));
   const expectedCell = expected?.type === 'place' ? (expected.cell as number) : null;
   const myTurn = legal.size > 0;
+  const fresh = useFresh(view.board.map((m, i) => (m ? `${i}${m}` : '')).filter(Boolean));
   const mySymbol = mySeat === null ? null : view.symbols[mySeat];
 
   const onKey = (e: KeyboardEvent, i: number) => {
@@ -50,7 +51,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
                     aria-disabled={!isLegal}
                     onClick={() => { if (isLegal) onAction({ type: 'place', cell: i }); }}
                     onKeyDown={(e) => onKey(e, i)}>
-                    <span aria-hidden key={mark ? `m${mark}` : 'p'} className={mark ? 'lt__mark' : undefined}>{mark && <>{mark}<img src={mark === 'X' ? markX : markO} alt="" draggable={false} /></>}</span>
+                    <span aria-hidden key={mark ? `m${mark}` : 'p'} className={mark ? `lt__mark${fresh.has(`${i}${mark}`) ? ' bg-land' : ''}` : undefined}>{mark && <>{mark}<img src={mark === 'X' ? markX : markO} alt="" draggable={false} /></>}</span>
                   </button>
                 </div>
               );
