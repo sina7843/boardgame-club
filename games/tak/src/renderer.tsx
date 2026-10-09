@@ -3,8 +3,8 @@
 // squares along one line — tap the current square again to drop another stone there; the move is sent when the
 // hand is empty.
 import './renderer.css';
-import { useEffect, useId, useMemo, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
 import bF from './art/b-F.webp';
 import bS from './art/b-S.webp';
 import bC from './art/b-C.webp';
@@ -16,6 +16,7 @@ import { allMoves, step, type Color, type Dir, type Kind, type Stone, type TakVi
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 130, M = 36;
+const K = 48; // stone slots per square for identity tracking (ponytail: a taller stack is not tracked above this)
 // Stone and walnut art are cut from a generated sheet (see DECISIONS.md).
 const STONE: Record<Color, Record<Kind, string>> = { w: { F: wF, S: wS, C: wC }, b: { F: bF, S: bS, C: bC } };
 const KIND_FA: Record<Kind, string> = { F: 'سنگ تخت', S: 'دیوار', C: 'سرستون' };
@@ -78,6 +79,16 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
     if (canPlace && !view.board[i]!.length && !sel) onAction({ type: 'place', at: i, kind: opening ? 'F' : kind });
   };
 
+  // Every physical stone gets a stable id (matched between consecutive boards), so lifted stones glide along the move,
+  // and a stone that has just appeared lands.
+  const root = useRef<HTMLDivElement>(null);
+  const ids = usePieceIds(
+    view.board.flatMap((stack) => Array.from({ length: K }, (_, k) => (stack[k] ? `${stack[k]!.c}${stack[k]!.t}` : null))),
+    (a, b) => { const p = Math.floor(a / K), q = Math.floor(b / K); return Math.hypot((p % n) - (q % n), Math.floor(p / n) - Math.floor(q / n)) * 100 + Math.abs((a % K) - (b % K)); }
+  );
+  const fresh = useFresh(ids.filter((x): x is string => !!x));
+  useFlip(root, view.ply);
+
   const road = new Set(view.end?.road ?? []);
   const last = view.history.at(-1);
   const who = (c: Color) => (view.colors[0] === c ? (mySeat === 0 ? 'شما' : seatName(0)) : (mySeat === 1 ? 'شما' : seatName(1)));
@@ -86,14 +97,14 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
   return (
-    <div className="tak" data-ply={view.ply}>
+    <div className="tak" data-ply={view.ply} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="tak__bar">
         {(['w', 'b'] as Color[]).map((c) => (
           <div key={c} className={['tak-side', view.turn === c && !view.outcome ? 'tak-side--turn' : ''].join(' ')}>
             <span className={`tak-side__chip tak-side__chip--${c}`} aria-hidden="true" />
             <bdi className="tak-side__name">{who(c)}</bdi>
-            <span className="tak-side__stat">{fa(view.reserve[c].stones)} سنگ{view.reserve[c].caps ? ` · ${fa(view.reserve[c].caps)} سرستون` : ''}</span>
+            <Stat n={view.reserve[c].stones * 100 + view.reserve[c].caps}>{fa(view.reserve[c].stones)} سنگ{view.reserve[c].caps ? ` · ${fa(view.reserve[c].caps)} سرستون` : ''}</Stat>
           </div>
         ))}
       </div>
@@ -117,7 +128,7 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
                   last && ((last.t === 'place' && last.at === i) || (last.t === 'move' && last.from === i)) ? 'tak-sq--last' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
                 <rect x={x - S / 2 + 5} y={y - S / 2 + 5} width={S - 10} height={S - 10} rx="10" fill={`url(#${walnut})`} className="tak-sq__bg" />
-                <StackShape x={x} y={y} stack={stack} lifted={sel?.from === i ? sel.lift : 0} />
+                <StackShape x={x} y={y} stack={stack} ids={ids.slice(i * K, i * K + K)} fresh={fresh} lifted={sel?.from === i ? sel.lift : 0} />
                 {stack.length > 1 && <text x={x + S / 2 - 18} y={y + S / 2 - 14} className="tak-height">{fa(stack.length)}</text>}
               </g>
             );
@@ -153,7 +164,11 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
   );
 }
 
-function StackShape({ x, y, stack, lifted }: { x: number; y: number; stack: Stone[]; lifted: number }) {
+function Stat({ n, children }: { n: number; children: React.ReactNode }) {
+  return <span key={n} className={`tak-side__stat ${usePop(n)}`}>{children}</span>;
+}
+
+function StackShape({ x, y, stack, ids, fresh, lifted }: { x: number; y: number; stack: Stone[]; ids: (string | null)[]; fresh: ReadonlySet<string>; lifted: number }) {
   if (!stack.length) return null;
   const shown = stack.slice(-7);
   const base = stack.length - shown.length;
@@ -166,7 +181,8 @@ function StackShape({ x, y, stack, lifted }: { x: number; y: number; stack: Ston
         const cy = y + 10 - up;
         const isTop = k === shown.length - 1;
         // Only the top stone shows its kind; everything beneath reads as a flat.
-        return <image key={k} href={STONE[st.c][isTop ? st.t : 'F']} x={x - 56} y={cy - 62} width="112" height="112" />;
+        const id = ids[idx] ?? `s${idx}`;
+        return <g key={id} data-flip={id} data-flip-enter="none"><image href={STONE[st.c][isTop ? st.t : 'F']} x={x - 56} y={cy - 62} width="112" height="112" className={fresh.has(id) ? 'bg-land' : undefined} /></g>;
       })}
     </g>
   );
