@@ -65,6 +65,13 @@ function fly(n: HTMLElement, from: Box, to: Box, frames: (dx: number, dy: number
   a.finished.then(done, done);
 }
 
+/** The value `v` had at the previous `key` (e.g. view.seq); stable across re-renders within the same key. Undefined at first. */
+export function usePrevious<T>(key: unknown, v: T): T | undefined {
+  const r = useRef<{ key: unknown; cur: T; prev: T | undefined }>({ key, cur: v, prev: undefined });
+  if (r.current.key !== key) r.current = { key, cur: v, prev: r.current.cur };
+  return r.current.prev;
+}
+
 /**
  * Animate every `[data-flip]` element under `root` from its previous on-screen box to its current one whenever `key`
  * changes. Elements that are new get an entrance: from their `data-flip-from` anchor (`[data-flip-anchor]`) if given,
@@ -112,7 +119,8 @@ export function useFlip(root: RefObject<HTMLElement | null>, key: unknown) {
           [{ transform: `translate(${dx}px, ${dy}px) scale(0.6) rotate(-8deg)`, opacity: 0.2 }, { opacity: 1, offset: 0.35 }, { transform: 'translate(0, 0) scale(1) rotate(0deg)', opacity: 1 }],
           { duration: MOTION.deal, delay, easing: MOTION.ease, composite: 'add', fill: 'backwards' }
         );
-      } else {
+      } else if (n.dataset.flipEnter !== 'none') {
+        // data-flip-enter="none": the element runs its own entrance (e.g. a bg-land class), so no default one here.
         n.animate(
           [{ transform: 'translate(0, 10px) scale(0.92)', opacity: 0 }, { transform: 'translate(0, 0) scale(1)', opacity: 1 }],
           { duration: MOTION.enter, delay: Math.min(delay, 210), easing: MOTION.ease, composite: 'add', fill: 'backwards' }

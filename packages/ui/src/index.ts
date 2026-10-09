@@ -1,7 +1,7 @@
 export * from './components.tsx';
 export * from './icons.tsx';
 export * from './table.tsx';
-export { useFlip, motionOff, MOTION } from './motion.tsx';
+export { useFlip, usePrevious, motionOff, MOTION } from './motion.tsx';
 // VibeFarsi motion, backgrounds and extra components (copied sources under ./vf).
 export { AnimatedList } from './vf/animations/animated-list.tsx';
 export { ArrowLink } from './vf/animations/arrow-link.tsx';
@@ -33,3 +33,4 @@ export { OtpField } from './vf/ui/otp-field.tsx';
 export { PhoneInput } from './vf/ui/phone-input.tsx';
 export { Tooltip } from './vf/ui/tooltip.tsx';
 export { ZoomBoard } from './zoom.tsx';
+export { usePieceIds, useFresh, usePop } from './pieces.ts';
