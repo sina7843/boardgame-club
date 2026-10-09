@@ -46,7 +46,9 @@
 .ct-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.18); }
 .ct-pl__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.82rem; }
 .ct-pl__name { font-weight: 800; }
-.ct-pl__score { padding: 0 0.5rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: ct-bump 0.4s ease-out; }
+.ct-pl__score { padding: 0 0.5rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; }
+.ct .bg-pop { display: inline-block; }
+.ct__played > span { display: inline-flex; }
 .ct-caravan { display: flex; gap: 0.5rem; align-items: center; justify-content: center; min-block-size: 1.2rem; }
 .ct-caravan small { color: #e3d2b2; font-size: 0.7rem; }
 
@@ -62,7 +64,6 @@
 .ct-hint { animation: ct-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
 @keyframes ct-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes ct-bump { 40% { transform: scale(1.25); } }
 @keyframes ct-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ct * { animation: none !important; transition: none !important; } }
 .ct > .ct__orders, .ct > .ct__market { inline-size: min(100%, 38rem); justify-self: center; align-items: start; }
