@@ -2,7 +2,7 @@
 // the outflanked discs turn over one after another, rippling out from the new disc.
 import './renderer.css';
 import { Fragment, useId } from 'react';
-import { TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
 import discB from './art/disc-b.webp';
 import discW from './art/disc-w.webp';
 import texBaize from './art/tex-baize.webp';
@@ -47,7 +47,7 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
           <div key={d} className={['oth-side', `oth-side--${d}`, view.turn === d && !view.outcome ? 'oth-side--turn' : ''].join(' ')}>
             <img className="oth-side__disc" src={DISC[d]} alt="" aria-hidden="true" />
             <bdi className="oth-side__name">{who(d)}</bdi>
-            <strong key={view.counts[d]} className="oth-side__count">{fa(view.counts[d])}</strong>
+            <Count n={view.counts[d]} />
           </div>
         ))}
         <div className="oth__bar" aria-hidden="true"><span style={{ inlineSize: `${(view.counts.b / Math.max(1, total)) * 100}%` }} /></div>
@@ -113,7 +113,7 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
                 </g>
               );
             }
-            return <g key={key} className={isNew ? 'oth-drop' : undefined} pointerEvents="none"><DiscShape x={x} y={y} d={d} /></g>;
+            return <g key={key} className={isNew ? 'bg-land' : undefined} pointerEvents="none"><DiscShape x={x} y={y} d={d} /></g>;
           })}
         </svg>
       </ZoomBoard>
@@ -124,6 +124,10 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
       )}
     </div>
   );
+}
+
+function Count({ n }: { n: number }) {
+  return <strong key={n} className={`oth-side__count ${usePop(n)}`}>{fa(n)}</strong>;
 }
 
 function DiscShape({ x, y, d }: { x: number; y: number; d: Disc }) {

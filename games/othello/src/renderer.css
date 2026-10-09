@@ -7,7 +7,7 @@
 .oth-side--turn { background: rgb(201 164 106 / 0.2); box-shadow: 0 0 0 2px #c9a46a, 0 8px 20px -8px rgb(201 164 106 / 0.6); }
 .oth-side__disc { inline-size: 22px; block-size: 22px; flex: none; object-fit: contain; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.5)); }
 .oth-side__name { font-weight: 800; flex: 1; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.oth-side__count { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; animation: oth-bump 0.35s ease-out; }
+.oth-side__count { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
 .oth__bar { grid-column: 1 / -1; block-size: 6px; border-radius: 999px; background: #ecebe6; overflow: hidden; direction: ltr; }
 .oth__bar span { display: block; block-size: 100%; background: #1d1f22; transition: inline-size 0.5s ease; }
 
@@ -27,7 +27,6 @@
 .oth-sq--hint .oth-dot { animation: oth-hint 1s ease-in-out infinite; }
 .oth-last { fill: rgb(255 210 122 / 0.18); stroke: #ffd27a; stroke-width: 3px; }
 
-.oth-drop { animation: oth-drop 0.38s cubic-bezier(.2, 1.4, .4, 1) both; transform-box: fill-box; transform-origin: center; }
 .oth-flip__old, .oth-flip__new { transform-box: fill-box; transform-origin: center; }
 .oth-flip__old { animation: oth-old 0.42s ease-in var(--d) both; }
 .oth-flip__new { animation: oth-new 0.42s ease-out var(--d) both; }
@@ -35,13 +34,11 @@
 .oth__note { margin: 0; color: #ffd27a; font-weight: 700; }
 .oth__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes oth-drop { from { transform: translateY(-30px) scale(1.25); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes oth-old { 0% { transform: scaleX(1); } 50%, 100% { transform: scaleX(0); } }
 @keyframes oth-new { 0%, 50% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
 @keyframes oth-hint { 50% { r: 22px; opacity: 0.9; } }
-@keyframes oth-bump { 40% { transform: scale(1.25); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .oth-drop, .oth-flip__new, .oth-side__count, .oth-sq--hint .oth-dot { animation: none; }
+  .oth-flip__new, .oth-sq--hint .oth-dot { animation: none; }
   .oth-flip__old { animation: none; opacity: 0; }
 }
