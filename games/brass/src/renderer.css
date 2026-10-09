@@ -1,0 +1,81 @@
+/* برس: بیرمنگام — brick, soot and brass palette; painted map under an SVG board; logical properties throughout. */
+.br { --brick: #6b2f1f; --soot: #1f1a17; --brass: #c9a24a; --paper: #f3e7cf; --ink: #2a211a;
+  display: grid; gap: 0.75rem; inline-size: 100%; padding: 0.75rem; border-radius: 14px; color: var(--paper);
+  background: linear-gradient(180deg, #3a2a20, var(--soot)); }
+.br__head { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; justify-content: center; align-items: center; font-size: 0.85rem; }
+.br__head > span { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgb(255 255 255 / 0.07); }
+.br__head img { inline-size: 1.5rem; block-size: 1.5rem; object-fit: contain; }
+.br-era { font-weight: 800; border: 1px solid var(--brass); }
+.br-era--rail { background: rgb(201 162 74 / 0.18) !important; }
+.br-market b, .br-deck b { display: inline-block; }
+
+.br__main { display: grid; gap: 0.75rem; }
+@media (min-width: 60rem) { .br__main { grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 1fr); align-items: start; } }
+.br__map { border-radius: 10px; overflow: hidden; background: #d9c9a3; }
+.br__mapin svg { display: block; inline-size: 100%; block-size: auto; }
+
+.br-link__bed { stroke: #5b4a36; stroke-width: 0.5; stroke-linecap: round; opacity: 0.75; }
+.br-link--rail .br-link__bed { stroke-dasharray: 1.2 0.7; }
+.br-link--canal .br-link__bed { stroke: #2f6a9a; stroke-width: 0.7; }
+.br-link__own { stroke-width: 1.5; stroke-linecap: round; }
+.br-link__hit { stroke: transparent; stroke-width: 3; cursor: pointer; }
+.br-link--target .br-link__bed { stroke: #ffd54a; stroke-width: 0.9; opacity: 1; }
+.br-link--on .br-link__bed { stroke: #fff; stroke-width: 1.4; }
+
+.br-name { font-size: 2.1px; font-weight: 800; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 0.45px; }
+.br-name--town { fill: #fff; stroke: none; }
+.br-sub { font-size: 1.5px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 0.35px; }
+.br-slot__bg { fill: rgb(243 231 207 / 0.85); stroke: #5b4a36; stroke-width: 0.15; }
+.br-slot--target { cursor: pointer; }
+.br-slot--target .br-slot__bg { stroke: #ffd54a; stroke-width: 0.5; }
+.br-slot--on .br-slot__bg, .br-slot--on rect { stroke: #fff; stroke-width: 0.7; }
+.br-lvl { font-size: 1.2px; font-weight: 900; fill: #fff; paint-order: stroke; stroke: #000; stroke-width: 0.3px; }
+.br-cubes { font-size: 1.3px; font-weight: 900; fill: #ffd54a; paint-order: stroke; stroke: #000; stroke-width: 0.3px; }
+.br-flip { font-size: 1.5px; font-weight: 900; fill: #7cff8a; paint-order: stroke; stroke: #000; stroke-width: 0.3px; }
+.br-mtile { fill: var(--paper); stroke: var(--brass); stroke-width: 0.25; }
+.br-mtile--none { fill: rgb(0 0 0 / 0.25); stroke-dasharray: 0.4 0.3; }
+
+.br__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.br-pl { display: grid; gap: 0.3rem; padding: 0.45rem 0.6rem; border-radius: 8px; border-inline-start: 6px solid; background: rgb(255 255 255 / 0.06); font-size: 0.85rem; }
+.br-pl--turn { outline: 2px solid var(--brass); }
+.br-pl--me { background: rgb(201 162 74 / 0.15); }
+.br-pl--win { outline: 2px solid #7cff8a; }
+.br-pl__top { display: flex; align-items: baseline; gap: 0.5rem; }
+.br-pl__name { font-weight: 800; }
+.br-pl__place { font-size: 0.75rem; opacity: 0.8; }
+.br-pl__vp { margin-inline-start: auto; color: var(--brass); font-size: 1rem; display: inline-block; }
+.br-pl__stats { display: flex; flex-wrap: wrap; gap: 0.2rem 0.75rem; }
+.br-pl__stats span { display: inline-block; }
+.br-mat { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.br-mat__t { display: inline-flex; align-items: center; gap: 0.1rem; padding: 0.1rem 0.3rem 0.1rem 0.1rem; border-radius: 6px; background: rgb(0 0 0 / 0.25); font-size: 0.75rem; }
+.br-mat__t img { inline-size: 1.6rem; block-size: 1.6rem; object-fit: contain; }
+.br-mat__t--out { opacity: 0.4; }
+
+.br__hand h3 { margin: 0 0 0.4rem; font-size: 0.95rem; text-align: center; }
+.br-cards { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+.br-card { --band: #6b2f1f; position: relative; display: grid; justify-items: center; align-content: start; gap: 0.15rem; inline-size: 6.4rem; min-block-size: 7.2rem;
+  padding: 0 0.3rem 0.35rem; border-radius: 9px; border: 2px solid var(--brass); background: var(--paper); color: var(--ink); font: inherit; cursor: pointer; overflow: hidden; text-align: center; }
+.br-card--ind { --band: #4a3b2c; }
+.br-card--wild { --band: linear-gradient(90deg, #9c3b2e, #b8962e, #2f8a84, #3f6e9c); }
+.br-card__band { inline-size: calc(100% + 0.6rem); padding: 0.1rem 0; background: var(--band); color: #fff; font-size: 0.7rem; font-weight: 800; }
+.br-card__art { display: flex; justify-content: center; }
+.br-card__art img { inline-size: 2.4rem; block-size: 2.4rem; object-fit: contain; }
+.br-card__name { font-size: 0.85rem; line-height: 1.25; }
+.br-card small { font-size: 0.68rem; line-height: 1.3; opacity: 0.8; }
+.br-card:disabled { opacity: 0.5; cursor: default; }
+.br-card--on { background: var(--brass); transform: translateY(-4px); box-shadow: 0 6px 14px rgb(0 0 0 / 0.4); }
+@media (max-width: 30rem) { .br-card { inline-size: 5.4rem; min-block-size: 6.4rem; } .br-card small { display: none; } }
+
+.br-kinds, .br-targets { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.br-targets { max-block-size: 16rem; overflow-y: auto; }
+.br-target { display: inline-flex; align-items: center; gap: 0.3rem; min-block-size: 2.5rem; padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--brass); background: var(--paper); color: var(--ink); font: inherit; font-size: 0.85rem; cursor: pointer; }
+.br-target img { inline-size: 1.6rem; block-size: 1.6rem; object-fit: contain; }
+.br-target:disabled { opacity: 0.45; cursor: default; }
+.br-target--on { background: var(--brass); font-weight: 800; }
+.br-card:focus-visible, .br-target:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.br-hint { box-shadow: 0 0 0 3px #ffd54a; }
+.br__actions { display: grid; gap: 0.5rem; justify-items: center; padding: 0.5rem; border-radius: 10px; background: rgb(0 0 0 / 0.2); }
+.br-help { text-align: center; max-inline-size: 40rem; margin: 0; }
+.br__result { font-weight: 800; text-align: center; font-size: 1.05rem; }
+.br-muted { opacity: 0.75; font-size: 0.8rem; }
+.br__last { text-align: center; margin: 0; }

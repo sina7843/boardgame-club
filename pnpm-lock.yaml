@@ -47,6 +47,9 @@ importers:
       '@bg/game-abalone':
         specifier: workspace:*
         version: link:../../games/abalone
+      '@bg/game-ark-nova':
+        specifier: workspace:*
+        version: link:../../games/ark-nova
       '@bg/game-azul':
         specifier: workspace:*
         version: link:../../games/azul
@@ -59,6 +62,9 @@ importers:
       '@bg/game-bohnanza':
         specifier: workspace:*
         version: link:../../games/bohnanza
+      '@bg/game-brass':
+        specifier: workspace:*
+        version: link:../../games/brass
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
@@ -83,6 +89,9 @@ importers:
       '@bg/game-crew-deep-sea':
         specifier: workspace:*
         version: link:../../games/crew-deep-sea
+      '@bg/game-cryptid':
+        specifier: workspace:*
+        version: link:../../games/cryptid
       '@bg/game-dice-throne':
         specifier: workspace:*
         version: link:../../games/dice-throne
@@ -98,12 +107,18 @@ importers:
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale
+      '@bg/game-gaia-project':
+        specifier: workspace:*
+        version: link:../../games/gaia-project
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
       '@bg/game-hanabi':
         specifier: workspace:*
         version: link:../../games/hanabi
+      '@bg/game-heat':
+        specifier: workspace:*
+        version: link:../../games/heat
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -161,6 +176,9 @@ importers:
       '@bg/game-sea-salt-paper':
         specifier: workspace:*
         version: link:../../games/sea-salt-paper
+      '@bg/game-set':
+        specifier: workspace:*
+        version: link:../../games/set
       '@bg/game-six-nimmt':
         specifier: workspace:*
         version: link:../../games/six-nimmt
@@ -182,6 +200,9 @@ importers:
       '@bg/game-tak':
         specifier: workspace:*
         version: link:../../games/tak
+      '@bg/game-terraforming-mars':
+        specifier: workspace:*
+        version: link:../../games/terraforming-mars
       '@bg/game-the-crew':
         specifier: workspace:*
         version: link:../../games/the-crew
@@ -191,6 +212,9 @@ importers:
       '@bg/game-wonders-duel':
         specifier: workspace:*
         version: link:../../games/wonders-duel
+      '@bg/game-yahtzee':
+        specifier: workspace:*
+        version: link:../../games/yahtzee
       '@bg/play':
         specifier: workspace:*
         version: link:../../packages/play
@@ -267,6 +291,9 @@ importers:
       '@bg/game-amlak':
         specifier: workspace:*
         version: link:../../games/amlak
+      '@bg/game-ark-nova':
+        specifier: workspace:*
+        version: link:../../games/ark-nova
       '@bg/game-azul':
         specifier: workspace:*
         version: link:../../games/azul
@@ -279,6 +306,9 @@ importers:
       '@bg/game-bohnanza':
         specifier: workspace:*
         version: link:../../games/bohnanza
+      '@bg/game-brass':
+        specifier: workspace:*
+        version: link:../../games/brass
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
@@ -309,6 +339,9 @@ importers:
       '@bg/game-crew-deep-sea':
         specifier: workspace:*
         version: link:../../games/crew-deep-sea
+      '@bg/game-cryptid':
+        specifier: workspace:*
+        version: link:../../games/cryptid
       '@bg/game-dice-throne':
         specifier: workspace:*
         version: link:../../games/dice-throne
@@ -321,12 +354,18 @@ importers:
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale
+      '@bg/game-gaia-project':
+        specifier: workspace:*
+        version: link:../../games/gaia-project
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
       '@bg/game-hanabi':
         specifier: workspace:*
         version: link:../../games/hanabi
+      '@bg/game-heat':
+        specifier: workspace:*
+        version: link:../../games/heat
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -396,6 +435,9 @@ importers:
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
+      '@bg/game-set':
+        specifier: workspace:*
+        version: link:../../games/set
       '@bg/game-six-nimmt':
         specifier: workspace:*
         version: link:../../games/six-nimmt
@@ -420,6 +462,9 @@ importers:
       '@bg/game-tak':
         specifier: workspace:*
         version: link:../../games/tak
+      '@bg/game-terraforming-mars':
+        specifier: workspace:*
+        version: link:../../games/terraforming-mars
       '@bg/game-the-crew':
         specifier: workspace:*
         version: link:../../games/the-crew
@@ -438,6 +483,9 @@ importers:
       '@bg/game-wonders-duel':
         specifier: workspace:*
         version: link:../../games/wonders-duel
+      '@bg/game-yahtzee':
+        specifier: workspace:*
+        version: link:../../games/yahtzee
       '@bg/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -542,6 +590,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/ark-nova:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/azul:
     dependencies:
       '@bg/game-sdk':
@@ -600,6 +667,25 @@ importers:
         version: 19.3.0
 
   games/bohnanza:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
+  games/brass:
     dependencies:
       '@bg/game-sdk':
         specifier: workspace:*
@@ -811,6 +897,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/cryptid:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/dice-throne:
     dependencies:
       '@bg/game-sdk':
@@ -887,6 +992,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/gaia-project:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/go:
     dependencies:
       '@bg/game-sdk':
@@ -907,6 +1031,25 @@ importers:
         version: 19.3.0
 
   games/hanabi:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
+  games/heat:
     dependencies:
       '@bg/game-sdk':
         specifier: workspace:*
@@ -1362,6 +1505,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/set:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/six-nimmt:
     dependencies:
       '@bg/game-sdk':
@@ -1514,6 +1676,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/terraforming-mars:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   games/the-crew:
     dependencies:
       '@bg/game-sdk':
@@ -1628,6 +1809,25 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
 
+  games/yahtzee:
+    dependencies:
+      '@bg/game-sdk':
+        specifier: workspace:*
+        version: link:../../packages/game-sdk
+      '@bg/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
   packages/contracts:
     dependencies:
       '@bg/game-sdk':
@@ -1652,6 +1852,9 @@ importers:
       '@bg/game-amlak':
         specifier: workspace:*
         version: link:../../games/amlak
+      '@bg/game-ark-nova':
+        specifier: workspace:*
+        version: link:../../games/ark-nova
       '@bg/game-azul':
         specifier: workspace:*
         version: link:../../games/azul
@@ -1664,6 +1867,9 @@ importers:
       '@bg/game-bohnanza':
         specifier: workspace:*
         version: link:../../games/bohnanza
+      '@bg/game-brass':
+        specifier: workspace:*
+        version: link:../../games/brass
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
@@ -1694,6 +1900,9 @@ importers:
       '@bg/game-crew-deep-sea':
         specifier: workspace:*
         version: link:../../games/crew-deep-sea
+      '@bg/game-cryptid':
+        specifier: workspace:*
+        version: link:../../games/cryptid
       '@bg/game-dice-throne':
         specifier: workspace:*
         version: link:../../games/dice-throne
@@ -1706,12 +1915,18 @@ importers:
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale
+      '@bg/game-gaia-project':
+        specifier: workspace:*
+        version: link:../../games/gaia-project
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
       '@bg/game-hanabi':
         specifier: workspace:*
         version: link:../../games/hanabi
+      '@bg/game-heat':
+        specifier: workspace:*
+        version: link:../../games/heat
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -1784,6 +1999,9 @@ importers:
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
+      '@bg/game-set':
+        specifier: workspace:*
+        version: link:../../games/set
       '@bg/game-six-nimmt':
         specifier: workspace:*
         version: link:../../games/six-nimmt
@@ -1808,6 +2026,9 @@ importers:
       '@bg/game-tak':
         specifier: workspace:*
         version: link:../../games/tak
+      '@bg/game-terraforming-mars':
+        specifier: workspace:*
+        version: link:../../games/terraforming-mars
       '@bg/game-the-crew':
         specifier: workspace:*
         version: link:../../games/the-crew
@@ -1826,6 +2047,9 @@ importers:
       '@bg/game-wonders-duel':
         specifier: workspace:*
         version: link:../../games/wonders-duel
+      '@bg/game-yahtzee':
+        specifier: workspace:*
+        version: link:../../games/yahtzee
       drizzle-orm:
         specifier: 0.45.3
         version: 0.45.3(postgres@3.4.9)
@@ -1845,6 +2069,9 @@ importers:
       '@bg/game-amlak':
         specifier: workspace:*
         version: link:../../games/amlak
+      '@bg/game-ark-nova':
+        specifier: workspace:*
+        version: link:../../games/ark-nova
       '@bg/game-azul':
         specifier: workspace:*
         version: link:../../games/azul
@@ -1857,6 +2084,9 @@ importers:
       '@bg/game-bohnanza':
         specifier: workspace:*
         version: link:../../games/bohnanza
+      '@bg/game-brass':
+        specifier: workspace:*
+        version: link:../../games/brass
       '@bg/game-camel-up':
         specifier: workspace:*
         version: link:../../games/camel-up
@@ -1887,6 +2117,9 @@ importers:
       '@bg/game-crew-deep-sea':
         specifier: workspace:*
         version: link:../../games/crew-deep-sea
+      '@bg/game-cryptid':
+        specifier: workspace:*
+        version: link:../../games/cryptid
       '@bg/game-dice-throne':
         specifier: workspace:*
         version: link:../../games/dice-throne
@@ -1899,12 +2132,18 @@ importers:
       '@bg/game-for-sale':
         specifier: workspace:*
         version: link:../../games/for-sale
+      '@bg/game-gaia-project':
+        specifier: workspace:*
+        version: link:../../games/gaia-project
       '@bg/game-go':
         specifier: workspace:*
         version: link:../../games/go
       '@bg/game-hanabi':
         specifier: workspace:*
         version: link:../../games/hanabi
+      '@bg/game-heat':
+        specifier: workspace:*
+        version: link:../../games/heat
       '@bg/game-high-society':
         specifier: workspace:*
         version: link:../../games/high-society
@@ -1977,6 +2216,9 @@ importers:
       '@bg/game-sealed-bids':
         specifier: workspace:*
         version: link:../../games/sealed-bids
+      '@bg/game-set':
+        specifier: workspace:*
+        version: link:../../games/set
       '@bg/game-six-nimmt':
         specifier: workspace:*
         version: link:../../games/six-nimmt
@@ -2001,6 +2243,9 @@ importers:
       '@bg/game-tak':
         specifier: workspace:*
         version: link:../../games/tak
+      '@bg/game-terraforming-mars':
+        specifier: workspace:*
+        version: link:../../games/terraforming-mars
       '@bg/game-the-crew':
         specifier: workspace:*
         version: link:../../games/the-crew
@@ -2019,6 +2264,9 @@ importers:
       '@bg/game-wonders-duel':
         specifier: workspace:*
         version: link:../../games/wonders-duel
+      '@bg/game-yahtzee':
+        specifier: workspace:*
+        version: link:../../games/yahtzee
     devDependencies:
       vitest:
         specifier: 5.0.3

@@ -1,0 +1,107 @@
+/* هیت — a 1960s pit wall: racing-green lacquer, cream paint, signal orange, chequered flags.
+   Palette: green #12301f / #1f4a31, cream #f3ead2, asphalt #3b3d40 / #55585c, signal orange #ff8a1f, heat red #d9431e. */
+.ht { --cream: #f3ead2; --ink: #1d1a14; --orange: #ff8a1f; --heat: #d9431e; --green: #1f4a31;
+  display: grid; gap: 0.7rem; inline-size: 100%; padding: 0.7rem 0.55rem; border-radius: 16px; color: var(--cream); text-align: center;
+  background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 2px, transparent 2px 12px), linear-gradient(180deg, #1f4a31, #12301f);
+  box-shadow: inset 0 0 0 1px rgb(243 234 210 / 0.35), inset 0 18px 40px -22px #000; }
+.ht > :first-child { justify-self: center; }
+
+.ht__bar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.ht-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgb(0 0 0 / 0.35); font-size: 0.8rem; font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgb(243 234 210 / 0.3); }
+.ht-chip img { inline-size: 1.4rem; block-size: 1.4rem; object-fit: contain; }
+
+/* the circuit */
+.ht__board { border-radius: 12px; overflow: hidden; background: url('./art/grass.webp') 0 0 / 160px 160px, #2f6b2c; box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.4), 0 6px 14px -8px #000; }
+.ht-track { display: block; inline-size: 100%; block-size: auto; }
+.ht-track__verge { fill: none; stroke: #e9e2cc; stroke-width: 84; stroke-linejoin: round; stroke-dasharray: 14 14; }
+.ht-track__road { fill: none; stroke: #3b3d40; stroke-width: 74; stroke-linejoin: round; }
+.ht-track__mid { fill: none; stroke: rgb(255 255 255 / 0.18); stroke-width: 2; stroke-dasharray: 10 12; }
+.ht-track__tick { stroke: rgb(255 255 255 / 0.32); stroke-width: 1.5; }
+.ht-track__num { fill: #fffbe9; font-size: 18px; font-weight: 800; text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: #1d1a14; stroke-width: 3px; }
+.ht-track__finish { stroke: #fff; stroke-width: 10; stroke-dasharray: 6 6; filter: drop-shadow(0 0 1px #000); }
+.ht-corner__line { stroke: var(--orange); stroke-width: 5; }
+.ht-corner__badge { fill: #fffbe9; stroke: var(--heat); stroke-width: 5; }
+.ht-corner__lim { fill: var(--ink); font-size: 30px; font-weight: 900; text-anchor: middle; }
+.ht-corner__road { fill: #fffbe9; font-size: 18px; font-weight: 900; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 3px; }
+.ht-car image { filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.6)); }
+.ht-car--on image { filter: drop-shadow(0 0 5px #ffd36a) drop-shadow(0 0 2px #ffd36a); }
+
+/* cards */
+.ht__cards, .ht__hand, .ht-racer__play { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; align-items: center; }
+.ht-card { position: relative; display: inline-grid; place-items: center; align-content: center; gap: 0.1rem; border-radius: 7px; color: var(--ink); line-height: 1.1;
+  background: linear-gradient(160deg, #fffaf0, var(--cream)); box-shadow: inset 0 0 0 2px #1d1a14, inset 0 0 0 4px var(--cream), inset 0 0 0 5px rgb(29 26 20 / 0.4), 0 3px 6px -3px #000; }
+.ht-card--md { inline-size: 3.6rem; min-block-size: 5rem; padding: 0.3rem 0.2rem; }
+.ht-card--sm { inline-size: 1.9rem; block-size: 2.6rem; }
+.ht-card__v { font-size: 1.7rem; font-weight: 900; }
+.ht-card--sm .ht-card__v { font-size: 1rem; }
+.ht-card__g { font-size: 0.55rem; font-weight: 700; }
+.ht-card img { inline-size: 70%; block-size: auto; object-fit: contain; }
+.ht-card--heat { background: linear-gradient(160deg, #ffd9b0, #f2a35c); }
+.ht-card--stress { background: linear-gradient(160deg, #f3d6d6, #c97a7a); }
+.ht-card--stress b { position: absolute; inset-block-end: 0.15rem; font-weight: 900; }
+.ht-card--garage { background: linear-gradient(160deg, #dff0ff, #9fc3e4); }
+.ht-card--md.ht-card--garage { inline-size: 5.4rem; }
+.ht-card--up::after { content: ''; position: absolute; inset-block-start: 3px; inset-inline-end: 3px; inline-size: 7px; block-size: 7px; border-radius: 50%; background: var(--orange); }
+
+.ht-slot, .ht-pick { padding: 0; border: 0; background: transparent; border-radius: 8px; line-height: 0; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.ht-slot:disabled, .ht-pick:disabled { cursor: default; opacity: 0.75; }
+.ht-slot:focus-visible, .ht-pick:focus-visible, .ht-gearbtn:focus-visible, .ht-toggle:focus-visible { outline: 3px solid #ffd36a; outline-offset: 2px; }
+.ht-slot--on { transform: translateY(-6px); box-shadow: 0 0 0 3px var(--orange), 0 0 12px rgb(255 138 31 / 0.6); }
+.ht-slot--disc { transform: translateY(4px); box-shadow: 0 0 0 3px #9aa0a6; opacity: 0.7; }
+
+/* race order */
+.ht__racers { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+.ht-racer { display: flex; gap: 0.5rem; align-items: center; padding: 0.4rem 0.55rem; border-radius: 10px; background: rgb(0 0 0 / 0.28); text-align: start;
+  box-shadow: inset 0 0 0 1px rgb(243 234 210 / 0.15); }
+.ht-racer--on { box-shadow: inset 0 0 0 2px #ffd36a, 0 0 10px rgb(255 211 106 / 0.3); }
+.ht-racer--me { background: rgb(255 138 31 / 0.14); }
+.ht-racer--out { opacity: 0.55; }
+.ht-racer__car { inline-size: 3.6rem; block-size: auto; flex: none; }
+.ht-racer__main { display: grid; gap: 0.2rem; min-inline-size: 0; flex: 1; }
+.ht-racer__head { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.ht-racer__name { font-weight: 800; }
+.ht-racer__place { display: inline-grid; place-items: center; inline-size: 1.5rem; block-size: 1.5rem; border-radius: 50%; background: var(--orange); color: var(--ink); }
+.ht-racer__sub { font-size: 0.78rem; opacity: 0.9; }
+.ht-racer__counts { opacity: 0.8; }
+.ht-gear, .ht-heat, .ht-tag { display: inline-flex; align-items: center; gap: 0.15rem; padding: 0.05rem 0.45rem; border-radius: 6px; font-size: 0.75rem; font-weight: 800; background: rgb(243 234 210 / 0.14); }
+.ht-heat img { inline-size: 1rem; block-size: 1rem; object-fit: contain; }
+.ht-tag { background: rgb(255 138 31 / 0.25); }
+.ht-flips { display: inline-flex; gap: 0.2rem; align-items: center; font-size: 0.75rem; }
+.ht-speed { padding: 0.1rem 0.5rem; border-radius: 6px; background: var(--orange); color: var(--ink); }
+
+/* your cockpit */
+.ht__cockpit { display: grid; gap: 0.6rem; padding: 0.6rem; border-radius: 12px; background: linear-gradient(180deg, #2c2e31, #1b1c1e); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12); }
+.ht__gears { display: flex; gap: 0.4rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+.ht__gearart { inline-size: 2.6rem; block-size: 2.6rem; object-fit: contain; }
+.ht-gearbtn { display: grid; place-items: center; min-inline-size: 3rem; min-block-size: 2.9rem; padding: 0.2rem 0.4rem; border: 0; border-radius: 10px; font: inherit; cursor: pointer;
+  background: linear-gradient(180deg, #5b5e62, #3b3d40); color: var(--cream); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 3px 5px -2px #000; }
+.ht-gearbtn b { font-size: 1.2rem; }
+.ht-gearbtn small { font-size: 0.65rem; opacity: 0.85; }
+.ht-gearbtn--on { background: linear-gradient(180deg, #ffb066, var(--orange)); color: var(--ink); }
+.ht-gearbtn:disabled { opacity: 0.35; cursor: default; }
+.ht__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; align-items: center; }
+.ht-toggle { min-block-size: 2.75rem; padding: 0.3rem 0.8rem; border: 0; border-radius: 10px; font: inherit; font-weight: 800; cursor: pointer; background: #45484c; color: var(--cream); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2); }
+.ht-toggle--on { background: var(--orange); color: var(--ink); }
+.ht-toggle--on::before { content: '✓ '; }
+.ht-toggle:disabled { opacity: 0.4; cursor: default; }
+.ht__note { margin: 0; font-size: 0.8rem; opacity: 0.9; }
+.ht__h { margin: 0 0 0.4rem; font-size: 0.95rem; }
+.ht__draft { padding: 0.5rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+
+.ht__log { display: grid; gap: 0.15rem; margin: 0; padding: 0.5rem 0.8rem; list-style: none; border-radius: 10px; background: rgb(0 0 0 / 0.25); font-size: 0.8rem; text-align: start; }
+.ht__hist { font-size: 0.82rem; text-align: start; }
+.ht__hist p { margin: 0.2rem 0; }
+
+.ht-hint { animation: ht-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd36a; }
+@keyframes ht-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ht * { animation: none !important; transition: none !important; } .ht-slot--on, .ht-slot--disc { transform: none; } }
+
+@media (max-width: 520px) {
+  .ht { padding: 0.5rem 0.3rem; }
+  .ht-card--md { inline-size: 2.9rem; min-block-size: 4.1rem; }
+  .ht-card__v { font-size: 1.35rem; }
+  .ht-card--md.ht-card--garage { inline-size: 4.6rem; }
+  .ht-racer__car { inline-size: 2.8rem; }
+  .ht-gearbtn { min-inline-size: 2.75rem; }
+}

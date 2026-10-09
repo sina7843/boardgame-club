@@ -70,7 +70,15 @@
     "@bg/game-el-dorado": "workspace:*",
     "@bg/game-res-arcana": "workspace:*",
     "@bg/game-race-galaxy": "workspace:*",
-    "@bg/game-battleship": "workspace:*"
+    "@bg/game-battleship": "workspace:*",
+    "@bg/game-yahtzee": "workspace:*",
+    "@bg/game-set": "workspace:*",
+    "@bg/game-cryptid": "workspace:*",
+    "@bg/game-heat": "workspace:*",
+    "@bg/game-brass": "workspace:*",
+    "@bg/game-terraforming-mars": "workspace:*",
+    "@bg/game-gaia-project": "workspace:*",
+    "@bg/game-ark-nova": "workspace:*"
   },
   "devDependencies": {
     "socket.io-client": "4.8.4",

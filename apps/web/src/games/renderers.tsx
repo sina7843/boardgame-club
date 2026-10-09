@@ -58,6 +58,14 @@ import ElDoradoRenderer from '@bg/game-el-dorado/renderer';
 import ResArcanaRenderer from '@bg/game-res-arcana/renderer';
 import RaceGalaxyRenderer from '@bg/game-race-galaxy/renderer';
 import BattleshipRenderer from '@bg/game-battleship/renderer';
+import ArkNovaRenderer from '@bg/game-ark-nova/renderer';
+import BrassRenderer from '@bg/game-brass/renderer';
+import GaiaProjectRenderer from '@bg/game-gaia-project/renderer';
+import TerraformingMarsRenderer from '@bg/game-terraforming-mars/renderer';
+import HeatRenderer from '@bg/game-heat/renderer';
+import CryptidRenderer from '@bg/game-cryptid/renderer';
+import SetRenderer from '@bg/game-set/renderer';
+import YahtzeeRenderer from '@bg/game-yahtzee/renderer';
 import type { GameRendererProps } from '@bg/ui';
 
 /**
@@ -124,5 +132,13 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'el-dorado@1.0.0': ElDoradoRenderer as ComponentType<GameRendererProps<never>>,
   'res-arcana@1.0.0': ResArcanaRenderer as ComponentType<GameRendererProps<never>>,
   'race-galaxy@1.0.0': RaceGalaxyRenderer as ComponentType<GameRendererProps<never>>,
-  'battleship@1.0.0': BattleshipRenderer as ComponentType<GameRendererProps<never>>
+  'battleship@1.0.0': BattleshipRenderer as ComponentType<GameRendererProps<never>>,
+  'ark-nova@1.0.0': ArkNovaRenderer as ComponentType<GameRendererProps<never>>,
+  'brass@1.0.0': BrassRenderer as ComponentType<GameRendererProps<never>>,
+  'gaia-project@1.0.0': GaiaProjectRenderer as ComponentType<GameRendererProps<never>>,
+  'terraforming-mars@1.0.0': TerraformingMarsRenderer as ComponentType<GameRendererProps<never>>,
+  'heat@1.0.0': HeatRenderer as ComponentType<GameRendererProps<never>>,
+  'cryptid@1.0.0': CryptidRenderer as ComponentType<GameRendererProps<never>>,
+  'set@1.0.0': SetRenderer as ComponentType<GameRendererProps<never>>,
+  'yahtzee@1.0.0': YahtzeeRenderer as ComponentType<GameRendererProps<never>>
 };

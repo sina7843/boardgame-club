@@ -1,0 +1,57 @@
+/* یاتزی — a walnut dice tray lined with green felt above an ivory paper score sheet. Palette: walnut #5a3218,
+   felt #1d5a32, ivory #f6ecd2, ink #2a1c10, brass #d9a441. Dice are ivory with ink pips (pips are code, not art). */
+.yz { --ink: #2a1c10; --brass: #d9a441; display: grid; gap: 0.7rem; inline-size: 100%; padding: 0.4rem; color: var(--ink); }
+.yz > :first-child { justify-self: center; }
+.yz__live { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.2rem 0.8rem; margin: 0; font-size: 0.85rem; color: var(--foreground, inherit); }
+.yz__live span:first-child { font-weight: 800; }
+
+.yz__tray { display: grid; gap: 0.6rem; justify-items: center; padding: 0.7rem; border-radius: 18px;
+  background: url('./art/wood.webp') center / 320px #5a3218; box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.2), inset 0 -3px 6px rgb(0 0 0 / 0.4), 0 6px 14px rgb(0 0 0 / 0.3); }
+.yz__felt { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem; inline-size: 100%; min-block-size: 6rem; padding: 0.9rem 0.5rem 1.2rem; border-radius: 12px;
+  background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.08), rgb(0 0 0 / 0.35)), url('./art/felt.webp') center / 260px #1d5a32; box-shadow: inset 0 3px 10px rgb(0 0 0 / 0.55); }
+.yz__empty { color: #d8ecd9; font-size: 0.9rem; }
+.yz-keep { position: relative; display: grid; justify-items: center; padding: 0; border: 0; background: transparent; color: #fff4d2; line-height: 0; cursor: pointer; border-radius: 14px; transition: transform 0.15s; }
+.yz-keep:disabled { cursor: default; }
+.yz-keep:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.yz-keep__die { display: block; }
+.yz-keep small { position: absolute; inset-block-end: -1rem; font-size: 0.65rem; font-weight: 800; line-height: 1; }
+.yz-keep--on { transform: translateY(-6px); }
+.yz-keep--on .yz-die__body { stroke: var(--brass); stroke-width: 4; }
+.yz-die { inline-size: 3.1rem; block-size: 3.1rem; filter: drop-shadow(2px 4px 2px rgb(0 0 0 / 0.45)); }
+.yz-die__body { fill: #fbf5e4; stroke: #c9b78a; stroke-width: 2; }
+.yz-die__pip { fill: var(--ink); }
+.yz__roll { display: flex; align-items: center; gap: 0.6rem; }
+.yz__cup { inline-size: 3.2rem; block-size: 3.2rem; object-fit: contain; }
+
+.yz__sheetwrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 12px rgb(0 0 0 / 0.25); }
+.yz__sheet { inline-size: 100%; border-collapse: collapse; font-size: 0.85rem; background: url('./art/paper.webp') center / 300px #f6ecd2; color: var(--ink); }
+.yz__sheet caption { padding: 0.4rem; font-weight: 900; text-align: center; background: #5a3218; color: #f6ecd2; }
+.yz__sheet th, .yz__sheet td { padding: 0.25rem 0.4rem; border-block-end: 1px solid rgb(90 50 24 / 0.2); text-align: center; white-space: nowrap; }
+.yz__sheet thead th { font-weight: 800; border-block-end: 2px solid #5a3218; max-inline-size: 7rem; overflow: hidden; text-overflow: ellipsis; }
+.yz__sheet tbody th, .yz__sheet tfoot th { position: sticky; inset-inline-start: 0; z-index: 1; text-align: start; font-weight: 700; background: #f6ecd2; }
+.yz__sheet thead th:first-child { position: sticky; inset-inline-start: 0; z-index: 2; background: #f6ecd2; }
+.yz__sheet thead bdi { display: inline-block; max-inline-size: 6rem; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+.yz__sheet tbody th span { display: block; }
+.yz__sheet tbody th small { display: block; font-size: 0.65rem; font-weight: 400; opacity: 0.7; }
+.yz-row--split > * { border-block-start: 2px solid #5a3218; }
+.yz__sheet tfoot tr:first-child > * { border-block-start: 2px solid #5a3218; }
+.yz__sheet tfoot small { opacity: 0.6; }
+.yz-row--total > * { font-size: 1rem; font-weight: 900; background: rgb(217 164 65 / 0.25); }
+.yz-row--total b { display: inline-block; }
+.yz-col--turn { background: rgb(217 164 65 / 0.35); }
+.yz-cell--open { opacity: 0.35; }
+.yz-cell--fresh { background: rgb(29 90 50 / 0.15); }
+.yz-cell--fresh b { display: inline-block; }
+.yz-ok { color: #1d5a32; }
+.yz-opt { min-inline-size: 2.6rem; min-block-size: 2rem; padding: 0.1rem 0.4rem; border: 2px dashed #1d5a32; border-radius: 8px; background: rgb(255 255 255 / 0.6); color: #1d5a32; font: inherit; font-weight: 800; cursor: pointer; }
+.yz-opt--zero { border-color: #9a7a62; color: #8a6a52; }
+.yz-opt--on { border-style: solid; background: #1d5a32; color: #fff; }
+.yz-opt:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+.yz-opt:disabled { cursor: default; opacity: 0.6; }
+
+.yz__joker { margin: 0; padding: 0.4rem 0.7rem; border-radius: 10px; background: rgb(217 164 65 / 0.25); color: var(--foreground, inherit); font-size: 0.85rem; text-align: center; }
+.yz__bar { display: flex; justify-content: center; }
+.yz-hint { animation: yz-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
+@keyframes yz-pulse { 50% { box-shadow: 0 0 0 6px rgb(255 210 122 / 0.5); } }
+@media (prefers-reduced-motion: reduce) { .yz-hint { animation: none; } }
+@media (max-width: 420px) { .yz-die { inline-size: 2.6rem; block-size: 2.6rem; } .yz__sheet { font-size: 0.78rem; } .yz__sheet th, .yz__sheet td { padding: 0.2rem 0.25rem; } }
