@@ -2,8 +2,8 @@
 // beside it; rivals show their open bids as banknote chips and their collection; your banknotes are a fan to tap
 // into a bid.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import luxuryArt from './art/luxury.webp';
 import prestigeArt from './art/prestige.webp';
 import disgraceArt from './art/disgrace.webp';
@@ -18,12 +18,12 @@ const SPECIAL: Record<string, { big: string; name: string }> = {
 const ART = { lux: luxuryArt, good: prestigeArt, bad: disgraceArt };
 const fmtStatus = (v: number) => (Number.isInteger(v) ? fa(v) : v.toLocaleString('fa-IR', { maximumFractionDigits: 2 }));
 
-export function Card({ c, size = 'md', fresh }: { c: StatusCard; size?: 'sm' | 'md'; fresh?: boolean }) {
+export function Card({ c, size = 'md', flip, flipFrom }: { c: StatusCard; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) {
   const v = lux(c);
   const sp = SPECIAL[c];
   const kind = v ? 'lux' : isDisgrace(c) ? 'bad' : 'good';
   return (
-    <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : '', fresh ? 'hs-card--fresh' : ''].join(' ')}
+    <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom}
       aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}>
       <img className="hs-card__art" src={ART[kind]} alt="" draggable={false} />
       <span className="hs-card__big">{v ? fa(v) : sp!.big}</span>
@@ -32,9 +32,11 @@ export function Card({ c, size = 'md', fresh }: { c: StatusCard; size?: 'sm' | '
   );
 }
 
-const Note = ({ v, size = 'md' }: { v: number; size?: 'sm' | 'md' }) => <span className={`hs-note hs-note--${size}`} data-v={v}><b>{fa(v)}</b></span>;
+const Note = ({ v, size = 'md', flip, flipFrom }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) => <span className={`hs-note hs-note--${size}`} data-v={v} data-flip={flip} data-flip-from={flipFrom}><b>{fa(v)}</b></span>;
 
 export default function HighSocietyRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<HighSocietyView>) {
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const bidHint = legalActions.find((a) => a.type === 'bid') as { need: number } | undefined;
   const canPass = legalActions.some((a) => a.type === 'pass');
   const [sel, setSel] = useState<number[]>([]);
@@ -53,18 +55,18 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
   const last = view.last;
 
   return (
-    <div className="hs" data-seq={view.seq}>
+    <div className="hs" ref={root} data-seq={view.seq}>
       {status_ && <TurnIndicator tone={status_.tone}>{status_.text}</TurnIndicator>}
 
       {!view.outcome && view.card && (
-        <section className={`hs__stage ${disgrace ? 'hs__stage--bad' : ''}`} aria-label="کارت مزایده">
-          <div className="hs__lamps" title="با چهارمین کارت قاب‌قرمز بازی تمام می‌شود">{[0, 1, 2, 3].map((k) => <i key={k} className={k < view.red ? 'on' : ''} />)}<span>قاب قرمز: {fa(view.red)} از ۴</span></div>
-          <Card c={view.card} key={view.seq + view.card} fresh />
+        <section data-flip-anchor="stage" className={`hs__stage ${disgrace ? 'hs__stage--bad' : ''}`} aria-label="کارت مزایده">
+          <div className="hs__lamps" title="با چهارمین کارت قاب‌قرمز بازی تمام می‌شود">{[0, 1, 2, 3].map((k) => <i key={`${k}${k < view.red}`} className={k < view.red ? 'on bg-pop' : ''} />)}<span>قاب قرمز: {fa(view.red)} از ۴</span></div>
+          <Card c={view.card} key={view.seq + view.card} flip={`c-${view.card === 'prestige' ? 'prestige.stage' : view.card}`} flipFrom="deck" />
           <div className="hs__terms">
             {disgrace ? <>رسوایی: <b>اولین کسی که کنار بکشد</b> آن را می‌گیرد؛ بقیه پولشان را از دست می‌دهند</> : <>آخرین نفر باقی‌مانده می‌خرد</>}
-            {view.high > 0 && <>، بالاترین پیشنهاد <b className="hs__high" key={view.high}>{fa(view.high)}</b></>}
+            {view.high > 0 && <>، بالاترین پیشنهاد <b className="hs__high bg-pop" key={view.high}>{fa(view.high)}</b></>}
           </div>
-          <span className="hs__deck">{fa(view.deckCount)} کارت در دسته</span>
+          <span className="hs__deck" data-flip-anchor="deck"><span key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</span> کارت در دسته</span>
         </section>
       )}
 
@@ -79,18 +81,18 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           const poorest = view.money ? view.money[s] === Math.min(...view.money) && new Set(view.money).size > 1 : false;
           return (
-            <li key={s} className={['hs-pl', view.current === s ? 'hs-pl--turn' : '', view.passed[s] ? 'hs-pl--passed' : '', s === mySeat ? 'hs-pl--me' : '', place === 1 ? 'hs-pl--win' : ''].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['hs-pl', view.current === s ? 'hs-pl--turn' : '', view.passed[s] ? 'hs-pl--passed' : '', s === mySeat ? 'hs-pl--me' : '', place === 1 ? 'hs-pl--win' : ''].join(' ')}>
               <div className="hs-pl__head">
                 {place && <b className="hs-pl__place">{fa(place)}</b>}
                 <bdi className="hs-pl__name">{who(s)}</bdi>
                 <span className="hs-pl__status" title="امتیاز">★ {fmtStatus(status(view.won[s]!))}</span>
-                {view.money ? <span className={`hs-pl__money ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} پول{poorest ? '، کم‌پول‌ترین' : ''}</span>
+                {view.money ? <span key={view.money[s]} className={`hs-pl__money bg-pop ${poorest ? 'hs-pl__money--out' : ''}`}>{fa(view.money[s]!)} پول{poorest ? '، کم‌پول‌ترین' : ''}</span>
                   : <span className="hs-pl__meta">{fa(view.handCount[s]!)} اسکناس</span>}
                 {view.faux[s] && <span className="hs-pl__flag">گاف در انتظار</span>}
                 {!view.outcome && view.passed[s] && <span className="hs-pl__flag">کنار کشید</span>}
               </div>
-              {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid" key={view.bids[s]!.join()}>{view.bids[s]!.map((v, i) => <Note key={i} v={v} size="sm" />)}</div>}
-              {view.won[s]!.length > 0 && <div className="hs-pl__won">{view.won[s]!.map((c, i) => <Card key={i} c={c} size="sm" />)}</div>}
+              {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid">{view.bids[s]!.map((v) => <Note key={v} v={v} size="sm" flip={`n-${s}-${v}`} flipFrom={`seat-${s}`} />)}</div>}
+              {view.won[s]!.length > 0 && <div className="hs-pl__won">{view.won[s]!.map((c, i) => <Card key={i} c={c} size="sm" flip={c === 'prestige' ? `w${s}-prestige.${view.won[s]!.slice(0, i).filter((x) => x === c).length}` : `c-${c}`} flipFrom={last?.card === c && last.seat === s ? 'stage' : undefined} />)}</div>}
             </li>
           );
         })}
@@ -102,7 +104,7 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
             {view.hand.map((v, i) => (
               <button key={`${v}-${i}`} type="button" aria-pressed={sel.includes(i)} disabled={busy || !bidHint}
                 className={['hs-pick', sel.includes(i) ? 'hs-pick--on' : '', hint?.type === 'bid' && hint.cards?.includes(v) && !sel.includes(i) ? 'hs-hint' : ''].join(' ')}
-                onClick={() => setSel(sel.includes(i) ? sel.filter((k) => k !== i) : [...sel, i])}><Note v={v} /></button>
+                onClick={() => setSel(sel.includes(i) ? sel.filter((k) => k !== i) : [...sel, i])}><Note v={v} flip={`n-${mySeat}-${v}`} /></button>
             ))}
           </div>
           {myTurn && (
