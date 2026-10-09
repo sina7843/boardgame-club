@@ -22,7 +22,7 @@
 .sp2-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.15); }
 .sp2-pl__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.82rem; }
 .sp2-pl__name { font-weight: 800; }
-.sp2-pl__score { padding: 0 0.5rem; border-radius: 999px; background: #9fd8f2; color: var(--ink); font-weight: 900; animation: sp2-bump 0.4s ease-out; }
+.sp2-pl__score { padding: 0 0.5rem; border-radius: 999px; background: #9fd8f2; color: var(--ink); font-weight: 900; display: inline-block; }
 .sp2-pl__played { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
 
 .sp2__sea { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: stretch; justify-content: center; padding: 0.7rem; border-radius: 16px;
@@ -48,6 +48,5 @@
 .sp2-hint { animation: sp2-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
 @keyframes sp2-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes sp2-bump { 40% { transform: scale(1.25); } }
 @keyframes sp2-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sp2 * { animation: none !important; transition: none !important; } }
