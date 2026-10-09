@@ -63,7 +63,10 @@ function Symbol({ card, big }: { card: Card; big: boolean }) {
 }
 
 /** A face-up card. `as="button"` makes it a hand card; otherwise it is a static picture with a label. */
-export function CardFace({ card, size = 'md', state, onClick, disabled, hint, style }: {
+export function CardFace({ card, size = 'md', state, onClick, disabled, hint, style, flip, flipFrom }: {
+  /** Shared motion: stable id so the card glides between zones, and where a new card comes from. */
+  flip?: string;
+  flipFrom?: string;
   style?: CSSProperties;
   card: Card;
   size?: 'sm' | 'md' | 'lg';
@@ -82,9 +85,9 @@ export function CardFace({ card, size = 'md', state, onClick, disabled, hint, st
       <span className="uno-card__sheen" aria-hidden="true" />
     </>
   );
-  if (!onClick) return <span className={cls} role="img" aria-label={cardLabel(card)} style={style}>{inner}</span>;
+  if (!onClick) return <span className={cls} role="img" aria-label={cardLabel(card)} style={style} data-flip={flip} data-flip-from={flipFrom}>{inner}</span>;
   return (
-    <button type="button" className={cls} style={style} onClick={onClick} aria-disabled={disabled || undefined} aria-pressed={state === 'selected'}
+    <button type="button" className={cls} style={style} data-flip={flip} data-flip-from={flipFrom} onClick={onClick} aria-disabled={disabled || undefined} aria-pressed={state === 'selected'}
       aria-label={`${cardLabel(card)}${disabled ? ' (قابل بازی نیست)' : ''}`}>
       {inner}
     </button>

@@ -64,8 +64,7 @@
 .uno-ring__arc { fill: none; stroke: var(--halo); stroke-width: 7; stroke-linecap: round; opacity: 0.8; transition: stroke var(--dur-slow) var(--ease); }
 .uno-ring__head { fill: var(--halo); stroke: var(--uno-cream); stroke-width: 2; stroke-linejoin: round; paint-order: stroke; transition: fill var(--dur-slow) var(--ease); }
 @keyframes uno-spin { to { transform: rotate(360deg); } }
-.uno-pile__top { display: block; rotate: var(--rot, 0deg); animation: uno-land 300ms var(--ease); }
-@keyframes uno-land { from { transform: translateY(30px) rotate(-14deg) scale(0.88); opacity: 0; } to { transform: none; opacity: 1; } }
+.uno-pile__top { display: block; rotate: var(--rot, 0deg); }
 
 /* Draw pile = a stack of offset card backs; discard pile = loose cards under the top one (decorative) */
 .uno-stack, .uno-under { position: absolute; inset-block-start: 0; inset-inline: 0; display: block; pointer-events: none; }
@@ -167,8 +166,6 @@ button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .uno-log li:first-child { color: var(--text); }
 
 /* New cards fly into the hand (only the new ones: React keeps existing cards' elements). */
-.uno-hand__cards > .uno-card { animation: uno-in 380ms cubic-bezier(0.22, 1.2, 0.36, 1) both; }
-@keyframes uno-in { from { opacity: 0; transform: translateY(-60px) rotate(-14deg) scale(0.85); } }
 /* "UNO!" badge and the catch button demand attention once. */
 .uno-badge--uno { animation: uno-pop 520ms cubic-bezier(0.22, 1.4, 0.36, 1); }
 @keyframes uno-pop { from { transform: scale(0.3) rotate(-20deg); opacity: 0; } }

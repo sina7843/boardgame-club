@@ -1,6 +1,7 @@
 export * from './components.tsx';
 export * from './icons.tsx';
 export * from './table.tsx';
+export { useFlip, motionOff, MOTION } from './motion.tsx';
 // VibeFarsi motion, backgrounds and extra components (copied sources under ./vf).
 export { AnimatedList } from './vf/animations/animated-list.tsx';
 export { ArrowLink } from './vf/animations/arrow-link.tsx';

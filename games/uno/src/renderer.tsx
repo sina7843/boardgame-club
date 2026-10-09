@@ -2,7 +2,7 @@
 // own hand within thumb reach. Shows only the projection; other hands are counts, never cards.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { COLORS, type Card, type Color, type LogEntry, type UnoView } from './rules.ts';
 import { CardBack, CardFace, cardLabel, COLOR_FA } from './cards.tsx';
 
@@ -46,7 +46,12 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   const turnSeat = view.current;
   useEffect(() => { setPicked(null); setUnoArmed(false); }, [turnSeat, view.phase, view.hand, hand.length]);
 
-  const lastPlaySeq = [...view.log].reverse().find((e) => e.t === 'play' || e.t === 'start')?.seq ?? 0;
+  const lastPlay = [...view.log].reverse().find((e) => e.t === 'play' || e.t === 'start');
+  const lastPlaySeq = lastPlay?.seq ?? 0;
+  const lastPlayer = lastPlay?.t === 'play' ? lastPlay.seat : null;
+  // Cards glide: hand → discard, deck → hand, an opponent's play flies in from their seat.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.log.at(-1)?.seq ?? 0);
   const latest = view.log.at(-1);
   const [announce, setAnnounce] = useState('');
   const seen = useRef(latest?.seq ?? 0);
@@ -80,7 +85,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   else status = { tone: 'wait', text: `نوبت ${seatName(view.current)}${view.phase === 'wd4' ? '، تصمیم درباره +۴' : ''}` };
 
   return (
-    <div className="uno">
+    <div className="uno" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       <div className="uno__meta">
@@ -96,7 +101,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         {others.map((s) => {
           const active = view.current === s && !view.outcome;
           return (
-            <li key={s} className={['uno-opp', active ? 'uno-opp--turn' : '', view.active[s] ? '' : 'uno-opp--out'].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['uno-opp', active ? 'uno-opp--turn' : '', view.active[s] ? '' : 'uno-opp--out'].join(' ')}>
               <span className="uno-opp__fan" aria-hidden="true">
                 {Array.from({ length: Math.min(view.handCounts[s] ?? 0, 5) }, (_, i) => <span key={i} className="uno-opp__back" style={{ ['--i' as string]: i }} />)}
               </span>
@@ -113,7 +118,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
       </ul>
 
       <div className={`uno-table ${colorClass}`}>
-        <button type="button" className="uno-pile uno-pile--draw" onClick={() => canDraw && !busy && onAction({ type: 'draw' })}
+        <button type="button" data-flip-anchor="deck" className="uno-pile uno-pile--draw" onClick={() => canDraw && !busy && onAction({ type: 'draw' })}
           aria-disabled={!canDraw || busy || undefined} aria-label={`دسته کشیدن، ${fa(view.drawCount)} کارت${canDraw ? '؛ یک کارت بکشید' : ''}`}>
           <span className="uno-stack" aria-hidden="true"><span /><span /><span /></span>
           <CardBack size="lg" />
@@ -129,7 +134,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             </svg>
           </span>
           <span className="uno-under" aria-hidden="true"><span /><span /></span>
-          {view.top && <span key={lastPlaySeq} className="uno-pile__top" style={{ ['--rot' as string]: `${((lastPlaySeq * 37) % 17) - 8}deg` }}><CardFace card={view.top} size="lg" /></span>}
+          {view.top && <span key={lastPlaySeq} className="uno-pile__top" style={{ ['--rot' as string]: `${((lastPlaySeq * 37) % 17) - 8}deg` }}><CardFace card={view.top} size="lg" flip={`c-${view.top.id}`} flipFrom={lastPlayer !== null && lastPlayer !== mySeat ? `seat-${lastPlayer}` : 'deck'} /></span>}
           <span className="uno-pile__label">{view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}</span>
         </div>
       </div>
@@ -187,7 +192,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
               const step = Math.min(4, 40 / hand.length);
               const ok = playableIds.has(c.id) && !busy;
               return (
-                <CardFace key={c.id} card={c} onClick={() => tap(c)} disabled={!ok}
+                <CardFace key={c.id} card={c} onClick={() => tap(c)} disabled={!ok} flip={`c-${c.id}`} flipFrom="deck"
                   style={{ ['--fan' as string]: (t * step).toFixed(2), ['--arc' as string]: (t * t * step * 0.14).toFixed(2) }}
                   state={picked === c.id ? 'selected' : ok ? 'playable' : myTurn ? 'dim' : undefined}
                   hint={exp?.type === 'play' && exp.card === c.id} />
