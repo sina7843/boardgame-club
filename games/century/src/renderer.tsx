@@ -5,13 +5,26 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import spiceY from './art/spice-y.webp';
+import spiceR from './art/spice-r.webp';
+import spiceG from './art/spice-g.webp';
+import spiceB from './art/spice-b.webp';
 import { MERCHANTS, ORDERS, SPICES, upgrade, type Bag, type CenturyView, type Spice } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const SPICE_FA: Record<Spice, string> = { y: 'زردچوبه', r: 'زعفران', g: 'هل', b: 'دارچین' };
 
+// Spice art is cut from a generated sheet (see DECISIONS.md). Tiny (sm) glyphs stay coloured cubes.
+const ART: Record<Spice, string> = { y: spiceY, r: spiceR, g: spiceG, b: spiceB };
+
 export function Cubes({ bag, size = 'md' }: { bag: Bag; size?: 'sm' | 'md' }) {
-  return <span className={`ct-cubes ct-cubes--${size}`}>{SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => <i key={`${s}${i}`} className={`ct-cube ct-s--${s}`} title={SPICE_FA[s]} />))}</span>;
+  return (
+    <span className={`ct-cubes ct-cubes--${size}`}>
+      {SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => size === 'sm'
+        ? <i key={`${s}${i}`} className={`ct-cube ct-s--${s}`} title={SPICE_FA[s]} />
+        : <img key={`${s}${i}`} className="ct-spice" src={ART[s]} alt={SPICE_FA[s]} title={SPICE_FA[s]} draggable={false} />))}
+    </span>
+  );
 }
 
 export function MerchantCard({ id }: { id: number }) {
@@ -128,8 +141,8 @@ export default function CenturyRenderer({ view, legalActions, mySeat, seatName, 
             <div className="ct__tool">
               <span>ارتقا ({fa(ups.length)} از {fa(pickM.n)}):</span>
               {(['y', 'r', 'g'] as Spice[]).map((x) => (
-                <button key={x} type="button" className={`ct-cube ct-cube--btn ct-s--${x}`} title={SPICE_FA[x]} aria-label={`ارتقای ${SPICE_FA[x]}`}
-                  disabled={ups.length >= pickM.n || !upgrade(myCubes!, [...ups, x])} onClick={() => setUps([...ups, x])} />
+                <button key={x} type="button" className="ct-cube--btn" title={SPICE_FA[x]} aria-label={`ارتقای ${SPICE_FA[x]}`}
+                  disabled={ups.length >= pickM.n || !upgrade(myCubes!, [...ups, x])} onClick={() => setUps([...ups, x])}><img src={ART[x]} alt="" draggable={false} /></button>
               ))}
               {upPreview && <span className="ct__preview">← <Cubes bag={upPreview} size="sm" /></span>}
               <Button size="sm" variant="secondary" onClick={() => setUps([])} disabled={!ups.length}>از نو</Button>

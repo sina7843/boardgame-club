@@ -8,7 +8,9 @@
 .ct-cubes { display: inline-flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
 .ct-cube { display: inline-block; inline-size: 0.8rem; block-size: 0.8rem; border-radius: 3px; background: linear-gradient(145deg, color-mix(in srgb, var(--s) 70%, white 30%), var(--s) 55%, var(--s2)); box-shadow: 0 1px 2px rgb(0 0 0 / 0.5); }
 .ct-cubes--sm .ct-cube { inline-size: 0.55rem; block-size: 0.55rem; border-radius: 2px; }
-.ct-cube--btn { inline-size: 1.6rem; block-size: 1.6rem; border: 0; cursor: pointer; }
+.ct-spice { inline-size: 1.2rem; block-size: 1.2rem; object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)); }
+.ct-cube--btn { inline-size: 2rem; block-size: 2rem; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.ct-cube--btn img { inline-size: 100%; block-size: 100%; object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)); }
 .ct-cube--btn:disabled { opacity: 0.35; cursor: default; }
 
 .ct-card, .ct-order { display: grid; gap: 0.2rem; justify-items: center; align-content: center; inline-size: 100%; min-block-size: 4rem; padding: 0.3rem; border-radius: 8px; color: var(--ink);
@@ -52,7 +54,7 @@
 .ct__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
 .ct__hand .ct-slot { inline-size: 4.4rem; }
 .ct__tool { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; justify-content: center; padding: 0.4rem 0.6rem; border-radius: 10px; background: rgb(0 0 0 / 0.25); animation: ct-drop 0.25s ease-out both; }
-.ct__tool > button:not(.ct-cube) { inline-size: 1.8rem; block-size: 1.8rem; border-radius: 50%; border: 1px solid #ffd98a; background: rgb(0 0 0 / 0.3); color: inherit; font: inherit; font-weight: 900; cursor: pointer; }
+.ct__tool > button:not(.ct-cube--btn) { inline-size: 1.8rem; block-size: 1.8rem; border-radius: 50%; border: 1px solid #ffd98a; background: rgb(0 0 0 / 0.3); color: inherit; font: inherit; font-weight: 900; cursor: pointer; }
 .ct__preview { display: inline-flex; align-items: center; gap: 0.2rem; }
 .ct__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
 .ct__played { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; justify-content: center; opacity: 0.6; }
