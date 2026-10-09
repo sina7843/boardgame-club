@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline, useToast } from '@bg/ui';
 import { useSession } from '../lib/session.tsx';
+import { Celebration } from './Celebration.tsx';
 
 const APP_NAME = 'باشگاه بردگیم';
 
@@ -131,6 +132,7 @@ export function Layout() {
           </NavLink>
         ))}
       </nav>
+      <Celebration />
     </div>
   );
 }

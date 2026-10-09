@@ -6,7 +6,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
-import { TIER_FA, Trophy } from './Progress.tsx';
+import { TIER_FA, Trophy } from '../lib/rewards.tsx';
 
 interface Friends { friends: PublicProfile[]; incoming: PublicProfile[]; outgoing: PublicProfile[]; blocked: PublicProfile[]; muted: PublicProfile[] }
 

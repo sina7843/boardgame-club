@@ -1,19 +1,13 @@
 import { Link } from 'react-router';
-import type { Progression, TrophyTier } from '@bg/contracts';
+import type { Progression } from '@bg/contracts';
 import { Badge, Button, LeagueBadge, Progress, StateBlock } from '@bg/ui';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
+import { LevelBadge, TIER_FA, Trophy } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('achievement.') ? 'دستاورد'
   : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
-
-export const TIER_FA: Record<TrophyTier, string> = { bronze: 'برنزی', silver: 'نقره‌ای', gold: 'طلایی', turquoise: 'فیروزه‌ای', diamond: 'الماس' };
-
-/** Trophy art on a tier-coloured medallion; decorative, the title next to it carries the meaning. */
-export function Trophy({ tier, locked = false }: { tier: TrophyTier; locked?: boolean }) {
-  return <span className={`trophy${locked ? ' trophy--locked' : ''}`}><img src={`/trophies/${tier}.webp`} alt="" width={256} height={256} loading="lazy" decoding="async" /></span>;
-}
 
 /** Three separate kinds of progress (Requirements §12): skill per game, account level from XP, and mastery per game. */
 export function ProgressPage() {
@@ -30,7 +24,7 @@ export function ProgressPage() {
       <div className="progress-grid">
         <section className="panel stack" aria-labelledby="lvl-h">
           <h2 id="lvl-h" className="section-title">سطح حساب</h2>
-          <div className="row"><strong style={{ fontSize: 'var(--fs-2xl)' }}>سطح {faNum(d.level)}</strong><span className="muted">{faNum(d.xp)} XP</span></div>
+          <div className="row"><LevelBadge level={d.level} size={72} /><strong style={{ fontSize: 'var(--fs-2xl)' }}>سطح {faNum(d.level)}</strong><span className="muted">{faNum(d.xp)} XP</span></div>
           <Progress label="تا سطح بعد" value={d.xp - d.levelFloor} max={d.nextLevelAt - d.levelFloor} valueText={`${faNum(d.xp - d.levelFloor)} از ${faNum(d.nextLevelAt - d.levelFloor)}`} />
         </section>
 

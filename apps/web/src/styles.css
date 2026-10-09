@@ -327,6 +327,36 @@
   @keyframes trophy-sheen { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
   @keyframes trophy-glow { to { box-shadow: 0 0 0 2px var(--tier), 0 0 22px 2px color-mix(in srgb, var(--tier) 65%, transparent); } }
   @media (prefers-reduced-motion: reduce) { .ach--on .trophy::after, .ach--on .trophy { animation: none; } }
+  .level-badge { flex: none; object-fit: contain; filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.35)); }
+
+  /* Level-up / achievement celebration: big centred card over a dimmed page. */
+  .celebrate { --tier: #e0a826; margin: auto; padding: 0; border: 0; background: transparent; overflow: visible; max-inline-size: calc(100vw - 2rem); }
+  .celebrate--level { --tier: #9b5cf0; }
+  .celebrate::backdrop { background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--tier) 30%, rgb(10 9 14 / 0.75)), rgb(10 9 14 / 0.88)); backdrop-filter: blur(6px); }
+  .celebrate__card { position: relative; isolation: isolate; display: grid; justify-items: center; gap: 0.5rem; text-align: center;
+    inline-size: min(420px, calc(100vw - 2rem)); padding: 2rem 1.5rem 1.5rem; border-radius: var(--shape-overlay, 28px); color: #fff;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--tier) 38%, #17151f), #121118 70%);
+    border: 1px solid color-mix(in srgb, var(--tier) 65%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--tier) 14%, transparent), 0 30px 80px -20px color-mix(in srgb, var(--tier) 70%, transparent);
+    animation: celebrate-in 650ms cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+  .celebrate__rays { position: absolute; inset-inline: 0; inset-block-start: 1rem; margin-inline: auto; inline-size: 300px; aspect-ratio: 1; z-index: -1; pointer-events: none; border-radius: 50%;
+    background: repeating-conic-gradient(color-mix(in srgb, var(--tier) 55%, transparent) 0deg 9deg, transparent 9deg 24deg);
+    mask: radial-gradient(circle, #000 15%, transparent 68%); animation: celebrate-spin 18s linear infinite; opacity: 0.7; }
+  .celebrate__confetti { z-index: 2; inset-block-end: 40%; }
+  .celebrate__eyebrow { margin: 0; font-size: var(--fs-sm); font-weight: 800; letter-spacing: 0; color: color-mix(in srgb, var(--tier) 60%, #fff);
+    padding: 0.25rem 0.875rem; border-radius: 999px; background: color-mix(in srgb, var(--tier) 22%, transparent); }
+  .celebrate__art { --trophy-size: 180px; display: grid; place-items: center; min-block-size: 180px; animation: celebrate-pop 900ms 150ms cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+  .celebrate__art .trophy::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.4) 50%, transparent 65%);
+    transform: translateX(-120%); animation: trophy-sheen 2.4s 700ms ease-in-out infinite; }
+  .celebrate__title { margin: 0.25rem 0 0; font-size: var(--fs-2xl, 1.75rem); font-weight: 900; color: #fff; }
+  .celebrate__desc { margin: 0; color: rgb(255 255 255 / 0.75); }
+  .celebrate__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-block-start: 0.75rem; }
+  .celebrate__actions .btn--ghost, .celebrate__actions button:not(:first-child) { color: #fff; }
+  @keyframes celebrate-in { from { opacity: 0; transform: scale(0.6) translateY(30px); } }
+  @keyframes celebrate-pop { 0% { opacity: 0; transform: scale(0.2) rotate(-25deg); } 60% { opacity: 1; } }
+  @keyframes celebrate-spin { to { transform: rotate(1turn); } }
+  @media (prefers-reduced-motion: reduce) { .celebrate__card, .celebrate__art, .celebrate__rays, .celebrate__art .trophy::after { animation: none; } .celebrate__confetti { display: none; } }
+
   .trophy-chip { display: inline-flex; align-items: center; gap: 6px; padding-block: 2px; padding-inline: 2px 10px; border-radius: 999px; font-size: var(--fs-sm, 0.875rem);
     background: color-mix(in srgb, var(--tier) 16%, var(--card)); border: 1px solid color-mix(in srgb, var(--tier) 45%, transparent); --trophy-size: 28px; }
 }
