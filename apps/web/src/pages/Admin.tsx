@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import type { GameDetail, GameSummary } from '@bg/contracts';
-import { Badge, Button, DataTable, Dialog, Input, StateBlock, useToast } from '@bg/ui';
+import { Badge, Button, Dialog, Input, Segmented, StateBlock, Switch, Tabs, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { GameAccessAdmin, MissionsAdmin, PlansAdmin, SeasonsAdmin, SupportAdmin } from './AdminCommerce.tsx';
+import { GameCover } from '../games/covers.tsx';
+import { faNum } from '../lib/format.ts';
+import { GameAccess, MissionsAdmin, PlansAdmin, SeasonsAdmin, SupportAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
@@ -14,96 +16,153 @@ export function Admin() {
   usePageTitle('مدیریت');
   const { me, status } = useSession();
   const isAdmin = !!me?.roles.includes('admin');
-  const games = useApi<{ items: GameSummary[] }>(isAdmin ? '/admin/games' : null);
-  const toast = useToast();
-  const [target, setTarget] = useState<GameSummary | null>(null);
-  const [reason, setReason] = useState('');
-  const [error, setError] = useState<string>();
-  const [busy, setBusy] = useState(false);
-
   if (status === 'loading') return <StateBlock kind="loading" title="در حال بررسی دسترسی…" />;
   if (!me) return <StateBlock kind="denied" title="ابتدا وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/admin">ورود</Link>} />;
   if (!isAdmin) return <StateBlock kind="denied" title="دسترسی ندارید">این بخش فقط برای مدیر محصول است.</StateBlock>;
+  return (
+    <>
+      <div className="page-head"><div><h1 className="page-title">مدیریت</h1>
+        <p className="page-sub">هر تغییر با علت در گزارش عملیات ثبت می‌شود.</p></div></div>
+      <Tabs label="بخش‌های مدیریت" tabs={[
+        { id: 'games', title: 'بازی‌ها', content: <GamesAdmin /> },
+        { id: 'progress', title: 'مأموریت و فصل', content: <><MissionsAdmin /><SeasonsAdmin /></> },
+        { id: 'plans', title: 'اشتراک', content: <PlansAdmin /> },
+        { id: 'support', title: 'پشتیبانی', content: <SupportAdmin /> },
+        { id: 'incident', title: 'توقف سراسری', content: <IncidentPanel /> }
+      ]} />
+    </>
+  );
+}
 
-  const nextStatus = target?.status === 'active' ? 'suspended' : 'active';
+type StatusFilter = 'all' | GameSummary['status'];
+const norm = (x: string) => x.toLowerCase().replace(/ي/g, 'ی').replace(/ك/g, 'ک');
+
+/** Pick a game on one side, manage everything about it on the other: status, tutorial, access, play settings, versions. */
+function GamesAdmin() {
+  const games = useApi<{ items: GameSummary[] }>('/admin/games');
+  const [params, setParams] = useSearchParams();
+  const [q, setQ] = useState('');
+  const [filter, setFilter] = useState<StatusFilter>('all');
+  if (games.error) return <StateBlock kind="error" title="فهرست بارگذاری نشد" action={<Button onClick={games.reload}>تلاش دوباره</Button>}>{games.error.messageFa}</StateBlock>;
+  if (!games.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
+  const all = games.data.items;
+  const selected = all.find((g) => g.id === params.get('game'));
+  const select = (id: string | null) => setParams((p) => { const n = new URLSearchParams(p); if (id) n.set('game', id); else n.delete('game'); return n; });
+  const shown = all.filter((g) => (filter === 'all' || g.status === filter) && (!q.trim() || norm(`${g.nameFa} ${g.nameOriginal} ${g.id}`).includes(norm(q.trim()))));
+  const count = (st: StatusFilter) => (st === 'all' ? all.length : all.filter((g) => g.status === st).length);
+  return (
+    <div className={`admin-games${selected ? ' has-selection' : ''}`}>
+      <section className="panel stack admin-games__list" aria-labelledby="admin-games-h">
+        <h2 id="admin-games-h" className="section-title">بازی‌ها <span className="muted num">({faNum(all.length)})</span></h2>
+        <Input label="جست‌وجو" value={q} onChange={(e) => setQ(e.target.value)} placeholder="نام فارسی یا اصلی" />
+        <Segmented legend="وضعیت" name="admin-status" value={filter} onChange={setFilter}
+          options={(['all', 'active', 'suspended', 'draft'] as const).map((st) => ({ value: st, label: `${st === 'all' ? 'همه' : STATUS_FA[st]} (${faNum(count(st))})` }))} />
+        {shown.length === 0 ? <p className="muted" style={{ margin: 0 }}>بازی‌ای پیدا نشد.</p> : (
+          <ul className="admin-games__items">{shown.map((g) => (
+            <li key={g.id}>
+              <button type="button" className={`admin-game${selected?.id === g.id ? ' is-on' : ''}`} aria-current={selected?.id === g.id || undefined} onClick={() => select(g.id)}>
+                <span className="admin-game__cover"><GameCover gameId={g.id} title="" /></span>
+                <span className="admin-game__name"><strong>{g.nameFa}</strong><span className="muted"><bdi>{g.nameOriginal}</bdi></span></span>
+                <span className="admin-game__badges">
+                  {g.status !== 'active' && <Badge tone="danger">{STATUS_FA[g.status]}</Badge>}
+                  {g.access === 'premium' && <Badge tone="premium">پریمیوم</Badge>}
+                </span>
+              </button>
+            </li>))}</ul>
+        )}
+      </section>
+      <div className="admin-games__detail">
+        {selected ? <GameDetailAdmin key={selected.id} game={selected} onBack={() => select(null)} onChanged={games.reload} />
+          : <div className="panel"><StateBlock kind="empty" title="یک بازی انتخاب کنید">وضعیت، آموزش، دسترسی، تنظیمات بازی و نسخه‌های قوانین آن اینجا نمایش داده می‌شود.</StateBlock></div>}
+      </div>
+    </div>
+  );
+}
+
+function GameDetailAdmin({ game, onBack, onChanged }: { game: GameSummary; onBack: () => void; onChanged: () => void }) {
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const nextStatus = game.status === 'active' ? 'suspended' : 'active';
   const submit = async () => {
-    if (!target) return;
     setBusy(true); setError(undefined);
     try {
-      await api<GameDetail>(`/admin/games/${target.id}`, { method: 'PATCH', body: { status: nextStatus, reason } });
-      toast('success', nextStatus === 'suspended' ? `پذیرش میز جدید برای «${target.nameFa}» متوقف شد.` : `«${target.nameFa}» دوباره فعال شد.`);
-      setTarget(null); setReason(''); games.reload();
+      await api<GameDetail>(`/admin/games/${game.id}`, { method: 'PATCH', body: { status: nextStatus, reason } });
+      toast('success', nextStatus === 'suspended' ? `پذیرش میز جدید برای «${game.nameFa}» متوقف شد.` : `«${game.nameFa}» دوباره فعال شد.`);
+      setOpen(false); setReason(''); onChanged();
     } catch (e) {
       setError(e instanceof ApiFailure ? e.messageFa : 'تغییر انجام نشد.');
     } finally { setBusy(false); }
   };
-
+  const toggleTutorial = async (enabled: boolean) => {
+    try {
+      await api(`/admin/games/${game.id}/tutorial`, { method: 'PATCH', body: { enabled, reason: 'admin panel' } });
+      toast('success', enabled ? 'آموزش فعال شد.' : 'آموزش غیرفعال شد.');
+      onChanged();
+    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+  };
   return (
-    <>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">مدیریت بازی‌ها</h1>
-          <p className="page-sub">توقف بازی فقط پذیرش میز جدید را می‌بندد؛ سابقه و میزهای جاری حذف نمی‌شوند. هر تغییر با علت ثبت می‌شود.</p>
+    <div className="stack">
+      <div className="admin-games__back"><Button variant="ghost" size="sm" onClick={onBack}>بازگشت به فهرست بازی‌ها</Button></div>
+      <section className="panel admin-head" aria-labelledby="admin-game-h">
+        <span className="admin-head__cover"><GameCover gameId={game.id} title="" /></span>
+        <div className="stack" style={{ gap: 'var(--sp-1)', flex: 1, minInlineSize: 0 }}>
+          <h2 id="admin-game-h" className="section-title" style={{ margin: 0 }}>{game.nameFa}</h2>
+          <span className="muted"><bdi>{game.nameOriginal}</bdi></span>
+          <div className="row" style={{ gap: 8 }}>
+            <Badge tone={game.status === 'active' ? 'success' : 'danger'}>{STATUS_FA[game.status]}</Badge>
+            <Link to={`/games/${game.id}`}>صفحهٔ بازی</Link>
+          </div>
         </div>
-      </div>
-      {games.loading && !games.data && <StateBlock kind="loading" title="در حال بارگذاری…" />}
-      {games.error && <StateBlock kind="error" title="فهرست بارگذاری نشد" action={<Button onClick={games.reload}>تلاش دوباره</Button>}>{games.error.messageFa}</StateBlock>}
-      {games.data && (
-        <DataTable caption="بازی‌ها و وضعیت انتشار" rowKey={(g) => g.id} rows={games.data.items} columns={[
-          { key: 'name', title: 'بازی', render: (g) => <><strong>{g.nameFa}</strong> <bdi className="muted">{g.nameOriginal}</bdi></> },
-          { key: 'status', title: 'وضعیت', render: (g) => <Badge tone={g.status === 'active' ? 'success' : 'danger'}>{STATUS_FA[g.status]}</Badge> },
-          { key: 'tutorial', title: 'آموزش', render: (g) => <TutorialToggle game={g} onDone={games.reload} /> },
-          { key: 'action', title: 'اقدام', render: (g) => (
-            <Button size="sm" variant={g.status === 'active' ? 'danger' : 'secondary'} onClick={() => { setTarget(g); setError(undefined); }}>
-              {g.status === 'active' ? 'توقف میز جدید' : 'فعال‌سازی'}
-            </Button>
-          ) }
-        ]} />
-      )}
-      {games.data && <section className="section" style={{ marginBlockStart: 'var(--sp-6)' }}>
-        <h2 className="section-title">نسخه‌های قوانین</h2>
+      </section>
+
+      <section className="panel stack" aria-labelledby="admin-quick-h">
+        <h2 id="admin-quick-h" className="section-title">وضعیت و دسترسی</h2>
+        <div className="admin-quick">
+          <div className="stack" style={{ gap: 'var(--sp-2)' }}>
+            <strong>پذیرش میز جدید</strong>
+            <span className="muted">توقف فقط میز جدید را می‌بندد؛ سابقه و میزهای جاری می‌مانند.</span>
+            <div><Button size="sm" variant={game.status === 'active' ? 'danger' : 'primary'} onClick={() => { setOpen(true); setError(undefined); }}>
+              {game.status === 'active' ? 'توقف میز جدید' : 'فعال‌سازی'}</Button></div>
+          </div>
+          <div className="stack" style={{ gap: 'var(--sp-2)' }}>
+            <strong>آموزش تعاملی</strong>
+            <Switch label={game.tutorialEnabled ? 'فعال' : 'غیرفعال'} checked={game.tutorialEnabled} onChange={(v) => void toggleTutorial(v)} />
+          </div>
+          <GameAccess game={game} onDone={onChanged} />
+        </div>
+      </section>
+
+      <GameSettingsAdmin gameId={game.id} />
+
+      <section className="panel stack" aria-labelledby="admin-versions-h">
+        <h2 id="admin-versions-h" className="section-title">نسخه‌های قوانین</h2>
         <p className="muted" style={{ margin: 0 }}>فقط میزهای تازه از نسخه فعال استفاده می‌کنند؛ میزهای جاری روی نسخه شروع خود می‌مانند.</p>
-        {games.data.items.map((g) => <Versions key={g.id} gameId={g.id} name={g.nameFa} />)}
-      </section>}
-      {games.data && games.data.items.length > 0 && <GameSettingsAdmin games={games.data.items} />}
-      {games.data && <GameAccessAdmin games={games.data.items} onDone={games.reload} />}
-      <PlansAdmin />
-      <SeasonsAdmin />
-      <MissionsAdmin />
-      <SupportAdmin />
-      <IncidentPanel />
-      <Dialog open={!!target} onClose={() => setTarget(null)} title={nextStatus === 'suspended' ? 'توقف پذیرش میز جدید' : 'فعال‌سازی دوباره'}
+        <Versions gameId={game.id} />
+      </section>
+
+      <Dialog open={open} onClose={() => setOpen(false)} title={nextStatus === 'suspended' ? 'توقف پذیرش میز جدید' : 'فعال‌سازی دوباره'}
         footer={<>
-          <Button variant="ghost" onClick={() => setTarget(null)}>انصراف</Button>
+          <Button variant="ghost" onClick={() => setOpen(false)}>انصراف</Button>
           <Button variant={nextStatus === 'suspended' ? 'danger' : 'primary'} busy={busy} disabled={reason.trim().length < 3} onClick={submit}>
             {nextStatus === 'suspended' ? 'توقف میز جدید' : 'فعال‌سازی'}
           </Button>
         </>}>
         <div className="stack">
-          <p style={{ margin: 0 }}>«{target?.nameFa}»</p>
+          <p style={{ margin: 0 }}>«{game.nameFa}»</p>
           <Input label="علت (در گزارش عملیات ثبت می‌شود)" value={reason} onChange={(e) => setReason(e.target.value)} error={error} />
         </div>
       </Dialog>
-    </>
+    </div>
   );
-}
-
-function TutorialToggle({ game, onDone }: { game: GameSummary; onDone: () => void }) {
-  const toast = useToast();
-  const toggle = async () => {
-    try {
-      await api(`/admin/games/${game.id}/tutorial`, { method: 'PATCH', body: { enabled: !game.tutorialEnabled, reason: 'admin panel' } });
-      toast('success', game.tutorialEnabled ? 'آموزش غیرفعال شد.' : 'آموزش فعال شد.');
-      onDone();
-    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
-  };
-  return <Button size="sm" variant="ghost" onClick={toggle}>{game.tutorialEnabled ? 'فعال (غیرفعال کن)' : 'غیرفعال (فعال کن)'}</Button>;
 }
 
 interface Version { id: string; rulesVersion: string; status: 'active' | 'retired' | 'disabled'; inRegistry: boolean; publishedAt: string }
 const VERSION_FA = { active: 'فعال برای میز تازه', retired: 'بازنشسته', disabled: 'غیرفعال' } as const;
 
-function Versions({ gameId, name }: { gameId: string; name: string }) {
+function Versions({ gameId }: { gameId: string }) {
   const v = useApi<{ items: Version[] }>(`/admin/game-versions?gameId=${gameId}`);
   const toast = useToast();
   const set = async (id: string, status: Version['status']) => {
@@ -112,8 +171,7 @@ function Versions({ gameId, name }: { gameId: string; name: string }) {
   };
   if (!v.data) return null;
   return (
-    <div className="panel stack" style={{ gap: 'var(--sp-2)' }}>
-      <strong>{name}</strong>
+    <div className="stack" style={{ gap: 'var(--sp-2)' }}>
       <ul className="list">{v.data.items.map((x) => (
         <li key={x.id} className="list__item list__item--compact">
           <bdi dir="ltr" style={{ fontWeight: 700 }}>{x.rulesVersion}</bdi>
@@ -137,7 +195,7 @@ function IncidentPanel() {
   };
   if (!status.data) return null;
   return (
-    <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="incident-h">
+    <section className="panel stack" aria-labelledby="incident-h">
       <h2 id="incident-h" className="section-title">توقف سراسری</h2>
       <p className="muted" style={{ margin: 0 }}>در توقف سراسری موعد نوبت‌ها منجمد و پس از رفع، به اندازه مدت توقف تمدید می‌شود. قطع اینترنت یک بازیکن توقف سراسری نیست.</p>
       {status.data.incident ? (

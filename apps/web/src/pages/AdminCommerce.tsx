@@ -34,22 +34,17 @@ export function PlansAdmin() {
   );
 }
 
-export function GameAccessAdmin({ games, onDone }: { games: { id: string; nameFa: string; access: 'free' | 'premium' }[]; onDone: () => void }) {
+/** Free/premium access for one game; every change is audited with a reason. */
+export function GameAccess({ game, onDone }: { game: { id: string; nameFa: string; access: 'free' | 'premium' }; onDone: () => void }) {
   const call = useCall();
   const [invites, setInvites] = useState(true);
   return (
-    <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="access-h">
-      <h2 id="access-h" className="section-title">دسترسی بازی‌ها</h2>
-      <Switch label="میزبان پریمیوم می‌تواند بازیکنان رایگان را دعوت کند" checked={invites} onChange={setInvites} />
-      {games.map((g) => (
-        <div key={g.id} className="row">
-          <span style={{ flex: 1 }}>{g.nameFa}</span>
-          <Segmented legend={`دسترسی ${g.nameFa}`} name={`access-${g.id}`} value={g.access}
-            onChange={async (access) => { if (await call(`/admin/games/${g.id}/access`, 'PATCH', { access, premiumHostInvitesFree: invites, reason: 'تغییر دسترسی از پنل' }, 'دسترسی ذخیره شد.')) onDone(); }}
-            options={[{ value: 'free', label: 'رایگان' }, { value: 'premium', label: 'پریمیوم' }]} />
-        </div>
-      ))}
-    </section>
+    <div className="stack" style={{ gap: 'var(--sp-2)' }}>
+      <Segmented legend="دسترسی" name={`access-${game.id}`} value={game.access}
+        onChange={async (access) => { if (await call(`/admin/games/${game.id}/access`, 'PATCH', { access, premiumHostInvitesFree: invites, reason: 'تغییر دسترسی از پنل' }, 'دسترسی ذخیره شد.')) onDone(); }}
+        options={[{ value: 'free', label: 'رایگان' }, { value: 'premium', label: 'پریمیوم' }]} />
+      {game.access === 'free' && <Switch label="میزبان پریمیوم می‌تواند بازیکنان رایگان را دعوت کند" hint="هنگام پریمیوم کردن بازی اعمال می‌شود." checked={invites} onChange={setInvites} />}
+    </div>
   );
 }
 

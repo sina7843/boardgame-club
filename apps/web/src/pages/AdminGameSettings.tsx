@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { AdminGameSettingsView, GameSummary } from '@bg/contracts';
+import type { AdminGameSettingsView } from '@bg/contracts';
 import { Button, CheckChips, Input, Select, StateBlock, Switch, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { COMPETITION_FA, durationFa, faNum, PACE_FA } from '../lib/format.ts';
@@ -11,8 +11,7 @@ type OptValue = string | number | boolean;
  * Per-game play settings. The game module defines what is possible; here the admin chooses what players are
  * offered. Saved changes apply to new tables only; running tables keep the settings they started with.
  */
-export function GameSettingsAdmin({ games }: { games: GameSummary[] }) {
-  const [gameId, setGameId] = useState(games[0]?.id ?? '');
+export function GameSettingsAdmin({ gameId }: { gameId: string }) {
   const view = useApi<AdminGameSettingsView>(gameId ? `/admin/games/${gameId}/settings` : null);
   const toast = useToast();
   const [draft, setDraft] = useState<Current>();
@@ -50,13 +49,12 @@ export function GameSettingsAdmin({ games }: { games: GameSummary[] }) {
   const playerOptions = counts.map((n) => ({ value: String(n), label: `${faNum(n)} نفر` }));
 
   return (
-    <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="game-settings-h">
-      <h2 id="game-settings-h" className="section-title">تنظیمات بازی‌ها</h2>
+    <section className="panel stack" aria-labelledby="game-settings-h">
+      <h2 id="game-settings-h" className="section-title">تنظیمات بازی</h2>
       <p className="muted" style={{ margin: 0 }}>
-        حالت‌ها، تعداد بازیکن، زمان‌ها و گزینه‌های قانون هر بازی. فقط گزینه‌هایی که خود بازی پشتیبانی می‌کند قابل انتخاب‌اند.
+        حالت‌ها، تعداد بازیکن، زمان‌ها و گزینه‌های قانون. فقط گزینه‌هایی که خود بازی پشتیبانی می‌کند قابل انتخاب‌اند.
         تغییرات روی میزهای تازه اثر دارد؛ میزهای در جریان با تنظیمات شروع خود ادامه می‌دهند.
       </p>
-      <Select label="بازی" value={gameId} onChange={(e) => setGameId(e.target.value)} options={games.map((g) => ({ value: g.id, label: g.nameFa }))} />
       {view.error && <StateBlock kind="error" title="تنظیمات دریافت نشد" action={<Button onClick={view.reload}>تلاش دوباره</Button>}>{view.error.messageFa}</StateBlock>}
       {(!draft || !sup) && !view.error && <StateBlock kind="loading" title="در حال بارگذاری…" />}
       {draft && sup && (
