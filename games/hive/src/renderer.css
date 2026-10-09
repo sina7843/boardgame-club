@@ -7,8 +7,7 @@
 .hv-cell--sel polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
 .hv-cell--hint polygon:not(.hv-under) { stroke-width: 6px; animation: hv-hint 1s ease-in-out infinite; }
 .hv-cell:focus-visible polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
-.hv-cell--placed { transform-box: fill-box; transform-origin: center; animation: hv-pop 0.4s cubic-bezier(.2, 1.4, .4, 1) both; }
-.hv-cell--moved { animation: hv-slide 0.45s cubic-bezier(.3, .9, .3, 1.05) both; }
+.hv-cell--moved { animation: hv-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .hv-cell--trapped polygon:not(.hv-under) { stroke: #ff6b5b; stroke-width: 7px; animation: hv-hint 0.8s ease-in-out infinite; }
 .hv-under--w { fill: #cfc4ad; }
 .hv-under--b { fill: #22201d; }
@@ -33,12 +32,11 @@ button.hv-reserve__item[aria-pressed="true"] { background: rgb(201 164 106 / 0.3
 @media (max-width: 480px) { .hv-reserve__item { inline-size: 3rem; block-size: 3rem; } .hv-reserve__item svg { inline-size: 2.4rem; block-size: 2.4rem; } .hv-reserve { gap: 0.3rem; } }
 .hv__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes hv-pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes hv-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
 @keyframes hv-march { to { stroke-dashoffset: -28; } }
 @keyframes hv-hint { 50% { stroke: #ffd27a; } }
 @keyframes hv-pulse { 50% { box-shadow: 0 0 0 3px #ffd27a; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .hv-cell--placed, .hv-cell--moved, .hv-target polygon, .hv-cell--hint polygon, .hv-cell--trapped polygon, .hv-reserve__item--hint { animation: none; }
+  .hv-cell--moved, .hv-target polygon, .hv-cell--hint polygon, .hv-cell--trapped polygon, .hv-reserve__item--hint { animation: none; }
 }

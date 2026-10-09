@@ -2,7 +2,7 @@
 // Place: tap a bug in your reserve, then a lit spot. Move: tap one of your pieces, then a lit destination.
 import './renderer.css';
 import { useEffect, useId, useMemo, useState } from 'react';
-import { TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
 import bugQ from './art/bug-Q.webp';
 import bugS from './art/bug-S.webp';
 import bugB from './art/bug-B.webp';
@@ -107,7 +107,7 @@ export default function HiveRenderer({ view, legalActions, mySeat, seatName, bus
             return (
               <g key={`${k}-${lastTo === k ? view.history.length : 0}`} role="gridcell" tabIndex={mine ? 0 : -1}
                 aria-label={`${BUG_FA[topPiece.t]} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} مهره روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
-                className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '', lastTo === k ? (slide ? 'hv-cell--moved' : 'hv-cell--placed') : '',
+                className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '', lastTo === k ? (slide ? 'hv-cell--moved' : 'bg-land') : '',
                   topPiece.t === 'Q' && surrounded.has(topPiece.c) ? 'hv-cell--trapped' : ''].join(' ')}
                 style={slide} onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
                 {stack.length > 1 && <polygon points={hexPoints(x + 5, y + 7, R * 0.9)} className={`hv-under hv-under--${stack.at(-2)!.c}`} />}
@@ -136,7 +136,7 @@ function Reserve({ view, color, label, selected, onPick, only, hint, small }: { 
         const body = (
           <>
             <svg viewBox="-50 -50 100 100" aria-hidden="true"><Tile x={0} y={0} p={{ c: color, t: b }} /></svg>
-            <span className="hv-reserve__n">{fa(n)}</span>
+            <Count n={n} />
           </>
         );
         return onPick
@@ -145,6 +145,10 @@ function Reserve({ view, color, label, selected, onPick, only, hint, small }: { 
       })}
     </div>
   );
+}
+
+function Count({ n }: { n: number }) {
+  return <span key={n} className={`hv-reserve__n ${usePop(n)}`}>{fa(n)}</span>;
 }
 
 function Tile({ x, y, p }: { x: number; y: number; p: Piece }) {
