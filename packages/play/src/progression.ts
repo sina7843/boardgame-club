@@ -108,37 +108,76 @@ async function updatePlacement(tx: Tx, season: typeof seasons.$inferSelect, user
 
 // ---------------- XP, missions, achievements ----------------
 
-interface Facts { matches: number; wins: number; games: Set<string>; tutorials: number; ranked: number; weekMatches: number; weekGames: Set<string>; weekLearned: number }
+/** Match metadata written by rewardMatch (also copied onto first-place rows). */
+type MatchMeta = { week?: string; opponents?: string[]; pace?: 'live' | 'turn'; competition?: 'friendly' | 'ranked' };
 
-async function factsFor(tx: Tx | Db, userId: string, week: string): Promise<Facts> {
-  const rows = await tx.select({ ruleId: rewardLedger.ruleId, gameId: rewardLedger.gameId, createdAt: rewardLedger.createdAt, metadata: rewardLedger.metadata })
-    .from(rewardLedger).where(and(eq(rewardLedger.userId, userId), inArray(rewardLedger.ruleId, ['xp.match_completed', 'xp.first_place', 'xp.tutorial', 'xp.new_title'])));
-  const inWeek = (r: { metadata: unknown }) => (r.metadata as { week?: string }).week === week;
+export const ACHIEVEMENT_TYPES = ['matches', 'wins', 'distinct_games', 'tutorials', 'ranked', 'level', 'missions', 'live_matches', 'turn_matches',
+  'big_tables', 'one_game', 'win_games', 'achievements'] as const;
+export type AchievementType = typeof ACHIEVEMENT_TYPES[number];
+/** Weekly mission goals. None may require winning (Requirements: «بدون برد اجباری»). */
+export const MISSION_TYPES = ['complete_tables', 'distinct_games', 'learn_new_game', 'ranked_tables', 'friendly_tables', 'live_tables', 'turn_tables',
+  'big_tables', 'tutorials'] as const;
+export type MissionType = typeof MISSION_TYPES[number];
+
+export interface GoalFacts { achievement: Record<AchievementType, number>; mission: Record<MissionType, number> }
+
+/** Every value a mission or achievement can measure, derived only from server ledger rows (never client claims). */
+export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().key): Promise<GoalFacts> {
+  const rows = await tx.select({ ruleId: rewardLedger.ruleId, kind: rewardLedger.kind, gameId: rewardLedger.gameId, metadata: rewardLedger.metadata })
+    .from(rewardLedger).where(and(eq(rewardLedger.userId, userId),
+      sql`(${inArray(rewardLedger.ruleId, ['xp.match_completed', 'xp.first_place', 'xp.tutorial', 'xp.new_title'])} or ${rewardLedger.kind} = 'mission')`));
+  const meta = (r: { metadata: unknown }) => r.metadata as MatchMeta;
+  const inWeek = (r: { metadata: unknown }) => meta(r).week === week;
   const [{ n: ranked } = { n: 0 }] = await tx.select({ n: count() }).from(ratingHistory).where(eq(ratingHistory.userId, userId));
+  const [{ n: granted } = { n: 0 }] = await tx.select({ n: count() }).from(userAchievements).where(eq(userAchievements.userId, userId));
   const matches = rows.filter((r) => r.ruleId === 'xp.match_completed');
+  const wins = rows.filter((r) => r.ruleId === 'xp.first_place');
+  const tutorials = rows.filter((r) => r.ruleId === 'xp.tutorial');
+  const weekMatches = matches.filter(inWeek);
+  const perGame = new Map<string, number>();
+  for (const m of matches) perGame.set(m.gameId!, (perGame.get(m.gameId!) ?? 0) + 1);
+  const big = (r: { metadata: unknown }) => (meta(r).opponents?.length ?? 0) >= 2; // three or more people at the table
+  const distinct = (rs: typeof rows) => new Set(rs.map((r) => r.gameId!)).size;
   return {
-    matches: matches.length,
-    wins: rows.filter((r) => r.ruleId === 'xp.first_place').length,
-    games: new Set(matches.map((r) => r.gameId!)),
-    tutorials: rows.filter((r) => r.ruleId === 'xp.tutorial').length,
-    ranked,
-    weekMatches: matches.filter(inWeek).length,
-    weekGames: new Set(matches.filter(inWeek).map((r) => r.gameId!)),
-    weekLearned: rows.filter((r) => (r.ruleId === 'xp.tutorial' || r.ruleId === 'xp.new_title') && inWeek(r)).length
+    achievement: {
+      matches: matches.length, wins: wins.length, distinct_games: perGame.size, tutorials: tutorials.length, ranked,
+      level: levelFor(await totalXp(tx, userId)).level,
+      missions: rows.filter((r) => r.kind === 'mission').length,
+      live_matches: matches.filter((r) => meta(r).pace === 'live').length,
+      turn_matches: matches.filter((r) => meta(r).pace === 'turn').length,
+      big_tables: matches.filter(big).length,
+      one_game: Math.max(0, ...perGame.values()),
+      win_games: distinct(wins),
+      achievements: granted
+    },
+    mission: {
+      complete_tables: weekMatches.length,
+      distinct_games: distinct(weekMatches),
+      learn_new_game: rows.filter((r) => (r.ruleId === 'xp.tutorial' || r.ruleId === 'xp.new_title') && inWeek(r)).length,
+      ranked_tables: weekMatches.filter((r) => meta(r).competition === 'ranked').length,
+      friendly_tables: weekMatches.filter((r) => meta(r).competition === 'friendly').length,
+      live_tables: weekMatches.filter((r) => meta(r).pace === 'live').length,
+      turn_tables: weekMatches.filter((r) => meta(r).pace === 'turn').length,
+      big_tables: weekMatches.filter(big).length,
+      tutorials: tutorials.filter(inWeek).length
+    }
   };
 }
 
-type Criteria = { type: 'complete_tables' | 'distinct_games' | 'learn_new_game'; count: number; xp: number };
-type AchievementCriteria = { type: 'matches' | 'wins' | 'distinct_games' | 'tutorials' | 'ranked'; count: number };
+type Criteria = { type: MissionType; count: number; xp: number };
+type AchievementCriteria = { type: AchievementType; count: number };
+/** Level, mission-count and trophy-count achievements depend on awards made earlier in the same pass, so they are checked last. */
+const META_TYPES: AchievementType[] = ['level', 'missions', 'achievements'];
 
 /** Missions and achievements are recomputed from ledger facts (not incremented), so re-running is harmless. */
 async function evaluateGoals(tx: Tx, userId: string) {
   const week = weekKey();
-  const f = await factsFor(tx, userId, week.key);
+  let f = await goalFacts(tx, userId, week.key);
   const missions = await tx.select().from(missionDefinitions).where(eq(missionDefinitions.active, true));
   for (const m of missions) {
     const c = m.criteria as Criteria;
-    const value = c.type === 'complete_tables' ? f.weekMatches : c.type === 'distinct_games' ? f.weekGames.size : f.weekLearned;
+    const value = f.mission[c.type];
+    if (value === undefined) continue; // unknown type in a newer definition: never award blindly
     const progress = Math.min(value, c.count);
     const done = progress >= c.count;
     await tx.insert(missionProgress).values({ userId, missionId: m.id, periodKey: week.key, progress, completedAt: done ? sql`now()` : null })
@@ -150,16 +189,22 @@ async function evaluateGoals(tx: Tx, userId: string) {
     }
   }
   const achievements = await tx.select().from(achievementDefinitions);
-  for (const a of achievements) {
-    const c = a.criteria as AchievementCriteria;
-    const value = { matches: f.matches, wins: f.wins, distinct_games: f.games.size, tutorials: f.tutorials, ranked: f.ranked }[c.type];
-    if (value === undefined || value < c.count) continue;
-    const granted = await tx.insert(userAchievements).values({ userId, achievementId: a.id }).onConflictDoNothing().returning();
-    if (granted.length) {
-      await award(tx, { userId, sourceKey: `achievement:${a.key}:${userId}`, ruleId: `achievement.${a.key}`, kind: 'achievement',
-        amount: XP_RULES.achievement, reason: `دستاورد «${a.titleFa}».`, metadata: { week: week.key } });
+  const isMeta = (a: typeof achievements[number]) => META_TYPES.includes((a.criteria as AchievementCriteria).type);
+  const grant = async (list: typeof achievements) => {
+    for (const a of list) {
+      const c = a.criteria as AchievementCriteria;
+      const value = f.achievement[c.type];
+      if (value === undefined || value < c.count) continue;
+      const granted = await tx.insert(userAchievements).values({ userId, achievementId: a.id }).onConflictDoNothing().returning();
+      if (granted.length) {
+        await award(tx, { userId, sourceKey: `achievement:${a.key}:${userId}`, ruleId: `achievement.${a.key}`, kind: 'achievement',
+          amount: XP_RULES.achievement, reason: `دستاورد «${a.titleFa}».`, metadata: { week: week.key } });
+      }
     }
-  }
+  };
+  await grant(achievements.filter((a) => !isMeta(a)));
+  f = await goalFacts(tx, userId, week.key); // fresh XP and trophy count after the awards above
+  await grant(achievements.filter(isMeta));
 }
 
 /** MatchCompleted: completion XP (also for losses), capped first-place bonus, repeated-opponent and daily limits. */

@@ -1,14 +1,14 @@
 // Ratings, leaderboards, seasons, XP/missions/achievements and stats (FR-10, FR-14). Read-only for players:
 // every number here is derived from server events; there is no endpoint that accepts a client-claimed result.
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { AppError, apiErrorSchema, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  activeSeason, closeSeason, DEFAULT_SEASON, displayRating, ELIGIBILITY, isPremium, levelFor, manualReward, masteryFor, ratingRows,
-  totalXp, weekKey, type SeasonConfig
+  ACHIEVEMENT_TYPES, activeSeason, closeSeason, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
+  ratingRows, totalXp, weekKey, type AchievementType, type SeasonConfig
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -19,8 +19,9 @@ const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, mission
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const modeSchema = z.enum(['live', 'turn']);
 type AchievementDef = typeof achievementDefinitions.$inferSelect;
-type AchievementCriteria = { type: string; count: number; tier?: string };
-const TRACKS = ['matches', 'wins', 'distinct_games', 'tutorials', 'ranked'];
+type AchievementCriteria = { type: AchievementType; count: number; tier?: string };
+const TRACKS: readonly string[] = ACHIEVEMENT_TYPES;
+const MAX_ACTIVE_MISSIONS = 8;
 const tierOf = (a: AchievementDef): TrophyTier => trophyTier.catch('bronze').parse((a.criteria as AchievementCriteria).tier);
 /** Group achievements by track, easiest first inside each track. */
 const byTrack = (x: AchievementDef, y: AchievementDef) => {
@@ -68,12 +69,16 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
     });
     const achDefs = await db.select().from(achievementDefinitions);
     const mine = await db.select().from(userAchievements).where(eq(userAchievements.userId, userId));
+    const facts = await goalFacts(db, userId, week.key);
     return {
       xp, level: lvl.level, levelFloor: lvl.currentFloor, nextLevelAt: lvl.nextAt,
       ratings: ratingList, mastery,
       missions: { periodKey: week.key, endsAt: week.endsAt.toISOString(), items: missions },
-      achievements: achDefs.sort(byTrack).map((a) => ({ key: a.key, titleFa: a.titleFa, descriptionFa: a.descriptionFa, tier: tierOf(a),
-        grantedAt: mine.find((m) => m.achievementId === a.id)?.grantedAt.toISOString() ?? null })),
+      achievements: achDefs.sort(byTrack).map((a) => {
+        const c = a.criteria as AchievementCriteria;
+        return { key: a.key, titleFa: a.titleFa, descriptionFa: a.descriptionFa, tier: tierOf(a), target: c.count,
+          progress: Math.min(facts.achievement[c.type] ?? 0, c.count), grantedAt: mine.find((m) => m.achievementId === a.id)?.grantedAt.toISOString() ?? null };
+      }),
       ledger: ledger.slice(0, 30).map(toLedger),
       season: season ? { id: season.id, nameFa: season.nameFa, endsAt: season.endsAt.toISOString() } : null
     };
@@ -250,6 +255,21 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
     const rows = await db.update(missionDefinitions).set({ active: req.body.active }).where(eq(missionDefinitions.id, req.params.id)).returning();
     if (!rows.length) throw new AppError('NOT_FOUND');
     await db.insert(auditLog).values({ actorId: userId, action: 'mission.active', targetType: 'mission', targetId: req.params.id, metadata: req.body, requestId: req.id });
+    return reply.code(204).send(null);
+  });
+
+  r.put('/admin/missions/active', {
+    schema: { tags: ['admin'], summary: `Choose this week's active missions in one step (1–${MAX_ACTIVE_MISSIONS}); every other mission is deactivated`,
+      body: z.strictObject({ ids: z.array(z.uuid()).min(1).max(MAX_ACTIVE_MISSIONS), reason: z.string().trim().min(3).max(300) }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    const ids = [...new Set(req.body.ids)];
+    await db.transaction(async (tx) => {
+      const found = await tx.select({ id: missionDefinitions.id }).from(missionDefinitions).where(inArray(missionDefinitions.id, ids));
+      if (found.length !== ids.length) throw new AppError('NOT_FOUND');
+      await tx.update(missionDefinitions).set({ active: sql`${inArray(missionDefinitions.id, ids)}` });
+      await tx.insert(auditLog).values({ actorId: userId, action: 'mission.weekly_set', targetType: 'mission', targetId: 'weekly', metadata: { ids, reason: req.body.reason }, requestId: req.id });
+    });
     return reply.code(204).send(null);
   });
 

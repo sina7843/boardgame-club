@@ -37,7 +37,9 @@ export function ProgressPage() {
   const played = d.mastery.filter((m) => m.tier !== 'new')
     .sort((a, b) => MASTERY_ORDER.indexOf(b.tier) - MASTERY_ORDER.indexOf(a.tier) || b.completed - a.completed);
   const earned = d.achievements.filter((a) => a.grantedAt).length;
-  const earnedFirst =[...d.achievements].sort((a, b) => Number(!a.grantedAt) - Number(!b.grantedAt)); // stable: track order kept
+  // Earned first (track order kept), then the locked ones closest to done.
+  const ratio = (a: (typeof d.achievements)[number]) => a.progress / Math.max(1, a.target);
+  const earnedFirst = [...d.achievements].sort((a, b) => Number(!a.grantedAt) - Number(!b.grantedAt) || (a.grantedAt ? 0 : ratio(b) - ratio(a)));
   return (
     <>
       <div className="page-head"><div><h1 className="page-title">پیشرفت</h1><p className="page-sub">مهارت، سطح حساب و تسلط هر بازی جدا از هم سنجیده می‌شوند؛ XP و دستاورد روی رتبه اثر ندارند.</p></div></div>
@@ -70,7 +72,12 @@ export function ProgressPage() {
                 <Trophy tier={a.tier} locked={!a.grantedAt} />
                 <span className="ach__tier">{TIER_FA[a.tier]}</span>
                 <strong>{a.titleFa}</strong><span className="muted">{a.descriptionFa}</span>
-                <span className="muted">{a.grantedAt ? `کسب‌شده ${jalaliDate(a.grantedAt)}` : 'هنوز کسب نشده'}</span>
+                {a.grantedAt ? <span className="muted">کسب‌شده {jalaliDate(a.grantedAt)}</span> : (
+                  <div className="ach__progress" role="progressbar" aria-label={`پیشرفت ${a.titleFa}`} aria-valuemin={0} aria-valuemax={a.target} aria-valuenow={a.progress}
+                    aria-valuetext={`${faNum(a.progress)} از ${faNum(a.target)}`}>
+                    <span className="ach__bar"><span style={{ inlineSize: `${Math.round((a.progress / Math.max(1, a.target)) * 100)}%` }} /></span>
+                    <span className="muted num">{faNum(a.progress)} / {faNum(a.target)}</span>
+                  </div>)}
               </li>))}</ul>)}
           </Clamped>
         </section>

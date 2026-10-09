@@ -142,23 +142,55 @@ function SubscriptionsList({ userId }: { userId: string }) {
   );
 }
 
+const MISSION_TYPE_FA: Record<string, string> = {
+  complete_tables: 'میز کامل', distinct_games: 'بازی‌های مختلف', learn_new_game: 'یادگیری', ranked_tables: 'رتبه‌دار', friendly_tables: 'دوستانه',
+  live_tables: 'زنده', turn_tables: 'نوبتی', big_tables: 'سه‌نفره به بالا', tutorials: 'آموزش'
+};
+const MAX_ACTIVE_MISSIONS = 8; // mirrors the API limit
+
+/** Weekly mission picker: tick this week's set from the catalog and save it in one audited step. */
 export function MissionsAdmin() {
-  const missions = useApi<{ items: { id: string; key: string; ruleVersion: number; titleFa: string; descriptionFa: string; active: boolean }[] }>('/admin/missions');
-  const call = useCall();
+  const missions = useApi<{ items: { id: string; key: string; ruleVersion: number; titleFa: string; descriptionFa: string; criteria: unknown; active: boolean }[] }>('/admin/missions');
+  const toast = useToast();
+  const [picked, setPicked] = useState<Set<string> | null>(null);
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
   if (!missions.data) return null;
+  const items = missions.data.items;
+  const active = new Set(items.filter((m) => m.active).map((m) => m.id));
+  const sel = picked ?? active;
+  const dirty = sel.size !== active.size || [...sel].some((id) => !active.has(id));
+  const toggle = (id: string) => { const s = new Set(sel); if (s.has(id)) s.delete(id); else s.add(id); setPicked(s); };
+  const save = async () => {
+    setBusy(true);
+    try {
+      await api('/admin/missions/active', { method: 'PUT', body: { ids: [...sel], reason: reason.trim() || 'انتخاب مأموریت‌های هفته' } });
+      toast('success', `${faNum(sel.size)} مأموریت برای این هفته فعال شد.`);
+      setPicked(null); setReason(''); missions.reload();
+    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'ذخیره نشد.'); } finally { setBusy(false); }
+  };
+  const tooMany = sel.size > MAX_ACTIVE_MISSIONS;
   return (
     <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="missions-admin-h">
-      <h2 id="missions-admin-h" className="section-title">مأموریت‌ها</h2>
-      <p className="muted" style={{ margin: 0 }}>تعریف‌ها نسخه‌دارند؛ تغییر قاعده با نسخه تازه منتشر می‌شود و پاداش‌های قبلی دست نمی‌خورند.</p>
-      {missions.data.items.map((m) => (
-        <div key={m.id} className="row">
-          <span style={{ flex: 1 }}><strong>{m.titleFa}</strong> <span className="muted">v{faNum(m.ruleVersion)}: {m.descriptionFa}</span></span>
-          <Badge tone={m.active ? 'success' : undefined}>{m.active ? 'فعال' : 'غیرفعال'}</Badge>
-          <Button size="sm" variant="ghost" onClick={async () => { if (await call(`/admin/missions/${m.id}`, 'PATCH', { active: !m.active, reason: 'تغییر از پنل مدیریت' }, 'ذخیره شد.')) missions.reload(); }}>
-            {m.active ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
-          </Button>
-        </div>
-      ))}
+      <div className="row"><h2 id="missions-admin-h" className="section-title" style={{ flex: 1 }}>مأموریت‌های هفته</h2>
+        <Badge tone={tooMany || sel.size === 0 ? 'danger' : 'success'}>{faNum(sel.size)} از حداکثر {faNum(MAX_ACTIVE_MISSIONS)} انتخاب‌شده</Badge></div>
+      <p className="muted" style={{ margin: 0 }}>از فهرست، مأموریت‌های این هفته را انتخاب کنید. هیچ مأموریتی برد اجباری ندارد. پیشرفت هر بازیکن از رویدادهای همین هفته حساب می‌شود و پاداش‌های قبلی دست نمی‌خورند.</p>
+      <ul className="mission-pick">{items.map((m) => {
+        const c = m.criteria as { type?: string; count?: number; xp?: number };
+        return (
+          <li key={m.id}>
+            <label className={`mission-pick__item${sel.has(m.id) ? ' is-on' : ''}`}>
+              <input type="checkbox" checked={sel.has(m.id)} onChange={() => toggle(m.id)} />
+              <span className="mission-pick__body"><strong>{m.titleFa}</strong><span className="muted">{m.descriptionFa}</span></span>
+              <span className="mission-pick__meta"><Badge>{MISSION_TYPE_FA[c.type ?? ''] ?? c.type}</Badge><span className="num">+{faNum(c.xp ?? 0)} XP</span></span>
+            </label>
+          </li>);
+      })}</ul>
+      <div className="row" style={{ alignItems: 'end' }}>
+        <div style={{ flex: 1, minInlineSize: 200 }}><Input label="علت (در گزارش ثبت می‌شود)" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="انتخاب مأموریت‌های هفته" /></div>
+        <Button variant="ghost" disabled={!dirty || busy} onClick={() => setPicked(null)}>بازگردانی</Button>
+        <Button busy={busy} disabled={!dirty || tooMany || sel.size === 0} onClick={() => void save()}>ذخیرهٔ مأموریت‌های هفته</Button>
+      </div>
     </section>
   );
 }

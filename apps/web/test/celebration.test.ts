@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { newMoments } from '../src/shell/Celebration.tsx';
 
 const ach = (key: string, granted: boolean) =>
-  ({ key, titleFa: key, descriptionFa: '', tier: 'bronze' as const, grantedAt: granted ? '2026-10-09T00:00:00.000Z' : null });
+  ({ key, titleFa: key, descriptionFa: '', tier: 'bronze' as const, progress: 0, target: 1, grantedAt: granted ? '2026-10-09T00:00:00.000Z' : null });
 
 describe('celebration moments', () => {
   it('first visit on a device only records a baseline', () => {

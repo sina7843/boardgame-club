@@ -26,7 +26,8 @@ export const progressionResponse = z.object({
     wins: z.number().int(), ranked: z.number().int(), tutorial: z.boolean() })),
   missions: z.object({ periodKey: z.string(), endsAt: z.iso.datetime(), items: z.array(z.object({
     key: z.string(), titleFa: z.string(), descriptionFa: z.string(), progress: z.number().int(), target: z.number().int(), xp: z.number().int(), completed: z.boolean() })) }),
-  achievements: z.array(z.object({ key: z.string(), titleFa: z.string(), descriptionFa: z.string(), tier: trophyTier, grantedAt: z.iso.datetime().nullable() })),
+  achievements: z.array(z.object({ key: z.string(), titleFa: z.string(), descriptionFa: z.string(), tier: trophyTier,
+    progress: z.number().int(), target: z.number().int(), grantedAt: z.iso.datetime().nullable() })),
   ledger: z.array(ledgerItem),
   season: z.object({ id: z.uuid(), nameFa: z.string(), endsAt: z.iso.datetime() }).nullable()
 });

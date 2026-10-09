@@ -232,4 +232,35 @@ describe('XP, missions and achievements (FR-14)', () => {
     expect(p.xp).toBe(50);
     expect(p.ledger[0]).toMatchObject({ kind: 'manual', reason: 'جبران خطای سیستم' });
   });
+
+  it('admin picks the weekly missions from the catalog; new mission types and achievement progress come from server events', async () => {
+    const [a, b, admin] = await users(ctx, 3);
+    await grantRole(ctx.db, admin!.mobile, 'admin');
+    const catalog = (await call(ctx, 'GET', '/api/admin/missions', admin)).json().items as { id: string; key: string; active: boolean }[];
+    expect(catalog.length).toBeGreaterThanOrEqual(20);
+    const idOf = (key: string) => catalog.find((m) => m.key === key)!.id;
+    const before = catalog.filter((m) => m.active).map((m) => m.id);
+    const pick = [idOf('weekly_turn_2'), idOf('weekly_friendly_3')];
+
+    expect((await call(ctx, 'PUT', '/api/admin/missions/active', a, { ids: pick, reason: 'تست' })).statusCode).toBe(403);
+    expect((await call(ctx, 'PUT', '/api/admin/missions/active', admin, { ids: catalog.slice(0, 9).map((m) => m.id), reason: 'زیاد' })).statusCode).toBe(400);
+    expect((await call(ctx, 'PUT', '/api/admin/missions/active', admin, { ids: pick, reason: 'مأموریت‌های هفته' })).statusCode).toBe(204);
+    const active = (await call(ctx, 'GET', '/api/admin/missions', admin)).json().items.filter((m: { active: boolean }) => m.active).map((m: { key: string }) => m.key);
+    expect(active.sort()).toEqual(['weekly_friendly_3', 'weekly_turn_2']);
+
+    for (let i = 0; i < 2; i++) {
+      const t = await startTable(ctx, 'line-three', 2, { pace: 'turn', players: [a!, b!] });
+      await finishLineThree(t.tableId, [a!, b!]);
+    }
+    await runOutbox(ctx.db);
+    const p = (await call(ctx, 'GET', '/api/me/progression', a)).json();
+    expect(p.missions.items.map((m: { key: string }) => m.key).sort()).toEqual(['weekly_friendly_3', 'weekly_turn_2']);
+    expect(p.missions.items.find((m: { key: string }) => m.key === 'weekly_turn_2')).toMatchObject({ progress: 2, completed: true });
+    expect(p.missions.items.find((m: { key: string }) => m.key === 'weekly_friendly_3')).toMatchObject({ progress: 2, target: 3, completed: false });
+    expect(p.achievements.find((x: { key: string }) => x.key === 'warm_up')).toMatchObject({ progress: 2, target: 5, grantedAt: null });
+    expect(p.achievements.find((x: { key: string }) => x.key === 'turn_10')).toMatchObject({ progress: 2, target: 10 });
+    expect(p.achievements.find((x: { key: string }) => x.key === 'missions_1').grantedAt).not.toBeNull(); // weekly_turn_2 done
+
+    await call(ctx, 'PUT', '/api/admin/missions/active', admin, { ids: before, reason: 'بازگردانی' });
+  });
 });
