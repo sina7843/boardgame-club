@@ -10,18 +10,18 @@
 .jp-card { display: inline-grid; justify-items: center; align-content: center; gap: 0.1rem; border-radius: 9px; color: #fff;
   background: linear-gradient(170deg, color-mix(in srgb, var(--c) 80%, white 20%), var(--c) 50%, var(--c2)); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.35), inset 0 0 0 5px rgb(0 0 0 / 0.08), 0 4px 8px -4px #000; }
 .jp-c--silver.jp-card, .jp-c--camel.jp-card, .jp-c--gold.jp-card { color: var(--ink); }
-.jp-card svg { fill: currentColor; stroke: none; }
+.jp-card img { object-fit: contain; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.4)); }
 .jp-card--md { inline-size: 3.6rem; block-size: 5rem; }
-.jp-card--md svg { inline-size: 2.2rem; block-size: 2.2rem; }
+.jp-card--md img { inline-size: 2.9rem; block-size: 2.9rem; }
 .jp-card--sm { inline-size: 1.6rem; block-size: 2.1rem; border-radius: 5px; vertical-align: middle; }
-.jp-card--sm svg { inline-size: 1.2rem; block-size: 1.2rem; }
+.jp-card--sm img { inline-size: 1.5rem; block-size: 1.5rem; }
 .jp-card__n { font-size: 0.68rem; font-weight: 800; }
 
 .jp__tokens { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
 .jp-stack { position: relative; display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 0.15rem 0.25rem; padding: 0.25rem 0.5rem; border-radius: 999px;
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 60%, white 40%), var(--c) 60%, var(--c2)); color: #fff; box-shadow: inset 0 0 0 2px rgb(255 230 170 / 0.6), 0 3px 6px -3px #000; }
 .jp-c--silver.jp-stack, .jp-c--gold.jp-stack { color: var(--ink); }
-.jp-stack svg { inline-size: 1.2rem; block-size: 1.2rem; fill: currentColor; }
+.jp-stack img { inline-size: 1.6rem; block-size: 1.6rem; object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.4)); }
 .jp-stack b { font-size: 1rem; font-weight: 900; }
 .jp-stack small { position: absolute; inset-block-start: -0.4rem; inset-inline-end: -0.3rem; padding: 0 0.3rem; border-radius: 999px; background: var(--ink); color: #f6ead6; font-size: 0.62rem; }
 .jp-stack--out { filter: grayscale(1) brightness(0.6); }

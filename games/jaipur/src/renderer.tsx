@@ -4,27 +4,25 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import diamond from './art/diamond.webp';
+import gold from './art/gold.webp';
+import silver from './art/silver.webp';
+import cloth from './art/cloth.webp';
+import spice from './art/spice.webp';
+import leather from './art/leather.webp';
+import camel from './art/camel.webp';
 import { GOODS, PRECIOUS, type Card, type Good, type JaipurView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const CARD_FA: Record<Card, string> = { diamond: 'الماس', gold: 'طلا', silver: 'نقره', cloth: 'پارچه', spice: 'ادویه', leather: 'چرم', camel: 'شتر' };
 
-function Icon({ c }: { c: Card }) {
-  switch (c) {
-    case 'diamond': return <path d="M-10 -4 L-5 -10 H5 L10 -4 L0 10 Z M-10 -4 H10 M-5 -10 L-2 -4 L0 10 L2 -4 L5 -10" />;
-    case 'gold': return <path d="M-11 6 L-7 -2 H7 L11 6 Z M-6 -3 L-3 -9 H3 L6 -3 Z" />;
-    case 'silver': return <path d="M-9 8 Q-11 -2 -4 -4 V-9 H4 V-4 Q11 -2 9 8 Z" />;
-    case 'cloth': return <path d="M-10 -8 H10 V4 Q5 10 0 4 Q-5 -2 -10 4 Z M-10 -3 H10" />;
-    case 'spice': return <path d="M-10 6 Q-10 -2 0 -4 Q10 -2 10 6 Z M-6 -4 Q-2 -11 2 -6 Q6 -11 7 -3" />;
-    case 'leather': return <path d="M-10 -6 Q-6 -10 0 -7 Q6 -10 10 -6 L8 8 Q0 5 -8 8 Z" />;
-    case 'camel': return <path d="M-11 8 V0 Q-11 -4 -7 -4 L-5 -8 Q-2 -11 0 -6 Q2 -10 5 -6 L7 -9 Q11 -10 11 -6 L9 -4 V8 H6 V2 H-6 V8 Z" />;
-  }
-}
+// Goods art is cut from a generated sheet (see DECISIONS.md).
+const ART: Record<Card, string> = { diamond, gold, silver, cloth, spice, leather, camel };
 
 export function GoodCard({ c, size = 'md' }: { c: Card; size?: 'sm' | 'md' }) {
   return (
     <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} aria-label={CARD_FA[c]}>
-      <svg viewBox="-14 -14 28 28" aria-hidden="true"><Icon c={c} /></svg>
+      <img src={ART[c]} alt="" draggable={false} />
       {size === 'md' && <span className="jp-card__n">{CARD_FA[c]}</span>}
     </span>
   );
@@ -68,7 +66,7 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
       <section className="jp__tokens" aria-label="سکه‌های کالا">
         {GOODS.map((g) => (
           <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${CARD_FA[g]}: ${fa(view.tokens[g].length)} سکه`}>
-            <svg viewBox="-14 -14 28 28" aria-hidden="true"><Icon c={g} /></svg>
+            <img src={ART[g]} alt="" draggable={false} />
             <b>{view.tokens[g].length ? fa(view.tokens[g][0]!) : '×'}</b>
             <small>{fa(view.tokens[g].length)}</small>
           </span>
