@@ -142,10 +142,13 @@
   .gamebar__full:hover { transform: scale(1.06); }
   .gamebar__full:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   /* Fullscreen game: the container fills the screen and scrolls itself (the board must never sit below the fold). */
-  .game:fullscreen { overflow-y: auto; overscroll-behavior: contain; block-size: 100dvh; inline-size: 100vw; box-sizing: border-box;
+  .game:fullscreen, .game.game--max { overflow-y: auto; overscroll-behavior: contain; block-size: 100dvh; inline-size: 100vw; box-sizing: border-box;
     padding: 0.75rem max(0.75rem, env(safe-area-inset-right)) calc(1.5rem + env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
     background: var(--background); align-content: start; }
   .game::backdrop { background: var(--background); }
+  /* Window-filling fallback where the Fullscreen API is missing (iPhone Safari) or refused. */
+  .game.game--max { position: fixed; inset: 0; z-index: 60; inline-size: auto; }
+  :root.is-game-max, :root.is-game-max body { overflow: hidden; }
   .gamebar__title { flex: 1 1 14rem; min-inline-size: 0; }
   .gamebar__title h1 { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 1.35rem; }
   .gamebar__mark { display: grid; place-items: center; inline-size: 34px; block-size: 34px; border-radius: var(--shape-field);

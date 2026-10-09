@@ -1,6 +1,6 @@
-// Zoomable game board: buttons, ctrl/⌘ + wheel and two-finger pinch zoom (1×–4×), drag to pan while zoomed, full
-// screen (phones in landscape get the whole screen). Taps and clicks on board targets still work: a press only becomes
-// a pan after it moves a few pixels, and that press's click is then swallowed.
+// Zoomable game board: buttons, ctrl/⌘ + wheel and two-finger pinch zoom (1×–4×), drag to pan while zoomed. Full screen
+// is the table's own button (the whole game, so its controls stay usable), not a board-only mode. Taps and clicks on
+// board targets still work: a press only becomes a pan after it moves a few pixels, and that press's click is swallowed.
 import './zoom.css';
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type PointerEvent, type ReactNode } from 'react';
 import { fa } from './components.tsx';
@@ -11,7 +11,6 @@ type View = { s: number; x: number; y: number };
 export function ZoomBoard({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const [v, setV] = useState<View>({ s: 1, x: 0, y: 0 });
-  const [full, setFull] = useState(false);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ start: View; d0: number; mx: number; my: number; px: number; py: number; moved: boolean } | null>(null);
   const swallow = useRef(false);
@@ -47,7 +46,7 @@ export function ZoomBoard({ label, children, className }: { label: string; child
   }, [zoomAt]);
 
   useEffect(() => {
-    const onChange = () => { setFull(document.fullscreenElement === box.current?.parentElement); setV((cur) => clamp(cur)); };
+    const onChange = () => setV((cur) => clamp(cur));
     document.addEventListener('fullscreenchange', onChange);
     window.addEventListener('resize', onChange);
     return () => { document.removeEventListener('fullscreenchange', onChange); window.removeEventListener('resize', onChange); };
@@ -101,22 +100,8 @@ export function ZoomBoard({ label, children, className }: { label: string; child
     setV((cur) => (cur.s > 1 ? { s: 1, x: 0, y: 0 } : zoomAt(cur, 2, p.x, p.y)));
   };
 
-  const toggleFull = async () => {
-    const host = box.current?.parentElement;
-    if (!host) return;
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else {
-        await host.requestFullscreen();
-        // Phones: prefer landscape for the board where the browser allows it (ignored elsewhere).
-        await (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }).lock?.('landscape').catch(() => undefined);
-      }
-    } catch { /* full screen not available (e.g. iOS Safari): the board still zooms */ }
-  };
-  const canFull = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
-
   return (
-    <div className={['zb', full ? 'zb--full' : '', v.s > 1 ? 'zb--zoomed' : '', className ?? ''].join(' ')}>
+    <div className={['zb', v.s > 1 ? 'zb--zoomed' : '', className ?? ''].join(' ')}>
       <div ref={box} className="zb__viewport" role="group" aria-label={`${label}، بزرگ‌نمایی ${fa(Math.round(v.s * 100))}٪`}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onClickCapture={(e) => { if (swallow.current) { e.stopPropagation(); e.preventDefault(); swallow.current = false; } }}
@@ -127,7 +112,6 @@ export function ZoomBoard({ label, children, className }: { label: string; child
         <button type="button" onClick={() => step(1)} disabled={v.s >= MAX} aria-label="بزرگ‌نمایی" title="بزرگ‌نمایی">+</button>
         <button type="button" onClick={() => step(-1)} disabled={v.s <= MIN} aria-label="کوچک‌نمایی" title="کوچک‌نمایی">−</button>
         <button type="button" onClick={() => setV({ s: 1, x: 0, y: 0 })} disabled={v.s === 1} aria-label="اندازه اصلی" title="اندازه اصلی">⟲</button>
-        {canFull && <button type="button" onClick={toggleFull} aria-pressed={full} aria-label={full ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'} title={full ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}>{full ? '⤡' : '⤢'}</button>}
       </div>
       {v.s > 1 && <p className="zb__tip" aria-hidden="true">برای جابه‌جایی بکشید · دو بار ضربه برای اندازه اصلی</p>}
     </div>

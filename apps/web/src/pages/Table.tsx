@@ -254,24 +254,42 @@ function useTableChatAlerts(tableId: string | null, open: boolean): number {
  * native modal <dialog>s in the top layer, so they still show above it. `supported` is false where the API is
  * missing (e.g. iPhone Safari); leaving the table exits fullscreen.
  */
+/**
+ * Full screen for the game container. Uses the Fullscreen API where it exists; where it does not (iPhone Safari) or the
+ * browser refuses, the game is laid over the whole window instead (`.game--max`), so the button always does something.
+ */
 function useFullscreen(target: RefObject<HTMLElement | null>) {
-  const supported = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
-  const [on, setOn] = useState(() => typeof document !== 'undefined' && !!document.fullscreenElement);
+  const api = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
+  const [native, setNative] = useState(() => typeof document !== 'undefined' && !!document.fullscreenElement);
+  const [max, setMax] = useState(false);
+  // On entering, bring the board to the top of the screen: on phones the status strip and panels would push it below.
+  const reveal = useCallback(() => requestAnimationFrame(() => target.current?.querySelector('.game__board')?.scrollIntoView({ block: 'start' })), [target]);
   useEffect(() => {
-    const sync = () => setOn(!!document.fullscreenElement);
+    const sync = () => { setNative(!!document.fullscreenElement); if (document.fullscreenElement) reveal(); };
     document.addEventListener('fullscreenchange', sync);
     return () => {
       document.removeEventListener('fullscreenchange', sync);
       if (document.fullscreenElement) void document.exitFullscreen().catch(() => { /* already left */ });
     };
-  }, []);
+  }, [reveal]);
+  // The window overlay keeps the page behind it from scrolling and leaves with Escape like real full screen.
+  useEffect(() => {
+    if (!max) return;
+    const root = document.documentElement;
+    root.classList.add('is-game-max');
+    reveal();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMax(false); };
+    window.addEventListener('keydown', onKey);
+    return () => { root.classList.remove('is-game-max'); window.removeEventListener('keydown', onKey); };
+  }, [max, reveal]);
   const toggle = useCallback(async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await (target.current ?? document.documentElement).requestFullscreen({ navigationUI: 'hide' });
-    } catch { /* refused by the browser; nothing to do */ }
-  }, [target]);
-  return { supported, on, toggle };
+    if (max) { setMax(false); return; }
+    if (document.fullscreenElement) { await document.exitFullscreen().catch(() => { /* already left */ }); return; }
+    if (!api) { setMax(true); return; }
+    try { await (target.current ?? document.documentElement).requestFullscreen({ navigationUI: 'hide' }); }
+    catch { setMax(true); }
+  }, [api, max, target]);
+  return { on: native || max, max, toggle };
 }
 
 function tableMeta(t: Lobby) {
@@ -334,7 +352,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   );
 
   return (
-    <div className="game" ref={gameRef}>
+    <div className={full.max ? 'game game--max' : 'game'} ref={gameRef}>
       <header className="gamebar">
         <Link to="/" className="gamebar__icon" aria-label="بازگشت به داشبورد"><ArrowRight aria-hidden /></Link>
         <div className="gamebar__title">
@@ -344,7 +362,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         <span className={cn('gamebar__conn', s.live ? 'is-on' : 'is-off')} role="status" title={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}>
           <span className="gamebar__dot" aria-hidden /><span className="gamebar__conn-text">{s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'}</span>
         </span>
-        {full.supported && (
+        {(
           <button type="button" className="gamebar__icon gamebar__full" onClick={() => void full.toggle()} aria-pressed={full.on}
             aria-label={full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'} title={full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}>
             {full.on ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />}

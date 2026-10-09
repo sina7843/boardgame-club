@@ -15,11 +15,6 @@
 .zb__tip { position: absolute; inset-block-end: 8px; inset-inline: 0; margin: 0 auto; inline-size: fit-content; padding: 4px 12px; border-radius: 999px;
   background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.75rem; pointer-events: none; }
 
-/* Full screen: the board fills the screen on a dark table; it scales to fit width and height. */
-.zb--full { justify-content: center; align-items: center; padding: 8px; background: radial-gradient(120% 90% at 50% 30%, #235c43, #10301f); inline-size: 100vw; block-size: 100dvh; }
-.zb--full .zb__viewport { max-inline-size: 100%; max-block-size: calc(100dvh - 58px); }
-.zb--full .zb__content > svg { max-block-size: calc(100dvh - 58px); inline-size: auto; max-inline-size: 100%; }
-
 /* Phones held sideways: keep the whole board inside the screen height. */
 @media (orientation: landscape) and (max-height: 560px) {
   .zb__viewport { max-block-size: calc(100dvh - 66px); }
