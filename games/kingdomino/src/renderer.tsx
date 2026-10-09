@@ -2,8 +2,8 @@
 // kingdom as a 9×9 field around the castle (cells where the domino can start glow), rivals' kingdoms in miniature.
 // Rotate the domino, tap where its first half goes, choose your next domino, confirm.
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
 import { DIRS, DOMINOES, canPlace, scoreKingdom, type Cell, type Half, type KingdominoView, type Terrain } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -25,17 +25,20 @@ export function Domino({ dom, size = 'md' }: { dom: number; size?: 'sm' | 'md' }
   return <span className={`kd-dom kd-dom--${size}`}><Square cell={a} size={size} /><Square cell={b} size={size} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
 }
 
-function Kingdom({ k, big, onCell, ok, preview, hint }: { k: (Cell | null)[][]; big?: boolean; onCell?: (r: number, c: number) => void; ok?: Set<string>; preview?: Map<string, Half>; hint?: [number, number] | null }) {
+function Kingdom({ k, was, big, onCell, ok, preview, hint }: { k: (Cell | null)[][]; was?: (Cell | null)[][]; big?: boolean; onCell?: (r: number, c: number) => void; ok?: Set<string>; preview?: Map<string, Half>; hint?: [number, number] | null }) {
+  let n = 0;
   return (
     <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`}>
       {k.map((row, r) => row.map((cell, c) => {
         const key = `${r},${c}`;
         const pv = preview?.get(key);
-        const cls = ['kd-slot', ok?.has(key) ? 'kd-slot--ok' : '', pv ? 'kd-slot--pv' : '', hint && hint[0] === r && hint[1] === c ? 'kd-hint' : ''].join(' ');
+        const fresh = !!was && !!cell && !was[r]![c];
+        const cls = ['kd-slot', ok?.has(key) ? 'kd-slot--ok' : '', pv ? 'kd-slot--pv' : '', hint && hint[0] === r && hint[1] === c ? 'kd-hint' : '', fresh ? 'bg-land' : ''].join(' ');
+        const style = fresh ? { ['--i' as string]: n++ } : undefined;
         const inner = <Square cell={pv ?? cell} size={big ? 'md' : 'sm'} />;
         return onCell && !cell
-          ? <button key={key} type="button" className={cls} data-ok={ok?.has(key) ? '1' : undefined} onClick={() => onCell(r, c)} aria-label={`خانهٔ ${fa(r + 1)}، ${fa(c + 1)}`}>{inner}</button>
-          : <span key={key} className={cls}>{inner}</span>;
+          ? <button key={key} type="button" className={cls} data-ok={ok?.has(key) ? '1' : undefined} style={style} onClick={() => onCell(r, c)} aria-label={`خانهٔ ${fa(r + 1)}، ${fa(c + 1)}`}>{inner}</button>
+          : <span key={key} className={cls} style={style}>{inner}</span>;
       }))}
     </div>
   );
@@ -45,6 +48,10 @@ export default function KingdominoRenderer({ view, legalActions, mySeat, seatNam
   const me = mySeat ?? 0;
   const pickHint = legalActions.find((a) => a.type === 'pick') as { slots: number[] } | undefined;
   const playHint = legalActions.find((a) => a.type === 'play') as { dom: number; canPlace: boolean; slots: number[] } | undefined;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const before = usePrevious(view.seq, view);
+  const wasOwner = new Map([...(before?.current ?? []), ...(before?.next ?? [])].map((x) => [x.dom, x.owner] as const));
   const [dir, setDir] = useState(0);
   const [at, setAt] = useState<[number, number] | null>(null);
   const [slot, setSlot] = useState<number | null>(null);
@@ -86,23 +93,23 @@ export default function KingdominoRenderer({ view, legalActions, mySeat, seatNam
         const free = x.owner === null;
         const canTap = kind === 'next' && free && !busy && (!!pickHint || (!!playHint && needSlot));
         const chosen = kind === 'next' && slot === i;
-        const content = <><Domino dom={x.dom} />{x.owner !== null && <i className="kd-king" style={{ background: SEAT[x.owner % 4] }} title={who(x.owner)} />}</>;
+        const content = <><Domino dom={x.dom} />{x.owner !== null && <i className="kd-king" style={{ background: SEAT[x.owner % 4] }} title={who(x.owner)} data-flip={wasOwner.get(x.dom) === null ? `king-${x.dom}` : undefined} data-flip-from={`seat-${x.owner}`} />}</>;
         return canTap
-          ? <button key={i} type="button" className={['kd-pick', 'kd-dom--free', chosen ? 'kd-pick--on' : '', hint?.slot === i ? 'kd-hint' : ''].join(' ')}
+          ? <button key={i} type="button" data-flip={`dom-${x.dom}`} data-flip-from="deck" className={['kd-pick', 'kd-dom--free', chosen ? 'kd-pick--on' : '', hint?.slot === i ? 'kd-hint' : ''].join(' ')}
             onClick={() => (pickHint ? onAction({ type: 'pick', slot: i }) : setSlot(chosen ? null : i))} aria-pressed={chosen}>{content}</button>
-          : <span key={i} className={['kd-pick', active ? 'kd-pick--active' : '', kind === 'cur' && i < view.idx && view.phase === 'play' ? 'kd-pick--done' : ''].join(' ')}>{content}</span>;
+          : <span key={i} data-flip={`dom-${x.dom}`} data-flip-from="deck" className={['kd-pick', active ? 'kd-pick--active' : '', kind === 'cur' && i < view.idx && view.phase === 'play' ? 'kd-pick--done' : ''].join(' ')}>{content}</span>;
       })}
     </div>
   );
 
   return (
-    <div className="kd" data-seq={view.seq}>
+    <div className="kd" data-seq={view.seq} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!view.outcome && (
         <section className="kd__lines" aria-label="دومینوها">
           {view.phase === 'play' && line(view.current, 'cur')}
           {view.next.length > 0 && line(view.next, 'next')}
-          <span className="kd__deck">{fa(view.deckCount)} دومینو در کیسه</span>
+          <span className="kd__deck" data-flip-anchor="deck">{fa(view.deckCount)} دومینو در کیسه</span>
         </section>
       )}
 
@@ -116,15 +123,15 @@ export default function KingdominoRenderer({ view, legalActions, mySeat, seatNam
 
       <div className="kd__realm">
         <section className="kd-player kd-player--me" aria-label="سرزمین شما">
-          <div className="kd-player__head"><i className="kd-king" style={{ background: SEAT[me % 4] }} /><bdi>{who(me)}</bdi><b>{fa(scoreKingdom(k).total)} امتیاز</b></div>
-          <Kingdom k={k} big onCell={playHint?.canPlace && !busy ? (r, c) => setAt([r, c]) : undefined} ok={playHint?.canPlace ? ok : undefined} preview={preview}
+          <div className="kd-player__head"><i className="kd-king" data-flip-anchor={`seat-${me}`} style={{ background: SEAT[me % 4] }} /><bdi>{who(me)}</bdi><b>{fa(scoreKingdom(k).total)} امتیاز</b></div>
+          <Kingdom k={k} was={before?.kingdoms[me]} big onCell={playHint?.canPlace && !busy ? (r, c) => setAt([r, c]) : undefined} ok={playHint?.canPlace ? ok : undefined} preview={preview}
             hint={hint?.type === 'play' && hint.place && !rotHint && !at ? [hint.place.r, hint.place.c] : null} />
         </section>
         <div className="kd__others">
           {order.map((s) => (
             <section key={s} className={['kd-player', view.actor === s ? 'kd-player--turn' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'kd-player--win' : ''].join(' ')} aria-label={`سرزمین ${who(s)}`}>
-              <div className="kd-player__head"><i className="kd-king" style={{ background: SEAT[s % 4] }} /><bdi>{who(s)}</bdi><b>{fa(scoreKingdom(view.kingdoms[s]!).total)}</b></div>
-              <Kingdom k={view.kingdoms[s]!} />
+              <div className="kd-player__head"><i className="kd-king" data-flip-anchor={`seat-${s}`} style={{ background: SEAT[s % 4] }} /><bdi>{who(s)}</bdi><b>{fa(scoreKingdom(view.kingdoms[s]!).total)}</b></div>
+              <Kingdom k={view.kingdoms[s]!} was={before?.kingdoms[s]} />
             </section>
           ))}
         </div>
