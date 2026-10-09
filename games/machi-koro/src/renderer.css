@@ -6,7 +6,7 @@
 
 .mk__dice { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; min-block-size: 3rem; }
 .mk__diceRow { display: inline-flex; gap: 0.4rem; }
-.mk-die { inline-size: 2.6rem; block-size: 2.6rem; animation: mk-tumble 0.5s ease-out; }
+.mk-die { inline-size: 2.6rem; block-size: 2.6rem; }
 .mk-die rect { fill: #fdf8ec; stroke: #8a7a5a; stroke-width: 1; }
 .mk-die circle { fill: #c0392b; }
 .mk__sum { font-size: 1.5rem; color: #ffd98a; }
@@ -38,7 +38,7 @@
 .mk-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.18); }
 .mk-pl__head { display: flex; gap: 0.5rem; align-items: center; justify-content: center; font-size: 0.85rem; }
 .mk-pl__name { font-weight: 800; }
-.mk-pl__coins { display: inline-flex; align-items: center; padding: 0 0.5rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: mk-bump 0.4s ease-out; }
+.mk-pl__coins { display: inline-flex; align-items: center; padding: 0 0.5rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900 }
 .mk-pl__lms { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
 .mk-lm { display: inline-flex; flex-direction: column; align-items: center; padding: 0.1rem 0.45rem; border-radius: 6px; border: 1px dashed rgb(255 255 255 / 0.3); font-size: 0.66rem; color: #b9b39a; }
 .mk-lm img { inline-size: 2.6rem; block-size: 2.6rem; object-fit: contain; filter: grayscale(1) opacity(0.55); }
@@ -47,7 +47,5 @@
 .mk-pl__cards { display: flex; flex-wrap: wrap; gap: 0.45rem 0.3rem; justify-content: center; padding-block-start: 0.3rem; }
 .mk-hint { animation: mk-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@keyframes mk-tumble { 0% { transform: rotate(-200deg) scale(0.4); opacity: 0; } 100% { transform: none; opacity: 1; } }
-@keyframes mk-bump { 40% { transform: scale(1.25); } }
 @keyframes mk-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .mk * { animation: none !important; transition: none !important; } }

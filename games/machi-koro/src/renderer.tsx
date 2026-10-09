@@ -1,8 +1,8 @@
 // شهر تاس renderer: a toy-town board. Dice tumble in the middle; the supply row shows every establishment with its
 // numbers, colour and price; each player's street lists their cards, coins and the four landmarks (lit when built).
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { CARD_DEFS, DEF, LANDMARKS, type CardKey, type Landmark, type MachiView } from './rules.ts';
 
 // Art is cut from a generated sprite sheet (see DECISIONS.md).
@@ -40,26 +40,31 @@ const EFFECT: Record<CardKey, string> = {
   cheese: '+۳ هر دامداری', furniture: '+۳ هر جنگل/معدن', mine: '+۵', restaurant: '۲ از تاس‌انداز', orchard: '+۳', market: '+۲ هر گندم/باغ'
 };
 
-const Die = ({ v }: { v: number }) => {
+const Die = ({ v, i }: { v: number; i: number }) => {
   const pips: Record<number, [number, number][]> = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]], 4: [[-1, -1], [1, -1], [-1, 1], [1, 1]], 5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] };
-  return <svg viewBox="-12 -12 24 24" className="mk-die" aria-label={`تاس ${fa(v)}`}><rect x="-11" y="-11" width="22" height="22" rx="4" />{pips[v]!.map(([x, y], i) => <circle key={i} cx={x * 6} cy={y * 6} r="2.2" />)}</svg>;
+  return <svg viewBox="-12 -12 24 24" className="mk-die bg-roll" style={{ ['--i' as string]: i }} aria-label={`تاس ${fa(v)}`}><rect x="-11" y="-11" width="22" height="22" rx="4" />{pips[v]!.map(([x, y], i) => <circle key={i} cx={x * 6} cy={y * 6} r="2.2" />)}</svg>;
 };
 
-export function TownCard({ k, count }: { k: CardKey; count?: number }) {
+export function TownCard({ k, count, flip }: { k: CardKey; count?: number; flip?: { id: string; from?: string } }) {
   const d = DEF[k];
   return (
-    <span className={`mk-card mk-col--${d.color}`}>
+    <span className={`mk-card mk-col--${d.color}`} {...(flip ? { 'data-flip': flip.id, ...(flip.from ? { 'data-flip-from': flip.from } : {}) } : {})}>
       <b className="mk-card__rolls">{d.rolls.map(fa).join('–')}</b>
       <img className="mk-card__art" src={ART[k]} alt="" draggable={false} />
       <span className="mk-card__name">{CARD_FA[k]}</span>
       <small>{EFFECT[k]}</small>
-      {count !== undefined && <i className="mk-card__count">×{fa(count)}</i>}
+      {count !== undefined && <i className="mk-card__count bg-pop" key={count}>×{fa(count)}</i>}
     </span>
   );
 }
 
 export default function MachiRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<MachiView>) {
   const me = mySeat ?? -1;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const rollAt = useRef(0); // seq of the latest roll: retriggers the dice tumble only for real rolls
+  if (view.last?.kind === 'roll') rollAt.current = view.seq;
+  const seq0 = useRef(view.seq);
   const rolls = legalActions.filter((a) => a.type === 'roll').map((a) => a.dice as number);
   const canKeep = legalActions.some((a) => a.type === 'keep');
   const builds = new Set(legalActions.filter((a) => a.type === 'build' && a.card).map((a) => a.card as CardKey));
@@ -82,11 +87,11 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
   const swapOk = give && take && target >= 0;
 
   return (
-    <div className="mk" data-seq={view.seq} data-phase={view.phase}>
+    <div className="mk" data-seq={view.seq} data-phase={view.phase} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="mk__dice" aria-label="تاس‌ها">
-        <span className="mk__diceRow" key={view.seq}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} />) : <span className="mk__noDice">—</span>}</span>
+        <span className="mk__diceRow" key={rollAt.current}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} i={i} />) : <span className="mk__noDice">—</span>}</span>
         {view.dice.length > 0 && <b className="mk__sum">{fa(view.dice.reduce((a, b) => a + b, 0))}</b>}
         {view.dice.length > 0 && <span className="mk__income">{view.income.map((g, k) => (g ? <span key={k} className={g > 0 ? 'up' : 'down'}><bdi>{who(k)}</bdi> {g > 0 ? '+' : '−'}{fa(Math.abs(g))}</span> : null))}</span>}
       </section>
@@ -113,7 +118,7 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
       {!view.outcome && (
         <section className="mk__supply" aria-label="بازار ساخت">
           {CARD_DEFS.map((d) => (
-            <button key={d.key} type="button" className={['mk-buy', hint?.card === d.key ? 'mk-hint' : ''].join(' ')} disabled={!builds.has(d.key) || busy}
+            <button key={d.key} type="button" data-flip-anchor={`buy-${d.key}`} className={['mk-buy', hint?.card === d.key ? 'mk-hint' : ''].join(' ')} disabled={!builds.has(d.key) || busy}
               onClick={() => onAction({ type: 'build', card: d.key })} aria-label={`ساختن ${CARD_FA[d.key]} به قیمت ${fa(d.cost)}`}>
               <TownCard k={d.key} /><span className="mk-buy__cost"><img src={coins} alt="" draggable={false} />{fa(d.cost)} سکه، {fa(view.supply[d.key])} مانده</span>
             </button>
@@ -132,9 +137,9 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
       <ul className="mk__players" aria-label="شهرها">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
           <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
-            <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><span className="mk-pl__coins" key={view.coins[s]}><img src={coins} alt="" draggable={false} />{fa(view.coins[s]!)} سکه</span></div>
-            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={l.key} className={`mk-lm ${view.landmarks[s]![l.key] ? 'mk-lm--on' : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key]} alt="" draggable={false} />{LANDMARK_FA[l.key]}</span>)}</div>
-            <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} />)}</div>
+            <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><span className="mk-pl__coins bg-pop" key={view.coins[s]}><img src={coins} alt="" draggable={false} />{fa(view.coins[s]!)} سکه</span></div>
+            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key]} alt="" draggable={false} />{LANDMARK_FA[l.key]}</span>)}</div>
+            <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} flip={{ id: `card-${s}-${d.key}`, ...(view.last?.kind === 'build' && view.last.seat === s && view.last.card === d.key ? { from: `buy-${d.key}` } : {}) }} />)}</div>
           </li>
         ))}
       </ul>
