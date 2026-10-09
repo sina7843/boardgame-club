@@ -3,10 +3,16 @@
 import './renderer.css';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import marbleB from './art/marble-b.webp';
+import marbleW from './art/marble-w.webp';
 import { CELLS, DIRS, WIN, legalMoves, neighbor, type AbaloneView, type Color } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const R = 40, SIZE = 760, CX = SIZE / 2, CY = SIZE / 2;
+// Marbles are transparent cut-outs from a generated sheet (see DECISIONS.md).
+const marbleImg = (c: Color, x: number, y: number, cls?: string) => (
+  <image className={cls} href={c === 'b' ? marbleB : marbleW} x={x - R * 0.86} y={y - R * 0.86} width={R * 1.72} height={R * 1.72} />
+);
 const DIR_FA = ['راست', 'بالا راست', 'بالا چپ', 'چپ', 'پایین چپ', 'پایین راست'];
 
 export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<AbaloneView>) {
@@ -79,8 +85,6 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
           <defs>
             <radialGradient id="abl-tray" cx=".5" cy=".45" r=".7"><stop offset="0" stopColor="#6b4223" /><stop offset="1" stopColor="#2e1a0b" /></radialGradient>
             <radialGradient id="abl-dimple" cx=".5" cy=".6" r=".6"><stop offset="0" stopColor="#3a2412" /><stop offset="1" stopColor="#21130a" /></radialGradient>
-            <radialGradient id="abl-b" cx=".33" cy=".28" r=".85"><stop offset="0" stopColor="#7c8290" /><stop offset=".35" stopColor="#262a33" /><stop offset="1" stopColor="#05060a" /></radialGradient>
-            <radialGradient id="abl-w" cx=".33" cy=".28" r=".85"><stop offset="0" stopColor="#ffffff" /><stop offset=".55" stopColor="#ece8df" /><stop offset="1" stopColor="#b8b0a0" /></radialGradient>
             <filter id="abl-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity=".55" /></filter>
           </defs>
           <polygon points={hexPts} fill="url(#abl-tray)" stroke="#c9a46a" strokeWidth="6" strokeLinejoin="round" />
@@ -107,8 +111,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
               <g key={`${i}-${off ? view.ply : 0}`} pointerEvents="none" className={['abl-m', off ? 'abl-m--moved' : '', sel.includes(i) ? 'abl-m--sel' : ''].join(' ')}
                 style={off ? { ['--dx' as string]: `${off.x - x}px`, ['--dy' as string]: `${off.y - y}px` } : undefined}>
                 <g filter="url(#abl-shadow)">
-                  <circle cx={x} cy={y} r={R * 0.8} fill={c === 'b' ? 'url(#abl-b)' : 'url(#abl-w)'} />
-                  <ellipse cx={x - R * 0.25} cy={y - R * 0.3} rx={R * 0.25} ry={R * 0.13} fill="#fff" opacity={c === 'b' ? 0.35 : 0.7} transform={`rotate(-30 ${x - R * 0.25} ${y - R * 0.3})`} />
+                  {marbleImg(c, x, y)}
                 </g>
                 {sel.includes(i) && <circle cx={x} cy={y} r={R * 0.92} className="abl-ring" />}
               </g>
@@ -118,7 +121,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
             const edge = last.pushed[last.pushed.length - 1]!;
             const v = vec(last.dir);
             const { x, y } = xy(edge);
-            return <circle key={`lost${view.ply}`} cx={x + v.x * R} cy={y + v.y * R} r={R * 0.8} className={`abl-lost abl-lost--${view.colors[last.seat] === 'b' ? 'w' : 'b'}`} />;
+            return <g key={`lost${view.ply}`}>{marbleImg(view.colors[last.seat] === 'b' ? 'w' : 'b', x + v.x * R, y + v.y * R, 'abl-lost')}</g>;
           })()}
           {centroid && dirs.map((d) => {
             const v = vec(d);
