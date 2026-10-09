@@ -4,11 +4,18 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import artE from './art/ess-e.webp';
+import artL from './art/ess-l.webp';
+import artC from './art/ess-c.webp';
+import artD from './art/ess-d.webp';
+import artG from './art/ess-g.webp';
 import { CARDS, ESS, ESS_FA, type Ess, type Pile, type RaView } from './rules.ts';
 
+// Painted crystals cut from a generated sheet (see DECISIONS.md), shown as round essence icons.
+const art = (k: Ess) => ({ backgroundImage: `url(${{ e: artE, l: artL, c: artC, d: artD, g: artG }[k]})` });
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export function Gems({ pile, empty }: { pile: Pile; empty?: string }) {
-  const items = ESS.flatMap((k) => (pile[k] ? [<span key={k} className={`ra-gem ra-e--${k}`} aria-label={`${fa(pile[k]!)} ${ESS_FA[k]}`}>{fa(pile[k]!)}</span>] : []));
+  const items = ESS.flatMap((k) => (pile[k] ? [<span key={k} className="ra-gem" style={art(k)} aria-label={`${fa(pile[k]!)} ${ESS_FA[k]}`}>{fa(pile[k]!)}</span>] : []));
   return items.length ? <span className="ra-gems">{items}</span> : <small className="ra-none">{empty ?? '—'}</small>;
 }
 
@@ -89,7 +96,7 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
                 </span>
                 {dropping === id && (
                   <span className="ra-drop">
-                    {ESS.map((k: Ess) => <button key={k} type="button" className={`ra-gem ra-e--${k}`} disabled={busy} aria-label={k === 'g' ? '۱ طلا' : `۲ ${ESS_FA[k]}`} onClick={() => onAction({ type: 'discard', card: id, gain: k })}>{k === 'g' ? '۱' : '۲'}</button>)}
+                    {ESS.map((k: Ess) => <button key={k} type="button" className="ra-gem" style={art(k)} disabled={busy} aria-label={k === 'g' ? '۱ طلا' : `۲ ${ESS_FA[k]}`} onClick={() => onAction({ type: 'discard', card: id, gain: k })}>{k === 'g' ? '۱' : '۲'}</button>)}
                   </span>
                 )}
               </span>

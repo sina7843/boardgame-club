@@ -2,13 +2,12 @@
 .ra { display: grid; gap: 0.55rem; inline-size: 100%; color: #f2e8d6; text-align: center; padding: 0.5rem; border-radius: 16px;
   background: radial-gradient(circle at 50% 0%, #4a2f3f, #1c1218 75%); }
 .ra > :first-child { justify-self: center; }
-.ra-e--e { --e: #e2552b; } .ra-e--l { --e: #3fae5a; } .ra-e--c { --e: #3a8fd6; } .ra-e--d { --e: #6b4a8a; } .ra-e--g { --e: #e6b54a; }
 .ra-round { margin: 0; font-size: 0.75rem; color: #c9b8a6; }
 
 .ra-gems { display: inline-flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
-.ra-gem { display: inline-grid; place-items: center; min-inline-size: 1.15rem; block-size: 1.15rem; padding: 0 0.15rem; border: 0; font: inherit; font-size: 0.62rem; font-weight: 900; color: #fff;
-  clip-path: polygon(50% 0, 100% 30%, 100% 70%, 50% 100%, 0 70%, 0 30%); background: linear-gradient(160deg, color-mix(in srgb, var(--e) 60%, white 40%), var(--e) 55%, color-mix(in srgb, var(--e) 70%, black 30%));
-  text-shadow: 0 1px 1px rgb(0 0 0 / 0.5); animation: ra-glint 0.4s ease-out; }
+.ra-gem { display: inline-grid; place-items: center; min-inline-size: 1.15rem; block-size: 1.15rem; padding: 0; border: 0; font: inherit; font-size: 0.62rem; font-weight: 900; color: #fff;
+  border-radius: 50%; background: #1c1218 center / cover no-repeat; box-shadow: 0 0 0 1px rgb(230 181 74 / 0.5);
+  text-shadow: 0 0 3px #000, 0 1px 2px #000; animation: ra-glint 0.4s ease-out; }
 button.ra-gem { min-inline-size: 1.7rem; block-size: 1.7rem; cursor: pointer; font-size: 0.75rem; }
 .ra-none { font-size: 0.6rem; color: #c9b8a6; }
 
