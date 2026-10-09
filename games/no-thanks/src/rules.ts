@@ -119,9 +119,10 @@ export const noThanksModule: GameModule<NoThanksState, NoThanksAction, NoThanksV
       timeouts: Array(playerCount).fill(0), scores: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // Endgame: the learner holds 24 and 26, 25 is up with 4 chips on it; only the 3 is left after it.
-      s.current = 0; s.card = 25; s.pot = 4; s.cards = [[24, 26], [30, 33]]; s.chips = [8, 2];
-      s.deck = [3]; s.removed = all.filter((c) => ![24, 25, 26, 30, 33, 3].includes(c));
+      // Endgame (tutorial tables only): 21 is up with 3 chips; the learner holds 20 and 22 and 17 chips, the opponent
+      // 6, 7, 15 and only 2 chips. Then 23 and 35 are left. Chips stay at 22 in total (2 × 11).
+      s.current = 0; s.card = 21; s.pot = 3; s.cards = [[20, 22], [6, 7, 15]]; s.chips = [17, 2];
+      s.deck = [23, 35]; s.removed = all.filter((c) => ![6, 7, 15, 20, 21, 22, 23, 35].includes(c));
     }
     return s;
   },
@@ -184,12 +185,14 @@ export const noThanksModule: GameModule<NoThanksState, NoThanksAction, NoThanksV
   tutorial: {
     seed: 13,
     options: { deal: 'tutorial' },
-    introFa: 'کارت وسط را یا بردارید (با همه ژتون‌های رویش) یا با گذاشتن یک ژتون رد کنید. کارت‌ها امتیاز منفی‌اند؛ ولی از هر رشته عدد پشت سر هم فقط کوچک‌ترینش حساب می‌شود.',
+    introFa: 'آخر بازی دونفره است و فقط سه کارت مانده. کارت‌ها امتیاز منفی‌اند و کمترین امتیاز می‌برد. در نوبتتان یا کارت وسط را با همهٔ ژتون‌های رویش برمی‌دارید، یا یک ژتون رویش می‌گذارید و می‌گویید «نه، مرسی!». از هر رشتهٔ عدد پشت سر هم فقط کوچک‌ترین کارت حساب می‌شود و هر ژتون یک امتیاز کم می‌کند. شما ۲۰ و ۲۲ و ۱۷ ژتون دارید؛ حریف ۶، ۷ و ۱۵ دارد و تعداد ژتون‌هایش مخفی است.',
     steps: [
-      { instructionFa: '۲۵ آمده و شما ۲۴ و ۲۶ دارید: با ۲۵ رشته ۲۴-۲۵-۲۶ کامل می‌شود و فقط ۲۴ حساب می‌شود؛ ۴ ژتون هم رویش است. «برمی‌دارم» را بزنید.', expected: { type: 'take' }, reply: null },
-      { instructionFa: 'آخرین کارت ۳ است و حریف فقط ۲ ژتون دارد. یک بار «نه، مرسی!» بزنید؛ حریف هم باید ژتون بدهد یا آن را بردارد.', expected: { type: 'pass' }, reply: { type: 'pass' } },
-      { instructionFa: 'حریف هم رد کرد و حالا ۲ ژتون روی ۳ است. برش دارید تا بازی تمام شود.', expected: { type: 'take' }, reply: null }
+      { instructionFa: 'کارت ۲۱ با ۳ ژتون آمده. با آن رشتهٔ ۲۰-۲۱-۲۲ ساخته می‌شود که فقط ۲۰ حساب می‌شود؛ یعنی ۲۱ برایتان هیچ امتیازی ندارد و ۳ ژتون هم می‌گیرید. «برمی‌دارم» را بزنید. کسی که کارت برمی‌دارد کارت بعدی را رو می‌کند و دوباره نوبت خودش است.', expected: { type: 'take' }, reply: null },
+      { instructionFa: 'کارت بعدی ۲۳ است که رشته‌تان را ادامه می‌دهد و برای حریف بد است. می‌توانید با «نه، مرسی!» یک ژتون رویش بگذارید تا دور بزند و ژتون جمع کند. این کار ریسک دارد، چون حریف می‌تواند آن را بردارد.', expected: { type: 'pass' }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف هم رد کرد و حالا ۲ ژتون روی ۲۳ است. حالا آن را بردارید: رشته ۲۰ تا ۲۳ شد و هنوز فقط ۲۰ حساب می‌شود.', expected: { type: 'take' }, reply: null },
+      { instructionFa: 'آخرین کارت ۳۵ است، بدترین کارت بازی. «نه، مرسی!» بزنید و یک ژتون بدهید.', expected: { type: 'pass' }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف هم یک ژتون داد و حالا دیگر ژتونی ندارد. دوباره «نه، مرسی!» بزنید: کسی که ژتون ندارد مجبور است کارت را بردارد و با برداشتن آخرین کارت بازی تمام می‌شود.', expected: { type: 'pass' }, reply: { type: 'take' } }
     ],
-    completedFa: 'بردید! امتیاز = جمع کوچک‌ترین کارت هر رشته منهای ژتون‌ها؛ کمترین امتیاز برنده است.'
+    completedFa: 'بردید! کارت‌های شما رشتهٔ ۲۰ تا ۲۳ است که فقط ۲۰ امتیاز دارد؛ ۱۹ ژتون دارید، پس امتیازتان ۲۰ منهای ۱۹ یعنی ۱ است. حریف مجبور شد ۳۵ را با ۳ ژتون بردارد: ۶ (رشتهٔ ۶-۷) به‌علاوهٔ ۱۵ و ۳۵ می‌شود ۵۶، منهای ۳ ژتون یعنی ۵۳. کمترین امتیاز برنده است.'
   }
 };

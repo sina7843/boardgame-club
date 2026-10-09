@@ -98,8 +98,9 @@ function roll(s: SnakesState, seat: number, rng: { nextInt(n: number): number })
   s.current = nextActive(s, seat);
 }
 
-/** Tutorial: learner on 66, opponent on 10; dice teach a ladder, a snake and the winning ladder to 100. */
-export const TUTORIAL_DICE = [5, 1, 2, 6, 3, 4, 4];
+/** Tutorial: learner on 66, opponent on 10. Learner, opponent alternately: ladder 71→91 / snake 16→6, 97 / ladder
+ * 9→31, an overshoot that stays on 97 (exact finish) / ladder 36→44, snake 98→78 / snake 47→26, ladder 80→100. */
+export const TUTORIAL_DICE = [5, 6, 6, 3, 5, 5, 1, 3, 2];
 
 export const snakesModule: GameModule<SnakesState, SnakesAction, SnakesView> = {
   manifest: snakesLadders.manifest,
@@ -168,13 +169,15 @@ export const snakesModule: GameModule<SnakesState, SnakesAction, SnakesView> = {
   tutorial: {
     seed: 5,
     options: { deal: 'tutorial' },
-    introFa: 'شما روی خانه ۶۶ هستید و حریف روی خانه ۱۰. هر نوبت تاس می‌ریزید و جلو می‌روید؛ پای نردبان بالا می‌بردتان و سر مار پایین.',
+    introFa: 'شما روی خانهٔ ۶۶ هستید و حریف روی خانهٔ ۱۰. در هر نوبت فقط تاس می‌ریزید (تاس را سرور می‌ریزد) و مهره‌تان به همان تعداد خانه جلو می‌رود. اگر روی پای نردبان بایستید تا سرش بالا می‌روید و اگر روی سر مار بایستید تا دمش پایین می‌آیید. اولین کسی که به خانهٔ ۱۰۰ برسد می‌برد.',
     steps: [
-      { instructionFa: 'تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
-      { instructionFa: '۵ آمد و روی ۷۱، پای نردبان، رفتید تا ۹۱! دوباره تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
-      { instructionFa: 'آخ! روی ۹۳ سرِ مار بود و تا ۷۳ پایین آمدید. باز تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
-      { instructionFa: 'روی ۷۶ هستید. با ۴ به نردبان ۸۰ می‌رسید که مستقیم به ۱۰۰ می‌رود. تاس بریزید!', expected: { type: 'roll' }, reply: null }
+      { instructionFa: 'دکمهٔ تاس را بزنید. خانهٔ ۷۱ پای یک نردبان بلند است؛ اگر ۵ بیاید رویش می‌ایستید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
+      { instructionFa: '۵ آمد: روی ۷۱، پای نردبان، ایستادید و تا ۹۱ بالا رفتید. حریف با ۶ روی ۱۶ ایستاد که سر مار است و تا ۶ پایین آمد؛ مار و نردبان برای همه یکسان است. دوباره تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
+      { instructionFa: 'با ۶ به ۹۷ رسیدید و حریف از نردبان ۹ تا ۳۱ بالا رفت. حالا دقیقاً ۳ لازم دارید تا به ۱۰۰ برسید: اگر عدد بزرگ‌تری بیاید از جایتان تکان نمی‌خورید (در تنظیمات میز می‌شود به‌جایش «برگشت از ۱۰۰» را انتخاب کرد). تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
+      { instructionFa: '۵ آمد که از ۳ بیشتر است، پس روی ۹۷ ماندید. حریف از نردبان ۳۶ به ۴۴ رسید. مراقب باشید: خانهٔ ۹۸ سر یک مار است. تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
+      { instructionFa: 'بدشانسی! ۱ آمد، روی ۹۸ سر مار ایستادید و تا ۷۸ پایین آمدید. حریف هم روی سر مار ۴۷ ایستاد و به ۲۶ برگشت. از ۷۸ با ۲ به خانهٔ ۸۰ می‌رسید که نردبانش مستقیم به ۱۰۰ می‌رود. تاس بریزید!', expected: { type: 'roll' }, reply: null }
     ],
-    completedFa: 'بردید! در بازی واقعی همه از بیرون صفحه شروع می‌کنند و برای رسیدن به ۱۰۰ (بسته به تنظیم میز) عدد دقیق لازم است.'
+    completedFa: 'بردید! ۲ آمد، روی ۸۰ ایستادید و نردبان شما را مستقیم به ۱۰۰ رساند. حریف روی ۲۶ ماند و دوم شد؛ در بازی چندنفره بقیه به ترتیب جایشان روی صفحه رتبه می‌گیرند. در بازی واقعی همه از بیرون صفحه (پیش از خانهٔ ۱) شروع می‌کنند و شروع‌کننده تصادفی است.'
+
   }
 };

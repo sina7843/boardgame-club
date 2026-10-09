@@ -252,13 +252,16 @@ export const backgammonModule: GameModule<BgState, BgAction, BgView> = {
       timeouts: [0, 0], script: [], log: [], seq: 0, win: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // Endgame: the learner (seat 0) has two checkers left (13 borne off): one still outside home on the 7-point,
-      // one on the 3-point. 4-1 brings it home, the opponent bears off with 6-5, then 3-2 bears off both and wins.
+      // Late race with one contact. The learner (seat 0, 9 borne off) has two checkers outside home: the 14-point
+      // one runs home with 5-3 (its 3 is blocked by the opponent's 11-point), the 10-point one hits the blot on the
+      // 7-point with 3-1. The hit checker can only enter on the 1-point (the 6-point is made) and runs; the learner then
+      // bears off 6-5 exactly and 6-6 (the last 6 from the 4-point, the farthest). The opponent has borne off none: gammon.
       s.pts = Array<number>(24).fill(0);
-      s.pts[6] = 1; s.pts[2] = 1; s.pts[20] = -14;
-      s.off = [13, 1];
-      s.script = [[6, 5], [3, 2]];
-      s.dice = [4, 1];
+      s.pts[13] = 1; s.pts[9] = 1; s.pts[5] = 2; s.pts[4] = 1; s.pts[3] = 1;
+      s.pts[6] = -1; s.pts[10] = -2; s.pts[19] = -2; s.pts[20] = -3; s.pts[21] = -3; s.pts[22] = -2; s.pts[23] = -2;
+      s.off = [9, 0];
+      s.script = [[6, 5], [3, 1], [6, 1], [6, 5], [4, 3], [6, 6]];
+      s.dice = [5, 3];
       log(s, { t: 'roll', seat: 0, dice: s.dice });
       return s;
     }
@@ -350,19 +353,30 @@ export const backgammonModule: GameModule<BgState, BgAction, BgView> = {
   tutorial: {
     seed: 4,
     options: { deal: 'tutorial' },
-    introFa: 'شما مهره‌های سفید هستید و مهره‌ها را به سمت خانه‌تان (شش خانه پایین سمت راست) می‌برید. ۱۳ مهره را بیرون برده‌اید و دو مهره مانده؛ هر تاس یعنی یک مهره به همان تعداد خانه جلو برود.',
+    introFa: 'آخر یک بازی است. شما مهره‌های سفید هستید و مهره‌ها را از خانه‌های بزرگ‌تر به خانه‌های کوچک‌تر می‌برید؛ خانه‌های ۱ تا ۶ «خانهٔ» شماست و از آنجا مهره‌ها را بیرون می‌برید. ۹ مهره را بیرون برده‌اید و ۶ مهره مانده؛ حریف هنوز هیچ مهره‌ای بیرون نبرده است. هر عدد تاس یک حرکت جداست: یک مهره به همان تعداد خانه جلو می‌رود. سرور تاس‌ها را خودکار می‌ریزد.',
     steps: [
       {
-        instructionFa: 'تاس ۴ و ۱ آمده. اول مهره خانه ۷ را بزنید تا با ۴ به خانه ۳ برود؛ بعد مهره خانه ۳ را بزنید تا با ۱ به خانه ۲ برود. حالا هر دو مهره در خانه شما هستند.',
-        expected: { type: 'play', moves: [{ from: 6, die: 4 }, { from: 2, die: 1 }] },
-        reply: { type: 'play', moves: [{ from: 20, die: 6 }, { from: 20, die: 5 }] }
+        instructionFa: 'تاس ۵ و ۳ آمده. مهرهٔ خانه ۱۴ را با ۵ به خانه ۹ ببرید و بعد همان مهره را با ۳ به خانه ۶ برسانید. اگر اول ۳ را بازی می‌کردید به خانه ۱۱ می‌رسید که دو مهرهٔ حریف دارد و بسته است: روی خانه‌ای با دو مهره یا بیشتر از حریف نمی‌شود نشست.',
+        expected: { type: 'play', moves: [{ from: 13, die: 5 }, { from: 8, die: 3 }] },
+        reply: { type: 'play', moves: [{ from: 10, die: 6 }, { from: 10, die: 5 }] }
       },
       {
-        instructionFa: 'وقتی همه مهره‌ها در خانه‌اند می‌توانید بیرون ببرید. تاس ۳ و ۲: مهره خانه ۳ را با ۳ و مهره خانه ۲ را با ۲ بیرون ببرید (روی جای مهره‌های بیرون‌برده بزنید) تا برنده شوید.',
-        expected: { type: 'play', moves: [{ from: 2, die: 3 }, { from: 1, die: 2 }] },
+        instructionFa: 'تاس ۳ و ۱. در خانه ۷ یک مهرهٔ تنهای حریف هست. مهرهٔ خانه ۱۰ را با ۳ روی آن بنشانید تا «زده» شود و به بار (وسط صفحه) برود؛ بعد با ۱ همان مهره را به خانه ۶ ببرید تا خودتان تنها نمانید.',
+        expected: { type: 'play', moves: [{ from: 9, die: 3 }, { from: 6, die: 1 }] },
+        reply: { type: 'play', moves: [{ from: 'bar', die: 1 }, { from: 0, die: 6 }] }
+      },
+      {
+        instructionFa: 'حریف مجبور بود اول مهرهٔ بار را وارد کند؛ با ۶ نمی‌توانست چون خانه ۶ شما بسته است، پس با ۱ وارد شد و با ۶ فرار کرد. حالا همهٔ مهره‌هایتان در خانه‌اند و می‌توانید بیرون ببرید: با ۶ یک مهره از خانه ۶ و با ۵ مهرهٔ خانه ۵ را بیرون ببرید (روی مهره بزنید).',
+        expected: { type: 'play', moves: [{ from: 5, die: 6 }, { from: 4, die: 5 }] },
+        reply: { type: 'play', moves: [{ from: 6, die: 4 }, { from: 10, die: 3 }] }
+      },
+      {
+        instructionFa: 'جفت ۶ آمده: جفت یعنی چهار حرکت. سه مهرهٔ خانه ۶ را با ۶ بیرون ببرید. برای آخرین مهره در خانه ۴ عدد ۶ بزرگ‌تر از لازم است، ولی چون مهره‌ای در خانه‌های دورتر نمانده، با عدد بزرگ‌تر هم بیرون می‌رود.',
+        expected: { type: 'play', moves: [{ from: 5, die: 6 }, { from: 5, die: 6 }, { from: 5, die: 6 }, { from: 3, die: 6 }] },
         reply: null
       }
     ],
-    completedFa: 'بردید! در بازی کامل، مهره‌ای که تنها روی یک خانه باشد ممکن است زده شود و به بار برود و باید اول از خانه حریف وارد شود. اگر حریف هیچ مهره‌ای بیرون نبرده باشد «مارس» (۲ امتیاز) است.'
+    completedFa: 'بردید! هر ۱۵ مهره را زودتر بیرون بردید. چون حریف هنوز هیچ مهره‌ای بیرون نبرده بود، برد شما «مارس» است و ۲ امتیاز می‌گیرد؛ اگر مهره‌ای از او هنوز در بار یا خانهٔ شما مانده بود «مارس ترکی» و ۳ امتیاز می‌شد. برد معمولی ۱ امتیاز است و در بازی با کیوب، امتیاز در عدد کیوب ضرب می‌شود.'
+
   }
 };

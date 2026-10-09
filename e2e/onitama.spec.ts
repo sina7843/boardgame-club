@@ -1,22 +1,21 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «اونیتاما» end to end: tutorial (card move, card swap, capture the master) and a full duel through board taps.
+// «اونیتاما» end to end: tutorial (capture by card, card swap, master to the temple) and a full duel through board taps.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/onitama/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: move by card, take the side card, capture the master', async ({ browser }, info) => {
+test('interactive tutorial: capture by card, take the side card, reach the temple', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/onitama');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  for (const step of [1, 2]) {
+  for (const step of ['۱', '۲', '۳']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`))).toBeVisible();
     await p.locator('.oni-sq--hint').click(); // the piece
     await p.locator('.oni-sq--hint').click(); // its target
-    if (step === 1) await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();

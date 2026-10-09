@@ -85,8 +85,10 @@ describe('sushi go rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
-    expect(st(snap).scores).toEqual([10, 5]);
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1, score: 26 }, { seat: 1, place: 2, score: 9 }]);
+    expect(s.lastRound).toEqual([[20, 9], [6, 0]]); // round (nigiri, tempura, maki), then puddings
+    expect(s.puddings).toEqual([2, 0]);
   });
 
   it('random games conserve cards and replay deterministically', () => {

@@ -92,9 +92,12 @@ export const othelloModule: GameModule<OthelloState, OthelloAction, OthelloView>
     const blackSeat = options.firstMove === 'host' ? 0 : drawn;
     let board = startBoard();
     if (options.deal === 'tutorial') {
-      // Two separate fights: a1 black + b1 white (black takes c1), and f7 black between g7 white and h7 black.
+      // Three small fights: b1 (taken from c1 along rank 1); e6/d7 (white's g6 grows the e6 row, then d6 flips the row
+      // and d7 at once); b7 on the a8 diagonal (white has no move left, passes, and c6 takes the last disc).
       board = Array(64).fill(null);
-      board[0] = 'b'; board[1] = 'w'; board[53] = 'b'; board[54] = 'w'; board[55] = 'b';
+      board[0] = 'b'; board[1] = 'w';
+      board[44] = 'w'; board[45] = 'b'; board[47] = 'b'; board[51] = 'w'; board[59] = 'b';
+      board[49] = 'w'; board[56] = 'b';
     }
     return { board, turn: 'b', colors: blackSeat === 0 ? ['b', 'w'] : ['w', 'b'], history: [], passes: [], timeouts: [0, 0], end: null, outcome: null };
   },
@@ -156,11 +159,12 @@ export const othelloModule: GameModule<OthelloState, OthelloAction, OthelloView>
   tutorial: {
     seed: 5,
     options: { firstMove: 'host', deal: 'tutorial' },
-    introFa: 'شما مهره‌های سیاه هستید. مهره را جایی بگذارید که مهره‌های سفید حریف بین مهره تازه شما و یکی از مهره‌های قبلی‌تان (در یک خط افقی، عمودی یا مورب) گیر بیفتند؛ آن مهره‌ها سیاه می‌شوند.',
+    introFa: 'شما سیاه هستید و اول بازی می‌کنید. هر حرکت یعنی گذاشتن یک مهره در خانهٔ خالی، به شرطی که دست‌کم یک ردیف پیوسته از مهره‌های سفید بین مهرهٔ تازه و یکی از مهره‌های سیاه شما گیر بیفتد؛ در خط افقی، عمودی یا مورب. همهٔ مهره‌های گیرافتاده سیاه می‌شوند. روی صفحه سه درگیری کوچک هست.',
     steps: [
-      { instructionFa: 'مهره سفید b1 بین a1 شما و خانه c1 است. روی c1 بگذارید تا b1 برگردد و سیاه شود.', expected: { type: 'place', sq: 2 }, reply: { type: 'place', sq: 52 } },
-      { instructionFa: 'حریف e7 گذاشت و f7 را گرفت. حالا روی d7 بگذارید: سه مهره سفید بین d7 و h7 شما گیر می‌افتند و همه برمی‌گردند.', expected: { type: 'place', sq: 51 }, reply: null }
+      { instructionFa: 'سفید b1 کنار a1 شماست. روی c1 بگذارید: b1 بین c1 و a1 گیر می‌افتد و سیاه می‌شود. خانه‌های نقطه‌دار حرکت‌های مجاز شما هستند.', expected: { type: 'place', sq: 2 }, reply: { type: 'place', sq: 46 } },
+      { instructionFa: 'حریف g6 را گذاشت و f6 شما را گرفت؛ حالا e6، f6 و g6 سفیدند. روی d6 بگذارید: هر سه مهرهٔ سفید ردیف ششم بین d6 و h6 گیر می‌افتند و هم‌زمان d7 هم بین d6 و d8. یک حرکت می‌تواند در چند جهت با هم مهره بگیرد.', expected: { type: 'place', sq: 43 }, reply: null },
+      { instructionFa: 'سفید فقط b7 را دارد و هیچ حرکت مجازی ندارد، پس نوبتش خودکار رد شد و دوباره نوبت شماست. روی c6 بگذارید: b7 در خط مورب بین c6 و a8 گیر می‌افتد.', expected: { type: 'place', sq: 42 }, reply: null }
     ],
-    completedFa: 'بردید! هیچ مهره سفیدی نماند. اگر بازیکنی حرکت مجاز نداشته باشد نوبتش رد می‌شود؛ بازی وقتی تمام می‌شود که هیچ‌کس حرکتی نداشته باشد و هر که مهره بیشتری دارد می‌برد.'
+    completedFa: 'بردید! با c6 آخرین مهرهٔ سفید هم برگشت و هیچ‌کدام حرکتی نداشتید، پس بازی تمام شد. ۱۳ مهرهٔ سیاه روی صفحه بود و طبق قانون، ۵۱ خانهٔ خالی هم به برنده رسید: ۶۴ به ۰. در بازی معمولی هم بازی وقتی تمام می‌شود که هیچ‌کس حرکت مجاز نداشته باشد و هر که مهرهٔ بیشتری دارد می‌برد.'
   }
 };

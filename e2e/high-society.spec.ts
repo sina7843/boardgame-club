@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «اشرافی» end to end: the tutorial (raise with banknotes until the rival drops out) and a full three-player game
+// «اشرافی» end to end: the tutorial (bids, a pass, prestige, a disgrace, the poorest-player rule) and a full three-player game
 // through luxury and disgrace auctions until the fourth red card.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
@@ -9,18 +9,18 @@ const shot = (project: string, name: string) => `docs/evidence/high-society/${pr
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 const note = (p: Page, v: number) => p.locator(`.hs-pick:has(.hs-note[data-v="${v}"])`);
 
-test('interactive tutorial: outbid the rival', async ({ browser }, info) => {
+test('interactive tutorial: bid, pass, prestige, a disgrace, the poorest is out', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/high-society');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await note(p, 1).click();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-bid'), fullPage: true });
-  await p.getByRole('button', { name: /^پیشنهاد/ }).click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await note(p, 3).click();
-  await p.getByRole('button', { name: /^پیشنهاد/ }).click();
+  // Steps: bid 2, pass, bid 6, bid 1 — tap the highlighted banknote (if any), then the highlighted action.
+  for (const step of ['۱', '۲', '۳', '۴']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    while (await p.locator('.hs-pick.hs-hint').count()) await p.locator('.hs-pick.hs-hint').first().click();
+    if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-bid'), fullPage: true });
+    await p.locator('.hs__actions .hs-hint').click();
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

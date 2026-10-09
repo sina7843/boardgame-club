@@ -1,24 +1,31 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «آتش‌بازی» end to end: the tutorial (a clue, then playing a clued card) and a full three-player cooperative game.
+// «آتش‌بازی» end to end: the tutorial (clues, plays, a discard and the final round) and a full three-player cooperative game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/hanabi/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: clue, then play', async ({ browser }, info) => {
+test('interactive tutorial: colour and number clues, play, discard, final round', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/hanabi');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۶`))).toBeVisible();
+  const clue = async () => { await p.locator('.hb-clueBtn.hb-hint').click(); await p.locator('.hb-cl.hb-hint').click(); };
+  const play = async () => { await p.locator('.hb-mine.hb-hint').click(); await p.getByRole('button', { name: 'بازی', exact: true }).click(); };
+  await step('۱'); await clue();
+  await step('۲'); await play();
+  await step('۳'); await play();
+  await step('۴');
   await p.locator('.hb-clueBtn.hb-hint').click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-clue'), fullPage: true });
   await p.locator('.hb-cl.hb-hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.locator('.hb-mine.hb-hint').click();
-  await p.getByRole('button', { name: 'بازی', exact: true }).click();
+  await step('۵');
+  await p.getByRole('button', { name: 'کارت ۱ شما' }).click();
+  await p.getByRole('button', { name: 'دور انداختن' }).click();
+  await step('۶'); await play();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

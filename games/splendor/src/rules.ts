@@ -159,18 +159,20 @@ export const splendorModule: GameModule<SplendorState, SplendorAction, SplendorV
     };
     s.starter = s.current;
     if (options.deal === 'tutorial') {
-      const find = (level: number, color: Gem, f: (c: DevCard) => boolean) => CARDS.find((c) => c.level === level && c.color === color && f(c))!.id;
-      const target = find(2, 'k', (c) => c.cost.w === 5);
-      const bought = [find(3, 'w', (c) => c.points === 5), find(3, 'u', (c) => c.points === 4 && Object.keys(c.cost).length === 1), find(3, 'g', (c) => c.points === 4 && Object.keys(c.cost).length === 3)];
+      // Late-game teaching deal (tutorial tables only). Learner: 4 black + 3 red cards (6 prestige), red 3 · blue 2
+      // gems. Opponent: a green and a blue card (7 prestige). The market holds the red «six reds» card (63) and the
+      // white level-3 card (70); noble «4 red + 4 black» waits for the learner's fourth red card.
+      const mine = [32, 33, 34, 35, 60, 61, 62];
+      const theirs = [79, 51];
+      const shown = [[2], [63], [70]];
+      const used = new Set([...mine, ...theirs, ...shown.flat()]);
       s.current = 0; s.starter = 0;
-      s.bought[0] = bought;
-      s.tokens[0] = { ...emptyTokens(), w: 2, o: 2 };
-      s.bank = { w: n - 2, u: n, g: n, r: n, k: n, o: 3 };
-      s.decks = s.decks.map((d) => d.filter((id) => id !== target && !bought.includes(id)));
-      s.market = s.market.map((row) => row.filter((id) => id !== target && !bought.includes(id!)));
-      s.market = s.market.map((row, l) => { while (row.length < 4) row.push(s.decks[l]!.shift()!); return row; });
-      s.market[1]![0] = target;
-      s.nobles = [NOBLES.find((x) => x.need.r === 4 && x.need.k === 4)!.id, NOBLES.find((x) => x.need.r === 3 && x.need.k === 3 && x.need.w === 3)!.id, NOBLES.find((x) => x.need.k === 4 && x.need.w === 4)!.id];
+      s.bought = [mine, theirs];
+      s.tokens[0] = { ...emptyTokens(), r: 3, u: 2 };
+      s.bank = { w: n, u: n - 2, g: n, r: n - 3, k: n, o: 5 };
+      s.decks = s.decks.map((d) => d.filter((id) => !used.has(id)));
+      s.market = shown.map((row, l) => [...row, ...s.decks[l]!.splice(0, 3)]);
+      s.nobles = [3, 0, 6];
     }
     return s;
   },
@@ -296,12 +298,16 @@ export const splendorModule: GameModule<SplendorState, SplendorAction, SplendorV
   tutorial: {
     seed: 31,
     options: { deal: 'tutorial' },
-    introFa: 'شما سه کارت گران‌قیمت دارید و ۱۳ اعتبار. برای پیروزی ۱۵ اعتبار لازم است. کارت «عقیق سیاه» سطح دو (۲ اعتبار) پنج الماس می‌خواهد؛ شما دو الماس و دو سکهٔ طلا دارید.',
+    introFa: 'اواخر یک بازی دونفره است و شما ۶ اعتبار دارید؛ برای بردن ۱۵ اعتبار لازم است. چهار کارت عقیق سیاه و سه کارت یاقوت سرخ خریده‌اید و ۳ یاقوت سرخ و ۲ یاقوت کبود در دست دارید. هر کارت خریده‌شده یک تخفیف دائمی از رنگ خودش می‌دهد. نقشه: کارت «یاقوت سرخ» کارگاه (۶ یاقوت سرخ، ۳ اعتبار) و کارت «الماس» کاروان (۳ اعتبار) را بخرید و نظر بزرگی را که ۴ کارت سرخ و ۴ کارت سیاه می‌خواهد جلب کنید.',
     steps: [
-      { instructionFa: 'سه گوهر مختلف بردارید: الماس (سفید)، یاقوت کبود و زمرد.', expected: { type: 'take', gems: ['w', 'u', 'g'] }, reply: { type: 'take', gems: ['r', 'k', 'u'] } },
-      { instructionFa: 'حالا سه الماس و دو طلا دارید: کارت عقیق سیاه را بخرید (طلا جای الماس حساب می‌شود).', expected: { type: 'buy', card: 68 }, reply: { type: 'take', gems: ['r', 'k', 'g'] } }
+      { instructionFa: 'سه گوهر از سه رنگ مختلف بردارید: الماس، یاقوت کبود و یاقوت سرخ. روی هر سه بزنید و بعد «برداشتن». این رایج‌ترین حرکت است: سه گوهر، هر کدام از یک رنگ.', expected: { type: 'take', gems: ['w', 'u', 'r'] }, reply: { type: 'take', gems: ['w', 'u', 'k'] } },
+      { instructionFa: 'حالا دو زمرد بردارید: روی زمرد دو بار بزنید و «برداشتن». دو گوهر هم‌رنگ فقط وقتی مجاز است که پیش از برداشتن دست‌کم ۴ گوهر در آن کپه باشد؛ کپهٔ زمرد هنوز ۴ تاست.', expected: { type: 'take', gems: ['g', 'g'] }, reply: { type: 'take', gems: ['w', 'g', 'k'] } },
+      { instructionFa: 'کارت الماس سطح کاروان (۳ اعتبار؛ ۳ کبود، ۳ زمرد، ۵ سرخ، ۳ سیاه) را رزرو کنید: روی آن کارت بزنید و «رزرو (+طلا)». کارت رزروشده فقط مال شماست و یک سکهٔ طلا هم می‌گیرید که جای هر گوهری حساب می‌شود. حداکثر ۳ کارت می‌توانید رزرو کنید.', expected: { type: 'reserve', card: 70 }, reply: null },
+      { instructionFa: 'حالا ۱۱ گوهر و طلا دارید، ولی بیشتر از ۱۰ تا نمی‌شود نگه داشت. الماس را که لازم ندارید پس بدهید: روی الماس خودتان بزنید و «پس دادن».', expected: { type: 'return', gems: ['w'] }, reply: { type: 'buy', card: 2 } },
+      { instructionFa: 'کارت یاقوت سرخ سطح کارگاه (۳ اعتبار) قیمتش ۶ یاقوت سرخ است، ولی ۳ کارت سرخ دارید که ۳ تا تخفیف می‌دهند؛ پس فقط ۳ یاقوت سرخ می‌پردازید. آن را بخرید. با چهارمین کارت سرخ، خواستهٔ بزرگ (۴ سرخ و ۴ سیاه) کامل می‌شود و او خودکار با ۳ اعتبار به دیدارتان می‌آید.', expected: { type: 'buy', card: 63 }, reply: { type: 'reserve', level: 3 } },
+      { instructionFa: 'کارت الماس رزروشده را از ردیف رزروهای خودتان بخرید. تخفیف ۴ کارت سرخ و ۴ کارت سیاه بیشتر قیمت را می‌پوشاند؛ ۳ کبود، ۲ زمرد و ۱ یاقوت سرخ می‌دهید و طلا جای زمرد سوم را می‌گیرد. با این خرید به ۱۵ اعتبار می‌رسید.', expected: { type: 'buy', card: 70 }, reply: { type: 'take', gems: ['w', 'u', 'g'] } }
     ],
-    completedFa: 'بردید! با ۱۵ اعتبار دور تمام شد و حریف دیگر نتوانست جبران کند.'
+    completedFa: 'بردید! از ۶ اعتبار شروع کردید: کارت یاقوت سرخ ۳ اعتبار، دیدار بزرگ ۳ اعتبار و کارت الماس ۳ اعتبار، یعنی ۱۵. چون به ۱۵ رسیدید، دور تا آخر ادامه یافت تا حریف هم نوبت آخرش را بازی کند و بازی با ۱۵ در برابر ۷ تمام شد. اگر امتیازها برابر بود، کسی که کارت کمتری خریده برنده می‌شد.'
   }
 };
 

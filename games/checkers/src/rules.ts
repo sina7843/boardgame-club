@@ -176,11 +176,11 @@ export const checkersModule: GameModule<CheckersState, CheckersAction, CheckersV
     const variant: Variant = options.variant === 'brazilian' ? 'brazilian' : 'english';
     let board = startBoard();
     if (options.deal === 'tutorial') {
-      // Teaching position: the dark man on c3 can jump twice (d4, f6); light's last man on h6 then steps into the
-      // jump of the dark man on f4.
+      // Teaching position: one dark man on b2 against four light men (e5, f6, b6, d8). A quiet move invites a double
+      // jump, the jumper crowns on f8, and the new king's backward double jump takes the last two men.
       board = Array(64).fill(null);
-      for (const i of [18, 29, 4, 6]) board[i] = 'd';
-      for (const i of [27, 45, 47]) board[i] = 'l';
+      board[9] = 'd';
+      for (const i of [36, 45, 41, 59]) board[i] = 'l';
     }
     const colors: [Color, Color] = darkSeat === 0 ? ['d', 'l'] : ['l', 'd'];
     return { board, turn: 'd', colors, variant, quiet: 0, seen: { [key(board, 'd')]: 1 }, history: [], timeouts: [0, 0], end: null, drawOffer: null, outcome: null };
@@ -259,19 +259,29 @@ export const checkersModule: GameModule<CheckersState, CheckersAction, CheckersV
   tutorial: {
     seed: 2,
     options: { firstMove: 'host', deal: 'tutorial' },
-    introFa: 'شما مهره‌های تیره هستید و رو به بالا حرکت می‌کنید. مهره‌ها فقط روی خانه‌های تیره و به‌صورت قطری جلو می‌روند.',
+    introFa: 'پایان یک بازی است. شما مهره‌های تیره هستید و فقط یک مهره در b2 دارید؛ حریف چهار مهرهٔ روشن دارد. مهره‌ها فقط روی خانه‌های تیره و قطری حرکت می‌کنند و مهرهٔ ساده فقط رو به جلو، یعنی به سمت ردیف ۸، می‌رود.',
     steps: [
       {
-        instructionFa: 'زدن اجباری است! مهره c3 می‌تواند از روی مهره d4 بپرد و بعد بلافاصله از روی f6 هم بپرد. مهره c3 را بزنید و مسیر پرش را تا g7 دنبال کنید.',
-        expected: { type: 'move', path: [18, 36, 54] },
-        reply: { type: 'move', path: [47, 38] }
+        instructionFa: 'فعلاً زدنی در کار نیست، پس یک حرکت ساده می‌کنید: مهرهٔ b2 را یک خانه قطری جلو ببرید و در c3 بگذارید.',
+        expected: { type: 'move', path: [9, 18] },
+        reply: { type: 'move', path: [36, 27] }
       },
       {
-        instructionFa: 'آخرین مهره حریف جلوی مهره f4 شما آمد. باز هم زدن اجباری است: از روی g5 بپرید و در h6 بنشینید تا بازی را ببرید.',
-        expected: { type: 'move', path: [29, 47] },
+        instructionFa: 'حریف به d4 آمد و خانهٔ پشتش (e5) خالی است. زدن اجباری است: از c3 روی d4 بپرید و در e5 فرود بیایید. از آنجا f6 هم زدنی است و پرش باید ادامه پیدا کند تا g7.',
+        expected: { type: 'move', path: [18, 36, 54] },
+        reply: { type: 'move', path: [41, 34] }
+      },
+      {
+        instructionFa: 'مهرهٔ g7 را به f8 ببرید. ردیف ۸ ردیف آخر است: مهره «شاه» می‌شود و حرکتش همان‌جا تمام می‌شود.',
+        expected: { type: 'move', path: [54, 61] },
+        reply: { type: 'move', path: [59, 52] }
+      },
+      {
+        instructionFa: 'شاه رو به عقب هم می‌زند. از f8 روی e7 بپرید و در d6 فرود بیایید، بعد روی c5 بپرید و در b4 بنشینید تا آخرین مهره‌های حریف زده شوند.',
+        expected: { type: 'move', path: [61, 43, 25] },
         reply: null
       }
     ],
-    completedFa: 'بردید! برنده کسی است که همه مهره‌های حریف را بزند یا راه حرکتش را ببندد. مهره‌ای که به ردیف آخر برسد «شاه» می‌شود و به عقب هم حرکت می‌کند.'
+    completedFa: 'بردید! با یک پرش دوتایی دو مهره زدید، در ردیف آخر شاه گرفتید و با پرش دوتایی شاه رو به عقب دو مهرهٔ آخر حریف را هم زدید. حریف دیگر مهره‌ای نداشت؛ نداشتن مهره یا نداشتن هیچ حرکت مجاز یعنی باخت.'
   }
 };

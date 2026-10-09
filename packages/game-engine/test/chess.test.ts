@@ -115,15 +115,18 @@ describe('chess games', () => {
     expect(st(r).outcome).toEqual({ reason: 'resign', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] });
   });
 
-  it('tutorial script reaches checkmate', () => {
+  it('tutorial script is legal and ends in checkmate for the learner', () => {
     const t = chessModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
     for (const step of t.steps) {
-      snap = (applyAction(m, snap, p(0), step.expected, 0) as StepResult).snapshot;
-      if (step.reply) snap = (applyAction(m, snap, p(1), step.reply, 0) as StepResult).snapshot;
+      expect(st(snap).outcome).toBeNull();
+      const [e, r] = [step.expected, step.reply] as { from: string; to: string; promotion?: string }[];
+      snap = play(snap, `${e!.from}${e!.to}${e!.promotion ?? ''}`);
+      if (r) snap = play(snap, `${r.from}${r.to}`);
     }
+    expect(st(snap).history.map((h) => h.san)).toEqual(['O-O', 'a6', 'Bc4+', 'd5', 'exd6+', 'Kh8', 'd7', 'a5', 'd8=Q#']);
     expect(st(snap).end).toEqual({ kind: 'checkmate' });
-    expect(st(snap).outcome!.placements[0]).toEqual({ seat: 0, place: 1 });
+    expect(st(snap).outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] });
   });
 
   it('random legal games always end within the move limits and replay deterministically', () => {

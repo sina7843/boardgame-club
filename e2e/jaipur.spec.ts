@@ -1,25 +1,40 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «کاروان» end to end: the tutorial (take silver, sell the pair to end the round) and a full one-round game.
+// «کاروان» end to end: the tutorial (camels, exchange, sales, ending the round) and a full one-round game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/jaipur/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: take silver, sell two', async ({ browser }, info) => {
+test('interactive tutorial: camels, exchange, sell three, take silver, sell the pair', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/jaipur');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
+  const sell = async (n: number) => {
+    for (let i = 0; i < n; i++) await p.locator('.jp__hand .jp-pick.jp-hint').first().click();
+    await p.getByRole('button', { name: /^فروش/ }).click();
+  };
+  await at('۱');
+  await p.getByRole('button', { name: /^همهٔ شترها/ }).click();
+  await at('۲');
+  // Exchange: both spices from the market, the cloth from the hand plus one camel.
+  const spices = p.locator('.jp__carpet .jp-pick').filter({ has: p.locator('.jp-card[aria-label="ادویه"]') });
+  await spices.nth(0).click();
+  await spices.nth(1).click();
+  await p.locator('.jp__hand .jp-pick').filter({ has: p.locator('.jp-card[aria-label="پارچه"]') }).first().click();
+  await p.locator('.jp__camgive button').last().click();
+  await p.getByRole('button', { name: /^معاوضهٔ/ }).click();
+  await at('۳');
+  await sell(3);
+  await at('۴');
   await p.locator('.jp-pick.jp-hint').click();
   await p.getByRole('button', { name: /^برداشتن/ }).click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.locator('.jp__hand .jp-pick.jp-hint').first().click();
-  await p.locator('.jp__hand .jp-pick.jp-hint').first().click();
+  await at('۵');
+  await sell(2);
   await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
-  await p.getByRole('button', { name: /^فروش/ }).click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

@@ -103,7 +103,10 @@ describe('high society rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    // The rival out-scores the learner (38 to 20) but ends poorest (19 to 24) and is out.
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 20 }, { seat: 1, place: 2, score: 38 }], reason: 'score' });
+    expect(st(snap).hands).toEqual([[2, 10, 12], [4, 15]]);
+    expect(st(snap).won).toEqual([['l5', 'prestige', 'prestige'], ['l7', 'l8', 'prestige', 'l9', 'passe']]);
   });
 
   it('random games conserve money and status cards and replay deterministically', () => {

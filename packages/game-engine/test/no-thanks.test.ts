@@ -83,11 +83,17 @@ describe('no thanks rules', () => {
   it('tutorial script is legal and ends in a win', () => {
     const t = noThanksModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot;
+    expect(st(snap).chips.reduce((a, b) => a + b, 0) + st(snap).pot).toBe(22);
     for (const step of t.steps) {
+      expect(st(snap).outcome).toBeNull();
+      expect(st(snap).current).toBe(0);
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.cards).toEqual([[20, 22, 21, 23], [6, 7, 15, 35]]);
+    expect(s.chips).toEqual([19, 3]);
+    expect(s.outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 1 }, { seat: 1, place: 2, score: 53 }] });
   });
 
   it('random games conserve chips and replay deterministically', () => {

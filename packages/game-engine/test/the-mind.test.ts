@@ -76,9 +76,11 @@ describe('the mind rules', () => {
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) {
       snap = act(snap, 0, step.expected);
-      if (step.reply) snap = act(snap, 1, step.reply);
+      if (step.reply && theMindModule.pendingSeats(st(snap)).includes(1)) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome).toMatchObject({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 1 }] });
+    expect(st(snap).outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1, score: 1 }, { seat: 1, place: 1, score: 1 }] });
+    expect(st(snap).pile).toEqual([9, 25, 47, 52, 85, 96]);
+    expect([st(snap).lives, st(snap).stars]).toEqual([1, 0]);
   });
 
   it('random games end and replay deterministically; perfect play wins', () => {

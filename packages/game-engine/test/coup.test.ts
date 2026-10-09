@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coupModule, type CoupState, type CoupView, type Role } from '@bg/game-coup';
+import { coupModule, legalFor, type CoupState, type CoupView, type Role } from '@bg/game-coup';
 import { applyAction, applyTimeout, createRng, projectFor, replay, startGame, type EngineSnapshot, type StepResult } from '../src/index.ts';
 
 const m = coupModule as never;
@@ -144,9 +144,18 @@ describe('coup rules', () => {
     let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot;
     for (const step of t.steps) {
       snap = act(snap, 0, step.expected);
-      if (step.reply) snap = act(snap, 1, step.reply);
+      if (step.reply) {
+        expect(st(snap).outcome).toBeNull();
+        snap = act(snap, 1, step.reply);
+      }
+      // The learner always acts next (the platform plays only one scripted reply per step).
+      if (!st(snap).outcome) expect(legalFor(st(snap), 0).length).toBeGreaterThan(0);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome).toEqual({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }], reason: 'win' });
+    expect(s.cards[1]!.map((c) => [c.role, c.revealed])).toEqual([['captain', true], ['assassin', true]]);
+    expect(s.coins).toEqual([4, 0]);
+    expect(roleCount(s)).toEqual({ duke: 3, assassin: 3, captain: 3, ambassador: 3, contessa: 3 });
   });
 
   it('random games keep the court deck intact and replay deterministically', () => {

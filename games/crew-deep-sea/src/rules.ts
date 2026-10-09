@@ -2,7 +2,7 @@
 // trick core and communication as Planet Nine (shared `crewModule`), but tasks are conditions with a difficulty
 // value: tasks are revealed until their difficulty reaches the mission target, then drafted from the commander.
 // The condition set is an original selection in the spirit of the published game (not its exact card list).
-import { crewModule, shuffle, suit, rank, cardFa, DECK, type CrewTask, type Edition } from '@bg/game-the-crew';
+import { crewModule, shuffle, suit, rank, cardFa, sortHand, DECK, type CrewTask, type Edition } from '@bg/game-the-crew';
 import { crewDeepSea } from './definition.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -94,22 +94,31 @@ const edition: Edition = {
     }
   },
   tutorialSetup(s) {
+    // Two players, four cards each, three condition tasks: one resolved during play (a nine), two checked at the end
+    // of the hand (the teammate wins exactly one trick, the learner wins the last trick).
     Object.assign(s, {
-      players: 2, hands: [['p9', 'b2', 'r4'], ['p3', 'b5', 'g7']], aside: null, commander: 0, current: 0, drafter: 0,
+      players: 2, hands: [sortHand(['p9', 'g2', 'b8', 'r4']), sortHand(['p3', 'g6', 'y5', 'b4'])], aside: null, commander: 0, current: 0, drafter: 0,
       won: [[], []], comms: [null, null], commsUsed: [false, false], timeouts: [0, 0],
-      tasks: [{ id: 0, owner: null, status: 'open', cond: 'nine', difficulty: 1 }]
+      tasks: [
+        { id: 0, owner: null, status: 'open', cond: 'nine', difficulty: 1 }, { id: 1, owner: null, status: 'open', cond: 'tricksExact', n: 1, difficulty: 3 },
+        { id: 2, owner: null, status: 'open', cond: 'lastTrick', difficulty: 2 }
+      ]
     });
   },
   tutorial: {
     seed: 11,
     options: { deal: 'tutorial' },
-    introFa: 'وظیفهٔ این ماموریت: «دست‌کم یک ۹ ببرید». شما فرمانده‌اید و صورتی ۹ دارید.',
+    introFa: 'در کرو همه با هم می‌برید یا می‌بازید. در اعماق دریا هر وظیفه یک شرط است برای صاحبش. این ماموریت دونفره سه وظیفه دارد (جمع سختی ۶): «دست‌کم یک ۹ ببرید» (سختی ۱)، «دقیقاً ۱ دست ببرید» (سختی ۳) و «دست آخر را ببرید» (سختی ۲). هر کدام چهار کارت دارید و شما موشک ۴ دارید، پس فرمانده‌اید: اول وظیفه برمی‌دارید و دست اول را شروع می‌کنید.',
     steps: [
-      { instructionFa: 'وظیفه را بردارید.', expected: { type: 'draftTask', task: 0 }, reply: null },
-      { instructionFa: 'ارتباط: «آبی ۲» تنها کارت آبی شماست؛ نشانش دهید.', expected: { type: 'communicate', card: 'b2' }, reply: null },
-      { instructionFa: 'صورتی ۹ را بازی کنید و دست را ببرید.', expected: { type: 'play', card: 'p9' }, reply: { type: 'play', card: 'p3' } }
+      { instructionFa: 'وظیفهٔ «دست‌کم یک ۹ ببرید» را بردارید؛ صورتی ۹ دارید و هم‌تیمی فقط صورتی ۳ دارد. وظیفه‌ها به نوبت، از فرمانده به بعد، یکی‌یکی برداشته می‌شوند.', expected: { type: 'draftTask', task: 0 }, reply: { type: 'draftTask', task: 1 } },
+      { instructionFa: 'هم‌تیمی «دقیقاً ۱ دست ببرید» را برداشت. وظیفهٔ آخر، «دست آخر را ببرید»، را شما بردارید؛ موشک ۴ قوی‌ترین کارت بازی است.', expected: { type: 'draftTask', task: 2 }, reply: null },
+      { instructionFa: 'دست اول را با صورتی ۹ شروع کنید. هر کس باید از خال کارت اول پیروی کند، پس هم‌تیمی صورتی ۳ را می‌دهد و بزرگ‌ترین کارت خال اول دست را می‌برد. وظیفهٔ ۹ همین‌جا انجام می‌شود.', expected: { type: 'play', card: 'p9' }, reply: { type: 'play', card: 'p3' } },
+      { instructionFa: 'وظیفهٔ ۹ انجام شد. حالا هم‌تیمی باید دقیقاً یک دست ببرد: سبز ۲ را بازی کنید تا او با سبز ۶ این دست را ببرد. اگر یک دست دیگر هم ببرد، وظیفه‌اش همان لحظه شکست می‌خورد.', expected: { type: 'play', card: 'g2' }, reply: { type: 'play', card: 'g6' } },
+      { instructionFa: 'هم‌تیمی برد و دست بعد را او شروع می‌کند. بین دو دست، هر کس یک بار در کل ماموریت می‌تواند بی‌حرف یک کارت رنگی را نشان دهد: بالاترین، پایین‌ترین یا تنها کارت آن رنگ در دستش. «ارتباط» را بزنید و آبی ۸ را نشان دهید که تنها آبی شماست؛ هم‌تیمی می‌فهمد آبی ۴ او دست آبی را نمی‌برد.', expected: { type: 'communicate', card: 'b8' }, reply: { type: 'play', card: 'y5' } },
+      { instructionFa: 'هم‌تیمی زرد ۵ را شروع کرد. زرد ندارید، پس هر کارتی مجاز است. موشک ۴ را بازی کنید: موشک‌ها از همهٔ رنگ‌ها قوی‌ترند، این دست مال شما می‌شود و هم‌تیمی همان یک دستش را نگه می‌دارد.', expected: { type: 'play', card: 'r4' }, reply: null },
+      { instructionFa: 'آبی ۸ را بازی کنید. هم‌تیمی باید با آبی ۴ پیروی کند و شما دست آخر را می‌برید.', expected: { type: 'play', card: 'b8' }, reply: { type: 'play', card: 'b4' } }
     ],
-    completedFa: 'ماموریت موفق! با صورتی ۹ دست را بردید.'
+    completedFa: 'ماموریت موفق! وظیفهٔ ۹ در دست اول انجام شد. دو وظیفهٔ دیگر در پایان سنجیده شدند: هم‌تیمی دقیقاً ۱ دست برد (سبز) و شما دست آخر را با آبی ۸ بردید. هر سه وظیفه انجام شد، پس کل خدمه با هم برد؛ کافی بود یکی شکست بخورد تا همه ببازید.'
   }
 };
 

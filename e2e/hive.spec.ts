@@ -1,23 +1,24 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «کندو» end to end: tutorial (place an ant, run it around to trap the queen) and two players placing and moving bugs
+// «کندو» end to end: tutorial (spider, grasshopper, placement, beetle and ant trap the queen) and two players placing and moving bugs
 // through the reserve and the board; the game is resigned after a while since a full game is long.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/hive/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: place an ant, trap the queen', async ({ browser }, info) => {
+test('interactive tutorial: spider, grasshopper, placement, beetle, ant trap the queen', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/hive');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.locator('.hv-target--hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.locator('.hv-cell--hint').click();
-  await p.locator('.hv-target--hint').click();
+  for (const step of ['۱', '۲', '۳', '۴', '۵']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`))).toBeVisible();
+    if (step !== '۳') await p.locator('.hv-cell--hint').click(); // step 3 places a new ant; the others move a piece
+    // Step 4: the beetle climbs onto an occupied cell, whose piece is drawn over the target ring.
+    await p.locator('.hv-target--hint').click({ force: step === '۴' });
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

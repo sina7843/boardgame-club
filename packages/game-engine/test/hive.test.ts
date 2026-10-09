@@ -93,7 +93,9 @@ describe('hive rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }], reason: 'win' });
+    expect(st(snap).end).toEqual({ kind: 'queen', surrounded: ['b'] });
+    expect(st(snap).stacks['-1,0']).toEqual([{ c: 'b', t: 'A' }, { c: 'w', t: 'B' }]);
   });
 
   it('random games keep the hive connected, 11 pieces each, and replay deterministically', () => {

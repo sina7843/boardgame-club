@@ -8,6 +8,23 @@ import { useSession } from '../lib/session.tsx';
 import { ACCESS_FA, COMPETITION_FA, DIFFICULTY_FA, PACE_FA, range } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
+/** Rules lines; a line starting with "## " opens a titled section (Goal, Setup, Turn, Scoring, End, Tips). */
+export function RulesText({ lines }: { lines: string[] }) {
+  const sections: { title: string | null; items: string[] }[] = [];
+  for (const l of lines) {
+    if (l.startsWith('## ')) sections.push({ title: l.slice(3), items: [] });
+    else (sections.at(-1) ?? sections[sections.push({ title: null, items: [] }) - 1]!).items.push(l);
+  }
+  return (
+    <div className="rules-text">{sections.map((s, i) => (
+      <div key={i} className="rules-section">
+        {s.title && <h3 className="rules-section__title">{s.title}</h3>}
+        {s.items.length > 0 && <ol className="rules">{s.items.map((r) => <li key={r}>{r}</li>)}</ol>}
+      </div>))}
+    </div>
+  );
+}
+
 export function GameDetailPage() {
   const { id = '' } = useParams();
   const { data: g, error, loading, reload } = useApi<GameDetail>(`/games/${encodeURIComponent(id)}`);
@@ -52,7 +69,7 @@ export function GameDetailPage() {
           <p>{g.summaryFa}</p>
           <section className="section" aria-labelledby="rules-h">
             <h2 id="rules-h" className="section-title"><Icon name="book" />قوانین</h2>
-            <ol className="rules">{g.rulesFa.map((r) => <li key={r}>{r}</li>)}</ol>
+            <RulesText lines={g.rulesFa} />
           </section>
           <section className="section" aria-labelledby="policy-h">
             <h2 id="policy-h" className="section-title"><Icon name="clock" />اتمام زمان و انصراف</h2>

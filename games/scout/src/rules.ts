@@ -146,10 +146,16 @@ export const scoutModule: GameModule<ScoutState, ScoutAction, ScoutView> = {
     } as unknown as ScoutState;
     deal(s, rng);
     if (options.deal === 'tutorial') {
+      // One teaching round with an empty ring. Turned over, the learner's hand reads 2 2 5 6 3 3 3: a pair to open
+      // with, a gap that the scouted 4/7 fills (5 6 7), and a three-card set that later beats a run and empties the hand.
       const id = (a: number, b: number) => CARDS.findIndex(([x, y]) => x === Math.min(a, b) && y === Math.max(a, b));
+      const c = (up: number, other: number): HandCard => ({ id: id(up, other), up });
       s.rounds = 1; s.starter = 0; s.current = 0;
-      s.hands = [[{ id: id(5, 2), up: 2 }, { id: id(6, 1), up: 1 }, { id: id(7, 3), up: 3 }], [{ id: id(8, 4), up: 8 }, { id: id(2, 9), up: 9 }]];
-      s.table = { cards: [{ id: id(3, 6), up: 3 }, { id: id(3, 8), up: 3 }], owner: 1 };
+      s.hands = [
+        [c(5, 3), c(6, 3), c(8, 3), c(1, 6), c(1, 5), c(5, 2), c(8, 2)],
+        [c(4, 7), c(4, 8), c(6, 2), c(7, 1), c(8, 5), c(1, 2), c(3, 2), c(5, 4), c(6, 8)]
+      ];
+      s.table = null;
     }
     return s;
   },
@@ -241,11 +247,14 @@ export const scoutModule: GameModule<ScoutState, ScoutAction, ScoutView> = {
   tutorial: {
     seed: 47,
     options: { deal: 'tutorial' },
-    introFa: 'دست شما «۲ ۱ ۳» است ولی پشت کارت‌ها «۵ ۶ ۷» نوشته شده. روی میز جفت «۳ ۳» حریف است. اول دست را برگردانید.',
+    introFa: 'یک دست کامل دونفره بازی می‌کنید. هر کارت دو عدد دارد و فقط عدد بالایی حساب می‌شود؛ ترتیب کارت‌های دستتان را نمی‌شود عوض کرد. دست شما الان «۵ ۶ ۸ ۱ ۱ ۵ ۸» است، ولی اگر برگردانید «۲ ۲ ۵ ۶ ۳ ۳ ۳» می‌شود که دسته‌ها و ردیف بهتری دارد.',
     steps: [
-      { instructionFa: 'دست را برگردانید تا ۷ ۶ ۵ رو شود.', expected: { type: 'orient', flip: true }, reply: { type: 'orient', flip: false } },
-      { instructionFa: 'سه کارت پشت سر هم از جفت قوی‌تر است: هر سه را نمایش بدهید.', expected: { type: 'show', from: 0, count: 3 }, reply: null }
+      { instructionFa: '«برگرداندن دست» را بزنید. همهٔ کارت‌ها وارونه می‌شوند و ترتیبشان هم برعکس می‌شود؛ این انتخاب فقط یک بار در شروع هر دست است.', expected: { type: 'orient', flip: true }, reply: { type: 'orient', flip: false } },
+      { instructionFa: 'وسط میز خالی است، پس هر نمایشی قبول است. دو کارت ۲ اول دست را انتخاب کنید و نمایش بدهید: کارت‌های کنار هم با عدد یکسان یک «دسته» می‌سازند.', expected: { type: 'show', from: 0, count: 2 }, reply: { type: 'show', from: 0, count: 2 } },
+      { instructionFa: 'حریف با دستهٔ ۴ ۴ نمایش شما را برد (تعداد برابر، عدد بزرگ‌تر) و دو کارتتان را امتیاز گرفت. حالا ۴ اول نمایش او را بزنید، «برگرداندن کارت» را بزنید تا ۷ شود، «دیدبانی و نمایش» را تیک بزنید و کارت را بعد از ۶ بگذارید (قبل از کارت سوم). حریف برای این دیدبانی یک ژتون می‌گیرد.', expected: { type: 'scout', end: 'first', flip: true, at: 2, andShow: true }, reply: null },
+      { instructionFa: 'حالا ردیف ۵ ۶ ۷ دارید. هر سه را نمایش بدهید: سه کارت از یک کارت ۴ ماندهٔ وسط قوی‌تر است و آن کارت امتیاز شما می‌شود.', expected: { type: 'show', from: 0, count: 3 }, reply: { type: 'show', from: 0, count: 3 } },
+      { instructionFa: 'حریف با ردیف ۶ ۷ ۸ جواب داد: تعداد برابر و کوچک‌ترین عددش بزرگ‌تر است. ولی با تعداد برابر، دسته از ردیف قوی‌تر است: سه کارت ۳ را نمایش بدهید تا دستتان خالی شود و دست تمام شود.', expected: { type: 'show', from: 0, count: 3 }, reply: null }
     ],
-    completedFa: 'بردید! دستتان خالی شد، دو کارت حریف امتیاز شما شد و حریف برای کارت‌های دستش امتیاز منفی گرفت.'
+    completedFa: 'بردید! دستتان خالی شد و دست تمام شد. شما ۴ کارت بردید (یک کارت ۴ و ردیف ۶ ۷ ۸) و کارتی در دست نداشتید: ۴ امتیاز. حریف ۵ کارت برد و ۱ ژتون گرفت، ولی ۴ کارت در دستش ماند: ۵ + ۱ − ۴ = ۲ امتیاز. نتیجهٔ نهایی ۴ در برابر ۲.'
   }
 };

@@ -7,15 +7,15 @@ const RESULT = /بردید|باختید|مساوی|رتبه/;
 const shot = (project: string, name: string) => `docs/evidence/no-thanks/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: complete a run, refuse once, take the last card', async ({ browser }, info) => {
+test('interactive tutorial: complete a run, farm chips, refuse, force the last card on the opponent', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/no-thanks');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
-  for (const step of [2, 3, 0]) {
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۵/)).toBeVisible();
+  for (const step of [2, 3, 4, 5, 0]) {
     await p.locator('.nt-btn--hint').click();
-    if (step) await expect(p.getByText(new RegExp(`آموزش: مرحله ${step.toLocaleString('fa-IR')} از ۳`))).toBeVisible();
+    if (step) await expect(p.getByText(new RegExp(`آموزش: مرحله ${step.toLocaleString('fa-IR')} از ۵`))).toBeVisible();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();

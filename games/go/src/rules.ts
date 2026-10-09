@@ -157,9 +157,21 @@ export const goModule: GameModule<GoState, GoAction, GoView> = {
     const blackSeat = options.firstMove === 'host' ? 0 : drawn;
     const board: (Stone | null)[] = Array(size * size).fill(null);
     if (options.deal === 'tutorial') {
-      // 9×9 teaching position: a white stone in atari near the top corner, another one on the left edge.
-      for (const i of [1, 9, 11, 27, 45]) board[i] = 'b';
-      for (const i of [10, 36]) board[i] = 'w';
+      // 9×9 late-game teaching position (tutorial tables only). Black walls off rows 9–5 with row 4, white holds rows
+      // 3–1. Inside black's area: a white corner stone in atari (A9), a white pair in atari (E7–F7) and a lone
+      // white stone (C7) that is dead but uncaptured. Black's C3 sticks into white's side next to the C4 gap.
+      const rows = [
+        'OX.......',
+        '....XX...',
+        '..OXOOX..',
+        '....X....',
+        '.........',
+        'XX.XXXXXX',
+        'OOXOOOOOO',
+        '.........',
+        '.........'
+      ];
+      rows.join('').split('').forEach((ch, i) => { board[i] = ch === 'X' ? 'b' : ch === 'O' ? 'w' : null; });
     }
     return {
       size, komi, board, turn: 'b', colors: blackSeat === 0 ? ['b', 'w'] : ['w', 'b'], captures: { b: 0, w: 0 },
@@ -268,14 +280,16 @@ export const goModule: GameModule<GoState, GoAction, GoView> = {
 
   tutorial: {
     seed: 8,
-    options: { firstMove: 'host', deal: 'tutorial', size: 9, komi: 0.5 },
-    introFa: 'شما سیاه هستید. هر سنگ «آزادی» دارد: نقطه‌های خالی کنارش (بالا، پایین، چپ، راست). وقتی همه آزادی‌های یک سنگ یا گروه پر شود، از صفحه برداشته می‌شود.',
+    options: { firstMove: 'host', deal: 'tutorial', size: 9, komi: 7.5 },
+    introFa: 'پایان یک بازی ۹×۹ است و شما سیاه هستید. دیوار سیاه در ردیف ۴ ردیف‌های ۹ تا ۵ را برای شما بسته و سفید ردیف‌های ۳ تا ۱ را دارد. «آزادی» یعنی تقاطع خالی کنار یک سنگ، در امتداد خطوط صفحه (نه قطری). سنگ‌های هم‌رنگی که با خط به هم وصل‌اند یک گروه‌اند و آزادی مشترک دارند؛ گروهی که آخرین آزادی‌اش پر شود گرفته می‌شود. چند سنگ سفید هنوز داخل منطقهٔ شما هستند.',
     steps: [
-      { instructionFa: 'سنگ سفید بالای صفحه فقط یک آزادی دارد (زیرش). روی آن نقطه بگذارید تا سنگ سفید را بگیرید.', expected: { type: 'place', at: 19 }, reply: { type: 'pass' } },
-      { instructionFa: 'سنگ سفید لبه چپ هم فقط یک آزادی (سمت راستش) دارد. آن را هم بگیرید.', expected: { type: 'place', at: 37 }, reply: { type: 'pass' } },
-      { instructionFa: 'سفید پاس داد. شما هم «پاس» بزنید تا شمارش شروع شود.', expected: { type: 'pass' }, reply: { type: 'accept' } },
-      { instructionFa: 'در شمارش، سنگ‌های مرده را علامت می‌زنید؛ اینجا سنگ مرده‌ای نیست. «تأیید شمارش» را بزنید.', expected: { type: 'accept' }, reply: null }
+      { instructionFa: 'سنگ سفید گوشهٔ A9 فقط یک آزادی دارد: A8 (به این حالت «آتاری» می‌گویند). روی نقطهٔ روشن A8 بگذارید تا آخرین آزادی‌اش پر شود و آن را بگیرید.', expected: { type: 'place', at: 9 }, reply: { type: 'place', at: 65 } },
+      { instructionFa: 'سفید با C2 سنگ C3 شما را در آتاری گذاشت؛ تنها آزادی‌اش C4 است. روی C4 بگذارید: C3 به دیوارتان وصل می‌شود و گروه بزرگ آزادی‌های زیادی دارد. اگر وصل نکنید، سفید با C4 آن را می‌گیرد و وارد منطقهٔ شما می‌شود.', expected: { type: 'place', at: 47 }, reply: { type: 'place', at: 69 } },
+      { instructionFa: 'دو سنگ سفید E7 و F7 یک گروه‌اند و فقط یک آزادی مشترک دارند: F6. روی F6 بگذارید تا هر دو با هم گرفته شوند.', expected: { type: 'place', at: 32 }, reply: { type: 'pass' } },
+      { instructionFa: 'سفید پاس داد. مرزها بسته است و حرکت مفیدی نمانده؛ شما هم «پاس» بزنید. دو پاس پشت سر هم بازی را به مرحلهٔ شمارش می‌برد.', expected: { type: 'pass' }, reply: null },
+      { instructionFa: 'سنگ سفید C7 هنوز روی صفحه است ولی در منطقهٔ شما راه زنده ماندن ندارد، پس «مرده» است. در مرحلهٔ شمارش روی C7 بزنید تا مرده علامت بخورد؛ سنگ مرده برداشته و نقطه‌اش قلمرو شما حساب می‌شود.', expected: { type: 'mark', at: 20 }, reply: null },
+      { instructionFa: 'حالا «تأیید شمارش» را بزنید. وقتی هر دو بازیکن علامت‌گذاری را تأیید کنند، امتیازها شمرده و بازی تمام می‌شود.', expected: { type: 'accept' }, reply: { type: 'accept' } }
     ],
-    completedFa: 'بردید! امتیاز هر رنگ = سنگ‌هایش روی صفحه + نقطه‌های خالی‌ای که فقط آن رنگ دورشان را گرفته؛ سفید چند امتیاز جبرانی (کومی) هم می‌گیرد.'
+    completedFa: 'بردید! شمارش منطقه‌ای: سیاه ۱۸ سنگ روی صفحه و ۳۷ نقطهٔ خالی که فقط سنگ‌های سیاه دورشان را گرفته‌اند، یعنی ۵۵ امتیاز. سفید ۱۰ سنگ و ۱۶ نقطهٔ قلمرو دارد، یعنی ۲۶، به‌علاوهٔ ۷٫۵ کومی (جبران حرکت اول سیاه) می‌شود ۳۳٫۵. در این شمارش سنگ‌های اسیرشده جدا حساب نمی‌شوند؛ گرفتن آن‌ها مهم بود چون نقطه‌هایشان قلمرو شما شد.'
   }
 };

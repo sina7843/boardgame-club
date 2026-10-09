@@ -188,9 +188,11 @@ export const ludoModule: GameModule<LudoState, LudoAction, LudoView> = {
       script: [], log: [], seq: 0, outcome: null
     };
     if (tutorial) {
-      // Learner (slot 0): three pieces home, one 6 squares from the goal. Opponent (slot 2) stands in the way.
-      s.pieces = [[41, 42, 43, 34], [17, 30, -1, -1]];
-      s.script = [3, 2, 3];
+      // Learner (slot 0): two pieces in the goal (42, 43), one on 28, one on 36. Opponent (slot 2): a piece on square 34
+      // (progress 14) six ahead of the learner, one on square 5. Dice: 6 (forced capture + extra roll), 5 (choice: goal),
+      // opponent 2, 5 (forced), opponent 3, 4 (blocked inside the goal, no move), opponent 1, 1 (exact, wins).
+      s.pieces = [[43, 42, 28, 36], [14, 25, -1, -1]];
+      s.script = [6, 5, 2, 5, 3, 4, 1, 1];
       beginTurn(s, 0);
     } else beginTurn(s, rng.nextInt(playerCount));
     return s;
@@ -257,11 +259,15 @@ export const ludoModule: GameModule<LudoState, LudoAction, LudoView> = {
   tutorial: {
     seed: 9,
     options: { deal: 'tutorial' },
-    introFa: 'شما مهره‌های قرمز هستید. سه مهره‌تان به خانه رسیده‌اند و چهارمی ۶ خانه تا خانه فاصله دارد. یک مهره سبزِ حریف سر راه شماست.',
+    introFa: 'آخر بازی است و شما مهره‌های قرمز هستید. دو مهره‌تان در دو خانهٔ ته ستون خانه نشسته‌اند و دو مهرهٔ دیگر روی مسیرند: مهرهٔ ۳ دوازده خانه و مهرهٔ ۴ چهار خانه مانده به ستون خانه. دقیقاً ۶ خانه جلوی مهرهٔ ۳ یک مهرهٔ سبز حریف ایستاده است. هر کس اول هر ۴ مهره‌اش را به ستون خانه برساند برنده است.',
     steps: [
-      { instructionFa: 'تاس بریزید. اگر فقط یک حرکت ممکن باشد، خودکار انجام می‌شود. اگر روی مهره حریف بایستید، آن را به لانه‌اش برمی‌گردانید!', expected: { type: 'roll' }, reply: { type: 'roll' } },
-      { instructionFa: 'مهره سبز زده شد و به لانه برگشت! حالا با ۳ دقیقاً به آخرین خانه خالیِ ستون خانه می‌رسید. تاس بریزید.', expected: { type: 'roll' }, reply: null }
+      { instructionFa: 'تاس بریزید. مهره به تعداد عدد تاس جلو می‌رود؛ اگر فقط یک حرکت ممکن باشد، خودکار انجام می‌شود و اگر روی مهرهٔ حریف بایستید آن را به لانه‌اش برمی‌گردانید.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۶ آمد: مهرهٔ ۴ نمی‌توانست برود، چون در ستون خانه نمی‌شود از روی مهرهٔ خودی پرید؛ پس مهرهٔ ۳ خودکار رفت و مهرهٔ سبز را زد و به لانه فرستاد. ۶ یک تاس جایزه هم دارد: دوباره تاس بریزید.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۵ آمد و دو مهره می‌توانند حرکت کنند، پس خودتان انتخاب می‌کنید. مهرهٔ ۴ را حرکت دهید تا وارد ستون خانه شود و در دومین خانهٔ آن بنشیند؛ مهره در ستون خانه دیگر زده نمی‌شود.', expected: { type: 'move', piece: 3 }, reply: { type: 'roll' } },
+      { instructionFa: 'حریف ۲ آورد و تنها مهرهٔ روی مسیرش را جلو برد؛ مهرهٔ لانه فقط با ۶ بیرون می‌آید. تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
+      { instructionFa: '۵ آمد و مهرهٔ ۳ خودکار تا یک خانه مانده به ستون خانه رفت؛ حریف هم ۳ آورد. حالا فقط اولین خانهٔ ستون خانه خالی است و مهرهٔ ۳ دقیقاً ۱ لازم دارد. تاس بریزید.', expected: { type: 'roll' }, reply: { type: 'roll' } },
+      { instructionFa: '۴ آمد و هیچ حرکتی ممکن نبود: مهرهٔ ۳ باید به آخرین خانهٔ ستون می‌رفت که پر است و در ستون خانه نمی‌شود روی مهرهٔ خودی نشست یا از رویش پرید؛ مهره‌های داخل ستون هم جای خالی جلوتر ندارند. پس نوبت به حریف رسید و او ۱ آورد. دوباره تاس بریزید.', expected: { type: 'roll' }, reply: null }
     ],
-    completedFa: 'بردید! در بازی واقعی همه مهره‌ها در لانه شروع می‌کنند؛ برای بیرون آمدن ۶ لازم است و ۶ یک تاس جایزه می‌دهد.'
+    completedFa: 'بردید! با ۱ مهرهٔ آخر دقیقاً به اولین خانهٔ ستون خانه رسید و هر ۴ مهرهٔ شما در خانه نشستند و حریف دوم شد. در شروع بازی همهٔ مهره‌ها در لانه‌اند و برای بیرون آوردن هر مهره ۶ لازم است؛ تا وقتی هیچ مهره‌ای روی مسیر ندارید، هر نوبت سه بار فرصت دارید ۶ بیاورید.'
   }
 };

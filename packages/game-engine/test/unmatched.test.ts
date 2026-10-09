@@ -322,7 +322,12 @@ describe('unmatched tutorial and replay', () => {
       snap = act(snap, 0, stepDef.expected);
       if (stepDef.reply) snap = act(snap, 1, stepDef.reply);
     }
-    expect(st(snap).outcome!.placements[0]).toEqual({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] });
+    // Merlin's ranged hit (4 − 1) and Excalibur boosted by Noble Sacrifice (6 + 3 − 4) take Sinbad from 8 to 0; Feint kept Arthur whole.
+    expect(s.fighters.find((f) => f.id === '1h')!.hp).toBe(0);
+    expect(s.fighters.find((f) => f.id === '0h')!.hp).toBe(18);
+    expect(s.fighters.find((f) => f.id === '0h')!.space).toBe(7);
   });
 
   it('random legal play never throws, never leaks hidden cards and replays deterministically', () => {

@@ -1,22 +1,24 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «شهر تاس» end to end: the tutorial (roll, build the last landmark) and a full two-player game.
+// «شهر تاس» end to end: the tutorial (two dice, radio reroll, income, doubles turn, keep, last landmark) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/machi-koro/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: roll, then the radio tower', async ({ browser }, info) => {
+test('interactive tutorial: two dice, reroll, build, doubles, keep, the shopping mall', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/machi-koro');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.locator('button.mk-hint').first().click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-build'), fullPage: true });
-  await p.locator('button.mk-hint').first().click();
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۶`))).toBeVisible();
+    if (step === '۳') await p.screenshot({ path: shot(info.project.name, 'tutorial-build'), fullPage: true });
+    // Step 5 keeps the roll (the keep button has no hint style); every other step clicks the highlighted control.
+    if (step === '۵') await p.getByRole('button', { name: 'همین را نگه دار' }).click();
+    else await p.locator('button.mk-hint').first().click();
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

@@ -161,8 +161,13 @@ export const sushiGoModule: GameModule<SushiGoState, SushiGoAction, SushiGoView>
     };
     deal(s, HAND[playerCount]!);
     if (options.deal === 'tutorial') {
+      // One seven-card round for two players (hands swap every turn). The learner's line: wasabi, squid on it,
+      // chopsticks, two tempura at once, the biggest maki, then puddings. The opponent's picks are scripted replies.
       s.rounds = 1;
-      s.hands = [['wasabi', 'tempura', 'egg'], ['squid', 'tempura', 'chopsticks']];
+      s.hands = [
+        ['wasabi', 'tempura', 'chopsticks', 'dumpling', 'maki3', 'salmon', 'pudding'],
+        ['maki2', 'squid', 'dumpling', 'tempura', 'tempura', 'pudding', 'egg']
+      ];
     }
     return s;
   },
@@ -225,12 +230,16 @@ export const sushiGoModule: GameModule<SushiGoState, SushiGoAction, SushiGoView>
   tutorial: {
     seed: 25,
     options: { deal: 'tutorial' },
-    introFa: 'همه با هم یک کارت برمی‌دارند و بقیه دست را به نفر بعد می‌دهند. پس کارتی که الان برنمی‌دارید به دست حریف می‌رسد! این آموزش یک دور کوتاه سه‌کارتی است.',
+    introFa: 'یک دور کوتاه دونفره با دست‌های ۷ کارتی. هر نوبت شما و حریف هم‌زمان و مخفیانه یک کارت برمی‌دارید، کارت‌ها رو می‌شوند و باقی دست به نفر بعد می‌رسد؛ پس کارتی که برنمی‌دارید به دست حریف می‌رود. امتیاز در پایان دور از ترکیب کارت‌های جلوی هر نفر حساب می‌شود.',
     steps: [
-      { instructionFa: '«واسابی» را بردارید: نیگیری بعدی که بردارید سه برابر امتیاز می‌گیرد.', expected: { type: 'pick', card: 'wasabi' }, reply: { type: 'pick', card: 'tempura' } },
-      { instructionFa: 'دست حریف به شما رسید. «نیگیری ماهی مرکب» را بردارید: روی واسابی ۹ امتیاز!', expected: { type: 'pick', card: 'squid' }, reply: { type: 'pick', card: 'tempura' } },
-      { instructionFa: 'آخرین کارت: نیگیری تخم‌مرغ را بردارید.', expected: { type: 'pick', card: 'egg' }, reply: { type: 'pick', card: 'chopsticks' } }
+      { instructionFa: '«واسابی» را بردارید. واسابی خودش امتیاز ندارد، ولی اولین نیگیری‌ای که بعد از آن بردارید رویش می‌نشیند و سه برابر امتیاز می‌گیرد.', expected: { type: 'pick', card: 'wasabi' }, reply: { type: 'pick', card: 'maki2' } },
+      { instructionFa: 'دست‌ها عوض شد و حالا دست حریف پیش شماست. «نیگیری ماهی مرکب» (۳ امتیاز) را بردارید: روی واسابی ۹ امتیاز می‌شود.', expected: { type: 'pick', card: 'squid' }, reply: { type: 'pick', card: 'tempura' } },
+      { instructionFa: '«چاپستیک» را بردارید. در یکی از نوبت‌های بعد با آن می‌توانید دو کارت هم‌زمان بردارید؛ بعد چاپستیک به دستی که رد می‌کنید برمی‌گردد.', expected: { type: 'pick', card: 'chopsticks' }, reply: { type: 'pick', card: 'dumpling' } },
+      { instructionFa: 'دو تمپورا در این دست است و هر جفت تمپورا ۵ امتیاز دارد (یکی تنها هیچ). دکمهٔ «چاپستیک: دو کارت بردار» را بزنید و هر دو تمپورا را بردارید.', expected: { type: 'pick', card: 'tempura', extra: 'tempura' }, reply: { type: 'pick', card: 'dumpling' } },
+      { instructionFa: 'حریف رول ماکی ۲تایی دارد. «ماکی ۳» را بردارید: در پایان دور، بیشترین تعداد رول ماکی ۶ امتیاز و دومی ۳ امتیاز می‌گیرد. اگر برش ندارید به دست حریف می‌رسد.', expected: { type: 'pick', card: 'maki3' }, reply: { type: 'pick', card: 'chopsticks' } },
+      { instructionFa: '«پودینگ» را بردارید. پودینگ تا آخر بازی می‌ماند و آن‌وقت بیشترین پودینگ ۶ امتیاز می‌گیرد (با سه نفر یا بیشتر، کمترین ۶ امتیاز از دست می‌دهد).', expected: { type: 'pick', card: 'pudding' }, reply: { type: 'pick', card: 'salmon' } },
+      { instructionFa: 'آخرین کارت دستتان یک پودینگ دیگر است؛ آن را بردارید تا دور و بازی تمام شود.', expected: { type: 'pick', card: 'pudding' }, reply: { type: 'pick', card: 'egg' } }
     ],
-    completedFa: 'بردید! ۹ + ۱ = ۱۰ امتیاز در برابر جفت تمپورای حریف (۵ امتیاز).'
+    completedFa: 'بردید! ماهی مرکب روی واسابی ۹ + جفت تمپورا ۵ + بیشترین ماکی (۳ رول در برابر ۲) ۶ = ۲۰ امتیاز دور، و با ۲ پودینگ در برابر صفر ۶ امتیاز دیگر: ۲۶. حریف از دو دامپلینگ ۳، نیگیری سالمون ۲، تخم‌مرغ ۱ و ماکی دوم ۳ امتیاز گرفت: ۹. تمپورای تنها و چاپستیک استفاده‌نشده‌اش امتیازی نداشت. بازی واقعی سه دور است و پودینگ‌ها در آخر شمرده می‌شوند.'
   }
 };

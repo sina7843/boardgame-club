@@ -1,20 +1,20 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «نبرد تاس» end to end: the tutorial (roll, keep, attack) and a full duel from the hero pick.
+// «نبرد تاس» end to end: the tutorial (roll, keep, stun, extra roll, ultimate) and a full duel from the hero pick.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'dice-throne';
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: roll, keep, attack', async ({ browser }, info) => {
+test('interactive tutorial: roll, keep, stun, extra roll, ultimate', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto(`/games/${GAME}`);
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`));
     await expect(label).toBeVisible();
     if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-keep'), fullPage: true });
     for (let i = 0; i < 3 && (await label.count()); i++) {

@@ -1,22 +1,24 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «راه الدورادو» end to end: the tutorial (buy, move to the city, end) and a full three-player race.
+// «راه الدورادو» end to end: the tutorial (water, split jungle points, buy, refill, rubble, arrive, end of round) and a full three-player race.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'el-dorado';
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: buy, move, arrive', async ({ browser }, info) => {
+test('interactive tutorial: water, jungle, buy, rubble, arrive', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto(`/games/${GAME}`);
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`));
     await expect(label).toBeVisible();
     if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-move'), fullPage: true });
+    // Rubble is paid with cards: mark the first hand card (the sailor) «برای آوار» before the hex lights up.
+    if (step === '۶') await p.locator('.ed-me .ed-mini', { hasText: 'برای آوار' }).first().click();
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.ed .ed-hint:not([disabled])').first();
       if (!(await h.count())) break;

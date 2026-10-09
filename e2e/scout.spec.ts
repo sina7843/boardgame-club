@@ -1,25 +1,38 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «سیرک» end to end: the tutorial (turn the hand over, show a three-card run) and a full three-player game of three
-// rounds with shows, scouts and Scout & Show.
+// «سیرک» end to end: the tutorial (turn the hand over, show, Scout & Show with a flipped card, beat a run with a set)
+// and a full three-player game of three rounds with shows, scouts and Scout & Show.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/scout/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: flip the hand, show the run', async ({ browser }, info) => {
+test('interactive tutorial: a full round from turning the hand over to emptying it', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/scout');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const step = async (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
+  const show = async (from: number, count: number) => {
+    await p.locator('.sc-pick').nth(from).click();
+    if (count > 1) await p.locator('.sc-pick').nth(from + count - 1).click();
+    await p.getByRole('button', { name: /^نمایش/ }).click();
+  };
+  await step('۱');
   await p.screenshot({ path: shot(info.project.name, 'tutorial-orient'), fullPage: true });
   await p.getByRole('button', { name: 'برگرداندن دست' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.locator('.sc-pick').nth(0).click();
-  await p.locator('.sc-pick').nth(2).click();
-  await p.getByRole('button', { name: /^نمایش/ }).click();
+  await step('۲');
+  await show(0, 2);
+  await step('۳');
+  await p.getByRole('button', { name: 'دیدبانی کارت اول' }).click();
+  await p.getByRole('button', { name: /^برگرداندن کارت/ }).click();
+  await p.getByLabel('دیدبانی و نمایش').check();
+  await p.locator('.sc-gap').nth(2).click();
+  await step('۴');
+  await show(0, 3);
+  await step('۵');
+  await show(0, 3);
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

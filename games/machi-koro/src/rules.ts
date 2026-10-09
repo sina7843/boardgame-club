@@ -151,10 +151,14 @@ export const machiModule: GameModule<MachiState, MachiAction, MachiView> = {
       timeouts: Array(playerCount).fill(0), outcome: null, pending: []
     };
     if (options.deal === 'tutorial') {
+      // Late game: the learner lacks only the Shopping Mall (10). The tutorial seed rolls a miss, then doubles 5-5
+      // after the Radio Tower reroll (the rival's Family Restaurant takes 2, the Apple Orchard pays 3, the Amusement
+      // Park grants another turn), then a 7 for the Cheese Factory (3 per Ranch).
       s.current = 0;
-      s.landmarks[0] = { station: true, mall: true, park: true, radio: false };
-      s.coins = [22, 5];
-      s.cards[0] = { ...s.cards[0]!, ranch: 1, cheese: 1, forest: 1 };
+      s.landmarks[0] = { station: true, mall: false, park: true, radio: true };
+      s.coins = [4, 3];
+      s.cards[0] = { ...s.cards[0]!, ranch: 2, cheese: 1, orchard: 1 };
+      s.cards[1] = { ...s.cards[1]!, restaurant: 1 };
     }
     return s;
   },
@@ -261,13 +265,17 @@ export const machiModule: GameModule<MachiState, MachiAction, MachiView> = {
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {
-    seed: 61,
+    seed: 583,
     options: { deal: 'tutorial' },
-    introFa: 'سه بنای بزرگ را ساخته‌اید و ۲۲ سکه دارید؛ برج رادیو آخرین بناست. اول تاس بریزید.',
+    introFa: 'شهر شما تقریباً کامل است: ایستگاه قطار، شهربازی و برج رادیو را ساخته‌اید و فقط «مرکز خرید» (۱۰ سکه) مانده؛ ولی ۴ سکه دارید. کارت‌هایتان: گندم‌زار، نانوایی، ۲ دامداری، پنیرسازی و باغ میوه. حریف یک «رستوران» قرمز دارد. هر نوبت تاس می‌ریزید، کارت‌هایی که عددشان آمده درآمد می‌دهند و بعد می‌توانید یک چیز بسازید.',
     steps: [
-      { instructionFa: 'یک تاس بریزید: مزرعه و نانوایی و دامداری‌تان درآمد می‌دهند.', expected: { type: 'roll', dice: 1 }, reply: null },
-      { instructionFa: 'حالا برج رادیو را بسازید تا شهرتان کامل شود.', expected: { type: 'build', landmark: 'radio' }, reply: null }
+      { instructionFa: 'ایستگاه قطار دارید، پس می‌توانید یک یا دو تاس بریزید. دو تاس بریزید: پنیرسازی روی ۷ و باغ میوه روی ۱۰ فقط با دو تاس می‌آیند.', expected: { type: 'roll', dice: 2 }, reply: null },
+      { instructionFa: '۵ آمد و هیچ کارتی روی ۵ ندارید. برج رادیو نوبتی یک بار اجازهٔ دوباره ریختن می‌دهد و درآمد فقط برای نتیجهٔ نهایی حساب می‌شود. دوباره دو تاس بریزید.', expected: { type: 'roll', dice: 2 }, reply: null },
+      { instructionFa: 'جفت ۵ یعنی ۱۰! اول کارت‌های قرمز حریف از تاس‌انداز می‌گیرند: رستورانش ۲ سکه از شما گرفت. بعد کارت‌های آبی (در نوبت هر کسی) درآمد می‌دهند: باغ میوه ۳ سکه داد و ۵ سکه دارید. حالا یک کارت بسازید: یک «دامداری» (۱ سکه) بخرید تا پنیرسازی شما که ۳ سکه به‌ازای هر دامداری می‌دهد قوی‌تر شود.', expected: { type: 'build', card: 'ranch' }, reply: null },
+      { instructionFa: 'چون جفت آوردید و شهربازی دارید، یک نوبت دیگر هم بازی می‌کنید. دو تاس بریزید.', expected: { type: 'roll', dice: 2 }, reply: null },
+      { instructionFa: '۷ آمد، عدد پنیرسازی. برج رادیو باز اجازهٔ دوباره ریختن می‌دهد، ولی این نتیجه عالی است: «همین را نگه دار» را بزنید.', expected: { type: 'keep' }, reply: null },
+      { instructionFa: 'پنیرسازی سبز است و فقط در نوبت خودتان درآمد می‌دهد: ۳ سکه به‌ازای هر دامداری، یعنی ۳ × ۳ = ۹ سکه؛ حالا ۱۳ سکه دارید. «مرکز خرید» (۱۰ سکه) را بسازید تا هر چهار بنای بزرگ کامل شود.', expected: { type: 'build', landmark: 'mall' }, reply: null }
     ],
-    completedFa: 'بردید! هر چهار بنای بزرگ ساخته شد.'
+    completedFa: 'بردید! با ۴ سکه شروع کردید؛ رستوران حریف ۲ سکه گرفت، باغ میوه ۳ سکه داد و ۱ سکه خرج دامداری سوم شد (۴ سکه). جفت ۵ با شهربازی نوبت دوباره داد و ۷ با پنیرسازی و ۳ دامداری ۹ سکه آورد (۱۳ سکه). مرکز خرید ۱۰ سکه خرج برداشت و با ساختن چهارمین بنای بزرگ، فوراً برنده شدید؛ ۳ سکه برایتان ماند.'
   }
 };

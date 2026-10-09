@@ -187,10 +187,17 @@ export const carcModule: GameModule<CarcState, CarcAction, CarcView> = {
       meeplesLeft: Array(playerCount).fill(7), current: rng.nextInt(playerCount), last: null, discarded: 0, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
+      // A late teaching position. The learner already has a follower on the start tile's city and one on a
+      // monastery (west of the start tile) that misses only the neighbour north of the start tile — the same spot
+      // that closes the city. The road from that monastery through the start tile is still open.
       s.current = 0;
-      s.board[key(0, 0)]!.meeples = { c0: 0 };
-      s.meeplesLeft = [6, 7];
-      s.stack = ['E', 'U', 'B'];
+      s.board = {
+        [key(-2, -1)]: { t: 'B', rot: 0, meeples: {} }, [key(-1, -1)]: { t: 'E', rot: 0, meeples: {} },
+        [key(-2, 0)]: { t: 'E', rot: 3, meeples: {} }, [key(-1, 0)]: { t: 'A', rot: 3, meeples: { m: 0 } }, [key(0, 0)]: { t: 'D', rot: 0, meeples: { c0: 0 } },
+        [key(-2, 1)]: { t: 'E', rot: 3, meeples: {} }, [key(-1, 1)]: { t: 'E', rot: 2, meeples: {} }, [key(0, 1)]: { t: 'V', rot: 3, meeples: {} }
+      };
+      s.meeplesLeft = [5, 7];
+      s.stack = ['U', 'J', 'L', 'D', 'E', 'B', 'F'];
     }
     ensurePlaceable(s);
     return s;
@@ -262,11 +269,13 @@ export const carcModule: GameModule<CarcState, CarcAction, CarcView> = {
   tutorial: {
     seed: 71,
     options: { deal: 'tutorial' },
-    introFa: 'کاشی شروع یک تکه شهر دارد و پیرو شما روی آن است. کاشی شما هم یک تکه شهر دارد: آن را بالای کاشی شروع بگذارید تا شهر بسته شود.',
+    introFa: 'اواخر یک بازی است و فقط ۷ کاشی مانده. یک پیرو شما روی شهر کاشی شروع است و یکی روی صومعه‌ای که فقط یک همسایه کم دارد. در هر نوبت کاشی کشیده‌شده را طوری می‌گذارید که همهٔ لبه‌هایش با همسایه‌ها جور باشد (جاده با جاده، شهر با شهر، زمین با زمین) و بعد اگر بخواهید یک پیرو روی همان کاشی می‌گذارید.',
     steps: [
-      { instructionFa: 'کاشی را بالای کاشی شروع بگذارید (شهر رو به پایین): شهر دوکاشی کامل می‌شود.', expected: { type: 'place', x: 0, y: -1, rot: 2 }, reply: { type: 'place', x: 0, y: 1, rot: 1 } },
-      { instructionFa: 'آخرین کاشی صومعه است: پایین جاده بگذارید و پیرو را روی صومعه قرار دهید.', expected: { type: 'place', x: 0, y: 2, rot: 0, meeple: 'm' }, reply: null }
+      { instructionFa: 'کاشی جاده را در خانهٔ مشخص‌شده، کنار انتهای باز جادهٔ کاشی شروع بگذارید و یک پیرو روی جاده‌اش بگذارید. پیرو فقط روی کاشیِ تازه گذاشته می‌شود و فقط روی جاده یا شهری که هنوز پیرو ندارد.', expected: { type: 'place', x: 1, y: 0, rot: 1, meeple: 'r0' }, reply: { type: 'place', x: 1, y: 1, rot: 1, meeple: 'c0' } },
+      { instructionFa: 'حریف تکه‌شهری ساخت و پیرویش را رویش گذاشت. حالا جادهٔ خودتان را ببندید: کاشی را در انتهای باز جاده بگذارید تا جاده به تقاطع برسد. جادهٔ کامل هر کاشی ۱ امتیاز دارد (اینجا ۴ کاشی، یعنی ۴ امتیاز) و پیرو به دستتان برمی‌گردد. این بار پیرو نگذارید.', expected: { type: 'place', x: 2, y: 0, rot: 0 }, reply: { type: 'place', x: 2, y: 1, rot: 3, meeple: 'r0' } },
+      { instructionFa: 'حریف شهرش را بست (۴ امتیاز) و پیرو تازه‌ای روی جادهٔ نیمه‌تمامش گذاشت. کاشی تکه‌شهر را در خانهٔ مشخص‌شده، چسبیده به شهر کاشی شروع بگذارید و آن را بچرخانید تا شهرش رو به همان شهر باشد. شهر دوکاشی بسته می‌شود: هر کاشی شهر کامل ۲ امتیاز (۴ امتیاز). همین کاشی هشتمین همسایهٔ صومعهٔ شماست و صومعهٔ محاصره‌شده ۹ امتیاز می‌گیرد.', expected: { type: 'place', x: 0, y: -1, rot: 2 }, reply: { type: 'place', x: 1, y: -1, rot: 0, meeple: 'm' } },
+      { instructionFa: 'آخرین کاشی: شهر نشان‌دار را به شهر باز کاشی تقاطع وصل کنید و پیرویی روی شهرش بگذارید. کاشی‌ها تمام می‌شود و کارهای نیمه‌تمام هم امتیاز می‌گیرند: شهر نیمه‌تمام هر کاشی و هر نشان ۱ امتیاز.', expected: { type: 'place', x: 2, y: -1, rot: 1, meeple: 'c0' }, reply: null }
     ],
-    completedFa: 'بردید! شهر کامل ۴ امتیاز داد و صومعهٔ نیمه‌تمام هم در پایان امتیاز گرفت.'
+    completedFa: 'بردید، ۲۰ به ۱۲! جادهٔ ۴ کاشی‌ای ۴ امتیاز داد، شهر دوکاشی ۴ امتیاز و صومعهٔ محاصره‌شده ۹ امتیاز. در پایان، شهر نیمه‌تمام شما با ۲ کاشی و ۱ نشان ۳ امتیاز گرفت. حریف ۴ امتیاز از شهر کاملش گرفت و در پایان ۲ امتیاز از جادهٔ نیمه‌تمام ۲ کاشی‌ای و ۶ امتیاز از صومعه‌اش (خودش و ۵ همسایه). پیروهای کارهای کامل‌شده بلافاصله برمی‌گردند تا دوباره به کارتان بیایند.'
   }
 };

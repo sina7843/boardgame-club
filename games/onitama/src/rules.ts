@@ -126,11 +126,14 @@ export const onitamaModule: GameModule<OnitamaState, OnitamaAction, OnitamaView>
       seen: {}, history: [], timeouts: [0, 0], end: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // Learner (red) has a student in the centre; blue's master stands open on its temple.
+      // A late race. Red: master on 7, students on 1 and 13. Blue: master out on 15, students on 19, 21, 23; blue's
+      // temple (22) is empty. Red holds Mantis + Frog, blue Tiger + Ox, Horse is beside the board. Every scripted red
+      // move (from → to) is possible with only one of red's two cards.
       s.board = Array(25).fill(null);
-      s.board[2] = 'rM'; s.board[12] = 'rS'; s.board[22] = 'bM'; s.board[15] = 'bS';
-      s.hands = [['tiger', 'boar'], ['crab', 'horse']];
-      s.side = 'ox';
+      s.board[7] = 'rM'; s.board[1] = 'rS'; s.board[13] = 'rS';
+      s.board[15] = 'bM'; s.board[19] = 'bS'; s.board[21] = 'bS'; s.board[23] = 'bS';
+      s.hands = [['mantis', 'frog'], ['tiger', 'ox']];
+      s.side = 'horse';
       s.current = 0;
     } else s.current = cardById(s.side).color === 'red' ? 0 : 1;
     s.seen[key(s)] = 1;
@@ -205,11 +208,12 @@ export const onitamaModule: GameModule<OnitamaState, OnitamaAction, OnitamaView>
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },
-    introFa: 'شما قرمز هستید (پایین). هر کارت نشان می‌دهد مهره‌ها به کجا می‌توانند بروند؛ خانه وسط کارت جای مهره است. بعد از استفاده، کارت کنار صفحه می‌رود و کارت کناری مال شما می‌شود.',
+    introFa: 'شما قرمز هستید و از پایین صفحه رو به بالا بازی می‌کنید. استاد آبی معبدش را خالی گذاشته و به سمت معبد شما آمده است؛ هر کس زودتر برسد یا استاد دیگری را بزند برنده است. هر کارت حرکت، خانه‌هایی را نشان می‌دهد که مهره نسبت به جای فعلی‌اش می‌تواند برود (خانهٔ وسط کارت جای مهره است و بالای کارت رو به حریف). دست شما «آخوندک» و «قورباغه» است، حریف «ببر» و «گاو» دارد و «اسب» کنار صفحه است.',
     steps: [
-      { instructionFa: 'کارت «گراز» یک خانه رو به جلو را مجاز می‌کند. شاگرد وسط صفحه را یک خانه جلو ببرید.', expected: { type: 'move', card: 'boar', from: 12, to: 17 }, reply: { type: 'move', card: 'horse', from: 15, to: 10 } },
-      { instructionFa: 'کارت «گاو» را از کنار صفحه گرفتید. با آن شاگردتان را یک خانه جلو ببرید و استاد آبی را بزنید!', expected: { type: 'move', card: 'ox', from: 17, to: 22 }, reply: null }
+      { instructionFa: 'آخوندک اجازه می‌دهد یک خانهٔ مورب رو به جلو بروید. شاگرد وسطی‌تان را با آخوندک یک خانهٔ مورب جلو ببرید و شاگرد آبی را بزنید؛ مهرهٔ زده‌شده از بازی بیرون می‌رود. بعد از حرکت، آخوندک کنار صفحه می‌رود و «اسب» مال شما می‌شود.', expected: { type: 'move', card: 'mantis', from: 13, to: 19 }, reply: { type: 'move', card: 'tiger', from: 15, to: 5 } },
+      { instructionFa: 'حریف با «ببر» استادش را دو خانه جلو آورد و آخوندک شما را برداشت؛ ببر حالا کنار صفحه است. با «اسب» که تازه گرفتید استادتان را یک خانه مستقیم جلو ببرید. حواستان باشد: هر کارتی بازی کنید، نوبت بعد به دست حریف می‌رسد.', expected: { type: 'move', card: 'horse', from: 7, to: 12 }, reply: { type: 'move', card: 'mantis', from: 5, to: 1 } },
+      { instructionFa: 'حریف با آخوندکِ شما شاگردتان را زد و حالا «اسب» را دارد که استادش را با آن به معبد شما می‌رساند! ولی نوبت شماست و «ببر» حریف به دست شما رسیده: ببر دو خانه مستقیم جلو می‌برد. استادتان را با ببر به معبد خالی آبی ببرید.', expected: { type: 'move', card: 'tiger', from: 12, to: 22 }, reply: null }
     ],
-    completedFa: 'بردید! زدن استاد حریف «راه سنگ» است؛ رساندن استاد خودتان به معبد حریف (خانه شروع استاد او) «راه رود» است و آن هم پیروزی است.'
+    completedFa: 'بردید! استاد شما به معبد آبی (خانهٔ شروع استاد او) رسید؛ این «راه رود» است. راه دیگر برد «راه سنگ» است: زدن استاد حریف. دیدید که کارت‌ها دست‌به‌دست می‌چرخند: آخوندکی که شما بازی کردید به حریف رسید و ببر حریف برد را برای شما آورد.'
   }
 };

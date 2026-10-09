@@ -372,10 +372,22 @@ describe('catan timeouts, resign and redaction', () => {
 });
 
 describe('catan tutorial', () => {
-  it('the scripted turn plays to a win', () => {
-    let snap = startGame(m, { playerCount: 2, seed: catanModule.tutorial.seed, options: catanModule.tutorial.options }).snapshot;
-    for (const step of catanModule.tutorial.steps) snap = act(snap, 0, step.expected).snapshot;
-    expect(st(snap).outcome?.placements.find((x) => x.place === 1)?.seat).toBe(0);
+  it('the scripted turn plays to a win: knight + Largest Army, robber steal, production, 4:1 trade, road, settlement, city', () => {
+    const tu = catanModule.tutorial;
+    let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options }).snapshot;
+    expect(totalVp(st(snap), 0)).toBe(6);
+    for (const step of tu.steps) {
+      snap = act(snap, 0, step.expected).snapshot;
+      if (step.reply) snap = act(snap, 1, step.reply).snapshot;
+      if (step.expected?.type === 'moveRobber') {
+        expect(st(snap).largestArmy).toBe(0);
+        expect(st(snap).hands[1]!.grain).toBe(1); // the only card type the opponent holds
+        expect(st(snap).phase).toBe('roll');
+      }
+    }
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, score: 10, place: 1 }, { seat: 1, score: 2, place: 2 }]);
+    expect(total(s.hands[0]!)).toBe(0);
     expect(TUTORIAL.newSettlement).toBe(EDGES[TUTORIAL.newRoad]!.a === TUTORIAL.newSettlement ? EDGES[TUTORIAL.newRoad]!.a : EDGES[TUTORIAL.newRoad]!.b);
   });
 });

@@ -157,8 +157,11 @@ export const dtModule: GameModule<DtState, DtAction, DtView> = {
       defenseDice: [], fixedDice: [], log: [], turn: 0, seq: 0, timeouts: [0, 0], outcome: null
     };
     if (options.deal === 'tutorial') {
-      s.fighters[0]!.hero = 0; s.fighters[1]!.hero = 3; s.fighters[1]!.hp = 7;
-      s.fixedDice = [1, 2, 3, 4, 6, 1, 1, 2, 1];
+      // Warrior (seat 0) against a Paladin on 15 HP. Scripted dice: turn 1 rolls two fists, keeps them, rolls a third
+      // (stun attack); the Paladin's defence rolls helm + heart; the stunned Paladin loses a turn; turn 2 collects five
+      // fists over three rolls and one 2-CP extra roll for the undefendable ultimate.
+      s.fighters[0]!.hero = 0; s.fighters[1]!.hero = 3; s.fighters[1]!.hp = 15;
+      s.fixedDice = [6, 6, 1, 4, 2, 6, 2, 4, 3, 5, 6, 6, 2, 3, 6, 6, 1, 4, 6];
       startTurn(s, 0);
     }
     return s;
@@ -289,12 +292,17 @@ export const dtModule: GameModule<DtState, DtAction, DtView> = {
   tutorial: {
     seed: 5,
     options: { deal: 'tutorial' },
-    introFa: 'شما جنگجوی کوه هستید؛ حریف فقط ۷ جان دارد. تاس‌های ۱ تا ۳ شمشیرند.',
+    introFa: 'شما «جنگجوی کوه» هستید با ۳۰ جان و ۲ امتیاز رزم (CP)؛ حریف «نگهبان روشنایی» است با ۱۵ جان. تاس‌های شما: ۱ تا ۳ شمشیر ⚔، ۴ و ۵ قلب ♥ و ۶ مشت ✊. در نوبتتان پنج تاس را تا سه بار می‌ریزید و بعد یکی از توانایی‌هایی را که ترکیب تاس‌ها می‌سازد اجرا می‌کنید.',
     steps: [
-      { instructionFa: 'هر پنج تاس را بریزید.', expected: { type: 'roll', keep: [false, false, false, false, false] }, reply: null },
-      { instructionFa: 'سه شمشیر (۱، ۲، ۳) را نگه دارید و بقیه را دوباره بریزید.', expected: { type: 'roll', keep: [true, true, true, false, false] }, reply: null },
-      { instructionFa: 'پنج شمشیر! «ضربهٔ شمشیر» با ۸ آسیب را بزنید.', expected: { type: 'attack', ability: 0 }, reply: { type: 'defend' } }
+      { instructionFa: 'نوبت اول همیشه با ریختن هر پنج تاس شروع می‌شود. «ریختن تاس‌ها» را بزنید.', expected: { type: 'roll', keep: [false, false, false, false, false] }, reply: null },
+      { instructionFa: 'دو مشت آمد. «ضربهٔ گیج‌کننده» سه مشت می‌خواهد. دو مشت را نگه دارید (تاس‌های نگه‌داشته علامت خورده‌اند) و سه تاس دیگر را دوباره بریزید؛ هنوز دو ریختن دارید.', expected: { type: 'roll', keep: [true, true, false, false, false] }, reply: null },
+      { instructionFa: 'سه مشت! لازم نیست ریختن سوم را مصرف کنید. «ضربهٔ گیج‌کننده» (۵ آسیب و گیجی) را بزنید. این حمله دفاع‌پذیر است، پس حریف تاس‌های دفاعش را می‌ریزد.', expected: { type: 'attack', ability: 2 }, reply: { type: 'defend' } },
+      { instructionFa: 'نگهبان با دو تاس دفاع کرد: کلاه‌خود ⛨ سپر داد و ۳ آسیب را خنثی کرد (۵ − ۳ = ۲) و قلب ♥ ۱ جان برگرداند؛ جانش ۱۴ شد. ولی گیج شد و نوبتش سوخت، پس دوباره نوبت شماست و ۱ امتیاز رزم هم گرفتید (حالا ۳). هر پنج تاس را بریزید.', expected: { type: 'roll', keep: [false, false, false, false, false] }, reply: null },
+      { instructionFa: 'سه مشت آمد. «خشم کوهستان»، توانایی نهایی، پنج مشت می‌خواهد و دفاع‌ناپذیر است. سه مشت را نگه دارید و دو تاس دیگر را بریزید.', expected: { type: 'roll', keep: [true, true, false, false, true] }, reply: null },
+      { instructionFa: 'چهار مشت! این ریختن سوم و آخر نوبت است: چهار مشت را نگه دارید و تاس باقی‌مانده را بریزید.', expected: { type: 'roll', keep: [true, true, true, false, true] }, reply: null },
+      { instructionFa: 'قلب آمد و ریختن‌ها تمام شد؛ ولی با ۲ امتیاز رزم یک ریختن اضافه می‌خرید. «ریختن اضافه» را بزنید (همان چهار مشت نگه داشته می‌شوند).', expected: { type: 'roll', keep: [true, true, true, false, true] }, reply: null },
+      { instructionFa: 'پنج مشت! «خشم کوهستان» (۱۴ آسیب، دفاع‌ناپذیر) را بزنید؛ حریف حتی تاس دفاع هم نمی‌ریزد.', expected: { type: 'attack', ability: 4 }, reply: null }
     ],
-    completedFa: 'بردید! ضربهٔ شمشیر جان حریف را تمام کرد.'
+    completedFa: 'بردید! ضربهٔ گیج‌کننده ۵ آسیب داشت؛ سپر نگهبان ۳ تا را خنثی کرد و قلبش ۱ جان برگرداند، پس جانش از ۱۵ به ۱۴ رسید و نوبتش هم با گیجی سوخت. در نوبت دوم با سه ریختن و یک ریختن اضافه (۲ امتیاز رزم از ۳ امتیازتان) پنج مشت جمع کردید و «خشم کوهستان» دفاع‌ناپذیر ۱۴ جان باقی‌ماندهٔ او را تمام کرد.'
   }
 };

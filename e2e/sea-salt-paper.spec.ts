@@ -1,20 +1,40 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «کاغذ و دریا» end to end: the tutorial (take the shell, call stop) and a full three-player game over several rounds.
+// «کاغذ و دریا» end to end: the tutorial (take, crab duo, boat duo + extra turn, draw two, stop) and a full
+// three-player game over several rounds.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/sea-salt-paper/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: shell, then stop', async ({ browser }, info) => {
+test('interactive tutorial: the last hand, from crab and boat duos to stop', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/sea-salt-paper');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const step = async (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۸`))).toBeVisible();
+  const card = (where: string, id: number) => p.locator(`${where} .sp2-pick:has([data-flip="c-${id}"])`);
+  await step('۱');
   await p.locator('.sp2-pile.sp2-hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  await step('۲');
+  await card('.sp2__hand', 0).click();
+  await card('.sp2__hand', 1).click();
+  await p.getByRole('button', { name: 'خرچنگ‌ها: کپهٔ ۲' }).click();
+  await step('۳');
+  await card('.sp2__choice', 37).click();
+  await step('۴');
+  await card('.sp2__hand', 9).click();
+  await card('.sp2__hand', 10).click();
+  await p.getByRole('button', { name: /^بازی جفت/ }).click();
+  await step('۵');
+  await p.getByRole('button', { name: 'نوبت اضافه', exact: true }).click();
+  await step('۶');
+  await p.locator('.sp2-deck.sp2-hint').click();
+  await step('۷');
+  await card('.sp2__choice', 38).click();
+  await p.locator('.sp2-pile').first().click();
+  await step('۸');
   await p.screenshot({ path: shot(info.project.name, 'tutorial-stop'), fullPage: true });
   await p.getByRole('button', { name: 'بس!' }).click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

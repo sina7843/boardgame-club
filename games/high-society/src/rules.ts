@@ -169,12 +169,14 @@ export const highSocietyModule: GameModule<HighSocietyState, HighSocietyAction, 
       timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
-      s.deck = ['l10', 'scandal'];
-      s.red = 3;
+      // Late game, two prestige cards already out. Auctions: the yacht (9), the third prestige, a passé; the scandal
+      // that follows is the fourth red card and ends the game. The rival has more status but less money.
+      s.deck = ['l9', 'prestige', 'passe', 'scandal'];
+      s.red = 2;
       s.current = 0;
-      s.hands[1] = [2, 4];
-      s.spent[1] = MONEY.filter((m) => m !== 2 && m !== 4);
-      s.won = [['l3'], ['prestige', 'l6']];
+      s.hands = [[1, 2, 6, 10, 12], [3, 4, 15]];
+      s.spent = s.hands.map((h) => MONEY.filter((m) => !h.includes(m)));
+      s.won = [['l5', 'prestige'], ['l7', 'l8', 'prestige']];
     }
     reveal(s);
     return s;
@@ -247,11 +249,13 @@ export const highSocietyModule: GameModule<HighSocietyState, HighSocietyAction, 
   tutorial: {
     seed: 23,
     options: { deal: 'tutorial' },
-    introFa: 'هر دور یک کارت مزایده می‌شود. با گذاشتن اسکناس پیشنهاد می‌دهید؛ آخرین کسی که بماند پول را می‌دهد و کارت را می‌برد. ولی حواستان باشد: آخر بازی کم‌پول‌ترین نفر کلاً می‌بازد!',
+    introFa: 'آخر بازی است. شما «عطر» (۵) و یک «افتخار» (×۲) دارید؛ حریف «پیانو» (۷)، «اسب» (۸) و یک افتخار. دو کارت قاب‌قرمز رو شده و وقتی چهارمی رو شود بازی بلافاصله تمام می‌شود. هر دور یک کارت مزایده می‌شود: به نوبت اسکناس اضافه می‌کنید تا جمع پیشنهادتان از بالاترین پیشنهاد بیشتر شود، یا کنار می‌کشید. اسکناس‌ها خرد نمی‌شوند و هر پولی خرج شود دیگر برنمی‌گردد.',
     steps: [
-      { instructionFa: 'تابلوی ۱۰ روی میز است. اسکناس ۱ را بگذارید و «پیشنهاد» بدهید.', expected: { type: 'bid', cards: [1] }, reply: { type: 'bid', cards: [2] } },
-      { instructionFa: 'حریف ۲ گذاشت. اسکناس ۳ را هم اضافه کنید: جمع پیشنهادتان ۴ می‌شود.', expected: { type: 'bid', cards: [3] }, reply: { type: 'pass' } }
+      { instructionFa: '«قایق» (۹) روی میز است و شما شروع می‌کنید. اسکناس ۲ را انتخاب کنید و «پیشنهاد» بدهید.', expected: { type: 'bid', cards: [2] }, reply: { type: 'bid', cards: [3] } },
+      { instructionFa: 'حریف ۳ پیشنهاد داد. قایق ارزش جنگیدن ندارد؛ پول آخر بازی مهم است. «کنار می‌کشم» را بزنید: اسکناس ۲ به دستتان برمی‌گردد و حریف که آخرین نفر مانده، ۳ را می‌پردازد و قایق را می‌برد.', expected: { type: 'pass' }, reply: { type: 'bid', cards: [4] } },
+      { instructionFa: 'برندهٔ هر مزایده مزایدهٔ بعدی را شروع می‌کند: حریف روی کارت «افتخار» (قاب‌قرمز سوم) ۴ پیشنهاد داد. افتخار کل امتیاز شما را دو برابر می‌کند. اسکناس ۶ را بگذارید تا پیشنهادتان ۶ شود.', expected: { type: 'bid', cards: [6] }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف کنار کشید و افتخار را با ۶ بردید. حالا «از مد افتاده» (۵−) آمده؛ کارت بد برعکس مزایده می‌شود: اولین کسی که کنار بکشد کارت را می‌گیرد ولی پولش برمی‌گردد و بقیه هر چه گذاشته‌اند می‌پردازند. اسکناس ۱ را پیشنهاد بدهید تا حریف مجبور شود بیشتر بدهد یا کارت را بگیرد.', expected: { type: 'bid', cards: [1] }, reply: { type: 'pass' } }
     ],
-    completedFa: 'بردید! تابلو مال شما شد و کارت قاب‌قرمز چهارم بازی را تمام کرد. حریف با وجود «افتخار» کم‌پول‌ترین بود و کنار رفت.'
+    completedFa: 'بردید! حریف کنار کشید و «از مد افتاده» را گرفت؛ شما ۱ پرداختید. کارت بعدی «رسوایی» چهارمین کارت قاب‌قرمز بود و بازی همان لحظه تمام شد. حساب پول: شما ۲۴ (۲ + ۱۰ + ۱۲) و حریف ۱۹ (۴ + ۱۵). امتیاز حریف بیشتر بود: (۷ + ۸ + ۹ − ۵) × ۲ = ۳۸ در برابر ۵ × ۲ × ۲ = ۲۰ برای شما؛ ولی کم‌پول‌ترین بازیکن کنار می‌رود و فقط بقیه با امتیاز مقایسه می‌شوند.'
   }
 };

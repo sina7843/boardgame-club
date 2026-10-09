@@ -582,17 +582,19 @@ function randomBoard(rng: EngineRng): { hexes: Hex[]; harbors: Harbor[]; robber:
   return { hexes, harbors: HARBOR_SLOTS.map((edge, i) => ({ edge, kind: kinds[i]! })), robber: terrains.indexOf('desert') };
 }
 
-// ---------- tutorial (fixed position on the beginners' map; learner = seat 0, one turn to 10 points) ----------
+// ---------- tutorial (fixed position on the beginners' map; learner = seat 0, one turn from 6 to 10 points) ----------
 
 export const TUTORIAL = (() => {
   const s1 = vertexOf(7, 8, 12);
   const n1 = VERTICES[s1]!.adj.find((v) => VERTICES[v]!.hexes.includes(12) && VERTICES[v]!.hexes.includes(13))!;
   const n2 = VERTICES[n1]!.adj.find((v) => v !== s1 && VERTICES[v]!.hexes.includes(13) && VERTICES[v]!.hexes.includes(16))!;
   return {
-    cities: [vertexOf(10, 11, 15), vertexOf(0, 3, 4), vertexOf(14, 15, 18)],
-    settlements: [s1, vertexOf(5, 6, 10)],
+    cities: [vertexOf(10, 11, 15)],
+    settlements: [s1, vertexOf(5, 6, 10), vertexOf(0, 3, 4), vertexOf(14, 15, 18)],
     roads: [edgeOf(s1, n1)],
     opponent: { settlements: [vertexOf(1, 2, 5), vertexOf(16, 17)] },
+    /** The opponent's grain field (6): the knight's robber goes here and steals from the opponent's settlement. */
+    robber: 17,
     newRoad: edgeOf(n1, n2),
     newSettlement: n2,
     upgrade: vertexOf(5, 6, 10)
@@ -608,8 +610,13 @@ function tutorialState(s: CatanState) {
     s.buildings[v] = { seat: 1, city: false };
     s.roads[VERTICES[v]!.edges[0]!] = 1;
   }
-  s.hands[0] = { brick: 2, lumber: 1, wool: 5, grain: 2, ore: 1 };
-  for (const r of RESOURCES) s.bank[r] -= s.hands[0][r];
+  // Two knights already played and a third in hand (bought on an earlier turn): playing it wins Largest Army.
+  s.knights[0] = 2;
+  s.devs[0] = [{ card: 'knight', turn: 0 }];
+  for (let k = 0; k < 3; k++) s.devDeck.splice(s.devDeck.indexOf('knight'), 1);
+  s.hands[0] = { brick: 2, lumber: 1, wool: 5, grain: 1, ore: 1 };
+  s.hands[1] = { brick: 0, lumber: 0, wool: 0, grain: 2, ore: 0 };
+  for (const h of s.hands) for (const r of RESOURCES) s.bank[r] -= h[r];
   s.fixedDice = [[3, 5]];
   s.setupIdx = s.setupOrder.length;
   updateLongestRoad(s);
@@ -905,15 +912,17 @@ export const catanModule: GameModule<CatanState, CatanAction, CatanView> = {
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },
-    introFa: 'در کاتان با ساختن آبادی، شهر و جاده امتیاز می‌گیرید؛ اولین کسی که در نوبت خودش به ۱۰ امتیاز برسد برنده است. شما ۸ امتیاز دارید و این نوبت می‌توانید بازی را ببرید.',
+    introFa: 'نوبت آخرِ یک بازی دونفره روی نقشهٔ مبتدی است. شما ۶ امتیاز دارید: یک شهر (۲ امتیاز) و چهار آبادی (هر کدام ۱ امتیاز)، و حریف ۲ امتیاز. اولین کسی که در نوبت خودش به ۱۰ امتیاز برسد می‌برد. در همین نوبت با یک کارت شوالیه، تولید منابع، معامله با بانک و ساختن از ۶ به ۱۰ می‌رسید.',
     steps: [
-      { instructionFa: 'هر نوبت با ریختن تاس شروع می‌شود. تاس بریزید: هر شش‌ضلعی که عددش بیاید به آبادی‌های کنارش ۱ کارت و به شهرها ۲ کارت می‌دهد.', expected: { type: 'roll' }, reply: null },
-      { instructionFa: '۸ آمد: شهرتان کنار کوهستان ۸ دو سنگ و آبادی‌تان کنار جنگل ۸ یک چوب گرفت. برای شهر گندم کم دارید: ۴ پشم را با بانک به ۱ گندم معامله کنید.', expected: { type: 'bankTrade', give: 'wool', get: 'grain' }, reply: null },
-      { instructionFa: 'جاده با ۱ آجر و ۱ چوب ساخته می‌شود و باید به جاده یا آبادی خودتان وصل باشد. جاده مشخص‌شده را بسازید.', expected: { type: 'buildRoad', edge: TUTORIAL.newRoad }, reply: null },
-      { instructionFa: 'آبادی (آجر، چوب، پشم، گندم) فقط کنار جاده خودتان و با فاصله دست‌کم دو مسیر از هر آبادی دیگر ساخته می‌شود. آبادی را در انتهای جاده تازه بسازید (۹ امتیاز).', expected: { type: 'buildSettlement', vertex: TUTORIAL.newSettlement }, reply: null },
-      { instructionFa: 'شهر (۳ سنگ و ۲ گندم) جای یکی از آبادی‌هایتان را می‌گیرد و ۲ امتیاز دارد. آبادی مشخص‌شده را به شهر تبدیل کنید و با ۱۰ امتیاز ببرید.', expected: { type: 'buildCity', vertex: TUTORIAL.upgrade }, reply: null }
+      { instructionFa: 'کارت توسعه را می‌شود حتی پیش از ریختن تاس بازی کرد. در بخش «کارت‌های توسعه شما» کارت شوالیه را بازی کنید. این سومین شوالیهٔ شماست و اولین کسی که ۳ شوالیه بازی کند کارت «بزرگ‌ترین ارتش» و ۲ امتیاز می‌گیرد: ۸ امتیاز.', expected: { type: 'playKnight' }, reply: null },
+      { instructionFa: 'شوالیه راهزن را جابه‌جا می‌کند. راهزن را روی مزرعهٔ گندم با عدد ۶ ببرید که آبادی حریف کنارش است: تا وقتی راهزن آنجاست این شش‌ضلعی تولید نمی‌کند، و شما یک کارت تصادفی از دست حریف می‌دزدید (او فقط گندم دارد).', expected: { type: 'moveRobber', hex: TUTORIAL.robber }, reply: null },
+      { instructionFa: 'حالا تاس بریزید. هر شش‌ضلعی که عددش بیاید به هر آبادیِ کنارش ۱ کارت و به هر شهرِ کنارش ۲ کارت از منبع خودش می‌دهد. با عدد ۷ هیچ‌جا تولید نمی‌کند و راهزن فعال می‌شود.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۸ آمد: شهرتان کنار کوهستان ۸ دو سنگ و آبادی‌تان کنار جنگل ۸ یک چوب گرفت. برای آبادی و شهر روی هم ۳ گندم لازم دارید و ۲ تا دارید. در «معامله با بانک و بندر» پشم بدهید و گندم بگیرید: بانک ۴ کارت یکسان را با ۱ کارت دلخواه عوض می‌کند.', expected: { type: 'bankTrade', give: 'wool', get: 'grain' }, reply: null },
+      { instructionFa: 'جاده (۱ آجر + ۱ چوب) باید به جاده یا ساختمان خودتان وصل باشد. «جاده» را بزنید و جادهٔ برجسته را در ادامهٔ جادهٔ قبلی‌تان بسازید.', expected: { type: 'buildRoad', edge: TUTORIAL.newRoad }, reply: null },
+      { instructionFa: 'آبادی (آجر + چوب + پشم + گندم) باید کنار جادهٔ خودتان باشد و در سه تقاطعِ همسایه‌اش هیچ ساختمانی نباشد (قاعدهٔ فاصله). «آبادی» را بزنید و آن را در انتهای جادهٔ تازه بسازید: ۹ امتیاز.', expected: { type: 'buildSettlement', vertex: TUTORIAL.newSettlement }, reply: null },
+      { instructionFa: 'شهر (۳ سنگ + ۲ گندم) جای یکی از آبادی‌های خودتان را می‌گیرد، ۲ امتیاز دارد و دو برابر منبع می‌گیرد. «شهر» را بزنید و آبادی برجسته را شهر کنید تا به ۱۰ امتیاز برسید.', expected: { type: 'buildCity', vertex: TUTORIAL.upgrade }, reply: null }
     ],
-    completedFa: 'آموزش تمام شد. در بازی واقعی ابتدا هر نفر دو آبادی و دو جاده می‌گذارد؛ عدد ۷ دزد را فعال می‌کند و کارت‌های توسعه، بندرها و معامله با بازیکنان هم در کارند.'
+    completedFa: 'بردید! ۶ امتیاز اول (یک شهر و چهار آبادی) با کارت بزرگ‌ترین ارتش ۸ شد، آبادی تازه آن را ۹ کرد و شهر تازه ۱۰ — و چون در نوبت خودتان به ۱۰ رسیدید بازی همان لحظه با نتیجهٔ ۱۰ به ۲ تمام شد. در بازی واقعی ابتدا هر نفر به ترتیب مارپیچ دو آبادی و دو جاده می‌گذارد؛ با ۷ هر کس بیش از ۷ کارت دارد نصفش را دور می‌ریزد؛ و طولانی‌ترین جاده، بندرها، معامله با بازیکنان و بقیهٔ کارت‌های توسعه هم در کارند.'
   }
 };
 

@@ -1,21 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «سانتورینی» end to end: tutorial (move + build, then climb) and a full game: place workers, then worker → move →
+// «سانتورینی» end to end: tutorial (move + build, dome, double threat, climb) and a full game: place workers, then worker → move →
 // build through the board until someone climbs to level 3 or is stuck.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/santorini/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: move, build level 3, climb', async ({ browser }, info) => {
+test('interactive tutorial: move + build, a dome to block, a double threat, climb', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/santorini');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  for (let k = 0; k < 3; k++) await p.locator('.sto-sq--hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  for (const step of ['۱', '۲', '۳']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    for (let k = 0; k < 3; k++) await p.locator('.sto-sq--hint').click();
+  }
+  await expect(p.getByText(/آموزش: مرحله ۴ از ۴/)).toBeVisible();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-2'), fullPage: true });
   for (let k = 0; k < 2; k++) await p.locator('.sto-sq--hint').click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

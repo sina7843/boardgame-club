@@ -1,22 +1,37 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «گوهرفروش» end to end: the tutorial (take three gems, buy with gold, reach 15) and a full three-player game.
+// «گوهرفروش» end to end: the tutorial (gems, pair, reserve, return, bonuses, noble, 15) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/splendor/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: gems, then the winning card', async ({ browser }, info) => {
+test('interactive tutorial: three gems, a pair, reserve + gold, the ten-gem limit, bonuses, a noble and 15 prestige', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/splendor');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۶`))).toBeVisible();
+  await step('۱');
   for (let i = 0; i < 3; i++) await p.locator('.sp-bankgem.sp-hint').first().click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-take'), fullPage: true });
   await p.getByRole('button', { name: /^برداشتن/ }).click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  await step('۲');
+  const green = p.locator('.sp-bankgem.sp-hint');
+  await green.click();
+  await p.locator('.sp-bankgem--on').click();
+  await p.getByRole('button', { name: /^برداشتن/ }).click();
+  await step('۳');
+  await p.locator('.sp__market [data-flip="card-70"]').click();
+  await p.getByRole('button', { name: 'رزرو (+طلا)' }).click();
+  await step('۴');
+  await p.getByRole('button', { name: /^پس دادن الماس/ }).click();
+  await p.getByRole('button', { name: 'پس دادن', exact: true }).click();
+  await step('۵');
+  await p.locator('.sp-slot.sp-hint').click();
+  await p.getByRole('button', { name: 'خرید' }).click();
+  await step('۶');
   await p.locator('.sp-slot.sp-hint').click();
   await p.getByRole('button', { name: 'خرید' }).click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

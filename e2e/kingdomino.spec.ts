@@ -1,21 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «قلمرو» end to end: the tutorial (two last dominoes joining the crowned wheat) and a full three-player game.
+// «قلمرو» end to end: the tutorial (the last two rounds: placing, rotating, picking ahead) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/kingdomino/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: rotate, place, confirm', async ({ browser }, info) => {
+test('interactive tutorial: place, rotate, pick the next domino, confirm', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/kingdomino');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲']) {
-    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۲`))).toBeVisible();
+  for (const step of ['۱', '۲', '۳', '۴']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
     while (await p.locator('.kd-rot.kd-hint').count()) await p.locator('.kd-rot').click();
     await p.locator('.kd-slot.kd-hint').click();
+    // The first two steps also pick the next round's domino (highlighted in the next line).
+    if (await p.locator('button.kd-pick.kd-hint').count()) await p.locator('button.kd-pick.kd-hint').click();
     if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-place'), fullPage: true });
     await p.getByRole('button', { name: 'تأیید' }).click();
   }

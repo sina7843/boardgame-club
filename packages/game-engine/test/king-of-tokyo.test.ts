@@ -113,7 +113,10 @@ describe('king of tokyo rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1, score: 20 }, { seat: 1, place: 2, score: 11 }]);
+    expect(s.dice).toEqual(['claw', '3', '3', '3', 'claw', 'heart']);
+    expect([s.tokyo, s.hp, s.energy]).toEqual([0, [7, 5], [0, 3]]);
   });
 
   it('random games end and replay deterministically', () => {

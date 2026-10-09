@@ -1,22 +1,25 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «رقابت کهکشانی» end to end: the tutorial (choose settle, pay, end at twelve cards) and a full three-player game.
+// «رقابت کهکشانی» end to end: the tutorial (three late rounds: develop, explore, military settle, produce, consume,
+// civil settle, end at twelve cards) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'race-galaxy';
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: settle, pay, finish', async ({ browser }, info) => {
+test('interactive tutorial: phases, explore, develop, military and civil settle, consume, finish', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto(`/games/${GAME}`);
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۲`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۷`));
     await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-settle'), fullPage: true });
+    if (step === '۵') await p.screenshot({ path: shot(info.project.name, 'tutorial-settle'), fullPage: true });
+    // Step 2 keeps the first explored card (drawn cards carry no hint highlight).
+    if (step === '۲') { await p.locator('.rg-drawn button').first().click(); continue; }
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.rg .rg-hint:not([disabled])').first();
       if (!(await h.count())) break;

@@ -315,6 +315,7 @@ describe('uno determinism and tutorial', () => {
       snap = act(snap, 0, step.expected).snapshot;
       if (step.reply) snap = act(snap, 1, step.reply).snapshot;
     }
-    expect(st(snap).outcome?.placements.find((x) => x.place === 1)?.seat).toBe(0);
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, score: 62, place: 1 }, { seat: 1, score: 0, place: 2 }]);
+    expect(st(snap).hands[1]).toHaveLength(11);
   });
 });

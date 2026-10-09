@@ -188,9 +188,20 @@ export const domModule: GameModule<DomState, DomAction, DomView> = {
       militia: Array(playerCount).fill(0), turns: Array(playerCount).fill(0), last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
+      // A last-turn teaching position: one Province left, the opponent leads 30–24 on points. Village, Market, Smithy
+      // and Militia chain into 14 coins and two buys; Province alone only ties, Province + Duchy wins 33–30.
       s.current = 0;
-      s.players[0] = { hand: ['smithy', 'copper', 'copper', 'copper', 'estate'], deck: ['gold', 'silver', 'copper', 'copper', 'estate'], discard: ['copper', 'copper', 'estate'] };
-      s.supply.province = 1;
+      s.players[0] = {
+        hand: ['village', 'smithy', 'militia', 'copper', 'copper'],
+        deck: ['market', 'gold', 'silver', 'gold', 'copper', 'province'],
+        discard: ['copper', 'copper', 'copper', 'copper', 'estate', 'estate', 'estate', 'province', 'province', 'duchy', 'silver']
+      };
+      s.players[1] = {
+        hand: ['copper', 'silver', 'province', 'estate', 'copper'],
+        deck: ['copper', 'copper', 'copper', 'copper', 'copper', 'silver', 'gold', 'province', 'province', 'province', 'estate', 'estate', 'duchy', 'smithy', 'village'],
+        discard: []
+      };
+      Object.assign(s.supply, { province: 1, duchy: 6, silver: 37, gold: 27, village: 8, smithy: 8, militia: 9, market: 9 });
     }
     return s;
   },
@@ -297,13 +308,17 @@ export const domModule: GameModule<DomState, DomAction, DomView> = {
   tutorial: {
     seed: 17,
     options: { deal: 'tutorial' },
-    introFa: 'دست شما یک آهنگری، سه مس و یک ملک است. فقط یک ایالت در بازار مانده؛ خریدنش بازی را تمام می‌کند.',
+    introFa: 'آخر بازی است: فقط یک ایالت در بازار مانده و وقتی دستهٔ ایالت‌ها تمام شود، بازی در پایان همان نوبت تمام می‌شود. حریف ۳۰ امتیاز دارد و شما ۲۴. هر نوبت سه مرحله دارد: کنش (یک کارت کنش)، خرید (رو کردن گنج‌ها و یک خرید) و پاک‌سازی. دست شما روستا، آهنگری، سپاه محلی و دو مس است.',
     steps: [
-      { instructionFa: 'آهنگری را بازی کنید: سه کارت می‌کشید.', expected: { type: 'play', index: 0 }, reply: null },
-      { instructionFa: 'گنج‌ها را رو کنید: چهار مس + طلا + نقره = ۹ سکه.', expected: { type: 'treasures' }, reply: null },
-      { instructionFa: 'ایالت را بخرید (۸ سکه).', expected: { type: 'buy', card: 'province' }, reply: null },
-      { instructionFa: 'نوبت را تمام کنید؛ ایالت‌ها تمام شده و بازی پایان می‌یابد.', expected: { type: 'endTurn' }, reply: null }
+      { instructionFa: 'هر نوبت فقط ۱ کنش دارید. اول «روستا» را بازی کنید: ۱ کارت می‌کشید و ۲ کنش تازه می‌گیرید، پس بعد از آن هنوز ۲ کنش دارید.', expected: { type: 'play', index: 0 }, reply: null },
+      { instructionFa: 'روستا «بازار» را برایتان کشید. بازار را بازی کنید: ۱ کارت، ۱ کنش، ۱ خرید اضافه و ۱ سکه می‌دهد؛ با این کار ۲ کنش و ۲ خرید دارید.', expected: { type: 'play', index: 4 }, reply: null },
+      { instructionFa: 'حالا «آهنگری» را بازی کنید: ۳ کارت می‌کشید. آهنگری کنش اضافه نمی‌دهد و ۱ کنش برایتان می‌ماند.', expected: { type: 'play', index: 0 }, reply: null },
+      { instructionFa: 'با آخرین کنش «سپاه محلی» را بازی کنید: ۲ سکه می‌گیرید و هر حریفی که بیش از ۳ کارت در دست دارد (و خندق ندارد) باید تا ۳ کارت دور بریزد.', expected: { type: 'play', index: 0 }, reply: { type: 'militiaDiscard', discard: [2, 3] } },
+      { instructionFa: 'حریف ایالت و ملکش را دور ریخت. کنش‌هایتان تمام شد؛ «رو کردن گنج‌ها» را بزنید: سه مس، دو طلا و یک نقره ۱۱ سکه می‌شود و با ۳ سکهٔ بازار و سپاه محلی ۱۴ سکه دارید.', expected: { type: 'treasures' }, reply: null },
+      { instructionFa: 'آخرین ایالت را بخرید (۸ سکه، ۶ امتیاز). کارت خریده‌شده به دورریز شما می‌رود.', expected: { type: 'buy', card: 'province' }, reply: null },
+      { instructionFa: 'فقط با ایالت ۳۰ به ۳۰ مساوی می‌شوید. ۶ سکه و یک خرید دیگر (از بازار) مانده است: یک «تیول» بخرید (۵ سکه، ۳ امتیاز).', expected: { type: 'buy', card: 'duchy' }, reply: null },
+      { instructionFa: '«پایان نوبت» را بزنید. در پاک‌سازی همهٔ کارت‌های بازی‌شده و دست دور ریخته می‌شوند و ۵ کارت تازه می‌کشید؛ چون دستهٔ ایالت‌ها خالی است بازی تمام می‌شود.', expected: { type: 'endTurn' }, reply: null }
     ],
-    completedFa: 'بردید! ایالت ۶ امتیاز داشت.'
+    completedFa: 'بردید! امتیاز همهٔ کارت‌های دسته شمرده شد: شما ۴ ایالت (۲۴)، ۲ تیول (۶) و ۳ ملک (۳) یعنی ۳۳ امتیاز دارید و حریف ۴ ایالت، ۱ تیول و ۳ ملک یعنی ۳۰ امتیاز. خرید اضافهٔ بازار تیولی را آورد که مساوی را به برد تبدیل کرد.'
   }
 };

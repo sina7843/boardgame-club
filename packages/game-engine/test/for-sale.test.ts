@@ -82,7 +82,9 @@ describe('for sale rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 32 }, { seat: 1, place: 2, score: 23 }]);
+    expect(st(snap).coins).toEqual([14, 13]);
+    expect(st(snap).won).toEqual([[15, 3], [0, 10]]);
   });
 
   it('random games conserve cards and coins and replay deterministically', () => {

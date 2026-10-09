@@ -1,27 +1,28 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «نامه عاشقانه» end to end: the tutorial (Priest, then a Guard guess) and a short three-player game: tap a card,
+// «نامه عاشقانه» end to end: the tutorial (Countess, Handmaid, Priest, Prince) and a short three-player game: tap a card,
 // pick a target, guess for the Guard.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/love-letter/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: Priest, then the right Guard guess', async ({ browser }, info) => {
+test('interactive tutorial: Countess rule, Handmaid protection, Priest, Prince on the Princess', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/love-letter');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.locator('.ll-card--hint').click();
-  await p.locator('.ll-target--hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await expect(p.locator('.ll__seen')).toContainText('بارون');
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-seen'), fullPage: true });
-  await p.locator('.ll-card--hint').click();
-  await p.locator('.ll-target--hint').click();
-  await p.locator('.ll-guess--hint').click();
+  // Steps 1–2 (Countess, Baron with no target) are a single card tap; steps 3–4 (Priest, Prince) also pick the target.
+  for (const step of ['۱', '۲', '۳', '۴']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    if (step === '۴') {
+      await expect(p.locator('.ll__seen')).toContainText('شاهزاده‌خانم');
+      await p.screenshot({ path: shot(info.project.name, 'tutorial-seen'), fullPage: true });
+    }
+    await p.locator('.ll-card--hint').click();
+    if (step === '۳' || step === '۴') await p.locator('.ll-target--hint').click();
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

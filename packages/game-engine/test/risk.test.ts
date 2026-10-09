@@ -395,8 +395,14 @@ describe('risk tutorial', () => {
       expect(step.reply).toBeNull();
       snap = act(snap, 0, step.expected).snapshot;
     }
-    expect(st(snap).outcome?.placements.find((x) => x.place === 1)?.seat).toBe(0);
-    expect(territoriesOf(st(snap), 0)).toBe(30);
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1, score: 31 }, { seat: 1, place: 2, score: 11 }]);
+    expect(s.owner[T.egypt]).toBe(0);
+    expect(s.armies[T.egypt]).toBe(5);
+    expect(s.armies[T.northAfrica]).toBe(4);
+    expect(s.armies[T.brazil]).toBe(18);
+    expect(s.armies[T.alaska]).toBe(4);
+    expect(s.hands[0]).toHaveLength(1);
   });
 });
 

@@ -1,24 +1,29 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «جمجمه» end to end: the tutorial (place, bid, reveal) and a three-player game through placing, bidding, passing and
+// «جمجمه» end to end: the tutorial (place, bluff, pass, raise, reveal) and a three-player game through placing, bidding, passing and
 // turning discs until someone wins.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/skull/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: place, bid, reveal', async ({ browser }, info) => {
+test('interactive tutorial: place, bluff, pass, lose a disc, raise, reveal', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/skull');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
-  await p.locator('.sk-handdisc.sk-hint').first().click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۳/)).toBeVisible();
+  const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۷`))).toBeVisible();
+  const disc = p.locator('.sk-handdisc.sk-hint').first();
+  await step('۱'); await disc.click();
+  await step('۲'); await disc.click();
+  await step('۳'); await p.getByRole('button', { name: 'کنار می‌کشم' }).click();
+  await step('۴'); await disc.click();
+  await step('۵'); await disc.click();
+  await step('۶');
   await p.locator('.sk-num.sk-hint').click();
-  await p.getByRole('button', { name: /^پیشنهاد ۲/ }).click();
-  await expect(p.getByText(/آموزش: مرحله ۳ از ۳/)).toBeVisible();
+  await p.getByRole('button', { name: /^پیشنهاد ۳/ }).click();
+  await step('۷');
   await p.screenshot({ path: shot(info.project.name, 'tutorial-reveal'), fullPage: true });
   await p.locator('.sk-pl__flip').click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

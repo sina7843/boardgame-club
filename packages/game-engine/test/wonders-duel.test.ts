@@ -98,14 +98,18 @@ describe('wonders duel rules', () => {
     expect(st(r).outcome?.placements[0]).toMatchObject({ seat: 1, place: 1 });
   });
 
-  it('tutorial script is legal and ends in a military win', () => {
+  it('tutorial script is legal and ends in a civilian win', () => {
     const tu = duelModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1, score: 39 }, { seat: 1, place: 2, score: 26 }]);
+    expect(s.military).toBe(7);
+    expect(s.coins).toEqual([3, 1]);
+    expect(s.progress[0]).toEqual(['strategy']);
   });
 
   it('random games finish and replay deterministically', () => {

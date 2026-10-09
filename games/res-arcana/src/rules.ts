@@ -46,6 +46,10 @@ export const CARDS: Card[] = [
 const ofKind = (k: Card['kind']) => CARDS.filter((c) => c.kind === k).map((c) => c.id);
 /** The monument the tutorial buys (first in card order). */
 export const FIRST_MONUMENT = ofKind('monument')[0]!;
+const cardId = (name: string) => CARDS.find((c) => c.name === name)!.id;
+/** The learner's cards in the tutorial. */
+const TUTORIAL_CARDS = { cup: cardId('جام زندگی'), rune: cardId('کلید راز'), bell: cardId('ناقوس مردگان'), flame: cardId('شعلهٔ کوچک'),
+  rivalA: cardId('چشمهٔ شفا'), rivalB: cardId('بال ققنوس'), rivalC: cardId('چراغ ابدی') };
 
 export interface Mage { deck: number[]; hand: number[]; table: number[]; ess: Record<Ess, number>; vpTokens: number; passed: boolean }
 export interface RaState {
@@ -133,15 +137,23 @@ export const raModule: GameModule<RaState, RaAction, RaView> = {
       last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
+      // Late game, two rounds: round 1 plays two artifacts, discards for gold and passes first; round 2 collects,
+      // taps the rune key for a point, plays the drawn card and buys a monument to reach 10.
       s.current = 0; s.first = 0;
-      const cup = CARDS.find((c) => c.name === 'جام زندگی')!.id;
-      const m0 = s.players[0]!;
-      m0.hand = [cup, ...m0.hand.filter((x) => x !== cup)].slice(0, 3);
-      m0.ess = { e: 0, l: 1, c: 0, d: 0, g: 4 };
-      m0.vpTokens = 8;
+      const t = TUTORIAL_CARDS;
+      const used = [t.cup, t.rune, t.bell, t.flame, t.rivalA, t.rivalB, t.rivalC];
+      const [m0, m1] = s.players as [Mage, Mage];
+      m0.table = [cardId('جادوگر آتش')];
+      m0.hand = [t.cup, t.rune, t.bell];
+      m0.deck = [t.flame];
+      m0.ess = { e: 0, l: 1, c: 1, d: 0, g: 5 };
+      m0.vpTokens = 7;
+      m1.table = [cardId('کاهن سایه')];
+      m1.hand = [t.rivalA, t.rivalB, t.rivalC];
+      m1.deck = m1.deck.filter((x) => !used.includes(x));
+      m1.vpTokens = 7;
       s.monuments = [ofKind('monument')[0]!, ofKind('monument')[1]!];
       s.monumentDeck = ofKind('monument').slice(2);
-      s.players.forEach((m, k) => { if (k > 0) m.hand = m.hand.filter((x) => x !== cup); });
     }
     return s;
   },
@@ -238,12 +250,17 @@ export const raModule: GameModule<RaState, RaAction, RaView> = {
   tutorial: {
     seed: 19,
     options: { deal: 'tutorial' },
-    introFa: 'شما ۸ امتیاز، ۴ طلا و ۱ جوهر زندگی دارید. بناهای یادبود ۴ طلا قیمت دارند و ۲ امتیاز می‌دهند.',
+    introFa: 'آخر بازی است: شما و حریف هر کدام ۷ امتیاز دارید. بازی در پایان اولین دوری تمام می‌شود که کسی ۱۰ امتیاز داشته باشد. شما ۵ طلا، ۱ زندگی و ۱ آرامش دارید و جادوگرتان «جادوگر آتش» است. در هر نوبت فقط یک کار انجام می‌دهید و دور تا وقتی ادامه دارد که همه رد کنند.',
     steps: [
-      { instructionFa: '«جام زندگی» را با یک جوهر زندگی بازی کنید؛ از دور بعد زندگی تولید می‌کند.', expected: { type: 'play', card: 0 }, reply: { type: 'pass' } },
-      { instructionFa: 'حریف رد کرد. بنای یادبود اول را با ۴ طلا بخرید (+۲ امتیاز).', expected: { type: 'buy', card: FIRST_MONUMENT }, reply: null },
-      { instructionFa: 'رد کنید تا دور تمام شود؛ با ۱۰ امتیاز برنده می‌شوید.', expected: { type: 'pass' }, reply: null }
+      { instructionFa: '«جام زندگی» را بازی کنید: هزینه‌اش ۱ زندگی است و از دور بعد هر دور ۱ زندگی تولید می‌کند. حریف در نوبتش یک کارت را دور می‌اندازد.', expected: { type: 'play', card: TUTORIAL_CARDS.cup }, reply: { type: 'discard', card: TUTORIAL_CARDS.rivalA, gain: 'g' } },
+      { instructionFa: '«کلید راز» را با ۱ آرامش بازی کنید. تولید ندارد ولی قدرت دارد: با پرداخت ۲ طلا ۱ نشان امتیاز می‌دهد.', expected: { type: 'play', card: TUTORIAL_CARDS.rune }, reply: { type: 'discard', card: TUTORIAL_CARDS.rivalB, gain: 'e' } },
+      { instructionFa: '«ناقوس مردگان» ۳ مرگ می‌خواهد که ندارید. آن را دور بیندازید و ۱ طلا بگیرید (دکمهٔ «دور انداختن» و بعد «۱»). دور انداختن ۱ طلا یا ۲ جوهر دیگر از یک نوع می‌دهد.', expected: { type: 'discard', card: TUTORIAL_CARDS.bell, gain: 'g' }, reply: { type: 'play', card: TUTORIAL_CARDS.rivalC } },
+      { instructionFa: 'حریف «چراغ ابدی» را بازی کرد. حالا رد کنید. با رد کردن یک کارت از دستهٔ خودتان می‌کشید و چون اولین نفری هستید که رد می‌کند، دور بعد را شما شروع می‌کنید. حریف هم رد می‌کند و دور تمام می‌شود.', expected: { type: 'pass' }, reply: { type: 'pass' } },
+      { instructionFa: 'دور تازه با تولید شروع شد: جادوگر ۱ آتش و ۱ زندگی داد و جام ۱ زندگی. حالا قدرت «کلید راز» را فعال کنید: ۲ طلا می‌دهید و ۱ نشان امتیاز می‌گیرید. هر کارت در هر دور فقط یک بار فعال می‌شود. حریف رد می‌کند.', expected: { type: 'tap', card: TUTORIAL_CARDS.rune }, reply: { type: 'pass' } },
+      { instructionFa: '«شعلهٔ کوچک» را که با رد کردن کشیدید با همان ۱ آتش تولیدشده بازی کنید. حریف رد کرده، پس تا وقتی شما رد نکنید پشت سر هم نوبت شماست.', expected: { type: 'play', card: TUTORIAL_CARDS.flame }, reply: null },
+      { instructionFa: 'بنای یادبود اول را با ۴ طلا بخرید: ۲ امتیاز می‌دهد و به ۱۰ امتیاز می‌رسید. مکان‌های قدرت هم به همین شکل خریده می‌شوند.', expected: { type: 'buy', card: FIRST_MONUMENT }, reply: null },
+      { instructionFa: 'رد کنید. همه رد کرده‌اند، دور تمام می‌شود و چون کسی ۱۰ امتیاز دارد بازی هم تمام می‌شود.', expected: { type: 'pass' }, reply: null }
     ],
-    completedFa: 'بردید! به ۱۰ امتیاز رسیدید.'
+    completedFa: 'بردید! ۷ امتیاز اول، ۱ نشان امتیاز از قدرت «کلید راز» و ۲ امتیاز بنای یادبود: ۱۰ امتیاز در برابر ۷ امتیاز حریف. طلای لازم را ۵ طلای اول و ۱ طلای دور انداختن ناقوس داد: ۲ طلا برای کلید و ۴ طلا برای بنا. اشیای جادویی خودشان امتیاز ندارند؛ ارزششان در تولید جوهر و قدرت‌هایشان است.'
   }
 };

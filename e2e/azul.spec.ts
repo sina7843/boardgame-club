@@ -1,19 +1,19 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «کاشی‌کار» end to end: the tutorial (complete a wall row, the game ends) and a full three-player game.
+// «آزول» end to end: the tutorial (one full teaching round to the end of the game) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/azul/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: blue to line 1, red to line 2', async ({ browser }, info) => {
+test('interactive tutorial: a full teaching round (factory, centre + marker, colour rule, wall scoring)', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/azul');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲']) {
-    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۲`))).toBeVisible();
+  for (const step of ['۱', '۲', '۳']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`))).toBeVisible();
     await p.locator('.az-grp.az-hint').click();
     if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-pick'), fullPage: true });
     await p.locator('button.az-line.az-hint').click();

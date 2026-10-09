@@ -109,10 +109,15 @@ describe('go rules', () => {
     const t = goModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot;
     for (const step of t.steps) {
+      expect(st(snap).outcome).toBeNull();
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements.find((x) => x.place === 1)?.seat).toBe(0);
+    const s = st(snap);
+    expect(s.captures).toEqual({ b: 3, w: 0 });
+    expect(s.dead).toEqual([20]);
+    expect(s.score).toMatchObject({ b: 55, w: 33.5 });
+    expect(s.outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 55 }, { seat: 1, place: 2, score: 33.5 }] });
   });
 
   it('random 9×9 games: captures and scoring stay consistent and replay deterministically', () => {

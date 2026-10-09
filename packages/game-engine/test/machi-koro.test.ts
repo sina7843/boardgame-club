@@ -93,7 +93,10 @@ describe('machi koro rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 4 }, { seat: 1, place: 2, score: 0 }], reason: 'win' });
+    // 4 − 2 (rival's Family Restaurant) + 3 (Apple Orchard) − 1 (Ranch) + 9 (Cheese Factory × 3 Ranches) − 10 (Mall).
+    expect(st(snap).coins).toEqual([3, 5]);
+    expect(st(snap).cards[0]!.ranch).toBe(3);
   });
 
   it('random games end and replay deterministically', () => {

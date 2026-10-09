@@ -1,22 +1,22 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «خدمه: اعماق دریا» end to end: the tutorial (draft a condition, communicate, win a nine) and a full three-player mission.
+// «خدمه: اعماق دریا» end to end: the tutorial (draft conditions, tricks, communicate, rocket, last trick) and a full three-player mission.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'crew-deep-sea';
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: draft, communicate, win the task', async ({ browser }, info) => {
+test('interactive tutorial: draft conditions, follow suit, communicate, rocket, last trick', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto(`/games/${GAME}`);
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۷`));
     await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-comm'), fullPage: true });
+    if (step === '۵') await p.screenshot({ path: shot(info.project.name, 'tutorial-comm'), fullPage: true });
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.cw .cw-hint:not([disabled])').first();
       if (!(await h.count())) break;

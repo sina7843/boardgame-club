@@ -89,7 +89,8 @@ describe('hanabi rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome).toMatchObject({ reason: 'win', placements: [{ seat: 0, place: 1, score: 6 }, { seat: 1, place: 1, score: 6 }] });
+    expect(st(snap).outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1, score: 18 }, { seat: 1, place: 1, score: 18 }] });
+    expect(st(snap)).toMatchObject({ stacks: { r: 5, y: 5, g: 3, b: 4, w: 1 }, fuses: 2, clues: 2, deck: [] });
   });
 
   it('random games end and replay deterministically', () => {

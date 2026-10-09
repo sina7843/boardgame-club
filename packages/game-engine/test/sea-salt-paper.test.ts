@@ -119,7 +119,9 @@ describe('sea salt & paper rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 43 });
+    const s = st(snap);
+    expect(s.roundLog.at(-1)).toEqual({ call: 'stop', by: 0, gains: [11, 2] });
+    expect(s.outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 41 }, { seat: 1, place: 2, score: 35 }], reason: 'score' });
   });
 
   it('random games keep 58 cards per round and replay deterministically', () => {

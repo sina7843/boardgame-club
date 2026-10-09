@@ -1,23 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «آبالون» end to end: tutorial (move three, then push the sixth marble off) and two players exchanging moves through
+// «آبالون» end to end: tutorial (sumito pushes, a broadside step, the sixth marble off) and two players exchanging moves through
 // the board (select marbles, tap an arrow); the game is resigned after a while since a full game is long.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/abalone/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: move three in line, push the sixth off', async ({ browser }, info) => {
+test('interactive tutorial: sumito 2-1 off the edge, broadside, 3-2 push, the sixth off', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/abalone');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  for (const step of [1, 2]) {
-    for (let k = 0; k < 3; k++) await p.locator('.abl-cell--hint').first().click();
+  for (const step of ['۱', '۲', '۳', '۴']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    // Steps move two or three marbles: tap every highlighted marble, then the highlighted arrow.
+    for (let k = 0; k < 3 && (await p.locator('.abl-cell--hint').count()); k++) await p.locator('.abl-cell--hint').first().click();
     await p.locator('.abl-arrow--hint').click();
-    if (step === 1) await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();

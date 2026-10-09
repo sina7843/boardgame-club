@@ -148,7 +148,8 @@ export const forSaleModule: GameModule<ForSaleState, ForSaleAction, ForSaleView>
       phase: 'buy', market: [], bids: [], passed: [], current: rng.nextInt(playerCount), chosen: Array(playerCount).fill(null),
       last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
-    if (options.deal === 'tutorial') { s.props = [3, 30]; s.cheques = [0, 15]; s.coins = [5, 5]; s.current = 0; }
+    // A short fixed teaching game: two auction rounds (8 + 25, then 12 + 29) and two sale rounds (0 + 15, then 3 + 10).
+    if (options.deal === 'tutorial') { s.props = [8, 25, 12, 29]; s.cheques = [0, 15, 3, 10]; s.current = 0; }
     newBuyRound(s);
     return s;
   },
@@ -226,11 +227,14 @@ export const forSaleModule: GameModule<ForSaleState, ForSaleAction, ForSaleView>
   tutorial: {
     seed: 21,
     options: { deal: 'tutorial' },
-    introFa: 'دو مرحله: اول در مزایده ملک می‌خرید، بعد ملک‌ها را به چک می‌فروشید. سکه‌ها و چک‌ها با هم امتیاز شما هستند. این آموزش فقط یک دور از هر مرحله است.',
+    introFa: 'یک بازی کوتاه دونفره: دو دور مزایده و دو دور فروش. هر کدام ۱۸ سکه دارید. در مرحلهٔ خرید با سکه ملک می‌خرید و در مرحلهٔ فروش ملک‌ها را با چک عوض می‌کنید. امتیاز آخر = مجموع چک‌ها + سکه‌های باقی‌مانده.',
     steps: [
-      { instructionFa: 'یک کاخ (۳۰) و یک کپر (۳) روی میز است. «پیشنهاد ۱» بدهید.', expected: { type: 'bid', amount: 1 }, reply: { type: 'pass' } },
-      { instructionFa: 'حریف کنار کشید و کپر را برداشت؛ کاخ مال شما شد. حالا چک ۱۵ هزاری و چک صفر رو شده: کاخ ۳۰ را بفروشید.', expected: { type: 'sell', card: 30 }, reply: { type: 'sell', card: 3 } }
+      { instructionFa: 'دو ملک رو شده: ۸ و ۲۵. به نوبت پیشنهاد بالاتر می‌دهید یا کنار می‌کشید. «پیشنهاد ۲» را بزنید.', expected: { type: 'bid', amount: 2 }, reply: { type: 'bid', amount: 4 } },
+      { instructionFa: 'حریف ۴ پیشنهاد داد. ۲۵ ارزش این را ندارد که بالاتر بروید: «کنار می‌کشم» را بزنید. کسی که کنار می‌کشد ارزان‌ترین ملک روی میز (۸) را برمی‌دارد و نصف پیشنهادش (رو به پایین) برمی‌گردد: از ۲ سکه، ۱ سکه پس می‌گیرید.', expected: { type: 'pass' }, reply: { type: 'bid', amount: 1 } },
+      { instructionFa: 'حریف آخرین نفر ماند، ۲۵ را با تمام ۴ سکه‌اش خرید و دور تازه را شروع کرد: ۱۲ و ۲۹ رو شد و او ۱ پیشنهاد داد. ۲۹ بهترین ملک بازی است؛ «پیشنهاد ۳» بدهید.', expected: { type: 'bid', amount: 3 }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف کنار کشید و ۱۲ را گرفت؛ ۲۹ با ۳ سکه مال شما شد. ملک‌ها تمام شد و فروش شروع شده: چک ۰ و چک ۱۵ رو شده. هر دو هم‌زمان و مخفیانه یک ملک انتخاب می‌کنید؛ ملک بزرگ‌تر چک بزرگ‌تر را می‌گیرد. ۲۹ را بفروشید.', expected: { type: 'sell', card: 29 }, reply: { type: 'sell', card: 12 } },
+      { instructionFa: '۲۹ شما چک ۱۵ را گرفت و ۱۲ حریف چک ۰ را. دور آخر: چک ۳ و ۱۰. فقط ملک ۸ برایتان مانده؛ آن را بفروشید.', expected: { type: 'sell', card: 8 }, reply: { type: 'sell', card: 25 } }
     ],
-    completedFa: 'بردید! بزرگ‌ترین ملک بزرگ‌ترین چک را گرفت: ۱۵ هزار چک به‌علاوه ۴ سکه.'
+    completedFa: 'بردید، ۳۲ به ۲۳! ۲۵ حریف چک ۱۰ را گرفت و ۸ شما چک ۳ را. شما ۱۸ − ۱ − ۳ = ۱۴ سکه دارید و ۱۵ + ۳ = ۱۸ چک: ۳۲ امتیاز. حریف ۱۸ − ۴ − ۱ = ۱۳ سکه و ۰ + ۱۰ = ۱۰ چک دارد: ۲۳. بهترین ملکتان را در دوری بفروشید که بزرگ‌ترین چک رو شده.'
   }
 };

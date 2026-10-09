@@ -1,23 +1,33 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «تاک» end to end: tutorial (wall, then the road) and a full game mixing placements and stack moves through the
+// «تاک» end to end: tutorial (wall, stack spread, capstone, road) and a full game mixing placements and stack moves through the
 // board until a road or the flat count decides.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/tak/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: block with a wall, complete the road', async ({ browser }, info) => {
+test('interactive tutorial: wall, stack spread, capstone, flattening the wall into a road', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/tak');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const sq = (name: string) => p.locator(`.tak-sq[aria-label^="${name}:"]`);
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
   await expect(p.getByRole('button', { name: /دیوار/ })).toHaveAttribute('aria-pressed', 'true');
   await p.locator('.tak-sq--hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible();
+  await sq('b1').click();
+  await p.getByRole('group', { name: 'تعداد سنگ برای برداشتن' }).getByRole('button', { name: '۲' }).click();
+  await sq('c1').click();
+  await sq('d1').click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۴/)).toBeVisible();
+  await expect(p.getByRole('button', { name: /سرستون/ })).toHaveAttribute('aria-pressed', 'true');
   await p.locator('.tak-sq--hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۴ از ۴/)).toBeVisible();
+  await sq('e2').click();
+  await sq('e1').click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

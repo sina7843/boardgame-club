@@ -167,7 +167,8 @@ export const skullModule: GameModule<SkullState, SkullAction, SkullView> = {
       passed: Array(playerCount).fill(false), turned: [], log: [], seq: 0, lostLast: Array(playerCount).fill(null), timeouts: Array(playerCount).fill(0), outcome: null
     };
     startRound(s, options.deal === 'tutorial' ? 0 : rng.nextInt(playerCount));
-    if (options.deal === 'tutorial') s.points = [1, 0];
+    // Tutorial: the learner starts and both sides already have one successful challenge (one more wins).
+    if (options.deal === 'tutorial') s.points = [1, 1];
     return s;
   },
 
@@ -276,12 +277,16 @@ export const skullModule: GameModule<SkullState, SkullAction, SkullView> = {
   tutorial: {
     seed: 16,
     options: { deal: 'tutorial' },
-    introFa: 'هر کس سه گل و یک جمجمه دارد و دیسک‌ها را رو به پایین می‌گذارد. با پیشنهاد عدد قول می‌دهید آن تعداد دیسک را رو کنید بدون اینکه به جمجمه برسید. شما یک امتیاز دارید؛ یکی دیگر ببرید!',
+    introFa: 'هر بازیکن چهار دیسک دارد: سه گل و یک جمجمه. دیسک‌ها رو به پایین روی هم گذاشته می‌شوند و کسی نمی‌داند زیر هر دسته چیست. با «پیشنهاد» قول می‌دهید آن تعداد دیسک را رو کنید و فقط گل ببینید؛ موفقیت یک امتیاز دارد و دو امتیاز یعنی برد. شما و حریف هر کدام یک امتیاز دارید و این آموزش دو دور طول می‌کشد.',
     steps: [
-      { instructionFa: 'اول همه یک دیسک می‌گذارند. یک «گل» بگذارید.', expected: { type: 'place', disc: 'rose' }, reply: { type: 'place', disc: 'rose' } },
-      { instructionFa: 'حالا پیشنهاد بدهید: «۲» یعنی قول می‌دهید دو دیسک گل رو کنید. چون فقط دو دیسک روی میز است، رقابت همین‌جا تمام می‌شود.', expected: { type: 'bid', n: 2 }, reply: null },
-      { instructionFa: 'گل خودتان خودکار رو شد. حالا دیسک حریف را رو کنید.', expected: { type: 'flip', seat: 1 }, reply: null }
+      { instructionFa: 'شروع هر دور همه باید یک دیسک بگذارند. یک «گل» بگذارید. حریف هم دیسک اولش را می‌گذارد.', expected: { type: 'place', disc: 'rose' }, reply: { type: 'place', disc: 'rose' } },
+      { instructionFa: 'حالا در نوبتتان یا دیسک دیگری می‌گذارید یا پیشنهاد می‌دهید. بلوف بزنید: «جمجمه» را روی گلتان بگذارید. حریف پیشنهاد ۲ می‌دهد، یعنی قول می‌دهد ۲ دیسک را بدون جمجمه رو کند.', expected: { type: 'place', disc: 'skull' }, reply: { type: 'bid', n: 2 } },
+      { instructionFa: 'یا باید عدد بالاتری بگویید یا کنار بکشید. «کنار می‌کشم» را بزنید. حریف تنها مانده و باید اول گل خودش و بعد دیسک بالایی شما را رو کند، که همان جمجمه است.', expected: { type: 'pass' }, reply: { type: 'flip', seat: 0 } },
+      { instructionFa: 'حریف به جمجمهٔ شما رسید و یکی از دیسک‌هایش به‌تصادف و مخفیانه حذف شد (حالا ۳ دیسک دارد). صاحب جمجمه، یعنی شما، دور بعد را شروع می‌کند و همه دیسک‌هایشان را پس گرفته‌اند. اولین دیسک این دور را بگذارید: یک «گل».', expected: { type: 'place', disc: 'rose' }, reply: { type: 'place', disc: 'rose' } },
+      { instructionFa: 'یک «گل» دیگر بگذارید. حالا ۳ دیسک روی میز است. حریف پیشنهاد ۲ می‌دهد.', expected: { type: 'place', disc: 'rose' }, reply: { type: 'bid', n: 2 } },
+      { instructionFa: 'عدد را بالا ببرید: ۳ را انتخاب کنید و «پیشنهاد ۳» را بزنید. پیشنهاد به تعداد کل دیسک‌های میز رسیده، پس رقابت فوراً تمام می‌شود و شما باید رو کنید. قانون مهم: اول همهٔ دیسک‌های خودتان رو می‌شود؛ دو گل شما خودکار رو می‌شوند.', expected: { type: 'bid', n: 3 }, reply: null },
+      { instructionFa: 'یک دیسک دیگر لازم است و باید از دستهٔ حریف باشد. دیسک بالایی حریف را رو کنید.', expected: { type: 'flip', seat: 1 }, reply: null }
     ],
-    completedFa: 'بردید! دو چالش موفق یعنی پیروزی. اگر به جمجمه برسید یک دیسک از دست می‌دهید؛ کسی که همه دیسک‌هایش را از دست بدهد بیرون است.'
+    completedFa: 'بردید! هر سه دیسکی که رو کردید گل بود، پس دومین امتیازتان را گرفتید و دو امتیاز یعنی پیروزی (۲ در برابر ۱). دور اول هم نشان داد چرا بلوف کار می‌کند: حریف به جمجمهٔ شما خورد و یک دیسک از دست داد. کسی که همهٔ دیسک‌هایش را از دست بدهد بیرون می‌رود و آخرین بازیکن باقی‌مانده هم برنده است.'
   }
 };

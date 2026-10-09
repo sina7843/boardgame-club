@@ -93,7 +93,8 @@ describe('6 nimmt! rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 1 }, { seat: 1, place: 2, score: 16 }], reason: 'score' });
+    expect(st(snap).rows).toEqual([[10, 50], [30, 55, 66], [5], [70, 72]]);
   });
 
   it('random games conserve the 104 cards and replay deterministically', () => {

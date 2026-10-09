@@ -1,20 +1,22 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «غول‌های شهر» end to end: the tutorial (roll, resolve, buy the winning card) and a full three-player brawl.
+// «غول‌های شهر» end to end: the tutorial (roll, keep, resolve, Tokyo, sweep, buy the winning card) and a full three-player brawl.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/king-of-tokyo/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: roll, resolve, buy', async ({ browser }, info) => {
+test('interactive tutorial: roll, keep and reroll, resolve, enter Tokyo, sweep, buy', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/king-of-tokyo');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`))).toBeVisible();
-    if (step === '۳') await p.screenshot({ path: shot(info.project.name, 'tutorial-buy'), fullPage: true });
+  for (const step of ['۱', '۲', '۳', '۴', '۵']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`))).toBeVisible();
+    if (step === '۲') for (const i of [0, 1, 2]) await p.locator('button.kt-keep').nth(i).click(); // keep the claw and both 3s
+    if (step === '۴') { await p.getByRole('button', { name: /^کارت‌های تازه/ }).click(); continue; } // the sweep button has no hint
+    if (step === '۵') await p.screenshot({ path: shot(info.project.name, 'tutorial-buy'), fullPage: true });
     await p.locator('button.kt-hint').first().click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

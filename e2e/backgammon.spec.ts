@@ -20,17 +20,18 @@ async function move(p: Page): Promise<string | null> {
   return null;
 }
 
-test('interactive tutorial: bring the last checker home and bear off to win', async ({ browser }, info) => {
+test('interactive tutorial: blocked point, hit and enter, bear off with doubles to a gammon', async ({ browser }, info) => {
   test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/backgammon');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-1'), fullPage: true });
-  // Only the scripted checker is offered at each step; every tap moves at once.
-  for (const step of [1, 2]) {
-    for (let k = 0; k < 2; k++) await p.locator('.bgm-pt--src, .bgm-bar--src').first().click();
-    if (step === 1) await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  // Only the scripted checker is offered at each step; every tap moves at once. Moves per step: 2, 2, 2, then doubles.
+  const steps = [2, 2, 2, 4];
+  for (const [i, moves] of steps.entries()) {
+    for (let k = 0; k < moves; k++) await p.locator('.bgm-pt--src, .bgm-bar--src').first().click();
+    if (i + 1 < steps.length) await expect(p.getByText(new RegExp(`آموزش: مرحله ${(i + 2).toLocaleString('fa-IR')} از ۴`))).toBeVisible();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-done'), fullPage: true });

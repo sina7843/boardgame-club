@@ -96,8 +96,8 @@ describe('the crew: planet nine', () => {
     const tu = crewModuleNine.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
-    expect(st(snap).outcome?.reason).toBe('win');
+    expect(st(snap).outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1, score: 3 }, { seat: 1, place: 1, score: 3 }] });
+    expect(st(snap).doneOrder).toEqual([0, 1, 2]);
   });
 
   it('random missions end and replay deterministically', () => {
@@ -155,7 +155,9 @@ describe('the crew: deep sea', () => {
     const tu = deepSeaModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.reason).toBe('win');
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 3 }, { seat: 1, place: 1, score: 3 }], reason: 'win' });
+    expect(st(snap).won.map((w) => w.length)).toEqual([3, 1]);
+    expect(st(snap).tasks.map((t) => [t.owner, t.status])).toEqual([[0, 'done'], [1, 'done'], [0, 'done']]);
   });
 
   it('random missions end and replay deterministically', () => {

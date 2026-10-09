@@ -92,7 +92,10 @@ describe('race for the galaxy rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply && rgModule.pendingSeats(st(snap)).includes(1)) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 28 }, { seat: 1, place: 2, score: 5 }], reason: 'score' });
+    expect(s.players.map((e) => [e.tableau.length, e.chips, e.goods.length])).toEqual([[12, 12, 0], [3, 2, 0]]);
+    expect(s.pool).toBe(10);
   });
 
   it('random games end and replay deterministically', () => {

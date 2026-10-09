@@ -1,20 +1,33 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «راه ادویه» end to end: the tutorial (play a spice card, deliver the last order) and a full two-player game.
+// «راه ادویه» end to end: the tutorial (spice card, rest, repeated trade, upgrade, market card, the last order) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/century/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: spices, then the order', async ({ browser }, info) => {
+test('interactive tutorial: spices, rest, trade, upgrade, hire, the order', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/century');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.locator('.ct-slot.ct-hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۶`))).toBeVisible();
+  await step('۱');
+  await p.locator('.ct-slot.ct-hint').click(); // spice card: plays on tap
+  await step('۲');
+  await p.locator('.ct-hint', { hasText: 'استراحت' }).click();
+  await step('۳');
+  await p.locator('.ct-slot.ct-hint').click(); // trade card: choose the count
+  await p.locator('.ct__tool').getByRole('button', { name: '+', exact: true }).click();
+  await p.getByRole('button', { name: 'معاوضه', exact: true }).click();
+  await step('۴');
+  await p.locator('.ct-slot.ct-hint').click(); // upgrade card: raise two saffron
+  for (let k = 0; k < 2; k++) await p.getByRole('button', { name: 'ارتقای زعفران' }).click();
+  await p.getByRole('button', { name: 'ارتقا', exact: true }).click();
+  await step('۵');
+  await p.getByRole('button', { name: 'استخدام تاجر ۳' }).click();
+  await step('۶');
   await p.screenshot({ path: shot(info.project.name, 'tutorial-claim'), fullPage: true });
   await p.locator('.ct-slot.ct-hint').click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

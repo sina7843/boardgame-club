@@ -1,23 +1,34 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «چهل‌تکه» end to end: the tutorial (sew the L patch into the gap, advance to the end) and a full two-player game.
+// «چهل‌تکه» end to end: the tutorial (sew, leather and 7×7 bonus, advance to the end) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/patchwork/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: sew, then advance', async ({ browser }, info) => {
+test('interactive tutorial: rotate and sew, leather 7×7, sew, advance to the end', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/patchwork');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
+  await at('۱');
   await p.locator('.pw-patch.pw-hint').click();
+  await p.getByRole('button', { name: /^چرخش/ }).click();
   await p.locator('.pw-cell.pw-hint').click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-sew'), fullPage: true });
   await p.getByRole('button', { name: 'بدوز' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
+  await at('۲');
+  // Leather: the single empty cell inside the 7×7 square (row 5, column 5, zero-based).
+  await p.locator('.pw-quilt--big button.pw-cell').nth(5 * 9 + 5).click();
+  await at('۳');
+  await p.locator('.pw-patch.pw-hint').click();
+  await p.locator('.pw-cell.pw-hint').click();
+  await p.getByRole('button', { name: 'بدوز' }).click();
+  await at('۴');
+  await p.getByRole('button', { name: /^جلو رفتن/ }).click();
+  await at('۵');
   await p.getByRole('button', { name: /^جلو رفتن/ }).click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();

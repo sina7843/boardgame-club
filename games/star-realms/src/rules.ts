@@ -56,8 +56,11 @@ export const TYPES: CardType[] = [
   C('dreadnaught', 'ناو هیبت', 'emp', 7, 1, { combat: 7, draw: 1 }, { scrapSelf: { combat: 5 } })
 ];
 export const TYPE: Record<string, CardType> = Object.fromEntries(TYPES.map((t) => [t.key, t]));
-/** Instance id of the first Trading Post: 20 starter cards, then the trade deck in TYPES order. */
-export const TUTORIAL_POST = 20 + TYPES.slice(0, TYPES.findIndex((t) => t.key === 'tradepost')).reduce((n, t) => n + t.count, 0);
+/** Instance id of the first card of a type: 20 starter cards, then the trade deck in TYPES order. */
+const firstId = (key: string) => 20 + TYPES.slice(0, TYPES.findIndex((t) => t.key === key)).reduce((n, t) => n + t.count, 0);
+/** Tutorial ids: the opponent's Trading Post (outpost) and the learner's Battle Station. */
+export const TUTORIAL_POST = firstId('tradepost');
+export const TUTORIAL_STATION = firstId('station');
 
 export interface Side { deck: number[]; hand: number[]; discard: number[]; bases: number[]; authority: number }
 export interface SrState {
@@ -170,12 +173,22 @@ export const srModule: GameModule<SrState, SrAction, SrView> = {
     draw(s, s.sides[first]!, 3, rng);
     draw(s, s.sides[1 - first]!, 5, rng);
     if (options.deal === 'tutorial') {
-      const pick = (key: string) => { const i = s.tradeDeck.findIndex((x) => cards[x] === key); return s.tradeDeck.splice(i, 1)[0]!; };
-      const post = s.tradeDeck.splice(s.tradeDeck.indexOf(TUTORIAL_POST), 1)[0]!;
-      const [f1, f2] = [pick('bfighter'), pick('bfighter')];
+      // A mid-game teaching position over two of the learner's turns. Turn 1: 4 Scouts + a Viper buy the Freighter
+      // (4 trade) while the opponent's Trading Post (outpost, defense 4) blocks the Viper. The opponent ends its turn
+      // (the post gives it +1 authority: 10 → 11). Turn 2 draws Blob Fighter, Battle Pod, Viper, Scout, Battle Station:
+      // the two Blobs ally (+2 combat, +1 card), 10 combat breaks the post (−4), scrapping the station adds 5 and the
+      // remaining 11 combat takes the opponent from 11 to 0.
+      s.tradeDeck.push(...s.row.filter((x): x is number => x !== null));
+      const take = (id: number) => s.tradeDeck.splice(s.tradeDeck.indexOf(id), 1)[0]!;
+      const pick = (key: string) => take(s.tradeDeck.find((x) => cards[x] === key)!);
+      const post = take(TUTORIAL_POST);
+      const station = take(TUTORIAL_STATION);
+      const [fighter, pod] = [pick('bfighter'), pick('battlepod')];
+      s.row = ['freighter', 'cutter', 'wheel', 'ifighter', 'patrol'].map(pick);
+      const d = decks[0]!; // ids 0–7 Scouts, 8–9 Vipers
       s.current = 0;
-      s.sides[0] = { hand: [f1, f2, decks[0]![8]!, decks[0]![0]!, decks[0]![1]!], deck: [decks[0]![9]!, decks[0]![2]!, decks[0]![3]!], discard: [], bases: [], authority: 50 };
-      s.sides[1] = { hand: decks[1]!.slice(0, 5), deck: decks[1]!.slice(5), discard: [], bases: [post], authority: 4 };
+      s.sides[0] = { hand: [d[0]!, d[1]!, d[2]!, d[3]!, d[8]!], deck: [fighter, pod, d[9]!, d[4]!, station, d[5]!, d[6]!, d[7]!], discard: [], bases: [], authority: 50 };
+      s.sides[1] = { hand: decks[1]!.slice(0, 5), deck: decks[1]!.slice(5), discard: [], bases: [post], authority: 10 };
     }
     return s;
   },
@@ -341,14 +354,17 @@ export const srModule: GameModule<SrState, SrAction, SrView> = {
   tutorial: {
     seed: 13,
     options: { deal: 'tutorial' },
-    introFa: 'حریف فقط ۴ اقتدار دارد اما پشت یک پاسگاه (ایستگاه تجاری، دفاع ۴) پنهان شده. دو «پشه» در دست دارید.',
+    introFa: 'وسط یک دوئل هستید: شما ۵۰ اقتدار دارید و حریف ۱۰، ولی حریف پشت یک پاسگاه (ایستگاه تجاری، دفاع ۴) پناه گرفته است. هر نوبت کارت‌های دستتان را بازی می‌کنید تا تجارت (برای خرید) و حمله (برای ضربه) جمع شود، بعد نوبت را تمام می‌کنید و ۵ کارت تازه می‌کشید. در این آموزش در دو نوبت کار حریف را تمام می‌کنید.',
     steps: [
-      { instructionFa: 'پشهٔ اول را بازی کنید: ۳ حمله.', expected: { type: 'play', index: 0 }, reply: null },
-      { instructionFa: 'پشهٔ دوم را بازی کنید: دو کارت هیولا با هم متحد می‌شوند و هر کدام یک کارت می‌کشند.', expected: { type: 'play', index: 0 }, reply: null },
-      { instructionFa: 'با ۴ حمله پاسگاه حریف را نابود کنید؛ تا پاسگاه هست نمی‌توانید به خود حریف ضربه بزنید.', expected: { type: 'attack', base: TUTORIAL_POST }, reply: null },
-      { instructionFa: 'بقیهٔ کارت‌ها را یک‌جا بازی کنید (افعی‌ها حمله می‌دهند).', expected: { type: 'playAll' }, reply: null },
-      { instructionFa: 'حالا به خود حریف حمله کنید.', expected: { type: 'attack', base: -1 }, reply: null }
+      { instructionFa: 'دست شما ۴ دیده‌بان و ۱ افعی است. دکمهٔ «بازی همه» را بزنید: هر دیده‌بان ۱ تجارت و افعی ۱ حمله می‌دهد. این ۱ حمله به جایی نمی‌رسد، چون تا پاسگاه حریف سر پاست نمی‌توانید به خودش ضربه بزنید و برای نابود کردن پاسگاه ۴ حمله لازم است.', expected: { type: 'playAll' }, reply: null },
+      { instructionFa: 'با ۴ تجارت «باربر ستاره‌ای» (قیمت ۴) را از ردیف بازار بخرید. کارت خریده به دورریز شما می‌رود و بعداً که دسته را بُر بزنید به دستتان می‌آید؛ جای خالی بازار هم فوراً از دستهٔ بازار پر می‌شود.', expected: { type: 'buy', slot: 0 }, reply: null },
+      { instructionFa: 'دکمهٔ «پایان نوبت» را بزنید. کارت‌های بازی‌شده و تجارت و حملهٔ خرج‌نشده از بین می‌روند و ۵ کارت تازه از دسته‌تان می‌کشید. در نوبت حریف، پایگاه او دوباره کار می‌کند و ۱ اقتدار به او می‌دهد (۱۰ به ۱۱).', expected: { type: 'endTurn' }, reply: { type: 'endTurn' } },
+      { instructionFa: 'نوبت دوم شماست. اولین کارت دستتان، «پشه» از جناح هیولاها، را بازی کنید: ۳ حمله.', expected: { type: 'play', index: 0 }, reply: null },
+      { instructionFa: '«بازی همه» را بزنید. «نیش‌زن» هم هیولاست، پس توانایی متحد هر دو فعال می‌شود: نیش‌زن ۲ حملهٔ اضافه می‌دهد و پشه یک کارت برایتان می‌کشد که آن هم بازی می‌شود. «ایستگاه نبرد» پایگاه است و روی میز می‌ماند. جمع حمله: ۳ + ۴ + ۲ + ۱ = ۱۰.', expected: { type: 'playAll' }, reply: null },
+      { instructionFa: 'روی ایستگاه تجاری حریف بزنید تا با ۴ حمله نابود شود (۶ حمله می‌ماند). پاسگاه‌ها همیشه باید اول از همه نابود شوند.', expected: { type: 'attack', base: TUTORIAL_POST }, reply: null },
+      { instructionFa: 'زیر ایستگاه نبرد خودتان «♻ اسقاط» را بزنید. اسقاط کارت را برای همیشه از بازی بیرون می‌برد، ولی پاداش یک‌باره‌اش را می‌دهد: ۵ حمله (حالا ۱۱).', expected: { type: 'scrapSelf', card: TUTORIAL_STATION }, reply: null },
+      { instructionFa: 'راه باز است: دکمهٔ «حمله (۱۱)» را بزنید. همهٔ حملهٔ باقی‌مانده یک‌جا از اقتدار حریف کم می‌شود.', expected: { type: 'attack', base: -1 }, reply: null }
     ],
-    completedFa: 'بردید! اقتدار حریف به صفر رسید.'
+    completedFa: 'بردید! در نوبت اول ۴ تجارت را خرج خرید کردید. در نوبت دوم پشه (۳)، نیش‌زن (۴)، پاداش متحد نیش‌زن (۲) و افعی (۱) روی هم ۱۰ حمله شد؛ ۴ تا پاسگاه را نابود کرد، اسقاط ایستگاه نبرد ۵ حمله اضافه کرد و ۱۱ ضربه اقتدار حریف را از ۱۱ به صفر رساند. هر کس اقتدار حریف را به صفر یا کمتر برساند فوراً برنده است.'
   }
 };

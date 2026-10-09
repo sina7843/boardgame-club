@@ -134,7 +134,7 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
             {BEANS.map((b) => <button key={b} type="button" className="bn-chip bn-chip--bean" style={{ ['--seed' as string]: SEED[b] }} onClick={() => setWant([...want, b])}>{BEAN_INFO[b].name}</button>)}
           </div>
           <p className="bn__summary">
-            می‌دهید: {giveUp.length + giveHand.length ? [...giveUp.map((i) => view.faceUp[i]!), ...giveHand.map((i) => view.hand![i]!)].map((b) => BEAN_INFO[b].name).join('، ') : 'هیچ'} — می‌خواهید: {want.length ? want.map((b) => BEAN_INFO[b].name).join('، ') : 'هیچ (بخشش)'}
+            می‌دهید: {giveUp.length + giveHand.length ? [...giveUp.map((i) => view.faceUp[i]), ...giveHand.map((i) => view.hand?.[i])].filter((b) => b !== undefined).map((b) => BEAN_INFO[b].name).join('، ') : 'هیچ'} — می‌خواهید: {want.length ? want.map((b) => BEAN_INFO[b].name).join('، ') : 'هیچ (بخشش)'}
             {want.length > 0 && <button type="button" className="bn-link" onClick={() => setWant([])}>پاک کردن</button>}
           </p>
           <div className="bn__row">

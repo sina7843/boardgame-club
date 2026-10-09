@@ -444,7 +444,7 @@ function check(s: RiskState, seat: number, a: RiskAction): string | null {
   }
 }
 
-// ---------- tutorial (2 seats; learner = seat 0 owns 29 territories and wins at 30 by conquering North Africa) ----------
+// ---------- tutorial (2 seats; learner = seat 0 owns 29 territories, conquers North Africa and Egypt, wins with 31 of 30) ----------
 
 const TUTORIAL_HAND = [T.alaska, T.alberta, T.westernUS]; // three infantry cards
 /** Reinforcements in the tutorial turn: 29 / 3 = 9, + North America 5, South America 2, Asia 7, Australia 2, + set 4. */
@@ -458,7 +458,8 @@ function tutorialState(s: RiskState) {
   s.hands = [[...TUTORIAL_HAND], []];
   s.deck = s.deck.filter((c) => !TUTORIAL_HAND.includes(c));
   s.setupLeft = [0, 0];
-  s.fixedDice = [6, 5, 4, 2];
+  // Attack Brazil→North Africa (3 dice vs 1), then a blitz on Egypt in two rolls (a 5–5 tie costs the attacker 1).
+  s.fixedDice = [6, 5, 4, 2, 6, 5, 3, 5, 5, 6, 4, 2, 3, 1];
   beginTurn(s, 0);
 }
 
@@ -648,15 +649,17 @@ export const riskModule: GameModule<RiskState, RiskAction, RiskView> = {
   tutorial: {
     seed: 11,
     options: { deal: 'tutorial' },
-    introFa: 'در ریسک با ارتش‌هایتان قلمروهای همسایه را می‌گیرید. در این آموزش هدف گرفتن ۳۰ قلمرو است؛ شما ۲۹ قلمرو دارید و در همین نوبت می‌توانید ببرید.',
+    introFa: 'آموزش یک نوبت کامل ریسک است. شما (آبی) آمریکای شمالی، آمریکای جنوبی، آسیا و استرالیا را دارید: ۲۹ قلمرو. حریف اروپا و آفریقا را دارد. در این آموزش هر کس در پایان نوبتش ۳۰ قلمرو داشته باشد برنده است. هر نوبت سه مرحله دارد: نیروی کمکی، حمله و جابه‌جایی.',
     steps: [
-      { instructionFa: 'سه کارت پیاده‌نظام یک دسته‌اند. دسته را معاوضه کنید: ۴ ارتش می‌گیرید و چون آلاسکا (روی یکی از کارت‌ها) مال شماست، ۲ ارتش اضافه خودکار همان‌جا می‌نشیند.', expected: { type: 'trade', cards: [...TUTORIAL_HAND] }, reply: null },
-      { instructionFa: 'نیروی کمکی: ۲۹ قلمرو تقسیم بر ۳ یعنی ۹، به‌علاوه پاداش قاره‌های کامل (آمریکای شمالی ۵، آمریکای جنوبی ۲، آسیا ۷، استرالیا ۲) و ۴ ارتش کارت‌ها: ۲۹ ارتش. همه را روی برزیل بچینید.', expected: { type: 'place', armies: { brazil: TUTORIAL_PLACE } }, reply: null },
-      { instructionFa: 'برزیل با شمال آفریقا از راه دریا همسایه است و آن‌جا فقط ۱ ارتش دشمن است. با ۳ تاس حمله کنید؛ تاس‌ها جفت‌به‌جفت مقایسه می‌شوند و در تساوی مدافع می‌برد.', expected: { type: 'attack', from: 'brazil', to: 'northAfrica', dice: 3 }, reply: null },
-      { instructionFa: 'شمال آفریقا فتح شد! دست‌کم به تعداد تاس‌های حمله (۳) باید ارتش ببرید. ۱۰ ارتش وارد شمال آفریقا کنید.', expected: { type: 'occupy', armies: 10 }, reply: null },
-      { instructionFa: 'حمله‌ها را تمام کنید تا به مرحله جابه‌جایی بروید.', expected: { type: 'endAttack' }, reply: null },
-      { instructionFa: 'در پایان نوبت یک بار ارتش جابه‌جا می‌شود. ۵ ارتش از برزیل به ونزوئلا ببرید؛ نوبت تمام می‌شود و با ۳۰ قلمرو می‌برید.', expected: { type: 'fortify', from: 'brazil', to: 'venezuela', armies: 5 }, reply: null }
+      { instructionFa: 'نوبت با نیروی کمکی شروع می‌شود. در دستتان سه کارت پیاده‌نظام دارید و سه نماد یکسان یک دسته است. دسته را معاوضه کنید: اولین دستهٔ بازی ۴ ارتش می‌دهد و چون آلاسکا (تصویر یکی از کارت‌ها) مال شماست، ۲ ارتش اضافه هم خودکار روی آلاسکا می‌نشیند.', expected: { type: 'trade', cards: [...TUTORIAL_HAND] }, reply: null },
+      { instructionFa: 'حساب نیروی کمکی: ۲۹ قلمرو تقسیم بر ۳ یعنی ۹ ارتش، به‌علاوهٔ پاداش قاره‌های کامل (آمریکای شمالی ۵، آمریکای جنوبی ۲، آسیا ۷، استرالیا ۲) و ۴ ارتش دستهٔ کارت: روی هم ۲۹ ارتش. همه را روی برزیل بچینید، چون برزیل از راه دریا با شمال آفریقا همسایه است.', expected: { type: 'place', armies: { brazil: TUTORIAL_PLACE } }, reply: null },
+      { instructionFa: 'حالا مرحلهٔ حمله است. برزیل (۳۳ ارتش) را انتخاب کنید، بعد شمال آفریقا که فقط ۱ ارتش دارد، و با ۳ تاس حمله کنید. بزرگ‌ترین تاس‌ها جفت‌به‌جفت مقایسه می‌شوند و در تساوی مدافع می‌برد؛ مدافع با ۱ ارتش فقط ۱ تاس دارد.', expected: { type: 'attack', from: 'brazil', to: 'northAfrica', dice: 3 }, reply: null },
+      { instructionFa: 'شمال آفریقا فتح شد! باید دست‌کم به تعداد تاس‌های آخرین پرتاب (۳) ارتش وارد کنید و ۱ ارتش هم باید در برزیل بماند. ۱۰ ارتش وارد شمال آفریقا کنید تا برای حملهٔ بعدی آماده باشد.', expected: { type: 'occupy', armies: 10 }, reply: null },
+      { instructionFa: 'مصر ۳ ارتش دارد و با ۲ تاس دفاع می‌کند. شمال آفریقا را انتخاب کنید، بعد مصر، و «حمله سریع» را بزنید: حمله با بیشترین تاس پشت سر هم تکرار می‌شود تا قلمرو فتح شود یا ۱ ارتش بماند.', expected: { type: 'blitz', from: 'northAfrica', to: 'egypt' }, reply: null },
+      { instructionFa: 'مصر در دو پرتاب فتح شد. در پرتاب اول دو تاس ۵ با هم مساوی شدند و شما ۱ ارتش از دست دادید، چون تساوی به نفع مدافع است. ۵ ارتش وارد مصر کنید (دست‌کم ۳، چون آخرین پرتاب ۳ تاس بود).', expected: { type: 'occupy', armies: 5 }, reply: null },
+      { instructionFa: 'برای این نوبت کافی است. «پایان حمله» را بزنید تا به مرحلهٔ جابه‌جایی بروید.', expected: { type: 'endAttack' }, reply: null },
+      { instructionFa: 'در پایان نوبت یک بار می‌توانید ارتش را میان قلمروهای به‌هم‌پیوستهٔ خودتان جابه‌جا کنید. برزیل را انتخاب کنید، بعد ونزوئلا، و ۵ ارتش ببرید. جابه‌جایی نوبت را تمام می‌کند؛ چون قلمرو گرفته‌اید یک کارت می‌گیرید و با ۳۱ قلمرو برنده می‌شوید.', expected: { type: 'fortify', from: 'brazil', to: 'venezuela', armies: 5 }, reply: null }
     ],
-    completedFa: 'آموزش تمام شد. در بازی واقعی هدف معمولاً گرفتن هر ۴۲ قلمرو است، مدافع با ۲ تاس دفاع می‌کند و با گرفتن دست‌کم یک قلمرو در هر نوبت یک کارت می‌گیرید.'
+    completedFa: 'بردید! با معاوضهٔ کارت ۴ ارتش و ۲ ارتش پاداش آلاسکا گرفتید و ۲۹ ارتش کمکی روی برزیل چیدید. حمله با ۳ تاس (۶، ۵، ۴ در برابر ۲) شمال آفریقا را گرفت و حمله سریع در دو پرتاب مصر را گرفت (یک تساوی ۵ و ۵ به نفع مدافع بود و ۱ ارتش از دست دادید). با ۳۱ قلمرو در برابر ۱۱ قلمرو حریف نوبت را تمام کردید و یک کارت تازه هم گرفتید. در بازی واقعی هدف کلاسیک گرفتن هر ۴۲ قلمرو است.'
   }
 };

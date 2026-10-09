@@ -154,12 +154,14 @@ export const abaloneModule: GameModule<AbaloneState, AbaloneAction, AbaloneView>
     const blackSeat = options.firstMove === 'host' ? 0 : rng.nextInt(2);
     const s: AbaloneState = { board: startBoard(), colors: blackSeat === 0 ? ['b', 'w'] : ['w', 'b'], turn: 'b', ply: 0, off: { b: 0, w: 0 }, history: [], timeouts: [0, 0], end: null, outcome: null };
     if (options.deal === 'tutorial') {
-      // White has already lost five. On the middle row three black marbles face a white one on the right edge.
+      // White has already lost four. Black: a pair facing a white marble on the edge of the middle row, a lone marble
+      // that White will push twice, and three marbles that line up (one sideways step) against two white ones.
       s.board = Array(CELLS.length).fill(null);
       const put = (q: number, r: number, c: Color) => { s.board[cellAt(q, r)!] = c; };
-      put(0, 0, 'b'); put(1, 0, 'b'); put(2, 0, 'b'); put(-2, 2, 'b'); put(-1, 2, 'b');
-      put(4, 0, 'w'); put(4, -4, 'w'); put(2, -3, 'w');
-      s.off = { b: 0, w: 5 };
+      put(2, 0, 'b'); put(3, 0, 'b'); put(4, 0, 'w');
+      put(3, -3, 'b'); put(1, -3, 'w'); put(2, -3, 'w');
+      put(-3, 2, 'b'); put(-2, 1, 'b'); put(-1, 1, 'b'); put(0, 2, 'w'); put(1, 2, 'w');
+      s.off = { b: 0, w: 4 };
     }
     return s;
   },
@@ -212,11 +214,13 @@ export const abaloneModule: GameModule<AbaloneState, AbaloneAction, AbaloneView>
   tutorial: {
     seed: 11,
     options: { firstMove: 'host', deal: 'tutorial' },
-    introFa: 'شما مهره‌های سیاه هستید. یک تا سه مهره هم‌خط را با هم یک خانه حرکت می‌دهید. حریف تا حالا پنج مهره باخته؛ با هل دادن یک مهره دیگر به بیرون برنده می‌شوید.',
+    introFa: 'شما سیاه هستید و حریف تا حالا ۴ گوی سفید از دست داده؛ اولین کسی که ۶ گوی حریف را بیرون بیندازد برنده است. در هر نوبت ۱ تا ۳ گوی هم‌خطِ خودتان را انتخاب می‌کنید (روی گوی‌های چشمک‌زن بزنید) و با زدن یکی از پیکان‌ها همه را با هم یک خانه حرکت می‌دهید.',
     steps: [
-      { instructionFa: 'سه مهره هم‌خط ردیف وسط را انتخاب کنید (روی هر سه بزنید) و فلش «به راست» را بزنید تا با هم یک خانه جلو بروند.', expected: { type: 'move', marbles: [cellAt(0, 0)!, cellAt(1, 0)!, cellAt(2, 0)!], dir: 0 }, reply: { type: 'move', marbles: [cellAt(4, -4)!], dir: 3 } },
-      { instructionFa: 'سه مهره شما پشت مهره سفیدِ لبه صفحه‌اند (۳ در برابر ۱). همان سه مهره را باز هم به راست ببرید تا مهره سفید از صفحه بیرون بیفتد.', expected: { type: 'move', marbles: [cellAt(1, 0)!, cellAt(2, 0)!, cellAt(3, 0)!], dir: 0 }, reply: null }
+      { instructionFa: 'هل دادن (سومیتو): دو گوی سیاه شما پشت یک گوی سفید در لبهٔ صفحه هم‌خط‌اند. هر دو را انتخاب کنید و پیکان چشمک‌زن (در امتداد همان خط) را بزنید. ۲ در برابر ۱ برتری است و چون پشت گوی سفید بیرون صفحه است، از بازی خارج می‌شود.', expected: { type: 'move', marbles: [cellAt(2, 0)!, cellAt(3, 0)!], dir: 0 }, reply: { type: 'move', marbles: [cellAt(1, -3)!, cellAt(2, -3)!], dir: 0 } },
+      { instructionFa: 'سفید ۵ گوی از دست داده، ولی حریف هم همین قانون را دارد: دو گوی سفید گوی تنهای شما را یک خانه هل دادند و حالا لبهٔ صفحه است. حرکت از پهلو: دو گوی کنار هم را انتخاب کنید و با پیکان چشمک‌زن کنارِ گوی سیاه سوم ببرید. در حرکت از پهلو هر دو خانهٔ مقصد باید خالی باشند و هل دادن ممکن نیست.', expected: { type: 'move', marbles: [cellAt(-2, 1)!, cellAt(-1, 1)!], dir: 5 }, reply: { type: 'move', marbles: [cellAt(2, -3)!, cellAt(3, -3)!], dir: 0 } },
+      { instructionFa: 'سفید گوی تنهای شما را از لبه بیرون انداخت؛ این بار شما یک گوی باختید. حالا سه گوی سیاه هم‌خط دارید و جلویشان دو گوی سفید است. هر سه را انتخاب کنید و پیکان چشمک‌زن را بزنید: ۳ در برابر ۲ برتری است و چون پشت سفیدها خالی است، هر دو یک خانه عقب می‌روند.', expected: { type: 'move', marbles: [cellAt(-3, 2)!, cellAt(-2, 2)!, cellAt(-1, 2)!], dir: 0 }, reply: { type: 'move', marbles: [cellAt(3, -3)!], dir: 3 } },
+      { instructionFa: 'دو گوی سفید حالا در لبهٔ صفحه‌اند. همان سه گوی را یک بار دیگر در همان جهت ببرید تا گوی سفیدِ لبه بیرون بیفتد. (اگر سفیدها سه تا بودند، ۳ در برابر ۳ هل دادن ممکن نبود.)', expected: { type: 'move', marbles: [cellAt(-2, 2)!, cellAt(-1, 2)!, cellAt(0, 2)!], dir: 0 }, reply: null }
     ],
-    completedFa: 'بردید! شش مهره حریف بیرون رفت. هل دادن فقط وقتی ممکن است که تعداد شما بیشتر باشد: ۲ در برابر ۱ و ۳ در برابر ۱ یا ۲.'
+    completedFa: 'بردید! ششمین گوی سفید از صفحه بیرون افتاد: یکی با هل دادن ۲ در برابر ۱ و یکی با ۳ در برابر ۲، روی ۴ گویی که سفید از قبل از دست داده بود. سفید فقط ۱ گوی شما را بیرون انداخت، پس نتیجه ۶ به ۱ شد. یادتان باشد هل دادن فقط در امتداد خط و با برتری عددی ممکن است (۲ در برابر ۱، ۳ در برابر ۱ یا ۲) و گوی خودتان پشت گوی‌های حریف جلوی هل دادن را می‌گیرد.'
   }
 };

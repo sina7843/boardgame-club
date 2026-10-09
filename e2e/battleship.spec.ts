@@ -1,22 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «نبرد دریایی» end to end: the tutorial (hit, then sink) and a full two-player game from fleet placement.
+// «نبرد دریایی» end to end: the tutorial (hit, a probing miss, follow the line, sink two ships) and a full two-player
+// game from fleet placement.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'battleship';
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: hit and sink', async ({ browser }, info) => {
+test('interactive tutorial: hit, probe, follow the line and sink the last ships', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto(`/games/${GAME}`);
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۲`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۶`));
     await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-hit'), fullPage: true });
+    if (step === '۵') await p.screenshot({ path: shot(info.project.name, 'tutorial-hit'), fullPage: true });
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.bs .bs-hint:not([disabled])').first();
       if (!(await h.count())) break;

@@ -1,21 +1,21 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «قلمرو» end to end: the tutorial (Smithy, treasures, Province, end) and a full three-player game.
+// «قلمرو» end to end: the tutorial (action chain, Militia, treasures, two buys, end) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/dominion/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: smithy, treasures, province', async ({ browser }, info) => {
+test('interactive tutorial: action chain, militia, treasures, two buys', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/dominion');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳', '۴']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`));
     await expect(label).toBeVisible();
-    if (step === '۳') await p.screenshot({ path: shot(info.project.name, 'tutorial-buy'), fullPage: true });
+    if (step === '۶') await p.screenshot({ path: shot(info.project.name, 'tutorial-buy'), fullPage: true });
     await p.locator('.dm .dm-hint:not([disabled])').first().click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

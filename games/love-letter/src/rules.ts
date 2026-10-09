@@ -215,11 +215,12 @@ export const loveLetterModule: GameModule<LoveLetterState, LoveLetterAction, Lov
     };
     startRound(s, rng, rng.nextInt(playerCount));
     if (options.deal === 'tutorial') {
-      // Learner: Guard in hand, draws a Priest; the opponent holds a Baron and will draw a Guard.
-      s.goal = 1; s.current = 0;
-      s.hands = [[1, 2], [3]];
-      s.deck = [1, 5, 6, 4, 2, 7, 1, 1];
-      s.faceUp = [1, 4, 5]; s.setAside = 3;
+      // Match point (6–5 tokens of 7). The learner holds Countess + Prince, the opponent the Princess. Deck order: the
+      // opponent draws Handmaid, Guard, Guard; the learner draws Baron, Priest, King. All 16 cards are accounted for.
+      s.current = 0; s.round = 12; s.tokens = [6, 5];
+      s.hands = [[7, 5], [8]];
+      s.deck = [4, 3, 1, 2, 1, 6, 2, 3, 1];
+      s.faceUp = [1, 1, 4]; s.setAside = 5;
       s.discards = [[], []]; s.inRound = [true, true]; s.protectedSeats = [false, false]; s.seen = [null, null];
     }
     return s;
@@ -301,11 +302,13 @@ export const loveLetterModule: GameModule<LoveLetterState, LoveLetterAction, Lov
   tutorial: {
     seed: 15,
     options: { deal: 'tutorial' },
-    introFa: 'هر کس یک کارت در دست دارد؛ در نوبتتان یک کارت می‌کشید و یکی از دو کارت را بازی می‌کنید. هدف: آخرین نفر باقی‌مانده باشید یا وقتی دسته تمام شد بزرگ‌ترین کارت را داشته باشید.',
+    introFa: 'دور آخر یک بازی دونفره است: شما ۶ نشان دارید و حریف ۵؛ هر کس به ۷ نشان برسد برنده است، پس بردن همین دور بازی را می‌برد. هر کس یک کارت در دست دارد؛ در نوبتتان یک کارت می‌کشید و یکی از دو کارت را بازی می‌کنید. دور را کسی می‌برد که آخرین نفر باقی‌مانده باشد یا وقتی دسته تمام شد بزرگ‌ترین کارت را داشته باشد. سه کارت رو کنار صفحه (دو نگهبان و یک ندیمه) در این دور بازی نمی‌شوند.',
     steps: [
-      { instructionFa: '«کشیش» را بازی کنید و حریف را انتخاب کنید تا کارت دستش را ببینید (فقط شما می‌بینید).', expected: { type: 'play', card: 2, target: 1 }, reply: { type: 'play', card: 1, target: 0, guess: 8 } },
-      { instructionFa: 'دیدید که حریف «بارون» دارد. حالا «نگهبان» را بازی کنید، حریف را انتخاب کنید و «بارون» را حدس بزنید تا از دور حذف شود.', expected: { type: 'play', card: 1, target: 1, guess: 3 }, reply: null }
+      { instructionFa: 'دست شما «کنتس» (۷) و «شاهزاده» (۵) است. قانون کنتس: اگر کنتس را با شاه یا شاهزاده در دست دارید، باید کنتس را بازی کنید. کنتس را بازی کنید؛ اثری ندارد و شاهزاده برایتان می‌ماند.', expected: { type: 'play', card: 7 }, reply: { type: 'play', card: 4 } },
+      { instructionFa: 'حریف «ندیمه» بازی کرد و تا شروع نوبت بعدش در امان است. شما «بارون» کشیدید؛ بارون دست دو نفر را مقایسه می‌کند و کوچک‌تر حذف می‌شود، ولی الان هدفی ندارد. بارون را بدون اثر بازی کنید و شاهزاده را نگه دارید.', expected: { type: 'play', card: 3 }, reply: { type: 'play', card: 1, target: 0, guess: 6 } },
+      { instructionFa: 'حریف با «نگهبان» حدس زد شما «شاه» دارید و اشتباه کرد؛ حدس درست نگهبان یعنی حذف. شما «کشیش» کشیدید: آن را روی حریف بازی کنید تا کارت دستش را ببینید (فقط شما می‌بینید).', expected: { type: 'play', card: 2, target: 1 }, reply: { type: 'play', card: 1, target: 0, guess: 3 } },
+      { instructionFa: 'دیدید که حریف «شاهزاده‌خانم» (۸) دارد و نگهبان دومش هم اشتباه حدس زد. هر کس شاهزاده‌خانم را دور بیندازد حذف می‌شود. «شاهزاده» را روی حریف بازی کنید: او مجبور است کارت دستش را دور بریزد.', expected: { type: 'play', card: 5, target: 1 }, reply: null }
     ],
-    completedFa: 'بردید! «ندیمه» شما را تا نوبت بعد محافظت می‌کند، «بارون» کارت‌ها را مقایسه می‌کند و هر کس «شاهزاده‌خانم» را دور بیندازد می‌بازد.'
+    completedFa: 'بردید! شاهزاده حریف را مجبور کرد شاهزاده‌خانم را دور بریزد و او حذف شد. چون فقط شما در دور ماندید، دور و نشان هفتم مال شما شد و بازی را ۷ به ۵ بردید. «شاه» که آخر کشیدید دستتان را با یک حریف عوض می‌کند؛ اگر دسته تمام می‌شد، کارت بزرگ‌تر برنده بود.'
   }
 };

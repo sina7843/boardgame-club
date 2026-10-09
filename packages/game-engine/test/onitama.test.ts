@@ -106,7 +106,17 @@ describe('onitama rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
+    expect(st(snap).end).toEqual({ kind: 'stream' });
+    expect(st(snap).history.map((h) => h.captured)).toEqual(['bS', null, null, 'rS', null]);
+    // Each scripted learner move is reachable with exactly one card, so the board taps never need a card choice.
+    let s2 = startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot;
+    for (const step of t.steps) {
+      const e = step.expected as { from: number; to: number };
+      expect(movesFor(st(s2), 0).filter((x) => x.from === e.from && x.to === e.to)).toHaveLength(1);
+      s2 = act(s2, 0, step.expected);
+      if (step.reply) s2 = act(s2, 1, step.reply);
+    }
   });
 
   it('random games keep five cards in play and replay deterministically', () => {

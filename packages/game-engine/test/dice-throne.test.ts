@@ -88,7 +88,10 @@ describe('dice throne rules', () => {
     const tu = dtModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }], reason: 'win' });
+    // Stun strike 5 − shield 3 + heart 1 → 14; the extra roll spent 2 of 3 CP; the 14-damage ultimate ends it exactly.
+    expect(st(snap).fighters.map((f) => ({ hp: f.hp, cp: f.cp }))).toEqual([{ hp: MAX_HP, cp: 1 }, { hp: 0, cp: 3 }]);
+    expect(st(snap).fixedDice).toEqual([]);
   });
 
   it('random duels end and replay deterministically', () => {

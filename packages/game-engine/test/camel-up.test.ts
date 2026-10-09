@@ -96,7 +96,8 @@ describe('camel up rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 16 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 20 }, { seat: 1, place: 2, score: 8 }]);
+    expect(st(snap).spaces[17]).toEqual(['blue', 'green']);
   });
 
   it('random games keep five camels and replay deterministically', () => {

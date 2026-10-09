@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FLEET, SIZE, bsModule, cellsOf, randomFleet, validFleet, type BsState, type BsView, type Ship } from '@bg/game-battleship';
+import { FLEET, SIZE, bsModule, cellsOf, isSunk, randomFleet, validFleet, type BsState, type BsView, type Ship } from '@bg/game-battleship';
 import { applyAction, applyTimeout, createRng, projectFor, replay, startGame, type EngineSnapshot, type StepResult } from '../src/index.ts';
 
 const m = bsModule as never;
@@ -82,8 +82,21 @@ describe('battleship rules', () => {
   it('tutorial script is legal and ends in a win', () => {
     const tu = bsModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
-    for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const mine: unknown[] = [];
+    const theirs: unknown[] = [];
+    for (const step of tu.steps) {
+      snap = act(snap, 0, step.expected);
+      mine.push(st(snap).last);
+      if (step.reply) { snap = act(snap, 1, step.reply); theirs.push(st(snap).last); }
+    }
+    // hit, miss (water), hit, sunk submarine, hit, sunk patrol boat — and the replies: hit, hit, sunk carrier, miss, hit.
+    expect(mine.map((x) => { const l = x as { hit: boolean; sunk: number | null }; return l.sunk ?? l.hit; })).toEqual([true, false, true, 3, true, 4]);
+    expect(theirs.map((x) => { const l = x as { hit: boolean; sunk: number | null }; return l.sunk ?? l.hit; })).toEqual([true, true, 0, false, true]);
+    const s = st(snap);
+    expect(s.outcome).toEqual({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }], reason: 'win' });
+    expect(s.last).toEqual({ seat: 0, cell: 51, hit: true, sunk: 4 });
+    // The learner lost only the carrier (sunk by the scripted replies); four ships are still afloat.
+    expect(s.seas[0]!.ships.filter((x) => isSunk(s.seas[0]!, x)).map((x) => x.ship)).toEqual([0]);
   });
 
   it('random games end and replay deterministically', () => {

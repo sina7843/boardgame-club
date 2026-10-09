@@ -1,22 +1,28 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «آرکانا» end to end: the tutorial (play, buy a monument, pass) and a full three-player game.
+// «آرکانا» end to end: the tutorial (play, discard, pass, collect, tap, buy a monument) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'res-arcana';
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: play, buy, pass', async ({ browser }, info) => {
+test('interactive tutorial: play, discard, pass, tap, buy', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto(`/games/${GAME}`);
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`));
     await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-buy'), fullPage: true });
+    if (step === '۷') await p.screenshot({ path: shot(info.project.name, 'tutorial-buy'), fullPage: true });
+    if (step === '۳') {
+      // Discarding is not hinted by the renderer: discard the bell for one gold.
+      const slot = p.locator('.ra-hand .ra-slot', { hasText: 'ناقوس مردگان' });
+      await slot.getByRole('button', { name: 'دور انداختن' }).click();
+      await slot.getByRole('button', { name: '۱ طلا' }).click();
+    }
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.ra .ra-hint:not([disabled])').first();
       if (!(await h.count())) break;

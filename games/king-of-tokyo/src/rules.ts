@@ -189,11 +189,10 @@ export const kotModule: GameModule<KotState, KotAction, KotView> = {
       current: rng.nextInt(playerCount), phase: 'roll', dice: [], rolls: 0, attacked: false, enteredBy: null, last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
-      s.current = 0;
-      s.vp = [17, 9];
-      s.energy = [6, 2];
-      s.market = [3, ...s.market.filter((x) => x !== 3).slice(0, 2)];
-      s.deck = s.deck.filter((x) => !s.market.includes(x));
+      // The opponent holds Tokyo; the learner (14 VP, 6 energy) faces a market with no points in it. With seed 2621
+      // the first roll is claw,3,3,2,2,1 and keeping claw + both 3s rerolls into claw,3,3,3,claw,heart.
+      Object.assign(s, { current: 0, vp: [14, 11], hp: [6, 7], energy: [6, 3], tokyo: 1, market: [0, 11, 1] });
+      s.deck = [4, 13, 21, ...POWERS.map((p) => p.id).filter((x) => ![0, 11, 1, 4, 13, 21].includes(x))];
     }
     return s;
   },
@@ -295,14 +294,16 @@ export const kotModule: GameModule<KotState, KotAction, KotView> = {
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'yield' ? [s.tokyo!] : [s.current]),
 
   tutorial: {
-    seed: 63,
+    seed: 2621,
     options: { deal: 'tutorial' },
-    introFa: 'شما ۱۷ امتیاز و ۶ انرژی دارید؛ با ۲۰ امتیاز برنده می‌شوید. کارت «برج مسکونی» (+۳ امتیاز) ۵ انرژی است.',
+    introFa: 'شما ۱۴ امتیاز، ۶ جان و ۶ انرژی دارید و غول حریف داخل شهر است. هر کس اول به ۲۰ امتیاز برسد (یا آخرین غول زنده بماند) برنده است. در نوبتتان شش تاس را تا ۳ بار می‌ریزید، بعد نتیجه حساب می‌شود و در پایان می‌توانید با انرژی کارت قدرت بخرید.',
     steps: [
-      { instructionFa: 'تاس‌ها را بریزید.', expected: { type: 'roll', keep: [false, false, false, false, false, false] }, reply: null },
-      { instructionFa: 'نتیجه را حساب کنید («همین‌ها»).', expected: { type: 'resolve' }, reply: null },
-      { instructionFa: 'حالا «برج مسکونی» را بخرید.', expected: { type: 'buy', slot: 0 }, reply: null }
+      { instructionFa: 'دکمهٔ «بریز» را بزنید تا هر شش تاس ریخته شود.', expected: { type: 'roll', keep: [false, false, false, false, false, false] }, reply: null },
+      { instructionFa: 'یک چنگ و دو تا ۳ آمده. سه تاس یکسانِ ۳ یعنی ۳ امتیاز، پس چنگ و هر دو ۳ را با لمس کردن نگه دارید (تاس‌های اول تا سوم) و «دوباره بریز» را بزنید؛ فقط تاس‌های نگه‌داشته‌نشده دوباره ریخته می‌شوند.', expected: { type: 'roll', keep: [true, true, true, false, false, false] }, reply: null },
+      { instructionFa: 'عالی شد: سه تا ۳، دو چنگ و یک قلب. «همین‌ها» را بزنید تا حساب شود: سه تا ۳ یعنی ۳ امتیاز، قلب ۱ جان (چون بیرون شهرید)، و دو چنگ ۲ ضربه به غول داخل شهر. غول ضربه‌خورده می‌تواند شهر را ترک کند.', expected: { type: 'resolve' }, reply: { type: 'yield', leave: true } },
+      { instructionFa: 'حریف از شهر بیرون رفت و شما جایش وارد شدید: ورود به شهر ۱ امتیاز دارد و حالا ۱۸ امتیاز دارید. هیچ کارتی در بازار امتیاز نمی‌دهد؛ «کارت‌های تازه» را بزنید تا با ۲ انرژی سه کارت بازار عوض شود.', expected: { type: 'sweep' }, reply: null },
+      { instructionFa: '«قطار شهری» آمد: ۴ انرژی و ۲ امتیاز. آن را بخرید تا به ۲۰ امتیاز برسید.', expected: { type: 'buy', slot: 0 }, reply: null }
     ],
-    completedFa: 'بردید! با کارت برج مسکونی به ۲۰ امتیاز رسیدید.'
+    completedFa: 'بردید! سه تا ۳ برایتان ۳ امتیاز آورد (۱۷)، ورود به شهر ۱ امتیاز (۱۸) و قطار شهری ۲ امتیاز: ۲۰ امتیاز در برابر ۱۱. اگر در شهر بمانید، شروع هر نوبتتان در شهر ۲ امتیاز می‌دهد، ولی چنگ‌های همهٔ غول‌های بیرون به شما می‌خورد و در شهر قلب جان نمی‌دهد.'
   }
 };

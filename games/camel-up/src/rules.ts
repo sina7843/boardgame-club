@@ -143,10 +143,13 @@ export const camelModule: GameModule<CamelState, CamelAction, CamelView> = {
     newLeg(s);
     for (const c of shuffle(rng, CAMELS.slice())) { const at = 1 + rng.nextInt(3); s.spaces[at] = [...(s.spaces[at] ?? []), c]; }
     if (options.deal === 'tutorial') {
-      s.current = 0;
-      s.spaces = { 10: ['white', 'yellow'], 12: ['green'], 13: ['orange'], 16: ['blue'] };
-      s.dice = ['blue'];
-      s.rolled = CAMELS.filter((c) => c !== 'blue').map((camel) => ({ camel, value: 2 }));
+      // The end of leg 3: only the green and blue dice are left. Blue leads on 15, green is two spaces behind it.
+      // With seed 3 the opponent's roll is green 1 (onto the learner's oasis on 14, so it lands on top of blue) and
+      // the learner's roll is blue 2, which carries green over the finish line.
+      Object.assign(s, { current: 0, leg: 3, coins: [5, 7] });
+      s.spaces = { 9: ['yellow', 'white'], 10: ['orange'], 13: ['green'], 15: ['blue'] };
+      s.dice = ['green', 'blue'];
+      s.rolled = [{ camel: 'orange', value: 1 }, { camel: 'yellow', value: 2 }, { camel: 'white', value: 3 }];
     }
     return s;
   },
@@ -232,13 +235,15 @@ export const camelModule: GameModule<CamelState, CamelAction, CamelView> = {
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {
-    seed: 59,
+    seed: 3,
     options: { deal: 'tutorial' },
-    introFa: 'شتر آبی روی آخرین خانه است و فقط تاس آبی در هرم مانده: تاس بعدی مسابقه را تمام می‌کند.',
+    introFa: 'آخر مرحلهٔ سوم است و فقط تاس سبز و آبی در هرم مانده. آبی روی خانهٔ ۱۵ جلوتر از همه است و سبز دو خانه پشتش، روی ۱۳. خط پایان بعد از خانهٔ ۱۶ است. شما تماشاگرید و با شرط بستن سکه جمع می‌کنید؛ در هر نوبت فقط یک کار می‌کنید.',
     steps: [
-      { instructionFa: 'مخفیانه شرط ببندید که آبی برندهٔ کل مسابقه است.', expected: { type: 'overall', camel: 'blue', which: 'win' }, reply: { type: 'leg', camel: 'green' } },
-      { instructionFa: 'حریف روی سبز شرط مرحله بست. شما کارت ۵ سکه‌ای آبی را بردارید.', expected: { type: 'leg', camel: 'blue' }, reply: { type: 'roll' } }
+      { instructionFa: 'شترِ رویِ شتر دیگر جلوتر حساب می‌شود؛ اگر سبز روی آبی فرود بیاید، از او جلو می‌زند. کارت شرط مرحلهٔ سبز را بردارید: اولین کارت ۵ سکه است و اگر سبز در پایان مرحله اول باشد ۵ سکه می‌گیرید، دوم باشد ۱ سکه و گرنه ۱ سکه از دست می‌دهید.', expected: { type: 'leg', camel: 'green' }, reply: { type: 'leg', camel: 'blue' } },
+      { instructionFa: 'حریف کارت ۵ سکه‌ای آبی را برداشت. حالا مخفیانه روی «برنده»ِ کل مسابقه شرط ببندید: دکمهٔ «برنده» کنار سبز. اولین شرط درست ۸ سکه می‌دهد و هر شرط غلط ۱ سکه جریمه دارد. هر شتر را فقط یک بار می‌توانید پیش‌بینی کنید.', expected: { type: 'overall', camel: 'green', which: 'win' }, reply: { type: 'overall', camel: 'blue', which: 'win' } },
+      { instructionFa: 'حریف هم یک شرط نهایی مخفی بست. حالا کاشی بیابان‌تان را بگذارید: «واحه +۱» را بزنید و بعد خانهٔ ۱۴ را. شتری که روی واحه فرود بیاید یک خانه جلو می‌رود و صاحب کاشی ۱ سکه می‌گیرد. (سراب برعکس یک خانه عقب می‌برد و شتر زیر دسته می‌رود.)', expected: { type: 'desert', space: 14, oasis: true }, reply: { type: 'roll' } },
+      { instructionFa: 'حریف تاس انداخت: سبز ۱ آمد، روی واحهٔ شما در خانهٔ ۱۴ افتاد، ۱ سکه برای شما، و به خانهٔ ۱۵ روی آبی پرید. حالا «تاس از هرم» را بزنید: ۱ سکه می‌گیرید و آخرین تاس، آبی، حرکت می‌کند و سبز را که رویش است هم با خودش می‌برد.', expected: { type: 'roll' }, reply: null }
     ],
-    completedFa: 'بردید! آبی از خط گذشت: ۵ سکه شرط مرحله و ۸ سکه شرط برندهٔ نهایی.'
+    completedFa: 'بردید، ۲۰ به ۸! آبی ۲ آمد و سبزِ سوار بر پشتش را از خط پایان گذراند؛ سبز بالای دسته بود، پس اول شد و آبی دوم. شما ۵ سکه داشتید: ۱ سکه از واحه، ۱ سکه از تاس هرم، ۵ سکه شرط مرحلهٔ سبز و ۸ سکه شرط برندهٔ نهایی. حریف از ۷ سکه، ۱ سکه تاس و ۱ سکه شرط مرحلهٔ آبیِ دوم گرفت و ۱ سکه جریمهٔ شرط نهایی غلط داد.'
   }
 };

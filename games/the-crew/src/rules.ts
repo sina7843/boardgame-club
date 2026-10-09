@@ -176,21 +176,24 @@ const nineEdition: Edition = {
   },
   tutorialSetup(s) {
     Object.assign(s, {
-      players: 2, hands: [sortHand(['p9', 'b2', 'r4']), sortHand(['p3', 'b5', 'g7'])], aside: null, commander: 0, current: 0, drafter: 0,
+      players: 2, hands: [sortHand(['p9', 'b2', 'y1', 'r4']), sortHand(['p3', 'b5', 'g6', 'y7'])], aside: null, commander: 0, current: 0, drafter: 0,
       won: [[], []], comms: [null, null], commsUsed: [false, false], timeouts: [0, 0],
-      tasks: [{ id: 0, owner: null, status: 'open', card: 'p3' }]
+      tasks: [{ id: 0, owner: null, status: 'open', card: 'p3', order: 1 }, { id: 1, owner: null, status: 'open', card: 'y7', order: 2 }, { id: 2, owner: null, status: 'open', card: 'g6' }]
     });
   },
   tutorial: {
     seed: 9,
     options: { deal: 'tutorial' },
-    introFa: 'ماموریت: شما باید کارت «صورتی ۳» را در یک دست ببرید. شما فرمانده‌اید (موشک ۴ دارید) و اول بازی می‌کنید.',
+    introFa: 'در کرو همه با هم می‌برید یا می‌بازید. در این ماموریت دونفره سه کارت وظیفه هست: صورتی ۳ با نشان ترتیب ۱، زرد ۷ با نشان ترتیب ۲، و سبز ۶ بدون ترتیب. هر وظیفه وقتی انجام می‌شود که صاحبش دستی را ببرد که آن کارت در آن است. شما موشک ۴ دارید، پس فرمانده‌اید و اول انتخاب و بازی می‌کنید.',
     steps: [
-      { instructionFa: 'وظیفهٔ «صورتی ۳» را بردارید.', expected: { type: 'draftTask', task: 0 }, reply: null },
-      { instructionFa: 'یک ارتباط: «آبی ۲» تنها کارت آبی شماست؛ نشانش دهید تا هم‌تیمی بداند.', expected: { type: 'communicate', card: 'b2' }, reply: null },
-      { instructionFa: 'صورتی ۹ را بازی کنید؛ هم‌تیمی باید صورتی بیاید و صورتی ۳ را به شما می‌دهد.', expected: { type: 'play', card: 'p9' }, reply: { type: 'play', card: 'p3' } }
+      { instructionFa: 'فرمانده اول وظیفه برمی‌دارد. صورتی ۳ دست هم‌تیمی است و شما صورتی ۹ دارید که از آن بزرگ‌تر است؛ وظیفهٔ «صورتی ۳» را بردارید. هم‌تیمی وظیفهٔ زرد ۷ را برمی‌دارد که کارت خودش است.', expected: { type: 'draftTask', task: 0 }, reply: { type: 'draftTask', task: 1 } },
+      { instructionFa: 'نوبت انتخاب دوباره به شما رسید. وظیفهٔ «سبز ۶» را بردارید؛ سبز ندارید، پس وقتی سبز بازی شود می‌توانید با موشک ببرید.', expected: { type: 'draftTask', task: 2 }, reply: null },
+      { instructionFa: 'دست اول را شروع کنید: صورتی ۹. هر کس باید از خال کارت اول پیروی کند، پس هم‌تیمی مجبور است تنها صورتی‌اش، یعنی صورتی ۳ را بدهد. بزرگ‌ترین کارت خال اول دست را می‌برد.', expected: { type: 'play', card: 'p9' }, reply: { type: 'play', card: 'p3' } },
+      { instructionFa: 'صورتی ۳ را بردید و وظیفهٔ شمارهٔ ۱ انجام شد. حالا وظیفهٔ شمارهٔ ۲ نوبت هم‌تیمی است: زرد ۱ را بازی کنید تا او با زرد ۷ دست را ببرد. اگر دست را شما می‌بردید، ماموریت شکست می‌خورد.', expected: { type: 'play', card: 'y1' }, reply: { type: 'play', card: 'y7' } },
+      { instructionFa: 'هم‌تیمی دست را برد و دست بعد را او شروع می‌کند. بین دو دست هر کس یک بار در ماموریت می‌تواند بی‌حرف یک کارت را نشان دهد: بالاترین، پایین‌ترین یا تنها کارت آن رنگ در دستش. «ارتباط» را بزنید و آبی ۲ را نشان دهید که تنها آبی شماست. هم‌تیمی سبز ۶ را بازی می‌کند.', expected: { type: 'communicate', card: 'b2' }, reply: { type: 'play', card: 'g6' } },
+      { instructionFa: 'سبز ندارید، پس هر کارتی مجاز است. موشک ۴ را بازی کنید: موشک‌ها از همهٔ رنگ‌ها قوی‌ترند و سبز ۶ را برای شما می‌برند.', expected: { type: 'play', card: 'r4' }, reply: null }
     ],
-    completedFa: 'ماموریت موفق! صورتی ۳ را بردید و وظیفه انجام شد.'
+    completedFa: 'ماموریت موفق! هر سه وظیفه به ترتیب درست انجام شد: صورتی ۳ (ترتیب ۱) را شما با صورتی ۹ بردید، زرد ۷ (ترتیب ۲) را هم‌تیمی با کارت خودش برد، و سبز ۶ را شما با موشک ۴ بردید. همین که همهٔ وظیفه‌ها انجام شود، کل خدمه با هم می‌برد؛ حتی اگر کارت‌هایی در دست مانده باشد.'
   }
 };
 

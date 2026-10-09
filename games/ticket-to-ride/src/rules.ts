@@ -378,7 +378,8 @@ function check(s: TtrState, seat: number, a: TtrAction): string | null {
   }
 }
 
-// ---------- tutorial (Iran map, 2 seats; the learner completes two tickets and wins in the last round) ----------
+// ---------- tutorial (Iran map, 2 seats; the learner keeps tickets, draws a face-up locomotive, draws tickets
+// mid-game, builds four routes (gray, wild-paid, coloured) and wins in the last round) ----------
 
 const IRAN = BOARDS.iran;
 const cityIx = (id: string) => IRAN.cities.findIndex((c) => c.id === id);
@@ -392,14 +393,17 @@ export const TUTORIAL = {
   scriptOffer: [ticketIx('tabriz', 'mashhad'), ticketIx('urmia', 'ahvaz'), ticketIx('ilam', 'isfahan')],
   // red, orange, yellow, green, blue, pink, black, white, loco
   learnerHand: [1, 0, 1, 0, 1, 0, 2, 0, 1],
-  scriptHand: [0, 2, 0, 0, 2, 2, 0, 2, 0],
+  scriptHand: [0, 2, 0, 0, 2, 2, 0, 4, 0],
+  /** Put on top of the ticket pile for the learner's mid-game ticket draw. */
+  midTicket: ticketIx('sari', 'kashan'),
   market: [C.red, C.green, LOCO, C.orange, C.white],
   learnerTrains: 7,
   routes: {
     tehranQom: routeIx('tehran', 'qom', 'gray'), qomKashan: routeIx('qom', 'kashan', 'blue'),
     kashanIsfahan: routeIx('kashan', 'isfahan', 'black'), isfahanShahrekord: routeIx('isfahan', 'shahrekord', 'gray'),
     tabrizUrmia: routeIx('tabriz', 'urmia', 'blue'), ardabilRasht: routeIx('ardabil', 'rasht', 'orange'),
-    rashtQazvin: routeIx('rasht', 'qazvin', 'white'), zanjanQazvin: routeIx('zanjan', 'qazvin', 'pink')
+    rashtQazvin: routeIx('rasht', 'qazvin', 'white'), zanjanQazvin: routeIx('zanjan', 'qazvin', 'pink'),
+    kermanshahIlam: routeIx('kermanshah', 'ilam', 'white')
   }
 };
 
@@ -412,7 +416,7 @@ function tutorialState(s: TtrState, rng: EngineRng) {
   fullDeck().forEach((c) => { if (used[c]! > 0) used[c]! -= 1; else deck.push(c); });
   s.deck = shuffle(deck, rng);
   s.offer = [[...t.learnerOffer], [...t.scriptOffer]];
-  s.ticketDeck = IRAN.tickets.map((_, i) => i).filter((i) => !t.learnerOffer.includes(i) && !t.scriptOffer.includes(i));
+  s.ticketDeck = [t.midTicket, ...IRAN.tickets.map((_, i) => i).filter((i) => i !== t.midTicket && !t.learnerOffer.includes(i) && !t.scriptOffer.includes(i))];
   s.trains = [t.learnerTrains, TRAINS];
   s.first = 0;
   s.current = 0;
@@ -599,16 +603,17 @@ export const ttrModule: GameModule<TtrState, TtrAction, TtrView> = {
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial', map: 'iran' },
-    introFa: 'در تیکت تو راید با کارت‌های رنگی مسیر ریلی بین شهرها می‌سازید و بلیت‌های مقصدتان را کامل می‌کنید. این آموزش روی نقشه ایران است؛ شما فقط ۷ واگن دارید تا بازی زود به دور پایانی برسد.',
+    introFa: 'در تیکت تو راید با کارت‌های رنگی مسیر ریلی بین شهرها می‌سازید و با وصل کردن شهرهای بلیت‌های مقصدتان امتیاز می‌گیرید. این آموزش روی نقشهٔ ایران و در برابر یک حریف آموزشی است. برای اینکه بازی زود به دور پایانی برسد، شما فقط ۷ واگن دارید (در بازی واقعی ۴۵). در دستتان ۱ قرمز، ۱ زرد، ۱ آبی، ۲ مشکی و ۱ لوکوموتیو هست.',
     steps: [
-      { instructionFa: 'سه بلیت مقصد گرفته‌اید و باید دست‌کم ۲ تا را نگه دارید. «تهران–اصفهان» و «تهران–شهرکرد» را نگه دارید؛ هر دو از یک راه می‌گذرند. بلیت برگشتی زیر دسته بلیت‌ها می‌رود.', expected: { type: 'keep', keep: [TUTORIAL.learnerOffer[0]!, TUTORIAL.learnerOffer[1]!] }, reply: { type: 'keep', keep: [TUTORIAL.scriptOffer[0]!, TUTORIAL.scriptOffer[1]!] } },
-      { instructionFa: 'در هر نوبت یکی از سه کار را می‌کنید. اینجا کارت می‌کشیم: کارت قرمز رو (خانه اول) را بردارید.', expected: { type: 'drawMarket', slot: 0 }, reply: null },
-      { instructionFa: 'کارت دوم را از دسته بسته بکشید (لوکوموتیو رو را نمی‌شود به‌عنوان کارت دوم برداشت). نوبت تمام می‌شود و حریف بازی می‌کند.', expected: { type: 'drawDeck' }, reply: { type: 'claim', route: TUTORIAL.routes.tabrizUrmia, color: C.blue, locos: 0 } },
-      { instructionFa: 'حالا ۲ کارت قرمز دارید. مسیر خاکستری تهران–قم (۲ واگن) را با ۲ کارت قرمز بسازید؛ مسیر خاکستری با هر رنگ یکسانی ساخته می‌شود.', expected: { type: 'claim', route: TUTORIAL.routes.tehranQom, color: C.red, locos: 0 }, reply: { type: 'claim', route: TUTORIAL.routes.ardabilRasht, color: C.orange, locos: 0 } },
-      { instructionFa: 'مسیر آبی قم–کاشان ۲ واگن است ولی ۱ کارت آبی دارید. لوکوموتیو جای هر رنگی است: با ۱ آبی و ۱ لوکوموتیو بسازید.', expected: { type: 'claim', route: TUTORIAL.routes.qomKashan, color: C.blue, locos: 1 }, reply: { type: 'claim', route: TUTORIAL.routes.rashtQazvin, color: C.white, locos: 0 } },
-      { instructionFa: 'مسیر مشکی کاشان–اصفهان را با ۲ کارت مشکی بسازید. بلیت تهران–اصفهان کامل می‌شود و چون فقط ۱ واگن برایتان می‌ماند، دور پایانی شروع می‌شود: هر کس یک نوبت دیگر دارد.', expected: { type: 'claim', route: TUTORIAL.routes.kashanIsfahan, color: C.black, locos: 0 }, reply: { type: 'claim', route: TUTORIAL.routes.zanjanQazvin, color: C.pink, locos: 0 } },
-      { instructionFa: 'نوبت آخر شما: اصفهان–شهرکرد (۱ واگن) را با کارت زرد بسازید تا بلیت تهران–شهرکرد هم کامل شود. بعد امتیازها شمرده می‌شود.', expected: { type: 'claim', route: TUTORIAL.routes.isfahanShahrekord, color: C.yellow, locos: 0 }, reply: null }
+      { instructionFa: 'سه بلیت مقصد گرفته‌اید و در شروع بازی باید دست‌کم ۲ تا را نگه دارید. «تهران–اصفهان» و «تهران–شهرکرد» را نگه دارید: هر دو از یک راه (تهران، قم، کاشان، اصفهان) می‌گذرند. بلیت «آبادان–چابهار» برمی‌گردد زیر دستهٔ بلیت‌ها.', expected: { type: 'keep', keep: [TUTORIAL.learnerOffer[0]!, TUTORIAL.learnerOffer[1]!] }, reply: { type: 'keep', keep: [TUTORIAL.scriptOffer[0]!, TUTORIAL.scriptOffer[1]!] } },
+      { instructionFa: 'در هر نوبت فقط یکی از سه کار را می‌کنید: کارت قطار بکشید، یک مسیر بسازید، یا بلیت بکشید. اول کارت می‌کشیم: لوکوموتیوِ رو را بردارید. لوکوموتیو جوکر است و جای هر رنگی حساب می‌شود؛ برای همین اگر آن را از کارت‌های رو بردارید، به‌جای هر دو کارت این نوبت حساب می‌شود و نوبتتان تمام می‌شود.', expected: { type: 'drawMarket', slot: 2 }, reply: { type: 'claim', route: TUTORIAL.routes.tabrizUrmia, color: C.blue, locos: 0 } },
+      { instructionFa: 'حریف مسیر تبریز–ارومیه را ساخت. حالا بلیت مقصد تازه بکشید: ۳ بلیت از بالای دسته به شما پیشنهاد می‌شود.', expected: { type: 'drawTickets' }, reply: null },
+      { instructionFa: 'در وسط بازی باید دست‌کم ۱ بلیت نگه دارید. «ساری–کاشان» را نگه دارید و بقیه را پس بدهید. حواستان باشد: بلیتی که تا پایان بازی کامل نشود، به اندازهٔ امتیازش از شما کم می‌شود؛ در این آموزش واگن کافی برای مسیر تهران–ساری ندارید و همین را خواهید دید.', expected: { type: 'keep', keep: [TUTORIAL.midTicket] }, reply: { type: 'claim', route: TUTORIAL.routes.ardabilRasht, color: C.orange, locos: 0 } },
+      { instructionFa: 'ساختن مسیر: به اندازهٔ طول مسیر کارت هم‌رنگ آن می‌دهید. تهران–قم خاکستری و ۲ واگنی است و مسیر خاکستری با هر رنگ یکسانی ساخته می‌شود. آن را با ۱ قرمز و ۱ لوکوموتیو بسازید؛ مسیر ۲ واگنی ۲ امتیاز دارد.', expected: { type: 'claim', route: TUTORIAL.routes.tehranQom, color: C.red, locos: 1 }, reply: { type: 'claim', route: TUTORIAL.routes.rashtQazvin, color: C.white, locos: 0 } },
+      { instructionFa: 'مسیر قم–کاشان آبی و ۲ واگنی است ولی فقط ۱ کارت آبی دارید. کمبود را با لوکوموتیو دوم پر کنید: با ۱ آبی و ۱ لوکوموتیو بسازید.', expected: { type: 'claim', route: TUTORIAL.routes.qomKashan, color: C.blue, locos: 1 }, reply: { type: 'claim', route: TUTORIAL.routes.zanjanQazvin, color: C.pink, locos: 0 } },
+      { instructionFa: 'کاشان–اصفهان مسیر دوتایی (مشکی و سفید) است؛ در بازی ۲ یا ۳ نفره وقتی یکی از دو خط ساخته شود، دیگری بسته می‌شود. خط مشکی را با ۲ کارت مشکی بسازید. بلیت تهران–اصفهان کامل می‌شود و چون فقط ۱ واگن برایتان می‌ماند (۲ یا کمتر)، دور پایانی شروع می‌شود: هر بازیکن، حتی خود شما، یک نوبت دیگر دارد.', expected: { type: 'claim', route: TUTORIAL.routes.kashanIsfahan, color: C.black, locos: 0 }, reply: { type: 'claim', route: TUTORIAL.routes.kermanshahIlam, color: C.white, locos: 0 } },
+      { instructionFa: 'نوبت آخر شما: اصفهان–شهرکرد (خاکستری، ۱ واگن) را با کارت زرد بسازید تا بلیت تهران–شهرکرد هم کامل شود. بعد از آن بازی تمام می‌شود و امتیاز بلیت‌ها و طولانی‌ترین مسیر حساب می‌شود.', expected: { type: 'claim', route: TUTORIAL.routes.isfahanShahrekord, color: C.yellow, locos: 0 }, reply: null }
     ],
-    completedFa: 'آموزش تمام شد! امتیاز مسیرها، بلیت‌های کامل (و منفیِ بلیت‌های ناقص حریف) و ۱۰ امتیاز طولانی‌ترین مسیر پیوسته شمرده شد. در بازی واقعی ۴۵ واگن دارید و بازی وقتی واگن‌های کسی به ۲ یا کمتر برسد به دور پایانی می‌رود.'
+    completedFa: 'بردید! چهار مسیر ۲، ۲، ۲ و ۱ واگنی ساختید: ۷ امتیاز مسیر. بلیت تهران–اصفهان (۶) و تهران–شهرکرد (۷) کامل شد و ۱۳ امتیاز آورد، ولی بلیت ناقص ساری–کاشان ۷ امتیاز کم کرد. خط پیوستهٔ ۷ واگنی شما از خط ۶ واگنی حریف بلندتر بود و ۱۰ امتیاز پاداش گرفتید: جمعاً ۲۳. حریف ۱۰ امتیاز مسیر داشت ولی هیچ‌کدام از دو بلیتش را کامل نکرد (۲۸−) و به ۱۸− رسید. در بازی واقعی ۴۵ واگن دارید و دور پایانی وقتی شروع می‌شود که واگن‌های کسی به ۲ یا کمتر برسد.'
   }
 };

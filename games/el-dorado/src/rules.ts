@@ -110,6 +110,9 @@ function spend(s: EdState, p: Explorer, indices: number[], remove = false) {
   return keys;
 }
 
+/** Tutorial route (row × 6 + column): village start → water → jungle → jungle → rubble → El Dorado. */
+const TUTORIAL_HEX = { start: 6 * COLS + 3, water: 7 * COLS + 2, jungle1: 8 * COLS + 2, jungle2: 9 * COLS + 1, rubble: 9 * COLS + 2, goal: 10 * COLS + 2, opponent: 8 * COLS + 4 };
+
 export const edModule: GameModule<EdState, EdAction, EdView> = {
   manifest: elDorado.manifest,
   actionSchema: edAction,
@@ -128,9 +131,11 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
       last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
+      // Late in a two-player race: the learner (village 6,3) crosses water, two jungle hexes, rubble and arrives; the
+      // opponent waits at (8,4), two hexes out. Hand and deck are fixed so every card index in the script is known.
       s.current = 0; s.firstSeat = 0;
-      s.players[0]!.pos = (ROWS - 2) * COLS + 1;
-      s.players[0]!.hand = ['explorer', 'traveller', 'traveller', 'sailor'];
+      Object.assign(s.players[0]!, { pos: TUTORIAL_HEX.start, hand: ['captain', 'scout', 'traveller', 'traveller'], deck: ['sailor', 'explorer', 'traveller', 'explorer'], discard: [] });
+      s.players[1]!.pos = TUTORIAL_HEX.opponent;
     }
     return s;
   },
@@ -283,12 +288,17 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
   tutorial: {
     seed: 3,
     options: { deal: 'tutorial' },
-    introFa: 'گروه شما یک خانه با الدورادو فاصله دارد. اول با یک مسافر (۱ سکه) یک پیشاهنگ بخرید.',
+    introFa: 'نزدیک پایان یک مسابقهٔ دونفره هستید و حریف دو خانه با الدورادو فاصله دارد (حریف آموزشی فقط نوبتش را تمام می‌کند). با کارت‌های دستتان حرکت می‌کنید: کارت سبز (قمه) برای جنگل، آبی (پارو) برای آب و زرد (سکه) برای روستا؛ عدد هر خانه هزینهٔ ورود به آن است. در این آموزش از آب، دو جنگل و آوار می‌گذرید و به شهر طلایی می‌رسید.',
     steps: [
-      { instructionFa: 'با یک کارت مسافر (۱ سکه) کارت «پیشاهنگ» را بخرید.', expected: { type: 'buy', key: 'scout', pay: [1] }, reply: null },
-      { instructionFa: 'با کارت کاوشگر وارد خانهٔ الدورادو شوید.', expected: { type: 'move', to: (ROWS - 1) * COLS + 1, card: 0 }, reply: null },
-      { instructionFa: 'نوبت را تمام کنید؛ دور که تمام شود برنده‌اید.', expected: { type: 'endTurn', discard: [] }, reply: { type: 'endTurn', discard: [] } }
+      { instructionFa: 'کارت «ناخدا» (۳ پارو) را انتخاب کنید و وارد خانهٔ آبی با هزینهٔ ۲ شوید. هر خانه فقط با کارت هم‌رنگش پرداخت می‌شود؛ ۱ پاروی باقی‌مانده فقط در آب بعدی به کار می‌آمد.', expected: { type: 'move', to: TUTORIAL_HEX.water, card: 0 }, reply: null },
+      { instructionFa: 'حالا «پیشاهنگ» (۲ قمه) را انتخاب کنید و وارد جنگل با هزینهٔ ۱ شوید. با بازی کارت تازه، باقی‌ماندهٔ ناخدا از دست می‌رود و ۱ قمه از پیشاهنگ می‌ماند.', expected: { type: 'move', to: TUTORIAL_HEX.jungle1, card: 0 }, reply: null },
+      { instructionFa: 'امتیاز یک کارت را می‌شود میان چند خانهٔ پشت‌سرهمِ همان رنگ خرج کرد: با ۱ قمهٔ باقی‌ماندهٔ پیشاهنگ وارد جنگل بعدی (هزینهٔ ۱) شوید. ولی دو کارت را هیچ‌وقت برای یک خانه روی هم نمی‌گذارید.', expected: { type: 'move', to: TUTORIAL_HEX.jungle2, card: -1 }, reply: null },
+      { instructionFa: 'در هر نوبت یک بار می‌توانید از بازار بخرید: هر کارت زرد به اندازهٔ عددش سکه است و هر کارت دیگر نیم سکه. با دو مسافر (۲ سکه) «عکاس» را بخرید. کارت خریده‌شده به دورریزتان می‌رود و وقتی دسته تمام شود با بُر خوردن دورریز به دستتان می‌آید.', expected: { type: 'buy', key: 'photographer', pay: [0, 1] }, reply: null },
+      { instructionFa: 'نوبت را تمام کنید. در پایان نوبت هر کارتی را بخواهید نگه می‌دارید یا دور می‌ریزید و دستتان از دسته تا ۴ کارت پر می‌شود. حریف هم نوبتش را تمام می‌کند.', expected: { type: 'endTurn', discard: [] }, reply: { type: 'endTurn', discard: [] } },
+      { instructionFa: 'خانهٔ آوار با کارت حرکت پرداخت نمی‌شود: باید به اندازهٔ عددش کارت دور بریزید. زیر کارت «ملوان» (پارو این‌جا به کاری نمی‌آید) «برای آوار» را بزنید و بعد وارد آوار شوید.', expected: { type: 'move', to: TUTORIAL_HEX.rubble, card: -1, pay: [0] }, reply: null },
+      { instructionFa: 'خانه‌های الدورادو با هر کارتی که دست‌کم ۱ امتیاز داشته باشد، از هر رنگ، پر می‌شوند. «کاوشگر» را انتخاب کنید و وارد الدورادو شوید.', expected: { type: 'move', to: TUTORIAL_HEX.goal, card: 0 }, reply: null },
+      { instructionFa: 'نوبت را تمام کنید. رسیدن به الدورادو پایان بازی را اعلام می‌کند، ولی دور تا رسیدن نوبت به نفر اول کامل بازی می‌شود تا بقیه هم فرصت رسیدن داشته باشند.', expected: { type: 'endTurn', discard: [] }, reply: { type: 'endTurn', discard: [] } }
     ],
-    completedFa: 'به الدورادو رسیدید و بردید!'
+    completedFa: 'بردید! وقتی نوبت به نفر اول برگشت بازی تمام شد: شما در الدورادو هستید (فاصلهٔ ۰) و حریف ۲ خانه با شهر فاصله داشت. همهٔ کسانی که رسیده باشند با هم اول می‌شوند و بقیه به ترتیب فاصله تا الدورادو رتبه می‌گیرند. در بازی واقعی اردوگاه‌ها (حذف همیشگی کارت‌های ضعیف از دسته) و کارت‌های کشیدن مثل نقشه‌کش و دانشمند را هم امتحان کنید.'
   }
 };

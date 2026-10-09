@@ -86,7 +86,9 @@ describe('abalone rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements.find((x) => x.place === 1)?.seat).toBe(0);
+    // 2-push-1 and 3-push-2 off the edge on top of the four lost before; White pushed one black marble off.
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1, score: 6 }, { seat: 1, place: 2, score: 1 }], reason: 'win' });
+    expect(st(snap).off).toEqual({ b: 1, w: 6 });
   });
 
   it('random games conserve marbles and replay deterministically', () => {

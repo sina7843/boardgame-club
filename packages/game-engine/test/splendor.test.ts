@@ -106,12 +106,20 @@ describe('splendor rules', () => {
   it('tutorial script is legal and ends in a win', () => {
     const tu = splendorModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
-    expect(st(snap).market[1]![0]).toBe(68);
-    for (const step of tu.steps) {
+    const start = total(st(snap));
+    expect(start).toEqual({ w: 4, u: 4, g: 4, r: 4, k: 4, o: 5 });
+    expect(st(snap).market[1]).toContain(63);
+    expect(st(snap).market[2]).toContain(70);
+    expect([pointsOf(st(snap), 0), pointsOf(st(snap), 1)]).toEqual([6, 7]);
+    for (const [i, step] of tu.steps.entries()) {
+      expect(st(snap).outcome).toBeNull();
       snap = act(snap, 0, step.expected);
+      if (i === 2) expect(st(snap).phase).toBe('return'); // reserving the 11th token forces a return
+      if (i === 4) expect(st(snap).visited[0]).toEqual([3]); // the noble visits with the fourth red card
       if (step.reply) snap = act(snap, 1, step.reply);
+      expect(total(st(snap))).toEqual(start);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 15 });
+    expect(st(snap).outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 15 }, { seat: 1, place: 2, score: 7 }] });
   });
 
   it('random games conserve tokens and cards and replay deterministically', () => {

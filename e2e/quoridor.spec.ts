@@ -1,23 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «کوریدور» end to end: the tutorial (wall, then the winning step) and a two-player race that mixes walls and steps,
-// played through the board (lit tiles, groove crossings).
+// «کوریدور» end to end: the tutorial (jump, step around walls, own wall, winning step) and a two-player race that mixes
+// walls and steps, played through the board (lit tiles, groove crossings).
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/quoridor/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: block with a wall, then step onto the goal row', async ({ browser }, info) => {
+test('interactive tutorial: jump, go around walls, place a wall, step onto the goal row', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/quoridor');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.locator('.qd-x--hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-2'), fullPage: true });
-  await p.locator('.qd-tile--hint').click();
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۶`))).toBeVisible();
+    if (step === '۳') { await p.screenshot({ path: shot(info.project.name, 'tutorial-wall'), fullPage: true }); await p.locator('.qd-x--hint').click(); }
+    else await p.locator('.qd-tile--hint').click();
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

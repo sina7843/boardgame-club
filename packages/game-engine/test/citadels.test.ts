@@ -101,7 +101,8 @@ describe('citadels rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 36 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 26 }, { seat: 1, place: 2, score: 21 }]);
+    expect(st(snap).gold).toEqual([0, 1]);
   });
 
   it('random games end with a completed city and replay deterministically', () => {

@@ -178,14 +178,15 @@ export const sspModule: GameModule<SspState, SspAction, SspView> = {
     const s = { players: playerCount, scores: Array(playerCount).fill(0), current: rng.nextInt(playerCount), round: 1, roundLog: [], last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null } as unknown as SspState;
     deal(s, rng);
     if (options.deal === 'tutorial') {
-      const ofKind = (k: Kind) => CARDS.filter((c) => c.kind === k).map((c) => c.id);
-      const shells = ofKind('shell');
+      // The last hand of a two-player game (card ids are fixed by CARDS). The learner holds a crab, two boats, two
+      // shells and a mermaid; pile 1 is a lone crab, pile 2 buries a shell under a fish; the deck starts shell, fish.
       s.current = 0;
-      s.scores = [35, 30];
-      s.hands = [shells.slice(0, 4), [ofKind('crab')[0]!, ofKind('boat')[0]!]];
-      s.piles = [[shells[4]!], [ofKind('fish')[0]!]];
-      s.deck = s.deck.filter((id) => !s.hands.flat().includes(id) && id !== shells[4] && id !== ofKind('fish')[0]);
-      s.phase = 'draw';
+      s.scores = [30, 33];
+      s.hands = [[0, 9, 10, 34, 36, 54], [24, 29, 46]];
+      s.played = [[], []];
+      s.piles = [[1], [40, 37, 17]];
+      const used = new Set([...s.hands.flat(), ...s.piles.flat(), 38, 18]);
+      s.deck = [38, 18, ...shuffle(rng, CARDS.map((c) => c.id).filter((id) => !used.has(id)))];
     }
     return s;
   },
@@ -330,12 +331,18 @@ export const sspModule: GameModule<SspState, SspAction, SspView> = {
   tutorial: {
     seed: 53,
     options: { deal: 'tutorial' },
-    introFa: 'شما چهار صدف دارید (۶ امتیاز) و ۳۵ امتیاز جمع کرده‌اید؛ هدف ۴۰ است. روی کپهٔ اول یک صدف دیگر است.',
+    introFa: 'آخرین دست یک بازی دونفره است: شما ۳۰ امتیاز دارید، حریف ۳۳، و هدف ۴۰ است. در دستتان یک خرچنگ، دو قایق، دو صدف و یک پری دریایی است. هر نوبت اول یک کارت برمی‌دارید، بعد اگر بخواهید جفت‌ها را بازی می‌کنید و آخر نوبت را تمام می‌کنید یا با ۷ امتیاز دست را می‌بندید.',
     steps: [
-      { instructionFa: 'صدف روی کپهٔ اول را بردارید: پنج صدف ۸ امتیاز است.', expected: { type: 'take', pile: 0 }, reply: null },
-      { instructionFa: 'حالا بیش از ۷ امتیاز دارید: «بس» را بزنید تا دست تمام شود.', expected: { type: 'end', call: 'stop' }, reply: null }
+      { instructionFa: 'کارت روی کپهٔ ۱ یک خرچنگ است: آن را بردارید. برداشتن از کپه یکی از دو راه گرفتن کارت است و حالا دو خرچنگ دارید.', expected: { type: 'take', pile: 0 }, reply: null },
+      { instructionFa: 'دو خرچنگ را انتخاب کنید و «خرچنگ‌ها: کپهٔ ۲» را بزنید. جفت خرچنگ اجازه می‌دهد کل یک کپه را ببینید و هر کارتی را از آن بردارید، نه فقط کارت رویی را.', expected: { type: 'duo', cards: [0, 1], pile: 1 }, reply: null },
+      { instructionFa: 'زیر ماهی یک صدف دفن شده است: صدف را بردارید. حالا سه صدف دارید؛ صدف‌ها ۰، ۲، ۴، ۶… امتیاز می‌دهند.', expected: { type: 'crabTake', card: 37 }, reply: null },
+      { instructionFa: 'دو قایق را انتخاب کنید و «بازی جفت (نوبت اضافه)» را بزنید. جفت قایق یعنی بعد از این نوبت، یک نوبت دیگر هم بازی می‌کنید.', expected: { type: 'duo', cards: [9, 10] }, reply: null },
+      { instructionFa: '«نوبت اضافه» را بزنید تا این نوبت تمام شود و نوبت اضافه‌تان شروع شود.', expected: { type: 'end', call: 'pass' }, reply: null },
+      { instructionFa: 'این بار دسته را بزنید تا دو کارت بکشید. از دو کارت کشیده‌شده یکی را نگه می‌دارید و دیگری به یک کپه می‌رود.', expected: { type: 'draw' }, reply: null },
+      { instructionFa: 'صدف را نگه دارید (چهارمین صدف یعنی ۶ امتیاز به جای ۴) و ماهی را روی کپهٔ ۱ بگذارید. کپهٔ ۱ خالی است و کارت دورریز باید اول کپهٔ خالی را پر کند.', expected: { type: 'keep', card: 38, pile: 0 }, reply: null },
+      { instructionFa: 'کارت‌هایتان ۱۱ امتیاز دارد، بیشتر از ۷: «بس!» را بزنید. دست تمام می‌شود و هر کس امتیاز کارت‌هایش را می‌گیرد.', expected: { type: 'end', call: 'stop' }, reply: null }
     ],
-    completedFa: 'بردید! ۸ امتیاز این دست شما را به ۴۳ رساند.'
+    completedFa: 'بردید! کارت‌هایتان ۱۱ امتیاز شد: جفت خرچنگ ۱، جفت قایق ۱، چهار صدف ۶، و پری دریایی ۳ (پرتکرارترین رنگتان سه کارت دارد). با «بس» به ۴۱ رسیدید و از هدف ۴۰ گذشتید. حریف هم امتیاز کارت‌هایش را گرفت: جفت شناگر و کوسه ۱ و یک پنگوئن ۱، یعنی ۳۵. نتیجهٔ نهایی ۴۱ در برابر ۳۵.'
   }
 };
 

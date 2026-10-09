@@ -44,7 +44,7 @@ describe('uno through the platform', () => {
     const [u] = await users(ctx, 1);
     const { tableId } = (await call(ctx, 'POST', '/api/tutorials/uno/start', u, { restart: false })).json();
     let snap = await view(ctx, u!, tableId);
-    expect(snap.game.view.myHand.map((c: { id: string }) => c.id).sort()).toEqual(['b7a', 'r7a', 'r8a', 'wild1', 'y8a']);
+    expect(snap.game.view.myHand.map((c: { id: string }) => c.id).sort()).toEqual(['gd2a', 'r7a', 'r8a', 'wild1', 'y8a']);
     for (const step of unoModule.tutorial.steps) {
       const r = await command(ctx, u!, tableId, snap.game.revision, step.expected);
       expect(r.json().status, JSON.stringify(step.expected)).toBe('accepted');

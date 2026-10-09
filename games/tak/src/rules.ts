@@ -195,10 +195,14 @@ export const takModule: GameModule<TakState, TakAction, TakView> = {
       reserve: { w: { ...p }, b: { ...p } }, history: [], timeouts: [0, 0], end: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // 5×5: white flats a1–d1 (one short of a road); black flats a3–d3 threaten the same along row 3.
-      for (const c of [0, 1, 2, 3]) { s.board[c] = [{ c: 'w', t: 'F' }]; s.board[10 + c] = [{ c: 'b', t: 'F' }]; }
-      s.reserve = { w: { stones: 17, caps: 1 }, b: { stones: 17, caps: 1 } };
-      s.ply = 8;
+      // 5×5 teaching position (tutorial tables only). White: a1, and b1 = black flat under three white flats. Black:
+      // flats c1, d1 and a3–d3 (one square from a road along row 3). White to move.
+      const F = (c: Color): Stone => ({ c, t: 'F' });
+      s.board[0] = [F('w')];
+      s.board[1] = [F('b'), F('w'), F('w'), F('w')];
+      for (const i of [2, 3, 10, 11, 12, 13]) s.board[i] = [F('b')];
+      s.reserve = { w: { stones: 17, caps: 1 }, b: { stones: 14, caps: 1 } };
+      s.ply = 12;
     }
     return s;
   },
@@ -263,11 +267,13 @@ export const takModule: GameModule<TakState, TakAction, TakView> = {
   tutorial: {
     seed: 10,
     options: { firstMove: 'host', deal: 'tutorial', size: 5 },
-    introFa: 'شما سفید هستید. «جاده» یعنی زنجیره‌ای از سنگ‌های تخت (یا سنگ سرستون) شما که دو لبه روبه‌روی صفحه را به هم وصل کند. سیاه هم یک خانه تا جاده‌اش فاصله دارد!',
+    introFa: 'صفحهٔ ۵×۵ است و شما سفید هستید. «جاده» زنجیره‌ای از سنگ‌های تخت یا سرستون خودتان است که دو لبهٔ روبه‌روی صفحه را خانه‌به‌خانه (نه قطری) به هم وصل کند. هر پشته مال کسی است که سنگ بالایش را دارد. سیاه در ردیف ۳ از a3 تا d3 سنگ دارد و فقط e3 تا جاده‌اش مانده؛ شما در ردیف ۱ به a1 و پشتهٔ b1 تکیه دارید.',
     steps: [
-      { instructionFa: 'جاده سیاه را ببندید: «دیوار» را انتخاب کنید و در خانه روشن ردیف سوم بگذارید. دیوار جزو جاده حساب نمی‌شود و نمی‌شود رویش رفت.', expected: { type: 'place', at: 14, kind: 'S' }, reply: { type: 'place', at: 24, kind: 'F' } },
-      { instructionFa: 'حالا «سنگ تخت» را در خانه روشن ردیف اول بگذارید تا جاده‌تان کامل شود.', expected: { type: 'place', at: 4, kind: 'F' }, reply: null }
+      { instructionFa: 'اول جلوی جادهٔ سیاه را بگیرید: «دیوار» انتخاب شده است؛ آن را در خانهٔ روشن e3 بگذارید. دیوار (سنگ ایستاده) جزو جاده نیست و هیچ سنگی نمی‌تواند رویش برود، پس e3 برای همیشه بسته می‌شود.', expected: { type: 'place', at: 14, kind: 'S' }, reply: { type: 'place', at: 4, kind: 'S' } },
+      { instructionFa: 'سیاه هم با دیوار e1 جادهٔ ردیف ۱ شما را بست. حالا پشته‌ای را جابه‌جا کنید: روی پشتهٔ b1 بزنید، «برداشتن: ۲» را انتخاب کنید، بعد c1 و سپس d1 را بزنید. دو سنگ بالایی برداشته می‌شود و در یک خط مستقیم روی هر خانه دست‌کم یکی (از پایینِ دسته) می‌افتد؛ سنگ‌های تخت سیاه زیر سنگ‌های شما می‌روند و c1 و d1 مال شما می‌شوند.', expected: { type: 'move', from: 1, dir: 'e', drops: [1, 1] }, reply: { type: 'place', at: 21, kind: 'F' } },
+      { instructionFa: 'حالا a1 تا d1 مال شماست و فقط دیوار e1 مانده. «سرستون» را در خانهٔ روشن e2 بگذارید. سرستون جزو جاده است، هیچ سنگی رویش نمی‌رود و تنها مهره‌ای است که می‌تواند دیوار را بخواباند.', expected: { type: 'place', at: 9, kind: 'C' }, reply: { type: 'place', at: 22, kind: 'F' } },
+      { instructionFa: 'سرستون e2 را بزنید و بعد e1 را. سرستونی که تنها و در آخرین قدم حرکتش روی دیوار برود آن را به سنگ تخت تبدیل می‌کند و خودش رویش می‌نشیند. با این کار جادهٔ a1 تا e1 کامل می‌شود.', expected: { type: 'move', from: 9, dir: 's', drops: [1] }, reply: null }
     ],
-    completedFa: 'بردید! در تاک می‌توانید پشته‌ها را هم جابه‌جا کنید: سنگ‌های بالای پشته‌ای که مال شماست را بردارید و در یک خط، روی هر خانه دست‌کم یکی بگذارید.'
+    completedFa: 'جاده کامل شد و بردید! دیوار e3 جادهٔ سیاه را بست، جابه‌جایی پشتهٔ b1 دو خانهٔ c1 و d1 را از سیاه گرفت و سرستون دیوار e1 را خواباند تا ردیف ۱ از لبه تا لبه مال شما شود. اگر هیچ‌کس جاده نسازد، بازی وقتی صفحه پر شود یا سنگ‌های یک نفر تمام شود با شمارش سنگ‌های تخت بالای پشته‌ها تمام می‌شود.'
   }
 };

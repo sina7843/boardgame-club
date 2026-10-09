@@ -141,12 +141,17 @@ export const kingdominoModule: GameModule<KingdominoState, KingdominoAction, Kin
     };
     s.next = draw(s);
     if (options.deal === 'tutorial') {
+      // The last two rounds of a two-player game (two kings each, the learner on slots 0 and 2 of both lines so turns
+      // alternate). Learner: wheat, lake, forest and grassland around the castle (columns 2–6 already span five).
+      // This round: «W1 M» (23) and «M2 W» (45); next line: «L G1» (37), «W S1» (38), «M1 W» (40), «W G2» (41).
       s.deck = [];
       s.phase = 'play';
-      s.current = [{ dom: 47, owner: 0 }, { dom: 2, owner: 1 }, { dom: 18, owner: 0 }, { dom: 3, owner: 1 }];
-      s.next = [];
-      const k = s.kingdoms[0]!;
-      k[4]![3] = { t: 'W', c: 1 }; k[4]![2] = { t: 'W', c: 0 }; k[3]![3] = { t: 'W', c: 0 }; k[3]![2] = { t: 'W', c: 0 };
+      s.idx = 0;
+      s.current = [{ dom: 22, owner: 0 }, { dom: 23, owner: 1 }, { dom: 44, owner: 0 }, { dom: 45, owner: 1 }];
+      s.next = [36, 37, 39, 40].map((dom) => ({ dom, owner: null }));
+      const put = (seat: number, cells: [number, number, Terrain, number][]) => { for (const [r, c, t, cr] of cells) s.kingdoms[seat]![r]![c] = { t, c: cr }; };
+      put(0, [[4, 5, 'W', 0], [4, 6, 'W', 1], [3, 4, 'L', 0], [2, 4, 'L', 1], [5, 4, 'F', 0], [5, 5, 'F', 0], [4, 3, 'G', 0], [4, 2, 'G', 0]]);
+      put(1, [[4, 5, 'F', 0], [4, 6, 'F', 0], [4, 3, 'L', 0], [4, 2, 'L', 0]]);
     }
     return s;
   },
@@ -229,11 +234,13 @@ export const kingdominoModule: GameModule<KingdominoState, KingdominoAction, Kin
   tutorial: {
     seed: 39,
     options: { deal: 'tutorial' },
-    introFa: 'دور آخر است. گندم‌زار شما یک تاج دارد؛ هر خانهٔ گندم‌زار وصل‌شده امتیازش را بالا می‌برد. امتیاز هر ناحیه = تعداد خانه‌ها × تعداد تاج‌ها.',
+    introFa: 'دو دور آخر یک بازی دونفره است و هر کدام دو شاه دارید. در هر دور، به ترتیب ردیف «این دور»، صاحب هر دومینو آن را در سرزمینش می‌گذارد و با همان شاه یک دومینو از ردیف «دور بعد» برمی‌دارد. دومینوی شماره‌پایین‌تر دور بعد زودتر گذاشته می‌شود. امتیاز هر ناحیهٔ پیوستهٔ هم‌جنس = تعداد خانه‌ها × تعداد تاج‌ها.',
     steps: [
-      { instructionFa: 'دومینوی «گندم‌زار + معدن ۳ تاج» را بگذارید: گندم‌زار زیر خانهٔ تاج‌دار و معدن کنارش.', expected: { type: 'play', place: { r: 5, c: 3, dir: 2 } }, reply: { type: 'play', place: { r: 4, c: 5, dir: 0 } } },
-      { instructionFa: 'حالا «گندم‌زار تاج‌دار + جنگل» را زیر قلعه بگذارید تا گندم‌زارها وصل شوند.', expected: { type: 'play', place: { r: 5, c: 4, dir: 1 } }, reply: { type: 'play', place: { r: 3, c: 5, dir: 0 } } }
+      { instructionFa: 'دومینوی ۲۳ (گندم‌زار ۱ تاج + معدن) مال شماست. خانهٔ روشن بالای گندم‌زار کنار قلعه را بزنید تا گندم‌زار تاج‌دار به گندم‌زارتان وصل شود؛ دست‌کم یک نیمهٔ دومینو باید کنار قلعه یا زمین هم‌جنس باشد. بعد دومینوی ۳۷ (دریاچه + چمنزار ۱ تاج) را از ردیف دور بعد بردارید و تأیید کنید.', expected: { type: 'play', place: { r: 3, c: 5, dir: 0 }, slot: 0 }, reply: { type: 'play', place: { r: 5, c: 5, dir: 0 }, slot: 1 } },
+      { instructionFa: 'دومینوی ۴۵ (معدن ۲ تاج + گندم‌زار) را با دکمهٔ «چرخش ↻» بچرخانید (تا وقتی چرخش لازم است دکمه روشن است)، بعد خانهٔ روشن را بزنید: معدن کنار معدن تازه و گندم‌زار کنار گندم‌زار می‌نشیند. سرزمین در هر جهت حداکثر ۵ خانه است و پهنای سرزمین شما از قبل ۵ خانه شده، پس فقط رو به بالا و پایین جا دارید. دومینوی ۴۰ (معدن ۱ تاج + گندم‌زار) را برای دور بعد بردارید و تأیید کنید.', expected: { type: 'play', place: { r: 2, c: 6, dir: 2 }, slot: 2 }, reply: { type: 'play', place: { r: 5, c: 4, dir: 1 }, slot: 3 } },
+      { instructionFa: 'دور آخر است و دیگر دومینویی برای برداشتن نمانده. دومینوی ۳۷ را بچرخانید و در خانهٔ روشن بگذارید: دریاچه کنار دریاچهٔ تاج‌دار و چمنزار تاج‌دار زیرش کنار چمنزار شما. حالا هر دو ناحیه ۳ خانه و ۱ تاج دارند، یعنی ۳ امتیاز.', expected: { type: 'play', place: { r: 2, c: 3, dir: 1 } }, reply: { type: 'play', place: { r: 6, c: 6, dir: 2 } } },
+      { instructionFa: 'آخرین دومینو: ۴۰ را بچرخانید و در خانهٔ روشن بالای معدن‌ها بگذارید تا معدن ۳ خانه و ۳ تاج شود (۹ امتیاز) و گندم‌زار ۵ خانه با ۲ تاج (۱۰ امتیاز). بعد از دومینوی آخر حریف بازی تمام می‌شود و امتیازها شمرده می‌شود.', expected: { type: 'play', place: { r: 1, c: 6, dir: 2 } }, reply: { type: 'play', place: { r: 7, c: 6, dir: 2 } } }
     ],
-    completedFa: 'بردید! شش خانه گندم‌زار با دو تاج (۱۲) به‌علاوهٔ معدن سه‌تاجی (۳). جنگل‌های بی‌تاج حریف امتیازی نداشت.'
+    completedFa: 'بردید! گندم‌زار ۵ خانه × ۲ تاج = ۱۰، معدن ۳ خانه × ۳ تاج = ۹، دریاچه ۳ × ۱ = ۳ و چمنزار ۳ × ۱ = ۳: روی هم ۲۵ امتیاز. جنگل شما تاج نداشت و امتیازی نیاورد. حریف ناحیه‌های تاج‌دارش را از هم جدا گذاشت و فقط ۸ امتیاز گرفت. در تساوی، بزرگ‌ترین ناحیه و بعد تاج بیشتر برنده را تعیین می‌کند.'
   }
 };

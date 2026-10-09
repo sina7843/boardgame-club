@@ -98,11 +98,17 @@ describe('santorini rules', () => {
     expect(projectFor(m, placed(), p(1)).view as SantoriniView).not.toHaveProperty('timeouts');
     const t = santoriniModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot;
+    expect(st(snap).supply).toEqual({ 1: 14, 2: 13, 3: 12, dome: 18 });
     for (const step of t.steps) {
+      expect(st(snap).outcome).toBeNull();
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect([s.height[9], s.height[13], s.height[11]]).toEqual([4, 4, 3]); // two domes, the climbed tower
+    expect(s.workers[0]).toEqual([11, 8]);
+    expect(s.end).toEqual({ kind: 'climb' });
+    expect(s.outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] });
   });
 
   it('random games keep the block supply consistent and replay deterministically', () => {

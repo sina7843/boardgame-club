@@ -158,9 +158,9 @@ export const quoridorModule: GameModule<QuoridorState, QuoridorAction, QuoridorV
       timeouts: sides.map(() => 0), log: [], seq: 0, winner: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // Both pawns are one step from their goal; it is the learner's turn: block first, then win.
+      // Mid-board, face to face: the learner (two rows from the goal after a jump) moves first.
       s.current = 0;
-      s.pawns = [idx(7, 4), idx(1, 4)];
+      s.pawns = [idx(5, 4), idx(6, 4)];
     }
     return s;
   },
@@ -235,11 +235,15 @@ export const quoridorModule: GameModule<QuoridorState, QuoridorAction, QuoridorV
   tutorial: {
     seed: 6,
     options: { firstMove: 'host', deal: 'tutorial' },
-    introFa: 'مهره شما (پایین) باید به ردیف بالای صفحه برسد و مهره حریف به ردیف پایین. در هر نوبت یا مهره را یک خانه حرکت می‌دهید یا یک دیوار می‌گذارید.',
+    introFa: 'مهرهٔ شما از ردیف پایین آمده و باید به ردیف بالای صفحه برسد؛ مهرهٔ حریف برعکس. دو مهره وسط صفحه روبه‌روی هم‌اند. در هر نوبت یا مهره را یک خانه حرکت می‌دهید یا یک دیوار دوخانه‌ای می‌گذارید؛ عدد کنار هر مهره کوتاه‌ترین فاصله‌اش تا هدف است.',
     steps: [
-      { instructionFa: 'حریف فقط یک قدم تا پیروزی فاصله دارد! «دیوار» را انتخاب کنید و دیوار افقی را زیر مهره حریف بگذارید (نقطه روشن).', expected: { type: 'wall', r: 0, c: 4, o: 'h' }, reply: { type: 'move', to: 12 } },
-      { instructionFa: 'حریف مجبور شد دور بزند. حالا مهره‌تان را یک خانه بالا ببرید تا به ردیف آخر برسید.', expected: { type: 'move', to: 76 }, reply: null }
+      { instructionFa: 'حریف درست جلوی شماست. وقتی مهره‌ای چسبیده به شما باشد و پشتش دیوار یا لبهٔ صفحه نباشد، می‌توانید از رویش بپرید. با پرش، خانهٔ روشن را بگیرید: دو خانه جلو با یک حرکت.', expected: { type: 'move', to: idx(7, 4) }, reply: { type: 'wall', r: 7, c: 3, o: 'h' } },
+      { instructionFa: 'حریف با یک دیوار افقی راه مستقیمتان را بست؛ هر دیوار دو خانه را می‌پوشاند. یک خانه به کنار بروید تا دور دیوار بزنید.', expected: { type: 'move', to: idx(7, 5) }, reply: { type: 'wall', r: 7, c: 5, o: 'h' } },
+      { instructionFa: 'دیوار دوم هم آمد و حالا ۳ قدم تا هدف دارید، ولی حریف ۶ قدم. نوبت شماست که دیوار بگذارید: «دیوار» را بزنید و دیوار افقی را درست جلوی مهرهٔ حریف بگذارید تا مجبور به دور زدن شود. دیوار نباید روی دیوار دیگر بیفتد یا آن را قطع کند و هرگز نباید همهٔ راه‌های یک مهره به هدفش را ببندد.', expected: { type: 'wall', r: 5, c: 3, o: 'h' }, reply: { type: 'move', to: idx(6, 5) } },
+      { instructionFa: 'حریف برای دور زدن دیوار شما یک قدم کناری رفت. شما هم در امتداد دیوارها جلو بروید.', expected: { type: 'move', to: idx(7, 6) }, reply: { type: 'move', to: idx(5, 5) } },
+      { instructionFa: 'یک قدم دیگر به سمت انتهای دیوار دوم بروید؛ از آنجا راه رو به هدف باز است.', expected: { type: 'move', to: idx(7, 7) }, reply: { type: 'move', to: idx(4, 5) } },
+      { instructionFa: 'راه باز است: مهره را یک خانه جلو ببرید و به ردیف هدف برسید.', expected: { type: 'move', to: idx(8, 7) }, reply: null }
     ],
-    completedFa: 'بردید! دیوارها مسیر حریف را طولانی می‌کنند، اما هرگز نباید راه کسی را کاملاً ببندند. با دو نفر هر بازیکن ۱۰ دیوار دارد.'
+    completedFa: 'بردید! با پرش از روی حریف دو خانه جلو افتادید، دو دیوار حریف را دور زدید و با دیوار خودتان ۱ قدم به راه او اضافه کردید. وقتی به ردیف هدف رسیدید، حریف هنوز ۴ قدم فاصله داشت. در بازی دونفره هر کس ۱۰ دیوار دارد؛ آن‌ها را برای لحظه‌ای نگه دارید که حریف به هدف نزدیک شده است.'
   }
 };

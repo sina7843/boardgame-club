@@ -77,7 +77,12 @@ describe('space base rules', () => {
     const tu = sbModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 40 });
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1, score: 40 }, { seat: 1, place: 2, score: 34 }]);
+    expect(s.boards[0]!.credits).toBe(4); // 9 − 7 = 2, raised to the income of 4 at the end of the turn
+    expect(s.boards[0]!.deployed[4]).toEqual([4]); // the starting sector-5 ship was deployed
+    expect(s.boards[1]!.credits).toBe(7); // red rewards on the learner's turn: +1 credit, +1 VP
+    expect(s.shop.flat().length + s.decks.flat().length).toBe(SHIPS.filter((x) => x.level > 0).length - 4);
   });
 
   it('random games reach the goal and replay deterministically', () => {

@@ -1,24 +1,28 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «بلوف حشره‌ها» end to end: the tutorial (a caught bluff, then the truth that sinks the rival) and a full
-// three-player game with gives, calls, peeks and passes until someone has four of a kind.
+// «بلوف حشره‌ها» end to end: the tutorial (call a counted bluff, a wrong call, a caught bluff, then the truth that
+// sinks the rival) and a full three-player game with gives, calls, peeks and passes until someone has four of a kind.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/cockroach-poker/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: bluff, then the truth', async ({ browser }, info) => {
+test('interactive tutorial: two calls, a bluff, then the truth', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/cockroach-poker');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   for (const step of ['۱', '۲']) {
-    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۲`))).toBeVisible();
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    await p.getByRole('button', { name: step === '۱' ? 'دروغ می‌گوید' : 'راست می‌گوید' }).click();
+  }
+  for (const step of ['۳', '۴']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
     await p.locator('.cr-pick.cr-hint').click();
     await p.locator('.cr-target.cr-hint').click();
     await p.locator('.cr-claim.cr-hint').click();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-truth'), fullPage: true });
+    if (step === '۴') await p.screenshot({ path: shot(info.project.name, 'tutorial-truth'), fullPage: true });
     await p.getByRole('button', { name: 'دادن کارت' }).click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

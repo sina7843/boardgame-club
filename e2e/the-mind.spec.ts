@@ -1,23 +1,26 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «هم‌فکر» end to end: the tutorial (a short two-card level) and a full three-player cooperative game: the lowest card
-// is played each time, with a couple of deliberate mistakes and a throwing star, until the team wins or runs out of lives.
+// «هم‌فکر» end to end: the tutorial (one teaching level: plays, a teammate's mistake, a throwing star) and a full
+// three-player cooperative game: the lowest card is played each time, with a couple of deliberate mistakes and a
+// throwing star, until the team wins or runs out of lives.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/the-mind/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: 12 then 80', async ({ browser }, info) => {
+test('interactive tutorial: plays, a mistake, a throwing star', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/the-mind');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial'), fullPage: true });
-  await p.locator('.tm-play.tm-hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.locator('.tm-play.tm-hint').click();
+  for (const step of ['۱', '۲', '۳', '۴']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial'), fullPage: true });
+    // Step 3 proposes the throwing star (the star button carries no hint highlight).
+    if (step === '۳') await p.locator('button.tm-star').click();
+    else await p.locator('.tm-play.tm-hint').click();
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

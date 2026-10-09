@@ -76,7 +76,7 @@ describe('point salad rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 6 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 17 }, { seat: 1, place: 2, score: 15 }]);
   });
 
   it('random games use every card and replay deterministically', () => {

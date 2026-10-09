@@ -201,8 +201,9 @@ function dealHand(s: UnoState, rng: EngineRng, tutorialDeal = false) {
     const take = (ids: string[]) => ids.map((id) => deck.splice(deck.findIndex((c) => c.id === id), 1)[0]!);
     s.hands = [take(TUTORIAL.learner), take(TUTORIAL.opponent)];
     const start = take([TUTORIAL.start]);
-    const firstDraw = take([TUTORIAL.opponentDraw]);
-    s.draw = [...shuffle(deck, rng), ...firstDraw];
+    // drawOrder[0] is drawn first, so it goes on top of the pile (the end of the array).
+    const stacked = take(TUTORIAL.drawOrder).reverse();
+    s.draw = [...shuffle(deck, rng), ...stacked];
     s.discard = start;
   } else {
     const deck = shuffle(buildDeck(), rng);
@@ -358,9 +359,10 @@ const playable = (s: UnoState, seat: number) => s.hands[seat]!.filter((c) => can
 
 export const TUTORIAL = {
   start: 'r5a',
-  learner: ['r7a', 'b7a', 'wild1', 'y8a', 'r8a'],
-  opponent: ['g7a', 'b3a', 'y6a', 'g9a', 'r1a'],
-  opponentDraw: 'g4a'
+  learner: ['r7a', 'gd2a', 'wild1', 'y8a', 'r8a'],
+  opponent: ['g7a', 'wd41', 'g9a', 'y6a', 'b3a', 'r1a', 'b5a'],
+  /** Top of the draw pile in drawing order: +2 for the opponent, the learner's draw, the challenge penalty, the opponent's draw. */
+  drawOrder: ['r2a', 'b4a', 'g3a', 'g1a', 'r6a', 'bskipa', 'r9a', 'g2a']
 };
 
 export const unoModule: GameModule<UnoState, UnoAction, UnoView> = {
@@ -611,14 +613,17 @@ export const unoModule: GameModule<UnoState, UnoAction, UnoView> = {
   tutorial: {
     seed: 11,
     options: { deal: 'tutorial' },
-    introFa: 'در اونو هر نوبت یک کارت هم‌رنگ، هم‌عدد یا هم‌نماد با کارت رو می‌گذارید. اولین کسی که دستش خالی شود برنده دست است.',
+    introFa: 'یک دست دونفره اونو. در هر نوبت روی کارت رو یک کارت هم‌رنگ، هم‌عدد یا هم‌نماد می‌گذارید؛ کارت‌های «رنگی» و «+۴» همیشه مجازند. اولین کسی که دستش خالی شود دست را می‌برد و امتیاز کارت‌های مانده در دست حریف را می‌گیرد. شما ۵ کارت دارید و اول بازی می‌کنید.',
     steps: [
-      { instructionFa: 'کارت رو «۵ قرمز» است. یک کارت هم‌رنگ بگذارید: «۷ قرمز».', expected: { type: 'play', card: 'r7a' }, reply: { type: 'play', card: 'g7a' } },
-      { instructionFa: 'حریف «۷ سبز» گذاشت و رنگ سبز شد. کارت هم‌عدد هم مجاز است: «۷ آبی» را بگذارید.', expected: { type: 'play', card: 'b7a' }, reply: { type: 'play', card: 'b3a' } },
-      { instructionFa: 'کارت آبی ندارید. کارت «رنگی» همیشه بازی می‌شود و رنگ بعدی را شما تعیین می‌کنید: آن را بگذارید و زرد را انتخاب کنید.', expected: { type: 'play', card: 'wild1', color: 'y' }, reply: { type: 'play', card: 'y6a' } },
-      { instructionFa: 'دو کارت دارید. پیش از گذاشتن یکی‌مانده به آخرین کارت باید «اونو» بگویید: «۸ زرد» را با «اونو!» بازی کنید.', expected: { type: 'play', card: 'y8a', uno: true }, reply: { type: 'draw' } },
-      { instructionFa: 'حریف کارت مناسبی نداشت، یک کارت کشید و نوبت به شما رسید. آخرین کارت، «۸ قرمز»، هم‌عدد است؛ بگذارید و برنده شوید.', expected: { type: 'play', card: 'r8a' }, reply: null }
+      { instructionFa: 'کارت رو «۵ قرمز» است. «۷ قرمز» را بگذارید: هم‌رنگ بودن کافی است.', expected: { type: 'play', card: 'r7a' }, reply: { type: 'play', card: 'g7a' } },
+      { instructionFa: 'حریف «۷ سبز» گذاشت (هم‌عدد با کارت شما) و رنگ سبز شد. «+۲ سبز» را بگذارید: حریف ۲ کارت می‌کشد و نوبتش می‌سوزد، پس در بازی دونفره دوباره نوبت شماست.', expected: { type: 'play', card: 'gd2a' }, reply: null },
+      { instructionFa: 'حالا فقط کارت «رنگی» با سبز جور است، ولی بهتر است نگهش دارید. به‌جای بازی یک کارت از دسته بکشید؛ کشیدن همیشه مجاز است.', expected: { type: 'draw' }, reply: null },
+      { instructionFa: 'کارت کشیده‌شده «۳ سبز» است و با کارت رو جور است، پس می‌توانید همین کارت را همین حالا بازی کنید (یا نگهش دارید و نوبت را تمام کنید). آن را بگذارید.', expected: { type: 'play', card: 'g3a' }, reply: { type: 'play', card: 'wd41', color: 'b' } },
+      { instructionFa: 'حریف «+۴» گذاشت و آبی را انتخاب کرد. +۴ فقط وقتی مجاز است که بازیکن کارت هم‌رنگ کارت قبلی (اینجا سبز) نداشته باشد. اعتراض کنید: دستش فقط به شما نشان داده می‌شود؛ اگر سبز داشته باشد خودش ۴ کارت می‌کشد، وگرنه شما ۶ کارت می‌کشید.', expected: { type: 'challenge' }, reply: null },
+      { instructionFa: 'اعتراض درست بود: حریف «۹ سبز» داشت و ۴ کارت جریمه کشید و نوبت به شما ماند. رنگ آبی است و آبی ندارید. کارت «رنگی» را بگذارید و زرد را انتخاب کنید تا با «۸ زرد» شما جور شود.', expected: { type: 'play', card: 'wild1', color: 'y' }, reply: { type: 'play', card: 'y6a' } },
+      { instructionFa: 'دو کارت دارید. پیش از گذاشتن یکی‌مانده به آخرین کارت باید «اونو» بگویید، وگرنه حریف می‌تواند شما را بگیرد و جریمه کارت می‌کشید. دکمهٔ «اونو!» را بزنید و «۸ زرد» را بگذارید.', expected: { type: 'play', card: 'y8a', uno: true }, reply: { type: 'draw' } },
+      { instructionFa: 'حریف کارت کشید ولی قابل بازی نبود، پس نوبتش گذشت. آخرین کارت شما «۸ قرمز» هم‌عدد کارت رو است: بگذارید و دست را ببرید.', expected: { type: 'play', card: 'r8a' }, reply: null }
     ],
-    completedFa: 'آموزش تمام شد. در بازی واقعی دست‌ها تا رسیدن یک نفر به امتیاز هدف ادامه دارند و کارت‌های ردشدن، برگشت، +۲ و +۴ هم در دسته هستند.'
+    completedFa: 'بردید! دست شما خالی شد و امتیاز ۱۱ کارت مانده در دست حریف به شما رسید: کارت‌های عددی به اندازهٔ عددشان (۴۲ امتیاز) و یک «ردشدن آبی» ۲۰ امتیاز؛ روی‌هم ۶۲ امتیاز در برابر صفر. در بازی کامل دست‌ها پشت سر هم بازی می‌شوند تا یک نفر به ۵۰۰ امتیاز (یا هدف انتخاب‌شده) برسد.'
   }
 };

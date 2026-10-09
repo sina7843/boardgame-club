@@ -1,23 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «بنگاه» end to end: the tutorial (one auction, one sale) and a full three-player game through both phases.
+// «بنگاه» end to end: the tutorial (two auctions, two sales) and a full three-player game through both phases.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/for-sale/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: bid, then sell the palace', async ({ browser }, info) => {
+test('interactive tutorial: bid, pass, win an auction, then two sale rounds', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/for-sale');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-bid'), fullPage: true });
-  await p.getByRole('button', { name: /^پیشنهاد ۱/ }).click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
-  await p.locator('button.fs-sell.fs-hint').click();
+  for (const step of ['۱', '۲', '۳', '۴', '۵']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`))).toBeVisible();
+    if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-bid'), fullPage: true });
+    if (step === '۴') await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
+    await p.locator('.fs-hint').first().click(); // bid 2, pass, bid 3, sell 29, sell 8
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

@@ -1,24 +1,32 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «کودتا» end to end: the tutorial (steal, opponent's bluffed block, challenge) and a three-player game through
-// actions, challenges, blocks, lost influence and exchanges until one courtier is left.
+// «کودتا» end to end: the tutorial (income, Duke block, Contessa bluff, exchange, caught bluff, failed challenge)
+// and a three-player game through actions, challenges, blocks, lost influence and exchanges until one courtier is left.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/coup/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: steal, then challenge the bluff', async ({ browser }, info) => {
+test('interactive tutorial: a full two-player game of claims, blocks, bluffs and challenges', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/coup');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-start'), fullPage: true });
-  await p.locator('.cp-act--steal.cp-hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-block'), fullPage: true });
-  await p.locator('.cp-resp__btn--challenge').click();
+  const steps = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸'];
+  for (const step of steps) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`))).toBeVisible();
+    if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-start'), fullPage: true });
+    if (step === '۶') {
+      // Exchange: the options are [Duke, Ambassador, Duke, Duke]; keep the two drawn Dukes.
+      await p.locator('.cp-ex__card').nth(0).click();
+      await p.locator('.cp-ex__card').nth(2).click();
+      await p.screenshot({ path: shot(info.project.name, 'tutorial-exchange'), fullPage: true });
+      await p.getByRole('button', { name: /^نگه داشتن/ }).click();
+    } else {
+      await p.locator('.cp .cp-hint').click();
+    }
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

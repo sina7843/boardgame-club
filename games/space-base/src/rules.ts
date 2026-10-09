@@ -117,16 +117,24 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
     };
     refill(s);
     if (options.deal === 'tutorial') {
+      // The learner's winning turn: dice 3 + 4. Separately, sectors 3 and 4 hold starting ships (+1 credit each); as a
+      // sum, sector 7 holds a heavy ship (+3 VP). The opponent has two ships deployed in sector 7, so the sum also pays
+      // them their red rewards. Buying the mid-level sector-5 ship (+1 VP) deploys the old sector-5 station.
+      const take = (id: number) => { s.decks = s.decks.map((d) => d.filter((x) => x !== id)); s.shop = s.shop.map((r) => r.filter((x) => x !== id)); };
+      const ship = (level: number, sector: number, v: 0 | 1) => SHIPS.filter((x) => x.level === level && x.sector === sector)[v]!.id;
+      const seven = ship(3, 7, 0), oppStation = ship(3, 7, 1), oppDeployed = ship(2, 7, 0);
+      [TUTORIAL_BUY, seven, oppStation, oppDeployed].forEach(take);
+      refill(s);
       s.current = 0;
       s.fixedDice = [[3, 4]];
-      s.boards[0]!.vp = 36;
-      s.boards[0]!.credits = 9;
-      s.decks[1] = s.decks[1]!.filter((x) => x !== TUTORIAL_BUY);
-      s.shop[1] = [TUTORIAL_BUY, ...s.shop[1]!.filter((x) => x !== TUTORIAL_BUY)].slice(0, 6);
-      const seven = SHIPS.find((x) => x.level === 3 && x.sector === 7)!.id;
-      s.decks[2] = s.decks[2]!.filter((x) => x !== seven);
-      s.shop[2] = s.shop[2]!.filter((x) => x !== seven);
+      Object.assign(s.boards[0]!, { vp: 36, credits: 9, income: 4 });
       s.boards[0]!.station[6] = seven;
+      Object.assign(s.boards[1]!, { vp: 33, credits: 6, income: 2 });
+      s.boards[1]!.station[6] = oppStation;
+      s.boards[1]!.deployed[6] = [6, oppDeployed];
+      const row = [TUTORIAL_BUY, ...s.shop[1]!];
+      s.shop[1] = row.slice(0, 6);
+      s.decks[1]!.unshift(...row.slice(6));
     }
     return s;
   },
@@ -223,12 +231,12 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
   tutorial: {
     seed: 23,
     options: { deal: 'tutorial' },
-    introFa: 'شما ۳۶ امتیاز دارید و در بخش ۷ یک ناو سنگین که در نوبت خودتان امتیاز می‌دهد.',
+    introFa: 'آخر یک بازی دونفره است: شما ۳۶ امتیاز، ۹ اعتبار و درآمد ۴ دارید و حریف ۳۳ امتیاز. هر کدام ۱۲ بخش دارید (۱ تا ۱۲) و در هر بخش یک ناو مستقر. در بخش ۷ ناو سنگینی دارید که در نوبت خودتان ۳ امتیاز می‌دهد. اولین کسی که به ۴۰ امتیاز برسد، بازی در پایان همان نوبت تمام می‌شود.',
     steps: [
-      { instructionFa: 'تاس‌ها را بریزید.', expected: { type: 'roll' }, reply: null },
-      { instructionFa: '۳ و ۴ آمد: جمع را انتخاب کنید تا بخش ۷ فعال شود.', expected: { type: 'choose', use: 'sum' }, reply: null },
-      { instructionFa: 'با اعتبارتان ناو میانهٔ اول بازار را بخرید؛ امتیاز خریدش شما را به ۴۰ می‌رساند.', expected: { type: 'buy', ship: TUTORIAL_BUY }, reply: null }
+      { instructionFa: 'تاس‌ها را بریزید. دو تاس شش‌وجهی دو بخش جدا یا جمعشان یک بخش را فعال می‌کند و انتخاب با کسی است که تاس ریخته است.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۳ و ۴ آمد. بخش‌های ۳ و ۴ جدا هر کدام ۱ اعتبار می‌دهند، ولی جمع، بخش ۷ را فعال می‌کند: ناو مستقر شما (پاداش آبی) ۳ امتیاز می‌دهد. جمع را انتخاب کنید. همین انتخاب برای حریف هم اعمال می‌شود: ناوهای اعزام‌شدهٔ او در بخش ۷ پاداش قرمزشان را می‌گیرند (۱ اعتبار و ۱ امتیاز).', expected: { type: 'choose', use: 'sum' }, reply: null },
+      { instructionFa: 'حالا ۳۹ امتیاز دارید. می‌توانید یک ناو بخرید یا بگذرید. ناو میانهٔ بخش ۵ را که در بازار برجسته است بخرید (۷ اعتبار): خریدش ۱ امتیاز می‌دهد، جای ناو مستقر بخش ۵ را می‌گیرد و ناو قبلی اعزام می‌شود تا از این به بعد در نوبت دیگران پاداش قرمز بدهد.', expected: { type: 'buy', ship: TUTORIAL_BUY }, reply: null }
     ],
-    completedFa: 'بردید! به ۴۰ امتیاز رسیدید.'
+    completedFa: 'بردید! ۳۶ امتیاز + ۳ امتیاز از ناو بخش ۷ + ۱ امتیاز خرید ناو = ۴۰، پس بازی در پایان همین نوبت تمام شد. حریف با پاداش قرمز بخش ۷ از ۳۳ به ۳۴ رسید. اعتبارتان بعد از خرید ۲ ماند و در پایان نوبت تا درآمدتان، ۴، بالا رفت؛ در بازی واقعی همین قاعده نمی‌گذارد دستتان خالی بماند.'
   }
 };

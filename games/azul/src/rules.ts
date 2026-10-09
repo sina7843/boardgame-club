@@ -154,7 +154,8 @@ export const azulModule: GameModule<AzulState, AzulAction, AzulView> = {
     };
     fill(s, rng);
     if (opts.deal === 'tutorial') {
-      // The learner's top wall row misses only blue; one factory holds the last tiles of the round.
+      // A late-game teaching round. The learner's top wall row misses only blue and row 2 holds blue + yellow, so
+      // two reds there score a run. Two factories hold the last tiles: reds (+ blue, yellow) and the opponent's blacks.
       s.current = 0;
       const b = s.boards[0]!;
       for (let c = 1; c < 5; c++) b.wall[0]![c] = true;
@@ -164,7 +165,7 @@ export const azulModule: GameModule<AzulState, AzulAction, AzulView> = {
       o.wall[2]![2] = true; o.wall[3]![3] = true;
       o.score = 9;
       s.bag.push(...s.factories.flat());
-      s.factories = s.factories.map((_, i) => (i === 0 ? ['b', 'k', 'k', 'r'] : []));
+      s.factories = s.factories.map((_, i) => (i === 0 ? ['r', 'r', 'b', 'y'] : i === 1 ? ['k', 'k', 'w', 'w'] : []));
     }
     return s;
   },
@@ -251,11 +252,12 @@ export const azulModule: GameModule<AzulState, AzulAction, AzulView> = {
   tutorial: {
     seed: 33,
     options: { deal: 'tutorial' },
-    introFa: 'سطر بالای دیوار شما فقط یک کاشی آبی کم دارد. وقتی همهٔ کاشی‌ها برداشته شود، ردیف‌های پر به دیوار می‌روند — و با اولین سطر کامل، بازی تمام می‌شود.',
+    introFa: 'آخرین دور یک بازی است. روی صفحهٔ شما، سطر اول دیوار فقط آبی کم دارد و سطر دوم آبی و زرد دارد. در هر نوبت همهٔ کاشی‌های یک رنگ را از یک کارگاه یا از وسط میز برمی‌دارید و در یکی از ردیف‌های آماده‌سازی می‌گذارید. وقتی همهٔ کاشی‌ها برداشته شود، از هر ردیف پر یک کاشی به دیوار می‌رود و امتیاز می‌گیرد.',
     steps: [
-      { instructionFa: 'کاشی آبی کارگاه را بردارید و در ردیف ۱ بگذارید (باقی کاشی‌ها به وسط میز می‌رود).', expected: { type: 'take', from: 0, color: 'b', line: 0 }, reply: { type: 'take', from: 'center', color: 'k', line: 'floor' } },
-      { instructionFa: 'حریف سیاه‌ها را از وسط برداشت. کاشی قرمز آخر را در ردیف ۲ بگذارید.', expected: { type: 'take', from: 'center', color: 'r', line: 1 }, reply: null }
+      { instructionFa: 'از کارگاه اول هر دو کاشی قرمز را بردارید و در ردیف ۲ (دو خانه) بگذارید. همیشه همهٔ کاشی‌های یک رنگ برداشته می‌شود و باقی کاشی‌های کارگاه، یعنی آبی و زرد، به وسط میز می‌رود.', expected: { type: 'take', from: 0, color: 'r', line: 1 }, reply: { type: 'take', from: 1, color: 'k', line: 1 } },
+      { instructionFa: 'حریف سیاه‌ها را برداشت و سفیدهای کارگاهش به وسط رفت. حالا آبی را از وسط میز بردارید و در ردیف ۱ بگذارید تا سطر اول کامل شود. چون اولین نفری هستید که از وسط برمی‌دارید، نشان شروع هم به کف شما می‌رود: یک امتیاز منفی، ولی دور بعد را شما شروع می‌کنید.', expected: { type: 'take', from: 'center', color: 'b', line: 0 }, reply: { type: 'take', from: 'center', color: 'w', line: 2 } },
+      { instructionFa: 'فقط یک زرد مانده. ردیف ۲ زرد نمی‌پذیرد، چون زرد در سطر دوم دیوارتان هست و هر ردیف هم فقط یک رنگ می‌گیرد. زرد را در ردیف ۵ بگذارید؛ ردیف نیمه‌پر برای دور بعد می‌ماند. با این کار همهٔ کاشی‌ها برداشته می‌شود و دیوار امتیاز می‌گیرد.', expected: { type: 'take', from: 'center', color: 'y', line: 4 }, reply: null }
     ],
-    completedFa: 'بردید! آبی به دیوار رفت، سطر کامل شد (۵ امتیاز + ۲ پاداش) و بازی تمام شد.'
+    completedFa: 'بردید! آبی سطر اول را کامل کرد: ۵ کاشی پیوسته یعنی ۵ امتیاز. قرمز کنار آبی و زرد سطر دوم نشست و زیر یک کاشی هم هست: ۳ امتیاز سطر و ۲ امتیاز ستون. نشان شروع ۱ امتیاز کم کرد. چون یک سطر کامل شد بازی تمام شد و ۲ امتیاز پاداش سطر هم گرفتید (پاداش هر ستون کامل ۷ و هر رنگ کامل ۱۰ است). امتیاز نهایی ۲۵ در برابر ۱۰.'
   }
 };

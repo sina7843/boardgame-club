@@ -142,11 +142,13 @@ export const beanModule: GameModule<BeanState, BeanAction, BeanView> = {
       current: rng.nextInt(playerCount), last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
+      // The last turn of a game: the deck holds just the two cards about to be flipped, so this turn ends the game.
       s.current = 0;
-      s.hands = [['red', 'soy', 'blue'], ['garden', 'wax']];
-      s.fields[0]![0] = { bean: 'red', n: 2 };
-      s.fields[1]![0] = { bean: 'wax', n: 1 };
-      s.deck = ['garden', 'soy'];
+      s.hands = [['red', 'blue', 'chili'], ['blue', 'wax']];
+      s.fields[0] = [{ bean: 'red', n: 3 }, { bean: 'blue', n: 2 }];
+      s.fields[1] = [{ bean: 'soy', n: 1 }, { bean: 'wax', n: 2 }];
+      s.coins = [2, 4];
+      s.deck = ['chili', 'soy'];
     }
     return s;
   },
@@ -317,14 +319,17 @@ export const beanModule: GameModule<BeanState, BeanAction, BeanView> = {
   tutorial: {
     seed: 33,
     options: { deal: 'tutorial' },
-    introFa: 'در مزرعهٔ اول دو لوبیای قرمز دارید و کارت اول دستتان هم قرمز است. ترتیب دست را نمی‌شود عوض کرد.',
+    introFa: 'آخرین نوبت یک بازی است و فقط ۲ کارت در دسته مانده. شما ۲ سکه دارید و حریف ۴ سکه. مزرعهٔ اولتان ۳ لوبیای قرمز دارد و مزرعهٔ دوم ۲ لوبیای آبی. دستتان به ترتیب قرمز، آبی و فلفلی است و ترتیبش را نمی‌شود عوض کرد.',
     steps: [
-      { instructionFa: 'لوبیای قرمز اول دستتان را در مزرعهٔ قرمز بکارید (سه قرمز ۲ سکه می‌ارزد).', expected: { type: 'plant', field: 0 }, reply: null },
-      { instructionFa: 'کاشتن کافی است: دو کارت را رو کنید.', expected: { type: 'flip' }, reply: null },
-      { instructionFa: 'لوبیای باغی به کارتان نمی‌آید: آن را به حریف ببخشید (بدون خواستن چیزی).', expected: { type: 'offer', to: 1, faceUp: [0], hand: [], want: [] }, reply: { type: 'accept' } },
-      { instructionFa: 'معامله را تمام کنید؛ سویای باقی‌مانده مال شما می‌شود و باید کاشته شود.', expected: { type: 'endTrade' }, reply: { type: 'plantPending', card: 0, field: 1 } },
-      { instructionFa: 'سویا را در مزرعهٔ خالی دوم بکارید. دسته تمام می‌شود و مزرعه‌ها برداشت می‌شوند.', expected: { type: 'plantPending', card: 0, field: 1 }, reply: null }
+      { instructionFa: 'کارت اول دست همیشه باید کاشته شود. قرمز را در مزرعهٔ قرمز (مزرعهٔ اول) بکارید؛ هر مزرعه فقط یک نوع لوبیا می‌گیرد. حالا ۴ قرمز دارید که طبق جدول ۳ سکه می‌ارزد.', expected: { type: 'plant', field: 0 }, reply: null },
+      { instructionFa: 'کاشتن کارت دوم اختیاری است. کارت دوم آبی است و مزرعهٔ آبی دارید؛ آن را در مزرعهٔ دوم بکارید تا ۳ آبی شود. فلفلی در دست می‌ماند.', expected: { type: 'plant', field: 1 }, reply: null },
+      { instructionFa: 'دو کارت را رو کنید. کارت‌های روشده را می‌توانید نگه دارید یا در معامله به دیگران بدهید.', expected: { type: 'flip' }, reply: null },
+      { instructionFa: 'فلفلی و سویا رو شد. حریف یک آبی در دست دارد و ۴ آبی ۱ سکه می‌ارزد. معامله پیشنهاد کنید: سویای روشده را برای دادن انتخاب کنید، از لوبیاهای خواستنی «آبی» را بزنید و بعد «پیشنهاد معامله». حریف آبی دارد و می‌پذیرد.', expected: { type: 'offer', to: 1, faceUp: [1], hand: [], want: ['blue'] }, reply: { type: 'accept' } },
+      { instructionFa: 'معامله انجام شد. «پایان معامله» را بزنید: فلفلی روشده که کسی نگرفت مال خودتان می‌شود. کارت‌های معامله به دست نمی‌روند و همه باید آن‌ها را بکارند؛ حریف سویا را در مزرعهٔ سویایش می‌کارد.', expected: { type: 'endTrade' }, reply: { type: 'plantPending', card: 0, field: 0 } },
+      { instructionFa: 'آبی معامله را در مزرعهٔ آبی بکارید. حالا ۴ آبی دارید که ۱ سکه می‌ارزد.', expected: { type: 'plantPending', card: 0, field: 1 }, reply: null },
+      { instructionFa: 'فلفلی جا ندارد، چون هر دو مزرعه نوع دیگری دارند. اول مزرعهٔ قرمز را برداشت کنید (دکمهٔ «برداشت (۳ سکه)»): ۴ قرمز ۳ سکه می‌دهد و مزرعه خالی می‌شود. برداشت را هر وقت بخواهید می‌توانید انجام دهید.', expected: { type: 'harvest', field: 0 }, reply: null },
+      { instructionFa: 'فلفلی را در مزرعهٔ خالی بکارید. چون کارتی برای کشیدن در دسته نمانده، بازی تمام می‌شود و همهٔ مزرعه‌ها برداشت می‌شوند.', expected: { type: 'plantPending', card: 0, field: 0 }, reply: null }
     ],
-    completedFa: 'بردید! سه لوبیای قرمز ۲ سکه دادند.'
+    completedFa: 'بردید! ۲ سکهٔ قبلی، ۳ سکه از برداشت ۴ قرمز و در برداشت پایانی ۱ سکه از ۴ آبی (۱ فلفلی به آستانهٔ ۳ نمی‌رسد و سکه‌ای ندارد): روی هم ۶ سکه. حریف ۴ سکه داشت و ۲ سویایش ۱ سکه داد (۲ مومی به آستانهٔ ۴ نرسید): ۵ سکه. همان آبی‌ای که با معامله گرفتید بازی را برد.'
   }
 };

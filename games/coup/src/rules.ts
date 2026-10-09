@@ -254,10 +254,12 @@ export const coupModule: GameModule<CoupState, CoupAction, CoupView> = {
     };
     if (playerCount === 2) s.coins[s.current] = 1;
     if (options.deal === 'tutorial') {
+      // Teaching position: the learner holds Duke + Ambassador, the opponent Captain + Assassin. The two remaining
+      // Dukes sit on top of the court deck, so the learner's exchange shows all three Dukes and exposes a later bluff.
       s.current = 0;
-      s.cards = [[{ role: 'duke', revealed: false }, { role: 'captain', revealed: false }], [{ role: 'contessa', revealed: false }, { role: 'duke', revealed: true }]];
-      s.coins = [2, 2];
-      s.deck = shuffle(rng, (['duke', 'assassin', 'captain', 'ambassador', 'contessa'] as Role[]).flatMap((r) => [r, r, r])).filter((_, i) => i < 11);
+      s.cards = [[{ role: 'duke', revealed: false }, { role: 'ambassador', revealed: false }], [{ role: 'captain', revealed: false }, { role: 'assassin', revealed: false }]];
+      s.coins = [2, 3];
+      s.deck = ['duke', 'duke', ...shuffle(rng, ['assassin', 'assassin', 'captain', 'captain', 'ambassador', 'ambassador', 'contessa', 'contessa', 'contessa'])];
     }
     return s;
   },
@@ -370,11 +372,17 @@ export const coupModule: GameModule<CoupState, CoupAction, CoupView> = {
   tutorial: {
     seed: 17,
     options: { deal: 'tutorial' },
-    introFa: 'هر کس دو کارت نفوذ مخفی دارد. می‌توانید ادعا کنید هر نقشی را دارید — حتی اگر نداشته باشید! — ولی هر کس می‌تواند ادعایتان را «به چالش» بکشد. حریف فقط یک نفوذ برایش مانده.',
+    introFa: 'بازی دونفره چند نوبت جلو رفته است. شما ۲ سکه و دو کارت نفوذ مخفی دارید: «دوک» و «سفیر». حریف ۳ سکه دارد و کارت‌هایش را نمی‌بینید. در هر نوبت یک کار انجام می‌دهید؛ برای کارهای نقش‌دار فقط ادعا کافی است، ولی هر ادعا را می‌شود به چالش کشید. هر کس هر دو کارتش رو شود بیرون است.',
     steps: [
-      { instructionFa: 'شما «کاپیتان» دارید: «دزدی» را انتخاب کنید و از حریف دو سکه بدزدید.', expected: { type: 'act', act: 'steal', target: 1 }, reply: { type: 'block', role: 'ambassador' } },
-      { instructionFa: 'حریف ادعا کرد «سفیر» دارد و دزدی را بست. ولی «سفیر»ی که کنار گذاشته شده بود... «چالش» را بزنید!', expected: { type: 'challenge' }, reply: null }
+      { instructionFa: '«درآمد» را بزنید: ۱ سکه می‌گیرید. درآمد به هیچ نقشی نیاز ندارد و کسی نمی‌تواند جلویش را بگیرد یا چالشش کند.', expected: { type: 'act', act: 'income' }, reply: { type: 'act', act: 'foreignAid' } },
+      { instructionFa: 'حریف «کمک خارجی» (۲ سکه) خواست. جلوی کمک خارجی را هر کسی با ادعای دوک می‌گیرد و شما واقعاً دوک دارید: «جلوگیری با دوک» را بزنید.', expected: { type: 'block', role: 'duke' }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف جلوگیری را قبول کرد و سکه‌ای نگرفت. دوباره «درآمد» بزنید تا به ۴ سکه برسید.', expected: { type: 'act', act: 'income' }, reply: { type: 'act', act: 'assassinate', target: 0 } },
+      { instructionFa: 'حریف ۳ سکه پرداخت و با ادعای آدم‌کش شما را ترور می‌کند. فقط کنتس جلوی ترور را می‌گیرد. کنتس ندارید، ولی ادعا کافی است: «جلوگیری با کنتس» را بزنید. این یک بلوف است؛ اگر حریف چالش کند یک نفوذ از دست می‌دهید.', expected: { type: 'block', role: 'contessa' }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف بلوفتان را قبول کرد و ۳ سکه‌اش هدر رفت. حالا «مبادله» (سفیر) را بزنید: ۲ کارت از دستهٔ دربار می‌کشید و از میان چهار کارت، دو کارت نگه می‌دارید.', expected: { type: 'act', act: 'exchange' }, reply: { type: 'pass' } },
+      { instructionFa: 'دو دوک کشیدید! با دوکی که داشتید هر سه دوکِ بازی را دیده‌اید. دو دوک را انتخاب کنید و «نگه داشتن» را بزنید؛ سفیر و دوک سوم به دسته برمی‌گردند.', expected: { type: 'keep', roles: ['duke', 'duke'] }, reply: { type: 'act', act: 'tax' } },
+      { instructionFa: 'حریف ادعای دوک کرد تا «مالیات» (۳ سکه) بگیرد. دو دوک دست شماست و سومی در دسته است، پس حتماً بلوف می‌زند: «چالش» را بزنید. ادعای دروغ برای ادعاکننده یک نفوذ هزینه دارد.', expected: { type: 'challenge' }, reply: { type: 'lose', card: 1 } },
+      { instructionFa: 'حریف آدم‌کشش را رو کرد و فقط یک نفوذ برایش مانده. حالا خودتان با دوک واقعی «مالیات» بزنید؛ اگر حریف چالش کند، خودش نفوذ از دست می‌دهد.', expected: { type: 'act', act: 'tax' }, reply: { type: 'challenge' } }
     ],
-    completedFa: 'بردید! حریف سفیر نداشت و آخرین نفوذش را از دست داد. هر کس هر دو کارتش رو شود از بازی بیرون است.'
+    completedFa: 'بردید! حریف مالیاتتان را به چالش کشید، ولی شما دوک داشتید: دوک را نشان دادید و با کارت تازه‌ای از دسته عوض کردید، و حریف آخرین نفوذش (کاپیتان) را از دست داد و بیرون رفت. در این بازی یک ادعای راست (جلوگیری با دوک)، یک بلوف موفق (کنتس)، یک بلوف رو‌شده (مالیات حریف) و یک چالش ناموفق را دیدید. کودتا با ۷ سکه هم یک نفوذ می‌گیرد و جلوگیری ندارد؛ با ۱۰ سکه اجباری است.'
   }
 };

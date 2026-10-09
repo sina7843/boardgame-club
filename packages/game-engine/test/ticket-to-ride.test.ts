@@ -327,9 +327,13 @@ describe('ticket to ride tutorial', () => {
       if (step.reply && ttrModule.pendingSeats(st(snap)).includes(1)) snap = act(snap, 1, step.reply).snapshot;
     }
     const s = st(snap);
-    expect(s.outcome?.placements.find((x) => x.place === 1)?.seat).toBe(0);
-    expect(s.final![0]!.tickets.every((t) => t.done)).toBe(true);
-    expect(routesOf(s, 1)).toHaveLength(4);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, score: 23, place: 1 }, { seat: 1, score: -18, place: 2 }]);
+    expect(s.final![0]).toMatchObject({ routePoints: 7, ticketPoints: 6, longest: 7, bonus: true, total: 23 });
+    expect(s.final![0]!.tickets.map((t) => t.done)).toEqual([true, true, false]);
+    expect(s.final![1]).toMatchObject({ routePoints: 10, ticketPoints: -28, longest: 6, bonus: false });
+    expect(s.trains[0]).toBe(0);
+    expect(routesOf(s, 1)).toHaveLength(5);
+    expect(cardTotal(s)).toBe(110);
   });
 });
 

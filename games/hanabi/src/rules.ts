@@ -89,15 +89,19 @@ export const hanabiModule: GameModule<HanabiState, HanabiAction, HanabiView> = {
       discard: [], clues: 8, fuses: 3, current: rng.nextInt(playerCount), finalLeft: null, last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
+      // A late-game teaching position: stacks red 3, yellow 4, green 2, blue 2, white 1 (12 points), 3 clue tokens,
+      // 2 fuses left and 5 cards in the deck. The learner already knows their red 4 and a «1» (useless: every stack has
+      // its 1). Draws: partner w4, learner y1, b1, partner r1, learner y2 — the last one empties the deck.
       const id = (c: Color, r: number, nth = 0) => CARDS.map((x, i) => (x.c === c && x.r === r ? i : -1)).filter((i) => i >= 0)[nth]!;
       s.current = 0;
       s.hands = [
-        [{ ...fresh(id('w', 1)), color: 'w', rank: 1 }, fresh(id('b', 3)), fresh(id('g', 4)), fresh(id('y', 2)), fresh(id('r', 5))],
-        [fresh(id('b', 4)), fresh(id('r', 1)), fresh(id('y', 3)), fresh(id('g', 2)), fresh(id('w', 4))]
+        [{ ...fresh(id('r', 4)), color: 'r', rank: 4 }, { ...fresh(id('g', 1)), rank: 1 }, fresh(id('b', 4)), fresh(id('r', 5)), fresh(id('w', 3))],
+        [fresh(id('y', 5)), fresh(id('b', 3)), fresh(id('g', 3)), fresh(id('w', 2)), fresh(id('r', 2))]
       ];
-      s.deck = [];
-      s.finalLeft = 4;
-      s.stacks = { r: 0, y: 1, g: 1, b: 2, w: 0 };
+      s.deck = [id('w', 4), id('y', 1), id('b', 1), id('r', 1), id('y', 2)];
+      s.stacks = { r: 3, y: 4, g: 2, b: 2, w: 1 };
+      s.clues = 3;
+      s.fuses = 2;
     }
     return s;
   },
@@ -189,11 +193,15 @@ export const hanabiModule: GameModule<HanabiState, HanabiAction, HanabiView> = {
   tutorial: {
     seed: 57,
     options: { deal: 'tutorial' },
-    introFa: 'کارت‌های خودتان را نمی‌بینید؛ فقط سرنخ‌هایی که گرفته‌اید روی آن‌ها نوشته شده. کارت‌های هم‌تیمی را می‌بینید. دسته تمام شده و هر کدام دو نوبت دیگر داریم.',
+    introFa: 'هانابی گروهی است: همه با هم می‌برید یا با هم می‌بازید. کارت‌های خودتان را نمی‌بینید و فقط سرنخ‌هایی که گرفته‌اید رویشان نوشته می‌شود، ولی کارت‌های هم‌تیمی را می‌بینید. آتش‌بازی‌ها حالا قرمز ۳، زرد ۴، سبز ۲، آبی ۲ و سفید ۱ هستند (۱۲ امتیاز). ۳ ژتون سرنخ، ۲ فیوز سالم و ۵ کارت در دسته مانده است.',
     steps: [
-      { instructionFa: 'هم‌تیمی‌تان یک «۱ قرمز» دارد و قرمزها هنوز شروع نشده‌اند. به او سرنخ «عدد ۱» بدهید.', expected: { type: 'clue', to: 1, rank: 1 }, reply: { type: 'play', index: 1 } },
-      { instructionFa: 'او ۱ قرمز را بازی کرد. کارت اول شما با سرنخ «۱ سفید» علامت خورده: بازی‌اش کنید.', expected: { type: 'play', index: 0 }, reply: { type: 'discard', index: 0 } }
+      { instructionFa: 'هم‌تیمی‌تان «۵ زرد» دارد و زرد روی ۴ است. «سرنخ بده» را بزنید و رنگ «زرد» را انتخاب کنید. سرنخ یک ژتون خرج می‌کند و همهٔ کارت‌های زرد او را نشان می‌دهد؛ اینجا فقط همان ۵.', expected: { type: 'clue', to: 1, color: 'y' }, reply: { type: 'play', index: 0 } },
+      { instructionFa: 'او ۵ زرد را بازی کرد و چون یک رنگ کامل شد، یک ژتون سرنخ برگشت. کارت اول شما از سرنخ‌های قبلی «قرمز ۴» است و قرمز روی ۳ است: انتخابش کنید و «بازی» را بزنید. بعد از هر بازی یا دور انداختن یک کارت تازه می‌کشید.', expected: { type: 'play', index: 0 }, reply: { type: 'clue', to: 0, rank: 5 } },
+      { instructionFa: 'هم‌تیمی‌تان به شما سرنخ «۵» داد و فقط کارت سوم شما را نشان داد. وقتی کسی فقط یک کارت را نشان می‌دهد یعنی «این را بازی کن»؛ قرمز هم تنها رنگی است که منتظر ۵ است. کارت سوم را بازی کنید.', expected: { type: 'play', index: 2 }, reply: { type: 'clue', to: 0, rank: 4 } },
+      { instructionFa: 'قرمز هم کامل شد. هم‌تیمی‌تان کارت دوم شما را «۴» نشان داد؛ آبی روی ۲ است، پس هنوز زود است. اول باید ۳ آبی بیاید: به او سرنخ عدد «۳» بدهید. سرنخ عددی هر دو ۳ او (آبی و سبز) را نشان می‌دهد.', expected: { type: 'clue', to: 1, rank: 3 }, reply: { type: 'play', index: 0 } },
+      { instructionFa: 'او ۳ آبی را بازی کرد. فقط ۱ ژتون سرنخ مانده. کارت اول شما «۱» است و همهٔ رنگ‌ها ۱ را دارند، پس به درد نمی‌خورد: انتخابش کنید و «دور انداختن» را بزنید تا یک ژتون پس بگیرید. این آخرین کارت دسته را می‌کشد؛ از اینجا هر نفر فقط یک نوبت دیگر دارد.', expected: { type: 'discard', index: 0 }, reply: { type: 'play', index: 0 } },
+      { instructionFa: 'هم‌تیمی‌تان در نوبت آخرش ۳ سبز را بازی کرد. نوبت آخر شماست: کارت اول، همان «۴» نشان‌دار، حالا ۴ آبی است و آبی روی ۳ است. بازی‌اش کنید.', expected: { type: 'play', index: 0 }, reply: null }
     ],
-    completedFa: 'آفرین! بدون سوختن فیوز، دو کارت دیگر روی میز رفت. در بازی واقعی هدف رسیدن به ۲۵ است.'
+    completedFa: 'بردید! بدون سوختن حتی یک فیوز بازی تمام شد. آتش‌بازی‌ها: قرمز ۵، زرد ۵، سبز ۳، آبی ۴ و سفید ۱، یعنی ۱۸ امتیاز تیمی. امتیاز جمع بالاترین عدد هر رنگ است و ۲۵ امتیاز کامل است. اگر سه فیوز بسوزد، کل تیم می‌بازد.'
   }
 };

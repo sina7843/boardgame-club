@@ -37,6 +37,17 @@ export const CARDS: Card[] = [
 
 /** The cost-2 civil world the tutorial settles. */
 export const TUTORIAL_WORLD = CARDS.find((c) => c.type === 'world' && !c.start && c.kind !== 'mil' && c.cost === 2)!.id;
+const card = (name: string) => CARDS.find((c) => c.name === name)!.id;
+/** Tutorial deal: the learner has 9 worlds out (six of them production, Old Earth included) and needs three more. */
+export const TUTORIAL = {
+  learnerTableau: [card('زمین قدیم'), card('سیارهٔ سرگردان'), card('ماه یخی'), card('جهان آبی'), card('کلونی معدنی'), card('جنگل بلورین'), card('خرابه‌های بیگانه'), card('زمین داغ'), card('سیارهٔ باغ')],
+  /** Warfleet (develop, cost 3, military +2), Iron Moon (military world, defence 2), the cost-2 world, two cards to pay. */
+  learnerHand: [card('ناوگان جنگی'), card('ماه آهنی'), TUTORIAL_WORLD, card('کارخانهٔ خودکار'), card('کوهستان بلور')],
+  scriptTableau: [card('کلونی نخستین')],
+  scriptHand: [card('جشنوارهٔ ستاره'), card('ایستگاه مرزی'), card('آکادمی علوم'), card('جهان مه‌آلود'), card('نوار پیشگامان')],
+  /** Top of the deck: the learner's two explore cards, then the four the script draws as the explore picker. */
+  deckTop: [card('بهشت کویری'), card('تله‌پورت'), card('سیارهٔ اقیانوسی'), card('بانک مرکزی'), card('شهر شناور'), card('دنیای ققنوس')]
+};
 
 export const PHASES = ['explore', 'develop', 'settle', 'consume', 'produce'] as const;
 export type Phase = (typeof PHASES)[number];
@@ -166,12 +177,12 @@ export const rgModule: GameModule<RgState, RgAction, RgView> = {
     };
     s.players = Array.from({ length: playerCount }, (_, k) => ({ hand: drawCards(s, 4, rng), tableau: [starts[k % 3]!], goods: [], chips: 0, choice: null, drawn: [], done: false }));
     if (options.deal === 'tutorial') {
-      const worlds = CARDS.filter((c) => c.type === 'world' && !c.start && c.kind !== 'mil').map((c) => c.id);
-      const target = TUTORIAL_WORLD;
-      const filler = worlds.filter((id) => id !== target).slice(0, 10);
-      s.players[0]!.tableau = [starts[0]!, ...filler];
-      s.players[0]!.hand = [target, ...s.deck.splice(0, 3)];
-      s.deck = s.deck.filter((id) => id !== target && !filler.includes(id));
+      const t = TUTORIAL;
+      const used = new Set([...t.learnerTableau, ...t.learnerHand, ...t.scriptTableau, ...t.scriptHand, ...t.deckTop]);
+      const rest = [...s.deck, ...s.players.flatMap((e) => e.hand)].filter((id) => !used.has(id) && !CARDS[id]!.start);
+      s.players[0] = { ...s.players[0]!, tableau: [...t.learnerTableau], hand: [...t.learnerHand] };
+      s.players[1] = { ...s.players[1]!, tableau: [...t.scriptTableau], hand: [...t.scriptHand] };
+      s.deck = [...t.deckTop, ...rest];
     }
     return s;
   },
@@ -277,11 +288,16 @@ export const rgModule: GameModule<RgState, RgAction, RgView> = {
   tutorial: {
     seed: 29,
     options: { deal: 'tutorial' },
-    introFa: 'امپراتوری شما ۱۱ کارت دارد. اگر جهان دوازدهم را مستقر کنید بازی در پایان همین دور تمام می‌شود.',
+    introFa: 'اواخر بازی است. امپراتوری شما ۹ جهان دارد که ۶ تایشان، از جمله جهان شروع «زمین قدیم»، تولیدی‌اند. بازی در پایان دوری تمام می‌شود که کسی ۱۲ کارت روی میز داشته باشد؛ در سه دور، یک پیشرفت، یک جهان نظامی و یک جهان معمولی می‌گذارید. یادتان باشد کارت‌های دست هم پول شما هستند.',
     steps: [
-      { instructionFa: 'مرحلهٔ «استقرار» را انتخاب کنید.', expected: { type: 'choose', phase: 'settle' }, reply: { type: 'choose', phase: 'produce' } },
-      { instructionFa: 'جهان اول دستتان (هزینهٔ ۲) را مستقر کنید و با دو کارت دیگر هزینه را بپردازید.', expected: { type: 'place', card: TUTORIAL_WORLD, pay: [1, 2] }, reply: { type: 'place', card: -1, pay: [] } }
+      { instructionFa: 'هر دور همه پنهانی یک مرحله انتخاب می‌کنند و هر مرحله‌ای که کسی انتخاب کرده برای همه اجرا می‌شود؛ انتخاب‌کننده پاداش هم می‌گیرد. «توسعه» را انتخاب کنید: پاداشش این است که پیشرفت‌ها برای شما ۱ کارت ارزان‌تر می‌شوند.', expected: { type: 'choose', phase: 'develop' }, reply: { type: 'choose', phase: 'explore' } },
+      { instructionFa: 'حریف «کاوش» را انتخاب کرد، پس این مرحله برای شما هم اجرا می‌شود: ۲ کارت کشیده‌اید و یکی را نگه می‌دارید (انتخاب‌کنندهٔ کاوش ۴ کارت می‌کشد). «بهشت کویری» را نگه دارید؛ کارت دیگر دور ریخته می‌شود.', expected: { type: 'keep', card: TUTORIAL.deckTop[0]! }, reply: { type: 'keep', card: TUTORIAL.deckTop[2]! } },
+      { instructionFa: 'مرحلهٔ توسعه: «ناوگان جنگی» هزینهٔ ۳ دارد، ولی چون شما توسعه را انتخاب کرده‌اید ۲ کارت می‌پردازید. آن را بگذارید و «کارخانهٔ خودکار» و «کوهستان بلور» را به‌عنوان هزینه دور بریزید. این پیشرفت ۲ قدرت نظامی به شما می‌دهد.', expected: { type: 'place', card: TUTORIAL.learnerHand[0]!, pay: [3, 4] }, reply: { type: 'place', card: TUTORIAL.scriptHand[0]!, pay: [2] } },
+      { instructionFa: 'دور تازه. این بار «استقرار» را انتخاب کنید: پاداش انتخاب‌کننده این است که بعد از استقرار ۱ کارت می‌کشد.', expected: { type: 'choose', phase: 'settle' }, reply: { type: 'choose', phase: 'produce' } },
+      { instructionFa: '«ماه آهنی» جهان نظامی با دفاع ۲ است. جهان نظامی با کارت خریده نمی‌شود: اگر قدرت نظامی‌تان دست‌کم برابر دفاعش باشد، رایگان فتحش می‌کنید. با ۲ قدرت ناوگان جنگی آن را بدون پرداخت بگذارید. بعد مرحلهٔ «تولید» که حریف انتخاب کرده برای شما هم اجرا می‌شود و روی هر جهان تولیدی‌تان که کالا ندارد یک کالا می‌نشیند.', expected: { type: 'place', card: TUTORIAL.learnerHand[1]!, pay: [] }, reply: { type: 'place', card: TUTORIAL.scriptHand[1]!, pay: [1, 2] } },
+      { instructionFa: '۶ کالا روی جهان‌های تولیدی‌تان دارید. «مصرف» را انتخاب کنید: هر کالا ۱ نشان امتیاز می‌شود و انتخاب‌کننده دو برابر می‌گیرد.', expected: { type: 'choose', phase: 'consume' }, reply: { type: 'choose', phase: 'settle' } },
+      { instructionFa: 'مرحله‌ها همیشه به ترتیب کاوش، توسعه، استقرار، مصرف و تولید اجرا می‌شوند، پس اول استقرارِ حریف می‌آید. «کمربند سیارکی» (هزینهٔ ۲) را بگذارید و ۲ کارت باقی دستتان را بپردازید. کارت دوازدهم روی میز است، پس بعد از مصرف همین دور بازی تمام می‌شود.', expected: { type: 'place', card: TUTORIAL_WORLD, pay: [1, 2] }, reply: { type: 'place', card: -1, pay: [] } }
     ],
-    completedFa: 'بردید! با ۱۲ کارت روی میز بازی تمام شد.'
+    completedFa: 'بردید! با کارت دوازدهم بازی در پایان همان دور تمام شد. امتیاز شما ۲۸ شد: ۱۶ امتیاز از ۱۲ کارت روی میز (هر جهان به اندازهٔ نصف هزینه‌اش، گرد به بالا، و هر پیشرفت امتیاز چاپ‌شده‌اش) و ۱۲ نشان از مصرف ۶ کالا با پاداش دو برابرِ انتخاب‌کننده. حریف با ۳ کارت و ۲ نشان به ۵ امتیاز رسید. یادتان باشد: مرحله‌ای که حریف انتخاب می‌کند برای شما هم اجرا می‌شود، پس انتخابتان را با انتخاب او جفت کنید.'
   }
 };

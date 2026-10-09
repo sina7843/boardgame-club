@@ -78,7 +78,12 @@ describe('el dorado rules', () => {
     const tu = edModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome?.placements.map((x) => ({ ...x, score: x.score === 0 ? 0 : x.score }))).toEqual([{ seat: 0, place: 1, score: 0 }, { seat: 1, place: 2, score: -2 }]);
+    expect(s.players[0]!.arrived).toBe(true);
+    // The bought photographer joined the learner's cards (the final refill reshuffled the discard into the deck).
+    const me = s.players[0]!;
+    expect([...me.deck, ...me.hand, ...me.discard].filter((k) => k === 'photographer')).toHaveLength(1);
   });
 
   it('greedy random races reach El Dorado and replay deterministically', () => {

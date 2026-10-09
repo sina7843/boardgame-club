@@ -1411,23 +1411,27 @@ function assignHero(s: UnmatchedState, seat: number, hero: string, rng?: EngineR
   draw(s, seat, START_HAND);
 }
 
-/** Fixed teaching scenario (tutorial tables only): Arthur vs a wounded Medusa on Marmoreal. */
+/** Fixed teaching scenario (tutorial tables only): King Arthur and Merlin against a wounded Sinbad on Marmoreal. */
 export const TUTORIAL = {
-  hand: ['0.excalibur.1', '0.regroup.1', '0.feint.1', '0.skirmish.1', '0.swift-strike.1'],
-  drawn: '0.momentous-shift.1'
+  /** Arthur's opening hand, then his next draws in order (Aid the Chosen One draws 2, the maneuver draws 1). */
+  hand: ['0.aid-the-chosen-one.1', '0.feint.1', '0.the-lady-of-the-lake.1', '0.noble-sacrifice.1', '0.regroup.1'],
+  draws: ['0.skirmish.1', '0.divine-intervention.1', '0.the-holy-grail.1'],
+  /** Sinbad's opening hand. */
+  oppHand: ['1.regroup.1', '1.voyage-to-the-city-of-the-man-eating-apes.1', '1.riches-beyond-compare.1', '1.exploit.1', '1.toil-and-danger.1'],
+  oppHp: 8
 };
 
 function tutorialSetup(s: UnmatchedState, rng: EngineRng) {
   const all = (seat: number, hero: string) => HEROES[hero]!.cards.flatMap((c) => Array.from({ length: c.count }, (_, k) => `${seat}.${c.slug}.${k + 1}`));
-  const arthur = all(0, 'arthur');
-  const rest = shuffle(arthur.filter((c) => !TUTORIAL.hand.includes(c) && c !== TUTORIAL.drawn), rng);
-  // Deck: the last element is drawn first.
-  assignHero(s, 0, 'arthur', undefined, [...rest, TUTORIAL.drawn, ...[...TUTORIAL.hand].reverse()]);
-  assignHero(s, 1, 'medusa', rng);
+  // Deck arrays are drawn from the end: [...rest, ...later draws reversed, ...hand reversed].
+  const deck = (cards: string[], top: string[]) => [...shuffle(cards.filter((c) => !top.includes(c)), rng), ...[...top].reverse()];
+  assignHero(s, 0, 'arthur', undefined, deck(all(0, 'arthur'), [...TUTORIAL.hand, ...TUTORIAL.draws]));
+  assignHero(s, 1, 'sinbad', undefined, deck(all(1, 'sinbad'), TUTORIAL.oppHand));
   const place = (fid: string, space: number) => { fighter(s, fid)!.space = space; };
-  place('0h', 15); place('0s0', 20);
-  place('1h', 17); place('1s0', 18); place('1s1', 21); place('1s2', 28);
-  fighter(s, '1h')!.hp = 5;
+  // Merlin (20) shares the yellow zone with Sinbad (8) without touching him; Arthur (27) is 3 steps from 7, next to Sinbad.
+  place('0h', 27); place('0s0', 20);
+  place('1h', 8); place('1s0', 10);
+  fighter(s, '1h')!.hp = TUTORIAL.oppHp;
   s.seq = 0;
   s.log = [];
 }
@@ -1753,15 +1757,18 @@ export const unmatchedModule: GameModule<UnmatchedState, UnmatchedAction, Unmatc
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },
-    introFa: 'شما شاه آرتور هستید و مدوسای زخمی (۵ سلامتی) روبه‌روی شماست. هر نوبت دو اقدام دارید: مانور، نقشه یا حمله. هدف: شکست دادن قهرمان حریف.',
+    introFa: 'شما شاه آرتور (۱۸ سلامتی، نزدیک‌زن) و یاورش مرلین (دوربرد) هستید؛ روبه‌رویتان سندبادِ زخمی با ۸ سلامتی و باربرش. هر نوبت دقیقاً دو اقدام دارید: مانور، نقشه یا حمله. هر کس قهرمان حریف را به صفر سلامتی برساند برنده است. در این آموزش دو نوبت بازی می‌کنید و یک نوبت هم از خودتان دفاع می‌کنید.',
     steps: [
-      { instructionFa: 'اقدام اول: «مانور». یک کارت می‌کشید و بعد می‌توانید مبارزانتان را جابه‌جا کنید.', expected: { type: 'maneuver' }, reply: null },
-      { instructionFa: 'حرکت آرتور ۲ است و تا مدوسا ۳ خانه راه است. حرکت را با دور ریختن «تجدید قوا» (تقویت ۱) تقویت کنید.', expected: { type: 'choose', ids: ['0.regroup.1'] }, reply: null },
-      { instructionFa: 'حالا آرتور می‌تواند ۳ خانه برود؛ او را به خانه کنار مدوسا (خانه چشمک‌زن) ببرید. از روی مرلین خودی می‌شود رد شد.', expected: { type: 'move', fighter: '0h', to: 14 }, reply: null },
-      { instructionFa: 'مرلین را جابه‌جا نمی‌کنیم: «پایان حرکت» را بزنید.', expected: { type: 'done' }, reply: null },
-      { instructionFa: 'اقدام دوم: «حمله». آرتور کنار مدوساست؛ با «اکسکالیبور» (ارزش ۶) به مدوسا حمله کنید.', expected: { type: 'attack', fighter: '0h', target: '1h', card: '0.excalibur.1' }, reply: { type: 'defend', card: null } }
+      { instructionFa: 'اقدام اول، حمله از دور: مرلین دوربرد است و سندباد با او در منطقهٔ زرد است، پس لازم نیست کنارش باشد. «حمله» را بزنید، مرلین و سپس سندباد را انتخاب کنید و کارت «یاری برگزیده» (ارزش ۴) را بازی کنید. این کارت پرچم یاور دارد و فقط مرلین می‌تواند از آن استفاده کند.', expected: { type: 'attack', fighter: '0s0', target: '1h', card: '0.aid-the-chosen-one.1' }, reply: { type: 'defend', card: '1.regroup.1' } },
+      { instructionFa: 'سندباد با «تجدید قوا» (ارزش ۱) دفاع کرد: آسیب = حمله منهای دفاع = ۴ − ۱ = ۳. چون آسیب زدید نبرد را بردید و اثر «پس از نبرد» کارتتان ۲ کارت برایتان کشید. اقدام دوم: «مانور». اول یک کارت می‌کشید، بعد مبارزانتان حرکت می‌کنند.', expected: { type: 'maneuver' }, reply: null },
+      { instructionFa: 'حرکت آرتور ۲ است ولی تا خانهٔ کنار سندباد ۳ قدم راه است. می‌توانید یک کارت دور بریزید و ارزش تقویتش (عدد گوشهٔ کارت) را به حرکت اضافه کنید: «تجدید قوا» (تقویت ۱) را بزنید.', expected: { type: 'choose', ids: ['0.regroup.1'] }, reply: null },
+      { instructionFa: 'حالا هر مبارز تا ۳ خانه می‌رود. آرتور را به خانهٔ چشمک‌زن کنار سندباد ببرید. از خانهٔ مرلین (مبارز خودی) می‌شود رد شد، ولی از خانهٔ مبارز حریف نه، و باید در خانهٔ خالی بایستید.', expected: { type: 'move', fighter: '0h', to: 7 }, reply: null },
+      { instructionFa: 'مرلین همین‌جا هم به سندباد دسترسی دارد؛ «پایان حرکت» را بزنید. با این کار دو اقدامتان تمام می‌شود و نوبت سندباد است: او با آرتور درگیر می‌شود.', expected: { type: 'done' }, reply: { type: 'attack', fighter: '1h', target: '0h', card: '1.voyage-to-the-city-of-the-man-eating-apes.1' } },
+      { instructionFa: 'سندباد با یک کارت رو به پایین به آرتور حمله کرد؛ حالا شما می‌توانید یک کارت دفاع یا همه‌کاره بگذارید. «فریب» (ارزش ۲) را بزنید: اثر «فوری» آن همهٔ اثرهای کارت حریف را لغو می‌کند.', expected: { type: 'defend', card: '0.feint.1' }, reply: { type: 'scheme', card: '1.riches-beyond-compare.1', fighter: '1h' } },
+      { instructionFa: 'کارت سندباد «سفر به شهر میمون‌های آدم‌خوار» بود (ارزش ۲ و ۲ آسیب اضافه پس از نبرد)؛ فریب اثرش را لغو کرد و ۲ − ۲ = ۰ آسیب ماند، پس شما در دفاع بردید. سندباد با نقشهٔ «ثروت بی‌همتا» ۳ کارت کشید و نوبت به شما برگشت. اقدام اول: کارت نقشهٔ «بانوی دریاچه» را بازی کنید تا اکسکالیبور را از دسته پیدا کنید و به دستتان بیاورید.', expected: { type: 'scheme', card: '0.the-lady-of-the-lake.1', fighter: '0h' }, reply: null },
+      { instructionFa: 'ضربهٔ آخر: آرتور کنار سندباد است و با «اکسکالیبور» (ارزش ۶) حمله می‌کند. توانایی آرتور: یک کارت دیگر را رو به پایین به‌عنوان تقویت کنار حمله بگذارید. «افزودن تقویت» را بزنید و «فداکاری شرافتمندانه» (تقویت ۳) را انتخاب کنید، بعد «ثبت حمله».', expected: { type: 'attack', fighter: '0h', target: '1h', card: '0.excalibur.1', boost: '0.noble-sacrifice.1' }, reply: { type: 'defend', card: '1.exploit.1' } }
     ],
-    completedFa: 'آفرین! مدوسا دفاعی نداشت، ۶ آسیب خورد و شکست خورد. در بازی واقعی هر دو قهرمان با سلامتی کامل شروع می‌کنند، مدافع کارت دفاع رو به پایین می‌گذارد و کارت‌ها اثرهای فوری، حین نبرد و پس از نبرد دارند.'
+    completedFa: 'بردید! اکسکالیبور ۶ به‌علاوهٔ تقویت ۳ شد ۹؛ سندباد با «بهره‌برداری» (ارزش ۴) دفاع کرد و ۹ − ۴ = ۵ آسیب خورد. او با ۸ سلامتی شروع کرده بود، ۳ آسیب از حملهٔ دوربرد مرلین و ۵ آسیب از آرتور خورد و به صفر رسید؛ قهرمانی که سلامتی‌اش صفر شود شکست می‌خورد. در بازی واقعی همه با سلامتی کامل شروع می‌کنند، هر نوبت دو اقدام دارید و اگر دسته‌تان تمام شود هر کارتی که نتوانید بکشید ۲ آسیب به همهٔ مبارزانتان می‌زند.'
   }
 };
 

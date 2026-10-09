@@ -1,21 +1,31 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «ارگ‌ها» end to end: the tutorial (gold, the eighth district, end) and a full three-player game (two characters each).
+// «ارگ‌ها» end to end: the tutorial (income choice, warlord, the eighth district, end) and a full three-player game (two characters each).
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/citadels/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: gold, build, end', async ({ browser }, info) => {
+test('interactive tutorial: income choice, keep, build, warlord, eighth district, end', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/citadels');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`))).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-build'), fullPage: true });
-    await p.locator('button.ct2-hint').first().click();
+  const hint = p.locator('button.ct2-hint');
+  // The renderer highlights gold, build and end; "two cards", keep and destroy use their own buttons.
+  const clicks = [
+    p.getByRole('button', { name: 'دو کارت' }),
+    p.locator('.ct2__bar .ct2-pick'),
+    hint, hint, hint,
+    p.getByRole('button', { name: /تخریب زندان/ }),
+    hint, hint
+  ];
+  const fa = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸'];
+  for (const [i, target] of clicks.entries()) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${fa[i]} از ۸`))).toBeVisible();
+    if (i === 6) await p.screenshot({ path: shot(info.project.name, 'tutorial-build'), fullPage: true });
+    await target.first().click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();

@@ -93,7 +93,8 @@ describe('love letter rules', () => {
       tut = act(tut, 0, step.expected);
       if (step.reply) tut = act(tut, 1, step.reply);
     }
-    expect(st(tut).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(tut).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 7 }, { seat: 1, place: 2, score: 5 }]);
+    expect(st(tut).discards[1]).toEqual([4, 1, 1, 8]);
   });
 
   it('random games keep 16 cards per round and replay deterministically', () => {

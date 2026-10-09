@@ -86,7 +86,10 @@ describe('cockroach poker rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
+    expect(s.table).toEqual([['scorpion', 'rat'], ['fly', 'fly', 'fly', 'stinkbug', 'stinkbug', 'stinkbug', 'toad', 'stinkbug']]);
+    expect(s.hands).toEqual([['fly', 'fly', 'fly', 'fly', 'fly'], ['cockroach', 'bat', 'toad', 'spider']]);
   });
 
   it('random games keep all 64 cards and replay deterministically', () => {

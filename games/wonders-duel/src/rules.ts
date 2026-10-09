@@ -302,13 +302,18 @@ export const duelModule: GameModule<DuelState, DuelAction, DuelView> = {
     };
     dealAge(s, rng);
     if (options.deal === 'tutorial') {
+      // A late Age III teaching position: eight cards left, a face-up front row (row 1) covering four face-down cards.
+      // The learner chains Gardens free, buys resources for Academy (science pair -> progress), builds the Hanging
+      // Gardens wonder (replay), sells an unaffordable card and ends the age with Headquarters (military 3 -> 7).
       const id = (n: string) => CARDS.find((c) => c.name === n)!.id;
+      const back = ['قرارگاه', 'زرادخانه', 'صنف بازرگانان', 'ستون یادبود'];
+      const front = ['کاخ', 'تالار شهر', 'آکادمی', 'باغ‌ها'];
       Object.assign(s, {
-        phase: 'play', draftPool: [], draftLater: [], first: 0, current: 0, age: 3, coins: [20, 6], military: 6, milTokens: [[false, false], [true, true]],
-        wonders: [[{ id: 8, built: true }, { id: 2, built: false }], [{ id: 9, built: true }, { id: 5, built: false }]],
-        cities: [[id('اتاق مطالعه'), id('چوب‌بری')], [id('معدن سنگ'), id('محراب')]],
+        phase: 'play', draftPool: [], draftLater: [], first: 0, current: 0, lastActor: 1, age: 3, coins: [12, 18], military: 3, milTokens: [[false, false], [true, false]],
+        wonders: [[{ id: 8, built: true }, { id: 5, built: false }], [{ id: 9, built: true }, { id: 2, built: false }]],
+        cities: [['چوب‌بری', 'شیشه‌گری', 'برج نگهبانی', 'قهوه‌خانه', 'تندیس', 'باروها', 'اتاق مطالعه'].map(id), ['معدن سنگ', 'آبگیر رس', 'خشک‌خانه', 'محراب', 'دادگاه'].map(id)],
         progressBoard: ['strategy', 'philosophy', 'agriculture', 'economy', 'law'], progressOut: ['masonry', 'theology', 'urbanism', 'architecture', 'mathematics'],
-        structure: [id('آکادمی'), id('میدان نمایش'), id('ستون یادبود')].map((card, i) => ({ card, row: 0, x: i * 2, up: true, taken: false }))
+        structure: [...back.map((n, i) => ({ card: id(n), row: 0, x: 2 * i + 1, up: false, taken: false })), ...front.map((n, i) => ({ card: id(n), row: 1, x: 2 * i, up: true, taken: false }))]
       });
     }
     return s;
@@ -467,13 +472,16 @@ export const duelModule: GameModule<DuelState, DuelAction, DuelView> = {
   tutorial: {
     seed: 21,
     options: { deal: 'tutorial' },
-    introFa: 'دوران سوم است و مهرهٔ جنگ شش خانه به سمت حریف رفته. یک نماد ساعت آفتابی دارید؛ آکادمی هم همین نماد را دارد.',
+    introFa: 'دوران سوم و آخر است و فقط هشت کارت مانده: چهار کارت رو در ردیف جلو و چهار کارت پشت‌ورو پشت آن‌ها. فقط کارتی را می‌توانید بردارید که هیچ کارتی رویش نیفتاده باشد. با هر کارت سه کار می‌شود کرد: ساختن، فروختن یا بنای یک شگفتی. مهرهٔ جنگ ۳ خانه به سمت حریف جلو است و شما ۱۲ سکه دارید.',
     steps: [
-      { instructionFa: 'آکادمی را بسازید (منابع کم را با سکه می‌خرید): جفت نماد علمی یعنی یک نشان پیشرفت.', expected: { type: 'build', slot: 0 }, reply: null },
-      { instructionFa: 'نشان «راهبرد» را بگیرید: کارت‌های قرمز بعدی یک سپر بیشتر می‌دهند.', expected: { type: 'progress', token: 'strategy' }, reply: { type: 'discard', slot: 2 } },
-      { instructionFa: 'میدان نمایش را بسازید: ۲ سپر + ۱ راهبرد مهره را به پایتخت حریف می‌رساند.', expected: { type: 'build', slot: 1 }, reply: null }
+      { instructionFa: 'کارت «باغ‌ها» را انتخاب کنید و «ساختن» را بزنید. باغ‌ها ۲ رس و ۲ چوب می‌خواهد، ولی چون «تندیس» را دارید که نماد ستونِ زنجیره را دارد، رایگان ساخته می‌شود: ساختن زنجیره‌ای. با برداشتن آن، کارت پشت‌ورو پشتش آزاد و رو می‌شود.', expected: { type: 'build', slot: 7 }, reply: { type: 'build', slot: 3 } },
+      { instructionFa: 'حریف ستون یادبود را ساخت. حالا «آکادمی» را بسازید. سنگ، چوب و ۲ شیشه می‌خواهد؛ چوب و یک شیشه را خودتان تولید می‌کنید و بقیه را از بانک می‌خرید: هر منبع ۲ سکه به‌علاوهٔ تعداد تولید همان منبع در کارت‌های قهوه‌ای و خاکستری حریف. سنگ ۳ سکه (حریف معدن سنگ دارد) و شیشه ۲ سکه، یعنی ۵ سکه.', expected: { type: 'build', slot: 6 }, reply: null },
+      { instructionFa: 'آکادمی نماد ساعت آفتابی دارد و اتاق مطالعه هم همین نماد را؛ هر جفت نماد علمی یکسان یک نشان پیشرفت می‌دهد. نشان «راهبرد» را بردارید: از این به بعد هر کارت قرمز تازه یک سپر بیشتر دارد. (شش نماد علمی متفاوت یعنی پیروزی علمی فوری.)', expected: { type: 'progress', token: 'strategy' }, reply: { type: 'discard', slot: 2 } },
+      { instructionFa: 'حریف یک کارت صنف را فروخت. «تالار شهر» را انتخاب کنید ولی نسازید: با آن شگفتی «باغ‌های معلق» را بنا کنید (کارت زیر شگفتی می‌رود). هزینه‌اش ۲ چوب، شیشه و پاپیروس است: چوب ۲ و پاپیروس ۳ سکه (حریف خشک‌خانه دارد)، یعنی ۵ سکه. ۳ امتیاز و ۶ سکه می‌دهد و چون شگفتی «نوبت دوباره» است، باز هم نوبت شماست.', expected: { type: 'wonder', slot: 5, wonder: 5 }, reply: null },
+      { instructionFa: 'زرادخانه رو شد ولی با ۸ سکه نمی‌توانید بخریدش. آن را انتخاب کنید و «فروختن» را بزنید: فروش ۲ سکه به‌علاوهٔ ۱ سکه برای هر کارت زرد شهرتان (قهوه‌خانه) است، یعنی ۳ سکه.', expected: { type: 'discard', slot: 1 }, reply: { type: 'build', slot: 4 } },
+      { instructionFa: 'حریف کاخ را ساخت و آخرین کارت، «قرارگاه»، رو شد. آن را با ۸ سکه بسازید: ۳ سپر به‌علاوهٔ ۱ سپر راهبرد، مهرهٔ جنگ را از ۳ به ۷ می‌برد. با عبور از خانهٔ ۶، حریف ۵ سکه از دست می‌دهد. این آخرین کارت دوران سوم است و بازی با شمارش امتیاز تمام می‌شود.', expected: { type: 'build', slot: 0 }, reply: null }
     ],
-    completedFa: 'پیروزی نظامی! مهرهٔ جنگ به پایتخت حریف رسید.'
+    completedFa: 'بردید، ۳۹ به ۲۶! امتیاز شما: کارت‌های آبی ۱۰ (تندیس ۴ + باغ‌ها ۶)، کارت‌های سبز ۶، شگفتی‌ها ۱۲ (هرم‌ها ۹ + باغ‌های معلق ۳)، جنگ ۱۰ (۶ خانه یا بیشتر جلو)، و سکه‌ها ۱ (هر ۳ سکه ۱ امتیاز). حریف ۲۰ امتیاز آبی و ۶ امتیاز شگفتی داشت. اگر مهرهٔ جنگ به خانهٔ ۹ برسد یا کسی شش نماد علمی متفاوت جمع کند، بازی همان لحظه با پیروزی او تمام می‌شود.'
   }
 };
 

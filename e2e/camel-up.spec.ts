@@ -1,22 +1,28 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «مسابقهٔ شترها» end to end: the tutorial (overall bet, leg bet, last die) and a full three-player race.
+// «مسابقهٔ شترها» end to end: the tutorial (leg bet, overall bet, oasis, last die) and a full three-player race.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/camel-up/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: bets, then the finish', async ({ browser }, info) => {
+test('interactive tutorial: leg bet, overall bet, oasis, the last pyramid die', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/camel-up');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.locator('.cu-legtile.cu-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-bet'), fullPage: true });
   await p.locator('.cu-ov .cu-hint').click();
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.locator('.cu-legtile.cu-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۴/)).toBeVisible();
+  // The desert tile has no hint class: choose the oasis, then space 14.
+  await p.getByRole('button', { name: 'واحه +۱' }).click();
+  await p.getByRole('button', { name: 'گذاشتن کاشی روی خانهٔ ۱۴' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۴ از ۴/)).toBeVisible();
+  await p.locator('.cu-rollbtn.cu-hint').click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

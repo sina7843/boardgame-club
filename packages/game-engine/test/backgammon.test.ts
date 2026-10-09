@@ -157,7 +157,9 @@ describe('backgammon rules', () => {
       snap = act(snap, 0, stp.expected);
       if (stp.reply) snap = act(snap, 1, stp.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1, score: 1 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 2 }, { seat: 1, place: 2, score: 0 }]);
+    expect(st(snap).win).toEqual({ seat: 0, kind: 'gammon', points: 2 });
+    expect(st(snap).off).toEqual([15, 0]);
   });
 
   it('random games: checkers are conserved, games finish and replay deterministically', () => {

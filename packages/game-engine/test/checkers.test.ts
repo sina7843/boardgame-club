@@ -118,7 +118,11 @@ describe('checkers rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome).toEqual({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }], reason: 'win' });
+    expect(s.end).toEqual({ kind: 'win' });
+    expect(s.history.map((h) => [h.seat, h.captured.length, h.crowned])).toEqual([[0, 0, false], [1, 0, false], [0, 2, false], [1, 0, false], [0, 0, true], [1, 0, false], [0, 2, false]]);
+    expect(s.board.filter(Boolean)).toEqual(['D']);
   });
 
   it('random games in both variants finish and replay deterministically', () => {

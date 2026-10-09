@@ -22,6 +22,8 @@ const LIST: [string, Color, number, number][] = [
 ];
 export const DISTRICTS: District[] = LIST.flatMap(([name, color, cost, n]) => Array.from({ length: n }, () => ({ name, color, cost }))).map((d, id) => ({ ...d, id }));
 export const CHARACTERS = ['', 'آدم‌کش', 'دزد', 'شعبده‌باز', 'شاه', 'اسقف', 'بازرگان', 'معمار', 'سردار'];
+/** The k-th district card with this name (tutorial deals). */
+const idOf = (name: string, k = 0) => DISTRICTS.filter((d) => d.name === name)[k]!.id;
 const COLOR_OF: Record<number, Color> = { 4: 'yellow', 5: 'blue', 6: 'green', 8: 'red' };
 
 export interface CitadelsState {
@@ -172,16 +174,22 @@ export const citadelsModule: GameModule<CitadelsState, CitadelsAction, CitadelsV
     } as unknown as CitadelsState;
     startDraft(s, rng);
     if (options.deal === 'tutorial') {
-      const ofName = (n: string, k = 0) => DISTRICTS.filter((d) => d.name === n)[k]!.id;
-      s.phase = 'income';
-      s.picks = [[6], [1, 3]];
-      s.calling = 6;
-      s.revealed = [1, 3, 6];
-      s.cities = [[ofName('عمارت'), ofName('کاخ'), ofName('معبد'), ofName('جامع'), ofName('کاروانسرا'), ofName('بندر'), ofName('دژ')], [ofName('بازارچه'), ofName('زندان')]];
-      s.hands = [[ofName('دارالحکومه')], [ofName('کلیسا')]];
-      s.deck = s.deck.filter((id) => !s.cities.flat().includes(id) && !s.hands.flat().includes(id));
-      s.gold = [3, 4];
-      s.buildsLeft = 1;
+      // The last round, after the draft: the opponent took the Magician and the King (both already called; the crown is
+      // theirs), the learner the Merchant and the Warlord with six districts built and 3 gold. callNext opens the
+      // Merchant's turn (+1, +2 for two green districts). The deck top is Fortress + a second Watchtower (a duplicate).
+      s.picks = [[6, 8], [3, 4]];
+      s.faceDown = 2; s.faceUp = []; s.pool = [1, 5, 7];
+      s.draftOrder = [0, 1, 0, 1]; s.draftIdx = 4;
+      s.crown = 1; s.round = 7;
+      s.revealed = [3, 4];
+      s.cities = [['عمارت', 'معبد', 'کاروانسرا', 'بازارچه', 'برج دیده‌بانی', 'صومعه'].map((n) => idOf(n)), ['کاخ', 'قصر کوچک', 'جامع', 'دارالحکومه', 'زندان', 'کلیسا'].map((n) => idOf(n))];
+      s.hands = [[idOf('اسکله')], [idOf('بندر'), idOf('عمارت', 1)]];
+      const top = [idOf('دژ'), idOf('برج دیده‌بانی', 1)];
+      const used = new Set([...s.cities.flat(), ...s.hands.flat(), ...top]);
+      s.deck = [...top, ...s.deck.filter((id) => !used.has(id))];
+      s.gold = [3, 1];
+      s.calling = 5;
+      callNext(s, rng);
     }
     return s;
   },
@@ -322,12 +330,17 @@ export const citadelsModule: GameModule<CitadelsState, CitadelsAction, CitadelsV
   tutorial: {
     seed: 67,
     options: { deal: 'tutorial' },
-    introFa: 'نقش شما «بازرگان» است و هفت محله ساخته‌اید. «دارالحکومه» در دستتان ۵ طلا قیمت دارد و شما ۳ طلا دارید (بازرگان برای محله‌های سبز و خودش طلای اضافه گرفته).',
+    introFa: 'دور آخر یک بازی دونفره است. در شروع هر دور هر بازیکن مخفیانه شخصیت برمی‌دارد (در بازی دونفره هر نفر دو شخصیت) و شخصیت‌ها به ترتیب شماره ۱ تا ۸ صدا زده می‌شوند. این دور حریف شعبده‌باز (۳) و شاه (۴) را برداشته و نوبت‌هایش گذشته است؛ شما بازرگان (۶) و سردار (۸) را دارید. شهرتان ۶ محله دارد و با رسیدن به ۸ محله بازی در پایان همین دور تمام می‌شود.',
     steps: [
-      { instructionFa: '۲ طلا بگیرید.', expected: { type: 'income', take: 'gold' }, reply: null },
-      { instructionFa: 'حالا «دارالحکومه» را بسازید: این هشتمین محلهٔ شهرتان است.', expected: { type: 'build', card: 41 }, reply: null },
-      { instructionFa: 'نوبت را تمام کنید؛ با تمام شدن دور، بازی هم تمام می‌شود.', expected: { type: 'end' }, reply: null }
+      { instructionFa: 'بازرگان صدا زده شد و خودکار ۳ طلا گرفتید: ۱ طلای ویژهٔ بازرگان و ۱ طلا برای هر محلهٔ سبز شهرتان (کاروانسرا و بازارچه). حالا درآمد نوبت را انتخاب کنید: به جای ۲ طلا، «دو کارت» را بزنید تا دو کارت محله بکشید.', expected: { type: 'income', take: 'cards' }, reply: null },
+      { instructionFa: 'از دو کارت کشیده‌شده فقط یکی را نگه می‌دارید و دیگری به ته دسته می‌رود. «دژ» (قرمز، ۵ طلا) را نگه دارید؛ برج دیده‌بانی به کارتان نمی‌آید، چون هیچ محله‌ای را نمی‌شود دو بار در یک شهر ساخت.', expected: { type: 'keep', card: idOf('دژ') }, reply: null },
+      { instructionFa: 'با ۶ طلا «اسکله» (سبز، ۳ طلا) را بسازید. هر شخصیت در نوبتش فقط یک محله می‌سازد (معمار تا سه محله). این هفتمین محلهٔ شهرتان است.', expected: { type: 'build', card: idOf('اسکله') }, reply: null },
+      { instructionFa: '«پایان نوبت» را بزنید. معمار (۷) دست کسی نیست و صدا زدنش رد می‌شود؛ بعد نوبت سردار (۸) شما می‌رسد و برای برج دیده‌بانی قرمز شهرتان ۱ طلا می‌گیرد.', expected: { type: 'end' }, reply: null },
+      { instructionFa: 'این بار «۲ طلا» را بگیرید تا ۶ طلا داشته باشید.', expected: { type: 'income', take: 'gold' }, reply: null },
+      { instructionFa: 'توانایی سردار: «زندان» حریف را تخریب کنید. تخریب یک طلا کمتر از قیمت محله خرج دارد (۲ − ۱ = ۱). زندان تنها محلهٔ قرمز حریف است، پس با آن پاداش ۳ امتیازی چهار رنگ را هم از دست می‌دهد.', expected: { type: 'destroy', target: 1, card: idOf('زندان') }, reply: null },
+      { instructionFa: 'با ۵ طلای باقی‌مانده «دژ» را بسازید. این هشتمین محله است: شهرتان کامل شد و چون اولین شهر کامل است، ۴ امتیاز پاداش می‌گیرد.', expected: { type: 'build', card: idOf('دژ') }, reply: null },
+      { instructionFa: '«پایان نوبت» را بزنید. سردار آخرین شخصیت است؛ دور تمام می‌شود و چون یک شهر کامل شده، بازی هم تمام می‌شود و امتیازها شمرده می‌شود.', expected: { type: 'end' }, reply: null }
     ],
-    completedFa: 'بردید! شهر کامل شما (+۴) و چهار رنگ محله (+۳) شما را جلو انداخت.'
+    completedFa: 'بردید! قیمت محله‌های شهرتان روی هم ۱۹ است (عمارت ۳، معبد ۱، کاروانسرا ۱، بازارچه ۲، برج دیده‌بانی ۱، صومعه ۳، اسکله ۳، دژ ۵). هر چهار رنگ را دارید (+۳) و اولین شهر کامل بودید (+۴): ۲۶ امتیاز. حریف بعد از تخریب زندان ۲۱ امتیاز دارد و پاداش چهار رنگ را هم از دست داد.'
   }
 };

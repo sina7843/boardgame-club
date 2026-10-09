@@ -84,7 +84,7 @@ describe('res arcana rules', () => {
     const tu = raModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
     for (const step of tu.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 10 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 10 }, { seat: 1, place: 2, score: 7 }]);
   });
 
   it('greedy random games reach ten and replay deterministically', () => {

@@ -90,7 +90,8 @@ describe('patchwork rules', () => {
       if (step.reply) snap = act(snap, 1, step.reply);
     }
     expect(st(snap).bonus7).toBe(0);
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(snap).buttons).toEqual([39, 29]);
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 38 }, { seat: 1, place: 2, score: 17 }]);
   });
 
   it('random games end at 53 and replay deterministically', () => {

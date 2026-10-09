@@ -98,7 +98,10 @@ describe('quoridor rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    expect(st(snap).outcome).toEqual({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }], reason: 'win' });
+    expect(st(snap).pawns).toEqual([79, 41]);
+    expect(st(snap).wallsLeft).toEqual([9, 8]);
+    expect(distance(st(snap).walls, 41, 'top')).toBe(4);
   });
 
   it('random games with walls always keep paths and replay deterministically', () => {

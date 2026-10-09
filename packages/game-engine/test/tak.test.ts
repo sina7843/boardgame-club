@@ -100,10 +100,16 @@ describe('tak rules', () => {
     const t = takModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options ?? {} }).snapshot;
     for (const step of t.steps) {
+      expect(st(snap).outcome).toBeNull();
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    const s = st(snap);
+    // The stack spread captured c1 and d1; the capstone flattened the wall on e1 and completed row 1.
+    expect(s.board[2]!.map((x) => x.c + x.t)).toEqual(['bF', 'wF']);
+    expect(s.board[4]!.map((x) => x.c + x.t)).toEqual(['bF', 'wC']);
+    expect(s.end).toEqual({ kind: 'road', road: [4, 3, 2, 1, 0] });
+    expect(s.outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] });
   });
 
   it('random games conserve stones and replay deterministically', () => {

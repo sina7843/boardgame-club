@@ -216,11 +216,16 @@ describe('amlak turns', () => {
     expect(st(t).outcome?.reason).toBe('win');
   });
 
-  it('tutorial: buy, end the turn, the opponent cannot pay rent and is bankrupt', () => {
+  it('tutorial: auction, trade for the full group, even building, rent bankrupts the opponent', () => {
     const tut = amlakModule.tutorial;
     let snap = startGame(m, { playerCount: 2, seed: tut.seed, options: tut.options }).snapshot;
     for (const step of tut.steps) { snap = act(snap, 0, step.expected); if (step.reply) snap = act(snap, 1, step.reply); }
-    expect(st(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
+    expect(s.owner[1]).toBe(0); expect(s.owner[3]).toBe(0); expect(s.owner[5]).toBe(0);
+    expect([s.houses[1], s.houses[3]]).toEqual([1, 2]);
+    expect(s.p[0]!.cash).toBe(500 - 1 - 50 - 150 + 55);
+    expect(s.p[1]!.bankrupt).toBe(true);
   });
 
   it('random games keep money and buildings consistent and replay deterministically', () => {

@@ -124,14 +124,14 @@ export const pointSaladModule: GameModule<PointSaladState, PointSaladAction, Poi
     };
     refill(s);
     if (options.deal === 'tutorial') {
-      // Two turns left: a "+2 per tomato" rule on a pile and two tomatoes in the market.
-      const tomatoRule = CARDS.find((c) => c.rule.k === 'each' && c.rule.terms.length === 2 && c.rule.terms[0]![0] === 'tomato' && c.rule.terms[0]![1] === 2)!.id;
-      const tomatoes = CARDS.filter((c) => c.veg === 'tomato' && c.id !== tomatoRule).slice(0, 3).map((c) => c.id);
-      const others = CARDS.filter((c) => c.veg === 'onion').slice(0, 3).map((c) => c.id);
+      // The last three rounds. Learner: 1 tomato, rules «most lettuce» (a tomato on its back) and «fewest vegetables».
+      // Rival: lettuce ×2 and carrot, rules «carrot +1, onion +1» and «most vegetables». Pile 1 holds the
+      // «+2 per tomato» rule; pile 2 a parity rule over two cards that refill the market once the tomatoes go.
       s.current = 0;
-      s.piles = [[tomatoRule], [], []];
-      s.market = [tomatoes[0]!, tomatoes[1]!, others[0]!, others[1]!, null, null];
-      s.veggies = [[tomatoes[2]!], [others[2]!]];
+      s.piles = [[23], [36, 0, 2], []];
+      s.market = [5, 1, 6, 12, 4, 3];
+      s.rules = [[42, 90], [31, 85]];
+      s.veggies = [[24], [7, 13, 8]];
     }
     return s;
   },
@@ -202,11 +202,12 @@ export const pointSaladModule: GameModule<PointSaladState, PointSaladAction, Poi
   tutorial: {
     seed: 41,
     options: { deal: 'tutorial' },
-    introFa: 'شما یک گوجه دارید. روی دستهٔ اول کارت دستور «هر گوجه +۲» است و در بازار دو گوجه هست.',
+    introFa: 'سه دور به پایان بازی مانده. هر کارت یک روی دستور امتیاز دارد و یک روی سبزی. شما ۱ گوجه و دو دستور دارید: «بیشترین کاهو = ۱۰» و «کمترین سبزی کل = ۷». حریف ۲ کاهو و ۱ هویج و دستورهای «هر هویج +۱، هر پیاز +۱» و «بیشترین سبزی کل = ۱۰» را دارد. وقتی همهٔ کارت‌ها برداشته شود، هر دستور با سبزی‌های صاحبش امتیاز می‌گیرد.',
     steps: [
-      { instructionFa: 'کارت دستور دستهٔ اول را بردارید.', expected: { type: 'rule', pile: 0 }, reply: { type: 'veg', slots: [2, 3] } },
-      { instructionFa: 'حالا دو گوجهٔ بازار را بردارید.', expected: { type: 'veg', slots: [0, 1] }, reply: null }
+      { instructionFa: 'روی دستهٔ اول دستور «هر گوجه +۲، هر کاهو −۱» است و بازار پر از گوجه است. در هر نوبت یا یک دستور برمی‌دارید یا دو سبزی؛ این دستور را بردارید. حریف هم دستور دستهٔ دوم را برمی‌دارد.', expected: { type: 'rule', pile: 0 }, reply: { type: 'rule', pile: 1 } },
+      { instructionFa: 'حالا دو گوجهٔ زیر دستهٔ دوم را انتخاب کنید و بردارید. جای خالی بازار از کارت‌های همان دسته پر می‌شود و آن کارت‌ها با روی سبزی‌شان به بازار می‌آیند. حریف پیاز و کاهو برمی‌دارد.', expected: { type: 'veg', slots: [2, 3] }, reply: { type: 'veg', slots: [0, 1] } },
+      { instructionFa: 'حریف ۳ کاهو دارد و شما هیچ؛ دستور «بیشترین کاهو» برایتان ۰ امتیاز است. پیش از برداشتن، روی همین دستور بزنید تا برگردد و سبزی پشتش (یک گوجه) را بگیرید. بعد گوجه و هویج بازار را بردارید. حریف دو سبزی آخر را برمی‌دارد و بازی تمام می‌شود.', expected: { type: 'veg', slots: [2, 3], flip: 42 }, reply: { type: 'veg', slots: [4, 5] } }
     ],
-    completedFa: 'بردید! سه گوجه با دستور «هر گوجه +۲» شش امتیاز شد؛ حریف دستوری نداشت.'
+    completedFa: 'بردید، ۱۷ به ۱۵! ۵ گوجه با دستور «هر گوجه +۲» ۱۰ امتیاز شد و کاهو نداشتید که چیزی کم شود. ۶ سبزی شما از ۷ سبزی حریف کمتر بود، پس «کمترین سبزی کل» ۷ امتیاز داد. حریف ۱۰ امتیاز «بیشترین سبزی کل»، ۳ امتیاز از ۳ کاهوی فرد و ۲ امتیاز از هویج و پیاز گرفت. اگر دستور «بیشترین کاهو» را برنمی‌گرداندید، ۴ گوجه و ۱۵ امتیاز داشتید و بازی مساوی می‌شد.'
   }
 };

@@ -1,24 +1,29 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «شگفتی‌ها: دوئل» end to end: the tutorial (science pair, progress token, military win) and a full game from the wonder draft.
+// «شگفتی‌ها: دوئل» end to end: the tutorial (chain, trade, science pair, wonder, sale, final scoring) and a full game from the wonder draft.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/wonders-duel/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: science, progress, military', async ({ browser }, info) => {
+test('interactive tutorial: chain, trade, science pair, wonder, sell, military and final scoring', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/wonders-duel');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۶`));
     await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-progress'), fullPage: true });
+    if (step === '۳') await p.screenshot({ path: shot(info.project.name, 'tutorial-progress'), fullPage: true });
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.wd .wd-hint:not([disabled])').first();
-      if (!(await h.count())) break;
+      if (!(await h.count())) {
+        // The wonder buttons carry no hint class: step 4 builds the only affordable wonder.
+        const w = p.locator('.wd-acts').getByRole('button', { name: /^بنای/ });
+        if (await w.count()) await w.first().click();
+        break;
+      }
       await h.click();
       await expect(p.locator('.wd .wd-hint[disabled]')).toHaveCount(0);
     }

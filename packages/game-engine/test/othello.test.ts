@@ -86,7 +86,8 @@ describe('othello rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 64 }, { seat: 1, place: 2, score: 0 }]);
+    expect(st(snap).passes).toEqual([{ seat: 1, after: 3 }]);
   });
 
   it('random games fill the board consistently and replay deterministically', () => {

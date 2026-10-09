@@ -1,27 +1,34 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «نبرد ستاره‌ها» end to end: the tutorial (allies, outpost, final strike) and a full two-player game.
+// «نبرد ستاره‌ها» end to end: the tutorial (buy, end turn, allies, outpost, scrap, final strike) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/star-realms/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: allies, outpost, final strike', async ({ browser }, info) => {
+test('interactive tutorial: buy, end turn, allies, outpost, scrap, final strike', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/star-realms');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳', '۴', '۵']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`));
-    await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-outpost'), fullPage: true });
-    for (let i = 0; i < 3 && (await label.count()); i++) {
-      const h = p.locator('.sr .sr-hint:not([disabled])').first();
-      if (!(await h.count())) break;
-      await h.click();
-      await expect(p.locator('.sr .sr-hint[disabled]')).toHaveCount(0);
-    }
+  const game = p.locator('.sr');
+  // Steps the renderer highlights use .sr-hint; buy, end turn and scrap use their own controls.
+  const clicks = [
+    game.locator('.sr-hint'),
+    game.locator('.sr-row .sr-pick--can').first(),
+    game.locator('.sr-bar').getByRole('button', { name: 'پایان نوبت' }),
+    game.locator('.sr-hint'),
+    game.locator('.sr-hint'),
+    game.locator('.sr-hint'),
+    game.locator('.sr-side--me .sr-bases .sr-mini'),
+    game.locator('.sr-hint')
+  ];
+  const fa = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸'];
+  for (const [i, target] of clicks.entries()) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${fa[i]} از ۸`))).toBeVisible();
+    if (i === 5) await p.screenshot({ path: shot(info.project.name, 'tutorial-outpost'), fullPage: true });
+    await target.first().click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();

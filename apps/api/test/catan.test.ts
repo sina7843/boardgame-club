@@ -37,7 +37,7 @@ describe('catan through the platform', () => {
     const [u] = await users(ctx, 1);
     const { tableId } = (await call(ctx, 'POST', '/api/tutorials/catan/start', u, { restart: false })).json();
     let snap = await view(ctx, u!, tableId);
-    expect(snap.game.view.myVp).toBe(8);
+    expect(snap.game.view.myVp).toBe(6);
     for (const step of catanModule.tutorial.steps) {
       const r = await command(ctx, u!, tableId, snap.game.revision, step.expected);
       expect(r.json().status, JSON.stringify(step.expected)).toBe('accepted');

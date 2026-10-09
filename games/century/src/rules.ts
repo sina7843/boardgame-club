@@ -127,6 +127,9 @@ export function legalFor(s: CenturyState, seat: number): ActionHint[] {
   return out;
 }
 
+/** The tutorial's sixth order: 2 saffron + 1 cardamom + 1 cinnamon, 11 points. */
+const TUTORIAL_ORDER = 13;
+
 export const centuryModule: GameModule<CenturyState, CenturyAction, CenturyView> = {
   manifest: century.manifest,
   actionSchema: centuryAction,
@@ -145,13 +148,22 @@ export const centuryModule: GameModule<CenturyState, CenturyAction, CenturyView>
       timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
-      const target = ORDERS.find((o) => o.need.y === 2 && o.need.r === 2 && total(o.need) === 4)!.id;
+      // Late game, two players, the learner starts. Five orders each side of 32 points; the learner's sixth order
+      // (rrgb) needs a spice card, a rest, a repeated trade, an upgrade and a market card holding one cinnamon.
+      const won = [[0, 1, 2, 3, 6], [7, 9, 12, 17]];
       s.starter = 0; s.current = 0;
-      s.cubes = [bag('yy'), bag('yyy')];
-      s.hands = [[6], [0, 1]];
-      s.won = [[0, 1, 2, 3, 4].filter((x) => x !== target), []];
-      if (s.won[0]!.length < 5) s.won[0]!.push(5);
-      s.orders = [target, ...s.orders.filter((x) => x !== target && !s.won[0]!.includes(x)).slice(0, 4)];
+      s.cubes = [bag('yyyy'), bag('yyy')];
+      s.hands = [[0], [0, 1]];
+      s.played = [[16, 1], []];
+      s.won = won;
+      s.coins = [{ gold: 1, silver: 1 }, { gold: 1, silver: 0 }];
+      s.gold = 2 * playerCount - 2; s.silver = 2 * playerCount - 1;
+      s.odeck = s.odeck.concat(s.orders).filter((id) => id !== TUTORIAL_ORDER && !won.flat().includes(id));
+      s.orders = [TUTORIAL_ORDER, ...s.odeck.splice(0, 4)];
+      const market = [5, 9, 23];
+      s.mdeck = s.mdeck.concat(s.market.map((x) => x.card)).filter((id) => !market.includes(id));
+      s.market = [...market, ...s.mdeck.splice(0, 3)].map((card) => ({ card, cubes: empty() }));
+      s.market[2]!.cubes.b = 1;
     }
     return s;
   },
@@ -269,11 +281,15 @@ export const centuryModule: GameModule<CenturyState, CenturyAction, CenturyView>
   tutorial: {
     seed: 51,
     options: { deal: 'tutorial' },
-    introFa: 'شما پنج سفارش تحویل داده‌اید؛ ششمی بازی را تمام می‌کند. سفارش اول ردیف دو زردچوبه و دو زعفران می‌خواهد و شما فقط دو زردچوبه دارید.',
+    introFa: 'آخر بازی دونفره است و شما شروع‌کننده‌اید. هر دو نفر ۳۲ امتیاز سفارش دارید؛ شما ۵ سفارش تحویل داده‌اید و ششمی پایان بازی را اعلام می‌کند. سفارش اول ردیف ۲ زعفران، ۱ هل و ۱ دارچین می‌خواهد (۱۱ امتیاز) و شما فقط ۴ زردچوبه دارید. ادویه‌ها به ترتیب ارزش: زردچوبه، زعفران، هل، دارچین. هر نوبت فقط یک کار می‌کنید.',
     steps: [
-      { instructionFa: 'کارت تاجر «دو زعفران» را بازی کنید.', expected: { type: 'play', card: 6 }, reply: { type: 'acquire', slot: 0, pay: [] } },
-      { instructionFa: 'حالا سفارش اول ردیف را تحویل بگیرید — سکهٔ طلا هم مال شماست.', expected: { type: 'claim', slot: 0 }, reply: { type: 'play', card: 0 } }
+      { instructionFa: 'کارت «۲ زردچوبه» را از دستتان بازی کنید. کارت ادویه همان ادویه‌ها را به کاروانتان می‌دهد و بعد به ردیف کارت‌های بازی‌شده می‌رود.', expected: { type: 'play', card: 0 }, reply: { type: 'play', card: 0 } },
+      { instructionFa: 'دستتان خالی است و کارت‌های معاوضه و ارتقا بازی‌شده‌اند. «استراحت» کنید: کل نوبت صرف می‌شود، ولی همهٔ کارت‌های بازی‌شده به دستتان برمی‌گردند.', expected: { type: 'rest' }, reply: { type: 'rest' } },
+      { instructionFa: 'کارت معاوضهٔ «۲ زردچوبه ← ۲ زعفران» را انتخاب کنید و تعداد را ۲ کنید تا دو بار پشت‌سرهم اجرا شود و «معاوضه» را بزنید: ۴ زردچوبه به ۴ زعفران تبدیل می‌شود.', expected: { type: 'play', card: 16, times: 2 }, reply: { type: 'play', card: 0 } },
+      { instructionFa: 'کارت «ارتقا ۲» را انتخاب کنید و دو بار زعفران را بزنید، بعد «ارتقا»: هر ارتقا یک ادویه را یک پله بالا می‌برد، پس ۲ زعفران هل می‌شوند.', expected: { type: 'play', card: 1, upgrades: ['r', 'r'] }, reply: { type: 'rest' } },
+      { instructionFa: 'تاجر سوم بازار یک دارچین رویش دارد. آن را استخدام کنید: روی هر کارتِ قبل از آن یک ادویه می‌گذارید (ارزان‌ترین‌ها، اینجا ۲ زردچوبه) و کارت با ادویه‌های رویش مال شما می‌شود.', expected: { type: 'acquire', slot: 2, pay: ['y', 'y'] }, reply: { type: 'acquire', slot: 0, pay: [] } },
+      { instructionFa: 'حریف تاجر اول را با زردچوبه‌ای که شما رویش گذاشتید برداشت. حالا ۲ زعفران، ۲ هل و ۱ دارچین دارید: سفارش اول ردیف را تحویل بگیرید. سفارش اول سکهٔ طلا (۳ امتیاز) هم دارد. این ششمین سفارش شماست و دور با نوبت حریف تمام می‌شود.', expected: { type: 'claim', slot: 0 }, reply: { type: 'play', card: 0 } }
     ],
-    completedFa: 'بردید! ششمین سفارش دور را تمام کرد و سفارش‌ها و سکهٔ طلا شما را جلو انداخت.'
+    completedFa: 'بردید! ۳۲ امتیاز سفارش‌های قبلی + ۱۱ امتیاز سفارش تازه + ۲ سکهٔ طلا (۶) + ۱ سکهٔ نقره (۱) + ۱ امتیاز برای هلِ باقی‌مانده (هر ادویهٔ غیر زردچوبه ۱ امتیاز) = ۵۱. حریف با ۳۲ امتیاز سفارش و یک سکهٔ طلا و زردچوبه‌هایی که امتیاز ندارند ۳۵ گرفت.'
   }
 };

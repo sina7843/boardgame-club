@@ -134,13 +134,20 @@ export const jaipurModule: GameModule<JaipurState, JaipurAction, JaipurView> = {
     const s = { seals: [0, 0], round: 1, best3: options.length !== 'one' && options.deal !== 'tutorial', roundResults: [], last: null, seq: 0, timeouts: [0, 0], outcome: null } as unknown as JaipurState;
     newRound(s, rng, rng.nextInt(2));
     if (options.deal === 'tutorial') {
+      // A late round, consistent with the tokens already sold: diamond and gold are gone and two silver tokens remain,
+      // so selling a silver pair ends the round. The deck top and the 3-card bonus order are fixed so the script and
+      // its numbers are exact. The learner trails 52–61 and wins 77–72 only with the camel bonus.
       s.current = 0;
-      s.tokens.diamond = []; s.tokens.gold = []; s.tokens.silver = [5, 5];
-      s.goods = [[7, 7, 6, 6, 5], [5, 5, 5, 6, 6, 5]];
-      s.bonuses = [[2], [1]];
-      s.hands = [['silver', 'cloth', 'spice'], ['leather', 'leather', 'cloth', 'spice']];
-      s.herds = [3, 1];
-      s.market = ['silver', 'camel', 'leather', 'cloth', 'spice'];
+      s.tokens = { diamond: [], gold: [], silver: [5, 5], cloth: [2, 2, 1, 1], spice: [3, 2, 2, 1, 1], leather: [1, 1, 1, 1, 1] };
+      s.goods = [[7, 7, 5, 5, 5, 5, 5, 5, 5], [5, 5, 6, 6, 5, 4, 3, 2, 1, 3, 5, 3, 3]];
+      s.bonuses = [[2, 1], [3, 5, 2]];
+      s.bonus = { 3: [1, 3, 2], 4: [6, 6, 5, 4, 4], 5: [10, 10, 9, 8, 8] };
+      s.hands = [['silver', 'spice', 'cloth'], ['cloth', 'cloth', 'leather', 'leather']];
+      s.herds = [1, 2];
+      s.market = ['camel', 'camel', 'camel', 'spice', 'spice'];
+      const top: Card[] = ['silver', 'leather', 'cloth', 'camel', 'leather', 'spice'];
+      for (const c of top) { const i = s.deck.indexOf(c); if (i >= 0) s.deck.splice(i, 1); }
+      s.deck = [...top, ...s.deck];
     }
     return s;
   },
@@ -267,11 +274,15 @@ export const jaipurModule: GameModule<JaipurState, JaipurAction, JaipurView> = {
   tutorial: {
     seed: 35,
     options: { deal: 'tutorial' },
-    introFa: 'سکه‌های الماس و طلا تمام شده و فقط دو سکهٔ نقره مانده. اگر سکه‌های سه کالا تمام شود، دست تمام است. شما یک نقره دارید و یک نقره هم در بازار است.',
+    introFa: 'آخر یک دست است. سکه‌های الماس و طلا تمام شده و فقط دو سکهٔ نقره مانده؛ وقتی سکه‌های سه کالا تمام شود دست تمام می‌شود. شما ۵۲ روپیه دارید و حریف ۶۱. در هر نوبت فقط یک کار می‌کنید: یک کالا برمی‌دارید، همهٔ شترها را برمی‌دارید، کارت معاوضه می‌کنید یا کالا می‌فروشید. بیایید با شترها و یک فروش سه‌تایی عقب‌ماندگی را جبران کنیم.',
     steps: [
-      { instructionFa: 'نقرهٔ بازار را بردارید.', expected: { type: 'take', good: 'silver' }, reply: { type: 'take', good: 'leather' } },
-      { instructionFa: 'حالا دو نقره دارید: هر دو را بفروشید تا سکه‌های نقره تمام شود.', expected: { type: 'sell', good: 'silver', count: 2 }, reply: null }
+      { instructionFa: 'در بازار سه شتر هست. «همهٔ شترها» را بزنید: شترها مستقیم به گلهٔ شما می‌روند، جزو هفت کارت دست حساب نمی‌شوند و آخر دست هر کس گلهٔ بزرگ‌تری داشته باشد ۵ روپیه جایزه می‌گیرد. جای خالی بازار از دسته پر می‌شود.', expected: { type: 'camels' }, reply: { type: 'take', good: 'leather' } },
+      { instructionFa: 'معاوضه: چند کالای بازار را با همان تعداد کارت از دست یا گله‌تان عوض کنید. هر دو «ادویه» بازار را انتخاب کنید، از دستتان «پارچه» را بزنید، با دکمهٔ + یک شتر اضافه کنید و «معاوضه» را بزنید. نمی‌شود کالایی را داد که همان را برمی‌دارید.', expected: { type: 'exchange', take: ['spice', 'spice'], give: ['cloth', 'camel'] }, reply: { type: 'sell', good: 'leather', count: 3 } },
+      { instructionFa: 'حریف سه چرم فروخت. حالا سه ادویه دارید: هر سه را انتخاب کنید و بفروشید. برای هر کارت سکهٔ بالای کپهٔ ادویه را می‌گیرید (۳ و ۲ و ۲) و فروش سه‌تایی یک سکهٔ پاداش هم دارد؛ فروش چهار و پنج‌تایی پاداش بزرگ‌تری دارد.', expected: { type: 'sell', good: 'spice', count: 3 }, reply: { type: 'take', good: 'cloth' } },
+      { instructionFa: 'یک نقره در دست دارید و یک نقره در بازار است. نقرهٔ بازار را انتخاب کنید و «برداشتن» را بزنید. یادتان باشد بیشتر از هفت کارت کالا در دست نمی‌شود نگه داشت.', expected: { type: 'take', good: 'silver' }, reply: { type: 'sell', good: 'cloth', count: 3 } },
+      { instructionFa: 'الماس، طلا و نقره را دست‌کم دوتایی باید فروخت. هر دو نقره را انتخاب کنید و بفروشید: آخرین دو سکهٔ نقره (۵ و ۵) مال شما می‌شود، کپهٔ سوم خالی می‌شود و دست تمام می‌شود.', expected: { type: 'sell', good: 'silver', count: 2 }, reply: null }
     ],
-    completedFa: 'بردید! با فروش نقره سه کالا تمام شد؛ شما با سکه‌های بیشتر و جایزهٔ شترها دست را بردید.'
+    completedFa: 'بردید! با فروش نقره سکه‌های سه کالا تمام شد. شما از ادویه ۷ روپیه و ۳ پاداش و از نقره ۱۰ روپیه گرفتید و به ۷۲ رسیدید؛ حریف هم با فروش چرم و پارچه به ۷۲ رسید. گلهٔ شما ۳ شتر داشت و گلهٔ حریف ۲، پس ۵ روپیه جایزهٔ شتر به شما رسید: ۷۷ در برابر ۷۲. برندهٔ دست یک نشان می‌گیرد و در بازی کامل هر کس دو نشان بگیرد برنده است.'
+
   }
 };

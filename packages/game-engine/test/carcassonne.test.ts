@@ -93,12 +93,18 @@ describe('carcassonne rules', () => {
   it('tutorial script is legal and ends in a win', () => {
     const tu = carcModule.tutorial!;
     let snap = startGame(m, { playerCount: 2, seed: tu.seed, options: tu.options ?? {} }).snapshot;
-    for (const step of tu.steps) {
+    // Scores after each learner move and after the script's reply: road 4; city 4 + monastery 9; final city 2 + shield 1.
+    const after = [[[0, 0], [0, 0]], [[4, 0], [4, 4]], [[17, 4], [17, 4]], [[20, 12]]];
+    tu.steps.forEach((step, i) => {
       expect(st(snap).current).toBe(0);
       snap = act(snap, 0, step.expected);
-      if (step.reply) snap = act(snap, 1, step.reply);
-    }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1, score: 6 });
+      if (step.reply) {
+        expect(st(snap).scores).toEqual(after[i]![0]);
+        snap = act(snap, 1, step.reply);
+      }
+      expect(st(snap).scores).toEqual(after[i]!.at(-1));
+    });
+    expect(st(snap).outcome?.placements).toEqual([{ seat: 0, place: 1, score: 20 }, { seat: 1, place: 2, score: 12 }]);
   });
 
   it('random games use every tile and replay deterministically', () => {

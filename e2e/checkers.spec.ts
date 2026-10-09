@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
 // «چکرز» end to end: two clients play through the board (tap a ringed piece, then highlighted squares) until the game
-// ends; plus the interactive tutorial with a forced double jump.
+// ends; plus the interactive tutorial (quiet move, forced double jump, crowning, king's backward double jump).
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/checkers/${project}-${name}.png`;
@@ -16,17 +16,22 @@ async function move(p: Page): Promise<boolean> {
   return false;
 }
 
-test('interactive tutorial: a forced double jump, then the winning capture', async ({ browser }, info) => {
+test('interactive tutorial: quiet move, forced double jump, crowning, the king backward double jump', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/checkers');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
-  // c3 has two jump paths only in theory; the tutorial square is the only movable piece, the jumps follow on.
-  for (let k = 0; k < 4 && !(await p.getByText(/آموزش: مرحله ۲ از ۲/).count()); k++) { await move(p); await p.waitForTimeout(150); }
-  await expect(p.getByText(/آموزش: مرحله ۲ از ۲/)).toBeVisible();
-  await p.screenshot({ path: shot(info.project.name, 'tutorial-2'), fullPage: true });
-  await move(p);
+  for (const [step, next] of [['۱', '۲'], ['۲', '۳'], ['۳', '۴'], ['۴', null]] as const) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-2'), fullPage: true });
+    // The hinted square is the piece, then each landing square of the expected path.
+    const done = () => (next ? p.getByText(new RegExp(`آموزش: مرحله ${next} از ۴`)) : p.getByRole('heading', { name: 'آموزش کامل شد' }));
+    for (let k = 0; k < 4 && !(await done().count()); k++) {
+      const hint = p.locator('.ck-sq--hint');
+      if (await hint.count()) await hint.first().click();
+      await p.waitForTimeout(150);
+    }
+  }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });

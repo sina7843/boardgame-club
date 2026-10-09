@@ -624,7 +624,9 @@ function autoRaise(s: AmlakState, seat: number, need: number) {
   }
 }
 
-export const TUTORIAL = { cash: [1500, 5], pos: [0, 4], dice: [[2, 4], [1, 1]] as [number, number][] };
+// Tutorial position: the learner owns «خیابان شوش», the nearly broke opponent owns «خیابان مولوی». Scripted dice: the
+// learner reaches «پایانه جنوب» (5), the opponent then lands on «مولوی» (3).
+export const TUTORIAL = { cash: [500, 5], pos: [0, 0], owner: { 1: 0, 3: 1 } as Record<number, number>, dice: [[2, 3], [1, 2]] as [number, number][] };
 
 export const amlakModule: GameModule<AmlakState, AmlakAction, AmlakView> = {
   manifest: amlak.manifest,
@@ -657,6 +659,7 @@ export const amlakModule: GameModule<AmlakState, AmlakAction, AmlakView> = {
       script: tutorial ? TUTORIAL.dice.map((d) => [...d] as [number, number]) : [],
       log: [], seq: 0, outcome: null
     };
+    if (tutorial) for (const [i, seat] of Object.entries(TUTORIAL.owner)) s.owner[Number(i)] = seat;
     log(s, { t: 'turn', seat: first, round: 1 });
     return s;
   },
@@ -732,12 +735,17 @@ export const amlakModule: GameModule<AmlakState, AmlakAction, AmlakView> = {
   tutorial: {
     seed: 12,
     options: { deal: 'tutorial' },
-    introFa: 'شما ۱٫۵ میلیون تومان پول دارید و حریف تقریباً ورشکسته است (۵ هزار تومان). تاس بریزید، ملک بخرید و از او اجاره بگیرید.',
+    introFa: 'شما و حریف هر دو روی خانهٔ «شروع» هستید. شما ۵۰۰ هزار تومان پول نقد و «خیابان شوش» را دارید؛ حریف فقط ۵ هزار تومان و «خیابان مولوی» دارد، یعنی خیابان دیگر رنگ قهوه‌ای. در این آموزش تاس می‌ریزید، مزایده را می‌بینید، با معامله رنگ قهوه‌ای را کامل می‌کنید، یکنواخت خانه می‌سازید و با اجاره حریف را ورشکست می‌کنید.',
     steps: [
-      { instructionFa: 'تاس بریزید (تاس‌ها را سرور می‌ریزد).', expected: { type: 'roll' }, reply: null },
-      { instructionFa: '۶ آوردید و روی «میدان خراسان» ایستادید که صاحب ندارد. آن را به قیمت ۱۰۰ هزار تومان بخرید.', expected: { type: 'buy' }, reply: null },
-      { instructionFa: 'حالا صاحب ملک هستید؛ هرکس روی آن بایستد به شما اجاره می‌دهد. نوبت را تمام کنید.', expected: { type: 'endTurn' }, reply: { type: 'roll' } }
+      { instructionFa: 'نوبت شماست. «تاس بریز» را بزنید؛ تاس‌ها را سرور می‌ریزد و مهره به اندازهٔ جمع دو تاس جلو می‌رود.', expected: { type: 'roll' }, reply: null },
+      { instructionFa: '۲ و ۳ آوردید و روی «پایانه جنوب» ایستادید که صاحب ندارد و قیمتش ۲۰۰ هزار تومان است. پولتان را برای ساختن خانه نگه دارید: «نمی‌خرم» را بزنید. ملکی که خریده نشود به مزایده می‌رود.', expected: { type: 'decline' }, reply: null },
+      { instructionFa: 'مزایده از کسی شروع می‌شود که ملک را نخرید و پیشنهاد هر بار باید از بالاترین پیشنهاد بیشتر باشد. پیشنهاد ۱ هزار تومانی (همان عدد پیش‌فرض) را ثبت کنید.', expected: { type: 'bid', amount: 1 }, reply: { type: 'pass' } },
+      { instructionFa: 'حریف کنار کشید و ایستگاه را به ۱ هزار تومان بردید. حالا در بخش «پیشنهاد معامله»، «خیابان مولوی» را از حریف بخواهید و در عوض ۵۰ هزار تومان پول بدهید، سپس «ارسال پیشنهاد» را بزنید. معامله فقط در نوبت خودتان ممکن است.', expected: { type: 'offer', to: 1, give: { cash: 50, props: [], cards: [] }, get: { cash: 0, props: [3], cards: [] } }, reply: { type: 'acceptTrade' } },
+      { instructionFa: 'حریف قبول کرد و حالا هر دو خیابان قهوه‌ای مال شماست؛ اجارهٔ زمین خالی دو برابر شد و اجازهٔ ساخت دارید. در «مدیریت املاک» روی «خیابان شوش» یک خانه بسازید (۵۰ هزار تومان).', expected: { type: 'build', sq: 1 }, reply: null },
+      { instructionFa: 'ساخت باید یکنواخت باشد: تا «خیابان مولوی» هم خانه نگیرد، شوش خانهٔ دوم نمی‌گیرد. روی «خیابان مولوی» یک خانه بسازید.', expected: { type: 'build', sq: 3 }, reply: null },
+      { instructionFa: 'حالا هر دو یک خانه دارند و می‌توانید دوباره بسازید. خانهٔ دوم را روی «خیابان مولوی» بسازید؛ اجارهٔ آن با دو خانه ۶۰ هزار تومان می‌شود.', expected: { type: 'build', sq: 3 }, reply: null },
+      { instructionFa: 'جفت نیاوردید، پس نوبتتان تمام است. «پایان نوبت» را بزنید و ببینید حریف کجا می‌ایستد.', expected: { type: 'endTurn' }, reply: { type: 'roll' } }
     ],
-    completedFa: 'حریف روی ملک شما ایستاد، نتوانست ۶ هزار تومان اجاره بدهد و ورشکست شد. در بازی واقعی با تکمیل یک رنگ خانه و هتل می‌سازید، رهن می‌گذارید و با دیگران معامله می‌کنید.'
+    completedFa: 'بردید! حریف ۱ و ۲ آورد و روی «خیابان مولوی» با دو خانه ایستاد. اجاره ۶۰ هزار تومان بود، ولی او فقط ۵۵ هزار تومان (۵ هزار به‌اضافهٔ ۵۰ هزار معامله) داشت و ملکی برای رهن یا فروش نداشت؛ پس ورشکست شد و پولش به شما رسید. آخرین بازیکن باقی‌مانده برنده است. در بازی واقعی رهن، زندان، کارت‌های شانس و صندوق و هتل را هم خواهید دید.'
   }
 };

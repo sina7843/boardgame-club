@@ -67,8 +67,8 @@ describe('snakes and ladders', () => {
     let snap = startGame(sm, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
     expect(JSON.stringify(projectFor(sm, snap, { kind: 'spectator' }).view)).not.toContain('script');
     for (const s of t.steps) { snap = act(sm, snap, 0, s.expected); if (s.reply) snap = act(sm, snap, 1, s.reply); }
-    expect(ss(snap).pos[0]).toBe(100);
-    expect(ss(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+    expect(ss(snap).pos).toEqual([100, 26]);
+    expect(ss(snap).outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 2 }] });
   });
 
   it('random games end and replay deterministically', () => {
@@ -148,12 +148,14 @@ describe('ludo (منچ)', () => {
     expect(ls(t).outcome?.reason).toBe('resign');
   });
 
-  it('tutorial: capture, then an exact roll into the goal wins', () => {
+  it('tutorial: forced capture with a bonus 6, a chosen goal entry, a blocked roll, then an exact roll wins', () => {
     const t = ludoModule.tutorial;
     let snap = startGame(lm, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
     for (const s of t.steps) { snap = act(lm, snap, 0, s.expected); if (s.reply) snap = act(lm, snap, 1, s.reply); }
-    expect(ls(snap).outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
-    expect(ls(snap).log.some((e) => e.t === 'move' && e.captured)).toBe(true);
+    expect(ls(snap).outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
+    expect(ls(snap).pieces).toEqual([[43, 42, 40, 41], [-1, 31, -1, -1]]);
+    expect(ls(snap).log.filter((e) => e.t === 'move' && e.captured)).toHaveLength(1);
+    expect(ls(snap).log.filter((e) => e.t === 'noMove')).toHaveLength(1);
   });
 
   it('random 2–4 player games end, never stack pieces on the track, and replay deterministically', () => {

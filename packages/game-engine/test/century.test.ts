@@ -102,7 +102,11 @@ describe('century rules', () => {
       snap = act(snap, 0, step.expected);
       if (step.reply) snap = act(snap, 1, step.reply);
     }
-    expect(st(snap).outcome?.placements[0]).toMatchObject({ seat: 0, place: 1 });
+    const s = st(snap);
+    expect(s.outcome?.placements).toEqual([{ seat: 0, place: 1, score: 51 }, { seat: 1, place: 2, score: 35 }]);
+    expect(s.won[0]).toHaveLength(6);
+    expect(s.cubes[0]).toEqual(b('g'));
+    expect(s.coins[0]).toEqual({ gold: 2, silver: 1 });
   });
 
   it('random games end and replay deterministically', () => {

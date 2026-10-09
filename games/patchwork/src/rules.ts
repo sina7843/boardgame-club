@@ -128,15 +128,21 @@ export const patchworkModule: GameModule<PatchworkState, PatchworkAction, Patchw
     };
     s.token = s.circle.length - 1;
     if (options.deal === 'tutorial') {
+      // Late game. The learner (time 40) trails the opponent (45). Their quilt's 7×7 corner misses only a Z-shaped gap
+      // (needs one rotation) and a single cell, which the last leather patch (space 44) fills for the +7 bonus; a
+      // 1×4 gap waits on the bottom row and four cells stay empty. The opponent's quilt has a 2×2 gap and six holes.
       s.current = 0;
-      s.pos = [49, 53];
-      s.buttons = [12, 9];
-      s.leatherLeft = [];
-      s.income = [6, 4];
-      // Pre-sewn quilts: the learner has a 3-cell gap shaped like the offered L patch.
-      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) { s.quilts[0]![r]![c] = 99; s.quilts[1]![r]![c] = (r * 9 + c) % 5 ? 98 : null; }
-      s.quilts[0]![4]![4] = null; s.quilts[0]![4]![5] = null; s.quilts[0]![5]![4] = null;
-      s.circle = [2, 0, 1, 3, 4];
+      s.pos = [40, 45];
+      s.buttons = [10, 12];
+      s.income = [8, 9];
+      s.leatherLeft = [44];
+      const learnerGaps = ['2,2', '2,3', '3,3', '3,4', '5,5', '8,0', '8,1', '8,2', '8,3', '8,7', '8,8', '7,8', '0,8'];
+      const oppGaps = ['0,0', '0,1', '1,0', '1,1', '3,7', '4,2', '5,8', '6,5', '7,1', '8,6'];
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+        s.quilts[0]![r]![c] = learnerGaps.includes(`${r},${c}`) ? null : 99;
+        s.quilts[1]![r]![c] = oppGaps.includes(`${r},${c}`) ? null : 98;
+      }
+      s.circle = [7, 24, 6, 4, 3, 10, 0, 1];
       s.token = 0;
     }
     return s;
@@ -237,11 +243,15 @@ export const patchworkModule: GameModule<PatchworkState, PatchworkAction, Patchw
   tutorial: {
     seed: 37,
     options: { deal: 'tutorial' },
-    introFa: 'لحاف شما تقریباً کامل است؛ فقط یک جای خالی سه‌خانه‌ای مانده. حریف به آخر مسیر زمان رسیده و شما چهار خانه عقب‌ترید، پس نوبت شماست.',
+    introFa: 'آخر بازی است. همیشه کسی بازی می‌کند که روی مسیر زمان عقب‌تر است: شما در خانهٔ ۴۰ هستید و حریف در ۴۵، پس نوبت شماست. ۱۰ دکمه دارید و تکه‌های لحافتان در هر خانهٔ درآمد ۸ دکمه می‌دهند. در هر نوبت یا یکی از سه تکهٔ بعد از نشانگر را می‌خرید و می‌دوزید، یا جلو می‌روید و دکمه می‌گیرید.',
     steps: [
-      { instructionFa: 'تکهٔ سه‌خانه‌ای L را بخرید و در جای خالی بدوزید (خانهٔ ردیف ۵، ستون ۵).', expected: { type: 'buy', patch: 2, rot: 0, flip: false, row: 4, col: 4 }, reply: null },
-      { instructionFa: 'هنوز عقب‌ترید: «جلو رفتن» را بزنید تا به آخر مسیر برسید و دکمه بگیرید.', expected: { type: 'advance' }, reply: null }
+      { instructionFa: 'تکهٔ Z شکل (۳ دکمه، ۴ زمان، ۱ دکمهٔ درآمد) را انتخاب کنید. جای خالی لحافتان افقی است، پس یک بار «چرخش» را بزنید، خانهٔ مشخص‌شده را برای گوشهٔ تکه بزنید و «بدوز». ۴ خانه جلو می‌روید و از خانهٔ درآمد ۴۱ رد می‌شوید: به اندازهٔ همهٔ دکمه‌های روی لحافتان (حالا ۹) دکمه می‌گیرید.', expected: { type: 'buy', patch: 24, rot: 1, flip: false, row: 2, col: 2 }, reply: null },
+      { instructionFa: 'به خانهٔ ۴۴ رسیدید که تکهٔ چرمی دارد: اولین کسی که از آن رد شود یک تکهٔ ۱×۱ مجانی می‌گیرد و همان لحظه می‌دوزد. آن را در تنها خانهٔ خالیِ تک داخل مربع بزرگ لحافتان (ردیف ۶، ستون ۶) بگذارید تا اولین مربع ۷×۷ کامل بازی را بسازید و ۷ امتیاز پاداش بگیرید.', expected: { type: 'leather', row: 5, col: 5 }, reply: null },
+      { instructionFa: 'هنوز عقب‌ترید (۴۴ در برابر ۴۵)، پس باز نوبت شماست. تکهٔ چهارخانهٔ صاف (۳ دکمه، ۳ زمان، ۱ درآمد) را بخرید و در جای خالی ردیف آخر بدوزید. با رسیدن به خانهٔ ۴۷ دوباره درآمد می‌گیرید و از حریف جلو می‌زنید.', expected: { type: 'buy', patch: 4, rot: 0, flip: false, row: 8, col: 0 }, reply: { type: 'advance' } },
+      { instructionFa: 'حریف به‌جای خرید «جلو رفت»: درست یک خانه جلوتر از شما رفت و به ازای هر خانه یک دکمه گرفت. حالا شما عقب‌ترید. شما هم «جلو رفتن» را بزنید: به خانهٔ ۴۹ می‌روید و ۲ دکمه می‌گیرید.', expected: { type: 'advance' }, reply: { type: 'buy', patch: 3, rot: 0, flip: false, row: 0, col: 0 } },
+      { instructionFa: 'حریف یک تکهٔ ۲×۲ خرید و به آخر مسیر (۵۳) رسید. «جلو رفتن» را بزنید: به خانهٔ ۵۳ می‌رسید، ۴ دکمه و درآمد آخر را می‌گیرید و چون هر دو به آخر رسیده‌اید بازی تمام می‌شود.', expected: { type: 'advance' }, reply: null }
     ],
-    completedFa: 'بردید! لحاف کامل، پاداش ۷×۷ و دکمه‌های بیشتر — حریف جای خالی زیادی داشت.'
+    completedFa: 'بردید! امتیاز = دکمه‌ها − ۲ × خانه‌های خالی لحاف + ۷ برای مربع ۷×۷. شما ۳۹ دکمه داشتید، ۴ خانهٔ خالی (۸−) و پاداش ۷: ۳۸ امتیاز. حریف ۲۹ دکمه و ۶ خانهٔ خالی (۱۲−) داشت: ۱۷ امتیاز. دوختن تکه‌های پردرآمد و پر کردن لحاف هر دو مهم است.'
+
   }
 };

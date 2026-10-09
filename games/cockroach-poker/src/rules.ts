@@ -74,9 +74,14 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
       chain: null, last: null, seq: 0, timeouts: Array(playerCount).fill(0), outcome: null
     };
     if (options.deal === 'tutorial') {
-      s.current = 0;
-      s.hands = [['bat', 'fly', 'rat', 'spider'], ['cockroach', 'toad', 'toad', 'scorpion']];
-      s.table = [[], ['bat', 'bat', 'bat']];
+      // Two-player endgame. All eight flies are visible to the learner (five in hand, three in front of the rival), so
+      // the rival's opening «fly» claim — already handed over as the toad — is provably a bluff. The rival also has
+      // three stink bugs in front of them and the learner holds the fourth.
+      s.current = 1;
+      s.hands = [['fly', 'fly', 'fly', 'fly', 'fly', 'rat', 'stinkbug'], ['cockroach', 'bat', 'toad', 'scorpion', 'spider']];
+      s.table = [[], ['fly', 'fly', 'fly', 'stinkbug', 'stinkbug', 'stinkbug']];
+      s.chain = { card: 'toad', from: 1, to: 0, claim: 'fly', seen: [1], peeked: false };
+      s.last = { kind: 'give', seat: 1, to: 0, claim: 'fly' };
     }
     return s;
   },
@@ -170,11 +175,13 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
   tutorial: {
     seed: 43,
     options: { deal: 'tutorial' },
-    introFa: 'کارت را رو به پایین به حریف می‌دهید و می‌گویید چیست؛ او باید حدس بزند راست می‌گویید یا نه. حریف سه خفاش جلویش دارد — چهارمی یعنی باخت!',
+    introFa: 'بازی دونفره به آخرش نزدیک است. حریف سه مگس و سه سن جلویش دارد؛ چهارمین کارت از هر جانور یعنی باخت. حریف همین الان یک کارت رو به پایین به شما داده و می‌گوید «مگس». در هر نوبت گیرنده حدس می‌زند ادعا راست است یا دروغ؛ با حدس درست کارت جلوی دهنده می‌ماند و با حدس غلط جلوی خود گیرنده.',
     steps: [
-      { instructionFa: 'یک بلوف: «موش» را بدهید ولی بگویید «سوسک».', expected: { type: 'give', card: 'rat', to: 1, claim: 'cockroach' }, reply: { type: 'call', truth: false } },
-      { instructionFa: 'حریف بلوف را گرفت و موش جلوی شما ماند. حالا راستش را بگویید: «خفاش» را بدهید و بگویید «خفاش».', expected: { type: 'give', card: 'bat', to: 1, claim: 'bat' }, reply: { type: 'call', truth: false } }
+      { instructionFa: 'کارت‌ها را بشمارید: از هر جانور ۸ کارت هست، پنج مگس در دست شماست و سه مگس جلوی حریف. پس این کارت نمی‌تواند مگس باشد: «دروغ می‌گوید» را بزنید.', expected: { type: 'call', truth: false }, reply: { type: 'give', card: 'scorpion', to: 0, claim: 'toad' } },
+      { instructionFa: 'درست حدس زدید: کارت وزغ بود و جلوی خود حریف ماند. حالا حریف کارتی داده و می‌گوید «وزغ». این بار مطمئن نیستید؛ حدس بزنید «راست می‌گوید».', expected: { type: 'call', truth: true }, reply: null },
+      { instructionFa: 'عقرب بود! حدس غلط یعنی کارت جلوی خودتان می‌ماند و حالا شما کارت می‌دهید. یک بلوف امتحان کنید: «موش» را انتخاب کنید، ادعای «خفاش» را بزنید و کارت را بدهید.', expected: { type: 'give', card: 'rat', to: 1, claim: 'bat' }, reply: { type: 'call', truth: false } },
+      { instructionFa: 'حریف بلوف را گرفت و موش جلوی شما ماند؛ دهنده‌ای که بلوفش رو شود خودش کارت را می‌گیرد. حالا راستش را بگویید: «سن» را با ادعای «سن» بدهید. حریف سه سن دارد و اگر حرفتان را باور نکند، چهارمی جلوی خودش می‌افتد.', expected: { type: 'give', card: 'stinkbug', to: 1, claim: 'stinkbug' }, reply: { type: 'call', truth: false } }
     ],
-    completedFa: 'بردید! حریف فکر کرد دروغ می‌گویید، ولی راست بود: چهارمین خفاش جلویش ماند.'
+    completedFa: 'بردید! حریف فکر کرد دروغ می‌گویید، ولی کارت واقعاً سن بود: حدس غلط یعنی کارت جلوی گیرنده می‌ماند و چهارمین سن جلوی حریف افتاد. جلوی شما فقط یک عقرب و یک موش است. در بازی بیش از دو نفر، گیرنده می‌تواند کارت را نگاه کند و به کسی که آن را ندیده رد کند.'
   }
 };

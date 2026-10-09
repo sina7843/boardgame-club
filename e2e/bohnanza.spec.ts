@@ -1,21 +1,28 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «لوبیاکاری» end to end: the tutorial (plant, flip, donate, end trade, plant the leftover) and a full three-player game.
+// «لوبیاکاری» end to end: the tutorial (plant twice, flip, trade for a wanted bean, end trade, plant, harvest to make room) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/bohnanza/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
-test('interactive tutorial: plant, flip, donate, settle', async ({ browser }, info) => {
+test('interactive tutorial: plant, flip, trade, settle, harvest', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
   await p.goto('/games/bohnanza');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
-  for (const step of ['۱', '۲', '۳', '۴', '۵']) {
-    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`));
+  for (const step of ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸']) {
+    const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`));
     await expect(label).toBeVisible();
-    if (step === '۳') await p.screenshot({ path: shot(info.project.name, 'tutorial-trade'), fullPage: true });
+    if (step === '۴') {
+      // The trade asks for a bean: the face-up card is hinted, the wanted bean chip is picked by name.
+      await p.locator('.bn__market .bn-hint').click();
+      await p.locator('.bn__offer .bn-chip--bean', { hasText: 'آبی' }).click();
+      await p.screenshot({ path: shot(info.project.name, 'tutorial-trade'), fullPage: true });
+    }
+    // Harvesting is not hinted by the renderer: press the red field's harvest link.
+    if (step === '۷') await p.locator('.bn-fields--mine').getByRole('button', { name: 'برداشت (۳ سکه)' }).click();
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.bn .bn-hint:not([disabled])').first();
       if (!(await h.count())) break;

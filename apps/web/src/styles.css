@@ -128,6 +128,9 @@
   .facts dd { margin: 0; font-weight: 700; }
   .rules { list-style: persian; margin: 0; padding-inline-start: 1.5rem; display: grid; gap: 0.5rem; line-height: 1.9; }
   .rules li::marker { color: var(--primary); font-weight: 800; }
+  .rules-text { display: grid; gap: 1.25rem; }
+  .rules-section { display: grid; gap: 0.5rem; }
+  .rules-section__title { margin: 0; font-size: var(--fs-md); font-weight: 800; color: var(--primary); }
   .policy { border-inline-start: 3px solid color-mix(in srgb, var(--primary) 45%, transparent); padding-inline-start: 0.75rem; margin: 0; }
   .breadcrumb { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--muted-foreground); text-decoration: none; margin-block-end: 0.75rem; min-block-size: 44px; }
   .breadcrumb:hover { color: var(--foreground); }

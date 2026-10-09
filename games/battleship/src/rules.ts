@@ -104,12 +104,19 @@ export const bsModule: GameModule<BsState, BsAction, BsView> = {
       last: null, seq: 0, timeouts: [0, 0], outcome: null
     };
     if (options.deal === 'tutorial') {
-      // The learner's fleet is set; the scripted opponent has only its patrol boat left, at (3,4)–(4,4).
+      // A late battle, both fleets already placed. The opponent has lost carrier, battleship and cruiser; the
+      // submarine (column 7, rows ث–چ) and the patrol boat (row ج, columns 2–3) are still afloat. The learner's
+      // carrier on row ب is already hit twice.
       s.seas[0]!.ships = [
         { ship: 0, x: 1, y: 1, dir: 'h' }, { ship: 1, x: 8, y: 2, dir: 'v' }, { ship: 2, x: 2, y: 6, dir: 'h' },
         { ship: 3, x: 6, y: 8, dir: 'h' }, { ship: 4, x: 0, y: 4, dir: 'v' }
       ];
-      s.seas[1]!.ships = [{ ship: 4, x: 3, y: 4, dir: 'h' }];
+      s.seas[0]!.shots = [12, 13, 0, 35, 77, 91, 54, 23];
+      s.seas[1]!.ships = [
+        { ship: 0, x: 0, y: 0, dir: 'h' }, { ship: 1, x: 9, y: 0, dir: 'v' }, { ship: 2, x: 2, y: 8, dir: 'h' },
+        { ship: 3, x: 6, y: 4, dir: 'v' }, { ship: 4, x: 1, y: 5, dir: 'h' }
+      ];
+      s.seas[1]!.shots = [0, 1, 2, 3, 4, 9, 19, 29, 39, 82, 83, 84, 22, 25, 33, 37, 44, 63, 68, 71, 75, 77, 88, 91, 15, 59, 31, 97, 53];
       s.placed = [true, true]; s.phase = 'fire'; s.first = 0; s.current = 0;
     }
     return s;
@@ -197,11 +204,15 @@ export const bsModule: GameModule<BsState, BsAction, BsView> = {
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },
-    introFa: 'ناوگان شما چیده شده است. از ناوگان حریف فقط یک قایق گشتی دوخانه‌ای مانده که جایش را نمی‌دانید.',
+    introFa: 'نبرد به آخرش نزدیک است. هر دو ناوگان چیده شده و نوبت شلیک شماست. سه کشتی حریف غرق شده و فقط زیردریایی (۳ خانه) و قایق گشتی (۲ خانه) مانده‌اند. در هر نوبت یک شلیک می‌کنید: «آب» یعنی خطا، «اصابت» یعنی به کشتی خورده است، و وقتی همهٔ خانه‌های کشتی بخورد غرق می‌شود.',
     steps: [
-      { instructionFa: 'به خانهٔ روشن در دریای حریف شلیک کنید.', expected: { type: 'fire', cell: 4 * SIZE + 3 }, reply: { type: 'fire', cell: 0 } },
-      { instructionFa: 'اصابت! قایق دوخانه‌ای است؛ به خانهٔ کناری‌اش شلیک کنید تا غرق شود.', expected: { type: 'fire', cell: 4 * SIZE + 4 }, reply: null }
+      { instructionFa: 'به خانهٔ روشن در دریای حریف (ج۷) شلیک کنید.', expected: { type: 'fire', cell: 56 }, reply: { type: 'fire', cell: 14 } },
+      { instructionFa: 'اصابت! ولی نمی‌دانید کشتی افقی است یا عمودی. خانهٔ کنارش در همان سطر (ج۸) را امتحان کنید.', expected: { type: 'fire', cell: 57 }, reply: { type: 'fire', cell: 15 } },
+      { instructionFa: '«آب» بود، پس کشتی احتمالاً در این سطر ادامه ندارد. خانهٔ کنارش در همان ستون (ث۷) را بزنید. حواستان به دریای خودتان هم باشد: حریف چهار خانه از ناو هواپیمابر پنج‌خانه‌ای شما را زده است.', expected: { type: 'fire', cell: 46 }, reply: { type: 'fire', cell: 11 } },
+      { instructionFa: 'دومین اصابت: کشتی در ستون ۷ عمودی است. حریف هم ناو هواپیمابر شما را غرق کرد! زیردریایی سه خانه است؛ خانهٔ سوم (چ۷) را بزنید تا غرق شود.', expected: { type: 'fire', cell: 66 }, reply: { type: 'fire', cell: 49 } },
+      { instructionFa: 'زیردریایی غرق شد و جای کاملش روی دریا پیدا شد. فقط قایق گشتی دوخانه‌ای مانده؛ خانهٔ ج۳ را بزنید.', expected: { type: 'fire', cell: 52 }, reply: { type: 'fire', cell: 38 } },
+      { instructionFa: 'اصابت! در ج۴ قبلاً آب خورده‌اید، پس خانهٔ دیگر قایق در همان سطر به سمت دیگر است: ج۲ را بزنید تا آخرین کشتی حریف غرق شود.', expected: { type: 'fire', cell: 51 }, reply: null }
     ],
-    completedFa: 'قایق گشتی غرق شد و ناوگان حریف از بین رفت. بردید!'
+    completedFa: 'بردید! با غرق شدن قایق گشتی هر پنج کشتی حریف غرق شد. حریف در همین مدت ناو هواپیمابر شما را غرق کرد و به رزمناوتان هم زد، ولی چهار کشتی شما هنوز شناور بود. از هر اصابت با شلیک به خانه‌های کناری جهت کشتی را پیدا کنید و در همان امتداد ادامه دهید.'
   }
 };

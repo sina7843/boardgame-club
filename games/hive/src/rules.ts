@@ -233,11 +233,13 @@ export const hiveModule: GameModule<HiveState, HiveAction, HiveView> = {
       reserve: { w: { ...START_RESERVE }, b: { ...START_RESERVE } }, history: [], passes: 0, timeouts: [0, 0], end: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // The black Queen is surrounded on five sides; only (0,1) below it is open.
+      // Mid-game teaching position. The black Queen at (0,0) already touches its own Spider, Ant and the white Queen;
+      // the learner fills the other three sides with a Grasshopper jump, a Spider walk and a Soldier Ant run, pinning
+      // the black Ant with the Beetle on the way. Both Queens are on the board, so every piece may move.
       const put = (q: number, r: number, c: Color, t: Bug) => { s.stacks[key([q, r])] = [{ c, t }]; s.reserve[c][t] -= 1; s.placed[c] += 1; };
-      put(0, 0, 'b', 'Q'); put(0, -1, 'b', 'S'); put(-1, 0, 'b', 'A');
-      put(1, 0, 'w', 'A'); put(1, -1, 'w', 'B'); put(-1, 1, 'w', 'G'); put(2, -1, 'w', 'Q');
-      s.turnNo = 7;
+      put(0, 0, 'b', 'Q'); put(0, -1, 'b', 'S'); put(-1, 0, 'b', 'A'); put(-1, -1, 'b', 'G');
+      put(1, -1, 'w', 'Q'); put(-2, 0, 'w', 'G'); put(-2, 1, 'w', 'B'); put(2, -2, 'w', 'S');
+      s.turnNo = 8;
     }
     return s;
   },
@@ -291,12 +293,15 @@ export const hiveModule: GameModule<HiveState, HiveAction, HiveView> = {
   tutorial: {
     seed: 12,
     options: { firstMove: 'host', deal: 'tutorial' },
-    introFa: 'شما سفید هستید. ملکه سیاه از پنج طرف محاصره شده؛ اگر ششمین خانه کنارش هم پر شود برنده‌اید. هر مهره جدید باید فقط کنار مهره‌های خودتان گذاشته شود.',
+    introFa: 'شما سفید هستید و هر دو ملکه روی میزند، پس همهٔ مهره‌ها می‌توانند حرکت کنند. ملکهٔ سیاه از سه طرف گیر افتاده: عنکبوت و مورچهٔ سیاه و ملکهٔ سفید شما. اگر سه خانهٔ خالی دیگرِ کنارش را هم پر کنید (با مهره‌ای از هر رنگ)، برنده‌اید. در هر نوبت یا یک مهرهٔ تازه می‌گذارید یا یک مهره را حرکت می‌دهید.',
     steps: [
-      { instructionFa: 'از ذخیره‌تان «مورچه» را انتخاب کنید و در خانه روشن کنار ملکه سفیدتان بگذارید (کنار هیچ مهره سیاهی نیست).', expected: { type: 'place', bug: 'A', to: [3, -2] }, reply: { type: 'place', bug: 'S', to: [-2, 0] } },
-      { instructionFa: 'مورچه می‌تواند دور کندو هر چقدر بخواهد سُر بخورد. مورچه تازه را بزنید و به خانه خالی زیر ملکه سیاه ببرید.', expected: { type: 'move', from: [3, -2], to: [0, 1] }, reply: null }
+      { instructionFa: 'عنکبوت سفید را بزنید و به خانهٔ روشن کنار ملکهٔ سیاه ببرید. عنکبوت همیشه دقیقاً سه خانه دور لبهٔ کندو سُر می‌خورد، نه کمتر و نه بیشتر، و به خانه‌ای که از آن گذشته برنمی‌گردد.', expected: { type: 'move', from: [2, -2], to: [0, 1] }, reply: { type: 'place', bug: 'A', to: [0, -2] } },
+      { instructionFa: 'حالا ملخ سفید را بزنید. ملخ سُر نمی‌خورد، بلکه در یک خط راست از روی یک یا چند مهرهٔ پشت سر هم می‌پرد و در اولین خانهٔ خالی فرود می‌آید. از روی مورچه و ملکهٔ سیاه بپرید و در خانهٔ روشن آن طرف ملکه بنشینید.', expected: { type: 'move', from: [-2, 0], to: [1, 0] }, reply: { type: 'move', from: [0, -2], to: [1, -2] } },
+      { instructionFa: 'حریف مورچه‌اش را کنار ملکهٔ شما آورد. یک «مورچه» تازه از ذخیره‌تان بگذارید، در خانهٔ روشن. مهرهٔ تازه باید به مهره‌های خودتان بچسبد و به هیچ مهرهٔ حریف نچسبد.', expected: { type: 'place', bug: 'A', to: [2, 0] }, reply: { type: 'place', bug: 'G', to: [-1, -2] } },
+      { instructionFa: 'سوسک را بزنید و روی مورچهٔ سیاهِ کنار ملکه ببرید. سوسک یک خانه حرکت می‌کند ولی می‌تواند از مهره‌ها بالا برود. مهره‌ای که زیر سوسک است نمی‌تواند حرکت کند؛ حالا مورچهٔ سیاه نمی‌تواند از کنار ملکه‌اش فرار کند و راه را باز کند.', expected: { type: 'move', from: [-2, 1], to: [-1, 0] }, reply: { type: 'place', bug: 'B', to: [-2, -1] } },
+      { instructionFa: 'فقط یک خانهٔ خالی کنار ملکهٔ سیاه مانده. مورچه هر چند خانه که بخواهد دور کندو سُر می‌خورد: مورچهٔ تازه‌تان را بزنید و دور کندو تا آخرین خانهٔ خالی کنار ملکهٔ سیاه ببرید.', expected: { type: 'move', from: [2, 0], to: [-1, 1] }, reply: null }
     ],
-    completedFa: 'بردید! ملکه سیاه از شش طرف محاصره شد. یادتان باشد: کندو هرگز نباید دو تکه شود و مهره‌ها باید بتوانند بین خانه‌ها سُر بخورند.'
+    completedFa: 'بردید! هر شش خانهٔ کنار ملکهٔ سیاه پر شد: عنکبوت، ملخ و مورچهٔ شما، ملکهٔ سفیدتان، سوسکتان روی مورچهٔ سیاه، و عنکبوت خود سیاه. مهره‌های هر رنگی در محاصره حساب می‌شوند. یادتان باشد: کندو هرگز نباید دو تکه شود، پس مهره‌ای که برداشتنش کندو را جدا می‌کند قفل است؛ و مهره‌های روی زمین از شکافی که برایشان تنگ است رد نمی‌شوند.'
   }
 };
 

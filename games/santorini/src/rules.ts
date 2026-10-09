@@ -124,10 +124,14 @@ export const santoriniModule: GameModule<SantoriniState, SantoriniAction, Santor
       phase: 'setup', current: first, first, history: [], timeouts: [0, 0], end: null, outcome: null
     };
     if (options.deal === 'tutorial') {
-      // Your worker stands on a level-2 terrace next to another level-2 terrace and a level-2 tower.
-      s.height[12] = 2; s.height[7] = 2; s.height[13] = 2;
-      s.supply = { 1: 19, 2: 15, 3: 14, dome: 18 };
-      s.workers = [[12, 0], [24, 20]];
+      // Teaching position (tutorial tables only). Learner: workers a2 (ground) and e3 (ground). Opponent: d1 (level 1)
+      // and c5 (ground). Towers: b3 level 3, c3 and d3 level 2, b2 and d2 level 1; in the corner e1 level 2 next to
+      // e2 level 3, which the opponent can threaten by stepping up to e1.
+      const h: Record<number, number> = { 6: 1, 12: 2, 11: 3, 13: 2, 8: 1, 9: 3, 4: 2, 3: 1 };
+      for (const [i, v] of Object.entries(h)) s.height[Number(i)] = v;
+      const used = (lvl: number) => s.height.filter((x) => x >= lvl).length;
+      s.supply = { 1: 22 - used(1), 2: 18 - used(2), 3: 14 - used(3), dome: 18 };
+      s.workers = [[5, 14], [3, 22]];
       s.phase = 'play'; s.current = 0; s.first = 0;
     }
     return s;
@@ -191,11 +195,13 @@ export const santoriniModule: GameModule<SantoriniState, SantoriniAction, Santor
   tutorial: {
     seed: 9,
     options: { firstMove: 'host', deal: 'tutorial' },
-    introFa: 'شما کارگرهای سفید هستید. در هر نوبت یک کارگر را یک خانه (هر جهت) جابه‌جا می‌کنید و بعد کنار همان کارگر یک طبقه می‌سازید. کسی که به طبقه سوم برود می‌برد.',
+    introFa: 'شما کارگرهای روشن هستید. هر نوبت دو بخش دارد: اول یکی از کارگرهایتان را به یکی از هشت خانهٔ کناری می‌برید، بعد کنار همان کارگر یک طبقه می‌سازید. بالا رفتن حداکثر یک طبقه در هر حرکت است و پایین آمدن هر اندازه آزاد است. کسی که کارگرش را از طبقهٔ ۲ به طبقهٔ ۳ ببرد فوراً می‌برد. عددِ گوشهٔ هر خانه ارتفاع آن است.',
     steps: [
-      { instructionFa: 'کارگر وسط صفحه (روی طبقه ۲) را بزنید و به سکوی طبقه ۲ روشن‌شده ببرید؛ بعد روی برج طبقه ۲ روشن‌شده بسازید تا طبقه ۳ شود.', expected: { type: 'turn', from: 12, to: 7, build: 13 }, reply: { type: 'turn', from: 24, to: 19, build: 24 } },
-      { instructionFa: 'حالا کارگرتان را روی برج طبقه ۳ ببرید و برنده شوید!', expected: { type: 'turn', from: 7, to: 13 }, reply: null }
+      { instructionFa: 'کارگر a2 (روی زمین) را بزنید، او را یک طبقه بالا به b2 (طبقهٔ ۱) ببرید و بعد روی a2 بسازید. خانه‌ای که همین الان از آن آمده‌اید هم کنار کارگر است و می‌شود رویش ساخت.', expected: { type: 'turn', from: 5, to: 6, build: 5 }, reply: { type: 'turn', from: 3, to: 4, build: 3 } },
+      { instructionFa: 'خطر! کارگر حریف به e1 (طبقهٔ ۲) رفت و کنار برج طبقهٔ ۳ در e2 است؛ نوبت بعد بالا می‌رود و می‌برد. کارگر e3 را به d2 (طبقهٔ ۱) ببرید و روی e2 بسازید: ساختن روی طبقهٔ ۳ یعنی گنبد، و هیچ کارگری روی گنبد نمی‌رود.', expected: { type: 'turn', from: 14, to: 8, build: 9 }, reply: { type: 'turn', from: 22, to: 23, build: 22 } },
+      { instructionFa: 'حالا حمله کنید: کارگر b2 را به c3 (طبقهٔ ۲) ببرید و روی d3 بسازید تا طبقهٔ ۳ شود. کارگرتان روی طبقهٔ ۲ کنار دو برج طبقهٔ ۳ (b3 و d3) می‌ایستد؛ حریف در یک نوبت فقط یکی را می‌تواند گنبد بگذارد.', expected: { type: 'turn', from: 6, to: 12, build: 13 }, reply: { type: 'turn', from: 23, to: 18, build: 13 } },
+      { instructionFa: 'حریف روی d3 گنبد گذاشت، ولی b3 هنوز باز است. کارگر c3 را به b3 (طبقهٔ ۳) ببرید و برنده شوید. حرکت برنده ساختن ندارد.', expected: { type: 'turn', from: 12, to: 11 }, reply: null }
     ],
-    completedFa: 'بردید! بالا رفتن فقط یک طبقه در هر حرکت ممکن است، ولی پایین آمدن هر چند طبقه آزاد است. روی طبقه سوم می‌شود گنبد گذاشت تا کسی بالا نرود.'
+    completedFa: 'بردید! با یک طبقه بالا رفتن در هر حرکت از زمین به طبقهٔ ۱، بعد ۲ و در آخر ۳ رسیدید. گنبد e2 جلوی برد حریف را گرفت و تهدید دوگانهٔ b3 و d3 کار را تمام کرد، چون حریف فقط یکی را می‌توانست ببندد. یادتان باشد: اگر بازیکنی در نوبتش نتواند هم حرکت کند و هم بسازد، می‌بازد.'
   }
 };
