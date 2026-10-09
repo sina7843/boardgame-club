@@ -1,6 +1,6 @@
 /* رقابت کهکشانی: a star-chart command deck — midnight indigo, planet orbs by good colour, violet developments. */
 .rg { display: grid; gap: 0.55rem; inline-size: 100%; color: #e9ecff; text-align: center; padding: 0.5rem; border-radius: 16px;
-  background: radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent), radial-gradient(1px 1px at 70% 60%, #fff 50%, transparent), radial-gradient(circle at 50% 0%, #2a2a6a, #0a0a22 75%); }
+  background: linear-gradient(rgb(10 10 34 / 0.7), rgb(10 10 34 / 0.82)), url('./art/bd-space.webp') center / cover, #0a0a22; }
 .rg > :first-child { justify-self: center; }
 .rg-w--n { --g: #4fc3ff; } .rg-w--r { --g: #c08a5a; } .rg-w--g { --g: #6fd38a; } .rg-w--a { --g: #ffd75a; }
 .rg-info { margin: 0; font-size: 0.72rem; color: #b5bbe6; }
@@ -37,7 +37,8 @@
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--g) 50%, white 50%), var(--g) 55%, color-mix(in srgb, var(--g) 50%, black 50%)); }
 .rg-dev .rg-card__orb { background: none; }
 .rg-card--sm .rg-card__orb { inline-size: 1.2rem; block-size: 1.2rem; font-size: 0.8rem; }
-.rg-good { position: absolute; inset-block-end: -0.2rem; inset-inline-end: -0.2rem; inline-size: 0.6rem; block-size: 0.6rem; border-radius: 3px; background: #fff; box-shadow: 0 0 6px #fff; animation: rg-pop 0.4s ease-out; }
+.rg-good { position: absolute; inset-block-end: -0.35rem; inset-inline-end: -0.4rem; inline-size: 1.1rem; block-size: 1.1rem; border-radius: 4px; object-fit: cover; box-shadow: 0 0 6px #fff; animation: rg-pop 0.4s ease-out; }
+.rg-card__gt { position: absolute; inset-block-end: 0.15rem; inset-inline-end: 0.15rem; inline-size: 1.1rem; block-size: 1.1rem; border-radius: 4px; object-fit: cover; box-shadow: 0 0 0 1px var(--g); }
 .rg-card__name { font-size: 0.6rem; font-weight: 800; }
 .rg-card--sm .rg-card__name { font-size: 0.48rem; }
 .rg-card__tag { font-size: 0.5rem; color: #b5bbe6; }

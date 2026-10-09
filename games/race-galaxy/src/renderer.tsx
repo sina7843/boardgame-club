@@ -4,7 +4,14 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
-import { CARDS, PHASES, type Phase, type RgView } from './rules.ts';
+import goodN from './art/good-n.webp';
+import goodR from './art/good-r.webp';
+import goodG from './art/good-g.webp';
+import goodA from './art/good-a.webp';
+import { CARDS, PHASES, type Good, type Phase, type RgView } from './rules.ts';
+
+// Goods paintings are cut from a generated sprite sheet (see DECISIONS.md).
+const GOOD_ART: Record<Good, string> = { n: goodN, r: goodR, g: goodG, a: goodA };
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const PHASE_FA: Record<Phase, [string, string, string]> = {
@@ -19,7 +26,8 @@ export function GalaxyCard({ id, good, size = 'md' }: { id: number; good?: boole
   const tag = c.type === 'dev' ? (c.power ? `${POWER_FA[c.power]}${c.mil ? ` +${fa(c.mil)}` : ''}` : 'پیشرفت') : c.kind === 'mil' ? `نظامی ${fa(c.cost)}` : c.kind === 'wind' ? 'بادآورده' : 'تولیدی';
   return (
     <span className={`rg-card rg-card--${size} ${c.type === 'dev' ? 'rg-dev' : `rg-w--${c.good} rg-k--${c.kind}`}`} aria-label={`${c.name}، ${tag}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}>
-      <span className="rg-card__orb" aria-hidden>{c.type === 'dev' ? '⬢' : ''}{good && <i className="rg-good" />}</span>
+      <span className="rg-card__orb" aria-hidden>{c.type === 'dev' ? '⬢' : ''}{good && c.good && <img className="rg-good" src={GOOD_ART[c.good]} alt="" />}</span>
+      {size === 'md' && c.good && <img className="rg-card__gt" src={GOOD_ART[c.good]} alt="" aria-hidden="true" />}
       <span className="rg-card__name">{c.name}</span>
       {size === 'md' && <small className="rg-card__tag">{tag}</small>}
       <b className="rg-card__cost">{fa(c.cost)}</b>
