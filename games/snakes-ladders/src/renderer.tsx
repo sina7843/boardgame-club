@@ -2,7 +2,7 @@
 // over it on a painted jungle backdrop (WebP cut from a generated sheet, see DECISIONS.md), numbered player tokens (colour + number, never colour alone), die and roll button.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
 import jungle from './art/bd-jungle.webp';
 import dieArt from './art/die.webp';
 import { BoardDefs, LadderArt, PawnArt, SnakeArt, pipsOf } from './art.tsx';
@@ -22,7 +22,7 @@ function center(n: number): [number, number] {
 
 export function Die({ value, rolling }: { value: number | null; rolling?: boolean }) {
   return (
-    <svg className={rolling ? 'sl-die sl-die--roll' : 'sl-die'} viewBox="0 0 44 44" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
+    <svg className={rolling ? 'sl-die bg-roll' : 'sl-die'} viewBox="0 0 44 44" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
       <rect x="5" y="7" width="36" height="36" rx="9" className="sl-die__shadow" />
       <rect x="3" y="3" width="36" height="36" rx="9" fill="url(#sl-die-face)" stroke="#8f7f58" strokeWidth="1.2" />
       <rect x="5" y="5" width="32" height="32" rx="7" fill="none" stroke="url(#sl-bevel)" strokeWidth="2" />
@@ -59,6 +59,9 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
 
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, latest?.seq ?? 0);
+
   const status = view.outcome ? null : canRoll
     ? { tone: 'mine' as const, text: 'نوبت شماست: تاس بریزید' }
     : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
@@ -69,7 +72,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
   const offBoard = view.pos.map((p, seat) => ({ p, seat })).filter((x) => view.active[x.seat] && x.p === 0);
 
   return (
-    <div className="sl">
+    <div className="sl" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
@@ -107,7 +110,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
             const r = seats.length > 1 ? 12 : 0;
             return (
               <g key={seat} className="sl-token" style={{ transform: `translate(${cx + Math.cos(angle) * r}px, ${cy + Math.sin(angle) * r}px)` }}>
-                <PawnArt color={TOKEN_COLORS[seat]!} label={fa(seat + 1)} dark={seat === 3} />
+                <g data-flip={`token-${seat}`}><PawnArt color={TOKEN_COLORS[seat]!} label={fa(seat + 1)} dark={seat === 3} /></g>
               </g>
             );
           }))}
