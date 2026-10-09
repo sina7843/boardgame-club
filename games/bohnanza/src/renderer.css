@@ -15,7 +15,7 @@
 .bn-card__meter .is-on { background: #e8b931; }
 .bn-card__meter .is-off { opacity: 0.35; }
 .bn-card__count { position: absolute; inset-block-start: -0.45rem; inset-inline-end: -0.45rem; min-inline-size: 1.4rem; block-size: 1.4rem; display: grid; place-items: center;
-  border-radius: 50%; background: #2a1d10; color: #ffe1a0; font-size: 0.75rem; box-shadow: 0 0 0 2px #e8b931; animation: bn-bump 0.4s ease-out; }
+  border-radius: 50%; background: #2a1d10; color: #ffe1a0; font-size: 0.75rem; box-shadow: 0 0 0 2px #e8b931; }
 
 .bn__rivals { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
 .bn-rival { display: grid; gap: 0.3rem; padding: 0.4rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
@@ -25,7 +25,7 @@
 .bn-rival__name { font-weight: 800; }
 .bn-rival__hand, .bn-rival__pending { color: #e3d6b8; font-size: 0.72rem; }
 .bn-coin { min-inline-size: 1.5rem; padding: 0 0.4rem; border-radius: 999px; font-weight: 900; color: #2a1d10;
-  background: radial-gradient(circle at 35% 30%, #fff1b0, #e8b931 60%, #9a6c08); animation: bn-bump 0.45s ease-out; }
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #e8b931 60%, #9a6c08); }
 .bn-coin--lg { font-size: 1rem; padding: 0.05rem 0.6rem; }
 
 .bn-fields { display: flex; gap: 0.5rem; justify-content: center; }
@@ -53,7 +53,6 @@ button.bn-pick { cursor: pointer; }
 button.bn-pick:hover { transform: translateY(-3px); }
 .bn-pick--on { box-shadow: 0 0 0 3px #ff9d6b; transform: translateY(-5px); }
 .bn-pick--first { box-shadow: 0 0 0 2px #e8b931; }
-.bn-flip { animation: bn-flip 0.45s ease-out both; }
 
 .bn__offer, .bn__slip { display: grid; gap: 0.4rem; padding: 0.55rem; border-radius: 12px; background: rgb(0 0 0 / 0.28); animation: bn-rise 0.3s ease-out both; }
 .bn__slip { background: #fbf3df; color: #2a1d10; box-shadow: 0 6px 16px rgb(0 0 0 / 0.5); justify-self: center; min-inline-size: min(100%, 20rem); }
@@ -71,8 +70,6 @@ button.bn-pick:hover { transform: translateY(-3px); }
 .bn__pending { padding: 0.35rem; border-radius: 10px; background: rgb(255 157 107 / 0.15); }
 .bn-hint { animation: bn-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@keyframes bn-bump { 40% { transform: scale(1.3); } }
 @keyframes bn-rise { from { opacity: 0; transform: translateY(6px); } }
-@keyframes bn-flip { from { transform: rotateY(90deg); opacity: 0; } }
 @keyframes bn-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .bn * { animation: none !important; transition: none !important; } }
