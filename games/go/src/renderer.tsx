@@ -2,7 +2,7 @@
 // Play: tap an intersection. Scoring: tap a group to mark it dead/alive; territory and the running score are shown.
 import './renderer.css';
 import { useId } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
 import stoneB from './art/stone-b.webp';
 import stoneW from './art/stone-w.webp';
 import texKaya from './art/tex-kaya.webp';
@@ -44,8 +44,8 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
           <div key={c} className={['go-side', view.turn === c && view.phase === 'play' && !view.outcome ? 'go-side--turn' : ''].join(' ')}>
             <span className={`go-side__stone go-side__stone--${c}`} aria-hidden="true" />
             <bdi className="go-side__name">{who(c)}</bdi>
-            <span className="go-side__stat">اسیر {fa(view.captures[c])}{c === 'w' ? ` · کومی ${fa(view.komi)}` : ''}</span>
-            {(live || view.score) && <strong className="go-side__score">{fa((live ?? view.score!)[c])}</strong>}
+            <Pop n={view.captures[c]} className="go-side__stat">اسیر {fa(view.captures[c])}{c === 'w' ? ` · کومی ${fa(view.komi)}` : ''}</Pop>
+            {(live || view.score) && <Pop n={(live ?? view.score!)[c]} as="strong" className="go-side__score">{fa((live ?? view.score!)[c])}</Pop>}
             {scoring && view.accepted[seatOf(c)] && <span className="go-side__ok">تأیید کرد</span>}
           </div>
         ))}
@@ -88,7 +88,7 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
                 {ok && <image href={myColor === 'b' ? stoneB : stoneW} x={x - G * 0.47} y={y - G * 0.47} width={G * 0.94} height={G * 0.94} className="go-ghost" />}
                 {captured && !s && <g className="go-gone" pointerEvents="none"><StoneShape x={x} y={y} c={view.turn} r={G * 0.47} /></g>}
                 {s && (
-                  <g key={`${i}-${s}`} className={['go-stone', last?.at === i ? 'go-stone--new' : '', dead.has(i) ? 'go-stone--dead' : ''].join(' ')} pointerEvents="none">
+                  <g key={`${i}-${s}`} className={['go-stone', last?.at === i ? 'bg-land' : '', dead.has(i) ? 'go-stone--dead' : ''].join(' ')} pointerEvents="none">
                     <StoneShape x={x} y={y} c={s} r={G * 0.47} />
                     {last?.at === i && <circle cx={x} cy={y} r={G * 0.2} className={`go-lastmark go-lastmark--${s}`} />}
                     {dead.has(i) && <path d={`M${x - 12} ${y - 12} L${x + 12} ${y + 12} M${x + 12} ${y - 12} L${x - 12} ${y + 12}`} className="go-deadmark" />}
@@ -111,6 +111,11 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
       )}
     </div>
   );
+}
+
+// A number that bumps whenever it changes.
+function Pop({ n, className, as: Tag = 'span', children }: { n: number; className: string; as?: 'span' | 'strong'; children: React.ReactNode }) {
+  return <Tag key={n} className={`${className} ${usePop(n)}`}>{children}</Tag>;
 }
 
 function StoneShape({ x, y, c, r }: { x: number; y: number; c: Stone; r: number }) {

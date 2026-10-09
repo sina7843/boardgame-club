@@ -24,7 +24,6 @@
 .go-pt--ok:hover .go-ghost, .go-pt--ok:focus-visible .go-ghost { opacity: 0.55; }
 .go-pt:focus-visible rect { stroke: #8a2f1b; stroke-width: 4px; }
 .go-pt--hint .go-ghost { opacity: 0.55; animation: go-hint 1s ease-in-out infinite; }
-.go-stone--new { transform-box: fill-box; transform-origin: center; animation: go-drop 0.32s cubic-bezier(.2, 1.4, .4, 1) both; }
 .go-stone--dead { opacity: 0.45; }
 .go-deadmark { stroke: #c0392b; stroke-width: 5px; stroke-linecap: round; }
 .go-lastmark { fill: none; stroke-width: 3px; }
@@ -38,11 +37,10 @@
 .go__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; min-block-size: 2.5rem; }
 .go__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes go-drop { from { transform: translateY(-18px) scale(1.15); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes go-gone { to { opacity: 0; transform: scale(0.5); } }
 @keyframes go-hint { 50% { opacity: 0.2; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .go-stone--new, .go-pt--hint .go-ghost { animation: none; }
+  .go-pt--hint .go-ghost { animation: none; }
   .go-gone { animation: none; opacity: 0; }
 }
