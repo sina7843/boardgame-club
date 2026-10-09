@@ -2,8 +2,8 @@
 // (deck tile + four cards) under the visiting nobles, rival ledgers with bonuses and tokens, and your own reserved
 // cards. Tap gems to pick (three different, or the same gem twice for a pair); tap a card to buy or reserve it.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import gemW from './art/gem-diamond.webp';
 import gemU from './art/gem-sapphire.webp';
 import gemG from './art/gem-emerald.webp';
@@ -33,7 +33,7 @@ export function Chip({ t, n, size = 'md', on }: { t: Token; n?: number; size?: '
   return (
     <span className={['sp-chip', `sp-chip--${size}`, `sp-t--${t}`, on ? 'sp-chip--on' : ''].join(' ')} aria-label={n === undefined ? GEM_FA[t] : `${fa(n)} ${GEM_FA[t]}`}>
       <img src={GEM_ART[t]} alt="" draggable={false} />
-      {n !== undefined && <b>{fa(n)}</b>}
+      {n !== undefined && <b key={n} className="bg-pop">{fa(n)}</b>}
     </span>
   );
 }
@@ -63,6 +63,9 @@ export function NobleTile({ id }: { id: number }) {
 
 export default function SplendorRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SplendorView>) {
   const me = mySeat ?? -1;
+  // Cards glide deck → market → reserved/ledger, nobles → their owner, and gems fly bank ↔ player.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const take = legalActions.find((a) => a.type === 'take') as { colors: Gem[]; need: number } | undefined;
   const pairs = new Set(legalActions.filter((a) => a.type === 'take2').map((a) => a.color as Gem));
   const reservable = new Set(legalActions.filter((a) => a.type === 'reserve' && a.card !== undefined).map((a) => a.card as number));
@@ -95,31 +98,33 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}${view.ending ? ' (دور آخر)' : ''}` };
   const order = mySeat === null ? view.tokens.map((_, k) => k) : [...view.tokens.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const cardHint = (id: number) => hint?.type === 'buy' && hint.card === id;
-  const lastCard = view.last?.kind === 'buy' || view.last?.kind === 'reserve' ? view.last.card : undefined;
+  const last = view.last;
+  const bought = last?.kind === 'buy' ? last.card : undefined;
+  const gemImg = (g: Token, id: string, from: string) => <img key={id} className="sp-took" src={GEM_ART[g]} alt="" draggable={false} data-flip={id} data-flip-from={from} />;
 
   const cardBtn = (id: number) => {
     const sel_ = card === id;
     const can = buyable.has(id) || reservable.has(id);
     return (
-      <button key={id} type="button" className={['sp-slot', sel_ ? 'sp-slot--on' : '', buyable.has(id) ? 'sp-slot--buy' : '', cardHint(id) && !sel_ ? 'sp-hint' : ''].join(' ')}
+      <button key={id} type="button" data-flip={`card-${id}`} data-flip-from={`deck-${CARDS[id]!.level}`} className={['sp-slot', sel_ ? 'sp-slot--on' : '', buyable.has(id) ? 'sp-slot--buy' : '', cardHint(id) && !sel_ ? 'sp-hint' : ''].join(' ')}
         disabled={!can || busy} onClick={() => { setSel([]); setCard(sel_ ? null : id); }} aria-pressed={sel_}><DevCard id={id} /></button>
     );
   };
 
   return (
-    <div className="sp" data-seq={view.seq} data-phase={view.phase}>
+    <div className="sp" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <NobleTile key={n} id={n} />)}</div>
+      <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
 
       <section className="sp__market" aria-label="کارت‌ها">
         {[2, 1, 0].map((l) => (
           <div key={l} className="sp__row">
-            <button type="button" className={`sp-deck sp-l--${l + 1}`} disabled={!blindLevels.has(l + 1) || busy || card !== null || sel.length > 0}
+            <button type="button" data-flip-anchor={`deck-${l + 1}`} className={`sp-deck sp-l--${l + 1}`} disabled={!blindLevels.has(l + 1) || busy || card !== null || sel.length > 0}
               onClick={() => onAction({ type: 'reserve', level: l + 1 })} aria-label={`رزرو کارت ناشناس ${LEVEL_FA[l + 1]}`}>
-              <span>{LEVEL_FA[l + 1]}</span><b>{fa(view.deckCounts[l]!)}</b>
+              <span>{LEVEL_FA[l + 1]}</span><b key={view.deckCounts[l]} className="bg-pop">{fa(view.deckCounts[l]!)}</b>
             </button>
-            {view.market[l]!.map((id, i) => (id === null ? <span key={`e${i}`} className="sp-slot sp-slot--empty" /> : <span key={id} className={id === lastCard ? 'sp-fresh' : ''}>{cardBtn(id)}</span>))}
+            {view.market[l]!.map((id, i) => (id === null ? <span key={`e${i}`} className="sp-slot sp-slot--empty" /> : <span key={id}>{cardBtn(id)}</span>))}
           </div>
         ))}
       </section>
@@ -137,12 +142,13 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
           const n = sel.filter((x) => x === t).length;
           const can = t !== 'o' && (take?.colors.includes(t as Gem) || pairs.has(t as Gem)) && !busy;
           return (
-            <button key={t} type="button" className={['sp-bankgem', n ? 'sp-bankgem--on' : '', hint?.type === 'take' && hint.gems?.includes(t as Gem) && !n ? 'sp-hint' : ''].join(' ')}
+            <button key={t} type="button" data-flip-anchor={`bank-${t}`} className={['sp-bankgem', n ? 'sp-bankgem--on' : '', hint?.type === 'take' && hint.gems?.includes(t as Gem) && !n ? 'sp-hint' : ''].join(' ')}
               disabled={!can} onClick={() => tapGem(t as Gem)} aria-pressed={n > 0}>
               <Chip t={t} n={view.bank[t]} />{n > 0 && <span className="sp-bankgem__sel">{n > 1 ? '×۲' : '✓'}</span>}
             </button>
           );
         })}
+        {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${view.seq}-${i}`, `seat-${last.seat}`))}
       </section>
       {(take || pairs.size > 0) && (
         <div className="sp__takebar">
@@ -160,20 +166,21 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
           const isMe = s === mySeat;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           return (
-            <li key={s} className={['sp-pl', view.current === s && !view.outcome ? 'sp-pl--turn' : '', isMe ? 'sp-pl--me' : '', place === 1 ? 'sp-pl--win' : ''].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['sp-pl', view.current === s && !view.outcome ? 'sp-pl--turn' : '', isMe ? 'sp-pl--me' : '', place === 1 ? 'sp-pl--win' : ''].join(' ')}>
               <div className="sp-pl__head">
                 {place && <b className="sp-pl__place">{fa(place)}</b>}
                 <bdi className="sp-pl__name">{who(s)}</bdi>
-                <span className="sp-pl__pts" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>
-                {view.visited[s]!.length > 0 && <span className="sp-pl__nob">{fa(view.visited[s]!.length)} بزرگ</span>}
+                <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>
+                {view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
+                {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${view.seq}-${i}`, `bank-${g}`))}
               </div>
               <div className="sp-pl__grid">
                 {GEMS.map((g) => (
                   <span key={g} className={`sp-col sp-t--${g}`}>
-                    <span className="sp-col__bonus" title="کارت">{fa(b[g])}</span>
+                    <span className="sp-col__bonus" title="کارت" data-flip={bought !== undefined && last?.seat === s && CARDS[bought]!.color === g ? `card-${bought}` : undefined}>{fa(b[g])}</span>
                     {isMe && ret && t[g] > 0
                       ? <button type="button" className={`sp-col__tok sp-col__tok--btn ${back.filter((x) => x === g).length ? 'on' : ''}`} disabled={back.filter((x) => x === g).length >= t[g]} aria-label={`پس دادن ${GEM_FA[g]}، ${fa(t[g] - back.filter((x) => x === g).length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === g).length < t[g] ? [...back, g] : back)}>{fa(t[g] - back.filter((x) => x === g).length)}</button>
-                      : <span className="sp-col__tok">{fa(t[g])}</span>}
+                      : <span className="sp-col__tok bg-pop" key={t[g]}>{fa(t[g])}</span>}
                   </span>
                 ))}
                 <span className="sp-col sp-t--o"><span className="sp-col__bonus">&nbsp;</span>
@@ -182,8 +189,8 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
               {view.reserved[s]!.length > 0 && (
                 <div className="sp-pl__res" aria-label="رزروها">
                   {view.reserved[s]!.map((r, i) => (typeof r === 'number'
-                    ? (isMe ? cardBtn(r) : <DevCard key={i} id={r} size="sm" />)
-                    : <span key={i} className={`sp-deck sp-deck--sm sp-l--${r.level}`}><span>{LEVEL_FA[r.level]}</span></span>))}
+                    ? (isMe ? cardBtn(r) : <span key={i} data-flip={`card-${r}`} data-flip-from={`deck-${CARDS[r]!.level}`}><DevCard id={r} size="sm" /></span>)
+                    : <span key={i} data-flip={`blind-${s}-${i}`} data-flip-from={`deck-${r.level}`} className={`sp-deck sp-deck--sm sp-l--${r.level}`}><span>{LEVEL_FA[r.level]}</span></span>))}
                 </div>
               )}
             </li>

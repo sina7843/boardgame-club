@@ -57,7 +57,8 @@
 .sp-slot--buy:hover, .sp-slot--on { transform: translateY(-3px); }
 .sp-slot--on { box-shadow: 0 0 0 3px #ffd98a, 0 0 16px rgb(255 217 138 / 0.65); }
 .sp-slot:focus-visible { outline: 3px solid #ffd98a; outline-offset: 2px; }
-.sp-fresh .sp-card { animation: sp-in 0.45s cubic-bezier(.2,.8,.3,1.3) both; }
+.sp-took { inline-size: 1.3rem; block-size: 1.3rem; object-fit: contain; filter: drop-shadow(0 1px 2px #000); }
+.sp .bg-pop { display: inline-block; }
 
 /* engraved development card */
 .sp-card { position: relative; display: grid; grid-template-rows: auto 1fr; inline-size: 100%; border-radius: 8px; overflow: hidden; line-height: 1.1; color: var(--ink);
@@ -103,7 +104,7 @@
 .sp-pl__head { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; align-items: center; justify-content: center; font-size: 0.88rem; }
 .sp-pl__name { font-weight: 800; font-size: 0.95rem; letter-spacing: 0.01em; }
 .sp-pl__place { inline-size: 1.5rem; block-size: 1.5rem; display: grid; place-items: center; border-radius: 50%; background: #ffd98a; color: var(--ink); }
-.sp-pl__pts { padding: 0 0.55rem; border-radius: 999px; background: linear-gradient(180deg, #f2d98e, #c9a227); color: var(--ink); font-weight: 900; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), 0 1px 3px #000; animation: sp-bump 0.4s ease-out; }
+.sp-pl__pts { padding: 0 0.55rem; border-radius: 999px; background: linear-gradient(180deg, #f2d98e, #c9a227); color: var(--ink); font-weight: 900; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), 0 1px 3px #000; }
 .sp-pl__nob { font-size: 0.78rem; color: #f3e3c0; }
 .sp-pl__grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.2rem; }
 .sp-col { display: grid; gap: 3px; justify-items: center; }
@@ -121,9 +122,7 @@
 .sp-pl__res .sp-slot { inline-size: 4.2rem; }
 .sp-hint { animation: sp-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
 
-@keyframes sp-in { from { opacity: 0; transform: translateY(-14px) scale(0.9); } }
 @keyframes sp-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes sp-bump { 40% { transform: scale(1.25); } }
 @keyframes sp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sp * { animation: none !important; transition: none !important; } .sp-slot--on, .sp-bankgem--on, .sp-bankgem:not(:disabled):hover { transform: none; } }
 
