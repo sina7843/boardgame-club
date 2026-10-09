@@ -29,7 +29,7 @@
 .oni-target { cursor: pointer; stroke: #f4ead2; stroke-width: 3px; animation: oni-pulse 1s ease-in-out infinite; }
 .oni-target--red { fill: #c8361f; }
 .oni-target--blue { fill: #2b3f8c; }
-.oni-pc--moved { animation: oni-slide 0.42s cubic-bezier(.3, .9, .3, 1.05) both; }
+.oni-pc--moved { animation: oni-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 .oni-card { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; gap: 0.15rem 0.5rem;
   padding: 0.45rem 0.6rem 0.55rem; inline-size: 9.5rem; border-radius: 10px; background: linear-gradient(160deg, #f6ecd4, #e2cfa6); color: #2a1d15;
@@ -38,7 +38,6 @@
 button.oni-card { cursor: pointer; }
 button.oni-card:hover { transform: translateY(-3px); }
 .oni-card--sel { box-shadow: 0 0 0 3px #ffd27a, 0 10px 22px -8px rgb(0 0 0 / 0.7); transform: translateY(-4px); }
-.oni-card--incoming { animation: oni-in 0.45s ease-out both; }
 .oni-card__stamp { grid-row: 1 / 3; inline-size: 14px; block-size: 14px; border-radius: 3px; transform: rotate(45deg); }
 .oni-card__stamp--red { background: #c8361f; }
 .oni-card__stamp--blue { background: #2b3f8c; }
@@ -56,8 +55,7 @@ button.oni-card:hover { transform: translateY(-3px); }
 @keyframes oni-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
 @keyframes oni-pulse { 50% { opacity: 0.55; } }
 @keyframes oni-hint { 50% { fill: rgb(255 210 122 / 0.55); } }
-@keyframes oni-in { from { opacity: 0; transform: translateY(-14px) rotate(var(--rot, 0deg)); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .oni-pc--moved, .oni-target, .oni-sq--hint rect:first-child, .oni-card--incoming { animation: none; }
+  .oni-pc--moved, .oni-target, .oni-sq--hint rect:first-child { animation: none; }
 }

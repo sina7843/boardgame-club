@@ -2,8 +2,8 @@
 // Tap a piece → its targets light up (per card colour); tap a target. If two cards reach it, pick the card. Tapping a
 // card first narrows the targets to that card.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
 import rM from './art/rM.webp';
 import rS from './art/rS.webp';
 import bM from './art/bM.webp';
@@ -26,6 +26,9 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
   const [card, setCard] = useState<string | null>(null);
   const [choice, setChoice] = useState<Mv[] | null>(null);
   const turnNo = view.history.length;
+  // Cards glide hand → side → opponent's hand; pieces slide via the CSS slide below.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, turnNo);
   useEffect(() => { setFrom(null); setCard(null); setChoice(null); }, [turnNo]);
   const hint = expected?.type === 'move' ? (expected as unknown as Mv) : null;
 
@@ -52,7 +55,7 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
   const endText = view.end && { stone: 'استاد زده شد (راه سنگ)', stream: 'استاد به معبد رسید (راه رود)', resign: 'انصراف', timeout: 'اتمام زمان', repetition: 'تکرار سه‌باره — مساوی' }[view.end.kind];
 
   return (
-    <div className="oni" data-turn={turnNo}>
+    <div className="oni" data-turn={turnNo} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="oni__hand oni__hand--them" aria-label={`کارت‌های ${who(1 - me)}`}>
@@ -114,7 +117,7 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
         </ZoomBoard>
         <div className="oni__side" aria-label="کارت کنار صفحه">
           <span className="oni__side-label">کارت بعدی برای {view.current === me ? 'حریف' : 'شما'}</span>
-          <MoveCard key={view.side} id={view.side} upside={view.current !== me} incoming />
+          <MoveCard key={view.side} id={view.side} upside={view.current !== me} />
         </div>
       </div>
 
@@ -151,7 +154,7 @@ function Token({ x, y, p }: { x: number; y: number; p: Piece }) {
   return <image href={ART[p]} x={x - w / 2} y={y - w / 2 - 4} width={w} height={w} filter="url(#oni-shadow)" />;
 }
 
-function MoveCard({ id, upside, selectable, selected, onSelect, incoming }: { id: string; upside?: boolean; selectable?: boolean; selected?: boolean; onSelect?: () => void; incoming?: boolean }) {
+function MoveCard({ id, upside, selectable, selected, onSelect }: { id: string; upside?: boolean; selectable?: boolean; selected?: boolean; onSelect?: () => void }) {
   const c = cardById(id);
   const cells = new Set(c.moves.map(([dx, dy]) => `${dx},${dy}`));
   const body = (
@@ -167,9 +170,9 @@ function MoveCard({ id, upside, selectable, selected, onSelect, incoming }: { id
       </span>
     </>
   );
-  const cls = ['oni-card', upside ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : '', incoming ? 'oni-card--incoming' : ''].join(' ');
+  const cls = ['oni-card', upside ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
   const label = `کارت ${c.nameFa}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
   return selectable
-    ? <button type="button" className={cls} aria-pressed={selected} aria-label={label} onClick={onSelect}>{body}</button>
-    : <div className={cls} role="img" aria-label={label}>{body}</div>;
+    ? <button type="button" data-flip={`card-${id}`} className={cls} aria-pressed={selected} aria-label={label} onClick={onSelect}>{body}</button>
+    : <div data-flip={`card-${id}`} className={cls} role="img" aria-label={label}>{body}</div>;
 }
