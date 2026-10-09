@@ -29,7 +29,7 @@ function describe(e: LogEntry, name: (s: number) => string): string {
   }
 }
 
-export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<UnoView>) {
+export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<UnoView>) {
   const hints = legalActions as Hint[];
   const myTurn = mySeat !== null && view.current === mySeat && !view.outcome;
   const playableIds = useMemo(() => new Set(hints.filter((h) => h.type === 'play').map((h) => h.card as string)), [hints]);
@@ -38,7 +38,9 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   const canCallUno = hints.some((h) => h.type === 'callUno');
   const [picked, setPicked] = useState<string | null>(null);
   const [unoArmed, setUnoArmed] = useState(false);
-  const hand = view.myHand ?? [];
+  // Undo-window preview: the card being played already leaves the hand and lies on the pile; undo brings it back.
+  const pendingPlay = queued?.type === 'play' ? (view.myHand ?? []).find((c) => c.id === queued.card) ?? null : null;
+  const hand = (view.myHand ?? []).filter((c) => c.id !== pendingPlay?.id);
   const selected = picked && playableIds.has(picked) ? hand.find((c) => c.id === picked) ?? null : null;
   const exp = expected as { type: string; card?: string; color?: Color; uno?: boolean } | null;
 
@@ -51,7 +53,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   const lastPlayer = lastPlay?.t === 'play' ? lastPlay.seat : null;
   // Cards glide: hand → discard, deck → hand, an opponent's play flies in from their seat.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.log.at(-1)?.seq ?? 0);
+  useFlip(root, `${view.log.at(-1)?.seq ?? 0}|${pendingPlay?.id ?? ''}`);
   const latest = view.log.at(-1);
   const [announce, setAnnounce] = useState('');
   const seen = useRef(latest?.seq ?? 0);
@@ -135,6 +137,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
           </span>
           <span className="uno-under" aria-hidden="true"><span /><span /></span>
           {view.top && <span key={lastPlaySeq} className="uno-pile__top" style={{ ['--rot' as string]: `${((lastPlaySeq * 37) % 17) - 8}deg` }}><CardFace card={view.top} size="lg" flip={`c-${view.top.id}`} flipFrom={lastPlayer !== null && lastPlayer !== mySeat ? `seat-${lastPlayer}` : 'deck'} /></span>}
+          {pendingPlay && <span className="uno-pile__top" style={{ ['--rot' as string]: '3deg' }}><CardFace card={pendingPlay} size="lg" flip={`c-${pendingPlay.id}`} /></span>}
           <span className="uno-pile__label">{view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}</span>
         </div>
       </div>

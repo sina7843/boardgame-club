@@ -3,7 +3,7 @@
 .bg-roll, .bg-land, .bg-pop, .bg-flip-in, .bg-hit, .bg-pulse { transform-box: fill-box; transform-origin: center; }
 
 /* Dice: thrown in from above, tumbling, a bounce and a settle. */
-.bg-roll { animation: bg-roll 760ms cubic-bezier(0.2, 0.75, 0.25, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.bg-roll { animation: bg-roll 980ms cubic-bezier(0.2, 0.75, 0.25, 1) both; animation-delay: calc(var(--i, 0) * 110ms); }
 @keyframes bg-roll {
   0% { transform: translate(-18%, -70%) rotate(-430deg) scale(0.55); opacity: 0; }
   18% { opacity: 1; }
@@ -13,8 +13,20 @@
   100% { transform: none; opacity: 1; }
 }
 
+/* Dice waiting for their result (the move is still in the undo window, or sent but not answered): an endless
+   tumble with the pips hidden — the value only exists once the server has rolled. */
+.bg-tumble { transform-box: fill-box; transform-origin: center; animation: bg-tumble 520ms linear infinite; animation-delay: calc(var(--i, 0) * -130ms); }
+.bg-tumble :is(circle, .pip, [data-pip]) { visibility: hidden; }
+@keyframes bg-tumble {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(6%, -10%) rotate(90deg); }
+  50% { transform: translate(0, -4%) rotate(180deg); }
+  75% { transform: translate(-6%, -10%) rotate(270deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
 /* A piece put down: drops in and squashes a little. */
-.bg-land { animation: bg-land 420ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+.bg-land { animation: bg-land 540ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 60ms); }
 @keyframes bg-land {
   0% { transform: translateY(-28%) scale(1.12); opacity: 0; }
   60% { transform: translateY(2%) scale(0.96, 1.04); opacity: 1; }
@@ -22,11 +34,11 @@
 }
 
 /* A number or token that changed: a quick bump. */
-.bg-pop { animation: bg-pop 360ms cubic-bezier(0.22, 1, 0.36, 1); }
+.bg-pop { animation: bg-pop 460ms cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes bg-pop { 0% { transform: scale(1); } 40% { transform: scale(1.22); } 100% { transform: scale(1); } }
 
 /* A card turned face up. */
-.bg-flip-in { animation: bg-flip-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 80ms); backface-visibility: hidden; }
+.bg-flip-in { animation: bg-flip-in 660ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 80ms); backface-visibility: hidden; }
 @keyframes bg-flip-in {
   0% { transform: perspective(600px) rotateY(-90deg) scale(0.94); opacity: 0.4; }
   60% { transform: perspective(600px) rotateY(8deg) scale(1.03); opacity: 1; }
@@ -34,7 +46,7 @@
 }
 
 /* Damage, a failed claim, a lost life. */
-.bg-hit { animation: bg-hit 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+.bg-hit { animation: bg-hit 520ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
 @keyframes bg-hit {
   10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(3px); }
   30%, 50%, 70% { transform: translateX(-5px); } 40%, 60% { transform: translateX(5px); }
@@ -44,7 +56,7 @@
 .bg-pulse { animation: bg-pulse 1.4s ease-in-out infinite; }
 @keyframes bg-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 
-:root[data-motion='reduce'] :is(.bg-roll, .bg-land, .bg-pop, .bg-flip-in, .bg-hit, .bg-pulse) { animation: none; }
+:root[data-motion='reduce'] :is(.bg-tumble, .bg-roll, .bg-land, .bg-pop, .bg-flip-in, .bg-hit, .bg-pulse) { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-motion='full']) :is(.bg-roll, .bg-land, .bg-pop, .bg-flip-in, .bg-hit, .bg-pulse) { animation: none; }
+  :root:not([data-motion='full']) :is(.bg-tumble, .bg-roll, .bg-land, .bg-pop, .bg-flip-in, .bg-hit, .bg-pulse) { animation: none; }
 }

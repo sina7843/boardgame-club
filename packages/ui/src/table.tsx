@@ -68,4 +68,11 @@ export interface GameRendererProps<View> {
   onAction: (action: GameAction) => void;
   /** Tutorial: the move the script expects next (highlight only; the server enforces it). */
   expected: GameAction | null;
+  /**
+   * The player's own move while it waits in the undo window (not yet sent). Renderers preview it at once — the card
+   * already flies to the pile, the dice already tumble — and undo just clears it, so everything animates back. Only
+   * what the client already knows may be shown: random outcomes (dice values, drawn cards) arrive with the server
+   * result after the window, so nobody can see a result and then undo. Include `!!queued` in the useFlip key.
+   */
+  queued?: GameAction | null;
 }
