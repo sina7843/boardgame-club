@@ -347,7 +347,7 @@
     border-radius: var(--shape-field); border: 1px dashed var(--input); background: var(--muted); }
   .ach--on { border: 1px solid color-mix(in srgb, var(--tier) 60%, transparent); box-shadow: var(--depth-surface), 0 0 0 1px color-mix(in srgb, var(--tier) 18%, transparent) inset;
     background: linear-gradient(to bottom, color-mix(in srgb, var(--tier) 14%, var(--card)), var(--card) 60%); }
-  .ach__tier { font-size: var(--fs-xs, 0.75rem); font-weight: 700; color: color-mix(in srgb, var(--tier) 75%, var(--foreground)); }
+  .ach__tier { font-size: var(--fs-xs, 0.75rem); font-weight: 700; color: var(--foreground); padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--tier) 28%, transparent); }
   .tier--bronze { --tier: #b87333; } .tier--silver { --tier: #a8b3c2; } .tier--gold { --tier: #e0a826; } .tier--turquoise { --tier: #22b5b0; } .tier--diamond { --tier: #9b5cf0; }
 
   .trophy { position: relative; display: grid; place-items: center; inline-size: var(--trophy-size, 84px); aspect-ratio: 1; flex: none; border-radius: 50%;

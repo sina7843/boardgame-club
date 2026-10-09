@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { expect, test, type Page } from '@playwright/test';
-import { newPage, signIn } from './helpers.ts';
+import { dismissCelebrations, newPage, signIn } from './helpers.ts';
 
 // DRAGON-02 acceptance flows with independent browser contexts. Runs in mobile-360 and desktop-1440.
 test.describe.configure({ mode: 'serial', timeout: 120_000 });
@@ -13,6 +13,7 @@ const grant = (mobile: string, role: string) =>
 
 async function queue(p: Page, gameLabel: string) {
   await p.goto('/play');
+  await dismissCelebrations(p);
   await p.getByLabel('بازی', { exact: true }).selectOption({ label: gameLabel });
   await p.getByRole('button', { name: 'شروع جست‌وجو' }).click();
 }

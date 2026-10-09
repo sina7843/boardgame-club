@@ -34,3 +34,13 @@ export async function player(browser: Browser, viewport: { width: number; height
 }
 
 export const shot = (name: string, project: string) => `docs/evidence/phase-01/${project}-${name}.png`;
+
+/** Close level-up / achievement celebrations, which open after leaving a table (e.g. after a finished tutorial). */
+export async function dismissCelebrations(page: Page) {
+  const dialog = page.locator('dialog.celebrate');
+  for (let i = 0; i < 5; i++) {
+    if (!(await dialog.waitFor({ state: 'visible', timeout: 1500 }).then(() => true, () => false))) return;
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+  }
+}
