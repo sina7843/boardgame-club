@@ -4,8 +4,14 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import warrior from './art/hero-warrior.webp';
+import shadow from './art/hero-shadow.webp';
+import pyro from './art/hero-pyro.webp';
+import paladin from './art/hero-paladin.webp';
 import { HEROES, MAX_HP, abilityEffect, symOf, type Ability, type DtView, type Effect, type Hero } from './rules.ts';
 
+// Hero portraits are cut from a generated sprite sheet (see DECISIONS.md).
+export const PORTRAIT: Record<string, string> = { warrior, shadow, pyro, paladin };
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const effText = (e: Effect) => [e.dmg ? `${fa(e.dmg)} آسیب` : '', e.heal ? `+${fa(e.heal)} جان` : '', e.cp ? `+${fa(e.cp)} CP` : '', e.steal ? `دزدی ${fa(e.steal)} CP` : '',
   e.wound ? `زخم ${fa(e.wound)}` : '', e.stun ? 'گیجی' : '', e.shield ? 'سپر' : '', e.undefendable ? 'دفاع‌ناپذیر' : ''].filter(Boolean).join('، ');
@@ -26,6 +32,7 @@ function Banner({ view, seat, label, active }: { view: DtView; seat: number; lab
   return (
     <section className={`dt-banner ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`${label}${hero ? `، ${hero.name}` : ''}`}>
       <div className="dt-banner__top">
+        {hero && <img className="dt-portrait" src={PORTRAIT[hero.key]} alt="" aria-hidden="true" />}
         <bdi className="dt-banner__name">{label}</bdi>
         {hero && <span className="dt-banner__hero">{hero.name}</span>}
         <span className="dt-cp" title="امتیاز رزم">{fa(f.cp)} CP</span>
@@ -79,6 +86,7 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
             const taken = view.fighters.some((f) => f.hero === i);
             return (
               <button key={h.key} type="button" disabled={busy || !can} onClick={() => onAction({ type: 'pickHero', hero: i })} className={`dt-hero dt-h--${h.key} ${taken ? 'is-taken' : ''}`}>
+                <img className="dt-portrait dt-portrait--lg" src={PORTRAIT[h.key]} alt="" aria-hidden="true" />
                 <b>{h.name}</b>
                 <span className="dt-hero__faces">{[...new Set(h.faces)].map((s) => h.symFa[s]).join(' ')}</span>
                 <small>{h.abilities.map((a) => a.name).join('، ')}</small>
