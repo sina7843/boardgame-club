@@ -2,7 +2,7 @@
 // the dice tray shows each die as the hero's symbol (tap to keep); the ability board lists every combo with its
 // effect and lights up the ones your dice make. The defender gets a single «دفاع» roll.
 import './renderer.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
 import warrior from './art/hero-warrior.webp';
 import shadow from './art/hero-shadow.webp';
@@ -20,7 +20,7 @@ const needText = (h: Hero, a: Ability) => (a.need.sym ? `${a.need.counts!.map(fa
 export function DieFace({ hero, n, kept, rolling }: { hero: Hero; n: number; kept?: boolean; rolling?: boolean }) {
   const sym = symOf(hero, n);
   return (
-    <span className={`dt-die dt-h--${hero.key} ${kept ? 'is-kept' : ''} ${rolling ? 'is-rolling' : ''}`} aria-label={`تاس ${fa(n)}: ${hero.symFa[sym]}`}>
+    <span className={`dt-die dt-h--${hero.key} ${kept ? 'is-kept' : ''} ${rolling ? 'bg-roll' : ''}`} aria-label={`تاس ${fa(n)}: ${hero.symFa[sym]}`}>
       <b>{hero.symFa[sym]}</b><small>{fa(n)}</small>
     </span>
   );
@@ -29,17 +29,21 @@ export function DieFace({ hero, n, kept, rolling }: { hero: Hero; n: number; kep
 function Banner({ view, seat, label, active }: { view: DtView; seat: number; label: string; active: boolean }) {
   const f = view.fighters[seat]!;
   const hero = f.hero !== null ? HEROES[f.hero]! : null;
+  // Shake the banner when health dropped (stamp = seq of the drop, used as the retrigger key).
+  const hit = useRef({ hp: f.hp, at: 0 });
+  if (f.hp < hit.current.hp) hit.current.at = view.seq;
+  hit.current.hp = f.hp;
   return (
-    <section className={`dt-banner ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`${label}${hero ? `، ${hero.name}` : ''}`}>
+    <section key={hit.current.at} className={`${hit.current.at ? 'bg-hit ' : ''}dt-banner ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`${label}${hero ? `، ${hero.name}` : ''}`}>
       <div className="dt-banner__top">
         {hero && <img className="dt-portrait" src={PORTRAIT[hero.key]} alt="" aria-hidden="true" />}
         <bdi className="dt-banner__name">{label}</bdi>
         {hero && <span className="dt-banner__hero">{hero.name}</span>}
-        <span className="dt-cp" title="امتیاز رزم">{fa(f.cp)} CP</span>
+        <span className="dt-cp bg-pop" key={f.cp} title="امتیاز رزم">{fa(f.cp)} CP</span>
       </div>
       <div className="dt-hp" role="meter" aria-valuemin={0} aria-valuemax={MAX_HP} aria-valuenow={Math.max(0, f.hp)} aria-label="جان">
         <span className="dt-hp__fill" style={{ inlineSize: `${Math.max(0, f.hp) / MAX_HP * 100}%` }} />
-        <b className="dt-hp__n" key={f.hp}>{fa(Math.max(0, f.hp))}</b>
+        <b className="dt-hp__n bg-pop" key={f.hp}>{fa(Math.max(0, f.hp))}</b>
       </div>
       <div className="dt-status">
         {f.wound > 0 && <span className="dt-badge dt-badge--wound">زخم ×{fa(f.wound)}</span>}
@@ -54,6 +58,10 @@ type Hint = { type: string; keep?: boolean[]; ability?: number; hero?: number } 
 
 export default function DiceThroneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<DtView>) {
   const me = mySeat ?? 0;
+  // A die tumbles only when its face changed (kept dice stay put); the stamp is the retrigger key.
+  const dieMem = useRef<{ dice: number[]; at: number[] }>({ dice: [], at: [] });
+  const dieAt = view.dice.map((d, i) => (dieMem.current.dice[i] === d ? dieMem.current.at[i]! : view.seq));
+  dieMem.current = { dice: view.dice, at: dieAt };
   const opp = 1 - me;
   const hint = expected as unknown as Hint;
   const [keep, setKeep] = useState([false, false, false, false, false]);
@@ -99,14 +107,18 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
           <div className="dt-dice">
             {view.dice.map((d, i) => {
               const mine = view.current === me && view.phase === 'offense' && view.rolled && !busy;
-              return mine
-                ? <button key={i} type="button" className="dt-dbtn" aria-pressed={keep[i]} onClick={() => setKeep(keep.map((k, j) => (j === i ? !k : k)))}><DieFace hero={atkHero} n={d} kept={keep[i]} /></button>
-                : <span key={`${i}-${view.seq}`}><DieFace hero={atkHero} n={d} rolling={view.phase === 'offense'} /></span>;
+              return (
+                <span key={`${i}-${dieAt[i]}`} className="dt-dslot bg-roll" style={{ ['--i' as string]: i }}>
+                  {mine
+                    ? <button type="button" className="dt-dbtn" aria-pressed={keep[i]} onClick={() => setKeep(keep.map((k, j) => (j === i ? !k : k)))}><DieFace hero={atkHero} n={d} kept={keep[i]} /></button>
+                    : <DieFace hero={atkHero} n={d} />}
+                </span>
+              );
             })}
           </div>
           {view.phase === 'offense' && <small className="dt-rolls">{view.rolled ? `${fa(view.rollsLeft)} ریختن مانده` : 'هنوز نریخته'}</small>}
           {view.defenseDice.length > 0 && defHero && view.phase !== 'defense' && (
-            <div className="dt-defdice"><small>دفاع:</small>{view.defenseDice.map((d, i) => <DieFace key={i} hero={defHero} n={d} />)}</div>
+            <div className="dt-defdice"><small>دفاع:</small>{view.defenseDice.map((d, i) => <DieFace key={`${i}-${d}`} hero={defHero} n={d} rolling />)}</div>
           )}
           <div className="dt-bar">
             {roll && <Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'dt-hint' : ''} onClick={() => onAction({ type: 'roll', keep: view.rolled ? keep : [false, false, false, false, false] })}>{roll.extra ? 'ریختن اضافه (۲ CP)' : view.rolled ? 'ریختن دوباره' : 'ریختن تاس‌ها'}</Button>}

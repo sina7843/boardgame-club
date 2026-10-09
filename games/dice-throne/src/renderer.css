@@ -14,7 +14,7 @@
 .dt-cp { padding: 0 0.45rem; border-radius: 999px; background: #3fb6d9; color: #08202a; font-weight: 900; font-size: 0.72rem; }
 .dt-hp { position: relative; block-size: 1.3rem; border-radius: 999px; background: #3a1010; overflow: hidden; box-shadow: inset 0 0 0 1.5px #000; }
 .dt-hp__fill { position: absolute; inset-block: 0; inset-inline-start: 0; background: linear-gradient(90deg, #d63a2a, #ff7a5a); transition: inline-size 0.6s cubic-bezier(.3,1.3,.5,1); }
-.dt-hp__n { position: relative; line-height: 1.3rem; font-size: 0.8rem; text-shadow: 0 1px 2px #000; animation: dt-hit 0.45s ease-out; }
+.dt-hp__n { position: relative; line-height: 1.3rem; font-size: 0.8rem; text-shadow: 0 1px 2px #000; display: inline-block; }
 .dt-status { display: flex; gap: 0.25rem; justify-content: center; min-block-size: 1rem; }
 .dt-badge { padding: 0 0.4rem; border-radius: 6px; font-size: 0.65rem; font-weight: 800; animation: dt-pop 0.35s ease-out; }
 .dt-badge--wound { background: #a8201a; } .dt-badge--stun { background: #6b5ad6; } .dt-badge--shield { background: #3a7bd5; }
@@ -37,7 +37,6 @@
 .dt-die b { font-size: 1.3rem; }
 .dt-die small { font-size: 0.55rem; opacity: 0.6; }
 .dt-die.is-kept { transform: translateY(-6px); box-shadow: inset 0 0 0 3px #ffd27a, 0 0 12px #ffd27a, 0 4px 0 #8a7a62; }
-.dt-die.is-rolling { animation: dt-tumble 0.5s cubic-bezier(.3,1.4,.5,1) both; }
 .dt-rolls { color: #d8cbb4; font-size: 0.72rem; }
 .dt-defdice { display: flex; gap: 0.3rem; align-items: center; }
 .dt-defdice .dt-die { inline-size: 2.2rem; block-size: 2.2rem; }
@@ -58,8 +57,7 @@
 .dt-hint { animation: dt-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
 @media (max-width: 480px) { .dt-die { inline-size: 2.6rem; block-size: 2.6rem; } .dt-die b { font-size: 1.1rem; } .dt-abilities { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dt-ab { padding: 0.3rem 0.4rem; } }
-@keyframes dt-tumble { from { transform: rotate(-260deg) scale(0.5); opacity: 0; } }
-@keyframes dt-hit { 30% { transform: scale(1.4); color: #ffd27a; } }
 @keyframes dt-pop { from { opacity: 0; transform: scale(0.8); } }
 @keyframes dt-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .dt * { animation: none !important; transition: none !important; } }
+.dt-cp { display: inline-block; }
