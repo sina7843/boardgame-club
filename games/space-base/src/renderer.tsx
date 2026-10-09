@@ -3,11 +3,18 @@
 // cost, sector, blue/red rewards and purchase bonus. Rivals appear as compact strips of their red income per sector.
 import './renderer.css';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import scout from './art/ship-scout.webp';
+import freighter from './art/ship-freighter.webp';
+import cruiser from './art/ship-cruiser.webp';
+import station from './art/ship-station.webp';
 import { GOAL, SHIPS, sectorsFor, type Reward, type SbView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const rw = (r: Reward | undefined) => [r?.credits ? `${fa(r.credits)}¢` : '', r?.vp ? `${fa(r.vp)}★` : ''].filter(Boolean).join(' ') || '—';
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+
+// Ship paintings are cut from a generated sprite sheet (see DECISIONS.md); picked by cost tier (costs run 0-14).
+const shipArt = (cost: number) => (cost <= 5 ? scout : cost <= 9 ? freighter : cost <= 13 ? cruiser : station);
 
 export function Die({ n }: { n: number }) {
   return <span className="sb-die" aria-label={`تاس ${fa(n)}`}>{Array.from({ length: 9 }, (_, i) => <i key={i} className={PIPS[n]!.includes(i) ? 'on' : ''} />)}</span>;
@@ -17,6 +24,7 @@ export function ShipCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
   const x = SHIPS[id]!;
   return (
     <span className={`sb-ship sb-ship--${size} sb-l--${x.level}`} aria-label={`${x.name}، بخش ${fa(x.sector)}${x.cost ? `، ${fa(x.cost)} اعتبار` : ''}`}>
+      <img className="sb-ship__art" src={shipArt(x.cost)} alt="" aria-hidden="true" />
       <b className="sb-ship__sec">{fa(x.sector)}</b>
       {x.cost > 0 && <b className="sb-ship__cost">{fa(x.cost)}</b>}
       <span className="sb-ship__name">{x.name}</span>

@@ -1,6 +1,6 @@
 /* پایگاه فضایی: a hangar console — gunmetal panels, cyan station lights (blue rewards), amber deployed lights (red). */
 .sb { --blue: #4fc3ff; --red: #ff8a5c; display: grid; gap: 0.6rem; inline-size: 100%; color: #e8eef6; text-align: center; padding: 0.5rem; border-radius: 16px;
-  background: linear-gradient(180deg, #1e2733, #0f151d); box-shadow: inset 0 0 0 1px #3a4757; }
+  background: linear-gradient(rgb(15 21 29 / 0.72), rgb(15 21 29 / 0.84)), url('./art/bd-space.webp') center / cover, #0f151d; box-shadow: inset 0 0 0 1px #3a4757; }
 .sb > :first-child { justify-self: center; }
 
 .sb-ship { position: relative; display: grid; justify-items: center; gap: 0.1rem; border-radius: 8px; line-height: 1.25; color: #e8eef6;
@@ -8,6 +8,8 @@
 .sb-l--0 { --lv: #6b7a8c; } .sb-l--1 { --lv: #6fd38a; } .sb-l--2 { --lv: #4fc3ff; } .sb-l--3 { --lv: #c08cff; }
 .sb-ship--md { inline-size: 5rem; padding: 1.1rem 0.2rem 0.3rem; }
 .sb-ship--sm { inline-size: 3.6rem; padding: 0.9rem 0.1rem 0.2rem; }
+.sb-ship__art { inline-size: calc(100% - 0.4rem); block-size: 2.2rem; object-fit: cover; border-radius: 5px; box-shadow: 0 0 0 1px var(--lv); }
+.sb-ship--sm .sb-ship__art { block-size: 1.3rem; }
 .sb-ship__sec { position: absolute; inset-block-start: 0.15rem; inset-inline-start: 0.2rem; min-inline-size: 1.1rem; padding: 0 0.2rem; border-radius: 4px; background: var(--lv); color: #0f151d; font-size: 0.65rem; }
 .sb-ship__cost { position: absolute; inset-block-start: 0.15rem; inset-inline-end: 0.2rem; padding: 0 0.3rem; border-radius: 999px; background: #ffd75a; color: #2a1d10; font-size: 0.62rem; }
 .sb-ship__name { font-size: 0.58rem; font-weight: 800; }
