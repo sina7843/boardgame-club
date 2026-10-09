@@ -2,8 +2,8 @@
 // robbed; the draft pool appears only to the picker; your hand of districts sits under your city; each ability has
 // its own small panel during your character's turn.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
 // Paintings are cut from a generated sheet (see DECISIONS.md).
 import assassin from './art/ch-assassin.webp';
@@ -26,10 +26,10 @@ const DISTRICT_ART: Record<string, string> = { yellow, blue, green, red };
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
-export function DistrictCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }) {
+export function DistrictCard({ id, size = 'md', from }: { id: number; size?: 'sm' | 'md'; from?: string }) {
   const d = DISTRICTS[id]!;
   return (
-    <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
+    <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} data-flip={from ? `d-${id}` : undefined} data-flip-from={from} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
       <b className="ct2-d__cost">{fa(d.cost)}</b>
       <img className="ct2-d__art" src={DISTRICT_ART[d.color]} alt="" draggable={false} />
       <span className="ct2-d__name">{d.name}</span>
@@ -39,8 +39,8 @@ export function DistrictCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'm
 
 const Thumb = ({ c }: { c: number }) => <img className="ct2-thumb" src={PORTRAIT[c - 1]} alt="" draggable={false} />;
 
-export function CharToken({ c, state }: { c: number; state?: string }) {
-  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt="" draggable={false} /><b>{fa(c)}</b><small>{CHARACTERS[c]}</small></span>;
+export function CharToken({ c, state, from }: { c: number; state?: string; from?: string }) {
+  return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`} data-flip={from ? `pk-${c}` : undefined} data-flip-from={from}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt="" draggable={false} /><b>{fa(c)}</b><small>{CHARACTERS[c]}</small></span>;
 }
 
 export default function CitadelsRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CitadelsView>) {
@@ -53,6 +53,8 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
   const ability = legalActions.find((a) => a.type === 'ability') as { char: number } | undefined;
   const [redraw, setRedraw] = useState<number[]>([]);
   useEffect(() => { setRedraw([]); }, [view.seq]);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const hint = expected as unknown as { type: string; take?: string; card?: number; char?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const others = view.cities.map((_, k) => k).filter((k) => k !== me);
@@ -65,13 +67,13 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
   const charState = (c: number) => (view.faceUp.includes(c) ? 'is-out' : c === view.killed ? 'is-dead' : view.calling === c && view.phase !== 'draft' ? 'is-now' : view.revealed.includes(c) ? 'is-done' : '');
 
   return (
-    <div className="ct2" data-seq={view.seq} data-phase={view.phase}>
+    <div className="ct2" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="ct2__round">دور {fa(view.round)}، تاج: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
+      <p className="ct2__round" data-flip-anchor="deck">دور {fa(view.round)}، تاج: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
 
       <section className="ct2__track" aria-label="شخصیت‌ها">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((c) => (
-          <span key={c} className="ct2-slot">
+          <span key={c} className={c === view.killed ? 'ct2-slot bg-hit' : 'ct2-slot'}>
             <CharToken c={c} state={charState(c)} />
             {view.holders[c] !== undefined && view.holders[c]! >= 0 && <bdi className="ct2-slot__who">{who(view.holders[c]!)}</bdi>}
             {view.robbed?.char === c && <small className="ct2-slot__tag">دزدیده</small>}
@@ -80,8 +82,8 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
       </section>
 
       {pick && view.pool && (
-        <div className="ct2__pool" role="group" aria-label="انتخاب شخصیت">
-          {view.pool.map((c) => <button key={c} type="button" className={`ct2-pick ${hint?.char === c ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'pick', char: c })}><CharToken c={c} /></button>)}
+        <div className="ct2__pool" data-flip-anchor="pool" role="group" aria-label="انتخاب شخصیت">
+          {view.pool.map((c) => <button key={c} type="button" className={`ct2-pick ${hint?.char === c ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'pick', char: c })}><CharToken c={c} from="deck" /></button>)}
         </div>
       )}
       {income && (
@@ -91,7 +93,7 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
         </div>
       )}
       {keep && view.drawn && (
-        <div className="ct2__bar">{view.drawn.map((id) => <button key={id} type="button" className="ct2-pick" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><DistrictCard id={id} /></button>)}</div>
+        <div className="ct2__bar">{view.drawn.map((id) => <button key={id} type="button" className="ct2-pick" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><DistrictCard id={id} from="deck" /></button>)}</div>
       )}
 
       {ability && (
@@ -112,30 +114,30 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
 
       <ul className="ct2__cities" aria-label="شهرها">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.cities.map((_, k) => k)).map((s) => (
-          <li key={s} className={['ct2-city', s === me ? 'ct2-city--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct2-city--win' : ''].join(' ')}>
+          <li key={s} data-flip-anchor={s === me ? 'hand' : `seat-${s}`} className={['ct2-city', s === me ? 'ct2-city--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct2-city--win' : ''].join(' ')}>
             <div className="ct2-city__head">
               {view.crown === s && <img className="ct2-crown" src={crown} alt="تاج" title="تاج" />}
               <bdi className="ct2-city__name">{who(s)}</bdi>
-              <span className="ct2-gold" key={view.gold[s]}><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</span>
+              <span className="ct2-gold bg-pop" key={view.gold[s]}><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</span>
               <span>{fa(view.handCount[s]!)} کارت</span>
-              <span className="ct2-score">{fa(view.scores[s]!)} امتیاز</span>
+              <span className="ct2-score bg-pop" key={view.scores[s]}>{fa(view.scores[s]!)} امتیاز</span>
               <span>{fa(view.cities[s]!.length)}/۸</span>
             </div>
-            <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" />)}{!view.cities[s]!.length && <small>هنوز محله‌ای نیست</small>}</div>
+            <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} />)}{!view.cities[s]!.length && <small>هنوز محله‌ای نیست</small>}</div>
           </li>
         ))}
       </ul>
 
       {view.hand && !view.outcome && (
         <section className="ct2__me" aria-label="دست شما">
-          {view.myPicks.length > 0 && <div className="ct2__mine">شخصیت‌های شما: {view.myPicks.map((c) => <CharToken key={c} c={c} />)}</div>}
-          <div className="ct2__hand">
+          {view.myPicks.length > 0 && <div className="ct2__mine">شخصیت‌های شما: {view.myPicks.map((c) => <CharToken key={c} c={c} from="pool" />)}</div>}
+          <div className="ct2__hand" data-flip-anchor="hand">
             {view.hand.map((id) => {
               const selecting = ability?.char === 3;
               return builds.has(id) && !selecting
-                ? <button key={id} type="button" className={`ct2-pick ct2-pick--can ${hint?.card === id ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'build', card: id })} aria-label={`ساختن ${DISTRICTS[id]!.name}`}><DistrictCard id={id} /></button>
-                : selecting ? <button key={id} type="button" className={`ct2-pick ${redraw.includes(id) ? 'ct2-pick--on' : ''}`} aria-pressed={redraw.includes(id)} onClick={() => setRedraw(redraw.includes(id) ? redraw.filter((x) => x !== id) : [...redraw, id])}><DistrictCard id={id} /></button>
-                  : <span key={id} className="ct2-pick"><DistrictCard id={id} /></span>;
+                ? <button key={id} type="button" className={`ct2-pick ct2-pick--can ${hint?.card === id ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'build', card: id })} aria-label={`ساختن ${DISTRICTS[id]!.name}`}><DistrictCard id={id} from="deck" /></button>
+                : selecting ? <button key={id} type="button" className={`ct2-pick ${redraw.includes(id) ? 'ct2-pick--on' : ''}`} aria-pressed={redraw.includes(id)} onClick={() => setRedraw(redraw.includes(id) ? redraw.filter((x) => x !== id) : [...redraw, id])}><DistrictCard id={id} from="deck" /></button>
+                  : <span key={id} className="ct2-pick"><DistrictCard id={id} from="deck" /></span>;
             })}
           </div>
           {canEnd && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button>}

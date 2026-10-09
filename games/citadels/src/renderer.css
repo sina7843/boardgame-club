@@ -46,7 +46,7 @@ button.ct2-pick { cursor: pointer; }
 .ct2-city__head { display: flex; flex-wrap: wrap; gap: 0.25rem 0.55rem; align-items: center; justify-content: center; font-size: 0.8rem; }
 .ct2-city__name { font-weight: 800; }
 .ct2-crown { inline-size: 1.4rem; block-size: 1.4rem; object-fit: contain; }
-.ct2-gold { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; animation: ct2-bump 0.4s ease-out; display: inline-flex; align-items: center; gap: 0.2rem; }
+.ct2-gold { padding: 0 0.45rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 900; display: inline-flex; align-items: center; gap: 0.2rem; }
 .ct2-gold img { inline-size: 1.1rem; block-size: 1.1rem; object-fit: contain; }
 .ct2-score { color: #ffe1a0; font-weight: 800; }
 .ct2-city__row { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; min-block-size: 3.4rem; align-items: center; }
@@ -59,8 +59,9 @@ button.ct2-pick { cursor: pointer; }
 @media (max-width: 480px) { .ct2-ch small { font-size: 0.48rem; } }
 @keyframes ct2-glow { 50% { box-shadow: inset 0 0 0 2px #ffe1a0, 0 0 4px #ffd98a; } }
 @keyframes ct2-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes ct2-bump { 40% { transform: scale(1.25); } }
 @keyframes ct2-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ct2 * { animation: none !important; transition: none !important; } }
 .ct2 > .ct2__track { inline-size: min(100%, 36rem); justify-self: center; }
 .ct2-thumb { inline-size: 1.4rem; block-size: 1.4rem; margin-inline-end: 0.3rem; vertical-align: middle; object-fit: cover; border-radius: 50%; }
+
+.ct2-score { display: inline-block; }
