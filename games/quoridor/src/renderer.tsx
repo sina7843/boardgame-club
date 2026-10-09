@@ -2,7 +2,7 @@
 // Move mode: tap a lit tile. Wall mode: tap a groove crossing to drop a wall there (preview on hover/focus).
 import './renderer.css';
 import { useEffect, useId, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
 import { PAWN_SRC, OAK } from './pieces.ts';
 import { distance, N, wallOk, type Orient, type QuoridorView, type Side, type Wall } from './rules.ts';
 
@@ -15,6 +15,14 @@ const cellY = (r: number) => M + (N - 1 - r) * P;
 const wallRect = (w: Wall) => w.o === 'h'
   ? { x: cellX(w.c), y: cellY(w.r) - G, width: 2 * C + G, height: G }
   : { x: cellX(w.c) + C, y: cellY(w.r + 1), width: G, height: 2 * C + G };
+
+function Walls({ n }: { n: number }) {
+  return (
+    <span key={n} className={`qd-pl__walls ${usePop(n)}`} aria-label={`${fa(n)} دیوار مانده`}>
+      {Array.from({ length: n }, (_, k) => <i key={k} />)}
+    </span>
+  );
+}
 
 export default function QuoridorRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<QuoridorView>) {
   const me = mySeat ?? 0;
@@ -59,9 +67,7 @@ export default function QuoridorRenderer({ view, legalActions, mySeat, seatName,
           <li key={s} className={['qd-pl', s === view.current && !view.outcome ? 'qd-pl--turn' : '', view.active[s] ? '' : 'qd-pl--out'].join(' ')} style={{ ['--pc' as string]: SEAT_COLORS[s] }}>
             <img className="qd-pl__pawn" src={PAWN_SRC[s]} alt="" />
             <bdi className="qd-pl__name">{who(s)}</bdi>
-            <span className="qd-pl__walls" aria-label={`${fa(view.wallsLeft[s]!)} دیوار مانده`}>
-              {Array.from({ length: view.wallsLeft[s]! }, (_, k) => <i key={k} />)}
-            </span>
+            <Walls n={view.wallsLeft[s]!} />
             {view.distances[s] !== null && <span className="qd-pl__dist">{fa(view.distances[s]!)} قدم تا هدف</span>}
           </li>
         ))}
@@ -97,7 +103,7 @@ export default function QuoridorRenderer({ view, legalActions, mySeat, seatName,
 
             {view.walls.map((w) => {
               const isLast = lastWall?.t === 'wall' && lastWall.wall.r === w.r && lastWall.wall.c === w.c && lastWall.wall.o === w.o;
-              return <rect key={`${w.r}-${w.c}-${w.o}`} {...wallRect(w)} rx="6" fill="url(#qd-wall)" stroke="#2a1205" strokeWidth="2" filter="url(#qd-shadow)" className={isLast ? 'qd-wall qd-wall--new' : 'qd-wall'} />;
+              return <rect key={`${w.r}-${w.c}-${w.o}`} {...wallRect(w)} rx="6" fill="url(#qd-wall)" stroke="#2a1205" strokeWidth="2" filter="url(#qd-shadow)" className={isLast ? 'qd-wall bg-land' : 'qd-wall'} />;
             })}
             {hover && <rect {...wallRect(hover)} rx="6" className="qd-wall--preview" />}
 
