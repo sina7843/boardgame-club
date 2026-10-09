@@ -24,7 +24,7 @@
 .rg-empire.is-waiting { box-shadow: inset 0 0 0 1.5px rgb(255 215 90 / 0.6); }
 .rg-empire__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; justify-content: center; font-size: 0.8rem; }
 .rg-empire__head small { color: #b5bbe6; }
-.rg-vp { padding: 0 0.45rem; border-radius: 999px; background: #ffd75a; color: #1a1a3a; animation: rg-bump 0.4s ease-out; }
+.rg-vp { padding: 0 0.45rem; border-radius: 999px; background: #ffd75a; color: #1a1a3a; }
 .rg-row { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
 
 .rg-card { position: relative; display: grid; justify-items: center; align-content: start; gap: 0.1rem; border-radius: 9px; line-height: 1.25;
@@ -37,7 +37,9 @@
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--g) 50%, white 50%), var(--g) 55%, color-mix(in srgb, var(--g) 50%, black 50%)); }
 .rg-dev .rg-card__orb { background: none; }
 .rg-card--sm .rg-card__orb { inline-size: 1.2rem; block-size: 1.2rem; font-size: 0.8rem; }
-.rg-good { position: absolute; inset-block-end: -0.35rem; inset-inline-end: -0.4rem; inline-size: 1.1rem; block-size: 1.1rem; border-radius: 4px; object-fit: cover; box-shadow: 0 0 6px #fff; animation: rg-pop 0.4s ease-out; }
+.rg-good { position: absolute; inset-block-end: -0.35rem; inset-inline-end: -0.4rem; inline-size: 1.1rem; block-size: 1.1rem; border-radius: 4px; object-fit: cover; box-shadow: 0 0 6px #fff; }
+.rg-fly { display: flex; line-height: 0; }
+.rg .bg-pop { display: inline-block; }
 .rg-card__gt { position: absolute; inset-block-end: 0.15rem; inset-inline-end: 0.15rem; inline-size: 1.1rem; block-size: 1.1rem; border-radius: 4px; object-fit: cover; box-shadow: 0 0 0 1px var(--g); }
 .rg-card__name { font-size: 0.6rem; font-weight: 800; }
 .rg-card--sm .rg-card__name { font-size: 0.48rem; }
@@ -47,7 +49,7 @@
 .rg-card__vp { inset-inline-end: 0.15rem; background: #ffd75a; color: #12122e; }
 .rg-card--sm .rg-card__cost, .rg-card--sm .rg-card__vp { font-size: 0.45rem; }
 
-.rg-drawn { display: flex; gap: 0.4rem; justify-content: center; padding: 0.45rem; border-radius: 12px; background: rgb(156 140 255 / 0.12); animation: rg-warp 0.35s ease-out both; }
+.rg-drawn { display: flex; gap: 0.4rem; justify-content: center; padding: 0.45rem; border-radius: 12px; background: rgb(156 140 255 / 0.12); }
 .rg-hand { display: grid; gap: 0.4rem; justify-items: center; padding-block-start: 0.45rem; border-block-start: 1px dashed rgb(255 255 255 / 0.2); }
 .rg-pick { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 10px; line-height: 0; transition: transform 0.18s; }
 .rg-pick:disabled { opacity: 0.55; cursor: default; }
@@ -60,8 +62,5 @@
 
 @media (max-width: 480px) { .rg-phase small { display: none; } .rg-card--md { inline-size: 4.4rem; } }
 @keyframes rg-pulse-soft { 50% { box-shadow: inset 0 0 0 2px #9c8cff, 0 0 6px -4px #9c8cff; } }
-@keyframes rg-bump { 40% { transform: scale(1.25); } }
-@keyframes rg-pop { from { transform: scale(0); } }
-@keyframes rg-warp { from { opacity: 0; transform: scale(0.95); } }
 @keyframes rg-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .rg * { animation: none !important; transition: none !important; } }
