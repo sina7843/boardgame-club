@@ -10,13 +10,12 @@
 .nt-card { --l: 52%; position: relative; display: inline-grid; place-items: center; border-radius: 10px; font-weight: 900; color: #fff;
   background: linear-gradient(160deg, hsl(var(--h) 75% calc(var(--l) + 10%)), hsl(var(--h) 80% calc(var(--l) - 12%))); border: 3px solid #fff8ea;
   box-shadow: 0 6px 14px -4px rgb(0 0 0 / 0.55); text-shadow: 0 2px 2px rgb(0 0 0 / 0.35); }
-.nt-card--big { inline-size: 9rem; block-size: 12.5rem; font-size: 4.2rem; animation: nt-flip 0.5s cubic-bezier(.2, 1.2, .4, 1) both; }
+.nt-card--big { inline-size: 9rem; block-size: 12.5rem; font-size: 4.2rem; }
 .nt-card__n { font-size: inherit; }
 .nt-card__corner { position: absolute; inset-block-start: 0.4rem; inset-inline-start: 0.55rem; font-size: 1.05rem; }
 .nt-card__corner--b { inset-block: auto 0.4rem; inset-inline: auto 0.55rem; transform: rotate(180deg); }
 .nt-card--empty { inline-size: 9rem; block-size: 12.5rem; background: rgb(0 0 0 / 0.3); color: #d9ccb4; font-size: 1.2rem; border-style: dashed; }
-.nt-pot { position: absolute; inset-block-end: -1.2rem; inset-inline-start: 50%; transform: translateX(50%); display: grid; place-items: center; inline-size: 3.6rem; block-size: 3.2rem;
-  animation: nt-bump 0.35s ease-out; }
+.nt-pot { position: absolute; inset-block-end: -1.2rem; inset-inline-start: 50%; transform: translateX(50%); display: grid; place-items: center; inline-size: 3.6rem; block-size: 3.2rem; }
 .nt-pot i { position: absolute; inline-size: 2.4rem; block-size: 0.9rem; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #ff7a6b, #c0392b 60%, #7d1e14);
   border: 2px solid #ffd2c8; inset-block-end: calc(var(--k) * 4px); box-shadow: 0 2px 2px rgb(0 0 0 / 0.4); }
 .nt-pot b { position: relative; z-index: 1; margin-block-end: 3rem; padding: 0.05rem 0.45rem; border-radius: 999px; background: #2a1a0d; color: #ffd27a; font-size: 0.85rem; }
@@ -48,13 +47,9 @@
 .nt-run .nt-card + .nt-card { margin-inline-start: -0.9rem; }
 .nt-card--small { inline-size: 2.2rem; block-size: 3rem; font-size: 0.95rem; border-width: 2px; filter: saturate(0.55) brightness(0.8); }
 .nt-card--counts { filter: none; z-index: 1; }
-.nt-card--new { animation: nt-in 0.45s ease-out both; }
 .nt-pl__none { color: #a89a80; font-size: 0.8rem; }
 .nt__last { margin: 0; color: #d9ccb4; font-size: 0.85rem; }
 
-@keyframes nt-flip { from { transform: rotateY(90deg) scale(0.8); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes nt-bump { 40% { transform: translateX(50%) scale(1.15); } }
-@keyframes nt-in { from { transform: translateY(-20px) scale(1.2); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes nt-pulse { 50% { outline-color: transparent; } }
 
-@media (prefers-reduced-motion: reduce) { .nt-card--big, .nt-pot, .nt-card--new, .nt-btn--hint { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .nt-btn--hint { animation: none; } }
