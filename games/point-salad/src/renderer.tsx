@@ -4,24 +4,23 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import tomato from './art/tomato.webp';
+import lettuce from './art/lettuce.webp';
+import carrot from './art/carrot.webp';
+import cabbage from './art/cabbage.webp';
+import pepper from './art/pepper.webp';
+import onion from './art/onion.webp';
 import { CARDS, VEG, counts, ruleScore, scores, type PointSaladView, type Rule, type Veg } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const VEG_FA: Record<Veg, string> = { tomato: 'گوجه', lettuce: 'کاهو', carrot: 'هویج', cabbage: 'کلم', pepper: 'فلفل', onion: 'پیاز' };
 const sign = (n: number) => (n > 0 ? `+${fa(n)}` : `−${fa(-n)}`);
 
+// Vegetable art is cut from a generated sheet (see DECISIONS.md).
+const ART: Record<Veg, string> = { tomato, lettuce, carrot, cabbage, pepper, onion };
+
 export function VegIcon({ v, size = 1.4 }: { v: Veg; size?: number }) {
-  const s = { inlineSize: `${size}rem`, blockSize: `${size}rem` };
-  return (
-    <svg viewBox="-10 -10 20 20" style={s} className={`ps-veg ps-v--${v}`} role="img" aria-label={VEG_FA[v]}>
-      {v === 'tomato' && <><circle r="7.5" cy="1.5" fill="#e0402f" /><path d="M-4 -5 L0 -3 L4 -5 L2 -7 L0 -5 L-2 -7 Z" fill="#3c8a3a" /></>}
-      {v === 'lettuce' && <path d="M0 8 Q-9 6 -8 -1 Q-9 -7 -3 -6 Q0 -10 3 -6 Q9 -7 8 -1 Q9 6 0 8 Z M0 7 V-4" fill="#7cc04a" stroke="#3f7a22" strokeWidth="1" />}
-      {v === 'carrot' && <><path d="M-2 -4 L2 -4 L5 0 L0 9 L-5 0 Z" fill="#ef8a2a" /><path d="M0 -4 L-3 -9 M0 -4 L0 -10 M0 -4 L3 -9" stroke="#3c8a3a" strokeWidth="1.6" /></>}
-      {v === 'cabbage' && <><circle r="8" fill="#8f5bb5" /><path d="M0 -8 Q-4 0 0 8 M0 -8 Q4 0 0 8 M-8 0 Q0 -3 8 0" stroke="#d6b8ec" strokeWidth="1" fill="none" /></>}
-      {v === 'pepper' && <><path d="M-5 -4 Q-7 6 0 9 Q7 6 5 -4 Q0 -7 -5 -4 Z" fill="#f2c230" /><path d="M0 -5 Q1 -9 4 -9" stroke="#3c8a3a" strokeWidth="1.8" fill="none" /></>}
-      {v === 'onion' && <><path d="M0 -9 Q2 -4 7 1 Q8 8 0 8 Q-8 8 -7 1 Q-2 -4 0 -9 Z" fill="#c9a07a" /><path d="M-3 7 Q0 -2 0 -7 M3 7 Q0 -2 0 -7" stroke="#8a5f3a" strokeWidth="0.8" fill="none" /></>}
-    </svg>
-  );
+  return <img src={ART[v]} alt={VEG_FA[v]} draggable={false} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} className={`ps-veg ps-v--${v}`} />;
 }
 
 export function RuleText({ rule }: { rule: Rule }) {
