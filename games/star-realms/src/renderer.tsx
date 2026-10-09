@@ -2,7 +2,8 @@
 // red, empire gold), their effects as small icon rows (primary, ally ⟡, scrap ♻). Opponent and your own authority sit
 // at either end; the trade row runs through the middle; played ships and bases form your fleet line.
 import './renderer.css';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useRef } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import fed from './art/fac-fed.webp';
 import blob from './art/fac-blob.webp';
 import cult from './art/fac-cult.webp';
@@ -40,6 +41,9 @@ type Hint = { type: string; index?: number; base?: number } | null;
 
 export default function StarRealmsRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SrView>) {
   const me = mySeat ?? 0;
+  // Cards glide: market → buyer's header chip, trade deck → market, hand → fleet/bases, opponent's plays from their side.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const opp = 1 - me;
   const hint = expected as unknown as Hint;
   const has = (t: string) => legalActions.some((a) => a.type === t);
@@ -52,6 +56,15 @@ export default function StarRealmsRenderer({ view, legalActions, mySeat, seatNam
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const mine = view.sides[me]!;
   const theirs = view.sides[opp]!;
+  // The card a side just bought (or lost to a destroyed base) lands in a chip in its header: it is the visible discard.
+  const chip = (seat: number) => {
+    const l = view.last;
+    if (!l || l.card === undefined) return null;
+    const got = l.kind === 'buy' ? l.seat === seat : l.kind === 'destroy' ? l.seat !== seat : false;
+    if (!got) return null;
+    const t = TYPE[k(l.card)]!;
+    return <span className="sr-chip" data-flip={`c${l.card}`} data-flip-from={t.key === 'explorer' ? 'explorer' : undefined}>{t.name}</span>;
+  };
 
   const status = view.outcome ? null
     : discarding ? { tone: 'mine' as const, text: 'حریف شما را مجبور کرده یک کارت دور بریزید' }
@@ -64,7 +77,7 @@ export default function StarRealmsRenderer({ view, legalActions, mySeat, seatNam
         const atk = seat === opp && attackable.has(b);
         const scrap = seat === me && scrapSelf.has(b);
         return (
-          <span key={b} className="sr-slot">
+          <span key={b} className="sr-slot" data-flip={`c${b}`} data-flip-from={`seat-${seat}`}>
             {atk ? <button type="button" className={`sr-pick sr-pick--atk ${hint?.type === 'attack' && hint.base === b ? 'sr-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'attack', base: b })} aria-label={`نابود کردن ${TYPE[k(b)]!.name}`}><SrCard k={k(b)} /></button> : <SrCard k={k(b)} />}
             {scrap && <button type="button" className="sr-mini" disabled={busy} onClick={() => onAction({ type: 'scrapSelf', card: b })}>♻ اسقاط</button>}
           </span>
@@ -74,14 +87,15 @@ export default function StarRealmsRenderer({ view, legalActions, mySeat, seatNam
   );
 
   return (
-    <div className="sr" data-seq={view.seq}>
+    <div className="sr" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className={`sr-side sr-side--opp ${view.current === opp && !view.outcome ? 'sr-side--now' : ''}`} aria-label={`ناوگان ${who(opp)}`}>
+      <section data-flip-anchor={`seat-${opp}`} className={`sr-side sr-side--opp ${view.current === opp && !view.outcome ? 'sr-side--now' : ''}`} aria-label={`ناوگان ${who(opp)}`}>
         <div className="sr-side__head">
           <bdi className="sr-side__name">{who(opp)}</bdi>
-          <b className="sr-auth" key={theirs.authority}>{fa(Math.max(0, theirs.authority))}</b>
-          <small>دسته {fa(theirs.deck)} · دست {fa(theirs.hand)} · دورریز {fa(theirs.discard)}</small>
+          <b className="sr-auth bg-hit" key={theirs.authority}>{fa(Math.max(0, theirs.authority))}</b>
+          <small>دسته <b key={theirs.deck} className="bg-pop">{fa(theirs.deck)}</b> · دست <b key={theirs.hand} className="bg-pop">{fa(theirs.hand)}</b> · دورریز <b key={theirs.discard} className="bg-pop">{fa(theirs.discard)}</b></small>
+          {chip(opp)}
           {attackable.has(-1) && <Button size="sm" disabled={busy} className={hint?.type === 'attack' && hint.base === -1 ? 'sr-hint' : ''} onClick={() => onAction({ type: 'attack', base: -1 })}>حمله ({fa(view.pool.combat)})</Button>}
         </div>
         {theirs.bases.length > 0 && <Bases seat={opp} />}
@@ -93,28 +107,28 @@ export default function StarRealmsRenderer({ view, legalActions, mySeat, seatNam
           const can = buyable.has(slot);
           return (
             <span key={`${slot}-${id}`} className="sr-slot sr-slot--row">
-              <button type="button" className={`sr-pick ${can ? 'sr-pick--can' : ''}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', slot })}><SrCard k={k(id)} /></button>
+              <button type="button" data-flip={`c${id}`} data-flip-from="trade-deck" className={`sr-pick ${can ? 'sr-pick--can' : ''}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', slot })}><SrCard k={k(id)} /></button>
               {view.pool.scrapRow > 0 && myTurn && <button type="button" className="sr-mini" disabled={busy} onClick={() => onAction({ type: 'scrapRow', slot })}>♻ پاک کردن</button>}
             </span>
           );
         })}
         <span className="sr-slot sr-slot--row">
-          <button type="button" className={`sr-pick ${buyable.has(5) ? 'sr-pick--can' : ''}`} disabled={busy || !buyable.has(5)} onClick={() => onAction({ type: 'buy', slot: 5 })}><SrCard k="explorer" /></button>
-          <small className="sr-deckcount">بازار {fa(view.tradeDeckCount)}</small>
+          <button type="button" data-flip-anchor="explorer" className={`sr-pick ${buyable.has(5) ? 'sr-pick--can' : ''}`} disabled={busy || !buyable.has(5)} onClick={() => onAction({ type: 'buy', slot: 5 })}><SrCard k="explorer" /></button>
+          <small className="sr-deckcount" data-flip-anchor="trade-deck">بازار <b key={view.tradeDeckCount} className="bg-pop">{fa(view.tradeDeckCount)}</b></small>
         </span>
       </section>
 
       {myTurn && (
         <div className="sr-pool">
-          <span className="sr-pool__trade" key={`t${view.pool.trade}`}>◈ {fa(view.pool.trade)} تجارت</span>
-          <span className="sr-pool__combat" key={`c${view.pool.combat}`}>✸ {fa(view.pool.combat)} حمله</span>
+          <span className="sr-pool__trade bg-pop" key={`t${view.pool.trade}`}>◈ {fa(view.pool.trade)} تجارت</span>
+          <span className="sr-pool__combat bg-pop" key={`c${view.pool.combat}`}>✸ {fa(view.pool.combat)} حمله</span>
         </div>
       )}
 
       {view.inPlay.length > 0 && (
         <div className="sr-fleet" aria-label="ناوهای بازی‌شده">
           {view.inPlay.map((id) => (
-            <span key={id} className="sr-slot sr-slot--play">
+            <span key={id} className="sr-slot sr-slot--play" data-flip={`c${id}`} data-flip-from={`seat-${view.current}`}>
               <SrCard k={k(id)} size="sm" />
               {myTurn && scrapSelf.has(id) && <button type="button" className="sr-mini" disabled={busy} onClick={() => onAction({ type: 'scrapSelf', card: id })}>♻ {fxText(TYPE[k(id)]!.scrapSelf)}</button>}
             </span>
@@ -131,17 +145,18 @@ export default function StarRealmsRenderer({ view, legalActions, mySeat, seatNam
         </div>
       )}
 
-      <section className={`sr-side sr-side--me ${myTurn ? 'sr-side--now' : ''}`} aria-label="ناوگان شما">
+      <section data-flip-anchor={`seat-${me}`} className={`sr-side sr-side--me ${myTurn ? 'sr-side--now' : ''}`} aria-label="ناوگان شما">
         {mine.bases.length > 0 && <Bases seat={me} />}
         <div className="sr-side__head">
           <bdi className="sr-side__name">{who(me)}</bdi>
-          <b className="sr-auth sr-auth--me" key={mine.authority}>{fa(Math.max(0, mine.authority))}</b>
-          <small>دسته {fa(mine.deck)} · دورریز {fa(mine.discard)}</small>
+          <b className="sr-auth sr-auth--me bg-hit" key={mine.authority}>{fa(Math.max(0, mine.authority))}</b>
+          <small>دسته <b key={mine.deck} className="bg-pop">{fa(mine.deck)}</b> · دورریز <b key={mine.discard} className="bg-pop">{fa(mine.discard)}</b></small>
+          {chip(me)}
         </div>
         {view.hand && !view.outcome && (
           <div className="sr-hand">
             {view.hand.map((id, index) => (
-              <button key={id} type="button" disabled={busy || !myTurn} onClick={() => onAction(discarding ? { type: 'discard', index } : { type: 'play', index })}
+              <button key={id} type="button" data-flip={`c${id}`} data-flip-from={`seat-${me}`} disabled={busy || !myTurn} onClick={() => onAction(discarding ? { type: 'discard', index } : { type: 'play', index })}
                 className={['sr-pick', myTurn ? 'sr-pick--can' : '', discarding ? 'sr-pick--drop' : '', hint?.type === 'play' && hint.index === index ? 'sr-hint' : ''].join(' ')}
                 aria-label={`${discarding ? 'دور ریختن' : 'بازی'} ${TYPE[k(id)]!.name}`}><SrCard k={k(id)} /></button>
             ))}
