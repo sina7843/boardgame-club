@@ -59,3 +59,5 @@
 @keyframes jp-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes jp-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .jp * { animation: none !important; transition: none !important; } }
+
+.jp-stack b, .jp-stall__herd b, .jp__herd b, .jp__earn b, .jp-stall__coins { display: inline-block; }

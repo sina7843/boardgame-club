@@ -2,8 +2,8 @@
 // rival's stall (cards in hand, camels, earnings) and your hand with your herd. Select market and/or hand cards and
 // the action bar offers what the selection means: take, exchange or sell; camels have their own button.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import diamond from './art/diamond.webp';
 import gold from './art/gold.webp';
 import silver from './art/silver.webp';
@@ -19,9 +19,9 @@ export const CARD_FA: Record<Card, string> = { diamond: 'الماس', gold: 'ط�
 // Goods art is cut from a generated sheet (see DECISIONS.md).
 const ART: Record<Card, string> = { diamond, gold, silver, cloth, spice, leather, camel };
 
-export function GoodCard({ c, size = 'md' }: { c: Card; size?: 'sm' | 'md' }) {
+export function GoodCard({ c, size = 'md', flip, flipFrom }: { c: Card; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) {
   return (
-    <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} aria-label={CARD_FA[c]}>
+    <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} aria-label={CARD_FA[c]}>
       <img src={ART[c]} alt="" draggable={false} />
       {size === 'md' && <span className="jp-card__n">{CARD_FA[c]}</span>}
     </span>
@@ -57,9 +57,13 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
   const camelsInMarket = view.market.filter((c) => c === 'camel').length;
   const earned = (k: number) => view.goods[k]!.reduce((a, b) => a + b, 0) + (Array.isArray(view.bonuses[k]) ? (view.bonuses[k] as number[]).reduce((a, b) => a + b, 0) : 0);
   const last = view.last;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const actor = last ? (last.seat === me ? 'hand' : `seat-${last.seat}`) : 'deck';
+  const nth = (xs: Card[], i: number) => xs.slice(0, i).filter((x) => x === xs[i]).length;
 
   return (
-    <div className="jp" data-seq={view.seq}>
+    <div className="jp" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <p className="jp__round">دست {fa(view.round)}{view.best3 ? ' از ۳' : ''}، نشان‌ها: <bdi>{who(me)}</bdi> {'★'.repeat(view.seals[me]!) || '—'} / <bdi>{who(opp)}</bdi> {'★'.repeat(view.seals[opp]!) || '—'}</p>
 
@@ -67,7 +71,7 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
         {GOODS.map((g) => (
           <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${CARD_FA[g]}: ${fa(view.tokens[g].length)} سکه`}>
             <img src={ART[g]} alt="" draggable={false} />
-            <b>{view.tokens[g].length ? fa(view.tokens[g][0]!) : '×'}</b>
+            <b className="bg-pop" key={view.tokens[g].length}>{view.tokens[g].length ? fa(view.tokens[g][0]!) : '×'}</b>
             <small>{fa(view.tokens[g].length)}</small>
           </span>
         ))}
@@ -75,23 +79,23 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
       </section>
 
       {(view.outcome ? [me, opp] : [opp]).map((k) => (
-        <section key={k} className="jp-stall" aria-label={`غرفهٔ ${who(k)}`}>
+        <section key={k} data-flip-anchor={k === me ? 'hand' : `seat-${k}`} className="jp-stall" aria-label={`غرفهٔ ${who(k)}`}>
           <bdi className="jp-stall__name">{who(k)}</bdi>
           {!view.outcome && <span className="jp-stall__hand">{Array.from({ length: view.handCount[k]! }, (_, i) => <i key={i} />)}</span>}
-          <span className="jp-stall__herd"><GoodCard c="camel" size="sm" /> ×{fa(view.herds[k]!)}</span>
-          <span className="jp-stall__coins">{fa(view.goods[k]!.reduce((a, b) => a + b, 0))} + {Array.isArray(view.bonuses[k]) ? fa((view.bonuses[k] as number[]).reduce((a, b) => a + b, 0)) : `${fa(view.bonuses[k] as number)} پاداش`}</span>
+          <span className="jp-stall__herd"><GoodCard c="camel" size="sm" /> ×<b className="bg-pop" key={view.herds[k]}>{fa(view.herds[k]!)}</b></span>
+          <span className="jp-stall__coins bg-pop" key={`${view.goods[k]!.length}-${view.herds[k]}`}>{fa(view.goods[k]!.reduce((a, b) => a + b, 0))} + {Array.isArray(view.bonuses[k]) ? fa((view.bonuses[k] as number[]).reduce((a, b) => a + b, 0)) : `${fa(view.bonuses[k] as number)} پاداش`}</span>
         </section>
       ))}
 
       {!view.outcome && (
         <section className="jp__market" aria-label="بازار">
-          <div className="jp__carpet">
+          <div className="jp__carpet" data-flip-anchor="market">
             {view.market.map((c, i) => (
-              <button key={`${view.seq}-${i}`} type="button" className={['jp-pick', mk.includes(i) ? 'jp-pick--on' : '', hint?.type === 'take' && hint.good === c && !mk.length && view.market.indexOf(c) === i ? 'jp-hint' : ''].join(' ')}
-                disabled={!myTurn || busy || c === 'camel'} aria-pressed={mk.includes(i)} onClick={() => setMk(mk.includes(i) ? mk.filter((x) => x !== i) : [...mk, i])}><GoodCard c={c} /></button>
+              <button key={`${c}-${nth(view.market, i)}`} type="button" className={['jp-pick', mk.includes(i) ? 'jp-pick--on' : '', hint?.type === 'take' && hint.good === c && !mk.length && view.market.indexOf(c) === i ? 'jp-hint' : ''].join(' ')}
+                disabled={!myTurn || busy || c === 'camel'} aria-pressed={mk.includes(i)} onClick={() => setMk(mk.includes(i) ? mk.filter((x) => x !== i) : [...mk, i])}><GoodCard c={c} flip={`m-${c}-${nth(view.market, i)}`} flipFrom={last?.kind === 'exchange' ? actor : 'deck'} /></button>
             ))}
           </div>
-          <span className="jp__deck">دسته: {fa(view.deckCount)}</span>
+          <span className="jp__deck" data-flip-anchor="deck">دسته: {fa(view.deckCount)}</span>
         </section>
       )}
 
@@ -110,22 +114,22 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
 
       {view.hand && !view.outcome && (
         <section className="jp__me" aria-label="دست شما">
-          <div className="jp__hand">
+          <div className="jp__hand" data-flip-anchor="hand-me">
             {hand.map((g, i) => (
-              <button key={`${g}-${i}`} type="button" className={['jp-pick', hd.includes(i) ? 'jp-pick--on' : '', hint?.type === 'sell' && hint.good === g && !hd.includes(i) ? 'jp-hint' : ''].join(' ')}
-                disabled={!myTurn || busy} aria-pressed={hd.includes(i)} onClick={() => setHd(hd.includes(i) ? hd.filter((x) => x !== i) : [...hd, i])}><GoodCard c={g} /></button>
+              <button key={`${g}-${nth(hand, i)}`} type="button" className={['jp-pick', hd.includes(i) ? 'jp-pick--on' : '', hint?.type === 'sell' && hint.good === g && !hd.includes(i) ? 'jp-hint' : ''].join(' ')}
+                disabled={!myTurn || busy} aria-pressed={hd.includes(i)} onClick={() => setHd(hd.includes(i) ? hd.filter((x) => x !== i) : [...hd, i])}><GoodCard c={g} flip={`h-${g}-${nth(hand, i)}`} flipFrom="market" /></button>
             ))}
             {!hand.length && <span className="jp__empty">دستتان خالی است</span>}
           </div>
           <div className="jp__herd">
-            <GoodCard c="camel" size="sm" /> گلهٔ شما: <b>{fa(view.herds[me]!)}</b>
+            <GoodCard c="camel" size="sm" /> گلهٔ شما: <b className="bg-pop" key={view.herds[me]}>{fa(view.herds[me]!)}</b>
             {myTurn && mk.length >= 2 && view.herds[me]! > 0 && (
               <span className="jp__camgive">شتر برای معاوضه:
                 <button type="button" onClick={() => setCam(Math.max(0, cam - 1))} disabled={!cam}>−</button><b>{fa(cam)}</b>
                 <button type="button" onClick={() => setCam(Math.min(view.herds[me]!, cam + 1))} disabled={cam >= view.herds[me]!}>+</button>
               </span>
             )}
-            <span className="jp__earn">درآمد: <b>{fa(earned(me))}</b></span>
+            <span className="jp__earn">درآمد: <b className="bg-pop" key={earned(me)}>{fa(earned(me))}</b></span>
           </div>
           {myTurn && (
             <div className="jp__actions">
