@@ -2,8 +2,8 @@
 // pile count); your hand fans below with the turn's actions/buys/coins. Playing Cellar, Workshop, Remodel or Mine opens
 // a small choice tray (pick cards from hand and/or a supply pile) before the play is sent.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { CARDS, KINGDOM, type CardId, type DomView } from './rules.ts';
 
 // Art is cut from a generated sprite sheet (see DECISIONS.md).
@@ -40,7 +40,7 @@ export function DomCard({ c, size = 'md', count }: { c: CardId; size?: 'sm' | 'm
       <img className="dm-card__art" src={ART[c]} alt="" draggable={false} />
       <span className="dm-card__name">{info.name}</span>
       {size === 'md' && <span className="dm-card__text">{info.kind === 'treasure' ? `${fa(info.coins!)} سکه` : info.kind === 'victory' ? `${fa(info.vp!)} امتیاز` : info.text}</span>}
-      {count !== undefined && <i className="dm-card__count">{fa(count)}</i>}
+      {count !== undefined && <i key={count} className="dm-card__count bg-pop">{fa(count)}</i>}
     </span>
   );
 }
@@ -50,6 +50,12 @@ type Mode = { index: number; card: CardId } | null;
 
 export default function DominionRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<DomView>) {
   const me = mySeat ?? -1;
+  // Cards glide: supply → discard, deck → hand, hand → play area. Identical copies get ids by type + nth copy; the play area
+  // continues the owner's hand numbering so a played copy keeps its id while it crosses zones.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const nth = new Map<string, number>();
+  const flipId = (pre: string, c: CardId) => { const n = nth.get(pre + c) ?? 0; nth.set(pre + c, n + 1); return `${pre}${c}-${n}`; };
   const hint = expected as unknown as Hint;
   const playable = new Set(legalActions.filter((a) => a.type === 'play').map((a) => a.index as number));
   const buyable = new Set(legalActions.filter((a) => a.type === 'buy').map((a) => a.card as CardId));
@@ -63,6 +69,7 @@ export default function DominionRenderer({ view, legalActions, mySeat, seatName,
   useEffect(() => { setMode(null); setPicked([]); setGain(null); }, [handKey]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const hand = view.hand ?? [];
+  const handIds = hand.map((c) => flipId('me-', c));
   const toggle = (i: number) => setPicked(picked.includes(i) ? picked.filter((x) => x !== i) : [...picked, i]);
 
   const trashCard = mode && picked[0] !== undefined ? hand[picked[0]] : undefined;
@@ -102,16 +109,18 @@ export default function DominionRenderer({ view, legalActions, mySeat, seatName,
   const piles: CardId[][] = [['copper', 'silver', 'gold', 'estate', 'duchy', 'province'], KINGDOM];
 
   return (
-    <div className="dm" data-seq={view.seq} data-phase={view.phase}>
+    <div className="dm" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <ul className="dm__players" aria-label="بازیکنان">
         {view.others.map((o, k) => (
-          <li key={k} className={['dm-player', k === view.current && !view.outcome ? 'dm-player--now' : '', k === me ? 'dm-player--me' : ''].join(' ')}>
+          <li key={k} data-flip-anchor={`seat-${k}`} className={['dm-player', k === view.current && !view.outcome ? 'dm-player--now' : '', k === me ? 'dm-player--me' : ''].join(' ')}>
             <bdi className="dm-player__name">{who(k)}</bdi>
-            <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />دسته {fa(o.deck)}</span><span>دست {fa(o.hand)}</span><span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />دورریز {fa(o.discard)}</span>
-            {o.top && <span className="dm-player__top">{CARDS[o.top].name}</span>}
-            {view.vp && <b className="dm-player__vp"><img className="dm-ico" src={vp} alt="" draggable={false} />{fa(view.vp[k]!)} امتیاز</b>}
+            <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />دسته <b key={o.deck} className="bg-pop">{fa(o.deck)}</b></span><span>دست <b key={o.hand} className="bg-pop">{fa(o.hand)}</b></span><span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />دورریز <b key={o.discard} className="bg-pop">{fa(o.discard)}</b></span>
+            {o.top && (view.last?.kind === 'buy' && view.last.seat === k && view.last.card === o.top
+              ? <span className="dm-player__top" data-flip={`gain-${view.seq}`} data-flip-from={`pile-${o.top}`}>{CARDS[o.top].name}</span>
+              : <span className="dm-player__top">{CARDS[o.top].name}</span>)}
+            {view.vp && <b key={view.vp[k]} className="dm-player__vp bg-pop"><img className="dm-ico" src={vp} alt="" draggable={false} />{fa(view.vp[k]!)} امتیاز</b>}
           </li>
         ))}
       </ul>
@@ -123,7 +132,7 @@ export default function DominionRenderer({ view, legalActions, mySeat, seatName,
               const forGain = mode && needsGain && canGain(c);
               const can = forGain || (!mode && !militia && buyable.has(c));
               return (
-                <button key={c} type="button" disabled={busy || !can} aria-pressed={gain === c}
+                <button key={c} type="button" data-flip-anchor={`pile-${c}`} disabled={busy || !can} aria-pressed={gain === c}
                   className={['dm-pile', can ? 'dm-pile--can' : '', gain === c ? 'dm-pile--on' : '', view.supply[c] === 0 ? 'dm-pile--empty' : '', hint?.type === 'buy' && hint.card === c ? 'dm-hint' : ''].join(' ')}
                   onClick={() => (mode ? setGain(c) : onAction({ type: 'buy', card: c }))}>
                   <DomCard c={c} count={view.supply[c]} />
@@ -135,18 +144,22 @@ export default function DominionRenderer({ view, legalActions, mySeat, seatName,
       </section>
 
       {view.inPlay.length > 0 && (
-        <div className="dm__play" aria-label="کارت‌های بازی‌شده">{view.inPlay.map((c, i) => <DomCard key={i} c={c} size="sm" />)}</div>
+        <div className="dm__play" aria-label="کارت‌های بازی‌شده">{view.inPlay.map((c, i) => {
+          const mine = view.current === me;
+          const id = flipId(mine ? 'me-' : `p${view.current}-`, c);
+          return <span key={i} className="dm__play-card" data-flip={id} data-flip-from={mine ? undefined : `seat-${view.current}`}><DomCard c={c} size="sm" /></span>;
+        })}</div>
       )}
 
       {view.hand && !view.outcome && (
         <section className="dm__me" aria-label="دست شما">
-          {myTurn && <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>}
+          {myTurn && <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins bg-pop" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>}
           <div className="dm__hand">
             {hand.map((c, i) => {
               const sel = picked.includes(i) || mode?.index === i;
               const can = militia || (mode ? i !== mode.index : playable.has(i));
               return (
-                <button key={`${i}-${c}`} type="button" disabled={busy || !can} aria-pressed={sel} onClick={() => clickHand(i)}
+                <button key={`${i}-${c}`} type="button" data-flip={handIds[i]} data-flip-from={`seat-${me}`} disabled={busy || !can} aria-pressed={sel} onClick={() => clickHand(i)}
                   className={['dm-hand', can && !mode && !militia ? 'dm-hand--can' : '', sel ? 'dm-hand--on' : '', hint?.type === 'play' && hint.index === i ? 'dm-hint' : ''].join(' ')}>
                   <DomCard c={c} />
                 </button>

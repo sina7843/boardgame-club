@@ -40,13 +40,12 @@
 .dm-pile--empty { opacity: 0.25; }
 
 .dm__play { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; padding: 0.35rem; border-radius: 10px; background: rgb(0 0 0 / 0.2); }
-.dm__play .dm-card { animation: dm-play 0.35s ease-out both; }
 .dm__me { display: grid; gap: 0.45rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(201 164 106 / 0.4); }
 .dm__tally { margin: 0; display: flex; gap: 0.5rem; font-size: 0.8rem; }
 .dm__tally span { padding: 0.1rem 0.55rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); }
-.dm .dm-coins { background: #e6b54a; color: #2a1d10; font-weight: 900; animation: dm-bump 0.4s ease-out; }
+.dm .dm-coins { background: #e6b54a; color: #2a1d10; font-weight: 900; }
 .dm__hand { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
-.dm-hand { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 8px; line-height: 0; animation: dm-draw 0.35s ease-out both; transition: transform 0.18s; }
+.dm-hand { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 8px; line-height: 0; transition: transform 0.18s; }
 .dm-hand:disabled { cursor: default; }
 .dm-hand--can { cursor: pointer; box-shadow: 0 0 0 2px rgb(230 181 74 / 0.75); }
 .dm-hand--can:hover { transform: translateY(-4px); }
@@ -64,8 +63,7 @@
   .dm-card__text { font-size: 0.44rem; padding: 0.1rem; }
   .dm-card__name { font-size: 0.62rem; }
 }
-@keyframes dm-bump { 40% { transform: scale(1.25); } }
-@keyframes dm-draw { from { opacity: 0; transform: translateY(10px); } }
-@keyframes dm-play { from { opacity: 0; transform: scale(0.8); } }
 @keyframes dm-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .dm * { animation: none !important; transition: none !important; } }
+.dm__play-card { display: inline-flex; line-height: 0; }
+.dm .bg-pop { display: inline-block; }
