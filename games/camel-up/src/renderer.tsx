@@ -19,7 +19,7 @@ export const CAMEL_FA: Record<Camel, string> = { blue: 'آبی', green: 'سبز'
 const CAMEL_ART: Record<Camel, string> = { blue: camelBlue, green: camelGreen, orange: camelOrange, yellow: camelYellow, white: camelWhite };
 
 export function CamelIcon({ c, size = 1.6 }: { c: Camel; size?: number }) {
-  return <img src={CAMEL_ART[c]} alt={`شتر ${CAMEL_FA[c]}`} draggable={false} className={`cu-camel cu-c--${c}`} style={{ inlineSize: `${size}rem`, blockSize: `${size * 0.72}rem` }} />;
+  return <img src={CAMEL_ART[c]} alt={`شتر ${CAMEL_FA[c]}`} draggable={false} className={`cu-camel cu-c--${c}`} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} />;
 }
 
 export default function CamelRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CamelView>) {

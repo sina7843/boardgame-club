@@ -9,12 +9,12 @@
 .cu__track { position: relative; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; padding: 0.5rem; border-radius: 14px;
   background: linear-gradient(rgb(60 36 10 / 0.25), rgb(60 36 10 / 0.25)), url('./art/bd-desert.webp') center / cover #b88440; box-shadow: inset 0 0 0 2px #8a5a20; }
 .cu-sp { position: relative; display: grid; align-content: end; justify-items: center; min-block-size: 5.6rem; padding: 0.15rem 0 0.2rem; border: 0; border-radius: 6px; font: inherit; color: var(--ink);
-  background: linear-gradient(180deg, #f7e2b4, var(--sand)); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.12); }
+  background: linear-gradient(180deg, rgb(247 226 180 / 0.55), rgb(232 200 140 / 0.7)); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.12); }
 .cu-sp--can { cursor: pointer; box-shadow: 0 0 0 2px #2f7fc1; }
 .cu-sp--last { box-shadow: inset -4px 0 0 #2a2a2a; }
 .cu-sp__n { position: absolute; inset-block-start: 2px; inset-inline-start: 4px; font-size: 0.6rem; font-weight: 800; opacity: 0.7; }
 .cu-stack { display: flex; flex-direction: column; align-items: center; gap: 0; }
-.cu-stack .cu-camel { margin-block-end: -0.25rem; animation: cu-hop 0.45s ease-out; }
+.cu-stack .cu-camel { margin-block-end: -0.7rem; animation: cu-hop 0.45s ease-out; }
 .cu-tile { position: absolute; inset-block-start: 1.1rem; inset-inline-end: 3px; padding: 0 0.25rem; border-radius: 4px; font-size: 0.65rem; font-weight: 900; color: #fff; }
 .cu-tile--oasis { background: #3f9a4a; } .cu-tile--mirage { background: #a2452f; }
 .cu-finish { position: absolute; inset-block-start: 2px; inset-inline-end: 4px; padding: 0 0.3rem; border-radius: 999px; background: #2a2a2a; color: #fff; font-size: 0.55rem; }
@@ -44,7 +44,7 @@
 .cu__mine, .cu__log { margin: 0; font-size: 0.78rem; color: #e8d8b8; }
 .cu-hint { animation: cu-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@media (max-width: 480px) { .cu-sp { min-block-size: 4.6rem; } .cu-stack .cu-camel { inline-size: 1.25rem !important; block-size: 0.9rem !important; } }
+@media (max-width: 480px) { .cu-sp { min-block-size: 4.6rem; } .cu-stack .cu-camel { inline-size: 1.9rem !important; block-size: 1.9rem !important; margin-block-end: -0.95rem; } }
 @keyframes cu-hop { 0% { transform: translateY(-10px); } 60% { transform: translateY(2px); } }
 @keyframes cu-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes cu-bump { 40% { transform: scale(1.25); } }
@@ -52,4 +52,4 @@
 @media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
 
 .cu > .cu__track { inline-size: min(100%, 42rem); justify-self: center; }
-@media (min-width: 900px) { .cu-stack .cu-camel { inline-size: 2.4rem !important; block-size: 1.75rem !important; } }
+@media (min-width: 900px) { .cu-stack .cu-camel { inline-size: 3rem !important; block-size: 3rem !important; margin-block-end: -1.4rem; } }
