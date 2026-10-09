@@ -136,19 +136,19 @@ function Tower({ x, y, h, fresh }: { x: number; y: number; h: number; fresh: boo
   if (!h) return null;
   const tiers = Math.min(h, 3);
   return (
-    <g className={fresh ? 'sto-tower sto-tower--fresh' : 'sto-tower'} filter="url(#sto-shadow)" pointerEvents="none">
+    <g className="sto-tower" filter="url(#sto-shadow)" pointerEvents="none">
       {Array.from({ length: tiers }, (_, k) => {
         const w = 104 - k * 22;
         const ty = y - k * 13;
         return (
-          <g key={k}>
+          <g key={k} className={fresh && h < 4 && k === tiers - 1 ? 'bg-land' : undefined}>
             <rect x={x - w / 2} y={ty - w / 2 + 8} width={w} height={w} rx="6" fill="#bdb6a6" />
             <rect x={x - w / 2} y={ty - w / 2} width={w} height={w} rx="6" fill="url(#sto-stone)" stroke="#b9b2a3" strokeWidth="2" />
             {k === 2 && [-1, 1].flatMap((sx) => [-1, 1].map((sy) => <rect key={`${sx}${sy}`} x={x + sx * 20 - 4} y={ty + sy * 20 - 4} width="8" height="8" rx="2" fill="#cfc8b8" />))}
           </g>
         );
       })}
-      {h === 4 && <image href={DOME} x={x - 50} y={y - 78} width="100" height="100" />}
+      {h === 4 && <image href={DOME} x={x - 50} y={y - 78} width="100" height="100" className={fresh ? 'bg-land' : undefined} />}
     </g>
   );
 }
