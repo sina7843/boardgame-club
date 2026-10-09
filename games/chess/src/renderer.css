@@ -69,8 +69,6 @@
 .ch-pc { inline-size: 100%; block-size: 100%; object-fit: contain; user-select: none; }
 .ch-piece--w { filter: drop-shadow(1px 3px 1.5px rgb(30 12 0 / 0.55)); }
 .ch-piece--b { filter: drop-shadow(0 0 0.8px rgb(255 235 200 / 0.7)) drop-shadow(1px 3px 1.5px rgb(0 0 0 / 0.6)); }
-.ch-board .ch-piece { animation: ch-land 220ms cubic-bezier(0.22, 1.2, 0.36, 1); }
-@keyframes ch-land { from { transform: translateY(-6px) scale(0.88); opacity: 0.4; } }
 
 .ch-player { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
   background: linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.02)); border: 1px solid rgb(255 255 255 / 0.1); min-block-size: 48px;

@@ -2,7 +2,7 @@
 // light up → tap a target (promotion asks for the piece). Board coordinates stay literal (dir=ltr); text is Persian.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, useFresh, usePieceIds, type GameRendererProps } from '@bg/ui';
 import { pieceSrc } from './pieces.tsx';
 import type { ChessView, Color, Piece, PieceType, PromoType } from './rules.ts';
 
@@ -60,6 +60,11 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
     seen.current = view.history.length;
   }, [view.history.length, last, view.inCheck, view.outcome]);
 
+  // Pieces glide square to square (castling rook and en passant included): identity is matched between consecutive boards.
+  const root = useRef<HTMLDivElement>(null);
+  const ids = usePieceIds(view.board, (a, b) => Math.hypot((a % 8) - (b % 8), Math.floor(a / 8) - Math.floor(b / 8)));
+  useFlip(root, view.history.length);
+
   const rows = Array.from({ length: 8 }, (_, i) => (flip ? i : 7 - i));
   const cols = Array.from({ length: 8 }, (_, i) => (flip ? 7 - i : i));
 
@@ -79,7 +84,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
   for (let i = 0; i < sans.length; i += 2) pairs.push([sans[i]!, sans[i + 1]]);
 
   return (
-    <div className="ch">
+    <div className="ch" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {endText && <p className="ch__end">{endText}</p>}
@@ -120,7 +125,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
                     <button key={f} type="button" role="gridcell" className={cls} onClick={() => tap(name)} aria-disabled={!interactive || busy || undefined}
                       aria-pressed={selected === name || undefined}
                       aria-label={`${name}، ${piece ? pieceLabel(piece) : 'خالی'}${target ? (piece ? '، زدن' : '، حرکت به اینجا') : ''}${i === kingInCheck ? '، کیش' : ''}`}>
-                      {piece && <span className={`ch-piece ch-piece--${piece[0]}`} aria-hidden="true"><Glyph t={piece[1] as PieceType} c={piece[0] as Color} /></span>}
+                      {piece && <span data-flip={ids[i]} className={`ch-piece ch-piece--${piece[0]}`} aria-hidden="true"><Glyph t={piece[1] as PieceType} c={piece[0] as Color} /></span>}
                       {f === (flip ? 7 : 0) && <span className="ch-coord ch-coord--rank" aria-hidden="true">{r + 1}</span>}
                       {r === (flip ? 7 : 0) && <span className="ch-coord ch-coord--file" aria-hidden="true">{FILES[f]}</span>}
                     </button>
@@ -169,6 +174,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
 }
 
 function PlayerBar({ name, color, captured, active, me }: { name: string; color: Color; captured: Piece[]; active: boolean; me?: boolean }) {
+  const fresh = useFresh(captured.map((p, i) => `${i}${p}`));
   return (
     <div className={active ? 'ch-player ch-player--turn' : 'ch-player'}>
       <span className={`ch-player__swatch ch-player__swatch--${color}`} aria-hidden="true" />
@@ -176,7 +182,7 @@ function PlayerBar({ name, color, captured, active, me }: { name: string; color:
       <span className="ch-player__color">{COLOR_FA[color]}{me ? ' (شما)' : ''}</span>
       {captured.length > 0 && (
         <span className="ch-player__captured" aria-label={`مهره‌های زده‌شده: ${captured.map(pieceLabel).join('، ')}`}>
-          {captured.map((p, i) => <span key={i} className={`ch-piece ch-piece--${p[0]}`} aria-hidden="true"><Glyph t={p[1] as PieceType} c={p[0] as Color} /></span>)}
+          {captured.map((p, i) => <span key={i} className={`ch-piece ch-piece--${p[0]}${fresh.has(`${i}${p}`) ? ' bg-land' : ''}`} aria-hidden="true"><Glyph t={p[1] as PieceType} c={p[0] as Color} /></span>)}
         </span>
       )}
     </div>
