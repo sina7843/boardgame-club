@@ -3,8 +3,8 @@
 // card from your hand to light up the hexes it can enter (or continue with the points left on the active card);
 // rubble and camps ask which cards to give up. The market lists every card with price and stock.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { COLS, MAP, ROWS, TYPE, coinValue, type CardType, type EdView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -51,6 +51,11 @@ type Hint = { type: string; card?: number; to?: number; key?: string } | null;
 export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<EdView>) {
   const hint = expected as unknown as Hint;
   const hand = view.hand ?? [];
+  // Hand cards glide in from the deck and a bought card flies from the market to its buyer; the pawn slides hex to hex (CSS transition).
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const nth = new Map<string, number>();
+  const handIds = hand.map((k) => { const n = nth.get(k) ?? 0; nth.set(k, n + 1); return `h-${k}-${n}`; });
   const [sel, setSel] = useState<number | null>(null);
   const [pay, setPay] = useState<number[]>([]);
   useEffect(() => { setSel(null); setPay([]); }, [view.seq]);
@@ -80,13 +85,14 @@ export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName,
   const coins = coinValue(hand);
 
   return (
-    <div className="ed" data-seq={view.seq}>
+    <div className="ed" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <ul className="ed-crew" aria-label="گروه‌ها">
         {view.explorers.map((e, k) => (
-          <li key={k} className={`ed-crew__p ${k === view.current && !view.outcome ? 'is-now' : ''}`} style={{ ['--pawn' as string]: PAWN[k] }}>
+          <li key={k} data-flip-anchor={`seat-${k}`} className={`ed-crew__p ${k === view.current && !view.outcome ? 'is-now' : ''}`} style={{ ['--pawn' as string]: PAWN[k] }}>
             <i className="ed-dot" /><bdi>{who(k)}</bdi>
             <small>{e.arrived ? 'رسید ★' : `دسته ${fa(e.deck)} · دورریز ${fa(e.discard)}`}</small>
+            {view.last?.kind === 'buy' && view.last.seat === k && view.last.card && <span className="ed-chip" data-flip={`buy-${view.seq}`} data-flip-from={`mk-${view.last.card}`}>{TYPE[view.last.card]?.name}</span>}
           </li>
         ))}
       </ul>
@@ -107,7 +113,7 @@ export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName,
               const t = TYPE[k]!;
               const onHint = hint?.type === 'move' && hint.card === i && sel !== i;
               return (
-                <span key={`${i}-${k}`} className="ed-slot">
+                <span key={`${i}-${k}`} className="ed-slot" data-flip={handIds[i]} data-flip-from={`seat-${mySeat ?? 0}`}>
                   <button type="button" disabled={busy || !myTurn} aria-pressed={sel === i || pay.includes(i)}
                     className={['ed-pick', sel === i ? 'is-on' : '', pay.includes(i) ? 'is-pay' : '', onHint ? 'ed-hint' : ''].join(' ')}
                     onClick={() => { if (rubble.length && sel === null && pay.length) setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); else { setSel(sel === i ? null : i); } }}>
@@ -136,9 +142,9 @@ export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName,
               const t = TYPE[k]!;
               const can = myTurn && canBuy && n > 0 && coins >= t.cost;
               return (
-                <button key={k} type="button" disabled={busy || !can} onClick={() => onAction({ type: 'buy', key: k, pay: autoPay(t.cost) })}
+                <button key={k} type="button" data-flip-anchor={`mk-${k}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', key: k, pay: autoPay(t.cost) })}
                   className={['ed-buy', can ? 'is-can' : '', hint?.type === 'buy' && hint.key === k ? 'ed-hint' : ''].join(' ')}>
-                  <EdCard t={t} size="sm" /><i className="ed-buy__cost">{fa(t.cost)}</i><small>×{fa(n)}</small>
+                  <EdCard t={t} size="sm" /><i className="ed-buy__cost">{fa(t.cost)}</i><small key={n} className="bg-pop">×{fa(n)}</small>
                 </button>
               );
             })}

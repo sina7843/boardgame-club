@@ -47,7 +47,8 @@
 .ed-active.is-on { border-style: solid; background: #ffd75a; font-weight: 800; }
 .ed-hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
 .ed-slot { display: grid; gap: 0.15rem; justify-items: center; }
-.ed-pick { padding: 0; border: 0; background: none; border-radius: 9px; line-height: 0; cursor: pointer; transition: transform 0.18s; animation: ed-draw 0.35s ease-out both; }
+.ed-pick { padding: 0; border: 0; background: none; border-radius: 9px; line-height: 0; cursor: pointer; transition: transform 0.18s; }
+.ed-chip { padding: 0 0.45rem; border-radius: 999px; background: #ffd75a; font-size: 0.65rem; font-weight: 800; }
 .ed-pick:disabled { cursor: default; }
 .ed-pick.is-on { transform: translateY(-6px); box-shadow: 0 0 0 3px #ff9d6b; }
 .ed-pick.is-pay { transform: translateY(-4px); box-shadow: 0 0 0 3px #8a7a6a; }
@@ -65,6 +66,5 @@
 .ed-hint { animation: ed-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ff7a2a !important; }
 
 @keyframes ed-glow { 50% { filter: brightness(1.05); } }
-@keyframes ed-draw { from { opacity: 0; transform: translateY(10px); } }
 @keyframes ed-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ed * { animation: none !important; transition: none !important; } }
