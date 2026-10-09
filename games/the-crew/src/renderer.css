@@ -44,7 +44,7 @@
 
 .cw-trick { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center; min-block-size: 6rem; padding: 0.6rem; border-radius: 50% / 40%;
   background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.08), transparent 70%); }
-.cw-play { display: grid; gap: 0.25rem; justify-items: center; font-size: 0.7rem; animation: cw-throw 0.35s ease-out both; }
+.cw-play { display: grid; gap: 0.25rem; justify-items: center; font-size: 0.7rem; }
 .cw-last { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; justify-content: center; font-size: 0.72rem; color: #c7cbe8; animation: cw-fade 0.4s ease-out both; }
 .cw-empty, .cw-aside { font-size: 0.75rem; color: #c7cbe8; }
 .cw-aside { inline-size: 100%; }
@@ -57,7 +57,6 @@
 .cw-pick--can:hover, .cw-pick--can:focus-visible { transform: translateY(-5px); }
 .cw-hint { animation: cw-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
-@keyframes cw-throw { from { opacity: 0; transform: translateY(24px) rotate(-8deg); } }
 @keyframes cw-fade { from { opacity: 0; } }
 @keyframes cw-pop { 40% { transform: scale(1.4); } }
 @keyframes cw-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }

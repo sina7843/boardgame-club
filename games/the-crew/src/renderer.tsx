@@ -2,17 +2,17 @@
 // top; the trick in progress fans in the centre with each player's name; crew strips show hand size, tricks and the
 // one communicated card; your hand is below with a radio-style "ارتباط" mode for showing a card.
 import './renderer.css';
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { cardFa, rank, suit } from './trick.ts';
 import type { CrewTask, CrewView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const KIND_FA = { top: 'بالاترین', bottom: 'پایین‌ترین', only: 'تنها' } as const;
 
-export function CrewCard({ c, size = 'md' }: { c: string; size?: 'sm' | 'md' }) {
+export function CrewCard({ c, size = 'md', flip, flipFrom }: { c: string; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) {
   return (
-    <span className={`cw-card cw-card--${size} cw-s--${suit(c)}`} aria-label={cardFa(c)}>
+    <span className={`cw-card cw-card--${size} cw-s--${suit(c)}`} aria-label={cardFa(c)} data-flip={flip} data-flip-from={flipFrom}>
       <b>{fa(rank(c))}</b>
       <i aria-hidden>{suit(c) === 'r' ? '▲' : '●'}</i>
     </span>
@@ -27,6 +27,8 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
   const me = mySeat ?? -1;
   const hint = expected as unknown as Hint;
   const [talk, setTalk] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   useEffect(() => { setTalk(false); }, [view.seq]);
   const playable = new Set(legalActions.filter((a) => a.type === 'play').map((a) => a.card as string));
   const speakable = new Set(legalActions.filter((a) => a.type === 'communicate').map((a) => a.card as string));
@@ -41,7 +43,7 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
   const order = (t: CrewTask) => (t.order === 'last' ? 'Ω' : t.order !== undefined ? fa(t.order) : null);
 
   return (
-    <div className={`cw cw--${theme}`} style={backdrop ? ({ '--cw-bd': `url(${backdrop})` } as CSSProperties) : undefined} data-seq={view.seq} data-phase={view.phase}>
+    <div ref={root} className={`cw cw--${theme}`} style={backdrop ? ({ '--cw-bd': `url(${backdrop})` } as CSSProperties) : undefined} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="cw-tasks" aria-label="وظیفه‌ها">
@@ -63,11 +65,11 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
 
       <ul className="cw-crew" aria-label="خدمه">
         {view.handCounts.map((n, k) => (
-          <li key={k} className={['cw-mate', k === view.current && view.phase === 'play' && !view.outcome ? 'cw-mate--now' : '', k === me ? 'cw-mate--me' : ''].join(' ')}>
+          <li key={k} data-flip-anchor={`seat-${k}`} className={['cw-mate', k === view.current && view.phase === 'play' && !view.outcome ? 'cw-mate--now' : '', k === me ? 'cw-mate--me' : ''].join(' ')}>
             {k === view.commander && <span className="cw-mate__cmd" title="فرمانده">★</span>}
             <bdi className="cw-mate__name">{who(k)}</bdi>
             <small>{fa(n)} کارت · {fa(view.won[k]!.length)} دست</small>
-            {view.comms[k] && <span className="cw-comm"><CrewCard c={view.comms[k]!.card} size="sm" /><small>{KIND_FA[view.comms[k]!.kind]}</small></span>}
+            {view.comms[k] && <span className="cw-comm"><CrewCard c={view.comms[k]!.card} size="sm" flip={`m-${view.comms[k]!.card}`} flipFrom={`seat-${k}`} /><small>{KIND_FA[view.comms[k]!.kind]}</small></span>}
             {!view.comms[k] && view.commsUsed[k] && <small className="cw-comm--used">ارتباط بازی شد</small>}
           </li>
         ))}
@@ -75,9 +77,9 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
 
       <section className="cw-trick" aria-label="دست جاری">
         {view.trick.length ? view.trick.map((p) => (
-          <span key={p.seat} className="cw-play"><CrewCard c={p.card} /><bdi>{who(p.seat)}</bdi></span>
+          <span key={p.seat} className="cw-play" data-flip={`c-${p.card}`} data-flip-from={`seat-${p.seat}`}><CrewCard c={p.card} /><bdi>{who(p.seat)}</bdi></span>
         )) : view.lastTrick ? (
-          <span className="cw-last"><small>دست قبل را <bdi>{who(view.lastTrick.winner)}</bdi> برد:</small>{view.lastTrick.cards.map((p) => <CrewCard key={p.seat} c={p.card} size="sm" />)}</span>
+          <span className="cw-last"><small>دست قبل را <bdi>{who(view.lastTrick.winner)}</bdi> برد:</small>{view.lastTrick.cards.map((p) => <CrewCard key={p.seat} c={p.card} size="sm" flip={`c-${p.card}`} />)}</span>
         ) : <small className="cw-empty">{view.phase === 'draft' ? 'اول وظیفه‌ها پخش می‌شوند' : 'فرمانده دست اول را شروع می‌کند'}</small>}
         {view.aside && <small className="cw-aside">کنار گذاشته: {cardFa(view.aside)}</small>}
       </section>
@@ -88,7 +90,7 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
             {view.hand.map((c) => {
               const can = talk ? speakable.has(c) : playable.has(c);
               return (
-                <button key={c} type="button" disabled={busy || !can} onClick={() => onAction(talk ? { type: 'communicate', card: c } : { type: 'play', card: c })}
+                <button key={c} type="button" data-flip={`c-${c}`} disabled={busy || !can} onClick={() => onAction(talk ? { type: 'communicate', card: c } : { type: 'play', card: c })}
                   className={['cw-pick', can ? 'cw-pick--can' : '', hint && hint.card === c && (hint.type === 'play') !== talk ? 'cw-hint' : ''].join(' ')}
                   aria-label={`${talk ? 'نشان دادن' : 'بازی'} ${cardFa(c)}`}><CrewCard c={c} /></button>
               );
