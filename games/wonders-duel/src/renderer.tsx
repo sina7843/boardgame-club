@@ -4,11 +4,20 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import artBrown from './art/col-brown.webp';
+import artGrey from './art/col-grey.webp';
+import artBlue from './art/col-blue.webp';
+import artRed from './art/col-red.webp';
+import artGreen from './art/col-green.webp';
+import artYellow from './art/col-yellow.webp';
+import artPurple from './art/col-purple.webp';
 import { CARDS, PROGRESS_FA, RES_FA, WONDERS, type Card, type Color, type DuelView, type Progress, type Res } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const SCI: Record<string, string> = { wheel: '⚙', compass: '⌖', quill: '✒', mortar: '⚗', sundial: '◷', globe: '◍', law: '⚖' };
 const COLOR_FA: Record<Color, string> = { brown: 'مواد خام', grey: 'کالا', blue: 'مدنی', red: 'نظامی', green: 'علمی', yellow: 'تجاری', purple: 'صنف' };
+// Painted art cut from a generated sheet (see DECISIONS.md), one per card colour.
+const ART: Record<Color, string> = { brown: artBrown, grey: artGrey, blue: artBlue, red: artRed, green: artGreen, yellow: artYellow, purple: artPurple };
 const RES_LETTER: Record<Res, string> = { W: 'چ', C: 'ر', S: 'س', G: 'ش', P: 'پ' };
 
 export function Cost({ cost, coins }: { cost: string; coins?: number }) {
@@ -39,6 +48,7 @@ export function CardFace({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
   const c = CARDS[id]!;
   return (
     <span className={`wd-card wd-card--${size} wd-c--${c.color}`} aria-label={`${c.name}: ${effectText(c)}`}>
+      <img className="wd-card__art" src={ART[c.color]} alt="" draggable={false} />
       <span className="wd-card__band">{effectText(c)}</span>
       <span className="wd-card__name">{c.name}</span>
       {size === 'md' && <Cost cost={c.cost} coins={c.coins} />}
