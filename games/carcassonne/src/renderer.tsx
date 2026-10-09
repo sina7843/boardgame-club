@@ -3,7 +3,7 @@
 // follower stands (or none), then place. Board coordinates are module-defined, so the map itself is LTR.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
 import texCity from './art/tex-city.webp';
 import texField from './art/tex-field.webp';
 import texMonastery from './art/tex-monastery.webp';
@@ -66,7 +66,7 @@ export function Meeple({ color, x, y }: { color: string; x: number; y: number })
   );
 }
 
-export function TileArt({ t, rot = 0, meeples = {}, title }: { t: string; rot?: number; meeples?: Record<string, number>; title?: string }) {
+export function TileArt({ t, rot = 0, meeples = {}, title, fresh }: { t: string; rot?: number; meeples?: Record<string, number>; title?: string; fresh?: boolean }) {
   const tile = TILES[t]!;
   const crossing = tile.roads.length >= 3;
   return (
@@ -102,7 +102,7 @@ export function TileArt({ t, rot = 0, meeples = {}, title }: { t: string; rot?: 
         })}
         {tile.monastery && <image href={texMonastery} x="22" y="22" width="56" height="56" clipPath="url(#cc-abbey-clip)" />}
         {tile.monastery && <rect x="22" y="22" width="56" height="56" rx="10" className="cc-abbey__frame" />}
-        {Object.entries(meeples).map(([seg, seat]) => { const [x, y] = anchor(t, seg); return <g key={seg} transform={`rotate(${-rot * 90} ${x} ${y})`}><Meeple color={SEAT_COLORS[seat]!} x={x} y={y} /></g>; })}
+        {Object.entries(meeples).map(([seg, seat]) => { const [x, y] = anchor(t, seg); return <g key={seg} transform={`rotate(${-rot * 90} ${x} ${y})`}><g className={fresh ? 'bg-land' : undefined} style={fresh ? { ['--i' as string]: 8 } : undefined}><Meeple color={SEAT_COLORS[seat]!} x={x} y={y} /></g></g>; })}
       </g>
     </svg>
   );
@@ -139,6 +139,9 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
   const [meeple, setMeeple] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const mapRef = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const before = usePrevious(view.seq, view);
   useEffect(() => { setSpot(null); setMeeple(null); }, [view.seq]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
 
@@ -185,9 +188,12 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
     for (let x = minX; x <= maxX; x++) {
       const k = key(x, y);
       const p = view.board[k];
-      const isLast = last && last.x === x && last.y === y;
+      const isLast = !!last && last.x === x && last.y === y;
+      const theirs = isLast && last.seat !== mySeat;
       if (p) {
-        cells.push(<div key={k} className={`cc-cell cc-cell--tile ${isLast ? 'cc-cell--last' : ''}`} {...(x === 0 && y === 0 ? { 'data-origin': true } : {})} style={isLast ? { ['--who' as string]: SEAT_COLORS[last.seat] } : undefined}><TileArt t={p.t} rot={p.rot} meeples={p.meeples} /></div>);
+        cells.push(<div key={k} className={`cc-cell cc-cell--tile ${isLast ? 'cc-cell--last' : ''} ${isLast && before && !before.board[k] ? 'bg-land' : ''}`} {...(x === 0 && y === 0 ? { 'data-origin': true } : {})}
+          {...(theirs && before && !before.board[k] ? { 'data-flip': `tile-${k}`, 'data-flip-from': 'drawn' } : { 'data-flip-enter': 'none' })}
+          style={isLast ? { ['--who' as string]: SEAT_COLORS[last.seat], ...(before && !before.board[k] ? { ['--i' as string]: 8 } : {}) } : undefined}><TileArt t={p.t} rot={p.rot} meeples={p.meeples} fresh={isLast && !!before && !before.board[k]} /></div>);
       } else if (spots.has(k)) {
         const on = spot?.x === x && spot.y === y;
         const fitsNow = spots.get(k)!.includes(rot);
@@ -202,16 +208,16 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
   }
 
   return (
-    <div className="cc" data-seq={view.seq}>
+    <div className="cc" data-seq={view.seq} ref={root}>
       <TileDefs />
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <ul className="cc__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.scores.map((_, k) => k)).map((s) => (
           <li key={s} className={['cc-player', s === view.current && !view.outcome ? 'cc-player--now' : '', view.outcome?.placements[0]?.seat === s ? 'cc-player--win' : ''].join(' ')} style={{ ['--who' as string]: SEAT_COLORS[s] }}>
-            <svg viewBox="0 0 18 21" className="cc-player__meeple" aria-hidden><Meeple color={SEAT_COLORS[s]!} x={9} y={10} /></svg>
+            <svg viewBox="0 0 18 21" className={`cc-player__meeple ${before && before.meeplesLeft[s] !== view.meeplesLeft[s] ? 'bg-pop' : ''}`} key={view.meeplesLeft[s]} aria-hidden><Meeple color={SEAT_COLORS[s]!} x={9} y={10} /></svg>
             <bdi className="cc-player__name">{who(s)}</bdi>
-            <span className="cc-player__score" key={view.scores[s]}>{fa(view.scores[s]!)}</span>
+            <span className={`cc-player__score ${before && before.scores[s] !== view.scores[s] ? 'bg-pop' : ''}`} key={view.scores[s]}>{fa(view.scores[s]!)}</span>
             <span className="cc-player__left" aria-label={`${fa(view.meeplesLeft[s]!)} پیرو`}>×{fa(view.meeplesLeft[s]!)}</span>
           </li>
         ))}
@@ -233,9 +239,9 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
           <button type="button" onClick={() => setZoom((z) => Math.min(1.6, z + 0.2))} aria-label="بزرگ‌نمایی">+</button>
         </div>
         {view.tile && (
-          <div className="cc__drawn">
-            <span className="cc__drawn-tile" key={view.seq}><TileArt t={view.tile} rot={shownRot} title="کاشی کشیده‌شده" /></span>
-            <small>{fa(view.stackCount)} کاشی مانده</small>
+          <div className="cc__drawn" data-flip-anchor="drawn">
+            <span className="cc__drawn-tile" data-flip={`drawn-${view.seq}`} data-flip-from="pile"><TileArt t={view.tile} rot={shownRot} title="کاشی کشیده‌شده" /></span>
+            <small data-flip-anchor="pile">{fa(view.stackCount)} کاشی مانده</small>
             {place && <Button size="sm" variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate} className={hint && spot && hint.rot !== shownRot ? 'cc-hint' : ''}>چرخاندن ↻</Button>}
           </div>
         )}
