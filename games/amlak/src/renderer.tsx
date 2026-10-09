@@ -2,7 +2,7 @@
 // the phase; property management, trade composer and responder; players and log. All state shown is public.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
 import { AmlakBoard, Landmarks, SEAT_COLORS, Token } from './board-art.tsx';
 import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf } from './board.ts';
 import { unmortgageCost, type AmlakView, type LogEntry, type TradeSide } from './rules.ts';
@@ -62,6 +62,8 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
     if (latest && latest.seq > seen.current) setAnnounce(describe(latest, seatName));
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, latest?.seq ?? 0);
   const bidHint = hints.find((h) => h.type === 'bid');
   useEffect(() => { if (bidHint) setBid(bidHint.min!); }, [bidHint?.min]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -87,7 +89,7 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
   const showCard = !!card && cardSeq > lastOf('turn');
 
   return (
-    <div className="am">
+    <div className="am" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="am-main">
@@ -195,7 +197,7 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
                     {pl.jailCards.length > 0 && <span className="am-tag am-tag--card">کارت آزادی</span>}
                     {pl.bankrupt && <span className="am-tag am-tag--out">ورشکسته</span>}
                   </span>
-                  <span className="am-wallet__cash" aria-label={money(pl.cash)}><b>{fa(pl.cash)}</b><small>هزار تومان</small></span>
+                  <span className="am-wallet__cash" aria-label={money(pl.cash)}><b className="bg-pop" key={pl.cash}>{fa(pl.cash)}</b><small>هزار تومان</small></span>
                   {owned.length > 0 && (
                     <span className="am-wallet__deeds" aria-label={`املاک: ${owned.map((i) => BOARD[i]!.nameFa).join('، ')}`}>
                       {owned.map((i) => {

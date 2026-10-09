@@ -38,8 +38,6 @@
 .amb-die__shadow { fill: rgb(0 0 0 / 0.3); filter: blur(3px); }
 .amb-die__face { fill: #fffdf7; stroke: #3a2a1a; stroke-width: 2.5; }
 .amb-die__pip { fill: var(--am-anar); }
-.amb-die { animation: amb-roll 620ms cubic-bezier(0.2, 1.3, 0.4, 1); transform-box: fill-box; transform-origin: center; }
-@keyframes amb-roll { 0% { transform: translate(-60px, -80px) rotate(-260deg) scale(0.7); opacity: 0.2; } 60% { transform: translate(4px, 4px) rotate(14deg) scale(1.06); opacity: 1; } 100% { transform: none; } }
 
 .amb-pot circle { fill: #f2c94c; stroke: #8a6b12; stroke-width: 3; }
 .amb-pot text { font: 800 16px/1 var(--font, sans-serif); fill: #3a2a0a; text-anchor: middle; }
@@ -70,7 +68,6 @@
 .amb-mortgage__stamp { font: 900 26px/1 var(--font, sans-serif); fill: #b0262f; text-anchor: middle; opacity: 0.85;
   paint-order: stroke; stroke: #fffaf0; stroke-width: 4px; letter-spacing: 2px; }
 
-.amb-pawn { transition: transform 520ms cubic-bezier(0.22, 1.1, 0.36, 1); }
 .amb-pawn__shadow { fill: rgb(0 0 0 / 0.35); filter: blur(1.5px); }
 .amb-pawn__body { stroke: #fff; filter: drop-shadow(0 1.5px 1px rgb(0 0 0 / 0.45)); }
 .amb-pawn__badge { fill: #1f1a14; stroke: #fff; stroke-width: 1.5; }
@@ -173,13 +170,14 @@
 .am-log li:first-child { color: var(--text); }
 
 @media (prefers-reduced-motion: reduce) {
-  .amb-pawn, .amb-sq__bg { transition: none; }
-  .amb-die, .amb-pawn--turn, .am-cardface, .am-panel--decide { animation: none; }
+  .amb-sq__bg { transition: none; }
+  .amb-pawn--turn, .am-cardface, .am-panel--decide { animation: none; }
 }
-:root[data-motion='reduce'] .amb-die, :root[data-motion='reduce'] .amb-pawn--turn, :root[data-motion='reduce'] .am-cardface { animation: none; }
-:root[data-motion='reduce'] .amb-pawn { transition: none; }
+:root[data-motion='reduce'] .amb-pawn--turn, :root[data-motion='reduce'] .am-cardface { animation: none; }
 
 /* Phone held sideways: board and panel side by side. */
 @media (orientation: landscape) and (max-height: 560px) {
   .am-main { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
 }
+
+.am-wallet__cash b { display: inline-block; }

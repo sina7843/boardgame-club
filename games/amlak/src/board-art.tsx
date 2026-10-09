@@ -188,10 +188,10 @@ const PIPS: Record<number, [number, number][]> = {
   1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]], 4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
   5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]]
 };
-export function Die({ v, x, y, rot, rollKey }: { v: number; x: number; y: number; rot: number; rollKey: number }) {
+export function Die({ v, x, y, rot, rollKey, i }: { v: number; x: number; y: number; rot: number; rollKey: number; i: number }) {
   return (
     <g transform={`translate(${x} ${y}) rotate(${rot})`}>
-      <g key={rollKey} className="amb-die">
+      <g key={rollKey} className="amb-die bg-roll" style={{ ['--i' as string]: i }}>
         <rect x="-34" y="-30" width="68" height="68" rx="14" className="amb-die__shadow" />
         <rect x="-34" y="-34" width="68" height="68" rx="14" className="amb-die__face" />
         <rect x="-34" y="-34" width="68" height="68" rx="14" fill="url(#amb-die-sheen)" />
@@ -245,8 +245,8 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
       <Deck x={782} y={782} label="صندوق" kind="chest" count={view.deckCounts.chest} />
       {roll && (
         <g aria-label={`آخرین تاس: ${fa(roll[0])} و ${fa(roll[1])}`} role="img">
-          <Die v={roll[0]} x={500} y={612} rot={-12} rollKey={rollKey} />
-          <Die v={roll[1]} x={604} y={600} rot={9} rollKey={rollKey} />
+          <Die v={roll[0]} x={500} y={612} rot={-12} rollKey={rollKey} i={0} />
+          <Die v={roll[1]} x={604} y={600} rot={9} rollKey={rollKey} i={1} />
         </g>
       )}
       {view.rules.freeParking && view.pot > 0 && (
@@ -294,21 +294,21 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
               </>
             )}
             {view.mortgaged[i] && (
-              <g className="amb-mortgage">
+              <g className="amb-mortgage" data-flip={`mort-${i}`}>
                 <rect x={g.x} y={g.y} width={g.w} height={g.h} fill="url(#amb-hatch)" />
                 <text x={g.x + g.w / 2} y={g.y + g.h / 2 + 8} transform={`rotate(-30 ${g.x + g.w / 2} ${g.y + g.h / 2})`} className="amb-mortgage__stamp">رهن</text>
               </g>
             )}
             {owner !== null && owner !== undefined && rb && (
-              <g className="amb-owner">
+              <g className="amb-owner" data-flip={`own-${i}`}>
                 <rect x={rb.x} y={rb.y} width={rb.w} height={rb.h} rx="3" fill={SEAT_COLORS[owner]} />
               </g>
             )}
             {bd && h > 0 && h < 5 && Array.from({ length: h }, (_, k) => {
               const t = (k + 0.5) / 4;
-              return portrait ? <House key={k} x={bd.x + bd.w * t} y={bd.y + bd.h / 2} /> : <House key={k} x={bd.x + bd.w / 2} y={bd.y + bd.h * t} />;
+              return <g key={k} data-flip={`house-${i}-${k}`}>{portrait ? <House x={bd.x + bd.w * t} y={bd.y + bd.h / 2} /> : <House x={bd.x + bd.w / 2} y={bd.y + bd.h * t} />}</g>;
             })}
-            {bd && h === 5 && <Hotel x={bd.x + bd.w / 2} y={bd.y + bd.h / 2} />}
+            {bd && h === 5 && <g data-flip={`hotel-${i}`}><Hotel x={bd.x + bd.w / 2} y={bd.y + bd.h / 2} /></g>}
             {tokens.map((t, k) => {
               const n = tokens.length;
               // Jail corner: prisoners inside the cell, visitors on the «ملاقات» strip.
@@ -316,10 +316,12 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
               const tx = bx + (n > 1 && i !== 10 ? ((k % 3) - (Math.min(n, 3) - 1) / 2) * 24 : i === 10 ? (k % 2) * 18 - 9 : 0);
               const ty = by + (n > 3 && i !== 10 ? (Math.floor(k / 3) - 0.5) * 24 : i === 10 ? Math.floor(k / 2) * 20 - 10 : 0);
               return (
-                <g key={t.seat} className={t.seat === view.current && !view.outcome ? 'amb-pawn amb-pawn--turn' : 'amb-pawn'} transform={`translate(${tx} ${ty})`}>
-                  <ellipse cx="1" cy="14" rx="16" ry="5" className="amb-pawn__shadow" />
-                  <Token seat={t.seat} shine />
-                  <g transform="translate(13 -12)"><circle r="8" className="amb-pawn__badge" /><text y="4" className="amb-pawn__n">{fa(t.seat + 1)}</text></g>
+                <g key={t.seat} transform={`translate(${tx} ${ty})`}>
+                  <g data-flip={`pawn-${t.seat}`} className={t.seat === view.current && !view.outcome ? 'amb-pawn amb-pawn--turn' : 'amb-pawn'}>
+                    <ellipse cx="1" cy="14" rx="16" ry="5" className="amb-pawn__shadow" />
+                    <Token seat={t.seat} shine />
+                    <g transform="translate(13 -12)"><circle r="8" className="amb-pawn__badge" /><text y="4" className="amb-pawn__n">{fa(t.seat + 1)}</text></g>
+                  </g>
                 </g>
               );
             })}
