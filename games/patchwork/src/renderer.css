@@ -10,7 +10,8 @@
 .pw-track__sq { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-block-size: 1rem; border-radius: 3px; background: #ddd0b6; }
 .pw-track__sq--inc { background: #c79a4a; box-shadow: inset 0 0 0 2px #8a5f1a; }
 .pw-track__sq--lea { background: #8a5a2b; }
-.pw-pawn { position: absolute; inline-size: 70%; block-size: 70%; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); transition: all 0.3s; }
+.pw-pawn-slot { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.pw-pawn { display: block; inline-size: 70%; block-size: 70%; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
 .pw-pawn--me { background: #2f7fc1; border: 2px solid #fff; }
 .pw-pawn--opp { background: #d2452f; border: 2px solid #fff; translate: 25% 25%; }
 
@@ -19,7 +20,7 @@
 .pw-pl--turn { box-shadow: 0 0 0 2px #ffd98a; }
 .pw-pl--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.15); }
 .pw-pl__name { font-weight: 800; }
-.pw-pl__btns { display: inline-flex; gap: 0.2rem; align-items: center; font-weight: 900; color: #ffe1a0; animation: pw-bump 0.4s ease-out; }
+.pw-pl__btns { display: inline-flex; gap: 0.2rem; align-items: center; font-weight: 900; color: #ffe1a0; }
 .pw-pl__btns .pw-btn { inline-size: 0.9rem; block-size: 0.9rem; }
 .pw-pl__bonus { padding: 0 0.4rem; border-radius: 999px; background: #3f9a4a; color: #fff; font-weight: 800; }
 .pw-pl__score { color: #ffe1a0; font-weight: 800; }
@@ -54,6 +55,5 @@ button.pw-cell { cursor: pointer; }
 .pw-hint { animation: pw-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 
 @keyframes pw-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes pw-bump { 40% { transform: scale(1.25); } }
 @keyframes pw-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .pw * { animation: none !important; transition: none !important; } }

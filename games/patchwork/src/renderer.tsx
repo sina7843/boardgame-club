@@ -2,8 +2,8 @@
 // patches of the circle (the first three can be bought), and the 9×9 quilts. Choose a patch, turn or flip it, tap
 // where its corner goes (a preview shows if it fits), then «بدوز».
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -21,14 +21,15 @@ export function Shape({ id, rot = 0, flip = false, cell = 0.7 }: { id: number; r
   );
 }
 
-function Quilt({ q, big, preview, ok, onCell, hintCell }: { q: (number | null)[][]; big?: boolean; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
+function Quilt({ q, was, big, preview, ok, onCell, hintCell }: { q: (number | null)[][]; was?: (number | null)[][]; big?: boolean; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
   return (
     <div className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label="لحاف">
       {q.map((row, r) => row.map((id, c) => {
         const k = `${r},${c}`;
+        const fresh = !!was && id !== null && was[r]![c] === null;
         const pv = preview?.has(k);
-        const cls = ['pw-cell', fabric(id) ?? '', pv ? (ok ? 'pw-cell--ok' : 'pw-cell--bad') : '', hintCell && hintCell[0] === r && hintCell[1] === c ? 'pw-hint' : ''].join(' ');
-        const style = id !== null && id >= 0 && id < 98 ? { ['--h' as string]: hue(id) } : undefined;
+        const cls = ['pw-cell', fabric(id) ?? '', pv ? (ok ? 'pw-cell--ok' : 'pw-cell--bad') : '', hintCell && hintCell[0] === r && hintCell[1] === c ? 'pw-hint' : '', fresh ? 'bg-land' : ''].join(' ');
+        const style = { ...(id !== null && id >= 0 && id < 98 ? { ['--h' as string]: hue(id) } : {}), ...(fresh ? { ['--i' as string]: (r + c) % 6 } : {}) };
         return onCell
           ? <button key={k} type="button" className={cls} style={style} onClick={() => onCell(r, c)} aria-label={`ردیف ${fa(r + 1)} ستون ${fa(c + 1)}`} />
           : <span key={k} className={cls} style={style} />;
@@ -43,6 +44,10 @@ export default function PatchworkRenderer({ view, legalActions, mySeat, seatName
   const canAdvance = legalActions.some((a) => a.type === 'advance');
   const leather = legalActions.some((a) => a.type === 'leather');
   const buyable = new Set(legalActions.filter((a) => a.type === 'buy').map((a) => a.patch as number));
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const before = usePrevious(view.seq, view.quilts);
+  const beforeBtns = usePrevious(view.seq, view.buttons);
   const [pick, setPick] = useState<number | null>(null);
   const [rot, setRot] = useState(0);
   const [flip, setFlip] = useState(false);
@@ -70,14 +75,14 @@ export default function PatchworkRenderer({ view, legalActions, mySeat, seatName
   };
 
   return (
-    <div className="pw" data-seq={view.seq}>
+    <div className="pw" data-seq={view.seq} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="pw-track" aria-label="مسیر زمان">
         {Array.from({ length: END + 1 }, (_, i) => (
           <span key={i} className={['pw-track__sq', INCOME.includes(i) ? 'pw-track__sq--inc' : '', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')}>
-            {view.pos[me] === i && <i className="pw-pawn pw-pawn--me" title="شما" />}
-            {view.pos[opp] === i && <i className="pw-pawn pw-pawn--opp" title={who(opp)} />}
+            {view.pos[me] === i && <span data-flip={`pawn-${me}`} className="pw-pawn-slot"><i className="pw-pawn pw-pawn--me" title="شما" /></span>}
+            {view.pos[opp] === i && <span data-flip={`pawn-${opp}`} className="pw-pawn-slot"><i className="pw-pawn pw-pawn--opp" title={who(opp)} /></span>}
           </span>
         ))}
       </section>
@@ -86,7 +91,7 @@ export default function PatchworkRenderer({ view, legalActions, mySeat, seatName
         {[me, opp].map((k) => (
           <li key={k} className={['pw-pl', view.current === k && !view.outcome ? 'pw-pl--turn' : '', view.outcome?.placements[0]?.seat === k ? 'pw-pl--win' : ''].join(' ')}>
             <bdi className="pw-pl__name">{who(k)}</bdi>
-            <span className="pw-pl__btns" key={view.buttons[k]}><b className="pw-btn" />{fa(view.buttons[k]!)}</span>
+            <span className={`pw-pl__btns ${beforeBtns && beforeBtns[k] !== view.buttons[k] ? 'bg-pop' : ''}`} key={view.buttons[k]}><b className="pw-btn" />{fa(view.buttons[k]!)}</span>
             <span>درآمد {fa(view.income[k]!)}</span>
             <span>خالی {fa(emptyCount(view.quilts[k]!))}</span>
             <span>زمان {fa(view.pos[k]!)}/{fa(END)}</span>
@@ -102,7 +107,7 @@ export default function PatchworkRenderer({ view, legalActions, mySeat, seatName
             const p = PATCHES[id]!;
             const can = buyable.has(id) && !busy;
             return (
-              <button key={id} type="button" disabled={!can} aria-pressed={pick === id} onClick={() => { setPick(pick === id ? null : id); setRot(0); setFlip(false); setAt(null); }}
+              <button key={id} type="button" data-flip={`patch-${id}`} disabled={!can} aria-pressed={pick === id} onClick={() => { setPick(pick === id ? null : id); setRot(0); setFlip(false); setAt(null); }}
                 className={['pw-patch', offer.has(id) ? 'pw-patch--offer' : '', pick === id ? 'pw-patch--on' : '', hint?.type === 'buy' && hint.patch === id && pick !== id ? 'pw-hint' : ''].join(' ')}
                 aria-label={`تکه: ${fa(p.cost)} دکمه، ${fa(p.time)} زمان، درآمد ${fa(p.buttons)}`}>
                 <Shape id={id} />
@@ -124,9 +129,9 @@ export default function PatchworkRenderer({ view, legalActions, mySeat, seatName
       )}
 
       <div className="pw__quilts">
-        <Quilt q={q} big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
+        <Quilt q={q} was={before?.[me]} big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
           hintCell={hint?.type === 'buy' && pick !== null && !at && hint.row !== undefined ? [hint.row, hint.col!] : null} />
-        <div className="pw__opp"><bdi>{who(opp)}</bdi><Quilt q={view.quilts[opp]!} /></div>
+        <div className="pw__opp"><bdi>{who(opp)}</bdi><Quilt q={view.quilts[opp]!} was={before?.[opp]} /></div>
       </div>
 
       {canAdvance && !view.outcome && (
