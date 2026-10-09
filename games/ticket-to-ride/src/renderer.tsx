@@ -3,7 +3,7 @@
 // (colour + locomotives), own hand and tickets, players, final scores and log. Shows only the projection.
 import './renderer.css';
 import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
 import { BOARDS, COLORS, COLOR_FA, LOCO, ROUTE_POINTS, TRAINS, type Board, type MapId } from './board.ts';
 import { CAR_H, CITY_R, layoutOf, type Pt } from './geometry.ts';
 import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SEAT_TRAIN, SHADES, colorIx } from './art.tsx';
@@ -111,9 +111,10 @@ interface MapProps {
   label: (r: number) => string;
   onPick: (r: number) => void;
   seatName: (s: number) => string;
+  wasOwner?: TtrView['owner'];
 }
 
-function TtrMap({ view, board, claimable, selected, hinted, cityMarks, label, onPick, seatName }: MapProps) {
+function TtrMap({ view, board, claimable, selected, hinted, cityMarks, label, onPick, seatName, wasOwner }: MapProps) {
   const L = layoutOf(view.map);
   const key = (r: number) => (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(r); } };
   const lastClaim = [...view.log].reverse().find((e) => e.t === 'claim');
@@ -130,11 +131,13 @@ function TtrMap({ view, board, claimable, selected, hinted, cityMarks, label, on
           const [x, y] = L.track[pts % 100]!;
           const stack = scores.slice(0, s).filter((o) => o % 100 === pts % 100).length;
           return (
-            <g key={s} transform={`translate(${x.toFixed(1)} ${(y - stack * 4).toFixed(1)})`} className="ttr-marker">
-              <title>{`${seatName(s)}: ${fa(pts)}`}</title>
-              <ellipse cx="0.8" cy="2.6" rx="6.6" ry="3" fill="#000" opacity="0.35" />
-              <rect x="-6" y="-5.5" width="12" height="9" rx="2" fill={`url(#ttr-s-${s})`} stroke="#120c05" strokeWidth="1" />
-              <text y="1.9" className="ttr-marker__n" fill={SEAT_INK[s]}>{fa(s + 1)}</text>
+            <g key={s} data-flip={`score-${s}`}>
+              <g transform={`translate(${x.toFixed(1)} ${(y - stack * 4).toFixed(1)})`} className="ttr-marker">
+                <title>{`${seatName(s)}: ${fa(pts)}`}</title>
+                <ellipse cx="0.8" cy="2.6" rx="6.6" ry="3" fill="#000" opacity="0.35" />
+                <rect x="-6" y="-5.5" width="12" height="9" rx="2" fill={`url(#ttr-s-${s})`} stroke="#120c05" strokeWidth="1" />
+                <text y="1.9" className="ttr-marker__n" fill={SEAT_INK[s]}>{fa(s + 1)}</text>
+              </g>
             </g>
           );
         })}
@@ -165,7 +168,7 @@ function TtrMap({ view, board, claimable, selected, hinted, cityMarks, label, on
                       : <path d={`M${-s.len / 2 + 3} 2.6 H${s.len / 2 - 3}`} className="ttr-slot__tie" stroke={ON[ci]} />}
                   </>
                 ) : (
-                  <g className="ttr-car" style={{ ['--k' as string]: k }}><Car len={s.len} seat={owner} /></g>
+                  <g className={`ttr-car ${wasOwner && (wasOwner[i] ?? null) === null ? 'bg-land' : ''}`} style={{ ['--i' as string]: k }}><Car len={s.len} seat={owner} /></g>
                 )}
               </g>
             ))}
@@ -238,7 +241,7 @@ function MiniMap({ map, a, b }: { map: MapId; a: number; b: number }) {
   );
 }
 
-function Ticket({ board, id, done, checked, onToggle, disabled }: { board: Board; id: number; done?: boolean; checked?: boolean; onToggle?: () => void; disabled?: boolean }) {
+function Ticket({ board, id, done, checked, onToggle, disabled, flip, from }: { board: Board; id: number; done?: boolean; checked?: boolean; onToggle?: () => void; disabled?: boolean; flip?: string; from?: string }) {
   const t = board.tickets[id]!;
   const text = `بلیت ${ticketName(board, id)}، ${fa(t.points)} امتیاز${done === undefined ? '' : done ? '، کامل شده' : '، هنوز کامل نشده'}`;
   const body = (
@@ -254,8 +257,8 @@ function Ticket({ board, id, done, checked, onToggle, disabled }: { board: Board
     </>
   );
   return onToggle
-    ? <button type="button" className="ttr-ticket ttr-ticket--pick" aria-pressed={!!checked} aria-label={text} disabled={disabled} onClick={onToggle}>{body}</button>
-    : <span className={done ? 'ttr-ticket ttr-ticket--done' : 'ttr-ticket'} role="img" aria-label={text}>{body}</span>;
+    ? <button type="button" className="ttr-ticket ttr-ticket--pick" aria-pressed={!!checked} aria-label={text} disabled={disabled} onClick={onToggle} data-flip={flip} data-flip-from={from}>{body}</button>
+    : <span className={done ? 'ttr-ticket ttr-ticket--done' : 'ttr-ticket'} role="img" aria-label={text} data-flip={flip} data-flip-from={from}>{body}</span>;
 }
 
 /** Small stat icons for the player boards. */
@@ -293,6 +296,19 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
   useEffect(() => { setKept(view.myOffer ? [...view.myOffer] : []); }, [offerKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const latest = view.log.at(-1);
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, latest?.seq ?? 0);
+  const before = usePrevious(latest?.seq ?? 0, view);
+  const pop = (a: unknown, b: unknown) => (before && a !== b ? 'bg-pop' : '');
+  // Face-up row: a slot whose card changed gets a new generation, so the refill is a new piece that flies in from the deck.
+  const gen = useRef<{ seq: number; g: number[]; cols: (number | null)[] }>({ seq: -1, g: [], cols: [] });
+  if (gen.current.seq !== (latest?.seq ?? 0)) {
+    const p = gen.current;
+    gen.current = { seq: latest?.seq ?? 0, g: view.market.map((c, i) => (p.seq < 0 ? 0 : c !== p.cols[i] ? (p.g[i] ?? 0) + 1 : p.g[i] ?? 0)), cols: [...view.market] };
+  }
+  const mine = latest && 'seat' in latest && latest.seat === mySeat;
+  const handFrom = mine ? (latest.t === 'market' ? 'market' : latest.t === 'deck' ? 'deck' : undefined) : undefined;
+  const wasTickets = new Set([...(before?.myTickets ?? []).map((t) => t.id), ...(before?.myOffer ?? [])]);
   const [announce, setAnnounce] = useState('');
   const seen = useRef(latest?.seq ?? 0);
   useEffect(() => {
@@ -349,13 +365,13 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
   const pickedOk = keepHint ? kept.length >= (keepHint.min as number) : false;
 
   return (
-    <div className="ttr">
+    <div className="ttr" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       <div className="ttr__meta">
         <span className="ttr-chipmeta ttr-chipmeta--turn">نقشه {board.nameFa}{view.phase === 'play' ? ` · نوبت ${fa(view.turn)}` : ''}</span>
-        <span className="ttr-chipmeta">کارت در دسته: {fa(view.deckCount)}</span>
-        <span className="ttr-chipmeta">بلیت در دسته: {fa(view.ticketDeckCount)}</span>
+        <span className={`ttr-chipmeta ${pop(before?.deckCount, view.deckCount)}`} key={`d${view.deckCount}`}>کارت در دسته: {fa(view.deckCount)}</span>
+        <span className={`ttr-chipmeta ${pop(before?.ticketDeckCount, view.ticketDeckCount)}`} key={`t${view.ticketDeckCount}`}>بلیت در دسته: {fa(view.ticketDeckCount)}</span>
         {view.finalLeft && !view.outcome && <span className="ttr-chipmeta ttr-chipmeta--final">دور پایانی: {fa(view.finalLeft.length)} نوبت مانده</span>}
       </div>
 
@@ -363,7 +379,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
         <div className="ttr-board-wrap">
           <ZoomBoard label={`نقشه ${board.nameFa}`}>
             <TtrMap view={view} board={board} claimable={myTurn && view.drew === 0 ? new Set(claims.keys()) : new Set()} selected={sel} hinted={hintedRoute}
-              cityMarks={cityMarks} label={routeLabel} onPick={pickRoute} seatName={seatName} />
+              cityMarks={cityMarks} label={routeLabel} onPick={pickRoute} seatName={seatName} wasOwner={before?.owner} />
           </ZoomBoard>
           <p className="ttr-help">مسیرهای قابل ساخت برجسته‌اند؛ روی یکی بزنید. حلقه سبز: شهر بلیت کامل‌شده شما، حلقه طلایی: شهر بلیت باز.</p>
         </div>
@@ -376,7 +392,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
               <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
               <div className="ttr-tickets">
                 {view.myOffer.map((id) => (
-                  <Ticket key={id} board={board} id={id} checked={kept.includes(id)} disabled={busy}
+                  <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" checked={kept.includes(id)} disabled={busy}
                     onToggle={() => { setKept((k) => (k.includes(id) ? k.filter((x) => x !== id) : [...k, id])); setFocusTicket(id); }} />
                 ))}
               </div>
@@ -427,9 +443,9 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
           {view.phase === 'play' && !view.outcome && (
             <section className="ttr-market" aria-label="کارت‌های رو و دسته">
               <h3>کارت‌های رو</h3>
-              <ul className="ttr-cards">
+              <ul className="ttr-cards" data-flip-anchor="market">
                 {view.market.map((c, i) => (
-                  <li key={i}>
+                  <li key={i} data-flip={`mk-${i}-${gen.current.g[i] ?? 0}`} data-flip-from="deck">
                     {c === null ? <span className="ttr-card ttr-card--empty" role="img" aria-label="خالی" /> : (
                       <button type="button" className={['ttr-card', exp?.type === 'drawMarket' && exp.slot === i ? 'ttr-hintbtn' : ''].join(' ')}
                         aria-label={`برداشتن کارت ${CARD_FA(c)}${c === LOCO ? ' (جای هر دو کارت)' : ''}`} disabled={busy || !myTurn || !slots.has(i)} onClick={() => act({ type: 'drawMarket', slot: i })}>
@@ -439,13 +455,13 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
                   </li>
                 ))}
                 <li>
-                  <button type="button" className={['ttr-card ttr-card--deck', exp?.type === 'drawDeck' ? 'ttr-hintbtn' : ''].join(' ')} aria-label={`کشیدن از دسته بسته (${fa(view.deckCount)} کارت)`}
+                  <button type="button" data-flip-anchor="deck" className={['ttr-card ttr-card--deck', exp?.type === 'drawDeck' ? 'ttr-hintbtn' : ''].join(' ')} aria-label={`کشیدن از دسته بسته (${fa(view.deckCount)} کارت)`}
                     disabled={busy || !myTurn || !has('drawDeck')} onClick={() => act({ type: 'drawDeck' })}>
                     <span className="ttr-deck" aria-hidden="true"><CardBack /><CardBack /><CardBack /><b className="ttr-deck__n">{fa(view.deckCount)}</b></span><span className="ttr-card__name">دسته بسته</span>
                   </button>
                 </li>
               </ul>
-              <div className="row">
+              <div className="row" data-flip-anchor="tickets">
                 <Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}>کشیدن ۳ بلیت مقصد</Button>
                 {has('pass') && <Button size="sm" variant="ghost" disabled={busy} onClick={() => act({ type: 'pass' })}>گذشتن از نوبت</Button>}
               </div>
@@ -460,7 +476,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
                 <ul className="ttr-handcards">
                   {hand.map((k, c) => (k > 0 ? (
                     <li key={c} className="ttr-handcard" role="img" aria-label={`${fa(k)} کارت ${CARD_FA(c)}`}>
-                      {Array.from({ length: Math.min(k, 3) }, (_, i) => <span key={i} className="ttr-handcard__layer" style={{ ['--l' as string]: i }}><CardArt c={c} /></span>)}<span className="ttr-handcard__n" aria-hidden="true">{fa(k)}</span><span className="ttr-handcard__name" aria-hidden="true">{CARD_FA(c)}</span>
+                      {Array.from({ length: Math.min(k, 3) }, (_, i) => <span key={i} className="ttr-handcard__layer" style={{ ['--l' as string]: i }} data-flip={`hl-${c}-${i}`} data-flip-from={i >= Math.min(before?.myHand?.[c] ?? 0, 3) ? handFrom : undefined}><CardArt c={c} /></span>)}<span className={`ttr-handcard__n ${pop(before?.myHand?.[c] ?? 0, k)}`} key={k} aria-hidden="true">{fa(k)}</span><span className="ttr-handcard__name" aria-hidden="true">{CARD_FA(c)}</span>
                     </li>
                   ) : null))}
                 </ul>
@@ -474,7 +490,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
               <div className="ttr-tickets">
                 {view.myTickets.map((t) => (
                   <span key={t.id} onPointerEnter={() => setFocusTicket(t.id)} onPointerLeave={() => setFocusTicket(null)}>
-                    <Ticket board={board} id={t.id} done={t.done} />
+                    <Ticket board={board} id={t.id} done={t.done} flip={`tk-${t.id}`} from={before && !wasTickets.has(t.id) ? 'tickets' : undefined} />
                   </span>
                 ))}
               </div>
@@ -521,7 +537,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
                       <bdi className="ttr-player__name">{seatName(s)}</bdi>
                       <span className="ttr-player__color">{SEAT_FA[s]} · صندلی {fa(s + 1)}{s === mySeat ? ' · شما' : ''}</span>
                     </span>
-                    <span className="ttr-player__score" aria-label={`${fa(view.routePoints[s] ?? 0)} امتیاز مسیر`}>{fa(view.routePoints[s] ?? 0)}</span>
+                    <span className={`ttr-player__score ${pop(before?.routePoints[s], view.routePoints[s])}`} key={`s${view.routePoints[s]}`} aria-label={`${fa(view.routePoints[s] ?? 0)} امتیاز مسیر`}>{fa(view.routePoints[s] ?? 0)}</span>
                   </span>
                   <span className="ttr-player__badges">
                     {turn && <span className="ttr-badge">نوبت</span>}
@@ -534,8 +550,8 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
                     <span className="ttr-stock__t">{fa(trains)} واگن</span>
                   </span>
                   <span className="ttr-player__counts">
-                    <span className="ttr-stat"><Icon kind="card" />{fa(view.handCounts[s] ?? 0)}<small>کارت</small></span>
-                    <span className="ttr-stat"><Icon kind="ticket" />{fa(view.ticketCounts[s] ?? 0)}<small>بلیت</small></span>
+                    <span className={`ttr-stat ${pop(before?.handCounts[s], view.handCounts[s])}`} key={`c${view.handCounts[s]}`}><Icon kind="card" />{fa(view.handCounts[s] ?? 0)}<small>کارت</small></span>
+                    <span className={`ttr-stat ${pop(before?.ticketCounts[s], view.ticketCounts[s])}`} key={`k${view.ticketCounts[s]}`}><Icon kind="ticket" />{fa(view.ticketCounts[s] ?? 0)}<small>بلیت</small></span>
                     <span className="ttr-stat"><Icon kind="path" />{fa(view.longest[s] ?? 0)}<small>بلندترین</small></span>
                   </span>
                 </li>
