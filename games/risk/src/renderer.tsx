@@ -3,7 +3,7 @@
 // attack with dice tray, occupation, fortification, players and log. Shows only the projection: other hands are counts.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import {
   CARD_FA, CONTINENTS, CONTINENT_OF, T, TERRITORY_FA, TERRITORY_IDS, cardKind, cardTerritory, isSet, setValue,
   type TerritoryId
@@ -128,12 +128,19 @@ function Ribbon({ x, y, text, tint, held, chip }: { x: number; y: number; text: 
   );
 }
 
+/** A number that bumps when it changes (the key remounts it so the animation replays). */
+function Pop({ v, className = '' }: { v: number; className?: string }) {
+  return <span key={v} className={`rk-num ${className} ${usePop(v)}`.trim()}>{fa(v)}</span>;
+}
+
 function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: (t: number) => void }) {
   const svg = useRef<SVGSVGElement>(null);
   const k = useMapScale(svg);
   const [hover, setHover] = useState<number | null>(null);
   const key = (t: number) => (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(t); } };
   const battle = view.lastBattle && view.lastBattle.turn === view.turn ? view.lastBattle : null;
+  // Effects only while the battle is the newest event: the defender's token shakes, a conquered one drops in.
+  const fresh = battle && view.log.at(-1)?.t === 'battle' ? battle : null;
   const wa = xMost(WRAP_LANE[0], -1), wk = xMost(WRAP_LANE[1], 1);
 
   // Tokens grow when the map is drawn small (phones) and are nudged apart where territories are tiny.
@@ -238,7 +245,7 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
           return (
             <g key={r.id} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)})`} className={['rk-piece', inBattle ? 'rk-piece--battle' : '', ms.selected === t ? 'rk-piece--sel' : ''].join(' ')}>
               {ms.kinds.get(t) && <circle r={R + 4} className={`rk-halo rk-halo--${ms.kinds.get(t)}`} />}
-              <g key={`${view.owner[t]}-${view.armies[t]}`} className="rk-piece__token"><ArmyToken seat={view.owner[t]!} n={n} r={R} lift={ms.selected === t} /></g>
+              <g key={`${view.owner[t]}-${view.armies[t]}`} className="rk-piece__token"><g className={fresh && fresh.to === t && fresh.conquered ? 'bg-land' : fresh && ((fresh.to === t && fresh.lossD > 0) || (fresh.from === t && fresh.lossA > 0)) ? 'bg-hit' : ''}><ArmyToken seat={view.owner[t]!} n={n} r={R} lift={ms.selected === t} /></g></g>
               {draft > 0 && <text x="0" y={-R - 4} className="rk-draft" fontSize={R * 0.78}>+{fa(draft)}</text>}
               {named && <text y={R + 12} className="rk-terr__name">{TERRITORY_FA[r.id]}</text>}
             </g>
@@ -289,7 +296,7 @@ function DiceTray({ view, name }: { view: RiskView; name: (s: number) => string 
         {dice.map((d, i) => {
           const r = res(i, side);
           return (
-            <span key={`${b.lossA}${b.lossD}${b.rounds}${i}`} className={['rk-tray__die', r ? `rk-tray__die--${r}` : ''].join(' ')}>
+            <span key={`${b.lossA}${b.lossD}${b.rounds}${i}`} style={{ ['--i' as string]: i }} className={['rk-tray__die bg-roll', r ? `rk-tray__die--${r}` : ''].join(' ')}>
               <DieFace value={d} side={side} />
               <span className="rk-mark">{r === 'win' ? '✓' : r === 'loss' ? '−۱' : '–'}</span>
             </span>
@@ -349,6 +356,10 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
     if (latest && latest.seq > seen.current) setAnnounce(describe(latest, seatName));
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
+
+  // Cards glide: a drawn card flies in from the deck.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, latest?.seq ?? 0);
 
   const act = (a: Hint) => { if (!busy) onAction(a); };
 
@@ -415,14 +426,14 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
   const hand = view.myHand ?? [];
 
   return (
-    <div className="rk">
+    <div className="rk" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       <div className="rk__meta">
         <span className="rk-chipmeta rk-chipmeta--turn">نوبت {fa(view.turn)} · {PHASE_FA[view.phase]}</span>
         <span className="rk-chipmeta">هدف: {view.goal === 'world' ? 'هر ۴۲ قلمرو' : '۳۰ قلمرو در پایان نوبت'}</span>
         <span className="rk-chipmeta">دسته بعدی: {fa(view.nextSetValue)} ارتش</span>
-        <span className="rk-chipmeta"><img src={CARD_BACK} alt="" aria-hidden="true" className="rk-deck" /> کارت در دسته: {fa(view.deckCount)}</span>
+        <span className="rk-chipmeta" data-flip-anchor="deck"><img src={CARD_BACK} alt="" aria-hidden="true" className="rk-deck" /> کارت در دسته: {fa(view.deckCount)}</span>
         <span className="rk-chipmeta">جابه‌جایی: {view.fortifyMode === 'connected' ? 'زنجیره‌ای' : 'فقط همسایه'}</span>
       </div>
 
@@ -451,7 +462,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
               {placing && (
                 <>
                   <div className="rk-medal-row">
-                    <span className="rk-medal" aria-hidden="true"><strong>{fa(available - drafted)}</strong><small>ارتش</small></span>
+                    <span className="rk-medal" aria-hidden="true"><strong><Pop v={available - drafted} /></strong><small>ارتش</small></span>
                     <p className="rk-big"><strong>{fa(available - drafted)}</strong> از {fa(available)} ارتش باقی است. روی قلمروهای خودتان بزنید (هر ضربه ۱ ارتش).</p>
                   </div>
                   {Object.keys(draft).length > 0 && (
@@ -537,7 +548,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                     const owned = t !== null && view.owner[t] === mySeat;
                     const text = `${CARD_FA[k]}${t !== null ? `، ${tFa(t)}${owned ? ' (قلمرو شما)' : ''}` : ''}`;
                     return (
-                      <li key={c} style={{ ['--i' as string]: idx }}>
+                      <li key={c} data-flip={`card-${c}`} data-flip-from="deck" style={{ ['--i' as string]: idx }}>
                         <button type="button" className={`rk-card rk-card--${k}`} aria-pressed={on} aria-label={text} disabled={busy || tradeSets.length === 0}
                           onClick={() => setPicked((p) => (on ? p.filter((x) => x !== c) : p.length < 3 ? [...p, c] : p))}>
                           <span className="rk-card__kind">{CARD_FA[k]}</span>
@@ -579,9 +590,9 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                       {view.status[s] === 'out' && <span className="rk-badge rk-badge--out">حذف شد</span>}
                     </span>
                     <span className="rk-player__counts" aria-label={`${fa(terr)} قلمرو، ${fa(armies)} ارتش، ${fa(view.handCounts[s] ?? 0)} کارت`}>
-                      <span className="rk-stat" aria-hidden="true"><StatIcon kind="terr" />{fa(terr)}<small>قلمرو</small></span>
-                      <span className="rk-stat" aria-hidden="true"><StatIcon kind="army" />{fa(armies)}<small>ارتش</small></span>
-                      <span className="rk-stat" aria-hidden="true"><StatIcon kind="card" />{fa(view.handCounts[s] ?? 0)}<small>کارت</small></span>
+                      <span className="rk-stat" aria-hidden="true"><StatIcon kind="terr" /><Pop v={terr} /><small>قلمرو</small></span>
+                      <span className="rk-stat" aria-hidden="true"><StatIcon kind="army" /><Pop v={armies} /><small>ارتش</small></span>
+                      <span className="rk-stat" aria-hidden="true"><StatIcon kind="card" /><Pop v={view.handCounts[s] ?? 0} /><small>کارت</small></span>
                     </span>
                     {conts.length > 0 && <span className="rk-player__conts">{conts.map((c) => <span key={c.id} role="img" aria-label={`${c.nameFa} +${fa(c.bonus)}`} className={`rk-flag rk-flag--${c.id}`}>+{fa(c.bonus)}</span>)}</span>}
                   </span>
