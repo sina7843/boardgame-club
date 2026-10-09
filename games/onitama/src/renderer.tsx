@@ -4,6 +4,10 @@
 import './renderer.css';
 import { useEffect, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import rM from './art/rM.webp';
+import rS from './art/rS.webp';
+import bM from './art/bM.webp';
+import bS from './art/bS.webp';
 import { TEMPLE, cardById, type OnitamaView, type Piece } from './rules.ts';
 
 const S = 120, M = 26, SIZE = 5 * S + 2 * M;
@@ -139,20 +143,12 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
 
 const pieceFa = (p: Piece, me: number) => `${(p[0] === 'r') === (me === 0) ? 'شما' : 'حریف'} — ${p[1] === 'M' ? 'استاد' : 'شاگرد'}`;
 
+// Piece art is cut from a generated sheet (see DECISIONS.md).
+const ART: Record<Piece, string> = { rM, rS, bM, bS };
+
 function Token({ x, y, p }: { x: number; y: number; p: Piece }) {
-  const red = p[0] === 'r';
-  const master = p[1] === 'M';
-  const r = master ? 42 : 33;
-  return (
-    <g filter="url(#oni-shadow)">
-      <circle cx={x} cy={y + 5} r={r} fill={red ? '#5e1308' : '#101a3a'} />
-      <circle cx={x} cy={y} r={r} fill={red ? '#c8361f' : '#2b3f8c'} stroke={red ? '#6e170a' : '#16224d'} strokeWidth="3" />
-      <circle cx={x} cy={y} r={r * 0.72} fill="none" stroke="#f4ead2" strokeWidth={master ? 4 : 3} opacity=".85" />
-      {master
-        ? <path d={`M${x - 16} ${y + 10} L${x - 20} ${y - 12} L${x - 8} ${y - 2} L${x} ${y - 18} L${x + 8} ${y - 2} L${x + 20} ${y - 12} L${x + 16} ${y + 10} Z`} fill="#f4ead2" />
-        : <circle cx={x} cy={y} r="7" fill="#f4ead2" />}
-    </g>
-  );
+  const w = p[1] === 'M' ? 104 : 90;
+  return <image href={ART[p]} x={x - w / 2} y={y - w / 2 - 4} width={w} height={w} filter="url(#oni-shadow)" />;
 }
 
 function MoveCard({ id, upside, selectable, selected, onSelect, incoming }: { id: string; upside?: boolean; selectable?: boolean; selected?: boolean; onSelect?: () => void; incoming?: boolean }) {

@@ -1,13 +1,16 @@
 // Catalog cover: an ink-lined rice-paper board with a vermilion master facing an indigo one, and a move card.
+import rM from './art/rM.webp';
+import rS from './art/rS.webp';
+import bM from './art/bM.webp';
+import bS from './art/bS.webp';
+
 export default function OnitamaCover({ title }: { title: string }) {
   const S = 36;
-  const token = (x: number, y: number, red: boolean, master: boolean) => (
-    <g filter="url(#onic-sh)">
-      <circle cx={x} cy={y} r={master ? 14 : 11} fill={red ? '#c8361f' : '#2b3f8c'} stroke={red ? '#6e170a' : '#16224d'} strokeWidth="1.5" />
-      <circle cx={x} cy={y} r={master ? 10 : 8} fill="none" stroke="#f4ead2" strokeWidth="1.4" />
-      {master ? <path d={`M${x - 6} ${y + 4} L${x - 7} ${y - 4} L${x - 3} ${y - 1} L${x} ${y - 7} L${x + 3} ${y - 1} L${x + 7} ${y - 4} L${x + 6} ${y + 4} Z`} fill="#f4ead2" /> : <circle cx={x} cy={y} r="2.5" fill="#f4ead2" />}
-    </g>
-  );
+  // Piece art is cut from a generated sheet (see DECISIONS.md).
+  const token = (x: number, y: number, red: boolean, master: boolean) => {
+    const w = master ? 34 : 28;
+    return <image href={red ? (master ? rM : rS) : (master ? bM : bS)} x={x - w / 2} y={y - w / 2 - 1} width={w} height={w} filter="url(#onic-sh)" />;
+  };
   return (
     <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true })} style={{ inlineSize: '100%', blockSize: '100%', direction: 'ltr' }}>
       <defs>
