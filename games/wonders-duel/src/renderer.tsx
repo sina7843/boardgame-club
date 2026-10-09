@@ -2,8 +2,8 @@
 // age, purple for guilds); uncovered cards lift and can be picked to build, sell or turn into a wonder. Between the two
 // cities runs the conflict track with its pawn and coin tokens; progress tokens sit on discs above it.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, useFresh, type GameRendererProps } from '@bg/ui';
 import artBrown from './art/col-brown.webp';
 import artGrey from './art/col-grey.webp';
 import artBlue from './art/col-blue.webp';
@@ -63,7 +63,7 @@ export function WonderPlate({ id, built, size = 'md' }: { id: number; built?: bo
     w.choice ? [...w.choice].map((r) => RES_FA[r as Res]).join('/') : '', w.replay ? 'نوبت دوباره' : '', w.destroy ? `نابودی ${COLOR_FA[w.destroy]}` : '',
     w.mausoleum ? 'ساخت از دورریز' : '', w.library ? 'نشان پنهان' : ''].filter(Boolean).join(' · ');
   return (
-    <span className={`wd-wonder wd-wonder--${size} ${built ? 'is-built' : ''}`} aria-label={`${w.name}${built ? ' (ساخته‌شده)' : ''}: ${fx}`}>
+    <span className={`wd-wonder wd-wonder--${size} ${built ? 'is-built bg-pop' : ''}`} aria-label={`${w.name}${built ? ' (ساخته‌شده)' : ''}: ${fx}`}>
       <span className="wd-wonder__name">{w.name}</span>
       <span className="wd-wonder__fx">{fx}</span>
       {size === 'md' && !built && <Cost cost={w.cost} />}
@@ -78,14 +78,14 @@ function City({ view, seat, label }: { view: DuelView; seat: number; label: stri
     <section className={`wd-city ${view.current === seat && !view.outcome ? 'wd-city--now' : ''}`} aria-label={`شهر ${label}`}>
       <div className="wd-city__head">
         <bdi className="wd-city__name">{label}</bdi>
-        <span className="wd-coin wd-coin--lg" key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>
-        {view.progress[seat]!.map((p) => <span key={p} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROGRESS_FA[p][0]}</span>)}
+        <span className="wd-coin wd-coin--lg bg-pop" key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>
+        {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROGRESS_FA[p][0]}</span>)}
       </div>
-      <div className="wd-city__wonders">{view.wonders[seat]!.map((w) => <WonderPlate key={w.id} id={w.id} built={w.built} size="sm" />)}</div>
+      <div className="wd-city__wonders">{view.wonders[seat]!.map((w) => <span key={w.id} className="wd-fly" data-flip={`w${w.id}`}><WonderPlate id={w.id} built={w.built} size="sm" /></span>)}</div>
       <div className="wd-city__cols">
         {colors.map((col) => {
           const xs = cards.filter((c) => c.color === col);
-          return xs.length ? <span key={col} className={`wd-stack wd-c--${col}`} title={xs.map((c) => c.name).join('، ')}>{xs.map((c) => <CardFace key={c.id} id={c.id} size="sm" />)}</span> : null;
+          return xs.length ? <span key={col} className={`wd-stack wd-c--${col}`} title={xs.map((c) => c.name).join('، ')}>{xs.map((c) => <span key={c.id} className="wd-fly" data-flip={`c${c.id}`}><CardFace id={c.id} size="sm" /></span>)}</span> : null;
         })}
         {!cards.length && <small>هنوز ساختمانی نیست</small>}
       </div>
@@ -98,6 +98,11 @@ type Hint = { type: string; slot?: number; token?: string; wonder?: number } | n
 export default function WondersDuelRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<DuelView>) {
   const me = mySeat ?? 0;
   const opp = 1 - me;
+  // Cards glide pyramid → city, wonders draft → city, progress tokens board → city; newly revealed pyramid cards flip face-up.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const fresh = useFresh(view.structure.filter((x) => !x.taken && x.card !== null).map((x) => `c${x.card}`));
+  let fi = 0;
   const hint = expected as unknown as Hint;
   const [pick, setPick] = useState<number | null>(null);
   useEffect(() => { setPick(null); }, [view.seq]);
@@ -122,7 +127,7 @@ export default function WondersDuelRenderer({ view, legalActions, mySeat, seatNa
   const rows = Math.max(...view.structure.map((x) => x.row), 0) + 1;
 
   return (
-    <div className="wd" data-seq={view.seq} data-phase={view.phase}>
+    <div className="wd" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <City view={view} seat={opp} label={who(opp)} />
 
@@ -144,16 +149,16 @@ export default function WondersDuelRenderer({ view, legalActions, mySeat, seatNa
         {view.progressBoard.map((p) => {
           const can = choosing && (choosing.kind === 'progress') && legalActions.some((a) => a.type === 'progress' && a.token === p);
           return can
-            ? <button key={p} type="button" className={`wd-token ${hint?.token === p ? 'wd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'progress', token: p })} title={PROGRESS_FA[p][1]}><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></button>
-            : <span key={p} className="wd-token" title={PROGRESS_FA[p][1]}><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></span>;
+            ? <button key={p} type="button" data-flip={`t${p}`} className={`wd-token ${hint?.token === p ? 'wd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'progress', token: p })} title={PROGRESS_FA[p][1]}><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></button>
+            : <span key={p} data-flip={`t${p}`} className="wd-token" title={PROGRESS_FA[p][1]}><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></span>;
         })}
       </div>
 
       {drafting.length > 0 || view.phase === 'draft' ? (
         <section className="wd-draft" aria-label="انتخاب شگفتی">
           {view.draftPool.map((w) => drafting.length
-            ? <button key={w} type="button" className="wd-pickw" disabled={busy} onClick={() => onAction({ type: 'draftWonder', wonder: w })}><WonderPlate id={w} /></button>
-            : <span key={w} className="wd-pickw"><WonderPlate id={w} /></span>)}
+            ? <button key={w} type="button" data-flip={`w${w}`} className="wd-pickw" disabled={busy} onClick={() => onAction({ type: 'draftWonder', wonder: w })}><WonderPlate id={w} /></button>
+            : <span key={w} data-flip={`w${w}`} className="wd-pickw"><WonderPlate id={w} /></span>)}
         </section>
       ) : (
         <section className="wd-age" aria-label={`دوران ${fa(view.age)}`}>
@@ -163,11 +168,15 @@ export default function WondersDuelRenderer({ view, legalActions, mySeat, seatNa
               if (x.taken) return null;
               const free = view.accessible.includes(i);
               const style = { insetInlineStart: `calc(${x.x} * var(--hw))`, insetBlockStart: `calc(${x.row} * var(--rh))`, zIndex: x.row + 1 };
-              const face = x.card !== null ? <CardFace id={x.card} /> : <span className={`wd-back wd-back--${x.back}`} aria-label="کارت پشت‌ورو" />;
+              const isNew = x.card !== null && fresh.has(`c${x.card}`);
+              const face = x.card !== null
+                ? <span className={isNew ? 'wd-flipwrap bg-flip-in' : 'wd-flipwrap'} style={isNew ? { ['--i' as string]: Math.min(fi++, 8) } : undefined}><CardFace id={x.card} /></span>
+                : <span className={`wd-back wd-back--${x.back}`} aria-label="کارت پشت‌ورو" />;
+              const fid = x.card !== null ? `c${x.card}` : `b${view.age}-${i}`;
               return free && myTurn
-                ? <button key={i} type="button" style={style} disabled={busy} aria-pressed={sel === i} onClick={() => setPick(sel === i ? null : i)}
+                ? <button key={i} type="button" data-flip={fid} data-flip-enter={isNew ? 'none' : undefined} style={style} disabled={busy} aria-pressed={sel === i} onClick={() => setPick(sel === i ? null : i)}
                   className={['wd-slot wd-slot--free', sel === i ? 'wd-slot--on' : '', hint?.slot === i && sel !== i ? 'wd-hint' : ''].join(' ')}>{face}</button>
-                : <span key={i} style={style} className={`wd-slot ${free ? 'wd-slot--free' : ''}`}>{face}</span>;
+                : <span key={i} data-flip={fid} data-flip-enter={isNew ? 'none' : undefined} style={style} className={`wd-slot ${free ? 'wd-slot--free' : ''}`}>{face}</span>;
             })}
           </div>
         </section>
