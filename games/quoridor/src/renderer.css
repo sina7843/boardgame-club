@@ -1,4 +1,4 @@
-/* کوریدور: oiled wood tiles in a dark frame, raised maple walls, glossy pawns in seat colours. Geometry LTR. */
+/* کوریدور: oiled wood tiles in a dark frame, raised maple walls, photoreal wooden pawns. Geometry LTR. */
 .qd { display: grid; gap: 0.75rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .qd > :first-child { justify-self: center; }
 .qd__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
@@ -6,7 +6,7 @@
   border: 1px solid rgb(255 255 255 / 0.08); font-size: 0.85rem; transition: box-shadow 0.25s; }
 .qd-pl--turn { box-shadow: 0 0 0 2px var(--pc), 0 6px 18px -6px var(--pc); }
 .qd-pl--out { opacity: 0.45; text-decoration: line-through; }
-.qd-pl__pawn { inline-size: 14px; block-size: 18px; border-radius: 50% 50% 30% 30%; background: var(--pc); box-shadow: inset 0 -3px 3px rgb(0 0 0 / 0.3); }
+.qd-pl__pawn { inline-size: 22px; block-size: 22px; object-fit: contain; }
 .qd-pl__name { font-weight: 800; }
 .qd-pl__walls { display: inline-flex; gap: 2px; }
 .qd-pl__walls i { inline-size: 3px; block-size: 12px; border-radius: 1px; background: #d9b37b; }
@@ -25,7 +25,6 @@
 .qd-wall--new { transform-box: fill-box; transform-origin: center; animation: qd-drop 0.4s cubic-bezier(.2, 1.4, .4, 1) both; }
 .qd-wall--preview { fill: rgb(255 210 122 / 0.55); stroke: #ffd27a; stroke-width: 2px; stroke-dasharray: 6 4; pointer-events: none; }
 .qd-pawn { transition: transform 0.35s cubic-bezier(.3, .9, .3, 1.1); }
-.qd-pawn__n { font: 900 20px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.4); stroke-width: 3px; }
 .qd-x { outline: none; }
 .qd-x--ok { cursor: pointer; }
 .qd-x__dot { fill: #ffd27a; opacity: 0.75; }
