@@ -1,8 +1,8 @@
 // جمجمه renderer: a dark tavern table; each player's stack of face-down coasters with their colour on the back, roses
 // and skulls revealed with a flip, your discs to place, a bid strip, and opponents' stacks to turn in the reveal.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import rose from './art/disc-rose.webp';
 import skull from './art/disc-skull.webp';
 import type { Disc, SkullView } from './rules.ts';
@@ -13,7 +13,7 @@ const SEAT = ['#d1495b', '#2f80c9', '#3fa34d', '#e0a526', '#8e5bd1', '#e07a2f'];
 // Revealed faces are cut from a generated sprite sheet (see DECISIONS.md); backs stay vector in the seat colour.
 function Coaster({ face, color, size = 'md', flip }: { face: Disc | 'back'; color: string; size?: 'sm' | 'md'; flip?: boolean }) {
   return (
-    <span className={['sk-disc', `sk-disc--${size}`, flip ? 'sk-disc--flip' : ''].join(' ')} style={{ ['--seat' as string]: color }}>
+    <span className={['sk-disc', `sk-disc--${size}`, flip ? 'bg-flip-in' : ''].join(' ')} style={{ ['--seat' as string]: color }}>
       <svg viewBox="-50 -50 100 100" aria-hidden="true">
         {face === 'back' ? (
           <>
@@ -47,10 +47,13 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
       : myTurn ? { tone: 'mine' as const, text: view.phase === 'first' ? 'یک دیسک رو به پایین بگذارید' : view.phase === 'bid' ? 'عدد بالاتر بگویید یا کنار بکشید' : 'دیسک بگذارید یا پیشنهاد بدهید' }
         : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
 
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, lastSeq);
   const lastLose = [...view.log].reverse().find((e) => e.t === 'lose-disc' && e.seq === lastSeq);
+  const hitSeat = view.log.at(-1)?.t === 'lose-disc' ? (view.log.at(-1) as { seat?: number }).seat : undefined;
 
   return (
-    <div className="sk" data-seq={lastSeq} data-phase={view.phase}>
+    <div className="sk" ref={root} data-seq={lastSeq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {view.bid && view.phase !== 'first' && (
         <p className="sk__bid" role="status">پیشنهاد <bdi>{who(view.bid.seat)}</bdi>: <strong>{fa(view.bid.n)}</strong> از {fa(view.maxBid)} دیسک</p>
@@ -64,9 +67,9 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
           const body = (
             <>
               <div className="sk-pl__head">
-                <span className="sk-pl__mat" aria-label={`${fa(view.points[s]!)} امتیاز از ۲`}>{[0, 1].map((k) => <i key={k} className={k < view.points[s]! ? 'on' : ''} />)}</span>
+                <span className="sk-pl__mat" aria-label={`${fa(view.points[s]!)} امتیاز از ۲`}>{[0, 1].map((k) => <i key={`${k}-${k < view.points[s]!}`} className={k < view.points[s]! ? 'on bg-pop' : ''} />)}</span>
                 <bdi className="sk-pl__name">{who(s)}</bdi>
-                {view.owned[s] === 0 ? <span className="sk-pl__out">بیرون</span> : <span className="sk-pl__owned">{fa(view.owned[s]!)} دیسک</span>}
+                {view.owned[s] === 0 ? <span className="sk-pl__out">بیرون</span> : <span className={s === hitSeat ? 'sk-pl__owned bg-hit' : 'sk-pl__owned'} key={`${view.owned[s]}-${s === hitSeat ? lastSeq : ''}`}>{fa(view.owned[s]!)} دیسک</span>}
                 {view.phase === 'bid' && view.passed[s] && <span className="sk-pl__pass">کنار کشید</span>}
               </div>
               <div className="sk-pl__stack" aria-label={`${fa(stack)} دیسک روی میز`}>
@@ -75,7 +78,7 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
                   const shown = turned[fromTop];
                   const own = s === mySeat && view.myStack ? view.myStack[k] : null;
                   return (
-                    <span key={k} className="sk-pl__slot" style={{ ['--k' as string]: k }}>
+                    <span key={k} className="sk-pl__slot" data-flip={`st-${s}-${k}`} data-flip-from={s === mySeat ? 'hand' : `seat-${s}`} style={{ ['--k' as string]: k }}>
                       <Coaster face={shown ? shown.disc : 'back'} color={SEAT[s % SEAT.length]!} flip={!!shown} />
                       {own && !shown && <span className={`sk-peek sk-peek--${own}`} title="فقط شما می‌بینید">{own === 'skull' ? 'جمجمه' : 'گل'}</span>}
                     </span>
@@ -86,7 +89,7 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
             </>
           );
           return (
-            <li key={s} className={['sk-pl', s === view.current && !view.outcome ? 'sk-pl--turn' : '', s === mySeat ? 'sk-pl--me' : ''].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['sk-pl', s === hitSeat ? 'bg-hit' : '', s === view.current && !view.outcome ? 'sk-pl--turn' : '', s === mySeat ? 'sk-pl--me' : ''].join(' ')}>
               {canFlip
                 ? <button type="button" className={['sk-pl__flip', hint?.type === 'flip' && hint.seat === s ? 'sk-hint' : ''].join(' ')} onClick={() => onAction({ type: 'flip', seat: s })} aria-label={`رو کردن دیسک بالایی ${who(s)}`}>{body}<span className="sk-pl__cta">رو کن</span></button>
                 : body}
@@ -97,9 +100,9 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
 
       {view.hand && view.owned[me] && !view.outcome ? (
         <div className="sk__mine">
-          <div className="sk__hand" role="group" aria-label="دیسک‌های دست شما">
+          <div className="sk__hand" data-flip-anchor="hand" role="group" aria-label="دیسک‌های دست شما">
             {view.hand.map((d, k) => (
-              <button key={k} type="button" className={['sk-handdisc', hint?.type === 'place' && hint.disc === d ? 'sk-hint' : ''].join(' ')} disabled={busy || !placeable.has(d)}
+              <button key={k} type="button" data-flip={`hd-${d}-${view.hand!.slice(0, k).filter((x) => x === d).length}`} className={['sk-handdisc', hint?.type === 'place' && hint.disc === d ? 'sk-hint' : ''].join(' ')} disabled={busy || !placeable.has(d)}
                 onClick={() => onAction({ type: 'place', disc: d })} aria-label={d === 'skull' ? 'گذاشتن جمجمه' : 'گذاشتن گل'}>
                 <Coaster face={d} color={SEAT[me % SEAT.length]!} />
               </button>
