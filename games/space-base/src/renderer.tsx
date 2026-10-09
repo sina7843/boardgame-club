@@ -2,7 +2,8 @@
 // red sum of deployed ships below); dice glow on the bays they hit; the shipyard shows three levels of ships with
 // cost, sector, blue/red rewards and purchase bonus. Rivals appear as compact strips of their red income per sector.
 import './renderer.css';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useRef } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import scout from './art/ship-scout.webp';
 import freighter from './art/ship-freighter.webp';
 import cruiser from './art/ship-cruiser.webp';
@@ -16,8 +17,8 @@ const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0,
 // Ship paintings are cut from a generated sprite sheet (see DECISIONS.md); picked by cost tier (costs run 0-14).
 const shipArt = (cost: number) => (cost <= 5 ? scout : cost <= 9 ? freighter : cost <= 13 ? cruiser : station);
 
-export function Die({ n }: { n: number }) {
-  return <span className="sb-die" aria-label={`تاس ${fa(n)}`}>{Array.from({ length: 9 }, (_, i) => <i key={i} className={PIPS[n]!.includes(i) ? 'on' : ''} />)}</span>;
+export function Die({ n, i = 0 }: { n: number; i?: number }) {
+  return <span className="sb-die bg-roll" style={{ ['--i' as string]: i }} aria-label={`تاس ${fa(n)}`}>{Array.from({ length: 9 }, (_, i) => <i key={i} className={PIPS[n]!.includes(i) ? 'on' : ''} />)}</span>;
 }
 
 export function ShipCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }) {
@@ -39,6 +40,12 @@ type Hint = { type: string; use?: string; ship?: number } | null;
 
 export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SbView>) {
   const me = mySeat ?? 0;
+  // Ships glide shipyard → the bay of their sector, new shop ships drop in from their deck; dice tumble once per roll.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const roll = useRef({ n: 0, phase: view.phase });
+  if (view.phase === 'choose' && roll.current.phase !== 'choose') roll.current.n += 1;
+  roll.current.phase = view.phase;
   const hint = expected as unknown as Hint;
   const has = (t: string) => legalActions.some((a) => a.type === t);
   const buyable = new Set(legalActions.filter((a) => a.type === 'buy').map((a) => a.ship as number));
@@ -52,6 +59,9 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
   const gain = (s: number) => view.gains.find((g) => g.seat === s);
   const mine = view.boards[me]!;
 
+  // The bay a ship was just bought into takes over the shop card's motion id, so the card glides into its sector.
+  const landed = (seat: number, i: number) => (view.last?.kind === 'buy' && view.last.seat === seat && view.last.ship !== undefined && SHIPS[view.last.ship]!.sector === i + 1 ? `s${view.last.ship}` : undefined);
+
   const Bays = ({ seat, compact }: { seat: number; compact?: boolean }) => {
     const b = view.boards[seat]!;
     return (
@@ -61,10 +71,10 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
           return (
             <span key={i} className={`sb-bay ${lit.includes(i + 1) ? 'sb-bay--lit' : ''}`}>
               <b className="sb-bay__n">{fa(i + 1)}</b>
-              {compact ? <span className="sb-bay__red">{b.deployed[i]!.length ? rw(red) : ''}</span> : (
+              {compact ? <span className="sb-bay__red" data-flip={landed(seat, i)}>{b.deployed[i]!.length ? rw(red) : ''}</span> : (
                 <>
                   <span className="sb-bay__blue" title={SHIPS[st]!.name}>{rw(SHIPS[st]!.blue)}</span>
-                  <span className="sb-bay__red">{b.deployed[i]!.length ? `${rw(red)} ×${fa(b.deployed[i]!.length)}` : ''}</span>
+                  <span className="sb-bay__red" data-flip={landed(seat, i)}>{b.deployed[i]!.length ? `${rw(red)} ×${fa(b.deployed[i]!.length)}` : ''}</span>
                 </>
               )}
             </span>
@@ -75,7 +85,7 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
   };
 
   return (
-    <div className="sb" data-seq={view.seq} data-phase={view.phase}>
+    <div className="sb" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <ul className="sb-rivals" aria-label="بازیکنان">
@@ -83,7 +93,7 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
           <li key={k} className={`sb-rival ${k === view.current && !view.outcome ? 'sb-rival--now' : ''}`}>
             <div className="sb-rival__head">
               <bdi>{who(k)}</bdi>
-              <span className="sb-vp" key={b.vp}>{fa(b.vp)}★</span>
+              <span className="sb-vp bg-pop" key={b.vp}>{fa(b.vp)}★</span>
               <span>{fa(b.credits)}¢ · درآمد {fa(b.income)}</span>
               {gain(k) && (gain(k)!.credits || gain(k)!.vp) ? <span className="sb-gain">+{rw(gain(k))}</span> : null}
             </div>
@@ -93,7 +103,7 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
       </ul>
 
       <section className="sb-console" aria-label="تاس‌ها">
-        {view.dice ? <span className="sb-dice" key={view.seq}><Die n={view.dice[0]} /><Die n={view.dice[1]} /></span> : <small>هنوز تاسی ریخته نشده</small>}
+        {view.dice ? <span className="sb-dice" key={roll.current.n}><Die n={view.dice[0]} /><Die n={view.dice[1]} i={1} /></span> : <small>هنوز تاسی ریخته نشده</small>}
         {has('roll') && <Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'roll' })}>ریختن تاس‌ها</Button>}
         {has('choose') && view.dice && <>
           <Button size="sm" variant="secondary" disabled={busy} className={hint?.use === 'separate' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'separate' })}>بخش {fa(view.dice[0])} و {fa(view.dice[1])}</Button>
@@ -105,10 +115,10 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
       <section className="sb-yard" aria-label="کارگاه ناو">
         {view.shop.map((row, l) => (
           <div key={l} className="sb-yard__row">
-            <small className="sb-yard__lvl">{['سبک', 'میانه', 'سنگین'][l]} · {fa(view.deckCounts[l]!)}</small>
+            <small className="sb-yard__lvl" data-flip-anchor={`deck-${l}`}>{['سبک', 'میانه', 'سنگین'][l]} · {fa(view.deckCounts[l]!)}</small>
             {row.map((id) => {
               const can = buyable.has(id);
-              return <button key={id} type="button" disabled={busy || !can} onClick={() => onAction({ type: 'buy', ship: id })}
+              return <button key={id} type="button" data-flip={`s${id}`} data-flip-from={`deck-${l}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', ship: id })}
                 className={['sb-pick', can ? 'sb-pick--can' : '', hint?.ship === id ? 'sb-hint' : ''].join(' ')}><ShipCard id={id} /></button>;
             })}
           </div>
@@ -118,8 +128,8 @@ export default function SpaceBaseRenderer({ view, legalActions, mySeat, seatName
       <section className={`sb-me ${view.current === me && !view.outcome ? 'sb-me--now' : ''}`} aria-label="پایگاه شما">
         <div className="sb-me__head">
           <bdi>{who(me)}</bdi>
-          <span className="sb-vp sb-vp--lg" key={mine.vp}>{fa(mine.vp)} از {fa(GOAL)} امتیاز</span>
-          <span className="sb-credits" key={mine.credits}>{fa(mine.credits)}¢</span>
+          <span className="sb-vp sb-vp--lg bg-pop" key={mine.vp}>{fa(mine.vp)} از {fa(GOAL)} امتیاز</span>
+          <span className="sb-credits bg-pop" key={mine.credits}>{fa(mine.credits)}¢</span>
           <span>درآمد {fa(mine.income)}</span>
           {gain(me) && (gain(me)!.credits || gain(me)!.vp) ? <span className="sb-gain">+{rw(gain(me))}</span> : null}
         </div>
