@@ -33,7 +33,7 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
       <div className="sb__round">
         <div className="sb__prize" aria-label={`دور ${fa(view.round)} از ${fa(ROUNDS)}، جایزه ${fa(view.prize ?? 0)} امتیاز`}>
           <span className="muted">دور {fa(view.round)} از {fa(ROUNDS)}</span>
-          {view.prize !== null && <strong>جایزه {fa(view.prize)} امتیاز</strong>}
+          {view.prize !== null && <strong key={view.round} className="bg-land">جایزه {fa(view.prize)} امتیاز</strong>}
         </div>
         {status && <TurnIndicator tone={playable.size > 0 ? 'mine' : iSubmitted ? 'done' : 'wait'}>{status}</TurnIndicator>}
       </div>
@@ -46,7 +46,7 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
             {seats.map((s) => (
               <tr key={s}>
                 <th scope="row" style={{ fontWeight: s === mySeat ? 800 : 600 }}><bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}</th>
-                <td className="num">{fa(view.scores[s] ?? 0)}</td>
+                <td className="num"><span key={view.scores[s] ?? 0} className="bg-pop">{fa(view.scores[s] ?? 0)}</span></td>
                 <td>
                   {!view.outcome && view.submitted[s] && !view.resigned[s] && <span className="sb-wax sb-wax--sm" aria-hidden="true" />}
                   {view.outcome ? '-' : view.resigned[s] ? 'انصراف (ثبت خودکار)' : view.submitted[s] ? '✓ مهر شد' : '… در انتظار'}
@@ -61,7 +61,7 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
       {view.history.length > 0 && (
         <div key={view.history.length} className="sb-reveal" aria-hidden="true">
           {view.history[view.history.length - 1]!.bids.map((b, s) => (
-            <span key={s} className={`sb-chip sb-chip--${b}${view.history[view.history.length - 1]!.winner === s ? ' sb-chip--win' : ''}`} style={{ ['--k' as string]: s }}>{fa(b)}{view.history[view.history.length - 1]!.winner === s && <span className="sb-chip__star">★</span>}</span>
+            <span key={s} className={`sb-chip bg-flip-in sb-chip--${b}${view.history[view.history.length - 1]!.winner === s ? ' sb-chip--win' : ''}`} style={{ ['--i' as string]: s }}>{fa(b)}{view.history[view.history.length - 1]!.winner === s && <span className="sb-chip__star">★</span>}</span>
           ))}
         </div>
       )}
@@ -90,7 +90,7 @@ export default function SealedBidsRenderer({ view, legalActions, mySeat, seatNam
         <ActionBar label="دست شما">
           {view.myBid !== null ? (
             <>
-              <span className="sb-env" aria-hidden="true"><span className="sb-wax" /></span>
+              <span className="sb-env bg-land" aria-hidden="true"><span className="sb-wax" /></span>
               <span>پیشنهاد مهرشده شما: <strong className="num">{fa(view.myBid)}</strong>؛ تا پایان دور قابل تغییر نیست.</span>
             </>
           ) : (
