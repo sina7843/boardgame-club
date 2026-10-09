@@ -289,7 +289,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={push}>
       {children}
-      <div className="toasts pointer-events-none fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-60 flex flex-col items-center gap-2 sm:start-4 sm:end-auto sm:w-[360px] sm:items-stretch max-lg:bottom-[calc(5.5rem+env(safe-area-inset-bottom))]" aria-live="polite" aria-atomic="false">
+      <div className="toasts pointer-events-none fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-60 flex flex-col items-stretch gap-2 sm:left-auto sm:right-4 sm:w-[360px]" aria-live="polite" aria-atomic="false">
         {items.map((t) => (
           <div key={t.id} className={cn('toast w-full', `toast--${t.tone}`)}>
             <ToastCard toast={{ title: t.text, variant: t.tone === 'info' ? 'default' : t.tone }} onClose={() => setItems((x) => x.filter((i) => i.id !== t.id))} />

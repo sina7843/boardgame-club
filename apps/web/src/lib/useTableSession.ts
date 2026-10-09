@@ -104,7 +104,7 @@ export function useTableSession(tableId: string, invite: string | null) {
   return { snapshot, accept, loadError, reload, pending, queued, cancelQueued, notice, setNotice, act, resendPending, dropPending, live, clockOffset };
 }
 
-/** Undo window in ms (default 2 s). `bg.undoMs` in localStorage overrides it; E2E runs set 0. */
+/** Undo window in ms (default 1 s). `bg.undoMs` in localStorage overrides it; E2E runs set 0. */
 function undoMs(): number {
-  try { const v = Number(localStorage.getItem('bg.undoMs') ?? NaN); return Number.isFinite(v) ? v : 2000; } catch { return 2000; }
+  try { const v = Number(localStorage.getItem('bg.undoMs') ?? NaN); return Number.isFinite(v) ? v : 1000; } catch { return 1000; }
 }

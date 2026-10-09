@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import type { MessageItem, TableSnapshot } from '@bg/contracts';
 import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Maximize2, Medal, Minimize2, Trophy } from 'lucide-react';
@@ -389,6 +390,9 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       <div className="game__main stack">
         <PlayerBoards snap={snap} strip />
 
+        {/* Notices float as popups in the top-right corner instead of pushing the board around. */}
+        {/* Rendered at the root: the page-enter transform would make .game the box 'fixed' is measured against. */}
+        {createPortal(<div className="table-pops">
         {snap.incident && <div className="banner banner--warn" role="status" style={{ margin: 0 }}><Icon name="alert" />توقف سراسری: {snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.</div>}
         {s.notice && <div className="banner banner--warn" role="alert" style={{ margin: 0 }}>{s.notice} <Button variant="ghost" size="sm" onClick={() => s.setNotice(null)}>باشه</Button></div>}
         {s.queued && (
@@ -409,6 +413,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             )}
           </div>
         )}
+        </div>, (full.on && document.fullscreenElement) || document.body)}
 
         {g.tutorial && !finished && (
           <section className="panel tutorial" aria-labelledby="tut-h">
