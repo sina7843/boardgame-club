@@ -2,8 +2,8 @@
 // are vellum plates showing cost gems, what they collect each round and their power (pay → gain, ★ for points).
 // Places of power and monuments wait on a velvet shelf; your mage and artifacts sit in front of you.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import artE from './art/ess-e.webp';
 import artL from './art/ess-l.webp';
 import artC from './art/ess-c.webp';
@@ -14,8 +14,9 @@ import { CARDS, ESS, ESS_FA, type Ess, type Pile, type RaView } from './rules.ts
 // Painted crystals cut from a generated sheet (see DECISIONS.md), shown as round essence icons.
 const art = (k: Ess) => ({ backgroundImage: `url(${{ e: artE, l: artL, c: artC, d: artD, g: artG }[k]})` });
 const fa = (n: number) => n.toLocaleString('fa-IR');
-export function Gems({ pile, empty }: { pile: Pile; empty?: string }) {
-  const items = ESS.flatMap((k) => (pile[k] ? [<span key={k} className="ra-gem" style={art(k)} aria-label={`${fa(pile[k]!)} ${ESS_FA[k]}`}>{fa(pile[k]!)}</span>] : []));
+/** `pop` bumps a gem whose count changed (use for a player's essence pool, not for printed card costs). */
+export function Gems({ pile, empty, pop }: { pile: Pile; empty?: string; pop?: boolean }) {
+  const items = ESS.flatMap((k) => (pile[k] ? [<span key={pop ? `${k}${pile[k]}` : k} className={pop ? 'ra-gem bg-pop' : 'ra-gem'} style={art(k)} aria-label={`${fa(pile[k]!)} ${ESS_FA[k]}`}>{fa(pile[k]!)}</span>] : []));
   return items.length ? <span className="ra-gems">{items}</span> : <small className="ra-none">{empty ?? '—'}</small>;
 }
 
@@ -36,6 +37,16 @@ type Hint = { type: string; card?: number } | null;
 
 export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<RaView>) {
   const me = mySeat ?? 0;
+  // Cards glide shelf → table, hand → table, deck → hand; essences from a tapped card fly into its owner's pool.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
+  const burst = (k: number) => {
+    const l = view.last;
+    const gain = l && l.seat === k && l.kind === 'tap' && l.card !== undefined ? CARDS[l.card]!.power?.gain : undefined;
+    if (!l || !gain) return null;
+    return ESS.flatMap((e) => Array.from({ length: gain[e] ?? 0 }, (_, i) => (
+      <span key={`${e}${i}`} className="ra-gem" style={art(e)} aria-hidden="true" data-flip={`gain-${view.seq}-${e}${i}`} data-flip-from={`c${l.card}`} />)));
+  };
   const hint = expected as unknown as Hint;
   const can = (t: string, card: number) => legalActions.some((a) => a.type === t && a.card === card);
   const myTurn = legalActions.some((a) => a.type === 'pass');
@@ -48,15 +59,15 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   return (
-    <div className="ra" data-seq={view.seq}>
+    <div className="ra" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <p className="ra-round">دور {fa(view.round)}</p>
 
       <ul className="ra-rivals" aria-label="جادوگران">
         {view.mages.map((g, k) => (k === me ? null : (
-          <li key={k} className={['ra-rival', k === view.current && !view.outcome ? 'is-now' : '', g.passed ? 'is-passed' : ''].join(' ')}>
-            <div className="ra-rival__head"><bdi>{who(k)}</bdi><b className="ra-vp" key={g.vp}>{fa(g.vp)}★</b><Gems pile={g.ess} empty="بی‌جوهر" /><small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
-            <div className="ra-row">{g.table.map((id) => <span key={id} className={view.tapped.includes(id) ? 'is-tapped' : ''}><ArcCard id={id} size="sm" /></span>)}</div>
+          <li key={k} data-flip-anchor={`seat-${k}`} className={['ra-rival', k === view.current && !view.outcome ? 'is-now' : '', g.passed ? 'is-passed' : ''].join(' ')}>
+            <div className="ra-rival__head"><bdi>{who(k)}</bdi><b className="ra-vp bg-pop" key={g.vp}>{fa(g.vp)}★</b><Gems pile={g.ess} empty="بی‌جوهر" pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
+            <div className="ra-row">{g.table.map((id) => <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${k}`} data-flip-anchor={`c${id}`} className={view.tapped.includes(id) ? 'is-tapped' : ''}><ArcCard id={id} size="sm" /></span>)}</div>
           </li>
         )))}
       </ul>
@@ -65,20 +76,20 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
         {[...view.places, ...view.monuments].map((id) => {
           const ok = can('buy', id);
           return (
-            <button key={id} type="button" disabled={busy || !ok} onClick={() => onAction({ type: 'buy', card: id })}
+            <button key={id} type="button" data-flip={`a${id}`} disabled={busy || !ok} onClick={() => onAction({ type: 'buy', card: id })}
               className={['ra-pick', ok ? 'is-can' : '', hint?.type === 'buy' && hint.card === id ? 'ra-hint' : ''].join(' ')}><ArcCard id={id} /></button>
           );
         })}
         <small className="ra-shelf__left">بناهای دیگر: {fa(view.monumentsLeft)}</small>
       </section>
 
-      <section className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
-        <div className="ra-me__head"><bdi>{who(me)}</bdi><b className="ra-vp ra-vp--lg" key={mine.vp}>{fa(mine.vp)} از ۱۰ ★</b><Gems pile={mine.ess} empty="بی‌جوهر" /></div>
+      <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
+        <div className="ra-me__head"><bdi>{who(me)}</bdi><b className="ra-vp ra-vp--lg bg-pop" key={mine.vp}>{fa(mine.vp)} از ۱۰ ★</b><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
         <div className="ra-row">
           {mine.table.map((id) => {
             const ok = can('tap', id);
             return (
-              <span key={id} className={`ra-slot ${view.tapped.includes(id) ? 'is-tapped' : ''}`}>
+              <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${me}`} data-flip-anchor={`c${id}`} className={`ra-slot ${view.tapped.includes(id) ? 'is-tapped' : ''}`}>
                 <ArcCard id={id} />
                 {CARDS[id]!.power && <button type="button" className={`ra-mini ${hint?.type === 'tap' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !ok} onClick={() => onAction({ type: 'tap', card: id })}>{view.tapped.includes(id) ? 'استفاده شد' : 'فعال کردن'}</button>}
               </span>
@@ -88,7 +99,7 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
         {view.hand && !view.outcome && (
           <div className="ra-hand" aria-label="دست شما">
             {view.hand.map((id) => (
-              <span key={id} className="ra-slot">
+              <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${me}`} className="ra-slot">
                 <ArcCard id={id} />
                 <span className="ra-slot__acts">
                   <button type="button" className={`ra-mini ${hint?.type === 'play' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !can('play', id)} onClick={() => onAction({ type: 'play', card: id })}>بازی</button>
