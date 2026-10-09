@@ -2,8 +2,8 @@
 // teammates' cards are visible with the clues they hold; your own cards show only what you have been told. Tap a
 // teammate's card to give a colour or number clue, or one of your cards to play or discard it.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import fwR from './art/fw-red.webp';
 import fwY from './art/fw-yellow.webp';
 import fwG from './art/fw-green.webp';
@@ -32,6 +32,8 @@ export default function HanabiRenderer({ view, legalActions, mySeat, seatName, b
   const canPlay = legalActions.some((a) => a.type === 'play');
   const canDiscard = legalActions.some((a) => a.type === 'discard');
   const canClue = legalActions.some((a) => a.type === 'clue');
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const [mine, setMine] = useState<number | null>(null);
   const [target, setTarget] = useState<number | null>(null);
   useEffect(() => { setMine(null); setTarget(null); }, [view.seq]);
@@ -42,27 +44,30 @@ export default function HanabiRenderer({ view, legalActions, mySeat, seatName, b
     : myTurn ? { tone: 'mine' as const, text: view.finalLeft !== null ? `دسته تمام شد: ${fa(view.finalLeft)} نوبت مانده` : 'سرنخ بدهید، کارت بازی کنید یا دور بیندازید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const last = view.last;
+  const lastFrom = last ? (last.seat === me ? 'hand-me' : `seat-${last.seat}`) : undefined;
+  // My own cards have no visible id: after my play/discard the refilled last slot is new and flies in from the deck.
+  const drew = last?.seat === me && last.kind !== 'clue' && (view.hands[me]?.length ?? 0) >= (view.hands.length <= 3 ? 5 : 4);
   const others = view.hands.map((_, k) => k).filter((k) => k !== me);
   const tHand = target !== null ? view.hands[target]! : [];
   const clueColors = COLORS.filter((c) => tHand.some((h) => h.card?.c === c));
   const clueRanks = [1, 2, 3, 4, 5].filter((r) => tHand.some((h) => h.card?.r === r));
 
   return (
-    <div className="hb" data-seq={view.seq}>
+    <div className="hb" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="hb__sky" aria-label="آتش‌بازی‌ها">
         <div className="hb__tokens">
-          <span className="hb__clues" aria-label={`${fa(view.clues)} ژتون سرنخ`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
-          <span className="hb__fuses" aria-label={`${fa(view.fuses)} فیوز`}>{Array.from({ length: 3 }, (_, i) => <img key={i} src={fuse} alt="" className={i < view.fuses ? 'on' : ''} />)}</span>
-          <span>دسته: {fa(view.deckCount)}</span>
-          <span className="hb__score">امتیاز {fa(view.score)} از ۲۵</span>
+          <span className="hb__clues" key={`c${view.clues}`} aria-label={`${fa(view.clues)} ژتون سرنخ`}>{Array.from({ length: 8 }, (_, i) => <img key={i} src={clue} alt="" className={i < view.clues ? 'on' : ''} />)}</span>
+          <span className={last?.kind === 'play' && !last.ok ? 'hb__fuses bg-hit' : 'hb__fuses'} key={`f${view.fuses}`} aria-label={`${fa(view.fuses)} فیوز`}>{Array.from({ length: 3 }, (_, i) => <img key={i} src={fuse} alt="" className={i < view.fuses ? 'on' : ''} />)}</span>
+          <span data-flip-anchor="deck">دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b></span>
+          <span className="hb__score">امتیاز <b key={view.score} className="bg-pop">{fa(view.score)}</b> از ۲۵</span>
         </div>
         <div className="hb__stacks">
           {COLORS.map((c) => (
             <span key={c} className={`hb-stack hb-c--${c} ${view.stacks[c] ? 'hb-stack--lit' : ''}`}>
               <img className="hb-stack__burst" key={view.stacks[c]} src={BURST[c]} alt="" aria-hidden="true" />
-              <b>{view.stacks[c] ? fa(view.stacks[c]) : '–'}</b>
+              <b key={view.stacks[c]} className="bg-pop" data-flip={last?.kind === 'play' && last.ok && CARDS[last.card!]!.c === c ? `c-${last.card}` : undefined} data-flip-from={lastFrom}>{view.stacks[c] ? fa(view.stacks[c]) : '–'}</b>
               <small>{COLOR_FA[c]}</small>
             </span>
           ))}
@@ -78,14 +83,14 @@ export default function HanabiRenderer({ view, legalActions, mySeat, seatName, b
 
       <ul className="hb__team" aria-label="هم‌تیمی‌ها">
         {others.map((k) => (
-          <li key={k} className={['hb-mate', view.current === k && !view.outcome ? 'hb-mate--turn' : '', target === k ? 'hb-mate--on' : ''].join(' ')}>
+          <li key={k} data-flip-anchor={`seat-${k}`} className={['hb-mate', view.current === k && !view.outcome ? 'hb-mate--turn' : '', target === k ? 'hb-mate--on' : ''].join(' ')}>
             <div className="hb-mate__head">
               <bdi className="hb-mate__name">{who(k)}</bdi>
               {canClue && !busy && <button type="button" className={`hb-clueBtn ${hint?.type === 'clue' && hint.to === k && target !== k ? 'hb-hint' : ''}`} onClick={() => { setTarget(target === k ? null : k); setMine(null); }}>سرنخ بده</button>}
             </div>
             <div className="hb-mate__hand">
               {view.hands[k]!.map((h, i) => (
-                <span key={i} className={`hb-slot ${last?.kind === 'clue' && last.to === k && last.touched?.includes(i) ? 'hb-slot--touched' : ''}`}>
+                <span key={h.id} data-flip={`c-${h.id}`} data-flip-from="deck" className={`hb-slot ${last?.kind === 'clue' && last.to === k && last.touched?.includes(i) ? 'hb-slot--touched' : ''}`}>
                   {h.card ? <Firework c={h.card.c} n={h.card.r} /> : null}
                   <small className="hb-know">{h.color ? COLOR_FA[h.color] : ''}{h.rank ? ` ${fa(h.rank)}` : ''}</small>
                 </span>
@@ -102,10 +107,10 @@ export default function HanabiRenderer({ view, legalActions, mySeat, seatName, b
       </ul>
 
       {me >= 0 && !view.outcome && (
-        <section className="hb__me" aria-label="کارت‌های شما">
+        <section className="hb__me" data-flip-anchor="hand-me" aria-label="کارت‌های شما">
           <div className="hb__hand">
             {view.hands[me]!.map((h, i) => (
-              <button key={i} type="button" className={['hb-mine', mine === i ? 'hb-mine--on' : '', h.color ? `hb-c--${h.color}` : '', hint?.type === 'play' && hint.index === i && mine !== i ? 'hb-hint' : ''].join(' ')}
+              <button key={i} type="button" data-flip={drew && i === view.hands[me]!.length - 1 ? `new-${view.seq}` : undefined} data-flip-from="deck" className={['hb-mine', mine === i ? 'hb-mine--on' : '', h.color ? `hb-c--${h.color}` : '', hint?.type === 'play' && hint.index === i && mine !== i ? 'hb-hint' : ''].join(' ')}
                 disabled={!myTurn || busy} aria-pressed={mine === i} onClick={() => { setMine(mine === i ? null : i); setTarget(null); }} aria-label={`کارت ${fa(i + 1)} شما`}>
                 <span className="hb-mine__face">{h.rank ? fa(h.rank) : '?'}</span>
                 <small>{h.color ? COLOR_FA[h.color] : 'رنگ؟'}</small>
@@ -125,7 +130,7 @@ export default function HanabiRenderer({ view, legalActions, mySeat, seatName, b
       {view.outcome && (
         <div className="hb__final">{view.hands.map((h, k) => <div key={k} className="hb__finalHand"><bdi>{who(k)}</bdi>{h.map((x, i) => x.card ? <Firework key={i} c={x.card.c} n={x.card.r} size="sm" /> : null)}</div>)}</div>
       )}
-      {view.discard.length > 0 && <div className="hb__discard" aria-label="دورریخته‌ها"><small>دورریخته:</small>{view.discard.map((id, i) => <Firework key={i} c={CARDS[id]!.c} n={CARDS[id]!.r} size="sm" />)}</div>}
+      {view.discard.length > 0 && <div className="hb__discard" aria-label="دورریخته‌ها"><small>دورریخته:</small>{view.discard.map((id) => <span key={id} data-flip={`c-${id}`} data-flip-from={last?.card === id ? lastFrom : 'deck'} className="hb-dc"><Firework c={CARDS[id]!.c} n={CARDS[id]!.r} size="sm" /></span>)}</div>}
     </div>
   );
 }

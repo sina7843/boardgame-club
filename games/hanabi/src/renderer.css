@@ -61,3 +61,6 @@
 @keyframes hb-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .hb * { animation: none !important; transition: none !important; } }
 .hb__stacks { inline-size: min(100%, 30rem); justify-self: center; }
+
+.hb-dc { display: inline-grid; }
+.hb-stack b { display: inline-block; }
