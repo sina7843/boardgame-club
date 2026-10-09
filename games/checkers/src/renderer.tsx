@@ -1,17 +1,26 @@
 // چکرز renderer: an inlaid maple/walnut board (SVG, LTR geometry), seen from the viewer's side. Tap a ringed piece;
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import manD from './art/man-d.webp';
+import kingD from './art/king-d.webp';
+import manL from './art/man-l.webp';
+import kingL from './art/king-l.webp';
+import texWalnut from './art/tex-walnut.webp';
+import texMaple from './art/tex-maple.webp';
 import { colOf, rowOf, type CheckersView, type Color, type Piece } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 100, M = 34, SIZE = 8 * S + 2 * M;
+// Pieces and board woods are cut from a generated sheet (see DECISIONS.md).
+const PIECE: Record<Piece, string> = { d: manD, D: kingD, l: manL, L: kingL };
 const FILES = 'abcdefgh';
 const name = (i: number) => `${FILES[colOf(i)]}${rowOf(i) + 1}`;
 
 export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CheckersView>) {
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
+  const uid = useId().replace(/:/g, '');
   const flip = myColor === 'l';
   const xy = (i: number) => {
     const c = flip ? 7 - colOf(i) : colOf(i);
@@ -87,10 +96,9 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
         <svg className="ck-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه چکرز" style={{ direction: 'ltr' }}>
           <defs>
             <linearGradient id="ck-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6b4223" /><stop offset=".5" stopColor="#3f2511" /><stop offset="1" stopColor="#5d3a1d" /></linearGradient>
-            <linearGradient id="ck-maple" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f1dcb2" /><stop offset="1" stopColor="#dfc08b" /></linearGradient>
-            <linearGradient id="ck-walnut" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#7a4b28" /><stop offset="1" stopColor="#5a3418" /></linearGradient>
-            <radialGradient id="ck-d" cx=".38" cy=".3" r=".8"><stop offset="0" stopColor="#c24a3a" /><stop offset=".55" stopColor="#8e2318" /><stop offset="1" stopColor="#4d0f09" /></radialGradient>
-            <radialGradient id="ck-l" cx=".38" cy=".3" r=".8"><stop offset="0" stopColor="#fffaf0" /><stop offset=".6" stopColor="#efe2c4" /><stop offset="1" stopColor="#bba47a" /></radialGradient>
+            {([['walnut', texWalnut], ['maple', texMaple]] as const).map(([id, src]) => (
+              <pattern key={id} id={`ck-${id}-${uid}`} x={M} y={M} width={S * 2} height={S * 2} patternUnits="userSpaceOnUse"><image href={src} width={S * 2} height={S * 2} preserveAspectRatio="xMidYMid slice" /></pattern>
+            ))}
             <filter id="ck-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".5" /></filter>
           </defs>
           <rect width={SIZE} height={SIZE} rx="20" fill="url(#ck-frame)" />
@@ -108,7 +116,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
                 tabIndex={dark && (isMovable || isNext) ? 0 : -1}
                 className={['ck-sq', isMovable ? 'ck-sq--movable' : '', isNext ? 'ck-sq--next' : '', prefix.includes(i) ? 'ck-sq--path' : '', isHint ? 'ck-sq--hint' : ''].join(' ')}
                 onClick={() => dark && tap(i)} onKeyDown={(e) => { if (dark && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap(i); } }}>
-                <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill={dark ? 'url(#ck-walnut)' : 'url(#ck-maple)'} />
+                <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill={`url(#ck-${dark ? 'walnut' : 'maple'}-${uid})`} />
                 {isLast && <rect x={x - S / 2} y={y - S / 2} width={S} height={S} className="ck-last" />}
                 {isNext && <circle cx={x} cy={y} r={S * 0.2} className="ck-dot" />}
               </g>
@@ -171,19 +179,10 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
 const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? 'مهره شما' : 'مهره حریف'}${p === 'D' || p === 'L' ? ' (شاه)' : ''}`;
 
 function Disc({ x, y, p }: { x: number; y: number; p: Piece }) {
-  const dark = p === 'd' || p === 'D';
-  const king = p === 'D' || p === 'L';
-  const r = S * 0.38;
+  const w = S * 0.84;
   return (
     <g filter="url(#ck-shadow)">
-      <circle cx={x} cy={y + 5} r={r} fill={dark ? '#3a0a06' : '#9c8862'} />
-      <circle cx={x} cy={y} r={r} fill={dark ? 'url(#ck-d)' : 'url(#ck-l)'} stroke={dark ? '#2c0703' : '#8f7b55'} strokeWidth="2" />
-      <circle cx={x} cy={y} r={r * 0.72} fill="none" stroke={dark ? '#5f150c' : '#cdb88e'} strokeWidth="3" />
-      <circle cx={x} cy={y} r={r * 0.46} fill="none" stroke={dark ? '#a83a2c' : '#e8d8b4'} strokeWidth="2" opacity=".8" />
-      {king && (
-        <path className="ck-crown" transform={`translate(${x} ${y}) scale(${r / 34})`}
-          d="M-20 10 L-24 -10 L-12 0 L0 -16 L12 0 L24 -10 L20 10 Z" fill="#e9c46a" stroke="#7a5a14" strokeWidth="2.5" strokeLinejoin="round" />
-      )}
+      <image href={PIECE[p]} x={x - w / 2} y={y - w / 2} width={w} height={w} className={p === 'D' || p === 'L' ? 'ck-crown' : undefined} />
     </g>
   );
 }

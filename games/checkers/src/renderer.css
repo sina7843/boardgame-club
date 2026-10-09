@@ -1,4 +1,4 @@
-/* چکرز: maple/walnut board in a dark frame, lacquered red and ivory discs. Board geometry is LTR; text is RTL. */
+/* چکرز: maple/walnut board in a dark frame, walnut and maple pieces (painted art cut from a generated sheet, see DECISIONS.md). Board geometry is LTR; text is RTL. */
 .ck { display: grid; gap: 0.75rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .ck > :first-child { justify-self: center; }
 .ck__bar { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; }
@@ -6,14 +6,14 @@
   border: 1px solid rgb(255 255 255 / 0.08); font-size: 0.85rem; transition: box-shadow 0.25s, background 0.25s; }
 .ck-side--turn { background: rgb(201 164 106 / 0.22); box-shadow: 0 0 0 2px #c9a46a, 0 6px 18px -6px rgb(201 164 106 / 0.6); }
 .ck-side__chip { inline-size: 18px; block-size: 18px; border-radius: 50%; box-shadow: inset 0 -2px 3px rgb(0 0 0 / 0.35); }
-.ck-side__chip--d { background: radial-gradient(circle at 35% 30%, #c24a3a, #8e2318 55%, #4d0f09); }
-.ck-side__chip--l { background: radial-gradient(circle at 35% 30%, #fffaf0, #efe2c4 60%, #bba47a); }
+.ck-side__chip--d { background: url('./art/man-d.webp') center / cover; }
+.ck-side__chip--l { background: url('./art/man-l.webp') center / cover; }
 .ck-side__name { font-weight: 800; }
 .ck-side__stat { color: #d9ccb4; }
 .ck-side__caps { display: inline-flex; gap: 1px; }
 .ck-cap { inline-size: 8px; block-size: 8px; border-radius: 50%; }
-.ck-cap--d { background: #8e2318; }
-.ck-cap--l { background: #efe2c4; }
+.ck-cap--d { background: url('./art/man-d.webp') center / cover; }
+.ck-cap--l { background: url('./art/man-l.webp') center / cover; }
 .ck__variant { font-size: 0.75rem; color: #c9b998; }
 
 .ck-board { display: block; inline-size: 100%; max-inline-size: 720px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -38,7 +38,7 @@
 .ck__history { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem 0.6rem; justify-content: center; font-size: 0.8rem; color: #c9b998; }
 
 @keyframes ck-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
-@keyframes ck-crown { from { transform: scale(0) rotate(-30deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ck-crown { from { transform: scale(0.7); opacity: 0.4; } to { transform: none; opacity: 1; } }
 @keyframes ck-ghost { to { opacity: 0; transform: scale(0.6); transform-box: fill-box; transform-origin: center; } }
 @keyframes ck-pulse { 50% { opacity: 0.45; } }
 @keyframes ck-hint { 50% { filter: brightness(1.6) drop-shadow(0 0 12px #ffd27a); } }
