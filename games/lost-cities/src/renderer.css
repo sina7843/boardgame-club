@@ -1,25 +1,23 @@
-/* کاوشگران: an explorer's map table — parchment piles, one colour per expedition, cards cascading toward the map. */
+/* کاوشگران: an explorer's map table — parchment piles, one colour per expedition, cards cascading toward the map. Expedition paintings are cut from a generated sheet (see DECISIONS.md). */
 .lc { --parch: #efe0bd; --ink: #3a2a16; display: grid; gap: 0.7rem; inline-size: 100%; color: #f5ecd9; text-align: center; }
 .lc > :first-child { justify-self: center; }
 .lc > .lc__board, .lc > .lc__me { justify-self: stretch; }
-.lc-c--y { --c: #e3b23c; --c2: #8a6512; } .lc-c--b { --c: #2f7fc1; --c2: #123f66; } .lc-c--w { --c: #dfe5ec; --c2: #66707c; }
-.lc-c--g { --c: #3f9a4a; --c2: #1b4f22; } .lc-c--r { --c: #d2452f; --c2: #6e1a10; }
+.lc-c--y { --c: #e3b23c; --c2: #8a6512; --art: url('./art/exp-y.webp'); } .lc-c--b { --c: #2f7fc1; --c2: #123f66; --art: url('./art/exp-b.webp'); } .lc-c--w { --c: #dfe5ec; --c2: #66707c; --art: url('./art/exp-w.webp'); }
+.lc-c--g { --c: #3f9a4a; --c2: #1b4f22; --art: url('./art/exp-g.webp'); } .lc-c--r { --c: #d2452f; --c2: #6e1a10; --art: url('./art/exp-r.webp'); }
 .lc__score { margin: 0; font-size: 0.88rem; color: #dccdae; }
 .lc__score b { color: #ffe1a0; font-size: 1.05rem; }
 
 .lc-card { position: relative; display: inline-grid; place-items: center; align-content: space-between; border-radius: 7px; color: #fff;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--c) 82%, white 18%), var(--c) 55%, color-mix(in srgb, var(--c) 70%, black 30%));
+  background: linear-gradient(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.45)), var(--art) center / cover, var(--c);
   box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.45), 0 3px 6px -3px #000; }
-.lc-c--w .lc-card, .lc-card.lc-c--w { color: #2f3540; }
 .lc-card--md { inline-size: 3.6rem; block-size: 5.2rem; padding: 0.25rem 0 0.3rem; }
 .lc-card--sm { inline-size: 2.9rem; block-size: 2.1rem; padding: 0.12rem 0.3rem; grid-template-columns: auto 1fr; align-content: start; align-items: start; border-radius: 5px; }
-.lc-card__v { font-weight: 900; font-size: 1.25rem; line-height: 1; text-shadow: 0 1px 2px rgb(0 0 0 / 0.35); }
-.lc-c--w .lc-card__v { text-shadow: none; }
+.lc-card__v { font-weight: 900; font-size: 1.25rem; line-height: 1; text-shadow: 0 1px 3px #000, 0 0 6px rgb(0 0 0 / 0.7); }
 .lc-card--sm .lc-card__v { font-size: 0.95rem; }
 .lc-card__g { inline-size: 1.9rem; block-size: 1.9rem; fill: currentColor; opacity: 0.85; }
 .lc-card--sm .lc-card__g { inline-size: 1.1rem; block-size: 1.1rem; justify-self: end; }
 .lc-card__n { font-size: 0.6rem; font-weight: 800; }
-.lc-card--wager { background: repeating-linear-gradient(135deg, var(--c) 0 6px, color-mix(in srgb, var(--c) 80%, black 20%) 6px 12px); }
+.lc-card--wager { background: repeating-linear-gradient(135deg, rgb(0 0 0 / 0.15) 0 6px, rgb(0 0 0 / 0.4) 6px 12px), var(--art) center / cover, var(--c); }
 .lc-card--back { background: repeating-linear-gradient(45deg, #6b4a2b 0 5px, #5a3d22 5px 10px); box-shadow: inset 0 0 0 1.5px var(--parch), 0 3px 6px -3px #000; }
 .lc-card--fresh { animation: lc-in 0.45s cubic-bezier(.2,.8,.3,1.3) both; }
 
@@ -31,7 +29,7 @@
 .lc-col__exp > .lc-card + .lc-card { margin-block-start: -0.85rem; }
 .lc-col__pts { font-size: 0.72rem; font-weight: 900; color: var(--c); padding-block: 0.15rem; }
 .lc-pile { position: relative; display: grid; place-items: center; inline-size: 100%; min-block-size: 3.4rem; padding: 0.2rem; border-radius: 10px; font: inherit; color: var(--ink); cursor: default;
-  background: var(--parch); border: 2px dashed var(--c2); }
+  background: linear-gradient(rgb(239 224 189 / 0.72), rgb(239 224 189 / 0.72)), var(--art) center / cover, var(--parch); border: 2px dashed var(--c2); }
 .lc-pile__g { position: absolute; inset: 0; margin: auto; inline-size: 2rem; block-size: 2rem; fill: var(--c2); opacity: 0.18; }
 .lc-pile__name { font-size: 0.68rem; font-weight: 800; color: var(--c2); }
 .lc-pile__n { position: absolute; inset-block-start: -0.45rem; inset-inline-end: -0.3rem; padding: 0 0.3rem; border-radius: 999px; background: var(--ink); color: var(--parch); font-size: 0.65rem; }
