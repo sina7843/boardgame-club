@@ -1,16 +1,17 @@
 /* نبرد ستاره‌ها: a starfield bridge — deep navy space, faction-framed cards that glow when they can act. */
 .sr { --space: #070b1f; display: grid; gap: 0.55rem; inline-size: 100%; color: #e6ecff; text-align: center; padding: 0.4rem; border-radius: 16px;
-  background: radial-gradient(1px 1px at 12% 20%, #fff 50%, transparent), radial-gradient(1px 1px at 78% 35%, #cfe 50%, transparent), radial-gradient(1.5px 1.5px at 40% 80%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 90% 85%, #fff 50%, transparent), radial-gradient(circle at 30% 0%, #2a1f5a, transparent 60%), radial-gradient(circle at 80% 100%, #0f3a4f, transparent 60%), var(--space); }
+  background: linear-gradient(rgb(7 11 31 / 0.72), rgb(7 11 31 / 0.82)), url('./art/bd-space.webp') center / cover, var(--space); }
 .sr > :first-child { justify-self: center; }
 .sr-f--fed { --f: #3aa0ff; } .sr-f--blob { --f: #5bd16a; } .sr-f--cult { --f: #ff5a4a; } .sr-f--emp { --f: #ffc93a; } .sr-f--none { --f: #9aa6c4; }
 
 .sr-card { position: relative; display: grid; align-content: start; justify-items: center; gap: 0.15rem; overflow: hidden; border-radius: 8px; line-height: 1.25; color: #e6ecff;
   background: linear-gradient(170deg, color-mix(in srgb, var(--f) 30%, #10183a), #0b1029 70%); box-shadow: inset 0 0 0 1.5px var(--f), 0 0 10px -2px color-mix(in srgb, var(--f) 60%, transparent); }
 .sr-card--md { inline-size: 5.2rem; min-block-size: 5.6rem; padding: 0.35rem 0.25rem; }
-.sr-card::after { content: var(--glyph); position: absolute; inset-block-end: -0.35rem; inset-inline-end: 0.1rem; font-size: 2.6rem; line-height: 1; color: var(--f); opacity: 0.16; pointer-events: none; }
-.sr-card--sm::after { font-size: 1.4rem; }
-.sr-f--fed { --glyph: "⬡"; } .sr-f--blob { --glyph: "◉"; } .sr-f--cult { --glyph: "⚙"; } .sr-f--emp { --glyph: "✦"; } .sr-f--none { --glyph: "◌"; }
+.sr-f--none::after { content: var(--glyph); position: absolute; inset-block-end: -0.35rem; inset-inline-end: 0.1rem; font-size: 2.6rem; line-height: 1; color: var(--f); opacity: 0.16; pointer-events: none; }
+.sr-card--sm.sr-f--none::after { font-size: 1.4rem; }
+.sr-card__emb { position: absolute; inset-block-end: -0.2rem; inset-inline-end: -0.2rem; inline-size: 2.8rem; block-size: 2.8rem; opacity: 0.6; pointer-events: none; }
+.sr-card--sm .sr-card__emb { inline-size: 1.7rem; block-size: 1.7rem; }
+.sr-f--none { --glyph: "◌"; }
 .sr-card--sm { inline-size: 4rem; min-block-size: 2.6rem; padding: 0.2rem; }
 .sr-card--base { border-radius: 14px 14px 8px 8px; }
 .sr-card__cost { position: absolute; inset-block-start: 0.2rem; inset-inline-end: 0.2rem; inline-size: 1.15rem; block-size: 1.15rem; display: grid; place-items: center; border-radius: 50%; background: #ffd75a; color: #2a1d10; font-size: 0.65rem; }

@@ -3,7 +3,14 @@
 // at either end; the trade row runs through the middle; played ships and bases form your fleet line.
 import './renderer.css';
 import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
-import { TYPE, type Fx, type SrView } from './rules.ts';
+import fed from './art/fac-fed.webp';
+import blob from './art/fac-blob.webp';
+import cult from './art/fac-cult.webp';
+import emp from './art/fac-emp.webp';
+import { TYPE, type Faction, type Fx, type SrView } from './rules.ts';
+
+// Faction emblems are cut from a generated sprite sheet (see DECISIONS.md); 'none' keeps the plain glyph.
+const EMBLEM: Partial<Record<Faction, string>> = { fed, blob, cult, emp };
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const FACTION_FA = { fed: 'فدراسیون', blob: 'هیولاها', cult: 'ماشین‌پرستان', emp: 'امپراتوری', none: '' } as const;
@@ -18,6 +25,7 @@ export function SrCard({ k, size = 'md' }: { k: string; size?: 'sm' | 'md' }) {
   const t = TYPE[k]!;
   return (
     <span className={`sr-card sr-card--${size} sr-f--${t.faction} ${t.base ? 'sr-card--base' : ''}`} aria-label={`${t.name}${t.base ? `، پایگاه ${fa(t.base.defense)}${t.base.outpost ? ' (پاسگاه)' : ''}` : ''}: ${fxText(t.fx)}`}>
+      {EMBLEM[t.faction] && <img className="sr-card__emb" src={EMBLEM[t.faction]} alt="" aria-hidden="true" />}
       {t.cost > 0 && <b className="sr-card__cost">{fa(t.cost)}</b>}
       <span className="sr-card__name">{t.name}</span>
       <span className="sr-card__fx">{fxText(t.fx)}</span>
