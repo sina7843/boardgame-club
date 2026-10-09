@@ -2,17 +2,17 @@
 // the show in the ring belongs to its owner; your hand keeps its order. Show: tap the first and last card of a run
 // of neighbours. Scout: tap an end card of the ring's show (flip it if you like), then the gap where it goes.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { down, type HandCard, type ScoutView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
-export function Act({ c, size = 'md', flipped }: { c: HandCard; size?: 'sm' | 'md'; flipped?: boolean }) {
+export function Act({ c, size = 'md', flipped, flip, flipFrom }: { c: HandCard; size?: 'sm' | 'md'; flipped?: boolean; flip?: string; flipFrom?: string }) {
   const top = flipped ? down(c) : c.up;
   const bot = flipped ? c.up : down(c);
   return (
-    <span className={`sc-card sc-card--${size} sc-v--${top}`} aria-label={`${fa(top)} (پشت: ${fa(bot)})`}>
+    <span className={`sc-card sc-card--${size} sc-v--${top}`} aria-label={`${fa(top)} (پشت: ${fa(bot)})`} data-flip={flip} data-flip-from={flipFrom}>
       <b className="sc-card__top">{fa(top)}</b>
       <span className="sc-card__star" aria-hidden="true">★</span>
       <small className="sc-card__bot">{fa(bot)}</small>
@@ -21,6 +21,8 @@ export function Act({ c, size = 'md', flipped }: { c: HandCard; size?: 'sm' | 'm
 }
 
 export default function ScoutRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<ScoutView>) {
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const orient = legalActions.some((a) => a.type === 'orient');
   const showHint = legalActions.find((a) => a.type === 'show') as { options: { from: number; count: number }[] } | undefined;
   const scoutHint = legalActions.find((a) => a.type === 'scout') as { canShow: boolean } | undefined;
@@ -52,36 +54,36 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
   const hintRange = (i: number) => hint?.type === 'show' && !range && i >= hint.from! && i < hint.from! + hint.count!;
 
   return (
-    <div className="sc" data-seq={view.seq} data-phase={view.phase}>
+    <div className="sc" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <p className="sc__round">دست {fa(view.round)} از {fa(view.rounds)}</p>
 
       <ul className="sc__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => (
-          <li key={s} className={['sc-pl', view.current === s && view.phase !== 'orient' && !view.outcome ? 'sc-pl--turn' : '', s === mySeat ? 'sc-pl--me' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'sc-pl--win' : ''].join(' ')}>
+          <li key={s} data-flip-anchor={`seat-${s}`} className={['sc-pl', view.current === s && view.phase !== 'orient' && !view.outcome ? 'sc-pl--turn' : '', s === mySeat ? 'sc-pl--me' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'sc-pl--win' : ''].join(' ')}>
             <bdi className="sc-pl__name">{who(s)}</bdi>
-            <span className="sc-pl__score" key={view.scores[s]}>{fa(view.scores[s]!)}</span>
+            <span className="sc-pl__score bg-pop" key={view.scores[s]}>{fa(view.scores[s]!)}</span>
             <span>{fa(view.handCount[s]!)} کارت</span>
-            <span>برده {fa(view.captured[s]!)}</span>
-            <span className="sc-pl__chips">ژتون {fa(view.chips[s]!)}</span>
+            <span key={`c${view.captured[s]}`} className="bg-pop">برده {fa(view.captured[s]!)}</span>
+            <span className="sc-pl__chips bg-pop" key={`h${view.chips[s]}`}>ژتون {fa(view.chips[s]!)}</span>
             {!view.usedSS[s] && <span className="sc-pl__ss" title="دیدبانی و نمایش هنوز مانده">د+ن</span>}
           </li>
         ))}
       </ul>
 
       {!view.outcome && (
-        <section className="sc__ring" aria-label="نمایش وسط">
+        <section className="sc__ring" data-flip-anchor="deck" aria-label="نمایش وسط">
           {t ? (
             <>
               <span className="sc__owner">نمایش <bdi>{who(t.owner)}</bdi></span>
-              <div className="sc__show" key={view.seq}>
+              <div className="sc__show">
                 {t.cards.map((c, i) => {
                   const e = i === 0 ? 'first' : i === t.cards.length - 1 ? 'last' : null;
                   const can = !!scoutHint && view.phase === 'play' && !!e && !busy && !range;
                   return can
                     ? <button key={i} type="button" className={`sc-end ${end === e ? 'sc-end--on' : ''}`} onClick={() => { setEnd(end === e ? null : e); setFlip(false); }} aria-pressed={end === e} aria-label={e === 'first' ? 'دیدبانی کارت اول' : 'دیدبانی کارت آخر'}>
-                      <Act c={c} flipped={end === e && flip} /></button>
-                    : <Act key={i} c={c} />;
+                      <Act c={c} flipped={end === e && flip} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} /></button>
+                    : <Act key={i} c={c} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} />;
                 })}
               </div>
             </>
@@ -112,7 +114,7 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
               {hand.map((c, i) => (
                 <span key={`${c.id}`} className="sc-slot">
                   {end && <button type="button" className="sc-gap" disabled={busy} onClick={() => onAction({ type: 'scout', end, flip, at: i, ...(andShow ? { andShow: true } : {}) })} aria-label={`گذاشتن قبل از کارت ${fa(i + 1)}`}>+</button>}
-                  <button type="button" className={['sc-pick', inRange(i) ? 'sc-pick--on' : '', hintRange(i) ? 'sc-hint' : ''].join(' ')} disabled={!showHint || busy || !!end} onClick={() => tapHand(i)} aria-pressed={inRange(i)}><Act c={c} /></button>
+                  <button type="button" className={['sc-pick', inRange(i) ? 'sc-pick--on' : '', hintRange(i) ? 'sc-hint' : ''].join(' ')} disabled={!showHint || busy || !!end} onClick={() => tapHand(i)} aria-pressed={inRange(i)}><Act c={c} flip={`c-${c.id}`} flipFrom="deck" /></button>
                 </span>
               ))}
               {end && <button type="button" className="sc-gap" disabled={busy} onClick={() => onAction({ type: 'scout', end, flip, at: hand.length, ...(andShow ? { andShow: true } : {}) })} aria-label="گذاشتن در آخر">+</button>}
