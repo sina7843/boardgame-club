@@ -3,8 +3,8 @@
 // middle shows the five dice: rolled ones beside it with their value, the rest still inside. Leg-bet tiles are stacked
 // per camel, the secret overall bets and the spectators' purses follow.
 import './renderer.css';
-import { useEffect, useState } from 'react';
-import { Button, TurnIndicator, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import camelBlue from './art/camel-blue.webp';
 import camelGreen from './art/camel-green.webp';
 import camelOrange from './art/camel-orange.webp';
@@ -19,8 +19,8 @@ export const CAMEL_FA: Record<Camel, string> = { blue: 'آبی', green: 'سبز'
 // Painted camels and pyramid are cut from a generated sheet (see DECISIONS.md).
 const CAMEL_ART: Record<Camel, string> = { blue: camelBlue, green: camelGreen, orange: camelOrange, yellow: camelYellow, white: camelWhite };
 
-export function CamelIcon({ c, size = 1.6 }: { c: Camel; size?: number }) {
-  return <img src={CAMEL_ART[c]} alt={`شتر ${CAMEL_FA[c]}`} draggable={false} className={`cu-camel cu-c--${c}`} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} />;
+export function CamelIcon({ c, size = 1.6, flip }: { c: Camel; size?: number; flip?: boolean }) {
+  return <img {...(flip ? { 'data-flip': `camel-${c}` } : {})} src={CAMEL_ART[c]} alt={`شتر ${CAMEL_FA[c]}`} draggable={false} className={`cu-camel cu-c--${c}`} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} />;
 }
 
 /** Loop geometry on a 6×4 grid (literal, LTR): start bottom-left, run right, up, back along the top, down to the finish. */
@@ -32,9 +32,9 @@ function cell(sp: number): [number, number] {
 }
 
 const PIPS: Record<number, [number, number][]> = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]] };
-function Die({ c, v }: { c: Camel; v?: number }) {
+function Die({ c, v, roll }: { c: Camel; v?: number; roll?: boolean }) {
   return (
-    <svg className={`cu-die cu-c--${c} ${v ? '' : 'cu-die--in'}`} viewBox="-12 -12 24 24" aria-hidden="true">
+    <svg className={`cu-die cu-c--${c} ${v ? '' : 'cu-die--in'} ${roll ? 'bg-roll' : ''}`} viewBox="-12 -12 24 24" aria-hidden="true">
       <rect x="-11" y="-11" width="22" height="22" rx="5" className="cu-die__body" />
       {v && PIPS[v]!.map(([x, y], k) => <circle key={k} cx={x * 5.5} cy={y * 5.5} r="2.4" className="cu-die__pip" />)}
     </svg>
@@ -43,6 +43,8 @@ function Die({ c, v }: { c: Camel; v?: number }) {
 
 export default function CamelRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CamelView>) {
   const me = mySeat ?? -1;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, view.seq);
   const myTurn = legalActions.some((a) => a.type === 'roll');
   const legs = new Map(legalActions.filter((a) => a.type === 'leg').map((a) => [a.camel as Camel, a.value as number]));
   const desert = legalActions.find((a) => a.type === 'desert') as { spaces: number[] } | undefined;
@@ -59,7 +61,7 @@ export default function CamelRenderer({ view, legalActions, mySeat, seatName, bu
   const rolled = new Map(view.rolled.map((r) => [r.camel, r.value]));
 
   return (
-    <div className="cu" data-seq={view.seq}>
+    <div className="cu" data-seq={view.seq} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="cu__track" aria-label="مسیر مسابقه">
@@ -72,8 +74,8 @@ export default function CamelRenderer({ view, legalActions, mySeat, seatName, bu
           const inner = (
             <>
               <small className="cu-sp__n">{fa(sp)}</small>
-              {tile >= 0 && <span className={`cu-tile ${view.desert[tile]!.oasis ? 'cu-tile--oasis' : 'cu-tile--mirage'}`} title={who(tile)}>{view.desert[tile]!.oasis ? '+۱' : '−۱'}</span>}
-              <span className="cu-stack" style={{ ['--n' as string]: stack.length }}>{stack.slice().reverse().map((c) => <CamelIcon key={c} c={c} />)}</span>
+              {tile >= 0 && <span data-flip={`tile-${tile}`} className={`cu-tile ${view.desert[tile]!.oasis ? 'cu-tile--oasis' : 'cu-tile--mirage'}`} title={who(tile)}>{view.desert[tile]!.oasis ? '+۱' : '−۱'}</span>}
+              <span className="cu-stack" style={{ ['--n' as string]: stack.length }}>{stack.slice().reverse().map((c) => <CamelIcon key={c} c={c} flip />)}</span>
             </>
           );
           const style = { gridColumn: col, gridRow: row };
@@ -84,7 +86,7 @@ export default function CamelRenderer({ view, legalActions, mySeat, seatName, bu
         <div className="cu-centre">
           <img src={pyramid} alt="" className="cu-centre__pyr" draggable={false} />
           <div className="cu-centre__dice" aria-label={`تاس‌های مانده در هرم: ${fa(view.diceLeft)}`}>
-            {CAMELS.map((c) => <Die key={c} c={c} v={rolled.get(c)} />)}
+            {CAMELS.map((c) => { const fresh = last?.kind === 'roll' && lastRoll?.camel === c; return <Die key={fresh ? `${c}-${view.seq}` : c} c={c} v={rolled.get(c)} roll={fresh} />; })}
           </div>
           {lastRoll && (
             <p className="cu__roll" role="status" key={view.seq}>
@@ -101,7 +103,7 @@ export default function CamelRenderer({ view, legalActions, mySeat, seatName, bu
             const v = view.legTiles[c][0];
             const left = view.legTiles[c].length;
             return (
-              <button key={c} type="button" className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
+              <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
                 disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
                 <CamelIcon c={c} size={1.9} /><b>{v ? fa(v) : '—'}</b>
               </button>
@@ -137,10 +139,10 @@ export default function CamelRenderer({ view, legalActions, mySeat, seatName, bu
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
           <li key={s} className={['cu-pl', view.current === s && !view.outcome ? 'cu-pl--turn' : '', s === me ? 'cu-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'cu-pl--win' : ''].join(' ')}>
             <bdi className="cu-pl__name">{who(s)}</bdi>
-            <span className="cu-pl__coins" key={view.coins[s]}>{fa(view.coins[s]!)}</span>
+            <span className="cu-pl__coins bg-pop" key={view.coins[s]}>{fa(view.coins[s]!)}</span>
             <span className="cu-pl__bets">
-              {view.legBets[s]!.map((b, i) => <span key={i} className={`cu-chip cu-c--${b.camel}`}>{fa(b.value)}</span>)}
-              {view.pyramid[s]! > 0 && <span className="cu-pyr" title="تاس از هرم"><img src={pyramid} alt="هرم" draggable={false} />×{fa(view.pyramid[s]!)}</span>}
+              {view.legBets[s]!.map((b, i) => <span key={i} data-flip={`chip-${s}-${i}`} data-flip-from={`leg-${b.camel}`} className={`cu-chip cu-c--${b.camel}`}>{fa(b.value)}</span>)}
+              {view.pyramid[s]! > 0 && <span className="cu-pyr bg-pop" key={view.pyramid[s]} title="تاس از هرم"><img src={pyramid} alt="هرم" draggable={false} />×{fa(view.pyramid[s]!)}</span>}
             </span>
           </li>
         ))}

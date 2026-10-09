@@ -32,7 +32,7 @@
   background: repeating-conic-gradient(#1d1208 0 25%, #fff7df 0 50%) 0 0 / 7px 7px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
 }
 .cu-stack { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
-.cu-stack .cu-camel { inline-size: 3.8rem !important; block-size: 3.8rem !important; margin-block-end: -2.1rem; animation: cu-hop 0.45s ease-out; }
+.cu-stack .cu-camel { inline-size: 3.8rem !important; block-size: 3.8rem !important; margin-block-end: -2.1rem; }
 .cu-stack .cu-camel:last-child { margin-block-end: 0; }
 .cu-tile { position: absolute; inset-block-start: 4px; inset-inline-end: 5px; padding: 0.05rem 0.35rem; border-radius: 999px; font-size: 0.7rem; font-weight: 900; color: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
 .cu-tile--oasis { background: linear-gradient(#4fb35b, #2d7a37); }
@@ -89,7 +89,7 @@
 .cu-pl__name { font-weight: 800; flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cu-pl__coins {
   display: inline-grid; place-items: center; min-inline-size: 1.9rem; block-size: 1.9rem; padding: 0 0.3rem; border-radius: 999px; font-weight: 900; color: var(--ink);
-  background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); box-shadow: 0 1px 2px rgb(0 0 0 / 0.5); animation: cu-bump 0.4s ease-out;
+  background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
 }
 .cu-pl__bets { display: inline-flex; flex-wrap: wrap; gap: 0.2rem; align-items: center; }
 .cu-chip { min-inline-size: 1.2rem; padding: 0 0.3rem; border-radius: 5px; background: var(--c); color: var(--ink); font-size: 0.7rem; font-weight: 900; box-shadow: inset 0 -2px 0 var(--c-dk); }
@@ -117,9 +117,7 @@
   .cu-legtile .cu-camel { inline-size: 1.6rem !important; block-size: 1.6rem !important; }
 }
 
-@keyframes cu-hop { 0% { transform: translateY(-12px); } 60% { transform: translateY(2px); } }
 @keyframes cu-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes cu-bump { 40% { transform: scale(1.2); } }
 @keyframes cu-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @keyframes cu-glow { 50% { outline-color: rgb(47 127 193 / 0.35); } }
 @media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
