@@ -75,3 +75,4 @@ pnpm-debug.log*
 # local scratch (scripts, sheets, Playwright output)
 .tmp-trophy/
 *.stackdump
+/.tmp-trophy

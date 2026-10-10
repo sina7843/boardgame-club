@@ -194,6 +194,29 @@ function BoosterTile({ id }: { id: string }) {
   );
 }
 
+/** Round scoring tile as printed: round number, the trigger drawn as its piece/emblem, and the VP it scores. */
+function RoundTile({ id, n }: { id: string; n: number }) {
+  const label = CONTENT.rounds[id]?.labelFa ?? id;
+  const [head = label, tail = ''] = label.split(':').map((x) => x.trim());
+  const vp = tail.match(/[۰-۹0-9]+/)?.[0] ?? '';
+  const icon = head.includes('گایا') ? <><Piece kind="mine" /><img src={PLANET_ART.g} alt="" /></>
+    : head.includes('معدن') ? <Piece kind="mine" />
+    : head.includes('ایستگاه') ? <Piece kind="ts" />
+    : head.includes('مؤسسه') ? <><Piece kind="pi" /><Piece kind="ac" /></>
+    : head.includes('فدراسیون') ? <span className="gp-round__fed" />
+    : head.includes('پژوهش') ? <img src={TRACK_ART.sci} alt="" />
+    : head.includes('زمین‌سازی') ? <img src={TRACK_ART.terra} alt="" />
+    : null;
+  return (
+    <>
+      <span className="gp-round__n" aria-hidden="true">{fa(n)}</span>
+      <span className="gp-round__icon" aria-hidden="true">{icon}</span>
+      <span className="gp-round__vp" aria-hidden="true">{vp}<i>★</i></span>
+      <small className="gp-round__what"><span className="sr-only">دور {fa(n)}: </span>{label}</small>
+    </>
+  );
+}
+
 /** Federation token: a hexagon with its reward, green border when it can open level 5 of a research track. */
 function FedToken({ id, n }: { id: string; n?: number }) {
   const t = CONTENT.feds[id];
@@ -696,7 +719,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
         <ol className="gp-rounds" aria-label="کاشی‌های امتیاز دور">
           {view.roundTiles.map((t, i) => (
             <li key={t} className={i + 1 === view.round ? 'gp-now' : i + 1 < view.round ? 'gp-past' : undefined} aria-current={i + 1 === view.round ? 'step' : undefined}>
-              <span className="gp-round__n">{fa(i + 1)}</span><TileFace label={CONTENT.rounds[t]?.labelFa ?? t} />
+              <RoundTile id={t} n={i + 1} />
             </li>
           ))}
         </ol>
@@ -905,7 +928,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
                     </div>
                   ))}
                 </div>
-                {ra && <Button size="sm" className={hinted(ra) ? 'gp-hint' : undefined} variant={hinted(ra) ? 'primary' : 'secondary'} disabled={busy} onClick={() => play(ra)}>پژوهش (۴ دانش)</Button>}
+                <div className="gp-track__act">{ra && <Button size="sm" className={hinted(ra) ? 'gp-hint' : undefined} variant={hinted(ra) ? 'primary' : 'secondary'} disabled={busy} onClick={() => play(ra)}>پژوهش (۴ دانش)</Button>}</div>
                 <div className="gp-track__std">{std ? <TechTile id={std} anchor={`std-${std}`} /> : <span className="gp-tile gp-tile--empty">—</span>}</div>
               </div>
             );
