@@ -75,7 +75,10 @@ function Card({ id, on, hint, disabled, onClick, from, exit }: { id: number; on?
       className={['br-card', isLoc ? 'br-card--loc' : 'br-card--ind', wild ? 'br-card--wild' : '', on ? 'br-card--on' : '', hint ? 'br-hint' : ''].join(' ')}
       style={color ? { ['--band' as string]: color } : undefined}>
       <span className="br-card__band">{wild ? 'آزاد' : isLoc ? 'شهر' : 'صنعت'}</span>
-      {inds.length > 0 && <span className="br-card__art">{inds.map((x) => <img key={x} src={IND_ART[x]} alt="" draggable={false} />)}</span>}
+      <span className="br-card__art">
+        {inds.length > 0 ? inds.map((x) => <img key={x} src={IND_ART[x]} alt="" draggable={false} />)
+          : <svg viewBox="0 0 24 24" aria-hidden><path d={wild ? 'M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z' : 'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'} /></svg>}
+      </span>
       <b className="br-card__name">{cardLabel(id)}</b>
       <small>{cardHelp(id)}</small>
     </button>
@@ -108,6 +111,8 @@ const signed = (n: number) => (n > 0 ? `+${fa(n)}` : n < 0 ? `−${fa(-n)}` : fa
 const produceFa = (t: IndustryTileDef) => (typeof t.produce === 'number' ? fa(t.produce) : `${fa(t.produce.canal)}/${fa(t.produce.rail)}`);
 const isGoods = (x: Industry) => x === 'cotton' || x === 'manufacturer' || x === 'pottery';
 
+const LinkIcon = () => <svg viewBox="0 0 16 8" aria-hidden className="br-linkicon"><rect x="1" y="1.5" width="8" height="5" rx="2.5" /><rect x="7" y="1.5" width="8" height="5" rx="2.5" /></svg>;
+
 /** One printed level space of a mat lane: the remaining tiles of that level stacked on it (or the empty print). */
 function MatTile({ t, left, next, compact }: { t: IndustryTileDef; left: number; next: boolean; compact?: boolean }) {
   const goods = isGoods(t.industry);
@@ -128,10 +133,10 @@ function MatTile({ t, left, next, compact }: { t: IndustryTileDef; left: number;
             {goods && t.beer > 0 && <span><img src={beerArt} alt="" />{fa(t.beer)}</span>}
             {!goods && <span className="br-tile__prod">⇧{produceFa(t)}</span>}
           </span>
-          <span className="br-tile__foot" aria-hidden>
+          <span className="br-tile__foot" dir="ltr" aria-hidden>
             <span className="br-tile__vp">{fa(t.vp)}</span>
-            <span className="br-tile__inc">↑{fa(t.income)}</span>
-            <span className="br-tile__lvp">⛓{fa(t.linkVp)}</span>
+            <span className="br-tile__inc"><i>£</i>{fa(t.income)}</span>
+            <span className="br-tile__lvp"><LinkIcon />{fa(t.linkVp)}</span>
           </span>
           {(era || t.noDevelop) && (
             <span className="br-tile__marks" aria-hidden>{era && <i>{t.era === 'canal' ? 'کانال' : 'ریل'}</i>}{t.noDevelop && <i className="br-tile__bulb">✱</i>}</span>
@@ -166,6 +171,51 @@ function MatLanes({ mat, compact }: { mat: Record<Industry, number>; compact?: b
 }
 
 /** A player's mat: purse (money, income marker, VP, spend, cards, link tiles, discard) above the industry stacks. */
+/** Printed price ladder of a market: two cube spaces per price (cubes fill the dearest spaces), then the empty-market price. */
+function Ladder({ kind, cubes, label, cube, pop }: { kind: 'coal' | 'iron'; cubes: number; label: string; cube: string; pop: string }) {
+  const { prices, empty } = MARKET[kind];
+  const n = prices.length;
+  const cols = [...new Set<number>(prices)];
+  const buy = buyPrice(kind, cubes);
+  return (
+    <div className="br-ladder" role="group" aria-label={`${label}: ${fa(cubes)} از ${fa(n)}؛ خرید £${fa(buy)}`}>
+      <header><img src={cube} alt="" /><b>{label}</b><span><b className={pop} key={`${kind}${cubes}`}>{fa(cubes)}</b>/{fa(n)}</span><em>خرید £{fa(buy)}</em></header>
+      <ol dir="ltr" style={{ ['--cols' as string]: cols.length + 1 }}>
+        {cols.map((p) => (
+          <li key={p} className={p === buy && cubes > 0 ? 'is-buy' : ''}>
+            <span>{prices.map((q, i) => (q === p ? <i key={i} className={i >= n - cubes ? 'is-full' : ''}>{i >= n - cubes && <img src={cube} alt="" />}</i> : null))}</span>
+            <b>£{fa(p)}</b>
+          </li>
+        ))}
+        <li className={['is-empty', cubes === 0 ? 'is-buy' : ''].join(' ')}><span><i /></span><b>£{fa(empty)}</b></li>
+      </ol>
+    </div>
+  );
+}
+
+/** Income track −10…30 with one marker per player (seat colour), turn order and spend of the round. */
+function IncomeTrack({ view, who }: { view: BrassView; who: (s: number) => string }) {
+  return (
+    <div className="br-track" role="group" aria-label="مسیر درآمد و ترتیب نوبت">
+      <header><b>مسیر درآمد</b><em>£ در هر دور</em></header>
+      <div className="br-track__scale" dir="ltr" aria-hidden>{[-10, 0, 10, 20, 30].map((n) => <span key={n} style={{ insetInlineStart: `${((n + 10) / 40) * 100}%` }}>{n < 0 ? `−${fa(-n)}` : fa(n)}</span>)}</div>
+      <ol>
+        {view.order.map((s, i) => {
+          const lvl = view.incomeLevels[s]!;
+          return (
+            <li key={s} className={view.current === s && !view.outcome ? 'is-turn' : ''} style={{ ['--seat' as string]: SEAT_COLORS[s] }}>
+              <span className="br-track__who"><i aria-hidden>{fa(i + 1)}</i><bdi>{who(s)}</bdi></span>
+              <span className="br-track__bar" dir="ltr" role="img" aria-label={`درآمد ${signed(lvl)}`}><span style={{ insetInlineStart: `${((lvl + 10) / 40) * 100}%` }} /></span>
+              <b dir="ltr">{signed(lvl)}</b>
+              <small>خرج £{fa(view.spent[s]!)}</small>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
 function PlayerBoard({ view, s, who, me, place, discard }: { view: BrassView; s: number; who: string; me: boolean; place?: number; discard: number | null | undefined }) {
   const vpPop = usePop(view.vp[s]);
   const moneyPop = usePop(view.money[s]);
@@ -205,8 +255,8 @@ function PlayerBoard({ view, s, who, me, place, discard }: { view: BrassView; s:
         <MatLanes mat={view.mat[s]!} />
         <p className="br-legend">
           <span><span className="br-tile__vp">۵</span> امتیاز پس از برگشتن</span>
-          <span><span className="br-tile__inc">↑</span> درآمد</span>
-          <span><span className="br-tile__lvp">⛓</span> امتیاز مسیر</span>
+          <span><span className="br-tile__inc"><i>£</i></span> پله‌های درآمد</span>
+          <span><span className="br-tile__lvp"><LinkIcon /></span> امتیاز مسیر</span>
           <span>⇧ تولید (آبجو: کانال/ریل)</span>
           <span>✱ توسعه‌ناپذیر</span>
           <span><span className="br-legend__next" aria-hidden /> کاشی بعدی</span>
@@ -310,17 +360,20 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
     <div className="br" ref={root} data-seq={view.seq}
       style={{ ['--art-leather' as string]: `url(${leatherArt})`, ['--art-paper' as string]: `url(${paperArt})`, ['--art-brass' as string]: `url(${brassArt})` }}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <header className="br__head">
-        <span className={`br-era br-era--${view.era}`}><img src={view.era === 'canal' ? canalArt : railArt} alt="" />دورهٔ {view.era === 'canal' ? 'کانال' : 'راه‌آهن'} · دور {fa(view.round)}</span>
-        <span className="br-deck" data-flip-anchor="deck">دسته: <b className="bg-pop" key={view.deckCount}>{fa(view.deckCount)}</b></span>
-        <span className="br-market" title={`بازار زغال: ${fa(view.coal)} از ${fa(MARKET.coal.prices.length)}`}>
-          <img src={coalCube} alt="زغال" /><b className={coalPop} key={`c${view.coal}`}>{fa(view.coal)}</b>/{fa(MARKET.coal.prices.length)} · خرید £{fa(buyPrice('coal', view.coal))}
-        </span>
-        <span className="br-market" title={`بازار آهن: ${fa(view.iron)} از ${fa(MARKET.iron.prices.length)}`}>
-          <img src={ironCube} alt="آهن" /><b className={ironPop} key={`i${view.iron}`}>{fa(view.iron)}</b>/{fa(MARKET.iron.prices.length)} · خرید £{fa(buyPrice('iron', view.iron))}
-        </span>
-        <span>کارت آزاد: شهر {fa(view.wild.location)} · صنعت {fa(view.wild.industry)}</span>
-      </header>
+      <section className="br__head" aria-label="تخته">
+        <div className="br-info">
+          <span className={`br-era br-era--${view.era}`}><img src={view.era === 'canal' ? canalArt : railArt} alt="" />دورهٔ {view.era === 'canal' ? 'کانال' : 'راه‌آهن'}</span>
+          <dl>
+            <div><dt>دور</dt><dd>{fa(view.round)}</dd></div>
+            <div className="br-deck" data-flip-anchor="deck"><dt>دسته</dt><dd><b className="bg-pop" key={view.deckCount}>{fa(view.deckCount)}</b></dd></div>
+            <div><dt>شهر آزاد</dt><dd>{fa(view.wild.location)}</dd></div>
+            <div><dt>صنعت آزاد</dt><dd>{fa(view.wild.industry)}</dd></div>
+          </dl>
+        </div>
+        <Ladder kind="coal" cubes={view.coal} label="بازار زغال" cube={coalCube} pop={coalPop} />
+        <Ladder kind="iron" cubes={view.iron} label="بازار آهن" cube={ironCube} pop={ironPop} />
+        <IncomeTrack view={view} who={who} />
+      </section>
 
       <div className="br__main">
         <ZoomBoard label="نقشهٔ بیرمنگام" className="br__map">
