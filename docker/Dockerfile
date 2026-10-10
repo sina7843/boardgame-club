@@ -39,14 +39,15 @@ USER node
 FROM server AS api
 ENV API_HOST=0.0.0.0 API_PORT=3000
 EXPOSE 3000
-HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 \
+# Slow shared hosts (2 vCPU / 2 GB) can need over a minute to boot; a passing probe still marks healthy at once.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=90s --retries=3 \
   CMD wget -qO- http://127.0.0.1:3000/api/health/ready >/dev/null || exit 1
 STOPSIGNAL SIGTERM
 CMD ["node", "apps/api/src/server.ts"]
 
 FROM server AS worker
 ENV WORKER_HEALTH_PORT=3010
-HEALTHCHECK --interval=15s --timeout=3s --start-period=20s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=90s --retries=3 \
   CMD wget -qO- http://127.0.0.1:3010/health >/dev/null || exit 1
 STOPSIGNAL SIGTERM
 CMD ["node", "apps/worker/src/main.ts"]
