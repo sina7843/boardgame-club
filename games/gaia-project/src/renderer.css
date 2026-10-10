@@ -328,3 +328,37 @@
   .gpb-big { grid-template-columns: minmax(0, 1fr); }
 }
 .gp-faction header img.gp-faction__art { inline-size: 56px; block-size: 56px; border-radius: 10px; object-fit: cover; }
+
+/* ---------- printed-sheet layout (wide boards) ----------
+   One continuous faction sheet as printed: resource tracks across the top, power cycle | structures | terraforming
+   wheel + gaiaformers in the middle, faction ability and tiles along the bottom. Narrow boards keep the stacked plates. */
+.gpb { border-width: 3px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18), inset 0 0 0 6px rgb(0 0 0 / 0.25), inset 0 0 0 7px color-mix(in srgb, var(--fc) 45%, transparent), 0 8px 22px rgb(0 0 0 / 0.4); }
+
+/* power cycle: three ring-shaped bowls on a loop, I at the bottom start, II at the bottom end, III on top */
+.gpb-cycle { position: relative; max-inline-size: 290px; margin-inline: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: 'b3 b3' 'b1 b2'; gap: 4px 18%; padding: 2px 4px; margin-block-end: 6px; }
+.gpb-cycle__ring { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; pointer-events: none; overflow: visible; }
+.gpb-cycle__ring path { fill: none; stroke: #c9a8ff; stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+.gpb-cycle__ring marker path { fill: #c9a8ff; stroke: none; }
+[dir='rtl'] .gpb-cycle__ring { transform: scaleX(-1); }
+.gpb-cycle .gpb-tokens { max-inline-size: 70%; }
+.gpb-cycle .gpb-tokens i { inline-size: 9px; block-size: 9px; }
+.gpb-cycle .gpb-bowl--1 { grid-area: b1; } .gpb-cycle .gpb-bowl--2 { grid-area: b2; }
+.gpb-cycle .gpb-bowl--3 { grid-area: b3; justify-self: center; inline-size: 50%; }
+.gpb-cycle .gpb-bowl { position: relative; aspect-ratio: 1; border-radius: 50%; border-width: 5px; border-style: double; padding: 6px 4px;
+  background: radial-gradient(circle, rgb(12 6 32 / 0.9) 0 52%, rgb(138 92 246 / 0.35) 53% 100%); }
+.gpb-cycle .gpb-bowl--3 { background: radial-gradient(circle, rgb(30 12 60 / 0.9) 0 52%, rgb(201 168 255 / 0.55) 53% 100%); }
+
+@container (min-width: 860px) {
+  .gpb-body { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 0.9fr);
+    grid-template-areas: 'res res res' 'power structs terra' 'gf structs terra' 'ability ability ability' 'foot foot foot'; gap: 10px; }
+  .gpb-col { display: contents; }
+  .gpb-res { grid-area: res; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; }
+  .gpb-res > h4, .gpb-res .gpb-rtrack--c, .gpb-res .gpb-qic { grid-column: 1 / -1; }
+  .gpb-rtrack--c ol { grid-template-columns: repeat(31, minmax(0, 1fr)); max-inline-size: none; }
+  .gpb-rtrack ol { max-inline-size: none; }
+  .gpb-power { grid-area: power; } .gpb-gf { grid-area: gf; align-self: start; } .gpb-structs { grid-area: structs; }
+  .gpb-terra { grid-area: terra; } .gpb-ability { grid-area: ability; } .gpb-foot { grid-area: foot; }
+  /* printed panels: divider lines on the sheet instead of floating glass cards */
+  .gpb-plate { background: rgb(4 7 18 / 0.5); border-color: color-mix(in srgb, var(--fc) 40%, rgb(255 255 255 / 0.12)); border-radius: 6px; }
+  .gpb-plate h4 { text-transform: uppercase; letter-spacing: 0.02em; border-block-end: 1px solid color-mix(in srgb, var(--fc) 35%, transparent); padding-block-end: 3px; }
+}

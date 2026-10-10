@@ -303,8 +303,14 @@ function PowerCycle({ p, seat }: { p: PlayerState; seat: number }) {
     <div className="gpb-plate gpb-power" aria-label="چرخهٔ قدرت">
       <h4>چرخهٔ قدرت</h4>
       <div className="gpb-cycle">
-        {bowl(b1, 1, 'کاسهٔ I')}<span className="gpb-arrow" aria-hidden="true">←</span>
-        {bowl(b2, 2, 'کاسهٔ II')}<span className="gpb-arrow" aria-hidden="true">←</span>
+        <svg className="gpb-cycle__ring" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true">
+          <defs><marker id="gpb-arrowhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" /></marker></defs>
+          <path d="M30,66 Q50,80 70,66" markerEnd="url(#gpb-arrowhead)" />
+          <path d="M80,52 Q86,26 62,16" markerEnd="url(#gpb-arrowhead)" />
+          <path d="M38,16 Q14,26 20,52" markerEnd="url(#gpb-arrowhead)" />
+        </svg>
+        {bowl(b1, 1, 'کاسهٔ I')}
+        {bowl(b2, 2, 'کاسهٔ II')}
         {bowl(b3, 3, 'کاسهٔ III')}
       </div>
       {bowl(gaia, 0, 'ناحیهٔ گایا')}
@@ -313,9 +319,6 @@ function PowerCycle({ p, seat }: { p: PlayerState; seat: number }) {
   );
 }
 
-/** The printed terraforming wheel: the seven home planet types around the faction's home planet (top), each with its
- *  terraforming steps and — beyond the printed board — the mine's current ore at the player's terraforming level.
- *  Gaia and transdim planets sit in the middle. Mirrors minePlan in core.ts (range QIC not included). */
 /** What reaching each research level gives — mirrors advance(), RANGE, TERRAFORM_ORE, GAIA_TOKENS and RESEARCH_INCOME
  *  in core.ts. `now`: one-time gain; `inc`: income while on the level; `note`: a standing value (cost/range). */
 function levelInfo(t: Track, lvl: number): { now?: Gain; inc?: Gain; note?: string } {
@@ -349,6 +352,9 @@ function LevelInfo({ t, lvl }: { t: Track; lvl: number }) {
   );
 }
 
+/** The printed terraforming wheel: the seven home planet types around the faction's home planet (top), each with its
+ *  terraforming steps and — beyond the printed board — the mine's current ore at the player's terraforming level.
+ *  Gaia and transdim planets sit in the middle. Mirrors minePlan in core.ts (range QIC not included). */
 function TerraWheel({ f, terra }: { f: FactionDef; terra: number }) {
   const per = TERRAFORM_ORE[terra]!;
   const start = WHEEL.indexOf(f.home);
@@ -457,7 +463,7 @@ function FactionBoard({ view, seat, f, compact }: { view: GaiaView; seat: number
       <div className="gpb-col">
         <TerraWheel f={f} terra={p.research.terra} />
         <PowerCycle p={p} seat={seat} />
-        <div className="gpb-plate" aria-label="گایاسازها و ماهواره‌ها">
+        <div className="gpb-plate gpb-gf" aria-label="گایاسازها و ماهواره‌ها">
           <h4>گایاساز و ماهواره</h4>
           <ol className="gpb-gfslots">
             {[0, 1, 2].map((i) => {
