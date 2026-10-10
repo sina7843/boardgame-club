@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «قلمرو» end to end: the tutorial (the last two rounds: placing, rotating, picking ahead) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -71,4 +71,31 @@ test('three players play «قلمرو» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the placed domino lands in your kingdom at once, and undo lifts it back to the line', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/kingdomino');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const filled = p.locator('.kd-kingdom--big [data-flip]');
+  const before = await filled.count();
+  await p.locator('.kd-slot.kd-hint').click();
+  await p.locator('button.kd-pick.kd-hint').click();
+  await motionLog(p);
+  await p.getByRole('button', { name: 'تأیید' }).click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(filled).toHaveCount(before + 2);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(filled).toHaveCount(before);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.context().close();
 });

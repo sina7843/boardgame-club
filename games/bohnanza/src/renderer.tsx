@@ -3,7 +3,7 @@
 // builds offers (cards to give, beans wanted, partner) and the partner answers in a small offer slip.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
 import coffee from './art/coffee.webp';
 import wax from './art/wax.webp';
 import blue from './art/blue.webp';
@@ -25,10 +25,34 @@ const SEED: Record<Bean, string> = {
 // Bean art is cut from a generated sprite sheet (see DECISIONS.md).
 const ART: Record<Bean, string> = { coffee, wax, blue, chili, stink, green, soy, blackeye, red, garden };
 
-export function BeanCard({ b, size = 'md', count, flip, flipFrom }: { b: Bean; size?: 'sm' | 'md'; count?: number; flip?: string; flipFrom?: string }) {
+/**
+ * Stable ids for an ordered list of cards (a hand is a queue: planted from the front, drawn at the back, traded from
+ * anywhere). Consecutive lists are aligned by LCS, preferring to drop earlier cards, so a card keeps its id while it
+ * slides and only cards that really left or arrived change.
+ */
+function useQueueIds(list: readonly string[], prefix: string): string[] {
+  const r = useRef<{ list: readonly string[]; ids: string[]; n: number } | null>(null);
+  if (!r.current) r.current = { list, ids: list.map((_, i) => `${prefix}${i}`), n: list.length };
+  else if (r.current.list.join() !== list.join()) {
+    const a = r.current.list, oi = r.current.ids;
+    let n = r.current.n;
+    const dp = Array.from({ length: a.length + 1 }, () => new Array<number>(list.length + 1).fill(0));
+    for (let i = a.length - 1; i >= 0; i--) for (let j = list.length - 1; j >= 0; j--) dp[i]![j] = a[i] === list[j] ? dp[i + 1]![j + 1]! + 1 : Math.max(dp[i + 1]![j]!, dp[i]![j + 1]!);
+    const ids = new Array<string>(list.length);
+    for (let i = 0, j = 0; j < list.length;) {
+      if (i < a.length && dp[i + 1]![j] === dp[i]![j]) i++;
+      else if (i < a.length && a[i] === list[j]) ids[j++] = oi[i++]!;
+      else ids[j++] = `${prefix}${n++}`;
+    }
+    r.current = { list, ids, n };
+  }
+  return r.current.ids;
+}
+
+export function BeanCard({ b, size = 'md', count, flip, flipFrom, flipExit }: { b: Bean; size?: 'sm' | 'md'; count?: number; flip?: string; flipFrom?: string; flipExit?: string }) {
   const info = BEAN_INFO[b];
   return (
-    <span className={`bn-card bn-card--${size}`} style={{ ['--seed' as string]: SEED[b] }} data-flip={flip} data-flip-from={flipFrom} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
+    <span className={`bn-card bn-card--${size}`} style={{ ['--seed' as string]: SEED[b] }} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
       <span className="bn-card__name">{info.name}</span>
       <img src={ART[b]} className="bn-bean" alt="" aria-hidden="true" draggable={false} />
       {size === 'md' && (
@@ -43,8 +67,13 @@ export function BeanCard({ b, size = 'md', count, flip, flipFrom }: { b: Bean; s
 
 type Hint = { type: string; field?: number; to?: number; faceUp?: number[]; card?: number } | null;
 
-export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BeanView>) {
+export default function BohnanzaRenderer({ view: served, legalActions: servedLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<BeanView>) {
   const me = mySeat ?? -1;
+  // Undo window: my plant / harvest shows at once from what I already know (the front hand card, the picked pending
+  // card, the field's payout); undo clears `queued` and the card flies back.
+  const view = preview(served, me, queued);
+  // While my own move is queued or in flight the served legal actions are stale: it is not my turn until the result.
+  const legalActions = queued ? [] : servedLegal;
   const has = (t: string) => legalActions.some((a) => a.type === t);
   const plantTo = new Set(legalActions.filter((a) => a.type === 'plant').map((a) => a.field as number));
   const harvestable = new Set(legalActions.filter((a) => a.type === 'harvest').map((a) => a.field as number));
@@ -57,7 +86,16 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
   const [card, setCard] = useState<number | null>(null);
   useEffect(() => { setGiveUp([]); setGiveHand([]); setWant([]); setCard(null); }, [view.seq]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  const flipKey = `${view.seq}|${queued ? JSON.stringify(queued) : ''}`;
+  useFlip(root, flipKey);
+  // A card that left my hand / pending row flies to the field that just grew; an undone one flies back from it.
+  const myFields = view.fields[me] ?? [];
+  const before = usePrevious(flipKey, myFields) ?? myFields;
+  const grew = myFields.findIndex((f, i) => f.n > (before[i]?.bean === f.bean ? before[i]!.n : 0));
+  const shrank = myFields.findIndex((f, i) => (before[i]?.n ?? 0) > (before[i]?.bean === f.bean ? f.n : 0));
+  const handIds = useQueueIds(view.hand ?? [], 'h');
+  const faceIds = useQueueIds(view.faceUp, 'u');
+  const pendIds = useQueueIds(view.pending[me] ?? [], 'p');
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const others = view.coins.map((_, k) => k).filter((k) => k !== me);
   const target = to !== null && to !== me && to < view.players ? to : others[0] ?? 0;
@@ -67,7 +105,7 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
   const pickCard = card !== null && myPending[card] ? card : pendingTo[0]?.card ?? 0;
 
   const mustPlant = !view.outcome && view.current === me && view.phase === 'plant' && view.planted === 0 && !!view.hand?.length;
-  const blocked = (mustPlant && !plantTo.size) || (myPending.length > 0 && !pendingTo.length);
+  const blocked = !queued && ((mustPlant && !plantTo.size) || (myPending.length > 0 && !pendingTo.length));
   const status = view.outcome ? null
     : blocked ? { tone: 'mine' as const, text: 'جایی برای کاشتن نیست: اول یک مزرعه را برداشت کنید' }
     : has('accept') || has('decline') ? { tone: 'mine' as const, text: `${seatName(view.offer!.from)} به شما پیشنهاد داده` }
@@ -77,18 +115,21 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
             : pendingTo.length || myPending.length ? { tone: 'mine' as const, text: 'کارت‌های گرفته‌شده را بکارید' }
               : { tone: 'wait' as const, text: view.phase === 'settle' ? 'دیگران در حال کاشتن…' : view.offer ? `منتظر پاسخ ${seatName(view.offer.to)}` : `نوبت ${seatName(view.current)}` };
 
+  // Face-up cards go to the offer's partner, or (trade over) to the active player's planting row.
+  const faceExit = (i: number) => `seat-${view.offer?.faceUp.includes(i) ? view.offer.to : view.current}`;
+
   const fieldsOf = (s: number, mine: boolean) => (
     <div className={`bn-fields ${mine ? 'bn-fields--mine' : ''}`}>
       {view.fields[s]!.map((f, i) => {
         const canPlant = mine && (plantTo.has(i) || pendingTo.some((x) => x.card === pickCard && x.field === i));
         const plantAction = plantTo.has(i) ? { type: 'plant', field: i } : { type: 'plantPending', card: pickCard, field: i };
         return (
-          <div key={i} className={`bn-field ${canPlant ? 'bn-field--open' : ''}`}>
-            {f.bean ? <BeanCard b={f.bean} count={f.n} size={mine ? 'md' : 'sm'} flip={`f-${s}-${i}`} flipFrom={mine ? 'hand' : `seat-${s}`} /> : <span className={`bn-plot bn-plot--${mine ? 'md' : 'sm'}`}>خالی</span>}
+          <div key={i} className={`bn-field ${canPlant ? 'bn-field--open' : ''}`} data-flip-anchor={mine && i === grew ? 'bn-planted' : mine && i === shrank ? 'bn-unplant' : undefined}>
+            {f.bean ? <BeanCard b={f.bean} count={f.n} size={mine ? 'md' : 'sm'} flip={`f-${s}-${i}-${f.bean}`} flipFrom={mine ? undefined : `seat-${s}`} flipExit={`coins-${s}`} /> : <span className={`bn-plot bn-plot--${mine ? 'md' : 'sm'}`}>خالی</span>}
             {mine && (
               <span className="bn-field__acts">
                 {canPlant && <Button size="sm" disabled={busy} className={hint && hint.type !== 'offer' && hint.field === i && (hint.type === 'plant' || hint.card === pickCard) ? 'bn-hint' : ''} onClick={() => onAction(plantAction)}>کاشتن اینجا</Button>}
-                {harvestable.has(i) && <button type="button" className="bn-link" disabled={busy} onClick={() => onAction({ type: 'harvest', field: i })}>برداشت ({fa(payout(f.bean!, f.n))} سکه)</button>}
+                {harvestable.has(i) && f.bean && <button type="button" className="bn-link" disabled={busy} onClick={() => onAction({ type: 'harvest', field: i })}>برداشت ({fa(payout(f.bean!, f.n))} سکه)</button>}
               </span>
             )}
           </div>
@@ -106,7 +147,7 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
           <li key={s} data-flip-anchor={`seat-${s}`} className={['bn-rival', s === view.current && !view.outcome ? 'bn-rival--now' : '', view.outcome?.placements[0]?.seat === s ? 'bn-rival--win' : ''].join(' ')}>
             <div className="bn-rival__head">
               <bdi className="bn-rival__name">{who(s)}</bdi>
-              <span className="bn-coin bg-pop" key={view.coins[s]}>{fa(view.coins[s]!)}</span>
+              <span className="bn-coin bg-pop" key={view.coins[s]} data-flip-anchor={`coins-${s}`}>{fa(view.coins[s]!)}</span>
               <span className="bn-rival__hand">{fa(view.handCounts[s]!)} کارت</span>
             </div>
             {fieldsOf(s, false)}
@@ -120,8 +161,8 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
         <div className="bn__faceup">
           {view.faceUp.length ? view.faceUp.map((b, i) => (
             offering ? (
-              <button key={i} type="button" className={`bn-pick ${giveUp.includes(i) ? 'bn-pick--on' : ''} ${hint?.type === 'offer' && hint.faceUp?.includes(i) && !giveUp.includes(i) ? 'bn-hint' : ''}`} aria-pressed={giveUp.includes(i)} onClick={() => toggle(giveUp, i, setGiveUp)}><BeanCard b={b} flip={`fu-${i}`} flipFrom="deck" /></button>
-            ) : <span key={i} className="bn-pick"><BeanCard b={b} flip={`fu-${i}`} flipFrom="deck" /></span>
+              <button key={i} type="button" className={`bn-pick ${giveUp.includes(i) ? 'bn-pick--on' : ''} ${hint?.type === 'offer' && hint.faceUp?.includes(i) && !giveUp.includes(i) ? 'bn-hint' : ''}`} aria-pressed={giveUp.includes(i)} onClick={() => toggle(giveUp, i, setGiveUp)}><BeanCard b={b} flip={faceIds[i]} flipFrom="deck" flipExit={faceExit(i)} /></button>
+            ) : <span key={i} className="bn-pick"><BeanCard b={b} flip={faceIds[i]} flipFrom="deck" flipExit={faceExit(i)} /></span>
           )) : <small className="bn__cloth">{view.phase === 'plant' ? 'کارت‌ها بعد از کاشتن رو می‌شوند' : 'میز معامله خالی است'}</small>}
         </div>
         {view.last && <small className="bn__last" key={view.seq}><bdi>{who(view.last.seat)}</bdi> {view.last.kind === 'harvest' ? `برداشت کرد: ${view.last.detail.replace(/\d+/g, (d) => fa(Number(d)))}` : view.last.kind === 'trade' ? 'معامله را پذیرفت' : view.last.kind === 'decline' ? 'پیشنهاد را رد کرد' : 'مزرعهٔ سوم خرید'}</small>}
@@ -160,27 +201,29 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
       )}
 
       {view.hand && !view.outcome && (
-        <section className="bn__me" aria-label="مزرعه‌ها و دست شما">
+        <section className="bn__me" data-flip-anchor={myPending.length ? undefined : `seat-${me}`} aria-label="مزرعه‌ها و دست شما">
           <div className="bn__me-head">
             <bdi>{who(me)}</bdi>
-            <span className="bn-coin bn-coin--lg bg-pop" key={view.coins[me]}>{fa(view.coins[me]!)}</span>
+            <span className="bn-coin bn-coin--lg bg-pop" key={view.coins[me]} data-flip-anchor={`coins-${me}`}>{fa(view.coins[me]!)}</span>
             {has('buyField') && <button type="button" className="bn-link" disabled={busy} onClick={() => onAction({ type: 'buyField' })}>خرید مزرعهٔ سوم (۳ سکه)</button>}
           </div>
           {myPending.length > 0 && (
-            <div className="bn__row bn__pending" role="group" aria-label="باید کاشته شود">
+            <div className="bn__row bn__pending" data-flip-anchor={`seat-${me}`} role="group" aria-label="باید کاشته شود">
               <small>باید بکارید:</small>
-              {myPending.map((b, i) => <button key={i} type="button" className={`bn-pick ${pickCard === i ? 'bn-pick--on' : ''}`} aria-pressed={pickCard === i} onClick={() => setCard(i)}><BeanCard b={b} size="sm" flip={`pd-${i}`} flipFrom="market" /></button>)}
+              {myPending.map((b, i) => <button key={i} type="button" className={`bn-pick ${pickCard === i ? 'bn-pick--on' : ''}`} aria-pressed={pickCard === i} onClick={() => setCard(i)}><BeanCard b={b} size="sm" flip={pendIds[i]} flipFrom={shrank >= 0 ? 'bn-unplant' : undefined} flipExit="bn-planted" /></button>)}
             </div>
           )}
           {fieldsOf(me, true)}
           {has('flip') && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'flip' ? 'bn-hint' : ''} onClick={() => onAction({ type: 'flip' })}>رو کردن دو کارت</Button>}
           <div className="bn__hand" data-flip-anchor="hand" aria-label="دست شما (به ترتیب)">
             {view.hand.map((b, i) => {
-              const hid = `h-${b}-${view.hand!.slice(0, i).filter((x) => x === b).length}`;
+              const hid = handIds[i]!;
+              const exit = view.offer?.from === me && view.offer.hand.includes(i) ? `seat-${view.offer.to}` : 'bn-planted';
+              const from = shrank >= 0 ? 'bn-unplant' : 'deck';
               return (
               offering ? (
-                <button key={i} type="button" className={`bn-pick ${giveHand.includes(i) ? 'bn-pick--on' : ''}`} aria-pressed={giveHand.includes(i)} onClick={() => toggle(giveHand, i, setGiveHand)}><BeanCard b={b} size="sm" flip={hid} flipFrom="deck" /></button>
-              ) : <span key={i} className={`bn-pick ${i === 0 ? 'bn-pick--first' : ''}`}><BeanCard b={b} size="sm" flip={hid} flipFrom="deck" /></span>
+                <button key={i} type="button" className={`bn-pick ${giveHand.includes(i) ? 'bn-pick--on' : ''}`} aria-pressed={giveHand.includes(i)} onClick={() => toggle(giveHand, i, setGiveHand)}><BeanCard b={b} size="sm" flip={hid} flipFrom={from} flipExit={exit} /></button>
+              ) : <span key={i} className={`bn-pick ${i === 0 ? 'bn-pick--first' : ''}`}><BeanCard b={b} size="sm" flip={hid} flipFrom={from} flipExit={exit} /></span>
               );
             })}
             {!view.hand.length && <small>دستتان خالی است</small>}
@@ -189,4 +232,26 @@ export default function BohnanzaRenderer({ view, legalActions, mySeat, seatName,
       )}
     </div>
   );
+}
+
+/** The served view with my queued plant / harvest applied (only information I already hold). */
+function preview(v: BeanView, me: number, q: GameRendererProps<BeanView>['queued']): BeanView {
+  if (!q || me < 0) return v;
+  const fields = v.fields.map((fs) => fs.map((f) => ({ ...f })));
+  const f = fields[me]?.[q.field as number];
+  if (!f) return v;
+  let bean: Bean | undefined;
+  let hand = v.hand, pending = v.pending;
+  if (q.type === 'plant' && v.hand?.length) { bean = v.hand[0]; hand = v.hand.slice(1); }
+  else if (q.type === 'plantPending') {
+    bean = v.pending[me]?.[q.card as number];
+    pending = v.pending.map((p, s) => (s === me ? p.filter((_, i) => i !== q.card) : p));
+  } else if (q.type === 'harvest' && f.bean) {
+    const coins = v.coins.map((c, s) => (s === me ? c + payout(f.bean!, f.n) : c));
+    fields[me]![q.field as number] = { bean: null, n: 0 };
+    return { ...v, fields, coins };
+  }
+  if (!bean || (f.bean && f.bean !== bean)) return v;
+  fields[me]![q.field as number] = { bean, n: f.n + 1 };
+  return { ...v, fields, hand, pending };
 }

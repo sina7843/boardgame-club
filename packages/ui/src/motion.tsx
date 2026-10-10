@@ -65,7 +65,7 @@ function fly(n: HTMLElement, from: Box, to: Box, frames: (dx: number, dy: number
  * A card that left and exists nowhere else (discarded, trashed, given away face down): its ghost — prepared while it
  * was still on screen — flies from where it was to the `data-flip-exit` anchor, or drops and fades for "drop".
  */
-function exitFly(ghost: HTMLElement, from: Box, to: Box | undefined) {
+function exitFly(ghost: HTMLElement | SVGSVGElement, from: Box, to: Box | undefined) {
   const remove = mount(ghost, from, 'exit');
   const frames: Keyframe[] = to
     ? [{ transform: 'none', opacity: 1 }, { transform: `translate(${to.x + to.w / 2 - (from.x + from.w / 2)}px, ${to.y + to.h / 2 - (from.y + from.h / 2)}px) scale(${to.w && from.w ? Math.min(1.2, to.w / from.w) : 0.7}) rotate(6deg)`, opacity: 0.25 }]
@@ -110,6 +110,8 @@ function svgGhost(n: SVGGraphicsElement, at: Box): SVGSVGElement {
 /** Put a ghost in the fixed top layer over `at`; returns a cleanup that removes it. */
 function mount(ghost: HTMLElement | SVGSVGElement, at: Box, kind: 'fly' | 'die' | 'exit'): () => void {
   ghost.setAttribute('data-motion-ghost', kind); // lets tests see which kind of top-layer motion ran
+  ghost.setAttribute('inert', ''); // a flying copy is never clickable or focusable
+  ghost.setAttribute('aria-hidden', 'true');
   Object.assign(ghost.style, {
     position: 'fixed', left: `${at.x}px`, top: `${at.y}px`, right: 'auto', bottom: 'auto', width: `${at.w}px`, height: `${at.h}px`,
     margin: '0', zIndex: LAYER_Z, pointerEvents: 'none', transition: 'none', animation: 'none', visibility: 'visible', transformOrigin: '50% 50%'
@@ -159,7 +161,8 @@ export function usePrevious<T>(key: unknown, v: T): T | undefined {
  */
 export function useFlip(root: RefObject<HTMLElement | null>, key: unknown) {
   const prev = useRef<Map<string, Box> | null>(null);
-  const exits = useRef<Map<string, { ghost: HTMLElement; to: string }>>(new Map());
+  const exits = useRef<Map<string, { ghost: HTMLElement | SVGSVGElement; to: string }>>(new Map());
+  const scrolled = useRef({ x: 0, y: 0 });
   const seenDice = useRef<WeakSet<Element>>(new WeakSet());
   useLayoutEffect(() => {
     const host = root.current;
@@ -169,13 +172,22 @@ export function useFlip(root: RefObject<HTMLElement | null>, key: unknown) {
     host.querySelectorAll('[data-flip-anchor]').forEach((a) => anchors.set((a as HTMLElement).dataset.flipAnchor!, box(a)));
     const next = new Map<string, Box>();
     for (const n of nodes) next.set(n.dataset.flip!, box(n));
-    const before = prev.current;
+    // Boxes are viewport-relative: if the page scrolled since the last change, shift the old boxes by the same amount,
+    // otherwise every piece would look moved and fly.
+    const sx = window.scrollX, sy = window.scrollY;
+    const dx = sx - scrolled.current.x, dy = sy - scrolled.current.y;
+    scrolled.current = { x: sx, y: sy };
+    const before = prev.current && (dx || dy) ? new Map(Array.from(prev.current, ([k, b]) => [k, { ...b, x: b.x - dx, y: b.y - dy }])) : prev.current;
     prev.current = next;
     const leaving = exits.current;
     // Ghosts of exit-marked cards are prepared now, while they are still on screen, for the next change.
     exits.current = new Map();
     const off = motionOff();
-    if (!off) for (const n of nodes) if (n instanceof HTMLElement && n.dataset.flipExit) exits.current.set(n.dataset.flip!, { ghost: htmlGhost(n), to: n.dataset.flipExit });
+    if (!off) for (const n of nodes) {
+      if (!n.dataset.flipExit) continue;
+      // SVG pieces (map tiles, meeples, structures) get a standalone SVG ghost so they can leave too.
+      exits.current.set(n.dataset.flip!, { ghost: n instanceof HTMLElement ? htmlGhost(n) : svgGhost(n, next.get(n.dataset.flip!)!), to: n.dataset.flipExit });
+    }
     const dice = Array.from(host.querySelectorAll<HTMLElement | SVGGraphicsElement>('.bg-roll')).filter((d) => !seenDice.current.has(d));
     dice.forEach((d) => seenDice.current.add(d));
     if (!before || off) return;

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «اشرافی» end to end: the tutorial (bids, a pass, prestige, a disgrace, the poorest-player rule) and a full three-player game
 // through luxury and disgrace auctions until the fourth red card.
@@ -74,4 +74,33 @@ test('three players play «اشرافی» to the result', async ({ browser }, in
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the bid banknote flies from the hand to the bid row at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/high-society');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  const v = await p.locator('.hs-pick.hs-hint .hs-note').first().getAttribute('data-v');
+  while (await p.locator('.hs-pick.hs-hint').count()) await p.locator('.hs-pick.hs-hint').first().click();
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const inHand = p.locator(`.hs__fan .hs-note[data-v="${v}"]`);
+  const onBid = p.locator(`.hs-pl--me .hs-pl__bid .hs-note[data-v="${v}"]`);
+  await p.locator('.hs__actions .hs-hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(onBid).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inHand).toBeVisible();
+  await expect(onBid).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

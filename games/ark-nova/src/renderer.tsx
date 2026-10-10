@@ -5,7 +5,7 @@
 // and building placement by tapping map spaces or choosing from a list. The spatial map alone is dir="ltr".
 import './renderer.css';
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import icBird from './art/ic-bird.webp';
 import icHerbivore from './art/ic-herbivore.webp';
 import icPredator from './art/ic-predator.webp';
@@ -113,9 +113,9 @@ function CardFace({ id, full = true }: { id: number; full?: boolean }) {
   return <><span className="an-card__head"><b>{nameOf(id)}</b></span>{sc && <small className="an-fx">{sc.textFa}</small>}</>;
 }
 const kindOf = (id: number) => (ANIMAL[id] ? 'animal' : SPONSOR[id] ? 'sponsor' : PROJECT[id] ? 'project' : 'scoring');
-function Card({ id, selected, onClick, disabled, flip, hint, full }: { id: number; selected?: boolean; onClick?: () => void; disabled?: boolean; flip?: boolean; hint?: boolean; full?: boolean }) {
+function Card({ id, selected, onClick, disabled, flip, from = 'deck', exit, hint, full }: { id: number; selected?: boolean; onClick?: () => void; disabled?: boolean; flip?: boolean; from?: string; exit?: string; hint?: boolean; full?: boolean }) {
   const cls = ['an-card', `an-card--${kindOf(id)}`, selected ? 'an-card--on' : '', hint ? 'an-hint' : ''].join(' ');
-  const motion = flip ? { 'data-flip': `card-${id}`, 'data-flip-from': 'deck' } : {};
+  const motion = flip ? { 'data-flip': `card-${id}`, 'data-flip-from': from, 'data-flip-exit': exit } : {};
   return onClick
     ? <button type="button" className={cls} aria-pressed={selected} onClick={onClick} disabled={disabled} aria-label={cardLine(id)} {...motion}><CardFace id={id} full={full} /></button>
     : <article className={cls} aria-label={cardLine(id)} {...motion}><CardFace id={id} full={full} /></article>;
@@ -145,6 +145,7 @@ function ZooMap({ map, player, preview, targets, onCell, label, hintCells }: {
   const owner = new Map<string, PlayerView['buildings'][number]>();
   for (const b of player.buildings) for (const c of b.cells) owner.set(c, b);
   const pv = new Set(preview ?? []);
+  const fresh = useFresh(player.buildings.map((b) => b.cells.join()));
   const hint = new Set(hintCells ?? []);
   return (
     <div dir="ltr" className="an-map-wrap">
@@ -165,6 +166,7 @@ function ZooMap({ map, player, preview, targets, onCell, label, hintCells }: {
             b ? `an-hex--b an-hex--${b.kind.startsWith('u') ? 'unique' : b.kind}${b.full ? ' an-hex--full' : ''}` : '',
             pv.has(c) ? 'an-hex--preview' : '', target ? 'an-hex--target' : '', hint.has(c) ? 'an-hex--hint' : ''].join(' ');
           const [cx, cy] = center(c);
+          const land = b && fresh.has(b.cells.join()) ? ' bg-land' : '';
           const bonus = map.bonuses[c] && !player.taken.includes(c) ? map.bonuses[c] : null;
           const mark = map.marks[c];
           const title = `${c}${water ? ' — آب' : ''}${rock ? ' — صخره' : ''}${map.upgrade.includes(c) ? ' — نیازمند ساخت II' : ''}${bonus ? ` — پاداش: ${bonus}` : ''}${mark ? ` — ${mark}` : ''}${b ? ` — ${kindName(b.kind)}${b.full ? ' (پر)' : isStdKind(b.kind) ? ' (خالی)' : ''}${b.used ? ` (${fa(b.used)} جای اشغال)` : ''}` : ''}`;
@@ -172,7 +174,7 @@ function ZooMap({ map, player, preview, targets, onCell, label, hintCells }: {
           return (
             <g key={c} onClick={click} className={click ? `an-hex-g--click${hint.has(c) && !pv.has(c) ? ' an-hint' : ''}` : undefined} tabIndex={click ? 0 : undefined} role={click ? 'button' : undefined}
               aria-label={click ? `خانهٔ ${c}` : undefined} onKeyDown={click ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); click(); } } : undefined}>
-              <polygon points={hexPath(c)} className={cls} style={fill ? { fill } : undefined}><title>{title}</title></polygon>
+              <polygon points={hexPath(c)} className={cls + land} style={fill ? { fill } : undefined}><title>{title}</title></polygon>
               {b && b.cells[0] === c && <text x={cx} y={cy + 4} className="an-hex__t">{KIND_SHORT[b.kind] ?? '★'}{b.full ? '●' : ''}{b.used ? `·${fa(b.used)}` : ''}</text>}
               {bonus && !b && <circle cx={cx} cy={cy} r={4} className="an-hex__bonus" />}
               {mark && !b && <circle cx={cx} cy={cy} r={6} className="an-hex__mark" />}
@@ -236,13 +238,13 @@ function PlayerBoard({ p, map, me, name, active, hand, children }: { p: PlayerVi
       {hand && (
         <div className="an-hand" aria-label="دست شما">
           <h4>دست شما ({fa(hand.length)})</h4>
-          <div className="an-row">{hand.map((id) => <Card key={id} id={id} flip />)}</div>
+          <div className="an-row">{hand.map((id) => <Card key={id} id={id} flip exit="discard" />)}</div>
         </div>
       )}
       {p.zoo.length > 0 && (
         <details className="an-zoo" open={me}>
           <summary>کارت‌های باغ‌وحش ({fa(p.zoo.length)})</summary>
-          <div className="an-row">{p.zoo.map((id) => <Card key={id} id={id} flip full={me} />)}</div>
+          <div className="an-row">{p.zoo.map((id) => <Card key={id} id={id} flip from={`seat-${p.seat}`} full={me} />)}</div>
         </details>
       )}
     </section>
@@ -283,9 +285,40 @@ function logLine(e: Record<string, unknown>, who: (s: number) => string): string
 }
 
 // ---------------- Main ----------------
-export default function ArkNovaRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<ArkView>) {
+/**
+ * The served view with my queued answer applied as far as it is certain: a placed building stands on the map, a played
+ * animal or sponsor moves from my hand or the display into my zoo (its enclosure turns full). Rewards, abilities and
+ * draws wait for the server.
+ */
+function previewView(v: ArkView, a: GameAction | null, seat: number | null): ArkView {
+  const me = seat === null ? undefined : v.players[seat];
+  if (!a || !me || !v.me) return v;
+  const withMe = (p: PlayerView, hand = v.me!.hand, display = v.display): ArkView =>
+    ({ ...v, display, me: { ...v.me!, hand }, players: v.players.map((x) => (x.seat === seat ? p : x)) });
+  if (typeof a.kind === 'string' && Array.isArray(a.cells)) {
+    return withMe({ ...me, buildings: [...me.buildings, { id: -1, kind: a.kind, cells: a.cells as string[] }] });
+  }
+  const m = typeof a.value === 'string' ? /^(\d+)@([^@]+)@(\d+)$/.exec(a.value) ?? /^sp:(\d+):()(\d+)$/.exec(a.value) : null;
+  if (!m) return v;
+  const card = Number(m[1]), home = Number(m[2]), folder = Number(m[3]);
+  if (folder ? v.display[folder - 1] !== card : !v.me.hand.includes(card)) return v;
+  return withMe(
+    { ...me, zoo: [...me.zoo, card], handCount: me.handCount - (folder ? 0 : 1),
+      buildings: me.buildings.map((b) => (b.id === home && isStdKind(b.kind) ? { ...b, full: true } : b)) },
+    folder ? v.me.hand : v.me.hand.filter((x) => x !== card),
+    folder ? v.display.map((x, i) => (i === folder - 1 ? null : x)) : v.display
+  );
+}
+
+export default function ArkNovaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<ArkView>) {
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  // Undo-window preview, kept while the answer is in flight (see previewView).
+  const held = useRef<{ seq: number; a: GameAction } | null>(null);
+  if (queued) held.current = { seq: served.seq, a: queued };
+  const preview = queued ?? (busy && held.current?.seq === served.seq ? held.current.a : null);
+  if (!preview) held.current = null;
+  const view = previewView(served, preview, mySeat);
+  useFlip(root, `${view.seq}|${preview ? JSON.stringify(preview) : ''}`);
   const prompt = view.prompt as PromptView | null;
   const mine = !!prompt && prompt.seat === mySeat;
   const draft = legalActions.find((a) => a.type === 'draft') as undefined | { cards: number[]; maps: string[] };
@@ -315,6 +348,7 @@ export default function ArkNovaRenderer({ view, legalActions, mySeat, seatName, 
   };
   const me = mySeat === null ? null : view.players[mySeat] ?? null;
   const status = view.outcome ? 'بازی تمام شد'
+    : queued ? 'حرکت شما در حال ثبت است…'
     : view.stage === 'draft' ? (draft ? '۴ کارت از ۸ کارت آغازین را نگه دارید' : 'منتظر انتخاب کارت‌های دیگران')
     : prompt ? (mine ? faDigits(prompt.label) : `نوبت ${who(prompt.seat)}: ${faDigits(prompt.label)}`) : '';
   const cardOf = (value: string): number | null => {
@@ -377,7 +411,7 @@ export default function ArkNovaRenderer({ view, legalActions, mySeat, seatName, 
 
   return (
     <div className="an" dir="rtl" ref={root} data-seq={view.seq}>
-      <TurnIndicator tone={view.outcome ? 'done' : (mine || draft) ? 'mine' : 'wait'}>{status}</TurnIndicator>
+      <TurnIndicator tone={view.outcome ? 'done' : (mine || draft) && !queued ? 'mine' : 'wait'}>{status}</TurnIndicator>
 
       {draft && !busy && (
         <section className="an-panel an-prompt" aria-label="انتخاب کارت‌های آغازین">
@@ -425,13 +459,13 @@ export default function ArkNovaRenderer({ view, legalActions, mySeat, seatName, 
             <div className="an-break" role="meter" aria-valuemin={0} aria-valuemax={view.brkMax} aria-valuenow={view.brk} aria-label="مسیر استراحت">
               <span style={{ inlineSize: `${(100 * view.brk) / view.brkMax}%` }} />
             </div>
-            <p className="an-small">استراحت: {fa(view.brk)} از {fa(view.brkMax)} · دسته: <span data-flip-anchor="deck">{fa(view.deckCount)}</span> · دورریخته: {fa(view.discardCount)} · نوبت {fa(view.turnsDone + 1)}
+            <p className="an-small">استراحت: {fa(view.brk)} از {fa(view.brkMax)} · دسته: <span data-flip-anchor="deck">{fa(view.deckCount)}</span> · <span data-flip-anchor="discard">دورریخته: {fa(view.discardCount)}</span> · نوبت {fa(view.turnsDone + 1)}
               {view.endAt !== null ? ` · پایان اعلام شد (${fa(Math.max(0, view.endAt - view.turnsDone))} نوبت مانده)` : ''}</p>
             <ol className="an-display" aria-label="ویترین (هزینهٔ برداشتن = شمارهٔ پوشه)">
               {view.display.map((id, i) => (
                 <li key={i} className={me && i < me.range ? 'an-folder an-folder--range' : 'an-folder'}>
                   <b>{fa(i + 1)}</b>
-                  {id === null ? <span className="an-card an-card--empty">{view.stage === 'draft' ? 'رو به پایین' : 'خالی'}</span> : <Card id={id} flip />}
+                  {id === null ? <span className="an-card an-card--empty">{view.stage === 'draft' ? 'رو به پایین' : 'خالی'}</span> : <Card id={id} flip exit={prompt ? `seat-${prompt.seat}` : 'discard'} />}
                 </li>
               ))}
             </ol>

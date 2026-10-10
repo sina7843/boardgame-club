@@ -1,5 +1,5 @@
 import { expect, test, type Browser, type Page, type TestInfo } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // Unmatched end to end: two independent clients pick heroes, deploy and fight through the real UI (live duel) until one
 // hero falls. Decisions are made like a casual player: attack when possible, otherwise maneuver; every other prompt
@@ -141,6 +141,36 @@ async function duel(browser: Browser, info: TestInfo, tag: string, mapFa: string
 }
 
 const only = (info: TestInfo) => test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+
+test('undo window: the attack card flies from the hand into the combat at once, and undo flies it back', async ({ browser }, info) => {
+  only(info);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/unmatched');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const d = panel(p);
+  await d.getByRole('button', { name: /^حمله/ }).click();
+  await d.locator('fieldset').filter({ hasText: 'مبارز مهاجم' }).locator('.um-choice--hint').click();
+  await d.locator('fieldset').filter({ hasText: 'هدف' }).locator('.um-choice--hint').click();
+  await motionLog(p);
+  const card = '[data-flip="card-0.aid-the-chosen-one.1"]';
+  await p.locator(`.um-hand ${card}`).click({ force: true }); // the hinted card pulses, so it never reads as "stable"
+  if (await d.getByRole('button', { name: /^ثبت حمله/ }).count()) await d.getByRole('button', { name: /^ثبت حمله/ }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(p.locator(`.um-combat ${card}`)).toHaveCount(1);
+  await expect(p.locator(`.um-hand ${card}`)).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(p.locator(`.um-hand ${card}`)).toHaveCount(1);
+  await expect(p.locator('.um-combat')).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
+});
 
 test('Battle of Legends duel on Marmoreal (Arthur, Medusa) to the result', async ({ browser }, info) => {
   only(info);

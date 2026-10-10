@@ -1,8 +1,8 @@
 // کندو renderer: hexagonal tiles with drawn bugs on a felt table; the view fits the hive as it grows.
 // Place: tap a bug in your reserve, then a lit spot. Move: tap one of your pieces, then a lit destination.
 import './renderer.css';
-import { useEffect, useId, useMemo, useState } from 'react';
-import { TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { TurnIndicator, ZoomBoard, useFlip, useFresh, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
 import bugQ from './art/bug-Q.webp';
 import bugS from './art/bug-S.webp';
 import bugB from './art/bug-B.webp';
@@ -22,10 +22,49 @@ const hexPoints = (x: number, y: number, rr: number) => Array.from({ length: 6 }
   return `${x + Math.cos(a) * rr},${y + Math.sin(a) * rr}`;
 }).join(' ');
 
-export default function HiveRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<HiveView>) {
+type Queued = { type: string; bug?: Bug; from?: Hex; to?: Hex };
+
+/** My queued place/move applied to the board at once (all of it is already known on the client). */
+function preview(v: HiveView, q: Queued | null | undefined, c: Color): HiveView {
+  if (!q?.to) return v;
+  const stacks = { ...v.stacks }, to = key(q.to);
+  if (q.type === 'place' && q.bug) {
+    stacks[to] = [...(stacks[to] ?? []), { c, t: q.bug }];
+    return { ...v, stacks, reserve: { ...v.reserve, [c]: { ...v.reserve[c], [q.bug]: v.reserve[c][q.bug] - 1 } } };
+  }
+  if (q.type === 'move' && q.from) {
+    const from = key(q.from), src = stacks[from] ?? [], top = src.at(-1);
+    if (!top) return v;
+    if (src.length > 1) stacks[from] = src.slice(0, -1); else delete stacks[from];
+    stacks[to] = [...(stacks[to] ?? []), top];
+    return { ...v, stacks };
+  }
+  return v;
+}
+
+const hexDist = (a: string, b: string) => {
+  const [aq, ar, al] = a.split(/[,#]/).map(Number), [bq, br, bl] = b.split(/[,#]/).map(Number);
+  const dq = aq! - bq!, dr = ar! - br!;
+  return (Math.abs(dq) + Math.abs(dr) + Math.abs(dq + dr)) / 2 + Math.abs(al! - bl!);
+};
+
+export default function HiveRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HiveView>) {
   const felt = `${useId()}-felt`;
   const me = mySeat ?? 0;
-  const myColor: Color = view.colors[me]!;
+  const myColor: Color = served.colors[me]!;
+  const q = queued as Queued | null | undefined;
+  const view = mySeat === null ? served : preview(served, q, myColor);
+  // Every tile keeps one motion id while it moves (matched cell to cell by bug and colour, nearest first); slots are
+  // "q,r#level" in a list that only grows, so indexes stay stable. Moves glide, placements fly in from the reserve,
+  // and undo of my queued move glides the tile back.
+  const slots = useRef<string[]>([]);
+  for (const [k, st] of Object.entries(view.stacks)) st.forEach((_, l) => { if (!slots.current.includes(`${k}#${l}`)) slots.current.push(`${k}#${l}`); });
+  const pieceIds = usePieceIds(slots.current.map((sl) => { const [k, l] = sl.split('#'); const pc = view.stacks[k!]?.[Number(l)]; return pc ? pc.c + pc.t : null; }),
+    (a, b) => hexDist(slots.current[a]!, slots.current[b]!));
+  const idAt = (k: string, l: number) => pieceIds[slots.current.indexOf(`${k}#${l}`)] ?? undefined;
+  const placed = useFresh(pieceIds.filter((x): x is string => !!x)); // new tiles come from the reserve; a tile uncovered by a beetle does not
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, `${view.history.length}|${q ? JSON.stringify(q) : ''}`);
   const canPlace = legalActions.some((a) => a.type === 'place') && !busy;
   const canMove = legalActions.some((a) => a.type === 'move') && !busy;
   const [bug, setBug] = useState<Bug | null>(null);
@@ -62,17 +101,17 @@ export default function HiveRenderer({ view, legalActions, mySeat, seatName, bus
   };
 
   const last = view.history.at(-1);
-  const lastTo = last && last.t !== 'pass' ? key(last.to) : null;
-  const lastFrom = last?.t === 'move' ? px(last.from) : null;
   const surrounded = new Set(view.end?.surrounded ?? []);
   const who = (c: Color) => (view.colors[0] === c ? (mySeat === 0 ? 'شما' : seatName(0)) : (mySeat === 1 ? 'شما' : seatName(1)));
   const lastPass = last?.t === 'pass' ? last : null;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : canPlace || canMove ? { tone: 'mine' as const, text: mustQueen ? 'نوبت چهارم: باید ملکه را بگذارید' : bug ? `جای ${BUG_FA[bug]} را انتخاب کنید` : from ? 'مقصد را بزنید' : 'نوبت شما: بگذارید یا حرکت دهید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
   return (
-    <div className="hv" data-turn={view.turnNo}>
+    <div className="hv" data-turn={view.turnNo} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />
 
@@ -103,16 +142,17 @@ export default function HiveRenderer({ view, legalActions, mySeat, seatName, bus
             const mine = topPiece.c === myColor && canMove;
             const isSel = from && key(from) === k;
             const isHint = hint?.type === 'move' && !from && key(hint.from) === k;
-            const slide = lastTo === k && lastFrom ? { ['--dx' as string]: `${lastFrom.x - x}px`, ['--dy' as string]: `${lastFrom.y - y}px` } : undefined;
             return (
-              <g key={`${k}-${lastTo === k ? view.history.length : 0}`} role="gridcell" tabIndex={mine ? 0 : -1}
+              <g key={k} role="gridcell" tabIndex={mine ? 0 : -1}
                 aria-label={`${BUG_FA[topPiece.t]} ${topPiece.c === myColor ? 'شما' : 'حریف'}${stack.length > 1 ? `، ${fa(stack.length)} مهره روی هم` : ''}${isSel ? '، انتخاب‌شده' : ''}`}
-                className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '', lastTo === k ? (slide ? 'hv-cell--moved' : 'bg-land') : '',
+                className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '',
                   topPiece.t === 'Q' && surrounded.has(topPiece.c) ? 'hv-cell--trapped' : ''].join(' ')}
-                style={slide} onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
+                onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
                 {stack.length > 1 && <polygon points={hexPoints(x + 5, y + 7, R * 0.9)} className={`hv-under hv-under--${stack.at(-2)!.c}`} />}
-                <Tile x={x} y={y} p={topPiece} />
-                {stack.length > 1 && <text x={x + R * 0.55} y={y - R * 0.45} className="hv-height">{fa(stack.length)}</text>}
+                <g data-flip={idAt(k, stack.length - 1)} data-flip-from={placed.has(idAt(k, stack.length - 1) ?? '') ? `res-${topPiece.c}-${topPiece.t}` : undefined}>
+                  <Tile x={x} y={y} p={topPiece} />
+                  {stack.length > 1 && <text x={x + R * 0.55} y={y - R * 0.45} className="hv-height">{fa(stack.length)}</text>}
+                </g>
               </g>
             );
           })}
@@ -135,7 +175,7 @@ function Reserve({ view, color, label, selected, onPick, only, hint, small }: { 
         const enabled = !!onPick && n > 0 && (!only || only === b);
         const body = (
           <>
-            <svg viewBox="-50 -50 100 100" aria-hidden="true"><Tile x={0} y={0} p={{ c: color, t: b }} /></svg>
+            <svg viewBox="-50 -50 100 100" aria-hidden="true" data-flip-anchor={`res-${color}-${b}`}><Tile x={0} y={0} p={{ c: color, t: b }} /></svg>
             <Count n={n} />
           </>
         );

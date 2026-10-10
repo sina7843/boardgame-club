@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // Ticket to Ride end to end: three independent clients start a live table on a chosen map, keep their destination
 // tickets at the same time, then play turns through the UI: claim a highlighted route when one is affordable (tap it
@@ -78,3 +78,34 @@ for (const [map, cfg] of Object.entries(MAPS)) {
     for (const p of pages) await p.context().close();
   });
 }
+
+test('undo window: a face-up card flies to the hand at once, and undo puts it back in the row', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/ticket-to-ride');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.locator('.ttr-ticket--pick').nth(2).click();
+  await p.locator('.ttr-hintbtn').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const locos = p.locator('.ttr-handcard').filter({ hasText: 'لوکوموتیو' }).locator('.ttr-handcard__n');
+  const before = await locos.textContent();
+  const slot = p.locator('.ttr-cards > li').nth(2);
+  await slot.locator('button.ttr-hintbtn').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(slot.locator('.ttr-card--empty')).toBeVisible();
+  await expect(locos).not.toHaveText(before!);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(slot.locator('button.ttr-hintbtn')).toBeVisible();
+  await expect(locos).toHaveText(before!);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.context().close();
+});

@@ -1,8 +1,8 @@
 // Snakes and Ladders renderer: 10×10 vector board (square 1 bottom-left, alternating rows), ladders and snakes drawn
 // over it on a painted jungle backdrop (WebP cut from a generated sheet, see DECISIONS.md), numbered player tokens (colour + number, never colour alone), die and roll button.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import jungle from './art/bd-jungle.webp';
 import dieArt from './art/die.webp';
 import { BoardDefs, LadderArt, PawnArt, SnakeArt, pipsOf } from './art.tsx';
@@ -20,9 +20,21 @@ function center(n: number): [number, number] {
   return [col * CELL + CELL / 2, (9 - row) * CELL + CELL / 2];
 }
 
-export function Die({ value, rolling }: { value: number | null; rolling?: boolean }) {
+/** Board points a token passes: square by square from `from` to `landed` (bouncing off 100), then the ladder/snake slide. */
+function walk(e: Extract<LogEntry, { t: 'roll' }>): { pts: [number, number][]; units: number[] } {
+  const pts: [number, number][] = [e.from ? center(e.from) : [center(1)[0] - CELL, center(1)[1]]];
+  const units: number[] = [];
+  const squares: number[] = [];
+  if (e.via === 'bounce') { for (let n = e.from + 1; n <= 100; n++) squares.push(n); for (let n = 99; n >= e.landed; n--) squares.push(n); }
+  else if (e.via !== 'stay') for (let n = e.from + 1; n <= e.landed; n++) squares.push(n);
+  for (const n of squares) { pts.push(center(n)); units.push(1); }
+  if (e.to !== e.landed) { pts.push(center(e.to)); units.push(3); }
+  return { pts, units };
+}
+
+export function Die({ value, rolling, pending }: { value: number | null; rolling?: boolean; pending?: boolean }) {
   return (
-    <svg className={rolling ? 'sl-die bg-roll' : 'sl-die'} viewBox="0 0 44 44" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
+    <svg className={pending ? 'sl-die bg-tumble' : rolling ? 'sl-die bg-roll' : 'sl-die'} viewBox="0 0 44 44" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
       <rect x="5" y="7" width="36" height="36" rx="9" className="sl-die__shadow" />
       <rect x="3" y="3" width="36" height="36" rx="9" fill="url(#sl-die-face)" stroke="#8f7f58" strokeWidth="1.2" />
       <rect x="5" y="5" width="32" height="32" rx="7" fill="none" stroke="url(#sl-bevel)" strokeWidth="2" />
@@ -49,7 +61,7 @@ function describe(e: LogEntry, name: (s: number) => string) {
   }
 }
 
-export default function SnakesRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SnakesView>) {
+export default function SnakesRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SnakesView>) {
   const canRoll = legalActions.some((a) => a.type === 'roll');
   const latest = view.log.at(-1);
   const [announce, setAnnounce] = useState('');
@@ -60,9 +72,39 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
   }, [latest, seatName]);
 
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, latest?.seq ?? 0);
+  // The die tumbles without pips while the own roll waits in the undo window or for the server (a roll is random, so
+  // nothing else can be previewed); it is thrown once the result lands, then the token walks square by square.
+  const [rollSent, setRollSent] = useState(-1);
+  const rollPending = queued?.type === 'roll' || (busy && rollSent === (latest?.seq ?? 0));
+  useFlip(root, `${latest?.seq ?? 0}|${rollPending}`);
+  const lastRoll = [...view.log].reverse().find((e): e is Extract<SnakesView['log'][number], { t: 'roll' }> => e.t === 'roll');
+  const thrown = useRef(lastRoll?.seq);
+  const rolling = !!lastRoll && lastRoll.seq !== thrown.current;
+  useEffect(() => { if (!rollPending) thrown.current = lastRoll?.seq; });
+  const posSig = view.pos.join(',');
+  const before = useRef({ pos: view.pos, seq: lastRoll?.seq });
+  useLayoutEffect(() => {
+    const prev = before.current;
+    before.current = { pos: view.pos, seq: lastRoll?.seq };
+    const host = root.current;
+    if (!host || motionOff() || prev.seq === lastRoll?.seq) return;
+    const fresh = view.log.filter((e) => e.t === 'roll' && e.seq > (prev.seq ?? 0));
+    for (const e of fresh) {
+      if (e.t !== 'roll' || e.to === e.from || prev.pos[e.seat] !== e.from || view.pos[e.seat] !== e.to) continue;
+      const el = host.querySelector<SVGGElement>(`[data-token="${e.seat}"]`);
+      if (!el) continue;
+      const { pts, units } = walk(e);
+      const [fx, fy] = center(e.to), total = units.reduce((a, b) => a + b, 0);
+      let acc = 0;
+      el.animate(pts.map(([x, y], k) => {
+        if (k) acc += units[k - 1]!;
+        return { transform: `translate(${x - fx}px, ${y - fy}px) scale(${k && k < pts.length - 1 ? 1.08 : 1})`, offset: acc / total };
+      }), { duration: Math.min(300 + total * 170, 3200), delay: MOTION.roll * 0.8, easing: 'linear', fill: 'backwards' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posSig, lastRoll?.seq]);
 
-  const status = view.outcome ? null : canRoll
+  const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : canRoll
     ? { tone: 'mine' as const, text: 'نوبت شماست: تاس بریزید' }
     : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
@@ -110,7 +152,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
             const r = seats.length > 1 ? 12 : 0;
             return (
               <g key={seat} className="sl-token" style={{ transform: `translate(${cx + Math.cos(angle) * r}px, ${cy + Math.sin(angle) * r}px)` }}>
-                <g data-flip={`token-${seat}`}><PawnArt color={TOKEN_COLORS[seat]!} label={fa(seat + 1)} dark={seat === 3} /></g>
+                <g data-token={seat} className="sl-walk"><PawnArt color={TOKEN_COLORS[seat]!} label={fa(seat + 1)} dark={seat === 3} /></g>
               </g>
             );
           }))}
@@ -120,9 +162,9 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
 
         <div className="sl-side">
           <div className="sl-roll">
-            <Die key={latest?.seq} value={view.lastDie} rolling={!!latest} />
+            {rollPending ? <Die key="pending" value={null} pending /> : <Die key={lastRoll?.seq ?? 0} value={view.lastDie} rolling={rolling} />}
             {canRoll && (
-              <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => onAction({ type: 'roll' })}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>
+              <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>
             )}
           </div>
           <ul className="sl-players" aria-label="بازیکنان">
@@ -130,7 +172,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
               <li key={seat} className={[view.current === seat && !view.outcome ? 'sl-player--turn' : '', view.active[seat] ? '' : 'sl-player--out'].join(' ')}>
                 <span className="sl-dot" style={{ background: TOKEN_COLORS[seat], ...(seat === 3 ? { color: '#1b1300' } : {}) }} aria-hidden="true">{fa(seat + 1)}</span>
                 <bdi>{seatName(seat)}</bdi>{seat === mySeat ? ' (شما)' : ''}
-                <span className="sl-players__pos">{view.active[seat] ? (p ? `خانه ${fa(p)}` : 'شروع') : 'بیرون'}</span>
+                <Pos p={p} active={view.active[seat]!} />
               </li>
             ))}
           </ul>
@@ -143,4 +185,9 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
       </div>
     </div>
   );
+}
+
+// The square a player is on, bumping when it changes.
+function Pos({ p, active }: { p: number; active: boolean }) {
+  return <span key={p} className={`sl-players__pos ${usePop(p)}`}>{active ? (p ? `خانه ${fa(p)}` : 'شروع') : 'بیرون'}</span>;
 }

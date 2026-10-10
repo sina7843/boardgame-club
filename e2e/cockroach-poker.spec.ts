@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «بلوف حشره‌ها» end to end: the tutorial (call a counted bluff, a wrong call, a caught bluff, then the truth that
 // sinks the rival) and a full three-player game with gives, calls, peeks and passes until someone has four of a kind.
@@ -79,4 +79,36 @@ test('three players play «بلوف حشره‌ها» to the result', async ({ b
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the given card flies to the middle with its claim at once, and undo brings it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/cockroach-poker');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  for (const step of ['۱', '۲']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
+    await p.getByRole('button', { name: step === '۱' ? 'دروغ می‌گوید' : 'راست می‌گوید' }).click();
+  }
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const inPlay = p.locator('.cr .cr__play [data-flip^="play-"]');
+  await expect(inPlay).toHaveCount(0);
+  const hand = await p.locator('.cr .cr__hand').innerText();
+  await p.locator('.cr .cr-pick.cr-hint').click();
+  await p.locator('.cr .cr-target.cr-hint').click();
+  await p.locator('.cr .cr-claim.cr-hint').click();
+  await motionLog(p);
+  await p.getByRole('button', { name: 'دادن کارت' }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(inPlay).toBeVisible();
+  expect(await p.locator('.cr .cr__hand').innerText()).not.toBe(hand);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inPlay).toHaveCount(0);
+  await expect.poll(() => p.locator('.cr .cr__hand').innerText()).toBe(hand);
+  await p.context().close();
 });

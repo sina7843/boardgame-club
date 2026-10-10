@@ -3,6 +3,8 @@
 // card decks, 3D dice, houses/hotels, mortgage stamps and painted pewter tokens (car, samovar,
 // ship, horse, plane, top hat; vector pawns for seats 7-8). Coordinates are literal (ltr); 1100×1100.
 import type React from 'react';
+import { useLayoutEffect, useRef } from 'react';
+import { MOTION, motionOff } from '@bg/ui';
 import { BOARD, GROUP_COLOR, type Square } from './board.ts';
 import type { AmlakView } from './rules.ts';
 import tokCar from './art/tok-car.webp';
@@ -188,10 +190,11 @@ const PIPS: Record<number, [number, number][]> = {
   1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]], 4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
   5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]]
 };
-export function Die({ v, x, y, rot, rollKey, i }: { v: number; x: number; y: number; rot: number; rollKey: number; i: number }) {
+export function Die({ v, x, y, rot, rollKey, i, pending }: { v: number; x: number; y: number; rot: number; rollKey: number; i: number; pending?: boolean }) {
+  // pending: the own roll waits in the undo window or for the server — tumble with pips hidden; the result is thrown in.
   return (
     <g transform={`translate(${x} ${y}) rotate(${rot})`}>
-      <g key={rollKey} className="amb-die bg-roll" style={{ ['--i' as string]: i }}>
+      <g key={pending ? 'pending' : rollKey} className={pending ? 'amb-die bg-tumble' : 'amb-die bg-roll'} style={{ ['--i' as string]: i }}>
         <rect x="-34" y="-30" width="68" height="68" rx="14" className="amb-die__shadow" />
         <rect x="-34" y="-34" width="68" height="68" rx="14" className="amb-die__face" />
         <rect x="-34" y="-34" width="68" height="68" rx="14" fill="url(#amb-die-sheen)" />
@@ -201,12 +204,54 @@ export function Die({ v, x, y, rot, rollKey, i }: { v: number; x: number; y: num
   );
 }
 
-export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
-  view: AmlakView; selected: number | null; onSelect: (i: number) => void; seatName: (s: number) => string; rollKey: number;
+/** Where a seat's token stands now (several tokens on one square spread out; jail splits prisoners and visitors). */
+function tokenXY(view: AmlakView, seat: number): [number, number] {
+  const pl = view.p[seat]!, i = pl.pos, g = geo(i);
+  const here = view.p.map((q, s) => ({ q, s })).filter((t) => !t.q.bankrupt && t.q.pos === i);
+  const k = here.findIndex((t) => t.s === seat), n = here.length;
+  const [bx, by] = i === 10 ? (pl.inJail ? [g.x + 94, g.y + 66] : [g.x + 24, g.y + 74]) : [g.x + g.w / 2, g.y + g.h / 2 + 18];
+  const tx = bx + (n > 1 && i !== 10 ? ((k % 3) - (Math.min(n, 3) - 1) / 2) * 24 : i === 10 ? (k % 2) * 18 - 9 : 0);
+  const ty = by + (n > 3 && i !== 10 ? (Math.floor(k / 3) - 0.5) * 24 : i === 10 ? Math.floor(k / 2) * 20 - 10 : 0);
+  return [tx, ty];
+}
+const centre = (i: number): [number, number] => { const g = geo(i); return [g.x + g.w / 2, g.y + g.h / 2 + 18]; };
+/** Squares a token passes from `o` to `p`: forward square by square (backward for a short step back); jail is a straight jump. */
+function walk(o: number, p: number, jailed: boolean): number[] {
+  const f = (p - o + 40) % 40;
+  if (jailed || f === 0) return [o, p];
+  const back = 40 - f <= 3, n = back ? 40 - f : f;
+  return Array.from({ length: n + 1 }, (_, k) => (o + (back ? -k : k) + 40) % 40);
+}
+
+export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rolling }: {
+  view: AmlakView; selected: number | null; onSelect: (i: number) => void; seatName: (s: number) => string; rollKey: number; rolling?: boolean;
 }) {
   const roll = view.lastRoll;
+  // Tokens walk square by square along the track (after the dice land), instead of jumping across the board.
+  const svg = useRef<SVGSVGElement>(null);
+  const sig = view.p.map((q) => `${q.pos}${q.inJail ? 'j' : ''}${q.bankrupt ? 'x' : ''}`).join(',');
+  const before = useRef({ p: view.p, roll: rollKey });
+  useLayoutEffect(() => {
+    const prev = before.current;
+    before.current = { p: view.p, roll: rollKey };
+    const host = svg.current;
+    if (!host || motionOff()) return;
+    const wait = prev.roll !== rollKey ? MOTION.roll * 0.8 + 110 : 0;
+    view.p.forEach((q, seat) => {
+      const o = prev.p[seat];
+      const el = host.querySelector<SVGGElement>(`[data-pawn="${seat}"]`);
+      if (!o || !el || q.bankrupt) return;
+      const [fx, fy] = tokenXY(view, seat);
+      if (o.pos === q.pos) return;
+      const sq = walk(o.pos, q.pos, q.inJail && !o.inJail);
+      const pts = sq.map((i, k) => (k === sq.length - 1 ? [fx, fy] : centre(i)));
+      el.animate(pts.map(([x, y], k) => ({ transform: `translate(${x! - fx}px, ${y! - fy}px) scale(${k && k < pts.length - 1 ? 1.1 : 1})` })),
+        { duration: Math.min(360 + pts.length * 180, 2600), delay: wait, easing: 'linear', fill: 'backwards' });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
   return (
-    <svg className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه مونوپولی" style={{ direction: 'ltr' }}>
+    <svg ref={svg} className="amb" viewBox="-28 -28 1156 1156" role="group" aria-label="صفحه مونوپولی" style={{ direction: 'ltr' }}>
       <defs>
         <linearGradient id="amb-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8a5a32" /><stop offset="0.5" stopColor="#6b4423" /><stop offset="1" stopColor="#3d2410" /></linearGradient>
         <linearGradient id="amb-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dc8e" /><stop offset="0.5" stopColor="#b88a2e" /><stop offset="1" stopColor="#7a5a14" /></linearGradient>
@@ -241,12 +286,12 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
         <path d="M 550 468 L 560 478 L 550 488 L 540 478 Z" className="amb-title__gem" />
         <text x="550" y="528" className="amb-title__sub">خیابان‌های تهران</text>
       </g>
-      <Deck x={318} y={318} label="شانس" kind="chance" count={view.deckCounts.chance} />
-      <Deck x={782} y={782} label="صندوق" kind="chest" count={view.deckCounts.chest} />
-      {roll && (
-        <g aria-label={`آخرین تاس: ${fa(roll[0])} و ${fa(roll[1])}`} role="img">
-          <Die v={roll[0]} x={500} y={612} rot={-12} rollKey={rollKey} i={0} />
-          <Die v={roll[1]} x={604} y={600} rot={9} rollKey={rollKey} i={1} />
+      <g data-flip-anchor="deck-chance"><Deck x={318} y={318} label="شانس" kind="chance" count={view.deckCounts.chance} /></g>
+      <g data-flip-anchor="deck-chest"><Deck x={782} y={782} label="صندوق" kind="chest" count={view.deckCounts.chest} /></g>
+      {(roll || rolling) && (
+        <g aria-label={rolling || !roll ? 'تاس‌ها در حال چرخیدن' : `آخرین تاس: ${fa(roll[0])} و ${fa(roll[1])}`} role="img">
+          <Die v={roll?.[0] ?? 1} x={500} y={612} rot={-12} rollKey={rollKey} i={0} pending={rolling} />
+          <Die v={roll?.[1] ?? 1} x={604} y={600} rot={9} rollKey={rollKey} i={1} pending={rolling} />
         </g>
       )}
       {view.rules.freeParking && view.pot > 0 && (
@@ -309,15 +354,11 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey }: {
               return <g key={k} data-flip={`house-${i}-${k}`}>{portrait ? <House x={bd.x + bd.w * t} y={bd.y + bd.h / 2} /> : <House x={bd.x + bd.w / 2} y={bd.y + bd.h * t} />}</g>;
             })}
             {bd && h === 5 && <g data-flip={`hotel-${i}`}><Hotel x={bd.x + bd.w / 2} y={bd.y + bd.h / 2} /></g>}
-            {tokens.map((t, k) => {
-              const n = tokens.length;
-              // Jail corner: prisoners inside the cell, visitors on the «ملاقات» strip.
-              const [bx, by] = i === 10 ? (t.pl.inJail ? [g.x + 94, g.y + 66] : [g.x + 24, g.y + 74]) : [g.x + g.w / 2, g.y + g.h / 2 + 18];
-              const tx = bx + (n > 1 && i !== 10 ? ((k % 3) - (Math.min(n, 3) - 1) / 2) * 24 : i === 10 ? (k % 2) * 18 - 9 : 0);
-              const ty = by + (n > 3 && i !== 10 ? (Math.floor(k / 3) - 0.5) * 24 : i === 10 ? Math.floor(k / 2) * 20 - 10 : 0);
+            {tokens.map((t) => {
+              const [tx, ty] = tokenXY(view, t.seat);
               return (
                 <g key={t.seat} transform={`translate(${tx} ${ty})`}>
-                  <g data-flip={`pawn-${t.seat}`} className={t.seat === view.current && !view.outcome ? 'amb-pawn amb-pawn--turn' : 'amb-pawn'}>
+                  <g data-pawn={t.seat} className={t.seat === view.current && !view.outcome ? 'amb-pawn amb-pawn--turn' : 'amb-pawn'}>
                     <ellipse cx="1" cy="14" rx="16" ry="5" className="amb-pawn__shadow" />
                     <Token seat={t.seat} shine />
                     <g transform="translate(13 -12)"><circle r="8" className="amb-pawn__badge" /><text y="4" className="amb-pawn__n">{fa(t.seat + 1)}</text></g>

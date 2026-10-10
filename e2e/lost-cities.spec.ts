@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «کاوشگران» end to end: the tutorial (finish an expedition, draw the last card) and a full one-round two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -70,4 +70,33 @@ test('two explorers play «کاوشگران» to the result', async ({ browser }
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the played card flies to the expedition at once, and undo flies it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/lost-cities');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۲/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const pick = p.locator('.lc-pick.lc-hint');
+  const id = await pick.locator('[data-flip]').getAttribute('data-flip');
+  const inHand = p.locator(`.lc__hand [data-flip="${id}"]`);
+  const onExp = p.locator(`.lc-col__exp--me [data-flip="${id}"]`);
+  await pick.click();
+  await motionLog(p);
+  await p.getByRole('button', { name: /^روی سفر/ }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(onExp).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inHand).toBeVisible();
+  await expect(onExp).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

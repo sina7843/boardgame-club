@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «گاو شش» end to end: the tutorial (safe card, sixth card, play order, forced row choice, round scoring) and a
 // one-round game for three players choosing at the same time, with row choices through the board.
@@ -18,9 +18,41 @@ test('interactive tutorial: play cards, then take a row', async ({ browser }, in
     if (step === '۴') {
       await p.screenshot({ path: shot(info.project.name, 'tutorial-take'), fullPage: true });
       await p.locator('.sn-row--hint').click();
-    } else await p.locator('.sn-card--hint').click();
+    } else await p.locator('.sn-card--hint:not([data-motion-ghost])').click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: a taken row flies to my reveal at once, and undo puts it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/six-nimmt');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  for (const step of ['۱', '۲', '۳']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۵`))).toBeVisible();
+    await p.locator('.sn-card--hint:not([data-motion-ghost])').click();
+  }
+  await expect(p.getByText(/آموزش: مرحله ۴ از ۵/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(1500);
+  await motionLog(p);
+  const id = await p.locator('.sn-row--hint [data-flip]').first().getAttribute('data-flip');
+  const inRow = p.locator(`.sn__rows [data-flip="${id}"]`);
+  const took = p.locator(`.sn-rev__took [data-flip="${id}"]`);
+  await p.locator('.sn-row--hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(took).toBeVisible();
+  await expect(inRow).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inRow).toBeVisible();
+  await expect(took).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.context().close();
 });
 

@@ -28,7 +28,7 @@ export function Die({ v }: { v: number }) {
   );
 }
 
-export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<YahtzeeView>) {
+export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<YahtzeeView>) {
   const me = mySeat ?? -1;
   const canRoll = legalActions.some((a) => a.type === 'roll');
   const options = new Map(legalActions.filter((a) => a.type === 'score').map((a) => [a.cat as Cat, a.points as number]));
@@ -39,11 +39,21 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
   useEffect(() => { setKeep([false, false, false, false, false]); }, [turnKey]);
   useEffect(() => { setPick(null); }, [view.seq]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
-  // A die tumbles only when its face changed (kept dice stay still).
-  const prev = useRef<{ dice: number[]; at: number[] }>({ dice: [], at: [] });
-  const at = view.dice.map((v, i) => (prev.current.dice[i] === v ? prev.current.at[i]! : view.seq));
-  prev.current = { dice: view.dice, at };
+  // My roll in the undo window or waiting for the server: the dice I did not keep tumble with their pips hidden.
+  const [asked, setAsked] = useState<boolean[] | null>(null);
+  useEffect(() => { if (!busy) setAsked(null); }, [busy]);
+  const rollingKeep = queued?.type === 'roll' ? (queued.keep as boolean[]) : busy ? asked : null;
+  const tumbling = (i: number) => !!rollingKeep && !(view.rolls > 0 && rollingKeep[i]);
+  // Writing a box: the points (already shown on the button) are written at once during the undo window.
+  const pendingCat = queued?.type === 'score' ? (queued.cat as Cat) : null;
+  useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}|${!!rollingKeep}`);
+  // A die is thrown again when it was rerolled: every die not kept on a new roll (others' rolls: a changed face).
+  const prev = useRef<{ dice: number[]; rolls: number; at: number[]; keep: boolean[] | null }>({ dice: [], rolls: 0, at: [], keep: null });
+  const rolled = view.rolls !== prev.current.rolls && view.rolls > 0;
+  const lastKeep = view.current === me ? prev.current.keep : null;
+  const at = view.dice.map((v, i) => (rolled && (view.rolls === 1 || (lastKeep ? !lastKeep[i] : prev.current.dice[i] !== v)) ? view.seq : prev.current.dice[i] === v ? prev.current.at[i]! : view.seq));
+  prev.current = { dice: view.dice, rolls: view.rolls, at, keep: rollingKeep ?? (rolled ? null : prev.current.keep) };
+  const roll = (k: boolean[]) => { setAsked(k); onAction({ type: 'roll', keep: k }); };
 
   const hint = expected as unknown as { type: string; keep?: boolean[]; cat?: Cat } | null;
   const keepHint = hint?.type === 'roll' && view.rolls > 0 ? hint.keep! : null;
@@ -51,6 +61,8 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const canKeep = myTurn && view.rolls > 0 && view.rolls < 3;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: view.rolls === 0 ? 'نوبت شماست: تاس بریزید' : view.rolls < 3 ? `تاس‌هایی را که می‌خواهید نگه دارید و دوباره بریزید (${fa(3 - view.rolls)} بار مانده) یا یک خانه را پر کنید` : 'یک خانه از جدول را پر کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)} (${fa(view.rolls)} از ۳ ریختن)` };
   const round = Math.min(13, Object.keys(view.sheets[view.current] ?? {}).length + 1);
@@ -66,10 +78,12 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
 
       <section className="yz__tray" aria-label="تاس‌ها">
         <div className="yz__felt">
-          {view.dice.length === 0
+          {view.dice.length === 0 && !rollingKeep
             ? <span className="yz__empty">هنوز تاسی ریخته نشده</span>
-            : view.dice.map((v, i) => (canKeep
-              ? <button key={`${i}-${at[i]}`} type="button" style={{ ['--i' as string]: i }} disabled={busy}
+            : (rollingKeep ? Array.from({ length: 5 }, (_, i) => view.dice[i] ?? 1) : view.dice).map((v, i) => (tumbling(i)
+              ? <span key={`t${i}`} className="yz-keep" style={{ ['--i' as string]: i }} role="img" aria-label="در حال چرخیدن"><span className="bg-tumble yz-keep__die" aria-hidden="true"><Die v={v} /></span></span>
+              : canKeep
+              ? <button key={`${i}-${at[i]}`} type="button" style={{ ['--i' as string]: i }} disabled={busy || !!rollingKeep}
                   className={['yz-keep', keep[i] ? 'yz-keep--on' : '', keepHint && keepHint[i] !== keep[i] ? 'yz-hint' : ''].join(' ')}
                   aria-pressed={keep[i]} aria-label={`تاس ${fa(v)}${keep[i] ? '، نگه داشته شده' : ''}`}
                   onClick={() => setKeep(keep.map((x, j) => (j === i ? !x : x)))}>
@@ -81,8 +95,8 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
         {canRoll && (
           <div className="yz__roll">
             <img src={cup} alt="" aria-hidden="true" className="yz__cup" draggable={false} />
-            <Button size="sm" disabled={busy} className={hint?.type === 'roll' && keepDone ? 'yz-hint' : ''}
-              onClick={() => onAction({ type: 'roll', keep: view.rolls ? keep : [false, false, false, false, false] })}>
+            <Button size="sm" disabled={busy || !!queued} className={hint?.type === 'roll' && keepDone ? 'yz-hint' : ''}
+              onClick={() => roll(view.rolls ? keep : [false, false, false, false, false])}>
               {view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)
             </Button>
           </div>
@@ -107,12 +121,13 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
                 {view.sheets.map((sheet, k) => {
                   const v = sheet[cat];
                   const fresh = last && last.seat === k && last.cat === cat;
+                  if (k === me && pendingCat === cat && v === undefined) return <td key={k} className="yz-cell--fresh"><b className="bg-pop">{fa(options.get(cat) ?? 0)}</b></td>;
                   if (v !== undefined) return <td key={k} className={fresh ? 'yz-cell--fresh' : ''}><b key={fresh ? view.seq : 0} className={fresh ? 'bg-pop' : ''}>{fa(v)}</b></td>;
                   if (k === me && options.has(cat)) {
                     const pts = options.get(cat)!;
                     return (
                       <td key={k}>
-                        <button type="button" disabled={busy} aria-pressed={pick === cat} aria-label={`${CAT_FA[cat]}: ${fa(pts)} امتیاز`}
+                        <button type="button" disabled={busy || !!queued} aria-pressed={pick === cat} aria-label={`${CAT_FA[cat]}: ${fa(pts)} امتیاز`}
                           className={['yz-opt', pick === cat ? 'yz-opt--on' : '', pts === 0 ? 'yz-opt--zero' : '', hint?.type === 'score' && hint.cat === cat && pick !== cat ? 'yz-hint' : ''].join(' ')}
                           onClick={() => setPick(pick === cat ? null : cat)}>{fa(pts)}</button>
                       </td>
@@ -140,7 +155,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
       )}
       {myTurn && options.size > 0 && (
         <div className="yz__bar">
-          <Button size="sm" disabled={busy || !pick} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
+          <Button size="sm" disabled={busy || !pick || !!queued} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
             onClick={() => pick && onAction({ type: 'score', cat: pick })}>
             {pick ? `ثبت ${fa(options.get(pick) ?? 0)} در «${CAT_FA[pick]}»` : 'یک خانه را انتخاب کنید'}
           </Button>

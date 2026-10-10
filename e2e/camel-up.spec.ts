@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «مسابقهٔ شترها» end to end: the tutorial (leg bet, overall bet, oasis, last die) and a full three-player race.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -72,4 +72,51 @@ test('three players race «مسابقهٔ شترها» to the result', async ({ 
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: a leg bet flies to your bets at once and back on undo; an instant pyramid roll (no undo) tumbles without pips while in flight, then the result is thrown', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/camel-up');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const chip = p.locator('.cu-pl--me .cu-chip');
+  await p.locator('.cu-legtile.cu-hint').click();
+  await expect(undo).toBeVisible();
+  await expect(chip).toHaveCount(1);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(chip).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  // Through the tutorial with the window on: bet, overall bet, oasis, then the pyramid die.
+  await p.locator('.cu-legtile.cu-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible({ timeout: 10_000 });
+  await p.locator('.cu-ov .cu-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۴/)).toBeVisible({ timeout: 10_000 });
+  await p.getByRole('button', { name: 'واحه +۱' }).click();
+  await p.getByRole('button', { name: 'گذاشتن کاشی روی خانهٔ ۱۴' }).click();
+  await expect(p.locator('[data-sp="14"] .cu-tile--oasis')).toBeVisible();
+  await expect(p.getByText(/آموزش: مرحله ۴ از ۴/)).toBeVisible({ timeout: 10_000 });
+  await p.waitForTimeout(2500);
+  // The roll is sent at once despite the window; hold its answer so the in-flight tumble can be seen.
+  await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  await motionLog(p);
+  await p.locator('.cu-rollbtn.cu-hint').click();
+  const pending = p.locator('.cu-die--pending.bg-tumble');
+  await expect(pending).toBeVisible();
+  await expect(pending.locator('circle')).toHaveCount(0);
+  await expect(undo).toHaveCount(0);
+  await expect(pending).toHaveCount(0, { timeout: 10_000 });
+  await p.waitForTimeout(2500);
+  const log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'die')).toBe(true);
+  expect(log.some((m) => m.cls.includes('cu-camel'))).toBe(true);
+  await p.context().close();
 });

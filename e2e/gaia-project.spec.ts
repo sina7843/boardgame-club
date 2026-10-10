@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «گایا پراجکت» end to end: the tutorial (round 6 teaching position: mine with terraforming, trading station,
 // federation with a satellite, research, a power action, pass to the final scoring) through the highlighted hints, and a
@@ -25,6 +25,30 @@ test('interactive tutorial: mine, trading station, federation, research, power a
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the new mine stands on its hex at once and undo takes it away again', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/gaia-project');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  const mines = p.locator('.gp-map [data-flip$="-mine"]');
+  const before = await mines.count();
+  await p.locator('.gp-hex--hint').first().click();
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await p.locator('.gp-hexmenu button.gp-hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(mines).toHaveCount(before + 1);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.flip?.startsWith('st-'))).toBe(true);
+  await undo.click();
+  await expect(mines).toHaveCount(before);
   await p.context().close();
 });
 

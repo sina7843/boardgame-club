@@ -2,7 +2,7 @@
 // numbers, colour and price; each player's street lists their cards, coins and the four landmarks (lit when built).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import { CARD_DEFS, DEF, LANDMARKS, type CardKey, type Landmark, type MachiView } from './rules.ts';
 
 // Art is cut from a generated sprite sheet (see DECISIONS.md).
@@ -40,28 +40,65 @@ const EFFECT: Record<CardKey, string> = {
   cheese: '+۳ هر دامداری', furniture: '+۳ هر جنگل/معدن', mine: '+۵', restaurant: '۲ از تاس‌انداز', orchard: '+۳', market: '+۲ هر گندم/باغ'
 };
 
-const Die = ({ v, i }: { v: number; i: number }) => {
+const Die = ({ v, i, tumble }: { v: number; i: number; tumble?: boolean }) => {
   const pips: Record<number, [number, number][]> = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]], 4: [[-1, -1], [1, -1], [-1, 1], [1, 1]], 5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]], 6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] };
-  return <svg viewBox="-12 -12 24 24" className="mk-die bg-roll" style={{ ['--i' as string]: i }} aria-label={`تاس ${fa(v)}`}><rect x="-11" y="-11" width="22" height="22" rx="4" />{pips[v]!.map(([x, y], i) => <circle key={i} cx={x * 6} cy={y * 6} r="2.2" />)}</svg>;
+  return <svg viewBox="-12 -12 24 24" className={`mk-die ${tumble ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: i }} aria-label={tumble ? 'در حال ریختن' : `تاس ${fa(v)}`}><rect x="-11" y="-11" width="22" height="22" rx="4" />{pips[v]!.map(([x, y], i) => <circle key={i} cx={x * 6} cy={y * 6} r="2.2" />)}</svg>;
 };
 
-export function TownCard({ k, count, flip }: { k: CardKey; count?: number; flip?: { id: string; from?: string } }) {
+export function TownCard({ k, count, flip }: { k: CardKey; count?: number; flip?: { id: string; from?: string; exit?: string } }) {
   const d = DEF[k];
+  const pop = usePop(count);
   return (
-    <span className={`mk-card mk-col--${d.color}`} {...(flip ? { 'data-flip': flip.id, ...(flip.from ? { 'data-flip-from': flip.from } : {}) } : {})}>
+    <span className={`mk-card mk-col--${d.color}`} {...(flip ? { 'data-flip': flip.id, ...(flip.from ? { 'data-flip-from': flip.from } : {}), ...(flip.exit ? { 'data-flip-exit': flip.exit } : {}) } : {})}>
       <b className="mk-card__rolls">{d.rolls.map(fa).join('–')}</b>
       <img className="mk-card__art" src={ART[k]} alt="" draggable={false} />
       <span className="mk-card__name">{CARD_FA[k]}</span>
       <small>{EFFECT[k]}</small>
-      {count !== undefined && <i className="mk-card__count bg-pop" key={count}>×{fa(count)}</i>}
+      {count !== undefined && <i className={`mk-card__count ${pop}`} key={count}>×{fa(count)}</i>}
     </span>
   );
 }
 
-export default function MachiRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<MachiView>) {
+function Coins({ n }: { n: number }) {
+  const pop = usePop(n);
+  return <span className={`mk-pl__coins ${pop}`} key={n}><img src={coins} alt="" draggable={false} />{fa(n)} سکه</span>;
+}
+
+type Queued = { type: string; dice?: number; card?: CardKey; landmark?: Landmark; target?: number };
+
+/** My queued build / landmark / TV applied to the view (known costs and effects only; dice stay with the server). */
+function preview(v: MachiView, q: Queued | null | undefined, me: number): MachiView {
+  if (!q || me < 0) return v;
+  const coins = v.coins.slice();
+  const card = q.card, lm = q.landmark;
+  if (q.type === 'build' && card) {
+    coins[me]! -= DEF[card].cost;
+    return { ...v, coins, supply: { ...v.supply, [card]: v.supply[card] - 1 }, cards: v.cards.map((c, s) => (s === me ? { ...c, [card]: c[card] + 1 } : c)) };
+  }
+  if (q.type === 'build' && lm) {
+    coins[me]! -= LANDMARKS.find((l) => l.key === lm)!.cost;
+    return { ...v, coins, landmarks: v.landmarks.map((l, s) => (s === me ? { ...l, [lm]: true } : l)) };
+  }
+  if (q.type === 'tv' && q.target !== undefined) {
+    const n = Math.min(5, coins[q.target]!);
+    coins[q.target]! -= n; coins[me]! += n;
+    return { ...v, coins };
+  }
+  return v;
+}
+
+export default function MachiRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<MachiView>) {
   const me = mySeat ?? -1;
+  const q = queued as Queued | null | undefined;
+  const view = preview(served, q, me);
+  // My roll in the undo window or waiting for the server: the dice tumble with no pips until the result arrives.
+  const sent = useRef<Queued | null>(null);
+  if (q) sent.current = q;
+  else if (!busy) sent.current = null;
+  const pend = q ?? (busy ? sent.current : null);
+  const rolling = pend?.type === 'roll' ? pend.dice ?? 1 : 0;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${q ? JSON.stringify(q) : ''}|${rolling}`);
   const rollAt = useRef(0); // seq of the latest roll: retriggers the dice tumble only for real rolls
   if (view.last?.kind === 'roll') rollAt.current = view.seq;
   const seq0 = useRef(view.seq);
@@ -78,12 +115,20 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myTurn = view.current === me && !view.outcome;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? {
       tone: 'mine' as const,
       text: view.phase === 'roll' ? 'تاس بریزید' : view.phase === 'reroll' ? 'دوباره می‌ریزید یا همین را نگه می‌دارید؟' : view.phase === 'tv' ? 'از چه کسی ۵ سکه می‌گیرید؟' : view.phase === 'swap' ? 'یک کارت را عوض می‌کنید؟' : 'یک مغازه یا بنای بزرگ بسازید'
     }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const others = view.coins.map((_, k) => k).filter((k) => k !== me);
+  // A built card flies in from its supply slot (also my queued build); undoing a first copy flies it back there.
+  const flipOf = (s: number, k: CardKey) => {
+    const queuedHere = s === me && q?.type === 'build' && q.card === k;
+    const fresh = (view.last?.kind === 'build' && view.last.seat === s && view.last.card === k) || queuedHere;
+    return { id: `card-${s}-${k}`, ...(fresh ? { from: `buy-${k}` } : {}), ...(queuedHere && !served.cards[s]![k] ? { exit: `buy-${k}` } : {}) };
+  };
   const swapOk = give && take && target >= 0;
 
   return (
@@ -91,9 +136,11 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="mk__dice" aria-label="تاس‌ها">
-        <span className="mk__diceRow" key={rollAt.current}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} i={i} />) : <span className="mk__noDice">—</span>}</span>
-        {view.dice.length > 0 && <b className="mk__sum">{fa(view.dice.reduce((a, b) => a + b, 0))}</b>}
-        {view.dice.length > 0 && <span className="mk__income">{view.income.map((g, k) => (g ? <span key={k} className={g > 0 ? 'up' : 'down'}><bdi>{who(k)}</bdi> {g > 0 ? '+' : '−'}{fa(Math.abs(g))}</span> : null))}</span>}
+        {rolling
+          ? <span className="mk__diceRow" key="tumble">{Array.from({ length: rolling }, (_, i) => <Die key={i} v={1} i={i} tumble />)}</span>
+          : <span className="mk__diceRow" key={rollAt.current}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} i={i} />) : <span className="mk__noDice">—</span>}</span>}
+        {view.dice.length > 0 && !rolling && <b className="mk__sum">{fa(view.dice.reduce((a, b) => a + b, 0))}</b>}
+        {view.dice.length > 0 && !rolling && <span className="mk__income">{view.income.map((g, k) => (g ? <span key={k} className={g > 0 ? 'up' : 'down'}><bdi>{who(k)}</bdi> {g > 0 ? '+' : '−'}{fa(Math.abs(g))}</span> : null))}</span>}
       </section>
 
       {myTurn && (rolls.length > 0 || canKeep) && (
@@ -137,9 +184,9 @@ export default function MachiRenderer({ view, legalActions, mySeat, seatName, bu
       <ul className="mk__players" aria-label="شهرها">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
           <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
-            <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><span className="mk-pl__coins bg-pop" key={view.coins[s]}><img src={coins} alt="" draggable={false} />{fa(view.coins[s]!)} سکه</span></div>
+            <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><Coins n={view.coins[s]!} /></div>
             <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key]} alt="" draggable={false} />{LANDMARK_FA[l.key]}</span>)}</div>
-            <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} flip={{ id: `card-${s}-${d.key}`, ...(view.last?.kind === 'build' && view.last.seat === s && view.last.card === d.key ? { from: `buy-${d.key}` } : {}) }} />)}</div>
+            <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} flip={flipOf(s, d.key)} />)}</div>
           </li>
         ))}
       </ul>

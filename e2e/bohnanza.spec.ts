@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «لوبیاکاری» end to end: the tutorial (plant twice, flip, trade for a wanted bean, end trade, plant, harvest to make room) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -26,8 +26,10 @@ test('interactive tutorial: plant, flip, trade, settle, harvest', async ({ brows
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.bn .bn-hint:not([disabled])').first();
       if (!(await h.count())) break;
+      // Wait for the server's result (the move preview shows at once, so hints alone do not tell it arrived).
+      const seq = await p.locator('.bn').getAttribute('data-seq');
       await h.click();
-      await expect(p.locator('.bn .bn-hint[disabled]')).toHaveCount(0);
+      await expect(p.locator('.bn')).not.toHaveAttribute('data-seq', seq ?? '');
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
@@ -83,4 +85,32 @@ test('three players play «لوبیاکاری» to the result', async ({ browser
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the planted card flies from the hand to the field at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/bohnanza');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const hand = p.locator('.bn__hand .bn-card');
+  const field = p.locator('.bn-fields--mine .bn-field').first().locator('.bn-card__count');
+  const n = await hand.count();
+  await expect(field).toHaveText('۳');
+  await p.locator('.bn .bn-hint:not([disabled])').first().click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(hand).toHaveCount(n - 1);
+  await expect(field).toHaveText('۴');
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(hand).toHaveCount(n);
+  await expect(field).toHaveText('۳');
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

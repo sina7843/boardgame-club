@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «راه ادویه» end to end: the tutorial (spice card, rest, repeated trade, upgrade, market card, the last order) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -14,22 +14,22 @@ test('interactive tutorial: spices, rest, trade, upgrade, hire, the order', asyn
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۶`))).toBeVisible();
   await step('۱');
-  await p.locator('.ct-slot.ct-hint').click(); // spice card: plays on tap
+  await p.locator('.ct .ct-slot.ct-hint').click(); // spice card: plays on tap
   await step('۲');
-  await p.locator('.ct-hint', { hasText: 'استراحت' }).click();
+  await p.locator('.ct .ct-hint', { hasText: 'استراحت' }).click();
   await step('۳');
-  await p.locator('.ct-slot.ct-hint').click(); // trade card: choose the count
+  await p.locator('.ct .ct-slot.ct-hint').click(); // trade card: choose the count
   await p.locator('.ct__tool').getByRole('button', { name: '+', exact: true }).click();
   await p.getByRole('button', { name: 'معاوضه', exact: true }).click();
   await step('۴');
-  await p.locator('.ct-slot.ct-hint').click(); // upgrade card: raise two saffron
+  await p.locator('.ct .ct-slot.ct-hint').click(); // upgrade card: raise two saffron
   for (let k = 0; k < 2; k++) await p.getByRole('button', { name: 'ارتقای زعفران' }).click();
   await p.getByRole('button', { name: 'ارتقا', exact: true }).click();
   await step('۵');
   await p.getByRole('button', { name: 'استخدام تاجر ۳' }).click();
   await step('۶');
   await p.screenshot({ path: shot(info.project.name, 'tutorial-claim'), fullPage: true });
-  await p.locator('.ct-slot.ct-hint').click();
+  await p.locator('.ct .ct-slot.ct-hint').click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });
@@ -85,4 +85,31 @@ test('two caravans play «راه ادویه» to the result', async ({ browser }
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the played card flies to the played pile at once, and undo flies it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/century');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const card = p.locator('.ct__hand .ct-slot.ct-hint');
+  const id = await card.getAttribute('data-flip');
+  const inHand = p.locator(`.ct__hand [data-flip="${id}"]`), played = p.locator(`.ct__played [data-flip="${id}"]`);
+  await motionLog(p);
+  await card.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(played).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inHand).toBeVisible();
+  await expect(played).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

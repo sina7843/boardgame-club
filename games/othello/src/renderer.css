@@ -28,17 +28,21 @@
 .oth-last { fill: rgb(255 210 122 / 0.18); stroke: #ffd27a; stroke-width: 3px; }
 
 .oth-flip__old, .oth-flip__new { transform-box: fill-box; transform-origin: center; }
-.oth-flip__old { animation: oth-old 0.42s ease-in var(--d) both; }
-.oth-flip__new { animation: oth-new 0.42s ease-out var(--d) both; }
+.oth-flip__old { animation: oth-old 0.56s ease-in var(--d) both; }
+.oth-flip__new { animation: oth-new 0.56s ease-out var(--d) both; }
 
 .oth__note { margin: 0; color: #ffd27a; font-weight: 700; }
 .oth__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
 @keyframes oth-old { 0% { transform: scaleX(1); } 50%, 100% { transform: scaleX(0); } }
 @keyframes oth-new { 0%, 50% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+.oth-lift { transform-box: fill-box; transform-origin: center; animation: oth-lift 0.5s ease-in both; }
+@keyframes oth-lift { to { transform: translateY(-18px) scale(1.15); opacity: 0; } }
 @keyframes oth-hint { 50% { r: 22px; opacity: 0.9; } }
 
 @media (prefers-reduced-motion: reduce) {
   .oth-flip__new, .oth-sq--hint .oth-dot { animation: none; }
-  .oth-flip__old { animation: none; opacity: 0; }
+  .oth-flip__old, .oth-lift { animation: none; opacity: 0; }
 }
+:root[data-motion='reduce'] .oth-flip__new, :root[data-motion='reduce'] .oth-sq--hint .oth-dot { animation: none; }
+:root[data-motion='reduce'] .oth-flip__old, :root[data-motion='reduce'] .oth-lift { animation: none; opacity: 0; }

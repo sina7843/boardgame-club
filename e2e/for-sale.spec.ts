@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «بنگاه» end to end: the tutorial (two auctions, two sales) and a full three-player game through both phases.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -68,4 +68,39 @@ test('three players play «بنگاه» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('instant pass (no undo): the cheapest property flies into your hand while the pass is in flight and stays there after the answer', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/for-sale');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۵/)).toBeVisible();
+  await p.locator('.fs-hint').first().click(); // bid 2
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۵/)).toBeVisible({ timeout: 10_000 });
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(1500);
+  // A pass is sent at once despite the window (no undo); hold its answer so the in-flight preview can be seen.
+  let answered = false;
+  await p.route('**/api/tables/*/commands', async (route) => {
+    if (route.request().method() === 'POST') { await new Promise((ok) => setTimeout(ok, 1500)); answered = true; }
+    await route.continue();
+  });
+  await motionLog(p);
+  const inHand = p.locator('.fs__hand [data-flip^="p-"]');
+  const before = await inHand.count();
+  const lowest = await p.locator('.fs__row [data-flip^="p-"]').first().getAttribute('data-flip');
+  await p.locator('.fs-hint').first().click(); // pass
+  await expect(p.locator(`.fs__hand [data-flip="${lowest}"]`)).toBeVisible();
+  await expect(inHand).toHaveCount(before + 1);
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  expect(answered).toBe(false);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  // After the answer the property stays in the hand.
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۵/)).toBeVisible({ timeout: 10_000 });
+  await expect(p.locator(`.fs__hand [data-flip="${lowest}"]`)).toBeVisible();
+  await expect(inHand).toHaveCount(before + 1);
+  await p.context().close();
 });

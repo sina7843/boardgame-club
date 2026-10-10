@@ -105,3 +105,4 @@
   .ht-racer__car { inline-size: 2.8rem; }
   .ht-gearbtn { min-inline-size: 2.75rem; }
 }
+.ht-carpath { transform-box: fill-box; transform-origin: center; }

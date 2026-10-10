@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «آبالون» end to end: tutorial (sumito pushes, a broadside step, the sixth marble off) and two players exchanging moves through
 // the board (select marbles, tap an arrow); the game is resigned after a while since a full game is long.
@@ -20,6 +20,31 @@ test('interactive tutorial: sumito 2-1 off the edge, broadside, 3-2 push, the si
     await p.locator('.abl-arrow--hint').click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the moved marbles slide at once, and undo slides them back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/abalone');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const boxes = () => p.locator('.abl-m[data-flip]').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(), o = e.ownerSVGElement!.getBoundingClientRect(); return `${e.getAttribute('data-flip')}@${Math.round(r.x - o.x)},${Math.round(r.y - o.y)}`; }).sort().join(' '));
+  const before = await boxes();
+  for (let k = 0; k < 3 && (await p.locator('.abl-cell--hint').count()); k++) await p.locator('.abl-cell--hint').first().click();
+  await motionLog(p);
+  await p.locator('.abl-arrow--hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await p.waitForTimeout(900);
+  expect(await boxes()).not.toBe(before);
+  expect((await motionLog(p)).some((m) => m.flip && !m.ghost)).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await p.waitForTimeout(900);
+  expect(await boxes()).toBe(before);
+  expect((await motionLog(p)).some((m) => m.flip && !m.ghost)).toBe(true);
   await p.context().close();
 });
 

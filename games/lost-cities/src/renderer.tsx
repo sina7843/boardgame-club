@@ -19,12 +19,12 @@ function Glyph({ c }: { c: Color }) {
   }
 }
 
-export function Card({ id, size = 'md', back, flip, flipFrom }: { id?: CardId; size?: 'sm' | 'md'; back?: boolean; flip?: string; flipFrom?: string }) {
+export function Card({ id, size = 'md', back, flip, flipFrom, exit }: { id?: CardId; size?: 'sm' | 'md'; back?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
   if (back || !id) return <span className={`lc-card lc-card--${size} lc-card--back`} aria-hidden="true" />;
   const c = color(id);
   const v = value(id);
   return (
-    <span className={['lc-card', `lc-card--${size}`, `lc-c--${c}`, v ? '' : 'lc-card--wager'].join(' ')} data-flip={flip} data-flip-from={flipFrom} aria-label={`${COLOR_FA[c]} ${v ? fa(v) : 'شرط'}`}>
+    <span className={['lc-card', `lc-card--${size}`, `lc-c--${c}`, v ? '' : 'lc-card--wager'].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`${COLOR_FA[c]} ${v ? fa(v) : 'شرط'}`}>
       <span className="lc-card__v">{v ? fa(v) : '×'}</span>
       <svg viewBox="-20 -20 40 40" aria-hidden="true" className="lc-card__g">{v ? <Glyph c={c} /> : <path d="M-12 -2 Q-6 -10 0 -4 Q6 -10 12 -2 L4 8 Q0 12 -4 8 Z" />}</svg>
       {size === 'md' && <span className="lc-card__n">{v ? COLOR_FA[c] : 'شرط'}</span>}
@@ -32,10 +32,14 @@ export function Card({ id, size = 'md', back, flip, flipFrom }: { id?: CardId; s
   );
 }
 
-export default function LostCitiesRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<LostCitiesView>) {
-  const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+export default function LostCitiesRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LostCitiesView>) {
   const me = mySeat ?? 0;
+  // Undo-window preview: a played / discarded card already lies on its expedition / pile, a card taken from a pile is
+  // already in the hand. A deck draw is hidden information and waits for the server.
+  const view = preview(real, me, queued as { type: string; card?: CardId; from?: string } | null | undefined);
+  const legalActions = view === real ? realLegal : [];
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, `${view.seq}|${view === real}`);
   const opp = 1 - me;
   const placing = legalActions.some((a) => a.type === 'discard');
   const draws = new Set(legalActions.filter((a) => a.type === 'draw').map((a) => a.from as string));
@@ -45,6 +49,8 @@ export default function LostCitiesRenderer({ view, legalActions, mySeat, seatNam
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myExp = view.exp[me]!;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : placing ? { tone: 'mine' as const, text: sel ? 'روی سفر بگذارید یا دور بیندازید' : 'یک کارت از دستتان انتخاب کنید' }
       : draws.size ? { tone: 'mine' as const, text: 'یک کارت بردارید: از دسته یا کپه‌ها' }
         : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
@@ -79,7 +85,7 @@ export default function LostCitiesRenderer({ view, legalActions, mySeat, seatNam
                 onClick={() => (canDraw ? onAction({ type: 'draw', from: c }) : sel && onAction({ type: 'discard', card: sel }))}
                 aria-label={canDraw ? `برداشتن از کپهٔ ${COLOR_FA[c]}` : `کپهٔ دور ریختهٔ ${COLOR_FA[c]}`}>
                 <svg viewBox="-20 -20 40 40" className="lc-pile__g" aria-hidden="true"><Glyph c={c} /></svg>
-                {top ? <Card id={top} size="sm" key={top + view.discard[c].length} flip={value(top) ? `c-${top}` : `c-${top}.p${view.discard[c].length}`} flipFrom={lastSeat} /> : <span className="lc-pile__name">{COLOR_FA[c]}</span>}
+                {top ? <Card id={top} size="sm" key={top + view.discard[c].length} flip={value(top) ? `c-${top}` : `c-${top}.p${view.discard[c].length}`} flipFrom={lastSeat} exit="seat-opp" /> : <span className="lc-pile__name">{COLOR_FA[c]}</span>}
                 {view.discard[c].length > 1 && <span className="lc-pile__n bg-pop" key={view.discard[c].length}>{fa(view.discard[c].length)}</span>}
               </button>
               <div className="lc-col__exp lc-col__exp--me" aria-label={`سفر ${COLOR_FA[c]} شما`}>
@@ -125,4 +131,20 @@ export default function LostCitiesRenderer({ view, legalActions, mySeat, seatNam
       )}
     </div>
   );
+}
+
+function preview(v: LostCitiesView, me: number, q: { type: string; card?: CardId; from?: string } | null | undefined): LostCitiesView {
+  if (!q || !v.hand) return v;
+  const without = (h: CardId[], c: CardId) => { const i = h.indexOf(c); return h.slice(0, i).concat(h.slice(i + 1)); };
+  if ((q.type === 'play' || q.type === 'discard') && q.card && v.hand.includes(q.card)) {
+    const c = color(q.card), hand = without(v.hand, q.card);
+    return q.type === 'play'
+      ? { ...v, hand, exp: v.exp.map((e, k) => (k === me ? { ...e, [c]: [...e[c], q.card!] } : e)) }
+      : { ...v, hand, discard: { ...v.discard, [c]: [...v.discard[c], q.card] } };
+  }
+  if (q.type === 'draw' && q.from && q.from !== 'deck') {
+    const pile = v.discard[q.from as Color], top = pile.at(-1);
+    if (top) return { ...v, hand: [...v.hand, top], discard: { ...v.discard, [q.from]: pile.slice(0, -1) } };
+  }
+  return v;
 }

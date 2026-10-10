@@ -3,7 +3,7 @@
 // points «بس!» and «آخرین فرصت» appear.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
 import crab from './art/crab.webp';
 import boat from './art/boat.webp';
 import fish from './art/fish.webp';
@@ -31,32 +31,68 @@ const ART: Record<Kind, string> = {
   penguin, sailor, lighthouse, shoal, colony, captain, mermaid
 };
 
-export function PaperCard({ id, size = 'md', from }: { id: number; size?: 'sm' | 'md'; from?: string }) {
+export function PaperCard({ id, size = 'md', from, exit, flip = true }: { id: number; size?: 'sm' | 'md'; from?: string; exit?: string; flip?: boolean }) {
   const c = CARDS[id]!;
   return (
-    <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} data-flip={from ? `c-${id}` : undefined} data-flip-from={from} aria-label={KIND_FA[c.kind]}>
+    <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={KIND_FA[c.kind]}>
       <img src={ART[c.kind]} className="sp2-card__art" alt="" aria-hidden="true" draggable={false} />
       {size === 'md' && <small>{KIND_FA[c.kind]}</small>}
     </span>
   );
 }
 
-export default function SspRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SspView>) {
+export default function SspRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<SspView>) {
   const me = mySeat ?? -1;
+  const isQueued = !!queued;
+  const busy = sending || isQueued;
   const has = (t: string, call?: string) => legalActions.some((a) => a.type === t && (call === undefined || a.call === call));
   const takes = new Set(legalActions.filter((a) => a.type === 'take').map((a) => a.pile as number));
   const keep = legalActions.find((a) => a.type === 'keep') as { options: number[]; mustPile: number } | undefined;
   const [sel, setSel] = useState<number[]>([]);
   const [kept, setKept] = useState<number | null>(null);
-  useEffect(() => { setSel([]); setKept(null); }, [view.seq]);
+  useEffect(() => { setSel([]); setKept(null); }, [view.seq, isQueued]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const actor = view.last ? (view.last.seat === me ? 'hand' : `seat-${view.last.seat}`) : 'deck';
+  // A pile's top card that was just put there comes from the actor; one uncovered by a take just appears.
+  const prevCounts = usePrevious(view.seq, view.pileCounts);
+  const prevHands = usePrevious(view.seq, view.handCount);
+  // Undo window: my keep / take / duo / crab pick is shown at once with cards I can already see; undo puts them back.
+  let hand = view.hand;
+  let piles: [number | null, number | null] = view.piles;
+  let drawn = view.drawn;
+  let crabCards = view.crabCards;
+  const played = view.played.slice();
+  const covered: [boolean, boolean] = [false, false];
+  if (queued && hand) {
+    if (queued.type === 'keep') {
+      const card = queued.card as number, pile = queued.pile as 0 | 1;
+      hand = [...hand, card];
+      piles = pile === 0 ? [drawn?.find((x) => x !== card) ?? piles[0], piles[1]] : [piles[0], drawn?.find((x) => x !== card) ?? piles[1]];
+      drawn = null;
+    } else if (queued.type === 'take') {
+      const pile = queued.pile as 0 | 1, top = piles[pile];
+      if (top !== null) {
+        hand = [...hand, top];
+        piles = pile === 0 ? [null, piles[1]] : [piles[0], null];
+        covered[pile] = view.pileCounts[pile] > 1;
+      }
+    } else if (queued.type === 'duo') {
+      const cards = queued.cards as number[];
+      hand = hand.filter((x) => !cards.includes(x));
+      played[me] = [...played[me]!, ...cards];
+    } else if (queued.type === 'crabTake') {
+      hand = [...hand, queued.card as number];
+      crabCards = null;
+    }
+  }
   const hint = expected as unknown as { type: string; pile?: number; call?: string } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const duo = sel.length === 2 ? duoKind(sel[0]!, sel[1]!) : null;
   const myTurn = view.current === mySeat && !view.outcome;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? {
       tone: 'mine' as const,
       text: view.phase === 'draw' ? (view.lastChance ? 'آخرین فرصت! دو کارت از دسته یا کارت یک کپه' : 'دو کارت از دسته یا کارت روی یک کپه')
@@ -73,8 +109,9 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
       <ul className="sp2__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.scores.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['sp2-pl', view.current === s && !view.outcome ? 'sp2-pl--turn' : '', s === mySeat ? 'sp2-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'sp2-pl--win' : ''].join(' ')}>
-            <div className="sp2-pl__head"><bdi className="sp2-pl__name">{who(s)}</bdi><span className="sp2-pl__score bg-pop" key={view.scores[s]}>{fa(view.scores[s]!)}</span><span>{fa(view.handCount[s]!)} کارت در دست</span></div>
-            {view.played[s]!.length > 0 && <div className="sp2-pl__played">{view.played[s]!.map((id) => <PaperCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} />)}</div>}
+            <div className="sp2-pl__head"><bdi className="sp2-pl__name">{who(s)}</bdi><span className="sp2-pl__score bg-pop" key={view.scores[s]}>{fa(view.scores[s]!)}</span><span key={`h${view.handCount[s]}`} className={prevHands && prevHands[s] !== view.handCount[s] ? 'bg-pop' : ''}>{fa(view.handCount[s]!)} کارت در دست</span></div>
+            {s !== me && view.last?.seat === s && view.last.kind === 'take' && <span className="sp2-pl__took" aria-label="از کپه برداشت"><PaperCard id={Number(view.last.detail)} size="sm" /></span>}
+            {played[s]!.length > 0 && <div className="sp2-pl__played">{played[s]!.map((id) => <PaperCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} />)}</div>}
           </li>
         ))}
       </ul>
@@ -85,13 +122,14 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
             <span className="sp2-deck__back" /><span>دسته: {fa(view.deckCount)}</span>
           </button>
           {([0, 1] as const).map((pile) => {
-            const top = view.piles[pile];
+            const top = piles[pile];
+            const placed = !prevCounts || view.pileCounts[pile] > prevCounts[pile];
             const canPut = keep && kept !== null && (keep.mustPile < 0 || keep.mustPile === pile);
             return (
               <button key={pile} type="button" className={['sp2-pile', takes.has(pile) || canPut ? 'sp2-pile--can' : '', hint?.type === 'take' && hint.pile === pile ? 'sp2-hint' : ''].join(' ')}
                 disabled={busy || !(takes.has(pile) || canPut)} onClick={() => (canPut ? onAction({ type: 'keep', card: kept!, pile }) : onAction({ type: 'take', pile }))}
                 aria-label={canPut ? `گذاشتن روی کپهٔ ${fa(pile + 1)}` : `برداشتن از کپهٔ ${fa(pile + 1)}`}>
-                {top !== null ? <PaperCard id={top} from={actor} /> : <span className="sp2-pile__empty">خالی</span>}
+                {top !== null ? <PaperCard id={top} from={placed ? actor : undefined} /> : <span className="sp2-pile__empty">{covered[pile] ? '…' : 'خالی'}</span>}
                 <small>{fa(view.pileCounts[pile])} کارت</small>
               </button>
             );
@@ -99,30 +137,30 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
         </section>
       )}
 
-      {view.drawn && keep && (
+      {drawn && keep && (
         <div className="sp2__choice" role="group" aria-label="کارت‌های کشیده‌شده">
-          {view.drawn.map((id) => (
+          {drawn.map((id) => (
             <button key={id} type="button" className={`sp2-pick ${kept === id ? 'sp2-pick--on' : ''}`} aria-pressed={kept === id} onClick={() => setKept(kept === id ? null : id)}><PaperCard id={id} from="deck" /></button>
           ))}
           <span className="sp2__note">{kept === null ? 'کدام را نگه می‌دارید؟' : 'حالا کپه را بزنید'}</span>
         </div>
       )}
 
-      {view.crabCards && (
+      {crabCards && (
         <div className="sp2__choice" role="group" aria-label="کارت‌های کپه">
-          {view.crabCards.map((id) => <button key={id} type="button" className="sp2-pick" disabled={busy} onClick={() => onAction({ type: 'crabTake', card: id })}><PaperCard id={id} from="deck" /></button>)}
+          {crabCards.map((id) => <button key={id} type="button" className="sp2-pick" disabled={busy} onClick={() => onAction({ type: 'crabTake', card: id })}><PaperCard id={id} from="deck" /></button>)}
         </div>
       )}
 
-      {view.hand && !view.outcome && (
+      {hand && !view.outcome && (
         <section className="sp2__me" aria-label="دست شما">
           <p className="sp2__pts">امتیاز این دست: <b>{fa(view.myPoints ?? 0)}</b></p>
           <div className="sp2__hand" data-flip-anchor="hand">
-            {view.hand.map((id) => (
+            {hand.map((id) => (
               <button key={id} type="button" className={`sp2-pick ${sel.includes(id) ? 'sp2-pick--on' : ''}`} aria-pressed={sel.includes(id)} disabled={!has('duo') || busy}
-                onClick={() => setSel(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id].slice(-2))}><PaperCard id={id} from="deck" /></button>
+                onClick={() => setSel(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id].slice(-2))}><PaperCard id={id} from="deck" exit={`seat-${view.current}`} /></button>
             ))}
-            {!view.hand.length && <span className="sp2__note">دستتان خالی است</span>}
+            {!hand.length && <span className="sp2__note">دستتان خالی است</span>}
           </div>
           {has('duo') && duo && (
             <div className="sp2__bar">

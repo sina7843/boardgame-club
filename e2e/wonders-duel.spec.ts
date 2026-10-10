@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «شگفتی‌ها: دوئل» end to end: the tutorial (chain, trade, science pair, wonder, sale, final scoring) and a full game from the wonder draft.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -29,6 +29,33 @@ test('interactive tutorial: chain, trade, science pair, wonder, sell, military a
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the built card flies to the city at once, and undo flies it back to the pyramid', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/wonders-duel');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const slot = p.locator('.wd-pyr .wd-hint').first();
+  const id = await slot.getAttribute('data-flip');
+  await slot.click();
+  await motionLog(p);
+  await p.locator('.wd-acts .wd-hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(p.locator(`.wd-city [data-flip="${id}"]`)).toHaveCount(1);
+  await expect(p.locator(`.wd-pyr [data-flip="${id}"]`)).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(p.locator(`.wd-pyr [data-flip="${id}"]`)).toHaveCount(1);
+  await expect(p.locator(`.wd-city [data-flip="${id}"]`)).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.context().close();
 });
 

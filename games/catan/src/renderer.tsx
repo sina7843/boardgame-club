@@ -234,7 +234,26 @@ const Panel = ({ title, children, tone }: { title: string; children: ReactNode; 
 
 // ---------- renderer ----------
 
-export default function CatanRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CatanView>) {
+/** The own build / robber move while it waits in the undo window, applied to the view (only what the client knows). */
+function preview(v: CatanView, q: Hint | null | undefined, me: number | null): CatanView {
+  if (!q || me === null) return v;
+  const pay = (k: 'road' | 'settlement' | 'city') => {
+    const free = v.phase === 'setupSettlement' || v.phase === 'setupRoad' || v.phase === 'roadBuilding';
+    return free || !v.myHand ? v.myHand : RESOURCES.reduce((h, r) => ({ ...h, [r]: h[r] - (COST[k][r] ?? 0) }), v.myHand);
+  };
+  if (q.type === 'moveRobber') return { ...v, robber: q.hex as number };
+  if (q.type === 'buildRoad') return { ...v, roads: v.roads.map((o, i) => (i === q.edge ? me : o)), myHand: pay('road') };
+  if (q.type === 'buildSettlement' || q.type === 'buildCity') {
+    const city = q.type === 'buildCity';
+    return { ...v, buildings: v.buildings.map((b, i) => (i === q.vertex ? { ...(b ?? {}), seat: me, city } as NonNullable<typeof b> : b)), myHand: pay(city ? 'city' : 'settlement') };
+  }
+  return v;
+}
+
+export default function CatanRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CatanView>) {
+  // Undo-window preview: the road / settlement / city already stands (cost paid) and the robber already moved; undo
+  // clears `queued` and it goes back. A roll is never previewed: the dice tumble without pips until the server rolls.
+  const view = useMemo(() => preview(real, queued as Hint | null, mySeat), [real, queued, mySeat]);
   const hints = legalActions as Hint[];
   const has = (t: string) => hints.some((h) => h.type === t);
   const myTurn = mySeat !== null && view.current === mySeat && !view.outcome;
@@ -273,7 +292,10 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
 
   // The robber glides between hexes; a bought development card flies in from the deck.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, latest?.seq ?? 0);
+  const rollSeq = [...view.log].reverse().find((e) => e.t === 'roll')?.seq ?? 0;
+  const [rollAsked, setRollAsked] = useState(-1);
+  const rolling = queued?.type === 'roll' || (busy && rollAsked === rollSeq);
+  useFlip(root, `${latest?.seq ?? 0}|${queued ? JSON.stringify(queued) : ''}|${rolling}`);
 
   const act = (a: Hint) => { if (!busy) { onAction(a); setSel(null); setMode(null); } };
 
@@ -301,7 +323,8 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
   const owed = mySeat !== null ? view.owed[mySeat] ?? 0 : 0;
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
-    if (owed > 0 && view.phase === 'discard') status = { tone: 'mine', text: `۷ آمد: ${fa(owed)} کارت دور بریزید` };
+    if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
+    else if (owed > 0 && view.phase === 'discard') status = { tone: 'mine', text: `۷ آمد: ${fa(owed)} کارت دور بریزید` };
     else if (!myTurn) status = { tone: 'wait', text: view.phase === 'discard' ? 'منتظر دور ریختن کارت‌ها' : `نوبت ${seatName(view.current)}` };
     else status = { tone: 'mine', text: {
       setupSettlement: 'آغاز بازی: یک آبادی بگذارید (قاعده فاصله رعایت شود)',
@@ -329,8 +352,10 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
 
       <div className="ct__meta">
         <span>نوبت {fa(view.turn)}</span>
-        {view.dice && (
-          <span key={`${view.turn}${view.dice[0]}${view.dice[1]}`} className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
+        {rolling ? (
+          <span key="rolling" className="ct-dice" aria-label="تاس‌ها در حال چرخیدن"><DieFace value={6} pending /><DieFace value={6} red pending /></span>
+        ) : view.dice && (
+          <span key={rollSeq} className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
             <DieFace value={view.dice[0]} /><DieFace value={view.dice[1]} red />
             <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
           </span>
@@ -381,7 +406,7 @@ export default function CatanRenderer({ view, legalActions, mySeat, seatName, bu
             </Panel>
           )}
 
-          {myTurn && has('roll') && <Button className={exp?.type === 'roll' ? 'ct-hintbtn' : ''} disabled={busy} onClick={() => act({ type: 'roll' })}>ریختن تاس</Button>}
+          {myTurn && has('roll') && <Button className={exp?.type === 'roll' ? 'ct-hintbtn' : ''} disabled={busy} onClick={() => { if (!busy) setRollAsked(rollSeq); act({ type: 'roll' }); }}>ریختن تاس</Button>}
 
           {myTurn && view.phase === 'steal' && (
             <Panel title="دزدی" tone="decide">

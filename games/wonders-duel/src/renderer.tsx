@@ -3,7 +3,7 @@
 // cities runs the conflict track with its pawn and coin tokens; progress tokens sit on discs above it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, useFresh, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import artBrown from './art/col-brown.webp';
 import artGrey from './art/col-grey.webp';
 import artBlue from './art/col-blue.webp';
@@ -74,18 +74,19 @@ export function WonderPlate({ id, built, size = 'md' }: { id: number; built?: bo
 function City({ view, seat, label }: { view: DuelView; seat: number; label: string }) {
   const cards = view.cities[seat]!.map((id) => CARDS[id]!);
   const colors: Color[] = ['brown', 'grey', 'yellow', 'blue', 'red', 'green', 'purple'];
+  const pop = usePop(view.coins[seat]);
   return (
-    <section className={`wd-city ${view.current === seat && !view.outcome ? 'wd-city--now' : ''}`} aria-label={`شهر ${label}`}>
+    <section className={`wd-city ${view.current === seat && !view.outcome ? 'wd-city--now' : ''}`} aria-label={`شهر ${label}`} data-flip-anchor={`city-${seat}`}>
       <div className="wd-city__head">
         <bdi className="wd-city__name">{label}</bdi>
-        <span className="wd-coin wd-coin--lg bg-pop" key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>
+        <span className={`wd-coin wd-coin--lg ${pop}`} key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>
         {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROGRESS_FA[p][0]}</span>)}
       </div>
       <div className="wd-city__wonders">{view.wonders[seat]!.map((w) => <span key={w.id} className="wd-fly" data-flip={`w${w.id}`}><WonderPlate id={w.id} built={w.built} size="sm" /></span>)}</div>
       <div className="wd-city__cols">
         {colors.map((col) => {
           const xs = cards.filter((c) => c.color === col);
-          return xs.length ? <span key={col} className={`wd-stack wd-c--${col}`} title={xs.map((c) => c.name).join('، ')}>{xs.map((c) => <span key={c.id} className="wd-fly" data-flip={`c${c.id}`}><CardFace id={c.id} size="sm" /></span>)}</span> : null;
+          return xs.length ? <span key={col} className={`wd-stack wd-c--${col}`} title={xs.map((c) => c.name).join('، ')}>{xs.map((c) => <span key={c.id} className="wd-fly" data-flip={`c${c.id}`} data-flip-exit="drop"><CardFace id={c.id} size="sm" /></span>)}</span> : null;
         })}
         {!cards.length && <small>هنوز ساختمانی نیست</small>}
       </div>
@@ -95,12 +96,37 @@ function City({ view, seat, label }: { view: DuelView; seat: number; label: stri
 
 type Hint = { type: string; slot?: number; token?: string; wonder?: number } | null;
 
-export default function WondersDuelRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<DuelView>) {
+/** The served view with my queued move already made, from what the client knows: the picked (face-up) card or wonder,
+ * the coins it costs or earns. Card effects and newly revealed cards wait for the server. */
+function preview(v: DuelView, me: number, q: GameAction | null | undefined, legal: readonly GameAction[]): DuelView {
+  if (!q || q.type === 'resign') return v;
+  const same = legal.find((a) => a.type === q.type && a.slot === q.slot && a.wonder === q.wonder && a.token === q.token) as { cost?: number; coins?: number } | undefined;
+  const coins = v.coins.map((c, s) => (s === me ? c - (same?.cost ?? 0) + (q.type === 'discard' ? same?.coins ?? 0 : 0) : c));
+  const mine = <T,>(xs: T[][], f: (x: T[]) => T[]) => xs.map((x, s) => (s === me ? f(x) : x));
+  if (q.type === 'draftWonder') return { ...v, draftPool: v.draftPool.filter((w) => w !== q.wonder), wonders: mine(v.wonders, (ws) => [...ws, { id: q.wonder as number, built: false }]) };
+  if (q.type === 'progress') return { ...v, progressBoard: v.progressBoard.filter((p) => p !== q.token), progress: mine(v.progress, (ps) => [...ps, q.token as Progress]) };
+  if (q.type === 'build' || q.type === 'discard' || q.type === 'wonder') {
+    const slot = v.structure[q.slot as number];
+    if (!slot || slot.card === null) return v;
+    return {
+      ...v, coins,
+      structure: v.structure.map((x, i) => (i === q.slot ? { ...x, taken: true } : x)),
+      accessible: v.accessible.filter((i) => i !== q.slot),
+      cities: q.type === 'build' ? mine(v.cities, (c) => [...c, slot.card!]) : v.cities,
+      wonders: q.type === 'wonder' ? mine(v.wonders, (ws) => ws.map((w) => (w.id === q.wonder ? { ...w, built: true } : w))) : v.wonders
+    };
+  }
+  return v;
+}
+
+export default function WondersDuelRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<DuelView>) {
   const me = mySeat ?? 0;
+  // Undo-window preview: my queued pick/build/sale is shown at once; undo clears `queued` and everything flies back.
+  const view = preview(served, me, queued, legalActions);
   const opp = 1 - me;
   // Cards glide pyramid → city, wonders draft → city, progress tokens board → city; newly revealed pyramid cards flip face-up.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const fresh = useFresh(view.structure.filter((x) => !x.taken && x.card !== null).map((x) => `c${x.card}`));
   let fi = 0;
   const hint = expected as unknown as Hint;
@@ -108,15 +134,17 @@ export default function WondersDuelRenderer({ view, legalActions, mySeat, seatNa
   useEffect(() => { setPick(null); }, [view.seq]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const of = (t: string) => legalActions.filter((a) => a.type === t);
-  const myTurn = view.phase === 'play' && view.current === me && legalActions.some((a) => a.type === 'discard');
+  const myTurn = view.phase === 'play' && view.current === me && legalActions.some((a) => a.type === 'discard') && !queued;
   const sel = pick;
   const build = of('build').find((a) => a.slot === sel) as { cost: number } | undefined;
   const sell = of('discard').find((a) => a.slot === sel) as { coins: number } | undefined;
   const wonders = of('wonder').filter((a) => a.slot === sel) as unknown as { wonder: number; cost: number }[];
-  const drafting = of('draftWonder');
-  const choosing = view.choice && view.choice.seat === me ? view.choice : null;
+  const drafting = queued ? [] : of('draftWonder');
+  const choosing = view.choice && view.choice.seat === me && !queued ? view.choice : null;
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : drafting.length ? { tone: 'mine' as const, text: 'یک شگفتی انتخاب کنید' }
       : choosing ? { tone: 'mine' as const, text: choosing.kind === 'destroy' ? 'یک کارت حریف را نابود کنید' : choosing.kind === 'mausoleum' ? 'یک کارت دورریخته را رایگان بسازید' : 'یک نشان پیشرفت بردارید' }
         : myTurn ? { tone: 'mine' as const, text: sel === null ? 'یک کارت آزاد از هرم بردارید' : 'بسازید، بفروشید یا شگفتی بنا کنید' }
@@ -136,11 +164,11 @@ export default function WondersDuelRenderer({ view, legalActions, mySeat, seatNa
         <div className="wd-track__lane">
           {Array.from({ length: 19 }, (_, i) => i - 9).map((k) => (
             <span key={k} className={`wd-track__cell ${Math.abs(k) >= 6 ? 'is-far' : Math.abs(k) >= 3 ? 'is-mid' : ''} ${k === 0 ? 'is-zero' : ''}`}>
-              {(k === -3 || k === -6) && !view.milTokens[opp]![k === -3 ? 0 : 1] && <i className="wd-mtok">{k === -3 ? '۲' : '۵'}</i>}
-              {(k === 3 || k === 6) && !view.milTokens[me]![k === 3 ? 0 : 1] && <i className="wd-mtok">{k === 3 ? '۲' : '۵'}</i>}
+              {(k === -3 || k === -6) && !view.milTokens[opp]![k === -3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${opp}${k}`} data-flip-exit={`city-${opp}`}>{k === -3 ? '۲' : '۵'}</i>}
+              {(k === 3 || k === 6) && !view.milTokens[me]![k === 3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${me}${k}`} data-flip-exit={`city-${me}`}>{k === 3 ? '۲' : '۵'}</i>}
             </span>
           ))}
-          <span className="wd-pawn" style={{ insetInlineStart: `calc(${(9 - lead) / 19 * 100}% + ${100 / 38}%)` }} aria-hidden />
+          <span className="wd-pawn" data-flip="pawn" style={{ insetInlineStart: `calc(${(9 - lead) / 19 * 100}% + ${100 / 38}%)` }} aria-hidden />
         </div>
         <span className="wd-track__cap wd-track__cap--me">⛫</span>
       </section>
@@ -174,9 +202,9 @@ export default function WondersDuelRenderer({ view, legalActions, mySeat, seatNa
                 : <span className={`wd-back wd-back--${x.back}`} aria-label="کارت پشت‌ورو" />;
               const fid = x.card !== null ? `c${x.card}` : `b${view.age}-${i}`;
               return free && myTurn
-                ? <button key={i} type="button" data-flip={fid} data-flip-enter={isNew ? 'none' : undefined} style={style} disabled={busy} aria-pressed={sel === i} onClick={() => setPick(sel === i ? null : i)}
+                ? <button key={i} type="button" data-flip={fid} data-flip-exit="drop" data-flip-enter={isNew ? 'none' : undefined} style={style} disabled={busy} aria-pressed={sel === i} onClick={() => setPick(sel === i ? null : i)}
                   className={['wd-slot wd-slot--free', sel === i ? 'wd-slot--on' : '', hint?.slot === i && sel !== i ? 'wd-hint' : ''].join(' ')}>{face}</button>
-                : <span key={i} data-flip={fid} data-flip-enter={isNew ? 'none' : undefined} style={style} className={`wd-slot ${free ? 'wd-slot--free' : ''}`}>{face}</span>;
+                : <span key={i} data-flip={fid} data-flip-exit="drop" data-flip-enter={isNew ? 'none' : undefined} style={style} className={`wd-slot ${free ? 'wd-slot--free' : ''}`}>{face}</span>;
             })}
           </div>
         </section>

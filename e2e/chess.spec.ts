@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // Chess end to end: two clients play Fool's Mate through the real board (tap piece → tap target).
 test.describe.configure({ mode: 'serial', timeout: 300_000 });
@@ -44,4 +44,40 @@ test("two players play Fool's Mate to the result; Black sees the board from Blac
   await expect(white.locator('.ch-moves')).toContainText('Qh4#');
   await white.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of [white, black]) await p.context().close();
+});
+
+test('undo window: castling moves king and rook at once, and undo moves them back', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/chess');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await move(p, 'e1', 'g1');
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(square(p, 'g1')).toHaveAttribute('aria-label', /شاه سفید/);
+  await expect(square(p, 'f1')).toHaveAttribute('aria-label', /رخ سفید/);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(square(p, 'e1')).toHaveAttribute('aria-label', /شاه سفید/);
+  await expect(square(p, 'h1')).toHaveAttribute('aria-label', /رخ سفید/);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  // Played for real: the en passant capture leaves the board towards the captured tray.
+  await move(p, 'e1', 'g1');
+  await expect(p.getByText(/آموزش: مرحله ۲ از/)).toBeVisible({ timeout: 10_000 });
+  await move(p, 'e2', 'c4');
+  await expect(p.getByText(/آموزش: مرحله ۳ از/)).toBeVisible({ timeout: 10_000 });
+  await p.waitForTimeout(1500);
+  await motionLog(p);
+  await move(p, 'e5', 'd6');
+  await expect(square(p, 'd5')).toHaveAttribute('aria-label', /خالی/);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.context().close();
 });

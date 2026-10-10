@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «تاک» end to end: tutorial (wall, stack spread, capstone, road) and a full game mixing placements and stack moves through the
 // board until a road or the flat count decides.
@@ -84,4 +84,38 @@ test('two players play «تاک» to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+// The undo window is re-armed before each move: a dev-server reload re-runs the init script that sets it to 0.
+const slow = (p: Page) => p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+
+test('undo window: a stack spread glides along the line at once, and undo glides it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/tak');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  const sq = (name: string) => p.locator(`.tak-sq[aria-label^="${name}:"]`);
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible({ timeout: 25_000 });
+  await p.locator('.tak-sq--hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible({ timeout: 25_000 });
+  const before = await Promise.all(['b1', 'c1', 'd1'].map((n) => sq(n).getAttribute('aria-label')));
+  await sq('b1').click();
+  await p.getByRole('group', { name: 'تعداد سنگ برای برداشتن' }).getByRole('button', { name: '۲' }).click();
+  await sq('c1').click();
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await slow(p);
+  await sq('d1').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(sq('d1')).not.toHaveAttribute('aria-label', before[2]!);
+  await expect(sq('b1')).not.toHaveAttribute('aria-label', before[0]!);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).filter((m) => m.flip).length).toBeGreaterThan(1);
+  await undo.click();
+  for (const [k, n] of ['b1', 'c1', 'd1'].entries()) await expect(sq(n)).toHaveAttribute('aria-label', before[k]!);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).filter((m) => m.flip).length).toBeGreaterThan(1);
+  await p.context().close();
 });

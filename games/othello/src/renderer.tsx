@@ -1,7 +1,7 @@
 // اتللو renderer: a green baize board with brass lines (SVG, LTR geometry). One tap on a dotted square places a disc;
 // the outflanked discs turn over one after another, rippling out from the new disc.
 import './renderer.css';
-import { Fragment, useId } from 'react';
+import { Fragment, useId, useRef } from 'react';
 import { TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
 import discB from './art/disc-b.webp';
 import discW from './art/disc-w.webp';
@@ -15,18 +15,41 @@ const DISC = { b: discB, w: discW };
 const FILES = 'abcdefgh';
 const name = (i: number) => `${FILES[i % 8]}${Math.floor(i / 8) + 1}`;
 
-export default function OthelloRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<OthelloView>) {
+/** Board after placing `d` on `sq`, with the counts and the last move (undo-window preview: the rules are public). */
+function place(view: OthelloView, sq: number, d: Disc): OthelloView {
+  const flipped = flips(view.board, sq, d);
+  if (!flipped.length) return view;
+  const board = view.board.slice();
+  board[sq] = d;
+  for (const i of flipped) board[i] = d;
+  const n = flipped.length, o = d === 'b' ? 'w' : 'b';
+  return { ...view, board, last: { seat: view.current ?? 0, sq, flipped }, counts: { ...view.counts, [d]: view.counts[d] + n + 1, [o]: view.counts[o] - n } as OthelloView['counts'] };
+}
+
+export default function OthelloRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<OthelloView>) {
+  const pendingSq = queued?.type === 'place' && mySeat !== null ? (queued.sq as number) : null;
+  const view = pendingSq === null ? real : place(real, pendingSq, real.colors[mySeat!]!);
+  // Every change of the board animates from the board shown before it: new discs land, turned discs flip (also back
+  // on undo), and a disc taken back by undo lifts off. Delays ripple out from the square that changed.
+  const sig = view.board.map((d) => d ?? '-').join('');
+  const trail = useRef({ sig, prev: view.board, cur: view.board, n: 0 });
+  if (trail.current.sig !== sig) trail.current = { sig, prev: trail.current.cur, cur: view.board, n: trail.current.n + 1 };
+  const prev = trail.current.prev, step = trail.current.n;
   const felt = `${useId()}-felt`;
   const myDisc: Disc = mySeat === null ? 'b' : view.colors[mySeat]!;
   const legal = new Set(legalActions.filter((a) => a.type === 'place').map((a) => a.sq as number));
-  const myTurn = legal.size > 0;
+  const myTurn = legal.size > 0 && pendingSq === null;
   const hint = expected?.type === 'place' ? (expected.sq as number) : null;
   const xy = (i: number) => ({ x: M + (i % 8) * S + S / 2, y: M + (7 - Math.floor(i / 8)) * S + S / 2 });
   const last = view.last;
-  const flipped = new Map((last?.flipped ?? []).map((i) => {
-    const a = xy(i), b = xy(last!.sq);
-    return [i, Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)) / S] as const;
+  const origin = view.board.findIndex((d, i) => !d !== !prev[i]);
+  const from = xy(origin >= 0 ? origin : last?.sq ?? 0);
+  const flipped = new Map(view.board.flatMap((d, i) => {
+    if (!d || !prev[i] || prev[i] === d) return [];
+    const a = xy(i);
+    return [[i, Math.max(Math.abs(a.x - from.x), Math.abs(a.y - from.y)) / S] as const];
   }));
+  const lifted = prev.flatMap((d, i) => (d && !view.board[i] ? [[i, d] as const] : []));
   const seatOf = (d: Disc) => (view.colors[0] === d ? 0 : 1);
   const who = (d: Disc) => (seatOf(d) === mySeat ? 'شما' : seatName(seatOf(d)));
   const total = view.counts.b + view.counts.w;
@@ -36,6 +59,8 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
     : null;
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: 'نوبت شما: روی یک نقطه بگذارید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
@@ -79,7 +104,7 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
           {Array.from({ length: 64 }, (_, i) => {
             const { x, y } = xy(i);
             const d = view.board[i];
-            const isLegal = legal.has(i) && !busy;
+            const isLegal = legal.has(i) && !busy && pendingSq === null;
             const gain = isLegal ? flips(view.board, i, myDisc).length : 0;
             return (
               <g key={i} role="gridcell" tabIndex={isLegal ? 0 : -1}
@@ -102,19 +127,20 @@ export default function OthelloRenderer({ view, legalActions, mySeat, seatName, 
           {view.board.map((d, i) => {
             if (!d) return null;
             const { x, y } = xy(i);
-            const isNew = last?.sq === i;
+            const isNew = !prev[i];
             const delay = flipped.get(i);
-            const key = `${i}-${isNew || delay !== undefined ? view.history.length : 0}`;
+            const key = `${i}-${isNew || delay !== undefined ? step : 0}`;
             if (delay !== undefined) {
               return (
                 <g key={key} className="oth-flip" style={{ ['--d' as string]: `${0.1 + delay * 0.09}s` }} pointerEvents="none">
-                  <g className="oth-flip__old"><DiscShape x={x} y={y} d={d === 'b' ? 'w' : 'b'} /></g>
+                  <g className="oth-flip__old"><DiscShape x={x} y={y} d={prev[i]!} /></g>
                   <g className="oth-flip__new"><DiscShape x={x} y={y} d={d} /></g>
                 </g>
               );
             }
             return <g key={key} className={isNew ? 'bg-land' : undefined} pointerEvents="none"><DiscShape x={x} y={y} d={d} /></g>;
           })}
+          {lifted.map(([i, d]) => { const { x, y } = xy(i); return <g key={`lift-${i}-${step}`} className="oth-lift" pointerEvents="none"><DiscShape x={x} y={y} d={d} /></g>; })}
         </svg>
       </ZoomBoard>
 

@@ -3,8 +3,8 @@
 // Visuals: wooden frame, painted carpet under a semi-opaque printed board, vector squares and yards, painted pawns
 // (WebP cut from a generated sheet, see DECISIONS.md).
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, type GameRendererProps } from '@bg/ui';
 import carpet from './art/bd-carpet.webp';
 import dieArt from './art/die.webp';
 import pawnRed from './art/pawn-red.webp';
@@ -38,6 +38,15 @@ function where(slot: number, piece: number, progress: number): [number, number] 
   if (progress >= TRACK) return px(GOAL_XY[slot]![progress - TRACK]!);
   return px(TRACK_XY[trackSquare(slot, progress)]!);
 }
+/** Board points a piece passes through from one progress to another: square by square along its track. */
+function path(slot: number, piece: number, from: number, to: number): [number, number][] {
+  if (to < 0 || from === to) return [where(slot, piece, from), where(slot, piece, to)]; // captured: straight back to the yard
+  const pts: [number, number][] = [];
+  if (from < 0) { pts.push(where(slot, piece, -1)); from = 0; }
+  const d = to > from ? 1 : -1;
+  for (let p = from; p !== to + d; p += d) pts.push(where(slot, piece, p));
+  return pts;
+}
 const placeFa = (p: number) => (p < 0 ? 'در لانه' : p >= TRACK ? `در خانه (${fa(p - TRACK + 1)})` : `${fa(p + 1)} خانه از شروع`);
 
 function describe(e: LogEntry, name: (s: number) => string) {
@@ -52,13 +61,13 @@ function describe(e: LogEntry, name: (s: number) => string) {
   }
 }
 
-function Die({ value, rolling }: { value: number | null; rolling?: boolean }) {
+function Die({ value, rolling, pending }: { value: number | null; rolling?: boolean; pending?: boolean }) {
   const pips: Record<number, [number, number][]> = {
     1: [[2, 2]], 2: [[1, 1], [3, 3]], 3: [[1, 1], [2, 2], [3, 3]], 4: [[1, 1], [3, 1], [1, 3], [3, 3]],
     5: [[1, 1], [3, 1], [2, 2], [1, 3], [3, 3]], 6: [[1, 1], [3, 1], [1, 2], [3, 2], [1, 3], [3, 3]]
   };
   return (
-    <svg className={rolling ? 'ld-die bg-roll' : 'ld-die'} viewBox="0 0 48 48" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس'}>
+    <svg className={pending ? 'ld-die bg-tumble' : rolling ? 'ld-die bg-roll' : 'ld-die'} viewBox="0 0 48 48" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس'}>
       <defs>
         <linearGradient id="ldd-face" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="0.6" stopColor="#f6efdc" /><stop offset="1" stopColor="#d8cdb0" /></linearGradient>
         <radialGradient id="ldd-pip" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stopColor="#5a4a3c" /><stop offset="1" stopColor="#120c06" /></radialGradient>
@@ -94,7 +103,7 @@ function Pawn({ slot }: { slot: number }) {
   return <image className="ld-pawn" href={PAWN_ART[slot]} x="-24" y="-26" width="48" height="48" aria-hidden="true" />;
 }
 
-export default function LudoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<LudoView>) {
+export default function LudoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LudoView>) {
   const canRoll = legalActions.some((a) => a.type === 'roll');
   const moves = legalActions.filter((a) => a.type === 'move') as unknown as { piece: number; to: number }[];
   const latest = view.log.at(-1);
@@ -105,11 +114,36 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, latest?.seq ?? 0);
+  useFlip(root, `${latest?.seq ?? 0}|${queued?.type ?? ''}`);
   const lastRoll = [...view.log].reverse().find((e) => e.t === 'roll');
+  // The die: tumbles without pips while the own roll waits in the undo window or for the server; thrown when the result lands.
+  const [rollSent, setRollSent] = useState(-1);
+  const rollPending = queued?.type === 'roll' || (busy && rollSent === (latest?.seq ?? 0));
+  const firstRoll = useRef(lastRoll?.seq);
+  // Undo-window preview of an own move: the piece already walks to its target; undo walks it back.
+  const pendingMove = queued?.type === 'move' ? moves.find((m) => m.piece === queued.piece) ?? null : null;
+  const shown = view.pieces.map((ps, seat) => ps.map((p, i) => (seat === mySeat && pendingMove?.piece === i ? pendingMove.to : p)));
+  const shownSig = JSON.stringify(shown);
+  const before = useRef({ shown, roll: lastRoll?.seq });
+  useLayoutEffect(() => {
+    const prev = before.current;
+    before.current = { shown, roll: lastRoll?.seq };
+    const host = root.current;
+    if (!host || motionOff()) return;
+    const wait = prev.roll !== lastRoll?.seq ? MOTION.roll * 0.8 : 0; // let the die land before the piece walks
+    shown.forEach((ps, seat) => ps.forEach((p, i) => {
+      const o = prev.shown[seat]?.[i];
+      const el = host.querySelector<SVGGElement>(`[data-pawn="${seat}-${i}"]`);
+      if (o === undefined || o === p || !el) return;
+      const pts = path(view.slots[seat]!, i, o, p), [fx, fy] = pts.at(-1)!;
+      el.animate(pts.map(([x, y], k) => ({ transform: `translate(${x - fx}px, ${y - fy}px) scale(${k && k < pts.length - 1 ? 1.08 : 1})` })),
+        { duration: Math.min(320 + pts.length * 170, 2400), delay: p < o && p < 0 ? wait + 500 : wait, easing: 'linear', fill: 'backwards' });
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shownSig]);
 
   const mine = mySeat !== null ? view.slots[mySeat]! : null;
-  const status = view.outcome ? null : canRoll
+  const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : canRoll
     ? { tone: 'mine' as const, text: view.tries > 1 ? `نوبت شماست: تاس بریزید (${fa(view.tries)} فرصت برای ۶)` : 'نوبت شماست: تاس بریزید' }
     : moves.length ? { tone: 'mine' as const, text: `${fa(view.die ?? 0)} آوردید: مهره‌ای را که می‌خواهید حرکت دهید بزنید` }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)} (${SLOT_FA[view.slots[view.current]!]})` };
@@ -180,16 +214,16 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             <g transform="translate(275 275)"><circle r="10" fill="url(#ldg-gold)" stroke="#3a2a1a" strokeWidth="1.5" /><polygon points={STAR} transform="scale(0.55)" fill="#fff" fillOpacity="0.9" /></g>
             {YARD_XY.map((cells, slot) => cells.map((xy, i) => { const [x, y] = px(xy); return <circle key={`y${slot}${i}`} cx={x} cy={y} r="17" className="ld-cell ld-cell--yard" fill="url(#ldg-well)" />; }))}
           </g>
-          {moves.map((m) => { const [x, y] = where(mine!, m.piece, m.to); return <circle key={`t${m.piece}`} cx={x} cy={y} r="23" className="ld-target" />; })}
+          {!pendingMove && moves.map((m) => { const [x, y] = where(mine!, m.piece, m.to); return <circle key={`t${m.piece}`} cx={x} cy={y} r="23" className="ld-target" />; })}
           {view.pieces.flatMap((ps, seat) => !view.active[seat] ? [] : ps.map((p, i) => {
             const slot = view.slots[seat]!;
-            const [x, y] = where(slot, i, p);
-            const move = seat === mySeat ? moves.find((m) => m.piece === i) : undefined;
+            const [x, y] = where(slot, i, shown[seat]![i]!);
+            const move = seat === mySeat && !pendingMove ? moves.find((m) => m.piece === i) : undefined;
             const label = `مهره ${fa(i + 1)} ${SLOT_FA[slot]} (${seatName(seat)})، ${placeFa(p)}${move ? '، حرکت دادن' : ''}`;
             const hint = expected?.type === 'move' && expected.piece === i && seat === mySeat;
             const act = () => !busy && onAction({ type: 'move', piece: i });
             return (
-              <g key={`${seat}-${i}`} style={{ transform: `translate(${x}px, ${y}px)` }}><g data-flip={`pawn-${seat}-${i}`} className={['ld-piece', move ? 'ld-piece--movable' : '', hint ? 'ld-piece--hint' : ''].join(' ')}
+              <g key={`${seat}-${i}`} style={{ transform: `translate(${x}px, ${y}px)` }}><g data-pawn={`${seat}-${i}`} className={['ld-piece', move ? 'ld-piece--movable' : '', hint ? 'ld-piece--hint' : ''].join(' ')}
                 {...(move ? { role: 'button', tabIndex: 0, 'aria-label': label, onClick: act, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } } } : { role: 'img', 'aria-label': label })}>
                 <circle r="22" className="ld-piece__ring" />
                 <ellipse cx="2.5" cy="5.5" rx="16" ry="12" className="ld-piece__shadow" filter="url(#ldg-blur)" aria-hidden="true" />
@@ -203,8 +237,10 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
 
         <div className="ld-side">
           <div className="ld-roll">
-            <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll} />
-            {canRoll && <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => onAction({ type: 'roll' })}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>}
+            {rollPending
+              ? <Die key="pending" value={null} pending />
+              : <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} />}
+            {canRoll && <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>}
           </div>
           {moves.length > 0 && (
             <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">

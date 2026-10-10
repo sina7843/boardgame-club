@@ -28,6 +28,34 @@ test('interactive tutorial: question, forced cube, refuted search, yes answer, s
   await p.context().close();
 });
 
+test('undo window: the cube is on the map at once, and undo takes it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await p.emulateMedia({ reducedMotion: 'no-preference' });
+  await p.goto('/games/cryptid');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  // Step 1 (a question: its answer comes from the opponent's secret clue, so nothing is previewed) is sent at once.
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.locator('button.cr-mode.cr-hint').click();
+  await p.locator('.cr-cell.cr-hint').click();
+  await p.locator('button.cr-confirm.cr-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const cell = p.locator('.cr-cell.cr-hint');
+  const label = await cell.getAttribute('aria-label');
+  await cell.click();
+  await p.locator('button.cr-confirm.cr-hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  const placed = p.locator(`.cr-cell[aria-label="${label}، مکعب شما"]`);
+  await expect(placed).toHaveCount(1);
+  await expect(placed.locator('g.cr-pop .cr-cube')).toHaveCount(1);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(placed).toHaveCount(0);
+  await expect(p.locator(`.cr-cell[aria-label="${label}"] .cr-cube`)).toHaveCount(0);
+  await p.context().close();
+});
+
 /** One move for this page if it is their turn: an owed cube, otherwise a search. */
 async function turn(p: Page, n: number): Promise<boolean> {
   const searchBtn = p.getByRole('button', { name: 'جست‌وجو', exact: true });

@@ -181,7 +181,7 @@ function PlayerPanel({ view, seat, name, me, waiting }: { view: GaiaView; seat: 
         {p.techs.map((t) => (CONTENT.techs[t.id]?.kind === 'adv'
           ? <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${t.id}`} />
           : <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${seat}-${t.id}`} from={`std-${t.id}`} />))}
-        {p.feds.map((x, i) => <span key={i} className={`gp-tile gp-tile--fed${x.green ? ' gp-tile--green' : ''}`}><small>فدراسیون{x.green ? ' (سبز)' : ''}</small>{fedFa(x.id)}</span>)}
+        {p.feds.map((x, i) => <span key={i} data-flip={`fed-${seat}-${i}`} data-flip-from="fed-supply" className={`gp-tile gp-tile--fed${x.green ? ' gp-tile--green' : ''}`}><small>فدراسیون{x.green ? ' (سبز)' : ''}</small>{fedFa(x.id)}</span>)}
       </div>
       {f && (
         <details className="gp-ability">
@@ -196,9 +196,37 @@ function PlayerPanel({ view, seat, name, me, waiting }: { view: GaiaView; seat: 
 
 // ---------------- renderer ----------------
 
-export default function GaiaProjectRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<GaiaView>) {
+/** The served view with my queued move applied as far as it is certain: the structure on its hex, the research marker
+ *  one level up, the booster taken (the old one back in the pool). Resources, leech offers and VP wait for the server. */
+function previewView(v: GaiaView, a: GameAction | null, me: number | null): GaiaView {
+  if (!a || me === null || !v.pl[me]) return v;
+  const build = (i: number, b: Building): GaiaView => ({
+    ...v, hexes: v.hexes.map((h, k) => (k !== i ? h : h.owner !== null && h.owner !== me && b === 'mine' ? { ...h, extra: me } : { ...h, owner: me, building: b }))
+  });
+  const hex = typeof a.hex === 'number' && v.hexes[a.hex] ? a.hex : null;
+  if (a.type === 'place' && hex !== null && v.setupQueue[0]) return build(hex, v.setupQueue[0].what as Building);
+  if (a.type === 'mine' && hex !== null) return build(hex, 'mine');
+  if (a.type === 'upgrade' && hex !== null) return build(hex, a.to as Building);
+  if (a.type === 'gaiaform' && hex !== null) return build(hex, 'gf');
+  const pl = (p: PlayerState): GaiaView => ({ ...v, pl: v.pl.map((x, k) => (k === me ? p : x)) });
+  const p = v.pl[me]!;
+  if (a.type === 'research' && typeof a.track === 'string') return pl({ ...p, research: { ...p.research, [a.track]: p.research[a.track as Track] + 1 } });
+  if ((a.type === 'booster' || a.type === 'pass') && typeof a.booster === 'string') {
+    const b = a.booster;
+    return { ...pl({ ...p, booster: b }), boosters: [...v.boosters.filter((x) => x !== b), ...(p.booster ? [p.booster] : [])] };
+  }
+  return v;
+}
+
+export default function GaiaProjectRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<GaiaView>) {
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  // Undo-window preview, kept while the move is in flight (see previewView).
+  const held = useRef<{ seq: number; a: GameAction } | null>(null);
+  if (queued) held.current = { seq: served.seq, a: queued };
+  const preview = queued ?? (busy && held.current?.seq === served.seq ? held.current.a : null);
+  if (!preview) held.current = null;
+  const view = previewView(served, preview, mySeat);
+  useFlip(root, `${view.seq}|${preview ? JSON.stringify(preview) : ''}`);
   const [hex, setHex] = useState<number | null>(null);
   const [focus, setFocus] = useState<string | null>(null);
   const [fed, setFed] = useState<number[] | null>(null);
@@ -259,6 +287,7 @@ export default function GaiaProjectRenderer({ view, legalActions, mySeat, seatNa
   const specialKeys = [...new Set(specials.map((a) => String(a.id)))];
   const tokens = Object.entries(view.fedSupply).filter(([, n]) => n > 0).map(([id]) => id);
   const status = view.outcome ? null
+    : queued ? 'حرکت شما در حال ثبت است…'
     : myTurn ? (view.decision ? 'تصمیم با شماست' : view.phase === 'faction' ? 'یک جناح انتخاب کنید' : view.phase === 'setup' ? 'یک سازهٔ شروع روی سیارهٔ خانگی خود بگذارید'
       : view.phase === 'booster' ? 'یک تقویت‌کنندهٔ دور انتخاب کنید' : 'نوبت شماست: یک اقدام اصلی (و هر تعداد اقدام آزاد)')
       : `در انتظار ${who(waiting)}`;
@@ -269,7 +298,7 @@ export default function GaiaProjectRenderer({ view, legalActions, mySeat, seatNa
   return (
     <div className="gp" ref={root} data-seq={view.seq} data-round={view.round}>
       <div className="gp-top">
-        {status && <TurnIndicator tone={myTurn ? 'mine' : 'wait'}>{status} — {phaseFa}</TurnIndicator>}
+        {status && <TurnIndicator tone={myTurn && !queued ? 'mine' : 'wait'}>{status} — {phaseFa}</TurnIndicator>}
         <ol className="gp-rounds" aria-label="کاشی‌های امتیاز دور">
           {view.roundTiles.map((t, i) => (
             <li key={t} className={i + 1 === view.round ? 'gp-now' : i + 1 < view.round ? 'gp-past' : undefined} aria-current={i + 1 === view.round ? 'step' : undefined}>
@@ -325,9 +354,9 @@ export default function GaiaProjectRenderer({ view, legalActions, mySeat, seatNa
                 <polygon points={shape} className="gp-cell" />
                 {h.feds.length > 0 && <polygon points={shape} className={`gp-fed gp-seat-${h.feds[0]}`} />}
                 {PLANET_ART[h.planet] && <image href={PLANET_ART[h.planet]} x={-R * 0.62} y={-R * 0.62} width={R * 1.24} height={R * 1.24} />}
-                {h.building && h.owner !== null && <g data-flip={`st-${i}-${h.building}`}>{structure(h.building, h.owner)}{h.building !== 'gf' && <text className="gp-own" x={R * 0.5} y={R * 0.62} textAnchor="middle">{fa(h.owner + 1)}</text>}</g>}
-                {h.extra !== null && <circle r={R * 0.16} cx={R * 0.45} cy={-R * 0.42} className={`gp-st gp-seat-${h.extra}`} />}
-                {h.sats.map((s, k) => <circle key={s} r={R * 0.14} cx={-R * 0.36 + k * R * 0.26} cy={R * 0.42} className={`gp-st gp-seat-${s}`} />)}
+                {h.building && h.owner !== null && <g data-flip={`st-${i}-${h.building}`} data-flip-from={`seat-${h.owner}`}>{structure(h.building, h.owner)}{h.building !== 'gf' && <text className="gp-own" x={R * 0.5} y={R * 0.62} textAnchor="middle">{fa(h.owner + 1)}</text>}</g>}
+                {h.extra !== null && <g data-flip={`ex-${i}`} data-flip-from={`seat-${h.extra}`}><circle r={R * 0.16} cx={R * 0.45} cy={-R * 0.42} className={`gp-st gp-seat-${h.extra}`} /></g>}
+                {h.sats.map((s, k) => <g key={s} data-flip={`sat-${i}-${s}`} data-flip-from={`seat-${s}`}><circle r={R * 0.14} cx={-R * 0.36 + k * R * 0.26} cy={R * 0.42} className={`gp-st gp-seat-${s}`} /></g>)}
               </g>
             );
           })}
@@ -489,7 +518,7 @@ export default function GaiaProjectRenderer({ view, legalActions, mySeat, seatNa
         </div>
         <div>
           <h3>توکن‌های فدراسیون</h3>
-          <ul>
+          <ul data-flip-anchor="fed-supply">
             {Object.entries(view.fedSupply).map(([id, n]) => <li key={id}>{fedFa(id)} × {fa(n)}{CONTENT.feds[id]?.green ? ' (سبز)' : ''}</li>)}
             {view.terraFed && <li>روی زمین‌سازی ۵: {fedFa(view.terraFed)}</li>}
           </ul>

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «نامه عاشقانه» end to end: the tutorial (Countess, Handmaid, Priest, Prince) and a short three-player game: tap a card,
 // pick a target, guess for the Guard.
@@ -20,20 +20,20 @@ test('interactive tutorial: Countess rule, Handmaid protection, Priest, Prince o
       await expect(p.locator('.ll__seen')).toContainText('شاهزاده‌خانم');
       await p.screenshot({ path: shot(info.project.name, 'tutorial-seen'), fullPage: true });
     }
-    await p.locator('.ll-card--hint').click();
-    if (step === '۳' || step === '۴') await p.locator('.ll-target--hint').click();
+    await p.locator('.ll .ll-card--hint').click();
+    if (step === '۳' || step === '۴') await p.locator('.ll .ll-target--hint').click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const cards = p.locator('.ll__hand button.ll-card:not([disabled])');
+  const cards = p.locator('.ll .ll__hand button.ll-card:not([disabled])');
   if (!(await cards.count())) return false;
   await cards.nth(n % (await cards.count())).click();
-  const targets = p.locator('.ll-pl button');
+  const targets = p.locator('.ll .ll-pl button');
   if (await targets.count()) await targets.nth(n % (await targets.count())).click();
-  const guesses = p.locator('.ll-guess');
+  const guesses = p.locator('.ll .ll-guess');
   if (await guesses.count()) await guesses.nth(n % 7).click();
   return true;
 }
@@ -69,4 +69,35 @@ test('three players play a short game of «نامه عاشقانه»', async ({ 
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the played card flies to my discards at once, and undo flies it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/love-letter');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const card = p.locator('.ll .ll__hand .ll-card--hint');
+  const id = await card.getAttribute('data-flip');
+  const inHand = p.locator(`.ll .ll__hand [data-flip="${id}"]`), discarded = p.locator(`.ll .ll-pl__discards [data-flip="${id}"]`);
+  await motionLog(p);
+  await card.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(discarded).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inHand).toBeVisible();
+  await expect(discarded).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  // Sent for real: once confirmed, the discard keeps the same id (no second flight).
+  await card.click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۴/)).toBeVisible({ timeout: 10_000 });
+  await expect(discarded).toBeVisible();
+  await p.context().close();
 });

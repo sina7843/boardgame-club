@@ -3,7 +3,7 @@
 // squares along one line — tap the current square again to drop another stone there; the move is sent when the
 // hand is empty.
 import './renderer.css';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
 import bF from './art/b-F.webp';
 import bS from './art/b-S.webp';
@@ -21,8 +21,36 @@ const K = 48; // stone slots per square for identity tracking (ponytail: a talle
 const STONE: Record<Color, Record<Kind, string>> = { w: { F: wF, S: wS, C: wC }, b: { F: bF, S: bS, C: bC } };
 const KIND_FA: Record<Kind, string> = { F: 'سنگ تخت', S: 'دیوار', C: 'سرستون' };
 
-export default function TakRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<TakView>) {
+type Queued = { type: string; at?: number; kind?: Kind; from?: number; dir?: Dir; drops?: number[] };
+
+/** My queued placement or stack move applied at once (same steps as the rules; nothing in Tak is hidden). */
+function preview(v: TakView, q: Queued | null | undefined): TakView {
+  if (!q) return v;
+  const board = v.board.map((st) => st.map((x) => ({ ...x })));
+  if (q.type === 'place' && q.at !== undefined && q.kind) {
+    const color: Color = v.ply < 2 ? (v.turn === 'w' ? 'b' : 'w') : v.turn;
+    board[q.at] = [{ c: color, t: q.kind }];
+    const r = { ...v.reserve[color] };
+    if (q.kind === 'C') r.caps -= 1; else r.stones -= 1;
+    return { ...v, board, reserve: { ...v.reserve, [color]: r } };
+  }
+  if (q.type !== 'move' || q.from === undefined || !q.dir || !q.drops) return v;
+  const stack = board[q.from]!, lift = q.drops.reduce((a, b) => a + b, 0);
+  const carried = stack.splice(stack.length - lift, lift);
+  let at = q.from;
+  for (const d of q.drops) {
+    at = step(at, q.dir, v.size)!;
+    const t = board[at]!.at(-1);
+    if (t?.t === 'S') t.t = 'F'; // flattened by the capstone
+    board[at]!.push(...carried.splice(0, d));
+  }
+  return { ...v, board };
+}
+
+export default function TakRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<TakView>) {
   const walnut = `${useId()}-walnut`;
+  const q = queued as Queued | null | undefined;
+  const view = preview(served, q);
   const n = view.size;
   const SIZE = n * S + 2 * M;
   const me = mySeat ?? 0;
@@ -79,20 +107,22 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
     if (canPlace && !view.board[i]!.length && !sel) onAction({ type: 'place', at: i, kind: opening ? 'F' : kind });
   };
 
-  // Every physical stone gets a stable id (matched between consecutive boards), so lifted stones glide along the move,
-  // and a stone that has just appeared lands.
+  // Every physical stone gets a stable id (matched between consecutive boards), so lifted stones glide along the move
+  // (my queued move at once, undo glides them back), a lifted stack rises, and a stone that has just appeared lands.
   const root = useRef<HTMLDivElement>(null);
   const ids = usePieceIds(
     view.board.flatMap((stack) => Array.from({ length: K }, (_, k) => (stack[k] ? `${stack[k]!.c}${stack[k]!.t}` : null))),
     (a, b) => { const p = Math.floor(a / K), q = Math.floor(b / K); return Math.hypot((p % n) - (q % n), Math.floor(p / n) - Math.floor(q / n)) * 100 + Math.abs((a % K) - (b % K)); }
   );
   const fresh = useFresh(ids.filter((x): x is string => !!x));
-  useFlip(root, view.ply);
+  useFlip(root, `${view.ply}|${q ? JSON.stringify(q) : ''}|${sel ? `${sel.from}:${sel.lift}` : ''}`);
 
   const road = new Set(view.end?.road ?? []);
   const last = view.history.at(-1);
   const who = (c: Color) => (view.colors[0] === c ? (mySeat === 0 ? 'شما' : seatName(0)) : (mySeat === 1 ? 'شما' : seatName(1)));
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : canPlace ? { tone: 'mine' as const, text: opening ? 'اولین نوبت: یک سنگ تخت حریف را بگذارید' : sel ? (sel.dir ? `${fa(sel.lift - sel.drops.reduce((a, b) => a + b, 0))} سنگ در دست؛ خانه بعدی را بزنید` : 'تعداد را انتخاب کنید و جهت را بزنید') : 'نوبت شما: بگذارید یا پشته‌ای را جابه‌جا کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
@@ -164,7 +194,7 @@ export default function TakRenderer({ view, legalActions, mySeat, seatName, busy
   );
 }
 
-function Stat({ n, children }: { n: number; children: React.ReactNode }) {
+function Stat({ n, children }: { n: number; children: ReactNode }) {
   return <span key={n} className={`tak-side__stat ${usePop(n)}`}>{children}</span>;
 }
 

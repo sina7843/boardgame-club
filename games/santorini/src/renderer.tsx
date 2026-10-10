@@ -2,16 +2,33 @@
 // Setup: tap a free square. Turn: tap your worker → tap a lit square to move → tap a lit square to build (a winning
 // climb is sent at once). The choice is sent as one action.
 import './renderer.css';
-import { useEffect, useId, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, type GameRendererProps } from '@bg/ui';
+import { useEffect, useId, useRef, useState } from 'react';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
 import { DOME, SEA, STONE, WORKER_SRC } from './pieces.ts';
 import { buildTargets, moveTargets, type SantoriniView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 130, M = 40, SIZE = 5 * S + 2 * M;
 
-export default function SantoriniRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SantoriniView>) {
+type Queued = { type: string; at?: number; from?: number; to?: number; build?: number };
+
+/** My queued placement / move + build applied at once (nothing hidden in Santorini). */
+function preview(v: SantoriniView, q: Queued | null | undefined, me: number): SantoriniView {
+  if (!q || me < 0) return v;
+  const seat = me as 0 | 1;
+  if (q.type === 'place' && q.at !== undefined) return { ...v, workers: v.workers.map((ws, k) => (k === seat ? [...ws, q.at!] : ws)) as [number[], number[]] };
+  if (q.type !== 'turn' || q.from === undefined || q.to === undefined) return v;
+  const workers = v.workers.map((ws, k) => (k === seat ? ws.map((w) => (w === q.from ? q.to! : w)) : ws)) as [number[], number[]];
+  if (q.build === undefined) return { ...v, workers };
+  const h = v.height[q.build]!, supply = { ...v.supply };
+  if (h === 3) supply.dome -= 1; else supply[(h + 1) as 1 | 2 | 3] -= 1;
+  return { ...v, workers, supply, height: v.height.map((x, i) => (i === q.build ? x + 1 : x)) };
+}
+
+export default function SantoriniRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SantoriniView>) {
   const me = mySeat ?? 0;
+  const q = queued as Queued | null | undefined;
+  const view = preview(served, q, mySeat ?? -1);
   const uid = useId();
   const seaId = `sto-sea-${uid}`, stoneId = `sto-plaster-${uid}`;
   const flip = me === 1;
@@ -22,9 +39,14 @@ export default function SantoriniRenderer({ view, legalActions, mySeat, seatName
   const placing = legalActions.some((a) => a.type === 'place') && !busy;
   const playing = legalActions.some((a) => a.type === 'turn') && !busy;
   const [from, setFrom] = useState<number | null>(null);
-  const [to, setTo] = useState<number | null>(null);
+  const [picked, setTo] = useState<number | null>(null);
+  const to = q ? null : picked; // while my move is queued the board already shows it, not the half-made selection
   const turnNo = view.history.length;
   useEffect(() => { setFrom(null); setTo(null); }, [turnNo]);
+  // Workers keep their motion id (seat + index) as they move, so moves glide square to square (the chosen square
+  // before building, my queued move at once, undo back); new workers come in from their player's badge.
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, `${turnNo}|${q ? JSON.stringify(q) : ''}|${to}`);
   const hint = expected?.type === 'turn' ? (expected as unknown as { from: number; to: number; build?: number }) : null;
   const occupied = (i: number) => view.workers[0].includes(i) || view.workers[1].includes(i);
 
@@ -53,18 +75,21 @@ export default function SantoriniRenderer({ view, legalActions, mySeat, seatName
   };
 
   const last = view.history.at(-1);
+  const built = q?.type === 'turn' ? q.build : last?.build;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : placing ? { tone: 'mine' as const, text: `کارگر ${fa(view.workers[me as 0 | 1].length + 1)} را روی یک خانه بگذارید` }
       : playing ? { tone: 'mine' as const, text: stage === 'worker' ? 'نوبت شما: یک کارگر را بزنید' : stage === 'move' ? 'کجا برود؟' : 'کجا بسازد؟' }
         : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   return (
-    <div className="sto" data-turn={turnNo} data-stage={stage}>
+    <div className="sto" data-turn={turnNo} data-stage={stage} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="sto__bar">
         {[0, 1].map((s) => (
-          <div key={s} className={['sto-side', view.current === s && !view.outcome ? 'sto-side--turn' : ''].join(' ')}>
+          <div key={s} data-flip-anchor={`side-${s}`} className={['sto-side', view.current === s && !view.outcome ? 'sto-side--turn' : ''].join(' ')}>
             <img className="sto-side__pawn" src={WORKER_SRC[s]} alt="" />
             <bdi className="sto-side__name">{who(s)}</bdi>
           </div>
@@ -96,7 +121,7 @@ export default function SantoriniRenderer({ view, legalActions, mySeat, seatName
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
                 <rect x={x - S / 2 + 4} y={y - S / 2 + 4} width={S - 8} height={S - 8} rx="8" fill={`url(#${stoneId})`} />
                 <rect x={x - S / 2 + 4} y={y - S / 2 + 4} width={S - 8} height={S - 8} rx="8" className="sto-tile" />
-                <Tower x={x} y={y} h={view.height[i]!} fresh={last?.build === i} />
+                <Tower x={x} y={y} h={view.height[i]!} fresh={built === i} />
                 {view.height[i]! > 0 && view.height[i]! < 4 && (
                   <g className="sto-level" pointerEvents="none">
                     <circle cx={x + S / 2 - 22} cy={y + S / 2 - 22} r="15" />
@@ -112,10 +137,8 @@ export default function SantoriniRenderer({ view, legalActions, mySeat, seatName
             const { x, y } = xy(w);
             const lift = Math.min(view.height[w]!, 3) * 13;
             const ghost = seat === me && to !== null && w === to;
-            const slid = last && last.to === w && last.from !== null && last.seat === seat ? xy(last.from) : null;
             return (
-              <g key={`${seat}-${k}-${slid ? turnNo : 0}`} pointerEvents="none" className={['sto-worker', ghost ? 'sto-worker--ghost' : '', slid ? 'sto-worker--moved' : ''].join(' ')}
-                style={slid ? { ['--dx' as string]: `${slid.x - x}px`, ['--dy' as string]: `${slid.y - y}px` } : undefined}>
+              <g key={`${seat}-${k}`} pointerEvents="none" data-flip={`w${seat}-${k}`} data-flip-from={`side-${seat}`} className={['sto-worker', ghost ? 'sto-worker--ghost' : ''].join(' ')}>
                 <image href={WORKER_SRC[seat]} x={x - 48} y={y - 64 - lift} width="96" height="96" filter="url(#sto-shadow)" />
               </g>
             );

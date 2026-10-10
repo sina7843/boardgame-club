@@ -3,7 +3,7 @@
 // cards. Tap gems to pick (three different, or the same gem twice for a pair); tap a card to buy or reserve it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
 import gemW from './art/gem-diamond.webp';
 import gemU from './art/gem-sapphire.webp';
 import gemG from './art/gem-emerald.webp';
@@ -19,7 +19,7 @@ import noble0 from './art/noble-0.webp';
 import noble1 from './art/noble-1.webp';
 import noble2 from './art/noble-2.webp';
 import noble3 from './art/noble-3.webp';
-import { CARDS, GEMS, NOBLES, bonuses, type Gem, type SplendorView, type Token } from './rules.ts';
+import { CARDS, GEMS, NOBLES, bonuses, payment, type Gem, type SplendorView, type Token } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const GEM_FA: Record<Token, string> = { w: 'الماس', u: 'یاقوت کبود', g: 'زمرد', r: 'یاقوت سرخ', k: 'عقیق سیاه', o: 'طلا' };
@@ -61,11 +61,41 @@ export function NobleTile({ id }: { id: number }) {
   );
 }
 
-export default function SplendorRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SplendorView>) {
+/**
+ * Undo-window preview: my move applied with what the client already knows (the same arithmetic as the rules) — gems
+ * taken or returned, a card bought (paid) or reserved (+gold). The market refill, a blind reserve and noble visits
+ * are left to the server's answer.
+ */
+function preview(v: SplendorView, me: number, q: GameAction | null | undefined): SplendorView {
+  if (!q || me < 0) return v;
+  const bank = { ...v.bank }, tokens = v.tokens.map((t) => ({ ...t })), t = tokens[me]!;
+  const off = (card: number) => ({ market: v.market.map((r) => r.map((x) => (x === card ? null : x))), reserved: v.reserved.map((r, k) => (k === me ? r.filter((x) => x !== card) : r)) });
+  switch (q.type) {
+    case 'take': for (const g of q.gems as Gem[]) { bank[g] -= 1; t[g] += 1; } return { ...v, bank, tokens, last: { seat: me, kind: 'take', gems: q.gems as Gem[] } };
+    case 'return': for (const g of q.gems as Token[]) { bank[g] += 1; t[g] -= 1; } return { ...v, bank, tokens, last: { seat: me, kind: 'return', gems: q.gems as Token[] } };
+    case 'reserve': {
+      if (typeof q.card !== 'number') return v;
+      const { market } = off(q.card);
+      if (bank.o > 0) { bank.o -= 1; t.o += 1; }
+      return { ...v, bank, tokens, market, reserved: v.reserved.map((r, k) => (k === me ? [...r, q.card as number] : r)), last: { seat: me, kind: 'reserve', card: q.card } };
+    }
+    case 'buy': {
+      const card = q.card as number, pay = payment(v.tokens[me]!, v.bought[me]!, card);
+      if (!pay) return v;
+      for (const k of Object.keys(pay) as Token[]) { t[k] -= pay[k]; bank[k] += pay[k]; }
+      return { ...v, bank, tokens, ...off(card), bought: v.bought.map((b, k) => (k === me ? [...b, card] : b)), points: v.points.map((p, k) => (k === me ? p + CARDS[card]!.points : p)), last: { seat: me, kind: 'buy', card } };
+    }
+    default: return v;
+  }
+}
+
+export default function SplendorRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction: send, expected, queued }: GameRendererProps<SplendorView>) {
   const me = mySeat ?? -1;
-  // Cards glide deck → market → reserved/ledger, nobles → their owner, and gems fly bank ↔ player.
+  const view = preview(served, me, queued);
+  // Cards glide deck → market → reserved/ledger, nobles → their owner, and gems fly bank ↔ player; my own move is
+  // previewed in the undo window and animates back on undo.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const take = legalActions.find((a) => a.type === 'take') as { colors: Gem[]; need: number } | undefined;
   const pairs = new Set(legalActions.filter((a) => a.type === 'take2').map((a) => a.color as Gem));
   const reservable = new Set(legalActions.filter((a) => a.type === 'reserve' && a.card !== undefined).map((a) => a.card as number));
@@ -77,6 +107,7 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
   const [card, setCard] = useState<number | null>(null);
   const [back, setBack] = useState<Token[]>([]);
   useEffect(() => { setSel([]); setCard(null); setBack([]); }, [view.seq]);
+  const onAction = (a: GameAction) => { setSel([]); setCard(null); setBack([]); send(a); };
   const hint = expected as unknown as { type: string; gems?: Gem[]; card?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myTurn = !!take || pairs.size > 0 || buyable.size > 0 || reservable.size > 0 || !!ret || canPass;
@@ -93,6 +124,8 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
   };
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : ret ? { tone: 'mine' as const, text: `بیش از ده گوهر دارید: ${fa(ret.count)} تا پس بدهید` }
       : myTurn ? { tone: 'mine' as const, text: view.ending ? 'دور آخر! گوهر بردارید یا کارت بخرید/رزرو کنید' : 'گوهر بردارید یا کارت بخرید/رزرو کنید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}${view.ending ? ' (دور آخر)' : ''}` };
@@ -112,7 +145,7 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
   };
 
   return (
-    <div className="sp" ref={root} data-seq={view.seq} data-phase={view.phase}>
+    <div className="sp" ref={root} data-seq={served.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
@@ -148,7 +181,7 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
             </button>
           );
         })}
-        {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${view.seq}-${i}`, `seat-${last.seat}`))}
+        {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${last.seat}-${g}-${i}`, `seat-${last.seat}`))}
       </section>
       {(take || pairs.size > 0) && (
         <div className="sp__takebar">
@@ -172,7 +205,7 @@ export default function SplendorRenderer({ view, legalActions, mySeat, seatName,
                 <bdi className="sp-pl__name">{who(s)}</bdi>
                 <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>
                 {view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
-                {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${view.seq}-${i}`, `bank-${g}`))}
+                {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${s}-${g}-${i}`, `bank-${g}`))}
               </div>
               <div className="sp-pl__grid">
                 {GEMS.map((g) => (

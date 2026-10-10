@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «چکرز» end to end: two clients play through the board (tap a ringed piece, then highlighted squares) until the game
 // ends; plus the interactive tutorial (quiet move, forced double jump, crowning, king's backward double jump).
@@ -68,4 +68,29 @@ test('two players play «چکرز» to the result through the board', async ({ b
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: my move shows at once with the piece sliding, and undo slides it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/checkers');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  for (let k = 0; k < 3 && !(await undo.count()); k++) { await p.locator('.ck-sq--hint').first().click(); await p.waitForTimeout(150); }
+  await expect(undo).toBeVisible();
+  await expect(p.getByRole('gridcell', { name: /^c3: مهره شما/ })).toHaveCount(1);
+  await expect(p.getByRole('gridcell', { name: /^b2: / })).toHaveCount(0);
+  await p.waitForTimeout(500);
+  expect((await motionLog(p)).some((m) => m.cls.includes('ck-pc'))).toBe(true);
+  await undo.click();
+  await expect(p.getByRole('gridcell', { name: /^b2: مهره شما/ })).toHaveCount(1);
+  await expect(p.getByRole('gridcell', { name: /^c3: / })).toHaveCount(0);
+  await p.waitForTimeout(500);
+  expect((await motionLog(p)).some((m) => m.cls.includes('ck-pc'))).toBe(true);
+  await p.context().close();
 });

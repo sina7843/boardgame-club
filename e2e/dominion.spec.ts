@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «قلمرو» end to end: the tutorial (action chain, Militia, treasures, two buys, end) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -76,4 +76,32 @@ test('three players play «قلمرو» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the played card flies to the play area at once, and undo flies it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/dominion');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۸/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const card = p.locator('.dm__hand .dm-hint');
+  const id = await card.getAttribute('data-flip');
+  const inHand = p.locator(`.dm__hand [data-flip="${id}"]`);
+  const inPlay = p.locator(`.dm__play [data-flip="${id}"]`);
+  await card.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(inPlay).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inHand).toBeVisible();
+  await expect(inPlay).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

@@ -50,6 +50,7 @@
 .cu-die__pip { fill: #fff; }
 .cu-c--white .cu-die__pip, .cu-c--yellow .cu-die__pip { fill: #3a2410; }
 .cu-die--in { opacity: 0.3; filter: grayscale(0.4); }
+.cu-die--pending { --c: #e9dcc0; --c-dk: #8a7a5c; }
 .cu__roll {
   grid-column: 1; margin: 0.45rem 0 0; display: inline-flex; gap: 0.35rem; align-items: center; justify-self: center; padding: 0.2rem 0.75rem;
   border-radius: 999px; background: rgb(29 18 8 / 0.7); font-size: 0.82rem; animation: cu-drop 0.35s ease-out both;

@@ -3,8 +3,8 @@
 // engine Heat and revealed cards, and your own cockpit: gear lever, hand, and — on your move — boost, adrenaline,
 // slipstream and discards. Everything secret (hands, decks, plans) is only ever shown to its owner.
 import './renderer.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import car0 from './art/car-0.webp';
 import car1 from './art/car-1.webp';
 import car2 from './art/car-2.webp';
@@ -98,6 +98,35 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
     return { x1: p.x + nx * half, y1: p.y + ny * half, x2: p.x - nx * half, y2: p.y - ny * half, p, nx, ny };
   };
   const finish = across(0);
+  const carAt = (pos: number, lane: number) => {
+    const p = pointAt(t, (((pos % L) + L) % L + 0.5) / L);
+    const off = lane === 0 ? -13 : 13;
+    return { x: p.x - Math.sin(p.a) * off, y: p.y + Math.cos(p.a) * off, deg: (p.a * 180) / Math.PI };
+  };
+  // Cars drive along the road space by space (not straight across the infield), turning with the track.
+  const cars = useRef(new Map<number, SVGGElement>());
+  const was = useRef<number[] | null>(null);
+  const posKey = view.racers.map((r) => `${r.pos}:${r.lane}`).join();
+  useLayoutEffect(() => {
+    const prev = was.current;
+    was.current = view.racers.map((r) => r.pos);
+    if (!prev || motionOff()) return;
+    view.racers.forEach((r, seat) => {
+      const from = prev[seat], el = cars.current.get(seat);
+      if (from === undefined || from === r.pos || !el || Math.abs(r.pos - from) > L) return;
+      const dir = r.pos > from ? 1 : -1;
+      const steps: { x: number; y: number; deg: number }[] = [];
+      for (let k = from; k !== r.pos + dir; k += dir) steps.push(carAt(k, r.lane));
+      const end = steps.at(-1)!;
+      // Unwrap the heading backwards from the end so a long lap never spins the car the wrong way round.
+      const rel = steps.map(() => 0);
+      for (let i = steps.length - 2; i >= 0; i--) rel[i] = rel[i + 1]! + ((((steps[i]!.deg - steps[i + 1]!.deg) % 360) + 540) % 360 - 180);
+      el.getAnimations().forEach((a) => a.cancel());
+      el.animate(steps.map((c, i) => ({ transform: `translate(${c.x - end.x}px, ${c.y - end.y}px) rotate(${rel[i]}deg)` })),
+        { duration: Math.min(MOTION.move + 120 * steps.length, 2400), easing: 'ease-in-out' });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posKey]);
   return (
     <svg className="ht-track" viewBox="-20 -20 1040 660" role="img" aria-label={`پیست ${TRACK_FA[view.track]}، ${fa(L)} خانه در هر دور`}>
       <path d={d} className="ht-track__verge" />
@@ -124,12 +153,10 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
       })}
       {view.racers.map((r, seat) => {
         if (r.finished || r.resigned) return null;
-        const p = pointAt(t, (((r.pos % L) + L) % L + 0.5) / L);
-        const off = r.lane === 0 ? -13 : 13;
-        const x = p.x - Math.sin(p.a) * off, y = p.y + Math.cos(p.a) * off;
+        const { x, y, deg } = carAt(r.pos, r.lane);
         return (
-          <g key={seat} data-flip={`car-${seat}`}>
-            <g transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${((p.a * 180) / Math.PI).toFixed(1)})`} className={view.current === seat ? 'ht-car ht-car--on' : 'ht-car'}>
+          <g key={seat} className="ht-carpath" ref={(el) => { if (el) cars.current.set(seat, el); else cars.current.delete(seat); }}>
+            <g transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${deg.toFixed(1)})`} className={view.current === seat ? 'ht-car ht-car--on' : 'ht-car'}>
               <title>{`${who(seat)}: ${where(view, r.pos)}`}</title>
               <image href={CAR_ART[seat]} x="-24" y="-15" width="48" height="30" />
             </g>
@@ -142,9 +169,32 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
 
 const sorted = (a: number[]) => a.slice().sort((x, y) => x - y);
 
-export default function HeatRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<HeatView>) {
+/** The served view with my queued choice applied from what I already hold: a committed plan, discarded cards leaving the
+ * hand, a picked garage card leaving the market. Movement, flips, corners and draws wait for the server. */
+function preview(v: HeatView, me: number | null, q: GameAction | null | undefined): HeatView {
+  if (!q || me === null || !v.me) return v;
+  const racers = (f: (r: HeatView['racers'][number]) => HeatView['racers'][number]) => v.racers.map((r, s) => (s === me ? f(r) : r));
+  if (q.type === 'plan') return { ...v, me: { ...v.me, plan: { gear: q.gear as number, cards: q.cards as number[] } }, racers: racers((r) => ({ ...r, planned: true })) };
+  if (q.type === 'react') {
+    const out = q.discard as number[];
+    if (!out.length) return v;
+    return { ...v, me: { ...v.me, hand: v.me.hand.filter((c) => !out.includes(c.id)) }, racers: racers((r) => ({ ...r, hand: r.hand - out.length, discard: r.discard + out.length })) };
+  }
+  if (q.type === 'pick' && v.draft) return { ...v, draft: { ...v.draft, market: v.draft.market.filter((c) => c.id !== q.card) } };
+  return v;
+}
+
+function Stat({ value, className, title, children }: { value: number; className: string; title: string; children: ReactNode }) {
+  const pop = usePop(value);
+  return <span key={value} className={`${className} ${pop}`} title={title}>{children}</span>;
+}
+
+export default function HeatRenderer({ view: served, legalActions: legal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HeatView>) {
+  // Undo-window preview (see preview()); while a move waits in the window nothing else can be chosen.
+  const view = preview(served, mySeat, queued);
+  const legalActions = queued ? [] : legal;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const plan = legalActions.find((a) => a.type === 'plan') as { gears: { gear: number; cost: number }[]; playable: number[] } | undefined;
   const react = legalActions.find((a) => a.type === 'react') as { adrenaline: boolean; slip: boolean; slipAdrenaline: boolean; discardable: number[]; cooldown: number } | undefined;
@@ -181,6 +231,8 @@ export default function HeatRenderer({ view, legalActions, mySeat, seatName, bus
   };
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : pick ? { tone: 'mine' as const, text: `گاراژ (دور ${fa(view.draft!.round)} از ۳): یک کارت ارتقا بردارید` }
       : plan ? { tone: 'mine' as const, text: `دنده را انتخاب کنید و ${fa(g)} کارت بازی کنید` }
         : react ? { tone: 'mine' as const, text: `نوبت حرکت شما: سرعت ${fa(myR!.speed)}` }
@@ -217,7 +269,7 @@ export default function HeatRenderer({ view, legalActions, mySeat, seatName, bus
           <h3 className="ht__h">بازار گاراژ: دور {fa(view.draft.round)} از ۳</h3>
           <div className="ht__cards">
             {view.draft.market.map((c) => (
-              <button key={c.id} type="button" className={`ht-pick${hint?.type === 'pick' && hint.card === c.id ? ' ht-hint' : ''}`} disabled={!pick || busy}
+              <button key={c.id} type="button" data-flip={`card-${c.id}`} data-flip-exit={`deck-${view.draft!.picker ?? 0}`} className={`ht-pick${hint?.type === 'pick' && hint.card === c.id ? ' ht-hint' : ''}`} disabled={!pick || busy}
                 onClick={() => onAction({ type: 'pick', card: c.id })} aria-label={`برداشتن ${cardLabel(c)}`}><HeatCard c={c} /></button>
             ))}
           </div>
@@ -229,26 +281,26 @@ export default function HeatRenderer({ view, legalActions, mySeat, seatName, bus
           const r = view.racers[s]!;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           return (
-            <li key={s} className={['ht-racer', view.current === s ? 'ht-racer--on' : '', s === mySeat ? 'ht-racer--me' : '', r.resigned ? 'ht-racer--out' : ''].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['ht-racer', view.current === s ? 'ht-racer--on' : '', s === mySeat ? 'ht-racer--me' : '', r.resigned ? 'ht-racer--out' : ''].join(' ')}>
               <img className="ht-racer__car" src={CAR_ART[s]} alt={`ماشین ${CAR_FA[s]}`} />
               <div className="ht-racer__main">
                 <div className="ht-racer__head">
                   {place && <b className="ht-racer__place">{fa(place)}</b>}
                   <bdi className="ht-racer__name">{who(s)}</bdi>
-                  <span className="ht-gear" title="دنده">دندهٔ {fa(r.gear)}</span>
-                  <span className="ht-heat" title="گرمای موتور"><img src={flameArt} alt="" />{fa(r.engine)}</span>
+                  <Stat value={r.gear} className="ht-gear" title="دنده">دندهٔ {fa(r.gear)}</Stat>
+                  <Stat value={r.engine} className="ht-heat" title="گرمای موتور"><img src={flameArt} alt="" />{fa(r.engine)}</Stat>
                   {r.adrenaline && <span className="ht-tag">آدرنالین</span>}
                   {view.phase === 'plan' && !r.finished && !r.resigned && <span className="ht-tag">{r.planned ? 'آماده ✓' : 'در حال انتخاب…'}</span>}
                   {view.races > 1 && <span className="ht-tag">{fa(r.points)} امتیاز</span>}
                 </div>
                 <div className="ht-racer__sub">
                   {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد · ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
-                  <span className="ht-racer__counts"> · دست {fa(r.hand)} · دسته {fa(r.deck)} · دورریز {fa(r.discard)}</span>
+                  <span className="ht-racer__counts"> · دست {fa(r.hand)} · <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> · <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>
                 </div>
                 {r.revealed && (
                   <div className="ht-racer__play">
-                    {r.played.map((c) => <span key={c.id} data-flip={`card-${c.id}`}><HeatCard c={c} size="sm" /></span>)}
-                    {r.flips.length > 0 && <span className="ht-flips">رو شد: {r.flips.map((c) => <HeatCard key={c.id} c={c} size="sm" />)}</span>}
+                    {r.played.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`seat-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}
+                    {r.flips.length > 0 && <span className="ht-flips">رو شد: {r.flips.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`deck-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}</span>}
                     <b key={r.speed} className="ht-speed bg-pop">سرعت {fa(r.speed)}</b>
                   </div>
                 )}
@@ -280,7 +332,7 @@ export default function HeatRenderer({ view, legalActions, mySeat, seatName, bus
               const can = (!!plan && plan.playable.includes(c.id)) || (!!react && react.discardable.includes(c.id));
               const hinted = !on && ((hint?.type === 'plan' && hint.cards?.includes(c.id)) || (hint?.type === 'react' && hint.discard?.includes(c.id)));
               return (
-                <button key={c.id} type="button" data-flip={`card-${c.id}`} className={['ht-slot', on ? (disc.includes(c.id) ? 'ht-slot--disc' : 'ht-slot--on') : '', hinted ? 'ht-hint' : ''].join(' ')}
+                <button key={c.id} type="button" data-flip={`card-${c.id}`} data-flip-from={`deck-${mySeat}`} data-flip-exit={`discard-${mySeat}`} className={['ht-slot', on ? (disc.includes(c.id) ? 'ht-slot--disc' : 'ht-slot--on') : '', hinted ? 'ht-hint' : ''].join(' ')}
                   disabled={!can || busy} aria-pressed={on} onClick={() => tap(c.id)}><HeatCard c={c} /></button>
               );
             })}

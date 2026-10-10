@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player, shot } from './helpers.ts';
+import { motionLog, player, recordMotion, shot } from './helpers.ts';
 
 // Full games between two independent clients (separate browser contexts and sessions), live and turn-based.
 test.describe.configure({ mode: 'serial' });
@@ -153,5 +153,49 @@ test('interactive tutorial: guided moves against the scripted opponent', async (
   await p.screenshot({ path: shot('tutorial-done', info.project.name), fullPage: true });
   await p.goto('/');
   await expect(p.getByRole('heading', { name: 'نوبت من' })).toBeVisible();
+  await p.context().close();
+});
+
+test('line-three undo window: the tapped mark lands at once, and undo lifts it out', async ({ browser }, info) => {
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/line-three');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const cell = p.locator('.lt__cell').nth(4);
+  await cell.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(cell).toHaveText('X');
+  await expect(cell.locator('.lt__mark.bg-land')).toHaveCount(1);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(cell).toHaveText('');
+  await p.waitForTimeout(600);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.context().close();
+});
+
+test('sealed-bids undo window: the tapped token is sealed in the envelope at once, and undo returns it', async ({ browser }, info) => {
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/sealed-bids');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const envelope = p.locator('.sb .sb-env');
+  await p.getByRole('button', { name: 'ژتون ۱', exact: true }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(envelope).toBeVisible();
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(envelope).toHaveCount(0);
+  await expect(p.getByRole('button', { name: 'ژتون ۱', exact: true })).toBeEnabled();
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
   await p.context().close();
 });

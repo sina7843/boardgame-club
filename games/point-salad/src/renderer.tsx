@@ -3,7 +3,7 @@
 // Tap a pile's rule, or one or two vegetables; tap one of your rules first to flip it into a vegetable this turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
 import tomato from './art/tomato.webp';
 import lettuce from './art/lettuce.webp';
 import carrot from './art/carrot.webp';
@@ -36,32 +36,54 @@ export function RuleText({ rule }: { rule: Rule }) {
   }
 }
 
-export function RuleCard({ id, pts, from }: { id: number; pts?: number; from?: string }) {
-  return <span className="ps-rule" data-flip={from ? `c-${id}` : undefined} data-flip-from={from}><RuleText rule={CARDS[id]!.rule} />{pts !== undefined && <b className="ps-rule__pts">{fa(pts)}</b>}</span>;
+export function RuleCard({ id, pts, from, exit }: { id: number; pts?: number; from?: string; exit?: string }) {
+  return <span className="ps-rule" data-flip={from ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit}><RuleText rule={CARDS[id]!.rule} />{pts !== undefined && <b className="ps-rule__pts">{fa(pts)}</b>}</span>;
 }
 
-export default function PointSaladRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<PointSaladView>) {
+export default function PointSaladRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<PointSaladView>) {
   const me = mySeat ?? -1;
+  // Undo-window preview: the rule or vegetables I take (and a rule I flip) move to my row at once; the market refill
+  // (the next card of a pile) is hidden and waits for the server.
+  const waiting = queued?.type === 'rule' ? (queued.pile as number) : null;
+  const view: PointSaladView = (() => {
+    if (!queued || me < 0 || (queued.type !== 'rule' && queued.type !== 'veg')) return served;
+    const rules = served.rules.map((r) => r.slice()), veggies = served.veggies.map((v) => v.slice());
+    let { market, pileTops } = served;
+    if (queued.type === 'rule') {
+      const top = served.pileTops[queued.pile as number];
+      if (top !== null && top !== undefined) rules[me]!.push(top);
+      pileTops = served.pileTops.map((t, p) => (p === queued.pile ? null : t));
+    } else {
+      const slots = queued.slots as number[];
+      veggies[me]!.push(...slots.map((i) => served.market[i]!).filter((x) => x !== null));
+      market = served.market.map((x, i) => (slots.includes(i) ? null : x));
+    }
+    if (typeof queued.flip === 'number') { rules[me] = rules[me]!.filter((x) => x !== queued.flip); veggies[me]!.push(queued.flip); }
+    return { ...served, rules, veggies, market, pileTops };
+  })();
   const piles = new Set(legalActions.filter((a) => a.type === 'rule').map((a) => a.pile as number));
   const vegHint = legalActions.find((a) => a.type === 'veg') as { slots: number[]; need: number } | undefined;
   const [sel, setSel] = useState<number[]>([]);
   const [flip, setFlip] = useState<number | null>(null);
   useEffect(() => { setSel([]); setFlip(null); }, [view.seq]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const hint = expected as unknown as { type: string; pile?: number; slots?: number[] } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myTurn = piles.size > 0 || !!vegHint;
   const all = view.veggies.map(counts);
   const sc = scores(view);
   const extra = flip !== null ? { flip } : {};
+  const act = (a: GameAction) => { setSel([]); setFlip(null); onAction(a); };
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: 'یک دستور یا دو سبزی بردارید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.rules.map((_, k) => k) : [mySeat, ...view.rules.map((_, k) => k).filter((k) => k !== mySeat)];
 
   return (
-    <div className="ps" ref={root} data-seq={view.seq}>
+    <div className="ps" ref={root} data-seq={served.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {!view.outcome && (
@@ -72,8 +94,8 @@ export default function PointSaladRenderer({ view, legalActions, mySeat, seatNam
               <div key={p} className="ps-crate" data-flip-anchor={`crate-${p}`}>
                 {top !== null && top !== undefined
                   ? <button type="button" className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
-                    onClick={() => onAction({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن دستور دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
-                  : <span className="ps-pile ps-pile--empty">خالی</span>}
+                    onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن دستور دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
+                  : p === waiting ? <span className="ps-pile ps-pile--empty">…</span> : <span className="ps-pile ps-pile--empty">خالی</span>}
                 <div className="ps-crate__veg">
                   {[p * 2, p * 2 + 1].map((i) => {
                     const id = view.market[i];
@@ -82,7 +104,7 @@ export default function PointSaladRenderer({ view, legalActions, mySeat, seatNam
                     return (
                       <button key={i} type="button" className={['ps-slot', on ? 'ps-slot--on' : '', hint?.type === 'veg' && hint.slots?.includes(i) && !on ? 'ps-hint' : ''].join(' ')}
                         disabled={!vegHint || busy} aria-pressed={on} onClick={() => setSel(on ? sel.filter((x) => x !== i) : [...sel, i].slice(-2))}>
-                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} style={{ display: 'inline-flex' }}><VegIcon v={CARDS[id]!.veg} size={2.2} /></span>
+                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><VegIcon v={CARDS[id]!.veg} size={2.2} /></span>
                       </button>
                     );
                   })}
@@ -95,7 +117,7 @@ export default function PointSaladRenderer({ view, legalActions, mySeat, seatNam
       {vegHint && !view.outcome && (
         <div className="ps__bar">
           <Button size="sm" disabled={busy || sel.length !== vegHint.need} className={hint?.type === 'veg' && sel.length === vegHint.need ? 'ps-hint' : ''}
-            onClick={() => onAction({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
+            onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
           {flip !== null && <span className="ps__flipnote">این نوبت یک دستور به سبزی تبدیل می‌شود</span>}
         </div>
       )}
@@ -109,8 +131,8 @@ export default function PointSaladRenderer({ view, legalActions, mySeat, seatNam
               {view.rules[s]!.map((id) => {
                 const pts = ruleScore(CARDS[id]!.rule, s, all);
                 return s === me && myTurn && !view.outcome
-                  ? <button key={id} type="button" className={`ps-flip ${flip === id ? 'ps-flip--on' : ''}`} aria-pressed={flip === id} onClick={() => setFlip(flip === id ? null : id)} title="برگرداندن به سبزی"><RuleCard id={id} pts={pts} from={`seat-${s}`} /></button>
-                  : <RuleCard key={id} id={id} pts={pts} from={`seat-${s}`} />;
+                  ? <button key={id} type="button" className={`ps-flip ${flip === id ? 'ps-flip--on' : ''}`} aria-pressed={flip === id} onClick={() => setFlip(flip === id ? null : id)} title="برگرداندن به سبزی"><RuleCard id={id} pts={pts} from={`seat-${s}`} exit="drop" /></button>
+                  : <RuleCard key={id} id={id} pts={pts} from={`seat-${s}`} exit="drop" />;
               })}
               {!view.rules[s]!.length && <span className="ps-zero">بدون دستور</span>}
             </div>

@@ -2,8 +2,8 @@
 // the path it has travelled; each player's face-up creatures are grouped with danger at three. Give: pick a card, a
 // player and a claim. Respond: «راست می‌گوید» / «دروغ می‌گوید», or look at it and pass it on with a new claim.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import cockroach from './art/cockroach.webp';
 import bat from './art/bat.webp';
 import fly from './art/fly.webp';
@@ -30,7 +30,29 @@ export function CritterCard({ c, size = 'md', back, flip, flipFrom, cls = '' }: 
   );
 }
 
-export default function CockroachRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CockroachView>) {
+/** A count that bumps only when it changed (the key remounts it so the animation replays). */
+function Bump({ v, className = '', children }: { v: unknown; className?: string; children: ReactNode }) {
+  const pop = usePop(v);
+  return <span key={String(v)} className={`${className} ${pop}`}>{children}</span>;
+}
+
+export default function CockroachRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CockroachView>) {
+  // Undo-window preview: my give or pass already travels to the chosen player with its claim (the card is one I know).
+  // A call or a peek is not previewed: what the card is, and who keeps it, only comes with the server's answer.
+  const me = mySeat ?? -1;
+  const view: CockroachView = (() => {
+    if (me < 0 || !queued) return served;
+    if (queued.type === 'give' && served.hand) {
+      const card = queued.card as Creature, i = served.hand.indexOf(card);
+      return { ...served, hand: served.hand.filter((_, k) => k !== i), handCount: served.handCount.map((n, k) => (k === me ? n - 1 : n)),
+        chain: { card, from: me, to: queued.to as number, claim: queued.claim as Creature, seen: [me], peeked: false } };
+    }
+    if (queued.type === 'pass' && served.chain) {
+      const c = served.chain;
+      return { ...served, chain: { ...c, from: me, to: queued.to as number, claim: queued.claim as Creature, seen: c.seen.includes(me) ? c.seen : [...c.seen, me], peeked: false } };
+    }
+    return served;
+  })();
   const give = legalActions.find((a) => a.type === 'give') as { targets: number[] } | undefined;
   const canCall = legalActions.some((a) => a.type === 'call');
   const canPeek = legalActions.some((a) => a.type === 'peek');
@@ -46,22 +68,24 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
   const targets = give?.targets ?? (passing ? pass!.targets : []);
   const ready = (give ? card !== null : passing) && to !== null && claim !== null;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : give ? { tone: 'mine' as const, text: 'یک کارت، یک نفر و یک ادعا انتخاب کنید' }
       : canCall || pass ? { tone: 'mine' as const, text: ch?.peeked ? 'کارت را دیدید؛ با ادعای تازه رد کنید' : `ادعا: «${CREATURE_FA[ch!.claim]}» — راست است یا دروغ؟` }
         : { tone: 'wait' as const, text: `نوبت ${who(ch ? ch.to : view.current)}` };
   const order = mySeat === null ? view.table.map((_, k) => k) : [...view.table.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const last = view.last;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const loser = view.outcome?.placements.find((x) => x.place === 2)?.seat;
 
   return (
-    <div className="cr" ref={root} data-seq={view.seq}>
+    <div className="cr" ref={root} data-seq={served.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {ch && !view.outcome && (
         <section className="cr__play" data-flip-anchor="play" aria-label="کارت در جریان">
-          <CritterCard c={ch.card} back={!ch.card} size="lg" flip={`play-${view.seq}`} flipFrom={`seat-${ch.from}`} cls={ch.card ? 'bg-flip-in' : ''} />
+          <CritterCard key={`${ch.from}-${ch.to}-${ch.seen.length}`} c={ch.card} back={!ch.card} size="lg" flip={`play-${ch.from}-${ch.to}-${ch.seen.length}`} flipFrom={ch.from === mySeat ? 'hand' : `seat-${ch.from}`} />
           <div className="cr__bubble"><bdi>{who(ch.from)}</bdi> به <bdi>{who(ch.to)}</bdi>: «این یک <b>{CREATURE_FA[ch.claim]}</b> است»</div>
           {ch.seen.length > 1 && <div className="cr__path">دیده‌اند: {ch.seen.map((k) => who(k)).join('، ')}</div>}
         </section>
@@ -81,7 +105,7 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
             <li key={s} data-flip-anchor={`seat-${s}`} className={['cr-pl', last?.kind === 'call' && !ch && last.taker === s ? 'bg-hit' : '', (ch ? ch.to : view.current) === s && !view.outcome ? 'cr-pl--turn' : '', s === mySeat ? 'cr-pl--me' : '', loser === s ? 'cr-pl--lost' : ''].join(' ')}>
               <div className="cr-pl__head">
                 <bdi className="cr-pl__name">{who(s)}</bdi>
-                <span className="cr-pl__hand bg-pop" key={view.handCount[s]}>{fa(view.handCount[s]!)} کارت</span>
+                <Bump v={view.handCount[s]} className="cr-pl__hand">{fa(view.handCount[s]!)} کارت</Bump>
                 {loser === s && <span className="cr-pl__out">باخت</span>}
                 {canTarget && (
                   <button type="button" className={['cr-target', to === s ? 'cr-target--on' : '', hint?.to === s && to !== s ? 'cr-hint' : ''].join(' ')} onClick={() => setTo(to === s ? null : s)} aria-pressed={to === s}>
@@ -90,7 +114,7 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
                 )}
               </div>
               <div className="cr-pl__table">
-                {groups.map((g) => <span key={g.c} data-flip={`tb-${s}-${g.c}`} data-flip-from="play" className={`cr-stack ${g.n >= 3 ? 'cr-stack--danger' : ''}`}><CritterCard c={g.c} size="sm" /><b className="bg-pop" key={g.n}>×{fa(g.n)}</b></span>)}
+                {groups.map((g) => <span key={g.c} className={`cr-stack ${g.n >= 3 ? 'cr-stack--danger' : ''}`}><CritterCard key={g.n} c={g.c} size="sm" flip={`tb-${s}-${g.c}-${g.n}`} flipFrom="play" /><Bump v={g.n} className="cr-stack__n">×{fa(g.n)}</Bump></span>)}
                 {!groups.length && <span className="cr-empty">—</span>}
               </div>
             </li>
@@ -123,7 +147,7 @@ export default function CockroachRenderer({ view, legalActions, mySeat, seatName
               {give ? 'دادن کارت' : 'رد کردن کارت'}
             </Button>
           )}
-          <div className="cr__hand" role="group" aria-label="کارت‌های دست">
+          <div className="cr__hand" data-flip-anchor="hand" role="group" aria-label="کارت‌های دست">
             {CREATURES.map((c) => {
               const n = view.hand!.filter((x) => x === c).length;
               if (!n) return null;

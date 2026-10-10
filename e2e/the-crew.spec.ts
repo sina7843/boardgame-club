@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «خدمه: سیارهٔ نهم» end to end: the tutorial (draft three tasks, follow suit, ordered tasks, communicate, win with a rocket) and a full three-player mission.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -25,6 +25,40 @@ test('interactive tutorial: draft, tricks, communicate, rocket', async ({ browse
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: a played card flies to the trick at once, and undo flies it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto(`/games/${GAME}`);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  const playHint = p.locator('.cw-hand button.cw-hint:not([disabled])');
+  for (let i = 0; i < 6 && !(await playHint.count()); i++) {
+    await p.locator('.cw .cw-hint:not([disabled])').first().click();
+    await expect(p.locator('.cw .cw-hint[disabled]')).toHaveCount(0);
+    await p.waitForTimeout(300);
+  }
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const id = await playHint.getAttribute('data-flip');
+  const inHand = p.locator(`.cw-hand [data-flip="${id}"]`);
+  const inTrick = p.locator(`.cw-trick [data-flip="${id}"]`);
+  await playHint.click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(inTrick).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inHand).toBeVisible();
+  await expect(inTrick).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.context().close();
 });
 

@@ -8,11 +8,11 @@
 .sb__history summary { cursor: pointer; min-block-size: var(--touch); display: flex; align-items: center; font-weight: 700; }
 
 /* Chip palette per value (1 ivory, 2 red, 3 blue, 4 green, 5 black) */
-.sb .token:nth-child(1), .sb-chip--1 { --chip: #c9bfa0; --face: #f6f1e1; --ink: #1b1300; }
-.sb .token:nth-child(2), .sb-chip--2 { --chip: #8f1a20; --face: #b3232a; --ink: #fff; }
-.sb .token:nth-child(3), .sb-chip--3 { --chip: #113f82; --face: #174f9e; --ink: #fff; }
-.sb .token:nth-child(4), .sb-chip--4 { --chip: #14522a; --face: #1b6e34; --ink: #fff; }
-.sb .token:nth-child(5), .sb-chip--5 { --chip: #0b0b10; --face: #22222c; --ink: #fff; }
+.sb .sb-slot:nth-child(1) .token, .sb-chip--1 { --chip: #c9bfa0; --face: #f6f1e1; --ink: #1b1300; }
+.sb .sb-slot:nth-child(2) .token, .sb-chip--2 { --chip: #8f1a20; --face: #b3232a; --ink: #fff; }
+.sb .sb-slot:nth-child(3) .token, .sb-chip--3 { --chip: #113f82; --face: #174f9e; --ink: #fff; }
+.sb .sb-slot:nth-child(4) .token, .sb-chip--4 { --chip: #14522a; --face: #1b6e34; --ink: #fff; }
+.sb .sb-slot:nth-child(5) .token, .sb-chip--5 { --chip: #0b0b10; --face: #22222c; --ink: #fff; }
 
 .sb .token, .sb-chip { position: relative; isolation: isolate; display: inline-grid; place-items: center;
   inline-size: 3.75rem; block-size: 3.75rem; border: 0; border-radius: 50%; color: var(--ink); font-weight: 900; font-size: 1.3rem; line-height: 1;
@@ -33,6 +33,7 @@
 .sb .token:disabled { filter: grayscale(0.7) brightness(0.8); }
 .sb .token:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .sb .hand { gap: 10px; padding-block: 10px 4px; }
+.sb-slot { display: inline-flex; }
 
 /* Revealed round: chips flip in from the sealed envelopes; the winner sits on a gold ring with a star. */
 .sb-reveal { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-3); padding: var(--sp-3);

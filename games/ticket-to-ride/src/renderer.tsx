@@ -241,7 +241,7 @@ function MiniMap({ map, a, b }: { map: MapId; a: number; b: number }) {
   );
 }
 
-function Ticket({ board, id, done, checked, onToggle, disabled, flip, from }: { board: Board; id: number; done?: boolean; checked?: boolean; onToggle?: () => void; disabled?: boolean; flip?: string; from?: string }) {
+function Ticket({ board, id, done, checked, onToggle, disabled, flip, from, exit }: { board: Board; id: number; done?: boolean; checked?: boolean; onToggle?: () => void; disabled?: boolean; flip?: string; from?: string; exit?: string }) {
   const t = board.tickets[id]!;
   const text = `بلیت ${ticketName(board, id)}، ${fa(t.points)} امتیاز${done === undefined ? '' : done ? '، کامل شده' : '، هنوز کامل نشده'}`;
   const body = (
@@ -257,7 +257,7 @@ function Ticket({ board, id, done, checked, onToggle, disabled, flip, from }: { 
     </>
   );
   return onToggle
-    ? <button type="button" className="ttr-ticket ttr-ticket--pick" aria-pressed={!!checked} aria-label={text} disabled={disabled} onClick={onToggle} data-flip={flip} data-flip-from={from}>{body}</button>
+    ? <button type="button" className="ttr-ticket ttr-ticket--pick" aria-pressed={!!checked} aria-label={text} disabled={disabled} onClick={onToggle} data-flip={flip} data-flip-from={from} data-flip-exit={exit}>{body}</button>
     : <span className={done ? 'ttr-ticket ttr-ticket--done' : 'ttr-ticket'} role="img" aria-label={text} data-flip={flip} data-flip-from={from}>{body}</span>;
 }
 
@@ -274,9 +274,34 @@ function Icon({ kind }: { kind: 'card' | 'ticket' | 'path' }) {
 
 // ---------- renderer ----------
 
-export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<TtrView>) {
+export default function TtrRenderer({ view: served, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<TtrView>) {
   const hints = legalActions as Hint[];
-  const board = BOARDS[view.map];
+  const board = BOARDS[served.map];
+  const busy = sending || !!queued;
+  // Undo window: my face-up draw, claimed route and kept tickets show at once from what I already see (the refill from
+  // the deck and drawn deck cards stay hidden until the server answers); undo restores the served view.
+  let view = served;
+  if (queued && mySeat !== null && served.myHand) {
+    const me = mySeat;
+    const bump = (xs: number[], k: number, d: number) => xs.map((x, i) => (i === k ? x + d : x));
+    if (queued.type === 'drawMarket') {
+      const slot = queued.slot as number, c = served.market[slot];
+      if (c !== null && c !== undefined) view = { ...served, myHand: bump(served.myHand, c, 1), market: served.market.map((m, i) => (i === slot ? null : m)), handCounts: bump(served.handCounts, me, 1) };
+    } else if (queued.type === 'claim') {
+      const route = queued.route as number, len = board.routes[route]!.len, locos = queued.locos as number;
+      view = {
+        ...served,
+        myHand: bump(bump(served.myHand, queued.color as number, -(len - locos)), LOCO, -locos),
+        owner: served.owner.map((o, i) => (i === route ? me : o)),
+        trains: bump(served.trains, me, -len),
+        routePoints: bump(served.routePoints, me, ROUTE_POINTS[len] ?? 0),
+        handCounts: bump(served.handCounts, me, -len)
+      };
+    } else if (queued.type === 'keep') {
+      const keep = queued.keep as number[];
+      view = { ...served, myOffer: null, myTickets: [...(served.myTickets ?? []), ...keep.map((id) => ({ id, done: false }))], ticketCounts: bump(served.ticketCounts, me, keep.length), choosing: served.choosing.map((x, i) => (i === me ? false : x)) };
+    }
+  }
   const exp = expected as Hint | null;
   const myTurn = mySeat !== null && view.phase === 'play' && view.current === mySeat && !view.outcome;
 
@@ -290,24 +315,27 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
   const [locos, setLocos] = useState(0);
   const [kept, setKept] = useState<number[]>([]);
   const [focusTicket, setFocusTicket] = useState<number | null>(null);
-  const turnKey = `${view.turn}|${view.current}|${view.drew}|${view.phase}`;
+  const turnKey = `${served.turn}|${served.current}|${served.drew}|${served.phase}`;
   useEffect(() => { setSel(null); setPayColor(null); }, [turnKey]);
-  const offerKey = (view.myOffer ?? []).join(',');
-  useEffect(() => { setKept(view.myOffer ? [...view.myOffer] : []); }, [offerKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const offerKey = (served.myOffer ?? []).join(',');
+  useEffect(() => { setKept(served.myOffer ? [...served.myOffer] : []); }, [offerKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const latest = view.log.at(-1);
+  const latest = served.log.at(-1);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, latest?.seq ?? 0);
-  const before = usePrevious(latest?.seq ?? 0, view);
+  useFlip(root, `${latest?.seq ?? 0}|${queued ? JSON.stringify(queued) : ''}`);
+  const before = usePrevious(latest?.seq ?? 0, served);
   const pop = (a: unknown, b: unknown) => (before && a !== b ? 'bg-pop' : '');
   // Face-up row: a slot whose card changed gets a new generation, so the refill is a new piece that flies in from the deck.
   const gen = useRef<{ seq: number; g: number[]; cols: (number | null)[] }>({ seq: -1, g: [], cols: [] });
   if (gen.current.seq !== (latest?.seq ?? 0)) {
     const p = gen.current;
-    gen.current = { seq: latest?.seq ?? 0, g: view.market.map((c, i) => (p.seq < 0 ? 0 : c !== p.cols[i] ? (p.g[i] ?? 0) + 1 : p.g[i] ?? 0)), cols: [...view.market] };
+    gen.current = { seq: latest?.seq ?? 0, g: served.market.map((c, i) => (p.seq < 0 ? 0 : c !== p.cols[i] ? (p.g[i] ?? 0) + 1 : p.g[i] ?? 0)), cols: [...served.market] };
   }
   const mine = latest && 'seat' in latest && latest.seat === mySeat;
-  const handFrom = mine ? (latest.t === 'market' ? 'market' : latest.t === 'deck' ? 'deck' : undefined) : undefined;
+  const handFrom = queued?.type === 'drawMarket' ? `mk-${queued.slot as number}` : mine ? (latest.t === 'market' ? 'market' : latest.t === 'deck' ? 'deck' : undefined) : undefined;
+  const handBase = queued ? served.myHand : before?.myHand;
+  // A face-up card someone else took flies to their seat (mine lands in my hand from the slot instead).
+  const marketExit = served.current !== mySeat ? `seat-${served.current}` : undefined;
   const wasTickets = new Set([...(before?.myTickets ?? []).map((t) => t.id), ...(before?.myOffer ?? [])]);
   const [announce, setAnnounce] = useState('');
   const seen = useRef(latest?.seq ?? 0);
@@ -352,7 +380,8 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
 
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
-    if (view.phase === 'tickets') status = keepHint ? { tone: 'mine', text: `دست‌کم ${fa(view.minKeep)} بلیت مقصد را نگه دارید` } : { tone: 'wait', text: 'منتظر انتخاب بلیت‌های دیگران' };
+    if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
+    else if (view.phase === 'tickets') status = keepHint ? { tone: 'mine', text: `دست‌کم ${fa(view.minKeep)} بلیت مقصد را نگه دارید` } : { tone: 'wait', text: 'منتظر انتخاب بلیت‌های دیگران' };
     else if (!myTurn) status = { tone: 'wait', text: `نوبت ${iso(seatName(view.current))}${view.choosing[view.current] ? ' — انتخاب بلیت' : ''}` };
     else if (keepHint) status = { tone: 'mine', text: 'دست‌کم ۱ بلیت را نگه دارید' };
     else if (view.drew === 1) status = { tone: 'mine', text: 'کارت دوم را بکشید (لوکوموتیو رو مجاز نیست)' };
@@ -392,7 +421,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
               <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
               <div className="ttr-tickets">
                 {view.myOffer.map((id) => (
-                  <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" checked={kept.includes(id)} disabled={busy}
+                  <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" exit="tickets" checked={kept.includes(id)} disabled={busy}
                     onToggle={() => { setKept((k) => (k.includes(id) ? k.filter((x) => x !== id) : [...k, id])); setFocusTicket(id); }} />
                 ))}
               </div>
@@ -445,7 +474,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
               <h3>کارت‌های رو</h3>
               <ul className="ttr-cards" data-flip-anchor="market">
                 {view.market.map((c, i) => (
-                  <li key={i} data-flip={`mk-${i}-${gen.current.g[i] ?? 0}`} data-flip-from="deck">
+                  <li key={i} data-flip={`mk-${i}-${gen.current.g[i] ?? 0}`} data-flip-from="deck" data-flip-anchor={`mk-${i}`} data-flip-exit={marketExit}>
                     {c === null ? <span className="ttr-card ttr-card--empty" role="img" aria-label="خالی" /> : (
                       <button type="button" className={['ttr-card', exp?.type === 'drawMarket' && exp.slot === i ? 'ttr-hintbtn' : ''].join(' ')}
                         aria-label={`برداشتن کارت ${CARD_FA(c)}${c === LOCO ? ' (جای هر دو کارت)' : ''}`} disabled={busy || !myTurn || !slots.has(i)} onClick={() => act({ type: 'drawMarket', slot: i })}>
@@ -476,7 +505,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
                 <ul className="ttr-handcards">
                   {hand.map((k, c) => (k > 0 ? (
                     <li key={c} className="ttr-handcard" role="img" aria-label={`${fa(k)} کارت ${CARD_FA(c)}`}>
-                      {Array.from({ length: Math.min(k, 3) }, (_, i) => <span key={i} className="ttr-handcard__layer" style={{ ['--l' as string]: i }} data-flip={`hl-${c}-${i}`} data-flip-from={i >= Math.min(before?.myHand?.[c] ?? 0, 3) ? handFrom : undefined}><CardArt c={c} /></span>)}<span className={`ttr-handcard__n ${pop(before?.myHand?.[c] ?? 0, k)}`} key={k} aria-hidden="true">{fa(k)}</span><span className="ttr-handcard__name" aria-hidden="true">{CARD_FA(c)}</span>
+                      {Array.from({ length: Math.min(k, 3) }, (_, i) => <span key={i} className="ttr-handcard__layer" style={{ ['--l' as string]: i }} data-flip={`hl-${c}-${i}`} data-flip-from={i >= Math.min(handBase?.[c] ?? 0, 3) ? handFrom : undefined} data-flip-exit={queued?.type === 'drawMarket' ? `mk-${queued.slot as number}` : 'drop'}><CardArt c={c} /></span>)}<span className={`ttr-handcard__n ${pop(before?.myHand?.[c] ?? 0, k)}`} key={k} aria-hidden="true">{fa(k)}</span><span className="ttr-handcard__name" aria-hidden="true">{CARD_FA(c)}</span>
                     </li>
                   ) : null))}
                 </ul>
@@ -530,7 +559,7 @@ export default function TtrRenderer({ view, legalActions, mySeat, seatName, busy
               const turn = view.phase === 'play' && view.current === s && !view.outcome;
               const trains = view.trains[s] ?? TRAINS;
               return (
-                <li key={s} className={['ttr-player', turn ? 'ttr-player--turn' : '', view.status[s] !== 'active' ? 'ttr-player--out' : ''].join(' ')} style={{ ['--pc' as string]: SEAT_COLOR[s] }}>
+                <li key={s} data-flip-anchor={`seat-${s}`} className={['ttr-player', turn ? 'ttr-player--turn' : '', view.status[s] !== 'active' ? 'ttr-player--out' : ''].join(' ')} style={{ ['--pc' as string]: SEAT_COLOR[s] }}>
                   <span className="ttr-player__top">
                     <span className="ttr-seal" aria-hidden="true"><img src={SEAT_TRAIN[s]} alt="" /></span>
                     <span className="ttr-player__head">

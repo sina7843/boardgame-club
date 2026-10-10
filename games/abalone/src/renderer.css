@@ -20,7 +20,6 @@
 .abl-cell--hint circle { stroke: #ffd27a; stroke-width: 4px; animation: abl-pulse 1s ease-in-out infinite; }
 .abl-ring { fill: none; stroke: #ffd27a; stroke-width: 5px; filter: drop-shadow(0 0 6px rgb(255 210 122 / 0.9)); }
 .abl-m--sel { transform-box: fill-box; transform-origin: center; transform: translateY(-4px); }
-.abl-m--moved { animation: abl-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .abl-lost { opacity: 0; animation: abl-fall 0.8s ease-in both; transform-box: fill-box; transform-origin: center; }
 .abl-arrow { cursor: pointer; outline: none; }
 .abl-arrow circle { fill: #c9a46a; stroke: #fff3c4; stroke-width: 3px; filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5)); }
@@ -31,11 +30,10 @@
 .abl__actions { display: flex; justify-content: center; min-block-size: 2.25rem; }
 .abl__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes abl-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
 @keyframes abl-fall { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(0.4); } }
 @keyframes abl-pulse { 50% { opacity: 0.55; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .abl-m--moved, .abl-arrow--hint circle, .abl-cell--hint circle { animation: none; }
+  .abl-arrow--hint circle, .abl-cell--hint circle { animation: none; }
   .abl-lost { animation: none; }
 }

@@ -3,7 +3,7 @@
 // card first narrows the targets to that card.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePieceIds, usePrevious, type GameRendererProps } from '@bg/ui';
 import rM from './art/rM.webp';
 import rS from './art/rS.webp';
 import bM from './art/bM.webp';
@@ -12,9 +12,22 @@ import { TEMPLE, cardById, type OnitamaView, type Piece } from './rules.ts';
 
 const S = 120, M = 26, SIZE = 5 * S + 2 * M;
 type Mv = { card: string; from: number; to: number };
+const gridDist = (a: number, b: number) => Math.hypot((a % 5) - (b % 5), Math.floor(a / 5) - Math.floor(b / 5));
 
-export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<OnitamaView>) {
+/** My queued move applied locally (undo window): the piece moves, a piece on the target is taken, the used card and the side card swap. */
+function preview(v: OnitamaView, seat: number, q: GameRendererProps<OnitamaView>['queued']): OnitamaView {
+  if (q?.type !== 'move') return v;
+  const board = v.board.slice();
+  board[q.to as number] = board[q.from as number] ?? null;
+  board[q.from as number] = null;
+  const hands = v.hands.map((h, k) => (k === seat ? h.map((c) => (c === q.card ? v.side : c)) : h)) as OnitamaView['hands'];
+  return { ...v, board, hands, side: q.card as string };
+}
+
+export default function OnitamaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<OnitamaView>) {
   const me = mySeat ?? 0;
+  // Undo window: my move (piece, capture, card swap) shows at once; undo clears `queued` and it all glides back.
+  const view = preview(served, me, queued);
   const flip = me === 1;
   const xy = (i: number) => {
     const r = Math.floor(i / 5), c = i % 5;
@@ -26,9 +39,14 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
   const [card, setCard] = useState<string | null>(null);
   const [choice, setChoice] = useState<Mv[] | null>(null);
   const turnNo = view.history.length;
-  // Cards glide hand → side → opponent's hand; pieces slide via the CSS slide below.
+  // Cards glide hand → side → opponent's hand; pieces glide square to square (stable ids); a taken piece fades out.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, turnNo);
+  const flipKey = `${turnNo}|${queued ? JSON.stringify(queued) : ''}`;
+  useFlip(root, flipKey);
+  const ids = usePieceIds(view.board, gridDist);
+  const prevIds = usePrevious(flipKey, ids) ?? ids;
+  const prevBoard = usePrevious(flipKey, view.board) ?? view.board;
+  const taken = prevIds.flatMap((id, i) => (id && !ids.includes(id) && prevBoard[i] ? [i] : []));
   useEffect(() => { setFrom(null); setCard(null); setChoice(null); }, [turnNo]);
   const hint = expected?.type === 'move' ? (expected as unknown as Mv) : null;
 
@@ -49,6 +67,7 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
   const moved = last && last.to !== null ? last : null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : view.current === mySeat
       ? { tone: 'mine' as const, text: passes.length ? 'حرکتی ممکن نیست: یک کارت را عوض کنید' : from === null ? 'نوبت شما: یک مهره را بزنید' : 'یک خانه روشن را بزنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
@@ -102,13 +121,15 @@ export default function OnitamaRenderer({ view, legalActions, mySeat, seatName, 
               );
             })}
 
+            {taken.map((i) => {
+              const { x, y } = xy(i);
+              return <g key={`gone-${flipKey}-${i}`} className="oni-gone" pointerEvents="none"><Token x={x} y={y} p={prevBoard[i]!} /></g>;
+            })}
             {view.board.map((p, i) => {
               if (!p) return null;
               const { x, y } = xy(i);
-              const slide = moved && moved.to === i && moved.from !== null ? xy(moved.from) : null;
               return (
-                <g key={`${i}-${slide ? turnNo : 0}`} pointerEvents="none" className={slide ? 'oni-pc oni-pc--moved' : 'oni-pc'}
-                  style={slide ? { ['--dx' as string]: `${slide.x - x}px`, ['--dy' as string]: `${slide.y - y}px` } : undefined}>
+                <g key={ids[i]} data-flip={`pc-${ids[i]}`} pointerEvents="none" className="oni-pc">
                   <Token x={x} y={y} p={p} />
                 </g>
               );

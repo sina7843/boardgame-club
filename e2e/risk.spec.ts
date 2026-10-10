@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // Risk end to end: three independent clients start a live table, place their starting armies through the map
 // (tap a territory → «همه باقی‌مانده» → «ثبت جای‌گذاری»), then play regular turns: reinforce, one blitz attack when
@@ -91,4 +91,55 @@ test('three players set up Risk and play regular turns', async ({ browser }, inf
   for (const [k, p] of pages.entries()) await p.screenshot({ path: shot(info.project.name, `turns-${k}`), fullPage: true });
   test.info().annotations.push({ type: 'moves', description: [...seen].join(',') });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: traded cards leave at once and come back on undo; an attack tumbles with no pips through its undo window and while in flight, then the dice are thrown', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/risk');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const cards = p.locator('.rk-hand [data-flip^="card-"]');
+  await expect(cards).toHaveCount(3);
+  const trade = async () => { await button(p, 'انتخاب یک دسته').click(); await button(p, /^معاوضه دسته/).click(); };
+  await trade();
+  await expect(undo).toBeVisible();
+  await expect(cards).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await undo.click();
+  await expect(cards).toHaveCount(3);
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await trade();
+  await expect(p.getByText(/آموزش: مرحله ۲ از/)).toBeVisible({ timeout: 10_000 });
+
+  await p.locator('.rk-map .rk-terr[aria-label^="برزیل"]').click();
+  await button(p, /^همه باقی‌مانده در/).click();
+  await button(p, 'ثبت جای‌گذاری').click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از/)).toBeVisible({ timeout: 10_000 });
+
+  await p.locator('.rk-map .rk-terr[aria-label^="برزیل"]').click();
+  await p.locator('.rk-map .rk-terr[aria-label^="شمال آفریقا"]').click();
+  // The attack keeps its undo window; its answer is also held so the tumble is seen to last while it is in flight.
+  await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  await motionLog(p);
+  await button(p, 'حمله').click();
+  const tumbling = p.locator('.rk-tray .bg-tumble');
+  await expect(tumbling).toHaveCount(4);
+  await expect(undo).toBeVisible();
+  expect(await p.locator('.rk-tray [data-pip]').count()).toBe(0); // no value shown before the server rolls
+  await expect(undo).toHaveCount(0, { timeout: 6000 });
+  await expect(tumbling).toHaveCount(4); // in flight: still tumbling, still no value
+  expect(await p.locator('.rk-tray [data-pip]').count()).toBe(0);
+  await expect(p.locator('.rk-tray .bg-roll')).toHaveCount(4, { timeout: 10_000 });
+  await expect(tumbling).toHaveCount(0);
+  await p.waitForTimeout(1500);
+  expect((await motionLog(p)).some((m) => m.ghost === 'die')).toBe(true);
+  await p.context().close();
 });

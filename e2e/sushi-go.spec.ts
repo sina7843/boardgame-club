@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «سوشی گردان» end to end: the tutorial (wasabi, nigiri, hand passing, chopsticks, tempura, maki, pudding) and a full three-player game of three rounds.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -60,9 +60,13 @@ test('three players play «سوشی گردان» to the result', async ({ browse
     let acted = false;
     for (const p of pages) {
       const sig = async () => `${await p.locator('.sg').getAttribute('data-seq')}|${await p.locator('.sg-pick:not([disabled])').count()}`;
+      // Sample only once no move is in flight: picks are simultaneous, so a pick sent on a stale revision can be
+      // rejected (STALE_REVISION) and the hand re-enabled after the signature was taken.
+      await expect(p.getByText('در حال ارسال حرکت…')).toHaveCount(0, { timeout: 10_000 });
       const before = await sig();
       if (!(await turn(p, n))) continue;
-      await expect.poll(sig, { timeout: 10_000 }).not.toBe(before);
+      // The pick took effect, or it lost the simultaneous race and was rejected as stale (the hand is shown again).
+      await expect.poll(async () => (await sig()) !== before || (await p.getByText('وضعیت میز تغییر کرده است').count()) > 0, { timeout: 10_000 }).toBe(true);
       acted = true;
     }
     if (n === 12) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
@@ -71,4 +75,33 @@ test('three players play «سوشی گردان» to the result', async ({ browse
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the picked plate flies from the belt to my board at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/sushi-go');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۷/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const pick = p.locator('.sg-pick.sg-hint').first();
+  const id = await pick.getAttribute('data-flip');
+  const inHand = p.locator(`.sg-belt [data-flip="${id}"]`);
+  const onBoard = p.locator(`.sg-pl--me .sg-tab [data-flip="${id}"]`);
+  await pick.click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(onBoard).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inHand).toBeVisible();
+  await expect(onBoard).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

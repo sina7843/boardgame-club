@@ -15,13 +15,28 @@ const DRAW_FA = { stalemate: 'پات', repetition: 'تکرار سه‌باره �
 const pieceLabel = (p: Piece) => `${NAME_FA[p[1] as PieceType]} ${COLOR_FA[p[0] as Color]}`;
 const sq = (i: number) => FILES[i % 8]! + String(Math.floor(i / 8) + 1);
 type MoveHint = { type: 'move'; from: string; to: string; promotion?: PromoType };
+const idx = (name: string) => (Number(name[1]) - 1) * 8 + FILES.indexOf(name[0]!);
 
-export default function ChessRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<ChessView>) {
+/** The board after an own move, from what the client already knows (castling rook, en passant and promotion included). */
+function applyMove(board: ChessView['board'], m: MoveHint): ChessView['board'] {
+  const b = board.slice(), f = idx(m.from), t = idx(m.to), p = b[f];
+  if (!p) return board;
+  if (p[1] === 'P' && f % 8 !== t % 8 && !b[t]) b[Math.floor(f / 8) * 8 + (t % 8)] = null; // en passant
+  if (p[1] === 'K' && Math.abs((t % 8) - (f % 8)) === 2) { const r = t > f ? f + 3 : f - 4, to = t > f ? t - 1 : t + 1; b[to] = b[r]!; b[r] = null; } // castling rook
+  b[t] = m.promotion ? (`${p[0]}${m.promotion}` as Piece) : p;
+  b[f] = null;
+  return b;
+}
+
+export default function ChessRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<ChessView>) {
+  // Undo-window preview: the own move is already on the board (the server's answer will be the same board).
+  const pending = queued?.type === 'move' ? (queued as unknown as MoveHint) : null;
+  const view: ChessView = pending ? { ...real, board: applyMove(real.board, pending), lastMove: { from: pending.from, to: pending.to } } : real;
   const myColor: Color | null = mySeat === null ? null : view.colors[mySeat]!;
   const flip = myColor === 'b';
   const moves = useMemo(() => legalActions.filter((a) => a.type === 'move') as unknown as MoveHint[], [legalActions]);
   const canAcceptDraw = legalActions.some((a) => a.type === 'acceptDraw');
-  const myTurn = mySeat !== null && view.current === mySeat;
+  const myTurn = mySeat !== null && view.current === mySeat && !pending;
   const exp = expected as MoveHint | null;
 
   const [selected, setSelected] = useState<string | null>(null);
@@ -63,7 +78,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
   // Pieces glide square to square (castling rook and en passant included): identity is matched between consecutive boards.
   const root = useRef<HTMLDivElement>(null);
   const ids = usePieceIds(view.board, (a, b) => Math.hypot((a % 8) - (b % 8), Math.floor(a / 8) - Math.floor(b / 8)));
-  useFlip(root, view.history.length);
+  useFlip(root, `${view.history.length}|${pending ? `${pending.from}${pending.to}` : ''}`);
 
   const rows = Array.from({ length: 8 }, (_, i) => (flip ? i : 7 - i));
   const cols = Array.from({ length: 8 }, (_, i) => (flip ? 7 - i : i));
@@ -71,7 +86,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome && view.current !== null) {
     const check = view.inCheck ? ' — کیش!' : '';
-    status = myTurn ? { tone: 'mine', text: `نوبت شماست (${COLOR_FA[view.turn]})${check}` } : { tone: 'wait', text: `نوبت ${seatName(view.current)} (${COLOR_FA[view.turn]})${check}` };
+    status = queued ? { tone: 'wait', text: 'حرکت شما در حال ثبت است…' } : myTurn ? { tone: 'mine', text: `نوبت شماست (${COLOR_FA[view.turn]})${check}` } : { tone: 'wait', text: `نوبت ${seatName(view.current)} (${COLOR_FA[view.turn]})${check}` };
   }
   const endText = view.end?.kind === 'checkmate' ? 'کیش و مات' : view.end?.kind === 'draw' ? `تساوی: ${DRAW_FA[view.end.draw!]}` : view.end?.kind === 'resign' ? 'انصراف' : view.end?.kind === 'timeout' ? 'اتمام زمان' : null;
   const opponent = mySeat === null ? 1 : 1 - mySeat;
@@ -125,7 +140,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
                     <button key={f} type="button" role="gridcell" className={cls} onClick={() => tap(name)} aria-disabled={!interactive || busy || undefined}
                       aria-pressed={selected === name || undefined}
                       aria-label={`${name}، ${piece ? pieceLabel(piece) : 'خالی'}${target ? (piece ? '، زدن' : '، حرکت به اینجا') : ''}${i === kingInCheck ? '، کیش' : ''}`}>
-                      {piece && <span data-flip={ids[i]} className={`ch-piece ch-piece--${piece[0]}`} aria-hidden="true"><Glyph t={piece[1] as PieceType} c={piece[0] as Color} /></span>}
+                      {piece && <span data-flip={ids[i]} data-flip-exit={`cap-${piece[0]}`} className={`ch-piece ch-piece--${piece[0]}`} aria-hidden="true"><Glyph t={piece[1] as PieceType} c={piece[0] as Color} /></span>}
                       {f === (flip ? 7 : 0) && <span className="ch-coord ch-coord--rank" aria-hidden="true">{r + 1}</span>}
                       {r === (flip ? 7 : 0) && <span className="ch-coord ch-coord--file" aria-hidden="true">{FILES[f]}</span>}
                     </button>
@@ -176,7 +191,7 @@ export default function ChessRenderer({ view, legalActions, mySeat, seatName, bu
 function PlayerBar({ name, color, captured, active, me }: { name: string; color: Color; captured: Piece[]; active: boolean; me?: boolean }) {
   const fresh = useFresh(captured.map((p, i) => `${i}${p}`));
   return (
-    <div className={active ? 'ch-player ch-player--turn' : 'ch-player'}>
+    <div className={active ? 'ch-player ch-player--turn' : 'ch-player'} data-flip-anchor={`cap-${color === 'w' ? 'b' : 'w'}`}>
       <span className={`ch-player__swatch ch-player__swatch--${color}`} aria-hidden="true" />
       <bdi className="ch-player__name">{name}</bdi>
       <span className="ch-player__color">{COLOR_FA[color]}{me ? ' (شما)' : ''}</span>

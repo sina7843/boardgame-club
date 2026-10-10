@@ -24,7 +24,7 @@ const GLYPH: Record<Face, ReactNode> = {
 };
 
 export function DieGlyph({ f }: { f: Face }) {
-  return <svg viewBox="0 0 64 64" className="kt-glyph" aria-hidden="true">{GLYPH[f]}</svg>;
+  return <svg viewBox="0 0 64 64" className="kt-glyph" data-pip aria-hidden="true">{GLYPH[f]}</svg>;
 }
 
 export const Bolt = () => <svg viewBox="0 0 24 24" className="kt-bolt" aria-hidden="true"><path d="M14 2 5 14h6l-2 8 10-13h-6Z" fill="currentColor" stroke="#14102a" strokeWidth="1.6" strokeLinejoin="round" /></svg>;

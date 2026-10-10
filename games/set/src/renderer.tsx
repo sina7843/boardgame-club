@@ -2,8 +2,8 @@
 // code). Tap three cards (or focus + Enter/Space), then «ست!». Found sets fly to the finder's tray; new cards flip in.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, useFresh, type GameRendererProps } from '@bg/ui';
-import { attrs, type SetView } from './rules.ts';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { attrs, isSet, type SetView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const COUNT_FA = ['یک', 'دو', 'سه'];
@@ -35,10 +35,22 @@ export function SetCard({ id }: { id: number }) {
   );
 }
 
-export default function SetRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SetView>) {
+/** Wrong claims shake the seat's line (only when the count really went up). */
+function Meta({ sets, penalties }: { sets: number; penalties: number }) {
+  const hit = usePop(penalties) ? 'bg-hit' : '';
+  return <span key={penalties} className={`muted set-seat__meta ${hit}`}>{fa(sets)} ست{penalties ? ` · ${fa(penalties)} اشتباه` : ''}</span>;
+}
+
+export default function SetRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SetView>) {
+  // Undo window: a claim that is a set (checked here from the cards themselves) flies to my tray at once; the cards
+  // that replace it come from the server only. Undo clears `queued` and the three fly back to the table.
+  const claimed = queued?.type === 'claim' && mySeat !== null ? (queued.cards as number[]) : null;
+  const view = claimed && isSet(claimed[0]!, claimed[1]!, claimed[2]!) ? {
+    ...served, table: served.table.filter((c) => !claimed.includes(c)),
+    sets: served.sets.map((g, k) => (k === mySeat ? [...g, claimed] : g)), scores: served.scores.map((n, k) => (k === mySeat ? n + 1 : n))
+  } : served;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
-  const fresh = useFresh(view.table.map(String));
+  useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const canClaim = legalActions.some((a) => a.type === 'claim');
   const [sel, setSel] = useState<number[]>([]);
   // A new board (someone's set, a wrong claim, a timeout) clears any half-made selection that is no longer on it.
@@ -68,14 +80,14 @@ export default function SetRenderer({ view, legalActions, mySeat, seatName, busy
 
       <div className="set__status">
         {!view.outcome && (
-          <TurnIndicator tone={canClaim ? 'mine' : 'wait'}>
-            {canClaim ? 'همه هم‌زمان: سه کارت ست را پیدا کنید'
+          <TurnIndicator tone={canClaim && !queued ? 'mine' : 'wait'}>
+            {queued ? 'حرکت شما در حال ثبت است…' : canClaim ? 'همه هم‌زمان: سه کارت ست را پیدا کنید'
               : mySeat !== null && view.locked[mySeat] ? 'اعلام اشتباه: تا برداشته شدن ست بعدی نمی‌توانید اعلام کنید'
                 : 'بازی در جریان است'}
           </TurnIndicator>
         )}
         <span className="set__deck" aria-label={`${fa(view.deckCount)} کارت در دسته، ${fa(view.table.length)} کارت روی میز`}>
-          <span className="set__deck-stack" aria-hidden="true" /> دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
+          <span className="set__deck-stack" data-flip-anchor="deck" aria-hidden="true" /> دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
           <span className="muted"> · روی میز: {fa(view.table.length)}</span>
         </span>
       </div>
@@ -86,8 +98,8 @@ export default function SetRenderer({ view, legalActions, mySeat, seatName, busy
         {view.table.map((c, i) => {
           const on = sel.includes(c);
           return (
-            <button key={c} type="button" data-card={c} data-flip={`c${c}`} style={{ ['--i' as string]: i % 3 }}
-              className={['set-card', on ? 'set-card--on' : '', hint?.includes(c) ? 'set-hint' : '', fresh.has(String(c)) ? 'bg-flip-in' : ''].join(' ')}
+            <button key={c} type="button" data-card={c} data-flip={`c${c}`} data-flip-from="deck" data-flip-exit="drop" style={{ ['--i' as string]: i % 3 }}
+              className={['set-card', on ? 'set-card--on' : '', hint?.includes(c) ? 'set-hint' : ''].join(' ')}
               aria-pressed={on} aria-label={cardLabel(c)} title={cardLabel(c)} disabled={!canClaim || busy} onClick={() => toggle(c)}>
               <SetCard id={c} />
             </button>
@@ -111,7 +123,7 @@ export default function SetRenderer({ view, legalActions, mySeat, seatName, busy
               <bdi>{seatName(s)}</bdi>{s === mySeat ? ' (شما)' : ''}{view.resigned[s] ? ' — انصراف' : view.locked[s] ? ' — منتظر ست بعدی' : ''}
               <b key={view.scores[s]} className="set-seat__score bg-pop">{fa(view.scores[s]!)}</b>
             </header>
-            <span className="muted set-seat__meta">{fa(view.sets[s]!.length)} ست{view.penalties[s] ? ` · ${fa(view.penalties[s]!)} اشتباه` : ''}</span>
+            <Meta sets={view.sets[s]!.length} penalties={view.penalties[s]!} />
             <div className="set-seat__tray" aria-hidden="true">
               {view.sets[s]!.flat().map((c) => <span key={c} className="set-mini" data-flip={`c${c}`}><SetCard id={c} /></span>)}
             </div>

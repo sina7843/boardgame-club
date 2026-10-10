@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «برس: بیرمنگام» end to end: the tutorial (rail link to Oxford, two sells with merchant beer, a build, rail-era
 // scoring) via the highlighted hints, and a full two-player game (both eras) to the result.
@@ -26,6 +26,38 @@ test('interactive tutorial: rail link, sell with merchant beer, build, sell, era
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the played card flies to my ledger and the link appears at once; undo brings the card back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/brass');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  const links = p.locator('.br svg [data-flip^="link-"]');
+  const linksBefore = await links.count();
+  const handCards = p.locator('.br__hand .br-card');
+  const cardsBefore = await handCards.count();
+  const submit = p.locator('.br__actions').getByRole('button', { name: 'ثبت', exact: true });
+  for (let i = 0; i < 6 && !(await submit.isEnabled()); i++) { await p.locator('.br .br-hint:not([disabled])').first().click(); await p.waitForTimeout(150); }
+  const played = await p.locator('.br__hand .br-card--on').getAttribute('data-flip');
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await submit.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(handCards).toHaveCount(cardsBefore - 1);
+  await expect(p.locator(`.br__players [data-flip="${played}"]`)).toBeVisible();
+  await expect(links).toHaveCount(linksBefore + 1);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(p.locator(`.br__hand [data-flip="${played}"]`)).toBeVisible();
+  await expect(links).toHaveCount(linksBefore);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.context().close();
 });
 

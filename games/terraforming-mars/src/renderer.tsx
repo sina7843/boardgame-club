@@ -5,7 +5,7 @@
 // Motion: cards glide hand → tableau (useFlip), new tiles land (useFresh), changed numbers pop (usePop).
 import './renderer.css';
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, useFresh, usePop, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
 import { hexX } from './board.ts';
 import { CARDRES_ART, MARS_ART, PARAM_ART, RES_ART, TILE_ART } from './art.ts';
 import {
@@ -39,7 +39,7 @@ function reqText(r: Req | undefined): string {
 }
 const vpText = (c: CardDef) => (c.vp === undefined ? '' : typeof c.vp === 'number' ? (c.vp ? `${sfa(c.vp)} امتیاز` : '') : 'امتیاز متغیر');
 
-function Card({ id, res, on, onClick, disabled, note, hint, flip, children }: { id: string; flip?: boolean; res?: number; on?: boolean; onClick?: () => void; disabled?: boolean; note?: string; hint?: boolean; children?: ReactNode }) {
+function Card({ id, res, on, onClick, disabled, note, hint, flip, from, exit, children }: { id: string; flip?: boolean; from?: string; exit?: string; res?: number; on?: boolean; onClick?: () => void; disabled?: boolean; note?: string; hint?: boolean; children?: ReactNode }) {
   const c = CARD[id];
   if (!c) return null;
   const req = reqText(c.req);
@@ -63,9 +63,10 @@ function Card({ id, res, on, onClick, disabled, note, hint, flip, children }: { 
     </>
   );
   const cls = `tm-card tm-card--${c.kind}${on ? ' tm-card--on' : ''}${hint ? ' tm-hint' : ''}`;
+  const fl = flip ? { 'data-flip': `card-${id}`, 'data-flip-from': from, 'data-flip-exit': exit } : {};
   return onClick
-    ? <button type="button" className={cls} aria-pressed={on} disabled={disabled} onClick={onClick} data-flip={flip ? `card-${id}` : undefined}>{body}</button>
-    : <div className={cls} data-flip={flip ? `card-${id}` : undefined}>{body}</div>;
+    ? <button type="button" className={cls} aria-pressed={on} disabled={disabled} onClick={onClick} {...fl}>{body}</button>
+    : <div className={cls} {...fl}>{body}</div>;
 }
 
 function Gauge({ label, art, value, min, max, unit, pop, signed }: { label: string; art: string; value: number; min: number; max: number; unit: string; pop: string; signed?: boolean }) {
@@ -137,6 +138,24 @@ function Board({ view, pick, hint, onPick, seatName }: { view: TmView; pick: Set
   );
 }
 
+/** The served view with my queued move applied as far as the client already knows it. */
+function previewView(v: TmView, a: GameAction | null, seat: number | null): TmView {
+  if (!a || seat === null || !v.me) return v;
+  if (a.type === 'play' && typeof a.card === 'string' && v.me.hand.includes(a.card)) {
+    const card = a.card;
+    return {
+      ...v, me: { ...v.me, hand: v.me.hand.filter((x) => x !== card) },
+      players: v.players.map((p, k) => (k === seat ? { ...p, hand: p.hand - 1, played: [...p.played, card] } : p))
+    };
+  }
+  const q = v.prompt;
+  if (a.type === 'respond' && typeof a.space === 'string' && q?.kind === 'space') {
+    if (q.claim) return { ...v, claims: { ...v.claims, [a.space]: seat } };
+    return { ...v, tiles: { ...v.tiles, [a.space]: { kind: q.tile, owner: q.tile === 'ocean' ? null : seat, ...(q.card ? { card: q.card } : {}) } } };
+  }
+  return v;
+}
+
 type PayAct = { action: GameAction; cost: number; steel: boolean; titanium: boolean };
 type Pay = { steel: number; titanium: number; heat: number };
 
@@ -151,9 +170,18 @@ function Stepper({ label, value, max, onChange }: { label: string; value: number
   );
 }
 
-export default function TerraformingMarsRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<TmView>) {
+export default function TerraformingMarsRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<TmView>) {
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  // Undo-window preview (kept while the move is in flight): a played card leaves the hand for my tableau, a chosen space
+  // gets its tile / claim marker. Effects that depend on hidden or random things (draws, bonuses) wait for the server.
+  const held = useRef<{ seq: number; a: GameAction } | null>(null);
+  if (queued) held.current = { seq: served.seq, a: queued };
+  const preview = queued ?? (busy && held.current?.seq === served.seq ? held.current.a : null);
+  if (!preview) held.current = null;
+  const view = previewView(served, preview, mySeat);
+  const pvCard = preview?.type === 'play' ? String(preview.card) : '';
+  const undone = usePrevious(`${served.seq}|${pvCard}`, pvCard); // an undone play comes back from my tableau, not the deck
+  useFlip(root, `${view.seq}|${preview ? JSON.stringify(preview) : ''}`);
   const [sel, setSel] = useState<string[]>([]);
   const [corp, setCorp] = useState<string | null>(null);
   const [amount, setAmount] = useState(0);
@@ -203,6 +231,7 @@ export default function TerraformingMarsRenderer({ view, legalActions, mySeat, s
   const popTemp = usePop(view.temperature), popOxy = usePop(view.oxygen), popOcean = usePop(view.oceans);
 
   const status = view.outcome ? 'بازی تمام شد'
+    : queued ? 'حرکت شما در حال ثبت است…'
     : prompt ? 'تصمیم بگیرید'
       : mine ? (corpHint ? 'شرکت و کارت‌های آغازین را انتخاب کنید' : draft ? 'یک کارت درفت کنید' : research ? 'کارت‌های پژوهش را بخرید' : view.phase === 'final' ? 'دور پایانی: گیاه را فضای سبز کنید یا پاس بدهید' : view.actionsTaken === 1 ? 'کنش دوم یا پایان نوبت' : 'نوبت شما: ۱ یا ۲ کنش')
         : view.promptSeat !== null ? `در انتظار تصمیم ${seatName(view.promptSeat)}`
@@ -211,8 +240,8 @@ export default function TerraformingMarsRenderer({ view, legalActions, mySeat, s
   return (
     <div className="tm" ref={root} data-seq={view.seq} data-phase={view.phase}>
       <header className="tm-top">
-        <TurnIndicator tone={view.outcome ? 'done' : mine ? 'mine' : 'wait'}>{status}</TurnIndicator>
-        <span className="tm-gen">نسل {fa(view.generation)} · {PHASE_FA[view.phase]} · دسته {fa(view.deck)} · دورریز {fa(view.discard)}</span>
+        <TurnIndicator tone={view.outcome ? 'done' : mine && !queued ? 'mine' : 'wait'}>{status}</TurnIndicator>
+        <span className="tm-gen">نسل {fa(view.generation)} · {PHASE_FA[view.phase]} · <span data-flip-anchor="deck">دسته {fa(view.deck)}</span> · <span data-flip-anchor="discard">دورریز {fa(view.discard)}</span></span>
       </header>
       <section className="tm-params" aria-label="پارامترهای جهانی">
         <Gauge label="دما" art={PARAM_ART.temperature} value={view.temperature} min={TEMP_MIN} max={TEMP_MAX} unit="°" pop={popTemp} signed />
@@ -283,7 +312,7 @@ export default function TerraformingMarsRenderer({ view, legalActions, mySeat, s
           )}
           {research && (
             <section className="tm-panel" aria-label="پژوهش"><b>کارت‌هایی که می‌خرید (هر کدام ۳ مگاکردیت، حداکثر {fa(research.max)})</b>
-              <div className="tm-cards">{research.cards.map((id) => <Card key={id} id={id} on={sel.includes(id)} onClick={() => toggle(id, research.max)} />)}</div>
+              <div className="tm-cards">{research.cards.map((id) => <Card key={id} id={id} flip exit="discard" on={sel.includes(id)} onClick={() => toggle(id, research.max)} />)}</div>
               <Button data-act="research" disabled={busy} onClick={() => send({ type: 'research', cards: sel })}>خرید {fa(sel.length)} کارت ({fa(3 * sel.length)} مگاکردیت)</Button>
             </section>
           )}
@@ -360,7 +389,7 @@ export default function TerraformingMarsRenderer({ view, legalActions, mySeat, s
             const pl = plays.find((a) => a.card === id);
             const hinted = isHint({ type: 'play', card: id });
             return (
-              <Card key={id} id={id} flip on={sel.includes(id)} onClick={selling ? () => toggle(id) : undefined} note={pl ? `هزینهٔ شما ${fa(pl.cost as number)}` : undefined}>
+              <Card key={id} id={id} flip from={id === undone ? `seat-${mySeat}` : 'deck'} exit={`seat-${mySeat}`} on={sel.includes(id)} onClick={selling ? () => toggle(id) : undefined} note={pl ? `هزینهٔ شما ${fa(pl.cost as number)}` : undefined}>
                 {pl && !selling && <Button size="sm" disabled={busy} className={hinted ? 'tm-hint' : ''} onClick={() => paid({ type: 'play', card: id }, pl.cost as number, !!pl.steel, !!pl.titanium)}>بازی</Button>}
               </Card>
             );
@@ -398,7 +427,7 @@ function PlayerPanel({ k, p, view, seatName, me }: { k: number; p: TmView['playe
   for (const id of active) for (const t of CARD[id]!.tags) tags.set(t, (tags.get(t) ?? 0) + 1);
   const cur = !view.outcome && (view.phase === 'action' || view.phase === 'final') && k === view.current;
   return (
-    <article className={`tm-player tm-seat-${k}${cur ? ' tm-player--cur' : ''}`} aria-label={`بازیکن ${seatName(k)}`}>
+    <article data-flip-anchor={`seat-${k}`} className={`tm-player tm-seat-${k}${cur ? ' tm-player--cur' : ''}`} aria-label={`بازیکن ${seatName(k)}`}>
       <header>
         <span className={`tm-cube tm-seat-${k}`} aria-hidden="true" />
         <b><bdi>{seatName(k)}</bdi>{me ? ' (شما)' : ''}</b>
@@ -410,25 +439,30 @@ function PlayerPanel({ k, p, view, seatName, me }: { k: number; p: TmView['playe
         {p.ready && <span className="tm-badge">آماده</span>}
       </header>
       <div className="tm-res" role="table" aria-label="منابع و تولید">
-        {RES.map((r) => (
-          <div key={r} role="row" className="tm-res__cell" aria-label={`${RES_FA[r]}: موجودی ${fa(p.res[r])}، تولید ${sfa(p.prod[r])}`}>
-            <img src={RES_ART[r]} alt="" />
-            <span className="tm-res__name">{RES_FA[r]}</span>
-            <b>{fa(p.res[r])}</b>
-            <small>تولید {sfa(p.prod[r])}</small>
-          </div>
-        ))}
+        {RES.map((r) => <ResCell key={r} r={r} n={p.res[r]} prod={p.prod[r]} />)}
       </div>
       {tags.size > 0 && <div className="tm-card__tags tm-tagsum">{[...tags].map(([t, n]) => <span key={t} className={`tm-tag tm-tag--${t}`}>{TAG_FA[t]} {fa(n)}</span>)}</div>}
       {active.length > 0 && (
         <details className="tm-tableau" open={active.length <= 6}>
           <summary>کارت‌های بازی‌شده ({fa(active.length)}){events.length ? ` · ${fa(events.length)} رویداد` : ''}</summary>
           <div className="tm-cards tm-cards--small">
-            {active.map((id) => <Card key={id} id={id} flip res={p.cardRes[id] ?? 0} note={p.used.includes(id) ? 'کنش این نسل استفاده شد' : undefined} />)}
+            {active.map((id) => <Card key={id} id={id} flip={active.length <= 6} from={`seat-${k}`} res={p.cardRes[id] ?? 0} note={p.used.includes(id) ? 'کنش این نسل استفاده شد' : undefined} />)}
           </div>
           {events.length > 0 && <p className="tm-events">رویدادها: {events.map(name).join('، ')}</p>}
         </details>
       )}
     </article>
+  );
+}
+
+function ResCell({ r, n, prod }: { r: Res; n: number; prod: number }) {
+  const pop = usePop(n), popProd = usePop(prod);
+  return (
+    <div role="row" className="tm-res__cell" aria-label={`${RES_FA[r]}: موجودی ${fa(n)}، تولید ${sfa(prod)}`}>
+      <img src={RES_ART[r]} alt="" />
+      <span className="tm-res__name">{RES_FA[r]}</span>
+      <b key={n} className={pop}>{fa(n)}</b>
+      <small key={`p${prod}`} className={popProd}>تولید {sfa(prod)}</small>
+    </div>
   );
 }

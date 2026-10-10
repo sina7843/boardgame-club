@@ -29,7 +29,7 @@
 .oni-target { cursor: pointer; stroke: #f4ead2; stroke-width: 3px; animation: oni-pulse 1s ease-in-out infinite; }
 .oni-target--red { fill: #c8361f; }
 .oni-target--blue { fill: #2b3f8c; }
-.oni-pc--moved { animation: oni-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.oni-gone { animation: oni-gone 0.62s 0.3s ease-in both; transform-box: fill-box; transform-origin: center; }
 
 .oni-card { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; gap: 0.15rem 0.5rem;
   padding: 0.45rem 0.6rem 0.55rem; inline-size: 9.5rem; border-radius: 10px; background: linear-gradient(160deg, #f6ecd4, #e2cfa6); color: #2a1d15;
@@ -52,10 +52,11 @@ button.oni-card:hover { transform: translateY(-3px); }
 .oni__choice { display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap; }
 .oni__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes oni-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
+@keyframes oni-gone { to { opacity: 0; transform: scale(0.6) rotate(-12deg); } }
 @keyframes oni-pulse { 50% { opacity: 0.55; } }
 @keyframes oni-hint { 50% { fill: rgb(255 210 122 / 0.55); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .oni-pc--moved, .oni-target, .oni-sq--hint rect:first-child { animation: none; }
+  .oni-target, .oni-sq--hint rect:first-child { animation: none; }
+  .oni-gone { animation: none; opacity: 0; }
 }

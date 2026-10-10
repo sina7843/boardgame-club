@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «هیت» end to end: the tutorial (gear shifts, adrenaline + slipstream, a corner, discard, stress, boost, the finish)
 // by following the highlighted hints, and a full two-player race to the result.
@@ -26,6 +26,35 @@ test('interactive tutorial: shifting, adrenaline, slipstream, a corner, discards
     }
   }
   await expect(done).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the plan is committed at once and undo reopens it; the car then drives along the road', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/heat');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۷/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  for (let k = 0; k < 8 && !(await undo.count()); k++) {
+    const hint = p.locator('.ht .ht-hint:not([disabled])').first();
+    if (await hint.count()) await hint.click();
+  }
+  await expect(undo).toBeVisible();
+  await expect(p.getByText(/^انتخاب ثبت‌شده/)).toBeVisible();
+  await expect(p.locator('.ht-submit')).toHaveCount(0);
+  await undo.click();
+  await expect(p.getByText(/^انتخاب ثبت‌شده/)).toHaveCount(0);
+  await expect(p.locator('.ht-submit')).toBeVisible();
+  await motionLog(p);
+  await p.locator('.ht-submit').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۷/)).toBeVisible({ timeout: 10_000 });
+  await p.waitForTimeout(600);
+  // The revealed plan moves the car space by space: one keyframed path animation, not a straight jump.
+  expect((await motionLog(p)).some((m) => m.cls.includes('ht-carpath'))).toBe(true);
   await p.context().close();
 });
 

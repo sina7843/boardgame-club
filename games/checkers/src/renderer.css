@@ -27,9 +27,8 @@
 .ck-coord text { font: 700 18px/1 var(--font, sans-serif); fill: #e3cfa4; text-anchor: middle; opacity: 0.8; }
 .ck-ring { fill: none; stroke: #ffd27a; stroke-width: 4px; filter: drop-shadow(0 0 6px rgb(255 210 122 / 0.8)); animation: ck-pulse 1.2s ease-in-out infinite; }
 .ck-ring--sel { stroke: #fff3c4; stroke-width: 6px; animation: none; }
-.ck-pc--moved { animation: ck-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.ck-pc--crowned .ck-crown { transform-box: fill-box; transform-origin: center; animation: ck-crown 0.6s 0.35s cubic-bezier(.2, 1.5, .4, 1) both; }
-.ck-ghost { animation: ck-ghost 0.6s 0.2s ease-in forwards; }
+.ck-pc--crowned .ck-crown { transform-box: fill-box; transform-origin: center; animation: ck-crown 0.66s calc(var(--hops, 1) * 380ms) cubic-bezier(.2, 1.5, .4, 1) both; }
+.ck-ghost { animation: ck-ghost 0.62s 0.2s ease-in both; }
 
 .ck__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; align-items: center; min-block-size: 2.5rem; }
 .ck-offer { display: inline-flex; gap: 0.4rem; align-items: center; font-size: 0.85rem; color: #d9ccb4; }
@@ -37,13 +36,12 @@
 .ck__end { margin: 0; font-weight: 800; color: #ffd27a; }
 .ck__history { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem 0.6rem; justify-content: center; font-size: 0.8rem; color: #c9b998; }
 
-@keyframes ck-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
 @keyframes ck-crown { from { transform: scale(0.7); opacity: 0.4; } to { transform: none; opacity: 1; } }
 @keyframes ck-ghost { to { opacity: 0; transform: scale(0.6); transform-box: fill-box; transform-origin: center; } }
 @keyframes ck-pulse { 50% { opacity: 0.45; } }
 @keyframes ck-hint { 50% { filter: brightness(1.6) drop-shadow(0 0 12px #ffd27a); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .ck-pc--moved, .ck-pc--crowned .ck-crown, .ck-dot, .ck-ring, .ck-sq--hint rect:first-child { animation: none; }
+  .ck-pc--crowned .ck-crown, .ck-dot, .ck-ring, .ck-sq--hint rect:first-child { animation: none; }
   .ck-ghost { animation: none; opacity: 0; }
 }

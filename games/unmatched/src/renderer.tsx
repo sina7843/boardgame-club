@@ -2,7 +2,7 @@
 // the server prompt, combat panel, own hand and event log. Shows only the projection; other hands are counts.
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
 import { CardArt, Emblem, PATHS, Portrait, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
 import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
@@ -138,8 +138,8 @@ const heroColor = (view: UnmatchedView, seat: number) => HEROES[view.heroes[seat
 
 // ---------- card ----------
 
-function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, extra }: {
-  view: UnmatchedView; card: CardRef; state?: 'selected' | 'playable' | 'dim' | 'boost'; onClick?: () => void; hint?: boolean; small?: boolean; fan?: number; flip?: string; from?: string; extra?: string;
+function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, exit, extra }: {
+  view: UnmatchedView; card: CardRef; state?: 'selected' | 'playable' | 'dim' | 'boost'; onClick?: () => void; hint?: boolean; small?: boolean; fan?: number; flip?: string; from?: string; exit?: string; extra?: string;
 }) {
   const d = cardDefOf(view, card);
   if (!d) return null;
@@ -159,13 +159,13 @@ function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, extr
     </>
   );
   const cls = ['um-card', `um-card--${d.type}`, small ? 'um-card--sm' : '', state ? `um-card--${state}` : '', hint ? 'um-card--hint' : '', extra ?? ''].join(' ');
-  const fp = { 'data-flip': flip, 'data-flip-from': from };
+  const fp = { 'data-flip': flip, 'data-flip-from': from, 'data-flip-exit': exit };
   const style = fan === undefined ? undefined : { ['--fd' as string]: fan };
   if (!onClick) return <span className={cls} style={style} role="img" aria-label={label} {...fp}>{body}</span>;
   return <button type="button" className={cls} style={style} aria-label={label} aria-pressed={state === 'selected' || state === 'boost'} onClick={onClick} disabled={state === 'dim'} {...fp}>{body}</button>;
 }
-const CardBack = ({ label, emblem, color, flip, from }: { label: string; emblem?: string; color?: string; flip?: string; from?: string }) => (
-  <span className="um-card um-card--back" role="img" aria-label={label} data-flip={flip} data-flip-from={from} style={color ? { ['--hc' as string]: color } : undefined}>
+const CardBack = ({ label, emblem, color, flip, from, exit }: { label: string; emblem?: string; color?: string; flip?: string; from?: string; exit?: string }) => (
+  <span className="um-card um-card--back" role="img" aria-label={label} data-flip={flip} data-flip-from={from} data-flip-exit={exit} style={color ? { ['--hc' as string]: color } : undefined}>
     <span className="um-card__crest" aria-hidden="true">{emblem ? <svg viewBox="-30 -30 60 60" width="34" height="34" focusable="false"><Emblem id={emblem} c={color ?? '#c8921a'} /></svg> : '⚔'}</span>
   </span>
 );
@@ -214,14 +214,14 @@ function BoardDefs() {
   );
 }
 
-function Battlefield({ view, marks, onSpace, onFighter, onFog }: { view: UnmatchedView; marks: BoardMarks; onSpace: (i: number) => void; onFighter: (fid: string) => void; onFog: (t: number) => void }) {
+function Battlefield({ view, motionKey, marks, onSpace, onFighter, onFog }: { view: UnmatchedView; motionKey: string; marks: BoardMarks; onSpace: (i: number) => void; onFighter: (fid: string) => void; onFog: (t: number) => void }) {
   const board = BOARDS[view.mapId]!;
   const color = (z: string) => board.zones.find((x) => x.id === z)?.color ?? '#ccc';
   const R = 58, INNER = R - 18;
   const path = PATHS[board.id] ?? PATHS.marmoreal!;
   const key = (fn: () => void) => (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } };
   const svgRef = useRef<SVGSVGElement>(null);
-  const before = usePrevious((view.log.at(-1)?.seq ?? 0), view.fighters);
+  const before = usePrevious(motionKey, view.fighters);
   const was = new Map((before ?? []).map((f) => [f.id, f]));
   // Fighters walk along the board's edges from their old space to the new one; newly placed fighters drop in.
   useLayoutEffect(() => {
@@ -241,7 +241,7 @@ function Battlefield({ view, marks, onSpace, onFighter, onFog }: { view: Unmatch
       el.animate(route.map((i) => ({ transform: `translate(${board.spaces[i]!.x}px, ${board.spaces[i]!.y}px)` })), { duration: Math.min(220 * (route.length - 1) + 260, 1400), easing: 'ease-in-out' });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [(view.log.at(-1)?.seq ?? 0)]);
+  }, [motionKey]);
   const byspace = new Map(view.fighters.filter((f) => f.space !== null && f.hp > 0).map((f) => [f.space!, f]));
   // Damage numbers pop over the fighters hurt by the most recent events (keyed by log seq so each one animates once).
   const dmg = new Map<string, { n: number; seq: number }>();
@@ -354,12 +354,41 @@ function Battlefield({ view, marks, onSpace, onFighter, onFog }: { view: Unmatch
   );
 }
 
+// ---------- undo-window preview ----------
+
+/** The served view with my queued action applied, using only what I already hold (my hand, the board). */
+function preview(v: UnmatchedView, me: number | null, q: GameAction | null | undefined): UnmatchedView {
+  if (!q || me === null || !v.myHand) return v;
+  const hand = v.myHand;
+  const card = (id: unknown) => hand.find((c) => c.id === id) ?? null;
+  const without = (...ids: unknown[]) => hand.filter((c) => !ids.includes(c.id));
+  if (q.type === 'move') return { ...v, fighters: v.fighters.map((f) => (f.id === q.fighter ? { ...f, space: q.to as number } : f)) };
+  if (q.type === 'scheme' && card(q.card)) return { ...v, myHand: without(q.card) };
+  if (q.type === 'defend' && v.combat && card(q.card)) return { ...v, myHand: without(q.card), combat: { ...v.combat, dCard: card(q.card), defended: true } };
+  if (q.type === 'attack' && card(q.card)) {
+    const att = v.fighters.find((f) => f.id === q.fighter), def = v.fighters.find((f) => f.id === q.target);
+    if (!att || !def || att.space === null || def.space === null) return v;
+    const ranged = !BOARDS[v.mapId]!.edges.some(([a, b]) => (a === att.space && b === def.space) || (b === att.space && a === def.space));
+    const combat = {
+      attacker: att.id, defender: def.id, aSeat: me, dSeat: def.seat, ranged, aCard: card(q.card), dCard: null, boost: card(q.boost), hasBoost: !!q.boost,
+      defended: false, revealed: false, cancelA: false, cancelD: false, boostVoid: false, shield: null,
+      aBase: 0, dBase: 0, aAdd: 0, dAdd: 0, aVal: null, dVal: null, damage: null, won: null, dFaceUp: false, predict: null, aZero: false, dZero: false
+    } as UnmatchedView['combat'];
+    return { ...v, myHand: without(q.card, q.boost), combat };
+  }
+  return v;
+}
+
 // ---------- renderer ----------
 
-export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<UnmatchedView>) {
+export default function UnmatchedRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<UnmatchedView>) {
+  // Undo-window preview: my queued move walks the fighter, an attack / defence card leaves the hand for the combat
+  // panel, a scheme card goes to the discard pile. Draws, effects and combat results wait for the server.
+  const view = preview(served, mySeat, queued);
+  const motionKey = `${view.log.at(-1)?.seq ?? 0}|${queued ? JSON.stringify(queued) : ''}`;
   const hints = legalActions as Hint[];
   const p = view.prompt;
-  const mine = !!p && p.seat === mySeat && !view.outcome;
+  const mine = !!p && p.seat === mySeat && !view.outcome && !queued;
   const board = BOARDS[view.mapId]!;
   const hand = view.myHand ?? [];
   const exp = expected as Hint | null;
@@ -380,8 +409,8 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
   useEffect(() => { setMode(null); setSelFighter(null); setSelTarget(null); setSelCard(null); setSelBoost(null); setBoostPick(false); setPicks([]); setSelFog(null); setPredict(null); }, [promptKey]);
 
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, (view.log.at(-1)?.seq ?? 0));
-  const before = usePrevious((view.log.at(-1)?.seq ?? 0), view);
+  useFlip(root, motionKey);
+  const before = usePrevious(motionKey, view);
   const send = (a: Hint) => { if (!busy) onAction(a); };
   const attacks = hints.filter((h) => h.type === 'attack') as unknown as { fighter: string; target: string; card: string; boostable: boolean }[];
   const schemes = hints.filter((h) => h.type === 'scheme') as unknown as { card: string; fighter: string }[];
@@ -521,7 +550,7 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
 
       <div className="um-main">
         <div className="um-board-wrap">
-          {view.heroes.some((h) => h) ? <Battlefield view={view} marks={marks} onSpace={onSpace} onFighter={onFighter} onFog={(t) => setSelFog(t === selFog ? null : t)} /> : <HeroGallery view={view} />}
+          {view.heroes.some((h) => h) ? <Battlefield view={view} motionKey={motionKey} marks={marks} onSpace={onSpace} onFighter={onFighter} onFog={(t) => setSelFog(t === selFog ? null : t)} /> : <HeroGallery view={view} />}
           <ul className="um-zones" aria-label="منطقه‌ها">
             {board.zones.map((z) => <li key={z.id}><span className="um-zones__dot" style={{ background: z.color }} aria-hidden="true" />{z.nameFa}</li>)}
           </ul>
@@ -721,7 +750,7 @@ export default function UnmatchedRenderer({ view, legalActions, mySeat, seatName
             {hand.map((c, i) => {
               const st = handState(c);
               const hinted = (exp?.type === 'choose' && (exp.ids as string[]).includes(c.id)) || (exp?.type === 'attack' && exp.card === c.id);
-              return <UmCard key={c.id} view={view} card={c} flip={`card-${c.id}`} from={`deck-${mySeat}`} state={st} hint={hinted} fan={i - (hand.length - 1) / 2} onClick={st && st !== 'dim' ? () => tapHand(c) : undefined} />;
+              return <UmCard key={c.id} view={view} card={c} flip={`card-${c.id}`} from={`deck-${mySeat}`} exit={`discard-${mySeat}`} state={st} hint={hinted} fan={i - (hand.length - 1) / 2} onClick={st && st !== 'dim' ? () => tapHand(c) : undefined} />;
             })}
           </div>
         </section>
@@ -791,7 +820,7 @@ function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?:
           <div className="um-player__counts">
             <span className="um-stackc"><i className="um-stackc__ic um-stackc__ic--hand" aria-hidden="true" />دست <b key={counts.hand} className={pop(counts.hand, was?.handCounts[seat])}>{fa(counts.hand)}</b></span>
             <span className="um-stackc" data-flip-anchor={`deck-${seat}`}><i className="um-stackc__ic um-stackc__ic--deck" aria-hidden="true" />دسته <b key={counts.deck} className={pop(counts.deck, was?.deckCounts[seat])}>{fa(counts.deck)}</b>{counts.deck === 0 ? ' (خسته!)' : ''}</span>
-            <span className="um-stackc"><i className="um-stackc__ic um-stackc__ic--discard" aria-hidden="true" />دورریخته <b key={counts.discard} className={pop(counts.discard, was?.discards[seat]?.length)}>{fa(counts.discard)}</b></span>
+            <span className="um-stackc" data-flip-anchor={`discard-${seat}`}><i className="um-stackc__ic um-stackc__ic--discard" aria-hidden="true" />دورریخته <b key={counts.discard} className={pop(counts.discard, was?.discards[seat]?.length)}>{fa(counts.discard)}</b></span>
           </div>
         </>
       ) : <div className="um-muted">در حال انتخاب قهرمان…</div>}
@@ -830,6 +859,8 @@ function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | n
   const fn = (f: string) => fighterName(view, f);
   const aSeat = Number(c.attacker[0]);
   const back = (seat: number) => ({ emblem: heroEmblem(view, seat), color: heroColor(view, seat) });
+  // My own cards keep their hand id (they fly hand → combat); the opponent's come from their seat. All go to the discard pile.
+  const fid = (slot: string, seat: number, card: CardRef | null) => (card && seat === mySeat ? `card-${card.id}` : slot);
   const stand = (fid: string) => { const f = view.fighters.find((x) => x.id === fid); return f ? <span className="um-combat__who" style={{ ['--hc' as string]: heroColor(view, f.seat) }}><svg viewBox="-34 -34 68 68" width="46" height="46" aria-hidden="true" focusable="false"><circle r="32" fill={heroColor(view, f.seat)} stroke="#fff" strokeWidth="3" /><circle r="25" fill="#f6efdc" stroke="#1d1812" strokeWidth="2" /><g transform="scale(.8)"><Emblem id={fighterEmblem(view, f)} c={heroColor(view, f.seat)} /></g></svg></span> : null; };
   return (
     <section className="um-panel um-combat" aria-labelledby="um-combat-h">
@@ -838,14 +869,14 @@ function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | n
         <div className="um-combat__side">
           {stand(c.attacker)}
           <span className="um-muted">حمله</span>
-          {c.aCard ? <UmCard view={view} card={c.aCard} small flip="play-a" from={`seat-${aSeat}`} extra="bg-flip-in" /> : <CardBack label="کارت حمله رو به پایین" flip="play-a" from={`seat-${aSeat}`} {...back(aSeat)} />}
-          {c.hasBoost && (c.boost ? <span className="um-combat__boost">تقویت: <UmCard view={view} card={c.boost} small flip="play-b" from={`seat-${aSeat}`} extra="bg-flip-in" /></span> : <CardBack label="کارت تقویت رو به پایین" flip="play-b" from={`seat-${aSeat}`} {...back(aSeat)} />)}
+          {c.aCard ? <UmCard view={view} card={c.aCard} small flip={fid('play-a', aSeat, c.aCard)} from={`seat-${aSeat}`} exit={`discard-${aSeat}`} extra={aSeat === mySeat ? '' : 'bg-flip-in'} /> : <CardBack label="کارت حمله رو به پایین" flip="play-a" from={`seat-${aSeat}`} exit={`discard-${aSeat}`} {...back(aSeat)} />}
+          {c.hasBoost && (c.boost ? <span className="um-combat__boost">تقویت: <UmCard view={view} card={c.boost} small flip={fid('play-b', aSeat, c.boost)} from={`seat-${aSeat}`} exit={`discard-${aSeat}`} extra={aSeat === mySeat ? '' : 'bg-flip-in'} /></span> : <CardBack label="کارت تقویت رو به پایین" flip="play-b" from={`seat-${aSeat}`} exit={`discard-${aSeat}`} {...back(aSeat)} />)}
         </div>
         <span className="um-vs" aria-hidden="true"><span>VS</span></span>
         <div className="um-combat__side">
           {stand(c.defender)}
           <span className="um-muted">دفاع</span>
-          {c.dCard ? <UmCard view={view} card={c.dCard} small flip="play-d" from={`seat-${c.dSeat}`} extra="bg-flip-in" /> : c.defended ? (c.revealed ? <span className="um-muted">بدون کارت دفاع</span> : <CardBack label="کارت دفاع رو به پایین" flip="play-d" from={`seat-${c.dSeat}`} {...back(c.dSeat)} />) : <span className="um-muted">{c.dSeat === mySeat ? 'انتخاب کنید…' : 'مدافع در حال انتخاب…'}</span>}
+          {c.dCard ? <UmCard view={view} card={c.dCard} small flip={fid('play-d', c.dSeat, c.dCard)} from={`seat-${c.dSeat}`} exit={`discard-${c.dSeat}`} extra={c.dSeat === mySeat ? '' : 'bg-flip-in'} /> : c.defended ? (c.revealed ? <span className="um-muted">بدون کارت دفاع</span> : <CardBack label="کارت دفاع رو به پایین" flip="play-d" from={`seat-${c.dSeat}`} exit={`discard-${c.dSeat}`} {...back(c.dSeat)} />) : <span className="um-muted">{c.dSeat === mySeat ? 'انتخاب کنید…' : 'مدافع در حال انتخاب…'}</span>}
         </div>
         {c.aVal !== null && <span className="um-combat__dmg" aria-hidden="true">{(c.damage ?? 0) > 0 ? `−${fa(c.damage ?? 0)}` : '۰'}</span>}
       </div>

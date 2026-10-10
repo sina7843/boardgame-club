@@ -10,9 +10,9 @@ import type { CrewTask, CrewView } from './rules.ts';
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const KIND_FA = { top: 'بالاترین', bottom: 'پایین‌ترین', only: 'تنها' } as const;
 
-export function CrewCard({ c, size = 'md', flip, flipFrom }: { c: string; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) {
+export function CrewCard({ c, size = 'md', flip, flipFrom, exit }: { c: string; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
   return (
-    <span className={`cw-card cw-card--${size} cw-s--${suit(c)}`} aria-label={cardFa(c)} data-flip={flip} data-flip-from={flipFrom}>
+    <span className={`cw-card cw-card--${size} cw-s--${suit(c)}`} aria-label={cardFa(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
       <b>{fa(rank(c))}</b>
       <i aria-hidden>{suit(c) === 'r' ? '▲' : '●'}</i>
     </span>
@@ -23,18 +23,31 @@ const nineLabel = (t: CrewTask) => (t.card ? <CrewCard c={t.card} size="sm" /> :
 
 type Hint = { type: string; card?: string; task?: number } | null;
 
-export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction, expected, label, theme, backdrop }: GameRendererProps<CrewView> & { label: (t: CrewTask) => ReactNode; theme: 'space' | 'sea'; backdrop?: string }) {
+export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued, label, theme, backdrop }: GameRendererProps<CrewView> & { label: (t: CrewTask) => ReactNode; theme: 'space' | 'sea'; backdrop?: string }) {
   const me = mySeat ?? -1;
   const hint = expected as unknown as Hint;
   const [talk, setTalk] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
-  useEffect(() => { setTalk(false); }, [view.seq]);
+  useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
+  const isQueued = !!queued;
+  const busy = sending || isQueued;
+  useEffect(() => { setTalk(false); }, [served.seq, isQueued]);
+  // Undo window: my played card lies in the trick, my shown card in my strip, my drafted task carries my name at once.
+  let view = served;
+  if (queued && mySeat !== null && served.hand) {
+    if (queued.type === 'play') view = { ...served, hand: served.hand.filter((c) => c !== queued.card), trick: [...served.trick, { seat: mySeat, card: queued.card as string }] };
+    else if (queued.type === 'communicate') {
+      const kind = legalActions.find((a) => a.type === 'communicate' && a.card === queued.card)?.kind as keyof typeof KIND_FA | undefined;
+      if (kind) view = { ...served, comms: served.comms.map((m, k) => (k === mySeat ? { card: queued.card as string, kind } : m)) };
+    } else if (queued.type === 'draftTask') view = { ...served, tasks: served.tasks.map((t) => (t.id === queued.task ? { ...t, owner: mySeat } : t)) };
+  }
   const playable = new Set(legalActions.filter((a) => a.type === 'play').map((a) => a.card as string));
   const speakable = new Set(legalActions.filter((a) => a.type === 'communicate').map((a) => a.card as string));
   const drafting = legalActions.filter((a) => a.type === 'draftTask').map((a) => a.task as number);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : drafting.length ? { tone: 'mine' as const, text: 'یک وظیفه بردارید' }
       : talk ? { tone: 'mine' as const, text: 'کارتی را که می‌خواهید نشان دهید انتخاب کنید' }
         : playable.size ? { tone: 'mine' as const, text: view.trick.length ? 'از خال اول پیروی کنید' : 'دست را شروع کنید' }
@@ -53,9 +66,9 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
             <>
               {order(t) && <i className="cw-order">{order(t)}</i>}
               <span className="cw-task__what">{label(t)}</span>
-              <small className="cw-task__who">{t.owner === null ? 'بی‌صاحب' : <bdi>{who(t.owner)}</bdi>}</small>
+              <small className={`cw-task__who ${t.owner === null ? '' : 'bg-pop'}`} key={`o${t.owner}`}>{t.owner === null ? 'بی‌صاحب' : <bdi>{who(t.owner)}</bdi>}</small>
               {t.difficulty !== undefined && <small className="cw-task__diff">سختی {fa(t.difficulty)}</small>}
-              <b className="cw-task__st" aria-label={t.status === 'done' ? 'انجام شد' : t.status === 'failed' ? 'شکست' : 'باز'}>{statusIcon(t)}</b>
+              <b key={t.status} className={`cw-task__st ${t.status === 'open' ? '' : 'bg-pop'}`} aria-label={t.status === 'done' ? 'انجام شد' : t.status === 'failed' ? 'شکست' : 'باز'}>{statusIcon(t)}</b>
             </>
           );
           const cls = ['cw-task', `cw-task--${t.status}`, t.owner === me ? 'cw-task--mine' : '', hint?.type === 'draftTask' && hint.task === t.id ? 'cw-hint' : ''].join(' ');
@@ -79,7 +92,7 @@ export function CrewTable({ view, legalActions, mySeat, seatName, busy, onAction
         {view.trick.length ? view.trick.map((p) => (
           <span key={p.seat} className="cw-play" data-flip={`c-${p.card}`} data-flip-from={`seat-${p.seat}`}><CrewCard c={p.card} /><bdi>{who(p.seat)}</bdi></span>
         )) : view.lastTrick ? (
-          <span className="cw-last"><small>دست قبل را <bdi>{who(view.lastTrick.winner)}</bdi> برد:</small>{view.lastTrick.cards.map((p) => <CrewCard key={p.seat} c={p.card} size="sm" flip={`c-${p.card}`} />)}</span>
+          <span className="cw-last"><small>دست قبل را <bdi>{who(view.lastTrick.winner)}</bdi> برد:</small>{view.lastTrick.cards.map((p) => <CrewCard key={p.seat} c={p.card} size="sm" flip={`c-${p.card}`} exit={`seat-${view.lastTrick!.winner}`} />)}</span>
         ) : <small className="cw-empty">{view.phase === 'draft' ? 'اول وظیفه‌ها پخش می‌شوند' : 'فرمانده دست اول را شروع می‌کند'}</small>}
         {view.aside && <small className="cw-aside">کنار گذاشته: {cardFa(view.aside)}</small>}
       </section>

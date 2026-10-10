@@ -57,3 +57,4 @@ button.cr-pick { cursor: pointer; }
 @keyframes cr-throb { 50% { box-shadow: 0 0 0 3px rgb(255 143 143 / 0.4); } }
 @keyframes cr-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .cr * { animation: none !important; transition: none !important; } }
+.cr-stack__n { display: inline-block; font-weight: 700; }

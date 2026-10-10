@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // Catan end to end: three independent clients set up a live table on the beginners' map, place both settlements and
 // roads through the real UI (select → «ثبت»), then play regular turns (roll, discard / robber / steal on a 7, end turn).
@@ -89,4 +89,43 @@ test('three players set up Catan and play regular turns', async ({ browser }, in
   for (const [k, p] of pages.entries()) await p.screenshot({ path: shot(info.project.name, `turns-${k}`), fullPage: true });
   test.info().annotations.push({ type: 'moves', description: [...seen].join(',') });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the robber moves at once and undo moves it back; an instant roll (no undo) tumbles without pips while in flight, then the dice are thrown', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/catan');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.getByRole('region', { name: 'دست شما' }).getByRole('button', { name: 'بازی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const robberHex = () => p.locator('.ct-hex').filter({ has: p.locator('[data-flip="robber"]') }).getAttribute('aria-label');
+  const was = await robberHex();
+  await motionLog(p);
+  await p.locator('.ct-hex.ct-hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect.poll(robberHex).not.toBe(was);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.flip === 'robber')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect.poll(robberHex).toBe(was);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.flip === 'robber')).toBe(true);
+  await p.locator('.ct-hex.ct-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از/)).toBeVisible({ timeout: 15_000 });
+  // The roll is sent at once despite the window; hold its answer so the in-flight tumble can be seen.
+  await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  await p.getByRole('button', { name: 'ریختن تاس' }).click();
+  const tumbling = p.locator('.ct-die.bg-tumble');
+  await expect(tumbling).toHaveCount(2);
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  expect(await tumbling.locator('[data-pip]').evaluateAll((cs) => cs.every((c) => getComputedStyle(c).visibility === 'hidden'))).toBe(true);
+  await expect(p.locator('.ct-die.bg-roll')).toHaveCount(2, { timeout: 15_000 });
+  await expect(tumbling).toHaveCount(0);
+  await p.waitForTimeout(1500);
+  expect((await motionLog(p)).some((m) => m.ghost === 'die')).toBe(true);
+  await p.context().close();
 });

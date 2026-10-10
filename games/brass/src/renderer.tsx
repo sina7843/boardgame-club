@@ -60,14 +60,14 @@ const cardHelp = (id: number) =>
   id === WILD_LOCATION ? 'ساخت هر صنعت در هر شهر' : id === WILD_INDUSTRY ? 'ساخت هر صنعت در شبکهٔ شما'
     : CARDS[id]?.kind === 'location' ? 'ساخت هر صنعت در همین شهر' : 'ساخت این صنعت در شبکهٔ شما';
 
-function Card({ id, on, hint, disabled, onClick }: { id: number; on?: boolean; hint?: boolean; disabled?: boolean; onClick?: () => void }) {
+function Card({ id, on, hint, disabled, onClick, from, exit }: { id: number; on?: boolean; hint?: boolean; disabled?: boolean; onClick?: () => void; from: string; exit: string }) {
   const c = CARDS[id];
   const wild = id >= WILD_LOCATION;
   const isLoc = id === WILD_LOCATION || c?.kind === 'location';
   const color = c?.kind === 'location' ? BANNER[LOC.get(c.loc)?.color ?? ''] : undefined;
   const inds = c?.kind === 'industry' ? c.industries : [];
   return (
-    <button type="button" data-flip={`card-${id}`} data-flip-from="deck" aria-pressed={on} disabled={disabled} onClick={onClick}
+    <button type="button" data-flip={`card-${id}`} data-flip-from={from} data-flip-exit={exit} aria-pressed={on} disabled={disabled} onClick={onClick}
       className={['br-card', isLoc ? 'br-card--loc' : 'br-card--ind', wild ? 'br-card--wild' : '', on ? 'br-card--on' : '', hint ? 'br-hint' : ''].join(' ')}
       style={color ? { ['--band' as string]: color } : undefined}>
       <span className="br-card__band">{wild ? 'آزاد' : isLoc ? 'شهر' : 'صنعت'}</span>
@@ -99,7 +99,7 @@ function hintLabel(view: BrassView, seat: number | null, h: GameAction): string 
   }
 }
 
-function Ledger({ view, s, who, me, place }: { view: BrassView; s: number; who: string; me: boolean; place?: number }) {
+function Ledger({ view, s, who, me, place, discard }: { view: BrassView; s: number; who: string; me: boolean; place?: number; discard: number | null | undefined }) {
   const vpPop = usePop(view.vp[s]);
   const moneyPop = usePop(view.money[s]);
   const links = LINK_TILES - Object.values(view.links).filter((o) => o === s).length;
@@ -128,14 +128,23 @@ function Ledger({ view, s, who, me, place }: { view: BrassView; s: number; who: 
           );
         })}
       </div>
-      {view.discardTop[s] != null && <span className="br-muted">آخرین کارت: {cardLabel(view.discardTop[s]!)}</span>}
+      {discard != null && <span className="br-muted">آخرین کارت: <span className="br-pl__discard" data-flip={`card-${discard}`} key={discard}>{cardLabel(discard)}</span></span>}
     </li>
   );
 }
 
-export default function BrassRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BrassView>) {
+export default function BrassRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<BrassView>) {
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  // Undo-window preview: my move (kept while it is in flight) is drawn at once — the card(s) leave the hand for my
+  // ledger, a built tile / link appears on the map. Only what I chose is shown; nothing random is involved.
+  const held = useRef<{ seq: number; a: GameAction } | null>(null);
+  if (queued) held.current = { seq: view.seq, a: queued };
+  const preview = queued ?? (busy && held.current?.seq === view.seq ? held.current.a : null);
+  if (!preview) held.current = null;
+  const pvCards = !preview ? [] : preview.type === 'scout' ? (preview.cards as number[]) : typeof preview.card === 'number' ? [preview.card] : [];
+  const pvBuild = preview?.type === 'build' && mySeat !== null ? STACK[preview.industry as Industry][view.mat[mySeat]![preview.industry as Industry]] : undefined;
+  const pvLinks = preview?.type === 'network' ? (preview.links as string[]) : [];
+  useFlip(root, `${view.seq}|${preview ? JSON.stringify(preview) : ''}`);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const types = useMemo(() => [...new Set(legalActions.map((a) => a.type))].filter((t) => t !== 'resign'), [legalActions]);
   const [kind, setKind] = useState<string | null>(null);
@@ -150,7 +159,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
   // Selections index into hints; the render before the reset effect may see new hints with old indexes.
   const sales = rawSales.filter((i) => hints[i] !== undefined);
   const chosen = pick !== null ? hints[pick] : undefined;
-  const hand = view.hand ?? [];
+  const hand = (view.hand ?? []).filter((c) => !pvCards.includes(c));
   const exp = expected;
   const coalPop = usePop(view.coal);
   const ironPop = usePop(view.iron);
@@ -197,6 +206,8 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
   const gloucesterSale = kind === 'sell' && sales.some((i) => hints[i]!.merchant === 'gloucester') && (view.merchants.gloucester?.beer ?? []).some(Boolean);
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : types.length ? { tone: 'mine' as const, text: `نوبت شما — ${fa(view.actionsLeft)} اقدام باقی است` }
       : { tone: 'wait' as const, text: view.current !== null ? `نوبت ${who(view.current)}` : '' };
   const placeOf = (s: number) => view.outcome?.placements.find((x) => x.seat === s)?.place;
@@ -225,7 +236,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
               {[...LINK.entries()].map(([id, l]) => {
                 const pts = linkNodes(l).map((n) => LOC.get(n)!.pos);
                 const [a, b] = [pts[0]!, pts[1]!];
-                const owner = view.links[id];
+                const owner = view.links[id] ?? (pvLinks.includes(id) ? mySeat ?? undefined : undefined);
                 const target = kind === 'network' ? linkTargets.get(id) : undefined;
                 const on = chosen?.type === 'network' && (chosen.links as string[]).includes(id);
                 return (
@@ -275,7 +286,8 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
                     {l.kind === 'town' && <rect x={x - Math.max(w, 9) / 2 - 0.6} y={y - 3.9} width={Math.max(w, 9) + 1.2} height={2.5} rx={0.6} fill={BANNER[l.color ?? ''] ?? '#6b2f1f'} />}
                     <text x={x} y={y - 2} textAnchor="middle" className={l.kind === 'town' ? 'br-name br-name--town' : 'br-sub'}>{l.kind === 'town' ? l.nameFa : 'آبجوسازی روستایی'}</text>
                     {slots.map((acc, i) => {
-                      const t = view.board[l.id]?.[i];
+                      const t = view.board[l.id]?.[i] ?? (pvBuild && preview!.loc === l.id && preview!.slot === i
+                        ? { owner: mySeat!, industry: preview!.industry as Industry, level: pvBuild.level, cubes: 0, flipped: false } : undefined);
                       const sx = x - w / 2 + i * SLOT, sy = y - 1;
                       const targets = slotTargets.get(`${l.id}:${i}`);
                       const on = (chosen?.type === 'build' && chosen.loc === l.id && chosen.slot === i) || (kind === 'sell' && sales.some((j) => hints[j]!.loc === l.id && hints[j]!.slot === i));
@@ -286,7 +298,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
                           <rect x={sx} y={sy} width={SLOT - 0.3} height={SLOT - 0.3} rx={0.5} className="br-slot__bg" />
                           {!t && acc.map((z, k) => <image key={z} href={IND_ART[z]} x={sx + 0.2 + k * 1.5} y={sy + 0.2 + k * 1.3} width={acc.length > 1 ? 1.6 : 2.7} height={acc.length > 1 ? 1.6 : 2.7} opacity={0.5} />)}
                           {t && (
-                            <g data-flip={`tile-${l.id}-${i}-${t.owner}-${t.industry}-${t.level}`}>
+                            <g data-flip={`tile-${l.id}-${i}-${t.owner}-${t.industry}-${t.level}`} data-flip-from={`seat-${t.owner}`}>
                               <rect x={sx} y={sy} width={SLOT - 0.3} height={SLOT - 0.3} rx={0.5} fill={IND_HUE[t.industry]} stroke={SEAT_COLORS[t.owner]} strokeWidth={0.55} />
                               <image href={IND_ART[t.industry]} x={sx + 0.25} y={sy + 0.1} width={2.6} height={2.6} opacity={t.flipped ? 0.55 : 1} />
                               <text x={sx + 0.35} y={sy + 3} className="br-lvl">{ROMAN[t.level]}</text>
@@ -306,7 +318,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
 
         <ul className="br__players" aria-label="بازیکنان">
           {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.order).map((s) => (
-            <Ledger key={s} view={view} s={s} who={who(s)} me={s === mySeat} place={placeOf(s)} />
+            <Ledger key={s} view={view} s={s} who={who(s)} me={s === mySeat} place={placeOf(s)} discard={s === mySeat && pvCards.length ? pvCards.at(-1) : view.discardTop[s]} />
           ))}
         </ul>
       </div>
@@ -322,7 +334,7 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
               const on = kind === 'scout' ? scout.includes(c) : card === c;
               const hint = !!exp && kind === exp.type && !on && expCards.includes(c) && (kind === 'scout' || !needsTarget || !!chosen);
               return (
-                <Card key={c} id={c} on={on} hint={hint} disabled={busy || !kind || !usable || (needsTarget && !chosen)}
+                <Card key={c} id={c} from="deck" exit={`seat-${mySeat}`} on={on} hint={hint} disabled={busy || !kind || !usable || (needsTarget && !chosen)}
                   onClick={() => (kind === 'scout' ? setScout(on ? scout.filter((x) => x !== c) : scout.length < 3 ? [...scout, c] : scout) : setCard(on ? null : c))} />
               );
             })}

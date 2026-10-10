@@ -58,9 +58,16 @@ function describe(e: LogEntry, who: (s: number) => string): string {
 
 type Mode = 'ask' | 'search';
 
-export default function CryptidRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CryptidView>) {
+export default function CryptidRenderer({ view: served, legalActions: legal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CryptidView>) {
+  // Undo-window preview: my queued cube, or the disc my search puts down first, is on the map at once. A question's
+  // answer and the other players' search replies come from their secret clues, so those wait for the server.
+  const qCell = mySeat !== null && (queued?.type === 'placeCube' || queued?.type === 'search') ? (queued.cell as number) : null;
+  const view: CryptidView = qCell === null ? served
+    : queued!.type === 'placeCube' ? { ...served, cubes: served.cubes.map((c, i) => (i === qCell ? mySeat : c)) }
+      : { ...served, discs: served.discs.map((d, i) => (i === qCell && !d.includes(mySeat!) ? [...d, mySeat!] : d)) };
+  const legalActions = queued ? [] : legal;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${qCell ?? ''}`);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const asks = legalActions.filter((a) => a.type === 'question') as unknown as { target: number; cells: number[] }[];
   const search = legalActions.find((a) => a.type === 'search') as unknown as { cells: number[] } | undefined;
@@ -89,6 +96,8 @@ export default function CryptidRenderer({ view, legalActions, mySeat, seatName, 
 
   const myTurn = !!(cube || search || asks.length);
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : cube ? { tone: 'mine' as const, text: view.phase === 'opening' ? 'یک مکعب روی خانه‌ای بگذارید که سرنختان رد می‌کند' : `${view.log.slice().reverse().find((e) => e.t === 'search' || e.t === 'question')?.t === 'search' ? 'جست‌وجو رد شد' : 'جواب منفی بود'}: یک مکعب روی خانه‌ای بگذارید که سرنختان رد می‌کند` }
       : myTurn ? { tone: 'mine' as const, text: 'نوبت شما: بپرسید یا جست‌وجو کنید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}${view.phase === 'opening' ? ' (مکعب شروع)' : view.phase === 'penalty' ? ' (مکعب اجباری)' : ''}` };

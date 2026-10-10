@@ -48,17 +48,53 @@ export function MapSvg({ view, targets, onPick, hint }: { view: Pick<EdView, 'ex
 
 type Hint = { type: string; card?: number; to?: number; key?: string } | null;
 
-export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<EdView>) {
+/** Stable ids for the hand (cards leave from anywhere, draws append): consecutive hands are aligned by LCS. */
+function useQueueIds(list: readonly string[], prefix: string): string[] {
+  const r = useRef<{ list: readonly string[]; ids: string[]; n: number } | null>(null);
+  if (!r.current) r.current = { list, ids: list.map((_, i) => `${prefix}${i}`), n: list.length };
+  else if (r.current.list.join() !== list.join()) {
+    const a = r.current.list, oi = r.current.ids;
+    let n = r.current.n;
+    const dp = Array.from({ length: a.length + 1 }, () => new Array<number>(list.length + 1).fill(0));
+    for (let i = a.length - 1; i >= 0; i--) for (let j = list.length - 1; j >= 0; j--) dp[i]![j] = a[i] === list[j] ? dp[i + 1]![j + 1]! + 1 : Math.max(dp[i + 1]![j]!, dp[i]![j + 1]!);
+    const ids = new Array<string>(list.length);
+    for (let i = 0, j = 0; j < list.length;) {
+      if (i < a.length && dp[i + 1]![j] === dp[i]![j]) i++;
+      else if (i < a.length && a[i] === list[j]) ids[j++] = oi[i++]!;
+      else ids[j++] = `${prefix}${n++}`;
+    }
+    r.current = { list, ids, n };
+  }
+  return r.current.ids;
+}
+
+/** My queued move / buy shown at once (pawn on the hex, spent cards gone, bought card on its way); nothing random. */
+function preview(v: EdView, me: number | null, q: GameRendererProps<EdView>['queued']): EdView {
+  if (!q || me === null || !v.hand) return v;
+  const drop = (xs: number[]) => v.hand!.filter((_, i) => !xs.includes(i));
+  if (q.type === 'move') {
+    const spent = q.pay ? (q.pay as number[]) : (q.card as number) >= 0 ? [q.card as number] : [];
+    return { ...v, hand: drop(spent), explorers: v.explorers.map((e, k) => (k === me ? { ...e, pos: q.to as number } : e)) };
+  }
+  if (q.type === 'buy') {
+    const key = q.key as string;
+    return { ...v, hand: drop(q.pay as number[]), market: { ...v.market, [key]: (v.market[key] ?? 1) - 1 }, last: { seat: me, kind: 'buy', card: key }, seq: v.seq + 1 };
+  }
+  return v;
+}
+
+export default function ElDoradoRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<EdView>) {
   const hint = expected as unknown as Hint;
+  // Undo window: my move or buy shows at once; undo clears `queued` and everything glides back.
+  const view = preview(served, mySeat, queued);
   const hand = view.hand ?? [];
   // Hand cards glide in from the deck and a bought card flies from the market to its buyer; the pawn slides hex to hex (CSS transition).
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
-  const nth = new Map<string, number>();
-  const handIds = hand.map((k) => { const n = nth.get(k) ?? 0; nth.set(k, n + 1); return `h-${k}-${n}`; });
+  useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
+  const handIds = useQueueIds(hand, 'h');
   const [sel, setSel] = useState<number | null>(null);
   const [pay, setPay] = useState<number[]>([]);
-  useEffect(() => { setSel(null); setPay([]); }, [view.seq]);
+  useEffect(() => { setSel(null); setPay([]); }, [view.seq, hand.length]);
   const moves = legalActions.filter((a) => a.type === 'move') as unknown as { to: number; card?: number; discardCards?: number }[];
   const myTurn = legalActions.some((a) => a.type === 'endTurn');
   const canBuy = legalActions.some((a) => a.type === 'buy');
@@ -80,6 +116,8 @@ export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName,
     return out.filter((c, _, all) => all.reduce((n, x) => n + x.v, 0) - c.v < cost).map((c) => c.i);
   };
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: chosen === null ? 'کارتی برای حرکت انتخاب کنید، بخرید یا نوبت را تمام کنید' : 'یک خانهٔ روشن را انتخاب کنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const coins = coinValue(hand);
@@ -113,7 +151,7 @@ export default function ElDoradoRenderer({ view, legalActions, mySeat, seatName,
               const t = TYPE[k]!;
               const onHint = hint?.type === 'move' && hint.card === i && sel !== i;
               return (
-                <span key={`${i}-${k}`} className="ed-slot" data-flip={handIds[i]} data-flip-from={`seat-${mySeat ?? 0}`}>
+                <span key={handIds[i]} className="ed-slot" data-flip={handIds[i]} data-flip-from={`seat-${mySeat ?? 0}`} data-flip-exit={`seat-${mySeat ?? 0}`}>
                   <button type="button" disabled={busy || !myTurn} aria-pressed={sel === i || pay.includes(i)}
                     className={['ed-pick', sel === i ? 'is-on' : '', pay.includes(i) ? 'is-pay' : '', onHint ? 'ed-hint' : ''].join(' ')}
                     onClick={() => { if (rubble.length && sel === null && pay.length) setPay(pay.includes(i) ? pay.filter((x) => x !== i) : [...pay, i]); else { setSel(sel === i ? null : i); } }}>

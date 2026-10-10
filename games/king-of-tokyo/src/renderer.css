@@ -43,6 +43,7 @@
 /* chunky dice: ivory cube, thick ink edge, hard drop shadow; each face carries an illustrated glyph */
 .kt__dice { display: flex; flex-wrap: wrap; gap: 0.55rem; justify-content: center; padding-block: 0.3rem; }
 .kt-keep { position: relative; padding: 0; border: 0; background: transparent; border-radius: 12px; line-height: 0; cursor: pointer; transition: transform 0.15s; }
+.kt-keep:disabled { cursor: default; }
 .kt-keep:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .kt-keep--on { transform: translateY(-8px) rotate(-3deg); }
 .kt-keep--on .kt-die { box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px #ffd23f, 3px 5px 0 6px #000; }

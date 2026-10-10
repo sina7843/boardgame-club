@@ -14,9 +14,9 @@ const ROWS = ['الف', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د'];
 const cellName = (c: number) => `${ROWS[Math.floor(c / SIZE)]}${fa((c % SIZE) + 1)}`;
 
 /** Painted shot marker centred on (x, y): fire burst for a hit, white splash for a miss. */
-export function Shot({ x, y, hit, fresh }: { x: number; y: number; hit: boolean; fresh?: boolean }) {
+export function Shot({ x, y, hit, fresh, late, flip }: { x: number; y: number; hit: boolean; fresh?: boolean; late?: boolean; flip?: string }) {
   return (
-    <g className={fresh ? 'bg-land' : undefined}>
+    <g className={fresh ? 'bg-land' : undefined} data-flip={flip} data-flip-enter="none" style={fresh && late ? { ['--i' as string]: 10 } : undefined}>
       {hit
         ? <image href={fxHit} x={x - 5} y={y - 5} width="10" height="10" className="bs-fx bs-fx--hit" />
         : <image href={fxMiss} x={x - 4.5} y={y - 2.1} width="9" height="4.2" className="bs-fx bs-fx--miss" />}
@@ -42,31 +42,39 @@ export function Hull({ s, sunk }: { s: Ship; sunk?: boolean }) {
   );
 }
 
-function Chart({ sea, mine, label, onCell, canCell, hint, draft, ghost, lastShot }: {
-  sea: SeaView; mine: boolean; lastShot?: BsView['last']; label: string; onCell?: (c: number) => void; canCell?: (c: number) => boolean; hint?: number | null;
+function Chart({ sea, seat, me, mine, label, onCell, canCell, hint, draft, ghost, lastShot, aim }: {
+  sea: SeaView; seat: number; me: number; mine: boolean; lastShot?: BsView['last']; aim?: number | null; label: string; onCell?: (c: number) => void; canCell?: (c: number) => boolean; hint?: number | null;
   draft?: Ship[]; ghost?: { cells: number[]; ok: boolean } | null;
 }) {
   const shots = new Map(sea.shots.map((x) => [x.cell, x.hit]));
   const ships = draft ?? sea.ships;
+  // An incoming shell (the opponent's shot on my sea) flies from the shooter's chart and the result lands after it
+  // (`late`). My own shell carries the shot's flip id, so the server's answer replaces it in place.
+  const late = !!lastShot && lastShot.seat !== me;
+  const at = (c: number) => ({ insetInlineStart: `${(c % SIZE) * 10}%`, insetBlockStart: `${Math.floor(c / SIZE) * 10}%` });
   return (
     <section className={`bs-chart ${mine ? 'bs-chart--mine' : 'bs-chart--enemy'}`} aria-label={label}>
       <header className="bs-chart__head"><b>{label}</b><small>{fa(sea.afloat ?? ships.length)} کشتی شناور</small></header>
-      <div className="bs-chart__frame" dir="ltr">
+      <div className="bs-chart__frame" dir="ltr" data-flip-anchor={`fleet-${seat}`}>
         <span className="bs-corner" aria-hidden />
         {Array.from({ length: SIZE }, (_, i) => <span key={`c${i}`} className="bs-coord bs-coord--col" aria-hidden>{fa(i + 1)}</span>)}
         {Array.from({ length: SIZE }, (_, i) => <span key={`r${i}`} className="bs-coord bs-coord--row" style={{ gridRow: i + 2 }} aria-hidden>{ROWS[i]}</span>)}
-        <div className={`bs-sea ${lastShot?.hit ? 'bg-hit' : ''}`} style={{ gridRow: '2 / span 10', gridColumn: '2 / span 10' }}>
+        <div className={`bs-sea ${lastShot?.hit ? `is-hit-${lastShot.cell % 2}` : ''} ${late ? 'is-late' : ''}`} style={{ gridRow: '2 / span 10', gridColumn: '2 / span 10' }}>
           <svg viewBox="0 0 100 100" className="bs-sea__art" aria-hidden>
             <image href={bdOcean} width="100" height="100" preserveAspectRatio="xMidYMid slice" />
             {Array.from({ length: SIZE - 1 }, (_, i) => <g key={i}><path d={`M${(i + 1) * 10} 0 V100`} className="bs-grid" /><path d={`M0 ${(i + 1) * 10} H100`} className="bs-grid" /></g>)}
             {ships.map((s) => (
-              <g key={s.ship} data-flip={draft ? `ship-${s.ship}` : undefined} className={lastShot?.sunk === s.ship ? (mine ? 'bg-pop' : 'bg-flip-in') : undefined}>
+              <g key={s.ship} data-flip={mine ? `ship-${s.ship}` : undefined} className={lastShot?.sunk === s.ship ? (mine ? 'bg-pop' : 'bg-flip-in') : undefined}
+                style={lastShot?.sunk === s.ship && late ? { ['--i' as string]: 8 } : undefined}>
                 <Hull s={s} sunk={sea.sunk.includes(s.ship)} />
               </g>
             ))}
             {ghost && ghost.cells.map((c) => <rect key={c} x={(c % SIZE) * 10 + 0.8} y={Math.floor(c / SIZE) * 10 + 0.8} width="8.4" height="8.4" rx="1.5" className={`bs-ghost ${ghost.ok ? '' : 'is-bad'}`} />)}
-            {[...shots].map(([c, hit]) => <Shot key={c} x={(c % SIZE) * 10 + 5} y={Math.floor(c / SIZE) * 10 + 5} hit={hit} fresh={lastShot?.cell === c} />)}
+            {[...shots].map(([c, hit]) => <Shot key={c} x={(c % SIZE) * 10 + 5} y={Math.floor(c / SIZE) * 10 + 5} hit={hit} fresh={lastShot?.cell === c} late={late}
+              flip={`shot-${seat}-${c}`} />)}
           </svg>
+          {aim != null && <span key={`a${aim}`} className="bs-shell" style={at(aim)} data-flip={`shot-${seat}-${aim}`} data-flip-from={`fleet-${me}`} data-flip-exit={`fleet-${me}`} aria-hidden />}
+          {late && <span key={`i${lastShot.cell}`} className="bs-shell is-spent" style={at(lastShot.cell)} data-flip={`in-${seat}-${lastShot.cell}`} data-flip-from={`fleet-${lastShot.seat}`} aria-hidden />}
           <div className="bs-cells">
             {Array.from({ length: SIZE * SIZE }, (_, c) => {
               const can = !!onCell && (canCell ? canCell(c) : true);
@@ -98,7 +106,7 @@ function localRandomFleet(): Ship[] {
 
 type Hint = { type: string; cell?: number } | null;
 
-export default function BattleshipRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BsView>) {
+export default function BattleshipRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued, sending }: GameRendererProps<BsView>) {
   const me = mySeat ?? 0;
   const opp = 1 - me;
   const hint = expected as unknown as Hint;
@@ -106,7 +114,12 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
   const firing = legalActions.some((a) => a.type === 'fire');
   const [draft, setDraft] = useState<Ship[]>([]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, `${view.seq}:${draft.map((s) => `${s.ship}${s.x}${s.y}${s.dir}`).join()}`);
+  // Own move preview: the chosen shot is a shell over the target cell (no hit/miss until the server answers); a
+  // confirmed fleet hides the tray. Undo clears `queued` and the shell flies back.
+  const own = queued ?? sending ?? null;
+  const aim = own?.type === 'fire' ? (own.cell as number) : null;
+  const fleetDone = own?.type === 'place' || own?.type === 'placeRandom';
+  useFlip(root, `${view.seq}:${aim ?? ''}:${fleetDone}:${draft.map((s) => `${s.ship}${s.x}${s.y}${s.dir}`).join()}`);
   const [pick, setPick] = useState<number | null>(0);
   const [dir, setDir] = useState<Dir>('h');
   const [hover, setHover] = useState<number | null>(null);
@@ -130,6 +143,9 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
   const last = view.last;
   const shotOn = (k: number) => (last && last.seat !== k ? last : null);
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
+    : placing && fleetDone ? { tone: 'wait' as const, text: 'منتظر چیدمان حریف…' }
     : placing ? { tone: 'mine' as const, text: draft.length < FLEET.length ? `ناوگان را بچینید: ${FLEET[pick ?? 0]!.name}` : 'ناوگان آماده است؛ چیدمان را تأیید کنید' }
       : view.phase === 'place' ? { tone: 'wait' as const, text: 'منتظر چیدمان حریف…' }
         : firing ? { tone: 'mine' as const, text: 'به دریای حریف شلیک کنید' }
@@ -143,20 +159,21 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
           <bdi>{who(last.seat)}</bdi> به {cellName(last.cell)} شلیک کرد: {last.sunk !== null ? `غرق شد — ${FLEET[last.sunk]!.name}!` : last.hit ? 'اصابت!' : 'آب'}
         </p>
       )}
+      {!last && view.phase === 'fire' && <p className="bs-report" style={{ visibility: 'hidden' }} aria-hidden>&nbsp;</p>}
 
       <div className="bs-seas">
         {view.phase === 'fire' || view.outcome ? (
-          <Chart sea={view.seas[opp]!} mine={false} lastShot={shotOn(opp)} label={`دریای ${who(opp)}`} hint={hint?.type === 'fire' ? hint.cell ?? null : null}
+          <Chart sea={view.seas[opp]!} seat={opp} me={me} aim={aim} mine={false} lastShot={shotOn(opp)} label={`دریای ${who(opp)}`} hint={hint?.type === 'fire' ? hint.cell ?? null : null}
             onCell={firing && !busy ? (c) => onAction({ type: 'fire', cell: c }) : undefined} canCell={(c) => !view.seas[opp]!.shots.some((x) => x.cell === c)} />
         ) : null}
         <div onMouseLeave={() => setHover(null)} onMouseOver={placing ? (e) => { const c = (e.target as HTMLElement).closest('.bs-cell'); if (c?.parentElement) setHover([...c.parentElement.children].indexOf(c)); } : undefined}>
-          <Chart sea={placing ? { ...view.seas[me]!, afloat: draft.length } : view.seas[me]!} mine lastShot={shotOn(me)} label={placing ? 'چیدمان ناوگان شما' : 'دریای شما'}
+          <Chart sea={placing ? { ...view.seas[me]!, afloat: draft.length } : view.seas[me]!} seat={me} me={me} mine lastShot={shotOn(me)} label={placing ? 'چیدمان ناوگان شما' : 'دریای شما'}
             draft={placing ? draft : undefined} ghost={ghost}
             onCell={placing && !busy ? placeAt : undefined} />
         </div>
       </div>
 
-      {placing && (
+      {placing && !fleetDone && (
         <section className="bs-tray" aria-label="ناوگان">
           <div className="bs-tray__ships">
             {FLEET.map((f, i) => {
@@ -184,7 +201,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
           {[opp, me].map((k) => (
             <li key={k}>
               <b><bdi>{who(k)}</bdi></b>
-              {FLEET.map((f, i) => <span key={f.key} className={view.seas[k]!.sunk.includes(i) ? 'is-sunk' : ''}>{f.name}</span>)}
+              {FLEET.map((f, i) => <span key={f.key} className={view.seas[k]!.sunk.includes(i) ? `is-sunk ${last?.sunk === i && last.seat !== k ? 'bg-hit' : ''}` : ''}>{f.name}</span>)}
             </li>
           ))}
         </ul>

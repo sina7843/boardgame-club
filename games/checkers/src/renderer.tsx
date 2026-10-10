@@ -1,15 +1,34 @@
 // چکرز renderer: an inlaid maple/walnut board (SVG, LTR geometry), seen from the viewer's side. Tap a ringed piece;
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
-import { useEffect, useId, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFresh, usePop, type GameRendererProps } from '@bg/ui';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFresh, usePop, type GameRendererProps } from '@bg/ui';
 import manD from './art/man-d.webp';
 import kingD from './art/king-d.webp';
 import manL from './art/man-l.webp';
 import kingL from './art/king-l.webp';
 import texWalnut from './art/tex-walnut.webp';
 import texMaple from './art/tex-maple.webp';
-import { colOf, rowOf, type CheckersView, type Color, type Piece } from './rules.ts';
+import { colOf, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
+
+/** My queued move applied locally (undo window): the path is mine, captures are the pieces jumped, a man ending on the last row crowns. */
+function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]; last: Move } | null {
+  const board = v.board.slice();
+  const p = board[path[0]!];
+  if (!p) return null;
+  const captured: number[] = [];
+  for (let k = 1; k < path.length; k++) {
+    const a = path[k - 1]!, b = path[k]!;
+    const dr = Math.sign(rowOf(b) - rowOf(a)), dc = Math.sign(colOf(b) - colOf(a));
+    for (let r = rowOf(a) + dr, c = colOf(a) + dc; r !== rowOf(b); r += dr, c += dc) if (board[r * 8 + c]) { captured.push(r * 8 + c); board[r * 8 + c] = null; break; }
+  }
+  const end = path.at(-1)!;
+  const crowned = (p === 'd' && rowOf(end) === 7) || (p === 'l' && rowOf(end) === 0);
+  board[path[0]!] = null;
+  board[end] = crowned ? (p.toUpperCase() as Piece) : p;
+  return { board, last: { path, captured, crowned } };
+}
+const HOP = 380;
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 100, M = 34, SIZE = 8 * S + 2 * M;
@@ -28,7 +47,7 @@ function Stat({ n, children }: { n: number; children: React.ReactNode }) {
   return <span key={n} className={`ck-side__stat ${pop}`}>{children}</span>;
 }
 
-export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CheckersView>) {
+export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CheckersView>) {
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
   const uid = useId().replace(/:/g, '');
   const flip = myColor === 'l';
@@ -37,7 +56,10 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
     const r = flip ? rowOf(i) : 7 - rowOf(i);
     return { x: M + c * S + S / 2, y: M + r * S + S / 2 };
   };
-  const paths = legalActions.filter((a) => a.type === 'move').map((a) => a.path as number[]);
+  // Undo window: my move is shown at once (hop by hop, captures fading); undo slides it back.
+  const pv = queued?.type === 'move' ? previewMove(view, queued.path as number[]) : null;
+  const board = pv?.board ?? view.board;
+  const paths = pv ? [] : legalActions.filter((a) => a.type === 'move').map((a) => a.path as number[]);
   const [prefix, setPrefix] = useState<number[]>([]);
   const [offer, setOffer] = useState(false);
   const moveCount = view.history.length;
@@ -64,10 +86,37 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
     setPrefix([]);
   };
 
-  const last = view.last;
+  const last = pv?.last ?? view.last;
   const movedTo = last ? last.path.at(-1)! : -1;
-  const lastFrom = last ? xy(last.path[0]!) : null;
-  const lastTo = last ? xy(movedTo) : null;
+  // One key per move shown: the preview and the server's copy of the same move share it, so confirming never replays.
+  const shownKey = `${moveCount + (pv ? 1 : 0)}:${last?.path.join('.') ?? ''}`;
+  const svg = useRef<SVGSVGElement>(null);
+  const shown = useRef<{ key: string; pv: boolean; path: number[] } | null>(null);
+  const undone = !!shown.current && shown.current.pv && !pv && shown.current.key !== shownKey && Number(shown.current.key.split(':')[0]) > moveCount;
+  useLayoutEffect(() => {
+    const prev = shown.current;
+    shown.current = { key: shownKey, pv: !!pv, path: last?.path ?? [] };
+    if (!prev || prev.key === shownKey || motionOff() || !svg.current) return;
+    // Undo: the previewed piece goes back along its path; otherwise the moved piece travels its path hop by hop.
+    const back = prev.pv && !pv && Number(prev.key.split(':')[0]) > moveCount;
+    const path = back ? [...prev.path].reverse() : last?.path;
+    if (!path || path.length < 2) return;
+    const el = svg.current.querySelector(`[data-sq="${path.at(-1)}"]`);
+    if (!el) return;
+    const end = xy(path.at(-1)!);
+    const frames: Keyframe[] = [];
+    path.forEach((sq, k) => {
+      const at = xy(sq);
+      const t = `translate(${at.x - end.x}px, ${at.y - end.y}px)`;
+      frames.push({ transform: `${t} scale(1)`, offset: k / (path.length - 1) });
+      if (k < path.length - 1) {
+        const nx = xy(path[k + 1]!);
+        frames.push({ transform: `translate(${(at.x + nx.x) / 2 - end.x}px, ${(at.y + nx.y) / 2 - end.y}px) scale(1.14)`, offset: (k + 0.5) / (path.length - 1) });
+      }
+    });
+    el.animate(frames, { duration: HOP * (path.length - 1) + MOTION.move - HOP, easing: 'ease-in-out', fill: 'backwards' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per shown move
+  }, [shownKey]);
   const myTurn = paths.length > 0;
   const captured = { d: 12 - view.counts.d - view.counts.D, l: 12 - view.counts.l - view.counts.L };
   const seatOfColor = (c: Color) => (view.colors[0] === c ? 0 : 1);
@@ -76,7 +125,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
     const mustCapture = paths.some((p) => p.length > 2 || Math.abs(rowOf(p[0]!) - rowOf(p[1]!)) > 1);
-    status = myTurn
+    status = queued ? { tone: 'wait', text: 'حرکت شما در حال ثبت است…' } : myTurn
       ? { tone: 'mine', text: prefix.length ? 'خانه روشن بعدی را بزنید' : mustCapture ? 'نوبت شماست: زدن اجباری است' : 'نوبت شماست: یک مهره را بزنید' }
       : { tone: 'wait', text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
   }
@@ -103,7 +152,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
       </div>
 
       <ZoomBoard label="صفحه چکرز">
-        <svg className="ck-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه چکرز" style={{ direction: 'ltr' }}>
+        <svg ref={svg} className="ck-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه چکرز" style={{ direction: 'ltr' }}>
           <defs>
             <linearGradient id="ck-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6b4223" /><stop offset=".5" stopColor="#3f2511" /><stop offset="1" stopColor="#5d3a1d" /></linearGradient>
             {([['walnut', texWalnut], ['maple', texMaple]] as const).map(([id, src]) => (
@@ -122,7 +171,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
             const isHint = hint && (prefix.length ? hint[prefix.length] === i : hint[0] === i);
             const isLast = last && (last.path.includes(i));
             return (
-              <g key={i} role="gridcell" aria-label={`${name(i)}${view.board[i] ? `: ${pieceFa(view.board[i]!, myColor)}` : ''}${isMovable ? '، قابل حرکت' : ''}${isNext ? '، مقصد' : ''}`}
+              <g key={i} role="gridcell" aria-label={`${name(i)}${board[i] ? `: ${pieceFa(board[i]!, myColor)}` : ''}${isMovable ? '، قابل حرکت' : ''}${isNext ? '، مقصد' : ''}`}
                 tabIndex={dark && (isMovable || isNext) ? 0 : -1}
                 className={['ck-sq', isMovable ? 'ck-sq--movable' : '', isNext ? 'ck-sq--next' : '', prefix.includes(i) ? 'ck-sq--path' : '', isHint ? 'ck-sq--hint' : ''].join(' ')}
                 onClick={() => dark && tap(i)} onKeyDown={(e) => { if (dark && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap(i); } }}>
@@ -145,21 +194,21 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
           })}
 
           {/* Pieces captured by the last move fade away. */}
-          {last?.captured.map((i) => {
+          {!undone && last?.captured.map((i, k) => {
             const { x, y } = xy(i);
-            const victim: Piece = view.colors[last.seat] === 'd' ? 'l' : 'd';
-            return <g key={`ghost${moveCount}-${i}`} className="ck-ghost" pointerEvents="none"><Disc x={x} y={y} p={victim} /></g>;
+            const victim: Piece = board[movedTo]?.toLowerCase() === 'd' ? 'l' : 'd';
+            return <g key={`ghost${shownKey}-${i}`} className="ck-ghost" style={{ animationDelay: `${(k + 0.6) * HOP}ms` }} pointerEvents="none"><Disc x={x} y={y} p={victim} /></g>;
           })}
 
-          {view.board.map((p, i) => {
+          {board.map((p, i) => {
             if (!p) return null;
             const { x, y } = xy(i);
-            const moved = i === movedTo && lastFrom && lastTo;
+            const moved = i === movedTo && !undone;
             const ring = movable.has(i) && !busy;
             return (
-              <g key={`${i}-${moved ? moveCount : 0}`} pointerEvents="none"
-                className={['ck-pc', moved ? 'ck-pc--moved' : '', moved && last!.crowned ? 'ck-pc--crowned' : ''].join(' ')}
-                style={moved ? { ['--dx' as string]: `${lastFrom!.x - lastTo!.x}px`, ['--dy' as string]: `${lastFrom!.y - lastTo!.y}px` } : undefined}>
+              <g key={`${i}-${moved ? shownKey : 0}`} pointerEvents="none" data-sq={i}
+                className={['ck-pc', moved && last!.crowned ? 'ck-pc--crowned' : ''].join(' ')}
+                style={moved && last!.crowned ? { ['--hops' as string]: last!.path.length - 1 } : undefined}>
                 <Disc x={x} y={y} p={p} />
                 {ring && <circle cx={x} cy={y} r={S * 0.43} className={prefix[0] === i ? 'ck-ring ck-ring--sel' : 'ck-ring'} />}
               </g>

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «کودتا» end to end: the tutorial (income, Duke block, Contessa bluff, exchange, caught bluff, failed challenge)
 // and a three-player game through actions, challenges, blocks, lost influence and exchanges until one courtier is left.
@@ -99,4 +99,42 @@ test('three players play «کودتا» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('instant keep (no undo): kept exchange cards fly into the hand while the keep is in flight, the rest back to the deck, and the exchange ends with the answer', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/coup');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  for (const step of ['۱', '۲', '۳', '۴', '۵']) {
+    await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۸`))).toBeVisible();
+    await p.locator('.cp .cp-hint').click();
+  }
+  await expect(p.getByText(/آموزش: مرحله ۶ از ۸/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.locator('.cp-ex__card').nth(0).click();
+  await p.locator('.cp-ex__card').nth(2).click();
+  await p.waitForTimeout(800);
+  // Keeping is sent at once despite the window (no undo); hold its answer so the in-flight preview can be seen.
+  let answered = false;
+  await p.route('**/api/tables/*/commands', async (route) => {
+    if (route.request().method() === 'POST') { await new Promise((ok) => setTimeout(ok, 1500)); answered = true; }
+    await route.continue();
+  });
+  await motionLog(p);
+  await p.getByRole('button', { name: /^نگه داشتن/ }).click();
+  await expect(p.locator('.cp-ex')).toHaveCount(0);
+  await expect(p.locator('.cp-me__cards [data-flip="ex-0"]')).toBeVisible();
+  await expect(p.locator('.cp-me__cards [data-flip="ex-2"]')).toBeVisible();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  expect(answered).toBe(false);
+  await p.waitForTimeout(700);
+  const kinds = (await motionLog(p)).map((m) => m.ghost);
+  expect(kinds).toContain('fly');
+  expect(kinds).toContain('exit');
+  // After the answer the tutorial moves on and the exchange stays closed.
+  await expect(p.getByText(/آموزش: مرحله ۷ از ۸/)).toBeVisible({ timeout: 10_000 });
+  await expect(p.locator('.cp-ex')).toHaveCount(0);
+  await p.context().close();
 });

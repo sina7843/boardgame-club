@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «سانتورینی» end to end: tutorial (move + build, dome, double threat, climb) and a full game: place workers, then worker → move →
 // build through the board until someone climbs to level 3 or is stuck.
@@ -68,4 +68,35 @@ test('two players build and climb to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+// The undo window is re-armed before each move: a dev-server reload re-runs the init script that sets it to 0.
+const slow = (p: Page) => p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+
+test('undo window: the worker glides to its square and the block is built at once; undo takes the block back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/santorini');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible({ timeout: 25_000 });
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await p.locator('.sto-sq--hint').click(); // worker
+  await p.locator('.sto-sq--hint').click(); // move: the worker glides there before the build is chosen
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.flip?.startsWith('w0-'))).toBe(true);
+  const square = p.locator('.sto-sq--hint');
+  const name = (await square.getAttribute('aria-label'))!.slice(0, 2);
+  const cell = p.getByRole('gridcell', { name: new RegExp(`^${name}:`) });
+  const before = await cell.getAttribute('aria-label');
+  await slow(p);
+  await square.click(); // build
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(cell).not.toHaveAttribute('aria-label', before!);
+  await expect(cell.locator('.bg-land')).toHaveCount(1);
+  await undo.click();
+  await expect(cell).toHaveAttribute('aria-label', before!);
+  await p.context().close();
 });

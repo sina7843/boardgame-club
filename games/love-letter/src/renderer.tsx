@@ -38,17 +38,37 @@ function LLCard({ v, size = 'md', onClick, selected, hint, disabled, flip, flipF
     : <span className={cls} data-flip={flip} data-flip-from={flipFrom} aria-label={`${CARD_FA[v]} (${fa(v)})`}>{body}</span>;
 }
 
-export default function LoveLetterRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<LoveLetterView>) {
+/** Hand card id: round, value and which copy of that value it is in the hand. */
+const handId = (round: number, hand: number[], k: number) => `h-${round}-${hand[k]}-${hand.slice(0, k).filter((x) => x === hand[k]).length}`;
+
+export default function LoveLetterRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LoveLetterView>) {
+  const me = mySeat ?? -1;
+  // Undo-window preview: the card I play leaves my hand for my discard pile at once (its effect waits for the server).
+  // The discarded copy keeps the hand card's id, so it flies there, flies back on undo, and stays put once confirmed.
+  const alias = useRef<{ round: number; map: Map<string, { id: string; v: number }> }>({ round: served.round, map: new Map() });
+  if (alias.current.round !== served.round) alias.current = { round: served.round, map: new Map() };
+  const view: LoveLetterView = (() => {
+    if (queued?.type !== 'play' || !served.hand || me < 0) return served;
+    const k = served.hand.lastIndexOf(queued.card as number);
+    if (k < 0) return served;
+    alias.current.map.set(`d-${served.round}-${me}-${served.discards[me]!.length}`, { id: handId(served.round, served.hand, k), v: served.hand[k]! });
+    return { ...served, hand: served.hand.filter((_, i) => i !== k), discards: served.discards.map((d, s) => (s === me ? [...d, served.hand![k]!] : d)) };
+  })();
+  const handIds = view.hand ? view.hand.map((_, k) => handId(view.round, view.hand!, k)) : [];
+  const discardId = (s: number, k: number) => {
+    const id = `d-${view.round}-${s}-${k}`, a = s === me ? alias.current.map.get(id) : undefined;
+    return a && a.v === view.discards[s]![k] && !handIds.includes(a.id) ? a.id : id;
+  };
   const plays = legalActions.filter((a) => a.type === 'play') as unknown as { card: number; targets: number[] }[];
   const myTurn = plays.length > 0;
   const [card, setCard] = useState<number | null>(null);
   const [target, setTarget] = useState<number | null>(null);
-  const lastSeq = view.log.at(-1)?.seq ?? 0;
+  const lastSeq = served.log.at(-1)?.seq ?? 0;
   useEffect(() => { setCard(null); setTarget(null); }, [lastSeq, view.round]);
   const hint = expected?.type === 'play' ? (expected as unknown as { card: number; target?: number; guess?: number }) : null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, lastSeq);
+  useFlip(root, `${lastSeq}|${queued ? JSON.stringify(queued) : ''}`);
   const lastEnd = view.log.at(-1);
   const knocked = lastEnd?.t === 'out' ? lastEnd.seat : -1;
   const chosen = plays.find((p) => p.card === card);
@@ -65,6 +85,8 @@ export default function LoveLetterRenderer({ view, legalActions, mySeat, seatNam
   const pickTarget = (t: number) => { if (card === 1) setTarget(t); else send(card!, t); };
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: card === null ? 'یک کارت را بازی کنید' : target === null ? 'هدف را انتخاب کنید' : 'کارت او را حدس بزنید' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
 
@@ -98,7 +120,7 @@ export default function LoveLetterRenderer({ view, legalActions, mySeat, seatNam
                   {Array.from({ length: view.goal }, (_, k) => <i key={`${k}-${k < t}`} className={k < t ? 'on bg-pop' : ''} />)}
                 </span>
               </div>
-              <div className="ll-pl__discards">{view.discards[s]!.map((c, k) => <LLCard key={k} v={c} size="sm" flip={`d-${view.round}-${s}-${k}`} flipFrom={s === mySeat ? 'hand' : `seat-${s}`} />)}</div>
+              <div className="ll-pl__discards">{view.discards[s]!.map((c, k) => <LLCard key={k} v={c} size="sm" flip={discardId(s, k)} flipFrom={s === mySeat ? 'hand' : `seat-${s}`} />)}</div>
               {targetable && (
                 <Button size="sm" className={hint?.target === s ? 'll-target--hint' : ''} disabled={busy} onClick={() => pickTarget(s)}>
                   {card === 5 && s === mySeat ? 'خودم' : `انتخاب ${who(s)}`}
@@ -135,7 +157,7 @@ export default function LoveLetterRenderer({ view, legalActions, mySeat, seatNam
       {view.hand && view.inRound[mySeat ?? 0] && !view.outcome && (
         <div className="ll__hand" data-flip-anchor="hand" role="group" aria-label="دست شما">
           {view.hand.map((c, k) => (
-            <LLCard key={`${c}-${k}`} flip={`h-${view.round}-${c}-${view.hand!.slice(0, k).filter((x) => x === c).length}`} flipFrom="deck" v={c} onClick={myTurn && plays.some((p) => p.card === c) && !busy ? () => pickCard(c) : undefined}
+            <LLCard key={handIds[k]} flip={handIds[k]} flipFrom="deck" v={c} onClick={myTurn && plays.some((p) => p.card === c) && !busy ? () => pickCard(c) : undefined}
               selected={card === c} hint={hint?.card === c && card === null} />
           ))}
           {card !== null && <Button size="sm" variant="ghost" onClick={() => { setCard(null); setTarget(null); }}>انتخاب دوباره</Button>}

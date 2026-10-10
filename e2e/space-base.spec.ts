@@ -1,5 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { expect, test, type Page, type Route } from '@playwright/test';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «پایگاه فضایی» end to end: the tutorial (roll, sum, buy) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -72,4 +72,57 @@ test('three players play to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+// The undo window is re-armed before each move: a dev-server reload re-runs the init script that sets it to 0.
+const slow = (p: Page) => p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+
+test('instant roll (no undo) tumbles with no pips while in flight, the result is thrown, and a bought ship flies to its bay at once in its undo window', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto(`/games/${GAME}`);
+  await slow(p);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible({ timeout: 25_000 });
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const tumbling = p.locator('.sb-dice .bg-tumble');
+  const hint = p.locator('.sb .sb-hint:not([disabled])').first();
+  // The roll is sent at once despite the window; hold its answer so the in-flight tumble can be seen.
+  const delay = async (route: Route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); };
+  await p.route('**/api/tables/*/commands', delay);
+  await slow(p);
+  await hint.click();
+  await expect(tumbling).toHaveCount(2);
+  await expect(undo).toHaveCount(0);
+  expect(await tumbling.locator('[data-pip]').evaluateAll((ps) => ps.every((x) => getComputedStyle(x).visibility === 'hidden'))).toBe(true);
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۳/)).toBeVisible({ timeout: 25_000 });
+  await expect(tumbling).toHaveCount(0);
+  await expect(p.locator('.sb-dice .bg-roll')).toHaveCount(2);
+  await p.waitForTimeout(1200);
+  expect((await motionLog(p)).some((m) => m.ghost === 'die')).toBe(true);
+  await p.unroute('**/api/tables/*/commands', delay);
+  await slow(p);
+  await hint.click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۳/)).toBeVisible({ timeout: 25_000 });
+  const ship = await p.locator('.sb-yard .sb-hint').getAttribute('data-flip');
+  const inYard = p.locator(`.sb-yard [data-flip="${ship}"]`);
+  const inBay = p.locator(`.sb-me [data-flip="${ship}"]`);
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await slow(p);
+  await inYard.click();
+  await expect(undo).toBeVisible();
+  await expect(inBay).toBeVisible();
+  await expect(inYard).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inYard).toBeVisible();
+  await expect(inBay).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

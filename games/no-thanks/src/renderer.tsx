@@ -1,7 +1,7 @@
 // نه، مرسی! renderer: the card in the middle with its pile of chips, every player's cards grouped in runs (only the
 // lowest of a run scores), and two big buttons. Others' chip counts are secret until the end.
 import './renderer.css';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { cardPoints, runs, type NoThanksView } from './rules.ts';
 
@@ -9,19 +9,32 @@ const fa = (n: number) => n.toLocaleString('fa-IR');
 /** Warm-to-hot card colours: low cards cool, high cards red. */
 const hue = (c: number) => 200 - ((c - 3) / 32) * 200;
 
-export default function NoThanksRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<NoThanksView>) {
+export default function NoThanksRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<NoThanksView>) {
+  // Undo-window preview: a taken card already lies in your row with its chips counted, a refusal already put your chip
+  // on the card; undo returns them. The next card from the deck only comes with the server's answer.
+  const pending = mySeat !== null && real.card !== null && (queued?.type === 'take' || queued?.type === 'pass') ? queued.type : null;
+  const view = useMemo((): NoThanksView => {
+    if (!pending || mySeat === null) return real;
+    const chips = real.chips.map((c, s) => (s === mySeat && c !== null ? c + (pending === 'take' ? real.pot : -1) : c));
+    return pending === 'take'
+      ? { ...real, chips, card: null, pot: 0, cards: real.cards.map((cs, s) => (s === mySeat ? [...cs, real.card!].sort((a, b) => a - b) : cs)) }
+      : { ...real, chips, pot: real.pot + 1 };
+  }, [real, pending, mySeat]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.log.at(-1)?.seq ?? 0);
+  useFlip(root, `${view.log.at(-1)?.seq ?? 0}|${pending ?? ''}`);
   const has = (t: string) => legalActions.some((a) => a.type === t);
   const myTurn = has('take');
   const hint = expected?.type;
   const last = view.log.at(-1);
+  const passer = pending === 'pass' ? mySeat : last?.t === 'pass' ? last.seat : null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const myCards = mySeat !== null ? view.cards[mySeat]! : [];
   const withCard = view.card !== null && myTurn ? cardPoints([...myCards, view.card]) - cardPoints(myCards) : null;
   const order = mySeat === null ? view.cards.map((_, k) => k) : [mySeat, ...view.cards.map((_, k) => k).filter((k) => k !== mySeat)];
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: 'نوبت شما: بردارید یا رد کنید' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
 
@@ -39,11 +52,12 @@ export default function NoThanksRenderer({ view, legalActions, mySeat, seatName,
             <span className="nt-card__corner">{fa(view.card)}</span>
             <strong className="nt-card__n">{fa(view.card)}</strong>
             <span className="nt-pot" aria-hidden="true">
-              {Array.from({ length: Math.min(view.pot, 12) }, (_, k) => <i key={k} style={{ ['--k' as string]: k }} data-flip={`chip-${k}`} data-flip-from={last?.t === 'pass' && k === view.pot - 1 ? `seat-${last.seat}` : undefined} />)}
+              {Array.from({ length: Math.min(view.pot, 12) }, (_, k) => <i key={k} style={{ ['--k' as string]: k }} data-flip={`chip-${k}`}
+                data-flip-from={passer !== null && k === view.pot - 1 ? `seat-${passer}` : undefined} data-flip-exit={view.current === null ? 'drop' : `seat-${view.current}`} />)}
               {view.pot > 0 && <b key={view.pot} className="bg-pop">{fa(view.pot)}</b>}
             </span>
           </div>
-        ) : <div className="nt-card nt-card--empty">پایان</div>}
+        ) : <div className="nt-card nt-card--empty">{pending ? '' : 'پایان'}</div>}
       </div>
 
       {myTurn && (

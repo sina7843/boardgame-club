@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «ست» end to end: the tutorial (three claims, a scripted wrong claim, the end of the deck) and a full live game
 // where two clients race on the same table.
@@ -25,7 +25,7 @@ test('interactive tutorial: three sets, the opponent’s wrong claim, and the en
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   for (const step of ['۱', '۲', '۳']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`))).toBeVisible();
-    const hinted = p.locator('button.set-card.set-hint');
+    const hinted = p.locator('.set__board button.set-card.set-hint');
     await expect(hinted).toHaveCount(3);
     for (let i = 0; i < 3; i++) await hinted.nth(i).click();
     if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-pick'), fullPage: true });
@@ -36,10 +36,10 @@ test('interactive tutorial: three sets, the opponent’s wrong claim, and the en
 });
 
 async function claimOne(p: Page): Promise<boolean> {
-  const ids = await p.locator('button.set-card:not([disabled])').evaluateAll((els) => els.map((e) => Number((e as HTMLElement).dataset.card)));
+  const ids = await p.locator('.set__board button.set-card:not([disabled])').evaluateAll((els) => els.map((e) => Number((e as HTMLElement).dataset.card)));
   const found = findSet(ids);
   if (!found) return false;
-  for (const c of found) await p.locator(`button.set-card[data-card="${c}"]`).click();
+  for (const c of found) await p.locator(`.set__board button.set-card[data-card="${c}"]`).click();
   await p.locator('button.set-claim').click();
   return true;
 }
@@ -76,4 +76,38 @@ test('two players race through a full game of «ست» to the result', async ({ 
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('instant claim (no undo): a claimed set flies to my tray while the claim is in flight and stays there after the answer', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/set');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const table = p.locator('.set__board button.set-card');
+  const tray = p.locator('.set-seat--me .set-mini');
+  const n = await table.count();
+  const hinted = p.locator('.set__board button.set-card.set-hint');
+  for (let i = 0; i < 3; i++) await hinted.nth(i).click();
+  // A claim is sent at once despite the window (no undo); hold its answer so the in-flight preview can be seen.
+  let answered = false;
+  await p.route('**/api/tables/*/commands', async (route) => {
+    if (route.request().method() === 'POST') { await new Promise((ok) => setTimeout(ok, 1500)); answered = true; }
+    await route.continue();
+  });
+  await motionLog(p);
+  await p.locator('button.set-claim').click();
+  await expect(table).toHaveCount(n - 3);
+  await expect(tray).toHaveCount(3);
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  expect(answered).toBe(false);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  // After the answer the set is mine: still in my tray, and the table is refilled to its size.
+  await expect(p.getByText(/آموزش: مرحله ۲ از/)).toBeVisible({ timeout: 10_000 });
+  await expect(tray).toHaveCount(3);
+  await p.context().close();
 });

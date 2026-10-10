@@ -173,7 +173,7 @@ const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0,
 export function DieFace({ value, side }: { value: number; side: 'att' | 'def' }) {
   return (
     <span aria-hidden="true" className={`rk-die rk-die--${side}`}>
-      {Array.from({ length: 9 }, (_, k) => <i key={k} className={PIPS[value]?.includes(k) ? 'rk-die__pip' : ''} />)}
+      {Array.from({ length: 9 }, (_, k) => (PIPS[value]?.includes(k) ? <i key={k} className="rk-die__pip" data-pip /> : <i key={k} />))}
     </span>
   );
 }

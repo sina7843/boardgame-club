@@ -3,7 +3,7 @@
 // its own small panel during your character's turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
 // Paintings are cut from a generated sheet (see DECISIONS.md).
 import assassin from './art/ch-assassin.webp';
@@ -26,10 +26,10 @@ const DISTRICT_ART: Record<string, string> = { yellow, blue, green, red };
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
-export function DistrictCard({ id, size = 'md', from }: { id: number; size?: 'sm' | 'md'; from?: string }) {
+export function DistrictCard({ id, size = 'md', from, exit }: { id: number; size?: 'sm' | 'md'; from?: string; exit?: string }) {
   const d = DISTRICTS[id]!;
   return (
-    <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} data-flip={from ? `d-${id}` : undefined} data-flip-from={from} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
+    <span className={`ct2-d ct2-d--${size} ct2-c--${d.color}`} data-flip={from ? `d-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={`${d.name}، ${fa(d.cost)} طلا`}>
       <b className="ct2-d__cost">{fa(d.cost)}</b>
       <img className="ct2-d__art" src={DISTRICT_ART[d.color]} alt="" draggable={false} />
       <span className="ct2-d__name">{d.name}</span>
@@ -43,8 +43,13 @@ export function CharToken({ c, state, from }: { c: number; state?: string; from?
   return <span className={`ct2-ch ct2-ch--${c} ${state ?? ''}`} data-flip={from ? `pk-${c}` : undefined} data-flip-from={from}><img className="ct2-ch__art" src={PORTRAIT[c - 1]} alt="" draggable={false} /><b>{fa(c)}</b><small>{CHARACTERS[c]}</small></span>;
 }
 
-export default function CitadelsRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CitadelsView>) {
+export default function CitadelsRenderer({ view: real, legalActions: realLegal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CitadelsView>) {
   const me = mySeat ?? -1;
+  // Undo-window preview of an own pick, keep or build, from what this client already knows: the character joins your
+  // picks, the kept card joins your hand, the built district leaves the hand for your city (and its cost leaves your gold).
+  const q = queued as { type: string; char?: number; card?: number } | null | undefined;
+  const view = preview(real, me, q);
+  const legalActions = q ? [] : realLegal;
   const pick = legalActions.find((a) => a.type === 'pick') as { chars: number[] } | undefined;
   const income = legalActions.some((a) => a.type === 'income');
   const keep = legalActions.find((a) => a.type === 'keep') as { cards: number[] } | undefined;
@@ -54,11 +59,13 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
   const [redraw, setRedraw] = useState<number[]>([]);
   useEffect(() => { setRedraw([]); }, [view.seq]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${q?.type ?? ''}`);
   const hint = expected as unknown as { type: string; take?: string; card?: number; char?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const others = view.cities.map((_, k) => k).filter((k) => k !== me);
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : pick ? { tone: 'mine' as const, text: 'یک شخصیت مخفیانه انتخاب کنید' }
       : income ? { tone: 'mine' as const, text: `نوبت ${CHARACTERS[view.calling]} شما: ۲ طلا یا دو کارت؟` }
         : keep ? { tone: 'mine' as const, text: 'یکی از دو کارت را نگه دارید' }
@@ -93,7 +100,7 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
         </div>
       )}
       {keep && view.drawn && (
-        <div className="ct2__bar">{view.drawn.map((id) => <button key={id} type="button" className="ct2-pick" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><DistrictCard id={id} from="deck" /></button>)}</div>
+        <div className="ct2__bar">{view.drawn.map((id) => <button key={id} type="button" className="ct2-pick" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><DistrictCard id={id} from="deck" exit="deck" /></button>)}</div>
       )}
 
       {ability && (
@@ -118,12 +125,12 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
             <div className="ct2-city__head">
               {view.crown === s && <img className="ct2-crown" src={crown} alt="تاج" title="تاج" />}
               <bdi className="ct2-city__name">{who(s)}</bdi>
-              <span className="ct2-gold bg-pop" key={view.gold[s]}><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</span>
-              <span>{fa(view.handCount[s]!)} کارت</span>
-              <span className="ct2-score bg-pop" key={view.scores[s]}>{fa(view.scores[s]!)} امتیاز</span>
+              <Pop n={view.gold[s]!} className="ct2-gold"><img src={coin} alt="" />{fa(view.gold[s]!)} طلا</Pop>
+              <Pop n={view.handCount[s]!}>{fa(view.handCount[s]!)} کارت</Pop>
+              <Pop n={view.scores[s]!} className="ct2-score">{fa(view.scores[s]!)} امتیاز</Pop>
               <span>{fa(view.cities[s]!.length)}/۸</span>
             </div>
-            <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} />)}{!view.cities[s]!.length && <small>هنوز محله‌ای نیست</small>}</div>
+            <div className="ct2-city__row">{view.cities[s]!.map((id) => <DistrictCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} exit="drop" />)}{!view.cities[s]!.length && <small>هنوز محله‌ای نیست</small>}</div>
           </li>
         ))}
       </ul>
@@ -135,9 +142,9 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
             {view.hand.map((id) => {
               const selecting = ability?.char === 3;
               return builds.has(id) && !selecting
-                ? <button key={id} type="button" className={`ct2-pick ct2-pick--can ${hint?.card === id ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'build', card: id })} aria-label={`ساختن ${DISTRICTS[id]!.name}`}><DistrictCard id={id} from="deck" /></button>
-                : selecting ? <button key={id} type="button" className={`ct2-pick ${redraw.includes(id) ? 'ct2-pick--on' : ''}`} aria-pressed={redraw.includes(id)} onClick={() => setRedraw(redraw.includes(id) ? redraw.filter((x) => x !== id) : [...redraw, id])}><DistrictCard id={id} from="deck" /></button>
-                  : <span key={id} className="ct2-pick"><DistrictCard id={id} from="deck" /></span>;
+                ? <button key={id} type="button" className={`ct2-pick ct2-pick--can ${hint?.card === id ? 'ct2-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'build', card: id })} aria-label={`ساختن ${DISTRICTS[id]!.name}`}><DistrictCard id={id} from="deck" exit="deck" /></button>
+                : selecting ? <button key={id} type="button" className={`ct2-pick ${redraw.includes(id) ? 'ct2-pick--on' : ''}`} aria-pressed={redraw.includes(id)} onClick={() => setRedraw(redraw.includes(id) ? redraw.filter((x) => x !== id) : [...redraw, id])}><DistrictCard id={id} from="deck" exit="deck" /></button>
+                  : <span key={id} className="ct2-pick"><DistrictCard id={id} from="deck" exit="deck" /></span>;
             })}
           </div>
           {canEnd && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button>}
@@ -145,4 +152,21 @@ export default function CitadelsRenderer({ view, legalActions, mySeat, seatName,
       )}
     </div>
   );
+}
+
+/** The view as it will look after the own queued pick / keep / build (only facts the client already holds). */
+function preview(v: CitadelsView, me: number, q: { type: string; char?: number; card?: number } | null | undefined): CitadelsView {
+  if (!q || me < 0 || !v.hand) return v;
+  if (q.type === 'pick' && q.char !== undefined && v.pool?.includes(q.char)) return { ...v, pool: v.pool.filter((c) => c !== q.char), myPicks: [...v.myPicks, q.char] };
+  if (q.type === 'keep' && q.card !== undefined && v.drawn?.includes(q.card)) return { ...v, drawn: null, hand: [...v.hand, q.card], handCount: v.handCount.map((n, k) => (k === me ? n + 1 : n)) };
+  if (q.type === 'build' && q.card !== undefined && v.hand.includes(q.card)) {
+    const at = <T,>(xs: T[], f: (x: T) => T) => xs.map((x, k) => (k === me ? f(x) : x));
+    return { ...v, hand: v.hand.filter((x) => x !== q.card), handCount: at(v.handCount, (n) => n - 1), gold: at(v.gold, (g) => g - DISTRICTS[q.card!]!.cost), cities: at(v.cities, (c) => [...c, q.card!]) };
+  }
+  return v;
+}
+
+// A number that bumps whenever it changes.
+function Pop({ n, className = '', children }: { n: number; className?: string; children: React.ReactNode }) {
+  return <span key={n} className={`${className} ${usePop(n)}`}>{children}</span>;
 }

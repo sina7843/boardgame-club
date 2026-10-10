@@ -13,13 +13,19 @@ const fa = (n: number) => n.toLocaleString('fa-IR');
 const COLS = 'ABCDEFGHJKLMNOPQRST';
 const STARS: Record<number, number[]> = { 9: [2, 4, 6], 13: [3, 6, 9], 19: [3, 9, 15] };
 
-export default function GoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<GoView>) {
-  const n = view.size;
+export default function GoRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<GoView>) {
+  const n = real.size;
+  // Undo-window preview: the own stone is already on its point and the stones it captures fade away (the client can
+  // play the move out itself); undo puts everything back.
+  const pv = queued?.type === 'place' && real.phase === 'play' ? play(real.board, n, queued.at as number, real.turn, []) : null;
+  const view: GoView = pv && !('error' in pv)
+    ? { ...real, board: pv.board, turn: real.turn === 'b' ? 'w' : 'b', last: { seat: mySeat ?? 0, at: queued!.at as number, captured: pv.captured }, captures: { ...real.captures, [real.turn]: real.captures[real.turn] + pv.captured.length }, ko: null }
+    : real;
   const kaya = `go-kaya-${useId().replace(/:/g, '')}`;
   const G = 60, M = 74, SIZE = (n - 1) * G + 2 * M;
   const pos = (i: number) => ({ x: M + (i % n) * G, y: M + Math.floor(i / n) * G });
   const has = (t: string) => legalActions.some((a) => a.type === t);
-  const canPlace = has('place') && !busy;
+  const canPlace = has('place') && !busy && !queued;
   const scoring = view.phase === 'scoring';
   const myColor: Stone = mySeat === null ? 'b' : view.colors[mySeat]!;
   const hint = expected?.type === 'place' ? (expected.at as number) : null;
@@ -32,6 +38,8 @@ export default function GoRenderer({ view, legalActions, mySeat, seatName, busy,
   const legalAt = (i: number) => canPlace && view.board[i] === null && i !== view.ko && !('error' in play(view.board, n, i, view.turn, []));
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : scoring ? { tone: (mySeat !== null && !view.accepted[mySeat] ? 'mine' : 'wait') as 'mine' | 'wait', text: mySeat !== null && !view.accepted[mySeat] ? 'شمارش: گروه‌های مرده را بزنید و تأیید کنید' : 'منتظر تأیید حریف' }
       : canPlace ? { tone: 'mine' as const, text: view.passes ? 'حریف پاس داد؛ بگذارید یا پاس بدهید' : 'نوبت شما: روی یک تقاطع بگذارید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };

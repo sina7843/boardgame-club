@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «نبرد دریایی» end to end: the tutorial (hit, a probing miss, follow the line, sink two ships) and a full two-player
 // game from fleet placement.
@@ -26,6 +26,37 @@ test('interactive tutorial: hit, probe, follow the line and sink the last ships'
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the shell flies to the target at once without a result, undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto(`/games/${GAME}`);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const shell = p.locator('.bs-chart--enemy .bs-shell[data-flip="shot-1-56"]');
+  const result = p.locator('.bs-chart--enemy g[data-flip="shot-1-56"]');
+  await p.locator('.bs .bs-hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(shell).toBeVisible();
+  await expect(result).toHaveCount(0); // hit or miss is not known before the window ends
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(shell).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  // Fire for real: the answer replaces the shell, and the opponent's reply shell flies onto my sea.
+  await p.locator('.bs .bs-hint').click();
+  await expect(result).toHaveCount(1, { timeout: 10_000 });
+  await expect(shell).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly' && /is-spent/.test(m.cls))).toBe(true);
   await p.context().close();
 });
 

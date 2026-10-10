@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «اونیتاما» end to end: tutorial (capture by card, card swap, master to the temple) and a full duel through board taps.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -66,4 +66,39 @@ test('two players duel to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: my move and the card swap show at once, and undo glides them back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/onitama');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const sq = (el: string | null) => el!.slice(0, 2);
+  const from = sq(await p.locator('.oni-sq--hint').getAttribute('aria-label'));
+  await p.locator('.oni-sq--hint').click();
+  const to = sq(await p.locator('.oni-sq--hint').getAttribute('aria-label'));
+  const side = p.locator('.oni__side .oni-card');
+  const sideBefore = await side.getAttribute('data-flip');
+  await motionLog(p);
+  await p.locator('.oni-sq--hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(p.getByRole('gridcell', { name: new RegExp(`^${to}: شما`) })).toHaveCount(1);
+  await expect(p.getByRole('gridcell', { name: new RegExp(`^${from}: `) })).toHaveCount(0);
+  await expect(side).not.toHaveAttribute('data-flip', sideBefore!);
+  await p.waitForTimeout(800);
+  let log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'fly')).toBe(true);
+  expect(log.some((m) => m.flip?.startsWith('pc-'))).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(p.getByRole('gridcell', { name: new RegExp(`^${from}: شما`) })).toHaveCount(1);
+  await expect(side).toHaveAttribute('data-flip', sideBefore!);
+  await p.waitForTimeout(800);
+  log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'fly')).toBe(true);
+  expect(log.some((m) => m.flip?.startsWith('pc-'))).toBe(true);
+  await p.context().close();
 });

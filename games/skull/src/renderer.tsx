@@ -2,7 +2,7 @@
 // and skulls revealed with a flip, your discs to place, a bid strip, and opponents' stacks to turn in the reveal.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import rose from './art/disc-rose.webp';
 import skull from './art/disc-skull.webp';
 import type { Disc, SkullView } from './rules.ts';
@@ -27,12 +27,46 @@ function Coaster({ face, color, size = 'md', flip }: { face: Disc | 'back'; colo
   );
 }
 
-export default function SkullRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<SkullView>) {
+/** A number that bumps when it changes (never on first render). */
+function Pop({ v }: { v: number }) {
+  const pop = usePop(v);
+  return <strong key={v} className={pop}>{fa(v)}</strong>;
+}
+/** Won points: the newly lit one bumps. */
+function Points({ n }: { n: number }) {
+  const pop = usePop(n);
+  return <>{[0, 1].map((k) => <i key={k} className={k < n ? `on ${k === n - 1 ? pop : ''}` : ''} />)}</>;
+}
+
+type Queued = { type: string; disc?: Disc; n?: number; seat?: number } | null | undefined;
+/** The own move shown at once in the undo window, from what this player already knows (never an opponent's disc). */
+function withQueued(view: SkullView, me: number | null, q: Queued): SkullView {
+  if (!q || me === null) return view;
+  if (q.type === 'place' && q.disc && view.hand && view.myStack) {
+    const k = view.hand.indexOf(q.disc);
+    if (k < 0) return view;
+    return { ...view, hand: view.hand.filter((_, i) => i !== k), myStack: [...view.myStack, q.disc], stackCounts: view.stackCounts.map((c, s) => (s === me ? c + 1 : c)), handCounts: view.handCounts.map((c, s) => (s === me ? c - 1 : c)) };
+  }
+  if (q.type === 'bid' && q.n) return { ...view, bid: { seat: me, n: q.n }, phase: 'bid' };
+  if (q.type === 'pass') return { ...view, passed: view.passed.map((x, s) => x || s === me) };
+  if (q.type === 'flip' && q.seat === me && view.myStack) {
+    // Your own stack: you know its discs, so the top unturned one can be turned at once.
+    const t = view.turned.filter((x) => x.seat === me).length, disc = view.myStack[view.stackCounts[me]! - 1 - t];
+    return disc ? { ...view, turned: [...view.turned, { seat: me, disc }] } : view;
+  }
+  return view;
+}
+
+export default function SkullRenderer({ view: real, legalActions: allActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SkullView>) {
+  const q = queued as Queued;
+  const view = withQueued(real, mySeat, q);
+  const legalActions = q ? [] : allActions;
   const placeable = new Set(legalActions.filter((a) => a.type === 'place').map((a) => a.disc as Disc));
   const bidHint = legalActions.find((a) => a.type === 'bid') as { min: number; max: number } | undefined;
   const canPass = legalActions.some((a) => a.type === 'pass');
   const flippable = new Set(legalActions.filter((a) => a.type === 'flip').map((a) => a.seat as number));
   const lastSeq = view.log.at(-1)?.seq ?? 0;
+  const qKey = q ? JSON.stringify(q) : '';
   const [bid, setBid] = useState<number | null>(null);
   useEffect(() => { setBid(null); }, [lastSeq]);
   const hint = expected as unknown as { type: string; disc?: Disc; n?: number; seat?: number } | null;
@@ -43,12 +77,14 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
 
   const myTurn = placeable.size > 0 || !!bidHint || canPass || flippable.size > 0;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : view.phase === 'reveal' ? (myTurn ? { tone: 'mine' as const, text: `${fa(view.bid!.n - view.turned.length)} دیسک دیگر رو کنید` } : { tone: 'wait' as const, text: `${who(view.bid!.seat)} دیسک‌ها را رو می‌کند` })
       : myTurn ? { tone: 'mine' as const, text: view.phase === 'first' ? 'یک دیسک رو به پایین بگذارید' : view.phase === 'bid' ? 'عدد بالاتر بگویید یا کنار بکشید' : 'دیسک بگذارید یا پیشنهاد بدهید' }
         : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
 
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, lastSeq);
+  useFlip(root, `${lastSeq}|${qKey}`);
   const lastLose = [...view.log].reverse().find((e) => e.t === 'lose-disc' && e.seq === lastSeq);
   const hitSeat = view.log.at(-1)?.t === 'lose-disc' ? (view.log.at(-1) as { seat?: number }).seat : undefined;
 
@@ -56,7 +92,7 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
     <div className="sk" ref={root} data-seq={lastSeq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {view.bid && view.phase !== 'first' && (
-        <p className="sk__bid" role="status">پیشنهاد <bdi>{who(view.bid.seat)}</bdi>: <strong>{fa(view.bid.n)}</strong> از {fa(view.maxBid)} دیسک</p>
+        <p className="sk__bid" role="status">پیشنهاد <bdi>{who(view.bid.seat)}</bdi>: <Pop v={view.bid.n} /> از {fa(view.maxBid)} دیسک</p>
       )}
 
       <ul className="sk__table" aria-label="بازیکنان">
@@ -67,7 +103,7 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
           const body = (
             <>
               <div className="sk-pl__head">
-                <span className="sk-pl__mat" aria-label={`${fa(view.points[s]!)} امتیاز از ۲`}>{[0, 1].map((k) => <i key={`${k}-${k < view.points[s]!}`} className={k < view.points[s]! ? 'on bg-pop' : ''} />)}</span>
+                <span className="sk-pl__mat" aria-label={`${fa(view.points[s]!)} امتیاز از ۲`}><Points n={view.points[s]!} /></span>
                 <bdi className="sk-pl__name">{who(s)}</bdi>
                 {view.owned[s] === 0 ? <span className="sk-pl__out">بیرون</span> : <span className={s === hitSeat ? 'sk-pl__owned bg-hit' : 'sk-pl__owned'} key={`${view.owned[s]}-${s === hitSeat ? lastSeq : ''}`}>{fa(view.owned[s]!)} دیسک</span>}
                 {view.phase === 'bid' && view.passed[s] && <span className="sk-pl__pass">کنار کشید</span>}
@@ -78,7 +114,7 @@ export default function SkullRenderer({ view, legalActions, mySeat, seatName, bu
                   const shown = turned[fromTop];
                   const own = s === mySeat && view.myStack ? view.myStack[k] : null;
                   return (
-                    <span key={k} className="sk-pl__slot" data-flip={`st-${s}-${k}`} data-flip-from={s === mySeat ? 'hand' : `seat-${s}`} style={{ ['--k' as string]: k }}>
+                    <span key={k} className="sk-pl__slot" data-flip={`st-${s}-${k}`} data-flip-from={s === mySeat ? 'hand' : `seat-${s}`} data-flip-exit={s === mySeat ? 'hand' : `seat-${s}`} style={{ ['--k' as string]: k }}>
                       <Coaster face={shown ? shown.disc : 'back'} color={SEAT[s % SEAT.length]!} flip={!!shown} />
                       {own && !shown && <span className={`sk-peek sk-peek--${own}`} title="فقط شما می‌بینید">{own === 'skull' ? 'جمجمه' : 'گل'}</span>}
                     </span>

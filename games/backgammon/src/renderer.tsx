@@ -5,7 +5,7 @@ import ivoryImg from './art/checker-ivory.webp';
 import redImg from './art/checker-red.webp';
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
 import { CHECKERS, nextSteps, pipCount, step as applyStep, target, type BgView, type From, type LogEntry, type Pos, type Step } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -31,7 +31,28 @@ function slot(v: number, n: number) {
 
 type Sel = { from: From; options: Step[] } | null;
 
-export default function BackgammonRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<BgView>) {
+// Stable checker ids: every checker is a cell (15 slots per point, bar and tray per seat), matched move to move by
+// board distance, so a moved checker keeps its identity and glides instead of every stack renumbering.
+const SLOTS = 15, BAR0 = 24 * SLOTS, OFF0 = BAR0 + 2 * SLOTS;
+const cellOf = { pt: (i: number, k: number) => i * SLOTS + k, bar: (s: number, k: number) => BAR0 + s * SLOTS + k, off: (s: number, k: number) => OFF0 + s * SLOTS + k };
+/** Where a cell lies along the track (seat 0 enters at 24 and bears off below 0; seat 1 the other way). */
+function loc(c: number) {
+  if (c < BAR0) return Math.floor(c / SLOTS);
+  const s = Math.floor((c - (c < OFF0 ? BAR0 : OFF0)) / SLOTS);
+  return (c < OFF0) === (s === 0) ? 24 : -1;
+}
+const cellDist = (a: number, b: number) => Math.abs(loc(a) - loc(b)) + Math.abs((a % SLOTS) - (b % SLOTS)) * 0.01;
+function cells(p: Pos): string[] {
+  const out: string[] = new Array<string>(OFF0 + 2 * SLOTS).fill('');
+  p.pts.forEach((n, i) => { for (let k = 0; k < Math.abs(n); k++) out[cellOf.pt(i, k)] = n > 0 ? '0' : '1'; });
+  for (const s of [0, 1]) {
+    for (let k = 0; k < p.bar[s]!; k++) out[cellOf.bar(s, k)] = String(s);
+    for (let k = 0; k < p.off[s]!; k++) out[cellOf.off(s, k)] = String(s);
+  }
+  return out;
+}
+
+export default function BackgammonRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<BgView>) {
   const me = mySeat ?? 0;
   const flip = me === 1;
   const vOf = (i: number) => (flip ? 23 - i : i);
@@ -45,6 +66,10 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   useEffect(() => { setSteps([]); setSel(null); setSent(false); }, [lastSeq]);
   // Cancelled in the undo window (or rejected): the finished play stays on the board and can be sent or changed.
   useEffect(() => { if (!busy) setSent(false); }, [busy]);
+  // My roll is waiting in the undo window or for the server: the dice tumble without a value until the result arrives.
+  const [rollAsked, setRollAsked] = useState(false);
+  useEffect(() => { if (!busy) setRollAsked(false); }, [busy]);
+  const rolling = !view.dice && (queued?.type === 'roll' || (busy && rollAsked));
 
   // Local position after the steps taken so far this turn.
   const local = useMemo(() => {
@@ -87,20 +112,26 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   for (const o of sel?.options ?? []) landings.set(String(target(local.pos, me, o.from, o.die)), o.die);
 
   // Dice: which of the rolled dice are used by the local steps.
-  const diceList = view.dice ? (view.dice[0] === view.dice[1] ? [view.dice[0], view.dice[0], view.dice[0], view.dice[0]] : [...view.dice]) : [];
+  // A roll without any legal move (pass) still shows its dice, all spent.
+  const lastPass = view.log.at(-1)?.t === 'pass' ? (view.log.at(-1) as Extract<LogEntry, { t: 'pass' }>) : null;
+  const shown = rolling ? null : view.dice ?? lastPass?.dice ?? null;
+  const diceList = shown ? (shown[0] === shown[1] ? [shown[0], shown[0], shown[0], shown[0]] : [...shown]) : [];
   const used = [...steps.map((s) => s.die)];
-  const diceUsed = diceList.map((d) => { const k = used.indexOf(d); if (k >= 0) { used.splice(k, 1); return true; } return false; });
-  const rollSeq = [...view.log].reverse().find((e) => e.t === 'roll' || e.t === 'opening')?.seq ?? 0;
+  const diceUsed = diceList.map((d) => { if (!view.dice) return true; const k = used.indexOf(d); if (k >= 0) { used.splice(k, 1); return true; } return false; });
+  const rollSeq = [...view.log].reverse().find((e) => e.t === 'roll' || e.t === 'opening' || e.t === 'pass')?.seq ?? 0;
 
   // Last move by the opponent (shown as trails), or the local steps for me.
   const lastPlay = [...view.log].reverse().find((e) => e.t === 'play') as Extract<LogEntry, { t: 'play' }> | undefined;
   const trails = myMove && steps.length ? local.played : lastPlay && lastPlay.seat !== me ? lastPlay.moves : [];
-  const lastPass = view.log.at(-1)?.t === 'pass' ? (view.log.at(-1) as Extract<LogEntry, { t: 'pass' }>) : null;
 
   const pos = myMove ? local.pos : view;
-  // Checkers glide: a landed checker flies in from the point (or bar) it left; keyed on every local step too.
+  // Checkers glide point to point (stable ids), hits go to the bar, bear-offs to the tray; keyed on every local step,
+  // the undo window and a pending roll too.
+  const ids = usePieceIds(cells(pos), cellDist);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, `${lastSeq}-${steps.length}`);
+  useFlip(root, `${lastSeq}-${steps.length}-${!!queued}-${rolling}`);
+  const offPop = [usePop(pos.off[0]), usePop(pos.off[1])];
+  const cubePop = usePop(view.cube.value);
   const trailSeat = myMove && steps.length ? me : 1 - me;
   const offTrail = trails.find((t) => t.to === 'off');
   const pips: [number, number] = [pipCount(pos, 0), pipCount(pos, 1)];
@@ -109,7 +140,8 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
     const waiting = view.phase === 'cube' ? 1 - view.current : view.current;
-    if (waiting === mySeat) {
+    if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
+    else if (waiting === mySeat) {
       status = { tone: 'mine', text: view.phase === 'cube' ? `حریف بازی را دو برابر کرد (${fa(view.cube.value * 2)} امتیاز)` : view.phase === 'roll' ? 'نوبت شماست: تاس بریزید یا دوبل کنید' : complete ? 'حرکت کامل شد' : view.bar[me]! > 0 && !steps.length ? 'اول مهره زده‌شده را از بار وارد کنید' : 'نوبت شماست: یک مهره را بزنید' };
     } else status = { tone: 'wait', text: view.phase === 'cube' ? `${seatName(waiting)} درباره دوبل تصمیم می‌گیرد` : `نوبت ${seatName(waiting)}` };
   }
@@ -131,12 +163,12 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
             <span className={`bgm-pl__chip bgm-pl__chip--${s === 0 ? 'ivory' : 'ebony'}`} aria-hidden="true" />
             <bdi className="bgm-pl__name">{name(s)}</bdi>
             <span className="bgm-pl__stat" title="مجموع فاصله تا بیرون بردن">پیپ {fa(pips[s]!)}</span>
-            <span className="bgm-pl__stat">بیرون {fa(pos.off[s]!)} از {fa(CHECKERS)}</span>
+            <span key={pos.off[s]} className={`bgm-pl__stat ${offPop[s]}`}>بیرون {fa(pos.off[s]!)} از {fa(CHECKERS)}</span>
           </div>
         ))}
         {view.rules.cube && (
           <div className="bgm-cube" aria-label={`کیوب ${fa(view.cube.value)}${view.cube.owner === null ? '، وسط' : view.cube.owner === me ? '، دست شما' : '، دست حریف'}`}>
-            <span className="bgm-cube__face" aria-hidden="true">{fa(view.cube.value === 1 ? 64 : view.cube.value)}</span>
+            <span key={view.cube.value} className={`bgm-cube__face ${cubePop}`} aria-hidden="true">{fa(view.cube.value === 1 ? 64 : view.cube.value)}</span>
             <small>{view.cube.owner === null ? 'کیوب وسط' : view.cube.owner === me ? 'کیوب دست شما' : 'کیوب دست حریف'}</small>
           </div>
         )}
@@ -222,7 +254,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
               const c = slot(v, k);
               const top = k === Math.min(count, 5) - 1;
               return (
-                <g key={`${i}-${k}`} className="bgm-ck" pointerEvents="none" data-flip={`ck-${seat}-${i}-${k}`}
+                <g key={ids[cellOf.pt(i, k)]} className="bgm-ck" pointerEvents="none" data-flip={`ck-${ids[cellOf.pt(i, k)]}`}
                   {...(top && landTrail ? { 'data-flip-from': landTrail.from === 'bar' ? 'bar' : `pt-${vOf(landTrail.from)}` } : {})}>
                   <Checker x={c.x} y={c.y} seat={seat} />
                   {top && count > 5 && <text x={c.x} y={c.y + 7} className={`bgm-count bgm-count--${seat === 0 ? 'ivory' : 'ebony'}`}>{fa(count)}</text>}
@@ -243,7 +275,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
                 aria-label={`بار: ${fa(n)} مهره ${seat === me ? 'شما' : 'حریف'}${isSrc ? '، اول این را وارد کنید' : ''}`}
                 onClick={() => seat === me && tapSource('bar')} onKeyDown={(e) => { if (seat === me && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapSource('bar'); } }}>
                 {Array.from({ length: Math.min(n, 3) }, (_, k) => (
-                  <g key={k} data-flip={`bar-${seat}-${k}`}><Checker x={(BAR_L + BAR_R) / 2} y={bottom ? H / 2 + 46 + k * 2 * R * 0.9 : H / 2 - 46 - k * 2 * R * 0.9} seat={seat} /></g>
+                  <g key={ids[cellOf.bar(seat, k)]} data-flip={`ck-${ids[cellOf.bar(seat, k)]}`}><Checker x={(BAR_L + BAR_R) / 2} y={bottom ? H / 2 + 46 + k * 2 * R * 0.9 : H / 2 - 46 - k * 2 * R * 0.9} seat={seat} /></g>
                 ))}
                 {n > 1 && <text x={(BAR_L + BAR_R) / 2} y={bottom ? H / 2 + 26 : H / 2 - 16} className="bgm-barcount">{fa(n)}</text>}
               </g>
@@ -261,7 +293,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
                 onClick={() => land && tapLanding('off')} onKeyDown={(e) => { if (land && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapLanding('off'); } }}>
                 <rect x={RIGHT + 8} y={bottom ? H / 2 + 6 : F} width={TRAY - 16} height={H / 2 - F - 6} rx="8" fill="transparent" />
                 {Array.from({ length: n }, (_, k) => (
-                  <rect key={k} data-flip={`slab-${seat}-${k}`} {...(offTrail && trailSeat === seat && k === n - 1 ? { 'data-flip-from': `pt-${vOf(offTrail.from as number)}` } : {})} x={RIGHT + 14} y={bottom ? H - F - 6 - (k + 1) * 17 : F + 6 + k * 17} width={TRAY - 28} height={14} rx="4"
+                  <rect key={ids[cellOf.off(seat, k)]} data-flip={`ck-${ids[cellOf.off(seat, k)]}`} {...(offTrail && trailSeat === seat && k === n - 1 ? { 'data-flip-from': `pt-${vOf(offTrail.from as number)}` } : {})} x={RIGHT + 14} y={bottom ? H - F - 6 - (k + 1) * 17 : F + 6 + k * 17} width={TRAY - 28} height={14} rx="4"
                     className={`bgm-slab bgm-slab--${seat === 0 ? 'ivory' : 'ebony'}`} />
                 ))}
                 {land && <rect x={RIGHT + 10} y={bottom ? H / 2 + 8 : F + 2} width={TRAY - 20} height={H / 2 - F - 10} rx="8" className="bgm-tray__glow" />}
@@ -280,6 +312,15 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
               ))}
             </g>
           )}
+          {rolling && (
+            <g className="bgm-dice" transform={`translate(${(BAR_R + RIGHT) / 2} ${H / 2})`} aria-label="تاس‌ها در حال چرخیدن">
+              {[0, 1].map((k) => (
+                <g key={k} className="bgm-die" transform={`translate(${(k - 0.5) * 72} 0) scale(1.2)`}>
+                  <g className="bg-tumble" style={{ ['--i' as string]: k }}><Die value={6} light={view.current === 0} /></g>
+                </g>
+              ))}
+            </g>
+          )}
           {lastPass && !myMove && (
             <text x={(BAR_R + RIGHT) / 2} y={H / 2 + 60} className="bgm-passnote">{lastPass.seat === me ? 'حرکتی ممکن نبود' : `${seatName(lastPass.seat)} حرکتی نداشت`}</text>
           )}
@@ -289,7 +330,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
       <div className="bgm__actions">
         {myMove && steps.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={undoStep}>برگرداندن حرکت</Button>}
         {complete && !busy && !sent && <Button size="sm" onClick={() => send(steps)}>ثبت حرکت</Button>}
-        {has('roll') && <Button disabled={busy} onClick={() => onAction({ type: 'roll' })}>تاس بریز</Button>}
+        {has('roll') && <Button disabled={busy} onClick={() => { setRollAsked(true); onAction({ type: 'roll' }); }}>تاس بریز</Button>}
         {has('double') && <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'double' })}>دوبل (×۲)</Button>}
         {has('take') && <Button disabled={busy} onClick={() => onAction({ type: 'take' })}>قبول ({fa(view.cube.value * 2)} امتیاز)</Button>}
         {has('drop') && <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'drop' })}>واگذار ({fa(view.cube.value)} امتیاز)</Button>}

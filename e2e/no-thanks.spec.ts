@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «نه، مرسی!» end to end: the tutorial and a full three-player game with the two big buttons.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -54,4 +54,33 @@ test('three players play «نه، مرسی!» to the end', async ({ browser }, i
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the taken card flies into your row with its chips at once, and undo puts it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/no-thanks');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۵/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const id = await p.locator('.nt-card--big').getAttribute('data-flip');
+  const inMiddle = p.locator(`.nt__middle [data-flip="${id}"]`);
+  const inRow = p.locator(`.nt-pl--me [data-flip="${id}"]`);
+  await p.locator('.nt-btn--hint').click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(inRow).toBeVisible();
+  await expect(inMiddle).toHaveCount(0);
+  await p.waitForTimeout(900);
+  const took = await motionLog(p);
+  expect(took.some((m) => m.ghost === 'fly')).toBe(true);
+  expect(took.some((m) => m.ghost === 'exit')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inMiddle).toBeVisible();
+  await expect(inRow).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

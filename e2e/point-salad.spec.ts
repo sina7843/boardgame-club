@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «بازار سبزی» end to end: the tutorial (take a rule, take two vegetables, flip a useless rule) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -14,13 +14,13 @@ test('interactive tutorial: rule, vegetables, flip', async ({ browser }, info) =
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-rule'), fullPage: true });
-  await p.locator('.ps-pile.ps-hint').click();
+  await p.locator('.ps .ps-pile.ps-hint').click();
   for (const step of ['۲', '۳']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۳`))).toBeVisible();
     // Step 3 flips the «most lettuce» rule first (flipping is not hinted by the renderer).
-    if (step === '۳') await p.locator('.ps-pl--me .ps-flip', { hasText: 'بیشترین' }).click();
-    await p.locator('.ps-slot.ps-hint').first().click();
-    await p.locator('.ps-slot.ps-hint').first().click();
+    if (step === '۳') await p.locator('.ps .ps-pl--me .ps-flip', { hasText: 'بیشترین' }).click();
+    await p.locator('.ps .ps-slot.ps-hint').first().click();
+    await p.locator('.ps .ps-slot.ps-hint').first().click();
     await p.getByRole('button', { name: /^برداشتن .* سبزی$/ }).click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
@@ -28,11 +28,11 @@ test('interactive tutorial: rule, vegetables, flip', async ({ browser }, info) =
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const piles = p.locator('.ps-pile:not([disabled]):not(.ps-pile--empty)');
-  const slots = p.locator('.ps-slot:not([disabled]):not(.ps-slot--empty)');
+  const piles = p.locator('.ps .ps-pile:not([disabled]):not(.ps-pile--empty)');
+  const slots = p.locator('.ps .ps-slot:not([disabled]):not(.ps-slot--empty)');
   const take = p.getByRole('button', { name: /^برداشتن .* سبزی$/ });
   if (!(await piles.count()) && !(await slots.count())) return false;
-  if (n % 6 === 3) { const f = p.locator('.ps-flip'); if (await f.count()) await f.first().click(); }
+  if (n % 6 === 3) { const f = p.locator('.ps .ps-flip'); if (await f.count()) await f.first().click(); }
   if ((n % 3 === 0 || !(await slots.count())) && await piles.count()) { await piles.nth(n % (await piles.count())).click(); return true; }
   const k = await slots.count();
   await slots.nth(0).click();
@@ -71,4 +71,31 @@ test('three players play «بازار سبزی» to the result', async ({ browse
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the taken rule flies to my row at once, and undo flies it back to its crate', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/point-salad');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۳/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const pile = p.locator('.ps .ps-pile.ps-hint');
+  const id = await pile.locator('[data-flip]').getAttribute('data-flip');
+  const inMarket = p.locator(`.ps .ps__market [data-flip="${id}"]`), mine = p.locator(`.ps .ps-pl--me [data-flip="${id}"]`);
+  await motionLog(p);
+  await pile.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(mine).toBeVisible();
+  await expect(inMarket).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inMarket).toBeVisible();
+  await expect(mine).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

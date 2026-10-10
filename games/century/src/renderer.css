@@ -67,3 +67,5 @@
 @keyframes ct-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .ct * { animation: none !important; transition: none !important; } }
 .ct > .ct__orders, .ct > .ct__market { inline-size: min(100%, 38rem); justify-self: center; align-items: start; }
+.ct-pl__score { display: inline-block; }
+.ct-caravan__n { display: inline-block; color: #e3d2b2; font-size: 0.7rem; }

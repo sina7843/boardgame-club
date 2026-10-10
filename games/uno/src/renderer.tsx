@@ -80,6 +80,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
 
   let status: { tone: 'mine' | 'wait' | 'done'; text: string } | null;
   if (view.outcome) status = null;
+  else if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
   else if (myTurn && view.phase === 'wd4') status = { tone: 'mine', text: `${seatName(view.wd4!.offender)} برای شما +۴ گذاشت؛ تصمیم بگیرید` };
   else if (myTurn && view.phase === 'chooseColor') status = { tone: 'mine', text: 'کارت شروع «رنگی» است؛ رنگ را انتخاب کنید' };
   else if (myTurn && view.phase === 'drawn') status = { tone: 'mine', text: 'کارت کشیده‌شده قابل بازی است' };

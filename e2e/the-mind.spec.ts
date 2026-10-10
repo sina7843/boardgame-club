@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «هم‌فکر» end to end: the tutorial (one teaching level: plays, a teammate's mistake, a throwing star) and a full
 // three-player cooperative game: the lowest card is played each time, with a couple of deliberate mistakes and a
@@ -22,6 +22,34 @@ test('interactive tutorial: plays, a mistake, a throwing star', async ({ browser
     else await p.locator('.tm-play.tm-hint').click();
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the played card flies to the pile at once, and undo flies it back to the hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/the-mind');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۴/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const card = await p.locator('.tm-play.tm-hint').getAttribute('data-card');
+  const inHand = p.locator(`.tm__hand [data-flip="c-${card}"]`);
+  const onPile = p.locator(`.tm__pile [data-flip="c-${card}"]`);
+  await p.locator('.tm-play.tm-hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(onPile).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inHand).toBeVisible();
+  await expect(onPile).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.context().close();
 });
 

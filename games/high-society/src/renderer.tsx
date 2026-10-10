@@ -18,12 +18,12 @@ const SPECIAL: Record<string, { big: string; name: string }> = {
 const ART = { lux: luxuryArt, good: prestigeArt, bad: disgraceArt };
 const fmtStatus = (v: number) => (Number.isInteger(v) ? fa(v) : v.toLocaleString('fa-IR', { maximumFractionDigits: 2 }));
 
-export function Card({ c, size = 'md', flip, flipFrom }: { c: StatusCard; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) {
+export function Card({ c, size = 'md', flip, flipFrom, exit }: { c: StatusCard; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
   const v = lux(c);
   const sp = SPECIAL[c];
   const kind = v ? 'lux' : isDisgrace(c) ? 'bad' : 'good';
   return (
-    <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom}
+    <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}
       aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}>
       <img className="hs-card__art" src={ART[kind]} alt="" draggable={false} />
       <span className="hs-card__big">{v ? fa(v) : sp!.big}</span>
@@ -32,15 +32,38 @@ export function Card({ c, size = 'md', flip, flipFrom }: { c: StatusCard; size?:
   );
 }
 
-const Note = ({ v, size = 'md', flip, flipFrom }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) => <span className={`hs-note hs-note--${size}`} data-v={v} data-flip={flip} data-flip-from={flipFrom}><b>{fa(v)}</b></span>;
+const Note = ({ v, size = 'md', flip, flipFrom, exit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) => <span className={`hs-note hs-note--${size}`} data-v={v} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}><b>{fa(v)}</b></span>;
 
-export default function HighSocietyRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<HighSocietyView>) {
+/** My queued bid / pass applied to the view: banknotes move between hand and bid row (all known to me). */
+function preview(v: HighSocietyView, q: { type: string; cards?: number[] } | null | undefined, me: number | null): HighSocietyView {
+  if (!q || me === null || !v.hand) return v;
+  const bids = v.bids.slice(), passed = v.passed.slice();
+  if (q.type === 'bid' && q.cards) {
+    const rest = v.hand.slice();
+    for (const c of q.cards) rest.splice(rest.indexOf(c), 1);
+    bids[me] = [...bids[me]!, ...q.cards];
+    return { ...v, hand: rest, bids };
+  }
+  if (q.type === 'pass') {
+    passed[me] = true;
+    // Passing on a luxury takes the open bid back; on a disgrace the server decides what happens to the money.
+    if (v.card && isDisgrace(v.card)) return { ...v, passed };
+    const hand = [...v.hand, ...bids[me]!].sort((a, b) => a - b);
+    bids[me] = [];
+    return { ...v, hand, bids, passed };
+  }
+  return v;
+}
+
+export default function HighSocietyRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HighSocietyView>) {
+  const q = queued as { type: string; cards?: number[] } | null | undefined;
+  const view = preview(served, q, mySeat);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${q ? JSON.stringify(q) : ''}`);
   const bidHint = legalActions.find((a) => a.type === 'bid') as { need: number } | undefined;
   const canPass = legalActions.some((a) => a.type === 'pass');
   const [sel, setSel] = useState<number[]>([]);
-  useEffect(() => { setSel([]); }, [view.seq]);
+  useEffect(() => { setSel([]); }, [view.seq, queued]);
   const hint = expected as unknown as { type: string; cards?: number[] } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const order = mySeat === null ? view.passed.map((_, k) => k) : [...view.passed.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
@@ -50,6 +73,8 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
   const disgrace = view.card ? isDisgrace(view.card) : false;
   const myTurn = !!bidHint || canPass;
   const status_ = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: disgrace ? 'پول بگذارید یا کنار بکشید و رسوایی را بپذیرید' : 'پیشنهاد بالاتر بدهید یا کنار بکشید' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const last = view.last;
@@ -91,8 +116,8 @@ export default function HighSocietyRenderer({ view, legalActions, mySeat, seatNa
                 {view.faux[s] && <span className="hs-pl__flag">گاف در انتظار</span>}
                 {!view.outcome && view.passed[s] && <span className="hs-pl__flag">کنار کشید</span>}
               </div>
-              {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid">{view.bids[s]!.map((v) => <Note key={v} v={v} size="sm" flip={`n-${s}-${v}`} flipFrom={`seat-${s}`} />)}</div>}
-              {view.won[s]!.length > 0 && <div className="hs-pl__won">{view.won[s]!.map((c, i) => <Card key={i} c={c} size="sm" flip={c === 'prestige' ? `w${s}-prestige.${view.won[s]!.slice(0, i).filter((x) => x === c).length}` : `c-${c}`} flipFrom={last?.card === c && last.seat === s ? 'stage' : undefined} />)}</div>}
+              {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid">{view.bids[s]!.map((v) => <Note key={v} v={v} size="sm" flip={`n-${s}-${v}`} flipFrom={`seat-${s}`} exit="drop" />)}</div>}
+              {view.won[s]!.length > 0 && <div className="hs-pl__won">{view.won[s]!.map((c, i) => <Card key={i} c={c} size="sm" flip={c === 'prestige' ? `w${s}-prestige.${view.won[s]!.slice(0, i).filter((x) => x === c).length}` : `c-${c}`} flipFrom={last?.card === c && last.seat === s ? 'stage' : undefined} exit="drop" />)}</div>}
             </li>
           );
         })}

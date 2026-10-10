@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { player, recordMotion } from './helpers.ts';
 
 // «کوریدور» end to end: the tutorial (jump, step around walls, own wall, winning step) and a two-player race that mixes
 // walls and steps, played through the board (lit tiles, groove crossings).
@@ -66,4 +66,28 @@ test('two players race to the far edge with walls on the way', async ({ browser 
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the pawn slides to the tapped tile at once, and undo slides it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/quoridor');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  const pawns = p.locator('.qd-pawn');
+  const where = () => pawns.evaluateAll((ps) => ps.map((x) => (x as SVGElement).style.transform));
+  const sliding = () => pawns.evaluateAll((ps) => ps.some((x) => x.getAnimations().length > 0));
+  const start = await where();
+  await p.locator('.qd-tile--hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect.poll(where).not.toEqual(start);
+  expect(await sliding()).toBe(true);
+  await p.waitForTimeout(800);
+  await undo.click();
+  await expect.poll(where).toEqual(start);
+  expect(await sliding()).toBe(true);
+  await p.context().close();
 });

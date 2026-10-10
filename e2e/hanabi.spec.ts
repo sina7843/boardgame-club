@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «آتش‌بازی» end to end: the tutorial (clues, plays, a discard and the final round) and a full three-player cooperative game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -13,15 +13,15 @@ test('interactive tutorial: colour and number clues, play, discard, final round'
   await p.goto('/games/hanabi');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۶`))).toBeVisible();
-  const clue = async () => { await p.locator('.hb-clueBtn.hb-hint').click(); await p.locator('.hb-cl.hb-hint').click(); };
-  const play = async () => { await p.locator('.hb-mine.hb-hint').click(); await p.getByRole('button', { name: 'بازی', exact: true }).click(); };
+  const clue = async () => { await p.locator('.hb .hb-clueBtn.hb-hint').click(); await p.locator('.hb .hb-cl.hb-hint').click(); };
+  const play = async () => { await p.locator('.hb .hb-mine.hb-hint').click(); await p.getByRole('button', { name: 'بازی', exact: true }).click(); };
   await step('۱'); await clue();
   await step('۲'); await play();
   await step('۳'); await play();
   await step('۴');
-  await p.locator('.hb-clueBtn.hb-hint').click();
+  await p.locator('.hb .hb-clueBtn.hb-hint').click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-clue'), fullPage: true });
-  await p.locator('.hb-cl.hb-hint').click();
+  await p.locator('.hb .hb-cl.hb-hint').click();
   await step('۵');
   await p.getByRole('button', { name: 'کارت ۱ شما' }).click();
   await p.getByRole('button', { name: 'دور انداختن' }).click();
@@ -31,10 +31,10 @@ test('interactive tutorial: colour and number clues, play, discard, final round'
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const mine = p.locator('.hb-mine:not([disabled])');
+  const mine = p.locator('.hb .hb-mine:not([disabled])');
   if (!(await mine.count())) return false;
-  const clue = p.locator('.hb-clueBtn');
-  if (n % 3 === 0 && await clue.count()) { await clue.first().click(); await p.locator('.hb-cl').first().click(); return true; }
+  const clue = p.locator('.hb .hb-clueBtn');
+  if (n % 3 === 0 && await clue.count()) { await clue.first().click(); await p.locator('.hb .hb-cl').first().click(); return true; }
   await mine.first().click();
   const discard = p.getByRole('button', { name: 'دور انداختن' });
   if (n % 3 === 1 && await discard.isEnabled()) await discard.click(); else await p.getByRole('button', { name: 'بازی', exact: true }).click();
@@ -71,4 +71,37 @@ test('three players play «آتش‌بازی» to the result', async ({ browser 
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: my played card leaves the hand face down at once, undo brings it back, then it lands on its firework', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/hanabi');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.locator('.hb .hb-clueBtn.hb-hint').click(); await p.locator('.hb .hb-cl.hb-hint').click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const hand = p.locator('.hb .hb__hand .hb-mine'), pending = p.locator('.hb .hb__pending .hb-mine--pending');
+  const n = await hand.count();
+  const play = async () => { await p.locator('.hb .hb-mine.hb-hint').click(); await p.getByRole('button', { name: 'بازی', exact: true }).click(); };
+  await motionLog(p);
+  await play();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(pending).toBeVisible();
+  await expect(hand).toHaveCount(n - 1);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(pending).toHaveCount(0);
+  await expect(hand).toHaveCount(n);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await play();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۶/)).toBeVisible({ timeout: 10_000 });
+  await expect(pending).toHaveCount(0);
+  await expect(hand).toHaveCount(n);
+  await p.context().close();
 });

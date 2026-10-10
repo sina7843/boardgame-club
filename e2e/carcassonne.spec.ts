@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «قلعه‌سازان» end to end: the tutorial (road follower, closed road, city + surrounded monastery, final scoring) and a
 // full two-player game.
@@ -16,9 +16,10 @@ test('interactive tutorial: road, city, monastery, final scoring', async ({ brow
   for (const step of ['۱', '۲', '۳', '۴']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
     for (let i = 0; i < 4 && (await p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`)).count()); i++) {
-      const h = p.locator('.cc button.cc-hint').first();
-      if (!(await h.count())) break;
-      await h.click();
+      const h = p.locator('.cc button.cc-hint:not([disabled])').first();
+      // After the last click the step text lingers while the move is on its way; wait for the next hint instead.
+      if (!(await h.waitFor({ timeout: 3000 }).then(() => true, () => false))) break;
+      await h.click({ timeout: 3000 }).catch(() => {});
       if (step === '۴' && i === 1) await p.screenshot({ path: shot(info.project.name, 'tutorial-follower'), fullPage: true });
     }
   }
@@ -66,4 +67,31 @@ test('two players play «قلعه‌سازان» to the result', async ({ browse
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the placed tile flies from the dock to the map at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/carcassonne');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const onMap = p.locator('.cc__map [data-flip^="drawn-"]');
+  const inDock = p.locator('.cc__drawn [data-flip^="drawn-"]');
+  await motionLog(p);
+  for (let i = 0; i < 4 && !(await undo.count()); i++) await p.locator('.cc button.cc-hint:not([disabled])').first().click();
+  await expect(undo).toBeVisible();
+  await expect(onMap).toHaveCount(1);
+  await expect(inDock).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inDock).toBeVisible();
+  await expect(onMap).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

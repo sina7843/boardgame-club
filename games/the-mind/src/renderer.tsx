@@ -14,22 +14,29 @@ const fa = (n: number) => n.toLocaleString('fa-IR');
 const Heart = ({ on }: { on: boolean }) => <img src={heart} alt="" className={`tm-ico tm-ico--life ${on ? 'on' : ''}`} aria-hidden="true" />;
 const Star = ({ on }: { on: boolean }) => <img src={star} alt="" className={`tm-ico tm-ico--star ${on ? 'on' : ''}`} aria-hidden="true" />;
 
-export function Num({ n, size = 'md', flip, flipFrom }: { n: number; size?: 'sm' | 'md' | 'lg'; flip?: string; flipFrom?: string }) {
-  return <span className={['tm-card', `tm-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} style={{ ['--h' as string]: Math.round(220 + n * 1.3) }}><b>{fa(n)}</b></span>;
+export function Num({ n, size = 'md', flip, flipFrom, exit }: { n: number; size?: 'sm' | 'md' | 'lg'; flip?: string; flipFrom?: string; exit?: string }) {
+  return <span className={['tm-card', `tm-card--${size}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} style={{ ['--h' as string]: Math.round(220 + n * 1.3) }}><b>{fa(n)}</b></span>;
 }
 
-export default function TheMindRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<TheMindView>) {
+export default function TheMindRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<TheMindView>) {
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${queued?.type ?? ''}`);
+  const busy = sending || !!queued;
   const play = legalActions.find((a) => a.type === 'play') as { card: number } | undefined;
   const star = legalActions.find((a) => a.type === 'star') as { on: boolean } | undefined;
   const hint = expected as unknown as { type: string } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
-  const top = view.pile.at(-1);
+  // Undo window: my lowest card (the one «بگذار» plays) lies on the pile at once; undo takes it back to the hand.
+  const pending = queued?.type === 'play' ? play?.card : undefined;
+  const hand = view.hand?.filter((n) => n !== pending) ?? null;
+  const pile = pending === undefined ? view.pile : [...view.pile, pending];
+  const top = pile.at(-1);
   const last = view.last;
   const others = view.handCount.map((_, k) => k).filter((k) => k !== mySeat);
   const voting = view.votes.some(Boolean);
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : play ? { tone: 'mine' as const, text: 'وقتی حس کردید نوبت کارت شماست، بگذارید' }
       : { tone: 'wait' as const, text: 'کارت‌هایتان تمام شد؛ منتظر هم‌تیمی‌ها' };
 
@@ -46,7 +53,7 @@ export default function TheMindRenderer({ view, legalActions, mySeat, seatName, 
       <section className="tm__center" aria-label="کارت‌های زمین">
         <div className="tm__pile" data-flip-anchor="deck">
           {top !== undefined ? <Num n={top} size="lg" key={top} flip={`c-${top}`} flipFrom={last?.card === top && last.seat !== undefined && last.seat !== mySeat ? `seat-${last.seat}` : 'deck'} /> : <span className="tm__empty">{view.level > 1 && last?.kind === 'level' ? `مرحلهٔ ${fa(view.level)} شروع شد` : 'هنوز کارتی زمین نیامده'}</span>}
-          {view.pile.length > 1 && <span className="tm__under">{view.pile.slice(-6, -1).map((n) => fa(n)).join(' ، ')}</span>}
+          {pile.length > 1 && <span className="tm__under">{pile.slice(-6, -1).map((n) => fa(n)).join(' ، ')}</span>}
         </div>
         {last && (last.kind === 'mistake' || last.kind === 'star') && (
           <p className={`tm__note tm__note--${last.kind}`} role="status" key={view.seq}>
@@ -68,11 +75,11 @@ export default function TheMindRenderer({ view, legalActions, mySeat, seatName, 
         ))}
       </ul>
 
-      {view.hand && !view.outcome && (
+      {hand && !view.outcome && (
         <section className="tm__me" aria-label="کارت‌های شما">
-          <div className="tm__hand">{view.hand.map((n, i) => <Num key={n} n={n} size={i === 0 ? 'md' : 'sm'} flip={`c-${n}`} flipFrom="deck" />)}{!view.hand.length && <span className="tm__empty">کارتی ندارید</span>}</div>
+          <div className="tm__hand">{hand.map((n, i) => <Num key={n} n={n} size={i === 0 ? 'md' : 'sm'} flip={`c-${n}`} flipFrom="deck" exit="drop" />)}{!hand.length && <span className="tm__empty">کارتی ندارید</span>}</div>
           <div className="tm__actions">
-            {play && <button type="button" data-card={play.card} className={`tm-play ${hint?.type === 'play' ? 'tm-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'play' })}>بگذار <b>{fa(play.card)}</b></button>}
+            {play && pending === undefined && <button type="button" data-card={play.card} className={`tm-play ${hint?.type === 'play' ? 'tm-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'play' })}>بگذار <b>{fa(play.card)}</b></button>}
             {star && <button type="button" className={`tm-star ${!star.on ? 'tm-star--on' : ''}`} disabled={busy} aria-pressed={!star.on} onClick={() => onAction({ type: 'star', on: star.on })}>
               <Star on /> {star.on ? (voting ? 'من هم موافقم' : 'پیشنهاد ستاره پرتابی') : 'پس گرفتن موافقت'}
             </button>}

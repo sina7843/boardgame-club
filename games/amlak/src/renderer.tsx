@@ -46,7 +46,22 @@ function rentRows(i: number): [string, string][] {
   return [];
 }
 
-export default function AmlakRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<AmlakView>) {
+export default function AmlakRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<AmlakView>) {
+  // Undo-window preview of the own buy / build: the ribbon or house is already on the board and the money already paid
+  // (all known to the client); undo clears `queued` and it animates back. The roll itself is never previewed.
+  const view = useMemo((): AmlakView => {
+    if (!queued || mySeat === null) return real;
+    const sq = queued.type === 'buy' ? real.p[mySeat]!.pos : queued.type === 'build' ? (queued.sq as number) : -1;
+    const b = BOARD[sq];
+    if (!b) return real;
+    const cost = queued.type === 'buy' ? priceOf(sq) : b.kind === 'street' ? b.house : 0;
+    return {
+      ...real,
+      owner: queued.type === 'buy' ? real.owner.map((o, i) => (i === sq ? mySeat : o)) : real.owner,
+      houses: queued.type === 'build' ? real.houses.map((h, i) => (i === sq ? h + 1 : h)) : real.houses,
+      p: real.p.map((q, s) => (s === mySeat ? { ...q, cash: q.cash - cost } : q))
+    };
+  }, [real, queued, mySeat]);
   const hints = legalActions as Hint[];
   const has = (t: string) => hints.some((h) => h.type === t);
   const send = (a: Record<string, unknown>) => { if (!busy) onAction({ type: a.type as string, ...a }); };
@@ -63,13 +78,18 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, latest?.seq ?? 0);
+  const lastOf = (t: LogEntry['t']) => [...view.log].reverse().find((e) => e.t === t)?.seq ?? 0;
+  const rollKey = lastOf('roll');
+  // My roll waits in the undo window or for the server: the dice tumble without pips until the result is thrown in.
+  const [rollAsked, setRollAsked] = useState(-1);
+  const rolling = queued?.type === 'roll' || (busy && rollAsked === rollKey);
+  useFlip(root, `${latest?.seq ?? 0}|${queued?.type ?? ''}|${rolling}`);
   const bidHint = hints.find((h) => h.type === 'bid');
   useEffect(() => { if (bidHint) setBid(bidHint.min!); }, [bidHint?.min]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const waiting = view.trade ? view.trade.to : view.phase === 'auction' ? view.auction!.turn : view.phase === 'debt' ? view.debts[0]!.seat : view.current;
   const mine = mySeat !== null && waiting === mySeat && !view.outcome;
-  const status = view.outcome ? null : mine
+  const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : mine
     ? { tone: 'mine' as const, text: view.trade ? 'پیشنهاد معامله برای شما' : view.phase === 'auction' ? 'مزایده: نوبت پیشنهاد شما' : view.phase === 'debt' ? 'بدهی دارید: پول جور کنید' : view.phase === 'buy' ? 'خرید یا مزایده؟' : view.phase === 'end' ? 'کارهای نوبت را انجام دهید یا نوبت را تمام کنید' : 'نوبت شماست: تاس بریزید' }
     : { tone: 'wait' as const, text: `در انتظار ${seatName(waiting)}${view.phase === 'auction' ? ' (مزایده)' : view.phase === 'debt' ? ' (بدهی)' : view.trade ? ' (پاسخ معامله)' : ''}` };
 
@@ -82,8 +102,6 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
   const pos = me ? me.pos : 0;
   const debt = view.debts[0];
   const card = view.lastCard ? cardById(view.lastCard.card) : null;
-  const lastOf = (t: LogEntry['t']) => [...view.log].reverse().find((e) => e.t === t)?.seq ?? 0;
-  const rollKey = lastOf('roll');
   const cardSeq = lastOf('card');
   // Show the drawn card during the turn it was drawn in.
   const showCard = !!card && cardSeq > lastOf('turn');
@@ -95,12 +113,12 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
       <div className="am-main">
         <div className="am-boardcol">
           <ZoomBoard label="صفحه املاک">
-            <AmlakBoard view={view} selected={selected} onSelect={(i) => setSelected(i === selected ? null : i)} seatName={seatName} rollKey={rollKey} />
+            <AmlakBoard view={view} selected={selected} onSelect={(i) => setSelected(i === selected ? null : i)} seatName={seatName} rollKey={rollKey} rolling={rolling} />
           </ZoomBoard>
           {selected !== null && <SquareCard view={view} i={selected} seatName={seatName} onClose={() => setSelected(null)} />}
         </div>
         <div className="am-side">
-          {showCard && card && <CardFace key={cardSeq} id={card.id} text={card.textFa} who={view.lastCard ? seatName(view.lastCard.seat) : ''} />}
+          {showCard && card && <CardFace key={cardSeq} seq={cardSeq} id={card.id} text={card.textFa} who={view.lastCard ? seatName(view.lastCard.seat) : ''} />}
 
           {mine && (
             <section className="am-panel am-panel--decide" aria-label="تصمیم">
@@ -117,7 +135,7 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
               )}
               {!view.trade && view.phase === 'roll' && (
                 <div className="am-row">
-                  <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => send({ type: 'roll' })}>تاس بریز</Button>
+                  <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { if (!busy) setRollAsked(rollKey); send({ type: 'roll' }); }}>تاس بریز</Button>
                   {has('payBail') && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'payBail' })}>پرداخت {money(BAIL)} و آزادی</Button>}
                   {has('useCard') && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'useCard' })}>کارت آزادی از زندان</Button>}
                 </div>
@@ -189,7 +207,7 @@ export default function AmlakRenderer({ view, legalActions, mySeat, seatName, bu
               const pl = view.p[seat]!;
               const owned = view.owner.map((o, i) => (o === seat ? i : -1)).filter((i) => i >= 0);
               return (
-                <li key={seat} className={['am-wallet', seat === view.current && !view.outcome ? 'am-wallet--turn' : '', pl.bankrupt ? 'am-wallet--out' : ''].join(' ')} style={{ ['--seat' as string]: SEAT_COLORS[seat] }}>
+                <li key={seat} data-flip-anchor={`seat-${seat}`} className={['am-wallet', seat === view.current && !view.outcome ? 'am-wallet--turn' : '', pl.bankrupt ? 'am-wallet--out' : ''].join(' ')} style={{ ['--seat' as string]: SEAT_COLORS[seat] }}>
                   <span className="am-wallet__pawn" aria-hidden="true"><svg viewBox="-20 -19 40 36"><Token seat={seat} /></svg><i>{fa(seat + 1)}</i></span>
                   <span className="am-wallet__who">
                     <bdi className="am-wallet__name">{seatName(seat)}</bdi>{seat === mySeat && <span className="am-wallet__me"> (شما)</span>}
@@ -261,10 +279,10 @@ function Deed({ view, i, seatName, compact }: { view: AmlakView; i: number; seat
 }
 
 /** The drawn card, face up: «شانس» or «صندوق». */
-function CardFace({ id, text, who }: { id: string; text: string; who: string }) {
+function CardFace({ id, text, who, seq }: { id: string; text: string; who: string; seq: number }) {
   const chance = id.startsWith('ch');
   return (
-    <figure className={chance ? 'am-cardface am-cardface--chance' : 'am-cardface am-cardface--chest'} aria-label={`${chance ? 'شانس' : 'صندوق'}: ${text}`}>
+    <figure data-flip={`card-${seq}`} data-flip-from={chance ? 'deck-chance' : 'deck-chest'} className={chance ? 'am-cardface am-cardface--chance' : 'am-cardface am-cardface--chest'} aria-label={`${chance ? 'شانس' : 'صندوق'}: ${text}`}>
       <span className="am-cardface__badge" aria-hidden="true">{chance ? '؟' : '▣'}</span>
       <figcaption><span className="am-cardface__kind">{chance ? 'شانس' : 'صندوق'} · <bdi>{who}</bdi></span>{text}</figcaption>
     </figure>

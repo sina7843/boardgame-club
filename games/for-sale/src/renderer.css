@@ -73,3 +73,5 @@ button.fs-sell:hover, button.fs-sell:focus-visible { box-shadow: 0 0 0 3px #ffd9
 @keyframes fs-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes fs-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .fs *, .fs__last { animation: none !important; transition: none !important; } }
+.fs-pl__got { position: absolute; inset: 0; pointer-events: none; }
+.fs-pl, .fs__mywon { position: relative; }

@@ -20,15 +20,13 @@
 .sto-worker--ghost { opacity: 0.7; }
 .sto-level circle { fill: #2457b0; stroke: #fff; stroke-width: 3px; }
 .sto-level text { font: 900 17px/1 var(--font, sans-serif); fill: #fff; text-anchor: middle; }
-.sto-worker--moved { animation: sto-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 .sto__actions { display: flex; justify-content: center; min-block-size: 2.25rem; }
 .sto__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
 @keyframes sto-march { to { stroke-dashoffset: -34; } }
 @keyframes sto-hint { 50% { fill: rgb(255 210 122 / 0.6); } }
-@keyframes sto-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .sto-litmark, .sto-sq--hint .sto-tile, .sto-worker--moved { animation: none; }
+  .sto-litmark, .sto-sq--hint .sto-tile { animation: none; }
 }

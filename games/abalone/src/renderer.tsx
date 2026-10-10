@@ -1,11 +1,24 @@
 // آبالون renderer: hexagonal walnut tray with dimples, black glass and white pearl marbles (SVG, geometry LTR).
 // Tap up to three of your marbles in a line; arrows appear for the legal directions; tap an arrow to move.
 import './renderer.css';
-import { useEffect, useMemo, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import marbleB from './art/marble-b.webp';
 import marbleW from './art/marble-w.webp';
-import { CELLS, DIRS, WIN, legalMoves, neighbor, type AbaloneView, type Color } from './rules.ts';
+import { CELLS, DIRS, WIN, legalMoves, neighbor, tryMove, type AbaloneView, type Color } from './rules.ts';
+
+type Board = (Color | null)[];
+type Move = { marbles: number[]; dir: number };
+/** The board after `mv` with every marble's id carried along (pushed-off marbles drop out). */
+function shift(board: Board, ids: (string | null)[], color: Color, mv: Move) {
+  const r = tryMove(board, color, mv.marbles, mv.dir);
+  if (!r) return null;
+  const out = ids.slice();
+  const moving = [...mv.marbles, ...r.pushed];
+  for (const c of moving) out[c] = null;
+  for (const c of moving) { const to = neighbor(c, mv.dir); if (to !== null) out[to] = ids[c]!; }
+  return { board: r.board, ids: out, pushed: r.pushed, lost: r.lost };
+}
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const R = 40, SIZE = 760, CX = SIZE / 2, CY = SIZE / 2;
@@ -24,7 +37,7 @@ function Tray({ n, color }: { n: number; color: Color }) {
   );
 }
 
-export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<AbaloneView>) {
+export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<AbaloneView>) {
   const me = mySeat ?? 0;
   const myColor: Color = view.colors[me]!;
   const flip = myColor === 'w';
@@ -38,7 +51,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
     if (flip) { dq = -dq; dr = -dr; }
     return { x: Math.sqrt(3) * (dq + dr / 2), y: 1.5 * dr };
   };
-  const canMove = legalActions.some((a) => a.type === 'move') && !busy;
+  const canMove = legalActions.some((a) => a.type === 'move') && !busy && !queued;
   const moves = useMemo(() => (canMove ? legalMoves(view.board, myColor) : []), [canMove, view.board, myColor]);
   const [sel, setSel] = useState<number[]>([]);
   useEffect(() => { setSel([]); }, [view.ply]);
@@ -56,13 +69,23 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
   };
   const go = (d: number) => { onAction({ type: 'move', marbles: [...sel].sort((a, b) => a - b), dir: d }); setSel([]); };
 
-  const last = view.history.at(-1);
-  // Cells that received a marble in the last move, with where it came from (for the slide).
-  const slides = new Map<number, number>();
-  if (last) {
-    for (const mcell of last.marbles) { const to = neighbor(mcell, last.dir); if (to !== null) slides.set(to, mcell); }
-    for (const pcell of last.pushed) { const to = neighbor(pcell, last.dir); if (to !== null && !slides.has(to)) slides.set(to, pcell); }
+  // Stable marble ids: each served move carries the ids along its line, so every marble glides one cell (FLIP).
+  const base = useRef<{ ply: number; board: Board; ids: (string | null)[] } | null>(null);
+  if (!base.current || base.current.ply !== view.ply) {
+    const prev = base.current, h = view.history.at(-1);
+    const next = prev && h && view.ply === prev.ply + 1 ? shift(prev.board, prev.ids, view.colors[h.seat]!, h) : null;
+    base.current = { ply: view.ply, board: view.board, ids: next?.ids ?? view.board.map((c, i) => (c ? `m${view.ply}-${i}` : null)) };
   }
+  // Undo-window preview: my queued move is already played on the board (fully known); undo slides it back.
+  const qMove = queued?.type === 'move' ? (queued as unknown as Move) : null;
+  const preview = qMove ? shift(view.board, base.current.ids, myColor, qMove) : null;
+  const board = preview?.board ?? view.board;
+  const ids = preview?.ids ?? base.current.ids;
+  const off = preview ? { ...view.off, [myColor === 'b' ? 'w' : 'b']: view.off[myColor === 'b' ? 'w' : 'b'] + preview.lost } : view.off;
+  const h = view.history.at(-1);
+  const last = preview ? { ...qMove!, pushed: preview.pushed, lost: preview.lost, seat: me, ply: view.ply + 1 } : h ? { ...h, ply: view.ply } : null;
+  const root = useRef<HTMLDivElement>(null);
+  useFlip(root, `${view.ply}|${qMove ? key(qMove.marbles) + qMove.dir : ''}`);
   const centroid = sel.length ? sel.map(xy).reduce((a, b) => ({ x: a.x + b.x / sel.length, y: a.y + b.y / sel.length }), { x: 0, y: 0 }) : null;
   const who = (c: Color) => (view.colors[0] === c ? (mySeat === 0 ? 'شما' : seatName(0)) : (mySeat === 1 ? 'شما' : seatName(1)));
   const status = view.outcome ? null
@@ -75,14 +98,14 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
   }).join(' ');
 
   return (
-    <div className="abl" data-ply={view.ply}>
+    <div className="abl" data-ply={view.ply} ref={root}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="abl__bar">
         {(['b', 'w'] as Color[]).map((c) => (
           <div key={c} className={['abl-side', view.turn === c && !view.outcome ? 'abl-side--turn' : ''].join(' ')}>
             <span className={`abl-side__m abl-side__m--${c}`} aria-hidden="true" />
             <bdi className="abl-side__name">{who(c)}</bdi>
-            <Tray n={view.off[c === 'b' ? 'w' : 'b']} color={c === 'b' ? 'w' : 'b'} />
+            <Tray n={off[c === 'b' ? 'w' : 'b']} color={c === 'b' ? 'w' : 'b'} />
           </div>
         ))}
       </div>
@@ -97,26 +120,23 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
           <polygon points={hexPts} fill="url(#abl-tray)" stroke="#c9a46a" strokeWidth="6" strokeLinejoin="round" />
           {CELLS.map((_, i) => {
             const { x, y } = xy(i);
-            const mine = view.board[i] === myColor && canMove;
+            const mine = board[i] === myColor && canMove;
             const isSel = sel.includes(i);
             const isHint = hint?.marbles.includes(i) && !isSel;
             return (
               <g key={i} role="gridcell" tabIndex={mine ? 0 : -1}
-                aria-label={`خانه ${fa(i + 1)}: ${view.board[i] ? (view.board[i] === myColor ? 'گوی شما' : 'گوی حریف') : 'خالی'}${isSel ? '، انتخاب‌شده' : ''}`}
+                aria-label={`خانه ${fa(i + 1)}: ${board[i] ? (board[i] === myColor ? 'گوی شما' : 'گوی حریف') : 'خالی'}${isSel ? '، انتخاب‌شده' : ''}`}
                 className={['abl-cell', mine ? 'abl-cell--mine' : '', isSel ? 'abl-cell--sel' : '', isHint ? 'abl-cell--hint' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
                 <circle cx={x} cy={y} r={R * 0.86} fill="url(#abl-dimple)" />
               </g>
             );
           })}
-          {view.board.map((c, i) => {
+          {board.map((c, i) => {
             if (!c) return null;
             const { x, y } = xy(i);
-            const from = slides.get(i);
-            const off = from !== undefined ? xy(from) : null;
             return (
-              <g key={`${i}-${off ? view.ply : 0}`} pointerEvents="none" className={['abl-m', off ? 'abl-m--moved' : '', sel.includes(i) ? 'abl-m--sel' : ''].join(' ')}
-                style={off ? { ['--dx' as string]: `${off.x - x}px`, ['--dy' as string]: `${off.y - y}px` } : undefined}>
+              <g key={ids[i]!} data-flip={ids[i]!} pointerEvents="none" className={sel.includes(i) ? 'abl-m abl-m--sel' : 'abl-m'}>
                 <g filter="url(#abl-shadow)">
                   {marbleImg(c, x, y)}
                 </g>
@@ -128,7 +148,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
             const edge = last.pushed[last.pushed.length - 1]!;
             const v = vec(last.dir);
             const { x, y } = xy(edge);
-            return <g key={`lost${view.ply}`}>{marbleImg(view.colors[last.seat] === 'b' ? 'w' : 'b', x + v.x * R, y + v.y * R, 'abl-lost')}</g>;
+            return <g key={`lost${last.ply}`}>{marbleImg(view.colors[last.seat] === 'b' ? 'w' : 'b', x + v.x * R, y + v.y * R, 'abl-lost')}</g>;
           })()}
           {centroid && dirs.map((d) => {
             const v = vec(d);

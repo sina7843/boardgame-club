@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «نبرد ستاره‌ها» end to end: the tutorial (buy, end turn, allies, outpost, scrap, final strike) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -82,4 +82,33 @@ test('two players play «نبرد ستاره‌ها» to the result', async ({ b
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: played cards fly from the hand to the fleet at once, and undo flies them back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/star-realms');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۸/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const hand = p.locator('.sr-hand [data-flip]');
+  const fleet = p.locator('.sr-fleet [data-flip]');
+  const n = await hand.count();
+  expect(n).toBeGreaterThan(0);
+  await p.locator('.sr .sr-hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(fleet).toHaveCount(n);
+  await expect(hand).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(hand).toHaveCount(n);
+  await expect(fleet).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

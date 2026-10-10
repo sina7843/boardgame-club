@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «تخته‌نرد» end to end: two clients play a full game through the board itself — tap a checker (or the bar), tap a
 // highlighted landing when there are two, bear off on the tray. Each finished turn is one command.
@@ -74,5 +74,45 @@ test('two players play «تخته‌نرد» to the result through the board', a
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   test.info().annotations.push({ type: 'interactions', description: String(n) });
+  for (const p of pages) await p.context().close();
+});
+
+test('instant roll: no undo, the dice tumble with no pips while the roll is in flight, then the result is thrown as dice', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+  const vp = info.project.use.viewport ?? null;
+  const pages = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار')];
+  const [host, guest] = pages as [Page, Page];
+  for (const p of pages) await recordMotion(p);
+  await host.goto('/games/backgammon/new');
+  await host.getByText('زنده', { exact: true }).click();
+  // With the cube in play each turn starts with an explicit roll (otherwise the server rolls at once).
+  await host.getByText('با کیوب', { exact: true }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
+  await guest.goto(invite);
+  await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
+  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  // The opening roll picks who moves first; that player plays the turn, then the other one rolls.
+  let mover = -1;
+  await expect.poll(async () => { for (const [i, p] of pages.entries()) if (await p.locator('.bgm-pt--src, .bgm-bar--src').count()) mover = i; return mover; }, { timeout: 15_000 }).toBeGreaterThanOrEqual(0);
+  const m = pages[mover]!, r = pages[1 - mover]!;
+  const before = await m.locator('.bgm').getAttribute('data-seq');
+  for (let k = 0; k < 8 && (await m.locator('.bgm').getAttribute('data-seq')) === before; k++) { await move(m); await m.waitForTimeout(250); }
+  const roll = r.getByRole('button', { name: /^تاس بریز/ });
+  await expect(roll).toBeEnabled({ timeout: 15_000 });
+  // The roll is sent at once (no undo window); hold its answer so the in-flight tumble can be seen.
+  await r.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  await motionLog(r);
+  await roll.click();
+  const tumbling = r.locator('.bgm-board .bg-tumble');
+  await expect(tumbling).toHaveCount(2);
+  await expect(r.locator('.bgm-board .bg-roll')).toHaveCount(0);
+  await expect(r.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  // No value before the server rolls: every pip of the tumbling dice is hidden.
+  expect(await tumbling.locator('circle').evaluateAll((cs) => cs.every((c) => getComputedStyle(c).visibility === 'hidden'))).toBe(true);
+  await expect(r.locator('.bgm-board .bg-roll').first()).toBeVisible({ timeout: 10_000 });
+  await expect(tumbling).toHaveCount(0);
+  await r.waitForTimeout(900);
+  expect((await motionLog(r)).some((x) => x.ghost === 'die')).toBe(true);
   for (const p of pages) await p.context().close();
 });

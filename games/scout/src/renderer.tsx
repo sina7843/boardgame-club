@@ -8,11 +8,11 @@ import { down, type HandCard, type ScoutView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
-export function Act({ c, size = 'md', flipped, flip, flipFrom }: { c: HandCard; size?: 'sm' | 'md'; flipped?: boolean; flip?: string; flipFrom?: string }) {
+export function Act({ c, size = 'md', flipped, flip, flipFrom, exit }: { c: HandCard; size?: 'sm' | 'md'; flipped?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
   const top = flipped ? down(c) : c.up;
   const bot = flipped ? c.up : down(c);
   return (
-    <span className={`sc-card sc-card--${size} sc-v--${top}`} aria-label={`${fa(top)} (پشت: ${fa(bot)})`} data-flip={flip} data-flip-from={flipFrom}>
+    <span className={`sc-card sc-card--${size} sc-v--${top}`} aria-label={`${fa(top)} (پشت: ${fa(bot)})`} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
       <b className="sc-card__top">{fa(top)}</b>
       <span className="sc-card__star" aria-hidden="true">★</span>
       <small className="sc-card__bot">{fa(bot)}</small>
@@ -20,9 +20,11 @@ export function Act({ c, size = 'md', flipped, flip, flipFrom }: { c: HandCard; 
   );
 }
 
-export default function ScoutRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<ScoutView>) {
+export default function ScoutRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<ScoutView>) {
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
+  const isQueued = !!queued;
+  const busy = sending || isQueued;
   const orient = legalActions.some((a) => a.type === 'orient');
   const showHint = legalActions.find((a) => a.type === 'show') as { options: { from: number; count: number }[] } | undefined;
   const scoutHint = legalActions.find((a) => a.type === 'scout') as { canShow: boolean } | undefined;
@@ -30,10 +32,24 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
   const [end, setEnd] = useState<'first' | 'last' | null>(null);
   const [flip, setFlip] = useState(false);
   const [andShow, setAndShow] = useState(false);
-  useEffect(() => { setRange(null); setEnd(null); setFlip(false); setAndShow(false); }, [view.seq]);
+  useEffect(() => { setRange(null); setEnd(null); setFlip(false); setAndShow(false); }, [view.seq, isQueued]);
   const hint = expected as unknown as { type: string; flip?: boolean; from?: number; count?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
-  const hand = view.hand ?? [];
+  // Undo window: my show / scout is shown at once from what I already hold (the cards and the ring); undo puts it back.
+  let hand = view.hand ?? [];
+  let t = view.table;
+  if (queued?.type === 'show' && mySeat !== null) {
+    const from = queued.from as number, count = queued.count as number;
+    t = { cards: hand.slice(from, from + count), owner: mySeat };
+    hand = [...hand.slice(0, from), ...hand.slice(from + count)];
+  } else if (queued?.type === 'scout' && t?.cards.length) {
+    const first = queued.end === 'first';
+    const card = first ? t.cards[0]! : t.cards.at(-1)!;
+    hand = [...hand];
+    hand.splice(queued.at as number, 0, queued.flip ? { id: card.id, up: down(card) } : card);
+    t = { cards: first ? t.cards.slice(1) : t.cards.slice(0, -1), owner: t.owner };
+    if (!t.cards.length) t = null;
+  }
   const sel = range ? { from: Math.min(...range), count: Math.abs(range[1] - range[0]) + 1 } : null;
   const showOk = !!sel && !!showHint?.options.some((o) => o.from === sel.from && o.count === sel.count);
   const tapHand = (i: number) => {
@@ -44,12 +60,13 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
   };
   const myTurn = !!showHint || !!scoutHint;
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : orient ? { tone: 'mine' as const, text: 'دستتان را همین‌طور نگه می‌دارید یا برمی‌گردانید؟' }
       : view.phase === 'orient' ? { tone: 'wait' as const, text: 'منتظر انتخاب جهت دست بقیه' }
         : myTurn ? { tone: 'mine' as const, text: view.phase === 'show' ? 'حالا نمایش بدهید' : end ? 'جای کارت را در دستتان بزنید' : 'نمایش بدهید یا از نمایش وسط دیدبانی کنید' }
           : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.scores.map((_, k) => k) : [...view.scores.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
-  const t = view.table;
   const inRange = (i: number) => !!sel && i >= sel.from && i < sel.from + sel.count;
   const hintRange = (i: number) => hint?.type === 'show' && !range && i >= hint.from! && i < hint.from! + hint.count!;
 
@@ -82,8 +99,8 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
                   const can = !!scoutHint && view.phase === 'play' && !!e && !busy && !range;
                   return can
                     ? <button key={i} type="button" className={`sc-end ${end === e ? 'sc-end--on' : ''}`} onClick={() => { setEnd(end === e ? null : e); setFlip(false); }} aria-pressed={end === e} aria-label={e === 'first' ? 'دیدبانی کارت اول' : 'دیدبانی کارت آخر'}>
-                      <Act c={c} flipped={end === e && flip} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} /></button>
-                    : <Act key={i} c={c} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} />;
+                      <Act c={c} flipped={end === e && flip} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} exit={`seat-${view.current}`} /></button>
+                    : <Act key={i} c={c} flip={`c-${c.id}`} flipFrom={`seat-${t.owner}`} exit={`seat-${view.current}`} />;
                 })}
               </div>
             </>

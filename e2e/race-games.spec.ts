@@ -1,5 +1,5 @@
-import { expect, test, type Page, type TestInfo, type Browser } from '@playwright/test';
-import { player } from './helpers.ts';
+import { expect, test, type Page, type TestInfo, type Browser, type Route } from '@playwright/test';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // Snakes and Ladders (3 players) and Ludo (2 players) played to the result through the real UI: roll, and in Ludo
 // tap a movable piece. Each click waits for the server to accept the command.
@@ -71,4 +71,80 @@ test('two players play Ludo until all four pieces of one player are home', async
     const roll = p.locator('.ld').getByRole('button', { name: 'تاس بریز' });
     return (await enabled(roll)) ? roll.first() : null;
   });
+});
+
+test('ludo: an instant roll (no undo) tumbles without pips while in flight until the result; a queued move walks the piece and undo walks it back', async ({ browser }, info) => {
+  only(info);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/ludo');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const roll = p.locator('.ld').getByRole('button', { name: 'تاس بریز' });
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const tumble = p.locator('.ld-die.bg-tumble');
+  // The roll is sent at once despite the window (no undo); hold its answer so the in-flight tumble can be seen.
+  const delay = async (route: Route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); };
+  await p.route('**/api/tables/*/commands', delay);
+  await roll.click();
+  await expect(tumble).toBeVisible();
+  await expect(p.locator('.ld-die circle')).toHaveCount(0);
+  await expect(undo).toHaveCount(0);
+  // Pips only once the server answered, then the die is thrown on the top layer and the piece walks.
+  await expect(p.getByRole('img', { name: 'تاس: ۶' })).toBeVisible({ timeout: 10_000 });
+  await expect(tumble).toHaveCount(0);
+  await p.unroute('**/api/tables/*/commands', delay);
+  await p.waitForTimeout(1500);
+  let log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'die')).toBe(true);
+  expect(log.some((m) => m.cls.includes('ld-piece'))).toBe(true);
+  await roll.click();
+  await expect(p.getByRole('img', { name: 'تاس: ۵' })).toBeVisible({ timeout: 10_000 });
+  await p.waitForTimeout(1200);
+  // Queued move: the piece walks to its target at once; undo walks it back.
+  const piece = p.locator('[data-pawn="0-3"]');
+  const home = await piece.boundingBox();
+  await motionLog(p);
+  await p.locator('.ld-choices button').filter({ hasText: 'مهره ۴' }).click();
+  await expect(undo).toBeVisible();
+  await expect.poll(async () => Math.round((await piece.boundingBox())!.x - home!.x), { timeout: 3000 }).not.toBe(0);
+  log = await motionLog(p);
+  expect(log.some((m) => m.cls.includes('ld-piece'))).toBe(true);
+  await undo.click();
+  await expect.poll(async () => Math.abs((await piece.boundingBox())!.x - home!.x) + Math.abs((await piece.boundingBox())!.y - home!.y), { timeout: 4000 }).toBeLessThan(2);
+  expect((await motionLog(p)).some((m) => m.cls.includes('ld-piece'))).toBe(true);
+  await p.context().close();
+});
+
+test('snakes: an instant roll (no undo) tumbles without pips while in flight, then is thrown and the token walks and climbs', async ({ browser }, info) => {
+  only(info);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/snakes-ladders');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const roll = p.locator('.sl').getByRole('button', { name: 'تاس بریز' });
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const tumble = p.locator('.sl-die.bg-tumble');
+  // The roll is sent at once despite the window (no undo); hold its answer so the in-flight tumble can be seen.
+  await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  // 5 from 66 → 71, ladder to 91. Pips only once the server answered; the die is thrown, the token walks.
+  await roll.click();
+  await expect(tumble).toBeVisible();
+  await expect(p.locator('.sl-die circle')).toHaveCount(0);
+  await expect(undo).toHaveCount(0);
+  // The tutorial opponent answers at once, so check the result on the board rather than on the die.
+  await expect(p.getByRole('img', { name: /نوآموز روی خانه ۹۱/ })).toBeVisible({ timeout: 10_000 });
+  await expect(p.locator('.sl-die circle')).not.toHaveCount(0);
+  await p.waitForTimeout(1500);
+  const log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'die')).toBe(true);
+  expect(log.some((m) => m.cls.includes('sl-walk'))).toBe(true);
+  await p.context().close();
 });

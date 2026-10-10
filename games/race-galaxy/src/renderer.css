@@ -49,7 +49,7 @@
 .rg-card__vp { inset-inline-end: 0.15rem; background: #ffd75a; color: #12122e; }
 .rg-card--sm .rg-card__cost, .rg-card--sm .rg-card__vp { font-size: 0.45rem; }
 
-.rg-drawn { display: flex; gap: 0.4rem; justify-content: center; padding: 0.45rem; border-radius: 12px; background: rgb(156 140 255 / 0.12); }
+.rg-drawn { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; padding: 0.45rem; border-radius: 12px; background: rgb(156 140 255 / 0.12); }
 .rg-hand { display: grid; gap: 0.4rem; justify-items: center; padding-block-start: 0.45rem; border-block-start: 1px dashed rgb(255 255 255 / 0.2); }
 .rg-pick { padding: 0; border: 0; background: none; color: inherit; font: inherit; border-radius: 10px; line-height: 0; transition: transform 0.18s; }
 .rg-pick:disabled { opacity: 0.55; cursor: default; }

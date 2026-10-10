@@ -75,3 +75,26 @@ test('two players play a short 9×9 game and agree on the count', async ({ brows
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
 });
+
+test('undo window: the own stone lands and its capture fades at once, and undo takes it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await p.emulateMedia({ reducedMotion: 'no-preference' });
+  await p.goto('/games/go');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const hint = p.locator('.go-pt--hint');
+  const point = ((await hint.getAttribute('aria-label')) ?? '').split(':')[0]!;
+  const cell = p.locator(`.go-pt[aria-label^="${point}:"]`);
+  await hint.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(cell).toHaveAttribute('aria-label', /سنگ شما/);
+  await expect(cell.locator('.go-stone.bg-land')).toHaveCount(1);
+  await expect(p.locator('.go-gone')).not.toHaveCount(0);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(cell.locator('.go-stone')).toHaveCount(0);
+  await expect(p.locator('.go-gone')).toHaveCount(0);
+  await p.context().close();
+});

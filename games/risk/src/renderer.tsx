@@ -134,6 +134,13 @@ function Pop({ v, className = '' }: { v: number; className?: string }) {
 }
 
 function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: (t: number) => void }) {
+  // Every army count shown on the map; a token bumps when its own count changed (placement, fortify, occupation).
+  const shown = view.armies.map((a, t) => a + (ms.draft[t] ?? 0));
+  // (A token remounts when its count changes, so the class may stay on afterwards without replaying.)
+  const pops = useRef({ shown, bumped: new Set<number>() });
+  shown.forEach((n, t) => { if (n !== pops.current.shown[t]) pops.current.bumped.add(t); });
+  pops.current.shown = shown;
+  const bumped = pops.current.bumped;
   const svg = useRef<SVGSVGElement>(null);
   const k = useMapScale(svg);
   const [hover, setHover] = useState<number | null>(null);
@@ -239,14 +246,14 @@ function WorldMap({ view, ms, onPick }: { view: RiskView; ms: MapState; onPick: 
 
         {REGIONS.map((r, t) => {
           const [x, y] = pos[t]!;
-          const draft = ms.draft[t] ?? 0, n = view.armies[t]! + draft;
+          const draft = ms.draft[t] ?? 0, n = shown[t]!;
           const inBattle = !!battle && (battle.from === t || battle.to === t);
           const named = showNames || hover === t || ms.selected === t || ms.target === t;
           return (
             <g key={r.id} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)})`} className={['rk-piece', inBattle ? 'rk-piece--battle' : '', ms.selected === t ? 'rk-piece--sel' : ''].join(' ')}>
               {ms.kinds.get(t) && <circle r={R + 4} className={`rk-halo rk-halo--${ms.kinds.get(t)}`} />}
-              <g key={`${view.owner[t]}-${view.armies[t]}`} className="rk-piece__token"><g className={fresh && fresh.to === t && fresh.conquered ? 'bg-land' : fresh && ((fresh.to === t && fresh.lossD > 0) || (fresh.from === t && fresh.lossA > 0)) ? 'bg-hit' : ''}><ArmyToken seat={view.owner[t]!} n={n} r={R} lift={ms.selected === t} /></g></g>
-              {draft > 0 && <text x="0" y={-R - 4} className="rk-draft" fontSize={R * 0.78}>+{fa(draft)}</text>}
+              <g key={`${view.owner[t]}-${n}`} className="rk-piece__token"><g className={fresh && fresh.to === t && fresh.conquered ? 'bg-land' : fresh && ((fresh.to === t && fresh.lossD > 0) || (fresh.from === t && fresh.lossA > 0)) ? 'bg-hit' : bumped.has(t) ? 'bg-pop' : ''}><ArmyToken seat={view.owner[t]!} n={n} r={R} lift={ms.selected === t} /></g></g>
+              {draft !== 0 && <text x="0" y={-R - 4} className="rk-draft" fontSize={R * 0.78}>{draft > 0 ? '+' : '−'}{fa(Math.abs(draft))}</text>}
               {named && <text y={R + 12} className="rk-terr__name">{TERRITORY_FA[r.id]}</text>}
             </g>
           );
@@ -284,8 +291,31 @@ function Silhouette({ t }: { t: number }) {
   );
 }
 
-function DiceTray({ view, name }: { view: RiskView; name: (s: number) => string }) {
+/** My attack while it waits in the undo window or for the server: dice tumble with no value (counts are known). */
+interface Rolling { seat: number; from: number; to: number; att: number; def: number }
+
+function DiceTray({ view, name, rolling }: { view: RiskView; name: (s: number) => string; rolling: Rolling | null }) {
   const b = view.lastBattle;
+  const rollSeq = [...view.log].reverse().find((e) => e.t === 'battle')?.seq ?? 0;
+  if (rolling) {
+    const row = (side: 'att' | 'def', n: number, seat: number, t: number) => (
+      <div className={`rk-tray__row rk-tray__row--${side}`}>
+        <span className="rk-tray__who"><span className="rk-swatch" style={{ ['--pc' as string]: SEAT_COLOR[seat] }} aria-hidden="true">{fa(seat + 1)}</span><bdi>{name(seat)}</bdi> <small>{side === 'att' ? `مهاجم · ${tFa(t)}` : `مدافع · ${tFa(t)}`}</small></span>
+        <span className="rk-tray__dice">
+          {Array.from({ length: n }, (_, i) => <span key={i} style={{ ['--i' as string]: i }} className="rk-tray__die bg-tumble"><DieFace value={0} side={side} /><span className="rk-mark">…</span></span>)}
+        </span>
+      </div>
+    );
+    return (
+      <section className="rk-tray rk-tray--rolling" aria-label="تاس‌ها در حال چرخیدن">
+        <h3>نبرد: {tFa(rolling.from)} ← {tFa(rolling.to)}</h3>
+        <div className="rk-tray__felt">
+          {row('att', rolling.att, rolling.seat, rolling.from)}
+          {row('def', rolling.def, view.owner[rolling.to]!, rolling.to)}
+        </div>
+      </section>
+    );
+  }
   if (!b) return null;
   const pairs = Math.min(b.att.length, b.def.length);
   const res = (i: number, side: 'att' | 'def') => (i >= pairs ? null : (b.att[i]! > b.def[i]!) === (side === 'att') ? 'win' : 'loss');
@@ -296,7 +326,7 @@ function DiceTray({ view, name }: { view: RiskView; name: (s: number) => string 
         {dice.map((d, i) => {
           const r = res(i, side);
           return (
-            <span key={`${b.lossA}${b.lossD}${b.rounds}${i}`} style={{ ['--i' as string]: i }} className={['rk-tray__die bg-roll', r ? `rk-tray__die--${r}` : ''].join(' ')}>
+            <span key={`${rollSeq}-${i}`} style={{ ['--i' as string]: i }} className={['rk-tray__die bg-roll', r ? `rk-tray__die--${r}` : ''].join(' ')}>
               <DieFace value={d} side={side} />
               <span className="rk-mark">{r === 'win' ? '✓' : r === 'loss' ? '−۱' : '–'}</span>
             </span>
@@ -324,7 +354,7 @@ function DiceTray({ view, name }: { view: RiskView; name: (s: number) => string 
 
 // ---------- renderer ----------
 
-export default function RiskRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<RiskView>) {
+export default function RiskRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<RiskView>) {
   const hints = legalActions as Hint[];
   const has = (t: string) => hints.some((h) => h.type === t);
   const myTurn = mySeat !== null && view.current === mySeat && !view.outcome;
@@ -357,13 +387,32 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
     seen.current = latest?.seq ?? 0;
   }, [latest, seatName]);
 
-  // Cards glide: a drawn card flies in from the deck.
+  // My attack in the undo window, or sent and not answered yet: the dice tumble without values until the server rolls.
+  const [asked, setAsked] = useState<Hint | null>(null);
+  useEffect(() => { if (!busy) setAsked(null); }, [busy]);
+  const rollAct = queued && (queued.type === 'attack' || queued.type === 'blitz') ? queued : busy ? asked : null;
+  const rolling: Rolling | null = rollAct && mySeat !== null ? (() => {
+    const from = T[rollAct.from as TerritoryId], to = T[rollAct.to as TerritoryId];
+    return { seat: mySeat, from, to, att: rollAct.type === 'blitz' ? Math.min(3, view.armies[from]! - 1) : rollAct.dice as number, def: Math.min(2, view.armies[to]!) };
+  })() : null;
+  // Undo-window preview of moves whose result is already known: armies placed, moved (fortify, occupation), cards traded.
+  const shift: Record<number, number> = {};
+  if (queued?.type === 'place') for (const [id, k] of Object.entries(queued.armies as Record<string, number>)) shift[T[id as TerritoryId]] = k;
+  if (queued?.type === 'fortify') { shift[T[queued.from as TerritoryId]] = -(queued.armies as number); shift[T[queued.to as TerritoryId]] = queued.armies as number; }
+  if (queued?.type === 'occupy' && view.occupy) { shift[view.occupy.from] = -(queued.armies as number); shift[view.occupy.to] = queued.armies as number; }
+  const traded = queued?.type === 'trade' ? new Set(queued.cards as number[]) : null;
+
+  // Cards glide: a drawn card flies in from the deck, traded cards leave to it; the preview and its undo animate too.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, latest?.seq ?? 0);
+  useFlip(root, `${latest?.seq ?? 0}|${queued ? JSON.stringify(queued) : ''}|${!!rolling}`);
 
-  const act = (a: Hint) => { if (!busy) onAction(a); };
+  const act = (a: Hint) => {
+    if (busy) return;
+    if (a.type === 'attack' || a.type === 'blitz') setAsked(a);
+    onAction(a);
+  };
 
-  const placing = myTurn && !!placeHint;
+  const placing = myTurn && !!placeHint && !queued;
   const available = placing ? (placeHint!.available as number) : 0;
   const drafted = Object.values(draft).reduce((a, b) => a + b, 0);
   const attackFrom = new Set(attacks.map((a) => a.from));
@@ -413,7 +462,8 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
   // Status line.
   let status: { tone: 'mine' | 'wait'; text: string } | null = null;
   if (!view.outcome) {
-    if (!myTurn) status = { tone: 'wait', text: `نوبت ${iso(seatName(view.current))} — ${PHASE_FA[view.phase]}` };
+    if (queued) status = { tone: 'wait', text: 'حرکت شما در حال ثبت است…' };
+    else if (!myTurn) status = { tone: 'wait', text: `نوبت ${iso(seatName(view.current))} — ${PHASE_FA[view.phase]}` };
     else if (view.phase === 'setup') status = { tone: 'mine', text: `${fa(view.available)} ارتش آغازین را روی قلمروهایتان بچینید` };
     else if (view.phase === 'reinforce') status = { tone: 'mine', text: view.mustTrade ? 'اول باید یک دسته کارت معاوضه کنید' : `${fa(view.available)} ارتش کمکی را بچینید` };
     else if (view.phase === 'attack') status = { tone: 'mine', text: 'از قلمرو خود به همسایه دشمن حمله کنید یا حمله را تمام کنید' };
@@ -423,7 +473,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
 
   const myCount = mySeat !== null ? territoriesOf(view, mySeat) : 0;
   const pickedOk = picked.length === 3 && isSet(picked) && tradeSets.some((s) => s.every((c) => picked.includes(c)));
-  const hand = view.myHand ?? [];
+  const hand = (view.myHand ?? []).filter((c) => !traded?.has(c));
 
   return (
     <div className="rk" ref={root}>
@@ -440,9 +490,9 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
       <div className="rk-main">
         <div className="rk-board-wrap">
           <ZoomBoard label="نقشه جهان">
-            <WorldMap view={view} onPick={pick} ms={{ targets, kinds, selected: sel, target: aim, hinted, draft: placing ? draft : {}, label }} />
+            <WorldMap view={view} onPick={pick} ms={{ targets, kinds, selected: sel, target: aim, hinted, draft: queued ? shift : placing ? draft : {}, label }} />
           </ZoomBoard>
-          <DiceTray view={view} name={seatName} />
+          <DiceTray view={view} name={seatName} rolling={rolling} />
         </div>
 
         <div className="rk-side">
@@ -548,7 +598,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                     const owned = t !== null && view.owner[t] === mySeat;
                     const text = `${CARD_FA[k]}${t !== null ? `، ${tFa(t)}${owned ? ' (قلمرو شما)' : ''}` : ''}`;
                     return (
-                      <li key={c} data-flip={`card-${c}`} data-flip-from="deck" style={{ ['--i' as string]: idx }}>
+                      <li key={c} data-flip={`card-${c}`} data-flip-from="deck" data-flip-exit="deck" style={{ ['--i' as string]: idx }}>
                         <button type="button" className={`rk-card rk-card--${k}`} aria-pressed={on} aria-label={text} disabled={busy || tradeSets.length === 0}
                           onClick={() => setPicked((p) => (on ? p.filter((x) => x !== c) : p.length < 3 ? [...p, c] : p))}>
                           <span className="rk-card__kind">{CARD_FA[k]}</span>

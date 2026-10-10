@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «جمجمه» end to end: the tutorial (place, bluff, pass, raise, reveal) and a three-player game through placing, bidding, passing and
 // turning discs until someone wins.
@@ -73,4 +73,32 @@ test('three players play «جمجمه» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: a placed disc flies onto your stack at once, and undo takes it back to your hand', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/skull');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۷/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const stack = p.locator('.sk-pl--me .sk-pl__slot');
+  const hand = p.locator('.sk-handdisc');
+  const [inStack, inHand] = [await stack.count(), await hand.count()];
+  await p.locator('.sk-handdisc.sk-hint').first().click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(stack).toHaveCount(inStack + 1);
+  await expect(hand).toHaveCount(inHand - 1);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(stack).toHaveCount(inStack);
+  await expect(hand).toHaveCount(inHand);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.context().close();
 });

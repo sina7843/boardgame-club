@@ -91,10 +91,11 @@ export function ResIcon({ r }: { r: Res }) {
 
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 /** CSS-drawn die face (3x3 pip grid). Decorative: the parent carries the label. */
-export function DieFace({ value, red }: { value: number; red?: boolean }) {
+/** A die thrown in (bg-roll, remount per roll); `pending` tumbles with the pips hidden until the server's result. */
+export function DieFace({ value, red, pending }: { value: number; red?: boolean; pending?: boolean }) {
   return (
-    <span aria-hidden="true" className={red ? 'ct-die ct-die--red bg-roll' : 'ct-die bg-roll'} style={{ ['--i' as string]: red ? 1 : 0 }}>
-      {Array.from({ length: 9 }, (_, k) => <i key={k} className={PIPS[value]?.includes(k) ? 'ct-die__pip' : ''} />)}
+    <span aria-hidden="true" className={`ct-die${red ? ' ct-die--red' : ''} ${pending ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: red ? 1 : 0 }}>
+      {Array.from({ length: 9 }, (_, k) => <i key={k} className={PIPS[value]?.includes(k) ? 'ct-die__pip' : ''} data-pip="" />)}
     </span>
   );
 }

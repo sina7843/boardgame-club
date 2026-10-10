@@ -131,8 +131,11 @@ const segLabel = (t: string, rot: number, seg: string) => {
   return `${seg[0] === 'c' ? 'شهر' : 'جاده'} (${g.map((d) => DIRS[d]).join('، ')})`;
 };
 
-export default function CarcassonneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CarcView>) {
-  const place = legalActions.find((a) => a.type === 'place') as { options: { x: number; y: number; rot: number }[] } | undefined;
+export default function CarcassonneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CarcView>) {
+  // Undo-window preview: the own tile already lies on the map (with its follower); undo lifts it back to the dock.
+  const pending = queued?.type === 'place' && view.tile && mySeat !== null ? queued as unknown as { x: number; y: number; rot: number; meeple?: string } : null;
+  const placeRaw = legalActions.find((a) => a.type === 'place') as { options: { x: number; y: number; rot: number }[] } | undefined;
+  const place = pending ? undefined : placeRaw;
   const hint = expected as unknown as { x: number; y: number; rot: number; meeple?: string } | null;
   const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
   const [rot, setRot] = useState(0);
@@ -140,7 +143,7 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
   const [zoom, setZoom] = useState(1);
   const mapRef = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${!!pending}`);
   const before = usePrevious(view.seq, view);
   useEffect(() => { setSpot(null); setMeeple(null); }, [view.seq]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
@@ -180,6 +183,8 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
   const confirm = () => spot && onAction({ type: 'place', x: spot.x, y: spot.y, rot: shownRot, ...(meeple ? { meeple } : {}) });
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : place ? { tone: 'mine' as const, text: spot ? 'بچرخانید، پیرو را انتخاب کنید و بگذارید' : 'یک جای روشن برای کاشی انتخاب کنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const last = view.last;
@@ -190,10 +195,16 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
       const p = view.board[k];
       const isLast = !!last && last.x === x && last.y === y;
       const theirs = isLast && last.seat !== mySeat;
+      const fresh = isLast && !!before && !before.board[k];
       if (p) {
-        cells.push(<div key={k} className={`cc-cell cc-cell--tile ${isLast ? 'cc-cell--last' : ''} ${isLast && before && !before.board[k] ? 'bg-land' : ''}`} {...(x === 0 && y === 0 ? { 'data-origin': true } : {})}
-          {...(theirs && before && !before.board[k] ? { 'data-flip': `tile-${k}`, 'data-flip-from': 'drawn' } : { 'data-flip-enter': 'none' })}
-          style={isLast ? { ['--who' as string]: SEAT_COLORS[last.seat], ...(before && !before.board[k] ? { ['--i' as string]: 8 } : {}) } : undefined}><TileArt t={p.t} rot={p.rot} meeples={p.meeples} fresh={isLast && !!before && !before.board[k]} /></div>);
+        // A fresh tile is the one that lay in the dock a moment ago (same flip id), so it flies from the dock to its square.
+        const flew = fresh && !!before.tile;
+        cells.push(<div key={k} className={`cc-cell cc-cell--tile ${isLast ? 'cc-cell--last' : ''} ${fresh && !flew ? 'bg-land' : ''}`} {...(x === 0 && y === 0 ? { 'data-origin': true } : {})}
+          {...(flew ? { 'data-flip': `drawn-${before.seq}` } : fresh && theirs ? { 'data-flip': `tile-${k}`, 'data-flip-from': 'drawn' } : { 'data-flip-enter': 'none' })}
+          style={isLast ? { ['--who' as string]: SEAT_COLORS[last.seat], ...(fresh ? { ['--i' as string]: 8 } : {}) } : undefined}><TileArt t={p.t} rot={p.rot} meeples={p.meeples} fresh={fresh} /></div>);
+      } else if (pending && pending.x === x && pending.y === y) {
+        cells.push(<div key={k} className="cc-cell cc-cell--tile cc-cell--last" data-flip={`drawn-${view.seq}`} style={{ ['--who' as string]: SEAT_COLORS[mySeat!] }}>
+          <TileArt t={view.tile!} rot={pending.rot} meeples={pending.meeple ? { [pending.meeple]: mySeat! } : {}} /></div>);
       } else if (spots.has(k)) {
         const on = spot?.x === x && spot.y === y;
         const fitsNow = spots.get(k)!.includes(rot);
@@ -240,7 +251,7 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
         </div>
         {view.tile && (
           <div className="cc__drawn" data-flip-anchor="drawn">
-            <span className="cc__drawn-tile" data-flip={`drawn-${view.seq}`} data-flip-from="pile"><TileArt t={view.tile} rot={shownRot} title="کاشی کشیده‌شده" /></span>
+            {pending ? <span className="cc__drawn-tile" /> : <span className="cc__drawn-tile" data-flip={`drawn-${view.seq}`} data-flip-from="pile"><TileArt t={view.tile} rot={shownRot} title="کاشی کشیده‌شده" /></span>}
             <small data-flip-anchor="pile">{fa(view.stackCount)} کاشی مانده</small>
             {place && <Button size="sm" variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate} className={hint && spot && hint.rot !== shownRot ? 'cc-hint' : ''}>چرخاندن ↻</Button>}
           </div>

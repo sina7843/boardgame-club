@@ -57,3 +57,4 @@
 @keyframes sg-belt { to { background-position: 56px 0; } }
 @keyframes sg-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sg *, .sg-belt { animation: none !important; transition: none !important; } }
+.sg-plate--pending { opacity: 0.7; filter: saturate(0.7); }

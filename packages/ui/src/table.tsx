@@ -69,10 +69,13 @@ export interface GameRendererProps<View> {
   /** Tutorial: the move the script expects next (highlight only; the server enforces it). */
   expected: GameAction | null;
   /**
-   * The player's own move while it waits in the undo window (not yet sent). Renderers preview it at once — the card
-   * already flies to the pile, the dice already tumble — and undo just clears it, so everything animates back. Only
-   * what the client already knows may be shown: random outcomes (dice values, drawn cards) arrive with the server
-   * result after the window, so nobody can see a result and then undo. Include `!!queued` in the useFlip key.
+   * The player's own move until the server confirms it: while it waits in the undo window and while it is sent.
+   * Renderers preview it at once — the card already flies to the pile, the dice already tumble — and undo just clears
+   * it, so everything animates back. Instant moves (rolls, draws, end turn, pass, races) skip the window but are still
+   * `queued` while in flight. Only what the client already knows may be shown: random outcomes (dice values, drawn
+   * cards) arrive with the server result, so nobody can see a result and then undo. Include `!!queued` in the useFlip key.
    */
   queued?: GameAction | null;
+  /** The player's own move after the undo window: sent, waiting for the server (e.g. keep dice tumbling until the result). */
+  sending?: GameAction | null;
 }

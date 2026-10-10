@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «تررافورمینگ مارس» end to end: the tutorial (the last generation: titanium payment, heat → temperature, an aquifer
 // ocean, a greenery next to a city, a milestone, the final scoring) by following the highlighted hints, and a full
@@ -22,11 +22,52 @@ test('interactive tutorial: titanium, heat, an ocean, a greenery by the city, a 
     for (let k = 0; k < 10 && !(await next.count()); k++) {
       const hint = p.locator('.tm .tm-hint:not([disabled])').first();
       if (await hint.count()) await hint.click();
+      await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0); // the move left the undo window
       if (i === 3 && k === 0) await p.screenshot({ path: shot(info.project.name, 'tutorial-ocean'), fullPage: true });
       await p.waitForTimeout(250);
     }
   }
   await expect(done).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: the played event leaves the hand at once, the ocean appears on its space, and undo brings both back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/terraforming-mars');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۸/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  const card = p.locator('.tm-hand [data-flip="card-009"]');
+  await expect(card).toBeVisible();
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  await card.getByRole('button', { name: 'بازی' }).click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(card).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await undo.click();
+  await expect(card).toBeVisible();
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  // Steps 1–3 for real, then the ocean on space 63 is previewed on the map and undone.
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '0'));
+  for (const n of ['۲', '۳', '۴']) {
+    const step = p.getByText(new RegExp(`آموزش: مرحله ${n} از ۸`));
+    for (let k = 0; k < 10 && !(await step.count()); k++) { const h = p.locator('.tm .tm-hint:not([disabled])').first(); if (await h.count()) await h.click(); await p.waitForTimeout(250); }
+    await expect(step).toBeVisible();
+  }
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  const hex = p.locator('.tm-board [data-space="63"]');
+  await expect(hex).toHaveClass(/tm-hex--pick/);
+  await hex.click();
+  await expect(undo).toBeVisible();
+  await expect(hex.locator('image')).toHaveCount(1);
+  await undo.click();
+  await expect(hex.locator('image')).toHaveCount(0);
   await p.context().close();
 });
 

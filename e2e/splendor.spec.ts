@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «گوهرفروش» end to end: the tutorial (gems, pair, reserve, return, bonuses, noble, 15) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -14,25 +14,25 @@ test('interactive tutorial: three gems, a pair, reserve + gold, the ten-gem limi
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   const step = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۶`))).toBeVisible();
   await step('۱');
-  for (let i = 0; i < 3; i++) await p.locator('.sp-bankgem.sp-hint').first().click();
+  for (let i = 0; i < 3; i++) await p.locator('.sp .sp-bankgem.sp-hint').first().click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-take'), fullPage: true });
   await p.getByRole('button', { name: /^برداشتن/ }).click();
   await step('۲');
-  const green = p.locator('.sp-bankgem.sp-hint');
+  const green = p.locator('.sp .sp-bankgem.sp-hint');
   await green.click();
-  await p.locator('.sp-bankgem--on').click();
+  await p.locator('.sp .sp-bankgem--on').click();
   await p.getByRole('button', { name: /^برداشتن/ }).click();
   await step('۳');
-  await p.locator('.sp__market [data-flip="card-70"]').click();
+  await p.locator('.sp .sp__market [data-flip="card-70"]').click();
   await p.getByRole('button', { name: 'رزرو (+طلا)' }).click();
   await step('۴');
   await p.getByRole('button', { name: /^پس دادن الماس/ }).click();
   await p.getByRole('button', { name: 'پس دادن', exact: true }).click();
   await step('۵');
-  await p.locator('.sp-slot.sp-hint').click();
+  await p.locator('.sp .sp-slot.sp-hint').click();
   await p.getByRole('button', { name: 'خرید' }).click();
   await step('۶');
-  await p.locator('.sp-slot.sp-hint').click();
+  await p.locator('.sp .sp-slot.sp-hint').click();
   await p.getByRole('button', { name: 'خرید' }).click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.context().close();
@@ -41,21 +41,21 @@ test('interactive tutorial: three gems, a pair, reserve + gold, the ten-gem limi
 async function turn(p: Page, n: number): Promise<boolean> {
   const giveBack = p.getByRole('button', { name: 'پس دادن', exact: true });
   if (await giveBack.count()) {
-    const toks = p.locator('.sp-col__tok--btn:not([disabled])');
+    const toks = p.locator('.sp .sp-col__tok--btn:not([disabled])');
     for (let i = 0; i < 6 && !(await giveBack.isEnabled()); i++) await toks.first().click();
     await giveBack.click();
     return true;
   }
-  const buy = p.locator('.sp-slot--buy:not([disabled])');
+  const buy = p.locator('.sp .sp-slot--buy:not([disabled])');
   if (await buy.count()) { await buy.nth(n % (await buy.count())).click(); await p.getByRole('button', { name: 'خرید' }).click(); return true; }
   const take = p.getByRole('button', { name: /^برداشتن/ });
   if (await take.count()) {
-    const gems = p.locator('.sp-bankgem:not([disabled])');
+    const gems = p.locator('.sp .sp-bankgem:not([disabled])');
     const k = await gems.count();
     for (let i = 0; i < k && !(await take.isEnabled()); i++) await gems.nth((i + n) % k).click();
     if (await take.isEnabled()) { await take.click(); return true; }
   }
-  const deck = p.locator('button.sp-deck:not([disabled])');
+  const deck = p.locator('.sp button.sp-deck:not([disabled])');
   if (await deck.count()) { await deck.first().click(); return true; }
   const pass = p.getByRole('button', { name: 'رد کردن نوبت' });
   if (await pass.count()) { await pass.click(); return true; }
@@ -93,4 +93,27 @@ test('three players play «گوهرفروش» to the result', async ({ browser }
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the three gems fly to my ledger at once, and undo takes them back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/splendor');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  for (let i = 0; i < 3; i++) await p.locator('.sp .sp-bankgem.sp-hint').first().click();
+  const took = p.locator('.sp .sp-pl--me .sp-took');
+  await expect(took).toHaveCount(0);
+  await motionLog(p);
+  await p.getByRole('button', { name: /^برداشتن/ }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(took).toHaveCount(3);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(took).toHaveCount(0);
+  await p.context().close();
 });

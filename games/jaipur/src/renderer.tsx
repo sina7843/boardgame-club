@@ -2,8 +2,8 @@
 // rival's stall (cards in hand, camels, earnings) and your hand with your herd. Select market and/or hand cards and
 // the action bar offers what the selection means: take, exchange or sell; camels have their own button.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, TurnIndicator, useFlip, usePieceIds, type GameRendererProps } from '@bg/ui';
 import diamond from './art/diamond.webp';
 import gold from './art/gold.webp';
 import silver from './art/silver.webp';
@@ -19,17 +19,38 @@ export const CARD_FA: Record<Card, string> = { diamond: 'الماس', gold: 'ط�
 // Goods art is cut from a generated sheet (see DECISIONS.md).
 const ART: Record<Card, string> = { diamond, gold, silver, cloth, spice, leather, camel };
 
-export function GoodCard({ c, size = 'md', flip, flipFrom }: { c: Card; size?: 'sm' | 'md'; flip?: string; flipFrom?: string }) {
+export function GoodCard({ c, size = 'md', flip, flipFrom, exit }: { c: Card; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
   return (
-    <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} aria-label={CARD_FA[c]}>
+    <span className={['jp-card', `jp-card--${size}`, `jp-c--${c}`].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={CARD_FA[c]}>
       <img src={ART[c]} alt="" draggable={false} />
       {size === 'md' && <span className="jp-card__n">{CARD_FA[c]}</span>}
     </span>
   );
 }
 
-export default function JaipurRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<JaipurView>) {
+const HAND = 7;
+const without = <T,>(xs: T[], out: T[]) => { const r = xs.slice(); for (const x of out) { const i = r.indexOf(x); if (i >= 0) r.splice(i, 1); } return r; };
+const sorted = (h: Good[]) => h.slice().sort((x, y) => GOODS.indexOf(x) - GOODS.indexOf(y));
+
+/** The own move during the undo window, applied like the server does except the hidden refill from the deck and the tokens. */
+function preview(v: JaipurView, q: Record<string, unknown> | null | undefined, me: number): JaipurView {
+  if (!q || !v.hand) return v;
+  const herds = v.herds.slice();
+  if (q.type === 'take') return { ...v, market: without(v.market, [q.good as Good]), hand: sorted([...v.hand, q.good as Good]) };
+  if (q.type === 'camels') { herds[me] = herds[me]! + v.market.filter((c) => c === 'camel').length; return { ...v, market: v.market.filter((c) => c !== 'camel'), herds }; }
+  if (q.type === 'exchange') {
+    const take = q.take as Good[], give = q.give as Card[];
+    herds[me] = herds[me]! - give.filter((c) => c === 'camel').length;
+    return { ...v, herds, market: [...without(v.market, take), ...give], hand: sorted([...without(v.hand, give.filter((c) => c !== 'camel') as Good[]), ...take]) };
+  }
+  if (q.type === 'sell') return { ...v, hand: without(v.hand, Array<Good>(q.count as number).fill(q.good as Good)) };
+  return v;
+}
+
+export default function JaipurRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<JaipurView>) {
   const me = mySeat ?? 0;
+  // Undo-window preview: taken cards are already in the hand, camels in the herd, sold cards gone; undo returns them.
+  const view = useMemo(() => preview(real, queued, me), [real, queued, me]);
   const opp = 1 - me;
   const myTurn = legalActions.some((a) => a.type !== 'resign');
   const canCamels = legalActions.some((a) => a.type === 'camels');
@@ -52,22 +73,29 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
     return null;
   })();
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: 'کارت انتخاب کنید: برداشتن، معاوضه یا فروش' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const camelsInMarket = view.market.filter((c) => c === 'camel').length;
   const earned = (k: number) => view.goods[k]!.reduce((a, b) => a + b, 0) + (Array.isArray(view.bonuses[k]) ? (view.bonuses[k] as number[]).reduce((a, b) => a + b, 0) : 0);
   const last = view.last;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
-  const actor = last ? (last.seat === me ? 'hand' : `seat-${last.seat}`) : 'deck';
-  const nth = (xs: Card[], i: number) => xs.slice(0, i).filter((x) => x === xs[i]).length;
+  useFlip(root, `${view.seq}|${queued ? JSON.stringify(queued) : ''}`);
+  // Where a new market card comes from: an exchange brings it from the mover (my camels from my herd), else the deck.
+  const mineMove = !!queued || last?.seat === me;
+  const arriveFrom = (c: Card) => (!queued && last?.kind !== 'exchange' ? 'deck' : mineMove ? (c === 'camel' ? 'herd-me' : 'hand-me') : `seat-${opp}`);
+  // One id per physical card across hand and market, so a taken card flies from its market slot into the hand and an
+  // exchanged one back; market cards that leave go to whoever moves next (camels to the herd), sold cards to the tokens.
+  const ids = usePieceIds([...Array.from({ length: HAND }, (_, i) => hand[i] ?? null), ...view.market]);
+  const leaveTo = (c: Card) => (view.current !== me ? `seat-${opp}` : c === 'camel' ? 'herd-me' : 'hand-me');
 
   return (
     <div className="jp" ref={root} data-seq={view.seq}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <p className="jp__round">دست {fa(view.round)}{view.best3 ? ' از ۳' : ''}، نشان‌ها: <bdi>{who(me)}</bdi> {'★'.repeat(view.seals[me]!) || '—'} / <bdi>{who(opp)}</bdi> {'★'.repeat(view.seals[opp]!) || '—'}</p>
 
-      <section className="jp__tokens" aria-label="سکه‌های کالا">
+      <section className="jp__tokens" data-flip-anchor="tokens" aria-label="سکه‌های کالا">
         {GOODS.map((g) => (
           <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${CARD_FA[g]}: ${fa(view.tokens[g].length)} سکه`}>
             <img src={ART[g]} alt="" draggable={false} />
@@ -91,8 +119,8 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
         <section className="jp__market" aria-label="بازار">
           <div className="jp__carpet" data-flip-anchor="market">
             {view.market.map((c, i) => (
-              <button key={`${c}-${nth(view.market, i)}`} type="button" className={['jp-pick', mk.includes(i) ? 'jp-pick--on' : '', hint?.type === 'take' && hint.good === c && !mk.length && view.market.indexOf(c) === i ? 'jp-hint' : ''].join(' ')}
-                disabled={!myTurn || busy || c === 'camel'} aria-pressed={mk.includes(i)} onClick={() => setMk(mk.includes(i) ? mk.filter((x) => x !== i) : [...mk, i])}><GoodCard c={c} flip={`m-${c}-${nth(view.market, i)}`} flipFrom={last?.kind === 'exchange' ? actor : 'deck'} /></button>
+              <button key={ids[HAND + i]} type="button" className={['jp-pick', mk.includes(i) ? 'jp-pick--on' : '', hint?.type === 'take' && hint.good === c && !mk.length && view.market.indexOf(c) === i ? 'jp-hint' : ''].join(' ')}
+                disabled={!myTurn || busy || c === 'camel'} aria-pressed={mk.includes(i)} onClick={() => setMk(mk.includes(i) ? mk.filter((x) => x !== i) : [...mk, i])}><GoodCard c={c} flip={`c-${ids[HAND + i]}`} flipFrom={arriveFrom(c)} exit={leaveTo(c)} /></button>
             ))}
           </div>
           <span className="jp__deck" data-flip-anchor="deck">دسته: {fa(view.deckCount)}</span>
@@ -116,12 +144,12 @@ export default function JaipurRenderer({ view, legalActions, mySeat, seatName, b
         <section className="jp__me" aria-label="دست شما">
           <div className="jp__hand" data-flip-anchor="hand-me">
             {hand.map((g, i) => (
-              <button key={`${g}-${nth(hand, i)}`} type="button" className={['jp-pick', hd.includes(i) ? 'jp-pick--on' : '', hint?.type === 'sell' && hint.good === g && !hd.includes(i) ? 'jp-hint' : ''].join(' ')}
-                disabled={!myTurn || busy} aria-pressed={hd.includes(i)} onClick={() => setHd(hd.includes(i) ? hd.filter((x) => x !== i) : [...hd, i])}><GoodCard c={g} flip={`h-${g}-${nth(hand, i)}`} flipFrom="market" /></button>
+              <button key={ids[i]} type="button" className={['jp-pick', hd.includes(i) ? 'jp-pick--on' : '', hint?.type === 'sell' && hint.good === g && !hd.includes(i) ? 'jp-hint' : ''].join(' ')}
+                disabled={!myTurn || busy} aria-pressed={hd.includes(i)} onClick={() => setHd(hd.includes(i) ? hd.filter((x) => x !== i) : [...hd, i])}><GoodCard c={g} flip={`c-${ids[i]}`} flipFrom="market" exit="tokens" /></button>
             ))}
             {!hand.length && <span className="jp__empty">دستتان خالی است</span>}
           </div>
-          <div className="jp__herd">
+          <div className="jp__herd" data-flip-anchor="herd-me">
             <GoodCard c="camel" size="sm" /> گلهٔ شما: <b className="bg-pop" key={view.herds[me]}>{fa(view.herds[me]!)}</b>
             {myTurn && mk.length >= 2 && view.herds[me]! > 0 && (
               <span className="jp__camgive">شتر برای معاوضه:

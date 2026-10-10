@@ -3,13 +3,13 @@
 // you lose" choice and the Ambassador's exchange.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import duke from './art/coup-duke.webp';
 import assassin from './art/coup-assassin.webp';
 import captain from './art/coup-captain.webp';
 import ambassador from './art/coup-ambassador.webp';
 import contessa from './art/coup-contessa.webp';
-import { ACT_FA, CLAIM, ROLE_FA, type Act, type CoupView, type Role } from './rules.ts';
+import { ACT_FA, CLAIM, ROLE_FA, type Act, type Card as Influence, type CoupView, type Role } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const ACTS: Act[] = ['income', 'foreignAid', 'tax', 'steal', 'exchange', 'assassinate', 'coup'];
@@ -18,9 +18,9 @@ const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ �
 // Portraits are cut from a generated sheet (see DECISIONS.md); decorative, the role name stays as text.
 const ART: Record<Role, string> = { duke, assassin, captain, ambassador, contessa };
 
-function Card({ role, lost, size = 'md', fresh, flip, flipFrom }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean; flip?: string; flipFrom?: string }) {
+function Card({ role, lost, size = 'md', fresh, flip, flipFrom, exit }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
   return (
-    <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'bg-flip-in' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom}>
+    <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'bg-flip-in' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flip && exit ? exit : undefined}>
       <svg viewBox="-35 -50 70 100" aria-hidden="true">
         <rect x="-33" y="-48" width="66" height="96" rx="7" className="cp-card__bg" />
         {role && <image href={ART[role]} x="-28" y="-43" width="56" height="56" preserveAspectRatio="xMidYMid slice" />}
@@ -36,11 +36,18 @@ function Card({ role, lost, size = 'md', fresh, flip, flipFrom }: { role: Role |
 
 const Thumb = ({ role }: { role: Role }) => <img className="cp-thumb" src={ART[role]} alt="" aria-hidden="true" />;
 
-const Coins = ({ n }: { n: number }) => (
-  <span className="cp-coins" aria-label={`${fa(n)} سکه`}><span className="cp-coin" aria-hidden="true" /><b key={n} className="bg-pop">{fa(n)}</b></span>
-);
+function Coins({ n }: { n: number }) {
+  const pop = usePop(n);
+  return <span className="cp-coins" aria-label={`${fa(n)} سکه`}><span className="cp-coin" aria-hidden="true" /><b key={n} className={pop}>{fa(n)}</b></span>;
+}
 
-export default function CoupRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<CoupView>) {
+type Queued = { type: string; act?: Act; target?: number; card?: number; roles?: Role[]; role?: Role };
+
+export default function CoupRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CoupView>) {
+  // Undo-window preview of my own move, from what I already know: the claim banner, income/coup coins, the card I
+  // turn face up, the block I announce and the cards I keep. Undo drops `queued` and everything returns.
+  const q = queued as Queued | null | undefined;
+  const view = preview(served, q, mySeat);
   const acts = new Map(legalActions.filter((a) => a.type === 'act').map((a) => [a.act as Act, (a.targets as number[] | undefined) ?? null]));
   const canChallenge = legalActions.some((a) => a.type === 'challenge');
   const blocks = legalActions.filter((a) => a.type === 'block').map((a) => a.role as Role);
@@ -57,7 +64,7 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
   const targets = aim ? acts.get(aim) ?? [] : [];
   const p = view.pending;
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, lastSeq);
+  useFlip(root, `${lastSeq}|${q ? JSON.stringify(q) : ''}`);
   const lastReveal = view.log.at(-1)?.t === 'reveal' ? view.log.at(-1) : null;
 
   const pick = (a: Act) => {
@@ -70,6 +77,8 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
   const waitingOn = view.phase === 'respond' ? p!.responders : view.phase === 'lose' ? [view.lose!.seat] : view.phase === 'exchange' ? [view.exchange!.seat] : view.current === null ? [] : [view.current];
   const mine = legalActions.some((a) => a.type !== 'resign');
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : mine ? {
       tone: 'mine' as const,
       text: view.phase === 'lose' ? 'یک نفوذ از دست می‌دهید: کارتی را که رو می‌شود انتخاب کنید'
@@ -123,15 +132,15 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
           <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label="کارت‌های نفوذ شما">
             {view.myCards.map((c, i) => loseCards.has(i)
               ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`از دست دادن ${ROLE_FA[c.role]}`}><Card role={c.role} /><span className="cp-lose__cta">رو کن</span></button>
-              : <Card key={i} role={c.role} lost={c.revealed} fresh={c.revealed && lastReveal?.seat === mySeat && lastReveal.role === c.role} />)}
+              : <Card key={i} role={c.role} lost={c.revealed} flip={c.flip} fresh={c.revealed && ((lastReveal?.seat === mySeat && lastReveal.role === c.role) || (q?.type === 'lose' && q.card === i))} />)}
           </div>
 
-          {keepHint && (
+          {keepHint && q?.type !== 'keep' && (
             <div className="cp-ex" role="group" aria-label="مبادله">
               <div className="cp-ex__cards">
                 {keepHint.options.map((r, i) => (
                   <button key={i} type="button" aria-pressed={keep.includes(i)} className={['cp-ex__card', keep.includes(i) ? 'cp-ex__card--on' : ''].join(' ')}
-                    onClick={() => setKeep(keep.includes(i) ? keep.filter((k) => k !== i) : [...keep, i].slice(-keepHint.keep))}><Card role={r} size="sm" flip={`ex-${i}`} flipFrom="deck" /></button>
+                    onClick={() => setKeep(keep.includes(i) ? keep.filter((k) => k !== i) : [...keep, i].slice(-keepHint.keep))}><Card role={r} size="sm" flip={`ex-${i}`} flipFrom="deck" exit="deck" /></button>
                 ))}
               </div>
               <Button size="sm" disabled={busy || keep.length !== keepHint.keep} onClick={() => onAction({ type: 'keep', roles: keep.map((i) => keepHint.options[i]!) })}>نگه داشتن {fa(keep.length)} از {fa(keepHint.keep)}</Button>
@@ -171,6 +180,34 @@ export default function CoupRenderer({ view, legalActions, mySeat, seatName, bus
       )}
     </div>
   );
+}
+
+type Shown = Omit<CoupView, 'myCards'> & { myCards: (Influence & { flip?: string })[] | null };
+
+/** The view with my queued move applied (only what I already know; nothing hidden or random). */
+function preview(v: CoupView, q: Queued | null | undefined, me: number | null): Shown {
+  if (!q || me === null) return v;
+  const coins = v.coins.slice();
+  if (q.type === 'act' && q.act) {
+    if (q.act === 'income') coins[me]! += 1;
+    if (q.act === 'coup') coins[me]! -= 7;
+    const pending = q.act === 'income' || q.act === 'coup' ? v.pending
+      : { act: q.act, actor: me, target: q.target ?? null, claim: CLAIM[q.act] ?? null, stage: 'respond' as const, block: null, responders: [] };
+    return { ...v, coins, pending, phase: pending ? 'respond' : v.phase };
+  }
+  if (q.type === 'block' && q.role && v.pending) return { ...v, pending: { ...v.pending, block: { by: me, role: q.role } } };
+  if (q.type === 'lose' && v.myCards) {
+    const role = v.myCards[q.card!]?.role;
+    return { ...v, myCards: v.myCards.map((c, i) => (i === q.card ? { ...c, revealed: true } : c)),
+      cards: v.cards.map((c, s) => (s === me && role ? { hidden: c.hidden - 1, revealed: [...c.revealed, role] } : c)) };
+  }
+  if (q.type === 'keep' && q.roles && v.myCards && v.exchange) {
+    // The kept options fly from the exchange row into the hand; the rest fly back to the deck.
+    const opts = v.exchange.options, used = new Set<number>();
+    const kept = q.roles.map((r) => { const i = opts.findIndex((o, k) => o === r && !used.has(k)); used.add(i); return { role: r, revealed: false, flip: `ex-${i}` }; });
+    return { ...v, myCards: [...v.myCards.filter((c) => c.revealed), ...kept] };
+  }
+  return v;
 }
 
 function line(e: CoupView['log'][number], who: (s: number) => string) {

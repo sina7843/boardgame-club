@@ -24,7 +24,16 @@ function Walls({ n }: { n: number }) {
   );
 }
 
-export default function QuoridorRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<QuoridorView>) {
+/** My queued step or wall shown at once (both fully known to me); undo drops `queued` and the pawn slides back. */
+function preview(v: QuoridorView, q: { type: string; to?: number; r?: number; c?: number; o?: Orient } | null | undefined, me: number | null): QuoridorView {
+  if (!q || me === null) return v;
+  if (q.type === 'move' && q.to !== undefined) return { ...v, pawns: v.pawns.map((p, s) => (s === me ? q.to! : p)) };
+  if (q.type === 'wall' && q.o) return { ...v, walls: [...v.walls, { r: q.r!, c: q.c!, o: q.o }], wallsLeft: v.wallsLeft.map((n, s) => (s === me ? n - 1 : n)) };
+  return v;
+}
+
+export default function QuoridorRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<QuoridorView>) {
+  const view = preview(served, queued as Parameters<typeof preview>[1], mySeat);
   const me = mySeat ?? 0;
   const oak = `qd-oak-${useId()}`;
   const rot = ROT[view.sides[me] ?? 'bottom'];
@@ -45,10 +54,13 @@ export default function QuoridorRenderer({ view, legalActions, mySeat, seatName,
   useEffect(() => { setHover(null); if (!hintWall) setMode('move'); }, [seq]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const place = (w: Wall) => { if (!busy) onAction({ type: 'wall', ...w }); setHover(null); };
-  const lastWall = [...view.log].reverse().find((e) => e.t === 'wall');
+  const qw = queued?.type === 'wall' ? (queued as unknown as Wall) : null;
+  const lastWall = qw ? { t: 'wall' as const, wall: qw } : [...view.log].reverse().find((e) => e.t === 'wall');
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
 
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : myTurn ? { tone: 'mine' as const, text: mode === 'wall' ? 'یک نقطه طلایی را بزنید' : 'نوبت شما: حرکت یا دیوار' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 

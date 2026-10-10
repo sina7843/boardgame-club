@@ -36,8 +36,8 @@ test('catan board zooms, pans and fits a landscape phone', async ({ browser }, i
 
   await p.getByRole('button', { name: 'اندازه اصلی' }).click();
   await expect(zoomed).toHaveCount(0);
-  // The tutorial's first step still works after zooming: roll the dice.
-  await p.getByRole('button', { name: 'ریختن تاس' }).click();
-  await expect(p.locator('.ct-log')).toContainText('تاس ریخت');
+  // The tutorial's first step still works after zooming: play the knight (a roll is rejected until then).
+  await p.locator('.ct-dev', { hasText: 'شوالیه' }).getByRole('button', { name: 'بازی' }).click();
+  await expect(p.locator('.ct-log')).toContainText('«شوالیه» بازی کرد');
   await p.context().close();
 });

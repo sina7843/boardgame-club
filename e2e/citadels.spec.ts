@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «ارگ‌ها» end to end: the tutorial (income choice, warlord, the eighth district, end) and a full three-player game (two characters each).
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -75,4 +75,35 @@ test('three players play «ارگ‌ها» to the result', async ({ browser }, i
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the built district flies from the hand to the city at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/citadels');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await p.getByRole('button', { name: 'دو کارت' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۸/)).toBeVisible();
+  await p.locator('.ct2__bar .ct2-pick').first().click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۸/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const build = p.locator('.ct2__hand button.ct2-hint');
+  const id = await build.locator('[data-flip]').getAttribute('data-flip');
+  const inHand = p.locator(`.ct2__hand [data-flip="${id}"]`);
+  const inCity = p.locator(`.ct2-city--me [data-flip="${id}"]`);
+  await motionLog(p);
+  await build.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(inCity).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inHand).toBeVisible();
+  await expect(inCity).toHaveCount(0);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

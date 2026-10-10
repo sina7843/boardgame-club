@@ -1,5 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { expect, test, type Page, type Route } from '@playwright/test';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «شهر تاس» end to end: the tutorial (two dice, radio reroll, income, doubles turn, keep, last landmark) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -72,4 +72,43 @@ test('two mayors play «شهر تاس» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('instant roll (no undo) tumbles with no pips while in flight and the result is thrown as dice; a build shows at once in its undo window', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/machi-koro');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  const tumbling = p.locator('.mk__dice .bg-tumble');
+  // The roll is sent at once despite the window; hold its answer so the in-flight tumble can be seen.
+  const delay = async (route: Route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); };
+  await p.route('**/api/tables/*/commands', delay);
+  await p.locator('button.mk-hint').first().click();
+  await expect(tumbling).toHaveCount(2);
+  await expect(undo).toHaveCount(0);
+  expect(await tumbling.locator('circle').evaluateAll((cs) => cs.every((c) => getComputedStyle(c).visibility === 'hidden'))).toBe(true);
+  await expect(p.locator('.mk__sum')).toHaveCount(0);
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۶/)).toBeVisible({ timeout: 10_000 });
+  await expect(tumbling).toHaveCount(0);
+  await expect(p.locator('.mk__dice .bg-roll')).toHaveCount(2);
+  await p.waitForTimeout(1200);
+  expect((await motionLog(p)).some((x) => x.ghost === 'die')).toBe(true);
+  await p.unroute('**/api/tables/*/commands', delay);
+  // Step 2 rerolls; step 3 builds a ranch: the third ranch shows in my street during the undo window, undo removes it.
+  await p.locator('button.mk-hint').first().click();
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۶/)).toBeVisible({ timeout: 10_000 });
+  const ranch = p.locator('.mk-pl--me [data-flip$="-ranch"] .mk-card__count');
+  await expect(ranch).toHaveText('×۲');
+  await p.locator('button.mk-hint').first().click();
+  await expect(undo).toBeVisible();
+  await expect(ranch).toHaveText('×۳');
+  await undo.click();
+  await expect(ranch).toHaveText('×۲');
+  await p.context().close();
 });

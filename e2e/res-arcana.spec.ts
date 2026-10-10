@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «آرکانا» end to end: the tutorial (play, discard, pass, collect, tap, buy a monument) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -26,8 +26,10 @@ test('interactive tutorial: play, discard, pass, tap, buy', async ({ browser }, 
     for (let i = 0; i < 3 && (await label.count()); i++) {
       const h = p.locator('.ra .ra-hint:not([disabled])').first();
       if (!(await h.count())) break;
+      // Wait for the server's result (the move preview shows at once, so hints alone do not tell it arrived).
+      const seq = await p.locator('.ra').getAttribute('data-seq');
       await h.click();
-      await expect(p.locator('.ra .ra-hint[disabled]')).toHaveCount(0);
+      await expect(p.locator('.ra')).not.toHaveAttribute('data-seq', seq ?? '');
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
@@ -78,4 +80,35 @@ test('three players play to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+// The undo window is re-armed before each move: a dev-server reload re-runs the init script that sets it to 0.
+const slow = (p: Page) => p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+
+test('undo window: a played card flies from the hand to the table at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto(`/games/${GAME}`);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۸/)).toBeVisible({ timeout: 25_000 });
+  await p.waitForTimeout(800);
+  const slot = p.locator('.ra-hand .ra-slot', { has: p.locator('.ra-hint') });
+  const id = await slot.getAttribute('data-flip');
+  const inHand = p.locator(`.ra-hand [data-flip="${id}"]`), onTable = p.locator(`.ra-me .ra-row [data-flip="${id}"]`);
+  await motionLog(p);
+  await slow(p);
+  await slot.locator('.ra-hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(onTable).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(inHand).toBeVisible();
+  await expect(onTable).toHaveCount(0);
+  await p.waitForTimeout(800);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «چهل‌تکه» end to end: the tutorial (sew, leather and 7×7 bonus, advance to the end) and a full two-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -14,17 +14,17 @@ test('interactive tutorial: rotate and sew, leather 7×7, sew, advance to the en
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
   await at('۱');
-  await p.locator('.pw-patch.pw-hint').click();
+  await p.locator('.pw-patch.pw-hint:not([data-motion-ghost])').click();
   await p.getByRole('button', { name: /^چرخش/ }).click();
-  await p.locator('.pw-cell.pw-hint').click();
+  await p.locator('.pw-cell.pw-hint:not([data-motion-ghost])').click();
   await p.screenshot({ path: shot(info.project.name, 'tutorial-sew'), fullPage: true });
   await p.getByRole('button', { name: 'بدوز' }).click();
   await at('۲');
   // Leather: the single empty cell inside the 7×7 square (row 5, column 5, zero-based).
   await p.locator('.pw-quilt--big button.pw-cell').nth(5 * 9 + 5).click();
   await at('۳');
-  await p.locator('.pw-patch.pw-hint').click();
-  await p.locator('.pw-cell.pw-hint').click();
+  await p.locator('.pw-patch.pw-hint:not([data-motion-ghost])').click();
+  await p.locator('.pw-cell.pw-hint:not([data-motion-ghost])').click();
   await p.getByRole('button', { name: 'بدوز' }).click();
   await at('۴');
   await p.getByRole('button', { name: /^جلو رفتن/ }).click();
@@ -89,4 +89,37 @@ test('two quilters play «چهل‌تکه» to the result', async ({ browser }, 
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the bought patch is sewn on and the pawn walks at once, and undo takes both back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/patchwork');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۵/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const sewn = p.locator('.pw-quilt--big .pw-cell.fabric');
+  const filled = await sewn.count();
+  const patch = p.locator('.pw-patch.pw-hint:not([data-motion-ghost])');
+  const id = await patch.getAttribute('data-flip');
+  await patch.click();
+  await p.getByRole('button', { name: /^چرخش/ }).click();
+  await p.locator('.pw-cell.pw-hint:not([data-motion-ghost])').click();
+  await motionLog(p);
+  await p.getByRole('button', { name: 'بدوز' }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect.poll(() => sewn.count()).toBeGreaterThan(filled);
+  await expect(p.locator(`[data-flip="${id}"]`)).toHaveCount(0);
+  await p.waitForTimeout(900);
+  const log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'exit')).toBe(true);
+  expect(log.some((m) => m.cls.includes('pw-pawn-slot'))).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(p.locator(`[data-flip="${id}"]`)).toHaveCount(1);
+  await expect.poll(() => sewn.count()).toBe(filled);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.cls.includes('pw-pawn-slot'))).toBe(true);
+  await p.context().close();
 });

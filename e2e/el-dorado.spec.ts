@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «راه الدورادو» end to end: the tutorial (water, split jungle points, buy, refill, rubble, arrive, end of round) and a full three-player race.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -94,4 +94,35 @@ test('three players race to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the pawn moves and the played card leaves the hand at once, undo brings both back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto(`/games/${GAME}`);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  const hand = p.locator('.ed-hand .ed-slot');
+  const n = await hand.count();
+  const pawn = p.locator('.ed-pawn').first();
+  const start = await pawn.getAttribute('data-hex');
+  await p.locator('.ed-hand .ed-hint').click();
+  const target = p.locator('.ed-hex.ed-hint');
+  const to = await target.getAttribute('data-hex');
+  await motionLog(p);
+  await target.click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(pawn).toHaveAttribute('data-hex', to!);
+  await expect(hand).toHaveCount(n - 1);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'exit')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(pawn).toHaveAttribute('data-hex', start!);
+  await expect(hand).toHaveCount(n);
+  await p.waitForTimeout(700);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

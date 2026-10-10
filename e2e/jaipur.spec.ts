@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «کاروان» end to end: the tutorial (camels, exchange, sales, ending the round) and a full one-round game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
@@ -97,4 +97,45 @@ test('two traders play «کاروان» to the result', async ({ browser }, info
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+test('undo window: the taken card flies from the market into the hand at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/jaipur');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
+  await at('۱');
+  await p.getByRole('button', { name: /^همهٔ شترها/ }).click();
+  await at('۲');
+  const spices = p.locator('.jp__carpet .jp-pick').filter({ has: p.locator('.jp-card[aria-label="ادویه"]') });
+  await spices.nth(0).click();
+  await spices.nth(1).click();
+  await p.locator('.jp__hand .jp-pick').filter({ has: p.locator('.jp-card[aria-label="پارچه"]') }).first().click();
+  await p.locator('.jp__camgive button').last().click();
+  await p.getByRole('button', { name: /^معاوضهٔ/ }).click();
+  await at('۳');
+  for (let i = 0; i < 3; i++) await p.locator('.jp__hand .jp-pick.jp-hint').first().click();
+  await p.getByRole('button', { name: /^فروش/ }).click();
+  await at('۴');
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const id = await p.locator('.jp__carpet .jp-pick.jp-hint [data-flip]').getAttribute('data-flip');
+  const inMarket = p.locator(`.jp__carpet [data-flip="${id}"]`);
+  const inHand = p.locator(`.jp__hand [data-flip="${id}"]`);
+  await p.locator('.jp-pick.jp-hint').click();
+  await p.getByRole('button', { name: /^برداشتن/ }).click();
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
+  await expect(inHand).toBeVisible();
+  await expect(inMarket).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.getByRole('button', { name: 'انصراف', exact: true }).click();
+  await expect(inMarket).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await p.context().close();
 });

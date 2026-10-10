@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «رقابت کهکشانی» end to end: the tutorial (three late rounds: develop, explore, military settle, produce, consume,
 // civil settle, end at twelve cards) and a full three-player game.
@@ -81,4 +81,47 @@ test('three players play to the result', async ({ browser }, info) => {
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+// The undo window is re-armed before each move: a dev-server reload re-runs the init script that sets it to 0.
+const slow = (p: Page) => p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+
+test('instant keep (no undo): a kept explore card flies to the hand while the keep is in flight and stays there after the answer', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto(`/games/${GAME}`);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۷/)).toBeVisible({ timeout: 25_000 });
+  await slow(p);
+  await p.locator('.rg .rg-hint:not([disabled])').first().click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(p.locator('button.rg-phase.is-mine')).toHaveCount(1); // the chosen phase lights at once
+  await expect(p.getByText(/آموزش: مرحله ۲ از ۷/)).toBeVisible({ timeout: 25_000 });
+  const id = await p.locator('.rg-drawn button').first().getAttribute('data-flip');
+  const drawn = p.locator(`.rg-drawn [data-flip="${id}"]`), inHand = p.locator(`.rg-hand [data-flip="${id}"]`);
+  await p.waitForTimeout(1200);
+  // Keeping is sent at once despite the window (no undo); hold its answer so the in-flight preview can be seen.
+  let answered = false;
+  await p.route('**/api/tables/*/commands', async (route) => {
+    if (route.request().method() === 'POST') { await new Promise((ok) => setTimeout(ok, 1500)); answered = true; }
+    await route.continue();
+  });
+  await motionLog(p);
+  await slow(p);
+  await drawn.click();
+  await expect(inHand).toBeVisible();
+  await expect(drawn).toHaveCount(0);
+  await expect(undo).toHaveCount(0);
+  expect(answered).toBe(false);
+  await p.waitForTimeout(800);
+  const kinds = (await motionLog(p)).map((m) => m.ghost);
+  expect(kinds).toContain('fly');
+  expect(kinds).toContain('exit'); // the unkept draw drops away
+  // After the answer the kept card stays in the hand.
+  await expect(p.getByText(/آموزش: مرحله ۳ از ۷/)).toBeVisible({ timeout: 25_000 });
+  await expect(inHand).toBeVisible();
+  await expect(drawn).toHaveCount(0);
+  await p.context().close();
 });

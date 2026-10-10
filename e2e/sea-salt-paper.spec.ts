@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «کاغذ و دریا» end to end: the tutorial (take, crab duo, boat duo + extra turn, draw two, stop) and a full
 // three-player game over several rounds.
@@ -38,6 +38,34 @@ test('interactive tutorial: the last hand, from crab and boat duos to stop', asy
   await p.screenshot({ path: shot(info.project.name, 'tutorial-stop'), fullPage: true });
   await p.getByRole('button', { name: 'بس!' }).click();
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('undo window: a card taken from a pile flies to the hand at once, and undo flies it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/sea-salt-paper');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۸/)).toBeVisible();
+  await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+  await p.waitForTimeout(800);
+  await motionLog(p);
+  const id = await p.locator('.sp2-pile.sp2-hint [data-flip]').getAttribute('data-flip');
+  const inHand = p.locator(`.sp2__hand [data-flip="${id}"]`);
+  const onPile = p.locator(`.sp2-pile [data-flip="${id}"]`);
+  await p.locator('.sp2-pile.sp2-hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await expect(inHand).toBeVisible();
+  await expect(onPile).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  await undo.click();
+  await expect(onPile).toBeVisible();
+  await expect(inHand).toHaveCount(0);
+  await p.waitForTimeout(900);
+  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.context().close();
 });
 

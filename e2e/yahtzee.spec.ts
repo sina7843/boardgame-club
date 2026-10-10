@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «یاتزی» end to end: the tutorial (holds, extra Yahtzee + joker, upper bonus) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
@@ -28,6 +28,29 @@ test('interactive tutorial: holds, an extra Yahtzee with the joker rule and the 
     if (step !== '۷') await expect.poll(() => p.locator('.yz').getAttribute('data-seq')).not.toBe(before);
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
+  await p.context().close();
+});
+
+test('instant roll: no undo, the dice tumble with hidden pips while the roll is in flight, then the result is thrown as dice', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/yahtzee');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  // The roll is sent at once (no undo window); hold its answer so the in-flight tumble can be seen.
+  await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  await motionLog(p);
+  const tumbling = p.locator('.yz__felt .bg-tumble');
+  await p.locator('button.yz-hint').click();
+  await expect(tumbling).toHaveCount(5);
+  await expect(p.locator('.yz__felt .bg-roll')).toHaveCount(0);
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  expect(await tumbling.locator('circle').evaluateAll((cs) => cs.every((c) => getComputedStyle(c).visibility === 'hidden'))).toBe(true);
+  await expect(p.locator('.yz__felt .bg-roll')).toHaveCount(5, { timeout: 10_000 });
+  await expect(tumbling).toHaveCount(0);
+  await p.waitForTimeout(1500);
+  expect((await motionLog(p)).some((x) => x.ghost === 'die')).toBe(true);
   await p.context().close();
 });
 

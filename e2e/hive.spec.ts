@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «کندو» end to end: tutorial (spider, grasshopper, placement, beetle and ant trap the queen) and two players placing and moving bugs
 // through the reserve and the board; the game is resigned after a while since a full game is long.
@@ -77,4 +77,40 @@ test('two players place and move bugs, then one resigns', async ({ browser }, in
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   for (const p of pages) await p.context().close();
+});
+
+// The undo window is re-armed before each move: a dev-server reload re-runs the init script that sets it to 0.
+const slow = (p: Page) => p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
+
+test('undo window: a moved bug glides to its target at once, and undo glides it back', async ({ browser }, info) => {
+  only(info.project.name);
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/hive');
+  await slow(p);
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از ۵/)).toBeVisible({ timeout: 25_000 });
+  await p.waitForTimeout(800);
+  const id = await p.locator('.hv-cell--hint [data-flip]').getAttribute('data-flip');
+  const bug = p.locator(`.hv-board [data-flip="${id}"]`);
+  // Measured against the board (the page may scroll when the undo bar comes and goes).
+  const at = async () => { const b = (await bug.boundingBox())!, o = (await p.locator('.hv-board').boundingBox())!; return { x: b.x + b.width / 2 - o.x, y: b.y + b.height / 2 - o.y }; };
+  const away = async (o: { x: number; y: number }) => { const n = await at(); return Math.hypot(n.x - o.x, n.y - o.y); };
+  await slow(p);
+  await p.locator('.hv-cell--hint').click(); // selecting lights the targets, which refits the view
+  await p.waitForTimeout(300);
+  const start = await at();
+  await motionLog(p);
+  await slow(p);
+  await p.locator('.hv-target--hint').click();
+  const undo = p.getByRole('button', { name: 'انصراف', exact: true });
+  await expect(undo).toBeVisible();
+  await p.waitForTimeout(1000);
+  expect(await away(start)).toBeGreaterThan(20);
+  expect((await motionLog(p)).some((m) => m.flip === id)).toBe(true);
+  await undo.click();
+  await p.waitForTimeout(1000);
+  expect(await away(start)).toBeLessThan(3);
+  expect((await motionLog(p)).some((m) => m.flip === id)).toBe(true);
+  await p.context().close();
 });

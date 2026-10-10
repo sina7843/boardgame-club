@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { motionLog, player, recordMotion } from './helpers.ts';
 
 // «املاک» end to end: two clients play a 20-round game (net-worth finish) through the real UI: roll, buy when affordable,
 // build when offered, pass in auctions, mortgage to cover debts, end turns. One trade is offered and rejected.
@@ -72,4 +72,29 @@ test('two players play «املاک» for 20 rounds to the result', async ({ bro
   await host.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
   test.info().annotations.push({ type: 'clicks', description: String(n) });
   for (const p of pages) await p.context().close();
+});
+
+test('instant roll: no undo, the dice tumble without pips while the roll is in flight; the result is thrown and the token walks', async ({ browser }, info) => {
+  test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'game flows run at 360 and 1440');
+  const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
+  await recordMotion(p);
+  await p.goto('/games/amlak');
+  await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
+  await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
+  // The roll is sent at once (no undo window); hold its answer so the in-flight tumble can be seen.
+  await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
+  const roll = p.locator('.am-panel--decide').getByRole('button', { name: /^تاس بریز/ });
+  const tumbling = p.locator('.amb-die.bg-tumble');
+  await motionLog(p);
+  await roll.click();
+  await expect(tumbling).toHaveCount(2);
+  await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toHaveCount(0);
+  expect(await tumbling.locator('circle').evaluateAll((cs) => cs.every((c) => getComputedStyle(c).visibility === 'hidden'))).toBe(true);
+  await expect(p.locator('.amb-die.bg-roll')).toHaveCount(2, { timeout: 15_000 });
+  await expect(tumbling).toHaveCount(0);
+  await p.waitForTimeout(1500);
+  const log = await motionLog(p);
+  expect(log.some((m) => m.ghost === 'die')).toBe(true);
+  expect(log.some((m) => m.cls.includes('amb-pawn'))).toBe(true);
+  await p.context().close();
 });

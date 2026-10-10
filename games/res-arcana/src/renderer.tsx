@@ -2,14 +2,14 @@
 // are vellum plates showing cost gems, what they collect each round and their power (pay → gain, ★ for points).
 // Places of power and monuments wait on a velvet shelf; your mage and artifacts sit in front of you.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import artE from './art/ess-e.webp';
 import artL from './art/ess-l.webp';
 import artC from './art/ess-c.webp';
 import artD from './art/ess-d.webp';
 import artG from './art/ess-g.webp';
-import { CARDS, ESS, ESS_FA, type Ess, type Pile, type RaView } from './rules.ts';
+import { CARDS, ESS, ESS_FA, vpOf, type Ess, type Pile, type RaView } from './rules.ts';
 
 // Painted crystals cut from a generated sheet (see DECISIONS.md), shown as round essence icons.
 const art = (k: Ess) => ({ backgroundImage: `url(${{ e: artE, l: artL, c: artC, d: artD, g: artG }[k]})` });
@@ -34,22 +34,53 @@ export function ArcCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' })
 }
 
 type Hint = { type: string; card?: number } | null;
+type Queued = { type: string; card?: number; gain?: Ess };
 
-export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<RaView>) {
+/** My queued play / buy / discard / tap applied at once: every cost and gain is printed on the card. A pass draws a
+ *  hidden card and a bought monument is replaced from a hidden deck, so those wait for the server. */
+function preview(v: RaView, q: Queued | null | undefined, me: number): RaView {
+  if (!q || me < 0 || q.card === undefined || !v.hand) return v;
+  const id = q.card, c = CARDS[id]!, m = v.mages[me]!;
+  const ess = { ...m.ess };
+  const sub = (p: Pile) => ESS.forEach((k) => { ess[k] -= p[k] ?? 0; });
+  let { table, vpTokens } = m, { hand, tapped, places, monuments } = v;
+  if (q.type === 'play' || q.type === 'buy') {
+    sub(c.cost); table = [...table, id]; hand = hand.filter((x) => x !== id);
+    places = places.filter((x) => x !== id); monuments = monuments.filter((x) => x !== id);
+  } else if (q.type === 'discard' && q.gain) {
+    hand = hand.filter((x) => x !== id); ess[q.gain] += q.gain === 'g' ? 1 : 2;
+  } else if (q.type === 'tap' && c.power) {
+    sub(c.power.pay); ESS.forEach((k) => { ess[k] += c.power!.gain[k] ?? 0; });
+    vpTokens += c.power.vp ?? 0; tapped = [...tapped, id];
+  } else return v;
+  return { ...v, hand, tapped, places, monuments, last: { seat: me, kind: q.type, card: id }, mages: v.mages.map((x, k) => (k !== me ? x : { ...x, ess, table, vpTokens, hand: hand.length, vp: vpOf({ table, vpTokens }) })) };
+}
+
+function Num({ v, className, children }: { v: number; className: string; children: ReactNode }) {
+  const pop = usePop(v);
+  return <b key={v} className={`${className} ${pop}`}>{children}</b>;
+}
+
+export default function ResArcanaRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<RaView>) {
   const me = mySeat ?? 0;
-  // Cards glide shelf → table, hand → table, deck → hand; essences from a tapped card fly into its owner's pool.
+  const q = queued as Queued | null | undefined;
+  const view = preview(served, q, mySeat ?? -1);
+  // Cards glide shelf → table, hand → table, deck → hand (my queued move at once; undo glides it back); a discarded
+  // card drops away; essences from a tapped card fly into its owner's pool.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${q ? JSON.stringify(q) : ''}`);
   const burst = (k: number) => {
     const l = view.last;
     const gain = l && l.seat === k && l.kind === 'tap' && l.card !== undefined ? CARDS[l.card]!.power?.gain : undefined;
     if (!l || !gain) return null;
+    // Keyed by the tapped card (not seq), so my previewed tap does not burst a second time when the server confirms it.
     return ESS.flatMap((e) => Array.from({ length: gain[e] ?? 0 }, (_, i) => (
-      <span key={`${e}${i}`} className="ra-gem" style={art(e)} aria-hidden="true" data-flip={`gain-${view.seq}-${e}${i}`} data-flip-from={`c${l.card}`} />)));
+      <span key={`${e}${i}`} className="ra-gem" style={art(e)} aria-hidden="true" data-flip={`gain-${l.card}-${e}${i}`} data-flip-from={`c${l.card}`} />)));
   };
-  const hint = expected as unknown as Hint;
-  const can = (t: string, card: number) => legalActions.some((a) => a.type === t && a.card === card);
-  const myTurn = legalActions.some((a) => a.type === 'pass');
+  // While my own move is queued or in flight the served legal actions and hint are stale: not my turn until the result.
+  const hint = (q ? null : expected) as unknown as Hint;
+  const can = (t: string, card: number) => !q && legalActions.some((a) => a.type === t && a.card === card);
+  const myTurn = !q && legalActions.some((a) => a.type === 'pass');
   const [dropping, setDropping] = useState<number | null>(null);
   useEffect(() => { setDropping(null); }, [view.seq]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
@@ -66,7 +97,7 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
       <ul className="ra-rivals" aria-label="جادوگران">
         {view.mages.map((g, k) => (k === me ? null : (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['ra-rival', k === view.current && !view.outcome ? 'is-now' : '', g.passed ? 'is-passed' : ''].join(' ')}>
-            <div className="ra-rival__head"><bdi>{who(k)}</bdi><b className="ra-vp bg-pop" key={g.vp}>{fa(g.vp)}★</b><Gems pile={g.ess} empty="بی‌جوهر" pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
+            <div className="ra-rival__head"><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty="بی‌جوهر" pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
             <div className="ra-row">{g.table.map((id) => <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${k}`} data-flip-anchor={`c${id}`} className={view.tapped.includes(id) ? 'is-tapped' : ''}><ArcCard id={id} size="sm" /></span>)}</div>
           </li>
         )))}
@@ -84,7 +115,7 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
       </section>
 
       <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
-        <div className="ra-me__head"><bdi>{who(me)}</bdi><b className="ra-vp ra-vp--lg bg-pop" key={mine.vp}>{fa(mine.vp)} از ۱۰ ★</b><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
+        <div className="ra-me__head"><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
         <div className="ra-row">
           {mine.table.map((id) => {
             const ok = can('tap', id);
@@ -99,7 +130,7 @@ export default function ResArcanaRenderer({ view, legalActions, mySeat, seatName
         {view.hand && !view.outcome && (
           <div className="ra-hand" aria-label="دست شما">
             {view.hand.map((id) => (
-              <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${me}`} className="ra-slot">
+              <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${me}`} data-flip-exit="drop" className="ra-slot">
                 <ArcCard id={id} />
                 <span className="ra-slot__acts">
                   <button type="button" className={`ra-mini ${hint?.type === 'play' && hint.card === id ? 'ra-hint' : ''}`} disabled={busy || !can('play', id)} onClick={() => onAction({ type: 'play', card: id })}>بازی</button>

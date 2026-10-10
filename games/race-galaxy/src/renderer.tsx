@@ -2,8 +2,8 @@
 // what runs this round, empire rows of planet cards (glowing dots for goods) and developments, and your hand where
 // you pick a card to place and then the cards that pay for it.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import goodN from './art/good-n.webp';
 import goodR from './art/good-r.webp';
 import goodG from './art/good-g.webp';
@@ -37,12 +37,36 @@ export function GalaxyCard({ id, good, size = 'md' }: { id: number; good?: boole
 }
 
 type Hint = { type: string; phase?: string; card?: number; pay?: number[] } | null;
+type Queued = { type: string; phase?: Phase; card?: number; pay?: number[] };
 
-export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<RgView>) {
+/** My queued keep / place applied at once with what I already hold (no hidden draws, e.g. the settle bonus card). */
+function preview(v: RgView, q: Queued | null | undefined, me: number): RgView {
+  if (!q || me < 0 || !v.hand || q.card === undefined || q.card < 0) return v;
+  const card = q.card;
+  if (q.type === 'keep') return { ...v, drawn: null, hand: [...v.hand, card], empires: v.empires.map((e, k) => (k === me ? { ...e, hand: e.hand + 1 } : e)) };
+  if (q.type !== 'place') return v;
+  const pay = q.pay ?? [];
+  const hand = v.hand.filter((c, i) => c !== card && !pay.includes(i));
+  return {
+    ...v, hand,
+    empires: v.empires.map((e, k) => (k !== me ? e : { ...e, hand: hand.length, tableau: [...e.tableau, card], goods: CARDS[card]!.kind === 'wind' ? [...e.goods, card] : e.goods }))
+  };
+}
+
+function Num({ v, className, children }: { v: number; className?: string; children: ReactNode }) {
+  const pop = usePop(v);
+  return <b key={v} className={`${className ?? ''} ${pop}`}>{children}</b>;
+}
+
+export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<RgView>) {
   const me = mySeat ?? 0;
-  // Cards glide deck → drawn → hand → tableau; chosen phase tiles flip face-up when revealed; goods land on their planets.
+  const q = queued as Queued | null | undefined;
+  const view = preview(served, q, mySeat ?? -1);
+  const picked = q?.type === 'choose' ? q.phase : null; // my queued secret choice lights its tile at once
+  // Cards glide deck → drawn → hand → tableau (my queued keep/place at once; undo glides them back); cards that leave
+  // to the discard (unkept draws, payment) drop away; chosen phase tiles flip face-up when revealed; goods land.
   const root = useRef<HTMLDivElement>(null);
-  useFlip(root, view.seq);
+  useFlip(root, `${view.seq}|${q ? JSON.stringify(q) : ''}`);
   const hint = expected as unknown as Hint;
   const [sel, setSel] = useState<number | null>(null);
   const [pay, setPay] = useState<number[]>([]);
@@ -56,6 +80,8 @@ export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatNam
   const hand = view.hand ?? [];
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
+    // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
+    : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
     : choosing ? { tone: 'mine' as const, text: 'پنهانی یک مرحله انتخاب کنید' }
       : keeps.length ? { tone: 'mine' as const, text: 'یکی از کارت‌های کشیده را نگه دارید' }
         : placing ? { tone: 'mine' as const, text: sel === null ? `کارتی برای ${PHASE_FA[view.stage as Phase][0]} انتخاب کنید یا صرف‌نظر کنید` : `${fa(price)} کارت برای پرداخت انتخاب کنید` }
@@ -65,7 +91,7 @@ export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatNam
   return (
     <div className="rg" ref={root} data-seq={view.seq} data-stage={view.stage}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="rg-info" data-flip-anchor="deck">دور {fa(view.round)} · بانک امتیاز <b key={view.pool} className="bg-pop">{fa(view.pool)}</b> · دسته <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b></p>
+      <p className="rg-info" data-flip-anchor="deck">دور {fa(view.round)} · بانک امتیاز <Num v={view.pool}>{fa(view.pool)}</Num> · دسته <Num v={view.deckCount}>{fa(view.deckCount)}</Num></p>
 
       <section className="rg-phases" aria-label="مرحله‌ها">
         {PHASES.map((ph) => {
@@ -73,7 +99,7 @@ export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatNam
           const on = chosenNow.has(ph);
           const mine = view.myChoice === ph;
           return choosing ? (
-            <button key={ph} type="button" disabled={busy} onClick={() => onAction({ type: 'choose', phase: ph })} className={`rg-phase is-can ${hint?.phase === ph ? 'rg-hint' : ''}`}>
+            <button key={ph} type="button" disabled={busy} onClick={() => onAction({ type: 'choose', phase: ph })} aria-pressed={picked === ph} className={`rg-phase is-can ${hint?.phase === ph ? 'rg-hint' : ''} ${picked === ph ? 'is-mine' : ''}`}>
               <b>{PHASE_FA[ph][1]}</b><span>{PHASE_FA[ph][0]}</span><small>{PHASE_FA[ph][2]}</small>
             </button>
           ) : (
@@ -89,7 +115,7 @@ export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatNam
         {view.empires.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['rg-empire', k === me ? 'is-me' : '', (view.stage === 'select' ? !e.chose : !e.done) && !view.outcome ? 'is-waiting' : ''].join(' ')}>
             <div className="rg-empire__head">
-              <bdi>{who(k)}</bdi><b className="rg-vp bg-pop" key={e.vp}>{fa(e.vp)}★</b>
+              <bdi>{who(k)}</bdi><Num className="rg-vp" v={e.vp}>{fa(e.vp)}★</Num>
               <small>{fa(e.tableau.length)}/۱۲ کارت · نظامی {fa(e.military)} · {fa(e.chips)} نشان · دست {fa(e.hand)}</small>
             </div>
             <div className="rg-row">{e.tableau.map((id) => <span key={id} className="rg-fly" data-flip={`g${id}`} data-flip-from={`seat-${k}`}><GalaxyCard id={id} size="sm" good={e.goods.includes(id)} /></span>)}</div>
@@ -99,7 +125,7 @@ export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatNam
 
       {keeps.length > 0 && view.drawn && (
         <section className="rg-drawn" aria-label="کارت‌های کشیده">
-          {view.drawn.map((id) => <button key={id} type="button" data-flip={`g${id}`} data-flip-from="deck" className="rg-pick is-can" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><GalaxyCard id={id} /></button>)}
+          {view.drawn.map((id) => <button key={id} type="button" data-flip={`g${id}`} data-flip-from="deck" data-flip-exit="drop" className="rg-pick is-can" disabled={busy} onClick={() => onAction({ type: 'keep', card: id })}><GalaxyCard id={id} /></button>)}
         </section>
       )}
 
@@ -117,7 +143,7 @@ export default function RaceGalaxyRenderer({ view, legalActions, mySeat, seatNam
                 setPay(isPay ? pay.filter((x) => x !== i) : pay.length < price ? [...pay, i] : pay);
               };
               return (
-                <button key={id} type="button" data-flip={`g${id}`} data-flip-from="deck" disabled={busy || !placing || (sel === null && !placeable)} onClick={click} aria-pressed={isSel || isPay}
+                <button key={id} type="button" data-flip={`g${id}`} data-flip-from="deck" data-flip-exit="drop" disabled={busy || !placing || (sel === null && !placeable)} onClick={click} aria-pressed={isSel || isPay}
                   className={['rg-pick', placeable && sel === null ? 'is-can' : '', isSel ? 'is-sel' : '', isPay ? 'is-pay' : ''].join(' ')}><GalaxyCard id={id} /></button>
               );
             })}
