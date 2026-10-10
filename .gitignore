@@ -72,3 +72,6 @@ pnpm-debug.log*
 /0[1-6]-*.cmd
 /Rulebooks/
 /docs
+# local scratch (scripts, sheets, Playwright output)
+.tmp-trophy/
+*.stackdump

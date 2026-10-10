@@ -8,7 +8,7 @@ import './renderer.css';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ActionBar, Button, TurnIndicator, ZoomBoard, fa, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import {
-  BASE_CONVERSIONS, BUILDING_FA, CONTENT, HEX_SIZE, LIMIT, PLANET_FA, POWER_ACTIONS, RES_FA, TRACKS, TRACK_FA, hexCenter,
+  BASE_CONVERSIONS, BUILD_COST, BUILDING_FA, CAP, GAIA_TOKENS, RANGE, RESEARCH_INCOME, TERRAFORM_ORE, WHEEL, wheelDistance, CONTENT, HEX_SIZE, LIMIT, PLANET_FA, POWER_ACTIONS, RES_FA, TRACKS, TRACK_FA, hexCenter,
   type Building, type FactionDef, type Gain, type GaiaView, type Planet, type PlayerState, type Track
 } from './rules.ts';
 import pR from './art/planet-r.webp';
@@ -35,6 +35,30 @@ import bS from './art/board-s.webp';
 import bT from './art/board-t.webp';
 import bI from './art/board-i.webp';
 import bN from './art/board-n.webp';
+// Faction portraits: one Higgsfield sheet cut into 14 squares (see DECISIONS.md).
+import tTerra from './art/track-terra.webp';
+import tNav from './art/track-nav.webp';
+import tAi from './art/track-ai.webp';
+import tGaia from './art/track-gaia.webp';
+import tEco from './art/track-eco.webp';
+import tSci from './art/track-sci.webp';
+import bgNebula from './art/bg-nebula.webp';
+import bgPanel from './art/bg-panel.webp';
+import bgStars from './art/bg-stars.webp';
+import fTerrans from './art/faction-terrans.webp';
+import fLantids from './art/faction-lantids.webp';
+import fHadschHallas from './art/faction-hadsch-hallas.webp';
+import fIvits from './art/faction-ivits.webp';
+import fGeodens from './art/faction-geodens.webp';
+import fBalTaks from './art/faction-bal-taks.webp';
+import fXenos from './art/faction-xenos.webp';
+import fGleens from './art/faction-gleens.webp';
+import fAmbas from './art/faction-ambas.webp';
+import fTaklons from './art/faction-taklons.webp';
+import fFiraks from './art/faction-firaks.webp';
+import fBescods from './art/faction-bescods.webp';
+import fItars from './art/faction-itars.webp';
+import fNevlas from './art/faction-nevlas.webp';
 
 const PLANET_ART: Partial<Record<Planet, string>> = { r: pR, o: pO, v: pV, d: pD, s: pS, t: pT, i: pI, g: pG, m: pM, l: pL };
 const RES_ART = { c: rC, o: rO, k: rK, q: rQ, pw: rPw } as const;
@@ -123,20 +147,62 @@ function GainIcons({ g }: { g: Gain }) {
   if (!parts.length) return <span>—</span>;
   return <span className="gp-gain">{parts.map(([k, v]) => (k in RES_ART
     ? <span key={k} className="gp-res" title={RES_FA[k]}><img src={RES_ART[k as keyof typeof RES_ART]} alt="" />{fa(v)}</span>
-    : <span key={k}>{fa(v)} {RES_FA[k]}</span>))}</span>;
+    : <span key={k} className={`gp-res gp-res--${k}`} title={RES_FA[k]}><i aria-hidden="true">{k === 'vp' ? '★' : k === 't' ? '●' : '◆'}</i>{fa(v)}<span className="sr-only"> {RES_FA[k]}</span></span>))}</span>;
+}
+
+/** When a tile's effect happens, read from its label prefix ("فوری: …"), with the symbol printed on the real tiles. */
+const WHEN: [prefix: string, sym: string, cls: string][] = [['فوری', '⚡', 'now'], ['درآمد', '⟳', 'inc'], ['هنگام پاس', '⏏', 'pass'], ['اقدام', '▶', 'act']];
+function splitLabel(label: string): { head: string | null; sym: string | null; cls: string; text: string } {
+  const i = label.indexOf(':');
+  if (i < 0) return { head: null, sym: null, cls: 'always', text: label };
+  const head = label.slice(0, i).trim();
+  const w = WHEN.find(([pre]) => head === pre);
+  return { head, sym: w?.[1] ?? null, cls: w?.[2] ?? 'trigger', text: label.slice(i + 1).trim() };
+}
+
+/** A label laid out like a printed tile: the timing symbol in a corner badge, the effect large. */
+function TileFace({ label }: { label: string }) {
+  const { head, sym, cls, text } = splitLabel(label);
+  return (
+    <>
+      {head && <span className={`gp-when gp-when--${cls}`}>{sym && <i aria-hidden="true">{sym}</i>}{head}</span>}
+      <span className="gp-tile__text">{text}</span>
+    </>
+  );
 }
 
 function TechTile({ id, covered, hint, flip, from, anchor }: { id: string; covered?: boolean; hint?: boolean; flip?: string; from?: string; anchor?: string }) {
   const t = CONTENT.techs[id];
   return (
-    <span data-flip={flip} data-flip-from={from} data-flip-anchor={anchor} className={['gp-tile', t?.kind === 'adv' ? 'gp-tile--adv' : '', covered ? 'gp-tile--covered' : '', hint ? 'gp-hint' : ''].join(' ')}>
-      <small>{t?.kind === 'adv' ? 'پیشرفته' : 'فناوری'}</small>{techFa(id)}{covered && <em> (پوشیده)</em>}
+    <span data-flip={flip} data-flip-from={from} data-flip-anchor={anchor} title={techFa(id)}
+      className={['gp-tile', 'gp-tile--tech', t?.kind === 'adv' ? 'gp-tile--adv' : '', covered ? 'gp-tile--covered' : '', hint ? 'gp-hint' : ''].join(' ')}>
+      <small className="gp-tile__kind">{t?.kind === 'adv' ? 'فناوری پیشرفته' : 'فناوری'}</small>
+      <TileFace label={techFa(id)} />{covered && <em className="gp-tile__cover">پوشیده</em>}
     </span>
   );
 }
 
 function BoosterTile({ id }: { id: string }) {
-  return <span data-flip={`boost-${id}`} className="gp-tile gp-tile--boost"><small>تقویت‌کننده</small>{boosterFa(id)}</span>;
+  const b = CONTENT.boosters[id];
+  const rest = boosterFa(id).split('؛').slice(1).join('؛').trim();
+  return (
+    <span data-flip={`boost-${id}`} className="gp-tile gp-tile--boost" title={boosterFa(id)}>
+      <small className="gp-tile__kind">تقویت‌کننده</small>
+      {b && <span className="gp-boost__inc"><GainIcons g={b.income} /></span>}
+      {rest && <TileFace label={rest} />}
+    </span>
+  );
+}
+
+/** Federation token: a hexagon with its reward, green border when it can open level 5 of a research track. */
+function FedToken({ id, n }: { id: string; n?: number }) {
+  const t = CONTENT.feds[id];
+  return (
+    <span className={`gp-fedtok${t?.green ? ' gp-fedtok--green' : ''}`} title={`${fedFa(id)}${t?.green ? ' (سبز)' : ''}`}>
+      {t ? <GainIcons g={t.gain} /> : fedFa(id)}
+      {n !== undefined && <small className="gp-fedtok__n">×{fa(n)}</small>}
+    </span>
+  );
 }
 
 // ---------------- faction board ----------------
@@ -153,6 +219,10 @@ const DEFAULT_BOARD = {
   base: { o: 1, k: 1 } as Gain, ts: [{ c: 3 }, { c: 4 }, { c: 4 }, { c: 5 }] as Gain[], lab: [{ k: 1 }, { k: 1 }, { k: 1 }] as Gain[],
   pi: { pw: 4, t: 1 } as Gain, ac1: { k: 2 } as Gain, ac2: { q: 1 } as Gain
 };
+const FACTION_ART: Record<string, string> = {
+  'terrans': fTerrans, 'lantids': fLantids, 'hadsch-hallas': fHadschHallas, 'ivits': fIvits, 'geodens': fGeodens, 'bal-taks': fBalTaks, 'xenos': fXenos, 'gleens': fGleens, 'ambas': fAmbas, 'taklons': fTaklons, 'firaks': fFiraks, 'bescods': fBescods, 'itars': fItars, 'nevlas': fNevlas
+};
+const TRACK_ART: Record<Track, string> = { terra: tTerra, nav: tNav, ai: tAi, gaia: tGaia, eco: tEco, sci: tSci };
 const BOARD_ART: Record<string, string> = { r: bR, o: bO, v: bV, d: bD, s: bS, t: bT, i: bI };
 const LIGHT_BOARD = new Set(['d', 'i', 't']);
 
@@ -188,6 +258,11 @@ function SlotGain({ g }: { g: Gain }) {
   );
 }
 
+/** Build cost printed at the start of each structure row. */
+function Cost({ g, note }: { g: Gain; note?: string }) {
+  return <span className="gpb-cost" aria-label={`هزینهٔ ساخت: ${gainFa(g)}${note ? `، ${note}` : ''}`}><SlotGain g={g} />{note && <small aria-hidden="true">{note}</small>}</span>;
+}
+
 function Slot({ kind, built, income, n }: { kind: Kind; built: boolean; income: Gain; n: number }) {
   return (
     <li className={`gpb-slot${built ? ' gpb-slot--built' : ''}`} aria-label={`${KIND_FA[kind]} ${fa(n)}: ${built ? 'ساخته شده، درآمد آشکار' : 'هنوز روی صفحه'} — ${gainFa(income)}`}>
@@ -197,10 +272,10 @@ function Slot({ kind, built, income, n }: { kind: Kind; built: boolean; income: 
   );
 }
 
-function Track({ kind, total, built, incomes }: { kind: Kind; total: number; built: number; incomes: Gain[] }) {
+function Track({ kind, total, built, incomes, cost, costNote }: { kind: Kind; total: number; built: number; incomes: Gain[]; cost?: Gain; costNote?: string }) {
   return (
     <div className={`gpb-track gpb-track--${kind}`}>
-      <div className="gpb-track__head"><Piece kind={kind} /><span>{KIND_FA[kind]}</span><small>{fa(built)}/{fa(total)}</small></div>
+      <div className="gpb-track__head"><Piece kind={kind} /><span>{KIND_FA[kind]}</span><small>{fa(built)}/{fa(total)}</small>{cost && <Cost g={cost} note={costNote} />}</div>
       <ol className="gpb-slots" style={{ '--n': total } as CSSProperties}>
         {Array.from({ length: total }, (_, i) => <Slot key={i} kind={kind} n={i + 1} built={i < built} income={incomes[i] ?? {}} />)}
       </ol>
@@ -208,14 +283,17 @@ function Track({ kind, total, built, incomes }: { kind: Kind; total: number; bui
   );
 }
 
-function PowerCycle({ p }: { p: PlayerState }) {
+/** Tokens are numbered in cycle order (gaia area, I, II, III), so a charge moves the last token of bowl I into bowl II
+ *  and useFlip slides it across; spending moves tokens from III back round to I. */
+function PowerCycle({ p, seat }: { p: PlayerState; seat: number }) {
   const { b1, b2, b3, gaia, brain } = p.power;
+  const first = { 0: 0, 1: gaia, 2: gaia + b1, 3: gaia + b1 + b2 } as const;
   const bowl = (n: number, b: 1 | 2 | 3 | 0, label: string) => (
     <div className={`gpb-bowl gpb-bowl--${b}`} role="img" aria-label={`${label}: ${fa(n)} ژتون${brain === b ? '، به‌علاوهٔ سنگ مغز' : ''}`}>
       <small aria-hidden="true">{label}</small>
       <span className="gpb-tokens" aria-hidden="true">
         {brain === b && <i className="gpb-brain" title="سنگ مغز" />}
-        {Array.from({ length: Math.min(n, 12) }, (_, i) => <i key={i} />)}
+        {Array.from({ length: Math.min(n, 12) }, (_, i) => <i key={first[b] + i} data-flip={`pw-${seat}-${first[b] + i}`} />)}
         {n > 12 && <em>…</em>}
       </span>
       <Num value={n} label={label} />
@@ -235,6 +313,99 @@ function PowerCycle({ p }: { p: PlayerState }) {
   );
 }
 
+/** The printed terraforming wheel: the seven home planet types around the faction's home planet (top), each with its
+ *  terraforming steps and — beyond the printed board — the mine's current ore at the player's terraforming level.
+ *  Gaia and transdim planets sit in the middle. Mirrors minePlan in core.ts (range QIC not included). */
+/** What reaching each research level gives — mirrors advance(), RANGE, TERRAFORM_ORE, GAIA_TOKENS and RESEARCH_INCOME
+ *  in core.ts. `now`: one-time gain; `inc`: income while on the level; `note`: a standing value (cost/range). */
+function levelInfo(t: Track, lvl: number): { now?: Gain; inc?: Gain; note?: string } {
+  const charge3: Gain | undefined = lvl === 3 ? { pw: 3 } : undefined;
+  switch (t) {
+    case 'terra': return { now: lvl === 1 || lvl === 4 ? { o: 2 } : charge3, note: lvl === 5 ? 'توکن فدراسیون' : `${fa(TERRAFORM_ORE[lvl]!)} سنگ/گام` };
+    case 'nav': return { now: lvl === 1 || lvl === 3 ? { q: 1, ...charge3 } : undefined, note: lvl === 5 ? `برد ${fa(RANGE[lvl]!)} · سیارهٔ گمشده` : `برد ${fa(RANGE[lvl]!)}` };
+    case 'ai': return { now: lvl ? { q: [0, 1, 1, 2, 2, 4][lvl]!, ...charge3 } : undefined };
+    case 'gaia': return {
+      now: lvl === 2 ? { t: 3 } : lvl === 5 ? { vp: 4 } : charge3,
+      note: lvl === 5 ? '+۱ امتیاز هر سیارهٔ گایا' : lvl === 1 || lvl === 3 || lvl === 4 ? `+گایاساز · ${fa(GAIA_TOKENS(lvl))} ژتون` : lvl ? `${fa(GAIA_TOKENS(lvl))} ژتون` : undefined
+    };
+    case 'eco': return lvl === 5 ? { now: { c: 6, o: 3, pw: 6 } } : { inc: RESEARCH_INCOME.eco[lvl], now: charge3 };
+    case 'sci': return lvl === 5 ? { now: { k: 9 } } : { inc: RESEARCH_INCOME.sci[lvl], now: charge3 };
+  }
+}
+const nonEmpty = (g?: Gain) => !!g && Object.values(g).some(Boolean);
+const levelFa = (t: Track, lvl: number) => {
+  const i = levelInfo(t, lvl);
+  return [nonEmpty(i.now) && `فوری ${gainFa(i.now!)}`, nonEmpty(i.inc) && `درآمد ${gainFa(i.inc!)}`, i.note].filter(Boolean).join('، ');
+};
+
+function LevelInfo({ t, lvl }: { t: Track; lvl: number }) {
+  const i = levelInfo(t, lvl);
+  return (
+    <span className="gp-lvl__info" aria-hidden="true">
+      {nonEmpty(i.now) && <span className="gp-lvl__now"><GainIcons g={i.now!} /></span>}
+      {nonEmpty(i.inc) && <span className="gp-lvl__inc"><i>⟳</i><GainIcons g={i.inc!} /></span>}
+      {i.note && <small>{i.note}</small>}
+    </span>
+  );
+}
+
+function TerraWheel({ f, terra }: { f: FactionDef; terra: number }) {
+  const per = TERRAFORM_ORE[terra]!;
+  const start = WHEEL.indexOf(f.home);
+  const ring = WHEEL.map((_, k) => WHEEL[(start + k) % WHEEL.length]!);
+  const R = 70;
+  // Gleens pay 1 ore instead of the gaia QIC (their mineCost effect in content/factions-b.ts).
+  const gaia: Gain = f.id === 'gleens' ? { c: BUILD_COST.mine.c, o: BUILD_COST.mine.o + 1 } : { ...BUILD_COST.mine, q: 1 };
+  const costFa = (pl: Planet) => {
+    const steps = wheelDistance(f.home, pl);
+    return `${PLANET_FA[pl]}: ${steps ? `${fa(steps)} گام` : 'سیارهٔ خانه'} — ${gainFa({ c: BUILD_COST.mine.c, o: BUILD_COST.mine.o + steps * per })}`;
+  };
+  return (
+    <div className="gpb-plate gpb-terra" aria-label="چرخهٔ زمین‌سازی">
+      <h4>زمین‌سازی <small>— هر گام {fa(per)} سنگ معدن</small></h4>
+      <svg className="gpb-wheel" viewBox="-104 -104 208 208" aria-hidden="true">
+        <circle r={R} className="gpb-wheel__ring" />
+        {ring.map((pl, k) => {
+          const a = -Math.PI / 2 + (k * 2 * Math.PI) / ring.length;
+          const steps = wheelDistance(f.home, pl);
+          return (
+            <g key={pl} transform={`translate(${(R * Math.cos(a)).toFixed(1)} ${(R * Math.sin(a)).toFixed(1)})`} className={steps ? 'gpb-wheel__p' : 'gpb-wheel__p gpb-wheel__p--home'}>
+              <circle r="19" className="gpb-wheel__halo" />
+              <image href={PLANET_ART[pl]} x="-16" y="-16" width="32" height="32" />
+              <circle cx="15" cy="-14" r="8" className="gpb-wheel__steps" />
+              <text x="15" y="-10.5" className="gpb-wheel__stepsN">{steps ? fa(steps) : '★'}</text>
+              <image href={rO} x="-15" y="18" width="12" height="12" />
+              <text x="-1" y="28.5" className="gpb-wheel__cost">{fa(BUILD_COST.mine.o + steps * per)}</text>
+            </g>
+          );
+        })}
+        <g transform="translate(-22 -6)">
+          <image href={PLANET_ART.g} x="-14" y="-14" width="28" height="28" />
+          <text y="26" className="gpb-wheel__mid">{gaia.q ? `${fa(gaia.q)} QIC` : `${fa(gaia.o ?? 0)} سنگ`}</text>
+        </g>
+        <g transform="translate(22 -6)">
+          <image href={PLANET_ART.m} x="-14" y="-14" width="28" height="28" />
+          <image href={gfArt} x="-8" y="14" width="16" height="16" />
+        </g>
+      </svg>
+      <p className="gpb-text">معدن: {fa(BUILD_COST.mine.c)} اعتبار + سنگ معدنِ زیر هر سیاره · گایا: {gainFa(gaia)} · فرابُعدی: اول گایاساز</p>
+      <ul className="sr-only">{ring.map((pl) => <li key={pl}>{costFa(pl)}</li>)}<li>{PLANET_FA.g}: {gainFa(gaia)}</li><li>{PLANET_FA.m}: با گایاساز</li></ul>
+    </div>
+  );
+}
+
+/** Numbered resource tracks as printed (credits 0–30, ore and knowledge 0–15); the marker sits on the current value. */
+function ResTrack({ k, n, max, seat }: { k: 'c' | 'o' | 'k'; n: number; max: number; seat: number }) {
+  return (
+    <div className={`gpb-rtrack gpb-rtrack--${k}`} role="meter" aria-valuemin={0} aria-valuemax={max} aria-valuenow={n} aria-label={RES_FA[k]}>
+      <span className="gpb-rtrack__head"><img src={RES_ART[k]} alt="" draggable={false} /><small>{RES_FA[k]}</small><Num value={n} label={RES_FA[k]} /></span>
+      <ol aria-hidden="true">
+        {Array.from({ length: max + 1 }, (_, i) => <li key={i} className={i === n ? 'on' : undefined}>{i === n ? <img src={RES_ART[k]} alt="" draggable={false} data-flip={`res-${seat}-${k}`} /> : fa(i)}</li>)}
+      </ol>
+    </div>
+  );
+}
+
 function Header({ view, seat, name, me, f }: { view: GaiaView; seat: number; name: string; me: boolean; f: FactionDef | undefined }) {
   const p = view.pl[seat]!;
   const left = !view.active[seat];
@@ -242,7 +413,10 @@ function Header({ view, seat, name, me, f }: { view: GaiaView; seat: number; nam
   return (
     <span className="gpb-head">
       <span className={`gp-swatch gp-seat-${seat}`} title={`صندلی ${fa(seat + 1)}`}>{fa(seat + 1)}</span>
-      {f && PLANET_ART[f.home] && <img className="gpb-home" src={PLANET_ART[f.home]} alt={PLANET_FA[f.home]} title={`سیارهٔ خانه: ${PLANET_FA[f.home]}`} />}
+      {f && <span className="gpb-avatar">
+        {FACTION_ART[f.id] && <img className="gpb-portrait" src={FACTION_ART[f.id]} alt="" draggable={false} />}
+        {PLANET_ART[f.home] && <img className="gpb-home" src={PLANET_ART[f.home]} alt={PLANET_FA[f.home]} title={`سیارهٔ خانه: ${PLANET_FA[f.home]}`} />}
+      </span>}
       <span className="gpb-who">
         <strong><bdi>{name}</bdi>{me && ' (شما)'}</strong>
         <span>{f ? <>{f.nameFa} <bdi className="gpb-en">{f.nameEn}</bdi></> : 'بدون جناح'}</span>
@@ -281,15 +455,8 @@ function FactionBoard({ view, seat, f, compact }: { view: GaiaView; seat: number
   return (
     <div className="gpb-body">
       <div className="gpb-col">
-        <PowerCycle p={p} />
-        <div className="gpb-plate" aria-label="منابع">
-          <h4>منابع</h4>
-          <div className="gpb-res">
-            {(['c', 'o', 'k', 'q'] as const).map((k) => (
-              <span key={k} className="gpb-cube"><img src={RES_ART[k]} alt="" draggable={false} /><Num value={p[k]} label={RES_FA[k]} /><small>{RES_FA[k]}</small></span>
-            ))}
-          </div>
-        </div>
+        <TerraWheel f={f} terra={p.research.terra} />
+        <PowerCycle p={p} seat={seat} />
         <div className="gpb-plate" aria-label="گایاسازها و ماهواره‌ها">
           <h4>گایاساز و ماهواره</h4>
           <ol className="gpb-gfslots">
@@ -310,17 +477,17 @@ function FactionBoard({ view, seat, f, compact }: { view: GaiaView; seat: number
         <div className="gpb-plate gpb-structs" aria-label="سازه‌ها و درآمدشان">
           <h4>سازه‌ها <small>— هر سازهٔ ساخته‌شده درآمد زیرش را آشکار می‌کند</small></h4>
           <div className="gpb-baseinc"><span>درآمد پایه</span><SlotGain g={f.income ?? DEFAULT_BOARD.base} /></div>
-          <Track kind="mine" total={LIMIT.mine} built={count('mine')} incomes={mines} />
-          <Track kind="ts" total={LIMIT.ts} built={count('ts')} incomes={b.ts ?? DEFAULT_BOARD.ts} />
-          <Track kind="lab" total={LIMIT.lab} built={count('lab')} incomes={b.lab ?? DEFAULT_BOARD.lab} />
+          <Track kind="mine" total={LIMIT.mine} built={count('mine')} incomes={mines} cost={BUILD_COST.mine} costNote="+ زمین‌سازی" />
+          <Track kind="ts" total={LIMIT.ts} built={count('ts')} incomes={b.ts ?? DEFAULT_BOARD.ts} cost={BUILD_COST.ts} costNote={`بی‌همسایه ${fa(BUILD_COST.tsAlone.c)}`} />
+          <Track kind="lab" total={LIMIT.lab} built={count('lab')} incomes={b.lab ?? DEFAULT_BOARD.lab} cost={BUILD_COST.lab} />
           <div className="gpb-big">
             <div className="gpb-track gpb-track--pi">
-              <div className="gpb-track__head"><Piece kind="pi" /><span>مؤسسهٔ سیاره‌ای</span></div>
+              <div className="gpb-track__head"><Piece kind="pi" /><span>مؤسسهٔ سیاره‌ای</span><Cost g={b.piCost ?? BUILD_COST.pi} /></div>
               <ol className="gpb-slots"><Slot kind="pi" n={1} built={has('pi')} income={b.pi ?? DEFAULT_BOARD.pi} /></ol>
               {!compact && <p className="gpb-text">{f.piFa}</p>}
             </div>
             <div className="gpb-track gpb-track--ac">
-              <div className="gpb-track__head"><Piece kind="ac" /><span>آکادمی‌ها</span></div>
+              <div className="gpb-track__head"><Piece kind="ac" /><span>آکادمی‌ها</span><Cost g={BUILD_COST.ac} /></div>
               <ol className="gpb-slots">
                 <li className={`gpb-slot${has('ac1') ? ' gpb-slot--built' : ''}`} aria-label={`آکادمی دانش: ${has('ac1') ? 'ساخته شده' : 'هنوز روی صفحه'} — درآمد ${gainFa(ac1)}`}>
                   <small className="gpb-cap">درآمد</small><SlotGain g={ac1} />{has('ac1') ? <span className="gpb-check" aria-hidden="true">✓</span> : <Piece kind="ac" />}
@@ -340,10 +507,19 @@ function FactionBoard({ view, seat, f, compact }: { view: GaiaView; seat: number
           </details>
         ) : (
           <div className="gpb-plate gpb-ability" aria-label="توانایی جناح">
+            {FACTION_ART[f.id] && <img className="gpb-art" src={FACTION_ART[f.id]} alt={`نگارهٔ ${f.nameFa}`} draggable={false} />}
             <h4>توانایی جناح</h4>
             <p>{f.abilityFa}</p>
           </div>
         )}
+        <div className="gpb-plate gpb-res" aria-label="منابع">
+          <h4>منابع</h4>
+          {(['c', 'o', 'k'] as const).map((k) => <ResTrack key={k} k={k} n={p[k]} max={CAP[k]} seat={seat} />)}
+          <div className="gpb-qic" aria-label={`${RES_FA.q}: ${fa(p.q)}`}>
+            <small>{RES_FA.q}</small><Num value={p.q} label={RES_FA.q} />
+            <span aria-hidden="true">{Array.from({ length: Math.min(p.q, 10) }, (_, i) => <img key={i} src={RES_ART.q} alt="" draggable={false} />)}</span>
+          </div>
+        </div>
       </div>
       <div className="gpb-plate gpb-foot">
         {view.active[seat] && <p className="gp-line"><strong>درآمد دور بعد:</strong> <GainIcons g={view.income[seat] ?? {}} /></p>}
@@ -352,7 +528,7 @@ function FactionBoard({ view, seat, f, compact }: { view: GaiaView; seat: number
           {p.techs.map((t) => (CONTENT.techs[t.id]?.kind === 'adv'
             ? <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${t.id}`} />
             : <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${seat}-${t.id}`} from={`std-${t.id}`} />))}
-          {p.feds.map((x, i) => <span key={i} data-flip={`fed-${seat}-${i}`} data-flip-from="fed-supply" className={`gp-tile gp-tile--fed${x.green ? ' gp-tile--green' : ''}`}><small>فدراسیون{x.green ? ' (سبز)' : ''}</small>{fedFa(x.id)}</span>)}
+          {p.feds.map((x, i) => <span key={i} data-flip={`fed-${seat}-${i}`} data-flip-from="fed-supply" className={`gp-fedtok${x.green ? ' gp-fedtok--green' : ''}`} aria-label={`فدراسیون${x.green ? ' (سبز)' : ''}: ${fedFa(x.id)}`}>{CONTENT.feds[x.id] ? <GainIcons g={CONTENT.feds[x.id]!.gain} /> : fedFa(x.id)}</span>)}
           {!p.booster && !p.techs.length && !p.feds.length && <small className="gpb-note">هنوز کاشی‌ای ندارد</small>}
         </div>
       </div>
@@ -457,15 +633,38 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     if (hexActs(i).length) setHex(i);
   };
 
+  // Sector borders: a hex edge is drawn when the neighbour across it is in another sector or off the map. Edge k joins
+  // corners k and k+1 of a flat-top hex; its neighbour is the axial step NB[k].
+  const NB = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]] as const;
+  const at = new Map(view.hexes.map((h, i) => [`${h.q},${h.r}`, i]));
+  const across = (i: number, k: number) => at.get(`${view.hexes[i]!.q + NB[k]![0]},${view.hexes[i]!.r + NB[k]![1]}`);
+  const pt = (i: number, k: number) => { const a = (Math.PI / 3) * (k % 6); return `${(cs[i]!.x + HEX_SIZE * Math.cos(a)).toFixed(2)},${(cs[i]!.y + HEX_SIZE * Math.sin(a)).toFixed(2)}`; };
+  const borders = view.hexes.flatMap((h, i) => NB.flatMap((_, k) => {
+    const j = across(i, k);
+    return j === undefined || (view.hexes[j]!.sector !== h.sector && j > i) ? [`M${pt(i, k)}L${pt(i, k + 1)}`] : [];
+  })).join('');
+  const sectors = [...new Set(view.hexes.map((h) => h.sector))].map((sec) => {
+    const own = view.hexes.flatMap((h, i) => (h.sector === sec ? [cs[i]!] : []));
+    return { sec, x: own.reduce((a, c) => a + c.x, 0) / own.length, y: own.reduce((a, c) => a + c.y, 0) / own.length };
+  });
+  // Federation links between neighbouring hexes of the same player's federations.
+  const fedLinks = view.hexes.flatMap((h, i) => h.feds.flatMap((seat) => NB.slice(0, 3).flatMap((_, k) => {
+    const j = across(i, k);
+    return j !== undefined && view.hexes[j]!.feds.includes(seat) ? [{ seat, a: cs[i]!, b: cs[j]! }] : [];
+  })));
+
   const structure = (b: Building, owner: number) => {
     const cls = `gp-st gp-seat-${owner}`;
+    return <g>{shapeOf(b, cls)}{b !== 'gf' && shapeOf(b, 'gp-shine')}</g>;
+  };
+  const shapeOf = (b: Building, cls: string) => {
     switch (b) {
       case 'mine': return <path className={cls} d={`M${-R * 0.28},${R * 0.3} v${-R * 0.32} l${R * 0.28},${-R * 0.26} l${R * 0.28},${R * 0.26} v${R * 0.32} z`} />;
       case 'ts': return <rect className={cls} x={-R * 0.3} y={-R * 0.3} width={R * 0.6} height={R * 0.6} rx={R * 0.06} />;
       case 'lab': return <circle className={cls} r={R * 0.32} />;
       case 'pi': return <rect className={cls} x={-R * 0.42} y={-R * 0.34} width={R * 0.84} height={R * 0.68} rx={R * 0.22} />;
-      case 'ac1': case 'ac2': return <g><rect className={cls} x={-R * 0.26} y={-R * 0.42} width={R * 0.52} height={R * 0.84} rx={R * 0.12} /><text className="gp-ac" textAnchor="middle" dy="0.35em">{b === 'ac1' ? 'K' : 'Q'}</text></g>;
-      case 'gf': return <image href={gfArt} x={-R * 0.45} y={-R * 0.45} width={R * 0.9} height={R * 0.9} />;
+      case 'ac1': case 'ac2': return <g><rect className={cls} x={-R * 0.26} y={-R * 0.42} width={R * 0.52} height={R * 0.84} rx={R * 0.12} />{cls !== 'gp-shine' && <text className="gp-ac" textAnchor="middle" dy="0.35em">{b === 'ac1' ? 'K' : 'Q'}</text>}</g>;
+      case 'gf': return cls === 'gp-shine' ? null : <image href={gfArt} x={-R * 0.45} y={-R * 0.45} width={R * 0.9} height={R * 0.9} />;
       case 'station': return <path className={cls} d={`M0,${-R * 0.34} L${R * 0.34},0 L0,${R * 0.34} L${-R * 0.34},0 z`} />;
     }
   };
@@ -485,13 +684,13 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const order = mySeat === null || !view.pl[mySeat] ? view.pl.map((_, i) => i) : [mySeat, ...view.pl.map((_, i) => i).filter((i) => i !== mySeat)];
 
   return (
-    <div className="gp" ref={root} data-seq={view.seq} data-round={view.round}>
+    <div className="gp" ref={root} data-seq={view.seq} data-round={view.round} style={{ '--gp-panel': `url(${bgPanel})`, '--gp-stars': `url(${bgStars})`, '--gp-nebula': `url(${bgNebula})` } as CSSProperties}>
       <div className="gp-top">
         {status && <TurnIndicator tone={myTurn && !queued ? 'mine' : 'wait'}>{status} — {phaseFa}</TurnIndicator>}
         <ol className="gp-rounds" aria-label="کاشی‌های امتیاز دور">
           {view.roundTiles.map((t, i) => (
             <li key={t} className={i + 1 === view.round ? 'gp-now' : i + 1 < view.round ? 'gp-past' : undefined} aria-current={i + 1 === view.round ? 'step' : undefined}>
-              <small>دور {fa(i + 1)}</small>{CONTENT.rounds[t]?.labelFa ?? t}
+              <span className="gp-round__n">{fa(i + 1)}</span><TileFace label={CONTENT.rounds[t]?.labelFa ?? t} />
             </li>
           ))}
         </ol>
@@ -516,7 +715,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
             const f = CONTENT.factions[a.faction as string]!;
             return (
               <article key={f.id} className="gp-faction">
-                <header>{PLANET_ART[f.home] && <img src={PLANET_ART[f.home]} alt="" />}<strong>{f.nameFa}</strong> <bdi>{f.nameEn}</bdi></header>
+                <header>{FACTION_ART[f.id] && <img className="gp-faction__art" src={FACTION_ART[f.id]} alt="" />}{PLANET_ART[f.home] && <img src={PLANET_ART[f.home]} alt="" />}<strong>{f.nameFa}</strong> <bdi>{f.nameEn}</bdi></header>
                 <p><small>خانه: {PLANET_FA[f.home]}</small></p>
                 <p>{f.abilityFa}</p>
                 <p><small>مؤسسه: {f.piFa}</small></p>
@@ -529,6 +728,13 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
 
       <div dir="ltr" className="gp-mapwrap"><ZoomBoard label="نقشهٔ فضا">
         <svg className="gp-map" viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`} role="group" aria-label="نقشهٔ فضا">
+          <defs>
+            <linearGradient id="gp-shine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.45" stopColor="#fff" stopOpacity="0.08" /><stop offset="1" stopColor="#000" stopOpacity="0.35" />
+            </linearGradient>
+            <radialGradient id="gp-planet-glow"><stop offset="0.55" stopColor="#9fd8ff" stopOpacity="0.28" /><stop offset="1" stopColor="#9fd8ff" stopOpacity="0" /></radialGradient>
+          </defs>
+          {sectors.map(({ sec, x, y }) => <text key={sec} x={x} y={y} className="gp-sector-n" textAnchor="middle" dy="0.35em" aria-hidden="true">{fa(sec)}</text>)}
           {view.hexes.map((h, i) => {
             const c = cs[i]!;
             const can = !busy && (fed ? actionsTurn : hexActs(i).length > 0);
@@ -542,6 +748,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
                 onKeyDown={(e) => { if (can && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapHex(i); } }}>
                 <polygon points={shape} className="gp-cell" />
                 {h.feds.length > 0 && <polygon points={shape} className={`gp-fed gp-seat-${h.feds[0]}`} />}
+                {PLANET_ART[h.planet] && <circle r={R * 0.78} fill="url(#gp-planet-glow)" />}
                 {PLANET_ART[h.planet] && <image href={PLANET_ART[h.planet]} x={-R * 0.62} y={-R * 0.62} width={R * 1.24} height={R * 1.24} />}
                 {h.building && h.owner !== null && <g data-flip={`st-${i}-${h.building}`} data-flip-from={`seat-${h.owner}`}>{structure(h.building, h.owner)}{h.building !== 'gf' && <text className="gp-own" x={R * 0.5} y={R * 0.62} textAnchor="middle">{fa(h.owner + 1)}</text>}</g>}
                 {h.extra !== null && <g data-flip={`ex-${i}`} data-flip-from={`seat-${h.extra}`}><circle r={R * 0.16} cx={R * 0.45} cy={-R * 0.42} className={`gp-st gp-seat-${h.extra}`} /></g>}
@@ -549,6 +756,8 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
               </g>
             );
           })}
+          <path d={borders} className="gp-borders" aria-hidden="true" />
+          {fedLinks.map((l, k) => <line key={k} x1={l.a.x} y1={l.a.y} x2={l.b.x} y2={l.b.y} className={`gp-fedlink gp-seat-${l.seat}`} aria-hidden="true" />)}
         </svg>
       </ZoomBoard></div>
 
@@ -565,9 +774,9 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       )}
       {focus && <p className="gp-note">خانه‌های مجاز روی نقشه روشن شده‌اند. <button type="button" className="gp-link" onClick={() => setFocus(null)}>لغو</button></p>}
 
-      {actionsTurn && !view.decision && (
+      {view.phase === 'actions' && (
         <section className="gp-actions" aria-label="اقدام‌ها">
-          <div className="gp-block">
+          <div className="gp-block gp-pwboard">
             <h3>اقدام‌های قدرت و QIC</h3>
             <div className="gp-pw">
               {POWER_ACTIONS.map((pa) => {
@@ -581,10 +790,10 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
                 };
                 return (
                   <button key={pa.id} type="button" className={['gp-pa', pa.cost.q ? 'gp-pa--q' : '', used ? 'gp-pa--used' : '', hint ? 'gp-hint' : ''].join(' ')}
-                    disabled={!list.length || busy} onClick={click} aria-label={`${gainFa(pa.cost)}: ${pa.labelFa}${used ? ' (استفاده‌شده)' : ''}`}>
+                    disabled={!list.length || busy || view.decision !== null} onClick={click} aria-label={`${gainFa(pa.cost)}: ${pa.labelFa}${used ? ' (استفاده‌شده)' : ''}`}>
                     <span className="gp-pa__cost"><img src={pa.cost.q ? rQ : rPw} alt="" />{fa(pa.cost.q ?? pa.cost.pw ?? 0)}</span>
-                    <span>{pa.labelFa}</span>
-                    {used && <small>استفاده‌شده</small>}
+                    <span className="gp-pa__label">{pa.labelFa}</span>
+                    {used && <span className="gp-pa__used" aria-hidden="true">✕</span>}
                   </button>
                 );
               })}
@@ -596,7 +805,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
             )}
           </div>
 
-          {(of('research').length > 0 || specialKeys.length > 0) && (
+          {actionsTurn && !view.decision && (of('research').length > 0 || specialKeys.length > 0) && (
             <div className="gp-block">
               {specialKeys.length > 0 && <h3>اقدام‌های ویژه (هر دور یک بار)</h3>}
               <div className="gp-btns">
@@ -611,7 +820,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
             </div>
           )}
 
-          <div className="gp-block">
+          {actionsTurn && !view.decision && <div className="gp-block">
             <h3>فدراسیون</h3>
             <div className="gp-btns">
               {of('federation').map((a, k) => (
@@ -629,9 +838,9 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
                 {tokens.map((t) => <Button key={t} size="sm" disabled={busy || !fed.length} onClick={() => play({ type: 'federation', hexes: [...fed].sort((a, b) => a - b), token: t })}>{fedFa(t)}</Button>)}
               </div>
             )}
-          </div>
+          </div>}
 
-          {(of('convert').length > 0 || of('burn').length > 0) && (
+          {actionsTurn && !view.decision && (of('convert').length > 0 || of('burn').length > 0) && (
             <div className="gp-block">
               <h3>اقدام‌های آزاد (نوبت را تمام نمی‌کنند)</h3>
               <div className="gp-btns">
@@ -641,7 +850,7 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
             </div>
           )}
 
-          {acts.some((a) => a.type === 'pass' && a.booster === undefined) && (
+          {actionsTurn && !view.decision && acts.some((a) => a.type === 'pass' && a.booster === undefined) && (
             <div className="gp-block">
               {acts.filter((a) => a.type === 'pass' && a.booster === undefined).map((a) => (
                 <Button key="pass" className={`gp-pass${hinted(a) ? ' gp-hint' : ''}`} variant={hinted(a) ? 'primary' : 'secondary'} disabled={busy} onClick={() => play(a)}>پاس (پایان دور برای شما)</Button>
@@ -676,18 +885,20 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
             const adv = view.techBoard.adv[ti];
             const std = view.techBoard.std[ti];
             return (
-              <div key={t} className="gp-track">
+              <div key={t} className={`gp-track gp-track--${t}`}>
                 <div className="gp-track__adv">{adv ? <TechTile id={adv} flip={`tech-${adv}`} /> : <span className="gp-tile gp-tile--empty">—</span>}</div>
+                <div className="gp-track__emblem"><img src={TRACK_ART[t]} alt="" draggable={false} /><strong>{TRACK_FA[t]}</strong></div>
                 <div className="gp-levels">
                   {[5, 4, 3, 2, 1, 0].map((lvl) => (
-                    <div key={lvl} className={`gp-level gp-level--${lvl}`}>
-                      <small>{fa(lvl)}</small>
-                      {lvl === 5 && t === 'terra' && view.terraFed && <span className="gp-mini" title={fedFa(view.terraFed)}>فدراسیون</span>}
-                      {view.pl.map((p, s) => (p.faction && p.research[t] === lvl ? <span key={s} data-flip={`rs-${s}-${t}`} className={`gp-marker gp-seat-${s}`} title={who(s)}>{fa(s + 1)}</span> : null))}
+                    <div key={lvl} className={`gp-level gp-level--${lvl}`} aria-label={`${TRACK_FA[t]} سطح ${fa(lvl)}: ${levelFa(t, lvl) || 'شروع'}`}>
+                      <small className="gp-lvl">{fa(lvl)}</small>
+                      {lvl === 5 && t === 'terra' && view.terraFed ? <FedToken id={view.terraFed} /> : <LevelInfo t={t} lvl={lvl} />}
+                      <span className="gp-lvl__marks">
+                        {view.pl.map((p, s) => (p.faction && p.research[t] === lvl ? <span key={s} data-flip={`rs-${s}-${t}`} className={`gp-marker gp-seat-${s}`} title={who(s)}>{fa(s + 1)}</span> : null))}
+                      </span>
                     </div>
                   ))}
                 </div>
-                <strong>{TRACK_FA[t]}</strong>
                 {ra && <Button size="sm" className={hinted(ra) ? 'gp-hint' : undefined} variant={hinted(ra) ? 'primary' : 'secondary'} disabled={busy} onClick={() => play(ra)}>پژوهش (۴ دانش)</Button>}
                 <div className="gp-track__std">{std ? <TechTile id={std} anchor={`std-${std}`} /> : <span className="gp-tile gp-tile--empty">—</span>}</div>
               </div>
@@ -703,13 +914,16 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
       <section className="gp-block gp-supply" aria-label="ذخیره">
         <div>
           <h3>امتیاز پایانی</h3>
-          <ul>{view.finalTiles.map((t) => <li key={t}>{CONTENT.finals[t]?.labelFa ?? t}{view.players === 2 ? ` (خنثی: ${fa(CONTENT.finals[t]?.neutral ?? 0)})` : ''}</li>)}</ul>
+          <ul className="gp-finals">{view.finalTiles.map((t) => (
+            <li key={t} className="gp-tile gp-tile--final"><span className="gp-final__vp" aria-hidden="true">۱۸ ★</span>{CONTENT.finals[t]?.labelFa ?? t}
+              {view.players === 2 && <small>بازیکن خنثی: {fa(CONTENT.finals[t]?.neutral ?? 0)}</small>}</li>
+          ))}</ul>
         </div>
         <div>
           <h3>توکن‌های فدراسیون</h3>
-          <ul data-flip-anchor="fed-supply">
-            {Object.entries(view.fedSupply).map(([id, n]) => <li key={id}>{fedFa(id)} × {fa(n)}{CONTENT.feds[id]?.green ? ' (سبز)' : ''}</li>)}
-            {view.terraFed && <li>روی زمین‌سازی ۵: {fedFa(view.terraFed)}</li>}
+          <ul className="gp-feds" data-flip-anchor="fed-supply">
+            {Object.entries(view.fedSupply).map(([id, n]) => <li key={id} aria-label={`${fedFa(id)} × ${fa(n)}${CONTENT.feds[id]?.green ? ' (سبز)' : ''}`}><FedToken id={id} n={n} /></li>)}
+            {view.terraFed && <li aria-label={`روی زمین‌سازی ۵: ${fedFa(view.terraFed)}`}><FedToken id={view.terraFed} /><small>زمین‌سازی ۵</small></li>}
           </ul>
         </div>
       </section>

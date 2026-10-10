@@ -132,7 +132,8 @@ export function fire(s: GaiaState, seat: number, e: GameEvent) {
 
 // ---------------- resources ----------------
 
-const CAP = { c: 30, o: 15, k: 15 } as const;
+/** Resource track maxima printed on the faction board. */
+export const CAP = { c: 30, o: 15, k: 15 } as const;
 export function vp(s: GaiaState, seat: number, n: number, why: string) {
   if (!n) return;
   s.pl[seat]!.vp += n;
@@ -391,9 +392,9 @@ export function minePlan(s: GaiaState, seat: number, hex: number, opts: MineOpts
   // Free terraforming steps (power actions, booster) must terraform: not on gaia, home-type or shared planets.
   if (opts.freeSteps && steps === 0) return 'ILLEGAL_PLACEMENT';
   const paid = Math.max(0, steps - (opts.freeSteps ?? 0));
-  const ore = 1 + paid * TERRAFORM_ORE[s.pl[seat]!.research.terra]!;
+  const ore = BUILD_COST.mine.o + paid * TERRAFORM_ORE[s.pl[seat]!.research.terra]!;
   const q = gaiaQic + (reached ? 0 : qicFor(s, seat, hex, opts.extraRange ?? 0));
-  let cost: Gain = { c: 2, o: ore };
+  let cost: Gain = { c: BUILD_COST.mine.c, o: ore };
   if (q) cost.q = q;
   for (const src of sources(s, seat)) if (src.effects.mineCost) cost = src.effects.mineCost({ s, seat }, hex, cost);
   return canPay(s, seat, opts.extraCost ? addGains(cost, opts.extraCost) : cost) ? { cost, steps, extra } : 'NOT_ENOUGH_RESOURCES';
@@ -416,6 +417,10 @@ export function buildMine(s: GaiaState, seat: number, hex: number, opts: MineOpt
   queueLeech(s, seat, hex);
 }
 
+/** Printed structure costs (mine: plus terraforming ore and range QIC; trading station: 6 credits with no neighbour). */
+export const BUILD_COST = {
+  mine: { c: 2, o: 1 }, ts: { c: 3, o: 2 }, tsAlone: { c: 6, o: 2 }, lab: { c: 5, o: 3 }, pi: { c: 6, o: 4 }, ac: { c: 6, o: 6 }
+} as const satisfies Record<string, Gain>;
 export const UPGRADES: Partial<Record<Building, ('ts' | 'lab' | 'pi' | 'ac1' | 'ac2')[]>> = { mine: ['ts'], ts: ['lab', 'pi'], lab: ['ac1', 'ac2'] };
 
 export function upgradeCost(s: GaiaState, seat: number, hex: number, to: 'ts' | 'lab' | 'pi' | 'ac1' | 'ac2'): Gain | string {
@@ -427,10 +432,10 @@ export function upgradeCost(s: GaiaState, seat: number, hex: number, to: 'ts' | 
       : to === 'pi' ? hasPI(s, seat)
         : countBuilding(s, seat, to) >= 1;
   if (full) return 'NO_PIECES';
-  const cost: Gain = to === 'ts' ? (isolated(s, seat, hex) ? { c: 6, o: 2 } : { c: 3, o: 2 })
-    : to === 'lab' ? { c: 5, o: 3 }
-      : to === 'pi' ? (f.buildings?.piCost ?? { c: 6, o: 4 })
-        : { c: 6, o: 6 };
+  const cost: Gain = to === 'ts' ? (isolated(s, seat, hex) ? BUILD_COST.tsAlone : BUILD_COST.ts)
+    : to === 'lab' ? BUILD_COST.lab
+      : to === 'pi' ? (f.buildings?.piCost ?? BUILD_COST.pi)
+        : BUILD_COST.ac;
   return canPay(s, seat, cost) ? cost : 'NOT_ENOUGH_RESOURCES';
 }
 
