@@ -23,6 +23,10 @@ import {
   CARDS, INDUSTRIES, LINK, LINK_TILES, LOC, LOCATIONS, MARKET, MERCHANT_TILE, STACK, WILD_INDUSTRY, WILD_LOCATION, buyPrice,
   linkNodes, tileDef, type BrassView, type Industry
 } from './rules.ts';
+import type { IndustryTileDef } from './types.ts';
+import leatherArt from './art/mat-leather.webp';
+import paperArt from './art/mat-paper.webp';
+import brassArt from './art/mat-brass.webp';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
@@ -99,36 +103,124 @@ function hintLabel(view: BrassView, seat: number | null, h: GameAction): string 
   }
 }
 
-function Ledger({ view, s, who, me, place, discard }: { view: BrassView; s: number; who: string; me: boolean; place?: number; discard: number | null | undefined }) {
+const LEVELS = Object.fromEntries(INDUSTRIES.map((x) => [x, [...new Set(STACK[x].map((t) => t.level))]])) as Record<Industry, number[]>;
+const signed = (n: number) => (n > 0 ? `+${fa(n)}` : n < 0 ? `−${fa(-n)}` : fa(0));
+const produceFa = (t: IndustryTileDef) => (typeof t.produce === 'number' ? fa(t.produce) : `${fa(t.produce.canal)}/${fa(t.produce.rail)}`);
+const isGoods = (x: Industry) => x === 'cotton' || x === 'manufacturer' || x === 'pottery';
+
+/** One printed level space of a mat lane: the remaining tiles of that level stacked on it (or the empty print). */
+function MatTile({ t, left, next, compact }: { t: IndustryTileDef; left: number; next: boolean; compact?: boolean }) {
+  const goods = isGoods(t.industry);
+  const era = t.era === 'canal' ? 'فقط کانال' : t.era === 'rail' ? 'فقط ریل' : '';
+  const label = `${IND_FA[t.industry]} سطح ${ROMAN[t.level]}: ${left ? `${fa(left)} کاشی مانده` : 'تمام شد'}`
+    + (compact ? '' : `؛ هزینه £${fa(t.cost)}${t.coal ? `، ${fa(t.coal)} زغال` : ''}${t.iron ? `، ${fa(t.iron)} آهن` : ''}${goods && t.beer ? `، فروش با ${fa(t.beer)} آبجو` : ''}`
+      + `${goods ? '' : `، تولید ${produceFa(t)}`}؛ ${fa(t.vp)} امتیاز، ${fa(t.income)} درآمد، ${fa(t.linkVp)} امتیاز مسیر${era ? `؛ ${era}` : ''}${t.noDevelop ? '؛ توسعه‌ناپذیر' : ''}`);
+  return (
+    <li className={['br-tile', left ? '' : 'br-tile--gone', next ? 'br-tile--next' : '', left > 1 ? 'br-tile--stack' : ''].join(' ')}
+      style={{ ['--hue' as string]: IND_HUE[t.industry] }} aria-label={label} title={label}>
+      <span className="br-tile__band"><b>{ROMAN[t.level]}</b>{left > 0 && <span className="br-tile__count">×{fa(left)}</span>}</span>
+      {!compact && (
+        <>
+          <span className="br-tile__cost">£{fa(t.cost)}</span>
+          <span className="br-tile__need">
+            {t.coal > 0 && <span><img src={coalCube} alt="" />{fa(t.coal)}</span>}
+            {t.iron > 0 && <span><img src={ironCube} alt="" />{fa(t.iron)}</span>}
+            {goods && t.beer > 0 && <span><img src={beerArt} alt="" />{fa(t.beer)}</span>}
+            {!goods && <span className="br-tile__prod">⇧{produceFa(t)}</span>}
+          </span>
+          <span className="br-tile__foot" aria-hidden>
+            <span className="br-tile__vp">{fa(t.vp)}</span>
+            <span className="br-tile__inc">↑{fa(t.income)}</span>
+            <span className="br-tile__lvp">⛓{fa(t.linkVp)}</span>
+          </span>
+          {(era || t.noDevelop) && (
+            <span className="br-tile__marks" aria-hidden>{era && <i>{t.era === 'canal' ? 'کانال' : 'ریل'}</i>}{t.noDevelop && <i className="br-tile__bulb">✱</i>}</span>
+          )}
+        </>
+      )}
+    </li>
+  );
+}
+
+function MatLanes({ mat, compact }: { mat: Record<Industry, number>; compact?: boolean }) {
+  return (
+    <div className={['br-lanes', compact ? 'br-lanes--compact' : ''].join(' ')}>
+      {INDUSTRIES.map((x) => {
+        const rest = STACK[x].slice(mat[x]);
+        const nextLv = rest[0]?.level;
+        return (
+          <section key={x} className="br-lane" style={{ ['--hue' as string]: IND_HUE[x] }} aria-label={`${IND_FA[x]}: ${fa(rest.length)} از ${fa(STACK[x].length)} کاشی مانده`}>
+            <header className="br-lane__head">
+              <img src={IND_ART[x]} alt="" draggable={false} />
+              <b>{IND_FA[x]}</b>
+              <span className="br-lane__left">{fa(rest.length)}/{fa(STACK[x].length)}</span>
+            </header>
+            <ol className="br-lane__tiles">
+              {LEVELS[x].map((lv) => <MatTile key={lv} t={tileDef(x, lv)} left={rest.filter((t) => t.level === lv).length} next={lv === nextLv} compact={compact} />)}
+            </ol>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+/** A player's mat: purse (money, income marker, VP, spend, cards, link tiles, discard) above the industry stacks. */
+function PlayerBoard({ view, s, who, me, place, discard }: { view: BrassView; s: number; who: string; me: boolean; place?: number; discard: number | null | undefined }) {
   const vpPop = usePop(view.vp[s]);
   const moneyPop = usePop(view.money[s]);
+  // Opponents' mats start open on wide screens and folded on phones (tap the name to expand); the purse stays visible.
+  const [open, setOpen] = useState(() => typeof window === 'undefined' || window.matchMedia('(min-width: 60rem)').matches);
   const links = LINK_TILES - Object.values(view.links).filter((o) => o === s).length;
+  const lvl = view.incomeLevels[s]!;
+  const turn = view.current === s && !view.outcome;
+  const purse = (
+    <div className="br-purse">
+      <span className="br-coin" title="پول"><i aria-hidden>£</i><b className={moneyPop} key={`m${view.money[s]}`}>{fa(view.money[s]!)}</b><small>پول</small></span>
+      <span className="br-income" title={`درآمد هر دور ${signed(lvl)} — خانهٔ ${fa(view.income[s]!)} مسیر پیشرفت`}>
+        <small>درآمد</small><b dir="ltr">{signed(lvl)}</b>
+        <span className="br-income__track" dir="ltr" aria-hidden><span style={{ insetInlineStart: `${((lvl + 10) / 40) * 100}%` }} /></span>
+      </span>
+      <span className="br-chip" title="خرج این دور"><small>خرج دور</small><b>£{fa(view.spent[s]!)}</b></span>
+      <span className="br-chip" title="کارت در دست"><small>کارت</small><b>{fa(view.handCounts[s]!)}</b></span>
+      <span className="br-chip" title="کاشی مسیر باقی"><img src={view.era === 'canal' ? canalArt : railArt} alt="" /><small>مسیر</small><b>{fa(links)}</b></span>
+      {discard != null && <span className="br-chip br-chip--discard"><small>آخرین کارت</small><span className="br-pl__discard" data-flip={`card-${discard}`} key={discard}>{cardLabel(discard)}</span></span>}
+    </div>
+  );
+  const head = (
+    <span className="br-pl__top">
+      <span className="br-pl__token" aria-hidden />
+      <bdi className="br-pl__name">{who}</bdi>
+      {turn && <span className="br-pl__turn">در نوبت</span>}
+      {place !== undefined && <span className="br-pl__place">رتبهٔ {fa(place)}</span>}
+      <b className={`br-pl__vp ${vpPop}`} key={`v${view.vp[s]}`}><span>{fa(view.vp[s]!)}</span> امتیاز</b>
+    </span>
+  );
+  const cls = ['br-pl', turn ? 'br-pl--turn' : '', me ? 'br-pl--me' : '', place === 1 ? 'br-pl--win' : ''].join(' ');
+  const style = { ['--seat' as string]: SEAT_COLORS[s] };
+  if (me) {
+    return (
+      <section data-flip-anchor={`seat-${s}`} className={cls} style={style} aria-label={`صفحهٔ بازیکن ${who}`}>
+        {head}{purse}
+        <MatLanes mat={view.mat[s]!} />
+        <p className="br-legend">
+          <span><span className="br-tile__vp">۵</span> امتیاز پس از برگشتن</span>
+          <span><span className="br-tile__inc">↑</span> درآمد</span>
+          <span><span className="br-tile__lvp">⛓</span> امتیاز مسیر</span>
+          <span>⇧ تولید (آبجو: کانال/ریل)</span>
+          <span>✱ توسعه‌ناپذیر</span>
+          <span><span className="br-legend__next" aria-hidden /> کاشی بعدی</span>
+        </p>
+      </section>
+    );
+  }
   return (
-    <li data-flip-anchor={`seat-${s}`} className={['br-pl', view.current === s && !view.outcome ? 'br-pl--turn' : '', me ? 'br-pl--me' : '', place === 1 ? 'br-pl--win' : ''].join(' ')} style={{ borderInlineStartColor: SEAT_COLORS[s] }}>
-      <div className="br-pl__top">
-        <bdi className="br-pl__name">{who}</bdi>
-        {place !== undefined && <span className="br-pl__place">رتبهٔ {fa(place)}</span>}
-        <b className={`br-pl__vp ${vpPop}`} key={`v${view.vp[s]}`}>{fa(view.vp[s]!)} امتیاز</b>
-      </div>
-      <div className="br-pl__stats">
-        <span className={moneyPop} key={`m${view.money[s]}`}>£{fa(view.money[s]!)}</span>
-        <span>درآمد {fa(view.incomeLevels[s]!)}</span>
-        <span>خرج دور £{fa(view.spent[s]!)}</span>
-        <span>{fa(view.handCounts[s]!)} کارت</span>
-        <span>{fa(links)} مسیر</span>
-      </div>
-      <div className="br-mat" aria-label="کاشی بعدی هر صنعت">
-        {INDUSTRIES.map((x) => {
-          const t = STACK[x][view.mat[s]![x]];
-          return (
-            <span key={x} className={['br-mat__t', t ? '' : 'br-mat__t--out'].join(' ')} title={`${IND_FA[x]}${t ? ` سطح ${ROMAN[t.level]}، £${t.cost}` : ' — تمام شد'}`}>
-              <img src={IND_ART[x]} alt={IND_FA[x]} draggable={false} />
-              <b>{t ? ROMAN[t.level] : '—'}</b>
-            </span>
-          );
-        })}
-      </div>
-      {discard != null && <span className="br-muted">آخرین کارت: <span className="br-pl__discard" data-flip={`card-${discard}`} key={discard}>{cardLabel(discard)}</span></span>}
+    <li data-flip-anchor={`seat-${s}`} className={cls} style={style}>
+      <details open={open} onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}>
+        <summary>{head}</summary>
+        <MatLanes mat={view.mat[s]!} compact />
+      </details>
+      {purse}
     </li>
   );
 }
@@ -212,9 +304,11 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
       : { tone: 'wait' as const, text: view.current !== null ? `نوبت ${who(view.current)}` : '' };
   const placeOf = (s: number) => view.outcome?.placements.find((x) => x.seat === s)?.place;
   const SLOT = 3.4;
+  const seats = view.outcome ? view.outcome.placements.map((x) => x.seat) : view.order;
 
   return (
-    <div className="br" ref={root} data-seq={view.seq}>
+    <div className="br" ref={root} data-seq={view.seq}
+      style={{ ['--art-leather' as string]: `url(${leatherArt})`, ['--art-paper' as string]: `url(${paperArt})`, ['--art-brass' as string]: `url(${brassArt})` }}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <header className="br__head">
         <span className={`br-era br-era--${view.era}`}><img src={view.era === 'canal' ? canalArt : railArt} alt="" />دورهٔ {view.era === 'canal' ? 'کانال' : 'راه‌آهن'} · دور {fa(view.round)}</span>
@@ -317,11 +411,15 @@ export default function BrassRenderer({ view, legalActions, mySeat, seatName, bu
         </ZoomBoard>
 
         <ul className="br__players" aria-label="بازیکنان">
-          {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.order).map((s) => (
-            <Ledger key={s} view={view} s={s} who={who(s)} me={s === mySeat} place={placeOf(s)} discard={s === mySeat && pvCards.length ? pvCards.at(-1) : view.discardTop[s]} />
+          {seats.filter((s) => s !== mySeat).map((s) => (
+            <PlayerBoard key={s} view={view} s={s} who={who(s)} me={false} place={placeOf(s)} discard={view.discardTop[s]} />
           ))}
         </ul>
       </div>
+
+      {mySeat !== null && seats.includes(mySeat) && (
+        <PlayerBoard view={view} s={mySeat} who={who(mySeat)} me place={placeOf(mySeat)} discard={pvCards.length ? pvCards.at(-1) : view.discardTop[mySeat]} />
+      )}
 
       {view.outcome && <p className="br__result" role="status">بازی تمام شد. برنده: {view.outcome.placements.filter((x) => x.place === 1).map((x) => who(x.seat)).join('، ')}</p>}
 

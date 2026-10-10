@@ -5,11 +5,11 @@
 // project, power/booster/faction actions with a target) are chosen by tapping a highlighted hex, then a button.
 // Motion: useFlip moves tech tiles and boosters between board and player, new structures fade in, numbers pop.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ActionBar, Button, TurnIndicator, ZoomBoard, fa, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import {
-  BASE_CONVERSIONS, BUILDING_FA, CONTENT, HEX_SIZE, PLANET_FA, POWER_ACTIONS, RES_FA, TRACKS, TRACK_FA, hexCenter,
-  type Building, type Gain, type GaiaView, type Planet, type PlayerState, type Track
+  BASE_CONVERSIONS, BUILDING_FA, CONTENT, HEX_SIZE, LIMIT, PLANET_FA, POWER_ACTIONS, RES_FA, TRACKS, TRACK_FA, hexCenter,
+  type Building, type FactionDef, type Gain, type GaiaView, type Planet, type PlayerState, type Track
 } from './rules.ts';
 import pR from './art/planet-r.webp';
 import pO from './art/planet-o.webp';
@@ -27,6 +27,14 @@ import rK from './art/res-k.webp';
 import rQ from './art/res-q.webp';
 import rPw from './art/res-pw.webp';
 import gfArt from './art/gaiaformer.webp';
+import bR from './art/board-r.webp';
+import bO from './art/board-o.webp';
+import bV from './art/board-v.webp';
+import bD from './art/board-d.webp';
+import bS from './art/board-s.webp';
+import bT from './art/board-t.webp';
+import bI from './art/board-i.webp';
+import bN from './art/board-n.webp';
 
 const PLANET_ART: Partial<Record<Planet, string>> = { r: pR, o: pO, v: pV, d: pD, s: pS, t: pT, i: pI, g: pG, m: pM, l: pL };
 const RES_ART = { c: rC, o: rO, k: rK, q: rQ, pw: rPw } as const;
@@ -131,63 +139,244 @@ function BoosterTile({ id }: { id: string }) {
   return <span data-flip={`boost-${id}`} className="gp-tile gp-tile--boost"><small>تقویت‌کننده</small>{boosterFa(id)}</span>;
 }
 
-function Bowls({ p }: { p: PlayerState }) {
-  const brain = p.power.brain;
-  const bowl = (n: number, label: string, b: 1 | 2 | 3 | 0) => (
-    <span className={`gp-bowl gp-bowl--${b}`} title={label}>
-      <small>{label}</small><Num value={n} label={label} />{brain === b && <span className="gp-brain" title="سنگ مغز">◆</span>}
-    </span>
-  );
+// ---------------- faction board ----------------
+// The printed faction board, redrawn: base income, structure tracks whose still-unbuilt pieces sit on (and hide) the
+// income they unlock, the power cycle (bowls I → II → III and the gaia area), resources, gaiaformers, the PI and the
+// academies, and the faction ability. Board texture = the faction's home-planet colour (the two factions of one planet
+// share it, as on the printed boards). All numbers come from the view and the content definitions.
+
+/** Total ore by mine count — mirrors the mine row of `incomeOf` in rules.ts, so the 3rd mine slot shows nothing, as on
+ *  the printed board. */
+const MINE_TOTAL_ORE = [0, 1, 2, 2, 3, 4, 5, 6, 7];
+/** Printed defaults used by `incomeOf` / the QIC academy action when a faction does not override them. */
+const DEFAULT_BOARD = {
+  base: { o: 1, k: 1 } as Gain, ts: [{ c: 3 }, { c: 4 }, { c: 4 }, { c: 5 }] as Gain[], lab: [{ k: 1 }, { k: 1 }, { k: 1 }] as Gain[],
+  pi: { pw: 4, t: 1 } as Gain, ac1: { k: 2 } as Gain, ac2: { q: 1 } as Gain
+};
+const BOARD_ART: Record<string, string> = { r: bR, o: bO, v: bV, d: bD, s: bS, t: bT, i: bI };
+const LIGHT_BOARD = new Set(['d', 'i', 't']);
+
+type Kind = 'mine' | 'ts' | 'lab' | 'pi' | 'ac';
+const KIND_FA: Record<Kind, string> = { mine: 'معدن', ts: 'ایستگاه تجاری', lab: 'آزمایشگاه پژوهشی', pi: 'مؤسسهٔ سیاره‌ای', ac: 'آکادمی' };
+
+/** Structure piece, drawn like its map counterpart. */
+function Piece({ kind }: { kind: Kind }) {
   return (
-    <span className="gp-bowls" aria-label="کاسه‌های قدرت">
-      {bowl(p.power.b1, 'کاسهٔ I', 1)}{bowl(p.power.b2, 'کاسهٔ II', 2)}{bowl(p.power.b3, 'کاسهٔ III', 3)}{bowl(p.power.gaia, 'ناحیهٔ گایا', 0)}
+    <svg className="gpb-piece" viewBox="-10 -10 20 20" aria-hidden="true">
+      {kind === 'mine' && <path d="M-6,6.5 v-6.8 l6,-5.6 l6,5.6 v6.8 z" />}
+      {kind === 'ts' && <rect x="-6.5" y="-6.5" width="13" height="13" rx="1.4" />}
+      {kind === 'lab' && <circle r="7" />}
+      {kind === 'pi' && <rect x="-8.5" y="-7" width="17" height="14" rx="4.5" />}
+      {kind === 'ac' && <rect x="-5.5" y="-8.5" width="11" height="17" rx="2.6" />}
+    </svg>
+  );
+}
+
+/** Icon + number chips for an income/action gain (full wording in the title). */
+function SlotGain({ g }: { g: Gain }) {
+  const parts = Object.entries(g).filter(([, v]) => v) as [keyof Gain, number][];
+  if (!parts.length) return <span className="gpb-none">—</span>;
+  return (
+    <span className="gpb-gain" title={gainFa(g)}>
+      {parts.map(([k, v]) => (
+        <span key={k} className={`gpb-chip gpb-chip--${k}`}>
+          {k in RES_ART ? <img src={RES_ART[k as keyof typeof RES_ART]} alt="" draggable={false} /> : <i className="gpb-sym" aria-hidden="true">{k === 't' ? '●' : '★'}</i>}
+          {fa(v)}
+        </span>
+      ))}
     </span>
   );
 }
 
-function PlayerPanel({ view, seat, name, me, waiting }: { view: GaiaView; seat: number; name: string; me: boolean; waiting: boolean }) {
+function Slot({ kind, built, income, n }: { kind: Kind; built: boolean; income: Gain; n: number }) {
+  return (
+    <li className={`gpb-slot${built ? ' gpb-slot--built' : ''}`} aria-label={`${KIND_FA[kind]} ${fa(n)}: ${built ? 'ساخته شده، درآمد آشکار' : 'هنوز روی صفحه'} — ${gainFa(income)}`}>
+      <SlotGain g={income} />
+      {built ? <span className="gpb-check" aria-hidden="true">✓</span> : <Piece kind={kind} />}
+    </li>
+  );
+}
+
+function Track({ kind, total, built, incomes }: { kind: Kind; total: number; built: number; incomes: Gain[] }) {
+  return (
+    <div className={`gpb-track gpb-track--${kind}`}>
+      <div className="gpb-track__head"><Piece kind={kind} /><span>{KIND_FA[kind]}</span><small>{fa(built)}/{fa(total)}</small></div>
+      <ol className="gpb-slots" style={{ '--n': total } as CSSProperties}>
+        {Array.from({ length: total }, (_, i) => <Slot key={i} kind={kind} n={i + 1} built={i < built} income={incomes[i] ?? {}} />)}
+      </ol>
+    </div>
+  );
+}
+
+function PowerCycle({ p }: { p: PlayerState }) {
+  const { b1, b2, b3, gaia, brain } = p.power;
+  const bowl = (n: number, b: 1 | 2 | 3 | 0, label: string) => (
+    <div className={`gpb-bowl gpb-bowl--${b}`} role="img" aria-label={`${label}: ${fa(n)} ژتون${brain === b ? '، به‌علاوهٔ سنگ مغز' : ''}`}>
+      <small aria-hidden="true">{label}</small>
+      <span className="gpb-tokens" aria-hidden="true">
+        {brain === b && <i className="gpb-brain" title="سنگ مغز" />}
+        {Array.from({ length: Math.min(n, 12) }, (_, i) => <i key={i} />)}
+        {n > 12 && <em>…</em>}
+      </span>
+      <Num value={n} label={label} />
+    </div>
+  );
+  return (
+    <div className="gpb-plate gpb-power" aria-label="چرخهٔ قدرت">
+      <h4>چرخهٔ قدرت</h4>
+      <div className="gpb-cycle">
+        {bowl(b1, 1, 'کاسهٔ I')}<span className="gpb-arrow" aria-hidden="true">←</span>
+        {bowl(b2, 2, 'کاسهٔ II')}<span className="gpb-arrow" aria-hidden="true">←</span>
+        {bowl(b3, 3, 'کاسهٔ III')}
+      </div>
+      {bowl(gaia, 0, 'ناحیهٔ گایا')}
+      {brain !== null && <p className="gpb-note"><i className="gpb-brain" aria-hidden="true" /> سنگ مغز در {brain === 0 ? 'ناحیهٔ گایا' : `کاسهٔ ${['', 'I', 'II', 'III'][brain]}`}</p>}
+    </div>
+  );
+}
+
+function Header({ view, seat, name, me, f }: { view: GaiaView; seat: number; name: string; me: boolean; f: FactionDef | undefined }) {
   const p = view.pl[seat]!;
-  const f = p.faction ? CONTENT.factions[p.faction] : undefined;
-  const count = (b: Building | 'ac') => view.hexes.filter((h) => h.owner === seat && (b === 'ac' ? h.building === 'ac1' || h.building === 'ac2' : h.building === b)).length
-    + (b === 'mine' ? view.hexes.filter((h) => h.extra === seat).length : 0);
-  const gfUsed = p.gfGaia + view.hexes.filter((h) => h.owner === seat && h.building === 'gf').length;
   const left = !view.active[seat];
   const place = view.outcome?.placements.find((x) => x.seat === seat)?.place;
   return (
-    <section data-flip-anchor={`seat-${seat}`} className={['gp-player', `gp-seat-${seat}`, waiting ? 'gp-player--current' : '', me ? 'gp-player--me' : ''].join(' ')} aria-label={`بازیکن ${name}`}>
-      <header>
-        <span className="gp-swatch" aria-hidden="true">{fa(seat + 1)}</span>
+    <span className="gpb-head">
+      <span className={`gp-swatch gp-seat-${seat}`} title={`صندلی ${fa(seat + 1)}`}>{fa(seat + 1)}</span>
+      {f && PLANET_ART[f.home] && <img className="gpb-home" src={PLANET_ART[f.home]} alt={PLANET_FA[f.home]} title={`سیارهٔ خانه: ${PLANET_FA[f.home]}`} />}
+      <span className="gpb-who">
         <strong><bdi>{name}</bdi>{me && ' (شما)'}</strong>
-        <span>{f ? f.nameFa : 'بدون جناح'}</span>
-        {f && PLANET_ART[f.home] && <img className="gp-home" src={PLANET_ART[f.home]} alt={PLANET_FA[f.home]} title={`سیارهٔ خانه: ${PLANET_FA[f.home]}`} />}
-        <span className="gp-vp" title="امتیاز">★ <Num value={p.vp} label="امتیاز" /></span>
-        {p.passed && !left && <span className="gp-tag">پاس داده</span>}
-        {left && <span className="gp-tag">خارج شده</span>}
-        {place && <span className="gp-tag">رتبهٔ {fa(place)}</span>}
-      </header>
-      <div className="gp-resrow">
-        <Res k="c" n={p.c} /><Res k="o" n={p.o} /><Res k="k" n={p.k} /><Res k="q" n={p.q} />
+        <span>{f ? <>{f.nameFa} <bdi className="gpb-en">{f.nameEn}</bdi></> : 'بدون جناح'}</span>
+      </span>
+      {p.passed && !left && <span className="gp-tag">پاس داده</span>}
+      {left && <span className="gp-tag">خارج شده</span>}
+      {place && <span className="gp-tag">رتبهٔ {fa(place)}</span>}
+      <span className="gp-vp" title="امتیاز">★ <Num value={p.vp} label="امتیاز" /></span>
+    </span>
+  );
+}
+
+/** Opponent summary line (shown while the board is folded): resources and bowls at a glance. */
+function Glance({ p }: { p: PlayerState }) {
+  return (
+    <span className="gpb-glance">
+      <Res k="c" n={p.c} /><Res k="o" n={p.o} /><Res k="k" n={p.k} /><Res k="q" n={p.q} />
+      <span className="gpb-mini-bowls" title="کاسه‌های قدرت I · II · III">
+        <img src={rPw} alt="" />{fa(p.power.b1)}·{fa(p.power.b2)}·{fa(p.power.b3)}
+      </span>
+    </span>
+  );
+}
+
+function FactionBoard({ view, seat, f, compact }: { view: GaiaView; seat: number; f: FactionDef; compact: boolean }) {
+  const p = view.pl[seat]!;
+  // Same counting as countBuilding in core.ts: the Lost Planet mine does not come from the board.
+  const count = (b: Kind) => view.hexes.filter((h) => (b === 'mine'
+    ? (h.owner === seat && h.building === 'mine' && h.planet !== 'l') || h.extra === seat
+    : h.owner === seat && (b === 'ac' ? h.building === 'ac1' || h.building === 'ac2' : h.building === b))).length;
+  const has = (b: Building) => view.hexes.some((h) => h.owner === seat && h.building === b);
+  const gfUsed = p.gfGaia + view.hexes.filter((h) => h.owner === seat && h.building === 'gf').length;
+  const mines = MINE_TOTAL_ORE.slice(1, LIMIT.mine + 1).map((o, i): Gain => ({ o: o - MINE_TOTAL_ORE[i]! }));
+  const b = f.buildings ?? {};
+  const ac1 = b.ac1 ?? DEFAULT_BOARD.ac1, ac2 = b.ac2Action ?? DEFAULT_BOARD.ac2, ac2Used = p.used.includes('ac2');
+  return (
+    <div className="gpb-body">
+      <div className="gpb-col">
+        <PowerCycle p={p} />
+        <div className="gpb-plate" aria-label="منابع">
+          <h4>منابع</h4>
+          <div className="gpb-res">
+            {(['c', 'o', 'k', 'q'] as const).map((k) => (
+              <span key={k} className="gpb-cube"><img src={RES_ART[k]} alt="" draggable={false} /><Num value={p[k]} label={RES_FA[k]} /><small>{RES_FA[k]}</small></span>
+            ))}
+          </div>
+        </div>
+        <div className="gpb-plate" aria-label="گایاسازها و ماهواره‌ها">
+          <h4>گایاساز و ماهواره</h4>
+          <ol className="gpb-gfslots">
+            {[0, 1, 2].map((i) => {
+              const k = i >= p.gf ? 'locked' : i < p.gf - gfUsed ? 'free' : 'used';
+              const state = { locked: 'قفل', free: 'آزاد', used: 'در کار' }[k];
+              return (
+                <li key={i} className={`gpb-gfslot gpb-gfslot--${k}`} aria-label={`گایاساز ${fa(i + 1)}: ${state}`}>
+                  {k === 'free' ? <img src={gfArt} alt="" /> : <span aria-hidden="true">{k === 'locked' ? '🔒' : '⟳'}</span>}<small>{state}</small>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="gpb-note">ماهواره‌های گذاشته‌شده: <Num value={p.satellites} label="ماهواره" /></p>
+        </div>
       </div>
-      <Bowls p={p} />
-      <p className="gp-line">
-        معدن {fa(count('mine'))}/۸ · ایستگاه تجاری {fa(count('ts'))}/۴ · آزمایشگاه {fa(count('lab'))}/۳ · مؤسسه {fa(count('pi'))}/۱ · آکادمی {fa(count('ac'))}/۲
-      </p>
-      <p className="gp-line">
-        <img className="gp-ico" src={gfArt} alt="" /> گایاساز {fa(p.gf - gfUsed)} آزاد از {fa(p.gf)} · ماهواره {fa(p.satellites)}
-      </p>
-      {p.faction && view.active[seat] && <p className="gp-line">درآمد دور بعد: <GainIcons g={view.income[seat] ?? {}} /></p>}
-      <div className="gp-tiles">
-        {p.booster && <BoosterTile id={p.booster} />}
-        {p.techs.map((t) => (CONTENT.techs[t.id]?.kind === 'adv'
-          ? <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${t.id}`} />
-          : <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${seat}-${t.id}`} from={`std-${t.id}`} />))}
-        {p.feds.map((x, i) => <span key={i} data-flip={`fed-${seat}-${i}`} data-flip-from="fed-supply" className={`gp-tile gp-tile--fed${x.green ? ' gp-tile--green' : ''}`}><small>فدراسیون{x.green ? ' (سبز)' : ''}</small>{fedFa(x.id)}</span>)}
+      <div className="gpb-col">
+        <div className="gpb-plate gpb-structs" aria-label="سازه‌ها و درآمدشان">
+          <h4>سازه‌ها <small>— هر سازهٔ ساخته‌شده درآمد زیرش را آشکار می‌کند</small></h4>
+          <div className="gpb-baseinc"><span>درآمد پایه</span><SlotGain g={f.income ?? DEFAULT_BOARD.base} /></div>
+          <Track kind="mine" total={LIMIT.mine} built={count('mine')} incomes={mines} />
+          <Track kind="ts" total={LIMIT.ts} built={count('ts')} incomes={b.ts ?? DEFAULT_BOARD.ts} />
+          <Track kind="lab" total={LIMIT.lab} built={count('lab')} incomes={b.lab ?? DEFAULT_BOARD.lab} />
+          <div className="gpb-big">
+            <div className="gpb-track gpb-track--pi">
+              <div className="gpb-track__head"><Piece kind="pi" /><span>مؤسسهٔ سیاره‌ای</span></div>
+              <ol className="gpb-slots"><Slot kind="pi" n={1} built={has('pi')} income={b.pi ?? DEFAULT_BOARD.pi} /></ol>
+              {!compact && <p className="gpb-text">{f.piFa}</p>}
+            </div>
+            <div className="gpb-track gpb-track--ac">
+              <div className="gpb-track__head"><Piece kind="ac" /><span>آکادمی‌ها</span></div>
+              <ol className="gpb-slots">
+                <li className={`gpb-slot${has('ac1') ? ' gpb-slot--built' : ''}`} aria-label={`آکادمی دانش: ${has('ac1') ? 'ساخته شده' : 'هنوز روی صفحه'} — درآمد ${gainFa(ac1)}`}>
+                  <small className="gpb-cap">درآمد</small><SlotGain g={ac1} />{has('ac1') ? <span className="gpb-check" aria-hidden="true">✓</span> : <Piece kind="ac" />}
+                </li>
+                <li className={`gpb-slot${has('ac2') ? ' gpb-slot--built' : ''}${ac2Used ? ' gpb-slot--spent' : ''}`} aria-label={`آکادمی QIC: ${has('ac2') ? 'ساخته شده' : 'هنوز روی صفحه'} — اقدام ${gainFa(ac2)}${ac2Used ? '، این دور استفاده شده' : ''}`}>
+                  <small className="gpb-cap">اقدام</small><SlotGain g={ac2} />{has('ac2') ? <span className="gpb-check" aria-hidden="true">{ac2Used ? '✕' : '✓'}</span> : <Piece kind="ac" />}
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        {compact ? (
+          <details className="gpb-plate gpb-ability">
+            <summary>توانایی جناح و مؤسسه</summary>
+            <p>{f.abilityFa}</p>
+            <p><strong>مؤسسهٔ سیاره‌ای:</strong> {f.piFa}</p>
+          </details>
+        ) : (
+          <div className="gpb-plate gpb-ability" aria-label="توانایی جناح">
+            <h4>توانایی جناح</h4>
+            <p>{f.abilityFa}</p>
+          </div>
+        )}
       </div>
-      {f && (
-        <details className="gp-ability">
-          <summary>توانایی جناح</summary>
-          <p>{f.abilityFa}</p>
-          <p><strong>مؤسسهٔ سیاره‌ای:</strong> {f.piFa}</p>
+      <div className="gpb-plate gpb-foot">
+        {view.active[seat] && <p className="gp-line"><strong>درآمد دور بعد:</strong> <GainIcons g={view.income[seat] ?? {}} /></p>}
+        <div className="gp-tiles">
+          {p.booster && <BoosterTile id={p.booster} />}
+          {p.techs.map((t) => (CONTENT.techs[t.id]?.kind === 'adv'
+            ? <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${t.id}`} />
+            : <TechTile key={t.id} id={t.id} covered={t.covered} flip={`tech-${seat}-${t.id}`} from={`std-${t.id}`} />))}
+          {p.feds.map((x, i) => <span key={i} data-flip={`fed-${seat}-${i}`} data-flip-from="fed-supply" className={`gp-tile gp-tile--fed${x.green ? ' gp-tile--green' : ''}`}><small>فدراسیون{x.green ? ' (سبز)' : ''}</small>{fedFa(x.id)}</span>)}
+          {!p.booster && !p.techs.length && !p.feds.length && <small className="gpb-note">هنوز کاشی‌ای ندارد</small>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const wideScreen = () => (typeof matchMedia === 'function' ? matchMedia('(min-width: 720px)').matches : true);
+
+function PlayerPanel({ view, seat, name, me, waiting }: { view: GaiaView; seat: number; name: string; me: boolean; waiting: boolean }) {
+  const p = view.pl[seat]!;
+  const f = p.faction ? CONTENT.factions[p.faction] : undefined;
+  const [open] = useState(wideScreen);
+  const home = f?.home ?? 'n';
+  const cls = ['gp-player', 'gpb', `gpb--${home}`, LIGHT_BOARD.has(home) ? 'gpb--light' : '', me ? 'gp-player--me' : 'gpb--compact', waiting ? 'gp-player--current' : ''].filter(Boolean).join(' ');
+  const style = { '--art': `url(${BOARD_ART[home] ?? bN})` } as CSSProperties;
+  const header = <Header view={view} seat={seat} name={name} me={me} f={f} />;
+  const body = f ? <FactionBoard view={view} seat={seat} f={f} compact={!me} /> : <p className="gpb-plate gpb-note">هنوز جناحی انتخاب نشده است.</p>;
+  return (
+    <section data-flip-anchor={`seat-${seat}`} className={cls} style={style} aria-label={`صفحهٔ جناح ${name}`}>
+      {me ? <>{header}{body}</> : (
+        <details className="gpb-fold" open={open}>
+          <summary>{header}<Glance p={p} /></summary>
+          {body}
         </details>
       )}
     </section>

@@ -3,7 +3,7 @@
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
-import { CardArt, Emblem, PATHS, Portrait, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
+import { CardArt, Emblem, PATHS, PORTRAITS, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
 import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
 import type { CardRef, Fighter, LogEntry, Prompt, UnmatchedView } from './rules.ts';
@@ -792,53 +792,78 @@ function ChoiceList({ label, items, onPick, busy, selected, hint, compact }: {
   );
 }
 
+/**
+ * A player's hero character card, laid out like the printed one: the painted art window with the hero's name banner,
+ * the health dial, move and attack-type stats, the sidekick dials, the special-ability box and the card stacks.
+ * Everything is public: opponents get the same card in a compact form (ability folded away), never their hand.
+ */
 function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?: UnmatchedView; seat: number; me: boolean; name: string }) {
   const hero = HEROES[view.heroes[seat] ?? ''];
   const fighters = view.fighters.filter((f) => f.seat === seat);
   const turn = view.current === seat && !view.outcome && view.turnNo > 0;
   const lead = fighters.find((f) => f.hero);
+  const kicks = fighters.filter((f) => !f.hero);
   const counts = { hand: view.handCounts[seat] ?? 0, deck: view.deckCounts[seat] ?? 0, discard: view.discards[seat]?.length ?? 0 };
   const pop = (a: number, b: number | undefined) => (was && b !== undefined && a !== b ? 'bg-pop' : '');
+  const notes = hero ? [view.size[seat] ? (view.size[seat] === 'big' ? 'آلیس بزرگ' : 'آلیس کوچک') : '', view.form[seat] ? `اکنون ${formFa(view.form[seat])}` : '', view.vanished[seat] ? 'ناپدید' : '', view.fogSeat === seat ? `${fa(view.fog.length)} نشان مه` : ''].filter(Boolean) : [];
   return (
-    <li data-flip-anchor={`seat-${seat}`} className={['um-player', turn ? 'um-player--turn' : '', view.alive[seat] ? '' : 'um-player--out', me ? 'um-player--me' : ''].join(' ')} style={{ ['--hc' as string]: hero?.color ?? 'var(--text-2)' }}>
-      <div className="um-player__top">
-        {hero && <Portrait id={heroEmblem(view, seat)} color={hero.color} size={64} pct={lead && lead.maxHp ? (lead.hp / lead.maxHp) * 100 : 0} />}
-        <div className="um-player__id">
-          <div className="um-player__head">
-            <bdi className="um-player__name">{name}</bdi>{me && <span className="um-muted"> (شما)</span>}
+    <li data-flip-anchor={`seat-${seat}`} className={['um-player', turn ? 'um-player--turn' : '', view.alive[seat] ? '' : 'um-player--out', me ? 'um-player--me' : ''].join(' ')} style={{ ['--hc' as string]: hero?.color ?? '#8a7a60' }}>
+      <div className="um-hc__art">
+        {hero && <img src={PORTRAITS[heroEmblem(view, seat)] ?? PORTRAITS.arthur} alt="" aria-hidden="true" draggable={false} />}
+        <div className="um-hc__banner">
+          <strong>{hero ? (view.heroes[seat] === 'jekyll' && view.form[seat] ? formFa(view.form[seat]) : hero.hero.nameFa) : 'بدون قهرمان'}</strong>
+          <span className="um-player__head">
+            <bdi className="um-player__name">{name}</bdi>{me && <span> (شما)</span>}
             {turn && <span className="um-badge">نوبت</span>}
             {!view.alive[seat] && <span className="um-badge um-badge--out">بیرون</span>}
-          </div>
-          {hero && <div className="um-player__hero">{hero.hero.nameFa}{view.size[seat] ? ` · ${view.size[seat] === 'big' ? 'بزرگ' : 'کوچک'}` : ''}{view.form[seat] ? ` · اکنون ${formFa(view.form[seat])}` : ''}{view.vanished[seat] ? ' · ناپدید' : ''}{view.fogSeat === seat ? ` · ${fa(view.fog.length)} نشان مه` : ''}</div>}
+          </span>
         </div>
       </div>
       {hero ? (
-        <>
-          <ul className="um-hp">
-            {fighters.map((f) => <HpRow key={f.id} f={f} name={fighterName(view, f.id)} />)}
-          </ul>
+        <div className="um-hc__body">
+          <div className="um-hc__row">
+            <div className="um-hc__stats">
+              {lead && <HpDial f={lead} name={fighterName(view, lead.id)} big />}
+              <div className="um-hc__facts">
+                <span className="um-hc__fact"><span aria-hidden="true">➜</span>حرکت <b>{fa(hero.move)}</b></span>
+                <span className="um-hc__fact"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span>{hero.hero.ranged ? 'دوربرد' : 'نزدیک‌زن'}</span>
+                {notes.length > 0 && <span className="um-hc__note">{notes.join(' · ')}</span>}
+              </div>
+            </div>
+            {kicks.length > 0 && (
+              <div className="um-hc__kicks">
+                <small>یاور: {hero.sidekick.nameFa} · {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'}</small>
+                <ul className="um-hp">{kicks.map((f) => <li key={f.id}><HpDial f={f} name={fighterName(view, f.id)} /></li>)}</ul>
+              </div>
+            )}
+          </div>
+          {me ? <p className="um-hc__ability"><b>توانایی ویژه: </b>{hero.abilityFa}</p>
+            : <details className="um-hc__ability"><summary>توانایی ویژه</summary><p>{hero.abilityFa}</p></details>}
           <div className="um-player__counts">
             <span className="um-stackc"><i className="um-stackc__ic um-stackc__ic--hand" aria-hidden="true" />دست <b key={counts.hand} className={pop(counts.hand, was?.handCounts[seat])}>{fa(counts.hand)}</b></span>
             <span className="um-stackc" data-flip-anchor={`deck-${seat}`}><i className="um-stackc__ic um-stackc__ic--deck" aria-hidden="true" />دسته <b key={counts.deck} className={pop(counts.deck, was?.deckCounts[seat])}>{fa(counts.deck)}</b>{counts.deck === 0 ? ' (خسته!)' : ''}</span>
             <span className="um-stackc" data-flip-anchor={`discard-${seat}`}><i className="um-stackc__ic um-stackc__ic--discard" aria-hidden="true" />دورریخته <b key={counts.discard} className={pop(counts.discard, was?.discards[seat]?.length)}>{fa(counts.discard)}</b></span>
           </div>
-        </>
-      ) : <div className="um-muted">در حال انتخاب قهرمان…</div>}
+        </div>
+      ) : <div className="um-hc__body um-muted">در حال انتخاب قهرمان…</div>}
     </li>
   );
 }
 
-/** Hero: a track bar. Sidekicks: one pip per health point, like the physical dial. */
-function HpRow({ f, name }: { f: Fighter; name: string }) {
-  const pct = Math.round((f.hp / f.maxHp) * 100);
+/** The printed health dial: one notch per health point around the wheel, lit notches = health left, the number in the hub. */
+function HpDial({ f, name, big }: { f: Fighter; name: string; big?: boolean }) {
+  const n = Math.max(1, f.maxHp), gap = n > 1 ? 0.07 : 0, T = Math.PI * 2;
   return (
-    <li className={f.hp === 0 ? 'um-hp__row um-hp__row--dead' : 'um-hp__row'}>
-      <span className="um-hp__name">{name}</span>
-      <span className={f.hero ? 'um-hp__bar' : 'um-hp__pips'} role="meter" aria-valuemin={0} aria-valuemax={f.maxHp} aria-valuenow={f.hp} aria-label={`سلامتی ${name}`}>
-        {f.hero ? <span style={{ inlineSize: `${pct}%` }} /> : Array.from({ length: f.maxHp }, (_, i) => <i key={i} className={i < f.hp ? 'um-pip um-pip--on' : 'um-pip'} />)}
-      </span>
-      <span className="um-hp__num">{f.hp === 0 ? 'شکست' : `${fa(f.hp)}/${fa(f.maxHp)}`}</span>
-    </li>
+    <span className={['um-dial', big ? 'um-dial--big' : '', f.hp === 0 ? 'um-dial--dead' : ''].join(' ')} role="meter" aria-valuemin={0} aria-valuemax={f.maxHp} aria-valuenow={f.hp} aria-label={`سلامتی ${name}: ${fa(f.hp)} از ${fa(f.maxHp)}`}>
+      <svg viewBox="-50 -50 100 100" aria-hidden="true" focusable="false">
+        <circle r="47" className="um-dial__rim" />
+        {n === 1 ? <circle r="40" className={f.hp > 0 ? 'um-dial__notch um-dial__notch--on' : 'um-dial__notch'} />
+          : Array.from({ length: n }, (_, i) => <path key={i} d={slicePath(0, 0, 40, (i / n) * T + gap / 2 - Math.PI / 2, ((i + 1) / n) * T - gap / 2 - Math.PI / 2)} className={i < f.hp ? 'um-dial__notch um-dial__notch--on' : 'um-dial__notch'} />)}
+        <circle r="28" className="um-dial__hub" />
+        <text y="9" className="um-dial__num">{f.hp === 0 ? '✕' : fa(f.hp)}</text>
+      </svg>
+      <small><bdi>{name}</bdi>{f.hp === 0 ? ' — شکست' : ` ${fa(f.hp)}/${fa(f.maxHp)}`}</small>
+    </span>
   );
 }
 

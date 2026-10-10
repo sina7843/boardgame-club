@@ -125,6 +125,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
         const plantAction = plantTo.has(i) ? { type: 'plant', field: i } : { type: 'plantPending', card: pickCard, field: i };
         return (
           <div key={i} className={`bn-field ${canPlant ? 'bn-field--open' : ''}`} data-flip-anchor={mine && i === grew ? 'bn-planted' : mine && i === shrank ? 'bn-unplant' : undefined}>
+            <small className="bn-field__label">مزرعهٔ {fa(i + 1)}</small>
             {f.bean ? <BeanCard b={f.bean} count={f.n} size={mine ? 'md' : 'sm'} flip={`f-${s}-${i}-${f.bean}`} flipFrom={mine ? undefined : `seat-${s}`} flipExit={`coins-${s}`} /> : <span className={`bn-plot bn-plot--${mine ? 'md' : 'sm'}`}>خالی</span>}
             {mine && (
               <span className="bn-field__acts">
@@ -135,7 +136,25 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
           </div>
         );
       })}
+      {/* The third field is a card you buy: until then its slot on the mat stays locked. */}
+      {view.fields[s]!.length < 3 && (
+        <div className="bn-field bn-field--locked">
+          <small className="bn-field__label">مزرعهٔ ۳</small>
+          {mine && has('buyField')
+            ? <button type="button" className={`bn-plot bn-plot--${mine ? 'md' : 'sm'} bn-plot--buy`} disabled={busy} onClick={() => onAction({ type: 'buyField' })}><span aria-hidden="true">🔒</span>خرید مزرعهٔ سوم (۳ سکه)</button>
+            : <span className={`bn-plot bn-plot--${mine ? 'md' : 'sm'}`}><span aria-hidden="true">🔒</span>{mine ? 'بسته — ۳ سکه' : 'بسته'}</span>}
+        </div>
+      )}
     </div>
+  );
+
+  // The treasury: harvested bean cards turned over as coins, stacked on the mat.
+  const treasury = (s: number, lg: boolean) => (
+    <span className={`bn-treasury ${lg ? 'bn-treasury--lg' : ''}`} role="img" aria-label={`خزانه: ${fa(view.coins[s]!)} سکه`}>
+      <span className="bn-treasury__stack" aria-hidden="true">{Array.from({ length: Math.min(view.coins[s]!, 8) }, (_, i) => <i key={i} />)}</span>
+      <span className={`bn-coin ${lg ? 'bn-coin--lg' : ''} bg-pop`} key={view.coins[s]} data-flip-anchor={`coins-${s}`}>{fa(view.coins[s]!)}</span>
+      <small>سکه</small>
+    </span>
   );
 
   return (
@@ -147,10 +166,12 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
           <li key={s} data-flip-anchor={`seat-${s}`} className={['bn-rival', s === view.current && !view.outcome ? 'bn-rival--now' : '', view.outcome?.placements[0]?.seat === s ? 'bn-rival--win' : ''].join(' ')}>
             <div className="bn-rival__head">
               <bdi className="bn-rival__name">{who(s)}</bdi>
-              <span className="bn-coin bg-pop" key={view.coins[s]} data-flip-anchor={`coins-${s}`}>{fa(view.coins[s]!)}</span>
-              <span className="bn-rival__hand">{fa(view.handCounts[s]!)} کارت</span>
+              <span className="bn-rival__hand" role="img" aria-label={`${fa(view.handCounts[s]!)} کارت در دست`}><i aria-hidden="true" />{fa(view.handCounts[s]!)} کارت</span>
             </div>
-            {fieldsOf(s, false)}
+            <div className="bn-mat bn-mat--sm">
+              {fieldsOf(s, false)}
+              {treasury(s, false)}
+            </div>
             {view.pending[s]!.length > 0 && <small className="bn-rival__pending">باید بکارد: {view.pending[s]!.map((b) => BEAN_INFO[b].name).join('، ')}</small>}
           </li>
         ))}
@@ -202,10 +223,10 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
 
       {view.hand && !view.outcome && (
         <section className="bn__me" data-flip-anchor={myPending.length ? undefined : `seat-${me}`} aria-label="مزرعه‌ها و دست شما">
-          <div className="bn__me-head">
-            <bdi>{who(me)}</bdi>
-            <span className="bn-coin bn-coin--lg bg-pop" key={view.coins[me]} data-flip-anchor={`coins-${me}`}>{fa(view.coins[me]!)}</span>
-            {has('buyField') && <button type="button" className="bn-link" disabled={busy} onClick={() => onAction({ type: 'buyField' })}>خرید مزرعهٔ سوم (۳ سکه)</button>}
+          <div className="bn-mat">
+            <div className="bn__me-head"><bdi>{who(me)}</bdi><small>مزرعه‌های شما</small></div>
+            {fieldsOf(me, true)}
+            {treasury(me, true)}
           </div>
           {myPending.length > 0 && (
             <div className="bn__row bn__pending" data-flip-anchor={`seat-${me}`} role="group" aria-label="باید کاشته شود">
@@ -213,7 +234,6 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
               {myPending.map((b, i) => <button key={i} type="button" className={`bn-pick ${pickCard === i ? 'bn-pick--on' : ''}`} aria-pressed={pickCard === i} onClick={() => setCard(i)}><BeanCard b={b} size="sm" flip={pendIds[i]} flipFrom={shrank >= 0 ? 'bn-unplant' : undefined} flipExit="bn-planted" /></button>)}
             </div>
           )}
-          {fieldsOf(me, true)}
           {has('flip') && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'flip' ? 'bn-hint' : ''} onClick={() => onAction({ type: 'flip' })}>رو کردن دو کارت</Button>}
           <div className="bn__hand" data-flip-anchor="hand" aria-label="دست شما (به ترتیب)">
             {view.hand.map((b, i) => {

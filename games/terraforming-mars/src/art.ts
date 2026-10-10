@@ -17,6 +17,9 @@ import crFighter from './art/cr-fighter.webp';
 import gpTemperature from './art/gp-temperature.webp';
 import gpOxygen from './art/gp-oxygen.webp';
 import marsSurface from './art/mars-surface.webp';
+import boardPlate from './art/board-plate.webp';
+import boardBox from './art/board-box.webp';
+import boardTr from './art/board-tr.webp';
 import type { CardRes, Res, TileKind } from './api.ts';
 
 export const TILE_ART: Record<TileKind, string> = { greenery: tileGreenery, ocean: tileOcean, city: tileCity, special: tileSpecial };
@@ -24,3 +27,5 @@ export const RES_ART: Record<Res, string> = { mc: resMc, steel: resSteel, titani
 export const CARDRES_ART: Record<CardRes, string> = { microbe: crMicrobe, animal: crAnimal, science: crScience, fighter: crFighter };
 export const PARAM_ART = { temperature: gpTemperature, oxygen: gpOxygen, ocean: tileOcean } as const;
 export const MARS_ART = marsSurface;
+// Player board (one Higgsfield sheet): gunmetal plate, copper resource-box inset, anodised TR strip. Texture only.
+export const BOARD_ART = { plate: boardPlate, box: boardBox, tr: boardTr } as const;

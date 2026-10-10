@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNod
 import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePop, type GameRendererProps } from '@bg/ui';
 import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
 import { BoardDefs, CARD_BACK, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
-import { COST, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
+import { COST, LIMITS, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 type Hint = { type: string; [k: string]: unknown };
@@ -179,6 +179,46 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         );
       })}
     </svg>
+  );
+}
+
+// ---------- player board ----------
+
+const PIECE_FA = { road: 'جاده', settlement: 'آبادی', city: 'شهر' } as const;
+
+/** A wooden piece in the seat colour (road plank, settlement house, city). Decorative: the parent carries the label. */
+function Piece({ kind, seat }: { kind: 'road' | 'settlement' | 'city'; seat: number }) {
+  return (
+    <svg className={`ct-pc ct-pc--${kind}`} viewBox={kind === 'road' ? '-16 -6 32 12' : '-17 -19 34 30'} aria-hidden="true">
+      {kind === 'road'
+        ? <rect x="-14" y="-3.5" width="28" height="7" rx="1.5" fill={SEAT_COLOR[seat]} className="ct-piece" />
+        : (kind === 'city' ? CITY : HOUSE).map((d) => <path key={d} d={d} fill={SEAT_COLOR[seat]} className="ct-piece" />)}
+    </svg>
+  );
+}
+
+/** The printed building-cost card: each build with its resources (icons + names) and what it scores. */
+function CostCard() {
+  const rows = [['road', 'جاده', '۰'], ['settlement', 'آبادی', '۱'], ['city', 'شهر', '۲'], ['dev', 'کارت توسعه', '؟']] as const;
+  return (
+    <table className="ct-costcard">
+      <caption>هزینهٔ ساخت</caption>
+      <thead><tr><th scope="col">ساخت</th><th scope="col">منابع</th><th scope="col">امتیاز</th></tr></thead>
+      <tbody>
+        {rows.map(([k, label, vp]) => (
+          <tr key={k}>
+            <th scope="row">{label}</th>
+            <td>
+              <span className="ct-costcard__icons" aria-hidden="true">
+                {RESOURCES.flatMap((r) => Array.from({ length: COST[k][r] ?? 0 }, (_, i) => <span key={`${r}${i}`} className={`ct-costcard__res ct-res--${r}`}><ResIcon r={r} /></span>))}
+              </span>
+              <small>{handText(COST[k])}</small>
+            </td>
+            <td>{vp}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -365,26 +405,44 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       </div>
 
       <ul className="ct-players" aria-label="بازیکنان">
-        {Array.from({ length: view.players }, (_, s) => {
+        {(mySeat === null ? [] : [mySeat]).concat(Array.from({ length: view.players }, (_, s) => s).filter((s) => s !== mySeat)).map((s) => {
           const turn = view.current === s && !view.outcome;
+          const vp = s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0);
+          const supply = {
+            road: LIMITS.road - view.roads.filter((o) => o === s).length,
+            settlement: LIMITS.settlement - view.buildings.filter((b) => b?.seat === s && !b.city).length,
+            city: LIMITS.city - view.buildings.filter((b) => b?.seat === s && b.city).length
+          };
           return (
-            <li key={s} className={['ct-player', turn ? 'ct-player--turn' : '', view.active[s] ? '' : 'ct-player--out'].join(' ')} style={{ ['--pc' as string]: SEAT_COLOR[s] }}>
+            <li key={s} className={['ct-player', turn ? 'ct-player--turn' : '', s === mySeat ? 'ct-player--me' : '', view.active[s] ? '' : 'ct-player--out'].join(' ')} style={{ ['--pc' as string]: SEAT_COLOR[s] }}>
               <span className="ct-player__head">
                 <span className="ct-swatch" aria-hidden="true">{fa(s + 1)}</span>
                 <bdi className="ct-player__name">{seatName(s)}</bdi>
                 <span className="ct-player__color">({SEAT_FA[s]}{s === mySeat ? '، شما' : ''})</span>
                 {turn && <span className="ct-badge">نوبت</span>}
                 {!view.active[s] && <span className="ct-badge ct-badge--out">کنار رفته</span>}
+                <span className="ct-player__vp"><Pop v={vp} text={fa(vp)} /> امتیاز</span>
               </span>
-              <span className="ct-player__vp"><Pop v={s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0)} text={fa(s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0))} /> امتیاز</span>
+              <span className="ct-supply" aria-label={`مهره‌های باقی‌مانده: ${fa(supply.road)} جاده، ${fa(supply.settlement)} آبادی، ${fa(supply.city)} شهر`}>
+                {(['road', 'settlement', 'city'] as const).map((k) => (
+                  <span key={k} className="ct-supply__slot">
+                    <Piece kind={k} seat={s} />
+                    <b>{fa(supply[k])}</b><small>/{fa(LIMITS[k])} {PIECE_FA[k]}</small>
+                  </span>
+                ))}
+              </span>
               <span className="ct-player__counts">
-                {fa(view.handCounts[s] ?? 0)} کارت منبع · {fa(view.devCounts[s] ?? 0)} کارت توسعه · {fa(view.knights[s] ?? 0)} شوالیه · جاده {fa(view.roadLength[s] ?? 0)}
+                <span className="ct-tally"><i className="ct-tally__card" aria-hidden="true" />{fa(view.handCounts[s] ?? 0)} کارت منبع</span>
+                <span className="ct-tally"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />{fa(view.devCounts[s] ?? 0)} کارت توسعه</span>
+                <span className="ct-tally"><span aria-hidden="true">⚔</span> {fa(view.knights[s] ?? 0)} شوالیه</span>
+                <span className="ct-tally">جاده بلند {fa(view.roadLength[s] ?? 0)}</span>
               </span>
               <span className="ct-player__awards">
                 {view.longestRoad === s && <span className="ct-badge ct-badge--award">طولانی‌ترین جاده</span>}
                 {view.largestArmy === s && <span className="ct-badge ct-badge--award">بزرگ‌ترین ارتش</span>}
                 {view.phase === 'discard' && (view.owed[s] ?? 0) > 0 && <span className="ct-badge ct-badge--warn">باید {fa(view.owed[s]!)} کارت دور بریزد</span>}
               </span>
+              {s === mySeat && <CostCard />}
             </li>
           );
         })}

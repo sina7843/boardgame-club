@@ -100,27 +100,41 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
           const turned = view.turned.filter((t) => t.seat === s);
           const stack = view.stackCounts[s]!;
           const canFlip = flippable.has(s) && !busy;
+          const won = view.points[s]!;
+          const owned = view.owned[s]!;
+          const color = SEAT[s % SEAT.length]!;
+          // The player mat as printed: a round coaster mat in the seat colour, plain side up until the first won
+          // challenge flips it to the point side; the placed stack sits on it, the owned discs and points beside it.
           const body = (
             <>
               <div className="sk-pl__head">
-                <span className="sk-pl__mat" aria-label={`${fa(view.points[s]!)} امتیاز از ۲`}><Points n={view.points[s]!} /></span>
                 <bdi className="sk-pl__name">{who(s)}</bdi>
-                {view.owned[s] === 0 ? <span className="sk-pl__out">بیرون</span> : <span className={s === hitSeat ? 'sk-pl__owned bg-hit' : 'sk-pl__owned'} key={`${view.owned[s]}-${s === hitSeat ? lastSeq : ''}`}>{fa(view.owned[s]!)} دیسک</span>}
+                {owned === 0 ? <span className="sk-pl__out">بیرون</span> : null}
                 {view.phase === 'bid' && view.passed[s] && <span className="sk-pl__pass">کنار کشید</span>}
               </div>
-              <div className="sk-pl__stack" aria-label={`${fa(stack)} دیسک روی میز`}>
-                {Array.from({ length: stack }, (_, k) => {
-                  const fromTop = stack - 1 - k;
-                  const shown = turned[fromTop];
-                  const own = s === mySeat && view.myStack ? view.myStack[k] : null;
-                  return (
-                    <span key={k} className="sk-pl__slot" data-flip={`st-${s}-${k}`} data-flip-from={s === mySeat ? 'hand' : `seat-${s}`} data-flip-exit={s === mySeat ? 'hand' : `seat-${s}`} style={{ ['--k' as string]: k }}>
-                      <Coaster face={shown ? shown.disc : 'back'} color={SEAT[s % SEAT.length]!} flip={!!shown} />
-                      {own && !shown && <span className={`sk-peek sk-peek--${own}`} title="فقط شما می‌بینید">{own === 'skull' ? 'جمجمه' : 'گل'}</span>}
-                    </span>
-                  );
-                })}
-                {!stack && <span className="sk-pl__empty">—</span>}
+              <div className={['sk-mat', won > 0 ? 'sk-mat--won' : ''].join(' ')} style={{ ['--seat' as string]: color }}>
+                <span className="sk-mat__side">{won > 0 ? 'سمت امتیاز' : 'سمت ساده'}</span>
+                <div className="sk-pl__stack" aria-label={`${fa(stack)} دیسک روی میز`}>
+                  {Array.from({ length: stack }, (_, k) => {
+                    const fromTop = stack - 1 - k;
+                    const shown = turned[fromTop];
+                    const own = s === mySeat && view.myStack ? view.myStack[k] : null;
+                    return (
+                      <span key={k} className="sk-pl__slot" data-flip={`st-${s}-${k}`} data-flip-from={s === mySeat ? 'hand' : `seat-${s}`} data-flip-exit={s === mySeat ? 'hand' : `seat-${s}`} style={{ ['--k' as string]: k }}>
+                        <Coaster face={shown ? shown.disc : 'back'} color={color} flip={!!shown} />
+                        {own && !shown && <span className={`sk-peek sk-peek--${own}`} title="فقط شما می‌بینید">{own === 'skull' ? 'جمجمه' : 'گل'}</span>}
+                      </span>
+                    );
+                  })}
+                  {!stack && <span className="sk-pl__empty">بدون دیسک</span>}
+                </div>
+              </div>
+              <div className="sk-pl__foot">
+                <span className="sk-pl__mat" aria-label={`${fa(won)} امتیاز از ۲`}><Points n={won} /><small>{fa(won)}/۲ امتیاز</small></span>
+                <span className={s === hitSeat ? 'sk-pl__owned bg-hit' : 'sk-pl__owned'} key={`${owned}-${s === hitSeat ? lastSeq : ''}`} aria-label={`${fa(owned)} دیسک از ۴`}>
+                  <span className="sk-own" aria-hidden="true">{[0, 1, 2, 3].map((k) => <i key={k} className={k < owned ? 'on' : ''} />)}</span>
+                  {fa(owned)} دیسک · {fa(view.handCounts[s] ?? 0)} در دست
+                </span>
               </div>
             </>
           );

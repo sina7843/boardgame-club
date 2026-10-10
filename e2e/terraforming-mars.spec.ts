@@ -125,7 +125,10 @@ test('two players terraform Mars to the result', async ({ browser }, info) => {
       // The payment picker is local (no server step); everything else advances the table.
       if (await p.locator('.tm-pay').count()) { acted = true; continue; }
       await expect.poll(() => p.locator('.tm').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
-      if (n === 30) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
+      if (n === 30) for (const [i, q] of pages.entries()) {
+        await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
+        await q.locator('.tm-players').screenshot({ path: shot(info.project.name, `boards-${i}`) }); // own board + opponents
+      }
       acted = true;
     }
     if (!acted) await host.waitForTimeout(150);

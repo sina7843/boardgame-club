@@ -69,3 +69,23 @@
 .ct > .ct__orders, .ct > .ct__market { inline-size: min(100%, 38rem); justify-self: center; align-items: start; }
 .ct-pl__score { display: inline-block; }
 .ct-caravan__n { display: inline-block; color: #e3d2b2; font-size: 0.7rem; }
+
+/* Player board: the caravan card (sand cloth, ten cube slots in two rows) beside the won-orders stack and coins. */
+.ct-pl__board { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
+.ct-pl__card { display: grid; gap: 0.2rem; justify-items: center; padding: 0.35rem 0.5rem 0.5rem; border-radius: 10px; color: var(--ink);
+  background: linear-gradient(rgb(255 248 230 / 0.25), rgb(120 70 20 / 0.15)), url('./art/caravan-sand.webp') center / cover #d9a868;
+  box-shadow: inset 0 0 0 2px #7a4a1a, inset 0 0 0 4px rgb(255 240 200 / 0.5), 0 4px 8px -4px #000; }
+.ct-pl__cap { font-size: 0.68rem; font-weight: 900; color: #4a2a0a; }
+.ct-pl__cap .ct-caravan__n { color: #4a2a0a; font-size: inherit; }
+.ct-cv { display: grid; grid-template-columns: repeat(5, 1.6rem); gap: 0.25rem; }
+.ct-cv__slot { display: grid; place-items: center; inline-size: 1.6rem; block-size: 1.6rem; border-radius: 5px; background: rgb(255 248 230 / 0.55); box-shadow: inset 0 1px 3px rgb(80 40 0 / 0.5); outline: 1px dashed rgb(90 50 10 / 0.45); outline-offset: -3px; }
+.ct-cv__slot--over { background: rgb(200 50 31 / 0.35); outline-color: #c8321f; }
+.ct-pl--me .ct-cv { grid-template-columns: repeat(5, 2.1rem); }
+.ct-pl--me .ct-cv__slot { inline-size: 2.1rem; block-size: 2.1rem; }
+.ct-pl--me .ct-cv__slot .ct-spice { inline-size: 1.6rem; block-size: 1.6rem; }
+.ct-pl__side { display: grid; gap: 0.25rem; justify-items: start; font-size: 0.78rem; }
+.ct-pl__orders b { font-size: 1rem; color: #ffd98a; }
+.ct-pl__coins { display: inline-flex; gap: 0.25rem; align-items: center; }
+.ct-pl__coins small { margin-inline-end: 0.3rem; color: #e3d2b2; }
+.ct-pl__cards { color: #e3d2b2; }
+.ct-pl--me { grid-column: 1 / -1; }

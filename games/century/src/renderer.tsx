@@ -31,6 +31,27 @@ export function Cubes({ bag, size = 'md', fid, from, exit }: { bag: Bag; size?: 
   );
 }
 
+/**
+ * The caravan card as printed: ten cube slots in two rows; cubes fill them cheapest first, empty slots stay dashed.
+ * Cubes keep the same motion ids as `Cubes` (fid + spice + index).
+ */
+function Caravan({ bag, fid }: { bag: Bag; fid: string }) {
+  const list = SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => [s, i] as const));
+  const label = SPICES.filter((s) => bag[s] > 0).map((s) => `${fa(bag[s])} ${SPICE_FA[s]}`).join('، ') || 'خالی';
+  return (
+    <span className="ct-cv" role="img" aria-label={`کاروان: ${label} (${fa(list.length)} از ۱۰)`}>
+      {Array.from({ length: Math.max(10, list.length) }, (_, k) => {
+        const c = list[k];
+        return (
+          <span key={k} className={k >= 10 ? 'ct-cv__slot ct-cv__slot--over' : 'ct-cv__slot'}>
+            {c && <img className="ct-spice" src={ART[c[0]]} alt="" draggable={false} data-flip={`${fid}-${c[0]}${c[1]}`} data-flip-exit="drop" />}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 export function MerchantCard({ id }: { id: number }) {
   const m = MERCHANTS[id]!;
   return (
@@ -173,11 +194,21 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
             <div className="ct-pl__head">
               <bdi className="ct-pl__name">{who(s)}</bdi>
               <Bump className="ct-pl__score" v={view.scores[s]}>{fa(view.scores[s]!)} امتیاز</Bump>
-              <span>{fa(view.won[s]!.length)} سفارش</span>
-              {view.coins[s]!.gold > 0 && <Bump className="ct-coin ct-coin--gold" v={view.coins[s]!.gold}>{fa(view.coins[s]!.gold)}</Bump>}
-              {view.coins[s]!.silver > 0 && <Bump className="ct-coin ct-coin--silver" v={view.coins[s]!.silver}>{fa(view.coins[s]!.silver)}</Bump>}
             </div>
-            <div className="ct-caravan"><Cubes bag={view.cubes[s]!} fid={`cv${s}`} exit="drop" /><Bump className="ct-caravan__n" v={view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b}>{fa(view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b)}/۱۰</Bump></div>
+            <div className="ct-pl__board">
+              <div className="ct-pl__card">
+                <small className="ct-pl__cap">کاروان <Bump className="ct-caravan__n" v={view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b}>{fa(view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b)}/۱۰</Bump></small>
+                <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />
+              </div>
+              <div className="ct-pl__side">
+                <span className="ct-pl__orders" title="سفارش‌های تحویل‌شده"><b>{fa(view.won[s]!.length)}</b> سفارش · {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>
+                <span className="ct-pl__coins">
+                  <Bump className="ct-coin ct-coin--gold" v={view.coins[s]!.gold}>{fa(view.coins[s]!.gold)}</Bump><small>طلا</small>
+                  <Bump className="ct-coin ct-coin--silver" v={view.coins[s]!.silver}>{fa(view.coins[s]!.silver)}</Bump><small>نقره</small>
+                </span>
+                <span className="ct-pl__cards">{fa(view.hands[s]!.length)} در دست · {fa(view.played[s]!.length)} بازی‌شده</span>
+              </div>
+            </div>
           </li>
         ))}
       </ul>

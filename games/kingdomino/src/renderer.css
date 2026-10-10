@@ -7,8 +7,8 @@
 .kd-t--G { background: url('./art/terrain-G.webp') center / cover; }
 .kd-t--S { background: url('./art/terrain-S.webp') center / cover; }
 .kd-t--M { background: url('./art/terrain-M.webp') center / cover; }
-.kd-t--C { background: #d8cbb0; }
-.kd-castle { fill: #7a6a52; }
+.kd-t--C { background: radial-gradient(circle at 50% 40%, #f1e6cc, #c9b78f); }
+.kd-castle { fill: var(--seat, #7a6a52); stroke: #2c2416; stroke-width: 0.8; }
 
 .kd-sq { position: relative; display: inline-grid; place-items: center; border-radius: 3px; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25); }
 .kd-sq--md { inline-size: 2rem; block-size: 2rem; }
@@ -36,18 +36,33 @@ button.kd-pick { cursor: pointer; box-shadow: 0 0 0 2px rgb(255 217 138 / 0.5); 
 .kd__tools { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; animation: kd-drop 0.25s ease-out both; }
 .kd__mine { padding: 0.2rem 0.3rem 0.5rem; border-radius: 8px; background: rgb(0 0 0 / 0.25); }
 
+/* kingdom on the table: an illuminated parchment map (art cut from a generated sheet, see DECISIONS.md) under the 9×9
+   field; the castle wears the player's colour, cells outside the reachable 5×5 frame fade out, the tally sits below. */
 .kd__realm { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-start; justify-content: center; }
-.kd-player { display: grid; gap: 0.35rem; justify-items: center; padding: 0.45rem; border-radius: 12px; background: rgb(0 0 0 / 0.22); }
-.kd-player--turn { box-shadow: 0 0 0 2px #ffd98a; }
-.kd-player--win { box-shadow: 0 0 0 2px #ffd98a; background: rgb(255 217 138 / 0.15); }
-.kd-player__head { display: flex; gap: 0.4rem; align-items: center; font-size: 0.85rem; }
+.kd-player { display: grid; gap: 0.4rem; justify-items: center; min-inline-size: 0; max-inline-size: 100%; padding: 0.5rem; border-radius: 14px; color: var(--ink);
+  background: linear-gradient(rgb(255 246 220 / 0.2), rgb(255 246 220 / 0.2)), url("./art/board-map.webp") center / cover;
+  box-shadow: inset 0 0 0 2px var(--seat), inset 0 0 0 4px rgb(255 246 220 / 0.6), 0 10px 18px -8px #000; }
+.kd-player--turn, .kd-player--win { box-shadow: inset 0 0 0 2px var(--seat), 0 0 0 3px #ffd98a, 0 0 16px rgb(255 217 138 / 0.45), 0 10px 18px -8px #000; }
+.kd-player__head { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; justify-content: center; padding: 0.15rem 0.6rem; border-radius: 999px; background: #3a2e1e; color: #f4ecda; font-size: 0.85rem; box-shadow: inset 0 0 0 1px var(--seat), 0 2px 4px rgb(0 0 0 / 0.35); }
 .kd-player__head b { color: #ffe1a0; }
-.kd__others { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-.kd-kingdom { display: grid; grid-template-columns: repeat(9, auto); gap: 1px; padding: 3px; border-radius: 6px; background: #4a3b26; box-shadow: inset 0 0 0 2px #a8834e; direction: ltr; }
+.kd-player__turn, .kd-player__place { font-size: 0.7rem; padding: 0 0.4rem; border-radius: 999px; background: #ffd98a; color: var(--ink); font-weight: 800; }
+.kd-player__fold { min-inline-size: 2rem; min-block-size: 1.8rem; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.15); color: inherit; font: inherit; cursor: pointer; }
+.kd-player__fold:focus-visible { outline: 2px solid #ffd98a; }
+.kd__others { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; align-items: flex-start; }
+.kd-kingdom { display: grid; grid-template-columns: repeat(9, auto); gap: 1px; padding: 3px; border-radius: 6px; background: rgb(58 46 30 / 0.35); box-shadow: inset 0 0 0 2px rgb(58 46 30 / 0.6); direction: ltr; }
+.kd-kingdom .kd-sq--empty { background: rgb(255 248 228 / 0.45); box-shadow: inset 0 0 0 1px rgb(58 46 30 / 0.3); }
 .kd-slot { display: grid; padding: 0; border: 0; background: transparent; border-radius: 3px; }
+.kd-slot--out { opacity: 0.18; }
 button.kd-slot { cursor: pointer; }
-.kd-slot--ok { box-shadow: 0 0 0 2px rgb(123 224 138 / 0.75); }
+button.kd-slot:focus-visible { outline: 2px solid #2f80c9; outline-offset: 1px; }
+.kd-slot--ok { box-shadow: 0 0 0 2px rgb(46 160 70 / 0.9); }
 .kd-slot--pv { animation: kd-pop 0.25s ease-out; box-shadow: 0 0 0 2px #fff; }
+.kd-tally { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; font-size: 0.74rem; }
+.kd-tally li { display: inline-flex; gap: 0.25rem; align-items: center; padding: 0.1rem 0.45rem; border-radius: 999px; background: rgb(255 250 236 / 0.85); box-shadow: inset 0 0 0 1px rgb(58 46 30 / 0.4); font-weight: 700; }
+.kd-tally b { color: #7a4b0e; font-weight: 900; }
+.kd-crowns--tally { position: static; }
+.kd-crowns--tally i { inline-size: 0.7rem; block-size: 0.55rem; }
+.kd-player--me .kd-tally { font-size: 0.82rem; }
 .kd-hint { animation: kd-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a !important; }
 @media (max-width: 420px) { .kd-sq--md { inline-size: 1.75rem; block-size: 1.75rem; } }
 

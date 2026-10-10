@@ -11,18 +11,10 @@
 .sk-pl__flip { display: grid; gap: 0.35rem; inline-size: 100%; border: 0; border-radius: inherit; background: rgb(255 210 122 / 0.12); color: inherit; font: inherit; cursor: pointer; box-shadow: inset 0 0 0 2px #ffd27a; }
 .sk-pl__flip:hover, .sk-pl__flip:focus-visible { background: rgb(255 210 122 / 0.25); outline: none; }
 .sk-pl__cta { font-weight: 900; color: #ffd27a; }
-.sk-pl__head { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; font-size: 0.85rem; }
 .sk-pl__name { font-weight: 800; }
 .sk-pl__owned { color: #d9ccb4; }
 .sk-pl__out { color: #ff8f80; font-weight: 800; }
 .sk-pl__pass { color: #a89a80; }
-.sk-pl__mat { display: inline-flex; gap: 3px; }
-.sk-pl__mat i { inline-size: 14px; block-size: 14px; border-radius: 50%; border: 2px solid #c9a46a; }
-.sk-pl__mat i.on { background: #e0475f; border-color: #ffb4be; box-shadow: 0 0 8px #e0475f; }
-.sk-pl__stack { display: flex; align-items: center; min-block-size: 4.2rem; padding-inline-start: 0.4rem; }
-.sk-pl__slot { position: relative; margin-inline-start: -2.2rem; }
-.sk-pl__slot:first-child { margin-inline-start: 0; }
-.sk-pl__empty { color: #7d6f5a; }
 .sk-peek { position: absolute; inset-block-start: -0.5rem; inset-inline-start: 50%; transform: translateX(50%); font-size: 0.6rem; padding: 0 0.3rem; border-radius: 999px; background: #2a1d12; color: #f3eadb; white-space: nowrap; }
 .sk-peek--skull { background: #f2ead8; color: #2a1d12; }
 
@@ -45,3 +37,32 @@
 
 @keyframes sk-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sk-hint { animation: none; } }
+
+/* Player mat: a round leather coaster mat rimmed in the seat colour. Plain side until the first won challenge, then
+   the point side (gold ring, skull emblem). The placed stack fans out across it; owned discs and points sit below. */
+.sk-pl { display: grid; justify-items: center; }
+.sk-pl__flip { justify-items: center; }
+.sk-pl__head { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; justify-content: center; font-size: 0.9rem; }
+.sk-mat { --d: 10.5rem; position: relative; display: grid; place-items: center; inline-size: var(--d); block-size: var(--d); border-radius: 50%;
+  background: radial-gradient(circle, transparent 52%, rgb(0 0 0 / 0.45) 100%), url('./art/mat-leather.webp') center / cover #4a1c1c;
+  box-shadow: 0 0 0 5px var(--seat), 0 0 0 7px #1a120b, 0 10px 18px -6px rgb(0 0 0 / 0.7), inset 0 0 0 2px rgb(255 255 255 / 0.12); margin-block: 0.4rem; }
+.sk-mat::before { content: ''; position: absolute; inset: 12%; border-radius: 50%; border: 2px dashed rgb(255 240 210 / 0.25); pointer-events: none; }
+.sk-mat--won::before { border: 3px solid #e9c46a; background: url('./art/disc-skull.webp') center / 70% no-repeat; opacity: 0.22; }
+.sk-mat--won { box-shadow: 0 0 0 5px var(--seat), 0 0 0 8px #e9c46a, 0 10px 22px -6px rgb(233 196 106 / 0.6); }
+.sk-pl--me .sk-mat { --d: 12.5rem; }
+.sk-mat__side { position: absolute; inset-block-start: 9%; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.02em; padding: 0 0.45rem; border-radius: 999px; background: rgb(0 0 0 / 0.45); color: #f3eadb; }
+.sk-mat--won .sk-mat__side { background: #e9c46a; color: #1a120b; }
+.sk-pl__stack { position: relative; display: flex; align-items: center; justify-content: center; min-block-size: 4.2rem; }
+.sk-pl__slot { position: relative; margin-inline-start: -2.6rem; }
+.sk-pl__slot:first-child { margin-inline-start: 0; }
+.sk-pl__empty { color: #cdb99a; font-size: 0.75rem; }
+.sk-pl__foot { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; align-items: center; justify-content: center; font-size: 0.8rem; }
+.sk-pl__mat { display: inline-flex; gap: 3px; align-items: center; }
+.sk-pl__mat small { margin-inline-start: 0.25rem; font-size: 0.75rem; color: #e9c46a; font-weight: 800; }
+.sk-pl__mat i { inline-size: 14px; block-size: 14px; border-radius: 50%; border: 2px solid #c9a46a; }
+.sk-pl__mat i.on { background: #e9c46a; border-color: #fff1c4; box-shadow: 0 0 8px #e9c46a; }
+.sk-pl__owned { display: inline-flex; gap: 0.35rem; align-items: center; }
+.sk-own { display: inline-flex; gap: 2px; }
+.sk-own i { inline-size: 9px; block-size: 9px; border-radius: 50%; border: 1px solid #7d6f5a; }
+.sk-own i.on { background: #f3eadb; border-color: #f3eadb; }
+@media (max-width: 420px) { .sk-mat { --d: 9.5rem; } .sk-pl--me .sk-mat { --d: 11rem; } .sk-pl__slot { margin-inline-start: -2.9rem; } }

@@ -197,3 +197,36 @@
 .ct-token--hot .ct-token__ring { stroke: #b3261e; stroke-width: 1.1; }
 @media (prefers-reduced-motion: reduce) { .ct-buildbtn { transition: none; } .ct-buildbtn:hover { transform: none; } }
 .ct-card__n, .ct-player__vp strong { display: inline-block; }
+
+/* Player boards: a linen card with the seat colour along its edge; supply of pieces left, public card counts,
+   awards. Your own board spans the row and carries the printed building-cost card. */
+.ct-player { background: linear-gradient(rgb(255 250 236 / 0.35), rgb(255 250 236 / 0.1)), url('./art/card-linen.webp') center / 320px #d9c7a3; color: var(--ct-ink);
+  box-shadow: 0 4px 10px -6px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(60 40 10 / 0.25); }
+.ct-player .ct-player__color, .ct-player .ct-player__counts { color: #4d3f2c; }
+.ct-player--me { grid-column: 1 / -1; }
+.ct-player__vp { margin-inline-start: auto; padding: 0 0.55rem; border-radius: 999px; background: #2a2520; color: #f6efdc; font-size: var(--fs-sm); white-space: nowrap; }
+.ct-supply { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.ct-supply__slot { display: inline-flex; gap: 3px; align-items: center; padding: 2px 6px; border-radius: 6px; background: rgb(255 255 255 / 0.45); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25); }
+.ct-supply__slot b { font-size: 1.05em; }
+.ct-supply__slot small { font-size: var(--fs-xs); color: #4d3f2c; }
+.ct-pc { block-size: 18px; inline-size: 20px; overflow: visible; }
+.ct-pc--road { block-size: 9px; inline-size: 24px; }
+.ct-pc .ct-piece { stroke: #2a1a0a; stroke-width: 1.2; }
+.ct-player__counts { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.ct-tally { display: inline-flex; gap: 3px; align-items: center; }
+.ct-tally img { inline-size: 16px; block-size: 16px; object-fit: contain; }
+.ct-tally__card { display: inline-block; inline-size: 10px; block-size: 14px; border-radius: 2px; background: linear-gradient(135deg, #b7863c, #6f4b1c); box-shadow: 0 0 0 1px #3a250c; }
+.ct-costcard { margin-block-start: 4px; inline-size: 100%; max-inline-size: 30rem; border-collapse: collapse; font-size: var(--fs-xs); background: rgb(255 250 236 / 0.6); box-shadow: inset 0 0 0 2px #8a6a3a; }
+.ct-costcard caption { text-align: start; font-weight: 900; padding-block-end: 2px; }
+.ct-costcard th, .ct-costcard td { padding: 3px 6px; text-align: start; border-block-end: 1px solid rgb(138 106 58 / 0.35); }
+.ct-costcard td:last-child { text-align: center; font-weight: 900; }
+.ct-costcard thead th { font-weight: 800; background: rgb(138 106 58 / 0.25); }
+.ct-costcard__icons { display: inline-flex; flex-wrap: wrap; gap: 2px; vertical-align: middle; }
+.ct-costcard__res { display: inline-flex; }
+.ct-costcard__res .ct-ico { inline-size: 1.4em; block-size: 1.4em; }
+.ct-costcard small { margin-inline-start: 4px; color: #4d3f2c; }
+@container (min-width: 700px) {
+  .ct-player--me { grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); align-items: start; column-gap: var(--sp-4); }
+  .ct-player--me > :not(.ct-costcard) { grid-column: 1; }
+  .ct-player--me .ct-costcard { grid-column: 2; grid-row: 1 / span 4; margin: 0; }
+}

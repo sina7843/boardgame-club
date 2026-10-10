@@ -45,7 +45,7 @@ test('undo window: the enclosure stands and the turtle flies into the zoo at onc
   await expect(step('۲')).toBeVisible();
   // The 1-space enclosure on 2_9 (preselected by the tutorial) is drawn on my zoo map at once.
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
-  const built = p.locator('.an-player--me > .an-map-wrap polygon.an-hex--b');
+  const built = p.locator('.an-player--me .an-board__map polygon.an-hex--b');
   const before = await built.count();
   await p.locator('[data-act="place"]').click();
   await expect(undo).toBeVisible();

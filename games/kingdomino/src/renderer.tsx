@@ -2,7 +2,7 @@
 // kingdom as a 9×9 field around the castle (cells where the domino can start glow), rivals' kingdoms in miniature.
 // Rotate the domino, tap where its first half goes, choose your next domino, confirm.
 import './renderer.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
 import { DIRS, DOMINOES, canPlace, scoreKingdom, type Cell, type Half, type KingdominoView, type Terrain } from './rules.ts';
 
@@ -27,13 +27,17 @@ export function Domino({ dom, size = 'md' }: { dom: number; size?: 'sm' | 'md' }
 
 function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: string; k: (Cell | null)[][]; was?: (Cell | null)[][]; from?: string; big?: boolean; onCell?: (r: number, c: number) => void; ok?: Set<string>; preview?: Map<string, Half>; hint?: [number, number] | null }) {
   let n = 0;
+  // The kingdom may only span 5×5: cells that can no longer fall inside that frame are printed faded.
+  let r0 = 9, r1 = -1, c0 = 9, c1 = -1;
+  k.forEach((row, r) => row.forEach((cell, c) => { if (cell) { r0 = Math.min(r0, r); r1 = Math.max(r1, r); c0 = Math.min(c0, c); c1 = Math.max(c1, c); } }));
+  const out = (r: number, c: number) => Math.max(r1, r) - Math.min(r0, r) > 4 || Math.max(c1, c) - Math.min(c0, c) > 4;
   return (
-    <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`}>
+    <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`} role={onCell ? 'group' : undefined} aria-label="سرزمین ۵×۵">
       {k.map((row, r) => row.map((cell, c) => {
         const key = `${r},${c}`;
         const pv = preview?.get(key);
         const fresh = !!was && !!cell && !was[r]![c];
-        const cls = ['kd-slot', ok?.has(key) ? 'kd-slot--ok' : '', pv ? 'kd-slot--pv' : '', hint && hint[0] === r && hint[1] === c ? 'kd-hint' : '', fresh ? 'bg-land' : ''].join(' ');
+        const cls = ['kd-slot', !cell && !pv && out(r, c) ? 'kd-slot--out' : '', ok?.has(key) ? 'kd-slot--ok' : '', pv ? 'kd-slot--pv' : '', hint && hint[0] === r && hint[1] === c ? 'kd-hint' : '', fresh ? 'bg-land' : ''].join(' ');
         const style = fresh ? { ['--i' as string]: n++ } : undefined;
         const inner = <Square cell={pv ?? cell} size={big ? 'md' : 'sm'} />;
         return onCell && !cell
@@ -151,20 +155,45 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
       )}
 
       <div className="kd__realm">
-        <section className="kd-player kd-player--me" aria-label="سرزمین شما" data-flip-anchor={`realm-${me}`}>
-          <div className="kd-player__head"><i className="kd-king" data-flip-anchor={`seat-${me}`} style={{ background: SEAT[me % 4] }} /><bdi>{who(me)}</bdi><Score v={scoreKingdom(k).total} suffix=" امتیاز" /></div>
+        <Realm s={me} name={who(me)} k={k} me turn={view.actor === me && !view.outcome} place={view.outcome?.placements.find((x) => x.seat === me)?.place}>
           <Kingdom id={`k${me}`} k={k} was={before?.kingdoms[me]} from={landFrom} big onCell={playHint?.canPlace && !busy ? (r, c) => setAt([r, c]) : undefined} ok={playHint?.canPlace ? ok : undefined} preview={preview}
             hint={hint?.type === 'play' && hint.place && !rotHint && !at ? [hint.place.r, hint.place.c] : null} />
-        </section>
+        </Realm>
         <div className="kd__others">
           {order.map((s) => (
-            <section key={s} className={['kd-player', view.actor === s ? 'kd-player--turn' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'kd-player--win' : ''].join(' ')} aria-label={`سرزمین ${who(s)}`} data-flip-anchor={`realm-${s}`}>
-              <div className="kd-player__head"><i className="kd-king" data-flip-anchor={`seat-${s}`} style={{ background: SEAT[s % 4] }} /><bdi>{who(s)}</bdi><Score v={scoreKingdom(view.kingdoms[s]!).total} /></div>
+            <Realm key={s} s={s} name={who(s)} k={view.kingdoms[s]!} turn={view.actor === s && !view.outcome} place={view.outcome?.placements.find((x) => x.seat === s)?.place}>
               <Kingdom id={`k${s}`} k={view.kingdoms[s]!} was={before?.kingdoms[s]} from={landFrom} />
-            </section>
+            </Realm>
           ))}
         </div>
       </div>
     </div>
+  );
+}
+
+/** A player's kingdom as it lies on the table: the castle in the player's colour, the 5×5 frame, and the tally of crowns. */
+function Realm({ s, name, k, me, turn, place, children }: { s: number; name: string; k: (Cell | null)[][]; me?: boolean; turn: boolean; place?: number; children: ReactNode }) {
+  // Rivals' kingdoms start folded on phones (tap to open); the tally stays visible.
+  const [open, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const sc = scoreKingdom(k);
+  const filled = k.flat().filter((x) => x && x.t !== 'C').length;
+  return (
+    <section className={['kd-player', me ? 'kd-player--me' : '', turn ? 'kd-player--turn' : '', place === 1 ? 'kd-player--win' : ''].join(' ')} style={{ ['--seat' as string]: SEAT[s % 4] }}
+      aria-label={me ? 'سرزمین شما' : `سرزمین ${name}`} data-flip-anchor={`realm-${s}`}>
+      <div className="kd-player__head">
+        <i className="kd-king" data-flip-anchor={`seat-${s}`} style={{ background: SEAT[s % 4] }} aria-hidden="true" />
+        <bdi>{name}</bdi>
+        {turn && <span className="kd-player__turn">در نوبت</span>}
+        {place !== undefined && <span className="kd-player__place">رتبهٔ {fa(place)}</span>}
+        <Score v={sc.total} suffix=" امتیاز" />
+        {!me && <button type="button" className="kd-player__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن سرزمین ${name}` : `باز کردن سرزمین ${name}`}>{open ? '▴' : '▾'}</button>}
+      </div>
+      {open && children}
+      <ul className="kd-tally" aria-label="شمارش">
+        <li title="تاج‌ها"><span className="kd-crowns kd-crowns--tally" aria-hidden="true"><i /></span>تاج <b>{fa(sc.crowns)}</b></li>
+        <li title="بزرگ‌ترین ناحیه">بزرگ‌ترین ناحیه <b>{fa(sc.largest)}</b></li>
+        <li title="خانه‌های پر از ۲۴">زمین <b>{fa(filled)}/۲۴</b></li>
+      </ul>
+    </section>
   );
 }

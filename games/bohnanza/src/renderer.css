@@ -73,3 +73,44 @@ button.bn-pick:hover { transform: translateY(-3px); }
 @keyframes bn-rise { from { opacity: 0; transform: translateY(6px); } }
 @keyframes bn-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .bn * { animation: none !important; transition: none !important; } }
+
+/* Player mats, like the printed field mat: an oak board with two tilled soil fields (a third, bought field slot stays
+   locked until bought) and the treasury, where harvested beans lie coin-side up. All labels and counts are HTML. */
+.bn-mat { display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'head head' 'fields bank'; align-items: center; gap: 0.5rem 0.8rem; inline-size: min(100%, 36rem); padding: 0.7rem 0.8rem 0.8rem; border-radius: 14px;
+  background: linear-gradient(rgb(40 22 8 / 0.15), rgb(40 22 8 / 0.35)), url('./art/mat-oak.webp') center / cover #8a6236;
+  box-shadow: inset 0 0 0 2px rgb(255 230 180 / 0.25), inset 0 -4px 10px rgb(0 0 0 / 0.35), 0 8px 18px -8px rgb(0 0 0 / 0.7); }
+.bn-mat .bn__me-head { grid-area: head; justify-content: space-between; padding: 0.1rem 0.6rem; border-radius: 6px; background: rgb(42 29 16 / 0.72); }
+.bn-mat .bn__me-head bdi { font-weight: 900; font-size: 0.95rem; }
+.bn-mat .bn__me-head small { color: #ffe1a0; font-size: 0.7rem; }
+.bn-mat > .bn-fields { grid-area: fields; }
+.bn-mat > .bn-treasury { grid-area: bank; }
+.bn-mat--sm { grid-template-areas: 'fields bank'; inline-size: auto; max-inline-size: 100%; justify-self: center; padding: 0.45rem; gap: 0.4rem; border-radius: 10px; }
+.bn-field { position: relative; background: linear-gradient(rgb(20 10 2 / 0.1), rgb(20 10 2 / 0.3)), url('./art/mat-soil.webp') center / cover #4a2f1c;
+  box-shadow: inset 0 3px 8px rgb(0 0 0 / 0.6), 0 0 0 2px rgb(42 29 16 / 0.85), 0 1px 0 2px rgb(255 230 180 / 0.25); }
+.bn-field__label { padding: 0 0.4rem; border-radius: 4px; background: rgb(42 29 16 / 0.75); color: #f6efdf; font-size: 0.62rem; font-weight: 800; line-height: 1.5; }
+.bn-mat--sm .bn-field { padding: 0.3rem; gap: 0.2rem; }
+.bn-mat--sm .bn-field__label { font-size: 0.55rem; }
+.bn-field--locked { filter: saturate(0.4) brightness(0.8); }
+.bn-plot { gap: 0.2rem; align-content: center; padding: 0.2rem; text-align: center; line-height: 1.3; background: rgb(42 29 16 / 0.35); }
+.bn-plot span { font-size: 0.9rem; }
+button.bn-plot--buy { font: inherit; font-size: 0.66rem; font-weight: 800; color: #ffe1a0; border-color: #e8b931; cursor: pointer; background: rgb(42 29 16 / 0.6); }
+button.bn-plot--buy:hover:not(:disabled) { background: rgb(232 185 49 / 0.25); }
+button.bn-plot--buy:focus-visible { outline: 3px solid #ffe1a0; outline-offset: 2px; }
+.bn-field--locked:has(.bn-plot--buy) { filter: none; }
+.bn-treasury { display: grid; justify-items: center; gap: 0.15rem; padding: 0.4rem 0.5rem; border-radius: 10px; background: rgb(42 29 16 / 0.7); box-shadow: inset 0 0 0 1.5px rgb(232 185 49 / 0.5); }
+.bn-treasury small { font-size: 0.6rem; color: #e3d6b8; }
+.bn-treasury__stack { display: flex; flex-direction: column-reverse; align-items: center; min-block-size: 1rem; }
+.bn-treasury__stack i { inline-size: 1.6rem; block-size: 0.42rem; margin-block-start: -0.12rem; border-radius: 50%; background: radial-gradient(ellipse at 40% 30%, #fff1b0, #e8b931 55%, #9a6c08); box-shadow: 0 1px 0 #6b4a05; }
+.bn-treasury--lg { padding: 0.55rem 0.7rem; }
+.bn-treasury--lg .bn-treasury__stack i { inline-size: 2.2rem; block-size: 0.55rem; }
+.bn-rival { background: rgb(0 0 0 / 0.3); }
+.bn-rival__hand { display: inline-flex; align-items: center; gap: 0.3rem; }
+.bn-rival__hand i { inline-size: 0.7rem; block-size: 0.95rem; border-radius: 2px; background: repeating-linear-gradient(135deg, #3a5a2a 0 3px, #2f4a22 3px 6px); box-shadow: 0 0 0 1px #e8b931, 2px -2px 0 -0.5px #2f4a22, 2px -2px 0 0.5px #e8b931; }
+@media (max-width: 480px) {
+  .bn-mat { grid-template-columns: 1fr; grid-template-areas: 'head' 'fields' 'bank'; }
+  .bn-mat .bn-treasury { grid-auto-flow: column; align-items: center; gap: 0.4rem; }
+  .bn-fields--mine { gap: 0.3rem; }
+  .bn-fields--mine .bn-field { min-inline-size: 0; padding-inline: 0.25rem; }
+  .bn-mat--sm { grid-template-columns: 1fr; grid-template-areas: 'fields' 'bank'; }
+  .bn-mat--sm .bn-treasury { grid-auto-flow: column; align-items: center; gap: 0.3rem; padding: 0.2rem 0.5rem; }
+}

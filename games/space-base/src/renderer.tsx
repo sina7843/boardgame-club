@@ -2,7 +2,7 @@
 // red sum of deployed ships below); dice glow on the bays they hit; the shipyard shows three levels of ships with
 // cost, sector, blue/red rewards and purchase bonus. Rivals appear as compact strips of their red income per sector.
 import './renderer.css';
-import { useRef, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import scout from './art/ship-scout.webp';
 import freighter from './art/ship-freighter.webp';
@@ -61,6 +61,7 @@ export function ShipCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
 }
 
 type Hint = { type: string; use?: string; ship?: number } | null;
+const wideScreen = () => (typeof matchMedia === 'function' ? matchMedia('(min-width: 720px)').matches : true);
 
 export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SbView>) {
   const me = mySeat ?? 0;
@@ -93,30 +94,69 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
         : has('pass') ? { tone: 'mine' as const, text: 'یک ناو بخرید یا نوبت را تمام کنید' }
           : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const gain = (s: number) => view.gains.find((g) => g.seat === s);
-  const mine = view.boards[me]!;
+  const [open] = useState(wideScreen);
 
-  // A bought ship keeps its motion id (s<id>) from the shop card to its bay, so it glides into its sector; starting
-  // ships share ids across boards and never move, so they carry none.
+  // A bought ship keeps its motion id (s<id>) from the shop card to its bay, so it glides into its sector; the station
+  // it replaces keeps its id too and slides under the bay as a deployed card. Starting ships share ids across boards and
+  // never move, so they carry none.
   const flipOf = (st: number) => (SHIPS[st]!.level > 0 ? `s${st}` : undefined);
+  const redSum = (ids: number[]) => ids.reduce((acc, id) => ({ credits: (acc.credits ?? 0) + (SHIPS[id]!.red.credits ?? 0), vp: (acc.vp ?? 0) + (SHIPS[id]!.red.vp ?? 0) }), {} as Reward);
 
+  /** The printed player board: twelve sector slots in a row, each holding its station card (blue: paid on your turn)
+   *  with deployed cards tucked beneath so only their red strip (paid on rivals' turns) shows. */
   const Bays = ({ seat, compact }: { seat: number; compact?: boolean }) => {
     const b = view.boards[seat]!;
     return (
-      <div className={`sb-bays ${compact ? 'sb-bays--compact' : ''}`} dir="ltr">
+      <div className={`sb-bays ${compact ? 'sb-bays--compact' : ''}`} dir="ltr" role="list" aria-label="بخش‌های ۱ تا ۱۲">
         {b.station.map((st, i) => {
-          const red = b.deployed[i]!.reduce((acc, id) => ({ credits: (acc.credits ?? 0) + (SHIPS[id]!.red.credits ?? 0), vp: (acc.vp ?? 0) + (SHIPS[id]!.red.vp ?? 0) }), {} as Reward);
+          const x = SHIPS[st]!, dep = b.deployed[i]!;
+          const label = `بخش ${fa(i + 1)}: ${x.name}، آبی ${rw(x.blue)}${dep.length ? `، ${fa(dep.length)} ناو مستقر، قرمز ${rw(redSum(dep))}` : ''}`;
           return (
-            <span key={i} className={`sb-bay ${lit.includes(i + 1) ? 'sb-bay--lit' : ''}`} data-flip={compact ? flipOf(st) : undefined}>
+            <span key={i} role="listitem" aria-label={label} className={`sb-bay ${lit.includes(i + 1) ? 'sb-bay--lit' : ''}`} data-flip={compact ? flipOf(st) : undefined}>
               <b className="sb-bay__n">{fa(i + 1)}</b>
-              {compact ? <span className="sb-bay__red" key={b.deployed[i]!.length}>{b.deployed[i]!.length ? rw(red) : ''}</span> : (
+              {compact ? (
                 <>
-                  <span className="sb-bay__blue" title={SHIPS[st]!.name} data-flip={flipOf(st)}>{rw(SHIPS[st]!.blue)}</span>
-                  <span className={`sb-bay__red ${b.deployed[i]!.length ? 'bg-land' : ''}`} key={b.deployed[i]!.length}>{b.deployed[i]!.length ? `${rw(red)} ×${fa(b.deployed[i]!.length)}` : ''}</span>
+                  <span className={`sb-bay__blue sb-l--${x.level}`}>{rw(x.blue)}</span>
+                  <span className="sb-bay__red" key={dep.length}>{dep.length ? rw(redSum(dep)) : ''}</span>
+                </>
+              ) : (
+                <>
+                  <span className={`sb-station sb-l--${x.level}`} title={x.name} data-flip={flipOf(st)}>
+                    <img className="sb-station__art" src={shipArt(x.cost)} alt="" aria-hidden="true" />
+                    <span className="sb-station__name">{x.name}</span>
+                    <b className="sb-bay__blue">{rw(x.blue)}</b>
+                  </span>
+                  <span className="sb-tuck">
+                    {dep.map((id, k) => (
+                      <span key={`${id}-${k}`} className={`sb-tuck__card sb-l--${SHIPS[id]!.level} ${k === dep.length - 1 ? 'bg-land' : ''}`} data-flip={flipOf(id)} title={SHIPS[id]!.name}>{rw(SHIPS[id]!.red)}</span>
+                    ))}
+                  </span>
+                  <span className="sb-bay__red" key={dep.length}>{dep.length > 1 ? `Σ ${rw(redSum(dep))}` : ''}</span>
                 </>
               )}
             </span>
           );
         })}
+      </div>
+    );
+  };
+
+  /** The board's edge tracks: VP track to the goal with its marker, and the credit / income cubes. */
+  const Ledger = ({ seat, compact }: { seat: number; compact?: boolean }) => {
+    const b = view.boards[seat]!, g = gain(seat);
+    return (
+      <div className={`sb-ledger ${compact ? 'sb-ledger--compact' : ''}`}>
+        <div className="sb-vptrack" role="meter" aria-valuemin={0} aria-valuemax={GOAL} aria-valuenow={Math.min(b.vp, GOAL)} aria-label="امتیاز">
+          <span className="sb-vptrack__fill" style={{ inlineSize: `${Math.min(b.vp, GOAL) / GOAL * 100}%` }} />
+          {!compact && Array.from({ length: GOAL / 5 + 1 }, (_, k) => <i key={k} className="sb-vptrack__tick" style={{ insetInlineStart: `${k * 12.5}%` }}><small>{fa(k * 5)}</small></i>)}
+          <span className="sb-vptrack__mark" style={{ insetInlineStart: `${Math.min(b.vp, GOAL) / GOAL * 100}%` }} />
+        </div>
+        <span className="sb-readouts">
+          <Num className="sb-vp" v={b.vp}>★ {compact ? fa(b.vp) : `${fa(b.vp)} از ${fa(GOAL)} امتیاز`}</Num>
+          <Num className="sb-credits" v={b.credits}><i className="sb-cube" aria-hidden="true" />{fa(b.credits)}¢ اعتبار</Num>
+          <Num className="sb-income" v={b.income}><i className="sb-cube sb-cube--inc" aria-hidden="true" />درآمد {fa(b.income)}</Num>
+          {g && (g.credits || g.vp) ? <span className="sb-gain">+{rw(g)}</span> : null}
+        </span>
       </div>
     );
   };
@@ -127,14 +167,16 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
 
       <ul className="sb-rivals" aria-label="بازیکنان">
         {view.boards.map((b, k) => (k === me ? null : (
-          <li key={k} className={`sb-rival ${k === view.current && !view.outcome ? 'sb-rival--now' : ''}`}>
-            <div className="sb-rival__head">
-              <bdi>{who(k)}</bdi>
-              <Num className="sb-vp" v={b.vp}>{fa(b.vp)}★</Num>
-              <span>{fa(b.credits)}¢ · درآمد {fa(b.income)}</span>
-              {gain(k) && (gain(k)!.credits || gain(k)!.vp) ? <span className="sb-gain">+{rw(gain(k))}</span> : null}
-            </div>
-            <Bays seat={k} compact />
+          <li key={k} className={`sb-rival sb-board ${k === view.current && !view.outcome ? 'sb-rival--now' : ''}`}>
+            <details className="sb-fold" open={open}>
+              <summary className="sb-rival__head">
+                <bdi>{who(k)}</bdi>
+                <span>★ {fa(b.vp)} · {fa(b.credits)}¢ · درآمد {fa(b.income)}</span>
+                {gain(k) && (gain(k)!.credits || gain(k)!.vp) ? <span className="sb-gain">+{rw(gain(k))}</span> : null}
+              </summary>
+              <Ledger seat={k} compact />
+              <Bays seat={k} compact />
+            </details>
           </li>
         )))}
       </ul>
@@ -163,14 +205,12 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
         ))}
       </section>
 
-      <section className={`sb-me ${view.current === me && !view.outcome ? 'sb-me--now' : ''}`} aria-label="پایگاه شما">
+      <section className={`sb-me sb-board ${view.current === me && !view.outcome ? 'sb-me--now' : ''}`} aria-label="پایگاه شما">
         <div className="sb-me__head">
           <bdi>{who(me)}</bdi>
-          <Num className="sb-vp sb-vp--lg" v={mine.vp}>{fa(mine.vp)} از {fa(GOAL)} امتیاز</Num>
-          <Num className="sb-credits" v={mine.credits}>{fa(mine.credits)}¢</Num>
-          <span>درآمد {fa(mine.income)}</span>
-          {gain(me) && (gain(me)!.credits || gain(me)!.vp) ? <span className="sb-gain">+{rw(gain(me))}</span> : null}
+          <small>آبی: در نوبت شما · قرمز: در نوبت رقیبان</small>
         </div>
+        <Ledger seat={me} />
         <Bays seat={me} />
       </section>
     </div>

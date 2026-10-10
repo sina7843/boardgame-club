@@ -55,22 +55,91 @@ button.an-card:focus-visible { outline: 3px solid var(--an-green); outline-offse
 
 /* Player boards */
 .an-players { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
-.an-player { display: grid; gap: 0.5rem; padding: 0.65rem; border-radius: 14px; background: rgb(250 247 236 / 0.96); box-shadow: inset 0 0 0 1px rgb(90 80 50 / 0.3); min-inline-size: 0; }
-.an-player--active { box-shadow: inset 0 0 0 2px var(--an-green); }
-.an-player__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.4rem; }
-.an-tracks { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); gap: 0.3rem; }
-.an-track { display: grid; justify-items: center; padding: 0.25rem; border-radius: 9px; background: #efe9d6; }
+.an-player { --an-seat: #2f6b2a; display: grid; gap: 0.5rem; min-inline-size: 0; container-type: inline-size; padding: 0.4rem; border-radius: 18px; background: rgb(250 247 236 / 0.96); color: var(--an-ink); }
+/* The printed board: botanical green card with a seat-coloured frame. Numbers and pieces sit on paper plaques. */
+.an-board { display: grid; gap: 0.5rem; padding: 0.6rem; border-radius: 16px; background-size: 520px; background-color: #1f5a2a; color: #f4f1e2;
+  box-shadow: inset 0 0 0 3px var(--an-seat), inset 0 0 0 5px rgb(0 0 0 / 0.25), 0 6px 18px rgb(20 40 20 / 0.25); min-inline-size: 0; }
+.an-player--active .an-board { box-shadow: inset 0 0 0 3px var(--an-seat), inset 0 0 0 6px #ffd76a, 0 6px 18px rgb(20 40 20 / 0.3); }
+.an-player__head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; }
+.an-player__head h3 { color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / 0.5); }
+.an-seat { display: grid; place-items: center; inline-size: 1.6rem; block-size: 1.6rem; border-radius: 6px; background: var(--an-seat); color: #fff; font-weight: 800;
+  box-shadow: 0 0 0 2px #fff, 0 2px 4px rgb(0 0 0 / 0.4); }
+.an-board__map-name { margin-inline-start: auto; font-size: 0.8rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: rgb(0 0 0 / 0.3); }
+
+/* Score strip: appeal marker (above) and conservation marker at its target (below) close in on each other. */
+.an-score { display: grid; gap: 0.3rem; padding: 0.4rem 0.5rem; border-radius: 10px; background: rgb(251 248 238 / 0.94); color: var(--an-ink); }
+.an-score__rail { position: relative; block-size: 1.6rem; margin-inline: 0.4rem; }
+.an-score__rail::before { content: ''; position: absolute; inset-inline: 0; inset-block-start: 50%; block-size: 6px; margin-block-start: -3px; border-radius: 3px;
+  background: linear-gradient(to left, #c9802a, #e8d7a6 40%, #3b8446); }
+.an-score__rail i { position: absolute; inset-block: 30%; inline-size: 1px; background: rgb(60 50 30 / 0.45); }
+.an-score__gap { position: absolute; inset-block-start: 50%; block-size: 6px; margin-block-start: -3px; background: #b5651d; opacity: 0.85; }
+.an-score--crossed .an-score__gap { background: #2f8a2a; }
+.an-score__m { position: absolute; translate: 50% 0; font-size: 0.9rem; line-height: 1; text-shadow: 0 0 2px #fff; }
+.an-score__m--appeal { inset-block-start: -0.05rem; color: var(--an-seat); }
+.an-score__m--cp { inset-block-end: -0.05rem; color: #2b6d3a; }
+.an-score__legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.3rem; }
+
+.an-board__body { display: grid; gap: 0.5rem; min-inline-size: 0; }
+@container (min-width: 600px) { .an-board__body { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; } }
+.an-board__map { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.3rem; align-items: center; min-inline-size: 0; }
+.an-board__map .an-map { filter: drop-shadow(0 3px 5px rgb(0 0 0 / 0.35)); }
+.an-notepad { display: grid; gap: 0.45rem; align-content: start; padding: 0.5rem; border-radius: 10px; background-size: 360px; background-color: #e7ebcf; color: var(--an-ink);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3); min-inline-size: 0; }
+.an-tracks { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.4rem, 1fr)); gap: 0.3rem; }
+.an-track { display: grid; justify-items: center; padding: 0.25rem; border-radius: 9px; background: rgb(255 253 244 / 0.85); box-shadow: inset 0 0 0 1px rgb(90 80 50 / 0.2); text-align: center; }
 .an-track small { font-size: 0.68rem; color: var(--an-muted); }
 .an-track b { font-size: 1.05rem; }
-.an-slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem; margin: 0; padding: 0; list-style: none; font-size: 0.74rem; }
-.an-slot { display: grid; justify-items: center; gap: 0.05rem; padding: 0.3rem 0.15rem; border-radius: 8px; background: #e7dfc6; text-align: center; }
-.an-slot--up { background: #cfe5c4; font-weight: 700; }
-.an-slot__n { display: grid; place-items: center; inline-size: 1.4rem; block-size: 1.4rem; border-radius: 50%; background: var(--an-ink); color: #fff; font-size: 0.8rem; }
-.an-slot small { color: #8a3b12; }
-.an-left { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0; padding: 0; list-style: none; font-size: 0.72rem; }
-.an-left li { padding: 0.1rem 0.4rem; border-radius: 6px; }
-.an-left--on { background: #e5dcc0; }
-.an-left--off { background: #d5ead0; text-decoration: line-through; color: var(--an-muted); }
+.an-workers { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; font-size: 0.8rem; }
+.an-workers > b { margin-inline-start: 0.2rem; }
+.an-meeple { display: inline-block; inline-size: 0.95rem; block-size: 1.1rem; background: var(--an-seat); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  clip-path: polygon(50% 0, 68% 8%, 70% 30%, 100% 42%, 100% 58%, 75% 58%, 92% 100%, 60% 100%, 50% 78%, 40% 100%, 8% 100%, 25% 58%, 0 58%, 0 42%, 30% 30%, 32% 8%); }
+.an-meeple--out { opacity: 0.3; }
+.an-spaces { display: grid; gap: 0.15rem; font-size: 0.72rem; }
+.an-spaces > small { color: var(--an-muted); font-weight: 600; }
+.an-spaces ol { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.an-space { display: grid; justify-items: center; align-content: start; gap: 0.1rem; min-inline-size: 0; padding: 0.2rem 0.25rem; border-radius: 8px;
+  border: 1.5px dashed rgb(70 90 50 / 0.5); background: rgb(255 255 255 / 0.35); text-align: center; }
+.an-space--on { border-style: solid; border-color: var(--an-seat); background: rgb(255 255 255 / 0.8); }
+.an-space__no { font-weight: 700; color: var(--an-muted); }
+.an-space__b { font-size: 0.64rem; color: #2b5f25; line-height: 1.2; }
+.an-space__uni { font-size: 0.68rem; font-weight: 700; }
+
+/* Left-edge bonus tokens: a cube on each space until the player removes it. */
+.an-left { display: grid; gap: 0.2rem; margin: 0; padding: 0; list-style: none; font-size: 0.66rem; max-inline-size: 6.2rem; }
+.an-left li { display: flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.3rem; border-radius: 6px; background: rgb(251 248 238 / 0.92); color: var(--an-ink); line-height: 1.2; }
+.an-left__cube { flex: none; display: grid; place-items: center; inline-size: 0.85rem; block-size: 0.85rem; border-radius: 2px; background: var(--an-seat);
+  color: #2b5f25; font-size: 0.6rem; font-weight: 900; box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.an-left--off { opacity: 0.75; text-decoration: line-through; }
+.an-left--off .an-left__cube { background: #fff; box-shadow: inset 0 0 0 1px #2b5f25; }
+
+/* Action cards in their strength slots 1–5 on a wooden rail. */
+.an-rail { padding: 0.4rem; border-radius: 10px; background-size: 300px; background-color: #b98a52; box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.35); }
+.an-slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; margin: 0; padding: 0; list-style: none; font-size: 0.74rem; }
+.an-slot { --an-act: #777; display: grid; gap: 0.2rem; justify-items: stretch; min-inline-size: 0; color: var(--an-ink); }
+.an-slot--animals { --an-act: #c9802a; }
+.an-slot--build { --an-act: #8a6a3a; }
+.an-slot--cards { --an-act: #2f7f9f; }
+.an-slot--association { --an-act: #5b4fa8; }
+.an-slot--sponsors { --an-act: #b2475e; }
+.an-slot__card { position: relative; display: grid; justify-items: center; gap: 0.1rem; padding: 0 0 0.3rem; border-radius: 7px; overflow: hidden; background-size: cover;
+  background-color: var(--an-paper); box-shadow: 0 2px 4px rgb(0 0 0 / 0.4); text-align: center; min-block-size: 4.6rem; }
+.an-slot__band { inline-size: 100%; padding: 0.15rem 0.1rem; background: var(--an-act); color: #fff; font-weight: 700; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.an-slot__side { position: absolute; inset-block-end: 0.15rem; inset-inline-start: 0.25rem; font-size: 0.66rem; font-weight: 800; color: var(--an-act); }
+.an-slot--up .an-slot__side { padding-inline: 0.2rem; border-radius: 4px; background: var(--an-act); color: #fff; }
+.an-slot__str { display: grid; place-items: center; inline-size: 1.9rem; block-size: 1.9rem; border-radius: 50%; background: var(--an-act); color: #fff; font-size: 1.1rem;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--an-act); margin-block-start: 0.2rem; }
+.an-slot__tok { color: #8a3b12; font-size: 0.64rem; line-height: 1.2; }
+.an-slot__n { justify-self: center; display: grid; place-items: center; inline-size: 1.25rem; block-size: 1.25rem; border-radius: 50%; background: rgb(40 25 10 / 0.75);
+  color: #fbe9c4; font-size: 0.72rem; font-weight: 700; }
+
+/* Rival boards: collapsible with a one-line public summary. */
+.an-rival { min-inline-size: 0; border-radius: 16px; }
+.an-rival > summary { display: flex; flex-wrap: wrap; gap: 0.2rem 0.6rem; align-items: baseline; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: 12px;
+  background: var(--an-panel); box-shadow: inset 0 0 0 1px var(--an-line), inset 0.3rem 0 0 var(--an-seat), inset -0.3rem 0 0 var(--an-seat); font-weight: 700; min-block-size: 2.75rem; }
+.an-rival > summary:focus-visible { outline: 3px solid var(--an-green); outline-offset: 2px; }
+.an-rival__sum { font-size: 0.78rem; font-weight: 400; color: var(--an-muted); }
+.an-rival[open] > summary { margin-block-end: 0.4rem; }
+.an-rival .an-map { max-inline-size: 18rem; }
 .an-hand, .an-finals { display: grid; gap: 0.2rem; }
 .an-zoo summary { cursor: pointer; font-size: 0.85rem; font-weight: 600; }
 .an-zoo .an-row { margin-block-start: 0.4rem; }
@@ -124,5 +193,16 @@ button.an-card:focus-visible { outline: 3px solid var(--an-green); outline-offse
   .an { padding: 0.25rem; }
   .an-card { inline-size: 100%; }
   .an-display { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .an-slots { font-size: 0.66rem; }
+  .an-slots { gap: 0.2rem; }
+  .an-slot__band { font-size: 0.6rem; }
+  .an-slot__str { inline-size: 1.6rem; block-size: 1.6rem; font-size: 0.95rem; }
+  .an-board { padding: 0.4rem; }
+  .an-board__map { grid-template-columns: minmax(0, 1fr); }
+  .an-left { grid-row: 2; display: flex; flex-wrap: wrap; max-inline-size: none; }
+  .an-notepad .an-tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .an-track b { font-size: 0.95rem; }
 }
+.an-notepad { grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); }
+.an-notepad > :not(.an-spaces) { grid-column: 1 / -1; }
+.an-rival > summary::before { content: '◂'; color: var(--an-seat); }
+.an-rival[open] > summary::before { content: '▾'; }

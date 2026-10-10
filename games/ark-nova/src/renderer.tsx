@@ -4,7 +4,7 @@
 // Every prompt is answerable by tap or keyboard: option buttons (cards shown as compact cards), card picks with «ثبت»,
 // and building placement by tapping map spaces or choosing from a list. The spatial map alone is dir="ltr".
 import './renderer.css';
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import icBird from './art/ic-bird.webp';
 import icHerbivore from './art/ic-herbivore.webp';
@@ -22,6 +22,10 @@ import icEurope from './art/ic-europe.webp';
 import texGrass from './art/tex-grass.webp';
 import texWater from './art/tex-water.webp';
 import texRock from './art/tex-rock.webp';
+import artZoo from './art/board-zoo.webp';
+import artParchment from './art/board-parchment.webp';
+import artWood from './art/board-wood.webp';
+import artCard from './art/board-card.webp';
 import {
   ACTION_FA, ANIMAL, ICON_FA, KIND_FA, PROJECT, REG, SPONSOR, TILES, UNI_FA, CELLS, xy, nameOf,
   type ActionKey, type ArkView, type MapView, type Icon, type Req
@@ -188,52 +192,129 @@ function ZooMap({ map, player, preview, targets, onCell, label, hintCells }: {
 const isStdKind = (k: string) => /^e\d$/.test(k);
 
 // ---------------- Player board ----------------
+// Drawn like the printed zoo board: a botanical board (one texture) carrying the score strip (appeal and conservation
+// markers closing on each other), the hex map with the 7 left-edge bonus tokens beside it, the notepad with money, X
+// tokens, reputation, workers and hand, the partner-zoo / university / hire spaces with their printed bonuses, and the
+// 5 Action cards lying in their strength slots 1–5 under the board. Every number and label comes from the view.
+const SEAT_COLOR = ['#c0392b', '#2e6fb7', '#d99a00', '#7b4fa8'];
+const SEAT_FA = ['قرمز', 'آبی', 'زرد', 'بنفش'];
+const seatStyle = (seat: number) => ({ '--an-seat': SEAT_COLOR[seat % SEAT_COLOR.length] }) as CSSProperties;
+const ACT_GLYPH: Record<ActionKey, string> = { animals: '❦', build: '⬢', cards: '▤', association: '⚑', sponsors: '✦' };
+
+function ScoreStrip({ p }: { p: PlayerView }) {
+  const max = Math.max(120, p.appeal + 4, p.target + 4);
+  const at = (n: number) => `${(100 * Math.max(0, Math.min(n, max))) / max}%`;
+  const lo = Math.min(p.appeal, p.target), hi = Math.max(p.appeal, p.target);
+  const crossed = p.appeal >= p.target;
+  return (
+    <div className={`an-score${crossed ? ' an-score--crossed' : ''}`}>
+      <div className="an-score__rail" aria-hidden="true">
+        {Array.from({ length: Math.floor(max / 10) + 1 }, (_, k) => <i key={k} style={{ insetInlineStart: at(10 * k) }} />)}
+        <span className="an-score__gap" style={{ insetInlineStart: at(lo), inlineSize: `${(100 * (hi - lo)) / max}%` }} />
+        <span className="an-score__m an-score__m--appeal" style={{ insetInlineStart: at(p.appeal) }}>▼</span>
+        <span className="an-score__m an-score__m--cp" style={{ insetInlineStart: at(p.target) }}>▲</span>
+      </div>
+      <div className="an-score__legend">
+        <Track label="▼ جذابیت" value={p.appeal} />
+        <Track label="▲ حفاظت" value={p.cp} extra={`هدف ${fa(p.target)}`} />
+        <Track label={crossed ? 'امتیاز ✓ عبور' : 'امتیاز'} value={p.vp} />
+      </div>
+    </div>
+  );
+}
+
 function ActionRow({ p }: { p: PlayerView }) {
   return (
     <ol className="an-slots" aria-label="کارت‌های کنش (قدرت = شمارهٔ خانه)">
       {p.slots.map((k: ActionKey, i: number) => (
-        <li key={k} className={p.up[k] ? 'an-slot an-slot--up' : 'an-slot'} data-flip={`slot-${p.seat}-${k}`}>
-          <b className="an-slot__n">{fa(p.strengths[i]!)}</b>
-          <span>{ACTION_FA[k]} {p.up[k] ? 'II' : 'I'}</span>
-          {(p.tok[k].mult > 0 || p.tok[k].venom > 0 || p.tok[k].con > 0) && (
-            <small>{p.tok[k].mult ? `دوبرابر ×${fa(p.tok[k].mult)} ` : ''}{p.tok[k].venom ? 'زهر ' : ''}{p.tok[k].con ? 'فشار (−۲)' : ''}</small>
-          )}
+        <li key={k} className={`an-slot an-slot--${k}${p.up[k] ? ' an-slot--up' : ''}`} data-flip={`slot-${p.seat}-${k}`}>
+          <span className="an-slot__card" style={{ backgroundImage: `url(${artCard})` }}>
+            <span className="an-slot__band"><span aria-hidden="true">{ACT_GLYPH[k]}</span> {ACTION_FA[k]}</span>
+            <span className="an-slot__side" title={p.up[k] ? 'ارتقایافته' : 'روی پایه'}>{p.up[k] ? 'II' : 'I'}</span>
+            <b className="an-slot__str" title="قدرت">{fa(p.strengths[i]!)}</b>
+            {(p.tok[k].mult > 0 || p.tok[k].venom > 0 || p.tok[k].con > 0) && (
+              <small className="an-slot__tok">{p.tok[k].mult ? `دوبرابر ×${fa(p.tok[k].mult)} ` : ''}{p.tok[k].venom ? 'زهر ' : ''}{p.tok[k].con ? 'فشار (−۲)' : ''}</small>
+            )}
+          </span>
+          <span className="an-slot__n" aria-hidden="true">{fa(i + 1)}</span>
         </li>
       ))}
     </ol>
   );
 }
-function PlayerBoard({ p, map, me, name, active, hand, children }: { p: PlayerView; map: MapView | null; me: boolean; name: string; active: boolean; hand?: number[]; children?: ReactNode }) {
-  const left = map ? map.left.map((l, i) => ({ ...l, on: p.left[i]! })) : [];
+
+/** A row of printed spaces (partner zoos, universities, hires): filled spaces show what sits there, empty ones their bonus. */
+function Spaces({ label, n, items, bonus }: { label: string; n: number; items: ReactNode[]; bonus: Record<string, string> }) {
   return (
-    <section className={`an-player${active ? ' an-player--active' : ''}${me ? ' an-player--me' : ''}`} aria-label={`باغ‌وحش ${name}`} data-flip-anchor={`seat-${p.seat}`}>
-      <header className="an-player__head">
-        <h3><bdi>{name}</bdi>{me ? ' (شما)' : ''}</h3>
-        <span className="an-small">{map?.nameFa ?? 'در حال انتخاب نقشه'}</span>
-      </header>
-      <div className="an-tracks">
-        <Track label="جذابیت" value={p.appeal} />
-        <Track label="حفاظت" value={p.cp} extra={`هدف ${fa(p.target)}`} />
-        <Track label="امتیاز" value={p.vp} />
-        <Track label="پول" value={p.money} />
-        <Track label="اعتبار" value={p.rep} extra={`ویترین ۱–${fa(p.range)}`} />
-        <Track label="نشان X" value={p.x} />
-        <Track label="کارمند" value={p.workers} extra={`از ${fa(1 + p.hired)}`} />
-        <Track label="دست" value={p.handCount} extra={`سقف ${fa(p.handLimit)}`} />
+    <div className="an-spaces" role="group" aria-label={label}>
+      <small>{label}</small>
+      <ol>
+        {Array.from({ length: n }, (_, k) => (
+          <li key={k} className={items[k] ? 'an-space an-space--on' : 'an-space'}>
+            {items[k] ?? <span className="an-space__no">{fa(k + 1)}</span>}
+            {bonus[k + 1] && <small className="an-space__b">{items[k] ? '✓ ' : ''}{bonus[k + 1]}</small>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function PlayerBoard({ p, map, me, name, active, hand, anchor = true, children }: { p: PlayerView; map: MapView | null; me: boolean; name: string; active: boolean; hand?: number[]; anchor?: boolean; children?: ReactNode }) {
+  const meeples = Array.from({ length: 1 + p.hired }, (_, k) => k < p.workers);
+  return (
+    <section className={`an-player${active ? ' an-player--active' : ''}${me ? ' an-player--me' : ''}`} aria-label={`باغ‌وحش ${name}`}
+      data-flip-anchor={anchor ? `seat-${p.seat}` : undefined} style={seatStyle(p.seat)}>
+      <div className="an-board" style={{ backgroundImage: `url(${artZoo})` }}>
+        <header className="an-player__head">
+          <span className="an-seat" title={`رنگ ${SEAT_FA[p.seat % SEAT_FA.length]}`}>{fa(p.seat + 1)}</span>
+          <h3><bdi>{name}</bdi>{me ? ' (شما)' : ''}</h3>
+          <span className="an-board__map-name">{map?.nameFa ?? 'در حال انتخاب نقشه'}{active ? ' · در نوبت' : ''}</span>
+        </header>
+        <ScoreStrip p={p} />
+        <div className="an-board__body">
+          {map && (
+            <div className="an-board__map" dir="ltr">
+              <ol className="an-left" aria-label="نشان‌های لبهٔ نقشه (با هر پشتیبانی پروژه یکی برداشته می‌شود)">
+                {map.left.map((l, i) => (
+                  <li key={i} className={p.left[i] ? 'an-left--on' : 'an-left--off'} dir="rtl">
+                    <span className="an-left__cube" aria-label={p.left[i] ? 'نشان روی خانه' : 'برداشته شد'}>{p.left[i] ? '' : '✓'}</span>
+                    <span>{l.label}{l.income ? ' ↻' : ''}</span>
+                  </li>
+                ))}
+              </ol>
+              <ZooMap map={map} player={p} label={`نقشهٔ باغ‌وحش ${name}`} />
+            </div>
+          )}
+          <div className="an-notepad" style={{ backgroundImage: `url(${artParchment})` }}>
+            <div className="an-tracks">
+              <Track label="◉ پول" value={p.money} />
+              <Track label="✕ نشان X" value={p.x} />
+              <Track label="★ اعتبار" value={p.rep} extra={`ویترین ۱–${fa(p.range)}`} />
+              <Track label="▭ دست" value={p.handCount} extra={`سقف ${fa(p.handLimit)}`} />
+            </div>
+            <div className="an-workers" role="img" aria-label={`کارمندان: ${fa(p.workers)} آزاد از ${fa(1 + p.hired)}`}>
+              <small>کارمندان</small>
+              {meeples.map((on, k) => <span key={k} className={on ? 'an-meeple' : 'an-meeple an-meeple--out'} />)}
+              <b>{fa(p.workers)} از {fa(1 + p.hired)}</b>
+            </div>
+            {map && (
+              <>
+                <Spaces label="باغ‌وحش‌های همکار" n={4} bonus={map.partner} items={p.partners.map((z) => <IconChip key={z} i={z} />)} />
+                <Spaces label="دانشگاه‌ها" n={3} bonus={map.uni} items={p.unis.map((u) => <span key={u} className="an-space__uni" title={UNI_FA[u]}>{UNI_FA[u].split(' (')[0]}</span>)} />
+                <Spaces label="استخدام کارمند" n={3} bonus={map.worker} items={Array.from({ length: p.hired }, (_, k) => <span key={k} className="an-meeple" title="استخدام‌شده" />)} />
+              </>
+            )}
+            <p className="an-small an-icons" aria-label="نمادهای باغ‌وحش">
+              {(Object.entries(p.icons) as [Icon, number][]).filter(([, n]) => n).map(([i, n]) => <span key={i} className="an-icon-count"><IconChip i={i} /><b>{fa(n)}</b></span>)}
+            </p>
+            <p className="an-small">پروژه‌های پشتیبانی‌شده: {fa(p.supported)}
+              {Object.entries(p.underCount).filter(([, n]) => n).map(([k, n]) => ` · ${fa(n)} کارت زیر ${k === 'map' ? 'نقشه' : nameOf(Number(k))}`)}</p>
+            {map?.turnAbility && <p className="an-small">توانایی نقشه: {map.turnAbility}</p>}
+          </div>
+        </div>
+        <div className="an-rail" style={{ backgroundImage: `url(${artWood})` }}><ActionRow p={p} /></div>
       </div>
-      <ActionRow p={p} />
-      <p className="an-small an-icons">
-        {(Object.entries(p.icons) as [Icon, number][]).filter(([, n]) => n).map(([i, n]) => <span key={i} className="an-icon-count"><IconChip i={i} /><b>{fa(n)}</b></span>)}
-      </p>
-      <p className="an-small">همکاران: {p.partners.map((z) => ICON_FA[z]).join('، ') || '—'} · دانشگاه‌ها: {p.unis.map((u) => UNI_FA[u]).join('، ') || '—'} · پروژه‌های پشتیبانی‌شده: {fa(p.supported)}
-        {Object.entries(p.underCount).filter(([, n]) => n).map(([k, n]) => ` · ${fa(n)} کارت زیر ${k === 'map' ? 'نقشه' : nameOf(Number(k))}`)}</p>
-      {map && <ZooMap map={map} player={p} label={`نقشهٔ باغ‌وحش ${name}`} />}
-      {map && (
-        <ol className="an-left" aria-label="نشان‌های لبهٔ نقشه (با هر پشتیبانی پروژه یکی برداشته می‌شود)">
-          {left.map((l, i) => <li key={i} className={l.on ? 'an-left--on' : 'an-left--off'}>{l.label}{l.income ? ' ↻' : ''}{l.on ? '' : ' ✓'}</li>)}
-        </ol>
-      )}
-      {map?.turnAbility && <p className="an-small">توانایی نقشه: {map.turnAbility}</p>}
       {children}
       {hand && (
         <div className="an-hand" aria-label="دست شما">
@@ -248,6 +329,21 @@ function PlayerBoard({ p, map, me, name, active, hand, children }: { p: PlayerVi
         </details>
       )}
     </section>
+  );
+}
+
+/** A rival's board, collapsible (closed by default on phones) with a one-line public summary. */
+function RivalBoard(props: { p: PlayerView; map: MapView | null; name: string; active: boolean }) {
+  const { p } = props;
+  const [open] = useState(() => typeof window === 'undefined' || !window.matchMedia?.('(max-width: 600px)').matches);
+  return (
+    <details className="an-rival" open={open} data-flip-anchor={`seat-${p.seat}`} style={seatStyle(p.seat)}>
+      <summary>
+        <bdi>{props.name}</bdi>{props.active ? ' · در نوبت' : ''}
+        <span className="an-rival__sum">جذابیت {fa(p.appeal)} · حفاظت {fa(p.cp)} · امتیاز {fa(p.vp)} · پول {fa(p.money)}</span>
+      </summary>
+      <PlayerBoard {...props} me={false} anchor={false} />
+    </details>
   );
 }
 
@@ -513,7 +609,7 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
 
       <div className="an-players">
         {view.players.filter((p) => p.seat !== mySeat).map((p) => (
-          <PlayerBoard key={p.seat} p={p} map={p.map ? view.maps[p.map] ?? null : null} me={false} name={who(p.seat)} active={view.pending.includes(p.seat)} />
+          <RivalBoard key={p.seat} p={p} map={p.map ? view.maps[p.map] ?? null : null} name={who(p.seat)} active={view.pending.includes(p.seat)} />
         ))}
       </div>
     </div>

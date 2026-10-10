@@ -2,7 +2,7 @@
 // beside the roll button) above a paper score sheet with one column per player. Open boxes of the active player show
 // the points the current dice would score; a box is chosen and then confirmed with «ثبت».
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { CATS, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
 import cup from './art/cup.webp';
@@ -105,18 +105,22 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
 
       <div className="yz__sheetwrap">
         <table className="yz__sheet">
-          <caption>جدول امتیاز</caption>
+          <caption><span className="yz__padtitle">یاتزی</span> جدول امتیاز</caption>
           <thead>
             <tr>
               <th scope="col">خانه</th>
               {view.sheets.map((_, k) => (
-                <th scope="col" key={k} className={view.current === k && !view.outcome ? 'yz-col--turn' : ''}><bdi title={who(k)}>{who(k)}</bdi></th>
+                <th scope="col" key={k} className={[view.current === k && !view.outcome ? 'yz-col--turn' : '', k === me ? 'yz-col--me' : ''].join(' ')}><bdi title={who(k)}>{who(k)}</bdi></th>
               ))}
             </tr>
           </thead>
           <tbody>
             {CATS.map((cat) => (
-              <tr key={cat} className={cat === 'threeKind' ? 'yz-row--split' : ''}>
+              <Fragment key={cat}>
+              {(cat === 'ones' || cat === 'threeKind') && (
+                <tr className="yz-row--section"><th scope="rowgroup" colSpan={view.sheets.length + 1}>{cat === 'ones' ? 'بخش بالا' : 'بخش پایین'}</th></tr>
+              )}
+              <tr className={cat === 'threeKind' ? 'yz-row--split' : ''}>
                 <th scope="row"><span>{CAT_FA[cat]}</span><small>{CAT_HINT[cat]}</small></th>
                 {view.sheets.map((sheet, k) => {
                   const v = sheet[cat];
@@ -136,6 +140,7 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
                   return <td key={k} className="yz-cell--open" aria-label="خالی">–</td>;
                 })}
               </tr>
+              </Fragment>
             ))}
           </tbody>
           <tfoot>

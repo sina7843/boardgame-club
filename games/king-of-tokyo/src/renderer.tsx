@@ -17,6 +17,31 @@ export function DieFace({ f, tumble }: { f: Face; tumble?: boolean }) {
   return <span className={`kt-die bg-roll kt-f--${f}`} role="img" aria-label={f === 'heart' ? 'قلب' : f === 'bolt' ? 'انرژی' : f === 'claw' ? 'چنگ' : f}><DieGlyph f={f} /></span>;
 }
 
+/** A monster-board dial: a numbered wheel turned so the current value sits under the window at the top, with the value
+ *  printed large on the hub (heart = health, star = victory points). Numbers come from the view, never from art. */
+function Dial({ kind, value, max }: { kind: 'hp' | 'vp'; value: number; max: number }) {
+  const n = max + 1, step = 360 / n, v = Math.max(0, Math.min(max, value));
+  const label = kind === 'hp' ? 'جان' : 'امتیاز';
+  return (
+    <span className={`kt-dial kt-dial--${kind}`} role="meter" aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} aria-label={`${label}: ${fa(value)} از ${fa(max)}`}>
+      <svg viewBox="-50 -50 100 100" aria-hidden="true">
+        <circle r="48" className="kt-dial__rim" />
+        <g className="kt-dial__wheel" style={{ transform: `rotate(${-v * step}deg)` }}>
+          <circle r="44" className="kt-dial__disc" />
+          {Array.from({ length: n }, (_, i) => <text key={i} transform={`rotate(${i * step}) translate(0 -32)`} className={i === v ? 'is-on' : ''}>{fa(i)}</text>)}
+        </g>
+        <path d="M-10 -49 h20 l-3 20 h-14 z" className="kt-dial__window" />
+        <circle r="24" className="kt-dial__hub" />
+        {kind === 'hp'
+          ? <path d="M0 17C-19 5-17-13-8-13c4 0 7 2 8 6 1-4 4-6 8-6 9 0 11 18-8 30Z" className="kt-dial__icon" />
+          : <path d="M0-17 5-6 17-5 8 3 10.5 15 0 9-10.5 15-8 3-17-5-5-6Z" className="kt-dial__icon" />}
+        <text y="8" className="kt-dial__num bg-pop" key={value}>{fa(value)}</text>
+      </svg>
+      <small>{label}</small>
+    </span>
+  );
+}
+
 export function PowerCard({ id }: { id: number }) {
   const p = POWERS[id]!;
   return (
@@ -82,18 +107,19 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
           : <span className="kt__empty">شهر خالی است</span>}
       </section>
 
-      <ul className="kt__monsters" aria-label="غول‌ها">
-        {view.hp.map((hp, k) => (
-          <li key={`${k}-${hitAt[k]}`} data-flip-anchor={`mon-${k}`} className={['kt-mon', hitAt[k] ? 'bg-hit' : '', view.current === k && !view.outcome ? 'kt-mon--turn' : '', !view.alive[k] ? 'kt-mon--dead' : '', view.tokyo === k ? 'kt-mon--tokyo' : '', view.outcome?.placements[0]?.seat === k ? 'kt-mon--win' : ''].join(' ')} style={{ ['--h' as string]: HUE[k % 6] }}>
+      <ul className="kt__monsters" aria-label="صفحه‌های غول">
+        {/* My monster board first and full size; the others follow as compact boards. */}
+        {(me >= 0 ? [me, ...view.hp.map((_, k) => k).filter((k) => k !== me)] : view.hp.map((_, k) => k)).map((k) => (
+          <li key={`${k}-${hitAt[k]}`} data-flip-anchor={`mon-${k}`} className={['kt-mon', k === me ? 'kt-mon--me' : '', hitAt[k] ? 'bg-hit' : '', view.current === k && !view.outcome ? 'kt-mon--turn' : '', !view.alive[k] ? 'kt-mon--dead' : '', view.tokyo === k ? 'kt-mon--tokyo' : '', view.outcome?.placements[0]?.seat === k ? 'kt-mon--win' : ''].join(' ')} style={{ ['--h' as string]: HUE[k % 6] }}>
+            <div className="kt-mon__head"><b>{MONSTERS[k % 6]}</b><bdi>{who(k)}</bdi>{!view.alive[k] && <small>بیرون</small>}</div>
+            <Dial kind="hp" value={view.hp[k]!} max={view.maxHp[k]!} />
             <div className="kt-mon__pic"><Monster k={k} /></div>
-            <div className="kt-mon__head"><b>{MONSTERS[k % 6]}</b><bdi>{who(k)}</bdi></div>
-            <div className="kt-mon__stats">
-              <span className="kt-badge kt-badge--hp" aria-label={`${fa(hp)} جان`}><i aria-hidden="true">♥</i><em className="bg-pop" key={hp}>{fa(hp)}</em></span>
-              <span className="kt-badge kt-badge--vp" aria-label={`${fa(view.vp[k]!)} امتیاز`}><i aria-hidden="true">★</i><em className="bg-pop" key={view.vp[k]}>{fa(view.vp[k]!)}</em></span>
-              <span className="kt-badge kt-badge--en" aria-label={`${fa(view.energy[k]!)} انرژی`}><Bolt /><em className="bg-pop" key={view.energy[k]}>{fa(view.energy[k]!)}</em></span>
+            <Dial kind="vp" value={view.vp[k]!} max={20} />
+            <div className="kt-mon__en" role="img" aria-label={`${fa(view.energy[k]!)} انرژی`}>
+              <span className="kt-badge kt-badge--en"><Bolt /><em className="bg-pop" key={view.energy[k]}>{fa(view.energy[k]!)}</em></span>
+              <span className="kt-cubes">{Array.from({ length: Math.min(view.energy[k]!, 12) }, (_, i) => <i key={i} />)}</span>
             </div>
-            <span className="kt-meter" aria-hidden="true"><i style={{ inlineSize: `${Math.max(0, Math.min(100, (hp / view.maxHp[k]!) * 100))}%` }} /></span>
-            {view.kept[k]!.length > 0 && <div className="kt-mon__kept">{view.kept[k]!.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market">{POWERS[id]!.nameFa}</small>)}</div>}
+            {view.kept[k]!.length > 0 && <div className="kt-mon__kept" aria-label="کارت‌های نگه‌داشته">{view.kept[k]!.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={POWERS[id]!.textFa}>{POWERS[id]!.nameFa}</small>)}</div>}
           </li>
         ))}
       </ul>

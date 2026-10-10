@@ -20,7 +20,7 @@ import flameArt from './art/heat.webp';
 import stressArt from './art/stress.webp';
 import flagArt from './art/flag.webp';
 import gearArt from './art/gear.webp';
-import { GARAGE, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
+import { GARAGE, GEAR_COOL, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
 import { pointAt, trackOf, type TrackId } from './tracks.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -189,6 +189,27 @@ function Stat({ value, className, title, children }: { value: number; className:
   return <span key={value} className={`${className} ${pop}`} title={title}>{children}</span>;
 }
 
+/** A small H-pattern gate: the four gear slots with the car's current gear knob. */
+function GearMini({ gear }: { gear: number }) {
+  return (
+    <span className="ht-gearmini" title="دنده" aria-label={`دندهٔ ${fa(gear)}`}>
+      <span className="ht-gearmini__gate" dir="ltr" aria-hidden="true">{[1, 3, 2, 4].map((n) => <i key={n} className={n === gear ? 'on' : ''} />)}</span>
+      دندهٔ {fa(gear)}
+    </span>
+  );
+}
+
+/** A car's revealed cards this round (played, then boost flips) and the resulting speed. */
+function Play({ r, s }: { r: HeatView['racers'][number]; s: number }) {
+  return (
+    <div className="ht-racer__play">
+      {r.played.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`seat-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}
+      {r.flips.length > 0 && <span className="ht-flips">رو شد: {r.flips.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`deck-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}</span>}
+      <b key={r.speed} className="ht-speed bg-pop">سرعت {fa(r.speed)}</b>
+    </div>
+  );
+}
+
 export default function HeatRenderer({ view: served, legalActions: legal, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HeatView>) {
   // Undo-window preview (see preview()); while a move waits in the window nothing else can be chosen.
   const view = preview(served, mySeat, queued);
@@ -202,6 +223,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
   const pick = legalActions.find((a) => a.type === 'pick') as { cards: number[] } | undefined;
   const me = view.me;
   const myR = mySeat !== null ? view.racers[mySeat] : undefined;
+  const hasMat = !!me && !!myR && !myR.resigned;
 
   const [gear, setGear] = useState<number | null>(null);
   const [sel, setSel] = useState<number[]>([]);
@@ -280,52 +302,73 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
         {order.map((s) => {
           const r = view.racers[s]!;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
+          // My own piles and played cards live on my car mat below (one home per motion id / anchor).
+          const onMat = s === mySeat && hasMat;
           return (
-            <li key={s} data-flip-anchor={`seat-${s}`} className={['ht-racer', view.current === s ? 'ht-racer--on' : '', s === mySeat ? 'ht-racer--me' : '', r.resigned ? 'ht-racer--out' : ''].join(' ')}>
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['ht-racer', 'ht-mat', `ht-mat--c${s}`, view.current === s ? 'ht-racer--on' : '', s === mySeat ? 'ht-racer--me' : '', r.resigned ? 'ht-racer--out' : ''].join(' ')}>
               <img className="ht-racer__car" src={CAR_ART[s]} alt={`ماشین ${CAR_FA[s]}`} />
               <div className="ht-racer__main">
                 <div className="ht-racer__head">
                   {place && <b className="ht-racer__place">{fa(place)}</b>}
                   <bdi className="ht-racer__name">{who(s)}</bdi>
-                  <Stat value={r.gear} className="ht-gear" title="دنده">دندهٔ {fa(r.gear)}</Stat>
-                  <Stat value={r.engine} className="ht-heat" title="گرمای موتور"><img src={flameArt} alt="" />{fa(r.engine)}</Stat>
+                  <GearMini gear={r.gear} />
+                  <Stat value={r.engine} className="ht-heat" title="گرمای موتور"><img src={flameArt} alt="" />موتور {fa(r.engine)}</Stat>
                   {r.adrenaline && <span className="ht-tag">آدرنالین</span>}
                   {view.phase === 'plan' && !r.finished && !r.resigned && <span className="ht-tag">{r.planned ? 'آماده ✓' : 'در حال انتخاب…'}</span>}
                   {view.races > 1 && <span className="ht-tag">{fa(r.points)} امتیاز</span>}
                 </div>
                 <div className="ht-racer__sub">
                   {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد · ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
-                  <span className="ht-racer__counts"> · دست {fa(r.hand)} · <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> · <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>
+                  {!onMat && <span className="ht-racer__counts"> · دست {fa(r.hand)} · <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> · <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>}
                 </div>
-                {r.revealed && (
-                  <div className="ht-racer__play">
-                    {r.played.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`seat-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}
-                    {r.flips.length > 0 && <span className="ht-flips">رو شد: {r.flips.map((c) => <span key={c.id} data-flip={`card-${c.id}`} data-flip-from={`deck-${s}`} data-flip-exit={`discard-${s}`}><HeatCard c={c} size="sm" /></span>)}</span>}
-                    <b key={r.speed} className="ht-speed bg-pop">سرعت {fa(r.speed)}</b>
-                  </div>
-                )}
+                {r.revealed && !onMat && <Play r={r} s={s} />}
+                {r.revealed && onMat && <div className="ht-racer__play"><b key={r.speed} className="ht-speed bg-pop">سرعت {fa(r.speed)}</b></div>}
               </div>
             </li>
           );
         })}
       </ol>
 
-      {me && myR && !myR.resigned && (
-        <section className="ht__cockpit" aria-label="کابین شما">
-          {plan && (
-            <div className="ht__gears" role="group" aria-label="دنده">
+      {hasMat && me && myR && (
+        <section className={`ht__cockpit ht-mat ht-mat--c${mySeat} ht-mat--mine`} aria-label="صفحهٔ ماشین شما">
+          <div className="ht-mat__top">
+            <div className="ht-mat__car">
+              <img src={CAR_ART[mySeat!]} alt={`ماشین ${CAR_FA[mySeat!]}`} />
+              <bdi>{who(mySeat!)}</bdi>
+              {myR.adrenaline && <span className="ht-tag">آدرنالین</span>}
+            </div>
+            <div className="ht-shifter" dir="ltr" role="group" aria-label={`دنده (فعلی ${fa(myR.gear)})`}>
               <img className="ht__gearart" src={gearArt} alt="" />
               {[1, 2, 3, 4].map((n) => {
+                const pos = { gridColumn: n <= 2 ? 1 : 2, gridRow: n % 2 ? 1 : 2 };
+                if (!plan) {
+                  return <span key={n} style={pos} className={`ht-gearpos${myR.gear === n ? ' ht-gearpos--on' : ''}`} aria-current={myR.gear === n ? 'true' : undefined}><b>{fa(n)}</b><small>{GEAR_COOL[n] ? `خنک ${fa(GEAR_COOL[n]!)}` : ' '}</small></span>;
+                }
                 const o = plan.gears.find((x) => x.gear === n);
                 return (
-                  <button key={n} type="button" className={['ht-gearbtn', g === n ? 'ht-gearbtn--on' : '', hint?.type === 'plan' && hint.gear === n && g !== n ? 'ht-hint' : ''].join(' ')}
+                  <button key={n} type="button" style={pos} className={['ht-gearbtn', g === n ? 'ht-gearbtn--on' : '', hint?.type === 'plan' && hint.gear === n && g !== n ? 'ht-hint' : ''].join(' ')}
                     disabled={!o || busy} aria-pressed={g === n} onClick={() => { setGear(n); setSel(sel.slice(0, n)); }}>
                     <b>{fa(n)}</b><small>{o ? (o.cost ? '۱ گرما' : 'رایگان') : '—'}</small>
                   </button>
                 );
               })}
             </div>
-          )}
+            <div className="ht-engine" aria-label={`موتور: ${fa(myR.engine)} کارت گرما`}>
+              <small>موتور</small>
+              <span className="ht-engine__flames" aria-hidden="true">{Array.from({ length: Math.min(myR.engine, 8) }, (_, i) => <img key={i} src={flameArt} alt="" />)}</span>
+              <Stat value={myR.engine} className="ht-engine__n" title="گرمای موتور">{fa(myR.engine)}</Stat>
+            </div>
+            <div className="ht-pile" data-flip-anchor={`deck-${mySeat}`} aria-label={`دسته: ${fa(myR.deck)} کارت، ${fa(me.deckStress)} استرس`}>
+              <span className="ht-pile__back" aria-hidden="true" />
+              <b>{fa(myR.deck)}</b><small>دسته</small>
+              <small className="ht-pile__note"><img src={stressArt} alt="" />استرس {fa(me.deckStress)}</small>
+            </div>
+            <div className="ht-pile ht-pile--disc" data-flip-anchor={`discard-${mySeat}`} aria-label={`دورریز: ${fa(myR.discard)} کارت`}>
+              {myR.discardTop ? <HeatCard c={myR.discardTop} size="sm" /> : <span className="ht-pile__empty" aria-hidden="true" />}
+              <b>{fa(myR.discard)}</b><small>دورریز</small>
+            </div>
+          </div>
+          {myR.revealed && <div className="ht-mat__play"><small>بازی‌شده:</small><Play r={myR} s={mySeat!} /></div>}
           <div className="ht__hand" role="group" aria-label="دست شما">
             {me.hand.map((c) => {
               const on = sel.includes(c.id) || disc.includes(c.id);

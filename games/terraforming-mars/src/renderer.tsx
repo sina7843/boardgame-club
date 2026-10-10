@@ -7,7 +7,7 @@ import './renderer.css';
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, useFresh, usePop, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
 import { hexX } from './board.ts';
-import { CARDRES_ART, MARS_ART, PARAM_ART, RES_ART, TILE_ART } from './art.ts';
+import { BOARD_ART, CARDRES_ART, MARS_ART, PARAM_ART, RES_ART, TILE_ART } from './art.ts';
 import {
   AWARD_COSTS, AWARDS, CARD, MARS, MILESTONE_COST, MILESTONES, NAME_FA, PROJECT_FA, RES, RES_FA, SPACE, CARDRES_FA, OCEANS_MAX, OXY_MAX, TEMP_MAX, TEMP_MIN,
   type CardDef, type Project, type Req, type Res, type Tag, type TmView
@@ -418,30 +418,54 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
   );
 }
 
+/** Is the viewport wide enough to open opponents' boards by default (phones start with the collapsed summary). */
+const wideScreen = () => typeof window !== 'undefined' && !!window.matchMedia?.('(min-width: 720px)').matches;
+
 function PlayerPanel({ k, p, view, seatName, me }: { k: number; p: TmView['players'][number]; view: TmView; seatName: (k: number) => string; me: boolean }) {
   const popTr = usePop(p.tr);
+  const [open, setOpen] = useState(() => me || wideScreen());
   const cards = [...(p.corp ? [p.corp] : []), ...p.played];
   const active = cards.filter((id) => CARD[id]!.kind !== 'event');
   const events = cards.filter((id) => CARD[id]!.kind === 'event');
   const tags = new Map<Tag, number>();
   for (const id of active) for (const t of CARD[id]!.tags) tags.set(t, (tags.get(t) ?? 0) + 1);
+  // Conversion rates printed on the real board, adjusted by this player's public tableau (same rule as the server).
+  const defs = active.map((id) => CARD[id]!);
+  const rate = {
+    steel: 2 + defs.reduce((n, c) => n + (c.steelBonus ?? 0), 0), titanium: 3 + defs.reduce((n, c) => n + (c.titaniumBonus ?? 0), 0),
+    plants: Math.min(8, ...defs.map((c) => c.greeneryPlants ?? 8)), heatPays: defs.some((c) => c.heatAsMc)
+  };
+  const rule: Record<Res, string> = {
+    mc: `درآمد نسل = تولید + رتبه (${sfa(p.prod.mc + p.tr)})`,
+    steel: `هر فولاد = ${fa(rate.steel)} مگاکردیت در ساختمان`,
+    titanium: `هر تیتانیوم = ${fa(rate.titanium)} مگاکردیت در فضا`,
+    plants: `${fa(rate.plants)} گیاه ← ۱ فضای سبز`,
+    energy: 'انرژی باقی‌مانده ← گرما در تولید',
+    heat: `۸ گرما ← ۱ پلهٔ دما${rate.heatPays ? ' · پرداخت به‌جای مگاکردیت' : ''}`
+  };
   const cur = !view.outcome && (view.phase === 'action' || view.phase === 'final') && k === view.current;
-  return (
-    <article data-flip-anchor={`seat-${k}`} className={`tm-player tm-seat-${k}${cur ? ' tm-player--cur' : ''}`} aria-label={`بازیکن ${seatName(k)}`}>
-      <header>
-        <span className={`tm-cube tm-seat-${k}`} aria-hidden="true" />
-        <b><bdi>{seatName(k)}</bdi>{me ? ' (شما)' : ''}</b>
-        {p.corp && <span>· {name(p.corp)}</span>}
-        <span key={p.tr} className={`tm-tr ${popTr}`}>رتبه {fa(p.tr)}</span>
-        <span title={`TR ${p.score.tr} + نقطهٔ عطف ${p.score.milestones} + جایزه ${p.score.awards} + فضای سبز ${p.score.greenery} + شهر ${p.score.city} + کارت ${p.score.cards}`}>امتیاز فعلی {fa(p.score.total)}</span>
-        <span>{fa(p.hand)} کارت در دست</span>
-        {p.passed && view.phase !== 'end' && <span className="tm-badge">پاس</span>}
-        {p.ready && <span className="tm-badge">آماده</span>}
-      </header>
-      <div className="tm-res" role="table" aria-label="منابع و تولید">
-        {RES.map((r) => <ResCell key={r} r={r} n={p.res[r]} prod={p.prod[r]} />)}
+  const corp = p.corp ? CARD[p.corp] : undefined;
+  const head = (
+    <>
+      <span className={`tm-cube tm-seat-${k}`} aria-hidden="true" />
+      <b className="tm-pb__name"><bdi>{seatName(k)}</bdi>{me ? ' (شما)' : ''}</b>
+      <span className="tm-pb__corp">{corp ? <>{corp.nameFa} <small><bdi>{corp.name}</bdi></small></> : 'بدون شرکت'}</span>
+      <span key={p.tr} className={`tm-pb__tr ${popTr}`} style={{ backgroundImage: `url(${BOARD_ART.tr})` }} aria-label={`رتبهٔ ترافورمینگ ${fa(p.tr)}`}>
+        <span className={`tm-pb__trcube tm-seat-${k}`} aria-hidden="true" />رتبه <b>{fa(p.tr)}</b>
+      </span>
+      <span className="tm-pb__meta" title={`TR ${p.score.tr} + نقطهٔ عطف ${p.score.milestones} + جایزه ${p.score.awards} + فضای سبز ${p.score.greenery} + شهر ${p.score.city} + کارت ${p.score.cards}`}>امتیاز {fa(p.score.total)}</span>
+      <span className="tm-pb__meta">{fa(p.hand)} کارت در دست</span>
+      {p.passed && view.phase !== 'end' && <span className="tm-badge">پاس</span>}
+      {p.ready && <span className="tm-badge">آماده</span>}
+      {cur && <span className="tm-badge tm-badge--cur">▶ نوبت</span>}
+    </>
+  );
+  const board = (
+    <>
+      <div className="tm-pb" style={{ backgroundImage: `url(${BOARD_ART.plate})` }} role="group" aria-label={`صفحهٔ بازیکن ${seatName(k)}: منابع و تولید`}>
+        {RES.map((r) => <ResBox key={r} r={r} n={p.res[r]} prod={p.prod[r]} seat={k} rule={rule[r]} />)}
       </div>
-      {tags.size > 0 && <div className="tm-card__tags tm-tagsum">{[...tags].map(([t, n]) => <span key={t} className={`tm-tag tm-tag--${t}`}>{TAG_FA[t]} {fa(n)}</span>)}</div>}
+      {tags.size > 0 && <div className="tm-card__tags tm-tagsum" aria-label="نشان‌ها">{[...tags].map(([t, n]) => <span key={t} className={`tm-tag tm-tag--${t}`}>{TAG_FA[t]} {fa(n)}</span>)}</div>}
       {active.length > 0 && (
         <details className="tm-tableau" open={active.length <= 6}>
           <summary>کارت‌های بازی‌شده ({fa(active.length)}){events.length ? ` · ${fa(events.length)} رویداد` : ''}</summary>
@@ -451,18 +475,48 @@ function PlayerPanel({ k, p, view, seatName, me }: { k: number; p: TmView['playe
           {events.length > 0 && <p className="tm-events">رویدادها: {events.map(name).join('، ')}</p>}
         </details>
       )}
+    </>
+  );
+  return (
+    <article data-flip-anchor={`seat-${k}`} className={`tm-player tm-seat-${k}${me ? ' tm-player--me' : ' tm-player--opp'}${cur ? ' tm-player--cur' : ''}`} aria-label={`بازیکن ${seatName(k)}`}>
+      {me ? <><header className="tm-pb__head">{head}</header>{board}</> : (
+        <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+          <summary className="tm-pb__head">{head}<span className="tm-pb__fold" aria-hidden="true">{open ? '▴' : '▾'}</span></summary>
+          {board}
+        </details>
+      )}
     </article>
   );
 }
 
-function ResCell({ r, n, prod }: { r: Res; n: number; prod: number }) {
+/** One resource box of the printed board: production track with the seat's marker cube on top, stock cubes below. */
+function ResBox({ r, n, prod, seat, rule }: { r: Res; n: number; prod: number; seat: number; rule: string }) {
   const pop = usePop(n), popProd = usePop(prod);
+  const lo = r === 'mc' ? -5 : 0;
+  const at = Math.max(lo, Math.min(10, prod));
+  // Stock as the game's cubes: gold = 10, silver = 5, bronze = 1 (first 12 drawn; the number is always exact).
+  const cubes = [...Array<string>(Math.floor(n / 10)).fill('g'), ...Array<string>(Math.floor((n % 10) / 5)).fill('s'), ...Array<string>(n % 5).fill('b')];
   return (
-    <div role="row" className="tm-res__cell" aria-label={`${RES_FA[r]}: موجودی ${fa(n)}، تولید ${sfa(prod)}`}>
-      <img src={RES_ART[r]} alt="" />
-      <span className="tm-res__name">{RES_FA[r]}</span>
-      <b key={n} className={pop}>{fa(n)}</b>
-      <small key={`p${prod}`} className={popProd}>تولید {sfa(prod)}</small>
+    <div className={`tm-box tm-box--${r}`} role="group" aria-label={`${RES_FA[r]}: موجودی ${fa(n)}، تولید ${sfa(prod)}`} style={{ backgroundImage: `url(${BOARD_ART.box})` }}>
+      <span className="tm-box__head">
+        <img src={RES_ART[r]} alt="" />
+        <span className="tm-box__name">{RES_FA[r]}</span>
+        <small key={`p${prod}`} className={`tm-box__prod ${popProd}`}>تولید <b>{sfa(prod)}</b></small>
+      </span>
+      <span className="tm-box__track" dir="ltr" aria-hidden="true">
+        {Array.from({ length: 11 - lo }, (_, i) => i + lo).map((v) => (
+          <span key={v} className={`tm-box__step${v === 0 ? ' tm-box__step--zero' : ''}${v % 5 === 0 ? ' tm-box__step--five' : ''}`}>
+            {v === at && <span className={`tm-box__marker tm-seat-${seat}`} />}
+          </span>
+        ))}
+      </span>
+      <span className="tm-box__stock">
+        <b key={n} className={pop}>{fa(n)}</b>
+        <span className="tm-box__cubes" aria-hidden="true">
+          {cubes.slice(0, 12).map((c, i) => <i key={i} className={`tm-rc tm-rc--${c}`} />)}{cubes.length > 12 && <small>…</small>}
+        </span>
+      </span>
+      <small className="tm-box__rule">{rule}</small>
     </div>
   );
 }

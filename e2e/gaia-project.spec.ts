@@ -20,7 +20,10 @@ test('interactive tutorial: mine, trading station, federation, research, power a
     if (await button.count()) await button.first().click();
     else {
       await p.locator('.gp-hex--hint').first().click();
-      if (step === '۱') await p.screenshot({ path: shot(info.project.name, 'tutorial-hex'), fullPage: true });
+      if (step === '۱') {
+        await p.screenshot({ path: shot(info.project.name, 'tutorial-hex'), fullPage: true });
+        await p.locator('.gp-players').screenshot({ path: shot(info.project.name, 'boards-tutorial') });
+      }
       await p.locator('.gp-hexmenu button.gp-hint').click();
     }
   }
@@ -101,7 +104,10 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
       const before = await p.locator('.gp').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
       await expect.poll(() => p.locator('.gp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
-      if (n === 12) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
+      if (n === 12) for (const [i, q] of pages.entries()) {
+        await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
+        await q.locator('.gp-players').screenshot({ path: shot(info.project.name, `boards-${i}`) });
+      }
       acted = true;
       break;
     }

@@ -16,7 +16,11 @@ test('interactive tutorial: rail link, sell with merchant beer, build, sell, era
   for (const step of ['۱', '۲', '۳', '۴']) {
     const label = p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`));
     await expect(label).toBeVisible();
-    if (step === '۲') await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
+    if (step === '۲') {
+      await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
+      await p.locator('.br-pl--me').screenshot({ path: shot(info.project.name, 'board-own') });
+      await p.locator('.br__players .br-pl').first().screenshot({ path: shot(info.project.name, 'board-opponent') });
+    }
     // Kind → target → card → «ثبت»: each click reveals the next highlighted control.
     for (let i = 0; i < 6 && (await label.count()); i++) {
       const hint = p.locator('.br .br-hint:not([disabled])').first();
@@ -49,7 +53,7 @@ test('undo window: the played card flies to my ledger and the link appears at on
   await submit.click();
   await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
   await expect(handCards).toHaveCount(cardsBefore - 1);
-  await expect(p.locator(`.br__players [data-flip="${played}"]`)).toBeVisible();
+  await expect(p.locator(`.br-pl--me [data-flip="${played}"]`)).toBeVisible();
   await expect(links).toHaveCount(linksBefore + 1);
   await p.waitForTimeout(700);
   expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);

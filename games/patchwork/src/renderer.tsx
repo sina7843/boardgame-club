@@ -2,7 +2,7 @@
 // patches of the circle (the first three can be bought), and the 9×9 quilts. Choose a patch, turn or flip it, tap
 // where its corner goes (a preview shows if it fits), then «بدوز».
 import './renderer.css';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
@@ -118,20 +118,6 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
         ))}
       </section>
 
-      <ul className="pw__players" aria-label="بازیکنان">
-        {[me, opp].map((k) => (
-          <li key={k} className={['pw-pl', view.current === k && !view.outcome ? 'pw-pl--turn' : '', view.outcome?.placements[0]?.seat === k ? 'pw-pl--win' : ''].join(' ')}>
-            <bdi className="pw-pl__name">{who(k)}</bdi>
-            <span className={`pw-pl__btns ${beforeBtns && beforeBtns[k] !== view.buttons[k] ? 'bg-pop' : ''}`} key={view.buttons[k]}><b className="pw-btn" />{fa(view.buttons[k]!)}</span>
-            <span>درآمد {fa(view.income[k]!)}</span>
-            <span>خالی {fa(emptyCount(view.quilts[k]!))}</span>
-            <span>زمان {fa(view.pos[k]!)}/{fa(END)}</span>
-            {view.bonus7 === k && <span className="pw-pl__bonus">۷×۷ +۷</span>}
-            <Pop n={score(view, k)} className="pw-pl__score">امتیاز {fa(score(view, k))}</Pop>
-          </li>
-        ))}
-      </ul>
-
       {!view.outcome && (
         <section className="pw__market" aria-label="تکه‌ها">
           {upcoming.map((id) => {
@@ -160,9 +146,13 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       )}
 
       <div className="pw__quilts">
-        <Quilt q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
-          hintCell={hint?.type === 'buy' && pick !== null && !at && hint.row !== undefined ? [hint.row, hint.col!] : null} />
-        <div className="pw__opp"><bdi>{who(opp)}</bdi><Quilt q={view.quilts[opp]!} was={before?.[opp]} anchor="quilt-opp" /></div>
+        <QuiltBoard view={view} k={me} me name={who(me)} buttonsPop={!!beforeBtns && beforeBtns[me] !== view.buttons[me]}>
+          <Quilt q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
+            hintCell={hint?.type === 'buy' && pick !== null && !at && hint.row !== undefined ? [hint.row, hint.col!] : null} />
+        </QuiltBoard>
+        <QuiltBoard view={view} k={opp} name={who(opp)} buttonsPop={!!beforeBtns && beforeBtns[opp] !== view.buttons[opp]}>
+          <Quilt q={view.quilts[opp]!} was={before?.[opp]} anchor="quilt-opp" />
+        </QuiltBoard>
       </div>
 
       {canAdvance && !view.outcome && (
@@ -201,4 +191,48 @@ function queuedView(v: PatchworkView, me: number, q: Record<string, unknown> | n
 // A number that bumps whenever it changes.
 function Pop({ n, className, children }: { n: number; className: string; children: React.ReactNode }) {
   return <span key={n} className={`${className} ${usePop(n)}`}>{children}</span>;
+}
+
+/** A player's quilt board as on the table: the 9×9 board with its button pocket — buttons, button income, time, the 7×7 tile. */
+function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: PatchworkView; k: number; me?: boolean; name: string; buttonsPop: boolean; children: ReactNode }) {
+  // The opponent's board starts folded on phones (tap to open); its pocket stays readable.
+  const [open, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const turn = view.current === k && !view.outcome;
+  const win = view.outcome?.placements[0]?.seat === k;
+  const empty = emptyCount(view.quilts[k]!);
+  const pos = view.pos[k]!;
+  const nextInc = INCOME.find((x) => x > pos);
+  const inc = view.income[k]!;
+  return (
+    <section className={['pw-board', me ? 'pw-board--me' : 'pw-board--opp', turn ? 'pw-board--turn' : '', win ? 'pw-board--win' : ''].join(' ')} aria-label={`لحاف ${name}`}>
+      <header className="pw-board__head">
+        <i className={`pw-pawn ${me ? 'pw-pawn--me' : 'pw-pawn--opp'}`} aria-hidden="true" />
+        <bdi className="pw-board__name">{name}</bdi>
+        {turn && <span className="pw-board__turn">در نوبت</span>}
+        <Pop n={score(view, k)} className="pw-board__score">امتیاز <bdi dir="ltr">{score(view, k) < 0 ? `−${fa(-score(view, k))}` : fa(score(view, k))}</bdi></Pop>
+        {!me && <button type="button" className="pw-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن لحاف ${name}` : `باز کردن لحاف ${name}`}>{open ? '▴' : '▾'}</button>}
+      </header>
+      <div className="pw-board__body">
+        {open && <div className="pw-board__quilt">{children}</div>}
+        <ul className="pw-pocket" aria-label="جیب دکمه">
+          <li className="pw-pocket__btns" title="دکمه‌های در دست"><b className="pw-btn pw-btn--big" aria-hidden="true" /><span className={buttonsPop ? 'bg-pop' : ''} key={view.buttons[k]}>{fa(view.buttons[k]!)}</span><small>دکمه</small></li>
+          <li className="pw-pocket__inc" title="درآمد دکمه‌ای لحاف در هر خانهٔ درآمد">
+            <small>درآمد</small>
+            <span className="pw-pocket__row" aria-hidden="true">{Array.from({ length: Math.min(inc, 8) }, (_, i) => <b key={i} className="pw-btn" />)}</span>
+            <b>{fa(inc)}</b>
+          </li>
+          <li className="pw-pocket__time" title="جای مهره روی مسیر زمان">
+            <small>زمان</small><b>{fa(pos)}/{fa(END)}</b>
+            <span className="pw-pocket__bar" aria-hidden="true"><span style={{ inlineSize: `${(pos / END) * 100}%` }} /></span>
+            {nextInc !== undefined && <small>درآمد بعدی: {fa(nextInc - pos)} خانه</small>}
+          </li>
+          <li className="pw-pocket__empty" title="هر خانهٔ خالی در پایان −۲"><small>خالی</small><b>{fa(empty)}</b><small>(−{fa(empty * 2)})</small></li>
+          <li className={['pw-tile7', view.bonus7 === k ? 'pw-tile7--on' : view.bonus7 !== null ? 'pw-tile7--gone' : ''].join(' ')}
+            title={view.bonus7 === k ? 'کاشی ۷×۷: +۷' : view.bonus7 !== null ? 'کاشی ۷×۷ را حریف گرفت' : 'کاشی ۷×۷ هنوز آزاد است'}>
+            <b>۷×۷</b><small>{view.bonus7 === k ? '+۷' : view.bonus7 !== null ? 'رفت' : 'آزاد'}</small>
+          </li>
+        </ul>
+      </div>
+    </section>
+  );
 }

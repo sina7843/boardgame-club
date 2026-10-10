@@ -27,36 +27,121 @@ export function DieFace({ hero, n, kept, rolling, tumble }: { hero: Hero; n: num
   );
 }
 
-function Banner({ view, seat, label, active }: { view: DtView; seat: number; label: string; active: boolean }) {
-  const f = view.fighters[seat]!;
-  const hero = f.hero !== null ? HEROES[f.hero]! : null;
-  // Shake the banner when health dropped (stamp = seq of the drop, used as the retrigger key).
-  const hit = useRef({ hp: f.hp, at: 0 });
-  if (f.hp < hit.current.hp) hit.current.at = view.seq;
-  hit.current.hp = f.hp;
-  const cpPop = usePop(f.cp), hpPop = usePop(f.hp);
+type Hint = { type: string; keep?: boolean[]; ability?: number; hero?: number } | null;
+
+const wideScreen = () => (typeof matchMedia === 'function' ? matchMedia('(min-width: 720px)').matches : true);
+const STATUS = [
+  { key: 'wound', icon: '🩸', fa: 'زخم' },
+  { key: 'stun', icon: '💫', fa: 'گیجی' },
+  { key: 'shield', icon: '🛡', fa: 'سپر' }
+] as const;
+
+/** A round dial like the printed HP / CP wheels: a ring filled to value/max with the number in the window. */
+function Dial({ value, max, label, kind }: { value: number; max: number; label: string; kind: 'hp' | 'cp' }) {
+  const v = Math.max(0, value), pop = usePop(v);
+  const C = 2 * Math.PI * 42;
   return (
-    <section key={hit.current.at} className={`${hit.current.at ? 'bg-hit ' : ''}dt-banner ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`${label}${hero ? `، ${hero.name}` : ''}`}>
-      <div className="dt-banner__top">
-        {hero && <img className="dt-portrait" src={PORTRAIT[hero.key]} alt="" aria-hidden="true" />}
-        <bdi className="dt-banner__name">{label}</bdi>
-        {hero && <span className="dt-banner__hero">{hero.name}</span>}
-        <span className={`dt-cp ${cpPop}`} key={f.cp} title="امتیاز رزم">{fa(f.cp)} CP</span>
-      </div>
-      <div className="dt-hp" role="meter" aria-valuemin={0} aria-valuemax={MAX_HP} aria-valuenow={Math.max(0, f.hp)} aria-label="جان">
-        <span className="dt-hp__fill" style={{ inlineSize: `${Math.max(0, f.hp) / MAX_HP * 100}%` }} />
-        <b className={`dt-hp__n ${hpPop}`} key={f.hp}>{fa(Math.max(0, f.hp))}</b>
-      </div>
-      <div className="dt-status">
-        {f.wound > 0 && <span className="dt-badge dt-badge--wound">زخم ×{fa(f.wound)}</span>}
-        {f.stun && <span className="dt-badge dt-badge--stun">گیج</span>}
-        {f.shield && <span className="dt-badge dt-badge--shield">سپر</span>}
-      </div>
-    </section>
+    <div className={`dt-dial dt-dial--${kind}`} role="meter" aria-valuemin={0} aria-valuemax={max} aria-valuenow={v} aria-label={label}>
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" className="dt-dial__track" />
+        <circle cx="50" cy="50" r="42" className="dt-dial__fill" strokeDasharray={`${(Math.min(v, max) / max) * C} ${C}`} transform="rotate(-90 50 50)" />
+        {Array.from({ length: max }, (_, i) => {
+          const a = (i / max) * 2 * Math.PI - Math.PI / 2, r = i % 5 ? 46 : 44;
+          return <line key={i} x1={50 + Math.cos(a) * 49} y1={50 + Math.sin(a) * 49} x2={50 + Math.cos(a) * r} y2={50 + Math.sin(a) * r} className="dt-dial__tick" />;
+        })}
+      </svg>
+      <b className={`dt-dial__n ${pop}`} key={v}>{fa(v)}</b>
+      <small className="dt-dial__label">{kind === 'hp' ? '♥ جان' : '◆ CP'}</small>
+    </div>
   );
 }
 
-type Hint = { type: string; keep?: boolean[]; ability?: number; hero?: number } | null;
+const needChips = (h: Hero, a: Ability): string[] => (a.need.sym ? Array.from({ length: a.need.counts![0]! }, () => h.symFa[a.need.sym!]!)
+  : a.need.combo ? Object.entries(a.need.combo).flatMap(([s, c]) => Array.from({ length: c }, () => h.symFa[s]!))
+    : Array.from({ length: a.need.straight! }, (_, i) => fa(i + 1)));
+
+interface AbCtx { attacks: Set<number>; busy: boolean; hint: Hint; onAction: GameRendererProps<DtView>['onAction']; view: DtView }
+
+/** The hero board as printed: portrait and defence box, the ability table (combos, tiers, ultimate) and the HP / CP
+ *  dials with status token slots. Opponents get the same board, compact and (on phones) folded. */
+function HeroBoard({ seat, label, active, mine, ctx }: { seat: number; label: string; active: boolean; mine: boolean; ctx: AbCtx }) {
+  const { view } = ctx;
+  const f = view.fighters[seat]!;
+  const hero = f.hero !== null ? HEROES[f.hero]! : null;
+  // Shake the plate when health dropped (stamp = seq of the drop, used as the retrigger key).
+  const hit = useRef({ hp: f.hp, at: 0 });
+  if (f.hp < hit.current.hp) hit.current.at = view.seq;
+  hit.current.hp = f.hp;
+  const [open] = useState(wideScreen);
+  // The attacker's combos light up on their own board as the dice make them.
+  const attacking = view.current === seat && view.phase !== 'pick' && view.rolled;
+  const plate = (
+    <div key={hit.current.at} className={`${hit.current.at ? 'bg-hit ' : ''}dt-board__plate`}>
+      <div className="dt-board__id">
+        {hero && <img className="dt-portrait" src={PORTRAIT[hero.key]} alt="" aria-hidden="true" />}
+        <bdi className="dt-banner__name">{label}</bdi>
+        {hero ? <span className="dt-banner__hero">{hero.name}</span> : <small>بدون قهرمان</small>}
+        {hero && (
+          <div className="dt-defense" aria-label="توانایی دفاع">
+            <b>🛡 دفاع · {fa(hero.defense.dice)} تاس</b>
+            {Object.entries(hero.defense.per).filter(([, e]) => effText(e)).map(([s, e]) => <span key={s}><i aria-hidden="true">{hero.symFa[s]}</i> {effText(e)}</span>)}
+          </div>
+        )}
+      </div>
+      {hero && (
+        <ul className="dt-abilities" aria-label={`توانایی‌های ${hero.name}`}>
+          {hero.abilities.map((a, i) => {
+            const met = attacking && !!abilityEffect(hero, a, view.dice);
+            const can = mine && ctx.attacks.has(i);
+            const cls = ['dt-ab', met ? 'dt-ab--met' : '', can ? 'dt-ab--can' : '', i === 4 ? 'dt-ab--ult' : '', mine && ctx.hint?.type === 'attack' && ctx.hint.ability === i ? 'dt-hint' : ''].join(' ');
+            const body = (
+              <>
+                <b>{i === 4 && <span aria-hidden="true">★ </span>}{a.name}</b>
+                <span className="dt-ab__chips" aria-hidden="true">{needChips(hero, a).map((c, k) => <i key={k}>{c}</i>)}</span>
+                <span className="dt-ab__need">{needText(hero, a)}</span>
+                <small>{a.tiers.map(effText).join(' | ')}</small>
+                {met && <span className="dt-ab__ok">✓ جور است</span>}
+              </>
+            );
+            return (
+              <li key={i}>
+                {mine ? <button type="button" disabled={ctx.busy || !can} onClick={() => ctx.onAction({ type: 'attack', ability: i })} className={cls}>{body}</button>
+                  : <span className={cls}>{body}</span>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <div className="dt-board__dials">
+        <Dial value={f.hp} max={MAX_HP} label="جان" kind="hp" />
+        <Dial value={f.cp} max={15} label="امتیاز رزم" kind="cp" />
+        <div className="dt-status" aria-label="نشانه‌های وضعیت">
+          {STATUS.map((t) => {
+            const n = t.key === 'wound' ? f.wound : f[t.key] ? 1 : 0;
+            return (
+              <span key={t.key} className={`dt-token dt-token--${t.key} ${n ? 'is-on' : ''}`} aria-label={`${t.fa}: ${n ? (t.key === 'wound' ? fa(n) : 'دارد') : 'ندارد'}`}>
+                <i aria-hidden="true">{t.icon}</i><small>{t.fa}</small>{t.key === 'wound' && n > 0 && <b>×{fa(n)}</b>}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+  return (
+    <section className={`dt-banner dt-board ${mine ? 'dt-board--mine' : 'dt-board--opp'} ${hero ? `dt-h--${hero.key}` : ''} ${active ? 'dt-banner--now' : ''}`} aria-label={`صفحهٔ ${label}${hero ? `، ${hero.name}` : ''}`}>
+      {mine ? plate : (
+        <details className="dt-fold" open={open}>
+          <summary>
+            <bdi>{label}</bdi>{hero && <span className="dt-banner__hero">{hero.name}</span>}
+            <span className="dt-glance">♥ {fa(Math.max(0, f.hp))} · ◆ {fa(f.cp)} CP{f.wound ? ` · 🩸${fa(f.wound)}` : ''}{f.stun ? ' · 💫' : ''}{f.shield ? ' · 🛡' : ''}</span>
+          </summary>
+          {plate}
+        </details>
+      )}
+    </section>
+  );
+}
 
 export default function DiceThroneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<DtView>) {
   const me = mySeat ?? 0;
@@ -105,10 +190,12 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
         : view.phase === 'offense' && view.current === me ? { tone: 'mine' as const, text: view.rolled ? 'تاس نگه دارید و دوباره بریزید یا حمله کنید' : 'تاس‌ها را بریزید' }
           : { tone: 'wait' as const, text: view.phase === 'pick' ? `${seatName(view.current)} قهرمان انتخاب می‌کند` : view.phase === 'defense' ? `${seatName(1 - view.current)} دفاع می‌کند` : `نوبت ${seatName(view.current)}` };
 
+  const ctx: AbCtx = { attacks, busy, hint, onAction, view };
+
   return (
     <div className="dt" ref={root} data-seq={view.seq} data-phase={view.phase}>
       {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <Banner view={view} seat={opp} label={who(opp)} active={view.current === opp && !view.outcome} />
+      <HeroBoard seat={opp} label={who(opp)} active={view.current === opp && !view.outcome} mine={false} ctx={ctx} />
 
       {view.phase === 'pick' ? (
         <section className="dt-heroes" aria-label="قهرمان‌ها">
@@ -153,25 +240,10 @@ export default function DiceThroneRenderer({ view, legalActions, mySeat, seatNam
             {canPass && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>بدون حمله</Button>}
             {canDefend && <Button size="sm" disabled={busy} className="dt-defend" onClick={() => onAction({ type: 'defend' })}>دفاع ({fa(defHero?.defense.dice ?? 0)} تاس)</Button>}
           </div>
-          <ul className="dt-abilities" aria-label={`توانایی‌های ${atkHero.name}`}>
-            {atkHero.abilities.map((a, i) => {
-              const e = abilityEffect(atkHero, a, view.dice);
-              const can = attacks.has(i);
-              return (
-                <li key={i}>
-                  <button type="button" disabled={busy || !can} onClick={() => onAction({ type: 'attack', ability: i })}
-                    className={['dt-ab', e && view.rolled ? 'dt-ab--met' : '', can ? 'dt-ab--can' : '', i === 4 ? 'dt-ab--ult' : '', hint?.type === 'attack' && hint.ability === i ? 'dt-hint' : ''].join(' ')}>
-                    <b>{a.name}</b><span className="dt-ab__need">{needText(atkHero, a)}</span>
-                    <small>{a.tiers.map(effText).join(' | ')}</small>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
         </section>
       )}
 
-      <Banner view={view} seat={me} label={who(me)} active={view.current === me && !view.outcome} />
+      <HeroBoard seat={me} label={who(me)} active={view.current === me && !view.outcome} mine ctx={ctx} />
       {view.log.length > 0 && <ol className="dt-log" aria-label="رویدادها">{view.log.slice(-3).map((l, i) => <li key={`${view.seq}-${i}`}><bdi>{who(l.seat)}</bdi>: {l.text}</li>)}</ol>}
     </div>
   );
