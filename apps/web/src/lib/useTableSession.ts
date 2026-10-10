@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { GAME_ERRORS_FA, type CommandResult, type TableSnapshot } from '@bg/contracts';
 import type { GameAction } from '@bg/ui';
 import { api, ApiFailure } from './api.ts';
+import { readPrefs } from './prefs.tsx';
 import { useTableFeed } from './realtime.tsx';
 
 export interface PendingCommand {
@@ -75,7 +76,7 @@ export function useTableSession(tableId: string, invite: string | null) {
   const act = useCallback((action: GameAction, now = false) => {
     if (pending || queued || !snapshot?.game) return;
     const cmd: PendingCommand = { commandId: crypto.randomUUID(), expectedRevision: snapshot.game.revision, action, status: 'sending' };
-    const ms = now ? 0 : undoMs();
+    const ms = now || INSTANT.has(action.type) ? 0 : undoMs();
     if (ms <= 0) { void send(cmd); return; }
     setQueued({ cmd, ms });
     timer.current = setTimeout(() => { setQueued(null); void send(cmd); }, ms);
@@ -104,7 +105,18 @@ export function useTableSession(tableId: string, invite: string | null) {
   return { snapshot, accept, loadError, reload, pending, queued, cancelQueued, notice, setNotice, act, resendPending, dropPending, live, clockOffset };
 }
 
-/** Undo window in ms (default 1 s). `bg.undoMs` in localStorage overrides it; E2E runs set 0. */
+/**
+ * Moves sent without an undo window: random draws/rolls (undoing before the result is pointless), plain end-of-turn
+ * steps, and races where any delay loses (Set claims, UNO calls and catches).
+ */
+const INSTANT = new Set(['roll', 'draw', 'drawDeck', 'drawTickets', 'redraw', 'flip', 'endTurn', 'end', 'done', 'pass', 'keep', 'resume', 'claim', 'callUno', 'catch']);
+
+/** Undo window in ms: the player's setting (default 0.5 s, «تنظیمات»); `bg.undoMs` in localStorage overrides it (E2E sets 0). */
 function undoMs(): number {
-  try { const v = Number(localStorage.getItem('bg.undoMs') ?? NaN); return Number.isFinite(v) ? v : 1000; } catch { return 1000; }
+  try {
+    const forced = Number(localStorage.getItem('bg.undoMs') ?? NaN);
+    if (Number.isFinite(forced)) return forced;
+    const undo = readPrefs(localStorage.getItem('bg.prefs')).undo;
+    return undo === 'off' ? 0 : Number(undo);
+  } catch { return 500; }
 }

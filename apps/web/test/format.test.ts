@@ -23,8 +23,10 @@ describe('safeNext', () => {
 
 describe('readPrefs', () => {
   it('falls back to safe defaults on bad input', () => {
-    expect(readPrefs('not json')).toEqual({ theme: 'system', motion: 'system', muted: false });
-    expect(readPrefs('{"theme":"light","motion":"reduce","muted":true}')).toEqual({ theme: 'light', motion: 'reduce', muted: true });
+    expect(readPrefs('not json')).toEqual({ theme: 'system', motion: 'system', muted: false, undo: '500' });
+    expect(readPrefs('{"theme":"light","motion":"reduce","muted":true,"undo":"2000"}')).toEqual({ theme: 'light', motion: 'reduce', muted: true, undo: '2000' });
     expect(readPrefs('{"theme":"neon"}').theme).toBe('system');
+    expect(readPrefs('{"undo":"off"}').undo).toBe('off');
+    expect(readPrefs('{"undo":"9999"}').undo).toBe('500'); // unknown values fall back to the 0.5 s default
   });
 });

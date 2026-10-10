@@ -5,10 +5,12 @@ export interface Prefs {
   theme: 'dark' | 'light' | 'system';
   motion: 'system' | 'reduce' | 'full';
   muted: boolean;
+  /** Undo window for a move before it is sent (ms as text); 'off' sends at once. */
+  undo: 'off' | '500' | '1000' | '2000';
 }
 
 const KEY = 'bg.prefs';
-const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false };
+const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false, undo: '500' };
 const THEME_COLOR = { light: '#efeeea', dark: '#15120f' };
 
 export function readPrefs(raw: string | null): Prefs {
@@ -17,7 +19,8 @@ export function readPrefs(raw: string | null): Prefs {
     return {
       theme: p.theme === 'light' || p.theme === 'dark' ? p.theme : 'system',
       motion: p.motion === 'reduce' || p.motion === 'full' ? p.motion : 'system',
-      muted: p.muted === true
+      muted: p.muted === true,
+      undo: p.undo === 'off' || p.undo === '1000' || p.undo === '2000' ? p.undo : '500'
     };
   } catch {
     return DEFAULTS;

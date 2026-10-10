@@ -74,6 +74,9 @@ export function Settings() {
             options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'light', label: 'روشن' }, { value: 'dark', label: 'تیره' }]} />
           <Segmented legend="حرکت و انیمیشن" name="motion" value={prefs.motion} onChange={(motion) => update({ motion })}
             options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'reduce', label: 'کاهش‌یافته' }, { value: 'full', label: 'کامل' }]} />
+          <Segmented legend="زمان انصراف حرکت" name="undo" value={prefs.undo} onChange={(undo) => update({ undo })}
+            options={[{ value: 'off', label: 'خاموش' }, { value: '500', label: '۰٫۵ ثانیه' }, { value: '1000', label: '۱ ثانیه' }, { value: '2000', label: '۲ ثانیه' }]} />
+          <p className="muted" style={{ margin: 0 }}>پس از هر حرکت مهم (بازی کردن کارت، جابه‌جایی مهره، خرید) تا این مدت می‌توانید «انصراف» بزنید. تاس، کشیدن کارت، پایان نوبت و «رد» همیشه بی‌درنگ فرستاده می‌شوند.</p>
           <Switch label="بی‌صدا" hint="صداهای بازی از مرحله بعدی توسعه پخش می‌شوند و این تنظیم را رعایت می‌کنند."
             checked={prefs.muted} onChange={(muted) => update({ muted })} />
         </section>
