@@ -1,7 +1,7 @@
 import { and, eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { schema } from '@bg/db';
-import { runOutbox } from '@bg/play';
+import { dailyGame, dailyStreaks, pickDaily, runOutbox, tehranDate } from '@bg/play';
 import { grantRole, setup, type TestCtx } from './helpers.ts';
 import { call, command, seatsOf, startTable, users, view, type User } from './play-helpers.ts';
 
@@ -262,5 +262,84 @@ describe('XP, missions and achievements (FR-14)', () => {
     expect(p.achievements.find((x: { key: string }) => x.key === 'missions_1').grantedAt).not.toBeNull(); // weekly_turn_2 done
 
     await call(ctx, 'PUT', '/api/admin/missions/active', admin, { ids: before, reason: 'بازگردانی' });
+  });
+});
+
+describe('game of the day', () => {
+  const dayBefore = (n: number) => tehranDate(new Date(Date.now() - n * 86400_000));
+  /** Finish a real table, then re-point its pending result event at `gameId` (the reward consumer only reads the canonical payload). */
+  async function finishAs(gameId: string, players: User[], opts: { tutorial?: boolean } = {}) {
+    let tableId: string;
+    if (opts.tutorial) {
+      tableId = (await call(ctx, 'POST', '/api/tutorials/sealed-bids/start', players[0], { restart: true })).json().tableId;
+      let s = await view(ctx, players[0]!, tableId);
+      for (const token of [1, 2, 5, 3, 4]) s = (await command(ctx, players[0]!, tableId, s.game.revision, { type: 'bid', token })).json().snapshot;
+    } else {
+      tableId = (await startTable(ctx, 'line-three', 2, { pace: 'turn', players })).tableId;
+      await finishLineThree(tableId, players);
+    }
+    await ctx.db.execute(sql`update outbox_events set payload = jsonb_set(payload, '{gameId}', to_jsonb(${gameId}::text))
+      where topic = 'table.finished' and aggregate_id = ${tableId} and processed_at is null`);
+    await runOutbox(ctx.db);
+  }
+  const dailyRows = async (userId: string) => (await xpRows(userId)).filter((r) => r.ruleId === 'xp.daily_game');
+  const seedDaily = (userId: string, dates: string[]) => ctx.db.insert(rewardLedger).values(dates.map((date) => ({
+    userId, sourceKey: `daily:${date}:${userId}`, ruleId: 'xp.daily_game', ruleVersion: 1, kind: 'xp', amount: 40, reason: 'test', metadata: { date } })));
+
+  it('pick is deterministic per Tehran date and streaks count consecutive days', async () => {
+    const ids = ['c', 'a', 'b', 'd', 'e'];
+    expect(pickDaily('2026-10-10', ids)).toBe(pickDaily('2026-10-10', [...ids].reverse()));
+    expect(pickDaily('2026-10-10', [])).toBeNull();
+    expect(new Set(Array.from({ length: 30 }, (_, i) => pickDaily(`2026-10-${String(i + 1).padStart(2, '0')}`, ids))).size).toBeGreaterThan(1);
+    const today = await dailyGame(ctx.db);
+    expect(today).not.toBeNull();
+    expect(await dailyGame(ctx.db)).toEqual(today);
+    expect(dailyStreaks(['2026-10-01', '2026-10-02', '2026-10-03'], '2026-10-04')).toEqual({ current: 3, best: 3 });
+    expect(dailyStreaks(['2026-10-01', '2026-10-02', '2026-10-04'], '2026-10-04')).toEqual({ current: 1, best: 2 });
+    expect(dailyStreaks(['2026-10-01', '2026-10-02'], '2026-10-05')).toEqual({ current: 0, best: 2 });
+    expect(dailyStreaks(['2026-09-30', '2026-10-01'], '2026-10-01')).toEqual({ current: 2, best: 2 }); // across a month boundary
+  });
+
+  it('bonus once per user per day, outside the daily match cap; never for other games or tutorials', async () => {
+    const daily = (await dailyGame(ctx.db))!;
+    const [a, b, t] = await users(ctx, 3);
+    // a has already hit today's match XP cap: the daily bonus is a separate reward and still arrives.
+    await ctx.db.insert(rewardLedger).values({ userId: a!.id, sourceKey: `test-fill:${a!.id}`, ruleId: 'xp.match_completed', ruleVersion: 1, kind: 'xp', amount: 300, reason: 'test fill' });
+    expect((await call(ctx, 'GET', '/api/me/daily', a)).json()).toEqual({ gameId: daily.id, gameNameFa: daily.nameFa, date: tehranDate(), bonusXp: 40, doneToday: false, streak: 0 });
+    expect((await call(ctx, 'GET', '/api/me/daily')).statusCode).toBe(401);
+
+    await finishAs('line-three', [a!, b!]); // a test game is never the game of the day
+    expect(await dailyRows(a!.id)).toHaveLength(0);
+    await finishAs(daily.id, [a!, b!]);
+    await finishAs(daily.id, [a!, b!]); // a second daily-game match the same day
+    await redeliver();
+    for (const u of [a!, b!]) {
+      const rows = await dailyRows(u.id);
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({ amount: 40, sourceKey: `daily:${tehranDate()}:${u.id}`, gameId: daily.id });
+    }
+    expect((await call(ctx, 'GET', '/api/me/daily', a)).json()).toMatchObject({ doneToday: true, streak: 1 });
+    const p = (await call(ctx, 'GET', '/api/me/progression', a)).json();
+    expect(p.achievements.find((x: { key: string }) => x.key === 'daily_1').grantedAt).not.toBeNull();
+    expect(p.achievements.find((x: { key: string }) => x.key === 'streak_3')).toMatchObject({ progress: 1, target: 3, grantedAt: null });
+
+    await finishAs(daily.id, [t!], { tutorial: true });
+    expect(await dailyRows(t!.id)).toHaveLength(0);
+  });
+
+  it('streak continues from yesterday, a gap breaks it, and streak trophies follow', async () => {
+    const daily = (await dailyGame(ctx.db))!;
+    const [a, b] = await users(ctx, 2);
+    await seedDaily(a!.id, [dayBefore(2), dayBefore(1)]);
+    await seedDaily(b!.id, [dayBefore(4), dayBefore(3), dayBefore(2)]); // missed yesterday
+    expect((await call(ctx, 'GET', '/api/me/daily', a)).json()).toMatchObject({ doneToday: false, streak: 2 });
+    expect((await call(ctx, 'GET', '/api/me/daily', b)).json()).toMatchObject({ doneToday: false, streak: 0 });
+    await finishAs(daily.id, [a!, b!]);
+    expect((await call(ctx, 'GET', '/api/me/daily', a)).json()).toMatchObject({ doneToday: true, streak: 3 });
+    expect((await call(ctx, 'GET', '/api/me/daily', b)).json()).toMatchObject({ doneToday: true, streak: 1 });
+    const trophy = async (u: User, key: string) => (await call(ctx, 'GET', '/api/me/progression', u)).json().achievements.find((x: { key: string }) => x.key === key);
+    expect((await trophy(a!, 'streak_3')).grantedAt).not.toBeNull();
+    expect((await trophy(b!, 'streak_3')).grantedAt).not.toBeNull(); // an earlier 3-day run counts once the trophies are evaluated
+    expect(await trophy(b!, 'daily_7')).toMatchObject({ progress: 4, grantedAt: null });
   });
 });

@@ -33,6 +33,13 @@ export const progressionResponse = z.object({
 });
 export type Progression = z.infer<typeof progressionResponse>;
 
+/** Game of the day (Tehran calendar day). gameId null when no eligible game is published. */
+export const dailyGameResponse = z.object({
+  gameId: z.string().nullable(), gameNameFa: z.string().nullable(), date: z.iso.date(), bonusXp: z.number().int(),
+  doneToday: z.boolean(), streak: z.number().int()
+});
+export type DailyGame = z.infer<typeof dailyGameResponse>;
+
 export const tableRewards = z.object({
   rating: z.object({ before: z.number().int(), after: z.number().int(), provisional: z.boolean() }).nullable(),
   rewards: z.array(ledgerItem),

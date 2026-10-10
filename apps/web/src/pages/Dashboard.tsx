@@ -1,13 +1,40 @@
 import { Link } from 'react-router';
-import { ArrowLeft, Bell, Dices, Hourglass } from 'lucide-react';
-import type { GameSummary } from '@bg/contracts';
+import { ArrowLeft, Bell, CalendarCheck, Dices, Flame, Hourglass } from 'lucide-react';
+import type { DailyGame, GameSummary } from '@bg/contracts';
 import { Button, StateBlock, buttonClass, cn } from '@bg/ui';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
-import { jalaliToday } from '../lib/format.ts';
+import { faNum, jalaliToday } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { MyTurnPanel, NotificationsPanel } from './MyTables.tsx';
+
+/** Game of the day: picked and rewarded by the server; the card only shows it. */
+function DailyCard() {
+  const daily = useApi<DailyGame>('/me/daily');
+  const d = daily.data;
+  return (
+    <section className="panel section mb-6" aria-labelledby="daily-h">
+      <h2 id="daily-h" className="section-title"><CalendarCheck className="size-5 text-primary" aria-hidden />بازی روز</h2>
+      {daily.loading && !d && <StateBlock kind="loading" title="در حال بارگذاری بازی روز…" />}
+      {daily.error && <StateBlock kind="error" title="بازی روز بارگذاری نشد" action={<Button onClick={daily.reload}>تلاش دوباره</Button>}>{daily.error.messageFa}</StateBlock>}
+      {d && (!d.gameId ? <StateBlock kind="empty" title="امروز بازی روزی در دسترس نیست" /> : (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="m-0 text-lg font-semibold">بازی امروز: {d.gameNameFa}</p>
+            <p className="muted m-0 mt-1 flex flex-wrap items-center gap-3 text-sm">
+              <span><bdi>+{faNum(d.bonusXp)} XP</bdi></span>
+              <span className="inline-flex items-center gap-1"><Flame className="size-4" aria-hidden />رشته: {faNum(d.streak)} روز</span>
+            </p>
+          </div>
+          {d.doneToday
+            ? <span className="inline-flex items-center gap-1 font-semibold text-primary"><CalendarCheck className="size-4" aria-hidden />امروز انجام شد</span>
+            : <Link className={buttonClass('primary', 'md')} to={`/games/${d.gameId}`}>بازی کن</Link>}
+        </div>
+      ))}
+    </section>
+  );
+}
 
 export function Dashboard() {
   usePageTitle('داشبورد');
@@ -31,6 +58,8 @@ export function Dashboard() {
           <Link className={cn(buttonClass('ghost', 'lg'), 'bg-white/10 text-felt-foreground! hover:bg-white/20')} to="/tables">میزهای باز<ArrowLeft className="size-4" aria-hidden /></Link>
         </div>
       </section>
+
+      {me && <DailyCard />}
 
       <div className="dash">
         <section className="panel section" aria-labelledby="my-turn-h" style={{ marginBlockEnd: 0 }}>

@@ -192,19 +192,20 @@ function useImmersive() {
   }, []);
 }
 
-function PlayerBoards({ snap, strip }: { snap: TableSnapshot; strip?: boolean }) {
+/** list: inside the drawer; strip: phones, above the board; rail: floating avatar column beside the board. */
+function PlayerBoards({ snap, variant = 'list' }: { snap: TableSnapshot; variant?: 'list' | 'strip' | 'rail' }) {
   const t = snap.table;
   const g = snap.game!;
   const name = seatNameOf(t);
   return (
-    <ol className={cn('pboards', strip && 'pboards--strip')} aria-label="بازیکنان">
+    <ol className={cn('pboards', variant !== 'list' && `pboards--${variant}`)} aria-label="بازیکنان">
       {t.seats.map((x) => {
         const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
         const me = x.seat === t.mySeat;
         return (
-          <li key={x.seat} className={cn('pboard', active && 'pboard--active', me && 'pboard--me')} aria-current={active ? 'true' : undefined}
+          <li key={x.seat} className={cn('pboard', active && 'pboard--active', me && 'pboard--me')} aria-current={active ? 'true' : undefined} tabIndex={variant === 'rail' ? 0 : undefined}
             style={{ '--seat': SEAT_COLORS[x.seat % SEAT_COLORS.length] } as React.CSSProperties}>
-            <span className="pboard__ring"><Avatar avatarKey={x.user?.avatarKey ?? 'dice'} name={name(x.seat)} size={strip ? 34 : 42} /></span>
+            <span className="pboard__ring"><Avatar avatarKey={x.user?.avatarKey ?? 'dice'} name={name(x.seat)} size={variant === 'list' ? 42 : variant === 'rail' ? 40 : 34} /></span>
             <span className="pboard__who">
               <span className="pboard__name"><bdi>{name(x.seat)}</bdi>{me && <span className="pboard__you"> (شما)</span>}</span>
               <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : me ? 'پشت میز' : 'آماده'}</span>
@@ -388,7 +389,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       </div>
 
       <div className="game__main stack">
-        <PlayerBoards snap={snap} strip />
+        <PlayerBoards snap={snap} variant="strip" />
 
         {/* Notices float as popups in the top-right corner instead of pushing the board around. */}
         {/* Rendered at the root: the page-enter transform would make .game the box 'fixed' is measured against. */}
@@ -432,13 +433,15 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         {finished && g.result && <ResultPanel snap={snap} />}
 
         {/* The stage: a graphite panel; renderers sit on it in the night palette. */}
+        <div className="game__stage">
+        <PlayerBoards snap={snap} variant="rail" />
         <div className={cn('game__board table-night', myTurn && 'game__board--mine')}>
           {Renderer
             ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} />
             : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست">این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</StateBlock>}
         </div>
+        </div>
       </div>
-      <aside className="game__side" aria-label="بازیکنان و قوانین">{side}</aside>
       <Drawer open={drawer} onClose={() => setDrawer(false)} title="بازیکنان و قوانین">{side}</Drawer>
       {/* Chat never interrupts the board: it lives in a drawer on every screen size. */}
       <Drawer open={chat} onClose={() => setChat(false)} title="گفت‌وگوی میز">{chat && <ChatPanel load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" compact />}</Drawer>

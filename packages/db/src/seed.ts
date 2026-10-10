@@ -88,6 +88,13 @@ export const ACHIEVEMENTS = [
   { key: 'win_games_8', titleFa: 'چندفنه', descriptionFa: 'در هشت بازی مختلف رتبه اول بگیرید.', criteria: { type: 'win_games', count: 8, tier: 'silver' } },
   { key: 'win_games_15', titleFa: 'فاتح چند میدان', descriptionFa: 'در پانزده بازی مختلف رتبه اول بگیرید.', criteria: { type: 'win_games', count: 15, tier: 'gold' } },
   { key: 'win_games_30', titleFa: 'جهانگشا', descriptionFa: 'در سی بازی مختلف رتبه اول بگیرید.', criteria: { type: 'win_games', count: 30, tier: 'diamond' } },
+  { key: 'daily_1', titleFa: 'بازیکن روز', descriptionFa: 'بازی روز را یک بار کامل کنید.', criteria: { type: 'daily_total', count: 1, tier: 'bronze' } },
+  { key: 'daily_7', titleFa: 'هفت روز، هفت بازی', descriptionFa: 'بازی روز را در هفت روز کامل کنید.', criteria: { type: 'daily_total', count: 7, tier: 'silver' } },
+  { key: 'daily_30', titleFa: 'همراه هر روز', descriptionFa: 'بازی روز را در سی روز کامل کنید.', criteria: { type: 'daily_total', count: 30, tier: 'gold' } },
+  { key: 'daily_100', titleFa: 'صد روز بازی', descriptionFa: 'بازی روز را در صد روز کامل کنید.', criteria: { type: 'daily_total', count: 100, tier: 'diamond' } },
+  { key: 'streak_3', titleFa: 'سه روز پیاپی', descriptionFa: 'بازی روز را سه روز پشت سر هم کامل کنید.', criteria: { type: 'daily_streak', count: 3, tier: 'bronze' } },
+  { key: 'streak_7', titleFa: 'هفتهٔ کامل', descriptionFa: 'بازی روز را هفت روز پشت سر هم کامل کنید.', criteria: { type: 'daily_streak', count: 7, tier: 'silver' } },
+  { key: 'streak_30', titleFa: 'ماه بی‌وقفه', descriptionFa: 'بازی روز را سی روز پشت سر هم کامل کنید.', criteria: { type: 'daily_streak', count: 30, tier: 'turquoise' } },
   { key: 'trophies_10', titleFa: 'جام‌دار', descriptionFa: 'ده دستاورد بگیرید.', criteria: { type: 'achievements', count: 10, tier: 'silver' } },
   { key: 'trophies_25', titleFa: 'ویترین پر', descriptionFa: 'بیست‌وپنج دستاورد بگیرید.', criteria: { type: 'achievements', count: 25, tier: 'gold' } },
   { key: 'trophies_45', titleFa: 'گنجینه', descriptionFa: 'چهل‌وپنج دستاورد بگیرید.', criteria: { type: 'achievements', count: 45, tier: 'diamond' } }

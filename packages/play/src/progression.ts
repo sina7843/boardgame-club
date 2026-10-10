@@ -9,7 +9,7 @@ import type { Tx } from './runtime.ts';
 import { DEFAULT_SEASON, displayRating, ELIGIBILITY, leagueFor, newSkill, rate, type SeasonConfig } from './rating.ts';
 
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress,
-  achievementDefinitions, userAchievements, gameResults, gameTables } = schema;
+  achievementDefinitions, userAchievements, gameResults, gameTables, games, gameVersions } = schema;
 
 /** Reward rules, versioned. Changing a value means bumping RULES_VERSION (old ledger rows keep their version). */
 export const RULES_VERSION = 1;
@@ -19,6 +19,8 @@ export const XP_RULES = {
   newTitle: 25,
   tutorialCompleted: 30,
   achievement: 15,
+  /** Game of the day: once per user per Tehran day. Separate reward, not counted against dailyMatchCap. */
+  dailyGame: 40,
   /** Daily cap on XP from matches (completion + first place), Tehran calendar day. */
   dailyMatchCap: 300,
   /** Same opponent set more than this many times in the window → reduced XP. */
@@ -45,6 +47,44 @@ export function weekKey(at = new Date()): { key: string; endsAt: Date } {
   const dow = (tehran.getUTCDay() + 1) % 7; // Saturday = 0
   const start = Date.UTC(tehran.getUTCFullYear(), tehran.getUTCMonth(), tehran.getUTCDate() - dow) - 3.5 * 3600_000;
   return { key: new Date(start).toISOString().slice(0, 10), endsAt: new Date(start + 7 * 86400_000) };
+}
+
+/** Tehran calendar date (YYYY-MM-DD) of an instant; same fixed +03:30 offset as weekKey. */
+export const tehranDate = (at = new Date()) => new Date(at.getTime() + 3.5 * 3600_000).toISOString().slice(0, 10);
+
+// ---------------- Game of the day ----------------
+
+/** Deterministic pick: FNV-1a hash of the Tehran date over the sorted ids. Same date + same catalog → same game. */
+export function pickDaily(date: string, ids: readonly string[]): string | null {
+  if (!ids.length) return null;
+  let h = 0x811c9dc5;
+  for (const ch of date) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193);
+  return [...ids].sort()[(h >>> 0) % ids.length]!;
+}
+
+/** Eligible: active, not a test fixture, with a published (active) version. Free-access games are preferred when any exist. */
+export async function dailyGame(db: Db | Tx, date = tehranDate()): Promise<{ id: string; nameFa: string } | null> {
+  const rows = await db.selectDistinct({ id: games.id, nameFa: games.nameFa, access: games.access }).from(games)
+    .innerJoin(gameVersions, and(eq(gameVersions.gameId, games.id), eq(gameVersions.status, 'active')))
+    .where(and(eq(games.status, 'active'), eq(games.isTestGame, false)));
+  const free = rows.filter((g) => g.access === 'free');
+  const pool = free.length ? free : rows;
+  const id = pickDaily(date, pool.map((g) => g.id));
+  const g = pool.find((x) => x.id === id);
+  return g ? { id: g.id, nameFa: g.nameFa } : null;
+}
+
+/** Current streak (ending today or yesterday) and best-ever run of consecutive dates (YYYY-MM-DD). */
+export function dailyStreaks(dates: readonly string[], today = tehranDate()): { current: number; best: number } {
+  const days = [...new Set(dates)].sort().map((d) => Date.parse(d) / 86400_000);
+  let run = 0, best = 0;
+  for (const [i, d] of days.entries()) {
+    run = i > 0 && d - days[i - 1]! === 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+  }
+  const last = days.at(-1);
+  const t = Date.parse(today) / 86400_000;
+  return { current: last !== undefined && t - last <= 1 ? run : 0, best };
 }
 
 const lockUser = (tx: Tx, userId: string) => tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'progress:' + userId}))`);
@@ -112,7 +152,7 @@ async function updatePlacement(tx: Tx, season: typeof seasons.$inferSelect, user
 type MatchMeta = { week?: string; opponents?: string[]; pace?: 'live' | 'turn'; competition?: 'friendly' | 'ranked' };
 
 export const ACHIEVEMENT_TYPES = ['matches', 'wins', 'distinct_games', 'tutorials', 'ranked', 'level', 'missions', 'live_matches', 'turn_matches',
-  'big_tables', 'one_game', 'win_games', 'achievements'] as const;
+  'big_tables', 'one_game', 'win_games', 'daily_total', 'daily_streak', 'achievements'] as const;
 export type AchievementType = typeof ACHIEVEMENT_TYPES[number];
 /** Weekly mission goals. None may require winning (Requirements: «بدون برد اجباری»). */
 export const MISSION_TYPES = ['complete_tables', 'distinct_games', 'learn_new_game', 'ranked_tables', 'friendly_tables', 'live_tables', 'turn_tables',
@@ -125,7 +165,7 @@ export interface GoalFacts { achievement: Record<AchievementType, number>; missi
 export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().key): Promise<GoalFacts> {
   const rows = await tx.select({ ruleId: rewardLedger.ruleId, kind: rewardLedger.kind, gameId: rewardLedger.gameId, metadata: rewardLedger.metadata })
     .from(rewardLedger).where(and(eq(rewardLedger.userId, userId),
-      sql`(${inArray(rewardLedger.ruleId, ['xp.match_completed', 'xp.first_place', 'xp.tutorial', 'xp.new_title'])} or ${rewardLedger.kind} = 'mission')`));
+      sql`(${inArray(rewardLedger.ruleId, ['xp.match_completed', 'xp.first_place', 'xp.tutorial', 'xp.new_title', 'xp.daily_game'])} or ${rewardLedger.kind} = 'mission')`));
   const meta = (r: { metadata: unknown }) => r.metadata as MatchMeta;
   const inWeek = (r: { metadata: unknown }) => meta(r).week === week;
   const [{ n: ranked } = { n: 0 }] = await tx.select({ n: count() }).from(ratingHistory).where(eq(ratingHistory.userId, userId));
@@ -133,6 +173,7 @@ export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().ke
   const matches = rows.filter((r) => r.ruleId === 'xp.match_completed');
   const wins = rows.filter((r) => r.ruleId === 'xp.first_place');
   const tutorials = rows.filter((r) => r.ruleId === 'xp.tutorial');
+  const daily = rows.filter((r) => r.ruleId === 'xp.daily_game').map((r) => (r.metadata as { date?: string }).date ?? '').filter(Boolean);
   const weekMatches = matches.filter(inWeek);
   const perGame = new Map<string, number>();
   for (const m of matches) perGame.set(m.gameId!, (perGame.get(m.gameId!) ?? 0) + 1);
@@ -148,6 +189,8 @@ export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().ke
       big_tables: matches.filter(big).length,
       one_game: Math.max(0, ...perGame.values()),
       win_games: distinct(wins),
+      daily_total: daily.length,
+      daily_streak: dailyStreaks(daily).best, // best run, so a trophy never depends on when it is evaluated
       achievements: granted
     },
     mission: {
@@ -213,6 +256,10 @@ export async function rewardMatch(tx: Tx, e: FinishedEvent): Promise<void> {
   const humans = e.placements.filter((p): p is typeof p & { userId: string } => !!p.userId);
   const week = weekKey().key;
   const best = Math.min(...e.placements.map((p) => p.place));
+  // Game of the day counts on the Tehran day the result was recorded (not when the outbox delivers it).
+  const [res] = await tx.select({ at: gameResults.createdAt }).from(gameResults).where(eq(gameResults.id, e.resultId));
+  const day = res ? tehranDate(res.at) : null;
+  const isDaily = !!day && (await dailyGame(tx, day))?.id === e.gameId;
   const someoneWorse = e.placements.some((p) => p.place > best);
   for (const h of humans) {
     await lockUser(tx, h.userId);
@@ -248,6 +295,10 @@ export async function rewardMatch(tx: Tx, e: FinishedEvent): Promise<void> {
     }
     await award(tx, { userId: h.userId, sourceKey: `title:${e.gameId}:${h.userId}`, ruleId: 'xp.new_title', kind: 'xp', amount: XP_RULES.newTitle,
       reason: 'اولین بازی کامل در یک عنوان تازه.', resultId: e.resultId, gameId: e.gameId, metadata: { week } });
+    if (isDaily) {
+      await award(tx, { userId: h.userId, sourceKey: `daily:${day}:${h.userId}`, ruleId: 'xp.daily_game', kind: 'xp', amount: XP_RULES.dailyGame,
+        reason: 'بازی روز کامل شد.', resultId: e.resultId, gameId: e.gameId, metadata: { week, date: day } });
+    }
     await evaluateGoals(tx, h.userId);
   }
 }

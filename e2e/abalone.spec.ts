@@ -81,7 +81,7 @@ test('two players exchange moves and pushes, then one resigns', async ({ browser
     }
     if (!acted) await host.waitForTimeout(100);
   }
-  // Resign: in the side column on desktop, inside the players drawer on phones.
+  // Resign lives in the players-and-rules drawer.
   const resign = guest.getByRole('button', { name: 'انصراف از بازی' });
   if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: 'بازیکنان و قوانین' }).click();
   await resign.filter({ visible: true }).first().click();

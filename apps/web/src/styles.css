@@ -170,8 +170,8 @@
   @media (max-width: 1099px) { .lobby { grid-template-columns: minmax(0, 1fr); } }
 
   /* ── Game table, Board Game Arena style: game bar, sticky status strip, felt table, player boards ── */
-  .game { display: grid; gap: 1rem 1.25rem; grid-template-columns: minmax(0, 1fr) 290px; align-items: start;
-    grid-template-areas: "bar bar" "status status" "main side"; }
+  .game { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); align-items: start;
+    grid-template-areas: "bar" "status" "main"; }
   .gamebar { grid-area: bar; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
   .gamebar__icon { display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: 999px; color: var(--foreground);
     background: var(--card); border: 1px solid var(--border); box-shadow: var(--depth-control); transition: transform var(--motion) var(--motion-ease); }
@@ -199,7 +199,6 @@
   .gamebar__dot { inline-size: 9px; block-size: 9px; border-radius: 999px; background: var(--success);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 22%, transparent); }
   .is-off .gamebar__dot { background: var(--warning); animation: pulse-soft 1.6s ease-in-out infinite; }
-  .game__drawer-btn { display: none; }
 
   /* Status strip: one slim line that sticks while scrolling; the player to move gets an accent edge, not a slab. */
   .statusbar { grid-area: status; position: sticky; top: 0.5rem; z-index: 15; display: flex; align-items: center; gap: 0.6rem;
@@ -220,7 +219,8 @@
   .statusbar--done .statusbar__icon { background: var(--success); color: var(--card); }
 
   .game__main { grid-area: main; min-inline-size: 0; }
-  .game__side { grid-area: side; position: sticky; top: 5.25rem; }
+  /* Board takes the full width; players float as an avatar rail on its inline-start edge (rules etc. live in the drawer). */
+  .game__stage { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.75rem; align-items: start; }
   .rules-box summary { cursor: pointer; list-style: none; margin: 0; }
   .rules-box summary::-webkit-details-marker { display: none; }
   .rules-box summary::after { content: '▾'; margin-inline-start: auto; color: var(--muted-foreground); transition: transform var(--motion) var(--motion-ease); }
@@ -251,6 +251,25 @@
   @keyframes turn-nudge { 50% { transform: translateX(-4px); } }
   .pboards--strip { display: none; }
 
+  .pboards--rail { position: sticky; top: 4.75rem; z-index: 14; gap: 0.65rem; padding: 0.45rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--card) 88%, transparent); border: 1px solid var(--border); box-shadow: var(--depth-control);
+    backdrop-filter: blur(10px); }
+  .pboards--rail .pboard { padding: 0; overflow: visible; background: none; border: 0; box-shadow: none; border-radius: 999px; outline: none; }
+  .pboards--rail .pboard::before, .pboards--rail .pboard__turn { display: none; }
+  .pboards--rail .pboard--active { transform: none; box-shadow: none; }
+  .pboards--rail .pboard--active .pboard__ring .avatar { outline-width: 3px; outline-offset: 2px; animation: rail-turn 1.4s ease-in-out infinite; }
+  .pboards--rail .pboard--active::after { content: ''; position: absolute; inset-block-end: -1px; inset-inline-end: -1px; inline-size: 12px; block-size: 12px;
+    border-radius: 999px; background: var(--seat); border: 2px solid var(--card); }
+  .pboards--rail .pboard:focus-visible .pboard__ring .avatar { outline-color: var(--ring); }
+  /* Name and state open as a bubble toward the board on hover or keyboard focus; always in the DOM for screen readers. */
+  .pboards--rail .pboard__who { position: absolute; inset-inline-start: calc(100% + 0.7rem); inset-block-start: 50%; translate: 0 -50%; z-index: 1;
+    inline-size: max-content; max-inline-size: 14rem; padding: 0.35rem 0.7rem; border-radius: 10px; background: var(--card);
+    border: 1px solid var(--border); border-inline-start: 4px solid var(--seat); box-shadow: var(--depth-surface);
+    opacity: 0; scale: 0.96; pointer-events: none; transition: opacity var(--motion) ease, scale var(--motion) var(--motion-ease); }
+  .pboards--rail .pboard:hover .pboard__who, .pboards--rail .pboard:focus-visible .pboard__who { opacity: 1; scale: 1; }
+  @keyframes rail-turn { 50% { outline-color: color-mix(in srgb, var(--seat) 35%, transparent); } }
+  @media (prefers-reduced-motion: reduce) { .pboards--rail .pboard--active .pboard__ring .avatar { animation: none; } }
+
   /* Phones held sideways: height is scarce — compact bar, status strip scrolls away instead of sticking. */
   @media (orientation: landscape) and (max-height: 560px) {
     .gamebar__title p { display: none; }
@@ -260,11 +279,10 @@
   }
 
   @media (max-width: 1099px) {
-    .game { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "status" "main"; gap: 0.75rem; }
-    .game__side { display: none; }
-    .game__drawer-btn { display: inline-flex; }
+    .game { gap: 0.75rem; }
+    .pboards--rail { top: 0.5rem; }
     .gamebar__conn-text { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
-    .pboards--strip { display: flex; overflow-x: auto; gap: 0.5rem; padding: 0.25rem 0.25rem 0.5rem; margin: -0.25rem -0.25rem 0; scroll-snap-type: x proximity; }
+    .pboards--strip { display: none; overflow-x: auto; gap: 0.5rem; padding: 0.25rem 0.25rem 0.5rem; margin: -0.25rem -0.25rem 0; scroll-snap-type: x proximity; }
     .pboards--strip .pboard { flex: none; min-inline-size: 9.5rem; max-inline-size: 13rem; padding-block: 0.4rem; scroll-snap-align: start; }
     .pboards--strip .pboard--active { transform: translateY(-2px); }
     .pboards--strip .pboard__turn { display: none; }
@@ -273,6 +291,10 @@
     .statusbar { position: static; }
   }
   @media (max-width: 599px) {
+    /* Phones: no room for a rail column; players run as a strip above the board instead. */
+    .game__stage { grid-template-columns: minmax(0, 1fr); }
+    .pboards--rail { display: none; }
+    .pboards--strip { display: flex; }
     .gamebar { gap: 0.4rem; }
     .gamebar__title { flex-basis: 10rem; }
     .gamebar__title h1 { font-size: 1.1rem; }

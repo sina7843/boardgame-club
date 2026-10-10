@@ -4,11 +4,11 @@ import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { AppError, apiErrorSchema, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
+import { AppError, apiErrorSchema, dailyGameResponse, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  ACHIEVEMENT_TYPES, activeSeason, closeSeason, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
-  ratingRows, totalXp, weekKey, type AchievementType, type SeasonConfig
+  ACHIEVEMENT_TYPES, activeSeason, closeSeason, dailyGame, dailyStreaks, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
+  ratingRows, tehranDate, totalXp, weekKey, XP_RULES, type AchievementType, type SeasonConfig
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -82,6 +82,20 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
       ledger: ledger.slice(0, 30).map(toLedger),
       season: season ? { id: season.id, nameFa: season.nameFa, endsAt: season.endsAt.toISOString() } : null
     };
+  });
+
+  r.get('/me/daily', {
+    schema: { tags: ['progression'], summary: 'Game of the day (Tehran day): bonus XP, whether it is done today and the current daily streak',
+      response: { 200: dailyGameResponse, 401: apiErrorSchema } }
+  }, async (req) => {
+    const { userId } = requireUser(req);
+    const date = tehranDate();
+    const g = await dailyGame(db, date);
+    const rows = await db.select({ metadata: rewardLedger.metadata }).from(rewardLedger)
+      .where(and(eq(rewardLedger.userId, userId), eq(rewardLedger.ruleId, 'xp.daily_game')));
+    const dates = rows.map((x) => (x.metadata as { date?: string }).date ?? '').filter(Boolean);
+    return { gameId: g?.id ?? null, gameNameFa: g?.nameFa ?? null, date, bonusXp: XP_RULES.dailyGame,
+      doneToday: dates.includes(date), streak: dailyStreaks(dates, date).current };
   });
 
   r.get('/me/rewards', {
