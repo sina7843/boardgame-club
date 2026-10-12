@@ -83,6 +83,8 @@ export const gameSummary = z.object({
   isTestGame: z.boolean(),
   status: gameStatusSchema,
   tutorialEnabled: z.boolean(),
+  /** The active version ships a computer opponent («بازی با ربات»). */
+  botAvailable: z.boolean(),
   /** Time budgets offered for this game (admin-chosen subset of TIME_OPTIONS). */
   liveSeconds: z.array(z.number().int()),
   turnSeconds: z.array(z.number().int())

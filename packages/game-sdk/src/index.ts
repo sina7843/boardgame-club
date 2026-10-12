@@ -115,6 +115,21 @@ export interface GameModule<State = unknown, Action extends { type: string } = {
   pendingSeats(state: State): number[];
   /** Scripted interactive tutorial; the opponent is a fixed script, not an AI. */
   tutorial: TutorialScript<Action>;
+  /** Optional computer opponent. Games without one are never offered «بازی با ربات». */
+  bot?: GameBot<State, Action>;
+}
+
+export const botLevelSchema = z.enum(['easy', 'medium', 'hard']);
+export type BotLevel = z.infer<typeof botLevelSchema>;
+
+/**
+ * Computer opponent for one seat. Runs on the server (worker) only; its action goes through the normal
+ * validate/apply path like a player's. It may read only what `seat` is allowed to see: perfect-information games
+ * may search the full state, hidden-information games must decide from `project(state, seat)`.
+ * Must be pure and bounded (node budget, never wall clock); randomness only from `rng`.
+ */
+export interface GameBot<State, Action> {
+  decide(state: State, seat: number, level: BotLevel, rng: EngineRng): Action;
 }
 
 export interface TutorialStep<Action> {
@@ -135,11 +150,4 @@ export interface TutorialScript<Action> {
   completedFa: string;
 }
 
-/**
- * Future AI seat contract (no implementation in this delivery). A bot gets only the permitted projection and
- * legal actions for its own seat and submits through the normal command path with its own participant id.
- */
-export interface BotAdapter {
-  readonly participantId: string;
-  decide(input: { view: unknown; legalActions: ActionHint[]; revision: number }): Promise<{ type: string } | null>;
-}
+export * from './bot.ts';

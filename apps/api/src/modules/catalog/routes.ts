@@ -33,34 +33,36 @@ export function catalogFilters(q: CatalogQuery): SQL[] {
 }
 
 /** Manifest of each game's active version, from the reviewed registry (null: no active/registered version). */
-async function activeManifests(db: Db, registry: GameRegistry): Promise<Map<string, { rulesVersion: string; manifest: GameManifest | null }>> {
+async function activeManifests(db: Db, registry: GameRegistry): Promise<Map<string, { rulesVersion: string; manifest: GameManifest | null; bot: boolean }>> {
   const rows = await db.select({ gameId: gameVersions.gameId, rulesVersion: gameVersions.rulesVersion }).from(gameVersions)
     .where(eq(gameVersions.status, 'active')).orderBy(desc(gameVersions.publishedAt));
-  const out = new Map<string, { rulesVersion: string; manifest: GameManifest | null }>();
+  const out = new Map<string, { rulesVersion: string; manifest: GameManifest | null; bot: boolean }>();
   for (const r of rows) {
     if (out.has(r.gameId)) continue;
-    out.set(r.gameId, { rulesVersion: r.rulesVersion, manifest: registry.has(r.gameId, r.rulesVersion) ? registry.resolve(r.gameId, r.rulesVersion).manifest : null });
+    const m = registry.has(r.gameId, r.rulesVersion) ? registry.resolve(r.gameId, r.rulesVersion) : null;
+    out.set(r.gameId, { rulesVersion: r.rulesVersion, manifest: m?.manifest ?? null, bot: !!m?.bot });
   }
   return out;
 }
 
-function toSummary(g: GameRow, eff: EffectiveSettings): GameSummary {
+function toSummary(g: GameRow, eff: EffectiveSettings, botAvailable: boolean): GameSummary {
   return {
     id: g.id, nameFa: g.nameFa, nameOriginal: g.nameOriginal, summaryFa: g.summaryFa,
     minPlayers: eff.minPlayers, maxPlayers: eff.maxPlayers, minMinutes: g.minMinutes, maxMinutes: g.maxMinutes,
     difficulty: g.difficulty, access: g.access, paces: eff.paces, competitions: eff.competitions,
-    isTestGame: g.isTestGame, status: g.status, tutorialEnabled: g.tutorialEnabled,
+    isTestGame: g.isTestGame, status: g.status, tutorialEnabled: g.tutorialEnabled, botAvailable: botAvailable && g.status === 'active',
     liveSeconds: eff.liveSeconds, turnSeconds: eff.turnSeconds
   };
 }
 
 async function loadDetail(db: Db, registry: GameRegistry, g: GameRow): Promise<GameDetail> {
-  const eff = effectiveSettings(g, (await activeManifests(db, registry)).get(g.id)?.manifest ?? null);
+  const active = (await activeManifests(db, registry)).get(g.id);
+  const eff = effectiveSettings(g, active?.manifest ?? null);
   const [v] = await db.select({ rulesVersion: gameVersions.rulesVersion, stateSchemaVersion: gameVersions.stateSchemaVersion })
     .from(gameVersions).where(and(eq(gameVersions.gameId, g.id), eq(gameVersions.status, 'active')))
     .orderBy(desc(gameVersions.publishedAt)).limit(1);
   return {
-    ...toSummary(g, eff),
+    ...toSummary(g, eff, !!active?.bot),
     options: eff.options.map(({ allowed: _allowed, ...o }) => o),
     rulesFa: g.rulesFa, timeoutPolicyFa: g.timeoutPolicyFa, resignPolicyFa: g.resignPolicyFa, tutorialFa: g.tutorialFa,
     activeVersion: v ?? null,
@@ -71,7 +73,7 @@ async function loadDetail(db: Db, registry: GameRegistry, g: GameRow): Promise<G
 export function catalogRoutes(app: FastifyInstance, { db, registry }: Deps): void {
   const summaries = async (rows: GameRow[]) => {
     const manifests = await activeManifests(db, registry);
-    return rows.map((g) => toSummary(g, effectiveSettings(g, manifests.get(g.id)?.manifest ?? null)));
+    return rows.map((g) => toSummary(g, effectiveSettings(g, manifests.get(g.id)?.manifest ?? null), !!manifests.get(g.id)?.bot));
   };
   const r = app.withTypeProvider<ZodTypeProvider>();
 

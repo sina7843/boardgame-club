@@ -293,7 +293,7 @@ export const participants = pgTable('participants', {
   primaryKey({ columns: [t.tableId, t.seat] }),
   unique('participants_table_user_uq').on(t.tableId, t.userId),
   index('participants_user_idx').on(t.userId),
-  oneOf('participants_kind_chk', t.kind, ['human', 'script']),
+  oneOf('participants_kind_chk', t.kind, ['human', 'script', 'bot']),
   check('participants_user_chk', sql`(${t.kind} = 'human') = (${t.userId} is not null)`)
 ]);
 
@@ -371,7 +371,7 @@ export const scheduledDeadlines = pgTable('scheduled_deadlines', {
 }, (t) => [
   index('scheduled_deadlines_due_idx').on(t.status, t.dueAt),
   uniqueIndex('scheduled_deadlines_one_pending_uq').on(t.tableId, t.deadlineKey).where(sql`status = 'pending'`),
-  oneOf('scheduled_deadlines_key_chk', t.deadlineKey, ['turn', 'reminder', 'ready']),
+  oneOf('scheduled_deadlines_key_chk', t.deadlineKey, ['turn', 'reminder', 'ready', 'bot']),
   oneOf('scheduled_deadlines_status_chk', t.status, ['pending', 'fired', 'cancelled'])
 ]);
 

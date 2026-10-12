@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { competitionSchema, optionValueSchema, paceSchema } from '@bg/game-sdk';
+import { botLevelSchema, competitionSchema, optionValueSchema, paceSchema, type BotLevel } from '@bg/game-sdk';
 import { publicProfile } from './api.ts';
 
 /** Allowed per-turn time budgets. Live: seconds per move/round; turn-based: durable deadline per turn. */
@@ -24,13 +24,36 @@ export const createTableBody = z.strictObject({
 });
 export type CreateTableBody = z.infer<typeof createTableBody>;
 
-export const tableSettings = z.object({ turnSeconds: z.number().int(), reminders: z.boolean(), options: z.record(z.string(), optionValueSchema).optional() });
+/** Play against computer opponents: the human takes seat 0, bots fill the other seats. Always friendly. */
+export const createBotTableBody = z.strictObject({
+  gameId: z.string().min(1).max(64),
+  level: botLevelSchema,
+  playerCount: z.number().int().min(2).max(16).default(2)
+});
+export type CreateBotTableBody = z.infer<typeof createBotTableBody>;
+
+export const tableSettings = z.object({
+  turnSeconds: z.number().int(), reminders: z.boolean(), options: z.record(z.string(), optionValueSchema).optional(),
+  /** Present on tables with bot seats (reduced XP, never rated). */
+  bot: z.object({ level: botLevelSchema }).optional()
+});
+
+export const BOT_LEVEL_FA: Record<BotLevel, string> = { easy: 'آسان', medium: 'متوسط', hard: 'سخت' };
+const BOT_NAMES: Record<BotLevel, string[]> = {
+  easy: ['نیلو', 'بابک', 'شیدا', 'پویا', 'ترانه'],
+  medium: ['آرش', 'مهتاب', 'کاوه', 'نسیم', 'بهرام'],
+  hard: ['سیمرغ', 'رستم', 'گردآفرید', 'تهمینه', 'سهراب']
+};
+/** Persona name of the n-th bot at a table (always shown with a robot badge; never presented as a person). */
+export const botNameFa = (level: BotLevel, n: number) => BOT_NAMES[level][n % BOT_NAMES[level].length]!;
 
 export const seatView = z.object({
   seat: z.number().int(),
-  kind: z.enum(['human', 'script']),
+  kind: z.enum(['human', 'script', 'bot']),
   user: publicProfile.nullable(),
-  ready: z.boolean()
+  ready: z.boolean(),
+  /** Bot seats only. */
+  bot: z.object({ level: botLevelSchema, nameFa: z.string() }).optional()
 });
 
 export const tableLobby = z.object({

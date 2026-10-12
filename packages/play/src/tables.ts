@@ -1,7 +1,7 @@
 // Table lifecycle: create, join (public / invite), leave, ready → start, and server-side tutorial tables.
 import { randomBytes, randomInt } from 'node:crypto';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
-import { AppError, type CreateTableBody } from '@bg/contracts';
+import { AppError, type CreateBotTableBody, type CreateTableBody } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { startGame, type GameRegistry } from '@bg/game-engine';
 import type { OptionValue } from '@bg/game-sdk';
@@ -70,6 +70,38 @@ export async function createTable(db: Db, registry: GameRegistry, cfg: PlayConfi
       inviteCode: body.visibility === 'private' ? randomBytes(12).toString('base64url') : null
     }).returning({ id: gameTables.id });
     await tx.insert(participants).values({ tableId: t!.id, seat: 0, userId, kind: 'human' });
+    return t!.id;
+  });
+}
+
+/**
+ * Play against bots: a private, friendly table with the human on seat 0 and bots on every other seat, started at
+ * once. Joining it cancels the player's queued ticket (the «حریف پیدا نشد» offer). Live pace with the longest
+ * offered move time when the game supports live play, otherwise turn-based with the shortest turn.
+ */
+export async function createBotTable(db: Db, registry: GameRegistry, cfg: PlayConfig, userId: string, body: CreateBotTableBody): Promise<string> {
+  return db.transaction(async (tx) => {
+    const { game, version, settings } = await activeVersion(tx, registry, body.gameId);
+    const module = registry.resolve(game.id, version.rulesVersion);
+    if (!module.bot) throw new AppError('BOT_NOT_AVAILABLE');
+    if (game.access === 'premium' && !(await isPremium(tx, userId))) throw new AppError('PREMIUM_REQUIRED');
+    if (!settings.competitions.includes('friendly')) throw new AppError('MODE_NOT_SUPPORTED');
+    if (body.playerCount < settings.minPlayers || body.playerCount > settings.maxPlayers) throw new AppError('VALIDATION_FAILED');
+    const pace = settings.paces.includes('live') ? 'live' : 'turn';
+    const turnSeconds = pace === 'live' ? Math.max(...settings.liveSeconds) : Math.min(...settings.turnSeconds);
+    await tx.update(matchmakingTickets).set({ status: 'cancelled', updatedAt: sql`now()` })
+      .where(and(eq(matchmakingTickets.userId, userId), eq(matchmakingTickets.status, 'queued')));
+    await assertLimits(tx, userId, pace, cfg);
+    const [t] = await tx.insert(gameTables).values({
+      gameId: game.id, gameVersionId: version.id, pace, competition: 'friendly', visibility: 'private', status: 'open',
+      hostId: userId, capacity: body.playerCount,
+      settings: { turnSeconds, reminders: false, options: resolveOptions(settings), bot: { level: body.level } }
+    }).returning();
+    await tx.insert(participants).values([
+      { tableId: t!.id, seat: 0, userId, kind: 'human', ready: true },
+      ...Array.from({ length: body.playerCount - 1 }, (_, i) => ({ tableId: t!.id, seat: i + 1, userId: null, kind: 'bot', ready: true }))
+    ]);
+    await startTable(tx, { table: t!, version, module });
     return t!.id;
   });
 }

@@ -26,12 +26,18 @@ export const XP_RULES = {
   /** Same opponent set more than this many times in the window → reduced XP. */
   repeatedOpponentThreshold: 3,
   repeatedOpponentWindowHours: 24,
-  repeatedOpponentXp: 5
+  repeatedOpponentXp: 5,
+  /**
+   * Tables with bots: this share of match XP (completion and first place), under separate rule ids so they never
+   * count toward missions, achievements, game of the day, new-title XP or rating. Shares the daily match cap.
+   */
+  botShare: 0.3
 } as const;
+const BOT_RULES = { completed: 'xp.bot_match', firstPlace: 'xp.bot_win' } as const;
 
 export interface FinishedEvent {
   tableId: string; resultId: string; gameId: string; pace: 'live' | 'turn'; competition: 'friendly' | 'ranked';
-  isTutorial: boolean; reason: string; placements: { seat: number; place: number; score?: number; userId: string | null }[];
+  isTutorial: boolean; vsBot?: boolean; reason: string; placements: { seat: number; place: number; score?: number; userId: string | null }[];
 }
 
 export const levelFor = (xp: number) => {
@@ -251,8 +257,42 @@ async function evaluateGoals(tx: Tx, userId: string) {
 }
 
 /** MatchCompleted: completion XP (also for losses), capped first-place bonus, repeated-opponent and daily limits. */
+/** XP already earned today from matches (human and bot tables share one daily cap). */
+async function todaysMatchXp(tx: Tx, userId: string): Promise<number> {
+  const rows = await tx.execute(sql`
+    select coalesce(sum(amount), 0)::int as xp from reward_ledger
+    where user_id = ${userId} and rule_id in ('xp.match_completed', 'xp.first_place', ${BOT_RULES.completed}, ${BOT_RULES.firstPlace})
+      and (created_at at time zone 'Asia/Tehran')::date = (now() at time zone 'Asia/Tehran')::date`) as unknown as { xp: number }[];
+  return rows[0]?.xp ?? 0;
+}
+
+/** Bot table: reduced completion and first-place XP only (see XP_RULES.botShare). */
+async function rewardBotMatch(tx: Tx, e: FinishedEvent): Promise<void> {
+  const humans = e.placements.filter((p): p is typeof p & { userId: string } => !!p.userId);
+  const best = Math.min(...e.placements.map((p) => p.place));
+  const someoneWorse = e.placements.some((p) => p.place > best);
+  const meta = { week: weekKey().key, pace: e.pace, competition: e.competition, vsBot: true };
+  for (const h of humans) {
+    await lockUser(tx, h.userId);
+    let room = Math.max(0, XP_RULES.dailyMatchCap - (await todaysMatchXp(tx, h.userId)));
+    const base = Math.min(Math.round(XP_RULES.matchCompleted * XP_RULES.botShare), room);
+    room -= base;
+    const done = await award(tx, { userId: h.userId, sourceKey: `match:${e.resultId}:${h.userId}:${BOT_RULES.completed}`, ruleId: BOT_RULES.completed, kind: 'xp',
+      amount: base, reason: base === 0 ? 'بازی با ربات کامل شد؛ سقف روزانه XP پر شده است.' : 'بازی با ربات کامل شد (XP کمتر).',
+      resultId: e.resultId, gameId: e.gameId, metadata: { ...meta, place: h.place } });
+    if (!done) continue; // this result was already rewarded for this player
+    if (h.place === best && someoneWorse) {
+      await award(tx, { userId: h.userId, sourceKey: `match:${e.resultId}:${h.userId}:${BOT_RULES.firstPlace}`, ruleId: BOT_RULES.firstPlace, kind: 'xp',
+        amount: Math.min(Math.round(XP_RULES.firstPlace * XP_RULES.botShare), room), reason: 'رتبه اول در بازی با ربات.',
+        resultId: e.resultId, gameId: e.gameId, metadata: { ...meta, place: h.place } });
+    }
+    await evaluateGoals(tx, h.userId); // XP can still lift the level
+  }
+}
+
 export async function rewardMatch(tx: Tx, e: FinishedEvent): Promise<void> {
   if (e.isTutorial) return;
+  if (e.vsBot) return rewardBotMatch(tx, e);
   const humans = e.placements.filter((p): p is typeof p & { userId: string } => !!p.userId);
   const week = weekKey().key;
   const best = Math.min(...e.placements.map((p) => p.place));
@@ -274,11 +314,7 @@ export async function rewardMatch(tx: Tx, e: FinishedEvent): Promise<void> {
         and l.created_at > now() - make_interval(hours => ${XP_RULES.repeatedOpponentWindowHours})
         and l.metadata->'opponents' = ${JSON.stringify(opponents)}::jsonb`) as unknown as { n: number }[];
     const repeated = (recent[0]?.n ?? 0) >= XP_RULES.repeatedOpponentThreshold;
-    const todays = await tx.execute(sql`
-      select coalesce(sum(amount), 0)::int as xp from reward_ledger
-      where user_id = ${h.userId} and rule_id in ('xp.match_completed', 'xp.first_place')
-        and (created_at at time zone 'Asia/Tehran')::date = (now() at time zone 'Asia/Tehran')::date`) as unknown as { xp: number }[];
-    let room = Math.max(0, XP_RULES.dailyMatchCap - (todays[0]?.xp ?? 0));
+    let room = Math.max(0, XP_RULES.dailyMatchCap - (await todaysMatchXp(tx, h.userId)));
     const meta = { week, opponents, place: h.place, pace: e.pace, competition: e.competition };
 
     let base: number = repeated ? XP_RULES.repeatedOpponentXp : XP_RULES.matchCompleted;

@@ -29,3 +29,5 @@
 
 Phase 04 re-audited FR-01..FR-16 and NFR-01..08 against the PRD; no requirement is omitted without an explanation
 above. External blockers: docs/KNOWN_LIMITATIONS.md.
+
+| EXT-BOT | owner request 2026-10-13 | DONE (local) — waves 0–1 | Scope extension (AI opponents were out of scope). Labelled bot opponents, 3 levels, 30% XP, no rating; wave 1 games: checkers, chess, othello, line-three, snakes-ladders. Evidence: packages/game-engine/test/bots.test.ts, apps/api/test/bots.test.ts, e2e/bots.spec.ts, docs/evidence/bots/. Waves 2–11 (48 more games) pending. |

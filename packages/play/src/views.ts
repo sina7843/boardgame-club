@@ -1,9 +1,9 @@
 // Read models. Game data leaves the server only through module.project()/legalActions() for one viewer.
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { AppError, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
+import { AppError, botNameFa, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
-import type { Viewer } from '@bg/game-sdk';
+import type { BotLevel, Viewer } from '@bg/game-sdk';
 import { loadSnapshot } from './runtime.ts';
 
 const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites } = schema;
@@ -77,6 +77,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     }
   }
 
+  const botLevel = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -85,8 +86,9 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     rulesVersion: version.rulesVersion, stateSchemaVersion: version.stateSchemaVersion, clientBundleRef: version.clientBundleRef,
     isTutorial: table.isTutorial, isMatchmade: table.isMatchmade, readyDeadline: null, hostId: table.hostId,
     seats: seats.map(({ p, u }) => ({
-      seat: p.seat, kind: p.kind as 'human' | 'script', ready: p.ready,
-      user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null
+      seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
+      user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
+      ...(p.kind === 'bot' && botLevel ? { bot: { level: botLevel, nameFa: botNameFa(botLevel, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < p.seat).length) } } : {})
     })),
     mySeat,
     inviteCode: mySeat !== null && table.visibility === 'private' && !table.isTutorial ? table.inviteCode : null,

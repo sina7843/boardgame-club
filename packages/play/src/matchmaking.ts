@@ -1,7 +1,7 @@
 // Persistent matchmaking (FR-06). Tickets live in PostgreSQL; matching runs under a per-queue advisory lock and
 // SKIP LOCKED row locks, so concurrent matchers and cancellations never double-assign a player.
 import { randomUUID } from 'node:crypto';
-import { and, asc, eq, inArray, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, lte, sql } from 'drizzle-orm';
 import { AppError, type EnqueueBody, type TicketView } from '@bg/contracts';
 import { assertTimeAllowed } from './game-settings.ts';
 import { schema, type Db } from '@bg/db';
@@ -11,7 +11,7 @@ import { isPremium } from './billing.ts';
 import { matchRating } from './rating.ts';
 import type { Tx } from './runtime.ts';
 
-const { matchmakingTickets: tickets, gameTables, participants, scheduledDeadlines, outboxEvents, ratings, games, blocks, behaviorSignals } = schema;
+const { matchmakingTickets: tickets, gameTables, gameVersions, participants, scheduledDeadlines, outboxEvents, ratings, games, blocks, behaviorSignals } = schema;
 
 export interface MatchConfig {
   /** Rating used while a player has no rating for the game/mode (documented baseline until DRAGON-03). */
@@ -25,12 +25,18 @@ export interface MatchConfig {
   readySeconds: { live: number; turn: number };
   /** Queue time before a ticket expires. */
   ticketTtlSeconds: { live: number; turn: number };
+  /** Friendly multi-player queues: after this wait, two or more matched players start with bots in the empty seats. */
+  botFillSeconds: { live: number; turn: number };
 }
 
 export const defaultMatchConfig: MatchConfig = {
   baselineRating: 1500, baseWindow: 100, growthPerStep: 50, stepSeconds: { live: 10, turn: 60 }, maxWindow: 400,
-  readySeconds: { live: 30, turn: 15 * 60 }, ticketTtlSeconds: { live: 15 * 60, turn: 24 * 3600 }
+  readySeconds: { live: 30, turn: 15 * 60 }, ticketTtlSeconds: { live: 15 * 60, turn: 24 * 3600 },
+  botFillSeconds: { live: 60, turn: 3600 }
 };
+
+/** Level of bots that fill empty seats of a matched table (the players did not choose one). */
+const FILL_BOT_LEVEL = 'medium';
 
 type Ticket = typeof tickets.$inferSelect;
 
@@ -57,7 +63,7 @@ export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, 
     }).returning({ id: tickets.id });
     return t!.id;
   });
-  await runMatcher(db, cfg, { gameId: body.gameId, pace: body.pace, competition: body.competition, playerCount: body.playerCount, turnSeconds: body.turnSeconds });
+  await runMatcher(db, cfg, { gameId: body.gameId, pace: body.pace, competition: body.competition, playerCount: body.playerCount, turnSeconds: body.turnSeconds }, registry);
   return id;
 }
 
@@ -73,7 +79,7 @@ async function blockedPairs(tx: Tx, userIds: string[]): Promise<Set<string>> {
  * Form as many tables as possible for one queue. Oldest ticket anchors the group; its skill window grows with
  * waiting time. Players who blocked each other are never matched together. Returns created table ids.
  */
-export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey): Promise<string[]> {
+export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey, registry?: GameRegistry): Promise<string[]> {
   return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`mm:${key.gameId}:${key.pace}:${key.competition}:${key.playerCount}:${key.turnSeconds}`}))`);
     const queued = await tx.select().from(tickets).where(and(
@@ -84,7 +90,10 @@ export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey): Promi
     const now = Date.now();
     const pool = [...queued];
     const created: string[] = [];
-    while (pool.length >= key.playerCount) {
+    let botsAllowed: boolean | undefined; // looked up once, only when a group could use bots
+    const canFill = async () => (botsAllowed ??= await gameHasBot(tx, registry, key.gameId));
+    // Two players may already form a table when bots can fill the rest (checked per group below).
+    while (pool.length >= Math.min(2, key.playerCount)) {
       const anchor = pool.shift()!;
       const window = windowFor(cfg, key.pace, (now - anchor.createdAt.getTime()) / 1000);
       const group: Ticket[] = [anchor];
@@ -94,15 +103,28 @@ export async function runMatcher(db: Db, cfg: MatchConfig, key: QueueKey): Promi
         if (group.some((g) => blocked.has(`${g.userId}:${t.userId}`))) continue;
         group.push(t);
       }
-      if (group.length < key.playerCount) continue; // anchor waits for a wider window
+      let bots = 0;
+      if (group.length < key.playerCount) {
+        const waited = (now - anchor.createdAt.getTime()) / 1000;
+        const fill = key.competition === 'friendly' && group.length >= 2 && waited >= cfg.botFillSeconds[key.pace] && await canFill();
+        if (!fill) continue; // anchor waits for a wider window
+        bots = key.playerCount - group.length;
+      }
       for (const g of group.slice(1)) pool.splice(pool.indexOf(g), 1);
-      created.push(await createMatchTable(tx, cfg, key, group));
+      created.push(await createMatchTable(tx, cfg, key, group, bots));
     }
     return created;
   });
 }
 
-async function createMatchTable(tx: Tx, cfg: MatchConfig, key: QueueKey, group: Ticket[]): Promise<string> {
+async function gameHasBot(tx: Tx, registry: GameRegistry | undefined, gameId: string): Promise<boolean> {
+  if (!registry) return false;
+  const [v] = await tx.select({ rulesVersion: gameVersions.rulesVersion }).from(gameVersions)
+    .where(and(eq(gameVersions.gameId, gameId), eq(gameVersions.status, 'active'))).orderBy(desc(gameVersions.publishedAt)).limit(1);
+  return !!v && registry.has(gameId, v.rulesVersion) && !!registry.resolve(gameId, v.rulesVersion).bot;
+}
+
+async function createMatchTable(tx: Tx, cfg: MatchConfig, key: QueueKey, group: Ticket[], bots = 0): Promise<string> {
   const [version] = await tx.execute(sql`
     select v.id from game_versions v join games g on g.id = v.game_id
     where v.game_id = ${key.gameId} and v.status = 'active' and g.status = 'active' order by v.published_at desc limit 1`) as unknown as { id: string }[];
@@ -111,9 +133,12 @@ async function createMatchTable(tx: Tx, cfg: MatchConfig, key: QueueKey, group: 
   await tx.insert(gameTables).values({
     id: tableId, gameId: key.gameId, gameVersionId: version.id, pace: key.pace, competition: key.competition, visibility: 'private',
     status: 'open', hostId: group[0]!.userId, capacity: key.playerCount, isMatchmade: true,
-    settings: { turnSeconds: key.turnSeconds, reminders: key.pace === 'turn' }
+    settings: { turnSeconds: key.turnSeconds, reminders: key.pace === 'turn', ...(bots ? { bot: { level: FILL_BOT_LEVEL } } : {}) }
   });
-  await tx.insert(participants).values(group.map((t, seat) => ({ tableId, seat, userId: t.userId, kind: 'human' })));
+  await tx.insert(participants).values([
+    ...group.map((t, seat) => ({ tableId, seat, userId: t.userId, kind: 'human' })),
+    ...Array.from({ length: bots }, (_, i) => ({ tableId, seat: group.length + i, userId: null, kind: 'bot', ready: true }))
+  ]);
   await tx.update(tickets).set({ status: 'matched', matchedTableId: tableId, updatedAt: sql`now()` }).where(inArray(tickets.id, group.map((t) => t.id)));
   await tx.insert(scheduledDeadlines).values({
     tableId, deadlineKey: 'ready', token: randomUUID(), expectedRevision: 0,
@@ -197,12 +222,12 @@ export async function myTickets(db: Db, cfg: MatchConfig, userId: string): Promi
 }
 
 /** Worker job: expire old tickets and run every non-empty queue. */
-export async function runMatchmaking(db: Db, cfg: MatchConfig) {
+export async function runMatchmaking(db: Db, cfg: MatchConfig, registry?: GameRegistry) {
   const expired = await db.update(tickets).set({ status: 'expired', updatedAt: sql`now()` })
     .where(and(eq(tickets.status, 'queued'), lte(tickets.expiresAt, sql`now()`))).returning({ id: tickets.id });
   const keys = await db.selectDistinct({ gameId: tickets.gameId, pace: tickets.pace, competition: tickets.competition, playerCount: tickets.playerCount, turnSeconds: tickets.turnSeconds })
     .from(tickets).where(eq(tickets.status, 'queued'));
   let matched = 0;
-  for (const k of keys) matched += (await runMatcher(db, cfg, { ...k, pace: k.pace as 'live' | 'turn', competition: k.competition as 'friendly' | 'ranked' })).length;
+  for (const k of keys) matched += (await runMatcher(db, cfg, { ...k, pace: k.pace as 'live' | 'turn', competition: k.competition as 'friendly' | 'ranked' }, registry)).length;
   return { matched, expired: expired.length };
 }

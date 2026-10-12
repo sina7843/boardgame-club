@@ -8,7 +8,7 @@ import { LevelBadge, TIER_FA, Trophy } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('achievement.') ? 'دستاورد'
-  : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
+  : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.bot_match': 'بازی با ربات', 'xp.bot_win': 'برد مقابل ربات', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
 
 const MASTERY_ORDER = ['new', 'learner', 'player', 'seasoned', 'master'];
 

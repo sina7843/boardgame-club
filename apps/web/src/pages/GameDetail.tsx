@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import type { GameDetail } from '@bg/contracts';
 import { Badge, Button, Icon, StateBlock } from '@bg/ui';
+import { BotPlay } from '../games/BotPlay.tsx';
 import { GameCover } from '../games/covers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
@@ -115,6 +116,7 @@ export function GameDetailPage() {
               </Button>}
               {tutorialStatus === 'completed' && <p className="muted" style={{ margin: 0 }}>آموزش این بازی را کامل کرده‌اید.</p>}
               {tutorialError && <p className="field__error" role="alert" style={{ margin: 0 }}>{tutorialError}</p>}
+              {g.botAvailable && <BotPlay gameId={g.id} minPlayers={g.minPlayers} maxPlayers={g.maxPlayers} />}
               <Link className="btn btn--ghost btn--block" to="/tables">میزهای باز دیگران</Link>
             </>
           )}

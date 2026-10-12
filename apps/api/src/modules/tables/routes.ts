@@ -3,12 +3,12 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, apiErrorSchema, commandBody, commandResult, createTableBody, myTableItem, notificationItem, openTableItem,
+  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, myTableItem, notificationItem, openTableItem,
   receiptLookup, tableSnapshot, tutorialProgressItem
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  buildTableSnapshot, closeIncident, createTable, currentIncident, executeCommand, joinTable, leaveTable, listMyTables,
+  buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
   skipTutorial, startTutorial
 } from '@bg/play';
@@ -33,6 +33,15 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   }, async (req, reply) => {
     const { userId } = requireUser(req);
     const id = await createTable(db, registry, play, userId, req.body);
+    return reply.code(201).send({ id });
+  });
+
+  r.post('/tables/bot', {
+    schema: { tags: ['tables'], summary: 'Start a friendly game against bots (seat 0 = you); cancels your queued ticket',
+      body: createBotTableBody, response: { 201: z.object({ id: z.uuid() }), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireUser(req);
+    const id = await createBotTable(db, registry, play, userId, req.body);
     return reply.code(201).send({ id });
   });
 

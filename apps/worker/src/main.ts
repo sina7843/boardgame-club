@@ -91,7 +91,7 @@ if (env.WORKER_HEALTH_PORT) {
 log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds: env.WORKER_INTERVAL_SECONDS });
 loop('deadlines', env.DEADLINE_POLL_MS, () => runDueDeadlines(db, registry));
 loop('outbox', 2000, () => runOutbox(db));
-loop('matchmaking', 2000, () => runMatchmaking(db, defaultMatchConfig));
+loop('matchmaking', 2000, () => runMatchmaking(db, defaultMatchConfig, registry));
 loop('payments', 30_000, () => reconcilePayments(db, billing));
 loop('subscriptions', 60_000, () => expireSubscriptions(db));
 loop('maintenance', env.WORKER_INTERVAL_SECONDS * 1000, () => runMaintenance(db));

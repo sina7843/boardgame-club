@@ -76,9 +76,10 @@ export const notificationConsumers: Record<string, Consumer> = {
     await notify(db, p.userIds, 'reminder', (u) => `reminder:${p.tableId}:${p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId) });
   },
   'table.finished': async (db, e) => {
-    const p = e.payload as { tableId: string; gameId: string; isTutorial: boolean; reason: string; placements: { userId: string | null; place: number }[] };
+    const p = e.payload as { tableId: string; gameId: string; isTutorial: boolean; vsBot?: boolean; reason: string; placements: { userId: string | null; place: number }[] };
     if (p.isTutorial) return;
     await notify(db, p.placements.map((x) => x.userId), 'finished', (u) => `finished:${p.tableId}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId) });
+    if (p.vsBot) return; // leaving a game against bots harms no one: no moderator signal
     // Behaviour signals (moderator information only, never an automatic penalty). Deadlines are frozen and
     // compensated during platform incidents, so a timeout here is not caused by a system failure.
     if (p.reason === 'timeout' || p.reason === 'resign') {

@@ -17,4 +17,6 @@ approved prices; hosting/domain; off-host backup storage, key custody and a rest
 tests (Safari iOS, Chrome Android); load test on target hardware; owner decisions on catalog/branding.
 Checklist: docs/RELEASE_CHECKLIST.md (Gate B).
 
+Owner-requested extension in progress: bot opponents «بازی با ربات» — waves 0–1 done locally (5 games); waves 2–11 pending (see DECISIONS.md).
+
 Next eligible phase: none (five prompts complete). Remaining work is owner/provider/infrastructure decisions.

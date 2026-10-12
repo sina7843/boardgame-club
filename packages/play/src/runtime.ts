@@ -5,7 +5,8 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { AppError } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { failMatch } from './matchmaking.ts';
-import { applyAction, applyTimeout, type AnyModule, type EngineSnapshot, type GameRegistry, type RngState, type StepResult } from '@bg/game-engine';
+import { applyAction, applyTimeout, createRng, type AnyModule, type EngineSnapshot, type GameRegistry, type RngState, type StepResult } from '@bg/game-engine';
+import type { BotLevel } from '@bg/game-sdk';
 
 const { gameTables, gameVersions, gameSnapshots, gameEvents, commandReceipts, scheduledDeadlines, gameResults, outboxEvents, participants, tutorialProgress } = schema;
 
@@ -37,6 +38,9 @@ export type EngineInput =
   | { kind: 'timeout'; deadlineToken: string; logicalTime: number };
 
 const notifyTable = (tx: Tx, tableId: string) => tx.execute(sql`select pg_notify('table_changed', ${tableId})`);
+
+/** Pause before a bot moves, so its reply reads as a move rather than an instant board change. */
+export const BOT_DELAY_SECONDS = 0.8;
 
 /**
  * Persist one engine step atomically: snapshot + revision, engine input and internal events, deadline changes,
@@ -80,6 +84,19 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
     }
   }
 
+  const botLevel = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
+  if (botLevel && !step.outcome && step.pendingSeats.length) {
+    // A bot seat must act: the worker plays it after a short, human-feeling pause (one pending 'bot' deadline per table).
+    const bots = await tx.select({ seat: participants.seat }).from(participants)
+      .where(and(eq(participants.tableId, table.id), eq(participants.kind, 'bot'), inArray(participants.seat, step.pendingSeats)));
+    if (bots.length) {
+      await tx.update(scheduledDeadlines).set({ status: 'cancelled' })
+        .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.deadlineKey, 'bot'), eq(scheduledDeadlines.status, 'pending')));
+      await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'bot', token: randomUUID(), expectedRevision: revision,
+        dueAt: sql`now() + make_interval(secs => ${BOT_DELAY_SECONDS})` });
+    }
+  }
+
   if (step.outcome) {
     const [result] = await tx.insert(gameResults).values({ tableId: table.id, outcome: step.outcome, reason: step.outcome.reason })
       .onConflictDoNothing({ target: gameResults.tableId }).returning({ id: gameResults.id });
@@ -95,7 +112,7 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
         topic: 'table.finished', aggregateId: table.id,
         payload: {
           tableId: table.id, resultId: result.id, gameId: table.gameId, rulesVersion: version.rulesVersion,
-          pace: table.pace, competition: table.competition, isTutorial: table.isTutorial, reason: step.outcome.reason,
+          pace: table.pace, competition: table.competition, isTutorial: table.isTutorial, vsBot: !!botLevel, reason: step.outcome.reason,
           placements: step.outcome.placements.map((p) => ({ ...p, userId: userBySeat.get(p.seat) ?? null }))
         }
       });
@@ -227,8 +244,42 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
         payload: { tableId: table.id, revision: table.revision, gameId: table.gameId, userIds: users.map((u) => u.userId).filter(Boolean) } });
       return 'fired';
     }
+    if (d.deadlineKey === 'bot') {
+      await playBotTurn(tx, locked, snap);
+      return 'fired';
+    }
     const logicalTime = Date.now();
     await persistStep(tx, locked, applyTimeout(module, snap, logicalTime), { kind: 'timeout', deadlineToken: d.token, logicalTime });
     return 'fired';
   });
+}
+
+/**
+ * One bot move (lowest pending bot seat) through the same engine path as a player's command. The bot's choice is
+ * validated like any action; if a bot ever proposes something the rules reject, the first legal non-resign action
+ * is played instead, so a bot bug can never stall a table. Persisting the move schedules the next bot turn.
+ */
+async function playBotTurn(tx: Tx, locked: LockedTable, snap: EngineSnapshot): Promise<void> {
+  const { table, module } = locked;
+  const level = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
+  const pending = module.pendingSeats(snap.state);
+  if (!level || !module.bot || !pending.length) return;
+  const [bot] = await tx.select({ seat: participants.seat }).from(participants)
+    .where(and(eq(participants.tableId, table.id), eq(participants.kind, 'bot'), inArray(participants.seat, pending)))
+    .orderBy(participants.seat).limit(1);
+  if (!bot) return;
+  const actor = { kind: 'player' as const, seat: bot.seat };
+  const logicalTime = Date.now();
+  const seed = Number.parseInt(createHash('sha256').update(`${table.id}:${table.revision}:${bot.seat}`).digest('hex').slice(0, 8), 16);
+  let chosen: unknown;
+  try { chosen = module.bot.decide(structuredClone(snap.state), bot.seat, level, createRng({ s: seed })); } catch { chosen = null; }
+  const hints = module.legalActions(snap.state, actor);
+  const candidates = [chosen, ...hints.filter((h) => h.type !== 'resign'), ...hints.filter((h) => h.type === 'resign')].filter((a) => a !== null);
+  for (const action of candidates) {
+    const step = applyAction(module, snap, actor, action, logicalTime);
+    if ('ok' in step) continue;
+    await persistStep(tx, locked, step, { kind: 'action', seat: bot.seat, action, logicalTime });
+    return;
+  }
+  throw new Error(`bot on ${table.id} seat ${bot.seat} has no accepted action`);
 }

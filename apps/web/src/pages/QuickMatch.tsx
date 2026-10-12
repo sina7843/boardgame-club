@@ -2,14 +2,18 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import type { GameSummary, TicketView } from '@bg/contracts';
 import { Button, Icon, Segmented, Select, StateBlock, TurnIndicator, useToast } from '@bg/ui';
+import { BotPlay } from '../games/BotPlay.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { defaultTime, durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
+/** After this wait without an opponent, playing against a bot is offered (the ticket is cancelled if accepted). */
+const BOT_OFFER_SECONDS = 30;
+
 const mmss = (s: number) => `${faNum(Math.floor(s / 60))}:${(s % 60).toLocaleString('fa-IR', { minimumIntegerDigits: 2 })}`;
 
-function TicketStatus({ t, onChange }: { t: TicketView; onChange: () => void }) {
+function TicketStatus({ t, onChange, game }: { t: TicketView; onChange: () => void; game?: GameSummary }) {
   const toast = useToast();
   const navigate = useNavigate();
   const [now, setNow] = useState(Date.now());
@@ -30,6 +34,12 @@ function TicketStatus({ t, onChange }: { t: TicketView; onChange: () => void }) 
         </dl>
         <p className="muted" style={{ margin: 0 }}>هرچه بیشتر منتظر بمانید، دامنه مهارت تا سقف مشخص بازتر می‌شود. بازیکن تازه با امتیاز پایه ۱۵۰۰ سنجیده می‌شود.</p>
         <div><Button variant="secondary" onClick={cancel}>لغو جست‌وجو</Button></div>
+        {game?.botAvailable && waited >= BOT_OFFER_SECONDS && (
+          <div className="stack" role="status" style={{ gap: 'var(--sp-2)', borderBlockStart: 'var(--line) solid var(--border)', paddingBlockStart: 'var(--sp-3)' }}>
+            <p style={{ margin: 0 }}><strong>حریف آنلاین پیدا نشد.</strong> می‌خواهید تا آن موقع با ربات بازی کنید؟ با شروع بازی، از صف خارج می‌شوید.</p>
+            <BotPlay gameId={t.gameId} minPlayers={t.playerCount} maxPlayers={t.playerCount} players={t.playerCount} />
+          </div>
+        )}
       </section>
     );
   }
@@ -95,7 +105,7 @@ export function QuickMatch() {
     <>
       <div className="page-head"><div><h1 className="page-title">حریف‌یابی</h1><p className="page-sub">میز دوستانه با بازیکنی هم‌سطح؛ قبل از شروع هر دو طرف آمادگی را تأیید می‌کنند.</p></div></div>
       <div className="stack" style={{ maxInlineSize: 640 }}>
-        {active ? <TicketStatus t={active} onChange={reload} /> : (
+        {active ? <TicketStatus t={active} onChange={reload} game={games.data.items.find((g) => g.id === active.gameId)} /> : (
           <>
             {recent && <TicketStatus t={recent} onChange={reload} />}
             <form className="panel stack" onSubmit={submit}>

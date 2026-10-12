@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
-import type { MessageItem, TableSnapshot } from '@bg/contracts';
+import { BOT_LEVEL_FA, type MessageItem, type TableSnapshot } from '@bg/contracts';
 import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Maximize2, Medal, Minimize2, Trophy } from 'lucide-react';
 import { Avatar, Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
@@ -27,6 +27,7 @@ const REASON_FA: Record<string, string> = { win: 'پیروزی', draw: 'مساو
 
 const seatNameOf = (t: Lobby) => (seat: number) => {
   const s = t.seats.find((x) => x.seat === seat);
+  if (s?.bot) return `🤖 ${s.bot.nameFa}`;
   return s?.kind === 'script' ? 'حریف آموزشی' : s?.user?.displayName ?? `جایگاه ${faNum(seat + 1)}`;
 };
 
@@ -81,7 +82,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
           <h2 id="seats-h" className="section-title">بازیکنان ({faNum(t.seats.length)} از {faNum(t.capacity)})</h2>
           <div className="seats">
             {t.seats.map((s) => (
-              <PlayerSeat key={s.seat} name={s.user?.displayName ?? '-'} avatarKey={s.user?.avatarKey ?? 'meeple'} me={s.seat === t.mySeat}
+              <PlayerSeat key={s.seat} name={s.bot ? seatNameOf(t)(s.seat) : s.user?.displayName ?? '-'} avatarKey={s.user?.avatarKey ?? 'meeple'} me={s.seat === t.mySeat}
                 label={s.ready ? 'آماده' : 'هنوز آماده نیست'} done={s.ready} />
             ))}
             {Array.from({ length: empty }, (_, i) => <div key={i} className="seat seat--empty">جایگاه خالی</div>)}
@@ -208,7 +209,7 @@ function PlayerBoards({ snap, variant = 'list' }: { snap: TableSnapshot; variant
             <span className="pboard__ring"><Avatar avatarKey={x.user?.avatarKey ?? 'dice'} name={name(x.seat)} size={variant === 'list' ? 42 : variant === 'rail' ? 40 : 34} /></span>
             <span className="pboard__who">
               <span className="pboard__name"><bdi>{name(x.seat)}</bdi>{me && <span className="pboard__you"> (شما)</span>}</span>
-              <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : me ? 'پشت میز' : 'آماده'}</span>
+              <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : x.bot ? `ربات ${BOT_LEVEL_FA[x.bot.level]}` : me ? 'پشت میز' : 'آماده'}</span>
             </span>
             {active && <ChevronLeft className="pboard__turn" aria-hidden />}
           </li>
