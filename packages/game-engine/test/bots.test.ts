@@ -24,24 +24,24 @@ function playOut(m: AnyModule, levels: BotLevel[], seed: number, maxPlies: numbe
     snap = step.snapshot;
     plies++;
   }
-  return { outcome: m.outcome(snap.state), plies, slowest };
+  return { outcome: m.outcome(snap.state), plies, slowest, state: snap.state };
 }
 
 describe('bots', () => {
-  it('ships bots for the wave-1 games', () => {
-    expect(modules.map((m) => m.manifest.gameId).sort()).toEqual(['checkers', 'chess', 'line-three', 'othello', 'snakes-ladders']);
+  it('ships bots for the wave 1–2 games', () => {
+    expect(modules.map((m) => m.manifest.gameId).sort()).toEqual(['backgammon', 'battleship', 'camel-up', 'checkers', 'chess', 'line-three', 'ludo', 'othello', 'snakes-ladders', 'yahtzee']);
   });
 
   for (const m of modules) {
     const id = m.manifest.gameId;
     // Chess and checkers games can run long; a ply cap still exercises openings, captures and the middle game.
-    const cap = id === 'chess' ? 60 : id === 'checkers' ? 120 : 400;
+    const cap = id === 'chess' ? 60 : id === 'checkers' ? 120 : id === 'ludo' ? 3000 : 400;
     for (const level of LEVELS) {
       it(`${id}: ${level} vs ${level} plays only legal moves`, () => {
         // Each level also exercises two styles against each other.
         const i = LEVELS.indexOf(level);
         const r = playOut(m, [level, level], 11, cap, [STYLES[i]!, STYLES[(i + 1) % 3]!]);
-        if (cap === 400) expect(r.outcome).not.toBeNull();
+        if (cap >= 400) expect(r.outcome).not.toBeNull();
         expect(r.slowest).toBeLessThan(MAX_DECIDE_MS);
       }, 60_000);
     }
@@ -94,4 +94,39 @@ describe('bots', () => {
       expect(line('aggressive'), id).not.toBe(line('cautious'));
     }
   }, 60_000);
+
+  /** Average score of `seat` playing `level` against an easy bot over several seeds. */
+  const avgScore = (id: string, level: BotLevel, games: number, score: (o: NonNullable<ReturnType<AnyModule['outcome']>>, seat: number) => number) => {
+    const m = modules.find((x) => x.manifest.gameId === id)!;
+    let total = 0;
+    for (let seed = 1; seed <= games; seed++) total += score(playOut(m, [level, 'easy'], seed, 3000).outcome!, 0);
+    return total / games;
+  };
+
+  it('yahtzee hard scores more than easy on average', () => {
+    const pts = (o: NonNullable<ReturnType<AnyModule['outcome']>>, seat: number) => o.placements.find((p) => p.seat === seat)!.score!;
+    expect(avgScore('yahtzee', 'hard', 8, pts)).toBeGreaterThan(avgScore('yahtzee', 'easy', 8, pts) + 15);
+  }, 120_000);
+
+  it('backgammon hard beats easy in most games', () => {
+    const won = (o: NonNullable<ReturnType<AnyModule['outcome']>>, seat: number) => (o.placements.find((p) => p.seat === seat)!.place === 1 ? 1 : 0);
+    expect(avgScore('backgammon', 'hard', 10, won)).toBeGreaterThanOrEqual(0.6);
+  }, 120_000);
+
+  it('battleship: harder levels sink a fleet in fewer shots', () => {
+    const m = modules.find((x) => x.manifest.gameId === 'battleship')!;
+    const shots = (level: BotLevel) => {
+      let total = 0;
+      for (let seed = 1; seed <= 40; seed++) {
+        const r = playOut(m, [level, level], seed, 400);
+        const winner = r.outcome!.placements.find((p) => p.place === 1)!.seat;
+        total += (r.state as { seas: { shots: number[] }[] }).seas[1 - winner]!.shots.length;
+      }
+      return total / 40;
+    };
+    // Measured: easy ≈ 56, medium ≈ 48, hard ≈ 39 shots to sink a fleet (40 games each; fewer games are too noisy).
+    const [easy, medium, hard] = [shots('easy'), shots('medium'), shots('hard')];
+    expect(medium).toBeLessThan(easy - 4);
+    expect(hard).toBeLessThan(medium - 4);
+  }, 120_000);
 });

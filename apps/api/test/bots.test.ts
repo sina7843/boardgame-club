@@ -23,13 +23,16 @@ async function botMove(tableId: string): Promise<boolean> {
   return true;
 }
 
-/** Human plays the first legal non-resign action; the bot answers through its deadline. Returns the final snapshot. */
-async function playToEnd(u: User, tableId: string) {
-  for (let i = 0; i < 400; i++) {
+type Snap = Awaited<ReturnType<typeof view>>;
+const firstLegal = (s: Snap) => s.game.legalActions.find((a: { type: string }) => a.type !== 'resign');
+
+/** Human plays `choose` (default: first legal non-resign action); bots answer through their deadline. Returns the final snapshot. */
+async function playToEnd(u: User, tableId: string, choose: (s: Snap) => unknown = firstLegal) {
+  for (let i = 0; i < 600; i++) {
     const s = await view(ctx, u, tableId);
     if (s.table.status !== 'active') return s;
     if (s.game.pendingSeats.includes(s.table.mySeat)) {
-      const action = s.game.legalActions.find((a: { type: string }) => a.type !== 'resign');
+      const action = choose(s);
       expect((await command(ctx, u, tableId, s.game.revision, action)).json().status).toBe('accepted');
     } else {
       expect(await botMove(tableId)).toBe(true);
@@ -132,5 +135,25 @@ describe('play against bots', () => {
     await runMatchmaking(ctx.db, defaultMatchConfig, createDefaultRegistry());
     const [t] = await ctx.db.select().from(matchmakingTickets).where(eq(matchmakingTickets.userId, a!.id));
     expect(t!.status).toBe('queued');
+  });
+
+  it('battleship: the bot places its fleet alongside the human and fires from its own view', async () => {
+    const [u] = await users(ctx, 1);
+    const tableId = (await botTable(u!, { gameId: 'battleship', level: 'hard' })).json().id;
+    const end = await playToEnd(u!, tableId, (s) => {
+      if (s.game.legalActions.some((a: { type: string }) => a.type === 'placeRandom')) return { type: 'placeRandom' };
+      const shots = new Set(s.game.view.seas[1 - s.table.mySeat].shots.map((x: { cell: number }) => x.cell));
+      return { type: 'fire', cell: [...Array(100).keys()].find((c) => !shots.has(c)) };
+    });
+    expect(end.table.status).toBe('finished');
+    expect(end.game.result.reason).toBe('win');
+  });
+
+  it('camel-up: one human and two bots (hidden overall bets) play to the end', async () => {
+    const [u] = await users(ctx, 1);
+    const tableId = (await botTable(u!, { gameId: 'camel-up', level: 'medium', playerCount: 3 })).json().id;
+    const end = await playToEnd(u!, tableId, () => ({ type: 'roll' }));
+    expect(end.table.status).toBe('finished');
+    expect(end.game.result.reason).toBe('score');
   });
 });

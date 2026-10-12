@@ -13,7 +13,7 @@ test('play «سه‌خطی» against a hard bot to the result', async ({ browser
   const p = await player(browser, info.project.use.viewport ?? null, 'بازیکن تنها');
   await p.goto('/games/line-three');
   await expect(p.getByText('حریف ربات است و با نشان 🤖 دیده می‌شود', { exact: false })).toBeVisible();
-  await p.getByText('سخت', { exact: true }).click();
+  await p.getByRole('radio', { name: 'سخت' }).click();
   await p.screenshot({ path: shot(info.project.name, 'offer'), fullPage: true });
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.lt__board')).toBeVisible();
@@ -30,5 +30,26 @@ test('play «سه‌خطی» against a hard bot to the result', async ({ browser
   await expect(p.getByText('علت پایان: اتمام زمان')).toHaveCount(0);
   expect(await p.getByRole('button', { name: /: [XO]$/ }).count()).toBeGreaterThanOrEqual(5);
   await p.screenshot({ path: shot(info.project.name, 'result'), fullPage: true });
+  await p.context().close();
+});
+
+test('«مسابقهٔ شترها» with two bots: the bots take their turns between mine (multi-player, hidden bets)', async ({ browser }, info) => {
+  only(info.project.name);
+  test.setTimeout(240_000);
+  const p = await player(browser, info.project.use.viewport ?? null, 'شترسوار');
+  await p.goto('/games/camel-up');
+  await p.getByRole('radio', { name: 'آسان' }).click();
+  await p.getByLabel('تعداد بازیکن (شما و ربات‌ها)').selectOption('3');
+  await p.getByRole('button', { name: 'بازی با ربات' }).click();
+  await expect(p.getByRole('img', { name: /^نماد 🤖 / })).toHaveCount(2, { timeout: 10_000 });
+  // Four of my turns: each needs both bots to act in between (a full game is covered by the API test).
+  const roll = p.getByRole('button', { name: /^تاس از هرم/ });
+  for (let mine = 0; mine < 4; mine++) {
+    await expect(roll).toBeEnabled({ timeout: 30_000 });
+    await roll.click();
+    await expect(roll).toBeDisabled({ timeout: 10_000 });
+  }
+  await expect(roll).toBeEnabled({ timeout: 30_000 });
+  await p.screenshot({ path: shot(info.project.name, 'camel-midgame'), fullPage: true });
   await p.context().close();
 });
