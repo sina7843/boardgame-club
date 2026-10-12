@@ -1,6 +1,6 @@
 // Read models. Game data leaves the server only through module.project()/legalActions() for one viewer.
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { AppError, botNameFa, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
+import { AppError, botPersona, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
@@ -77,7 +77,11 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     }
   }
 
-  const botLevel = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
+  const botCfg = (table.settings as { bot?: { level: BotLevel; personas?: number[] } }).bot;
+  const botSeat = (seat: number) => {
+    const { nameFa, avatarKey, style } = botPersona(botCfg?.personas, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < seat).length);
+    return { level: botCfg!.level, nameFa, avatarKey, style };
+  };
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -88,7 +92,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     seats: seats.map(({ p, u }) => ({
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
-      ...(p.kind === 'bot' && botLevel ? { bot: { level: botLevel, nameFa: botNameFa(botLevel, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < p.seat).length) } } : {})
+      ...(p.kind === 'bot' && botCfg ? { bot: botSeat(p.seat) } : {})
     })),
     mySeat,
     inviteCode: mySeat !== null && table.visibility === 'private' && !table.isTutorial ? table.inviteCode : null,

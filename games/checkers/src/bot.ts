@@ -1,6 +1,6 @@
 // Checkers bot: alpha-beta over material (kings worth three men), advancement and back-row guard.
 // Public game, so the full state is fair. Repetition and the quiet-move draw are left to the rules.
-import { searchMoves, pickByLevel, type BotLevel, type GameBot, type SearchBudget } from '@bg/game-sdk';
+import { searchMoves, pickByLevel, type BotLevel, type BotStyle, type GameBot, type SearchBudget } from '@bg/game-sdk';
 import { applyMove, legalMoves, rowOf, type CheckersAction, type CheckersState, type Color, type Move, type Piece } from './rules.ts';
 
 interface P { board: (Piece | null)[]; turn: Color }
@@ -13,9 +13,17 @@ const BUDGETS: Record<BotLevel, SearchBudget> = {
   hard: { maxDepth: 8, maxNodes: 30_000 }
 };
 
+/** Style weights: aggressive races men forward, cautious keeps the home row guarded. */
+const STYLE: Record<BotStyle, { adv: number; guard: number }> = {
+  aggressive: { adv: 8, guard: 0 },
+  balanced: { adv: 4, guard: 8 },
+  cautious: { adv: 2, guard: 20 }
+};
+
 export const checkersBot: GameBot<CheckersState, CheckersAction> = {
-  decide(state, seat, level, rng) {
+  decide(state, seat, level, rng, style) {
     const me = state.colors[seat]!;
+    const w = STYLE[style];
     const king = state.variant === 'brazilian' ? 500 : 300;
     const material = (b: (Piece | null)[]) => {
       let s = 0;
@@ -24,7 +32,7 @@ export const checkersBot: GameBot<CheckersState, CheckersAction> = {
         const c = colorOf(p);
         // Men gain a little per row advanced; men on the home row guard against enemy crowning.
         const adv = c === 'd' ? rowOf(i) : 7 - rowOf(i);
-        const v = p === p.toUpperCase() ? king : 100 + 4 * adv + (adv === 0 ? 8 : 0);
+        const v = p === p.toUpperCase() ? king : 100 + w.adv * adv + (adv === 0 ? w.guard : 0);
         s += c === me ? v : -v;
       });
       return s;

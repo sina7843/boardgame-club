@@ -23,6 +23,7 @@ export type Role = z.infer<typeof roleSchema>;
 
 export const avatarKeys = ['meeple', 'dice', 'crown', 'pawn', 'card', 'star'] as const;
 export const avatarKeySchema = z.enum(avatarKeys);
+export type AvatarKey = (typeof avatarKeys)[number];
 
 export const publicProfile = z.object({
   id: z.uuid(),

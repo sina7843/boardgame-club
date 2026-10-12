@@ -1,22 +1,23 @@
 // Every module that ships a bot: bots play each other at every level through the normal engine path. Each move must
 // be accepted by validate/apply, games must finish (or reach the ply cap), and a single decision must stay cheap.
 import { describe, expect, it } from 'vitest';
-import type { BotLevel } from '@bg/game-sdk';
+import type { BotLevel, BotStyle } from '@bg/game-sdk';
 import { applyAction, createRng, reviewedModules, startGame, type AnyModule, type EngineSnapshot } from '../src/index.ts';
 
 const modules = (reviewedModules as unknown as AnyModule[]).filter((m) => m.bot);
 const LEVELS: BotLevel[] = ['easy', 'medium', 'hard'];
+const STYLES: BotStyle[] = ['aggressive', 'balanced', 'cautious'];
 /** Upper bound for one decision on a developer machine; the real budget is the node cap, this only catches blow-ups. */
 const MAX_DECIDE_MS = 1500;
 
-function playOut(m: AnyModule, levels: BotLevel[], seed: number, maxPlies: number) {
+function playOut(m: AnyModule, levels: BotLevel[], seed: number, maxPlies: number, styles: BotStyle[] = ['balanced', 'balanced']) {
   let snap: EngineSnapshot = startGame(m, { playerCount: levels.length, seed }).snapshot;
   const rng = createRng({ s: seed * 7919 });
   let plies = 0, slowest = 0;
   while (!m.outcome(snap.state) && plies < maxPlies) {
     const seat = m.pendingSeats(snap.state)[0]!;
     const t0 = performance.now();
-    const action = m.bot!.decide(structuredClone(snap.state), seat, levels[seat]!, rng);
+    const action = m.bot!.decide(structuredClone(snap.state), seat, levels[seat]!, rng, styles[seat % styles.length]!);
     slowest = Math.max(slowest, performance.now() - t0);
     const step = applyAction(m, snap, { kind: 'player', seat }, action, 1_000 + plies);
     if ('ok' in step) throw new Error(`${m.manifest.gameId}: bot action rejected (${step.errorCode}): ${JSON.stringify(action)}`);
@@ -37,7 +38,9 @@ describe('bots', () => {
     const cap = id === 'chess' ? 60 : id === 'checkers' ? 120 : 400;
     for (const level of LEVELS) {
       it(`${id}: ${level} vs ${level} plays only legal moves`, () => {
-        const r = playOut(m, [level, level], 11, cap);
+        // Each level also exercises two styles against each other.
+        const i = LEVELS.indexOf(level);
+        const r = playOut(m, [level, level], 11, cap, [STYLES[i]!, STYLES[(i + 1) % 3]!]);
         if (cap === 400) expect(r.outcome).not.toBeNull();
         expect(r.slowest).toBeLessThan(MAX_DECIDE_MS);
       }, 60_000);
@@ -70,5 +73,25 @@ describe('bots', () => {
       if (r.outcome!.placements.find((p) => p.seat === hardSeat)!.place === 1) wins++;
     }
     expect(wins).toBeGreaterThanOrEqual(5);
+  }, 60_000);
+  it('styles change play: from the same start, aggressive and cautious bots do not play identical games', () => {
+    for (const id of ['chess', 'checkers', 'othello']) {
+      const m = modules.find((x) => x.manifest.gameId === id)!;
+      const line = (style: BotStyle) => {
+        let snap: EngineSnapshot = startGame(m, { playerCount: 2, seed: 4 }).snapshot;
+        const rng = createRng({ s: 99 });
+        const moves: string[] = [];
+        for (let i = 0; i < 16 && !m.outcome(snap.state); i++) {
+          const seat = m.pendingSeats(snap.state)[0]!;
+          const a = m.bot!.decide(structuredClone(snap.state), seat, 'hard', rng, style);
+          moves.push(JSON.stringify(a));
+          const step = applyAction(m, snap, { kind: 'player', seat }, a, i);
+          if ('ok' in step) throw new Error(step.errorCode);
+          snap = step.snapshot;
+        }
+        return moves.join();
+      };
+      expect(line('aggressive'), id).not.toBe(line('cautious'));
+    }
   }, 60_000);
 });

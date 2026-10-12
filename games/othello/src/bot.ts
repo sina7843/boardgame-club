@@ -25,7 +25,7 @@ const BUDGETS: Record<BotLevel, SearchBudget> = {
 };
 
 export const othelloBot: GameBot<OthelloState, OthelloAction> = {
-  decide(state, seat, level, rng) {
+  decide(state, seat, level, rng, style) {
     const me = state.colors[seat]!;
     const sq = searchAndPick<P, number>({
       moves: (p) => {
@@ -45,8 +45,13 @@ export const othelloBot: GameBot<OthelloState, OthelloAction> = {
           const diff = me === 'b' ? c.b - c.w : c.w - c.b;
           return diff === 0 ? 0 : Math.sign(diff) * (10_000 - ply) + diff;
         }
+        // Style: aggressive also counts discs (greedy flips), cautious fears the squares next to corners twice as much.
         let s = 0;
-        p.board.forEach((d, i) => { if (d) s += d === me ? W[i]! : -W[i]!; });
+        p.board.forEach((d, i) => {
+          if (!d) return;
+          const v = (style === 'cautious' && W[i]! < 0 ? 2 * W[i]! : W[i]!) + (style === 'aggressive' ? 4 : 0);
+          s += d === me ? v : -v;
+        });
         return s;
       },
       ours: (p) => p.turn === me,

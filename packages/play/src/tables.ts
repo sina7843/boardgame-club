@@ -1,7 +1,7 @@
 // Table lifecycle: create, join (public / invite), leave, ready → start, and server-side tutorial tables.
 import { randomBytes, randomInt } from 'node:crypto';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
-import { AppError, type CreateBotTableBody, type CreateTableBody } from '@bg/contracts';
+import { AppError, BOT_PERSONAS, type CreateBotTableBody, type CreateTableBody } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { startGame, type GameRegistry } from '@bg/game-engine';
 import type { OptionValue } from '@bg/game-sdk';
@@ -74,6 +74,12 @@ export async function createTable(db: Db, registry: GameRegistry, cfg: PlayConfi
   });
 }
 
+/** Distinct random personas (BOT_PERSONAS indexes) for `n` bot seats. */
+export function pickPersonas(n: number): number[] {
+  const pool = BOT_PERSONAS.map((_, i) => i);
+  return Array.from({ length: n }, () => pool.splice(randomInt(pool.length), 1)[0]!);
+}
+
 /**
  * Play against bots: a private, friendly table with the human on seat 0 and bots on every other seat, started at
  * once. Joining it cancels the player's queued ticket (the «حریف پیدا نشد» offer). Live pace with the longest
@@ -95,7 +101,7 @@ export async function createBotTable(db: Db, registry: GameRegistry, cfg: PlayCo
     const [t] = await tx.insert(gameTables).values({
       gameId: game.id, gameVersionId: version.id, pace, competition: 'friendly', visibility: 'private', status: 'open',
       hostId: userId, capacity: body.playerCount,
-      settings: { turnSeconds, reminders: false, options: resolveOptions(settings), bot: { level: body.level } }
+      settings: { turnSeconds, reminders: false, options: resolveOptions(settings), bot: { level: body.level, personas: pickPersonas(body.playerCount - 1) } }
     }).returning();
     await tx.insert(participants).values([
       { tableId: t!.id, seat: 0, userId, kind: 'human', ready: true },

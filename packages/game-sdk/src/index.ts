@@ -121,6 +121,9 @@ export interface GameModule<State = unknown, Action extends { type: string } = {
 
 export const botLevelSchema = z.enum(['easy', 'medium', 'hard']);
 export type BotLevel = z.infer<typeof botLevelSchema>;
+/** Personality of a bot persona: shifts what its evaluation prefers (never its strength level). */
+export const botStyleSchema = z.enum(['aggressive', 'balanced', 'cautious']);
+export type BotStyle = z.infer<typeof botStyleSchema>;
 
 /**
  * Computer opponent for one seat. Runs on the server (worker) only; its action goes through the normal
@@ -129,7 +132,7 @@ export type BotLevel = z.infer<typeof botLevelSchema>;
  * Must be pure and bounded (node budget, never wall clock); randomness only from `rng`.
  */
 export interface GameBot<State, Action> {
-  decide(state: State, seat: number, level: BotLevel, rng: EngineRng): Action;
+  decide(state: State, seat: number, level: BotLevel, rng: EngineRng, style: BotStyle): Action;
 }
 
 export interface TutorialStep<Action> {

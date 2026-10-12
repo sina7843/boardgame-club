@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { botLevelSchema, competitionSchema, optionValueSchema, paceSchema, type BotLevel } from '@bg/game-sdk';
-import { publicProfile } from './api.ts';
+import { botLevelSchema, botStyleSchema, competitionSchema, optionValueSchema, paceSchema, type BotLevel, type BotStyle } from '@bg/game-sdk';
+import { avatarKeySchema, publicProfile, type AvatarKey } from './api.ts';
 
 /** Allowed per-turn time budgets. Live: seconds per move/round; turn-based: durable deadline per turn. */
 export const TIME_OPTIONS = {
@@ -34,18 +34,36 @@ export type CreateBotTableBody = z.infer<typeof createBotTableBody>;
 
 export const tableSettings = z.object({
   turnSeconds: z.number().int(), reminders: z.boolean(), options: z.record(z.string(), optionValueSchema).optional(),
-  /** Present on tables with bot seats (reduced XP, never rated). */
-  bot: z.object({ level: botLevelSchema }).optional()
+  /** Present on tables with bot seats (reduced XP, never rated). `personas[i]` = BOT_PERSONAS index of the i-th bot seat. */
+  bot: z.object({ level: botLevelSchema, personas: z.array(z.number().int().min(0)).optional() }).optional()
 });
 
 export const BOT_LEVEL_FA: Record<BotLevel, string> = { easy: 'آسان', medium: 'متوسط', hard: 'سخت' };
-const BOT_NAMES: Record<BotLevel, string[]> = {
-  easy: ['نیلو', 'بابک', 'شیدا', 'پویا', 'ترانه'],
-  medium: ['آرش', 'مهتاب', 'کاوه', 'نسیم', 'بهرام'],
-  hard: ['سیمرغ', 'رستم', 'گردآفرید', 'تهمینه', 'سهراب']
-};
-/** Persona name of the n-th bot at a table (always shown with a robot badge; never presented as a person). */
-export const botNameFa = (level: BotLevel, n: number) => BOT_NAMES[level][n % BOT_NAMES[level].length]!;
+export const BOT_STYLE_FA: Record<BotStyle, string> = { aggressive: 'تهاجمی', balanced: 'متعادل', cautious: 'محتاط' };
+
+export interface BotPersona { nameFa: string; avatarKey: AvatarKey; style: BotStyle }
+/** Bot personas, picked at random per table (any level). Always shown with a robot badge; never presented as people. */
+export const BOT_PERSONAS: readonly BotPersona[] = [
+  { nameFa: 'نیلو', avatarKey: 'star', style: 'cautious' },
+  { nameFa: 'بابک', avatarKey: 'dice', style: 'aggressive' },
+  { nameFa: 'شیدا', avatarKey: 'card', style: 'balanced' },
+  { nameFa: 'پویا', avatarKey: 'pawn', style: 'aggressive' },
+  { nameFa: 'ترانه', avatarKey: 'meeple', style: 'cautious' },
+  { nameFa: 'آرش', avatarKey: 'crown', style: 'aggressive' },
+  { nameFa: 'مهتاب', avatarKey: 'star', style: 'balanced' },
+  { nameFa: 'کاوه', avatarKey: 'pawn', style: 'cautious' },
+  { nameFa: 'نسیم', avatarKey: 'card', style: 'balanced' },
+  { nameFa: 'بهرام', avatarKey: 'dice', style: 'aggressive' },
+  { nameFa: 'سیمرغ', avatarKey: 'crown', style: 'balanced' },
+  { nameFa: 'رستم', avatarKey: 'pawn', style: 'aggressive' },
+  { nameFa: 'گردآفرید', avatarKey: 'star', style: 'cautious' },
+  { nameFa: 'تهمینه', avatarKey: 'meeple', style: 'balanced' },
+  { nameFa: 'سهراب', avatarKey: 'dice', style: 'aggressive' },
+  { nameFa: 'پرستو', avatarKey: 'card', style: 'cautious' }
+];
+/** Persona of the n-th bot seat of a table (tables without stored personas fall back to the bot's order). */
+export const botPersona = (personas: readonly number[] | undefined, n: number): BotPersona =>
+  BOT_PERSONAS[(personas?.[n] ?? n) % BOT_PERSONAS.length]!;
 
 export const seatView = z.object({
   seat: z.number().int(),
@@ -53,7 +71,7 @@ export const seatView = z.object({
   user: publicProfile.nullable(),
   ready: z.boolean(),
   /** Bot seats only. */
-  bot: z.object({ level: botLevelSchema, nameFa: z.string() }).optional()
+  bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()
 });
 
 export const tableLobby = z.object({

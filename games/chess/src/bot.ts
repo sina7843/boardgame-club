@@ -1,6 +1,6 @@
 // Chess bot: alpha-beta over material plus simple piece placement (central knights/bishops, advanced pawns).
 // Public game, so the full state is fair. Repetition and the fifty-move rule are left to the rules.
-import { pickByLevel, searchMoves, type BotLevel, type GameBot, type SearchBudget } from '@bg/game-sdk';
+import { pickByLevel, searchMoves, type BotLevel, type BotStyle, type GameBot, type SearchBudget } from '@bg/game-sdk';
 import { inCheck, insufficientMaterial, legalMoves, makeMove, sqName, type ChessAction, type ChessState, type Color, type Move, type Position } from './rules.ts';
 
 const VALUE: Record<string, number> = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 0 };
@@ -11,8 +11,16 @@ const BUDGETS: Record<BotLevel, SearchBudget> = {
   hard: { maxDepth: 4, maxNodes: 8_000 }
 };
 
+/** Style weights: aggressive pushes pieces forward, cautious keeps the king sheltered and pieces at home. */
+const STYLE: Record<BotStyle, { push: number; king: number; home: number }> = {
+  aggressive: { push: 4, king: 5, home: 0 },
+  balanced: { push: 0, king: 10, home: 0 },
+  cautious: { push: 0, king: 30, home: 3 }
+};
+
 /** Material and placement from `me`'s side. */
-function material(board: Position['board'], me: Color): number {
+function material(board: Position['board'], me: Color, style: BotStyle): number {
+  const w = STYLE[style];
   let s = 0;
   for (let i = 0; i < 64; i++) {
     const p = board[i];
@@ -23,21 +31,23 @@ function material(board: Position['board'], me: Color): number {
     let v = VALUE[t]!;
     if (t === 'N' || t === 'B') v += 4 * centre;
     if (t === 'P') v += 6 * (c === 'w' ? r - 1 : 6 - r) + (f >= 2 && f <= 5 ? 4 : 0);
-    if (t === 'K') v += (c === 'w' ? r === 0 : r === 7) ? 10 : -10; // keep the king home in a simple way
+    const ahead = c === 'w' ? r : 7 - r; // ranks advanced from its own back rank
+    if (t === 'K') v += ahead === 0 ? w.king : -w.king; // keep the king home in a simple way
+    else if (t !== 'P') v += w.push * ahead + (ahead <= 3 ? w.home : 0);
     s += c === me ? v : -v;
   }
   return s;
 }
 
 export const chessBot: GameBot<ChessState, ChessAction> = {
-  decide(state, seat, level, rng) {
+  decide(state, seat, level, rng, style) {
     const me = state.colors[seat]!;
     const spec = {
       moves: (p: Position) => (insufficientMaterial(p.board) ? [] : legalMoves(p)),
       play: (p: Position, m: Move) => makeMove(p, m),
       evaluate: (p: Position, ply: number, ended: boolean) => {
         if (insufficientMaterial(p.board)) return 0;
-        if (!ended) return material(p.board, me);
+        if (!ended) return material(p.board, me, style);
         if (!inCheck(p)) return 0; // stalemate
         return p.turn === me ? -(100_000 - ply) : 100_000 - ply;
       },

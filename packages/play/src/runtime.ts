@@ -1,8 +1,8 @@
 // Authoritative table runtime shared by the API (HTTP + Socket.IO commands) and the worker (deadlines).
 // Every state change goes through persistStep inside a transaction that holds the table row lock.
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { and, eq, inArray, sql } from 'drizzle-orm';
-import { AppError } from '@bg/contracts';
+import { AppError, botPersona } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { failMatch } from './matchmaking.ts';
 import { applyAction, applyTimeout, createRng, type AnyModule, type EngineSnapshot, type GameRegistry, type RngState, type StepResult } from '@bg/game-engine';
@@ -39,8 +39,11 @@ export type EngineInput =
 
 const notifyTable = (tx: Tx, tableId: string) => tx.execute(sql`select pg_notify('table_changed', ${tableId})`);
 
-/** Pause before a bot moves, so its reply reads as a move rather than an instant board change. */
-export const BOT_DELAY_SECONDS = 0.8;
+/**
+ * Pause before a bot moves («thinking»): 1–3 s at random, one second more when it has many options, so replies
+ * feel considered rather than instant. The worker's deadline poll adds up to a second on top.
+ */
+export const botDelaySeconds = (choices: number) => 1 + randomInt(0, 2001) / 1000 + (choices > 12 ? 1 : 0);
 
 /**
  * Persist one engine step atomically: snapshot + revision, engine input and internal events, deadline changes,
@@ -85,7 +88,7 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
   }
 
   const botLevel = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
-  if (botLevel && !step.outcome && step.pendingSeats.length) {
+  if (botLevel && !step.outcome && step.pendingSeats.length && !locked.table.isTutorial) {
     // A bot seat must act: the worker plays it after a short, human-feeling pause (one pending 'bot' deadline per table).
     const bots = await tx.select({ seat: participants.seat }).from(participants)
       .where(and(eq(participants.tableId, table.id), eq(participants.kind, 'bot'), inArray(participants.seat, step.pendingSeats)));
@@ -93,7 +96,7 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
       await tx.update(scheduledDeadlines).set({ status: 'cancelled' })
         .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.deadlineKey, 'bot'), eq(scheduledDeadlines.status, 'pending')));
       await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'bot', token: randomUUID(), expectedRevision: revision,
-        dueAt: sql`now() + make_interval(secs => ${BOT_DELAY_SECONDS})` });
+        dueAt: sql`now() + make_interval(secs => ${botDelaySeconds(locked.module.legalActions(step.snapshot.state, { kind: 'player', seat: bots[0]!.seat }).length)})` });
     }
   }
 
@@ -261,18 +264,20 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
  */
 async function playBotTurn(tx: Tx, locked: LockedTable, snap: EngineSnapshot): Promise<void> {
   const { table, module } = locked;
-  const level = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
+  const cfg = (table.settings as { bot?: { level: BotLevel; personas?: number[] } }).bot;
   const pending = module.pendingSeats(snap.state);
-  if (!level || !module.bot || !pending.length) return;
-  const [bot] = await tx.select({ seat: participants.seat }).from(participants)
-    .where(and(eq(participants.tableId, table.id), eq(participants.kind, 'bot'), inArray(participants.seat, pending)))
-    .orderBy(participants.seat).limit(1);
-  if (!bot) return;
+  if (!cfg || !module.bot || !pending.length) return;
+  const botSeats = (await tx.select({ seat: participants.seat }).from(participants)
+    .where(and(eq(participants.tableId, table.id), eq(participants.kind, 'bot'))).orderBy(participants.seat)).map((b) => b.seat);
+  const seat = botSeats.find((s) => pending.includes(s));
+  if (seat === undefined) return;
+  const bot = { seat };
+  const { style } = botPersona(cfg.personas, botSeats.indexOf(seat));
   const actor = { kind: 'player' as const, seat: bot.seat };
   const logicalTime = Date.now();
   const seed = Number.parseInt(createHash('sha256').update(`${table.id}:${table.revision}:${bot.seat}`).digest('hex').slice(0, 8), 16);
   let chosen: unknown;
-  try { chosen = module.bot.decide(structuredClone(snap.state), bot.seat, level, createRng({ s: seed })); } catch { chosen = null; }
+  try { chosen = module.bot.decide(structuredClone(snap.state), bot.seat, cfg.level, createRng({ s: seed }), style); } catch { chosen = null; }
   const hints = module.legalActions(snap.state, actor);
   const candidates = [chosen, ...hints.filter((h) => h.type !== 'resign'), ...hints.filter((h) => h.type === 'resign')].filter((a) => a !== null);
   for (const action of candidates) {

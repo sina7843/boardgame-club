@@ -6,7 +6,7 @@ import { AppError, type EnqueueBody, type TicketView } from '@bg/contracts';
 import { assertTimeAllowed } from './game-settings.ts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
-import { activeVersion, assertLimits, type PlayConfig } from './tables.ts';
+import { activeVersion, assertLimits, pickPersonas, type PlayConfig } from './tables.ts';
 import { isPremium } from './billing.ts';
 import { matchRating } from './rating.ts';
 import type { Tx } from './runtime.ts';
@@ -133,7 +133,7 @@ async function createMatchTable(tx: Tx, cfg: MatchConfig, key: QueueKey, group: 
   await tx.insert(gameTables).values({
     id: tableId, gameId: key.gameId, gameVersionId: version.id, pace: key.pace, competition: key.competition, visibility: 'private',
     status: 'open', hostId: group[0]!.userId, capacity: key.playerCount, isMatchmade: true,
-    settings: { turnSeconds: key.turnSeconds, reminders: key.pace === 'turn', ...(bots ? { bot: { level: FILL_BOT_LEVEL } } : {}) }
+    settings: { turnSeconds: key.turnSeconds, reminders: key.pace === 'turn', ...(bots ? { bot: { level: FILL_BOT_LEVEL, personas: pickPersonas(bots) } } : {}) }
   });
   await tx.insert(participants).values([
     ...group.map((t, seat) => ({ tableId, seat, userId: t.userId, kind: 'human' })),

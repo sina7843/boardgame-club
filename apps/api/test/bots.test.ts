@@ -1,5 +1,6 @@
 import { and, eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { BOT_PERSONAS } from '@bg/contracts';
 import { schema } from '@bg/db';
 import { createDefaultRegistry } from '@bg/game-engine';
 import { defaultMatchConfig, fireDeadline, runMatchmaking, runOutbox } from '@bg/play';
@@ -54,7 +55,8 @@ describe('play against bots', () => {
     const tableId = res.json().id;
     const s = await view(ctx, u!, tableId);
     expect(s.table).toMatchObject({ status: 'active', competition: 'friendly', visibility: 'private', mySeat: 0, settings: { bot: { level: 'hard' } } });
-    expect(s.table.seats[1]).toMatchObject({ seat: 1, kind: 'bot', user: null, bot: { level: 'hard', nameFa: 'سیمرغ' } });
+    expect(s.table.seats[1]).toMatchObject({ seat: 1, kind: 'bot', user: null, bot: { level: 'hard' } });
+    expect(BOT_PERSONAS).toContainEqual({ nameFa: s.table.seats[1].bot.nameFa, avatarKey: s.table.seats[1].bot.avatarKey, style: s.table.seats[1].bot.style });
 
     const end = await playToEnd(u!, tableId);
     expect(end.table.status).toBe('finished');
@@ -94,7 +96,10 @@ describe('play against bots', () => {
     const [u] = await users(ctx, 1);
     const tableId = (await botTable(u!, { gameId: 'snakes-ladders', level: 'easy', playerCount: 4 })).json().id;
     const s = await view(ctx, u!, tableId);
-    expect(s.table.seats.map((x: { kind: string; bot?: { nameFa: string } }) => x.bot?.nameFa ?? x.kind)).toEqual(['human', 'نیلو', 'بابک', 'شیدا']);
+    const names = s.table.seats.slice(1).map((x: { bot: { nameFa: string } }) => x.bot.nameFa);
+    expect(s.table.seats.map((x: { kind: string }) => x.kind)).toEqual(['human', 'bot', 'bot', 'bot']);
+    expect(new Set(names).size).toBe(3); // distinct personas at one table
+    expect(s.table.settings.bot.personas).toHaveLength(3);
     expect((await playToEnd(u!, tableId)).table.status).toBe('finished');
   });
 
@@ -115,6 +120,7 @@ describe('play against bots', () => {
     expect(seats.map((x) => x.kind)).toEqual(['human', 'human', 'bot', 'bot']);
     const [table] = await ctx.db.select().from(gameTables).where(eq(gameTables.id, tableId));
     expect(table!.settings).toMatchObject({ bot: { level: 'medium' } });
+    expect((table!.settings as { bot: { personas: number[] } }).bot.personas).toHaveLength(2);
     for (const u of [a!, b!]) await call(ctx, 'POST', `/api/tables/${tableId}/ready`, u, { ready: true });
     expect((await view(ctx, a!, tableId)).table.status).toBe('active');
   });

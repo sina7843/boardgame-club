@@ -17,7 +17,7 @@ test('play «سه‌خطی» against a hard bot to the result', async ({ browser
   await p.screenshot({ path: shot(info.project.name, 'offer'), fullPage: true });
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.lt__board')).toBeVisible();
-  await expect(p.getByRole('img', { name: 'نماد 🤖 سیمرغ' }).first()).toBeVisible();
+  await expect(p.getByRole('img', { name: /^نماد 🤖 / }).first()).toBeVisible();
 
   for (let n = 0; n < 12; n++) {
     if (await p.getByRole('heading', { name: RESULT }).count()) break;
