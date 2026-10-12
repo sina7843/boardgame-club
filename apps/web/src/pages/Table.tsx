@@ -209,7 +209,7 @@ function PlayerBoards({ snap, variant = 'list' }: { snap: TableSnapshot; variant
             <span className="pboard__ring"><Avatar avatarKey={x.user?.avatarKey ?? x.bot?.avatarKey ?? 'dice'} name={name(x.seat)} size={variant === 'list' ? 42 : variant === 'rail' ? 40 : 34} /></span>
             <span className="pboard__who">
               <span className="pboard__name"><bdi>{name(x.seat)}</bdi>{me && <span className="pboard__you"> (شما)</span>}</span>
-              <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : x.bot ? `ربات ${BOT_LEVEL_FA[x.bot.level]} · ${BOT_STYLE_FA[x.bot.style]}` : me ? 'پشت میز' : 'آماده'}</span>
+              <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : x.bot ? `${variant === 'strip' ? '' : 'ربات '}${BOT_LEVEL_FA[x.bot.level]} · ${BOT_STYLE_FA[x.bot.style]}` : me ? 'پشت میز' : 'آماده'}</span>
             </span>
             {active && <ChevronLeft className="pboard__turn" aria-hidden />}
           </li>
