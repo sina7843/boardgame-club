@@ -46,7 +46,7 @@ describe('play against bots', () => {
     const flag = async (id: string) => (await call(ctx, 'GET', `/api/games/${id}`)).json().botAvailable;
     expect(await flag('chess')).toBe(true);
     expect(await flag('othello')).toBe(true);
-    expect(await flag('uno')).toBe(false);
+    expect(await flag('go')).toBe(false);
     const list = (await call(ctx, 'GET', '/api/games')).json().items as { id: string; botAvailable: boolean }[];
     expect(list.every((g) => typeof g.botAvailable === 'boolean')).toBe(true);
   });
@@ -86,7 +86,7 @@ describe('play against bots', () => {
 
   it('refuses games without a bot and cancels the player\'s queued ticket when a bot game starts', async () => {
     const [u] = await users(ctx, 1);
-    expect((await botTable(u!, { gameId: 'uno', level: 'easy' })).json().errorCode).toBe('BOT_NOT_AVAILABLE');
+    expect((await botTable(u!, { gameId: 'go', level: 'easy' })).json().errorCode).toBe('BOT_NOT_AVAILABLE');
     expect((await call(ctx, 'POST', '/api/matchmaking/tickets', u, { gameId: 'chess', pace: 'live', playerCount: 2, turnSeconds: 60 })).statusCode).toBe(201);
     expect((await botTable(u!, { gameId: 'chess', level: 'medium' })).statusCode).toBe(201);
     const [t] = await ctx.db.select().from(matchmakingTickets).where(eq(matchmakingTickets.userId, u!.id));
@@ -155,5 +155,25 @@ describe('play against bots', () => {
     const end = await playToEnd(u!, tableId, () => ({ type: 'roll' }));
     expect(end.table.status).toBe('finished');
     expect(end.game.result.reason).toBe('score');
+  });
+
+  it('6 nimmt!: bots choose cards simultaneously with the human and the game reaches a result', async () => {
+    const [u] = await users(ctx, 1);
+    const tableId = (await botTable(u!, { gameId: 'six-nimmt', level: 'hard', playerCount: 3 })).json().id;
+    const end = await playToEnd(u!, tableId);
+    expect(end.table.status).toBe('finished');
+    expect(end.game.result.reason).toBe('score');
+  });
+
+  it('Love Letter: a 3-player game with targeted cards against bots reaches a result', async () => {
+    const [u] = await users(ctx, 1);
+    const tableId = (await botTable(u!, { gameId: 'love-letter', level: 'medium', playerCount: 3 })).json().id;
+    const end = await playToEnd(u!, tableId, (s) => {
+      const hint = s.game.legalActions.find((a: { type: string; card?: number }) => a.type === 'play' && a.card !== 8)
+        ?? s.game.legalActions.find((a: { type: string }) => a.type === 'play');
+      const target = (hint.targets as number[])[0];
+      return { type: 'play', card: hint.card, ...(target !== undefined ? { target } : {}), ...(hint.card === 1 && target !== undefined ? { guess: 2 } : {}) };
+    });
+    expect(end.table.status).toBe('finished');
   });
 });

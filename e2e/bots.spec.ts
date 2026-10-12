@@ -53,3 +53,26 @@ test('«مسابقهٔ شترها» with two bots: the bots take their turns bet
   await p.screenshot({ path: shot(info.project.name, 'camel-midgame'), fullPage: true });
   await p.context().close();
 });
+
+test('«نه، ممنون!» against a bot: the bot answers each of my moves', async ({ browser }, info) => {
+  only(info.project.name);
+  test.setTimeout(180_000);
+  const p = await player(browser, info.project.use.viewport ?? null, 'بی‌ژتون');
+  await p.goto('/games/no-thanks');
+  await p.getByRole('radio', { name: 'متوسط' }).click();
+  await p.getByRole('button', { name: 'بازی با ربات' }).click();
+  await expect(p.locator('.nt-card--big')).toBeVisible();
+  await expect(p.getByRole('img', { name: /^نماد 🤖 / }).first()).toBeVisible();
+  // Three of my moves; between them the bot must act (pass or take), which moves the shared sequence on.
+  const take = p.locator('.nt-btn--take');
+  for (let mine = 0; mine < 3; mine++) {
+    await expect(take).toBeVisible({ timeout: 30_000 });
+    const before = await p.locator('.nt').getAttribute('data-seq');
+    const pass = p.locator('.nt-btn--pass');
+    if (await pass.isEnabled()) await pass.click(); else await take.click();
+    await expect.poll(() => p.locator('.nt').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+  }
+  await expect(take).toBeVisible({ timeout: 30_000 });
+  await p.screenshot({ path: shot(info.project.name, 'no-thanks'), fullPage: true });
+  await p.context().close();
+});

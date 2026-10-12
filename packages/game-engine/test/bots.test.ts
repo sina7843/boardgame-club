@@ -28,14 +28,14 @@ function playOut(m: AnyModule, levels: BotLevel[], seed: number, maxPlies: numbe
 }
 
 describe('bots', () => {
-  it('ships bots for the wave 1–2 games', () => {
-    expect(modules.map((m) => m.manifest.gameId).sort()).toEqual(['backgammon', 'battleship', 'camel-up', 'checkers', 'chess', 'line-three', 'ludo', 'othello', 'snakes-ladders', 'yahtzee']);
+  it('ships bots for the wave 1–3 games', () => {
+    expect(modules.map((m) => m.manifest.gameId).sort()).toEqual(['backgammon', 'battleship', 'camel-up', 'checkers', 'chess', 'line-three', 'lost-cities', 'love-letter', 'ludo', 'no-thanks', 'othello', 'point-salad', 'six-nimmt', 'snakes-ladders', 'sushi-go', 'uno', 'yahtzee']);
   });
 
   for (const m of modules) {
     const id = m.manifest.gameId;
     // Chess and checkers games can run long; a ply cap still exercises openings, captures and the middle game.
-    const cap = id === 'chess' ? 60 : id === 'checkers' ? 120 : id === 'ludo' ? 3000 : 400;
+    const cap = id === 'chess' ? 60 : id === 'checkers' ? 120 : ['ludo', 'uno', 'love-letter', 'six-nimmt', 'lost-cities'].includes(id) ? 3000 : 400;
     for (const level of LEVELS) {
       it(`${id}: ${level} vs ${level} plays only legal moves`, () => {
         // Each level also exercises two styles against each other.
@@ -129,4 +129,11 @@ describe('bots', () => {
     expect(medium).toBeLessThan(easy - 4);
     expect(hard).toBeLessThan(medium - 4);
   }, 120_000);
+
+  it('card games (wave 3): hard beats easy in most games', () => {
+    const won = (o: NonNullable<ReturnType<AnyModule['outcome']>>, seat: number) =>
+      (o.placements.find((p) => p.seat === seat)!.place === 1 && o.placements.some((p) => p.place > 1) ? 1 : 0);
+    // Measured over 20 games: uno 17, no-thanks 19, six-nimmt 17, lost-cities 19, point-salad 16 (32/40).
+    for (const id of ['uno', 'no-thanks', 'six-nimmt', 'lost-cities', 'point-salad']) expect(avgScore(id, 'hard', 20, won), id).toBeGreaterThanOrEqual(0.6);
+  }, 300_000);
 });
