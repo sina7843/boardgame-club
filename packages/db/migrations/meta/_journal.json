@@ -50,6 +50,13 @@
       "when": 1791841770921,
       "tag": "0006_bot_seats",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791862268138,
+      "tag": "0007_coins",
+      "breakpoints": true
     }
   ]
 }

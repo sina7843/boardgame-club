@@ -15,7 +15,7 @@ import { requireRole, requireUser } from '../auth/session.ts';
 import { profiles } from '../social/relations.ts';
 
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress, achievementDefinitions,
-  userAchievements, games, gameResults, auditLog, users } = schema;
+  userAchievements, games, gameResults, auditLog, users, coinLedger } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const modeSchema = z.enum(['live', 'turn']);
 type AchievementDef = typeof achievementDefinitions.$inferSelect;
@@ -104,13 +104,16 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
   }, async (req) => {
     const { userId } = requireUser(req);
     const [result] = await db.select({ id: gameResults.id }).from(gameResults).where(eq(gameResults.tableId, req.query.tableId));
-    if (!result) return { rating: null, rewards: [], processed: false };
+    if (!result) return { rating: null, rewards: [], coins: 0, processed: false };
     const rows = await db.select().from(rewardLedger).where(and(eq(rewardLedger.userId, userId), eq(rewardLedger.resultId, result.id)));
+    const [coins] = await db.select({ n: sql<number>`coalesce(sum(${coinLedger.amount}), 0)::int` }).from(coinLedger)
+      .where(and(eq(coinLedger.userId, userId), eq(coinLedger.resultId, result.id)));
     const [h] = await db.select().from(ratingHistory).where(and(eq(ratingHistory.resultId, result.id), eq(ratingHistory.userId, userId)));
     const [rt] = h ? await db.select().from(ratings).where(and(eq(ratings.userId, userId), eq(ratings.gameId, h.gameId), eq(ratings.mode, h.mode))) : [];
     return {
       rating: h ? { before: displayRating({ mu: h.muBefore, sigma: h.sigmaBefore }), after: displayRating({ mu: h.muAfter, sigma: h.sigmaAfter }), provisional: (rt?.gamesPlayed ?? 0) < ELIGIBILITY.provisionalGames } : null,
       rewards: rows.map(toLedger),
+      coins: coins?.n ?? 0,
       processed: rows.length > 0
     };
   });

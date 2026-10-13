@@ -6,6 +6,7 @@ import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Maximize2, Medal
 import { Avatar, Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
+import { CoinMark } from '../lib/coins.tsx';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { browserNotificationsEnabled } from '../lib/realtime.tsx';
@@ -126,7 +127,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
 }
 
 function RewardsSummary({ tableId, isTutorial }: { tableId: string; isTutorial: boolean }) {
-  const r = useApi<{ rating: { before: number; after: number; provisional: boolean } | null; rewards: { ruleId: string; amount: number; reason: string }[]; processed: boolean }>(`/me/rewards?tableId=${tableId}`);
+  const r = useApi<{ rating: { before: number; after: number; provisional: boolean } | null; rewards: { ruleId: string; amount: number; reason: string }[]; coins: number; processed: boolean }>(`/me/rewards?tableId=${tableId}`);
   const [tries, setTries] = useState(0);
   const reload = r.reload;
   // Rewards are computed by the worker shortly after the result; poll briefly, then stop.
@@ -141,6 +142,7 @@ function RewardsSummary({ tableId, isTutorial }: { tableId: string; isTutorial: 
     <div className="stack" style={{ gap: 'var(--sp-1)' }} aria-label="پاداش این بازی">
       {r.data.rating && <p style={{ margin: 0 }}>امتیاز رتبه‌دار: <strong className="num">{faNum(r.data.rating.before)} → {faNum(r.data.rating.after)}</strong>{r.data.rating.provisional ? ' (موقت)' : ''}</p>}
       {r.data.rewards.map((x, i) => <p key={i} style={{ margin: 0 }}>{x.amount > 0 ? `+${faNum(x.amount)} XP: ` : ''}{x.reason}</p>)}
+      {r.data.coins > 0 && <p className="flex items-center gap-2 font-bold" style={{ margin: 0 }}><CoinMark className="size-6 animate-pop" />+{faNum(r.data.coins)} سکه <Link to="/coins" className="text-sm font-normal">کیف سکه</Link></p>}
       <Link to="/progress">{isTutorial ? 'پیشرفت من' : 'جزئیات پیشرفت و مأموریت‌ها'}</Link>
     </div>
   );

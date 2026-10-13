@@ -1,11 +1,12 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import {
-  Bell, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
+  Bell, Coins, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
   Swords, Trophy, UserRound, Users, UsersRound, Castle, type LucideIcon
 } from 'lucide-react';
 import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline, useToast } from '@bg/ui';
 import { useSession } from '../lib/session.tsx';
 import { Celebration } from './Celebration.tsx';
+import { CoinChip } from '../lib/coins.tsx';
 
 const APP_NAME = 'باشگاه بردگیم';
 
@@ -50,6 +51,7 @@ export function Layout() {
     { to: '/friends', label: 'دوستان', icon: UserRound },
     { to: '/groups', label: 'گروه‌ها', icon: UsersRound },
     { to: '/clubs', label: 'باشگاه‌ها', icon: Users },
+    { to: '/coins', label: 'سکه‌ها', icon: Coins },
     { to: '/plans', label: 'اشتراک', icon: CreditCard },
     { to: '/support', label: 'پشتیبانی', icon: LifeBuoy },
     { to: '/settings', label: 'تنظیمات', icon: Settings }
@@ -91,6 +93,7 @@ export function Layout() {
               <div className="flex min-w-0 items-center gap-3 px-1">
                 <Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} />
                 <span className="truncate font-semibold">{me.displayName}</span>
+                <span className="ms-auto"><CoinChip /></span>
               </div>
               <Button variant="ghost" size="sm" onClick={onLogout} className="justify-start"><LogOut aria-hidden />خروج</Button>
             </>
@@ -102,7 +105,7 @@ export function Layout() {
 
       <header className="shell-nav sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 backdrop-blur-md lg:hidden">
         <Brand compact />
-        {me ? <NavLink to="/settings" aria-label="حساب و تنظیمات" className="rounded-full"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} /></NavLink>
+        {me ? <div className="flex items-center gap-2"><CoinChip /><NavLink to="/settings" aria-label="حساب و تنظیمات" className="rounded-full"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} /></NavLink></div>
           : status !== 'loading' && <NavLink className={buttonClass('primary', 'sm')} to={`/login?next=${encodeURIComponent(pathname)}`}>ورود</NavLink>}
       </header>
 

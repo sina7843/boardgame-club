@@ -6,7 +6,7 @@ import { AppError } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 
-const { plans, payments, paymentEvents, subscriptions, entitlements, auditLog, fakeGatewayTransactions } = schema;
+const { plans, coinPacks, coinLedger, payments, paymentEvents, subscriptions, entitlements, auditLog, fakeGatewayTransactions } = schema;
 
 export type VerifyResult = { status: 'paid'; refId: string; paidAmount: number } | { status: 'failed'; reason: string } | { status: 'pending' };
 
@@ -63,14 +63,15 @@ export const isPremium = async (db: Db | Tx, userId: string) => (await premiumUn
 
 // ---------------- Checkout ----------------
 
-export async function checkout(db: Db, cfg: BillingConfig, userId: string, planId: string) {
+/** Start a payment for one product: a subscription plan or a coin pack. */
+export async function checkout(db: Db, cfg: BillingConfig, userId: string, product: { planId: string } | { coinPackId: string }) {
   if (!cfg.gateway) throw new AppError('PAYMENT_UNAVAILABLE');
-  const [plan] = await db.select().from(plans).where(eq(plans.id, planId));
+  const [plan] = 'planId' in product ? await db.select().from(plans).where(eq(plans.id, product.planId)) : await db.select().from(coinPacks).where(eq(coinPacks.id, product.coinPackId));
   if (!plan || !plan.active) throw new AppError('NOT_FOUND');
   if (!plan.priceAmount) throw new AppError('PAYMENT_UNAVAILABLE'); // price not approved yet
   const orderId = `BG-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${randomBytes(5).toString('hex').toUpperCase()}`;
   const [payment] = await db.insert(payments).values({
-    userId, planId: plan.id, orderId, provider: cfg.gateway.id, amount: plan.priceAmount, currency: plan.currency, status: 'pending',
+    userId, ...('planId' in product ? { planId: plan.id } : { coinPackId: plan.id }), orderId, provider: cfg.gateway.id, amount: plan.priceAmount, currency: plan.currency, status: 'pending',
     expiresAt: sql`now() + make_interval(mins => ${cfg.paymentTtlMinutes})`
   }).returning();
   try {
@@ -126,11 +127,19 @@ export async function verifyPayment(db: Db, cfg: BillingConfig, ref: { provider:
     if (dup) return fail('DUPLICATE_REFERENCE', { refId: v.refId });
 
     await tx.update(payments).set({ status: 'verified', providerRef: v.refId, verifiedAt: sql`now()`, updatedAt: sql`now()` }).where(eq(payments.id, p.id));
-    await activate(tx, p.userId, p.planId, p.id);
+    if (p.planId) await activate(tx, p.userId, p.planId, p.id);
+    else await creditCoinPack(tx, p.userId, p.coinPackId!, p.id, p.orderId);
     await log('verified', { refId: v.refId });
-    await tx.insert(auditLog).values({ actorId: p.userId, action: 'subscription.activate', targetType: 'payment', targetId: p.id, metadata: { orderId: p.orderId, refId: v.refId, via: ref.via } });
+    await tx.insert(auditLog).values({ actorId: p.userId, action: p.planId ? 'subscription.activate' : 'coins.purchase', targetType: 'payment', targetId: p.id, metadata: { orderId: p.orderId, refId: v.refId, via: ref.via } });
     return { outcome: 'verified' as const, orderId: p.orderId };
   });
+}
+
+/** A verified coin-pack payment credits its coins once (the payment id is the source key). */
+async function creditCoinPack(tx: Tx, userId: string, coinPackId: string, paymentId: string, orderId: string) {
+  const [pack] = await tx.select().from(coinPacks).where(eq(coinPacks.id, coinPackId));
+  await tx.insert(coinLedger).values({ userId, amount: pack!.coins, ruleId: 'purchase', reason: `خرید «${pack!.titleFa}».`, sourceKey: `payment:${paymentId}`,
+    metadata: { orderId } }).onConflictDoNothing({ target: coinLedger.sourceKey });
 }
 
 /** New period starts at the end of any active subscription (renewal extends; never shortens). No auto-renewal. */

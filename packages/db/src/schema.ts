@@ -544,12 +544,42 @@ export const entitlements = pgTable('entitlements', {
   createdBy: uuid().references(() => users.id),
   revokedAt: tsz(),
   createdAt: createdAt()
-}, (t) => [index('entitlements_user_key_idx').on(t.userId, t.key), oneOf('entitlements_source_chk', t.source, ['subscription', 'manual'])]);
+}, (t) => [index('entitlements_user_key_idx').on(t.userId, t.key), oneOf('entitlements_source_chk', t.source, ['subscription', 'manual', 'coins'])]);
+
+/** Coin packs sold through the payment gateway. Price is a product decision; null (not purchasable) until an admin sets it. */
+export const coinPacks = pgTable('coin_packs', {
+  id: id(),
+  key: text().notNull().unique(),
+  titleFa: text().notNull(),
+  coins: integer().notNull(),
+  priceAmount: bigint({ mode: 'number' }),
+  currency: text().notNull().default('IRR'),
+  active: boolean().notNull().default(false)
+}, (t) => [check('coin_packs_coins_chk', sql`${t.coins} > 0`), check('coin_packs_price_chk', sql`${t.priceAmount} is null or ${t.priceAmount} > 0`)]);
+
+/**
+ * Coin wallet, append-only. Balance = sum(amount). Earned rows are derived from reward_ledger rows (one per source key),
+ * purchases from verified payments; spends are negative and taken under a per-user lock after a balance check.
+ */
+export const coinLedger = pgTable('coin_ledger', {
+  id: id(),
+  userId: uuid().notNull().references(() => users.id),
+  amount: integer().notNull(),
+  ruleId: text().notNull(),
+  reason: text().notNull(),
+  /** Idempotency key: retries and redeliveries insert nothing. */
+  sourceKey: text().notNull().unique(),
+  resultId: uuid().references(() => gameResults.id),
+  metadata: jsonb().notNull().default({}),
+  createdAt: createdAt()
+}, (t) => [index('coin_ledger_user_idx').on(t.userId, t.createdAt), check('coin_ledger_amount_chk', sql`${t.amount} <> 0`)]);
 
 export const payments = pgTable('payments', {
   id: id(),
   userId: uuid().notNull().references(() => users.id),
-  planId: uuid().notNull().references(() => plans.id),
+  /** Exactly one product: a subscription plan or a coin pack. */
+  planId: uuid().references(() => plans.id),
+  coinPackId: uuid().references(() => coinPacks.id),
   orderId: text().notNull().unique(),
   provider: text().notNull(),
   amount: bigint({ mode: 'number' }).notNull(),
@@ -568,6 +598,7 @@ export const payments = pgTable('payments', {
   uniqueIndex('payments_provider_authority_uq').on(t.provider, t.authority),
   index('payments_user_idx').on(t.userId, t.createdAt),
   check('payments_amount_chk', sql`${t.amount} > 0`),
+  check('payments_product_chk', sql`(${t.planId} is null) <> (${t.coinPackId} is null)`),
   oneOf('payments_status_chk', t.status, ['pending', 'verified', 'failed', 'expired'])
 ]);
 

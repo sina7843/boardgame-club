@@ -26,7 +26,7 @@ export function Admin() {
       <Tabs label="بخش‌های مدیریت" tabs={[
         { id: 'games', title: 'بازی‌ها', content: <GamesAdmin /> },
         { id: 'progress', title: 'مأموریت و فصل', content: <><MissionsAdmin /><SeasonsAdmin /></> },
-        { id: 'plans', title: 'اشتراک', content: <PlansAdmin /> },
+        { id: 'plans', title: 'اشتراک و سکه', content: <><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></> },
         { id: 'support', title: 'پشتیبانی', content: <SupportAdmin /> },
         { id: 'incident', title: 'توقف سراسری', content: <IncidentPanel /> }
       ]} />

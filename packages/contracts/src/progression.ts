@@ -43,6 +43,8 @@ export type DailyGame = z.infer<typeof dailyGameResponse>;
 export const tableRewards = z.object({
   rating: z.object({ before: z.number().int(), after: z.number().int(), provisional: z.boolean() }).nullable(),
   rewards: z.array(ledgerItem),
+  /** Coins earned from this table (all rules together). */
+  coins: z.number().int(),
   /** Rewards are computed asynchronously after the game; false = still processing (the UI re-checks). */
   processed: z.boolean()
 });
@@ -73,5 +75,18 @@ export const subscriptionStatus = z.object({
 export type SubscriptionStatus = z.infer<typeof subscriptionStatus>;
 export const paymentStatus = z.object({
   orderId: z.string(), status: z.enum(['pending', 'verified', 'failed', 'expired']), failureReason: z.string().nullable(),
-  amount: z.number().int(), planTitleFa: z.string(), fixture: z.boolean()
+  /** planTitleFa names the product: a plan or a coin pack (see kind). */
+  amount: z.number().int(), planTitleFa: z.string(), kind: z.enum(['plan', 'coins']), coins: z.number().int().nullable(), fixture: z.boolean()
 });
+
+/** Coin wallet: balance, recent movements, shop, purchasable packs and the earning rules (all server-defined). */
+export const coinsResponse = z.object({
+  balance: z.number().int(),
+  history: z.array(z.object({ amount: z.number().int(), ruleId: z.string(), reason: z.string(), createdAt: z.iso.datetime() })),
+  shop: z.array(z.object({ key: z.string(), titleFa: z.string(), descriptionFa: z.string(), cost: z.number().int(), premiumDays: z.number().int() })),
+  packs: z.array(z.object({ id: z.uuid(), key: z.string(), titleFa: z.string(), coins: z.number().int(), priceAmount: z.number().int().nullable(),
+    currency: z.string(), purchasable: z.boolean(), unavailableReasonFa: z.string().nullable() })),
+  checkout: z.object({ available: z.boolean(), reasonFa: z.string().nullable(), fixture: z.boolean() }),
+  earn: z.array(z.object({ labelFa: z.string(), coins: z.number().int() }))
+});
+export type CoinsResponse = z.infer<typeof coinsResponse>;

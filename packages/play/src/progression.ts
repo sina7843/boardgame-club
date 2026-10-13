@@ -7,6 +7,7 @@ import { and, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 import { DEFAULT_SEASON, displayRating, ELIGIBILITY, leagueFor, newSkill, rate, type SeasonConfig } from './rating.ts';
+import { syncCoins } from './coins.ts';
 
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress,
   achievementDefinitions, userAchievements, gameResults, gameTables, games, gameVersions } = schema;
@@ -254,6 +255,7 @@ async function evaluateGoals(tx: Tx, userId: string) {
   await grant(achievements.filter((a) => !isMeta(a)));
   f = await goalFacts(tx, userId, week.key); // fresh XP and trophy count after the awards above
   await grant(achievements.filter(isMeta));
+  await syncCoins(tx, userId, levelFor(await totalXp(tx, userId)).level); // coins follow the reward rows written above
 }
 
 /** MatchCompleted: completion XP (also for losses), capped first-place bonus, repeated-opponent and daily limits. */

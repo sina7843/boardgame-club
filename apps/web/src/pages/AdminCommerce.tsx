@@ -12,22 +12,22 @@ function useCall() {
 }
 
 /** Prices are a product decision: the admin sets them explicitly; every change is audited with a reason. */
-export function PlansAdmin() {
-  const plans = useApi<{ items: { id: string; titleFa: string; priceAmount: number | null; active: boolean; durationDays: number }[] }>('/admin/plans');
+export function PlansAdmin({ path = '/admin/plans', title = 'پلن‌ها و قیمت' }: { path?: string; title?: string }) {
+  const plans = useApi<{ items: { id: string; titleFa: string; priceAmount: number | null; active: boolean }[] }>(path);
   const call = useCall();
   const [draft, setDraft] = useState<Record<string, string>>({});
   if (!plans.data) return null;
   return (
-    <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="plans-admin-h">
-      <h2 id="plans-admin-h" className="section-title">پلن‌ها و قیمت</h2>
+    <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby={`${path}-h`}>
+      <h2 id={`${path}-h`} className="section-title">{title}</h2>
       <p className="muted" style={{ margin: 0 }}>قیمت نهایی تصمیم محصول است؛ تا تعیین نشود خرید غیرفعال می‌ماند. مبلغ به ریال.</p>
       {plans.data.items.map((p) => (
         <div key={p.id} className="row" style={{ alignItems: 'end' }}>
           <strong style={{ minInlineSize: 140 }}>{p.titleFa}</strong>
           <Badge tone={p.active ? 'success' : undefined}>{p.active ? 'فعال' : 'غیرفعال'}</Badge>
           <div style={{ minInlineSize: 160 }}><Input label="قیمت (ریال)" inputMode="numeric" dir="ltr" className="input--ltr" value={draft[p.id] ?? (p.priceAmount ? String(p.priceAmount) : '')} onChange={(e) => setDraft({ ...draft, [p.id]: e.target.value })} /></div>
-          <Button size="sm" variant="secondary" onClick={async () => { const v = Number(draft[p.id]); if (v > 0 && await call(`/admin/plans/${p.id}`, 'PATCH', { priceAmount: v, reason: 'تعیین قیمت از پنل' }, 'قیمت ذخیره شد.')) plans.reload(); }}>ذخیره قیمت</Button>
-          <Button size="sm" variant="ghost" onClick={async () => { if (await call(`/admin/plans/${p.id}`, 'PATCH', { active: !p.active, reason: 'تغییر وضعیت عرضه' }, 'ذخیره شد.')) plans.reload(); }}>{p.active ? 'توقف عرضه' : 'عرضه'}</Button>
+          <Button size="sm" variant="secondary" onClick={async () => { const v = Number(draft[p.id]); if (v > 0 && await call(`${path}/${p.id}`, 'PATCH', { priceAmount: v, reason: 'تعیین قیمت از پنل' }, 'قیمت ذخیره شد.')) plans.reload(); }}>ذخیره قیمت</Button>
+          <Button size="sm" variant="ghost" onClick={async () => { if (await call(`${path}/${p.id}`, 'PATCH', { active: !p.active, reason: 'تغییر وضعیت عرضه' }, 'ذخیره شد.')) plans.reload(); }}>{p.active ? 'توقف عرضه' : 'عرضه'}</Button>
         </div>
       ))}
     </section>

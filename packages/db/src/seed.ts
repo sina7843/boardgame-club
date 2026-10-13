@@ -4,7 +4,7 @@ import { normalizeSearch } from '@bg/contracts';
 import { createDb, type Db } from './index.ts';
 import { requireDatabaseUrl } from './env.ts';
 import { gameRegistry } from './registry.ts';
-import { achievementDefinitions, games, gameVersions, missionDefinitions, plans } from './schema.ts';
+import { achievementDefinitions, coinPacks, games, gameVersions, missionDefinitions, plans } from './schema.ts';
 
 /** Versioned reward definitions (docs/PROGRESSION.md). Criteria are evaluated only from server events. */
 export const MISSIONS = [
@@ -108,6 +108,12 @@ export async function seed(db: Db): Promise<void> {
     { key: 'premium-yearly', titleFa: 'پریمیوم سالانه', period: 'yearly', durationDays: 365,
       termsFa: 'دسترسی پریمیوم به مدت ۳۶۵ روز از زمان تأیید پرداخت. تمدید خودکار ندارد. پریمیوم امتیاز مهارتی، اولویت صف یا کمک حین بازی نمی‌دهد.' }
   ]).onConflictDoNothing({ target: plans.key });
+  // Coin packs: same rule, price null and inactive until an admin approves a price.
+  await db.insert(coinPacks).values([
+    { key: 'coins-500', titleFa: 'کیسه سکه', coins: 500 },
+    { key: 'coins-1200', titleFa: 'صندوقچه سکه', coins: 1200 },
+    { key: 'coins-3000', titleFa: 'گنجینه سکه', coins: 3000 }
+  ]).onConflictDoNothing({ target: coinPacks.key });
   // Insert only: an existing row keeps the admin's active choice.
   await db.insert(missionDefinitions).values(MISSIONS.map((m) => ({ ...m, ruleVersion: 1, period: 'weekly', active: DEFAULT_ACTIVE_MISSIONS.includes(m.key) }))).onConflictDoNothing();
   // Same key + version keeps its count; re-seeding refreshes copy and tier on databases seeded before tiers existed.
