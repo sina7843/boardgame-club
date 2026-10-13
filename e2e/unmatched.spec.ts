@@ -17,7 +17,7 @@ async function startTable(host: Page, guest: Page, mapFa: string) {
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
   await expect(host.getByText('بازیکنان (۲ از ۲)')).toBeVisible();
-  for (const p of [host, guest]) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await host.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
 }
 
 const panel = (p: Page) => p.locator('.um-panel--decide');

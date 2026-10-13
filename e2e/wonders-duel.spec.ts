@@ -89,7 +89,7 @@ test('two players play «شگفتی‌ها: دوئل» to the result', async ({ 
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await pages[1]!.goto(invite); await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   await expect(host.locator('.wd-track')).toBeVisible();
 
   for (let n = 0; n < 3000; n++) {

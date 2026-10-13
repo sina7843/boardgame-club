@@ -79,6 +79,7 @@ export function QuickMatch() {
   const [players, setPlayers] = useState(2);
   const [turnSeconds, setTurnSeconds] = useState<number>(60);
   const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
   const reload = tickets.reload;
 
   useEffect(() => { const i = setInterval(reload, 2000); return () => clearInterval(i); }, [reload]);
@@ -97,7 +98,12 @@ export function QuickMatch() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    try { await api('/matchmaking/tickets', { method: 'POST', body: { gameId, pace, competition, playerCount: players, turnSeconds } }); reload(); }
+    try {
+      const r = await api<{ id?: string; tableId?: string }>('/matchmaking/tickets', { method: 'POST', body: { gameId, pace, competition, playerCount: players, turnSeconds } });
+      // A matching open table had a free seat: we are already sitting there, ready.
+      if (r.tableId) { toast('success', 'به یک میز باز با همین تنظیمات اضافه شدید.'); navigate(`/tables/${r.tableId}`); }
+      else reload();
+    }
     catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'ورود به صف ممکن نشد.'); }
     finally { setBusy(false); }
   };

@@ -15,7 +15,6 @@ async function createAndStart(host: Page, guest: Page, gameId: string, pace: 'ز
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
   await expect(host.getByText('بازیکنان (۲ از ۲)')).toBeVisible(); // pushed to the host over the socket
   await expect(host.getByText('اتمام زمان:').first()).toBeVisible(); // policies are shown before ready
-  await guest.getByRole('button', { name: 'آماده‌ام' }).click();
   await host.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 

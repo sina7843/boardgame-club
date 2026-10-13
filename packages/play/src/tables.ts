@@ -114,7 +114,8 @@ export async function createBotTable(db: Db, registry: GameRegistry, cfg: PlayCo
 
 export async function joinTable(db: Db, registry: GameRegistry, cfg: PlayConfig, userId: string, tableId: string, inviteCode?: string): Promise<void> {
   await db.transaction(async (tx) => {
-    const { table } = await lockTable(tx, registry, tableId);
+    const locked = await lockTable(tx, registry, tableId);
+    const { table } = locked;
     if (table.isTutorial) throw new AppError('FORBIDDEN');
     const seats = await tx.select().from(participants).where(eq(participants.tableId, table.id));
     if (seats.some((s) => s.userId === userId)) throw new AppError('ALREADY_JOINED');
@@ -131,8 +132,10 @@ export async function joinTable(db: Db, registry: GameRegistry, cfg: PlayConfig,
     const taken = new Set(seats.map((s) => s.seat));
     let seat = 0;
     while (taken.has(seat)) seat++;
-    await tx.insert(participants).values({ tableId: table.id, seat, userId, kind: 'human' });
-    await tx.execute(sql`select pg_notify('table_changed', ${table.id})`);
+    // Joining means «آماده‌ام»: the joiner sits ready, and the game starts once every seat is filled and ready.
+    await tx.insert(participants).values({ tableId: table.id, seat, userId, kind: 'human', ready: true });
+    if (seats.length + 1 === table.capacity && seats.every((s) => s.ready)) await startTable(tx, locked);
+    else await tx.execute(sql`select pg_notify('table_changed', ${table.id})`);
   });
 }
 

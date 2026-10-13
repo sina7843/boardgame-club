@@ -18,7 +18,7 @@ async function startTable(host: Page, guests: Page[]) {
   for (const g of guests) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(host.getByText('بازیکنان (۳ از ۳)')).toBeVisible();
   await expect(host.getByText('نقشه: نقشه مبتدی دفترچه')).toBeVisible(); // chosen variant shown before ready
-  for (const p of [host, ...guests]) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await host.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
 }
 
 /** One move for this page if it has one; returns what it did (null = nothing to do). */

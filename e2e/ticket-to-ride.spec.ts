@@ -22,7 +22,7 @@ async function startTable(host: Page, guests: Page[], mapLabel: string) {
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of guests) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(host.getByText('بازیکنان (۳ از ۳)')).toBeVisible();
-  for (const p of [host, ...guests]) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await host.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
 }
 
 const button = (p: Page, name: string | RegExp) => p.getByRole('button', { name, exact: typeof name === 'string' });

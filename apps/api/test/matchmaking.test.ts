@@ -128,4 +128,21 @@ describe('matchmaking (FR-06)', () => {
     expect((await runMatchmaking(ctx.db, defaultMatchConfig)).expired).toBeGreaterThanOrEqual(1);
     expect((await mine(a!)).status).toBe('expired');
   });
+  it('friendly search takes a free seat at a matching public open table; the joiner sits ready and the game starts', async () => {
+    const [host, other, seeker] = await users(ctx, 3);
+    const table = (await call(ctx, 'POST', '/api/tables', host, { gameId: 'line-three', pace: 'live', capacity: 2, turnSeconds: 60, visibility: 'public' })).json().id;
+    // Different time → no seat there, a normal ticket instead.
+    const queued = (await queue(other!, { turnSeconds: 30 })).json();
+    expect(queued).toMatchObject({ id: expect.any(String) });
+    expect(queued.tableId).toBeUndefined();
+    await call(ctx, 'DELETE', `/api/matchmaking/tickets/${queued.id}`, other);
+    const r = await queue(seeker!);
+    expect(r.statusCode).toBe(201);
+    expect(r.json()).toEqual({ tableId: table });
+    const lobby = await view(ctx, host!, table);
+    expect(lobby.table.status).toBe('open');
+    expect(lobby.table.seats.find((s: { user: { id: string } | null }) => s.user?.id === seeker!.id)?.ready).toBe(true);
+    const started = (await call(ctx, 'POST', `/api/tables/${table}/ready`, host, { ready: true })).json();
+    expect(started.table.status).toBe('active');
+  });
 });

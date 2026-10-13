@@ -12,11 +12,11 @@ export function matchmakingRoutes(app: FastifyInstance, { db, registry, play, ma
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.post('/matchmaking/tickets', {
-    schema: { tags: ['matchmaking'], summary: 'Join a queue (game, mode, player count, time). One active ticket per player.', body: enqueueBody,
-      response: { 201: z.object({ id: z.uuid() }), ...errors } }
+    schema: { tags: ['matchmaking'], summary: 'Join a queue (game, mode, player count, time), or take a seat at a matching public open table (tableId). One active ticket per player.', body: enqueueBody,
+      response: { 201: z.object({ id: z.uuid().optional(), tableId: z.uuid().optional() }), ...errors } }
   }, async (req, reply) => {
     const { userId } = requireUser(req);
-    return reply.code(201).send({ id: await enqueue(db, registry, play, match, userId, req.body) });
+    return reply.code(201).send(await enqueue(db, registry, play, match, userId, req.body));
   });
 
   r.get('/me/matchmaking', {

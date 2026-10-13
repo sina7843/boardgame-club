@@ -31,7 +31,7 @@ test('two players play «اتللو» to the result', async ({ browser }, info) 
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   await expect(host.locator('.oth-board')).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'start'), fullPage: true });
 

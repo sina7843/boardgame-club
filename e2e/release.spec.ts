@@ -81,7 +81,7 @@ test('three-player sealed bids: each client sees only its own sealed value', asy
   const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const p of [b, c]) { await p.goto(invite); await p.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(a.getByText('بازیکنان (۳ از ۳)')).toBeVisible();
-  for (const p of [a, b, c]) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await a.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   const tableId = a.url().split('/tables/')[1]!.split('?')[0]!;
 
   const plan = [[5, 1, 2], [1, 5, 3], [2, 3, 5], [3, 2, 4], [4, 4, 1]];
@@ -131,7 +131,6 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await b.goto(invite);
   await b.getByRole('button', { name: 'پیوستن به میز' }).click();
-  await b.getByRole('button', { name: 'آماده‌ام' }).click();
   await a.getByRole('button', { name: 'آماده‌ام' }).click();
   await expect(a.locator('.lt__board')).toBeVisible();
   // Whoever must wait leaves the table; after the other moves, the dashboard lists the table under «نوبت من».

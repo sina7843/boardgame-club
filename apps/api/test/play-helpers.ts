@@ -20,7 +20,7 @@ export const call = (ctx: TestCtx, method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'D
 
 export interface Started { tableId: string; players: User[]; revision: number }
 
-/** Create a private friendly table, have everyone join with the invite and ready up → game starts. */
+/** Create a private friendly table, have everyone join with the invite (joiners sit ready), host readies → game starts. */
 export async function startTable(ctx: TestCtx, gameId: string, n: number, opts: { pace?: 'live' | 'turn'; turnSeconds?: number; players?: User[] } = {}): Promise<Started> {
   const players = opts.players ?? await users(ctx, n);
   const pace = opts.pace ?? 'live';
@@ -34,8 +34,8 @@ export async function startTable(ctx: TestCtx, gameId: string, n: number, opts: 
     const j = await call(ctx, 'POST', `/api/tables/${tableId}/join`, p, { inviteCode: invite });
     if (j.statusCode !== 200) throw new Error(`join failed ${j.body}`);
   }
-  let snap;
-  for (const p of players) snap = (await call(ctx, 'POST', `/api/tables/${tableId}/ready`, p, { ready: true })).json();
+  // Joiners sit ready; the host's «آماده‌ام» starts the game.
+  const snap = (await call(ctx, 'POST', `/api/tables/${tableId}/ready`, players[0], { ready: true })).json();
   return { tableId, players, revision: snap.game.revision };
 }
 

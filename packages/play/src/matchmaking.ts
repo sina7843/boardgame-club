@@ -6,7 +6,7 @@ import { AppError, type EnqueueBody, type TicketView } from '@bg/contracts';
 import { assertTimeAllowed } from './game-settings.ts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
-import { activeVersion, assertLimits, pickPersonas, type PlayConfig } from './tables.ts';
+import { activeVersion, assertLimits, joinTable, pickPersonas, type PlayConfig } from './tables.ts';
 import { isPremium } from './billing.ts';
 import { matchRating } from './rating.ts';
 import type { Tx } from './runtime.ts';
@@ -44,7 +44,35 @@ export function windowFor(cfg: MatchConfig, pace: 'live' | 'turn', waitSeconds: 
   return Math.min(cfg.maxWindow, cfg.baseWindow + cfg.growthPerStep * Math.floor(Math.max(0, waitSeconds) / cfg.stepSeconds[pace]));
 }
 
-export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, cfg: MatchConfig, userId: string, body: EnqueueBody): Promise<string> {
+/**
+ * Friendly queue: before waiting, take a free seat at a matching public open table (same game, pace, player
+ * count and time), oldest first. joinTable re-checks access, blocks, limits and capacity under the table lock.
+ */
+async function seatAtOpenTable(db: Db, registry: GameRegistry, play: PlayConfig, userId: string, body: EnqueueBody): Promise<string | null> {
+  if (body.competition === 'ranked') return null;
+  // Someone already in a queue gets ALREADY_QUEUED from enqueue, not a second seat.
+  const [active] = await db.select({ id: tickets.id }).from(tickets).where(and(eq(tickets.userId, userId), inArray(tickets.status, ['queued', 'matched'])));
+  if (active) return null;
+  const candidates = await db.select({ id: gameTables.id }).from(gameTables).where(and(
+    eq(gameTables.status, 'open'), eq(gameTables.visibility, 'public'), eq(gameTables.isTutorial, false), eq(gameTables.isMatchmade, false),
+    eq(gameTables.gameId, body.gameId), eq(gameTables.pace, body.pace), eq(gameTables.competition, 'friendly'), eq(gameTables.capacity, body.playerCount),
+    sql`(${gameTables.settings}->>'turnSeconds')::int = ${body.turnSeconds}`,
+    sql`(select count(*) from participants p where p.table_id = ${gameTables.id}) < ${gameTables.capacity}`,
+    sql`not exists (select 1 from participants p where p.table_id = ${gameTables.id} and p.user_id = ${userId})`
+  )).orderBy(asc(gameTables.createdAt)).limit(10);
+  for (const { id } of candidates) {
+    try { await joinTable(db, registry, play, userId, id); return id; } catch (e) {
+      // Limits and premium apply to every table alike: report them. Blocked, just filled or started → next table.
+      if (!(e instanceof AppError) || ['ALREADY_QUEUED', 'ALREADY_IN_LIVE_TABLE', 'TURN_TABLE_LIMIT', 'PREMIUM_REQUIRED', 'ACCOUNT_SUSPENDED'].includes(e.code)) throw e;
+    }
+  }
+  return null;
+}
+
+/** Join a queue, or sit straight down at a matching open table (returns its id as `tableId`). */
+export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, cfg: MatchConfig, userId: string, body: EnqueueBody): Promise<{ id?: string; tableId?: string }> {
+  const tableId = await seatAtOpenTable(db, registry, play, userId, body);
+  if (tableId) return { tableId };
   const id = await db.transaction(async (tx) => {
     const { game, settings } = await activeVersion(tx, registry, body.gameId);
     if (!settings.paces.includes(body.pace)) throw new AppError('MODE_NOT_SUPPORTED');
@@ -64,7 +92,7 @@ export async function enqueue(db: Db, registry: GameRegistry, play: PlayConfig, 
     return t!.id;
   });
   await runMatcher(db, cfg, { gameId: body.gameId, pace: body.pace, competition: body.competition, playerCount: body.playerCount, turnSeconds: body.turnSeconds }, registry);
-  return id;
+  return { id };
 }
 
 export interface QueueKey { gameId: string; pace: 'live' | 'turn'; competition: 'friendly' | 'ranked'; playerCount: number; turnSeconds: number }

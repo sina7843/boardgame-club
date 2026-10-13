@@ -94,7 +94,7 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   await expect(host.locator('.gp-map')).toBeVisible();
 
   for (let n = 0; n < 400; n++) {

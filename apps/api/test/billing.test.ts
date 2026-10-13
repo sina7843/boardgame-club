@@ -155,8 +155,8 @@ describe('premium access (§13, FR-15)', () => {
     const priv = (await call(ctx, 'POST', '/api/tables', host, body)).json().id;
     const invite = (await view(ctx, host!, priv)).table.inviteCode;
     expect((await call(ctx, 'POST', `/api/tables/${priv}/join`, friend, { inviteCode: invite })).statusCode).toBe(200);
-    await call(ctx, 'POST', `/api/tables/${priv}/ready`, host, { ready: true });
-    expect((await call(ctx, 'POST', `/api/tables/${priv}/ready`, friend, { ready: true })).json().table.status).toBe('active');
+    // The friend joined ready; the host's «آماده‌ام» starts the game.
+    expect((await call(ctx, 'POST', `/api/tables/${priv}/ready`, host, { ready: true })).json().table.status).toBe('active');
     const [t] = await ctx.db.select().from(schema.gameTables).where(eq(schema.gameTables.id, priv));
     expect((t!.settings as { eligibility: Record<string, string> }).eligibility).toEqual({ [host!.id]: 'premium', [friend!.id]: 'host_invite' });
     // The host's premium is revoked mid-game: the game continues.
@@ -179,8 +179,7 @@ describe('premium access (§13, FR-15)', () => {
     const invite = (await view(ctx, host!, id)).table.inviteCode;
     await call(ctx, 'POST', `/api/tables/${id}/join`, friend, { inviteCode: invite });
     await call(ctx, 'DELETE', `/api/admin/entitlements/${g.json().id}`, admin, { reason: 'آزمون انقضا' });
-    await call(ctx, 'POST', `/api/tables/${id}/ready`, host, { ready: true });
-    expect((await call(ctx, 'POST', `/api/tables/${id}/ready`, friend, { ready: true })).json().errorCode).toBe('PREMIUM_REQUIRED');
+    expect((await call(ctx, 'POST', `/api/tables/${id}/ready`, host, { ready: true })).json().errorCode).toBe('PREMIUM_REQUIRED');
     await call(ctx, 'PATCH', '/api/admin/games/line-three/access', admin, { access: 'free', premiumHostInvitesFree: true, reason: 'بازگشت' });
   });
 

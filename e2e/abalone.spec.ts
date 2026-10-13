@@ -59,7 +59,7 @@ test('two players exchange moves and pushes, then one resigns', async ({ browser
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   await expect(host.locator('.abl-board')).toBeVisible();
 
   for (let n = 0; n < 24; n++) {

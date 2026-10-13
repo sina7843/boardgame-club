@@ -1151,6 +1151,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   coin spend and coin-pack checkout refuse with `PAYMENT_UNAVAILABLE`; the UI hides the empty sections.
 - Turning it off reopens the store (sales still need a configured gateway). Granted gifts stay valid until they end.
 
+## Matchmaking fills open tables; joiners sit ready (owner request, 2026-10-13)
+- A friendly search first takes a free seat at a matching **public** open table (same game, pace, player count and
+  time; not matchmade, tutorial or tournament), oldest first, through the normal `joinTable` checks. The API returns
+  `{ tableId }` instead of a ticket id and the client opens the table. Ranked searches never use open tables, and a
+  player who already has a ticket gets `ALREADY_QUEUED` as before.
+- Joining a table seats the player **ready**. If the join fills the table and everyone (host included) is ready, the
+  game starts in the same transaction. The host still declares ready once; a joiner may withdraw («لغو آمادگی»).
+- Not done: players already waiting in the queue are not pulled into a public table created later.
+
 ## Board motion ignores layout shift (owner report, 2026-10-13)
 - `useFlip` (packages/ui/src/motion.tsx) now measures resting layout (running animations are detached while measuring)
   and corrects each previous box by the shift of the nearest frame that still holds the piece, holds other pieces too

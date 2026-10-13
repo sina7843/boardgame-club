@@ -18,7 +18,7 @@ async function table(browser: Browser, info: TestInfo, gameId: string, n: number
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(host.getByText(`بازیکنان (${n.toLocaleString('fa-IR')} از ${n.toLocaleString('fa-IR')})`)).toBeVisible();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   return pages;
 }
 

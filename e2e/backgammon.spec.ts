@@ -49,7 +49,7 @@ test('two players play «تخته‌نرد» to the result through the board', a
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   await expect(host.locator('.bgm-board')).toBeVisible();
   await host.screenshot({ path: shot(info.project.name, 'start'), fullPage: true });
 
@@ -91,7 +91,7 @@ test('instant roll: no undo, the dice tumble with no pips while the roll is in f
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of pages) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
   // The opening roll picks who moves first; that player plays the turn, then the other one rolls.
   let mover = -1;
   await expect.poll(async () => { for (const [i, p] of pages.entries()) if (await p.locator('.bgm-pt--src, .bgm-bar--src').count()) mover = i; return mover; }, { timeout: 15_000 }).toBeGreaterThanOrEqual(0);
