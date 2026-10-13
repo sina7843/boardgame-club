@@ -160,25 +160,59 @@ export function usePrevious<T>(key: unknown, v: T): T | undefined {
  * otherwise a short fade-and-rise. The first render never animates.
  */
 export function useFlip(root: RefObject<HTMLElement | null>, key: unknown) {
-  const prev = useRef<Map<string, Box> | null>(null);
+  const prev = useRef<{ boxes: Map<string, Box>; chains: Map<string, Element[]>; frames: Map<Element, Box> } | null>(null);
   const exits = useRef<Map<string, { ghost: HTMLElement | SVGSVGElement; to: string }>>(new Map());
-  const scrolled = useRef({ x: 0, y: 0 });
   const seenDice = useRef<WeakSet<Element>>(new WeakSet());
   useLayoutEffect(() => {
     const host = root.current;
     if (!host) return;
     const nodes = Array.from(host.querySelectorAll<HTMLElement | SVGGraphicsElement>('[data-flip]'));
+    // Measure resting layout: animations still running from the previous change (and CSS entrances) would otherwise be
+    // baked into the boxes, and the next change would fly pieces from mid-air spots.
+    const running = typeof host.getAnimations === 'function' ? host.getAnimations({ subtree: true }) : [];
+    const effects = running.map((a) => a.effect);
+    running.forEach((a) => { a.effect = null; });
     const anchors = new Map<string, Box>();
-    host.querySelectorAll('[data-flip-anchor]').forEach((a) => anchors.set((a as HTMLElement).dataset.flipAnchor!, box(a)));
     const next = new Map<string, Box>();
-    for (const n of nodes) next.set(n.dataset.flip!, box(n));
-    // Boxes are viewport-relative: if the page scrolled since the last change, shift the old boxes by the same amount,
-    // otherwise every piece would look moved and fly.
-    const sx = window.scrollX, sy = window.scrollY;
-    const dx = sx - scrolled.current.x, dy = sy - scrolled.current.y;
-    scrolled.current = { x: sx, y: sy };
-    const before = prev.current && (dx || dy) ? new Map(Array.from(prev.current, ([k, b]) => [k, { ...b, x: b.x - dx, y: b.y - dy }])) : prev.current;
-    prev.current = next;
+    const chains = new Map<string, Element[]>();
+    const frames = new Map<Element, Box>();
+    const holds = new Map<Element, number>();
+    const frameBox = (a: Element) => { let b = frames.get(a); if (!b) frames.set(a, (b = box(a))); return b; };
+    try {
+      host.querySelectorAll('[data-flip-anchor]').forEach((a) => anchors.set((a as HTMLElement).dataset.flipAnchor!, box(a)));
+      for (const n of nodes) {
+        const id = n.dataset.flip!;
+        next.set(id, box(n));
+        const chain: Element[] = [];
+        for (let a = n.parentElement as Element | null; a; a = a.parentElement) {
+          // SVG groups size to their content, so only HTML boxes and the outer <svg> count as frames.
+          if (a instanceof HTMLElement || (a instanceof SVGSVGElement && !a.ownerSVGElement)) { chain.push(a); frameBox(a); holds.set(a, (holds.get(a) ?? 0) + 1); }
+          if (a === host) break;
+        }
+        chains.set(id, chain);
+      }
+    } finally {
+      running.forEach((a, i) => { a.effect = effects[i] ?? null; });
+    }
+    const last = prev.current;
+    prev.current = { boxes: next, chains, frames };
+    /**
+     * Where the thing was, corrected for layout shift. The nearest frame it sat in before that still holds it (or, for an
+     * exit, still exists), holds other pieces too and kept its size moved everything inside it by the same amount — a
+     * status line growing, the captured-pieces row filling, the page scrolling — so that shift alone is not a move.
+     */
+    const was = (id: string, n?: Element): Box | undefined => {
+      const from = last?.boxes.get(id);
+      if (!from || !last) return from;
+      for (const a of last.chains.get(id) ?? []) {
+        // A wrapper around just this one thing moves with it, so its shift is the move itself.
+        if (!a.isConnected || (n && !a.contains(n)) || (holds.get(a) ?? 0) < 2) continue;
+        const pb = last.frames.get(a)!, cb = frameBox(a);
+        if (Math.abs(pb.w - cb.w) > 0.5 || Math.abs(pb.h - cb.h) > 0.5) continue; // a resized frame says nothing
+        return { ...from, x: from.x + cb.x - pb.x, y: from.y + cb.y - pb.y };
+      }
+      return from;
+    };
     const leaving = exits.current;
     // Ghosts of exit-marked cards are prepared now, while they are still on screen, for the next change.
     exits.current = new Map();
@@ -190,17 +224,17 @@ export function useFlip(root: RefObject<HTMLElement | null>, key: unknown) {
     }
     const dice = Array.from(host.querySelectorAll<HTMLElement | SVGGraphicsElement>('.bg-roll')).filter((d) => !seenDice.current.has(d));
     dice.forEach((d) => seenDice.current.add(d));
-    if (!before || off) return;
+    if (!last || off) return;
     for (const d of dice) throwDie(d);
     for (const [id, e] of leaving) {
-      const from = before.get(id);
+      const from = was(id);
       if (!next.has(id) && from) exitFly(e.ghost, from, e.to === 'drop' ? undefined : anchors.get(e.to));
     }
     let i = 0;
     for (const n of nodes) {
       const id = n.dataset.flip!;
       const to = next.get(id)!;
-      const from = before.get(id);
+      const from = was(id, n);
       const k = unit(n);
       if (from) {
         const dx = (from.x + from.w / 2 - (to.x + to.w / 2)) / k, dy = (from.y + from.h / 2 - (to.y + to.h / 2)) / k;

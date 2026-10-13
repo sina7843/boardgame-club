@@ -1,10 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, type MotionEntry } from './helpers.ts';
 
 // Chess end to end: two clients play Fool's Mate through the real board (tap piece → tap target).
 test.describe.configure({ mode: 'serial', timeout: 300_000 });
 const shot = (project: string, name: string) => `docs/evidence/chess/${project}-${name}.png`;
 const RESULT = /بردید|باختید|مساوی/;
+// Pieces that moved: a top-layer flight or an in-place slide (exits, dice and UI animations excluded).
+const moved = (log: MotionEntry[]) => log.filter((m) => m.ghost === 'fly' || (!m.ghost && m.flip)).length;
 const square = (p: Page, name: string) => p.locator(`.ch-board button[aria-label^="${name}،"]`);
 
 async function move(p: Page, from: string, to: string) {
@@ -24,7 +26,7 @@ test("two players play Fool's Mate to the result; Black sees the board from Blac
   const invite = (await white.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await black.goto(invite);
   await black.getByRole('button', { name: 'پیوستن به میز' }).click();
-  for (const p of [white, black]) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  await white.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
 
   await expect(white.locator('.ch-board')).toBeVisible();
   // Orientation: White's bottom-left square is a1; Black's is h8.
@@ -62,12 +64,13 @@ test('undo window: castling moves king and rook at once, and undo moves them bac
   await expect(square(p, 'g1')).toHaveAttribute('aria-label', /شاه سفید/);
   await expect(square(p, 'f1')).toHaveAttribute('aria-label', /رخ سفید/);
   await p.waitForTimeout(700);
-  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  // Only king and rook move, even though the undo bar shifts the board when it appears.
+  expect(moved(await motionLog(p))).toBe(2);
   await undo.click();
   await expect(square(p, 'e1')).toHaveAttribute('aria-label', /شاه سفید/);
   await expect(square(p, 'h1')).toHaveAttribute('aria-label', /رخ سفید/);
   await p.waitForTimeout(700);
-  expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
+  expect(moved(await motionLog(p))).toBe(2);
   // Played for real: the en passant capture leaves the board towards the captured tray.
   await move(p, 'e1', 'g1');
   await expect(p.getByText(/آموزش: مرحله ۲ از/)).toBeVisible({ timeout: 10_000 });

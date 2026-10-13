@@ -1150,3 +1150,11 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   re-granted, also not after the days change). `/plans`, coin shop and coin packs are listed empty and plan checkout,
   coin spend and coin-pack checkout refuse with `PAYMENT_UNAVAILABLE`; the UI hides the empty sections.
 - Turning it off reopens the store (sales still need a configured gateway). Granted gifts stay valid until they end.
+
+## Board motion ignores layout shift (owner report, 2026-10-13)
+- `useFlip` (packages/ui/src/motion.tsx) now measures resting layout (running animations are detached while measuring)
+  and corrects each previous box by the shift of the nearest frame that still holds the piece, holds other pieces too
+  and kept its size. A status line, undo bar or captured-pieces row moving the board no longer makes every piece fly
+  (chess castling animated 11 pieces before, 2 now; e2e asserts it). The old page-scroll correction is covered by the
+  same rule (the root moves with the scroll).
+- Not covered: a board that changes size between two states still animates every piece by the resize.
