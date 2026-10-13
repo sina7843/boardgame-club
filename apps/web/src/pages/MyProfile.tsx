@@ -8,6 +8,7 @@ import { AVATAR_FA, jalaliDate } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ProfileEditor } from './ProfileEditor.tsx';
+import { InviteCard } from '../social/InviteCard.tsx';
 
 /** Copies the public profile URL; if the clipboard is blocked, the toast shows the link so it can be copied by hand. */
 export function CopyProfileLink({ userId, size = 'md' }: { userId: string; size?: 'sm' | 'md' }) {
@@ -87,6 +88,7 @@ export function MyProfile() {
           <h2 id="identity-h" className="section-title">نام و آواتار</h2>
           <ProfileForm me={me} />
         </section>
+        <InviteCard />
         <ProfileEditor me={me} />
       </div>
     </>

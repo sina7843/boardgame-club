@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { Avatar, Badge, Button, Input, StateBlock, Tabs, buttonClass, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
@@ -8,6 +8,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { CopyProfileLink } from './MyProfile.tsx';
 import { TIER_FA, Trophy } from '../lib/rewards.tsx';
+import { InviteCard, referralUrl, rewardFa, useCopy, type Referral } from '../social/InviteCard.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 /** Position in the showcase; achievements not in it sort after, keeping their order (stable sort). */
@@ -60,27 +61,14 @@ function Search({ onChange }: { onChange: () => void }) {
   );
 }
 
-interface Referral {
-  code: string;
-  reward: { inviterCoins: number; inviterDays: number; inviteeCoins: number; inviteeDays: number } | null;
-  invited: { user: PublicProfile; createdAt: string; reward: { coins: number; days: number } | null }[];
-}
-
-const rewardFa = (coins: number, days: number) =>
-  [coins > 0 && `${faNum(coins)} سکه`, days > 0 && `${faNum(days)} روز پریمیوم`].filter(Boolean).join(' و ');
-
 /** Invite link + code; whoever signs up through it becomes a friend automatically. */
 function Invite() {
   const data = useApi<Referral>('/me/referral');
-  const toast = useToast();
+  const copy = useCopy();
   if (data.error) return <StateBlock kind="error" title="لینک دعوت دریافت نشد" action={<Button onClick={data.reload}>تلاش دوباره</Button>} />;
   if (!data.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const { code, reward, invited } = data.data;
-  const url = `${location.origin}/login?ref=${code}`;
-  const copy = async (text: string, ok: string) => {
-    try { await navigator.clipboard.writeText(text); toast('success', ok); }
-    catch { toast('error', `کپی ممکن نشد؛ دستی کپی کنید: ${text}`); }
-  };
+  const url = referralUrl(code);
   const share = async () => {
     try { await navigator.share({ title: 'دعوت به بازی', text: 'بیا با هم بازی کنیم! با این لینک عضو شو:', url }); }
     catch { /* cancelled */ }
@@ -116,6 +104,7 @@ export function FriendsPage() {
   usePageTitle('دوستان');
   const data = useApi<Friends>('/me/friends');
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const toast = useToast();
   const act = useAct(data.reload);
   const message = async (userId: string) => {
@@ -130,7 +119,7 @@ export function FriendsPage() {
     <>
       <PageTabs group="social" />
       <div className="page-head"><div><h1 className="page-title">دوستان</h1><p className="page-sub">پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است.</p></div></div>
-      <Tabs label="دوستان" tabs={[
+      <Tabs label="دوستان" initial={params.get('tab') ?? undefined} tabs={[
         { id: 'friends', title: `دوستان (${d.friends.length.toLocaleString('fa-IR')})`, content: d.friends.length ? (
           <ul className="list">{d.friends.map((f) => (
             <PersonRow key={f.id} p={f}>
@@ -216,6 +205,7 @@ export function ProfilePage() {
           )}
         </section>
       )}
+      {u.relationship === 'self' && <InviteCard />}
       {u.relationship !== 'self' && (
         <section className="panel row" aria-label="اقدام‌ها">
           {u.relationship === 'none' && <Button onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}

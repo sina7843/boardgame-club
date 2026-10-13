@@ -155,8 +155,8 @@ export function Switch({ label, hint, checked, onChange }: { label: string; hint
 }
 
 // ---------- Tabs (WAI-ARIA pattern, arrow keys follow reading direction) ----------
-export function Tabs({ label, tabs }: { label: string; tabs: { id: string; title: string; content: ReactNode }[] }) {
-  const [active, setActive] = useState(tabs[0]?.id);
+export function Tabs({ label, tabs, initial }: { label: string; tabs: { id: string; title: string; content: ReactNode }[]; initial?: string }) {
+  const [active, setActive] = useState(tabs.some((t) => t.id === initial) ? initial : tabs[0]?.id);
   const base = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const onKey = (e: React.KeyboardEvent, i: number) => {

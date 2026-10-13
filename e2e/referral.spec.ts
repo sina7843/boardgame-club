@@ -9,8 +9,15 @@ test('invite link: a friend who signs up through it becomes a friend automatical
   const inviterName = `دعوت‌گر ${uniq()}`;
   const a = await newPage(browser, viewport);
   await signIn(a, inviterName);
-  await a.goto('/friends');
-  await a.getByRole('tab', { name: 'دعوت دوستان' }).click();
+  // Card on the dashboard and on «my profile» leads straight to the invite tab.
+  await a.goto('/');
+  const card = a.getByTestId('invite-card');
+  await expect(card.getByRole('heading', { name: 'دوستانت را دعوت کن' })).toBeVisible();
+  await card.screenshot({ path: `docs/evidence/site/phase-02/${info.project.name}-referral-dashboard-card.png` });
+  await a.goto('/me/profile');
+  await a.getByTestId('invite-card').getByRole('link', { name: 'دعوت‌شده‌ها و کد دعوت' }).click();
+  await expect(a).toHaveURL(/\/friends\?tab=invite/);
+  await expect(a.getByRole('tab', { name: 'دعوت دوستان' })).toHaveAttribute('aria-selected', 'true');
   const link = await a.getByLabel('لینک دعوت').inputValue();
   expect(link).toMatch(/\/login\?ref=[A-Z2-9]{8}$/);
   await a.screenshot({ path: `docs/evidence/site/phase-02/${info.project.name}-referral-invite.png` });

@@ -8,6 +8,7 @@ import { faNum, jalaliToday } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { MyTurnPanel, NotificationsPanel } from './MyTables.tsx';
+import { InviteCard } from '../social/InviteCard.tsx';
 
 /** Game of the day: picked and rewarded by the server; the card only shows it, dressed in the game's cover art. */
 function DailyCard({ games }: { games: GameSummary[] | undefined }) {
@@ -76,6 +77,7 @@ export function Dashboard() {
       </section>
 
       {me && <DailyCard games={games.data?.items} />}
+      {me && <div className="mb-6"><InviteCard /></div>}
 
       <div className="dash">
         <section className="panel section" aria-labelledby="my-turn-h" style={{ marginBlockEnd: 0 }}>
