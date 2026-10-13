@@ -94,6 +94,7 @@ export const amlak = defineGame({
     ],
     minutes: { min: 45, max: 180 },
     difficulty: 'medium',
+    tags: ['dice', 'trading', 'family', 'economic'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تصمیمی تمام شود، کم‌خطرترین کار انجام می‌شود: تاس ریخته می‌شود، ملک خریده نمی‌شود، از مزایده کنار می‌روید، معامله رد می‌شود و نوبت تمام می‌شود؛ برای بدهی ابتدا خانه‌ها فروخته و املاک رهن می‌شوند. پس از سه بار پیاپی ورشکسته اعلام می‌شوید.',

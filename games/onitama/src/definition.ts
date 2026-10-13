@@ -45,6 +45,7 @@ export const onitama = defineGame({
     ],
     minutes: { min: 10, max: 20 },
     difficulty: 'easy',
+    tags: ['abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود می‌بازید.',

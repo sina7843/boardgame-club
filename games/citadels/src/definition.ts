@@ -53,6 +53,7 @@ export const citadels = defineGame({
     ],
     minutes: { min: 30, max: 60 },
     difficulty: 'medium',
+    tags: ['card', 'bluff'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود اولین شخصیت ممکن انتخاب می‌شود، در نوبت ۲ طلا گرفته و نوبت تمام می‌شود.',

@@ -61,6 +61,7 @@ export const ticketToRide = defineGame({
     ],
     minutes: { min: 30, max: 75 },
     difficulty: 'easy',
+    tags: ['family', 'set-collection', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود: در انتخاب بلیت‌ها کم‌امتیازترین بلیت‌ها به اندازه حداقل لازم نگه داشته می‌شود؛ در نوبت عادی تا جایی که ممکن باشد از دسته بسته کارت کشیده می‌شود. پس از سه بار پیاپی از بازی کنار گذاشته می‌شوید.',

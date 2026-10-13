@@ -53,6 +53,7 @@ export const coup = defineGame({
     ],
     minutes: { min: 10, max: 20 },
     difficulty: 'easy',
+    tags: ['card', 'bluff', 'party'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما «درآمد» برداشته می‌شود (یا با ۱۰ سکه کودتا)، در پاسخ‌ها «قبول» می‌کنید و اولین کارت مخفی‌تان رو می‌شود.',

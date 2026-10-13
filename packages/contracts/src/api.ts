@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { parseAvatar } from './cosmetics.ts';
-import { accessSchema, competitionSchema, difficultySchema, optionValueSchema, paceSchema } from '@bg/game-sdk';
+import { accessSchema, competitionSchema, difficultySchema, GAME_TAG_FA, gameTagSchema, optionValueSchema, paceSchema, type GameTag } from '@bg/game-sdk';
 
-export { accessSchema, competitionSchema, difficultySchema, paceSchema };
+export { accessSchema, competitionSchema, difficultySchema, GAME_TAG_FA, gameTagSchema, paceSchema, type GameTag };
 
 // ---------- Auth ----------
 export const otpRequestBody = z.strictObject({ mobile: z.string().min(10).max(20) });
@@ -88,7 +88,9 @@ export const catalogQuery = z.strictObject({
   maxMinutes: intFromQuery.min(1).max(600).optional(),
   difficulty: difficultySchema.optional(),
   mode: z.enum(['live', 'turn', 'friendly', 'ranked']).optional(),
-  access: accessSchema.optional()
+  access: accessSchema.optional(),
+  /** Comma-separated tag keys; a game must carry every selected tag. */
+  tags: z.string().max(300).transform((s) => s.split(',').filter(Boolean)).pipe(z.array(gameTagSchema).max(19)).optional()
 });
 export type CatalogQuery = z.infer<typeof catalogQuery>;
 
@@ -102,6 +104,7 @@ export const gameSummary = z.object({
   minMinutes: z.number().int(),
   maxMinutes: z.number().int(),
   difficulty: difficultySchema,
+  tags: z.array(gameTagSchema),
   access: accessSchema,
   paces: z.array(paceSchema),
   competitions: z.array(competitionSchema),

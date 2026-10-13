@@ -46,6 +46,7 @@ export const santorini = defineGame({
     ],
     minutes: { min: 10, max: 20 },
     difficulty: 'easy',
+    tags: ['abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود سرور به جای شما یک حرکت مجاز انجام می‌دهد؛ سه بار پشت سر هم یعنی باخت.',

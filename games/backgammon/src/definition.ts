@@ -62,6 +62,7 @@ export const backgammon = defineGame({
     ],
     minutes: { min: 10, max: 30 },
     difficulty: 'medium',
+    tags: ['classic', 'dice', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، سرور به جای شما تاس می‌ریزد و یک حرکت مجاز انجام می‌دهد (دوبل حریف را می‌پذیرد). سه بار پشت سر هم یعنی باخت.',

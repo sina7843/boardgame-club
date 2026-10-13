@@ -8,6 +8,16 @@ export const competitionSchema = z.enum(['friendly', 'ranked']);
 export const difficultySchema = z.enum(['easy', 'medium', 'hard']);
 export const accessSchema = z.enum(['free', 'premium']);
 
+/** Catalog tags (fixed vocabulary so the catalog can filter on them); Persian labels live beside the keys. */
+export const GAME_TAG_FA = {
+  strategy: 'استراتژیک', abstract: 'انتزاعی', classic: 'کلاسیک', family: 'خانوادگی', party: 'مهمانی',
+  card: 'کارتی', dice: 'تاسی', tile: 'کاشی‌چینی', deckbuilding: 'دسته‌سازی', engine: 'موتورسازی',
+  'set-collection': 'جمع‌آوری مجموعه', auction: 'مزایده', trading: 'معامله', bluff: 'بلوف', deduction: 'استنتاج',
+  cooperative: 'همکاری', race: 'مسابقه', 'area-control': 'کنترل قلمرو', economic: 'اقتصادی'
+} as const;
+export type GameTag = keyof typeof GAME_TAG_FA;
+export const gameTagSchema = z.enum(Object.keys(GAME_TAG_FA) as [GameTag, ...GameTag[]]);
+
 /** A value a rule variant can take. */
 export const optionValueSchema = z.union([z.string().max(40), z.number(), z.boolean()]);
 export type OptionValue = z.infer<typeof optionValueSchema>;
@@ -51,6 +61,7 @@ export const gameCatalogEntrySchema = z.strictObject({
   rulesFa: z.array(z.string().min(1)).min(1),
   minutes: z.strictObject({ min: z.number().int().positive(), max: z.number().int().positive() }),
   difficulty: difficultySchema,
+  tags: z.array(gameTagSchema).min(1),
   access: accessSchema,
   /** Original engine-proof fixture, not a commercial title. Must be labelled in the UI. */
   isTestGame: z.boolean(),

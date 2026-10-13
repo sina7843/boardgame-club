@@ -42,6 +42,7 @@ export const theMind = defineGame({
     ],
     minutes: { min: 15, max: 25 },
     difficulty: 'easy',
+    tags: ['card', 'cooperative', 'party'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر یک دقیقه کسی کارتی نگذارد، کوچک‌ترین کارت روی میز خودکار گذاشته می‌شود.',

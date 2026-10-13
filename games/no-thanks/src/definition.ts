@@ -42,6 +42,7 @@ export const noThanks = defineGame({
     ],
     minutes: { min: 10, max: 20 },
     difficulty: 'easy',
+    tags: ['card', 'auction', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، تا وقتی ژتون دارید به جایتان رد می‌شود؛ بدون ژتون کارت برداشته می‌شود.',

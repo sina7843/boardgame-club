@@ -44,6 +44,7 @@ export const patchwork = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'medium',
+    tags: ['tile', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما جلو رفته و دکمه گرفته می‌شود (تکهٔ چرمی در اولین خانهٔ خالی دوخته می‌شود).',

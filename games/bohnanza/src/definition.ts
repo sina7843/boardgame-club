@@ -52,6 +52,7 @@ export const bohnanza = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'medium',
+    tags: ['card', 'trading'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود کارت لازم خودکار کاشته می‌شود و معامله بسته یا پیشنهاد رد می‌شود.',

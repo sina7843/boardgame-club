@@ -60,6 +60,7 @@ export const resArcana = defineGame({
     ],
     minutes: { min: 20, max: 40 },
     difficulty: 'medium',
+    tags: ['card', 'engine'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به‌جای شما رد می‌شود.',

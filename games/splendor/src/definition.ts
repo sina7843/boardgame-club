@@ -47,6 +47,7 @@ export const splendor = defineGame({
     ],
     minutes: { min: 25, max: 40 },
     difficulty: 'medium',
+    tags: ['engine', 'set-collection', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما گوهرهای در دسترس برداشته می‌شود (یا گوهر اضافه پس داده می‌شود).',

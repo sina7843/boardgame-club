@@ -99,6 +99,13 @@
       "when": 1791887012631,
       "tag": "0013_account_terms",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791888023049,
+      "tag": "0014_game_tags",
+      "breakpoints": true
     }
   ]
 }

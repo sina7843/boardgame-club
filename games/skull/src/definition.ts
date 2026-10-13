@@ -43,6 +43,7 @@ export const skull = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'easy',
+    tags: ['bluff', 'party'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود به جای شما یک گل گذاشته می‌شود، در رقابت کنار می‌کشید و در رو کردن اولین دسته ممکن رو می‌شود.',

@@ -30,6 +30,7 @@ export const lineThree = defineGame({
     ],
     minutes: { min: 2, max: 5 },
     difficulty: 'easy',
+    tags: ['abstract'],
     access: 'free',
     isTestGame: true,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، بازیکن نوبت‌دار بازنده است.',

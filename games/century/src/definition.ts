@@ -49,6 +49,7 @@ export const century = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'medium',
+    tags: ['card', 'engine'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما استراحت می‌شود (یا اولین کارت دست بازی می‌شود)، و ادویهٔ اضافه از ارزان‌ترین‌ها کنار گذاشته می‌شود.',

@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import type { GameSummary } from '@bg/contracts';
+import { GAME_TAG_FA, type GameSummary } from '@bg/contracts';
 import { Badge, Icon } from '@bg/ui';
 import { ACCESS_FA, DIFFICULTY_FA, PACE_FA, range } from '../lib/format.ts';
 import { GameCover } from './covers.tsx';
@@ -23,6 +23,7 @@ export function GameCard({ game }: { game: GameSummary }) {
           <Badge tone={game.access === 'premium' ? 'premium' : undefined}>{ACCESS_FA[game.access]}</Badge>
           {game.paces.map((p) => <Badge key={p}>{PACE_FA[p]}</Badge>)}
         </div>
+        <ul className="game-card__tags" aria-label="برچسب‌ها">{game.tags.map((t) => <li key={t}>#{GAME_TAG_FA[t]}</li>)}</ul>
       </div>
     </Link>
   );

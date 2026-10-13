@@ -51,6 +51,7 @@ export const dominion = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'medium',
+    tags: ['card', 'deckbuilding'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود نوبت شما بدون خرید تمام می‌شود (یا کارت‌های اضافی از دست دور ریخته می‌شوند).',

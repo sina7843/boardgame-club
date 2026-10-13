@@ -48,6 +48,7 @@ export const othello = defineGame({
     ],
     minutes: { min: 5, max: 20 },
     difficulty: 'easy',
+    tags: ['classic', 'abstract'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود می‌بازید.',

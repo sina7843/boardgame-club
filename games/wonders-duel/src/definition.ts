@@ -57,6 +57,7 @@ export const wondersDuel = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'hard',
+    tags: ['card', 'engine', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود اولین کارت در دسترس فروخته می‌شود و انتخاب‌ها با گزینهٔ اول انجام می‌شوند.',

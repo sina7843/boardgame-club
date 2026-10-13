@@ -45,6 +45,7 @@ export const ludo = defineGame({
     ],
     minutes: { min: 15, max: 45 },
     difficulty: 'easy',
+    tags: ['classic', 'dice', 'family', 'race'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، تاس به‌جای شما ریخته و جلوترین مهره قابل حرکت جابه‌جا می‌شود. پس از سه بار پیاپی، از بازی کنار گذاشته می‌شوید.',

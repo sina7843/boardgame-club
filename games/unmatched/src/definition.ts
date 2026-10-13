@@ -70,6 +70,7 @@ export const unmatched = defineGame({
     ],
     minutes: { min: 20, max: 60 },
     difficulty: 'medium',
+    tags: ['card', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تصمیمی تمام شود، کم‌خطرترین گزینه به‌جای شما انتخاب می‌شود: در نوبت خودتان مانور بدون جابه‌جایی، در دفاع بدون کارت دفاع و در انتخاب‌های اختیاری، رد کردن. پس از سه بار پیاپی، از بازی کنار گذاشته می‌شوید.',

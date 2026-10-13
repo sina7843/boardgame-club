@@ -135,6 +135,7 @@ export async function seed(db: Db): Promise<void> {
       minMinutes: c.minutes.min,
       maxMinutes: c.minutes.max,
       difficulty: c.difficulty,
+      tags: c.tags,
       access: c.access,
       paces: m.supportedModes.pace,
       competitions: m.supportedModes.competition,

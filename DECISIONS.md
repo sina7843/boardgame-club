@@ -1201,3 +1201,6 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   the user. Status `deleted`, profile cleared, `user_private` (mobile) deleted so the same number signs up fresh, friendships
   and settings removed, queued matchmaking cancelled, sessions revoked. Refused for staff roles and while in an
   open/active/paused table or a registered open/running tournament. Coins, premium and achievements are lost.
+- Catalog tags: fixed 19-tag vocabulary (`GAME_TAG_FA` in @bg/game-sdk) declared per game in its module `catalog.tags`,
+  copied to `games.tags` by the seed (refreshed on every deploy). Catalog chips filter with match-all (`tags @> [...]`),
+  so each extra chip narrows results like the other filters. URL param `tags=card,dice` keeps it shareable.

@@ -47,6 +47,7 @@ export const abalone = defineGame({
     ],
     minutes: { min: 15, max: 40 },
     difficulty: 'medium',
+    tags: ['abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود یک حرکت مجاز به جای شما انجام می‌شود؛ سه بار پشت سر هم یعنی باخت.',

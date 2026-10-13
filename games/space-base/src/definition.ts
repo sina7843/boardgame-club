@@ -48,6 +48,7 @@ export const spaceBase = defineGame({
     ],
     minutes: { min: 30, max: 50 },
     difficulty: 'medium',
+    tags: ['dice', 'engine'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود تاس ریخته می‌شود، جمع دو تاس انتخاب و بدون خرید نوبت تمام می‌شود.',

@@ -62,6 +62,7 @@ export const go = defineGame({
     ],
     minutes: { min: 15, max: 60 },
     difficulty: 'hard',
+    tags: ['classic', 'abstract', 'area-control'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود به جای شما پاس داده می‌شود؛ سه بار پشت سر هم یعنی باخت. در مرحله شمارش، اتمام زمان یعنی پذیرفتن شمارش فعلی.',

@@ -46,6 +46,7 @@ export const camelUp = defineGame({
     ],
     minutes: { min: 20, max: 30 },
     difficulty: 'easy',
+    tags: ['dice', 'family', 'race'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما یک تاس از هرم درمی‌آید.',

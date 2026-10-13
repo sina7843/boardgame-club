@@ -33,6 +33,12 @@ describe('catalog search and filters (FR-02)', () => {
     expect((await get('/api/games?players=abc')).json().errorCode).toBe('VALIDATION_FAILED');
   });
 
+  it('filters by tags, requiring every selected tag', async () => {
+    expect(await ids('?tags=cooperative')).toEqual(['crew-deep-sea', 'hanabi', 'the-crew', 'the-mind']);
+    expect(await ids('?tags=cooperative,party')).toEqual(['the-mind']);
+    expect((await get('/api/games?tags=nope')).json().errorCode).toBe('VALIDATION_FAILED');
+  });
+
   it('game detail exposes rules, policies and the active version before joining (FR-03)', async () => {
     const d = (await get('/api/games/sealed-bids')).json();
     expect(d).toMatchObject({ minPlayers: 2, maxPlayers: 4, access: 'free', acceptingNewTables: true,

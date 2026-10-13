@@ -55,6 +55,7 @@ export const chess = defineGame({
     ],
     minutes: { min: 10, max: 60 },
     difficulty: 'medium',
+    tags: ['classic', 'abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود می‌بازید؛ مگر اینکه حریف با مهره‌هایش هرگز نتواند مات کند (مثلاً فقط شاه، یا شاه و یک فیل یا اسب دارد) که بازی مساوی می‌شود.',

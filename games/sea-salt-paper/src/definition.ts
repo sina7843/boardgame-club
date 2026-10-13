@@ -55,6 +55,7 @@ export const seaSaltPaper = defineGame({
     ],
     minutes: { min: 20, max: 40 },
     difficulty: 'easy',
+    tags: ['card', 'set-collection'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود کارت روی کپهٔ اول برداشته می‌شود و نوبت تمام می‌شود.',

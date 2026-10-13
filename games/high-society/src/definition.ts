@@ -50,6 +50,7 @@ export const highSociety = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'easy',
+    tags: ['auction', 'card'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما کنار کشیده می‌شود.',

@@ -38,6 +38,7 @@ export const hanabi = defineGame({
     ],
     minutes: { min: 20, max: 30 },
     difficulty: 'medium',
+    tags: ['card', 'cooperative', 'deduction'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما قدیمی‌ترین کارت دور انداخته می‌شود (یا با ژتون کامل یک سرنخ داده می‌شود).',

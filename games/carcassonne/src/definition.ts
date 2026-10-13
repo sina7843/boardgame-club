@@ -45,6 +45,7 @@ export const carcassonne = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'medium',
+    tags: ['tile', 'family', 'area-control'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود کاشی در اولین جای ممکن و بدون پیرو گذاشته می‌شود.',

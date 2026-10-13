@@ -52,6 +52,7 @@ export const elDorado = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'medium',
+    tags: ['deckbuilding', 'race'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود نوبت بدون حرکت و خرید تمام می‌شود.',

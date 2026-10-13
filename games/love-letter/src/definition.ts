@@ -54,6 +54,7 @@ export const loveLetter = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'easy',
+    tags: ['card', 'deduction', 'bluff'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود کوچک‌ترین کارت مجاز شما (هرگز شاهزاده‌خانم) روی یک هدف تصادفی بازی می‌شود.',

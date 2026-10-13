@@ -47,6 +47,7 @@ export const quoridor = defineGame({
     ],
     minutes: { min: 5, max: 20 },
     difficulty: 'easy',
+    tags: ['abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، مهره شما یک خانه در کوتاه‌ترین مسیر جلو می‌رود. سه بار پشت سر هم یعنی کنار رفتن از بازی.',

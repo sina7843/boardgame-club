@@ -46,6 +46,7 @@ export const pointSalad = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'easy',
+    tags: ['card', 'set-collection'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما دو سبزی اول بازار (یا یک کارت دستور) برداشته می‌شود.',

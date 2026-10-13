@@ -51,6 +51,7 @@ export const jaipur = defineGame({
     ],
     minutes: { min: 20, max: 30 },
     difficulty: 'easy',
+    tags: ['card', 'trading', 'set-collection'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما شترها (یا یک کالا) برداشته می‌شود.',

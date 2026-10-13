@@ -46,6 +46,7 @@ export const sixNimmt = defineGame({
     ],
     minutes: { min: 15, max: 45 },
     difficulty: 'easy',
+    tags: ['card', 'family', 'party'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود کوچک‌ترین کارت شما بازی می‌شود و در انتخاب ردیف، کم‌گاوترین ردیف برداشته می‌شود.',

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import type { GameSummary } from '@bg/contracts';
-import { Button, Input, Select, StateBlock } from '@bg/ui';
+import { GAME_TAG_FA, type GameSummary, type GameTag } from '@bg/contracts';
+import { Button, CheckChips, Input, Select, StateBlock } from '@bg/ui';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
-type FilterKey = 'players' | 'maxMinutes' | 'difficulty' | 'mode' | 'access';
+type FilterKey = 'players' | 'maxMinutes' | 'difficulty' | 'mode' | 'access' | 'tags';
+const TAG_OPTIONS = (Object.keys(GAME_TAG_FA) as GameTag[]).map((value) => ({ value, label: GAME_TAG_FA[value] }));
 
 export function Catalog() {
   usePageTitle('بازی‌ها');
@@ -53,6 +54,10 @@ export function Catalog() {
             options={[{ value: '', label: 'همه' }, { value: 'live', label: 'زنده' }, { value: 'turn', label: 'نوبتی' }, { value: 'friendly', label: 'دوستانه' }, { value: 'ranked', label: 'رتبه‌دار' }]} />
           <Select label="دسترسی" value={params.get('access') ?? ''} onChange={(e) => setFilter('access', e.target.value)}
             options={[{ value: '', label: 'همه' }, { value: 'free', label: 'رایگان' }, { value: 'premium', label: 'پریمیوم' }]} />
+          <div className="filters__tags">
+            <CheckChips legend="برچسب‌ها" values={(params.get('tags') ?? '').split(',').filter((t): t is GameTag => t in GAME_TAG_FA)}
+              options={TAG_OPTIONS} onChange={(v) => setFilter('tags', v.join(','))} />
+          </div>
         </form>
       </search>
 

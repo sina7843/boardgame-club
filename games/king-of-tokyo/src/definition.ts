@@ -49,6 +49,7 @@ export const kingOfTokyo = defineGame({
     ],
     minutes: { min: 20, max: 30 },
     difficulty: 'easy',
+    tags: ['dice', 'party', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود تاس‌ها همان‌طور که هستند حساب می‌شوند، از شهر بیرون نمی‌روید و چیزی نمی‌خرید.',

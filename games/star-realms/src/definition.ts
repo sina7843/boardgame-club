@@ -60,6 +60,7 @@ export const starRealms = defineGame({
     ],
     minutes: { min: 20, max: 30 },
     difficulty: 'medium',
+    tags: ['deckbuilding', 'card'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود همهٔ کارت‌ها بازی می‌شوند، حمله به حریف (اگر ممکن باشد) انجام و نوبت تمام می‌شود.',

@@ -59,6 +59,7 @@ export const tak = defineGame({
     ],
     minutes: { min: 10, max: 30 },
     difficulty: 'medium',
+    tags: ['abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود یک سنگ تخت در خانه‌ای خالی گذاشته می‌شود؛ سه بار پشت سر هم یعنی باخت.',

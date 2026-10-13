@@ -58,6 +58,7 @@ export const diceThrone = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'easy',
+    tags: ['dice', 'card'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود قهرمان اول، ریختن تاس و بهترین حملهٔ ممکن خودکار انتخاب می‌شود.',

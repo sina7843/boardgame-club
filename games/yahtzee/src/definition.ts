@@ -50,6 +50,7 @@ export const yahtzee = defineGame({
     ],
     minutes: { min: 15, max: 40 },
     difficulty: 'easy',
+    tags: ['dice', 'classic', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود و هنوز تاس نریخته‌اید، یک بار هر ۵ تاس ریخته می‌شود؛ سپس امتیاز در خانهٔ مجازی ثبت می‌شود که بیشترین امتیاز را می‌دهد (در تساوی، اولین خانه به ترتیب جدول) و نوبت به نفر بعد می‌رسد.',

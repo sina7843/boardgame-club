@@ -27,6 +27,7 @@ export function catalogFilters(q: CatalogQuery): SQL[] {
   if (q.maxMinutes) where.push(lte(games.minMinutes, q.maxMinutes));
   if (q.difficulty) where.push(eq(games.difficulty, q.difficulty));
   if (q.access) where.push(eq(games.access, q.access));
+  if (q.tags?.length) where.push(sql`${games.tags} @> array[${sql.join(q.tags.map((t) => sql`${t}`), sql`, `)}]::text[]`);
   if (q.mode === 'live' || q.mode === 'turn') where.push(sql`${games.paces} @> array[${q.mode}]::text[]`);
   if (q.mode === 'friendly' || q.mode === 'ranked') where.push(sql`${games.competitions} @> array[${q.mode}]::text[]`);
   return where;
@@ -49,7 +50,7 @@ function toSummary(g: GameRow, eff: EffectiveSettings, botAvailable: boolean): G
   return {
     id: g.id, nameFa: g.nameFa, nameOriginal: g.nameOriginal, summaryFa: g.summaryFa,
     minPlayers: eff.minPlayers, maxPlayers: eff.maxPlayers, minMinutes: g.minMinutes, maxMinutes: g.maxMinutes,
-    difficulty: g.difficulty, access: g.access, paces: eff.paces, competitions: eff.competitions,
+    difficulty: g.difficulty, tags: g.tags as GameSummary['tags'], access: g.access, paces: eff.paces, competitions: eff.competitions,
     isTestGame: g.isTestGame, status: g.status, tutorialEnabled: g.tutorialEnabled, botAvailable: botAvailable && g.status === 'active',
     liveSeconds: eff.liveSeconds, turnSeconds: eff.turnSeconds
   };

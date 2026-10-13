@@ -55,6 +55,7 @@ export const machiKoro = defineGame({
     ],
     minutes: { min: 20, max: 30 },
     difficulty: 'easy',
+    tags: ['dice', 'engine', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما یک تاس ریخته می‌شود و چیزی ساخته نمی‌شود.',

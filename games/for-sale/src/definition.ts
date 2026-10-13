@@ -40,6 +40,7 @@ export const forSale = defineGame({
     ],
     minutes: { min: 15, max: 25 },
     difficulty: 'easy',
+    tags: ['auction', 'card', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود در مزایده کنار می‌کشید و در فروش ارزان‌ترین ملکتان انتخاب می‌شود.',

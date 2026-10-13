@@ -65,6 +65,7 @@ export const uno = defineGame({
     ],
     minutes: { min: 10, max: 60 },
     difficulty: 'easy',
+    tags: ['card', 'classic', 'family', 'party'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، به‌جای شما یک کارت کشیده و نوبت رد می‌شود (در برابر +۴ یعنی پذیرفتن آن). پس از سه بار پیاپی، از بازی کنار گذاشته می‌شوید.',

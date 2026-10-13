@@ -46,6 +46,7 @@ export const scout = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'medium',
+    tags: ['card'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود دست برگردانده نمی‌شود، و در نوبت کارت سمت راست نمایش دیدبانی و اول دست گذاشته می‌شود (یا اولین نمایش ممکن).',

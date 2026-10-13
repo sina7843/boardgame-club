@@ -25,6 +25,7 @@ export const sealedBids = defineGame({
     ],
     minutes: { min: 5, max: 15 },
     difficulty: 'medium',
+    tags: ['auction'],
     access: 'free',
     isTestGame: true,
     timeoutPolicyFa: 'اگر زمان تمام شود، کم‌ارزش‌ترین ژتون استفاده‌نشده به‌جای بازیکن ثبت می‌شود.',

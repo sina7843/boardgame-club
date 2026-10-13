@@ -59,6 +59,7 @@ export const checkers = defineGame({
     ],
     minutes: { min: 10, max: 30 },
     difficulty: 'easy',
+    tags: ['classic', 'abstract'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود می‌بازید.',

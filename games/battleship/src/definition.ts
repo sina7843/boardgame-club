@@ -39,6 +39,7 @@ export const battleship = defineGame({
     ],
     minutes: { min: 15, max: 25 },
     difficulty: 'easy',
+    tags: ['classic', 'deduction', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود ناوگان تصادفی چیده می‌شود یا به اولین خانهٔ شلیک‌نشده شلیک می‌شود.',

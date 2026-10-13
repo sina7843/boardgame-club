@@ -42,6 +42,7 @@ export const cockroachPoker = defineGame({
     ],
     minutes: { min: 15, max: 25 },
     difficulty: 'easy',
+    tags: ['card', 'bluff', 'party'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود به جای شما اولین کارت با ادعای راست داده می‌شود، یا «راست می‌گوید» حدس زده می‌شود.',

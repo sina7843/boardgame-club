@@ -42,6 +42,7 @@ export const kingdomino = defineGame({
     ],
     minutes: { min: 15, max: 25 },
     difficulty: 'easy',
+    tags: ['tile', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود دومینو در اولین جای ممکن گذاشته (یا دور انداخته) و اولین دومینوی آزاد انتخاب می‌شود.',

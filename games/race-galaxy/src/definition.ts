@@ -56,6 +56,7 @@ export const raceGalaxy = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'hard',
+    tags: ['card', 'engine'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود مرحلهٔ تولید انتخاب می‌شود، اولین کارت نگه داشته و از گذاشتن کارت صرف‌نظر می‌شود.',

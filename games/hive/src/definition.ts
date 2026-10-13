@@ -52,6 +52,7 @@ export const hive = defineGame({
     ],
     minutes: { min: 15, max: 30 },
     difficulty: 'medium',
+    tags: ['abstract', 'strategy'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود یک کار مجاز به جای شما انجام می‌شود؛ سه بار پشت سر هم یعنی باخت.',

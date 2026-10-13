@@ -47,6 +47,7 @@ export const lostCities = defineGame({
     ],
     minutes: { min: 20, max: 40 },
     difficulty: 'easy',
+    tags: ['card', 'set-collection'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود کمترین کارت دستتان دور ریخته می‌شود و از دسته برمی‌دارید.',

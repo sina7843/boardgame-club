@@ -57,6 +57,7 @@ export const theCrew = defineGame({
     ],
     minutes: { min: 10, max: 20 },
     difficulty: 'medium',
+    tags: ['card', 'cooperative'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود اولین وظیفه یا اولین کارت مجاز خودکار انتخاب می‌شود.',

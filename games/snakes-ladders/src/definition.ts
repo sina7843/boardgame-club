@@ -55,6 +55,7 @@ export const snakesLadders = defineGame({
     ],
     minutes: { min: 5, max: 20 },
     difficulty: 'easy',
+    tags: ['classic', 'dice', 'family', 'race'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان نوبت تمام شود، تاس به‌جای شما ریخته می‌شود. پس از سه بار پیاپی، از بازی کنار گذاشته می‌شوید.',

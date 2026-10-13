@@ -45,6 +45,7 @@ export const sushiGo = defineGame({
     ],
     minutes: { min: 15, max: 20 },
     difficulty: 'easy',
+    tags: ['card', 'set-collection', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود اولین کارت دستتان برداشته می‌شود.',

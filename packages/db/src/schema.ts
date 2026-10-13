@@ -214,6 +214,8 @@ export const games = pgTable('games', {
   access: text().$type<'free' | 'premium'>().notNull(),
   paces: text().array().$type<('live' | 'turn')[]>().notNull(),
   competitions: text().array().$type<('friendly' | 'ranked')[]>().notNull(),
+  /** Catalog tags from the module (GAME_TAG_FA keys); refreshed by the seed. */
+  tags: text().array().notNull().default(sql`'{}'::text[]`),
   isTestGame: boolean().notNull(),
   status: text().$type<'draft' | 'active' | 'suspended'>().notNull().default('draft'),
   timeoutPolicyFa: text().notNull(),

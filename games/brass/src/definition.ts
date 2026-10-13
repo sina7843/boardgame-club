@@ -88,6 +88,7 @@ export const brass = defineGame({
     ],
     minutes: { min: 60, max: 120 },
     difficulty: 'hard',
+    tags: ['strategy', 'economic'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر وقت نوبت تمام شود، سرور برای هر اقدام باقی‌ماندهٔ همان نوبت «رد کردن» انجام می‌دهد و هر بار اولین کارت دست شما را دور می‌اندازد؛ بازی برای بقیه ادامه دارد.',

@@ -45,6 +45,7 @@ export const azul = defineGame({
     ],
     minutes: { min: 30, max: 45 },
     difficulty: 'medium',
+    tags: ['tile', 'abstract', 'family'],
     access: 'free',
     isTestGame: false,
     timeoutPolicyFa: 'اگر زمان تمام شود کمترین کاشی ممکن برداشته و در اولین ردیف مجاز (یا کف) گذاشته می‌شود.',
