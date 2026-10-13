@@ -27,7 +27,7 @@ import artParchment from './art/board-parchment.webp';
 import artWood from './art/board-wood.webp';
 import artCard from './art/board-card.webp';
 import {
-  ACTION_FA, ANIMAL, ICON_FA, KIND_FA, PROJECT, REG, SPONSOR, TILES, UNI_FA, CELLS, xy, nameOf,
+  ACTION_FA, ANIMAL, ICON_FA, KIND_FA, PROJECT, REG, SPONSOR, TILES, UNI_FA, CELLS, xy, nameOf, target, MAX_CP, MAX_X,
   type ActionKey, type ArkView, type MapView, type Icon, type Req
 } from './rules.ts';
 
@@ -58,8 +58,6 @@ const REQ_FA = (k: string, n: number) =>
   : k === 'sponsors2' ? 'کارت حامیان ارتقایافته' : k === 'appeal25' ? 'جذابیت حداکثر ۲۵' : k === 'rep' ? `اعتبار دست‌کم ${fa(n)}`
   : `${fa(n)} نماد ${ICON_FA[k as Icon] ?? k}`;
 const reqText = (r: Req) => (Object.entries(r) as [string, number][]).map(([k, n]) => REQ_FA(k, n)).join('، ');
-const rewards = (d: { appeal: number; cp: number; rep: number }) =>
-  [d.appeal ? `${fa(d.appeal)} جذابیت` : '', d.cp ? `${fa(d.cp)} حفاظت` : '', d.rep ? `${fa(d.rep)} اعتبار` : ''].filter(Boolean).join(' · ');
 const iconCounts = (list: Icon[]) => { const m = new Map<Icon, number>(); for (const i of list) m.set(i, (m.get(i) ?? 0) + 1); return [...m]; };
 const SP_FA: Record<string, string> = { pz: 'باغ‌وحش کودکان', rh: 'خانهٔ خزندگان', ba: 'قفس بزرگ پرندگان' };
 
@@ -73,7 +71,18 @@ export function cardLine(id: number): string {
   return nameOf(id);
 }
 
-/** Compact card: type band, name, cost, needs, icons, conditions, rewards and the effect text. */
+/** Appeal / conservation / reputation bonuses printed along the bottom of a card (glyph + number, never colour alone). */
+function Gains({ d }: { d: { appeal: number; cp: number; rep: number } }) {
+  return (
+    <span className="an-card__foot">
+      {d.appeal > 0 && <span className="an-g an-g--appeal" title="جذابیت"><i aria-hidden="true">▼</i>{fa(d.appeal)}</span>}
+      {d.cp > 0 && <span className="an-g an-g--cp" title="حفاظت"><i aria-hidden="true">▲</i>{fa(d.cp)}</span>}
+      {d.rep > 0 && <span className="an-g an-g--rep" title="اعتبار"><i aria-hidden="true">★</i>{fa(d.rep)}</span>}
+    </span>
+  );
+}
+
+/** Printed-card layout: cost coin and name on top, icons, requirement, clamped text, bonuses at the bottom. */
 function CardFace({ id, full = true }: { id: number; full?: boolean }) {
   const a = ANIMAL[id];
   const s = SPONSOR[id];
@@ -81,40 +90,42 @@ function CardFace({ id, full = true }: { id: number; full?: boolean }) {
   const d = REG.cards.get(id);
   if (a) {
     const terr = [a.water ? `${fa(a.water)} آب` : '', a.rock ? `${fa(a.rock)} صخره` : ''].filter(Boolean).join(' و ');
+    const fx = full ? a.ab.map(([k, v]) => { const impl = REG.abilities[k]; return impl ? { k, name: `${impl.nameFa}${typeof v === 'number' && v ? ` ${fa(v)}` : ''}`, text: impl.textFa(v, id) } : null; }).filter((x) => x !== null) : [];
     return (
       <>
-        <span className="an-card__head"><b>{nameOf(id)}</b><span className="an-cost">{fa(a.cost)}</span></span>
+        <span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b><span className="an-cost" title="هزینه">{fa(a.cost)}</span></span>
         <span className="an-card__icons">{iconCounts(a.icons).map(([i, n]) => <IconChip key={i} i={i} n={n} />)}</span>
-        <small>{a.std ? `محوطهٔ ${fa(a.size)}+` : 'فقط باغ‌وحش کودکان'}{a.sp && a.std ? ` یا ${SP_FA[a.sp.k]}` : ''}{terr ? `، کنار ${terr}` : ''}</small>
+        <small className="an-card__need">{a.std ? `محوطهٔ ${fa(a.size)}+` : 'فقط باغ‌وحش کودکان'}{a.sp && a.std ? ` یا ${SP_FA[a.sp.k]}` : ''}{terr ? `، کنار ${terr}` : ''}</small>
         {Object.keys(a.req).length > 0 && <small className="an-req">شرط: {reqText(a.req)}</small>}
-        {rewards(a) && <small className="an-gain">{rewards(a)}</small>}
-        {full && a.ab.map(([k, v]) => { const impl = REG.abilities[k]; return impl ? <small key={k} className="an-fx"><b>{impl.nameFa}{typeof v === 'number' && v ? ` ${fa(v)}` : ''}:</b> {impl.textFa(v, id)}</small> : null; })}
+        {fx.length > 0 && <small className="an-fx" title={fx.map((x) => `${x.name}: ${x.text}`).join(' ')}>{fx.map((x) => <span key={x.k}><b>{x.name}:</b> {x.text} </span>)}</small>}
+        <Gains d={a} />
       </>
     );
   }
   if (s) {
     return (
       <>
-        <span className="an-card__head"><b>{nameOf(id)}</b><span className="an-cost an-cost--lvl">{fa(s.level)}</span></span>
-        {s.icons.length > 0 && <span className="an-card__icons">{iconCounts(s.icons).map(([i, n]) => <IconChip key={i} i={i} n={n} />)}</span>}
-        {(s.rock > 0 || s.water > 0) && <small>{[s.water ? `${fa(s.water)} نماد آب` : '', s.rock ? `${fa(s.rock)} نماد صخره` : ''].filter(Boolean).join('، ')}</small>}
+        <span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b><span className="an-cost an-cost--lvl" title="سطح حامی">{fa(s.level)}</span></span>
+        <span className="an-card__icons">{iconCounts(s.icons).map(([i, n]) => <IconChip key={i} i={i} n={n} />)}</span>
+        {(s.rock > 0 || s.water > 0) && <small className="an-card__need">{[s.water ? `${fa(s.water)} نماد آب` : '', s.rock ? `${fa(s.rock)} نماد صخره` : ''].filter(Boolean).join('، ')}</small>}
         {Object.keys(s.req).length > 0 && <small className="an-req">شرط: {reqText(s.req)}</small>}
-        {rewards(s) && <small className="an-gain">{rewards(s)}</small>}
-        {full && d?.textFa && <small className="an-fx">{d.textFa}</small>}
+        {full && d?.textFa && <small className="an-fx" title={d.textFa}>{d.textFa}</small>}
+        <Gains d={s} />
       </>
     );
   }
   if (pr) {
+    const txt = REG.projects.get(id)?.textFa;
     return (
       <>
-        <span className="an-card__head"><b>{nameOf(id)}</b></span>
-        {full && REG.projects.get(id)?.textFa && <small className="an-fx">{REG.projects.get(id)!.textFa}</small>}
-        <small>{pr.slots.map((sl) => `${sl.need ? fa(sl.need) : sl.size === 4 ? '۴–۵' : sl.size === 2 ? '۱–۲' : fa(sl.size ?? 0)} → ${fa(sl.cp)}${sl.rep ? `+${fa(sl.rep)}ا` : ''}`).join(' · ')} حفاظت</small>
+        <span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b></span>
+        {full && txt && <small className="an-fx" title={txt}>{txt}</small>}
+        <small className="an-card__need">{pr.slots.map((sl) => `${sl.need ? fa(sl.need) : sl.size === 4 ? '۴–۵' : sl.size === 2 ? '۱–۲' : fa(sl.size ?? 0)} → ${fa(sl.cp)}${sl.rep ? `+${fa(sl.rep)}ا` : ''}`).join(' · ')} حفاظت</small>
       </>
     );
   }
   const sc = REG.scoring.get(id);
-  return <><span className="an-card__head"><b>{nameOf(id)}</b></span>{sc && <small className="an-fx">{sc.textFa}</small>}</>;
+  return <><span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b></span>{sc && <small className="an-fx" title={sc.textFa}>{sc.textFa}</small>}</>;
 }
 const kindOf = (id: number) => (ANIMAL[id] ? 'animal' : SPONSOR[id] ? 'sponsor' : PROJECT[id] ? 'project' : 'scoring');
 function Card({ id, selected, onClick, disabled, flip, from = 'deck', exit, hint, full }: { id: number; selected?: boolean; onClick?: () => void; disabled?: boolean; flip?: boolean; from?: string; exit?: string; hint?: boolean; full?: boolean }) {
@@ -179,13 +190,25 @@ function ZooMap({ map, player, preview, targets, onCell, label, hintCells }: {
             <g key={c} onClick={click} className={click ? `an-hex-g--click${hint.has(c) && !pv.has(c) ? ' an-hint' : ''}` : undefined} tabIndex={click ? 0 : undefined} role={click ? 'button' : undefined}
               aria-label={click ? `خانهٔ ${c}` : undefined} onKeyDown={click ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); click(); } } : undefined}>
               <polygon points={hexPath(c)} className={cls + land} style={fill ? { fill } : undefined}><title>{title}</title></polygon>
-              {b && b.cells[0] === c && <text x={cx} y={cy + 4} className="an-hex__t">{KIND_SHORT[b.kind] ?? '★'}{b.full ? '●' : ''}{b.used ? `·${fa(b.used)}` : ''}</text>}
-              {bonus && !b && <circle cx={cx} cy={cy} r={4} className="an-hex__bonus" />}
+              {b && b.cells[0] === c && (
+                <>
+                  <circle cx={cx} cy={cy - 1} r={7.2} className="an-hex__badge" />
+                  <text x={cx} y={cy + 2.2} className="an-hex__t">{KIND_SHORT[b.kind] ?? '★'}</text>
+                  {(b.full || b.used) && <text x={cx} y={cy + 11.5} className="an-hex__occ">{b.full ? '●' : ''}{b.used ? fa(b.used) : ''}</text>}
+                </>
+              )}
+              {bonus && !b && <><circle cx={cx} cy={cy} r={6} className="an-hex__bonus" /><text x={cx} y={cy + 2.6} className="an-hex__bt">{/^[۰-۹]+/.exec(bonus)?.[0] ?? '★'}</text></>}
               {mark && !b && <circle cx={cx} cy={cy} r={6} className="an-hex__mark" />}
             </g>
           );
         })}
       </svg>
+      <ul className="an-legend" dir="rtl" aria-label="راهنمای نقشه">
+        <li><i className="an-lg an-lg--coin" aria-hidden="true" />پاداش ساخت</li>
+        <li><i className="an-lg an-lg--up" aria-hidden="true" />نیازمند ساخت II</li>
+        <li><i className="an-lg an-lg--e" aria-hidden="true" />محوطه (عدد = اندازه)</li>
+        <li><i className="an-lg an-lg--full" aria-hidden="true" />محوطهٔ پر (●)</li>
+      </ul>
     </div>
   );
 }
@@ -201,22 +224,55 @@ const SEAT_FA = ['قرمز', 'آبی', 'زرد', 'بنفش'];
 const seatStyle = (seat: number) => ({ '--an-seat': SEAT_COLOR[seat % SEAT_COLOR.length] }) as CSSProperties;
 const ACT_GLYPH: Record<ActionKey, string> = { animals: '❦', build: '⬢', cards: '▤', association: '⚑', sponsors: '✦' };
 
+/** One numbered printed track (reputation, conservation, break): a grid of fixed cells with bonus tags and player markers. */
+type TrackCell = { n: number; tag?: string; title?: string; reach?: boolean; locked?: boolean; marks?: number[] };
+function NumTrack({ label, cells, className = '' }: { label: string; cells: TrackCell[]; className?: string }) {
+  return (
+    <ol className={`an-nt ${className}`} aria-label={label}>
+      {cells.map((c) => (
+        <li key={c.n} title={c.title} className={`an-nt__c${c.reach ? ' an-nt__c--reach' : ''}${c.locked ? ' an-nt__c--locked' : ''}${c.tag ? ' an-nt__c--bonus' : ''}`}>
+          <b>{fa(c.n)}</b>
+          <small>{c.tag ?? ''}</small>
+          <span className="an-nt__m">{(c.marks ?? []).map((m) => <i key={m} className="an-mk" style={seatStyle(m)} title={`بازیکن ${fa(m + 1)}`}>{fa(m + 1)}</i>)}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+const REP_BONUS: Record<number, [string, string]> = {
+  5: ['ارتقا', 'ارتقای یک کارت کنش'], 8: ['کارمند', 'یک کارمند انجمن'], 11: ['▲۱', '۱ حفاظت'], 12: ['✕۱', '۱ نشان X'], 13: ['قاپ', 'قاپیدن کارت از ویترین'],
+  14: ['▲۱', '۱ حفاظت'], 15: ['✕۱', '۱ نشان X']
+};
+function RepTrack({ p }: { p: PlayerView }) {
+  const cap = p.up.cards ? 15 : 9;
+  return (
+    <div className="an-rep">
+      <small>مسیر اعتبار (سقف فعلی {fa(cap)})</small>
+      <NumTrack label={`اعتبار ${fa(p.rep)} از ۱۵`} cells={Array.from({ length: 16 }, (_, r) => ({
+        n: r, tag: REP_BONUS[r]?.[0], title: REP_BONUS[r]?.[1], reach: r <= p.rep, locked: r > cap, marks: r === p.rep ? [p.seat] : []
+      }))} />
+    </div>
+  );
+}
+
+/** The printed score ring, straightened: appeal counts up on the top scale, conservation spaces sit at their target number on the lower scale. */
+const SCALE = 120;
 function ScoreStrip({ p }: { p: PlayerView }) {
-  const max = Math.max(120, p.appeal + 4, p.target + 4);
-  const at = (n: number) => `${(100 * Math.max(0, Math.min(n, max))) / max}%`;
+  const at = (n: number) => `${(100 * Math.max(0, Math.min(n, SCALE))) / SCALE}%`;
   const lo = Math.min(p.appeal, p.target), hi = Math.max(p.appeal, p.target);
   const crossed = p.appeal >= p.target;
   return (
     <div className={`an-score${crossed ? ' an-score--crossed' : ''}`}>
       <div className="an-score__rail" aria-hidden="true">
-        {Array.from({ length: Math.floor(max / 10) + 1 }, (_, k) => <i key={k} style={{ insetInlineStart: at(10 * k) }} />)}
-        <span className="an-score__gap" style={{ insetInlineStart: at(lo), inlineSize: `${(100 * (hi - lo)) / max}%` }} />
+        {Array.from({ length: SCALE / 20 + 1 }, (_, k) => <i key={k} className="an-score__up" style={{ insetInlineStart: at(20 * k) }}>{fa(20 * k)}</i>)}
+        {[0, 5, 10, 15, 20, 30, MAX_CP].map((c) => <i key={`c${c}`} className="an-score__dn" style={{ insetInlineStart: at(target(c)) }}>{fa(c)}</i>)}
+        <span className="an-score__gap" style={{ insetInlineStart: at(lo), inlineSize: `${(100 * (hi - lo)) / SCALE}%` }} />
         <span className="an-score__m an-score__m--appeal" style={{ insetInlineStart: at(p.appeal) }}>▼</span>
         <span className="an-score__m an-score__m--cp" style={{ insetInlineStart: at(p.target) }}>▲</span>
       </div>
       <div className="an-score__legend">
         <Track label="▼ جذابیت" value={p.appeal} />
-        <Track label="▲ حفاظت" value={p.cp} extra={`هدف ${fa(p.target)}`} />
+        <Track label="▲ حفاظت" value={p.cp} extra={`هدف ${fa(p.target)} · سقف ${fa(MAX_CP)}`} />
         <Track label={crossed ? 'امتیاز ✓ عبور' : 'امتیاز'} value={p.vp} />
       </div>
     </div>
@@ -226,19 +282,25 @@ function ScoreStrip({ p }: { p: PlayerView }) {
 function ActionRow({ p }: { p: PlayerView }) {
   return (
     <ol className="an-slots" aria-label="کارت‌های کنش (قدرت = شمارهٔ خانه)">
-      {p.slots.map((k: ActionKey, i: number) => (
-        <li key={k} className={`an-slot an-slot--${k}${p.up[k] ? ' an-slot--up' : ''}`} data-flip={`slot-${p.seat}-${k}`}>
-          <span className="an-slot__card" style={{ backgroundImage: `url(${artCard})` }}>
-            <span className="an-slot__band"><span aria-hidden="true">{ACT_GLYPH[k]}</span> {ACTION_FA[k]}</span>
-            <span className="an-slot__side" title={p.up[k] ? 'ارتقایافته' : 'روی پایه'}>{p.up[k] ? 'II' : 'I'}</span>
-            <b className="an-slot__str" title="قدرت">{fa(p.strengths[i]!)}</b>
-            {(p.tok[k].mult > 0 || p.tok[k].venom > 0 || p.tok[k].con > 0) && (
-              <small className="an-slot__tok">{p.tok[k].mult ? `دوبرابر ×${fa(p.tok[k].mult)} ` : ''}{p.tok[k].venom ? 'زهر ' : ''}{p.tok[k].con ? 'فشار (−۲)' : ''}</small>
-            )}
-          </span>
-          <span className="an-slot__n" aria-hidden="true">{fa(i + 1)}</span>
-        </li>
-      ))}
+      {p.slots.map((k: ActionKey, i: number) => {
+        const t = p.tok[k];
+        return (
+          <li key={k} className={`an-slot an-slot--${k}${p.up[k] ? ' an-slot--up' : ''}`} data-flip={`slot-${p.seat}-${k}`}>
+            <span className="an-slot__card" style={{ backgroundImage: `url(${artCard})` }}>
+              <span className="an-slot__band">{ACTION_FA[k]}</span>
+              <span className="an-slot__glyph" aria-hidden="true">{ACT_GLYPH[k]}</span>
+              <b className="an-slot__str" title="قدرت">{fa(p.strengths[i]!)}</b>
+              <span className="an-slot__side" title={p.up[k] ? 'ارتقایافته' : 'روی پایه'}>{p.up[k] ? 'II ★' : 'I'}</span>
+              <span className="an-slot__toks">
+                {t.mult > 0 && <small className="an-tk" title="نشان دوبرابرکننده">×{fa(t.mult)}</small>}
+                {t.venom > 0 && <small className="an-tk" title="نشان زهر">زهر</small>}
+                {t.con > 0 && <small className="an-tk" title="نشان فشار (−۲)">فشار</small>}
+              </span>
+            </span>
+            <span className="an-slot__n" aria-hidden="true">{fa(i + 1)}</span>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -289,10 +351,11 @@ function PlayerBoard({ p, map, me, name, active, hand, anchor = true, children }
           <div className="an-notepad" style={{ backgroundImage: `url(${artParchment})` }}>
             <div className="an-tracks">
               <Track label="◉ پول" value={p.money} />
-              <Track label="✕ نشان X" value={p.x} />
+              <Track label="✕ نشان X" value={p.x} extra={`سقف ${fa(MAX_X)}`} />
               <Track label="★ اعتبار" value={p.rep} extra={`ویترین ۱–${fa(p.range)}`} />
               <Track label="▭ دست" value={p.handCount} extra={`سقف ${fa(p.handLimit)}`} />
             </div>
+            <RepTrack p={p} />
             <div className="an-workers" role="img" aria-label={`کارمندان: ${fa(p.workers)} آزاد از ${fa(1 + p.hired)}`}>
               <small>کارمندان</small>
               {meeples.map((on, k) => <span key={k} className={on ? 'an-meeple' : 'an-meeple an-meeple--out'} />)}
@@ -552,19 +615,40 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
 
         <aside className="an-side">
           <section className="an-panel" aria-label="مسیر استراحت و ویترین">
+            <h3>ویترین و مسیر استراحت</h3>
             <div className="an-break" role="meter" aria-valuemin={0} aria-valuemax={view.brkMax} aria-valuenow={view.brk} aria-label="مسیر استراحت">
-              <span style={{ inlineSize: `${(100 * view.brk) / view.brkMax}%` }} />
+              <NumTrack label="خانه‌های مسیر استراحت" className="an-nt--break"
+                cells={Array.from({ length: view.brkMax }, (_, k) => ({ n: k + 1, reach: k < view.brk, tag: k + 1 === view.brkMax ? 'پایان' : undefined }))} />
             </div>
             <p className="an-small">استراحت: {fa(view.brk)} از {fa(view.brkMax)} · دسته: <span data-flip-anchor="deck">{fa(view.deckCount)}</span> · <span data-flip-anchor="discard">دورریخته: {fa(view.discardCount)}</span> · نوبت {fa(view.turnsDone + 1)}
               {view.endAt !== null ? ` · پایان اعلام شد (${fa(Math.max(0, view.endAt - view.turnsDone))} نوبت مانده)` : ''}</p>
             <ol className="an-display" aria-label="ویترین (هزینهٔ برداشتن = شمارهٔ پوشه)">
               {view.display.map((id, i) => (
                 <li key={i} className={me && i < me.range ? 'an-folder an-folder--range' : 'an-folder'}>
-                  <b>{fa(i + 1)}</b>
+                  <b className="an-folder__tab">هزینه {fa(i + 1)}{me && i < me.range ? ' · در دسترس' : ''}</b>
                   {id === null ? <span className="an-card an-card--empty">{view.stage === 'draft' ? 'رو به پایین' : 'خالی'}</span> : <Card id={id} flip exit={prompt ? `seat-${prompt.seat}` : 'discard'} />}
                 </li>
               ))}
             </ol>
+          </section>
+
+          <section className="an-panel" aria-label="مسیر حفاظت">
+            <h3>مسیر حفاظت</h3>
+            <NumTrack label="مسیر حفاظت" className="an-nt--cons" cells={Array.from({ length: MAX_CP + 1 }, (_, c) => ({
+              n: c, reach: view.players.some((p) => p.cp >= c && c > 0),
+              tag: c === 2 ? '⇧' : c === 5 || c === 8 ? '◆' : c === 10 ? '⚑' : undefined,
+              title: c === 2 ? 'پاداش: ارتقای کارت کنش یا کارمند' : c === 5 || c === 8 ? 'پاداش: ۵ پول یا یک کاشی' : c === 10 ? 'رسیدن به ۱۰: دورانداختن کارت امتیاز پایانی' : undefined,
+              marks: view.players.filter((p) => p.cp === c).map((p) => p.seat)
+            }))} />
+            <p className="an-small">⇧ ارتقا یا کارمند · ◆ ۵ پول یا کاشی · ⚑ رسیدن به ۱۰: کنار گذاشتن یک کارت امتیاز پایانی · هر بازیکن در خانهٔ حفاظت واقعی خود (تا {fa(MAX_CP)}).</p>
+            <div className="an-tiles">
+              {([5, 8] as const).map((m) => (
+                <div key={m} className="an-tile-group"><small>کاشی‌های خانهٔ {fa(m)}</small>
+                  <span>{view.bonusTiles[m].length ? view.bonusTiles[m].map((x) => <b key={x} className="an-tile">{TILES[x]?.nameFa ?? x}</b>) : <em>همه برداشته شده</em>}</span>
+                </div>
+              ))}
+            </div>
+            <p className="an-small">امتیاز نهایی: جذابیت منهای عدد هدف (عدد هدف با ۰ حفاظت ۱۱۴ است و با هر حفاظت کمتر می‌شود).</p>
           </section>
 
           <section className="an-panel" aria-label="پروژه‌های حفاظت">
@@ -572,15 +656,21 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
             <ul className="an-projects">
               {[...view.projects, ...view.baseProjects].map((id) => (
                 <li key={id} className={`an-project${view.baseProjects.includes(id) ? ' an-project--base' : ''}`}>
-                  <b>{nameOf(id)}</b>{view.baseProjects.includes(id) ? <small> (پایه)</small> : null}
-                  {REG.projects.get(id)?.textFa && <small className="an-fx">{REG.projects.get(id)!.textFa}</small>}
-                  <span className="an-pslots">{PROJECT[id]!.slots.map((sl, k) => {
+                  <header><b>{nameOf(id)}</b><small>{view.baseProjects.includes(id) ? 'پایه' : 'بازی‌شده'}</small></header>
+                  {REG.projects.get(id)?.textFa && <small className="an-fx" title={REG.projects.get(id)!.textFa}>{REG.projects.get(id)!.textFa}</small>}
+                  <ol className="an-plv">{PROJECT[id]!.slots.map((sl, k) => {
                     const o = view.ptoks[id]?.[k];
                     const need = sl.need ? `${fa(sl.need)} نماد` : sl.size === 4 ? 'اندازهٔ ۴–۵' : sl.size === 2 ? 'اندازهٔ ۱–۲' : sl.size ? `اندازهٔ ${fa(sl.size)}` : 'هر سطح';
-                    return <span key={k} className={`an-pslot${o === -1 ? ' an-pslot--blocked' : o !== null && o !== undefined ? ' an-pslot--taken' : ''}`}>
-                      {need} → {fa(sl.cp)} حفاظت{sl.rep ? ` + ${fa(sl.rep)} اعتبار` : ''} <small>[{o === -1 ? 'بسته' : o === null || o === undefined ? 'آزاد' : who(o)}]</small></span>;
-                  })}</span>
-                  {view.extraSupports.filter((x) => x.project === id).map((x, k) => <small key={k}> + پشتیبانی دوباره: {who(x.seat)}</small>)}
+                    const free = o === null || o === undefined;
+                    return (
+                      <li key={k} className={`an-plv__s${o === -1 ? ' an-plv__s--blocked' : !free ? ' an-plv__s--taken' : ''}`}>
+                        <small>{need}</small>
+                        <span className="an-plv__r"><b><i aria-hidden="true">▲</i>{fa(sl.cp)}</b>{sl.rep ? <b><i aria-hidden="true">★</i>{fa(sl.rep)}</b> : null}</span>
+                        <span className="an-plv__who">{o === -1 ? 'بسته' : free ? 'آزاد' : <><i className="an-mk" style={seatStyle(o)}>{fa(o + 1)}</i> <bdi>{who(o)}</bdi></>}</span>
+                      </li>
+                    );
+                  })}</ol>
+                  {view.extraSupports.filter((x) => x.project === id).map((x, k) => <small key={k}>+ پشتیبانی دوباره: {who(x.seat)}</small>)}
                 </li>
               ))}
             </ul>
@@ -589,13 +679,25 @@ export default function ArkNovaRenderer({ view: served, legalActions, mySeat, se
           <section className="an-panel" aria-label="انجمن">
             <h3>انجمن</h3>
             <ul className="an-assoc">
-              <li>۲ اعتبار (قدرت ۲): {fa(view.assoc.rep.length)} کارمند</li>
-              <li>باغ‌وحش همکار (قدرت ۳): {fa(view.assoc.zoo.length)} کارمند — {view.zoosAvail.map((z) => ICON_FA[z]).join('، ') || '—'}</li>
-              <li>دانشگاه (قدرت ۴): {fa(view.assoc.uni.length)} کارمند — {view.unisAvail.map((u) => UNI_FA[u]).join('، ') || '—'}</li>
-              <li>پروژهٔ حفاظت (قدرت ۵): {fa(view.assoc.project.length)} کارمند</li>
-              <li>اهدا (فقط انجمن II): {fa(view.donationCost)} پول برای ۱ حفاظت</li>
+              {([['rep', '۲ اعتبار', 2], ['zoo', 'باغ‌وحش همکار', 3], ['uni', 'دانشگاه', 4], ['project', 'پروژهٔ حفاظت', 5]] as const).map(([k, name, str]) => (
+                <li key={k} className="an-task">
+                  <span className="an-task__str" title="قدرت لازم">{fa(str)}</span>
+                  <b className="an-task__name">{name}</b>
+                  <span className="an-task__workers" aria-label={`${fa(view.assoc[k].length)} کارمند`}>
+                    {view.assoc[k].length ? view.assoc[k].map((sd, j) => <span key={j} className="an-meeple" style={seatStyle(sd)} title={who(sd)} />) : <em>خالی</em>}
+                  </span>
+                  <span className="an-task__avail">
+                    {k === 'zoo' && (view.zoosAvail.length ? view.zoosAvail.map((z) => <IconChip key={z} i={z} />) : '—')}
+                    {k === 'uni' && (view.unisAvail.length ? view.unisAvail.map((u) => <span key={u} className="an-pill">{UNI_FA[u].split(' (')[0]}</span>) : '—')}
+                  </span>
+                </li>
+              ))}
+              <li className="an-task an-task--donate">
+                <span className="an-task__str" title="فقط انجمن II">II</span>
+                <b className="an-task__name">اهدا</b>
+                <span className="an-task__workers">{fa(view.donationCost)} پول برای ۱ حفاظت</span>
+              </li>
             </ul>
-            <p className="an-small">کاشی‌های پاداش حفاظت — خانهٔ ۵: {view.bonusTiles[5].map((t) => TILES[t]?.nameFa ?? t).join('، ') || '—'} · خانهٔ ۸: {view.bonusTiles[8].map((t) => TILES[t]?.nameFa ?? t).join('، ') || '—'}</p>
           </section>
 
           {log.length > 0 && (

@@ -18,7 +18,7 @@ registerContent(CONTENT);
 export * from './types.ts';
 export {
   ANIMAL, SPONSOR, PROJECT, REG, nameOf, target, vp, appealIncome, range, icons, strengthOf, KIND_FA, ICON_FA, ACTION_FA, UNI_FA, bonusFa,
-  BREAK_MAX, MAX_APPEAL
+  BREAK_MAX, MAX_APPEAL, MAX_CP, MAX_X
 } from './core.ts';
 export { TILES, cardsTable, animalMax } from './flow.ts';
 export { CELLS, xy, neighbors, isBorder } from './hex.ts';
