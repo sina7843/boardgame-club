@@ -1142,3 +1142,11 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Edits: own messages for 120 s (database clock); the first body is kept in `original_body` and shown to moderators in report evidence. Replies must target a message of the same conversation.
 - Unread counts per conversation and in total (`GET /me/conversations/unread`) for the nav badge; one grouped query replaces the per-conversation queries in `/me/conversations`.
 - In-game: speech bubble at the sender's avatar for 6 s (rail on wide screens; the strip/list show it in place of the status line); quick-chat button in the game bar (native popover); after the result «بازی خوبی بود» / «یه دست دیگه؟» and «افزودن دوست» for human opponents who are not friends. Table chat already stayed open after the result; unchanged.
+
+## Launch promo: free premium on login, store hidden (2026-10-13)
+- Owner request: Zarinpal is not ready at launch. Admin panel → «اشتراک و سکه» → «هدیهٔ پریمیوم افتتاح» turns the
+  promo on/off and sets its days (stored in `app_settings` key `welcome_premium`; missing = off; changes audited).
+- While on, each user gets the set days once, on OTP login (manual entitlement, reason «هدیهٔ افتتاح سایت»; never
+  re-granted, also not after the days change). `/plans`, coin shop and coin packs are listed empty and plan checkout,
+  coin spend and coin-pack checkout refuse with `PAYMENT_UNAVAILABLE`; the UI hides the empty sections.
+- Turning it off reopens the store (sales still need a configured gateway). Granted gifts stay valid until they end.

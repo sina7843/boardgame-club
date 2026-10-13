@@ -7,7 +7,7 @@ import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 import { registerPaidEntry } from './tournaments.ts';
 
-const { plans, coinPacks, tournaments, coinLedger, payments, paymentEvents, subscriptions, entitlements, auditLog, fakeGatewayTransactions } = schema;
+const { appSettings, plans, coinPacks, tournaments, coinLedger, payments, paymentEvents, subscriptions, entitlements, auditLog, fakeGatewayTransactions } = schema;
 
 export type VerifyResult = { status: 'paid'; refId: string; paidAmount: number } | { status: 'failed'; reason: string } | { status: 'pending' };
 
@@ -173,6 +173,36 @@ export async function expireSubscriptions(db: Db) {
   const rows = await db.update(subscriptions).set({ status: 'expired' })
     .where(and(eq(subscriptions.status, 'active'), lt(subscriptions.endsAt, sql`now()`))).returning({ id: subscriptions.id });
   return { expired: rows.length };
+}
+
+export const WELCOME_PREMIUM_REASON = 'هدیهٔ افتتاح سایت';
+
+export interface WelcomePremium { enabled: boolean; days: number }
+
+/** Launch promo setting (admin panel). Off when never set. */
+export async function welcomePremium(db: Db | Tx): Promise<WelcomePremium> {
+  const [r] = await db.select({ value: appSettings.value }).from(appSettings).where(eq(appSettings.key, 'welcome_premium'));
+  return (r?.value as WelcomePremium | undefined) ?? { enabled: false, days: 30 };
+}
+
+export async function setWelcomePremium(db: Db | Tx, value: WelcomePremium, adminId: string) {
+  await db.insert(appSettings).values({ key: 'welcome_premium', value, updatedBy: adminId })
+    .onConflictDoUpdate({ target: appSettings.key, set: { value, updatedBy: adminId, updatedAt: sql`now()` } });
+}
+
+/**
+ * Launch promo, while enabled: one free premium period per user, ever (a later login never re-grants it, even after
+ * the admin changes the days). While enabled the store (plans, coin shop, coin packs) is closed.
+ */
+export async function grantWelcomePremium(db: Db, userId: string) {
+  const { enabled, days } = await welcomePremium(db);
+  if (!enabled || days <= 0) return;
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'welcome:' + userId}))`);
+    const [had] = await tx.select({ id: entitlements.id }).from(entitlements)
+      .where(and(eq(entitlements.userId, userId), eq(entitlements.source, 'manual'), eq(entitlements.reason, WELCOME_PREMIUM_REASON))).limit(1);
+    if (!had) await tx.insert(entitlements).values({ userId, key: 'premium', source: 'manual', startsAt: new Date(), endsAt: new Date(Date.now() + days * 86400_000), reason: WELCOME_PREMIUM_REASON });
+  });
 }
 
 export async function grantManualPremium(tx: Tx, p: { userId: string; days: number; reason: string; adminId: string }) {

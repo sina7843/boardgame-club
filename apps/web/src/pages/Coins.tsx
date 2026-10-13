@@ -38,7 +38,7 @@ export function CoinsPage() {
 
   return (
     <>
-      <div className="page-head"><div><h1 className="page-title">سکه‌ها</h1><p className="page-sub">با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید و با آن روز پریمیوم بخرید. سکه روی رتبه و نتیجه بازی اثری ندارد.</p></div></div>
+      <div className="page-head"><div><h1 className="page-title">سکه‌ها</h1><p className="page-sub">با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید{d.shop.length > 0 && ' و با آن روز پریمیوم بخرید'}. سکه روی رتبه و نتیجه بازی اثری ندارد.</p></div></div>
       {d.checkout.fixture && d.packs.length > 0 && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
       <div className="grid gap-6">
         <section aria-labelledby="bal-h" className="relative isolate flex flex-wrap items-center gap-5 overflow-hidden rounded-surface bg-felt p-6 text-felt-foreground shadow-surface animate-fade-up">
@@ -49,7 +49,7 @@ export function CoinsPage() {
           </div>
         </section>
 
-        <section className="stack" aria-labelledby="shop-h">
+        {d.shop.length > 0 && <section className="stack" aria-labelledby="shop-h">
           <h2 id="shop-h" className="section-title">خرید با سکه</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:max-w-4xl">
             {d.shop.map((i, n) => {
@@ -70,7 +70,7 @@ export function CoinsPage() {
               );
             })}
           </div>
-        </section>
+        </section>}
 
         {d.packs.length > 0 && (
           <section className="stack" aria-labelledby="packs-h">

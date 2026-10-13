@@ -800,6 +800,14 @@ export const platformIncidents = pgTable('platform_incidents', {
   endedAt: tsz()
 }, () => [uniqueIndex('platform_incidents_one_open_uq').on(sql`(true)`).where(sql`ended_at is null`)]);
 
+/** Admin-editable site switches, one JSON value per key (e.g. the launch premium gift). Missing key = feature off. */
+export const appSettings = pgTable('app_settings', {
+  key: text().primaryKey(),
+  value: jsonb().notNull(),
+  updatedBy: uuid().references(() => users.id),
+  updatedAt: createdAt()
+});
+
 // ============ Social & moderation (DRAGON-02) ============
 
 /** Private per-user settings: who may start a DM, and which in-app notifications to create. */

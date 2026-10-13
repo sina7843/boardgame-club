@@ -38,11 +38,13 @@ export function PlansPage() {
   const s = status.data;
   // The longest purchasable plan is the café's recommendation.
   const featured = plans.data.items.filter((p) => p.purchasable).sort((a, b) => b.durationDays - a.durationDays)[0]?.id;
+  // No plans listed = the store is closed (launch promo): show only my premium status.
+  const store = plans.data.items.length > 0;
   return (
     <>
-      <div className="page-head"><div><h1 className="page-title">اشتراک پریمیوم</h1><p className="page-sub">پریمیوم امتیاز مهارتی، اولویت صف یا کمک حین بازی نمی‌دهد. تمدید خودکار ندارد.</p></div></div>
-      {plans.data.checkout.fixture && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
-      {!plans.data.checkout.available && <div className="banner banner--info" role="status">{plans.data.checkout.reasonFa}</div>}
+      <div className="page-head"><div><h1 className="page-title">اشتراک پریمیوم</h1><p className="page-sub">پریمیوم امتیاز مهارتی، اولویت صف یا کمک حین بازی نمی‌دهد.{store && ' تمدید خودکار ندارد.'}</p></div></div>
+      {store && plans.data.checkout.fixture && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
+      {store && !plans.data.checkout.available && <div className="banner banner--info" role="status">{plans.data.checkout.reasonFa}</div>}
       <div className="grid gap-6">
         {me && s && (
           <section className={cn('flex flex-wrap items-center gap-4 rounded-surface border-line p-5 shadow-surface', s.premium ? 'border-brand/40 bg-brand/8' : 'border-border bg-card')} aria-labelledby="mine-h">
@@ -51,9 +53,11 @@ export function PlansPage() {
               <h2 id="mine-h" className="text-base">وضعیت من</h2>
               {s.premium ? <p className="m-0 text-sm"><Badge tone="premium">پریمیوم فعال</Badge> {s.premiumUntil ? `تا ${jalaliDate(s.premiumUntil)}` : ''}؛ پس از پایان، بازی‌های در جریان قطع نمی‌شوند.</p>
                 : <p className="m-0 text-sm text-muted-foreground">اشتراک فعالی ندارید.</p>}
+              {!store && <p className="m-0 mt-1 text-sm text-muted-foreground">در دوران افتتاح سایت، هر بازیکن با ورود، پریمیوم رایگان هدیه می‌گیرد.</p>}
             </div>
           </section>
         )}
+        {!store && !me && <p className="m-0 text-sm">در دوران افتتاح سایت، هر بازیکن با ورود، پریمیوم رایگان هدیه می‌گیرد. <Link to="/login?next=/plans">ورود</Link></p>}
         <div className="grid gap-5 sm:grid-cols-2 lg:max-w-4xl">
           {plans.data.items.map((p, i) => {
             const top = p.id === featured;
@@ -86,8 +90,8 @@ export function PlansPage() {
             );
           })}
         </div>
-        {me && <p className="m-0 text-sm">سکه دارید؟ با سکه‌های بازی هم می‌توانید روز پریمیوم بگیرید: <Link to="/coins">کیف سکه</Link></p>}
-        <p className="m-0 flex items-center gap-2 text-xs text-muted-foreground"><Receipt className="size-4" aria-hidden />پرداخت از درگاه زرین‌پال؛ تأیید نهایی همیشه روی سرور انجام می‌شود.</p>
+        {store && me && <p className="m-0 text-sm">سکه دارید؟ با سکه‌های بازی هم می‌توانید روز پریمیوم بگیرید: <Link to="/coins">کیف سکه</Link></p>}
+        {store && <p className="m-0 flex items-center gap-2 text-xs text-muted-foreground"><Receipt className="size-4" aria-hidden />پرداخت از درگاه زرین‌پال؛ تأیید نهایی همیشه روی سرور انجام می‌شود.</p>}
         {me && s && s.payments.length > 0 && (
           <section className="stack" aria-labelledby="pay-h">
             <h2 id="pay-h" className="section-title">سابقه پرداخت</h2>

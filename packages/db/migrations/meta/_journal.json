@@ -78,6 +78,13 @@
       "when": 1791878134946,
       "tag": "0010_chat_upgrades",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791882205179,
+      "tag": "0011_app_settings",
+      "breakpoints": true
     }
   ]
 }

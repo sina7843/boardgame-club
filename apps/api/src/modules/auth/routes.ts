@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { apiErrorSchema, otpRequestBody, otpRequestResponse, otpVerifyBody } from '@bg/contracts';
+import { grantWelcomePremium } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requestOtp, verifyOtp } from './otp.ts';
 import { createSession, revokeSession, setSessionCookie } from './session.ts';
@@ -29,6 +30,7 @@ export function authRoutes(app: FastifyInstance, { db, config, delivery }: Deps)
     }
   }, async (req, reply) => {
     const { userId, isNew } = await verifyOtp(db, config.otp, req.body.challengeId, req.body.code);
+    await grantWelcomePremium(db, userId);
     const { token, expiresAt } = await createSession(db, userId, config.session.ttlDays);
     setSessionCookie(reply, config.session.cookieName, token, expiresAt, config.isProd);
     return { isNewUser: isNew };

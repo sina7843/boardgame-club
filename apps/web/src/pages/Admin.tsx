@@ -7,7 +7,7 @@ import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { GameCover } from '../games/covers.tsx';
 import { faNum } from '../lib/format.ts';
-import { GameAccess, MissionsAdmin, PlansAdmin, SeasonsAdmin, SupportAdmin } from './AdminCommerce.tsx';
+import { GameAccess, MissionsAdmin, PlansAdmin, SeasonsAdmin, SupportAdmin, WelcomePremiumAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
 import { TournamentsAdmin } from './AdminTournaments.tsx';
 
@@ -28,7 +28,7 @@ export function Admin() {
         { id: 'games', title: 'بازی‌ها', content: <GamesAdmin /> },
         { id: 'progress', title: 'مأموریت و فصل', content: <><MissionsAdmin /><SeasonsAdmin /></> },
         { id: 'tournaments', title: 'تورنمنت‌ها', content: <TournamentsAdmin /> },
-        { id: 'plans', title: 'اشتراک و سکه', content: <><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></> },
+        { id: 'plans', title: 'اشتراک و سکه', content: <><WelcomePremiumAdmin /><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></> },
         { id: 'support', title: 'پشتیبانی', content: <SupportAdmin /> },
         { id: 'incident', title: 'توقف سراسری', content: <IncidentPanel /> }
       ]} />

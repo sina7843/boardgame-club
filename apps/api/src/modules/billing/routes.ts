@@ -5,7 +5,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { AppError, apiErrorSchema, coinsResponse, paymentStatus, plansResponse, subscriptionStatus } from '@bg/contracts';
 import { schema } from '@bg/db';
-import { checkout, COIN_RULES, COIN_SHOP, coinBalance, coinHistory, grantManualPremium, premiumUntil, spendCoins, verifyPayment, XP_RULES, type CoinShopKey } from '@bg/play';
+import { checkout, COIN_RULES, COIN_SHOP, coinBalance, coinHistory, grantManualPremium, premiumUntil, setWelcomePremium, welcomePremium, spendCoins, verifyPayment, XP_RULES, type CoinShopKey } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
 
@@ -32,9 +32,12 @@ const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 
 export function billingRoutes(app: FastifyInstance, { db, billing, config }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
   const web = config.payments.publicWebUrl;
+  /** The launch promo closes the store: no plans, coin shop or coin packs are listed or sold. */
+  const storeClosed = async () => (await welcomePremium(db)).enabled;
+  const closed = async () => { if (await storeClosed()) throw new AppError('PAYMENT_UNAVAILABLE'); };
 
   r.get('/plans', { schema: { tags: ['billing'], summary: 'Plans with terms; purchasable only with an approved price and a configured gateway', response: { 200: plansResponse } } }, async () => {
-    const rows = await db.select().from(plans).orderBy(plans.durationDays);
+    const rows = await storeClosed() ? [] : await db.select().from(plans).orderBy(plans.durationDays);
     return {
       items: rows.map((p) => {
         const reason = !billing.gateway ? billing.unavailableReasonFa : !p.active ? 'این پلن فعلاً عرضه نمی‌شود.' : !p.priceAmount ? 'قیمت این پلن هنوز تعیین نشده است.' : null;
@@ -48,7 +51,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   r.post('/subscriptions/checkout', {
     schema: { tags: ['billing'], summary: 'Start a payment for a plan; returns the gateway redirect URL', body: z.strictObject({ planId: z.uuid() }),
       response: { 200: z.object({ orderId: z.string(), redirectUrl: z.url() }), ...errors } }
-  }, async (req) => checkout(db, billing, requireUser(req).userId, { planId: req.body.planId }));
+  }, async (req) => { await closed(); return checkout(db, billing, requireUser(req).userId, { planId: req.body.planId }); });
 
   /** Browser redirect from the gateway. The query proves nothing; it only triggers server-side verification. */
   r.get('/payments/callback', {
@@ -106,11 +109,12 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   // ---------- Coins: wallet, shop and packs ----------
   r.get('/me/coins', { schema: { tags: ['coins'], summary: 'Coin balance, recent movements, shop items, coin packs and earning rules', response: { 200: coinsResponse, 401: apiErrorSchema } } }, async (req) => {
     const { userId } = requireUser(req, { allowSuspended: true });
-    const packs = await db.select().from(coinPacks).where(eq(coinPacks.active, true)).orderBy(coinPacks.coins);
+    const shut = await storeClosed();
+    const packs = shut ? [] : await db.select().from(coinPacks).where(eq(coinPacks.active, true)).orderBy(coinPacks.coins);
     return {
       balance: await coinBalance(db, userId),
       history: (await coinHistory(db, userId)).map((h) => ({ amount: h.amount, ruleId: h.ruleId, reason: h.reason, createdAt: h.createdAt.toISOString() })),
-      shop: COIN_SHOP.map((i) => ({ ...i })),
+      shop: shut ? [] : COIN_SHOP.map((i) => ({ ...i })),
       packs: packs.map((p) => {
         const reason = !billing.gateway ? billing.unavailableReasonFa : !p.priceAmount ? 'قیمت این بسته هنوز تعیین نشده است.' : null;
         return { id: p.id, key: p.key, titleFa: p.titleFa, coins: p.coins, priceAmount: p.priceAmount, currency: p.currency, purchasable: !reason, unavailableReasonFa: reason };
@@ -126,6 +130,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
       response: { 200: z.object({ balance: z.number().int(), premiumUntil: z.iso.datetime().nullable() }), ...errors } }
   }, async (req) => {
     const { userId } = requireUser(req);
+    await closed();
     const out = await spendCoins(db, userId, req.body.item, req.body.requestId);
     return { balance: out.balance, premiumUntil: out.premiumUntil?.toISOString() ?? null };
   });
@@ -133,7 +138,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   r.post('/coins/checkout', {
     schema: { tags: ['coins'], summary: 'Start a payment for a coin pack; coins are credited only after server verification',
       body: z.strictObject({ packId: z.uuid() }), response: { 200: z.object({ orderId: z.string(), redirectUrl: z.url() }), ...errors } }
-  }, async (req) => checkout(db, billing, requireUser(req).userId, { coinPackId: req.body.packId }));
+  }, async (req) => { await closed(); return checkout(db, billing, requireUser(req).userId, { coinPackId: req.body.packId }); });
 
   // ---------- Development-only fake gateway decision (the labelled "bank page" calls this) ----------
   r.post('/payments/fake/:authority/decision', {
@@ -189,6 +194,22 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
     await db.update(coinPacks).set(change).where(eq(coinPacks.id, before.id));
     await db.insert(auditLog).values({ actorId: userId, action: 'coin_pack.update', targetType: 'coin_pack', targetId: before.id,
       metadata: { before: { priceAmount: before.priceAmount, active: before.active }, change, reason }, requestId: req.id });
+    return reply.code(204).send(null);
+  });
+
+  r.get('/admin/welcome-premium', {
+    schema: { tags: ['admin'], summary: 'Launch promo: free premium days on login (store closed while enabled)',
+      response: { 200: z.object({ enabled: z.boolean(), days: z.number().int() }), ...errors } }
+  }, async (req) => { requireRole(req, 'admin'); return welcomePremium(db); });
+
+  r.put('/admin/welcome-premium', {
+    schema: { tags: ['admin'], summary: 'Turn the launch promo on/off and set its days (new grants only), audited',
+      body: z.strictObject({ enabled: z.boolean(), days: z.number().int().min(1).max(365) }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    const before = await welcomePremium(db);
+    await setWelcomePremium(db, req.body, userId);
+    await db.insert(auditLog).values({ actorId: userId, action: 'welcome_premium.update', targetType: 'setting', targetId: 'welcome_premium', metadata: { before, after: req.body }, requestId: req.id });
     return reply.code(204).send(null);
   });
 

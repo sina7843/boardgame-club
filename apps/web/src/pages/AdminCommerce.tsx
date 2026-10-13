@@ -11,6 +11,31 @@ function useCall() {
   };
 }
 
+/** Launch gift: free premium days once per user on login; while on, the store (plans, coin shop, coin packs) is hidden. */
+export function WelcomePremiumAdmin() {
+  const s = useApi<{ enabled: boolean; days: number }>('/admin/welcome-premium');
+  const toast = useToast();
+  const [days, setDays] = useState<string>();
+  if (!s.data) return null;
+  const save = async (enabled: boolean) => {
+    const d = Number(days ?? s.data!.days);
+    if (!Number.isInteger(d) || d < 1 || d > 365) { toast('error', 'تعداد روز باید بین ۱ تا ۳۶۵ باشد.'); return; }
+    try { await api('/admin/welcome-premium', { method: 'PUT', body: { enabled, days: d } }); toast('success', 'ذخیره شد.'); setDays(undefined); s.reload(); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+  };
+  return (
+    <section className="panel stack" aria-labelledby="welcome-h">
+      <h2 id="welcome-h" className="section-title">هدیهٔ پریمیوم افتتاح</h2>
+      <p className="muted" style={{ margin: 0 }}>وقتی روشن است، هر کاربر با ورود یک بار این تعداد روز پریمیوم می‌گیرد و خرید اشتراک، خرید با سکه و خرید سکه پنهان می‌شود. تغییر روزها فقط برای هدیه‌های بعدی است.</p>
+      <Switch label={s.data.enabled ? 'روشن' : 'خاموش'} checked={s.data.enabled} onChange={(v) => void save(v)} />
+      <div className="row" style={{ alignItems: 'end' }}>
+        <div style={{ minInlineSize: 120 }}><Input label="روز پریمیوم" inputMode="numeric" dir="ltr" className="input--ltr" value={days ?? String(s.data.days)} onChange={(e) => setDays(e.target.value)} /></div>
+        <Button size="sm" variant="secondary" disabled={days === undefined} onClick={() => void save(s.data!.enabled)}>ذخیره روزها</Button>
+      </div>
+    </section>
+  );
+}
+
 /** Prices are a product decision: the admin sets them explicitly; every change is audited with a reason. */
 export function PlansAdmin({ path = '/admin/plans', title = 'پلن‌ها و قیمت' }: { path?: string; title?: string }) {
   const plans = useApi<{ items: { id: string; titleFa: string; priceAmount: number | null; active: boolean }[] }>(path);
