@@ -51,7 +51,9 @@ export const meResponse = publicProfile.extend(profileExtras.shape).extend({
   roles: z.array(roleSchema),
   profileCompleted: z.boolean(),
   /** Active suspension: only sanctions, appeals and support are available. */
-  suspended: z.boolean()
+  suspended: z.boolean(),
+  /** False until the user accepts the current terms version (first login, or after the admin requires re-acceptance). */
+  termsAccepted: z.boolean()
 });
 export type Me = z.infer<typeof meResponse>;
 

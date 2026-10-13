@@ -10,6 +10,8 @@ import { useSession } from '../lib/session.tsx';
 import { Celebration } from './Celebration.tsx';
 import { CoinChip } from '../lib/coins.tsx';
 import { OnboardingProvider, WelcomeInvite } from './Onboarding.tsx';
+import { SiteLinks } from '../pages/SitePage.tsx';
+import { TermsGate } from './Account.tsx';
 
 const APP_NAME = 'باشگاه بردگیم';
 
@@ -128,9 +130,10 @@ export function Layout() {
               وضعیت حساب شما دریافت نشد. اتصال را بررسی کنید.
             </StateBlock>
           : <div key={pathname} className="page-enter animate-fade-up"><Outlet /></div>}
-        <footer className="shell-foot mt-8 flex justify-end opacity-40 transition-opacity duration-(--motion) hover:opacity-100 focus-within:opacity-100 [&_img]:h-11 [&_img]:w-auto">
+        <footer className="shell-foot mt-8 flex flex-wrap items-center justify-between gap-4 [&_img]:h-11 [&_img]:w-auto">
+          <SiteLinks />
           {/* eNamad trust seal, markup as issued by enamad.ir (the img `code` attribute is part of their snippet). */}
-          <a referrerPolicy="origin" target="_blank" rel="noopener" href="https://trustseal.enamad.ir/?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" aria-label="نماد اعتماد الکترونیکی (اینماد)">
+          <a className="opacity-40 transition-opacity duration-(--motion) hover:opacity-100 focus-visible:opacity-100" referrerPolicy="origin" target="_blank" rel="noopener" href="https://trustseal.enamad.ir/?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" aria-label="نماد اعتماد الکترونیکی (اینماد)">
             <img referrerPolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" alt="نماد اعتماد الکترونیکی" style={{ cursor: 'pointer' }}
               {...{ code: 'zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi' }} />
           </a>
@@ -147,6 +150,7 @@ export function Layout() {
         ))}
       </nav>
       <Celebration />
+      <TermsGate />
     </div>
     </OnboardingProvider>
   );

@@ -7,6 +7,7 @@ import type { UserSettings } from '@bg/contracts';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { DeleteAccount } from '../shell/Account.tsx';
 
 export function Settings() {
   usePageTitle('تنظیمات');
@@ -46,6 +47,7 @@ export function Settings() {
         </section>
 
         {me && <PrivacyForm />}
+        {me && <DeleteAccount />}
         <p className="muted"><Link to="/design">نمایش اجزای طراحی</Link></p>
       </div>
     </>

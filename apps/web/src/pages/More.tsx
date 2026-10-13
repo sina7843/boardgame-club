@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { Icon, type IconName } from '@bg/ui';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { SITE_LINKS } from './SitePage.tsx';
 
 /** Mobile overflow navigation: everything that does not fit the five bottom-bar slots. */
 export function MorePage() {
@@ -9,7 +10,8 @@ export function MorePage() {
   const { me } = useSession();
   const links: [string, string, IconName][] = [
     ['/tables', 'میزهای باز', 'players'], ['/wiki', 'دانشنامه', 'book'], ['/tournaments', 'تورنمنت‌ها', 'crown'], ['/progress', 'پیشرفت', 'star'], ['/ranking', 'رتبه‌بندی', 'crown'], ['/coins', 'سکه‌ها', 'star'], ['/plans', 'اشتراک', 'card'], ['/friends', 'دوستان', 'user'], ['/groups', 'گروه‌ها', 'players'], ['/clubs', 'باشگاه‌ها', 'crown'],
-    ['/me/profile', 'پروفایل من', 'user'], ['/settings', 'تنظیمات', 'settings'], ['/guides', 'راهنما', 'book'], ['/support', 'پشتیبانی', 'shield']
+    ['/me/profile', 'پروفایل من', 'user'], ['/settings', 'تنظیمات', 'settings'], ['/guides', 'راهنما', 'book'], ['/support', 'پشتیبانی', 'shield'],
+    ...SITE_LINKS.map(([s, label]): [string, string, IconName] => [`/${s}`, label, 'book'])
   ];
   if (me?.roles.some((r) => r === 'moderator' || r === 'admin')) links.push(['/mod', 'نظارت', 'shield']);
   if (me?.roles.includes('admin')) links.push(['/admin', 'مدیریت', 'settings']);

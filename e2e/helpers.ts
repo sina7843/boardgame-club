@@ -15,7 +15,16 @@ export async function signIn(page: Page, displayName: string, next = '/'): Promi
   await page.getByLabel('نام نمایشی').fill(displayName);
   await page.getByRole('button', { name: 'ذخیره و ادامه' }).click();
   await expect(page).not.toHaveURL(/\/login/);
+  await acceptTerms(page);
   return mobile;
+}
+
+/** First visit after sign-up: the terms dialog must be accepted (checkbox + button) before using the site. */
+export async function acceptTerms(page: Page) {
+  const dialog = page.getByRole('dialog', { name: 'قوانین و حریم خصوصی' });
+  await dialog.getByRole('checkbox').check();
+  await dialog.getByRole('button', { name: 'می‌پذیرم و ادامه' }).click();
+  await expect(dialog).toBeHidden();
 }
 
 /** A separate browser context = an independent client with its own session cookie. */

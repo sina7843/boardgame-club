@@ -12,6 +12,7 @@ import { Catalog } from './pages/Catalog.tsx';
 import { Login } from './pages/Login.tsx';
 import { NotFound } from './pages/NotFound.tsx';
 import { RealtimeProvider } from './lib/realtime.tsx';
+import { SITE_LINKS, SitePage } from './pages/SitePage.tsx';
 
 // Route-level code splitting: the shell, dashboard, catalog and login load first; everything else on demand.
 const GameDetailPage = lazy(() => import('./pages/GameDetail.tsx').then((m) => ({ default: m.GameDetailPage })));
@@ -68,6 +69,7 @@ const router = createBrowserRouter([
       { path: 'clubs/:slug', element: <ClubPage /> },
       { path: 'support', element: <SupportPage /> },
       { path: 'guides', element: <GuidesPage /> },
+      ...SITE_LINKS.map(([slug]) => ({ path: slug, element: <SitePage key={slug} slug={slug} /> })),
       { path: 'mod', element: <ModerationPage /> },
       { path: 'more', element: <MorePage /> },
       { path: 'progress', element: <ProgressPage /> },

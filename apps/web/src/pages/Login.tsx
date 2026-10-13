@@ -1,5 +1,5 @@
 import { useEffect, useId, useState, type FormEvent } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { ArrowRight, Dices, MessageSquareText, ShieldCheck, Smartphone } from 'lucide-react';
 import { avatarKeys, displayNameSchema, normalizeIranMobile, toAsciiDigits, type Me } from '@bg/contracts';
 import { Avatar, Button, ErrorShake, Input, OtpField, cn, fa } from '@bg/ui';
@@ -128,6 +128,7 @@ export function Login() {
             </div>
             <Button type="submit" busy={busy} block size="lg">دریافت کد</Button>
             <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground"><ShieldCheck className="size-3.5" aria-hidden />کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
+            <p className="text-center text-xs text-muted-foreground">ورود یا ثبت‌نام به معنی پذیرش <Link className="underline" to="/terms">قوانین و مقررات</Link> و <Link className="underline" to="/privacy">حریم خصوصی</Link> است.</p>
           </form>
         )}
 

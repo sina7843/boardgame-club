@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
@@ -11,8 +11,9 @@ import { assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor } from '@bg/play
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireUser } from '../auth/session.ts';
+import { termsVersion } from '../site/routes.ts';
 
-const { users, userPrivate, games, userAchievements, achievementDefinitions } = schema;
+const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments } = schema;
 
 /** Public projection: an explicit allow-list so private columns can never leak by addition. */
 export function toPublicProfile(u: typeof users.$inferSelect): PublicProfile {
@@ -30,14 +31,15 @@ export function toProfileExtras(u: typeof users.$inferSelect): ProfileExtras {
 /** Achievement keys the catalogue unlocks with, so the builder can name them («دستاورد هت‌تریک»). */
 const UNLOCK_ACHIEVEMENTS = [...new Set(COSMETICS.flatMap((c) => ('achievement' in c.unlock ? [c.unlock.achievement] : [])))];
 
-export function userRoutes(app: FastifyInstance, { db }: Deps): void {
+export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   const loadMe = async (userId: string, roles: z.infer<typeof meResponse>['roles'], suspended = false) => {
     const [row] = await db.select({ user: users, mobile: userPrivate.mobile }).from(users)
       .innerJoin(userPrivate, eq(userPrivate.userId, users.id)).where(eq(users.id, userId));
     if (!row) throw new AppError('UNAUTHENTICATED');
-    return { ...toPublicProfile(row.user), ...toProfileExtras(row.user), mobileMasked: maskMobile(row.mobile), roles, profileCompleted: row.user.profileCompleted, suspended };
+    return { ...toPublicProfile(row.user), ...toProfileExtras(row.user), mobileMasked: maskMobile(row.mobile), roles, profileCompleted: row.user.profileCompleted, suspended,
+      termsAccepted: row.user.termsVersion === await termsVersion(db) };
   };
 
   r.get('/me', {
@@ -68,6 +70,40 @@ export function userRoutes(app: FastifyInstance, { db }: Deps): void {
     await db.update(users).set({ ...b, bio: b.bio === '' ? null : b.bio, ...(b.displayName ? { profileCompleted: true } : {}), updatedAt: sql`now()` })
       .where(eq(users.id, auth.userId));
     return loadMe(auth.userId, auth.roles);
+  });
+
+  r.post('/me/terms', {
+    schema: { tags: ['users'], summary: 'Accept the current terms and privacy version (version and time are stored)', response: { 200: meResponse, 401: apiErrorSchema } }
+  }, async (req) => {
+    const auth = requireUser(req, { allowSuspended: true });
+    await db.update(users).set({ termsVersion: await termsVersion(db), termsAcceptedAt: sql`now()` }).where(eq(users.id, auth.userId));
+    return loadMe(auth.userId, auth.roles, auth.suspended);
+  });
+
+  r.delete('/me', {
+    schema: { tags: ['users'], summary: 'Delete own account: profile anonymised, mobile released, sessions ended; game history kept without identity',
+      body: z.strictObject({ confirm: z.literal('حذف') }), response: { 204: z.null(), 401: apiErrorSchema, 409: apiErrorSchema } }
+  }, async (req, reply) => {
+    const { userId } = requireUser(req, { allowSuspended: true });
+    // Staff accounts would lock moderation/admin out; a running game would strand the other players.
+    if ((await db.select({ r: userRoles.role }).from(userRoles).where(eq(userRoles.userId, userId)).limit(1)).length) throw new AppError('ACCOUNT_DELETE_ADMIN');
+    const busy = await db.select({ id: gameTables.id }).from(participants).innerJoin(gameTables, eq(gameTables.id, participants.tableId))
+      .where(and(eq(participants.userId, userId), isNull(participants.leftAt), inArray(gameTables.status, ['open', 'active', 'paused']))).limit(1);
+    const entered = await db.select({ id: tournaments.id }).from(tournamentEntries).innerJoin(tournaments, eq(tournaments.id, tournamentEntries.tournamentId))
+      .where(and(eq(tournamentEntries.userId, userId), eq(tournamentEntries.status, 'registered'), inArray(tournaments.status, ['open', 'running']))).limit(1);
+    if (busy.length || entered.length) throw new AppError('ACCOUNT_HAS_ACTIVE_GAMES');
+    await db.transaction(async (tx) => {
+      await tx.update(users).set({ status: 'deleted', displayName: 'کاربر حذف‌شده', avatarKey: 'meeple', bio: null, titleKey: null, bannerKey: null,
+        favoriteGames: [], showcase: [], updatedAt: sql`now()` }).where(eq(users.id, userId));
+      await tx.delete(userPrivate).where(eq(userPrivate.userId, userId));
+      await tx.delete(friendships).where(or(eq(friendships.userLow, userId), eq(friendships.userHigh, userId)));
+      await tx.delete(userSettings).where(eq(userSettings.userId, userId));
+      await tx.update(matchmakingTickets).set({ status: 'cancelled', updatedAt: sql`now()` }).where(and(eq(matchmakingTickets.userId, userId), eq(matchmakingTickets.status, 'queued')));
+      await tx.update(sessions).set({ revokedAt: sql`now()` }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
+      await tx.insert(auditLog).values({ actorId: userId, action: 'account.delete', targetType: 'user', targetId: userId, metadata: {}, requestId: req.id });
+    });
+    reply.clearCookie(config.session.cookieName, { path: '/' });
+    return reply.code(204).send(null);
   });
 
   r.get('/me/cosmetics', {

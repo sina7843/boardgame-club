@@ -1183,3 +1183,21 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   and `/guides` starts, resumes or replays any of them. Guides stay hidden on table pages.
 - Contextual `Hint` («?», tap or click) on progress, quick match, open tables and create table. Its «new» dot is
   per-device (localStorage); guide progress is server-side.
+
+## Site pages: about, contact, terms, privacy, refund (user request, 2026-10-13)
+- Explicit user request overrides the "no legal sections" default. Pages are `/about`, `/contact`, `/terms`, `/privacy`, `/refund`,
+  linked from the shell footer (next to the eNamad seal), the mobile «بیشتر» menu, and the login screen notice.
+- Content is stored in `app_settings` (`site_info`, `site_page:<slug>`), so no migration. An unsaved key serves the built-in
+  Persian default copy (`apps/api/src/modules/site/defaults.ts`). Admin tab «صفحه‌های سایت» edits contact details and each page
+  (audited), with preview and «بازگشت به متن پیش‌فرض».
+- Body is plain text (blank line, `## `, `- `) rendered as React nodes, never as HTML, so there is no XSS from admin text.
+- Contact defaults to the email only; empty fields (phone, address, postal code…) are hidden until the admin fills them.
+- Default legal copy is a starting draft, not legal advice; review it with a lawyer before payments go live.
+- Terms acceptance: `users.terms_version` + `terms_accepted_at` (migration 0013). Current version lives in app_settings
+  `terms_version` ('v1' until bumped). A signed-in user with a completed profile and an older version gets a modal
+  (checkbox + «می‌پذیرم») that reopens if dismissed; legal pages and /login stay readable. Admin edits to terms/privacy
+  bump the version only when «همهٔ کاربران دوباره بپذیرند» is ticked, so typo fixes don't re-prompt everyone.
+- Account deletion (Settings, type «حذف»): anonymise, not hard-delete, because tables, ledgers, chat and audit rows reference
+  the user. Status `deleted`, profile cleared, `user_private` (mobile) deleted so the same number signs up fresh, friendships
+  and settings removed, queued matchmaking cancelled, sessions revoked. Refused for staff roles and while in an
+  open/active/paused table or a registered open/running tournament. Coins, premium and achievements are lost.

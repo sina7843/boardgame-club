@@ -92,6 +92,13 @@
       "when": 1791884760568,
       "tag": "0012_onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791887012631,
+      "tag": "0013_account_terms",
+      "breakpoints": true
     }
   ]
 }

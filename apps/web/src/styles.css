@@ -24,6 +24,16 @@
   .page-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 0.75rem; margin-block-end: 1.75rem; }
   .page-title { font-family: var(--type-display); font-weight: 800; font-size: clamp(1.625rem, 3.2vw, 2.25rem); line-height: 1.2; }
   .page-sub { color: var(--muted-foreground); margin: 0.375rem 0 0; }
+  /* Site pages (about, terms, privacy…) and their footer links */
+  .site-page { max-inline-size: 72ch; display: grid; gap: 1rem; line-height: 1.9; }
+  .site-page__block { display: grid; gap: 0.5rem; }
+  .site-page__block p { margin: 0; }
+  .site-page__block ul { margin: 0; padding-inline-start: 1.25rem; list-style: disc; display: grid; gap: 0.25rem; }
+  .site-page__contact { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); margin: 0; }
+  .site-page__contact dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .site-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.8125rem; color: var(--muted-foreground); }
+  .site-links a:hover, .site-links a:focus-visible { color: var(--foreground); text-decoration: underline; }
+  .site-admin__grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
   .section { display: grid; gap: 1rem; margin-block-end: 2rem; }
   .section-title { font-family: var(--type-display); font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
   .section-title svg { color: var(--primary); }

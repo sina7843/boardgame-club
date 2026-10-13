@@ -33,10 +33,14 @@ export const users = pgTable('users', {
   /** Achievement keys the player chose to show first. */
   showcase: text().array().notNull().default(sql`'{}'::text[]`),
   profileCompleted: boolean().notNull().default(false),
+  /** `deleted` = self-deleted: profile anonymised, mobile released, sessions rejected; the row stays for game history. */
   status: text().notNull().default('active'),
+  /** Terms version (app_settings `terms_version`) the user last accepted, and when. */
+  termsVersion: text(),
+  termsAcceptedAt: tsz(),
   createdAt: createdAt(),
   updatedAt: createdAt()
-}, (t) => [oneOf('users_status_chk', t.status, ['active', 'suspended'])]);
+}, (t) => [oneOf('users_status_chk', t.status, ['active', 'suspended', 'deleted'])]);
 
 /** Private contact data, separated from the public profile (Requirements §10). */
 export const userPrivate = pgTable('user_private', {

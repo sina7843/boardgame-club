@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { acceptTerms } from './helpers.ts';
 
 const shot = (name: string, project: string) => `docs/evidence/phase-00/${project}-${name}.png`;
 // Unique mobile per run/project so the per-mobile resend limit never interferes.
@@ -27,6 +28,7 @@ test('login → catalog → game detail', async ({ page }, info) => {
 
   // Back to the catalog the user came from, signed in.
   await expect(page).toHaveURL(/\/games$/);
+  await acceptTerms(page);
   await expect(page.getByRole('heading', { name: 'بازی‌ها', level: 1 })).toBeVisible();
   await expect(page.getByText(/^[۰-۹]+ بازی$/).first()).toBeVisible();
   await page.screenshot({ path: shot('03-catalog', p), fullPage: true });
