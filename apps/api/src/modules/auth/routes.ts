@@ -14,7 +14,7 @@ export function authRoutes(app: FastifyInstance, { db, config, delivery }: Deps)
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.post('/auth/otp/request', {
-    config: { rateLimit: { max: config.otp.requestsPerIpPer10Min, timeWindow: tenMinutes } },
+    config: { rateLimit: { max: config.perWorker(config.otp.requestsPerIpPer10Min), timeWindow: tenMinutes } },
     schema: {
       tags: ['auth'], summary: 'Request a login OTP for a mobile number',
       body: otpRequestBody,
@@ -23,7 +23,7 @@ export function authRoutes(app: FastifyInstance, { db, config, delivery }: Deps)
   }, async (req) => requestOtp(db, config.otp, delivery, req.body.mobile));
 
   r.post('/auth/otp/verify', {
-    config: { rateLimit: { max: config.otp.requestsPerIpPer10Min * 3, timeWindow: tenMinutes } },
+    config: { rateLimit: { max: config.perWorker(config.otp.requestsPerIpPer10Min * 3), timeWindow: tenMinutes } },
     schema: {
       tags: ['auth'], summary: 'Verify an OTP and start a cookie session',
       body: otpVerifyBody,

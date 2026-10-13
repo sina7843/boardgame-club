@@ -7,6 +7,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().regex(/^postgres(ql)?:\/\//, 'must be a postgres:// URL'),
   API_HOST: z.string().default('127.0.0.1'),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  /** API processes sharing the port (node:cluster); one per spare CPU core. Realtime fans out through PostgreSQL NOTIFY. */
+  API_WORKERS: z.coerce.number().int().min(1).max(32).default(1),
   WEB_ORIGINS: csv.pipe(z.array(z.url()).min(1)),
   OTP_HASH_SECRET: z.string().min(32),
   OTP_PROVIDER: z.enum(['fixture', 'kavenegar']),
@@ -86,6 +88,13 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     databaseUrl: c.DATABASE_URL,
     host: c.API_HOST,
     port: c.API_PORT,
+    workers: c.API_WORKERS,
+    /**
+     * Per-process share of a rate limit. Buckets live in each worker's memory, so each gets limit/workers: the
+     * total across workers can never exceed the configured limit (a client pinned to one worker is limited sooner).
+     */
+    // ponytail: in-memory buckets split by worker count; a shared store if exact per-client limits ever matter.
+    perWorker: (limit: number) => Math.max(1, Math.floor(limit / c.API_WORKERS)),
     webOrigins: c.WEB_ORIGINS,
     logLevel: c.LOG_LEVEL,
     metricsToken: c.METRICS_TOKEN ?? null,

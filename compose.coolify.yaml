@@ -76,6 +76,8 @@ services:
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-2}
       TURN_TABLE_LIMIT: ${TURN_TABLE_LIMIT:-10}
       TURN_TABLE_LIMIT_PREMIUM: ${TURN_TABLE_LIMIT_PREMIUM:-30}
+      # API processes in this container (one per spare CPU core; see docs/OPERATIONS.md#scaling).
+      API_WORKERS: ${API_WORKERS:-1}
     stop_grace_period: 20s
     depends_on:
       migrate: { condition: service_completed_successfully }

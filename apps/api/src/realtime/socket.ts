@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from 'node:http';
 import type { FastifyBaseLogger } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { Server, type DefaultEventsMap, type Socket } from 'socket.io';
 import { AppError, ClientEvents, commandEnvelope, ERRORS, ServerEvents, tableSubscribePayload, typingPayload, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
@@ -43,10 +43,23 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
     path: '/api/socket.io',
     serveClient: false,
     cors: { origin: config.webOrigins, credentials: true },
+    // Long-polling needs every request of a session on the same process (sticky sessions); with several API
+    // workers only WebSocket is offered, which the web client already tries first.
+    ...(config.workers > 1 ? { transports: ['websocket' as const] } : {}),
     allowRequest: (req, cb) => cb(null, isAllowedOrigin(req.headers.origin, config.webOrigins))
   });
 
   metrics.socketConnections = () => io.engine.clientsCount;
+
+  // Typing is not stored, so nothing in the database would NOTIFY: publish it ourselves so recipients connected to
+  // another API worker get it too. Chunked to stay far below NOTIFY's 8000-byte payload limit in big clubs.
+  const emitTyping = (to: string[], event: TypingEvent) => { for (const u of to) io.to(`user:${u}`).emit(ServerEvents.conversationTyping, event); };
+  const relayTyping = async (event: TypingEvent, to: string[]) => {
+    if (!listenClient) return emitTyping(to, event);
+    for (let i = 0; i < to.length; i += 100) {
+      await db.execute(sql`select pg_notify('conversation_typing', ${JSON.stringify({ event, to: to.slice(i, i + 100) })})`);
+    }
+  };
 
   io.use(async (socket, next) => {
     try {
@@ -118,7 +131,7 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         const muters = (await db.select({ id: schema.userMutes.muterId }).from(schema.userMutes).where(eq(schema.userMutes.mutedId, userId))).map((m) => m.id);
         const me = (await profiles(db, [userId])).get(userId);
         const event: TypingEvent = { conversationId, userId, displayName: me?.displayName ?? '' };
-        for (const m of members) if (m !== userId && !muters.includes(m)) io.to(`user:${m}`).emit(ServerEvents.conversationTyping, event);
+        await relayTyping(event, members.filter((m) => m !== userId && !muters.includes(m)));
       } catch { /* best effort */ }
     });
 
@@ -179,6 +192,10 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         const [n] = await db.select().from(schema.notifications).where(eq(schema.notifications.id, id));
         if (n) io.to(`user:${n.userId}`).emit(ServerEvents.notificationCreated, toNotificationItem(n));
       })();
+    });
+    await listenClient.listen('conversation_typing', (payload) => {
+      const { event, to } = JSON.parse(payload) as { event: TypingEvent; to: string[] };
+      emitTyping(to, event);
     });
   }
   return io;

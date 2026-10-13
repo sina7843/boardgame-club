@@ -1215,3 +1215,12 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   Invitee and inviter become accepted friends whether or not rewards are on. Rewards (`app_settings.referral`): coins
   and/or premium days for each side, new sign-ups only; premium extends past current premium; optional per-inviter cap
   on rewarded invites (later invites still make friends). Anti-abuse relies on OTP (one account per mobile) + the cap.
+- API scaling (2026-10-14): `API_WORKERS` processes via `node:cluster` in the one api container, no Redis. Realtime
+  already fanned out through PostgreSQL NOTIFY; the typing indicator (not stored) now publishes its own NOTIFY
+  (`conversation_typing`, recipients chunked by 100 to stay under the 8 KB payload limit). Rate limits stay in memory,
+  split `limit / N` per worker (exact upper bound, no extra query per request) instead of a shared store. With N > 1
+  Socket.IO is WebSocket-only (no sticky sessions needed). The primary sums workers' metrics over IPC for `/metrics`.
+  A worker dying within 10 s of start stops the container (no crash loop); later deaths are replaced.
+- Move path (2026-10-14): NOTIFY `table_changed` carries `tableId:revision` from persistStep; the mover's reply and
+  the push share one context load per revision (`tableContextAt`, 5 s per-process memo). lockTable joins the version
+  row with `FOR UPDATE OF game_tables`. ~27 → ~20 statements per move.

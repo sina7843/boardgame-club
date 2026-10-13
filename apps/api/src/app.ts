@@ -10,7 +10,7 @@ import { fakeGateway, zarinpalGateway, type BillingConfig, type MatchConfig, typ
 import type { Config } from './config.ts';
 import { AppError, registerErrorHandling } from './http/errors.ts';
 import { registerOriginGuard } from './http/origin-guard.ts';
-import { renderMetrics } from './metrics.ts';
+import { renderMetrics, type LocalMetrics } from './metrics.ts';
 import type { OtpDelivery } from './modules/auth/delivery.ts';
 import { authRoutes } from './modules/auth/routes.ts';
 import { resolveSession } from './modules/auth/session.ts';
@@ -38,6 +38,8 @@ export interface Deps {
   play: PlayConfig;
   match: MatchConfig;
   billing: BillingConfig;
+  /** Every API worker's metrics when running as a cluster (cluster.ts); this process alone otherwise. */
+  collectMetrics?: (() => Promise<LocalMetrics[]>) | undefined;
 }
 
 /** Payment boundary: the fake gateway only outside production; otherwise checkout is disabled until a real
@@ -91,13 +93,12 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
   await app.register(cookie);
   await app.register(rateLimit, {
     global: true,
-    max: 300,
+    max: config.perWorker(300),
     timeWindow: 60_000,
     // Runs after session resolution: signed-in users get their own bucket, so many players behind one
     // carrier-grade NAT address do not throttle each other. Anonymous traffic is keyed by IP.
     hook: 'preHandler',
     keyGenerator: (req) => (req.auth ? `user:${req.auth.userId}` : `ip:${req.ip}`),
-    // ponytail: in-memory buckets are per process; move to a shared store when the API runs >1 replica.
     errorResponseBuilder: (_req, ctx) => new AppError('RATE_LIMITED', { retryAfterSeconds: Math.ceil(ctx.ttl / 1000) })
   });
   await app.register(swagger, {
@@ -138,7 +139,7 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
       const token = config.metricsToken;
       if (!token && config.isProd) throw new AppError('NOT_FOUND');
       if (token && !timingSafeEqual(digest(req.headers.authorization ?? ''), digest(`Bearer ${token}`))) throw new AppError('FORBIDDEN');
-      return reply.type('text/plain; version=0.0.4').send(await renderMetrics(db));
+      return reply.type('text/plain; version=0.0.4').send(await renderMetrics(db, await deps.collectMetrics?.()));
     });
   }, { prefix: '/api' });
 
