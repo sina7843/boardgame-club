@@ -18,5 +18,6 @@ tests (Safari iOS, Chrome Android); load test on target hardware; owner decision
 Checklist: docs/RELEASE_CHECKLIST.md (Gate B).
 
 Owner-requested extension in progress: bot opponents «بازی با ربات» — waves 0–3 done locally (17 games); waves 4–11 pending (see DECISIONS.md).
+Owner-requested extension: tournaments «تورنمنت» — done locally 2026-10-13 (Toman entries untested against the real gateway).
 
 Next eligible phase: none (five prompts complete). Remaining work is owner/provider/infrastructure decisions.

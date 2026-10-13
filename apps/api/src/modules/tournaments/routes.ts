@@ -1,0 +1,80 @@
+// Tournaments: public list/detail, player registration (free, coins or a gateway payment), admin create/cancel and the
+// Toman refund queue. All rules live in @bg/play; the worker starts tournaments and advances rounds.
+import type { FastifyInstance } from 'fastify';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
+import { apiErrorSchema, createTournamentBody, tournamentDetail, tournamentRefundItem, tournamentSummary } from '@bg/contracts';
+import {
+  adminCancelTournament, createTournament, listRefunds, listTournaments, markRefundPaid, registerForTournament, tournamentCheckout,
+  tournamentDetail as detail, withdrawFromTournament
+} from '@bg/play';
+import type { Deps } from '../../app.ts';
+import { requireRole, requireUser } from '../auth/session.ts';
+
+const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema, 502: apiErrorSchema };
+const idParams = z.object({ id: z.uuid() });
+
+export function tournamentRoutes(app: FastifyInstance, { db, registry, billing }: Deps): void {
+  const r = app.withTypeProvider<ZodTypeProvider>();
+
+  r.get('/tournaments', { schema: { tags: ['tournaments'], summary: 'Open, running and recently ended tournaments', response: { 200: z.object({ items: z.array(tournamentSummary) }) } } },
+    async (req) => ({ items: await listTournaments(db, req.auth?.userId ?? null) }));
+
+  r.get('/tournaments/:id', { schema: { tags: ['tournaments'], summary: 'Tournament rules, prizes, standings and rounds', params: idParams, response: { 200: tournamentDetail, ...errors } } },
+    async (req) => detail(db, billing, req.params.id, req.auth?.userId ?? null));
+
+  r.post('/tournaments/:id/register', {
+    schema: { tags: ['tournaments'], summary: 'Register with a free or coin entry (coins are debited once, under the coin lock)', params: idParams, response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    await registerForTournament(db, requireUser(req).userId, req.params.id);
+    return reply.code(204).send(null);
+  });
+
+  r.post('/tournaments/:id/checkout', {
+    schema: { tags: ['tournaments'], summary: 'Start a gateway payment for a Toman entry; the verified payment registers (or queues a refund)', params: idParams,
+      response: { 200: z.object({ orderId: z.string(), redirectUrl: z.url() }), ...errors } }
+  }, async (req) => tournamentCheckout(db, billing, requireUser(req).userId, req.params.id));
+
+  r.post('/tournaments/:id/withdraw', {
+    schema: { tags: ['tournaments'], summary: 'Withdraw before the start: coins return at once, a Toman entry is queued for refund', params: idParams, response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    await withdrawFromTournament(db, requireUser(req).userId, req.params.id);
+    return reply.code(204).send(null);
+  });
+
+  // ---------- Admin ----------
+  r.post('/admin/tournaments', {
+    schema: { tags: ['admin'], summary: 'Create a tournament (validated against the game; audited)', body: createTournamentBody, response: { 201: z.object({ id: z.uuid() }), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    return reply.code(201).send({ id: await createTournament(db, registry, userId, req.body, req.id) });
+  });
+
+  r.post('/admin/tournaments/:id/cancel', {
+    schema: { tags: ['admin'], summary: 'Cancel a tournament and give every entry back (audited)', params: idParams,
+      body: z.strictObject({ reason: z.string().trim().min(3).max(300) }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    await adminCancelTournament(db, userId, req.params.id, req.body.reason, req.id);
+    return reply.code(204).send(null);
+  });
+
+  r.get('/admin/tournament-refunds', {
+    schema: { tags: ['admin'], summary: 'Toman entry fees to give back (paid by hand, then marked paid)', querystring: z.object({ status: z.enum(['pending', 'paid']).optional() }),
+      response: { 200: z.object({ items: z.array(tournamentRefundItem) }), ...errors } }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    return { items: (await listRefunds(db, req.query.status)).map(({ r: x, titleFa, displayName, mobile, orderId, providerRef }) => ({
+      id: x.id, tournamentTitleFa: titleFa, userId: x.userId, displayName, mobile, orderId, providerRef, amount: x.amount, reason: x.reason,
+      status: x.status, createdAt: x.createdAt.toISOString(), note: x.note })) };
+  });
+
+  r.post('/admin/tournament-refunds/:id/paid', {
+    schema: { tags: ['admin'], summary: 'Mark a refund as paid (bank transfer reference in the note; audited)', params: idParams,
+      body: z.strictObject({ note: z.string().trim().min(3).max(300) }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    await markRefundPaid(db, userId, req.params.id, req.body.note, req.id);
+    return reply.code(204).send(null);
+  });
+}

@@ -5,6 +5,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { AppError, botPersona } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { failMatch } from './matchmaking.ts';
+import { botTakeover, startTournamentTable } from './tournaments.ts';
 import { applyAction, applyTimeout, createRng, type AnyModule, type EngineSnapshot, type GameRegistry, type RngState, type StepResult } from '@bg/game-engine';
 import type { BotLevel } from '@bg/game-sdk';
 
@@ -231,6 +232,7 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
       // Matched players did not all accept in time: requeue those who did; the rest leave the queue.
       await tx.update(scheduledDeadlines).set({ status: 'fired', attempts: d.attempts + 1 }).where(eq(scheduledDeadlines.id, d.id));
       if (table.status === 'open' && table.isMatchmade) await failMatch(tx, table.id, { reason: 'ready_timeout' });
+      else if (table.status === 'open' && (table.settings as { tournament?: unknown }).tournament) await startTournamentTable(tx, locked);
       return 'fired';
     }
     if (table.status !== 'active' || d.expectedRevision !== table.revision) {
@@ -248,6 +250,11 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
       return 'fired';
     }
     if (d.deadlineKey === 'bot') {
+      await playBotTurn(tx, locked, snap);
+      return 'fired';
+    }
+    // Tournament tables: a bot finishes the game for a player who let the clock run out (they score 0).
+    if (d.deadlineKey === 'turn' && await botTakeover(tx, locked, module.pendingSeats(snap.state))) {
       await playBotTurn(tx, locked, snap);
       return 'fired';
     }

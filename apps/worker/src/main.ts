@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { z } from 'zod';
 import { createDb } from '@bg/db';
 import { createDefaultRegistry } from '@bg/game-engine';
-import { defaultMatchConfig, expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, type BillingConfig } from '@bg/play';
+import { defaultMatchConfig, expireSubscriptions, fakeGateway, zarinpalGateway, reconcilePayments, runDueDeadlines, runMatchmaking, runOutbox, runTournaments, type BillingConfig } from '@bg/play';
 import { runMaintenance } from './maintenance.ts';
 
 const env = z.object({
@@ -92,6 +92,7 @@ log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds
 loop('deadlines', env.DEADLINE_POLL_MS, () => runDueDeadlines(db, registry));
 loop('outbox', 2000, () => runOutbox(db));
 loop('matchmaking', 2000, () => runMatchmaking(db, defaultMatchConfig, registry));
+loop('tournaments', 3000, () => runTournaments(db, registry));
 loop('payments', 30_000, () => reconcilePayments(db, billing));
 loop('subscriptions', 60_000, () => expireSubscriptions(db));
 loop('maintenance', env.WORKER_INTERVAL_SECONDS * 1000, () => runMaintenance(db));

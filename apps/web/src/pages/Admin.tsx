@@ -9,6 +9,7 @@ import { GameCover } from '../games/covers.tsx';
 import { faNum } from '../lib/format.ts';
 import { GameAccess, MissionsAdmin, PlansAdmin, SeasonsAdmin, SupportAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
+import { TournamentsAdmin } from './AdminTournaments.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
 
@@ -26,6 +27,7 @@ export function Admin() {
       <Tabs label="بخش‌های مدیریت" tabs={[
         { id: 'games', title: 'بازی‌ها', content: <GamesAdmin /> },
         { id: 'progress', title: 'مأموریت و فصل', content: <><MissionsAdmin /><SeasonsAdmin /></> },
+        { id: 'tournaments', title: 'تورنمنت‌ها', content: <TournamentsAdmin /> },
         { id: 'plans', title: 'اشتراک و سکه', content: <><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></> },
         { id: 'support', title: 'پشتیبانی', content: <SupportAdmin /> },
         { id: 'incident', title: 'توقف سراسری', content: <IncidentPanel /> }

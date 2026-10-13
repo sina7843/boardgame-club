@@ -42,3 +42,10 @@ export function defaultTime(offered: number[], pace: 'live' | 'turn'): number {
   const preferred = pace === 'live' ? 60 : 86400;
   return offered.includes(preferred) ? preferred : offered[0]!;
 }
+
+const jalaliWhen = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Asia/Tehran' });
+/** Date and Tehran time, e.g. for a tournament start. */
+export const jalaliDateTime = (iso: string) => jalaliWhen.format(new Date(iso));
+
+/** Stored in Rial; shown in Toman. */
+export const tomanFa = (rial: number) => `${Math.round(rial / 10).toLocaleString('fa-IR')} تومان`;

@@ -64,6 +64,13 @@
       "when": 1791866458431,
       "tag": "0008_cosmetics",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791868338645,
+      "tag": "0009_tournaments",
+      "breakpoints": true
     }
   ]
 }

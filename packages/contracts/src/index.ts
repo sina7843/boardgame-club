@@ -6,3 +6,4 @@ export * from './tables.ts';
 export * from './social.ts';
 export * from './progression.ts';
 export * from './cosmetics.ts';
+export * from './tournaments.ts';

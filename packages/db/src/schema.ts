@@ -552,7 +552,7 @@ export const entitlements = pgTable('entitlements', {
   createdBy: uuid().references(() => users.id),
   revokedAt: tsz(),
   createdAt: createdAt()
-}, (t) => [index('entitlements_user_key_idx').on(t.userId, t.key), oneOf('entitlements_source_chk', t.source, ['subscription', 'manual', 'coins'])]);
+}, (t) => [index('entitlements_user_key_idx').on(t.userId, t.key), oneOf('entitlements_source_chk', t.source, ['subscription', 'manual', 'coins', 'tournament'])]);
 
 /** Coin packs sold through the payment gateway. Price is a product decision; null (not purchasable) until an admin sets it. */
 export const coinPacks = pgTable('coin_packs', {
@@ -594,9 +594,10 @@ export const userCosmetics = pgTable('user_cosmetics', {
 export const payments = pgTable('payments', {
   id: id(),
   userId: uuid().notNull().references(() => users.id),
-  /** Exactly one product: a subscription plan or a coin pack. */
+  /** Exactly one product: a subscription plan, a coin pack or a tournament entry. */
   planId: uuid().references(() => plans.id),
   coinPackId: uuid().references(() => coinPacks.id),
+  tournamentId: uuid().references((): AnyPgColumn => tournaments.id),
   orderId: text().notNull().unique(),
   provider: text().notNull(),
   amount: bigint({ mode: 'number' }).notNull(),
@@ -615,9 +616,100 @@ export const payments = pgTable('payments', {
   uniqueIndex('payments_provider_authority_uq').on(t.provider, t.authority),
   index('payments_user_idx').on(t.userId, t.createdAt),
   check('payments_amount_chk', sql`${t.amount} > 0`),
-  check('payments_product_chk', sql`(${t.planId} is null) <> (${t.coinPackId} is null)`),
+  check('payments_product_chk', sql`(${t.planId} is not null)::int + (${t.coinPackId} is not null)::int + (${t.tournamentId} is not null)::int = 1`),
   oneOf('payments_status_chk', t.status, ['pending', 'verified', 'failed', 'expired'])
 ]);
+
+// ============ Tournaments (admin-run; prizes are fixed by the admin and never paid from entry fees) ============
+export type TournamentPrize = { place: number; coins: number; premiumDays: number };
+
+export const tournaments = pgTable('tournaments', {
+  id: id(),
+  gameId: text().notNull().references(() => games.id),
+  titleFa: text().notNull(),
+  descriptionFa: text().notNull().default(''),
+  format: text().$type<'swiss' | 'knockout'>().notNull(),
+  pace: text().$type<'live' | 'turn'>().notNull(),
+  turnSeconds: integer().notNull(),
+  /** Players per table (within the game's bounds); leftovers sit at a smaller table or get a bye. */
+  tableSize: integer().notNull(),
+  /** Swiss: number of rounds. */
+  rounds: integer(),
+  /** Knockout: how many of each table go through. */
+  advance: integer().notNull().default(1),
+  minEntrants: integer().notNull(),
+  maxEntrants: integer().notNull(),
+  startsAt: tsz().notNull(),
+  /** Seconds a player has to come to the table before a bot (or a forfeit) takes the seat. */
+  arrivalSeconds: integer().notNull().default(180),
+  entryKind: text().$type<'free' | 'coins' | 'toman'>().notNull(),
+  /** Coins, or Rial for a Toman entry. 0 when free. */
+  entryAmount: bigint({ mode: 'number' }).notNull().default(0),
+  prizes: jsonb().$type<TournamentPrize[]>().notNull().default([]),
+  status: text().$type<'open' | 'running' | 'finished' | 'cancelled'>().notNull().default('open'),
+  currentRound: integer().notNull().default(0),
+  cancelReason: text(),
+  createdBy: uuid().notNull().references(() => users.id),
+  createdAt: createdAt(),
+  finishedAt: tsz()
+}, (t) => [
+  index('tournaments_status_idx').on(t.status, t.startsAt),
+  oneOf('tournaments_format_chk', t.format, ['swiss', 'knockout']),
+  oneOf('tournaments_pace_chk', t.pace, ['live', 'turn']),
+  oneOf('tournaments_entry_chk', t.entryKind, ['free', 'coins', 'toman']),
+  oneOf('tournaments_status_chk', t.status, ['open', 'running', 'finished', 'cancelled']),
+  check('tournaments_entrants_chk', sql`${t.minEntrants} >= 2 and ${t.minEntrants} <= ${t.maxEntrants}`),
+  check('tournaments_fee_chk', sql`(${t.entryKind} = 'free') = (${t.entryAmount} = 0) and ${t.entryAmount} >= 0`)
+]);
+
+export const tournamentEntries = pgTable('tournament_entries', {
+  tournamentId: uuid().notNull().references(() => tournaments.id),
+  userId: uuid().notNull().references(() => users.id),
+  status: text().$type<'registered' | 'withdrawn'>().notNull().default('registered'),
+  points: doublePrecision().notNull().default(0),
+  /** Tie-break: tables won outright. */
+  wins: integer().notNull().default(0),
+  byes: integer().notNull().default(0),
+  noShows: integer().notNull().default(0),
+  eliminatedRound: integer(),
+  finalRank: integer(),
+  /** What paid the entry: the coin debit or the verified payment (null when free). */
+  coinLedgerId: uuid().references(() => coinLedger.id),
+  paymentId: uuid().references(() => payments.id),
+  createdAt: createdAt()
+}, (t) => [
+  primaryKey({ columns: [t.tournamentId, t.userId] }),
+  index('tournament_entries_user_idx').on(t.userId),
+  oneOf('tournament_entries_status_chk', t.status, ['registered', 'withdrawn'])
+]);
+
+export const tournamentTables = pgTable('tournament_tables', {
+  tableId: uuid().primaryKey().references(() => gameTables.id),
+  tournamentId: uuid().notNull().references(() => tournaments.id),
+  round: integer().notNull(),
+  /** Seat → player as seated at the start of the round (bots that later take a seat do not change it). */
+  seats: jsonb().$type<{ seat: number; userId: string }[]>().notNull(),
+  /** Players a bot replaced or who forfeited: they score 0 for this table. */
+  absent: jsonb().$type<string[]>().notNull().default([]),
+  /** Final place per player, written once when the table is scored. */
+  placements: jsonb().$type<{ userId: string; place: number }[]>(),
+  scoredAt: tsz()
+}, (t) => [index('tournament_tables_round_idx').on(t.tournamentId, t.round)]);
+
+/** Toman entry fees to give back (cancelled tournament, withdrawal, seat gone). Paid by an admin outside the system. */
+export const tournamentRefunds = pgTable('tournament_refunds', {
+  id: id(),
+  tournamentId: uuid().notNull().references(() => tournaments.id),
+  userId: uuid().notNull().references(() => users.id),
+  paymentId: uuid().notNull().unique().references(() => payments.id),
+  amount: bigint({ mode: 'number' }).notNull(),
+  reason: text().notNull(),
+  status: text().$type<'pending' | 'paid'>().notNull().default('pending'),
+  paidBy: uuid().references(() => users.id),
+  paidAt: tsz(),
+  note: text(),
+  createdAt: createdAt()
+}, (t) => [index('tournament_refunds_status_idx').on(t.status, t.createdAt), oneOf('tournament_refunds_status_chk', t.status, ['pending', 'paid'])]);
 
 /** Every callback/verification attempt, for reconciliation and dispute evidence (no card data is ever received). */
 export const paymentEvents = pgTable('payment_events', {

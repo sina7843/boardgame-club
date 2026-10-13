@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import {
   Bell, Coins, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
-  Swords, Trophy, UserRound, Users, UsersRound, Castle, type LucideIcon
+  Medal, Swords, Trophy, UserRound, Users, UsersRound, Castle, type LucideIcon
 } from 'lucide-react';
 import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline, useToast } from '@bg/ui';
 import { useSession } from '../lib/session.tsx';
@@ -45,6 +45,7 @@ export function Layout() {
     { to: '/games', label: 'بازی‌ها', icon: LayoutGrid },
     { to: '/play', label: 'حریف‌یابی', icon: Swords },
     { to: '/tables', label: 'میزها', icon: Castle },
+    { to: '/tournaments', label: 'تورنمنت‌ها', icon: Medal },
     { to: '/progress', label: 'پیشرفت', icon: Sparkles },
     { to: '/ranking', label: 'رتبه‌بندی', icon: Trophy },
     { to: '/messages', label: 'پیام‌ها', icon: MessageCircle },

@@ -140,6 +140,7 @@ export async function leaveTable(db: Db, registry: GameRegistry, userId: string,
   await db.transaction(async (tx) => {
     const { table } = await lockTable(tx, registry, tableId);
     if (table.status !== 'open') throw new AppError('TABLE_NOT_OPEN'); // after start, leaving = resign (a game action)
+    if ((table.settings as { tournament?: unknown }).tournament) throw new AppError('FORBIDDEN'); // a seat is the player's, not the table's
     if (table.isMatchmade) {
       const [me] = await tx.select().from(participants).where(and(eq(participants.tableId, table.id), eq(participants.userId, userId)));
       if (!me) throw new AppError('NOT_PARTICIPANT');
@@ -170,7 +171,7 @@ export async function setReady(db: Db, registry: GameRegistry, userId: string, t
   });
 }
 
-async function startTable(tx: Tx, locked: Awaited<ReturnType<typeof lockTable>>, seed = randomInt(0, 2 ** 31)) {
+export async function startTable(tx: Tx, locked: Awaited<ReturnType<typeof lockTable>>, seed = randomInt(0, 2 ** 31)) {
   const { table, module } = locked;
   if (!table.isTutorial) {
     // Re-check at start: the game may have been suspended, or a player sanctioned, since the table opened.
@@ -250,7 +251,7 @@ export async function myTutorials(db: Db, userId: string) {
 // ---------- Premium access (per game; host-invites-free policy) ----------
 
 type TableRow = typeof gameTables.$inferSelect;
-type Basis = 'free_game' | 'premium' | 'host_invite';
+type Basis = 'free_game' | 'premium' | 'host_invite' | 'tournament';
 
 /** Joining a premium game's table: own premium, or invited by a premium host when the game allows it. */
 async function assertJoinAccess(tx: Tx, table: TableRow, userId: string, invited: boolean) {
@@ -263,6 +264,8 @@ async function assertJoinAccess(tx: Tx, table: TableRow, userId: string, invited
 async function startEligibility(tx: Tx, table: TableRow, userIds: string[]): Promise<Record<string, Basis>> {
   const [game] = await tx.select().from(games).where(eq(games.id, table.gameId));
   const out: Record<string, Basis> = {};
+  // Tournament seats: access was checked at registration (a paid entry is never voided by a lapsed subscription).
+  if ((table.settings as { tournament?: unknown }).tournament) { for (const u of userIds) out[u] = 'tournament'; return out; }
   if (game?.access !== 'premium') { for (const u of userIds) out[u] = 'free_game'; return out; }
   const hostPremium = await isPremium(tx, table.hostId);
   for (const u of userIds) {

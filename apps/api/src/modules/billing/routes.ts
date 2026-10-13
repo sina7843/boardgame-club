@@ -11,7 +11,7 @@ import { requireRole, requireUser } from '../auth/session.ts';
 
 const { plans, coinPacks, payments, subscriptions, entitlements, auditLog, fakeGatewayTransactions, games } = schema;
 /** Product title of a payment: its plan or its coin pack. */
-const productTitle = sql<string>`coalesce(${plans.titleFa}, ${coinPacks.titleFa})`;
+const productTitle = sql<string>`coalesce(${plans.titleFa}, ${coinPacks.titleFa}, (select t.title_fa from tournaments t where t.id = ${payments.tournamentId}))`;
 const TIER_FA = { bronze: 'برنزی', silver: 'نقره‌ای', gold: 'طلایی', turquoise: 'فیروزه‌ای', diamond: 'الماس' } as const;
 const matchCoins = (xp: number) => Math.round(xp / COIN_RULES.matchXpDivisor);
 /** How coins are earned, derived from the same constants the server pays by. */
@@ -75,7 +75,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
     return row;
   };
   const toStatus = (row: Awaited<ReturnType<typeof ownPayment>>) => ({ orderId: row.p.orderId, status: row.p.status as 'pending', failureReason: row.p.failureReason,
-    amount: row.p.amount, planTitleFa: row.title, kind: row.p.planId ? 'plan' as const : 'coins' as const, coins: row.coins, fixture: row.p.provider === 'fake' });
+    amount: row.p.amount, planTitleFa: row.title, kind: row.p.planId ? 'plan' as const : row.p.coinPackId ? 'coins' as const : 'tournament' as const, coins: row.coins, fixture: row.p.provider === 'fake', tournamentId: row.p.tournamentId });
 
   r.get('/payments/:orderId', { schema: { tags: ['billing'], summary: 'My payment status', params: z.object({ orderId: z.string().max(64) }), response: { 200: paymentStatus, ...errors } } },
     async (req) => toStatus(await ownPayment(requireUser(req).userId, req.params.orderId)));

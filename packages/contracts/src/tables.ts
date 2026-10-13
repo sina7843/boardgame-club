@@ -171,7 +171,7 @@ export const openTableItem = z.object({
 
 export const notificationItem = z.object({
   id: z.uuid(),
-  kind: z.enum(['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'friend_request', 'club']),
+  kind: z.enum(['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'friend_request', 'club', 'tournament']),
   /** In-app destination; the target page re-checks authorization. */
   href: z.string(),
   tableId: z.uuid().nullable(),

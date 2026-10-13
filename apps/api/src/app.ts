@@ -25,6 +25,7 @@ import { socialRoutes } from './modules/social/routes.ts';
 import { progressionRoutes } from './modules/progression/routes.ts';
 import { billingRoutes } from './modules/billing/routes.ts';
 import { userRoutes } from './modules/users/routes.ts';
+import { tournamentRoutes } from './modules/tournaments/routes.ts';
 
 export interface Deps {
   config: Config;
@@ -122,6 +123,7 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
     moderationRoutes(api, deps);
     progressionRoutes(api, deps);
     billingRoutes(api, deps);
+    tournamentRoutes(api, deps);
     api.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
     // Operational metrics (Prometheus text). Not public: the reverse proxy does not route the path (scrape over the
     // internal network) and a token is required, compared in constant time on fixed-length digests.

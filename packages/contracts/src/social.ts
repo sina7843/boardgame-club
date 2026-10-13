@@ -134,4 +134,4 @@ export const resolveReportBody = z.strictObject({
 export const appealBody = z.strictObject({ sanctionId: z.uuid(), text: z.string().trim().min(10).max(2000) });
 export const decideAppealBody = z.strictObject({ decision: z.enum(['upheld', 'revoked']), note: z.string().trim().min(3).max(1000) });
 
-export const NOTIFICATION_KINDS = ['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'friend_request', 'club'] as const;
+export const NOTIFICATION_KINDS = ['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'friend_request', 'club', 'tournament'] as const;

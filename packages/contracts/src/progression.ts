@@ -77,7 +77,9 @@ export type SubscriptionStatus = z.infer<typeof subscriptionStatus>;
 export const paymentStatus = z.object({
   orderId: z.string(), status: z.enum(['pending', 'verified', 'failed', 'expired']), failureReason: z.string().nullable(),
   /** planTitleFa names the product: a plan or a coin pack (see kind). */
-  amount: z.number().int(), planTitleFa: z.string(), kind: z.enum(['plan', 'coins']), coins: z.number().int().nullable(), fixture: z.boolean()
+  amount: z.number().int(), planTitleFa: z.string(), kind: z.enum(['plan', 'coins', 'tournament']), coins: z.number().int().nullable(), fixture: z.boolean(),
+  /** Tournament entry payments: where to go back to. */
+  tournamentId: z.uuid().nullable().default(null)
 });
 
 /** Coin wallet: balance, recent movements, shop, purchasable packs and the earning rules (all server-defined). */

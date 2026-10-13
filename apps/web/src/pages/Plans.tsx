@@ -109,7 +109,7 @@ export function PaymentResultPage() {
   usePageTitle('نتیجه پرداخت');
   const [params] = useSearchParams();
   const order = params.get('order');
-  const p = useApi<{ orderId: string; status: keyof typeof PAYMENT_STATUS_FA; failureReason: string | null; amount: number; planTitleFa: string; kind: 'plan' | 'coins'; coins: number | null; fixture: boolean }>(order ? `/payments/${encodeURIComponent(order)}` : null);
+  const p = useApi<{ orderId: string; status: keyof typeof PAYMENT_STATUS_FA; failureReason: string | null; amount: number; planTitleFa: string; kind: 'plan' | 'coins' | 'tournament'; coins: number | null; fixture: boolean; tournamentId: string | null }>(order ? `/payments/${encodeURIComponent(order)}` : null);
   const [checking, setChecking] = useState(false);
   const reload = p.reload;
   useEffect(() => { if (p.data?.status !== 'pending') return; const t = setInterval(reload, 5000); return () => clearInterval(t); }, [p.data?.status, reload]);
@@ -119,6 +119,7 @@ export function PaymentResultPage() {
   const d = p.data;
   const ok = d.status === 'verified';
   const coins = d.kind === 'coins';
+  const entry = d.kind === 'tournament';
   const recheck = async () => { setChecking(true); try { await api(`/payments/${encodeURIComponent(d.orderId)}/verify`, { method: 'POST' }); reload(); } finally { setChecking(false); } };
   return (
     <div className="mx-auto grid max-w-lg gap-4">
@@ -130,16 +131,17 @@ export function PaymentResultPage() {
           : d.status === 'pending' ? <span className="flex size-20 items-center justify-center rounded-full bg-warning/12 text-warning animate-pulse-soft"><Hourglass className="size-9" aria-hidden /></span>
           : <span className="flex size-20 items-center justify-center rounded-full bg-destructive/10 text-destructive animate-pop"><CircleX className="size-10" aria-hidden /></span>}
         <div className="grid gap-2">
-          <p className="m-0 font-display text-2xl font-extrabold">{ok ? (coins ? `${faNum(d.coins ?? 0)} سکه به کیف شما اضافه شد` : 'به جمع پریمیوم خوش آمدید') : d.status === 'pending' ? 'در انتظار تأیید بانک' : 'پرداخت انجام نشد'}</p>
+          <p className="m-0 font-display text-2xl font-extrabold">{ok ? (coins ? `${faNum(d.coins ?? 0)} سکه به کیف شما اضافه شد` : entry ? 'ورودی تورنمنت پرداخت شد' : 'به جمع پریمیوم خوش آمدید') : d.status === 'pending' ? 'در انتظار تأیید بانک' : 'پرداخت انجام نشد'}</p>
           <p className="m-0 flex flex-wrap items-center justify-center gap-2"><Badge tone={ok ? 'success' : d.status === 'failed' ? 'danger' : undefined}>{PAYMENT_STATUS_FA[d.status]}</Badge><span className="text-sm">{d.planTitleFa} · {money(d.amount, 'IRR')}</span></p>
         </div>
-        {ok && <p className="m-0 text-sm">{coins ? 'پرداخت روی سرور تأیید شد و سکه‌ها به حساب شما اضافه شد.' : 'پرداخت روی سرور تأیید شد و اشتراک شما فعال است.'}</p>}
+        {ok && <p className="m-0 text-sm">{coins ? 'پرداخت روی سرور تأیید شد و سکه‌ها به حساب شما اضافه شد.' : entry ? 'پرداخت تأیید شد. وضعیت ثبت‌نام را در صفحهٔ تورنمنت ببینید؛ اگر ظرفیت پیش از تأیید پر شده باشد، مبلغ بازپرداخت می‌شود.' : 'پرداخت روی سرور تأیید شد و اشتراک شما فعال است.'}</p>}
         {d.status === 'pending' && <p className="m-0 text-sm text-muted-foreground">تأیید پرداخت هنوز از درگاه نرسیده است. این صفحه خودکار دوباره بررسی می‌کند؛ اگر پرداخت انجام شده باشد، با تأیید درگاه خرید شما فعال می‌شود.</p>}
-        {(d.status === 'failed' || d.status === 'expired') && <p className="m-0 text-sm text-muted-foreground">{FAILURE_FA[d.failureReason ?? ''] ?? 'پرداخت تأیید نشد.'} {coins ? 'سکه‌ای اضافه نشد.' : 'اشتراکی فعال نشد.'}</p>}
+        {(d.status === 'failed' || d.status === 'expired') && <p className="m-0 text-sm text-muted-foreground">{FAILURE_FA[d.failureReason ?? ''] ?? 'پرداخت تأیید نشد.'} {coins ? 'سکه‌ای اضافه نشد.' : entry ? 'ثبت‌نامی انجام نشد.' : 'اشتراکی فعال نشد.'}</p>}
         <p className="m-0 w-full rounded-field bg-secondary px-4 py-2 text-xs text-muted-foreground">شماره سفارش: <bdi dir="ltr" className="font-semibold text-foreground">{d.orderId}</bdi></p>
         <div className="flex w-full flex-wrap justify-center gap-2">
           {d.status === 'pending' && <Button busy={checking} onClick={recheck}>بررسی دوباره</Button>}
-          {ok && (coins ? <Link className={buttonClass('primary', 'md')} to="/coins">کیف سکه</Link> : <Link className={buttonClass('primary', 'md')} to="/games">برویم سر میز</Link>)}
+          {d.tournamentId && <Link className={buttonClass('primary', 'md')} to={`/tournaments/${d.tournamentId}`}>صفحهٔ تورنمنت</Link>}
+          {ok && !entry && (coins ? <Link className={buttonClass('primary', 'md')} to="/coins">کیف سکه</Link> : <Link className={buttonClass('primary', 'md')} to="/games">برویم سر میز</Link>)}
           <Link className={buttonClass('secondary', 'md')} to="/plans">اشتراک و سابقه</Link>
         </div>
       </section>

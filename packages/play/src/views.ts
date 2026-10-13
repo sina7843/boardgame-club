@@ -179,7 +179,8 @@ export async function listNotifications(db: Db, userId: string): Promise<Notific
 
 /** Payload holds only public, non-game-secret fields; the text is rendered here so clients never get raw data. */
 export function toNotificationItem(n: typeof notifications.$inferSelect): NotificationItem {
-  const p = n.payload as { tableId?: string; gameNameFa?: string; actorName?: string; conversationId?: string; clubSlug?: string; clubName?: string };
+  const p = n.payload as { tableId?: string; gameNameFa?: string; actorName?: string; conversationId?: string; clubSlug?: string; clubName?: string;
+    tournamentId?: string; titleFa?: string; round?: number; rank?: number; cancelled?: boolean };
   const game = p.gameNameFa ?? 'بازی';
   const actor = p.actorName ?? 'یک بازیکن';
   const kind = n.kind as NotificationItem['kind'];
@@ -191,10 +192,13 @@ export function toNotificationItem(n: typeof notifications.$inferSelect): Notifi
     match: `حریف پیدا شد: «${game}». آمادگی خود را اعلام کنید.`,
     message: `پیام تازه از ${actor}.`,
     friend_request: `${actor} برای شما درخواست دوستی فرستاد.`,
-    club: `درخواست تازه در باشگاه «${p.clubName ?? ''}».`
+    club: `درخواست تازه در باشگاه «${p.clubName ?? ''}».`,
+    tournament: p.cancelled ? `تورنمنت «${p.titleFa}» لغو شد؛ ورودی شما برمی‌گردد.`
+      : p.rank ? `تورنمنت «${p.titleFa}» تمام شد؛ رتبهٔ شما: ${p.rank.toLocaleString('fa-IR')}.`
+        : `دور ${(p.round ?? 1).toLocaleString('fa-IR')} تورنمنت «${p.titleFa}» شروع شد؛ سر میز بیایید.`
   }[kind] ?? 'اعلان تازه';
   const href = p.tableId ? `/tables/${p.tableId}` : p.conversationId ? `/messages/${p.conversationId}`
-    : p.clubSlug ? `/clubs/${p.clubSlug}` : kind === 'friend_request' ? '/friends' : '/';
+    : p.clubSlug ? `/clubs/${p.clubSlug}` : p.tournamentId ? `/tournaments/${p.tournamentId}` : kind === 'friend_request' ? '/friends' : '/';
   return { id: n.id, kind, href, tableId: p.tableId ?? null, textFa: text, createdAt: n.createdAt.toISOString(), read: !!n.readAt };
 }
 

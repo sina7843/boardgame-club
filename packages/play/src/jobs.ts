@@ -8,9 +8,9 @@ import { fireDeadline } from './runtime.ts';
 
 const { scheduledDeadlines, outboxEvents, notifications, platformIncidents, games, auditLog, userSettings, userMutes, blocks, users, behaviorSignals } = schema;
 
-type Kind = 'turn' | 'reminder' | 'finished' | 'invite' | 'match' | 'message' | 'friend_request' | 'club';
+type Kind = 'turn' | 'reminder' | 'finished' | 'invite' | 'match' | 'message' | 'friend_request' | 'club' | 'tournament';
 const PREF: Record<Kind, 'turn' | 'invite' | 'message' | 'result' | 'social'> = {
-  turn: 'turn', reminder: 'turn', finished: 'result', invite: 'invite', match: 'invite', message: 'message', friend_request: 'social', club: 'social'
+  turn: 'turn', reminder: 'turn', finished: 'result', invite: 'invite', match: 'invite', message: 'message', friend_request: 'social', club: 'social', tournament: 'invite'
 };
 
 /**
@@ -108,6 +108,18 @@ export const notificationConsumers: Record<string, Consumer> = {
     const p = e.payload as { messageId: string; conversationId: string; senderId: string; recipientIds: string[] };
     await notify(db, p.recipientIds, 'message', (u) => `message:${p.messageId}:${u}`,
       { conversationId: p.conversationId, actorName: await displayName(db, p.senderId) }, p.senderId);
+  },
+  'tournament.round': async (db, e) => {
+    const p = e.payload as { tournamentId: string; titleFa: string; round: number; tableId: string; userIds: string[] };
+    await notify(db, p.userIds, 'tournament', (u) => `tournament-round:${p.tableId}:${u}`, { tournamentId: p.tournamentId, titleFa: p.titleFa, round: p.round, tableId: p.tableId });
+  },
+  'tournament.finished': async (db, e) => {
+    const p = e.payload as { tournamentId: string; titleFa: string; ranks: { userId: string; rank: number }[] };
+    for (const r of p.ranks) await notify(db, [r.userId], 'tournament', (u) => `tournament-end:${p.tournamentId}:${u}`, { tournamentId: p.tournamentId, titleFa: p.titleFa, rank: r.rank });
+  },
+  'tournament.cancelled': async (db, e) => {
+    const p = e.payload as { tournamentId: string; titleFa: string; userIds: string[] };
+    await notify(db, p.userIds, 'tournament', (u) => `tournament-cancel:${p.tournamentId}:${u}`, { tournamentId: p.tournamentId, titleFa: p.titleFa, cancelled: true });
   },
   'club.requested': async (db, e) => {
     const p = e.payload as { clubSlug: string; clubName: string; managerIds: string[]; userId: string };

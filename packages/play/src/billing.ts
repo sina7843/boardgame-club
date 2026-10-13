@@ -5,8 +5,9 @@ import { and, desc, eq, gt, isNull, lt, or, sql } from 'drizzle-orm';
 import { AppError } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
+import { registerPaidEntry } from './tournaments.ts';
 
-const { plans, coinPacks, coinLedger, payments, paymentEvents, subscriptions, entitlements, auditLog, fakeGatewayTransactions } = schema;
+const { plans, coinPacks, tournaments, coinLedger, payments, paymentEvents, subscriptions, entitlements, auditLog, fakeGatewayTransactions } = schema;
 
 export type VerifyResult = { status: 'paid'; refId: string; paidAmount: number } | { status: 'failed'; reason: string } | { status: 'pending' };
 
@@ -63,15 +64,18 @@ export const isPremium = async (db: Db | Tx, userId: string) => (await premiumUn
 
 // ---------------- Checkout ----------------
 
-/** Start a payment for one product: a subscription plan or a coin pack. */
-export async function checkout(db: Db, cfg: BillingConfig, userId: string, product: { planId: string } | { coinPackId: string }) {
+/** Start a payment for one product: a subscription plan, a coin pack or a Toman tournament entry. */
+export async function checkout(db: Db, cfg: BillingConfig, userId: string, product: { planId: string } | { coinPackId: string } | { tournamentId: string }) {
   if (!cfg.gateway) throw new AppError('PAYMENT_UNAVAILABLE');
-  const [plan] = 'planId' in product ? await db.select().from(plans).where(eq(plans.id, product.planId)) : await db.select().from(coinPacks).where(eq(coinPacks.id, product.coinPackId));
+  const [plan] = 'planId' in product ? await db.select().from(plans).where(eq(plans.id, product.planId))
+    : 'coinPackId' in product ? await db.select().from(coinPacks).where(eq(coinPacks.id, product.coinPackId))
+      : await db.select({ id: tournaments.id, titleFa: tournaments.titleFa, priceAmount: tournaments.entryAmount, currency: sql<string>`'IRR'`, active: sql<boolean>`${tournaments.status} = 'open'` })
+        .from(tournaments).where(and(eq(tournaments.id, product.tournamentId), eq(tournaments.entryKind, 'toman')));
   if (!plan || !plan.active) throw new AppError('NOT_FOUND');
   if (!plan.priceAmount) throw new AppError('PAYMENT_UNAVAILABLE'); // price not approved yet
   const orderId = `BG-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${randomBytes(5).toString('hex').toUpperCase()}`;
   const [payment] = await db.insert(payments).values({
-    userId, ...('planId' in product ? { planId: plan.id } : { coinPackId: plan.id }), orderId, provider: cfg.gateway.id, amount: plan.priceAmount, currency: plan.currency, status: 'pending',
+    userId, ...product, orderId, provider: cfg.gateway.id, amount: plan.priceAmount, currency: plan.currency, status: 'pending',
     expiresAt: sql`now() + make_interval(mins => ${cfg.paymentTtlMinutes})`
   }).returning();
   try {
@@ -128,9 +132,10 @@ export async function verifyPayment(db: Db, cfg: BillingConfig, ref: { provider:
 
     await tx.update(payments).set({ status: 'verified', providerRef: v.refId, verifiedAt: sql`now()`, updatedAt: sql`now()` }).where(eq(payments.id, p.id));
     if (p.planId) await activate(tx, p.userId, p.planId, p.id);
-    else await creditCoinPack(tx, p.userId, p.coinPackId!, p.id, p.orderId);
+    else if (p.coinPackId) await creditCoinPack(tx, p.userId, p.coinPackId, p.id, p.orderId);
+    else await registerPaidEntry(tx, { id: p.id, userId: p.userId, tournamentId: p.tournamentId! });
     await log('verified', { refId: v.refId });
-    await tx.insert(auditLog).values({ actorId: p.userId, action: p.planId ? 'subscription.activate' : 'coins.purchase', targetType: 'payment', targetId: p.id, metadata: { orderId: p.orderId, refId: v.refId, via: ref.via } });
+    await tx.insert(auditLog).values({ actorId: p.userId, action: p.planId ? 'subscription.activate' : p.coinPackId ? 'coins.purchase' : 'tournament.entry', targetType: 'payment', targetId: p.id, metadata: { orderId: p.orderId, refId: v.refId, via: ref.via } });
     return { outcome: 'verified' as const, orderId: p.orderId };
   });
 }
