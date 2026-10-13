@@ -6,6 +6,7 @@ import { Avatar, Button, ErrorShake, Input, OtpField, cn, fa } from '@bg/ui';
 import { api, ApiFailure } from '../lib/api.ts';
 import { AVATAR_FA, safeNext } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
+import { stashGift } from '../shell/WelcomeGift.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 type Step = { kind: 'mobile' } | { kind: 'code'; challengeId: string; mobile: string; resendAt: number; fixture: boolean } | { kind: 'profile' };
@@ -76,8 +77,9 @@ export function Login() {
     void run(async () => {
       let referralCode: string | undefined;
       try { referralCode = params.get('ref') ?? localStorage.getItem('bg_ref') ?? undefined; } catch { /* storage blocked */ }
-      const r = await api<{ isNewUser: boolean }>('/auth/otp/verify', { method: 'POST', body: { challengeId: step.challengeId, code: toAsciiDigits(value), referralCode } });
+      const r = await api<{ isNewUser: boolean; welcomeGiftDays: number }>('/auth/otp/verify', { method: 'POST', body: { challengeId: step.challengeId, code: toAsciiDigits(value), referralCode } });
       try { localStorage.removeItem('bg_ref'); } catch { /* storage blocked */ }
+      if (r.welcomeGiftDays > 0) stashGift(r.welcomeGiftDays); // opened once the player leaves the login page
       const m = await refresh();
       if (r.isNewUser || (m && !m.profileCompleted)) {
         setName(m?.displayName ?? '');

@@ -1151,6 +1151,9 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   re-granted, also not after the days change). `/plans`, coin shop and coin packs are listed empty and plan checkout,
   coin spend and coin-pack checkout refuse with `PAYMENT_UNAVAILABLE`; the UI hides the empty sections.
 - Turning it off reopens the store (sales still need a configured gateway). Granted gifts stay valid until they end.
+- Gift reveal: the login that grants the gift returns `welcomeGiftDays`; the web app keeps it in `sessionStorage` and,
+  once the player leaves the login/profile step, shows a wrapped gift box (`shell/WelcomeGift.tsx`). Opening it throws
+  the lid off with confetti and «تبریک! N روز اشتراک پریمیوم رایگان بردید». Shown once; cleared only when closed.
 
 ## Matchmaking fills open tables; joiners sit ready (owner request, 2026-10-13)
 - A friendly search first takes a free seat at a matching **public** open table (same game, pace, player count and

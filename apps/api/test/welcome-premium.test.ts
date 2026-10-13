@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { schema } from '@bg/db';
 import { grantWelcomePremium, WELCOME_PREMIUM_REASON } from '@bg/play';
-import { grantRole, setup, type TestCtx } from './helpers.ts';
+import { grantRole, nextMobile, post, setup, FIXTURE_CODE, type TestCtx } from './helpers.ts';
 import { call, users, type User } from './play-helpers.ts';
 
 let ctx: TestCtx;
@@ -35,10 +35,20 @@ describe('launch promo (admin switch): free premium on login, store hidden', () 
     const days = (new Date(s.premiumUntil).getTime() - Date.now()) / 86400_000;
     expect(days).toBeGreaterThan(6.9);
     expect(days).toBeLessThanOrEqual(7);
-    await grantWelcomePremium(ctx.db, u!.id); // what the next login does
+    expect(await grantWelcomePremium(ctx.db, u!.id)).toBe(0); // what the next login does: no second gift, no gift box
     const rows = await ctx.db.select().from(schema.entitlements)
       .where(and(eq(schema.entitlements.userId, u!.id), eq(schema.entitlements.reason, WELCOME_PREMIUM_REASON)));
     expect(rows).toHaveLength(1);
+  });
+
+  it('the login that grants the gift reports its days (the client shows the gift box once)', async () => {
+    await setPromo({ enabled: true, days: 30 });
+    const mobile = nextMobile();
+    const verify = async () => {
+      const c = await post(ctx.app, '/api/auth/otp/request', { mobile });
+      return (await post(ctx.app, '/api/auth/otp/verify', { challengeId: c.json().challengeId, code: FIXTURE_CODE })).json();
+    };
+    expect(await verify()).toEqual({ isNewUser: true, welcomeGiftDays: 30 });
   });
 
   it('when on, lists no plans, coin shop or coin packs and refuses to sell them; off reopens the store', async () => {

@@ -27,18 +27,18 @@ export function authRoutes(app: FastifyInstance, { db, config, delivery }: Deps)
     schema: {
       tags: ['auth'], summary: 'Verify an OTP and start a cookie session',
       body: otpVerifyBody,
-      response: { 200: z.object({ isNewUser: z.boolean() }), 400: apiErrorSchema, 429: apiErrorSchema }
+      response: { 200: z.object({ isNewUser: z.boolean(), welcomeGiftDays: z.number().int() }), 400: apiErrorSchema, 429: apiErrorSchema }
     }
   }, async (req, reply) => {
     const { userId, isNew } = await verifyOtp(db, config.otp, req.body.challengeId, req.body.code);
-    await grantWelcomePremium(db, userId);
+    const welcomeGiftDays = await grantWelcomePremium(db, userId);
     if (isNew && req.body.referralCode) {
       // A broken invite must never block sign-up.
       await applyReferral(db, userId, req.body.referralCode).catch((err: unknown) => req.log.error({ err }, 'referral failed'));
     }
     const { token, expiresAt } = await createSession(db, userId, config.session.ttlDays);
     setSessionCookie(reply, config.session.cookieName, token, expiresAt, config.isProd);
-    return { isNewUser: isNew };
+    return { isNewUser: isNew, welcomeGiftDays };
   });
 
   r.post('/auth/logout', {

@@ -8,6 +8,7 @@ import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline
 import { api } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { Celebration } from './Celebration.tsx';
+import { WelcomeGift } from './WelcomeGift.tsx';
 import { CoinChip } from '../lib/coins.tsx';
 import { OnboardingProvider, WelcomeInvite } from './Onboarding.tsx';
 import { SiteLinks } from '../pages/SitePage.tsx';
@@ -146,6 +147,7 @@ export function Layout() {
         ))}
       </nav>
       <Celebration />
+      <WelcomeGift />
       <TermsGate />
     </div>
     </OnboardingProvider>

@@ -194,14 +194,17 @@ export async function setWelcomePremium(db: Db | Tx, value: WelcomePremium, admi
  * Launch promo, while enabled: one free premium period per user, ever (a later login never re-grants it, even after
  * the admin changes the days). While enabled the store (plans, coin shop, coin packs) is closed.
  */
-export async function grantWelcomePremium(db: Db, userId: string) {
+/** Returns the days granted now (0 = promo off or already granted earlier). */
+export async function grantWelcomePremium(db: Db, userId: string): Promise<number> {
   const { enabled, days } = await welcomePremium(db);
-  if (!enabled || days <= 0) return;
-  await db.transaction(async (tx) => {
+  if (!enabled || days <= 0) return 0;
+  return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'welcome:' + userId}))`);
     const [had] = await tx.select({ id: entitlements.id }).from(entitlements)
       .where(and(eq(entitlements.userId, userId), eq(entitlements.source, 'manual'), eq(entitlements.reason, WELCOME_PREMIUM_REASON))).limit(1);
-    if (!had) await tx.insert(entitlements).values({ userId, key: 'premium', source: 'manual', startsAt: new Date(), endsAt: new Date(Date.now() + days * 86400_000), reason: WELCOME_PREMIUM_REASON });
+    if (had) return 0;
+    await tx.insert(entitlements).values({ userId, key: 'premium', source: 'manual', startsAt: new Date(), endsAt: new Date(Date.now() + days * 86400_000), reason: WELCOME_PREMIUM_REASON });
+    return days;
   });
 }
 
