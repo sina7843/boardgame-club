@@ -1,18 +1,25 @@
 // Load profile for the real stack (through the reverse proxy): two game types, hidden + public state,
 // concurrent simultaneous commands, duplicate resends, reconnects and an optional worker restart.
-// Uses only public HTTP/Socket.IO endpoints and the development OTP fixture, so it cannot run against production.
-//   node apps/api/load/loadtest.ts  (env: BASE, L3_TABLES, SB_TABLES, DURATION_S, RECONNECT_PCT, DUP_PCT,
-//                                    THINK_MS, OTP_CODE, METRICS_TOKEN, RESTART_WORKER=<container name>)
+// Uses only public HTTP/Socket.IO endpoints and the OTP fixture: runs locally or against a deployed site with
+// OTP_PROVIDER=fixture + ALLOW_TEST_PROVIDERS=true (aborts if the site would send real SMS).
+//   node apps/api/load/loadtest.ts  (env: BASE, L3_TABLES, SB_TABLES, L3_GAME, DURATION_S, RAMP_S, RECONNECT_PCT, DUP_PCT,
+//                                    THINK_MS, OTP_CODE, MOBILE_BASE, METRICS_TOKEN, METRICS_URL, RESTART_WORKER=<container name>)
+// Step the load across runs (L3_TABLES=25, 50, 100, …). Sessions are cached in the OS temp dir, so reruns skip OTP limits.
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { cpus, totalmem } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { cpus, tmpdir, totalmem } from 'node:os';
+import { join } from 'node:path';
 import { io, type Socket } from 'socket.io-client';
 
 const env = process.env;
-const BASE = env.BASE ?? 'http://127.0.0.1:18080';
+const BASE = (env.BASE ?? 'http://127.0.0.1:18080').replace(/\/$/, '');
 const L3 = Number(env.L3_TABLES ?? 20);
 const SB = Number(env.SB_TABLES ?? 10);
+const L3_GAME = env.L3_GAME ?? 'line-three'; // any 2-player game whose bots only need legalActions
 const DURATION = Number(env.DURATION_S ?? 60) * 1000;
+const RAMP = Number(env.RAMP_S ?? 0) * 1000;
+const MOBILE_BASE = Number(env.MOBILE_BASE ?? 9990000000); // user i signs in as 0 + MOBILE_BASE + i
 const RECONNECT_PCT = Number(env.RECONNECT_PCT ?? 2);
 const DUP_PCT = Number(env.DUP_PCT ?? 3);
 const THINK_MS = Number(env.THINK_MS ?? 150);
@@ -36,13 +43,38 @@ async function http(method: string, path: string, user?: User, body?: unknown) {
   return { res, json: text ? JSON.parse(text) : null };
 }
 
+const CACHE = join(tmpdir(), `bg-loadtest-${new URL(BASE).host.replace(':', '_')}.json`);
+let sessions: Record<string, string> = {};
+try { sessions = JSON.parse(readFileSync(CACHE, 'utf8')); } catch { /* first run */ }
+
 async function login(i: number): Promise<User> {
-  const mobile = `0919${String(Date.now() % 1000).padStart(3, '0')}${String(i).padStart(4, '0')}`;
+  const mobile = `0${MOBILE_BASE + i}`;
+  const cached = sessions[mobile];
+  if (cached) {
+    const me = await http('GET', '/api/me', { cookie: cached, id: '' }).catch(() => null);
+    if (me) return { cookie: cached, id: me.json.id };
+  }
   const { json: ch } = await http('POST', '/api/auth/otp/request', undefined, { mobile });
+  // Bot numbers may belong to real people: never let a real SMS provider text them.
+  if (!ch.fixtureDelivery) { console.error('The site sends real SMS (OTP_PROVIDER is not fixture) — aborting.'); process.exit(1); }
   const { res } = await http('POST', '/api/auth/otp/verify', undefined, { challengeId: ch.challengeId, code: CODE });
   const cookie = res.headers.get('set-cookie')!.split(';')[0]!;
   const { json: me } = await http('GET', '/api/me', { cookie, id: '' });
+  sessions[mobile] = cookie;
+  writeFileSync(CACHE, JSON.stringify(sessions));
   return { cookie, id: me.id };
+}
+
+/** Tables left by an interrupted run would block "one live table per user": leave open ones, resign active ones. */
+async function cleanup(user: User) {
+  const { json } = await http('GET', '/api/me/tables', user);
+  for (const t of json.items as { id: string; status: string; pace: string }[]) {
+    if (t.status === 'open') await http('POST', `/api/tables/${t.id}/leave`, user).catch(() => {});
+    if (t.status !== 'active' || t.pace !== 'live') continue;
+    const { json: v } = await http('GET', `/api/tables/${t.id}`, user);
+    const resign = v.game?.legalActions.find((a: { type: string }) => a.type === 'resign');
+    if (resign) await http('POST', `/api/tables/${t.id}/commands`, user, { commandId: randomUUID(), expectedRevision: v.game.revision, action: resign }).catch(() => {});
+  }
 }
 
 const SB_VIEW_KEYS = 'history,myBid,myHand,outcome,players,prize,resigned,round,scores,seatOrder,submitted';
@@ -75,7 +107,7 @@ class Bot {
       hiddenChecks++;
       if (Object.keys(s.game.view).sort().join(',') !== SB_VIEW_KEYS || 'hands' in s.game.view || 'pending' in s.game.view) hiddenViolations++;
     }
-    if (s.table.status === 'finished' || s.table.status === 'aborted') { this.finish(); return; }
+    if (s.table.status === 'finished' || s.table.status === 'cancelled') { this.finish(); return; }
     void this.act();
   }
   async act() {
@@ -119,7 +151,8 @@ class Bot {
   close() { this.closed = true; this.socket?.disconnect(); this.finish(); }
 }
 
-async function playTable(game: 'line-three' | 'sealed-bids', players: User[], until: number) {
+async function playTable(game: string, players: User[], until: number, delay: number) {
+  await new Promise((r) => setTimeout(r, delay));
   while (Date.now() < until) {
     const { json: created } = await http('POST', '/api/tables', players[0], { gameId: game, pace: 'live', capacity: players.length, turnSeconds: TURN_SECONDS });
     const { json: v } = await http('GET', `/api/tables/${created.id}`, players[0]);
@@ -127,7 +160,8 @@ async function playTable(game: 'line-three' | 'sealed-bids', players: User[], un
     const bots = players.map((p) => new Bot(p, created.id, game));
     bots.forEach((b) => b.connect());
     await new Promise((r) => setTimeout(r, 300));
-    for (const p of players) await http('POST', `/api/tables/${created.id}/ready`, p, { ready: true });
+    // Joiners sit ready; the host's ready on a full table starts the game.
+    await http('POST', `/api/tables/${created.id}/ready`, players[0], { ready: true });
     // Stalled = no revision progress for 20 s (server deadlines are 60 s, bots think ≤ 2×THINK_MS).
     let lastRev = -1, lastChange = Date.now();
     const timer = setInterval(async () => {
@@ -163,18 +197,28 @@ const users: User[] = [];
 const need = L3 * 2 + SB * 3;
 for (let i = 0; i < need; i += 20) users.push(...await Promise.all(Array.from({ length: Math.min(20, need - i) }, (_, k) => login(i + k))));
 console.log(`logged in ${users.length} users`);
+await Promise.all(users.map((x) => cleanup(x).catch(() => {})));
 const before = await serverMetrics();
 const started = Date.now();
-const until = started + DURATION;
+const until = started + RAMP + DURATION;
 if (env.RESTART_WORKER) setTimeout(() => { try { execFileSync('docker', ['restart', '-t', '20', env.RESTART_WORKER!]); console.log('worker restarted'); } catch (e) { console.log('worker restart failed', String(e)); } }, DURATION / 2);
 const tasks: Promise<void>[] = [];
 let u = 0;
-for (let i = 0; i < L3; i++) tasks.push(playTable('line-three', users.slice(u, u += 2), until).catch((e) => { failures.push(String(e).slice(0, 200)); }));
-for (let i = 0; i < SB; i++) tasks.push(playTable('sealed-bids', users.slice(u, u += 3), until).catch((e) => { failures.push(String(e).slice(0, 200)); }));
+const stagger = (i: number) => (RAMP * i) / Math.max(L3 + SB, 1);
+for (let i = 0; i < L3; i++) tasks.push(playTable(L3_GAME, users.slice(u, u += 2), until, stagger(i)).catch((e) => { failures.push(String(e).slice(0, 200)); }));
+for (let i = 0; i < SB; i++) tasks.push(playTable('sealed-bids', users.slice(u, u += 3), until, stagger(L3 + i)).catch((e) => { failures.push(String(e).slice(0, 200)); }));
+// Progress every 10 s, so the knee is visible while it happens (window percentiles, not cumulative).
+let seen = 0;
+const progress = setInterval(() => {
+  const w = lat.slice(seen); seen = lat.length;
+  console.log(`[${((Date.now() - started) / 1000).toFixed(0)}s] accepted=${accepted} finished=${gamesFinished} stalled=${gamesStalled} `
+    + `rtt p50/p95/p99=${pct(w, 50).toFixed(0)}/${pct(w, 95).toFixed(0)}/${pct(w, 99).toFixed(0)}ms errors=${failures.length}`);
+}, 10_000);
 const peak = setInterval(async () => { const m = await serverMetrics(); const c = pick(m, /bg_socket_connections (\d+)/); if (c > peakConn) peakConn = c; }, 2000);
 let peakConn = 0;
 await Promise.all(tasks);
 clearInterval(peak);
+clearInterval(progress);
 const seconds = (Date.now() - started) / 1000;
 const after = await serverMetrics();
 const sum = (t: string) => pick(t, /bg_command_duration_ms_sum\{transport="socket"\} ([\d.]+)/);
@@ -184,7 +228,7 @@ const n = cnt(after) - (cnt(before) || 0);
 const total = Object.values(outcomes).reduce((a, b) => a + b, 0);
 console.log(JSON.stringify({
   host: { cpus: cpus().length, model: cpus()[0]?.model, ramGb: +(totalmem() / 2 ** 30).toFixed(1) },
-  profile: { base: BASE, lineThreeTables: L3, sealedBidsTables: SB, players: users.length, durationS: +seconds.toFixed(1), thinkMs: THINK_MS, reconnectPct: RECONNECT_PCT, duplicatePct: DUP_PCT, workerRestart: !!env.RESTART_WORKER },
+  profile: { base: BASE, l3Game: L3_GAME, rampS: RAMP / 1000, lineThreeTables: L3, sealedBidsTables: SB, players: users.length, durationS: +seconds.toFixed(1), thinkMs: THINK_MS, reconnectPct: RECONNECT_PCT, duplicatePct: DUP_PCT, workerRestart: !!env.RESTART_WORKER },
   results: {
     commands: total, accepted, acceptedPerSec: +(accepted / seconds).toFixed(1), gamesFinished, gamesStalled, reconnects, peakSocketConnections: peakConn,
     outcomes, unexpectedErrors: failures.length, errorRatePct: +((failures.length / Math.max(total, 1)) * 100).toFixed(3), sampleErrors: [...new Set(failures)].slice(0, 5),
