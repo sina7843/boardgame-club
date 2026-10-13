@@ -135,7 +135,9 @@ export const conversations = pgTable('conversations', {
   /** direct: "lowUserId:highUserId" — one conversation per pair. */
   directKey: text().unique(),
   createdAt: createdAt(),
-  lastMessageAt: tsz()
+  lastMessageAt: tsz(),
+  /** Group/club slow mode: minimum seconds between one member's messages (managers exempt). 0 = off. */
+  slowModeSeconds: integer().notNull().default(0)
 }, (t) => [
   oneOf('conversations_kind_chk', t.kind, ['direct', 'table', 'group', 'club']),
   uniqueIndex('conversations_scope_uq').on(t.kind, t.scopeId).where(sql`scope_id is not null`)
@@ -155,8 +157,18 @@ export const messages = pgTable('messages', {
   body: text().notNull(),
   createdAt: createdAt(),
   deletedAt: tsz(),
-  deletedBy: uuid().references(() => users.id)
-}, (t) => [index('messages_conversation_created_idx').on(t.conversationId, t.createdAt)]);
+  deletedBy: uuid().references(() => users.id),
+  replyToId: uuid().references((): AnyPgColumn => messages.id, { onDelete: 'set null' }),
+  editedAt: tsz(),
+  /** Body as first sent; kept on edit so moderators see what was originally said. */
+  originalBody: text(),
+  /** Client-generated id: a retried send returns the same message instead of a duplicate. */
+  clientId: uuid()
+}, (t) => [
+  index('messages_conversation_created_idx').on(t.conversationId, t.createdAt),
+  index('messages_sender_created_idx').on(t.senderId, t.createdAt),
+  uniqueIndex('messages_sender_client_uq').on(t.senderId, t.clientId).where(sql`client_id is not null`)
+]);
 
 export const reports = pgTable('reports', {
   id: id(),

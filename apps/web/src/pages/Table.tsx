@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
-import { BOT_LEVEL_FA, BOT_STYLE_FA, type MessageItem, type TableSnapshot } from '@bg/contracts';
+import { BOT_LEVEL_FA, BOT_STYLE_FA, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
 import { ArrowRight, ChevronLeft, Dices, Flag, Hand, Hourglass, Maximize2, Medal, Minimize2, Trophy } from 'lucide-react';
 import { Avatar, Badge, Button, Confetti, Dialog, Drawer, Icon, PlayerSeat, StateBlock, Timer, TurnIndicator, cn, useToast } from '@bg/ui';
 import { RENDERERS } from '../games/renderers.tsx';
@@ -13,6 +13,7 @@ import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { useTableSession } from '../lib/useTableSession.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
+import { QuickChatButton, QuickChatChips } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 
@@ -175,12 +176,52 @@ function ResultPanel({ snap }: { snap: TableSnapshot }) {
         ))}
       </ol>
       {t.mySeat !== null && <RewardsSummary tableId={t.id} isTutorial={t.isTutorial} />}
+      {t.mySeat !== null && !t.isTutorial && <PostGameSocial snap={snap} />}
       {t.competition === 'friendly' && !t.isTutorial && <p className="muted" style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>میز دوستانه روی رتبه اثری ندارد.</p>}
       <div className="row">
         <Link className="btn btn--primary" to={`/games/${t.gameId}/new`}>{t.isTutorial ? 'ساخت میز واقعی' : 'میز تازه'}</Link>
         <Link className="btn btn--secondary" to="/">بازگشت به داشبورد</Link>
       </div>
     </section>
+  );
+}
+
+/**
+ * After the game: one-tap «good game» to the table chat (which stays open after the result) and a friend request to
+ * each human opponent who is not a friend yet.
+ */
+function PostGameSocial({ snap }: { snap: TableSnapshot }) {
+  const t = snap.table;
+  const toast = useToast();
+  const others = t.seats.filter((x) => x.seat !== t.mySeat && x.user).map((x) => x.user!);
+  const [rel, setRel] = useState<Record<string, string>>({});
+  const ids = others.map((u) => u.id).join(',');
+  useEffect(() => {
+    for (const id of ids ? ids.split(',') : []) {
+      api<UserCard>(`/users/${id}/card`).then((c) => setRel((old) => ({ ...old, [id]: c.relationship })), () => { /* card unavailable: no button */ });
+    }
+  }, [ids]);
+  const befriend = async (id: string) => {
+    try {
+      const c = await api<UserCard>('/friends/requests', { method: 'POST', body: { userId: id } });
+      setRel((old) => ({ ...old, [id]: c.relationship }));
+      toast('success', c.relationship === 'friends' ? 'اکنون با هم دوست هستید.' : 'درخواست دوستی فرستاده شد.');
+    } catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'درخواست فرستاده نشد.'); }
+  };
+  const addable = others.filter((u) => rel[u.id] === 'none' || rel[u.id] === 'incoming');
+  return (
+    <div className="stack" style={{ gap: '0.5rem' }}>
+      <QuickChatChips post={`/tables/${t.id}/chat`} only={['gg', 'rematch']} onSent={() => toast('success', 'به گفت‌وگوی میز فرستاده شد.')} />
+      {addable.length > 0 && (
+        <div className="row">
+          {addable.map((u) => (
+            <Button key={u.id} size="sm" variant="secondary" icon="players" onClick={() => void befriend(u.id)}>
+              {rel[u.id] === 'incoming' ? 'پذیرش دوستی' : 'افزودن دوست'}: <bdi>{u.displayName}</bdi>
+            </Button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -196,7 +237,7 @@ function useImmersive() {
 }
 
 /** list: inside the drawer; strip: phones, above the board; rail: floating avatar column beside the board. */
-function PlayerBoards({ snap, variant = 'list' }: { snap: TableSnapshot; variant?: 'list' | 'strip' | 'rail' }) {
+function PlayerBoards({ snap, variant = 'list', said }: { snap: TableSnapshot; variant?: 'list' | 'strip' | 'rail'; said?: Record<string, string> }) {
   const t = snap.table;
   const g = snap.game!;
   const name = seatNameOf(t);
@@ -205,14 +246,16 @@ function PlayerBoards({ snap, variant = 'list' }: { snap: TableSnapshot; variant
       {t.seats.map((x) => {
         const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
         const me = x.seat === t.mySeat;
+        const words = x.user ? said?.[x.user.id] : undefined;
         return (
-          <li key={x.seat} className={cn('pboard', active && 'pboard--active', me && 'pboard--me')} aria-current={active ? 'true' : undefined} tabIndex={variant === 'rail' ? 0 : undefined}
+          <li key={x.seat} className={cn('pboard', active && 'pboard--active', me && 'pboard--me', words && 'pboard--said')} aria-current={active ? 'true' : undefined} tabIndex={variant === 'rail' ? 0 : undefined}
             style={{ '--seat': SEAT_COLORS[x.seat % SEAT_COLORS.length] } as React.CSSProperties}>
             <span className="pboard__ring"><Avatar avatarKey={x.user?.avatarKey ?? x.bot?.avatarKey ?? 'dice'} name={name(x.seat)} size={variant === 'list' ? 42 : variant === 'rail' ? 40 : 34} /></span>
             <span className="pboard__who">
               <span className="pboard__name"><bdi>{name(x.seat)}</bdi>{me && <span className="pboard__you"> (شما)</span>}</span>
-              <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : x.bot ? (variant === 'strip' ? `ربات ${BOT_LEVEL_FA[x.bot.level]}` : `ربات ${BOT_LEVEL_FA[x.bot.level]} · ${BOT_STYLE_FA[x.bot.style]}`) : me ? 'پشت میز' : 'آماده'}</span>
+              {words ? <span className="pboard__state pboard__said" aria-hidden>💬 {words}</span> : <span className="pboard__state">{active ? 'در انتظار حرکت' : x.kind === 'script' ? 'حریف آموزشی' : x.bot ? (variant === 'strip' ? `ربات ${BOT_LEVEL_FA[x.bot.level]}` : `ربات ${BOT_LEVEL_FA[x.bot.level]} · ${BOT_STYLE_FA[x.bot.style]}`) : me ? 'پشت میز' : 'آماده'}</span>}
             </span>
+            {words && variant === 'rail' && <span className="pboard__bubble" aria-hidden>{words}</span>}
             {active && <ChevronLeft className="pboard__turn" aria-hidden />}
           </li>
         );
@@ -222,24 +265,33 @@ function PlayerBoards({ snap, variant = 'list' }: { snap: TableSnapshot; variant
 }
 
 /**
- * Table chat alerts while the chat drawer is closed: unread count for the chat button, a short toast with the sender
- * and text, and (if enabled in settings) a browser notification when the tab is hidden. Returns the unread count.
+ * Table chat alerts. Every message shows for a few seconds as a speech bubble at its sender's avatar; while the chat
+ * drawer is closed it also counts as unread, shows a short toast with the sender and text, and (if enabled in settings)
+ * a browser notification when the tab is hidden.
  */
-function useTableChatAlerts(tableId: string | null, open: boolean): number {
+function useTableChatAlerts(tableId: string | null, open: boolean): { unread: number; said: Record<string, string> } {
   const { me } = useSession();
   const toast = useToast();
   const [unread, setUnread] = useState(0);
+  const [said, setSaid] = useState<Record<string, string>>({});
   const [conversationId, setConversationId] = useState<string>();
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   useEffect(() => {
     if (!tableId) return;
     api<{ conversationId: string }>(`/tables/${tableId}/chat`).then((r) => setConversationId(r.conversationId), () => { /* chat unavailable */ });
   }, [tableId]);
   useEffect(() => { if (open) setUnread(0); }, [open]);
+  useEffect(() => { const t = timers.current; return () => t.forEach(clearTimeout); }, []);
   useEffect(() => {
     if (!conversationId) return;
     const on = (e: Event) => {
       const m = (e as CustomEvent<MessageItem>).detail;
-      if (m.conversationId !== conversationId || m.sender.id === me?.id || m.deleted || open) return;
+      if (m.conversationId !== conversationId || m.deleted || m.editedAt) return;
+      const short = m.body.length > 60 ? `${m.body.slice(0, 60)}…` : m.body;
+      setSaid((old) => ({ ...old, [m.sender.id]: short }));
+      clearTimeout(timers.current.get(m.sender.id));
+      timers.current.set(m.sender.id, setTimeout(() => setSaid(({ [m.sender.id]: _, ...rest }) => rest), 6000));
+      if (m.sender.id === me?.id || open) return;
       setUnread((n) => n + 1);
       const text = `${m.sender.displayName}: ${m.body.length > 80 ? `${m.body.slice(0, 80)}…` : m.body}`;
       toast('info', `پیام در میز — ${text}`);
@@ -250,7 +302,7 @@ function useTableChatAlerts(tableId: string | null, open: boolean): number {
     window.addEventListener('bg:message', on);
     return () => window.removeEventListener('bg:message', on);
   }, [conversationId, me?.id, open, toast]);
-  return unread;
+  return { unread, said };
 }
 
 /**
@@ -320,7 +372,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const busy = !!s.pending || !!s.queued || t.status !== 'active' || !!snap.incident;
   const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
   const hasChat = t.mySeat !== null && !t.isTutorial;
-  const unread = useTableChatAlerts(hasChat ? t.id : null, chat);
+  const { unread, said } = useTableChatAlerts(hasChat ? t.id : null, chat);
   const gameRef = useRef<HTMLDivElement>(null);
   const full = useFullscreen(gameRef);
 
@@ -373,6 +425,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             {full.on ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />}
           </button>
         )}
+        {hasChat && <QuickChatButton post={`/tables/${t.id}/chat`} />}
         {hasChat && (
           <Button className={cn('gamebar__chat', unread > 0 && 'gamebar__chat--unread')} variant="secondary" size="sm" icon="card" onClick={() => setChat(true)}
             aria-label={unread > 0 ? `گفت‌وگوی میز، ${faNum(unread)} پیام تازه` : undefined}>
@@ -392,7 +445,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       </div>
 
       <div className="game__main stack">
-        <PlayerBoards snap={snap} variant="strip" />
+        <PlayerBoards snap={snap} variant="strip" said={said} />
 
         {/* Notices float as popups in the top-right corner instead of pushing the board around. */}
         {/* Rendered at the root: the page-enter transform would make .game the box 'fixed' is measured against. */}
@@ -437,7 +490,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
         {/* The stage: a graphite panel; renderers sit on it in the night palette. */}
         <div className="game__stage">
-        <PlayerBoards snap={snap} variant="rail" />
+        <PlayerBoards snap={snap} variant="rail" said={said} />
         <div className={cn('game__board table-night', myTurn && 'game__board--mine')}>
           {Renderer
             ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} />
@@ -447,7 +500,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       </div>
       <Drawer open={drawer} onClose={() => setDrawer(false)} title="بازیکنان و قوانین">{side}</Drawer>
       {/* Chat never interrupts the board: it lives in a drawer on every screen size. */}
-      <Drawer open={chat} onClose={() => setChat(false)} title="گفت‌وگوی میز">{chat && <ChatPanel load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" compact />}</Drawer>
+      <Drawer open={chat} onClose={() => setChat(false)} title="گفت‌وگوی میز">{chat && <ChatPanel load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" compact quick />}</Drawer>
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
       <Dialog open={confirmResign} onClose={() => setConfirmResign(false)} title="انصراف از بازی؟"
         footer={<><Button variant="ghost" onClick={() => setConfirmResign(false)}>ادامه بازی</Button>

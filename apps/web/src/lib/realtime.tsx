@@ -29,6 +29,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       window.dispatchEvent(new CustomEvent('bg:notification', { detail: n }));
     });
     s.on(ServerEvents.messageCreated, (m: unknown) => window.dispatchEvent(new CustomEvent('bg:message', { detail: m })));
+    s.on(ServerEvents.conversationRead, (e: unknown) => window.dispatchEvent(new CustomEvent('bg:read', { detail: e })));
+    s.on(ServerEvents.conversationTyping, (e: unknown) => window.dispatchEvent(new CustomEvent('bg:typing', { detail: e })));
     setSocket(s);
     return () => { s.close(); setSocket(null); setConnected(false); };
   }, [me?.id]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -1,16 +1,18 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import {
   Bell, BookOpen, Coins, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
   Medal, Swords, Trophy, UserRound, Users, UsersRound, Castle, type LucideIcon
 } from 'lucide-react';
 import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline, useToast } from '@bg/ui';
+import { api } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { Celebration } from './Celebration.tsx';
 import { CoinChip } from '../lib/coins.tsx';
 
 const APP_NAME = 'باشگاه بردگیم';
 
-interface NavItem { to: string; label: string; icon: LucideIcon; end?: boolean }
+interface NavItem { to: string; label: string; icon: LucideIcon; end?: boolean; badge?: number }
 
 const navClass = ({ isActive }: { isActive: boolean }) => cn(
   'flex h-11 items-center gap-3 rounded-control px-4 text-sm font-medium no-underline transition-all duration-(--motion) ease-motion',
@@ -40,6 +42,7 @@ export function Layout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const unread = useUnreadMessages(!!me);
   const items: NavItem[] = [
     { to: '/', label: 'داشبورد', icon: House, end: true },
     { to: '/games', label: 'بازی‌ها', icon: LayoutGrid },
@@ -49,7 +52,7 @@ export function Layout() {
     { to: '/tournaments', label: 'تورنمنت‌ها', icon: Medal },
     { to: '/progress', label: 'پیشرفت', icon: Sparkles },
     { to: '/ranking', label: 'رتبه‌بندی', icon: Trophy },
-    { to: '/messages', label: 'پیام‌ها', icon: MessageCircle },
+    { to: '/messages', label: 'پیام‌ها', icon: MessageCircle, badge: unread },
     { to: '/friends', label: 'دوستان', icon: UserRound },
     { to: '/groups', label: 'گروه‌ها', icon: UsersRound },
     { to: '/clubs', label: 'باشگاه‌ها', icon: Users },
@@ -85,7 +88,7 @@ export function Layout() {
         <nav className="-me-2 flex-1 overflow-y-auto pe-2">
           <ul className="grid gap-1">
             {items.map((i) => (
-              <li key={i.to}><NavLink to={i.to} end={i.end ?? false} className={navClass}><i.icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />{i.label}</NavLink></li>
+              <li key={i.to}><NavLink to={i.to} end={i.end ?? false} className={navClass}><i.icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />{i.label}<NavBadge n={i.badge} /></NavLink></li>
             ))}
           </ul>
         </nav>
@@ -133,13 +136,34 @@ export function Layout() {
           <NavLink key={i.to} to={i.to} end={i.end ?? false}
             className={({ isActive }) => cn('flex h-14 flex-col items-center justify-center gap-0.5 rounded-control text-[11px] font-semibold no-underline transition-all duration-(--motion) ease-motion',
               isActive ? 'bg-primary text-primary-foreground shadow-control' : 'text-muted-foreground')}>
-            <i.icon className="size-5" strokeWidth={1.75} aria-hidden /><span>{i.label}</span>
+            <span className="relative"><i.icon className="size-5" strokeWidth={1.75} aria-hidden /><NavBadge n={i.badge} dock /></span><span>{i.label}</span>
           </NavLink>
         ))}
       </nav>
       <Celebration />
     </div>
   );
+}
+
+/** Unread private, group and club messages; refreshed on every pushed message or read marker. */
+function useUnreadMessages(signedIn: boolean): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!signedIn) { setCount(0); return; }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = () => { void api<{ count: number }>('/me/conversations/unread').then((r) => setCount(r.count), () => { /* keep last count */ }); };
+    const later = () => { clearTimeout(timer); timer = setTimeout(load, 800); };
+    load();
+    window.addEventListener('bg:message', later);
+    window.addEventListener('bg:read', later);
+    return () => { clearTimeout(timer); window.removeEventListener('bg:message', later); window.removeEventListener('bg:read', later); };
+  }, [signedIn]);
+  return count;
+}
+
+function NavBadge({ n, dock }: { n?: number | undefined; dock?: boolean }) {
+  if (!n) return null;
+  return <span className={cn('chatbadge', dock && 'absolute -top-1.5 -end-2.5 m-0')} aria-label={`${n.toLocaleString('fa-IR')} پیام خوانده‌نشده`}>{n > 99 ? '۹۹+' : n.toLocaleString('fa-IR')}</span>;
 }
 
 export function Banner({ tone, children }: { tone: 'warn' | 'info'; children: React.ReactNode }) {

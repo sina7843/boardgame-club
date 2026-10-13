@@ -360,7 +360,42 @@
   .table tr:last-child td { border-block-end: 0; }
 
   /* Chat */
-  .chat { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 0.75rem; min-block-size: 360px; max-block-size: 70dvh; }
+  .chat { display: flex; flex-direction: column; gap: 0.75rem; min-block-size: 360px; max-block-size: 70dvh; }
+  .chat__list { flex: 1; min-block-size: 10rem; }
+  /* Inside a chat the presets are one swipeable row, so they never squeeze the messages. */
+  .chat .quickchat { flex-wrap: nowrap; overflow-x: auto; padding-block-end: 0.25rem; scrollbar-width: thin; }
+  .chat .quickchat__chip { flex: none; }
+  .chat__tools { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted-foreground); }
+  .chat__bottom { display: grid; gap: 0.5rem; }
+  .chat__typing { margin: 0; font-size: 0.8rem; color: var(--muted-foreground); animation: var(--animate-fade-up); }
+  .chat__context { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.35rem 0.75rem; font-size: 0.85rem;
+    border-inline-start: 3px solid var(--primary); border-radius: 0.5rem; background: var(--muted); overflow: hidden; }
+  .chat__context > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg__quote { margin: 0.25rem 0; padding: 0.2rem 0.6rem; font-size: 0.8rem; border-inline-start: 3px solid currentColor; border-radius: 0.4rem;
+    opacity: 0.8; background: color-mix(in srgb, currentColor 8%, transparent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-inline-size: 22rem; }
+  .msg__ticks { letter-spacing: -0.2em; }
+  .msg__ticks--seen { font-weight: 800; }
+  .msg--pending .msg__bubble { opacity: 0.7; }
+  .msg--failed .msg__bubble { opacity: 1; outline: 2px solid var(--destructive); }
+  .quickchat { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .quickchat__chip { min-block-size: 36px; padding: 0.25rem 0.7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+    font: inherit; font-size: 0.85rem; cursor: pointer; box-shadow: var(--depth-control); transition: transform var(--motion) var(--motion-ease); }
+  .quickchat__chip:hover { transform: translateY(-1px); }
+  .quickchat__chip:disabled { opacity: 0.5; cursor: default; }
+  .quickchat-pop { inline-size: min(22rem, calc(100vw - 2rem)); padding: 0.75rem; border-radius: var(--shape-surface); border: 1px solid var(--border);
+    background: var(--card); color: var(--foreground); box-shadow: var(--depth-overlay); }
+  .quickchat-pop::backdrop { background: transparent; }
+  /* Speech bubble over a player's avatar for a few seconds after they write in table chat. */
+  .pboard__bubble { position: absolute; inset-block-start: 50%; inset-inline-start: calc(100% + 0.6rem); translate: 0 -50%; z-index: 3;
+    inline-size: max-content; max-inline-size: 13rem; padding: 0.3rem 0.65rem; border-radius: 0.9rem; border-start-start-radius: 0.2rem;
+    background: var(--card); color: var(--foreground); border: 2px solid var(--seat); box-shadow: var(--depth-surface); font-size: 0.8rem; font-weight: 600;
+    line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; animation: bubble-pop 0.25s var(--motion-ease) both; }
+  /* Strip and list: the message takes the state line's place (the strip scrolls, so nothing may float out of it). */
+  .pboard__said { color: var(--foreground); font-weight: 700; animation: bubble-pop 0.25s var(--motion-ease) both; }
+  .pboards--rail .pboard__said { display: none; }
+  .pboards--rail .pboard--said .pboard__who { opacity: 0; }
+  @keyframes bubble-pop { from { opacity: 0; scale: 0.85; } }
+  @media (prefers-reduced-motion: reduce) { .pboard__bubble, .pboard__said { animation: none; } }
   .chat--compact { min-block-size: 280px; max-block-size: 60dvh; }
   .chat__list { overflow-y: auto; display: grid; align-content: start; gap: 0.5rem; padding: 0.5rem; background: var(--muted); border-radius: var(--shape-field); box-shadow: var(--depth-field); }
   .chat__composer { display: flex; gap: 0.5rem; align-items: end; }

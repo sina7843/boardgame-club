@@ -21,4 +21,6 @@ Owner-requested extension in progress: bot opponents «بازی با ربات» 
 Owner-requested extension: tournaments «تورنمنت» — done locally 2026-10-13 (Toman entries untested against the real gateway).
 Owner-requested extension: encyclopedia «دانشنامه» (/wiki + section on each game page) from a BoardGameGeek snapshot with Persian translations — done locally 2026-10-13; e2e/wiki.spec.ts passes on all four viewports.
 
+Owner-requested extension: chat upgrades «گفت‌وگو» (quick chat, bubbles, seen/typing, replies/edits, unread badge, flood guard, slow mode, word filter) — done locally 2026-10-13.
+
 Next eligible phase: none (five prompts complete). Remaining work is owner/provider/infrastructure decisions.

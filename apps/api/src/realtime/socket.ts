@@ -2,11 +2,12 @@ import type { Server as HttpServer } from 'node:http';
 import type { FastifyBaseLogger } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { Server, type DefaultEventsMap, type Socket } from 'socket.io';
-import { AppError, ClientEvents, commandEnvelope, ERRORS, ServerEvents, tableSubscribePayload } from '@bg/contracts';
+import { AppError, ClientEvents, commandEnvelope, ERRORS, ServerEvents, tableSubscribePayload, typingPayload, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
 import { buildTableSnapshot, executeCommand, loadTableContext, toNotificationItem, type TableContext } from '@bg/play';
 import { conversationMembersOf, messageItemById } from '../modules/social/chat.ts';
+import { profiles } from '../modules/social/relations.ts';
 import type { Config } from '../config.ts';
 import { isAllowedOrigin } from '../http/origin-guard.ts';
 import { timedCommand } from '../http/timed-command.ts';
@@ -100,6 +101,27 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
       if (parsed.success) await socket.leave(`table:${parsed.data.tableId}`);
     });
 
+    // Typing indicator: relayed to the conversation's current members (same access rule and mutes as messages).
+    // Never stored; at most one relay per conversation every 2 seconds per socket.
+    const typingAt = new Map<string, number>();
+    socket.on(ClientEvents.conversationTyping, async (payload: unknown) => {
+      const parsed = typingPayload.safeParse(payload);
+      if (!parsed.success) return;
+      const { conversationId } = parsed.data;
+      if (Date.now() - (typingAt.get(conversationId) ?? 0) < 2000) return;
+      typingAt.set(conversationId, Date.now());
+      try {
+        const [c] = await db.select().from(schema.conversations).where(eq(schema.conversations.id, conversationId));
+        if (!c) return;
+        const members = await conversationMembersOf(db, c);
+        if (!members.includes(userId)) return;
+        const muters = (await db.select({ id: schema.userMutes.muterId }).from(schema.userMutes).where(eq(schema.userMutes.mutedId, userId))).map((m) => m.id);
+        const me = (await profiles(db, [userId])).get(userId);
+        const event: TypingEvent = { conversationId, userId, displayName: me?.displayName ?? '' };
+        for (const m of members) if (m !== userId && !muters.includes(m)) io.to(`user:${m}`).emit(ServerEvents.conversationTyping, event);
+      } catch { /* best effort */ }
+    });
+
     socket.on(ClientEvents.tableCommand, async (payload: unknown, ack?: Ack) => {
       // strictObject: any client-supplied actor/user field is rejected outright.
       const parsed = commandEnvelope.safeParse(payload);
@@ -137,6 +159,16 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         for (const userId of await conversationMembersOf(db, found.conversation)) {
           if (!muters.includes(userId)) io.to(`user:${userId}`).emit(ServerEvents.messageCreated, found.item);
         }
+      })();
+    });
+    // Read markers: to the reader's own tabs (unread badge) and, in a private chat, to the other member ("seen").
+    await listenClient.listen('conversation_read', (payload) => {
+      void (async () => {
+        const e = JSON.parse(payload) as ReadEvent;
+        const [c] = await db.select().from(schema.conversations).where(eq(schema.conversations.id, e.conversationId));
+        if (!c) return;
+        const to = c.kind === 'direct' ? await conversationMembersOf(db, c) : [e.userId];
+        for (const u of to) io.to(`user:${u}`).emit(ServerEvents.conversationRead, e);
       })();
     });
     await listenClient.listen('notification_created', (id) => {

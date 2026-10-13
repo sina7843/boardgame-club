@@ -120,7 +120,8 @@ export function moderationRoutes(app: FastifyInstance, { db }: Deps): void {
         const after = await db.select().from(messages).where(and(eq(messages.conversationId, m.conversationId), ne(messages.id, m.id), gte(messages.createdAt, m.createdAt))).orderBy(asc(messages.createdAt)).limit(3);
         const ctx = [...before.reverse(), m, ...after];
         const names = await profiles(db, ctx.map((x) => x.senderId));
-        evidence = { reported: m.id, messages: ctx.map((x) => ({ id: x.id, sender: names.get(x.senderId)?.displayName ?? '', body: x.body, createdAt: x.createdAt.toISOString(), deleted: !!x.deletedAt })) };
+        evidence = { reported: m.id, messages: ctx.map((x) => ({ id: x.id, sender: names.get(x.senderId)?.displayName ?? '', body: x.originalBody ? `${x.body}
+[متن پیش از ویرایش: ${x.originalBody}]` : x.body, createdAt: x.createdAt.toISOString(), deleted: !!x.deletedAt })) };
       }
     } else if (rep.targetType === 'table') {
       const [t] = await db.select({ t: gameTables, g: games }).from(gameTables).innerJoin(games, eq(games.id, gameTables.gameId)).where(eq(gameTables.id, rep.targetId));

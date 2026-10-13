@@ -38,6 +38,9 @@ export const ERRORS = {
   ALREADY_FRIENDS: 'شما با این کاربر دوست هستید.',
   CANNOT_TARGET_SELF: 'این کار روی حساب خودتان ممکن نیست.',
   CHAT_RESTRICTED: 'ارسال پیام برای حساب شما موقتاً محدود شده است.',
+  CHAT_TOO_FAST: 'پیام‌ها خیلی پشت سر هم است؛ چند ثانیه صبر کنید.',
+  CHAT_SLOW_MODE: 'حالت آهسته فعال است؛ کمی بعد پیام بعدی را بفرستید.',
+  EDIT_WINDOW_CLOSED: 'زمان ویرایش این پیام گذشته است.',
   ACCOUNT_SUSPENDED: 'حساب شما موقتاً تعلیق شده است.',
   NOT_A_MEMBER: 'شما عضو این گروه یا باشگاه نیستید.',
   MANAGER_REQUIRED: 'این کار فقط از مدیر باشگاه یا گروه برمی‌آید.',
@@ -80,7 +83,7 @@ export type ApiError = z.infer<typeof apiErrorSchema>;
 const STATUS: Partial<Record<ErrorCode, number>> = {
   VALIDATION_FAILED: 400, INVALID_MOBILE: 400, OTP_INVALID: 400, OTP_EXPIRED: 400, OTP_ALREADY_USED: 400,
   MODE_NOT_SUPPORTED: 400, RANKED_NOT_AVAILABLE: 400, INVALID_TIME_SETTING: 400, OPTION_NOT_ALLOWED: 400, GAME_SETTINGS_INVALID: 400,
-  OTP_TOO_MANY_ATTEMPTS: 429, OTP_RESEND_TOO_SOON: 429, RATE_LIMITED: 429,
+  OTP_TOO_MANY_ATTEMPTS: 429, OTP_RESEND_TOO_SOON: 429, RATE_LIMITED: 429, CHAT_TOO_FAST: 429, CHAT_SLOW_MODE: 429, EDIT_WINDOW_CLOSED: 409,
   UNAUTHENTICATED: 401,
   FORBIDDEN: 403, CSRF_ORIGIN_REJECTED: 403, NOT_PARTICIPANT: 403, INVITE_REQUIRED: 403, PREMIUM_REQUIRED: 403,
   NOT_FOUND: 404,

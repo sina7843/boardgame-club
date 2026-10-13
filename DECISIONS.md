@@ -1130,3 +1130,15 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - BGG id mapping is in the script. Ludo maps to BGG «Pachisi» (2136), where BGG lists Ludo / Mensch ärgere Dich nicht as alternate names; test games have no entry and show no section.
 - Data is client-side static content (not game state), lazily imported so it stays out of the main bundle. Every view links back to the BGG page and shows the snapshot date.
 - Covers: the painted cover stays the resting image (one consistent 16:9 style across the grid); the real BGG box photo cross-fades in on hover. Box photos are self-hosted at `apps/web/public/covers/box/<gameId>.webp` (≤640 px, ~54 KB each, `scripts/bgg-box-images.py`). Touch devices never hover, so they skip that download; on the game page the cover is a toggle button (tap to show the box). Admin thumbnails keep the painted cover only.
+
+## Chat upgrades (2026-10-13, owner request)
+- Quick chat «پیام آماده»: 14 fixed phrases/emoji (`QUICK_CHAT` in `packages/contracts/src/social.ts`) sent by id; the server stores the fixed text. Presets skip the word filter and stay allowed while typed chat is `chat_restricted` (harmless fixed text); the flood guard still applies.
+- Flood guard: at most 5 messages per sender per 10 s across all conversations (`CHAT_TOO_FAST`, 429 + retry-after). Count-then-insert, so two parallel sends can pass one extra message.
+- Slow mode: group/club owners, managers and moderators pick 0/10/30/60/300 s per conversation (`PUT /conversations/:id/slow-mode`, audited `chat.slow_mode`); managers are exempt.
+- Word filter: fixed Persian/Finglish whole-word list plus a few unambiguous stems, masked with stars after normalization (Arabic ي/ك, ZWNJ, tatweel, diacritics, repeated letters). «کس» and Finglish «kon/koni» are excluded on purpose (common innocent words). No context model; reports and moderators cover the rest.
+- Retries: client-generated `clientId` (unique per sender) makes a resend return the existing message. The web shows a sending message at once and keeps failed ones with «تلاش دوباره»; typed drafts persist per conversation in localStorage.
+- Seen «دیده شد»: private chats only, from the other member's `lastReadAt`; pushed as `conversation.read`. Group/club/table chats show no read receipts.
+- Typing «در حال نوشتن…»: socket-only (never stored), relayed to current members except muters, at most once per 2 s per socket and conversation.
+- Edits: own messages for 120 s (database clock); the first body is kept in `original_body` and shown to moderators in report evidence. Replies must target a message of the same conversation.
+- Unread counts per conversation and in total (`GET /me/conversations/unread`) for the nav badge; one grouped query replaces the per-conversation queries in `/me/conversations`.
+- In-game: speech bubble at the sender's avatar for 6 s (rail on wide screens; the strip/list show it in place of the status line); quick-chat button in the game bar (native popover); after the result «بازی خوبی بود» / «یه دست دیگه؟» and «افزودن دوست» for human opponents who are not friends. Table chat already stayed open after the result; unchanged.

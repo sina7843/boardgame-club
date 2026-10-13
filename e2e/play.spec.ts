@@ -123,6 +123,11 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' })).toBeVisible();
   await expect(mover.getByText(/پیام در میز — (Sara|نیما): سلام، بازی خوبی بود/)).toBeVisible();
   await mover.screenshot({ path: shot('chat-alert', info.project.name), fullPage: true });
+  // Quick chat from the game bar: one tap, shown at the sender's avatar on the other screen.
+  await mover.getByRole('button', { name: 'پیام آماده' }).click();
+  await mover.getByRole('button', { name: '👍', exact: true }).click();
+  await expect(other.locator('.pboard--said:visible').filter({ hasText: '👍' }).first()).toBeVisible();
+  await other.screenshot({ path: shot('chat-bubble', info.project.name), fullPage: true });
   await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();
   await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز', exact: true })).toBeAttached();
 

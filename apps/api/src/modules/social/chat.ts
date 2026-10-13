@@ -1,19 +1,26 @@
 // Conversations: direct messages (friends-only by default), table chat, group chat and club chat.
 // Access is decided per request from current membership — never from a client-joined socket room.
-import { and, desc, eq, inArray, isNull, lt, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull, lt, ne, notInArray, or, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { AppError, apiErrorSchema, conversationItem, messageBody, messageItem, messagesPage, userIdBody, type ConversationItem, type MessageItem } from '@bg/contracts';
+import {
+  AppError, apiErrorSchema, conversationItem, MESSAGE_EDIT_WINDOW_SECONDS, messageBody, messageEditBody, messageItem, messagesPage, QUICK_CHAT,
+  slowModeBody, userIdBody, type ConversationItem, type MessageItem
+} from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { isChatRestricted } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireUser, type AuthContext } from '../auth/session.ts';
 import { assertCanDirectMessage, membershipOf, pair, profiles } from './relations.ts';
+import { maskProfanity } from './word-filter.ts';
 
 const { conversations, conversationMembers, messages, participants, gameTables, groups, clubs, memberships, userMutes, outboxEvents, auditLog } = schema;
 type Conversation = typeof conversations.$inferSelect;
-const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
+type MessageRow = typeof messages.$inferSelect;
+const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema, 429: apiErrorSchema };
+/** Flood guard per sender, across all conversations. */
+const BURST = { max: 5, seconds: 10 };
 
 /** Keep text plain and bounded: no control characters, at most two consecutive blank lines. Rendered as text only. */
 export function sanitizeMessage(input: string): string {
@@ -61,12 +68,18 @@ export async function scopeConversation(db: Db, kind: 'table' | 'group' | 'club'
   return c!;
 }
 
-async function toItems(db: Db, rows: (typeof messages.$inferSelect)[]): Promise<MessageItem[]> {
-  const map = await profiles(db, rows.map((m) => m.senderId));
-  return rows.map((m) => ({
-    id: m.id, conversationId: m.conversationId, sender: map.get(m.senderId)!, createdAt: m.createdAt.toISOString(),
-    deleted: !!m.deletedAt, body: m.deletedAt ? '' : m.body
-  }));
+async function toItems(db: Db, rows: MessageRow[]): Promise<MessageItem[]> {
+  const replyIds = [...new Set(rows.map((m) => m.replyToId).filter((id): id is string => !!id))];
+  const replies = new Map((replyIds.length ? await db.select().from(messages).where(inArray(messages.id, replyIds)) : []).map((r) => [r.id, r]));
+  const map = await profiles(db, [...rows.map((m) => m.senderId), ...[...replies.values()].map((r) => r.senderId)]);
+  return rows.map((m) => {
+    const r = m.replyToId ? replies.get(m.replyToId) : undefined;
+    return {
+      id: m.id, conversationId: m.conversationId, sender: map.get(m.senderId)!, createdAt: m.createdAt.toISOString(),
+      deleted: !!m.deletedAt, body: m.deletedAt ? '' : m.body, editedAt: m.editedAt?.toISOString() ?? null, clientId: m.clientId,
+      replyTo: r ? { id: r.id, senderName: map.get(r.senderId)?.displayName ?? '', body: r.deletedAt ? '' : r.body.slice(0, 120), deleted: !!r.deletedAt } : null
+    };
+  });
 }
 
 export async function messageItemById(db: Db, id: string): Promise<{ item: MessageItem; conversation: Conversation } | null> {
@@ -75,6 +88,37 @@ export async function messageItemById(db: Db, id: string): Promise<{ item: Messa
   const [c] = await db.select().from(conversations).where(eq(conversations.id, m.conversationId));
   return { item: (await toItems(db, [m]))[0]!, conversation: c! };
 }
+
+/** Mark read now; the push tells my other tabs (unread badge) and, in a private chat, the other member ("seen"). */
+async function markRead(db: Db, conversationId: string, userId: string): Promise<void> {
+  const [row] = await db.insert(conversationMembers).values({ conversationId, userId, lastReadAt: sql`now()` })
+    .onConflictDoUpdate({ target: [conversationMembers.conversationId, conversationMembers.userId], set: { lastReadAt: sql`now()` } }).returning();
+  await db.execute(sql`select pg_notify('conversation_read', ${JSON.stringify({ conversationId, userId, readAt: row!.lastReadAt!.toISOString() })})`);
+}
+
+/** Direct, group and club conversations I belong to, with my read marker. */
+async function myConversations(db: Db, userId: string) {
+  const direct = await db.select({ c: conversations, lastReadAt: conversationMembers.lastReadAt }).from(conversationMembers)
+    .innerJoin(conversations, eq(conversations.id, conversationMembers.conversationId))
+    .where(and(eq(conversationMembers.userId, userId), eq(conversations.kind, 'direct')));
+  const myScopes = await db.select().from(memberships).where(and(eq(memberships.userId, userId), eq(memberships.status, 'active')));
+  const scoped = myScopes.length ? await db.select().from(conversations).where(or(...myScopes.map((m) => and(eq(conversations.kind, m.scopeType), eq(conversations.scopeId, m.scopeId))))) : [];
+  return { all: [...direct.map((d) => d.c), ...scoped], myScopes };
+}
+
+/** Unread messages per conversation: from others, not deleted, not from users I muted, after my read marker. */
+async function unreadCounts(db: Db, userId: string, ids: string[]): Promise<Map<string, number>> {
+  if (!ids.length) return new Map();
+  const rows = await db.select({ id: messages.conversationId, n: sql<number>`count(*)::int` }).from(messages)
+    .leftJoin(conversationMembers, and(eq(conversationMembers.conversationId, messages.conversationId), eq(conversationMembers.userId, userId)))
+    .where(and(inArray(messages.conversationId, ids), isNull(messages.deletedAt), ne(messages.senderId, userId),
+      sql`${messages.createdAt} > coalesce(${conversationMembers.lastReadAt}, '-infinity'::timestamptz)`,
+      notInArray(messages.senderId, db.select({ id: userMutes.mutedId }).from(userMutes).where(eq(userMutes.muterId, userId)))))
+    .groupBy(messages.conversationId);
+  return new Map(rows.map((r) => [r.id, r.n]));
+}
+
+interface SendInput { body?: string | undefined; quick?: string | undefined; replyToId?: string | undefined; clientId?: string | undefined }
 
 export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
@@ -89,13 +133,29 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
     )).orderBy(desc(messages.createdAt)).limit(limit + 1);
     const more = rows.length > limit;
     const items = (await toItems(db, rows.slice(0, limit))).reverse();
-    await db.insert(conversationMembers).values({ conversationId: c.id, userId: auth.userId, lastReadAt: sql`now()` })
-      .onConflictDoUpdate({ target: [conversationMembers.conversationId, conversationMembers.userId], set: { lastReadAt: sql`now()` } });
-    return { items, nextBefore: more ? items[0]!.createdAt : null };
+    if (!before) await markRead(db, c.id, auth.userId);
+    const [other] = c.kind === 'direct'
+      ? await db.select({ at: conversationMembers.lastReadAt }).from(conversationMembers)
+        .where(and(eq(conversationMembers.conversationId, c.id), ne(conversationMembers.userId, auth.userId)))
+      : [];
+    return {
+      items, nextBefore: more ? items[0]!.createdAt : null, kind: c.kind as ConversationItem['kind'], slowModeSeconds: c.slowModeSeconds,
+      readUpTo: other?.at?.toISOString() ?? null
+    };
   };
 
-  const post = async (auth: AuthContext, c: Conversation, members: string[], raw: string): Promise<MessageItem> => {
-    if (await isChatRestricted(db, auth.userId)) throw new AppError('CHAT_RESTRICTED');
+  const post = async (auth: AuthContext, c: Conversation, members: string[], input: SendInput): Promise<MessageItem> => {
+    if (input.clientId) {
+      // A retried send whose response was lost: return the message that already went through.
+      const [prior] = await db.select().from(messages).where(and(eq(messages.senderId, auth.userId), eq(messages.clientId, input.clientId)));
+      if (prior) {
+        if (prior.conversationId !== c.id) throw new AppError('VALIDATION_FAILED');
+        return (await toItems(db, [prior]))[0]!;
+      }
+    }
+    const preset = input.quick ? QUICK_CHAT.find((q) => q.id === input.quick)!.text : null;
+    // Presets are fixed, harmless text: still allowed while typed chat is restricted.
+    if (!preset && await isChatRestricted(db, auth.userId)) throw new AppError('CHAT_RESTRICTED');
     if (c.kind === 'direct') {
       const other = members.find((m) => m !== auth.userId)!;
       await assertCanDirectMessage(db, auth.userId, other);
@@ -104,20 +164,36 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
       const [t] = await db.select({ status: gameTables.status }).from(gameTables).where(eq(gameTables.id, c.scopeId!));
       if (t?.status === 'cancelled') throw new AppError('TABLE_NOT_OPEN');
     }
-    const body = sanitizeMessage(raw);
+    // ponytail: count-then-insert, so two parallel sends can slip one past the limit; fine for a flood guard.
+    const [burst] = await db.select({ n: sql<number>`count(*)::int` }).from(messages)
+      .where(and(eq(messages.senderId, auth.userId), gt(messages.createdAt, sql`now() - make_interval(secs => ${BURST.seconds})`)));
+    if (burst!.n >= BURST.max) throw new AppError('CHAT_TOO_FAST', { retryAfterSeconds: BURST.seconds });
+    if (c.slowModeSeconds > 0 && !(await canModerate(db, auth, c))) {
+      const [recent] = await db.select({ at: messages.createdAt }).from(messages).where(and(eq(messages.conversationId, c.id), eq(messages.senderId, auth.userId),
+        gt(messages.createdAt, sql`now() - make_interval(secs => ${c.slowModeSeconds})`))).limit(1);
+      if (recent) throw new AppError('CHAT_SLOW_MODE', { retryAfterSeconds: c.slowModeSeconds });
+    }
+    if (input.replyToId) {
+      const [target] = await db.select({ id: messages.id }).from(messages).where(and(eq(messages.id, input.replyToId), eq(messages.conversationId, c.id)));
+      if (!target) throw new AppError('VALIDATION_FAILED');
+    }
+    const body = preset ?? maskProfanity(sanitizeMessage(input.body ?? ''));
     if (!body) throw new AppError('VALIDATION_FAILED');
     const m = await db.transaction(async (tx) => {
-      const [m] = await tx.insert(messages).values({ conversationId: c.id, senderId: auth.userId, body }).returning();
+      const [m] = await tx.insert(messages).values({ conversationId: c.id, senderId: auth.userId, body, replyToId: input.replyToId ?? null, clientId: input.clientId ?? null })
+        .onConflictDoNothing().returning();
+      if (!m) return null; // the same clientId was committed by a parallel retry
       await tx.update(conversations).set({ lastMessageAt: sql`now()` }).where(eq(conversations.id, c.id));
       // In-app notifications only for private messages; group/club/table chat is visible in place.
       if (c.kind === 'direct') {
         await tx.insert(outboxEvents).values({ topic: 'message.created', aggregateId: c.id,
-          payload: { messageId: m!.id, conversationId: c.id, senderId: auth.userId, recipientIds: members.filter((u) => u !== auth.userId) } });
+          payload: { messageId: m.id, conversationId: c.id, senderId: auth.userId, recipientIds: members.filter((u) => u !== auth.userId) } });
       }
-      await tx.execute(sql`select pg_notify('message_created', ${m!.id})`);
-      return m!;
+      await tx.execute(sql`select pg_notify('message_created', ${m.id})`);
+      return m;
     });
-    return (await toItems(db, [m]))[0]!;
+    const row = m ?? (await db.select().from(messages).where(and(eq(messages.senderId, auth.userId), eq(messages.clientId, input.clientId!))))[0]!;
+    return (await toItems(db, [row]))[0]!;
   };
 
   r.post('/conversations/direct', {
@@ -137,32 +213,62 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
     schema: { tags: ['chat'], summary: 'My private, group and club conversations', response: { 200: z.object({ items: z.array(conversationItem) }), 401: apiErrorSchema } }
   }, async (req) => {
     const { userId } = requireUser(req);
-    const direct = await db.select({ c: conversations, lastReadAt: conversationMembers.lastReadAt }).from(conversationMembers)
-      .innerJoin(conversations, eq(conversations.id, conversationMembers.conversationId))
-      .where(and(eq(conversationMembers.userId, userId), eq(conversations.kind, 'direct')));
-    const myScopes = await db.select().from(memberships).where(and(eq(memberships.userId, userId), eq(memberships.status, 'active')));
-    const scoped = myScopes.length ? await db.select().from(conversations).where(or(...myScopes.map((m) => and(eq(conversations.kind, m.scopeType), eq(conversations.scopeId, m.scopeId))))) : [];
-    const reads = scoped.length ? await db.select().from(conversationMembers).where(and(eq(conversationMembers.userId, userId), inArray(conversationMembers.conversationId, scoped.map((c) => c.id)))) : [];
-    const all = [...direct.map((d) => ({ c: d.c, lastReadAt: d.lastReadAt })), ...scoped.map((c) => ({ c, lastReadAt: reads.find((x) => x.conversationId === c.id)?.lastReadAt ?? null }))];
+    const { all, myScopes } = await myConversations(db, userId);
+    const ids = all.map((c) => c.id);
     const otherIds = new Map<string, string>();
-    for (const { c } of all) if (c.kind === 'direct') otherIds.set(c.id, c.directKey!.split(':').find((u) => u !== userId)!);
-    const people = await profiles(db, [...otherIds.values()]);
+    for (const c of all) if (c.kind === 'direct') otherIds.set(c.id, c.directKey!.split(':').find((u) => u !== userId)!);
+    const lasts = new Map((ids.length ? await db.selectDistinctOn([messages.conversationId]).from(messages)
+      .where(and(inArray(messages.conversationId, ids), isNull(messages.deletedAt))).orderBy(messages.conversationId, desc(messages.createdAt)) : []).map((m) => [m.conversationId, m]));
+    const people = await profiles(db, [...otherIds.values(), ...[...lasts.values()].map((m) => m.senderId)]);
+    const unread = await unreadCounts(db, userId, ids);
     const groupNames = new Map((await db.select().from(groups).where(inArray(groups.id, [...myScopes.filter((m) => m.scopeType === 'group').map((m) => m.scopeId), '00000000-0000-0000-0000-000000000000']))).map((g) => [g.id, g.name]));
     const clubNames = new Map((await db.select().from(clubs).where(inArray(clubs.id, [...myScopes.filter((m) => m.scopeType === 'club').map((m) => m.scopeId), '00000000-0000-0000-0000-000000000000']))).map((c) => [c.id, c.name]));
-    const items: ConversationItem[] = [];
-    for (const { c, lastReadAt } of all) {
-      const [last] = await db.select().from(messages).where(and(eq(messages.conversationId, c.id), isNull(messages.deletedAt))).orderBy(desc(messages.createdAt)).limit(1);
-      const lastSender = last ? (await profiles(db, [last.senderId])).get(last.senderId) : null;
+    const items: ConversationItem[] = all.map((c) => {
+      const last = lasts.get(c.id);
       const other = otherIds.has(c.id) ? people.get(otherIds.get(c.id)!) ?? null : null;
-      items.push({
+      return {
         id: c.id, kind: c.kind as ConversationItem['kind'], scopeId: c.scopeId, other,
         title: c.kind === 'direct' ? other?.displayName ?? '—' : c.kind === 'group' ? `گروه ${groupNames.get(c.scopeId!) ?? ''}` : `باشگاه ${clubNames.get(c.scopeId!) ?? ''}`,
-        lastMessage: last ? { body: last.body.slice(0, 120), senderName: lastSender?.displayName ?? '', createdAt: last.createdAt.toISOString() } : null,
-        unread: !!last && last.senderId !== userId && (!lastReadAt || last.createdAt > lastReadAt)
-      });
-    }
+        lastMessage: last ? { body: last.body.slice(0, 120), senderName: people.get(last.senderId)?.displayName ?? '', createdAt: last.createdAt.toISOString() } : null,
+        unreadCount: unread.get(c.id) ?? 0
+      };
+    });
     items.sort((a, b) => (b.lastMessage?.createdAt ?? '').localeCompare(a.lastMessage?.createdAt ?? ''));
     return { items };
+  });
+
+  r.get('/me/conversations/unread', {
+    schema: { tags: ['chat'], summary: 'Total unread messages in my private, group and club conversations', response: { 200: z.object({ count: z.number().int() }), 401: apiErrorSchema } }
+  }, async (req) => {
+    const { userId } = requireUser(req);
+    const { all } = await myConversations(db, userId);
+    let count = 0;
+    for (const n of (await unreadCounts(db, userId, all.map((c) => c.id))).values()) count += n;
+    return { count };
+  });
+
+  r.post('/conversations/:id/read', {
+    schema: { tags: ['chat'], summary: 'Mark a conversation read up to now', params: idParams, response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const auth = requireUser(req);
+    const { c } = await loadAccessible(db, auth, req.params.id);
+    await markRead(db, c.id, auth.userId);
+    return reply.code(204).send(null);
+  });
+
+  r.put('/conversations/:id/slow-mode', {
+    schema: { tags: ['chat'], summary: 'Group/club managers: minimum seconds between one member\'s messages (0 = off)', params: idParams, body: slowModeBody, response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const auth = requireUser(req);
+    const { c } = await loadAccessible(db, auth, req.params.id);
+    if (c.kind !== 'group' && c.kind !== 'club') throw new AppError('VALIDATION_FAILED');
+    if (!(await canModerate(db, auth, c))) throw new AppError('MANAGER_REQUIRED');
+    await db.transaction(async (tx) => {
+      await tx.update(conversations).set({ slowModeSeconds: req.body.seconds }).where(eq(conversations.id, c.id));
+      await tx.insert(auditLog).values({ actorId: auth.userId, action: 'chat.slow_mode', targetType: 'conversation', targetId: c.id,
+        metadata: { seconds: req.body.seconds, kind: c.kind, scopeId: c.scopeId }, requestId: req.id });
+    });
+    return reply.code(204).send(null);
   });
 
   const pageQuery = z.object({ before: z.iso.datetime().optional(), limit: z.coerce.number().int().min(1).max(100).default(30) });
@@ -176,11 +282,11 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.post('/conversations/:id/messages', {
-    schema: { tags: ['chat'], summary: 'Send a message', params: idParams, body: messageBody, response: { 201: messageItem, ...errors } }
+    schema: { tags: ['chat'], summary: 'Send a message (typed text or a quick-chat preset)', params: idParams, body: messageBody, response: { 201: messageItem, ...errors } }
   }, async (req, reply) => {
     const auth = requireUser(req);
     const { c, members } = await loadAccessible(db, auth, req.params.id);
-    return reply.code(201).send(await post(auth, c, members, req.body.body));
+    return reply.code(201).send(await post(auth, c, members, req.body));
   });
 
   // Table chat: participants only (spectators cannot read or write). Never contains game state.
@@ -202,11 +308,32 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.post('/tables/:id/chat', {
-    schema: { tags: ['chat'], summary: 'Post to table chat', params: idParams, body: messageBody, response: { 201: messageItem, ...errors } }
+    schema: { tags: ['chat'], summary: 'Post to table chat (typed text or a quick-chat preset)', params: idParams, body: messageBody, response: { 201: messageItem, ...errors } }
   }, async (req, reply) => {
     const auth = requireUser(req);
     const { c, members } = await tableChat(auth, req.params.id);
-    return reply.code(201).send(await post(auth, c, members, req.body.body));
+    return reply.code(201).send(await post(auth, c, members, req.body));
+  });
+
+  r.patch('/messages/:id', {
+    schema: { tags: ['chat'], summary: `Edit my own message within ${MESSAGE_EDIT_WINDOW_SECONDS} seconds of sending`, params: idParams, body: messageEditBody, response: { 200: messageItem, ...errors } }
+  }, async (req) => {
+    const auth = requireUser(req);
+    const [m] = await db.select().from(messages).where(eq(messages.id, req.params.id));
+    if (!m || m.deletedAt) throw new AppError('NOT_FOUND');
+    if (m.senderId !== auth.userId) throw new AppError('FORBIDDEN');
+    if (await isChatRestricted(db, auth.userId)) throw new AppError('CHAT_RESTRICTED');
+    const body = maskProfanity(sanitizeMessage(req.body.body));
+    if (!body) throw new AppError('VALIDATION_FAILED');
+    const updated = await db.transaction(async (tx) => {
+      // The window is checked against the database clock in the same statement that writes.
+      const [u] = await tx.update(messages).set({ body, editedAt: sql`now()`, originalBody: sql`coalesce(${messages.originalBody}, ${messages.body})` })
+        .where(and(eq(messages.id, m.id), isNull(messages.deletedAt), gt(messages.createdAt, sql`now() - make_interval(secs => ${MESSAGE_EDIT_WINDOW_SECONDS})`))).returning();
+      if (u) await tx.execute(sql`select pg_notify('message_created', ${u.id})`);
+      return u;
+    });
+    if (!updated) throw new AppError('EDIT_WINDOW_CLOSED');
+    return (await toItems(db, [updated]))[0]!;
   });
 
   r.delete('/messages/:id', {

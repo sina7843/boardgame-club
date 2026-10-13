@@ -48,17 +48,56 @@ export const friendsResponse = z.object({
 export const userIdBody = z.strictObject({ userId: z.uuid() });
 
 // ---------- Conversations ----------
-export const messageBody = z.strictObject({ body: z.string().min(1).max(1000) });
+/** One-tap table phrases and emoji. Sent by id; the server stores the fixed text, so they skip the word filter. */
+export const QUICK_CHAT = [
+  { id: 'hi', text: 'سلام! 👋' },
+  { id: 'your_turn', text: 'نوبت توئه!' },
+  { id: 'nice', text: 'آفرین، حرکت خوبی بود 👏' },
+  { id: 'wait', text: 'ببخشید، یه لحظه صبر کن' },
+  { id: 'thinking', text: 'دارم فکر می‌کنم… 🤔' },
+  { id: 'oops', text: 'اوه! 😅' },
+  { id: 'luck', text: 'موفق باشی 🍀' },
+  { id: 'gg', text: 'بازی خوبی بود 🤝' },
+  { id: 'rematch', text: 'یه دست دیگه؟ 🔁' },
+  { id: 'thumbs', text: '👍' },
+  { id: 'laugh', text: '😂' },
+  { id: 'wow', text: '😮' },
+  { id: 'fire', text: '🔥' },
+  { id: 'party', text: '🎉' }
+] as const;
+export const quickChatId = z.enum(QUICK_CHAT.map((q) => q.id) as [(typeof QUICK_CHAT)[number]['id'], ...(typeof QUICK_CHAT)[number]['id'][]]);
+
+/** Either typed text (body) or a preset (quick). clientId makes a retried send idempotent. */
+export const messageBody = z.strictObject({
+  body: z.string().min(1).max(1000).optional(),
+  quick: quickChatId.optional(),
+  replyToId: z.uuid().optional(),
+  clientId: z.uuid().optional()
+}).refine((b) => (b.body === undefined) !== (b.quick === undefined), { message: 'body or quick' });
+export const messageEditBody = z.strictObject({ body: z.string().min(1).max(1000) });
+/** Own messages can be edited for this long after sending. */
+export const MESSAGE_EDIT_WINDOW_SECONDS = 120;
 export const messageItem = z.object({
   id: z.uuid(),
   conversationId: z.uuid(),
   sender: publicProfile,
   body: z.string(),
   createdAt: z.iso.datetime(),
-  deleted: z.boolean()
+  deleted: z.boolean(),
+  editedAt: z.iso.datetime().nullable(),
+  clientId: z.uuid().nullable(),
+  replyTo: z.object({ id: z.uuid(), senderName: z.string(), body: z.string(), deleted: z.boolean() }).nullable()
 });
 export type MessageItem = z.infer<typeof messageItem>;
-export const messagesPage = z.object({ items: z.array(messageItem), nextBefore: z.string().nullable(), canPost: z.boolean(), canModerate: z.boolean() });
+export const messagesPage = z.object({
+  items: z.array(messageItem), nextBefore: z.string().nullable(), canPost: z.boolean(), canModerate: z.boolean(),
+  kind: z.enum(['direct', 'table', 'group', 'club']),
+  slowModeSeconds: z.number().int(),
+  /** Private chats: the other member has read everything up to this moment ("seen"). */
+  readUpTo: z.iso.datetime().nullable()
+});
+export const SLOW_MODE_OPTIONS = [0, 10, 30, 60, 300] as const;
+export const slowModeBody = z.strictObject({ seconds: z.literal([...SLOW_MODE_OPTIONS]) });
 export const conversationItem = z.object({
   id: z.uuid(),
   kind: z.enum(['direct', 'table', 'group', 'club']),
@@ -66,7 +105,7 @@ export const conversationItem = z.object({
   other: publicProfile.nullable(),
   scopeId: z.uuid().nullable(),
   lastMessage: z.object({ body: z.string(), senderName: z.string(), createdAt: z.iso.datetime() }).nullable(),
-  unread: z.boolean()
+  unreadCount: z.number().int()
 });
 export type ConversationItem = z.infer<typeof conversationItem>;
 

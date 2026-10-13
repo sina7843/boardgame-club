@@ -84,9 +84,11 @@ describe('friends and private messages (FR-11)', () => {
     const NUL = String.fromCharCode(0);
     const clean = (await send(a!, conv, `  <b>سلام</b>${RLO}${NUL}\n\n\n\nخوبی؟  `)).json();
     expect(clean.body).toBe('<b>سلام</b>\n\nخوبی؟'); // stored as plain text; the UI renders it as text, never HTML
-    for (let i = 0; i < 34; i++) await send(a!, conv, `پیام ${i}`);
+    for (let i = 0; i < 3; i++) await send(a!, conv, `پیام ${i}`);
+    // Older history straight into the table: the API's flood guard allows only a few messages per 10 seconds.
+    await ctx.db.insert(schema.messages).values(Array.from({ length: 31 }, (_, i) => ({ conversationId: conv, senderId: a!.id, body: `قدیمی ${i}`, createdAt: new Date(Date.now() - (i + 1) * 60_000) })));
     await new Promise((r) => setTimeout(r, 300));
-    expect(received.length).toBeGreaterThanOrEqual(30);
+    expect(received.length).toBe(4);
     expect(leaked).toHaveLength(0);
     const p1 = (await call(ctx, 'GET', `/api/conversations/${conv}/messages`, b)).json();
     expect(p1.items).toHaveLength(30);
@@ -273,5 +275,111 @@ describe('reports, sanctions and appeals (FR-01, FR-16)', () => {
     const sig = await ctx.db.select().from(schema.behaviorSignals).where(eq(schema.behaviorSignals.tableId, t.tableId));
     expect(sig.map((s) => [s.userId, s.kind])).toEqual([[loser, 'timeout_loss']]);
     expect(await ctx.db.select().from(schema.userSanctions).where(eq(schema.userSanctions.userId, loser))).toHaveLength(0);
+  });
+});
+
+describe('chat upgrades: presets, filter, flood guard, retries, replies, edits, unread, seen, typing', () => {
+  const event = <T>(s: Socket, name: string) => new Promise<T>((resolve) => s.once(name, resolve));
+
+  it('quick-chat presets send fixed text, also while typed chat is restricted; typed text is word-filtered', async () => {
+    const t = await startTable(ctx, 'line-three', 2, { pace: 'turn' });
+    const [p0, p1] = t.players;
+    const gg = await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, p0, { quick: 'gg' });
+    expect(gg.statusCode).toBe(201);
+    expect(gg.json().body).toBe('بازی خوبی بود 🤝');
+    expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, p0, { quick: 'nope' })).statusCode).toBe(400);
+    expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, p0, { quick: 'gg', body: 'x' })).statusCode).toBe(400);
+    expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, p0, { body: 'برو جنده' })).json().body).toBe('برو ****');
+    await ctx.db.insert(schema.userSanctions).values({ userId: p1!.id, kind: 'chat_restricted', reason: 'test', createdBy: p0!.id });
+    expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, p1, { body: 'سلام' })).json().errorCode).toBe('CHAT_RESTRICTED');
+    expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, p1, { quick: 'thumbs' })).statusCode).toBe(201);
+  });
+
+  it('flood guard: a sixth message within ten seconds is refused with retry-after', async () => {
+    const t = await startTable(ctx, 'line-three', 2, { pace: 'turn' });
+    for (let i = 0; i < 5; i++) expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, t.players[0], { body: `پیام ${i}` })).statusCode).toBe(201);
+    const sixth = await call(ctx, 'POST', `/api/tables/${t.tableId}/chat`, t.players[0], { quick: 'thumbs' });
+    expect(sixth.statusCode).toBe(429);
+    expect(sixth.json().errorCode).toBe('CHAT_TOO_FAST');
+    expect(sixth.headers['retry-after']).toBe('10');
+  });
+
+  it('a retried send with the same clientId returns the same message; replies quote their target', async () => {
+    const [a, b, c] = await users(ctx, 3);
+    await befriend(a!, b!);
+    await befriend(a!, c!);
+    const conv = (await dm(a!, b!)).json().id;
+    const other = (await dm(a!, c!)).json().id;
+    const clientId = crypto.randomUUID();
+    const first = (await call(ctx, 'POST', `/api/conversations/${conv}/messages`, a, { body: 'سلام', clientId })).json();
+    const again = (await call(ctx, 'POST', `/api/conversations/${conv}/messages`, a, { body: 'سلام', clientId })).json();
+    expect(again.id).toBe(first.id);
+    expect(again.clientId).toBe(clientId);
+    expect(await ctx.db.select().from(schema.messages).where(eq(schema.messages.conversationId, conv))).toHaveLength(1);
+    const reply = (await call(ctx, 'POST', `/api/conversations/${conv}/messages`, b, { body: 'علیک', replyToId: first.id })).json();
+    expect(reply.replyTo).toMatchObject({ id: first.id, body: 'سلام', deleted: false });
+    expect((await call(ctx, 'POST', `/api/conversations/${other}/messages`, a, { body: 'x', replyToId: reply.id })).statusCode).toBe(400);
+  });
+
+  it('own messages can be edited for two minutes; the original stays visible to moderators', async () => {
+    const [a, b] = await users(ctx, 2);
+    await befriend(a!, b!);
+    const conv = (await dm(a!, b!)).json().id;
+    const m = (await send(a!, conv, 'سلم')).json();
+    expect((await call(ctx, 'PATCH', `/api/messages/${m.id}`, b, { body: 'هک' })).statusCode).toBe(403);
+    const edited = (await call(ctx, 'PATCH', `/api/messages/${m.id}`, a, { body: 'سلام' })).json();
+    expect(edited).toMatchObject({ body: 'سلام', editedAt: expect.any(String) });
+    const [row] = await ctx.db.select().from(schema.messages).where(eq(schema.messages.id, m.id));
+    expect(row!.originalBody).toBe('سلم');
+    await ctx.db.update(schema.messages).set({ createdAt: sql`now() - interval '3 minutes'` }).where(eq(schema.messages.id, m.id));
+    expect((await call(ctx, 'PATCH', `/api/messages/${m.id}`, a, { body: 'دوباره' })).json().errorCode).toBe('EDIT_WINDOW_CLOSED');
+  });
+
+  it('unread counts, mark-read, seen marker and pushes; typing reaches members only', async () => {
+    const [a, b, outsider] = await users(ctx, 3);
+    await befriend(a!, b!);
+    const conv = (await dm(a!, b!)).json().id;
+    await send(a!, conv, 'یک');
+    await send(a!, conv, 'دو');
+    expect((await call(ctx, 'GET', '/api/me/conversations', b)).json().items[0]).toMatchObject({ id: conv, unreadCount: 2 });
+    expect((await call(ctx, 'GET', '/api/me/conversations/unread', b)).json()).toEqual({ count: 2 });
+    expect((await call(ctx, 'GET', '/api/me/conversations/unread', a)).json()).toEqual({ count: 0 });
+
+    const sa = await socketFor(a!);
+    const sb = await socketFor(b!);
+    const so = await socketFor(outsider!);
+    const seen = event<{ conversationId: string; userId: string; readAt: string }>(sa, ServerEvents.conversationRead);
+    expect((await call(ctx, 'POST', `/api/conversations/${conv}/read`, b)).statusCode).toBe(204);
+    expect(await seen).toMatchObject({ conversationId: conv, userId: b!.id });
+    expect((await call(ctx, 'GET', '/api/me/conversations/unread', b)).json()).toEqual({ count: 0 });
+    expect((await call(ctx, 'POST', `/api/conversations/${conv}/read`, outsider)).statusCode).toBe(403);
+    const page = (await call(ctx, 'GET', `/api/conversations/${conv}/messages`, a)).json();
+    expect(page.kind).toBe('direct');
+    expect(new Date(page.readUpTo).getTime()).toBeGreaterThanOrEqual(new Date(page.items[1].createdAt).getTime());
+
+    const leaked: unknown[] = [];
+    so.on(ServerEvents.conversationTyping, (e) => leaked.push(e));
+    const typing = event<{ conversationId: string; userId: string }>(sb, ServerEvents.conversationTyping);
+    sa.emit(ClientEvents.conversationTyping, { conversationId: conv });
+    expect(await typing).toMatchObject({ conversationId: conv, userId: a!.id });
+    so.emit(ClientEvents.conversationTyping, { conversationId: conv }); // not a member: dropped
+    await new Promise((r) => setTimeout(r, 200));
+    expect(leaked).toHaveLength(0);
+    sa.close(); sb.close(); so.close();
+  });
+
+  it('slow mode: only group/club managers set it; members wait, managers are exempt', async () => {
+    const [owner, member] = await users(ctx, 2);
+    await call(ctx, 'POST', '/api/clubs', owner, { slug: 'slow-club', name: 'باشگاه آرام', joinPolicy: 'open' });
+    await call(ctx, 'POST', '/api/clubs/slow-club/join', member);
+    const conv = (await call(ctx, 'GET', '/api/clubs/slow-club', member)).json().conversationId;
+    expect((await call(ctx, 'PUT', `/api/conversations/${conv}/slow-mode`, member, { seconds: 30 })).json().errorCode).toBe('MANAGER_REQUIRED');
+    expect((await call(ctx, 'PUT', `/api/conversations/${conv}/slow-mode`, owner, { seconds: 7 })).statusCode).toBe(400);
+    expect((await call(ctx, 'PUT', `/api/conversations/${conv}/slow-mode`, owner, { seconds: 30 })).statusCode).toBe(204);
+    expect((await send(member!, conv, 'اول')).statusCode).toBe(201);
+    expect((await send(member!, conv, 'دوم')).json().errorCode).toBe('CHAT_SLOW_MODE');
+    expect((await send(owner!, conv, 'یک')).statusCode).toBe(201);
+    expect((await send(owner!, conv, 'دو')).statusCode).toBe(201);
+    expect((await call(ctx, 'GET', `/api/conversations/${conv}/messages`, member)).json().slowModeSeconds).toBe(30);
   });
 });

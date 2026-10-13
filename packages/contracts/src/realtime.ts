@@ -28,13 +28,22 @@ export const ServerEvents = {
   tableFinished: 'table.finished',
   presenceChanged: 'presence.changed',
   messageCreated: 'message.created',
+  conversationRead: 'conversation.read',
+  conversationTyping: 'conversation.typing',
   notificationCreated: 'notification.created'
 } as const;
 
 export const ClientEvents = {
   tableCommand: 'table.command',
-  tableSubscribe: 'table.subscribe'
+  tableSubscribe: 'table.subscribe',
+  conversationTyping: 'conversation.typing'
 } as const;
+
+export const typingPayload = z.strictObject({ conversationId: z.uuid() });
+/** Pushed to members: someone is typing (clients show it for a few seconds). */
+export interface TypingEvent { conversationId: string; userId: string; displayName: string }
+/** Pushed to members: a member read the conversation up to readAt. */
+export interface ReadEvent { conversationId: string; userId: string; readAt: string }
 
 export const sessionReadyPayload = z.object({ userId: z.uuid(), serverTime: z.iso.datetime() });
 

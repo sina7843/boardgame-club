@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import type { ConversationItem } from '@bg/contracts';
 import { Avatar, Button, Icon, StateBlock } from '@bg/ui';
 import { useApi } from '../lib/api.ts';
+import { faNum } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
 
@@ -11,7 +12,8 @@ function ConversationList({ activeId }: { activeId?: string }) {
   const reload = list.reload;
   useEffect(() => {
     window.addEventListener('bg:message', reload);
-    return () => window.removeEventListener('bg:message', reload);
+    window.addEventListener('bg:read', reload);
+    return () => { window.removeEventListener('bg:message', reload); window.removeEventListener('bg:read', reload); };
   }, [reload]);
   if (list.error) return <StateBlock kind="error" title="گفت‌وگوها دریافت نشد" action={<Button onClick={reload}>تلاش دوباره</Button>} />;
   if (!list.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
@@ -23,7 +25,7 @@ function ConversationList({ activeId }: { activeId?: string }) {
           <Link to={`/messages/${c.id}`} className={`convo ${c.id === activeId ? 'convo--active' : ''}`} aria-current={c.id === activeId ? 'page' : undefined}>
             {c.other ? <Avatar avatarKey={c.other.avatarKey} name={c.other.displayName} size={36} /> : <span className="avatar" style={{ inlineSize: 36, blockSize: 36 }}><Icon name="players" size={18} /></span>}
             <span className="convo__body">
-              <span className="convo__title"><bdi>{c.title}</bdi>{c.unread && <span className="dot" aria-label="خوانده‌نشده" />}</span>
+              <span className="convo__title"><bdi>{c.title}</bdi>{c.unreadCount > 0 && <span className="chatbadge" aria-label={`${faNum(c.unreadCount)} پیام خوانده‌نشده`}>{c.unreadCount > 99 ? '۹۹+' : faNum(c.unreadCount)}</span>}</span>
               <span className="convo__last muted">{c.lastMessage ? `${c.lastMessage.senderName}: ${c.lastMessage.body}` : 'بدون پیام'}</span>
             </span>
           </Link>
