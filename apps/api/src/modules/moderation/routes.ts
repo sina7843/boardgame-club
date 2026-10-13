@@ -12,7 +12,7 @@ import { requireRole, requireUser } from '../auth/session.ts';
 import { conversationMembersOf } from '../social/chat.ts';
 import { profiles, requireActiveUser } from '../social/relations.ts';
 
-const { reports, messages, conversations, gameTables, participants, userSanctions, appeals, auditLog, behaviorSignals, games, gameResults } = schema;
+const { users, reports, messages, conversations, gameTables, participants, userSanctions, appeals, auditLog, behaviorSignals, games, gameResults } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const idParams = z.object({ id: z.uuid() });
 const toReport = (r: typeof reports.$inferSelect) => ({
@@ -35,7 +35,7 @@ export function moderationRoutes(app: FastifyInstance, { db }: Deps): void {
     const { userId } = requireUser(req, { allowSuspended: true });
     const b = req.body;
     let subject: string | null = null;
-    if (b.targetType === 'user' || b.targetType === 'display_name') {
+    if (b.targetType === 'user' || b.targetType === 'display_name' || b.targetType === 'bio') {
       subject = (await requireActiveUser(db, b.targetId)).id;
     } else if (b.targetType === 'message') {
       const [m] = await db.select().from(messages).where(eq(messages.id, b.targetId));
@@ -89,6 +89,19 @@ export function moderationRoutes(app: FastifyInstance, { db }: Deps): void {
     return { items: rows.map((x) => ({ ...toReport(x), subject: x.subjectUserId ? { id: x.subjectUserId, displayName: people.get(x.subjectUserId)?.displayName ?? '' } : null })) };
   });
 
+  r.post('/mod/users/:id/clear-bio', {
+    schema: { tags: ['moderation'], summary: 'Remove a player\'s profile bio (audited)', params: idParams, body: z.strictObject({ reason: z.string().trim().min(3).max(300) }),
+      response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'moderator');
+    await db.transaction(async (tx) => {
+      const [u] = await tx.update(users).set({ bio: null, updatedAt: sql`now()` }).where(eq(users.id, req.params.id)).returning({ id: users.id });
+      if (!u) throw new AppError('NOT_FOUND');
+      await tx.insert(auditLog).values({ actorId: userId, action: 'profile.clear_bio', targetType: 'user', targetId: u.id, metadata: { reason: req.body.reason }, requestId: req.id });
+    });
+    return reply.code(204).send(null);
+  });
+
   r.get('/mod/reports/:id', {
     schema: { tags: ['moderation'], summary: 'One report with only the evidence it concerns (access is audited)', params: idParams,
       response: { 200: z.object({ report: reportItem, reporter: z.object({ id: z.uuid(), displayName: z.string() }), subject: z.object({ id: z.uuid(), displayName: z.string(), avatarKey: z.string() }).nullable(),
@@ -119,6 +132,9 @@ export function moderationRoutes(app: FastifyInstance, { db }: Deps): void {
         evidence = { game: t.g.nameFa, pace: t.t.pace, status: t.t.status, startedAt: t.t.startedAt?.toISOString() ?? null,
           players: seats.map((s) => ({ seat: s.seat, name: s.userId ? names.get(s.userId)?.displayName ?? '' : 'آموزشی' })), result: result?.outcome ?? null };
       }
+    } else if (rep.targetType === 'bio') {
+      const [u] = await db.select({ bio: users.bio }).from(users).where(eq(users.id, rep.subjectUserId!));
+      evidence = { bio: u?.bio ?? '' };
     } else {
       evidence = { displayName: people.get(rep.subjectUserId!)?.displayName ?? '' };
     }

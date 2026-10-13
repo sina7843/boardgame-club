@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { avatarKeys, displayNameSchema, type Me } from '@bg/contracts';
-import { Avatar, Button, Input, Segmented, Switch, useToast } from '@bg/ui';
+import { Avatar, Button, Input, Segmented, Switch, buttonClass, useToast } from '@bg/ui';
+import { ProfileEditor } from './ProfileEditor.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import type { UserSettings } from '@bg/contracts';
@@ -35,8 +36,12 @@ function ProfileForm({ me }: { me: Me }) {
   return (
     <form className="stack" onSubmit={save} noValidate>
       <Input label="نام نمایشی" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error} hint="۲ تا ۲۴ نویسه" />
+      <div className="row" style={{ alignItems: 'center', gap: '0.75rem' }}>
+        <Avatar avatarKey={me.avatarKey} name={me.displayName} size={56} />
+        <Link className={buttonClass('secondary', 'md')} to="/me/avatar">ساخت و ویرایش آواتار</Link>
+      </div>
       <fieldset className="avatar-picker">
-        <legend className="field__label">نماد</legend>
+        <legend className="field__label">یا یک نماد ساده</legend>
         {avatarKeys.map((k) => (
           <label key={k}>
             <input type="radio" name="avatar" value={k} checked={avatar === k} onChange={() => setAvatar(k)} />
@@ -88,6 +93,7 @@ export function Settings() {
             : <p className="muted" style={{ margin: 0 }}>برای ویرایش نام نمایشی و نماد <Link to="/login?next=/settings">وارد شوید</Link>.</p>}
         </section>
 
+        {me && <ProfileEditor me={me} />}
         {me && <PrivacyForm />}
         <p className="muted"><Link to="/design">نمایش اجزای طراحی</Link></p>
       </div>

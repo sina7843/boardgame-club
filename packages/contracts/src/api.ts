@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseAvatar } from './cosmetics.ts';
 import { accessSchema, competitionSchema, difficultySchema, optionValueSchema, paceSchema } from '@bg/game-sdk';
 
 export { accessSchema, competitionSchema, difficultySchema, paceSchema };
@@ -22,8 +23,9 @@ export const roleSchema = z.enum(['admin', 'moderator']);
 export type Role = z.infer<typeof roleSchema>;
 
 export const avatarKeys = ['meeple', 'dice', 'crown', 'pawn', 'card', 'star'] as const;
-export const avatarKeySchema = z.enum(avatarKeys);
-export type AvatarKey = (typeof avatarKeys)[number];
+/** A legacy icon key or a built avatar (`v1:…`, see cosmetics.ts). */
+export const avatarKeySchema = z.union([z.enum(avatarKeys), z.string().max(80).refine((k) => parseAvatar(k) !== null, 'آواتار معتبر نیست')]);
+export type AvatarKey = z.infer<typeof avatarKeySchema>;
 
 export const publicProfile = z.object({
   id: z.uuid(),
@@ -33,8 +35,18 @@ export const publicProfile = z.object({
 });
 export type PublicProfile = z.infer<typeof publicProfile>;
 
+/** Public profile customization (shown on the profile page; the avatar itself travels in avatarKey everywhere). */
+export const profileExtras = z.object({
+  bio: z.string().nullable(),
+  titleKey: z.string().nullable(),
+  bannerKey: z.string().nullable(),
+  favoriteGames: z.array(z.string()),
+  showcase: z.array(z.string())
+});
+export type ProfileExtras = z.infer<typeof profileExtras>;
+
 /** Private view of the signed-in account. Mobile is masked even for the owner. */
-export const meResponse = publicProfile.extend({
+export const meResponse = publicProfile.extend(profileExtras.shape).extend({
   mobileMasked: z.string(),
   roles: z.array(roleSchema),
   profileCompleted: z.boolean(),
@@ -48,9 +60,19 @@ export const displayNameSchema = z.string().trim()
   .max(24, 'نام نمایشی حداکثر ۲۴ نویسه است')
   .regex(/^[\p{L}\p{N}\u200C _.-]+$/u, 'فقط حروف، عدد، فاصله و ـ . مجاز است');
 
+/** Public profile text: no control or bidi-override characters (they can disguise or reorder the text). */
+export const bioSchema = z.string().trim().max(160, 'معرفی حداکثر ۱۶۰ نویسه است')
+  .refine((s) => !/[\p{Cc}\p{Bidi_Control}]/u.test(s.replace(/\n/g, '')), 'نویسهٔ نامعتبر در متن معرفی');
+
+/** Every field optional: the onboarding form, the avatar builder and the profile editor each send their own part. */
 export const updateProfileBody = z.strictObject({
-  displayName: displayNameSchema,
-  avatarKey: avatarKeySchema
+  displayName: displayNameSchema.optional(),
+  avatarKey: avatarKeySchema.optional(),
+  bio: bioSchema.nullable().optional(),
+  titleKey: z.string().regex(/^t\.\d{1,2}$/).nullable().optional(),
+  bannerKey: z.string().regex(/^bn\.\d{1,2}$/).nullable().optional(),
+  favoriteGames: z.array(z.string().max(64)).max(3).refine((a) => new Set(a).size === a.length, 'بازی تکراری').optional(),
+  showcase: z.array(z.string().max(64)).max(5).refine((a) => new Set(a).size === a.length, 'دستاورد تکراری').optional()
 });
 
 // ---------- Catalog ----------

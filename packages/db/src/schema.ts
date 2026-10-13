@@ -23,7 +23,15 @@ function oneOf(name: string, col: AnyPgColumn, values: readonly string[]): Retur
 export const users = pgTable('users', {
   id: id(),
   displayName: text().notNull(),
+  /** Legacy icon key or a built avatar string (`v1:…`, contracts/cosmetics.ts). */
   avatarKey: text().notNull().default('meeple'),
+  /** Public profile customization; catalogue keys are checked for ownership on every write. */
+  bio: text(),
+  titleKey: text(),
+  bannerKey: text(),
+  favoriteGames: text().array().notNull().default(sql`'{}'::text[]`),
+  /** Achievement keys the player chose to show first. */
+  showcase: text().array().notNull().default(sql`'{}'::text[]`),
   profileCompleted: boolean().notNull().default(false),
   status: text().notNull().default('active'),
   createdAt: createdAt(),
@@ -169,7 +177,7 @@ export const reports = pgTable('reports', {
 }, (t) => [
   index('reports_status_idx').on(t.status, t.createdAt),
   oneOf('reports_reason_chk', t.reasonCode, ['abuse', 'spam', 'cheating', 'inappropriate_name', 'other']),
-  oneOf('reports_target_chk', t.targetType, ['user', 'display_name', 'message', 'table']),
+  oneOf('reports_target_chk', t.targetType, ['user', 'display_name', 'bio', 'message', 'table']),
   oneOf('reports_status_chk', t.status, ['open', 'resolved', 'dismissed'])
 ]);
 
@@ -573,6 +581,15 @@ export const coinLedger = pgTable('coin_ledger', {
   metadata: jsonb().notNull().default({}),
   createdAt: createdAt()
 }, (t) => [index('coin_ledger_user_idx').on(t.userId, t.createdAt), check('coin_ledger_amount_chk', sql`${t.amount} <> 0`)]);
+
+/** Cosmetics bought with coins. Earned items (level, achievement, league) are checked live and have no row. */
+export const userCosmetics = pgTable('user_cosmetics', {
+  userId: uuid().notNull().references(() => users.id),
+  itemKey: text().notNull(),
+  /** The coin_ledger debit that paid for it. */
+  ledgerId: uuid().notNull().references(() => coinLedger.id),
+  acquiredAt: createdAt()
+}, (t) => [primaryKey({ columns: [t.userId, t.itemKey] })]);
 
 export const payments = pgTable('payments', {
   id: id(),

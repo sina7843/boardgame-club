@@ -10,3 +10,4 @@ export * from './billing.ts';
 export * from './game-settings.ts';
 export * from './zarinpal.ts';
 export * from './coins.ts';
+export * from './cosmetics.ts';

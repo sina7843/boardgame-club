@@ -38,6 +38,7 @@ const RankingPage = lazy(() => import('./pages/Ranking.tsx').then((m) => ({ defa
 const DevGatewayPage = lazy(() => import('./pages/Plans.tsx').then((m) => ({ default: m.DevGatewayPage })));
 const PaymentResultPage = lazy(() => import('./pages/Plans.tsx').then((m) => ({ default: m.PaymentResultPage })));
 const PlansPage = lazy(() => import('./pages/Plans.tsx').then((m) => ({ default: m.PlansPage })));
+const AvatarBuilder = lazy(() => import('./pages/AvatarBuilder.tsx').then((m) => ({ default: m.AvatarBuilder })));
 const CoinsPage = lazy(() => import('./pages/Coins.tsx').then((m) => ({ default: m.CoinsPage })));
 
 const router = createBrowserRouter([
@@ -66,6 +67,7 @@ const router = createBrowserRouter([
       { path: 'ranking', element: <RankingPage /> },
       { path: 'plans', element: <PlansPage /> },
       { path: 'coins', element: <CoinsPage /> },
+      { path: 'me/avatar', element: <AvatarBuilder /> },
       { path: 'payments/result', element: <PaymentResultPage /> },
       { path: 'dev-gateway', element: <DevGatewayPage /> },
       { path: 'login', element: <Login /> },

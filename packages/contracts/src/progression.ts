@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { publicProfile } from './api.ts';
 
 export const leagueSchema = z.enum(['bronze', 'silver', 'gold', 'platinum', 'diamond', 'master']);
+export type League = z.infer<typeof leagueSchema>;
 export const ratingRow = z.object({
   gameId: z.string(), mode: z.enum(['live', 'turn']), display: z.number().int(), mu: z.number(), sigma: z.number(),
   games: z.number().int(), provisional: z.boolean(), leaderboardEligible: z.boolean(), league: leagueSchema.nullable()

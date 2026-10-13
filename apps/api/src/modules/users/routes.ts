@@ -1,24 +1,34 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { apiErrorSchema, maskMobile, meResponse, publicProfile, updateProfileBody, type PublicProfile } from '@bg/contracts';
+import {
+  apiErrorSchema, avatarItemKeys, COSMETICS, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
+  type ProfileExtras, type PublicProfile
+} from '@bg/contracts';
 import { schema } from '@bg/db';
+import { assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireUser } from '../auth/session.ts';
 
-const { users, userPrivate } = schema;
+const { users, userPrivate, games, userAchievements, achievementDefinitions } = schema;
 
 /** Public projection: an explicit allow-list so private columns can never leak by addition. */
 export function toPublicProfile(u: typeof users.$inferSelect): PublicProfile {
   return {
     id: u.id,
     displayName: u.displayName,
-    avatarKey: u.avatarKey as PublicProfile['avatarKey'],
+    avatarKey: u.avatarKey,
     joinedAt: u.createdAt.toISOString()
   };
 }
+export function toProfileExtras(u: typeof users.$inferSelect): ProfileExtras {
+  return { bio: u.bio, titleKey: u.titleKey, bannerKey: u.bannerKey, favoriteGames: u.favoriteGames, showcase: u.showcase };
+}
+
+/** Achievement keys the catalogue unlocks with, so the builder can name them («دستاورد هت‌تریک»). */
+const UNLOCK_ACHIEVEMENTS = [...new Set(COSMETICS.flatMap((c) => ('achievement' in c.unlock ? [c.unlock.achievement] : [])))];
 
 export function userRoutes(app: FastifyInstance, { db }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
@@ -27,7 +37,7 @@ export function userRoutes(app: FastifyInstance, { db }: Deps): void {
     const [row] = await db.select({ user: users, mobile: userPrivate.mobile }).from(users)
       .innerJoin(userPrivate, eq(userPrivate.userId, users.id)).where(eq(users.id, userId));
     if (!row) throw new AppError('UNAUTHENTICATED');
-    return { ...toPublicProfile(row.user), mobileMasked: maskMobile(row.mobile), roles, profileCompleted: row.user.profileCompleted, suspended };
+    return { ...toPublicProfile(row.user), ...toProfileExtras(row.user), mobileMasked: maskMobile(row.mobile), roles, profileCompleted: row.user.profileCompleted, suspended };
   };
 
   r.get('/me', {
@@ -38,13 +48,44 @@ export function userRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.patch('/me/profile', {
-    schema: { tags: ['users'], summary: 'Update display name and avatar', body: updateProfileBody,
-      response: { 200: meResponse, 400: apiErrorSchema, 401: apiErrorSchema } }
+    schema: { tags: ['users'], summary: 'Update name, avatar and profile customization; every cosmetic must be unlocked', body: updateProfileBody,
+      response: { 200: meResponse, 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema } }
   }, async (req) => {
     const auth = requireUser(req);
-    await db.update(users).set({ ...req.body, profileCompleted: true, updatedAt: sql`now()` }).where(eq(users.id, auth.userId));
+    const b = req.body;
+    const avatar = b.avatarKey ? parseAvatar(b.avatarKey) : null;
+    await assertUnlocked(db, auth.userId, [...(avatar ? avatarItemKeys(avatar) : []), ...(b.titleKey ? [b.titleKey] : []), ...(b.bannerKey ? [b.bannerKey] : [])]);
+    if (b.favoriteGames?.length) {
+      const found = await db.select({ id: games.id }).from(games).where(and(inArray(games.id, b.favoriteGames), eq(games.status, 'active')));
+      if (found.length !== b.favoriteGames.length) throw new AppError('VALIDATION_FAILED');
+    }
+    if (b.showcase?.length) {
+      const mine = await db.select({ k: achievementDefinitions.key }).from(userAchievements)
+        .innerJoin(achievementDefinitions, eq(achievementDefinitions.id, userAchievements.achievementId)).where(eq(userAchievements.userId, auth.userId));
+      const keys = new Set(mine.map((m) => m.k));
+      if (!b.showcase.every((k) => keys.has(k))) throw new AppError('VALIDATION_FAILED');
+    }
+    await db.update(users).set({ ...b, bio: b.bio === '' ? null : b.bio, ...(b.displayName ? { profileCompleted: true } : {}), updatedAt: sql`now()` })
+      .where(eq(users.id, auth.userId));
     return loadMe(auth.userId, auth.roles);
   });
+
+  r.get('/me/cosmetics', {
+    schema: { tags: ['users'], summary: 'Cosmetic items this player has unlocked, coin balance and level',
+      response: { 200: z.object({ unlocked: z.array(z.string()), balance: z.number().int(), level: z.number().int(),
+        achievements: z.record(z.string(), z.string()) }), 401: apiErrorSchema } }
+  }, async (req) => {
+    const { userId } = requireUser(req, { allowSuspended: true });
+    const defs = await db.select({ key: achievementDefinitions.key, titleFa: achievementDefinitions.titleFa }).from(achievementDefinitions)
+      .where(inArray(achievementDefinitions.key, UNLOCK_ACHIEVEMENTS));
+    return { ...(await cosmeticsFor(db, userId)), balance: await coinBalance(db, userId), achievements: Object.fromEntries(defs.map((d) => [d.key, d.titleFa])) };
+  });
+
+  r.post('/cosmetics/buy', {
+    schema: { tags: ['users'], summary: 'Buy a cosmetic with coins; the same requestId never spends twice',
+      body: z.strictObject({ item: z.string().max(8), requestId: z.uuid() }),
+      response: { 200: z.object({ balance: z.number().int() }), 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema } }
+  }, async (req) => buyCosmetic(db, requireUser(req).userId, req.body.item, req.body.requestId));
 
   r.get('/users/:id', {
     schema: { tags: ['users'], summary: 'Public profile (never includes mobile)', params: z.object({ id: z.uuid() }),

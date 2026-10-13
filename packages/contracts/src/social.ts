@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { competitionSchema, paceSchema } from '@bg/game-sdk';
-import { publicProfile } from './api.ts';
+import { profileExtras, publicProfile } from './api.ts';
 
 // ---------- Matchmaking ----------
 export const enqueueBody = z.strictObject({
@@ -34,6 +34,9 @@ export type TicketView = z.infer<typeof ticketView>;
 export const relationshipSchema = z.enum(['self', 'none', 'friends', 'incoming', 'outgoing', 'blocked']);
 export const userCard = publicProfile.extend({ relationship: relationshipSchema, muted: z.boolean() });
 export type UserCard = z.infer<typeof userCard>;
+/** The profile page: card plus the player's customization. */
+export const profileCard = userCard.extend(profileExtras.shape);
+export type ProfileCard = z.infer<typeof profileCard>;
 
 export const friendsResponse = z.object({
   friends: z.array(publicProfile),
@@ -107,7 +110,7 @@ export type UserSettings = z.infer<typeof userSettingsSchema>;
 
 // ---------- Moderation ----------
 export const reportBody = z.strictObject({
-  targetType: z.enum(['user', 'display_name', 'message', 'table']),
+  targetType: z.enum(['user', 'display_name', 'bio', 'message', 'table']),
   targetId: z.string().min(1).max(64),
   reasonCode: z.enum(['abuse', 'spam', 'cheating', 'inappropriate_name', 'other']),
   reason: z.string().trim().min(3).max(1000),

@@ -57,6 +57,13 @@
       "when": 1791862268138,
       "tag": "0007_coins",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791866458431,
+      "tag": "0008_cosmetics",
+      "breakpoints": true
     }
   ]
 }

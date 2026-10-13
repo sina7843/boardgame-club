@@ -145,6 +145,42 @@
   .avatar-picker label:has(input:focus-visible) { outline: 2px solid var(--ring); }
   .avatar-picker input { position: absolute; opacity: 0; }
 
+  /* Avatar builder */
+  .avatar-builder { display: grid; gap: 1.25rem; }
+  @media (min-width: 900px) { .avatar-builder { grid-template-columns: 300px minmax(0, 1fr); align-items: start; } }
+  .avatar-builder__stage { display: grid; justify-items: center; gap: 1rem; padding: 1.5rem; border-radius: var(--shape-surface); background: var(--card); box-shadow: var(--shadow); }
+  @media (min-width: 900px) { .avatar-builder__stage { position: sticky; inset-block-start: 1rem; } }
+  .avatar-builder__panel { display: grid; gap: 1rem; min-inline-size: 0; }
+  .avatar-builder__slots { display: flex; gap: 0.5rem; overflow-x: auto; padding-block-end: 0.25rem; scrollbar-width: thin; }
+  .chip { flex: none; min-block-size: 40px; padding: 0 1rem; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--foreground); font: inherit; cursor: pointer; }
+  .chip--on { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: 700; }
+  .chip:focus-visible, .avatar-item:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .avatar-builder__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 0.625rem; }
+  .avatar-item { position: relative; display: grid; justify-items: center; gap: 0.375rem; padding: 0.625rem 0.25rem; border-radius: var(--shape-field);
+    border: 2px solid transparent; background: var(--card); color: var(--foreground); font: inherit; cursor: pointer; transition: transform var(--motion) var(--motion-ease); }
+  .avatar-item:hover { transform: translateY(-2px); }
+  .avatar-item--on { border-color: var(--primary); }
+  .avatar-item--locked > .avatar, .avatar-item--locked > .avatar-item__swatch { filter: grayscale(0.6); opacity: 0.7; }
+  .avatar-item__swatch { inline-size: 52px; block-size: 52px; border-radius: 999px; box-shadow: inset 0 0 0 3px #0001; margin-block: 6px; }
+  .avatar-item__name { font-size: 0.8125rem; line-height: 1.3; text-align: center; }
+  .avatar-item__lock { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; display: inline-flex; align-items: center; gap: 2px; max-inline-size: calc(100% - 8px);
+    padding: 1px 6px; border-radius: 999px; background: var(--foreground); color: var(--background); font-size: 0.6875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (prefers-reduced-motion: reduce) { .avatar-item:hover { transform: none; } }
+
+  .banner-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.5rem; }
+  .banner-picker__item { display: grid; gap: 0.25rem; padding: 0.25rem; border-radius: var(--shape-field); border: 2px solid transparent; background: none; color: var(--foreground); font: inherit; cursor: pointer; }
+  .banner-picker__item--on { border-color: var(--primary); }
+  .banner-picker__item:disabled { cursor: not-allowed; opacity: 0.6; }
+  .banner-picker__item:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .banner-picker__swatch { display: grid; place-items: center; block-size: 44px; border-radius: calc(var(--shape-field) - 4px); color: #fff; }
+
+  /* Profile */
+  .profile-hero { position: relative; border-radius: var(--shape-surface); overflow: hidden; background: var(--card); box-shadow: var(--shadow); }
+  .profile-hero__banner { block-size: 110px; }
+  .profile-hero__body { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; padding: 0 1.25rem 1.25rem; margin-block-start: -56px; }
+  .profile-title { display: inline-block; padding: 1px 10px; border-radius: 999px; background: var(--secondary); color: var(--foreground); font-size: 0.8125rem; font-weight: 700; }
+  .profile-bio { white-space: pre-line; overflow-wrap: anywhere; margin: 0; }
+
   /* Showcase */
   .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
   .swatch { border: 1px solid var(--border); border-radius: var(--shape-field); overflow: hidden; font-size: 0.875rem; background: var(--card); }

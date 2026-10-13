@@ -1,7 +1,7 @@
 import { and, eq, inArray, or, sql } from 'drizzle-orm';
-import { AppError, type PublicProfile } from '@bg/contracts';
+import { AppError, type ProfileExtras, type PublicProfile } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
-import { toPublicProfile } from '../users/routes.ts';
+import { toProfileExtras, toPublicProfile } from '../users/routes.ts';
 
 const { friendships, blocks, userMutes, users, memberships, userSettings } = schema;
 
@@ -31,10 +31,10 @@ export async function relationship(db: Db, me: string, other: string) {
   return { relationship: rel as 'none' | 'friends' | 'outgoing' | 'incoming', muted: !!muted };
 }
 
-export async function requireActiveUser(db: Db, userId: string): Promise<PublicProfile> {
+export async function requireActiveUser(db: Db, userId: string): Promise<PublicProfile & ProfileExtras> {
   const [u] = await db.select().from(users).where(eq(users.id, userId));
   if (!u || u.status !== 'active') throw new AppError('NOT_FOUND');
-  return toPublicProfile(u);
+  return { ...toPublicProfile(u), ...toProfileExtras(u) };
 }
 
 export async function profiles(db: Db, ids: string[]): Promise<Map<string, PublicProfile>> {

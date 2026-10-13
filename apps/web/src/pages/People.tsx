@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import type { PublicProfile, TrophyTier, UserCard } from '@bg/contracts';
-import { Avatar, Badge, Button, Input, StateBlock, Tabs, useToast } from '@bg/ui';
+import { cosmetic, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
+import { Avatar, Badge, Button, Input, StateBlock, Tabs, buttonClass, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { TIER_FA, Trophy } from '../lib/rewards.tsx';
+
+/** Position in the showcase; achievements not in it sort after, keeping their order (stable sort). */
+const rank = (showcase: string[], key: string) => { const i = showcase.indexOf(key); return i < 0 ? showcase.length : i; };
 
 interface Friends { friends: PublicProfile[]; incoming: PublicProfile[]; outgoing: PublicProfile[]; blocked: PublicProfile[]; muted: PublicProfile[] }
 
@@ -106,31 +109,56 @@ export function FriendsPage() {
 
 export function ProfilePage() {
   const { id = '' } = useParams();
-  const card = useApi<UserCard>(`/users/${id}/card`);
+  const card = useApi<ProfileCard>(`/users/${id}/card`);
   const ach = useApi<{ level: number; items: { key: string; titleFa: string; tier: TrophyTier }[] }>(`/users/${id}/achievements`);
+  const gameList = useApi<{ items: { id: string; nameFa: string }[] }>(card.data?.favoriteGames.length ? '/games' : null);
   usePageTitle(card.data?.displayName ?? 'پروفایل');
   const navigate = useNavigate();
   const toast = useToast();
   const act = useAct(card.reload);
-  const [report, setReport] = useState<'user' | 'display_name' | null>(null);
+  const [report, setReport] = useState<'user' | 'display_name' | 'bio' | null>(null);
   if (card.error) return <StateBlock kind={card.error.status === 404 ? 'empty' : 'error'} title={card.error.status === 404 ? 'این بازیکن پیدا نشد' : 'پروفایل دریافت نشد'} />;
   if (!card.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const u = card.data;
+  const title = u.titleKey ? cosmetic(u.titleKey)?.nameFa : undefined;
+  const favourites = u.favoriteGames.map((g) => gameList.data?.items.find((x) => x.id === g)).filter((g) => !!g);
+  // Showcase first, in the player's order; then the rest by tier (the server already sorts them).
+  const trophies = [...(ach.data?.items ?? [])].sort((a, b) => rank(u.showcase, a.key) - rank(u.showcase, b.key));
   const message = async () => {
     try { navigate(`/messages/${(await api<{ id: string }>('/conversations/direct', { method: 'POST', body: { userId: u.id } })).id}`); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'گفت‌وگو باز نشد.'); }
   };
   return (
     <div className="stack" style={{ maxInlineSize: 640 }}>
-      <section className="panel row" style={{ alignItems: 'center' }}>
-        <Avatar avatarKey={u.avatarKey} name={u.displayName} size={72} />
-        <div style={{ flex: 1 }}>
-          <h1 className="page-title" style={{ fontSize: 'var(--fs-xl)' }}><bdi>{u.displayName}</bdi></h1>
-          <p className="page-sub">عضو از {jalaliDate(u.joinedAt)}{ach.data ? ` · سطح ${ach.data.level.toLocaleString('fa-IR')}` : ''}</p>
-          {ach.data && ach.data.items.length > 0 && <div className="row" style={{ gap: 4 }}>{ach.data.items.map((a) => <span key={a.key} className={`trophy-chip tier--${a.tier}`} title={TIER_FA[a.tier]}><Trophy tier={a.tier} />{a.titleFa}</span>)}</div>}
+      <section className="profile-hero">
+        <div className="profile-hero__banner" style={{ background: cosmetic(u.bannerKey ?? 'bn.0')?.css }} />
+        <div className="profile-hero__body">
+          <Avatar avatarKey={u.avatarKey} name={u.displayName} size={112} />
+          <div style={{ flex: 1, minInlineSize: 180 }}>
+            <h1 className="page-title" style={{ fontSize: 'var(--fs-xl)' }}><bdi>{u.displayName}</bdi></h1>
+            {title && <span className="profile-title">{title}</span>}
+            <p className="page-sub">عضو از {jalaliDate(u.joinedAt)}{ach.data ? ` · سطح ${ach.data.level.toLocaleString('fa-IR')}` : ''}</p>
+          </div>
+          {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
+          {u.relationship === 'self' && <span className="row" style={{ gap: 6 }}><Link className={buttonClass('primary', 'sm')} to="/me/avatar">ساخت آواتار</Link><Link className={buttonClass('secondary', 'sm')} to="/settings">ویرایش پروفایل</Link></span>}
         </div>
-        {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
       </section>
+      {(u.bio || favourites.length > 0 || trophies.length > 0) && (
+        <section className="panel stack">
+          {u.bio && <p className="profile-bio" dir="auto">{u.bio}</p>}
+          {favourites.length > 0 && (
+            <div className="row" style={{ gap: 6 }} aria-label="بازی‌های محبوب">
+              <span className="muted">بازی‌های محبوب:</span>
+              {favourites.map((g) => <Link key={g.id} className="chip" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} to={`/games/${g.id}`}>{g.nameFa}</Link>)}
+            </div>
+          )}
+          {trophies.length > 0 && (
+            <div className="row" style={{ gap: 4 }} aria-label="جام‌ها">
+              {trophies.map((a) => <span key={a.key} className={`trophy-chip tier--${a.tier}`} title={TIER_FA[a.tier]}><Trophy tier={a.tier} />{a.titleFa}</span>)}
+            </div>
+          )}
+        </section>
+      )}
       {u.relationship !== 'self' && (
         <section className="panel row" aria-label="اقدام‌ها">
           {u.relationship === 'none' && <Button onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
@@ -144,6 +172,7 @@ export function ProfilePage() {
             : <Button variant="ghost" onClick={() => act('/mutes', 'POST', { userId: u.id }, 'بی‌صدا شد.')}>بی‌صدا</Button>}
           <Button variant="ghost" onClick={() => setReport('user')}>گزارش رفتار</Button>
           <Button variant="ghost" onClick={() => setReport('display_name')}>گزارش نام</Button>
+          {u.bio && <Button variant="ghost" onClick={() => setReport('bio')}>گزارش معرفی</Button>}
         </section>
       )}
       {report && <ReportDialog targetType={report} targetId={u.id} label={u.displayName} onClose={() => setReport(null)} />}

@@ -11,7 +11,7 @@ const REASONS = [
 ];
 
 export function ReportDialog({ targetType, targetId, label, onClose }: {
-  targetType: 'user' | 'display_name' | 'message' | 'table'; targetId: string; label: string; onClose: () => void;
+  targetType: 'user' | 'display_name' | 'bio' | 'message' | 'table'; targetId: string; label: string; onClose: () => void;
 }) {
   const toast = useToast();
   const [reasonCode, setReasonCode] = useState(targetType === 'display_name' ? 'inappropriate_name' : 'abuse');

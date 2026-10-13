@@ -1105,3 +1105,10 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Spend: only premium days (1 day = 200, 7 days = 1000). A pass starts where the latest premium period ends (including periods not started yet), source `coins` in `entitlements`; spends are taken under a per-user advisory lock after a balance check and are idempotent per client `requestId`. Coins never affect rating, matchmaking or results.
 - Buy: `coin_packs` (500/1200/3000) sold through the same server-verified gateway path as plans (`payments.coin_pack_id`, exactly one product per payment). Like plans, price is null and the pack inactive until an admin sets both (audited). Coins are not transferable between players (no item market).
 - Known limit: a subscription bought after a coin pass chains on subscriptions only, so it can overlap the pass; `premiumUntil` shows the current period, not chained future passes.
+
+## Avatar builder «ساخت آواتار» (2026-10-13, owner request, approach A)
+- Catalogue in code (`contracts/cosmetics.ts`), not admin uploads: no SVG sanitizing risk; item indexes are stored by players, so lists are append-only.
+- The built avatar is a compact string (`v1:s1.f0.h1…`) in the existing `avatar_key`; every projection that already carries `avatarKey` shows it with no API change. Legacy icon keys stay valid (bots keep them).
+- Unlock: free, coins (`user_cosmetics` row + coin_ledger debit under the same per-user lock as premium spends, idempotent per requestId), or earned live from level, achievements or any league placement at or above the tier (earned items never need a row and can't be bought).
+- Profile: bio ≤160 (no control/bidi-control characters), reportable as target `bio`; moderators can clear it (audited). Showcase stores achievement keys the player owns; favourite games must be active.
+- Spec/plan: `docs/superpowers/specs/2026-10-13-avatar-profile-design.md`, `docs/superpowers/plans/2026-10-13-avatar-profile.md`.

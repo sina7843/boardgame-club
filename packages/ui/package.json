@@ -20,6 +20,7 @@
     "react": "19.3.0"
   },
   "dependencies": {
+    "@bg/contracts": "workspace:*",
     "lucide-react": "1.52.0"
   }
 }

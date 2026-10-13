@@ -4,7 +4,7 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, apiErrorSchema, friendsResponse, normalizeSearch, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
+  AppError, apiErrorSchema, friendsResponse, normalizeSearch, profileCard, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import type { Deps } from '../../app.ts';
@@ -35,7 +35,7 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.get('/users/:userId/card', {
-    schema: { tags: ['social'], summary: 'Public profile with my relationship to the user', params: userParams, response: { 200: userCard, ...errors } }
+    schema: { tags: ['social'], summary: 'Public profile with my relationship to the user', params: userParams, response: { 200: profileCard, ...errors } }
   }, async (req) => {
     const { userId } = requireUser(req);
     return { ...(await requireActiveUser(db, req.params.userId)), ...(await relationship(db, userId, req.params.userId)) };

@@ -11,10 +11,10 @@ interface QueueItem { id: string; targetType: string; reasonCode: string; reason
 interface Detail {
   report: { id: string; targetType: string; reasonCode: string; reason: string; evidenceRef: string | null; status: string };
   reporter: { displayName: string }; subject: { id: string; displayName: string } | null;
-  evidence: { reported?: string; messages?: { id: string; sender: string; body: string; createdAt: string; deleted: boolean }[]; game?: string; players?: { seat: number; name: string }[]; result?: unknown; displayName?: string } | null;
+  evidence: { reported?: string; messages?: { id: string; sender: string; body: string; createdAt: string; deleted: boolean }[]; game?: string; players?: { seat: number; name: string }[]; result?: unknown; displayName?: string; bio?: string } | null;
   signals: Record<string, number>; priorSanctions: { id: string; kind: keyof typeof SANCTION_FA; reason: string; active: boolean }[];
 }
-const TARGET_FA: Record<string, string> = { user: 'رفتار کاربر', display_name: 'نام نمایشی', message: 'پیام', table: 'میز' };
+const TARGET_FA: Record<string, string> = { user: 'رفتار کاربر', display_name: 'نام نمایشی', bio: 'متن معرفی', message: 'پیام', table: 'میز' };
 const SIGNAL_FA: Record<string, string> = { timeout_loss: 'باخت با اتمام زمان', resigned: 'انصراف', ready_no_show: 'عدم پذیرش حریف‌یابی' };
 
 function ReportReview({ id, onDone }: { id: string; onDone: () => void }) {
@@ -26,6 +26,10 @@ function ReportReview({ id, onDone }: { id: string; onDone: () => void }) {
   if (d.error) return <StateBlock kind="error" title="گزارش دریافت نشد">{d.error.messageFa}</StateBlock>;
   if (!d.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const x = d.data;
+  const clearBio = async (userId: string) => {
+    try { await api(`/mod/users/${userId}/clear-bio`, { method: 'POST', body: { reason: `گزارش ${x.report.id}: ${x.report.reason}`.slice(0, 300) } }); toast('success', 'معرفی پاک شد.'); d.reload(); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+  };
   const submit = async () => {
     try {
       await api(`/mod/reports/${id}/resolve`, { method: 'POST', body: { decision, note, ...(decision === 'chat_restricted' || decision === 'suspended' ? { durationHours: Number(hours) } : {}) } });
@@ -47,6 +51,12 @@ function ReportReview({ id, onDone }: { id: string; onDone: () => void }) {
       )}
       {x.evidence?.game && <p style={{ margin: 0 }}>میز {x.evidence.game}؛ بازیکنان: {x.evidence.players?.map((p) => p.name).join('، ')}</p>}
       {x.evidence?.displayName !== undefined && <p style={{ margin: 0 }}>نام نمایشی فعلی: <bdi>{x.evidence.displayName}</bdi></p>}
+      {x.evidence?.bio !== undefined && (
+        <div className="row" style={{ alignItems: 'center' }}>
+          <p className="profile-bio" dir="auto" style={{ flex: 1 }}>معرفی فعلی: {x.evidence.bio || '(خالی)'}</p>
+          {x.evidence.bio && x.subject && <Button size="sm" variant="danger" onClick={() => clearBio(x.subject!.id)}>پاک کردن معرفی</Button>}
+        </div>
+      )}
       <p className="muted" style={{ margin: 0 }}>
         نشانه‌های ۳۰ روز اخیر: {Object.keys(x.signals).length ? Object.entries(x.signals).map(([k, n]) => `${SIGNAL_FA[k] ?? k} ${faNum(n)}`).join('، ') : 'ندارد'} (فقط برای اطلاع؛ جریمه خودکار ندارد)
       </p>

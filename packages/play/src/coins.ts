@@ -38,7 +38,7 @@ export function coinsForReward(r: { ruleId: string; kind: string; amount: number
   return FIXED[r.ruleId] ?? 0;
 }
 
-const lockCoins = (tx: Tx, userId: string) => tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'coins:' + userId}))`);
+export const lockCoins = (tx: Tx, userId: string) => tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'coins:' + userId}))`);
 
 /**
  * Convert reward rows that have no coin row yet, and pay level-ups up to `level`. Idempotent (unique source keys), so

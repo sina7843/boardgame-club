@@ -3,9 +3,10 @@
 // keep working; the look comes from theme tokens only (no hard-coded colours).
 import {
   createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState,
-  type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes
+  type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes
 } from 'react';
 import { ChevronDown, LoaderCircle } from 'lucide-react';
+import { avatarSvg, parseAvatar } from '@bg/contracts';
 import { Icon, type IconName } from './icons.tsx';
 import { cn, fa, faPercent } from './vf/lib/utils.ts';
 import { SegmentedControl } from './vf/ui/segmented-control.tsx';
@@ -68,6 +69,15 @@ export function Input({ label, hint, error, className, ...rest }: FieldProps & I
   return (
     <FieldShell id={id} label={label} hint={hint} error={error}>
       <input id={id} className={cn('input h-12 px-4 text-sm', FIELD, className)} aria-invalid={!!error || undefined}
+        aria-describedby={cn(hint && `${id}-h`, error && `${id}-e`) || undefined} {...rest} />
+    </FieldShell>
+  );
+}
+export function Textarea({ label, hint, error, className, ...rest }: FieldProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const id = useId();
+  return (
+    <FieldShell id={id} label={label} hint={hint} error={error}>
+      <textarea id={id} className={cn('textarea px-4 py-3 text-sm', FIELD, className)} aria-invalid={!!error || undefined}
         aria-describedby={cn(hint && `${id}-h`, error && `${id}-e`) || undefined} {...rest} />
     </FieldShell>
   );
@@ -238,6 +248,15 @@ export function Timer({ deadline, label = 'زمان باقی‌مانده', lowS
 
 const AVATAR_ICON: Record<string, IconName> = { meeple: 'meeple', dice: 'dice', crown: 'crown', pawn: 'pawn', card: 'card', star: 'star' };
 export function Avatar({ avatarKey, name, size = 40 }: { avatarKey: string; name: string; size?: number }) {
+  // Built avatars: catalogue SVG only (parseAvatar accepts nothing else), so the markup is trusted.
+  const svg = useMemo(() => { const p = parseAvatar(avatarKey); return p ? avatarSvg(p) : null; }, [avatarKey]);
+  if (svg) {
+    return (
+      <span className="avatar inline-flex shrink-0 overflow-hidden rounded-full shadow-control ring-2 ring-card" style={{ width: size, height: size }} role="img" aria-label={`آواتار ${name}`}>
+        <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden dangerouslySetInnerHTML={{ __html: svg }} />
+      </span>
+    );
+  }
   return (
     <span className="avatar inline-flex shrink-0 items-center justify-center rounded-full bg-secondary text-primary shadow-control ring-2 ring-card"
       style={{ width: size, height: size }} role="img" aria-label={`نماد ${name}`}>
