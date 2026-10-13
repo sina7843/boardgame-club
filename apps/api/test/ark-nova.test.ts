@@ -65,11 +65,19 @@ describe('ark-nova through the platform', () => {
     };
     const t = await startTable(ctx, 'ark-nova', 2);
     const bySeat = await seatsOf(ctx, t.tableId, t.players);
+    // A full Ark Nova game is hundreds of decisions; the per-user rate limit covers reads too, so wait it out.
+    const snapshotOf = async (seat: number) => {
+      for (;;) {
+        const r = await call(ctx, 'GET', `/api/tables/${t.tableId}`, bySeat(seat));
+        if (r.statusCode !== 429) return r.json();
+        await new Promise((ok) => setTimeout(ok, (r.json().retryAfterSeconds + 1) * 1000));
+      }
+    };
     let finished = false;
     for (let n = 0; n < 4000 && !finished; n++) {
       let acted = false;
       for (const seat of [0, 1]) {
-        const me = await view(ctx, bySeat(seat), t.tableId);
+        const me = await snapshotOf(seat);
         if (me.table.status === 'finished') { finished = true; break; }
         const hs = (me.game.legalActions as Hint[]).filter((h) => h.type !== 'resign');
         if (!hs.length) continue;

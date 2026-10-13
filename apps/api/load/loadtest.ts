@@ -5,6 +5,7 @@
 //   node apps/api/load/loadtest.ts  (env: BASE, L3_TABLES, SB_TABLES, L3_GAME, DURATION_S, RAMP_S, RECONNECT_PCT, DUP_PCT,
 //                                    THINK_MS, OTP_CODE, MOBILE_BASE, METRICS_TOKEN, METRICS_URL, RESTART_WORKER=<container name>)
 // Step the load across runs (L3_TABLES=25, 50, 100, …). Sessions are cached in the OS temp dir, so reruns skip OTP limits.
+// Afterwards `DELETE_BOTS=1 BASE=… node apps/api/load/loadtest.ts` deletes every cached bot account on that site.
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -70,14 +71,37 @@ async function cleanup(user: User) {
   const { json } = await http('GET', '/api/me/tables', user);
   for (const t of json.items as { id: string; status: string; pace: string }[]) {
     if (t.status === 'open') await http('POST', `/api/tables/${t.id}/leave`, user).catch(() => {});
-    if (t.status !== 'active' || t.pace !== 'live') continue;
+    if (t.status !== 'active') continue;
     const { json: v } = await http('GET', `/api/tables/${t.id}`, user);
     const resign = v.game?.legalActions.find((a: { type: string }) => a.type === 'resign');
     if (resign) await http('POST', `/api/tables/${t.id}/commands`, user, { commandId: randomUUID(), expectedRevision: v.game.revision, action: resign }).catch(() => {});
   }
 }
 
-const SB_VIEW_KEYS = 'history,myBid,myHand,outcome,players,prize,resigned,round,scores,seatOrder,submitted';
+// DELETE_BOTS=1: after the last run against a site, delete every cached bot account through the product's own
+// account deletion (DELETE /api/me: profile anonymised, mobile released, game history kept without identity).
+if (env.DELETE_BOTS === '1') {
+  let deleted = 0, expired = 0;
+  const failed: string[] = [];
+  for (const [mobile, stored] of Object.entries(sessions)) {
+    // An older driver cached the bare token; this one caches `name=value`.
+    const user = { cookie: stored.includes('=') ? stored : `${new URL(BASE).protocol === 'https:' ? '__Host-bg_sid' : 'bg_sid'}=${stored}`, id: '' };
+    try {
+      await cleanup(user);
+      await http('DELETE', '/api/me', user, { confirm: 'حذف' });
+      deleted++;
+      delete sessions[mobile];
+    } catch (e) {
+      if (String(e).includes('→ 401')) { expired++; delete sessions[mobile]; } // already deleted or session expired
+      else failed.push(`${mobile}: ${String(e).slice(0, 160)}`);
+    }
+  }
+  writeFileSync(CACHE, JSON.stringify(sessions));
+  console.log(JSON.stringify({ deleted, expired, failed }, null, 1));
+  process.exit(failed.length ? 1 : 0);
+}
+
+const SB_VIEW_KEYS ='history,myBid,myHand,outcome,players,prize,resigned,round,scores,seatOrder,submitted';
 
 /** One bot = one socket for one player. Acts whenever the pushed projection offers it a legal action. */
 class Bot {
