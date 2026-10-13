@@ -7,7 +7,7 @@ import { z } from 'zod';
  *   `verify` steps are checked by the server against real data, so they cannot be claimed without doing them.
  * The «Getting Started» achievement needs every step of every guide here (packages/play goalFacts → 'onboarding').
  */
-export const ONBOARDING_CHECKS = ['joined_table', 'profile_customized', 'friend_request'] as const;
+export const ONBOARDING_CHECKS = ['hosted_table', 'joined_other_table', 'profile_customized', 'friend_request'] as const;
 export type OnboardingCheck = typeof ONBOARDING_CHECKS[number];
 
 export interface OnboardingStep {
@@ -38,12 +38,22 @@ export const ONBOARDING_TOURS: readonly OnboardingTour[] = [
     ]
   },
   {
-    key: 'first-table', kind: 'walkthrough', titleFa: 'اولین میز', summaryFa: 'یک بازی انتخاب کنید و پشت میز بنشینید.',
+    key: 'create-table', kind: 'walkthrough', titleFa: 'ساخت میز', summaryFa: 'یک بازی انتخاب کنید و میز خودتان را بسازید.',
     steps: [
       { key: 'catalog', target: 'nav-games', href: '/games', doneOn: '^/games/?$', titleFa: 'بازی‌ها را باز کنید', bodyFa: 'روی «بازی‌ها» بزنید.' },
       { key: 'game', target: 'catalog-grid', doneOn: '^/games/[^/]+/?$', titleFa: 'یک بازی انتخاب کنید', bodyFa: 'روی کارت یکی از بازی‌ها بزنید.' },
-      { key: 'table', target: 'game-actions', verify: 'joined_table', titleFa: 'پشت میز بنشینید',
-        bodyFa: 'یک میز بسازید، آموزش تعاملی را شروع کنید یا به میز دیگران بپیوندید.' }
+      { key: 'new', target: 'game-actions', doneOn: '^/games/[^/]+/new/?$', titleFa: '«ساخت میز» را بزنید',
+        bodyFa: 'در بخش شروع، دکمهٔ «ساخت میز» را بزنید.' },
+      { key: 'create', target: 'create-form', verify: 'hosted_table', titleFa: 'تنظیم و ساخت',
+        bodyFa: 'حالت بازی، زمان نوبت و عمومی یا خصوصی بودن را انتخاب کنید و میز را بسازید. بعد دوستانتان را با لینک دعوت بیاورید.' }
+    ]
+  },
+  {
+    key: 'join-table', kind: 'walkthrough', titleFa: 'پیوستن به میز', summaryFa: 'پشت میز بازیکن دیگری بنشینید.',
+    steps: [
+      { key: 'tables', target: 'nav-tables', href: '/tables', doneOn: '^/tables/?$', titleFa: 'میزهای باز', bodyFa: 'روی «میزها و حریف‌یابی» بزنید تا میزهای منتظر بازیکن را ببینید.' },
+      { key: 'join', target: 'open-tables', verify: 'joined_other_table', titleFa: 'به یک میز بپیوندید',
+        bodyFa: 'کنار یکی از میزها «پیوستن» را بزنید. میزی نبود؟ از «حریف‌یابی» استفاده کنید یا با لینک دعوت دوستتان وارد شوید.' }
     ]
   },
   {

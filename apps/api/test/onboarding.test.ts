@@ -17,13 +17,18 @@ describe('site onboarding', () => {
     const [a, b] = await users(ctx, 2);
     expect((await step(a!, 'nope', 'x')).statusCode).toBe(404);
     // Real-action steps cannot be claimed before doing them.
-    for (const [tour, s] of [['first-table', 'table'], ['profile', 'customize'], ['social', 'request']] as const) {
+    const verified = [['create-table', 'create'], ['join-table', 'join'], ['profile', 'customize'], ['social', 'request']] as const;
+    for (const [tour, s] of verified) {
       const r = await step(a!, tour, s);
       expect(r.statusCode).toBe(409);
       expect(r.json().errorCode).toBe('ONBOARDING_STEP_NOT_DONE');
     }
-    // Do them for real.
+    // Do them for real. Hosting a table does not count as joining someone else's.
     expect((await call(ctx, 'POST', '/api/tables', a, { gameId: 'line-three', pace: 'turn', capacity: 2, turnSeconds: 86400 })).statusCode).toBe(201);
+    expect((await step(a!, 'join-table', 'join')).statusCode).toBe(409);
+    const other = (await call(ctx, 'POST', '/api/tables', b, { gameId: 'line-three', pace: 'turn', capacity: 2, turnSeconds: 86400 })).json().id as string;
+    const invite = (await call(ctx, 'GET', `/api/tables/${other}`, b)).json().table.inviteCode;
+    expect((await call(ctx, 'POST', `/api/tables/${other}/join`, a, { inviteCode: invite })).statusCode).toBe(200);
     expect((await call(ctx, 'PATCH', '/api/me/profile', a, { bio: 'سلام' })).statusCode).toBe(200);
     expect((await call(ctx, 'POST', '/api/friends/requests', a, { userId: b!.id })).statusCode).toBeLessThan(300);
 

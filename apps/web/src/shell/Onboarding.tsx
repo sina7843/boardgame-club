@@ -25,17 +25,35 @@ const VERIFY_EVERY_MS = 5000;
 /** Never cover a game in progress; the guide waits until the player leaves the table. */
 const quietPath = (p: string) => p.startsWith('/tables/') || p.startsWith('/login');
 
+/** The open guide survives a reload or a typed URL in this tab (per-tab convenience; progress itself is on the server). */
+const ACTIVE_KEY = 'bg.guide';
+const readActive = (): Active | null => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(ACTIVE_KEY) ?? 'null') as { tour: string; index: number } | null;
+    const tour = ONBOARDING_TOURS.find((t) => t.key === saved?.tour);
+    return tour && saved && saved.index < tour.steps.length ? { tour, index: saved.index } : null;
+  } catch { return null; }
+};
+
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const { me } = useSession();
+  const { me, status } = useSession();
   const { pathname } = useLocation();
   const toast = useToast();
   const [state, setState] = useState<OnboardingState>();
-  const [active, setActive] = useState<Active | null>(null);
+  const [active, setActive] = useState<Active | null>(readActive);
 
   useEffect(() => {
-    setState(undefined); setActive(null);
+    try {
+      if (active) sessionStorage.setItem(ACTIVE_KEY, JSON.stringify({ tour: active.tour.key, index: active.index }));
+      else sessionStorage.removeItem(ACTIVE_KEY);
+    } catch { /* storage blocked: the guide just ends on reload */ }
+  }, [active]);
+
+  useEffect(() => {
+    setState(undefined);
     if (me) void api<OnboardingState>('/me/onboarding').then(setState, () => { /* guides stay available from /guides */ });
-  }, [me?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    else if (status !== 'loading') setActive(null);
+  }, [me?.id, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = useCallback((tourKey: string, mode: 'resume' | 'replay' = 'resume') => {
     const tour = ONBOARDING_TOURS.find((t) => t.key === tourKey);
@@ -173,10 +191,18 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
     }
     if (!rect) { el.style.top = ''; el.style.left = ''; return; }
     const w = el.offsetWidth, h = el.offsetHeight;
-    let top = rect.bottom + PAD + GAP;
-    if (top + h > innerHeight - 8) top = Math.max(8, rect.top - PAD - GAP - h);
+    const clampX = (x: number) => Math.min(Math.max(8, x), innerWidth - w - 8);
+    const clampY = (y: number) => Math.min(Math.max(8, y), innerHeight - h - 8);
+    const edge = PAD + GAP;
+    let top: number, left: number;
+    if (rect.bottom + edge + h <= innerHeight - 8) { top = rect.bottom + edge; left = clampX(rect.left + rect.width / 2 - w / 2); }
+    else if (rect.top - edge - h >= 8) { top = rect.top - edge - h; left = clampX(rect.left + rect.width / 2 - w / 2); }
+    // Tall target (a form, a list): beside it, so the card never covers what the player has to use.
+    else if (rect.left - edge - w >= 8) { top = clampY(rect.top); left = rect.left - edge - w; }
+    else if (rect.right + edge + w <= innerWidth - 8) { top = clampY(rect.top); left = rect.right + edge; }
+    else { top = innerHeight - h - 8; left = 8; }
     el.style.top = `${top}px`;
-    el.style.left = `${Math.min(Math.max(8, rect.left + rect.width / 2 - w / 2), innerWidth - w - 8)}px`;
+    el.style.left = `${left}px`;
   }, [rect, index]);
 
   useEffect(() => () => { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingBottom = ''; }, []);
@@ -193,7 +219,7 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
         style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2 }} />}
       <div ref={card} role="dialog" aria-modal="false" aria-labelledby="tour-h" className={cn('tour-card', !rect && 'tour-card--center')}>
         <div className="tour-card__head">
-          <span className="tour-card__eyebrow">{tour.titleFa} · {faNum(index + 1)} از {faNum(tour.steps.length)}</span>
+          <span className="tour-card__eyebrow">{tour.titleFa}، مرحلهٔ {faNum(index + 1)} از {faNum(tour.steps.length)}</span>
           <button type="button" className="tour-card__x" onClick={onClose} aria-label="بستن (بعداً ادامه می‌دهم)"><X className="size-4" aria-hidden /></button>
         </div>
         <h2 id="tour-h" className="tour-card__title">{step.titleFa}</h2>

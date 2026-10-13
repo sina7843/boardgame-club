@@ -1172,7 +1172,7 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 ## Site onboarding and «Getting Started» (owner request, 2026-10-13)
 - One registry, `packages/contracts/src/onboarding.ts`: a guide is `tour` (highlight + note, «بعدی») or `walkthrough`
   (the player really does it). Walkthrough steps finish on a page path (`doneOn`) or a server check (`verify`:
-  joined a table, customized the profile, sent/accepted a friend request) — the API refuses an unverified step with
+  hosted a non-tutorial table, sat at someone else's table, customized the profile, sent/accepted a friend request) — the API refuses an unverified step with
   `ONBOARDING_STEP_NOT_DONE`. Adding a guide = one registry entry + `data-tour` anchors; a new check = one function in
   `apps/api/src/modules/onboarding/routes.ts`.
 - Progress per user in `onboarding_progress` (migration 0012). Completion is derived from the current registry, so a
@@ -1182,6 +1182,10 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   It shows on the public profile and triggers the existing celebration.
 - Nothing is forced: the welcome tour is offered by a dismissible banner on the dashboard; every guide has «رد کردن»,
   and `/guides` starts, resumes or replays any of them. Guides stay hidden on table pages.
+- Table guides (owner request): «ساخت میز» (catalog → game → «ساخت میز» → server sees a hosted table) and «پیوستن به
+  میز» (open tables → server sees a seat at another host's table; quick match or an invite link also count). They
+  replace the earlier single «اولین میز» guide. The open guide is kept in sessionStorage so a reload resumes it; on
+  desktop the card sits beside a target too tall to fit above or below it.
 - Contextual `Hint` («?», tap or click) on progress, quick match, open tables and create table. Its «new» dot is
   per-device (localStorage); guide progress is server-side.
 

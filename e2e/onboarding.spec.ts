@@ -29,6 +29,20 @@ test('welcome tour, verified profile walkthrough, skip and hints', async ({ brow
   await expect(page.getByText('آموزش «پروفایل شما» کامل شد.')).toBeVisible({ timeout: 10_000 });
   await page.screenshot({ path: `test-results/onboarding-${info.project.name}-profile.png` });
 
+  // Create-table walkthrough: catalog → game → «ساخت میز» → a real table (server-checked; finishes on the table page).
+  await page.goto('/guides');
+  await page.getByRole('listitem').filter({ hasText: 'میز خودتان را بسازید' }).getByRole('button', { name: 'شروع' }).click();
+  await card.getByRole('button', { name: 'برو' }).click();
+  await expect(card.getByRole('heading', { name: 'یک بازی انتخاب کنید' })).toBeVisible();
+  await page.goto('/games/line-three');
+  await expect(card.getByRole('heading', { name: '«ساخت میز» را بزنید' })).toBeVisible();
+  await page.getByRole('link', { name: 'ساخت میز' }).click();
+  await expect(card.getByRole('heading', { name: 'تنظیم و ساخت' })).toBeVisible();
+  await page.screenshot({ path: `test-results/onboarding-${info.project.name}-create.png` });
+  await page.getByRole('button', { name: 'ساخت میز' }).click();
+  await expect(page).toHaveURL(/\/tables\//);
+  await expect(page.getByText('آموزش «ساخت میز» کامل شد.')).toBeVisible({ timeout: 10_000 });
+
   // Skip a guide; the replay hub keeps progress and offers it again.
   await page.goto('/guides');
   const social = page.getByRole('listitem').filter({ hasText: 'درخواست دوستی بدهید' });

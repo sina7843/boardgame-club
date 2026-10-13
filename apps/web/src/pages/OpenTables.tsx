@@ -45,7 +45,7 @@ export function OpenTables() {
       {list.data && (list.data.items.length === 0
         ? <StateBlock kind="empty" title="فعلاً میز بازی منتظر بازیکن نیست" action={<Link className="btn btn--primary" to="/games">یک بازی انتخاب کنید و میز بسازید</Link>} />
         : (
-          <ul className="list">
+          <ul className="list" data-tour="open-tables">
             {list.data.items.map((t) => (
               <li key={t.id} className="panel list__item">
                 <Avatar avatarKey={t.host.avatarKey} name={t.host.displayName} />

@@ -58,7 +58,7 @@ export function CreateTable() {
           <p className="page-sub">تنظیمات پس از شروع بازی تغییر نمی‌کنند.</p>
         </div>
       </div>
-      <form className="stack" style={{ maxInlineSize: 640 }} onSubmit={submit} noValidate>
+      <form className="stack" style={{ maxInlineSize: 640 }} onSubmit={submit} noValidate data-tour="create-form">
         <section className="panel stack">
           {g.paces.length > 1
             ? <Segmented legend="حالت بازی" name="pace" value={pace} onChange={setPace} options={g.paces.map((p) => ({ value: p, label: PACE_FA[p] }))} />

@@ -1,7 +1,7 @@
 // Site onboarding (guided tours and walkthroughs, contracts/onboarding.ts). The server records finished steps per user;
 // walkthrough steps with `verify` are checked against real data here, never taken on the client's word. When every guide
 // is complete, progression grants the «Getting Started» achievement exactly once (user_achievements PK + ledger source key).
-import { and, eq, or, sql } from 'drizzle-orm';
+import { and, eq, ne, or, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
@@ -11,14 +11,18 @@ import { rewardOnboarding } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireUser } from '../auth/session.ts';
 
-const { onboardingProgress, participants, users, friendships, achievementDefinitions, userAchievements } = schema;
+const { onboardingProgress, participants, gameTables, users, friendships, achievementDefinitions, userAchievements } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const tourParams = z.object({ tour: z.string().max(40) });
 
 /** Real-action checks for walkthrough steps. Each looks only at server-owned rows. */
 const CHECKS: Record<OnboardingCheck, (db: Db, userId: string) => Promise<boolean>> = {
-  joined_table: async (db, userId) =>
-    (await db.select({ t: participants.tableId }).from(participants).where(eq(participants.userId, userId)).limit(1)).length > 0,
+  // Tutorial tables are excluded: they are not a table the player set up or joined.
+  hosted_table: async (db, userId) => (await db.select({ id: gameTables.id }).from(gameTables)
+    .where(and(eq(gameTables.hostId, userId), eq(gameTables.isTutorial, false))).limit(1)).length > 0,
+  joined_other_table: async (db, userId) => (await db.select({ t: participants.tableId }).from(participants)
+    .innerJoin(gameTables, eq(gameTables.id, participants.tableId))
+    .where(and(eq(participants.userId, userId), ne(gameTables.hostId, userId), eq(gameTables.isTutorial, false))).limit(1)).length > 0,
   profile_customized: async (db, userId) => (await db.select({ id: users.id }).from(users).where(and(eq(users.id, userId), or(
     sql`${users.avatarKey} <> 'meeple'`, sql`coalesce(${users.bio}, '') <> ''`, sql`${users.titleKey} is not null`, sql`${users.bannerKey} is not null`,
     sql`cardinality(${users.favoriteGames}) > 0`, sql`cardinality(${users.showcase}) > 0`)))).length > 0,
