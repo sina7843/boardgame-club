@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import type { GameDetail } from '@bg/contracts';
 import { Badge, Button, Icon, StateBlock } from '@bg/ui';
 import { BotPlay } from '../games/BotPlay.tsx';
+import { GameWiki } from './Wiki.tsx';
 import { GameCover } from '../games/covers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
@@ -53,7 +54,7 @@ export function GameDetailPage() {
       {back}
       <div className="detail">
         <article className="stack">
-          <div className="detail__cover"><GameCover gameId={g.id} title={`تصویر جلد ${g.nameFa}`} /></div>
+          <div className="detail__cover"><GameCover gameId={g.id} title={`تصویر جلد ${g.nameFa}`} flippable /></div>
           <header>
             <div className="row">
               <h1 className="page-title">{g.nameFa}</h1>
@@ -87,6 +88,7 @@ export function GameDetailPage() {
               ))}
             </section>
           )}
+          <GameWiki gameId={g.id} />
         </article>
 
         <aside className="panel stack" aria-label="مشخصات و شروع">

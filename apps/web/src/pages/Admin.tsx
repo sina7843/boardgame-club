@@ -63,7 +63,7 @@ function GamesAdmin() {
           <ul className="admin-games__items">{shown.map((g) => (
             <li key={g.id}>
               <button type="button" className={`admin-game${selected?.id === g.id ? ' is-on' : ''}`} aria-current={selected?.id === g.id || undefined} onClick={() => select(g.id)}>
-                <span className="admin-game__cover"><GameCover gameId={g.id} title="" /></span>
+                <span className="admin-game__cover"><GameCover gameId={g.id} title="" box={false} /></span>
                 <span className="admin-game__name"><strong>{g.nameFa}</strong><span className="muted"><bdi>{g.nameOriginal}</bdi></span></span>
                 <span className="admin-game__badges">
                   {g.status !== 'active' && <Badge tone="danger">{STATUS_FA[g.status]}</Badge>}
@@ -109,7 +109,7 @@ function GameDetailAdmin({ game, onBack, onChanged }: { game: GameSummary; onBac
     <div className="stack">
       <div className="admin-games__back"><Button variant="ghost" size="sm" onClick={onBack}>بازگشت به فهرست بازی‌ها</Button></div>
       <section className="panel admin-head" aria-labelledby="admin-game-h">
-        <span className="admin-head__cover"><GameCover gameId={game.id} title="" /></span>
+        <span className="admin-head__cover"><GameCover gameId={game.id} title="" box={false} /></span>
         <div className="stack" style={{ gap: 'var(--sp-1)', flex: 1, minInlineSize: 0 }}>
           <h2 id="admin-game-h" className="section-title" style={{ margin: 0 }}>{game.nameFa}</h2>
           <span className="muted"><bdi>{game.nameOriginal}</bdi></span>

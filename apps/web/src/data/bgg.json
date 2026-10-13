@@ -1,0 +1,6609 @@
+{
+ "fetchedAt": "2026-10-13",
+ "games": {
+  "abalone": {
+   "bggId": 526,
+   "name": "Abalone",
+   "year": 1987,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 7,
+   "weight": 2.14,
+   "rating": 6.49,
+   "ratings": 8455,
+   "owned": 14589,
+   "rank": 2190,
+   "designers": [
+    {
+     "id": 101,
+     "name": "Michel Lalet"
+    },
+    {
+     "id": 102,
+     "name": "Laurent Levi"
+    }
+   ],
+   "artists": [
+    {
+     "id": 102,
+     "name": "Laurent Levi"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 66,
+     "name": "Abalone Games"
+    },
+    {
+     "id": 31199,
+     "name": "abalone s.a."
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 3005,
+     "name": "Slide / Push"
+    },
+    {
+     "id": 2861,
+     "name": "Static Capture"
+    }
+   ],
+   "honors": 2,
+   "image": "https://cf.geekdo-images.com/UzH1jAlqYUH9VEq2Wtvzjw__original/img/pURND_gEV9F5VLeUWLqYFP3UQAQ=/0x0/filters:format(jpeg)/pic5253079.jpg"
+  },
+  "amlak": {
+   "bggId": 1406,
+   "name": "Monopoly",
+   "year": 1935,
+   "players": [
+    2,
+    8
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    60,
+    180
+   ],
+   "minAge": 8,
+   "weight": 1.62,
+   "rating": 4.37,
+   "ratings": 40488,
+   "owned": 61162,
+   "rank": 31445,
+   "designers": [
+    {
+     "id": 1268,
+     "name": "Charles Darrow"
+    },
+    {
+     "id": 3109,
+     "name": "Elizabeth J. Magie (Phillips)"
+    }
+   ],
+   "artists": [
+    {
+     "id": 1268,
+     "name": "Charles Darrow"
+    },
+    {
+     "id": 50283,
+     "name": "Edison Girard"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 28,
+     "name": "Parker Brothers"
+    },
+    {
+     "id": 4,
+     "name": "(Self-Published)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1021,
+     "name": "Economic"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2012,
+     "name": "Auction / Bidding"
+    },
+    {
+     "id": 2918,
+     "name": "Auction: English"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2904,
+     "name": "Loans"
+    },
+    {
+     "id": 2836,
+     "name": "Lose a Turn"
+    },
+    {
+     "id": 2911,
+     "name": "Ownership"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2035,
+     "name": "Roll / Spin and Move"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    },
+    {
+     "id": 2008,
+     "name": "Trading"
+    }
+   ],
+   "honors": 1,
+   "image": "https://cf.geekdo-images.com/9nGoBZ0MRbi6rdH47sj2Qg__original/img/bA8irydTCNlE38QSzM9EhcUIuNU=/0x0/filters:format(jpeg)/pic5786795.jpg"
+  },
+  "ark-nova": {
+   "bggId": 342942,
+   "name": "Ark Nova",
+   "year": 2021,
+   "players": [
+    1,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    90,
+    150
+   ],
+   "minAge": 14,
+   "weight": 3.8,
+   "rating": 8.54,
+   "ratings": 63504,
+   "owned": 92455,
+   "rank": 2,
+   "designers": [
+    {
+     "id": 138517,
+     "name": "Mathias Wigge"
+    }
+   ],
+   "artists": [
+    {
+     "id": 138547,
+     "name": "Steffen Bieker"
+    },
+    {
+     "id": 11462,
+     "name": "Loïc Billiau"
+    },
+    {
+     "id": 12484,
+     "name": "Dennis Lohausen"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 22380,
+     "name": "Feuerland Spiele"
+    },
+    {
+     "id": 30958,
+     "name": "Capstone Games"
+    },
+    {
+     "id": 21608,
+     "name": "CMON Global Limited"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1089,
+     "name": "Animals"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1084,
+     "name": "Environmental"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2912,
+     "name": "Contracts"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2850,
+     "name": "Events"
+    },
+    {
+     "id": 3139,
+     "name": "Expiring Actions"
+    },
+    {
+     "id": 2978,
+     "name": "Grid Coverage"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2914,
+     "name": "Increase Value of Unchosen Resources"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2819,
+     "name": "Solo / Solitaire Game"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 39,
+   "image": "https://cf.geekdo-images.com/SoU8p28Sk1s8MSvoM4N8pQ__original/img/g4S18szTdrXCdIwVKzMKrZrYAcM=/0x0/filters:format(jpeg)/pic6293412.jpg"
+  },
+  "azul": {
+   "bggId": 230802,
+   "name": "Azul",
+   "year": 2017,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    45
+   ],
+   "minAge": 8,
+   "weight": 1.77,
+   "rating": 7.71,
+   "ratings": 111357,
+   "owned": 189881,
+   "rank": 99,
+   "designers": [
+    {
+     "id": 42,
+     "name": "Michael Kiesling"
+    }
+   ],
+   "artists": [
+    {
+     "id": 74074,
+     "name": "Philippe Guérin"
+    },
+    {
+     "id": 14057,
+     "name": "Chris Quilliams"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 38363,
+     "name": "Next Move Games"
+    },
+    {
+     "id": 34188,
+     "name": "Plan B Games"
+    },
+    {
+     "id": 50230,
+     "name": "Belleville (Бельвіль)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1070,
+     "name": "Renaissance"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2978,
+     "name": "Grid Coverage"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2048,
+     "name": "Pattern Building"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    },
+    {
+     "id": 2829,
+     "name": "Turn Order: Claim Action"
+    }
+   ],
+   "honors": 48,
+   "image": "https://cf.geekdo-images.com/aPSHJO0d0XOpQR5X-wJonw__original/img/AkbtYVc6xXJF3c9EUrakklcclKw=/0x0/filters:format(png)/pic6973671.png"
+  },
+  "backgammon": {
+   "bggId": 2397,
+   "name": "Backgammon",
+   "year": -3000,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 8,
+   "weight": 2,
+   "rating": 6.58,
+   "ratings": 15521,
+   "owned": 26063,
+   "rank": 1663,
+   "designers": [],
+   "artists": [
+    {
+     "id": 26868,
+     "name": "Willem Cornelisz Duyster"
+    },
+    {
+     "id": 141500,
+     "name": "Wanjin Gill"
+    },
+    {
+     "id": 141085,
+     "name": "Christian Lacroix"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 4,
+     "name": "(Self-Published)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1017,
+     "name": "Dice"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2014,
+     "name": "Betting and Bluffing"
+    },
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2836,
+     "name": "Lose a Turn"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2035,
+     "name": "Roll / Spin and Move"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2861,
+     "name": "Static Capture"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/PournqDRZ4mb9yFpJvAc_Q__original/img/Ifrj-OZIhhfQCrWpC6Aqp2bEV-E=/0x0/filters:format(jpeg)/pic9098768.jpg"
+  },
+  "battleship": {
+   "bggId": 2425,
+   "name": "Battleship",
+   "year": 1931,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 8,
+   "weight": 1.2,
+   "rating": 4.77,
+   "ratings": 12445,
+   "owned": 21943,
+   "rank": 31431,
+   "designers": [
+    {
+     "id": 16724,
+     "name": "Clifford Von Wickler"
+    }
+   ],
+   "artists": [
+    {
+     "id": 53418,
+     "name": "Taavi Oolberg"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 92,
+     "name": "3M"
+    },
+    {
+     "id": 2042,
+     "name": "Action Games and Toys Ltd"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1041,
+     "name": "Children's Game"
+    },
+    {
+     "id": 1008,
+     "name": "Nautical"
+    },
+    {
+     "id": 1019,
+     "name": "Wargame"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 3002,
+     "name": "Deduction"
+    },
+    {
+     "id": 2055,
+     "name": "Paper-and-Pencil"
+    },
+    {
+     "id": 2016,
+     "name": "Secret Unit Deployment"
+    }
+   ],
+   "honors": 1,
+   "image": "https://cf.geekdo-images.com/oWcB33sfig9QF_KBEv7iLQ__original/img/retN48ZHxCC5YaECdlWjRdWHPGs=/0x0/filters:format(png)/pic2439783.png"
+  },
+  "bohnanza": {
+   "bggId": 11,
+   "name": "Bohnanza",
+   "year": 1997,
+   "players": [
+    3,
+    7
+   ],
+   "best": [
+    4,
+    5
+   ],
+   "minutes": [
+    45,
+    45
+   ],
+   "minAge": 12,
+   "weight": 1.67,
+   "rating": 7.08,
+   "ratings": 52083,
+   "owned": 84805,
+   "rank": 547,
+   "designers": [
+    {
+     "id": 10,
+     "name": "Uwe Rosenberg"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12024,
+     "name": "Björn Pertoft"
+    },
+    {
+     "id": 56353,
+     "name": "Stephanie Böhm"
+    },
+    {
+     "id": 11507,
+     "name": "Klemens Franz"
+    },
+    {
+     "id": 177706,
+     "name": "Andreas Hallerbach"
+    },
+    {
+     "id": 110699,
+     "name": "Mady Nijenhuis"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 8,
+     "name": "AMIGO"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1013,
+     "name": "Farming"
+    },
+    {
+     "id": 1026,
+     "name": "Negotiation"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2915,
+     "name": "Negotiation"
+    },
+    {
+     "id": 3103,
+     "name": "Resource Queue"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2008,
+     "name": "Trading"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/8SADtu_4zBH_UJrCo935Iw__original/img/RNuAr2CDbxE3XzeJVkxj4Df3eVM=/0x0/filters:format(jpeg)/pic6348964.jpg"
+  },
+  "brass": {
+   "bggId": 224517,
+   "name": "Brass: Birmingham",
+   "year": 2018,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    3,
+    4
+   ],
+   "minutes": [
+    60,
+    120
+   ],
+   "minAge": 14,
+   "weight": 3.86,
+   "rating": 8.56,
+   "ratings": 60540,
+   "owned": 86899,
+   "rank": 1,
+   "designers": [
+    {
+     "id": 32887,
+     "name": "Gavan Brown"
+    },
+    {
+     "id": 32943,
+     "name": "Matt Tolman"
+    },
+    {
+     "id": 6,
+     "name": "Martin Wallace"
+    }
+   ],
+   "artists": [
+    {
+     "id": 32887,
+     "name": "Gavan Brown"
+    },
+    {
+     "id": 70571,
+     "name": "Lina Cossette"
+    },
+    {
+     "id": 70568,
+     "name": "David Forest"
+    },
+    {
+     "id": 140907,
+     "name": "Gui Landgraf"
+    },
+    {
+     "id": 38179,
+     "name": "Damien Mammoliti"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 21765,
+     "name": "Roxley"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    },
+    {
+     "id": 44580,
+     "name": "Board Game Rookie"
+    }
+   ],
+   "categories": [
+    {
+     "id": 2726,
+     "name": "Age of Reason"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1088,
+     "name": "Industry / Manufacturing"
+    },
+    {
+     "id": 2710,
+     "name": "Post-Napoleonic"
+    },
+    {
+     "id": 1034,
+     "name": "Trains"
+    },
+    {
+     "id": 1011,
+     "name": "Transportation"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2001,
+     "name": "Action Points"
+    },
+    {
+     "id": 2956,
+     "name": "Chaining"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2904,
+     "name": "Loans"
+    },
+    {
+     "id": 2900,
+     "name": "Market"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2081,
+     "name": "Network and Route Building"
+    },
+    {
+     "id": 2911,
+     "name": "Ownership"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2849,
+     "name": "Tech Trees / Tech Tracks"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    },
+    {
+     "id": 2826,
+     "name": "Turn Order: Stat-Based"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 20,
+   "image": "https://cf.geekdo-images.com/x3zxjr-Vw5iU4yDPg70Jgw__original/img/FpyxH41Y6_ROoePAilPNEhXnzO8=/0x0/filters:format(jpeg)/pic3490053.jpg"
+  },
+  "camel-up": {
+   "bggId": 153938,
+   "name": "Camel Up",
+   "year": 2014,
+   "players": [
+    2,
+    8
+   ],
+   "best": [
+    4,
+    5
+   ],
+   "minutes": [
+    20,
+    30
+   ],
+   "minAge": 8,
+   "weight": 1.5,
+   "rating": 7.03,
+   "ratings": 29477,
+   "owned": 38296,
+   "rank": 653,
+   "designers": [
+    {
+     "id": 10067,
+     "name": "Steffen Bogen"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12484,
+     "name": "Dennis Lohausen"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 1015,
+     "name": "eggertspiele"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1089,
+     "name": "Animals"
+    },
+    {
+     "id": 1052,
+     "name": "Arabian"
+    },
+    {
+     "id": 1017,
+     "name": "Dice"
+    },
+    {
+     "id": 1031,
+     "name": "Racing"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2014,
+     "name": "Betting and Bluffing"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2035,
+     "name": "Roll / Spin and Move"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 17,
+   "image": "https://cf.geekdo-images.com/jVr1bGBQpshqVPcwvZ7CPg__original/img/GlPdJsTvSho-vqwOOYfC4zyvOa0=/0x0/filters:format(jpeg)/pic1918028.jpg"
+  },
+  "carcassonne": {
+   "bggId": 822,
+   "name": "Carcassonne",
+   "year": 2000,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    45
+   ],
+   "minAge": 7,
+   "weight": 1.88,
+   "rating": 7.42,
+   "ratings": 141890,
+   "owned": 227876,
+   "rank": 241,
+   "designers": [
+    {
+     "id": 398,
+     "name": "Klaus-Jürgen Wrede"
+    }
+   ],
+   "artists": [
+    {
+     "id": 127899,
+     "name": "Marcel Gröber"
+    },
+    {
+     "id": 74,
+     "name": "Doris Matthäus"
+    },
+    {
+     "id": 43873,
+     "name": "Anne Pätzke"
+    },
+    {
+     "id": 14057,
+     "name": "Chris Quilliams"
+    },
+    {
+     "id": 145317,
+     "name": "Franz-Georg Stämmele"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 133,
+     "name": "Hans im Glück"
+    },
+    {
+     "id": 24874,
+     "name": "64 Ounce Games"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1035,
+     "name": "Medieval"
+    },
+    {
+     "id": 1086,
+     "name": "Territory Building"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2080,
+     "name": "Area Majority / Influence"
+    },
+    {
+     "id": 2043,
+     "name": "Enclosure"
+    },
+    {
+     "id": 2871,
+     "name": "Kill Steal"
+    },
+    {
+     "id": 2959,
+     "name": "Map Addition"
+    },
+    {
+     "id": 2048,
+     "name": "Pattern Building"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    }
+   ],
+   "honors": 15,
+   "image": "https://cf.geekdo-images.com/peUgu3A20LRmAXAMyDQfpQ__original/img/bP18m_PYjyFOv1IBGgMOteQUneA=/0x0/filters:format(jpeg)/pic8621446.jpg"
+  },
+  "catan": {
+   "bggId": 13,
+   "name": "Catan",
+   "year": 1995,
+   "players": [
+    3,
+    4
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    60,
+    120
+   ],
+   "minAge": 10,
+   "weight": 2.28,
+   "rating": 7.09,
+   "ratings": 144829,
+   "owned": 245654,
+   "rank": 625,
+   "designers": [
+    {
+     "id": 11,
+     "name": "Klaus Teuber"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12036,
+     "name": "Volkan Baga"
+    },
+    {
+     "id": 12382,
+     "name": "Tanja Donner"
+    },
+    {
+     "id": 13034,
+     "name": "Pete Fenlon"
+    },
+    {
+     "id": 5442,
+     "name": "Jason Hawkins"
+    },
+    {
+     "id": 107207,
+     "name": "Eric Hibbeler"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 37,
+     "name": "KOSMOS"
+    },
+    {
+     "id": 24874,
+     "name": "64 Ounce Games"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1026,
+     "name": "Negotiation"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2956,
+     "name": "Chaining"
+    },
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 2987,
+     "name": "Hidden Victory Points"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2900,
+     "name": "Market"
+    },
+    {
+     "id": 2011,
+     "name": "Modular Board"
+    },
+    {
+     "id": 2915,
+     "name": "Negotiation"
+    },
+    {
+     "id": 2081,
+     "name": "Network and Route Building"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2909,
+     "name": "Random Production"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2008,
+     "name": "Trading"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 17,
+   "image": "https://cf.geekdo-images.com/0XODRpReiZBFUffEcqT5-Q__original/img/oRc0AomWA9ZtFqQDZiZbIyKE1j0=/0x0/filters:format(png)/pic9156909.png"
+  },
+  "century": {
+   "bggId": 209685,
+   "name": "Century: Spice Road",
+   "year": 2017,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    3,
+    4
+   ],
+   "minutes": [
+    30,
+    45
+   ],
+   "minAge": 8,
+   "weight": 1.8,
+   "rating": 7.29,
+   "ratings": 28019,
+   "owned": 35608,
+   "rank": 396,
+   "designers": [
+    {
+     "id": 61330,
+     "name": "Emerson Matsuuchi"
+    }
+   ],
+   "artists": [
+    {
+     "id": 14057,
+     "name": "Chris Quilliams"
+    },
+    {
+     "id": 77485,
+     "name": "David Richards"
+    },
+    {
+     "id": 70730,
+     "name": "Fernanda Suárez"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 34188,
+     "name": "Plan B Games"
+    },
+    {
+     "id": 29,
+     "name": "ABACUSSPIELE"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1035,
+     "name": "Medieval"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2839,
+     "name": "Action Retrieval"
+    },
+    {
+     "id": 2924,
+     "name": "Auction: Dutch"
+    },
+    {
+     "id": 2912,
+     "name": "Contracts"
+    },
+    {
+     "id": 2664,
+     "name": "Deck, Bag, and Pool Building"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2914,
+     "name": "Increase Value of Unchosen Resources"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 14,
+   "image": "https://cf.geekdo-images.com/0_KEDk4lCvryf1Ju3YQJxA__original/img/zv58Iylm_N8nfVFgRkMVM0Q9Fh8=/0x0/filters:format(jpeg)/pic3339551.jpg"
+  },
+  "checkers": {
+   "bggId": 2083,
+   "name": "Checkers",
+   "year": 1150,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 6,
+   "weight": 1.7,
+   "rating": 4.95,
+   "ratings": 9777,
+   "owned": 13093,
+   "rank": 31422,
+   "designers": [],
+   "artists": [
+    {
+     "id": 51640,
+     "name": "Frank Hampson"
+    },
+    {
+     "id": 6646,
+     "name": "Beatrix Potter"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 53628,
+     "name": "3Joy Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1116,
+     "name": "Comic Book / Strip"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2946,
+     "name": "Pattern Movement"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2861,
+     "name": "Static Capture"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/S4IBcWYhlbn51_5f0EIR4g__original/img/jUJ1Ev4_WhCIT7aTvyvpIGG7cGI=/0x0/filters:format(jpeg)/pic113720.jpg"
+  },
+  "chess": {
+   "bggId": 171,
+   "name": "Chess",
+   "year": 1475,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    null,
+    null
+   ],
+   "minAge": 6,
+   "weight": 3.64,
+   "rating": 7.24,
+   "ratings": 41144,
+   "owned": 62342,
+   "rank": 464,
+   "designers": [],
+   "artists": [
+    {
+     "id": 52009,
+     "name": "Paolo Chiari"
+    },
+    {
+     "id": 170428,
+     "name": "Anika Fairooz Chowdhury"
+    },
+    {
+     "id": 50957,
+     "name": "Honoré Daumier"
+    },
+    {
+     "id": 125079,
+     "name": "Peter Ganine"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 4,
+     "name": "(Self-Published)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2846,
+     "name": "Once-Per-Game Abilities"
+    },
+    {
+     "id": 2946,
+     "name": "Pattern Movement"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2861,
+     "name": "Static Capture"
+    },
+    {
+     "id": 2884,
+     "name": "Sudden Death Ending"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/0_RWFMNapgr5yCrdhvGi_Q__original/img/c4SiusUQuh7uc0k6HDwIXYsEc8M=/0x0/filters:format(jpeg)/pic8785991.jpg"
+  },
+  "citadels": {
+   "bggId": 478,
+   "name": "Citadels",
+   "year": 2000,
+   "players": [
+    2,
+    8
+   ],
+   "best": [
+    5,
+    5
+   ],
+   "minutes": [
+    20,
+    60
+   ],
+   "minAge": 10,
+   "weight": 2.05,
+   "rating": 7.05,
+   "ratings": 57540,
+   "owned": 80185,
+   "rank": 596,
+   "designers": [
+    {
+     "id": 125,
+     "name": "Bruno Faidutti"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12519,
+     "name": "Cyrille Daujean"
+    },
+    {
+     "id": 11886,
+     "name": "Julien Delval"
+    },
+    {
+     "id": 11994,
+     "name": "Jesper Ejsing"
+    },
+    {
+     "id": 125,
+     "name": "Bruno Faidutti"
+    },
+    {
+     "id": 18416,
+     "name": "Didier Graffet"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 133,
+     "name": "Hans im Glück"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1023,
+     "name": "Bluffing"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1029,
+     "name": "City Building"
+    },
+    {
+     "id": 1039,
+     "name": "Deduction"
+    },
+    {
+     "id": 1010,
+     "name": "Fantasy"
+    },
+    {
+     "id": 1035,
+     "name": "Medieval"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2838,
+     "name": "Action Drafting"
+    },
+    {
+     "id": 2984,
+     "name": "Closed Drafting"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2836,
+     "name": "Lose a Turn"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2833,
+     "name": "Turn Order: Role Order"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    }
+   ],
+   "honors": 8,
+   "image": "https://cf.geekdo-images.com/shXqRK7Sfsp-jCLwoN3kqw__original/img/G5HKV77V6Q62qaArIHGRLjMnvzY=/0x0/filters:format(jpeg)/pic636868.jpg"
+  },
+  "cockroach-poker": {
+   "bggId": 11971,
+   "name": "Cockroach Poker",
+   "year": 2004,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    5,
+    5
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 8,
+   "weight": 1.1,
+   "rating": 6.8,
+   "ratings": 16855,
+   "owned": 30230,
+   "rank": 1115,
+   "designers": [
+    {
+     "id": 144,
+     "name": "Jacques Zeimet"
+    }
+   ],
+   "artists": [
+    {
+     "id": 7387,
+     "name": "Rolf Vogt"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 265,
+     "name": "Drei Magier Spiele"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1023,
+     "name": "Bluffing"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1030,
+     "name": "Party Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2821,
+     "name": "Single Loser Game"
+    }
+   ],
+   "honors": 6,
+   "image": "https://cf.geekdo-images.com/lHadyVLPUQfNz_qV6MMp_Q__original/img/qN8xusrxWyTJfgq1gTUWrdE4B2I=/0x0/filters:format(jpeg)/pic3218988.jpg"
+  },
+  "coup": {
+   "bggId": 131357,
+   "name": "Coup",
+   "year": 2012,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    5,
+    5
+   ],
+   "minutes": [
+    15,
+    15
+   ],
+   "minAge": 13,
+   "weight": 1.41,
+   "rating": 6.97,
+   "ratings": 53115,
+   "owned": 95484,
+   "rank": 728,
+   "designers": [
+    {
+     "id": 64108,
+     "name": "Rikki Tahta"
+    }
+   ],
+   "artists": [
+    {
+     "id": 126130,
+     "name": "Behnam Balali"
+    },
+    {
+     "id": 14650,
+     "name": "Luis Francisco"
+    },
+    {
+     "id": 166645,
+     "name": "Mikhail Gluhov"
+    },
+    {
+     "id": 64109,
+     "name": "Andrew Higgins"
+    },
+    {
+     "id": 153427,
+     "name": "Alex Jensen"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 10290,
+     "name": "Indie Boards & Cards"
+    },
+    {
+     "id": 23600,
+     "name": "La Mame Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1023,
+     "name": "Bluffing"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1039,
+     "name": "Deduction"
+    },
+    {
+     "id": 1030,
+     "name": "Party Game"
+    },
+    {
+     "id": 1001,
+     "name": "Political"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2014,
+     "name": "Betting and Bluffing"
+    },
+    {
+     "id": 2891,
+     "name": "Hidden Roles"
+    },
+    {
+     "id": 2047,
+     "name": "Memory"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    }
+   ],
+   "honors": 3,
+   "image": "https://cf.geekdo-images.com/MWhSY_GOe2-bmlQ2rntSVg__original/img/ayAAWBK1rAEumARNmROsOtvqW-4=/0x0/filters:format(jpeg)/pic2016054.jpg"
+  },
+  "crew-deep-sea": {
+   "bggId": 324856,
+   "name": "The Crew: Mission Deep Sea",
+   "year": 2021,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 10,
+   "weight": 2.06,
+   "rating": 8.03,
+   "ratings": 26807,
+   "owned": 53910,
+   "rank": 45,
+   "designers": [
+    {
+     "id": 45563,
+     "name": "Thomas Sing"
+    }
+   ],
+   "artists": [
+    {
+     "id": 120549,
+     "name": "Marco Armbruster"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 37,
+     "name": "KOSMOS"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 2366,
+     "name": "Devir"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1022,
+     "name": "Adventure"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1082,
+     "name": "Mythology"
+    },
+    {
+     "id": 1008,
+     "name": "Nautical"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2893,
+     "name": "Communication Limits"
+    },
+    {
+     "id": 2023,
+     "name": "Cooperative Game"
+    },
+    {
+     "id": 3002,
+     "name": "Deduction"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2822,
+     "name": "Scenario / Mission / Campaign Game"
+    },
+    {
+     "id": 2009,
+     "name": "Trick-taking"
+    }
+   ],
+   "honors": 9,
+   "image": "https://cf.geekdo-images.com/VuBqZ1sMaDAVVHF_OEJP4g__original/img/jGWxczXC_VWZofeAmlO_DkB0hCI=/0x0/filters:format(jpeg)/pic5988903.jpg"
+  },
+  "cryptid": {
+   "bggId": 246784,
+   "name": "Cryptid",
+   "year": 2018,
+   "players": [
+    3,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    30,
+    50
+   ],
+   "minAge": 10,
+   "weight": 2.26,
+   "rating": 7.42,
+   "ratings": 17625,
+   "owned": 24166,
+   "rank": 344,
+   "designers": [
+    {
+     "id": 107037,
+     "name": "Hal Duncan"
+    },
+    {
+     "id": 107036,
+     "name": "Ruth Veevers"
+    }
+   ],
+   "artists": [
+    {
+     "id": 28024,
+     "name": "Kwanchai Moriya"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 29313,
+     "name": "Osprey Games"
+    },
+    {
+     "id": 39755,
+     "name": "17wanzy (Yihu BG)"
+    },
+    {
+     "id": 39751,
+     "name": "Doit Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1039,
+     "name": "Deduction"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 3002,
+     "name": "Deduction"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 3003,
+     "name": "Induction"
+    },
+    {
+     "id": 2011,
+     "name": "Modular Board"
+    },
+    {
+     "id": 2060,
+     "name": "Pattern Recognition"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    }
+   ],
+   "honors": 8,
+   "image": "https://cf.geekdo-images.com/qrPLpAnhFgc470ZRuXlvbg__original/img/QenUCVaFRry4-wlimHmeLn226Bo=/0x0/filters:format(jpeg)/pic4037705.jpg"
+  },
+  "dice-throne": {
+   "bggId": 216734,
+   "name": "Dice Throne: Season One",
+   "year": 2018,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    20,
+    40
+   ],
+   "minAge": 8,
+   "weight": 2.07,
+   "rating": 7.48,
+   "ratings": 6700,
+   "owned": 9504,
+   "rank": 724,
+   "designers": [
+    {
+     "id": 97955,
+     "name": "Nate Chatellier"
+    },
+    {
+     "id": 63023,
+     "name": "Manny Trembley"
+    }
+   ],
+   "artists": [
+    {
+     "id": 63023,
+     "name": "Manny Trembley"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 35671,
+     "name": "Mind Bottling Games"
+    },
+    {
+     "id": 21765,
+     "name": "Roxley"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1017,
+     "name": "Dice"
+    },
+    {
+     "id": 1010,
+     "name": "Fantasy"
+    },
+    {
+     "id": 1046,
+     "name": "Fighting"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2856,
+     "name": "Die Icon Resolution"
+    },
+    {
+     "id": 2870,
+     "name": "Re-rolling and Locking"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2019,
+     "name": "Team-Based Game"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/crZpafHHxItU5EWPCgNbPA__original/img/SW7p_jpQKI-EGcMGjenPjHvGTL0=/0x0/filters:format(jpeg)/pic3962955.jpg"
+  },
+  "dominion": {
+   "bggId": 36218,
+   "name": "Dominion",
+   "year": 2008,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    3,
+    3
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 13,
+   "weight": 2.34,
+   "rating": 7.6,
+   "ratings": 97556,
+   "owned": 132066,
+   "rank": 146,
+   "designers": [
+    {
+     "id": 10525,
+     "name": "Donald X. Vaccarino"
+    }
+   ],
+   "artists": [
+    {
+     "id": 11933,
+     "name": "Matthias Catrein"
+    },
+    {
+     "id": 11886,
+     "name": "Julien Delval"
+    },
+    {
+     "id": 12019,
+     "name": "Tomasz Jedruszek"
+    },
+    {
+     "id": 11854,
+     "name": "Ryan Laukat"
+    },
+    {
+     "id": 4959,
+     "name": "Harald Lieske"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 3,
+     "name": "Rio Grande Games"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1035,
+     "name": "Medieval"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2664,
+     "name": "Deck, Bag, and Pool Building"
+    },
+    {
+     "id": 2901,
+     "name": "Delayed Purchase"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 47,
+   "image": "https://cf.geekdo-images.com/j6iQpZ4XkemZP07HNCODBA__original/img/96COuakNiLRrjDLc1sM4Zxsw4WE=/0x0/filters:format(jpeg)/pic394356.jpg"
+  },
+  "el-dorado": {
+   "bggId": 217372,
+   "name": "The Quest for El Dorado",
+   "year": 2017,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    60
+   ],
+   "minAge": 10,
+   "weight": 1.94,
+   "rating": 7.72,
+   "ratings": 33860,
+   "owned": 55739,
+   "rank": 120,
+   "designers": [
+    {
+     "id": 2,
+     "name": "Reiner Knizia"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12130,
+     "name": "Vincent Dutrait"
+    },
+    {
+     "id": 11883,
+     "name": "Franz Vohwinkel"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 34,
+     "name": "Ravensburger AG"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1022,
+     "name": "Adventure"
+    },
+    {
+     "id": 1020,
+     "name": "Exploration"
+    },
+    {
+     "id": 1031,
+     "name": "Racing"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2664,
+     "name": "Deck, Bag, and Pool Building"
+    },
+    {
+     "id": 2901,
+     "name": "Delayed Purchase"
+    },
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 2011,
+     "name": "Modular Board"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2846,
+     "name": "Once-Per-Game Abilities"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2948,
+     "name": "Resource to Move"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    },
+    {
+     "id": 2974,
+     "name": "Zone of Control"
+    }
+   ],
+   "honors": 18,
+   "image": "https://cf.geekdo-images.com/b5VyYjNfAxJ4Z-Dx2UWlqg__original/img/-GqQ0EOfg9e3yFVpKgJbPdlunso=/0x0/filters:format(jpeg)/pic7945692.jpg"
+  },
+  "for-sale": {
+   "bggId": 172,
+   "name": "For Sale",
+   "year": 1997,
+   "players": [
+    3,
+    6
+   ],
+   "best": [
+    5,
+    5
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.25,
+   "rating": 7.27,
+   "ratings": 34883,
+   "owned": 44709,
+   "rank": 357,
+   "designers": [
+    {
+     "id": 13,
+     "name": "Stefan Dorra"
+    }
+   ],
+   "artists": [
+    {
+     "id": 75012,
+     "name": "Óscar Aguado"
+    },
+    {
+     "id": 119788,
+     "name": "Abbas Amirabadi"
+    },
+    {
+     "id": 122974,
+     "name": "Mohammad Amir Garoosian"
+    },
+    {
+     "id": 11478,
+     "name": "Alvin Madden"
+    },
+    {
+     "id": 141786,
+     "name": "Gil Martimiano"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 597,
+     "name": "Eagle-Gryphon Games"
+    },
+    {
+     "id": 8923,
+     "name": "IELLO"
+    },
+    {
+     "id": 34,
+     "name": "Ravensburger AG"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2012,
+     "name": "Auction / Bidding"
+    },
+    {
+     "id": 2920,
+     "name": "Auction: Sealed Bid"
+    },
+    {
+     "id": 2919,
+     "name": "Auction: Turn Order Until Pass"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2926,
+     "name": "Selection Order Bid"
+    }
+   ],
+   "honors": 3,
+   "image": "https://cf.geekdo-images.com/dJh9HkZC346NgPTAicJq_A__original/img/6ib2NLakSlsf69WYwCOe9NNLcsc=/0x0/filters:format(jpeg)/pic1513085.jpg"
+  },
+  "gaia-project": {
+   "bggId": 220308,
+   "name": "Gaia Project",
+   "year": 2017,
+   "players": [
+    1,
+    4
+   ],
+   "best": [
+    3,
+    4
+   ],
+   "minutes": [
+    60,
+    150
+   ],
+   "minAge": 12,
+   "weight": 4.4,
+   "rating": 8.35,
+   "ratings": 31943,
+   "owned": 39463,
+   "rank": 13,
+   "designers": [
+    {
+     "id": 4300,
+     "name": "Jens Drögemüller"
+    },
+    {
+     "id": 4407,
+     "name": "Helge Ostertag"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12484,
+     "name": "Dennis Lohausen"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 22380,
+     "name": "Feuerland Spiele"
+    },
+    {
+     "id": 57596,
+     "name": "Automa Factory"
+    },
+    {
+     "id": 30958,
+     "name": "Capstone Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1015,
+     "name": "Civilization"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    },
+    {
+     "id": 1113,
+     "name": "Space Exploration"
+    },
+    {
+     "id": 1086,
+     "name": "Territory Building"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2011,
+     "name": "Modular Board"
+    },
+    {
+     "id": 2081,
+     "name": "Network and Route Building"
+    },
+    {
+     "id": 2819,
+     "name": "Solo / Solitaire Game"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2849,
+     "name": "Tech Trees / Tech Tracks"
+    },
+    {
+     "id": 2830,
+     "name": "Turn Order: Pass Order"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    },
+    {
+     "id": 2874,
+     "name": "Victory Points as a Resource"
+    }
+   ],
+   "honors": 14,
+   "image": "https://cf.geekdo-images.com/hGWFm3hbMlCDsfCsauOQ4g__original/img/tjlflQtUPFiTpLpwk1NCVCS29Ic=/0x0/filters:format(png)/pic5375625.png"
+  },
+  "go": {
+   "bggId": 188,
+   "name": "Go",
+   "year": -2200,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    180
+   ],
+   "minAge": 8,
+   "weight": 3.92,
+   "rating": 7.66,
+   "ratings": 18572,
+   "owned": 26878,
+   "rank": 239,
+   "designers": [],
+   "artists": [
+    {
+     "id": 33954,
+     "name": "Barbro Hennius"
+    },
+    {
+     "id": 70252,
+     "name": "Norman Sommer"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 4,
+     "name": "(Self-Published)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2080,
+     "name": "Area Majority / Influence"
+    },
+    {
+     "id": 2956,
+     "name": "Chaining"
+    },
+    {
+     "id": 2043,
+     "name": "Enclosure"
+    },
+    {
+     "id": 2048,
+     "name": "Pattern Building"
+    },
+    {
+     "id": 2060,
+     "name": "Pattern Recognition"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/6qAiZwWxSSKP2kFcA80cZg__original/img/oClfNpLGqRwyqeq54Na_VoVAA3o=/0x0/filters:format(jpeg)/pic1728832.jpg"
+  },
+  "hanabi": {
+   "bggId": 98778,
+   "name": "Hanabi",
+   "year": 2010,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    25,
+    25
+   ],
+   "minAge": 8,
+   "weight": 1.69,
+   "rating": 7.03,
+   "ratings": 53242,
+   "owned": 92043,
+   "rank": 608,
+   "designers": [
+    {
+     "id": 9714,
+     "name": "Antoine Bauza"
+    }
+   ],
+   "artists": [
+    {
+     "id": 9714,
+     "name": "Antoine Bauza"
+    },
+    {
+     "id": 25471,
+     "name": "Gérald Guerlais"
+    },
+    {
+     "id": 145855,
+     "name": "Laura Michaud"
+    },
+    {
+     "id": 28209,
+     "name": "Albertine Ralenti"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 29,
+     "name": "ABACUSSPIELE"
+    },
+    {
+     "id": 2691,
+     "name": "Cocktail Games"
+    },
+    {
+     "id": 19309,
+     "name": "Les 12 Singes"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1039,
+     "name": "Deduction"
+    },
+    {
+     "id": 1045,
+     "name": "Memory"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2893,
+     "name": "Communication Limits"
+    },
+    {
+     "id": 2023,
+     "name": "Cooperative Game"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2047,
+     "name": "Memory"
+    },
+    {
+     "id": 3101,
+     "name": "Ordering"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 10,
+   "image": "https://cf.geekdo-images.com/JDVksMwfcqoem1k_xtZrOA__original/img/5vNHZiTEhK4aRDuGXv5KImp9cmQ=/0x0/filters:format(jpeg)/pic2007286.jpg"
+  },
+  "heat": {
+   "bggId": 366013,
+   "name": "Heat: Pedal to the Metal",
+   "year": 2022,
+   "players": [
+    1,
+    6
+   ],
+   "best": [
+    5,
+    6
+   ],
+   "minutes": [
+    30,
+    60
+   ],
+   "minAge": 10,
+   "weight": 2.2,
+   "rating": 7.99,
+   "ratings": 43625,
+   "owned": 65545,
+   "rank": 48,
+   "designers": [
+    {
+     "id": 80520,
+     "name": "Asger Aleksandrov Granerud"
+    },
+    {
+     "id": 80521,
+     "name": "Daniel Skjold Pedersen"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12130,
+     "name": "Vincent Dutrait"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 1027,
+     "name": "Days of Wonder"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    },
+    {
+     "id": 50696,
+     "name": "CoolPlay"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1031,
+     "name": "Racing"
+    },
+    {
+     "id": 1038,
+     "name": "Sports"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2887,
+     "name": "Catch the Leader"
+    },
+    {
+     "id": 2664,
+     "name": "Deck, Bag, and Pool Building"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2953,
+     "name": "Programmed Movement"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2070,
+     "name": "Simulation"
+    },
+    {
+     "id": 2020,
+     "name": "Simultaneous Action Selection"
+    },
+    {
+     "id": 2819,
+     "name": "Solo / Solitaire Game"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 25,
+   "image": "https://cf.geekdo-images.com/-vOrd4bOspibyohYExLqWg__original/img/iXU8a9WaVlwrkiEiOxWN06y9y5g=/0x0/filters:format(png)/pic6940449.png"
+  },
+  "high-society": {
+   "bggId": 220,
+   "name": "High Society",
+   "year": 1995,
+   "players": [
+    3,
+    5
+   ],
+   "best": [
+    4,
+    5
+   ],
+   "minutes": [
+    15,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.48,
+   "rating": 7.2,
+   "ratings": 17084,
+   "owned": 26279,
+   "rank": 535,
+   "designers": [
+    {
+     "id": 2,
+     "name": "Reiner Knizia"
+    }
+   ],
+   "artists": [
+    {
+     "id": 71875,
+     "name": "Marie Bergeron"
+    },
+    {
+     "id": 38917,
+     "name": "Mateusz Bielski"
+    },
+    {
+     "id": 98717,
+     "name": "Medusa Dollmaker"
+    },
+    {
+     "id": 12705,
+     "name": "Wesly Gibs"
+    },
+    {
+     "id": 111611,
+     "name": "Dahee Lee"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 34,
+     "name": "Ravensburger AG"
+    },
+    {
+     "id": 39686,
+     "name": "Across the Board"
+    },
+    {
+     "id": 53065,
+     "name": "Allplay"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2012,
+     "name": "Auction / Bidding"
+    },
+    {
+     "id": 2919,
+     "name": "Auction: Turn Order Until Pass"
+    },
+    {
+     "id": 2922,
+     "name": "Constrained Bidding"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    }
+   ],
+   "honors": 2,
+   "image": "https://cf.geekdo-images.com/lNRG273h6gkd3szSY3EswQ__original/img/M-gutK8AQBBaQ9wBQ3OU8TV14j4=/0x0/filters:format(png)/pic9202764.png"
+  },
+  "hive": {
+   "bggId": 2655,
+   "name": "Hive",
+   "year": 2001,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 9,
+   "weight": 2.31,
+   "rating": 7.31,
+   "ratings": 40871,
+   "owned": 58815,
+   "rank": 336,
+   "designers": [
+    {
+     "id": 1078,
+     "name": "John Yianni"
+    }
+   ],
+   "artists": [
+    {
+     "id": 1078,
+     "name": "John Yianni"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 582,
+     "name": "Gen42 Games"
+    },
+    {
+     "id": 24874,
+     "name": "64 Ounce Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1089,
+     "name": "Animals"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2043,
+     "name": "Enclosure"
+    },
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 2946,
+     "name": "Pattern Movement"
+    },
+    {
+     "id": 2964,
+     "name": "Pieces as Map"
+    },
+    {
+     "id": 2944,
+     "name": "Three Dimensional Movement"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/fQe85tsBZoH6ibPnm1k1UA__original/img/eqUVrCJKcMBGBhw4Gfc9_9JabYE=/0x0/filters:format(jpeg)/pic791151.jpg"
+  },
+  "jaipur": {
+   "bggId": 54043,
+   "name": "Jaipur",
+   "year": 2009,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.46,
+   "rating": 7.48,
+   "ratings": 59191,
+   "owned": 97959,
+   "rank": 202,
+   "designers": [
+    {
+     "id": 6736,
+     "name": "Sébastien Pauchon"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12130,
+     "name": "Vincent Dutrait"
+    },
+    {
+     "id": 12282,
+     "name": "Alexandre Roche"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 6347,
+     "name": "GameWorks SàRL"
+    },
+    {
+     "id": 25842,
+     "name": "Space Cowboys"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2987,
+     "name": "Hidden Victory Points"
+    },
+    {
+     "id": 2900,
+     "name": "Market"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2884,
+     "name": "Sudden Death Ending"
+    },
+    {
+     "id": 2828,
+     "name": "Turn Order: Progressive"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 12,
+   "image": "https://cf.geekdo-images.com/_LTujSe_o16nvjDC-J0seA__original/img/zUnAdsgt4dCxvtoRDc_9DHbic0M=/0x0/filters:format(jpeg)/pic5100947.jpg"
+  },
+  "king-of-tokyo": {
+   "bggId": 70323,
+   "name": "King of Tokyo",
+   "year": 2011,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    4,
+    5
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 8,
+   "weight": 1.48,
+   "rating": 7.11,
+   "ratings": 76707,
+   "owned": 113395,
+   "rank": 510,
+   "designers": [
+    {
+     "id": 14,
+     "name": "Richard Garfield"
+    }
+   ],
+   "artists": [
+    {
+     "id": 92204,
+     "name": "Gabriel Butik"
+    },
+    {
+     "id": 37675,
+     "name": "Romain Gaschet"
+    },
+    {
+     "id": 38196,
+     "name": "Paul Mafayon"
+    },
+    {
+     "id": 1279,
+     "name": "Igor Polouchine"
+    },
+    {
+     "id": 48337,
+     "name": "Benjamin Raynal"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 8923,
+     "name": "IELLO"
+    },
+    {
+     "id": 34501,
+     "name": "Boardgame Space"
+    },
+    {
+     "id": 46980,
+     "name": "Brädspel.se"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1017,
+     "name": "Dice"
+    },
+    {
+     "id": 1046,
+     "name": "Fighting"
+    },
+    {
+     "id": 1064,
+     "name": "Movies / TV / Radio theme"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2856,
+     "name": "Die Icon Resolution"
+    },
+    {
+     "id": 2886,
+     "name": "King of the Hill"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2870,
+     "name": "Re-rolling and Locking"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    }
+   ],
+   "honors": 25,
+   "image": "https://cf.geekdo-images.com/m_RzXpHURC0_xLkvRSR_sw__original/img/hSvWgiRYJCTTuoLOWTW3c8sYtl8=/0x0/filters:format(jpeg)/pic3043734.jpg"
+  },
+  "kingdomino": {
+   "bggId": 204583,
+   "name": "Kingdomino",
+   "year": 2016,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    15,
+    25
+   ],
+   "minAge": 8,
+   "weight": 1.24,
+   "rating": 7.29,
+   "ratings": 53866,
+   "owned": 93059,
+   "rank": 334,
+   "designers": [
+    {
+     "id": 1727,
+     "name": "Bruno Cathala"
+    }
+   ],
+   "artists": [
+    {
+     "id": 51033,
+     "name": "Cyril Bouquet"
+    },
+    {
+     "id": 80961,
+     "name": "Pauline Detraz"
+    },
+    {
+     "id": 84005,
+     "name": "Charlotte Bey"
+    },
+    {
+     "id": 1727,
+     "name": "Bruno Cathala"
+    },
+    {
+     "id": 145454,
+     "name": "Hervine Galliou"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 5022,
+     "name": "Blue Orange (EU)"
+    },
+    {
+     "id": 491,
+     "name": "Blue Orange Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1035,
+     "name": "Medieval"
+    },
+    {
+     "id": 1028,
+     "name": "Puzzle"
+    },
+    {
+     "id": 1086,
+     "name": "Territory Building"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2043,
+     "name": "Enclosure"
+    },
+    {
+     "id": 3007,
+     "name": "Matching"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    },
+    {
+     "id": 2829,
+     "name": "Turn Order: Claim Action"
+    }
+   ],
+   "honors": 25,
+   "image": "https://cf.geekdo-images.com/c0m3gwZTcfKoLI63ASio8g__original/img/HT6NQPT0cSFcZXjSewtjTO_NBAE=/0x0/filters:format(png)/pic8443569.png"
+  },
+  "lost-cities": {
+   "bggId": 50,
+   "name": "Lost Cities",
+   "year": 1999,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.47,
+   "rating": 7.26,
+   "ratings": 51647,
+   "owned": 77658,
+   "rank": 349,
+   "designers": [
+    {
+     "id": 2,
+     "name": "Reiner Knizia"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12130,
+     "name": "Vincent Dutrait"
+    },
+    {
+     "id": 26874,
+     "name": "Michaela Kienle"
+    },
+    {
+     "id": 12484,
+     "name": "Dennis Lohausen"
+    },
+    {
+     "id": 22516,
+     "name": "Anke Pohl"
+    },
+    {
+     "id": 22515,
+     "name": "Thilo Rick"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 37,
+     "name": "KOSMOS"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1020,
+     "name": "Exploration"
+    },
+    {
+     "id": 1098,
+     "name": "Number"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2981,
+     "name": "Melding and Splaying"
+    },
+    {
+     "id": 3101,
+     "name": "Ordering"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 9,
+   "image": "https://cf.geekdo-images.com/AL5D-dXabY-Lk3PqIFk_0g__original/img/PdGBQ7xc0GA9ndKnnInx_sQwvl4=/0x0/filters:format(jpeg)/pic4597095.jpg"
+  },
+  "love-letter": {
+   "bggId": 129622,
+   "name": "Love Letter",
+   "year": 2012,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 10,
+   "weight": 1.18,
+   "rating": 7.23,
+   "ratings": 72467,
+   "owned": 118914,
+   "rank": 373,
+   "designers": [
+    {
+     "id": 9495,
+     "name": "Seiji Kanai"
+    }
+   ],
+   "artists": [
+    {
+     "id": 58973,
+     "name": "Kali Fitzgerald"
+    },
+    {
+     "id": 14344,
+     "name": "Andrew Hepworth"
+    },
+    {
+     "id": 14593,
+     "name": "Jeff Himmelman"
+    },
+    {
+     "id": 6815,
+     "name": "John Kovalic"
+    },
+    {
+     "id": 117030,
+     "name": "Nina Matsumoto"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 396,
+     "name": "Alderac Entertainment Group"
+    },
+    {
+     "id": 7552,
+     "name": "Kanai Factory"
+    },
+    {
+     "id": 1001,
+     "name": "(Web published)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1039,
+     "name": "Deduction"
+    },
+    {
+     "id": 1070,
+     "name": "Renaissance"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 3002,
+     "name": "Deduction"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    }
+   ],
+   "honors": 28,
+   "image": "https://cf.geekdo-images.com/T1ltXwapFUtghS9A7_tf4g__original/img/xIAzJY7rl-mtPStRZSqnTVsAr8Y=/0x0/filters:format(jpeg)/pic1401448.jpg"
+  },
+  "ludo": {
+   "bggId": 2136,
+   "name": "Pachisi",
+   "year": 400,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 5,
+   "weight": 1.17,
+   "rating": 4.54,
+   "ratings": 6284,
+   "owned": 11245,
+   "rank": 31434,
+   "designers": [],
+   "artists": [
+    {
+     "id": 59100,
+     "name": "Rune Andréasson"
+    },
+    {
+     "id": 9620,
+     "name": "Kurt Brandes"
+    },
+    {
+     "id": 52372,
+     "name": "Silvia Christoph"
+    },
+    {
+     "id": 54043,
+     "name": "Constanza Droop"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 4,
+     "name": "(Self-Published)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1041,
+     "name": "Children's Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2035,
+     "name": "Roll / Spin and Move"
+    },
+    {
+     "id": 2861,
+     "name": "Static Capture"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2019,
+     "name": "Team-Based Game"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/45Nb6goQqvPHD9hOut0ntg__original/img/PvDk6RoeXtEl1hsi1eIjeEKZqJk=/0x0/filters:format(jpeg)/pic516869.jpg"
+  },
+  "machi-koro": {
+   "bggId": 143884,
+   "name": "Machi Koro",
+   "year": 2012,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.52,
+   "rating": 6.59,
+   "ratings": 36310,
+   "owned": 60625,
+   "rank": 1409,
+   "designers": [
+    {
+     "id": 68814,
+     "name": "Masao Suganuma"
+    }
+   ],
+   "artists": [
+    {
+     "id": 118473,
+     "name": "Taro Hino"
+    },
+    {
+     "id": 69648,
+     "name": "Noboru Hotta"
+    },
+    {
+     "id": 37676,
+     "name": "Ian Parovel"
+    },
+    {
+     "id": 12836,
+     "name": "Mirko Suzuki"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 25355,
+     "name": "Grounding"
+    },
+    {
+     "id": 2366,
+     "name": "Devir"
+    },
+    {
+     "id": 46577,
+     "name": "Dragonfly Publishing"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1029,
+     "name": "City Building"
+    },
+    {
+     "id": 1017,
+     "name": "Dice"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2911,
+     "name": "Ownership"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2909,
+     "name": "Random Production"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/_lI2eUDHfesfe5SswJiFAg__original/img/H4XHVffQ4SOxgWoG396I9LUrwg8=/0x0/filters:format(png)/pic4783831.png"
+  },
+  "no-thanks": {
+   "bggId": 12942,
+   "name": "No Thanks!",
+   "year": 2004,
+   "players": [
+    3,
+    7
+   ],
+   "best": [
+    4,
+    5
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 8,
+   "weight": 1.13,
+   "rating": 7.08,
+   "ratings": 31178,
+   "owned": 47487,
+   "rank": 564,
+   "designers": [
+    {
+     "id": 85,
+     "name": "Thorsten Gimmler"
+    }
+   ],
+   "artists": [
+    {
+     "id": 11901,
+     "name": "Oliver Freudenreich"
+    },
+    {
+     "id": 12484,
+     "name": "Dennis Lohausen"
+    },
+    {
+     "id": 24642,
+     "name": "Atelier Löwentor"
+    },
+    {
+     "id": 166971,
+     "name": "SMLXL"
+    },
+    {
+     "id": 139038,
+     "name": "Zongoh"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 8,
+     "name": "AMIGO"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 157,
+     "name": "asmodee"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2012,
+     "name": "Auction / Bidding"
+    },
+    {
+     "id": 2928,
+     "name": "Closed Economy Auction"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/JSAs8aMopjf8P9JXwTMV7w__original/img/pm0ioQ1vNabJExMgcXwB2oMIalY=/0x0/filters:format(png)/pic9005058.png"
+  },
+  "onitama": {
+   "bggId": 160477,
+   "name": "Onitama",
+   "year": 2014,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    15,
+    20
+   ],
+   "minAge": 10,
+   "weight": 1.66,
+   "rating": 7.33,
+   "ratings": 25339,
+   "owned": 39964,
+   "rank": 366,
+   "designers": [
+    {
+     "id": 69723,
+     "name": "Shimpei Sato"
+    }
+   ],
+   "artists": [
+    {
+     "id": 75829,
+     "name": "Jun Kondo"
+    },
+    {
+     "id": 85289,
+     "name": "Mariusz Szmerdt"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 17812,
+     "name": "Arcane Wonders"
+    },
+    {
+     "id": 25654,
+     "name": "conception"
+    },
+    {
+     "id": 50638,
+     "name": "Dice Tower Essentials"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2946,
+     "name": "Pattern Movement"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2861,
+     "name": "Static Capture"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/GJKuOCy5HGAYgVH_Rei5mA__original/img/oRsIxp72iv58128KFdqvjG6Gz64=/0x0/filters:format(jpeg)/pic7070194.jpg"
+  },
+  "othello": {
+   "bggId": 2389,
+   "name": "Othello",
+   "year": 1883,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 8,
+   "weight": 2.07,
+   "rating": 6.16,
+   "ratings": 9424,
+   "owned": 16688,
+   "rank": 3477,
+   "designers": [
+    {
+     "id": 8901,
+     "name": "John W. Mollett"
+    },
+    {
+     "id": 8900,
+     "name": "Lewis Waterman"
+    },
+    {
+     "id": 9102,
+     "name": "Goro Hasegawa"
+    }
+   ],
+   "artists": [
+    {
+     "id": 23521,
+     "name": "John Adams"
+    },
+    {
+     "id": 6730,
+     "name": "Georg Appl"
+    },
+    {
+     "id": 3030,
+     "name": "Kinetic"
+    },
+    {
+     "id": 117665,
+     "name": "Machai"
+    },
+    {
+     "id": 2946,
+     "name": "Walter Pepperle"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 11388,
+     "name": "A/S Informa Forlag"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2043,
+     "name": "Enclosure"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    }
+   ],
+   "honors": 1,
+   "image": "https://cf.geekdo-images.com/EofS3EhloTaqeC_OYQu_UA__original/img/qk2Kmd-LtGT81AyYBmYaRJ1Akck=/0x0/filters:format(jpeg)/pic6568627.jpg"
+  },
+  "patchwork": {
+   "bggId": 163412,
+   "name": "Patchwork",
+   "year": 2014,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    15,
+    30
+   ],
+   "minAge": 8,
+   "weight": 1.6,
+   "rating": 7.58,
+   "ratings": 75214,
+   "owned": 125256,
+   "rank": 149,
+   "designers": [
+    {
+     "id": 10,
+     "name": "Uwe Rosenberg"
+    }
+   ],
+   "artists": [
+    {
+     "id": 160309,
+     "name": "Carrie Cantwell"
+    },
+    {
+     "id": 11507,
+     "name": "Klemens Franz"
+    },
+    {
+     "id": 159088,
+     "name": "Maya Hanisch"
+    },
+    {
+     "id": 130882,
+     "name": "Rex Lee"
+    },
+    {
+     "id": 130756,
+     "name": "Jolanta Lendzioszek"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 234,
+     "name": "Lookout Games"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 157,
+     "name": "asmodee"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1028,
+     "name": "Puzzle"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2978,
+     "name": "Grid Coverage"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2813,
+     "name": "Rondel"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    },
+    {
+     "id": 2826,
+     "name": "Turn Order: Stat-Based"
+    },
+    {
+     "id": 2663,
+     "name": "Turn Order: Time Track"
+    },
+    {
+     "id": 2874,
+     "name": "Victory Points as a Resource"
+    }
+   ],
+   "honors": 17,
+   "image": "https://cf.geekdo-images.com/xNSaIHCKr_cc7Q2rQSSJPQ__original/img/HJJdVosBV35kj8pQ6wmQMiJRhVA=/0x0/filters:format(jpeg)/pic9273518.jpg"
+  },
+  "point-salad": {
+   "bggId": 274960,
+   "name": "Point Salad",
+   "year": 2019,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    3,
+    3
+   ],
+   "minutes": [
+    15,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.15,
+   "rating": 7.08,
+   "ratings": 23788,
+   "owned": 40487,
+   "rank": 614,
+   "designers": [
+    {
+     "id": 116182,
+     "name": "Molly Johnson"
+    },
+    {
+     "id": 116181,
+     "name": "Robert Melvin"
+    },
+    {
+     "id": 116180,
+     "name": "Shawn Stankewich"
+    }
+   ],
+   "artists": [
+    {
+     "id": 107058,
+     "name": "Dylan Mangini"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 396,
+     "name": "Alderac Entertainment Group"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    },
+    {
+     "id": 9074,
+     "name": "Bard Centrum Gier"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2912,
+     "name": "Contracts"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 20,
+   "image": "https://cf.geekdo-images.com/Xy0W9NtEpX0EVjwgxO3IEA__original/img/WdLBZcryNqysYsyC3PNF9FeaPWQ=/0x0/filters:format(png)/pic4621571.png"
+  },
+  "quoridor": {
+   "bggId": 624,
+   "name": "Quoridor",
+   "year": 1997,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    15,
+    15
+   ],
+   "minAge": 8,
+   "weight": 1.82,
+   "rating": 6.64,
+   "ratings": 9936,
+   "owned": 16493,
+   "rank": 1718,
+   "designers": [
+    {
+     "id": 281,
+     "name": "Mirko Marchesi"
+    }
+   ],
+   "artists": [
+    {
+     "id": 281,
+     "name": "Mirko Marchesi"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 155,
+     "name": "Gigamic"
+    },
+    {
+     "id": 9068,
+     "name": "Broadway Toys LTD"
+    },
+    {
+     "id": 672,
+     "name": "Family Games, Inc."
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1041,
+     "name": "Children's Game"
+    },
+    {
+     "id": 1059,
+     "name": "Maze"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2883,
+     "name": "Connections"
+    },
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2974,
+     "name": "Zone of Control"
+    }
+   ],
+   "honors": 3,
+   "image": "https://cf.geekdo-images.com/I1YNAhee09mryaqfEo8MwA__original/img/LUcYakoNVnYxjmpYRFA6HUpHWo4=/0x0/filters:format(jpeg)/pic3488232.jpg"
+  },
+  "race-galaxy": {
+   "bggId": 28143,
+   "name": "Race for the Galaxy",
+   "year": 2007,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    60
+   ],
+   "minAge": 12,
+   "weight": 2.99,
+   "rating": 7.74,
+   "ratings": 59518,
+   "owned": 74764,
+   "rank": 95,
+   "designers": [
+    {
+     "id": 150,
+     "name": "Thomas Lehmann"
+    }
+   ],
+   "artists": [
+    {
+     "id": 11968,
+     "name": "Martin Hoffmann"
+    },
+    {
+     "id": 11902,
+     "name": "Claus Stephan"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 3,
+     "name": "Rio Grande Games"
+    },
+    {
+     "id": 29,
+     "name": "ABACUSSPIELE"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1015,
+     "name": "Civilization"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    },
+    {
+     "id": 1113,
+     "name": "Space Exploration"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2843,
+     "name": "Follow"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2900,
+     "name": "Market"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2020,
+     "name": "Simultaneous Action Selection"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2079,
+     "name": "Variable Phase Order"
+    }
+   ],
+   "honors": 18,
+   "image": "https://cf.geekdo-images.com/-DOqixs8uwKUvvWPKI4f9w__original/img/Vh-DCkTPa8OU45LaJdUywwhiYqE=/0x0/filters:format(jpeg)/pic5261714.jpg"
+  },
+  "res-arcana": {
+   "bggId": 262712,
+   "name": "Res Arcana",
+   "year": 2019,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    60
+   ],
+   "minAge": 12,
+   "weight": 2.66,
+   "rating": 7.6,
+   "ratings": 26241,
+   "owned": 35538,
+   "rank": 186,
+   "designers": [
+    {
+     "id": 150,
+     "name": "Thomas Lehmann"
+    }
+   ],
+   "artists": [
+    {
+     "id": 11886,
+     "name": "Julien Delval"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 40312,
+     "name": "Sand Castle Games"
+    },
+    {
+     "id": 39755,
+     "name": "17wanzy (Yihu BG)"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1010,
+     "name": "Fantasy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2830,
+     "name": "Turn Order: Pass Order"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    }
+   ],
+   "honors": 13,
+   "image": "https://cf.geekdo-images.com/gcALy45JfcjyKUn6T3mBIQ__original/img/YLSAurBSWEGi3PHsuQWi8St_0Yg=/0x0/filters:format(jpeg)/pic4422847.jpg"
+  },
+  "risk": {
+   "bggId": 181,
+   "name": "Risk",
+   "year": 1959,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    120,
+    120
+   ],
+   "minAge": 10,
+   "weight": 2.06,
+   "rating": 5.61,
+   "ratings": 39132,
+   "owned": 68584,
+   "rank": 30278,
+   "designers": [
+    {
+     "id": 116,
+     "name": "Albert Lamorisse"
+    },
+    {
+     "id": 1047,
+     "name": "Michael I. Levin"
+    }
+   ],
+   "artists": [],
+   "publishers": [
+    {
+     "id": 28,
+     "name": "Parker Brothers"
+    },
+    {
+     "id": 404,
+     "name": "Alga"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1086,
+     "name": "Territory Building"
+    },
+    {
+     "id": 1019,
+     "name": "Wargame"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2080,
+     "name": "Area Majority / Influence"
+    },
+    {
+     "id": 2046,
+     "name": "Area Movement"
+    },
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2078,
+     "name": "Point to Point Movement"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 1,
+   "image": "https://cf.geekdo-images.com/Oem1TTtSgxOghRFCoyWRPw__original/img/Nu3eXPyOkhtnR3hhpUrtgqRMAfs=/0x0/filters:format(jpeg)/pic4916782.jpg"
+  },
+  "santorini": {
+   "bggId": 194655,
+   "name": "Santorini",
+   "year": 2016,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 8,
+   "weight": 1.72,
+   "rating": 7.33,
+   "ratings": 42743,
+   "owned": 66773,
+   "rank": 317,
+   "designers": [
+    {
+     "id": 3302,
+     "name": "Gord!"
+    }
+   ],
+   "artists": [
+    {
+     "id": 70571,
+     "name": "Lina Cossette"
+    },
+    {
+     "id": 70568,
+     "name": "David Forest"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 21765,
+     "name": "Roxley"
+    },
+    {
+     "id": 15605,
+     "name": "Galápagos Jogos"
+    },
+    {
+     "id": 8291,
+     "name": "Korea Boardgames"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    },
+    {
+     "id": 1050,
+     "name": "Ancient"
+    },
+    {
+     "id": 1082,
+     "name": "Mythology"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2960,
+     "name": "Map Reduction"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    },
+    {
+     "id": 2019,
+     "name": "Team-Based Game"
+    },
+    {
+     "id": 2944,
+     "name": "Three Dimensional Movement"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    }
+   ],
+   "honors": 8,
+   "image": "https://cf.geekdo-images.com/665Ply7Ho1WVf1v1iZlWeg__original/img/4q6RCxd7st-yW2MyrJwVC_d3ajk=/0x0/filters:format(png)/pic3283110.png"
+  },
+  "scout": {
+   "bggId": 291453,
+   "name": "SCOUT",
+   "year": 2019,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 9,
+   "weight": 1.4,
+   "rating": 7.77,
+   "ratings": 29797,
+   "owned": 58201,
+   "rank": 110,
+   "designers": [
+    {
+     "id": 116503,
+     "name": "Kei Kajino (梶野 桂)"
+    }
+   ],
+   "artists": [
+    {
+     "id": 116503,
+     "name": "Kei Kajino (梶野 桂)"
+    },
+    {
+     "id": 140525,
+     "name": "Rie Komatsuzaki"
+    },
+    {
+     "id": 50009,
+     "name": "Jun Sasaki"
+    },
+    {
+     "id": 159211,
+     "name": "Shohei Asaoka (浅岡昇平)"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 22649,
+     "name": "Oink Games"
+    },
+    {
+     "id": 28731,
+     "name": "One More Game!"
+    },
+    {
+     "id": 52588,
+     "name": "4 Kavky"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2980,
+     "name": "Ladder Climbing"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    }
+   ],
+   "honors": 10,
+   "image": "https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__original/img/vkElrRCPJxy7Q3TH9olpq20egA4=/0x0/filters:format(png)/pic6398727.png"
+  },
+  "sea-salt-paper": {
+   "bggId": 367220,
+   "name": "Sea Salt & Paper",
+   "year": 2022,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    45
+   ],
+   "minAge": 8,
+   "weight": 1.49,
+   "rating": 7.51,
+   "ratings": 24730,
+   "owned": 52623,
+   "rank": 252,
+   "designers": [
+    {
+     "id": 1727,
+     "name": "Bruno Cathala"
+    },
+    {
+     "id": 72628,
+     "name": "Théo Rivière"
+    }
+   ],
+   "artists": [
+    {
+     "id": 147767,
+     "name": "Lucien Derainne"
+    },
+    {
+     "id": 147768,
+     "name": "Pierre-Yves Gallard"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 19260,
+     "name": "Bombyx"
+    },
+    {
+     "id": 44144,
+     "name": "Buró"
+    },
+    {
+     "id": 21608,
+     "name": "CMON Global Limited"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1089,
+     "name": "Animals"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2981,
+     "name": "Melding and Splaying"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2884,
+     "name": "Sudden Death Ending"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    }
+   ],
+   "honors": 14,
+   "image": "https://cf.geekdo-images.com/CIh_rXKoRw9z8K0PJxT8nQ__original/img/AX2wyHhWFgVh5OArXAjVHY-nFZg=/0x0/filters:format(jpeg)/pic6973911.jpg"
+  },
+  "set": {
+   "bggId": 1198,
+   "name": "SET",
+   "year": 1988,
+   "players": [
+    1,
+    20
+   ],
+   "best": [
+    3,
+    4
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 6,
+   "weight": 1.65,
+   "rating": 6.51,
+   "ratings": 14388,
+   "owned": 26967,
+   "rank": 1912,
+   "designers": [
+    {
+     "id": 620,
+     "name": "Marsha J. Falco"
+    }
+   ],
+   "artists": [
+    {
+     "id": 35394,
+     "name": "John Langdon"
+    },
+    {
+     "id": 11883,
+     "name": "Franz Vohwinkel"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 109,
+     "name": "Set Enterprises, Inc."
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 8,
+     "name": "AMIGO"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1028,
+     "name": "Puzzle"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2060,
+     "name": "Pattern Recognition"
+    },
+    {
+     "id": 2831,
+     "name": "Real-Time"
+    },
+    {
+     "id": 2991,
+     "name": "Speed Matching"
+    }
+   ],
+   "honors": 3,
+   "image": "https://cf.geekdo-images.com/uEtWO_Ag8OxbG6NkSZbH6A__original/img/io2YlTwg9Be3eNt5BgWOsvpjPVU=/0x0/filters:format(png)/pic7627182.png"
+  },
+  "six-nimmt": {
+   "bggId": 432,
+   "name": "Take 5",
+   "year": 1994,
+   "players": [
+    2,
+    10
+   ],
+   "best": [
+    5,
+    6
+   ],
+   "minutes": [
+    45,
+    45
+   ],
+   "minAge": 8,
+   "weight": 1.19,
+   "rating": 6.99,
+   "ratings": 33259,
+   "owned": 51705,
+   "rank": 676,
+   "designers": [
+    {
+     "id": 7,
+     "name": "Wolfgang Kramer"
+    }
+   ],
+   "artists": [
+    {
+     "id": 102034,
+     "name": "Timur Baskakov"
+    },
+    {
+     "id": 44835,
+     "name": "Design Edge"
+    },
+    {
+     "id": 11901,
+     "name": "Oliver Freudenreich"
+    },
+    {
+     "id": 35690,
+     "name": "Bill Herrin"
+    },
+    {
+     "id": 65231,
+     "name": "Gatis Sluka"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 8,
+     "name": "AMIGO"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1098,
+     "name": "Number"
+    },
+    {
+     "id": 1030,
+     "name": "Party Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 3101,
+     "name": "Ordering"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2020,
+     "name": "Simultaneous Action Selection"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/WuOY1XAIJQ-RGAmT_apW_w__original/img/06TSBC2s-cwbxfPmy_pf7n5p-jM=/0x0/filters:format(jpeg)/pic8632998.jpg"
+  },
+  "skull": {
+   "bggId": 92415,
+   "name": "Skull",
+   "year": 2011,
+   "players": [
+    3,
+    6
+   ],
+   "best": [
+    5,
+    6
+   ],
+   "minutes": [
+    15,
+    45
+   ],
+   "minAge": 10,
+   "weight": 1.12,
+   "rating": 7.17,
+   "ratings": 29391,
+   "owned": 48730,
+   "rank": 506,
+   "designers": [
+    {
+     "id": 1318,
+     "name": "Hervé Marly"
+    }
+   ],
+   "artists": [
+    {
+     "id": 44887,
+     "name": "Rose Kipik"
+    },
+    {
+     "id": 213,
+     "name": "Thomas Vuarchex"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 2024,
+     "name": "Lui-même"
+    },
+    {
+     "id": 34501,
+     "name": "Boardgame Space"
+    },
+    {
+     "id": 7162,
+     "name": "Brain Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1023,
+     "name": "Bluffing"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1030,
+     "name": "Party Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2012,
+     "name": "Auction / Bidding"
+    },
+    {
+     "id": 2919,
+     "name": "Auction: Turn Order Until Pass"
+    },
+    {
+     "id": 3097,
+     "name": "Bids As Wagers"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 3006,
+     "name": "Predictive Bid"
+    }
+   ],
+   "honors": 7,
+   "image": "https://cf.geekdo-images.com/GVbKORueiHezUaLfVZKlfQ__original/img/_IQj5yyk9dqRo1x15a9u4qoMDGE=/0x0/filters:format(jpeg)/pic9315848.jpg"
+  },
+  "snakes-ladders": {
+   "bggId": 5432,
+   "name": "Chutes and Ladders",
+   "year": -200,
+   "players": [
+    2,
+    6
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 3,
+   "weight": 1.08,
+   "rating": 2.95,
+   "ratings": 5358,
+   "owned": 7148,
+   "rank": 31450,
+   "designers": [],
+   "artists": [
+    {
+     "id": 52810,
+     "name": "Wilhelm Busch"
+    },
+    {
+     "id": 71033,
+     "name": "Lauren Child"
+    },
+    {
+     "id": 8810,
+     "name": "Lucy Cousins"
+    },
+    {
+     "id": 63030,
+     "name": "Saxton Freymann"
+    },
+    {
+     "id": 51706,
+     "name": "Theodor Seuss Geisel"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 20,
+     "name": "Milton Bradley"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1089,
+     "name": "Animals"
+    },
+    {
+     "id": 1041,
+     "name": "Children's Game"
+    },
+    {
+     "id": 1064,
+     "name": "Movies / TV / Radio theme"
+    },
+    {
+     "id": 1049,
+     "name": "World War II"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2850,
+     "name": "Events"
+    },
+    {
+     "id": 2836,
+     "name": "Lose a Turn"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2035,
+     "name": "Roll / Spin and Move"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/5V8_ghnJpj0X93ypXch1mQ__original/img/ihtVV2jzJLVs6NjaLtwnfxnqw9k=/0x0/filters:format(jpeg)/pic8203150.jpg"
+  },
+  "space-base": {
+   "bggId": 242302,
+   "name": "Space Base",
+   "year": 2018,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    3,
+    4
+   ],
+   "minutes": [
+    60,
+    60
+   ],
+   "minAge": 14,
+   "weight": 2.14,
+   "rating": 7.54,
+   "ratings": 24154,
+   "owned": 33180,
+   "rank": 228,
+   "designers": [
+    {
+     "id": 57723,
+     "name": "John D. Clair"
+    }
+   ],
+   "artists": [
+    {
+     "id": 9329,
+     "name": "Chris Walton"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 396,
+     "name": "Alderac Entertainment Group"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    },
+    {
+     "id": 9068,
+     "name": "Broadway Toys LTD"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1017,
+     "name": "Dice"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    },
+    {
+     "id": 1113,
+     "name": "Space Exploration"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2909,
+     "name": "Random Production"
+    }
+   ],
+   "honors": 5,
+   "image": "https://cf.geekdo-images.com/MHhQxXVjiaa6C-04nGiIWw__original/img/QyWen0FVOKD_4wf7Na7fdsMTjis=/0x0/filters:format(jpeg)/pic6640638.jpg"
+  },
+  "splendor": {
+   "bggId": 148228,
+   "name": "Splendor",
+   "year": 2014,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    3,
+    3
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 10,
+   "weight": 1.77,
+   "rating": 7.42,
+   "ratings": 91821,
+   "owned": 141773,
+   "rank": 244,
+   "designers": [
+    {
+     "id": 50969,
+     "name": "Marc André"
+    }
+   ],
+   "artists": [
+    {
+     "id": 14878,
+     "name": "Pascal Quidault"
+    },
+    {
+     "id": 50969,
+     "name": "Marc André"
+    },
+    {
+     "id": 133597,
+     "name": "Paul Vérité"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 25842,
+     "name": "Space Cowboys"
+    },
+    {
+     "id": 15889,
+     "name": "Asterion Press"
+    },
+    {
+     "id": 50230,
+     "name": "Belleville (Бельвіль)"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1070,
+     "name": "Renaissance"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2912,
+     "name": "Contracts"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2876,
+     "name": "Race"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 35,
+   "image": "https://cf.geekdo-images.com/vNFe4JkhKAERzi4T0Ntwpw__original/img/rqcUdtu_N4v-SpI96XVmpYHnJww=/0x0/filters:format(png)/pic8234167.png"
+  },
+  "star-realms": {
+   "bggId": 147020,
+   "name": "Star Realms",
+   "year": 2014,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 12,
+   "weight": 1.91,
+   "rating": 7.55,
+   "ratings": 48531,
+   "owned": 72215,
+   "rank": 179,
+   "designers": [
+    {
+     "id": 4113,
+     "name": "Robert Dougherty"
+    },
+    {
+     "id": 4059,
+     "name": "Darwin Kastle"
+    }
+   ],
+   "artists": [
+    {
+     "id": 92582,
+     "name": "Randy Delven"
+    },
+    {
+     "id": 158166,
+     "name": "Kalissa Fitzgerald"
+    },
+    {
+     "id": 92581,
+     "name": "Vito Gesualdi"
+    },
+    {
+     "id": 137708,
+     "name": "Graphics Manufacture"
+    },
+    {
+     "id": 63969,
+     "name": "Cody Jones"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 26542,
+     "name": "Wise Wizard Games"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    },
+    {
+     "id": 29087,
+     "name": "ADC Blackfire Entertainment GmbH"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1046,
+     "name": "Fighting"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2664,
+     "name": "Deck, Bag, and Pool Building"
+    },
+    {
+     "id": 2901,
+     "name": "Delayed Purchase"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 14,
+   "image": "https://cf.geekdo-images.com/EsJqPL5CB_TMt0MYL-lnVg__original/img/QXgamCDRuBoRJyU1PQjeh58Pvr8=/0x0/filters:format(jpeg)/pic1903816.jpg"
+  },
+  "sushi-go": {
+   "bggId": 133473,
+   "name": "Sushi Go!",
+   "year": 2013,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    15,
+    15
+   ],
+   "minAge": 8,
+   "weight": 1.16,
+   "rating": 6.98,
+   "ratings": 53280,
+   "owned": 100164,
+   "rank": 664,
+   "designers": [
+    {
+     "id": 8347,
+     "name": "Phil Walker-Harding"
+    }
+   ],
+   "artists": [
+    {
+     "id": 79989,
+     "name": "Nan Rangsima"
+    },
+    {
+     "id": 40000,
+     "name": "Tobias Schweiger"
+    },
+    {
+     "id": 8347,
+     "name": "Phil Walker-Harding"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 6567,
+     "name": "Adventureland Games"
+    },
+    {
+     "id": 108,
+     "name": "Gamewright"
+    },
+    {
+     "id": 24874,
+     "name": "64 Ounce Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1030,
+     "name": "Party Game"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2984,
+     "name": "Closed Drafting"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2020,
+     "name": "Simultaneous Action Selection"
+    }
+   ],
+   "honors": 10,
+   "image": "https://cf.geekdo-images.com/Fn3PSPZVxa3YurlorITQ1Q__original/img/5vRsn2TT9eJmq27i9HtLWKpB_xs=/0x0/filters:format(jpeg)/pic1900075.jpg"
+  },
+  "tak": {
+   "bggId": 197405,
+   "name": "Tak",
+   "year": 2017,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    20,
+    60
+   ],
+   "minAge": 12,
+   "weight": 2.42,
+   "rating": 7.57,
+   "ratings": 3223,
+   "owned": 6414,
+   "rank": 1101,
+   "designers": [
+    {
+     "id": 61,
+     "name": "James Ernest"
+    },
+    {
+     "id": 90859,
+     "name": "Patrick Rothfuss"
+    }
+   ],
+   "artists": [
+    {
+     "id": 14874,
+     "name": "Echo Chernik"
+    },
+    {
+     "id": 114471,
+     "name": "Sarah Kelly"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 12,
+     "name": "Cheapass Games"
+    },
+    {
+     "id": 17543,
+     "name": "Greater Than Games, LLC"
+    },
+    {
+     "id": 33238,
+     "name": "James Ernest Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1009,
+     "name": "Abstract Strategy"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2676,
+     "name": "Grid Movement"
+    },
+    {
+     "id": 2081,
+     "name": "Network and Route Building"
+    },
+    {
+     "id": 2940,
+     "name": "Square Grid"
+    }
+   ],
+   "honors": 4,
+   "image": "https://cf.geekdo-images.com/pgJUsRt3inyH0hz3NyjU-w__original/img/-EfWE3NFHwEyMv5fSeMn4r_k1rI=/0x0/filters:format(jpeg)/pic6763305.jpg"
+  },
+  "terraforming-mars": {
+   "bggId": 167791,
+   "name": "Terraforming Mars",
+   "year": 2016,
+   "players": [
+    1,
+    5
+   ],
+   "best": [
+    3,
+    3
+   ],
+   "minutes": [
+    120,
+    120
+   ],
+   "minAge": 12,
+   "weight": 3.27,
+   "rating": 8.33,
+   "ratings": 115308,
+   "owned": 162821,
+   "rank": 9,
+   "designers": [
+    {
+     "id": 52075,
+     "name": "Jacob Fryxelius"
+    }
+   ],
+   "artists": [
+    {
+     "id": 62819,
+     "name": "Isaac Fryxelius"
+    },
+    {
+     "id": 52076,
+     "name": "Daniel Fryxelius"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 18575,
+     "name": "FryxGames"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    },
+    {
+     "id": 46980,
+     "name": "Brädspel.se"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1015,
+     "name": "Civilization"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    },
+    {
+     "id": 1084,
+     "name": "Environmental"
+    },
+    {
+     "id": 1088,
+     "name": "Industry / Manufacturing"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    },
+    {
+     "id": 1113,
+     "name": "Space Exploration"
+    },
+    {
+     "id": 1086,
+     "name": "Territory Building"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2984,
+     "name": "Closed Drafting"
+    },
+    {
+     "id": 2912,
+     "name": "Contracts"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2026,
+     "name": "Hexagon Grid"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2819,
+     "name": "Solo / Solitaire Game"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    },
+    {
+     "id": 2002,
+     "name": "Tile Placement"
+    },
+    {
+     "id": 2828,
+     "name": "Turn Order: Progressive"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 42,
+   "image": "https://cf.geekdo-images.com/wg9oOLcsKvDesSUdZQ4rxw__original/img/thIqWDnH9utKuoKVEUqveDixprI=/0x0/filters:format(jpeg)/pic3536616.jpg"
+  },
+  "the-crew": {
+   "bggId": 284083,
+   "name": "The Crew: The Quest for Planet Nine",
+   "year": 2019,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 10,
+   "weight": 1.97,
+   "rating": 7.75,
+   "ratings": 49598,
+   "owned": 95485,
+   "rank": 97,
+   "designers": [
+    {
+     "id": 45563,
+     "name": "Thomas Sing"
+    }
+   ],
+   "artists": [
+    {
+     "id": 120549,
+     "name": "Marco Armbruster"
+    },
+    {
+     "id": 72568,
+     "name": "Sensit Communication GmbH"
+    },
+    {
+     "id": 71544,
+     "name": "Folko Streese"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 37,
+     "name": "KOSMOS"
+    },
+    {
+     "id": 267,
+     "name": "999 Games"
+    },
+    {
+     "id": 43382,
+     "name": "Black Sea Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1016,
+     "name": "Science Fiction"
+    },
+    {
+     "id": 1113,
+     "name": "Space Exploration"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2893,
+     "name": "Communication Limits"
+    },
+    {
+     "id": 2023,
+     "name": "Cooperative Game"
+    },
+    {
+     "id": 3002,
+     "name": "Deduction"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2822,
+     "name": "Scenario / Mission / Campaign Game"
+    },
+    {
+     "id": 2009,
+     "name": "Trick-taking"
+    }
+   ],
+   "honors": 38,
+   "image": "https://cf.geekdo-images.com/98LnQShydr11OBKS46xY-Q__original/img/Q-ZkgnuBu9OTBr7J3qnqPjqamAE=/0x0/filters:format(jpeg)/pic5687013.jpg"
+  },
+  "the-mind": {
+   "bggId": 244992,
+   "name": "The Mind",
+   "year": 2018,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    20,
+    20
+   ],
+   "minAge": 8,
+   "weight": 1.07,
+   "rating": 6.71,
+   "ratings": 38283,
+   "owned": 71633,
+   "rank": 1148,
+   "designers": [
+    {
+     "id": 80162,
+     "name": "Wolfgang Warsch"
+    }
+   ],
+   "artists": [
+    {
+     "id": 11901,
+     "name": "Oliver Freudenreich"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 1020,
+     "name": "Nürnberger-Spielkarten-Verlag"
+    },
+    {
+     "id": 3475,
+     "name": "Arclight Games"
+    },
+    {
+     "id": 7162,
+     "name": "Brain Games"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1098,
+     "name": "Number"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2893,
+     "name": "Communication Limits"
+    },
+    {
+     "id": 2023,
+     "name": "Cooperative Game"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    }
+   ],
+   "honors": 29,
+   "image": "https://cf.geekdo-images.com/q_JGK291hrhnhiRB0667oA__original/img/8VjZEG278faO9JZwzce3v3EKssI=/0x0/filters:format(png)/pic3979766.png"
+  },
+  "ticket-to-ride": {
+   "bggId": 9209,
+   "name": "Ticket to Ride",
+   "year": 2004,
+   "players": [
+    2,
+    5
+   ],
+   "best": [
+    4,
+    4
+   ],
+   "minutes": [
+    30,
+    60
+   ],
+   "minAge": 8,
+   "weight": 1.82,
+   "rating": 7.38,
+   "ratings": 99744,
+   "owned": 151877,
+   "rank": 263,
+   "designers": [
+    {
+     "id": 9,
+     "name": "Alan R. Moon"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12519,
+     "name": "Cyrille Daujean"
+    },
+    {
+     "id": 11886,
+     "name": "Julien Delval"
+    },
+    {
+     "id": 113129,
+     "name": "Fajareka Setiawan"
+    },
+    {
+     "id": 76496,
+     "name": "Régis Torres"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 1027,
+     "name": "Days of Wonder"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    },
+    {
+     "id": 157,
+     "name": "asmodee"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1034,
+     "name": "Trains"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2883,
+     "name": "Connections"
+    },
+    {
+     "id": 2912,
+     "name": "Contracts"
+    },
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2081,
+     "name": "Network and Route Building"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 28,
+   "image": "https://cf.geekdo-images.com/kdWYkW-7AqG63HhqPL6ekA__original/img/rWF8r4JXXCQQ7QhiWHhmT-rQ3Pc=/0x0/filters:format(jpeg)/pic8937637.jpg"
+  },
+  "unmatched": {
+   "bggId": 274637,
+   "name": "Unmatched: Battle of Legends, Volume One",
+   "year": 2019,
+   "players": [
+    2,
+    4
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    20,
+    40
+   ],
+   "minAge": 9,
+   "weight": 1.96,
+   "rating": 7.67,
+   "ratings": 11260,
+   "owned": 22222,
+   "rank": 297,
+   "designers": [
+    {
+     "id": 442,
+     "name": "Rob Daviau"
+    },
+    {
+     "id": 4083,
+     "name": "Justin D. Jacobson"
+    }
+   ],
+   "artists": [
+    {
+     "id": 116039,
+     "name": "Oliver Barrett"
+    },
+    {
+     "id": 146328,
+     "name": "Alexander Wells"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 36274,
+     "name": "Mondo Games"
+    },
+    {
+     "id": 34846,
+     "name": "Restoration Games"
+    },
+    {
+     "id": 4304,
+     "name": "Albi"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1010,
+     "name": "Fantasy"
+    },
+    {
+     "id": 1046,
+     "name": "Fighting"
+    },
+    {
+     "id": 1082,
+     "name": "Mythology"
+    },
+    {
+     "id": 1093,
+     "name": "Novel-based"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2001,
+     "name": "Action Points"
+    },
+    {
+     "id": 2857,
+     "name": "Card Play Conflict Resolution"
+    },
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2975,
+     "name": "Line of Sight"
+    },
+    {
+     "id": 2685,
+     "name": "Player Elimination"
+    },
+    {
+     "id": 2078,
+     "name": "Point to Point Movement"
+    },
+    {
+     "id": 2019,
+     "name": "Team-Based Game"
+    },
+    {
+     "id": 2015,
+     "name": "Variable Player Powers"
+    }
+   ],
+   "honors": 5,
+   "image": "https://cf.geekdo-images.com/4AlLbprNustr9G7pbkGRuw__original/img/d7Z89SEv9T_HqPaYEomeKcFmgeA=/0x0/filters:format(jpeg)/pic4621579.jpg"
+  },
+  "uno": {
+   "bggId": 2223,
+   "name": "UNO",
+   "year": 1971,
+   "players": [
+    2,
+    10
+   ],
+   "best": [
+    4,
+    6
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 6,
+   "weight": 1.1,
+   "rating": 5.49,
+   "ratings": 34741,
+   "owned": 76106,
+   "rank": 31303,
+   "designers": [
+    {
+     "id": 1046,
+     "name": "Merle Robbins"
+    }
+   ],
+   "artists": [
+    {
+     "id": 171404,
+     "name": "Billie Eilish"
+    },
+    {
+     "id": 139040,
+     "name": "Shepard Fairey"
+    },
+    {
+     "id": 129264,
+     "name": "Keith Haring"
+    },
+    {
+     "id": 3030,
+     "name": "Kinetic"
+    },
+    {
+     "id": 43644,
+     "name": "Jeff Kinney"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 8,
+     "name": "AMIGO"
+    },
+    {
+     "id": 6103,
+     "name": "AS Manufacturas"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1041,
+     "name": "Children's Game"
+    },
+    {
+     "id": 1116,
+     "name": "Comic Book / Strip"
+    },
+    {
+     "id": 1064,
+     "name": "Movies / TV / Radio theme"
+    },
+    {
+     "id": 1098,
+     "name": "Number"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2040,
+     "name": "Hand Management"
+    },
+    {
+     "id": 2836,
+     "name": "Lose a Turn"
+    },
+    {
+     "id": 3007,
+     "name": "Matching"
+    },
+    {
+     "id": 2686,
+     "name": "Take That"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/-DHiHBBSnvaLu0Do8CIykQ__original/img/fRfoyWezpQsumExNKVxf1cwtJfg=/0x0/filters:format(jpeg)/pic8204165.jpg"
+  },
+  "wonders-duel": {
+   "bggId": 173346,
+   "name": "7 Wonders Duel",
+   "year": 2015,
+   "players": [
+    2,
+    2
+   ],
+   "best": [
+    2,
+    2
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 10,
+   "weight": 2.23,
+   "rating": 8.07,
+   "ratings": 110924,
+   "owned": 188081,
+   "rank": 24,
+   "designers": [
+    {
+     "id": 9714,
+     "name": "Antoine Bauza"
+    },
+    {
+     "id": 1727,
+     "name": "Bruno Cathala"
+    }
+   ],
+   "artists": [
+    {
+     "id": 12016,
+     "name": "Miguel Coimbra"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 4384,
+     "name": "Repos Production"
+    },
+    {
+     "id": 23043,
+     "name": "ADC Blackfire Entertainment"
+    },
+    {
+     "id": 157,
+     "name": "asmodee"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1050,
+     "name": "Ancient"
+    },
+    {
+     "id": 1002,
+     "name": "Card Game"
+    },
+    {
+     "id": 1029,
+     "name": "City Building"
+    },
+    {
+     "id": 1015,
+     "name": "Civilization"
+    },
+    {
+     "id": 1021,
+     "name": "Economic"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2875,
+     "name": "End Game Bonuses"
+    },
+    {
+     "id": 2902,
+     "name": "Income"
+    },
+    {
+     "id": 2981,
+     "name": "Melding and Splaying"
+    },
+    {
+     "id": 2011,
+     "name": "Modular Board"
+    },
+    {
+     "id": 3099,
+     "name": "Multi-Use Cards"
+    },
+    {
+     "id": 2846,
+     "name": "Once-Per-Game Abilities"
+    },
+    {
+     "id": 2041,
+     "name": "Open Drafting"
+    },
+    {
+     "id": 2823,
+     "name": "Score-and-Reset Game"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    },
+    {
+     "id": 2884,
+     "name": "Sudden Death Ending"
+    },
+    {
+     "id": 3100,
+     "name": "Tags"
+    },
+    {
+     "id": 2849,
+     "name": "Tech Trees / Tech Tracks"
+    },
+    {
+     "id": 2939,
+     "name": "Track Movement"
+    },
+    {
+     "id": 2888,
+     "name": "Tug of War"
+    },
+    {
+     "id": 2897,
+     "name": "Variable Set-up"
+    }
+   ],
+   "honors": 24,
+   "image": "https://cf.geekdo-images.com/zdagMskTF7wJBPjX74XsRw__original/img/Ju836WNSaW7Mab9Vjq2TJ_FqhWQ=/0x0/filters:format(jpeg)/pic2576399.jpg"
+  },
+  "yahtzee": {
+   "bggId": 2243,
+   "name": "Yahtzee",
+   "year": 1956,
+   "players": [
+    2,
+    10
+   ],
+   "best": [
+    3,
+    4
+   ],
+   "minutes": [
+    30,
+    30
+   ],
+   "minAge": 6,
+   "weight": 1.17,
+   "rating": 5.57,
+   "ratings": 18011,
+   "owned": 36327,
+   "rank": 25445,
+   "designers": [
+    {
+     "id": 63768,
+     "name": "Edwin S. Lowe"
+    }
+   ],
+   "artists": [
+    {
+     "id": 61842,
+     "name": "Fiore GmbH"
+    },
+    {
+     "id": 53418,
+     "name": "Taavi Oolberg"
+    },
+    {
+     "id": 50679,
+     "name": "Peyo"
+    },
+    {
+     "id": 39037,
+     "name": "Charles M. Schulz"
+    }
+   ],
+   "publishers": [
+    {
+     "id": 171,
+     "name": "(Public Domain)"
+    },
+    {
+     "id": 8070,
+     "name": "Adam Opel AG"
+    }
+   ],
+   "categories": [
+    {
+     "id": 1041,
+     "name": "Children's Game"
+    },
+    {
+     "id": 1116,
+     "name": "Comic Book / Strip"
+    },
+    {
+     "id": 1017,
+     "name": "Dice"
+    },
+    {
+     "id": 1064,
+     "name": "Movies / TV / Radio theme"
+    },
+    {
+     "id": 1054,
+     "name": "Music"
+    },
+    {
+     "id": 1097,
+     "name": "Travel"
+    }
+   ],
+   "mechanics": [
+    {
+     "id": 2072,
+     "name": "Dice Rolling"
+    },
+    {
+     "id": 2055,
+     "name": "Paper-and-Pencil"
+    },
+    {
+     "id": 2661,
+     "name": "Push Your Luck"
+    },
+    {
+     "id": 2870,
+     "name": "Re-rolling and Locking"
+    },
+    {
+     "id": 2004,
+     "name": "Set Collection"
+    }
+   ],
+   "honors": 0,
+   "image": "https://cf.geekdo-images.com/dp-pJkUemCjhrwi9QItrPA__original/img/eeYPdva8ti4Hi2PYxkTLRPrtfKk=/0x0/filters:format(jpeg)/pic378237.jpg"
+  }
+ }
+}

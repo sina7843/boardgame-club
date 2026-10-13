@@ -1123,3 +1123,10 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Knockout ties at the cut-off all go through; a final is a round with one table holding every remaining player. Safety stop at 30 rounds.
 - A player cannot leave a tournament table before the start (`FORBIDDEN`); seat eligibility is basis `tournament` (access checked at registration).
 - Spec: `docs/superpowers/specs/2026-10-13-tournaments-design.md`.
+
+## Encyclopedia (دانشنامه) from BoardGameGeek
+- Source: BGG's XML API2 now returns 401 without a registered app token, so `scripts/bgg-sync.mjs` reads the public geekdo JSON endpoints (`geekitems`, `dynamicinfo`) and writes a committed snapshot `apps/web/src/data/bgg.json` (facts only: year, designers, artists, publishers, players/best, time, age, weight, rating, rank, categories, mechanics). No runtime calls to BGG, so the site never depends on BGG availability from Iran.
+- Persian text lives in `apps/web/src/data/bgg-fa.json` (tagline + condensed translated description per game) and `bgg-terms-fa.json` (Persian names for BGG category/mechanic ids). A re-sync never overwrites them; new ids fall back to the English term.
+- BGG id mapping is in the script. Ludo maps to BGG «Pachisi» (2136), where BGG lists Ludo / Mensch ärgere Dich nicht as alternate names; test games have no entry and show no section.
+- Data is client-side static content (not game state), lazily imported so it stays out of the main bundle. Every view links back to the BGG page and shows the snapshot date.
+- Covers: the painted cover stays the resting image (one consistent 16:9 style across the grid); the real BGG box photo cross-fades in on hover. Box photos are self-hosted at `apps/web/public/covers/box/<gameId>.webp` (≤640 px, ~54 KB each, `scripts/bgg-box-images.py`). Touch devices never hover, so they skip that download; on the game page the cover is a toggle button (tap to show the box). Admin thumbnails keep the painted cover only.

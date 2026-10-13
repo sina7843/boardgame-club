@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import {
-  Bell, Coins, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
+  Bell, BookOpen, Coins, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
   Medal, Swords, Trophy, UserRound, Users, UsersRound, Castle, type LucideIcon
 } from 'lucide-react';
 import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline, useToast } from '@bg/ui';
@@ -43,6 +43,7 @@ export function Layout() {
   const items: NavItem[] = [
     { to: '/', label: 'داشبورد', icon: House, end: true },
     { to: '/games', label: 'بازی‌ها', icon: LayoutGrid },
+    { to: '/wiki', label: 'دانشنامه', icon: BookOpen },
     { to: '/play', label: 'حریف‌یابی', icon: Swords },
     { to: '/tables', label: 'میزها', icon: Castle },
     { to: '/tournaments', label: 'تورنمنت‌ها', icon: Medal },
@@ -60,7 +61,7 @@ export function Layout() {
   if (me?.roles.some((r) => r === 'moderator' || r === 'admin')) items.push({ to: '/mod', label: 'نظارت', icon: Shield });
   if (me?.roles.includes('admin')) items.push({ to: '/admin', label: 'مدیریت', icon: ShieldCheck });
   // Bottom dock on phones: five slots, the rest lives under «بیشتر».
-  const mobileItems: NavItem[] = [items[0]!, items[1]!, items[2]!, items.find((i) => i.to === '/messages')!, { to: '/more', label: 'بیشتر', icon: Bell }];
+  const mobileItems: NavItem[] = [items[0]!, items[1]!, items.find((i) => i.to === '/play')!, items.find((i) => i.to === '/messages')!, { to: '/more', label: 'بیشتر', icon: Bell }];
 
   const onLogout = async () => {
     try {
