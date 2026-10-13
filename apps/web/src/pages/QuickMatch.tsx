@@ -8,6 +8,7 @@ import { defaultTime, durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { Hint } from '../shell/Onboarding.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 /** After this wait without an opponent, playing against a bot is offered (the ticket is cancelled if accepted). */
 const BOT_OFFER_SECONDS = 30;
@@ -110,6 +111,7 @@ export function QuickMatch() {
 
   return (
     <>
+      <PageTabs group="tables" />
       <div className="page-head"><div><h1 className="page-title">حریف‌یابی<Hint id="quick-match">بازی و حالت را انتخاب کنید؛ «زنده» یعنی همه هم‌زمان آنلاین‌اند و «نوبتی» یعنی هر کس در مهلت خودش حرکت می‌کند. فقط حالت رتبه‌دار روی رتبهٔ مهارت اثر دارد.</Hint></h1><p className="page-sub">میز دوستانه با بازیکنی هم‌سطح؛ قبل از شروع هر دو طرف آمادگی را تأیید می‌کنند.</p></div></div>
       <div className="stack" style={{ maxInlineSize: 640 }}>
         {active ? <TicketStatus t={active} onChange={reload} game={games.data.items.find((g) => g.id === active.gameId)} /> : (

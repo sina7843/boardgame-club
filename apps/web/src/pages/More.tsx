@@ -9,7 +9,7 @@ export function MorePage() {
   usePageTitle('بیشتر');
   const { me } = useSession();
   const links: [string, string, IconName][] = [
-    ['/tables', 'میزهای باز', 'players'], ['/wiki', 'دانشنامه', 'book'], ['/tournaments', 'تورنمنت‌ها', 'crown'], ['/progress', 'پیشرفت', 'star'], ['/ranking', 'رتبه‌بندی', 'crown'], ['/coins', 'سکه‌ها', 'star'], ['/plans', 'اشتراک', 'card'], ['/friends', 'دوستان', 'user'], ['/groups', 'گروه‌ها', 'players'], ['/clubs', 'باشگاه‌ها', 'crown'],
+    ['/progress', 'پیشرفت و رتبه', 'star'], ['/plans', 'اشتراک و سکه', 'card'],
     ['/me/profile', 'پروفایل من', 'user'], ['/settings', 'تنظیمات', 'settings'], ['/guides', 'راهنما', 'book'], ['/support', 'پشتیبانی', 'shield'],
     ...SITE_LINKS.map(([s, label]): [string, string, IconName] => [`/${s}`, label, 'book'])
   ];

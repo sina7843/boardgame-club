@@ -6,6 +6,7 @@ import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 function ConversationList({ activeId }: { activeId?: string }) {
   const list = useApi<{ items: ConversationItem[] }>('/me/conversations');
@@ -39,6 +40,7 @@ export function MessagesPage() {
   usePageTitle('پیام‌ها');
   return (
     <>
+      <PageTabs group="social" />
       <div className="page-head"><div><h1 className="page-title">پیام‌ها</h1><p className="page-sub">گفت‌وگوهای خصوصی، گروه‌ها و باشگاه‌ها.</p></div></div>
       <div style={{ maxInlineSize: 720 }}><ConversationList /></div>
     </>

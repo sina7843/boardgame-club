@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { ArrowLeft, Bell, CalendarCheck, Dices, Flame, Hourglass } from 'lucide-react';
+import { ArrowLeft, Bell, CalendarCheck, Clock, Dices, Flame, Hourglass, Sparkles, Users } from 'lucide-react';
 import type { DailyGame, GameSummary } from '@bg/contracts';
 import { Button, StateBlock, buttonClass, cn } from '@bg/ui';
 import { GameCard } from '../games/GameCard.tsx';
@@ -9,29 +9,45 @@ import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { MyTurnPanel, NotificationsPanel } from './MyTables.tsx';
 
-/** Game of the day: picked and rewarded by the server; the card only shows it. */
-function DailyCard() {
+/** Game of the day: picked and rewarded by the server; the card only shows it, dressed in the game's cover art. */
+function DailyCard({ games }: { games: GameSummary[] | undefined }) {
   const daily = useApi<DailyGame>('/me/daily');
   const d = daily.data;
+  const g = d?.gameId ? games?.find((x) => x.id === d.gameId) : undefined;
+  if (daily.loading && !d) return <section className="panel section mb-6" aria-label="بازی روز"><StateBlock kind="loading" title="در حال بارگذاری بازی روز…" /></section>;
+  if (daily.error) return <section className="panel section mb-6" aria-label="بازی روز"><StateBlock kind="error" title="بازی روز بارگذاری نشد" action={<Button onClick={daily.reload}>تلاش دوباره</Button>}>{daily.error.messageFa}</StateBlock></section>;
+  if (!d) return null;
+  if (!d.gameId) return <section className="panel section mb-6" aria-label="بازی روز"><StateBlock kind="empty" title="امروز بازی روزی در دسترس نیست" /></section>;
+  const week = Math.min(d.streak, 7);
   return (
-    <section className="panel section mb-6" aria-labelledby="daily-h">
-      <h2 id="daily-h" className="section-title"><CalendarCheck className="size-5 text-primary" aria-hidden />بازی روز</h2>
-      {daily.loading && !d && <StateBlock kind="loading" title="در حال بارگذاری بازی روز…" />}
-      {daily.error && <StateBlock kind="error" title="بازی روز بارگذاری نشد" action={<Button onClick={daily.reload}>تلاش دوباره</Button>}>{daily.error.messageFa}</StateBlock>}
-      {d && (!d.gameId ? <StateBlock kind="empty" title="امروز بازی روزی در دسترس نیست" /> : (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="m-0 text-lg font-semibold">بازی امروز: {d.gameNameFa}</p>
-            <p className="muted m-0 mt-1 flex flex-wrap items-center gap-3 text-sm">
-              <span><bdi>+{faNum(d.bonusXp)} XP</bdi></span>
-              <span className="inline-flex items-center gap-1"><Flame className="size-4" aria-hidden />رشته: {faNum(d.streak)} روز</span>
-            </p>
-          </div>
-          {d.doneToday
-            ? <span className="inline-flex items-center gap-1 font-semibold text-primary"><CalendarCheck className="size-4" aria-hidden />امروز انجام شد</span>
-            : <Link className={buttonClass('primary', 'md')} to={`/games/${d.gameId}`}>بازی کن</Link>}
+    <section className="daily relative isolate mb-6 overflow-hidden rounded-surface bg-felt text-white shadow-overlay" aria-labelledby="daily-h">
+      <img src={`/covers/${d.gameId}.webp?v=2`} alt="" aria-hidden className="daily__art absolute inset-0 -z-20 size-full object-cover" onError={(e) => { e.currentTarget.hidden = true; }} />
+      <div aria-hidden className="daily__shade absolute inset-0 -z-10" />
+      <div className="grid max-w-xl gap-3 p-6 sm:p-8">
+        <p className="m-0 inline-flex w-fit items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-xs font-bold text-brand-foreground shadow-control">
+          <CalendarCheck className="size-4" aria-hidden />بازی روز
+        </p>
+        <h2 id="daily-h" className="m-0 text-3xl font-extrabold sm:text-4xl">{d.gameNameFa}</h2>
+        {g && <p className="m-0 line-clamp-2 opacity-90">{g.summaryFa}</p>}
+        <ul className="m-0 flex list-none flex-wrap gap-2 p-0 text-sm" aria-label="جزئیات">
+          <li className="daily__chip"><Sparkles className="size-4" aria-hidden /><bdi>+{faNum(d.bonusXp)} XP</bdi> پاداش</li>
+          {g && <li className="daily__chip"><Users className="size-4" aria-hidden />{faNum(g.minPlayers)}{g.maxPlayers > g.minPlayers && `–${faNum(g.maxPlayers)}`} نفر</li>}
+          {g && <li className="daily__chip"><Clock className="size-4" aria-hidden />{faNum(g.minMinutes)}{g.maxMinutes > g.minMinutes && `–${faNum(g.maxMinutes)}`} دقیقه</li>}
+        </ul>
+        <div className="flex items-center gap-3 text-sm" aria-label={`رشته: ${faNum(d.streak)} روز`}>
+          <Flame className={cn('size-5', d.streak > 0 ? 'text-amber-300' : 'opacity-60')} aria-hidden />
+          <span className="flex gap-1" aria-hidden>{Array.from({ length: 7 }, (_, i) => <span key={i} className={cn('size-2.5 rounded-full', i < week ? 'bg-amber-300' : 'bg-white/25')} />)}</span>
+          <span className="font-semibold">رشته: {faNum(d.streak)} روز</span>
         </div>
-      ))}
+        <div className="mt-1">
+          {d.doneToday
+            ? <span className="inline-flex items-center gap-1.5 rounded-control bg-white/15 px-4 py-2 font-bold"><CalendarCheck className="size-5" aria-hidden />امروز انجام شد؛ فردا برگردید</span>
+            : <Link className={cn(buttonClass('brand', 'lg'), 'relative overflow-hidden')} to={`/games/${d.gameId}`}>
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-l from-transparent via-white/35 to-transparent animate-shine" />
+                بازی کن<ArrowLeft className="size-4" aria-hidden />
+              </Link>}
+        </div>
+      </div>
     </section>
   );
 }
@@ -59,7 +75,7 @@ export function Dashboard() {
         </div>
       </section>
 
-      {me && <DailyCard />}
+      {me && <DailyCard games={games.data?.items} />}
 
       <div className="dash">
         <section className="panel section" aria-labelledby="my-turn-h" style={{ marginBlockEnd: 0 }}>

@@ -7,6 +7,7 @@ import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 const ROLE_FA = { owner: 'مالک', manager: 'مدیر', member: 'عضو' } as const;
 const STATUS_FA = { active: 'عضو', requested: 'درخواست عضویت', invited: 'دعوت‌شده' } as const;
@@ -66,6 +67,7 @@ export function GroupsPage() {
   if (!list.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   return (
     <>
+      <PageTabs group="social" />
       <div className="page-head"><div><h1 className="page-title">گروه‌ها</h1><p className="page-sub">گروه خصوصی برای جمع دوستانه و دعوت سریع همه به یک میز.</p></div></div>
       <div className="stack" style={{ maxInlineSize: 720 }}>
         <form className="panel row" onSubmit={create} style={{ alignItems: 'end' }}>
@@ -154,6 +156,7 @@ export function ClubsPage() {
   if (list.error?.status === 401) return <StateBlock kind="denied" title="برای دیدن باشگاه‌ها وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/clubs">ورود</Link>} />;
   return (
     <>
+      <PageTabs group="social" />
       <div className="page-head"><div><h1 className="page-title">باشگاه‌ها</h1><p className="page-sub">باشگاه‌ها صفحه عمومی، مالک، مدیران و اعضا دارند.</p></div></div>
       <div className="community">
         <div className="stack">

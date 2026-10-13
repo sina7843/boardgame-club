@@ -7,6 +7,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { CoinMark, coinsChanged } from '../lib/coins.tsx';
 import { durationFa, faNum, jalaliDateTime, PACE_FA, tomanFa } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 const FORMAT_FA = { swiss: 'امتیازی (سوئیسی)', knockout: 'حذفی' } as const;
@@ -40,6 +41,7 @@ export function TournamentsPage() {
   const ended = list.data.items.filter((t) => t.status === 'finished' || t.status === 'cancelled');
   return (
     <>
+      <PageTabs group="tables" />
       <div className="page-head"><div><h1 className="page-title">تورنمنت‌ها</h1>
         <p className="page-sub">مسابقه‌های زمان‌بندی‌شده با جایزهٔ ثابت. دور بعد خودکار شروع می‌شود؛ اگر سر میز نیایید ربات جای شما بازی می‌کند و امتیاز آن میز صفر است.</p></div></div>
       {live.length === 0

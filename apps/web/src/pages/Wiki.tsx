@@ -6,6 +6,7 @@ import { GameCover } from '../games/covers.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 // Encyclopedia: a BoardGameGeek snapshot (scripts/bgg-sync.mjs → data/bgg.json) plus Persian text (data/bgg-fa.json)
 // and Persian names for BGG categories/mechanics (data/bgg-terms-fa.json). Loaded lazily so it stays out of the main bundle.
@@ -125,6 +126,7 @@ export function WikiPage() {
 
   return (
     <>
+      <PageTabs group="games" />
       <div className="page-head">
         <div>
           <h1 className="page-title">دانشنامهٔ بازی‌ها</h1>

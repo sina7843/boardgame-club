@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import {
-  Bell, BookOpen, Coins, Compass, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck, Sparkles,
-  Medal, Swords, Trophy, UserRound, Users, UsersRound, Castle, type LucideIcon
+  Bell, Compass, CreditCard, Dices, House, LayoutGrid, LifeBuoy, LogIn, LogOut, MessageCircle, Settings, Shield, ShieldCheck,
+  Trophy, Castle, type LucideIcon
 } from 'lucide-react';
 import { Avatar, Button, GirihBackground, StateBlock, buttonClass, cn, useOnline, useToast } from '@bg/ui';
 import { api } from '../lib/api.ts';
@@ -12,14 +12,17 @@ import { CoinChip } from '../lib/coins.tsx';
 import { OnboardingProvider, WelcomeInvite } from './Onboarding.tsx';
 import { SiteLinks } from '../pages/SitePage.tsx';
 import { TermsGate } from './Account.tsx';
+import { PAGE_GROUPS } from './PageTabs.tsx';
 
 const APP_NAME = 'باشگاه بردگیم';
 
-interface NavItem { to: string; label: string; icon: LucideIcon; end?: boolean; badge?: number }
+interface NavItem { to: string; label: string; icon: LucideIcon; end?: boolean; badge?: number; group?: keyof typeof PAGE_GROUPS }
+/** Active when the path is any page of the entry's group (or below it, e.g. /games/:id). */
+const inGroup = (i: NavItem, path: string) => !!i.group && PAGE_GROUPS[i.group].some(([to]) => path === to || path.startsWith(`${to}/`));
 /** Guide anchor for a nav link (contracts/onboarding.ts targets), e.g. /games → nav-games. */
 const tourId = (to: string) => `nav-${to.slice(1) || 'home'}`;
 
-const navClass = ({ isActive }: { isActive: boolean }) => cn(
+const navClass = (isActive: boolean) => cn(
   'flex h-11 items-center gap-3 rounded-control px-4 text-sm font-medium no-underline transition-all duration-(--motion) ease-motion',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
   isActive ? 'bg-primary font-bold text-primary-foreground shadow-control' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -48,21 +51,14 @@ export function Layout() {
   const { pathname } = useLocation();
 
   const unread = useUnreadMessages(!!me);
+  // Sibling pages share one entry; PageTabs switches between them on the page.
   const items: NavItem[] = [
     { to: '/', label: 'داشبورد', icon: House, end: true },
-    { to: '/games', label: 'بازی‌ها', icon: LayoutGrid },
-    { to: '/wiki', label: 'دانشنامه', icon: BookOpen },
-    { to: '/play', label: 'حریف‌یابی', icon: Swords },
-    { to: '/tables', label: 'میزها', icon: Castle },
-    { to: '/tournaments', label: 'تورنمنت‌ها', icon: Medal },
-    { to: '/progress', label: 'پیشرفت', icon: Sparkles },
-    { to: '/ranking', label: 'رتبه‌بندی', icon: Trophy },
-    { to: '/messages', label: 'پیام‌ها', icon: MessageCircle, badge: unread },
-    { to: '/friends', label: 'دوستان', icon: UserRound },
-    { to: '/groups', label: 'گروه‌ها', icon: UsersRound },
-    { to: '/clubs', label: 'باشگاه‌ها', icon: Users },
-    { to: '/coins', label: 'سکه‌ها', icon: Coins },
-    { to: '/plans', label: 'اشتراک', icon: CreditCard },
+    { to: '/games', label: 'بازی‌ها', icon: LayoutGrid, group: 'games' },
+    { to: '/tables', label: 'میزها و حریف‌یابی', icon: Castle, group: 'tables' },
+    { to: '/progress', label: 'پیشرفت و رتبه', icon: Trophy, group: 'progress' },
+    { to: '/messages', label: 'پیام و دوستان', icon: MessageCircle, badge: unread, group: 'social' },
+    { to: '/plans', label: 'اشتراک و سکه', icon: CreditCard, group: 'wallet' },
     { to: '/guides', label: 'راهنما', icon: Compass },
     { to: '/support', label: 'پشتیبانی', icon: LifeBuoy },
     { to: '/settings', label: 'تنظیمات', icon: Settings }
@@ -70,7 +66,7 @@ export function Layout() {
   if (me?.roles.some((r) => r === 'moderator' || r === 'admin')) items.push({ to: '/mod', label: 'نظارت', icon: Shield });
   if (me?.roles.includes('admin')) items.push({ to: '/admin', label: 'مدیریت', icon: ShieldCheck });
   // Bottom dock on phones: five slots, the rest lives under «بیشتر».
-  const mobileItems: NavItem[] = [items[0]!, items[1]!, items.find((i) => i.to === '/play')!, items.find((i) => i.to === '/messages')!, { to: '/more', label: 'بیشتر', icon: Bell }];
+  const mobileItems: NavItem[] = [items[0]!, items[1]!, { ...items[2]!, label: 'میزها' }, { ...items[4]!, label: 'پیام‌ها' }, { to: '/more', label: 'بیشتر', icon: Bell }];
 
   const onLogout = async () => {
     try {
@@ -95,7 +91,7 @@ export function Layout() {
         <nav className="-me-2 flex-1 overflow-y-auto pe-2">
           <ul className="grid gap-1">
             {items.map((i) => (
-              <li key={i.to}><NavLink to={i.to} end={i.end ?? false} className={navClass} data-tour={tourId(i.to)}><i.icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />{i.label}<NavBadge n={i.badge} /></NavLink></li>
+              <li key={i.to}><NavLink to={i.to} end={i.end ?? false} className={({ isActive }) => navClass(isActive || inGroup(i, pathname))} data-tour={tourId(i.to)}><i.icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />{i.label}<NavBadge n={i.badge} /></NavLink></li>
             ))}
           </ul>
         </nav>
@@ -144,7 +140,7 @@ export function Layout() {
         {mobileItems.map((i) => (
           <NavLink key={i.to} to={i.to} end={i.end ?? false} data-tour={tourId(i.to)}
             className={({ isActive }) => cn('flex h-14 flex-col items-center justify-center gap-0.5 rounded-control text-[11px] font-semibold no-underline transition-all duration-(--motion) ease-motion',
-              isActive ? 'bg-primary text-primary-foreground shadow-control' : 'text-muted-foreground')}>
+              isActive || inGroup(i, pathname) ? 'bg-primary text-primary-foreground shadow-control' : 'text-muted-foreground')}>
             <span className="relative"><i.icon className="size-5" strokeWidth={1.75} aria-hidden /><NavBadge n={i.badge} dock /></span><span>{i.label}</span>
           </NavLink>
         ))}

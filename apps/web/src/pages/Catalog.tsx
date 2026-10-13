@@ -6,6 +6,7 @@ import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 type FilterKey = 'players' | 'maxMinutes' | 'difficulty' | 'mode' | 'access' | 'tags';
 const TAG_OPTIONS = (Object.keys(GAME_TAG_FA) as GameTag[]).map((value) => ({ value, label: GAME_TAG_FA[value] }));
@@ -32,6 +33,7 @@ export function Catalog() {
 
   return (
     <>
+      <PageTabs group="games" />
       <div className="page-head">
         <div>
           <h1 className="page-title">بازی‌ها</h1>

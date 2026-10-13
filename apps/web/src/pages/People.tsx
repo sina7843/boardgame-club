@@ -8,6 +8,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { CopyProfileLink } from './MyProfile.tsx';
 import { TIER_FA, Trophy } from '../lib/rewards.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 /** Position in the showcase; achievements not in it sort after, keeping their order (stable sort). */
 const rank = (showcase: string[], key: string) => { const i = showcase.indexOf(key); return i < 0 ? showcase.length : i; };
@@ -75,6 +76,7 @@ export function FriendsPage() {
   const empty = (t: string) => <p className="muted" style={{ margin: 0 }}>{t}</p>;
   return (
     <>
+      <PageTabs group="social" />
       <div className="page-head"><div><h1 className="page-title">دوستان</h1><p className="page-sub">پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است.</p></div></div>
       <Tabs label="دوستان" tabs={[
         { id: 'friends', title: `دوستان (${d.friends.length.toLocaleString('fa-IR')})`, content: d.friends.length ? (

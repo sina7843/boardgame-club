@@ -5,6 +5,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 import { Hint } from '../shell/Onboarding.tsx';
 
 interface OpenTable { id: string; gameId: string; gameNameFa: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; host: { displayName: string; avatarKey: string } }
@@ -28,6 +29,7 @@ export function OpenTables() {
 
   return (
     <>
+      <PageTabs group="tables" />
       <div className="page-head">
         <div>
           <h1 className="page-title">میزهای باز<Hint id="open-tables">روی میزی که جای خالی دارد بزنید تا بنشینید؛ وقتی همه آماده شوند بازی شروع می‌شود. میزهای در حال بازی را هم می‌توانید تماشا کنید.</Hint></h1>

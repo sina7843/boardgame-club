@@ -30,10 +30,9 @@ export const ONBOARDING_TOURS: readonly OnboardingTour[] = [
     key: 'welcome', kind: 'tour', titleFa: 'آشنایی با باشگاه', summaryFa: 'گشتی کوتاه در بخش‌های اصلی سایت.',
     steps: [
       { key: 'games', target: 'nav-games', titleFa: 'بازی‌ها', bodyFa: 'همهٔ بازی‌ها با قانون، آموزش تعاملی و ساخت میز از همین‌جا.' },
-      { key: 'play', target: 'nav-play', titleFa: 'حریف‌یابی', bodyFa: 'بازی و حالت را انتخاب کنید تا سریع هم‌بازی پیدا شود؛ دوستانه یا رتبه‌دار.' },
-      { key: 'tables', target: 'nav-tables', titleFa: 'میزها', bodyFa: 'میزهای باز دیگران را ببینید و به یکی بپیوندید.' },
-      { key: 'progress', target: 'nav-progress', titleFa: 'پیشرفت', bodyFa: 'سطح، مأموریت‌های هفتگی و دستاوردهای شما اینجاست.' },
-      { key: 'messages', target: 'nav-messages', titleFa: 'پیام‌ها', bodyFa: 'گفت‌وگو با دوستان، گروه‌ها و باشگاه‌ها.' },
+      { key: 'tables', target: 'nav-tables', titleFa: 'میزها و حریف‌یابی', bodyFa: 'به میز باز دیگران بپیوندید، با حریف‌یابی سریع هم‌بازی هم‌سطح پیدا کنید یا در تورنمنت شرکت کنید.' },
+      { key: 'progress', target: 'nav-progress', titleFa: 'پیشرفت و رتبه', bodyFa: 'سطح، مأموریت‌های هفتگی، دستاوردها و رتبهٔ شما در لیگ اینجاست.' },
+      { key: 'messages', target: 'nav-messages', titleFa: 'پیام و دوستان', bodyFa: 'گفت‌وگوها، دوستان، گروه‌های خصوصی و باشگاه‌های عمومی.' },
       { key: 'profile', target: 'nav-profile', titleFa: 'پروفایل شما', bodyFa: 'آواتار، معرفی و ویترین دستاوردها؛ چیزی که دیگران می‌بینند.' },
       { key: 'guides', target: 'nav-guides', titleFa: 'راهنما', bodyFa: 'هر آموزش را هر وقت خواستید از اینجا دوباره اجرا کنید.' }
     ]
@@ -58,7 +57,7 @@ export const ONBOARDING_TOURS: readonly OnboardingTour[] = [
   {
     key: 'social', kind: 'walkthrough', titleFa: 'دوست‌یابی', summaryFa: 'بازیکنی پیدا کنید و درخواست دوستی بدهید.',
     steps: [
-      { key: 'open', target: 'nav-friends', href: '/friends', doneOn: '^/friends/?$', titleFa: 'صفحهٔ دوستان', bodyFa: 'روی «دوستان» بزنید.' },
+      { key: 'open', target: 'nav-messages', href: '/friends', doneOn: '^/friends/?$', titleFa: 'صفحهٔ دوستان', bodyFa: 'در «پیام و دوستان» زبانهٔ «دوستان» را بزنید.' },
       { key: 'request', target: 'friends-search', verify: 'friend_request', titleFa: 'درخواست دوستی',
         bodyFa: 'در زبانهٔ «یافتن» نام یک بازیکن را جست‌وجو کنید و «افزودن دوست» را بزنید.' }
     ]

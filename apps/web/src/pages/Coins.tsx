@@ -6,6 +6,7 @@ import { api, ApiFailure } from '../lib/api.ts';
 import { CoinMark, coinsChanged, useCoins } from '../lib/coins.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 /** Stored in Rial; shown in Toman (same rule as the plans page). */
 const money = (amount: number, currency: string) => currency === 'IRR' ? `${faNumber(Math.round(amount / 10))} تومان` : `${faNum(amount)} ${currency}`;
@@ -38,6 +39,7 @@ export function CoinsPage() {
 
   return (
     <>
+      <PageTabs group="wallet" />
       <div className="page-head"><div><h1 className="page-title">سکه‌ها</h1><p className="page-sub">با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید{d.shop.length > 0 && ' و با آن روز پریمیوم بخرید'}. سکه روی رتبه و نتیجه بازی اثری ندارد.</p></div></div>
       {d.checkout.fixture && d.packs.length > 0 && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
       <div className="grid gap-6">

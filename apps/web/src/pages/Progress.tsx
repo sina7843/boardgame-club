@@ -7,6 +7,7 @@ import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
 import { LevelBadge, TIER_FA, Trophy } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { Hint } from '../shell/Onboarding.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('achievement.') ? 'دستاورد'
   : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.bot_match': 'بازی با ربات', 'xp.bot_win': 'برد مقابل ربات', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
@@ -43,6 +44,7 @@ export function ProgressPage() {
   const earnedFirst = [...d.achievements].sort((a, b) => Number(!a.grantedAt) - Number(!b.grantedAt) || (a.grantedAt ? 0 : ratio(b) - ratio(a)));
   return (
     <>
+      <PageTabs group="progress" />
       <div className="page-head"><div><h1 className="page-title">پیشرفت</h1><p className="page-sub">مهارت، سطح حساب و تسلط هر بازی جدا از هم سنجیده می‌شوند؛ XP و دستاورد روی رتبه اثر ندارند.</p></div></div>
       <div className="progress-grid">
         <section className="panel stack" aria-labelledby="lvl-h">

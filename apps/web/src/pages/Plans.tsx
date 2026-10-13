@@ -7,6 +7,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 interface Plans { items: { id: string; titleFa: string; period: string; durationDays: number; priceAmount: number | null; currency: string; termsFa: string; purchasable: boolean; unavailableReasonFa: string | null }[];
   checkout: { available: boolean; reasonFa: string | null; fixture: boolean } }
@@ -42,6 +43,7 @@ export function PlansPage() {
   const store = plans.data.items.length > 0;
   return (
     <>
+      <PageTabs group="wallet" />
       <div className="page-head"><div><h1 className="page-title">اشتراک پریمیوم</h1><p className="page-sub">پریمیوم امتیاز مهارتی، اولویت صف یا کمک حین بازی نمی‌دهد.{store && ' تمدید خودکار ندارد.'}</p></div></div>
       {store && plans.data.checkout.fixture && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
       {store && !plans.data.checkout.available && <div className="banner banner--info" role="status">{plans.data.checkout.reasonFa}</div>}

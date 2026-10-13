@@ -5,6 +5,7 @@ import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 type League = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master';
 interface Board { season: { id: string; nameFa: string; status: string } | null; rules: { minGames: number; maxSigma: number };
@@ -54,6 +55,7 @@ export function RankingPage() {
   if (!me) return <StateBlock kind="denied" title="برای دیدن رتبه‌بندی وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/ranking">ورود</Link>} />;
   return (
     <>
+      <PageTabs group="progress" />
       <div className="page-head"><div><h1 className="page-title">رتبه‌بندی و لیگ</h1><p className="page-sub">رتبه هر بازی و هر حالت (زنده/نوبتی) جداست و فقط از بازی‌های رتبه‌دار حریف‌یابی ساخته می‌شود.</p></div></div>
       <div className="filters" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
         <Select label="بازی" value={gameId} onChange={(e) => setGameId(e.target.value)} options={(games.data?.items ?? []).map((g) => ({ value: g.id, label: g.nameFa }))} />
