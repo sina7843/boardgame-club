@@ -791,6 +791,15 @@ export const tutorialProgress = pgTable('tutorial_progress', {
   oneOf('tutorial_progress_status_chk', t.status, ['in_progress', 'completed', 'skipped'])
 ]);
 
+/** Site onboarding (contracts/onboarding.ts): finished step keys and «رد کردن» per guide. Completion is derived from the registry. */
+export const onboardingProgress = pgTable('onboarding_progress', {
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tourKey: text().notNull(),
+  steps: text().array().notNull().default(sql`'{}'::text[]`),
+  dismissed: boolean().notNull().default(false),
+  updatedAt: createdAt()
+}, (t) => [primaryKey({ columns: [t.userId, t.tourKey] })]);
+
 /** Platform-wide incident: turn deadlines are frozen while open and extended by its duration when closed. */
 export const platformIncidents = pgTable('platform_incidents', {
   id: id(),

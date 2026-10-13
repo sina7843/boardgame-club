@@ -522,4 +522,51 @@
   .wiki-item__body { display: grid; gap: 0.375rem; align-content: start; padding-block: 0.25rem; }
   .wiki-item__tagline { margin: 0; font-size: var(--fs-sm, 0.875rem); color: var(--muted-foreground); line-height: 1.8; }
   @media (max-width: 479px) { .wiki-item { grid-template-columns: 6rem minmax(0, 1fr); } }
+
+  /* Onboarding: spotlight + note card (shell/Onboarding.tsx). Page stays usable; the spot never takes clicks. */
+  .tour-spot { position: fixed; z-index: 60; pointer-events: none; border-radius: var(--shape-field); box-shadow: 0 0 0 9999px rgb(10 20 15 / 0.5), 0 0 0 3px var(--brand);
+    transition: top 260ms var(--motion-ease), left 260ms var(--motion-ease), width 260ms var(--motion-ease), height 260ms var(--motion-ease); }
+  .tour-spot--soft { box-shadow: 0 0 0 9999px rgb(10 20 15 / 0.18), 0 0 0 3px var(--brand); animation: tour-ring 1.6s ease-in-out infinite; }
+  @keyframes tour-ring { 50% { box-shadow: 0 0 0 9999px rgb(10 20 15 / 0.18), 0 0 0 7px color-mix(in srgb, var(--brand) 45%, transparent); } }
+  .tour-card { position: fixed; z-index: 61; inline-size: min(340px, calc(100vw - 1.5rem)); display: grid; gap: 0.5rem; padding: 1rem 1.125rem;
+    background: var(--popover); color: var(--popover-foreground); border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--border));
+    border-radius: var(--shape-overlay); box-shadow: var(--depth-overlay); animation: pop-in 240ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .tour-card--center { inset-block-start: 50% !important; inset-inline-start: 50% !important; translate: 50% -50%; }
+  :root[dir='ltr'] .tour-card--center { translate: -50% -50%; }
+  .tour-card__head { display: flex; align-items: center; gap: 0.5rem; }
+  .tour-card__eyebrow { flex: 1; font-size: var(--fs-xs, 0.75rem); font-weight: 700; color: var(--brand); }
+  .tour-card__x { display: grid; place-items: center; inline-size: 32px; block-size: 32px; border-radius: 999px; color: var(--muted-foreground); }
+  .tour-card__x:hover { background: var(--accent); color: var(--foreground); }
+  .tour-card__title { margin: 0; font-family: var(--type-display); font-weight: 800; font-size: 1.0625rem; }
+  .tour-card__body { margin: 0; font-size: var(--fs-sm, 0.875rem); line-height: 1.9; color: var(--muted-foreground); }
+  .tour-card__dots { display: flex; gap: 4px; }
+  .tour-card__dots span { inline-size: 18px; block-size: 4px; border-radius: 999px; background: var(--muted); }
+  .tour-card__dots span.is-on { background: var(--brand); }
+  .tour-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-block-start: 0.25rem; }
+  /* Phones: a bottom sheet just above the dock, whatever is highlighted. */
+  @media (max-width: 639px) {
+    .tour-card, .tour-card--center { inset-inline: 0.75rem !important; inset-block: auto calc(6.25rem + env(safe-area-inset-bottom)) !important; inline-size: auto; translate: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tour-spot, .tour-spot--soft, .tour-card { transition: none; animation: none; } }
+
+  .tour-invite { flex-wrap: wrap; }
+
+  /* Contextual hint «?» */
+  .hint { position: relative; display: inline-flex; vertical-align: middle; margin-inline-start: 0.375rem; font-family: var(--type-body); font-weight: 400; }
+  .hint__btn { position: relative; display: grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: 999px; color: var(--muted-foreground); }
+  .hint__btn:hover, .hint__btn[aria-expanded='true'] { background: var(--accent); color: var(--primary); }
+  .hint__btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .hint__dot { position: absolute; inset-block-start: 3px; inset-inline-end: 3px; inline-size: 7px; block-size: 7px; border-radius: 999px; background: var(--brand); }
+  .hint__tip { position: absolute; z-index: 40; inset-block-start: calc(100% + 6px); inset-inline-start: -0.5rem; inline-size: max-content; max-inline-size: min(280px, 80vw);
+    padding: 0.625rem 0.875rem; border-radius: var(--shape-field); background: var(--foreground); color: var(--background); box-shadow: var(--depth-overlay);
+    font-size: var(--fs-sm, 0.875rem); line-height: 1.8; white-space: normal; animation: pop-in 200ms ease-out; }
+
+  /* Guides page */
+  .guides-goal { display: flex; align-items: center; gap: 1rem; --trophy-size: 72px; }
+  .guides-goal.is-done { border-color: color-mix(in srgb, var(--brand) 45%, var(--border)); }
+  .guides-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .guides-item { display: grid; gap: 0.75rem; }
+  .guides-steps { margin: 0; padding-inline-start: 1.25rem; display: grid; gap: 0.25rem; font-size: var(--fs-sm, 0.875rem); color: var(--muted-foreground); }
+  .guides-steps li.is-done { color: var(--success); }
+  .guides-steps li.is-done::after { content: ' ✓'; }
 }

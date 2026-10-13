@@ -6,6 +6,7 @@ import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
 import { LevelBadge, TIER_FA, Trophy } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { Hint } from '../shell/Onboarding.tsx';
 
 export const ruleFa = (ruleId: string) => (ruleId.startsWith('mission.') ? 'مأموریت' : ruleId.startsWith('achievement.') ? 'دستاورد'
   : { 'xp.match_completed': 'بازی کامل', 'xp.first_place': 'رتبه اول', 'xp.bot_match': 'بازی با ربات', 'xp.bot_win': 'برد مقابل ربات', 'xp.new_title': 'عنوان تازه', 'xp.tutorial': 'آموزش', 'season.badge': 'نشان فصل', manual: 'پاداش دستی' }[ruleId] ?? ruleId);
@@ -51,7 +52,7 @@ export function ProgressPage() {
         </section>
 
         <section className="panel stack" aria-labelledby="missions-h">
-          <h2 id="missions-h" className="section-title">مأموریت‌های این هفته</h2>
+          <h2 id="missions-h" className="section-title">مأموریت‌های این هفته<Hint id="missions">هر شنبه مأموریت‌های تازه می‌آید. با کامل کردن میزها (حتی با باخت) پیش می‌روند و XP می‌دهند.</Hint></h2>
           <p className="muted" style={{ margin: 0 }}>تا {jalaliDate(d.missions.endsAt)}؛ هیچ مأموریتی برد اجباری ندارد.</p>
           {d.missions.items.map((m) => (
             <div key={m.key} className="stack" style={{ gap: 'var(--sp-1)' }}>
@@ -63,7 +64,7 @@ export function ProgressPage() {
         </section>
 
         <section className="panel stack progress-grid__wide" aria-labelledby="ach-h">
-          <div className="row"><h2 id="ach-h" className="section-title" style={{ flex: 1 }}>دستاوردها</h2>
+          <div className="row"><h2 id="ach-h" className="section-title" style={{ flex: 1 }}>دستاوردها<Hint id="achievements">جام‌ها خودکار و فقط از نتیجهٔ واقعی بازی‌ها و آموزش‌ها داده می‌شوند و روی پروفایل شما دیده می‌شوند.</Hint></h2>
             <span className="muted">{faNum(earned)} از {faNum(d.achievements.length)} جام</span></div>
           {/* Every earned trophy, then the next few locked ones; the rest behind the toggle. */}
           <Clamped items={earnedFirst} limit={earned + 4}>{(shown) => (

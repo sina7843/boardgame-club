@@ -39,7 +39,7 @@ function Search({ onChange }: { onChange: () => void }) {
   const res = useApi<{ items: UserCard[] }>(debounced.length >= 2 ? `/users?q=${encodeURIComponent(debounced)}` : null);
   const act = useAct(() => { res.reload(); onChange(); });
   return (
-    <div className="stack">
+    <div className="stack" data-tour="friends-search">
       <Input label="جست‌وجوی بازیکن" type="search" value={q} onChange={(e) => setQ(e.target.value)} hint="حداقل دو حرف از نام نمایشی" />
       {res.loading && debounced.length >= 2 && <p className="muted" role="status">در حال جست‌وجو…</p>}
       {res.data && (res.data.items.length === 0 ? <p className="muted">بازیکنی پیدا نشد.</p> : (

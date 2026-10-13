@@ -6,6 +6,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { defaultTime, durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { Hint } from '../shell/Onboarding.tsx';
 
 export function CreateTable() {
   const { id = '' } = useParams();
@@ -53,7 +54,7 @@ export function CreateTable() {
     <>
       <div className="page-head">
         <div>
-          <h1 className="page-title">میز تازه: {g.nameFa}</h1>
+          <h1 className="page-title">میز تازه: {g.nameFa}<Hint id="create-table">میز خصوصی فقط با لینک دعوت باز می‌شود و میز عمومی در «میزها» دیده می‌شود. میز دستی همیشه دوستانه است؛ میز رتبه‌دار از حریف‌یابی ساخته می‌شود.</Hint></h1>
           <p className="page-sub">تنظیمات پس از شروع بازی تغییر نمی‌کنند.</p>
         </div>
       </div>

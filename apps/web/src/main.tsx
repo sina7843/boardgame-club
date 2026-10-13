@@ -43,6 +43,7 @@ const TournamentsPage = lazy(() => import('./pages/Tournaments.tsx').then((m) =>
 const TournamentPage = lazy(() => import('./pages/Tournaments.tsx').then((m) => ({ default: m.TournamentPage })));
 const WikiPage = lazy(() => import('./pages/Wiki.tsx').then((m) => ({ default: m.WikiPage })));
 const MyProfile = lazy(() => import('./pages/MyProfile.tsx').then((m) => ({ default: m.MyProfile })));
+const GuidesPage = lazy(() => import('./pages/Guides.tsx').then((m) => ({ default: m.GuidesPage })));
 const CoinsPage = lazy(() => import('./pages/Coins.tsx').then((m) => ({ default: m.CoinsPage })));
 
 const router = createBrowserRouter([
@@ -66,6 +67,7 @@ const router = createBrowserRouter([
       { path: 'clubs', element: <ClubsPage /> },
       { path: 'clubs/:slug', element: <ClubPage /> },
       { path: 'support', element: <SupportPage /> },
+      { path: 'guides', element: <GuidesPage /> },
       { path: 'mod', element: <ModerationPage /> },
       { path: 'more', element: <MorePage /> },
       { path: 'progress', element: <ProgressPage /> },

@@ -9,7 +9,7 @@ export function MorePage() {
   const { me } = useSession();
   const links: [string, string, IconName][] = [
     ['/tables', 'میزهای باز', 'players'], ['/wiki', 'دانشنامه', 'book'], ['/tournaments', 'تورنمنت‌ها', 'crown'], ['/progress', 'پیشرفت', 'star'], ['/ranking', 'رتبه‌بندی', 'crown'], ['/coins', 'سکه‌ها', 'star'], ['/plans', 'اشتراک', 'card'], ['/friends', 'دوستان', 'user'], ['/groups', 'گروه‌ها', 'players'], ['/clubs', 'باشگاه‌ها', 'crown'],
-    ['/me/profile', 'پروفایل من', 'user'], ['/settings', 'تنظیمات', 'settings'], ['/support', 'پشتیبانی', 'shield']
+    ['/me/profile', 'پروفایل من', 'user'], ['/settings', 'تنظیمات', 'settings'], ['/guides', 'راهنما', 'book'], ['/support', 'پشتیبانی', 'shield']
   ];
   if (me?.roles.some((r) => r === 'moderator' || r === 'admin')) links.push(['/mod', 'نظارت', 'shield']);
   if (me?.roles.includes('admin')) links.push(['/admin', 'مدیریت', 'settings']);

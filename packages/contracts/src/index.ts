@@ -7,3 +7,4 @@ export * from './social.ts';
 export * from './progression.ts';
 export * from './cosmetics.ts';
 export * from './tournaments.ts';
+export * from './onboarding.ts';

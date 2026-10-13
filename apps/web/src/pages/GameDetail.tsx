@@ -91,7 +91,7 @@ export function GameDetailPage() {
           <GameWiki gameId={g.id} />
         </article>
 
-        <aside className="panel stack" aria-label="مشخصات و شروع">
+        <aside className="panel stack" aria-label="مشخصات و شروع" data-tour="game-actions">
           <dl className="facts">
             <div><dt>تعداد نفر</dt><dd>{range(g.minPlayers, g.maxPlayers, 'نفر')}</dd></div>
             <div><dt>زمان</dt><dd>{range(g.minMinutes, g.maxMinutes, 'دقیقه')}</dd></div>

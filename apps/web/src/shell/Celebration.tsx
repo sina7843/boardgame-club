@@ -60,8 +60,10 @@ export function Celebration() {
   useEffect(() => { void check(wasOnTable.current && !onTable); wasOnTable.current = onTable; }, [pathname, check, onTable]);
   useEffect(() => {
     const onFocus = () => void check();
+    const onProgress = () => void check(true); // a reward just landed outside a game (e.g. onboarding)
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    window.addEventListener('bg:progress', onProgress);
+    return () => { window.removeEventListener('focus', onFocus); window.removeEventListener('bg:progress', onProgress); };
   }, [check]);
 
   const current = onTable ? undefined : queue[0];

@@ -43,7 +43,7 @@ export function ProfileEditor({ me }: { me: Me }) {
   };
 
   return (
-    <section className="panel stack" aria-labelledby="custom-h">
+    <section className="panel stack" aria-labelledby="custom-h" data-tour="profile-editor">
       <h2 id="custom-h" className="section-title">شخصی‌سازی پروفایل</h2>
       <Textarea label="معرفی کوتاه" rows={3} maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="مثلاً: عاشق کاتان، شب‌ها آنلاینم"
         hint={`${faNum(bio.length)} از ۱۶۰ نویسه · برای همه دیده می‌شود`} />

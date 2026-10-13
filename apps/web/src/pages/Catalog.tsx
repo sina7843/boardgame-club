@@ -70,7 +70,7 @@ export function Catalog() {
         ) : (
           <>
             <p className="results-meta" role="status" aria-live="polite">{faNum(data.items.length)} بازی</p>
-            <div className="grid-cards">{data.items.map((g) => <GameCard key={g.id} game={g} />)}</div>
+            <div className="grid-cards" data-tour="catalog-grid">{data.items.map((g) => <GameCard key={g.id} game={g} />)}</div>
           </>
         )
       )}

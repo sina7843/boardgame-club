@@ -7,10 +7,11 @@ import { and, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 import { DEFAULT_SEASON, displayRating, ELIGIBILITY, leagueFor, newSkill, rate, type SeasonConfig } from './rating.ts';
+import { ONBOARDING_TOURS, tourComplete } from '@bg/contracts';
 import { syncCoins } from './coins.ts';
 
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress,
-  achievementDefinitions, userAchievements, gameResults, gameTables, games, gameVersions } = schema;
+  achievementDefinitions, userAchievements, gameResults, gameTables, games, gameVersions, onboardingProgress } = schema;
 
 /** Reward rules, versioned. Changing a value means bumping RULES_VERSION (old ledger rows keep their version). */
 export const RULES_VERSION = 1;
@@ -159,7 +160,7 @@ async function updatePlacement(tx: Tx, season: typeof seasons.$inferSelect, user
 type MatchMeta = { week?: string; opponents?: string[]; pace?: 'live' | 'turn'; competition?: 'friendly' | 'ranked' };
 
 export const ACHIEVEMENT_TYPES = ['matches', 'wins', 'distinct_games', 'tutorials', 'ranked', 'level', 'missions', 'live_matches', 'turn_matches',
-  'big_tables', 'one_game', 'win_games', 'daily_total', 'daily_streak', 'achievements'] as const;
+  'big_tables', 'one_game', 'win_games', 'daily_total', 'daily_streak', 'onboarding', 'achievements'] as const;
 export type AchievementType = typeof ACHIEVEMENT_TYPES[number];
 /** Weekly mission goals. None may require winning (Requirements: «بدون برد اجباری»). */
 export const MISSION_TYPES = ['complete_tables', 'distinct_games', 'learn_new_game', 'ranked_tables', 'friendly_tables', 'live_tables', 'turn_tables',
@@ -177,6 +178,8 @@ export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().ke
   const inWeek = (r: { metadata: unknown }) => meta(r).week === week;
   const [{ n: ranked } = { n: 0 }] = await tx.select({ n: count() }).from(ratingHistory).where(eq(ratingHistory.userId, userId));
   const [{ n: granted } = { n: 0 }] = await tx.select({ n: count() }).from(userAchievements).where(eq(userAchievements.userId, userId));
+  const guides = await tx.select({ tourKey: onboardingProgress.tourKey, steps: onboardingProgress.steps }).from(onboardingProgress)
+    .where(eq(onboardingProgress.userId, userId));
   const matches = rows.filter((r) => r.ruleId === 'xp.match_completed');
   const wins = rows.filter((r) => r.ruleId === 'xp.first_place');
   const tutorials = rows.filter((r) => r.ruleId === 'xp.tutorial');
@@ -198,6 +201,7 @@ export async function goalFacts(tx: Tx | Db, userId: string, week = weekKey().ke
       win_games: distinct(wins),
       daily_total: daily.length,
       daily_streak: dailyStreaks(daily).best, // best run, so a trophy never depends on when it is evaluated
+      onboarding: ONBOARDING_TOURS.filter((t) => tourComplete(t, guides.find((g) => g.tourKey === t.key)?.steps ?? [])).length,
       achievements: granted
     },
     mission: {
@@ -350,6 +354,12 @@ export async function rewardTutorial(tx: Tx, p: { userId: string; gameId: string
   await award(tx, { userId: p.userId, sourceKey: `tutorial:${p.gameId}:${p.userId}`, ruleId: 'xp.tutorial', kind: 'xp', amount: XP_RULES.tutorialCompleted,
     reason: 'آموزش تعاملی کامل شد.', resultId: r.id, gameId: p.gameId, metadata: { week: weekKey().key } });
   await evaluateGoals(tx, p.userId);
+}
+
+/** Site guide step recorded: re-evaluate goals so «Getting Started» is granted (once) when every guide is complete. */
+export async function rewardOnboarding(tx: Tx, userId: string): Promise<void> {
+  await lockUser(tx, userId);
+  await evaluateGoals(tx, userId);
 }
 
 /** Admin manual reward/correction, always with a reason; audited by the caller. */

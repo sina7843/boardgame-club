@@ -1,6 +1,6 @@
 // Idempotent seed: publishes the reviewed registry games (labelled test games) to the catalog.
 import { and, eq, sql } from 'drizzle-orm';
-import { normalizeSearch } from '@bg/contracts';
+import { GETTING_STARTED_KEY, normalizeSearch, ONBOARDING_TOURS } from '@bg/contracts';
 import { createDb, type Db } from './index.ts';
 import { requireDatabaseUrl } from './env.ts';
 import { gameRegistry } from './registry.ts';
@@ -95,6 +95,7 @@ export const ACHIEVEMENTS = [
   { key: 'streak_3', titleFa: 'سه روز پیاپی', descriptionFa: 'بازی روز را سه روز پشت سر هم کامل کنید.', criteria: { type: 'daily_streak', count: 3, tier: 'bronze' } },
   { key: 'streak_7', titleFa: 'هفتهٔ کامل', descriptionFa: 'بازی روز را هفت روز پشت سر هم کامل کنید.', criteria: { type: 'daily_streak', count: 7, tier: 'silver' } },
   { key: 'streak_30', titleFa: 'ماه بی‌وقفه', descriptionFa: 'بازی روز را سی روز پشت سر هم کامل کنید.', criteria: { type: 'daily_streak', count: 30, tier: 'turquoise' } },
+  { key: GETTING_STARTED_KEY, titleFa: 'Getting Started', descriptionFa: 'همهٔ مراحل آموزش‌های سایت را کامل کنید.', criteria: { type: 'onboarding', count: ONBOARDING_TOURS.length, tier: 'bronze' } },
   { key: 'trophies_10', titleFa: 'جام‌دار', descriptionFa: 'ده دستاورد بگیرید.', criteria: { type: 'achievements', count: 10, tier: 'silver' } },
   { key: 'trophies_25', titleFa: 'ویترین پر', descriptionFa: 'بیست‌وپنج دستاورد بگیرید.', criteria: { type: 'achievements', count: 25, tier: 'gold' } },
   { key: 'trophies_45', titleFa: 'گنجینه', descriptionFa: 'چهل‌وپنج دستاورد بگیرید.', criteria: { type: 'achievements', count: 45, tier: 'diamond' } }
