@@ -4,12 +4,12 @@
 // server projected is shown: other players' hands are counts, prompts of others show only who is deciding.
 // Motion: cards glide hand → tableau (useFlip), new tiles land (useFresh), changed numbers pop (usePop).
 import './renderer.css';
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, useFresh, usePop, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
 import { hexX } from './board.ts';
 import { BOARD_ART, CARDRES_ART, MARS_ART, PARAM_ART, RES_ART, TILE_ART } from './art.ts';
 import {
-  AWARD_COSTS, AWARDS, CARD, MARS, MILESTONE_COST, MILESTONES, NAME_FA, PROJECT_FA, RES, RES_FA, SPACE, CARDRES_FA, OCEANS_MAX, OXY_MAX, TEMP_MAX, TEMP_MIN,
+  AWARD_COSTS, AWARDS, CARD, MARS, MILESTONE_COST, MILESTONES, NAME_FA, PROJECT_FA, RES, RES_FA, SPACE, CARDRES_FA, OCEANS_MAX, OXY_MAX, TEMP_MAX, TEMP_MIN, PROJECTS,
   type CardDef, type Project, type Req, type Res, type Tag, type TmView
 } from './rules.ts';
 
@@ -21,6 +21,7 @@ const TILE_FA = { greenery: 'فضای سبز', ocean: 'اقیانوس', city: '�
 const BONUS_FA = { steel: 'فولاد', titanium: 'تیتانیوم', plants: 'گیاه', card: 'کارت' } as const;
 const KIND_FA = { automated: 'خودکار', active: 'فعال', event: 'رویداد', corporation: 'شرکت' } as const;
 const LOG_FA: Record<string, string> = { pass: 'پاس داد', endTurn: 'نوبتش را تمام کرد', convertPlants: 'گیاه را فضای سبز کرد', convertHeat: 'گرما را به دما تبدیل کرد', firstAction: 'کنش اول شرکت', play: 'بازی کرد', cardAction: 'کنش کارت', project: 'پروژهٔ استاندارد', milestone: 'نقطهٔ عطف ثبت کرد', award: 'جایزه تأمین کرد' };
+const PROJECT_FX: Record<Project, string> = { sellPatents: 'هر کارت ← ۱ مگاکردیت', powerPlant: '۱+ تولید انرژی', asteroid: '۱+ پلهٔ دما', aquifer: 'یک اقیانوس', greenery: 'فضای سبز · ۱+ اکسیژن', city: 'شهر · ۱+ تولید مگاکردیت' };
 const name = (id: string) => CARD[id]?.nameFa ?? id;
 
 function reqText(r: Req | undefined): string {
@@ -39,20 +40,21 @@ function reqText(r: Req | undefined): string {
 }
 const vpText = (c: CardDef) => (c.vp === undefined ? '' : typeof c.vp === 'number' ? (c.vp ? `${sfa(c.vp)} امتیاز` : '') : 'امتیاز متغیر');
 
+const TAG_GLYPH: Record<Tag, string> = { building: '⚒', space: '✦', science: '⚛', power: '⚡', earth: '⊕', jovian: '♃', plant: '❦', microbe: '✺', animal: '✥', city: '▦' };
+
 function Card({ id, res, on, onClick, disabled, note, hint, flip, from, exit, children }: { id: string; flip?: boolean; from?: string; exit?: string; res?: number; on?: boolean; onClick?: () => void; disabled?: boolean; note?: string; hint?: boolean; children?: ReactNode }) {
   const c = CARD[id];
   if (!c) return null;
   const req = reqText(c.req);
   const vp = vpText(c);
+  // The printed card: coloured title band with the cost coin and the round tag icons, requirement banner, text, VP badge at the foot.
   const body = (
     <>
-      <span className="tm-card__head">
+      <span className="tm-card__top">
         {c.kind !== 'corporation' && <span className="tm-card__cost" aria-label={`هزینه ${fa(c.cost)}`}>{fa(c.cost)}</span>}
         <b className="tm-card__title">{c.nameFa}</b>
-        {vp && <span className="tm-card__vp">{vp}</span>}
+        {c.tags.length > 0 && <span className="tm-card__tags">{c.tags.map((t, i) => <span key={i} role="img" aria-label={TAG_FA[t]} title={TAG_FA[t]} className={`tm-tagdot tm-tag--${t}`}>{TAG_GLYPH[t]}</span>)}</span>}
       </span>
-      <span className="tm-card__name"><bdi>{c.name}</bdi> · {KIND_FA[c.kind]}{c.kind !== 'corporation' ? ` · ${fa(Number(c.id))}` : ''}</span>
-      {c.tags.length > 0 && <span className="tm-card__tags">{c.tags.map((t, i) => <span key={i} className={`tm-tag tm-tag--${t}`}>{TAG_FA[t]}</span>)}</span>}
       {req && <span className="tm-card__req">شرط: {req}</span>}
       <span className="tm-card__text">{c.textFa}</span>
       {res !== undefined && c.resource && (
@@ -60,6 +62,10 @@ function Card({ id, res, on, onClick, disabled, note, hint, flip, from, exit, ch
       )}
       {note && <span className="tm-card__note">{note}</span>}
       {children}
+      <span className="tm-card__foot">
+        <span className="tm-card__name"><bdi>{c.name}</bdi> · {KIND_FA[c.kind]}{c.kind !== 'corporation' ? ` · ${fa(Number(c.id))}` : ''}</span>
+        {vp && <span className="tm-card__vp">{vp}</span>}
+      </span>
     </>
   );
   const cls = `tm-card tm-card--${c.kind}${on ? ' tm-card--on' : ''}${hint ? ' tm-hint' : ''}`;
@@ -69,24 +75,79 @@ function Card({ id, res, on, onClick, disabled, note, hint, flip, from, exit, ch
     : <div className={cls} {...fl}>{body}</div>;
 }
 
-function Gauge({ label, art, value, min, max, unit, pop, signed }: { label: string; art: string; value: number; min: number; max: number; unit: string; pop: string; signed?: boolean }) {
-  const pct = Math.round(((value - min) / (max - min)) * 100);
+// Printed marks on the global tracks (mirrors core.raise): +1 heat production at -24 and -20 °C, an ocean at 0 °C,
+// +1 temperature step at 8 % oxygen.
+const TEMP_STEPS = Array.from({ length: (TEMP_MAX - TEMP_MIN) / 2 + 1 }, (_, i) => TEMP_MAX - 2 * i);
+const OXY_STEPS = Array.from({ length: OXY_MAX + 1 }, (_, i) => OXY_MAX - i);
+const TR_RULER = 100, TR_COLS = 10;
+
+function Track({ label, art, steps, value, unit, pop, signed, hue, mark }: { label: string; art: string; steps: number[]; value: number; unit: string; pop: string; signed?: boolean; hue: [number, number]; mark: (v: number) => ReactNode }) {
+  const f = signed ? sfa : fa;
+  const lo = steps[steps.length - 1]!, hi = steps[0]!;
   return (
-    <div className="tm-gauge" role="meter" aria-label={label} aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={`${label} ${fa(value)}${unit} از ${fa(max)}${unit}`}>
-      <img src={art} alt="" />
-      <span className="tm-gauge__label">{label}</span>
-      <b key={value} className={pop}>{(signed ? sfa : fa)(value)}{unit}</b>
-      <span className="tm-gauge__bar"><span style={{ inlineSize: `${pct}%` }} /></span>
-      <small>تا {(signed ? sfa : fa)(max)}{unit}</small>
+    <div className="tm-gp__col" role="meter" aria-label={label} aria-valuemin={lo} aria-valuemax={hi} aria-valuenow={value} aria-valuetext={`${label} ${f(value)}${unit} از ${f(hi)}${unit}`}>
+      <span className="tm-gp__head"><img src={art} alt="" /><span>{label}</span><b key={value} className={pop}>{f(value)}{unit}</b></span>
+      <ol className="tm-gp__track" dir="ltr" aria-hidden="true">
+        {steps.map((v, i) => (
+          <li key={v} className={`tm-gp__cell${v <= value ? ' is-on' : ''}${v === value ? ' is-cur' : ''}`} style={{ '--c': `hsl(${Math.round(hue[0] + ((hue[1] - hue[0]) * (steps.length - 1 - i)) / (steps.length - 1))} 65% 48%)` } as CSSProperties}>
+            <span className="tm-gp__n">{f(v)}</span><span className="tm-gp__bar" /><span className="tm-gp__mk">{mark(v)}</span>
+          </li>
+        ))}
+      </ol>
     </div>
   );
+}
+
+function Params({ view, seatName, pops }: { view: TmView; seatName: (k: number) => string; pops: { t: string; o: string; w: string } }) {
+  const heat = <img src={RES_ART.heat} alt="" title="+۱ تولید گرما" />;
+  return (
+    <section className="tm-params" aria-label="پارامترهای جهانی">
+      <div className="tm-gp">
+        <Track label="دما" art={PARAM_ART.temperature} steps={TEMP_STEPS} value={view.temperature} unit="°" pop={pops.t} signed hue={[215, 365]}
+          mark={(v) => (v === -24 || v === -20 ? <>{heat}<small>۱+</small></> : v === 0 ? <><img src={TILE_ART.ocean} alt="" title="اقیانوس" /><small>۱+</small></> : null)} />
+        <Track label="اکسیژن" art={PARAM_ART.oxygen} steps={OXY_STEPS} value={view.oxygen} unit="٪" pop={pops.o} hue={[200, 120]}
+          mark={(v) => (v === 8 ? <><img src={PARAM_ART.temperature} alt="" title="+۱ پلهٔ دما" /><small>۱+</small></> : null)} />
+        <div className="tm-gp__col" role="meter" aria-label="اقیانوس" aria-valuemin={0} aria-valuemax={OCEANS_MAX} aria-valuenow={view.oceans} aria-valuetext={`اقیانوس ${fa(view.oceans)} از ${fa(OCEANS_MAX)}`}>
+          <span className="tm-gp__head"><img src={PARAM_ART.ocean} alt="" /><span>اقیانوس</span><b key={view.oceans} className={pops.w}>{fa(view.oceans)}/{fa(OCEANS_MAX)}</b></span>
+          <ol className="tm-gp__oceans" aria-hidden="true">
+            {Array.from({ length: OCEANS_MAX }, (_, i) => <li key={i} className={i < view.oceans ? 'is-on' : ''}>{i < view.oceans ? <img src={TILE_ART.ocean} alt="" /> : <span>{fa(i + 1)}</span>}</li>)}
+          </ol>
+        </div>
+        <div className="tm-gp__col tm-gp__tr" role="group" aria-label="مسیر رتبهٔ ترافورمینگ">
+          <span className="tm-gp__head"><span>رتبهٔ ترافورمینگ</span><b>نسل {fa(view.generation)}</b></span>
+          <ol className="tm-trg" dir="ltr" aria-hidden="true">
+            {Array.from({ length: TR_RULER }, (_, i) => (TR_RULER / TR_COLS - 1 - Math.floor(i / TR_COLS)) * TR_COLS + (i % TR_COLS) + 1).map((v) => {
+              const who = view.players.flatMap((p, k) => (Math.min(TR_RULER, Math.max(1, p.tr)) === v ? [k] : []));
+              const bg = who.length ? `linear-gradient(90deg, ${who.map((k, j) => `var(--s${k}) ${Math.round((100 * j) / who.length)}% ${Math.round((100 * (j + 1)) / who.length)}%`).join(', ')})` : undefined;
+              return <li key={v} className={`tm-trg__c${who.length ? ' is-on' : ''}${v % 10 === 0 ? ' is-ten' : ''}`} style={bg ? { background: bg } : undefined}>{fa(v)}</li>;
+            })}
+          </ol>
+          <ul className="tm-trg__who">
+            {view.players.map((p, k) => <li key={k}><i className={`tm-plaque__cube tm-seat-${k}`} aria-hidden="true" /><bdi>{seatName(k)}</bdi> <b>{fa(p.tr)}</b></li>)}
+          </ul>
+        </div>
+      </div>
+      <p className="tm-gp__legend">علامت‌ها: <img src={RES_ART.heat} alt="" /> ۱+ تولید گرما در ‎−۲۴° و ‎−۲۰° · <img src={TILE_ART.ocean} alt="" /> اقیانوس در ‎۰° · <img src={PARAM_ART.temperature} alt="" /> ۱+ پلهٔ دما در اکسیژن ۸٪</p>
+    </section>
+  );
+}
+
+/** Placement bonus drawn as the printed board does: brown steel cube, black titanium cube, green plant disc, blue card. */
+function BonusShape({ kind, x, y, z }: { kind: keyof typeof BONUS_FA; x: number; y: number; z: number }) {
+  const h = z / 2;
+  switch (kind) {
+    case 'steel': return <rect x={x - h} y={y - h} width={z} height={z} rx="1.2" className="tm-bn tm-bn--steel" />;
+    case 'titanium': return <rect x={x - h} y={y - h} width={z} height={z} rx="1.2" className="tm-bn tm-bn--titanium" />;
+    case 'plants': return <circle cx={x} cy={y} r={h} className="tm-bn tm-bn--plants" />;
+    default: return <rect x={x - h * 0.75} y={y - h} width={z * 0.75} height={z} rx="1" className="tm-bn tm-bn--card" />;
+  }
 }
 
 function Board({ view, pick, hint, onPick, seatName }: { view: TmView; pick: Set<string>; hint: string | null; onPick: (id: string) => void; seatName: (k: number) => string }) {
   const r = 22, w = Math.sqrt(3) * r;
   const xs = MARS.map((s) => hexX(s));
   const minX = Math.min(...xs);
-  const pts = Array.from({ length: 6 }, (_, i) => { const a = (Math.PI / 180) * (60 * i - 30); return `${(r * Math.cos(a)).toFixed(1)},${(r * Math.sin(a)).toFixed(1)}`; }).join(' ');
+  const pts = Array.from({ length: 6 }, (_, i) => { const a = (Math.PI / 180) * (60 * i - 30); return `${(r * 0.94 * Math.cos(a)).toFixed(1)},${(r * 0.94 * Math.sin(a)).toFixed(1)}`; }).join(' ');
   const fresh = useFresh(Object.keys(view.tiles).sort());
   const tileLabel = (id: string) => {
     const t = view.tiles[id];
@@ -114,8 +175,9 @@ function Board({ view, pick, hint, onPick, seatName }: { view: TmView; pick: Set
                 <polygon points={pts} className="tm-hex__base" />
                 {t && <image href={TILE_ART[t.kind]} x={-r} y={-r} width={2 * r} height={2 * r} clipPath="url(#tm-hexclip)" preserveAspectRatio="xMidYMid slice" />}
                 {t && t.owner !== null && <><circle r="6.5" className={`tm-cube tm-seat-${t.owner}`} /><text y="3" className="tm-cube__n">{fa(t.owner + 1)}</text></>}
-                {!t && <text y="3" className="tm-hex__bonus">{s.bonus.map((b) => ({ steel: 'ف', titanium: 'ت', plants: 'گ', card: 'ک' })[b]).join('')}</text>}
-                {!t && s.name && <text y="13" className="tm-hex__name">{NAME_FA[s.name]!.split(' ')[0]}</text>}
+                {!t && s.ocean && <path d="M-7 7 q3.5 -4 7 0 t7 0" className="tm-hex__wave" />}
+                {!t && s.bonus.map((b, i) => { const z = s.bonus.length > 2 ? 7 : 9, gap = z + 2.5; return <BonusShape key={i} kind={b} x={(i - (s.bonus.length - 1) / 2) * gap} y={s.ocean ? -3 : -1} z={z} />; })}
+                {!t && s.name && <text y="14" className="tm-hex__name">{NAME_FA[s.name]!.split(' ')[0]}</text>}
                 {claim !== undefined && <><circle r="5" cy="-13" className={`tm-cube tm-seat-${claim}`} /><text y="-10.5" className="tm-cube__n">{fa(claim + 1)}</text></>}
                 <polygon points={pts} className="tm-hex__edge" />
               </g>
@@ -133,7 +195,10 @@ function Board({ view, pick, hint, onPick, seatName }: { view: TmView; pick: Set
           );
         })}
       </div>
-      <p className="tm-legend" dir="rtl">ف فولاد · ت تیتانیوم · گ گیاه · ک کارت · نواحی آبی فقط برای اقیانوس</p>
+      <p className="tm-legend" dir="rtl">
+        {(Object.keys(BONUS_FA) as (keyof typeof BONUS_FA)[]).map((b) => <span key={b} className="tm-legend__i"><svg viewBox="-7 -7 14 14" width="14" height="14" aria-hidden="true"><BonusShape kind={b} x={0} y={0} z={10} /></svg>{BONUS_FA[b]}</span>)}
+        <span className="tm-legend__i"><svg viewBox="-9 -7 18 14" width="18" height="14" aria-hidden="true"><path d="M-7 3 q3.5 -4 7 0 t7 0" className="tm-hex__wave" /></svg>نواحی آبی فقط برای اقیانوس</span>
+      </p>
     </div>
   );
 }
@@ -243,11 +308,7 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
         <TurnIndicator tone={view.outcome ? 'done' : mine && !queued ? 'mine' : 'wait'}>{status}</TurnIndicator>
         <span className="tm-gen">نسل {fa(view.generation)} · {PHASE_FA[view.phase]} · <span data-flip-anchor="deck">دسته {fa(view.deck)}</span> · <span data-flip-anchor="discard">دورریز {fa(view.discard)}</span></span>
       </header>
-      <section className="tm-params" aria-label="پارامترهای جهانی">
-        <Gauge label="دما" art={PARAM_ART.temperature} value={view.temperature} min={TEMP_MIN} max={TEMP_MAX} unit="°" pop={popTemp} signed />
-        <Gauge label="اکسیژن" art={PARAM_ART.oxygen} value={view.oxygen} min={0} max={OXY_MAX} unit="٪" pop={popOxy} />
-        <Gauge label="اقیانوس" art={PARAM_ART.ocean} value={view.oceans} min={0} max={OCEANS_MAX} unit="" pop={popOcean} />
-      </section>
+      <Params view={view} seatName={seatName} pops={{ t: popTemp, o: popOxy, w: popOcean }} />
 
       <div className="tm-main">
         <Board view={view} pick={spacePick} hint={hint?.type === 'respond' && hint.space ? hint.space : null} onPick={(id) => !busy && send({ type: 'respond', space: id })} seatName={seatName} />
@@ -327,13 +388,6 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
                   <Button variant="secondary" onClick={() => { setSelling(false); setSel([]); }}>انصراف</Button>
                 </div>
               ) : <>
-                {projects.length > 0 && <div className="tm-row" role="group" aria-label="پروژه‌های استاندارد">
-                  {projects.map((a) => {
-                    const pr = a.project as Project;
-                    if (pr === 'sellPatents') return <Button key={pr} size="sm" variant="secondary" disabled={busy} onClick={() => { setSelling(true); setSel([]); }}>{PROJECT_FA[pr]}</Button>;
-                    return <Button key={pr} size="sm" variant="secondary" data-act={`project-${pr}`} disabled={busy} className={isHint({ type: 'project', project: pr }) ? 'tm-hint' : ''} onClick={() => paid({ type: 'project', project: pr }, a.cost as number, false, false)}>{PROJECT_FA[pr]} ({fa(a.cost as number)})</Button>;
-                  })}
-                </div>}
                 <div className="tm-row">
                   {has('convertPlants') && <Button disabled={busy} className={isHint({ type: 'convertPlants' }) ? 'tm-hint' : ''} data-act="convertPlants" onClick={() => send({ type: 'convertPlants' })}>گیاه ← فضای سبز</Button>}
                   {has('convertHeat') && <Button disabled={busy} className={isHint({ type: 'convertHeat' }) ? 'tm-hint' : ''} data-act="convertHeat" onClick={() => send({ type: 'convertHeat' })}>۸ گرما ← ۱ پلهٔ دما</Button>}
@@ -351,22 +405,52 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
             </section>
           )}
 
+          <section className="tm-panel tm-sp" aria-label="پروژه‌های استاندارد">
+            <b className="tm-h">پروژه‌های استاندارد</b>
+            <ul className="tm-sp__list">
+              {(Object.keys(PROJECTS) as Project[]).map((pr) => {
+                const a = projects.find((x) => x.project === pr);
+                const cost = (a?.cost as number | undefined) ?? PROJECTS[pr];
+                const go = () => { if (pr === 'sellPatents') { setSelling(true); setSel([]); } else paid({ type: 'project', project: pr }, cost, false, false); };
+                return (
+                  <li key={pr}>
+                    <button type="button" className={`tm-sp__row${isHint({ type: 'project', project: pr }) ? ' tm-hint' : ''}`} data-act={pr === 'sellPatents' ? undefined : `project-${pr}`} disabled={busy || !a || !!payFor || selling} onClick={go}>
+                      <span className="tm-sp__cost" aria-label={pr === 'sellPatents' ? 'بدون هزینه' : `هزینه ${fa(cost)}`}>{pr === 'sellPatents' ? '—' : fa(cost)}</span>
+                      <span className="tm-sp__name">{PROJECT_FA[pr]}</span>
+                      <small className="tm-sp__fx">{PROJECT_FX[pr]}</small>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
           <section className="tm-panel tm-goals" aria-label="نقطه‌های عطف و جایزه‌ها">
-            <b>نقطه‌های عطف · {fa(MILESTONE_COST)} مگاکردیت · {fa(view.milestones.length)} از ۳</b>
-            <div className="tm-row">{MILESTONES.map((m) => {
+            <b className="tm-h">نقطه‌های عطف <small>· {fa(MILESTONE_COST)} مگاکردیت · {fa(view.milestones.length)} از ۳ ثبت‌شده</small></b>
+            <div className="tm-plaques">{MILESTONES.map((m) => {
               const t = view.milestones.find((x) => x.id === m.id);
               const ok = legalActions.some((a) => a.type === 'milestone' && a.id === m.id);
-              return <Button key={m.id} size="sm" variant={ok ? 'primary' : 'secondary'} disabled={busy || !ok} title={m.textFa} aria-label={`${m.nameFa}: ${m.textFa}${t ? '، ثبت‌شده برای ' + seatName(t.seat) : ''}`}
-                className={isHint({ type: 'milestone', id: m.id }) ? 'tm-hint' : ''} onClick={() => paid({ type: 'milestone', id: m.id }, MILESTONE_COST, false, false)}>
-                {m.nameFa} <small>({m.textFa})</small>{t ? <span className={`tm-owner tm-seat-${t.seat}`}> {seatName(t.seat)}</span> : null}</Button>;
+              return <button type="button" key={m.id} disabled={busy || !ok} aria-label={`${m.nameFa}: ${m.textFa}${t ? '، ثبت‌شده برای ' + seatName(t.seat) : ''}`}
+                className={`tm-plaque${ok ? ' tm-plaque--ok' : ''}${t ? ` tm-plaque--taken tm-seat-${t.seat}` : ''}${isHint({ type: 'milestone', id: m.id }) ? ' tm-hint' : ''}`} onClick={() => paid({ type: 'milestone', id: m.id }, MILESTONE_COST, false, false)}>
+                <span className="tm-plaque__name">{m.nameFa}</span>
+                <small className="tm-plaque__text">{m.textFa}</small>
+                <span className="tm-plaque__foot">{t ? <><i className="tm-plaque__cube" aria-hidden="true" /><bdi>{seatName(t.seat)}</bdi></> : <span className="tm-plaque__cost">{fa(MILESTONE_COST)}</span>}</span>
+              </button>;
             })}</div>
-            <b>جایزه‌ها · {view.awards.length < 3 ? `${fa(AWARD_COSTS[view.awards.length]!)} مگاکردیت` : 'تکمیل'} · {fa(view.awards.length)} از ۳</b>
-            <div className="tm-row">{AWARDS.map((aw) => {
+            <b className="tm-h">جایزه‌ها <small>· {fa(view.awards.length)} از ۳ تأمین‌شده</small>
+              <span className="tm-ladder" aria-label={view.awards.length < 3 ? `هزینهٔ بعدی ${fa(AWARD_COSTS[view.awards.length]!)} مگاکردیت` : 'همهٔ جایزه‌ها تأمین شد'}>
+                {AWARD_COSTS.map((c, i) => <span key={i} className={i < view.awards.length ? 'is-used' : i === view.awards.length ? 'is-next' : ''}>{fa(c)}</span>)}
+              </span>
+            </b>
+            <div className="tm-plaques">{AWARDS.map((aw) => {
               const t = view.awards.find((x) => x.id === aw.id);
               const ok = legalActions.find((a) => a.type === 'award' && a.id === aw.id);
-              return <Button key={aw.id} size="sm" variant={ok ? 'primary' : 'secondary'} disabled={busy || !ok} title={aw.textFa} aria-label={`${aw.nameFa}: ${aw.textFa}${t ? '، تأمین‌شده توسط ' + seatName(t.seat) : ''}`}
-                className={isHint({ type: 'award', id: aw.id }) ? 'tm-hint' : ''} onClick={() => ok && paid({ type: 'award', id: aw.id }, ok.cost as number, false, false)}>
-                {aw.nameFa} <small>({aw.textFa})</small>{t ? <span className={`tm-owner tm-seat-${t.seat}`}> {seatName(t.seat)}</span> : null}</Button>;
+              return <button type="button" key={aw.id} disabled={busy || !ok} aria-label={`${aw.nameFa}: ${aw.textFa}${t ? '، تأمین‌شده توسط ' + seatName(t.seat) : ''}`}
+                className={`tm-plaque tm-plaque--award${ok ? ' tm-plaque--ok' : ''}${t ? ` tm-plaque--taken tm-seat-${t.seat}` : ''}${isHint({ type: 'award', id: aw.id }) ? ' tm-hint' : ''}`} onClick={() => ok && paid({ type: 'award', id: aw.id }, ok.cost as number, false, false)}>
+                <span className="tm-plaque__name">{aw.nameFa}</span>
+                <small className="tm-plaque__text">{aw.textFa}</small>
+                <span className="tm-plaque__foot">{t ? <><i className="tm-plaque__cube" aria-hidden="true" /><bdi>{seatName(t.seat)}</bdi></> : <span className="tm-plaque__cost">{view.awards.length < 3 ? fa(AWARD_COSTS[view.awards.length]!) : '—'}</span>}</span>
+              </button>;
             })}</div>
           </section>
 
@@ -492,29 +576,29 @@ function PlayerPanel({ k, p, view, seatName, me }: { k: number; p: TmView['playe
 /** One resource box of the printed board: production track with the seat's marker cube on top, stock cubes below. */
 function ResBox({ r, n, prod, seat, rule }: { r: Res; n: number; prod: number; seat: number; rule: string }) {
   const pop = usePop(n), popProd = usePop(prod);
-  const lo = r === 'mc' ? -5 : 0;
-  const at = Math.max(lo, Math.min(10, prod));
+  const tens = prod >= 10 ? Math.min(5, Math.floor(prod / 10)) : 0, units = prod >= 0 ? prod - 10 * Math.floor(prod / 10) : -1;
   // Stock as the game's cubes: gold = 10, silver = 5, bronze = 1 (first 12 drawn; the number is always exact).
   const cubes = [...Array<string>(Math.floor(n / 10)).fill('g'), ...Array<string>(Math.floor((n % 10) / 5)).fill('s'), ...Array<string>(n % 5).fill('b')];
   return (
     <div className={`tm-box tm-box--${r}`} role="group" aria-label={`${RES_FA[r]}: موجودی ${fa(n)}، تولید ${sfa(prod)}`} style={{ backgroundImage: `url(${BOARD_ART.box})` }}>
       <span className="tm-box__head">
-        <img src={RES_ART[r]} alt="" />
         <span className="tm-box__name">{RES_FA[r]}</span>
         <small key={`p${prod}`} className={`tm-box__prod ${popProd}`}>تولید <b>{sfa(prod)}</b></small>
       </span>
-      <span className="tm-box__track" dir="ltr" aria-hidden="true">
-        {Array.from({ length: 11 - lo }, (_, i) => i + lo).map((v) => (
-          <span key={v} className={`tm-box__step${v === 0 ? ' tm-box__step--zero' : ''}${v % 5 === 0 ? ' tm-box__step--five' : ''}`}>
-            {v === at && <span className={`tm-box__marker tm-seat-${seat}`} />}
+      <span className="tm-box__body">
+        <span className="tm-box__stock">
+          <img src={RES_ART[r]} alt="" />
+          <b key={n} className={pop}>{fa(n)}</b>
+          <span className="tm-box__cubes" aria-hidden="true">
+            {cubes.slice(0, 12).map((c, i) => <i key={i} className={`tm-rc tm-rc--${c}`} />)}{cubes.length > 12 && <small>…</small>}
           </span>
-        ))}
-      </span>
-      <span className="tm-box__stock">
-        <b key={n} className={pop}>{fa(n)}</b>
-        <span className="tm-box__cubes" aria-hidden="true">
-          {cubes.slice(0, 12).map((c, i) => <i key={i} className={`tm-rc tm-rc--${c}`} />)}{cubes.length > 12 && <small>…</small>}
         </span>
+      <span className="tm-box__track" dir="ltr" aria-hidden="true">
+        {/* printed track: -5..-1 (M€ only; an empty row elsewhere so the boxes align), 0..9 in two rows, then the +10 row */}
+        <span className="tm-box__row">{[-5, -4, -3, -2, -1].map((v) => <span key={v} className={`tm-box__step${r === 'mc' ? '' : ' tm-box__step--off'}`}>{r === 'mc' && <>{fa(v)}{prod === v && <span className={`tm-box__marker tm-seat-${seat}`} />}</>}</span>)}</span>
+        {[0, 5].map((o) => <span key={o} className="tm-box__row">{[0, 1, 2, 3, 4].map((i) => { const v = o + i; return <span key={v} className={`tm-box__step${v === 0 ? ' tm-box__step--zero' : ''}`}>{fa(v)}{units === v && <span className={`tm-box__marker tm-seat-${seat}`} />}</span>; })}</span>)}
+        <span className="tm-box__row">{[1, 2, 3, 4, 5].map((t) => <span key={t} className="tm-box__step tm-box__step--ten">+{fa(t * 10)}{tens === t && <span className={`tm-box__marker tm-seat-${seat}`} />}</span>)}</span>
+      </span>
       </span>
       <small className="tm-box__rule">{rule}</small>
     </div>
