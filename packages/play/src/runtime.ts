@@ -19,10 +19,13 @@ export interface LockedTable { table: TableRow; version: VersionRow; module: Any
 
 /** Row-lock the table (serializes commands, timeouts and lifecycle changes for this table). */
 export async function lockTable(tx: Tx, registry: GameRegistry, tableId: string): Promise<LockedTable> {
-  const [table] = await tx.select().from(gameTables).where(eq(gameTables.id, tableId)).for('update');
-  if (!table) throw new AppError('NOT_FOUND');
-  const [version] = await tx.select().from(gameVersions).where(eq(gameVersions.id, table.gameVersionId));
-  return { table, version: version!, module: registry.resolve(table.gameId, version!.rulesVersion) };
+  // One round trip; OF keeps the lock on this table's row only (the version row is shared by every table of the game).
+  const [row] = await tx.select({ table: gameTables, version: gameVersions }).from(gameTables)
+    .innerJoin(gameVersions, eq(gameVersions.id, gameTables.gameVersionId))
+    .where(eq(gameTables.id, tableId)).for('update', { of: gameTables });
+  if (!row) throw new AppError('NOT_FOUND');
+  const { table, version } = row;
+  return { table, version, module: registry.resolve(table.gameId, version.rulesVersion) };
 }
 
 export async function loadSnapshot(tx: Tx | Db, tableId: string, revision: number): Promise<EngineSnapshot> {
@@ -38,7 +41,8 @@ export type EngineInput =
   | { kind: 'action'; seat: number; action: unknown; logicalTime: number }
   | { kind: 'timeout'; deadlineToken: string; logicalTime: number };
 
-const notifyTable = (tx: Tx, tableId: string) => tx.execute(sql`select pg_notify('table_changed', ${tableId})`);
+/** Payload `tableId:revision` lets the push reuse the context the mover's reply already loaded (tableContextAt). */
+const notifyTable = (tx: Tx, tableId: string, revision: number) => tx.execute(sql`select pg_notify('table_changed', ${`${tableId}:${revision}`})`);
 
 /**
  * Pause before a bot moves («thinking»): 1–3 s at random, one second more when it has many options, so replies
@@ -137,7 +141,7 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
       payload: { tableId: table.id, revision, gameId: table.gameId, userIds: pendingUsers.map((u) => u.userId).filter(Boolean) }
     });
   }
-  await notifyTable(tx, table.id);
+  await notifyTable(tx, table.id, revision);
   return revision;
 }
 

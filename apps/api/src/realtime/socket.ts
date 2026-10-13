@@ -5,7 +5,7 @@ import { Server, type DefaultEventsMap, type Socket } from 'socket.io';
 import { AppError, ClientEvents, commandEnvelope, ERRORS, ServerEvents, tableSubscribePayload, typingPayload, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
-import { buildTableSnapshot, executeCommand, loadTableContext, toNotificationItem, type TableContext } from '@bg/play';
+import { buildTableSnapshot, executeCommand, loadTableContext, tableContextAt, toNotificationItem, type TableContext } from '@bg/play';
 import { conversationMembersOf, messageItemById } from '../modules/social/chat.ts';
 import { profiles } from '../modules/social/relations.ts';
 import type { Config } from '../config.ts';
@@ -128,7 +128,8 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
       if (!parsed.success) return ack?.(failure(new AppError('VALIDATION_FAILED')));
       try {
         const result = await timedCommand('socket', log, parsed.data.tableId, () => executeCommand(db, registry, { userId, ...parsed.data }));
-        ack?.({ ok: true, ...result, snapshot: await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId }) });
+        const ctx = await tableContextAt(db, parsed.data.tableId, result.revision);
+        ack?.({ ok: true, ...result, snapshot: await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId }, ctx) });
       } catch (err) {
         ack?.(failure(err));
       }
@@ -136,13 +137,15 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
   });
 
   if (listenClient) {
-    await listenClient.listen('table_changed', (tableId) => {
+    await listenClient.listen('table_changed', (payload) => {
       void (async () => {
+        // `tableId:revision` after a move (reuse the mover's context load), plain `tableId` for lobby/lifecycle changes.
+        const [tableId = '', rev] = payload.split(':');
         const sockets = [...io.sockets.adapter.rooms.get(`table:${tableId}`) ?? []].map((id) => io.sockets.sockets.get(id)).filter((s) => !!s);
         if (!sockets.length) return;
         // Viewer-independent data is read once per change; each subscriber still gets its own projection + access check.
         // If the shared read fails, fall back to per-socket reads rather than silently dropping the push.
-        const ctx = await loadTableContext(db, tableId).catch((err: unknown) => {
+        const ctx = await (rev ? tableContextAt(db, tableId, Number(rev)) : loadTableContext(db, tableId)).catch((err: unknown) => {
           log.warn({ tableId, err: err instanceof Error ? err.message : String(err) }, 'shared table load failed');
           return undefined;
         });

@@ -60,6 +60,24 @@ export async function loadTableContext(db: Db, tableId: string) {
 }
 export type TableContext = Awaited<ReturnType<typeof loadTableContext>>;
 
+/**
+ * Every move builds the table context twice: for the mover's reply and for the realtime push (NOTIFY carries the
+ * revision). Both read the same committed revision, so the second reuses the first's load instead of re-querying.
+ * The context is at least `revision` (never older), which every consumer accepts.
+ */
+// ponytail: per-process memo for a few seconds; fine while the API runs one process.
+const recentContexts = new Map<string, { revision: number; ctx: Promise<TableContext> }>();
+export function tableContextAt(db: Db, tableId: string, revision: number): Promise<TableContext> {
+  const hit = recentContexts.get(tableId);
+  if (hit?.revision === revision) return hit.ctx;
+  const ctx = loadTableContext(db, tableId);
+  recentContexts.set(tableId, { revision, ctx });
+  const forget = () => { if (recentContexts.get(tableId)?.ctx === ctx) recentContexts.delete(tableId); };
+  ctx.catch(forget);
+  setTimeout(forget, 5000).unref();
+  return ctx;
+}
+
 /** Builds the authorized snapshot for one viewer, enforcing table access (private, tutorial, invite). */
 export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: ViewRequest, ctx?: TableContext): Promise<TableSnapshot> {
   const { table, version, game, seats, incident, snap, readyDue, turnDue, result } = ctx ?? await loadTableContext(db, req.tableId);

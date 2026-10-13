@@ -10,7 +10,7 @@ import { schema } from '@bg/db';
 import {
   buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
-  skipTutorial, startTutorial
+  skipTutorial, startTutorial, tableContextAt
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -99,7 +99,8 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   }, async (req) => {
     const { userId } = requireUser(req);
     const result = await timedCommand('http', req.log, req.params.id, () => executeCommand(db, registry, { userId, tableId: req.params.id, ...req.body }));
-    return { ...result, snapshot: await snapshot(req.params.id, userId) };
+    const ctx = await tableContextAt(db, req.params.id, result.revision);
+    return { ...result, snapshot: await buildTableSnapshot(db, registry, { tableId: req.params.id, userId }, ctx) };
   });
 
   r.get('/tables/:id/commands/:commandId', {
