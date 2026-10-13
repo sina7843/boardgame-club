@@ -90,7 +90,19 @@ if (env.WORKER_HEALTH_PORT) {
 
 log('worker started', { deadlinePollMs: env.DEADLINE_POLL_MS, maintenanceSeconds: env.WORKER_INTERVAL_SECONDS });
 loop('deadlines', env.DEADLINE_POLL_MS, () => runDueDeadlines(db, registry));
-loop('outbox', 2000, () => runOutbox(db));
+// Outbox in small claims under a time budget: when many games end together (each costs ~80 statements of rewards,
+// ratings and notifications) the backlog drains over a few ticks instead of holding the database busy and slowing
+// live moves. Rewards then arrive a little later under bursts; normal traffic stays within one tick.
+const OUTBOX_BUDGET_MS = 1000;
+loop('outbox', 2000, async () => {
+  const started = performance.now();
+  let processed = 0, failed = 0;
+  for (;;) {
+    const r = await runOutbox(db, { batch: 5 });
+    processed += r.processed; failed += r.failed;
+    if (r.processed + r.failed < 5 || performance.now() - started > OUTBOX_BUDGET_MS) return { processed, failed };
+  }
+});
 loop('matchmaking', 2000, () => runMatchmaking(db, defaultMatchConfig, registry));
 loop('tournaments', 3000, () => runTournaments(db, registry));
 loop('payments', 30_000, () => reconcilePayments(db, billing));

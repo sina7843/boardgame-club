@@ -1224,3 +1224,10 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Move path (2026-10-14): NOTIFY `table_changed` carries `tableId:revision` from persistStep; the mover's reply and
   the push share one context load per revision (`tableContextAt`, 5 s per-process memo). lockTable joins the version
   row with `FOR UPDATE OF game_tables`. ~27 → ~20 statements per move.
+- Production PostgreSQL sizing (2026-10-14): `shared_buffers=1GB`, `effective_cache_size=3GB` (env-overridable
+  PG_SHARED_BUFFERS / PG_EFFECTIVE_CACHE_SIZE), 16 MB work_mem, 2 GB max_wal_size, SSD planner costs, in both compose
+  files. Measured on the 4 vCPU / 8 GB test server: under 160 live players PostgreSQL used ~1 core on 128 MB defaults.
+- Worker outbox (2026-10-14): claims 5 events at a time under a 1 s budget per 2 s tick (was 50 back to back). A
+  finished game costs ~80 statements of rating/rewards/notifications (~25 ms PostgreSQL CPU locally); bursts of
+  simultaneous game ends now drain over several ticks instead of competing with live moves. Rewards may lag
+  ~1 min under extreme bursts.

@@ -35,8 +35,14 @@ services:
     image: ${IMAGE_PREFIX:-boardgame}-postgres:${IMAGE_TAG:-local}
     restart: unless-stopped
     # Continuous encrypted WAL archive (PITR). archive_timeout bounds RPO while traffic is low.
+    # Memory and checkpoint sizing for an 8 GB host (defaults assume 128 MB); override PG_SHARED_BUFFERS /
+    # PG_EFFECTIVE_CACHE_SIZE (about 1/8 and 3/8 of host RAM) elsewhere.
     command: ["postgres", "-c", "wal_level=replica", "-c", "archive_mode=on",
-              "-c", "archive_command=archive-wal.sh %p %f", "-c", "archive_timeout=${ARCHIVE_TIMEOUT:-60}"]
+              "-c", "archive_command=archive-wal.sh %p %f", "-c", "archive_timeout=${ARCHIVE_TIMEOUT:-60}",
+              "-c", "shared_buffers=${PG_SHARED_BUFFERS:-1GB}", "-c", "effective_cache_size=${PG_EFFECTIVE_CACHE_SIZE:-3GB}",
+              "-c", "work_mem=16MB", "-c", "maintenance_work_mem=256MB", "-c", "wal_buffers=16MB",
+              "-c", "max_wal_size=2GB", "-c", "min_wal_size=512MB", "-c", "checkpoint_completion_target=0.9",
+              "-c", "random_page_cost=1.1", "-c", "effective_io_concurrency=200"]
     secrets: [backup_recipient]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}

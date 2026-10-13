@@ -33,6 +33,14 @@ services:
   postgres:
     image: postgres:18.6-alpine
     restart: unless-stopped
+    # Sized for an 8 GB host shared with other apps (defaults assume 128 MB). Every move is a short write
+    # transaction plus a few indexed reads; WAL headroom keeps checkpoints from bunching up under load.
+    # Override PG_SHARED_BUFFERS / PG_EFFECTIVE_CACHE_SIZE (about 1/8 and 3/8 of host RAM) on other hosts.
+    command: ["postgres",
+              "-c", "shared_buffers=${PG_SHARED_BUFFERS:-1GB}", "-c", "effective_cache_size=${PG_EFFECTIVE_CACHE_SIZE:-3GB}",
+              "-c", "work_mem=16MB", "-c", "maintenance_work_mem=256MB", "-c", "wal_buffers=16MB",
+              "-c", "max_wal_size=2GB", "-c", "min_wal_size=512MB", "-c", "checkpoint_completion_target=0.9",
+              "-c", "random_page_cost=1.1", "-c", "effective_io_concurrency=200"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
