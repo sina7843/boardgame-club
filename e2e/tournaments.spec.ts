@@ -5,7 +5,7 @@ import { newPage, player, signIn } from './helpers.ts';
 // Tournaments end to end: the admin creates one in the panel, two players register from the list, the worker starts it
 // at the scheduled time and each player gets a table link. Playing tables out and scoring is covered by the API test.
 // Needs the worker.
-test.describe.configure({ mode: 'serial', timeout: 240_000 });
+test.describe.configure({ mode: 'serial', timeout: 360_000 });
 const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 const grant = (mobile: string, role: string) => execFileSync('node', ['packages/db/src/grant-role.ts', mobile, role], { env: { ...process.env, DATABASE_URL }, stdio: 'pipe' });
 const shot = (project: string, name: string) => `docs/evidence/tournaments/${project}-${name}.png`;
@@ -47,6 +47,23 @@ test('admin creates a tournament, players register, the worker seats them at rou
   await players[0]!.screenshot({ path: shot(info.project.name, 'round'), fullPage: true });
   await players[0]!.getByRole('link', { name: 'میز شما آماده است؛ ورود به میز' }).click();
   await expect(players[0]!).toHaveURL(/\/tables\//);
+
+  // Both players ready up, the table starts, and a signed-in outsider watches it from the tournament page and the live list.
+  const tournamentUrl = players[1]!.url();
+  await players[1]!.getByRole('link', { name: 'میز شما آماده است؛ ورود به میز' }).click();
+  for (const p of players) await p.getByRole('button', { name: 'آماده‌ام' }).click();
+  const watcher = await player(browser, vp, 'تماشاگر تورنمنت');
+  await watcher.goto(tournamentUrl);
+  await expect(watcher.getByRole('link', { name: 'تماشا' }).first()).toBeVisible({ timeout: 30_000 });
+  await watcher.getByRole('link', { name: 'تماشا' }).first().click();
+  await expect(watcher.getByText(/تماشاگر ·/)).toBeVisible();
+  await expect(watcher.getByRole('button', { name: /گفت‌وگوی میز/ })).toHaveCount(0);
+  await watcher.screenshot({ path: shot(info.project.name, 'spectator'), fullPage: true });
+  await watcher.goto('/tables');
+  await expect(watcher.getByRole('heading', { name: 'در حال بازی؛ تماشا کنید' })).toBeVisible();
+  await expect(watcher.getByRole('link', { name: title })).toBeVisible();
+  await watcher.screenshot({ path: shot(info.project.name, 'live-list'), fullPage: true });
+  await watcher.context().close();
 
   // Clean up: cancel so a later run does not see this tournament running.
   const list = await (await admin.request.get('/api/tournaments')).json();

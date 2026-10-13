@@ -105,7 +105,9 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
         <Policies table={t} />
         <section className="panel stack">
           {error && <div className="banner banner--warn" role="alert" style={{ margin: 0 }}>{error}</div>}
-          {!me ? (
+          {!me && t.settings.tournament ? (
+            <p className="muted" style={{ margin: 0 }}>میز تورنمنت؛ شما تماشاگرید و بازی با آمادگی بازیکنان شروع می‌شود. <Link to={`/tournaments/${t.settings.tournament.id}`}>بازگشت به تورنمنت</Link></p>
+          ) : !me ? (
             <Button busy={busy} onClick={() => run(async () => onChange(await api<TableSnapshot>(`/tables/${t.id}/join`, { method: 'POST', body: invite ? { inviteCode: invite } : {} })))}>
               پیوستن به میز
             </Button>

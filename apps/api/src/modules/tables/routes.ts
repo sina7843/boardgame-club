@@ -3,12 +3,12 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, myTableItem, notificationItem, openTableItem,
+  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, liveTableItem, myTableItem, notificationItem, openTableItem,
   receiptLookup, tableSnapshot, tutorialProgressItem
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listMyTables,
+  buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
   skipTutorial, startTutorial
 } from '@bg/play';
@@ -51,6 +51,14 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   }, async (req) => {
     requireUser(req);
     return { items: await listOpenTables(db, req.query.gameId) };
+  });
+
+  r.get('/tables/live', {
+    schema: { tags: ['tables'], summary: 'Games in progress open to spectators (public and tournament tables)', querystring: z.object({ gameId: z.string().max(64).optional() }),
+      response: { 200: z.object({ items: z.array(liveTableItem) }), 401: apiErrorSchema } }
+  }, async (req) => {
+    requireUser(req);
+    return { items: await listLiveTables(db, req.query.gameId) };
   });
 
   for (const path of ['/tables/:id', '/tables/:id/view']) {

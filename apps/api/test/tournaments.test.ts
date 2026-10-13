@@ -112,6 +112,26 @@ describe('swiss', () => {
   });
 });
 
+describe('spectators', () => {
+  it('anyone signed in can watch a tournament table (spectator projection, no join) and find it in the live list', async () => {
+    const id = await create();
+    const ps = await users(ctx, 2);
+    for (const p of ps) await call(ctx, 'POST', `/api/tournaments/${id}/register`, p);
+    await startNow(id);
+    const [tt] = await roundTables(id, 1);
+    const [watcher] = await users(ctx, 1);
+    for (const p of ps) await call(ctx, 'POST', `/api/tables/${tt!.tableId}/ready`, p, { ready: true });
+    const s = await view(ctx, watcher!, tt!.tableId);
+    expect(s.table.mySeat).toBeNull();
+    expect(s.game.legalActions).toEqual([]);
+    expect(s.table.inviteCode).toBeNull();
+    expect((await call(ctx, 'POST', `/api/tables/${tt!.tableId}/join`, watcher, {})).json().errorCode).toBe('INVITE_REQUIRED');
+    expect((await call(ctx, 'GET', `/api/tables/${tt!.tableId}/chat`, watcher)).statusCode).toBe(403);
+    const live = (await call(ctx, 'GET', '/api/tables/live', watcher)).json().items;
+    expect(live.find((t: { id: string }) => t.id === tt!.tableId)).toMatchObject({ tournament: { id, round: 1 }, players: expect.any(Array) });
+  });
+});
+
 describe('absence', () => {
   it('a no-show is replaced by a bot (0 points) and knocked out', async () => {
     const id = await create({ format: 'knockout', rounds: undefined, advance: 1 });

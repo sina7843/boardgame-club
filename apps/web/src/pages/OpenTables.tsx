@@ -5,9 +5,10 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { PageTabs } from '../shell/PageTabs.tsx';
 import { Hint } from '../shell/Onboarding.tsx';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
+interface LiveTable { id: string; gameNameFa: string; pace: 'live' | 'turn'; players: string[]; tournament: { id: string; titleFa: string; round: number } | null }
 interface OpenTable { id: string; gameId: string; gameNameFa: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; host: { displayName: string; avatarKey: string } }
 
 export function OpenTables() {
@@ -15,6 +16,7 @@ export function OpenTables() {
   const { me, status } = useSession();
   const navigate = useNavigate();
   const list = useApi<{ items: OpenTable[] }>(me ? '/tables' : null);
+  const live = useApi<{ items: LiveTable[] }>(me ? '/tables/live' : null);
   const [joining, setJoining] = useState<string>();
   const [error, setError] = useState<string>();
 
@@ -35,7 +37,7 @@ export function OpenTables() {
           <h1 className="page-title">میزهای باز<Hint id="open-tables">روی میزی که جای خالی دارد بزنید تا بنشینید؛ وقتی همه آماده شوند بازی شروع می‌شود. میزهای در حال بازی را هم می‌توانید تماشا کنید.</Hint></h1>
           <p className="page-sub">میزهای عمومی که منتظر بازیکن‌اند. میز خصوصی فقط با لینک دعوت باز می‌شود.</p>
         </div>
-        <Button variant="secondary" onClick={list.reload}>به‌روزرسانی</Button>
+        <Button variant="secondary" onClick={() => { list.reload(); live.reload(); }}>به‌روزرسانی</Button>
       </div>
       {error && <div className="banner banner--warn" role="alert">{error}</div>}
       {list.loading && !list.data && <StateBlock kind="loading" title="در حال بارگذاری میزها…" />}
@@ -56,6 +58,26 @@ export function OpenTables() {
             ))}
           </ul>
         ))}
+      <section className="stack" aria-labelledby="live-h" style={{ marginBlockStart: 'var(--space-6, 2rem)' }}>
+        <h2 id="live-h" className="section-title">در حال بازی؛ تماشا کنید</h2>
+        {live.error && <div className="banner banner--warn" role="alert">{live.error.messageFa}</div>}
+        {live.data && (live.data.items.length === 0
+          ? <p className="muted">فعلاً بازی عمومی یا تورنمنتی در جریان نیست.</p>
+          : (
+            <ul className="list">
+              {live.data.items.map((t) => (
+                <li key={t.id} className="panel list__item">
+                  <div style={{ flex: 1, minInlineSize: 0 }}>
+                    <strong>{t.gameNameFa}</strong>
+                    {t.tournament && <> · <Link to={`/tournaments/${t.tournament.id}`}>{t.tournament.titleFa}</Link>، دور {faNum(t.tournament.round)}</>}
+                    <div className="muted">{PACE_FA[t.pace]} · {t.players.map((n, i) => <span key={i}>{i > 0 && '، '}<bdi>{n}</bdi></span>)}</div>
+                  </div>
+                  <Link className="btn btn--secondary" to={`/tables/${t.id}`}>تماشا</Link>
+                </li>
+              ))}
+            </ul>
+          ))}
+      </section>
     </>
   );
 }

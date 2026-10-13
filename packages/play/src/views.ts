@@ -1,12 +1,12 @@
 // Read models. Game data leaves the server only through module.project()/legalActions() for one viewer.
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { AppError, botPersona, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
+import { AppError, botPersona, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
 import { loadSnapshot } from './runtime.ts';
 
-const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites } = schema;
+const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables } = schema;
 
 type GameView = NonNullable<TableSnapshot['game']>;
 
@@ -69,7 +69,9 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
   let lobbyOnly = false;
   if (mySeat === null) {
     if (table.isTutorial) throw new AppError('FORBIDDEN');
-    if (table.visibility === 'private') {
+    // Tournament tables are private (nobody can join) but open to spectators: a tournament is meant to be watched.
+    const isTournament = !!(table.settings as { tournament?: unknown }).tournament;
+    if (table.visibility === 'private' && !isTournament) {
       // A private table is visible only to its members — or, before start, to holders of the invite link.
       const [invited] = await db.select().from(tableInvites).where(and(eq(tableInvites.tableId, table.id), eq(tableInvites.userId, req.userId)));
       if (table.status === 'open' && (invited || (req.inviteCode && req.inviteCode === table.inviteCode))) lobbyOnly = true;
@@ -167,6 +169,26 @@ export async function listOpenTables(db: Db, gameId?: string) {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as 'live' | 'turn', players, capacity: table.capacity,
     turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
     host: { id: host.id, displayName: host.displayName, avatarKey: host.avatarKey as never, joinedAt: host.createdAt.toISOString() }
+  }));
+}
+
+/** Games in progress that anyone signed in may watch: public tables and tournament tables. Players' names only, never state. */
+export async function listLiveTables(db: Db, gameId?: string): Promise<LiveTableItem[]> {
+  const rows = await db.select({ table: gameTables, game: games, tournamentId: tournaments.id, tournamentTitleFa: tournaments.titleFa, round: tournamentTables.round })
+    .from(gameTables).innerJoin(games, eq(games.id, gameTables.gameId))
+    .leftJoin(tournamentTables, eq(tournamentTables.tableId, gameTables.id)).leftJoin(tournaments, eq(tournaments.id, tournamentTables.tournamentId))
+    .where(and(eq(gameTables.status, 'active'), eq(gameTables.isTutorial, false), eq(games.status, 'active'),
+      sql`(${gameTables.visibility} = 'public' or ${tournamentTables.tableId} is not null)`, gameId ? eq(gameTables.gameId, gameId) : undefined))
+    // Tournament tables first, then the most recently started.
+    .orderBy(sql`${tournamentTables.tableId} is null`, desc(gameTables.startedAt)).limit(50);
+  const ids = rows.map((r) => r.table.id);
+  const seats = ids.length ? await db.select({ tableId: participants.tableId, seat: participants.seat, kind: participants.kind, name: users.displayName })
+    .from(participants).leftJoin(users, eq(users.id, participants.userId)).where(inArray(participants.tableId, ids)).orderBy(participants.seat) : [];
+  return rows.map(({ table, game, tournamentId, tournamentTitleFa, round }) => ({
+    id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as LiveTableItem['pace'],
+    startedAt: table.startedAt?.toISOString() ?? null,
+    players: seats.filter((x) => x.tableId === table.id).map((x) => x.name ?? (x.kind === 'bot' ? 'ربات' : 'جایگزین')),
+    tournament: tournamentId ? { id: tournamentId, titleFa: tournamentTitleFa!, round: round! } : null
   }));
 }
 

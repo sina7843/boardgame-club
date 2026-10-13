@@ -106,6 +106,7 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - **Table invitations** only to friends or members of a shared active group/club; invited users can open and join a
   private lobby without the link (`table_invites`).
 - **Spectators cannot read table chat** (participants only), keeping chat out of spectator feeds.
+- **Tournament tables are spectatable**: they stay `private` (nobody can join) but any signed-in user may watch with the spectator projection. `GET /api/tables/live` lists active public + tournament tables (player names only); the «میزهای باز» page has a «تماشا» section and tournament rounds link «تماشا» on active tables.
 - **Only DMs create message notifications**; group/club/table chat is visible in place to avoid noise.
 - **Moderation**: report-scoped evidence; appeals decided by another moderator; sanctions are `suspended`,
   `chat_restricted` or `warning`; suspended users keep access to sanctions/appeals/reports only.

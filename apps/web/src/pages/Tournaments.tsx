@@ -7,8 +7,8 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { CoinMark, coinsChanged } from '../lib/coins.tsx';
 import { durationFa, faNum, jalaliDateTime, PACE_FA, tomanFa } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
-import { PageTabs } from '../shell/PageTabs.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { PageTabs } from '../shell/PageTabs.tsx';
 
 const FORMAT_FA = { swiss: 'امتیازی (سوئیسی)', knockout: 'حذفی' } as const;
 const STATUS_FA = { open: 'ثبت‌نام باز', running: 'در جریان', finished: 'پایان‌یافته', cancelled: 'لغوشده' } as const;
@@ -179,6 +179,8 @@ export function TournamentPage() {
                         </span>
                       ))}
                       {(tb.status === 'open' || tb.status === 'active') && <Badge>در حال بازی</Badge>}
+                      {tb.status === 'active' && tb.tableId !== t.me?.tableId
+                        && <Link className={`${buttonClass('secondary', 'sm')} ms-auto`} to={`/tables/${tb.tableId}`}>تماشا</Link>}
                     </li>))}</ul>
                 </details>
               ))}

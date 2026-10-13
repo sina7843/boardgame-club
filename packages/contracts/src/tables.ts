@@ -35,7 +35,9 @@ export type CreateBotTableBody = z.infer<typeof createBotTableBody>;
 export const tableSettings = z.object({
   turnSeconds: z.number().int(), reminders: z.boolean(), options: z.record(z.string(), optionValueSchema).optional(),
   /** Present on tables with bot seats (reduced XP, never rated). `personas[i]` = BOT_PERSONAS index of the i-th bot seat. */
-  bot: z.object({ level: botLevelSchema, personas: z.array(z.number().int().min(0)).optional() }).optional()
+  bot: z.object({ level: botLevelSchema, personas: z.array(z.number().int().min(0)).optional() }).optional(),
+  /** Present on tournament tables: nobody can join, anyone signed in can watch. */
+  tournament: z.object({ id: z.uuid(), round: z.number().int() }).optional()
 });
 
 export const BOT_LEVEL_FA: Record<BotLevel, string> = { easy: 'آسان', medium: 'متوسط', hard: 'سخت' };
@@ -168,6 +170,13 @@ export const openTableItem = z.object({
   id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, players: z.number().int(),
   capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile
 });
+
+export const liveTableItem = z.object({
+  id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, startedAt: z.iso.datetime().nullable(),
+  players: z.array(z.string()),
+  tournament: z.object({ id: z.uuid(), titleFa: z.string(), round: z.number().int() }).nullable()
+});
+export type LiveTableItem = z.infer<typeof liveTableItem>;
 
 export const notificationItem = z.object({
   id: z.uuid(),
