@@ -214,3 +214,71 @@ export function MissionsAdmin() {
     </section>
   );
 }
+
+interface ReferralSettings { enabled: boolean; inviterCoins: number; inviterDays: number; inviteeCoins: number; inviteeDays: number; maxRewardedPerInviter: number }
+type Person = { id: string; displayName: string };
+type Reward = { coins: number; days: number };
+const REFERRAL_FIELDS: [keyof Omit<ReferralSettings, 'enabled'>, string][] = [
+  ['inviterCoins', 'سکهٔ دعوت‌کننده'], ['inviterDays', 'روز پریمیوم دعوت‌کننده'],
+  ['inviteeCoins', 'سکهٔ عضو جدید'], ['inviteeDays', 'روز پریمیوم عضو جدید'],
+  ['maxRewardedPerInviter', 'سقف دعوت جایزه‌دار هر نفر (۰ = بی‌سقف)']
+];
+const rewardText = (r?: Reward) => (r ? [r.coins > 0 && `${faNum(r.coins)} سکه`, r.days > 0 && `${faNum(r.days)} روز`].filter(Boolean).join(' + ') : '') || '—';
+
+/** Friend referral: rewards for both sides (new sign-ups only) and who joined through whose link. */
+export function ReferralAdmin() {
+  const s = useApi<ReferralSettings>('/admin/referral');
+  const [referrerId, setReferrerId] = useState('');
+  const report = useApi<{ total: number; top: { user: Person; count: number }[];
+    items: { referrer: Person; referred: Person; createdAt: string; rewards: { inviter?: Reward; invitee?: Reward } }[] }>(
+    `/admin/referrals${referrerId ? `?referrerId=${referrerId}` : ''}`);
+  const toast = useToast();
+  const [draft, setDraft] = useState<Partial<Record<keyof ReferralSettings, string>>>({});
+  if (!s.data) return null;
+  const save = async (enabled: boolean) => {
+    const body: ReferralSettings = { ...s.data!, enabled };
+    for (const [k] of REFERRAL_FIELDS) {
+      const v = Number(draft[k] ?? s.data![k]);
+      if (!Number.isInteger(v) || v < 0) { toast('error', 'مقدارها باید عدد صحیح و نامنفی باشند.'); return; }
+      body[k] = v;
+    }
+    try { await api('/admin/referral', { method: 'PUT', body }); toast('success', 'ذخیره شد.'); setDraft({}); s.reload(); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+  };
+  const who = (p: Person) => <button type="button" className="cursor-pointer font-semibold text-primary hover:underline" onClick={() => setReferrerId(p.id)}><bdi>{p.displayName}</bdi></button>;
+  return (
+    <>
+      <section className="panel stack" aria-labelledby="referral-h">
+        <h2 id="referral-h" className="section-title">جایزهٔ دعوت دوستان</h2>
+        <p className="muted" style={{ margin: 0 }}>کسی که با لینک دعوت عضو شود همیشه خودکار دوست دعوت‌کننده می‌شود. وقتی جایزه روشن است، هر دو طرف هدیهٔ تعیین‌شده را می‌گیرند (فقط برای عضویت‌های بعدی). صفر یعنی بدون آن جایزه.</p>
+        <Switch label={s.data.enabled ? 'جایزه روشن' : 'جایزه خاموش'} checked={s.data.enabled} onChange={(v) => void save(v)} />
+        <div className="row" style={{ alignItems: 'end' }}>
+          {REFERRAL_FIELDS.map(([k, label]) => (
+            <div key={k} style={{ minInlineSize: 140 }}><Input label={label} inputMode="numeric" dir="ltr" className="input--ltr" value={draft[k] ?? String(s.data![k])} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} /></div>
+          ))}
+          <Button size="sm" variant="secondary" disabled={!Object.keys(draft).length} onClick={() => void save(s.data!.enabled)}>ذخیره جایزه‌ها</Button>
+        </div>
+      </section>
+      {report.data && (
+        <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="referral-report-h">
+          <h2 id="referral-report-h" className="section-title">گزارش دعوت‌ها <span className="muted num">({faNum(report.data.total)})</span></h2>
+          {report.data.top.length > 0 && (
+            <details open><summary>بیشترین دعوت</summary>
+              <ul className="list">{report.data.top.map((t) => (
+                <li key={t.user.id} className="list__item list__item--compact"><span style={{ flex: 1 }}>{who(t.user)}</span><Badge>{faNum(t.count)} نفر</Badge></li>))}</ul>
+            </details>
+          )}
+          {referrerId && <div className="row"><Badge>فقط دعوت‌های یک نفر</Badge><Button size="sm" variant="ghost" onClick={() => setReferrerId('')}>نمایش همه</Button></div>}
+          {report.data.items.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز کسی با لینک دعوت عضو نشده است.</p> : (
+            <ul className="list">{report.data.items.map((i) => (
+              <li key={i.referred.id} className="list__item list__item--compact">
+                <span>{who(i.referrer)} ← <bdi>{i.referred.displayName}</bdi></span>
+                <span className="muted">{jalaliDate(i.createdAt)}</span>
+                <span style={{ marginInlineStart: 'auto' }} className="muted">دعوت‌کننده: {rewardText(i.rewards.inviter)} · عضو جدید: {rewardText(i.rewards.invitee)}</span>
+              </li>))}</ul>
+          )}
+        </section>
+      )}
+    </>
+  );
+}

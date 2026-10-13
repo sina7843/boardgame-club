@@ -74,7 +74,10 @@ export function Login() {
     e?.preventDefault();
     if (step.kind !== 'code' || value.length < 6 || busy) return;
     void run(async () => {
-      const r = await api<{ isNewUser: boolean }>('/auth/otp/verify', { method: 'POST', body: { challengeId: step.challengeId, code: toAsciiDigits(value) } });
+      let referralCode: string | undefined;
+      try { referralCode = params.get('ref') ?? localStorage.getItem('bg_ref') ?? undefined; } catch { /* storage blocked */ }
+      const r = await api<{ isNewUser: boolean }>('/auth/otp/verify', { method: 'POST', body: { challengeId: step.challengeId, code: toAsciiDigits(value), referralCode } });
+      try { localStorage.removeItem('bg_ref'); } catch { /* storage blocked */ }
       const m = await refresh();
       if (r.isNewUser || (m && !m.profileCompleted)) {
         setName(m?.displayName ?? '');

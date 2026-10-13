@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { apiErrorSchema, otpRequestBody, otpRequestResponse, otpVerifyBody } from '@bg/contracts';
 import { grantWelcomePremium } from '@bg/play';
 import type { Deps } from '../../app.ts';
+import { applyReferral } from '../referrals/routes.ts';
 import { requestOtp, verifyOtp } from './otp.ts';
 import { createSession, revokeSession, setSessionCookie } from './session.ts';
 
@@ -31,6 +32,10 @@ export function authRoutes(app: FastifyInstance, { db, config, delivery }: Deps)
   }, async (req, reply) => {
     const { userId, isNew } = await verifyOtp(db, config.otp, req.body.challengeId, req.body.code);
     await grantWelcomePremium(db, userId);
+    if (isNew && req.body.referralCode) {
+      // A broken invite must never block sign-up.
+      await applyReferral(db, userId, req.body.referralCode).catch((err: unknown) => req.log.error({ err }, 'referral failed'));
+    }
     const { token, expiresAt } = await createSession(db, userId, config.session.ttlDays);
     setSessionCookie(reply, config.session.cookieName, token, expiresAt, config.isProd);
     return { isNewUser: isNew };

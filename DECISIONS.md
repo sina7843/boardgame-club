@@ -1204,3 +1204,9 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
 - Catalog tags: fixed 19-tag vocabulary (`GAME_TAG_FA` in @bg/game-sdk) declared per game in its module `catalog.tags`,
   copied to `games.tags` by the seed (refreshed on every deploy). Catalog chips filter with match-all (`tags @> [...]`),
   so each extra chip narrows results like the other filters. URL param `tags=card,dice` keeps it shareable.
+- Friend referral (2026-10-13): each user gets one 8-char code (`users.referral_code`, issued on first `GET /me/referral`);
+  link `/login?ref=CODE`, any `?ref=` is remembered in localStorage until sign-up. Only a verification that CREATES the
+  account applies it (`referrals` row, PK = invited user, so once ever); bad/unknown codes are ignored, sign-up never fails.
+  Invitee and inviter become accepted friends whether or not rewards are on. Rewards (`app_settings.referral`): coins
+  and/or premium days for each side, new sign-ups only; premium extends past current premium; optional per-inviter cap
+  on rewarded invites (later invites still make friends). Anti-abuse relies on OTP (one account per mobile) + the cap.

@@ -47,6 +47,10 @@ const MyProfile = lazy(() => import('./pages/MyProfile.tsx').then((m) => ({ defa
 const GuidesPage = lazy(() => import('./pages/Guides.tsx').then((m) => ({ default: m.GuidesPage })));
 const CoinsPage = lazy(() => import('./pages/Coins.tsx').then((m) => ({ default: m.CoinsPage })));
 
+// Friend invite link (?ref=CODE): remembered until sign-up, whichever page the visitor lands on.
+const ref = new URLSearchParams(location.search).get('ref');
+if (ref) try { localStorage.setItem('bg_ref', ref); } catch { /* storage blocked: the link still works if they log in now */ }
+
 const router = createBrowserRouter([
   {
     element: <Suspense fallback={<StateBlock kind="loading" title="در حال بارگذاری…" />}><Layout /></Suspense>,

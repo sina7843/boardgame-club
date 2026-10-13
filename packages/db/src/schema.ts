@@ -38,6 +38,8 @@ export const users = pgTable('users', {
   /** Terms version (app_settings `terms_version`) the user last accepted, and when. */
   termsVersion: text(),
   termsAcceptedAt: tsz(),
+  /** Invite code for the friend-referral link; issued on first request. */
+  referralCode: text().unique(),
   createdAt: createdAt(),
   updatedAt: createdAt()
 }, (t) => [oneOf('users_status_chk', t.status, ['active', 'suspended', 'deleted'])]);
@@ -822,6 +824,14 @@ export const appSettings = pgTable('app_settings', {
   updatedBy: uuid().references(() => users.id),
   updatedAt: createdAt()
 });
+
+/** Who invited whom: one row per invited account, written once at sign-up. `rewards` = what each side got. */
+export const referrals = pgTable('referrals', {
+  referredId: uuid().primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  referrerId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  rewards: jsonb().notNull().default({}),
+  createdAt: createdAt()
+}, (t) => [index('referrals_referrer_idx').on(t.referrerId, t.createdAt)]);
 
 // ============ Social & moderation (DRAGON-02) ============
 

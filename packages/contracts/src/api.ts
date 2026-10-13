@@ -16,7 +16,9 @@ export const otpRequestResponse = z.object({
 
 export const otpVerifyBody = z.strictObject({
   challengeId: z.uuid(),
-  code: z.string().min(4).max(8)
+  code: z.string().min(4).max(8),
+  /** Invite code from a friend's referral link; only used when this verification creates the account. */
+  referralCode: z.string().max(32).optional()
 });
 
 export const roleSchema = z.enum(['admin', 'moderator']);

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { cosmetic, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { Avatar, Badge, Button, Input, StateBlock, Tabs, buttonClass, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { jalaliDate } from '../lib/format.ts';
+import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { CopyProfileLink } from './MyProfile.tsx';
@@ -60,6 +60,58 @@ function Search({ onChange }: { onChange: () => void }) {
   );
 }
 
+interface Referral {
+  code: string;
+  reward: { inviterCoins: number; inviterDays: number; inviteeCoins: number; inviteeDays: number } | null;
+  invited: { user: PublicProfile; createdAt: string; reward: { coins: number; days: number } | null }[];
+}
+
+const rewardFa = (coins: number, days: number) =>
+  [coins > 0 && `${faNum(coins)} سکه`, days > 0 && `${faNum(days)} روز پریمیوم`].filter(Boolean).join(' و ');
+
+/** Invite link + code; whoever signs up through it becomes a friend automatically. */
+function Invite() {
+  const data = useApi<Referral>('/me/referral');
+  const toast = useToast();
+  if (data.error) return <StateBlock kind="error" title="لینک دعوت دریافت نشد" action={<Button onClick={data.reload}>تلاش دوباره</Button>} />;
+  if (!data.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
+  const { code, reward, invited } = data.data;
+  const url = `${location.origin}/login?ref=${code}`;
+  const copy = async (text: string, ok: string) => {
+    try { await navigator.clipboard.writeText(text); toast('success', ok); }
+    catch { toast('error', `کپی ممکن نشد؛ دستی کپی کنید: ${text}`); }
+  };
+  const share = async () => {
+    try { await navigator.share({ title: 'دعوت به بازی', text: 'بیا با هم بازی کنیم! با این لینک عضو شو:', url }); }
+    catch { /* cancelled */ }
+  };
+  const inviter = reward && rewardFa(reward.inviterCoins, reward.inviterDays);
+  const invitee = reward && rewardFa(reward.inviteeCoins, reward.inviteeDays);
+  return (
+    <div className="stack">
+      <p className="muted" style={{ margin: 0 }}>هر کس با لینک یا کد شما عضو شود، خودکار دوست شما می‌شود.</p>
+      {(inviter || invitee) && (
+        <p className="panel" style={{ margin: 0 }}>
+          {inviter && <>به ازای هر دوستی که عضو شود <strong>{inviter}</strong> هدیه می‌گیرید. </>}
+          {invitee && <>دوست شما هم <strong>{invitee}</strong> هدیه می‌گیرد.</>}
+        </p>
+      )}
+      <Input label="لینک دعوت" readOnly dir="ltr" className="input--ltr" value={url} onFocus={(e) => e.currentTarget.select()} />
+      <div className="row">
+        <Button onClick={() => copy(url, 'لینک دعوت کپی شد.')}>کپی لینک</Button>
+        <Button variant="secondary" onClick={() => copy(code, 'کد دعوت کپی شد.')}>کپی کد <bdi dir="ltr">{code}</bdi></Button>
+        {'share' in navigator && <Button variant="ghost" onClick={share}>اشتراک‌گذاری</Button>}
+      </div>
+      <h2 className="section-title" style={{ fontSize: 'var(--fs-md)' }}>دعوت‌شده‌ها ({faNum(invited.length)})</h2>
+      {invited.length ? <ul className="list">{invited.map((i) => (
+        <PersonRow key={i.user.id} p={i.user}>
+          {i.reward && rewardFa(i.reward.coins, i.reward.days) && <Badge tone="success">{rewardFa(i.reward.coins, i.reward.days)}</Badge>}
+          <span className="muted">{jalaliDate(i.createdAt)}</span>
+        </PersonRow>))}</ul> : <p className="muted" style={{ margin: 0 }}>هنوز کسی با لینک شما عضو نشده است.</p>}
+    </div>
+  );
+}
+
 export function FriendsPage() {
   usePageTitle('دوستان');
   const data = useApi<Friends>('/me/friends');
@@ -98,6 +150,7 @@ export function FriendsPage() {
               <PersonRow key={f.id} p={f}><Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>لغو</Button></PersonRow>))}</ul> : empty('درخواستی نفرستاده‌اید.')}
           </div>) },
         { id: 'find', title: 'یافتن', content: <Search onChange={data.reload} /> },
+        { id: 'invite', title: 'دعوت دوستان', content: <Invite /> },
         { id: 'blocked', title: 'مسدود و بی‌صدا', content: (
           <div className="stack">
             {d.blocked.length ? <ul className="list">{d.blocked.map((f) => (
