@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «کاروان» end to end: the tutorial (camels, exchange, sales, ending the round) and a full one-round game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/jaipur/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/jaipur/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: camels, exchange, sell three, take silver, sell the pair', async ({ browser }, info) => {

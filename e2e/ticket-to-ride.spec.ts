@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // tickets at the same time, then play turns through the UI: claim a highlighted route when one is affordable (tap it
 // → «ساخت مسیر»), otherwise draw from the deck. A full game to the last round is engine-tested (random games).
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
-const shot = (project: string, map: string, name: string) => `docs/evidence/ticket-to-ride/${project}-${map}-${name}.png`;
+const shot = (project: string, map: string, name: string) => `docs/evidence/games/ticket-to-ride/${project}-${map}-${name}.png`;
 const MAPS: Record<string, { label: string; project: string }> = {
   iran: { label: 'ایران', project: 'mobile-360' },
   europe: { label: 'اروپا', project: 'desktop-1440' },

@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // (tap a territory → «همه باقی‌مانده» → «ثبت جای‌گذاری»), then play regular turns: reinforce, one blitz attack when
 // possible (occupy if asked), end the attack, end the turn. A full world conquest is engine-tested (random games).
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
-const shot = (project: string, name: string) => `docs/evidence/risk/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/risk/${project}-${name}.png`;
 const TURNS = 6;
 
 async function startTable(host: Page, guests: Page[]) {

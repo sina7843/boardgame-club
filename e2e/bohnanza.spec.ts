@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «لوبیاکاری» end to end: the tutorial (plant twice, flip, trade for a wanted bean, end trade, plant, harvest to make room) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/bohnanza/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/bohnanza/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: plant, flip, trade, settle, harvest', async ({ browser }, info) => {

@@ -8,7 +8,7 @@ test('encyclopedia: list, filter by mechanic, open a game entry', async ({ page 
   await page.getByLabel('سازوکار').selectOption({ label: 'مبادله' });
   await expect(page.getByRole('link', { name: /کاتان/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /شطرنج/ })).toHaveCount(0);
-  await page.screenshot({ path: `docs/evidence/wiki/${info.project.name}-list.png`, fullPage: true });
+  await page.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-list.png`, fullPage: true });
 
   // Painted cover at rest; the BGG box photo fades in on hover (pointer devices only).
   if (!info.project.use.hasTouch) {
@@ -26,12 +26,12 @@ test('encyclopedia: list, filter by mechanic, open a game entry', async ({ page 
   await flip.click();
   await expect(flip).toHaveAttribute('aria-pressed', 'true');
   await expect(flip.locator('.game-cover--box')).toHaveCSS('opacity', '1');
-  await flip.screenshot({ path: `docs/evidence/wiki/${info.project.name}-box.png` });
+  await flip.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-box.png` });
   const wiki = page.locator('#wiki');
   await expect(wiki.getByRole('heading', { name: 'دانشنامه' })).toBeVisible();
   await expect(wiki.getByText('Klaus Teuber')).toBeVisible();
   await expect(wiki.getByRole('link', { name: 'BoardGameGeek' })).toHaveAttribute('href', 'https://boardgamegeek.com/boardgame/13');
-  await wiki.screenshot({ path: `docs/evidence/wiki/${info.project.name}-catan.png` });
+  await wiki.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-catan.png` });
 
   // Mechanic chips link back into the filtered encyclopedia.
   await wiki.getByRole('link', { name: 'مبادله' }).click();

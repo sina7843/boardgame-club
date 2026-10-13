@@ -8,7 +8,7 @@ import { newPage, player, signIn } from './helpers.ts';
 test.describe.configure({ mode: 'serial', timeout: 360_000 });
 const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 const grant = (mobile: string, role: string) => execFileSync('node', ['packages/db/src/grant-role.ts', mobile, role], { env: { ...process.env, DATABASE_URL }, stdio: 'pipe' });
-const shot = (project: string, name: string) => `docs/evidence/tournaments/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/site/tournaments/${project}-${name}.png`;
 
 test('admin creates a tournament, players register, the worker seats them at round one', async ({ browser }, info) => {
   test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'runs at 360 and 1440');

@@ -5,7 +5,7 @@ import { dismissCelebrations, newPage, signIn } from './helpers.ts';
 // DRAGON-02 acceptance flows with independent browser contexts. Runs in mobile-360 and desktop-1440.
 test.describe.configure({ mode: 'serial', timeout: 120_000 });
 
-const shot = (name: string, project: string) => `docs/evidence/phase-02/${project}-${name}.png`;
+const shot = (name: string, project: string) => `docs/evidence/site/phase-02/${project}-${name}.png`;
 const uniq = () => Math.random().toString(36).slice(2, 7);
 const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 const grant = (mobile: string, role: string) =>

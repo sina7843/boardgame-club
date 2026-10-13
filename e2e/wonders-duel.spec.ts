@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «شگفتی‌ها: دوئل» end to end: the tutorial (chain, trade, science pair, wonder, sale, final scoring) and a full game from the wonder draft.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/wonders-duel/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/wonders-duel/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: chain, trade, science pair, wonder, sell, military and final scoring', async ({ browser }, info) => {

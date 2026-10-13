@@ -6,7 +6,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // full two-player game from faction choice through set-up and six rounds (a mine early, then passing) to the result.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/gaia-project/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/gaia-project/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: mine, trading station, federation, research, power action, pass', async ({ browser }, info) => {

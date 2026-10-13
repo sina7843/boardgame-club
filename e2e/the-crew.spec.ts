@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'the-crew';
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/${GAME}/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/${GAME}/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: draft, tricks, communicate, rocket', async ({ browser }, info) => {

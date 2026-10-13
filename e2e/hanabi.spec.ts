@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «آتش‌بازی» end to end: the tutorial (clues, plays, a discard and the final round) and a full three-player cooperative game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/hanabi/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/hanabi/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: colour and number clues, play, discard, final round', async ({ browser }, info) => {

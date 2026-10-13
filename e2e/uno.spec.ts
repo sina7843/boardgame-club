@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // UNO end to end: three independent clients play one full hand through the real UI (live, one-hand variant).
 // Moves are chosen like a casual player: first playable card, otherwise draw. Hidden hands are checked in the UI.
 test.describe.configure({ mode: 'serial', timeout: 300_000 });
-const shot = (project: string, name: string) => `docs/evidence/uno/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/uno/${project}-${name}.png`;
 
 async function startTable(host: Page, guests: Page[]) {
   await host.goto('/games/uno/new');

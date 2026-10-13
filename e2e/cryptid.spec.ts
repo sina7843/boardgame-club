@@ -5,7 +5,7 @@ import { player } from './helpers.ts';
 // (opening cubes, searches, refutations and penalty cubes through the real UI: choose → cell → «ثبت») to the result.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/cryptid/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/cryptid/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: question, forced cube, refuted search, yes answer, successful search', async ({ browser }, info) => {

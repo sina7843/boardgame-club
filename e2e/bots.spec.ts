@@ -5,7 +5,7 @@ import { player } from './helpers.ts';
 // game reaches a result. Needs the worker (bot turns are worker deadlines).
 test.describe.configure({ mode: 'serial', timeout: 180_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/bots/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/site/bots/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'bot flow runs at 360 and 1440');
 
 test('play «سه‌خطی» against a hard bot to the result', async ({ browser }, info) => {

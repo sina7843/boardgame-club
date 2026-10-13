@@ -5,7 +5,7 @@ import { player } from './helpers.ts';
 // points, then pass-pass, a dead-stone mark, and both players accept the count.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/go/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/go/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: atari and capture, connecting, a group capture, pass, dead stone and count', async ({ browser }, info) => {

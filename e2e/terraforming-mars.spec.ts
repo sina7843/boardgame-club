@@ -6,7 +6,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // two-player game to the result where both clients raise the global parameters through the standard projects.
 test.describe.configure({ mode: 'serial', timeout: 2_400_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/terraforming-mars/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/terraforming-mars/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 const STEPS = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸'];
 

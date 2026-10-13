@@ -3,7 +3,7 @@ import { motionLog, player, recordMotion, type MotionEntry } from './helpers.ts'
 
 // Chess end to end: two clients play Fool's Mate through the real board (tap piece → tap target).
 test.describe.configure({ mode: 'serial', timeout: 300_000 });
-const shot = (project: string, name: string) => `docs/evidence/chess/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/chess/${project}-${name}.png`;
 const RESULT = /بردید|باختید|مساوی/;
 // Pieces that moved: a top-layer flight or an in-place slide (exits, dice and UI animations excluded).
 const moved = (log: MotionEntry[]) => log.filter((m) => m.ghost === 'fly' || (!m.ghost && m.flip)).length;

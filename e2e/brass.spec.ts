@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // scoring) via the highlighted hints, and a full two-player game (both eras) to the result.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/brass/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/brass/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: rail link, sell with merchant beer, build, sell, era scoring', async ({ browser }, info) => {

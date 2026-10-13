@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { acceptTerms } from './helpers.ts';
 
-const shot = (name: string, project: string) => `docs/evidence/phase-00/${project}-${name}.png`;
+const shot = (name: string, project: string) => `docs/evidence/site/phase-00/${project}-${name}.png`;
 // Unique mobile per run/project so the per-mobile resend limit never interferes.
 const PROJECT_DIGIT: Record<string, string> = { 'mobile-360': '1', 'tablet-768': '2', 'desktop-1440': '3', 'desktop-1920': '4' };
 const mobile = (project: string) => `0915${PROJECT_DIGIT[project] ?? '9'}${String(Date.now()).slice(-6)}`;

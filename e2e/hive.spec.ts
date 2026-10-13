@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // through the reserve and the board; the game is resigned after a while since a full game is long.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/hive/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/hive/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: spider, grasshopper, placement, beetle, ant trap the queen', async ({ browser }, info) => {

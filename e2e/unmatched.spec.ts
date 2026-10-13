@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // hero falls. Decisions are made like a casual player: attack when possible, otherwise maneuver; every other prompt
 // takes the first offered choice. One duel per hero pair so every hero's prompts appear in a real browser.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
-const shot = (project: string, name: string) => `docs/evidence/unmatched/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/unmatched/${project}-${name}.png`;
 const RESULT = /بردید|باختید|مساوی/;
 
 async function startTable(host: Page, guest: Page, mapFa: string) {

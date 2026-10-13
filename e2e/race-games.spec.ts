@@ -30,7 +30,7 @@ async function click(p: Page, target: ReturnType<Page['locator']>) {
 }
 
 async function playOut(pages: Page[], info: TestInfo, tag: string, root: string, decide: (p: Page) => Promise<ReturnType<Page['locator']> | null>) {
-  const shot = (name: string) => `docs/evidence/race/${info.project.name}-${tag}-${name}.png`;
+  const shot = (name: string) => `docs/evidence/games/race/${info.project.name}-${tag}-${name}.png`;
   await expect(pages[0]!.locator(root)).toBeVisible();
   await pages[0]!.screenshot({ path: shot('start'), fullPage: true });
   let n = 0;

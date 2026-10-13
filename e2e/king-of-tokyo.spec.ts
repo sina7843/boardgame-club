@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «غول‌های شهر» end to end: the tutorial (roll, keep, resolve, Tokyo, sweep, buy the winning card) and a full three-player brawl.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/king-of-tokyo/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/king-of-tokyo/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: roll, keep and reroll, resolve, enter Tokyo, sweep, buy', async ({ browser }, info) => {

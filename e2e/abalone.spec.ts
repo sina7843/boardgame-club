@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // the board (select marbles, tap an arrow); the game is resigned after a while since a full game is long.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/abalone/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/abalone/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: sumito 2-1 off the edge, broadside, 3-2 push, the sixth off', async ({ browser }, info) => {

@@ -16,7 +16,7 @@ for (const mode of ['native', 'no-api'] as const) {
     if (mode === 'native') await expect.poll(() => p.evaluate(() => document.fullscreenElement?.classList.contains('game') ?? false)).toBe(true);
     else await expect(p.locator('.game.game--max')).toBeVisible();
     await expect(p.locator('.zb svg').first()).toBeInViewport();
-    await p.screenshot({ path: `docs/evidence/fullscreen/${info.project.name}-${mode}.png` });
+    await p.screenshot({ path: `docs/evidence/site/fullscreen/${info.project.name}-${mode}.png` });
     await p.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
     if (mode === 'native') await expect.poll(() => p.evaluate(() => document.fullscreenElement)).toBeNull();
     else await expect(p.locator('.game--max')).toHaveCount(0);

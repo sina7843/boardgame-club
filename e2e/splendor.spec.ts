@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «گوهرفروش» end to end: the tutorial (gems, pair, reserve, return, bonuses, noble, 15) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/splendor/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/splendor/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: three gems, a pair, reserve + gold, the ten-gem limit, bonuses, a noble and 15 prestige', async ({ browser }, info) => {

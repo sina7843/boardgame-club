@@ -4,7 +4,7 @@ import { newPage, signIn } from './helpers.ts';
 
 // DRAGON-03: game result → server-derived progression; dev checkout → server-verified entitlement.
 test.describe.configure({ mode: 'serial', timeout: 120_000 });
-const shot = (name: string, project: string) => `docs/evidence/phase-03/${project}-${name}.png`;
+const shot = (name: string, project: string) => `docs/evidence/site/phase-03/${project}-${name}.png`;
 const uniq = () => Math.random().toString(36).slice(2, 7);
 const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 const grant = (mobile: string, role: string) => execFileSync('node', ['packages/db/src/grant-role.ts', mobile, role], { env: { ...process.env, DATABASE_URL }, stdio: 'pipe' });

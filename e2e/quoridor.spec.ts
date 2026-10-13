@@ -5,7 +5,7 @@ import { player, recordMotion } from './helpers.ts';
 // walls and steps, played through the board (lit tiles, groove crossings).
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/quoridor/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/quoridor/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: jump, go around walls, place a wall, step onto the goal row', async ({ browser }, info) => {

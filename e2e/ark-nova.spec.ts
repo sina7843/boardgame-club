@@ -6,7 +6,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // and a full two-player game to the result where both clients answer every prompt through the real UI.
 test.describe.configure({ mode: 'serial', timeout: 3_600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/ark-nova/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/ark-nova/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 const STEPS = ['۱', '۲', '۳', '۴', '۵', '۶', '۷'];
 

@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // highlighted landing when there are two, bear off on the tray. Each finished turn is one command.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/backgammon/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/backgammon/${project}-${name}.png`;
 
 /** One board interaction for this page, if it has one. Returns what it did. */
 async function move(p: Page): Promise<string | null> {

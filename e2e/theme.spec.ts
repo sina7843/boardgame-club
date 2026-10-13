@@ -6,7 +6,7 @@ import { signIn } from './helpers.ts';
 // The theme follows the device by default: run the main pages with a dark device preference, check WCAG AA with
 // axe and keep screenshots. (The release spec covers the light preference, Playwright's default.)
 test.use({ colorScheme: 'dark' });
-const DIR = 'docs/evidence/redesign';
+const DIR = 'docs/evidence/site/redesign';
 mkdirSync(DIR, { recursive: true });
 
 test('dark device preference: café-at-night theme passes axe on the main pages', async ({ page }, info) => {

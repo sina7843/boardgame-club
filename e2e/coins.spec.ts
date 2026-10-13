@@ -20,7 +20,7 @@ test('wallet shows balance and rules; coins buy premium days', async ({ browser 
   await expect(p.getByRole('heading', { name: 'سکه‌ها', level: 1 })).toBeVisible();
   await expect(p.getByRole('heading', { name: 'راه‌های گرفتن سکه' })).toBeVisible();
   await expect(p.getByRole('button', { name: '۲۰۰ سکه کم دارید' })).toBeDisabled();
-  await p.screenshot({ path: `docs/evidence/coins/${info.project.name}-empty.png`, fullPage: true });
+  await p.screenshot({ path: `docs/evidence/site/coins/${info.project.name}-empty.png`, fullPage: true });
 
   credit(mobile, 1250);
   await p.reload();
@@ -29,7 +29,7 @@ test('wallet shows balance and rules; coins buy premium days', async ({ browser 
   await expect(p.getByText(/پریمیوم شما تا .* فعال است/)).toBeVisible();
   await expect(p.locator('#main').getByText('۱٬۰۵۰')).toBeVisible();
   await expect(p.getByText('خرید «یک روز پریمیوم».')).toBeVisible();
-  await p.screenshot({ path: `docs/evidence/coins/${info.project.name}-spent.png`, fullPage: true });
+  await p.screenshot({ path: `docs/evidence/site/coins/${info.project.name}-spent.png`, fullPage: true });
   await p.goto('/plans');
   await expect(p.getByText('پریمیوم فعال')).toBeVisible();
 });

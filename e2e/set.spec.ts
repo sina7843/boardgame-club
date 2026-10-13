@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // where two clients race on the same table.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/set/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/set/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 // Card id digits (count, shape, colour, shading); three cards are a set when every digit sums to 0 mod 3.

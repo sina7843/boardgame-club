@@ -6,7 +6,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // throwing star, until the team wins or runs out of lives.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/the-mind/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/the-mind/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: plays, a mistake, a throwing star', async ({ browser }, info) => {

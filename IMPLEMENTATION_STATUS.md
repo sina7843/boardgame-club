@@ -28,7 +28,7 @@ Supersedes the cobalt/Estedad café redesign below.
 New tokens (light/dark following the device), Estedad, walnut navigation, felt and card-stock materials, pill controls.
 Checks run: contrast script 0 failures (42 pairs, both themes); axe 0 serious/critical in light (21 pages × 4 widths) and
 dark (6 pages × 2 widths); lint, typecheck, build clean; unit/integration 165 passed; E2E 52 passed, 10 skipped by design.
-Screenshots: `docs/evidence/redesign/` (dark) and `docs/evidence/phase-04/screenshots/` (light).
+Screenshots: `docs/evidence/site/redesign/` (dark) and `docs/evidence/site/phase-04/screenshots/` (light).
 
 ## Risk (2026-10-07): DONE locally — real devices UNVERIFIED
 
@@ -37,7 +37,7 @@ registered in engine, catalog and web. Checks run: engine 25 (`packages/game-eng
 and geometry/adjacency match, setup, reinforcement + card values, forced trades, dice rules, blitz, occupy, elimination,
 fortify modes, both goals, timeouts, resign, redaction, tutorial, 20 random games + replay); API 3
 (`apps/api/test/risk.test.ts`); catalog test updated; E2E `e2e/risk.spec.ts`: three browsers place starting armies and
-play 6 turns incl. a blitz attack at 360 and 1440 — 2/2 passed (screenshots `docs/evidence/risk/`). Full world conquest
+play 6 turns incl. a blitz attack at 360 and 1440 — 2/2 passed (screenshots `docs/evidence/games/risk/`). Full world conquest
 through the browser not run (engine-tested). Error texts for the new codes added to `GAME_ERRORS_FA`.
 
 ## Game visuals, board zoom, phone landscape (2026-10-07): DONE locally — real devices UNVERIFIED
@@ -60,7 +60,7 @@ redaction, 4:1/3:1/2:1 and domestic trade, development cards, Longest Road break
 resign, projection redaction, tutorial, 30 random games to a winner with card conservation + replay); API 3
 (`apps/api/test/catan.test.ts`); E2E `e2e/catan.spec.ts`: three browsers create a live
 beginners'-map table, do the whole set-up phase and 8 regular turns (roll, discard/robber/steal on 7) through the UI at 360
-and 1440 — 2/2 passed (screenshots `docs/evidence/catan/`). Run on an isolated API/Vite/worker (ports 3100/5175/3110)
+and 1440 — 2/2 passed (screenshots `docs/evidence/games/catan/`). Run on an isolated API/Vite/worker (ports 3100/5175/3110)
 because the shared dev Vite on 5173 was serving another session's catan stub. Engine suite 113/113, typecheck, lint
 (catan files), web build clean. Not done: full game to 10 VP through the browser
 (engine-tested only), load-test driver entry, 5–6 player extension.
@@ -73,7 +73,7 @@ mortgages, jail, cards, multi-party debts, bankruptcy, trades with mortgage inte
 timeouts, tutorial, 30 random 2–6 player games with money/supply/card invariants and replay); API 3
 (`apps/api/test/amlak.test.ts`); catalog test updated (now also lists risk and ticket-to-ride from parallel sessions);
 E2E `e2e/amlak.spec.ts` — 20-round two-player game incl. a trade offer through the UI at 360 and 1440 (screenshots
-`docs/evidence/amlak/`). Engine suite 173/173. Found and fixed a shared `SegmentedControl` overflow at 360px.
+`docs/evidence/games/amlak/`). Engine suite 173/173. Found and fixed a shared `SegmentedControl` overflow at 360px.
 Not run: full web typecheck (ticket-to-ride renderer from another session does not compile yet).
 Visual pass (same day): new `board-art.tsx`, which adds a walnut-framed board, Tehran skyline centre, chance/chest decks,
 illustrated corners, houses/hotels, owner ribbons, mortgage stamp and domed pawns, plus title-deed cards, drawn-card
@@ -87,7 +87,7 @@ engine, catalog and web. Checks run: engine tests 12 (`packages/game-engine/test
 ladders/snakes, exact/bounce finish, entering on 6, extra roll, three tries, capture, own-piece blocking, goal rules,
 ranking, timeouts, resign, tutorials, 30 + 40 random games with replay and a no-stacking invariant); API 6
 (`apps/api/test/race-games.test.ts`); catalog test updated; E2E `e2e/race-games.spec.ts` — 3-player Snakes and Ladders and
-2-player Ludo played to the result through the UI at 360 and 1440 (screenshots `docs/evidence/race/`). Engine suite
+2-player Ludo played to the result through the UI at 360 and 1440 (screenshots `docs/evidence/games/race/`). Engine suite
 113/113; lint/typecheck clean.
 
 ## Chess (2026-10-07): DONE locally — real devices UNVERIFIED
@@ -96,7 +96,7 @@ New module `games/chess` (rules, renderer, cover, tutorial) registered in engine
 13 (`packages/game-engine/test/chess.test.ts`: perft on 5 reference positions, SAN, castling/en passant/promotion, all draw
 rules, timeout, tutorial, 40 random games + replay); API 3 (`apps/api/test/chess.test.ts`: catalog, option injection refused,
 command path, server tutorial to mate); catalog test updated (now lists chess and catan); E2E `e2e/chess.spec.ts`: Fool’s Mate
-through the UI at 360 and 1440, Black’s board orientation checked (screenshots `docs/evidence/chess/`). Lint/typecheck clean.
+through the UI at 360 and 1440, Black’s board orientation checked (screenshots `docs/evidence/games/chess/`). Lint/typecheck clean.
 
 ## Unmatched — Battle of Legends Vol. 1 (2026-10-07): DONE locally — real devices UNVERIFIED
 
@@ -106,7 +106,7 @@ vector board), in-game hero pick, deployment, Alice size, tutorial. Registered i
 Checks run: engine tests 17 (`packages/game-engine/test/unmatched.test.ts`, incl. rulebook combat example and a 60-game
 random-play fuzz checking no hand leaks + deterministic replay), API integration 3 (`apps/api/test/unmatched.test.ts`),
 E2E `e2e/unmatched.spec.ts`: two browsers pick, deploy and fight a duel to the result at 360 and 1440
-(screenshots `docs/evidence/unmatched/`). Full workspace `pnpm test` 195 passed; typecheck clean; lint 0 errors.
+(screenshots `docs/evidence/games/unmatched/`). Full workspace `pnpm test` 195 passed; typecheck clean; lint 0 errors.
 Not done: team mode, other Unmatched sets/maps, load-test driver entry, FFA E2E (FFA covered by engine tests only).
 
 **Cobble & Fog added (2026-10-07):** Sherlock Holmes, Dracula, Jekyll & Hyde, Invisible Man; maps SoHo and Baskerville
@@ -120,7 +120,7 @@ another session was still building; full-workspace `pnpm test`/build were not re
 New module `games/uno` (rules, original card faces, renderer, cover, tutorial) registered in engine, catalog and web.
 Checks run: rules unit tests 24 (`packages/game-engine/test/uno.test.ts`), API integration 3 (`apps/api/test/uno.test.ts`:
 catalog/variants, hidden hands over HTTP, server tutorial to completion), E2E `e2e/uno.spec.ts`: three browsers play a
-full hand through the UI at 360 and 1440 (screenshots `docs/evidence/uno/`). Not yet in the load-test driver.
+full hand through the UI at 360 and 1440 (screenshots `docs/evidence/games/uno/`). Not yet in the load-test driver.
 
 ## After DRAGON-04 — admin-controlled game settings (2026-10-07): DONE
 
@@ -167,8 +167,8 @@ new E2E: admin restricts Line Three → player sees only the offered mode and fi
 | `pnpm test` | **134 passed** (contracts 13, web 8, engine 17, play 7, api 88, worker 1) |
 | `npx playwright test` | final run **46 passed, 4 skipped**; earlier runs: one 3-player flake (diagnosed: test ignored a legitimate STALE rejection; fixed, 12/12 repeats), one social-flow timeout (passed 2/2 isolated + 2 later full runs; not diagnosed) |
 | `docker compose -f compose.prod.yaml build/up` (throwaway env) | all healthy; proxy/header/CSRF/WebSocket/metrics/non-root/read-only checks (DEPLOYMENT.md) |
-| `node apps/api/load/loadtest.ts` × 4 profiles | `docs/evidence/phase-04/load/*.json` |
-| `docker/backup-drill.sh` × 2 | `docs/evidence/phase-04/backup-restore-drill*.log` |
+| `node apps/api/load/loadtest.ts` × 4 profiles | `docs/evidence/site/phase-04/load/*.json` |
+| `docker/backup-drill.sh` × 2 | `docs/evidence/site/phase-04/backup-restore-drill*.log` |
 | `docker/postgres/selftest-failures.sh` | PASS |
 
 ### Blockers (public release)
@@ -182,7 +182,7 @@ hardware; owner approval of catalog/branding. See docs/KNOWN_LIMITATIONS.md and 
 ### Checklist
 
 1. Rating — ✅ uncertainty-aware multiplayer model with ties (Weng–Lin BT), simulation for 2–4 players, new account,
-   repeated opponent, resignation/timeout, ties (`docs/evidence/phase-03/rating-simulation.md`); per game and pace;
+   repeated opponent, resignation/timeout, ties (`docs/evidence/site/phase-03/rating-simulation.md`); per game and pace;
    provisional and leaderboard eligibility configurable; result → history exactly once; only ranked matchmade tables
    are rated; ranked queue by skill, never premium priority.
 2. Seasons — ✅ configurable seasons, league placement after min games, leaderboard eligibility, freeze on close
@@ -204,7 +204,7 @@ hardware; owner approval of catalog/branding. See docs/KNOWN_LIMITATIONS.md and 
 |---|---|
 | `pnpm install --frozen-lockfile`, `pnpm check` | lint/typecheck/build OK; tests: contracts 13, web 8, engine 17, play 7, api 85, worker 1 → **131 passed** |
 | `npx playwright test` | **30 passed** (incl. ranked result → rewards/progress/ranking and dev checkout at 360 and 1440) |
-| `pnpm --filter @bg/play simulate` | `docs/evidence/phase-03/rating-simulation.md` |
+| `pnpm --filter @bg/play simulate` | `docs/evidence/site/phase-03/rating-simulation.md` |
 | migration 0004 (incl. freeze trigger) | applied to dev DB |
 
 Integration coverage (`progression.test.ts`, `billing.test.ts`): manual ranked refused; ranked result once under
@@ -281,7 +281,7 @@ HTTP and socket → appeal → second moderator revokes; chat restriction; timeo
 E2E (`e2e/social.spec.ts`): guest discovery → sign-in → tutorial → queue → accept → line-three and sealed-bids to
 the result; friend search/request/accept → private table → invitation notification → lobby join → live lobby chat →
 DM → block stops messages; club creation (request policy) → approval → club chat → report → moderator suspension →
-appeal → different moderator revokes; page inventory + keyboard smoke. Evidence: `docs/evidence/phase-02/`.
+appeal → different moderator revokes; page inventory + keyboard smoke. Evidence: `docs/evidence/site/phase-02/`.
 
 Bugs found by these tests and fixed: moderation evidence repeated the reported message (ms vs µs timestamps); sealed
 bids history table overlapped the token buttons at 360 px; finished sealed-bids still showed «در انتظار».
@@ -347,7 +347,7 @@ x4, stale deadline, sealed-bids deadline carry-over + timeout, socket + HTTP + l
 socket actor spoof rejected, outbox lease expiry + duplicate redelivery, version rollout/rollback/pinning + missing
 registry version + suspension, tutorial guidance/completion/resume/replay/skip, incident freeze + compensation.
 
-Evidence: `docs/evidence/phase-01/` (screenshots at 360 and 1440).
+Evidence: `docs/evidence/site/phase-01/` (screenshots at 360 and 1440).
 
 ### Blockers / limitations
 
@@ -412,7 +412,7 @@ profile allow-list without mobile; profile validation and mass-assignment reject
 detail; CSRF origin rejection; error envelope; health; OpenAPI; log redaction (mobile, code, session token);
 production config refusal; Socket.IO no-session/foreign-origin rejection and server-pinned identity.
 
-Screenshots: `docs/evidence/phase-00/` (32 files).
+Screenshots: `docs/evidence/site/phase-00/` (32 files).
 
 ### Blockers / limitations (honest)
 
@@ -454,7 +454,7 @@ all maps, longest path, setup/card conservation, simultaneous ticket choice, dra
 redeal, claiming/payment/double routes, last round + scoring + ties, timeouts, resign, redaction, tutorial, 15 random
 games + replay); full engine suite 173 passed; API 3 (`apps/api/test/ticket-to-ride.test.ts`) + catalog test 16 passed
 together; E2E `e2e/ticket-to-ride.spec.ts`: three browsers keep tickets and claim 3 routes — Iran at 360, Europe and
-North America at 1440, 3/3 passed (screenshots `docs/evidence/ticket-to-ride/`). A full game to the end through the
+North America at 1440, 3/3 passed (screenshots `docs/evidence/games/ticket-to-ride/`). A full game to the end through the
 browser not run (engine-tested). Persian texts for the new rejection codes added to `GAME_ERRORS_FA`.
 Visual overhaul (2026-10-08, owner request, three review rounds with screenshots): real simplified coastlines, lakes,
 inland seas, borders, mountains/forests/deserts per map (`geo.ts`), wooden frame with 0–99 score track and markers,
@@ -470,7 +470,7 @@ New module `games/backgammon` registered in engine, catalog and web. Checks run:
 entry and closed board, hits, bearing off, single/gammon/backgammon and the option, cube take/drop, timeouts, resign,
 projection, tutorial, 40 random games with checker conservation and replay); API 3 (`apps/api/test/backgammon.test.ts`);
 catalog test updated; E2E `e2e/backgammon.spec.ts` — full two-player game through the board and the tutorial at 360
-and 1440 (screenshots `docs/evidence/backgammon/`). Three polish passes from screenshots (board width, movable rings,
+and 1440 (screenshots `docs/evidence/games/backgammon/`). Three polish passes from screenshots (board width, movable rings,
 dice size, stack spacing).
 ## «چکرز» Checkers (2026-10-08): DONE locally — real devices UNVERIFIED
 
@@ -479,20 +479,20 @@ New module `games/checkers` registered in engine, catalog and web. Checks run: e
 backward captures / flying kings / longest capture, win, blocked, repetition, draw offer, resign, timeout, view,
 tutorial, 30 random games in both variants with replay); API 3 (`apps/api/test/checkers.test.ts`); catalog test
 updated; E2E `e2e/checkers.spec.ts` — full game through the board and the tutorial at 360 and 1440
-(`docs/evidence/checkers/`).
+(`docs/evidence/games/checkers/`).
 ## «اتللو» Othello (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/othello` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/othello.test.ts`: start, eight-direction flips, auto pass, end with empties to the
 winner, draw, resign/timeout, view, tutorial, 40 random games with replay); API 3 (`apps/api/test/othello.test.ts`);
-catalog test updated; E2E `e2e/othello.spec.ts` — full game and tutorial at 360 and 1440 (`docs/evidence/othello/`).
+catalog test updated; E2E `e2e/othello.spec.ts` — full game and tutorial at 360 and 1440 (`docs/evidence/games/othello/`).
 ## «کوریدور» Quoridor (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/quoridor` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/quoridor.test.ts`: setup for 2/3/4, wall blocking/overlap/cross, path rule, jumps,
 win and placements, turn order/resign/timeouts, view, tutorial, 30 random games with walls keeping paths and replay);
 API 3 (`apps/api/test/quoridor.test.ts`); catalog test updated; E2E `e2e/quoridor.spec.ts` — tutorial and a
-two-player race with walls at 360 and 1440 (`docs/evidence/quoridor/`). Polish: wall contrast, pawn size, shorter
+two-player race with walls at 360 and 1440 (`docs/evidence/games/quoridor/`). Polish: wall contrast, pawn size, shorter
 mobile status, move mode after each turn.
 ## «اونیتاما» Onitama (2026-10-08): DONE locally — real devices UNVERIFIED
 
@@ -500,101 +500,101 @@ New module `games/onitama` registered in engine, catalog and web. Checks run: en
 (`packages/game-engine/test/onitama.test.ts`: cards/deal/start colour, mirrored offsets, card swap, both win ways,
 student on temple, pass, repetition/resign/timeout, view, tutorial, 40 random games with replay); API 3
 (`apps/api/test/onitama.test.ts`); catalog test updated; E2E `e2e/onitama.spec.ts` — tutorial and a full duel at 360
-and 1440 (`docs/evidence/onitama/`). Polish: compact cards on phones.
+and 1440 (`docs/evidence/games/onitama/`). Polish: compact cards on phones.
 ## «گو» Go (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/go` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/go.test.ts`:
 sizes/komi, captures and suicide, superko, area score with dead stones, scoring phase mark/accept/resume, timeouts,
 view, tutorial, 15 random 9×9 games with liberty invariant and replay); API 3 (`apps/api/test/go.test.ts`); catalog
 test updated; E2E `e2e/go.spec.ts` — tutorial and a short game through pass/mark/accept at 360 and 1440
-(`docs/evidence/go/`). Polish: coordinate labels clear of edge stones.
+(`docs/evidence/games/go/`). Polish: coordinate labels clear of edge stones.
 ## «سانتورینی» Santorini (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/santorini` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/santorini.test.ts`: setup order, move/build rules, domes and supply, climb win, stuck
 loss, timeouts/resign, view, tutorial, 30 random games with supply invariant and replay); API 3
 (`apps/api/test/santorini.test.ts`); catalog test updated; E2E `e2e/santorini.spec.ts` — tutorial and a full game at
-360 and 1440 (`docs/evidence/santorini/`). Polish: level badges, larger workers.
+360 and 1440 (`docs/evidence/games/santorini/`). Polish: level badges, larger workers.
 ## «تاک» Tak (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/tak` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/tak.test.ts`:
 opening, move rules incl. flattening, roads, flat count, timeouts/resign, view, tutorial, 25 random games on all sizes
 with stone conservation and replay); API 3 (`apps/api/test/tak.test.ts`); catalog test updated; E2E `e2e/tak.spec.ts`
-— tutorial and a full game with stack moves at 360 and 1440 (`docs/evidence/tak/`). Polish: stones redrawn as tiles.
+— tutorial and a full game with stack moves at 360 and 1440 (`docs/evidence/games/tak/`). Polish: stones redrawn as tiles.
 ## «آبالون» Abalone (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/abalone` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/abalone.test.ts`: layout, in-line/broadside, sumito cases incl. push-off and blocks, six
 off, move limit, timeouts/resign, view, tutorial, 20 random games to the end with marble conservation and replay); API
 3 (`apps/api/test/abalone.test.ts`); catalog test updated; E2E `e2e/abalone.spec.ts` — tutorial and moves through
-arrows ending in a resignation at 360 and 1440 (`docs/evidence/abalone/`). Polish: tray orientation and margin.
+arrows ending in a resignation at 360 and 1440 (`docs/evidence/games/abalone/`). Polish: tray orientation and margin.
 ## «کندو» Hive (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/hive` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/hive.test.ts`:
 opening placements, queen by turn four, one hive, every bug's movement, freedom to move, surround win, resign/timeout,
 view, tutorial, 12 random games with piece conservation, connectivity and replay); API 3 (`apps/api/test/hive.test.ts`);
 catalog test updated; E2E `e2e/hive.spec.ts` — tutorial and placements + board moves ending in a resignation at 360
-and 1440 (`docs/evidence/hive/`). Polish: tap targets on tiles, compact reserve on phones.
+and 1440 (`docs/evidence/games/hive/`). Polish: tap targets on tiles, compact reserve on phones.
 ## «نه، مرسی!» No Thanks! (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/no-thanks` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/no-thanks.test.ts`:
 setup per count, run scoring, take/pass flow, hidden chips/deck, end and placement, resign, timeout, tutorial, 30
 random 2–7 player games with chip conservation and replay); API 3 (`apps/api/test/no-thanks.test.ts`); catalog test
-updated; E2E `e2e/no-thanks.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/no-thanks/`).
+updated; E2E `e2e/no-thanks.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/no-thanks/`).
 ## «گاو شش» 6 nimmt! (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/six-nimmt` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/six-nimmt.test.ts`: bullheads, deal, simultaneous hidden choice, sixth card, forced row
 choice, private round penalties, round scoring and 66, timeouts/resign, tutorial, 15 random 2–10 player games with
 card conservation and replay); API 3 (`apps/api/test/six-nimmt.test.ts`); catalog test updated; E2E
-`e2e/six-nimmt.spec.ts` — tutorial and a one-round three-player game at 360 and 1440 (`docs/evidence/six-nimmt/`).
+`e2e/six-nimmt.spec.ts` — tutorial and a one-round three-player game at 360 and 1440 (`docs/evidence/games/six-nimmt/`).
 ## «نامه عاشقانه» Love Letter (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/love-letter` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/love-letter.test.ts`: setup, Guard, Priest privacy, Baron, Handmaid, Prince/Princess, King,
 Countess, hidden info, timeouts, tutorial, 25 random 2–4 player games with 16-card conservation and replay); API 3
 (`apps/api/test/love-letter.test.ts`); catalog test updated; E2E `e2e/love-letter.spec.ts` — tutorial and a short
-three-player game at 360 and 1440 (`docs/evidence/love-letter/`).
+three-player game at 360 and 1440 (`docs/evidence/games/love-letter/`).
 ## «جمجمه» Skull (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/skull` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/skull.test.ts`:
 first placements, bidding, own discs first, skull and private lost disc, elimination, timeouts/resign, tutorial, 30
 random 2–6 player games with disc conservation and replay); API 3 (`apps/api/test/skull.test.ts`); catalog test
-updated; E2E `e2e/skull.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/skull/`).## «کودتا» Coup (2026-10-08): DONE locally — real devices UNVERIFIED
+updated; E2E `e2e/skull.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/skull/`).## «کودتا» Coup (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/coup` registered in engine, catalog and web. Checks run: engine 10 (`packages/game-engine/test/coup.test.ts`:
 setup, income/foreign aid/block/tax, true and false challenges with redraw, assassination block/refund and forced
 coup, steal with block after a lost challenge, private exchange, hidden info, timeouts/resign, tutorial, 40 random
 2–6 player games with 15-card court conservation and replay); API 3 (`apps/api/test/coup.test.ts`); catalog test
-updated; E2E `e2e/coup.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/coup/`).
+updated; E2E `e2e/coup.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/coup/`).
 ## «بنگاه» For Sale (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/for-sale` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/for-sale.test.ts`:
 setup by player count, auction raise/pass/half refund/last pays full, hidden simultaneous sale, scoring and tie,
 timeouts/resign, tutorial, 30 random 2–6 player games with card/coin invariants and replay); API 3
 (`apps/api/test/for-sale.test.ts`); catalog test updated; E2E `e2e/for-sale.spec.ts` — tutorial and a full
-three-player game at 360 and 1440 (`docs/evidence/for-sale/`).
+three-player game at 360 and 1440 (`docs/evidence/games/for-sale/`).
 ## «اشرافی» High Society (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/high-society` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/high-society.test.ts`: status maths, normal and disgrace auctions, faux pas now/later,
 fourth red card and poorest elimination, privacy/timeouts/resign, tutorial, 40 random 2–5 player games with money
 conservation and replay); API 3 (`apps/api/test/high-society.test.ts`); catalog test updated; E2E
-`e2e/high-society.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/high-society/`).
+`e2e/high-society.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/high-society/`).
 ## «سوشی گردان» Sushi Go! (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/sushi-go` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/sushi-go.test.ts`: set scoring, maki/pudding ties, hidden simultaneous picks and passing,
 chopsticks and wasabi, three rounds/timeouts/resign, tutorial, 25 random 2–5 player games with card conservation and
 replay); API 3 (`apps/api/test/sushi-go.test.ts`); catalog test updated; E2E `e2e/sushi-go.spec.ts` — tutorial and a
-full three-player game at 360 and 1440 (`docs/evidence/sushi-go/`).
+full three-player game at 360 and 1440 (`docs/evidence/games/sushi-go/`).
 ## «کاوشگران» Lost Cities (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/lost-cities` registered in engine, catalog and web. Checks run: engine 6
 (`packages/game-engine/test/lost-cities.test.ts`: expedition scoring, place/draw order, ascending and wager rules, no
 redraw of a fresh discard, privacy, round end/three rounds/timeouts/resign, tutorial, 20 random games with 60-card
 conservation and replay); API 3 (`apps/api/test/lost-cities.test.ts`); catalog test updated; E2E
-`e2e/lost-cities.spec.ts` — tutorial and a full one-round game at 360 and 1440 (`docs/evidence/lost-cities/`).
+`e2e/lost-cities.spec.ts` — tutorial and a full one-round game at 360 and 1440 (`docs/evidence/games/lost-cities/`).
 ## «هم‌فکر» The Mind (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/the-mind` registered in engine, catalog and web; result panel shows a team win. Checks run:
@@ -602,42 +602,42 @@ engine 6 (`packages/game-engine/test/the-mind.test.ts`: setup by player count, o
 throwing star and level rewards, team loss/privacy/timeouts/resign, tutorial, 30 random 2–4 player games incl.
 perfect play winning, replay); API 3 (`apps/api/test/the-mind.test.ts`); catalog test updated; E2E
 `e2e/the-mind.spec.ts` — tutorial and a full three-player game with mistakes and a star at 360 and 1440
-(`docs/evidence/the-mind/`).
+(`docs/evidence/games/the-mind/`).
 ## «گوهرفروش» Splendor (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/splendor` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/splendor.test.ts`:
 card/noble set, setup, take rules, buy with bonuses and gold, reserve and blind privacy, ten-token return, noble
 visit and final round, timeouts/resign, tutorial, 20 random 2–4 player games with token and card conservation and
 replay); API 3 (`apps/api/test/splendor.test.ts`); catalog test updated; E2E `e2e/splendor.spec.ts` — tutorial and a
-full three-player game at 360 and 1440 (`docs/evidence/splendor/`).
+full three-player game at 360 and 1440 (`docs/evidence/games/splendor/`).
 ## «کاشی‌کار» Azul (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/azul` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/azul.test.ts`:
 placement/floor/bonus scoring, setup, drafting and line rules, a full round with tiling and the next starter,
 timeouts/resign, tutorial, 20 random 2–4 player games with 100-tile conservation, row-completion end and replay);
 API 3 (`apps/api/test/azul.test.ts`); catalog test updated; E2E `e2e/azul.spec.ts` — tutorial and a full three-player
-game at 360 and 1440 (`docs/evidence/azul/`).
+game at 360 and 1440 (`docs/evidence/games/azul/`).
 ## «کاروان» Jaipur (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/jaipur` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/jaipur.test.ts`:
 setup, take/camels/exchange rules and refill, selling with tokens and bonus privacy, round end/camel bonus/seals,
 timeouts/resign, tutorial, 25 random games with token conservation and replay); API 3 (`apps/api/test/jaipur.test.ts`);
 catalog test updated; E2E `e2e/jaipur.spec.ts` — tutorial and a full one-round game at 360 and 1440
-(`docs/evidence/jaipur/`).
+(`docs/evidence/games/jaipur/`).
 ## «چهل‌تکه» Patchwork (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/patchwork` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/patchwork.test.ts`: patch set and orientation, turn order and advancing with income,
 buying/placing/time/token, leather and 7×7 scoring, timeouts/resign, tutorial, 15 random games to 53 with replay);
 API 3 (`apps/api/test/patchwork.test.ts`); catalog test updated; E2E `e2e/patchwork.spec.ts` — tutorial and a full
-two-player game at 360 and 1440 (`docs/evidence/patchwork/`).
+two-player game at 360 and 1440 (`docs/evidence/games/patchwork/`).
 ## «قلمرو» Kingdomino (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/kingdomino` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/kingdomino.test.ts`: domino set and deck sizes, placement adjacency and 5×5 limit,
 region scoring, pick-then-play order, timeouts/resign/privacy, tutorial, 20 random 2–4 player games using every
 domino, replay); API 3 (`apps/api/test/kingdomino.test.ts`); catalog test updated; E2E `e2e/kingdomino.spec.ts` —
-tutorial and a full three-player game at 360 and 1440 (`docs/evidence/kingdomino/`).
+tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/kingdomino/`).
 ## Regression after owner batches 4–5 (2026-10-08)
 
 Checks run: `pnpm typecheck` 0 errors; `npx eslint . --ignore-pattern ".playwright/**"` 0 errors (2 existing
@@ -654,28 +654,28 @@ New module `games/point-salad` registered in engine, catalog and web. Checks run
 (`packages/game-engine/test/point-salad.test.ts`: card set and counts, rule-family scoring, take/flip/refill,
 timeouts/resign/privacy, tutorial, 25 random 2–6 player games with card conservation, winner = top score, replay);
 API 3 (`apps/api/test/point-salad.test.ts`); catalog test updated; E2E `e2e/point-salad.spec.ts` — tutorial and a full
-three-player game at 360 and 1440 (`docs/evidence/point-salad/`).
+three-player game at 360 and 1440 (`docs/evidence/games/point-salad/`).
 ## «بلوف حشره‌ها» Cockroach Poker (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/cockroach-poker` registered in engine, catalog and web; result headline handles shared wins.
 Checks run: engine 6 (`packages/game-engine/test/cockroach-poker.test.ts`: deal, right/wrong calls, peek-then-pass
 and pass targets, four-of-a-kind loss with shared win, timeouts/resign, tutorial, 30 random 2–6 player games with
 card conservation and replay); API 3 (`apps/api/test/cockroach-poker.test.ts`); catalog test updated; E2E
-`e2e/cockroach-poker.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/cockroach-poker/`).
+`e2e/cockroach-poker.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/cockroach-poker/`).
 ## «سیرک» Scout (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/scout` registered in engine, catalog and web. Checks run: engine 8 (`packages/game-engine/test/scout.test.ts`:
 card set and decks, show strength, hand flip, show/capture/scout/chip and Scout & Show, round end back at the owner
 with scoring, timeouts/resign, tutorial, 25 random 2–5 player games through all rounds with replay); API 3
 (`apps/api/test/scout.test.ts`); catalog test updated; E2E `e2e/scout.spec.ts` — tutorial and a full three-player
-game (three rounds) at 360 and 1440 (`docs/evidence/scout/`).
+game (three rounds) at 360 and 1440 (`docs/evidence/games/scout/`).
 ## «راه ادویه» Century: Spice Road (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/century` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/century.test.ts`:
 card sets and setup, upgrade/trade/spice/rest, acquiring with payment along the row, claiming with coins, caravan
 discard, round end, timeouts/resign/privacy, tutorial, 20 random 2–5 player games with replay); API 3
 (`apps/api/test/century.test.ts`); catalog test updated; E2E `e2e/century.spec.ts` — tutorial and a full two-player
-game at 360 and 1440 (`docs/evidence/century/`).
+game at 360 and 1440 (`docs/evidence/games/century/`).
 ## Final regression of the overnight run (2026-10-08, after batch 6 partial)
 
 Checks run: `pnpm typecheck` 0 errors; `npx eslint . --ignore-pattern ".playwright/**"` 0 errors (2 existing
@@ -691,53 +691,53 @@ New module `games/sea-salt-paper` registered in engine, catalog and web. Checks 
 (`packages/game-engine/test/sea-salt-paper.test.ts`: card set and scoring, draw/keep/pile rules, duo effects, stop
 and last chance, four mermaids, resign, tutorial, 20 random 2–4 player games with card conservation and replay);
 API 3 (`apps/api/test/sea-salt-paper.test.ts`); catalog test updated; E2E `e2e/sea-salt-paper.spec.ts` — tutorial and
-a full three-player game at 360 and 1440 (`docs/evidence/sea-salt-paper/`).
+a full three-player game at 360 and 1440 (`docs/evidence/games/sea-salt-paper/`).
 ## «آتش‌بازی» Hanabi (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/hanabi` registered in engine, catalog and web. Checks run: engine 6 (`packages/game-engine/test/hanabi.test.ts`:
 deal and own-hand hiding, clues, plays/fuses/discards, last round, timeouts/resign, tutorial, 25 random 2–5 player
 games with card conservation and replay); API 3 (`apps/api/test/hanabi.test.ts`); catalog test updated; E2E
-`e2e/hanabi.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/hanabi/`).
+`e2e/hanabi.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/hanabi/`).
 ## «مسابقهٔ شترها» Camel Up (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/camel-up` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/camel-up.test.ts`:
 setup, stacking moves and leg end, ranking/leg bets/desert rules, hidden overall bets and final payout, timeouts/resign,
 tutorial, 25 random 2–8 player games with replay); API 3 (`apps/api/test/camel-up.test.ts`); catalog test updated;
-E2E `e2e/camel-up.spec.ts` — tutorial and a full three-player race at 360 and 1440 (`docs/evidence/camel-up/`).
+E2E `e2e/camel-up.spec.ts` — tutorial and a full three-player race at 360 and 1440 (`docs/evidence/games/camel-up/`).
 ## «شهر تاس» Machi Koro (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/machi-koro` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/machi-koro.test.ts`:
 setup and station rule, wheat/café income, building/majors/landmarks/win, radio tower and TV station, timeouts/resign,
 tutorial, 15 random 2–4 player games with replay); API 3 (`apps/api/test/machi-koro.test.ts`); catalog test
-updated; E2E `e2e/machi-koro.spec.ts` — tutorial and a full two-player game at 360 and 1440 (`docs/evidence/machi-koro/`).
+updated; E2E `e2e/machi-koro.spec.ts` — tutorial and a full two-player game at 360 and 1440 (`docs/evidence/games/machi-koro/`).
 ## «غول‌های شهر» King of Tokyo (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/king-of-tokyo` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/king-of-tokyo.test.ts`: rolling/keeping, dice resolution and entering Tokyo, attacks and
 yield, power cards/sweep/20 VP/last standing, timeouts/resign, tutorial, 25 random 2–6 player games with replay);
 API 3 (`apps/api/test/king-of-tokyo.test.ts`); catalog test updated; E2E `e2e/king-of-tokyo.spec.ts` — tutorial and a
-full three-player game at 360 and 1440 (`docs/evidence/king-of-tokyo/`).
+full three-player game at 360 and 1440 (`docs/evidence/games/king-of-tokyo/`).
 ## «ارگ‌ها» Citadels (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/citadels` registered in engine, catalog and web. Checks run: engine 7 (`packages/game-engine/test/citadels.test.ts`:
 deck and draft rules, hidden picks and pool, calling order/income/assassin, building/duplicates/warlord vs bishop/
 scoring, timeouts/resign, tutorial, 15 random 2–7 player games with district conservation and replay); API 3
 (`apps/api/test/citadels.test.ts`); catalog test updated; E2E `e2e/citadels.spec.ts` — tutorial and a full
-three-player game at 360 and 1440 (`docs/evidence/citadels/`).
+three-player game at 360 and 1440 (`docs/evidence/games/citadels/`).
 ## «قلعه‌سازان» Carcassonne (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/carcassonne` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/carcassonne.test.ts`: tile set, edge matching/rotation, city completion and follower
 return, occupied roads, monastery/feature helpers, hidden stack, timeouts/resign, tutorial, 8 random 2–5 player games
 using every tile with follower conservation and replay); API 3 (`apps/api/test/carcassonne.test.ts`); catalog test
-updated; E2E `e2e/carcassonne.spec.ts` — tutorial and a full two-player game at 360 and 1440 (`docs/evidence/carcassonne/`).
+updated; E2E `e2e/carcassonne.spec.ts` — tutorial and a full two-player game at 360 and 1440 (`docs/evidence/games/carcassonne/`).
 ## «لوبیاکاری» Bohnanza (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/bohnanza` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/bohnanza.test.ts`: deck/beanometer, plant order and field types, harvest protection/
 third field, offers/accept/decline/settle, hidden hands, timeouts/resign, tutorial, 12 random 2–5 player games with
 card conservation and replay); API 3 (`apps/api/test/bohnanza.test.ts`); catalog test updated; E2E
-`e2e/bohnanza.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/bohnanza/`).
+`e2e/bohnanza.spec.ts` — tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/bohnanza/`).
 ## «شگفتی‌ها: دوئل» 7 Wonders Duel (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/wonders-duel` registered in engine, catalog and web. Checks run: engine 8
@@ -745,7 +745,7 @@ New module `games/wonders-duel` registered in engine, catalog and web. Checks ru
 reserves/choices/chains, military tokens and supremacy with a progress choice, hidden face-down cards, timeouts/
 resign, tutorial, 30 random games with ≤7 wonders, score breakdown and replay); API 3 (`apps/api/test/wonders-duel.test.ts`);
 catalog test updated; E2E `e2e/wonders-duel.spec.ts` — tutorial and a full game from the draft at 360 and 1440
-(`docs/evidence/wonders-duel/`).
+(`docs/evidence/games/wonders-duel/`).
 ## «قلمرو» Dominion (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/dominion` registered in engine, catalog and web. Checks run: engine 8
@@ -753,14 +753,14 @@ New module `games/dominion` registered in engine, catalog and web. Checks run: e
 Workshop/Remodel/Mine/Merchant/Market, Militia with parallel discards and Moat, hidden hands, timeouts/resign,
 tutorial, 10 random 2–4 player games with conservation and replay); API 3 (`apps/api/test/dominion.test.ts`); catalog
 test updated; E2E `e2e/dominion.spec.ts` — tutorial and a full three-player game at 360 and 1440
-(`docs/evidence/dominion/`). Fixed during E2E: a parallel Militia discard by another player reset your selection.
+(`docs/evidence/games/dominion/`). Fixed during E2E: a parallel Militia discard by another player reset your selection.
 ## «نبرد ستاره‌ها» Star Realms (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/star-realms` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/star-realms.test.ts`: setup, play/buy/explorer/attack/turn pass, allies/bases/outposts,
 scrap abilities and opponent discard, hidden hands/trade deck, timeouts/resign, tutorial, 12 random games with card
 conservation and replay); API 3 (`apps/api/test/star-realms.test.ts`); catalog test updated; E2E
-`e2e/star-realms.spec.ts` — tutorial and a full game at 360 and 1440 (`docs/evidence/star-realms/`).
+`e2e/star-realms.spec.ts` — tutorial and a full game at 360 and 1440 (`docs/evidence/games/star-realms/`).
 ## «خدمه: سیارهٔ نهم» The Crew: Planet Nine and «خدمه: اعماق دریا» Mission Deep Sea (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New modules `games/the-crew` (shared trick core + Planet Nine) and `games/crew-deep-sea`, registered in engine,
@@ -768,36 +768,36 @@ catalog and web. Checks run: engine 11 (`packages/game-engine/test/the-crew.test
 follow suit, task failure and order, hidden hands, timeouts/resign, both tutorials, Deep Sea difficulty targets and
 condition resolution, 20 random missions per edition with replay); API 6 (`apps/api/test/the-crew.test.ts`, both
 editions); catalog test updated (order now taken from the server's sort); E2E `e2e/the-crew.spec.ts` and
-`e2e/crew-deep-sea.spec.ts` — tutorial and a full three-player mission each at 360 and 1440 (`docs/evidence/the-crew/`,
-`docs/evidence/crew-deep-sea/`).
+`e2e/crew-deep-sea.spec.ts` — tutorial and a full three-player mission each at 360 and 1440 (`docs/evidence/games/the-crew/`,
+`docs/evidence/games/crew-deep-sea/`).
 ## «پایگاه فضایی» Space Base (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/space-base` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/space-base.test.ts`: ship set/shop, roll/choose/buy with blue and red rewards and
 deployment, income floor and goal, hidden decks, timeouts/resign, tutorial, 12 random 2–5 player games with replay);
 API 3 (`apps/api/test/space-base.test.ts`); catalog test updated; E2E `e2e/space-base.spec.ts` — tutorial and a full
-three-player game at 360 and 1440 (`docs/evidence/space-base/`).
+three-player game at 360 and 1440 (`docs/evidence/games/space-base/`).
 ## «نبرد تاس» Dice Throne (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/dice-throne` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/dice-throne.test.ts`: hero set and ability patterns/tiers, hero pick, rolls/keep/extra
 roll cost, defence with shield and strike-back, nothing hidden, timeouts/resign, tutorial, 30 random duels with
 replay); API 3 (`apps/api/test/dice-throne.test.ts`); catalog test updated; E2E `e2e/dice-throne.spec.ts` — tutorial
-and a full duel from the hero pick at 360 and 1440 (`docs/evidence/dice-throne/`).
+and a full duel from the hero pick at 360 and 1440 (`docs/evidence/games/dice-throne/`).
 ## «راه الدورادو» The Quest for El Dorado (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/el-dorado` registered in engine, catalog and web. Checks run: engine 7
 (`packages/game-engine/test/el-dorado.test.ts`: map/starts/goal reachability, movement points and blocking, rubble/
 camp/buying, hidden hands, timeouts/resign, tutorial, 12 greedy random races with card conservation and replay);
 API 3 (`apps/api/test/el-dorado.test.ts`); catalog test updated; E2E `e2e/el-dorado.spec.ts` — tutorial and a full
-three-player race at 360 and 1440 (`docs/evidence/el-dorado/`).
+three-player race at 360 and 1440 (`docs/evidence/games/el-dorado/`).
 ## «آرکانا» Res Arcana (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/res-arcana` registered in engine, catalog and web. Checks run: engine 8
 (`packages/game-engine/test/res-arcana.test.ts`: card set/deal, action rotation/taps/discards, pass/draw/first player/
 collect, places and monuments to 10 VP, hidden hands and monument deck, timeouts/resign, tutorial, 12 random 2–4 player
 games with replay); API 3 (`apps/api/test/res-arcana.test.ts`); catalog test updated; E2E `e2e/res-arcana.spec.ts` —
-tutorial and a full three-player game at 360 and 1440 (`docs/evidence/res-arcana/`).
+tutorial and a full three-player game at 360 and 1440 (`docs/evidence/games/res-arcana/`).
 ## «رقابت کهکشانی» Race for the Galaxy (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/race-galaxy` registered in engine, catalog and web. Checks run: engine 7
@@ -805,14 +805,14 @@ New module `games/race-galaxy` registered in engine, catalog and web. Checks run
 explore keep, settle payment/military/picker draw, produce/consume, hidden hands and choices, timeouts for all
 waiting players/resign, tutorial, 12 random 2–4 player games with card conservation and replay); API 3
 (`apps/api/test/race-galaxy.test.ts`); catalog test updated; E2E `e2e/race-galaxy.spec.ts` — tutorial and a full
-three-player game at 360 and 1440 (`docs/evidence/race-galaxy/`).
+three-player game at 360 and 1440 (`docs/evidence/games/race-galaxy/`).
 ## «نبرد دریایی» Battleship (2026-10-08): DONE locally — real devices UNVERIFIED
 
 New module `games/battleship` registered in engine, catalog and web. Checks run: engine 6
 (`packages/game-engine/test/battleship.test.ts`: fleet validation and random fleets, secret simultaneous placement,
 alternating fire with hit/miss/sunk reporting, fleet-sunk win and resign, timeouts, tutorial, 20 random games with
 replay); API 3 (`apps/api/test/battleship.test.ts`); catalog test updated; E2E `e2e/battleship.spec.ts` — tutorial
-and a full two-player game from placement at 360 and 1440 (`docs/evidence/battleship/`).
+and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/battleship/`).
 - املاک: generated-art redesign (tokens, buildings, icons, corners, painted centre). Checks run: `pnpm typecheck`, `eslint games/amlak`, `e2e/amlak.spec.ts` at mobile-360 and desktop-1440 (2 passed).
 - Priority A generated-art redesign: dominion, ticket-to-ride, catan, chess, backgammon, uno, coup, love-letter, ludo, snakes-ladders, machi-koro, citadels, king-of-tokyo, sushi-go, hanabi, the-mind, skull, azul, splendor, camel-up, risk, carcassonne, battleship (plus amlak earlier). Checks run: `pnpm typecheck`, `eslint` on each game, and each game's e2e spec at mobile-360 and desktop-1440 (all passed; ludo and snakes-ladders via `race-games.spec.ts`); desktop screenshots reviewed.
 - Priority B generated-art redesign: bohnanza, cockroach-poker, six-nimmt, sea-salt-paper, the-crew, crew-deep-sea, scout, kingdomino, el-dorado, lost-cities, wonders-duel, res-arcana, high-society, for-sale, dice-throne, star-realms, race-galaxy, space-base, jaipur, point-salad, century, onitama. Checks run: `pnpm typecheck`, eslint per game, and each game's e2e at mobile-360 and desktop-1440. All passed. Century first failed because its upgrade-button class had been renamed (`.ct-cube--btn`, which the spec clicks); that was fixed. Race for the Galaxy failed once under machine load and then passed unchanged. The For Sale clipPath `useId` fix landed after its e2e run, so it was only typechecked and linted.
@@ -821,13 +821,13 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/battle
 - Camel Up redesign (user request): the 16 tiles now loop around a central pyramid on the painted desert, with a chequered finish and a start flag. The five dice show beside the pyramid (rolled ones in colour with their value). Leg-bet tiles are stacked per camel, and the player panel, overall-bet panel and cover were refreshed. Checks run: typecheck, eslint, and camel-up e2e at 360 and 1440 (passed); screenshots reviewed at both sizes.
 - Full screen fix (user report): removed the board-only full-screen button (it showed an empty screen and exited game full screen); the table button now falls back to filling the window where the Fullscreen API is missing (iPhone Safari) and scrolls the board into view on entering. Checks: typecheck, eslint, e2e fullscreen (new), play, catan, ticket-to-ride, risk at 360 and 1440 (all passed). Not tested on a real iPhone.
 - Game of the day «بازی روز» (2026-10-10): DONE locally. Server picks one eligible catalog game per Tehran day (`dailyGame`/`pickDaily` in `packages/play/src/progression.ts`); completing it grants +40 XP once per user per day (ledger `xp.daily_game`, key `daily:<date>:<userId>`) from the `table.finished` consumer; `GET /api/me/daily` returns game, bonus, doneToday and current streak; dashboard card in `apps/web/src/pages/Dashboard.tsx`. Seven new trophies (`daily_1/7/30/100`, `streak_3/7/30`). Checks run: `pnpm typecheck` (pass), eslint on touched files (pass), `vitest run test/progression.test.ts` (12 passed, 3 new), `play-integrity`, `social`, `platform` API suites (31 passed), `@bg/play` tests (7 passed), `@bg/web` build (pass). No e2e run and no browser check of the card.
-- Bot opponents «بازی با ربات», waves 0–1 (2026-10-13): DONE locally (scope change by owner; see DECISIONS.md). SDK `GameBot` contract + shared bounded alpha-beta (`packages/game-sdk/src/bot.ts`); bots for checkers, chess, othello, line-three, snakes-ladders (`games/*/src/bot.ts`); migration `0006_bot_seats` (participant kind `bot`, deadline key `bot`); worker plays bot turns (`playBotTurn` in `packages/play/src/runtime.ts`); `POST /api/tables/bot`; queue bot-fill for friendly multi-player queues; 30% XP under `xp.bot_match`/`xp.bot_win`; `botAvailable` in catalog; UI on the game page and the queue offer after 30 s, with 🤖 persona names on the table. Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), `packages/game-engine` bots test (19 passed) plus line-three/chess/checkers/othello/race-games (68 passed in total with bots), `apps/api` `bots.test.ts` + matchmaking (15 passed) and progression/tables/play-integrity/chess/checkers/othello/race-games/realtime/access (54 passed), `@bg/play` tests (7 passed), E2E `e2e/bots.spec.ts` at mobile-360 and desktop-1440 (2 passed; screenshots in `docs/evidence/bots/`). Not run: full e2e suite, web production build. Real devices UNVERIFIED.
+- Bot opponents «بازی با ربات», waves 0–1 (2026-10-13): DONE locally (scope change by owner; see DECISIONS.md). SDK `GameBot` contract + shared bounded alpha-beta (`packages/game-sdk/src/bot.ts`); bots for checkers, chess, othello, line-three, snakes-ladders (`games/*/src/bot.ts`); migration `0006_bot_seats` (participant kind `bot`, deadline key `bot`); worker plays bot turns (`playBotTurn` in `packages/play/src/runtime.ts`); `POST /api/tables/bot`; queue bot-fill for friendly multi-player queues; 30% XP under `xp.bot_match`/`xp.bot_win`; `botAvailable` in catalog; UI on the game page and the queue offer after 30 s, with 🤖 persona names on the table. Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), `packages/game-engine` bots test (19 passed) plus line-three/chess/checkers/othello/race-games (68 passed in total with bots), `apps/api` `bots.test.ts` + matchmaking (15 passed) and progression/tables/play-integrity/chess/checkers/othello/race-games/realtime/access (54 passed), `@bg/play` tests (7 passed), E2E `e2e/bots.spec.ts` at mobile-360 and desktop-1440 (2 passed; screenshots in `docs/evidence/site/bots/`). Not run: full e2e suite, web production build. Real devices UNVERIFIED.
 - Bot personas, thinking time and styles (2026-10-13): random distinct persona per bot seat (name, avatar, style), random 1–3 s thinking pause (+1 s with many options), style-dependent evaluation in chess/checkers/othello. Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), engine `bots.test.ts` (20 passed, incl. a test that aggressive and cautious bots play different lines), API `bots.test.ts` (7 passed), E2E `e2e/bots.spec.ts` at mobile-360 and desktop-1440 (2 passed).
 - Bot opponents wave 2 (2026-10-13): ludo, yahtzee, backgammon, camel-up, battleship (`games/*/src/bot.ts`). Also: phone player strip fits the bot level and style. Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), engine `bots.test.ts` (38 passed: legal self-play at three levels for all 10 bot games, yahtzee hard out-scores easy, backgammon hard beats easy in 6+/10, battleship levels measured at about 56/48/39 shots to sink a fleet), engine suites for the five games plus race-games (51 passed), API suites for the five games plus race-games (18 passed), API `bots.test.ts` (9 passed, incl. battleship simultaneous placement and a 3-player camel-up game to the end), E2E `e2e/bots.spec.ts` at mobile-360 and desktop-1440 (4 passed; the camel-up spec plays four human turns, since a full 3-player game with bot thinking pauses takes about 6 minutes). Decision times (dev machine): all wave-2 bots under 8 ms on average (camel-up hard the slowest).
 - Bot opponents wave 3 (2026-10-13): uno, no-thanks, sushi-go, point-salad, six-nimmt, love-letter, lost-cities (`games/*/src/bot.ts`). Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), engine `bots.test.ts` (60 passed: legal self-play at three levels for all 17 bot games, plus hard-beats-easy for uno, no-thanks, six-nimmt, lost-cities, point-salad), engine suites for the seven games (66 passed), API suites for the seven games (21 passed), API `bots.test.ts` (11 passed, incl. a 3-player 6 nimmt! with simultaneous choices and a 3-player Love Letter, both to the result), E2E `e2e/bots.spec.ts` at mobile-360 and desktop-1440 (6 passed). Decision times: all wave-3 bots under 3 ms (max), sub-millisecond on average.
-- Coins «سکه» (2026-10-13): DONE locally. Migration `0007_coins`, `packages/play/src/coins.ts`, routes `GET /me/coins`, `POST /coins/spend`, `POST /coins/checkout`, admin `GET/PATCH /admin/coin-packs`; `/me/rewards` returns per-table coins; web: `/coins` page, balance chip in the shell, coins in the post-game summary, coin-pack payment result, admin pack pricing. Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), API vitest coins+billing+progression+access+bots+platform (57/57 pass), `vite build` (pass), Playwright `e2e/coins.spec.ts` mobile-360 + desktop-1440 (2/2 pass; evidence `docs/evidence/coins/`). Not run: full API/e2e suites; real gateway coin-pack purchase (needs approved prices and Zarinpal credentials).
-- Avatar builder and profile customization (2026-10-13): DONE locally. Migration `0008_cosmetics` (users: bio, title_key, banner_key, favorite_games, showcase; table user_cosmetics; report target `bio`), catalogue + codec `packages/contracts/src/cosmetics.ts`, ownership/purchase `packages/play/src/cosmetics.ts`, routes `GET /me/cosmetics`, `POST /cosmetics/buy`, `PATCH /me/profile` (partial, ownership-checked), `GET /users/:id/card` returns the customization, `POST /mod/users/:id/clear-bio`; web: `/me/avatar` builder, profile editor in Settings, new profile header, `<Avatar>` renders built avatars everywhere. Checks run: `pnpm typecheck` (pass), eslint on touched files (pass), contracts vitest (18 pass), API vitest cosmetics+coins+access+bots+dominion+social (40 pass), billing (12), platform (14), progression (12) run separately (pass; running billing/platform/progression in one process hit an out-of-memory crash on this machine), Playwright `e2e/avatar.spec.ts` mobile-360 + desktop-1440 (2 pass; evidence `docs/evidence/avatar/`). Not run: full API and E2E suites.
-- Tournaments «تورنمنت» (2026-10-13): DONE locally (owner request; design `docs/superpowers/specs/2026-10-13-tournaments-design.md`, decisions in DECISIONS.md). Migration `0009_tournaments` (tournaments, tournament_entries, tournament_tables, tournament_refunds; `payments.tournament_id`; entitlement source `tournament`); logic `packages/play/src/tournaments.ts` (create/cancel, free/coin/Toman registration, withdrawal, Swiss/knockout seating, arrival window with bot stand-in or forfeit, bot takeover on a missed live move clock, scoring, final ranks, prizes, refund queue); worker loop `tournaments` (3 s); routes `apps/api/src/modules/tournaments/routes.ts`; notifications kind `tournament`; web `/tournaments`, `/tournaments/:id`, admin tab «تورنمنت‌ها» (create, cancel, refund queue), payment result for entries. Checks run: `pnpm typecheck` (pass), eslint on `packages apps` and the new e2e (0 errors; repo-wide `pnpm lint` fails only on untracked scratch folders `.tmp-trophy/` and `.playwright/`), `@bg/web` build (pass), API `tournaments.test.ts` (9 pass), full API vitest 331/332 pass — the failure is `ark-nova.test.ts` full game (a view request returned no table mid-game, likely the per-user rate limit; Ark Nova rules had uncommitted edits before this work; not investigated), Playwright `e2e/tournaments.spec.ts` mobile-360 + desktop-1440 (2 pass; evidence `docs/evidence/tournaments/`). Not run: full E2E suite; real Toman entry through Zarinpal (needs credentials); real devices.
+- Coins «سکه» (2026-10-13): DONE locally. Migration `0007_coins`, `packages/play/src/coins.ts`, routes `GET /me/coins`, `POST /coins/spend`, `POST /coins/checkout`, admin `GET/PATCH /admin/coin-packs`; `/me/rewards` returns per-table coins; web: `/coins` page, balance chip in the shell, coins in the post-game summary, coin-pack payment result, admin pack pricing. Checks run: `pnpm -r typecheck` (pass), eslint on touched files (pass), API vitest coins+billing+progression+access+bots+platform (57/57 pass), `vite build` (pass), Playwright `e2e/coins.spec.ts` mobile-360 + desktop-1440 (2/2 pass; evidence `docs/evidence/site/coins/`). Not run: full API/e2e suites; real gateway coin-pack purchase (needs approved prices and Zarinpal credentials).
+- Avatar builder and profile customization (2026-10-13): DONE locally. Migration `0008_cosmetics` (users: bio, title_key, banner_key, favorite_games, showcase; table user_cosmetics; report target `bio`), catalogue + codec `packages/contracts/src/cosmetics.ts`, ownership/purchase `packages/play/src/cosmetics.ts`, routes `GET /me/cosmetics`, `POST /cosmetics/buy`, `PATCH /me/profile` (partial, ownership-checked), `GET /users/:id/card` returns the customization, `POST /mod/users/:id/clear-bio`; web: `/me/avatar` builder, profile editor in Settings, new profile header, `<Avatar>` renders built avatars everywhere. Checks run: `pnpm typecheck` (pass), eslint on touched files (pass), contracts vitest (18 pass), API vitest cosmetics+coins+access+bots+dominion+social (40 pass), billing (12), platform (14), progression (12) run separately (pass; running billing/platform/progression in one process hit an out-of-memory crash on this machine), Playwright `e2e/avatar.spec.ts` mobile-360 + desktop-1440 (2 pass; evidence `docs/evidence/site/avatar/`). Not run: full API and E2E suites.
+- Tournaments «تورنمنت» (2026-10-13): DONE locally (owner request; design `docs/superpowers/specs/2026-10-13-tournaments-design.md`, decisions in DECISIONS.md). Migration `0009_tournaments` (tournaments, tournament_entries, tournament_tables, tournament_refunds; `payments.tournament_id`; entitlement source `tournament`); logic `packages/play/src/tournaments.ts` (create/cancel, free/coin/Toman registration, withdrawal, Swiss/knockout seating, arrival window with bot stand-in or forfeit, bot takeover on a missed live move clock, scoring, final ranks, prizes, refund queue); worker loop `tournaments` (3 s); routes `apps/api/src/modules/tournaments/routes.ts`; notifications kind `tournament`; web `/tournaments`, `/tournaments/:id`, admin tab «تورنمنت‌ها» (create, cancel, refund queue), payment result for entries. Checks run: `pnpm typecheck` (pass), eslint on `packages apps` and the new e2e (0 errors; repo-wide `pnpm lint` fails only on untracked scratch folders `.tmp-trophy/` and `.playwright/`), `@bg/web` build (pass), API `tournaments.test.ts` (9 pass), full API vitest 331/332 pass — the failure is `ark-nova.test.ts` full game (a view request returned no table mid-game, likely the per-user rate limit; Ark Nova rules had uncommitted edits before this work; not investigated), Playwright `e2e/tournaments.spec.ts` mobile-360 + desktop-1440 (2 pass; evidence `docs/evidence/site/tournaments/`). Not run: full E2E suite; real Toman entry through Zarinpal (needs credentials); real devices.
 - Spectating «تماشا» (2026-10-13): DONE locally (owner request). Tournament tables stay `private` (no joining) but any signed-in user may open them with the spectator projection (`buildTableSnapshot`, same check for socket pushes); table chat stays participants-only. `GET /api/tables/live` lists active public and tournament tables (tournament first; player names only). Web: «در حال بازی؛ تماشا کنید» section on `/tables`, «تماشا» on active tables in tournament rounds, tournament lobby shows a spectator note instead of «پیوستن به میز» (`tableSettings.tournament` now in the contract). Checks: `pnpm typecheck` (pass); API `tournaments.test.ts` + `tables.test.ts` (22 pass, incl. new spectator test); full API vitest 332/333 (only failure `ark-nova.test.ts`, also failing without this change); Playwright `e2e/tournaments.spec.ts` extended with a watcher (opens «تماشا» from the tournament page, sees «تماشاگر ·», no chat button, finds the table in the live list): mobile-360 + desktop-1440 2/2 pass, evidence `docs/evidence/site/tournaments/*-spectator.png`, `*-live-list.png`. Not run: full E2E suite, real devices.
 - Chat upgrades «گفت‌وگو» (2026-10-13, owner request; decisions in DECISIONS.md): DONE locally. Migration `0010_chat_upgrades` (messages: reply_to_id, edited_at, original_body, client_id + unique (sender, client_id), sender/time index; conversations.slow_mode_seconds). Quick-chat presets (also while chat-restricted), per-sender flood guard (5 per 10 s), group/club slow mode, Persian/Finglish word filter (`apps/api/src/modules/social/word-filter.ts`), idempotent retries via clientId, replies, 120 s edits (original kept for moderators), unread counts + `GET /me/conversations/unread`, `POST /conversations/:id/read`, seen marker and typing indicator over the socket (`conversation.read`, `conversation.typing`). Web: ChatPanel with optimistic send/retry, drafts, reply/edit, ✓/✓✓, typing line, slow-mode control; game-bar quick-chat popover; speech bubbles at avatars; post-game «بازی خوبی بود» and «افزودن دوست»; unread badge in the sidebar and phone dock. Checks run: `pnpm typecheck` for contracts/api/web/play (pass), eslint on touched files (pass), API `social` + `realtime` + `word-filter` (21 pass, 6 new chat tests), full API vitest 339/340 (only failure: the known `ark-nova.test.ts` full game), `@bg/web` build (pass), Playwright `e2e/play.spec.ts` mobile-360 + desktop-1440 (pass, incl. the new quick-chat bubble step) and `e2e/social.spec.ts` desktop-1440 (4 pass). `social.spec.ts` on mobile-360 failed in the guest/queue flow: the trace shows 502s from the API while another session ran a large e2e batch with a `--watch` API on the same machine; not confirmed clean. Not run: real devices.
 - Friend referral «دعوت دوستان» (2026-10-13, owner request): DONE locally. Migration `0015_referrals` (users.referral_code, table referrals); `apps/api/src/modules/referrals/routes.ts` (`GET /me/referral`, `GET/PUT /admin/referral`, `GET /admin/referrals`), hook in `/auth/otp/verify` (`referralCode`); web: «دعوت دوستان» tab on `/friends` (link, code, copy/share, invited list), admin tab «دعوت دوستان» (reward switch, coins/days per side, cap, report with top inviters and per-inviter filter). Checks run: API + web `tsc --noEmit` (pass), eslint on touched files (pass), API vitest referrals+welcome-premium+site+otp+social (38 pass, 5 new), Playwright `e2e/referral.spec.ts` mobile-360 + desktop-1440 (2 pass; evidence `docs/evidence/site/phase-02/*-referral-invite.png`). Not run: full API/E2E suites.

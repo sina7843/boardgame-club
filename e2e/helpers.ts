@@ -59,7 +59,7 @@ export async function player(browser: Browser, viewport: { width: number; height
   return page;
 }
 
-export const shot = (name: string, project: string) => `docs/evidence/phase-01/${project}-${name}.png`;
+export const shot = (name: string, project: string) => `docs/evidence/site/phase-01/${project}-${name}.png`;
 
 /** Close level-up / achievement celebrations, which open after leaving a table (e.g. after a finished tutorial). */
 export async function dismissCelebrations(page: Page) {

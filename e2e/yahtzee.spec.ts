@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «یاتزی» end to end: the tutorial (holds, extra Yahtzee + joker, upper bonus) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/yahtzee/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/yahtzee/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: holds, an extra Yahtzee with the joker rule and the upper bonus', async ({ browser }, info) => {

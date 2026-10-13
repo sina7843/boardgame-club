@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «مسابقهٔ شترها» end to end: the tutorial (leg bet, overall bet, oasis, last die) and a full three-player race.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/camel-up/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/camel-up/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: leg bet, overall bet, oasis, the last pyramid die', async ({ browser }, info) => {

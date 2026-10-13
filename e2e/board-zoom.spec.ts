@@ -14,7 +14,7 @@ test('catan board zooms, pans and fits a landscape phone', async ({ browser }, i
   await expect(board).toBeVisible();
   const box = await board.boundingBox();
   expect(box!.height).toBeLessThanOrEqual(360);
-  await p.screenshot({ path: `docs/evidence/catan/landscape-780x360.png` });
+  await p.screenshot({ path: `docs/evidence/games/catan/landscape-780x360.png` });
 
   const zoomed = p.locator('.zb--zoomed');
   await expect(zoomed).toHaveCount(0);
@@ -32,7 +32,7 @@ test('catan board zooms, pans and fits a landscape phone', async ({ browser }, i
   await p.mouse.move(vp.x + vp.width / 2 - 80, vp.y + vp.height / 2 - 40, { steps: 6 });
   await p.mouse.up();
   expect(await p.locator('.zb__content').getAttribute('style')).not.toBe(before);
-  await p.screenshot({ path: `docs/evidence/catan/landscape-zoomed.png` });
+  await p.screenshot({ path: `docs/evidence/games/catan/landscape-zoomed.png` });
 
   await p.getByRole('button', { name: 'اندازه اصلی' }).click();
   await expect(zoomed).toHaveCount(0);

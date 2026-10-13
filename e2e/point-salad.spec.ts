@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «بازار سبزی» end to end: the tutorial (take a rule, take two vegetables, flip a useless rule) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/point-salad/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/point-salad/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: rule, vegetables, flip', async ({ browser }, info) => {

@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // sinks the rival) and a full three-player game with gives, calls, peeks and passes until someone has four of a kind.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/cockroach-poker/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/cockroach-poker/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: two calls, a bluff, then the truth', async ({ browser }, info) => {

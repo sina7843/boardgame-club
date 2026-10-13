@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // build when offered, pass in auctions, mortgage to cover debts, end turns. One trade is offered and rejected.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/amlak/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/amlak/${project}-${name}.png`;
 
 async function click(p: Page, target: ReturnType<Page['locator']>) {
   const sent = p.waitForResponse((r) => r.url().includes('/commands') && r.request().method() === 'POST', { timeout: 10_000 });

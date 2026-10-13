@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // through luxury and disgrace auctions until the fourth red card.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/high-society/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/high-society/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 const note = (p: Page, v: number) => p.locator(`.hs-pick:has(.hs-note[data-v="${v}"])`);
 

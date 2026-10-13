@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // ends; plus the interactive tutorial (quiet move, forced double jump, crowning, king's backward double jump).
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/checkers/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/checkers/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 async function move(p: Page): Promise<boolean> {

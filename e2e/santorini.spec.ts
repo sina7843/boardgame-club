@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // build through the board until someone climbs to level 3 or is stuck.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/santorini/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/santorini/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: move + build, a dome to block, a double threat, climb', async ({ browser }, info) => {

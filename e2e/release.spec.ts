@@ -6,7 +6,7 @@ import { newPage, player, signIn } from './helpers.ts';
 
 // Release-candidate checks (phase 04). Runs in every project (360 / 768 / 1440 / 1920).
 // Real iOS Safari / Android Chrome are NOT covered here — viewport emulation is not a device test.
-const DIR = 'docs/evidence/phase-04';
+const DIR = 'docs/evidence/site/phase-04';
 mkdirSync(`${DIR}/screenshots`, { recursive: true });
 const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 const shot = (project: string, name: string) => `${DIR}/screenshots/${project}-${name}.png`;

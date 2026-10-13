@@ -1,5 +1,5 @@
 // Rating simulation used as evidence before enabling ranked play (Requirements §11).
-// Run: pnpm --filter @bg/play simulate > docs/evidence/phase-03/rating-simulation.md
+// Run: pnpm --filter @bg/play simulate > docs/evidence/site/phase-03/rating-simulation.md
 // Deterministic (seeded). Outcomes are drawn from hidden "true" skills with Gaussian performance noise.
 import { DEFAULT_RATING, displayRating, newSkill, rate, type Skill } from './rating.ts';
 

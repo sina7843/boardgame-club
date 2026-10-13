@@ -4,7 +4,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // «قلمرو» end to end: the tutorial (action chain, Militia, treasures, two buys, end) and a full three-player game.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const RESULT = /بردید|باختید|مساوی/;
-const shot = (project: string, name: string) => `docs/evidence/dominion/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/dominion/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'game flows run at 360 and 1440');
 
 test('interactive tutorial: action chain, militia, treasures, two buys', async ({ browser }, info) => {

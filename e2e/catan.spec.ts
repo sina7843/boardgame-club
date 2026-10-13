@@ -5,7 +5,7 @@ import { motionLog, player, recordMotion } from './helpers.ts';
 // roads through the real UI (select → «ثبت»), then play regular turns (roll, discard / robber / steal on a 7, end turn).
 // A full game to 10 points takes far too long for a browser run; the rules to the end are covered by engine tests.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
-const shot = (project: string, name: string) => `docs/evidence/catan/${project}-${name}.png`;
+const shot = (project: string, name: string) => `docs/evidence/games/catan/${project}-${name}.png`;
 const TURNS = 8;
 
 async function startTable(host: Page, guests: Page[]) {
