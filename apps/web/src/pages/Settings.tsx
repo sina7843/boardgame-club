@@ -1,62 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { avatarKeys, displayNameSchema, type Me } from '@bg/contracts';
-import { Avatar, Button, Input, Segmented, Switch, buttonClass, useToast } from '@bg/ui';
-import { ProfileEditor } from './ProfileEditor.tsx';
+import { Segmented, Switch, buttonClass, useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import type { UserSettings } from '@bg/contracts';
-import { AVATAR_FA, jalaliDate } from '../lib/format.ts';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-
-function ProfileForm({ me }: { me: Me }) {
-  const { setMe } = useSession();
-  const toast = useToast();
-  const [name, setName] = useState(me.displayName);
-  const [avatar, setAvatar] = useState(me.avatarKey);
-  const [error, setError] = useState<string>();
-  const [busy, setBusy] = useState(false);
-  useEffect(() => { setName(me.displayName); setAvatar(me.avatarKey); }, [me]);
-
-  const save = async (e: FormEvent) => {
-    e.preventDefault();
-    const parsed = displayNameSchema.safeParse(name);
-    if (!parsed.success) { setError(parsed.error.issues[0]?.message); return; }
-    setBusy(true); setError(undefined);
-    try {
-      setMe(await api<Me>('/me/profile', { method: 'PATCH', body: { displayName: parsed.data, avatarKey: avatar } }));
-      toast('success', 'پروفایل ذخیره شد.');
-    } catch (err) {
-      setError(err instanceof ApiFailure ? err.messageFa : 'ذخیره انجام نشد.');
-    } finally { setBusy(false); }
-  };
-
-  return (
-    <form className="stack" onSubmit={save} noValidate>
-      <Input label="نام نمایشی" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error} hint="۲ تا ۲۴ نویسه" />
-      <div className="row" style={{ alignItems: 'center', gap: '0.75rem' }}>
-        <Avatar avatarKey={me.avatarKey} name={me.displayName} size={56} />
-        <Link className={buttonClass('secondary', 'md')} to="/me/avatar">ساخت و ویرایش آواتار</Link>
-      </div>
-      <fieldset className="avatar-picker">
-        <legend className="field__label">یا یک نماد ساده</legend>
-        {avatarKeys.map((k) => (
-          <label key={k}>
-            <input type="radio" name="avatar" value={k} checked={avatar === k} onChange={() => setAvatar(k)} />
-            <Avatar avatarKey={k} name={AVATAR_FA[k] ?? k} size={44} />
-          </label>
-        ))}
-      </fieldset>
-      <dl className="facts">
-        <div><dt>شماره موبایل (فقط برای شما)</dt><dd><bdi dir="ltr">{me.mobileMasked}</bdi></dd></div>
-        <div><dt>عضویت از</dt><dd>{jalaliDate(me.joinedAt)}</dd></div>
-      </dl>
-      <div><Button type="submit" busy={busy}>ذخیره پروفایل</Button></div>
-    </form>
-  );
-}
 
 export function Settings() {
   usePageTitle('تنظیمات');
@@ -86,14 +36,15 @@ export function Settings() {
             checked={prefs.muted} onChange={(muted) => update({ muted })} />
         </section>
 
-        <section className="panel stack" aria-labelledby="profile-h">
-          <h2 id="profile-h" className="section-title">پروفایل</h2>
-          {status === 'loading' ? <p className="muted" role="status">در حال بارگذاری…</p>
-            : me ? <ProfileForm me={me} />
-            : <p className="muted" style={{ margin: 0 }}>برای ویرایش نام نمایشی و نماد <Link to="/login?next=/settings">وارد شوید</Link>.</p>}
+        <section className="panel row" aria-labelledby="profile-h" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h2 id="profile-h" className="section-title">پروفایل</h2>
+            <p className="muted" style={{ margin: 0 }}>نام، آواتار، معرفی، لقب، بنر و ویترین جام‌ها در صفحهٔ پروفایل ویرایش می‌شوند.</p>
+          </div>
+          {status === 'loading' ? null : me ? <Link className={buttonClass('secondary', 'md')} to="/me/profile">ویرایش پروفایل</Link>
+            : <Link className={buttonClass('secondary', 'md')} to="/login?next=/me/profile">ورود</Link>}
         </section>
 
-        {me && <ProfileEditor me={me} />}
         {me && <PrivacyForm />}
         <p className="muted"><Link to="/design">نمایش اجزای طراحی</Link></p>
       </div>

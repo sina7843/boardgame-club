@@ -6,6 +6,7 @@ import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
+import { CopyProfileLink } from './MyProfile.tsx';
 import { TIER_FA, Trophy } from '../lib/rewards.tsx';
 
 /** Position in the showcase; achievements not in it sort after, keeping their order (stable sort). */
@@ -140,7 +141,8 @@ export function ProfilePage() {
             <p className="page-sub">عضو از {jalaliDate(u.joinedAt)}{ach.data ? ` · سطح ${ach.data.level.toLocaleString('fa-IR')}` : ''}</p>
           </div>
           {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
-          {u.relationship === 'self' && <span className="row" style={{ gap: 6 }}><Link className={buttonClass('primary', 'sm')} to="/me/avatar">ساخت آواتار</Link><Link className={buttonClass('secondary', 'sm')} to="/settings">ویرایش پروفایل</Link></span>}
+          {u.relationship === 'self' && <span className="row" style={{ gap: 6 }}><Link className={buttonClass('primary', 'sm')} to="/me/avatar">ساخت آواتار</Link><Link className={buttonClass('secondary', 'sm')} to="/me/profile">ویرایش پروفایل</Link></span>}
+          <CopyProfileLink userId={u.id} size="sm" />
         </div>
       </section>
       {(u.bio || favourites.length > 0 || trophies.length > 0) && (

@@ -40,7 +40,10 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await expect(p.getByRole('img', { name: `آواتار ${name}` }).first()).toBeVisible(); // shell
   await p.screenshot({ path: `docs/evidence/avatar/${info.project.name}-builder.png`, fullPage: true });
 
+  // Settings only links to the profile; identity and customization live on «پروفایل من».
   await p.goto('/settings');
+  await p.getByRole('link', { name: 'ویرایش پروفایل' }).click();
+  await expect(p.getByRole('heading', { name: 'پروفایل من', level: 1 })).toBeVisible();
   await p.getByLabel('معرفی کوتاه').fill('عاشق بازی‌های رومیزی');
   await p.getByLabel('لقب').selectOption({ label: 'اهل بازی' });
   await p.getByRole('button', { name: 'دریا', exact: true }).click();
@@ -54,5 +57,9 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await expect(p.getByText('اهل بازی')).toBeVisible();
   await expect(p.getByText('عاشق بازی‌های رومیزی')).toBeVisible();
   await expect(p.getByRole('img', { name: `آواتار ${name}` }).last()).toBeVisible();
+  await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await p.getByRole('button', { name: 'کپی لینک پروفایل' }).click();
+  await expect(p.getByText('لینک پروفایل کپی شد.')).toBeVisible();
+  expect(await p.evaluate(() => navigator.clipboard.readText())).toBe(`http://127.0.0.1:5173/users/${me.id}`);
   await p.screenshot({ path: `docs/evidence/avatar/${info.project.name}-profile.png`, fullPage: true });
 });

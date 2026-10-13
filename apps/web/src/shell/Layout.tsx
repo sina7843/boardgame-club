@@ -93,7 +93,7 @@ export function Layout() {
           {me ? (
             <>
               <div className="flex min-w-0 items-center gap-3 px-1">
-                <Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} />
+                <NavLink to="/me/profile" aria-label="پروفایل من" className="shrink-0 rounded-full"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} /></NavLink>
                 <span className="truncate font-semibold">{me.displayName}</span>
                 <span className="ms-auto"><CoinChip /></span>
               </div>
@@ -107,7 +107,7 @@ export function Layout() {
 
       <header className="shell-nav sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 backdrop-blur-md lg:hidden">
         <Brand compact />
-        {me ? <div className="flex items-center gap-2"><CoinChip /><NavLink to="/settings" aria-label="حساب و تنظیمات" className="rounded-full"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} /></NavLink></div>
+        {me ? <div className="flex items-center gap-2"><CoinChip /><NavLink to="/me/profile" aria-label="پروفایل من" className="rounded-full"><Avatar avatarKey={me.avatarKey} name={me.displayName} size={40} /></NavLink></div>
           : status !== 'loading' && <NavLink className={buttonClass('primary', 'sm')} to={`/login?next=${encodeURIComponent(pathname)}`}>ورود</NavLink>}
       </header>
 
