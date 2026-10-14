@@ -33,8 +33,10 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-dock { min-inline-size: 0; }
 .tbl-prompt { display: inline-flex; align-items: center; gap: var(--space-2); min-inline-size: 0; }
 .tbl-tutorial { display: grid; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }
-.tbl-said { display: inline-block; max-inline-size: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px var(--space-2);
-  border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--text); font-size: 12.5px; box-shadow: var(--shadow-tile); }
+.tbl-rail .bgv-pcard { position: relative; }
+.tbl-said.bgv-bubble-float { inset-block-end: calc(100% - var(--space-2)); inset-inline-start: var(--space-3); z-index: var(--z-hud); }
+.tbl-said b { font-weight: 700; }
+.tbl-said.is-mention { outline: 2px solid var(--invite); }
 .tbl-post { margin-block-start: var(--space-2); }
 
 /* Result card over the felt (the board stays reachable with «دیدن صفحهٔ بازی»). */
@@ -57,7 +59,10 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-overlay { position: fixed; inset: 0; z-index: var(--z-sheet); display: flex; flex-direction: column; justify-content: flex-end; background: var(--scrim); }
 .tbl-overlay--side { flex-direction: row; justify-content: flex-start; align-items: stretch; padding: var(--space-3); }
 .tbl-overlay--side > .bgv-sheet { inline-size: min(100%, 400px); overflow-y: auto; }
-.tbl-chatsheet { block-size: min(80dvh, 640px); }
+/* About half the screen so the table stays visible above it (design Chat-Sheet). */
+.tbl-chatsheet { block-size: min(55dvh, 520px); }
+.tbl-overlay:has(> .tbl-chatsheet) { background: transparent; pointer-events: none; }
+.tbl-overlay > .tbl-chatsheet { pointer-events: auto; }
 @media (min-width: 900px) {
   .tbl-overlay:not(.tbl-overlay--side) { flex-direction: row; justify-content: flex-end; padding: var(--space-3); }
   .tbl-overlay:not(.tbl-overlay--side) > .tbl-chatsheet { inline-size: var(--chat-w); block-size: auto; border-radius: var(--radius-lg); }

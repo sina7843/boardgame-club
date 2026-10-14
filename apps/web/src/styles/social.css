@@ -50,6 +50,8 @@
 @media (max-width: 899px) {
   .sx-dm { grid-template-columns: minmax(0, 1fr); block-size: clamp(440px, 80dvh, 640px); }
   .sx-dm[data-open="true"] .sx-dm__list { display: none; }
+  /* An open thread is a full-screen pushed page on phones (no dock under the composer). */
+  .sx-dm[data-open="true"] { position: fixed; inset: 0; z-index: var(--z-sheet); block-size: 100dvh; border-radius: 0; }
   .sx-dm[data-open="false"] .sx-dm__thread { display: none; }
   .sx-dm__list { border-inline-end: 0; }
   .sx-dm__back { display: inline-flex; }

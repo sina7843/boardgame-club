@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { avatarSvg, parseAvatar, type ConversationItem } from '@bg/contracts';
-import { Button, Card, ChipGroup, Conversation, Identity, PageHead, StateBlock, Tag, TextField } from '@bg/ui/bgv';
+import { Button, Card, ChipGroup, Conversation, PageHead, StateBlock, Tag, TextField } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
-import { userIdentity } from '../lib/bgv.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
@@ -61,12 +60,15 @@ function Inbox({ activeId }: { activeId?: string }) {
       <div className="sx-dm__thread">
         {activeId ? (
           <>
-            <header className={active?.other ? 'sx-dm__head' : 'sx-dm__head sx-dm__head--bare'}>
-              <Button iconOnly variant="ghost" icon="arrow-right" href="/messages" className="sx-dm__back">همه گفت‌وگوها</Button>
-              {active?.other ? <><Identity {...userIdentity(active.other)} size="md" /><Button size="sm" variant="secondary" href={`/users/${active.other.id}`}>پروفایل</Button></>
-                : null}
-            </header>
-            <ChatPanel key={activeId} load={`/conversations/${activeId}/messages`} post={`/conversations/${activeId}/messages`} conversationId={activeId} title={active?.other ? undefined : active?.title} icon={active?.kind === 'club' ? 'shield' : 'users'} />
+            <ChatPanel key={activeId} load={`/conversations/${activeId}/messages`} post={`/conversations/${activeId}/messages`} conversationId={activeId}
+              title={active?.other?.displayName ?? active?.title} icon={active?.other ? 'user' : active?.kind === 'club' ? 'shield' : 'users'}
+              head={<>
+                <Button iconOnly variant="ghost" icon="arrow-right" href="/messages" className="sx-dm__back">همه گفت‌وگوها</Button>
+                {active?.other && <>
+                  <Button size="sm" variant="secondary" icon="armchair" href="/games">دعوت به میز</Button>
+                  <Button size="sm" variant="ghost" iconOnly icon="user" href={`/users/${active.other.id}`}>پروفایل</Button>
+                </>}
+              </>} />
           </>
         ) : <div className="sx-dm__empty"><StateBlock kind="empty" icon="message-circle" title="یک گفت‌وگو را انتخاب کنید" /></div>}
       </div>

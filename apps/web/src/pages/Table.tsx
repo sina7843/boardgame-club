@@ -494,7 +494,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       ...(x.titleKey && cosmetic(x.titleKey) ? { title: cosmetic(x.titleKey)!.nameFa } : {}),
       ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
       ...(active && clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {}),
-      ...(words ? { badge: (() => { const b = seatArt(x, "chatBubble"); return <span className="tbl-said" aria-hidden style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}>💬 {words}</span>; })() } : {}),
+      ...(words ? { badge: (() => {
+        const b = seatArt(x, "chatBubble");
+        const atMe = t.mySeat !== null && words.includes(`@${name(t.mySeat)}`);
+        // Floating speech bubble over the card (DS bubble-float); the game's own badges stay visible beside it.
+        return <>{live.badge}<span className={`bgv-bubble-float tbl-said${atMe ? ' is-mention' : ''}`} aria-hidden
+          style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}><b>{n}:</b> {words}</span></>;
+      })() } : {}),
       ...live,
       ...(place ? { score: place.score ?? place.place, scoreLabel: place.score !== undefined ? 'امتیاز' : 'رتبه', leader: place.place === 1 } : {}),
       ...(!place && !active && !finished && !ss?.status ? { waiting: 'منتظر' } : {}),

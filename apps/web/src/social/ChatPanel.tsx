@@ -43,9 +43,11 @@ function MessageMenu({ items }: { items: MenuItem[] }) {
  * Conversation view used for DMs, group/club chat and table chat (DS Chat + Message). Text is rendered as plain text only.
  * New messages arrive through the user's own socket room (server-side authorization), then are de-duplicated here.
  */
-export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people }: {
+export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head }: {
   load: string; post: string; conversationId?: string; title?: string; compact?: boolean; quick?: boolean;
   onClose?: () => void; sheet?: boolean; icon?: string; className?: string;
+  /** Extra controls in the chat header (DM: back, invite, more). */
+  head?: ReactNode;
   /** Spectators: no composer (the server also refuses posting); reactions and mute still work. */
   readOnly?: boolean;
   /** Extra @-mention candidates (e.g. the table's players); people who already wrote here are always offered. */
@@ -142,6 +144,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
 
   // Slow mode (members): count down to the next allowed message instead of letting the server refuse it.
   const [nextAt, setNextAt] = useState(0);
+  const [mentionAt, setMentionAt] = useState(0);
   const [, tick] = useState(0);
   useEffect(() => {
     if (nextAt <= Date.now()) return;
@@ -214,7 +217,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
 
   const frame = (body: ReactNode, composer?: ReactNode, headExtra?: ReactNode) => (
     <Chat title={title ?? 'گفت‌وگو'} icon={icon ?? 'message-circle'} className={className} sheet={sheet} bottom
-      {...(onClose ? { onClose } : {})} {...(headExtra ? { headExtra } : {})} composer={readOnly ? undefined : composer}
+      {...(onClose ? { onClose } : {})} {...(headExtra || head ? { headExtra: <>{head}{headExtra}</> } : {})} composer={readOnly ? undefined : composer}
       {...(readOnly ? { readOnly: true } : {})}
       {...(meta && conversationId ? { mutedToggle: { muted: meta.muted, onToggle: (v: boolean) => void setMuted(v) } } : {})}>
       {body}
@@ -240,6 +243,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   const names = [...new Set([...(people ?? []), ...items.map((m) => m.sender.displayName)])].filter((n) => n !== me?.displayName);
   const suggestions = token === undefined ? [] : names.filter((n) => n.startsWith(token)).slice(0, 5);
   const pickMention = (name: string) => { onType(text.replace(/@[^\s@]*$/, `@${name} `)); input.current?.focus(); };
+  const pickAt = Math.min(mentionAt, Math.max(0, suggestions.length - 1));
 
   const waitSec = Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
   const composer = meta.canPost ? (
@@ -252,12 +256,16 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
         </div>
       )}
       {quick && <QuickChatChips post={post} />}
-      {suggestions.length > 0 && <MentionSuggest items={suggestions.map((name, i) => ({ name, initials: name.charAt(0), focus: i === 0 }))} onPick={pickMention} />}
+      {suggestions.length > 0 && <MentionSuggest items={suggestions.map((name, i) => ({ name, initials: name.charAt(0), focus: i === pickAt }))} onPick={pickMention} />}
       {typing.length > 0 && <Typing names={typing.map((t) => t.name)} />}
       <div className="bgv-composer__row">
         <label className="bgv-sr" htmlFor={composeId}>متن پیام</label>
         <textarea id={composeId} ref={input} className="bgv-composer__input" rows={1} maxLength={1000} value={text} onChange={(e) => onType(e.target.value)}
           placeholder={meta.kind === 'table' ? 'پیام به میز…' : 'پیام…'} onKeyDown={(e) => {
+            if (suggestions.length && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+              e.preventDefault(); setMentionAt((pickAt + (e.key === 'ArrowDown' ? 1 : suggestions.length - 1)) % suggestions.length); return;
+            }
+            if (suggestions.length && (e.key === 'Enter' || e.key === 'Tab') && !e.shiftKey) { e.preventDefault(); pickMention(suggestions[pickAt]!); setMentionAt(0); return; }
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void submit(); }
             if (e.key === 'Escape' && (replyTo || editing)) { e.preventDefault(); e.stopPropagation(); cancelCompose(); }
           }} />
