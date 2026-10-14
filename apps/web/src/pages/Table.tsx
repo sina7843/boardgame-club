@@ -8,6 +8,7 @@ import {
   ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
+import { usePresence } from '../lib/presence.ts';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -463,6 +464,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const placeOf = (seat: number) => g.result?.placements.find((p) => p.seat === seat);
   const sum = g.summary;
   const STATUS_FA = { out: 'حذف شد', passed: 'پاس داد', done: 'آماده', winner: 'برنده', playing: undefined } as const;
+  const online = usePresence(finished ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
   const players: PlayerCardProps[] = t.seats.map((x) => {
     const n = name(x.seat);
     const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
@@ -481,6 +483,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       name: <bdi>{n}</bdi>, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
       ...(x.bot ? { botLevel: BOT_LEVEL_FA[x.bot.level] } : {}),
       ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : {}),
+      ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
       ...(active && clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {}),
       ...(words ? { badge: (() => { const b = seatArt(x, "chatBubble"); return <span className="tbl-said" aria-hidden style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}>💬 {words}</span>; })() } : {}),
       ...live,

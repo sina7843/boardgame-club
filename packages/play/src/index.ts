@@ -13,3 +13,4 @@ export * from './coins.ts';
 export * from './cosmetics.ts';
 export * from './tournaments.ts';
 export * from './rematch.ts';
+export * from './presence.ts';

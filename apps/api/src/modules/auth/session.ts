@@ -40,8 +40,15 @@ export async function resolveSession(db: Db, token: string | undefined): Promise
     .where(and(eq(sessions.tokenHash, hashToken(token)), isNull(sessions.revokedAt),
       gt(sessions.expiresAt, sql`now()`), eq(users.status, 'active')));
   if (!row) return null;
+  touchSession(db, row.sessionId);
   const roles = await db.select({ role: userRoles.role }).from(userRoles).where(eq(userRoles.userId, row.userId));
   return { ...row, roles: roles.map((r) => r.role as Role), suspended: !!(await activeSuspension(db, row.userId)) };
+}
+
+/** Presence heartbeat: at most one write a minute per session; never blocks the request. */
+export function touchSession(db: Db, sessionId: string): void {
+  void db.update(sessions).set({ lastSeenAt: sql`now()` })
+    .where(and(eq(sessions.id, sessionId), sql`${sessions.lastSeenAt} < now() - interval '60 seconds'`)).catch(() => undefined);
 }
 
 export async function revokeSession(db: Db, sessionId: string): Promise<void> {

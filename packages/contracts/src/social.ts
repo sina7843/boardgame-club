@@ -68,6 +68,10 @@ export const friendsResponse = z.object({
 });
 export const userIdBody = z.strictObject({ userId: z.uuid() });
 
+/** Online status (friends and table-mates only). `playing` = seated at a running live table. */
+export const presence = z.object({ online: z.boolean(), lastSeenAt: z.iso.datetime().nullable(), playing: z.object({ tableId: z.uuid(), gameNameFa: z.string() }).nullable() });
+export type Presence = z.infer<typeof presence>;
+
 // ---------- Conversations ----------
 /** One-tap table phrases and emoji. Sent by id; the server stores the fixed text, so they skip the word filter. */
 export const QUICK_CHAT = [

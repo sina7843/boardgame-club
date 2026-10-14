@@ -1289,3 +1289,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   in `packages/ui/src/game-legacy.css` and the Tailwind `@theme` names in `apps/web/src/app.css` are now aliases of BGV
   tokens; the game stage carries `data-theme="dark"` (renderers were drawn for a dark table). Game art changes colour
   to the BGV palette; the owner checks the games visually. Strict ds-check app errors: 141 -> 3 (all inside the DS bundle).
+- Presence (2026-10-14): online = a session heartbeat (`sessions.last_seen_at`, bumped by HTTP and by a live socket at
+  most once a minute) within 150 s, so all API processes agree without sharing socket rooms. `GET /api/presence` only
+  answers for yourself, friends and players seated with you; others are left out. «در حال بازی» = seated at a running
+  live table. A closed tab reads online for up to ~2.5 min.

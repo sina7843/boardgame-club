@@ -12,7 +12,7 @@ import type { Config } from '../config.ts';
 import { isAllowedOrigin } from '../http/origin-guard.ts';
 import { timedCommand } from '../http/timed-command.ts';
 import { metrics } from '../metrics.ts';
-import { resolveSession, type AuthContext } from '../modules/auth/session.ts';
+import { resolveSession, touchSession, type AuthContext } from '../modules/auth/session.ts';
 
 export interface SocketData { auth: AuthContext; invites: Map<string, string> }
 type Ack = (response: unknown) => void;
@@ -86,6 +86,9 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
   io.on('connection', (socket) => {
     const { userId } = socket.data.auth;
     void socket.join(`user:${userId}`);
+    // Presence heartbeat while the socket lives (touchSession writes at most once a minute).
+    const beat = setInterval(() => touchSession(db, socket.data.auth.sessionId), 60_000);
+    socket.on('disconnect', () => clearInterval(beat));
     socket.emit(ServerEvents.sessionReady, { userId, serverTime: new Date().toISOString() });
 
     socket.on(ClientEvents.tableSubscribe, async (payload: unknown, ack?: Ack) => {

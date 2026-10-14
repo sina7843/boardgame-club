@@ -4,9 +4,10 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, alertPrefs, apiErrorSchema, DEFAULT_ALERT_PREFS, friendsResponse, normalizeSearch, profileCard, profilePrivacy, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
+  AppError, alertPrefs, apiErrorSchema, presence, DEFAULT_ALERT_PREFS, friendsResponse, normalizeSearch, profileCard, profilePrivacy, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
 } from '@bg/contracts';
 import { schema } from '@bg/db';
+import { presenceAudience, presenceOf } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireUser } from '../auth/session.ts';
 import { toPublicProfile } from '../users/routes.ts';
@@ -47,6 +48,15 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   // ---------- Friends ----------
+  r.get('/presence', {
+    schema: { tags: ['social'], summary: 'Online status of friends and table-mates (others are left out)',
+      querystring: z.object({ ids: z.string().max(37 * 60).transform((v) => [...new Set(v.split(',').filter(Boolean))]).pipe(z.array(z.uuid()).max(60)) }),
+      response: { 200: z.object({ items: z.record(z.string(), presence) }), 400: apiErrorSchema, 401: apiErrorSchema } }
+  }, async (req) => {
+    const { userId } = requireUser(req, { allowSuspended: true });
+    return { items: Object.fromEntries(await presenceOf(db, await presenceAudience(db, userId, req.query.ids))) };
+  });
+
   r.get('/me/friends', { schema: { tags: ['social'], summary: 'Friends, requests, blocked and muted users', response: { 200: friendsResponse, 401: apiErrorSchema } } }, async (req) => {
     const { userId } = requireUser(req);
     const rows = await db.select().from(friendships).where(or(eq(friendships.userLow, userId), eq(friendships.userHigh, userId)));

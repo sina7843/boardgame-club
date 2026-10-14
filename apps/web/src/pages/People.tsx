@@ -1,11 +1,12 @@
 import { useEffect, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
-import { cosmetic, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
+import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import { Badge, Banner, Button, Card, Chip, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { userIdentity } from '../lib/bgv.tsx';
+import { presenceLine, usePresence } from '../lib/presence.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
@@ -30,17 +31,19 @@ function useAct(onDone: () => void) {
 }
 
 /** One person: identity (name links to the profile) with row actions at the end. */
-function PersonRow({ p, children }: { p: PublicProfile; children?: ReactNode }) {
+function PersonRow({ p, presence, children }: { p: PublicProfile; presence?: Presence; children?: ReactNode }) {
+  const line = presenceLine(presence);
   return (
     <li>
-      <Identity {...userIdentity(p, { size: 'lg', name: <a href={`/users/${p.id}`}><bdi>{p.displayName}</bdi></a> })} />
+      <Identity {...userIdentity(p, { size: 'lg', name: <a href={`/users/${p.id}`}><bdi>{p.displayName}</bdi></a>,
+        ...(presence ? { status: presence.online ? 'online' : 'offline' } : {}), ...(line ? { sub: line } : {}) })} />
       {children && <div className="pf-actions">{children}</div>}
     </li>
   );
 }
 
-const People = ({ items, children }: { items: PublicProfile[]; children: (p: PublicProfile) => ReactNode }) => (
-  <Card flush><ul className="pf-list">{items.map((p) => <PersonRow key={p.id} p={p}>{children(p)}</PersonRow>)}</ul></Card>
+const People = ({ items, presence, children }: { items: PublicProfile[]; presence?: Record<string, Presence>; children: (p: PublicProfile) => ReactNode }) => (
+  <Card flush><ul className="pf-list">{items.map((p) => <PersonRow key={p.id} p={p} presence={presence?.[p.id]}>{children(p)}</PersonRow>)}</ul></Card>
 );
 
 function Search({ onChange }: { onChange: () => void }) {
@@ -119,6 +122,7 @@ type FriendsTab = 'friends' | 'requests' | 'find' | 'invite' | 'blocked';
 export function FriendsPage() {
   usePageTitle('دوستان');
   const data = useApi<Friends>('/me/friends');
+  const presence = usePresence(data.data?.friends.map((f) => f.id) ?? []);
   const navigate = useNavigate();
   const { me } = useSession();
   const [params] = useSearchParams();
@@ -157,10 +161,21 @@ export function FriendsPage() {
         ]} />
       </div>
       {tab === 'friends' && (d.friends.length ? (
-        <People items={d.friends}>{(f) => (<>
-          <Button size="sm" variant="secondary" icon="message-circle" onClick={() => message(f.id)}>پیام</Button>
-          <Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE', undefined, 'از دوستان حذف شد.')}>حذف</Button>
-        </>)}</People>
+        <div className="bgv-stack">
+          {([['online', 'آنلاین'], ['offline', 'آفلاین']] as const).map(([k, label]) => {
+            const group = d.friends.filter((f) => !!presence[f.id]?.online === (k === 'online'));
+            return group.length > 0 && (
+              <section key={k} className="bgv-stack" aria-label={label}>
+                <h2 className="t-label bgv-muted" style={{ margin: 0 }}>{label} ({faNum(group.length)})</h2>
+                <People items={group} presence={presence}>{(f) => (<>
+                  {presence[f.id]?.playing && <Button size="sm" variant="secondary" icon="eye" href={`/tables/${presence[f.id]!.playing!.tableId}`}>تماشا</Button>}
+                  <Button size="sm" variant="secondary" icon="message-circle" onClick={() => message(f.id)}>پیام</Button>
+                  <Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE', undefined, 'از دوستان حذف شد.')}>حذف</Button>
+                </>)}</People>
+              </section>
+            );
+          })}
+        </div>
       ) : <StateBlock kind="empty" title="هنوز دوستی ندارید" text="از زبانه «یافتن» بازیکن‌ها را پیدا کنید." action={<Button variant="primary" icon="search" onClick={() => setTab('find')}>یافتن بازیکن</Button>} />)}
       {tab === 'requests' && (
         <div className="bgv-stack">

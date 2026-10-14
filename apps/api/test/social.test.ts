@@ -56,6 +56,18 @@ describe('friends and private messages (FR-11)', () => {
     expect((await send(a!, conv, 'و حالا؟')).json().errorCode).toBe('DM_NOT_ALLOWED');
   });
 
+  it('presence: friends see online status, strangers are left out; stale heartbeat reads offline with last seen', async () => {
+    const [a, b, stranger] = await users(ctx, 3);
+    await befriend(a!, b!);
+    const items = (await call(ctx, 'GET', `/api/presence?ids=${b!.id},${stranger!.id}`, a)).json().items;
+    expect(items[b!.id]).toMatchObject({ online: true, playing: null });
+    expect(items[stranger!.id]).toBeUndefined();
+    await ctx.db.update(schema.sessions).set({ lastSeenAt: sql`now() - interval '1 hour'` }).where(eq(schema.sessions.userId, b!.id));
+    const later = (await call(ctx, 'GET', `/api/presence?ids=${b!.id}`, a)).json().items[b!.id];
+    expect(later.online).toBe(false);
+    expect(later.lastSeenAt).not.toBeNull();
+  });
+
   it('blocking ends friendship and prevents any new contact: request, message, invite, joining their table', async () => {
     const [a, b] = await users(ctx, 2);
     await befriend(a!, b!);
