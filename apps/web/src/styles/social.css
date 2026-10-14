@@ -74,3 +74,6 @@
 
 .chat-quote { margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); display: grid; gap: var(--space-1); }
 .chat-quote p { margin: 0; }
+
+.chat-invite { max-inline-size: 320px; }
+.chat-invite--mine { margin-inline-start: auto; }

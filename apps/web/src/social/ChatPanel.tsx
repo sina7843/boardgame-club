@@ -56,6 +56,9 @@ export function MessageMenu({ items, label = 'گزینه‌های پیام', cla
  * Conversation view used for DMs, group/club chat and table chat (DS Chat + Message). Text is rendered as plain text only.
  * New messages arrive through the user's own socket room (server-side authorization), then are de-duplicated here.
  */
+/** Table invitations the server drops into private chats (social routes, POST /tables/:id/invites). */
+const INVITE_RE = /^دعوت به میز «(.+)»: \/tables\/([0-9a-f-]{36})$/;
+
 /** A game event shown in the table chat (never stored as a message). */
 export interface ChatEvent { id: string; at: string; text: string; seat?: number }
 
@@ -165,6 +168,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   // Slow mode (members): count down to the next allowed message instead of letting the server refuse it.
   const [nextAt, setNextAt] = useState(0);
   const [mentionAt, setMentionAt] = useState(0);
+  const [declined, setDeclined] = useState<string[]>([]);
   // Long-press lifts a message: its reaction bar and menu open together over a scrim.
   const [lifted, setLifted] = useState<string | null>(null);
   const press = useRef<number>(undefined);
@@ -339,6 +343,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
       {items.map((m, idx) => {
         const mine = m.sender.id === me?.id;
         const divider = m.id === firstUnread ? <UnreadDivider count={unreadCount} /> : null;
+        const im = INVITE_RE.exec(m.body);
+        const invite = im ? { game: im[1]!, tableId: im[2]! } : null;
         const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
         const actions: MenuItem[] = m.deleted ? [] : [
           ...(meta.canPost ? [{ icon: 'reply', label: 'پاسخ', onClick: () => { setEditing(null); setReplyTo(m); input.current?.focus(); } }] : []),
@@ -356,11 +362,24 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
             onPointerDown={() => { if (m.deleted) return; press.current = window.setTimeout(() => { setLifted(m.id); setReacting(m.id); }, 450); }}
             onPointerUp={() => clearTimeout(press.current)} onPointerLeave={() => clearTimeout(press.current)}
             onContextMenu={(e) => { if (lifted === m.id) e.preventDefault(); }}>
-            <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={m.body} viewer={me?.displayName}
+            {invite && !m.deleted ? (
+              <div className={`bgv-invitecard chat-invite${mine ? ' chat-invite--mine' : ''}`}>
+                <div className="bgv-row" style={{ gap: 12, flexWrap: 'nowrap' }}>
+                  <span className="ac-tile"><Icon name="armchair" /></span>
+                  <span style={{ display: 'grid', lineHeight: 1.45 }}><b>دعوت به میز {invite.game}</b>
+                    <span className="t-caption bgv-muted"><bdi>{m.sender.displayName}</bdi><span className="bgv-sep" /><time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time></span></span>
+                </div>
+                {!mine && !declined.includes(m.id) && <div className="bgv-row" style={{ gap: 8 }}>
+                  <Button variant="primary" size="sm" href={`/tables/${invite.tableId}`} style={{ flex: 1 }}>بنشین</Button>
+                  <Button variant="secondary" size="sm" onClick={() => setDeclined((d) => [...d, m.id])}>رد</Button>
+                </div>}
+                {!mine && declined.includes(m.id) && <span className="t-caption bgv-muted">رد کردید.</span>}
+              </div>
+            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
               avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
               state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}
-              mentioned={!!me && m.mentions.includes(me.id)} edited={!!m.editedAt} seen={seen} {...(m.deleted ? {} : reply(m.replyTo))} />
+              mentioned={!!me && m.mentions.includes(me.id)} edited={!!m.editedAt} seen={seen} {...(m.deleted ? {} : reply(m.replyTo))} />}
             <MessageMenu items={actions} open={lifted === m.id} onClosed={unlift} />
             {reacting === m.id && <ReactionBar onPick={(emoji) => void react(m, emoji)} selected={m.reactions.find((r) => r.mine)?.emoji} />}
           </article>

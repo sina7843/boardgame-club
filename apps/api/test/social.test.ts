@@ -143,6 +143,10 @@ describe('invitations and table chat (FR-05, FR-13)', () => {
     await runOutbox(ctx.db);
     const n = (await notifications(friend!)).find((x) => x.kind === 'invite')!;
     expect(n.href).toBe(`/tables/${table}`);
+    // The invite also lands in the private chat, where clients draw it as an invite card.
+    const dm = (await call(ctx, 'POST', '/api/conversations/direct', friend, { userId: host!.id })).json().id;
+    const msgs = (await call(ctx, 'GET', `/api/conversations/${dm}/messages`, friend)).json().items as { body: string }[];
+    expect(msgs.some((m) => m.body.endsWith(`/tables/${table}`) && m.body.startsWith('دعوت به میز «'))).toBe(true);
     const lobby = await view(ctx, friend!, table);
     expect(lobby.table.inviteCode).toBeNull();
     expect((await call(ctx, 'POST', `/api/tables/${table}/join`, friend, {})).statusCode).toBe(200);

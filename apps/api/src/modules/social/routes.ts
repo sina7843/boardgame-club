@@ -12,9 +12,9 @@ import type { Deps } from '../../app.ts';
 import { requireUser } from '../auth/session.ts';
 import { toPublicProfile } from '../users/routes.ts';
 import { publicRecord, privacyOf } from './profile-record.ts';
-import { areFriends, isBlockedEither, membershipOf, pair, profiles, relationship, requireActiveUser, shareCommunity } from './relations.ts';
+import { areFriends, assertCanDirectMessage, isBlockedEither, membershipOf, pair, profiles, relationship, requireActiveUser, shareCommunity } from './relations.ts';
 
-const { friendships, blocks, userMutes, users, userSettings, outboxEvents, gameTables, participants, tableInvites, memberships, clubs } = schema;
+const { friendships, blocks, userMutes, users, userSettings, outboxEvents, gameTables, participants, tableInvites, memberships, clubs, games, conversations, conversationMembers, messages } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const userParams = z.object({ userId: z.uuid() });
 const DEFAULT_SETTINGS: UserSettings = { dmPolicy: 'friends', notify: { turn: true, invite: true, message: true, result: true, social: true } };
@@ -237,6 +237,23 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
         await tx.insert(tableInvites).values(targets.map((t) => ({ tableId: table.id, userId: t, invitedBy: userId }))).onConflictDoNothing();
         await tx.insert(outboxEvents).values({ topic: 'table.invited', aggregateId: table.id, payload: { tableId: table.id, gameId: table.gameId, userIds: targets, invitedBy: userId } });
       });
+      // A personal invite also lands in the private chat as an invite card («بنشین» / «رد»); the clients recognise the
+      // table link in the body. Skipped silently when DMs between the two are not allowed.
+      if ('userId' in req.body) {
+        const target = targets[0]!;
+        try {
+          await assertCanDirectMessage(db, userId, target);
+          const [game] = await db.select({ nameFa: games.nameFa }).from(games).where(eq(games.id, table.gameId));
+          const [low, high] = pair(userId, target);
+          const key = `${low}:${high}`;
+          await db.insert(conversations).values({ kind: 'direct', directKey: key }).onConflictDoNothing();
+          const [c] = await db.select().from(conversations).where(eq(conversations.directKey, key));
+          await db.insert(conversationMembers).values([{ conversationId: c!.id, userId: low }, { conversationId: c!.id, userId: high }]).onConflictDoNothing();
+          const [m] = await db.insert(messages).values({ conversationId: c!.id, senderId: userId, body: `دعوت به میز «${game?.nameFa ?? table.gameId}»: /tables/${table.id}` }).returning();
+          await db.update(conversations).set({ lastMessageAt: sql`now()` }).where(eq(conversations.id, c!.id));
+          await db.execute(sql`select pg_notify('message_created', ${m!.id})`);
+        } catch { /* DMs not allowed: the notification still carries the invite */ }
+      }
     }
     return { invited: targets.length };
   });
