@@ -229,6 +229,21 @@ export const kingdominoModule: GameModule<KingdominoState, KingdominoAction, Kin
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => {
+    const sc = s.kingdoms.map((k) => scoreKingdom(k));
+    const top = Math.max(...sc.map((x) => x.total));
+    return {
+      seats: sc.map((x, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: x.total },
+        stats: [{ key: 'crowns', label: 'تاج', value: x.crowns, icon: 'crown' }],
+        ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
+      ...(sc.filter((x) => x.total === top).length === 1 && top > 0 ? { leaderSeat: sc.findIndex((x) => x.total === top) } : {})
+    };
+  },
+
   pendingSeats: (s) => { const a = actorOf(s); return a === null ? [] : [a]; },
 
   tutorial: {

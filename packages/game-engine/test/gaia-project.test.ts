@@ -8,6 +8,7 @@ import { applyAction, applyTimeout, projectFor, replay, startGame, type EngineSn
 const m = gaiaProjectModule as never;
 const p = (seat: number) => ({ kind: 'player' as const, seat });
 const st = (s: EngineSnapshot) => s.state as GaiaState;
+const game = () => startGame(m, { playerCount: 3, seed: 1, options: {} }).snapshot;
 const act = (snap: EngineSnapshot, seat: number, action: unknown): EngineSnapshot => {
   const r = applyAction(m, snap, p(seat), action, 0);
   if ('ok' in r) throw new Error(`${JSON.stringify(action)}: ${r.errorCode}`);
@@ -601,4 +602,16 @@ describe('gaia-project content registry', () => {
       }
     }
   }, 240_000);
+});
+
+describe('gaia-project publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = gaiaProjectModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.strikesMax).toBe(3);
+    expect(sum.seats.map((x) => x.strikes)).toEqual([0, 0, 0]);
+    expect(sum.shared![0]!.max).toBe(6);
+  });
 });

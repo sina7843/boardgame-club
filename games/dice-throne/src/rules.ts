@@ -289,6 +289,25 @@ export const dtModule: GameModule<DtState, DtAction, DtView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'defense' ? [1 - s.current] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const hp = s.fighters.map((f) => f.hp);
+    return {
+      seats: s.fighters.map((f, seat) => ({
+        seat,
+        primary: { label: 'سلامت', value: f.hp, target: MAX_HP },
+        stats: [{ key: 'cp', label: 'نیرو', value: f.cp, icon: 'flame' }],
+        badges: [
+          ...(f.stun ? [{ key: 'stun', label: 'گیج', tone: 'danger' as const }] : []),
+          ...(f.shield ? [{ key: 'shield', label: 'سپر', tone: 'success' as const }] : []),
+          ...(f.wound > 0 ? [{ key: 'wound', label: 'زخم', tone: 'warning' as const }] : [])
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      ...(hp[0] !== hp[1] ? { leaderSeat: hp[0]! > hp[1]! ? 0 : 1 } : {})
+    };
+  },
+
   tutorial: {
     seed: 5,
     options: { deal: 'tutorial' },

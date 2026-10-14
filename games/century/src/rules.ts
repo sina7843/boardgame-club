@@ -276,6 +276,26 @@ export const centuryModule: GameModule<CenturyState, CenturyAction, CenturyView>
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const scores = s.cubes.map((_, k) => scoreOf(s, k));
+    const top = Math.max(...scores);
+    const leaders = scores.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: scores.map((score, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: score },
+        stats: [
+          { key: 'cubes', label: 'ادویه', value: total(s.cubes[seat]!), icon: 'gem' },
+          { key: 'orders', label: 'سفارش', value: s.won[seat]!.length, icon: 'trophy' }
+        ],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'orders', label: 'دسته سفارش', value: s.odeck.length }],
+      ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

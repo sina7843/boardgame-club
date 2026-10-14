@@ -397,3 +397,17 @@ describe('ticket to ride random play', () => {
     }
   }, 180_000);
 });
+
+describe('ticket-to-ride publicSummary', () => {
+  it('counts only; no hand colours or ticket ids', () => {
+    const snap = startGame(m, { playerCount: 3, seed: 4, options: {} }).snapshot;
+    st(snap).timeouts[2] = 1;
+    const sum = ttrModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0 });
+    expect(sum.seats[0]!.stats!.map(({ key }) => key)).toEqual(['trains', 'cards', 'tickets']);
+    expect(sum.seats[2]!.strikes).toBe(1);
+    expect(sum.strikesMax).toBe(3);
+    expect(JSON.stringify(sum)).not.toContain('hand');
+  });
+});

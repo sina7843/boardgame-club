@@ -146,3 +146,16 @@ describe('king of tokyo rules', () => {
     }
   }, 120_000);
 });
+
+describe('king-of-tokyo publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = kotModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0, 0]);
+    expect(sum.seats[0]!.primary!.target).toBe(20);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(state.hp[0]);
+    expect(JSON.stringify(sum)).not.toContain(JSON.stringify(state.deck));
+  });
+});

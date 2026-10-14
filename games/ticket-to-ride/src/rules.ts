@@ -600,6 +600,30 @@ export const ttrModule: GameModule<TtrState, TtrAction, TtrView> = {
     return [s.current];
   },
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const top = Math.max(...s.routePoints);
+    return {
+      seats: s.routePoints.map((pts, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: pts },
+        stats: [
+          { key: 'trains', label: 'قطار', value: s.trains[seat]!, icon: 'flag' },
+          { key: 'cards', label: 'کارت', value: handSize(s.hands[seat]!), icon: 'layers' },
+          { key: 'tickets', label: 'مأموریت', value: s.tickets[seat]!.length, icon: 'map' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : s.status[seat] === 'abandoned' ? { status: 'out' as const } : {}),
+        strikes: s.timeouts[seat] ?? 0
+      })),
+      shared: [
+        { key: 'deck', label: 'دسته', value: s.deck.length },
+        { key: 'tickets', label: 'مأموریت‌ها', value: s.ticketDeck.length }
+      ],
+      strikesMax: MAX_TIMEOUTS,
+      ...(top > 0 && s.routePoints.filter((v) => v === top).length === 1 ? { leaderSeat: s.routePoints.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial', map: 'iran' },

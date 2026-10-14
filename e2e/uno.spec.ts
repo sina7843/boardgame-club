@@ -8,7 +8,7 @@ const shot = (project: string, name: string) => `docs/evidence/games/uno/${proje
 
 async function startTable(host: Page, guests: Page[]) {
   await host.goto('/games/uno/new');
-  await host.getByText('زنده', { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
   await host.getByRole('group', { name: 'طول مسابقه' }).getByText('یک دست').click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();

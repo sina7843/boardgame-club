@@ -105,6 +105,14 @@ export const lineThreeModule: GameModule<LineThreeState, LineThreeAction, LineTh
     return done({ ...state, outcome: loserOutcome(state.current, 'timeout') }, [{ type: 'timed-out', seat: state.current }]);
   },
 
+  publicSummary: (state) => ({
+    seats: [0, 1].map((seat) => ({
+      seat,
+      primary: { label: 'خانه', value: state.board.filter((c) => c === seat).length },
+      ...(state.outcome && state.outcome.placements.some((p) => p.seat === seat && p.place === 1) && state.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+    }))
+  }),
+
   pendingSeats: (state) => (state.outcome ? [] : [state.current]),
 
   tutorial: {

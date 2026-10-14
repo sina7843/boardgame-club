@@ -128,6 +128,32 @@ export interface GameModule<State = unknown, Action extends { type: string } = {
   tutorial: TutorialScript<Action>;
   /** Optional computer opponent. Games without one are never offered «بازی با ربات». */
   bot?: GameBot<State, Action>;
+  /**
+   * Public per-seat summary for the table HUD (design/system/docs/6-developer-contract.md §1). Only information every
+   * viewer may see (scores, card COUNTS, public resources) — never hidden hands or choices. Raw numbers; the shell
+   * localizes them.
+   */
+  publicSummary?(state: State): PublicSummary;
+}
+
+export interface PublicSummary {
+  seats: Array<{
+    seat: number;
+    /** Main number, e.g. «امتیاز» 7 of 10, «کارت» 5. */
+    primary?: { label: string; value: number; target?: number };
+    /** 0–4 secondary stats in order of importance. */
+    stats?: Array<{ key: string; label: string; value: number | string; icon?: string; resource?: string; delta?: number }>;
+    /** e.g. «اونو!», «بلندترین جاده». */
+    badges?: Array<{ key: string; label: string; tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'premium' }>;
+    status?: 'playing' | 'done' | 'passed' | 'out' | 'winner';
+    /** Turn timeouts used so far (games with a MAX_TIMEOUTS rule). */
+    strikes?: number;
+  }>;
+  /** Shared resources: deck size, round, team pool. */
+  shared?: Array<{ key: string; label: string; value: number | string; max?: number }>;
+  /** Max timeouts before the game penalizes a seat (MAX_TIMEOUTS). */
+  strikesMax?: number;
+  leaderSeat?: number;
 }
 
 export const botLevelSchema = z.enum(['easy', 'medium', 'hard']);

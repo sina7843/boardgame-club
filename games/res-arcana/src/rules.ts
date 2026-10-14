@@ -247,6 +247,26 @@ export const raModule: GameModule<RaState, RaAction, RaView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const vps = s.players.map(vpOf);
+    const top = Math.max(...vps);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.players.map((m, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: vps[seat]!, target: 10 },
+        stats: [
+          { key: 'hand', label: 'کارت', value: m.hand.length, icon: 'layers' },
+          { key: 'gold', label: 'طلا', value: m.ess.g, icon: 'coins' },
+          { key: 'table', label: 'روی میز', value: m.table.length }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : m.passed && !s.outcome ? { status: 'passed' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round }],
+      ...(vps.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: vps.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 19,
     options: { deal: 'tutorial' },

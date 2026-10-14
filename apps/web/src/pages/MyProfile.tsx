@@ -1,9 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router';
-import { Link2 } from 'lucide-react';
 import { avatarKeys, displayNameSchema, type Me } from '@bg/contracts';
-import { Avatar, Button, Input, StateBlock, buttonClass, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Avatar, Button, Card, Chip, PageHead, StateBlock, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
+import { userIdentity } from '../lib/bgv.tsx';
 import { AVATAR_FA, jalaliDate } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -18,7 +18,7 @@ export function CopyProfileLink({ userId, size = 'md' }: { userId: string; size?
     try { await navigator.clipboard.writeText(url); toast('success', 'لینک پروفایل کپی شد.'); }
     catch { toast('error', `کپی ممکن نشد؛ این لینک را دستی کپی کنید: ${url}`); }
   };
-  return <Button variant="secondary" size={size} onClick={copy}><Link2 className="size-4" aria-hidden />کپی لینک پروفایل</Button>;
+  return <Button variant="secondary" size={size} icon="link" onClick={copy}>کپی لینک پروفایل</Button>;
 }
 
 function ProfileForm({ me }: { me: Me }) {
@@ -44,26 +44,24 @@ function ProfileForm({ me }: { me: Me }) {
   };
 
   return (
-    <form className="stack" onSubmit={save} noValidate>
-      <Input label="نام نمایشی" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error} hint="۲ تا ۲۴ نویسه" />
-      <div className="row" style={{ alignItems: 'center', gap: '0.75rem' }}>
-        <Avatar avatarKey={me.avatarKey} name={me.displayName} size={56} />
-        <Link className={buttonClass('secondary', 'md')} to="/me/avatar">ساخت و ویرایش آواتار</Link>
+    <form className="bgv-stack" onSubmit={save} noValidate>
+      <TextField label="نام نمایشی" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error} hint="۲ تا ۲۴ نویسه" />
+      <div className="bgv-row">
+        <Avatar size="lg" {...userIdentity(me).avatar} name={`آواتار ${me.displayName}`} />
+        <Button variant="secondary" icon="palette" href="/me/avatar">ساخت و ویرایش آواتار</Button>
+        <Button variant="ghost" icon="shirt" href="/me/studio">استودیو و کمد</Button>
       </div>
-      <fieldset className="avatar-picker">
-        <legend className="field__label">یا یک نماد ساده</legend>
-        {avatarKeys.map((k) => (
-          <label key={k}>
-            <input type="radio" name="avatar" value={k} checked={avatar === k} onChange={() => setAvatar(k)} />
-            <Avatar avatarKey={k} name={AVATAR_FA[k] ?? k} size={44} />
-          </label>
-        ))}
-      </fieldset>
-      <dl className="facts">
-        <div><dt>شماره موبایل (فقط برای شما)</dt><dd><bdi dir="ltr">{me.mobileMasked}</bdi></dd></div>
-        <div><dt>عضویت از</dt><dd>{jalaliDate(me.joinedAt)}</dd></div>
+      <div className="bgv-stack" role="group" aria-label="یا یک نماد ساده" style={{ gap: 'var(--space-2)' }}>
+        <span className="t-label">یا یک نماد ساده</span>
+        <div className="bgv-row">
+          {avatarKeys.map((k) => <Chip key={k} selected={avatar === k} onClick={() => setAvatar(k)}>{AVATAR_FA[k] ?? k}</Chip>)}
+        </div>
+      </div>
+      <dl className="bgv-stack" style={{ margin: 0, gap: 'var(--space-2)' }}>
+        <div><dt className="t-caption bgv-muted">شماره موبایل (فقط برای شما)</dt><dd style={{ margin: 0 }}><bdi dir="ltr">{me.mobileMasked}</bdi></dd></div>
+        <div><dt className="t-caption bgv-muted">عضویت از</dt><dd style={{ margin: 0 }}>{jalaliDate(me.joinedAt)}</dd></div>
       </dl>
-      <div><Button type="submit" busy={busy}>ذخیره پروفایل</Button></div>
+      <div><Button type="submit" variant="primary" loading={busy}>ذخیره پروفایل</Button></div>
     </form>
   );
 }
@@ -73,21 +71,13 @@ export function MyProfile() {
   usePageTitle('پروفایل من');
   const { me, status } = useSession();
   if (status === 'loading') return <StateBlock kind="loading" title="در حال بارگذاری…" />;
-  if (!me) return <StateBlock kind="denied" title="برای ویرایش پروفایل وارد شوید" action={<Link className={buttonClass('primary', 'md')} to="/login?next=/me/profile">ورود</Link>} />;
+  if (!me) return <StateBlock kind="denied" title="برای ویرایش پروفایل وارد شوید" action={<Button variant="primary" href="/login?next=/me/profile">ورود</Button>} />;
   return (
     <>
-      <div className="page-head">
-        <div><h1 className="page-title">پروفایل من</h1><p className="page-sub">آنچه دیگران در صفحهٔ پروفایل شما می‌بینند.</p></div>
-        <div className="row" style={{ gap: 8 }}>
-          <Link className={buttonClass('ghost', 'md')} to={`/users/${me.id}`}>دیدن پروفایل</Link>
-          <CopyProfileLink userId={me.id} />
-        </div>
-      </div>
-      <div className="stack" style={{ maxInlineSize: 720 }}>
-        <section className="panel stack" aria-labelledby="identity-h">
-          <h2 id="identity-h" className="section-title">نام و آواتار</h2>
-          <ProfileForm me={me} />
-        </section>
+      <PageHead title="پروفایل من" sub="آنچه دیگران در صفحهٔ پروفایل شما می‌بینند."
+        actions={<><Button variant="ghost" icon="eye" href={`/users/${me.id}`}>دیدن پروفایل</Button><CopyProfileLink userId={me.id} /></>} />
+      <div className="bgv-stack">
+        <Card title="نام و آواتار" aria-label="نام و آواتار"><ProfileForm me={me} /></Card>
         <InviteCard />
         <ProfileEditor me={me} />
       </div>

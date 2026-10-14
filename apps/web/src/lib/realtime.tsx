@@ -24,7 +24,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       if (!location.pathname.startsWith(n.href)) toast('info', n.textFa);
       // Optional browser notification: only if the user enabled it in settings and granted permission.
       if (document.hidden && browserNotificationsEnabled()) {
-        try { new Notification('باشگاه بردگیم', { body: n.textFa, tag: n.id, lang: 'fa', dir: 'rtl' }); } catch { /* unsupported */ }
+        try { new Notification('بردگیم‌ورس', { body: n.textFa, tag: n.id, lang: 'fa', dir: 'rtl' }); } catch { /* unsupported */ }
       }
       window.dispatchEvent(new CustomEvent('bg:notification', { detail: n }));
     });

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { normalizeSearch, type GameSummary } from '@bg/contracts';
-import { Button, Icon, Input, Select, StateBlock } from '@bg/ui';
-import { GameCover } from '../games/covers.tsx';
+import { Button, Card, Chip, GameCard, PageHead, Select, Skeleton, StateBlock, TextField } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -41,8 +40,8 @@ const bggUrl = (id: number) => `https://boardgamegeek.com/boardgame/${id}`;
 
 function Terms({ items, terms, kind }: { items: Link_[]; terms: Record<string, string>; kind: 'category' | 'mechanic' }) {
   return (
-    <ul className="wiki-terms">{items.map((t) => (
-      <li key={t.id}><Link to={`/wiki?${kind}=${t.id}`}>{terms[t.id] ?? <bdi>{t.name}</bdi>}</Link></li>
+    <ul className="pg-terms">{items.map((t) => (
+      <li key={t.id}><Chip size="sm" href={`/wiki?${kind}=${t.id}`}>{terms[t.id] ?? <bdi>{t.name}</bdi>}</Chip></li>
     ))}</ul>
   );
 }
@@ -71,18 +70,19 @@ export function GameWiki({ gameId }: { gameId: string }) {
     ['جوایز و نامزدی‌ها', g.honors ? faNum(g.honors) : null]
   ];
   return (
-    <section className="section" id="wiki" aria-labelledby="wiki-h">
-      <h2 id="wiki-h" className="section-title"><Icon name="book" />دانشنامه</h2>
-      {fa?.taglineFa && <p className="wiki-tagline">{fa.taglineFa}</p>}
-      {fa?.aboutFa.map((p, i) => <p key={i}>{p}</p>)}
-      <dl className="facts">{facts.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-      {g.categories.length > 0 && <><h3 className="rules-section__title">دسته‌ها</h3><Terms items={g.categories} terms={data.terms} kind="category" /></>}
-      {g.mechanics.length > 0 && <><h3 className="rules-section__title">سازوکارها</h3><Terms items={g.mechanics} terms={data.terms} kind="mechanic" /></>}
-      <p className="muted wiki-source">
-        منبع اطلاعات: <a href={bggUrl(g.bggId)} target="_blank" rel="noopener noreferrer"><bdi>BoardGameGeek</bdi></a>،
-        به‌روزرسانی {jalaliDate(data.fetchedAt)}. مشخصات «چاپی» مربوط به نسخهٔ رومیزی است و ممکن است با تنظیمات این سایت فرق کند.
-      </p>
-    </section>
+    <div id="wiki"><Card title="دانشنامه">
+      <div className="pg-stack">
+        {fa?.taglineFa && <p className="t-body" style={{ margin: 0, fontWeight: 700 }}>{fa.taglineFa}</p>}
+        {fa?.aboutFa.map((p, i) => <p key={i} className="t-body" style={{ margin: 0 }}>{p}</p>)}
+        <dl className="pg-sum">{facts.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+        {g.categories.length > 0 && <><h3 className="pg-h3">دسته‌ها</h3><Terms items={g.categories} terms={data.terms} kind="category" /></>}
+        {g.mechanics.length > 0 && <><h3 className="pg-h3">سازوکارها</h3><Terms items={g.mechanics} terms={data.terms} kind="mechanic" /></>}
+        <p className="bgv-hint">
+          منبع اطلاعات: <a href={bggUrl(g.bggId)} target="_blank" rel="noopener noreferrer"><bdi>BoardGameGeek</bdi></a>،
+          به‌روزرسانی {jalaliDate(data.fetchedAt)}. مشخصات «چاپی» مربوط به نسخهٔ رومیزی است و ممکن است با تنظیمات این سایت فرق کند.
+        </p>
+      </div>
+    </Card></div>
   );
 }
 
@@ -124,20 +124,14 @@ export function WikiPage() {
   const categories = useMemo(() => termOptions(data, (g) => g.categories), [data]);
   const mechanics = useMemo(() => termOptions(data, (g) => g.mechanics), [data]);
 
+  const clear = () => { setQ(''); setParams({}, { replace: true }); };
   return (
     <>
       <PageTabs group="games" />
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">دانشنامهٔ بازی‌ها</h1>
-          <p className="page-sub">تاریخچه، طراحان، پیچیدگی، امتیاز و سازوکار بازی‌های سایت، برگرفته از <bdi>BoardGameGeek</bdi>.</p>
-        </div>
-      </div>
+      <PageHead title="دانشنامهٔ بازی‌ها" sub={<>تاریخچه، طراحان، پیچیدگی، امتیاز و سازوکار بازی‌های سایت، برگرفته از <bdi>BoardGameGeek</bdi>.</>} />
       <search>
-        <form className="filters" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو در دانشنامه">
-          <div className="filters__search">
-            <Input label="جست‌وجو" type="search" placeholder="نام بازی یا طراح" value={q} onChange={(e) => setQ(e.target.value)} />
-          </div>
+        <form className="pg-filters" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو در دانشنامه" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))' }}>
+          <div className="pg-q" style={{ gridColumn: 'span 2' }}><TextField label="جست‌وجو" icon="search" type="search" placeholder="نام بازی یا طراح" value={q} onChange={(e) => setQ(e.target.value)} /></div>
           <Select label="دسته" value={category} onChange={(e) => set('category', e.target.value)} options={[{ value: '', label: 'همه' }, ...categories]} />
           <Select label="سازوکار" value={mechanic} onChange={(e) => set('mechanic', e.target.value)} options={[{ value: '', label: 'همه' }, ...mechanics]} />
           <Select label="مرتب‌سازی" value={sort} onChange={(e) => set('sort', e.target.value === 'rank' ? '' : e.target.value)}
@@ -145,34 +139,27 @@ export function WikiPage() {
         </form>
       </search>
       {failed || games.error ? (
-        <StateBlock kind="error" title="دانشنامه بارگذاری نشد" action={<Button onClick={() => location.reload()}>تلاش دوباره</Button>}>{games.error?.messageFa}</StateBlock>
+        <StateBlock kind="error" title="دانشنامه بارگذاری نشد" text={games.error?.messageFa} action={<Button onClick={() => location.reload()}>تلاش دوباره</Button>} />
       ) : !data || !games.data ? (
-        <StateBlock kind="loading" title="در حال بارگذاری دانشنامه…" />
+        <><div className="bgv-grid" aria-hidden>{[0, 1, 2, 3].map((i) => <Skeleton key={i} height={300} radius="var(--radius-lg)" />)}</div><span className="pg-sr" role="status">در حال بارگذاری دانشنامه…</span></>
       ) : entries.length === 0 ? (
-        <StateBlock kind="empty" title="موردی پیدا نشد"
-          action={<Button variant="secondary" onClick={() => { setQ(''); setParams({}, { replace: true }); }}>پاک‌کردن فیلترها</Button>}>عبارت یا فیلتر دیگری را امتحان کنید.</StateBlock>
+        <StateBlock kind="empty" title="موردی پیدا نشد" text="عبارت یا فیلتر دیگری را امتحان کنید." action={<Button onClick={clear}>پاک‌کردن فیلترها</Button>} />
       ) : (
         <>
-          <p className="results-meta" role="status" aria-live="polite">{faNum(entries.length)} بازی</p>
-          <ul className="wiki-list">{entries.map(({ s, g, fa }) => (
-            <li key={s.id}>
-              <Link to={`/games/${s.id}#wiki`} className="wiki-item">
-                <div className="wiki-item__cover"><GameCover gameId={s.id} title="" /></div>
-                <div className="wiki-item__body">
-                  <div className="game-card__title">{s.nameFa}</div>
-                  <div className="game-card__original"><bdi>{g.name}</bdi>{g.year ? ` · ${yearFa(g.year)}` : ''}</div>
-                  {fa?.taglineFa && <p className="wiki-item__tagline">{fa.taglineFa}</p>}
-                  <ul className="game-card__facts">
-                    {g.rating && <li className="row" style={{ gap: 4 }}><Icon name="star" size={16} />{faNum(g.rating)}</li>}
-                    {g.weight && <li>پیچیدگی {faNum(g.weight)} از ۵</li>}
-                    {g.rank && <li>رتبهٔ {faNum(g.rank)}</li>}
-                    {g.designers[0] && <li><bdi>{g.designers[0].name}</bdi></li>}
-                  </ul>
-                </div>
-              </Link>
-            </li>
-          ))}</ul>
-          <p className="muted wiki-source">داده‌ها از <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer"><bdi>BoardGameGeek</bdi></a>، به‌روزرسانی {jalaliDate(data.fetchedAt)}.</p>
+          <b className="t-body" role="status" aria-live="polite">{faNum(entries.length)} بازی</b>
+          <div className="bgv-grid pg-wiki">{entries.map(({ s, g, fa }) => (
+            <GameCard key={s.id} href={`/games/${s.id}#wiki`} cover={`/covers/${s.id}.webp?v=2`} title={s.nameFa} latin={g.name}
+              aria-label={`${s.nameFa} (${g.name})`}
+              meta={[
+                ...(g.year ? [{ text: yearFa(g.year) }] : []),
+                ...(g.rating ? [{ icon: 'star', text: faNum(g.rating) }] : []),
+                ...(g.weight ? [{ icon: 'gauge', text: `پیچیدگی ${faNum(g.weight)} از ۵` }] : []),
+                ...(g.rank ? [{ icon: 'trophy', text: `رتبهٔ ${faNum(g.rank)}` }] : []),
+                ...(g.designers[0] ? [{ icon: 'pencil', text: <bdi>{g.designers[0].name}</bdi> }] : [])
+              ]}
+              footer={fa?.taglineFa ? <p className="pg-wiki__tag">{fa.taglineFa}</p> : undefined} />
+          ))}</div>
+          <p className="bgv-hint">داده‌ها از <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer"><bdi>BoardGameGeek</bdi></a>، به‌روزرسانی {jalaliDate(data.fetchedAt)}.</p>
         </>
       )}
     </>

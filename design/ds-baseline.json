@@ -1,0 +1,123 @@
+{
+ "note": "BGV design-system debt. Counts may only go DOWN (node scripts/ds-check.mjs --ratchet). Never edit by hand to raise a number.",
+ "updated": "2026-10-14",
+ "total": 377,
+ "files": {
+  "apps/web/src/app.css": {
+   "DS007": 33
+  },
+  "apps/web/src/lib/prefs.tsx": {
+   "DS001": 1
+  },
+  "games/amlak/src/renderer.css": {
+   "DS007": 20
+  },
+  "games/backgammon/src/renderer.css": {
+   "DS007": 4
+  },
+  "games/battleship/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/camel-up/src/renderer.css": {
+   "DS007": 7
+  },
+  "games/carcassonne/src/renderer.css": {
+   "DS007": 2
+  },
+  "games/catan/src/renderer.css": {
+   "DS007": 21
+  },
+  "games/checkers/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/chess/src/renderer.css": {
+   "DS007": 8
+  },
+  "games/coup/src/renderer.css": {
+   "DS007": 5
+  },
+  "games/coup/src/renderer.tsx": {
+   "DS007": 1
+  },
+  "games/go/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/high-society/src/renderer.css": {
+   "DS007": 7
+  },
+  "games/hive/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/line-three/src/renderer.css": {
+   "DS007": 6
+  },
+  "games/ludo/src/renderer.css": {
+   "DS007": 7
+  },
+  "games/othello/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/risk/src/renderer.css": {
+   "DS007": 17
+  },
+  "games/santorini/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/sealed-bids/src/renderer.css": {
+   "DS007": 6
+  },
+  "games/set/src/renderer.css": {
+   "DS007": 2
+  },
+  "games/snakes-ladders/src/renderer.css": {
+   "DS007": 9
+  },
+  "games/tak/src/renderer.css": {
+   "DS007": 1
+  },
+  "games/ticket-to-ride/src/renderer.css": {
+   "DS007": 21
+  },
+  "games/unmatched/src/renderer.css": {
+   "DS007": 38
+  },
+  "games/uno/src/renderer.css": {
+   "DS007": 27
+  },
+  "games/wonders-duel/src/renderer.css": {
+   "DS007": 4
+  },
+  "games/yahtzee/src/renderer.css": {
+   "DS007": 2
+  },
+  "packages/ui/src/bgv/bgv.js": {
+   "DS004": 1,
+   "DS003": 2
+  },
+  "packages/ui/src/components.tsx": {
+   "DS007": 1
+  },
+  "packages/ui/src/game-legacy.css": {
+   "DS001": 61,
+   "DS007": 34,
+   "DS005": 1,
+   "DS003": 3,
+   "DS004": 4
+  },
+  "packages/ui/src/index.ts": {
+   "DS012": 1
+  },
+  "packages/ui/src/table.tsx": {
+   "DS007": 1
+  },
+  "packages/ui/src/vf/animations/confetti.tsx": {
+   "DS007": 3,
+   "DS009": 1
+  },
+  "packages/ui/src/zoom.css": {
+   "DS001": 6,
+   "DS003": 2,
+   "DS004": 1
+  }
+ }
+}

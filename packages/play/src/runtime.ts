@@ -263,7 +263,10 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
       return 'fired';
     }
     const logicalTime = Date.now();
-    await persistStep(tx, locked, applyTimeout(module, snap, logicalTime), { kind: 'timeout', deadlineToken: d.token, logicalTime });
+    const timedOut = module.pendingSeats(snap.state);
+    const revision = await persistStep(tx, locked, applyTimeout(module, snap, logicalTime), { kind: 'timeout', deadlineToken: d.token, logicalTime });
+    // Clients get `turn.autoMoved` (delivered after commit, like every NOTIFY).
+    await tx.execute(sql`select pg_notify('table_clock', ${JSON.stringify({ tableId: table.id, revision, seats: timedOut })})`);
     return 'fired';
   });
 }

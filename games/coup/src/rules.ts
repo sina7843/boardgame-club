@@ -367,6 +367,19 @@ export const coupModule: GameModule<CoupState, CoupAction, CoupView> = {
     return finish(s, [{ type: 'timed-out' }]);
   },
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.cards.map((cs, seat) => ({
+        seat,
+        primary: { label: 'سکه', value: s.coins[seat]! },
+        stats: [{ key: 'influence', label: 'نفوذ', value: cs.filter((c) => !c.revealed).length, icon: 'heart' }],
+        ...(winners.has(seat) ? { status: 'winner' as const } : !aliveSeat(s, seat) ? { status: 'out' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }]
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'respond' ? s.pending!.responders.slice() : s.phase === 'lose' ? [s.lose!.seat] : s.phase === 'exchange' ? [s.exchange!.seat] : [s.current]),
 
   tutorial: {

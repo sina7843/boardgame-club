@@ -34,6 +34,7 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await p.getByRole('button', { name: 'مو', exact: true }).click();
   await p.getByRole('radio', { name: /بلند صاف/ }).click();
   await p.getByRole('button', { name: 'خرید با ۱۰۰ سکه' }).click();
+  await p.getByRole('dialog', { name: 'خرید «بلند صاف»' }).getByRole('button', { name: 'خرید و پوشیدن' }).click();
   await expect(p.getByText('«بلند صاف» خریده شد.')).toBeVisible();
   await p.getByRole('button', { name: 'ذخیره آواتار' }).click();
   await expect(p.getByText('آواتار ذخیره شد.')).toBeVisible();
@@ -54,12 +55,12 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   expect(me.avatarKey).toMatch(/^v1:.*\.h6\.hc4\./);
   await p.goto(`/users/${me.id}`);
   await expect(p.getByRole('heading', { name, level: 1 })).toBeVisible();
-  await expect(p.getByText('اهل بازی')).toBeVisible();
+  await expect(p.locator('#main').getByText('اهل بازی')).toBeVisible();
   await expect(p.getByText('عاشق بازی‌های رومیزی')).toBeVisible();
   await expect(p.getByRole('img', { name: `آواتار ${name}` }).last()).toBeVisible();
   await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await p.getByRole('button', { name: 'کپی لینک پروفایل' }).click();
   await expect(p.getByText('لینک پروفایل کپی شد.')).toBeVisible();
-  expect(await p.evaluate(() => navigator.clipboard.readText())).toBe(`http://127.0.0.1:5173/users/${me.id}`);
+  expect(await p.evaluate(() => navigator.clipboard.readText())).toBe(`${new URL(p.url()).origin}/users/${me.id}`);
   await p.screenshot({ path: `docs/evidence/site/avatar/${info.project.name}-profile.png`, fullPage: true });
 });

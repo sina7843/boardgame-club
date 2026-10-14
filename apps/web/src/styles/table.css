@@ -1,0 +1,89 @@
+/* BGV screen glue: game table (lobby + TableScreen). Tokens + logical properties only. */
+
+/* A live game hides the app shell (Table.tsx sets html[data-immersive]); the table is the whole screen. */
+html[data-immersive] .bgv-app { display: block; padding: 0; }
+/* !important: the DS shell's own responsive rules (several :not() classes) are more specific than any sane selector here. */
+html[data-immersive] :is(.bgv-app > .bgv-sidebar, .bgv-app__top, .bgv-app__dock, .app-page__foot, .app-page > .bgv-banner) { display: none !important; }
+html[data-immersive] .bgv-app__main { max-inline-size: none; }
+html[data-immersive] .app-page { gap: 0; }
+
+/* Lobby */
+.tbl-head { display: inline-flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.tbl-head__cover { inline-size: 112px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-tile); flex: none; }
+.tbl-head__latin { font-family: var(--font-latin); font-size: 15px; font-weight: 600; color: var(--text-muted); }
+.tbl-seats .bgv-lobbyseat { flex-wrap: wrap; row-gap: var(--space-2); }
+.tbl-seats .bgv-lobbyseat > .bgv-identity { min-inline-size: 0; }
+.tbl-seats { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.tbl-rules { display: grid; gap: var(--space-2); }
+.tbl-rules > .bgv-listitem, .tbl-rules > * { border-radius: var(--radius-md); background: var(--surface-sunken); }
+.tbl-lobbychat { block-size: 460px; }
+
+/* Game */
+.tbl { min-block-size: 100dvh; background: var(--bg); }
+.tbl--max { position: fixed; inset: 0; z-index: var(--z-dialog); overflow: auto; }
+.tbl:fullscreen { overflow: auto; }
+.tbl-screen { min-block-size: 100dvh; }
+@media (min-width: 1200px) { .tbl-screen--nochat { grid-template-columns: var(--rail-w) minmax(0, 1fr); } }
+.tbl-rail { min-block-size: 0; overflow-y: auto; }
+.tbl-felt { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); min-inline-size: 0; }
+.tbl-felt > .bgv-felt__stage { min-block-size: 360px; }
+.tbl-stage { inline-size: 100%; min-inline-size: 0; border-radius: var(--radius-lg); }
+.tbl-chat { min-block-size: 0; max-block-size: calc(100dvh - var(--gamebar-h) - var(--space-3) * 3); position: sticky; inset-block-start: var(--space-3); }
+.tbl-dock { min-inline-size: 0; }
+.tbl-prompt { display: inline-flex; align-items: center; gap: var(--space-2); min-inline-size: 0; }
+.tbl-tutorial { display: grid; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }
+.tbl-said { display: inline-block; max-inline-size: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px var(--space-2);
+  border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--text); font-size: 12.5px; box-shadow: var(--shadow-tile); }
+.tbl-post { margin-block-start: var(--space-2); }
+
+/* Result card over the felt (the board stays reachable with «دیدن صفحهٔ بازی»). */
+.tbl-felt { position: relative; }
+.tbl-result-wrap { position: absolute; inset: 0; z-index: var(--z-hud); display: grid; place-items: center; padding: var(--space-4); overflow: auto;
+  border-radius: inherit; background: color-mix(in srgb, var(--felt) 70%, transparent); }
+.tbl-result { inline-size: min(100%, 620px); }
+
+/* Move notices float at the top, never pushing the board around. */
+.tbl-pops { position: fixed; z-index: var(--z-toast); inset-block-start: calc(var(--space-3) + env(safe-area-inset-top)); inset-inline: var(--space-3);
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-2); pointer-events: none; }
+.tbl-pops:empty { display: none; }
+.tbl-pops > * { pointer-events: auto; inline-size: min(100%, 520px); box-shadow: var(--shadow-float); border-radius: var(--radius-md); }
+.tbl-undo { position: relative; overflow: hidden; }
+.tbl-undo__bar { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: 3px; background: var(--primary); transform-origin: right;
+  animation: tbl-undo var(--undo-ms, 500ms) linear forwards; }
+@keyframes tbl-undo { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* Chat sheet (phone/tablet) and the side sheet: scrim + panel; the table never resizes. */
+.tbl-overlay { position: fixed; inset: 0; z-index: var(--z-sheet); display: flex; flex-direction: column; justify-content: flex-end; background: var(--scrim); }
+.tbl-overlay--side { flex-direction: row; justify-content: flex-start; align-items: stretch; padding: var(--space-3); }
+.tbl-overlay--side > .bgv-sheet { inline-size: min(100%, 400px); overflow-y: auto; }
+.tbl-chatsheet { block-size: min(80dvh, 640px); }
+@media (min-width: 900px) {
+  .tbl-overlay:not(.tbl-overlay--side) { flex-direction: row; justify-content: flex-end; padding: var(--space-3); }
+  .tbl-overlay:not(.tbl-overlay--side) > .tbl-chatsheet { inline-size: var(--chat-w); block-size: auto; border-radius: var(--radius-lg); }
+}
+@media (min-width: 1200px) { .tbl-chatbtn { display: none; } }
+
+@media (max-width: 899px) {
+  .tbl-felt { padding: var(--space-2); }
+  .tbl-felt > .bgv-felt__stage { min-block-size: 0; }
+  .tbl-rail { overflow-y: visible; }
+  .tbl-head__cover { inline-size: 80px; }
+}
+
+/* Popover menus (message actions, quick chat). */
+.chat-pop { margin: 0; padding: 0; border: 0; background: transparent; inset: auto; position-area: block-end span-inline-start; }
+.chat-pop--quick { padding: var(--space-2); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-float); max-inline-size: min(90vw, 360px); }
+.chat-pop--quick .bgv-quicktray { flex-wrap: wrap; mask-image: none; -webkit-mask-image: none; padding-inline-end: 0; }
+.chat-msg { display: flex; align-items: center; gap: var(--space-1); max-inline-size: 100%; }
+.chat-msg--mine { flex-direction: row-reverse; align-self: flex-end; }
+.chat-msg:not(.chat-msg--mine) { align-self: flex-start; }
+.chat-msg > .bgv-msg { max-inline-size: calc(100% - 40px); }
+.chat-msg__more { opacity: 0.5; flex: none; }
+.chat-msg:hover .chat-msg__more, .chat-msg__more:focus-visible { opacity: 1; }
+.chat-empty { text-align: center; margin: auto 0; }
+.chat-slow { min-inline-size: 140px; }
+.tbl-shared { gap: var(--space-2); }
+.tbl-badges { gap: var(--space-1); }
+/* Equipped cosmetics (player-chosen art colours arrive as data): seat ring around the HUD avatar, chat bubble colour. */
+.tbl-ring { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--tbl-ring); }
+.tbl-said[style] { background: var(--tbl-bubble); color: var(--tbl-bubble-ink); }

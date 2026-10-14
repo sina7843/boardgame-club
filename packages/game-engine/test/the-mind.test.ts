@@ -110,3 +110,16 @@ describe('the mind rules', () => {
     }
   }, 120_000);
 });
+
+describe('the mind publicSummary', () => {
+  it('counts, lives, stars and vote badge; no card values', () => {
+    let snap = game(3, 2);
+    const sum = theMindModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([1, 1, 1]);
+    expect(sum.shared!.map((x) => x.value)).toEqual([1, 3, 1]);
+    snap = act(snap, 1, { type: 'star', on: true });
+    const v = theMindModule.publicSummary!(st(snap));
+    expect(v.seats[1]!.badges![0]!.label).toBe('ستاره');
+    expect(JSON.stringify(v)).not.toContain(String(st(snap).hands[0]![0]));
+  });
+});

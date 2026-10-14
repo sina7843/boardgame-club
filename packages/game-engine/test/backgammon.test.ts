@@ -190,3 +190,13 @@ describe('backgammon rules', () => {
     expect(finished).toBe(40);
   }, 300_000);
 });
+
+describe('backgammon publicSummary', () => {
+  it('off checkers, pips, bar, cube', () => {
+    const sum = backgammonModule.publicSummary!(st(game()));
+    expect(sum.seats).toHaveLength(2);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'خارج‌شده', value: 0, target: 15 });
+    expect(sum.seats[0]!.stats![0]!.value).toBe(167);
+    expect(sum.strikesMax).toBe(3);
+  });
+});

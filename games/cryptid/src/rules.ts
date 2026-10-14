@@ -380,6 +380,20 @@ export const cryptidModule: GameModule<CryptidState, CryptidAction, CryptidView>
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.active.map((on, seat) => ({
+        seat,
+        primary: { label: 'مکعب', value: s.cubes.filter((c) => c === seat).length },
+        stats: [{ key: 'discs', label: 'دیسک', value: s.discs.filter((d) => d.includes(seat)).length, icon: 'layers' }],
+        ...(winners.has(seat) ? { status: 'winner' as const } : !on ? { status: 'out' as const } : {}),
+        strikes: s.misses[seat]!
+      })),
+      strikesMax: 2
+    };
+  },
+
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },

@@ -319,3 +319,15 @@ describe('uno determinism and tutorial', () => {
     expect(st(snap).hands[1]).toHaveLength(11);
   });
 });
+
+describe('uno publicSummary', () => {
+  it('hand counts per seat, no card identities, strikes from the timeout counter', () => {
+    const snap = arrange(3, { hands: [['r3a', 'g8a', 'wild1', 'b2a'], ['y1a'], ['y2a', 'y3a']], top: 'r7a' });
+    st(snap).timeouts[1] = 2;
+    const sum = unoModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([4, 1, 2]);
+    expect(sum.seats[1]!.strikes).toBe(2);
+    expect(sum.strikesMax).toBe(3);
+    expect(JSON.stringify(sum)).not.toMatch(/g8a|wild1|y1a|y2a/);
+  });
+});

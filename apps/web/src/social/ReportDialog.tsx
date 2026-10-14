@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Dialog, Input, Select, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Button, Dialog, Select, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 
 const REASONS = [
@@ -28,12 +29,12 @@ export function ReportDialog({ targetType, targetId, label, onClose }: {
     } catch (e) { setError(e instanceof ApiFailure ? e.messageFa : 'ثبت نشد.'); } finally { setBusy(false); }
   };
   return (
-    <Dialog open onClose={onClose} title={`گزارش ${label}`}
-      footer={<><Button variant="ghost" onClick={onClose}>انصراف</Button><Button busy={busy} disabled={reason.trim().length < 3} onClick={submit}>ثبت گزارش</Button></>}>
-      <div className="stack">
+    <Dialog modal icon="flag" title={`گزارش ${label}`} onClose={onClose}
+      footer={<><Button variant="secondary" onClick={onClose}>انصراف</Button><Button variant="primary" loading={busy} disabled={reason.trim().length < 3} onClick={submit}>ثبت گزارش</Button></>}>
+      <div className="bgv-stack">
         <Select label="دلیل" value={reasonCode} onChange={(e) => setReasonCode(e.target.value)} options={REASONS} />
-        <Input label="توضیح" value={reason} onChange={(e) => setReason(e.target.value)} hint="چه اتفاقی افتاد؟ (حداقل ۳ نویسه)" error={error} />
-        <Input label="شناسه شاهد (اختیاری)" value={evidenceRef} onChange={(e) => setEvidenceRef(e.target.value)} hint="مثلاً شماره میز یا توضیح تصویر" />
+        <TextField label="توضیح" value={reason} onChange={(e) => setReason(e.target.value)} hint="چه اتفاقی افتاد؟ (حداقل ۳ نویسه)" error={error} />
+        <TextField label="شناسه شاهد (اختیاری)" value={evidenceRef} onChange={(e) => setEvidenceRef(e.target.value)} hint="مثلاً شماره میز یا توضیح تصویر" />
       </div>
     </Dialog>
   );

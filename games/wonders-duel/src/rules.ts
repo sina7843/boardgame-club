@@ -469,6 +469,26 @@ export const duelModule: GameModule<DuelState, DuelAction, DuelView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'draft' ? [DRAFT_ORDER[s.draftPick] === 0 ? s.first : 1 - s.first] : s.phase === 'choose' ? [s.choice!.seat] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: [0, 1].map((seat) => ({
+        seat,
+        primary: { label: 'سکه', value: s.coins[seat]! },
+        stats: [
+          { key: 'wonders', label: 'شگفتی', value: s.wonders[seat]!.filter((w) => w.built).length, icon: 'crown' },
+          { key: 'cards', label: 'کارت', value: s.cities[seat]!.length, icon: 'layers' },
+          { key: 'progress', label: 'نشان', value: s.progress[seat]!.length, icon: 'star' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      shared: [
+        { key: 'age', label: 'دوران', value: s.age, max: 3 },
+        { key: 'military', label: 'جنگ', value: s.military }
+      ]
+    };
+  },
+
   tutorial: {
     seed: 21,
     options: { deal: 'tutorial' },

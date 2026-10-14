@@ -264,6 +264,26 @@ export const takModule: GameModule<TakState, TakAction, TakView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.turn)]),
 
+  publicSummary(s) {
+    const f = flats(s.board);
+    const win = s.outcome?.placements.find((p) => p.place === 1 && s.outcome!.reason !== 'draw')?.seat;
+    const mine = [f[s.colors[0]], f[s.colors[1]]];
+    return {
+      seats: [0, 1].map((seat) => {
+        const r = s.reserve[s.colors[seat]!];
+        return {
+          seat,
+          primary: { label: 'سطح', value: mine[seat]! },
+          stats: [{ key: 'stones', label: 'مهره', value: r.stones + r.caps, icon: 'layers' }],
+          ...(win === seat ? { status: 'winner' as const } : {}),
+          strikes: s.timeouts[seat]!
+        };
+      }),
+      strikesMax: MAX_TIMEOUTS,
+      ...(mine[0] !== mine[1] ? { leaderSeat: mine[0]! > mine[1]! ? 0 : 1 } : {})
+    };
+  },
+
   tutorial: {
     seed: 10,
     options: { firstMove: 'host', deal: 'tutorial', size: 5 },

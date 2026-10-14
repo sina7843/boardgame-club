@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ورود، کد تأیید</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.x-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-h3{font-size:17px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-cap{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.x-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.x-between>*{min-width:0}
+.x-stack{display:grid;gap:16px;min-width:0}
+.x-sec{padding:0;display:grid;overflow:hidden}
+.x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-sec__head>h2{flex:1;min-width:0}
+.x-sec__body{padding:20px;display:grid;gap:16px}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-row:last-child{border-bottom:0}
+.x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
+.x-row__text b{font-size:15px;color:var(--text)}
+.x-row__text span{font-size:13px;color:var(--text-muted)}
+.x-row--stack{display:grid;gap:10px}
+.x-li{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:60px;border-bottom:1px solid var(--line)}
+.x-li:last-child{border-bottom:0}
+.x-li__main{flex:1;min-width:0;display:grid;line-height:1.45}
+.x-li__main>b{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__main>span{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__acts{display:flex;align-items:center;gap:6px;flex:none}
+.bgv-btn .bgv-coin{font-weight:900}
+.bgv-switch{gap:10px;flex:none}
+.bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
+.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
+.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
+.bgv-switch__track::before{border-color:var(--success)}
+.x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.x-phone>.bgv-topbar{flex:none}
+.x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
+.x-pbody>*{flex-shrink:0}
+.x-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:0;list-style:none;font-size:13px;line-height:1;flex-wrap:wrap}
+.x-steps li{display:flex;align-items:center;gap:8px;color:var(--text-muted);white-space:nowrap}
+.x-steps b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.x-steps .is-done b{background:var(--primary);color:var(--on-primary);box-shadow:none}
+.x-steps .is-cur{color:var(--text);font-weight:700}
+.x-steps .is-cur b{background:var(--surface);color:var(--heading);box-shadow:0 0 0 2px var(--primary)}
+.x-steps .x-bar{width:20px;height:2px;border-radius:2px;background:var(--line)}
+.x-steps .x-bar.is-done{background:var(--primary)}
+.bgv-tel{min-height:52px}
+.bgv-tel>input{font-size:20px;font-weight:700;color:var(--text);min-width:0}
+.bgv-tel>span{gap:6px;display:flex;align-items:center}
+.x-legal{font-size:12.5px;line-height:1.7;color:var(--text-muted);text-align:center;text-wrap:pretty}
+.x-fan{position:relative;--fw:150px}
+.x-fan img{position:absolute;left:50%;top:50%;width:var(--fw);height:calc(var(--fw) * .5625);object-fit:cover;border-radius:var(--radius-md);border:3px solid var(--felt-ink);box-shadow:var(--shadow-piece)}
+.bgv-otp{gap:6px}.bgv-otp input{width:46px;height:56px;font-family:var(--font-fa);border-width:1.5px}
+</style>
+
+<div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
+<header class="bgv-topbar" style="flex:none;padding-inline:8px 16px"><a class="bgv-btn bgv-btn--ghost bgv-btn--sm" href="#"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg>تغییر شماره</a><span class="bgv-topbar__title"></span></header>
+<div style="display:flex;flex-direction:column;gap:22px;padding:20px 20px 24px;flex:1;min-height:0">
+ <ol class="x-steps" aria-label="مراحل ورود"><li class="is-done"><b><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></b>شماره</li><li class="x-bar is-done" aria-hidden="true"></li><li class="is-cur" aria-current="step"><b>۲</b>کد تأیید</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۳</b>پروفایل</li></ol>
+ <div style="text-align:center;display:grid;gap:6px;justify-items:center">
+  <span class="bgv-state__icon" style="margin-bottom:6px"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> <path d="M13 8H7" /> <path d="M17 12H7" /></svg></span>
+  <h1 class="t-page-sm" style="color:var(--heading)">کد ورود</h1>
+  <p class="t-body-sm bgv-muted" style="text-wrap:pretty">کد شش‌رقمی ارسال‌شده به <bdi dir="ltr" style="color:var(--text);font-weight:700">۰۹۱۲ ۴۸۰ ۳۲۱۵</bdi> را وارد کنید.</p></div>
+ <div style="display:grid;gap:12px;justify-items:center">
+  <div class="bgv-otp" role="group" aria-label="کد تأیید" aria-describedby="otp-err"><input aria-label="رقم ۱" value="۴" class="is-filled" aria-invalid="true"><input aria-label="رقم ۲" value="۸" class="is-filled" aria-invalid="true"><input aria-label="رقم ۳" value="۲" class="is-filled" aria-invalid="true"><input aria-label="رقم ۴" value="۹" class="is-filled" aria-invalid="true"><input aria-label="رقم ۵" value="۱" class="is-filled" aria-invalid="true"><input aria-label="رقم ۶" value="۵" class="is-filled" aria-invalid="true"></div>
+  <p class="bgv-hint bgv-hint--error" id="otp-err" role="alert" style="justify-content:center;font-weight:700;text-align:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true" style="margin-top:3px"><circle cx="12" cy="12" r="10" /> <line x1="12" x2="12" y1="8" y2="12" /> <line x1="12" x2="12.01" y1="16" y2="16" /></svg>کد واردشده درست نیست؛ ۳ تلاش دیگر دارید.</p>
+ </div>
+ <button class="bgv-btn bgv-btn--primary bgv-btn--lg bgv-btn--block" type="submit">ورود</button>
+ <div class="x-between" style="padding:12px 16px;border-radius:var(--radius-md);background:var(--surface-sunken);flex-wrap:nowrap">
+  <span style="display:flex;align-items:center;gap:10px;font-size:14px;min-width:0" aria-live="polite">
+   <span class="bgv-clock" style="--p:.7;--_bg:var(--surface-sunken)"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg></span></span>
+   <span style="white-space:nowrap">ارسال دوباره تا <b class="bgv-num">۴۲</b> ثانیه دیگر</span></span>
+  <button class="bgv-btn bgv-btn--sm bgv-btn--secondary" disabled="">ارسال دوباره</button></div>
+ <span class="bgv-spacer"></span>
+ <p class="x-legal">کد ۲ دقیقه اعتبار دارد. اگر پیامک نرسید، پوشهٔ پیامک‌های تبلیغاتی را هم ببینید.</p>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

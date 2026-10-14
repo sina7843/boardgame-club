@@ -4,10 +4,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import type { Progression, TrophyTier } from '@bg/contracts';
-import { Button, Confetti } from '@bg/ui';
+import { Confetti } from '@bg/ui';
+import { Button, Dialog, Icon, Trophy as BgvTrophy } from '@bg/ui/bgv';
 import { api } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
-import { LevelBadge, TIER_FA, Trophy } from '../lib/rewards.tsx';
+import { LevelBadge, TIER_FA } from '../lib/rewards.tsx';
 import { useSession } from '../lib/session.tsx';
 
 type Moment = { kind: 'level'; level: number } | { kind: 'achievement'; key: string; titleFa: string; descriptionFa: string; tier: TrophyTier };
@@ -75,19 +76,20 @@ export function Celebration() {
   return (
     <dialog ref={ref} className={`celebrate ${isLevel ? 'celebrate--level' : `tier--${current.tier}`}`} aria-labelledby="celebrate-h" onClose={next}
       onClick={(e) => { if (e.target === e.currentTarget) next(); }}>
-      <div className="celebrate__card" key={isLevel ? `l${current.level}` : current.key}>
-        <div className="celebrate__rays" aria-hidden />
-        <Confetti count={70} spreadX={260} seed={isLevel ? current.level : current.key.length} className="celebrate__confetti"
-          colors={['#f5c542', '#22b5b0', '#9b5cf0', '#ffffff', 'var(--brand)']} />
-        <p className="celebrate__eyebrow">{isLevel ? 'سطح جدید!' : `دستاورد ${TIER_FA[current.tier]}`}</p>
-        <div className="celebrate__art">{isLevel ? <LevelBadge level={current.level} size={180} /> : <Trophy tier={current.tier} />}</div>
-        <h2 id="celebrate-h" className="celebrate__title">{isLevel ? `به سطح ${faNum(current.level)} رسیدید` : current.titleFa}</h2>
-        <p className="celebrate__desc">{isLevel ? 'با هر بازی کامل، آموزش و مأموریت XP می‌گیرید.' : current.descriptionFa}</p>
-        <div className="celebrate__actions">
-          <Button variant="primary" onClick={next} autoFocus>{queue.length > 1 ? `بعدی (${faNum(queue.length - 1)})` : 'عالیه!'}</Button>
-          <Button variant="ghost" onClick={() => { setQueue([]); navigate('/progress'); }}>دیدن پیشرفت</Button>
+      <Dialog key={isLevel ? `l${current.level}` : current.key}>
+        <div className="hm-celebrate">
+          <Confetti count={70} spreadX={260} seed={isLevel ? current.level : current.key.length} className="celebrate__confetti"
+            colors={['var(--accent)', 'var(--primary)', 'var(--invite)', 'var(--success)', 'var(--surface)']} />
+          <p className="hm-celebrate__eyebrow"><Icon name="sparkles" size="sm" />{isLevel ? 'سطح جدید!' : `دستاورد ${TIER_FA[current.tier]}`}</p>
+          <div>{isLevel ? <LevelBadge level={current.level} size={160} /> : <BgvTrophy tier={current.tier} name={current.titleFa} />}</div>
+          <h2 id="celebrate-h" className="t-h3" style={{ margin: 0 }}>{isLevel ? `به سطح ${faNum(current.level)} رسیدید` : current.titleFa}</h2>
+          <p className="hm-celebrate__desc">{isLevel ? 'با هر بازی کامل، آموزش و مأموریت XP می‌گیرید.' : current.descriptionFa}</p>
+          <div className="hm-celebrate__actions">
+            <Button variant="primary" block onClick={next} autoFocus>{queue.length > 1 ? `بعدی (${faNum(queue.length - 1)})` : 'عالیه!'}</Button>
+            <Button variant="ghost" block icon="trophy" onClick={() => { setQueue([]); navigate('/progress'); }}>دیدن پیشرفت</Button>
+          </div>
         </div>
-      </div>
+      </Dialog>
     </dialog>
   );
 }

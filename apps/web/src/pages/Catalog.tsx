@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { GAME_TAG_FA, type GameSummary, type GameTag } from '@bg/contracts';
-import { Button, CheckChips, Input, Select, StateBlock } from '@bg/ui';
+import { Button, Chip, ChipGroup, PageHead, Select, Skeleton, StateBlock, TextField } from '@bg/ui/bgv';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
@@ -10,6 +10,8 @@ import { PageTabs } from '../shell/PageTabs.tsx';
 
 type FilterKey = 'players' | 'maxMinutes' | 'difficulty' | 'mode' | 'access' | 'tags';
 const TAG_OPTIONS = (Object.keys(GAME_TAG_FA) as GameTag[]).map((value) => ({ value, label: GAME_TAG_FA[value] }));
+const ALL = { value: '', label: 'همه' };
+const MODE_FA: Record<string, string> = { live: 'زنده', turn: 'نوبتی', friendly: 'دوستانه', ranked: 'رتبه‌دار' };
 
 export function Catalog() {
   usePageTitle('بازی‌ها');
@@ -30,54 +32,57 @@ export function Catalog() {
   const qs = params.toString();
   const { data, error, loading, reload } = useApi<{ items: GameSummary[] }>(`/games${qs ? `?${qs}` : ''}`);
   const hasFilters = qs.length > 0;
+  const clear = () => { setQ(''); setParams({}, { replace: true }); };
+  const sel = (key: FilterKey, label: string, options: { value: string; label: string }[]) => (
+    <Select label={label} value={params.get(key) ?? ''} onChange={(e) => setFilter(key, e.target.value)} options={[ALL, ...options]} />
+  );
+  const mode = params.get('mode');
 
   return (
     <>
       <PageTabs group="games" />
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">بازی‌ها</h1>
-          <p className="page-sub">بر اساس نام فارسی یا اصلی، تعداد نفر، زمان و سبک بازی جست‌وجو کنید.</p>
-        </div>
-      </div>
+      <PageHead title="بازی‌ها" sub="بر اساس نام فارسی یا اصلی، تعداد نفر، زمان و سبک بازی جست‌وجو کنید."
+        actions={<Button href="/wiki" icon="book-open">دانشنامه</Button>} />
 
       <search>
-        <form className="filters" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو و فیلتر بازی‌ها">
-          <div className="filters__search">
-            <Input label="جست‌وجو" type="search" name="q" placeholder="مثلاً مزایده یا Line Three" value={q} onChange={(e) => setQ(e.target.value)} />
+        <form className="bgv-card pg-stack" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو و فیلتر بازی‌ها">
+          <div className="pg-filters">
+            <div className="pg-q"><TextField label="جست‌وجو" icon="search" type="search" name="q" placeholder="مثلاً مزایده یا Line Three" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+            {sel('players', 'تعداد نفر', [2, 3, 4].map((n) => ({ value: String(n), label: `${faNum(n)} نفر` })))}
+            {sel('maxMinutes', 'حداکثر زمان', [5, 15, 30, 60].map((n) => ({ value: String(n), label: `تا ${faNum(n)} دقیقه` })))}
+            {sel('difficulty', 'دشواری', [{ value: 'easy', label: 'آسان' }, { value: 'medium', label: 'متوسط' }, { value: 'hard', label: 'دشوار' }])}
+            {sel('mode', 'حالت', Object.entries(MODE_FA).map(([value, label]) => ({ value, label })))}
+            {sel('access', 'دسترسی', [{ value: 'free', label: 'رایگان' }, { value: 'premium', label: 'پریمیوم' }])}
           </div>
-          <Select label="تعداد نفر" value={params.get('players') ?? ''} onChange={(e) => setFilter('players', e.target.value)}
-            options={[{ value: '', label: 'همه' }, ...[2, 3, 4].map((n) => ({ value: String(n), label: `${faNum(n)} نفر` }))]} />
-          <Select label="حداکثر زمان" value={params.get('maxMinutes') ?? ''} onChange={(e) => setFilter('maxMinutes', e.target.value)}
-            options={[{ value: '', label: 'همه' }, ...[5, 15, 30, 60].map((n) => ({ value: String(n), label: `تا ${faNum(n)} دقیقه` }))]} />
-          <Select label="دشواری" value={params.get('difficulty') ?? ''} onChange={(e) => setFilter('difficulty', e.target.value)}
-            options={[{ value: '', label: 'همه' }, { value: 'easy', label: 'آسان' }, { value: 'medium', label: 'متوسط' }, { value: 'hard', label: 'دشوار' }]} />
-          <Select label="حالت" value={params.get('mode') ?? ''} onChange={(e) => setFilter('mode', e.target.value)}
-            options={[{ value: '', label: 'همه' }, { value: 'live', label: 'زنده' }, { value: 'turn', label: 'نوبتی' }, { value: 'friendly', label: 'دوستانه' }, { value: 'ranked', label: 'رتبه‌دار' }]} />
-          <Select label="دسترسی" value={params.get('access') ?? ''} onChange={(e) => setFilter('access', e.target.value)}
-            options={[{ value: '', label: 'همه' }, { value: 'free', label: 'رایگان' }, { value: 'premium', label: 'پریمیوم' }]} />
-          <div className="filters__tags">
-            <CheckChips legend="برچسب‌ها" values={(params.get('tags') ?? '').split(',').filter((t): t is GameTag => t in GAME_TAG_FA)}
-              options={TAG_OPTIONS} onChange={(v) => setFilter('tags', v.join(','))} />
-          </div>
+          <fieldset className="pg-tags">
+            <legend className="bgv-label">برچسب‌ها</legend>
+            <ChipGroup size="sm" label="برچسب‌ها" options={TAG_OPTIONS}
+              value={(params.get('tags') ?? '').split(',').filter((t): t is GameTag => t in GAME_TAG_FA)}
+              onChange={(v) => setFilter('tags', (v as string[]).join(','))} />
+          </fieldset>
         </form>
       </search>
 
       {loading && !data && (
-        <div className="grid-cards" aria-hidden>{[0, 1, 2].map((i) => <div key={i} className="skeleton" style={{ blockSize: 300 }} />)}</div>
+        <>
+          <div className="bgv-grid" aria-hidden>{[0, 1, 2, 3].map((i) => <Skeleton key={i} height={300} radius="var(--radius-lg)" />)}</div>
+          <span className="pg-sr" role="status">در حال بارگذاری بازی‌ها…</span>
+        </>
       )}
-      {loading && !data && <span className="visually-hidden" role="status">در حال بارگذاری بازی‌ها…</span>}
-      {error && <StateBlock kind="error" title="فهرست بازی‌ها بارگذاری نشد" action={<Button onClick={reload}>تلاش دوباره</Button>}>{error.messageFa}</StateBlock>}
+      {error && <StateBlock kind="error" title="فهرست بازی‌ها بارگذاری نشد" text={error.messageFa} action={<Button onClick={reload}>تلاش دوباره</Button>} />}
       {data && !error && (
         data.items.length === 0 ? (
           <StateBlock kind="empty" title="بازی‌ای با این مشخصات پیدا نشد"
-            action={hasFilters ? <Button variant="secondary" onClick={() => { setQ(''); setParams({}, { replace: true }); }}>پاک‌کردن فیلترها</Button> : undefined}>
-            {hasFilters ? 'فیلترها را کمتر کنید یا عبارت دیگری جست‌وجو کنید.' : 'هنوز بازی‌ای در کاتالوگ منتشر نشده است.'}
-          </StateBlock>
+            text={hasFilters ? 'فیلترها را کمتر کنید یا عبارت دیگری جست‌وجو کنید.' : 'هنوز بازی‌ای در کاتالوگ منتشر نشده است.'}
+            action={hasFilters ? <Button onClick={clear}>پاک‌کردن فیلترها</Button> : undefined} />
         ) : (
           <>
-            <p className="results-meta" role="status" aria-live="polite">{faNum(data.items.length)} بازی</p>
-            <div className="grid-cards" data-tour="catalog-grid">{data.items.map((g) => <GameCard key={g.id} game={g} />)}</div>
+            <div className="pg-results">
+              <b className="t-title" role="status" aria-live="polite">{faNum(data.items.length)} بازی</b>
+              {mode && <Chip size="sm" selected icon="x" onClick={() => setFilter('mode', '')} aria-label="حذف فیلتر حالت">حالت: {MODE_FA[mode] ?? mode}</Chip>}
+              {hasFilters && <Button size="sm" variant="ghost" onClick={clear}>پاک‌کردن فیلترها</Button>}
+            </div>
+            <div className="bgv-grid" data-tour="catalog-grid">{data.items.map((g) => <GameCard key={g.id} game={g} />)}</div>
           </>
         )
       )}

@@ -107,3 +107,15 @@ describe('space base rules', () => {
     }
   }, 120_000);
 });
+
+describe('space base publicSummary', () => {
+  it('vp, credits and income per seat', () => {
+    const snap = edit(game(3, 2), (s) => { s.boards[1]!.vp = 12; s.boards[1]!.income = 2; });
+    const sum = sbModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[1]!.primary).toEqual({ label: 'امتیاز', value: 12, target: GOAL });
+    expect(sum.seats[1]!.stats![1]!.value).toBe(2);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(st(snap).boards[0]!.credits);
+    expect(sum.leaderSeat).toBe(1);
+  });
+});

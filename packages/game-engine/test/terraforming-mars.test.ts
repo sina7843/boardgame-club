@@ -814,3 +814,21 @@ describe('terraforming-mars: plain terraforming through hints only (mirrors the 
     }
   });
 });
+
+describe('terraforming mars publicSummary', () => {
+  it('one entry per seat; hand counts and globals only, no card ids', () => {
+    const snap = game(3, 4);
+    const sum = terraformingMarsModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.shared!.map((x) => x.value)).toEqual([1, -30, 0, 0]);
+    const one = act(snap, 0, { type: 'corp', corp: st(snap).players[0]!.corpOffer[0], cards: [] });
+    const two = act(snap, 0, { type: 'corp', corp: st(snap).players[0]!.corpOffer[1], cards: [] });
+    expect(terraformingMarsModule.publicSummary!(st(one)).seats[0]!.status).toBe('done');
+    expect(terraformingMarsModule.publicSummary!(st(one)).seats[1]!.status).toBeUndefined();
+    const s = begin(2, 3);
+    const after = terraformingMarsModule.publicSummary!(st(s));
+    expect(after.seats.every((x) => x.stats![1]!.value === 0 || typeof x.stats![1]!.value === 'number')).toBe(true);
+    expect(JSON.stringify(after)).not.toMatch(/"(?:corp|card)"/);
+    void two;
+  });
+});

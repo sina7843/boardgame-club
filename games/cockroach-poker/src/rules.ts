@@ -172,6 +172,25 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
 
   pendingSeats: (s) => (s.outcome ? [] : [s.chain ? s.chain.to : s.current]),
 
+  publicSummary(s) {
+    const place = new Map((s.outcome?.placements ?? []).map((p) => [p.seat, p.place]));
+    return {
+      seats: s.hands.map((h, seat) => {
+        const worst = Math.max(0, ...CREATURES.map((c) => s.table[seat]!.filter((x) => x === c).length));
+        return {
+          seat,
+          primary: { label: 'کارت', value: h.length },
+          stats: [
+            { key: 'table', label: 'جلوی میز', value: s.table[seat]!.length, icon: 'layers' },
+            { key: 'worst', label: 'بیشترین', value: worst, icon: 'flame' }
+          ],
+          badges: !s.outcome && worst >= 3 ? [{ key: 'danger', label: 'خطر', tone: 'danger' as const }] : [],
+          ...(s.outcome ? { status: place.get(seat) === 1 ? ('winner' as const) : ('out' as const) } : {})
+        };
+      })
+    };
+  },
+
   tutorial: {
     seed: 43,
     options: { deal: 'tutorial' },

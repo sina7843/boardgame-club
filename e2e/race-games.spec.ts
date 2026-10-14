@@ -11,7 +11,7 @@ async function table(browser: Browser, info: TestInfo, gameId: string, n: number
   const pages = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار'), await player(browser, vp, 'Cyrus')].slice(0, n);
   const host = pages[0]!;
   await host.goto(`/games/${gameId}/new`);
-  await host.getByText('زنده', { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   const count = host.getByLabel('تعداد بازیکن');
   if (await count.count()) await count.first().selectOption(String(n));
   await host.getByRole('button', { name: 'ساخت میز' }).click();
@@ -106,15 +106,17 @@ test('ludo: an instant roll (no undo) tumbles without pips while in flight until
   await p.waitForTimeout(1200);
   // Queued move: the piece walks to its target at once; undo walks it back.
   const piece = p.locator('[data-pawn="0-3"]');
-  const home = await piece.boundingBox();
+  // Positions relative to the felt: the page may scroll when the undo bar appears (small screens).
+  const at = () => piece.evaluate((el) => { const r = el.getBoundingClientRect(); const f = el.closest('.tbl-felt, main')!.getBoundingClientRect(); return { x: r.x - f.x, y: r.y - f.y }; });
+  const home = await at();
   await motionLog(p);
   await p.locator('.ld-choices button').filter({ hasText: 'مهره ۴' }).click();
   await expect(undo).toBeVisible();
-  await expect.poll(async () => Math.round((await piece.boundingBox())!.x - home!.x), { timeout: 3000 }).not.toBe(0);
+  await expect.poll(async () => Math.round((await at()).x - home.x), { timeout: 3000 }).not.toBe(0);
   log = await motionLog(p);
   expect(log.some((m) => m.cls.includes('ld-piece'))).toBe(true);
   await undo.click();
-  await expect.poll(async () => Math.abs((await piece.boundingBox())!.x - home!.x) + Math.abs((await piece.boundingBox())!.y - home!.y), { timeout: 4000 }).toBeLessThan(2);
+  await expect.poll(async () => Math.abs((await at()).x - home.x) + Math.abs((await at()).y - home.y), { timeout: 4000 }).toBeLessThan(2);
   expect((await motionLog(p)).some((m) => m.cls.includes('ld-piece'))).toBe(true);
   await p.context().close();
 });

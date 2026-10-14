@@ -1,0 +1,33 @@
+:root{
+  /* BGV brand tokens v1.0 — primitives (fixed in every mode). In UI, use the semantic roles below, not primitives. */
+  --bgv-green:#173A2D; --bgv-coral:#F2765B; --bgv-coral-deep:#E4603F; --bgv-gold:#D4B276; --bgv-cream:#F6F0E4;
+  --bgv-ink:#14211B;
+  --bgv-font-fa:"Vazirmatn",system-ui,sans-serif; --bgv-font-latin:"Manrope",system-ui,sans-serif;
+  --bgv-radius-button:8px; --bgv-radius-card:20px;
+  --bgv-text-display:900 72px/1.25 var(--bgv-font-fa); --bgv-text-h1:900 56px/1.3 var(--bgv-font-fa);
+  --bgv-text-h2:700 40px/1.35 var(--bgv-font-fa); --bgv-text-h3:700 24px/1.5 var(--bgv-font-fa);
+  --bgv-text-body:400 17px/1.8 var(--bgv-font-fa); --bgv-text-label:700 14px/1.6 var(--bgv-font-fa);
+}
+
+/* Semantic roles — light (default). Primary button color is NOT defined here: the design system chooses it (see README). */
+:root{
+  --bgv-bg:#F6F0E4; --bgv-surface:#FBF8F1; --bgv-surface-raised:#EDE4D1;
+  --bgv-text:#14211B; --bgv-text-muted:#4A5A51; --bgv-heading:#173A2D;
+  --bgv-line:#D9CDB4; --bgv-border:#7F7A69;
+  --bgv-invite:#F2765B; --bgv-on-invite:#14211B; --bgv-focus:#173A2D; --bgv-logo-top:#E4603F; --bgv-logo-figures:#173A2D;
+  --bgv-link:#173A2D; --bgv-label:#4A5A51;
+}
+/* Semantic roles — dark (built from brand green). The two dark blocks below must stay identical. */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bgv-bg:#0F211A; --bgv-surface:#142A21; --bgv-surface-raised:#173A2D;
+  --bgv-text:#F6F0E4; --bgv-text-muted:#B5C0B7; --bgv-heading:#F6F0E4;
+  --bgv-line:#2A4638; --bgv-border:#6F8C7D; --bgv-focus:#D4B276; --bgv-logo-top:#F2765B; --bgv-logo-figures:#F6F0E4;
+  --bgv-link:#F6F0E4; --bgv-label:#D4B276; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bgv-bg:#0F211A; --bgv-surface:#142A21; --bgv-surface-raised:#173A2D;
+  --bgv-text:#F6F0E4; --bgv-text-muted:#B5C0B7; --bgv-heading:#F6F0E4;
+  --bgv-line:#2A4638; --bgv-border:#6F8C7D; --bgv-focus:#D4B276; --bgv-logo-top:#F2765B; --bgv-logo-figures:#F6F0E4;
+  --bgv-link:#F6F0E4; --bgv-label:#D4B276; color-scheme:dark;
+}
+

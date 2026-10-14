@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { useEffect, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
-import { Avatar, Badge, Button, Input, StateBlock, Tabs, buttonClass, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Badge, Banner, Button, Card, Chip, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
+import { userIdentity } from '../lib/bgv.tsx';
+import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { CopyProfileLink } from './MyProfile.tsx';
-import { TIER_FA, Trophy } from '../lib/rewards.tsx';
 import { InviteCard, referralUrl, rewardFa, useCopy, type Referral } from '../social/InviteCard.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
+
+const phoneMq = '(max-width: 899px)';
+const usePhone = () => useSyncExternalStore((cb) => { const m = matchMedia(phoneMq); m.addEventListener('change', cb); return () => m.removeEventListener('change', cb); }, () => matchMedia(phoneMq).matches, () => false);
 
 /** Position in the showcase; achievements not in it sort after, keeping their order (stable sort). */
 const rank = (showcase: string[], key: string) => { const i = showcase.indexOf(key); return i < 0 ? showcase.length : i; };
@@ -24,15 +29,19 @@ function useAct(onDone: () => void) {
   };
 }
 
-function PersonRow({ p, children }: { p: PublicProfile; children?: React.ReactNode }) {
+/** One person: identity (name links to the profile) with row actions at the end. */
+function PersonRow({ p, children }: { p: PublicProfile; children?: ReactNode }) {
   return (
-    <li className="list__item list__item--compact">
-      <Avatar avatarKey={p.avatarKey} name={p.displayName} size={36} />
-      <Link to={`/users/${p.id}`} style={{ flex: 1, minInlineSize: 0, fontWeight: 600 }}><bdi>{p.displayName}</bdi></Link>
-      {children}
+    <li>
+      <Identity {...userIdentity(p, { size: 'lg', name: <a href={`/users/${p.id}`}><bdi>{p.displayName}</bdi></a> })} />
+      {children && <div className="pf-actions">{children}</div>}
     </li>
   );
 }
+
+const People = ({ items, children }: { items: PublicProfile[]; children: (p: PublicProfile) => ReactNode }) => (
+  <Card flush><ul className="pf-list">{items.map((p) => <PersonRow key={p.id} p={p}>{children(p)}</PersonRow>)}</ul></Card>
+);
 
 function Search({ onChange }: { onChange: () => void }) {
   const [q, setQ] = useState('');
@@ -41,21 +50,20 @@ function Search({ onChange }: { onChange: () => void }) {
   const res = useApi<{ items: UserCard[] }>(debounced.length >= 2 ? `/users?q=${encodeURIComponent(debounced)}` : null);
   const act = useAct(() => { res.reload(); onChange(); });
   return (
-    <div className="stack" data-tour="friends-search">
-      <Input label="جست‌وجوی بازیکن" type="search" value={q} onChange={(e) => setQ(e.target.value)} hint="حداقل دو حرف از نام نمایشی" />
-      {res.loading && debounced.length >= 2 && <p className="muted" role="status">در حال جست‌وجو…</p>}
-      {res.data && (res.data.items.length === 0 ? <p className="muted">بازیکنی پیدا نشد.</p> : (
-        <ul className="list">
-          {res.data.items.map((u) => (
-            <PersonRow key={u.id} p={u}>
-              {u.relationship === 'none' && <Button size="sm" onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
-              {u.relationship === 'outgoing' && <Badge>درخواست فرستاده شد</Badge>}
-              {u.relationship === 'incoming' && <Button size="sm" onClick={() => act(`/friends/requests/${u.id}/accept`, 'POST')}>پذیرش</Button>}
-              {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
-              {u.relationship === 'blocked' && <Badge tone="danger">مسدود</Badge>}
-            </PersonRow>
-          ))}
-        </ul>
+    <div className="bgv-stack" data-tour="friends-search">
+      <TextField label="جست‌وجوی بازیکن" type="search" icon="search" value={q} onChange={(e) => setQ(e.target.value)} hint="حداقل دو حرف از نام نمایشی" />
+      {res.loading && debounced.length >= 2 && <p className="bgv-muted" role="status">در حال جست‌وجو…</p>}
+      {res.data && (res.data.items.length === 0 ? <StateBlock kind="empty" title="بازیکنی پیدا نشد" /> : (
+        <People items={res.data.items}>{(p) => {
+          const u = p as UserCard;
+          return (<>
+            {u.relationship === 'none' && <Button size="sm" variant="primary" icon="user-plus" onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
+            {u.relationship === 'outgoing' && <Badge icon="check">درخواست فرستاده شد</Badge>}
+            {u.relationship === 'incoming' && <Button size="sm" variant="primary" onClick={() => act(`/friends/requests/${u.id}/accept`, 'POST')}>پذیرش</Button>}
+            {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
+            {u.relationship === 'blocked' && <Badge tone="danger">مسدود</Badge>}
+          </>);
+        }}</People>
       ))}
     </div>
   );
@@ -65,7 +73,7 @@ function Search({ onChange }: { onChange: () => void }) {
 function Invite() {
   const data = useApi<Referral>('/me/referral');
   const copy = useCopy();
-  if (data.error) return <StateBlock kind="error" title="لینک دعوت دریافت نشد" action={<Button onClick={data.reload}>تلاش دوباره</Button>} />;
+  if (data.error) return <StateBlock kind="error" title="لینک دعوت دریافت نشد" action={<Button variant="primary" onClick={data.reload}>تلاش دوباره</Button>} />;
   if (!data.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const { code, reward, invited } = data.data;
   const url = referralUrl(code);
@@ -76,83 +84,123 @@ function Invite() {
   const inviter = reward && rewardFa(reward.inviterCoins, reward.inviterDays);
   const invitee = reward && rewardFa(reward.inviteeCoins, reward.inviteeDays);
   return (
-    <div className="stack">
-      <p className="muted" style={{ margin: 0 }}>هر کس با لینک یا کد شما عضو شود، خودکار دوست شما می‌شود.</p>
-      {(inviter || invitee) && (
-        <p className="panel" style={{ margin: 0 }}>
-          {inviter && <>به ازای هر دوستی که عضو شود <strong>{inviter}</strong> هدیه می‌گیرید. </>}
-          {invitee && <>دوست شما هم <strong>{invitee}</strong> هدیه می‌گیرد.</>}
-        </p>
-      )}
-      <Input label="لینک دعوت" readOnly dir="ltr" className="input--ltr" value={url} onFocus={(e) => e.currentTarget.select()} />
-      <div className="row">
-        <Button onClick={() => copy(url, 'لینک دعوت کپی شد.')}>کپی لینک</Button>
-        <Button variant="secondary" onClick={() => copy(code, 'کد دعوت کپی شد.')}>کپی کد <bdi dir="ltr">{code}</bdi></Button>
-        {'share' in navigator && <Button variant="ghost" onClick={share}>اشتراک‌گذاری</Button>}
-      </div>
-      <h2 className="section-title" style={{ fontSize: 'var(--fs-md)' }}>دعوت‌شده‌ها ({faNum(invited.length)})</h2>
-      {invited.length ? <ul className="list">{invited.map((i) => (
-        <PersonRow key={i.user.id} p={i.user}>
-          {i.reward && rewardFa(i.reward.coins, i.reward.days) && <Badge tone="success">{rewardFa(i.reward.coins, i.reward.days)}</Badge>}
-          <span className="muted">{jalaliDate(i.createdAt)}</span>
-        </PersonRow>))}</ul> : <p className="muted" style={{ margin: 0 }}>هنوز کسی با لینک شما عضو نشده است.</p>}
+    <div className="bgv-stack">
+      <Card title="دعوت دوستان">
+        <div className="bgv-stack">
+          <p className="t-body-sm bgv-muted">هر کس با لینک یا کد شما عضو شود، خودکار دوست شما می‌شود.</p>
+          {(inviter || invitee) && (
+            <Banner tone="info" icon="gift">
+              {inviter && <>به ازای هر دوستی که عضو شود <strong>{inviter}</strong> هدیه می‌گیرید. </>}
+              {invitee && <>دوست شما هم <strong>{invitee}</strong> هدیه می‌گیرد.</>}
+            </Banner>
+          )}
+          <TextField label="لینک دعوت" readOnly dir="ltr" value={url} onFocus={(e) => e.currentTarget.select()} />
+          <div className="bgv-row">
+            <Button variant="primary" icon="copy" onClick={() => copy(url, 'لینک دعوت کپی شد.')}>کپی لینک</Button>
+            <Button variant="secondary" onClick={() => copy(code, 'کد دعوت کپی شد.')}>کپی کد <bdi dir="ltr">{code}</bdi></Button>
+            {'share' in navigator && <Button variant="ghost" icon="share-2" onClick={share}>اشتراک‌گذاری</Button>}
+          </div>
+        </div>
+      </Card>
+      <h2 className="t-h3">دعوت‌شده‌ها ({faNum(invited.length)})</h2>
+      {invited.length ? (
+        <Card flush><ul className="pf-list">{invited.map((i) => (
+          <PersonRow key={i.user.id} p={i.user}>
+            {i.reward && rewardFa(i.reward.coins, i.reward.days) && <Badge tone="success">{rewardFa(i.reward.coins, i.reward.days)}</Badge>}
+            <span className="t-caption bgv-muted">{jalaliDate(i.createdAt)}</span>
+          </PersonRow>))}</ul></Card>
+      ) : <StateBlock kind="empty" title="هنوز کسی با لینک شما عضو نشده است" />}
     </div>
   );
 }
+
+type FriendsTab = 'friends' | 'requests' | 'find' | 'invite' | 'blocked';
 
 export function FriendsPage() {
   usePageTitle('دوستان');
   const data = useApi<Friends>('/me/friends');
   const navigate = useNavigate();
+  const { me } = useSession();
   const [params] = useSearchParams();
+  const [tab, setTab] = useState<FriendsTab>((params.get('tab') as FriendsTab | null) ?? 'friends');
   const toast = useToast();
   const act = useAct(data.reload);
   const message = async (userId: string) => {
     try { navigate(`/messages/${(await api<{ id: string }>('/conversations/direct', { method: 'POST', body: { userId } })).id}`); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'گفت‌وگو باز نشد.'); }
   };
-  if (data.error) return <StateBlock kind={data.error.status === 401 ? 'denied' : 'error'} title={data.error.status === 401 ? 'برای دیدن دوستان وارد شوید' : 'فهرست دوستان دریافت نشد'} action={<Button onClick={data.reload}>تلاش دوباره</Button>} />;
+  // The DS tabs are plain buttons; arrow keys move between them (RTL: ArrowLeft = next).
+  const arrows = (e: KeyboardEvent) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const tabs = [...e.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]')];
+    const at = tabs.indexOf(document.activeElement as HTMLElement);
+    if (at < 0) return;
+    e.preventDefault();
+    const next = tabs[(at + (e.key === 'ArrowLeft' ? 1 : -1) + tabs.length) % tabs.length]!;
+    next.focus(); next.click();
+  };
+  if (data.error) return <StateBlock kind={data.error.status === 401 ? 'denied' : 'error'} title={data.error.status === 401 ? 'برای دیدن دوستان وارد شوید' : 'فهرست دوستان دریافت نشد'} action={<Button variant="primary" onClick={data.reload}>تلاش دوباره</Button>} />;
   if (!data.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = data.data;
-  const empty = (t: string) => <p className="muted" style={{ margin: 0 }}>{t}</p>;
   return (
     <>
       <PageTabs group="social" />
-      <div className="page-head"><div><h1 className="page-title">دوستان</h1><p className="page-sub">پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است.</p></div></div>
-      <Tabs label="دوستان" initial={params.get('tab') ?? undefined} tabs={[
-        { id: 'friends', title: `دوستان (${d.friends.length.toLocaleString('fa-IR')})`, content: d.friends.length ? (
-          <ul className="list">{d.friends.map((f) => (
-            <PersonRow key={f.id} p={f}>
-              <Button size="sm" variant="secondary" onClick={() => message(f.id)}>پیام</Button>
-              <Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE', undefined, 'از دوستان حذف شد.')}>حذف</Button>
-            </PersonRow>))}</ul>) : empty('هنوز دوستی ندارید؛ از زبانه «یافتن» بازیکن‌ها را پیدا کنید.') },
-        { id: 'requests', title: `درخواست‌ها (${(d.incoming.length).toLocaleString('fa-IR')})`, content: (
-          <div className="stack">
-            <h2 className="section-title" style={{ fontSize: 'var(--fs-md)' }}>دریافتی</h2>
-            {d.incoming.length ? <ul className="list">{d.incoming.map((f) => (
-              <PersonRow key={f.id} p={f}>
-                <Button size="sm" onClick={() => act(`/friends/requests/${f.id}/accept`, 'POST', undefined, 'دوستی پذیرفته شد.')}>پذیرش</Button>
-                <Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>رد</Button>
-              </PersonRow>))}</ul> : empty('درخواستی ندارید.')}
-            <h2 className="section-title" style={{ fontSize: 'var(--fs-md)' }}>فرستاده‌شده</h2>
-            {d.outgoing.length ? <ul className="list">{d.outgoing.map((f) => (
-              <PersonRow key={f.id} p={f}><Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>لغو</Button></PersonRow>))}</ul> : empty('درخواستی نفرستاده‌اید.')}
-          </div>) },
-        { id: 'find', title: 'یافتن', content: <Search onChange={data.reload} /> },
-        { id: 'invite', title: 'دعوت دوستان', content: <Invite /> },
-        { id: 'blocked', title: 'مسدود و بی‌صدا', content: (
-          <div className="stack">
-            {d.blocked.length ? <ul className="list">{d.blocked.map((f) => (
-              <PersonRow key={f.id} p={f}><Badge tone="danger">مسدود</Badge><Button size="sm" variant="ghost" onClick={() => act(`/blocks/${f.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.')}>رفع مسدودی</Button></PersonRow>))}</ul> : empty('کسی را مسدود نکرده‌اید.')}
-            {d.muted.length > 0 && <ul className="list">{d.muted.map((f) => (
-              <PersonRow key={f.id} p={f}><Badge>بی‌صدا</Badge><Button size="sm" variant="ghost" onClick={() => act(`/mutes/${f.id}`, 'DELETE')}>لغو بی‌صدا</Button></PersonRow>))}</ul>}
-          </div>) }
-      ]} />
+      <PageHead title="دوستان" sub="پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است."
+        actions={me && <CopyProfileLink userId={me.id} />} />
+      <div onKeyDown={arrows}>
+        <Tabs label="دوستان" value={tab} onChange={(v) => setTab(v as FriendsTab)} items={[
+          { value: 'friends', label: `دوستان (${faNum(d.friends.length)})` },
+          { value: 'requests', label: 'درخواست‌ها', count: d.incoming.length },
+          { value: 'find', label: 'یافتن' },
+          { value: 'invite', label: 'دعوت دوستان' },
+          { value: 'blocked', label: 'مسدود و بی‌صدا' }
+        ]} />
+      </div>
+      {tab === 'friends' && (d.friends.length ? (
+        <People items={d.friends}>{(f) => (<>
+          <Button size="sm" variant="secondary" icon="message-circle" onClick={() => message(f.id)}>پیام</Button>
+          <Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE', undefined, 'از دوستان حذف شد.')}>حذف</Button>
+        </>)}</People>
+      ) : <StateBlock kind="empty" title="هنوز دوستی ندارید" text="از زبانه «یافتن» بازیکن‌ها را پیدا کنید." action={<Button variant="primary" icon="search" onClick={() => setTab('find')}>یافتن بازیکن</Button>} />)}
+      {tab === 'requests' && (
+        <div className="bgv-stack">
+          <h2 className="t-h3">دریافتی</h2>
+          {d.incoming.length ? (
+            <People items={d.incoming}>{(f) => (<>
+              <Button size="sm" variant="primary" onClick={() => act(`/friends/requests/${f.id}/accept`, 'POST', undefined, 'دوستی پذیرفته شد.')}>پذیرش</Button>
+              <Button size="sm" variant="secondary" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>رد</Button>
+            </>)}</People>
+          ) : <StateBlock kind="empty" title="درخواستی ندارید" />}
+          <h2 className="t-h3">فرستاده‌شده</h2>
+          {d.outgoing.length ? (
+            <People items={d.outgoing}>{(f) => <Button size="sm" variant="secondary" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>لغو</Button>}</People>
+          ) : <StateBlock kind="empty" title="درخواستی نفرستاده‌اید" />}
+        </div>
+      )}
+      {tab === 'find' && <Search onChange={data.reload} />}
+      {tab === 'invite' && <Invite />}
+      {tab === 'blocked' && (
+        <div className="bgv-stack">
+          {d.blocked.length ? (
+            <People items={d.blocked}>{(f) => (<>
+              <Badge tone="danger">مسدود</Badge>
+              <Button size="sm" variant="secondary" onClick={() => act(`/blocks/${f.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.')}>رفع مسدودی</Button>
+            </>)}</People>
+          ) : <StateBlock kind="empty" title="کسی را مسدود نکرده‌اید" />}
+          {d.muted.length > 0 && (
+            <People items={d.muted}>{(f) => (<>
+              <Badge>بی‌صدا</Badge>
+              <Button size="sm" variant="secondary" onClick={() => act(`/mutes/${f.id}`, 'DELETE')}>لغو بی‌صدا</Button>
+            </>)}</People>
+          )}
+        </div>
+      )}
     </>
   );
 }
 
 export function ProfilePage() {
+  const phone = usePhone();
   const { id = '' } = useParams();
   const card = useApi<ProfileCard>(`/users/${id}/card`);
   const ach = useApi<{ level: number; items: { key: string; titleFa: string; tier: TrophyTier }[] }>(`/users/${id}/achievements`);
@@ -165,64 +213,119 @@ export function ProfilePage() {
   if (card.error) return <StateBlock kind={card.error.status === 404 ? 'empty' : 'error'} title={card.error.status === 404 ? 'این بازیکن پیدا نشد' : 'پروفایل دریافت نشد'} />;
   if (!card.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const u = card.data;
-  const title = u.titleKey ? cosmetic(u.titleKey)?.nameFa : undefined;
+  const id0 = userIdentity(u);
   const favourites = u.favoriteGames.map((g) => gameList.data?.items.find((x) => x.id === g)).filter((g) => !!g);
   // Showcase first, in the player's order; then the rest by tier (the server already sorts them).
   const trophies = [...(ach.data?.items ?? [])].sort((a, b) => rank(u.showcase, a.key) - rank(u.showcase, b.key));
+  const bannerCss = u.bannerKey && u.bannerKey !== 'bn.0' ? cosmetic(u.bannerKey)?.css : undefined;
   const message = async () => {
     try { navigate(`/messages/${(await api<{ id: string }>('/conversations/direct', { method: 'POST', body: { userId: u.id } })).id}`); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'گفت‌وگو باز نشد.'); }
   };
+  const self = u.relationship === 'self';
   return (
-    <div className="stack" style={{ maxInlineSize: 640 }}>
-      <section className="profile-hero">
-        <div className="profile-hero__banner" style={{ background: cosmetic(u.bannerKey ?? 'bn.0')?.css }} />
-        <div className="profile-hero__body">
-          <Avatar avatarKey={u.avatarKey} name={u.displayName} size={112} />
-          <div style={{ flex: 1, minInlineSize: 180 }}>
-            <h1 className="page-title" style={{ fontSize: 'var(--fs-xl)' }}><bdi>{u.displayName}</bdi></h1>
-            {title && <span className="profile-title">{title}</span>}
-            <p className="page-sub">عضو از {jalaliDate(u.joinedAt)}{ach.data ? ` · سطح ${ach.data.level.toLocaleString('fa-IR')}` : ''}</p>
-          </div>
-          {u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}
-          {u.relationship === 'self' && <span className="row" style={{ gap: 6 }}><Link className={buttonClass('primary', 'sm')} to="/me/avatar">ساخت آواتار</Link><Link className={buttonClass('secondary', 'sm')} to="/me/profile">ویرایش پروفایل</Link></span>}
-          <CopyProfileLink userId={u.id} size="sm" />
-        </div>
-      </section>
-      {(u.bio || favourites.length > 0 || trophies.length > 0) && (
-        <section className="panel stack">
-          {u.bio && <p className="profile-bio" dir="auto">{u.bio}</p>}
-          {favourites.length > 0 && (
-            <div className="row" style={{ gap: 6 }} aria-label="بازی‌های محبوب">
-              <span className="muted">بازی‌های محبوب:</span>
-              {favourites.map((g) => <Link key={g.id} className="chip" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} to={`/games/${g.id}`}>{g.nameFa}</Link>)}
-            </div>
-          )}
+    <>
+      <ProfileHead compact={phone}
+        name={<bdi>{u.displayName}</bdi>}
+        initials={id0.initials}
+        avatar={{ ...id0.avatar, name: `آواتار ${u.displayName}` }}
+        title={id0.title}
+        level={u.level ?? undefined}
+        league={u.bestLeague ?? undefined}
+        stats={u.stats ? [{ value: faNum(u.stats.gamesPlayed), label: 'بازی‌ها' }, { value: faNum(u.stats.wins), label: 'برد (رتبهٔ اول)' }, { value: `${faNum(u.stats.winRate)}٪`, label: 'نرخ برد' }] : undefined}
+        bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
+        badges={u.relationship === 'friends' ? <Badge tone="success">دوست</Badge> : undefined}
+        meta={[`عضو از ${jalaliDate(u.joinedAt)}`]}
+        actions={<>
+          {self && <>
+            <Button variant="primary" icon="palette" href="/me/avatar">ساخت آواتار</Button>
+            <Button variant="secondary" icon="pencil" href="/me/profile">ویرایش پروفایل</Button>
+            <Button variant="secondary" icon="palette" href="/me/studio">استودیو و کمد</Button>
+          </>}
+          {u.relationship === 'none' && <Button variant="primary" icon="user-plus" onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
+          {u.relationship === 'incoming' && <Button variant="primary" onClick={() => act(`/friends/requests/${u.id}/accept`, 'POST')}>پذیرش دوستی</Button>}
+          {u.relationship === 'outgoing' && <Badge icon="check">درخواست دوستی فرستاده شد</Badge>}
+          {u.relationship === 'friends' && <Button variant="secondary" icon="message-circle" onClick={message}>پیام خصوصی</Button>}
+          <CopyProfileLink userId={u.id} />
+        </>}>
+        {u.bio && <p dir="auto" className="t-body">{u.bio}</p>}
+      </ProfileHead>
+      {(favourites.length > 0 || trophies.length > 0) && (
+        <div className="bgv-cols">
           {trophies.length > 0 && (
-            <div className="row" style={{ gap: 4 }} aria-label="جام‌ها">
-              {trophies.map((a) => <span key={a.key} className={`trophy-chip tier--${a.tier}`} title={TIER_FA[a.tier]}><Trophy tier={a.tier} />{a.titleFa}</span>)}
-            </div>
+            <Card title="ویترین جام‌ها" aria-label="جام‌ها">
+              <div className="pf-trophies">
+                {trophies.map((a) => <Trophy key={a.key} tier={a.tier} name={a.titleFa} />)}
+              </div>
+            </Card>
           )}
-        </section>
+          {favourites.length > 0 && (
+            <Card title="بازی‌های محبوب" aria-label="بازی‌های محبوب">
+              <div className="bgv-row">
+                {favourites.map((g) => <Chip key={g.id} href={`/games/${g.id}`}>{g.nameFa}</Chip>)}
+              </div>
+            </Card>
+          )}
+        </div>
       )}
-      {u.relationship === 'self' && <InviteCard />}
-      {u.relationship !== 'self' && (
-        <section className="panel row" aria-label="اقدام‌ها">
-          {u.relationship === 'none' && <Button onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
-          {u.relationship === 'incoming' && <Button onClick={() => act(`/friends/requests/${u.id}/accept`, 'POST')}>پذیرش دوستی</Button>}
-          {u.relationship === 'outgoing' && <Badge>درخواست دوستی فرستاده شد</Badge>}
-          {u.relationship === 'friends' && <Button variant="secondary" onClick={message}>پیام خصوصی</Button>}
-          {u.relationship === 'blocked'
-            ? <Button variant="secondary" onClick={() => act(`/blocks/${u.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.')}>رفع مسدودی</Button>
-            : <Button variant="danger" onClick={() => act('/blocks', 'POST', { userId: u.id }, 'کاربر مسدود شد.')}>مسدود کردن</Button>}
-          {u.muted ? <Button variant="ghost" onClick={() => act(`/mutes/${u.id}`, 'DELETE')}>لغو بی‌صدا</Button>
-            : <Button variant="ghost" onClick={() => act('/mutes', 'POST', { userId: u.id }, 'بی‌صدا شد.')}>بی‌صدا</Button>}
-          <Button variant="ghost" onClick={() => setReport('user')}>گزارش رفتار</Button>
-          <Button variant="ghost" onClick={() => setReport('display_name')}>گزارش نام</Button>
-          {u.bio && <Button variant="ghost" onClick={() => setReport('bio')}>گزارش معرفی</Button>}
-        </section>
+      {u.relationship !== 'blocked' && u.stats === null && u.recent === null && u.ratings === null && !self && (
+        <p className="t-body-sm bgv-muted" role="status">این بازیکن آمار و سابقهٔ بازی خود را نمایش نمی‌دهد.</p>
+      )}
+      {(u.recent || u.ratings?.length || u.mastery?.length) ? (
+        <div className="bgv-cols">
+          <div className="bgv-stack">
+            {u.recent && (
+              <Card title="بازی‌های اخیر" aria-label="بازی‌های اخیر">
+                {u.recent.length === 0 ? <p className="t-body-sm bgv-muted">هنوز بازی عمومی تمام‌شده‌ای نیست.</p> : (
+                  <ul className="pf-record">
+                    {u.recent.map((g, i) => (
+                      <li key={`${g.gameId}${g.finishedAt}${i}`}>
+                        <span><a href={`/games/${g.gameId}`} className="t-label">{g.gameNameFa}</a><span className="bgv-sep" /><span className="t-caption bgv-muted">{faNum(g.fieldSize)} نفر<span className="bgv-sep" />{jalaliDate(g.finishedAt)}</span></span>
+                        <Badge tone={g.place === 1 ? 'success' : 'neutral'} icon={g.place === 1 ? 'crown' : undefined}>{g.place === 1 ? 'اول' : `رتبهٔ ${faNum(g.place)}`}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            )}
+            {u.mastery && u.mastery.length > 0 && (
+              <Card title="تسلط بر بازی‌ها" aria-label="تسلط بر بازی‌ها">
+                <div className="pf-mastery">
+                  {u.mastery.map((m) => <div key={m.gameId}><a href={`/games/${m.gameId}`} className="t-label">{m.gameNameFa}</a><Badge tone="neutral">{m.tierFa}</Badge></div>)}
+                </div>
+              </Card>
+            )}
+          </div>
+          {u.ratings && u.ratings.length > 0 && (
+            <Card title="امتیاز رتبه‌بندی" aria-label="امتیاز رتبه‌بندی">
+              <ul className="pf-record">
+                {u.ratings.map((r) => (
+                  <li key={`${r.gameId}${r.mode}`}>
+                    <span><span className="t-label">{r.gameNameFa}</span><span className="bgv-sep" /><span className="t-caption bgv-muted">{r.mode === 'turn' ? 'نوبتی' : 'زنده'}</span></span>
+                    <span className="bgv-row">{r.league && <League tier={r.league} />}<span className="t-num-md">{faNum(r.rating)}</span></span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </div>
+      ) : null}
+      {self && <InviteCard />}
+      {!self && (
+        <Card title="اقدام‌ها" aria-label="اقدام‌ها">
+          <div className="bgv-row">
+            {u.relationship === 'blocked'
+              ? <Button variant="secondary" onClick={() => act(`/blocks/${u.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.')}>رفع مسدودی</Button>
+              : <Button variant="danger" icon="ban" onClick={() => act('/blocks', 'POST', { userId: u.id }, 'کاربر مسدود شد.')}>مسدود کردن</Button>}
+            {u.muted ? <Button variant="ghost" onClick={() => act(`/mutes/${u.id}`, 'DELETE')}>لغو بی‌صدا</Button>
+              : <Button variant="ghost" icon="volume-x" onClick={() => act('/mutes', 'POST', { userId: u.id }, 'بی‌صدا شد.')}>بی‌صدا</Button>}
+            <Button variant="ghost" icon="flag" onClick={() => setReport('user')}>گزارش رفتار</Button>
+            <Button variant="ghost" onClick={() => setReport('display_name')}>گزارش نام</Button>
+            {u.bio && <Button variant="ghost" onClick={() => setReport('bio')}>گزارش معرفی</Button>}
+          </div>
+        </Card>
       )}
       {report && <ReportDialog targetType={report} targetId={u.id} label={u.displayName} onClose={() => setReport(null)} />}
-    </div>
+    </>
   );
 }

@@ -180,3 +180,31 @@ describe('ludo (منچ)', () => {
     }
   }, 120_000);
 });
+
+describe('snakes and ladders publicSummary', () => {
+  it('position per seat, strikes, out and winner', () => {
+    const snap = snakesWith({ pos: [10, 40] });
+    const sum = snakesModule.publicSummary!(ss(snap));
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([10, 40]);
+    expect(sum.leaderSeat).toBe(1);
+    expect(sum.strikesMax).toBe(3);
+    expect(sum.seats.every((x) => x.strikes === 0)).toBe(true);
+    const t = applyTimeout(sm, snap, 0);
+    expect(snakesModule.publicSummary!(ss(t.snapshot)).seats[0]!.strikes).toBe(1);
+    const done = act(sm, snakesWith({ pos: [97, 5] }), 0, { type: 'resign' });
+    const fin = snakesModule.publicSummary!(ss(done));
+    expect(fin.seats[0]!.status).toBe('out');
+    expect(fin.seats[1]!.status).toBe('winner');
+  });
+});
+
+describe('ludo publicSummary', () => {
+  it('one entry per seat with pieces home and strikes', () => {
+    const state = ls(startGame(lm, { playerCount: 3, seed: 3, options: {} }).snapshot);
+    const sum = ludoModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0, 0]);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(4);
+    expect(sum.strikesMax).toBe(3);
+  });
+});

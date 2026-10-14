@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نوشتن اشاره</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.bgv-clock--chip{block-size:28px;padding-inline:5px 10px;gap:6px}
+.bgv-clock--bar{gap:8px}
+.bgv-turn{padding-inline:10px 16px}
+.bgv-gamebar{padding-inline:10px;gap:10px}
+.bgv-pcard--mini{padding:14px 8px 10px}
+.bgv-pcard--mini .bgv-pcard__name b{flex-wrap:wrap;white-space:normal;row-gap:4px}
+.bgv-pcard--mini.is-you .bgv-pcard__name b::after{margin-inline:auto}
+.bgv-avatar.is-turn::before{inset:-7px}
+.bgv-gamebar .bgv-btn[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-tile-primary)}
+.bgv-chat__head{padding-inline:16px 10px}
+.bgv-msg__meta{padding-inline:4px}
+.bgv-logo img.bgv-logo__dark,.bgv-logo img.bgv-logo__mark{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__light{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__dark:not(.bgv-logo__mark){display:block}
+@media (max-width:1199px){.bgv-app .bgv-logo img.bgv-logo__full{display:none}.bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:block}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:none}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__dark{display:block}}
+.bgv-quicktray{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 32px);mask-image:linear-gradient(to right,transparent 0,#000 32px);padding-inline-end:24px}
+.tc-barhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.tc-barhead__l{display:inline-flex;align-items:center;gap:4px;min-inline-size:0}.tc-latin{font-size:12px;font-weight:600;color:var(--text-muted)}.bgv-gamebar__meta{min-inline-size:0}.bgv-gamebar__meta > *{flex:none}.bgv-pcard--mini .bgv-pcard__foot{justify-content:center;min-block-size:28px}.tc-sent{display:inline-flex;color:var(--text-muted)}.tc-avgap{inline-size:24px;flex:none}.bgv-msg__reply span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bgv-msg__reply{border-radius:var(--radius-sm)}.bgv-composer{padding:12px}.bgv-composer__input{min-inline-size:0}.tc-count{font-size:12px;font-weight:700;color:var(--text-muted)}.bgv-chat__title{min-inline-size:0;flex-wrap:wrap;row-gap:0}
+.uno-felt{gap:12px}
+.uno-felt .bgv-felt-row{flex-wrap:nowrap}
+.uno-pile{flex:1;min-block-size:0;position:relative}
+.uno-pile img{position:absolute;inset:0}
+.uno-pile--low img{object-position:center bottom}
+.uno-hand{block-size:96px;flex:none;display:grid;place-items:center}
+.toast-top{position:absolute;inset-inline:8px;inset-block-start:8px;z-index:20}
+.toast-top .bgv-toast{inline-size:100%;max-inline-size:none;padding:12px 16px}
+.bgv-critbar{padding:12px 16px}
+.bgv-critbar__row{display:flex;align-items:center;gap:12px}
+.bgv-critbar__t{font-size:16px;font-weight:900;line-height:1.35}
+.bgv-critbar__s{font-size:13px;font-weight:400;line-height:1.5}
+.bgv-actiondock{padding:14px 16px}
+.bgv-actiondock__prompt{line-height:1.5;align-items:center}
+.bgv-actiondock__prompt > span:first-child{flex:1;min-inline-size:0}
+.bgv-banner{padding:12px 16px}
+
+.ov{position:absolute;inset-inline:0;inset-block-end:0;display:flex;flex-direction:column;z-index:10}
+.ov .bgv-chat{border-block-end:0;border-end-start-radius:0;border-end-end-radius:0;block-size:356px;position:relative}
+.ov .bgv-composer{padding:10px 12px 12px}
+.kb{block-size:262px;background:var(--surface-sunken);border-block-start:1px solid var(--line);padding:8px 4px 24px;display:grid;gap:10px;align-content:start;flex:none}
+.kb__row{display:flex;gap:5px;justify-content:center}
+.kb__k{flex:1;max-inline-size:32px;block-size:44px;border-radius:var(--radius-sm);background:var(--surface);box-shadow:var(--shadow-tile);display:grid;place-items:center;font-size:18px;color:var(--text)}
+.kb__k--w{max-inline-size:none;flex:2;font-size:14px;font-weight:700}
+.kb__k--sp{max-inline-size:none;flex:6;font-size:14px;color:var(--text-muted)}
+.sugg{position:absolute;inset-inline:12px;inset-block-end:126px;z-index:3}
+.sugg .bgv-suggest{padding:8px}
+.sugg__h{font-size:12px;font-weight:700;color:var(--label);padding:4px 8px}
+.sugg .bgv-suggest__item{padding-inline:8px 12px}
+.caret{display:inline-block;inline-size:2px;block-size:20px;background:var(--focus);margin-inline-start:2px}
+.tc-input{display:flex;align-items:center;gap:2px;border-color:var(--focus);border-width:1.5px;overflow:hidden;white-space:nowrap}
+
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+</style>
+
+<div class="bgv" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="block-size:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button>
+<div class="bgv-gamebar__title"><span class="bgv-gamebar__name">اونو<span class="bgv-latin tc-latin">UNO</span></span><span class="bgv-gamebar__meta">زنده<span class="bgv-sep"></span>۳۰ ثانیه هر نوبت<span class="bgv-sep"></span><span class="bgv-spectators" aria-label="۳ تماشاگر"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>۳</span></span></div>
+<button class="bgv-btn bgv-btn--secondary bgv-btn--icon bgv-iconbtn-count" aria-pressed="true" aria-label="گفت‌وگوی میز، باز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکن‌ها"><div class="bgv-pcard bgv-pcard--mini is-you"><span class="bgv-avatar bgv-avatar--sm seat-3 is-you">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3" aria-hidden="true"></i>مینا</b></div><div class="bgv-pcard__score">۶<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>منتظر</span></div></div><div class="bgv-pcard bgv-pcard--mini is-turn" style="--clock-c:var(--clock-calm)"><span class="bgv-avatar bgv-avatar--sm seat-1 is-turn">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1" aria-hidden="true"></i>نیلوفر</b></div><div class="bgv-pcard__score">۶<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.7;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۱</span></span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-4">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4" aria-hidden="true"></i>آرش</b></div><div class="bgv-pcard__score">۱<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-badge bgv-badge--danger bgv-badge--sm">اونو!</span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-2">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2" aria-hidden="true"></i>سارا</b></div><div class="bgv-pcard__score">۴<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>منتظر</span></div></div></section>
+<main class="bgv-felt uno-felt" aria-label="میز اونو">
+<div class="bgv-felt-row"><span class="bgv-turn"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-1">ن</span>نوبت نیلوفر</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.7;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۱</span></span></span></div>
+<div class="uno-pile"><img src="../assets/games/timechat-uno-pile.webp" alt="کارت رو: برگشت آبی؛ دسته‌ی کشیدن ۶۹ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
+<div class="bgv-felt-row" style="justify-content:center"><span class="bgv-felt-plate">رنگ فعال <strong>آبی</strong></span><span class="bgv-felt-plate">جهت <strong>عادی</strong></span><span class="bgv-felt-plate">هدف <strong>۵۰۰</strong></span></div>
+<div class="uno-hand"><img src="../assets/games/timechat-uno-hand-idle.webp" alt="دست شما، ۶ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
+</main>
+<section class="bgv-actiondock is-waiting"><div class="bgv-actiondock__prompt"><span>بعد از نیلوفر، آرش و سارا نوبت شماست</span><span class="bgv-clock bgv-clock--lg" data-state="paused" style="--p:1;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۳۰</span><span class="bgv-clock__sub">زمان شما</span></span></span></div></section>
+</div>
+<div class="bgv-scrim" style="z-index:9"></div>
+<div class="ov"><section class="bgv-chat bgv-chat--sheet" aria-label="گفت‌وگوی میز"><span class="bgv-sheet__handle" style="margin:8px auto 0"></span>
+<div class="bgv-chat__head"><span class="bgv-chat__title">گفت‌وگوی میز<span class="tc-count">۳ تماشاگر</span></span><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بی‌صدا کردن گفت‌وگوی این میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5" /> <path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="m2 2 20 20" /></svg></button><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بستن گفت‌وگو"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div>
+<div class="bgv-chat__list bgv-chat__list--bottom"><span class="bgv-sys bgv-sys--game"><i class="bgv-seat seat-4" aria-hidden="true"></i><span><b>آرش</b> برگشت آبی گذاشت و گفت «اونو!»</span></span><div class="bgv-msg"><span class="bgv-avatar bgv-avatar--xs seat-1">ن</span><div class="bgv-msg__col"><span class="bgv-msg__meta"><i class="bgv-seat seat-1" aria-hidden="true"></i><b>نیلوفر</b>۲۱:۳۸</span><div class="bgv-msg__bubble">آرش یه کارت داره، حواستون باشه 😅</div><div class="bgv-reactions"><button class="bgv-react" aria-pressed="false">😂 ۲</button></div></div></div><div class="bgv-msg bgv-msg--quick"><span class="bgv-avatar bgv-avatar--xs seat-4">آ</span><div class="bgv-msg__col"><span class="bgv-msg__meta"><i class="bgv-seat seat-4" aria-hidden="true"></i><b>آرش</b>۲۱:۳۸</span><div class="bgv-msg__bubble">😂</div></div></div></div>
+<div class="sugg"><div class="bgv-suggest" role="listbox" aria-label="پیشنهاد نام">
+<div class="sugg__h">بازیکن‌های این میز</div>
+<div class="bgv-suggest__item is-focus" role="option" aria-selected="true"><span class="bgv-avatar bgv-avatar--xs seat-1">ن</span><b>نیلوفر</b><i class="bgv-seat seat-1" aria-hidden="true"></i><span class="bgv-spacer"></span><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3" /></svg>در نوبت</span></div>
+<div class="sugg__h" style="border-block-start:1px solid var(--line);margin-block-start:4px;padding-block-start:8px">تماشاگرها</div>
+<div class="bgv-suggest__item" role="option"><span class="bgv-avatar bgv-avatar--xs">ن</span><b>نیکا</b><span class="bgv-spacer"></span><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>تماشاگر</span></div>
+</div></div><div class="bgv-composer"><div class="bgv-composer__reply"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 17 4 12 9 7" /> <path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg><span>پاسخ به <b>نیلوفر</b>: آرش یه کارت داره…</span><button class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-btn--sm" aria-label="لغو پاسخ" style="--_h:32px"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div>
+<div class="bgv-composer__row"><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="شکلک و پیام آماده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11v1a10 10 0 1 1-9-10" /> <path d="M8 14s1.5 2 4 2 4-2 4-2" /> <line x1="9" x2="9.01" y1="9" y2="9" /> <line x1="15" x2="15.01" y1="9" y2="9" /> <path d="M16 5h6" /> <path d="M19 2v6" /></svg></button>
+<div class="bgv-composer__input tc-input" role="textbox" aria-label="متن پیام"><span>دیدم! </span><span class="bgv-mention">@نی</span><span class="caret"></span></div>
+<button class="bgv-btn bgv-btn--primary bgv-btn--icon" aria-label="ارسال"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /> <path d="m21.854 2.147-10.94 10.939" /></svg></button></div></div></section><div class="kb" aria-hidden="true"><div class="kb__row"><span class="kb__k">ض</span><span class="kb__k">ص</span><span class="kb__k">ث</span><span class="kb__k">ق</span><span class="kb__k">ف</span><span class="kb__k">غ</span><span class="kb__k">ع</span><span class="kb__k">ه</span><span class="kb__k">خ</span><span class="kb__k">ح</span><span class="kb__k">ج</span></div><div class="kb__row"><span class="kb__k">ش</span><span class="kb__k">س</span><span class="kb__k">ی</span><span class="kb__k">ب</span><span class="kb__k">ل</span><span class="kb__k">ا</span><span class="kb__k">ت</span><span class="kb__k">ن</span><span class="kb__k">م</span><span class="kb__k">ک</span><span class="kb__k">گ</span></div><div class="kb__row"><span class="kb__k">ظ</span><span class="kb__k">ط</span><span class="kb__k">ز</span><span class="kb__k">ر</span><span class="kb__k">ذ</span><span class="kb__k">د</span><span class="kb__k">پ</span><span class="kb__k">و</span><span class="kb__k">چ</span><span class="kb__k kb__k--w">⌫</span></div><div class="kb__row"><span class="kb__k kb__k--w">۱۲۳</span><span class="kb__k">@</span><span class="kb__k kb__k--sp">فاصله</span><span class="kb__k kb__k--w">ارسال</span></div></div></div>
+</div>
+</x-dc>
+
+</body>
+</html>

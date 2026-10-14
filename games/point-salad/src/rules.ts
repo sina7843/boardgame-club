@@ -197,6 +197,24 @@ export const pointSaladModule: GameModule<PointSaladState, PointSaladAction, Poi
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => {
+    const sc = scores(s);
+    const top = Math.max(...sc);
+    return {
+      seats: sc.map((v, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: v },
+        stats: [
+          { key: 'veg', label: 'سبزی', value: s.veggies[seat]!.length, icon: 'droplet' },
+          { key: 'rules', label: 'قانون', value: s.rules[seat]!.length, icon: 'layers' }
+        ],
+        ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.piles.reduce((a, p) => a + p.length, 0) }],
+      ...(sc.filter((x) => x === top).length === 1 && top > 0 ? { leaderSeat: sc.indexOf(top) } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

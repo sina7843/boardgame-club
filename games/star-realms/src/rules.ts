@@ -351,6 +351,24 @@ export const srModule: GameModule<SrState, SrAction, SrView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const auth = s.sides.map((x) => x.authority);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.sides.map((x, seat) => ({
+        seat,
+        primary: { label: 'اقتدار', value: x.authority },
+        stats: [
+          { key: 'hand', label: 'کارت', value: x.hand.length, icon: 'layers' },
+          { key: 'bases', label: 'پایگاه', value: x.bases.length, icon: 'shield' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.tradeDeck.length }],
+      ...(auth[0] !== auth[1] ? { leaderSeat: auth[0]! > auth[1]! ? 0 : 1 } : {})
+    };
+  },
+
   tutorial: {
     seed: 13,
     options: { deal: 'tutorial' },

@@ -152,3 +152,15 @@ describe('chess games', () => {
     expect(finished).toBe(40);
   }, 120_000);
 });
+
+describe('chess publicSummary', () => {
+  it('material, pieces, check badge, strikes', () => {
+    let sum = chessModule.publicSummary!(st(game()));
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([39, 39]);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(16);
+    expect(sum.strikesMax).toBe(1);
+    sum = chessModule.publicSummary!(st(play(game(), 'e2e4', 'f7f6', 'd1h5')));
+    expect(sum.seats[1]!.badges!.map((b) => b.label)).toEqual(['کیش']);
+    expect(sum.seats[0]!.badges).toEqual([]);
+  });
+});

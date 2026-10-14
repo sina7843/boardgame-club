@@ -128,3 +128,15 @@ describe('race for the galaxy rules', () => {
     }
   }, 120_000);
 });
+
+describe('race-galaxy publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = rgModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats[0]!.stats!.find((x) => x.label === 'کارت')!.value).toBe(state.players[0]!.hand.length);
+    expect(sum.shared!.find((x) => x.label === 'دسته')!.value).toBe(state.deck.length);
+    expect(JSON.stringify(sum)).not.toContain('choice');
+  });
+});

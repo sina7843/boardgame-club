@@ -198,6 +198,27 @@ export const yahtzeeModule: GameModule<YahtzeeState, YahtzeeAction, YahtzeeView>
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const pts = s.sheets.map((_, k) => totalOf(s, k));
+    const top = Math.max(...pts);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const filled = s.sheets.map((x) => CATS.filter((k) => x[k] !== undefined).length);
+    return {
+      seats: s.sheets.map((_, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: pts[seat]! },
+        stats: [
+          { key: 'boxes', label: 'خانه', value: filled[seat]!, icon: 'layers' },
+          { key: 'upper', label: 'بالا', value: totals(s.sheets[seat]!, 0).upper }
+        ],
+        ...(s.bonusYahtzees[seat]! > 0 ? { badges: [{ key: 'yahtzee', label: `یاتزی ×${s.bonusYahtzees[seat]! + 1}`, tone: 'premium' as const }] } : {}),
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: Math.min(13, Math.min(...filled) + 1), max: 13 }],
+      ...(pts.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: pts.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },

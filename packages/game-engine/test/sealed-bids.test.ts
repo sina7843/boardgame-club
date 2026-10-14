@@ -132,3 +132,17 @@ describe('sealed-bids rules', () => {
     expect(last.outcome).not.toBeNull();
   });
 });
+
+describe('sealed-bids publicSummary', () => {
+  it('shows who has bid, never the bid', () => {
+    let snap = startGame(m, { playerCount: 3, seed: 2 }).snapshot;
+    const a = sealedBidsModule.publicSummary!(st(snap));
+    expect(a.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(a.seats.every((x) => x.stats![0]!.value === 5 && x.status === undefined)).toBe(true);
+    const bid = (tok: number) => sealedBidsModule.publicSummary!(st(act(snap, 1, { type: 'bid', token: tok }).snapshot));
+    expect(bid(5)).toEqual(bid(2));
+    expect(bid(5).seats[1]!.status).toBe('done');
+    snap = round(snap, [1, 2, 3]).snapshot;
+    expect(sealedBidsModule.publicSummary!(st(snap)).seats[2]!.primary!.value).toBe(1);
+  });
+});

@@ -295,6 +295,26 @@ export const splendorModule: GameModule<SplendorState, SplendorAction, SplendorV
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const pts = s.tokens.map((_, k) => pointsOf(s, k));
+    const top = Math.max(...pts);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.tokens.map((tk, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: pts[seat]!, target: 15 },
+        stats: [
+          { key: 'cards', label: 'کارت', value: s.bought[seat]!.length, icon: 'layers' },
+          { key: 'gems', label: 'جواهر', value: count(tk), icon: 'gem' },
+          { key: 'reserved', label: 'رزرو', value: s.reserved[seat]!.length }
+        ],
+        ...(s.visited[seat]!.length ? { badges: [{ key: 'nobles', label: `اشراف ${s.visited[seat]!.length}`, tone: 'premium' as const }] } : {}),
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      ...(pts.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: pts.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 31,
     options: { deal: 'tutorial' },

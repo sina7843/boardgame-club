@@ -328,6 +328,25 @@ export const sspModule: GameModule<SspState, SspAction, SspView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const top = Math.max(...s.scores);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.hands.map((h, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: s.scores[seat]!, target: TARGET[s.players]! },
+        stats: [
+          { key: 'hand', label: 'کارت', value: h.length, icon: 'layers' },
+          { key: 'played', label: 'بازی‌شده', value: s.played[seat]!.length }
+        ],
+        ...(s.lastChance?.caller === seat && !s.outcome ? { badges: [{ key: 'last', label: 'آخرین فرصت', tone: 'warning' as const }] } : {}),
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round }],
+      ...(s.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.scores.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 53,
     options: { deal: 'tutorial' },

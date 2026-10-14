@@ -238,6 +238,23 @@ export const patchworkModule: GameModule<PatchworkState, PatchworkAction, Patchw
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => {
+    const sc = s.buttons.map((_, k) => score(s, k));
+    return {
+      seats: sc.map((v, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: v },
+        stats: [
+          { key: 'buttons', label: 'دکمه', value: s.buttons[seat]!, icon: 'coins' },
+          { key: 'income', label: 'درآمد', value: s.income[seat]! }
+        ],
+        badges: s.bonus7 === seat ? [{ key: 'bonus7', label: 'پاداش ۷×۷', tone: 'premium' as const }] : [],
+        ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+      })),
+      ...(sc[0] !== sc[1] ? { leaderSeat: sc[0]! > sc[1]! ? 0 : 1 } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

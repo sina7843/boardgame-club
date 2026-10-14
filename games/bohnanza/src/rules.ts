@@ -314,6 +314,25 @@ export const beanModule: GameModule<BeanState, BeanAction, BeanView> = {
     return { ...finish(s, []), internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const top = Math.max(...s.coins);
+    const leaders = s.coins.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.coins.map((coins, seat) => ({
+        seat,
+        primary: { label: 'سکه', value: coins },
+        stats: [
+          { key: 'cards', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' },
+          { key: 'fields', label: 'مزرعه', value: s.fields[seat]!.length, icon: 'map' }
+        ],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
+      ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'settle' ? s.pending.map((p, k) => (p.length ? k : -1)).filter((k) => k >= 0) : s.offer ? [s.offer.to] : [s.current]),
 
   tutorial: {

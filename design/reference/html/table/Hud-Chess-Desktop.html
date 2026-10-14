@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>شطرنج، دسکتاپ</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.th-stage{position:relative;flex:1;min-block-size:0}
+.th-stage>img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:contain}
+.th .bgv-pcard--mini{padding:10px 12px}
+.th .bgv-pcard--mini .bgv-pcard__stats{gap:6px!important;flex-wrap:nowrap}
+.th .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.th .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.th .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.th .bgv-pcard__top>.bgv-avatar{margin:4px}
+.th .bgv-felt-plate{padding:8px 12px}
+.th .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.th .bgv-turn__who{min-inline-size:0;overflow:hidden;text-overflow:ellipsis}
+.th-img{display:block;max-inline-size:100%;block-size:auto;object-fit:contain;margin-inline:auto}
+.th-desk{grid-template-columns:var(--rail-w) minmax(0,1fr) var(--chat-w);grid-template-rows:var(--gamebar-h) minmax(0,1fr) auto;block-size:auto;min-block-size:900px}
+.th-desk>.th-rail{grid-column:1;grid-row:2/4;min-block-size:0}
+.th-desk>.th-felt{grid-column:2;grid-row:2;min-inline-size:0}
+.th-desk>.th-dock{grid-column:2;grid-row:3;min-inline-size:0}
+.th-desk>.th-chat{grid-column:3;grid-row:2/4;min-block-size:0}
+.th-desk .th-stage{min-block-size:360px}
+.th-chatbtn{display:none}
+.th-desk .bgv-actiondock__actions{flex-wrap:wrap}
+.th-desk .bgv-actiondock__actions>.bgv-btn{flex:1 1 auto}
+.th-desk .bgv-actiondock__prompt{flex-wrap:wrap}
+@media (max-width:1199px){.th-desk{grid-template-columns:var(--rail-w) minmax(0,1fr)}.th-desk>.th-rail{grid-column:1}.th-desk>.th-felt,.th-desk>.th-dock{grid-column:2}.th-chatbtn{display:inline-flex}}
+@media (max-width:899px){.th-desk{grid-template-columns:minmax(0,1fr);grid-template-rows:var(--gamebar-h) auto auto auto;padding:var(--space-2);gap:var(--space-2);min-block-size:0}.th-desk>.th-rail,.th-desk>.th-felt,.th-desk>.th-dock{grid-column:1;grid-row:auto}.th-desk>.th-rail{flex-direction:row;overflow-x:auto;scrollbar-width:none;padding-block:10px}.th-desk>.th-rail>.bgv-pcard{flex:none;inline-size:240px}.th-desk>.th-rail>.th-race,.th-gb-x{display:none}.th-desk .th-stage{flex:none;min-block-size:0;aspect-ratio:var(--ar)}.th-desk .bgv-gamebar__meta .th-gb-more{display:none!important}}
+.th-duel{padding:10px 14px;gap:0}
+.th-duel .bgv-pcard__top{gap:10px}
+.th-mlog{grid-template-columns:32px 1fr 1fr;gap:4px 8px}
+.th-mlog span{padding:2px 6px;border-radius:var(--radius-xs)}
+.th-mlog .is-last{background:var(--surface-raised);font-weight:800}
+.th-mlog .n{color:var(--text-muted)}
+@media (max-width:899px){.th-desk>.th-rail{order:5;flex-direction:column;overflow:visible}}
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+</style>
+
+<div class="bgv th" data-theme="light" dir="rtl" style="min-height: 900px;">
+<div class="bgv-tablescreen bgv-tablescreen--desk th-desk">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">شطرنج<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">CHESS</span></span><span class="bgv-gamebar__meta">زنده<span class="bgv-sep"></span>۱۰ دقیقه + ۵ ثانیه<span class="th-gb-more" style="display:contents"><span class="bgv-sep"></span>رتبه‌ای<span class="bgv-sep"></span><span class="bgv-conn">متصل</span></span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="صدا و لرزش"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count th-chatbtn" type="button" aria-label="گفت‌وگوی میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<aside class="bgv-hud bgv-hud--rail th-rail" aria-label="حرکت‌ها و ماده"><section class="bgv-card" style="padding:16px;display:grid;gap:12px;align-content:start" aria-label="حرکت‌ها">
+ <div style="display:flex;align-items:center;gap:8px"><b style="font-size:15px;color:var(--heading)">حرکت‌ها</b><span class="bgv-spacer"></span><span class="bgv-tag">حرکت ۱۱</span></div>
+ <div style="display:grid;grid-template-columns:32px 1fr 1fr;gap:8px;font-size:12.5px;color:var(--text-muted);font-weight:700"><span>#</span><span>سفید</span><span>سیاه</span></div>
+ <div class="bgv-mlog th-mlog" aria-label="حرکت‌ها"><span class="n">۱.</span><span class="bgv-latin">a3</span><span class="bgv-latin">c5</span><span class="n">۲.</span><span class="bgv-latin">e4</span><span class="bgv-latin">g5</span><span class="n">۳.</span><span class="bgv-latin">c4</span><span class="bgv-latin">a5</span><span class="n">۴.</span><span class="bgv-latin">g4</span><span class="bgv-latin">b6</span><span class="n">۵.</span><span class="bgv-latin">Nc3</span><span class="bgv-latin">e5</span><span class="n">۶.</span><span class="bgv-latin">Nf3</span><span class="bgv-latin">Nf6</span><span class="n">۷.</span><span class="bgv-latin">Nxe5</span><span class="bgv-latin">d6</span><span class="n">۸.</span><span class="bgv-latin">Nd3</span><span class="bgv-latin">h5</span><span class="n">۹.</span><span class="bgv-latin">gxh5</span><span class="bgv-latin">Nc6</span><span class="n">۱۰.</span><span class="bgv-latin">b4</span><span class="bgv-latin is-last">axb4</span></div>
+</section><section class="bgv-card th-material" style="padding:16px;display:grid;gap:10px" aria-label="مهره‌های گرفته‌شده">
+ <b style="font-size:15px;color:var(--heading)">ماده</b>
+ <div class="bgv-row" style="justify-content:space-between"><span><i class="bgv-seat seat-1"></i> مینا، سفید</span><b class="bgv-num--signed">+۱</b></div>
+ <div class="bgv-row" style="justify-content:space-between;color:var(--text-muted)"><span><i class="bgv-seat seat-2"></i> نیلوفر، سیاه</span><span>۲ پیاده از دست داده</span></div>
+</section></aside>
+<main class="bgv-felt th-felt" aria-label="میز شطرنج">
+ <div class="bgv-felt-row" style="justify-content:center"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-1 is-you">م</span>نوبت شما، سفید</span></span></div>
+ <div style="display:grid;gap:8px;inline-size:min(100%,560px);margin-inline:auto;flex:1;grid-template-rows:auto minmax(0,1fr) auto">
+  <div class="bgv-pcard bgv-pcard--wide th-duel" role="button" tabindex="0" aria-label="نیلوفر"><div class="bgv-pcard__top"><span class="bgv-avatar bgv-avatar--sm seat-2">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2"></i>نیلوفر<span class="bgv-league bgv-league--diamond">الماس</span></b><small>سیاه<span class="bgv-sep"></span>۱ پیاده گرفته</small></div><span class="bgv-clock" data-state="paused" style="--p:0.65;" role="timer" aria-label="ساعت نیلوفر، متوقف"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__time">۶:۳۰</span></span></div></div>
+  <div class="th-stage" style="--ar:1120/1122;"><img src="../assets/games/tablehud-chess-board-d.webp" alt="صفحهٔ شطرنج از خود بازی؛ شما سفید پایین صفحه" width="560" height="561"></div>
+  <div class="bgv-pcard bgv-pcard--wide th-duel is-you is-turn" style="--clock-c:var(--clock-warn)" role="button" tabindex="0" aria-label="مینا"><div class="bgv-pcard__top"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you is-turn" style="--clock-c:var(--clock-warn);">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1"></i>مینا<span class="bgv-league bgv-league--gold">طلا</span></b><small>سفید<span class="bgv-sep"></span>۲ پیاده گرفته، <span class="bgv-num--signed">+۱</span></small></div><span class="bgv-clock" data-state="warn" style="--p:0.42;" role="timer" aria-label="ساعت شما، در حال کم شدن"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۴:۱۲</span></span></div></div>
+ </div>
+</main>
+<section class="bgv-actiondock th-dock" aria-label="دست و کنش‌های شما"><div class="bgv-actiondock__prompt"><span style="min-inline-size:0">یک مهرهٔ خودی را بزنید تا خانه‌های مجاز روشن شوند</span></div><div class="bgv-row" style="gap:8px"><label class="bgv-check" style="font-size:14px"><input type="checkbox">همراه حرکتم پیشنهاد تساوی بده</label></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3" /> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /> <path d="m21 3 1 11h-2" /> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /> <path d="M3 4h8" /></svg>پیشنهاد تساوی</button><button class="bgv-btn bgv-btn--leave" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /> <line x1="4" x2="4" y1="22" y2="15" /></svg>تسلیم</button></div></section>
+<section class="bgv-chat th-chat" style="" aria-label="گفت‌وگوی میز"><div class="bgv-chat__head"><span class="bgv-chat__title"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>گفت‌وگوی میز</span><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="بی‌صدا کردن گفت‌وگوی این میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5" /> <path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="m2 2 20 20" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="بستن گفت‌وگو"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div><div class="bgv-chat__list"><span class="bgv-sys">بازی شروع شد؛ <b>مینا</b> سفید است</span><div class="bgv-msg"><span class="bgv-avatar bgv-avatar--xs seat-2">ن</span><div class="bgv-msg__col"><span class="bgv-msg__meta"><i class="bgv-seat seat-2"></i><b>نیلوفر</b>۵ دقیقه</span><div class="bgv-msg__bubble">شروع عجیبی بود 😄 a3؟</div></div></div><div class="bgv-msg bgv-msg--mine"><div class="bgv-msg__col"><div class="bgv-msg__bubble">صبر کن تا ببینی</div><span class="bgv-msg__meta">۴ دقیقه <span class="bgv-seen"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 7 17l-5-5" /> <path d="m22 10-7.5 7.5L13 16" /></svg></span></span></div></div><span class="bgv-sys bgv-sys--game"><i class="bgv-seat seat-1"></i><b>مینا</b> با اسب پیادهٔ e5 را گرفت</span><span class="bgv-sys bgv-sys--game"><i class="bgv-seat seat-2"></i><b>نیلوفر</b> axb4</span></div><div class="bgv-composer"><div class="bgv-quicktray" aria-label="پیام سریع"><button class="bgv-chip" type="button">حرکت خوبی بود</button><button class="bgv-chip" type="button">مساوی؟</button><button class="bgv-chip" type="button">وای!</button><button class="bgv-chip" type="button">👏</button></div><div class="bgv-composer__row"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="ایموجی و پیام سریع"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="M8 14s1.5 2 4 2 4-2 4-2" /> <line x1="9" x2="9.01" y1="9" y2="9" /> <line x1="15" x2="15.01" y1="9" y2="9" /></svg></button><label class="bgv-sr" for="chat-in">پیام</label><textarea id="chat-in" class="bgv-composer__input" rows="1" placeholder="پیام به میز… (@ برای نام بردن)"></textarea><button class="bgv-btn bgv-btn--icon bgv-btn--primary" type="button" aria-label="ارسال"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /> <path d="m21.854 2.147-10.94 10.939" /></svg></button></div></div></section>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

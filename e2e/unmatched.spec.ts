@@ -10,7 +10,7 @@ const RESULT = /بردید|باختید|مساوی/;
 
 async function startTable(host: Page, guest: Page, mapFa: string) {
   await host.goto('/games/unmatched/new');
-  await host.getByText('زنده', { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByRole('group', { name: 'میدان نبرد' }).getByText(mapFa, { exact: true }).click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');

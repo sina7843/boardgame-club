@@ -6,7 +6,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
   AppError, apiErrorSchema, conversationItem, MESSAGE_EDIT_WINDOW_SECONDS, messageBody, messageEditBody, messageItem, messagesPage, QUICK_CHAT,
-  slowModeBody, userIdBody, type ConversationItem, type MessageItem
+  muteChatBody, reactionBody, slowModeBody, userIdBody, type ConversationItem, type MessageItem
 } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { isChatRestricted } from '@bg/play';
@@ -15,7 +15,7 @@ import { requireUser, type AuthContext } from '../auth/session.ts';
 import { assertCanDirectMessage, membershipOf, pair, profiles } from './relations.ts';
 import { maskProfanity } from './word-filter.ts';
 
-const { conversations, conversationMembers, messages, participants, gameTables, groups, clubs, memberships, userMutes, outboxEvents, auditLog } = schema;
+const { conversations, conversationMembers, messageReactions, messages, participants, gameTables, groups, clubs, memberships, userMutes, outboxEvents, auditLog } = schema;
 type Conversation = typeof conversations.$inferSelect;
 type MessageRow = typeof messages.$inferSelect;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema, 429: apiErrorSchema };
@@ -54,11 +54,11 @@ async function canModerate(db: Db, auth: AuthContext, c: Conversation): Promise<
   return false;
 }
 
-async function loadAccessible(db: Db, auth: AuthContext, id: string): Promise<{ c: Conversation; members: string[] }> {
+async function loadAccessible(db: Db, auth: AuthContext, id: string, readOnlyOk = false): Promise<{ c: Conversation; members: string[] }> {
   const [c] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!c) throw new AppError('NOT_FOUND');
   const members = await conversationMembersOf(db, c);
-  if (!members.includes(auth.userId)) throw new AppError('FORBIDDEN');
+  if (!members.includes(auth.userId) && !(readOnlyOk && await canRead(db, c, auth.userId, members))) throw new AppError('FORBIDDEN');
   return { c, members };
 }
 
@@ -68,7 +68,53 @@ export async function scopeConversation(db: Db, kind: 'table' | 'group' | 'club'
   return c!;
 }
 
-async function toItems(db: Db, rows: MessageRow[]): Promise<MessageItem[]> {
+/** Spectators may read (not post) table chat when they may view the table: not a tutorial, not private (tournaments are always watchable). */
+export async function canViewTable(db: Db, tableId: string): Promise<boolean> {
+  const [t] = await db.select({ isTutorial: gameTables.isTutorial, visibility: gameTables.visibility, settings: gameTables.settings }).from(gameTables).where(eq(gameTables.id, tableId));
+  if (!t || t.isTutorial) return false;
+  return t.visibility !== 'private' || !!(t.settings as { tournament?: unknown }).tournament;
+}
+
+/** Members, or (table chat) anyone who may spectate the table. */
+async function canRead(db: Db, c: Conversation, userId: string, members: string[]): Promise<boolean> {
+  return members.includes(userId) || (c.kind === 'table' && await canViewTable(db, c.scopeId!));
+}
+
+type ReactionRow = { messageId: string; userId: string; emoji: string };
+export async function reactionRows(db: Db, ids: string[]): Promise<ReactionRow[]> {
+  return ids.length ? db.select({ messageId: messageReactions.messageId, userId: messageReactions.userId, emoji: messageReactions.emoji })
+    .from(messageReactions).where(inArray(messageReactions.messageId, ids)).orderBy(messageReactions.createdAt) : [];
+}
+/** Aggregate one message's reactions for a viewer (emoji in first-used order). */
+export function reactionsFor(rows: ReactionRow[], messageId: string, viewerId?: string): MessageItem['reactions'] {
+  const out = new Map<string, { emoji: string; count: number; mine: boolean }>();
+  for (const r of rows) {
+    if (r.messageId !== messageId) continue;
+    const e = out.get(r.emoji) ?? { emoji: r.emoji, count: 0, mine: false };
+    e.count++;
+    if (r.userId === viewerId) e.mine = true;
+    out.set(r.emoji, e);
+  }
+  return [...out.values()];
+}
+
+const escapeRe = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Members named as `@displayName` (name must end at a non-letter/digit). Sender excluded. */
+export function mentionedIn(body: string, people: { id: string; displayName: string }[], senderId: string): string[] {
+  if (!body.includes('@')) return [];
+  return people.filter((p) => p.id !== senderId && p.displayName
+    && new RegExp(`@${escapeRe(p.displayName)}(?![\\p{L}\\p{N}_])`, 'u').test(body)).map((p) => p.id);
+}
+
+async function toItems(db: Db, rows: MessageRow[], viewerId?: string): Promise<MessageItem[]> {
+  const reactions = await reactionRows(db, rows.map((m) => m.id));
+  // ponytail: loads the conversation's members once per page that contains an '@'; fine for table/DM/group sizes, cache if clubs get huge.
+  const mentions = new Map<string, string[]>();
+  for (const cid of new Set(rows.filter((m) => !m.deletedAt && m.body.includes('@')).map((m) => m.conversationId))) {
+    const [c] = await db.select().from(conversations).where(eq(conversations.id, cid));
+    const people = [...(await profiles(db, await conversationMembersOf(db, c!))).values()];
+    for (const m of rows) if (m.conversationId === cid && !m.deletedAt) mentions.set(m.id, mentionedIn(m.body, people, m.senderId));
+  }
   const replyIds = [...new Set(rows.map((m) => m.replyToId).filter((id): id is string => !!id))];
   const replies = new Map((replyIds.length ? await db.select().from(messages).where(inArray(messages.id, replyIds)) : []).map((r) => [r.id, r]));
   const map = await profiles(db, [...rows.map((m) => m.senderId), ...[...replies.values()].map((r) => r.senderId)]);
@@ -77,6 +123,7 @@ async function toItems(db: Db, rows: MessageRow[]): Promise<MessageItem[]> {
     return {
       id: m.id, conversationId: m.conversationId, sender: map.get(m.senderId)!, createdAt: m.createdAt.toISOString(),
       deleted: !!m.deletedAt, body: m.deletedAt ? '' : m.body, editedAt: m.editedAt?.toISOString() ?? null, clientId: m.clientId,
+      reactions: m.deletedAt ? [] : reactionsFor(reactions, m.id, viewerId), mentions: mentions.get(m.id) ?? [],
       replyTo: r ? { id: r.id, senderName: map.get(r.senderId)?.displayName ?? '', body: r.deletedAt ? '' : r.body.slice(0, 120), deleted: !!r.deletedAt } : null
     };
   });
@@ -132,14 +179,16 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
       muted.length ? sql`${messages.senderId} not in (${sql.join(muted.map((m) => sql`${m}`), sql`, `)})` : undefined
     )).orderBy(desc(messages.createdAt)).limit(limit + 1);
     const more = rows.length > limit;
-    const items = (await toItems(db, rows.slice(0, limit))).reverse();
+    const items = (await toItems(db, rows.slice(0, limit), auth.userId)).reverse();
     if (!before) await markRead(db, c.id, auth.userId);
     const [other] = c.kind === 'direct'
       ? await db.select({ at: conversationMembers.lastReadAt }).from(conversationMembers)
         .where(and(eq(conversationMembers.conversationId, c.id), ne(conversationMembers.userId, auth.userId)))
       : [];
+    const [mine] = await db.select({ mutedAt: conversationMembers.mutedAt }).from(conversationMembers)
+      .where(and(eq(conversationMembers.conversationId, c.id), eq(conversationMembers.userId, auth.userId)));
     return {
-      items, nextBefore: more ? items[0]!.createdAt : null, kind: c.kind as ConversationItem['kind'], slowModeSeconds: c.slowModeSeconds,
+      items, muted: !!mine?.mutedAt, nextBefore: more ? items[0]!.createdAt : null, kind: c.kind as ConversationItem['kind'], slowModeSeconds: c.slowModeSeconds,
       readUpTo: other?.at?.toISOString() ?? null
     };
   };
@@ -150,7 +199,7 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
       const [prior] = await db.select().from(messages).where(and(eq(messages.senderId, auth.userId), eq(messages.clientId, input.clientId)));
       if (prior) {
         if (prior.conversationId !== c.id) throw new AppError('VALIDATION_FAILED');
-        return (await toItems(db, [prior]))[0]!;
+        return (await toItems(db, [prior], auth.userId))[0]!;
       }
     }
     const preset = input.quick ? QUICK_CHAT.find((q) => q.id === input.quick)!.text : null;
@@ -185,15 +234,23 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
       if (!m) return null; // the same clientId was committed by a parallel retry
       await tx.update(conversations).set({ lastMessageAt: sql`now()` }).where(eq(conversations.id, c.id));
       // In-app notifications only for private messages; group/club/table chat is visible in place.
+      // Members who muted this conversation get neither kind of notification.
+      const quiet = new Set((await tx.select({ id: conversationMembers.userId }).from(conversationMembers)
+        .where(and(eq(conversationMembers.conversationId, c.id), sql`${conversationMembers.mutedAt} is not null`))).map((x) => x.id));
+      const loud = (ids: string[]) => ids.filter((u) => u !== auth.userId && !quiet.has(u));
+      const mentioned = loud(mentionedIn(body, [...(await profiles(db, members)).values()], auth.userId));
       if (c.kind === 'direct') {
-        await tx.insert(outboxEvents).values({ topic: 'message.created', aggregateId: c.id,
-          payload: { messageId: m.id, conversationId: c.id, senderId: auth.userId, recipientIds: members.filter((u) => u !== auth.userId) } });
+        const recipientIds = loud(members).filter((u) => !mentioned.includes(u));
+        if (recipientIds.length) await tx.insert(outboxEvents).values({ topic: 'message.created', aggregateId: c.id,
+          payload: { messageId: m.id, conversationId: c.id, senderId: auth.userId, recipientIds } });
       }
+      if (mentioned.length) await tx.insert(outboxEvents).values({ topic: 'message.mentioned', aggregateId: c.id,
+        payload: { messageId: m.id, conversationId: c.id, senderId: auth.userId, recipientIds: mentioned } });
       await tx.execute(sql`select pg_notify('message_created', ${m.id})`);
       return m;
     });
     const row = m ?? (await db.select().from(messages).where(and(eq(messages.senderId, auth.userId), eq(messages.clientId, input.clientId!))))[0]!;
-    return (await toItems(db, [row]))[0]!;
+    return (await toItems(db, [row], auth.userId))[0]!;
   };
 
   r.post('/conversations/direct', {
@@ -277,8 +334,8 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
     schema: { tags: ['chat'], summary: 'Messages, newest page first (cursor: before)', params: idParams, querystring: pageQuery, response: { 200: messagesPage, ...errors } }
   }, async (req) => {
     const auth = requireUser(req);
-    const { c } = await loadAccessible(db, auth, req.params.id);
-    return { ...(await page(auth, c, req.query.before, req.query.limit)), canPost: !(await isChatRestricted(db, auth.userId)), canModerate: await canModerate(db, auth, c) };
+    const { c, members } = await loadAccessible(db, auth, req.params.id, true);
+    return { ...(await page(auth, c, req.query.before, req.query.limit)), canPost: members.includes(auth.userId) && !(await isChatRestricted(db, auth.userId)), canModerate: await canModerate(db, auth, c) };
   });
 
   r.post('/conversations/:id/messages', {
@@ -289,10 +346,10 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
     return reply.code(201).send(await post(auth, c, members, req.body));
   });
 
-  // Table chat: participants only (spectators cannot read or write). Never contains game state.
-  const tableChat = async (auth: AuthContext, tableId: string) => {
+  // Table chat: participants read and write; spectators who may view the table read only. Never contains game state.
+  const tableChat = async (auth: AuthContext, tableId: string, write: boolean) => {
     const [p] = await db.select().from(participants).where(and(eq(participants.tableId, tableId), eq(participants.userId, auth.userId)));
-    if (!p) throw new AppError('NOT_PARTICIPANT');
+    if (!p && (write || !(await canViewTable(db, tableId)))) throw new AppError(write ? 'NOT_PARTICIPANT' : 'FORBIDDEN');
     const [t] = await db.select({ isTutorial: gameTables.isTutorial }).from(gameTables).where(eq(gameTables.id, tableId));
     if (t?.isTutorial) throw new AppError('FORBIDDEN');
     const c = await scopeConversation(db, 'table', tableId);
@@ -300,19 +357,46 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
   };
 
   r.get('/tables/:id/chat', {
-    schema: { tags: ['chat'], summary: 'Table chat (participants only)', params: idParams, querystring: pageQuery, response: { 200: messagesPage.extend({ conversationId: z.uuid() }), ...errors } }
+    schema: { tags: ['chat'], summary: 'Table chat (participants; spectators read-only)', params: idParams, querystring: pageQuery, response: { 200: messagesPage.extend({ conversationId: z.uuid() }), ...errors } }
   }, async (req) => {
     const auth = requireUser(req);
-    const { c } = await tableChat(auth, req.params.id);
-    return { conversationId: c.id, ...(await page(auth, c, req.query.before, req.query.limit)), canPost: !(await isChatRestricted(db, auth.userId)), canModerate: await canModerate(db, auth, c) };
+    const { c, members } = await tableChat(auth, req.params.id, false);
+    return { conversationId: c.id, ...(await page(auth, c, req.query.before, req.query.limit)), canPost: members.includes(auth.userId) && !(await isChatRestricted(db, auth.userId)), canModerate: await canModerate(db, auth, c) };
   });
 
   r.post('/tables/:id/chat', {
     schema: { tags: ['chat'], summary: 'Post to table chat (typed text or a quick-chat preset)', params: idParams, body: messageBody, response: { 201: messageItem, ...errors } }
   }, async (req, reply) => {
     const auth = requireUser(req);
-    const { c, members } = await tableChat(auth, req.params.id);
+    const { c, members } = await tableChat(auth, req.params.id, true);
     return reply.code(201).send(await post(auth, c, members, req.body));
+  });
+
+  r.put('/conversations/:id/mute', {
+    schema: { tags: ['chat'], summary: 'Mute or unmute notifications of a conversation for me', params: idParams, body: muteChatBody, response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const auth = requireUser(req);
+    const { c } = await loadAccessible(db, auth, req.params.id, true);
+    const mutedAt = req.body.muted ? sql`now()` : null;
+    await db.insert(conversationMembers).values({ conversationId: c.id, userId: auth.userId, mutedAt })
+      .onConflictDoUpdate({ target: [conversationMembers.conversationId, conversationMembers.userId], set: { mutedAt } });
+    return reply.code(204).send(null);
+  });
+
+  r.post('/messages/:id/reactions', {
+    schema: { tags: ['chat'], summary: 'Toggle my reaction (fixed emoji set) on a message I can read', params: idParams, body: reactionBody, response: { 200: messageItem, ...errors } }
+  }, async (req) => {
+    const auth = requireUser(req);
+    const [m] = await db.select().from(messages).where(eq(messages.id, req.params.id));
+    if (!m || m.deletedAt) throw new AppError('NOT_FOUND');
+    await loadAccessible(db, auth, m.conversationId, true);
+    const key = { messageId: m.id, userId: auth.userId, emoji: req.body.emoji };
+    await db.transaction(async (tx) => {
+      const gone = await tx.delete(messageReactions).where(and(eq(messageReactions.messageId, m.id), eq(messageReactions.userId, auth.userId), eq(messageReactions.emoji, key.emoji))).returning();
+      if (!gone.length) await tx.insert(messageReactions).values(key).onConflictDoNothing();
+      await tx.execute(sql`select pg_notify('message_created', ${m.id})`);
+    });
+    return (await toItems(db, [m], auth.userId))[0]!;
   });
 
   r.patch('/messages/:id', {
@@ -333,7 +417,7 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
       return u;
     });
     if (!updated) throw new AppError('EDIT_WINDOW_CLOSED');
-    return (await toItems(db, [updated]))[0]!;
+    return (await toItems(db, [updated], auth.userId))[0]!;
   });
 
   r.delete('/messages/:id', {

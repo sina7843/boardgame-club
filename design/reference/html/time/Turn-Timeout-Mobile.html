@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>بعد از پایان زمان</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.bgv-clock--chip{block-size:28px;padding-inline:5px 10px;gap:6px}
+.bgv-clock--bar{gap:8px}
+.bgv-turn{padding-inline:10px 16px}
+.bgv-gamebar{padding-inline:10px;gap:10px}
+.bgv-pcard--mini{padding:14px 8px 10px}
+.bgv-pcard--mini .bgv-pcard__name b{flex-wrap:wrap;white-space:normal;row-gap:4px}
+.bgv-pcard--mini.is-you .bgv-pcard__name b::after{margin-inline:auto}
+.bgv-avatar.is-turn::before{inset:-7px}
+.bgv-gamebar .bgv-btn[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-tile-primary)}
+.bgv-chat__head{padding-inline:16px 10px}
+.bgv-msg__meta{padding-inline:4px}
+.bgv-logo img.bgv-logo__dark,.bgv-logo img.bgv-logo__mark{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__light{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__dark:not(.bgv-logo__mark){display:block}
+@media (max-width:1199px){.bgv-app .bgv-logo img.bgv-logo__full{display:none}.bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:block}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:none}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__dark{display:block}}
+.bgv-quicktray{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 32px);mask-image:linear-gradient(to right,transparent 0,#000 32px);padding-inline-end:24px}
+.tc-barhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.tc-barhead__l{display:inline-flex;align-items:center;gap:4px;min-inline-size:0}.tc-latin{font-size:12px;font-weight:600;color:var(--text-muted)}.bgv-gamebar__meta{min-inline-size:0}.bgv-gamebar__meta > *{flex:none}.bgv-pcard--mini .bgv-pcard__foot{justify-content:center;min-block-size:28px}.tc-sent{display:inline-flex;color:var(--text-muted)}.tc-avgap{inline-size:24px;flex:none}.bgv-msg__reply span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bgv-msg__reply{border-radius:var(--radius-sm)}.bgv-composer{padding:12px}.bgv-composer__input{min-inline-size:0}.tc-count{font-size:12px;font-weight:700;color:var(--text-muted)}.bgv-chat__title{min-inline-size:0;flex-wrap:wrap;row-gap:0}
+.uno-felt{gap:12px}
+.uno-felt .bgv-felt-row{flex-wrap:nowrap}
+.uno-pile{flex:1;min-block-size:0;position:relative}
+.uno-pile img{position:absolute;inset:0}
+.uno-pile--low img{object-position:center bottom}
+.uno-hand{block-size:96px;flex:none;display:grid;place-items:center}
+.toast-top{position:absolute;inset-inline:8px;inset-block-start:8px;z-index:20}
+.toast-top .bgv-toast{inline-size:100%;max-inline-size:none;padding:12px 16px}
+.bgv-critbar{padding:12px 16px}
+.bgv-critbar__row{display:flex;align-items:center;gap:12px}
+.bgv-critbar__t{font-size:16px;font-weight:900;line-height:1.35}
+.bgv-critbar__s{font-size:13px;font-weight:400;line-height:1.5}
+.bgv-actiondock{padding:14px 16px}
+.bgv-actiondock__prompt{line-height:1.5;align-items:center}
+.bgv-actiondock__prompt > span:first-child{flex:1;min-inline-size:0}
+.bgv-banner{padding:12px 16px}
+
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+</style>
+
+<div class="bgv" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="block-size:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button>
+<div class="bgv-gamebar__title"><span class="bgv-gamebar__name">اونو<span class="bgv-latin tc-latin">UNO</span></span><span class="bgv-gamebar__meta">زنده<span class="bgv-sep"></span>۳۰ ثانیه هر نوبت<span class="bgv-sep"></span><span class="bgv-spectators" aria-label="۳ تماشاگر"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>۳</span></span></div>
+<button class="bgv-btn bgv-btn--secondary bgv-btn--icon bgv-iconbtn-count" aria-pressed="false" aria-label="گفت‌وگوی میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکن‌ها"><div class="bgv-pcard bgv-pcard--mini is-you"><span class="bgv-avatar bgv-avatar--sm seat-3 is-you">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3" aria-hidden="true"></i>مینا</b></div><div class="bgv-pcard__score">۷<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate bgv-pstate--off"><span class="bgv-strikes bgv-strikes--critical" role="img" aria-label="۲ از ۳ اخطار زمان"><i class="is-on"></i><i class="is-on"></i><i></i></span>۲ از ۳</span></div></div><div class="bgv-pcard bgv-pcard--mini is-turn" style="--clock-c:var(--clock-calm)"><span class="bgv-avatar bgv-avatar--sm seat-1 is-turn">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1" aria-hidden="true"></i>نیلوفر</b></div><div class="bgv-pcard__score">۶<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.97;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۹</span></span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-4">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4" aria-hidden="true"></i>آرش</b></div><div class="bgv-pcard__score">۱<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-badge bgv-badge--danger bgv-badge--sm">اونو!</span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-2">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2" aria-hidden="true"></i>سارا</b></div><div class="bgv-pcard__score">۴<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>منتظر</span></div></div></section>
+<main class="bgv-felt uno-felt" aria-label="میز اونو">
+<div class="bgv-felt-row"><span class="bgv-turn"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-1">ن</span>نوبت نیلوفر</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.97;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۹</span></span></span></div>
+<div class="uno-pile"><img src="../assets/games/timechat-uno-pile.webp" alt="کارت رو: برگشت آبی؛ دسته‌ی کشیدن ۶۹ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
+<div class="bgv-felt-row" style="justify-content:center"><span class="bgv-felt-plate">رنگ فعال <strong>آبی</strong></span><span class="bgv-felt-plate">جهت <strong>عادی</strong></span><span class="bgv-felt-plate">هدف <strong>۵۰۰</strong></span></div>
+<div class="uno-hand"><img src="../assets/games/timechat-uno-hand-drawn.webp" alt="دست شما، ۷ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
+</main>
+<div style="display:grid;gap:8px"><div class="bgv-banner bgv-banner--danger" role="status"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></svg><div class="bgv-banner__body"><span class="bgv-banner__title">اخطار زمان ۲ از ۳، پیاپی</span><span style="font-size:14px">اگر نوبت بعد هم زمان تمام شود، از بازی کنار گذاشته می‌شوید. یک حرکت به‌موقع اخطارها را صفر می‌کند.</span></div></div>
+<section class="bgv-actiondock is-waiting"><div class="bgv-actiondock__prompt"><span>بعد از نیلوفر، آرش و سارا نوبت شماست</span><span class="bgv-clock bgv-clock--lg" data-state="paused" style="--p:1;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۳۰</span><span class="bgv-clock__sub">زمان شما</span></span></span></div></section></div>
+</div><div class="toast-top"><div class="bgv-toast" role="status"><span class="bgv-toast__icon"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg></span><span class="bgv-toast__body"><span class="bgv-toast__title">زمان تمام شد؛ حرکت خودکار</span><span class="bgv-toast__text">یک کارت برایتان کشیده و نوبت رد شد</span></span></div></div>
+</div>
+</x-dc>
+
+</body>
+</html>

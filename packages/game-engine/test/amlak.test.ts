@@ -270,3 +270,15 @@ describe('amlak turns', () => {
     expect(finished).toBe(30);
   }, 300_000);
 });
+
+describe('amlak publicSummary', () => {
+  it('cash, properties, worth per seat; no hidden decks', () => {
+    const snap = game(3, (s) => own(s, 1, 1, 3));
+    const sum = amlakModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[1]!.stats![0]!.value).toBe(2);
+    expect(sum.seats[0]!.primary!.value).toBe(sum.seats[2]!.primary!.value);
+    expect(sum.strikesMax).toBe(3);
+    expect(JSON.stringify(sum)).not.toContain('chance');
+  });
+});

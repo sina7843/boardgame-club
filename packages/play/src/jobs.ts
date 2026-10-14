@@ -8,9 +8,9 @@ import { fireDeadline } from './runtime.ts';
 
 const { scheduledDeadlines, outboxEvents, notifications, platformIncidents, games, auditLog, userSettings, userMutes, blocks, users, behaviorSignals } = schema;
 
-type Kind = 'turn' | 'reminder' | 'finished' | 'invite' | 'match' | 'message' | 'friend_request' | 'club' | 'tournament';
+type Kind = 'turn' | 'reminder' | 'finished' | 'invite' | 'match' | 'message' | 'mention' | 'friend_request' | 'club' | 'tournament';
 const PREF: Record<Kind, 'turn' | 'invite' | 'message' | 'result' | 'social'> = {
-  turn: 'turn', reminder: 'turn', finished: 'result', invite: 'invite', match: 'invite', message: 'message', friend_request: 'social', club: 'social', tournament: 'invite'
+  turn: 'turn', reminder: 'turn', finished: 'result', invite: 'invite', match: 'invite', message: 'message', mention: 'message', friend_request: 'social', club: 'social', tournament: 'invite'
 };
 
 /**
@@ -107,6 +107,11 @@ export const notificationConsumers: Record<string, Consumer> = {
   'message.created': async (db, e) => {
     const p = e.payload as { messageId: string; conversationId: string; senderId: string; recipientIds: string[] };
     await notify(db, p.recipientIds, 'message', (u) => `message:${p.messageId}:${u}`,
+      { conversationId: p.conversationId, actorName: await displayName(db, p.senderId) }, p.senderId);
+  },
+  'message.mentioned': async (db, e) => {
+    const p = e.payload as { messageId: string; conversationId: string; senderId: string; recipientIds: string[] };
+    await notify(db, p.recipientIds, 'mention', (u) => `mention:${p.messageId}:${u}`,
       { conversationId: p.conversationId, actorName: await displayName(db, p.senderId) }, p.senderId);
   },
   'tournament.round': async (db, e) => {

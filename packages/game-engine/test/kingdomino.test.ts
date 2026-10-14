@@ -112,3 +112,14 @@ describe('kingdomino rules', () => {
     }
   }, 120_000);
 });
+
+describe('kingdomino publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = kingdominoModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0]);
+    expect(sum.shared![0]!.value).toBe(state.deck.length);
+  });
+});

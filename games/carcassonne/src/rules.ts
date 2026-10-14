@@ -264,6 +264,22 @@ export const carcModule: GameModule<CarcState, CarcAction, CarcView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const top = Math.max(...s.scores);
+    const leaders = s.scores.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.scores.map((score, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: score },
+        stats: [{ key: 'meeples', label: 'سرباز', value: s.meeplesLeft[seat]!, icon: 'users' }],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'کاشی', value: s.stack.length }],
+      ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

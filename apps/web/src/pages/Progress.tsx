@@ -1,10 +1,9 @@
 import { useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
 import type { Progression } from '@bg/contracts';
-import { Badge, Button, LeagueBadge, Progress, StateBlock } from '@bg/ui';
+import { Badge, Button, Card, League, ListItem, PageHead, Progress, Ring, StateBlock, Trophy } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
-import { LevelBadge, TIER_FA, Trophy } from '../lib/rewards.tsx';
+import { TIER_FA } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { Hint } from '../shell/Onboarding.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
@@ -20,8 +19,8 @@ function Clamped<T>({ items, limit, children }: { items: T[]; limit: number; chi
   return (
     <>
       {children(all ? items : items.slice(0, limit))}
-      {items.length > limit && <Button variant="ghost" size="sm" onClick={() => setAll(!all)} aria-expanded={all}>
-        {all ? 'نمایش کمتر' : `نمایش همه (${faNum(items.length)})`}</Button>}
+      {items.length > limit && <div><Button variant="ghost" size="sm" onClick={() => setAll(!all)} aria-expanded={all}>
+        {all ? 'نمایش کمتر' : `نمایش همه (${faNum(items.length)})`}</Button></div>}
     </>
   );
 }
@@ -31,7 +30,7 @@ export function ProgressPage() {
   usePageTitle('پیشرفت');
   const p = useApi<Progression>('/me/progression');
   const games = useApi<{ items: { id: string; nameFa: string }[] }>('/games');
-  if (p.error) return <StateBlock kind={p.error.status === 401 ? 'denied' : 'error'} title={p.error.status === 401 ? 'برای دیدن پیشرفت وارد شوید' : 'پیشرفت دریافت نشد'} action={p.error.status === 401 ? <Link className="btn btn--primary" to="/login?next=/progress">ورود</Link> : <Button onClick={p.reload}>تلاش دوباره</Button>} />;
+  if (p.error) return <StateBlock kind={p.error.status === 401 ? 'denied' : 'error'} title={p.error.status === 401 ? 'برای دیدن پیشرفت وارد شوید' : 'پیشرفت دریافت نشد'} action={p.error.status === 401 ? <Button variant="primary" href="/login?next=/progress">ورود</Button> : <Button variant="primary" onClick={p.reload}>تلاش دوباره</Button>} />;
   if (!p.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = p.data;
   const gameName = (id: string) => games.data?.items.find((g) => g.id === id)?.nameFa ?? id;
@@ -42,92 +41,97 @@ export function ProgressPage() {
   // Earned first (track order kept), then the locked ones closest to done.
   const ratio = (a: (typeof d.achievements)[number]) => a.progress / Math.max(1, a.target);
   const earnedFirst = [...d.achievements].sort((a, b) => Number(!a.grantedAt) - Number(!b.grantedAt) || (a.grantedAt ? 0 : ratio(b) - ratio(a)));
+  const span = Math.max(1, d.nextLevelAt - d.levelFloor);
+  const into = d.xp - d.levelFloor;
   return (
     <>
       <PageTabs group="progress" />
-      <div className="page-head"><div><h1 className="page-title">پیشرفت</h1><p className="page-sub">مهارت، سطح حساب و تسلط هر بازی جدا از هم سنجیده می‌شوند؛ XP و دستاورد روی رتبه اثر ندارند.</p></div></div>
-      <div className="progress-grid">
-        <section className="panel stack" aria-labelledby="lvl-h">
-          <h2 id="lvl-h" className="section-title">سطح حساب</h2>
-          <div className="row"><LevelBadge level={d.level} size={72} /><strong style={{ fontSize: 'var(--fs-2xl)' }}>سطح {faNum(d.level)}</strong><span className="muted">{faNum(d.xp)} XP</span></div>
-          <Progress label="تا سطح بعد" value={d.xp - d.levelFloor} max={d.nextLevelAt - d.levelFloor} valueText={`${faNum(d.xp - d.levelFloor)} از ${faNum(d.nextLevelAt - d.levelFloor)}`} />
-        </section>
-
-        <section className="panel stack" aria-labelledby="missions-h">
-          <h2 id="missions-h" className="section-title">مأموریت‌های این هفته<Hint id="missions">هر شنبه مأموریت‌های تازه می‌آید. با کامل کردن میزها (حتی با باخت) پیش می‌روند و XP می‌دهند.</Hint></h2>
-          <p className="muted" style={{ margin: 0 }}>تا {jalaliDate(d.missions.endsAt)}؛ هیچ مأموریتی برد اجباری ندارد.</p>
-          {d.missions.items.map((m) => (
-            <div key={m.key} className="stack" style={{ gap: 'var(--sp-1)' }}>
-              <div className="row"><strong style={{ flex: 1 }}>{m.titleFa}</strong>{m.completed ? <Badge tone="success">کامل (+{faNum(m.xp)} XP)</Badge> : <span className="muted">+{faNum(m.xp)} XP</span>}</div>
-              <span className="muted">{m.descriptionFa}</span>
-              <Progress label={m.titleFa} value={m.progress} max={m.target} valueText={`${faNum(m.progress)} از ${faNum(m.target)}`} />
+      <PageHead title="پیشرفت" sub="مهارت، سطح حساب و تسلط هر بازی جدا از هم سنجیده می‌شوند؛ XP و دستاورد روی رتبه اثر ندارند." />
+      <div className="pf-prog">
+        <Card title="سطح حساب">
+          <div className="bgv-stack">
+            <div className="pf-level">
+              <div className="bgv-stack" style={{ gap: 'var(--space-1)' }}>
+                <strong className="t-h3">سطح {faNum(d.level)}</strong>
+                <span className="t-caption bgv-muted"><bdi>{faNum(d.xp)}</bdi> XP</span>
+              </div>
+              <Ring value={into / span} size={88} tone="accent" label="تا سطح بعد"><b className="t-num-lg">{faNum(d.level)}</b></Ring>
             </div>
-          ))}
-        </section>
+            <Progress label="تا سطح بعد" tone="accent" value={into / span} valueText={`${faNum(into)} از ${faNum(span)}`} />
+          </div>
+        </Card>
 
-        <section className="panel stack progress-grid__wide" aria-labelledby="ach-h">
-          <div className="row"><h2 id="ach-h" className="section-title" style={{ flex: 1 }}>دستاوردها<Hint id="achievements">جام‌ها خودکار و فقط از نتیجهٔ واقعی بازی‌ها و آموزش‌ها داده می‌شوند و روی پروفایل شما دیده می‌شوند.</Hint></h2>
-            <span className="muted">{faNum(earned)} از {faNum(d.achievements.length)} جام</span></div>
-          {/* Every earned trophy, then the next few locked ones; the rest behind the toggle. */}
-          <Clamped items={earnedFirst} limit={earned + 4}>{(shown) => (
-            <ul className="achievements">{shown.map((a, i) => (
-              <li key={a.key} className={`ach tier--${a.tier}${a.grantedAt ? ' ach--on' : ''}`} style={{ '--sheen-delay': `${(i % 7) * 0.7}s` } as React.CSSProperties}>
-                <Trophy tier={a.tier} locked={!a.grantedAt} />
-                <span className="ach__tier">{TIER_FA[a.tier]}</span>
-                <strong>{a.titleFa}</strong><span className="muted">{a.descriptionFa}</span>
-                {a.grantedAt ? <span className="muted">کسب‌شده {jalaliDate(a.grantedAt)}</span> : (
-                  <div className="ach__progress" role="progressbar" aria-label={`پیشرفت ${a.titleFa}`} aria-valuemin={0} aria-valuemax={a.target} aria-valuenow={a.progress}
-                    aria-valuetext={`${faNum(a.progress)} از ${faNum(a.target)}`}>
-                    <span className="ach__bar"><span style={{ inlineSize: `${Math.round((a.progress / Math.max(1, a.target)) * 100)}%` }} /></span>
-                    <span className="muted num">{faNum(a.progress)} / {faNum(a.target)}</span>
-                  </div>)}
-              </li>))}</ul>)}
-          </Clamped>
-        </section>
+        <Card title="مأموریت‌های این هفته">
+          <div className="bgv-stack">
+            <div className="bgv-row"><Badge icon="calendar">تا {jalaliDate(d.missions.endsAt)}</Badge><Hint id="missions">هر شنبه مأموریت‌های تازه می‌آید. با کامل کردن میزها (حتی با باخت) پیش می‌روند و XP می‌دهند.</Hint></div>
+            <p className="t-body-sm bgv-muted">هیچ مأموریتی برد اجباری ندارد.</p>
+            {d.missions.items.map((m) => (
+              <div key={m.key} className="bgv-stack" style={{ gap: 'var(--space-1)' }}>
+                <div className="bgv-row"><strong style={{ flex: 1 }}>{m.titleFa}</strong>
+                  {m.completed ? <Badge tone="success" icon="check">کامل (+{faNum(m.xp)} XP)</Badge> : <span className="t-caption bgv-muted">+{faNum(m.xp)} XP</span>}</div>
+                <span className="t-caption bgv-muted">{m.descriptionFa}</span>
+                <Progress label={m.titleFa} value={m.progress / Math.max(1, m.target)} valueText={`${faNum(m.progress)} از ${faNum(m.target)}`} />
+              </div>
+            ))}
+          </div>
+        </Card>
 
-        <section className="panel stack" aria-labelledby="skill-h">
-          <h2 id="skill-h" className="section-title">مهارت (رتبه‌دار)</h2>
-          {d.season && <p className="muted" style={{ margin: 0 }}>فصل فعال: {d.season.nameFa}، تا {jalaliDate(d.season.endsAt)}</p>}
-          {d.ratings.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز بازی رتبه‌داری نکرده‌اید. از <Link to="/play">حریف‌یابی</Link> «رتبه‌دار» را انتخاب کنید.</p> : (
-            <Clamped items={d.ratings} limit={6}>{(shown) => (
-              <ul className="list">{shown.map((r) => (
-                <li key={`${r.gameId}-${r.mode}`} className="list__item list__item--compact">
-                  <span style={{ flex: 1 }}>{gameName(r.gameId)} · {PACE_FA[r.mode]}</span>
-                  <strong className="num">{faNum(r.display)}</strong>
-                  {r.provisional && <Badge>موقت ({faNum(r.games)} بازی)</Badge>}
-                  {r.league && <LeagueBadge league={r.league} />}
+        <Card className="pf-wide" title="دستاوردها"
+          actions={<span className="bgv-row"><span className="t-caption bgv-muted">{faNum(earned)} از {faNum(d.achievements.length)} جام</span><Hint id="achievements">جام‌ها خودکار و فقط از نتیجهٔ واقعی بازی‌ها و آموزش‌ها داده می‌شوند و روی پروفایل شما دیده می‌شوند.</Hint></span>}>
+          <div className="bgv-stack">
+            {/* Every earned trophy, then the next few locked ones; the rest behind the toggle. */}
+            <Clamped items={earnedFirst} limit={earned + 4}>{(shown) => (
+              <ul className="pf-ach">{shown.map((a) => (
+                <li key={a.key}>
+                  <Trophy tier={a.tier} locked={!a.grantedAt} name={a.titleFa} sub={TIER_FA[a.tier]} />
+                  <span className="t-caption bgv-muted">{a.descriptionFa}</span>
+                  {a.grantedAt ? <Badge tone="success" icon="check">کسب‌شده {jalaliDate(a.grantedAt)}</Badge> : (
+                    <Progress label={`پیشرفت ${a.titleFa}`} value={ratio(a)} valueText={`${faNum(a.progress)} / ${faNum(a.target)}`} />
+                  )}
                 </li>))}</ul>)}
             </Clamped>
-          )}
-          <Link to="/ranking">جدول رتبه‌بندی و سابقه</Link>
-        </section>
+          </div>
+        </Card>
 
-        <section className="panel stack" aria-labelledby="mastery-h">
-          <div className="row"><h2 id="mastery-h" className="section-title" style={{ flex: 1 }}>تسلط بر بازی‌ها</h2>
-            <span className="muted">{faNum(played.length)} از {faNum(d.mastery.length)} بازی</span></div>
-          {played.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز بازی‌ای را تمام نکرده‌اید. با آموزش یا اولین بازی، تسلط شروع می‌شود. <Link to="/games">دیدن بازی‌ها</Link></p> : (
-            <Clamped items={played} limit={8}>{(shown) => (
-              <ul className="list">{shown.map((m) => (
-                <li key={m.gameId} className="list__item list__item--compact mastery-row">
-                  <span className="mastery-row__name">{m.gameNameFa}</span><Badge tone={m.tier === 'master' ? 'premium' : undefined}>{m.tierFa}</Badge>
-                  <span className="muted mastery-row__stats">{faNum(m.completed)} بازی · {faNum(m.wins)} اول · {faNum(m.ranked)} رتبه‌دار{m.tutorial ? ' · آموزش ✓' : ''}</span>
-                </li>))}</ul>)}
-            </Clamped>
-          )}
-        </section>
+        <Card title="مهارت (رتبه‌دار)">
+          <div className="bgv-stack">
+            {d.season && <p className="t-body-sm bgv-muted">فصل فعال: {d.season.nameFa}، تا {jalaliDate(d.season.endsAt)}</p>}
+            {d.ratings.length === 0 ? <p className="bgv-muted">هنوز بازی رتبه‌داری نکرده‌اید. از <a href="/play">حریف‌یابی</a> «رتبه‌دار» را انتخاب کنید.</p> : (
+              <Clamped items={d.ratings} limit={6}>{(shown) => (
+                <div>{shown.map((r) => (
+                  <ListItem key={`${r.gameId}-${r.mode}`} title={<>{gameName(r.gameId)}<span className="bgv-sep" />{PACE_FA[r.mode]}</>}
+                    sub={r.provisional ? <Badge size="sm">موقت ({faNum(r.games)} بازی)</Badge> : undefined}
+                    trailing={<span className="bgv-row">{r.league && <League tier={r.league} />}<strong className="bgv-num">{faNum(r.display)}</strong></span>} />))}</div>)}
+              </Clamped>
+            )}
+            <a href="/ranking">جدول رتبه‌بندی و سابقه</a>
+          </div>
+        </Card>
 
-        <section className="panel stack progress-grid__wide" aria-labelledby="ledger-h">
-          <h2 id="ledger-h" className="section-title">پاداش‌های اخیر و دلیل آن‌ها</h2>
-          {d.ledger.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز پاداشی ثبت نشده است. بازی کامل، آموزش و مأموریت XP می‌دهند.</p> : (
-            <Clamped items={d.ledger} limit={8}>{(shown) => (
-              <ul className="list">{shown.map((l, i) => (
-                <li key={i} className="list__item list__item--compact">
-                  <Badge>{ruleFa(l.ruleId)}</Badge><span style={{ flex: 1 }}>{l.reason}</span>
-                  <strong className="num">{l.amount > 0 ? `+${faNum(l.amount)}` : faNum(l.amount)}</strong>
-                </li>))}</ul>)}
-            </Clamped>
-          )}
-        </section>
+        <Card title="تسلط بر بازی‌ها" actions={<span className="t-caption bgv-muted">{faNum(played.length)} از {faNum(d.mastery.length)} بازی</span>}>
+          <div className="bgv-stack">
+            {played.length === 0 ? <p className="bgv-muted">هنوز بازی‌ای را تمام نکرده‌اید. با آموزش یا اولین بازی، تسلط شروع می‌شود. <a href="/games">دیدن بازی‌ها</a></p> : (
+              <Clamped items={played} limit={8}>{(shown) => (
+                <div>{shown.map((m) => (
+                  <ListItem key={m.gameId} title={m.gameNameFa}
+                    sub={<>{faNum(m.completed)} بازی<span className="bgv-sep" />{faNum(m.wins)} اول<span className="bgv-sep" />{faNum(m.ranked)} رتبه‌دار{m.tutorial ? <><span className="bgv-sep" />آموزش ✓</> : null}</>}
+                    trailing={<Badge tone={m.tier === 'master' ? 'premium' : 'neutral'}>{m.tierFa}</Badge>} />))}</div>)}
+              </Clamped>
+            )}
+          </div>
+        </Card>
+
+        <Card className="pf-wide" title="پاداش‌های اخیر و دلیل آن‌ها">
+          <div className="bgv-stack">
+            {d.ledger.length === 0 ? <p className="bgv-muted">هنوز پاداشی ثبت نشده است. بازی کامل، آموزش و مأموریت XP می‌دهند.</p> : (
+              <Clamped items={d.ledger} limit={8}>{(shown) => (
+                <div>{shown.map((l, i) => (
+                  <ListItem key={i} title={l.reason} sub={<Badge size="sm">{ruleFa(l.ruleId)}</Badge>}
+                    trailing={<strong className="bgv-num" dir="ltr">{l.amount > 0 ? `+${faNum(l.amount)}` : faNum(l.amount)}</strong>} />))}</div>)}
+              </Clamped>
+            )}
+          </div>
+        </Card>
       </div>
     </>
   );

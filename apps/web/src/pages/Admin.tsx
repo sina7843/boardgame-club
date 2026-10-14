@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import type { GameDetail, GameSummary } from '@bg/contracts';
-import { Badge, Button, Dialog, Input, Segmented, StateBlock, Switch, Tabs, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Badge, Banner, Button, Card, ChipGroup, Dialog, Icon, PageHead, PageTabs, StateBlock, Switch, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { GameCover } from '../games/covers.tsx';
 import { faNum } from '../lib/format.ts';
 import { GameAccess, MissionsAdmin, PlansAdmin, ReferralAdmin, SeasonsAdmin, SupportAdmin, WelcomePremiumAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
@@ -13,28 +13,31 @@ import { SiteAdmin } from './AdminSite.tsx';
 import { TournamentsAdmin } from './AdminTournaments.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
+const TABS = [
+  { value: 'games', label: 'بازی‌ها' }, { value: 'progress', label: 'مأموریت و فصل' }, { value: 'tournaments', label: 'تورنمنت‌ها' }, { value: 'plans', label: 'اشتراک و سکه' },
+  { value: 'referral', label: 'دعوت دوستان' }, { value: 'support', label: 'پشتیبانی' }, { value: 'site', label: 'صفحه‌های سایت' }, { value: 'incident', label: 'توقف سراسری' }
+];
 
 export function Admin() {
   usePageTitle('مدیریت');
   const { me, status } = useSession();
+  const [tab, setTab] = useState('games');
   const isAdmin = !!me?.roles.includes('admin');
   if (status === 'loading') return <StateBlock kind="loading" title="در حال بررسی دسترسی…" />;
-  if (!me) return <StateBlock kind="denied" title="ابتدا وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/admin">ورود</Link>} />;
-  if (!isAdmin) return <StateBlock kind="denied" title="دسترسی ندارید">این بخش فقط برای مدیر محصول است.</StateBlock>;
+  if (!me) return <StateBlock kind="denied" title="ابتدا وارد شوید" action={<Button variant="primary" href="/login?next=/admin">ورود</Button>} />;
+  if (!isAdmin) return <StateBlock kind="denied" title="دسترسی ندارید" text="این بخش فقط برای مدیر محصول است." />;
   return (
     <>
-      <div className="page-head"><div><h1 className="page-title">مدیریت</h1>
-        <p className="page-sub">هر تغییر با علت در گزارش عملیات ثبت می‌شود.</p></div></div>
-      <Tabs label="بخش‌های مدیریت" tabs={[
-        { id: 'games', title: 'بازی‌ها', content: <GamesAdmin /> },
-        { id: 'progress', title: 'مأموریت و فصل', content: <><MissionsAdmin /><SeasonsAdmin /></> },
-        { id: 'tournaments', title: 'تورنمنت‌ها', content: <TournamentsAdmin /> },
-        { id: 'plans', title: 'اشتراک و سکه', content: <><WelcomePremiumAdmin /><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></> },
-        { id: 'referral', title: 'دعوت دوستان', content: <ReferralAdmin /> },
-        { id: 'support', title: 'پشتیبانی', content: <SupportAdmin /> },
-        { id: 'site', title: 'صفحه‌های سایت', content: <SiteAdmin /> },
-        { id: 'incident', title: 'توقف سراسری', content: <IncidentPanel /> }
-      ]} />
+      <PageTabs label="بخش‌های مدیریت" items={TABS} value={tab} onChange={setTab} />
+      <PageHead title="مدیریت" sub="هر تغییر با علت در گزارش عملیات ثبت می‌شود." />
+      {tab === 'games' && <GamesAdmin />}
+      {tab === 'progress' && <><MissionsAdmin /><SeasonsAdmin /></>}
+      {tab === 'tournaments' && <TournamentsAdmin />}
+      {tab === 'plans' && <><WelcomePremiumAdmin /><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></>}
+      {tab === 'referral' && <ReferralAdmin />}
+      {tab === 'support' && <SupportAdmin />}
+      {tab === 'site' && <SiteAdmin />}
+      {tab === 'incident' && <IncidentPanel />}
     </>
   );
 }
@@ -48,7 +51,7 @@ function GamesAdmin() {
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<StatusFilter>('all');
-  if (games.error) return <StateBlock kind="error" title="فهرست بارگذاری نشد" action={<Button onClick={games.reload}>تلاش دوباره</Button>}>{games.error.messageFa}</StateBlock>;
+  if (games.error) return <StateBlock kind="error" title="فهرست بارگذاری نشد" text={games.error.messageFa} action={<Button onClick={games.reload}>تلاش دوباره</Button>} />;
   if (!games.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const all = games.data.items;
   const selected = all.find((g) => g.id === params.get('game'));
@@ -56,29 +59,26 @@ function GamesAdmin() {
   const shown = all.filter((g) => (filter === 'all' || g.status === filter) && (!q.trim() || norm(`${g.nameFa} ${g.nameOriginal} ${g.id}`).includes(norm(q.trim()))));
   const count = (st: StatusFilter) => (st === 'all' ? all.length : all.filter((g) => g.status === st).length);
   return (
-    <div className={`admin-games${selected ? ' has-selection' : ''}`}>
-      <section className="panel stack admin-games__list" aria-labelledby="admin-games-h">
-        <h2 id="admin-games-h" className="section-title">بازی‌ها <span className="muted num">({faNum(all.length)})</span></h2>
-        <Input label="جست‌وجو" value={q} onChange={(e) => setQ(e.target.value)} placeholder="نام فارسی یا اصلی" />
-        <Segmented legend="وضعیت" name="admin-status" value={filter} onChange={setFilter}
-          options={(['all', 'active', 'suspended', 'draft'] as const).map((st) => ({ value: st, label: `${st === 'all' ? 'همه' : STATUS_FA[st]} (${faNum(count(st))})` }))} />
-        {shown.length === 0 ? <p className="muted" style={{ margin: 0 }}>بازی‌ای پیدا نشد.</p> : (
-          <ul className="admin-games__items">{shown.map((g) => (
-            <li key={g.id}>
-              <button type="button" className={`admin-game${selected?.id === g.id ? ' is-on' : ''}`} aria-current={selected?.id === g.id || undefined} onClick={() => select(g.id)}>
-                <span className="admin-game__cover"><GameCover gameId={g.id} title="" box={false} /></span>
-                <span className="admin-game__name"><strong>{g.nameFa}</strong><span className="muted"><bdi>{g.nameOriginal}</bdi></span></span>
-                <span className="admin-game__badges">
-                  {g.status !== 'active' && <Badge tone="danger">{STATUS_FA[g.status]}</Badge>}
-                  {g.access === 'premium' && <Badge tone="premium">پریمیوم</Badge>}
-                </span>
-              </button>
-            </li>))}</ul>
-        )}
-      </section>
-      <div className="admin-games__detail">
+    <div className={`ac-adm${selected ? ' has-selection' : ''}`}>
+      <Card flush className="ac-adm__list" aria-labelledby="admin-games-h">
+        <div className="ac-adm__pick">
+          <h2 id="admin-games-h" className="ac-h3">بازی‌ها <span className="ac-cap" style={{ display: 'inline' }}>({faNum(all.length)})</span></h2>
+          <TextField icon="search" type="search" aria-label="جست‌وجوی بازی" value={q} onChange={(e) => setQ(e.target.value)} placeholder="نام فارسی یا اصلی" />
+          <ChipGroup size="sm" label="وضعیت" value={filter} onChange={(v) => setFilter(v as StatusFilter)}
+            options={(['all', 'active', 'suspended', 'draft'] as const).map((st) => ({ value: st, label: `${st === 'all' ? 'همه' : STATUS_FA[st]} (${faNum(count(st))})` }))} />
+        </div>
+        {shown.length === 0 ? <StateBlock kind="empty" title="بازی‌ای پیدا نشد" /> : shown.map((g) => (
+          <button key={g.id} type="button" className={`ac-adminrow${selected?.id === g.id ? ' is-selected' : ''}`} aria-current={selected?.id === g.id || undefined} onClick={() => select(g.id)}>
+            <span className="ac-adminrow__cover"><img src={`/covers/${g.id}.webp?v=2`} alt="" loading="lazy" /></span>
+            <span className="ac-adminrow__name"><b>{g.nameFa}</b><bdi className="bgv-latin ac-cap">{g.nameOriginal}</bdi></span>
+            {g.status !== 'active' && <Badge tone={g.status === 'draft' ? 'test' : 'danger'} size="sm" icon={g.status === 'draft' ? undefined : 'ban'}>{STATUS_FA[g.status]}</Badge>}
+            {g.access === 'premium' && <Badge tone="premium" size="sm">پریمیوم</Badge>}
+          </button>
+        ))}
+      </Card>
+      <div className="ac-adm__detail">
         {selected ? <GameDetailAdmin key={selected.id} game={selected} onBack={() => select(null)} onChanged={games.reload} />
-          : <div className="panel"><StateBlock kind="empty" title="یک بازی انتخاب کنید">وضعیت، آموزش، دسترسی، تنظیمات بازی و نسخه‌های قوانین آن اینجا نمایش داده می‌شود.</StateBlock></div>}
+          : <Card><StateBlock kind="empty" title="یک بازی انتخاب کنید" text="وضعیت، آموزش، دسترسی، تنظیمات بازی و نسخه‌های قوانین آن اینجا نمایش داده می‌شود." /></Card>}
       </div>
     </div>
   );
@@ -109,58 +109,57 @@ function GameDetailAdmin({ game, onBack, onChanged }: { game: GameSummary; onBac
     } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
   };
   return (
-    <div className="stack">
-      <div className="admin-games__back"><Button variant="ghost" size="sm" onClick={onBack}>بازگشت به فهرست بازی‌ها</Button></div>
-      <section className="panel admin-head" aria-labelledby="admin-game-h">
-        <span className="admin-head__cover"><GameCover gameId={game.id} title="" box={false} /></span>
-        <div className="stack" style={{ gap: 'var(--sp-1)', flex: 1, minInlineSize: 0 }}>
-          <h2 id="admin-game-h" className="section-title" style={{ margin: 0 }}>{game.nameFa}</h2>
-          <span className="muted"><bdi>{game.nameOriginal}</bdi></span>
-          <div className="row" style={{ gap: 8 }}>
-            <Badge tone={game.status === 'active' ? 'success' : 'danger'}>{STATUS_FA[game.status]}</Badge>
-            <Link to={`/games/${game.id}`}>صفحهٔ بازی</Link>
+    <>
+      <div className="ac-adm__back"><Button variant="ghost" size="sm" icon="arrow-right" onClick={onBack}>بازگشت به فهرست بازی‌ها</Button></div>
+      <Card className="ac-head" aria-labelledby="admin-game-h">
+        <span className="ac-head__cover"><img src={`/covers/${game.id}.webp?v=2`} alt="" /></span>
+        <div className="ac-head__text">
+          <div className="bgv-row" style={{ gap: 10 }}>
+            <h2 id="admin-game-h" className="t-page-sm" style={{ color: 'var(--heading)', margin: 0 }}>{game.nameFa}</h2>
+            <bdi className="bgv-latin ac-cap" dir="ltr">{game.nameOriginal}</bdi>
+            <Badge tone={game.status === 'active' ? 'success' : 'danger'} icon={game.status === 'active' ? 'circle-check' : 'ban'}>{STATUS_FA[game.status]}</Badge>
           </div>
         </div>
-      </section>
+        <Button size="sm" icon="arrow-up-right" href={`/games/${game.id}`}>صفحهٔ بازی</Button>
+      </Card>
 
-      <section className="panel stack" aria-labelledby="admin-quick-h">
-        <h2 id="admin-quick-h" className="section-title">وضعیت و دسترسی</h2>
-        <div className="admin-quick">
-          <div className="stack" style={{ gap: 'var(--sp-2)' }}>
-            <strong>پذیرش میز جدید</strong>
-            <span className="muted">توقف فقط میز جدید را می‌بندد؛ سابقه و میزهای جاری می‌مانند.</span>
-            <div><Button size="sm" variant={game.status === 'active' ? 'danger' : 'primary'} onClick={() => { setOpen(true); setError(undefined); }}>
-              {game.status === 'active' ? 'توقف میز جدید' : 'فعال‌سازی'}</Button></div>
-          </div>
-          <div className="stack" style={{ gap: 'var(--sp-2)' }}>
-            <strong>آموزش تعاملی</strong>
-            <Switch label={game.tutorialEnabled ? 'فعال' : 'غیرفعال'} checked={game.tutorialEnabled} onChange={(v) => void toggleTutorial(v)} />
-          </div>
-          <GameAccess game={game} onDone={onChanged} />
+      <Card className="ac-sec" aria-labelledby="admin-quick-h">
+        <div className="ac-sec__head"><span className="ac-tile"><Icon name="shield" /></span><h2 id="admin-quick-h" className="ac-h3">وضعیت و دسترسی</h2></div>
+        <div className="ac-row">
+          <div className="ac-row__text"><b>پذیرش میز جدید</b><span>توقف فقط میز جدید را می‌بندد؛ سابقه و میزهای جاری می‌مانند.</span></div>
+          <Button size="sm" variant={game.status === 'active' ? 'danger' : 'primary'} onClick={() => { setOpen(true); setError(undefined); }}>
+            {game.status === 'active' ? 'توقف میز جدید' : 'فعال‌سازی'}</Button>
         </div>
-      </section>
+        <div className="ac-row">
+          <div className="ac-row__text"><b>آموزش تعاملی</b></div>
+          <Switch aria-label="آموزش تعاملی" checked={game.tutorialEnabled} onChange={(v) => void toggleTutorial(v)} />
+        </div>
+        <GameAccess game={game} onDone={onChanged} />
+      </Card>
 
       <GameSettingsAdmin gameId={game.id} />
 
-      <section className="panel stack" aria-labelledby="admin-versions-h">
-        <h2 id="admin-versions-h" className="section-title">نسخه‌های قوانین</h2>
-        <p className="muted" style={{ margin: 0 }}>فقط میزهای تازه از نسخه فعال استفاده می‌کنند؛ میزهای جاری روی نسخه شروع خود می‌مانند.</p>
+      <Card className="ac-sec" aria-labelledby="admin-versions-h">
+        <div className="ac-sec__head"><span className="ac-tile"><Icon name="layers" /></span><h2 id="admin-versions-h" className="ac-h3">نسخه‌های قوانین</h2></div>
+        <p className="ac-cap ac-pad">فقط میزهای تازه از نسخه فعال استفاده می‌کنند؛ میزهای جاری روی نسخه شروع خود می‌مانند.</p>
         <Versions gameId={game.id} />
-      </section>
+      </Card>
 
-      <Dialog open={open} onClose={() => setOpen(false)} title={nextStatus === 'suspended' ? 'توقف پذیرش میز جدید' : 'فعال‌سازی دوباره'}
-        footer={<>
-          <Button variant="ghost" onClick={() => setOpen(false)}>انصراف</Button>
-          <Button variant={nextStatus === 'suspended' ? 'danger' : 'primary'} busy={busy} disabled={reason.trim().length < 3} onClick={submit}>
-            {nextStatus === 'suspended' ? 'توقف میز جدید' : 'فعال‌سازی'}
-          </Button>
-        </>}>
-        <div className="stack">
-          <p style={{ margin: 0 }}>«{game.nameFa}»</p>
-          <Input label="علت (در گزارش عملیات ثبت می‌شود)" value={reason} onChange={(e) => setReason(e.target.value)} error={error} />
-        </div>
-      </Dialog>
-    </div>
+      {open && (
+        <Dialog modal danger={nextStatus === 'suspended'} title={nextStatus === 'suspended' ? 'توقف پذیرش میز جدید' : 'فعال‌سازی دوباره'} onClose={() => setOpen(false)}
+          footer={<>
+            <Button onClick={() => setOpen(false)}>انصراف</Button>
+            <Button variant={nextStatus === 'suspended' ? 'danger' : 'primary'} loading={busy} disabled={reason.trim().length < 3} onClick={submit}>
+              {nextStatus === 'suspended' ? 'توقف میز جدید' : 'فعال‌سازی'}
+            </Button>
+          </>}>
+          <div className="ac-stack">
+            <p style={{ margin: 0 }}>«{game.nameFa}»</p>
+            <TextField label="علت (در گزارش عملیات ثبت می‌شود)" value={reason} onChange={(e) => setReason(e.target.value)} error={error} autoFocus />
+          </div>
+        </Dialog>
+      )}
+    </>
   );
 }
 
@@ -176,17 +175,15 @@ function Versions({ gameId }: { gameId: string }) {
   };
   if (!v.data) return null;
   return (
-    <div className="stack" style={{ gap: 'var(--sp-2)' }}>
-      <ul className="list">{v.data.items.map((x) => (
-        <li key={x.id} className="list__item list__item--compact">
-          <bdi dir="ltr" style={{ fontWeight: 700 }}>{x.rulesVersion}</bdi>
-          <Badge tone={x.status === 'active' ? 'success' : undefined}>{VERSION_FA[x.status]}</Badge>
-          {!x.inRegistry && <Badge tone="danger">در این نسخه برنامه موجود نیست</Badge>}
-          <span style={{ flex: 1 }} />
-          {x.status !== 'active' && x.inRegistry && <Button size="sm" variant="secondary" onClick={() => set(x.id, 'active')}>فعال‌سازی</Button>}
-          {x.status === 'active' && <Button size="sm" variant="ghost" onClick={() => set(x.id, 'retired')}>بازنشسته</Button>}
-        </li>))}</ul>
-    </div>
+    <div>{v.data.items.map((x) => (
+      <div key={x.id} className="ac-row">
+        <bdi dir="ltr" className="bgv-latin" style={{ fontWeight: 700 }}>{x.rulesVersion}</bdi>
+        <Badge tone={x.status === 'active' ? 'success' : undefined}>{VERSION_FA[x.status]}</Badge>
+        {!x.inRegistry && <Badge tone="danger">در این نسخه برنامه موجود نیست</Badge>}
+        <span className="bgv-spacer" />
+        {x.status !== 'active' && x.inRegistry && <Button size="sm" onClick={() => set(x.id, 'active')}>فعال‌سازی</Button>}
+        {x.status === 'active' && <Button size="sm" variant="ghost" onClick={() => set(x.id, 'retired')}>بازنشسته</Button>}
+      </div>))}</div>
   );
 }
 
@@ -200,17 +197,19 @@ function IncidentPanel() {
   };
   if (!status.data) return null;
   return (
-    <section className="panel stack" aria-labelledby="incident-h">
-      <h2 id="incident-h" className="section-title">توقف سراسری</h2>
-      <p className="muted" style={{ margin: 0 }}>در توقف سراسری موعد نوبت‌ها منجمد و پس از رفع، به اندازه مدت توقف تمدید می‌شود. قطع اینترنت یک بازیکن توقف سراسری نیست.</p>
-      {status.data.incident ? (
-        <div className="row"><Badge tone="danger">فعال: {status.data.incident.reasonFa}</Badge><Button onClick={() => call('/admin/incidents/close')}>پایان توقف و جبران زمان</Button></div>
-      ) : (
-        <div className="row" style={{ alignItems: 'end' }}>
-          <div style={{ flex: 1, minInlineSize: 200 }}><Input label="علت" value={reason} onChange={(e) => setReason(e.target.value)} /></div>
-          <Button variant="danger" disabled={reason.trim().length < 3} onClick={() => call('/admin/incidents', { reasonFa: reason })}>شروع توقف سراسری</Button>
-        </div>
-      )}
-    </section>
+    <Card className="ac-sec" aria-labelledby="incident-h">
+      <div className="ac-sec__head"><span className="ac-tile"><Icon name="triangle-alert" /></span><h2 id="incident-h" className="ac-h3">توقف سراسری</h2></div>
+      <div className="ac-sec__body">
+        <p className="t-body-sm" style={{ margin: 0 }}>در توقف سراسری موعد نوبت‌ها منجمد و پس از رفع، به اندازه مدت توقف تمدید می‌شود. قطع اینترنت یک بازیکن توقف سراسری نیست.</p>
+        {status.data.incident ? (
+          <div className="ac-stack"><Banner tone="danger" text={`فعال: ${status.data.incident.reasonFa}`} /><div><Button variant="primary" onClick={() => call('/admin/incidents/close')}>پایان توقف و جبران زمان</Button></div></div>
+        ) : (
+          <div className="ac-inline">
+            <TextField label="علت" value={reason} onChange={(e) => setReason(e.target.value)} />
+            <Button variant="danger" disabled={reason.trim().length < 3} onClick={() => call('/admin/incidents', { reasonFa: reason })}>شروع توقف سراسری</Button>
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }

@@ -4,12 +4,13 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, apiErrorSchema, friendsResponse, normalizeSearch, profileCard, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
+  AppError, alertPrefs, apiErrorSchema, DEFAULT_ALERT_PREFS, friendsResponse, normalizeSearch, profileCard, profilePrivacy, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import type { Deps } from '../../app.ts';
 import { requireUser } from '../auth/session.ts';
 import { toPublicProfile } from '../users/routes.ts';
+import { publicRecord, privacyOf } from './profile-record.ts';
 import { areFriends, isBlockedEither, membershipOf, pair, profiles, relationship, requireActiveUser, shareCommunity } from './relations.ts';
 
 const { friendships, blocks, userMutes, users, userSettings, outboxEvents, gameTables, participants, tableInvites, memberships } = schema;
@@ -35,10 +36,14 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
   });
 
   r.get('/users/:userId/card', {
-    schema: { tags: ['social'], summary: 'Public profile with my relationship to the user', params: userParams, response: { 200: profileCard, ...errors } }
+    schema: { tags: ['social'], summary: 'Public profile with my relationship to the user, plus the public play record (respects the owner\'s privacy and blocks)', params: userParams, response: { 200: profileCard, ...errors } }
   }, async (req) => {
     const { userId } = requireUser(req);
-    return { ...(await requireActiveUser(db, req.params.userId)), ...(await relationship(db, userId, req.params.userId)) };
+    const rel = await relationship(db, userId, req.params.userId);
+    const profile = await requireActiveUser(db, req.params.userId);
+    // Blocked in either direction: no play record at all (the other side never learns who blocked whom).
+    const viewer = rel.relationship === 'self' ? 'self' : rel.relationship === 'blocked' || await isBlockedEither(db, userId, req.params.userId) ? 'blocked' : 'other';
+    return { ...profile, ...rel, ...(await publicRecord(db, req.params.userId, viewer)) };
   });
 
   // ---------- Friends ----------
@@ -150,6 +155,29 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
     const { userId } = requireUser(req);
     await db.insert(userSettings).values({ userId, ...req.body })
       .onConflictDoUpdate({ target: userSettings.userId, set: { ...req.body, updatedAt: sql`now()` } });
+    return req.body;
+  });
+
+  r.get('/me/alert-prefs', { schema: { tags: ['social'], summary: 'Turn-alert preferences', response: { 200: alertPrefs, 401: apiErrorSchema } } }, async (req) => {
+    const [s] = await db.select({ a: userSettings.alerts }).from(userSettings).where(eq(userSettings.userId, requireUser(req).userId));
+    const parsed = alertPrefs.safeParse(s?.a);
+    return parsed.success ? parsed.data : DEFAULT_ALERT_PREFS;
+  });
+
+  r.put('/me/alert-prefs', { schema: { tags: ['social'], summary: 'Update turn-alert preferences', body: alertPrefs, response: { 200: alertPrefs, ...errors } } }, async (req) => {
+    const { userId } = requireUser(req);
+    await db.insert(userSettings).values({ userId, alerts: req.body })
+      .onConflictDoUpdate({ target: userSettings.userId, set: { alerts: req.body, updatedAt: sql`now()` } });
+    return req.body;
+  });
+
+  r.get('/me/profile-privacy', { schema: { tags: ['social'], summary: 'Which profile sections other people can see', response: { 200: profilePrivacy, 401: apiErrorSchema } } },
+    async (req) => privacyOf(db, requireUser(req).userId));
+
+  r.put('/me/profile-privacy', { schema: { tags: ['social'], summary: 'Show or hide stats, ratings and recent games on the public profile', body: profilePrivacy, response: { 200: profilePrivacy, ...errors } } }, async (req) => {
+    const { userId } = requireUser(req);
+    await db.insert(userSettings).values({ userId, profilePrivacy: req.body })
+      .onConflictDoUpdate({ target: userSettings.userId, set: { profilePrivacy: req.body, updatedAt: sql`now()` } });
     return req.body;
   });
 

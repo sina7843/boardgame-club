@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { DEFAULT_ALERT_PREFS, type AlertPrefs } from '@bg/contracts';
+import { api } from './api.ts';
 
 /** Per-device display preferences (localStorage). Game sounds read `muted` once they exist (DRAGON-01). */
 export interface Prefs {
@@ -11,7 +13,8 @@ export interface Prefs {
 
 const KEY = 'bg.prefs';
 const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false, undo: '500' };
-const THEME_COLOR = { light: '#efeeea', dark: '#15120f' };
+const THEME_COLOR = { light: '#173A2D', dark: '#191B1A' };
+const DARK = '(prefers-color-scheme: dark)';
 
 export function readPrefs(raw: string | null): Prefs {
   try {
@@ -29,9 +32,8 @@ export function readPrefs(raw: string | null): Prefs {
 
 function apply(p: Prefs): void {
   const root = document.documentElement;
-  // "system": no data-theme, so theme.css follows prefers-color-scheme live without JavaScript.
-  if (p.theme === 'system') delete root.dataset.theme;
-  else root.dataset.theme = p.theme;
+  // BGV tokens switch only on data-theme, so "system" resolves the device scheme (kept live by PrefsProvider).
+  root.dataset.theme = p.theme === 'system' ? (matchMedia(DARK).matches ? 'dark' : 'light') : p.theme;
   if (p.motion === 'system') delete root.dataset.motion;
   else root.dataset.motion = p.motion;
   document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
@@ -50,6 +52,13 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     apply(prefs);
     try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch { /* storage unavailable: keep in memory */ }
   }, [prefs]);
+  useEffect(() => {
+    if (prefs.theme !== 'system') return;
+    const mq = matchMedia(DARK);
+    const on = () => apply(prefs);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, [prefs]);
   const value = useMemo(() => ({ prefs, update: (p: Partial<Prefs>) => setPrefs((x) => ({ ...x, ...p })) }), [prefs]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -58,4 +67,29 @@ export function usePrefs() {
   const v = useContext(Ctx);
   if (!v) throw new Error('usePrefs outside PrefsProvider');
   return v;
+}
+
+// ---------- Turn-alert preferences: stored on the account (sound, volume, vibration, quiet hours); theme/motion stay per device ----------
+let alertPrefs: AlertPrefs = DEFAULT_ALERT_PREFS;
+let alertLoaded: Promise<void> | null = null;
+const alertListeners = new Set<() => void>();
+const setAlertPrefs = (p: AlertPrefs) => { alertPrefs = p; alertListeners.forEach((f) => f()); };
+/** Current account alert prefs (defaults until loaded or when signed out). */
+export const getAlertPrefs = () => alertPrefs;
+export function loadAlertPrefs(): Promise<void> {
+  alertLoaded ??= api<AlertPrefs>('/me/alert-prefs').then(setAlertPrefs, () => { alertLoaded = null; });
+  return alertLoaded;
+}
+export async function saveAlertPrefs(next: AlertPrefs): Promise<void> {
+  setAlertPrefs(await api<AlertPrefs>('/me/alert-prefs', { method: 'PUT', body: next }));
+}
+export function useAlertPrefs(): AlertPrefs {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const f = () => tick((n) => n + 1);
+    alertListeners.add(f);
+    void loadAlertPrefs();
+    return () => { alertListeners.delete(f); };
+  }, []);
+  return alertPrefs;
 }

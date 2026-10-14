@@ -210,6 +210,25 @@ export const setModule: GameModule<SetState, SetAction, SetView> = {
 
   pendingSeats: (state) => (state.outcome ? [] : state.resigned.flatMap((r, seat) => (r ? [] : [seat]))),
 
+  publicSummary(state) {
+    const scores = state.sets.map((_, i) => scoreOf(state, i));
+    const top = Math.max(...scores);
+    const winners = new Set((state.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: scores.map((score, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: score },
+        stats: [
+          { key: 'sets', label: 'ست', value: state.sets[seat]!.length, icon: 'layers' },
+          { key: 'misses', label: 'خطا', value: state.penalties[seat]!, icon: 'flame' }
+        ],
+        ...(winners.has(seat) && !state.resigned[seat] ? { status: 'winner' as const } : state.resigned[seat] ? { status: 'out' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: state.deck.length }],
+      ...(scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: scores.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 81,
     options: { deal: 'tutorial' },

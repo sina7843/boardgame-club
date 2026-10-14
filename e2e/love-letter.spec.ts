@@ -44,7 +44,7 @@ test('three players play a short game of «نامه عاشقانه»', async ({ 
   const pages = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار'), await player(browser, vp, 'Cyrus')];
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/love-letter/new');
-  await host.getByText('زنده', { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
   await host.getByText('کوتاه (۳ نشان)', { exact: true }).click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();

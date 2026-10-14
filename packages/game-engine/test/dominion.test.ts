@@ -152,3 +152,17 @@ describe('dominion rules', () => {
     }
   }, 120_000);
 });
+
+describe('dominion publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game(2);
+    const sum = domModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) {
+      const pl = st(snap).players[x.seat]!;
+      expect(x.primary!.value).toBe(pl.hand.length);
+      expect(x.stats![0]!.value).toBe(pl.deck.length);
+    }
+    expect(JSON.stringify(sum)).not.toMatch(/copper|estate|silver|gold/);
+  });
+});

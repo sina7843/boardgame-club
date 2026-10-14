@@ -14,6 +14,7 @@ function act(snap: EngineSnapshot, seat: number, action: unknown): StepResult {
   return r;
 }
 const st = (s: EngineSnapshot) => s.state as LineThreeState;
+const game = () => start();
 function play(seed: number, cells: number[]) {
   let snap = start(seed);
   let last: StepResult | undefined;
@@ -91,5 +92,15 @@ describe('line-three rules', () => {
       if (step.reply) { last = act(snap, 1, step.reply); snap = last.snapshot; }
     }
     expect(last!.outcome?.placements[0]).toEqual({ seat: 0, place: 1 });
+  });
+});
+
+describe('line-three publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = lineThreeModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0]);
   });
 });

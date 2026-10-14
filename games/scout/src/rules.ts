@@ -244,6 +244,25 @@ export const scoutModule: GameModule<ScoutState, ScoutAction, ScoutView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'orient' ? s.oriented.map((o, i) => (o ? -1 : i)).filter((i) => i >= 0) : [s.current]),
 
+  publicSummary(s) {
+    const top = Math.max(...s.scores);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.hands.map((h, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: s.scores[seat]! },
+        stats: [
+          { key: 'hand', label: 'کارت', value: h.length, icon: 'layers' },
+          { key: 'captured', label: 'برده', value: s.captured[seat]! },
+          { key: 'chips', label: 'ژتون', value: s.chips[seat]!, icon: 'coins' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : s.phase === 'orient' && s.oriented[seat] ? { status: 'done' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round, max: s.rounds }],
+      ...(s.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.scores.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 47,
     options: { deal: 'tutorial' },

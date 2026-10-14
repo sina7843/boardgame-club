@@ -254,6 +254,24 @@ export const checkersModule: GameModule<CheckersState, CheckersAction, CheckersV
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: [0, 1].map((seat) => {
+        const c = s.colors[seat]!;
+        const mine = s.board.filter((p) => p && p.toLowerCase() === c);
+        return {
+          seat,
+          primary: { label: 'مهره', value: mine.length },
+          stats: [{ key: 'kings', label: 'شاه', value: mine.filter((p) => p === p!.toUpperCase()).length, icon: 'crown' }],
+          ...(won === seat ? { status: 'winner' as const } : {}),
+          strikes: s.timeouts[seat]!
+        };
+      }),
+      strikesMax: MAX_TIMEOUTS
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.turn)]),
 
   tutorial: {

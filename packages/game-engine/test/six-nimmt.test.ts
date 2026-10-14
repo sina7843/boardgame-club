@@ -122,3 +122,19 @@ describe('6 nimmt! rules', () => {
     }
   }, 120_000);
 });
+
+describe('6 nimmt! publicSummary', () => {
+  it('banked totals and hand counts only; chosen seat is done but the card is not exposed', () => {
+    const snap = game(3, {}, 2);
+    const sum = sixNimmtModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.every((x) => x.primary!.value === 0 && x.primary!.target === 66 && x.stats![0]!.value === 10)).toBe(true);
+    const play = (c: number) => sixNimmtModule.publicSummary!(st(act(snap, 1, { type: 'play', card: c })));
+    const [c1, c2] = st(snap).hands[1]!;
+    expect(play(c1!)).toEqual(play(c2!));
+    expect(play(c1!).seats[1]!.status).toBe('done');
+    const s2 = structuredClone(st(snap));
+    s2.taken[0] = [55];
+    expect(sixNimmtModule.publicSummary!(s2)).toEqual(sum);
+  });
+});

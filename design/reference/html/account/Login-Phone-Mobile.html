@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ورود، شماره موبایل</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.x-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-h3{font-size:17px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-cap{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.x-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.x-between>*{min-width:0}
+.x-stack{display:grid;gap:16px;min-width:0}
+.x-sec{padding:0;display:grid;overflow:hidden}
+.x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-sec__head>h2{flex:1;min-width:0}
+.x-sec__body{padding:20px;display:grid;gap:16px}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-row:last-child{border-bottom:0}
+.x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
+.x-row__text b{font-size:15px;color:var(--text)}
+.x-row__text span{font-size:13px;color:var(--text-muted)}
+.x-row--stack{display:grid;gap:10px}
+.x-li{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:60px;border-bottom:1px solid var(--line)}
+.x-li:last-child{border-bottom:0}
+.x-li__main{flex:1;min-width:0;display:grid;line-height:1.45}
+.x-li__main>b{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__main>span{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__acts{display:flex;align-items:center;gap:6px;flex:none}
+.bgv-btn .bgv-coin{font-weight:900}
+.bgv-switch{gap:10px;flex:none}
+.bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
+.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
+.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
+.bgv-switch__track::before{border-color:var(--success)}
+.x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.x-phone>.bgv-topbar{flex:none}
+.x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
+.x-pbody>*{flex-shrink:0}
+.x-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:0;list-style:none;font-size:13px;line-height:1;flex-wrap:wrap}
+.x-steps li{display:flex;align-items:center;gap:8px;color:var(--text-muted);white-space:nowrap}
+.x-steps b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.x-steps .is-done b{background:var(--primary);color:var(--on-primary);box-shadow:none}
+.x-steps .is-cur{color:var(--text);font-weight:700}
+.x-steps .is-cur b{background:var(--surface);color:var(--heading);box-shadow:0 0 0 2px var(--primary)}
+.x-steps .x-bar{width:20px;height:2px;border-radius:2px;background:var(--line)}
+.x-steps .x-bar.is-done{background:var(--primary)}
+.bgv-tel{min-height:52px}
+.bgv-tel>input{font-size:20px;font-weight:700;color:var(--text);min-width:0}
+.bgv-tel>span{gap:6px;display:flex;align-items:center}
+.x-legal{font-size:12.5px;line-height:1.7;color:var(--text-muted);text-align:center;text-wrap:pretty}
+.x-fan{position:relative;--fw:150px}
+.x-fan img{position:absolute;left:50%;top:50%;width:var(--fw);height:calc(var(--fw) * .5625);object-fit:cover;border-radius:var(--radius-md);border:3px solid var(--felt-ink);box-shadow:var(--shadow-piece)}
+</style>
+
+<div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
+<div style="display:flex;flex-direction:column;gap:20px;padding:20px 20px 24px;height:100%">
+ <div style="display:flex;justify-content:center"><img src="../assets/logo-fa-primary.svg" alt="بردگیم‌ورس" style="height:40px;width:auto"></div>
+ <div class="bgv-felt" style="height:168px;padding:0;overflow:hidden;flex:none" aria-hidden="true">
+  <i class="bgv-seat bgv-seat--lg seat-1" style="position:absolute;left:7%;top:14%"></i><i class="bgv-seat bgv-seat--lg seat-2" style="position:absolute;left:88%;top:12%"></i><i class="bgv-seat bgv-seat--lg seat-5" style="position:absolute;left:6%;top:74%"></i><i class="bgv-seat bgv-seat--lg seat-3" style="position:absolute;left:89%;top:72%"></i>
+  <div class="x-fan" aria-hidden="true" style="position:absolute;inset:0"><img src="../assets/covers/catan.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.62),calc(-50% + 10px)) rotate(-9.0deg)"><img src="../assets/covers/azul.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.00),calc(-50% + 0px)) rotate(0.0deg)"><img src="../assets/covers/ticket-to-ride.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.62),calc(-50% + 10px)) rotate(9.0deg)"></div></div>
+ <ol class="x-steps" aria-label="مراحل ورود"><li class="is-cur" aria-current="step"><b>۱</b>شماره</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۲</b>کد تأیید</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۳</b>پروفایل</li></ol>
+ <div style="text-align:center;display:grid;gap:4px"><h1 class="t-page-sm" style="color:var(--heading)">ورود یا ثبت‌نام</h1>
+  <p class="t-body-sm bgv-muted" style="text-wrap:balance">با شماره موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p></div>
+ <form style="display:grid;gap:14px">
+  <div class="bgv-field"><label class="bgv-label" for="mob">شماره موبایل</label>
+   <div class="bgv-tel" dir="ltr"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></svg>+98</span><input id="mob" inputmode="tel" autocomplete="tel" placeholder="912 345 6789" value="912 480 3215" aria-describedby="mob-h"></div>
+   <span class="bgv-hint" id="mob-h">شماره شما در پروفایل عمومی نمایش داده نمی‌شود.</span></div>
+  <button class="bgv-btn bgv-btn--primary bgv-btn--lg bgv-btn--block" type="submit">دریافت کد</button>
+  <p class="bgv-hint" style="justify-content:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true" style="margin-top:3px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
+ </form>
+ <span class="bgv-spacer"></span>
+ <p class="x-legal">ورود یا ثبت‌نام به معنی پذیرش <a href="#">قوانین و مقررات</a> و <a href="#">حریم خصوصی</a> است.</p>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

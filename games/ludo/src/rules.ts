@@ -254,6 +254,17 @@ export const ludoModule: GameModule<LudoState, LudoAction, LudoView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => ({
+    seats: s.pieces.map((ps, seat) => ({
+      seat,
+      primary: { label: 'در مقصد', value: ps.filter((p) => p >= TRACK).length, target: 4 },
+      stats: [{ key: 'yard', label: 'در خانه', value: ps.filter((p) => p < 0).length, icon: 'shield' }],
+      ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] ? { status: 'out' as const } : {}),
+      strikes: s.timeouts[seat]!
+    })),
+    strikesMax: MAX_TIMEOUTS
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

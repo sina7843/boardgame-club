@@ -117,3 +117,13 @@ describe('dice throne rules', () => {
     }
   }, 120_000);
 });
+
+describe('dice-throne publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game();
+    const sum = dtModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'سلامت', value: MAX_HP, target: MAX_HP });
+    expect(sum.leaderSeat).toBeUndefined();
+  });
+});

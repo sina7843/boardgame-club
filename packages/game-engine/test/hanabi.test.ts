@@ -122,3 +122,14 @@ describe('hanabi rules', () => {
     }
   }, 120_000);
 });
+
+describe('hanabi publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = hanabiModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats[0]!.primary!.value).toBe(5);
+    expect(sum.shared!.find((x) => x.label === 'دسته')!.value).toBe(state.deck.length);
+  });
+});

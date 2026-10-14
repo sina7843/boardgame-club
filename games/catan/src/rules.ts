@@ -907,6 +907,37 @@ export const catanModule: GameModule<CatanState, CatanAction, CatanView> = {
     return finish(s, events, before);
   },
 
+  publicSummary(s) {
+    const vps = s.hands.map((_, seat) => publicVp(s, seat));
+    const live = vps.filter((_, seat) => s.active[seat]);
+    const top = Math.max(...live);
+    const leaders = vps.map((v, k) => (s.active[k] && v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.hands.map((_, seat) => {
+        const mine = s.buildings.filter((b) => b?.seat === seat);
+        const badges: { key: string; label: string; tone: 'premium' }[] = [];
+        if (s.longestRoad === seat) badges.push({ key: 'road', label: 'بلندترین جاده', tone: 'premium' });
+        if (s.largestArmy === seat) badges.push({ key: 'army', label: 'بزرگ‌ترین ارتش', tone: 'premium' });
+        return {
+          seat,
+          primary: { label: 'امتیاز', value: vps[seat]!, target: WIN_VP },
+          stats: [
+            { key: 'settlements', label: 'آبادی', value: mine.filter((b) => !b!.city).length, icon: 'flag' },
+            { key: 'cities', label: 'شهر', value: mine.filter((b) => b!.city).length, icon: 'crown' },
+            { key: 'cards', label: 'کارت', value: total(s.hands[seat]!) + s.devs[seat]!.length, icon: 'layers' }
+          ],
+          badges,
+          ...(!s.active[seat] ? { status: 'out' as const } : won === seat ? { status: 'winner' as const } : {}),
+          strikes: s.timeouts[seat] ?? 0
+        };
+      }),
+      shared: [{ key: 'deck', label: 'دسته', value: s.devDeck.length }],
+      strikesMax: MAX_TIMEOUTS,
+      ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'discard' ? s.owed.flatMap((o, seat) => (o > 0 ? [seat] : [])) : [s.current]),
 
   tutorial: {

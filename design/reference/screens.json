@@ -1,0 +1,2268 @@
+{
+ "version": "1.3",
+ "generated": "2026-10-14",
+ "pages": {
+  "table": "میز بازی و داشبورد",
+  "time": "زمان و هشدار",
+  "chat": "گفت‌وگو",
+  "profile": "پروفایل، هویت و کازمتیک",
+  "play": "پوسته، کشف و بازی",
+  "account": "اجتماعی، کیف پول و حساب"
+ },
+ "screens": [
+  {
+   "id": "Hud-Chess-Mobile",
+   "page": "table",
+   "title": "شطرنج، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "chess, 2 players, live, mid-game, viewer seat 0 (white)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Chess-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Chess-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Chess-Desktop",
+   "page": "table",
+   "title": "شطرنج، دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "chess, 2 players, live, mid-game",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Chess-Desktop@1440.png",
+    "reference/img/table/Hud-Chess-Desktop@1000.png",
+    "reference/img/table/Hud-Chess-Desktop@390.png"
+   ],
+   "html": "reference/html/table/Hud-Chess-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Uno-Mobile",
+   "page": "table",
+   "title": "اونو ۶ نفره، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "uno, 6 players, live, not your turn (next)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Uno-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Uno-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Uno-Mobile-Dark",
+   "page": "table",
+   "title": "اونو ۶ نفره، موبایل تیره",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "uno, 6 players, your turn, dark theme",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Uno-Mobile-Dark@390.png"
+   ],
+   "html": "reference/html/table/Hud-Uno-Mobile-Dark.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Uno-Desktop",
+   "page": "table",
+   "title": "اونو ۶ نفره، دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "uno, 6 players, live",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Uno-Desktop@1440.png",
+    "reference/img/table/Hud-Uno-Desktop@1000.png",
+    "reference/img/table/Hud-Uno-Desktop@390.png"
+   ],
+   "html": "reference/html/table/Hud-Uno-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Gaia-Mobile",
+   "page": "table",
+   "title": "پروژه گایا، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "gaia-project, 4 players, turn-based, round 4",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Gaia-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Gaia-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Gaia-PlayerSheet-Mobile",
+   "page": "table",
+   "title": "پروژه گایا، برگهٔ بازیکن",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "gaia-project, player detail sheet open (tap a player card)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Gaia-PlayerSheet-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Gaia-PlayerSheet-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Gaia-Desktop",
+   "page": "table",
+   "title": "پروژه گایا، دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "gaia-project, 4 players, turn-based",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Gaia-Desktop@1440.png",
+    "reference/img/table/Hud-Gaia-Desktop@1000.png",
+    "reference/img/table/Hud-Gaia-Desktop@390.png"
+   ],
+   "html": "reference/html/table/Hud-Gaia-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Catan-Mobile",
+   "page": "table",
+   "title": "کاتان ۴ نفره، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "catan, 4 players, live, your turn before rolling",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Catan-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Catan-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Catan-Desktop",
+   "page": "table",
+   "title": "کاتان ۴ نفره، دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "catan, 4 players, live, rolled, build phase",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Catan-Desktop@1440.png",
+    "reference/img/table/Hud-Catan-Desktop@1000.png",
+    "reference/img/table/Hud-Catan-Desktop@390.png"
+   ],
+   "html": "reference/html/table/Hud-Catan-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Hanabi-Mobile",
+   "page": "table",
+   "title": "هانابی، همکاری، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "hanabi, 4 players (team game)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Hanabi-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Hanabi-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-SushiGo-Mobile",
+   "page": "table",
+   "title": "سوشی گو، هم‌زمان، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "sushi-go, 4 players, simultaneous",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-SushiGo-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-SushiGo-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Coup-Mobile",
+   "page": "table",
+   "title": "کودتا، بلوف، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "coup, 4 players, claim pending",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Coup-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Coup-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Ludo-Mobile",
+   "page": "table",
+   "title": "منچ، مسابقه، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "ludo, 4 players",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Ludo-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Ludo-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Backgammon-Mobile",
+   "page": "table",
+   "title": "تخته‌نرد، دوئل، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "backgammon, 2 players (duel layout)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Hud-Backgammon-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Hud-Backgammon-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-Lobby-Mobile",
+   "page": "table",
+   "title": "لابی میز، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "lobby (waiting), inside app shell",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-Lobby-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Table-Lobby-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-Lobby-Desktop",
+   "page": "table",
+   "title": "لابی میز، صفحهٔ دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "lobby (waiting), inside app shell",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-Lobby-Desktop@1440.png",
+    "reference/img/table/Table-Lobby-Desktop@1000.png",
+    "reference/img/table/Table-Lobby-Desktop@390.png"
+   ],
+   "html": "reference/html/table/Table-Lobby-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-Spectator-Mobile",
+   "page": "table",
+   "title": "تماشای میز، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "spectator view (not seated)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-Spectator-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Table-Spectator-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-OpponentOffline-Mobile",
+   "page": "table",
+   "title": "حریف قطع شده، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "an opponent disconnected; their clock keeps running",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-OpponentOffline-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Table-OpponentOffline-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-ConnectionLost-Mobile",
+   "page": "table",
+   "title": "اتصال شما قطع شده، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "own socket disconnected → clock data-state=\"stale\"",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-ConnectionLost-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Table-ConnectionLost-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-Result-Mobile",
+   "page": "table",
+   "title": "نتیجه و دست دیگر، موبایل",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "finished, result + rematch vote (immersive, no dock)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-Result-Mobile@390.png"
+   ],
+   "html": "reference/html/table/Table-Result-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Table-Result-Desktop",
+   "page": "table",
+   "title": "نتیجه و دست دیگر، دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "finished, result + rematch vote",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/table/Table-Result-Desktop@1440.png",
+    "reference/img/table/Table-Result-Desktop@1000.png",
+    "reference/img/table/Table-Result-Desktop@390.png"
+   ],
+   "html": "reference/html/table/Table-Result-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Clock-System-Spec",
+   "page": "time",
+   "title": "سیستم ساعت",
+   "route": null,
+   "kind": "spec",
+   "state": "clock states spec: calm/warn/critical/frozen/stale/paused",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/time/Clock-System-Spec@1440.png",
+    "reference/img/time/Clock-System-Spec@1000.png",
+    "reference/img/time/Clock-System-Spec@390.png"
+   ],
+   "html": "reference/html/time/Clock-System-Spec.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Alert-Escalation",
+   "page": "time",
+   "title": "نردبان هشدار",
+   "route": null,
+   "kind": "spec",
+   "state": "alert ladder spec (live + turn-based)",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/time/Alert-Escalation@1440.png",
+    "reference/img/time/Alert-Escalation@1000.png",
+    "reference/img/time/Alert-Escalation@390.png"
+   ],
+   "html": "reference/html/time/Alert-Escalation.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Turn-Start-Mobile",
+   "page": "time",
+   "title": "نوبت شماست",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "your turn starts (toast + haptic)",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Turn-Start-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Turn-Start-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Turn-Warn-Mobile",
+   "page": "time",
+   "title": "هشدار ۵۰٪",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "50% of turn time left",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Turn-Warn-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Turn-Warn-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Turn-Critical-Mobile",
+   "page": "time",
+   "title": "۱۰ ثانیه‌ی آخر",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "critical: 10s live / 1h turn-based",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Turn-Critical-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Turn-Critical-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Turn-Timeout-Mobile",
+   "page": "time",
+   "title": "بعد از پایان زمان",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "after timeout: auto-move + strike 2 of 3",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Turn-Timeout-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Turn-Timeout-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Push-Lockscreen-Mobile",
+   "page": "time",
+   "title": "یادآوری روی صفحه‌ی قفل",
+   "route": null,
+   "kind": "system",
+   "state": "web push on the OS lock screen",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Push-Lockscreen-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Push-Lockscreen-Mobile.html",
+   "capture": "manual"
+  },
+  {
+   "id": "My-Tables-Urgency-Mobile",
+   "page": "time",
+   "title": "میزهای من، فوری‌ترین اول",
+   "route": "/tables/mine",
+   "kind": "page-new",
+   "state": "my tables sorted by deadline urgency",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/My-Tables-Urgency-Mobile@390.png"
+   ],
+   "html": "reference/html/time/My-Tables-Urgency-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Alert-Settings-Mobile",
+   "page": "time",
+   "title": "تنظیمات هشدار، موبایل",
+   "route": "/settings",
+   "kind": "page",
+   "state": "notifications & sounds section",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Alert-Settings-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Alert-Settings-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Push-Preprompt-Mobile",
+   "page": "time",
+   "title": "پیش‌درخواست اعلان",
+   "route": "/",
+   "kind": "overlay",
+   "state": "in-app pre-prompt before the browser push permission",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/time/Push-Preprompt-Mobile@390.png"
+   ],
+   "html": "reference/html/time/Push-Preprompt-Mobile.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Alert-Settings-Desktop",
+   "page": "time",
+   "title": "تنظیمات هشدار، دسکتاپ",
+   "route": "/settings",
+   "kind": "page",
+   "state": "notifications & sounds section",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/time/Alert-Settings-Desktop@1440.png",
+    "reference/img/time/Alert-Settings-Desktop@1000.png",
+    "reference/img/time/Alert-Settings-Desktop@390.png"
+   ],
+   "html": "reference/html/time/Alert-Settings-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Chat-Docked-Desktop",
+   "page": "chat",
+   "title": "گفت‌وگوی میز، دسکتاپ",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "desktop table with docked chat (≥1200)",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Chat-Docked-Desktop@1440.png",
+    "reference/img/chat/Chat-Docked-Desktop@1000.png",
+    "reference/img/chat/Chat-Docked-Desktop@390.png"
+   ],
+   "html": "reference/html/chat/Chat-Docked-Desktop.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Chat-Sheet-Mobile",
+   "page": "chat",
+   "title": "برگه‌ی گفت‌وگو، روشن",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "chat bottom sheet over the table (overlay, nothing resizes)",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Chat-Sheet-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/Chat-Sheet-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Chat-Sheet-Mobile-Dark",
+   "page": "chat",
+   "title": "برگه‌ی گفت‌وگو، تیره",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "same, dark theme",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Chat-Sheet-Mobile-Dark@390.png"
+   ],
+   "html": "reference/html/chat/Chat-Sheet-Mobile-Dark.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Msg-Menu-Others-Mobile",
+   "page": "chat",
+   "title": "منوی پیام دیگران",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "long-press menu on another player message",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Msg-Menu-Others-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/Msg-Menu-Others-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Msg-Menu-Mine-Mobile",
+   "page": "chat",
+   "title": "منوی پیام خودم",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "long-press menu on own message",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Msg-Menu-Mine-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/Msg-Menu-Mine-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Mention-Compose-Mobile",
+   "page": "chat",
+   "title": "نوشتن اشاره",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "composing an @mention",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Mention-Compose-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/Mention-Compose-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Chat-Spectator-Mobile",
+   "page": "chat",
+   "title": "گفت‌وگو برای تماشاگر",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "spectator reading chat (read-only composer)",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Chat-Spectator-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/Chat-Spectator-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "Hud-Bubbles-Mobile",
+   "page": "chat",
+   "title": "حباب‌ها روی میز",
+   "route": "/tables/:id",
+   "kind": "table",
+   "state": "chat bubbles over the HUD",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Hud-Bubbles-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/Hud-Bubbles-Mobile.html",
+   "capture": "flow"
+  },
+  {
+   "id": "DM-Desktop",
+   "page": "chat",
+   "title": "پیام‌ها، دسکتاپ",
+   "route": "/messages/:id",
+   "kind": "page",
+   "state": "direct messages",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/chat/DM-Desktop@1440.png",
+    "reference/img/chat/DM-Desktop@1000.png",
+    "reference/img/chat/DM-Desktop@390.png"
+   ],
+   "html": "reference/html/chat/DM-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "DM-Thread-Mobile",
+   "page": "chat",
+   "title": "گفت‌وگوی خصوصی، موبایل",
+   "route": "/messages/:id",
+   "kind": "page",
+   "state": "DM thread (pushed screen, no dock)",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/chat/DM-Thread-Mobile@390.png"
+   ],
+   "html": "reference/html/chat/DM-Thread-Mobile.html",
+   "capture": "param"
+  },
+  {
+   "id": "Club-Chat-Moderation-Desktop",
+   "page": "chat",
+   "title": "باشگاه، منوی مدیر",
+   "route": "/clubs/:slug",
+   "kind": "page",
+   "state": "club chat with moderator menu",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Club-Chat-Moderation-Desktop@1440.png",
+    "reference/img/chat/Club-Chat-Moderation-Desktop@1000.png",
+    "reference/img/chat/Club-Chat-Moderation-Desktop@390.png"
+   ],
+   "html": "reference/html/chat/Club-Chat-Moderation-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "Club-Chat-Report-Desktop",
+   "page": "chat",
+   "title": "باشگاه، گزارش پیام",
+   "route": "/clubs/:slug",
+   "kind": "page",
+   "state": "report message dialog",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Club-Chat-Report-Desktop@1440.png",
+    "reference/img/chat/Club-Chat-Report-Desktop@1000.png",
+    "reference/img/chat/Club-Chat-Report-Desktop@390.png"
+   ],
+   "html": "reference/html/chat/Club-Chat-Report-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "Chat-Spec",
+   "page": "chat",
+   "title": "چت، مشخصات",
+   "route": null,
+   "kind": "spec",
+   "state": "chat components spec",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/chat/Chat-Spec@1440.png",
+    "reference/img/chat/Chat-Spec@1000.png",
+    "reference/img/chat/Chat-Spec@390.png"
+   ],
+   "html": "reference/html/chat/Chat-Spec.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Profile-Public-Desktop",
+   "page": "profile",
+   "title": "پروفایل عمومی، دسکتاپ",
+   "route": "/users/:id",
+   "kind": "page",
+   "state": "public profile",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Profile-Public-Desktop@1440.png",
+    "reference/img/profile/Profile-Public-Desktop@1000.png",
+    "reference/img/profile/Profile-Public-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Profile-Public-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "Profile-Public-Mobile",
+   "page": "profile",
+   "title": "پروفایل عمومی، موبایل",
+   "route": "/users/:id",
+   "kind": "page",
+   "state": "public profile",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Profile-Public-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Profile-Public-Mobile.html",
+   "capture": "param"
+  },
+  {
+   "id": "Profile-Own-Mobile",
+   "page": "profile",
+   "title": "پروفایل من، موبایل",
+   "route": "/me/profile",
+   "kind": "page",
+   "state": "own profile",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Profile-Own-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Profile-Own-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Profile-Public-Mobile-Dark",
+   "page": "profile",
+   "title": "پروفایل عمومی، تیره",
+   "route": "/users/:id",
+   "kind": "page",
+   "state": "public profile, dark",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Profile-Public-Mobile-Dark@390.png"
+   ],
+   "html": "reference/html/profile/Profile-Public-Mobile-Dark.html",
+   "capture": "param"
+  },
+  {
+   "id": "Studio-Desktop",
+   "page": "profile",
+   "title": "استودیو پروفایل، دسکتاپ",
+   "route": "/me/studio",
+   "kind": "page-new",
+   "state": "profile studio (replaces /me/profile editor + /me/avatar entry)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Studio-Desktop@1440.png",
+    "reference/img/profile/Studio-Desktop@1000.png",
+    "reference/img/profile/Studio-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Studio-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Studio-Mobile",
+   "page": "profile",
+   "title": "استودیو پروفایل، موبایل",
+   "route": "/me/studio",
+   "kind": "page-new",
+   "state": "profile studio",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Studio-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Studio-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Avatar-Builder-Mobile",
+   "page": "profile",
+   "title": "آواتارساز، موبایل",
+   "route": "/me/avatar",
+   "kind": "page",
+   "state": "avatar builder, trying a locked item",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Avatar-Builder-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Avatar-Builder-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Avatar-Builder-Mobile-Buy",
+   "page": "profile",
+   "title": "آواتارساز، خرید آیتم",
+   "route": "/me/avatar",
+   "kind": "overlay",
+   "state": "purchase confirmation sheet",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Avatar-Builder-Mobile-Buy@390.png"
+   ],
+   "html": "reference/html/profile/Avatar-Builder-Mobile-Buy.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Avatar-Builder-Desktop",
+   "page": "profile",
+   "title": "آواتارساز، دسکتاپ",
+   "route": "/me/avatar",
+   "kind": "page",
+   "state": "avatar builder",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Avatar-Builder-Desktop@1440.png",
+    "reference/img/profile/Avatar-Builder-Desktop@1000.png",
+    "reference/img/profile/Avatar-Builder-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Avatar-Builder-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Wardrobe-Desktop",
+   "page": "profile",
+   "title": "کمد من",
+   "route": "/me/wardrobe",
+   "kind": "page-new",
+   "state": "wardrobe (owned cosmetics)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Wardrobe-Desktop@1440.png",
+    "reference/img/profile/Wardrobe-Desktop@1000.png",
+    "reference/img/profile/Wardrobe-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Wardrobe-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shop-Desktop",
+   "page": "profile",
+   "title": "فروشگاه، دسکتاپ",
+   "route": "/shop",
+   "kind": "page-new",
+   "state": "cosmetics shop",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Shop-Desktop@1440.png",
+    "reference/img/profile/Shop-Desktop@1000.png",
+    "reference/img/profile/Shop-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Shop-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shop-Mobile",
+   "page": "profile",
+   "title": "فروشگاه، موبایل",
+   "route": "/shop",
+   "kind": "page-new",
+   "state": "cosmetics shop",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Shop-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Shop-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shop-Item-Sheet-Mobile",
+   "page": "profile",
+   "title": "جزئیات آیتم",
+   "route": "/shop",
+   "kind": "overlay",
+   "state": "shop item sheet",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Shop-Item-Sheet-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Shop-Item-Sheet-Mobile.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Identity-Spec",
+   "page": "profile",
+   "title": "هویت در همه‌جا",
+   "route": null,
+   "kind": "spec",
+   "state": "identity pattern spec (avatar, frame, ring, league, «شما»)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Identity-Spec@1440.png",
+    "reference/img/profile/Identity-Spec@1000.png",
+    "reference/img/profile/Identity-Spec@390.png"
+   ],
+   "html": "reference/html/profile/Identity-Spec.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Progress-Desktop",
+   "page": "profile",
+   "title": "پیشرفت، دسکتاپ",
+   "route": "/progress",
+   "kind": "page",
+   "state": "progress",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Progress-Desktop@1440.png",
+    "reference/img/profile/Progress-Desktop@1000.png",
+    "reference/img/profile/Progress-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Progress-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Ranking-Desktop",
+   "page": "profile",
+   "title": "رتبه‌بندی، دسکتاپ",
+   "route": "/ranking",
+   "kind": "page",
+   "state": "ranking",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Ranking-Desktop@1440.png",
+    "reference/img/profile/Ranking-Desktop@1000.png",
+    "reference/img/profile/Ranking-Desktop@390.png"
+   ],
+   "html": "reference/html/profile/Ranking-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Progress-Mobile",
+   "page": "profile",
+   "title": "پیشرفت، موبایل",
+   "route": "/progress",
+   "kind": "page",
+   "state": "progress",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Progress-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Progress-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Ranking-Mobile",
+   "page": "profile",
+   "title": "رتبه‌بندی، موبایل",
+   "route": "/ranking",
+   "kind": "page",
+   "state": "ranking",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/profile/Ranking-Mobile@390.png"
+   ],
+   "html": "reference/html/profile/Ranking-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shell-Desktop",
+   "page": "play",
+   "title": "پوسته، دسکتاپ",
+   "route": "/progress",
+   "kind": "page",
+   "state": "canonical app shell (sidebar ≥1200, icons 900–1199, top bar + dock <900)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Shell-Desktop@1440.png",
+    "reference/img/play/Shell-Desktop@1000.png",
+    "reference/img/play/Shell-Desktop@390.png"
+   ],
+   "html": "reference/html/play/Shell-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shell-Phone",
+   "page": "play",
+   "title": "پوسته، موبایل",
+   "route": "/",
+   "kind": "page",
+   "state": "canonical phone top bar + dock",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/Shell-Phone@390.png"
+   ],
+   "html": "reference/html/play/Shell-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "More-Phone",
+   "page": "play",
+   "title": "بیشتر، موبایل",
+   "route": "/more",
+   "kind": "page",
+   "state": "more menu",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/More-Phone@390.png"
+   ],
+   "html": "reference/html/play/More-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shell-Desktop-Dark",
+   "page": "play",
+   "title": "پوسته، دسکتاپ تیره",
+   "route": "/progress",
+   "kind": "page",
+   "state": "canonical app shell, dark",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Shell-Desktop-Dark@1440.png",
+    "reference/img/play/Shell-Desktop-Dark@1000.png",
+    "reference/img/play/Shell-Desktop-Dark@390.png"
+   ],
+   "html": "reference/html/play/Shell-Desktop-Dark.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Shell-Responsive-Spec",
+   "page": "play",
+   "title": "پوسته، سه عرض",
+   "route": null,
+   "kind": "spec",
+   "state": "shell at 1440 / 1000 / 390, light + dark",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    1620
+   ],
+   "reference": [
+    "reference/img/play/Shell-Responsive-Spec@1620.png"
+   ],
+   "html": "reference/html/play/Shell-Responsive-Spec.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Home-Desktop",
+   "page": "play",
+   "title": "خانه، دسکتاپ",
+   "route": "/",
+   "kind": "page",
+   "state": "dashboard",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Home-Desktop@1440.png",
+    "reference/img/play/Home-Desktop@1000.png",
+    "reference/img/play/Home-Desktop@390.png"
+   ],
+   "html": "reference/html/play/Home-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Home-Phone",
+   "page": "play",
+   "title": "خانه، موبایل",
+   "route": "/",
+   "kind": "page",
+   "state": "dashboard",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/Home-Phone@390.png"
+   ],
+   "html": "reference/html/play/Home-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Home-Phone-Dark",
+   "page": "play",
+   "title": "خانه، موبایل تیره",
+   "route": "/",
+   "kind": "page",
+   "state": "dashboard, dark",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/Home-Phone-Dark@390.png"
+   ],
+   "html": "reference/html/play/Home-Phone-Dark.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Catalog-Desktop",
+   "page": "play",
+   "title": "کشف بازی، دسکتاپ",
+   "route": "/games",
+   "kind": "page",
+   "state": "catalog",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Catalog-Desktop@1440.png",
+    "reference/img/play/Catalog-Desktop@1000.png",
+    "reference/img/play/Catalog-Desktop@390.png"
+   ],
+   "html": "reference/html/play/Catalog-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Catalog-Phone",
+   "page": "play",
+   "title": "کشف بازی، موبایل",
+   "route": "/games",
+   "kind": "page",
+   "state": "catalog",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/Catalog-Phone@390.png"
+   ],
+   "html": "reference/html/play/Catalog-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "GameDetail-Desktop",
+   "page": "play",
+   "title": "صفحه‌ی بازی، دسکتاپ",
+   "route": "/games/:id",
+   "kind": "page",
+   "state": "game detail",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/GameDetail-Desktop@1440.png",
+    "reference/img/play/GameDetail-Desktop@1000.png",
+    "reference/img/play/GameDetail-Desktop@390.png"
+   ],
+   "html": "reference/html/play/GameDetail-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "GameDetail-Phone",
+   "page": "play",
+   "title": "صفحه‌ی بازی، موبایل",
+   "route": "/games/:id",
+   "kind": "page",
+   "state": "game detail",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/GameDetail-Phone@390.png"
+   ],
+   "html": "reference/html/play/GameDetail-Phone.html",
+   "capture": "param"
+  },
+  {
+   "id": "CreateTable-Desktop",
+   "page": "play",
+   "title": "ساخت میز، دسکتاپ",
+   "route": "/games/:id/new",
+   "kind": "page",
+   "state": "create table",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/CreateTable-Desktop@1440.png",
+    "reference/img/play/CreateTable-Desktop@1000.png",
+    "reference/img/play/CreateTable-Desktop@390.png"
+   ],
+   "html": "reference/html/play/CreateTable-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "CreateTable-Phone",
+   "page": "play",
+   "title": "ساخت میز، موبایل",
+   "route": "/games/:id/new",
+   "kind": "page",
+   "state": "create table",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/CreateTable-Phone@390.png"
+   ],
+   "html": "reference/html/play/CreateTable-Phone.html",
+   "capture": "param"
+  },
+  {
+   "id": "QuickMatch-Searching-Phone",
+   "page": "play",
+   "title": "حریف‌یابی، در جست‌وجو",
+   "route": "/play",
+   "kind": "page",
+   "state": "quick match searching",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/QuickMatch-Searching-Phone@390.png"
+   ],
+   "html": "reference/html/play/QuickMatch-Searching-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "QuickMatch-Found-Phone",
+   "page": "play",
+   "title": "حریف‌یابی، اعلام آمادگی",
+   "route": "/play",
+   "kind": "page",
+   "state": "match found, ready check",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/QuickMatch-Found-Phone@390.png"
+   ],
+   "html": "reference/html/play/QuickMatch-Found-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "QuickMatch-Joining-Phone",
+   "page": "play",
+   "title": "حریف‌یابی، ورود به میز",
+   "route": "/play",
+   "kind": "page",
+   "state": "joining table",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/QuickMatch-Joining-Phone@390.png"
+   ],
+   "html": "reference/html/play/QuickMatch-Joining-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "OpenTables-Desktop",
+   "page": "play",
+   "title": "میزهای باز، دسکتاپ",
+   "route": "/tables",
+   "kind": "page",
+   "state": "open tables",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/OpenTables-Desktop@1440.png",
+    "reference/img/play/OpenTables-Desktop@1000.png",
+    "reference/img/play/OpenTables-Desktop@390.png"
+   ],
+   "html": "reference/html/play/OpenTables-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "MyTables-Desktop",
+   "page": "play",
+   "title": "میزهای من و تاریخچه، دسکتاپ",
+   "route": "/tables/mine",
+   "kind": "page-new",
+   "state": "my tables + history",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/MyTables-Desktop@1440.png",
+    "reference/img/play/MyTables-Desktop@1000.png",
+    "reference/img/play/MyTables-Desktop@390.png"
+   ],
+   "html": "reference/html/play/MyTables-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "MyTables-Phone",
+   "page": "play",
+   "title": "میزهای من، موبایل",
+   "route": "/tables/mine",
+   "kind": "page-new",
+   "state": "my tables + history",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/MyTables-Phone@390.png"
+   ],
+   "html": "reference/html/play/MyTables-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Notifications-Desktop",
+   "page": "play",
+   "title": "مرکز اعلان‌ها، دسکتاپ",
+   "route": "/notifications",
+   "kind": "page-new",
+   "state": "notification centre",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Notifications-Desktop@1440.png",
+    "reference/img/play/Notifications-Desktop@1000.png",
+    "reference/img/play/Notifications-Desktop@390.png"
+   ],
+   "html": "reference/html/play/Notifications-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Notifications-Phone",
+   "page": "play",
+   "title": "مرکز اعلان‌ها، موبایل",
+   "route": "/notifications",
+   "kind": "page-new",
+   "state": "notification centre",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/Notifications-Phone@390.png"
+   ],
+   "html": "reference/html/play/Notifications-Phone.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Tournaments-Desktop",
+   "page": "play",
+   "title": "تورنمنت‌ها، دسکتاپ",
+   "route": "/tournaments",
+   "kind": "page",
+   "state": "tournaments",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Tournaments-Desktop@1440.png",
+    "reference/img/play/Tournaments-Desktop@1000.png",
+    "reference/img/play/Tournaments-Desktop@390.png"
+   ],
+   "html": "reference/html/play/Tournaments-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Tournament-Desktop",
+   "page": "play",
+   "title": "جزئیات تورنمنت، دسکتاپ",
+   "route": "/tournaments/:id",
+   "kind": "page",
+   "state": "tournament detail",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/play/Tournament-Desktop@1440.png",
+    "reference/img/play/Tournament-Desktop@1000.png",
+    "reference/img/play/Tournament-Desktop@390.png"
+   ],
+   "html": "reference/html/play/Tournament-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "Tournament-Phone",
+   "page": "play",
+   "title": "جزئیات تورنمنت، موبایل",
+   "route": "/tournaments/:id",
+   "kind": "page",
+   "state": "tournament detail",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/play/Tournament-Phone@390.png"
+   ],
+   "html": "reference/html/play/Tournament-Phone.html",
+   "capture": "param"
+  },
+  {
+   "id": "Login-Phone-Mobile",
+   "page": "account",
+   "title": "ورود، شماره موبایل",
+   "route": "/login",
+   "kind": "page",
+   "state": "step 1: mobile number",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Login-Phone-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Login-Phone-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Login-Otp-Mobile",
+   "page": "account",
+   "title": "ورود، کد تأیید با خطا",
+   "route": "/login",
+   "kind": "page",
+   "state": "step 2: 6-digit code",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Login-Otp-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Login-Otp-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Login-Profile-Mobile",
+   "page": "account",
+   "title": "ورود، نام و نماد",
+   "route": "/login",
+   "kind": "page",
+   "state": "step 3: profile (name + starter avatar)",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Login-Profile-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Login-Profile-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Login-Desktop",
+   "page": "account",
+   "title": "ورود، صفحهٔ واکنش‌گرا",
+   "route": "/login",
+   "kind": "page",
+   "state": "login (no shell)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Login-Desktop@1440.png",
+    "reference/img/account/Login-Desktop@1000.png",
+    "reference/img/account/Login-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Login-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Onboarding-Tour-Mobile",
+   "page": "account",
+   "title": "گشت آشنایی",
+   "route": "/",
+   "kind": "overlay",
+   "state": "first-visit tour",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Onboarding-Tour-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Onboarding-Tour-Mobile.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Celebration-LevelUp-Mobile",
+   "page": "account",
+   "title": "جشن سطح جدید",
+   "route": "/",
+   "kind": "overlay",
+   "state": "level-up celebration",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Celebration-LevelUp-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Celebration-LevelUp-Mobile.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Friends-Desktop",
+   "page": "account",
+   "title": "دوستان",
+   "route": "/friends",
+   "kind": "page",
+   "state": "friends",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Friends-Desktop@1440.png",
+    "reference/img/account/Friends-Desktop@1000.png",
+    "reference/img/account/Friends-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Friends-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Friends-Mobile",
+   "page": "account",
+   "title": "دوستان، موبایل",
+   "route": "/friends",
+   "kind": "page",
+   "state": "friends",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Friends-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Friends-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Group-Desktop",
+   "page": "account",
+   "title": "گروه خصوصی",
+   "route": "/groups/:id",
+   "kind": "page",
+   "state": "group",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Group-Desktop@1440.png",
+    "reference/img/account/Group-Desktop@1000.png",
+    "reference/img/account/Group-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Group-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "Clubs-Desktop",
+   "page": "account",
+   "title": "فهرست باشگاه‌ها",
+   "route": "/clubs",
+   "kind": "page",
+   "state": "clubs",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Clubs-Desktop@1440.png",
+    "reference/img/account/Clubs-Desktop@1000.png",
+    "reference/img/account/Clubs-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Clubs-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Club-Desktop",
+   "page": "account",
+   "title": "صفحهٔ باشگاه، دید مدیر",
+   "route": "/clubs/:slug",
+   "kind": "page",
+   "state": "club",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Club-Desktop@1440.png",
+    "reference/img/account/Club-Desktop@1000.png",
+    "reference/img/account/Club-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Club-Desktop.html",
+   "capture": "param"
+  },
+  {
+   "id": "Club-Mobile",
+   "page": "account",
+   "title": "صفحهٔ باشگاه، دید بازدیدکننده",
+   "route": "/clubs/:slug",
+   "kind": "page",
+   "state": "club",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Club-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Club-Mobile.html",
+   "capture": "param"
+  },
+  {
+   "id": "Plans-Desktop",
+   "page": "account",
+   "title": "اشتراک پریمیوم",
+   "route": "/plans",
+   "kind": "page",
+   "state": "premium plans",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Plans-Desktop@1440.png",
+    "reference/img/account/Plans-Desktop@1000.png",
+    "reference/img/account/Plans-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Plans-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Coins-Desktop",
+   "page": "account",
+   "title": "سکه‌ها",
+   "route": "/coins",
+   "kind": "page",
+   "state": "coins / wallet",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Coins-Desktop@1440.png",
+    "reference/img/account/Coins-Desktop@1000.png",
+    "reference/img/account/Coins-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Coins-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Payment-Success-Mobile",
+   "page": "account",
+   "title": "نتیجهٔ پرداخت، موفق",
+   "route": "/payments/result",
+   "kind": "page",
+   "state": "payment success",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Payment-Success-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Payment-Success-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Payment-Failed-Mobile",
+   "page": "account",
+   "title": "نتیجهٔ پرداخت، ناموفق",
+   "route": "/payments/result",
+   "kind": "page",
+   "state": "payment failed",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Payment-Failed-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Payment-Failed-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Wallet-Mobile",
+   "page": "account",
+   "title": "کیف پول، موبایل",
+   "route": "/coins",
+   "kind": "page",
+   "state": "wallet",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Wallet-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Wallet-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Settings-Desktop",
+   "page": "account",
+   "title": "تنظیمات",
+   "route": "/settings",
+   "kind": "page",
+   "state": "settings",
+   "theme": "dark",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Settings-Desktop@1440.png",
+    "reference/img/account/Settings-Desktop@1000.png",
+    "reference/img/account/Settings-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Settings-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Settings-Mobile",
+   "page": "account",
+   "title": "تنظیمات، موبایل تیره",
+   "route": "/settings",
+   "kind": "page",
+   "state": "settings, dark",
+   "theme": "dark",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Settings-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Settings-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Support-Desktop",
+   "page": "account",
+   "title": "پشتیبانی و اعتراض",
+   "route": "/support",
+   "kind": "page",
+   "state": "support",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Support-Desktop@1440.png",
+    "reference/img/account/Support-Desktop@1000.png",
+    "reference/img/account/Support-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Support-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "States-Spec-Desktop",
+   "page": "account",
+   "title": "حالت‌های استاندارد",
+   "route": null,
+   "kind": "spec",
+   "state": "empty / loading / error / denied states spec",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/States-Spec-Desktop@1440.png",
+    "reference/img/account/States-Spec-Desktop@1000.png",
+    "reference/img/account/States-Spec-Desktop@390.png"
+   ],
+   "html": "reference/html/account/States-Spec-Desktop.html",
+   "capture": "manual"
+  },
+  {
+   "id": "NotFound-Mobile",
+   "page": "account",
+   "title": "۴۰۴، موبایل",
+   "route": "/this-route-does-not-exist",
+   "kind": "page",
+   "state": "404",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/NotFound-Mobile@390.png"
+   ],
+   "html": "reference/html/account/NotFound-Mobile.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Offline-Mobile",
+   "page": "account",
+   "title": "آفلاین، موبایل",
+   "route": "/",
+   "kind": "system",
+   "state": "browser offline state",
+   "theme": "light",
+   "responsive": false,
+   "viewports": [
+    390
+   ],
+   "reference": [
+    "reference/img/account/Offline-Mobile@390.png"
+   ],
+   "html": "reference/html/account/Offline-Mobile.html",
+   "capture": "manual"
+  },
+  {
+   "id": "Moderation-Desktop",
+   "page": "account",
+   "title": "صف نظارت",
+   "route": "/mod",
+   "kind": "page",
+   "state": "moderation (role: moderator)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Moderation-Desktop@1440.png",
+    "reference/img/account/Moderation-Desktop@1000.png",
+    "reference/img/account/Moderation-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Moderation-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "AdminGames-Desktop",
+   "page": "account",
+   "title": "تنظیمات بازی‌ها",
+   "route": "/admin",
+   "kind": "page",
+   "state": "admin → game settings (role: admin)",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/AdminGames-Desktop@1440.png",
+    "reference/img/account/AdminGames-Desktop@1000.png",
+    "reference/img/account/AdminGames-Desktop@390.png"
+   ],
+   "html": "reference/html/account/AdminGames-Desktop.html",
+   "capture": "auto"
+  },
+  {
+   "id": "Wiki-Desktop",
+   "page": "account",
+   "title": "دانشنامهٔ بازی‌ها",
+   "route": "/wiki",
+   "kind": "page",
+   "state": "wiki",
+   "theme": "light",
+   "responsive": true,
+   "viewports": [
+    1440,
+    1000,
+    390
+   ],
+   "reference": [
+    "reference/img/account/Wiki-Desktop@1440.png",
+    "reference/img/account/Wiki-Desktop@1000.png",
+    "reference/img/account/Wiki-Desktop@390.png"
+   ],
+   "html": "reference/html/account/Wiki-Desktop.html",
+   "capture": "auto"
+  }
+ ]
+}

@@ -1,34 +1,43 @@
-import { useEffect, useId, useState, type FormEvent } from 'react';
+import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
-import { ArrowRight, Dices, MessageSquareText, ShieldCheck, Smartphone } from 'lucide-react';
 import { avatarKeys, displayNameSchema, normalizeIranMobile, toAsciiDigits, type Me } from '@bg/contracts';
-import { Avatar, Button, ErrorShake, Input, OtpField, cn, fa } from '@bg/ui';
-import { api, ApiFailure } from '../lib/api.ts';
+import { fa } from '@bg/ui';
+import { Banner, Button, Card, Icon, Logo, OtpField, PhoneField, TextField } from '@bg/ui/bgv';
+import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AVATAR_FA, safeNext } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { stashGift } from '../shell/WelcomeGift.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
+import { SITE_LINKS } from './SitePage.tsx';
 
 type Step = { kind: 'mobile' } | { kind: 'code'; challengeId: string; mobile: string; resendAt: number; fixture: boolean } | { kind: 'profile' };
 const STEPS = ['شماره', 'کد تأیید', 'پروفایل'] as const;
+const FAN = ['terraforming-mars', 'catan', 'azul', 'hanabi'] as const;
+const FAN_POS = [[-0.83, 15, -10], [-0.28, 5, -3.3], [0.28, 5, 3.3], [0.83, 15, 10]] as const;
 
-/** Three-step progress (VibeFarsi auth template): done steps are filled, the current one is ringed. */
+/** Three-step progress: done steps carry a check, the current one is ringed. */
 function StepDots({ current }: { current: number }) {
   return (
-    <ol className="flex items-center justify-center gap-2" aria-label="مراحل ورود">
-      {STEPS.map((s, i) => (
-        <li key={s} className="flex items-center gap-2" aria-current={i === current ? 'step' : undefined}>
-          <span className={cn('flex size-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-(--motion) ease-motion',
-            i < current ? 'bg-primary text-primary-foreground' : i === current ? 'bg-card text-primary shadow-control ring-2 ring-primary' : 'bg-secondary text-muted-foreground')}>
-            {fa(i + 1)}
-          </span>
-          <span className={cn('whitespace-nowrap text-xs', i === current ? 'font-bold text-foreground' : 'text-muted-foreground')}>{s}</span>
-          {i < STEPS.length - 1 && <span className={cn('h-0.5 w-6 rounded-full', i < current ? 'bg-primary' : 'bg-input')} aria-hidden />}
-        </li>
-      ))}
+    <ol className="ac-steps" aria-label="مراحل ورود">
+      {STEPS.flatMap((s, i) => [
+        <li key={s} className={i < current ? 'is-done' : i === current ? 'is-cur' : undefined} aria-current={i === current ? 'step' : undefined}>
+          <b>{i < current ? <Icon name="check" size="sm" /> : fa(i + 1)}</b>{s}
+        </li>,
+        ...(i < STEPS.length - 1 ? [<li key={`${s}-bar`} className={`ac-bar${i < current ? ' is-done' : ''}`} aria-hidden />] : [])
+      ])}
     </ol>
   );
 }
+
+/** Avatar glyphs: the meeple is the brand's game piece, the rest are DS icons. */
+const AVATAR_ART: Record<string, { tone: string; node: ReactNode }> = {
+  meeple: { tone: 'success', node: <svg className="ac-meeple" viewBox="0 0 24 24" aria-hidden><path d="M12 2.5a3.2 3.2 0 0 1 3.2 3.2c0 .9-.3 1.6-.8 2.2 3 .4 7.1 1.7 7.1 3.7 0 1.3-1.7 1.7-3.7 1.5l2.1 6.4c.2.6-.2 1.1-.8 1.1h-4.1L12 16.2l-3 4.4H4.9c-.6 0-1-.5-.8-1.1l2.1-6.4c-2 .2-3.7-.2-3.7-1.5 0-2 4.1-3.3 7.1-3.7-.5-.6-.8-1.3-.8-2.2A3.2 3.2 0 0 1 12 2.5z" /></svg> },
+  dice: { tone: 'info', node: <Icon name="dices" size={30} /> },
+  crown: { tone: 'warning', node: <Icon name="crown" size={30} /> },
+  pawn: { tone: 'invite', node: <Icon name="user" size={30} /> },
+  card: { tone: 'raised', node: <Icon name="layers" size={30} /> },
+  star: { tone: 'danger', node: <Icon name="star" size={30} /> }
+};
 
 export function Login() {
   usePageTitle('ورود');
@@ -44,7 +53,7 @@ export function Login() {
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(() => Date.now());
-  const phoneId = useId();
+  const games = useApi<{ items: unknown[] }>('/games');
 
   useEffect(() => {
     if (step.kind !== 'code') return;
@@ -101,92 +110,98 @@ export function Login() {
 
   const wait = step.kind === 'code' ? Math.max(0, Math.ceil((step.resendAt - now) / 1000)) : 0;
   const current = step.kind === 'mobile' ? 0 : step.kind === 'code' ? 1 : 2;
+  const count = games.data?.items.length;
 
   return (
-    <div className="grid min-h-[72dvh] place-items-center py-4">
-      <div className="relative w-full max-w-md rounded-surface border-line border-border bg-card p-6 shadow-overlay sm:p-8 animate-fade-up">
-        <div className="mb-6 text-center">
-          <span className="mx-auto mb-4 flex size-14 items-center justify-center rounded-field bg-primary text-primary-foreground shadow-control animate-pop">
-            <Dices className="size-7" strokeWidth={2} aria-hidden />
-          </span>
+    <div className="bgv ac-login">
+      <section className="ac-login__form">
+        <span className="bgv-spacer" />
+        <Card className="ac-login__card">
           <StepDots current={current} />
-        </div>
 
-        {step.kind === 'mobile' && (
-          <form className="grid gap-5" onSubmit={sendCode} noValidate key="mobile">
-            <div className="text-center">
-              <h1 className="text-2xl">ورود یا ثبت‌نام</h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">با شماره موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p>
-            </div>
-            <div className="grid gap-1.5">
-              <label htmlFor={phoneId} className="text-sm font-medium text-foreground/90">شماره موبایل</label>
-              <ErrorShake error={error ?? null} revertAfter={0}>
-                <div dir="ltr" className="flex h-12 items-center gap-2 rounded-field border-line-field border-input bg-field px-4 shadow-field focus-within:border-transparent focus-within:ring-2 focus-within:ring-ring/60">
-                  <Smartphone className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                  <span className="shrink-0 text-sm text-muted-foreground">+98</span>
-                  <input id={phoneId} name="mobile" inputMode="tel" autoComplete="tel" placeholder="912 345 6789" autoFocus
-                    className="h-full w-full min-w-0 bg-transparent text-sm tracking-wide outline-none placeholder:text-muted-foreground/70"
-                    aria-invalid={!!error || undefined} aria-describedby={`${phoneId}-hint`} value={mobile} onChange={(e) => setMobile(e.target.value)} />
-                </div>
-              </ErrorShake>
-              <span id={`${phoneId}-hint`} className="text-xs text-muted-foreground">شماره شما در پروفایل عمومی نمایش داده نمی‌شود.</span>
-            </div>
-            <Button type="submit" busy={busy} block size="lg">دریافت کد</Button>
-            <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground"><ShieldCheck className="size-3.5" aria-hidden />کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
-            <p className="text-center text-xs text-muted-foreground">ورود یا ثبت‌نام به معنی پذیرش <Link className="underline" to="/terms">قوانین و مقررات</Link> و <Link className="underline" to="/privacy">حریم خصوصی</Link> است.</p>
-          </form>
-        )}
-
-        {step.kind === 'code' && (
-          <form className="grid gap-5" onSubmit={(e) => verify(e)} noValidate key="code">
-            <div className="text-center">
-              <h1 className="text-2xl">کد ورود</h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">کد شش‌رقمی ارسال‌شده به <bdi dir="ltr" className="font-semibold text-foreground">{fa(step.mobile)}</bdi> را وارد کنید.</p>
-            </div>
-            {step.fixture && (
-              <div className="flex items-start gap-2 rounded-field bg-warning/10 px-4 py-3 text-xs leading-6 text-foreground ring-1 ring-warning/40" role="note">
-                <MessageSquareText className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
-                حالت آزمایشی: پیامکی ارسال نشد. کد ورود آزمایشی را از مدیر سایت بگیرید.
+          {step.kind === 'mobile' && (
+            <form className="ac-stack" style={{ gap: 14 }} onSubmit={sendCode} noValidate key="mobile">
+              <div className="ac-login__head">
+                <h1 className="t-page">ورود یا ثبت‌نام</h1>
+                <p className="t-body-sm bgv-muted">با شماره موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p>
               </div>
-            )}
-            <ErrorShake error={error ?? null} revertAfter={0} className="flex justify-center">
-              <OtpField value={code} onChange={setCode} onComplete={(v) => verify(undefined, v)} disabled={busy} aria-label="کد تأیید" />
-            </ErrorShake>
-            <Button type="submit" busy={busy} block size="lg" disabled={code.length < 6}>ورود</Button>
-            <div className="flex items-center justify-between text-sm">
-              <button type="button" className="inline-flex min-h-11 cursor-pointer items-center gap-1 text-muted-foreground hover:text-foreground" onClick={() => { setStep({ kind: 'mobile' }); setError(undefined); }}>
-                <ArrowRight className="size-4" aria-hidden />تغییر شماره
-              </button>
-              {wait > 0
-                ? <span className="text-muted-foreground" aria-live="polite">ارسال دوباره تا {fa(wait)} ثانیه دیگر</span>
-                : <button type="button" disabled={busy} className="min-h-11 cursor-pointer font-semibold text-primary hover:underline" onClick={() => sendCode()}>ارسال دوباره کد</button>}
-            </div>
-          </form>
-        )}
+              <PhoneField label="شماره موبایل" name="mobile" placeholder="912 345 6789" autoFocus autoComplete="tel" value={mobile}
+                onChange={(e) => setMobile(e.target.value)} error={error} hint="شماره شما در پروفایل عمومی نمایش داده نمی‌شود." />
+              <Button type="submit" variant="primary" size="lg" block loading={busy}>دریافت کد</Button>
+              <p className="bgv-hint" style={{ justifyContent: 'center' }}><Icon name="shield" size="sm" style={{ marginBlockStart: 3 }} />کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
+              <p className="ac-login__legal">ورود یا ثبت‌نام به معنی پذیرش <Link to="/terms">قوانین و مقررات</Link> و <Link to="/privacy">حریم خصوصی</Link> است.</p>
+            </form>
+          )}
 
-        {step.kind === 'profile' && (
-          <form className="grid gap-5" onSubmit={saveProfile} noValidate key="profile">
-            <div className="text-center">
-              <h1 className="text-2xl">خوش آمدید</h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">نامی که دیگران سر میز می‌بینند و نماد خود را انتخاب کنید.</p>
-            </div>
-            <Input label="نام نمایشی" name="displayName" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error}
-              hint="۲ تا ۲۴ نویسه؛ نام نمایشی قابل گزارش است." autoFocus />
-            <fieldset className="m-0 grid gap-2 border-0 p-0">
-              <legend className="mb-2 text-sm font-medium text-foreground/90">نماد</legend>
-              <div className="avatar-picker">
+          {step.kind === 'code' && (
+            <form className="ac-stack" style={{ gap: 18 }} onSubmit={(e) => verify(e)} noValidate key="code">
+              <div className="ac-login__head">
+                <h1 className="t-page">کد ورود</h1>
+                <p className="t-body-sm bgv-muted">کد شش‌رقمی ارسال‌شده به <bdi dir="ltr" style={{ color: 'var(--text)', fontWeight: 700 }}>{fa(step.mobile)}</bdi> را وارد کنید.</p>
+              </div>
+              {step.fixture && <Banner tone="warning" icon="info" text="حالت آزمایشی: پیامکی ارسال نشد. کد ورود آزمایشی را از مدیر سایت بگیرید." />}
+              <div className="ac-otp">
+                <OtpField value={code} onChange={setCode} onComplete={(v) => verify(undefined, v)} disabled={busy} invalid={!!error} label="کد تأیید" />
+                {error && <p className="bgv-hint bgv-hint--error" role="alert"><Icon name="circle-alert" size="sm" style={{ marginBlockStart: 3 }} />{error}</p>}
+              </div>
+              <Button type="submit" variant="primary" size="lg" block loading={busy} disabled={code.length < 6}>ورود</Button>
+              <div className="ac-resend">
+                {wait > 0
+                  ? <span aria-live="polite">ارسال دوباره تا <b className="bgv-num">{fa(wait)}</b> ثانیه دیگر</span>
+                  : <Button type="button" size="sm" disabled={busy} onClick={() => sendCode()}>ارسال دوباره کد</Button>}
+                <Button type="button" variant="ghost" size="sm" icon="arrow-right" onClick={() => { setStep({ kind: 'mobile' }); setError(undefined); }}>تغییر شماره</Button>
+              </div>
+            </form>
+          )}
+
+          {step.kind === 'profile' && (
+            <form className="ac-stack" style={{ gap: 18 }} onSubmit={saveProfile} noValidate key="profile">
+              <div className="ac-login__head">
+                <h1 className="t-page">خوش آمدید</h1>
+                <p className="t-body-sm bgv-muted">نامی که دیگران سر میز می‌بینند و نماد خود را انتخاب کنید.</p>
+              </div>
+              <TextField label="نام نمایشی" name="displayName" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error}
+                hint="۲ تا ۲۴ نویسه؛ نام نمایشی قابل گزارش است." autoFocus />
+              <fieldset className="ac-avatars">
+                <legend className="bgv-label" style={{ marginBlockEnd: 14 }}>نماد</legend>
                 {avatarKeys.map((k) => (
-                  <label key={k}>
-                    <input type="radio" name="avatar" value={k} checked={avatar === k} onChange={() => setAvatar(k)} />
-                    <Avatar avatarKey={k} name={AVATAR_FA[k] ?? k} size={46} />
+                  <label key={k} className={`ac-avatar${avatar === k ? ' is-on' : ''}`}>
+                    <input type="radio" name="avatar" value={k} className="bgv-sr" checked={avatar === k} onChange={() => setAvatar(k)} />
+                    <span className={`ac-avatar__art ac-tone-${AVATAR_ART[k]?.tone ?? 'raised'}`}>
+                      {AVATAR_ART[k]?.node}
+                      {avatar === k && <span className="ac-avatar__check"><Icon name="check" size="sm" /></span>}
+                    </span>
+                    {AVATAR_FA[k] ?? k}
                   </label>
                 ))}
-              </div>
-            </fieldset>
-            <Button type="submit" busy={busy} block size="lg">ذخیره و ادامه</Button>
-          </form>
-        )}
-      </div>
+              </fieldset>
+              <Button type="submit" variant="primary" size="lg" block loading={busy}>ذخیره و ادامه</Button>
+            </form>
+          )}
+        </Card>
+        <span className="bgv-spacer" />
+        <nav className="ac-login__links" aria-label="پیوندهای سایت">
+          {SITE_LINKS.map(([s, label]) => <Link key={s} to={`/${s}`}>{label}</Link>)}
+        </nav>
+      </section>
+
+      <section className="bgv-felt ac-login__hero">
+        <Logo src="/brand/logo-fa-reversed.svg" height={48} style={{ alignSelf: 'flex-start' }} />
+        <div className="ac-login__pitch" style={{ marginBlockStart: 36 }}>
+          <h2 className="t-h2" style={{ color: 'var(--felt-ink)', margin: 0 }}>سر میز، با همه.</h2>
+          <p className="t-body ac-login__lede">{count ? `${fa(count)} بازی رومیزی، ` : 'بازی‌های رومیزی، '}زنده یا نوبتی؛ با دوستان، باشگاه‌ها یا حریف‌های تازه، هر جا که هستید.</p>
+        </div>
+        <div className="ac-fan" aria-hidden>
+          {FAN.map((g, i) => (
+            <img key={g} src={`/covers/${g}.webp?v=2`} alt="" style={{ '--dx': FAN_POS[i]![0], '--dy': `${FAN_POS[i]![1]}px`, '--rot': `${FAN_POS[i]![2]}deg` } as CSSProperties} />
+          ))}
+        </div>
+        <div className="bgv-felt-row ac-login__plates" style={{ justifyContent: 'flex-start', gap: 8 }}>
+          {count ? <span className="bgv-felt-plate"><strong>{fa(count)}</strong>بازی</span> : null}
+          <span className="bgv-felt-plate"><Icon name="timer" size="sm" />زنده و نوبتی</span>
+          <span className="bgv-felt-plate"><Icon name="trophy" size="sm" />لیگ از برنز تا استاد</span>
+        </div>
+      </section>
     </div>
   );
 }

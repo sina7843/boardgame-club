@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { PublicProfile } from '@bg/contracts';
-import { Avatar, Button, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Button, Card, Identity, ListItem, Skeleton } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
+import { userIdentity } from '../lib/bgv.tsx';
 
 /** Invite friends or a whole group to an open table. Server checks friendship/community, blocks and seats. */
 export function InvitePanel({ tableId }: { tableId: string }) {
@@ -17,26 +19,17 @@ export function InvitePanel({ tableId }: { tableId: string }) {
     } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'دعوت انجام نشد.'); }
   };
   const activeGroups = groups.data?.items.filter((g) => g.myStatus === 'active') ?? [];
+  const btn = (key: string, body: object, label = 'دعوت') => (
+    <Button size="sm" variant="secondary" icon={sent.has(key) ? 'check' : 'user-plus'} disabled={sent.has(key)} onClick={() => invite(key, body)}>{sent.has(key) ? 'دعوت شد' : label}</Button>
+  );
   return (
-    <section className="panel stack" aria-labelledby="invite-h" style={{ gap: 'var(--sp-2)' }}>
-      <h2 id="invite-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}>دعوت دوستان</h2>
-      {friends.loading && !friends.data && <p className="muted" role="status">در حال بارگذاری…</p>}
-      {friends.data && friends.data.friends.length === 0 && activeGroups.length === 0 && <p className="muted" style={{ margin: 0 }}>هنوز دوست یا گروهی ندارید؛ از لینک دعوت استفاده کنید.</p>}
-      <ul className="list">
-        {friends.data?.friends.map((f) => (
-          <li key={f.id} className="list__item list__item--compact">
-            <Avatar avatarKey={f.avatarKey} name={f.displayName} size={32} />
-            <bdi style={{ flex: 1 }}>{f.displayName}</bdi>
-            <Button size="sm" variant="secondary" disabled={sent.has(f.id)} onClick={() => invite(f.id, { userId: f.id })}>{sent.has(f.id) ? 'دعوت شد' : 'دعوت'}</Button>
-          </li>
-        ))}
-        {activeGroups.map((g) => (
-          <li key={g.id} className="list__item list__item--compact">
-            <span style={{ flex: 1 }}>گروه {g.name}</span>
-            <Button size="sm" variant="secondary" disabled={sent.has(g.id)} onClick={() => invite(g.id, { groupId: g.id })}>{sent.has(g.id) ? 'دعوت شد' : 'دعوت همه'}</Button>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <Card title="دعوت دوستان" aria-label="دعوت دوستان">
+      <div className="bgv-stack" style={{ gap: 'var(--space-2)' }}>
+        {friends.loading && !friends.data && <Skeleton lines={2} />}
+        {friends.data && friends.data.friends.length === 0 && activeGroups.length === 0 && <p className="t-caption bgv-muted" style={{ margin: 0 }}>هنوز دوست یا گروهی ندارید؛ از لینک دعوت استفاده کنید.</p>}
+        {friends.data?.friends.map((f) => <Identity key={f.id} {...userIdentity(f)} trailing={btn(f.id, { userId: f.id })} />)}
+        {activeGroups.map((g) => <ListItem key={g.id} icon="users" title={<>گروه <bdi>{g.name}</bdi></>} trailing={btn(g.id, { groupId: g.id }, 'دعوت همه')} />)}
+      </div>
+    </Card>
   );
 }

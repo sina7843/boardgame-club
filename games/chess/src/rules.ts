@@ -404,6 +404,26 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const VAL: Record<string, number> = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: [0, 1].map((seat) => {
+        const c = s.colors[seat]!;
+        const mine = s.pos.board.filter((p): p is Piece => !!p && p[0] === c);
+        return {
+          seat,
+          primary: { label: 'مادی', value: mine.reduce((n, p) => n + VAL[p[1]!]!, 0) },
+          stats: [{ key: 'pieces', label: 'مهره', value: mine.length, icon: 'crown' }],
+          badges: !s.outcome && s.pos.turn === c && inCheck(s.pos) ? [{ key: 'check', label: 'کیش', tone: 'danger' as const }] : [],
+          ...(won === seat ? { status: 'winner' as const } : {}),
+          strikes: s.timeouts[seat] ?? 0
+        };
+      }),
+      strikesMax: MAX_TIMEOUTS
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.pos.turn)]),
 
   tutorial: {

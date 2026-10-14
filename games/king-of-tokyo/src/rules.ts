@@ -291,6 +291,24 @@ export const kotModule: GameModule<KotState, KotAction, KotView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => {
+    const top = Math.max(...s.vp);
+    return {
+      seats: s.vp.map((vp, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: vp, target: 20 },
+        stats: [
+          { key: 'hp', label: 'جان', value: s.hp[seat]!, icon: 'heart' },
+          { key: 'energy', label: 'انرژی', value: s.energy[seat]!, icon: 'flame' }
+        ],
+        badges: s.tokyo === seat ? [{ key: 'tokyo', label: 'در توکیو', tone: 'warning' as const }] : [],
+        ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.alive[seat] ? { status: 'out' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
+      ...(s.vp.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.vp.indexOf(top) } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'yield' ? [s.tokyo!] : [s.current]),
 
   tutorial: {

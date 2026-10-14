@@ -12,12 +12,12 @@ test('play «سه‌خطی» against a hard bot to the result', async ({ browser
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'بازیکن تنها');
   await p.goto('/games/line-three');
-  await expect(p.getByText('حریف ربات است و با نشان 🤖 دیده می‌شود', { exact: false })).toBeVisible();
+  await expect(p.getByText('حریف ربات است و با نشان ربات دیده می‌شود', { exact: false })).toBeVisible();
   await p.getByRole('radio', { name: 'سخت' }).click();
   await p.screenshot({ path: shot(info.project.name, 'offer'), fullPage: true });
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.lt__board')).toBeVisible();
-  await expect(p.getByRole('img', { name: /^نماد 🤖 / }).first()).toBeVisible();
+  await expect(p.getByRole('region', { name: 'بازیکنان' }).first().getByText(/ربات، سطح/).first()).toBeVisible();
 
   for (let n = 0; n < 12; n++) {
     if (await p.getByRole('heading', { name: RESULT }).count()) break;
@@ -41,7 +41,7 @@ test('«مسابقهٔ شترها» with two bots: the bots take their turns bet
   await p.getByRole('radio', { name: 'آسان' }).click();
   await p.getByLabel('تعداد بازیکن (شما و ربات‌ها)').selectOption('3');
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
-  await expect(p.getByRole('img', { name: /^نماد 🤖 / })).toHaveCount(2, { timeout: 10_000 });
+  await expect(p.getByRole('region', { name: 'بازیکنان' }).first().getByText(/ربات، سطح/)).toHaveCount(2, { timeout: 10_000 });
   // Four of my turns: each needs both bots to act in between (a full game is covered by the API test).
   const roll = p.getByRole('button', { name: /^تاس از هرم/ });
   for (let mine = 0; mine < 4; mine++) {
@@ -62,7 +62,7 @@ test('«نه، ممنون!» against a bot: the bot answers each of my moves', a
   await p.getByRole('radio', { name: 'متوسط' }).click();
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.nt-card--big')).toBeVisible();
-  await expect(p.getByRole('img', { name: /^نماد 🤖 / }).first()).toBeVisible();
+  await expect(p.getByRole('region', { name: 'بازیکنان' }).first().getByText(/ربات، سطح/).first()).toBeVisible();
   // Three of my moves; between them the bot must act (pass or take), which moves the shared sequence on.
   const take = p.locator('.nt-btn--take');
   for (let mine = 0; mine < 3; mine++) {

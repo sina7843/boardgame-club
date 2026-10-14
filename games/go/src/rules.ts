@@ -276,6 +276,23 @@ export const goModule: GameModule<GoState, GoAction, GoView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => ({
+    seats: [0, 1].map((seat) => {
+      const c = s.colors[seat]!;
+      return {
+        seat,
+        primary: { label: 'اسیر', value: s.captures[c] },
+        stats: [
+          { key: 'stones', label: 'سنگ', value: s.board.filter((x) => x === c).length },
+          { key: 'color', label: 'رنگ', value: c === 'b' ? 'سیاه' : 'سفید' }
+        ],
+        ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      };
+    }),
+    strikesMax: MAX_TIMEOUTS
+  }),
+
   pendingSeats: (s) => waiting(s),
 
   tutorial: {

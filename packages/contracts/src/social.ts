@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { competitionSchema, paceSchema } from '@bg/game-sdk';
 import { profileExtras, publicProfile } from './api.ts';
+import { leagueSchema } from './progression.ts';
 
 // ---------- Matchmaking ----------
 export const enqueueBody = z.strictObject({
@@ -34,8 +35,28 @@ export type TicketView = z.infer<typeof ticketView>;
 export const relationshipSchema = z.enum(['self', 'none', 'friends', 'incoming', 'outgoing', 'blocked']);
 export const userCard = publicProfile.extend({ relationship: relationshipSchema, muted: z.boolean() });
 export type UserCard = z.infer<typeof userCard>;
+/** Which public-profile sections the owner shows to other people (the owner always sees everything). */
+export const profilePrivacy = z.strictObject({ showStats: z.boolean(), showRatings: z.boolean(), showRecent: z.boolean() });
+export type ProfilePrivacy = z.infer<typeof profilePrivacy>;
+export const DEFAULT_PROFILE_PRIVACY: ProfilePrivacy = { showStats: true, showRatings: true, showRecent: true };
+
+/**
+ * Public play record on the profile page. Every section is null when the owner hides it, or when either side blocked
+ * the other; `level` stays visible otherwise. Only finished, non-tutorial games count; the recent list is public tables only.
+ */
+export const publicRecord = z.object({
+  stats: z.object({ gamesPlayed: z.number().int(), wins: z.number().int(), winRate: z.number().int().min(0).max(100) }).nullable(),
+  level: z.number().int().nullable(),
+  bestLeague: leagueSchema.nullable(),
+  /** Leaderboard-eligible ratings only (never provisional ones). */
+  ratings: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), mode: z.string(), rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable() })).nullable(),
+  recent: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), place: z.number().int(), fieldSize: z.number().int(), finishedAt: z.iso.datetime() })).nullable(),
+  mastery: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), tier: z.string(), tierFa: z.string() })).nullable()
+});
+export type PublicRecord = z.infer<typeof publicRecord>;
+
 /** The profile page: card plus the player's customization. */
-export const profileCard = userCard.extend(profileExtras.shape);
+export const profileCard = userCard.extend(profileExtras.shape).extend(publicRecord.shape);
 export type ProfileCard = z.infer<typeof profileCard>;
 
 export const friendsResponse = z.object({
@@ -77,6 +98,10 @@ export const messageBody = z.strictObject({
 export const messageEditBody = z.strictObject({ body: z.string().min(1).max(1000) });
 /** Own messages can be edited for this long after sending. */
 export const MESSAGE_EDIT_WINDOW_SECONDS = 120;
+export const REACTION_EMOJIS = ['👍', '😂', '😮', '😢', '🔥', '👏'] as const;
+export const reactionBody = z.strictObject({ emoji: z.enum(REACTION_EMOJIS) });
+export const muteChatBody = z.strictObject({ muted: z.boolean() });
+export const reactionItem = z.object({ emoji: z.string(), count: z.number().int(), mine: z.boolean() });
 export const messageItem = z.object({
   id: z.uuid(),
   conversationId: z.uuid(),
@@ -86,6 +111,9 @@ export const messageItem = z.object({
   deleted: z.boolean(),
   editedAt: z.iso.datetime().nullable(),
   clientId: z.uuid().nullable(),
+  reactions: z.array(reactionItem),
+  /** Members whose @displayName appears in the body. */
+  mentions: z.array(z.uuid()),
   replyTo: z.object({ id: z.uuid(), senderName: z.string(), body: z.string(), deleted: z.boolean() }).nullable()
 });
 export type MessageItem = z.infer<typeof messageItem>;
@@ -94,7 +122,9 @@ export const messagesPage = z.object({
   kind: z.enum(['direct', 'table', 'group', 'club']),
   slowModeSeconds: z.number().int(),
   /** Private chats: the other member has read everything up to this moment ("seen"). */
-  readUpTo: z.iso.datetime().nullable()
+  readUpTo: z.iso.datetime().nullable(),
+  /** I muted this conversation (no notifications for it). */
+  muted: z.boolean()
 });
 export const SLOW_MODE_OPTIONS = [0, 10, 30, 60, 300] as const;
 export const slowModeBody = z.strictObject({ seconds: z.literal([...SLOW_MODE_OPTIONS]) });
@@ -147,6 +177,18 @@ export const notifyPrefs = z.strictObject({ turn: z.boolean(), invite: z.boolean
 export const userSettingsSchema = z.strictObject({ dmPolicy: z.enum(['friends', 'nobody']), notify: notifyPrefs });
 export type UserSettings = z.infer<typeof userSettingsSchema>;
 
+/** Turn alerts (sound / vibration / quiet hours in Tehran time). Hours 0-23; start === end means no quiet hours. */
+export const alertSoundSchema = z.enum(['chime', 'bell', 'pulse', 'soft']);
+export const alertPrefs = z.strictObject({
+  sound: z.boolean(), volume: z.number().int().min(0).max(100), vibration: z.boolean(),
+  quietHours: z.strictObject({ enabled: z.boolean(), startHour: z.number().int().min(0).max(23), endHour: z.number().int().min(0).max(23) }),
+  warningSound: alertSoundSchema, criticalSound: alertSoundSchema
+});
+export type AlertPrefs = z.infer<typeof alertPrefs>;
+export const DEFAULT_ALERT_PREFS: AlertPrefs = {
+  sound: true, volume: 70, vibration: true, quietHours: { enabled: false, startHour: 23, endHour: 7 }, warningSound: 'chime', criticalSound: 'pulse'
+};
+
 // ---------- Moderation ----------
 export const reportBody = z.strictObject({
   targetType: z.enum(['user', 'display_name', 'bio', 'message', 'table']),
@@ -173,4 +215,4 @@ export const resolveReportBody = z.strictObject({
 export const appealBody = z.strictObject({ sanctionId: z.uuid(), text: z.string().trim().min(10).max(2000) });
 export const decideAppealBody = z.strictObject({ decision: z.enum(['upheld', 'revoked']), note: z.string().trim().min(3).max(1000) });
 
-export const NOTIFICATION_KINDS = ['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'friend_request', 'club', 'tournament'] as const;
+export const NOTIFICATION_KINDS = ['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'mention', 'friend_request', 'club', 'tournament'] as const;

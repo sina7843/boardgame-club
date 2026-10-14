@@ -303,6 +303,22 @@ export const domModule: GameModule<DomState, DomAction, DomView> = {
     return { ...finish(s, []), internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.players.map((p, seat) => ({
+        seat,
+        primary: { label: 'کارت', value: p.hand.length },
+        stats: [
+          { key: 'deck', label: 'دسته', value: p.deck.length, icon: 'layers' },
+          { key: 'discard', label: 'کنار', value: p.discard.length }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'province', label: 'ایالت', value: s.supply.province }]
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.militia.some((n) => n > 0) ? s.militia.map((n, k) => (n ? k : -1)).filter((k) => k >= 0) : [s.current]),
 
   tutorial: {

@@ -130,3 +130,18 @@ describe('scout rules', () => {
     }
   }, 120_000);
 });
+
+describe('scout publicSummary', () => {
+  it('one entry per seat; hand counts only', () => {
+    const snap = game(3, 2);
+    const sum = scoutModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(st(snap).hands[0]!.length);
+    expect(sum.shared![0]).toMatchObject({ value: 1, max: 3 });
+    const s2 = structuredClone(st(snap));
+    s2.hands[1] = [...s2.hands[1]!].reverse().map((h) => ({ id: h.id, up: CARDS[h.id]![0] }));
+    expect(scoutModule.publicSummary!(s2)).toEqual(sum);
+    const after = act(snap, 0, { type: 'orient', flip: false });
+    expect(scoutModule.publicSummary!(st(after)).seats[0]!.status).toBe('done');
+  });
+});

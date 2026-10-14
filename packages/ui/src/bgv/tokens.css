@@ -1,0 +1,245 @@
+/* بردگیم‌ورس — دیزاین سیستم — generated from tokens.json */
+:root, [data-theme="light"] {
+  --brand-green: #173A2D;
+  --brand-coral: #F2765B;
+  --brand-coral-deep: #E4603F;
+  --brand-gold: #D4B276;
+  --brand-cream: #F6F0E4;
+  --brand-ink: #14211B;
+  --bg: #F6F0E4;
+  --surface: #FBF8F1;
+  --surface-raised: #EDE4D1;
+  --surface-sunken: #EFE7D6;
+  --surface-chrome: #FBF8F1;
+  --scrim: rgba(20,33,27,0.55);
+  --text: #14211B;
+  --text-muted: #4A5A51;
+  --heading: #173A2D;
+  --label: #4A5A51;
+  --link: #173A2D;
+  --line: #D9CDB4;
+  --border: #7F7A69;
+  --focus: #173A2D;
+  --primary: #173A2D;
+  --primary-hover: #22503E;
+  --on-primary: #F6F0E4;
+  --invite: #F2765B;
+  --invite-strong: #E4603F;
+  --invite-soft: #FBE1D9;
+  --on-invite: #14211B;
+  --accent: #D4B276;
+  --on-accent: #14211B;
+  --danger: #A8283E;
+  --on-danger: #F6F0E4;
+  --danger-soft: #F6DADD;
+  --success: #1E6B45;
+  --success-soft: #DCEBDD;
+  --warning: #875400;
+  --warning-soft: #F6E7C6;
+  --info: #235C8C;
+  --info-soft: #DCE8F3;
+  --felt: #1F4D3B;
+  --felt-rim: #173A2D;
+  --felt-ink: #F6F0E4;
+  --felt-muted: #C9D8CD;
+  --felt-line: rgba(246,240,228,0.16);
+  --felt-plate: rgba(11,26,20,0.48);
+  --focus-on-felt: #D4B276;
+  --felt-gold: #D4B276;
+  --seat-1: #6A98F0;
+  --seat-2: #F2C14E;
+  --seat-3: #E0505C;
+  --seat-4: #F6F0E4;
+  --seat-5: #B48BE8;
+  --seat-6: #38B9A8;
+  --seat-7: #EC8DBB;
+  --seat-8: #A9CC52;
+  --seat-9: #BE8D60;
+  --seat-10: #A9B4AE;
+  --seat-outline: rgba(20,33,27,0.6);
+  --clock-calm: #173A2D;
+  --clock-warn: #875400;
+  --clock-critical: #A8283E;
+  --clock-track: rgba(23,58,45,0.14);
+  --clock-on-felt-warn: #F0BE5E;
+  --clock-on-felt-critical: #FF9BA6;
+  --clock-on-felt-frozen: #93C5EE;
+  --coin-light: #FBE38A;
+  --coin: #E2A82B;
+  --coin-dark: #9A6812;
+  --tier-bronze: #B87B4B;
+  --tier-silver: #9AA4A0;
+  --tier-gold: #D4B276;
+  --tier-turquoise: #3FA99E;
+  --tier-diamond: #6F95DD;
+  --tier-master: #8E5FD0;
+  --shadow-tile: inset 0 -3px 0 rgba(127,122,105,0.38), inset 0 2px 0 rgba(255,255,255,0.85), 0 8px 16px -10px rgba(23,58,45,0.45);
+  --shadow-tile-primary: inset 0 -3px 0 rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.16), 0 8px 16px -8px rgba(23,58,45,0.6);
+  --shadow-press: inset 0 2px 4px rgba(20,33,27,0.3);
+  --shadow-field: inset 0 2px 4px rgba(20,33,27,0.08);
+  --shadow-card: inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 32px -24px rgba(23,58,45,0.45);
+  --shadow-float: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 6px rgba(23,58,45,0.12), 0 24px 48px -20px rgba(23,58,45,0.5);
+  --shadow-felt: inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -12px 28px rgba(0,0,0,0.28), 0 24px 44px -26px rgba(23,58,45,0.6);
+  --shadow-piece: 0 2px 0 rgba(0,0,0,0.25), 0 8px 14px -8px rgba(0,0,0,0.6);
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --brand-green: #173A2D;
+  --brand-coral: #F2765B;
+  --brand-coral-deep: #E4603F;
+  --brand-gold: #D4B276;
+  --brand-cream: #F6F0E4;
+  --brand-ink: #14211B;
+  --bg: #191B1A;
+  --surface: #142A21;
+  --surface-raised: #173A2D;
+  --surface-sunken: #121413;
+  --surface-chrome: #252826;
+  --scrim: rgba(8,9,9,0.72);
+  --text: #F6F0E4;
+  --text-muted: #B5C0B7;
+  --heading: #F6F0E4;
+  --label: #D4B276;
+  --link: #F6F0E4;
+  --line: #2A4638;
+  --border: #6F8C7D;
+  --focus: #D4B276;
+  --primary: #F6F0E4;
+  --primary-hover: #FFFFFF;
+  --on-primary: #173A2D;
+  --invite: #F2765B;
+  --invite-strong: #F2765B;
+  --invite-soft: #3A2A22;
+  --on-invite: #14211B;
+  --accent: #D4B276;
+  --on-accent: #14211B;
+  --danger: #FF9BA6;
+  --on-danger: #14211B;
+  --danger-soft: #3B1F25;
+  --success: #7AD6A2;
+  --success-soft: #16382A;
+  --warning: #F0BE5E;
+  --warning-soft: #3A3018;
+  --info: #93C5EE;
+  --info-soft: #16304A;
+  --felt: #1F4D3B;
+  --felt-rim: #3E6E59;
+  --felt-ink: #F6F0E4;
+  --felt-muted: #C9D8CD;
+  --felt-line: rgba(246,240,228,0.16);
+  --felt-plate: rgba(11,26,20,0.48);
+  --focus-on-felt: #D4B276;
+  --felt-gold: #D4B276;
+  --seat-1: #6A98F0;
+  --seat-2: #F2C14E;
+  --seat-3: #E0505C;
+  --seat-4: #F6F0E4;
+  --seat-5: #B48BE8;
+  --seat-6: #38B9A8;
+  --seat-7: #EC8DBB;
+  --seat-8: #A9CC52;
+  --seat-9: #BE8D60;
+  --seat-10: #A9B4AE;
+  --seat-outline: rgba(20,33,27,0.6);
+  --clock-calm: #F6F0E4;
+  --clock-warn: #F0BE5E;
+  --clock-critical: #FF9BA6;
+  --clock-track: rgba(246,240,228,0.16);
+  --clock-on-felt-warn: #F0BE5E;
+  --clock-on-felt-critical: #FF9BA6;
+  --clock-on-felt-frozen: #93C5EE;
+  --coin-light: #FBE38A;
+  --coin: #E2A82B;
+  --coin-dark: #9A6812;
+  --tier-bronze: #C98C5C;
+  --tier-silver: #B7C0BC;
+  --tier-gold: #D4B276;
+  --tier-turquoise: #5CC4B8;
+  --tier-diamond: #93B2EC;
+  --tier-master: #B48BE8;
+  --shadow-tile: inset 0 -3px 0 rgba(0,0,0,0.42), inset 0 1px 0 rgba(246,240,228,0.12), 0 8px 16px -10px rgba(0,0,0,0.7);
+  --shadow-tile-primary: inset 0 -3px 0 rgba(23,58,45,0.3), inset 0 2px 0 rgba(255,255,255,0.6), 0 8px 18px -10px rgba(0,0,0,0.8);
+  --shadow-press: inset 0 2px 5px rgba(0,0,0,0.55);
+  --shadow-field: inset 0 2px 4px rgba(0,0,0,0.35);
+  --shadow-card: inset 0 1px 0 rgba(246,240,228,0.06), 0 18px 32px -24px rgba(0,0,0,0.8);
+  --shadow-float: inset 0 1px 0 rgba(246,240,228,0.08), 0 2px 6px rgba(0,0,0,0.4), 0 24px 48px -20px rgba(0,0,0,0.85);
+  --shadow-felt: inset 0 2px 0 rgba(255,255,255,0.06), inset 0 -12px 28px rgba(0,0,0,0.35), 0 24px 44px -26px rgba(0,0,0,0.8);
+  --shadow-piece: 0 2px 0 rgba(0,0,0,0.3), 0 8px 14px -8px rgba(0,0,0,0.7);
+  color-scheme: dark;
+}
+:root {
+  --space-0_5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+  --radius-tile: 22%;
+  --control-sm: 36px;
+  --control-md: 44px;
+  --control-lg: 52px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --sidebar-w: 272px;
+  --rail-w: 296px;
+  --chat-w: 360px;
+  --gamebar-h: 56px;
+  --dock-h: 64px;
+  --content-max: 1200px;
+  --dur-instant: 90ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-spring: 420ms;
+  --dur-move: 560ms;
+  --dur-deal: 640ms;
+  --dur-roll: 980ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --z-base: 0;
+  --z-felt: 1;
+  --z-hud: 10;
+  --z-sticky: 20;
+  --z-dock: 30;
+  --z-sheet: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+  --z-alert: 70;
+  --bp-sm: 600px;
+  --bp-md: 900px;
+  --bp-lg: 1200px;
+  --bp-xl: 1600px;
+  --font-fa: Vazirmatn, Tahoma, system-ui, sans-serif;
+  --font-latin: Manrope, Vazirmatn, system-ui, sans-serif;
+}
+.t-display { font-family: var(--font-fa); font-size: 72px; line-height: 1.25; font-weight: 900; }
+.t-h1 { font-family: var(--font-fa); font-size: 56px; line-height: 1.3; font-weight: 900; }
+.t-h2 { font-family: var(--font-fa); font-size: 40px; line-height: 1.35; font-weight: 700; }
+.t-h3 { font-family: var(--font-fa); font-size: 24px; line-height: 1.5; font-weight: 700; }
+.t-page { font-family: var(--font-fa); font-size: 32px; line-height: 1.4; font-weight: 900; }
+.t-page-sm { font-family: var(--font-fa); font-size: 24px; line-height: 1.45; font-weight: 900; }
+.t-title { font-family: var(--font-fa); font-size: 20px; line-height: 1.5; font-weight: 700; }
+.t-body { font-family: var(--font-fa); font-size: 17px; line-height: 1.8; font-weight: 400; }
+.t-body-sm { font-family: var(--font-fa); font-size: 15px; line-height: 1.7; font-weight: 400; }
+.t-label { font-family: var(--font-fa); font-size: 14px; line-height: 1.6; font-weight: 700; }
+.t-caption { font-family: var(--font-fa); font-size: 13px; line-height: 1.6; font-weight: 400; }
+.t-micro { font-family: var(--font-fa); font-size: 12px; line-height: 1.5; font-weight: 700; }
+.t-num-xl { font-family: var(--font-fa); font-size: 40px; line-height: 1.1; font-weight: 900; }
+.t-num-lg { font-family: var(--font-fa); font-size: 28px; line-height: 1.15; font-weight: 900; }
+.t-num-md { font-family: var(--font-fa); font-size: 20px; line-height: 1.2; font-weight: 900; }
+.t-num-sm { font-family: var(--font-fa); font-size: 15px; line-height: 1.2; font-weight: 700; }
+.t-latin { font-family: var(--font-latin); font-size: 15px; line-height: 1.6; font-weight: 600; }
+.t-latin-strong { font-family: var(--font-latin); font-size: 15px; line-height: 1.6; font-weight: 800; }

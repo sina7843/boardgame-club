@@ -247,6 +247,26 @@ export const azulModule: GameModule<AzulState, AzulAction, AzulView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const scores = s.boards.map((b) => b.score);
+    const top = Math.max(...scores);
+    const leaders = scores.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.boards.map((b, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: b.score },
+        stats: [
+          { key: 'wall', label: 'کاشی دیوار', value: b.wall.flat().filter(Boolean).length, icon: 'layers' },
+          { key: 'floor', label: 'کف', value: b.floor.length }
+        ],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round }, { key: 'bag', label: 'کیسه', value: s.bag.length }],
+      ...(leaders.length === 1 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

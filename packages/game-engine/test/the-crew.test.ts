@@ -123,6 +123,14 @@ describe('the crew: planet nine', () => {
 describe('the crew: deep sea', () => {
   const { m, game, act } = make(deepSeaModule);
 
+  it('publicSummary: hand counts per seat, shared task progress, no card identities', () => {
+    const sum = deepSeaModule.publicSummary!(st(game(4, 7, '5')));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2, 3]);
+    expect(sum.seats.reduce((n, x) => n + x.primary!.value, 0)).toBe(40);
+    expect(sum.shared![0]).toMatchObject({ value: 0 });
+    expect(JSON.stringify(sum)).not.toMatch(/[pbygr][1-9]/);
+  });
+
   it('tasks are revealed until the difficulty target is reached', () => {
     for (const target of ['3', '7', '11']) {
       const s = st(game(4, 7, target));
@@ -177,5 +185,20 @@ describe('the crew: deep sea', () => {
       expect(st(snap).outcome).not.toBeNull();
       expect(replay(m, setup, inputs)).toEqual(snap);
     }
+  });
+});
+
+describe('the crew publicSummary', () => {
+  it('hand counts and own open tasks; never card identities', () => {
+    const { game, draftAll } = make(crewModuleNine);
+    let snap = game(4, 3, '4');
+    const sum = crewModuleNine.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2, 3]);
+    expect(sum.seats.reduce((n, x) => n + x.primary!.value, 0)).toBe(st(snap).hands.reduce((n, h) => n + h.length, 0));
+    expect(sum.shared![0]).toMatchObject({ value: 0, max: 3 });
+    snap = draftAll(snap);
+    const after = crewModuleNine.publicSummary!(st(snap));
+    expect(after.seats.reduce((n, x) => n + (x.stats![0]!.value as number), 0)).toBe(3);
+    expect(JSON.stringify(after)).not.toMatch(/[pbygr][1-9]/);
   });
 });

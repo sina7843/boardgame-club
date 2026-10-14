@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
-import { Button, Input, Segmented, StateBlock, Textarea, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Button, Checkbox, Segmented, StateBlock, Textarea, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { jalaliDate } from '../lib/format.ts';
+import { AdminSection } from './AdminCommerce.tsx';
 import { SITE_LINKS, SiteBody, type SiteInfo, type SiteSlug } from './SitePage.tsx';
 
 const INFO_FIELDS: [keyof SiteInfo, string, boolean?][] = [
@@ -26,15 +27,14 @@ function SiteInfoAdmin() {
   useEffect(() => { if (s.data) setDraft(s.data); }, [s.data]);
   if (!draft) return null;
   return (
-    <section className="panel stack" aria-labelledby="site-info-h">
-      <h2 id="site-info-h" className="section-title">اطلاعات تماس</h2>
-      <p className="muted" style={{ margin: 0 }}>در صفحهٔ «تماس با ما» نمایش داده می‌شود؛ فیلد خالی نمایش داده نمی‌شود.</p>
-      <div className="site-admin__grid">{INFO_FIELDS.map(([k, label, ltr]) => (
-        <Input key={k} label={label} value={draft[k]} dir={ltr ? 'ltr' : undefined} className={ltr ? 'input--ltr' : undefined}
+    <AdminSection id="site-info-h" icon="message-circle" title="اطلاعات تماس">
+      <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>در صفحهٔ «تماس با ما» نمایش داده می‌شود؛ فیلد خالی نمایش داده نمی‌شود.</p>
+      <div className="ac-grid2">{INFO_FIELDS.map(([k, label, ltr]) => (
+        <TextField key={k} label={label} value={draft[k]} dir={ltr ? 'ltr' : undefined}
           onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
       ))}</div>
-      <div><Button size="sm" onClick={async () => { if (await save('/admin/site/info', 'PUT', draft)) s.reload(); }}>ذخیرهٔ اطلاعات تماس</Button></div>
-    </section>
+      <div><Button size="sm" variant="primary" onClick={async () => { if (await save('/admin/site/info', 'PUT', draft)) s.reload(); }}>ذخیرهٔ اطلاعات تماس</Button></div>
+    </AdminSection>
   );
 }
 
@@ -47,27 +47,25 @@ function PageEditor({ slug }: { slug: SiteSlug }) {
   const [reaccept, setReaccept] = useState(false);
   const legal = slug === 'terms' || slug === 'privacy';
   useEffect(() => { if (p.data) { setTitle(p.data.titleFa); setBody(p.data.bodyFa); } }, [p.data]);
-  if (p.error) return <StateBlock kind="error" title="بارگذاری نشد" action={<Button onClick={p.reload}>تلاش دوباره</Button>}>{p.error.messageFa}</StateBlock>;
+  if (p.error) return <StateBlock kind="error" title="بارگذاری نشد" text={p.error.messageFa} action={<Button onClick={p.reload}>تلاش دوباره</Button>} />;
   if (!p.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const dirty = title !== p.data.titleFa || body !== p.data.bodyFa;
   return (
-    <div className="stack">
-      <p className="muted" style={{ margin: 0 }}>
-        {p.data.updatedAt ? `آخرین ویرایش: ${jalaliDate(p.data.updatedAt)}` : 'متن پیش‌فرض (هنوز ویرایش نشده)'} · <Link to={`/${slug}`} target="_blank">مشاهدهٔ صفحه</Link>
+    <div className="ac-stack">
+      <p className="ac-cap">
+        {p.data.updatedAt ? `آخرین ویرایش: ${jalaliDate(p.data.updatedAt)}` : 'متن پیش‌فرض (هنوز ویرایش نشده)'}<span className="bgv-sep" /><a href={`/${slug}`} target="_blank" rel="noreferrer">مشاهدهٔ صفحه</a>
       </p>
-      <Input label="عنوان" value={title} onChange={(e) => setTitle(e.target.value)} />
-      {preview ? <div className="site-page panel"><SiteBody text={body} /></div>
+      <TextField label="عنوان" value={title} onChange={(e) => setTitle(e.target.value)} />
+      {preview ? <div className="ac-site"><SiteBody text={body} /></div>
         : <Textarea label="متن" rows={18} value={body} onChange={(e) => setBody(e.target.value)}
-            hint="خط خالی = پاراگراف جدید · «## » اول خط = تیتر · «- » اول خط = مورد فهرست" />}
+            hint="خط خالی = پاراگراف جدید؛ «## » اول خط = تیتر؛ «- » اول خط = مورد فهرست" />}
       {legal && (
-        <label className="row" style={{ gap: '0.5rem' }}>
-          <input type="checkbox" checked={reaccept} onChange={(e) => setReaccept(e.target.checked)} />
-          <span>تغییر مهم است؛ همهٔ کاربران دوباره قوانین را بپذیرند (هنگام ورود بعدی پنجرهٔ پذیرش نشان داده می‌شود)</span>
-        </label>
+        <Checkbox checked={reaccept} onChange={(e) => setReaccept(e.target.checked)}
+          label="تغییر مهم است؛ همهٔ کاربران دوباره قوانین را بپذیرند (هنگام ورود بعدی پنجرهٔ پذیرش نشان داده می‌شود)" />
       )}
-      <div className="row">
-        <Button size="sm" disabled={!dirty} onClick={async () => { if (await save(`/admin/site/pages/${slug}`, 'PUT', { titleFa: title, bodyFa: body, requireReaccept: legal && reaccept })) { setReaccept(false); p.reload(); } }}>ذخیره</Button>
-        <Button size="sm" variant="secondary" onClick={() => setPreview(!preview)}>{preview ? 'ویرایش' : 'پیش‌نمایش'}</Button>
+      <div className="bgv-row">
+        <Button size="sm" variant="primary" disabled={!dirty} onClick={async () => { if (await save(`/admin/site/pages/${slug}`, 'PUT', { titleFa: title, bodyFa: body, requireReaccept: legal && reaccept })) { setReaccept(false); p.reload(); } }}>ذخیره</Button>
+        <Button size="sm" onClick={() => setPreview(!preview)}>{preview ? 'ویرایش' : 'پیش‌نمایش'}</Button>
         {dirty && <Button size="sm" variant="ghost" onClick={() => { setTitle(p.data!.titleFa); setBody(p.data!.bodyFa); }}>لغو تغییرات</Button>}
         {p.data.updatedAt && <Button size="sm" variant="ghost" onClick={async () => { if (await save(`/admin/site/pages/${slug}`, 'DELETE')) p.reload(); }}>بازگشت به متن پیش‌فرض</Button>}
       </div>
@@ -81,11 +79,10 @@ export function SiteAdmin() {
   return (
     <>
       <SiteInfoAdmin />
-      <section className="panel stack" style={{ marginBlockStart: 'var(--sp-6)' }} aria-labelledby="site-pages-h">
-        <h2 id="site-pages-h" className="section-title">صفحه‌های سایت</h2>
-        <Segmented legend="صفحه" name="site-page" value={slug} onChange={setSlug} options={SITE_LINKS.map(([value, label]) => ({ value, label }))} />
+      <AdminSection id="site-pages-h" icon="book-open" title="صفحه‌های سایت">
+        <div className="bgv-scroll-x"><Segmented label="صفحه" value={slug} onChange={(v) => setSlug(v as SiteSlug)} options={SITE_LINKS.map(([value, label]) => ({ value, label }))} /></div>
         <PageEditor key={slug} slug={slug} />
-      </section>
+      </AdminSection>
     </>
   );
 }

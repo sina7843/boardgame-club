@@ -583,3 +583,14 @@ describe('ark nova many seeded games', () => {
     }
   }, 600_000);
 });
+
+describe('ark-nova publicSummary', () => {
+  it('per-seat public numbers only', () => {
+    const snap = drafted(game(3));
+    const sum = arkNovaModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.stats!.length).toBe(3);
+    expect(sum.shared![0]!.value).toBe(st(snap).deck.length);
+    expect(JSON.stringify(sum)).not.toContain('"hand"');
+  });
+});

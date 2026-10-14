@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ClientEvents, MESSAGE_EDIT_WINDOW_SECONDS, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
-import { Avatar, Button, cn, StateBlock, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, Typing, type MenuItem } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
+import { AvatarArt } from '../lib/bgv.tsx';
 import { useRealtime } from '../lib/realtime.tsx';
 import { useSession } from '../lib/session.tsx';
 import { QuickChatChips } from './QuickChat.tsx';
@@ -10,7 +12,7 @@ import { ReportDialog } from './ReportDialog.tsx';
 
 interface Page {
   items: MessageItem[]; nextBefore: string | null; canPost: boolean; canModerate: boolean; conversationId?: string;
-  kind: 'direct' | 'table' | 'group' | 'club'; slowModeSeconds: number; readUpTo: string | null;
+  kind: 'direct' | 'table' | 'group' | 'club'; slowModeSeconds: number; readUpTo: string | null; muted: boolean;
 }
 /** A message on its way (optimistic): shown at once, replaced by the server copy, or kept with a retry button. */
 interface Pending { clientId: string; body: string; quick?: string; replyTo: MessageItem | null; failed: boolean }
@@ -22,12 +24,32 @@ const SLOW_FA: Record<number, string> = { 0: 'خاموش', 10: '۱۰ ثانیه'
 function readDraft(key: string): string { try { return localStorage.getItem(key) ?? ''; } catch { return ''; } }
 function writeDraft(key: string, text: string) { try { if (text) localStorage.setItem(key, text); else localStorage.removeItem(key); } catch { /* storage unavailable */ } }
 
+/** «⋮» on a message: a native popover with the DS Menu (reply, edit, report, delete). */
+function MessageMenu({ items }: { items: MenuItem[] }) {
+  const id = useId();
+  if (!items.length) return null;
+  const close = () => (document.getElementById(id) as HTMLElement & { hidePopover?: () => void } | null)?.hidePopover?.();
+  return (
+    <>
+      <Button variant="ghost" size="sm" iconOnly icon="more-vertical" className="chat-msg__more" popoverTarget={id}>گزینه‌های پیام</Button>
+      <div id={id} popover="auto" className="chat-pop">
+        <Menu label="گزینه‌های پیام" items={items.map((it) => ({ ...it, onClick: (e) => { close(); it.onClick?.(e); } }))} />
+      </div>
+    </>
+  );
+}
+
 /**
- * Conversation view used for DMs, group/club chat and table chat. Text is rendered as plain text only.
+ * Conversation view used for DMs, group/club chat and table chat (DS Chat + Message). Text is rendered as plain text only.
  * New messages arrive through the user's own socket room (server-side authorization), then are de-duplicated here.
  */
-export function ChatPanel({ load, post, conversationId: fixedId, title, compact, quick }: {
+export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people }: {
   load: string; post: string; conversationId?: string; title?: string; compact?: boolean; quick?: boolean;
+  onClose?: () => void; sheet?: boolean; icon?: string; className?: string;
+  /** Spectators: no composer (the server also refuses posting); reactions and mute still work. */
+  readOnly?: boolean;
+  /** Extra @-mention candidates (e.g. the table's players); people who already wrote here are always offered. */
+  people?: string[];
 }) {
   const { me } = useSession();
   const { socket } = useRealtime();
@@ -42,11 +64,13 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, compact,
   const [editing, setEditing] = useState<MessageItem | null>(null);
   const [typers, setTypers] = useState<Record<string, { name: string; until: number }>>({});
   const [reporting, setReporting] = useState<MessageItem | null>(null);
+  const [reacting, setReacting] = useState<string | null>(null);
   const list = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const readTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const typedAt = useRef(0);
   const conversationId = fixedId ?? meta?.conversationId;
+  const composeId = `compose-${conversationId ?? load}`;
 
   const fetchPage = useCallback(async (before?: string) => {
     try {
@@ -106,7 +130,10 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, compact,
     const t = setInterval(() => setTypers((old) => Object.fromEntries(Object.entries(old).filter(([, v]) => v.until > Date.now()))), 1000);
     return () => clearInterval(t);
   }, [typing.length]);
-  useEffect(() => { list.current?.scrollTo({ top: list.current.scrollHeight }); }, [items.length, pending.length]);
+  useEffect(() => {
+    const el = list.current?.closest('.bgv-chat')?.querySelector('.bgv-chat__list');
+    el?.scrollTo({ top: el.scrollHeight });
+  }, [items.length, pending.length]);
 
   const deliver = async (p: Pending) => {
     setPending((old) => old.map((x) => (x.clientId === p.clientId ? { ...x, failed: false } : x)));
@@ -131,8 +158,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, compact,
 
   const cancelCompose = () => { setReplyTo(null); if (editing) { setEditing(null); onType(''); } };
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
+  const submit = async (e?: FormEvent) => {
+    e?.preventDefault();
     if (!text.trim()) return;
     if (editing) {
       try {
@@ -150,6 +177,17 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, compact,
     await deliver(p);
   };
 
+  const react = async (m: MessageItem, emoji: string) => {
+    setReacting(null);
+    try { const u = await api<MessageItem>(`/messages/${m.id}/reactions`, { method: 'POST', body: { emoji } }); setItems((old) => old.map((x) => (x.id === u.id ? u : x))); }
+    catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'واکنش ثبت نشد.'); }
+  };
+
+  const setMuted = async (muted: boolean) => {
+    try { await api(`/conversations/${conversationId}/mute`, { method: 'PUT', body: { muted } }); setMeta((old) => old && { ...old, muted }); }
+    catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'تغییر انجام نشد.'); }
+  };
+
   const remove = async (m: MessageItem) => {
     try { await api(`/messages/${m.id}`, { method: 'DELETE' }); setItems((old) => old.map((x) => (x.id === m.id ? { ...x, deleted: true, body: '' } : x))); }
     catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'حذف نشد.'); }
@@ -160,99 +198,105 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, compact,
     catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'تغییر انجام نشد.'); }
   };
 
-  if (error) return <StateBlock kind={error.status === 403 ? 'denied' : 'error'} title={error.status === 403 ? 'به این گفت‌وگو دسترسی ندارید' : 'گفت‌وگو بارگذاری نشد'}>{error.messageFa}</StateBlock>;
-  if (!meta) return <StateBlock kind="loading" title="در حال بارگذاری پیام‌ها…" />;
+  const frame = (body: ReactNode, composer?: ReactNode, headExtra?: ReactNode) => (
+    <Chat title={title ?? 'گفت‌وگو'} icon={icon ?? 'message-circle'} className={className} sheet={sheet} bottom
+      {...(onClose ? { onClose } : {})} {...(headExtra ? { headExtra } : {})} composer={readOnly ? undefined : composer}
+      {...(readOnly ? { readOnly: true } : {})}
+      {...(meta && conversationId ? { mutedToggle: { muted: meta.muted, onToggle: (v: boolean) => void setMuted(v) } } : {})}>
+      {body}
+    </Chat>
+  );
+
+  if (error) return frame(<StateBlock kind={error.status === 403 ? 'denied' : 'error'} title={error.status === 403 ? 'به این گفت‌وگو دسترسی ندارید' : 'گفت‌وگو بارگذاری نشد'} text={error.messageFa} />);
+  if (!meta) return frame(<StateBlock kind="loading" title="در حال بارگذاری پیام‌ها…" />);
 
   const now = Date.now();
-  const quote = (r: MessageItem['replyTo']) => r && (
-    <blockquote className="msg__quote"><bdi>{r.senderName}</bdi>: {r.deleted ? <em>پیام حذف‌شده</em> : r.body}</blockquote>
-  );
   const scoped = meta.kind === 'group' || meta.kind === 'club';
+  const reply = (r: MessageItem['replyTo']) => r ? { reply: { author: <bdi>{r.senderName}</bdi>, text: r.deleted ? 'پیام حذف‌شده' : r.body } } : {};
 
-  return (
-    <section className={cn('chat', compact && 'chat--compact')} aria-label={title ?? 'گفت‌وگو'}>
-      {scoped && (meta.canModerate || meta.slowModeSeconds > 0) && (
-        <div className="chat__tools">
-          {meta.canModerate ? (
-            <label className="row" style={{ gap: '0.5rem' }}>حالت آهسته
-              <select className="input" style={{ inlineSize: 'auto' }} value={meta.slowModeSeconds} onChange={(e) => void setSlowMode(Number(e.target.value))}>
-                {SLOW_MODE_OPTIONS.map((n) => <option key={n} value={n}>{SLOW_FA[n]}</option>)}
-              </select>
-            </label>
-          ) : <span>حالت آهسته: هر {SLOW_FA[meta.slowModeSeconds] ?? `${faNum(meta.slowModeSeconds)} ثانیه`} یک پیام</span>}
+  const slow = scoped && (meta.canModerate || meta.slowModeSeconds > 0) ? (
+    meta.canModerate
+      ? <Select className="chat-slow" aria-label="حالت آهسته" value={String(meta.slowModeSeconds)} onChange={(e) => void setSlowMode(Number(e.target.value))}
+          options={SLOW_MODE_OPTIONS.map((n) => ({ value: String(n), label: `آهسته: ${SLOW_FA[n]}` }))} />
+      : <span className="t-caption bgv-muted">آهسته: هر {SLOW_FA[meta.slowModeSeconds] ?? `${faNum(meta.slowModeSeconds)} ثانیه`} یک پیام</span>
+  ) : undefined;
+
+  // @-mention suggestions: the token being typed at the end of the text, matched against known people.
+  const token = /(?:^|\s)@([^\s@]*)$/.exec(text)?.[1];
+  const names = [...new Set([...(people ?? []), ...items.map((m) => m.sender.displayName)])].filter((n) => n !== me?.displayName);
+  const suggestions = token === undefined ? [] : names.filter((n) => n.startsWith(token)).slice(0, 5);
+  const pickMention = (name: string) => { onType(text.replace(/@[^\s@]*$/, `@${name} `)); input.current?.focus(); };
+
+  const composer = meta.canPost ? (
+    <form className="bgv-composer" onSubmit={submit}>
+      {(replyTo || editing) && (
+        <div className="bgv-composer__reply">
+          <Icon name={editing ? 'pencil' : 'reply'} size="sm" />
+          <span>{editing ? 'ویرایش پیام' : <>پاسخ به <b><bdi>{replyTo!.sender.displayName}</bdi></b>: {replyTo!.body.slice(0, 60)}</>}</span>
+          <Button variant="ghost" size="sm" iconOnly icon="x" onClick={cancelCompose}>لغو</Button>
         </div>
       )}
-      <div className="chat__list" ref={list} role="log" aria-live="polite" aria-relevant="additions">
-        {meta.nextBefore && <Button variant="ghost" size="sm" onClick={() => fetchPage(items[0]?.createdAt)}>پیام‌های قدیمی‌تر</Button>}
-        {items.length === 0 && pending.length === 0 && <p className="muted" style={{ textAlign: 'center' }}>هنوز پیامی نیست. اولین پیام را بفرستید.</p>}
-        {items.map((m) => {
-          const mine = m.sender.id === me?.id;
-          const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
-          return (
-            <article key={m.id} className={cn('msg', mine && 'msg--mine')}>
-              {!mine && <Avatar avatarKey={m.sender.avatarKey} name={m.sender.displayName} size={28} />}
-              <div className="msg__bubble">
-                <div className="msg__meta">
-                  <bdi>{m.sender.displayName}</bdi> · <time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>
-                  {m.editedAt && !m.deleted && ' · ویرایش‌شده'}
-                  {meta.kind === 'direct' && mine && <span className={cn('msg__ticks', seen && 'msg__ticks--seen')} aria-label={seen ? 'دیده شد' : 'ارسال شد'}> {seen ? '✓✓' : '✓'}</span>}
-                </div>
-                {!m.deleted && quote(m.replyTo)}
-                {m.deleted ? <em className="muted">این پیام حذف شد.</em> : <p className="msg__body">{m.body}</p>}
-                {!m.deleted && (
-                  <div className="msg__actions">
-                    {meta.canPost && <button type="button" className="linkbtn" onClick={() => { setEditing(null); setReplyTo(m); input.current?.focus(); }}>پاسخ</button>}
-                    {mine && meta.canPost && now - new Date(m.createdAt).getTime() < EDIT_MS && (
-                      <button type="button" className="linkbtn" onClick={() => { setReplyTo(null); setEditing(m); onType(m.body); input.current?.focus(); }}>ویرایش</button>
-                    )}
-                    {!mine && <button type="button" className="linkbtn" onClick={() => setReporting(m)}>گزارش</button>}
-                    {(mine || meta.canModerate) && <button type="button" className="linkbtn" onClick={() => remove(m)}>حذف</button>}
-                  </div>
-                )}
-              </div>
-            </article>
-          );
-        })}
-        {pending.map((p) => (
-          <article key={p.clientId} className={cn('msg msg--mine msg--pending', p.failed && 'msg--failed')}>
-            <div className="msg__bubble">
-              <div className="msg__meta">{p.failed ? 'ارسال نشد' : 'در حال ارسال…'}</div>
-              {quote(p.replyTo && { id: p.replyTo.id, senderName: p.replyTo.sender.displayName, body: p.replyTo.body, deleted: p.replyTo.deleted })}
-              <p className="msg__body">{p.body}</p>
-              {p.failed && (
-                <div className="msg__actions">
-                  <button type="button" className="linkbtn" onClick={() => void deliver(p)}>تلاش دوباره</button>
-                  <button type="button" className="linkbtn" onClick={() => setPending((old) => old.filter((x) => x.clientId !== p.clientId))}>حذف</button>
-                </div>
-              )}
-            </div>
+      {quick && <QuickChatChips post={post} />}
+      {suggestions.length > 0 && <MentionSuggest items={suggestions.map((name, i) => ({ name, initials: name.charAt(0), focus: i === 0 }))} onPick={pickMention} />}
+      {typing.length > 0 && <Typing names={typing.map((t) => t.name)} />}
+      <div className="bgv-composer__row">
+        <label className="bgv-sr" htmlFor={composeId}>متن پیام</label>
+        <textarea id={composeId} ref={input} className="bgv-composer__input" rows={1} maxLength={1000} value={text} onChange={(e) => onType(e.target.value)}
+          placeholder={meta.kind === 'table' ? 'پیام به میز…' : 'پیام…'} onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void submit(); }
+            if (e.key === 'Escape' && (replyTo || editing)) { e.preventDefault(); e.stopPropagation(); cancelCompose(); }
+          }} />
+        <Button type="submit" variant="primary" iconOnly icon={<Icon name="send" mirror />} disabled={!text.trim()}>{editing ? 'ذخیره' : 'ارسال'}</Button>
+      </div>
+    </form>
+  ) : (
+    <div className="bgv-composer">
+      {quick && <QuickChatChips post={post} />}
+      <p className="t-caption bgv-muted" role="status" style={{ margin: 0 }}>نوشتن پیام برای حساب شما موقتاً محدود است{quick ? '؛ پیام‌های آماده در دسترس‌اند' : ''}.</p>
+    </div>
+  );
+
+  const body = (
+    <>
+      <div ref={list} hidden />
+      {meta.nextBefore && <Button variant="ghost" size="sm" icon="history" onClick={() => fetchPage(items[0]?.createdAt)}>پیام‌های قدیمی‌تر</Button>}
+      {items.length === 0 && pending.length === 0 && <p className="t-caption bgv-muted chat-empty">هنوز پیامی نیست. اولین پیام را بفرستید.</p>}
+      {items.map((m) => {
+        const mine = m.sender.id === me?.id;
+        const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
+        const actions: MenuItem[] = m.deleted ? [] : [
+          ...(meta.canPost ? [{ icon: 'reply', label: 'پاسخ', onClick: () => { setEditing(null); setReplyTo(m); input.current?.focus(); } }] : []),
+          ...(mine && meta.canPost && now - new Date(m.createdAt).getTime() < EDIT_MS ? [{ icon: 'pencil', label: 'ویرایش', onClick: () => { setReplyTo(null); setEditing(m); onType(m.body); input.current?.focus(); } }] : []),
+          { icon: 'smile', label: 'واکنش', onClick: () => setReacting(m.id) },
+          ...(!mine ? [{ icon: 'flag', label: 'گزارش', danger: true, onClick: () => setReporting(m) }] : []),
+          ...(mine || meta.canModerate ? [{ icon: 'trash-2', label: 'حذف', danger: true, onClick: () => void remove(m) }] : [])
+        ];
+        return (
+          <article key={m.id} className={mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}>
+            <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={m.body} viewer={me?.displayName}
+              time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
+              avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
+              state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}
+              mentioned={!!me && m.mentions.includes(me.id)} edited={!!m.editedAt} seen={seen} {...(m.deleted ? {} : reply(m.replyTo))} />
+            <MessageMenu items={actions} />
+            {reacting === m.id && <ReactionBar onPick={(emoji) => void react(m, emoji)} selected={m.reactions.find((r) => r.mine)?.emoji} />}
           </article>
-        ))}
-      </div>
-      <div className="chat__bottom">
-        {typing.length > 0 && <p className="chat__typing" role="status"><bdi>{typing.map((t) => t.name).join('، ')}</bdi> در حال نوشتن…</p>}
-        {quick && <QuickChatChips post={post} />}
-        {meta.canPost ? (
-          <>
-            {(replyTo || editing) && (
-              <div className="chat__context">
-                <span>{editing ? 'ویرایش پیام' : <>پاسخ به <bdi>{replyTo!.sender.displayName}</bdi>: {replyTo!.body.slice(0, 60)}</>}</span>
-                <button type="button" className="linkbtn" onClick={cancelCompose}>لغو</button>
-              </div>
-            )}
-            <form className="chat__composer" onSubmit={submit}>
-              <label className="visually-hidden" htmlFor={`compose-${conversationId ?? load}`}>متن پیام</label>
-              <textarea id={`compose-${conversationId ?? load}`} ref={input} className="input" rows={2} maxLength={1000} value={text} onChange={(e) => onType(e.target.value)}
-                placeholder="پیام…" onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void submit(e); }
-                  if (e.key === 'Escape' && (replyTo || editing)) { e.preventDefault(); e.stopPropagation(); cancelCompose(); }
-                }} />
-              <Button type="submit" disabled={!text.trim()}>{editing ? 'ذخیره' : 'ارسال'}</Button>
-            </form>
-          </>
-        ) : <p className="banner banner--warn" role="status" style={{ margin: 0 }}>نوشتن پیام برای حساب شما موقتاً محدود است{quick ? '؛ پیام‌های آماده در دسترس‌اند' : ''}.</p>}
-      </div>
+        );
+      })}
+      {pending.map((p) => (
+        <article key={p.clientId} className="chat-msg chat-msg--mine">
+          <Message mine text={p.body} state={p.failed ? 'failed' : 'pending'} onRetry={() => void deliver(p)}
+            {...(p.replyTo ? { reply: { author: <bdi>{p.replyTo.sender.displayName}</bdi>, text: p.replyTo.body } } : {})} />
+          {p.failed && <MessageMenu items={[{ icon: 'trash-2', label: 'حذف', danger: true, onClick: () => setPending((old) => old.filter((x) => x.clientId !== p.clientId)) }]} />}
+        </article>
+      ))}
+    </>
+  );
+
+  return (
+    <>
+      {frame(body, composer, slow)}
       {reporting && <ReportDialog targetType="message" targetId={reporting.id} label={`پیام ${reporting.sender.displayName}`} onClose={() => setReporting(null)} />}
-    </section>
+    </>
   );
 }

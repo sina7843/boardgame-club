@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>کودتا، بلوف، موبایل</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.th-stage{position:relative;flex:1;min-block-size:0}
+.th-stage>img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:contain}
+.th .bgv-pcard--mini{padding:10px 12px}
+.th .bgv-pcard--mini .bgv-pcard__stats{gap:6px!important;flex-wrap:nowrap}
+.th .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.th .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.th .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.th .bgv-pcard__top>.bgv-avatar{margin:4px}
+.th .bgv-felt-plate{padding:8px 12px}
+.th .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.th .bgv-turn__who{min-inline-size:0;overflow:hidden;text-overflow:ellipsis}
+.th-img{display:block;max-inline-size:100%;block-size:auto;object-fit:contain;margin-inline:auto}
+.th-row{display:flex;align-items:center;gap:10px;min-inline-size:0}
+.th-row>img{display:block;block-size:var(--h,48px);inline-size:auto;max-inline-size:62%;object-fit:contain;margin-inline-start:auto;flex:none}
+.th-who{display:grid;gap:2px;min-inline-size:0;line-height:1.35}
+.th-who b{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap;flex:none}
+.th-who small{font-size:12px;color:var(--felt-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-fpc{padding:8px 12px;gap:6px}
+.th-hand{display:block;margin-inline:auto;max-inline-size:100%;object-fit:contain}
+.th-tray{gap:8px;flex:none}
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+</style>
+
+<div class="bgv th" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px;grid-template-rows:var(--gamebar-h) minmax(0,1fr) auto">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">کودتا<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Coup</span></span><span class="bgv-gamebar__meta">زنده<span class="bgv-sep"></span>۶۰ ثانیه هر نوبت</span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۱ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۱</span></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+
+<main class="bgv-felt th-felt" style="padding:12px;gap:8px" aria-label="میز کودتا">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn" role="status"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-3">آ</span>نوبت آرش، پاسخ‌ها باز است</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="warn" style="--p:0.37;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۲</span></span></span></div>
+ <div style="display:grid;gap:8px;--h:60px"><div class="bgv-pcard th-fpc" role="button" tabindex="0" aria-label="نیلوفر"><div class="th-row"><div class="bgv-pcard__name th-who"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>۳ سکه<span class="bgv-sep"></span>۲ نفوذ</small></div><img src="../assets/games/tablehud-coup-cards-1.webp" alt="کارت‌های نفوذ نیلوفر از خود بازی" width="176" height="77"></div></div><div class="bgv-pcard th-fpc is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="آرش"><div class="th-row"><div class="bgv-pcard__name th-who"><b><i class="bgv-seat seat-3"></i>آرش</b><small>۲ سکه<span class="bgv-sep"></span>۱ نفوذ، آدم‌کش رو شد</small></div><img src="../assets/games/tablehud-coup-cards-2.webp" alt="کارت‌های نفوذ آرش از خود بازی" width="176" height="77"></div></div><div class="bgv-pcard th-fpc" role="button" tabindex="0" aria-label="سارا"><div class="th-row"><div class="bgv-pcard__name th-who"><b><i class="bgv-seat seat-4"></i>سارا</b><small>۲ سکه<span class="bgv-sep"></span>۲ نفوذ</small></div><img src="../assets/games/tablehud-coup-cards-3.webp" alt="کارت‌های نفوذ سارا از خود بازی" width="176" height="77"></div></div></div>
+ <div class="bgv-felt-plate" style="display:flex;gap:12px;align-items:center;padding:10px 12px;align-self:stretch" role="status">
+  <img src="../assets/games/tablehud-coup-claim.webp" alt="ادعای آرش از خود بازی: سفیر، مبادله" width="138" height="102" style="block-size:72px;inline-size:auto;flex:none">
+  <span style="display:grid;gap:2px;line-height:1.5"><b style="font-size:15px"><i class="bgv-seat seat-3"></i> آرش ادعای سفیر دارد</b><span style="color:var(--felt-muted);font-size:13px">کار: مبادله، ۲ کارت از دسته</span></span>
+ </div>
+</main>
+<section class="bgv-actiondock" aria-label="دست و کنش‌های شما"><div class="bgv-actiondock__prompt"><span style="min-inline-size:0">قبول، چالش یا جلوگیری؟</span><span class="bgv-spacer"></span><span class="bgv-clock" data-state="warn" style="--p:0.37;"><span class="bgv-clock__ring"></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۲۲</span><span class="bgv-clock__sub">مهلت پاسخ</span></span></span></div><div style="display:flex;align-items:center;gap:12px;justify-content:center">
+  <img src="../assets/games/tablehud-coup-mine.webp" alt="نفوذهای شما از خود بازی: کنتس، کاپیتان" width="154" height="106" style="block-size:92px;inline-size:auto">
+  <span style="display:grid;gap:6px"><span class="bgv-hstat"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="6" /> <path d="M18.09 10.37A6 6 0 1 1 10.34 18" /> <path d="M7 6h1v4" /> <path d="m16.71 13.88.7.71-2.82 2.82" /></svg>۲<span class="bgv-hstat__label">سکه</span></span><span class="bgv-hstat"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /> <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg>۷<span class="bgv-hstat__label">دسته دربار</span></span></span>
+ </div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>قبول</button><button class="bgv-btn bgv-btn--primary" type="button" style="flex:1.6"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" /> <line x1="13" x2="19" y1="19" y2="13" /> <line x1="16" x2="20" y1="16" y2="20" /> <line x1="19" x2="21" y1="21" y2="19" /> <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" /> <line x1="5" x2="9" y1="14" y2="18" /> <line x1="7" x2="4" y1="17" y2="20" /> <line x1="3" x2="5" y1="19" y2="21" /></svg>چالش! «دروغ می‌گویی»</button></div></section>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

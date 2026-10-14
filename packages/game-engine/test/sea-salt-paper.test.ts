@@ -158,3 +158,21 @@ describe('sea salt & paper rules', () => {
     }
   }, 120_000);
 });
+
+describe('sea salt & paper publicSummary', () => {
+  it('one entry per seat, counts only, last-chance badge', () => {
+    const snap = game(3, 2);
+    const sum = sspModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0, target: 35 });
+    expect(sum.shared![0]!.value).toBe(st(snap).deck.length);
+    const s2 = structuredClone(st(snap));
+    s2.hands[1] = [of('crab')[0]!, of('mermaid')[0]!];
+    s2.hands[2] = [of('boat')[0]!, of('shark')[0]!];
+    const s3 = structuredClone(s2);
+    s3.hands[1] = [of('shell')[0]!, of('fish')[0]!];
+    expect(sspModule.publicSummary!(s3)).toEqual(sspModule.publicSummary!(s2));
+    s3.lastChance = { caller: 1, left: [2, 0] };
+    expect(sspModule.publicSummary!(s3).seats[1]!.badges![0]!.label).toBe('آخرین فرصت');
+  });
+});

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { botLevelSchema, botStyleSchema, competitionSchema, optionValueSchema, paceSchema, type BotLevel, type BotStyle } from '@bg/game-sdk';
-import { avatarKeySchema, publicProfile, type AvatarKey } from './api.ts';
+import { avatarKeySchema, publicProfile, seatCosmetics, type AvatarKey } from './api.ts';
 
 /** Allowed per-turn time budgets. Live: seconds per move/round; turn-based: durable deadline per turn. */
 export const TIME_OPTIONS = {
@@ -38,6 +38,7 @@ export const tableSettings = z.object({
   bot: z.object({ level: botLevelSchema, personas: z.array(z.number().int().min(0)).optional() }).optional(),
   /** Present on tournament tables: nobody can join, anyone signed in can watch. */
   tournament: z.object({ id: z.uuid(), round: z.number().int() }).optional()
+  // `rematch` (votes stored on a finished table) is internal and stripped from responses.
 });
 
 export const BOT_LEVEL_FA: Record<BotLevel, string> = { easy: 'آسان', medium: 'متوسط', hard: 'سخت' };
@@ -67,10 +68,24 @@ export const BOT_PERSONAS: readonly BotPersona[] = [
 export const botPersona = (personas: readonly number[] | undefined, n: number): BotPersona =>
   BOT_PERSONAS[(personas?.[n] ?? n) % BOT_PERSONAS.length]!;
 
+/** Rematch block of a finished table: null when not offered (tutorial, tournament, unfinished). */
+export const rematchView = z.object({
+  votes: z.array(z.object({ seat: z.number().int(), vote: z.enum(['yes', 'no']) })),
+  /** 30 s after the first vote; null until someone votes. */
+  deadline: z.iso.datetime().nullable(),
+  newTableId: z.uuid().nullable(),
+  /** A «no» vote or the deadline closed the offer (never true once newTableId is set). */
+  closed: z.boolean()
+});
+export type RematchView = z.infer<typeof rematchView>;
+export const rematchBody = z.strictObject({ vote: z.enum(['yes', 'no']) });
+
 export const seatView = z.object({
   seat: z.number().int(),
   kind: z.enum(['human', 'script', 'bot']),
   user: publicProfile.nullable(),
+  /** Equipped seatRing / chatBubble / emote keys of the seated player (catalogue keys, see contracts cosmetics). */
+  cosmetics: seatCosmetics.optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()
@@ -102,7 +117,8 @@ export const tableLobby = z.object({
   policies: z.object({ timeoutFa: z.string(), resignFa: z.string(), disconnectFa: z.string() }),
   /** Rule variants of this table in words (chosen at creation, or the game's defaults for matchmade tables). */
   variants: z.array(z.object({ labelFa: z.string(), valueFa: z.string() })),
-  createdAt: z.iso.datetime()
+  createdAt: z.iso.datetime(),
+  rematch: rematchView.nullable()
 });
 export type TableLobby = z.infer<typeof tableLobby>;
 
@@ -110,6 +126,22 @@ export const outcomeSchema = z.object({
   reason: z.enum(['win', 'draw', 'score', 'timeout', 'resign']),
   placements: z.array(z.object({ seat: z.number().int(), place: z.number().int(), score: z.number().optional() }))
 });
+
+/** Same shape as game-sdk PublicSummary (validated at the API boundary). */
+export const publicSummarySchema = z.object({
+  seats: z.array(z.object({
+    seat: z.number().int(),
+    primary: z.object({ label: z.string(), value: z.number(), target: z.number().optional() }).optional(),
+    stats: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), icon: z.string().optional(), resource: z.string().optional(), delta: z.number().optional() })).max(4).optional(),
+    badges: z.array(z.object({ key: z.string(), label: z.string(), tone: z.enum(['neutral', 'success', 'warning', 'danger', 'premium']).optional() })).optional(),
+    status: z.enum(['playing', 'done', 'passed', 'out', 'winner']).optional(),
+    strikes: z.number().int().optional()
+  })),
+  shared: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), max: z.number().optional() })).optional(),
+  strikesMax: z.number().int().optional(),
+  leaderSeat: z.number().int().optional()
+});
+export type PublicSummaryView = z.infer<typeof publicSummarySchema>;
 
 /** Everything a viewer may know about a table at one revision. Built only from module.project(). */
 export const tableSnapshot = z.object({
@@ -119,6 +151,8 @@ export const tableSnapshot = z.object({
     view: z.unknown(),
     legalActions: z.array(z.object({ type: z.string() }).loose()),
     pendingSeats: z.array(z.number().int()),
+    /** Public per-seat HUD data from GameModule.publicSummary (null when the game has none). */
+    summary: publicSummarySchema.nullable(),
     deadline: z.object({ dueAt: z.iso.datetime(), frozen: z.boolean() }).nullable(),
     result: outcomeSchema.nullable(),
     tutorial: z.object({
@@ -180,7 +214,7 @@ export type LiveTableItem = z.infer<typeof liveTableItem>;
 
 export const notificationItem = z.object({
   id: z.uuid(),
-  kind: z.enum(['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'friend_request', 'club', 'tournament']),
+  kind: z.enum(['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'mention', 'friend_request', 'club', 'tournament']),
   /** In-app destination; the target page re-checks authorization. */
   href: z.string(),
   tableId: z.uuid().nullable(),

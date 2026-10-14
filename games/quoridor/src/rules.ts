@@ -230,6 +230,17 @@ export const quoridorModule: GameModule<QuoridorState, QuoridorAction, QuoridorV
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => ({
+    seats: s.pawns.map((p, seat) => ({
+      seat,
+      primary: { label: 'دیوار', value: s.wallsLeft[seat]! },
+      stats: s.active[seat] ? [{ key: 'distance', label: 'فاصله', value: distance(s.walls, p, s.sides[seat]!) ?? 0, icon: 'flag' }] : [],
+      ...(!s.active[seat] ? { status: 'out' as const } : s.winner === seat ? { status: 'winner' as const } : {}),
+      strikes: s.timeouts[seat]!
+    })),
+    strikesMax: MAX_TIMEOUTS
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

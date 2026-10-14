@@ -149,3 +149,15 @@ describe('go rules', () => {
     }
   }, 120_000);
 });
+
+describe('go publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = goModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.strikesMax).toBe(3);
+    expect(sum.seats.map((x) => x.strikes)).toEqual([0, 0]);
+    expect(sum.seats[0]!.stats!.find((x) => x.label === 'سنگ')!.value).toBe(0);
+  });
+});

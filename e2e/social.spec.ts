@@ -21,11 +21,11 @@ async function queue(p: Page, gameLabel: string) {
 async function acceptMatch(p: Page) {
   await expect(p.getByText('حریف پیدا شد!')).toBeVisible({ timeout: 15_000 });
   await p.getByRole('button', { name: 'رفتن به میز و اعلام آمادگی' }).click();
-  await expect(p.getByText('همه بازیکنان باید آمادگی را تأیید کنند.')).toBeVisible();
+  await expect(p.getByText('همه بازیکنان باید آمادگی را تأیید کنند.')).toBeVisible({ timeout: 20_000 });
   await p.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 
-const myTurn = (p: Page) => p.getByText(/نوبت شماست/).isVisible();
+const myTurn = (p: Page) => p.getByText('نوبت شماست', { exact: true }).isVisible();
 async function mover(a: Page, b: Page) {
   for (let i = 0; i < 60; i++) { if (await myTurn(a)) return a; if (await myTurn(b)) return b; await a.waitForTimeout(150); }
   throw new Error('no turn');
@@ -67,6 +67,8 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
     await expect(m.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await m.locator('.lt__cell').nth(cell).click();
     await expect(m.locator('.lt__cell').nth(cell)).not.toHaveText('');
+    // the move is committed after its undo window; the turn pill stays "mine" until then
+    await expect(m.getByText('نوبت شماست', { exact: true })).toHaveCount(0, { timeout: 10_000 });
   }
   await expect(a.getByRole('heading', { name: /شما بردید|این دست را باختید/ })).toBeVisible();
   await a.screenshot({ path: shot('03-match-result', p), fullPage: true });
@@ -76,13 +78,17 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   await queue(b, 'مزایده سربسته');
   await acceptMatch(a);
   await acceptMatch(b);
+  let round = 0;
   for (const [ta, tb] of [[5, 1], [1, 5], [2, 3], [3, 2], [4, 4]]) {
+    round++;
     for (const [pg, t] of [[a, ta], [b, tb]] as const) {
-      await expect(pg.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible();
+      await expect(pg.getByText('پیشنهاد پنهان خود را ثبت کنید')).toBeVisible({ timeout: 15_000 });
       await pg.getByRole('button', { name: `ژتون ${t!.toLocaleString('fa-IR')}`, exact: true }).click();
     }
+    // each move commits after its undo window; wait for the reveal before the next round
+    if (round < 5) for (const pg of [a, b]) await expect(pg.getByText(`دور ${round.toLocaleString('fa-IR')} آشکار شد`)).toBeVisible({ timeout: 20_000 });
   }
-  await expect(b.getByRole('heading', { name: 'مساوی شد' })).toBeVisible();
+  await expect(b.getByRole('heading', { name: 'مساوی شد' })).toBeVisible({ timeout: 15_000 });
   await b.screenshot({ path: shot('04-match-result-sealed', p), fullPage: true });
   await a.context().close(); await b.context().close();
 });
@@ -104,21 +110,21 @@ test('friends: request/accept, invite to a private table via notification, table
   await b.goto('/friends');
   await b.getByRole('tab', { name: /درخواست‌ها/ }).click();
   await b.getByRole('button', { name: 'پذیرش' }).click();
-  await b.getByRole('tab', { name: /دوستان/ }).click();
+  await b.getByRole('tab', { name: /^دوستان/ }).click();
   await b.screenshot({ path: shot('05-friends', p), fullPage: true });
 
   // Private table + personal invitation
   await a.goto('/games/line-three/new');
-  await a.getByText('نوبتی', { exact: true }).click();
+  await a.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'نوبتی', exact: true }).click();
   await a.getByRole('button', { name: 'ساخت میز' }).click();
   await expect(a.getByRole('heading', { name: 'دعوت دوستان' })).toBeVisible();
   await a.getByRole('button', { name: 'دعوت', exact: true }).click();
   await expect(a.getByRole('button', { name: 'دعوت شد' })).toBeVisible();
-  await b.goto('/');
-  const invite = b.locator('ul.list li', { hasText: /شما را به میز «سه‌خطی» دعوت کرد/ });
+  await b.goto('/notifications');
+  const invite = b.locator('li.hm-notif', { hasText: /شما را به میز «سه‌خطی» دعوت کرد/ });
   await expect(invite).toBeVisible({ timeout: 15_000 });
   await b.screenshot({ path: shot('06-invite-notification', p), fullPage: true });
-  await invite.getByRole('link', { name: 'باز کردن' }).click();
+  await invite.getByRole('link', { name: 'دیدن دعوت' }).click();
   await b.getByRole('button', { name: 'پیوستن به میز' }).click();
   await expect(b.getByText('بازیکنان (۲ از ۲)')).toBeVisible();
 
@@ -186,7 +192,8 @@ test('club roles and membership, report from club chat, moderator suspension and
 
   // Owner reports the message
   await owner.reload();
-  await owner.getByText('پیام توهین‌آمیز آزمایشی').locator('xpath=ancestor::article').getByRole('button', { name: 'گزارش' }).click();
+  await owner.getByText('پیام توهین‌آمیز آزمایشی').locator('xpath=ancestor::article').getByRole('button', { name: 'گزینه‌های پیام' }).click();
+  await owner.getByRole('menuitem', { name: 'گزارش' }).click();
   await owner.getByLabel('توضیح').fill(reason);
   await owner.getByRole('button', { name: 'ثبت گزارش' }).click();
   await expect(owner.getByText('گزارش ثبت شد.')).toBeVisible();
@@ -197,7 +204,7 @@ test('club roles and membership, report from club chat, moderator suspension and
 
   // Moderator 1 suspends
   await mod1.goto('/mod');
-  await mod1.getByRole('row', { name: new RegExp(slug) }).getByRole('button', { name: 'بررسی' }).click();
+  await mod1.getByRole('row', { name: new RegExp(slug.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[+d])) }).getByRole('button', { name: 'بررسی' }).click();
   await expect(mod1.getByText('پیام توهین‌آمیز آزمایشی')).toBeVisible();
   await mod1.getByText('تعلیق', { exact: true }).click();
   await mod1.getByLabel('یادداشت تصمیم (در سابقه ثبت می‌شود)').fill('توهین');
@@ -231,15 +238,18 @@ test('page inventory and keyboard smoke', async ({ browser }, info) => {
   for (const [route, name] of [['/', 'dashboard'], ['/play', 'play'], ['/tables', 'tables'], ['/friends', 'friends'], ['/messages', 'messages'],
     ['/groups', 'groups'], ['/clubs', 'clubs'], ['/support', 'support'], ['/settings', 'settings'], ['/more', 'more'], ['/mod', 'mod-denied']] as const) {
     await page.goto(route);
-    await expect(page.locator('main h1, main .state__title').first()).toBeVisible();
+    await expect(page.locator('main h1, main [role=status] h3').first()).toBeVisible();
     await page.screenshot({ path: shot(`inventory-${name}`, info.project.name), fullPage: true });
   }
   // Keyboard: navigation moves focus to <main>; Tab continues inside the page; tabs switch with arrow keys.
   await page.goto('/friends');
-  await expect(page.getByRole('tab', { name: /دوستان/ })).toBeVisible();
+  await expect(page.getByRole('tab', { name: /^دوستان/ })).toBeVisible();
   await expect(page.locator('#main')).toBeFocused();
+  // The section links (PageTabs) come first; Tab reaches the page's own tab list within a few presses.
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('tab', { name: /دوستان/ })).toBeFocused();
+  await expect(page.locator('main :focus')).toBeVisible();
+  for (let i = 0; i < 8 && !(await page.getByRole('tab', { name: /^دوستان/ }).evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab');
+  await expect(page.getByRole('tab', { name: /^دوستان/ })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(page.getByRole('tab', { name: /درخواست‌ها/ })).toBeFocused();
   await page.context().close();

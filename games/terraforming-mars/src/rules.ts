@@ -522,6 +522,37 @@ export const terraformingMarsModule: GameModule<TmState, TmAction, TmView> = {
     return [s.current];
   },
 
+  publicSummary(s) {
+    // Headline = terraform rating (cheap, public); full VP breakdown stays in the view's per-seat score.
+    const trs = s.players.map((p) => p.tr);
+    const top = Math.max(...trs);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const ready = (p: PlayerState) => (s.phase === 'draft' ? !!p.draftPick || p.pack.length < 2 : !!p.pick);
+    const simultaneous = s.phase === 'corp' || s.phase === 'research' || s.phase === 'draft';
+    return {
+      seats: s.players.map((p, seat) => ({
+        seat,
+        primary: { label: 'رتبه', value: p.tr },
+        stats: [
+          { key: 'mc', label: 'مگاکردیت', value: p.res.mc, icon: 'coins' },
+          { key: 'hand', label: 'کارت', value: p.hand.length, icon: 'layers' },
+          { key: 'plants', label: 'گیاه', value: p.res.plants, resource: 'green' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const }
+          : s.outcome ? {}
+          : simultaneous ? (ready(p) ? { status: 'done' as const } : {})
+          : p.passed ? { status: 'passed' as const } : {})
+      })),
+      shared: [
+        { key: 'generation', label: 'نسل', value: s.generation },
+        { key: 'temperature', label: 'دما', value: s.temperature },
+        { key: 'oxygen', label: 'اکسیژن', value: s.oxygen, max: 14 },
+        { key: 'oceans', label: 'اقیانوس', value: s.oceans, max: 9 }
+      ],
+      ...(trs.filter((v) => v === top).length === 1 ? { leaderSeat: trs.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 1,
     options: { deal: 'tutorial' },

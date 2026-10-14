@@ -1,0 +1,81 @@
+/* BGV screen glue: profile pages. Tokens + logical properties only. */
+
+/* Cosmetic banner layered over the DS banner art (css comes from the cosmetics catalogue). */
+.pf-bn { position: absolute; inset: 0; background: var(--bn); }
+.pf-head { position: relative; }
+.pf-head .bgv-banner-art { position: relative; overflow: hidden; }
+
+.pf-trophies { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr)); gap: var(--space-3); }
+.pf-trophies--wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+.pf-trophy-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.pf-trophy-card .bgv-trophy { padding: 0; background: none; box-shadow: none; text-align: start; align-items: flex-start; }
+
+/* Friends / lists */
+.pf-list { list-style: none; margin: 0; padding: 0; }
+.pf-list > li { padding: var(--space-3) var(--space-4); border-block-end: 1px solid var(--line); display: flex; align-items: center; gap: var(--space-3); }
+.pf-list > li:last-child { border-block-end: 0; }
+.pf-list > li > :first-child { flex: 1; min-inline-size: 0; }
+.pf-actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.pf-pad { padding: var(--space-4); }
+
+/* Avatar builder */
+.pf-builder { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+.pf-builder > * { min-inline-size: 0; }
+.pf-preview { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); }
+.pf-preview__art { inline-size: 100%; display: grid; place-items: center; padding: var(--space-6); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.pf-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr)); gap: var(--space-3); }
+.pf-sw { display: block; inline-size: 48px; block-size: 48px; border-radius: var(--radius-pill); background: var(--sw); border: 1px solid var(--border); }
+.pf-swbar { display: block; inline-size: 100%; block-size: 40px; border-radius: var(--radius-sm); background: var(--sw); }
+.pf-sheet-host { position: fixed; inset: 0; z-index: var(--z-sheet); display: flex; align-items: flex-end; justify-content: center; }
+.pf-sheet-host > .bgv-sheet { position: relative; z-index: 1; inline-size: min(100%, 520px); max-block-size: 90dvh; }
+.pf-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.pf-facts > div { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.pf-facts .bgv-coin { font-weight: 900; }
+
+/* Progress */
+.pf-prog { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: var(--space-4); align-items: start; }
+.pf-prog > * { min-inline-size: 0; }
+.pf-wide { grid-column: 1 / -1; }
+.pf-level { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.pf-ach { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
+.pf-ach > li { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.pf-ach .bgv-trophy { align-items: flex-start; text-align: start; padding: 0; background: none; box-shadow: none; }
+
+/* Ranking */
+.pf-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: var(--space-4); align-items: end; }
+.pf-rank-user { display: flex; align-items: center; gap: var(--space-2); }
+
+@media (max-width: 1000px) {
+  .pf-builder { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Cosmetic shop / wardrobe / studio. Item colours arrive as --c1..--c3 from the catalogue data. */
+.pf-cats { display: flex; gap: var(--space-2); padding-block: var(--space-1); }
+.pf-cats > * { flex: none; }
+.pf-shopbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.pf-tiles--shop { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); }
+.pf-itemhero { display: grid; place-items: center; padding: var(--space-6); border-radius: var(--radius-md); background: var(--surface-sunken); min-block-size: 160px; }
+.pf-seatprev { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface-sunken); }
+.pf-bnsw { display: block; inline-size: 100%; block-size: 56px; border-radius: var(--radius-sm); background: var(--bn); }
+.pf-titlechip { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: var(--shadow-tile); }
+.pf-emote { display: grid; place-items: center; inline-size: 56px; block-size: 56px; border-radius: var(--radius-pill); background: var(--c1); color: var(--c2); }
+.pf-skin { display: block; inline-size: 100%; block-size: 56px; border-radius: var(--radius-sm); }
+.pf-bubble { display: inline-block; padding: var(--space-2) var(--space-3); border-radius: var(--radius-lg); color: var(--text); }
+.pf-ring { display: inline-grid; padding: var(--space-1); border-radius: var(--radius-pill); }
+.pf-ring > .bgv-avatar { background: var(--surface); }
+.pf-pat { background-color: var(--c1); }
+.bgv-cardback .pf-pat { display: block; inline-size: 100%; block-size: 100%; border-radius: var(--radius-xs); }
+.pf-pat--dots { background-image: radial-gradient(circle, var(--c2) 2px, transparent 2.5px); background-size: 10px 10px; }
+.pf-pat--stripes { background-image: repeating-linear-gradient(45deg, var(--c1) 0 6px, var(--c2) 6px 12px); }
+.pf-pat--diamonds { background-image: linear-gradient(45deg, var(--c2) 25%, transparent 25% 75%, var(--c2) 75%); background-size: 12px 12px; }
+.pf-pat--rings { background-image: radial-gradient(circle, transparent 3px, var(--c2) 3.5px 5px, transparent 5.5px); background-size: 14px 14px; }
+.pf-pat--stars { background-image: radial-gradient(circle, var(--c2) 1px, transparent 1.5px); background-size: 9px 9px; }
+.pf-pat--waves { background-image: repeating-radial-gradient(circle at 0 100%, var(--c2) 0 3px, var(--c1) 3px 9px); }
+.pf-pat--solid { background-image: none; }
+
+/* Public profile record */
+.pf-record { list-style: none; margin: 0; padding: 0; }
+.pf-record > li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) 0; border-block-end: 1px solid var(--line); }
+.pf-record > li:last-child { border-block-end: 0; }
+.pf-mastery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: var(--space-3); }
+.pf-mastery > div { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); }

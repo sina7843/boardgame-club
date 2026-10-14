@@ -141,6 +141,19 @@ export function crewModule(manifest: GameManifest, edition: Edition): GameModule
     },
 
     pendingSeats: (s) => (s.outcome ? [] : s.phase === 'draft' ? [s.drafter] : [s.current]),
+
+    publicSummary(s) {
+      const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+      return {
+        seats: s.hands.map((h, seat) => ({
+          seat,
+          primary: { label: 'کارت', value: h.length },
+          stats: [{ key: 'tasks', label: 'وظیفه', value: s.tasks.filter((x) => x.owner === seat && x.status === 'open').length, icon: 'flag' }],
+          ...(winners.has(seat) ? { status: 'winner' as const } : {})
+        })),
+        shared: [{ key: 'tasks', label: 'وظایف', value: s.tasks.filter((x) => x.status === 'done').length, max: s.tasks.length }]
+      };
+    },
     tutorial: edition.tutorial
   };
   return mod;

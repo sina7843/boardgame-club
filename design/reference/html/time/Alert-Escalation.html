@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نردبان هشدار</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.bgv-clock--chip{block-size:28px;padding-inline:5px 10px;gap:6px}
+.bgv-clock--bar{gap:8px}
+.bgv-turn{padding-inline:10px 16px}
+.bgv-gamebar{padding-inline:10px;gap:10px}
+.bgv-pcard--mini{padding:14px 8px 10px}
+.bgv-pcard--mini .bgv-pcard__name b{flex-wrap:wrap;white-space:normal;row-gap:4px}
+.bgv-pcard--mini.is-you .bgv-pcard__name b::after{margin-inline:auto}
+.bgv-avatar.is-turn::before{inset:-7px}
+.bgv-gamebar .bgv-btn[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-tile-primary)}
+.bgv-chat__head{padding-inline:16px 10px}
+.bgv-msg__meta{padding-inline:4px}
+.bgv-logo img.bgv-logo__dark,.bgv-logo img.bgv-logo__mark{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__light{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__dark:not(.bgv-logo__mark){display:block}
+@media (max-width:1199px){.bgv-app .bgv-logo img.bgv-logo__full{display:none}.bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:block}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:none}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__dark{display:block}}
+.bgv-quicktray{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 32px);mask-image:linear-gradient(to right,transparent 0,#000 32px);padding-inline-end:24px}
+.tc-barhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.tc-barhead__l{display:inline-flex;align-items:center;gap:4px;min-inline-size:0}.tc-latin{font-size:12px;font-weight:600;color:var(--text-muted)}.bgv-gamebar__meta{min-inline-size:0}.bgv-gamebar__meta > *{flex:none}.bgv-pcard--mini .bgv-pcard__foot{justify-content:center;min-block-size:28px}.tc-sent{display:inline-flex;color:var(--text-muted)}.tc-avgap{inline-size:24px;flex:none}.bgv-msg__reply span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bgv-msg__reply{border-radius:var(--radius-sm)}.bgv-composer{padding:12px}.bgv-composer__input{min-inline-size:0}.tc-count{font-size:12px;font-weight:700;color:var(--text-muted)}.bgv-chat__title{min-inline-size:0;flex-wrap:wrap;row-gap:0}
+.doc{padding:32px clamp(16px,3vw,40px) 40px;display:grid;gap:28px;min-inline-size:0}
+.doc-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.doc-head__t{display:grid;gap:4px;flex:1;min-inline-size:240px}
+.doc-head__t h1{font-size:32px;font-weight:900;line-height:1.3;color:var(--heading)}
+.doc-head__t p{font-size:15px;color:var(--text-muted);line-height:1.6}
+.sec{display:grid;gap:12px;min-inline-size:0}
+.sec-h{display:flex;align-items:baseline;gap:8px 12px;flex-wrap:wrap}
+.sec-h h2{font-size:20px;font-weight:900;color:var(--heading)}
+.sec-h span{font-size:13px;color:var(--text-muted);line-height:1.6}
+.cap{font-size:13px;color:var(--text-muted);line-height:1.6}
+.facts{display:grid;gap:8px;font-size:13px;line-height:1.6;color:var(--text);padding:0;margin:0;list-style:none}
+.facts li{display:flex;gap:8px;align-items:flex-start}
+.facts li .bgv-icon{inline-size:16px;block-size:16px;color:var(--text-muted);margin-block-start:3px;flex:none}
+.pcard{padding:16px 20px;display:grid;gap:12px;align-content:start;min-inline-size:0}
+.pcard__h{display:flex;align-items:flex-start;gap:8px}
+.pcard__h b{font-size:16px;font-weight:900;color:var(--heading);display:block;line-height:1.4}
+.minifelt{border-radius:var(--radius-lg);padding:12px;gap:8px;align-items:flex-start;min-inline-size:0}
+.models .minifelt .bgv-turn{gap:8px;font-size:14px;padding-inline:8px 12px}
+.models .pcard > div{grid-template-columns:minmax(0,1fr)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
+
+.lane{display:grid;gap:16px}
+.lane__h{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.lane__h h2{font-size:20px;font-weight:900;color:var(--heading)}
+.ladder{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px}
+.step{position:relative;display:grid;grid-template-rows:auto auto 1fr;gap:12px;min-inline-size:0}
+.step__rail{position:relative;display:flex;justify-content:center;block-size:48px}
+.step__rail::before{content:"";position:absolute;inset-block-start:22px;inset-inline-start:calc(50% + 28px);inline-size:calc(100% + 20px - 56px);block-size:4px;border-radius:var(--radius-pill);background:var(--_c);opacity:.45}
+.step:last-child .step__rail::before{display:none}
+.step__dot{position:relative;inline-size:48px;block-size:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:inset 0 0 0 3px var(--_c),var(--shadow-tile);color:var(--_c)}
+.step__label{display:grid;gap:2px;justify-items:center;text-align:center;line-height:1.4}
+.step__label b{font-size:16px;font-weight:900;color:var(--heading)}
+.step__label span{font-size:13px;color:var(--text-muted)}
+.step__label .bgv-tag{margin-block-start:4px}
+.moment{display:grid;gap:12px;padding:16px;border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line);align-content:start;min-inline-size:0}
+.ch{display:flex;gap:6px;flex-wrap:wrap}
+.ch span{display:inline-flex;align-items:center;gap:4px;block-size:26px;padding-inline:10px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text)}
+.ch span.off{color:var(--text-muted);text-decoration:line-through}
+.ch .bgv-icon{inline-size:14px;block-size:14px}
+.copy{font-size:13px;line-height:1.65;color:var(--text-muted)}
+.copy b{color:var(--text)}
+.dev{border-radius:var(--radius-md);padding:12px;background:var(--felt-rim)}
+.mfelt{padding:12px;border-radius:var(--radius-lg);gap:8px;align-items:flex-start}
+.moment .bgv-toast{min-block-size:48px;padding:10px 12px;font-size:14px}
+.moment .bgv-toast__icon{inline-size:28px;block-size:28px}
+.bgv-push{padding:12px 14px;gap:2px 10px;grid-template-columns:32px minmax(0,1fr);border-radius:var(--radius-md)}
+.bgv-push__icon{inline-size:32px;block-size:32px;border-radius:var(--radius-sm)}
+.bgv-push__text{font-size:13px}
+.bgv-critbar{padding:12px 14px}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:1199px){
+.ladder{grid-template-columns:minmax(0,1fr);gap:16px}
+.step{grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:16px;row-gap:12px}
+.step__rail{grid-row:1 / span 2;block-size:auto;align-items:flex-start}
+.step__rail::before{inset-block-start:56px;inset-inline-start:22px;inline-size:4px;block-size:calc(100% - 56px + 16px - 8px)}
+.step__label{justify-items:start;text-align:start;align-self:center}
+.moment{grid-column:2}
+}
+
+/* qa1: keep felts/pills inside the moment cards */
+.moment{grid-template-columns:minmax(0,1fr)}
+.moment .mfelt{padding:8px}
+.moment .bgv-turn{gap:6px;padding-inline:6px 12px;font-size:14px}
+.moment .bgv-sys{max-inline-size:100%;white-space:nowrap;padding-inline:10px;font-size:12px}
+</style>
+
+<div class="bgv" data-theme="light" dir="rtl" style="min-height:100vh;">
+<div class="doc">
+<header class="doc-head"><img src="../assets/symbol-primary-small.svg" alt="" style="inline-size:40px;block-size:40px">
+<div class="doc-head__t"><h1>نردبان هشدار</h1><p>هر پله دقیقاً چه چیزی به بازیکن نشان می‌دهد؛ هر هشدار یک کانال بیشتر از قبلی</p></div><div class="legend"><span class="bgv-badge"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg>صدا</span><span class="bgv-badge"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 8 2 2-2 2 2 2-2 2" /> <path d="m22 8-2 2 2 2-2 2 2 2" /> <rect width="8" height="14" x="8" y="5" rx="1" /></svg>لرزش</span><span class="bgv-badge"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>وب‌پوش</span><span class="bgv-badge"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>دیداری</span></div></header>
+<section class="lane"><div class="lane__h"><span class="bgv-badge bgv-badge--info">زنده</span><h2>میز زنده</h2><span class="cap">اونو، ۳۰ ثانیه هر نوبت</span></div><ol class="ladder"><li class="step" style="--_c:var(--clock-calm)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3" /></svg></span></div>
+<div class="step__label"><b>شروع نوبت</b><span>۰:۳۰ مانده</span></div>
+<div class="moment"><div class="bgv-felt mfelt"><span class="bgv-turn bgv-turn--mine"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-3 is-you">م</span>نوبت شما</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:1;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۳۰</span></span></span></div><div class="bgv-toast bgv-toast--turn"><span class="bgv-toast__icon"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /></svg></span><span class="bgv-toast__body"><span class="bgv-toast__title">نوبت شماست</span></span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg>صدای نوبت</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 8 2 2-2 2 2 2-2 2" /> <path d="m22 8-2 2 2 2-2 2 2 2" /> <rect width="8" height="14" x="8" y="5" rx="1" /></svg>لرزش کوتاه</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>اعلان مرورگر اگر برگه پس‌زمینه است</span></div><p class="copy">قرص نوبت مرجانی می‌شود و توست <b>«نوبت شماست»</b> می‌آید.</p></div></li><li class="step" style="--_c:var(--clock-warn)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg></span></div>
+<div class="step__label"><b>نیمه‌ی زمان</b><span>۰:۱۵ مانده، ۵۰٪</span></div>
+<div class="moment"><div class="bgv-actiondock" style="padding:12px;box-shadow:none"><div class="bgv-actiondock__prompt" style="font-size:13px;justify-content:space-between">کارت بگذارید<span class="bgv-clock bgv-clock--lg" data-state="warn" style="--p:0.5;"><span class="bgv-clock__ring"></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۱۵</span><span class="bgv-clock__sub">نیمی گذشت</span></span></span></div></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>فقط دیداری</span><span class="off"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <line x1="22" x2="16" y1="9" y2="15" /> <line x1="16" x2="22" y1="9" y2="15" /></svg>صدا</span></div><p class="copy">حلقه و عدد به رنگ هشدار می‌روند؛ <b>بدون صدا</b> تا تمرکز به هم نخورد.</p></div></li><li class="step" style="--_c:var(--clock-critical)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></svg></span></div>
+<div class="step__label"><b>۱۰ ثانیه‌ی آخر</b><span>۰:۱۰ مانده</span></div>
+<div class="moment"><div class="bgv-critbar"><span style="display:flex;align-items:center;gap:8px"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></svg>۱۰ ثانیه تا حرکت خودکار</span><div class="bgv-critbar__track" style="--p:.33"><i></i></div></div><div style="display:flex;align-items:center;gap:8px"><span class="bgv-clock" data-state="critical" style="--p:0.33;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۱۰</span></span><span class="copy">حلقه می‌تپد</span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg>تیک هر ثانیه</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 8 2 2-2 2 2 2-2 2" /> <path d="m22 8-2 2 2 2-2 2 2 2" /> <rect width="8" height="14" x="8" y="5" rx="1" /></svg>لرزش دوتایی</span></div><p class="copy">نوار قرمز تمام‌عرض بالای داک با شمارش زنده: <b>«۸ ثانیه تا حرکت خودکار»</b>.</p></div></li><li class="step" style="--_c:var(--danger)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg></span></div>
+<div class="step__label"><b>پایان زمان</b><span>۰:۰۰</span></div>
+<div class="moment"><div class="bgv-toast"><span class="bgv-toast__icon"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg></span><span class="bgv-toast__body"><span class="bgv-toast__title" style="font-size:13.5px">زمان تمام شد؛ حرکت خودکار</span></span></div><span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--warning)"><span class="bgv-strikes" role="img" aria-label="۱ از ۳ اخطار زمان"><i class="is-on"></i><i></i><i></i></span>اخطار ۱ از ۳</span><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg>صدای پایان</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 8 2 2-2 2 2 2-2 2" /> <path d="m22 8-2 2 2 2-2 2 2 2" /> <rect width="8" height="14" x="8" y="5" rx="1" /></svg>لرزش بلند</span></div><p class="copy">اونو: <b>«به‌جای شما یک کارت کشیده و نوبت رد می‌شود»</b>. سه بار پیاپی یعنی کنار رفتن.</p></div></li><li class="step" style="--_c:var(--clock-calm)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></svg></span></div>
+<div class="step__label"><b>نوبت بعدی</b><span>بلافاصله</span></div>
+<div class="moment"><div style="display:grid;justify-items:center;padding:8px;border-radius:var(--radius-md);background:var(--surface-sunken)"><span class="bgv-sys bgv-sys--game"><i class="bgv-seat seat-3" aria-hidden="true"></i><span>حرکت خودکار <b>مینا</b>: ۱ کارت کشید</span></span></div><div class="bgv-felt mfelt"><span class="bgv-turn"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-1">ن</span>نوبت نیلوفر</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:1;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۳۰</span></span></span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>پیام سیستمی در گفت‌وگو</span></div><p class="copy">همه در گفت‌وگو می‌بینند که حرکت خودکار بود؛ ساعت نفر بعد از نو شروع می‌شود.</p></div></li></ol></section>
+<section class="lane"><div class="lane__h"><span class="bgv-badge">نوبتی</span><h2>میز نوبتی</h2><span class="cap">کاتان، ۲۴ ساعت هر نوبت، شروع ساعت ۲۲:۴۰؛ پله‌های «جدید در سرور» هنوز در کد نیستند</span></div><ol class="ladder"><li class="step" style="--_c:var(--clock-calm)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3" /></svg></span></div>
+<div class="step__label"><b>شروع نوبت</b><span>۲۴ ساعت مانده</span></div>
+<div class="moment"><div class="dev"><div class="bgv-push"><img class="bgv-push__icon" src="../assets/app-icon.svg" alt=""><div class="bgv-push__head"><b>بردگیم‌ورس</b><span class="bgv-sep"></span><span>۲۲:۴۰</span></div><div class="bgv-push__text"><b>نوبت شما در «کاتان»</b><br>آرش حرکتش را انجام داد. ۲۴ ساعت وقت دارید.</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:1;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۴ ساعت</span></span><span class="copy">اول فهرست «میزهای من»</span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>وب‌پوش</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /></svg>مرکز اعلان</span></div><p class="copy">در برنامه نقطه‌ی مرجانی روی زنگوله و سطر میز.</p></div></li><li class="step" style="--_c:var(--clock-warn)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg></span></div>
+<div class="step__label"><b>نیمه‌ی مهلت</b><span>۱۲ ساعت مانده، ۵۰٪</span><span class="bgv-tag">جدید در سرور</span></div>
+<div class="moment"><div class="dev"><div class="bgv-push"><img class="bgv-push__icon" src="../assets/app-icon.svg" alt=""><div class="bgv-push__head"><b>بردگیم‌ورس</b><span class="bgv-sep"></span><span>۱۰:۴۰</span></div><div class="bgv-push__text"><b>نیمی از مهلت نوبت شما گذشت</b><br>کاتان: ۱۲ ساعت دیگر وقت دارید.</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="bgv-clock bgv-clock--chip" data-state="warn" style="--p:0.5;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۱۲ ساعت</span></span><span class="copy">تراشه زرد می‌شود</span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>وب‌پوش</span></div><p class="copy">در ساعت سکوت بی‌صدا می‌رسد.</p></div></li><li class="step" style="--_c:var(--clock-warn)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /></svg></span></div>
+<div class="step__label"><b>یادآوری سرور</b><span>۶ ساعت مانده، ۲۵٪</span></div>
+<div class="moment"><div class="dev"><div class="bgv-push"><img class="bgv-push__icon" src="../assets/app-icon.svg" alt=""><div class="bgv-push__head"><b>بردگیم‌ورس</b><span class="bgv-sep"></span><span>۱۶:۴۰</span></div><div class="bgv-push__text"><b>۶ ساعت تا پایان نوبت شما</b><br>کاتان: هنوز منتظر حرکت شما هستند.</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="bgv-clock bgv-clock--chip" data-state="warn" style="--p:0.25;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۶ ساعت</span></span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>وب‌پوش</span></div><p class="copy">یادآوری فعلی سرور: یک‌چهارم مهلت، <b>حداکثر ۶ ساعت</b> قبل از موعد؛ میزبان می‌تواند خاموشش کند.</p></div></li><li class="step" style="--_c:var(--clock-critical)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></svg></span></div>
+<div class="step__label"><b>ساعت آخر</b><span>۱ ساعت مانده</span><span class="bgv-tag">جدید در سرور</span></div>
+<div class="moment"><div class="dev"><div class="bgv-push"><img class="bgv-push__icon" src="../assets/app-icon.svg" alt=""><div class="bgv-push__head"><b>بردگیم‌ورس</b><span class="bgv-sep"></span><span>۲۱:۴۰</span></div><div class="bgv-push__text"><b>۱ ساعت تا پایان نوبت شما</b><br>بعد از آن حرکت خودکار و ۱ اخطار زمان.</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="bgv-clock bgv-clock--chip" data-state="critical" style="--p:0.04;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۱ ساعت</span></span><span class="bgv-badge bgv-badge--danger bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></svg>فوری</span></div><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>وب‌پوش</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>حتی در ساعت سکوت</span></div><p class="copy">سطر میز قرمز و بالای همه‌ی میزها.</p></div></li><li class="step" style="--_c:var(--danger)"><div class="step__rail"><span class="step__dot"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg></span></div>
+<div class="step__label"><b>پایان زمان</b><span>۰:۰۰</span></div>
+<div class="moment"><div class="bgv-notif" style="padding:12px;border:0;border-radius:var(--radius-md);background:var(--surface-sunken)"><span class="bgv-notif__icon bgv-notif__icon--urgent"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg></span><span class="bgv-notif__body" style="font-size:13px"><b>زمان نوبت شما در کاتان تمام شد</b><span>حداقل کار برای شما انجام شد و نوبت گذشت.</span></span></div><span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--warning)"><span class="bgv-strikes" role="img" aria-label="۱ از ۳ اخطار زمان"><i class="is-on"></i><i></i><i></i></span>اخطار ۱ از ۳</span><div class="ch"><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>وب‌پوش</span><span class=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /></svg>مرکز اعلان</span></div><p class="copy">کاتان: تاس به‌جای شما ریخته می‌شود و نوبت به نیلوفر می‌رسد.</p></div></li></ol></section>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

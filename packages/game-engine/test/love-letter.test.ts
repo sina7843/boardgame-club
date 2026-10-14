@@ -126,3 +126,15 @@ describe('love letter rules', () => {
     }
   }, 120_000);
 });
+
+describe('love-letter publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = loveLetterModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0, 0]);
+    expect(sum.seats[0]!.primary!.target).toBe(state.goal);
+    expect(JSON.stringify(sum)).not.toContain('hand');
+  });
+});

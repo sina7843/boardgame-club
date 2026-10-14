@@ -119,3 +119,13 @@ describe('el dorado rules', () => {
     }
   }, 120_000);
 });
+
+describe('el-dorado publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game(3);
+    const sum = edModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary!.value).toBe(DIST[st(snap).players[x.seat]!.pos]);
+    expect(sum.seats.every((x) => x.stats!.every((y) => typeof y.value === 'number'))).toBe(true);
+  });
+});

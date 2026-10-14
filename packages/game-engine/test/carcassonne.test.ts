@@ -136,3 +136,13 @@ describe('carcassonne rules', () => {
     }
   }, 120_000);
 });
+
+describe('carcassonne publicSummary', () => {
+  it('score, meeples left, tiles left', () => {
+    const snap = game(3);
+    const sum = carcModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.stats![0]!.value)).toEqual([7, 7, 7]);
+    expect(sum.shared![0]!.value).toBe(st(snap).stack.length);
+    expect(sum.leaderSeat).toBeUndefined();
+  });
+});

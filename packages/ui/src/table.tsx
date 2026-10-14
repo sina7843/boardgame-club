@@ -1,29 +1,8 @@
 // Table-level shared components: PlayerSeat, TurnIndicator, ActionBar, Token, Hand (game-agnostic, «انار» language).
 import type { ReactNode } from 'react';
-import { Avatar, cn, fa } from './components.tsx';
+import { cn, fa } from './components.tsx';
 import { Icon } from './icons.tsx';
 
-export function PlayerSeat({ name, avatarKey, label, active, done, me, children }: {
-  name: string; avatarKey: string; label?: string; active?: boolean; done?: boolean; me?: boolean; children?: ReactNode;
-}) {
-  return (
-    <div aria-current={active ? 'true' : undefined}
-      className={cn('seat flex min-w-0 items-center gap-3 rounded-surface border-line px-3 py-2.5 transition-all duration-(--motion) ease-motion',
-        active ? 'seat--active border-primary/50 bg-card shadow-control ring-2 ring-primary/40' : 'border-border bg-card/70',
-        me && 'seat--me bg-accent')}>
-      <Avatar avatarKey={avatarKey} name={name} size={40} />
-      <div className="min-w-0 flex-1">
-        <div className="truncate font-bold"><bdi>{name}</bdi>{me && <span className="ms-1 text-sm font-normal text-muted-foreground">(شما)</span>}</div>
-        {label && <div className="text-sm text-muted-foreground">{label}</div>}
-        {children}
-      </div>
-      {active && <span className="text-primary" title="در انتظار حرکت"><Icon name="clock" size={18} /><span className="sr-only">در انتظار حرکت</span></span>}
-      {done && <span className="text-success" title="ثبت شد"><Icon name="star" size={18} /><span className="sr-only">ثبت شد</span></span>}
-    </div>
-  );
-}
-
-/** Text + icon + colour: never colour alone (NFR-06). */
 export function TurnIndicator({ tone, children }: { tone: 'mine' | 'wait' | 'done' | 'pending'; children: ReactNode }) {
   const icon = tone === 'mine' ? 'play' : tone === 'done' ? 'star' : 'clock';
   return (

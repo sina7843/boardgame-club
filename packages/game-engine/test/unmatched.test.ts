@@ -490,3 +490,18 @@ describe('unmatched Cobble & Fog', () => {
     expect(to).toEqual(expect.arrayContaining([14, 27]));
   });
 });
+
+describe('unmatched publicSummary', () => {
+  it('hero health and card counts; no card ids', () => {
+    const snap = game(['arthur', 'sinbad'], { seed: 9 });
+    st(snap).timeouts[1] = 2;
+    const sum = unmatchedModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats[0]!.primary!.label).toBe('سلامتی');
+    expect(sum.seats[0]!.primary!.value).toBe(sum.seats[0]!.primary!.target);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(st(snap).hands[0]!.length);
+    expect(sum.seats[1]!.strikes).toBe(2);
+    expect(sum.strikesMax).toBe(3);
+    expect(JSON.stringify(sum)).not.toMatch(/\d\.[a-z-]+\.\d/);
+  });
+});

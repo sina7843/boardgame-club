@@ -1,12 +1,21 @@
-import { Link } from 'react-router';
-import { StateBlock } from '@bg/ui';
+import { Button } from '@bg/ui/bgv';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 export function NotFound() {
   usePageTitle('صفحه پیدا نشد');
   return (
-    <StateBlock kind="empty" title="این صفحه پیدا نشد" action={<Link className="btn btn--primary" to="/">بازگشت به داشبورد</Link>}>
-      نشانی را بررسی کنید.
-    </StateBlock>
+    <div className="ac-404" role="status">
+      <div className="bgv-felt" aria-hidden="true">
+        <span className="ac-404__tile" style={{ transform: 'rotate(-6deg)' }}>۴</span>
+        <span className="ac-404__tile" style={{ transform: 'translateY(-8px)' }}>۰</span>
+        <span className="ac-404__tile" style={{ transform: 'rotate(5deg)' }}>۴</span>
+      </div>
+      <div style={{ display: 'grid', gap: 6 }}>
+        <h1 className="t-page-sm">این صفحه پیدا نشد</h1>
+        <p className="t-body-sm bgv-muted">نشانی را بررسی کنید؛ شاید میزی که دنبالش هستید بسته شده.</p>
+      </div>
+      <Button variant="primary" size="lg" icon="search" href="/games" style={{ inlineSize: '100%' }}>جست‌وجوی بازی</Button>
+      <Button variant="ghost" href="/">بازگشت به خانه</Button>
+    </div>
   );
 }

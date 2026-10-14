@@ -489,3 +489,19 @@ describe('risk random play', () => {
     }
   }, 180_000);
 });
+
+describe('risk publicSummary', () => {
+  it('one entry per seat; territories sum to the map; no hand contents; strikes wired', () => {
+    const snap = startGame(m, { playerCount: 3, seed: 3, options: {} }).snapshot;
+    const sum = riskModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.reduce((n, x) => n + x.primary!.value, 0)).toBe(TERRITORY_IDS.length);
+    expect(sum.strikesMax).toBe(3);
+    expect(sum.seats.every((x) => x.strikes === 0)).toBe(true);
+    const s2 = structuredClone(st(snap));
+    s2.hands[1] = s2.deck.splice(0, s2.hands[1]!.length);
+    expect(riskModule.publicSummary!(s2)).toEqual(sum);
+    s2.status[2] = 'out';
+    expect(riskModule.publicSummary!(s2).seats[2]!.status).toBe('out');
+  });
+});

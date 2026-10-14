@@ -730,6 +730,29 @@ export const amlakModule: GameModule<AmlakState, AmlakAction, AmlakView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    const worth = Array.from({ length: s.players }, (_, seat) => netWorth(s, seat));
+    const top = Math.max(...worth.filter((_, seat) => !s.p[seat]!.bankrupt));
+    const leaders = worth.map((w, seat) => (!s.p[seat]!.bankrupt && w === top ? seat : -1)).filter((x) => x >= 0);
+    return {
+      seats: Array.from({ length: s.players }, (_, seat) => ({
+        seat,
+        primary: { label: 'نقد', value: s.p[seat]!.cash },
+        stats: [
+          { key: 'props', label: 'ملک', value: s.owner.filter((o) => o === seat).length, icon: 'map' },
+          { key: 'worth', label: 'دارایی', value: worth[seat]!, icon: 'coins' }
+        ],
+        badges: s.p[seat]!.inJail ? [{ key: 'jail', label: 'زندان', tone: 'warning' as const }] : [],
+        ...(s.p[seat]!.bankrupt ? { status: 'out' as const } : won === seat ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round, ...(s.rules.rounds ? { max: s.rules.rounds } : {}) }],
+      strikesMax: MAX_TIMEOUTS,
+      ...(leaders.length === 1 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [waitingOn(s)]),
 
   tutorial: {

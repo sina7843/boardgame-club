@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import type { GameDetail } from '@bg/contracts';
-import { Badge, Button, Icon, StateBlock } from '@bg/ui';
+import { Badge, Banner, Breadcrumbs, Button, Card, Icon, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { BotPlay } from '../games/BotPlay.tsx';
 import { GameWiki } from './Wiki.tsx';
 import { GameCover } from '../games/covers.tsx';
@@ -18,10 +18,10 @@ export function RulesText({ lines }: { lines: string[] }) {
     else (sections.at(-1) ?? sections[sections.push({ title: null, items: [] }) - 1]!).items.push(l);
   }
   return (
-    <div className="rules-text">{sections.map((s, i) => (
-      <div key={i} className="rules-section">
-        {s.title && <h3 className="rules-section__title">{s.title}</h3>}
-        {s.items.length > 0 && <ol className="rules">{s.items.map((r) => <li key={r}>{r}</li>)}</ol>}
+    <div className="pg-rules">{sections.map((s, i) => (
+      <div key={i} className="pg-sec">
+        {s.title && <h3>{s.title}</h3>}
+        {s.items.length > 0 && <ol>{s.items.map((r) => <li key={r}>{r}</li>)}</ol>}
       </div>))}
     </div>
   );
@@ -44,55 +44,31 @@ export function GameDetailPage() {
     finally { setTutorialBusy(false); }
   };
 
-  const back = <Link to="/games" className="breadcrumb"><Icon name="chevron" size={18} />همه بازی‌ها</Link>;
-  if (loading && !g) return <>{back}<StateBlock kind="loading" title="در حال بارگذاری صفحه بازی…" /></>;
-  if (error?.status === 404) return <>{back}<StateBlock kind="empty" title="این بازی پیدا نشد">ممکن است نشانی اشتباه باشد یا بازی هنوز منتشر نشده باشد.</StateBlock></>;
-  if (error || !g) return <>{back}<StateBlock kind="error" title="صفحه بازی بارگذاری نشد" action={<Button onClick={reload}>تلاش دوباره</Button>}>{error?.messageFa}</StateBlock></>;
+  const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'بازی‌ها', href: '/games' }, { label: last }]} />;
+  if (loading && !g) return <>{crumbs('…')}<Skeleton height={320} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری صفحه بازی…</span></>;
+  if (error?.status === 404) return <>{crumbs('بازی پیدا نشد')}<StateBlock kind="empty" title="این بازی پیدا نشد" text="ممکن است نشانی اشتباه باشد یا بازی هنوز منتشر نشده باشد." action={<Button href="/games">همه بازی‌ها</Button>} /></>;
+  if (error || !g) return <>{crumbs('خطا')}<StateBlock kind="error" title="صفحه بازی بارگذاری نشد" text={error?.messageFa} action={<Button onClick={reload}>تلاش دوباره</Button>} /></>;
+
+  const tutorialLabel = tutorialStatus === 'in_progress' ? 'ادامه آموزش تعاملی' : tutorialStatus === 'completed' ? 'اجرای دوباره آموزش' : 'آموزش تعاملی';
+  const defaultOf = (o: GameDetail['options'][number]) => o.choices.find((c) => c.value === o.default)?.labelFa;
 
   return (
     <>
-      {back}
-      <div className="detail">
-        <article className="stack">
-          <div className="detail__cover"><GameCover gameId={g.id} title={`تصویر جلد ${g.nameFa}`} flippable /></div>
-          <header>
-            <div className="row">
-              <h1 className="page-title">{g.nameFa}</h1>
-              {g.isTestGame && <Badge tone="test" icon="alert">بازی آزمایشی</Badge>}
-              {g.status === 'suspended' && <Badge tone="danger">متوقف‌شده</Badge>}
-            </div>
-            <p className="page-sub"><bdi>{g.nameOriginal}</bdi></p>
-          </header>
-          {g.isTestGame && (
-            <div className="banner banner--info" role="note">
-              این بازی اختصاصی و برای آزمون موتور بازی ساخته شده است؛ جزو فهرست نهایی بازی‌های عرضه نیست.
-            </div>
-          )}
-          <p>{g.summaryFa}</p>
-          <section className="section" aria-labelledby="rules-h">
-            <h2 id="rules-h" className="section-title"><Icon name="book" />قوانین</h2>
-            <RulesText lines={g.rulesFa} />
-          </section>
-          <section className="section" aria-labelledby="policy-h">
-            <h2 id="policy-h" className="section-title"><Icon name="clock" />اتمام زمان و انصراف</h2>
-            <p className="policy"><strong>اتمام زمان: </strong>{g.timeoutPolicyFa}</p>
-            <p className="policy"><strong>انصراف: </strong>{g.resignPolicyFa}</p>
-          </section>
-          {g.options.length > 0 && (
-            <section className="section" aria-labelledby="variants-h">
-              <h2 id="variants-h" className="section-title"><Icon name="settings" />گزینه‌های قانون</h2>
-              {g.options.map((o) => (
-                <p key={o.key} className="policy"><strong>{o.labelFa}: </strong>
-                  {o.hostChooses && o.choices.length > 1 ? `به انتخاب میزبان (${o.choices.map((c) => c.labelFa).join('، ')})` : o.choices.find((c) => c.value === o.default)?.labelFa}
-                </p>
-              ))}
-            </section>
-          )}
-          <GameWiki gameId={g.id} />
-        </article>
-
-        <aside className="panel stack" aria-label="مشخصات و شروع" data-tour="game-actions">
-          <dl className="facts">
+      {crumbs(g.nameFa)}
+      <article className="pg-dethero">
+        <div className="pg-dethero__cover"><GameCover gameId={g.id} title={`تصویر جلد ${g.nameFa}`} flippable /></div>
+        <div className="pg-dethero__text" data-tour="game-actions">
+          <div className="pg-head-actions">
+            <Badge icon={g.access === 'premium' ? 'crown' : 'lock-open'} tone={g.access === 'premium' ? 'premium' : 'neutral'}>{ACCESS_FA[g.access]}</Badge>
+            {g.paces.map((p) => <Badge key={p} icon={p === 'live' ? 'zap' : 'hourglass'}>{PACE_FA[p]}</Badge>)}
+            {g.botAvailable && <Badge icon="bot">ربات</Badge>}
+            {g.isTestGame && <Badge tone="test" icon="triangle-alert">بازی آزمایشی</Badge>}
+            {g.status === 'suspended' && <Badge tone="danger">متوقف‌شده</Badge>}
+          </div>
+          <h1 className="t-page" style={{ margin: 0 }}>{g.nameFa} <bdi className="bgv-latin bgv-muted" dir="ltr">{g.nameOriginal}</bdi></h1>
+          {g.isTestGame && <Banner tone="info" text="این بازی اختصاصی و برای آزمون موتور بازی ساخته شده است؛ جزو فهرست نهایی بازی‌های عرضه نیست." />}
+          <p className="t-body" style={{ margin: 0 }}>{g.summaryFa}</p>
+          <dl className="pg-facts" aria-label="مشخصات">
             <div><dt>تعداد نفر</dt><dd>{range(g.minPlayers, g.maxPlayers, 'نفر')}</dd></div>
             <div><dt>زمان</dt><dd>{range(g.minMinutes, g.maxMinutes, 'دقیقه')}</dd></div>
             <div><dt>دشواری</dt><dd>{DIFFICULTY_FA[g.difficulty]}</dd></div>
@@ -100,28 +76,54 @@ export function GameDetailPage() {
             <div><dt>حالت‌ها</dt><dd>{g.paces.map((p) => PACE_FA[p]).join('، ')}</dd></div>
             <div><dt>نوع رقابت</dt><dd>{g.competitions.map((c) => COMPETITION_FA[c]).join('، ')}</dd></div>
           </dl>
-          <div className="stack" style={{ gap: 'var(--sp-2)' }}>
-            <h2 className="section-title" style={{ fontSize: 'var(--fs-md)' }}>آموزش</h2>
-            <p className="muted" style={{ margin: 0 }}>{g.tutorialFa}</p>
-          </div>
-          {g.activeVersion && <p className="muted" style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>نسخه قوانین <bdi dir="ltr">{g.activeVersion.rulesVersion}</bdi></p>}
-          {g.access === 'premium' && <div className="banner banner--info" role="note" style={{ margin: 0 }}>ساخت میز این بازی به اشتراک پریمیوم نیاز دارد. اگر میزبان پریمیوم باشد، دوستانی که دعوت می‌کند می‌توانند بدون اشتراک بازی کنند. <Link to="/plans">اشتراک</Link></div>}
-          {!g.acceptingNewTables && <div className="banner banner--warn" role="status" style={{ margin: 0 }}>پذیرش میز جدید برای این بازی موقتاً متوقف است.</div>}
+          {g.access === 'premium' && <Banner tone="info" text={<>ساخت میز این بازی به اشتراک پریمیوم نیاز دارد. اگر میزبان پریمیوم باشد، دوستانی که دعوت می‌کند می‌توانند بدون اشتراک بازی کنند. <a href="/plans">اشتراک</a></>} />}
+          {!g.acceptingNewTables && <Banner tone="warning" text="پذیرش میز جدید برای این بازی موقتاً متوقف است." />}
           {!me ? (
-            <Link className="btn btn--primary btn--block" to={`/login?next=/games/${g.id}`}>برای بازی و آموزش وارد شوید</Link>
+            <div className="pg-actions"><Button variant="primary" href={`/login?next=/games/${g.id}`}>برای بازی و آموزش وارد شوید</Button></div>
           ) : g.acceptingNewTables && (
             <>
-              <Link className="btn btn--primary btn--block" to={`/games/${g.id}/new`}>ساخت میز</Link>
-              <Link className="btn btn--secondary btn--block" to={`/play?game=${g.id}`}>حریف‌یابی سریع</Link>
-              {g.tutorialEnabled && <Button variant="secondary" block busy={tutorialBusy} onClick={startTutorial} icon="book">
-                {tutorialStatus === 'in_progress' ? 'ادامه آموزش تعاملی' : tutorialStatus === 'completed' ? 'اجرای دوباره آموزش' : 'آموزش تعاملی'}
-              </Button>}
-              {tutorialStatus === 'completed' && <p className="muted" style={{ margin: 0 }}>آموزش این بازی را کامل کرده‌اید.</p>}
-              {tutorialError && <p className="field__error" role="alert" style={{ margin: 0 }}>{tutorialError}</p>}
-              {g.botAvailable && <BotPlay gameId={g.id} minPlayers={g.minPlayers} maxPlayers={g.maxPlayers} />}
-              <Link className="btn btn--ghost btn--block" to="/tables">میزهای باز دیگران</Link>
+              <div className="pg-actions">
+                <Button variant="primary" icon="zap" href={`/play?game=${g.id}`}>حریف‌یابی سریع</Button>
+                <Button icon="plus" href={`/games/${g.id}/new`}>ساخت میز</Button>
+                <Button variant="ghost" href="/tables">میزهای باز دیگران</Button>
+              </div>
+              {g.tutorialEnabled && (
+                <div className="pg-tutor">
+                  <Icon name="book-open" />
+                  <div><b>آموزش تعاملی</b><span className="bgv-muted t-body-sm">{g.tutorialFa}</span>
+                    {tutorialStatus === 'completed' && <span className="t-body-sm">آموزش این بازی را کامل کرده‌اید.</span>}
+                  </div>
+                  <Button loading={tutorialBusy} onClick={startTutorial}>{tutorialLabel}</Button>
+                </div>
+              )}
+              {tutorialError && <p className="bgv-hint bgv-hint--error" role="alert">{tutorialError}</p>}
+              {g.botAvailable && <Card raised title="بازی با ربات"><BotPlay gameId={g.id} minPlayers={g.minPlayers} maxPlayers={g.maxPlayers} /></Card>}
             </>
           )}
+        </div>
+      </article>
+
+      <div className="bgv-cols">
+        <div className="pg-stack">
+          <Card title="قوانین" as="section" aria-label="قوانین"><RulesText lines={g.rulesFa} /></Card>
+          <GameWiki gameId={g.id} />
+        </div>
+        <aside className="pg-stack" aria-label="مشخصات و شروع">
+          {!g.tutorialEnabled && <Card title="آموزش"><p className="pg-policy">{g.tutorialFa}</p></Card>}
+          <Card title="اتمام زمان و انصراف">
+            <p className="pg-policy"><b>اتمام زمان: </b>{g.timeoutPolicyFa}</p>
+            <p className="pg-policy"><b>انصراف: </b>{g.resignPolicyFa}</p>
+          </Card>
+          {g.options.length > 0 && (
+            <Card title="گزینه‌های قانون">
+              {g.options.map((o) => (
+                <p key={o.key} className="pg-policy"><b>{o.labelFa}: </b>
+                  {o.hostChooses && o.choices.length > 1 ? `به انتخاب میزبان (${o.choices.map((c) => c.labelFa).join('، ')})` : defaultOf(o)}
+                </p>
+              ))}
+            </Card>
+          )}
+          {g.activeVersion && <span className="pg-meta">نسخه قوانین <bdi className="bgv-latin" dir="ltr">{g.activeVersion.rulesVersion}</bdi></span>}
         </aside>
       </div>
     </>

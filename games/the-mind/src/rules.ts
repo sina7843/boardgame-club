@@ -174,6 +174,23 @@ export const theMindModule: GameModule<TheMindState, TheMindAction, TheMindView>
 
   pendingSeats: (s) => (s.outcome ? [] : holding(s)),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.hands.map((h, seat) => ({
+        seat,
+        primary: { label: 'کارت', value: h.length },
+        ...(s.votes[seat] && !s.outcome ? { badges: [{ key: 'star', label: 'ستاره', tone: 'premium' as const }] } : {}),
+        ...(winners.has(seat) ? { status: 'winner' as const } : !s.outcome && !h.length ? { status: 'done' as const } : {})
+      })),
+      shared: [
+        { key: 'level', label: 'مرحله', value: s.level, max: s.levels },
+        { key: 'lives', label: 'جان', value: s.lives, max: 5 },
+        { key: 'stars', label: 'ستاره', value: s.stars, max: 3 }
+      ]
+    };
+  },
+
   tutorial: {
     seed: 29,
     options: { deal: 'tutorial' },

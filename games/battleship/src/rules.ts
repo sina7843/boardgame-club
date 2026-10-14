@@ -199,6 +199,19 @@ export const bsModule: GameModule<BsState, BsAction, BsView> = {
     return { ...finish(s, []), internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    const sunkOf = (seat: number) => s.seas[seat]!.ships.filter((x) => isSunk(s.seas[seat]!, x)).length;
+    return {
+      seats: [0, 1].map((seat) => ({
+        seat,
+        primary: { label: 'غرق‌شده', value: s.seas[1 - seat]!.ships.length ? sunkOf(1 - seat) : 0, target: FLEET.length },
+        stats: [{ key: 'afloat', label: 'ناو شناور', value: s.seas[seat]!.ships.length ? FLEET.length - sunkOf(seat) : 0, icon: 'shield' }],
+        ...(won === seat ? { status: 'winner' as const } : s.phase === 'place' && s.placed[seat] ? { status: 'done' as const } : {})
+      }))
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'place' ? [0, 1].filter((k) => !s.placed[k]) : [s.current]),
 
   tutorial: {

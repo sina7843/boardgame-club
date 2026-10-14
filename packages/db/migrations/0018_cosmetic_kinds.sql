@@ -1,0 +1,2 @@
+ALTER TABLE "user_settings" ADD COLUMN "profile_privacy" jsonb DEFAULT '{"showStats":true,"showRatings":true,"showRecent":true}'::jsonb NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "equipped" jsonb DEFAULT '{}'::jsonb NOT NULL;

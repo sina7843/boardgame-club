@@ -269,6 +269,20 @@ export const jaipurModule: GameModule<JaipurState, JaipurAction, JaipurView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => ({
+    seats: s.seals.map((seals, seat) => ({
+      seat,
+      primary: { label: 'مهر', value: seals, ...(s.best3 ? { target: 2 } : {}) },
+      stats: [
+        { key: 'hand', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' },
+        { key: 'camels', label: 'شتر', value: s.herds[seat]! }
+      ],
+      ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+    })),
+    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round, ...(s.best3 ? { max: 3 } : {}) }],
+    ...(s.seals[0] !== s.seals[1] ? { leaderSeat: s.seals[0]! > s.seals[1]! ? 0 : 1 } : {})
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

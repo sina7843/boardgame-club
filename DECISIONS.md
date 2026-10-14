@@ -1234,3 +1234,44 @@ Not added on purpose: data-fetching library (a 40-line `useApi` hook covers phas
   finished game costs ~80 statements of rating/rewards/notifications (~25 ms PostgreSQL CPU locally); bursts of
   simultaneous game ends now drain over several ticks instead of competing with live moves. Rewards may lag
   ~1 min under extreme bursts.
+- BGV design system redesign (2026-10-14, owner request: «همه بخش‌های سایت با این دیزاین، جز خود بازی‌ها»):
+  - Source: the handoff folder BGV-DesignSystem-Handoff (v1.3), copied to `design/` (system, reference screens, brand,
+    rules `design/CLAUDE.design-system.md`), guard `scripts/ds-check.mjs` + baseline `design/ds-baseline.json`,
+    QA spec `e2e/design-qa.spec.ts`. The handoff's Claude hooks (PostToolUse + Stop guard) were NOT installed: project
+    CLAUDE.md forbids Stop hooks/verification loops; the guard is run manually (`node scripts/ds-check.mjs`).
+  - Components: `scripts/bgv-sync.mjs` turns the reference `bundle.js` (classic script over window.React) into the ES
+    module `packages/ui/src/bgv/bgv.js` + `bgv.d.ts` (same code, 94 components) instead of hand-porting each file;
+    exported as `@bg/ui/bgv`. One local fix applied in the sync script: OtpField accepted one digit per box
+    (maxLength 1), so SMS one-time-code autofill and pasting the code filled only the first box — a multi-digit value
+    now spreads over the boxes. To report upstream to the design-system owner.
+  - Games untouched: the renderers were drawn on the retired VibeFarsi tokens, a few page classes and the legacy
+    `@bg/ui` Button/TurnIndicator. Those values now live only in `packages/ui/src/game-legacy.css`, scoped to
+    `.table-night` (the renderer wrapper inside the felt stage), plus `game-keyframes.css`; the old Tailwind colour
+    mapping in app.css stays for the same reason (resolves to the scoped tokens). The renderer's own turn text and
+    panels are kept (the DS says hide them; owner said do not change the games). The HUD shows only real snapshot
+    data (seat, identity, turn ring, deadline clock, bot, final score) — there is no `publicSummary` per player yet.
+  - Themes: BGV tokens switch only on `data-theme`, so "system" is resolved to light/dark in theme-init.js and kept
+    live in prefs.tsx. theme-color #173A2D / #191B1A. Brand name «بردگیم‌ورس» (was «باشگاه بردگیم»), brand-kit
+    favicon set, manifest and logo files under `public/brand`.
+  - A live game hides the shell (`html[data-immersive]`); the table lobby stays inside the shell (as the reference).
+  - Not built (no backend): shop, studio, wardrobe pages; rematch votes; reactions/mentions; push pre-prompt; per-player
+    game stats in the HUD; several mock-only widgets (friends online, learning progress …). Omitted, not faked.
+
+## Rematch, clock events, alert prefs
+- Rematch votes live in `game_tables.settings.rematch` of the finished table (no table migration); the 30 s window starts at the first vote and expiry is evaluated lazily (snapshot `table.rematch.closed`), no worker job. Tutorial and tournament tables are not offered.
+- Clock: the server emits `turn.started` (after each move that leaves a turn deadline) and `turn.autoMoved` (timeout fired, via NOTIFY `table_clock`). `turn.warning` (50% left) and `turn.critical` (last 10 s live / last hour turn-based) are derived by the client from `dueAt` (`turnThresholds` in contracts), avoiding per-table server timers.
+- Alert prefs: `user_settings.alerts` jsonb (migration 0017), `GET/PUT /me/alert-prefs`; quiet hours are Tehran time. Theme/motion/mute stay on the device; the device mute also silences alert sounds.
+- `/design` is admin-only in the SPA; `/dev-gateway` only works for the user's own `fake` provider payment (server decision endpoint), so it is inert otherwise.
+
+## Table chat is readable by spectators (owner decision reversal)
+Previously participants only. Now anyone who may view the table (non-tutorial; public, or tournament) can read table chat, receive pushes after subscribing, react and mute; only participants post (`canPost:false` otherwise). Private tables stay closed to non-members.
+
+## Public profile record and table cosmetics (profile/shop/wardrobe/studio)
+- No stats-privacy setting existed (`/me/settings` only had dmPolicy and notify), so a separate `GET/PUT /me/profile-privacy` (`user_settings.profile_privacy`: showStats / showRatings / showRecent, default all shown) was added instead of changing the shared settings body. showStats governs stats + mastery, showRatings governs ratings + best league, showRecent the recent list; level stays visible. Blocked in either direction: every section is null.
+- `GET /users/:userId/card` counts every finished non-tutorial game for the totals; the recent list is public tables only and carries no table id.
+- Five new kinds (cardBack `cb`, boardSkin `bk`, emote `em`, chatBubble `bu`, seatRing `sr`) are catalogue items with `art` (colours + pattern name + emote icon) and `rarity`; new unlock `{ premium: true }` (checked live with isPremium, not for sale with coins). Equipped keys live in `users.equipped` (jsonb); frame/title/banner are still equipped through `PATCH /me/profile`. Migration 0018_cosmetic_kinds (named by hand; 0016/0017 were already present).
+- Table seats expose `cosmetics: { seatRing?, chatBubble?, emote? }` (catalogue keys). Premium lapse is not re-checked at the table.
+- HUD dedupe (2026-10-14, owner approved): the renderers' own player panels are hidden with display-only CSS when the
+  table HUD shows the game's publicSummary; anything the summary does not cover stays visible. The TurnIndicator line
+  is kept in every game because one element carries both «نوبت …» and the what-to-do prompt; splitting it would need a
+  markup change inside games/** (not done).

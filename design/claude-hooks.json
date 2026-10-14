@@ -1,0 +1,11 @@
+{
+  "$comment": "BGV design-system guard hooks. design/install.mjs merges these into .claude/settings.json. PostToolUse: every edit of a UI file is checked; new design-system violations are sent back to Claude (exit 2) to fix immediately. Stop: before Claude finishes, all changed files are checked once more.",
+  "hooks": {
+    "PostToolUse": [
+      { "matcher": "Edit|Write|MultiEdit", "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/ds-check.mjs\" --hook", "timeout": 30 } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/ds-check.mjs\" --stop-hook", "timeout": 60 } ] }
+    ]
+  }
+}

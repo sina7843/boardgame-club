@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>میزهای من، فوری‌ترین اول</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.bgv-clock--chip{block-size:28px;padding-inline:5px 10px;gap:6px}
+.bgv-clock--bar{gap:8px}
+.bgv-turn{padding-inline:10px 16px}
+.bgv-gamebar{padding-inline:10px;gap:10px}
+.bgv-pcard--mini{padding:14px 8px 10px}
+.bgv-pcard--mini .bgv-pcard__name b{flex-wrap:wrap;white-space:normal;row-gap:4px}
+.bgv-pcard--mini.is-you .bgv-pcard__name b::after{margin-inline:auto}
+.bgv-avatar.is-turn::before{inset:-7px}
+.bgv-gamebar .bgv-btn[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-tile-primary)}
+.bgv-chat__head{padding-inline:16px 10px}
+.bgv-msg__meta{padding-inline:4px}
+.bgv-logo img.bgv-logo__dark,.bgv-logo img.bgv-logo__mark{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__light{display:none}
+[data-theme="dark"] .bgv-logo img.bgv-logo__dark:not(.bgv-logo__mark){display:block}
+@media (max-width:1199px){.bgv-app .bgv-logo img.bgv-logo__full{display:none}.bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:block}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__light{display:none}[data-theme="dark"] .bgv-app .bgv-logo img.bgv-logo__mark.bgv-logo__dark{display:block}}
+.bgv-quicktray{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 32px);mask-image:linear-gradient(to right,transparent 0,#000 32px);padding-inline-end:24px}
+.tc-barhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.tc-barhead__l{display:inline-flex;align-items:center;gap:4px;min-inline-size:0}.tc-latin{font-size:12px;font-weight:600;color:var(--text-muted)}.bgv-gamebar__meta{min-inline-size:0}.bgv-gamebar__meta > *{flex:none}.bgv-pcard--mini .bgv-pcard__foot{justify-content:center;min-block-size:28px}.tc-sent{display:inline-flex;color:var(--text-muted)}.tc-avgap{inline-size:24px;flex:none}.bgv-msg__reply span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bgv-msg__reply{border-radius:var(--radius-sm)}.bgv-composer{padding:12px}.bgv-composer__input{min-inline-size:0}.tc-count{font-size:12px;font-weight:700;color:var(--text-muted)}.bgv-chat__title{min-inline-size:0;flex-wrap:wrap;row-gap:0}
+.trow{display:flex;align-items:center;gap:12px;padding:12px;text-decoration:none;color:inherit}
+.trow--urgent{background:var(--danger-soft);border-color:var(--danger)}
+.trow img{inline-size:56px;block-size:56px;border-radius:var(--radius-md);object-fit:cover;flex:none}
+.trow__m{display:grid;flex:1;min-inline-size:0;gap:4px;line-height:1.35}
+.trow__t{display:flex;align-items:baseline;gap:6px;font-size:15px;font-weight:900;color:var(--heading);min-inline-size:0}
+.trow__t span{font-size:12px;color:var(--text-muted);white-space:nowrap}
+.trow__s{font-size:13px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow__c{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.trow .bgv-btn{flex:none}
+.sec-t{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px;color:var(--heading)}
+
+</style>
+
+<div class="bgv" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<header class="bgv-topbar"><a class="bgv-logo" href="/" aria-label="خانه"><img class="bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:32px"><img class="bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:32px"></a><span class="bgv-topbar__title">میزهای من</span><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header>
+<div style="padding:12px 16px 112px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px">
+<nav class="bgv-pagetabs" aria-label="فیلتر میزها"><a href="#" aria-current="page">در جریان ۶</a><a href="#">دعوت‌ها ۲</a><a href="#">تاریخچه</a></nav>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted)"><span>۶ از ۱۰ میز نوبتی</span><span class="bgv-spacer"></span><span style="display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--text)"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h.01" /> <path d="M3 18h.01" /> <path d="M3 6h.01" /> <path d="M8 12h13" /> <path d="M8 18h13" /> <path d="M8 6h13" /></svg>فوری‌ترین اول</span></div>
+<h2 class="sec-t">نوبت شما <span class="bgv-badge bgv-badge--you bgv-badge--sm">۳</span></h2>
+<a href="#" class="bgv-card trow trow--urgent"><img src="../assets/covers/catan.webp" alt="">
+<span class="trow__m"><span class="trow__t">کاتان<span class="bgv-latin">Catan</span></span><span class="trow__s">با آرش، سارا و نیلوفر</span><span class="trow__c"><span class="bgv-clock bgv-clock--chip" data-state="critical" style="--p:0.04;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۱ ساعت</span></span><span class="bgv-badge bgv-badge--danger bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></svg>فوری</span></span></span><button class="bgv-btn bgv-btn--primary bgv-btn--sm">بازی کن</button></a><a href="#" class="bgv-card trow"><img src="../assets/covers/terraforming-mars.webp" alt="">
+<span class="trow__m"><span class="trow__t">ترافورمینگ مارس</span><span class="trow__s">با بهراد و یاسمن</span><span class="trow__c"><span class="bgv-clock bgv-clock--chip" data-state="warn" style="--p:0.22;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۵ ساعت</span></span><span class="bgv-pstate bgv-pstate--wait"><span class="bgv-strikes" role="img" aria-label="۱ از ۳ اخطار زمان"><i class="is-on"></i><i></i><i></i></span>۱ از ۳</span></span></span><button class="bgv-btn bgv-btn--primary bgv-btn--sm">بازی کن</button></a><a href="#" class="bgv-card trow"><img src="../assets/covers/azul.webp" alt="">
+<span class="trow__m"><span class="trow__t">آزول<span class="bgv-latin">Azul</span></span><span class="trow__s">با نیلوفر</span><span class="trow__c"><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.83;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۰ ساعت</span></span></span></span><button class="bgv-btn bgv-btn--primary bgv-btn--sm">بازی کن</button></a>
+<h2 class="sec-t" style="color:var(--text-muted);margin-block-start:4px">منتظر دیگران</h2>
+<a href="#" class="bgv-card trow"><img src="../assets/covers/splendor.webp" alt="">
+<span class="trow__m"><span class="trow__t">اسپلندور<span class="bgv-latin">Splendor</span></span><span class="trow__s">نوبت پریسا</span><span class="trow__c"><span class="bgv-clock bgv-clock--chip" data-state="paused" style="--p:0.4;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__time">۹ ساعت</span></span></span></span><span class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-btn--sm" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg></span></a><a href="#" class="bgv-card trow"><img src="../assets/covers/ticket-to-ride.webp" alt="">
+<span class="trow__m"><span class="trow__t">تیکت تو راید<span class="bgv-latin">Ticket to Ride</span></span><span class="trow__s">نوبت رضا</span><span class="trow__c"><span class="bgv-clock bgv-clock--chip" data-state="paused" style="--p:0.6;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__time">۱ روز</span></span></span></span><span class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-btn--sm" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg></span></a><a href="#" class="bgv-card trow"><img src="../assets/covers/gaia-project.webp" alt="">
+<span class="trow__m"><span class="trow__t">پروژه گایا<span class="bgv-latin">Gaia Project</span></span><span class="trow__s">همه انتخاب می‌کنند، ۲ از ۳ آماده</span><span class="trow__c"><span class="bgv-clock bgv-clock--chip" data-state="paused" style="--p:0.9;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__time">۲ روز</span></span></span></span><span class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-btn--sm" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg></span></a>
+</div>
+<nav class="bgv-dock" style="position:absolute;inset-inline:12px;inset-block-end:12px;z-index:5" aria-label="ناوبری">
+<a class="bgv-dock__item" href="/"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>خانه</a>
+<a class="bgv-dock__item" href="/games"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg>بازی‌ها</a>
+<a class="bgv-dock__item is-active" href="/tables" aria-current="page"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg>میزها<span class="bgv-badge bgv-badge--count bgv-badge--count-invite">۳</span></a>
+<a class="bgv-dock__item" href="/messages"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>پیام‌ها<span class="bgv-badge bgv-badge--count">۴</span></a>
+<a class="bgv-dock__item" href="/more"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg>بیشتر</a></nav>
+</div>
+</x-dc>
+
+</body>
+</html>

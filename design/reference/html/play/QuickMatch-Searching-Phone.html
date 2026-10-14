@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حریف‌یابی، در جست‌وجو</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.pl-ul{list-style:none;padding:0;margin:0}
+.pl-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.pl-phone>.bgv-topbar{flex:none}
+.pl-scroll{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
+.pl-scroll>*{flex:none}
+.pl-dock{position:absolute;inset-inline:12px;inset-block-end:12px;z-index:var(--z-dock)}
+.pl-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);display:flex;align-items:center;gap:8px;margin:0;min-width:0}
+.pl-h3{font-size:16px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.pl-link{font-size:14px;font-weight:700;color:var(--link);text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.pl-thumb{inline-size:96px;block-size:54px;border-radius:var(--radius-sm);object-fit:cover;flex:none;display:block;background:var(--surface-raised)}
+.pl-muted{color:var(--text-muted)}
+.pl-meta{display:flex;align-items:center;gap:4px 6px;flex-wrap:wrap;font-size:13px;color:var(--text-muted);min-width:0}
+.pl-sechead{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.pl-sechead>.pl-h2{flex:1 1 auto}
+.pl-cover-fallback{inline-size:100%;block-size:100%;display:grid;place-items:center;background:var(--surface-raised)}
+.pl-cover-fallback img{inline-size:56px!important;block-size:56px!important;object-fit:contain!important;opacity:.55}
+.pl-iconbox{display:grid;place-items:center;flex:none}
+.bgv-pagetabs{flex:none}
+.bgv-app{min-height:100vh}
+.bgv-hero .bgv-clock[data-state="warn"]{--clock-c:var(--clock-on-felt-warn)}.bgv-hero .bgv-clock[data-state="critical"]{--clock-c:var(--clock-on-felt-critical)}
+.pl-phone .bgv-pagetabs a{padding-inline:11px}
+.pl-short{display:none}
+@media (max-width:599px){.bgv-pagetabs a{padding-inline:11px}.pl-long{display:none}.pl-short{display:inline}}
+.bgv-progress__row{flex-wrap:wrap;gap:0 8px}.bgv-progress__row>span{white-space:nowrap}
+
+.pl-radar{position:relative;inline-size:200px;block-size:200px;margin:0 auto;display:grid;place-items:center}
+.pl-radar>i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--primary);opacity:0;animation:pl-ping 2.4s var(--ease-out) infinite}
+.pl-radar>i:nth-child(2){animation-delay:.8s}.pl-radar>i:nth-child(3){animation-delay:1.6s}
+.pl-radar>b{position:absolute;inset:18px;border-radius:50%;border:1.5px dashed var(--line)}
+.pl-radar>em{position:absolute;inset:52px;border-radius:50%;background:var(--surface);box-shadow:var(--shadow-card);border:1px solid var(--line)}
+@keyframes pl-ping{0%{transform:scale(.38);opacity:.7}100%{transform:scale(1);opacity:0}}
+.pl-orbit{position:absolute}
+.pl-slot{inline-size:40px;block-size:40px;border-radius:50%;border:1.5px dashed var(--border);background:var(--surface);display:grid;place-items:center;color:var(--text-muted)}
+.pl-skill{position:relative;block-size:12px;border-radius:var(--radius-pill);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.pl-skill .max{position:absolute;inset-block:0;inset-inline:0;border-radius:var(--radius-pill);background:var(--clock-track);border:1px dashed var(--border)}
+.pl-skill .now{position:absolute;inset-block:0;inset-inline:25% 25%;border-radius:var(--radius-pill);background:var(--primary);opacity:.85}
+.pl-skill .me{position:absolute;inset-block:-6px;inset-inline-start:50%;inline-size:3px;border-radius:var(--radius-pill);background:var(--invite-strong);transform:translateX(50%)}
+.pl-step{display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px}
+.pl-step .dot{inline-size:28px;block-size:28px;border-radius:50%;display:grid;place-items:center;flex:none}
+.pl-step.done .dot{background:var(--success-soft);color:var(--success)}
+.pl-step.now .dot{background:var(--primary);color:var(--on-primary)}
+.pl-step.now{font-weight:700}
+.pl-center{display:grid;justify-items:center;text-align:center;gap:6px}
+
+</style>
+
+<div class="bgv pl-phone" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden;">
+<header class="bgv-topbar"><a class="bgv-logo" href="/" aria-label="خانه"><img class="bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:32px"><img class="bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:32px"></a><span class="bgv-topbar__title">حریف‌یابی سریع</span><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header>
+<main class="pl-scroll" style="gap:12px"><div class="bgv-card" style="padding:10px 12px;display:flex;align-items:center;gap:12px"><img class="pl-thumb" style="inline-size:64px;block-size:36px" src="../assets/covers/uno.webp" alt=""><div style="flex:1;display:grid;line-height:1.4;min-width:0"><b style="font-size:15px;color:var(--heading)">اونو</b><span class="pl-meta">رتبه‌ای<span class="bgv-sep"></span>زنده<span class="bgv-sep"></span>۴ نفر<span class="bgv-sep"></span>۶۰ ثانیه</span></div></div><div class="pl-center" style="gap:2px"><div class="pl-radar" aria-hidden="true"><i></i><i></i><i></i><b></b><em></em><span style="position:relative"><span class="bgv-frame bgv-frame--gold"><span class="bgv-avatar bgv-avatar--lg is-you">م</span></span></span><span class="pl-orbit" style="inset-block-start:4px;inset-inline-start:50%;transform:translateX(50%)"><span class="bgv-avatar bgv-avatar--sm seat-2">آ</span></span><span class="pl-orbit pl-slot" style="inset-block-end:34px;inset-inline-start:14px"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg></span><span class="pl-orbit pl-slot" style="inset-block-end:34px;inset-inline-end:14px"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg></span></div><span class="t-num-xl bgv-num" role="timer" style="color:var(--heading)">۰:۲۴</span><h1 class="t-title" style="margin:0;color:var(--heading)">دنبال حریف هم‌سطح می‌گردیم</h1><span class="pl-muted" style="font-size:14px">۱ از ۳ حریف پیدا شد: آرش</span></div><section class="bgv-card" style="padding:14px 16px;display:grid;gap:10px"><div class="bgv-row"><b style="font-size:14px;flex:1">دامنه‌ی مهارت</b><span class="bgv-badge bgv-badge--info"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /> <path d="M7 17 17 7" /></svg>در حال باز شدن</span></div><div class="pl-skill" aria-label="دامنه‌ی مهارت ۱٬۳۵۰ تا ۱٬۷۵۰"><span class="max"></span><span class="now"></span><span class="me"></span></div><div class="bgv-row" style="justify-content:space-between;font-size:12.5px;color:var(--text-muted)"><span class="bgv-num">۱٬۹۵۰</span><b style="color:var(--text)">شما ۱٬۵۵۰، الان <bdi dir="ltr">±۲۰۰</bdi></b><span class="bgv-num">۱٬۱۵۰</span></div><span class="pl-muted" style="font-size:12.5px">هر ۱۰ ثانیه ۵۰ امتیاز بازتر می‌شود، تا سقف <bdi dir="ltr">±۴۰۰</bdi>.</span></section><section class="bgv-card bgv-card--raised" style="padding:12px 14px;display:flex;align-items:center;gap:12px"><span class="bgv-notif__icon"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg></span><div style="flex:1;display:grid;line-height:1.45;min-width:0"><b style="font-size:14px">بازی با ربات</b><span class="pl-meta">اگر تا ۰:۳۰ حریف پیدا نشد؛ با شروع بازی از صف خارج می‌شوید.</span></div><button class="bgv-btn bgv-btn--secondary" disabled>۰:۰۶</button></section><button class="bgv-btn bgv-btn--leave bgv-btn--block"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg>انصراف از صف</button></main>
+<nav class="bgv-dock pl-dock" aria-label="ناوبری">
+<a class="bgv-dock__item" href="/"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>خانه</a>
+<a class="bgv-dock__item" href="/games"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg>بازی‌ها</a>
+<a class="bgv-dock__item is-active" href="/tables" aria-current="page"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg>میزها<span class="bgv-badge bgv-badge--count bgv-badge--count-invite">۳</span></a>
+<a class="bgv-dock__item" href="/messages"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>پیام‌ها<span class="bgv-badge bgv-badge--count">۴</span></a>
+<a class="bgv-dock__item" href="/more"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg>بیشتر</a></nav>
+</div>
+</x-dc>
+
+</body>
+</html>

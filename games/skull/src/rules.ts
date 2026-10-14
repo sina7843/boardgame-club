@@ -274,6 +274,24 @@ export const skullModule: GameModule<SkullState, SkullAction, SkullView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const top = Math.max(...s.points);
+    return {
+      seats: s.points.map((point, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: point, target: 2 },
+        stats: [{ key: 'discs', label: 'دیسک', value: s.owned[seat]!, icon: 'shield' }],
+        ...(s.bid?.seat === seat && !s.outcome ? { badges: [{ key: 'bid', label: `پیشنهاد ${s.bid.n}`, tone: 'warning' as const }] } : {}),
+        ...(winners.has(seat) ? { status: 'winner' as const }
+          : s.owned[seat] === 0 ? { status: 'out' as const }
+          : s.phase === 'bid' && s.passed[seat] ? { status: 'passed' as const } : {})
+      })),
+      shared: [{ key: 'table', label: 'روی میز', value: onTable(s) }],
+      ...(s.points.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.points.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 16,
     options: { deal: 'tutorial' },

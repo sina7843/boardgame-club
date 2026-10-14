@@ -632,6 +632,26 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
     return result(s, events, true);
   },
 
+  publicSummary: (s) => {
+    const top = Math.max(...s.pl.map((p) => p.vp));
+    return {
+      seats: s.pl.map((p, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: p.vp },
+        stats: [
+          { key: 'c', label: 'اعتبار', value: p.c, icon: 'coins' },
+          { key: 'o', label: 'سنگ', value: p.o, icon: 'gem' },
+          { key: 'k', label: 'دانش', value: p.k, icon: 'star' }
+        ],
+        ...(s.outcome ? (s.outcome.placements.some((x) => x.seat === seat && x.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] ? { status: 'out' as const } : p.passed ? { status: 'passed' as const } : {}),
+        strikes: p.timeouts
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round, max: ROUNDS }],
+      strikesMax: MAX_TIMEOUTS,
+      ...(s.pl.filter((p) => p.vp === top).length === 1 && top > 0 ? { leaderSeat: s.pl.findIndex((p) => p.vp === top) } : {})
+    };
+  },
+
   pendingSeats,
 
   tutorial: {

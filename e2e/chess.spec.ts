@@ -20,7 +20,7 @@ test("two players play Fool's Mate to the result; Black sees the board from Blac
   const vp = info.project.use.viewport ?? null;
   const [white, black] = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار')];
   await white.goto('/games/chess/new');
-  await white.getByText('زنده', { exact: true }).click();
+  await white.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await white.getByRole('group', { name: 'مهره سفید' }).getByText('میزبان سفید باشد').click();
   await white.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await white.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');

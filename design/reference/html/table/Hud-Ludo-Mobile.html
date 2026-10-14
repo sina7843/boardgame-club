@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>منچ، مسابقه، موبایل</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.th-stage{position:relative;flex:1;min-block-size:0}
+.th-stage>img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:contain}
+.th .bgv-pcard--mini{padding:10px 12px}
+.th .bgv-pcard--mini .bgv-pcard__stats{gap:6px!important;flex-wrap:nowrap}
+.th .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.th .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.th .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.th .bgv-pcard__top>.bgv-avatar{margin:4px}
+.th .bgv-felt-plate{padding:8px 12px}
+.th .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.th .bgv-turn__who{min-inline-size:0;overflow:hidden;text-overflow:ellipsis}
+.th-img{display:block;max-inline-size:100%;block-size:auto;object-fit:contain;margin-inline:auto}
+.th-row{display:flex;align-items:center;gap:10px;min-inline-size:0}
+.th-row>img{display:block;block-size:var(--h,48px);inline-size:auto;max-inline-size:62%;object-fit:contain;margin-inline-start:auto;flex:none}
+.th-who{display:grid;gap:2px;min-inline-size:0;line-height:1.35}
+.th-who b{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap;flex:none}
+.th-who small{font-size:12px;color:var(--felt-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-fpc{padding:8px 12px;gap:6px}
+.th-hand{display:block;margin-inline:auto;max-inline-size:100%;object-fit:contain}
+.th-tray{gap:8px;flex:none}
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+/* qa1: turn pill + plate share one felt row without clipping «نوبت …» or wrapping the plate */
+.th .bgv-felt-row>.bgv-turn{flex:none;gap:8px;padding-inline:6px 12px}
+.th .bgv-felt-row>.bgv-felt-plate{white-space:nowrap;padding-inline:10px;min-inline-size:0}
+</style>
+
+<div class="bgv th" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">منچ<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Ludo</span></span><span class="bgv-gamebar__meta">زنده<span class="bgv-sep"></span>۳۰ ثانیه هر نوبت</span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان"><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you is-turn" style="--clock-c:var(--clock-calm);">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1"></i><span class="bgv-sr">مینا</span></b><small>مهرهٔ قرمز</small></div><div class="bgv-pcard__score">۰<small>از ۴ در خانه</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="نیلوفر، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-2">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>مهرهٔ سبز</small></div><div class="bgv-pcard__score">۰<small>از ۴ در خانه</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="آرش، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-3">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3"></i>آرش</b><small>مهرهٔ زرد</small></div><div class="bgv-pcard__score">۰<small>از ۴ در خانه</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="سارا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-4">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4"></i>سارا</b><small>مهرهٔ آبی</small></div><div class="bgv-pcard__score">۰<small>از ۴ در خانه</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div></section>
+<main class="bgv-felt th-felt" style="padding:12px;gap:8px" aria-label="میز منچ">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-1 is-you">م</span>نوبت شما</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.7;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۱</span></span></span><span class="bgv-felt-plate th-tray" aria-label="جای تاس"><img src="../assets/games/tablehud-ludo-die.webp" alt="تاس خود بازی" width="71" height="67" style="block-size:36px;inline-size:auto"><span style="font-size:12px;color:var(--felt-muted);line-height:1.35;white-space:nowrap">جای تاس</span></span></div>
+ <div class="th-stage" style="--ar:728/728;"><img src="../assets/games/tablehud-ludo-board.webp" alt="صفحهٔ منچ از خود بازی؛ مهره‌های شما قرمز" width="364" height="364"></div>
+ <span class="bgv-felt-plate" style="align-self:center"><i class="bgv-seat seat-4"></i><span><b>سارا</b> ۳ آورد و حرکتی نداشت</span></span>
+</main>
+<section class="bgv-actiondock" aria-label="دست و کنش‌های شما"><div class="bgv-actiondock__prompt"><span style="min-inline-size:0">نوبت شماست: تاس بریزید</span><span class="bgv-spacer"></span><span class="bgv-clock" data-state="calm" style="--p:0.7;"><span class="bgv-clock__ring"></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۲۱</span><span class="bgv-clock__sub">زمان شما</span></span></span></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg>تاس بریز</button></div></section>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

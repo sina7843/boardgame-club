@@ -1,16 +1,17 @@
 // Cosmetics ownership: free items, items bought with coins (user_cosmetics), and items earned through level,
 // achievements or a league placement (checked live, so they unlock the moment the progress exists).
-import { and, eq } from 'drizzle-orm';
-import { AppError, COSMETICS, cosmetic, leagueSchema, type CosmeticItem } from '@bg/contracts';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { AppError, COSMETICS, cosmetic, kindOfKey, leagueSchema, type CosmeticItem, type EquippedCosmetics, type ItemKind } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
+import { isPremium } from './billing.ts';
 import { coinBalance, lockCoins } from './coins.ts';
 import { levelFor, totalXp } from './progression.ts';
 import type { Tx } from './runtime.ts';
 
-const { coinLedger, userCosmetics, userAchievements, achievementDefinitions, leaguePlacements } = schema;
+const { users, coinLedger, userCosmetics, userAchievements, achievementDefinitions, leaguePlacements } = schema;
 const LEAGUES = leagueSchema.options;
 
-export interface Progress { level: number; achievements: Set<string>; bestLeague: number; owned: Set<string> }
+export interface Progress { level: number; achievements: Set<string>; bestLeague: number; owned: Set<string>; premium: boolean }
 
 export async function cosmeticProgress(db: Db | Tx, userId: string): Promise<Progress> {
   const [owned, ach, leagues] = await Promise.all([
@@ -23,7 +24,8 @@ export async function cosmeticProgress(db: Db | Tx, userId: string): Promise<Pro
     level: levelFor(await totalXp(db, userId)).level,
     achievements: new Set(ach.map((a) => a.k)),
     bestLeague: Math.max(-1, ...leagues.map((l) => LEAGUES.indexOf(l.l as never))),
-    owned: new Set(owned.map((o) => o.k))
+    owned: new Set(owned.map((o) => o.k)),
+    premium: await isPremium(db, userId)
   };
 }
 
@@ -33,6 +35,7 @@ export function isUnlocked(item: CosmeticItem, p: Progress): boolean {
   if ('coins' in u) return p.owned.has(item.key);
   if ('level' in u) return p.level >= u.level;
   if ('achievement' in u) return p.achievements.has(u.achievement);
+  if ('premium' in u) return p.premium;
   return p.bestLeague >= LEAGUES.indexOf(u.league);
 }
 
@@ -71,4 +74,40 @@ export async function buyCosmetic(db: Db, userId: string, key: string, requestId
     }
     return { balance: await coinBalance(tx, userId) };
   });
+}
+
+export async function equippedFor(db: Db | Tx, userId: string): Promise<EquippedCosmetics> {
+  const [u] = await db.select({ e: users.equipped }).from(users).where(eq(users.id, userId));
+  return u?.e ?? {};
+}
+
+/** Equip (or clear with null) one table cosmetic. The key must belong to `kind` and be unlocked right now. */
+export async function equipCosmetic(db: Db, userId: string, kind: ItemKind, key: string | null): Promise<EquippedCosmetics> {
+  if (key !== null) {
+    if (kindOfKey(key) !== kind || !cosmetic(key)) throw new AppError('VALIDATION_FAILED');
+    await assertUnlocked(db, userId, [key]);
+  }
+  // One atomic jsonb update so two kinds equipped at once cannot overwrite each other.
+  const patch = key === null ? sql`${users.equipped} - ${kind}::text` : sql`${users.equipped} || ${JSON.stringify({ [kind]: key })}::jsonb`;
+  const [row] = await db.update(users).set({ equipped: patch }).where(eq(users.id, userId)).returning({ e: users.equipped });
+  return row?.e ?? {};
+}
+
+/** Equipped keys the table shows next to a seat (only the three kinds other players see). */
+/** Table-visible equipped items (seat ring, chat bubble, emote) from a user's `equipped` column; undefined when none. */
+export function seatCosmeticsOf(e: { seatRing?: string | null; chatBubble?: string | null; emote?: string | null } | null | undefined) {
+  if (!e) return undefined;
+  const c = { ...(e.seatRing && { seatRing: e.seatRing }), ...(e.chatBubble && { chatBubble: e.chatBubble }), ...(e.emote && { emote: e.emote }) };
+  return Object.keys(c).length ? c : undefined;
+}
+
+export async function seatCosmeticsFor(db: Db | Tx, userIds: string[]): Promise<Map<string, { seatRing?: string; chatBubble?: string; emote?: string }>> {
+  const out = new Map<string, { seatRing?: string; chatBubble?: string; emote?: string }>();
+  if (!userIds.length) return out;
+  const rows = await db.select({ id: users.id, e: users.equipped }).from(users).where(inArray(users.id, userIds));
+  for (const r of rows) {
+    const c = seatCosmeticsOf(r.e);
+    if (c) out.set(r.id, c);
+  }
+  return out;
 }

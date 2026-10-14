@@ -505,3 +505,16 @@ describe('brass tutorial', () => {
 });
 
 function currentSeatOf(snap: EngineSnapshot) { const s = st(snap); return s.order[s.turn]; }
+
+describe('brass publicSummary', () => {
+  it('vp, money, income, hand count; no card ids', () => {
+    const snap = game(3);
+    const s = st(snap);
+    const sum = brassModule.publicSummary!(s);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[1]!.stats![0]!.value).toBe(s.money[1]);
+    expect(sum.seats[1]!.stats![2]!.value).toBe(s.hands[1]!.length);
+    expect(sum.shared![2]!.value).toBe(s.deck.length);
+    expect(JSON.stringify(sum)).not.toContain('"hands"');
+  });
+});

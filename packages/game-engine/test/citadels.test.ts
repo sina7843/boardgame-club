@@ -135,3 +135,15 @@ describe('citadels rules', () => {
     }
   }, 120_000);
 });
+
+describe('citadels publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game(4);
+    const sum = citadelsModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2, 3]);
+    expect(sum.seats.every((x) => x.primary!.value === 0 && x.stats!.find((y) => y['key'] === 'hand')!.value === st(snap).hands[x.seat]!.length)).toBe(true);
+    expect(sum.seats.filter((x) => x.badges!.some((b) => b['key'] === 'crown'))).toHaveLength(1);
+    expect(sum.shared!.find((x) => x['key'] === 'deck')!.value).toBe(st(snap).deck.length);
+    expect(JSON.stringify(sum)).not.toMatch(/آدم‌کش|دزد|شعبده|اسقف|بازرگان|معمار|سردار/);
+  });
+});

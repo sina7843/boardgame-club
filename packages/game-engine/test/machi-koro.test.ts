@@ -128,3 +128,15 @@ describe('machi koro rules', () => {
     }
   }, 120_000);
 });
+
+describe('machi-koro publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = machiModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0, 0]);
+    expect(sum.seats[0]!.primary!.target).toBe(4);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(state.coins[0]);
+  });
+});

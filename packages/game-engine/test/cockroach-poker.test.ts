@@ -120,3 +120,14 @@ describe('cockroach poker rules', () => {
     }
   }, 120_000);
 });
+
+describe('cockroach-poker publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game(3);
+    const sum = cockroachModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.reduce((n, x) => n + x.primary!.value, 0)).toBe(64);
+    expect(sum.seats.every((x) => x.stats![0]!.value === 0)).toBe(true);
+    expect(JSON.stringify(sum)).not.toMatch(/cockroach|bat|fly|toad|rat|scorpion|spider|stinkbug/);
+  });
+});

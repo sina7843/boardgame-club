@@ -141,3 +141,13 @@ describe('bohnanza rules', () => {
     }
   }, 120_000);
 });
+
+describe('bohnanza publicSummary', () => {
+  it('coins and card counts, no card identities', () => {
+    const snap = game(3);
+    const sum = beanModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.stats![0]!.value)).toEqual(st(snap).hands.map((h) => h.length));
+    expect(sum.seats[0]!.primary).toEqual({ label: 'سکه', value: 0 });
+    expect(JSON.stringify(sum)).not.toMatch(/coffee|wax|blue|chili|stink|soy|garden/);
+  });
+});

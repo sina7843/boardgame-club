@@ -2,11 +2,11 @@ import type { Server as HttpServer } from 'node:http';
 import type { FastifyBaseLogger } from 'fastify';
 import { eq, sql } from 'drizzle-orm';
 import { Server, type DefaultEventsMap, type Socket } from 'socket.io';
-import { AppError, ClientEvents, commandEnvelope, ERRORS, ServerEvents, tableSubscribePayload, typingPayload, type ReadEvent, type TypingEvent } from '@bg/contracts';
+import { AppError, ClientEvents, commandEnvelope, ERRORS, ServerEvents, tableSubscribePayload, typingPayload, type ReadEvent, type TurnAutoMovedEvent, type TypingEvent } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { GameRegistry } from '@bg/game-engine';
-import { buildTableSnapshot, executeCommand, loadTableContext, tableContextAt, toNotificationItem, type TableContext } from '@bg/play';
-import { conversationMembersOf, messageItemById } from '../modules/social/chat.ts';
+import { buildTableSnapshot, executeCommand, loadTableContext, tableContextAt, toNotificationItem, turnStartedEvent, type TableContext } from '@bg/play';
+import { conversationMembersOf, messageItemById, reactionRows, reactionsFor } from '../modules/social/chat.ts';
 import { profiles } from '../modules/social/relations.ts';
 import type { Config } from '../config.ts';
 import { isAllowedOrigin } from '../http/origin-guard.ts';
@@ -163,7 +163,14 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
           return undefined;
         });
         await Promise.all(sockets.map((s) => pushSnapshot(s, tableId, ctx)));
+        // A move (revision present) that left a clock running starts the next turn; warning/critical are derived by clients.
+        const started = rev && ctx ? turnStartedEvent(registry, ctx, Number(rev)) : null;
+        if (started) io.to(`table:${tableId}`).emit(ServerEvents.turnStarted, started);
       })();
+    });
+    await listenClient.listen('table_clock', (payload) => {
+      const e = JSON.parse(payload) as TurnAutoMovedEvent;
+      io.to(`table:${e.tableId}`).emit(ServerEvents.turnAutoMoved, e);
     });
     // Chat: pushed to each authorized member's own room (members are computed now, so leaving a club/table or
     // being blocked takes effect immediately; nobody can subscribe to a conversation room directly).
@@ -172,8 +179,18 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         const found = await messageItemById(db, id);
         if (!found) return;
         const muters = (await db.select({ id: schema.userMutes.muterId }).from(schema.userMutes).where(eq(schema.userMutes.mutedId, found.item.sender.id))).map((m) => m.id);
-        for (const userId of await conversationMembersOf(db, found.conversation)) {
-          if (!muters.includes(userId)) io.to(`user:${userId}`).emit(ServerEvents.messageCreated, found.item);
+        // Reactions are viewer-specific (`mine`), so each recipient gets their own copy.
+        const reacts = await reactionRows(db, [id]);
+        const to = new Set(await conversationMembersOf(db, found.conversation));
+        // Table chat is also delivered to spectators who subscribed to the table (room membership was authorized by the snapshot check).
+        if (found.conversation.kind === 'table') {
+          for (const sid of io.sockets.adapter.rooms.get(`table:${found.conversation.scopeId}`) ?? []) {
+            const u = io.sockets.sockets.get(sid)?.data.auth?.userId as string | undefined;
+            if (u) to.add(u);
+          }
+        }
+        for (const userId of to) {
+          if (!muters.includes(userId)) io.to(`user:${userId}`).emit(ServerEvents.messageCreated, { ...found.item, reactions: reactionsFor(reacts, id, userId) });
         }
       })();
     });

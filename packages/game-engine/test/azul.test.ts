@@ -118,3 +118,14 @@ describe('azul rules', () => {
     }
   }, 120_000);
 });
+
+describe('azul publicSummary', () => {
+  it('score, wall tiles, bag size', () => {
+    const snap = game(3);
+    const sum = azulModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0 });
+    expect(sum.shared![1]!.value).toBe(st(snap).bag.length);
+    expect(sum.leaderSeat).toBeUndefined();
+  });
+});

@@ -14,7 +14,7 @@ test('site pages from the footer, terms accepted at sign-up, account deleted fro
 
   await page.goto('/settings');
   await page.getByRole('button', { name: 'حذف حساب' }).click();
-  const dialog = page.getByRole('dialog', { name: 'حذف همیشگی حساب' });
+  const dialog = page.getByRole('alertdialog', { name: 'حذف همیشگی حساب' });
   await expect(dialog.getByRole('button', { name: 'حذف همیشگی' })).toBeDisabled();
   await dialog.getByLabel('برای تأیید، کلمهٔ «حذف» را بنویسید').fill('حذف');
   await dialog.getByRole('button', { name: 'حذف همیشگی' }).click();

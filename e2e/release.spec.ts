@@ -12,7 +12,7 @@ const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-onl
 const shot = (project: string, name: string) => `${DIR}/screenshots/${project}-${name}.png`;
 
 async function audit(page: Page, name: string, project: string, found: object[]) {
-  await expect(page.locator('main h1, main .state__title').first()).toBeVisible();
+  await expect(page.locator('main h1, main [role=status] h3').first()).toBeVisible();
   // Bounded: a realtime socket can keep the network from ever going idle.
   await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -126,7 +126,7 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   const a = await player(browser, vp, 'Host');
   const b = await player(browser, vp, 'مهمان');
   await a.goto('/games/line-three/new');
-  await a.getByText('نوبتی', { exact: true }).click();
+  await a.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'نوبتی', exact: true }).click();
   await a.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await b.goto(invite);
@@ -134,17 +134,17 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   await a.getByRole('button', { name: 'آماده‌ام' }).click();
   await expect(a.locator('.lt__board')).toBeVisible();
   // Whoever must wait leaves the table; after the other moves, the dashboard lists the table under «نوبت من».
-  const turnOf = async () => (await a.getByText('نوبت شماست').isVisible()) ? 'a' : (await b.getByText('نوبت شماست').isVisible()) ? 'b' : null;
+  const turnOf = async () => (await a.getByText('نوبت شماست').first().isVisible()) ? 'a' : (await b.getByText('نوبت شماست').first().isVisible()) ? 'b' : null;
   await expect.poll(turnOf).not.toBeNull();
   const [mover, waiter] = (await turnOf()) === 'a' ? [a, b] : [b, a];
   await waiter.goto('/');
   await expect(mover.locator('.lt__cell').nth(4)).not.toHaveAttribute('aria-disabled', 'true');
   await mover.locator('.lt__cell').nth(4).click();
-  const panel = waiter.locator('section[aria-labelledby="my-turn-h"]');
+  const panel = waiter.locator('section[aria-labelledby="my-turn-h"] ul'); // the table rows (the header also links to all tables)
   await expect(panel.getByRole('link').first()).toBeVisible({ timeout: 15_000 });
   await waiter.screenshot({ path: shot(info.project.name, 'my-turn-dashboard'), fullPage: true });
   await panel.getByRole('link').first().click();
-  await expect(waiter.getByText('نوبت شماست')).toBeVisible();
+  await expect(waiter.getByText('نوبت شماست').first()).toBeVisible();
   await expect(waiter.locator('.lt__cell').nth(0)).not.toHaveAttribute('aria-disabled', 'true');
   await waiter.locator('.lt__cell').nth(0).click();
   await expect(mover.locator('.lt__cell').nth(0)).not.toHaveText('');
@@ -166,10 +166,10 @@ test('admin chooses a game\'s modes and rule variants; players only see what is 
     await panel.getByRole('group', { name: 'حالت بازی' }).getByText('زنده').click();
     const variant = panel.getByRole('region', { name: 'شروع‌کننده' });
     await variant.getByRole('group', { name: 'گزینه‌های مجاز' }).getByText('تصادفی').click();
-    await variant.getByLabel('میزبان می‌تواند انتخاب کند').click();
-    await panel.getByLabel('علت تغییر (در سابقه ثبت می‌شود)').fill('آزمون مرورگر تنظیمات');
+    await variant.getByRole('switch', { name: /میزبان می‌تواند انتخاب کند/ }).click();
+    await admin.getByLabel('علت تغییر (در سابقه ثبت می‌شود)').fill('آزمون مرورگر تنظیمات');
     await panel.screenshot({ path: shot(info.project.name, 'admin-game-settings') });
-    await panel.getByRole('button', { name: 'ذخیره تنظیمات' }).click();
+    await admin.getByRole('button', { name: 'ذخیره تنظیمات' }).click();
     await expect(admin.getByText('تنظیمات بازی ذخیره شد')).toBeVisible();
 
     const player = await newPage(browser, vp);
@@ -181,7 +181,7 @@ test('admin chooses a game\'s modes and rule variants; players only see what is 
     await player.screenshot({ path: shot(info.project.name, 'create-table-restricted'), fullPage: true });
     await player.context().close();
   } finally {
-    await admin.request.put('/api/admin/games/line-three/settings', { data: { ...original, reason: 'بازگرداندن پس از آزمون' }, headers: { origin: 'http://127.0.0.1:5173' } });
+    await admin.request.put('/api/admin/games/line-three/settings', { data: { ...original, reason: 'بازگرداندن پس از آزمون' }, headers: { origin: new URL(admin.url()).origin } });
     await admin.context().close();
   }
 });

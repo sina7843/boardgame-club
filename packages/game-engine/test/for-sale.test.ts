@@ -114,3 +114,14 @@ describe('for sale rules', () => {
     }
   }, 120_000);
 });
+
+describe('for sale publicSummary', () => {
+  it('one entry per seat, public counts only', () => {
+    const snap = game(3);
+    const sum = forSaleModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'سکه', value: 18 });
+    expect(sum.shared![0]!.value).toBe(st(snap).props.length);
+    expect(JSON.stringify(sum)).not.toContain(JSON.stringify(st(snap).props));
+  });
+});

@@ -145,3 +145,12 @@ describe('checkers rules', () => {
     }
   }, 120_000);
 });
+
+describe('checkers publicSummary', () => {
+  it('pieces and kings per seat', () => {
+    const sum = checkersModule.publicSummary!(st(game()));
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([12, 12]);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(0);
+    expect(sum.strikesMax).toBe(1);
+  });
+});

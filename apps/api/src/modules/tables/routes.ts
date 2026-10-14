@@ -4,13 +4,13 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
   AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, liveTableItem, myTableItem, notificationItem, openTableItem,
-  receiptLookup, tableSnapshot, tutorialProgressItem
+  receiptLookup, rematchBody, tableSnapshot, tutorialProgressItem
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
   buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
-  skipTutorial, startTutorial, tableContextAt
+  skipTutorial, startTutorial, tableContextAt, voteRematch
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -90,6 +90,15 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   }, async (req) => {
     const { userId } = requireUser(req);
     await setReady(db, registry, userId, req.params.id, req.body.ready);
+    return snapshot(req.params.id, userId);
+  });
+
+  r.post('/tables/:id/rematch', {
+    schema: { tags: ['tables'], summary: 'Vote for a rematch on a finished table; all humans «yes» within 30 s opens the same table again',
+      params: idParams, body: rematchBody, response: { 200: tableSnapshot, ...errors } }
+  }, async (req) => {
+    const { userId } = requireUser(req);
+    await voteRematch(db, registry, play, userId, req.params.id, req.body.vote);
     return snapshot(req.params.id, userId);
   });
 

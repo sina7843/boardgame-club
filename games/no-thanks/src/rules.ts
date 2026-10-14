@@ -180,6 +180,15 @@ export const noThanksModule: GameModule<NoThanksState, NoThanksAction, NoThanksV
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => ({
+    seats: s.cards.map((cs, seat) => ({
+      seat,
+      primary: { label: 'کارت', value: cs.length },
+      ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] ? { status: 'out' as const } : {})
+    })),
+    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'pot', label: 'سکه وسط', value: s.pot }]
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

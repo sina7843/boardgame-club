@@ -256,3 +256,16 @@ describe('yahtzee renderer styles', () => {
     expect(css).toMatch(/thead th:first-child \{[^}]*position: sticky/); // regression: header corner stays with the row labels
   });
 });
+
+describe('yahtzee publicSummary', () => {
+  it('one entry per seat with score and filled boxes', () => {
+    const { snap, seat } = withDice([6, 6, 6, 6, 6], {});
+    const s0 = yahtzeeModule.publicSummary!(st(snap));
+    expect(s0.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(s0.seats[seat]!.primary).toEqual({ label: 'امتیاز', value: 0 });
+    const after = yahtzeeModule.publicSummary!(st(act(snap, seat, { type: 'score', cat: 'yahtzee' })));
+    expect(after.seats[seat]!.primary!.value).toBe(50);
+    expect(after.seats[seat]!.stats![0]!.value).toBe(1);
+    expect(after.leaderSeat).toBe(seat);
+  });
+});

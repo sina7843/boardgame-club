@@ -366,3 +366,14 @@ describe('cryptid audit regressions', () => {
     check(steps[2]!.instructionFa, (steps[1]!.reply as { cell: number }).cell); // the tutor's question is described in step 3
   });
 });
+
+describe('cryptid publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game(3);
+    const sum = cryptidModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.every((x) => x.primary!.value === 0 && x.strikes === 0)).toBe(true);
+    expect(sum.strikesMax).toBe(2);
+    expect(JSON.stringify(sum)).not.toMatch(/forest|desert|swamp|mountain|water|answer|clue/);
+  });
+});

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ورود، دسکتاپ</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.x-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-h3{font-size:17px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-cap{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.x-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.x-between>*{min-width:0}
+.x-stack{display:grid;gap:16px;min-width:0}
+.x-sec{padding:0;display:grid;overflow:hidden}
+.x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-sec__head>h2{flex:1;min-width:0}
+.x-sec__body{padding:20px;display:grid;gap:16px}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-row:last-child{border-bottom:0}
+.x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
+.x-row__text b{font-size:15px;color:var(--text)}
+.x-row__text span{font-size:13px;color:var(--text-muted)}
+.x-row--stack{display:grid;gap:10px}
+.x-li{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:60px;border-bottom:1px solid var(--line)}
+.x-li:last-child{border-bottom:0}
+.x-li__main{flex:1;min-width:0;display:grid;line-height:1.45}
+.x-li__main>b{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__main>span{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__acts{display:flex;align-items:center;gap:6px;flex:none}
+.bgv-btn .bgv-coin{font-weight:900}
+.bgv-switch{gap:10px;flex:none}
+.bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
+.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
+.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
+.bgv-switch__track::before{border-color:var(--success)}
+.x-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:0;list-style:none;font-size:13px;line-height:1;flex-wrap:wrap}
+.x-steps li{display:flex;align-items:center;gap:8px;color:var(--text-muted);white-space:nowrap}
+.x-steps b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.x-steps .is-done b{background:var(--primary);color:var(--on-primary);box-shadow:none}
+.x-steps .is-cur{color:var(--text);font-weight:700}
+.x-steps .is-cur b{background:var(--surface);color:var(--heading);box-shadow:0 0 0 2px var(--primary)}
+.x-steps .x-bar{width:20px;height:2px;border-radius:2px;background:var(--line)}
+.x-steps .x-bar.is-done{background:var(--primary)}
+.bgv-tel{min-height:52px}
+.bgv-tel>input{font-size:20px;font-weight:700;color:var(--text);min-width:0}
+.bgv-tel>span{gap:6px;display:flex;align-items:center}
+.x-legal{font-size:12.5px;line-height:1.7;color:var(--text-muted);text-align:center;text-wrap:pretty}
+.x-fan{position:relative;--fw:150px}
+.x-fan img{position:absolute;left:50%;top:50%;width:var(--fw);height:calc(var(--fw) * .5625);object-fit:cover;border-radius:var(--radius-md);border:3px solid var(--felt-ink);box-shadow:var(--shadow-piece)}
+.x-login{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;padding:16px;min-height:900px}
+.x-login__form{display:flex;flex-direction:column;align-items:center;gap:32px;padding:24px 24px 16px;min-width:0}
+.x-login__card{width:min(440px,100%);padding:32px;display:grid;gap:22px;box-shadow:var(--shadow-float)}
+.x-login__hero{padding:48px;gap:0;overflow:hidden;min-width:0}
+.x-login__lede{text-wrap:pretty;max-width:none}
+.x-login__hero .x-fan{flex:1;min-height:260px;--fw:232px}
+.x-login__links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;font-size:13px}
+.x-login__links a{color:var(--text-muted)}
+@media (max-width:1199px){.x-login__hero{padding:32px}.x-login__hero .x-fan{--fw:180px}}
+@media (max-width:899px){.x-login{grid-template-columns:minmax(0,1fr);min-height:0;padding:12px;gap:12px}
+ .x-login__hero{order:-1;padding:20px 20px 16px}.x-login__hero .x-fan{min-height:150px;--fw:128px}
+ .x-login__hero .bgv-turn{display:none}.x-login__form{padding:4px 0 16px;gap:20px}.x-login__card{padding:24px 20px}
+ .x-login__hero h2{font-size:24px}}
+</style>
+
+<div class="bgv x-login" data-theme="light" dir="rtl">
+ <section class="x-login__form">
+  <span class="bgv-spacer"></span>
+  <div class="bgv-card x-login__card">
+   <ol class="x-steps" aria-label="مراحل ورود"><li class="is-cur" aria-current="step"><b>۱</b>شماره</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۲</b>کد تأیید</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۳</b>پروفایل</li></ol>
+   <div style="display:grid;gap:4px;text-align:center"><h1 class="t-page" style="color:var(--heading)">ورود یا ثبت‌نام</h1>
+    <p class="t-body-sm bgv-muted" style="text-wrap:balance">با شماره موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p></div>
+   <div class="bgv-field"><label class="bgv-label" for="mob">شماره موبایل</label>
+    <div class="bgv-tel" dir="ltr"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></svg>+98</span><input id="mob" inputmode="tel" autocomplete="tel" placeholder="912 345 6789" value="912 480 3215" aria-describedby="mob-h"></div>
+    <span class="bgv-hint" id="mob-h">شماره شما در پروفایل عمومی نمایش داده نمی‌شود.</span></div>
+   <button class="bgv-btn bgv-btn--primary bgv-btn--lg bgv-btn--block">دریافت کد</button>
+   <p class="bgv-hint" style="justify-content:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true" style="margin-top:3px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
+   <p class="x-legal">ورود یا ثبت‌نام به معنی پذیرش <a href="#">قوانین و مقررات</a> و <a href="#">حریم خصوصی</a> است.</p>
+  </div>
+  <span class="bgv-spacer"></span>
+  <nav class="x-login__links" aria-label="پیوندهای سایت"><a href="#">درباره ما</a><a href="#">قوانین و مقررات</a><a href="#">حریم خصوصی</a><a href="#">قوانین خرید و بازگشت وجه</a><a href="#">تماس با ما</a></nav>
+ </section>
+ <section class="bgv-felt x-login__hero">
+  <img src="../assets/logo-fa-reversed.svg" alt="بردگیم‌ورس" style="height:48px;width:auto;align-self:flex-start">
+  <div style="margin-top:36px;display:grid;gap:10px">
+   <h2 class="t-h2" style="color:var(--felt-ink)">سر میز، با همه.</h2>
+   <p class="t-body x-login__lede" style="color:var(--felt-muted)">۶۷ بازی رومیزی، زنده یا نوبتی؛ با دوستان، باشگاه‌ها یا حریف‌های تازه، هر جا که هستید.</p></div>
+  <div class="x-fan" aria-hidden="true" style=""><img src="../assets/covers/terraforming-mars.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.83),calc(-50% + 15px)) rotate(-10.0deg)"><img src="../assets/covers/catan.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.28),calc(-50% + 5px)) rotate(-3.3deg)"><img src="../assets/covers/azul.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.28),calc(-50% + 5px)) rotate(3.3deg)"><img src="../assets/covers/hanabi.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.83),calc(-50% + 15px)) rotate(10.0deg)"></div>
+  <div style="display:flex;justify-content:center;padding:8px 0 20px"><span class="bgv-turn bgv-turn--mine"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs is-you">م</span>نوبت شما در کاتان</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:.75"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۱۸ ساعت</span></span></span></div>
+  <div class="bgv-felt-row" style="justify-content:flex-start;gap:8px">
+   <span class="bgv-felt-plate"><strong>۶۷</strong>بازی</span>
+   <span class="bgv-felt-plate"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>زنده و نوبتی</span>
+   <span class="bgv-felt-plate"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg>ربات در ۳ سطح</span>
+   <span class="bgv-felt-plate"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>لیگ از برنز تا استاد</span></div>
+ </section>
+</div>
+</x-dc>
+
+</body>
+</html>

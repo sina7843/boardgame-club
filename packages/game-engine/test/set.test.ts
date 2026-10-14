@@ -267,3 +267,18 @@ describe('set rules', () => {
     expect(s.outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 3 }, { seat: 1, place: 2, score: 0 }] });
   });
 });
+
+describe('set publicSummary', () => {
+  it('score = sets minus misses, deck count, resigned seat is out', () => {
+    let snap = game(3, 4);
+    const sum = setModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.shared![0]!.value).toBe(69);
+    snap = act(snap, 1, claim(notSet(st(snap).table)));
+    const s2 = setModule.publicSummary!(st(snap));
+    expect(s2.seats[1]!.primary!.value).toBe(-1);
+    expect(s2.seats[1]!.stats![1]!.value).toBe(1);
+    snap = act(snap, 2, { type: 'resign' });
+    expect(setModule.publicSummary!(st(snap)).seats[2]!.status).toBe('out');
+  });
+});

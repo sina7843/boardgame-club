@@ -1,9 +1,10 @@
 import { useId, useState } from 'react';
 import { QUICK_CHAT } from '@bg/contracts';
-import { Button, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Button } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 
-/** One-tap preset phrases and emoji. The server stores the fixed text; the message arrives back over the socket. */
+/** One-tap preset phrases and emoji (DS quick-chat tray). The server stores the fixed text; the message arrives back over the socket. */
 export function QuickChatChips({ post, only, onSent }: { post: string; only?: readonly string[]; onSent?: () => void }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
@@ -17,9 +18,9 @@ export function QuickChatChips({ post, only, onSent }: { post: string; only?: re
     } finally { setBusy(false); }
   };
   return (
-    <div className="quickchat" role="group" aria-label="پیام‌های آماده">
+    <div className="bgv-quicktray quickchat" role="group" aria-label="پیام‌های آماده">
       {QUICK_CHAT.filter((q) => !only || only.includes(q.id)).map((q) => (
-        <button key={q.id} type="button" className="quickchat__chip" disabled={busy} onClick={() => void send(q.id)}>{q.text}</button>
+        <button key={q.id} type="button" className="bgv-chip" disabled={busy} onClick={() => void send(q.id)}>{q.text}</button>
       ))}
     </div>
   );
@@ -31,10 +32,8 @@ export function QuickChatButton({ post }: { post: string }) {
   const close = () => (document.getElementById(id) as HTMLElement & { hidePopover?: () => void } | null)?.hidePopover?.();
   return (
     <>
-      <Button variant="secondary" size="sm" className="gamebar__quick" popoverTarget={id} aria-label="پیام آماده" title="پیام آماده">
-        <span aria-hidden>😀</span>
-      </Button>
-      <div id={id} popover="auto" className="quickchat-pop" aria-label="پیام‌های آماده">
+      <Button variant="ghost" iconOnly icon="smile" popoverTarget={id}>پیام آماده</Button>
+      <div id={id} popover="auto" className="chat-pop chat-pop--quick" aria-label="پیام‌های آماده">
         <QuickChatChips post={post} onSent={close} />
       </div>
     </>

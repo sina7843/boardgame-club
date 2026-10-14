@@ -670,6 +670,20 @@ export const heatModule: GameModule<HeatState, HeatAction, HeatView> = {
     return step(s, events);
   },
 
+  publicSummary: (s) => ({
+    seats: s.racers.map((r, seat) => ({
+      seat,
+      primary: { label: 'رتبه', value: (s.order.includes(seat) ? s.order : s.grid).indexOf(seat) + 1 },
+      stats: [
+        { key: 'gear', label: 'دنده', value: r.gear },
+        { key: 'heat', label: 'هیت', value: r.engine.length, icon: 'flame' },
+        ...(s.opts.races > 1 ? [{ key: 'points', label: 'امتیاز', value: r.points, icon: 'trophy' }] : [])
+      ],
+      ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : r.resigned !== null ? { status: 'out' as const } : r.finished || (s.phase === 'plan' && r.plan) ? { status: 'done' as const } : {})
+    })),
+    shared: [{ key: 'round', label: 'دور', value: s.round }, ...(s.opts.races > 1 ? [{ key: 'race', label: 'مسابقه', value: s.race + 1, max: s.tracks.length }] : [])]
+  }),
+
   pendingSeats: pending,
 
   tutorial: {

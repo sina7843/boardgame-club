@@ -192,6 +192,22 @@ export const santoriniModule: GameModule<SantoriniState, SantoriniAction, Santor
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const level = (seat: number) => Math.max(0, ...s.workers[seat as 0 | 1].map((i) => Math.min(3, s.height[i]!)));
+    const lv = [level(0), level(1)];
+    const win = s.outcome?.placements.find((p) => p.place === 1)?.seat;
+    return {
+      seats: [0, 1].map((seat) => ({
+        seat,
+        primary: { label: 'طبقه', value: lv[seat]!, target: 3 },
+        ...(win === seat ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      strikesMax: MAX_TIMEOUTS,
+      ...(lv[0] !== lv[1] ? { leaderSeat: lv[0]! > lv[1]! ? 0 : 1 } : {})
+    };
+  },
+
   tutorial: {
     seed: 9,
     options: { firstMove: 'host', deal: 'tutorial' },

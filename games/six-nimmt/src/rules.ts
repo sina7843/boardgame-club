@@ -216,6 +216,22 @@ export const sixNimmtModule: GameModule<SixNimmtState, SixNimmtAction, SixNimmtV
 
   pendingSeats: (s) => (s.outcome ? [] : s.phase === 'takeRow' ? [s.queue[0]!.seat] : s.chosen.map((c, k) => (c === null ? k : -1)).filter((k) => k >= 0)),
 
+  publicSummary(s) {
+    // Only banked totals: penalties collected during the current round stay hidden until the round ends.
+    const low = Math.min(...s.totals);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.totals.map((total, seat) => ({
+        seat,
+        primary: { label: 'گاو', value: total, target: LIMIT },
+        stats: [{ key: 'hand', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' }],
+        ...(winners.has(seat) ? { status: 'winner' as const } : !s.outcome && s.phase === 'choose' && s.chosen[seat] !== null ? { status: 'done' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دست', value: s.round }],
+      ...(s.totals.filter((v) => v === low).length === 1 && Math.max(...s.totals) > 0 ? { leaderSeat: s.totals.indexOf(low) } : {})
+    };
+  },
+
   tutorial: {
     seed: 14,
     options: { deal: 'tutorial' },

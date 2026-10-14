@@ -15,7 +15,7 @@ const CLAIMS = 3;
 
 async function startTable(host: Page, guests: Page[], mapLabel: string) {
   await host.goto('/games/ticket-to-ride/new');
-  await host.getByText('زنده', { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByText(mapLabel, { exact: true }).click();
   await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
   await host.getByRole('button', { name: 'ساخت میز' }).click();

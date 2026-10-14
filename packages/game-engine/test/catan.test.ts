@@ -478,3 +478,14 @@ describe('catan random play', () => {
     expect(finished).toBe(30);
   }, 120_000);
 });
+
+describe('catan publicSummary', () => {
+  it('public vp, buildings, card counts, strikes, no hand contents', () => {
+    const snap = startGame(m, { playerCount: 3, seed: 1, options: {} }).snapshot;
+    const sum = catanModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0, target: 10 });
+    expect(sum.strikesMax).toBe(3);
+    expect(JSON.stringify(sum)).not.toMatch(/brick|lumber|ore|knight/);
+  });
+});

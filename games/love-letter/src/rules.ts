@@ -297,6 +297,21 @@ export const loveLetterModule: GameModule<LoveLetterState, LoveLetterAction, Lov
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => {
+    const top = Math.max(...s.tokens);
+    const leaders = s.tokens.filter((t) => t === top).length;
+    return {
+      seats: s.tokens.map((tk, seat) => ({
+        seat,
+        primary: { label: 'توکن', value: tk, target: s.goal },
+        badges: s.inRound[seat] && s.protectedSeats[seat] ? [{ key: 'protected', label: 'محافظت‌شده', tone: 'success' as const }] : [],
+        ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] || !s.inRound[seat] ? { status: 'out' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round }],
+      ...(leaders === 1 && top > 0 ? { leaderSeat: s.tokens.indexOf(top) } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

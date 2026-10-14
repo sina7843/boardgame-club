@@ -288,6 +288,22 @@ export const hiveModule: GameModule<HiveState, HiveAction, HiveView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => ({
+    seats: [0, 1].map((seat) => {
+      const c = s.colors[seat]!;
+      return {
+        seat,
+        primary: { label: 'مهره', value: Object.values(s.reserve[c]).reduce((a, n) => a + n, 0) },
+        stats: [{ key: 'placed', label: 'روی میز', value: s.placed[c] }],
+        badges: surrounded(s, c) ? [{ key: 'queen', label: 'ملکه محاصره', tone: 'danger' as const }] : [],
+        ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      };
+    }),
+    shared: [{ key: 'turn', label: 'نوبت', value: s.turnNo }],
+    strikesMax: MAX_TIMEOUTS
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.turn)]),
 
   tutorial: {

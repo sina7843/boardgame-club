@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>دانشنامه</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.x-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-h3{font-size:17px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-cap{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.x-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.x-between>*{min-width:0}
+.x-stack{display:grid;gap:16px;min-width:0}
+.x-sec{padding:0;display:grid;overflow:hidden}
+.x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-sec__head>h2{flex:1;min-width:0}
+.x-sec__body{padding:20px;display:grid;gap:16px}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-row:last-child{border-bottom:0}
+.x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
+.x-row__text b{font-size:15px;color:var(--text)}
+.x-row__text span{font-size:13px;color:var(--text-muted)}
+.x-row--stack{display:grid;gap:10px}
+.x-li{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:60px;border-bottom:1px solid var(--line)}
+.x-li:last-child{border-bottom:0}
+.x-li__main{flex:1;min-width:0;display:grid;line-height:1.45}
+.x-li__main>b{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__main>span{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__acts{display:flex;align-items:center;gap:6px;flex:none}
+.bgv-btn .bgv-coin{font-weight:900}
+.bgv-switch{gap:10px;flex:none}
+.bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
+.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
+.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
+.bgv-switch__track::before{border-color:var(--success)}
+.bgv-app .bgv-sidebar{position:sticky;top:24px}
+@media (max-width:899px){.x-hide-phone{display:none!important}}
+.x-filters{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+@media (max-width:899px){.x-filters{grid-template-columns:1fr 1fr}.x-filters>:first-child{grid-column:1/-1}}
+.x-wiki .bgv-gamecard__body{padding:16px 20px 20px;gap:8px}
+.x-wiki__tag{font-size:14px;line-height:1.7;color:var(--text);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:3.4em}
+.x-wiki .bgv-gamecard__meta{gap:6px 14px}
+@media (max-width:599px){.bgv-pagetabs a,.bgv-pagetabs button{padding-inline:10px}}
+</style>
+
+<div class="bgv bgv-app" data-theme="light" dir="rtl">
+<aside class="bgv-sidebar" aria-label="ناوبری اصلی">
+<div class="bgv-sidebar__brand"><a class="bgv-logo" href="/" aria-label="بردگیم‌ورس"><img class="bgv-logo__full bgv-logo__light" src="../assets/logo-fa-primary.svg" alt="" style="block-size:36px"><img class="bgv-logo__full bgv-logo__dark" src="../assets/logo-fa-reversed.svg" alt="" style="block-size:36px"><img class="bgv-logo__mark bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:36px"><img class="bgv-logo__mark bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:36px"></a><span class="bgv-spacer"></span><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></div>
+<nav><ul style="list-style:none;margin:0;padding:0;display:grid;gap:4px"><li class="bgv-sidebar__group">بازی</li><li><a class="bgv-nav-item" href="/" title="خانه"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg><span class="bgv-nav-item__label">خانه</span></a></li><li><a class="bgv-nav-item is-active" aria-current="page" href="/games" title="بازی‌ها"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg><span class="bgv-nav-item__label">بازی‌ها</span></a></li><li><a class="bgv-nav-item" href="/tables" title="میزها و حریف‌یابی"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg><span class="bgv-nav-item__label">میزها و حریف‌یابی</span><span class="bgv-badge bgv-badge--you bgv-badge--sm bgv-nav-item__badge" aria-label="۳ میز منتظر حرکت شما">۳ نوبت</span></a></li><li class="bgv-sidebar__group">من</li><li><a class="bgv-nav-item" href="/progress" title="پیشرفت و رتبه"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg><span class="bgv-nav-item__label">پیشرفت و رتبه</span></a></li><li><a class="bgv-nav-item" href="/messages" title="پیام‌ها و دوستان"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-nav-item__label">پیام‌ها و دوستان</span><span class="bgv-badge bgv-badge--count bgv-nav-item__badge" aria-label="۴ پیام خوانده‌نشده">۴</span></a></li><li><a class="bgv-nav-item" href="/plans" title="اشتراک و سکه"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></svg><span class="bgv-nav-item__label">اشتراک و سکه</span></a></li><li class="bgv-sidebar__group">کمک</li><li><a class="bgv-nav-item" href="/guides" title="راهنما"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg><span class="bgv-nav-item__label">راهنما</span></a></li><li><a class="bgv-nav-item" href="/support" title="پشتیبانی"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m4.93 4.93 4.24 4.24" /> <path d="m14.83 9.17 4.24-4.24" /> <path d="m14.83 14.83 4.24 4.24" /> <path d="m9.17 14.83-4.24 4.24" /> <circle cx="12" cy="12" r="4" /></svg><span class="bgv-nav-item__label">پشتیبانی</span></a></li><li><a class="bgv-nav-item" href="/settings" title="تنظیمات"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></svg><span class="bgv-nav-item__label">تنظیمات</span></a></li></ul></nav>
+<span class="bgv-spacer"></span>
+<div style="display:grid;gap:12px;padding:14px 8px 4px;border-top:1px solid var(--line)">
+<a href="/me/profile" style="text-decoration:none;color:inherit"><div class="bgv-identity"><span class="bgv-frame bgv-frame--gold bgv-frame--tight"><span class="bgv-avatar">م</span></span><div class="bgv-identity__text bgv-sidebar__text"><span class="bgv-identity__name">مینا<span class="bgv-league bgv-league--gold">طلا</span></span><span class="bgv-identity__sub"><span class="bgv-identity__title">استاد معامله</span><span class="bgv-sep"></span>سطح ۱۸</span></div></div></a>
+<div class="bgv-row bgv-sidebar__text" style="justify-content:space-between;flex-wrap:nowrap"><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه، رفتن به کیف پول"><span class="bgv-coin">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--sm bgv-btn--secondary" href="/coins"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg>خرید سکه</a></div>
+</div></aside>
+<main class="bgv-app__main">
+<header class="bgv-topbar bgv-app__top"><a class="bgv-logo" href="/" aria-label="خانه"><img class="bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:32px"><img class="bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:32px"></a><span class="bgv-topbar__title">بازی‌ها</span><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header>
+<nav class="bgv-pagetabs" aria-label="بخش‌های مرتبط"><a href="#">بازی‌ها</a><a href="#" class="is-active" aria-current="page">دانشنامه</a></nav>
+<div class="bgv-pagehead"><div class="bgv-pagehead__text"><h1 class="bgv-pagehead__title">دانشنامهٔ بازی‌ها</h1><p class="bgv-pagehead__sub">تاریخچه، طراحان، پیچیدگی، امتیاز و سازوکار بازی‌های سایت، برگرفته از <bdi class="bgv-latin">BoardGameGeek</bdi>.</p></div></div>
+<form class="x-filters" role="search" aria-label="جست‌وجو در دانشنامه">
+ <div class="bgv-field"><label class="bgv-label" for="wq">جست‌وجو</label><div class="bgv-affix"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg><input class="bgv-input" id="wq" type="search" placeholder="نام بازی یا طراح"></div></div>
+ <div class="bgv-field"><label class="bgv-label" for="wc">دسته</label><div class="bgv-select-wrap"><select class="bgv-select" id="wc"><option>همه</option></select></div></div><div class="bgv-field"><label class="bgv-label" for="wm">سازوکار</label><div class="bgv-select-wrap"><select class="bgv-select" id="wm"><option>همه</option></select></div></div><div class="bgv-field"><label class="bgv-label" for="ws">مرتب‌سازی</label><div class="bgv-select-wrap"><select class="bgv-select" id="ws"><option>رتبهٔ BGG</option></select></div></div>
+</form>
+<p class="x-cap" role="status"><b style="color:var(--text)">۶۵ بازی</b></p>
+<div class="bgv-grid"><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/brass.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">برس: بیرمنگام</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Brass: Birmingham</bdi><span class="bgv-sep"></span><span>۲۰۱۸ میلادی</span></span>
+  <p class="x-wiki__tag">شبکه بسازید، صنایع را گسترش دهید و در دنیای انقلاب صنعتی راه خود را پیدا کنید.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۸٫۵۶</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۳٫۸۶ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۱</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Gavan Brown</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/ark-nova.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">آرک نووا</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Ark Nova</bdi><span class="bgv-sep"></span><span>۲۰۲۱ میلادی</span></span>
+  <p class="x-wiki__tag">یک باغ‌وحش مدرن و علمی را طراحی و بنا کنید تا از پروژه‌های حفاظت از حیات وحش پشتیبانی کند.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۸٫۵۴</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۳٫۸ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۲</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Mathias Wigge</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/terraforming-mars.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">ترافورمینگ مارس</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Terraforming Mars</bdi><span class="bgv-sep"></span><span>۲۰۱۶ میلادی</span></span>
+  <p class="x-wiki__tag">با مدیران‌عامل رقیب رقابت کنید تا مریخ را قابل سکونت کنید و امپراتوری شرکتی خود را بسازید.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۸٫۳۳</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۳٫۲۷ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۹</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Jacob Fryxelius</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/gaia-project.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">پروژه گایا</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Gaia Project</bdi><span class="bgv-sep"></span><span>۲۰۱۷ میلادی</span></span>
+  <p class="x-wiki__tag">با یکی از ۱۴ گونهٔ بیگانه کهکشان را گسترش دهید، پژوهش کنید، ارتقا دهید و ساکن شوید.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۸٫۳۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۴٫۴ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۱۳</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Jens Drögemüller</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/wonders-duel.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">عجایب هفت‌گانه: دوئل</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">7 Wonders Duel</bdi><span class="bgv-sep"></span><span>۲۰۱۵ میلادی</span></span>
+  <p class="x-wiki__tag">علم یا ارتش؟ در این نسخهٔ رودررو از ۷ عجایب، چه چیزی انتخاب می‌کنید تا پیروز شوید؟</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۸٫۰۷</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۲٫۲۳ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۲۴</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Antoine Bauza</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/azul.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">آزول</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Azul</bdi><span class="bgv-sep"></span><span>۲۰۱۷ میلادی</span></span>
+  <p class="x-wiki__tag">با برداشتن زیباترین کاشی‌ها، دیوارهای کاخ خود را هنرمندانه بیارایید.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۷٫۷۱</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۱٫۷۷ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۹۹</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Michael Kiesling</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/splendor.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">اسپلندور</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Splendor</bdi><span class="bgv-sep"></span><span>۲۰۱۴ میلادی</span></span>
+  <p class="x-wiki__tag">تاجران دورهٔ رنسانس برای به دست آوردن جواهر، تصاحب دارایی و جلب نظر اشراف با هم رقابت می‌کنند.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۷٫۴۲</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۱٫۷۷ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۲۴۴</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Marc André</bdi></span></span>
+ </div></a><a class="bgv-gamecard x-wiki" href="#">
+ <div class="bgv-gamecard__cover"><img src="../assets/covers/catan.webp" alt=""></div>
+ <div class="bgv-gamecard__body">
+  <span class="bgv-gamecard__title">کاتان</span>
+  <span class="bgv-gamecard__meta"><bdi class="bgv-latin" dir="ltr">Catan</bdi><span class="bgv-sep"></span><span>۱۹۹۵ میلادی</span></span>
+  <p class="x-wiki__tag">منابع را جمع و معامله کنید تا جزیرهٔ کاتان را آباد کنید؛ یک کلاسیک مدرن.</p>
+  <span class="bgv-gamecard__meta" style="color:var(--text)"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>۷٫۰۹</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3" /> <path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z" /></svg>پیچیدگی ۲٫۲۸ از ۵</span><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>رتبهٔ ۶۲۵</span></span>
+  <span class="bgv-gamecard__meta"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg><bdi class="bgv-latin">Klaus Teuber</bdi></span></span>
+ </div></a></div>
+<p class="x-cap">داده‌ها از <a href="#" class="bgv-latin">BoardGameGeek</a>، به‌روزرسانی ۲۱ مهر ۱۴۰۵. پیچیدگی با نماد وزنه از ۱ (سبک) تا ۵ (سنگین) است.</p>
+<nav class="bgv-dock bgv-app__dock" aria-label="ناوبری">
+<a class="bgv-dock__item" href="/"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>خانه</a>
+<a class="bgv-dock__item is-active" href="/games" aria-current="page"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg>بازی‌ها</a>
+<a class="bgv-dock__item" href="/tables"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg>میزها<span class="bgv-badge bgv-badge--count bgv-badge--count-invite">۳</span></a>
+<a class="bgv-dock__item" href="/messages"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>پیام‌ها<span class="bgv-badge bgv-badge--count">۴</span></a>
+<a class="bgv-dock__item" href="/more"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg>بیشتر</a></nav>
+</main>
+
+</div>
+</x-dc>
+
+</body>
+</html>

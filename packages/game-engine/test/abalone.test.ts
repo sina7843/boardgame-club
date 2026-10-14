@@ -115,3 +115,13 @@ describe('abalone rules', () => {
     }
   }, 120_000);
 });
+
+describe('abalone publicSummary', () => {
+  it('one entry per seat, score target 6, strikes', () => {
+    const sum = abaloneModule.publicSummary!(st(game()));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0, target: 6 });
+    expect(sum.strikesMax).toBe(3);
+    expect(sum.seats[1]!.strikes).toBe(0);
+  });
+});

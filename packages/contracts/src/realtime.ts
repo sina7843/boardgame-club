@@ -30,7 +30,9 @@ export const ServerEvents = {
   messageCreated: 'message.created',
   conversationRead: 'conversation.read',
   conversationTyping: 'conversation.typing',
-  notificationCreated: 'notification.created'
+  notificationCreated: 'notification.created',
+  turnStarted: 'turn.started',
+  turnAutoMoved: 'turn.autoMoved'
 } as const;
 
 export const ClientEvents = {
@@ -38,6 +40,18 @@ export const ClientEvents = {
   tableSubscribe: 'table.subscribe',
   conversationTyping: 'conversation.typing'
 } as const;
+
+/**
+ * Clock events, emitted to the table room (public data only). `turn.warning` (50% of the turn left) and
+ * `turn.critical` (last 10 s live / last hour turn-based) are NOT server events: clients derive them from
+ * `dueAt` (no per-table timers on the server). See `turnThresholds`.
+ */
+export interface TurnStartedEvent { tableId: string; revision: number; seats: number[]; dueAt: string; turnSeconds: number; pace: 'live' | 'turn'; serverTime: string }
+/** The server timed out these seats and played for them at `revision`. */
+export interface TurnAutoMovedEvent { tableId: string; revision: number; seats: number[] }
+/** Seconds before dueAt at which the client raises warning / critical. */
+export const turnThresholds = (pace: 'live' | 'turn', turnSeconds: number) =>
+  ({ warningLeft: Math.floor(turnSeconds / 2), criticalLeft: pace === 'live' ? 10 : 3600 });
 
 export const typingPayload = z.strictObject({ conversationId: z.uuid() });
 /** Pushed to members: someone is typing (clients show it for a few seconds). */

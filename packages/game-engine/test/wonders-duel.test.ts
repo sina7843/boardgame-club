@@ -138,3 +138,15 @@ describe('wonders duel rules', () => {
     expect(reasons.has('score')).toBe(true);
   }, 120_000);
 });
+
+describe('wonders duel publicSummary', () => {
+  it('coins, wonders, cards and progress per seat; shared age and military', () => {
+    const snap = draft(game());
+    const sum = duelModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'سکه', value: st(snap).coins[0] });
+    expect(sum.seats[0]!.stats!.map((x) => x.value)).toEqual([0, 0, 0]);
+    expect(sum.shared).toEqual([{ key: 'age', label: 'دوران', value: 1, max: 3 }, { key: 'military', label: 'جنگ', value: 0 }]);
+    expect(sum.strikesMax).toBeUndefined();
+  });
+});

@@ -7,18 +7,18 @@ test.describe.configure({ mode: 'serial' });
 
 async function createAndStart(host: Page, guest: Page, gameId: string, pace: 'زنده' | 'نوبتی') {
   await host.goto(`/games/${gameId}/new`);
-  await host.getByText(pace, { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: pace, exact: true }).click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   await expect(host.getByRole('heading', { name: /بازیکنان/ })).toBeVisible();
   const invite = await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue();
   await guest.goto(invite.replace(/^https?:\/\/[^/]+/, ''));
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
   await expect(host.getByText('بازیکنان (۲ از ۲)')).toBeVisible(); // pushed to the host over the socket
-  await expect(host.getByText('اتمام زمان:').first()).toBeVisible(); // policies are shown before ready
+  await expect(host.getByRole('heading', { name: 'قوانین زمان و ترک میز' })).toBeVisible(); // policies are shown before ready
   await host.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 
-const myTurn = (p: Page) => p.getByText(/نوبت شماست|پیشنهاد پنهان خود را ثبت کنید/).isVisible();
+const myTurn = (p: Page) => p.getByText(/نوبت شماست|پیشنهاد پنهان خود را ثبت کنید/).first().isVisible();
 
 async function whoseTurn(a: Page, b: Page): Promise<[Page, Page]> {
   for (let i = 0; i < 40; i++) {
@@ -115,27 +115,34 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await mover.locator('.lt__cell').nth(4).click();
   await expect(other.locator('.lt__cell').nth(4)).not.toHaveText('', { timeout: 8000 });
 
-  // Chat from the other player → unread badge and toast on the mover's table.
-  await other.getByRole('button', { name: 'گفت‌وگوی میز' }).click();
+  // Chat from the other player. ≥1200px the chat is docked (always open: the message just appears);
+  // below it is a sheet behind a button, with an unread badge and a toast on the mover's table.
+  const docked = (await other.getByRole('button', { name: 'گفت‌وگوی میز', exact: true }).count()) === 0;
+  if (!docked) await other.getByRole('button', { name: 'گفت‌وگوی میز' }).click();
   await other.getByLabel('متن پیام').fill('سلام، بازی خوبی بود');
   await other.getByRole('button', { name: 'ارسال', exact: true }).click();
-  await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' })).toBeVisible();
-  await expect(mover.getByText(/پیام در میز — (Sara|نیما): سلام، بازی خوبی بود/)).toBeVisible();
+  if (docked) await expect(mover.getByRole('region', { name: 'گفت‌وگوی میز' }).getByText('سلام، بازی خوبی بود')).toBeVisible();
+  else {
+    await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' })).toBeVisible();
+    await expect(mover.getByText(/پیام در میز — (Sara|نیما): سلام، بازی خوبی بود/)).toBeVisible();
+  }
   await mover.screenshot({ path: shot('chat-alert', info.project.name), fullPage: true });
   // Quick chat from the game bar: one tap, shown at the sender's avatar on the other screen.
   await mover.getByRole('button', { name: 'پیام آماده' }).click();
-  await mover.getByRole('button', { name: '👍', exact: true }).click();
-  await expect(other.locator('.pboard--said:visible').filter({ hasText: '👍' }).first()).toBeVisible();
+  await mover.locator('[popover]').getByRole('button', { name: '👍', exact: true }).click();
+  await expect(other.locator('.tbl-said:visible').filter({ hasText: '👍' }).first()).toBeVisible();
   await other.screenshot({ path: shot('chat-bubble', info.project.name), fullPage: true });
-  await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();
-  await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز', exact: true })).toBeAttached();
+  if (!docked) {
+    await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();
+    await expect(mover.getByRole('button', { name: 'گفت‌وگوی میز', exact: true })).toBeAttached();
+  }
 
   // Fullscreen from the game bar (the game container, which scrolls itself so the board stays reachable), and back.
   await mover.keyboard.press('Escape'); // close the chat drawer
   await mover.getByRole('button', { name: 'تمام‌صفحه', exact: true }).click();
-  await expect.poll(() => mover.evaluate(() => document.fullscreenElement?.classList.contains('game') ?? false)).toBe(true);
-  await mover.locator('.game').evaluate((el) => { el.scrollTop = el.scrollHeight; });
-  await expect(mover.locator('.game__board')).toBeInViewport();
+  await expect.poll(() => mover.evaluate(() => document.fullscreenElement?.classList.contains('tbl') ?? false)).toBe(true);
+  await mover.locator('.tbl').evaluate((el) => { el.scrollTop = el.scrollHeight; });
+  await expect(mover.locator('.tbl-felt')).toBeInViewport();
   await mover.screenshot({ path: shot('fullscreen', info.project.name) });
   await mover.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
   await expect.poll(() => mover.evaluate(() => document.fullscreenElement)).toBeNull();
@@ -156,7 +163,7 @@ test('interactive tutorial: guided moves against the scripted opponent', async (
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();
   await p.screenshot({ path: shot('tutorial-done', info.project.name), fullPage: true });
   await p.goto('/');
-  await expect(p.getByRole('heading', { name: 'نوبت من' })).toBeVisible();
+  await expect(p.getByRole('heading', { name: 'نوبت شماست' })).toBeVisible();
   await p.context().close();
 });
 

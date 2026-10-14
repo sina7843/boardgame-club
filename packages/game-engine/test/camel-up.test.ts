@@ -126,3 +126,14 @@ describe('camel up rules', () => {
     }
   }, 120_000);
 });
+
+describe('camel up publicSummary', () => {
+  it('coins and leg bet counts; no overall bets', () => {
+    const snap = game(3);
+    const sum = camelModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([3, 3, 3]);
+    expect(sum.shared![1]!.value).toBe(5);
+    const after = act(snap, st(snap).current, { type: 'overall', camel: 'blue', which: 'win' });
+    expect(JSON.stringify(camelModule.publicSummary!(st(after)))).not.toMatch(/blue|winnerBets/);
+  });
+});

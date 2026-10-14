@@ -285,6 +285,22 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.players.map((p, seat) => ({
+        seat,
+        primary: { label: 'فاصله', value: DIST[p.pos]! },
+        stats: [
+          { key: 'hand', label: 'کارت', value: p.hand.length },
+          { key: 'deck', label: 'دسته', value: p.deck.length, icon: 'layers' }
+        ],
+        badges: p.arrived ? [{ key: 'arrived', label: 'رسید', tone: 'success' as const }] : [],
+        ...(winners.has(seat) ? { status: 'winner' as const } : p.arrived ? { status: 'done' as const } : {})
+      }))
+    };
+  },
+
   tutorial: {
     seed: 3,
     options: { deal: 'tutorial' },

@@ -1,30 +1,20 @@
-import { Link } from 'react-router';
-import { GAME_TAG_FA, type GameSummary } from '@bg/contracts';
-import { Badge, Icon } from '@bg/ui';
-import { ACCESS_FA, DIFFICULTY_FA, PACE_FA, range } from '../lib/format.ts';
-import { GameCover } from './covers.tsx';
+import type { GameSummary } from '@bg/contracts';
+import { GameCard as BgvGameCard } from '@bg/ui/bgv';
+import { ACCESS_FA, DIFFICULTY_FA, range } from '../lib/format.ts';
 
+/** Catalogue card (DS GameCard): painted cover, Persian name with the Latin original, players / time / difficulty. */
 export function GameCard({ game }: { game: GameSummary }) {
+  const flags = [
+    ...(game.isTestGame ? [{ tone: 'test' as const, icon: 'triangle-alert', label: 'آزمایشی' }] : []),
+    ...(game.access === 'premium' ? [{ tone: 'premium' as const, icon: 'crown', label: ACCESS_FA.premium }] : [])
+  ];
   return (
-    <Link to={`/games/${game.id}`} className="game-card" aria-label={`${game.nameFa} (${game.nameOriginal})`}>
-      <div className="game-card__cover"><GameCover gameId={game.id} title="" /></div>
-      <div className="game-card__body">
-        <div>
-          <div className="game-card__title">{game.nameFa}</div>
-          <div className="game-card__original"><bdi>{game.nameOriginal}</bdi></div>
-        </div>
-        <ul className="game-card__facts">
-          <li className="row" style={{ gap: 4 }}><Icon name="players" size={16} />{range(game.minPlayers, game.maxPlayers, 'نفر')}</li>
-          <li className="row" style={{ gap: 4 }}><Icon name="clock" size={16} />{range(game.minMinutes, game.maxMinutes, 'دقیقه')}</li>
-          <li>{DIFFICULTY_FA[game.difficulty]}</li>
-        </ul>
-        <div className="game-card__badges">
-          {game.isTestGame && <Badge tone="test" icon="alert">بازی آزمایشی</Badge>}
-          <Badge tone={game.access === 'premium' ? 'premium' : undefined}>{ACCESS_FA[game.access]}</Badge>
-          {game.paces.map((p) => <Badge key={p}>{PACE_FA[p]}</Badge>)}
-        </div>
-        <ul className="game-card__tags" aria-label="برچسب‌ها">{game.tags.map((t) => <li key={t}>#{GAME_TAG_FA[t]}</li>)}</ul>
-      </div>
-    </Link>
+    <BgvGameCard href={`/games/${game.id}`} cover={`/covers/${game.id}.webp?v=2`} title={game.nameFa} latin={game.nameOriginal}
+      aria-label={`${game.nameFa} (${game.nameOriginal})`} flags={flags}
+      meta={[
+        { icon: 'users', text: range(game.minPlayers, game.maxPlayers, 'نفر') },
+        { icon: 'clock', text: range(game.minMinutes, game.maxMinutes, 'دقیقه') },
+        { icon: 'gauge', text: DIFFICULTY_FA[game.difficulty] }
+      ]} />
   );
 }

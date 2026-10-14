@@ -3,16 +3,27 @@
 // projection already carries. Item indexes are stored by players: lists are APPEND-ONLY, never reorder or remove.
 import type { League } from './progression.ts';
 
-export type Unlock = { free: true } | { coins: number } | { level: number } | { achievement: string } | { league: League };
+export type Unlock = { free: true } | { coins: number } | { level: number } | { achievement: string } | { league: League } | { premium: true };
 
 /** Avatar layers in string order; `t` (title) and `bn` (banner) are profile items, not avatar layers. */
 export const AVATAR_SLOTS = ['s', 'f', 'h', 'hc', 'e', 'm', 'o', 'oc', 'a', 'b', 'fr'] as const;
 export type AvatarSlot = (typeof AVATAR_SLOTS)[number];
-export type CosmeticSlot = AvatarSlot | 't' | 'bn';
+/** Table cosmetics (purely visual descriptors, see `art`): each kind owns one slot prefix in the item key. */
+export const ITEM_KINDS = ['cardBack', 'boardSkin', 'emote', 'chatBubble', 'seatRing'] as const;
+export type ItemKind = (typeof ITEM_KINDS)[number];
+export const KIND_SLOT = { cardBack: 'cb', boardSkin: 'bk', emote: 'em', chatBubble: 'bu', seatRing: 'sr' } as const satisfies Record<ItemKind, string>;
+export const KIND_FA: Record<ItemKind, string> = { cardBack: 'پشت کارت', boardSkin: 'اسکین صفحه', emote: 'اموت', chatBubble: 'حباب گفت‌وگو', seatRing: 'حلقهٔ صندلی' };
+export type CosmeticSlot = AvatarSlot | 't' | 'bn' | (typeof KIND_SLOT)[ItemKind];
+export const RARITIES = ['common', 'rare', 'epic', 'legend'] as const;
+export type Rarity = (typeof RARITIES)[number];
+export const PATTERNS = ['solid', 'dots', 'stripes', 'diamonds', 'rings', 'stars', 'waves'] as const;
+export type Pattern = (typeof PATTERNS)[number];
+/** Visual descriptor of a table cosmetic: 1-3 colours, a pattern name and (emotes) an icon name; the renderer decides how to draw it. */
+export interface ItemArt { colors: string[]; pattern: Pattern; glyph?: string }
 
 export const SLOT_FA: Record<CosmeticSlot, string> = {
   s: 'رنگ پوست', f: 'صورت', h: 'مو', hc: 'رنگ مو', e: 'چشم', m: 'دهان', o: 'لباس', oc: 'رنگ لباس', a: 'اکسسوری',
-  b: 'پس‌زمینه', fr: 'قاب', t: 'لقب', bn: 'بنر پروفایل'
+  b: 'پس‌زمینه', fr: 'قاب', t: 'لقب', bn: 'بنر پروفایل', cb: KIND_FA.cardBack, bk: KIND_FA.boardSkin, em: KIND_FA.emote, bu: KIND_FA.chatBubble, sr: KIND_FA.seatRing
 };
 
 export interface CosmeticItem {
@@ -30,6 +41,10 @@ export interface CosmeticItem {
   color?: string;
   /** Banners: CSS background. */
   css?: string;
+  /** Table cosmetics only. */
+  art?: ItemArt;
+  /** Explicit rarity; items without one get `rarityOf` (derived from the unlock). */
+  rarity?: Rarity;
 }
 
 type Def = Omit<CosmeticItem, 'key' | 'slot' | 'i'>;
@@ -38,6 +53,8 @@ const coins = (n: number): Unlock => ({ coins: n });
 const level = (n: number): Unlock => ({ level: n });
 const ach = (key: string): Unlock => ({ achievement: key });
 const league = (l: League): Unlock => ({ league: l });
+const PREMIUM: Unlock = { premium: true };
+const art = (pattern: Pattern, ...colors: string[]): ItemArt => ({ colors, pattern });
 
 const INK = '#2B2B2B';
 const LIP = '#7A3B2E';
@@ -174,6 +191,43 @@ const DEFS: Record<CosmeticSlot, Def[]> = {
     { nameFa: 'آسمان شب', unlock: level(10), css: 'radial-gradient(circle at 80% 20%, #F5E6A8 0 3%, transparent 4%), linear-gradient(160deg, #23284A, #4A3A7A)' },
     { nameFa: 'طلایی', unlock: ach('winner_25'), css: 'linear-gradient(135deg, #F7D774, #C9971A)' },
     { nameFa: 'شفق', unlock: league('diamond'), css: 'linear-gradient(135deg, #2BB5B0, #7A4FD1, #E04F9A)' }
+  ],
+  cb: [
+    { nameFa: 'کلاسیک', unlock: FREE, rarity: 'common', art: art('diamonds', '#1F6B4A', '#F7D9C4') },
+    { nameFa: 'شب', unlock: coins(120), rarity: 'common', art: art('stars', '#23284A', '#F5E6A8') },
+    { nameFa: 'کاشی فیروزه', unlock: coins(250), rarity: 'rare', art: art('rings', '#1F8A8A', '#2BB5B0') },
+    { nameFa: 'سرخ و طلا', unlock: level(12), rarity: 'epic', art: art('stripes', '#8E1F2F', '#E6B84A') },
+    { nameFa: 'گوهر اشتراک', unlock: PREMIUM, rarity: 'legend', art: art('diamonds', '#7A4FD1', '#F2C230', '#E04F9A') }
+  ],
+  bk: [
+    { nameFa: 'چوب ساده', unlock: FREE, rarity: 'common', art: art('solid', '#C9A06B') },
+    { nameFa: 'مرمر', unlock: coins(200), rarity: 'rare', art: art('waves', '#E8E4DC', '#B9B2A4') },
+    { nameFa: 'شطرنجی سبز', unlock: coins(300), rarity: 'rare', art: art('diamonds', '#2E7D5B', '#DCEBD6') },
+    { nameFa: 'آسمان شب', unlock: league('gold'), rarity: 'epic', art: art('stars', '#23284A', '#4A3A7A') },
+    { nameFa: 'زرنگار', unlock: PREMIUM, rarity: 'legend', art: art('rings', '#C9971A', '#F7D774') }
+  ],
+  em: [
+    { nameFa: 'آفرین', unlock: FREE, rarity: 'common', art: { colors: ['#F2C230'], pattern: 'solid', glyph: 'star' } },
+    { nameFa: 'خنده', unlock: FREE, rarity: 'common', art: { colors: ['#F28C38'], pattern: 'solid', glyph: 'smile' } },
+    { nameFa: 'قلب', unlock: coins(60), rarity: 'common', art: { colors: ['#E04F9A'], pattern: 'solid', glyph: 'heart' } },
+    { nameFa: 'جرقه', unlock: coins(150), rarity: 'rare', art: { colors: ['#7A4FD1'], pattern: 'stars', glyph: 'sparkles' } },
+    { nameFa: 'آتش', unlock: level(7), rarity: 'epic', art: { colors: ['#D94848', '#F2B33D'], pattern: 'solid', glyph: 'flame' } },
+    { nameFa: 'تاج', unlock: ach('winner_25'), rarity: 'legend', art: { colors: ['#C9971A', '#F7D774'], pattern: 'solid', glyph: 'crown' } },
+    { nameFa: 'گوهر', unlock: PREMIUM, rarity: 'legend', art: { colors: ['#7A4FD1', '#2BB5B0'], pattern: 'solid', glyph: 'gem' } }
+  ],
+  bu: [
+    { nameFa: 'ساده', unlock: FREE, rarity: 'common', art: art('solid', '#E8E8E8') },
+    { nameFa: 'نعنایی', unlock: coins(80), rarity: 'common', art: art('solid', '#D5F0DC', '#2E9E6A') },
+    { nameFa: 'غروب', unlock: coins(180), rarity: 'rare', art: art('waves', '#F6A26B', '#D94868') },
+    { nameFa: 'یاسی خال‌دار', unlock: level(9), rarity: 'epic', art: art('dots', '#E9DDF7', '#7A4FD1') },
+    { nameFa: 'شفق', unlock: PREMIUM, rarity: 'legend', art: art('waves', '#2BB5B0', '#7A4FD1', '#E04F9A') }
+  ],
+  sr: [
+    { nameFa: 'ساده', unlock: FREE, rarity: 'common', art: art('solid', '#8D9A94') },
+    { nameFa: 'دوخطی', unlock: coins(100), rarity: 'common', art: art('rings', '#8D9A94', '#E8E8E8') },
+    { nameFa: 'خط‌چین طلایی', unlock: coins(220), rarity: 'rare', art: art('dots', '#E6B84A') },
+    { nameFa: 'الماسی', unlock: league('diamond'), rarity: 'epic', art: art('rings', '#7FD6FF', '#3FA9E0') },
+    { nameFa: 'پرتو', unlock: PREMIUM, rarity: 'legend', art: art('stars', '#7A4FD1', '#F2C230') }
   ]
 };
 
@@ -181,6 +235,17 @@ export const COSMETICS: readonly CosmeticItem[] = (Object.keys(DEFS) as Cosmetic
   .flatMap((slot) => DEFS[slot].map((d, i) => ({ ...d, slot, i, key: `${slot}.${i}` })));
 const BY_KEY = new Map(COSMETICS.map((c) => [c.key, c]));
 export const cosmetic = (key: string): CosmeticItem | undefined => BY_KEY.get(key);
+/** Shown rarity: explicit, else derived from how the item unlocks. */
+export function rarityOf(c: CosmeticItem): Rarity {
+  if (c.rarity) return c.rarity;
+  const u = c.unlock;
+  if ('premium' in u) return 'legend';
+  if ('coins' in u) return u.coins >= 200 ? 'rare' : 'common';
+  if ('free' in u) return 'common';
+  return 'epic';
+}
+/** Catalogue slot -> equip kind, for the five table kinds. */
+export const kindOfKey = (key: string): ItemKind | undefined => ITEM_KINDS.find((k) => key.startsWith(`${KIND_SLOT[k]}.`));
 export const slotItems = (slot: CosmeticSlot): CosmeticItem[] => COSMETICS.filter((c) => c.slot === slot);
 
 export type AvatarParts = Record<AvatarSlot, number>;
@@ -223,6 +288,7 @@ export function unlockFa(u: Unlock, achievementTitle?: (key: string) => string |
   if ('coins' in u) return `${u.coins.toLocaleString('fa-IR')} سکه`;
   if ('level' in u) return `سطح ${u.level.toLocaleString('fa-IR')}`;
   if ('achievement' in u) return `دستاورد «${achievementTitle?.(u.achievement) ?? u.achievement}»`;
+  if ('premium' in u) return 'ویژهٔ اشتراک';
   return `لیگ ${LEAGUE_FA[u.league]} یا بالاتر`;
 }
 const LEAGUE_FA: Record<League, string> = { bronze: 'برنز', silver: 'نقره', gold: 'طلا', platinum: 'پلاتین', diamond: 'الماس', master: 'استادان' };

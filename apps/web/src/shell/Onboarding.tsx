@@ -3,9 +3,9 @@
 // (/me/onboarding), which also verifies real-action steps and grants «Getting Started».
 import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { CircleHelp, X } from 'lucide-react';
 import { ONBOARDING_TOURS, type OnboardingState, type OnboardingTour } from '@bg/contracts';
-import { Button, cn, useToast } from '@bg/ui';
+import { cn, useToast } from '@bg/ui';
+import { Banner, Button } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -129,13 +129,11 @@ export function WelcomeInvite() {
   const w = state?.tours.find((t) => t.key === 'welcome');
   if (!w || running || w.dismissed || w.completedSteps.length > 0) return null;
   return (
-    <div role="status" className="banner banner--info tour-invite mb-4 animate-fade-up">
-      <span className="flex-1"><strong>تازه آمده‌اید؟</strong> یک گشت کوتاه در بخش‌های اصلی سایت؛ هر وقت خواستید از «راهنما» هم در دسترس است.</span>
-      <span className="flex gap-2">
-        <Button size="sm" onClick={() => start('welcome')}>شروع گشت</Button>
+    <Banner title="تازه آمده‌اید؟" text="یک گشت کوتاه در بخش‌های اصلی سایت؛ هر وقت خواستید از «راهنما» هم در دسترس است."
+      action={<span className="bgv-row">
+        <Button size="sm" variant="primary" onClick={() => start('welcome')}>شروع گشت</Button>
         <Button size="sm" variant="ghost" onClick={() => setDismissed('welcome', true).catch(() => toast('error', 'ذخیره نشد؛ دوباره تلاش کنید.'))}>نه، ممنون</Button>
-      </span>
-    </div>
+      </span>} />
   );
 }
 
@@ -215,29 +213,29 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
 
   return (
     <>
-      {rect && <div className={cn('tour-spot', !isTour && 'tour-spot--soft')} aria-hidden
+      {rect && <div className={cn('hm-tour-spot', !isTour && 'hm-tour-spot--soft')} aria-hidden
         style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2 }} />}
-      <div ref={card} role="dialog" aria-modal="false" aria-labelledby="tour-h" className={cn('tour-card', !rect && 'tour-card--center')}>
-        <div className="tour-card__head">
-          <span className="tour-card__eyebrow">{tour.titleFa}، مرحلهٔ {faNum(index + 1)} از {faNum(tour.steps.length)}</span>
-          <button type="button" className="tour-card__x" onClick={onClose} aria-label="بستن (بعداً ادامه می‌دهم)"><X className="size-4" aria-hidden /></button>
+      <div ref={card} role="dialog" aria-modal="false" aria-labelledby="tour-h" className={cn('bgv-card hm-tour bgv-stack', !rect && 'hm-tour--center')} style={{ gap: 12 }}>
+        <div className="bgv-row" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+          <span className="hm-meta">{tour.titleFa}<span className="bgv-sep" />مرحله‌ی {faNum(index + 1)} از {faNum(tour.steps.length)}</span>
+          <Button variant="ghost" iconOnly icon="x" size="sm" onClick={onClose}>بستن (بعداً ادامه می‌دهم)</Button>
         </div>
-        <h2 id="tour-h" className="tour-card__title">{step.titleFa}</h2>
-        <p className="tour-card__body" aria-live="polite">{step.bodyFa}</p>
-        <div className="tour-card__dots" aria-hidden>{tour.steps.map((s, i) => <span key={s.key} className={cn(i <= index && 'is-on')} />)}</div>
-        <div className="tour-card__actions">
+        <h2 id="tour-h" className="t-title" style={{ margin: 0 }}>{step.titleFa}</h2>
+        <p style={{ margin: 0 }} aria-live="polite">{step.bodyFa}</p>
+        <div className="hm-tour__dots" aria-hidden>{tour.steps.map((s, i) => <span key={s.key} className={cn(i <= index && 'is-on')} />)}</div>
+        <div className="hm-tour__actions tour-card__actions">
           {isTour ? (
             <>
-              <Button size="sm" onClick={onNext}>{last ? 'تمام' : 'بعدی'}</Button>
+              <Button size="sm" variant="primary" onClick={onNext}>{last ? 'تمام' : 'بعدی'}</Button>
               {index > 0 && <Button size="sm" variant="secondary" onClick={onBack}>قبلی</Button>}
             </>
           ) : (
             <>
-              {step.href && <Button size="sm" onClick={() => navigate(step.href!)}>برو</Button>}
+              {step.href && <Button size="sm" variant="primary" onClick={() => navigate(step.href!)}>برو</Button>}
               {step.verify && <Button size="sm" variant="secondary" onClick={onCheck}>انجام دادم، بررسی کن</Button>}
             </>
           )}
-          <Button size="sm" variant="ghost" className="ms-auto" onClick={onSkip}>رد کردن آموزش</Button>
+          <Button size="sm" variant="ghost" style={{ marginInlineStart: 'auto' }} onClick={onSkip}>رد کردن آموزش</Button>
         </div>
       </div>
     </>
@@ -269,11 +267,10 @@ export function Hint({ id, children, label = 'راهنما' }: { id: string; chi
     }
   };
   return (
-    <span ref={box} className="hint">
-      <button type="button" className="hint__btn" aria-label={label} aria-expanded={open} aria-describedby={open ? tipId : undefined} onClick={toggle}>
-        <CircleHelp className="size-4" aria-hidden />{fresh && <span className="hint__dot" aria-hidden />}
-      </button>
-      {open && <span id={tipId} role="tooltip" className="hint__tip">{children}</span>}
+    <span ref={box} className="hm-hint">
+      <Button variant="ghost" size="sm" iconOnly icon="circle-help" aria-expanded={open} aria-describedby={open ? tipId : undefined} onClick={toggle}>{label}</Button>
+      {fresh && <span className="bgv-dot hm-hint__dot" aria-hidden />}
+      {open && <span id={tipId} role="tooltip" className="bgv-popover hm-hint__tip">{children}</span>}
     </span>
   );
 }

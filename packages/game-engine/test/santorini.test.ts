@@ -137,3 +137,18 @@ describe('santorini rules', () => {
     }
   });
 });
+
+describe('santorini publicSummary', () => {
+  it('two seats, climb level and strikes', () => {
+    const snap = placed();
+    const sum = santoriniModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats.every((x) => x.primary!.value === 0 && x.primary!.target === 3 && x.strikes === 0)).toBe(true);
+    expect(sum.strikesMax).toBe(3);
+    const s = structuredClone(st(snap));
+    s.height[s.workers[1][0]!] = 2;
+    const sum2 = santoriniModule.publicSummary!(s);
+    expect(sum2.seats[1]!.primary!.value).toBe(2);
+    expect(sum2.leaderSeat).toBe(1);
+  });
+});

@@ -557,3 +557,15 @@ describe('heat full games', () => {
     expect(s.outcome).toEqual({ reason: 'score', placements: [{ seat: 0, place: 1, score: 9 }, { seat: 1, place: 2, score: 6 }] });
   });
 });
+
+describe('heat publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = heatModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value).sort()).toEqual([1, 2]);
+    expect(sum.seats[0]!.stats!.find((x) => x.label === 'هیت')!.value).toBe(state.racers[0]!.engine.length);
+    expect(JSON.stringify(sum)).not.toContain('plan');
+  });
+});

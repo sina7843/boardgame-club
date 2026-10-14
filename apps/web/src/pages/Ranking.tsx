@@ -1,44 +1,42 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
-import { Avatar, Badge, DataTable, LeagueBadge, Segmented, Select, StateBlock } from '@bg/ui';
+import { Badge, Banner, Card, DataTable, Identity, League, PageHead, Segmented, Select, StateBlock, Button } from '@bg/ui/bgv';
+import type { League as LeagueTier } from '@bg/contracts';
 import { useApi } from '../lib/api.ts';
+import { userIdentity } from '../lib/bgv.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
-type League = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master';
 interface Board { season: { id: string; nameFa: string; status: string } | null; rules: { minGames: number; maxSigma: number };
-  items: { rank: number; user: { id: string; displayName: string; avatarKey: string }; rating: number; games: number; league: League | null }[] }
+  items: { rank: number; user: { id: string; displayName: string; avatarKey: string }; rating: number; games: number; league: LeagueTier | null }[] }
 
 function History({ gameId, mode }: { gameId: string; mode: 'live' | 'turn' }) {
   const h = useApi<{ items: { at: string; place: number; fieldSize: number; before: number; after: number }[] }>(`/me/stats/history?gameId=${gameId}&mode=${mode}`);
   const t = useApi<{ weekly: { week: string; rating: number; games: number; firstPlaces: number }[]; seasons: { nameFa: string; league: string; rating: number }[] }>(`/me/stats/trends?gameId=${gameId}&mode=${mode}`);
   return (
-    <div className="stack">
-      <section className="panel stack" aria-labelledby="hist-h">
-        <h2 id="hist-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}>سابقه رتبه‌دار من (رایگان)</h2>
-        {h.data && (h.data.items.length === 0 ? <p className="muted" style={{ margin: 0 }}>سابقه‌ای در این حالت ندارید.</p> : (
-          <DataTable caption="سابقه" rowKey={(r) => r.at} rows={h.data.items} columns={[
-            { key: 'at', title: 'تاریخ', render: (r) => jalaliDate(r.at) },
-            { key: 'place', title: 'رتبه', render: (r) => `${faNum(r.place)} از ${faNum(r.fieldSize)}` },
-            { key: 'delta', title: 'تغییر', render: (r) => <span className="num">{faNum(r.before)} → {faNum(r.after)}</span> }
+    <div className="bgv-stack">
+      <Card title="سابقه رتبه‌دار من (رایگان)">
+        {h.data && (h.data.items.length === 0 ? <p className="bgv-muted">سابقه‌ای در این حالت ندارید.</p> : (
+          <DataTable caption="سابقه" rowKey="at" rows={h.data.items} columns={[
+            { key: 'at', label: 'تاریخ', render: (r) => jalaliDate(r.at) },
+            { key: 'place', label: 'رتبه', render: (r) => `${faNum(r.place)} از ${faNum(r.fieldSize)}` },
+            { key: 'delta', label: 'تغییر', render: (r) => <span className="bgv-num">{faNum(r.before)} ← {faNum(r.after)}</span> }
           ]} />
         ))}
-      </section>
-      <section className="panel stack" aria-labelledby="trend-h">
-        <h2 id="trend-h" className="section-title" style={{ fontSize: 'var(--fs-md)' }}>روند و مقایسه فصل‌ها <Badge tone="premium">پریمیوم</Badge></h2>
+      </Card>
+      <Card title={<>روند و مقایسه فصل‌ها <Badge tone="premium" icon="crown">پریمیوم</Badge></>}>
         {t.error?.status === 403 ? (
-          <p className="muted" style={{ margin: 0 }}>تحلیل روند هفتگی و مقایسه فصل‌ها بخشی از <Link to="/plans">اشتراک پریمیوم</Link> است. نتیجه، رتبه و سابقه پایه برای همه رایگان است و پریمیوم هیچ مزیتی در بازی نمی‌دهد.</p>
-        ) : t.data && (t.data.weekly.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز داده‌ای برای روند نیست.</p> : (
-          <DataTable caption="روند هفتگی" rowKey={(r) => r.week} rows={t.data.weekly} columns={[
-            { key: 'w', title: 'هفته', render: (r) => jalaliDate(r.week) },
-            { key: 'r', title: 'رتبه پایان هفته', render: (r) => faNum(r.rating) },
-            { key: 'g', title: 'بازی', render: (r) => faNum(r.games) },
-            { key: 'f', title: 'رتبه اول', render: (r) => faNum(r.firstPlaces) }
+          <p className="bgv-muted">تحلیل روند هفتگی و مقایسه فصل‌ها بخشی از <a href="/plans">اشتراک پریمیوم</a> است. نتیجه، رتبه و سابقه پایه برای همه رایگان است و پریمیوم هیچ مزیتی در بازی نمی‌دهد.</p>
+        ) : t.data && (t.data.weekly.length === 0 ? <p className="bgv-muted">هنوز داده‌ای برای روند نیست.</p> : (
+          <DataTable caption="روند هفتگی" rowKey="week" rows={t.data.weekly} columns={[
+            { key: 'w', label: 'هفته', render: (r) => jalaliDate(r.week) },
+            { key: 'r', label: 'رتبه پایان هفته', render: (r) => faNum(r.rating) },
+            { key: 'g', label: 'بازی', render: (r) => faNum(r.games) },
+            { key: 'f', label: 'رتبه اول', render: (r) => faNum(r.firstPlaces) }
           ]} />
         ))}
-      </section>
+      </Card>
     </div>
   );
 }
@@ -52,36 +50,39 @@ export function RankingPage() {
   const [mode, setMode] = useState<'live' | 'turn'>('live');
   const [seasonId, setSeasonId] = useState('');
   const board = useApi<Board>(me ? `/games/${gameId}/leaderboard?mode=${mode}${seasonId ? `&seasonId=${seasonId}` : ''}` : null);
-  if (!me) return <StateBlock kind="denied" title="برای دیدن رتبه‌بندی وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/ranking">ورود</Link>} />;
+  if (!me) return <StateBlock kind="denied" title="برای دیدن رتبه‌بندی وارد شوید" action={<Button variant="primary" href="/login?next=/ranking">ورود</Button>} />;
   return (
     <>
       <PageTabs group="progress" />
-      <div className="page-head"><div><h1 className="page-title">رتبه‌بندی و لیگ</h1><p className="page-sub">رتبه هر بازی و هر حالت (زنده/نوبتی) جداست و فقط از بازی‌های رتبه‌دار حریف‌یابی ساخته می‌شود.</p></div></div>
-      <div className="filters" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+      <PageHead title="رتبه‌بندی و لیگ" sub="رتبه هر بازی و هر حالت (زنده/نوبتی) جداست و فقط از بازی‌های رتبه‌دار حریف‌یابی ساخته می‌شود." />
+      <div className="pf-filters">
         <Select label="بازی" value={gameId} onChange={(e) => setGameId(e.target.value)} options={(games.data?.items ?? []).map((g) => ({ value: g.id, label: g.nameFa }))} />
-        <Segmented legend="حالت" name="mode" value={mode} onChange={setMode} options={[{ value: 'live', label: 'زنده' }, { value: 'turn', label: 'نوبتی' }]} />
+        <div className="bgv-stack" style={{ gap: 'var(--space-1)' }}>
+          <span className="t-label">حالت</span>
+          <Segmented label="حالت" value={mode} onChange={(v) => setMode(v as 'live' | 'turn')} options={[{ value: 'live', label: 'زنده' }, { value: 'turn', label: 'نوبتی' }]} />
+        </div>
         <Select label="فصل" value={seasonId} onChange={(e) => setSeasonId(e.target.value)}
           options={[{ value: '', label: 'فصل جاری / کلی' }, ...(seasons.data?.items ?? []).map((s) => ({ value: s.id, label: `${s.nameFa}${s.status === 'closed' ? ' (بسته)' : ''}` }))]} />
       </div>
-      {board.error && <StateBlock kind="error" title="جدول دریافت نشد">{board.error.messageFa}</StateBlock>}
+      {board.error && <StateBlock kind="error" title="جدول دریافت نشد" text={board.error.messageFa} />}
       {board.data && (
-        <section className="stack" aria-label="جدول رتبه‌بندی">
-          <p className="muted" style={{ margin: 0 }}>
-            {board.data.season ? `${board.data.season.nameFa}${board.data.season.status === 'closed' ? ' (نتایج نهایی و ثابت)' : ''}. ` : ''}
-            فقط بازیکنانی که حداقل {faNum(board.data.rules.minGames)} بازی رتبه‌دار دارند و رتبه‌شان قطعیت کافی دارد نمایش داده می‌شوند؛ تعداد بازی به‌تنهایی رتبه را بالا نمی‌برد.
-          </p>
+        <section className="bgv-stack" aria-label="جدول رتبه‌بندی">
+          {board.data.season && <p className="t-body-sm bgv-muted">{board.data.season.nameFa}{board.data.season.status === 'closed' ? ' (نتایج نهایی و ثابت)' : ''}</p>}
           {board.data.items.length === 0 ? <StateBlock kind="empty" title="هنوز کسی واجد شرایط جدول نیست" /> : (
-            <DataTable caption="رتبه‌بندی" rowKey={(r) => r.user.id} rows={board.data.items} columns={[
-              { key: 'rank', title: 'رتبه', render: (r) => faNum(r.rank) },
-              { key: 'user', title: 'بازیکن', render: (r) => <span className="row" style={{ gap: 8 }}><Avatar avatarKey={r.user.avatarKey} name={r.user.displayName} size={28} /><Link to={`/users/${r.user.id}`}><bdi>{r.user.displayName}</bdi></Link></span> },
-              { key: 'rating', title: 'امتیاز', render: (r) => <span className="num">{faNum(r.rating)}</span> },
-              { key: 'league', title: 'لیگ', render: (r) => (r.league ? <LeagueBadge league={r.league} /> : '-') },
-              { key: 'games', title: 'بازی', render: (r) => faNum(r.games) }
-            ]} />
+            <Card flush>
+              <DataTable caption="رتبه‌بندی" rowKey="rank" rows={board.data.items} youRow={(r) => r.user.id === me.id} columns={[
+                { key: 'rank', label: 'رتبه', strong: true, render: (r) => faNum(r.rank) },
+                { key: 'user', label: 'بازیکن', render: (r) => <Identity {...userIdentity(r.user, { size: 'sm', you: r.user.id === me.id, name: <a href={`/users/${r.user.id}`}><bdi>{r.user.displayName}</bdi></a> })} /> },
+                { key: 'rating', label: 'امتیاز', strong: true, render: (r) => <span className="bgv-num">{faNum(r.rating)}</span> },
+                { key: 'league', label: 'لیگ', render: (r) => (r.league ? <League tier={r.league} /> : '-') },
+                { key: 'games', label: 'بازی', render: (r) => faNum(r.games) }
+              ]} />
+            </Card>
           )}
+          <Banner tone="info" icon="info" text={`فقط بازیکنانی که حداقل ${faNum(board.data.rules.minGames)} بازی رتبه‌دار دارند و رتبه‌شان قطعیت کافی دارد در جدول هستند؛ تعداد بازی به‌تنهایی رتبه را بالا نمی‌برد.`} />
         </section>
       )}
-      <div style={{ marginBlockStart: 'var(--sp-5)' }}><History key={`${gameId}-${mode}`} gameId={gameId} mode={mode} /></div>
+      <History key={`${gameId}-${mode}`} gameId={gameId} mode={mode} />
     </>
   );
 }

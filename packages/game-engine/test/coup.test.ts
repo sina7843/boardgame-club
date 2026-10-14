@@ -184,3 +184,14 @@ describe('coup rules', () => {
     }
   }, 120_000);
 });
+
+describe('coup publicSummary', () => {
+  it('one entry per seat, public values only', () => {
+    const snap = game(3);
+    const sum = coupModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'سکه', value: 2 });
+    expect(sum.seats.every((x) => x.stats![0]!.value === 2 && x.status === undefined)).toBe(true);
+    expect(JSON.stringify(sum)).not.toMatch(/duke|assassin|captain|ambassador|contessa|دوک|کنتس|سفیر|کاپیتان/);
+  });
+});

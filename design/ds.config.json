@@ -1,0 +1,145 @@
+{
+ "$comment": "BGV design-system guard config. Read by scripts/ds-check.mjs (static) and e2e/design-qa.spec.ts (visual). Zones relax rules only where the design system says so.",
+ "baseline": "design/ds-baseline.json",
+ "include": [
+  "apps/web/src/**",
+  "packages/ui/src/**",
+  "games/*/src/**"
+ ],
+ "exclude": [
+  "**/*.test.*",
+  "**/*.spec.*",
+  "**/test/**",
+  "apps/web/src/harness.tsx",
+  "packages/ui/src/bgv/tokens.css",
+  "packages/ui/src/bgv/bundle.css",
+  "packages/ui/src/bgv/reference/**"
+ ],
+ "zones": {
+  "game-art": {
+   "$comment": "The game's own board, pieces, cards and hand stay exactly as the renderer draws them (owner decision: data/art from the code wins). Seat colours, felt, turn text and player panels are NOT game art: they must use --seat-*/--felt-* tokens or be removed (HUD replaces them). Warn only, not part of the strict gate.",
+   "files": [
+    "games/*/src/**"
+   ],
+   "strict": false,
+   "rules": {
+    "DS001": "warn",
+    "DS002": "warn",
+    "DS003": "warn",
+    "DS004": "warn",
+    "DS005": "warn",
+    "DS006": "warn",
+    "DS008": "warn",
+    "DS009": "warn",
+    "DS011": "off",
+    "DS013": "off",
+    "DS015": "off"
+   }
+  },
+  "brand-assets": {
+   "$comment": "Brand-kit SVG components may contain the logo's own colours.",
+   "files": [
+    "packages/ui/src/bgv/brand/**"
+   ],
+   "strict": false,
+   "rules": {
+    "DS001": "off",
+    "DS014": "off"
+   }
+  }
+ },
+ "legacyVars": [
+  "--accent-foreground",
+  "--action",
+  "--action-hover",
+  "--backdrop",
+  "--background",
+  "--brand",
+  "--brand-foreground",
+  "--card",
+  "--card-foreground",
+  "--depth-control",
+  "--depth-field",
+  "--depth-overlay",
+  "--depth-press",
+  "--depth-surface",
+  "--destructive",
+  "--destructive-foreground",
+  "--felt-foreground",
+  "--felt-text",
+  "--field",
+  "--font",
+  "--foreground",
+  "--fs-xs",
+  "--gold",
+  "--input",
+  "--lh",
+  "--line-field",
+  "--line-style",
+  "--motion",
+  "--motion-ease",
+  "--muted",
+  "--muted-foreground",
+  "--nav-w",
+  "--on-action",
+  "--popover",
+  "--popover-foreground",
+  "--press",
+  "--primary-foreground",
+  "--r-sm",
+  "--radius",
+  "--ring",
+  "--secondary",
+  "--secondary-foreground",
+  "--shadow",
+  "--shadow-lift",
+  "--shape-control",
+  "--shape-field",
+  "--shape-overlay",
+  "--shape-surface",
+  "--sp-1",
+  "--spacing",
+  "--surface-2",
+  "--surface-filter",
+  "--table-felt",
+  "--text-2",
+  "--touch",
+  "--type-body",
+  "--type-display",
+  "--type-display-weight",
+  "--wood",
+  "--wood-text"
+ ],
+ "retiredImports": [
+  "@bg/ui/theme.css",
+  "@bg/ui/keyframes.css",
+  "./styles.css",
+  "/vf/ui/",
+  "/vf/animations/",
+  "/vf/backgrounds/"
+ ],
+ "qa": {
+  "baseURL": "http://127.0.0.1:5173",
+  "params": {
+   "/games/:id": "catan",
+   "/games/:id/new": "catan",
+   "/users/:id": "@firstLink:/friends:/users/",
+   "/clubs/:slug": "@firstLink:/clubs:/clubs/",
+   "/groups/:id": "@firstLink:/groups:/groups/",
+   "/messages/:id": "@firstLink:/messages:/messages/",
+   "/tournaments/:id": "@firstLink:/tournaments:/tournaments/"
+  },
+  "roles": {
+   "/mod": "moderator",
+   "/admin": "admin"
+  },
+  "thresholds": {
+   "maxOffTokenColors": 0,
+   "maxOffTokenRadii": 0,
+   "maxHorizontalScroll": 0,
+   "maxOverflowingElements": 0,
+   "minEdgeGapPx": 6
+  },
+  "gameArtSelector": ".bgv-felt__stage, [data-game-art]"
+ }
+}

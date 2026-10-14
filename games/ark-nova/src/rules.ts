@@ -318,6 +318,27 @@ export const arkNovaModule: GameModule<State, ArkAction, ArkView> = {
     return done(before, s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const vps = s.players.map((p) => vp(p));
+    const top = Math.max(...vps);
+    const leaders = vps.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.players.map((p, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: vps[seat]! },
+        stats: [
+          { key: 'money', label: 'پول', value: p.money, icon: 'coins' },
+          { key: 'appeal', label: 'جذابیت', value: p.appeal, icon: 'star' },
+          { key: 'cp', label: 'حفاظت', value: p.cp, icon: 'shield' }
+        ],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'break', label: 'وقفه', value: s.brk, max: s.brkMax }],
+      ...(leaders.length === 1 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => pendingSeatsOf(s),
 
   tutorial: {

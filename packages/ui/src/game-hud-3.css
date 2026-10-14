@@ -1,0 +1,40 @@
+/* HUD dedupe, batch 3: when the table HUD shows the game's publicSummary (data-hud="on"), hide the renderer's own
+   player panels / pure whose-turn text. Display only — game files untouched; prompts and controls stay visible. */
+
+/* risk: name/colour/turn badge + territory/army/card counts; continent flags stay (not in the HUD) */
+.tbl-stage[data-hud="on"][data-game="risk"] .rk-player__head,
+.tbl-stage[data-hud="on"][data-game="risk"] .rk-player__counts { display: none; }
+
+/* scout / sea-salt-paper: name + score (+ hand count) of each player row; played cards and anchors stay */
+.tbl-stage[data-hud="on"][data-game="scout"] .sc-pl__name,
+.tbl-stage[data-hud="on"][data-game="scout"] .sc-pl__score { display: none; }
+.tbl-stage[data-hud="on"][data-game="sea-salt-paper"] .sp2-pl__head { display: none; }
+
+/* set: seat header (name, score, status) and the sets/mistakes line; the tray of found sets stays */
+.tbl-stage[data-hud="on"][data-game="set"] .set-seat__head,
+.tbl-stage[data-hud="on"][data-game="set"] .set-seat__meta { display: none; }
+
+/* snakes-ladders: player list (name + square) */
+.tbl-stage[data-hud="on"][data-game="snakes-ladders"] .sl-players { display: none; }
+
+/* splendor: name + points of each player row; gem grid and reserved cards stay */
+.tbl-stage[data-hud="on"][data-game="splendor"] .sp-pl__name,
+.tbl-stage[data-hud="on"][data-game="splendor"] .sp-pl__pts { display: none; }
+
+/* sushi-go: name/score/pudding/picked flag; the tableau stays */
+.tbl-stage[data-hud="on"][data-game="sushi-go"] .sg-pl__head { display: none; }
+
+/* terraforming-mars: TR-track legend of names + TR (HUD primary); the player tableaux stay */
+.tbl-stage[data-hud="on"][data-game="terraforming-mars"] .tm-trg__who { display: none; }
+
+/* ticket-to-ride: name/colour/route score row and the train-stock bar; cards/tickets/longest + badges stay */
+.tbl-stage[data-hud="on"][data-game="ticket-to-ride"] .ttr-player__top,
+.tbl-stage[data-hud="on"][data-game="ticket-to-ride"] .ttr-stock { display: none; }
+
+/* unmatched: name + turn/out badge line in the hero banner; hero art, stats, ability and stack counts stay */
+.tbl-stage[data-hud="on"][data-game="unmatched"] .um-player__head { display: none; }
+
+/* uno: opponent name/count/score text and the match score table (the card fan, UNO badge, catch button stay) */
+.tbl-stage[data-hud="on"][data-game="uno"] .uno-opp__body,
+.tbl-stage[data-hud="on"][data-game="uno"] .uno-scores { display: none; }
+.tbl-stage[data-hud="on"][data-game="uno"] .uno-opp > .uno-badge:not(.uno-badge--uno) { display: none; }

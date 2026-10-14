@@ -227,6 +227,17 @@ export const lostCitiesModule: GameModule<LostCitiesState, LostCitiesAction, Los
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => ({
+    seats: s.scores.map((sc, seat) => ({
+      seat,
+      primary: { label: 'امتیاز', value: sc },
+      stats: [{ key: 'hand', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' }],
+      ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+    })),
+    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round, max: s.rounds }],
+    ...(s.scores[0] !== s.scores[1] ? { leaderSeat: s.scores[0]! > s.scores[1]! ? 0 : 1 } : {})
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

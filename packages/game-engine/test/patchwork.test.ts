@@ -127,3 +127,13 @@ describe('patchwork rules', () => {
     }
   }, 120_000);
 });
+
+describe('patchwork publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = patchworkModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([5 - 162, 5 - 162]);
+  });
+});

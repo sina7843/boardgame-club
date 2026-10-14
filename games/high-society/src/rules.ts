@@ -244,6 +244,20 @@ export const highSocietyModule: GameModule<HighSocietyState, HighSocietyAction, 
     return finish(s, [{ type: 'timed-out' }]);
   },
 
+  publicSummary: (s) => ({
+    seats: s.hands.map((h, seat) => ({
+      seat,
+      primary: { label: 'منزلت', value: status(s.won[seat]!) },
+      stats: [
+        { key: 'hand', label: 'کارت پول', value: h.length, icon: 'coins' },
+        { key: 'bid', label: 'پیشنهاد', value: sum(s.bids[seat]!) }
+      ],
+      badges: s.faux[seat] ? [{ key: 'faux', label: 'اشتباه', tone: 'warning' as const }] : [],
+      ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : s.passed[seat] ? { status: 'passed' as const } : {})
+    })),
+    shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'red', label: 'کارت قرمز', value: s.red, max: 4 }]
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

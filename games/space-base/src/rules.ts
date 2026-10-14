@@ -228,6 +228,24 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const vps = s.boards.map((b) => b.vp);
+    const top = Math.max(...vps);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.boards.map((b, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: b.vp, target: GOAL },
+        stats: [
+          { key: 'credits', label: 'اعتبار', value: b.credits, icon: 'coins' },
+          { key: 'income', label: 'درآمد', value: b.income, icon: 'gem' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      ...(vps.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: vps.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 23,
     options: { deal: 'tutorial' },

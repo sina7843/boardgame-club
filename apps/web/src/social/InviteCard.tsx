@@ -1,7 +1,6 @@
-import { Link } from 'react-router';
-import { Gift, Link2 } from 'lucide-react';
 import type { PublicProfile } from '@bg/contracts';
-import { Button, buttonClass, useToast } from '@bg/ui';
+import { useToast } from '@bg/ui';
+import { Button, Card, Icon } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 
@@ -31,16 +30,17 @@ export function InviteCard() {
   const { code, reward, invited } = data.data;
   const mine = reward && rewardFa(reward.inviterCoins, reward.inviterDays);
   return (
-    <section className="panel stack" aria-labelledby="invite-card-h" data-testid="invite-card">
-      <h2 id="invite-card-h" className="section-title"><Gift className="size-5 text-primary" aria-hidden />دوستانت را دعوت کن</h2>
-      <p className="muted" style={{ margin: 0 }}>
-        هر کس با لینک تو عضو شود خودکار دوستت می‌شود{mine ? <> و تو <strong>{mine}</strong> هدیه می‌گیری</> : null}.
-        {invited.length > 0 && <> تا حالا {faNum(invited.length)} نفر با لینک تو آمده‌اند.</>}
-      </p>
-      <div className="row">
-        <Button onClick={() => copy(referralUrl(code), 'لینک دعوت کپی شد.')}><Link2 className="size-4" aria-hidden />کپی لینک دعوت</Button>
-        <Link className={buttonClass('ghost', 'md')} to="/friends?tab=invite">دعوت‌شده‌ها و کد دعوت</Link>
+    <Card title={<span className="bgv-row" id="invite-card-h"><Icon name="gift" />دوستانت را دعوت کن</span>} aria-labelledby="invite-card-h" data-testid="invite-card">
+      <div className="bgv-stack" style={{ gap: 'var(--space-3)' }}>
+        <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>
+          هر کس با لینک تو عضو شود خودکار دوستت می‌شود{mine ? <> و تو <strong>{mine}</strong> هدیه می‌گیری</> : null}.
+          {invited.length > 0 && <> تا حالا {faNum(invited.length)} نفر با لینک تو آمده‌اند.</>}
+        </p>
+        <div className="bgv-row">
+          <Button variant="primary" icon="link" onClick={() => copy(referralUrl(code), 'لینک دعوت کپی شد.')}>کپی لینک دعوت</Button>
+          <Button variant="ghost" href="/friends?tab=invite">دعوت‌شده‌ها و کد دعوت</Button>
+        </div>
       </div>
-    </section>
+    </Card>
   );
 }

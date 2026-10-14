@@ -166,6 +166,21 @@ export const snakesModule: GameModule<SnakesState, SnakesAction, SnakesView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const top = Math.max(...s.pos);
+    return {
+      seats: s.pos.map((pos, seat) => ({
+        seat,
+        primary: { label: 'خانه', value: pos, target: SIZE },
+        ...(winners.has(seat) ? { status: 'winner' as const } : !s.active[seat] ? { status: 'out' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      strikesMax: MAX_TIMEOUTS,
+      ...(s.pos.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.pos.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 5,
     options: { deal: 'tutorial' },

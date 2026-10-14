@@ -624,6 +624,30 @@ export const brassModule: GameModule<BrassState, BrassAction, BrassView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const top = Math.max(...s.vp);
+    const leaders = s.vp.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.vp.map((vp, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: vp },
+        stats: [
+          { key: 'money', label: 'پول', value: s.money[seat]!, icon: 'coins' },
+          { key: 'income', label: 'درآمد', value: incomeLevel(s.income[seat]!), icon: 'gem' },
+          { key: 'cards', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' }
+        ],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [
+        { key: 'era', label: 'عصر', value: s.era === 'canal' ? 'کانال' : 'راه‌آهن' },
+        { key: 'round', label: 'دور', value: s.round },
+        { key: 'deck', label: 'دسته', value: s.deck.length }
+      ],
+      ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => { const c = currentSeat(s); return c === null ? [] : [c]; },
 
   tutorial: {

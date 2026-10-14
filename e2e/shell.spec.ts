@@ -1,5 +1,8 @@
+import { execFileSync } from 'node:child_process';
 import { expect, test } from '@playwright/test';
-import { acceptTerms } from './helpers.ts';
+import { acceptTerms, signIn } from './helpers.ts';
+
+const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame';
 
 const shot = (name: string, project: string) => `docs/evidence/site/phase-00/${project}-${name}.png`;
 // Unique mobile per run/project so the per-mobile resend limit never interferes.
@@ -45,21 +48,26 @@ test('login → catalog → game detail', async ({ page }, info) => {
   await page.screenshot({ path: shot('05-detail', p), fullPage: true });
 
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'سلام، مهره‌باز' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'نوبت من' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /سلام مهره‌باز/, level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'نوبت شماست', level: 2 })).toBeVisible();
   await page.screenshot({ path: shot('06-dashboard', p), fullPage: true });
 
   await page.goto('/settings');
-  await page.getByText('روشن', { exact: true }).click();
+  await page.getByRole('radiogroup', { name: 'پوسته' }).getByText('روشن', { exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.screenshot({ path: shot('07-settings-light', p), fullPage: true });
-  await page.getByText('تیره', { exact: true }).click();
+  await page.getByRole('radiogroup', { name: 'پوسته' }).getByText('تیره', { exact: true }).click();
 
   await page.goto('/admin');
   await expect(page.getByText('دسترسی ندارید')).toBeVisible();
 });
 
 test('component showcase renders', async ({ page }, info) => {
+  // /design is admin-only now: a normal player is refused, an admin sees the showcase.
+  const mobile = await signIn(page, 'مدیر طراحی');
+  await page.goto('/design');
+  await expect(page.getByText('دسترسی ندارید')).toBeVisible();
+  execFileSync('node', ['packages/db/src/grant-role.ts', mobile, 'admin'], { env: { ...process.env, DATABASE_URL }, stdio: 'pipe' });
   await page.goto('/design');
   await expect(page.getByRole('heading', { name: 'اجزای طراحی' })).toBeVisible();
   await page.screenshot({ path: shot('08-showcase', info.project.name), fullPage: true });

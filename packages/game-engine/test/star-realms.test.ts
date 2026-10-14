@@ -144,3 +144,18 @@ describe('star realms rules', () => {
     }
   }, 120_000);
 });
+
+describe('star realms publicSummary', () => {
+  it('authority, hand and base counts; no hand identities', () => {
+    const snap = game(3);
+    const sum = srModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats.every((x) => x.primary!.value === 50)).toBe(true);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(st(snap).sides[0]!.hand.length);
+    expect(sum.leaderSeat).toBeUndefined();
+    const other = edit(snap, (s) => { s.sides[1]!.hand = s.sides[1]!.hand.slice().reverse(); s.sides[0]!.authority = 44; });
+    const s2 = srModule.publicSummary!(st(other));
+    expect(s2.leaderSeat).toBe(1);
+    expect(s2.seats[1]).toEqual(sum.seats[1]);
+  });
+});

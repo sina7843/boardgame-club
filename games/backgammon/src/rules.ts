@@ -348,6 +348,25 @@ export const backgammonModule: GameModule<BgState, BgAction, BgView> = {
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    const pips = [pipCount(s, 0), pipCount(s, 1)];
+    return {
+      seats: [0, 1].map((seat) => ({
+        seat,
+        primary: { label: 'خارج‌شده', value: s.off[seat]!, target: CHECKERS },
+        stats: [
+          { key: 'pips', label: 'پیپ', value: pips[seat]! },
+          { key: 'bar', label: 'بار', value: s.bar[seat]! }
+        ],
+        ...(won === seat ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      ...(s.rules.cube ? { shared: [{ key: 'cube', label: 'مکعب', value: s.cube.value }] } : {}),
+      strikesMax: MAX_TIMEOUTS
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [waitingOn(s)]),
 
   tutorial: {

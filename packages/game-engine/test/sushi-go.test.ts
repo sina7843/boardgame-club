@@ -115,3 +115,18 @@ describe('sushi go rules', () => {
     }
   }, 120_000);
 });
+
+describe('sushi go publicSummary', () => {
+  it('banked scores and counts only; a pending pick is just done', () => {
+    const snap = game(3, 5);
+    const sum = sushiGoModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.every((x) => x.stats![0]!.value === 9 && x.status === undefined)).toBe(true);
+    expect(sum.shared![0]).toMatchObject({ value: 1, max: 3 });
+    const kinds = [...new Set(st(snap).hands[0]!)];
+    expect(kinds.length).toBeGreaterThan(1);
+    const pick = (k: Kind) => sushiGoModule.publicSummary!(st(act(snap, 0, { type: 'pick', card: k })));
+    expect(pick(kinds[0]!)).toEqual(pick(kinds[1]!));
+    expect(pick(kinds[0]!).seats[0]!.status).toBe('done');
+  });
+});

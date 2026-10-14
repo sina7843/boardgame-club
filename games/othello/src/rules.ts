@@ -154,6 +154,21 @@ export const othelloModule: GameModule<OthelloState, OthelloAction, OthelloView>
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => {
+    const n = count(s.board);
+    const sc = [0, 1].map((seat) => n[s.colors[seat]!]);
+    return {
+      seats: [0, 1].map((seat) => ({
+        seat,
+        primary: { label: 'مهره', value: sc[seat]! },
+        ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      strikesMax: MAX_TIMEOUTS,
+      ...(sc[0] !== sc[1] ? { leaderSeat: sc[0]! > sc[1]! ? 0 : 1 } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.turn)]),
 
   tutorial: {

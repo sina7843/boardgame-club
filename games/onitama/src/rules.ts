@@ -203,6 +203,16 @@ export const onitamaModule: GameModule<OnitamaState, OnitamaAction, OnitamaView>
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary: (s) => ({
+    seats: [0, 1].map((seat) => ({
+      seat,
+      primary: { label: 'مهره', value: s.board.filter((p) => mine(p, seat)).length },
+      ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {}),
+      strikes: s.timeouts[seat]!
+    })),
+    strikesMax: MAX_TIMEOUTS
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

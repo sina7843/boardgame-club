@@ -31,8 +31,9 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
     await p.getByRole('button', { name: 'آماده‌ام' }).click();
   }
   await expect(a.locator('.lt__board')).toBeVisible();
-  const myTurn = (p: Page) => p.getByText(/نوبت شماست/).isVisible();
   for (const cell of [0, 3, 1, 4, 2]) {
+    // The target cell is empty, so it is enabled exactly on the page whose turn it is (the pill text can lag a moment).
+    const myTurn = async (p: Page) => (await p.locator('.lt__cell').nth(cell).getAttribute('aria-disabled')) !== 'true';
     let mover: Page | null = null;
     for (let i = 0; i < 60 && !mover; i++) { if (await myTurn(a)) mover = a; else if (await myTurn(b)) mover = b; else await a.waitForTimeout(150); }
     await expect(mover!.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
@@ -40,8 +41,8 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
     await expect(mover!.locator('.lt__cell').nth(cell)).not.toHaveText('');
   }
   // After the game (never during it): rating change and XP with reasons, computed by the worker.
-  await expect(a.getByText(/امتیاز رتبه‌دار: ۱٬?۵۰۰ →/)).toBeVisible({ timeout: 20_000 });
-  await expect(a.getByText(/XP: بازی کامل شد/)).toBeVisible();
+  await expect(a.getByText(/امتیاز رتبه‌دار.*: ۱٬?۵۰۰ →/)).toBeVisible({ timeout: 20_000 });
+  await expect(a.getByText(/بازی کامل شد/)).toBeVisible();
   await a.screenshot({ path: shot('01-result-rewards', info.project.name), fullPage: true });
 
   await a.goto('/progress');
@@ -63,7 +64,7 @@ test('development checkout: labelled fake gateway, server verification activates
   // Admin sets a test price (pricing is a product decision; this is a labelled development value).
   const plans = await (await admin.request.get('/api/admin/plans')).json();
   const monthly = plans.items.find((p: { key: string }) => p.key === 'premium-monthly');
-  const r = await admin.request.patch(`/api/admin/plans/${monthly.id}`, { data: { priceAmount: 990_000, active: true, reason: 'قیمت آزمایشی E2E' }, headers: { origin: 'http://127.0.0.1:5173' } });
+  const r = await admin.request.patch(`/api/admin/plans/${monthly.id}`, { data: { priceAmount: 990_000, active: true, reason: 'قیمت آزمایشی E2E' }, headers: { origin: new URL(admin.url()).origin } });
   expect(r.status()).toBe(204);
 
   const u = await newPage(browser, vp);
@@ -93,6 +94,6 @@ test('development checkout: labelled fake gateway, server verification activates
   await u.screenshot({ path: shot('07-plans-active', info.project.name), fullPage: true });
   await u.goto('/ranking');
   await expect(u.getByText(/تحلیل روند هفتگی و مقایسه فصل‌ها بخشی از/)).toHaveCount(0);
-  await admin.request.patch(`/api/admin/plans/${monthly.id}`, { data: { active: false, reason: 'پایان آزمون E2E' }, headers: { origin: 'http://127.0.0.1:5173' } });
+  await admin.request.patch(`/api/admin/plans/${monthly.id}`, { data: { active: false, reason: 'پایان آزمون E2E' }, headers: { origin: new URL(admin.url()).origin } });
   await admin.context().close(); await u.context().close();
 });

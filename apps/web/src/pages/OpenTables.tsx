@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { Avatar, Button, StateBlock } from '@bg/ui';
+import { useNavigate } from 'react-router';
+import { Badge, Banner, Button, Card, Identity, PageHead, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
+import { userIdentity } from '../lib/bgv.tsx';
 import { durationFa, faNum, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { Hint } from '../shell/Onboarding.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 interface LiveTable { id: string; gameNameFa: string; pace: 'live' | 'turn'; players: string[]; tournament: { id: string; titleFa: string; round: number } | null }
@@ -20,7 +20,7 @@ export function OpenTables() {
   const [joining, setJoining] = useState<string>();
   const [error, setError] = useState<string>();
 
-  if (status !== 'loading' && !me) return <StateBlock kind="denied" title="برای دیدن میزهای باز وارد شوید" action={<Link className="btn btn--primary" to="/login?next=/tables">ورود</Link>} />;
+  if (status !== 'loading' && !me) return <StateBlock kind="denied" title="برای دیدن میزهای باز وارد شوید" action={<Button variant="primary" href="/login?next=/tables">ورود</Button>} />;
 
   const join = async (id: string) => {
     setJoining(id); setError(undefined);
@@ -32,50 +32,59 @@ export function OpenTables() {
   return (
     <>
       <PageTabs group="tables" />
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">میزهای باز<Hint id="open-tables">روی میزی که جای خالی دارد بزنید تا بنشینید؛ وقتی همه آماده شوند بازی شروع می‌شود. میزهای در حال بازی را هم می‌توانید تماشا کنید.</Hint></h1>
-          <p className="page-sub">میزهای عمومی که منتظر بازیکن‌اند. میز خصوصی فقط با لینک دعوت باز می‌شود.</p>
-        </div>
-        <Button variant="secondary" onClick={() => { list.reload(); live.reload(); }}>به‌روزرسانی</Button>
+      <PageHead title="میزهای باز" sub="میزهای عمومی که منتظر بازیکن‌اند. روی میزی که جای خالی دارد بزنید تا بنشینید؛ میز خصوصی فقط با لینک دعوت باز می‌شود."
+        actions={<>
+          <Button href="/play" icon="zap">حریف‌یابی سریع</Button>
+          <Button variant="primary" href="/games" icon="plus">میز بساز</Button>
+        </>} />
+      <div className="pg-head-actions">
+        <Button icon="refresh-cw" onClick={() => { list.reload(); live.reload(); }}>به‌روزرسانی</Button>
       </div>
-      {error && <div className="banner banner--warn" role="alert">{error}</div>}
-      {list.loading && !list.data && <StateBlock kind="loading" title="در حال بارگذاری میزها…" />}
-      {list.error && <StateBlock kind="error" title="فهرست میزها دریافت نشد" action={<Button onClick={list.reload}>تلاش دوباره</Button>}>{list.error.messageFa}</StateBlock>}
+      {error && <div role="alert"><Banner tone="warning" text={error} /></div>}
+      {list.loading && !list.data && <><Skeleton height={200} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری میزها…</span></>}
+      {list.error && <StateBlock kind="error" title="فهرست میزها دریافت نشد" text={list.error.messageFa} action={<Button onClick={list.reload}>تلاش دوباره</Button>} />}
       {list.data && (list.data.items.length === 0
-        ? <StateBlock kind="empty" title="فعلاً میز بازی منتظر بازیکن نیست" action={<Link className="btn btn--primary" to="/games">یک بازی انتخاب کنید و میز بسازید</Link>} />
+        ? <StateBlock kind="empty" title="فعلاً میز بازی منتظر بازیکن نیست" action={<Button variant="primary" href="/games">یک بازی انتخاب کنید و میز بسازید</Button>} />
         : (
-          <ul className="list" data-tour="open-tables">
-            {list.data.items.map((t) => (
-              <li key={t.id} className="panel list__item">
-                <Avatar avatarKey={t.host.avatarKey} name={t.host.displayName} />
-                <div style={{ flex: 1, minInlineSize: 0 }}>
-                  <strong>{t.gameNameFa}</strong>
-                  <div className="muted">{PACE_FA[t.pace]} · {durationFa(t.turnSeconds)} · میزبان <bdi>{t.host.displayName}</bdi> · {faNum(t.players)} از {faNum(t.capacity)} نفر</div>
-                </div>
-                <Button busy={joining === t.id} onClick={() => join(t.id)}>پیوستن</Button>
-              </li>
-            ))}
-          </ul>
-        ))}
-      <section className="stack" aria-labelledby="live-h" style={{ marginBlockStart: 'var(--space-6, 2rem)' }}>
-        <h2 id="live-h" className="section-title">در حال بازی؛ تماشا کنید</h2>
-        {live.error && <div className="banner banner--warn" role="alert">{live.error.messageFa}</div>}
-        {live.data && (live.data.items.length === 0
-          ? <p className="muted">فعلاً بازی عمومی یا تورنمنتی در جریان نیست.</p>
-          : (
-            <ul className="list">
-              {live.data.items.map((t) => (
-                <li key={t.id} className="panel list__item">
-                  <div style={{ flex: 1, minInlineSize: 0 }}>
-                    <strong>{t.gameNameFa}</strong>
-                    {t.tournament && <> · <Link to={`/tournaments/${t.tournament.id}`}>{t.tournament.titleFa}</Link>، دور {faNum(t.tournament.round)}</>}
-                    <div className="muted">{PACE_FA[t.pace]} · {t.players.map((n, i) => <span key={i}>{i > 0 && '، '}<bdi>{n}</bdi></span>)}</div>
+          <Card flush data-tour="open-tables" aria-label="میزهای باز">
+            <div className="pg-colhead"><span>بازی</span><span>میزبان</span><span>صندلی‌ها</span><span /></div>
+            <ul className="pg-ul">
+              {list.data.items.map((t) => (
+                <li key={t.id} className="pg-orow">
+                  <div className="pg-orow__game">
+                    <img className="pg-thumb" style={{ inlineSize: 72, blockSize: 40 }} src={`/covers/${t.gameId}.webp?v=2`} alt="" />
+                    <div><b>{t.gameNameFa}</b><span className="pg-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{durationFa(t.turnSeconds)}</span></div>
                   </div>
-                  <Link className="btn btn--secondary" to={`/tables/${t.id}`}>تماشا</Link>
+                  <div className="pg-orow__host"><Identity size="sm" {...userIdentity(t.host)} sub="میزبان" /></div>
+                  <div className="pg-orow__seats"><Badge icon="armchair">{faNum(t.players)} از {faNum(t.capacity)} نفر</Badge></div>
+                  <Button variant="primary" icon="armchair" loading={joining === t.id} onClick={() => join(t.id)} aria-label={`پیوستن به میز ${t.gameNameFa}`}>پیوستن</Button>
                 </li>
               ))}
             </ul>
+          </Card>
+        ))}
+      <section className="pg-sec" aria-labelledby="live-h">
+        <h2 id="live-h" className="pg-h2">در حال بازی؛ تماشا کنید</h2>
+        {live.error && <div role="alert"><Banner tone="warning" text={live.error.messageFa} /></div>}
+        {live.data && (live.data.items.length === 0
+          ? <p className="bgv-muted">فعلاً بازی عمومی یا تورنمنتی در جریان نیست.</p>
+          : (
+            <Card flush>
+              <ul className="pg-ul">
+                {live.data.items.map((t) => (
+                  <li key={t.id} className="pg-ended">
+                    <div className="pg-ended__main">
+                      <b>{t.gameNameFa}</b>
+                      <span className="pg-meta">{PACE_FA[t.pace]}
+                        {t.tournament && <><span className="bgv-sep" /><a className="pg-link" href={`/tournaments/${t.tournament.id}`}>{t.tournament.titleFa}</a>، دور {faNum(t.tournament.round)}</>}
+                        <span className="bgv-sep" />{t.players.map((n, i) => <span key={i}>{i > 0 && '، '}<bdi>{n}</bdi></span>)}
+                      </span>
+                    </div>
+                    <Button size="sm" icon="eye" href={`/tables/${t.id}`}>تماشا</Button>
+                  </li>
+                ))}
+              </ul>
+            </Card>
           ))}
       </section>
     </>

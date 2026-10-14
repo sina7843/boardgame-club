@@ -32,6 +32,8 @@ export const users = pgTable('users', {
   favoriteGames: text().array().notNull().default(sql`'{}'::text[]`),
   /** Achievement keys the player chose to show first. */
   showcase: text().array().notNull().default(sql`'{}'::text[]`),
+  /** Equipped table cosmetics per kind (`{ seatRing: 'sr.2' }`); ownership is checked when equipping. */
+  equipped: jsonb().$type<Partial<Record<'cardBack' | 'boardSkin' | 'emote' | 'chatBubble' | 'seatRing', string>>>().notNull().default({}),
   profileCompleted: boolean().notNull().default(false),
   /** `deleted` = self-deleted: profile anonymised, mobile released, sessions rejected; the row stays for game history. */
   status: text().notNull().default('active'),
@@ -175,6 +177,14 @@ export const messages = pgTable('messages', {
   index('messages_sender_created_idx').on(t.senderId, t.createdAt),
   uniqueIndex('messages_sender_client_uq').on(t.senderId, t.clientId).where(sql`client_id is not null`)
 ]);
+
+/** One row per user+message+emoji; the emoji allow-list is enforced by the API contract. */
+export const messageReactions = pgTable('message_reactions', {
+  messageId: uuid().notNull().references(() => messages.id, { onDelete: 'cascade' }),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  emoji: text().notNull(),
+  createdAt: createdAt()
+}, (t) => [primaryKey({ columns: [t.messageId, t.userId, t.emoji] })]);
 
 export const reports = pgTable('reports', {
   id: id(),
@@ -841,6 +851,11 @@ export const userSettings = pgTable('user_settings', {
   dmPolicy: text().notNull().default('friends'),
   notify: jsonb().$type<{ turn: boolean; invite: boolean; message: boolean; result: boolean; social: boolean }>().notNull()
     .default({ turn: true, invite: true, message: true, result: true, social: true }),
+  /** Turn-alert preferences (contracts alertPrefs); null = defaults. */
+  alerts: jsonb(),
+  /** What the public profile card shows to others (contracts profilePrivacy). */
+  profilePrivacy: jsonb().$type<{ showStats: boolean; showRatings: boolean; showRecent: boolean }>().notNull()
+    .default({ showStats: true, showRatings: true, showRecent: true }),
   updatedAt: createdAt()
 }, (t) => [oneOf('user_settings_dm_chk', t.dmPolicy, ['friends', 'nobody'])]);
 

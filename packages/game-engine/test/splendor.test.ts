@@ -161,3 +161,18 @@ describe('splendor rules', () => {
     }
   }, 120_000);
 });
+
+describe('splendor publicSummary', () => {
+  it('points, cards, gem and reserved counts; a blind reservation reveals nothing', () => {
+    const snap = game(2, 3);
+    const sum = splendorModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0, target: 15 });
+    const me = st(snap).current;
+    const a = splendorModule.publicSummary!(st(act(snap, me, { type: 'reserve', level: 1 })));
+    const b = splendorModule.publicSummary!(st(act(snap, me, { type: 'reserve', level: 3 })));
+    expect(a).toEqual(b);
+    expect(a.seats[me]!.stats![2]!.value).toBe(1);
+    expect(a.seats[me]!.stats![1]!.value).toBe(1);
+  });
+});

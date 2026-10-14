@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>سوشی گو، هم‌زمان، موبایل</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.th-stage{position:relative;flex:1;min-block-size:0}
+.th-stage>img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:contain}
+.th .bgv-pcard--mini{padding:10px 12px}
+.th .bgv-pcard--mini .bgv-pcard__stats{gap:6px!important;flex-wrap:nowrap}
+.th .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.th .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.th .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.th .bgv-pcard__top>.bgv-avatar{margin:4px}
+.th .bgv-felt-plate{padding:8px 12px}
+.th .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.th .bgv-turn__who{min-inline-size:0;overflow:hidden;text-overflow:ellipsis}
+.th-img{display:block;max-inline-size:100%;block-size:auto;object-fit:contain;margin-inline:auto}
+.th-row{display:flex;align-items:center;gap:10px;min-inline-size:0}
+.th-row>img{display:block;block-size:var(--h,48px);inline-size:auto;max-inline-size:62%;object-fit:contain;margin-inline-start:auto;flex:none}
+.th-who{display:grid;gap:2px;min-inline-size:0;line-height:1.35}
+.th-who b{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap;flex:none}
+.th-who small{font-size:12px;color:var(--felt-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-fpc{padding:8px 12px;gap:6px}
+.th-hand{display:block;margin-inline:auto;max-inline-size:100%;object-fit:contain}
+.th-tray{gap:8px;flex:none}
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+</style>
+
+<div class="bgv th" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px;grid-template-rows:var(--gamebar-h) minmax(0,1fr) auto">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">سوشی گو<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Sushi Go!</span></span><span class="bgv-gamebar__meta">هم‌زمان<span class="bgv-sep"></span>۶۰ ثانیه<span class="bgv-sep"></span>دور ۲ از ۳</span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+
+<main class="bgv-felt th-felt" style="padding:12px;gap:8px" aria-label="میز سوشی گو">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--simul" role="status"><span class="bgv-turn__who">همه انتخاب می‌کنند، ۰ از ۴ آماده</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.73;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۴۴</span></span></span></div>
+ <div style="display:grid;gap:6px"><div class="bgv-pcard th-fpc" role="button" tabindex="0" aria-label="نیلوفر"><div class="th-row"><div class="bgv-pcard__name th-who" style="display:flex;align-items:center;gap:8px"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>۱۶ امتیاز<span class="bgv-sep"></span>۰ پودینگ</small></div><span class="bgv-pstate" style="flex:none"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>در فکر…</span></div><img src="../assets/games/tablehud-sushi-tray-1.webp" alt="بشقاب‌های چیده‌شدهٔ نیلوفر در این دور، از خود بازی" width="344" height="66" style="display:block;block-size:50px;inline-size:auto;max-inline-size:100%;margin-inline:auto"></div><div class="bgv-pcard th-fpc" role="button" tabindex="0" aria-label="آرش"><div class="th-row"><div class="bgv-pcard__name th-who" style="display:flex;align-items:center;gap:8px"><b><i class="bgv-seat seat-3"></i>آرش</b><small>۱۰ امتیاز<span class="bgv-sep"></span>۰ پودینگ</small></div><span class="bgv-pstate" style="flex:none"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>در فکر…</span></div><img src="../assets/games/tablehud-sushi-tray-2.webp" alt="بشقاب‌های چیده‌شدهٔ آرش در این دور، از خود بازی" width="344" height="65" style="display:block;block-size:50px;inline-size:auto;max-inline-size:100%;margin-inline:auto"></div><div class="bgv-pcard th-fpc" role="button" tabindex="0" aria-label="سارا"><div class="th-row"><div class="bgv-pcard__name th-who" style="display:flex;align-items:center;gap:8px"><b><i class="bgv-seat seat-4"></i>سارا</b><small>۹ امتیاز<span class="bgv-sep"></span>۰ پودینگ</small></div><span class="bgv-pstate" style="flex:none"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>در فکر…</span></div><img src="../assets/games/tablehud-sushi-tray-3.webp" alt="بشقاب‌های چیده‌شدهٔ سارا در این دور، از خود بازی" width="344" height="66" style="display:block;block-size:50px;inline-size:auto;max-inline-size:100%;margin-inline:auto"></div><div class="bgv-pcard th-fpc is-you" role="button" tabindex="0" aria-label="مینا"><div class="th-row"><div class="bgv-pcard__name th-who" style="display:flex;align-items:center;gap:8px"><b><i class="bgv-seat seat-1"></i>مینا</b><small>۷ امتیاز<span class="bgv-sep"></span>۳ پودینگ</small></div><span class="bgv-pstate" style="flex:none"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>در فکر…</span></div><img src="../assets/games/tablehud-sushi-tray-4.webp" alt="بشقاب‌های چیده‌شدهٔ مینا در این دور، از خود بازی" width="344" height="66" style="display:block;block-size:50px;inline-size:auto;max-inline-size:100%;margin-inline:auto"></div></div>
+</main>
+<section class="bgv-actiondock" aria-label="دست و کنش‌های شما"><div class="bgv-actiondock__prompt"><span style="min-inline-size:0">یک بشقاب بردارید</span><span class="bgv-spacer"></span><span class="bgv-clock" data-state="calm" style="--p:0.73;"><span class="bgv-clock__ring"></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۴۴</span><span class="bgv-clock__sub">مهلت مشترک</span></span></span></div><img class="th-hand" src="../assets/games/tablehud-sushi-hand.webp" alt="دست شما از خود بازی: نیگیری تخم‌مرغ، ماکی ۱، نیگیری تخم‌مرغ، واسابی، پودینگ" width="364" height="241" style="block-size:176px;inline-size:auto"></section>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

@@ -182,6 +182,23 @@ export const sealedBidsModule: GameModule<SealedBidsState, SealedBidsAction, Sea
 
   pendingSeats: (state) => (state.outcome ? [] : state.pending.flatMap((b, seat) => (b === null && !state.resigned[seat] ? [seat] : []))),
 
+  publicSummary(state) {
+    const top = Math.max(...state.scores);
+    const winners = new Set((state.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: state.scores.map((score, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: score },
+        stats: [{ key: 'tokens', label: 'ژتون', value: state.hands[seat]!.length, icon: 'coins' }],
+        ...(winners.has(seat) ? { status: 'winner' as const }
+          : state.resigned[seat] ? { status: 'out' as const }
+          : !state.outcome && state.pending[seat] !== null ? { status: 'done' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: Math.min(state.round, ROUNDS), max: ROUNDS }],
+      ...(state.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: state.scores.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 7,
     introFa: 'در مزایده سربسته هر دور همه هم‌زمان یک ژتون را پنهانی ثبت می‌کنند. بالاترین پیشنهاد یکتا، امتیاز همان دور را می‌برد.',

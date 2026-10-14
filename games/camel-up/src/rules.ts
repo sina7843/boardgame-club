@@ -232,6 +232,22 @@ export const camelModule: GameModule<CamelState, CamelAction, CamelView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary(s) {
+    const top = Math.max(...s.coins);
+    const leaders = s.coins.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: s.coins.map((coins, seat) => ({
+        seat,
+        primary: { label: 'سکه', value: coins },
+        stats: [{ key: 'legBets', label: 'شرط مرحله', value: s.legBets[seat]!.length, icon: 'flag' }],
+        ...(won === seat ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'leg', label: 'مرحله', value: s.leg }, { key: 'dice', label: 'تاس', value: s.dice.length, max: CAMELS.length }],
+      ...(leaders.length === 1 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

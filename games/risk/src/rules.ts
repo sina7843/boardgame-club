@@ -646,6 +646,29 @@ export const riskModule: GameModule<RiskState, RiskAction, RiskView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const terr = Array<number>(s.players).fill(0);
+    const troops = Array<number>(s.players).fill(0);
+    s.owner.forEach((o, t) => { if (o >= 0 && o < s.players) { terr[o]! += 1; troops[o]! += s.armies[t]!; } });
+    const top = Math.max(...terr);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: Array.from({ length: s.players }, (_, seat) => ({
+        seat,
+        primary: { label: 'قلمرو', value: terr[seat]! },
+        stats: [
+          { key: 'armies', label: 'سرباز', value: troops[seat]!, icon: 'swords' },
+          { key: 'cards', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : s.status[seat] !== 'active' ? { status: 'out' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'turn', label: 'دور', value: s.turn }],
+      strikesMax: MAX_TIMEOUTS,
+      ...(terr.filter((v) => v === top).length === 1 ? { leaderSeat: terr.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 11,
     options: { deal: 'tutorial' },

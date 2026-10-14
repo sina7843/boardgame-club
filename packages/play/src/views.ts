@@ -1,10 +1,12 @@
 // Read models. Game data leaves the server only through module.project()/legalActions() for one viewer.
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { AppError, botPersona, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
+import { AppError, botPersona, type TurnStartedEvent, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
 import { loadSnapshot } from './runtime.ts';
+import { rematchOf } from './rematch.ts';
+import { seatCosmeticsOf } from './cosmetics.ts';
 
 const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables } = schema;
 
@@ -78,6 +80,16 @@ export function tableContextAt(db: Db, tableId: string, revision: number): Promi
   return ctx;
 }
 
+/** `turn.started` for a freshly persisted move: who must act and until when (null when no clock runs). */
+export function turnStartedEvent(registry: GameRegistry, ctx: TableContext, revision: number): TurnStartedEvent | null {
+  const { table, version, snap, turnDue } = ctx;
+  if (table.status !== 'active' || table.isTutorial || !turnDue || !snap || table.revision !== revision) return null;
+  const seats = registry.resolve(table.gameId, version.rulesVersion).pendingSeats(snap.state);
+  if (!seats.length) return null;
+  return { tableId: table.id, revision, seats, dueAt: turnDue.toISOString(), turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
+    pace: table.pace as 'live' | 'turn', serverTime: new Date().toISOString() };
+}
+
 /** Builds the authorized snapshot for one viewer, enforcing table access (private, tutorial, invite). */
 export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: ViewRequest, ctx?: TableContext): Promise<TableSnapshot> {
   const { table, version, game, seats, incident, snap, readyDue, turnDue, result } = ctx ?? await loadTableContext(db, req.tableId);
@@ -106,12 +118,14 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
     competition: table.competition as TableLobby['competition'], visibility: table.visibility as TableLobby['visibility'],
-    capacity: table.capacity, settings: table.settings as TableLobby['settings'],
+    capacity: table.capacity, settings: (({ rematch: _r, ...rest }) => rest)(table.settings as Record<string, unknown>) as TableLobby['settings'],
     rulesVersion: version.rulesVersion, stateSchemaVersion: version.stateSchemaVersion, clientBundleRef: version.clientBundleRef,
     isTutorial: table.isTutorial, isMatchmade: table.isMatchmade, readyDeadline: null, hostId: table.hostId,
     seats: seats.map(({ p, u }) => ({
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
+      // equipped comes with the seats' users row (no extra query on the move path).
+      ...(u && seatCosmeticsOf(u.equipped) ? { cosmetics: seatCosmeticsOf(u.equipped)! } : {}),
       ...(p.kind === 'bot' && botCfg ? { bot: botSeat(p.seat) } : {})
     })),
     mySeat,
@@ -121,7 +135,8 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       disconnectFa: `${table.isTutorial ? DISCONNECT_FA.tutorial : DISCONNECT_FA[table.pace as 'live' | 'turn']} ${table.isTutorial ? '' : INCIDENT_FA}`.trim()
     },
     variants: describeVariants(registry, table, version.rulesVersion),
-    createdAt: table.createdAt.toISOString()
+    createdAt: table.createdAt.toISOString(),
+    rematch: rematchOf(table)
   };
 
   if (table.isMatchmade && table.status === 'open') lobby.readyDeadline = readyDue?.toISOString() ?? null;
@@ -136,6 +151,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       view,
       legalActions: table.status === 'active' ? legalActions : [],
       pendingSeats: table.status === 'active' ? module.pendingSeats(snap.state) : [],
+      summary: module.publicSummary ? module.publicSummary(snap.state) : null,
       deadline: turnDue ? { dueAt: turnDue.toISOString(), frozen: !!incident } : null,
       result: (result as GameView['result'] | null) ?? null,
       tutorial: table.isTutorial ? {
@@ -231,6 +247,7 @@ export function toNotificationItem(n: typeof notifications.$inferSelect): Notifi
     invite: `${actor} شما را به میز «${game}» دعوت کرد.`,
     match: `حریف پیدا شد: «${game}». آمادگی خود را اعلام کنید.`,
     message: `پیام تازه از ${actor}.`,
+    mention: `${actor} شما را در یک گفتگو نام برد.`,
     friend_request: `${actor} برای شما درخواست دوستی فرستاد.`,
     club: `درخواست تازه در باشگاه «${p.clubName ?? ''}».`,
     tournament: p.cancelled ? `تورنمنت «${p.titleFa}» لغو شد؛ ورودی شما برمی‌گردد.`

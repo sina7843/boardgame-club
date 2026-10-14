@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پروژه گایا، برگهٔ بازیکن</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.th-stage{position:relative;flex:1;min-block-size:0}
+.th-stage>img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:contain}
+.th .bgv-pcard--mini{padding:10px 12px}
+.th .bgv-pcard--mini .bgv-pcard__stats{gap:6px!important;flex-wrap:nowrap}
+.th .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.th .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.th .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.th .bgv-pcard__top>.bgv-avatar{margin:4px}
+.th .bgv-felt-plate{padding:8px 12px}
+.th .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.th .bgv-turn__who{min-inline-size:0;overflow:hidden;text-overflow:ellipsis}
+.th-img{display:block;max-inline-size:100%;block-size:auto;object-fit:contain;margin-inline:auto}
+.th-res{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.th-res .bgv-hstat--tile{padding:6px 8px;min-inline-size:0}
+.th-res .bgv-hstat__label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-round{font-size:12.5px;line-height:1.45}
+.th-sheet{position:absolute;inset-inline:0;inset-block-end:0;block-size:776px;z-index:var(--z-sheet)}
+.th-sheet__head{display:grid;gap:12px;padding:4px 16px 12px;border-block-end:1px solid var(--line)}
+.th-sheet__body{flex:1;min-block-size:0;overflow:hidden;display:grid;gap:12px;align-content:start;padding:12px 16px 16px}
+.th-sheet__body img{display:block;inline-size:100%;block-size:auto;border-radius:var(--radius-lg)}
+.th-sheet .bgv-pagetabs{inline-size:100%}
+.th-sheet .bgv-pagetabs a{padding-inline:12px;flex:1;justify-content:center}
+/* qa1: phone game bar, meta items must not be clipped mid-word */
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+/* qa1: power bowls «۴•۲•۰» stay inside their tile */
+.bgv-hstat--tile b .bgv-sep{margin-inline:2px}
+.bgv-hstat--tile b{white-space:nowrap}
+</style>
+
+<div class="bgv th" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Gaia Project</span></span><span class="bgv-gamebar__meta">نوبتی<span class="bgv-sep"></span>۲۴ ساعت هر نوبت</span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان، برای برگهٔ هر بازیکن بزنید"><div class="bgv-pcard bgv-pcard--mini is-you" role="button" tabindex="0" aria-label="مینا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1"></i><span class="bgv-sr">مینا</span></b><small>هادش هالا</small></div><div class="bgv-pcard__score">۱۸<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>منتظر</span></div></div><div class="bgv-pcard bgv-pcard--mini is-turn is-leader" style="--clock-c:var(--clock-warn)" role="button" tabindex="0" aria-label="نیلوفر، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-2 is-turn" style="--clock-c:var(--clock-warn);">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>زنوس</small></div><div class="bgv-pcard__score">۳۲<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="آرش، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-3">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3"></i>آرش</b><small>تاکلون‌ها</small></div><div class="bgv-pcard__score">۱۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>پاس داده</span></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="سارا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-4">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4"></i>سارا</b><small>ژئودن‌ها</small></div><div class="bgv-pcard__score">۱۴<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div></section>
+<main class="bgv-felt th-felt" style="padding:12px;gap:8px" aria-label="میز پروژه گایا">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn" role="status"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-2">ن</span>نوبت نیلوفر</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="warn" style="--p:0.375;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۹ ساعت</span></span></span><span class="bgv-felt-plate">دور <strong>۴</strong> از ۶</span></div>
+ <div class="th-stage" style="--ar:728/764;"><img src="../assets/games/tablehud-gaia-map-m.webp" alt="نقشهٔ فضا از خود بازی، با سیاره‌ها و سازه‌های چهار بازیکن" width="364" height="382"></div>
+ <span class="bgv-felt-plate th-round" style="align-self:stretch;justify-content:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg><span>امتیاز دور ۴: هر ایستگاه تجاری <b>۳ امتیاز</b></span></span>
+</main>
+<section class="bgv-actiondock is-waiting" aria-label="دست و کنش‌های شما"><div class="bgv-actiondock__prompt"><span style="min-inline-size:0">در انتظار نیلوفر</span><span class="bgv-spacer"></span><span class="bgv-clock" data-state="paused" style="--p:1;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۲۴ ساعت</span><span class="bgv-clock__sub">زمان نوبت شما</span></span></span></div><div class="th-res" aria-label="منابع شما"><span class="bgv-hstat bgv-hstat--tile"><span class="bgv-hstat__label" style="display:flex;align-items:center;gap:4px"><span class="bgv-hstat__res" style="--_r:#D9A441"></span>اعتبار</span><b>۱۸</b></span><span class="bgv-hstat bgv-hstat--tile"><span class="bgv-hstat__label" style="display:flex;align-items:center;gap:4px"><span class="bgv-hstat__res" style="--_r:#6F6A66"></span>سنگ</span><b>۵</b></span><span class="bgv-hstat bgv-hstat--tile"><span class="bgv-hstat__label" style="display:flex;align-items:center;gap:4px"><span class="bgv-hstat__res" style="--_r:#3D7BD9"></span>دانش</span><b>۴</b></span><span class="bgv-hstat bgv-hstat--tile"><span class="bgv-hstat__label" style="display:flex;align-items:center;gap:4px"><span class="bgv-hstat__res" style="--_r:#3FAE6A"></span>QIC</span><b>۱</b></span><span class="bgv-hstat bgv-hstat--tile"><span class="bgv-hstat__label" style="display:flex;align-items:center;gap:4px"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>قدرت</span><b style="font-size:15px">۴<span class="bgv-sep"></span>۲<span class="bgv-sep"></span>۰</b></span></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /> <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg>برگهٔ من</button><button class="bgv-btn bgv-btn--secondary" type="button" disabled=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>اقدام‌های قدرت</button></div></section>
+</div>
+<div class="bgv-scrim" style="z-index:var(--z-sheet)"></div>
+<section class="bgv-sheet th-sheet" role="dialog" aria-label="برگهٔ نیلوفر"><div class="bgv-sheet__handle"></div><div class="th-sheet__head">
+  <div style="display:flex;align-items:center;gap:12px;min-inline-size:0">
+   <span class="bgv-avatar bgv-avatar--lg seat-2 is-turn" style="--clock-c:var(--clock-warn);margin:9px">ن</span>
+   <div class="bgv-identity__text" style="flex:1;min-inline-size:0">
+    <span class="bgv-identity__name" style="font-size:18px;font-weight:900;color:var(--heading)"><i class="bgv-seat seat-2"></i>نیلوفر<span class="bgv-league bgv-league--diamond">الماس</span></span>
+    <span class="bgv-identity__sub">زنوس <span class="bgv-latin">Xenos</span><span class="bgv-sep"></span>رتبهٔ ۱</span>
+   </div>
+   <div class="bgv-pcard__score" style="font-size:28px">۳۲<small>امتیاز</small></div>
+   <button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بستن برگهٔ نیلوفر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button>
+  </div>
+  <div class="bgv-row" style="gap:8px">
+   <span class="bgv-badge bgv-badge--warning"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>در نوبت، ۹ ساعت مانده</span>
+   <span class="bgv-badge"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <line x1="12" x2="12" y1="8" y2="12" /> <line x1="12" x2="12.01" y1="16" y2="16" /></svg>تأخیر ۰ از ۳</span>
+  </div>
+  <nav class="bgv-pagetabs" aria-label="بخش‌های برگهٔ بازیکن"><a href="#terra">زمین‌سازی</a><a href="#power">قدرت</a><a class="is-active" aria-current="true" href="#structs">سازه‌ها</a><a href="#res">منابع</a></nav>
+ </div><div class="th-sheet__body" aria-label="برگهٔ بازیکن از خود بازی">
+  <img src="../assets/games/tablehud-gaia-nil-structs.webp" alt="سازه‌ها و درآمدشان، از برگهٔ بازیکن خود بازی: معدن ۳ از ۸، ایستگاه تجاری ۳ از ۴، آزمایشگاه پژوهشی ۰ از ۳، مؤسسهٔ سیاره‌ای، آکادمی‌ها" width="342" height="440">
+  <img src="../assets/games/tablehud-gaia-nil-ability.webp" alt="توانایی جناح و مؤسسه، بسته" width="342" height="46">
+  <img src="../assets/games/tablehud-gaia-nil-res.webp" alt="منابع: اعتبار ۸، سنگ معدن ۳، دانش ۲، QIC ۱" width="342" height="293">
+ </div></section>
+</div>
+</x-dc>
+
+</body>
+</html>

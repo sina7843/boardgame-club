@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Crown, Receipt, Sparkles } from 'lucide-react';
-import { Badge, Button, Progress, StateBlock, buttonClass, faNumber, useToast } from '@bg/ui';
+import { faNumber, useToast } from '@bg/ui';
+import { Badge, Banner, Button, Card, Coin, Icon, PageHead, Progress, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
-import { CoinMark, coinsChanged, useCoins } from '../lib/coins.tsx';
+import { coinsChanged, useCoins } from '../lib/coins.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
@@ -18,7 +18,7 @@ export function CoinsPage() {
   const c = useCoins();
   const [busy, setBusy] = useState<string>();
   if (c.error) return <StateBlock kind={c.error.status === 401 ? 'denied' : 'error'} title={c.error.status === 401 ? 'برای دیدن سکه‌ها وارد شوید' : 'سکه‌ها دریافت نشد'}
-    action={c.error.status === 401 ? <Link className={buttonClass('primary', 'md')} to="/login?next=/coins">ورود</Link> : <Button onClick={c.reload}>تلاش دوباره</Button>} />;
+    action={c.error.status === 401 ? <Button variant="primary" href="/login?next=/coins">ورود</Button> : <Button onClick={c.reload}>تلاش دوباره</Button>} />;
   if (!c.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = c.data;
 
@@ -40,88 +40,87 @@ export function CoinsPage() {
   return (
     <>
       <PageTabs group="wallet" />
-      <div className="page-head"><div><h1 className="page-title">سکه‌ها</h1><p className="page-sub">با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید{d.shop.length > 0 && ' و با آن روز پریمیوم بخرید'}. سکه روی رتبه و نتیجه بازی اثری ندارد.</p></div></div>
-      {d.checkout.fixture && d.packs.length > 0 && <div className="banner banner--warn" role="note">حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود.</div>}
-      <div className="grid gap-6">
-        <section aria-labelledby="bal-h" className="relative isolate flex flex-wrap items-center gap-5 overflow-hidden rounded-surface bg-felt p-6 text-felt-foreground shadow-surface animate-fade-up">
-          <CoinMark className="size-16 animate-pop" />
-          <div className="grid gap-1">
-            <h2 id="bal-h" className="m-0 text-sm font-semibold opacity-85">موجودی من</h2>
-            <p className="m-0 font-display text-4xl font-extrabold leading-none" aria-live="polite"><span className="num">{faNum(d.balance)}</span> <span className="text-xl">سکه</span></p>
-          </div>
-        </section>
+      <PageHead title="سکه‌ها" sub={`با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید${d.shop.length > 0 ? ' و با آن روز پریمیوم بخرید' : ''}. سکه روی رتبه و نتیجه بازی اثری ندارد.`} />
+      {d.checkout.fixture && d.packs.length > 0 && <Banner tone="warning" text="حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود." />}
 
-        {d.shop.length > 0 && <section className="stack" aria-labelledby="shop-h">
-          <h2 id="shop-h" className="section-title">خرید با سکه</h2>
-          <div className="grid gap-5 sm:grid-cols-2 lg:max-w-4xl">
-            {d.shop.map((i, n) => {
+      <section className="bgv-hero ac-balance" aria-labelledby="bal-h">
+        <Coin size="lg" aria-hidden />
+        <div style={{ display: 'grid', gap: 4, flex: '1 1 240px' }}>
+          <h2 id="bal-h" className="bgv-hero__eyebrow">موجودی من</h2>
+          <p className="ac-balance__num" aria-live="polite">{faNum(d.balance)} <small>سکه</small></p>
+        </div>
+        {d.packs.length > 0 && <Button href="/plans">سابقهٔ پرداخت</Button>}
+      </section>
+
+      {d.shop.length > 0 && (
+        <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="shop-h">
+          <h2 id="shop-h" className="ac-h2">خرید با سکه</h2>
+          <div className="bgv-grid ac-fit">
+            {d.shop.map((i) => {
               const short = Math.max(0, i.cost - d.balance);
               return (
-                <section key={i.key} aria-labelledby={`shop-${i.key}`} style={{ animationDelay: `${n * 90}ms` }}
-                  className="flex flex-col gap-4 rounded-surface border-line border-border bg-card p-6 shadow-surface animate-fade-up">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 id={`shop-${i.key}`} className="m-0 flex items-center gap-2 text-lg"><Crown className="size-5 text-brand" aria-hidden />{i.titleFa}</h3>
-                    <span className="inline-flex items-center gap-1.5 rounded-control bg-secondary px-3 py-0.5 text-sm font-bold"><CoinMark className="size-5" /><span className="num">{faNum(i.cost)}</span></span>
+                <Card key={i.key} className="ac-shop" aria-labelledby={`shop-${i.key}`}>
+                  <div className="ac-between" style={{ flexWrap: 'nowrap' }}>
+                    <h3 id={`shop-${i.key}`} className="ac-h3" style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Icon name="crown" />{i.titleFa}</h3>
+                    <Coin chip amount={i.cost} />
                   </div>
-                  <p className="m-0 text-sm text-muted-foreground">{i.descriptionFa}</p>
-                  {short > 0 && <Progress label={`پس‌انداز برای ${i.titleFa}`} value={d.balance} max={i.cost} valueText={`${faNum(short)} سکه دیگر`} />}
-                  <Button className="mt-auto" block busy={busy === i.key} disabled={short > 0 || !!busy} onClick={() => spend(i.key)}>
+                  <p className="t-body-sm bgv-muted" style={{ margin: 0, textWrap: 'pretty' }}>{i.descriptionFa}</p>
+                  {short > 0 && <Progress label={`پس‌انداز برای ${i.titleFa}`} value={Math.min(1, d.balance / i.cost)} valueText={`${faNum(short)} سکه دیگر`} />}
+                  <Button variant="primary" block loading={busy === i.key} disabled={short > 0 || !!busy} onClick={() => spend(i.key)}>
                     {short > 0 ? `${faNum(short)} سکه کم دارید` : 'خرید با سکه'}
                   </Button>
-                </section>
+                </Card>
               );
             })}
           </div>
-        </section>}
+        </section>
+      )}
 
-        {d.packs.length > 0 && (
-          <section className="stack" aria-labelledby="packs-h">
-            <h2 id="packs-h" className="section-title">خرید سکه</h2>
-            {!d.checkout.available && <div className="banner banner--info" role="status">{d.checkout.reasonFa}</div>}
-            <div className="grid gap-4 sm:grid-cols-3 lg:max-w-4xl">
-              {d.packs.map((p) => (
-                <section key={p.id} aria-labelledby={`pack-${p.id}`} className="flex flex-col items-center gap-3 rounded-surface border-line border-border bg-card p-5 text-center shadow-surface">
-                  <CoinMark className="size-12" />
-                  <h3 id={`pack-${p.id}`} className="m-0 text-base">{p.titleFa}</h3>
-                  <p className="m-0 font-display text-2xl font-extrabold"><span className="num">{faNum(p.coins)}</span> سکه</p>
-                  <p className="m-0 text-sm text-muted-foreground">{p.priceAmount ? money(p.priceAmount, p.currency) : 'قیمت تعیین نشده'}</p>
-                  <Button className="mt-auto" block variant="secondary" busy={busy === p.id} disabled={!p.purchasable || !!busy} onClick={() => buyPack(p.id)}>خرید</Button>
-                  {!p.purchasable && p.unavailableReasonFa && <span className="text-xs text-muted-foreground">{p.unavailableReasonFa}</span>}
-                </section>
-              ))}
-            </div>
-            <p className="m-0 flex items-center gap-2 text-xs text-muted-foreground"><Receipt className="size-4" aria-hidden />سکه فقط پس از تأیید پرداخت روی سرور به حساب شما اضافه می‌شود. سابقه پرداخت در <Link to="/plans">اشتراک</Link>.</p>
-          </section>
-        )}
+      {d.packs.length > 0 && (
+        <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="packs-h">
+          <h2 id="packs-h" className="ac-h2">خرید سکه</h2>
+          {!d.checkout.available && <Banner tone="info" text={d.checkout.reasonFa} />}
+          <div className="bgv-grid ac-fit">
+            {d.packs.map((p) => (
+              <Card key={p.id} className="ac-pack" aria-labelledby={`pack-${p.id}`}>
+                <Coin size="lg" aria-hidden />
+                <h3 id={`pack-${p.id}`} className="ac-h3">{p.titleFa}</h3>
+                <p className="t-num-lg" style={{ color: 'var(--heading)', margin: 0 }}>{faNum(p.coins)} <small style={{ fontSize: 15, fontWeight: 700 }}>سکه</small></p>
+                <p className="ac-cap">{p.priceAmount ? money(p.priceAmount, p.currency) : 'قیمت تعیین نشده'}</p>
+                <Button loading={busy === p.id} disabled={!p.purchasable || !!busy} onClick={() => buyPack(p.id)}>خرید</Button>
+                {!p.purchasable && p.unavailableReasonFa && <span className="ac-cap">{p.unavailableReasonFa}</span>}
+              </Card>
+            ))}
+          </div>
+          <p className="ac-note"><Icon name="info" size="sm" />سکه فقط پس از تأیید پرداخت روی سرور به حساب شما اضافه می‌شود. سابقه پرداخت در <Link to="/plans">اشتراک</Link>.</p>
+        </section>
+      )}
 
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <section className="panel stack" aria-labelledby="earn-h">
-            <h2 id="earn-h" className="section-title flex items-center gap-2"><Sparkles className="size-5 text-brand" aria-hidden />راه‌های گرفتن سکه</h2>
-            <ul className="m-0 grid list-none gap-2 p-0">
-              {d.earn.map((e) => (
-                <li key={e.labelFa} className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm last:border-0">
-                  <span>{e.labelFa}</span><span className="inline-flex items-center gap-1 font-bold"><span className="num" dir="ltr">+{faNum(e.coins)}</span><CoinMark className="size-4" /></span>
-                </li>
-              ))}
-            </ul>
-            <p className="m-0 text-xs text-muted-foreground">سکهٔ بازی‌ها هم‌پای XP است: سقف روزانه و بازی پیاپی با حریف تکراری سکه را هم کم می‌کند.</p>
-          </section>
+      <div className="ac-stack" style={{ gap: 24 }}>
+        <Card flush aria-labelledby="earn-h">
+          <div className="ac-sec__head"><h2 id="earn-h" className="ac-h3" style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Icon name="sparkles" />راه‌های گرفتن سکه</h2></div>
+          <ul className="ac-earn">
+            {d.earn.map((e) => <li key={e.labelFa}><span>{e.labelFa}</span><span className="bgv-coin bgv-coin--sm"><bdi dir="ltr">+{faNum(e.coins)}</bdi></span></li>)}
+          </ul>
+          <p className="ac-cap ac-pad">سکهٔ بازی‌ها هم‌پای XP است: سقف روزانه و بازی پیاپی با حریف تکراری سکه را هم کم می‌کند.</p>
+        </Card>
 
-          <section className="panel stack" aria-labelledby="hist-h">
-            <h2 id="hist-h" className="section-title">گردش سکه</h2>
-            {d.history.length === 0 ? <p className="muted" style={{ margin: 0 }}>هنوز سکه‌ای نگرفته‌اید. یک بازی را تا پایان کنید. <Link to="/games">بازی‌ها</Link></p> : (
-              <ul className="m-0 grid list-none gap-2 p-0">
+        <Card flush aria-labelledby="hist-h">
+          <div className="ac-sec__head"><h2 id="hist-h" className="ac-h3">گردش سکه</h2></div>
+          {d.history.length === 0
+            ? <StateBlock kind="empty" title="هنوز سکه‌ای نگرفته‌اید" text="یک بازی را تا پایان کنید." action={<Button href="/games">بازی‌ها</Button>} />
+            : (
+              <ul className="ac-ledger">
                 {d.history.map((h, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm">
-                    <Badge tone={h.amount > 0 ? 'success' : 'danger'}><span className="num" dir="ltr">{h.amount > 0 ? '+' : '−'}{faNum(Math.abs(h.amount))}</span></Badge>
-                    <span className="min-w-0 flex-1 truncate">{h.reason}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{jalaliDate(h.createdAt)}</span>
+                  <li key={i}>
+                    <Badge tone={h.amount > 0 ? 'success' : 'danger'}><bdi dir="ltr" className="bgv-num">{h.amount > 0 ? '+' : '−'}{faNum(Math.abs(h.amount))}</bdi></Badge>
+                    <span>{h.reason}</span>
+                    <span className="ac-cap" style={{ flex: 'none' }}>{jalaliDate(h.createdAt)}</span>
                   </li>
                 ))}
               </ul>
             )}
-          </section>
-        </div>
+        </Card>
       </div>
     </>
   );

@@ -227,6 +227,24 @@ export const sushiGoModule: GameModule<SushiGoState, SushiGoAction, SushiGoView>
 
   pendingSeats: (s) => (s.outcome ? [] : s.picks.map((p, k) => (p === null ? k : -1)).filter((k) => k >= 0)),
 
+  publicSummary(s) {
+    const top = Math.max(...s.scores);
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.scores.map((score, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: score },
+        stats: [
+          { key: 'hand', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' },
+          { key: 'pudding', label: 'پودینگ', value: s.puddings[seat]! }
+        ],
+        ...(winners.has(seat) ? { status: 'winner' as const } : !s.outcome && s.picks[seat] !== null ? { status: 'done' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round, max: s.rounds }],
+      ...(s.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.scores.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 25,
     options: { deal: 'tutorial' },

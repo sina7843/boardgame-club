@@ -188,6 +188,20 @@ export const hanabiModule: GameModule<HanabiState, HanabiAction, HanabiView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => ({
+    seats: s.hands.map((h, seat) => ({
+      seat,
+      primary: { label: 'کارت', value: h.length },
+      ...(s.outcome && s.outcome.placements[0]?.place === 1 ? { status: 'winner' as const } : {})
+    })),
+    shared: [
+      { key: 'score', label: 'امتیاز', value: score(s.stacks), max: 25 },
+      { key: 'clues', label: 'نشانه', value: s.clues, max: 8 },
+      { key: 'fuses', label: 'فیوز', value: s.fuses, max: 3 },
+      { key: 'deck', label: 'دسته', value: s.deck.length }
+    ]
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

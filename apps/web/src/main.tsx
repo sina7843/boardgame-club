@@ -1,11 +1,13 @@
 import '@fontsource-variable/vazirmatn/index.css';
+import '@fontsource-variable/manrope/index.css';
 import './app.css';
-import { lazy, StrictMode, Suspense } from 'react';
+import { lazy, StrictMode, Suspense, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
-import { StateBlock, ToastProvider } from '@bg/ui';
+import { ToastProvider } from '@bg/ui';
+import { Button, StateBlock } from '@bg/ui/bgv';
 import { PrefsProvider } from './lib/prefs.tsx';
-import { SessionProvider } from './lib/session.tsx';
+import { SessionProvider, useSession } from './lib/session.tsx';
 import { Layout } from './shell/Layout.tsx';
 import { Dashboard } from './pages/Dashboard.tsx';
 import { Catalog } from './pages/Catalog.tsx';
@@ -13,6 +15,15 @@ import { Login } from './pages/Login.tsx';
 import { NotFound } from './pages/NotFound.tsx';
 import { RealtimeProvider } from './lib/realtime.tsx';
 import { SITE_LINKS, SitePage } from './pages/SitePage.tsx';
+
+/** The design showcase is an internal tool: admins only (the server enforces nothing here; the page holds no data). */
+function AdminOnly({ children }: { children: ReactNode }) {
+  const { me, status } = useSession();
+  if (status === 'loading') return <StateBlock kind="loading" title="در حال بررسی دسترسی…" />;
+  if (!me) return <StateBlock kind="denied" title="ابتدا وارد شوید" action={<Button variant="primary" href="/login?next=/design">ورود</Button>} />;
+  if (!me.roles.includes('admin')) return <StateBlock kind="denied" title="دسترسی ندارید" text="این بخش فقط برای مدیر محصول است." />;
+  return <>{children}</>;
+}
 
 // Route-level code splitting: the shell, dashboard, catalog and login load first; everything else on demand.
 const GameDetailPage = lazy(() => import('./pages/GameDetail.tsx').then((m) => ({ default: m.GameDetailPage })));
@@ -45,7 +56,12 @@ const TournamentPage = lazy(() => import('./pages/Tournaments.tsx').then((m) => 
 const WikiPage = lazy(() => import('./pages/Wiki.tsx').then((m) => ({ default: m.WikiPage })));
 const MyProfile = lazy(() => import('./pages/MyProfile.tsx').then((m) => ({ default: m.MyProfile })));
 const GuidesPage = lazy(() => import('./pages/Guides.tsx').then((m) => ({ default: m.GuidesPage })));
+const MyTablesPage = lazy(() => import('./pages/MyTables.tsx').then((m) => ({ default: m.MyTablesPage })));
+const NotificationsPage = lazy(() => import('./pages/Notifications.tsx').then((m) => ({ default: m.NotificationsPage })));
 const CoinsPage = lazy(() => import('./pages/Coins.tsx').then((m) => ({ default: m.CoinsPage })));
+const ShopPage = lazy(() => import('./pages/Shop.tsx').then((m) => ({ default: m.ShopPage })));
+const WardrobePage = lazy(() => import('./pages/Wardrobe.tsx').then((m) => ({ default: m.WardrobePage })));
+const StudioPage = lazy(() => import('./pages/Studio.tsx').then((m) => ({ default: m.StudioPage })));
 
 // Friend invite link (?ref=CODE): remembered until sign-up, whichever page the visitor lands on.
 const ref = new URLSearchParams(location.search).get('ref');
@@ -61,6 +77,8 @@ const router = createBrowserRouter([
       { path: 'wiki', element: <WikiPage /> },
       { path: 'games/:id/new', element: <CreateTable /> },
       { path: 'tables', element: <OpenTables /> },
+      { path: 'tables/mine', element: <MyTablesPage /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: 'tables/:id', element: <TablePage /> },
       { path: 'play', element: <QuickMatch /> },
       { path: 'friends', element: <FriendsPage /> },
@@ -84,11 +102,14 @@ const router = createBrowserRouter([
       { path: 'tournaments/:id', element: <TournamentPage /> },
       { path: 'me/avatar', element: <AvatarBuilder /> },
       { path: 'me/profile', element: <MyProfile /> },
+      { path: 'me/studio', element: <StudioPage /> },
+      { path: 'me/wardrobe', element: <WardrobePage /> },
+      { path: 'shop', element: <ShopPage /> },
       { path: 'payments/result', element: <PaymentResultPage /> },
       { path: 'dev-gateway', element: <DevGatewayPage /> },
       { path: 'login', element: <Login /> },
       { path: 'settings', element: <Settings /> },
-      { path: 'design', element: <Showcase /> },
+      { path: 'design', element: <AdminOnly><Showcase /></AdminOnly> },
       { path: 'admin', element: <Admin /> },
       { path: '*', element: <NotFound /> }
     ]

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AVATAR_SLOTS, COSMETICS, DEFAULT_AVATAR, avatarKeySchema, avatarSvg, bioSchema, formatAvatar, parseAvatar, slotItems } from '../src/index.ts';
+import { ITEM_KINDS, KIND_SLOT, RARITIES, kindOfKey, rarityOf, AVATAR_SLOTS, COSMETICS, DEFAULT_AVATAR, avatarKeySchema, avatarSvg, bioSchema, formatAvatar, parseAvatar, slotItems } from '../src/index.ts';
 
 describe('avatar codec', () => {
   it('round-trips a built avatar and renders it', () => {
@@ -20,6 +20,24 @@ describe('avatar codec', () => {
   it('accepts legacy keys and the default avatar', () => {
     expect(avatarKeySchema.safeParse('meeple').success).toBe(true);
     expect(avatarKeySchema.safeParse(DEFAULT_AVATAR).success).toBe(true);
+  });
+});
+
+describe('table cosmetic kinds', () => {
+  it('keeps keys unique, gives every kind a free and a premium item with visual art, and maps keys to kinds', () => {
+    expect(new Set(COSMETICS.map((c) => c.key)).size).toBe(COSMETICS.length);
+    for (const k of ITEM_KINDS) {
+      const items = slotItems(KIND_SLOT[k]);
+      expect(items.length).toBeGreaterThanOrEqual(5);
+      expect(items.some((c) => 'free' in c.unlock)).toBe(true);
+      expect(items.some((c) => 'premium' in c.unlock)).toBe(true);
+      for (const c of items) {
+        expect(c.art?.colors.length).toBeGreaterThan(0);
+        expect(RARITIES).toContain(rarityOf(c));
+        expect(kindOfKey(c.key)).toBe(k);
+      }
+    }
+    expect(kindOfKey('h.1')).toBeUndefined();
   });
 });
 

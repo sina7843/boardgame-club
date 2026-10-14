@@ -143,3 +143,12 @@ describe('century rules', () => {
     }
   }, 120_000);
 });
+
+describe('century publicSummary', () => {
+  it('score, cubes, orders per seat', () => {
+    const snap = game(3);
+    const sum = centuryModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(total(st(snap).cubes[0]!));
+  });
+});

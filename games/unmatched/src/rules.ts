@@ -1754,6 +1754,26 @@ export const unmatchedModule: GameModule<UnmatchedState, UnmatchedAction, Unmatc
 
   pendingSeats: (s) => (s.outcome || !s.prompt ? [] : [s.prompt.seat]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: s.hands.map((h, seat) => {
+        const hero = s.fighters.find((f) => f.hero && f.seat === seat);
+        return {
+          seat,
+          ...(hero ? { primary: { label: 'سلامتی', value: hero.hp, target: hero.maxHp } } : {}),
+          stats: [
+            { key: 'cards', label: 'کارت', value: h.length, icon: 'layers' as const },
+            { key: 'deck', label: 'دسته', value: s.decks[seat]!.length }
+          ],
+          ...(winners.has(seat) ? { status: 'winner' as const } : !s.alive[seat] ? { status: 'out' as const } : {}),
+          strikes: s.timeouts[seat] ?? 0
+        };
+      }),
+      strikesMax: MAX_TIMEOUTS
+    };
+  },
+
   tutorial: {
     seed: 7,
     options: { deal: 'tutorial' },

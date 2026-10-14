@@ -3,11 +3,11 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  apiErrorSchema, avatarItemKeys, COSMETICS, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
+  apiErrorSchema, avatarItemKeys, COSMETICS, equipBody, equippedCosmetics, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
   type ProfileExtras, type PublicProfile
 } from '@bg/contracts';
 import { schema } from '@bg/db';
-import { assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor } from '@bg/play';
+import { assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireUser } from '../auth/session.ts';
@@ -109,13 +109,18 @@ export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
   r.get('/me/cosmetics', {
     schema: { tags: ['users'], summary: 'Cosmetic items this player has unlocked, coin balance and level',
       response: { 200: z.object({ unlocked: z.array(z.string()), balance: z.number().int(), level: z.number().int(),
-        achievements: z.record(z.string(), z.string()) }), 401: apiErrorSchema } }
+        achievements: z.record(z.string(), z.string()), equipped: equippedCosmetics }), 401: apiErrorSchema } }
   }, async (req) => {
     const { userId } = requireUser(req, { allowSuspended: true });
     const defs = await db.select({ key: achievementDefinitions.key, titleFa: achievementDefinitions.titleFa }).from(achievementDefinitions)
       .where(inArray(achievementDefinitions.key, UNLOCK_ACHIEVEMENTS));
-    return { ...(await cosmeticsFor(db, userId)), balance: await coinBalance(db, userId), achievements: Object.fromEntries(defs.map((d) => [d.key, d.titleFa])) };
+    return { ...(await cosmeticsFor(db, userId)), balance: await coinBalance(db, userId), achievements: Object.fromEntries(defs.map((d) => [d.key, d.titleFa])), equipped: await equippedFor(db, userId) };
   });
+
+  r.patch('/me/cosmetics/equip', {
+    schema: { tags: ['users'], summary: 'Equip (or clear with key null) one table cosmetic per kind; the item must be unlocked',
+      body: equipBody, response: { 200: z.object({ equipped: equippedCosmetics }), 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema } }
+  }, async (req) => ({ equipped: await equipCosmetic(db, requireUser(req).userId, req.body.kind, req.body.key) }));
 
   r.post('/cosmetics/buy', {
     schema: { tags: ['users'], summary: 'Buy a cosmetic with coins; the same requestId never spends twice',

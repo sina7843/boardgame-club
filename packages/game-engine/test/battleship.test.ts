@@ -119,3 +119,14 @@ describe('battleship rules', () => {
     }
   });
 });
+
+describe('battleship publicSummary', () => {
+  it('counts only, no ship positions', () => {
+    let snap = game();
+    snap = act(snap, 0, { type: 'placeRandom' });
+    const sum = bsModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.status)).toEqual(['done', undefined]);
+    expect(sum.seats[0]!.stats![0]!.value).toBe(5);
+    expect(JSON.stringify(sum)).not.toMatch(/"(x|y|dir|ships)"/);
+  });
+});

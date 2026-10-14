@@ -610,6 +610,24 @@ export const unoModule: GameModule<UnoState, UnoAction, UnoView> = {
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
+  publicSummary(s) {
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    const top = Math.max(...s.scores);
+    return {
+      seats: s.hands.map((h, seat) => ({
+        seat,
+        primary: { label: 'کارت', value: h.length },
+        ...(s.target !== null ? { stats: [{ key: 'score', label: 'امتیاز', value: s.scores[seat]!, icon: 'trophy' }] } : {}),
+        ...(h.length === 1 && s.called[seat] ? { badges: [{ key: 'uno', label: 'اونو!', tone: 'warning' as const }] } : {}),
+        ...(winners.has(seat) ? { status: 'winner' as const } : !s.active[seat] ? { status: 'out' as const } : {}),
+        strikes: s.timeouts[seat] ?? 0
+      })),
+      shared: [{ key: 'draw', label: 'دسته', value: s.draw.length }],
+      strikesMax: MAX_TIMEOUTS,
+      ...(s.target !== null && top > 0 && s.scores.filter((v) => v === top).length === 1 ? { leaderSeat: s.scores.indexOf(top) } : {})
+    };
+  },
+
   tutorial: {
     seed: 11,
     options: { deal: 'tutorial' },

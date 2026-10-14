@@ -5,8 +5,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./theme.css": "./src/theme.css",
-    "./keyframes.css": "./src/vf/keyframes.css"
+    "./bgv": "./src/bgv/index.ts",
+    "./bgv/tokens.css": "./src/bgv/tokens.css",
+    "./bgv/bundle.css": "./src/bgv/bundle.css",
+    "./game-legacy.css": "./src/game-legacy.css",
+    "./game-keyframes.css": "./src/game-keyframes.css",
+    "./game-hud-1.css": "./src/game-hud-1.css",
+    "./game-hud-2.css": "./src/game-hud-2.css",
+    "./game-hud-3.css": "./src/game-hud-3.css"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

@@ -15,7 +15,7 @@ test('dark device preference: café-at-night theme passes axe on the main pages'
   const found: object[] = [];
   const visit = async (route: string, name: string) => {
     await page.goto(route);
-    await expect(page.locator('main h1, main .state__title').first()).toBeVisible();
+    await expect(page.locator('main h1, main [role=status] h3').first()).toBeVisible();
     await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
     const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     for (const v of r.violations) found.push({ page: name, id: v.id, impact: v.impact, sample: v.nodes[0]?.target });

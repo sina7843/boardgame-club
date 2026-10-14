@@ -211,6 +211,19 @@ export const forSaleModule: GameModule<ForSaleState, ForSaleAction, ForSaleView>
 
   outcome: (s) => s.outcome,
 
+  publicSummary: (s) => ({
+    seats: s.coins.map((coins, seat) => ({
+      seat,
+      primary: { label: 'سکه', value: coins },
+      stats: [
+        { key: 'props', label: 'ملک', value: s.owned[seat]!.length, icon: 'layers' },
+        { key: 'cheques', label: 'چک', value: s.won[seat]!.length, icon: 'gem' }
+      ],
+      ...(s.outcome?.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {})
+    })),
+    shared: s.phase === 'buy' ? [{ key: 'deck', label: 'دسته', value: s.props.length }] : s.phase === 'sell' ? [{ key: 'deck', label: 'دسته', value: s.cheques.length }] : []
+  }),
+
   onTimeout(s, _e) {
     if (s.outcome) return { nextState: s, internalEvents: [], scheduleChanges: [] };
     // Passive play: pass in the auction; sell the cheapest property.

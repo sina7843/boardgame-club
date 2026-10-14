@@ -1,38 +1,76 @@
-import { useEffect } from 'react';
-import { Link, useParams } from 'react-router';
-import type { ConversationItem } from '@bg/contracts';
-import { Avatar, Button, Icon, StateBlock } from '@bg/ui';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router';
+import { avatarSvg, parseAvatar, type ConversationItem } from '@bg/contracts';
+import { Button, Card, ChipGroup, Conversation, Identity, PageHead, StateBlock, Tag, TextField } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
-import { faNum } from '../lib/format.ts';
+import { userIdentity } from '../lib/bgv.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
-function ConversationList({ activeId }: { activeId?: string }) {
+const hm = new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
+const day = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', timeZone: 'Asia/Tehran' });
+const KIND_TAG = { group: 'گروه', club: 'باشگاه' } as const;
+const FILTERS = [{ value: 'all', label: 'همه' }, { value: 'direct', label: 'خصوصی' }, { value: 'group', label: 'گروه' }, { value: 'club', label: 'باشگاه' }];
+
+/** The built avatar as an image URL (Conversation takes `src`); catalogue SVG only, so the markup is trusted. */
+function avatarSrc(avatarKey: string): string | undefined {
+  const p = parseAvatar(avatarKey);
+  return p ? `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${avatarSvg(p)}</svg>`)}` : undefined;
+}
+const stamp = (iso: string) => (Date.now() - new Date(iso).getTime() < 864e5 ? hm.format(new Date(iso)) : day.format(new Date(iso)));
+
+function Inbox({ activeId }: { activeId?: string }) {
   const list = useApi<{ items: ConversationItem[] }>('/me/conversations');
   const reload = list.reload;
+  const [kind, setKind] = useState('all');
+  const [q, setQ] = useState('');
   useEffect(() => {
     window.addEventListener('bg:message', reload);
     window.addEventListener('bg:read', reload);
     return () => { window.removeEventListener('bg:message', reload); window.removeEventListener('bg:read', reload); };
   }, [reload]);
+  const shown = useMemo(() => {
+    const needle = q.trim();
+    return (list.data?.items ?? []).filter((c) => (kind === 'all' || c.kind === kind) && (!needle || c.title.includes(needle) || c.lastMessage?.body.includes(needle)));
+  }, [list.data, kind, q]);
+
   if (list.error) return <StateBlock kind="error" title="گفت‌وگوها دریافت نشد" action={<Button onClick={reload}>تلاش دوباره</Button>} />;
   if (!list.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
-  if (!list.data.items.length) return <StateBlock kind="empty" title="هنوز گفت‌وگویی ندارید" action={<Link className="btn btn--secondary" to="/friends">رفتن به دوستان</Link>}>با دوستان خود گفت‌وگو کنید یا به یک باشگاه بپیوندید.</StateBlock>;
+  if (!list.data.items.length && !activeId) return <StateBlock kind="empty" title="هنوز گفت‌وگویی ندارید" text="با دوستان خود گفت‌وگو کنید یا به یک باشگاه بپیوندید." action={<Button variant="secondary" href="/friends">رفتن به دوستان</Button>} />;
+
+  const active = list.data.items.find((c) => c.id === activeId);
   return (
-    <ul className="list" aria-label="گفت‌وگوها">
-      {list.data.items.map((c) => (
-        <li key={c.id}>
-          <Link to={`/messages/${c.id}`} className={`convo ${c.id === activeId ? 'convo--active' : ''}`} aria-current={c.id === activeId ? 'page' : undefined}>
-            {c.other ? <Avatar avatarKey={c.other.avatarKey} name={c.other.displayName} size={36} /> : <span className="avatar" style={{ inlineSize: 36, blockSize: 36 }}><Icon name="players" size={18} /></span>}
-            <span className="convo__body">
-              <span className="convo__title"><bdi>{c.title}</bdi>{c.unreadCount > 0 && <span className="chatbadge" aria-label={`${faNum(c.unreadCount)} پیام خوانده‌نشده`}>{c.unreadCount > 99 ? '۹۹+' : faNum(c.unreadCount)}</span>}</span>
-              <span className="convo__last muted">{c.lastMessage ? `${c.lastMessage.senderName}: ${c.lastMessage.body}` : 'بدون پیام'}</span>
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <Card flush className="sx-dm" data-open={!!activeId}>
+      <aside className="sx-dm__list" aria-label="گفت‌وگوها">
+        <div className="sx-dm__filters">
+          <TextField icon="search" type="search" label="جست‌وجوی گفت‌وگو" placeholder="جست‌وجوی نام یا پیام" value={q} onChange={(e) => setQ(e.target.value)} />
+          <ChipGroup size="sm" label="نوع گفت‌وگو" options={FILTERS} value={kind} onChange={(v) => setKind(v as string)} />
+        </div>
+        <nav className="sx-dm__nav" aria-label="گفت‌وگوها">
+          {shown.length === 0 && <p className="sx-cap" role="status">گفت‌وگویی پیدا نشد.</p>}
+          {shown.map((c) => (
+            <Conversation key={c.id} href={`/messages/${c.id}`} active={c.id === activeId}
+              name={<><bdi>{c.title}</bdi>{c.kind in KIND_TAG && <Tag>{KIND_TAG[c.kind as keyof typeof KIND_TAG]}</Tag>}</>}
+              {...(c.other ? { initials: c.other.displayName.trim().charAt(0), src: avatarSrc(c.other.avatarKey) } : { icon: c.kind === 'club' ? 'shield' : 'users' })}
+              preview={c.lastMessage ? <><bdi>{c.lastMessage.senderName}</bdi>: {c.lastMessage.body}</> : 'بدون پیام'}
+              time={c.lastMessage ? stamp(c.lastMessage.createdAt) : undefined} unread={c.unreadCount} />
+          ))}
+        </nav>
+      </aside>
+      <div className="sx-dm__thread">
+        {activeId ? (
+          <>
+            <header className={active?.other ? 'sx-dm__head' : 'sx-dm__head sx-dm__head--bare'}>
+              <Button iconOnly variant="ghost" icon="arrow-right" href="/messages" className="sx-dm__back">همه گفت‌وگوها</Button>
+              {active?.other ? <><Identity {...userIdentity(active.other)} size="md" /><Button size="sm" variant="secondary" href={`/users/${active.other.id}`}>پروفایل</Button></>
+                : null}
+            </header>
+            <ChatPanel key={activeId} load={`/conversations/${activeId}/messages`} post={`/conversations/${activeId}/messages`} conversationId={activeId} title={active?.other ? undefined : active?.title} icon={active?.kind === 'club' ? 'shield' : 'users'} />
+          </>
+        ) : <div className="sx-dm__empty"><StateBlock kind="empty" icon="message-circle" title="یک گفت‌وگو را انتخاب کنید" /></div>}
+      </div>
+    </Card>
   );
 }
 
@@ -41,8 +79,8 @@ export function MessagesPage() {
   return (
     <>
       <PageTabs group="social" />
-      <div className="page-head"><div><h1 className="page-title">پیام‌ها</h1><p className="page-sub">گفت‌وگوهای خصوصی، گروه‌ها و باشگاه‌ها.</p></div></div>
-      <div style={{ maxInlineSize: 720 }}><ConversationList /></div>
+      <PageHead title="پیام‌ها" sub="گفت‌وگوهای خصوصی، گروه‌ها و باشگاه‌ها." />
+      <Inbox />
     </>
   );
 }
@@ -50,13 +88,5 @@ export function MessagesPage() {
 export function ConversationPage() {
   const { id = '' } = useParams();
   usePageTitle('گفت‌وگو');
-  return (
-    <div className="messages">
-      <aside className="messages__list" aria-label="گفت‌وگوها"><ConversationList activeId={id} /></aside>
-      <div className="messages__thread">
-        <Link to="/messages" className="breadcrumb messages__back"><Icon name="chevron" size={18} />همه گفت‌وگوها</Link>
-        <ChatPanel key={id} load={`/conversations/${id}/messages`} post={`/conversations/${id}/messages`} conversationId={id} />
-      </div>
-    </div>
-  );
+  return <Inbox activeId={id} />;
 }

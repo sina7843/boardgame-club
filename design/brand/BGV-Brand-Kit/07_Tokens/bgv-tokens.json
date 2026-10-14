@@ -1,0 +1,238 @@
+{
+  "$description": "Board Game Verse (BGV) brand tokens v1.0 — source of truth for the design system. Contrast ratios are WCAG 2.x.",
+  "color": {
+    "brand": {
+      "green": {
+        "value": "#173A2D",
+        "role": "structure, primary text on light, logo figures",
+        "cmyk_fogra39": "C91 M37 Y80 K74"
+      },
+      "coral": {
+        "value": "#F2765B",
+        "role": "invite / \"you\" highlight (badges, empty-seat chips); logo top figure on dark. Not the default button color.",
+        "cmyk_fogra39": "C0 M66 Y64 K1"
+      },
+      "coral-deep": {
+        "value": "#E4603F",
+        "role": "logo top figure on light backgrounds; coral graphics that need 3:1 on light",
+        "cmyk_fogra39": "C0 M74 Y80 K6"
+      },
+      "gold": {
+        "value": "#D4B276",
+        "role": "detail, labels on green; never text on light",
+        "cmyk_fogra39": "C16 M29 Y59 K5"
+      },
+      "cream": {
+        "value": "#F6F0E4",
+        "role": "dominant background; text on green",
+        "cmyk_fogra39": "C5 M5 Y13 K0"
+      }
+    },
+    "neutral": {
+      "ink": {
+        "value": "#14211B",
+        "role": "body text, text on coral/gold"
+      },
+      "muted": {
+        "value": "#4A5A51",
+        "role": "secondary text on light"
+      },
+      "surface-2": {
+        "value": "#EDE4D1",
+        "role": "second surface on cream"
+      },
+      "line": {
+        "value": "#D9CDB4",
+        "role": "dividers, input borders (decorative)"
+      }
+    },
+    "ratio": {
+      "cream": "60%",
+      "green": "25%",
+      "coral": "10%",
+      "gold": "5%"
+    }
+  },
+  "contrast": {
+    "green/cream": 11.02,
+    "cream/green": 11.02,
+    "ink/cream": 14.65,
+    "muted/cream": 6.44,
+    "ink/coral": 5.95,
+    "green/coral": 4.48,
+    "gold/green": 6.21,
+    "coral/green": 4.48,
+    "coral-deep/cream": 3.06,
+    "coral/cream": 2.46,
+    "gold/cream": 1.77,
+    "cream/coral": 2.46
+  },
+  "logo": {
+    "unit_x": "head diameter = 0.179 × symbol height",
+    "clear_space": "1x on all sides",
+    "lockup": {
+      "gap": "1.5x",
+      "latin_cap_height": "2x",
+      "persian_alef_height": "2.4x",
+      "stacked_bgv": "wordmark width = symbol width, gap 1.5x"
+    },
+    "min_size_px": {
+      "symbol_master": 48,
+      "symbol_small_master": 24,
+      "favicon_pixel": 16,
+      "horizontal_en_width": 160,
+      "horizontal_fa_width": 120,
+      "horizontal_bgv_width": 80,
+      "stacked_bgv_height": 64
+    },
+    "min_size_print_mm": {
+      "symbol": 10,
+      "horizontal_en_width": 35,
+      "horizontal_fa_width": 28,
+      "horizontal_bgv_width": 18,
+      "stacked_bgv_height": 15
+    },
+    "container": {
+      "background": "cream",
+      "corner_radius": "22% of side",
+      "symbol_extent": "78% (master) / 84% (small master)"
+    },
+    "app_icon": {
+      "ios_symbol_extent": "72% on full-bleed cream",
+      "android_adaptive_symbol_extent": "58% of 108dp (inside 66dp safe zone)",
+      "pwa_maskable_extent": "64%",
+      "avatar_extent": "62%"
+    }
+  },
+  "type": {
+    "persian": {
+      "family": "Vazirmatn",
+      "weights": [
+        400,
+        700,
+        900
+      ],
+      "license": "OFL"
+    },
+    "latin": {
+      "family": "Manrope",
+      "weights": [
+        600,
+        800
+      ],
+      "license": "OFL"
+    },
+    "roles": {
+      "display": {
+        "size": 72,
+        "line_height": 1.25,
+        "weight": 900
+      },
+      "h1": {
+        "size": 56,
+        "line_height": 1.3,
+        "weight": 900
+      },
+      "h2": {
+        "size": 40,
+        "line_height": 1.35,
+        "weight": 700
+      },
+      "h3": {
+        "size": 24,
+        "line_height": 1.5,
+        "weight": 700
+      },
+      "body": {
+        "size": 17,
+        "line_height": 1.8,
+        "weight": 400
+      },
+      "label": {
+        "size": 14,
+        "line_height": 1.6,
+        "weight": 700
+      }
+    },
+    "latin_note": "Manrope 600/800 for Latin and technical numbers, same size as the Persian role"
+  },
+  "radius": {
+    "button": 8,
+    "card": 20,
+    "tile": "22%"
+  },
+  "semantic": {
+    "$description": "Mode-aware roles. Dark mode is built from the brand green, never neutral black/grey. States (hover/pressed/disabled), elevation shadows and status colors are owned by the design system.",
+    "light": {
+      "bg": "#F6F0E4",
+      "surface": "#FBF8F1",
+      "surface-raised": "#EDE4D1",
+      "text": "#14211B",
+      "text-muted": "#4A5A51",
+      "heading": "#173A2D",
+      "line": "#D9CDB4",
+      "border": "#7F7A69",
+      "focus": "#173A2D",
+      "logo-top": "#E4603F",
+      "logo-figures": "#173A2D",
+      "logo-file": "primary",
+      "link": "#173A2D",
+      "label": "#4A5A51",
+      "invite": "#F2765B",
+      "on-invite": "#14211B"
+    },
+    "dark": {
+      "bg": "#0F211A",
+      "surface": "#142A21",
+      "surface-raised": "#173A2D",
+      "text": "#F6F0E4",
+      "text-muted": "#B5C0B7",
+      "heading": "#F6F0E4",
+      "line": "#2A4638",
+      "border": "#6F8C7D",
+      "focus": "#D4B276",
+      "logo-top": "#F2765B",
+      "logo-figures": "#F6F0E4",
+      "logo-file": "reversed",
+      "link": "#F6F0E4",
+      "label": "#D4B276",
+      "invite": "#F2765B",
+      "on-invite": "#14211B"
+    },
+    "dark_contrast": {
+      "text/bg": 14.77,
+      "text-muted/bg": 8.93,
+      "text-muted/surface-raised": 6.66,
+      "coral-text/bg": 6.0,
+      "coral-text/surface-raised": 4.48,
+      "gold/surface": 7.54,
+      "border/surface": 4.14,
+      "on-invite/invite": 5.95
+    },
+    "rules": [
+      "Coral as text only on bg or surface in dark mode (4.48:1 on surface-raised fails 4.5)",
+      "Gold allowed for labels and focus ring in dark mode only",
+      "Never place the primary (green) logo on dark; use reversed",
+      "Game images and avatars are not dimmed or filtered",
+      "surface-raised vs surface is only ~1.2:1 — always separate raised panels with a line or shadow",
+      "Links are always underlined"
+    ],
+    "theme_color": {
+      "light": "#173A2D",
+      "dark": "#0F211A"
+    },
+    "primary_action": {
+      "owner": "design system",
+      "constraints": [
+        "Must not be in the red/coral family, so join/sit/start never reads like leave/destructive",
+        "Label contrast >= 4.5:1 in both modes",
+        "Button must stay distinguishable on cream (light) and on bg/surface (dark)",
+        "Destructive red is defined separately by the design system and must be clearly different from coral"
+      ],
+      "evaluated_options": [
+        "green #173A2D with cream label (light) / cream #F6F0E4 with green label (dark)",
+        "gold #D4B276 with ink label; in light add a 1.5px green border"
+      ]
+    }
+  }
+}

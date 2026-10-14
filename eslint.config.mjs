@@ -6,6 +6,8 @@ import globals from 'globals';
 export default tseslint.config(
   {
     ignores: [
+      // BGV design system: generated/vendored copies of design/system (scripts/bgv-sync.mjs).
+      'packages/ui/src/bgv/bgv.js', 'packages/ui/src/bgv/bgv.d.ts', 'packages/ui/src/bgv/reference/**', 'design/**', 'BGV-DesignSystem-Handoff/**', 'scripts/ds-check.mjs', 'scripts/ds-qa-report.mjs',
       '**/node_modules/**',
       '**/dist/**',
       '**/coverage/**',

@@ -116,3 +116,15 @@ describe('no thanks rules', () => {
     }
   });
 });
+
+describe('no-thanks publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = noThanksModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats.map((x) => x.primary!.value)).toEqual([0, 0, 0]);
+    expect(JSON.stringify(sum)).not.toContain('chips');
+    expect(sum.shared!.find((x) => x.label === 'سکه وسط')!.value).toBe(0);
+  });
+});

@@ -109,3 +109,17 @@ describe('res arcana rules', () => {
     }
   }, 120_000);
 });
+
+describe('res arcana publicSummary', () => {
+  it('one entry per seat, public numbers only (hand identities do not matter)', () => {
+    const snap = game(3, 4);
+    const sum = raModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats[0]!.primary).toEqual({ label: 'امتیاز', value: 0, target: 10 });
+    expect(sum.seats[0]!.stats![0]!.value).toBe(3);
+    const other = edit(snap, (s) => { s.players[1]!.hand = s.players[1]!.deck.splice(0, 3); });
+    expect(raModule.publicSummary!(st(other))).toEqual(sum);
+    const done = act(snap, st(snap).current, { type: 'pass' });
+    expect(raModule.publicSummary!(st(done)).seats[st(snap).current]!.status).toBe('passed');
+  });
+});

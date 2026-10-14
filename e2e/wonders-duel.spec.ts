@@ -85,7 +85,7 @@ test('two players play «شگفتی‌ها: دوئل» to the result', async ({ 
   const pages = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار')];
   const [host] = pages as [Page, Page];
   await host.goto('/games/wonders-duel/new');
-  await host.getByText('زنده', { exact: true }).click();
+  await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await pages[1]!.goto(invite); await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();

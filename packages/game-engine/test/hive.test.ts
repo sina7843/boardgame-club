@@ -123,3 +123,14 @@ describe('hive rules', () => {
     }
   }, 120_000);
 });
+
+describe('hive publicSummary', () => {
+  it('has one entry per seat with sane public values', () => {
+    const state = st(game());
+    const sum = hiveModule.publicSummary!(state);
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
+    for (const x of sum.seats) expect(x.primary).toBeDefined();
+    expect(sum.seats[0]!.primary!.value).toBe(11);
+    expect(sum.strikesMax).toBe(3);
+  });
+});

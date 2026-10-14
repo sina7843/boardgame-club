@@ -262,6 +262,18 @@ export const machiModule: GameModule<MachiState, MachiAction, MachiView> = {
     return { ...t, internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => ({
+    seats: s.coins.map((coins, seat) => ({
+      seat,
+      primary: { label: 'بنا', value: built(s, seat), target: LANDMARKS.length },
+      stats: [
+        { key: 'coins', label: 'سکه', value: coins, icon: 'coins' },
+        { key: 'cards', label: 'کارت', value: sum(Object.values(s.cards[seat]!)), icon: 'layers' }
+      ],
+      ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
+    }))
+  }),
+
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),
 
   tutorial: {

@@ -283,6 +283,24 @@ export const rgModule: GameModule<RgState, RgAction, RgView> = {
     return { ...finish(s, []), internalEvents: [{ type: 'timed-out' }] };
   },
 
+  publicSummary: (s) => {
+    const vp = s.players.map(vpOf);
+    const top = Math.max(...vp);
+    return {
+      seats: s.players.map((e, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: vp[seat]! },
+        stats: [
+          { key: 'worlds', label: 'جهان', value: e.tableau.length, icon: 'map' },
+          { key: 'hand', label: 'کارت', value: e.hand.length, icon: 'layers' }
+        ],
+        ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : s.stage === 'select' && e.choice ? { status: 'done' as const } : {})
+      })),
+      shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'pool', label: 'ژتون', value: s.pool }, { key: 'round', label: 'دور', value: s.round }],
+      ...(vp.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: vp.indexOf(top) } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : s.players.map((e, k) => (s.stage === 'select' ? (e.choice ? -1 : k) : e.done ? -1 : k)).filter((k) => k >= 0)),
 
   tutorial: {

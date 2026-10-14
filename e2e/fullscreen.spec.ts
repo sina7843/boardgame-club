@@ -13,13 +13,13 @@ for (const mode of ['native', 'no-api'] as const) {
     await expect(p.locator('.zb')).toBeVisible();
     await expect(p.locator('.zb__controls').getByRole('button', { name: /تمام‌صفحه/ })).toHaveCount(0);
     await p.getByRole('button', { name: 'تمام‌صفحه', exact: true }).click();
-    if (mode === 'native') await expect.poll(() => p.evaluate(() => document.fullscreenElement?.classList.contains('game') ?? false)).toBe(true);
-    else await expect(p.locator('.game.game--max')).toBeVisible();
+    if (mode === 'native') await expect.poll(() => p.evaluate(() => document.fullscreenElement?.classList.contains('tbl') ?? false)).toBe(true);
+    else await expect(p.locator('.tbl.tbl--max')).toBeVisible();
     await expect(p.locator('.zb svg').first()).toBeInViewport();
     await p.screenshot({ path: `docs/evidence/site/fullscreen/${info.project.name}-${mode}.png` });
     await p.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
     if (mode === 'native') await expect.poll(() => p.evaluate(() => document.fullscreenElement)).toBeNull();
-    else await expect(p.locator('.game--max')).toHaveCount(0);
+    else await expect(p.locator('.tbl--max')).toHaveCount(0);
     await p.context().close();
   });
 }

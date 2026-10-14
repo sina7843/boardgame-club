@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پرداخت ناموفق</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.x-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-h3{font-size:17px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-cap{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.x-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.x-between>*{min-width:0}
+.x-stack{display:grid;gap:16px;min-width:0}
+.x-sec{padding:0;display:grid;overflow:hidden}
+.x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-sec__head>h2{flex:1;min-width:0}
+.x-sec__body{padding:20px;display:grid;gap:16px}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-row:last-child{border-bottom:0}
+.x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
+.x-row__text b{font-size:15px;color:var(--text)}
+.x-row__text span{font-size:13px;color:var(--text-muted)}
+.x-row--stack{display:grid;gap:10px}
+.x-li{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:60px;border-bottom:1px solid var(--line)}
+.x-li:last-child{border-bottom:0}
+.x-li__main{flex:1;min-width:0;display:grid;line-height:1.45}
+.x-li__main>b{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__main>span{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__acts{display:flex;align-items:center;gap:6px;flex:none}
+.bgv-btn .bgv-coin{font-weight:900}
+.bgv-switch{gap:10px;flex:none}
+.bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
+.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
+.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
+.bgv-switch__track::before{border-color:var(--success)}
+.x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.x-phone>.bgv-topbar{flex:none}
+.x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
+.x-pbody>*{flex-shrink:0}
+.x-plan .x-muted{color:var(--text-muted)}
+.x-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px}
+.x-plan{display:flex;flex-direction:column;gap:16px;padding:24px;position:relative}
+.x-plan__price{font-size:30px;font-weight:900;line-height:1.1;color:var(--heading)}
+.x-plan__price small{font-size:15px;font-weight:700;color:var(--text-muted)}
+.x-perks{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14.5px;line-height:1.6}
+.x-perks li{display:flex;gap:10px;align-items:flex-start}
+.x-perks li>i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--success-soft);color:var(--success);margin-top:1px}
+.x-plan--top{background:var(--felt);border-color:var(--felt-rim);color:var(--felt-ink);box-shadow:var(--shadow-felt),0 0 0 2px var(--accent)}
+.x-plan--top :is(h2,.x-plan__price){color:var(--felt-ink)}
+.x-plan--top .x-plan__price small,.x-plan.x-plan--top .x-muted{color:var(--felt-muted)}
+.x-plan--top .x-perks li>i{background:var(--accent);color:var(--on-accent)}
+.x-plan--top .bgv-btn--primary{background:var(--brand-cream);color:var(--brand-green)}
+.x-plan--top .bgv-badge{background:rgba(246,240,228,.14);color:var(--felt-ink)}
+.x-flag{position:absolute;top:-13px;inset-inline-start:24px}
+.x-cmp{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
+.x-cmp th,.x-cmp td{padding:14px 20px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}
+.x-cmp thead th{font-size:13px;color:var(--text-muted);font-weight:700}
+.x-cmp tbody tr:last-child td{border-bottom:0}
+.x-cmp td:nth-child(n+2),.x-cmp th:nth-child(n+2){text-align:center}
+.x-cmp td.x-hl,.x-cmp th.x-hl{background:var(--surface-raised)}
+.x-yes{color:var(--success);display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.x-no{color:var(--text-muted);display:inline-flex;align-items:center;gap:6px}
+.x-tablecard .bgv-table th:first-child,.x-tablecard .bgv-table td:first-child{padding-inline-start:20px}
+.x-tablecard .bgv-table th:last-child,.x-tablecard .bgv-table td:last-child{padding-inline-end:20px}
+.x-tablecard .bgv-table td{white-space:nowrap}
+.x-balance{display:flex;align-items:center;gap:24px;padding:28px 32px;flex-wrap:wrap}
+.x-balance .bgv-coin--lg::before{inline-size:56px;block-size:56px;box-shadow:inset 0 0 0 4px var(--coin-dark),inset 0 0 0 7px var(--coin-light),0 3px 6px rgba(0,0,0,.35)}
+.x-shop{display:flex;flex-direction:column;gap:12px;padding:24px}
+.x-pack{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:24px 20px 20px}
+.x-pack .bgv-btn{margin-top:auto}
+.x-fit{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.x-earn{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));column-gap:0}
+.x-earn li{background:var(--surface)}
+.x-earn li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 20px;border-bottom:1px solid var(--line);font-size:14.5px}
+
+.x-receipt{display:grid}
+.x-receipt>div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.x-receipt>div:last-child{border-bottom:0}
+.x-receipt span{color:var(--text-muted)}
+@media (max-width:899px){.x-balance{padding:20px}.x-plan{padding:20px}}
+</style>
+
+<div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
+<header class="bgv-topbar" style="flex:none;padding-inline:16px 8px"><span class="bgv-topbar__title">نتیجهٔ پرداخت</span><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></header>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:20px 16px 24px;min-height:0">
+ <section class="bgv-card" style="display:grid;justify-items:center;gap:12px;text-align:center;padding:28px 20px 20px" aria-live="polite">
+  <span style="width:80px;height:80px;border-radius:50%;display:grid;place-items:center;background:var(--danger-soft);color:var(--danger)"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:40px;height:40px"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg></span>
+  <h1 class="t-page-sm" style="color:var(--heading);text-wrap:balance">پرداخت انجام نشد</h1>
+  <div class="bgv-row" style="justify-content:center"><span class="bgv-badge bgv-badge--danger"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg>ناموفق</span><span class="t-body-sm">صندوقچه سکه<span class="bgv-sep"></span>۹۹٬۰۰۰ تومان</span></div>
+  <p class="t-body-sm bgv-muted" style="text-wrap:pretty">پرداخت در درگاه زرین‌پال لغو شد. سکه‌ای اضافه نشد و چیزی از حساب شما کم نشده است.</p>
+  <div class="x-receipt" style="width:100%;text-align:start;border-top:1px solid var(--line);margin-top:4px;padding-top:4px">
+   <div><span>شماره سفارش</span><b class="bgv-latin" dir="ltr" style="font-size:14px">BG-20261013-7F3A9C21B4</b></div>
+   <div><span>درگاه</span><b>زرین‌پال</b></div>
+   <div><span>زمان</span><b>۲۱ مهر ۱۴۰۵، ۱۸:۴۲</b></div></div>
+ </section>
+ <div class="bgv-banner"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg><div class="bgv-banner__body"><span>اگر مبلغی از حساب بانکی کم شده ولی خرید فعال نشد، بانک آن را برمی‌گرداند.</span></div></div>
+ <span class="bgv-spacer"></span>
+ <div style="display:grid;gap:8px"><button class="bgv-btn bgv-btn--primary bgv-btn--lg" style="width:100%"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>تلاش دوباره</button><a class="bgv-btn bgv-btn--secondary" href="#" style="width:100%">اشتراک و سابقه</a><a class="bgv-btn bgv-btn--ghost bgv-btn--sm" href="#" style="justify-self:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m4.93 4.93 4.24 4.24" /> <path d="m14.83 9.17 4.24-4.24" /> <path d="m14.83 14.83 4.24 4.24" /> <path d="m9.17 14.83-4.24 4.24" /> <circle cx="12" cy="12" r="4" /></svg>تماس با پشتیبانی</a></div>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

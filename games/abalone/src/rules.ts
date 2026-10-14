@@ -209,6 +209,22 @@ export const abaloneModule: GameModule<AbaloneState, AbaloneAction, AbaloneView>
     return finish(s, [{ type: 'timed-out', seat }]);
   },
 
+  publicSummary(s) {
+    const pts = [0, 1].map((seat) => s.off[other(s.colors[seat]!)]);
+    const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    return {
+      seats: [0, 1].map((seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: pts[seat]!, target: WIN },
+        stats: [{ key: 'lost', label: 'گوی‌های از دست‌رفته', value: s.off[s.colors[seat]!], icon: 'heart' }],
+        ...(won === seat ? { status: 'winner' as const } : {}),
+        strikes: s.timeouts[seat]!
+      })),
+      strikesMax: MAX_TIMEOUTS,
+      ...(pts[0] !== pts[1] ? { leaderSeat: pts[0]! > pts[1]! ? 0 : 1 } : {})
+    };
+  },
+
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.turn)]),
 
   tutorial: {

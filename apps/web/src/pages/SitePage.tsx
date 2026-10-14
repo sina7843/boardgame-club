@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
-import { Button, StateBlock } from '@bg/ui';
+import { Button, Card, PageHead, StateBlock } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -21,10 +21,10 @@ export function SiteBody({ text }: { text: string }) {
     lines.forEach((l, j) => {
       if (l.startsWith('- ')) { list.push(l.slice(2)); return; }
       flush(`u${j}`);
-      out.push(l.startsWith('## ') ? <h2 key={j} className="section-title">{l.slice(3)}</h2> : <p key={j}>{l}</p>);
+      out.push(l.startsWith('## ') ? <h2 key={j}>{l.slice(3)}</h2> : <p key={j}>{l}</p>);
     });
     flush('u-end');
-    return <div key={i} className="site-page__block">{out}</div>;
+    return <div key={i} className="ac-site__block">{out}</div>;
   })}</>;
 }
 
@@ -36,24 +36,23 @@ function ContactInfo() {
     ['نشانی', info.address], ['کد پستی', info.postalCode], ['ساعت پاسخ‌گویی', info.hours]
   ];
   return (
-    <dl className="site-page__contact panel">{rows.filter(([, v]) => v).map(([k, v, href]) => (
-      <div key={k}><dt className="muted">{k}</dt><dd>{href ? <a href={href} dir="ltr"><bdi>{v}</bdi></a> : k === 'کد پستی' ? <bdi dir="ltr">{v}</bdi> : v}</dd></div>
-    ))}</dl>
+    <Card flush><dl className="ac-site__contact">{rows.filter(([, v]) => v).map(([k, v, href]) => (
+      <div key={k}><dt>{k}</dt><dd>{href ? <a href={href} dir="ltr"><bdi>{v}</bdi></a> : k === 'کد پستی' ? <bdi dir="ltr">{v}</bdi> : v}</dd></div>
+    ))}</dl></Card>
   );
 }
 
 export function SitePage({ slug }: { slug: SiteSlug }) {
   const page = useApi<Page>(`/site/pages/${slug}`);
   usePageTitle(page.data?.titleFa ?? SITE_LINKS.find(([s]) => s === slug)![1]);
-  if (page.error) return <StateBlock kind="error" title="صفحه بارگذاری نشد" action={<Button onClick={page.reload}>تلاش دوباره</Button>}>{page.error.messageFa}</StateBlock>;
+  if (page.error) return <StateBlock kind="error" title="صفحه بارگذاری نشد" text={page.error.messageFa} action={<Button onClick={page.reload}>تلاش دوباره</Button>} />;
   if (!page.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   return (
-    <article className="site-page">
-      <div className="page-head"><div><h1 className="page-title">{page.data.titleFa}</h1>
-        {page.data.updatedAt && <p className="page-sub">آخرین به‌روزرسانی: {jalaliDate(page.data.updatedAt)}</p>}</div></div>
+    <article className="ac-site">
+      <PageHead title={page.data.titleFa} sub={page.data.updatedAt ? `آخرین به‌روزرسانی: ${jalaliDate(page.data.updatedAt)}` : undefined} />
       {slug === 'contact' && <ContactInfo />}
       <SiteBody text={page.data.bodyFa} />
-      {slug === 'contact' && <p><Link className="btn btn--secondary" to="/support">ثبت درخواست در پشتیبانی</Link></p>}
+      {slug === 'contact' && <div><Button href="/support">ثبت درخواست در پشتیبانی</Button></div>}
     </article>
   );
 }

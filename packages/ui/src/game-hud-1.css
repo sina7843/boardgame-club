@@ -1,0 +1,60 @@
+/* HUD dedupe, batch 1: when the table HUD shows the game's publicSummary (data-hud="on"), hide the renderer's own
+   player panels / pure whose-turn text. Display only — game files untouched; prompts and controls stay visible. */
+
+/* abalone */
+.tbl-stage[data-hud="on"][data-game="abalone"] .abl__bar { display: none; }
+
+/* azul */
+.tbl-stage[data-hud="on"][data-game="azul"] .az-board__turn { display: none; }
+.tbl-stage[data-hud="on"][data-game="azul"] .az-board__score { display: none; }
+
+/* backgammon */
+.tbl-stage[data-hud="on"][data-game="backgammon"] .bgm-pl { display: none; }
+
+/* bohnanza */
+.tbl-stage[data-hud="on"][data-game="bohnanza"] .bn-rival__hand { display: none; }
+
+/* brass */
+.tbl-stage[data-hud="on"][data-game="brass"] .br-pl__turn { display: none; }
+.tbl-stage[data-hud="on"][data-game="brass"] .br-pl__vp { display: none; }
+
+/* camel-up */
+.tbl-stage[data-hud="on"][data-game="camel-up"] .cu-pl__coins { display: none; }
+
+/* carcassonne */
+.tbl-stage[data-hud="on"][data-game="carcassonne"] .cc__players { display: none; }
+
+/* catan */
+.tbl-stage[data-hud="on"][data-game="catan"] .ct-player__vp { display: none; }
+.tbl-stage[data-hud="on"][data-game="catan"] .ct-player__head .ct-badge:not(.ct-badge--out) { display: none; }
+
+/* century */
+.tbl-stage[data-hud="on"][data-game="century"] .ct-pl__score { display: none; }
+
+/* checkers */
+.tbl-stage[data-hud="on"][data-game="checkers"] .ck-side { display: none; }
+
+/* chess */
+.tbl-stage[data-hud="on"][data-game="chess"] .ch-player__swatch { display: none; }
+.tbl-stage[data-hud="on"][data-game="chess"] .ch-player__name { display: none; }
+.tbl-stage[data-hud="on"][data-game="chess"] .ch-player__color { display: none; }
+
+/* citadels */
+.tbl-stage[data-hud="on"][data-game="citadels"] .ct2__round { display: none; }
+.tbl-stage[data-hud="on"][data-game="citadels"] .ct2-gold { display: none; }
+.tbl-stage[data-hud="on"][data-game="citadels"] .ct2-score { display: none; }
+.tbl-stage[data-hud="on"][data-game="citadels"] .ct2-crown { display: none; }
+
+/* cockroach-poker */
+.tbl-stage[data-hud="on"][data-game="cockroach-poker"] .cr-pl__hand { display: none; }
+
+/* coup */
+.tbl-stage[data-hud="on"][data-game="coup"] .cp-pl__head .cp-coins { display: none; }
+.tbl-stage[data-hud="on"][data-game="coup"] .cp-me__head .cp-coins { display: none; }
+.tbl-stage[data-hud="on"][data-game="coup"] .cp-me__deck { display: none; }
+.tbl-stage[data-hud="on"][data-game="coup"] .cp-pl__out { display: none; }
+
+/* dice-throne */
+.tbl-stage[data-hud="on"][data-game="dice-throne"] .dt-dial { display: none; }
+
+/* No hidden panels (mixed or uncovered content kept): amlak, ark-nova, battleship, crew-deep-sea, cryptid, dominion, el-dorado. */

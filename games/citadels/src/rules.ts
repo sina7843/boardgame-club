@@ -327,6 +327,28 @@ export const citadelsModule: GameModule<CitadelsState, CitadelsAction, CitadelsV
 
   pendingSeats: (s) => { const c = current(s); return c < 0 ? [] : [c]; },
 
+  publicSummary(s) {
+    const scores = s.cities.map((_, k) => scoreOf(s, k));
+    const top = Math.max(...scores);
+    const leaders = scores.flatMap((v, k) => (v === top ? [k] : []));
+    const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
+    return {
+      seats: scores.map((v, seat) => ({
+        seat,
+        primary: { label: 'امتیاز', value: v },
+        stats: [
+          { key: 'gold', label: 'طلا', value: s.gold[seat]!, icon: 'coins' },
+          { key: 'districts', label: 'محله', value: s.cities[seat]!.length, icon: 'layers' },
+          { key: 'hand', label: 'کارت', value: s.hands[seat]!.length }
+        ],
+        badges: s.crown === seat ? [{ key: 'crown', label: 'تاج', tone: 'premium' as const }] : [],
+        ...(winners.has(seat) ? { status: 'winner' as const } : {})
+      })),
+      shared: [{ key: 'round', label: 'دور', value: s.round }, { key: 'deck', label: 'دسته', value: s.deck.length }],
+      ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
+    };
+  },
+
   tutorial: {
     seed: 67,
     options: { deal: 'tutorial' },

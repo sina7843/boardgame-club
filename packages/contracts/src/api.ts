@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { parseAvatar } from './cosmetics.ts';
+import { ITEM_KINDS, parseAvatar } from './cosmetics.ts';
 import { accessSchema, competitionSchema, difficultySchema, GAME_TAG_FA, gameTagSchema, optionValueSchema, paceSchema, type GameTag } from '@bg/game-sdk';
 
 export { accessSchema, competitionSchema, difficultySchema, GAME_TAG_FA, gameTagSchema, paceSchema, type GameTag };
@@ -185,3 +185,13 @@ export const healthResponse = z.object({
   status: z.enum(['ok', 'unavailable']),
   checks: z.record(z.string(), z.enum(['ok', 'fail'])).optional()
 });
+
+// ---------- Table cosmetics ----------
+const itemKey = z.string().regex(/^[a-z]{2}\.\d{1,2}$/);
+/** Equipped table cosmetic keys per kind; absent = default look. */
+export const equippedCosmetics = z.partialRecord(z.enum(ITEM_KINDS), itemKey);
+export type EquippedCosmetics = z.infer<typeof equippedCosmetics>;
+export const equipBody = z.strictObject({ kind: z.enum(ITEM_KINDS), key: itemKey.nullable() });
+/** What a seat shows other players at the table (the three kinds visible there). */
+export const seatCosmetics = z.object({ seatRing: itemKey.optional(), chatBubble: itemKey.optional(), emote: itemKey.optional() });
+export type SeatCosmetics = z.infer<typeof seatCosmetics>;

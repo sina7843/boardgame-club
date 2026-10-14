@@ -116,3 +116,19 @@ describe('skull rules', () => {
     }
   }, 120_000);
 });
+
+describe('skull publicSummary', () => {
+  it('discs and points only; placed disc identity is not exposed', () => {
+    const snap = game(3, 3);
+    const sum = skullModule.publicSummary!(st(snap));
+    expect(sum.seats.map((x) => x.seat)).toEqual([0, 1, 2]);
+    expect(sum.seats.every((x) => x.stats![0]!.value === 4 && x.primary!.target === 2)).toBe(true);
+    const a = act(snap, st(snap).current, { type: 'place', disc: 'rose' });
+    const b = act(snap, st(snap).current, { type: 'place', disc: 'skull' });
+    expect(skullModule.publicSummary!(st(a))).toEqual(skullModule.publicSummary!(st(b)));
+    expect(JSON.stringify(sum)).not.toMatch(/skull|rose/);
+    const s2 = structuredClone(st(snap));
+    s2.owned[1] = 0;
+    expect(skullModule.publicSummary!(s2).seats[1]!.status).toBe('out');
+  });
+});
