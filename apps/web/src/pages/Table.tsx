@@ -392,10 +392,15 @@ function useFullscreen(target: RefObject<HTMLElement | null>) {
 /** Turn clock from the server deadline: calm → warn (half) → critical (live: last 10 s, turn-based: last hour); stale while offline. */
 function useTurnClock(s: ReturnType<typeof useTableSession>): { time: number; p: number; state: ClockState } | null {
   const now = useNow();
+  const held = useRef<{ key: string; left: number } | null>(null);
   const snap = s.snapshot!;
   const d = snap.game?.deadline;
   if (!d || snap.table.status !== 'active') return null;
-  const left = Math.max(0, Math.ceil((new Date(d.dueAt).getTime() - s.clockOffset - now) / 1000));
+  const live = Math.max(0, Math.ceil((new Date(d.dueAt).getTime() - s.clockOffset - now) / 1000));
+  // Offline or a platform incident: hold the last confirmed time instead of counting down on a guess.
+  const hold = d.frozen || !s.live;
+  if (!hold || held.current?.key !== d.dueAt) held.current = { key: d.dueAt, left: live };
+  const left = hold ? held.current.left : live;
   const total = Math.max(1, snap.table.settings.turnSeconds);
   const p = Math.min(1, left / total);
   const state: ClockState = d.frozen ? 'frozen' : !s.live ? 'stale' : left <= (snap.table.pace === 'live' ? 10 : 3600) ? 'critical' : p <= 0.5 ? 'warn' : 'calm';

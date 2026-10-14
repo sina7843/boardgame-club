@@ -104,7 +104,8 @@ export function Layout() {
           {me?.suspended && <Banner tone="warning" icon="triangle-alert" title="حساب شما موقتاً تعلیق شده است"
             text="جزئیات و اعتراض در بخش پشتیبانی." action={<Button size="sm" href="/support">پشتیبانی</Button>} />}
           {pathname === '/' && <WelcomeInvite />}
-          {!online && <Banner tone="warning" icon="wifi-off" title="اتصال اینترنت قطع است" text="اطلاعات نمایش‌داده‌شده ممکن است قدیمی باشد." />}
+          {!online && <Banner tone="warning" icon="wifi-off" title="اتصال اینترنت قطع است" text="اطلاعات نمایش‌داده‌شده ممکن است قدیمی باشد؛ ساعت‌ها آخرین زمان تأییدشده را نشان می‌دهند."
+            action={<Button size="sm" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
           {page}
           <footer className="app-page__foot"><SiteLinks /><EnamadSeal /></footer>
         </div>

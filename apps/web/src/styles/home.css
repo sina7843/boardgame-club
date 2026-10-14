@@ -65,6 +65,7 @@
 .hm-cell b { font-size: 16px; color: var(--heading); }
 .hm-plate .hm-cell b { color: var(--felt-ink); }
 .hm-act { justify-self: end; }
+.hm-myrow.is-urgent { background: linear-gradient(to left, var(--danger-soft), transparent 60%); }
 .hm-myrow--players { grid-template-columns: minmax(0, 1.4fr) minmax(0, .9fr) minmax(0, 1.5fr) 128px; }
 .hm-turnof { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text); }
 .hm-hist { display: grid; gap: var(--space-3); }

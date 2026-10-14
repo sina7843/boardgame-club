@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { MyTableItem } from '@bg/contracts';
 import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
 import { AvatarArt } from '../lib/bgv.tsx';
+import { useOnline } from '@bg/ui';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA, remainingFa } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -29,8 +30,10 @@ export const tableTitle = (t: MyTableItem) => (t.isTutorial ? `آموزش ${t.ga
 
 /** Deadline as a DS clock chip (calm > 6 h, warn < 6 h, critical < 1 h). */
 export function DeadlineClock({ iso }: { iso: string }) {
+  const online = useOnline();
   const s = Math.max(0, (new Date(iso).getTime() - Date.now()) / 1000);
-  return <Clock size="chip" state={s < 3600 ? 'critical' : s < 21600 ? 'warn' : 'calm'} p={Math.min(1, s / 86400)} time={remainingFa(iso)} />;
+  // Offline: the list is not refreshed, so the clock shows the stale state instead of an urgency it cannot confirm.
+  return <Clock size="chip" state={!online ? 'stale' : s < 3600 ? 'critical' : s < 21600 ? 'warn' : 'calm'} p={Math.min(1, s / 86400)} time={remainingFa(iso)} />;
 }
 
 export function Cover({ gameId }: { gameId: string }) {
@@ -39,6 +42,9 @@ export function Cover({ gameId }: { gameId: string }) {
 
 export const tableMeta = (t: MyTableItem) =>
   t.status === 'open' ? `${faNum(t.players)} از ${faNum(t.capacity)} نفر` : `${faNum(t.capacity)} نفر`;
+
+/** My turn with under an hour left: the row turns red and carries «فوری». */
+export const isUrgent = (t: MyTableItem) => t.isMyTurn && !!t.deadline && new Date(t.deadline).getTime() - Date.now() < 3600_000;
 
 const seatClass = (seat: number) => `seat-${(seat % 10) + 1}`;
 function SeatAvatar({ s, you }: { s: MyTableItem['seats'][number]; you?: boolean }) {
@@ -57,6 +63,7 @@ function Status({ t }: { t: MyTableItem }) {
   const other = !t.isMyTurn && t.status === 'active' ? t.seats.find((s) => t.turnSeats.includes(s.seat)) : undefined;
   return (
     <div className="bgv-row hm-status" style={{ gap: 8 }}>
+      {isUrgent(t) && <Badge tone="danger" icon="alarm-clock">فوری</Badge>}
       {t.isMyTurn ? <Badge tone="you" icon="zap">نوبت شما</Badge>
         : t.status === 'open' ? <Badge icon="hourglass">در انتظار بازیکن، {faNum(t.players)} از {faNum(t.capacity)}</Badge>
         : t.status === 'paused' ? <Badge icon="pause">متوقف</Badge>
@@ -145,7 +152,7 @@ export function MyTablesPage() {
         <div className="hm-colhead hm-myrow--players"><span>بازی</span><span>بازیکنان</span><span>وضعیت (به ترتیب فوریت)</span><span /></div>
         <ul className="hm-ul" aria-label="میزهای من">
           {shown.map((t) => (
-            <li key={t.id} className={`hm-myrow hm-myrow--players${t.isMyTurn ? ' is-mine' : ''}`}>
+            <li key={t.id} className={`hm-myrow hm-myrow--players${t.isMyTurn ? ' is-mine' : ''}${isUrgent(t) ? ' is-urgent' : ''}`}>
               <div className="hm-cell">
                 <Cover gameId={t.gameId} />
                 <div><b>{tableTitle(t)}</b><span className="hm-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{tableMeta(t)}</span></div>
