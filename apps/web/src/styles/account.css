@@ -247,3 +247,5 @@
 
 .ac-row--link { color: inherit; text-decoration: none; }
 .ac-row--link:hover { background: var(--surface-sunken); }
+.ac-premium { display: flex; align-items: center; gap: var(--space-3); }
+.ac-premium .ac-row__text { flex: 1; min-inline-size: 0; }

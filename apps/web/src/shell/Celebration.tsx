@@ -3,9 +3,9 @@
 // only after the game, docs/PROGRESSION.md UX rules); it waits until the player leaves the table.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import type { Progression, TrophyTier } from '@bg/contracts';
+import { LEVEL_UP_COINS, type Progression, type TrophyTier } from '@bg/contracts';
 import { Confetti } from '@bg/ui';
-import { Button, Dialog, Icon, Trophy as BgvTrophy } from '@bg/ui/bgv';
+import { Button, Dialog, Icon, Reward, Trophy as BgvTrophy } from '@bg/ui/bgv';
 import { api } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { LevelBadge, TIER_FA } from '../lib/rewards.tsx';
@@ -39,6 +39,7 @@ export function Celebration() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [queue, setQueue] = useState<Moment[]>([]);
+  const [prog, setProg] = useState<Progression>();
   const lastCheck = useRef(0);
   const ref = useRef<HTMLDialogElement>(null);
   const onTable = pathname.startsWith('/tables/');
@@ -49,6 +50,7 @@ export function Celebration() {
     lastCheck.current = Date.now();
     try {
       const p = await api<Progression>('/me/progression');
+      setProg(p);
       const seen = readSeen(userId);
       const found = newMoments(seen, p);
       writeSeen(userId, { level: Math.max(p.level, seen?.level ?? 0), keys: p.achievements.filter((a) => a.grantedAt).map((a) => a.key) });
@@ -84,6 +86,13 @@ export function Celebration() {
           <div>{isLevel ? <LevelBadge level={current.level} size={160} /> : <BgvTrophy tier={current.tier} name={current.titleFa} />}</div>
           <h2 id="celebrate-h" className="t-h3" style={{ margin: 0 }}>{isLevel ? `به سطح ${faNum(current.level)} رسیدید` : current.titleFa}</h2>
           <p className="hm-celebrate__desc">{isLevel ? 'با هر بازی کامل، آموزش و مأموریت XP می‌گیرید.' : current.descriptionFa}</p>
+          {isLevel && prog && (
+            <div className="hm-celebrate__rewards">
+              <Reward coin label={`سکهٔ سطح تازه (${faNum(current.level)} × ${faNum(LEVEL_UP_COINS)})`} value={`+${faNum(current.level * LEVEL_UP_COINS)}`} unit="سکه" dir="up" />
+              <Reward icon="sparkles" label={`تا سطح ${faNum(prog.level + 1)}`} value={faNum(Math.max(0, prog.nextLevelAt - prog.xp))} unit="امتیاز تجربه"
+                progress={(prog.xp - prog.levelFloor) / Math.max(1, prog.nextLevelAt - prog.levelFloor)} />
+            </div>
+          )}
           <div className="hm-celebrate__actions">
             <Button variant="primary" block onClick={next} autoFocus>{queue.length > 1 ? `بعدی (${faNum(queue.length - 1)})` : 'عالیه!'}</Button>
             <Button variant="ghost" block icon="trophy" onClick={() => { setQueue([]); navigate('/progress'); }}>دیدن پیشرفت</Button>

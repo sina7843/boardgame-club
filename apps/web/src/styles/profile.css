@@ -98,3 +98,9 @@
 .pf-up { color: var(--success); font-weight: 700; }
 .pf-down { color: var(--danger); font-weight: 700; }
 .pf-yourow { display: flex; gap: var(--space-3); margin: 0; padding: var(--space-3) var(--space-5); border-block-start: 2px dashed var(--line); background: var(--invite-soft); }
+
+/* Friends: list + requests aside; on phones the requests come first. */
+.pf-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
+.pf-toolbar > :first-child { flex: 1 1 220px; }
+.pf-list--compact > li { padding-inline: 0; }
+@media (max-width: 899px) { .pf-friends > aside { order: -1; } }

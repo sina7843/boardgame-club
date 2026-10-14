@@ -1,7 +1,7 @@
 // Coins: a soft currency. Earned only from server reward rows (never a client claim), bought only through a verified
 // payment (billing.ts), spent only on server-defined shop items. Balance = sum of the append-only coin_ledger.
 import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
-import { AppError, trophyTier, type TrophyTier } from '@bg/contracts';
+import { AppError, LEVEL_UP_COINS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 
@@ -17,7 +17,7 @@ export const COIN_RULES = {
   mission: 20,
   achievement: { bronze: 10, silver: 20, gold: 40, turquoise: 75, diamond: 150 } satisfies Record<TrophyTier, number>,
   /** Reaching level n pays n × this. */
-  levelUp: 10
+  levelUp: LEVEL_UP_COINS
 } as const;
 
 /** Shop: what coins buy. Premium days chain after any premium the player already has. */

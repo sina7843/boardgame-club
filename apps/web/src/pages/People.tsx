@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore, type KeyboardEvent, type Rea
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Badge, Banner, Button, Card, Chip, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
+import { Badge, Banner, Button, Card, Chip, ChipGroup, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -124,12 +124,23 @@ export function FriendsPage() {
   usePageTitle('دوستان');
   const data = useApi<Friends>('/me/friends');
   const presence = usePresence(data.data?.friends.map((f) => f.id) ?? []);
+  const [fq, setFq] = useState('');
+  const [ff, setFf] = useState<'all' | 'online' | 'playing'>('all');
+  const [invited, setInvited] = useState<string[]>([]);
   const navigate = useNavigate();
   const { me } = useSession();
+  const mine = useApi<{ items: { id: string; status: string; mySeat: number }[] }>(me ? '/me/tables' : null);
   const [params] = useSearchParams();
   const [tab, setTab] = useState<FriendsTab>((params.get('tab') as FriendsTab | null) ?? 'friends');
   const toast = useToast();
   const act = useAct(data.reload);
+  // «دعوت به میز»: invite to my newest open table; with none open, start one first.
+  const inviteToTable = async (userId: string) => {
+    const open = mine.data?.items.find((t) => t.status === 'open');
+    if (!open) { toast('info', 'اول یک میز بسازید؛ در لابی می‌توانید دوستان را دعوت کنید.'); navigate('/games'); return; }
+    try { await api(`/tables/${open.id}/invites`, { method: 'POST', body: { userId } }); setInvited((x) => [...x, userId]); toast('success', 'دعوت به میز فرستاده شد.'); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'دعوت فرستاده نشد.'); }
+  };
   const message = async (userId: string) => {
     try { navigate(`/messages/${(await api<{ id: string }>('/conversations/direct', { method: 'POST', body: { userId } })).id}`); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'گفت‌وگو باز نشد.'); }
@@ -163,23 +174,55 @@ export function FriendsPage() {
           { value: 'blocked', label: 'مسدود و بی‌صدا' }
         ]} />
       </div>
-      {tab === 'friends' && (d.friends.length ? (
-        <div className="bgv-stack">
-          {([['online', 'آنلاین'], ['offline', 'آفلاین']] as const).map(([k, label]) => {
-            const group = d.friends.filter((f) => !!presence[f.id]?.online === (k === 'online'));
-            return group.length > 0 && (
-              <section key={k} className="bgv-stack" aria-label={label}>
-                <h2 className="t-label bgv-muted" style={{ margin: 0 }}>{label} ({faNum(group.length)})</h2>
-                <People items={group} presence={presence}>{(f) => (<>
-                  {presence[f.id]?.playing && <Button size="sm" variant="secondary" icon="eye" href={`/tables/${presence[f.id]!.playing!.tableId}`}>تماشا</Button>}
-                  <Button size="sm" variant="secondary" icon="message-circle" onClick={() => message(f.id)}>پیام</Button>
-                  <Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE', undefined, 'از دوستان حذف شد.')}>حذف</Button>
-                </>)}</People>
-              </section>
-            );
-          })}
+      {tab === 'friends' && (
+        <div className="bgv-cols pf-friends">
+          <div className="bgv-stack">
+            <div className="pf-toolbar">
+              <TextField icon="search" type="search" aria-label="جست‌وجو در دوستان" placeholder="جست‌وجو در دوستان" value={fq} onChange={(e) => setFq(e.target.value)} />
+              <ChipGroup size="sm" label="نمایش" value={ff} onChange={(v) => setFf(v as typeof ff)}
+                options={[{ value: 'all', label: 'همه' }, { value: 'online', label: 'آنلاین' }, { value: 'playing', label: 'در حال بازی' }]} />
+            </div>
+            {d.friends.length === 0 ? <StateBlock kind="empty" title="هنوز دوستی ندارید" text="از زبانه «یافتن» بازیکن‌ها را پیدا کنید." action={<Button variant="primary" icon="search" onClick={() => setTab('find')}>یافتن بازیکن</Button>} />
+              : ([['online', 'آنلاین'], ['offline', 'آفلاین']] as const).map(([k, label]) => {
+                const group = d.friends.filter((f) => !!presence[f.id]?.online === (k === 'online')
+                  && (!fq.trim() || f.displayName.includes(fq.trim()))
+                  && (ff === 'all' || (ff === 'online' ? !!presence[f.id]?.online : !!presence[f.id]?.playing)));
+                return group.length > 0 && (
+                  <section key={k} className="bgv-stack" aria-label={label}>
+                    <h2 className="t-label bgv-muted" style={{ margin: 0 }}>{label}، {faNum(group.length)}</h2>
+                    <People items={group} presence={presence}>{(f) => (<>
+                      {presence[f.id]?.playing
+                        ? <Button size="sm" variant="secondary" icon="eye" href={`/tables/${presence[f.id]!.playing!.tableId}`}>تماشا</Button>
+                        : invited.includes(f.id) ? <Badge icon="check">دعوت فرستاده شد</Badge>
+                        : <Button size="sm" variant="secondary" icon="armchair" onClick={() => void inviteToTable(f.id)}>{presence[f.id]?.online ? 'دعوت به میز' : 'دعوت به میز نوبتی'}</Button>}
+                      <MessageMenu label="بیشتر" className="" items={[
+                        { icon: 'message-circle', label: 'پیام', onClick: () => void message(f.id) },
+                        { icon: 'user', label: 'پروفایل', onClick: () => navigate(`/users/${f.id}`) },
+                        { icon: 'user-minus', label: 'حذف از دوستان', danger: true, onClick: () => act(`/friends/${f.id}`, 'DELETE', undefined, 'از دوستان حذف شد.') }
+                      ]} />
+                    </>)}</People>
+                  </section>
+                );
+              })}
+          </div>
+          <aside className="bgv-stack" aria-label="درخواست‌ها">
+            <Card title={`درخواست‌های دریافتی${d.incoming.length ? ` (${faNum(d.incoming.length)})` : ''}`}>
+              {d.incoming.length ? <ul className="pf-list pf-list--compact">{d.incoming.map((f) => (
+                <PersonRow key={f.id} p={f}><>
+                  <Button size="sm" variant="primary" onClick={() => act(`/friends/requests/${f.id}/accept`, 'POST', undefined, 'دوستی پذیرفته شد.')}>پذیرش</Button>
+                  <Button size="sm" variant="secondary" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>رد</Button>
+                </></PersonRow>))}</ul> : <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>درخواست تازه‌ای ندارید.</p>}
+            </Card>
+            {d.outgoing.length > 0 && (
+              <Card title={`فرستاده‌شده (${faNum(d.outgoing.length)})`}>
+                <ul className="pf-list pf-list--compact">{d.outgoing.map((f) => (
+                  <PersonRow key={f.id} p={f}><Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>لغو</Button></PersonRow>))}</ul>
+              </Card>
+            )}
+            {me && <Card title="لینک پروفایل شما"><p className="t-body-sm bgv-muted" style={{ marginBlockStart: 0 }}>برای دوستانتان بفرستید تا شما را اضافه کنند.</p><CopyProfileLink userId={me.id} size="sm" /></Card>}
+          </aside>
         </div>
-      ) : <StateBlock kind="empty" title="هنوز دوستی ندارید" text="از زبانه «یافتن» بازیکن‌ها را پیدا کنید." action={<Button variant="primary" icon="search" onClick={() => setTab('find')}>یافتن بازیکن</Button>} />)}
+      )}
       {tab === 'requests' && (
         <div className="bgv-stack">
           <h2 className="t-h3">دریافتی</h2>

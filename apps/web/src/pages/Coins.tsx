@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { faNumber, useToast } from '@bg/ui';
 import { Badge, Banner, Button, Card, Coin, Hero, Icon, PageHead, Progress, StateBlock } from '@bg/ui/bgv';
-import { api, ApiFailure } from '../lib/api.ts';
+import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { coinsChanged, useCoins } from '../lib/coins.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -16,6 +16,7 @@ export function CoinsPage() {
   usePageTitle('سکه‌ها');
   const toast = useToast();
   const c = useCoins();
+  const sub = useApi<{ premium: boolean; premiumUntil: string | null }>('/me/subscription');
   const [busy, setBusy] = useState<string>();
   if (c.error) return <StateBlock kind={c.error.status === 401 ? 'denied' : 'error'} title={c.error.status === 401 ? 'برای دیدن سکه‌ها وارد شوید' : 'سکه‌ها دریافت نشد'}
     action={c.error.status === 401 ? <Button variant="primary" href="/login?next=/coins">ورود</Button> : <Button onClick={c.reload}>تلاش دوباره</Button>} />;
@@ -44,7 +45,20 @@ export function CoinsPage() {
       {d.checkout.fixture && d.packs.length > 0 && <Banner tone="warning" text="حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود." />}
 
       <Hero eyebrow="موجودی من" title={<span aria-live="polite">{faNum(d.balance)} سکه</span>} aside={<Coin size="lg" aria-hidden />}
-        actions={d.packs.length > 0 ? <Button href="/plans">سابقهٔ پرداخت</Button> : undefined} />
+        actions={<>
+          {d.packs.length > 0 && <Button variant="primary" icon="plus" onClick={() => document.getElementById('packs-h')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>خرید سکه</Button>}
+          <Button icon="history" href="/plans">سابقه</Button>
+        </>} />
+      {sub.data && (
+        <Card className="ac-premium" aria-label="وضعیت پریمیوم">
+          <span className="ac-tile"><Icon name="crown" /></span>
+          <div className="ac-row__text">
+            <b className="bgv-row" style={{ gap: 8 }}>پریمیوم {sub.data.premium ? <Badge tone="premium" size="sm">فعال</Badge> : <Badge size="sm">غیرفعال</Badge>}</b>
+            <span>{sub.data.premium && sub.data.premiumUntil ? `تا ${jalaliDate(sub.data.premiumUntil)}` : 'با سکه یا اشتراک فعال می‌شود.'}</span>
+          </div>
+          <Button size="sm" href="/plans">پلن‌ها</Button>
+        </Card>
+      )}
 
       {d.shop.length > 0 && (
         <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="shop-h">

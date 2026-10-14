@@ -215,7 +215,7 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
     <>
       {rect && <div className={cn('hm-tour-spot', !isTour && 'hm-tour-spot--soft')} aria-hidden
         style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2 }} />}
-      <div ref={card} role="dialog" aria-modal="false" aria-labelledby="tour-h" className={cn('bgv-card hm-tour bgv-stack', !rect && 'hm-tour--center')} style={{ gap: 12 }}>
+      <div ref={card} role="dialog" aria-modal="false" aria-labelledby="tour-h" className={cn('bgv-popover hm-tour bgv-stack', !rect && 'hm-tour--center')} style={{ gap: 12 }}>
         <div className="bgv-row" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
           <span className="hm-meta">{tour.titleFa}<span className="bgv-sep" />مرحله‌ی {faNum(index + 1)} از {faNum(tour.steps.length)}</span>
           <Button variant="ghost" iconOnly icon="x" size="sm" onClick={onClose}>بستن (بعداً ادامه می‌دهم)</Button>

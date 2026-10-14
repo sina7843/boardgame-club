@@ -17,6 +17,9 @@ export const trophyTier = z.enum(TROPHY_TIERS);
 export type TrophyTier = z.infer<typeof trophyTier>;
 
 /** Three separate kinds of progress (Requirements §12): skill (ratings), account level (XP) and per-game mastery. */
+/** Coins for reaching level n: n × this (shown on the level-up celebration; paid by the server's coin sync). */
+export const LEVEL_UP_COINS = 10;
+
 export const progressionResponse = z.object({
   xp: z.number().int(),
   level: z.number().int(),

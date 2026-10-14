@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Badge, Button, Card, DataTable, PageHead, Segmented, Select, StateBlock, Tabs, Textarea, TextField } from '@bg/ui/bgv';
+import { Badge, Button, Card, DataTable, Message, PageHead, Segmented, Select, StateBlock, Tabs, Textarea, TextField } from '@bg/ui/bgv';
 import { useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { faNum, jalaliDate } from '../lib/format.ts';
+import { faNum, jalaliDate, jalaliDateTime } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { SANCTION_FA } from './Support.tsx';
@@ -23,6 +23,7 @@ function ReportReview({ id, onDone, onClose }: { id: string; onDone: () => void;
   const toast = useToast();
   const [decision, setDecision] = useState<'dismiss' | 'warning' | 'chat_restricted' | 'suspended'>('dismiss');
   const [hours, setHours] = useState('24');
+  const [shown, setShown] = useState(false);
   const [note, setNote] = useState('');
   if (d.error) return <StateBlock kind="error" title="گزارش دریافت نشد" text={d.error.messageFa} />;
   if (!d.data) return <Loading />;
@@ -48,10 +49,20 @@ function ReportReview({ id, onDone, onClose }: { id: string; onDone: () => void;
       </div>
       {x.evidence?.messages && (
         <ol className="sx-ev" aria-label="پیام گزارش‌شده و پیام‌های پیرامون آن">
-          {x.evidence.messages.map((m) => (
-            <li key={m.id} className={m.id === x.evidence?.reported ? 'sx-ev__hit' : undefined} style={{ padding: 'var(--space-2) var(--space-3)', borderRadius: 'var(--radius-sm)' }}>
-              <bdi style={{ fontWeight: 700 }}>{m.sender}</bdi>: <span style={{ whiteSpace: 'pre-wrap' }}>{m.deleted ? '(حذف‌شده) ' : ''}{m.body}</span>
-            </li>))}
+          {x.evidence.messages.map((m) => {
+            const hit = m.id === x.evidence?.reported;
+            // The reported text stays hidden until the moderator chooses to read it (it may be abusive).
+            const hidden = hit && !shown;
+            return (
+              <li key={m.id} className={hit ? 'sx-ev__hit' : undefined}>
+                <Message author={<bdi>{m.sender}</bdi>} initials={m.sender.charAt(0)} state={m.deleted ? 'deleted' : 'sent'}
+                  time={<time dateTime={m.createdAt}>{jalaliDateTime(m.createdAt)}</time>}
+                  text={hidden ? 'متن پیام گزارش‌شده پنهان است.' : m.body} />
+                {hit && <div className="bgv-row" style={{ gap: 8 }}><Badge tone="danger" size="sm" icon="flag">گزارش‌شده</Badge>
+                  {!shown && <Button size="sm" variant="ghost" icon="eye" onClick={() => setShown(true)}>نمایش متن</Button>}</div>}
+              </li>
+            );
+          })}
         </ol>
       )}
       {x.evidence?.game && <p className="t-body-sm" style={{ margin: 0 }}>میز {x.evidence.game}؛ بازیکنان: {x.evidence.players?.map((p) => p.name).join('، ')}</p>}
