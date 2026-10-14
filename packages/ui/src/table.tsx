@@ -23,7 +23,7 @@ export function Token({ value, selected, disabled, onSelect, label }: {
 }) {
   return (
     <button type="button" aria-pressed={selected} disabled={disabled} onClick={onSelect} aria-label={label ?? `ژتون ${fa(value)}`}
-      className={cn('token size-14 cursor-pointer rounded-full border-2 text-xl font-extrabold shadow-control transition-all duration-(--motion) ease-motion active:[transform:var(--press)]',
+      className={cn('token size-14 cursor-pointer rounded-full border-2 text-xl font-extrabold shadow-control transition-all duration-(--dur-base) ease-motion active:scale-95',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-35',
         selected ? 'token--selected -translate-y-1 border-brand bg-brand text-brand-foreground' : 'border-brand/60 bg-card text-foreground hover:-translate-y-0.5')}>
       {fa(value)}

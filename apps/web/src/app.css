@@ -27,55 +27,55 @@
 }
 
 /* Tailwind: layout utilities only for the site. The colour/shape names below exist for the game renderers'
-   legacy utilities (bg-primary, shadow-control …); they resolve to the scoped tokens in .table-night. */
+   legacy utility names (bg-primary, shadow-control …), mapped straight to BGV tokens. */
 @theme inline {
   --font-sans: var(--font-fa);
   --font-latin: var(--font-latin);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text);
+  --color-popover: var(--surface-raised);
+  --color-popover-foreground: var(--text);
   --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-primary-foreground: var(--on-primary);
+  --color-secondary: var(--surface-sunken);
+  --color-secondary-foreground: var(--text);
+  --color-muted: var(--surface-sunken);
+  --color-muted-foreground: var(--text-muted);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--text);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--on-danger);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
+  --color-input: var(--border);
+  --color-ring: var(--focus);
+  --color-brand: var(--felt-gold);
+  --color-brand-foreground: var(--on-accent);
   --color-felt: var(--felt);
-  --color-felt-foreground: var(--felt-foreground);
-  --radius-control: var(--shape-control);
-  --radius-field: var(--shape-field);
-  --radius-surface: var(--shape-surface);
-  --radius-overlay: var(--shape-overlay);
-  --border-width-line: var(--line);
-  --border-width-line-field: var(--line-field);
-  --color-field: var(--field);
-  --shadow-control: var(--depth-control);
-  --shadow-press: var(--depth-press);
-  --shadow-field: var(--depth-field);
-  --shadow-surface: var(--depth-surface);
-  --shadow-overlay: var(--depth-overlay);
-  --ease-motion: var(--motion-ease);
-  --font-display: var(--type-display);
+  --color-felt-foreground: var(--felt-ink);
+  --radius-control: var(--radius-pill);
+  --radius-field: var(--radius-md);
+  --radius-surface: var(--radius-lg);
+  --radius-overlay: var(--radius-xl);
+  --border-width-line: 1px;
+  --border-width-line-field: 1px;
+  --color-field: var(--surface);
+  --shadow-control: var(--shadow-tile);
+  --shadow-press: var(--shadow-press);
+  --shadow-field: var(--shadow-field);
+  --shadow-surface: var(--shadow-card);
+  --shadow-overlay: var(--shadow-float);
+  --ease-motion: var(--ease-spring);
+  --font-display: var(--font-fa);
   --animate-fade-up: fade-up 0.8s cubic-bezier(.16, 1, .3, 1) both;
   --animate-slide-in: slide-in 0.6s cubic-bezier(.16, 1, .3, 1) both;
   --animate-shine: shine 2.2s ease-in-out infinite;
   --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
   --animate-pop: pop 0.5s cubic-bezier(.16, 1, .3, 1) both;
-  --animate-deal: deal 560ms var(--motion-ease) both;
+  --animate-deal: deal 560ms var(--ease-spring) both;
 }
 
 @layer base {

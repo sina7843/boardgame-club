@@ -26,7 +26,7 @@ const BTN_VARIANT = {
 const BTN_SIZE = { sm: 'h-9 px-4 text-sm gap-1.5 [&_svg]:size-4', md: 'h-11 px-5 text-sm gap-2 [&_svg]:size-4.5', lg: 'h-13 px-7 text-base gap-2.5 [&_svg]:size-5' } as const;
 export const buttonClass = (variant: NonNullable<ButtonProps['variant']> = 'primary', size: NonNullable<ButtonProps['size']> = 'md', block?: boolean) => cn(
   'btn inline-flex items-center justify-center whitespace-nowrap rounded-control font-semibold no-underline select-none cursor-pointer',
-  'transition-[background-color,box-shadow,transform,color] duration-(--motion) ease-motion active:[transform:var(--press)]',
+  'transition-[background-color,box-shadow,transform,color] duration-(--dur-base) ease-motion active:scale-95',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
   'disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0',
   BTN_VARIANT[variant], BTN_SIZE[size], block && 'w-full'

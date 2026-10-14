@@ -1285,3 +1285,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   purpose (DS component gaps, report upstream): Home and Tournament heroes (DS `Hero` renders the title as `h2` and its
   aside grid does not stack on phones); the chat composer (DS `Composer` has no edit mode, Escape-to-cancel, input ref
   or maxLength) — it already uses the exact `bgv-composer` classes. `bgv.js` errors (3) are in the DS bundle itself.
+- Game palette (2026-10-14, owner decision, replaces "game art keeps the VibeFarsi palette"): the retired token names
+  in `packages/ui/src/game-legacy.css` and the Tailwind `@theme` names in `apps/web/src/app.css` are now aliases of BGV
+  tokens; the game stage carries `data-theme="dark"` (renderers were drawn for a dark table). Game art changes colour
+  to the BGV palette; the owner checks the games visually. Strict ds-check app errors: 141 -> 3 (all inside the DS bundle).
