@@ -9,12 +9,13 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { faNum } from '../lib/format.ts';
 import { GameAccess, MissionsAdmin, PlansAdmin, ReferralAdmin, SeasonsAdmin, SupportAdmin, WelcomePremiumAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
+import { PlayersAdmin } from './AdminPlayers.tsx';
 import { SiteAdmin } from './AdminSite.tsx';
 import { TournamentsAdmin } from './AdminTournaments.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
 const TABS = [
-  { value: 'games', label: 'بازی‌ها' }, { value: 'progress', label: 'مأموریت و فصل' }, { value: 'tournaments', label: 'تورنمنت‌ها' }, { value: 'plans', label: 'اشتراک و سکه' },
+  { value: 'games', label: 'بازی‌ها' }, { value: 'players', label: 'بازیکنان' }, { value: 'progress', label: 'مأموریت و فصل' }, { value: 'tournaments', label: 'تورنمنت‌ها' }, { value: 'plans', label: 'اشتراک و سکه' },
   { value: 'referral', label: 'دعوت دوستان' }, { value: 'support', label: 'پشتیبانی' }, { value: 'site', label: 'صفحه‌های سایت' }, { value: 'incident', label: 'توقف سراسری' }
 ];
 
@@ -31,6 +32,7 @@ export function Admin() {
       <PageTabs label="بخش‌های مدیریت" items={TABS} value={tab} onChange={setTab} />
       <PageHead title="مدیریت" sub="هر تغییر با علت در گزارش عملیات ثبت می‌شود." />
       {tab === 'games' && <GamesAdmin />}
+      {tab === 'players' && <PlayersAdmin />}
       {tab === 'progress' && <><MissionsAdmin /><SeasonsAdmin /></>}
       {tab === 'tournaments' && <TournamentsAdmin />}
       {tab === 'plans' && <><WelcomePremiumAdmin /><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></>}

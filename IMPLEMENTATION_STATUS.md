@@ -868,3 +868,10 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   pure `publicSummary` functions were added; no rules, art or renderer changes. Also: equipped seat ring / chat bubble
   shown at the table. Checks: `tsc` clean for 9 packages and all 67 games, eslint clean; per-game test files run during
   implementation; visual check of UNO and Catan tables at 1440/390.
+
+- Admin player management (2026-10-14): new «بازیکنان» tab in /admin (`apps/web/src/pages/AdminPlayers.tsx`) backed by
+  `GET /api/admin/users` (search by name or mobile digits, status filter, 50 per page, masked mobile only),
+  `GET /api/admin/users/:id` (coins, tables, active sessions, sanction history) and audited actions
+  `POST /api/admin/users/:id/{suspend,unsuspend,logout,close}`. Close reuses the self-delete anonymisation
+  (`closeAccount` in users/routes.ts). Checks: api `tsc` + web `tsc` clean, eslint clean,
+  `vitest run test/admin-players.test.ts test/access.test.ts test/site.test.ts` 12/12 pass. Not checked in a browser.

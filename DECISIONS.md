@@ -1275,3 +1275,6 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   table HUD shows the game's publicSummary; anything the summary does not cover stays visible. The TurnIndicator line
   is kept in every game because one element carries both «نوبت …» and the what-to-do prompt; splitting it would need a
   markup change inside games/** (not done).
+- Admin player management (2026-10-14): admins see masked mobiles only (full number is searchable, never returned).
+  Admins cannot act on themselves or on staff accounts (roles are granted out of band). Closing an account is refused
+  while the player sits at a running table or is registered in an open tournament, same as self-delete; suspend first.

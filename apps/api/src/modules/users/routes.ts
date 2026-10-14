@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, or, sql } from 'drizzle-orm';
+import { and, desc, eq, exists, gt, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
@@ -6,14 +6,14 @@ import {
   apiErrorSchema, avatarItemKeys, COSMETICS, equipBody, equippedCosmetics, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
   type ProfileExtras, type PublicProfile
 } from '@bg/contracts';
-import { schema } from '@bg/db';
-import { assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
+import { schema, type Db } from '@bg/db';
+import { activeSuspension, assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
-import { requireUser } from '../auth/session.ts';
+import { requireRole, requireUser } from '../auth/session.ts';
 import { termsVersion } from '../site/routes.ts';
 
-const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments } = schema;
+const { users, userPrivate, games, userAchievements, achievementDefinitions, sessions, userRoles, friendships, userSettings, participants, gameTables, auditLog, matchmakingTickets, tournamentEntries, tournaments, userSanctions } = schema;
 
 /** Public projection: an explicit allow-list so private columns can never leak by addition. */
 export function toPublicProfile(u: typeof users.$inferSelect): PublicProfile {
@@ -30,6 +30,30 @@ export function toProfileExtras(u: typeof users.$inferSelect): ProfileExtras {
 
 /** Achievement keys the catalogue unlocks with, so the builder can name them («دستاورد هت‌تریک»). */
 const UNLOCK_ACHIEVEMENTS = [...new Set(COSMETICS.flatMap((c) => ('achievement' in c.unlock ? [c.unlock.achievement] : [])))];
+
+/**
+ * Close an account: profile anonymised, mobile released, sessions ended; game history kept without identity.
+ * Used by self-delete and by an admin closing a player's account.
+ */
+export async function closeAccount(db: Db, userId: string, actorId: string, action: string, metadata: Record<string, unknown>, requestId: string): Promise<void> {
+  // Staff accounts would lock moderation/admin out; a running game would strand the other players.
+  if ((await db.select({ r: userRoles.role }).from(userRoles).where(eq(userRoles.userId, userId)).limit(1)).length) throw new AppError('ACCOUNT_DELETE_ADMIN');
+  const busy = await db.select({ id: gameTables.id }).from(participants).innerJoin(gameTables, eq(gameTables.id, participants.tableId))
+    .where(and(eq(participants.userId, userId), isNull(participants.leftAt), inArray(gameTables.status, ['open', 'active', 'paused']))).limit(1);
+  const entered = await db.select({ id: tournaments.id }).from(tournamentEntries).innerJoin(tournaments, eq(tournaments.id, tournamentEntries.tournamentId))
+    .where(and(eq(tournamentEntries.userId, userId), eq(tournamentEntries.status, 'registered'), inArray(tournaments.status, ['open', 'running']))).limit(1);
+  if (busy.length || entered.length) throw new AppError('ACCOUNT_HAS_ACTIVE_GAMES');
+  await db.transaction(async (tx) => {
+    await tx.update(users).set({ status: 'deleted', displayName: 'کاربر حذف‌شده', avatarKey: 'meeple', bio: null, titleKey: null, bannerKey: null,
+      favoriteGames: [], showcase: [], updatedAt: sql`now()` }).where(eq(users.id, userId));
+    await tx.delete(userPrivate).where(eq(userPrivate.userId, userId));
+    await tx.delete(friendships).where(or(eq(friendships.userLow, userId), eq(friendships.userHigh, userId)));
+    await tx.delete(userSettings).where(eq(userSettings.userId, userId));
+    await tx.update(matchmakingTickets).set({ status: 'cancelled', updatedAt: sql`now()` }).where(and(eq(matchmakingTickets.userId, userId), eq(matchmakingTickets.status, 'queued')));
+    await tx.update(sessions).set({ revokedAt: sql`now()` }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
+    await tx.insert(auditLog).values({ actorId, action, targetType: 'user', targetId: userId, metadata, requestId });
+  });
+}
 
 export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
@@ -85,23 +109,7 @@ export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
       body: z.strictObject({ confirm: z.literal('حذف') }), response: { 204: z.null(), 401: apiErrorSchema, 409: apiErrorSchema } }
   }, async (req, reply) => {
     const { userId } = requireUser(req, { allowSuspended: true });
-    // Staff accounts would lock moderation/admin out; a running game would strand the other players.
-    if ((await db.select({ r: userRoles.role }).from(userRoles).where(eq(userRoles.userId, userId)).limit(1)).length) throw new AppError('ACCOUNT_DELETE_ADMIN');
-    const busy = await db.select({ id: gameTables.id }).from(participants).innerJoin(gameTables, eq(gameTables.id, participants.tableId))
-      .where(and(eq(participants.userId, userId), isNull(participants.leftAt), inArray(gameTables.status, ['open', 'active', 'paused']))).limit(1);
-    const entered = await db.select({ id: tournaments.id }).from(tournamentEntries).innerJoin(tournaments, eq(tournaments.id, tournamentEntries.tournamentId))
-      .where(and(eq(tournamentEntries.userId, userId), eq(tournamentEntries.status, 'registered'), inArray(tournaments.status, ['open', 'running']))).limit(1);
-    if (busy.length || entered.length) throw new AppError('ACCOUNT_HAS_ACTIVE_GAMES');
-    await db.transaction(async (tx) => {
-      await tx.update(users).set({ status: 'deleted', displayName: 'کاربر حذف‌شده', avatarKey: 'meeple', bio: null, titleKey: null, bannerKey: null,
-        favoriteGames: [], showcase: [], updatedAt: sql`now()` }).where(eq(users.id, userId));
-      await tx.delete(userPrivate).where(eq(userPrivate.userId, userId));
-      await tx.delete(friendships).where(or(eq(friendships.userLow, userId), eq(friendships.userHigh, userId)));
-      await tx.delete(userSettings).where(eq(userSettings.userId, userId));
-      await tx.update(matchmakingTickets).set({ status: 'cancelled', updatedAt: sql`now()` }).where(and(eq(matchmakingTickets.userId, userId), eq(matchmakingTickets.status, 'queued')));
-      await tx.update(sessions).set({ revokedAt: sql`now()` }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
-      await tx.insert(auditLog).values({ actorId: userId, action: 'account.delete', targetType: 'user', targetId: userId, metadata: {}, requestId: req.id });
-    });
+    await closeAccount(db, userId, userId, 'account.delete', {}, req.id);
     reply.clearCookie(config.session.cookieName, { path: '/' });
     return reply.code(204).send(null);
   });
@@ -135,5 +143,117 @@ export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
     const [u] = await db.select().from(users).where(eq(users.id, req.params.id));
     if (!u || u.status !== 'active') throw new AppError('NOT_FOUND');
     return toPublicProfile(u);
+  });
+  // ---------- Player management (admin) ----------
+  const playerStatus = z.enum(['active', 'suspended', 'deleted']);
+  const adminPlayer = z.object({ id: z.uuid(), displayName: z.string(), avatarKey: z.string(), mobileMasked: z.string().nullable(), status: playerStatus,
+    roles: z.array(z.string()), joinedAt: z.iso.datetime(), lastSeenAt: z.iso.datetime().nullable() });
+  const reasonBody = z.strictObject({ reason: z.string().trim().min(3).max(300) });
+  const errs = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
+  const suspendedNow = exists(db.select({ x: sql`1` }).from(userSanctions).where(and(eq(userSanctions.userId, users.id), eq(userSanctions.kind, 'suspended'),
+    isNull(userSanctions.revokedAt), or(isNull(userSanctions.endsAt), gt(userSanctions.endsAt, sql`now()`)))));
+  const playerCols = { user: users, mobile: userPrivate.mobile, suspended: sql<boolean>`${suspendedNow}`,
+    lastSeen: sql<string | null>`(select max(${sessions.lastSeenAt}) from ${sessions} where ${sessions.userId} = ${users.id})` };
+  type PlayerRow = { user: typeof users.$inferSelect; mobile: string | null; suspended: boolean; lastSeen: string | null };
+  const toPlayer = (x: PlayerRow, roles: string[]): z.infer<typeof adminPlayer> => ({
+    ...toPublicProfile(x.user), mobileMasked: x.mobile ? maskMobile(x.mobile) : null, roles,
+    status: x.user.status === 'deleted' ? 'deleted' : x.suspended ? 'suspended' : 'active', lastSeenAt: x.lastSeen ? new Date(x.lastSeen).toISOString() : null });
+  const rolesOf = async (ids: string[]) => {
+    const rows = ids.length ? await db.select().from(userRoles).where(inArray(userRoles.userId, ids)) : [];
+    return (id: string) => rows.filter((x) => x.userId === id).map((x) => x.role);
+  };
+  /** Admin acts on someone else, and never on another staff account (roles are managed out of band). */
+  const loadTarget = async (adminId: string, id: string) => {
+    if (id === adminId) throw new AppError('CANNOT_TARGET_SELF');
+    const [u] = await db.select().from(users).where(eq(users.id, id));
+    if (!u || u.status === 'deleted') throw new AppError('NOT_FOUND');
+    if ((await db.select({ r: userRoles.role }).from(userRoles).where(eq(userRoles.userId, id)).limit(1)).length) throw new AppError('FORBIDDEN');
+    return u;
+  };
+  const audit = (actorId: string, action: string, targetId: string, metadata: Record<string, unknown>, requestId: string) =>
+    db.insert(auditLog).values({ actorId, action, targetType: 'user', targetId, metadata, requestId });
+  const count = async (q: Promise<{ n: number }[]>) => (await q)[0]?.n ?? 0;
+
+  r.get('/admin/users', {
+    schema: { tags: ['admin'], summary: 'All players with search (name or mobile digits) and status filter; mobile is masked',
+      querystring: z.object({ q: z.string().trim().max(64).optional(), status: z.enum(['all', 'active', 'suspended', 'deleted']).default('all'), offset: z.coerce.number().int().min(0).default(0) }),
+      response: { 200: z.object({ items: z.array(adminPlayer), total: z.number().int(), hasMore: z.boolean() }), ...errs } }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    const { q, status, offset } = req.query;
+    const digits = (q ?? '').replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[\s-]/g, '').replace(/^\+98/, '0');
+    const text = !q ? undefined : /^\d{3,}$/.test(digits) ? ilike(userPrivate.mobile, `%${digits}%`) : ilike(users.displayName, `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`);
+    const where = and(text,
+      status === 'deleted' ? eq(users.status, 'deleted') : status === 'all' ? undefined : eq(users.status, 'active'),
+      status === 'suspended' ? suspendedNow : status === 'active' ? sql`not ${suspendedNow}` : undefined);
+    const rows = await db.select(playerCols).from(users).leftJoin(userPrivate, eq(userPrivate.userId, users.id)).where(where)
+      .orderBy(desc(users.createdAt), desc(users.id)).limit(51).offset(offset);
+    const total = await count(db.select({ n: sql<number>`count(*)::int` }).from(users).leftJoin(userPrivate, eq(userPrivate.userId, users.id)).where(where));
+    const page = rows.slice(0, 50);
+    const roles = await rolesOf(page.map((x) => x.user.id));
+    return { items: page.map((x) => toPlayer(x, roles(x.user.id))), total, hasMore: rows.length > 50 };
+  });
+
+  r.get('/admin/users/:id', {
+    schema: { tags: ['admin'], summary: 'One player: status, coins, tables, sessions and sanction history', params: z.object({ id: z.uuid() }),
+      response: { 200: adminPlayer.extend({ coins: z.number().int(), tablesPlayed: z.number().int(), activeSessions: z.number().int(),
+        sanctions: z.array(z.object({ id: z.uuid(), kind: z.string(), reason: z.string(), startsAt: z.iso.datetime(), endsAt: z.iso.datetime().nullable(), active: z.boolean() })) }), ...errs } }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    const id = req.params.id;
+    const [x] = await db.select(playerCols).from(users).leftJoin(userPrivate, eq(userPrivate.userId, users.id)).where(eq(users.id, id));
+    if (!x) throw new AppError('NOT_FOUND');
+    const sanctions = await db.select().from(userSanctions).where(eq(userSanctions.userId, id)).orderBy(desc(userSanctions.startsAt));
+    return { ...toPlayer(x, (await rolesOf([id]))(id)), coins: await coinBalance(db, id),
+      tablesPlayed: await count(db.select({ n: sql<number>`count(*)::int` }).from(participants).where(eq(participants.userId, id))),
+      activeSessions: await count(db.select({ n: sql<number>`count(*)::int` }).from(sessions).where(and(eq(sessions.userId, id), isNull(sessions.revokedAt), gt(sessions.expiresAt, sql`now()`)))),
+      sanctions: sanctions.map((v) => ({ id: v.id, kind: v.kind, reason: v.reason, startsAt: v.startsAt.toISOString(), endsAt: v.endsAt?.toISOString() ?? null,
+        active: !v.revokedAt && (!v.endsAt || v.endsAt.getTime() > Date.now()) })) };
+  });
+
+  r.post('/admin/users/:id/suspend', {
+    schema: { tags: ['admin'], summary: 'Suspend a player (optionally for N hours); sessions stay only for viewing sanctions and appealing',
+      params: z.object({ id: z.uuid() }), body: reasonBody.extend({ durationHours: z.number().int().min(1).max(24 * 365).optional() }), response: { 204: z.null(), ...errs } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    const u = await loadTarget(userId, req.params.id);
+    if (await activeSuspension(db, u.id)) throw new AppError('ALREADY_SUSPENDED');
+    const h = req.body.durationHours;
+    await db.insert(userSanctions).values({ userId: u.id, kind: 'suspended', reason: req.body.reason, createdBy: userId,
+      endsAt: h ? sql`now() + make_interval(hours => ${h})` : null });
+    await audit(userId, 'user.suspend', u.id, { reason: req.body.reason, durationHours: h ?? null }, req.id);
+    return reply.code(204).send(null);
+  });
+
+  r.post('/admin/users/:id/unsuspend', {
+    schema: { tags: ['admin'], summary: 'Lift every active suspension of a player', params: z.object({ id: z.uuid() }), body: reasonBody, response: { 204: z.null(), ...errs } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    const u = await loadTarget(userId, req.params.id);
+    const lifted = await db.update(userSanctions).set({ revokedAt: sql`now()`, revokedBy: userId })
+      .where(and(eq(userSanctions.userId, u.id), eq(userSanctions.kind, 'suspended'), isNull(userSanctions.revokedAt))).returning({ id: userSanctions.id });
+    if (!lifted.length) throw new AppError('NOT_FOUND');
+    await audit(userId, 'user.unsuspend', u.id, { reason: req.body.reason }, req.id);
+    return reply.code(204).send(null);
+  });
+
+  r.post('/admin/users/:id/logout', {
+    schema: { tags: ['admin'], summary: 'End every session of a player (sign out on all devices)', params: z.object({ id: z.uuid() }), body: reasonBody, response: { 204: z.null(), ...errs } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    const u = await loadTarget(userId, req.params.id);
+    await db.update(sessions).set({ revokedAt: sql`now()` }).where(and(eq(sessions.userId, u.id), isNull(sessions.revokedAt)));
+    await audit(userId, 'user.logout_all', u.id, { reason: req.body.reason }, req.id);
+    return reply.code(204).send(null);
+  });
+
+  r.post('/admin/users/:id/close', {
+    schema: { tags: ['admin'], summary: 'Close a player account (same anonymisation as self-delete); refused while the player has running games',
+      params: z.object({ id: z.uuid() }), body: reasonBody.extend({ confirm: z.literal('بستن') }), response: { 204: z.null(), ...errs } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    const u = await loadTarget(userId, req.params.id);
+    await closeAccount(db, u.id, userId, 'account.close', { reason: req.body.reason }, req.id);
+    return reply.code(204).send(null);
   });
 }
