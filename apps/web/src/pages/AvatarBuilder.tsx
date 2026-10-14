@@ -4,7 +4,7 @@ import {
   type AvatarParts, type AvatarSlot, type CosmeticItem, type Me
 } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Avatar, Badge, Banner, Button, Card, Chip, Coin, CosmeticTile, PageHead, Sheet, StateBlock } from '@bg/ui/bgv';
+import { Avatar, Badge, Banner, Button, Card, Chip, Coin, CosmeticTile, Icon, PageHead, Sheet, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { coinsChanged } from '../lib/coins.tsx';
 import { AvatarArt, frameProps } from '../lib/bgv.tsx';
@@ -65,7 +65,10 @@ export function AvatarBuilder() {
   return (
     <>
       <PageHead title="ساخت آواتار" sub="هر چیزی را امتحان کنید؛ آیتم‌های قفل با سکه یا با پیشرفت در بازی باز می‌شوند."
-        actions={<><Button variant="secondary" href="/shop" icon="shopping-bag">فروشگاه</Button><Button variant="secondary" href="/me/wardrobe" icon="shirt">کمد</Button><Button variant="secondary" href="/coins" icon="plus">خرید سکه</Button></>} />
+        actions={<>
+          <Button variant="secondary" href="/coins" icon="plus">خرید سکه</Button>
+          <Button variant="primary" icon="check" loading={busy === 'save'} disabled={lockedNow.length > 0 || !!busy || key === me.avatarKey} onClick={save}>ذخیرهٔ آواتار</Button>
+        </>} />
       <div className="pf-builder">
         <Card aria-label="پیش‌نمایش">
           <div className="pf-preview">
@@ -77,8 +80,15 @@ export function AvatarBuilder() {
               <Button variant="secondary" icon="refresh-cw" onClick={randomize}>تصادفی</Button>
               <Button variant="secondary" icon="rotate-ccw" disabled={key === me.avatarKey} onClick={reset}>برگرداندن</Button>
             </div>
-            <Button variant="primary" block loading={busy === 'save'} disabled={lockedNow.length > 0 || !!busy || key === me.avatarKey} onClick={save}>ذخیره آواتار</Button>
-            {lockedNow.length > 0 && <p className="t-body-sm bgv-muted" role="status">برای ذخیره، این‌ها باید باز شوند: {lockedNow.map((c) => `${c.nameFa} (${reason(c)})`).join('، ')}</p>}
+            {lockedNow.length > 0 && <div role="status"><Banner tone="warning" icon="lock"
+              title={lockedNow.length === 1 ? `«${lockedNow[0]!.nameFa}» قفل است: ${reason(lockedNow[0]!)}` : `${faNum(lockedNow.length)} آیتم قفل است`}
+              text={`برای ذخیرهٔ آواتار، آیتم‌های در حال امتحان باید باز شوند: ${lockedNow.map((c) => `${c.nameFa} (${reason(c)})`).join('، ')}`} /></div>}
+            <dl className="pf-sum" aria-label="لایه‌های آواتار">
+              {AVATAR_SLOTS.map((s) => {
+                const c = slotItems(s)[parts[s]]!;
+                return <div key={s}><dt>{SLOT_FA[s]}</dt><dd>{c.nameFa}{!unlocked.has(c.key) && <Icon name="lock" size="sm" />}</dd></div>;
+              })}
+            </dl>
           </div>
         </Card>
 
