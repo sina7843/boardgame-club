@@ -161,10 +161,11 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
               <div className="bgv-stack" style={{ gap: 'var(--space-3)' }}>
                 {me && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>با اعلام آمادگی، قوانین زمان و انصراف این میز را می‌پذیرید.</p>}
                 {error && <Banner tone="danger" text={error} />}
-                {actions}
+                <div className="tbl-lobbyacts">{actions}</div>
               </div>
             </Card>
           )}
+          {!t.isMatchmade && <div className="tbl-lobbybar" role="group" aria-label="آمادگی">{actions}</div>}
           {inviteLink && (
             <div id="table-invite"><Card title={<span className="bgv-row"><Icon name="link" />دعوت به میز</span>}>
               <TextField label="لینک دعوت" readOnly value={inviteLink} dir="ltr" onFocus={(e) => e.target.select()}

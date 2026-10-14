@@ -88,3 +88,12 @@ html[data-immersive] .app-page { gap: 0; }
 /* Equipped cosmetics (player-chosen art colours arrive as data): seat ring around the HUD avatar, chat bubble colour. */
 .tbl-ring { outline: 2px solid var(--tbl-ring); outline-offset: 2px; }
 .tbl-said[style] { background: var(--tbl-bubble); color: var(--tbl-bubble-ink); }
+
+/* Lobby on phones: the ready / leave buttons live in a bar pinned above the dock, not below the chat. */
+.tbl-lobbybar { display: none; }
+@media (max-width: 899px) {
+  .tbl-lobbyacts { display: none; }
+  .tbl-lobbybar { display: flex; gap: var(--space-2); position: sticky; inset-block-end: calc(var(--dock-h) + var(--space-2)); z-index: var(--z-sticky);
+    padding: var(--space-3); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
+  .tbl-lobbybar > * { flex: 1; }
+}
