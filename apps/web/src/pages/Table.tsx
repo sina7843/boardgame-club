@@ -334,11 +334,12 @@ function useImmersive() {
  * chat is closed it also counts as unread, shows a short toast with the sender and text, and (if enabled in settings)
  * a browser notification when the tab is hidden.
  */
-function useTableChatAlerts(tableId: string | null, open: boolean): { unread: number; said: Record<string, string> } {
+function useTableChatAlerts(tableId: string | null, open: boolean): { unread: number; said: Record<string, string>; last: { name: string; text: string } | null } {
   const { me } = useSession();
   const toast = useToast();
   const [unread, setUnread] = useState(0);
   const [said, setSaid] = useState<Record<string, string>>({});
+  const [last, setLast] = useState<{ name: string; text: string } | null>(null);
   const [conversationId, setConversationId] = useState<string>();
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   useEffect(() => {
@@ -356,6 +357,7 @@ function useTableChatAlerts(tableId: string | null, open: boolean): { unread: nu
       const body = em ? `«${cosmetic(em)?.nameFa ?? 'ایموت'}»` : m.body;
       const short = body.length > 60 ? `${body.slice(0, 60)}…` : body;
       setSaid((old) => ({ ...old, [m.sender.id]: short }));
+      setLast({ name: m.sender.displayName, text: short });
       clearTimeout(timers.current.get(m.sender.id));
       timers.current.set(m.sender.id, setTimeout(() => setSaid(({ [m.sender.id]: _, ...rest }) => rest), 6000));
       if (m.sender.id === me?.id || open) return;
@@ -369,7 +371,7 @@ function useTableChatAlerts(tableId: string | null, open: boolean): { unread: nu
     window.addEventListener('bg:message', on);
     return () => window.removeEventListener('bg:message', on);
   }, [conversationId, me?.id, open, toast]);
-  return { unread, said };
+  return { unread, said, last };
 }
 
 /**
@@ -455,7 +457,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const isPlayer = t.mySeat !== null;
   const wide = useWide();
   const notPhone = useWide(900);
-  const { unread, said } = useTableChatAlerts(hasChat ? t.id : null, chat || wide);
+  const { unread, said, last } = useTableChatAlerts(hasChat ? t.id : null, chat || wide);
   const gameRef = useRef<HTMLDivElement>(null);
   const full = useFullscreen(gameRef);
   const clock = useTurnClock(s);
@@ -642,6 +644,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             </>}
             {finished && hideResult && g.result && <Button size="sm" variant="secondary" icon="trophy" onClick={() => setHideResult(false)}>نتیجهٔ بازی</Button>}
           </>}>
+          {!isPlayer && !finished && hasChat && !wide && (
+            <button type="button" className="tbl-chatpeek" onClick={() => setChat(true)} aria-label={`گفت‌وگوی میز${unread ? `، ${faNum(unread)} پیام تازه` : ''}`}>
+              <Icon name="message-circle" size="sm" />
+              <span className="tbl-chatpeek__text">{last ? <><b><bdi>{last.name}</bdi>:</b> {last.text}</> : 'گفت‌وگوی میز؛ تماشاگرها فقط می‌خوانند'}</span>
+              {unread > 0 && <Badge tone="count" size="sm">{faNum(unread)}</Badge>}
+            </button>
+          )}
           {g.tutorial && !finished && (
             <div className="tbl-tutorial" aria-labelledby="tut-h">
               <b id="tut-h" className="t-label">آموزش: مرحله {faNum(Math.min(g.tutorial.step + 1, g.tutorial.total))} از {faNum(g.tutorial.total)}</b>

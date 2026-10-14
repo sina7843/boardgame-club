@@ -34,7 +34,8 @@ function ThemePicker() {
   return (
     <div className="ac-row ac-row--stack">
       <div className="ac-row__text"><b id="theme-l">پوسته</b></div>
-      <div role="radiogroup" aria-labelledby="theme-l" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
+      <div className="ac-theme-seg"><Segmented block label="پوسته" value={prefs.theme} onChange={(v) => update({ theme: v as Prefs['theme'] })} options={THEMES} /></div>
+      <div role="radiogroup" aria-labelledby="theme-l" className="ac-theme-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
         {THEMES.map((t) => (
           <label key={t.value} className={`ac-theme${prefs.theme === t.value ? ' is-on' : ''}`}>
             <input type="radio" name="theme" className="bgv-sr" checked={prefs.theme === t.value} onChange={() => update({ theme: t.value })} />
@@ -81,7 +82,7 @@ export function Settings() {
               {(
                 <div className="ac-row">
                   <div className="ac-row__text"><b>خروج از حساب</b><span>از همین دستگاه خارج می‌شوید؛ میزهای نوبتی شما ادامه دارند.</span></div>
-                  <Button size="sm" variant="leave" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
+                  <Button size="sm" variant="leave" className="ac-signout" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
                 </div>
               )}
             </Section>
