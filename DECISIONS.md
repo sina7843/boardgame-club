@@ -1298,3 +1298,6 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   `game_tables.clock` (migration 0020); the turn deadline is the running bank; a flag fall uses chess's existing rule
   (loss, draw when the opponent cannot mate). Time during a platform incident is still charged (known ceiling).
   Web push (closed-app notifications) is dropped by the owner; game buttons in the ActionDock wait until the rest is done.
+- Avatar frames (2026-10-15, default chosen while the owner was asked): cosmetic frames are drawn OUTSIDE the avatar
+  and its seat / «شما» ring (`.has-frame::after`, frame SVG as a data URI from `frameSvg`), not inside the avatar art.
+  The DS `Frame` stays for league tiers only. Preferred seat colour = the server seats a joiner in that seat when free.

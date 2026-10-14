@@ -1,7 +1,7 @@
 // App glue for the BGV design-system components: router-aware links, the user's built avatar, identity props.
 import { useMemo, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { avatarSvg, cosmetic, parseAvatar, type League } from '@bg/contracts';
+import { avatarSvg, frameSvg, cosmetic, parseAvatar, type League } from '@bg/contracts';
 import type { IdentityProps } from '@bg/ui/bgv';
 
 /**
@@ -22,10 +22,20 @@ export function useLinkRouting() {
 }
 
 /** The user's built avatar as inline SVG art (catalogue SVG only, so the markup is trusted), or undefined. */
-export function AvatarArt({ avatarKey }: { avatarKey: string }) {
-  const svg = useMemo(() => { const p = parseAvatar(avatarKey); return p ? avatarSvg(p) : null; }, [avatarKey]);
+export function AvatarArt({ avatarKey, frame = false }: { avatarKey: string; frame?: boolean }) {
+  const svg = useMemo(() => { const p = parseAvatar(avatarKey); return p ? avatarSvg(p, { frame }) : null; }, [avatarKey, frame]);
   if (!svg) return null;
   return <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden dangerouslySetInnerHTML={{ __html: svg }} />;
+}
+
+/**
+ * Identity spec: a cosmetic frame sits OUTSIDE the avatar and its seat / «شما» ring. The avatar art leaves the frame
+ * out and the frame is drawn by `.has-frame::after` from this data URI (see styles/profile.css).
+ */
+export function frameProps(avatarKey: string | null | undefined): { className?: string; style?: React.CSSProperties } {
+  const p = avatarKey ? parseAvatar(avatarKey) : null;
+  const svg = p ? frameSvg(p) : null;
+  return svg ? { className: 'has-frame', style: { '--frame': `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")` } as React.CSSProperties } : {};
 }
 
 const initials = (name: string) => name.trim().charAt(0);
@@ -39,7 +49,7 @@ export function userIdentity(u: { displayName: string; avatarKey: string; titleK
     initials: initials(u.displayName),
     ...(title ? { title } : {}),
     ...extra,
-    avatar: { name: `آواتار ${u.displayName}`, ...(art ? { children: art } : {}), ...extra?.avatar }
+    avatar: { name: `آواتار ${u.displayName}`, ...(art ? { children: art } : {}), ...frameProps(u.avatarKey), ...extra?.avatar }
   };
 }
 

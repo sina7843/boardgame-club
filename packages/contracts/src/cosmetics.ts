@@ -281,7 +281,14 @@ export const formatAvatar = (p: AvatarParts): string => `v1:${AVATAR_SLOTS.map((
 export const avatarItemKeys = (p: AvatarParts): string[] => AVATAR_SLOTS.map((s) => `${s}.${p[s]}`);
 
 /** Inner SVG markup (viewBox 0 0 100 100) for a built avatar. Only catalogue strings reach it, never user text. */
-export function avatarSvg(p: AvatarParts): string {
+/** The frame layer alone (100×100 SVG), drawn OUTSIDE the avatar and its seat ring by clients; null for «بدون قاب». */
+export function frameSvg(p: AvatarParts): string | null {
+  const svg = BY_KEY.get(`fr.${p.fr}`)?.svg;
+  return svg ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${svg}</svg>` : null;
+}
+
+/** Avatar layers; `frame: false` leaves the frame out (it is drawn outside the rings instead, see frameSvg). */
+export function avatarSvg(p: AvatarParts, opts: { frame?: boolean } = {}): string {
   const get = (s: AvatarSlot) => BY_KEY.get(`${s}.${p[s]}`)!;
   const fill = (x = '') => x.replaceAll('{skin}', get('s').color!).replaceAll('{hair}', get('hc').color!).replaceAll('{cloth}', get('oc').color!);
   const o = get('o');
@@ -291,7 +298,7 @@ export function avatarSvg(p: AvatarParts): string {
     '<path d="M12 100C14 80 30 72 50 72S86 80 88 100Z" fill="{cloth}"/>', o.svg,
     h.back,
     '<rect x="44" y="60" width="12" height="14" fill="{skin}"/><rect x="44" y="60" width="12" height="6" fill="#000" opacity=".12"/>',
-    get('f').svg, get('e').svg, get('m').svg, h.svg, get('a').svg, get('fr').svg
+    get('f').svg, get('e').svg, get('m').svg, h.svg, get('a').svg, opts.frame === false ? '' : get('fr').svg
   ].join(''));
 }
 

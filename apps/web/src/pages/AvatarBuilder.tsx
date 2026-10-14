@@ -7,7 +7,7 @@ import { useToast } from '@bg/ui';
 import { Avatar, Badge, Banner, Button, Card, Chip, Coin, CosmeticTile, PageHead, Sheet, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { coinsChanged } from '../lib/coins.tsx';
-import { AvatarArt } from '../lib/bgv.tsx';
+import { AvatarArt, frameProps } from '../lib/bgv.tsx';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -70,7 +70,7 @@ export function AvatarBuilder() {
         <Card aria-label="پیش‌نمایش">
           <div className="pf-preview">
             <div className="pf-preview__art">
-              <Avatar size="2xl" name={`آواتار ${me.displayName}`}><AvatarArt avatarKey={key} /></Avatar>
+              <Avatar size="2xl" name={`آواتار ${me.displayName}`} {...frameProps(key)}><AvatarArt avatarKey={key} /></Avatar>
             </div>
             {key !== me.avatarKey && <Badge tone="warning" icon="eye">در حال امتحان</Badge>}
             <div className="bgv-row">
@@ -97,7 +97,7 @@ export function AvatarBuilder() {
                     price={locked && 'coins' in c.unlock ? c.unlock.coins : undefined} lockText={locked ? reason(c) : undefined}
                     art={COLOUR[slot]
                       ? <span className="pf-sw" style={{ '--sw': c.color } as React.CSSProperties} />
-                      : <Avatar size="lg"><AvatarArt avatarKey={formatAvatar({ ...parts, [slot]: c.i })} /></Avatar>}
+                      : <Avatar size="lg"><AvatarArt avatarKey={formatAvatar({ ...parts, [slot]: c.i })} frame={slot === 'fr'} /></Avatar>}
                     onClick={() => setParts({ ...parts, [slot]: c.i })} />
                 );
               })}

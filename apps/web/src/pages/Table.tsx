@@ -12,7 +12,7 @@ import { usePresence } from '../lib/presence.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { AvatarArt } from '../lib/bgv.tsx';
+import { AvatarArt, frameProps } from '../lib/bgv.tsx';
 import { durationFa, faNum, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { browserNotificationsEnabled } from '../lib/realtime.tsx';
@@ -47,9 +47,11 @@ const seatArt = (s: Seat | undefined, kind: 'seatRing' | 'chatBubble') => {
 function seatAvatar(s: Seat | undefined, name: string): AvatarProps {
   const key = s?.user?.avatarKey;
   const ring = seatArt(s, 'seatRing');
+  const fr = frameProps(key);
   return {
     name, initials: name.charAt(0), ...(key && parseAvatar(key) ? { children: <AvatarArt avatarKey={key} /> } : {}),
-    ...(ring ? { className: 'tbl-ring', style: { '--tbl-ring': ring[0] } as React.CSSProperties } : {})
+    className: [ring ? 'tbl-ring' : '', fr.className ?? ''].join(' ').trim() || undefined,
+    style: { ...(ring ? { '--tbl-ring': ring[0] } : {}), ...fr.style } as React.CSSProperties
   };
 }
 

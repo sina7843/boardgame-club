@@ -26,7 +26,7 @@ const myParts = (me: Pick<Me, 'avatarKey'>) => parseAvatar(me.avatarKey) ?? pars
 export function ItemArt({ item, me, size = 'md' }: { item: CosmeticItem; me: Pick<Me, 'avatarKey'>; size?: 'md' | 'lg' }) {
   const avatar = (key: string) => <AvatarArt avatarKey={key} />;
   switch (item.slot) {
-    case 'fr': return <Avatar size={size === 'lg' ? 'xl' : 'lg'}>{avatar(formatAvatar({ ...myParts(me), fr: item.i }))}</Avatar>;
+    case 'fr': return <Avatar size={size === 'lg' ? 'xl' : 'lg'}><AvatarArt avatarKey={formatAvatar({ ...myParts(me), fr: item.i })} frame /></Avatar>;
     case 't': return <span className="pf-titlechip"><span className="t-micro bgv-muted">لقب</span><span className="t-label">{item.nameFa}</span></span>;
     case 'bn': return <span className="pf-bnsw" style={{ '--bn': item.css } as CSSProperties} />;
     case 'cb': return <CardBack width={size === 'lg' ? 96 : 44} label={item.nameFa} color={item.art?.colors[0]}><span className={`pf-pat pf-pat--${item.art?.pattern}`} style={vars(item)} /></CardBack>;

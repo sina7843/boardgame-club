@@ -129,3 +129,6 @@
 .pf-seatcolor { inline-size: 40px; block-size: 40px; border-radius: var(--radius-pill); border: 3px solid transparent; background: var(--c); cursor: pointer; }
 .pf-seatcolor[aria-checked="true"] { border-color: var(--text); }
 .pf-seatcolor--none { inline-size: auto; padding-inline: var(--space-3); background: var(--surface-sunken); font: inherit; }
+
+/* Cosmetic frame drawn outside the avatar AND its seat / «شما» ring (Identity spec). */
+.bgv-avatar.has-frame::after { content: ''; position: absolute; inset: calc(-1 * (var(--_ro, 4px) + 6px)); background: var(--frame) center / contain no-repeat; pointer-events: none; }
