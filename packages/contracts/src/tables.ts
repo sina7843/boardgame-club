@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { leagueSchema } from './progression.ts';
 import { botLevelSchema, botStyleSchema, competitionSchema, optionValueSchema, paceSchema, type BotLevel, type BotStyle } from '@bg/game-sdk';
 import { avatarKeySchema, publicProfile, seatCosmetics, type AvatarKey } from './api.ts';
 
@@ -86,6 +87,9 @@ export const seatView = z.object({
   user: publicProfile.nullable(),
   /** Equipped seatRing / chatBubble / emote keys of the seated player (catalogue keys, see contracts cosmetics). */
   cosmetics: seatCosmetics.optional(),
+  /** Chosen «لقب» (catalogue key) and this season's league in this game and pace, when placed. */
+  titleKey: z.string().nullable().optional(),
+  league: leagueSchema.nullable().optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()

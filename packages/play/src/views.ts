@@ -1,6 +1,6 @@
 // Read models. Game data leaves the server only through module.project()/legalActions() for one viewer.
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { AppError, botPersona, type TurnStartedEvent, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
+import { AppError, botPersona, type League, type TurnStartedEvent, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
@@ -8,7 +8,7 @@ import { loadSnapshot } from './runtime.ts';
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
 
-const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory, tableWatchers } = schema;
+const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory, tableWatchers, leaguePlacements, seasons } = schema;
 
 type GameView = NonNullable<TableSnapshot['game']>;
 
@@ -91,6 +91,15 @@ export function turnStartedEvent(registry: GameRegistry, ctx: TableContext, revi
 }
 
 /** Builds the authorized snapshot for one viewer, enforcing table access (private, tutorial, invite). */
+/** This season's league per player for one game and pace (players below the placement minimum have none). */
+async function seatLeagues(db: Db, gameId: string, mode: string, ids: string[]): Promise<Map<string, League>> {
+  if (!ids.length) return new Map();
+  const rows = await db.select({ userId: leaguePlacements.userId, league: leaguePlacements.league }).from(leaguePlacements)
+    .innerJoin(seasons, eq(seasons.id, leaguePlacements.seasonId))
+    .where(and(eq(seasons.status, 'active'), eq(leaguePlacements.gameId, gameId), eq(leaguePlacements.mode, mode), inArray(leaguePlacements.userId, ids)));
+  return new Map(rows.map((r) => [r.userId, r.league as League]));
+}
+
 /** Distinct signed-in watchers seen by a socket heartbeat in the last 150 s (players never count). */
 async function spectatorCount(db: Db, tableId: string): Promise<number> {
   const [r] = await db.select({ n: sql<number>`count(distinct ${tableWatchers.userId})::int` }).from(tableWatchers)
@@ -122,6 +131,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     const { nameFa, avatarKey, style } = botPersona(botCfg?.personas, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < seat).length);
     return { level: botCfg!.level, nameFa, avatarKey, style };
   };
+  const leagues = await seatLeagues(db, table.gameId, table.pace, seats.flatMap(({ u }) => (u ? [u.id] : [])));
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -131,6 +141,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     isTutorial: table.isTutorial, isMatchmade: table.isMatchmade, readyDeadline: null, hostId: table.hostId,
     seats: seats.map(({ p, u }) => ({
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
+      ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null } : {}),
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
       // equipped comes with the seats' users row (no extra query on the move path).
       ...(u && seatCosmeticsOf(u.equipped) ? { cosmetics: seatCosmeticsOf(u.equipped)! } : {}),

@@ -483,6 +483,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       name: <bdi>{n}</bdi>, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
       ...(x.bot ? { botLevel: BOT_LEVEL_FA[x.bot.level] } : {}),
       ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : {}),
+      ...(x.league ? { league: x.league } : {}),
+      ...(x.titleKey && cosmetic(x.titleKey) ? { title: cosmetic(x.titleKey)!.nameFa } : {}),
       ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
       ...(active && clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {}),
       ...(words ? { badge: (() => { const b = seatArt(x, "chatBubble"); return <span className="tbl-said" aria-hidden style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}>💬 {words}</span>; })() } : {}),
