@@ -129,7 +129,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
 
   return (
     <>
-      <Breadcrumbs items={[{ label: 'میزها و حریف‌یابی', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : 'میز' }]} />
+      <Breadcrumbs items={[{ label: 'میزها و حریف‌یابی', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : host?.user ? `میز ${host.user.displayName}` : 'میز' }]} />
       <PageHead title={<span className="tbl-head">
         <img className="tbl-head__cover" src={`/covers/${t.gameId}.webp?v=2`} alt="" />
         <span>{t.isTutorial ? `آموزش ${t.gameNameFa}` : host?.user ? <>{t.gameNameFa}، میز <bdi>{host.user.displayName}</bdi></> : t.gameNameFa}
@@ -520,6 +520,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     const winners = g.result.placements.filter((p) => p.place === 1).map((p) => name(p.seat));
     setGameEvents((e) => (e.some((x) => x.id === 'end') ? e : [...e, { id: 'end', at: new Date().toISOString(), text: `بازی تمام شد؛ نفر اول: ${winners.join('، ')}` }]));
   }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Turn order hint for a single mover: «بعدی» / «بعدی شمایید» / «۳ نوبت بعد» (seat order, wrapping).
+  const queueText = (seat: number) => {
+    if (g.pendingSeats.length !== 1) return 'منتظر';
+    const n = t.seats.length;
+    const d = (seat - g.pendingSeats[0]! + n) % n;
+    return d === 1 ? (seat === t.mySeat ? 'بعدی شمایید' : 'بعدی') : `${faNum(d)} نوبت بعد`;
+  };
   const players: PlayerCardProps[] = t.seats.map((x) => {
     const n = name(x.seat);
     const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
@@ -552,7 +559,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       })() } : {}),
       ...live,
       ...(place ? { score: place.score ?? place.place, scoreLabel: place.score !== undefined ? 'امتیاز' : 'رتبه', leader: place.place === 1 } : {}),
-      ...(!place && !active && !finished && !ss?.status ? { waiting: 'منتظر' } : {}),
+      ...(!place && !active && !finished && !ss?.status ? { waiting: queueText(x.seat) } : {}),
       ...(active ? { waiting: 'در حال بازی' } : {})
     };
   });
@@ -588,13 +595,13 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         <GameBar title={t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
           meta={[...(finished ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>] : []), ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...tableMeta(t),
             ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
-            <Connection key="c" state={s.live ? 'ok' : 'retry'} label={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'} />]}
+            <Connection key="c" state={s.live ? 'ok' : 'lost'} label={s.live ? 'متصل' : 'قطع'} />]}
           actions={<>
             {!isPlayer && !finished && <Button variant="secondary" size="sm" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>}
             {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} />}
             <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
-              aria-label={unread > 0 ? `گفت‌وگوی میز، ${faNum(unread)} پیام تازه` : 'گفت‌وگوی میز'}>گفت‌وگوی میز</Button>}
+              aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
           </>} />
 
@@ -607,7 +614,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         <Felt as="main" className="tbl-felt" label={`صفحهٔ بازی ${t.gameNameFa}`}
           top={!finished ? <>
             <TurnPill mine={myTurn} {...(turnSeat ? { seat: seatNo(turnSeat.seat), who: name(turnSeat.seat), avatar: seatAvatar(turnSeat, name(turnSeat.seat)) } : { simul: statusText })}
-              {...(t.mySeat === null ? { text: `تماشاگر، ${statusText}` } : {})}
+              {...(t.mySeat === null ? { text: statusText } : {})}
               {...(clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {})} />
             {g.deadline?.frozen && <span className="bgv-felt-plate"><Icon name="lock" size="sm" />زمان منجمد (توقف سراسری)</span>}
             {shared.length > 0 && <span className="bgv-row tbl-shared">{shared.map((p) => (
@@ -634,9 +641,9 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         <ActionDock className="tbl-dock" waiting={!myTurn && !finished}
           prompt={<span className="tbl-prompt" role="status" aria-live="polite">
             <Icon name={finished ? 'flag' : myTurn ? 'play' : 'hourglass'} />
-            <strong>{t.mySeat === null && !finished ? `تماشاگر، ${statusText}` : statusText}</strong>
+            <strong>{statusText}</strong>
           </span>}
-          {...(clockProps && myTurn ? { clock: { ...clockProps, sub: 'زمان شما' } } : {})}
+          {...(clockProps && myTurn ? { clock: { ...clockProps, sub: g.pendingSeats.length > 1 ? 'مهلت مشترک' : 'زمان شما' } } : {})}
           actions={<>
             {g.tutorial && !finished && <>
               <Button size="sm" variant="ghost" icon="rotate-ccw" disabled={tutorialBusy} onClick={() => tutorial('start')}>از اول</Button>
