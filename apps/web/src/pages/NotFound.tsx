@@ -14,8 +14,8 @@ export function NotFound() {
         <h1 className="t-page-sm">این صفحه پیدا نشد</h1>
         <p className="t-body-sm bgv-muted">نشانی را بررسی کنید؛ شاید میزی که دنبالش هستید بسته شده.</p>
       </div>
-      <Button variant="primary" size="lg" icon="search" href="/games" style={{ inlineSize: '100%' }}>جست‌وجوی بازی</Button>
-      <Button variant="ghost" href="/">بازگشت به خانه</Button>
+      <Button variant="primary" size="lg" icon="house" href="/" style={{ inlineSize: '100%' }}>بازگشت به خانه</Button>
+      <Button variant="secondary" icon="search" href="/games">جست‌وجوی بازی</Button>
     </div>
   );
 }

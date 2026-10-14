@@ -61,9 +61,9 @@ export function NotificationsPage() {
   }
 
   let list;
-  if (n.error) list = <StateBlock kind="error" title="اعلان‌ها دریافت نشدند" text={n.error.messageFa} action={<Button onClick={reload}>تلاش دوباره</Button>} />;
+  if (n.error) list = <StateBlock kind="error" title="اعلان‌ها دریافت نشدند" text={n.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} />;
   else if (!n.data) list = <div style={{ padding: 20 }}><Skeleton lines={4} /></div>;
-  else if (!shown.length) list = <StateBlock kind="empty" icon="bell" title="اعلانی ندارید" text="وقتی نوبت شما شود یا دعوتی برسد، اینجا می‌بینید." />;
+  else if (!shown.length) list = <StateBlock kind="empty" icon="bell" title="اعلانی ندارید" text="وقتی نوبت شما شود یا دعوتی برسد، اینجا می‌بینید." action={<Button icon="settings" href="/settings?tab=alerts">تنظیمات اعلان‌ها</Button>} />;
   else list = (
     <ul className="hm-ul">
       {groups.map(([g, rows]) => [

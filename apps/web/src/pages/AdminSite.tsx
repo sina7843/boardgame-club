@@ -47,7 +47,7 @@ function PageEditor({ slug }: { slug: SiteSlug }) {
   const [reaccept, setReaccept] = useState(false);
   const legal = slug === 'terms' || slug === 'privacy';
   useEffect(() => { if (p.data) { setTitle(p.data.titleFa); setBody(p.data.bodyFa); } }, [p.data]);
-  if (p.error) return <StateBlock kind="error" title="بارگذاری نشد" text={p.error.messageFa} action={<Button onClick={p.reload}>تلاش دوباره</Button>} />;
+  if (p.error) return <StateBlock kind="error" title="بارگذاری نشد" text={p.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={p.reload}>تلاش دوباره</Button>} />;
   if (!p.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const dirty = title !== p.data.titleFa || body !== p.data.bodyFa;
   return (

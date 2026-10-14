@@ -77,7 +77,7 @@ export function GroupsPage() {
     const g = await run(() => api<{ id: string }>('/groups', { method: 'POST', body: { name } }));
     if (g) navigate(`/groups/${g.id}`);
   };
-  if (list.error) return <StateBlock kind={list.error.status === 401 ? 'denied' : 'error'} title={list.error.status === 401 ? 'برای دیدن گروه‌ها وارد شوید' : 'گروه‌ها دریافت نشد'} action={<Button onClick={list.reload}>تلاش دوباره</Button>} />;
+  if (list.error) return <StateBlock kind={list.error.status === 401 ? 'denied' : 'error'} title={list.error.status === 401 ? 'برای دیدن گروه‌ها وارد شوید' : 'گروه‌ها دریافت نشد'} action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} />;
   if (!list.data) return <Loading />;
   return (
     <>
@@ -198,9 +198,10 @@ export function ClubsPage() {
       <div className="bgv-cols">
         <section className="sx-stack" aria-label="فهرست باشگاه‌ها">
           <TextField icon="search" label="جست‌وجوی باشگاه" type="search" value={q} onChange={(e) => setQ(e.target.value)} />
-          {list.error && <StateBlock kind="error" title="فهرست باشگاه‌ها دریافت نشد" action={<Button onClick={list.reload}>تلاش دوباره</Button>} />}
+          {list.error && <StateBlock kind="error" title="فهرست باشگاه‌ها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} />}
           {!list.data && !list.error && <Loading />}
-          {list.data && (list.data.items.length === 0 ? <StateBlock kind="empty" title="باشگاهی پیدا نشد" text="اولین باشگاه را بسازید." /> : (
+          {list.data && (list.data.items.length === 0 ? <StateBlock kind="empty" title="باشگاهی پیدا نشد" text={q.trim() ? 'عبارت دیگری را امتحان کنید یا باشگاه خودتان را بسازید.' : 'اولین باشگاه را بسازید.'}
+            action={<span className="bgv-row">{q.trim() && <Button onClick={() => setQ('')}>پاک‌کردن جست‌وجو</Button>}<Button variant="primary" icon="plus" onClick={() => document.getElementById('new-club-h')?.scrollIntoView({ behavior: 'smooth' })}>ساخت باشگاه</Button></span>} /> : (
             <>
               <p className="sx-cap" role="status"><b>{faNum(list.data.items.length)} باشگاه</b></p>
               <div className="bgv-grid">
@@ -229,7 +230,7 @@ export function ClubsPage() {
         <form style={{ minInlineSize: 0 }} onSubmit={create} aria-labelledby="new-club-h">
           <Card title={<span id="new-club-h">ساخت باشگاه</span>} className="sx-stack-sm">
             <TextField label="نام" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={60} />
-            <TextField label="نشانی (لاتین)" dir="ltr" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} hint="مثلاً tehran-meeples" />
+            <TextField label="نشانی (لاتین)" dir="ltr" placeholder="tehran-meeples" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} hint="حداقل ۳ نویسه، فقط حروف لاتین و خط تیره" />
             <Textarea label="معرفی" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={1000} />
             <div className="bgv-field" style={{ minInlineSize: 0, overflowX: 'auto' }}><span className="bgv-label">عضویت</span>
               <Segmented block label="عضویت" value={form.joinPolicy} onChange={(joinPolicy) => setForm({ ...form, joinPolicy: joinPolicy as keyof typeof POLICY_FA })} options={POLICIES} />

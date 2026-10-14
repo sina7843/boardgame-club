@@ -163,8 +163,8 @@ export function FriendsPage() {
   return (
     <>
       <PageTabs group="social" />
-      <PageHead title="دوستان" sub="پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است."
-        actions={me && <CopyProfileLink userId={me.id} />} />
+      <PageHead title="دوستان" sub={`${faNum(d.friends.length)} دوست، ${faNum(d.friends.filter((f) => presence[f.id]?.online).length)} نفر آنلاین. پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است.`}
+        actions={<>{me && <CopyProfileLink userId={me.id} />}<Button variant="primary" icon="user-plus" onClick={() => setTab('find')}>افزودن دوست</Button></>} />
       <div onKeyDown={arrows}>
         <Tabs label="دوستان" value={tab} onChange={(v) => setTab(v as FriendsTab)} items={[
           { value: 'friends', label: `دوستان (${faNum(d.friends.length)})` },

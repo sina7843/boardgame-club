@@ -66,7 +66,7 @@ export function GameSettingsAdmin({ gameId }: { gameId: string }) {
           حالت‌ها، تعداد بازیکن، زمان‌ها و گزینه‌های قانون. فقط گزینه‌هایی که خود بازی پشتیبانی می‌کند قابل انتخاب‌اند.
           تغییرات روی میزهای تازه اثر دارد؛ میزهای در جریان با تنظیمات شروع خود ادامه می‌دهند.
         </p>
-        {view.error && <StateBlock kind="error" title="تنظیمات دریافت نشد" text={view.error.messageFa} action={<Button onClick={view.reload}>تلاش دوباره</Button>} />}
+        {view.error && <StateBlock kind="error" title="تنظیمات دریافت نشد" text={view.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={view.reload}>تلاش دوباره</Button>} />}
         {(!draft || !sup) && !view.error && <StateBlock kind="loading" title="در حال بارگذاری…" />}
         {draft && sup && (
           <>

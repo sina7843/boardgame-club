@@ -146,7 +146,7 @@ export function QuickMatch() {
   useEffect(() => { if (game) setTurnSeconds(defaultTime(pace === 'live' ? game.liveSeconds : game.turnSeconds, pace)); }, [pace, game]);
 
   if (status !== 'loading' && !me) return <StateBlock kind="denied" title="برای حریف‌یابی وارد شوید" action={<Button variant="primary" href="/login?next=/play">ورود</Button>} />;
-  if (games.error) return <StateBlock kind="error" title="فهرست بازی‌ها دریافت نشد" action={<Button onClick={games.reload}>تلاش دوباره</Button>} />;
+  if (games.error) return <StateBlock kind="error" title="فهرست بازی‌ها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />;
   if (!games.data || !tickets.data) return <><Skeleton height={240} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری…</span></>;
 
   const active = tickets.data.items.find((t) => t.status === 'queued' || t.status === 'matched');

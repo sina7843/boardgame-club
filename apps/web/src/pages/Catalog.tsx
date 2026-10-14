@@ -71,7 +71,7 @@ export function Catalog() {
           <span className="pg-sr" role="status">در حال بارگذاری بازی‌ها…</span>
         </>
       )}
-      {error && <StateBlock kind="error" title="فهرست بازی‌ها بارگذاری نشد" text={error.messageFa} action={<Button onClick={reload}>تلاش دوباره</Button>} />}
+      {error && <StateBlock kind="error" title="فهرست بازی‌ها بارگذاری نشد" text={error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} />}
       {data && !error && (
         data.items.length === 0 ? (
           <StateBlock kind="empty" title="بازی‌ای با این مشخصات پیدا نشد"

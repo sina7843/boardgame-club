@@ -34,7 +34,7 @@ export function PlansPage() {
     try { location.assign((await api<{ redirectUrl: string }>('/subscriptions/checkout', { method: 'POST', body: { planId } })).redirectUrl); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'شروع پرداخت ممکن نشد.'); setBusy(undefined); }
   };
-  if (plans.error) return <StateBlock kind="error" title="پلن‌ها دریافت نشد" action={<Button onClick={plans.reload}>تلاش دوباره</Button>} />;
+  if (plans.error) return <StateBlock kind="error" title="پلن‌ها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={plans.reload}>تلاش دوباره</Button>} />;
   if (!plans.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const s = status.data;
   // The longest purchasable plan is the café's recommendation.
@@ -109,7 +109,8 @@ export function PlansPage() {
               <tbody>{s.payments.map((r) => (
                 <tr key={r.orderId}>
                   <td>{jalaliDate(r.createdAt)}</td><td style={{ fontWeight: 700 }}>{r.planTitleFa}</td><td>{money(r.amount, r.currency)}</td>
-                  <td><Badge tone={r.status === 'verified' ? 'success' : r.status === 'failed' ? 'danger' : undefined}>{PAYMENT_STATUS_FA[r.status]}</Badge></td>
+                  <td><Badge tone={r.status === 'verified' ? 'success' : r.status === 'pending' ? 'warning' : 'danger'}
+                    icon={r.status === 'verified' ? 'check' : r.status === 'pending' ? 'hourglass' : 'x'}>{PAYMENT_STATUS_FA[r.status]}</Badge></td>
                   <td><Link to={`/payments/result?order=${r.orderId}`}><bdi dir="ltr" className="bgv-latin ac-cap">{r.orderId}</bdi></Link></td>
                 </tr>))}</tbody>
             </table></div></Card>
@@ -134,7 +135,7 @@ export function PaymentResultPage() {
     </div>
   );
   if (!order) return frame(<Card><StateBlock kind="error" title="پرداخت شناخته نشد" text="درگاه اطلاعات معتبری برنگرداند. اگر مبلغی کسر شده، در «اشتراک» سابقه را ببینید یا با پشتیبانی تماس بگیرید." action={<Button href="/support">تماس با پشتیبانی</Button>} /></Card>);
-  if (p.error) return frame(<Card><StateBlock kind="error" title="وضعیت پرداخت دریافت نشد" text={p.error.messageFa} action={<Button onClick={reload}>تلاش دوباره</Button>} /></Card>);
+  if (p.error) return frame(<Card><StateBlock kind="error" title="وضعیت پرداخت دریافت نشد" text={p.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} /></Card>);
   if (!p.data) return frame(<Card><StateBlock kind="loading" title="در حال بررسی پرداخت…" /></Card>);
   const d = p.data;
   const ok = d.status === 'verified';
@@ -155,7 +156,7 @@ export function PaymentResultPage() {
         {ok && <p className="t-body-sm bgv-muted">{coins ? 'پرداخت روی سرور تأیید شد و سکه‌ها به حساب شما اضافه شد.' : entry ? 'پرداخت تأیید شد. وضعیت ثبت‌نام را در صفحهٔ تورنمنت ببینید؛ اگر ظرفیت پیش از تأیید پر شده باشد، مبلغ بازپرداخت می‌شود.' : 'پرداخت روی سرور تأیید شد و اشتراک شما فعال است.'}</p>}
         {d.status === 'pending' && <p className="t-body-sm bgv-muted">تأیید پرداخت هنوز از درگاه نرسیده است. این صفحه خودکار دوباره بررسی می‌کند؛ اگر پرداخت انجام شده باشد، با تأیید درگاه خرید شما فعال می‌شود.</p>}
         {(d.status === 'failed' || d.status === 'expired') && <p className="t-body-sm bgv-muted">{FAILURE_FA[d.failureReason ?? ''] ?? 'پرداخت تأیید نشد.'} {coins ? 'سکه‌ای اضافه نشد.' : entry ? 'ثبت‌نامی انجام نشد.' : 'اشتراکی فعال نشد.'}</p>}
-        <div className="ac-receipt"><div><span>شماره سفارش</span><b className="bgv-latin" dir="ltr" style={{ fontSize: 14 }}>{d.orderId}</b></div>
+        <div className="ac-receipt"><div><span>درگاه</span><b>{d.fixture ? 'درگاه آزمایشی' : 'زرین‌پال'}</b></div><div><span>شماره سفارش</span><b className="bgv-latin" dir="ltr" style={{ fontSize: 14 }}>{d.orderId}</b></div>
           {d.createdAt && <div><span>زمان</span><b>{jalaliDateTime(d.createdAt)}</b></div>}</div>
       </Card>
       {!ok && d.status !== 'pending' && <Banner tone="info" text="اگر مبلغی از حساب بانکی کم شده ولی خرید فعال نشد، بانک آن را برمی‌گرداند." />}

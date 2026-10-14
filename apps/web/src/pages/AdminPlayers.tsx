@@ -40,7 +40,7 @@ export function PlayersAdmin() {
           <ChipGroup size="sm" label="وضعیت" value={status} onChange={(v) => { setOffset(0); setStatus(v as typeof status); }}
             options={[{ value: 'all', label: 'همه' }, ...(['active', 'suspended', 'deleted'] as const).map((s) => ({ value: s, label: STATUS_FA[s] }))]} />
         </form>
-        {list.error ? <StateBlock kind="error" title="فهرست بارگذاری نشد" text={list.error.messageFa} action={<Button onClick={list.reload}>تلاش دوباره</Button>} />
+        {list.error ? <StateBlock kind="error" title="فهرست بارگذاری نشد" text={list.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} />
           : !list.data ? <StateBlock kind="loading" title="در حال بارگذاری…" />
           : list.data.items.length === 0 ? <StateBlock kind="empty" title="بازیکنی پیدا نشد" />
           : <>

@@ -38,7 +38,7 @@ function GameOpenTables({ gameId }: { gameId: string }) {
     <Card flush as="section" aria-labelledby="gopen-h">
       <div className="pg-cardhead"><h2 id="gopen-h" className="ac-h3" style={{ margin: 0 }}>میزهای باز این بازی</h2>
         {rows.length > 0 && <Badge size="sm">{faNum(rows.length)}</Badge>}<span className="bgv-spacer" /><Button size="sm" variant="ghost" href="/tables">همه میزها</Button></div>
-      {list.error ? <StateBlock kind="error" title="میزها دریافت نشد" action={<Button onClick={list.reload}>تلاش دوباره</Button>} />
+      {list.error ? <StateBlock kind="error" title="میزها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} />
         : !list.data ? <StateBlock kind="loading" title="در حال بارگذاری…" />
         : rows.length === 0 ? <p className="t-body-sm bgv-muted pg-pad">فعلاً میز بازی منتظر بازیکن نیست؛ خودتان میز بسازید.</p>
         : <ul className="pg-ul">{rows.slice(0, 5).map((t) => (
@@ -72,7 +72,7 @@ export function GameDetailPage() {
   const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'بازی‌ها', href: '/games' }, { label: last }]} />;
   if (loading && !g) return <>{crumbs('…')}<Skeleton height={320} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری صفحه بازی…</span></>;
   if (error?.status === 404) return <>{crumbs('بازی پیدا نشد')}<StateBlock kind="empty" title="این بازی پیدا نشد" text="ممکن است نشانی اشتباه باشد یا بازی هنوز منتشر نشده باشد." action={<Button href="/games">همه بازی‌ها</Button>} /></>;
-  if (error || !g) return <>{crumbs('خطا')}<StateBlock kind="error" title="صفحه بازی بارگذاری نشد" text={error?.messageFa} action={<Button onClick={reload}>تلاش دوباره</Button>} /></>;
+  if (error || !g) return <>{crumbs('خطا')}<StateBlock kind="error" title="صفحه بازی بارگذاری نشد" text={error?.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} /></>;
 
   const tutorialLabel = tutorialStatus === 'in_progress' ? 'ادامه آموزش تعاملی' : tutorialStatus === 'completed' ? 'اجرای دوباره آموزش' : 'آموزش تعاملی';
   const defaultOf = (o: GameDetail['options'][number]) => o.choices.find((c) => c.value === o.default)?.labelFa;

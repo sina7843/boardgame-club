@@ -71,7 +71,7 @@ function DailyCard({ games }: { games: GameSummary[] | undefined }) {
   const d = daily.data;
   const g = d?.gameId ? games?.find((x) => x.id === d.gameId) : undefined;
   if (daily.loading && !d) return <Card aria-label="بازی روز"><Skeleton lines={3} /></Card>;
-  if (daily.error) return <Card aria-label="بازی روز"><StateBlock kind="error" title="بازی روز بارگذاری نشد" text={daily.error.messageFa} action={<Button onClick={daily.reload}>تلاش دوباره</Button>} /></Card>;
+  if (daily.error) return <Card aria-label="بازی روز"><StateBlock kind="error" title="بازی روز بارگذاری نشد" text={daily.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={daily.reload}>تلاش دوباره</Button>} /></Card>;
   if (!d) return null;
   if (!d.gameId) return <Card aria-label="بازی روز"><StateBlock kind="empty" title="امروز بازی روزی در دسترس نیست" /></Card>;
   const week = Math.min(d.streak, 7);
@@ -107,7 +107,7 @@ function TurnList({ tables, signedIn, loadingSession }: { tables: ReturnType<typ
   let body;
   if (loadingSession) body = <div style={{ padding: 20 }}><Skeleton lines={3} /></div>;
   else if (!signedIn) body = <StateBlock kind="denied" title="برای دیدن میزهای خود وارد شوید" text="میزهای نوبتی که منتظر حرکت شما هستند اینجا نمایش داده می‌شوند." action={<Button variant="primary" href="/login">ورود / ثبت‌نام</Button>} />;
-  else if (tables.error) body = <StateBlock kind="error" title="میزهای شما دریافت نشد" text={tables.error.messageFa} action={<Button onClick={tables.reload}>تلاش دوباره</Button>} />;
+  else if (tables.error) body = <StateBlock kind="error" title="میزهای شما دریافت نشد" text={tables.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={tables.reload}>تلاش دوباره</Button>} />;
   else if (!tables.data) body = <div style={{ padding: 20 }}><Skeleton lines={3} /></div>;
   else if (!items.length) body = <StateBlock kind="empty" title="میزی منتظر شما نیست" text="میز بسازید یا به یک میز باز بپیوندید." action={<Button href="/games">شروع بازی تازه</Button>} />;
   else body = (
@@ -208,7 +208,7 @@ export function Dashboard() {
           <a className="hm-link" href="/games">همه‌ی بازی‌ها<Icon name="chevron-left" size="sm" /></a>
         </div>
         {games.loading && !games.data && <Skeleton lines={3} />}
-        {games.error && <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button onClick={games.reload}>تلاش دوباره</Button>} />}
+        {games.error && <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />}
         {games.data && (games.data.items.length === 0
           ? <StateBlock kind="empty" title="هنوز بازی‌ای منتشر نشده است" />
           : <div className="bgv-grid bgv-grid--sm">{recs.map((g) => <GameCard key={g.id} game={g} />)}</div>)}

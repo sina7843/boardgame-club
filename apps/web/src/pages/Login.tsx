@@ -1,3 +1,4 @@
+import { faNum } from '../lib/format.ts';
 import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { avatarKeys, displayNameSchema, normalizeIranMobile, toAsciiDigits, type Me } from '@bg/contracts';
@@ -160,7 +161,7 @@ export function Login() {
                 <h1 className="t-page">خوش آمدید</h1>
                 <p className="t-body-sm bgv-muted">نامی که دیگران سر میز می‌بینند و نماد خود را انتخاب کنید.</p>
               </div>
-              <TextField label="نام نمایشی" name="displayName" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error}
+              <TextField label={<>نام نمایشی <span className="bgv-muted t-caption">{faNum(name.length)} از ۲۴</span></>} name="displayName" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} error={error}
                 hint="۲ تا ۲۴ نویسه؛ نام نمایشی قابل گزارش است." autoFocus />
               <fieldset className="ac-avatars">
                 <legend className="bgv-label" style={{ marginBlockEnd: 14 }}>نماد</legend>

@@ -53,7 +53,7 @@ function GamesAdmin() {
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<StatusFilter>('all');
-  if (games.error) return <StateBlock kind="error" title="فهرست بارگذاری نشد" text={games.error.messageFa} action={<Button onClick={games.reload}>تلاش دوباره</Button>} />;
+  if (games.error) return <StateBlock kind="error" title="فهرست بارگذاری نشد" text={games.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />;
   if (!games.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const all = games.data.items;
   const selected = all.find((g) => g.id === params.get('game'));

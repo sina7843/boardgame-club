@@ -134,7 +134,7 @@ function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
   const s = useApi<UserSettings>('/me/settings');
   const toast = useToast();
   const [browser, setBrowser] = useState(browserNotificationsEnabled());
-  if (s.error) return <Card><StateBlock kind="error" title="تنظیمات دریافت نشد" text={s.error.messageFa} action={<Button onClick={s.reload}>تلاش دوباره</Button>} /></Card>;
+  if (s.error) return <Card><StateBlock kind="error" title="تنظیمات دریافت نشد" text={s.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={s.reload}>تلاش دوباره</Button>} /></Card>;
   if (!s.data) return <Card><StateBlock kind="loading" title="در حال بارگذاری…" /></Card>;
   const save = async (next: UserSettings) => {
     try { await api('/me/settings', { method: 'PUT', body: next }); s.reload(); toast('success', 'ذخیره شد.'); }

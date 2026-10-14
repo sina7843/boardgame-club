@@ -42,7 +42,7 @@ export function TournamentsPage() {
   const [mine, setMine] = useState(false);
   usePoll(list.reload, true, 15000);
   const head = <><PageTabs group="tables" /></>;
-  if (list.error) return <>{head}<StateBlock kind="error" title="تورنمنت‌ها دریافت نشد" text={list.error.messageFa} action={<Button onClick={list.reload}>تلاش دوباره</Button>} /></>;
+  if (list.error) return <>{head}<StateBlock kind="error" title="تورنمنت‌ها دریافت نشد" text={list.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} /></>;
   if (!list.data) return <>{head}<Skeleton height={320} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری…</span></>;
   const items = list.data.items.filter((t) => !mine || t.registered);
   const live = items.filter((t) => t.status === 'open' || t.status === 'running');

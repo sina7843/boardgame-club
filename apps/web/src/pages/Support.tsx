@@ -48,7 +48,7 @@ export function SupportPage() {
           {!me ? <StateBlock kind="denied" title="برای دیدن گزارش‌ها و محدودیت‌ها وارد شوید" action={<Button variant="primary" href="/login?next=/support">ورود</Button>} /> : (
             <>
               <Card title="محدودیت‌های حساب">
-                {sanctions.error && <StateBlock kind="error" title="محدودیت‌ها دریافت نشد" text={sanctions.error.messageFa} action={<Button onClick={sanctions.reload}>تلاش دوباره</Button>} />}
+                {sanctions.error && <StateBlock kind="error" title="محدودیت‌ها دریافت نشد" text={sanctions.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={sanctions.reload}>تلاش دوباره</Button>} />}
                 {!sanctions.data && !sanctions.error && <StateBlock kind="loading" title="در حال بارگذاری…" />}
                 {sanctions.data && (sanctions.data.items.length === 0 ? <p className="bgv-muted" style={{ margin: 0 }}>محدودیتی روی حساب شما نیست.</p> : (
                   <ul className="sx-rows">{sanctions.data.items.map((s) => (
@@ -65,7 +65,7 @@ export function SupportPage() {
                 ))}
               </Card>
               <Card title="گزارش‌های من">
-                {reports.error && <StateBlock kind="error" title="گزارش‌ها دریافت نشد" text={reports.error.messageFa} action={<Button onClick={reports.reload}>تلاش دوباره</Button>} />}
+                {reports.error && <StateBlock kind="error" title="گزارش‌ها دریافت نشد" text={reports.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reports.reload}>تلاش دوباره</Button>} />}
                 {!reports.data && !reports.error && <StateBlock kind="loading" title="در حال بارگذاری…" />}
                 {reports.data && (reports.data.items.length === 0 ? <p className="bgv-muted" style={{ margin: 0 }}>گزارشی ثبت نکرده‌اید.</p> : (
                   <ul className="sx-rows">{reports.data.items.map((r) => (

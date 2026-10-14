@@ -63,7 +63,7 @@ export function OpenTables() {
       </div>
       {error && <div role="alert"><Banner tone="warning" text={error} /></div>}
       {list.loading && !list.data && <><Skeleton height={200} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری میزها…</span></>}
-      {list.error && <StateBlock kind="error" title="فهرست میزها دریافت نشد" text={list.error.messageFa} action={<Button onClick={list.reload}>تلاش دوباره</Button>} />}
+      {list.error && <StateBlock kind="error" title="فهرست میزها دریافت نشد" text={list.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} />}
       {list.data && (shown.length === 0
         ? <StateBlock kind="empty" title="فعلاً میز بازی منتظر بازیکن نیست" action={<Button variant="primary" href="/games">یک بازی انتخاب کنید و میز بسازید</Button>} />
         : (

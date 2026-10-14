@@ -34,7 +34,7 @@ function Inbox({ activeId }: { activeId?: string }) {
     return (list.data?.items ?? []).filter((c) => (kind === 'all' || c.kind === kind) && (!needle || c.title.includes(needle) || c.lastMessage?.body.includes(needle)));
   }, [list.data, kind, q]);
 
-  if (list.error) return <StateBlock kind="error" title="گفت‌وگوها دریافت نشد" action={<Button onClick={reload}>تلاش دوباره</Button>} />;
+  if (list.error) return <StateBlock kind="error" title="گفت‌وگوها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} />;
   if (!list.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   if (!list.data.items.length && !activeId) return <StateBlock kind="empty" title="هنوز گفت‌وگویی ندارید" text="با دوستان خود گفت‌وگو کنید یا به یک باشگاه بپیوندید." action={<Button variant="secondary" href="/friends">رفتن به دوستان</Button>} />;
 

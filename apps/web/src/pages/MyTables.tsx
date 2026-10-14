@@ -142,7 +142,7 @@ export function MyTablesPage() {
   if (status !== 'loading' && !me) {
     body = <StateBlock kind="denied" title="برای دیدن میزهای خود وارد شوید" action={<Button variant="primary" href="/login">ورود / ثبت‌نام</Button>} />;
   } else if (tables.error) {
-    body = <StateBlock kind="error" title="میزهای شما دریافت نشد" text={tables.error.messageFa} action={<Button onClick={tables.reload}>تلاش دوباره</Button>} />;
+    body = <StateBlock kind="error" title="میزهای شما دریافت نشد" text={tables.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={tables.reload}>تلاش دوباره</Button>} />;
   } else if (!tables.data) {
     body = <div style={{ padding: 20 }}><Skeleton lines={4} /></div>;
   } else if (!shown.length) {

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import type { MyTableItem, NotificationItem, Progression } from '@bg/contracts';
-import { useOnline } from '@bg/ui';
+import { useOnline, useToast } from '@bg/ui';
 import { AppShell, Banner, Button, StateBlock, type NavItemProps } from '@bg/ui/bgv';
 import { api, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
@@ -29,6 +29,13 @@ const inGroup = (g: Group, path: string) => PAGE_GROUPS[g].some(([to]) => path =
 export function Layout() {
   const { me, status, refresh } = useSession();
   const online = useOnline();
+  // Connection back after an outage: one «دوباره وصل شدید» toast (states spec, offline).
+  const toast = useToast();
+  const wasOffline = useRef(false);
+  useEffect(() => {
+    if (!online) wasOffline.current = true;
+    else if (wasOffline.current) { wasOffline.current = false; toast('success', 'دوباره وصل شدید.'); }
+  }, [online, toast]);
   const { pathname } = useLocation();
   const route = useLinkRouting();
   const title = usePageTitleText();

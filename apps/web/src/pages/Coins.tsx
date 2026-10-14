@@ -19,7 +19,7 @@ export function CoinsPage() {
   const sub = useApi<{ premium: boolean; premiumUntil: string | null }>('/me/subscription');
   const [busy, setBusy] = useState<string>();
   if (c.error) return <StateBlock kind={c.error.status === 401 ? 'denied' : 'error'} title={c.error.status === 401 ? 'برای دیدن سکه‌ها وارد شوید' : 'سکه‌ها دریافت نشد'}
-    action={c.error.status === 401 ? <Button variant="primary" href="/login?next=/coins">ورود</Button> : <Button onClick={c.reload}>تلاش دوباره</Button>} />;
+    action={c.error.status === 401 ? <Button variant="primary" href="/login?next=/coins">ورود</Button> : <Button variant="primary" icon="refresh-cw" onClick={c.reload}>تلاش دوباره</Button>} />;
   if (!c.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = c.data;
 

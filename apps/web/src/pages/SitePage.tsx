@@ -45,7 +45,7 @@ function ContactInfo() {
 export function SitePage({ slug }: { slug: SiteSlug }) {
   const page = useApi<Page>(`/site/pages/${slug}`);
   usePageTitle(page.data?.titleFa ?? SITE_LINKS.find(([s]) => s === slug)![1]);
-  if (page.error) return <StateBlock kind="error" title="صفحه بارگذاری نشد" text={page.error.messageFa} action={<Button onClick={page.reload}>تلاش دوباره</Button>} />;
+  if (page.error) return <StateBlock kind="error" title="صفحه بارگذاری نشد" text={page.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={page.reload}>تلاش دوباره</Button>} />;
   if (!page.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   return (
     <article className="ac-site">
