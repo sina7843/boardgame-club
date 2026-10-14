@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Banner, Card, DataTable, Identity, League, PageHead, Segmented, Select, StateBlock, Button } from '@bg/ui/bgv';
+import { Badge, Card, DataTable, Identity, League, PageHead, Segmented, Select, StateBlock, Button } from '@bg/ui/bgv';
 import type { League as LeagueTier } from '@bg/contracts';
 import { useApi } from '../lib/api.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -123,7 +123,7 @@ export function RankingPage() {
               )}
             </Card>
           )}
-          <Banner tone="info" icon="info" text={`فقط بازیکنانی که حداقل ${faNum(board.data.rules.minGames)} بازی رتبه‌دار دارند و رتبه‌شان قطعیت کافی دارد در جدول هستند؛ تعداد بازی به‌تنهایی رتبه را بالا نمی‌برد.`} />
+          <p className="t-caption bgv-muted" style={{ margin: 0 }}>فقط بازیکنانی که حداقل {faNum(board.data.rules.minGames)} بازی رتبه‌دار دارند و رتبه‌شان قطعیت کافی دارد در جدول هستند؛ تعداد بازی به‌تنهایی رتبه را بالا نمی‌برد.</p>
         </section>
       )}
       <History key={`${gameId}-${mode}`} gameId={gameId} mode={mode} />

@@ -1,11 +1,10 @@
-import { faNum } from '../lib/format.ts';
 import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { avatarKeys, displayNameSchema, normalizeIranMobile, toAsciiDigits, type Me } from '@bg/contracts';
 import { fa } from '@bg/ui';
 import { Banner, Button, Card, Icon, Logo, OtpField, PhoneField, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
-import { AVATAR_FA, safeNext } from '../lib/format.ts';
+import { AVATAR_FA, faNum, safeNext } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { stashGift } from '../shell/WelcomeGift.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';

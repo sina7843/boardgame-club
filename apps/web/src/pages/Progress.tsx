@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import type { Progression } from '@bg/contracts';
-import { Badge, Button, Card, League, ListItem, PageHead, Progress, Ring, StateBlock, Trophy } from '@bg/ui/bgv';
+import { LEVEL_UP_COINS, type Progression } from '@bg/contracts';
+import { Badge, Button, Card, League, ListItem, PageHead, Progress, Reward, Ring, Segmented, StateBlock, Trophy } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
 import { TIER_FA } from '../lib/rewards.tsx';
@@ -30,6 +30,7 @@ export function ProgressPage() {
   usePageTitle('پیشرفت');
   const p = useApi<Progression>('/me/progression');
   const games = useApi<{ items: { id: string; nameFa: string }[] }>('/games');
+  const [achFilter, setAchFilter] = useState<'all' | 'earned' | 'near'>('all');
   if (p.error) return <StateBlock kind={p.error.status === 401 ? 'denied' : 'error'} title={p.error.status === 401 ? 'برای دیدن پیشرفت وارد شوید' : 'پیشرفت دریافت نشد'} action={p.error.status === 401 ? <Button variant="primary" href="/login?next=/progress">ورود</Button> : <Button variant="primary" onClick={p.reload}>تلاش دوباره</Button>} />;
   if (!p.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = p.data;
@@ -58,6 +59,7 @@ export function ProgressPage() {
               <Ring value={into / span} size={88} tone="accent" label="تا سطح بعد"><b className="t-num-lg">{faNum(d.level)}</b></Ring>
             </div>
             <Progress label="تا سطح بعد" tone="accent" value={into / span} valueText={`${faNum(into)} از ${faNum(span)}`} />
+            <Reward coin label={`پاداش سطح ${faNum(d.level + 1)}`} value={`+${faNum((d.level + 1) * LEVEL_UP_COINS)}`} unit="سکه" />
           </div>
         </Card>
 
@@ -80,7 +82,10 @@ export function ProgressPage() {
           actions={<span className="bgv-row"><span className="t-caption bgv-muted">{faNum(earned)} از {faNum(d.achievements.length)} جام</span><Hint id="achievements">جام‌ها خودکار و فقط از نتیجهٔ واقعی بازی‌ها و آموزش‌ها داده می‌شوند و روی پروفایل شما دیده می‌شوند.</Hint></span>}>
           <div className="bgv-stack">
             {/* Every earned trophy, then the next few locked ones; the rest behind the toggle. */}
-            <Clamped items={earnedFirst} limit={earned + 4}>{(shown) => (
+            <Segmented label="فیلتر دستاوردها" value={achFilter} onChange={(v) => setAchFilter(v as typeof achFilter)}
+              options={[{ value: 'all', label: 'همه' }, { value: 'earned', label: 'کسب‌شده' }, { value: 'near', label: 'نزدیک به کسب' }]} />
+            <Clamped items={achFilter === 'all' ? earnedFirst : achFilter === 'earned' ? earnedFirst.filter((a) => a.grantedAt) : earnedFirst.filter((a) => !a.grantedAt && ratio(a) >= 0.5)}
+              limit={achFilter === 'all' ? earned + 4 : 12}>{(shown) => (
               <ul className="pf-ach">{shown.map((a) => (
                 <li key={a.key}>
                   <Trophy tier={a.tier} locked={!a.grantedAt} name={a.titleFa} sub={TIER_FA[a.tier]} />

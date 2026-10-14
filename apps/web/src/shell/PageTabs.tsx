@@ -5,9 +5,9 @@ import { PageTabs as BgvPageTabs } from '@bg/ui/bgv';
 export const PAGE_GROUPS = {
   games: [['/games', 'بازی‌ها'], ['/wiki', 'دانشنامه']],
   tables: [['/tables/mine', 'میزهای من'], ['/tables', 'میزهای باز'], ['/play', 'حریف‌یابی سریع'], ['/tournaments', 'تورنمنت‌ها']],
-  progress: [['/progress', 'پیشرفت'], ['/ranking', 'رتبه‌بندی']],
+  progress: [['/progress', 'پیشرفت'], ['/ranking', 'رتبه‌بندی و لیگ']],
   social: [['/messages', 'پیام‌ها'], ['/friends', 'دوستان'], ['/groups', 'گروه‌ها'], ['/clubs', 'باشگاه‌ها']],
-  wallet: [['/plans', 'اشتراک'], ['/coins', 'سکه‌ها'], ['/shop', 'فروشگاه'], ['/me/wardrobe', 'کمد']]
+  wallet: [['/plans', 'اشتراک ویژه'], ['/coins', 'سکه'], ['/shop', 'فروشگاه کازمتیک'], ['/me/wardrobe', 'کمد من']]
 } as const satisfies Record<string, readonly (readonly [string, string])[]>;
 
 export function PageTabs({ group }: { group: keyof typeof PAGE_GROUPS }) {

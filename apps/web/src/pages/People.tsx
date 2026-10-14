@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore, type KeyboardEvent, type Rea
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Badge, Banner, Button, Card, Chip, ChipGroup, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
+import { Badge, Banner, Breadcrumbs, Button, Card, Chip, ChipGroup, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -287,6 +287,7 @@ export function ProfilePage() {
   const self = u.relationship === 'self';
   return (
     <>
+      {!phone && !self && <Breadcrumbs items={[{ label: 'دوستان', href: '/friends' }, { label: u.displayName }]} />}
       <ProfileHead compact={phone}
         name={<bdi>{u.displayName}</bdi>}
         initials={id0.initials}

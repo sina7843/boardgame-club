@@ -8,11 +8,15 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 /** Cosmetic shop: purely visual items, bought with coins; premium/level/league/achievement items show why they are locked. */
+const RARITY_FA: Record<string, string> = { common: 'معمولی', rare: 'کمیاب', epic: 'حماسی', legend: 'افسانه‌ای' };
+
 export function ShopPage() {
   usePageTitle('فروشگاه کازمتیک');
   const w = useWardrobe();
   const [slot, setSlot] = useState<(typeof SHOP_SLOTS)[number] | 'all'>('all');
   const [missing, setMissing] = useState(false);
+  const [rarity, setRarity] = useState('all');
+  const [sort, setSort] = useState<'none' | 'cheap' | 'dear'>('none');
   const [open, setOpen] = useState<CosmeticItem>();
   const [busy, setBusy] = useState(false);
   const [view, setView] = useState<'item' | 'table' | 'chat'>('item');
@@ -24,7 +28,8 @@ export function ShopPage() {
   if (!w.d) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = w.d;
   const all = SHOP_ITEMS.filter((c) => slot === 'all' || c.slot === slot);
-  const items = all.filter((c) => !missing || !w.unlocked.has(c.key));
+  const items = all.filter((c) => (!missing || !w.unlocked.has(c.key)) && (rarity === 'all' || w.rarity(c) === rarity))
+    .sort((a, b) => (sort === 'cheap' ? (price(a) ?? 1e9) - (price(b) ?? 1e9) : sort === 'dear' ? (price(b) ?? -1) - (price(a) ?? -1) : 0));
   const ownedCount = all.filter((c) => w.unlocked.has(c.key)).length;
   const price = (c: CosmeticItem) => ('coins' in c.unlock ? c.unlock.coins : null);
 
@@ -64,6 +69,10 @@ export function ShopPage() {
       <div className="pf-shopbar">
         <span className="t-body-sm bgv-muted">{faNum(all.length)} آیتم<span className="bgv-sep" />{faNum(ownedCount)} آیتم را دارید</span>
         <Checkbox checked={missing} onChange={(e) => setMissing(e.target.checked)} label="فقط آنچه ندارم" />
+        <Select aria-label="کمیابی" value={rarity} onChange={(e) => setRarity(e.target.value)}
+          options={[{ value: 'all', label: 'همهٔ کمیابی‌ها' }, ...[...new Set(SHOP_ITEMS.map((c) => w.rarity(c)))].map((r) => ({ value: String(r), label: RARITY_FA[String(r)] ?? String(r) }))]} />
+        <Select aria-label="مرتب‌سازی" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}
+          options={[{ value: 'none', label: 'پیش‌فرض' }, { value: 'cheap', label: 'ارزان‌ترین' }, { value: 'dear', label: 'گران‌ترین' }]} />
       </div>
 
       {items.length === 0
