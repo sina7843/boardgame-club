@@ -1293,3 +1293,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   most once a minute) within 150 s, so all API processes agree without sharing socket rooms. `GET /api/presence` only
   answers for yourself, friends and players seated with you; others are left out. «در حال بازی» = seated at a running
   live table. A closed tab reads online for up to ~2.5 min.
+- Chess clock (2026-10-14, owner choice «option 1»): chess only, live games only, as the rule option «کنترل زمان»
+  (none / 3+2 / 5+3 / 10+0 / 15+10, default none = per-move time). The runtime keeps each seat's bank in
+  `game_tables.clock` (migration 0020); the turn deadline is the running bank; a flag fall uses chess's existing rule
+  (loss, draw when the opponent cannot mate). Time during a platform incident is still charged (known ceiling).
+  Web push (closed-app notifications) is dropped by the owner; game buttons in the ActionDock wait until the rest is done.

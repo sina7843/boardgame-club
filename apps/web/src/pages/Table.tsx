@@ -402,7 +402,8 @@ function useTurnClock(s: ReturnType<typeof useTableSession>): { time: number; p:
   const hold = d.frozen || !s.live;
   if (!hold || held.current?.key !== d.dueAt) held.current = { key: d.dueAt, left: live };
   const left = hold ? held.current.left : live;
-  const total = Math.max(1, snap.table.settings.turnSeconds);
+  const clocks = snap.game?.clocks;
+  const total = Math.max(1, clocks ? clocks.initialMs / 1000 : snap.table.settings.turnSeconds);
   const p = Math.min(1, left / total);
   const state: ClockState = d.frozen ? 'frozen' : !s.live ? 'stale' : left <= (snap.table.pace === 'live' ? 10 : 3600) ? 'critical' : p <= 0.5 ? 'warn' : 'calm';
   return { time: left, p, state };
@@ -472,6 +473,16 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const sum = g.summary;
   const STATUS_FA = { out: 'حذف شد', passed: 'پاس داد', done: 'آماده', winner: 'برنده', playing: undefined } as const;
   const online = usePresence(finished ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
+  // Chess clock: every seat shows its own bank; only the running one counts down (and holds while offline).
+  const bank = (seat: number) => {
+    const c = g.clocks;
+    if (!c) return null;
+    const runningMs = c.running === seat ? (clock?.time ?? 0) * 1000 : c.left[seat] ?? 0;
+    const sec = Math.max(0, Math.ceil(runningMs / 1000));
+    const running = c.running === seat;
+    return { time: sec, p: Math.min(1, (sec * 1000) / c.initialMs), size: 'chip' as const,
+      state: (running ? (clock?.state ?? 'calm') : 'paused') as ClockState };
+  };
   const players: PlayerCardProps[] = t.seats.map((x) => {
     const n = name(x.seat);
     const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
@@ -493,7 +504,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       ...(x.league ? { league: x.league } : {}),
       ...(x.titleKey && cosmetic(x.titleKey) ? { title: cosmetic(x.titleKey)!.nameFa } : {}),
       ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
-      ...(active && clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {}),
+      ...(g.clocks ? { clock: bank(x.seat)! } : active && clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {}),
       ...(words ? { badge: (() => {
         const b = seatArt(x, "chatBubble");
         const atMe = t.mySeat !== null && words.includes(`@${name(t.mySeat)}`);

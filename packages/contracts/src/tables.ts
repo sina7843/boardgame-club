@@ -161,6 +161,8 @@ export const tableSnapshot = z.object({
     /** Public per-seat HUD data from GameModule.publicSummary (null when the game has none). */
     summary: publicSummarySchema.nullable(),
     deadline: z.object({ dueAt: z.iso.datetime(), frozen: z.boolean() }).nullable(),
+    /** Chess-clock tables: each seat's remaining ms as of `since`; the clock of `running` counts down from then. */
+    clocks: z.object({ left: z.array(z.number()), since: z.iso.datetime(), running: z.number().int().nullable(), initialMs: z.number().int() }).nullable().optional(),
     result: outcomeSchema.nullable(),
     tutorial: z.object({
       step: z.number().int(), total: z.number().int(), instructionFa: z.string(), introFa: z.string(),

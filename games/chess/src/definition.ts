@@ -13,6 +13,12 @@ export const chess = defineGame({
       descriptionFa: 'سفید حرکت اول را انجام می‌دهد.',
       choices: [{ value: 'random', labelFa: 'تصادفی' }, { value: 'host', labelFa: 'میزبان سفید باشد' }],
       default: 'random'
+    }, {
+      key: 'clock', labelFa: 'کنترل زمان (بازی زنده)',
+      descriptionFa: 'ساعت شطرنج: هر بازیکن یک بانک زمان دارد که فقط در نوبت خودش کم می‌شود؛ عدد دوم ثانیهٔ هدیه پس از هر حرکت است. با تمام شدن زمان، بازی را می‌بازید (اگر حریف نتواند مات کند، مساوی). در بازی نوبتی همان مهلت هر حرکت می‌ماند.',
+      choices: [{ value: 'none', labelFa: 'مهلت هر حرکت' }, { value: '3+2', labelFa: '۳+۲ برق‌آسا' }, { value: '5+3', labelFa: '۵+۳ برق‌آسا' },
+        { value: '10+0', labelFa: '۱۰+۰ سریع' }, { value: '15+10', labelFa: '۱۵+۱۰ سریع' }],
+      default: 'none'
     }],
     capabilities: ['public-state', 'seeded-rng'],
     clientBundleRef: 'chess@1.0.0',

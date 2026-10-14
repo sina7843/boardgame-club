@@ -306,6 +306,8 @@ export const gameTables = pgTable('game_tables', {
   /** Learner progress through the module's tutorial script (tutorial tables only). */
   tutorialStep: integer().notNull().default(0),
   revision: integer().notNull().default(0),
+  /** Chess-clock tables only: each seat's remaining time (ms) as of `since` (epoch ms), and whose clock runs. */
+  clock: jsonb().$type<{ left: number[]; since: number; seat: number | null }>(),
   createdAt: createdAt(),
   startedAt: tsz(),
   finishedAt: tsz()

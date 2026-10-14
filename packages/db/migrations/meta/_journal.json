@@ -141,6 +141,13 @@
       "when": 1792001256168,
       "tag": "0019_table_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792007720703,
+      "tag": "0020_table_clock",
+      "breakpoints": true
     }
   ]
 }

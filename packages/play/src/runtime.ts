@@ -41,6 +41,29 @@ export type EngineInput =
   | { kind: 'action'; seat: number; action: unknown; logicalTime: number }
   | { kind: 'timeout'; deadlineToken: string; logicalTime: number };
 
+/** «m+i» time control from the table's options (live tables only): bank minutes and Fischer increment seconds. */
+export function clockControl(table: { pace: string; settings: unknown }): { initialMs: number; incrementMs: number } | null {
+  const v = (table.settings as { options?: { clock?: unknown } }).options?.clock;
+  const m = table.pace === 'live' && typeof v === 'string' ? /^(\d+)\+(\d+)$/.exec(v) : null;
+  return m ? { initialMs: Number(m[1]) * 60_000, incrementMs: Number(m[2]) * 1000 } : null;
+}
+
+/**
+ * Chess clock: charge the seat whose clock was running for the time since it started (then add the increment), start
+ * the next seat's clock, and return that seat's remaining seconds as the turn deadline. Null = ordinary per-move time.
+ * ponytail: time during a platform incident is still charged to the running clock; subtract the pause if it matters.
+ */
+function chessClock(table: typeof gameTables.$inferSelect, pending: number[]): number | null {
+  const ctl = clockControl(table);
+  if (!ctl || pending.length !== 1) return null;
+  const now = Date.now();
+  const st = table.clock;
+  const left = st?.left.slice() ?? Array.from({ length: table.capacity }, () => ctl.initialMs);
+  if (st && st.seat !== null) left[st.seat] = Math.max(0, left[st.seat]! - (now - st.since)) + ctl.incrementMs;
+  table.clock = { left, since: now, seat: pending[0]! };
+  return Math.max(1, left[pending[0]!]!) / 1000;
+}
+
 /** Payload `tableId:revision` lets the push reuse the context the mover's reply already loaded (tableContextAt). */
 const notifyTable = (tx: Tx, tableId: string, revision: number) => tx.execute(sql`select pg_notify('table_changed', ${`${tableId}:${revision}`})`);
 
@@ -79,7 +102,8 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
       .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.status, 'pending')));
     if (change.kind === 'set' && !table.isTutorial && !step.outcome) {
       const turnSeconds = (table.settings as { turnSeconds: number }).turnSeconds;
-      const dueAt = sql`now() + make_interval(secs => ${turnSeconds})`;
+      const banked = chessClock(table, step.pendingSeats);
+      const dueAt = banked !== null ? sql`now() + make_interval(secs => ${banked})` : sql`now() + make_interval(secs => ${turnSeconds})`;
       await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'turn', token: randomUUID(), expectedRevision: revision, dueAt });
       if (table.pace === 'turn' && (table.settings as { reminders?: boolean }).reminders) {
         // Remind a quarter of the turn before the deadline (at most 6 hours before).
@@ -91,6 +115,8 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
       }
     }
   }
+
+  if (clockControl(table)) await tx.update(gameTables).set({ clock: table.clock }).where(eq(gameTables.id, table.id));
 
   const botLevel = (table.settings as { bot?: { level: BotLevel } }).bot?.level;
   if (botLevel && !step.outcome && step.pendingSeats.length && !locked.table.isTutorial) {

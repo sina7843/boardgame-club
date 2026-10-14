@@ -4,7 +4,7 @@ import { AppError, botPersona, type League, type TurnStartedEvent, type LiveTabl
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
-import { loadSnapshot } from './runtime.ts';
+import { clockControl, loadSnapshot } from './runtime.ts';
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
 
@@ -173,6 +173,8 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       pendingSeats: table.status === 'active' ? module.pendingSeats(snap.state) : [],
       summary: module.publicSummary ? module.publicSummary(snap.state) : null,
       deadline: turnDue ? { dueAt: turnDue.toISOString(), frozen: !!incident } : null,
+      clocks: table.clock && clockControl(table) ? { left: table.clock.left, since: new Date(table.clock.since).toISOString(),
+        running: table.status === 'active' ? table.clock.seat : null, initialMs: clockControl(table)!.initialMs } : null,
       result: (result as GameView['result'] | null) ?? null,
       tutorial: table.isTutorial ? {
         step: table.tutorialStep, total: t.steps.length, introFa: t.introFa,

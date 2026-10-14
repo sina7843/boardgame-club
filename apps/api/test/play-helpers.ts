@@ -21,11 +21,11 @@ export const call = (ctx: TestCtx, method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'D
 export interface Started { tableId: string; players: User[]; revision: number }
 
 /** Create a private friendly table, have everyone join with the invite (joiners sit ready), host readies → game starts. */
-export async function startTable(ctx: TestCtx, gameId: string, n: number, opts: { pace?: 'live' | 'turn'; turnSeconds?: number; players?: User[] } = {}): Promise<Started> {
+export async function startTable(ctx: TestCtx, gameId: string, n: number, opts: { pace?: 'live' | 'turn'; turnSeconds?: number; players?: User[]; options?: Record<string, unknown> } = {}): Promise<Started> {
   const players = opts.players ?? await users(ctx, n);
   const pace = opts.pace ?? 'live';
   const created = await call(ctx, 'POST', '/api/tables', players[0], {
-    gameId, pace, capacity: n, turnSeconds: opts.turnSeconds ?? (pace === 'live' ? 60 : 86400)
+    gameId, pace, capacity: n, turnSeconds: opts.turnSeconds ?? (pace === 'live' ? 60 : 86400), ...(opts.options ? { options: opts.options } : {})
   });
   if (created.statusCode !== 201) throw new Error(`create failed ${created.body}`);
   const tableId = created.json().id as string;

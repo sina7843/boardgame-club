@@ -1,0 +1,1 @@
+ALTER TABLE "game_tables" ADD COLUMN "clock" jsonb;
