@@ -4,7 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
 import {
-  ActionDock, CritBar, Badge, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
+  ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
@@ -252,13 +252,24 @@ function ResultCard({ snap, onHide, onSnap }: { snap: TableSnapshot; onHide: () 
     for (const x of d.rewards) items.push({ icon: 'sparkles', label: x.reason, ...(x.amount > 0 ? { value: x.amount, unit: 'XP' } : {}) });
     if (d.coins > 0) items.push({ coin: true, label: 'سکه', value: d.coins, unit: 'سکه' });
   }
+  const toast = useToast();
+  // Share the public outcome only (names and places), never hidden game information.
+  const share = async () => {
+    const text = `${t.gameNameFa}: ${sorted.map((p) => `${faNum(p.place)}. ${name(p.seat)}`).join('، ')}`;
+    const url = `${location.origin}/tables/${t.id}`;
+    try {
+      if (navigator.share) await navigator.share({ title: headline, text, url });
+      else { await navigator.clipboard.writeText(`${text}\n${url}`); toast('success', 'نتیجه کپی شد.'); }
+    } catch { /* share sheet dismissed */ }
+  };
   return (
     <Result className="tbl-result" title={headline} badge={!t.isTutorial && mine?.place === 1 ? `${REASON_FA[r.reason] ?? r.reason}، ${COMPETITION_FA[t.competition]}` : undefined}
       sub={<>علت پایان: {REASON_FA[r.reason] ?? r.reason}</>} podium={podium} rewards={items}
       actions={<>
         <Button variant="primary" icon="plus" href={`/games/${t.gameId}/new`}>{t.isTutorial ? 'ساخت میز واقعی' : 'میز تازه'}</Button>
         <Button variant="secondary" icon="house" href="/">بازگشت به خانه</Button>
-        <Button variant="ghost" icon="eye" onClick={onHide}>دیدن صفحهٔ بازی</Button>
+        <Button variant="ghost" icon="share-2" onClick={() => void share()}>اشتراک نتیجه</Button>
+        <Button variant="ghost" icon="history" onClick={onHide}>تاریخچهٔ حرکت‌ها و صفحهٔ بازی</Button>
       </>}>
       {snap.game?.tutorial && <p className="t-body-sm" style={{ margin: 0, textAlign: 'center' }}>{snap.game.tutorial.instructionFa}</p>}
       <RematchBlock snap={snap} onSnap={onSnap} />
@@ -418,6 +429,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const navigate = useNavigate();
   const [confirmResign, setConfirmResign] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [sheetSeat, setSheetSeat] = useState<number | null>(null);
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [chat, setChat] = useState(false);
   const [reporting, setReporting] = useState(false);
@@ -434,6 +446,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const hasChat = !t.isTutorial;
   const isPlayer = t.mySeat !== null;
   const wide = useWide();
+  const notPhone = useWide(900);
   const { unread, said } = useTableChatAlerts(hasChat ? t.id : null, chat || wide);
   const gameRef = useRef<HTMLDivElement>(null);
   const full = useFullscreen(gameRef);
@@ -500,6 +513,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     } : {};
     return {
       name: <bdi>{n}</bdi>, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
+      onClick: () => setSheetSeat(x.seat),
       ...(x.bot ? { botLevel: BOT_LEVEL_FA[x.bot.level] } : {}),
       ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : {}),
       ...(x.league ? { league: x.league } : {}),
@@ -549,7 +563,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     <div ref={gameRef} className={full.max ? 'tbl tbl--max' : 'tbl'}>
       <TableScreen desk className={hasChat ? 'tbl-screen' : 'tbl-screen tbl-screen--nochat'}>
         <GameBar title={t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
-          meta={[...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...tableMeta(t),
+          meta={[...(finished ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>] : []), ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...tableMeta(t),
             ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
             <Connection key="c" state={s.live ? 'ok' : 'retry'} label={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'} />]}
           actions={<>
@@ -561,7 +575,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
           </>} />
 
-        <Hud layout="rail" className="tbl-rail" label="بازیکنان" players={players}>
+        <Hud layout={notPhone ? 'rail' : players.length === 2 ? 'duel' : players.length <= 5 ? 'strip' : 'grid3'} className="tbl-rail" label="بازیکنان" players={players}>
           {sum?.moves && sum.moves.length > 0 && <MoveLog className="tbl-moves" label="حرکت‌ها"
             items={sum.moves.map((m, i) => ({ seat: seatNo(m.seat), name: <bdi>{name(m.seat)}</bdi>, text: <bdi>{m.text}</bdi>, isNew: i === sum.moves!.length - 1 }))} />}
           {finished && t.mySeat !== null && !t.isTutorial && <PostGame snap={snap} onReport={() => setReporting(true)} />}
@@ -639,6 +653,35 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         </div>
       )}
       {isPlayer && t.pace === 'turn' && !finished && !t.isTutorial && <NotifyPrompt />}
+      {sheetSeat !== null && (() => {
+        const x = t.seats.find((y) => y.seat === sheetSeat);
+        const ss = sum?.seats.find((y) => y.seat === sheetSeat);
+        if (!x) return null;
+        const n = name(x.seat);
+        return (
+          <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setSheetSeat(null); }}>
+            <Sheet className="tbl-playersheet" title={<bdi>{n}</bdi>} onClose={() => setSheetSeat(null)} closeLabel="بستن"
+              footer={x.user && x.seat !== t.mySeat ? <>
+                <Button size="sm" icon="user" href={`/users/${x.user.id}`}>پروفایل</Button>
+                <Button size="sm" variant="ghost" icon="flag" onClick={() => { setSheetSeat(null); setReporting(true); }}>گزارش</Button>
+              </> : undefined}>
+              <div className="bgv-stack" style={{ gap: 'var(--space-3)' }}>
+                <div className="bgv-row" style={{ gap: 8 }}>
+                  {x.league && <League tier={x.league} />}
+                  {x.titleKey && cosmetic(x.titleKey) && <Badge size="sm">{cosmetic(x.titleKey)!.nameFa}</Badge>}
+                  {x.bot && <Badge size="sm" icon="cpu">ربات {BOT_LEVEL_FA[x.bot.level]}</Badge>}
+                  {x.seat === t.mySeat && <Badge tone="you" size="sm">شما</Badge>}
+                </div>
+                {ss?.primary && <div className="tbl-sheetrow"><span>{ss.primary.label}</span><b className="bgv-num">{faNum(ss.primary.value)}{ss.primary.target !== undefined ? ` از ${faNum(ss.primary.target)}` : ''}</b></div>}
+                {ss?.stats?.map((st) => <div key={st.key} className="tbl-sheetrow"><span>{st.label}</span><b className="bgv-num">{typeof st.value === 'number' ? faNum(st.value) : st.value}</b></div>)}
+                {ss?.strikes !== undefined && sum?.strikesMax ? <div className="tbl-sheetrow"><span>اخطار زمان</span><b>{faNum(ss.strikes)} از {faNum(sum.strikesMax)}</b></div> : null}
+                {ss?.badges?.length ? <div className="bgv-row">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</div> : null}
+                {!ss && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>این بازی خلاصهٔ عمومی بازیکن ندارد.</p>}
+              </div>
+            </Sheet>
+          </div>
+        );
+      })()}
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
       {confirmResign && (
         <Dialog modal danger icon="flag" title="انصراف از بازی؟" onClose={() => setConfirmResign(false)}
@@ -652,15 +695,15 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 }
 
 /** ≥1200px: the chat is docked beside the felt; below it opens as a sheet (never resizes the table). */
-function useWide() {
-  const q = '(min-width: 1200px)';
+function useWide(minPx = 1200) {
+  const q = `(min-width: ${minPx}px)`;
   const [wide, setWide] = useState(() => typeof matchMedia === 'function' && matchMedia(q).matches);
   useEffect(() => {
     const m = matchMedia(q);
     const on = () => setWide(m.matches);
     m.addEventListener('change', on);
     return () => m.removeEventListener('change', on);
-  }, []);
+  }, [q]);
   return wide;
 }
 

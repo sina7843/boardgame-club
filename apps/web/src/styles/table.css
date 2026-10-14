@@ -102,3 +102,12 @@ html[data-immersive] .app-page { gap: 0; }
     padding: var(--space-3); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
   .tbl-lobbybar > * { flex: 1; }
 }
+
+.tbl-sheetrow { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-1); border-block-end: 1px solid var(--line); }
+.tbl-sheetrow span { color: var(--text-muted); }
+.tbl-rail .bgv-pcard { cursor: pointer; }
+
+/* Phones: the result is its own full screen page (no player strip, board or dock behind it). */
+@media (max-width: 899px) {
+  .tbl-result-wrap { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--bg); place-items: start center; }
+}
