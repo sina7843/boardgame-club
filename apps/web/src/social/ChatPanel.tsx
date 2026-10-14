@@ -82,7 +82,7 @@ const dayOf = (iso: string) => {
 /** A game event shown in the table chat (never stored as a message). */
 export interface ChatEvent { id: string; at: string; text: string; seat?: number }
 
-export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head, clubSlug, events, sub }: {
+export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head, clubSlug, events, sub, quickOnly }: {
   load: string; post: string; conversationId?: string; title?: string; compact?: boolean; quick?: boolean;
   onClose?: () => void; sheet?: boolean; icon?: string; className?: string;
   /** Extra controls in the chat header (DM: back, invite, more). */
@@ -93,6 +93,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   events?: ChatEvent[];
   /** Muted line after the title («۴ بازیکن، ۱۲ تماشاگر»). */
   sub?: string;
+  /** Table chats: preset ids that fit the moment (see Table quickFor). */
+  quickOnly?: readonly string[];
   /** Spectators: no composer (the server also refuses posting); reactions and mute still work. */
   readOnly?: boolean;
   /** Extra @-mention candidates (e.g. the table's players); people who already wrote here are always offered. */
@@ -306,7 +308,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
           <Button variant="ghost" size="sm" iconOnly icon="x" onClick={cancelCompose}>لغو پاسخ</Button>
         </div>
       )}
-      {quick && <QuickChatChips post={post} />}
+      {quick && <QuickChatChips post={post} {...(quickOnly ? { only: quickOnly } : {})} />}
       {suggestions.length > 0 && (() => {
         const item = (name: string) => ({ name, initials: name.charAt(0), focus: suggestions.indexOf(name) === pickAt });
         // Table chat: players first, then the spectators who have written here.
@@ -336,7 +338,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     </form>
   ) : (
     <div className="bgv-composer">
-      {quick && <QuickChatChips post={post} />}
+      {quick && <QuickChatChips post={post} {...(quickOnly ? { only: quickOnly } : {})} />}
       <p className="t-caption bgv-muted" role="status" style={{ margin: 0 }}>نوشتن پیام برای حساب شما موقتاً محدود است{quick ? '؛ پیام‌های آماده در دسترس‌اند' : ''}.</p>
     </div>
   );

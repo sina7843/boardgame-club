@@ -3,7 +3,7 @@
 // cost, sector, blue/red rewards and purchase bonus. Rivals appear as compact strips of their red income per sector.
 import './renderer.css';
 import { useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import scout from './art/ship-scout.webp';
 import freighter from './art/ship-freighter.webp';
 import cruiser from './art/ship-cruiser.webp';
@@ -184,12 +184,12 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
       <section className="sb-console" aria-label="تاس‌ها">
         {rolling ? <span className="sb-dice" key="pending"><Die n={null} /><Die n={null} i={1} /></span>
           : view.dice ? <span className="sb-dice" key={roll.current.n}><Die n={view.dice[0]} /><Die n={view.dice[1]} i={1} /></span> : <small>هنوز تاسی ریخته نشده</small>}
-        {has('roll') && <Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'roll' })}>ریختن تاس‌ها</Button>}
+        {has('roll') && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'roll' })}>ریختن تاس‌ها</Button></DockSlot>}
         {has('choose') && view.dice && <>
           <Button size="sm" variant="secondary" disabled={busy} className={hint?.use === 'separate' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'separate' })}>بخش {fa(view.dice[0])} و {fa(view.dice[1])}</Button>
           <Button size="sm" disabled={busy} className={hint?.use === 'sum' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'sum' })}>بخش {fa(view.dice[0] + view.dice[1])} (جمع)</Button>
         </>}
-        {has('pass') && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پایان نوبت بدون خرید</Button>}
+        {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پایان نوبت بدون خرید</Button></DockSlot>}
       </section>
 
       <section className="sb-yard" aria-label="کارگاه ناو">

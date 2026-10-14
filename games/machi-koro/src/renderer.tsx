@@ -2,7 +2,7 @@
 // numbers, colour and price; each player's street lists their cards, coins and the four landmarks (lit when built).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CARD_DEFS, DEF, LANDMARKS, type CardKey, type Landmark, type MachiView } from './rules.ts';
 
 // Art is cut from a generated sprite sheet (see DECISIONS.md).
@@ -145,7 +145,7 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
 
       {myTurn && (rolls.length > 0 || canKeep) && (
         <div className="mk__bar">
-          {rolls.map((n) => <Button key={n} size="sm" disabled={busy} className={hint?.type === 'roll' && hint.dice === n ? 'mk-hint' : ''} onClick={() => onAction({ type: 'roll', dice: n })}>{view.phase === 'reroll' ? 'دوباره' : 'ریختن'} {fa(n)} تاس</Button>)}
+          {rolls.map((n) => <DockSlot><Button key={n} size="sm" disabled={busy} className={hint?.type === 'roll' && hint.dice === n ? 'mk-hint' : ''} onClick={() => onAction({ type: 'roll', dice: n })}>{view.phase === 'reroll' ? 'دوباره' : 'ریختن'} {fa(n)} تاس</Button></DockSlot>)}
           {canKeep && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'keep' })}>همین را نگه دار</Button>}
         </div>
       )}
@@ -158,7 +158,7 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
           <select value={target} onChange={(e) => { setTarget(Number(e.target.value)); setTake(''); }} aria-label="بازیکن"><option value={-1}>با…</option>{others.map((k) => <option key={k} value={k}>{who(k)}</option>)}</select>
           <select value={take} onChange={(e) => setTake(e.target.value as CardKey)} aria-label="کارتی که می‌گیرید" disabled={target < 0}><option value="">کارت او…</option>{target >= 0 && CARD_DEFS.filter((d) => d.color !== 'purple' && view.cards[target]![d.key]).map((d) => <option key={d.key} value={d.key}>{CARD_FA[d.key]}</option>)}</select>
           <Button size="sm" disabled={!swapOk || busy} onClick={() => onAction({ type: 'swap', give: give as CardKey, target, take: take as CardKey })}>عوض کن</Button>
-          <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'noSwap' })}>نه</Button>
+          <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'noSwap' })}>نه</Button></DockSlot>
         </div>
       )}
 
@@ -177,7 +177,7 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
           {LANDMARKS.filter((l) => !view.landmarks[me]![l.key]).map((l) => (
             <Button key={l.key} size="sm" disabled={!lms.has(l.key) || busy} className={hint?.landmark === l.key ? 'mk-hint' : ''} onClick={() => onAction({ type: 'build', landmark: l.key })}>{LANDMARK_FA[l.key]} ({fa(l.cost)})</Button>
           ))}
-          {canPass && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>چیزی نمی‌سازم</Button>}
+          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>چیزی نمی‌سازم</Button></DockSlot>}
         </div>
       )}
 

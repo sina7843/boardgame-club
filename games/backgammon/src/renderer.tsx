@@ -5,7 +5,7 @@ import ivoryImg from './art/checker-ivory.webp';
 import redImg from './art/checker-red.webp';
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePieceIds, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CHECKERS, nextSteps, pipCount, step as applyStep, target, type BgView, type From, type LogEntry, type Pos, type Step } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -330,7 +330,7 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
       <div className="bgm__actions">
         {myMove && steps.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={undoStep}>برگرداندن حرکت</Button>}
         {complete && !busy && !sent && <Button size="sm" onClick={() => send(steps)}>ثبت حرکت</Button>}
-        {has('roll') && <Button disabled={busy} onClick={() => { setRollAsked(true); onAction({ type: 'roll' }); }}>تاس بریز</Button>}
+        {has('roll') && <DockSlot><Button disabled={busy} onClick={() => { setRollAsked(true); onAction({ type: 'roll' }); }}>تاس بریز</Button></DockSlot>}
         {has('double') && <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'double' })}>دوبل (×۲)</Button>}
         {has('take') && <Button disabled={busy} onClick={() => onAction({ type: 'take' })}>قبول ({fa(view.cube.value * 2)} امتیاز)</Button>}
         {has('drop') && <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'drop' })}>واگذار ({fa(view.cube.value)} امتیاز)</Button>}

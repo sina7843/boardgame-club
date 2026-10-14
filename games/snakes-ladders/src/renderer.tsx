@@ -2,7 +2,7 @@
 // over it on a painted jungle backdrop (WebP cut from a generated sheet, see DECISIONS.md), numbered player tokens (colour + number, never colour alone), die and roll button.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import jungle from './art/bd-jungle.webp';
 import dieArt from './art/die.webp';
 import { BoardDefs, LadderArt, PawnArt, SnakeArt, pipsOf } from './art.tsx';
@@ -164,7 +164,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
           <div className="sl-roll">
             {rollPending ? <Die key="pending" value={null} pending /> : <Die key={lastRoll?.seq ?? 0} value={view.lastDie} rolling={rolling} />}
             {canRoll && (
-              <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>
+              <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>
             )}
           </div>
           <ul className="sl-players" aria-label="بازیکنان">

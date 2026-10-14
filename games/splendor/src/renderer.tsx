@@ -3,7 +3,7 @@
 // cards. Tap gems to pick (three different, or the same gem twice for a pair); tap a card to buy or reserve it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import gemW from './art/gem-diamond.webp';
 import gemU from './art/gem-sapphire.webp';
 import gemG from './art/gem-emerald.webp';
@@ -188,7 +188,7 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
           <Button size="sm" disabled={!takeOk || busy} className={hint?.type === 'take' && takeOk ? 'sp-hint' : ''} onClick={() => onAction({ type: 'take', gems: sel })}>
             برداشتن {sel.length ? sel.map((g) => GEM_FA[g]).join('، ') : 'گوهر'}
           </Button>
-          {canPass && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>رد کردن نوبت</Button>}
+          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>رد کردن نوبت</Button></DockSlot>}
         </div>
       )}
 

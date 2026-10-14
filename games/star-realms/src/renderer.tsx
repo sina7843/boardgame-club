@@ -3,7 +3,7 @@
 // at either end; the trade row runs through the middle; played ships and bases form your fleet line.
 import './renderer.css';
 import { useRef } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import fed from './art/fac-fed.webp';
 import blob from './art/fac-blob.webp';
 import cult from './art/fac-cult.webp';
@@ -205,8 +205,8 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
         )}
         {myTurn && !discarding && (
           <div className="sr-bar">
-            {has('playAll') && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'playAll' ? 'sr-hint' : ''} onClick={() => onAction({ type: 'playAll' })}>بازی همه</Button>}
-            <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button>
+            {has('playAll') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'playAll' ? 'sr-hint' : ''} onClick={() => onAction({ type: 'playAll' })}>بازی همه</Button></DockSlot>}
+            <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>
           </div>
         )}
       </section>

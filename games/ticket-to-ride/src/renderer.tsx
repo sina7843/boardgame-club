@@ -3,7 +3,7 @@
 // (colour + locomotives), own hand and tickets, players, final scores and log. Shows only the projection.
 import './renderer.css';
 import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import { BOARDS, COLORS, COLOR_FA, LOCO, ROUTE_POINTS, TRAINS, type Board, type MapId } from './board.ts';
 import { CAR_H, CITY_R, layoutOf, type Pt } from './geometry.ts';
 import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SEAT_TRAIN, SHADES, colorIx } from './art.tsx';
@@ -491,8 +491,8 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                 </li>
               </ul>
               <div className="row" data-flip-anchor="tickets">
-                <Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}>کشیدن ۳ بلیت مقصد</Button>
-                {has('pass') && <Button size="sm" variant="ghost" disabled={busy} onClick={() => act({ type: 'pass' })}>گذشتن از نوبت</Button>}
+                <DockSlot><Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}>کشیدن ۳ بلیت مقصد</Button></DockSlot>
+                {has('pass') && <DockSlot><Button size="sm" variant="ghost" disabled={busy} onClick={() => act({ type: 'pass' })}>گذشتن از نوبت</Button></DockSlot>}
               </div>
             </section>
           )}

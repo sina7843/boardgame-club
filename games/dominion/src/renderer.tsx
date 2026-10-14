@@ -3,7 +3,7 @@
 // a small choice tray (pick cards from hand and/or a supply pile) before the play is sent.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CARDS, KINGDOM, type CardId, type DomView } from './rules.ts';
 
 // Art is cut from a generated sprite sheet (see DECISIONS.md).
@@ -200,7 +200,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
               <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setMode(null); setPicked([]); setGain(null); }}>انصراف</Button>
             </>}
             {!mode && !militia && canTreasures && <Button size="sm" disabled={busy} className={hint?.type === 'treasures' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'treasures' })}>رو کردن گنج‌ها</Button>}
-            {!mode && !militia && canEnd && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button>}
+            {!mode && !militia && canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
           </div>
         </section>
       )}

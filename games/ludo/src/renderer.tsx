@@ -4,7 +4,7 @@
 // (WebP cut from a generated sheet, see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import carpet from './art/bd-carpet.webp';
 import dieArt from './art/die.webp';
 import pawnRed from './art/pawn-red.webp';
@@ -240,7 +240,7 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
             {rollPending
               ? <Die key="pending" value={null} pending />
               : <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} />}
-            {canRoll && <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>}
+            {canRoll && <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>}
           </div>
           {moves.length > 0 && (
             <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">

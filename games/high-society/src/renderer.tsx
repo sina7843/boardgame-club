@@ -3,7 +3,7 @@
 // into a bid.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import luxuryArt from './art/luxury.webp';
 import prestigeArt from './art/prestige.webp';
 import disgraceArt from './art/disgrace.webp';
@@ -136,7 +136,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
             <div className="hs__actions" data-need={bidHint?.need ?? ''}>
               {bidHint && <Button size="sm" disabled={busy || total < bidHint.need} className={hint?.type === 'bid' && total >= bidHint.need ? 'hs-hint' : ''}
                 onClick={() => onAction({ type: 'bid', cards: chosen })}>پیشنهاد {fa(myBid + total)}{total < bidHint.need ? ` (حداقل ${fa(myBid + bidHint.need)})` : ''}</Button>}
-              {canPass && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'hs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>{disgrace ? 'کنار می‌کشم (کارت را می‌گیرم)' : 'کنار می‌کشم'}</Button>}
+              {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'hs-hint' : ''} onClick={() => onAction({ type: 'pass' })}>{disgrace ? 'کنار می‌کشم (کارت را می‌گیرم)' : 'کنار می‌کشم'}</Button></DockSlot>}
             </div>
           )}
         </section>

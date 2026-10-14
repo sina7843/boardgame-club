@@ -5,7 +5,7 @@
 // Motion: cards glide hand → tableau (useFlip), new tiles land (useFresh), changed numbers pop (usePop).
 import './renderer.css';
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, useFresh, usePop, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, useFresh, usePop, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import { hexX } from './board.ts';
 import { BOARD_ART, CARDRES_ART, MARS_ART, PARAM_ART, RES_ART, TILE_ART } from './art.ts';
 import {
@@ -398,8 +398,8 @@ export default function TerraformingMarsRenderer({ view: served, legalActions, m
                   })}
                 </div>
                 <div className="tm-row">
-                  {has('endTurn') && <Button variant="secondary" disabled={busy} className={isHint({ type: 'endTurn' }) ? 'tm-hint' : ''} data-act="endTurn" onClick={() => send({ type: 'endTurn' })}>پایان نوبت</Button>}
-                  {has('pass') && <Button variant="secondary" disabled={busy} className={`tm-pass${isHint({ type: 'pass' }) ? ' tm-hint' : ''}`} data-act="pass" onClick={() => send({ type: 'pass' })}>{view.phase === 'final' ? 'پاس (پایان)' : 'پاس تا نسل بعد'}</Button>}
+                  {has('endTurn') && <DockSlot><Button variant="secondary" disabled={busy} className={isHint({ type: 'endTurn' }) ? 'tm-hint' : ''} data-act="endTurn" onClick={() => send({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
+                  {has('pass') && <DockSlot><Button variant="secondary" disabled={busy} className={`tm-pass${isHint({ type: 'pass' }) ? ' tm-hint' : ''}`} data-act="pass" onClick={() => send({ type: 'pass' })}>{view.phase === 'final' ? 'پاس (پایان)' : 'پاس تا نسل بعد'}</Button></DockSlot>}
                 </div>
               </>}
             </section>

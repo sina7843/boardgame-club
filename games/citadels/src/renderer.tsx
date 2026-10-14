@@ -3,7 +3,7 @@
 // its own small panel during your character's turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CHARACTERS, DISTRICTS, type CitadelsView } from './rules.ts';
 // Paintings are cut from a generated sheet (see DECISIONS.md).
 import assassin from './art/ch-assassin.webp';
@@ -147,7 +147,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
                   : <span key={id} className="ct2-pick"><DistrictCard id={id} from="deck" exit="deck" /></span>;
             })}
           </div>
-          {canEnd && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button>}
+          {canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' ? 'ct2-hint' : ''} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button></DockSlot>}
         </section>
       )}
     </div>

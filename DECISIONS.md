@@ -1301,3 +1301,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Avatar frames (2026-10-15, default chosen while the owner was asked): cosmetic frames are drawn OUTSIDE the avatar
   and its seat / «شما» ring (`.has-frame::after`, frame SVG as a data URI from `frameSvg`), not inside the avatar art.
   The DS `Frame` stays for league tiers only. Preferred seat colour = the server seats a joiner in that seat when free.
+- Game turn controls in the ActionDock (2026-10-15): renderers wrap their own turn buttons (roll, pass, end turn, draw,
+  done, challenge …) in `<DockSlot>` from @bg/ui; the table page portals them into the dock, so labels, side effects
+  (dice animations) and parameters stay with the game. Without a host they render in place. 43 buttons in 27 games were
+  wrapped mechanically (single-line buttons only); buttons that belong to an in-board panel (auction bid pass, per-card
+  pass, in-prompt choices) stay on the board. Multi-line buttons in other games still render on the board.

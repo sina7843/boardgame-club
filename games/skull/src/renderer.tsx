@@ -2,7 +2,7 @@
 // and skulls revealed with a flip, your discs to place, a bid strip, and opponents' stacks to turn in the reveal.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import rose from './art/disc-rose.webp';
 import skull from './art/disc-skull.webp';
 import type { Disc, SkullView } from './rules.ts';
@@ -166,7 +166,7 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
               <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'bid', n: chosenBid })}>پیشنهاد {fa(chosenBid)}</Button>
             </div>
           )}
-          {canPass && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>کنار می‌کشم</Button>}
+          {canPass && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>کنار می‌کشم</Button></DockSlot>}
         </div>
       ) : null}
       {view.lostLast && lastLose && lastLose.seat === mySeat && <p className="sk__lost" role="status">یک {view.lostLast === 'skull' ? 'جمجمه' : 'گل'} از دست دادید (فقط شما می‌دانید).</p>}

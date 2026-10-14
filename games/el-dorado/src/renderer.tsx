@@ -4,7 +4,7 @@
 // rubble and camps ask which cards to give up. The market lists every card with price and stock.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { COLS, MAP, ROWS, TYPE, coinValue, type CardType, type EdView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -165,8 +165,8 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
           </div>
           {myTurn && (
             <div className="ed-bar">
-              <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'ed-hint' : ''} onClick={() => onAction({ type: 'endTurn', discard: [] })}>پایان نوبت</Button>
-              {hand.length > 0 && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'endTurn', discard: hand.map((_, i) => i) })}>پایان نوبت و دور ریختن دست</Button>}
+              <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'ed-hint' : ''} onClick={() => onAction({ type: 'endTurn', discard: [] })}>پایان نوبت</Button></DockSlot>
+              {hand.length > 0 && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'endTurn', discard: hand.map((_, i) => i) })}>پایان نوبت و دور ریختن دست</Button></DockSlot>}
             </div>
           )}
         </section>

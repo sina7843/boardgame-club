@@ -4,7 +4,7 @@
 // paid along the row), tap an order to deliver it.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import spiceY from './art/spice-y.webp';
 import spiceR from './art/spice-r.webp';
 import spiceG from './art/spice-g.webp';
@@ -242,7 +242,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
             </div>
           )}
           <div className="ct__actions">
-            {canRest && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'rest' ? 'ct-hint' : ''} onClick={() => onAction({ type: 'rest' })}>استراحت ({fa(view.played[me]!.length)} کارت برمی‌گردد)</Button>}
+            {canRest && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'rest' ? 'ct-hint' : ''} onClick={() => onAction({ type: 'rest' })}>استراحت ({fa(view.played[me]!.length)} کارت برمی‌گردد)</Button></DockSlot>}
             {disc && myCubes && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'discard', cubes: cheapest(myCubes, disc.count) })}>کنار گذاشتن {fa(disc.count)} ادویهٔ ارزان</Button>}
           </div>
           {view.played[me]!.length > 0 && <div className="ct__played"><small>بازی‌شده:</small>{view.played[me]!.map((id) => <span key={id} data-flip={`m${id}`}><MerchantCard id={id} /></span>)}</div>}

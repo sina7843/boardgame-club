@@ -4,7 +4,7 @@
 // per camel, the secret overall bets and the spectators' purses follow.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, motionOff, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, MOTION, TurnIndicator, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import camelBlue from './art/camel-blue.webp';
 import camelGreen from './art/camel-green.webp';
 import camelOrange from './art/camel-orange.webp';
@@ -180,7 +180,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
 
       {myTurn && (
         <div className="cu__actions">
-          <Button size="sm" disabled={busy} className={['cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button>
+          <DockSlot><Button size="sm" disabled={busy} className={['cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button></DockSlot>
           {desert && <Button size="sm" variant="secondary" className={placing === 'oasis' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}>واحه +۱</Button>}
           {desert && <Button size="sm" variant="secondary" className={placing === 'mirage' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}>سراب −۱</Button>}
         </div>

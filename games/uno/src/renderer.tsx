@@ -2,7 +2,7 @@
 // own hand within thumb reach. Shows only the projection; other hands are counts, never cards.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { COLORS, type Card, type Color, type LogEntry, type UnoView } from './rules.ts';
 import { CardBack, CardFace, cardLabel, COLOR_FA } from './cards.tsx';
 
@@ -166,7 +166,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             اگر خطا کرده باشد خودش ۴ کارت می‌کشد و شما بازی می‌کنید؛ وگرنه شما ۶ کارت می‌کشید.</p>
           <div className="row">
             <Button disabled={busy} onClick={() => onAction({ type: 'accept' })}>پذیرفتن و کشیدن ۴ کارت</Button>
-            <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'challenge' })}>اعتراض</Button>
+            <DockSlot><Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'challenge' })}>اعتراض</Button></DockSlot>
           </div>
         </section>
       )}

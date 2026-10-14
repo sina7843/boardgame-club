@@ -3,7 +3,7 @@
 // points «بس!» and «آخرین فرصت» appear.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import crab from './art/crab.webp';
 import boat from './art/boat.webp';
 import fish from './art/fish.webp';
@@ -171,9 +171,9 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
           )}
           {view.phase === 'act' && myTurn && (
             <div className="sp2__bar">
-              <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' && hint.call === 'pass' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'pass' })}>{view.extraTurn ? 'نوبت اضافه' : 'پایان نوبت'}</Button>
-              {has('end', 'stop') && <Button size="sm" disabled={busy} className={hint?.call === 'stop' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'stop' })}>بس!</Button>}
-              {has('end', 'last') && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end', call: 'last' })}>آخرین فرصت</Button>}
+              <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'end' && hint.call === 'pass' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'pass' })}>{view.extraTurn ? 'نوبت اضافه' : 'پایان نوبت'}</Button></DockSlot>
+              {has('end', 'stop') && <DockSlot><Button size="sm" disabled={busy} className={hint?.call === 'stop' ? 'sp2-hint' : ''} onClick={() => onAction({ type: 'end', call: 'stop' })}>بس!</Button></DockSlot>}
+              {has('end', 'last') && <DockSlot><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end', call: 'last' })}>آخرین فرصت</Button></DockSlot>}
             </div>
           )}
         </section>

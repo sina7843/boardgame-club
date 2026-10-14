@@ -3,7 +3,7 @@
 // Places of power and monuments wait on a velvet shelf; your mage and artifacts sit in front of you.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import artE from './art/ess-e.webp';
 import artL from './art/ess-l.webp';
 import artC from './art/ess-c.webp';
@@ -145,7 +145,7 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
             ))}
           </div>
         )}
-        {myTurn && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'ra-hint' : ''} onClick={() => onAction({ type: 'pass' })}>رد کردن (یک کارت بکشید)</Button>}
+        {myTurn && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'pass' ? 'ra-hint' : ''} onClick={() => onAction({ type: 'pass' })}>رد کردن (یک کارت بکشید)</Button></DockSlot>}
       </section>
     </div>
   );

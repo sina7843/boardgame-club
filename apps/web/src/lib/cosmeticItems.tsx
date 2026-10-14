@@ -44,7 +44,8 @@ export function useWardrobe() {
   const toast = useToast();
   const owned = useApi<Owned>(me ? '/me/cosmetics' : null);
   const unlocked = useMemo(() => new Set(owned.data?.unlocked ?? []), [owned.data]);
-  const d = owned.data;
+  // An older API (mid-deploy) may not send `loadout`; default it so pages never crash on it.
+  const d = owned.data && { ...owned.data, loadout: owned.data.loadout ?? { emotes: [], seatColor: null } };
 
   const isEquipped = useCallback((c: CosmeticItem): boolean => {
     if (!me || !d) return false;

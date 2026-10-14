@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObjec
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
-import { useOnline, useToast } from '@bg/ui';
+import { DockSlotHost, useOnline, useToast } from '@bg/ui';
 import {
   ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
@@ -436,6 +436,9 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const [confirmResign, setConfirmResign] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [sheetSeat, setSheetSeat] = useState<number | null>(null);
+  // Game turn controls (renderers wrap them in <DockSlot>) render into the action dock through this portal.
+  const [dockNode, setDockNode] = useState<HTMLSpanElement | null>(null);
+  const toDock = useCallback((node: ReactNode) => (dockNode ? createPortal(node, dockNode) : node), [dockNode]);
   // Game events for the table chat (DS SystemMessage lines), built from what this table view already receives:
   // public moves (games that publish them), the end of the game. Kept for this visit only.
   const [gameEvents, setGameEvents] = useState<ChatEvent[]>([]);
@@ -586,7 +589,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
   const chatPanel = (props: { sheet?: boolean; onClose?: () => void; className: string }): ReactNode =>
     <ChatPanel {...props} load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" quick={isPlayer} readOnly={!isPlayer}
-      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} events={gameEvents}
+      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} events={gameEvents} quickOnly={quickFor}
       sub={isPlayer ? `${faNum(t.seats.length)} بازیکن${t.spectators ? `، ${faNum(t.spectators)} تماشاگر` : ''}` : 'شما تماشاگرید'} />;
 
   const turnWho = g.pendingSeats.length === 1 ? g.pendingSeats[0]! : null;
@@ -627,7 +630,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           </> : undefined}
           stage={<div data-theme="dark" data-game={t.gameId} data-hud={g.summary ? 'on' : undefined} className={myTurn ? 'table-night tbl-stage tbl-stage--mine' : 'table-night tbl-stage'}>
             {Renderer
-              ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} />
+              ? <DockSlotHost value={toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost>
               : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
           </div>}>
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
@@ -650,6 +653,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           {...(clockProps && myTurn ? { clock: { ...clockProps, sub: clockProps.state === 'critical' ? 'عجله کنید' : clockProps.state === 'warn' ? 'نیمی گذشت'
             : clockProps.state === 'stale' ? 'در حال اتصال' : g.pendingSeats.length > 1 ? 'مهلت مشترک' : 'زمان شما' } } : {})}
           actions={<>
+            <span ref={setDockNode} className="tbl-dockslot" />
             {g.tutorial && !finished && <>
               <Button size="sm" variant="ghost" icon="rotate-ccw" disabled={tutorialBusy} onClick={() => tutorial('start')}>از اول</Button>
               <Button size="sm" variant="ghost" icon="chevron-left" disabled={tutorialBusy} onClick={() => tutorial('skip')}>رد کردن آموزش</Button>

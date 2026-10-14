@@ -2,7 +2,7 @@
 // Play: tap an intersection. Scoring: tap a group to mark it dead/alive; territory and the running score are shown.
 import './renderer.css';
 import { useId } from 'react';
-import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import stoneB from './art/stone-b.webp';
 import stoneW from './art/stone-w.webp';
 import texKaya from './art/tex-kaya.webp';
@@ -110,7 +110,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
       </ZoomBoard>
 
       <div className="go__actions">
-        {has('pass') && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پاس</Button>}
+        {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پاس</Button></DockSlot>}
         {has('accept') && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'accept' })}>تأیید شمارش</Button>}
         {has('resume') && <Button size="sm" variant="ghost" disabled={busy} onClick={() => onAction({ type: 'resume' })}>ادامه بازی</Button>}
       </div>

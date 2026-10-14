@@ -3,7 +3,7 @@
 // where its corner goes (a preview shows if it fits), then «بدوز».
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -157,7 +157,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
 
       {canAdvance && !view.outcome && (
         <div className="pw__actions">
-          <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'advance' ? 'pw-hint' : ''} onClick={() => onAction({ type: 'advance' })}>جلو رفتن (+{fa(advanceGain)} دکمه)</Button>
+          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'advance' ? 'pw-hint' : ''} onClick={() => onAction({ type: 'advance' })}>جلو رفتن (+{fa(advanceGain)} دکمه)</Button></DockSlot>
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@
 // attack with dice tray, occupation, fortification, players and log. Shows only the projection: other hands are counts.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import {
   CARD_FA, CONTINENTS, CONTINENT_OF, T, TERRITORY_FA, TERRITORY_IDS, cardKind, cardTerritory, isSet, setValue,
   type TerritoryId
@@ -556,7 +556,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
                   onClick={() => act({ type: 'attack', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!], dice })}>حمله</Button>
                 <Button variant="secondary" disabled={busy || sel === null || aim === null || !has('blitz')}
                   onClick={() => act({ type: 'blitz', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!] })}>حمله سریع</Button>
-                <Button variant="ghost" className={exp?.type === 'endAttack' ? 'rk-hintbtn' : ''} disabled={busy || !has('endAttack')} onClick={() => act({ type: 'endAttack' })}>پایان حمله</Button>
+                <DockSlot><Button variant="ghost" className={exp?.type === 'endAttack' ? 'rk-hintbtn' : ''} disabled={busy || !has('endAttack')} onClick={() => act({ type: 'endAttack' })}>پایان حمله</Button></DockSlot>
               </div>
               <p className="rk-help">حمله سریع با بیشترین تاس تکرار می‌شود تا قلمرو فتح شود یا ۱ ارتش بماند.</p>
             </Panel>
@@ -582,7 +582,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
               <div className="row">
                 <Button className={exp?.type === 'fortify' ? 'rk-hintbtn' : ''} disabled={busy || sel === null || aim === null || moveN < 1}
                   onClick={() => act({ type: 'fortify', from: TERRITORY_IDS[sel!], to: TERRITORY_IDS[aim!], armies: Math.min(moveN, fortMax) })}>جابه‌جایی</Button>
-                <Button variant="secondary" className={exp?.type === 'endTurn' ? 'rk-hintbtn' : ''} disabled={busy || !has('endTurn')} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button>
+                <DockSlot><Button variant="secondary" className={exp?.type === 'endTurn' ? 'rk-hintbtn' : ''} disabled={busy || !has('endTurn')} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>
               </div>
             </Panel>
           )}

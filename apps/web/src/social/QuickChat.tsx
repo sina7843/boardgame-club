@@ -30,7 +30,7 @@ export function QuickChatButton({ post, only }: { post: string; only?: readonly 
   const toast = useToast();
   const mine = useApi<{ loadout: { emotes: string[] } }>('/me/cosmetics');
   const close = () => (document.getElementById(id) as HTMLElement & { hidePopover?: () => void } | null)?.hidePopover?.();
-  const emotes = (mine.data?.loadout.emotes ?? []).map((k) => cosmetic(k)).filter((c) => !!c);
+  const emotes = (mine.data?.loadout?.emotes ?? []).map((k) => cosmetic(k)).filter((c) => !!c);
   const sendEmote = async (key: string) => {
     try { await api(post, { method: 'POST', body: { emote: key, clientId: crypto.randomUUID() } }); close(); }
     catch (err) { toast('error', err instanceof ApiFailure ? err.messageFa : 'ایموت فرستاده نشد.'); }

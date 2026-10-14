@@ -3,7 +3,7 @@
 // other players' hands and development cards are counts, never contents.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
 import { BoardDefs, CARD_BACK, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import { COST, LIMITS, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
@@ -464,7 +464,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
             </Panel>
           )}
 
-          {myTurn && has('roll') && <Button className={exp?.type === 'roll' ? 'ct-hintbtn' : ''} disabled={busy} onClick={() => { if (!busy) setRollAsked(rollSeq); act({ type: 'roll' }); }}>ریختن تاس</Button>}
+          {myTurn && has('roll') && <DockSlot><Button className={exp?.type === 'roll' ? 'ct-hintbtn' : ''} disabled={busy} onClick={() => { if (!busy) setRollAsked(rollSeq); act({ type: 'roll' }); }}>ریختن تاس</Button></DockSlot>}
 
           {myTurn && view.phase === 'steal' && (
             <Panel title="دزدی" tone="decide">
@@ -595,7 +595,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
             </section>
           )}
 
-          {myTurn && has('endTurn') && <Button variant="secondary" disabled={busy} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button>}
+          {myTurn && has('endTurn') && <DockSlot><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
 
           <details className="ct-log" open>
             <summary>رویدادها</summary>

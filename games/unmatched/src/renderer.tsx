@@ -2,7 +2,7 @@
 // the server prompt, combat panel, own hand and event log. Shows only the projection; other hands are counts.
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CardArt, Emblem, PATHS, PORTRAITS, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
 import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
@@ -676,7 +676,7 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
                     <ChoiceList label="مقصد (روی صفحه هم می‌توانید بزنید)" items={(moves.find((mv) => mv.fighter === selFighter)?.to ?? []).map((t) => ({ id: String(t), label: spaceLabel(board, t) }))}
                       onPick={(t) => send({ type: 'move', fighter: selFighter, to: Number(t) })} busy={busy} hint={exp?.type === 'move' && exp.fighter === selFighter ? String(exp.to) : undefined} compact />
                   )}
-                  <Button variant={exp?.type === 'done' ? 'brand' : 'secondary'} disabled={busy} onClick={() => send({ type: 'done' })}>پایان حرکت</Button>
+                  <DockSlot><Button variant={exp?.type === 'done' ? 'brand' : 'secondary'} disabled={busy} onClick={() => send({ type: 'done' })}>پایان حرکت</Button></DockSlot>
                 </>
               )}
 

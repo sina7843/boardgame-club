@@ -3,7 +3,7 @@
 // below with prices in energy.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { POWERS, type Face, type KotView } from './rules.ts';
 import { Bolt, DieGlyph, Monster } from './art.tsx';
 
@@ -136,8 +136,8 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
 
       {(canRoll || canResolve) && (
         <div className="kt__bar">
-          {canRoll && <Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'kt-hint' : ''} onClick={() => { const k = view.rolls ? keep : [false, false, false, false, false, false]; setAsked(k); onAction({ type: 'roll', keep: k }); }}>{view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)</Button>}
-          {canResolve && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'resolve' ? 'kt-hint' : ''} onClick={() => onAction({ type: 'resolve' })}>همین‌ها</Button>}
+          {canRoll && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'kt-hint' : ''} onClick={() => { const k = view.rolls ? keep : [false, false, false, false, false, false]; setAsked(k); onAction({ type: 'roll', keep: k }); }}>{view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)</Button></DockSlot>}
+          {canResolve && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'resolve' ? 'kt-hint' : ''} onClick={() => onAction({ type: 'resolve' })}>همین‌ها</Button></DockSlot>}
         </div>
       )}
       {canYield && (
@@ -156,8 +156,8 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
       )}
       {(canSweep || canEnd) && (
         <div className="kt__bar">
-          {canSweep && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'sweep' })}>کارت‌های تازه (۲ϟ)</Button>}
-          {canEnd && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button>}
+          {canSweep && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'sweep' })}>کارت‌های تازه (۲ϟ)</Button></DockSlot>}
+          {canEnd && <DockSlot><Button size="sm" disabled={busy} onClick={() => onAction({ type: 'end' })}>پایان نوبت</Button></DockSlot>}
         </div>
       )}
     </div>

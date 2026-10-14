@@ -2,7 +2,7 @@
 // the phase; property management, trade composer and responder; players and log. All state shown is public.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { AmlakBoard, Landmarks, SEAT_COLORS, Token } from './board-art.tsx';
 import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf } from './board.ts';
 import { unmortgageCost, type AmlakView, type LogEntry, type TradeSide } from './rules.ts';
@@ -135,7 +135,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
               )}
               {!view.trade && view.phase === 'roll' && (
                 <div className="am-row">
-                  <Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { if (!busy) setRollAsked(rollKey); send({ type: 'roll' }); }}>تاس بریز</Button>
+                  <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { if (!busy) setRollAsked(rollKey); send({ type: 'roll' }); }}>تاس بریز</Button></DockSlot>
                   {has('payBail') && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'payBail' })}>پرداخت {money(BAIL)} و آزادی</Button>}
                   {has('useCard') && <Button variant="secondary" disabled={busy} onClick={() => send({ type: 'useCard' })}>کارت آزادی از زندان</Button>}
                 </div>
@@ -180,7 +180,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
                 </>
               )}
               {!view.trade && view.phase === 'end' && (
-                <Button size="lg" disabled={busy} variant={expected?.type === 'endTurn' ? 'brand' : 'primary'} onClick={() => send({ type: 'endTurn' })}>پایان نوبت</Button>
+                <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'endTurn' ? 'brand' : 'primary'} onClick={() => send({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>
               )}
             </section>
           )}
