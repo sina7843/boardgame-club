@@ -54,7 +54,14 @@ export const leaderboardResponse = z.object({
   gameId: z.string(), mode: z.enum(['live', 'turn']),
   season: z.object({ id: z.uuid(), nameFa: z.string(), status: z.string() }).nullable(),
   rules: z.object({ minGames: z.number().int(), maxSigma: z.number() }),
-  items: z.array(z.object({ rank: z.number().int(), user: publicProfile, rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable() }))
+  items: z.array(z.object({ rank: z.number().int(), user: publicProfile, rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable(),
+    /** Share of ranked games finished first (0-100), and rating change over the last 7 days. */
+    winRate: z.number().int(), weekDelta: z.number().int() })),
+  /** Eligible players in this board, and where I stand (null when I have no rating here). */
+  total: z.number().int(),
+  me: z.object({ rank: z.number().int().nullable(), rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable(), gamesToEligible: z.number().int() }).nullable(),
+  /** League floors for the ladder (bronze starts at 0). */
+  ladder: z.array(z.object({ league: leagueSchema, from: z.number().int() }))
 });
 
 export const planItem = z.object({

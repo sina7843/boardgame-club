@@ -11,6 +11,7 @@ import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { CopyProfileLink } from './MyProfile.tsx';
+import { MessageMenu } from '../social/ChatPanel.tsx';
 import { InviteCard, referralUrl, rewardFa, useCopy, type Referral } from '../social/InviteCard.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
@@ -227,6 +228,7 @@ export function ProfilePage() {
   const toast = useToast();
   const act = useAct(card.reload);
   const [report, setReport] = useState<'user' | 'display_name' | 'bio' | null>(null);
+  const presence = usePresence(card.data ? [card.data.id] : []);
   if (card.error) return <StateBlock kind={card.error.status === 404 ? 'empty' : 'error'} title={card.error.status === 404 ? 'این بازیکن پیدا نشد' : 'پروفایل دریافت نشد'} />;
   if (!card.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const u = card.data;
@@ -252,7 +254,8 @@ export function ProfilePage() {
         stats={u.stats ? [{ value: faNum(u.stats.gamesPlayed), label: 'بازی‌ها' }, { value: faNum(u.stats.wins), label: 'برد (رتبهٔ اول)' }, { value: `${faNum(u.stats.winRate)}٪`, label: 'نرخ برد' }] : undefined}
         bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
         badges={u.relationship === 'friends' ? <Badge tone="success">دوست</Badge> : undefined}
-        meta={[`عضو از ${jalaliDate(u.joinedAt)}`]}
+        {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})}
+        meta={[...(presenceLine(presence[u.id]) ? [presenceLine(presence[u.id])!] : []), `عضو از ${jalaliDate(u.joinedAt)}`]}
         actions={<>
           {self && <>
             <Button variant="primary" icon="palette" href="/me/avatar">ساخت آواتار</Button>
@@ -264,6 +267,15 @@ export function ProfilePage() {
           {u.relationship === 'outgoing' && <Badge icon="check">درخواست دوستی فرستاده شد</Badge>}
           {u.relationship === 'friends' && <Button variant="secondary" icon="message-circle" onClick={message}>پیام خصوصی</Button>}
           <CopyProfileLink userId={u.id} />
+          {!self && <MessageMenu label="بیشتر" className="" items={[
+            u.muted ? { icon: 'volume-2', label: 'لغو بی‌صدا', onClick: () => act(`/mutes/${u.id}`, 'DELETE') }
+              : { icon: 'volume-x', label: 'بی‌صدا', onClick: () => act('/mutes', 'POST', { userId: u.id }, 'بی‌صدا شد.') },
+            u.relationship === 'blocked' ? { icon: 'ban', label: 'رفع مسدودی', onClick: () => act(`/blocks/${u.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.') }
+              : { icon: 'ban', label: 'مسدود کردن', danger: true, onClick: () => act('/blocks', 'POST', { userId: u.id }, 'کاربر مسدود شد.') },
+            { icon: 'flag', label: 'گزارش رفتار', danger: true, onClick: () => setReport('user') },
+            { icon: 'flag', label: 'گزارش نام', onClick: () => setReport('display_name') },
+            ...(u.bio ? [{ icon: 'flag', label: 'گزارش معرفی', onClick: () => setReport('bio') }] : [])
+          ]} />}
         </>}>
         {u.bio && <p dir="auto" className="t-body">{u.bio}</p>}
       </ProfileHead>
@@ -328,20 +340,6 @@ export function ProfilePage() {
         </div>
       ) : null}
       {self && <InviteCard />}
-      {!self && (
-        <Card title="اقدام‌ها" aria-label="اقدام‌ها">
-          <div className="bgv-row">
-            {u.relationship === 'blocked'
-              ? <Button variant="secondary" onClick={() => act(`/blocks/${u.id}`, 'DELETE', undefined, 'رفع مسدودی انجام شد.')}>رفع مسدودی</Button>
-              : <Button variant="danger" icon="ban" onClick={() => act('/blocks', 'POST', { userId: u.id }, 'کاربر مسدود شد.')}>مسدود کردن</Button>}
-            {u.muted ? <Button variant="ghost" onClick={() => act(`/mutes/${u.id}`, 'DELETE')}>لغو بی‌صدا</Button>
-              : <Button variant="ghost" icon="volume-x" onClick={() => act('/mutes', 'POST', { userId: u.id }, 'بی‌صدا شد.')}>بی‌صدا</Button>}
-            <Button variant="ghost" icon="flag" onClick={() => setReport('user')}>گزارش رفتار</Button>
-            <Button variant="ghost" onClick={() => setReport('display_name')}>گزارش نام</Button>
-            {u.bio && <Button variant="ghost" onClick={() => setReport('bio')}>گزارش معرفی</Button>}
-          </div>
-        </Card>
-      )}
       {report && <ReportDialog targetType={report} targetId={u.id} label={u.displayName} onClose={() => setReport(null)} />}
     </>
   );

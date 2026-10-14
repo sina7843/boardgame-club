@@ -151,11 +151,38 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
       items = rows.map(({ ratings: x }) => ({ userId: x.userId, rating: displayRating(x), games: x.gamesPlayed, league: placements.find((p) => p.userId === x.userId)?.league ?? null }));
     }
     const people = await profiles(db, items.map((i) => i.userId));
+    const ids = items.map((i) => i.userId);
+    const hist = ids.length ? await db.select({ userId: ratingHistory.userId, wins: sql<number>`count(*) filter (where ${ratingHistory.place} = 1)::int`, n: sql<number>`count(*)::int`,
+      week: sql<number>`coalesce(sum(${ratingHistory.muAfter} - ${ratingHistory.muBefore}) filter (where ${ratingHistory.createdAt} > now() - interval '7 days'), 0)` })
+      .from(ratingHistory).where(and(inArray(ratingHistory.userId, ids), eq(ratingHistory.gameId, req.params.id), eq(ratingHistory.mode, req.query.mode)))
+      .groupBy(ratingHistory.userId) : [];
+    const eligible = and(eq(ratings.gameId, req.params.id), eq(ratings.mode, req.query.mode),
+      sql`${ratings.gamesPlayed} >= ${ELIGIBILITY.leaderboardMinGames}`, sql`${ratings.sigma} <= ${ELIGIBILITY.leaderboardMaxSigma}`);
+    const [{ total } = { total: 0 }] = await db.select({ total: sql<number>`count(*)::int` }).from(ratings).innerJoin(users, eq(users.id, ratings.userId)).where(and(eligible, eq(users.status, 'active')));
+    const viewer = req.auth?.userId;
+    const [mine] = viewer ? await db.select().from(ratings).where(and(eq(ratings.userId, viewer), eq(ratings.gameId, req.params.id), eq(ratings.mode, req.query.mode))) : [];
+    let me = null;
+    if (mine) {
+      const ok = mine.gamesPlayed >= ELIGIBILITY.leaderboardMinGames && mine.sigma <= ELIGIBILITY.leaderboardMaxSigma;
+      const [{ above } = { above: 0 }] = ok ? await db.select({ above: sql<number>`count(*)::int` }).from(ratings).innerJoin(users, eq(users.id, ratings.userId))
+        .where(and(eligible, eq(users.status, 'active'), sql`${ratings.mu} > ${mine.mu}`)) : [];
+      const [placed] = season ? await db.select({ league: leaguePlacements.league }).from(leaguePlacements)
+        .where(and(eq(leaguePlacements.seasonId, season.id), eq(leaguePlacements.userId, mine.userId), eq(leaguePlacements.gameId, req.params.id), eq(leaguePlacements.mode, req.query.mode))) : [];
+      me = { rank: ok ? above + 1 : null, rating: displayRating(mine), games: mine.gamesPlayed, league: (placed?.league ?? null) as 'gold' | null,
+        gamesToEligible: Math.max(0, ELIGIBILITY.leaderboardMinGames - mine.gamesPlayed) };
+    }
+    const cfg = { ...DEFAULT_SEASON, ...(season?.config as Partial<typeof DEFAULT_SEASON> | undefined) };
     return {
       gameId: req.params.id, mode: req.query.mode,
       season: season ? { id: season.id, nameFa: season.nameFa, status: season.status } : null,
       rules: { minGames: ELIGIBILITY.leaderboardMinGames, maxSigma: ELIGIBILITY.leaderboardMaxSigma },
-      items: items.map((i, k) => ({ rank: k + 1, user: people.get(i.userId)!, rating: i.rating, games: i.games, league: i.league as 'gold' | null }))
+      items: items.map((i, k) => {
+        const h = hist.find((x) => x.userId === i.userId);
+        return { rank: k + 1, user: people.get(i.userId)!, rating: i.rating, games: i.games, league: i.league as 'gold' | null,
+          winRate: h?.n ? Math.round((100 * h.wins) / h.n) : 0, weekDelta: Math.round(60 * Number(h?.week ?? 0)) };
+      }),
+      total, me,
+      ladder: [{ league: 'bronze' as const, from: 0 }, ...(Object.entries(cfg.thresholds) as ['silver', number][]).map(([league, from]) => ({ league, from }))]
     };
   });
 

@@ -25,15 +25,16 @@ function readDraft(key: string): string { try { return localStorage.getItem(key)
 function writeDraft(key: string, text: string) { try { if (text) localStorage.setItem(key, text); else localStorage.removeItem(key); } catch { /* storage unavailable */ } }
 
 /** «⋮» on a message: a native popover with the DS Menu (reply, edit, report, delete). */
-function MessageMenu({ items }: { items: MenuItem[] }) {
+/** «⋮» button opening a DS Menu in a native popover (message options, profile «بیشتر»). */
+export function MessageMenu({ items, label = 'گزینه‌های پیام', className = 'chat-msg__more' }: { items: MenuItem[]; label?: string; className?: string }) {
   const id = useId();
   if (!items.length) return null;
   const close = () => (document.getElementById(id) as HTMLElement & { hidePopover?: () => void } | null)?.hidePopover?.();
   return (
     <>
-      <Button variant="ghost" size="sm" iconOnly icon="more-vertical" className="chat-msg__more" popoverTarget={id}>گزینه‌های پیام</Button>
+      <Button variant="ghost" size="sm" iconOnly icon="more-vertical" className={className} popoverTarget={id}>{label}</Button>
       <div id={id} popover="auto" className="chat-pop">
-        <Menu label="گزینه‌های پیام" items={items.map((it) => ({ ...it, onClick: (e) => { close(); it.onClick?.(e); } }))} />
+        <Menu label={label} items={items.map((it) => ({ ...it, onClick: (e) => { close(); it.onClick?.(e); } }))} />
       </div>
     </>
   );

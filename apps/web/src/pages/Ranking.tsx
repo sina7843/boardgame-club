@@ -9,7 +9,45 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 interface Board { season: { id: string; nameFa: string; status: string } | null; rules: { minGames: number; maxSigma: number };
-  items: { rank: number; user: { id: string; displayName: string; avatarKey: string }; rating: number; games: number; league: LeagueTier | null }[] }
+  items: { rank: number; user: { id: string; displayName: string; avatarKey: string }; rating: number; games: number; league: LeagueTier | null; winRate: number; weekDelta: number }[];
+  total: number; me: { rank: number | null; rating: number; games: number; league: LeagueTier | null; gamesToEligible: number } | null;
+  ladder: { league: LeagueTier; from: number }[] }
+const LEAGUE_FA: Record<LeagueTier, string> = { bronze: 'برنز', silver: 'نقره', gold: 'طلا', platinum: 'پلاتین', diamond: 'الماس', master: 'استادان' };
+const MEDAL = ['tier-gold', 'tier-silver', 'tier-bronze'];
+const delta = (d: number) => (d === 0 ? <span className="bgv-muted">-</span>
+  : <span className={d > 0 ? 'pf-up' : 'pf-down'}><bdi dir="ltr">{d > 0 ? '+' : '−'}{faNum(Math.abs(d))}</bdi></span>);
+
+function YouCard({ b, me }: { b: Board; me: { displayName: string; avatarKey: string; titleKey?: string | null } }) {
+  if (!b.me) return null;
+  const m = b.me;
+  const next = b.ladder.find((l) => l.from > m.rating);
+  return (
+    <Card className="pf-you" aria-label="جایگاه شما">
+      <Identity {...userIdentity(me, { size: 'lg', you: true, ...(m.league ? { league: m.league } : {}) })} />
+      <div className="pf-you__stats">
+        <div><b>{m.rank ? `رتبهٔ ${faNum(m.rank)} از ${faNum(b.total)}` : `${faNum(m.gamesToEligible)} بازی تا ورود به جدول`}</b><span>جایگاه</span></div>
+        <div><b className="bgv-num">{faNum(m.rating)}</b><span>امتیاز</span></div>
+        <div><b>{faNum(m.games)}</b><span>بازی</span></div>
+      </div>
+      {next && <p className="t-caption bgv-muted" style={{ margin: 0 }}>{faNum(next.from - m.rating)} امتیاز تا لیگ {LEAGUE_FA[next.league]}</p>}
+    </Card>
+  );
+}
+
+function Ladder({ b }: { b: Board }) {
+  return (
+    <Card className="pf-ladder" aria-label="نردبان لیگ‌ها">
+      <h2 className="ac-h3" style={{ margin: 0 }}>نردبان لیگ</h2>
+      <ol className="pf-ladder__list">
+        {[...b.ladder].reverse().map((l) => (
+          <li key={l.league} className={b.me?.league === l.league ? 'is-you' : undefined}>
+            <League tier={l.league} /><span>{LEAGUE_FA[l.league]}</span><span className="bgv-spacer" /><span className="bgv-muted bgv-num">{l.from ? `از ${faNum(l.from)}` : 'شروع'}</span>
+          </li>
+        ))}
+      </ol>
+    </Card>
+  );
+}
 
 function History({ gameId, mode }: { gameId: string; mode: 'live' | 'turn' }) {
   const h = useApi<{ items: { at: string; place: number; fieldSize: number; before: number; after: number }[] }>(`/me/stats/history?gameId=${gameId}&mode=${mode}`);
@@ -68,15 +106,21 @@ export function RankingPage() {
       {board.data && (
         <section className="bgv-stack" aria-label="جدول رتبه‌بندی">
           {board.data.season && <p className="t-body-sm bgv-muted">{board.data.season.nameFa}{board.data.season.status === 'closed' ? ' (نتایج نهایی و ثابت)' : ''}</p>}
+          <div className="pf-rankhead"><YouCard b={board.data} me={me} /><Ladder b={board.data} /></div>
           {board.data.items.length === 0 ? <StateBlock kind="empty" title="هنوز کسی واجد شرایط جدول نیست" /> : (
             <Card flush>
               <DataTable caption="رتبه‌بندی" rowKey="rank" rows={board.data.items} youRow={(r) => r.user.id === me.id} columns={[
-                { key: 'rank', label: 'رتبه', strong: true, render: (r) => faNum(r.rank) },
+                { key: 'rank', label: 'رتبه', strong: true, render: (r) => (r.rank <= 3 ? <span className={`pf-medal ${MEDAL[r.rank - 1]}`}>{faNum(r.rank)}</span> : faNum(r.rank)) },
                 { key: 'user', label: 'بازیکن', render: (r) => <Identity {...userIdentity(r.user, { size: 'sm', you: r.user.id === me.id, name: <a href={`/users/${r.user.id}`}><bdi>{r.user.displayName}</bdi></a> })} /> },
                 { key: 'rating', label: 'امتیاز', strong: true, render: (r) => <span className="bgv-num">{faNum(r.rating)}</span> },
                 { key: 'league', label: 'لیگ', render: (r) => (r.league ? <League tier={r.league} /> : '-') },
-                { key: 'games', label: 'بازی', render: (r) => faNum(r.games) }
+                { key: 'games', label: 'بازی', render: (r) => faNum(r.games) },
+                { key: 'win', label: 'نرخ برد', render: (r) => `${faNum(r.winRate)}٪` },
+                { key: 'week', label: 'تغییر هفته', render: (r) => delta(r.weekDelta) }
               ]} />
+              {board.data.me?.rank && !board.data.items.some((r) => r.user.id === me.id) && (
+                <p className="pf-yourow"><b>{faNum(board.data.me.rank)}</b><bdi>{me.displayName}</bdi><span className="bgv-spacer" /><span className="bgv-num">{faNum(board.data.me.rating)}</span></p>
+              )}
             </Card>
           )}
           <Banner tone="info" icon="info" text={`فقط بازیکنانی که حداقل ${faNum(board.data.rules.minGames)} بازی رتبه‌دار دارند و رتبه‌شان قطعیت کافی دارد در جدول هستند؛ تعداد بازی به‌تنهایی رتبه را بالا نمی‌برد.`} />
