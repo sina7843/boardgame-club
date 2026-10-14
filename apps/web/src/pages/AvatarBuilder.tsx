@@ -81,7 +81,7 @@ export function AvatarBuilder() {
               <Button variant="secondary" icon="rotate-ccw" disabled={key === me.avatarKey} onClick={reset}>برگرداندن</Button>
             </div>
             {lockedNow.length > 0 && <div role="status"><Banner tone="warning" icon="lock"
-              title={lockedNow.length === 1 ? `«${lockedNow[0]!.nameFa}» قفل است: ${reason(lockedNow[0]!)}` : `${faNum(lockedNow.length)} آیتم قفل است`}
+              title={`${faNum(lockedNow.length)} آیتم امتحانی هنوز باز نشده`}
               text={`برای ذخیرهٔ آواتار، آیتم‌های در حال امتحان باید باز شوند: ${lockedNow.map((c) => `${c.nameFa} (${reason(c)})`).join('، ')}`} /></div>}
             <dl className="pf-sum" aria-label="لایه‌های آواتار">
               {AVATAR_SLOTS.map((s) => {

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // «هم‌فکر» end to end: the tutorial (one teaching level: plays, a teammate's mistake, a throwing star) and a full
 // three-player cooperative game: the lowest card is played each time, with a couple of deliberate mistakes and a
@@ -59,7 +59,7 @@ test('three players play «هم‌فکر» to the result', async ({ browser }, i
   const pages = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار'), await player(browser, vp, 'Cyrus')];
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/the-mind/new');
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { newPage, player, signIn } from './helpers.ts';
+import { newPage, player, signIn, pickPlayers } from './helpers.ts';
 
 // Release-candidate checks (phase 04). Runs in every project (360 / 768 / 1440 / 1920).
 // Real iOS Safari / Android Chrome are NOT covered here — viewport emulation is not a device test.
@@ -76,7 +76,7 @@ test('three-player sealed bids: each client sees only its own sealed value', asy
   const vp = info.project.use.viewport ?? null;
   const [a, b, c] = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار'), await player(browser, vp, 'Cyrus')];
   await a.goto('/games/sealed-bids/new');
-  await a.getByLabel('تعداد بازیکن').selectOption('3');
+  await pickPlayers(a, 3);
   await a.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const p of [b, c]) { await p.goto(invite); await p.getByRole('button', { name: 'پیوستن به میز' }).click(); }

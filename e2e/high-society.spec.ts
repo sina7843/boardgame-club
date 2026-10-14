@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // «اشرافی» end to end: the tutorial (bids, a pass, prestige, a disgrace, the poorest-player rule) and a full three-player game
 // through luxury and disgrace auctions until the fourth red card.
@@ -51,7 +51,7 @@ test('three players play «اشرافی» to the result', async ({ browser }, in
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/high-society/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

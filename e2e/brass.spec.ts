@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // «برس: بیرمنگام» end to end: the tutorial (rail link to Oxford, two sells with merchant beer, a build, rail-era
 // scoring) via the highlighted hints, and a full two-player game (both eras) to the result.
@@ -87,7 +87,7 @@ test('two players play «برس: بیرمنگام» through both eras to the res
   const [host] = pages as [Page, Page];
   await host.goto('/games/brass/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('2');
+  await pickPlayers(host, 2);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // «سیرک» end to end: the tutorial (turn the hand over, show, Scout & Show with a flipped card, beat a run with a set)
 // and a full three-player game of three rounds with shows, scouts and Scout & Show.
@@ -94,7 +94,7 @@ test('three players play «سیرک» to the result', async ({ browser }, info) 
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/scout/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

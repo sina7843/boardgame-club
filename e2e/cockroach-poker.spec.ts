@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // «بلوف حشره‌ها» end to end: the tutorial (call a counted bluff, a wrong call, a caught bluff, then the truth that
 // sinks the rival) and a full three-player game with gives, calls, peeks and passes until someone has four of a kind.
@@ -56,7 +56,7 @@ test('three players play «بلوف حشره‌ها» to the result', async ({ b
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/cockroach-poker/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

@@ -25,7 +25,7 @@ test('welcome tour, verified profile walkthrough, skip and hints', async ({ brow
   await card.getByRole('button', { name: 'انجام دادم، بررسی کن' }).click();
   await expect(page.getByText('هنوز انجام نشده است', { exact: false })).toBeVisible();
   await page.getByLabel('معرفی کوتاه').fill('عاشق بازی‌های رومیزی');
-  await page.getByRole('button', { name: 'ذخیره شخصی‌سازی' }).click();
+  await page.getByRole('button', { name: 'ذخیرهٔ همه' }).click();
   await expect(page.getByText('آموزش «پروفایل شما» کامل شد.')).toBeVisible({ timeout: 10_000 });
   await page.screenshot({ path: `test-results/onboarding-${info.project.name}-profile.png` });
 

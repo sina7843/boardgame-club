@@ -25,7 +25,7 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await p.getByRole('radio', { name: /بلند صاف/ }).click();
   await expect(p.getByText('«بلند صاف» قفل است: ۱۰۰ سکه')).toBeVisible();
   await expect(p.getByRole('button', { name: '۱۰۰ سکه کم دارید' })).toBeDisabled();
-  await expect(p.getByRole('button', { name: 'ذخیره آواتار' })).toBeDisabled();
+  await expect(p.getByRole('button', { name: 'ذخیرهٔ آواتار' })).toBeDisabled();
 
   credit(mobile, 300);
   await p.reload();
@@ -36,7 +36,7 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await p.getByRole('button', { name: 'خرید با ۱۰۰ سکه' }).click();
   await p.getByRole('dialog', { name: 'خرید «بلند صاف»' }).getByRole('button', { name: 'خرید و پوشیدن' }).click();
   await expect(p.getByText('«بلند صاف» خریده شد.')).toBeVisible();
-  await p.getByRole('button', { name: 'ذخیره آواتار' }).click();
+  await p.getByRole('button', { name: 'ذخیرهٔ آواتار' }).click();
   await expect(p.getByText('آواتار ذخیره شد.')).toBeVisible();
   await expect(p.getByRole('img', { name: `آواتار ${name}` }).first()).toBeVisible(); // shell
   await p.screenshot({ path: `docs/evidence/site/avatar/${info.project.name}-builder.png`, fullPage: true });
@@ -47,8 +47,9 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await expect(p.getByRole('heading', { name: 'پروفایل من', level: 1 })).toBeVisible();
   await p.getByLabel('معرفی کوتاه').fill('عاشق بازی‌های رومیزی');
   await p.getByLabel('لقب').selectOption({ label: 'اهل بازی' });
+  await p.getByRole('tab', { name: 'بنر' }).click();
   await p.getByRole('button', { name: 'دریا', exact: true }).click();
-  await p.getByRole('button', { name: 'ذخیره شخصی‌سازی' }).click();
+  await p.getByRole('button', { name: 'ذخیرهٔ همه' }).click();
   await expect(p.getByText('پروفایل ذخیره شد.')).toBeVisible();
 
   const me = await (await p.request.get('/api/me')).json() as { id: string; avatarKey: string };

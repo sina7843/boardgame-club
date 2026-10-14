@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // Ticket to Ride end to end: three independent clients start a live table on a chosen map, keep their destination
 // tickets at the same time, then play turns through the UI: claim a highlighted route when one is affordable (tap it
@@ -17,7 +17,7 @@ async function startTable(host: Page, guests: Page[], mapLabel: string) {
   await host.goto('/games/ticket-to-ride/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByText(mapLabel, { exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of guests) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

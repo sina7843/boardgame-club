@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // UNO end to end: three independent clients play one full hand through the real UI (live, one-hand variant).
 // Moves are chosen like a casual player: first playable card, otherwise draw. Hidden hands are checked in the UI.
@@ -9,7 +9,7 @@ const shot = (project: string, name: string) => `docs/evidence/games/uno/${proje
 async function startTable(host: Page, guests: Page[]) {
   await host.goto('/games/uno/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('radiogroup', { name: 'طول مسابقه' }).getByRole('radio', { name: 'یک دست' }).click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');

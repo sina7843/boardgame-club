@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // «ست» end to end: the tutorial (three claims, a scripted wrong claim, the end of the deck) and a full live game
 // where two clients race on the same table.
@@ -52,7 +52,7 @@ test('two players race through a full game of «ست» to the result', async ({ 
   await host.goto('/games/set/new');
   const live = host.getByText('زنده', { exact: true });
   if (await live.count()) await live.first().click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('2');
+  await pickPlayers(host, 2);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await pages[1]!.goto(invite);

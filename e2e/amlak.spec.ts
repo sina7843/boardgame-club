@@ -17,7 +17,8 @@ const enabled = async (l: ReturnType<Page['locator']>) => (await l.count()) > 0 
 async function decide(p: Page, n: number): Promise<ReturnType<Page['locator']> | null> {
   const panel = p.locator('.am-panel--decide');
   if (!(await panel.count())) return null;
-  const btn = (name: RegExp) => panel.getByRole('button', { name });
+  // Turn controls (roll, end turn) render in the table's action dock (DockSlot), the rest stays in the panel.
+  const btn = (name: RegExp) => p.locator('.am-panel--decide, .tbl-dock').getByRole('button', { name });
   for (const name of [/^رد$/, /^تاس بریز/, /^خرید به/, /^نمی‌خرم/, /^کنار می‌کشم/]) {
     const b = btn(name);
     if (await enabled(b)) return b.first();

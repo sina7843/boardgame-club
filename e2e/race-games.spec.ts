@@ -1,5 +1,5 @@
 import { expect, test, type Page, type TestInfo, type Browser, type Route } from '@playwright/test';
-import { motionLog, player, recordMotion } from './helpers.ts';
+import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
 // Snakes and Ladders (3 players) and Ludo (2 players) played to the result through the real UI: roll, and in Ludo
 // tap a movable piece. Each click waits for the server to accept the command.
@@ -12,8 +12,7 @@ async function table(browser: Browser, info: TestInfo, gameId: string, n: number
   const host = pages[0]!;
   await host.goto(`/games/${gameId}/new`);
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  const count = host.getByLabel('تعداد بازیکن');
-  if (await count.count()) await count.first().selectOption(String(n));
+  if (await host.getByRole('radiogroup', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).count()) await pickPlayers(host, n);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }

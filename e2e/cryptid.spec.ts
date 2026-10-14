@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { player } from './helpers.ts';
+import { player, pickPlayers } from './helpers.ts';
 
 // «کریپتید» end to end: the two-player teaching tutorial through the highlighted hints, and a full three-player game
 // (opening cubes, searches, refutations and penalty cubes through the real UI: choose → cell → «ثبت») to the result.
@@ -81,7 +81,7 @@ test('three players play «کریپتید» to the result', async ({ browser }, 
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/cryptid/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
+  await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
