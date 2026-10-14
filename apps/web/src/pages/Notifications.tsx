@@ -83,7 +83,7 @@ export function NotificationsPage() {
       <PageHead title="اعلان‌ها" sub={unread ? `${faNum(unread)} اعلان خوانده‌نشده` : 'همه‌ی اعلان‌ها خوانده شده‌اند'}
         actions={<>
           <Button variant="ghost" icon="check-check" disabled={!unread} onClick={() => void markAll()}>همه را خوانده کن</Button>
-          <Button variant="secondary" icon="settings" href="/settings">تنظیمات اعلان</Button>
+          <Button variant="secondary" icon="settings" href="/settings?tab=alerts">تنظیمات اعلان</Button>
         </>} />
       <ChipGroup scroll label="نوع اعلان" value={cat} onChange={(v) => setCat(v as Cat)}
         options={([['all', 'همه'], ['turn', 'نوبت'], ['invite', 'دعوت'], ['message', 'پیام'], ['result', 'نتیجه'], ['social', 'اجتماعی']] as const).map(([value, label]) => ({ value, label, count: count(value) }))} />

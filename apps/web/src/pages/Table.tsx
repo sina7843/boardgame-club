@@ -9,6 +9,7 @@ import {
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
+import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
 import { RENDERERS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -637,6 +638,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           </Sheet>
         </div>
       )}
+      {isPlayer && t.pace === 'turn' && !finished && !t.isTutorial && <NotifyPrompt />}
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
       {confirmResign && (
         <Dialog modal danger icon="flag" title="انصراف از بازی؟" onClose={() => setConfirmResign(false)}
