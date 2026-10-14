@@ -76,3 +76,5 @@ pnpm-debug.log*
 .tmp-trophy/
 *.stackdump
 /.tmp-trophy
+# Original BGV design-system handoff drop (its content lives in design/)
+BGV-DesignSystem-Handoff/
