@@ -298,7 +298,7 @@ export function ClubPage() {
               </div>
             )}
           </Card>
-          {d.conversationId && <div className="sx-chatcard"><ChatPanel load={`/conversations/${d.conversationId}/messages`} post={`/conversations/${d.conversationId}/messages`} conversationId={d.conversationId} title="گفت‌وگوی باشگاه" /></div>}
+          {d.conversationId && <div className="sx-chatcard"><ChatPanel load={`/conversations/${d.conversationId}/messages`} post={`/conversations/${d.conversationId}/messages`} conversationId={d.conversationId} title="گفت‌وگوی باشگاه" clubSlug={d.slug} /></div>}
         </div>
         <div className="sx-stack">
           {manager && d.pending.length > 0 && (

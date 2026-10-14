@@ -19,7 +19,7 @@ import { browserNotificationsEnabled } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { useTableSession } from '../lib/useTableSession.ts';
 import { useTurnAlerts } from '../lib/alerts.ts';
-import { ChatPanel } from '../social/ChatPanel.tsx';
+import { ChatPanel, type ChatEvent } from '../social/ChatPanel.tsx';
 import { QuickChatButton, QuickChatChips } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
 import { ReportDialog } from '../social/ReportDialog.tsx';
@@ -430,6 +430,10 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const [confirmResign, setConfirmResign] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [sheetSeat, setSheetSeat] = useState<number | null>(null);
+  // Game events for the table chat (DS SystemMessage lines), built from what this table view already receives:
+  // public moves (games that publish them), the end of the game. Kept for this visit only.
+  const [gameEvents, setGameEvents] = useState<ChatEvent[]>([]);
+  const seenMoves = useRef<number | null>(null);
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [chat, setChat] = useState(false);
   const [reporting, setReporting] = useState(false);
@@ -497,6 +501,19 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     return { time: sec, p: Math.min(1, (sec * 1000) / c.initialMs), size: 'chip' as const,
       state: (running ? (clock?.state ?? 'calm') : 'paused') as ClockState };
   };
+  const moveCount = sum?.moves?.length ?? 0;
+  useEffect(() => {
+    const moves = sum?.moves ?? [];
+    if (seenMoves.current === null) { seenMoves.current = moves.length; return; } // history before opening is not replayed
+    const fresh = moves.slice(seenMoves.current);
+    seenMoves.current = moves.length;
+    if (fresh.length) setGameEvents((e) => [...e, ...fresh.map((m, i) => ({ id: `m${g.revision}-${i}`, at: new Date().toISOString(), seat: m.seat, text: `${name(m.seat)}: ${m.text}` }))]);
+  }, [moveCount, g.revision]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!finished || !g.result) return;
+    const winners = g.result.placements.filter((p) => p.place === 1).map((p) => name(p.seat));
+    setGameEvents((e) => (e.some((x) => x.id === 'end') ? e : [...e, { id: 'end', at: new Date().toISOString(), text: `بازی تمام شد؛ نفر اول: ${winners.join('، ')}` }]));
+  }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
   const players: PlayerCardProps[] = t.seats.map((x) => {
     const n = name(x.seat);
     const active = g.pendingSeats.includes(x.seat) && t.status === 'active';
@@ -554,7 +571,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
   const chatPanel = (props: { sheet?: boolean; onClose?: () => void; className: string }): ReactNode =>
     <ChatPanel {...props} load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" quick={isPlayer} readOnly={!isPlayer}
-      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} />;
+      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} events={gameEvents} />;
 
   const turnWho = g.pendingSeats.length === 1 ? g.pendingSeats[0]! : null;
   const turnSeat = turnWho !== null ? t.seats.find((x) => x.seat === turnWho) : undefined;

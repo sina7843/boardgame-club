@@ -111,3 +111,7 @@ html[data-immersive] .app-page { gap: 0; }
 @media (max-width: 899px) {
   .tbl-result-wrap { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--bg); place-items: start center; }
 }
+
+/* Long-pressed message: lifted above a scrim with its reaction bar and menu. */
+.chat-msg.is-lifted { position: relative; z-index: var(--z-dialog); }
+.chat-msg.is-lifted::before { content: ''; position: fixed; inset: 0; z-index: -1; background: var(--scrim); }

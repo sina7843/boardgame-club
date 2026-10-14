@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ClientEvents, MESSAGE_EDIT_WINDOW_SECONDS, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, Typing, UnreadDivider, type MenuItem } from '@bg/ui/bgv';
+import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, SystemMessage, Typing, UnreadDivider, type MenuItem, type SeatNo } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -26,8 +26,20 @@ function writeDraft(key: string, text: string) { try { if (text) localStorage.se
 
 /** «⋮» on a message: a native popover with the DS Menu (reply, edit, report, delete). */
 /** «⋮» button opening a DS Menu in a native popover (message options, profile «بیشتر»). */
-export function MessageMenu({ items, label = 'گزینه‌های پیام', className = 'chat-msg__more' }: { items: MenuItem[]; label?: string; className?: string }) {
+export function MessageMenu({ items, label = 'گزینه‌های پیام', className = 'chat-msg__more', open, onClosed }: {
+  items: MenuItem[]; label?: string; className?: string;
+  /** Open from outside (long-press on the message); `onClosed` fires when the popover hides. */
+  open?: boolean; onClosed?: () => void;
+}) {
   const id = useId();
+  useEffect(() => {
+    const el = document.getElementById(id) as (HTMLElement & { showPopover?: () => void }) | null;
+    if (!el) return;
+    if (open) el.showPopover?.();
+    const onToggle = (e: Event) => { if ((e as ToggleEvent).newState === 'closed') onClosed?.(); };
+    el.addEventListener('toggle', onToggle);
+    return () => el.removeEventListener('toggle', onToggle);
+  }, [id, open, onClosed]);
   if (!items.length) return null;
   const close = () => (document.getElementById(id) as HTMLElement & { hidePopover?: () => void } | null)?.hidePopover?.();
   return (
@@ -44,11 +56,18 @@ export function MessageMenu({ items, label = 'گزینه‌های پیام', cla
  * Conversation view used for DMs, group/club chat and table chat (DS Chat + Message). Text is rendered as plain text only.
  * New messages arrive through the user's own socket room (server-side authorization), then are de-duplicated here.
  */
-export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head }: {
+/** A game event shown in the table chat (never stored as a message). */
+export interface ChatEvent { id: string; at: string; text: string; seat?: number }
+
+export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head, clubSlug, events }: {
   load: string; post: string; conversationId?: string; title?: string; compact?: boolean; quick?: boolean;
   onClose?: () => void; sheet?: boolean; icon?: string; className?: string;
   /** Extra controls in the chat header (DM: back, invite, more). */
   head?: ReactNode;
+  /** Club chats: lets moderators remove a member from the message menu. */
+  clubSlug?: string;
+  /** Table chats: game events merged into the timeline as system lines. */
+  events?: ChatEvent[];
   /** Spectators: no composer (the server also refuses posting); reactions and mute still work. */
   readOnly?: boolean;
   /** Extra @-mention candidates (e.g. the table's players); people who already wrote here are always offered. */
@@ -146,6 +165,10 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   // Slow mode (members): count down to the next allowed message instead of letting the server refuse it.
   const [nextAt, setNextAt] = useState(0);
   const [mentionAt, setMentionAt] = useState(0);
+  // Long-press lifts a message: its reaction bar and menu open together over a scrim.
+  const [lifted, setLifted] = useState<string | null>(null);
+  const press = useRef<number>(undefined);
+  const unlift = useCallback(() => { setLifted(null); setReacting(null); }, []);
   const [, tick] = useState(0);
   useEffect(() => {
     if (nextAt <= Date.now()) return;
@@ -257,7 +280,17 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
         </div>
       )}
       {quick && <QuickChatChips post={post} />}
-      {suggestions.length > 0 && <MentionSuggest items={suggestions.map((name, i) => ({ name, initials: name.charAt(0), focus: i === pickAt }))} onPick={pickMention} />}
+      {suggestions.length > 0 && (() => {
+        const item = (name: string) => ({ name, initials: name.charAt(0), focus: suggestions.indexOf(name) === pickAt });
+        // Table chat: players first, then the spectators who have written here.
+        if (!people) return <MentionSuggest items={suggestions.map(item)} onPick={pickMention} />;
+        const seated = suggestions.filter((n) => people.includes(n));
+        const watching = suggestions.filter((n) => !people.includes(n));
+        return <MentionSuggest onPick={pickMention} groups={[
+          ...(seated.length ? [{ title: 'بازیکن‌های این میز', items: seated.map(item) }] : []),
+          ...(watching.length ? [{ title: 'تماشاگرها', items: watching.map(item) }] : [])
+        ]} />;
+      })()}
       {typing.length > 0 && <Typing names={typing.map((t) => t.name)} />}
       <div className="bgv-composer__row">
         <label className="bgv-sr" htmlFor={composeId}>متن پیام</label>
@@ -285,6 +318,10 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     const sec = Math.max(0, Math.round((EDIT_MS - (now - new Date(at).getTime())) / 1000));
     return `${faNum(Math.floor(sec / 60))}:${faNum(sec % 60).padStart(2, '۰')}`;
   };
+  const kick = async (m: MessageItem) => {
+    try { await api(`/clubs/${clubSlug}/members/${m.sender.id}`, { method: 'DELETE' }); toast('success', `${m.sender.displayName} از باشگاه اخراج شد.`); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+  };
   const muteSender = async (m: MessageItem) => {
     try { await api('/mutes', { method: 'POST', body: { userId: m.sender.id } }); toast('success', `پیام‌های ${m.sender.displayName} دیگر برای شما نمایش داده نمی‌شود.`); }
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
@@ -298,7 +335,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
       <div ref={list} hidden />
       {meta.nextBefore && <Button variant="ghost" size="sm" icon="history" onClick={() => fetchPage(items[0]?.createdAt)}>پیام‌های قدیمی‌تر</Button>}
       {items.length === 0 && pending.length === 0 && <p className="t-caption bgv-muted chat-empty">هنوز پیامی نیست. اولین پیام را بفرستید.</p>}
-      {items.map((m) => {
+      {events?.filter((e) => !items.length || e.at < items[0]!.createdAt).map((e) => <SystemMessage key={e.id} game text={e.text} {...(e.seat !== undefined ? { seat: ((e.seat % 10) + 1) as SeatNo } : {})} />)}
+      {items.map((m, idx) => {
         const mine = m.sender.id === me?.id;
         const divider = m.id === firstUnread ? <UnreadDivider count={unreadCount} /> : null;
         const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
@@ -308,20 +346,26 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
           { icon: 'copy', label: 'کپی', onClick: () => void navigator.clipboard.writeText(m.body).then(() => toast('success', 'متن پیام کپی شد.'), () => toast('error', 'کپی ممکن نشد.')) },
           { icon: 'smile', label: 'واکنش', onClick: () => setReacting(m.id) },
           ...(!mine ? [{ icon: 'bell-off', label: `بی‌صدا کردن ${m.sender.displayName}`, onClick: () => void muteSender(m) }] : []),
+          ...(!mine && meta.canModerate && meta.kind === 'club' && clubSlug ? [{ icon: 'user-minus', label: `اخراج ${m.sender.displayName} از باشگاه`, danger: true, onClick: () => void kick(m) }] : []),
           ...(!mine ? [{ icon: 'flag', label: 'گزارش', danger: true, onClick: () => setReporting(m) }] : []),
           ...(mine || meta.canModerate ? [{ icon: 'trash-2', label: 'حذف', danger: true, onClick: () => void remove(m) }] : [])
         ];
         return (
           <Fragment key={m.id}>{divider}
-          <article className={mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}>
+          <article className={`${mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}${lifted === m.id ? ' is-lifted' : ''}`}
+            onPointerDown={() => { if (m.deleted) return; press.current = window.setTimeout(() => { setLifted(m.id); setReacting(m.id); }, 450); }}
+            onPointerUp={() => clearTimeout(press.current)} onPointerLeave={() => clearTimeout(press.current)}
+            onContextMenu={(e) => { if (lifted === m.id) e.preventDefault(); }}>
             <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
               avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
               state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}
               mentioned={!!me && m.mentions.includes(me.id)} edited={!!m.editedAt} seen={seen} {...(m.deleted ? {} : reply(m.replyTo))} />
-            <MessageMenu items={actions} />
+            <MessageMenu items={actions} open={lifted === m.id} onClosed={unlift} />
             {reacting === m.id && <ReactionBar onPick={(emoji) => void react(m, emoji)} selected={m.reactions.find((r) => r.mine)?.emoji} />}
           </article>
+          {events?.filter((e) => e.at >= m.createdAt && (idx === items.length - 1 || e.at < items[idx + 1]!.createdAt)).map((e) =>
+            <SystemMessage key={e.id} game text={e.text} {...(e.seat !== undefined ? { seat: ((e.seat % 10) + 1) as SeatNo } : {})} />)}
           </Fragment>
         );
       })}
