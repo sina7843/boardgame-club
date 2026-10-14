@@ -10,7 +10,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 interface Plans { items: { id: string; titleFa: string; period: string; durationDays: number; priceAmount: number | null; currency: string; termsFa: string; purchasable: boolean; unavailableReasonFa: string | null }[];
-  checkout: { available: boolean; reasonFa: string | null; fixture: boolean } }
+  checkout: { available: boolean; reasonFa: string | null; fixture: boolean }; limits: { turnTables: { free: number; premium: number } } }
 /** Stored in Rial (what Zarinpal charges); shown in Toman as Iranian shoppers read prices. */
 const money = (amount: number, currency: string) => currency === 'IRR' ? `${faNumber(Math.round(amount / 10))} تومان` : `${faNum(amount)} ${currency}`;
 export const PAYMENT_STATUS_FA = { pending: 'در انتظار تأیید', verified: 'تأییدشده', failed: 'ناموفق', expired: 'منقضی' } as const;
@@ -80,6 +80,21 @@ export function PlansPage() {
           );
         })}
       </div>
+      <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="cmp-h">
+        <h2 id="cmp-h" className="ac-h2">رایگان و پریمیوم کنار هم</h2>
+        <Card flush className="ac-tablecard"><div className="bgv-scroll-x">
+          <table className="bgv-table ac-cmp">
+            <thead><tr><th scope="col">امکان</th><th scope="col">رایگان</th><th scope="col" className="ac-cmp__hl">پریمیوم</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">میزهای نوبتی هم‌زمان</th><td>{faNum(plans.data.limits.turnTables.free)} میز</td><td className="ac-cmp__hl">{faNum(plans.data.limits.turnTables.premium)} میز</td></tr>
+              <tr><th scope="row">میز زنده</th><td>یک میز در هر زمان</td><td className="ac-cmp__hl">یک میز در هر زمان</td></tr>
+              <tr><th scope="row">بازی‌های پریمیوم</th><td>نشستن با دعوت میزبان پریمیوم</td><td className="ac-cmp__hl">ساخت میز و دعوت دوستان</td></tr>
+              <tr><th scope="row">تحلیل روند و مقایسهٔ فصل‌ها</th><td><Icon name="x" size="sm" aria-label="ندارد" /></td><td className="ac-cmp__hl"><Icon name="check" size="sm" aria-label="دارد" /></td></tr>
+              <tr><th scope="row">امتیاز مهارتی، اولویت صف و کمک حین بازی</th><td className="ac-muted">یکسان برای همه</td><td className="ac-cmp__hl ac-muted">یکسان برای همه</td></tr>
+            </tbody>
+          </table>
+        </div></Card>
+      </section>
       <div className="ac-between">
         {store && me && <p className="t-body-sm" style={{ margin: 0 }}>سکه دارید؟ با سکه‌های بازی هم می‌توانید روز پریمیوم بگیرید: <Link to="/coins">کیف سکه</Link></p>}
         {store && <p className="ac-note"><Icon name="info" size="sm" />پرداخت از درگاه زرین‌پال؛ تأیید نهایی همیشه روی سرور انجام می‌شود.</p>}

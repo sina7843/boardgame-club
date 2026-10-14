@@ -63,7 +63,9 @@ export const planItem = z.object({
 });
 export const plansResponse = z.object({
   items: z.array(planItem),
-  checkout: z.object({ available: z.boolean(), reasonFa: z.string().nullable(), fixture: z.boolean() })
+  checkout: z.object({ available: z.boolean(), reasonFa: z.string().nullable(), fixture: z.boolean() }),
+  /** Concurrent turn-based tables, free vs premium (server config), for the comparison table. */
+  limits: z.object({ turnTables: z.object({ free: z.number().int(), premium: z.number().int() }) })
 });
 export const subscriptionStatus = z.object({
   premium: z.boolean(),

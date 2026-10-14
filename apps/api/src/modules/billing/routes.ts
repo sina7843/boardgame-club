@@ -44,7 +44,8 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
         return { id: p.id, key: p.key, titleFa: p.titleFa, period: p.period as 'monthly', durationDays: p.durationDays, priceAmount: p.priceAmount, currency: p.currency,
           termsFa: p.termsFa, purchasable: !reason, unavailableReasonFa: reason };
       }),
-      checkout: { available: !!billing.gateway, reasonFa: billing.unavailableReasonFa, fixture: !!billing.gateway?.isFixture }
+      checkout: { available: !!billing.gateway, reasonFa: billing.unavailableReasonFa, fixture: !!billing.gateway?.isFixture },
+      limits: { turnTables: { free: config.play.turnTableLimit, premium: config.play.turnTableLimitPremium } }
     };
   });
 
