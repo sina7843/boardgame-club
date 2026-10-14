@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObjec
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
-import { useToast } from '@bg/ui';
+import { useOnline, useToast } from '@bg/ui';
 import {
   ActionDock, CritBar, Badge, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
@@ -424,7 +424,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const finished = t.status === 'finished';
   const canResign = !finished && g.legalActions.some((a) => a.type === 'resign');
   const myTurn = t.mySeat !== null && g.pendingSeats.includes(t.mySeat);
-  const busy = !!s.pending || !!s.queued || t.status !== 'active' || !!snap.incident;
+  const netOnline = useOnline();
+  const busy = !!s.pending || !!s.queued || t.status !== 'active' || !!snap.incident || !netOnline;
   const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
   // Spectators read the table chat (read-only); only seated players post or use quick chat.
   const hasChat = !t.isTutorial;
@@ -565,6 +566,9 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
         </Felt>
 
+        {!netOnline && !finished && <Banner className="tbl-offline" tone="danger" icon="wifi-off" title="اتصال شما قطع شد"
+          text="کنش‌ها تا اتصال دوباره قفل است؛ ساعت آخرین زمان تأییدشده را نشان می‌دهد."
+          action={<Button size="sm" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
         {myTurn && t.pace === 'live' && clock?.state === 'critical' && <CritBar seconds={clock.time} total={10} />}
         {(() => {
           const n = sum?.seats.find((x) => x.seat === t.mySeat)?.strikes ?? 0;
