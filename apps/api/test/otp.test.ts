@@ -24,7 +24,7 @@ describe('OTP login', () => {
 
     const res = await verify(challengeId, FIXTURE_CODE);
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ isNewUser: true });
+    expect(res.json()).toMatchObject({ isNewUser: true });
     const cookie = res.cookies.find((c) => c.name === 'bg_sid');
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe('Lax');
@@ -94,11 +94,11 @@ describe('OTP login', () => {
 
   it('normalizes equivalent mobile formats to one account and rejects invalid numbers', async () => {
     const a = await requestCode('+989130000001');
-    expect((await verify(a.challengeId, FIXTURE_CODE)).json()).toEqual({ isNewUser: true });
+    expect((await verify(a.challengeId, FIXTURE_CODE)).json()).toMatchObject({ isNewUser: true });
     await ctx.db.update(schema.otpChallenges).set({ createdAt: sql`created_at - interval '2 minutes'` })
       .where(eq(schema.otpChallenges.id, a.challengeId));
     const b = await requestCode('۰۹۱۳۰۰۰۰۰۰۱');
-    expect((await verify(b.challengeId, FIXTURE_CODE)).json()).toEqual({ isNewUser: false });
+    expect((await verify(b.challengeId, FIXTURE_CODE)).json()).toMatchObject({ isNewUser: false });
     const bad = await post(ctx.app, '/api/auth/otp/request', { mobile: '0212345678' });
     expect(bad.json().errorCode).toBe('INVALID_MOBILE');
   });

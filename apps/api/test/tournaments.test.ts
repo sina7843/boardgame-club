@@ -126,7 +126,10 @@ describe('spectators', () => {
     expect(s.game.legalActions).toEqual([]);
     expect(s.table.inviteCode).toBeNull();
     expect((await call(ctx, 'POST', `/api/tables/${tt!.tableId}/join`, watcher, {})).json().errorCode).toBe('INVITE_REQUIRED');
-    expect((await call(ctx, 'GET', `/api/tables/${tt!.tableId}/chat`, watcher)).statusCode).toBe(403);
+    // Spectators read the table chat but cannot post.
+    const chat = await call(ctx, 'GET', `/api/tables/${tt!.tableId}/chat`, watcher);
+    expect(chat.statusCode).toBe(200);
+    expect(chat.json().canPost).toBe(false);
     const live = (await call(ctx, 'GET', '/api/tables/live', watcher)).json().items;
     expect(live.find((t: { id: string }) => t.id === tt!.tableId)).toMatchObject({ tournament: { id, round: 1 }, players: expect.any(Array) });
   });
