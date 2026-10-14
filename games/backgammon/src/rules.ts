@@ -77,6 +77,23 @@ export function startPos(): Pos {
   return { pts, bar: [0, 0], off: [0, 0] };
 }
 
+/** One public move-list line, points numbered from the mover's side (24 → 1). */
+function logText(e: LogEntry): string {
+  const pt = (x: From | 'off', seat: number) => (x === 'bar' ? 'بار' : x === 'off' ? 'بیرون' : String(pipOf(x, seat)));
+  switch (e.t) {
+    case 'opening': return `شروع ${e.dice[0]}-${e.dice[1]}`;
+    case 'roll': return `تاس ${e.dice[0]}-${e.dice[1]}`;
+    case 'play': return e.moves.map((m) => `${pt(m.from, e.seat)}/${pt(m.to, e.seat)}${m.hit ? '*' : ''}`).join(' ');
+    case 'pass': return 'بدون حرکت';
+    case 'double': return `دوبل ×${e.value}`;
+    case 'take': return 'قبول دوبل';
+    case 'drop': return 'رد دوبل';
+    case 'timeout': return 'اتمام زمان';
+    case 'resign': return 'انصراف';
+    case 'win': return `برد ${e.points} امتیازی`;
+  }
+}
+
 export function pipCount(p: Pos, seat: number): number {
   let n = p.bar[seat]! * 25;
   for (let i = 0; i < 24; i++) n += own(p.pts, i, seat) * pipOf(i, seat);
@@ -363,7 +380,8 @@ export const backgammonModule: GameModule<BgState, BgAction, BgView> = {
         strikes: s.timeouts[seat]!
       })),
       ...(s.rules.cube ? { shared: [{ key: 'cube', label: 'مکعب', value: s.cube.value }] } : {}),
-      strikesMax: MAX_TIMEOUTS
+      strikesMax: MAX_TIMEOUTS,
+      moves: s.log.slice(-40).map((e) => ({ seat: e.seat, text: logText(e) }))
     };
   },
 

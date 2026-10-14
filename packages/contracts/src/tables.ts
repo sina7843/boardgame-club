@@ -145,6 +145,7 @@ export const publicSummarySchema = z.object({
   })),
   shared: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), max: z.number().optional() })).optional(),
   strikesMax: z.number().int().optional(),
+  moves: z.array(z.object({ seat: z.number().int(), text: z.string().max(40) })).max(40).optional(),
   leaderSeat: z.number().int().optional()
 });
 export type PublicSummaryView = z.infer<typeof publicSummarySchema>;

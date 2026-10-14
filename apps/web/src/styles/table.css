@@ -25,6 +25,7 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-screen { min-block-size: 100dvh; }
 @media (min-width: 1200px) { .tbl-screen--nochat { grid-template-columns: var(--rail-w) minmax(0, 1fr); } }
 .tbl-rail { min-block-size: 0; overflow-y: auto; }
+.tbl-moves { max-block-size: 260px; overflow-y: auto; }
 .tbl-felt { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); min-inline-size: 0; }
 .tbl-felt > .bgv-felt__stage { min-block-size: 360px; }
 .tbl-stage { inline-size: 100%; min-inline-size: 0; border-radius: var(--radius-lg); }

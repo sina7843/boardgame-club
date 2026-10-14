@@ -420,7 +420,8 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
           strikes: s.timeouts[seat] ?? 0
         };
       }),
-      strikesMax: MAX_TIMEOUTS
+      strikesMax: MAX_TIMEOUTS,
+      moves: s.history.slice(-40).map((h) => ({ seat: s.colors.indexOf(h.color), text: h.san }))
     };
   },
 

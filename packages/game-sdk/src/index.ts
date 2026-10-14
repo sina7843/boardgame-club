@@ -153,6 +153,8 @@ export interface PublicSummary {
   shared?: Array<{ key: string; label: string; value: number | string; max?: number }>;
   /** Max timeouts before the game penalizes a seat (MAX_TIMEOUTS). */
   strikesMax?: number;
+  /** Public move list, newest last (at most 40): «e4», «۲۴/۱۸». Only what every seat already saw. */
+  moves?: Array<{ seat: number; text: string }>;
   leaderSeat?: number;
 }
 
