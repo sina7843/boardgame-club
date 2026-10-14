@@ -47,7 +47,7 @@ describe('chess through the platform', () => {
     expect(a.game.clocks.left[white]).toBeGreaterThan(180_000);
     expect(a.game.clocks.left[1 - white]).toBe(180_000);
     // Black's flag falls: White can still mate, so White wins on time.
-    const d = await pendingDeadline(ctx, t.tableId);
+    const d = (await pendingDeadline(ctx, t.tableId))!;
     await makeDue(ctx, d.id);
     expect(await fireDeadline(ctx.db, createDefaultRegistry(), d.id)).toBe('fired');
     const end = await view(ctx, t.players[0]!, t.tableId);

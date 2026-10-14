@@ -240,13 +240,13 @@ export async function listOpenTables(db: Db, gameId?: string) {
       eq(games.status, 'active'), gameId ? eq(gameTables.gameId, gameId) : undefined))
     .orderBy(desc(gameTables.createdAt)).limit(50);
   const open = rows.filter((r) => r.players < r.table.capacity);
-  const seated = open.length ? await db.select({ tableId: participants.tableId, name: users.displayName, avatarKey: users.avatarKey }).from(participants)
+  const seated = open.length ? await db.select({ tableId: participants.tableId, id: users.id, name: users.displayName, avatarKey: users.avatarKey }).from(participants)
     .innerJoin(users, eq(users.id, participants.userId)).where(inArray(participants.tableId, open.map((r) => r.table.id))).orderBy(participants.seat) : [];
   return open.map(({ table, game, host, players }) => ({
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as 'live' | 'turn', players, capacity: table.capacity,
     turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
     host: { id: host.id, displayName: host.displayName, avatarKey: host.avatarKey as never, joinedAt: host.createdAt.toISOString() },
-    seated: seated.filter((x) => x.tableId === table.id).map((x) => ({ name: x.name, avatarKey: x.avatarKey }))
+    seated: seated.filter((x) => x.tableId === table.id).map((x) => ({ id: x.id, name: x.name, avatarKey: x.avatarKey }))
   }));
 }
 

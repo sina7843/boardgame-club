@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import type { GameDetail } from '@bg/contracts';
-import { Badge, Banner, Breadcrumbs, Button, Card, Icon, Skeleton, StateBlock } from '@bg/ui/bgv';
+import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, Icon, Skeleton, StateBlock } from '@bg/ui/bgv';
+import { AvatarArt } from '../lib/bgv.tsx';
 import { BotPlay } from '../games/BotPlay.tsx';
 import { GameWiki } from './Wiki.tsx';
 import { GameCover } from '../games/covers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
-import { ACCESS_FA, COMPETITION_FA, DIFFICULTY_FA, PACE_FA, range } from '../lib/format.ts';
+import { ACCESS_FA, COMPETITION_FA, DIFFICULTY_FA, durationFa, faNum, PACE_FA, range } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 /** Rules lines; a line starting with "## " opens a titled section (Goal, Setup, Turn, Scoring, End, Tips). */
@@ -24,6 +25,30 @@ export function RulesText({ lines }: { lines: string[] }) {
         {s.items.length > 0 && <ol>{s.items.map((r) => <li key={r}>{r}</li>)}</ol>}
       </div>))}
     </div>
+  );
+}
+
+interface OpenRow { id: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; host: { displayName: string }; seated: { name: string; avatarKey: string }[] }
+
+/** Public tables of this game still waiting for players: sit straight down from the game page. */
+function GameOpenTables({ gameId }: { gameId: string }) {
+  const list = useApi<{ items: OpenRow[] }>(`/tables?gameId=${encodeURIComponent(gameId)}`);
+  const rows = list.data?.items ?? [];
+  return (
+    <Card flush as="section" aria-labelledby="gopen-h">
+      <div className="pg-cardhead"><h2 id="gopen-h" className="ac-h3" style={{ margin: 0 }}>میزهای باز این بازی</h2>
+        {rows.length > 0 && <Badge size="sm">{faNum(rows.length)}</Badge>}<span className="bgv-spacer" /><Button size="sm" variant="ghost" href="/tables">همه میزها</Button></div>
+      {list.error ? <StateBlock kind="error" title="میزها دریافت نشد" action={<Button onClick={list.reload}>تلاش دوباره</Button>} />
+        : !list.data ? <StateBlock kind="loading" title="در حال بارگذاری…" />
+        : rows.length === 0 ? <p className="t-body-sm bgv-muted pg-pad">فعلاً میز بازی منتظر بازیکن نیست؛ خودتان میز بسازید.</p>
+        : <ul className="pg-ul">{rows.slice(0, 5).map((t) => (
+          <li key={t.id} className="pg-gorow">
+            <span className="bgv-avatars" aria-hidden="true">{t.seated.map((p, i) => <Avatar key={i} size="xs" initials={p.name.trim().charAt(0)} className={`seat-${i + 1}`}><AvatarArt avatarKey={p.avatarKey} /></Avatar>)}</span>
+            <span className="pg-meta"><bdi>{t.host.displayName}</bdi><span className="bgv-sep" />{PACE_FA[t.pace]}<span className="bgv-sep" />{durationFa(t.turnSeconds)}<span className="bgv-sep" />{faNum(t.players)} از {faNum(t.capacity)}</span>
+            <span className="bgv-spacer" />
+            <Button size="sm" variant="primary" icon="armchair" href={`/tables/${t.id}`}>نشستن</Button>
+          </li>))}</ul>}
+    </Card>
   );
 }
 
@@ -105,6 +130,7 @@ export function GameDetailPage() {
 
       <div className="bgv-cols">
         <div className="pg-stack">
+          {me && <GameOpenTables gameId={g.id} />}
           <Card title="قوانین" as="section" aria-label="قوانین"><RulesText lines={g.rulesFa} /></Card>
           <GameWiki gameId={g.id} />
         </div>

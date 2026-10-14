@@ -218,7 +218,7 @@ export type MyTableItem = z.infer<typeof myTableItem>;
 export const openTableItem = z.object({
   id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, players: z.number().int(),
   capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile,
-  seated: z.array(z.object({ name: z.string(), avatarKey: z.string() }))
+  seated: z.array(z.object({ id: z.uuid(), name: z.string(), avatarKey: z.string() }))
 });
 
 export const liveTableItem = z.object({

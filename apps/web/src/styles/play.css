@@ -129,3 +129,36 @@ button.cover-flip { cursor: pointer; }
 .pg-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .pg-orow__seats { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .pg-seat-empty { background: transparent; border: 1px dashed var(--border); }
+
+.pg-cardhead { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-block-end: 1px solid var(--line); }
+.pg-pad { margin: 0; padding: var(--space-4) var(--space-5); }
+.pg-gorow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3) var(--space-5); border-block-end: 1px solid var(--line); }
+.pg-gorow:last-child { border-block-end: 0; }
+
+.pg-seatprev { margin-block-start: var(--space-2); }
+.pg-invite { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.pg-invite li { display: flex; align-items: center; gap: var(--space-2); }
+.pg-invite li > :first-child { flex: 1; min-inline-size: 0; }
+/* Phones: summary + submit pinned above the dock (the aside is far below the form). */
+.pg-createbar { display: none; }
+@media (max-width: 899px) {
+  .pg-createbar { display: flex; align-items: center; gap: var(--space-3); position: sticky; inset-block-end: calc(var(--dock-h) + var(--space-2)); z-index: var(--z-sticky);
+    padding: var(--space-3) var(--space-4); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); grid-column: 1 / -1; }
+  .pg-createbar > .pg-meta { flex: 1; min-inline-size: 0; }
+}
+
+/* Catalog on phones: search + «فیلترها» + tag chips; the selects open on demand; two cards per row. */
+.pg-filtbtn { display: none; }
+@media (max-width: 599px) {
+  .pg-filtbtn { display: inline-flex; align-self: end; }
+  .pg-catform:not(.is-open) .pg-filters > :not(.pg-q):not(.pg-filtbtn) { display: none; }
+  .pg-catform .pg-filters { grid-template-columns: minmax(0, 1fr) auto; }
+  .pg-catform.is-open .pg-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pg-catform.is-open .pg-q { grid-column: 1 / -1; }
+  .pg-catgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+}
+
+.pg-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pg-steps li { display: flex; align-items: center; gap: var(--space-2); color: var(--text-muted); }
+.pg-steps li.is-done { color: var(--success); }
+.pg-steps li.is-now { color: var(--text); font-weight: 700; }

@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import type { GameSummary, TicketView } from '@bg/contracts';
-import { Avatar, Badge, Banner, Button, Card, Icon, PageHead, Segmented, Select, Skeleton, StateBlock } from '@bg/ui/bgv';
+import type { GameSummary, TableSnapshot, TicketView } from '@bg/contracts';
+import { Avatar, Badge, Banner, Button, Card, Icon, PageHead, ReadyCheck, Segmented, Select, Skeleton, StateBlock, type SeatNo } from '@bg/ui/bgv';
 import { useToast } from '@bg/ui';
 import { BotPlay } from '../games/BotPlay.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
@@ -19,7 +19,6 @@ const mmss = (s: number) => `${faNum(Math.floor(s / 60))}:${(s % 60).toLocaleStr
 function TicketStatus({ t, onChange, game }: { t: TicketView; onChange: () => void; game?: GameSummary }) {
   const toast = useToast();
   const { me } = useSession();
-  const navigate = useNavigate();
   const [now, setNow] = useState(Date.now());
   useEffect(() => { const i = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(i); }, []);
   const cancel = async () => {
@@ -61,26 +60,65 @@ function TicketStatus({ t, onChange, game }: { t: TicketView; onChange: () => vo
       </section>
     );
   }
-  if (t.status === 'matched' && t.matchedTableId) {
-    const left = t.readyDeadline ? Math.max(0, Math.floor((new Date(t.readyDeadline).getTime() - now) / 1000)) : 0;
-    return (
-      <section className="pg-stack" aria-labelledby="m-h">
-        {summary}
-        <div className="pg-center">
-          <Badge tone="warning" icon="circle-check" size="md">حریف پیدا شد!</Badge>
-          <span className="t-num-xl bgv-num" role="timer" aria-label="زمان باقی‌مانده برای پذیرش">{mmss(left)}</span>
-          <h2 id="m-h" className="t-title" style={{ margin: 0 }}>«{t.gameNameFa}»: آمادگی خود را اعلام کنید</h2>
-          <span className="bgv-muted t-body-sm">اگر رد کنید یا زمان تمام شود، از صف خارج می‌شوید.</span>
-        </div>
-        <Button variant="primary" icon="check" block onClick={() => navigate(`/tables/${t.matchedTableId}`)}>رفتن به میز و اعلام آمادگی</Button>
-        <Button block onClick={cancel}>رد کردن</Button>
-      </section>
-    );
-  }
+  if (t.status === 'matched' && t.matchedTableId) return <><>{summary}</><MatchedCheck tableId={t.matchedTableId} gameNameFa={t.gameNameFa} readyDeadline={t.readyDeadline} now={now} onDecline={cancel} /></>;
   return (
     <div role="status"><Banner tone="info" icon="info"
       text={t.status === 'expired' ? 'زمان پذیرش یا انتظار تمام شد؛ از صف خارج شدید.' : t.status === 'cancelled' ? 'جست‌وجو لغو شد.' : 'بازی شروع شد.'}
       action={t.status === 'started' && t.matchedTableId ? <Button size="sm" href={`/tables/${t.matchedTableId}`}>رفتن به میز</Button> : undefined} /></div>
+  );
+}
+
+/**
+ * «حریف پیدا شد»: the ready check happens here (players and their ready state, «آماده‌ام» / «رد کردن»); after accepting,
+ * a «در حال پیوستن» step shows the table and its progress, and the page moves to the table once the game starts.
+ */
+function MatchedCheck({ tableId, gameNameFa, readyDeadline, now, onDecline }: { tableId: string; gameNameFa: string; readyDeadline: string | null; now: number; onDecline: () => void }) {
+  const navigate = useNavigate();
+  const toast = useToast();
+  const snap = useApi<TableSnapshot>(`/tables/${tableId}`);
+  const reload = snap.reload;
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { const t = setInterval(reload, 2000); return () => clearInterval(t); }, [reload]);
+  const status = snap.data?.table.status;
+  useEffect(() => { if (status === 'active') navigate(`/tables/${tableId}`); }, [status, tableId, navigate]);
+  if (!snap.data) return <StateBlock kind="loading" title="در حال باز کردن میز…" />;
+  const tb = snap.data.table;
+  const mine = tb.seats.find((x) => x.seat === tb.mySeat);
+  const name = (x: (typeof tb.seats)[number]) => x.user?.displayName ?? x.bot?.nameFa ?? 'بازیکن';
+  const left = readyDeadline ? Math.max(0, Math.floor((new Date(readyDeadline).getTime() - now) / 1000)) : 0;
+  const ready = async () => {
+    setBusy(true);
+    try { await api(`/tables/${tableId}/ready`, { method: 'POST', body: { ready: true } }); reload(); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'اعلام آمادگی انجام نشد.'); }
+    finally { setBusy(false); }
+  };
+  const players = tb.seats.map((x) => ({ name: <bdi>{name(x)}</bdi>, seat: ((x.seat % 10) + 1) as SeatNo, initials: name(x).charAt(0), you: x.seat === tb.mySeat, bot: !!x.bot, ready: x.ready }));
+  if (mine?.ready) {
+    const all = tb.seats.every((x) => x.ready);
+    return (
+      <section className="pg-stack" aria-labelledby="j-h">
+        <div className="pg-center">
+          <Badge tone="success" icon="circle-check" size="md">آماده‌اید</Badge>
+          <h2 id="j-h" className="t-title" style={{ margin: 0 }}>در حال پیوستن به میز «{gameNameFa}»</h2>
+          <span className="bgv-muted t-body-sm">صندلی شما: رنگ {mine.seat + 1}؛ نفر اول را سرور به‌صورت تصادفی تعیین می‌کند.</span>
+        </div>
+        <Card>
+          <ol className="pg-steps">
+            <li className="is-done"><Icon name="check" size="sm" />حریف پیدا شد</li>
+            <li className={all ? 'is-done' : 'is-now'}><Icon name={all ? 'check' : 'hourglass'} size="sm" />آمادگی همه ({tb.seats.filter((x) => x.ready).length.toLocaleString('fa-IR')} از {tb.seats.length.toLocaleString('fa-IR')})</li>
+            <li className={all ? 'is-now' : ''}><Icon name="armchair" size="sm" />چیدن میز و شروع بازی</li>
+          </ol>
+        </Card>
+        <ReadyCheck title="بازیکنان" players={players} />
+      </section>
+    );
+  }
+  return (
+    <section className="pg-stack" aria-labelledby="m-h">
+      <ReadyCheck title={<span id="m-h">حریف پیدا شد! «{gameNameFa}»</span>} players={players}
+        text={<>همه باید آمادگی را تأیید کنند؛ زمان باقی‌مانده: <span className="bgv-num" role="timer">{mmss(left)}</span>. اگر رد کنید یا زمان تمام شود، از صف خارج می‌شوید.</>}
+        actions={<><Button variant="primary" icon="check" block loading={busy} onClick={ready}>آماده‌ام</Button><Button block onClick={onDecline}>رد کردن</Button></>} />
+    </section>
   );
 }
 

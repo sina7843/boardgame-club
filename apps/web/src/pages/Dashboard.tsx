@@ -1,12 +1,72 @@
-import type { DailyGame, GameSummary } from '@bg/contracts';
-import { Badge, Button, Card, Icon, Skeleton, StateBlock } from '@bg/ui/bgv';
+import type { DailyGame, GameSummary, PublicProfile } from '@bg/contracts';
+import { Badge, Button, Card, Icon, Identity, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliToday, PACE_FA, range } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { InviteCard } from '../social/InviteCard.tsx';
+import { userIdentity } from '../lib/bgv.tsx';
+import { presenceLine, usePresence } from '../lib/presence.ts';
 import { byUrgency, Cover, DeadlineClock, tableMeta, tableTitle, useMyTables } from './MyTables.tsx';
+
+/** «ادامه‌ی یادگیری»: tutorials in progress first, then games not tried yet (up to three cards). */
+function KeepLearning({ games }: { games: GameSummary[] | undefined }) {
+  const t = useApi<{ items: { gameId: string; status: 'in_progress' | 'completed' | 'skipped' }[] }>('/me/tutorials');
+  if (!games || !t.data) return null;
+  const status = new Map(t.data.items.map((x) => [x.gameId, x.status]));
+  const withTutorial = games.filter((g) => g.tutorialEnabled);
+  const picks = [...withTutorial.filter((g) => status.get(g.id) === 'in_progress'), ...withTutorial.filter((g) => !status.has(g.id))].slice(0, 3);
+  if (!picks.length) return null;
+  return (
+    <section className="bgv-stack" style={{ gap: 12 }} aria-labelledby="learn-h">
+      <div className="hm-sechead">
+        <h2 id="learn-h" className="hm-h2"><Icon name="book-open" />ادامه‌ی یادگیری</h2>
+        <a className="hm-link" href="/wiki">دانشنامه<Icon name="chevron-left" size="sm" /></a>
+      </div>
+      <div className="bgv-grid bgv-grid--sm">
+        {picks.map((g) => {
+          const going = status.get(g.id) === 'in_progress';
+          return (
+            <Card key={g.id} className="hm-learn">
+              <Cover gameId={g.id} />
+              <Badge size="sm">{going ? 'در حال انجام' : 'شروع‌نشده'}</Badge>
+              <b>آموزش تعاملی {g.nameFa}</b>
+              <Button size="sm" variant={going ? 'primary' : 'secondary'} block href={`/games/${g.id}`}>{going ? 'ادامه' : 'شروع'}</Button>
+            </Card>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** «دوستان آنلاین»: online friends first, with watch / invite / message. */
+function OnlineFriends() {
+  const f = useApi<{ friends: PublicProfile[] }>('/me/friends');
+  const friends = f.data?.friends ?? [];
+  const presence = usePresence(friends.map((x) => x.id));
+  if (!f.data) return null;
+  const online = friends.filter((x) => presence[x.id]?.online);
+  const shown = [...online, ...friends.filter((x) => !presence[x.id]?.online)].slice(0, 5);
+  return (
+    <Card aria-labelledby="online-h" className="bgv-stack" style={{ gap: 8 }}>
+      <div className="hm-sechead"><h2 id="online-h" className="hm-h2"><Icon name="users" />دوستان آنلاین</h2>
+        <span className="t-caption bgv-muted">{faNum(online.length)} از {faNum(friends.length)}</span></div>
+      {shown.length === 0 ? <StateBlock kind="empty" title="هنوز دوستی ندارید" action={<Button size="sm" href="/friends?tab=find">یافتن بازیکن</Button>} />
+        : <ul className="hm-ul">{shown.map((x) => {
+          const p = presence[x.id];
+          return (
+            <li key={x.id} className="hm-friend">
+              <Identity {...userIdentity(x, { size: 'sm', ...(p ? { status: p.online ? 'online' as const : 'offline' as const } : {}), ...(presenceLine(p) ? { sub: presenceLine(p) } : {}) })} />
+              {p?.playing ? <Button size="sm" variant="ghost" icon="eye" href={`/tables/${p.playing.tableId}`}>تماشا</Button>
+                : p?.online ? <Button size="sm" variant="ghost" icon="user-plus" href="/games">دعوت</Button>
+                : <Button size="sm" variant="ghost" icon="message-circle" href={`/users/${x.id}`}>پیام</Button>}
+            </li>
+          );
+        })}</ul>}
+    </Card>
+  );
+}
 
 /** Game of the day: picked and rewarded by the server; the card only shows it. */
 function DailyCard({ games }: { games: GameSummary[] | undefined }) {
@@ -126,7 +186,12 @@ export function Dashboard() {
         {me && <DailyCard games={games.data?.items} />}
       </div>
 
-      {me && <InviteCard />}
+      {me && (
+        <div className="bgv-cols">
+          <KeepLearning games={games.data?.items} />
+          <OnlineFriends />
+        </div>
+      )}
 
       <section className="bgv-stack" style={{ gap: 12 }} aria-labelledby="catalog-h">
         <div className="hm-sechead">

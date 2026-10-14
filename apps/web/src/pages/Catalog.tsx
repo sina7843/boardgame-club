@@ -38,6 +38,7 @@ export function Catalog() {
   );
   const mode = params.get('mode');
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
   return (
     <>
       <PageTabs group="games" />
@@ -45,9 +46,10 @@ export function Catalog() {
         actions={<Button href="/wiki" icon="book-open">دانشنامه</Button>} />
 
       <search>
-        <form className="bgv-card pg-stack" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو و فیلتر بازی‌ها">
+        <form className={`bgv-card pg-stack pg-catform${filtersOpen ? ' is-open' : ''}`} onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو و فیلتر بازی‌ها">
           <div className="pg-filters">
             <div className="pg-q"><TextField label="جست‌وجو" icon="search" type="search" name="q" placeholder="مثلاً مزایده یا Line Three" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+            <Button className="pg-filtbtn" icon="sliders-horizontal" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>فیلترها</Button>
             {sel('players', 'تعداد نفر', [2, 3, 4].map((n) => ({ value: String(n), label: `${faNum(n)} نفر` })))}
             {sel('maxMinutes', 'حداکثر زمان', [5, 15, 30, 60].map((n) => ({ value: String(n), label: `تا ${faNum(n)} دقیقه` })))}
             {sel('difficulty', 'دشواری', [{ value: 'easy', label: 'آسان' }, { value: 'medium', label: 'متوسط' }, { value: 'hard', label: 'دشوار' }])}
@@ -82,7 +84,7 @@ export function Catalog() {
               {mode && <Chip size="sm" selected icon="x" onClick={() => setFilter('mode', '')} aria-label="حذف فیلتر حالت">حالت: {MODE_FA[mode] ?? mode}</Chip>}
               {hasFilters && <Button size="sm" variant="ghost" onClick={clear}>پاک‌کردن فیلترها</Button>}
             </div>
-            <div className="bgv-grid" data-tour="catalog-grid">{data.items.map((g) => <GameCard key={g.id} game={g} />)}</div>
+            <div className="bgv-grid pg-catgrid" data-tour="catalog-grid">{data.items.map((g) => <GameCard key={g.id} game={g} />)}</div>
           </>
         )
       )}

@@ -9,7 +9,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 interface LiveTable { id: string; gameNameFa: string; pace: 'live' | 'turn'; players: string[]; tournament: { id: string; titleFa: string; round: number } | null }
-interface OpenTable { id: string; gameId: string; gameNameFa: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; host: { displayName: string; avatarKey: string }; seated: { name: string; avatarKey: string }[] }
+interface OpenTable { id: string; gameId: string; gameNameFa: string; pace: 'live' | 'turn'; players: number; capacity: number; turnSeconds: number; host: { displayName: string; avatarKey: string }; seated: { id: string; name: string; avatarKey: string }[] }
 
 export function OpenTables() {
   usePageTitle('میزهای باز');
@@ -22,6 +22,8 @@ export function OpenTables() {
   const [pace, setPace] = useState<'all' | 'live' | 'turn'>('all');
   const [game, setGame] = useState('');
   const [auto, setAuto] = useState(true);
+  const [friendsOnly, setFriendsOnly] = useState(false);
+  const friends = useApi<{ friends: { id: string }[] }>(me ? '/me/friends' : null);
   const reload = list.reload;
   useEffect(() => {
     if (!auto) return;
@@ -38,7 +40,9 @@ export function OpenTables() {
     finally { setJoining(undefined); }
   };
 
-  const shown = (list.data?.items ?? []).filter((t) => (pace === 'all' || t.pace === pace) && (!game || t.gameId === game));
+  const friendIds = new Set((friends.data?.friends ?? []).map((f) => f.id));
+  const shown = (list.data?.items ?? []).filter((t) => (pace === 'all' || t.pace === pace) && (!game || t.gameId === game)
+    && (!friendsOnly || t.seated.some((p) => friendIds.has(p.id))));
   return (
     <>
       <PageTabs group="tables" />
@@ -52,6 +56,7 @@ export function OpenTables() {
           options={[{ value: 'all', label: 'همه' }, { value: 'live', label: PACE_FA.live }, { value: 'turn', label: PACE_FA.turn }]} />
         <Select aria-label="بازی" value={game} onChange={(e) => setGame(e.target.value)}
           options={[{ value: '', label: 'همه‌ی بازی‌ها' }, ...[...new Map((list.data?.items ?? []).map((t) => [t.gameId, t.gameNameFa])).entries()].map(([value, label]) => ({ value, label }))]} />
+        <Switch label="میزهای دوستانم" checked={friendsOnly} onChange={setFriendsOnly} />
         <span className="bgv-spacer" />
         <Switch label="به‌روزرسانی خودکار" checked={auto} onChange={setAuto} />
         <Button icon="refresh-cw" onClick={() => { list.reload(); live.reload(); }}>به‌روزرسانی</Button>

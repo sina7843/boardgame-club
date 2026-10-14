@@ -130,3 +130,9 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
 .hm-hint { position: relative; display: inline-flex; }
 .hm-hint__dot { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; pointer-events: none; }
 .hm-hint__tip { position: absolute; z-index: var(--z-sheet); inset-block-start: 100%; inset-inline-start: 0; inline-size: max-content; max-inline-size: min(280px, 80vw); font-size: 14px; }
+
+.hm-learn { display: grid; gap: var(--space-2); justify-items: start; }
+.hm-learn .hm-thumb { inline-size: 100%; block-size: auto; aspect-ratio: 16 / 9; border-radius: var(--radius-md); object-fit: cover; }
+.hm-friend { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-block-end: 1px solid var(--line); }
+.hm-friend:last-child { border-block-end: 0; }
+.hm-friend > :first-child { flex: 1; min-inline-size: 0; }
