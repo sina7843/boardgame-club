@@ -188,11 +188,13 @@ export const alertSoundSchema = z.enum(['chime', 'bell', 'pulse', 'soft']);
 export const alertPrefs = z.strictObject({
   sound: z.boolean(), volume: z.number().int().min(0).max(100), vibration: z.boolean(),
   quietHours: z.strictObject({ enabled: z.boolean(), startHour: z.number().int().min(0).max(23), endHour: z.number().int().min(0).max(23) }),
-  warningSound: alertSoundSchema, criticalSound: alertSoundSchema
+  warningSound: alertSoundSchema, criticalSound: alertSoundSchema,
+  /** «نوبت شماست» tone, and a short tick each second in a live game's last 10 s. Defaults keep older saved prefs valid. */
+  turnSound: z.boolean().default(true), criticalTick: z.boolean().default(true)
 });
 export type AlertPrefs = z.infer<typeof alertPrefs>;
 export const DEFAULT_ALERT_PREFS: AlertPrefs = {
-  sound: true, volume: 70, vibration: true, quietHours: { enabled: false, startHour: 23, endHour: 7 }, warningSound: 'chime', criticalSound: 'pulse'
+  sound: true, volume: 70, vibration: true, quietHours: { enabled: false, startHour: 23, endHour: 7 }, warningSound: 'chime', criticalSound: 'pulse', turnSound: true, criticalTick: true
 };
 
 // ---------- Moderation ----------

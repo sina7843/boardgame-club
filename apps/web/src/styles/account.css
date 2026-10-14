@@ -244,3 +244,6 @@
 .ac-show__frame { position: relative; min-block-size: 120px; }
 .ac-adm__list { max-block-size: calc(100dvh - var(--space-8)); overflow-y: auto; position: sticky; inset-block-start: var(--space-4); }
 @media (max-width: 1199px) { .ac-adm__list { position: static; max-block-size: none; } }
+
+.ac-row--link { color: inherit; text-decoration: none; }
+.ac-row--link:hover { background: var(--surface-sunken); }

@@ -2,7 +2,8 @@ import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import type { AlertPrefs, UserSettings } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button, Card, Dialog, Icon, PageHead, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
+import { Banner, Button, Card, Dialog, Icon, Identity, PageHead, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
+import { userIdentity } from '../lib/bgv.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import { playAlert } from '../lib/alerts.ts';
@@ -61,10 +62,14 @@ export function Settings() {
       {me && (
         <div className="ac-sets">
           <div className="ac-stack" style={{ gap: 20 }}>
-            <Section id="profile-h" icon="user" title="پروفایل">
+            <Section id="profile-h" icon="user" title="حساب">
               <div className="ac-row">
-                <div className="ac-row__text"><b>{me.displayName}</b><span>نام، آواتار، معرفی، لقب، بنر و ویترین جام‌ها در صفحهٔ پروفایل ویرایش می‌شوند.</span></div>
+                <Identity size="lg" {...userIdentity(me, { sub: 'نام، آواتار، معرفی، لقب، بنر و ویترین جام‌ها' })} />
                 <Button size="sm" icon="pencil" href="/me/profile">ویرایش پروفایل</Button>
+              </div>
+              <div className="ac-row">
+                <div className="ac-row__text"><b>شمارهٔ موبایل</b><span>برای ورود؛ به هیچ بازیکنی نشان داده نمی‌شود.</span></div>
+                <bdi dir="ltr" className="bgv-latin">{me.mobileMasked}</bdi>
               </div>
               {(
                 <div className="ac-row">
@@ -130,8 +135,16 @@ function PrivacyForm() {
           <Segmented label="چه کسی می‌تواند پیام خصوصی بفرستد" value={d.dmPolicy} onChange={(dmPolicy) => void save({ ...d, dmPolicy: dmPolicy as UserSettings['dmPolicy'] })}
             options={[{ value: 'friends', label: 'فقط دوستان' }, { value: 'nobody', label: 'هیچ‌کس' }]} />
         </div>
+        <a className="ac-row ac-row--link" href="/friends?tab=blocked">
+          <div className="ac-row__text"><b>مسدود و بی‌صدا</b><span>بازیکن‌هایی که مسدود یا بی‌صدا کرده‌اید</span></div>
+          <Icon name="chevron-left" />
+        </a>
       </Section>
       <Section id="notify-h" icon="bell" title="اعلان‌ها">
+        {!browser && typeof Notification !== 'undefined' && Notification.permission !== 'denied' && (
+          <div className="ac-pad"><Banner tone="info" icon="bell" text="اعلان مرورگر هنوز اجازه ندارد؛ بدون آن، نوبت‌ها را فقط وقتی برگه باز است می‌بینید."
+            action={<Button size="sm" variant="primary" onClick={async () => { const ok = await setBrowserNotifications(true); setBrowser(ok); if (!ok) toast('error', 'مرورگر اجازه اعلان نداد.'); }}>اجازه‌ی اعلان</Button>} /></div>
+        )}
         {NOTIFY_FA.map(([k, label]) => (
           <div key={k} className="ac-row"><div className="ac-row__text"><b>{label}</b></div>
             <Switch aria-label={label} checked={d.notify[k]} onChange={(v) => void save({ ...d, notify: { ...d.notify, [k]: v } })} /></div>
@@ -162,10 +175,18 @@ function TurnAlerts() {
   };
   const q = a.quietHours;
   return (
-    <Section id="alerts-h" icon="bell" title="هشدار نوبت" extra={<Tag>روی حساب</Tag>}>
+    <Section id="alerts-h" icon="volume-2" title="صدا و لرزش" extra={<Tag>روی حساب</Tag>}>
       <div className="ac-row">
-        <div className="ac-row__text"><b>صدا</b><span>هشدار نوبت، نیمهٔ مهلت و لحظات پایانی</span></div>
-        <Switch aria-label="صدای هشدار" checked={a.sound} onChange={(sound) => void save({ ...a, sound })} />
+        <div className="ac-row__text"><b>صداهای بازی</b><span>هشدار نوبت و لحظات پایانی؛ نیمهٔ مهلت فقط رنگ ساعت را عوض می‌کند.</span></div>
+        <Switch aria-label="صداهای بازی" checked={a.sound} onChange={(sound) => void save({ ...a, sound })} />
+      </div>
+      <div className="ac-row">
+        <div className="ac-row__text"><b>صدای «نوبت شماست»</b></div>
+        <Switch aria-label="صدای نوبت شماست" checked={a.turnSound} disabled={!a.sound} onChange={(turnSound) => void save({ ...a, turnSound })} />
+      </div>
+      <div className="ac-row">
+        <div className="ac-row__text"><b>هشدار ۱۰ ثانیهٔ آخر</b><span>بازی زنده: تیک کوتاه در هر ثانیه</span></div>
+        <Switch aria-label="هشدار ۱۰ ثانیهٔ آخر" checked={a.criticalTick} disabled={!a.sound} onChange={(criticalTick) => void save({ ...a, criticalTick })} />
       </div>
       <div className="ac-row ac-row--stack">
         <div className="ac-row__text"><b>بلندی صدا</b></div>
@@ -177,7 +198,6 @@ function TurnAlerts() {
         <Switch aria-label="لرزش" checked={a.vibration} onChange={(vibration) => void save({ ...a, vibration })} />
       </div>
       <div className="ac-row ac-row--stack">
-        <Select label="صدای هشدار نیمهٔ مهلت" value={a.warningSound} options={SOUNDS} onChange={(e) => void save({ ...a, warningSound: e.target.value as AlertPrefs['warningSound'] })} />
         <Select label="صدای هشدار لحظات پایانی" value={a.criticalSound} options={SOUNDS} onChange={(e) => void save({ ...a, criticalSound: e.target.value as AlertPrefs['criticalSound'] })} />
         <div><Button size="sm" variant="ghost" onClick={() => playAlert('critical', a)}>آزمایش صدا</Button></div>
       </div>
