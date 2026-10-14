@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useToast } from '@bg/ui';
 import { ServerEvents, turnThresholds, type AlertPrefs, type TurnAutoMovedEvent, type TurnStartedEvent } from '@bg/contracts';
 import { getAlertPrefs, loadAlertPrefs, readPrefs } from './prefs.tsx';
 import { useRealtime } from './realtime.tsx';
@@ -59,6 +60,7 @@ export function playAlert(kind: Kind, prefs: AlertPrefs = getAlertPrefs()): void
  */
 export function useTurnAlerts(tableId: string, mySeat: number | null): void {
   const { socket } = useRealtime();
+  const toast = useToast();
   const timers = useRef<number[]>([]);
   useEffect(() => {
     if (!socket || mySeat === null) return;
@@ -68,6 +70,8 @@ export function useTurnAlerts(tableId: string, mySeat: number | null): void {
       clear();
       if (e.tableId !== tableId || !e.seats.includes(mySeat)) return;
       playAlert('turn');
+      const p = getAlertPrefs();
+      toast('turn', 'نوبت شماست', p.sound && p.turnSound ? undefined : 'صدا خاموش است');
       const { warningLeft, criticalLeft } = turnThresholds(e.pace, e.turnSeconds);
       // Server time offset keeps timers right when the device clock is off.
       const due = Date.parse(e.dueAt) - (Date.parse(e.serverTime) - Date.now());
@@ -84,9 +88,13 @@ export function useTurnAlerts(tableId: string, mySeat: number | null): void {
         }
       }
     };
-    const onAuto = (e: TurnAutoMovedEvent) => { if (e.tableId === tableId && e.seats.includes(mySeat)) { clear(); playAlert('timeout'); } };
+    const onAuto = (e: TurnAutoMovedEvent) => {
+      if (e.tableId !== tableId || !e.seats.includes(mySeat)) return;
+      clear(); playAlert('timeout');
+      toast('timeout', 'زمان تمام شد؛ حرکت خودکار انجام شد');
+    };
     socket.on(ServerEvents.turnStarted, onStarted);
     socket.on(ServerEvents.turnAutoMoved, onAuto);
     return () => { socket.off(ServerEvents.turnStarted, onStarted); socket.off(ServerEvents.turnAutoMoved, onAuto); clear(); };
-  }, [socket, tableId, mySeat]);
+  }, [socket, tableId, mySeat, toast]);
 }

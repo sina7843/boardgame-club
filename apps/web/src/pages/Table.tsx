@@ -566,6 +566,11 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         </Felt>
 
         {myTurn && t.pace === 'live' && clock?.state === 'critical' && <CritBar seconds={clock.time} total={10} />}
+        {(() => {
+          const n = sum?.seats.find((x) => x.seat === t.mySeat)?.strikes ?? 0;
+          return !finished && n > 0 && sum?.strikesMax ? <Banner className="tbl-strikes" tone="danger" icon="alarm-clock"
+            text={`اخطار زمان ${faNum(n)} از ${faNum(sum.strikesMax)}`} /> : null;
+        })()}
         <ActionDock className="tbl-dock" waiting={!myTurn && !finished}
           prompt={<span className="tbl-prompt" role="status" aria-live="polite">
             <Icon name={finished ? 'flag' : myTurn ? 'play' : 'hourglass'} />

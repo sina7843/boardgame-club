@@ -41,16 +41,17 @@ export function Button({ variant = 'primary', size = 'md', block, busy, icon, cl
 }
 
 // ---------- Toast (BGV design-system Toast; error toasts use the crimson tone) ----------
-type Toast = { id: number; tone: 'info' | 'success' | 'error'; text: string };
-const ToastCtx = createContext<(tone: Toast['tone'], text: string) => void>(() => {});
+type Toast = { id: number; tone: 'info' | 'success' | 'error' | 'turn' | 'timeout'; text: string; sub?: string };
+const ToastCtx = createContext<(tone: Toast['tone'], text: string, sub?: string) => void>(() => {});
 export const useToast = () => useContext(ToastCtx);
-const TOAST_ICON = { info: 'info', success: 'circle-check', error: 'circle-alert' } as const;
+const TOAST_ICON = { info: 'info', success: 'circle-check', error: 'circle-alert', turn: 'bell-ring', timeout: 'alarm-clock' } as const;
+const TOAST_TONE = { info: 'default', success: 'default', error: 'critical', turn: 'turn', timeout: 'critical' } as const;
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<Toast[]>([]);
   const seq = useRef(0);
-  const push = useCallback((tone: Toast['tone'], text: string) => {
+  const push = useCallback((tone: Toast['tone'], text: string, sub?: string) => {
     const id = ++seq.current;
-    setItems((x) => [...x.slice(-2), { id, tone, text }]);
+    setItems((x) => [...x.slice(-2), { id, tone, text, ...(sub ? { sub } : {}) }]);
     setTimeout(() => setItems((x) => x.filter((t) => t.id !== id)), 6000);
   }, []);
   return (
@@ -58,7 +59,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="toasts" aria-live="polite" aria-atomic="false">
         {items.map((t) => (
-          <BgvToast key={t.id} className={`toast toast--${t.tone}`} tone={t.tone === 'error' ? 'critical' : 'default'} icon={TOAST_ICON[t.tone]} title={t.text}
+          <BgvToast key={t.id} className={`toast toast--${t.tone}`} tone={TOAST_TONE[t.tone]} icon={TOAST_ICON[t.tone]} title={t.text} {...(t.sub ? { text: t.sub } : {})}
             onClose={() => setItems((x) => x.filter((i) => i.id !== t.id))} />
         ))}
       </div>
