@@ -261,6 +261,14 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     </div>
   );
 
+  const editLeft = (at: string) => {
+    const sec = Math.max(0, Math.round((EDIT_MS - (now - new Date(at).getTime())) / 1000));
+    return `${faNum(Math.floor(sec / 60))}:${faNum(sec % 60).padStart(2, '۰')}`;
+  };
+  const muteSender = async (m: MessageItem) => {
+    try { await api('/mutes', { method: 'POST', body: { userId: m.sender.id } }); toast('success', `پیام‌های ${m.sender.displayName} دیگر برای شما نمایش داده نمی‌شود.`); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'انجام نشد.'); }
+  };
   // Messages from others after my read point when the panel opened (fixed for this visit).
   const fresh = meta.myReadUpTo ? items.filter((m) => m.sender.id !== me?.id && m.createdAt > meta.myReadUpTo!) : [];
   const firstUnread = fresh[0]?.id;
@@ -276,8 +284,10 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
         const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
         const actions: MenuItem[] = m.deleted ? [] : [
           ...(meta.canPost ? [{ icon: 'reply', label: 'پاسخ', onClick: () => { setEditing(null); setReplyTo(m); input.current?.focus(); } }] : []),
-          ...(mine && meta.canPost && now - new Date(m.createdAt).getTime() < EDIT_MS ? [{ icon: 'pencil', label: 'ویرایش', onClick: () => { setReplyTo(null); setEditing(m); onType(m.body); input.current?.focus(); } }] : []),
+          ...(mine && meta.canPost && now - new Date(m.createdAt).getTime() < EDIT_MS ? [{ icon: 'pencil', label: `ویرایش (${editLeft(m.createdAt)} مانده)`, onClick: () => { setReplyTo(null); setEditing(m); onType(m.body); input.current?.focus(); } }] : []),
+          { icon: 'copy', label: 'کپی', onClick: () => void navigator.clipboard.writeText(m.body).then(() => toast('success', 'متن پیام کپی شد.'), () => toast('error', 'کپی ممکن نشد.')) },
           { icon: 'smile', label: 'واکنش', onClick: () => setReacting(m.id) },
+          ...(!mine ? [{ icon: 'bell-off', label: `بی‌صدا کردن ${m.sender.displayName}`, onClick: () => void muteSender(m) }] : []),
           ...(!mine ? [{ icon: 'flag', label: 'گزارش', danger: true, onClick: () => setReporting(m) }] : []),
           ...(mine || meta.canModerate ? [{ icon: 'trash-2', label: 'حذف', danger: true, onClick: () => void remove(m) }] : [])
         ];
