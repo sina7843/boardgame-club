@@ -7,14 +7,14 @@ import {
   AppError, alertPrefs, apiErrorSchema, presence, DEFAULT_ALERT_PREFS, friendsResponse, normalizeSearch, profileCard, profilePrivacy, tableInviteBody, userCard, userIdBody, userSettingsSchema, type UserSettings
 } from '@bg/contracts';
 import { schema } from '@bg/db';
-import { presenceAudience, presenceOf } from '@bg/play';
+import { isPremium, presenceAudience, presenceOf } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireUser } from '../auth/session.ts';
 import { toPublicProfile } from '../users/routes.ts';
 import { publicRecord, privacyOf } from './profile-record.ts';
 import { areFriends, isBlockedEither, membershipOf, pair, profiles, relationship, requireActiveUser, shareCommunity } from './relations.ts';
 
-const { friendships, blocks, userMutes, users, userSettings, outboxEvents, gameTables, participants, tableInvites, memberships } = schema;
+const { friendships, blocks, userMutes, users, userSettings, outboxEvents, gameTables, participants, tableInvites, memberships, clubs } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
 const userParams = z.object({ userId: z.uuid() });
 const DEFAULT_SETTINGS: UserSettings = { dmPolicy: 'friends', notify: { turn: true, invite: true, message: true, result: true, social: true } };
@@ -44,7 +44,18 @@ export function socialRoutes(app: FastifyInstance, { db }: Deps): void {
     const profile = await requireActiveUser(db, req.params.userId);
     // Blocked in either direction: no play record at all (the other side never learns who blocked whom).
     const viewer = rel.relationship === 'self' ? 'self' : rel.relationship === 'blocked' || await isBlockedEither(db, userId, req.params.userId) ? 'blocked' : 'other';
-    return { ...profile, ...rel, ...(await publicRecord(db, req.params.userId, viewer)) };
+    const target = req.params.userId;
+    const clubRows = viewer === 'blocked' ? [] : await db.select({ slug: clubs.slug, name: clubs.name }).from(memberships)
+      .innerJoin(clubs, eq(clubs.id, memberships.scopeId))
+      .where(and(eq(memberships.scopeType, 'club'), eq(memberships.userId, target), eq(memberships.status, 'active'))).limit(6);
+    // Mutual friends: accepted friends of both (only for another, unblocked player).
+    const friendsOf = async (id: string) => (await db.select().from(friendships).where(and(eq(friendships.status, 'accepted'), or(eq(friendships.userLow, id), eq(friendships.userHigh, id)))))
+      .map((f) => (f.userLow === id ? f.userHigh : f.userLow));
+    let mutual: string[] = [];
+    if (viewer === 'other') { const mine = new Set(await friendsOf(userId)); mutual = (await friendsOf(target)).filter((x) => mine.has(x)).slice(0, 8); }
+    const people = await profiles(db, mutual);
+    return { ...profile, ...rel, ...(await publicRecord(db, target, viewer)), premium: await isPremium(db, target),
+      clubs: clubRows, mutualFriends: mutual.map((id) => people.get(id)!).filter(Boolean) };
   });
 
   // ---------- Friends ----------

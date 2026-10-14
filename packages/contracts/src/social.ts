@@ -56,7 +56,12 @@ export const publicRecord = z.object({
 export type PublicRecord = z.infer<typeof publicRecord>;
 
 /** The profile page: card plus the player's customization. */
-export const profileCard = userCard.extend(profileExtras.shape).extend(publicRecord.shape);
+export const profileCard = userCard.extend(profileExtras.shape).extend(publicRecord.shape).extend({
+  /** Premium badge; public clubs the player belongs to; friends we share (empty when blocked or self). */
+  premium: z.boolean(),
+  clubs: z.array(z.object({ slug: z.string(), name: z.string() })),
+  mutualFriends: z.array(publicProfile)
+});
 export type ProfileCard = z.infer<typeof profileCard>;
 
 export const friendsResponse = z.object({

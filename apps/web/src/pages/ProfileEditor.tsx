@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { bioSchema, slotItems, unlockFa, type Me, type TrophyTier } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button, Card, Chip, CosmeticTile, Select, Textarea } from '@bg/ui/bgv';
+import { Button, Card, Chip, CosmeticTile, Select, Tabs, Textarea } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -25,6 +25,7 @@ export function ProfileEditor({ me }: { me: Me }) {
   const [showcase, setShowcase] = useState(me.showcase);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<'about' | 'banner' | 'fav' | 'showcase'>('about');
   useEffect(() => { setBio(me.bio ?? ''); setTitle(me.titleKey); setBanner(me.bannerKey); setFav(me.favoriteGames); setShowcase(me.showcase); }, [me]);
   const unlocked = useMemo(() => new Set(owned.data?.unlocked ?? []), [owned.data]);
   const reason = (u: Parameters<typeof unlockFa>[0]) => unlockFa(u, (k) => owned.data?.achievements[k]);
@@ -42,9 +43,17 @@ export function ProfileEditor({ me }: { me: Me }) {
     finally { setBusy(false); }
   };
 
+  const same = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+  const dirty = [bio !== (me.bio ?? ''), titleKey !== me.titleKey, bannerKey !== me.bannerKey, !same(fav, me.favoriteGames), !same(showcase, me.showcase)].filter(Boolean).length;
+  const reset = () => { setBio(me.bio ?? ''); setTitle(me.titleKey); setBanner(me.bannerKey); setFav(me.favoriteGames); setShowcase(me.showcase); setError(undefined); };
+
   return (
     <Card title="شخصی‌سازی پروفایل" aria-label="شخصی‌سازی پروفایل" data-tour="profile-editor">
       <div className="bgv-stack">
+        <Tabs label="بخش‌های شخصی‌سازی" value={tab} onChange={(v) => setTab(v as typeof tab)} items={[
+          { value: 'about', label: 'معرفی و لقب' }, { value: 'banner', label: 'بنر' }, { value: 'fav', label: 'بازی‌های محبوب' }, { value: 'showcase', label: 'ویترین' }
+        ]} />
+        {tab === 'about' && <>
         <Textarea label="معرفی کوتاه" rows={3} maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="مثلاً: عاشق کاتان، شب‌ها آنلاینم"
           hint={`${faNum(bio.length)} از ۱۶۰ نویسه، برای همه دیده می‌شود`} />
 
@@ -56,7 +65,8 @@ export function ProfileEditor({ me }: { me: Me }) {
           </p>
         )}
 
-        <div className="bgv-stack" role="group" aria-label="بنر پروفایل" style={{ gap: 'var(--space-2)' }}>
+        </>}
+        {tab === 'banner' && <div className="bgv-stack" role="group" aria-label="بنر پروفایل" style={{ gap: 'var(--space-2)' }}>
           <span className="t-label">بنر پروفایل</span>
           <div className="pf-tiles">
             {slotItems('bn').map((b) => {
@@ -70,9 +80,8 @@ export function ProfileEditor({ me }: { me: Me }) {
               );
             })}
           </div>
-        </div>
-
-        <div className="bgv-stack" role="group" aria-label="بازی‌های محبوب" style={{ gap: 'var(--space-2)' }}>
+        </div>}
+        {tab === 'fav' && <div className="bgv-stack" role="group" aria-label="بازی‌های محبوب" style={{ gap: 'var(--space-2)' }}>
           <span className="t-label">بازی‌های محبوب (تا {faNum(MAX_FAV)} بازی)</span>
           {gamesApi.data ? (
             <div className="bgv-row">
@@ -81,9 +90,8 @@ export function ProfileEditor({ me }: { me: Me }) {
               ))}
             </div>
           ) : <p className="bgv-muted" role="status">در حال بارگذاری…</p>}
-        </div>
-
-        <div className="bgv-stack" role="group" aria-label="ویترین جام‌ها" style={{ gap: 'var(--space-2)' }}>
+        </div>}
+        {tab === 'showcase' && <div className="bgv-stack" role="group" aria-label="ویترین جام‌ها" style={{ gap: 'var(--space-2)' }}>
           <span className="t-label">ویترین جام‌ها (تا {faNum(MAX_SHOWCASE)} جام، اول نمایش داده می‌شوند)</span>
           {!ach.data ? <p className="bgv-muted" role="status">در حال بارگذاری…</p>
             : ach.data.items.length === 0 ? <p className="bgv-muted">هنوز جامی ندارید؛ با بازی کردن دستاورد بگیرید.</p>
@@ -95,10 +103,16 @@ export function ProfileEditor({ me }: { me: Me }) {
                 ))}
               </div>
             )}
-        </div>
-
+        </div>}
         {error && <p className="t-body-sm" style={{ color: 'var(--danger)' }} role="alert">{error}</p>}
-        <div><Button variant="primary" loading={busy} onClick={save}>ذخیره شخصی‌سازی</Button></div>
+        {dirty > 0 && (
+          <div className="pf-savebar" role="status">
+            <span>{faNum(dirty)} تغییر ذخیره‌نشده</span>
+            <span className="bgv-spacer" />
+            <Button variant="ghost" onClick={reset}>انصراف</Button>
+            <Button variant="primary" loading={busy} onClick={save}>ذخیرهٔ همه</Button>
+          </div>
+        )}
       </div>
     </Card>
   );

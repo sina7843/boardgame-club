@@ -104,3 +104,10 @@
 .pf-toolbar > :first-child { flex: 1 1 220px; }
 .pf-list--compact > li { padding-inline: 0; }
 @media (max-width: 899px) { .pf-friends > aside { order: -1; } }
+
+.pf-savebar { display: flex; align-items: center; gap: var(--space-2); position: sticky; inset-block-end: var(--space-3); z-index: var(--z-sticky);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); background: var(--surface-raised); box-shadow: var(--shadow-float); }
+@media (max-width: 899px) { .pf-savebar { inset-block-end: calc(var(--dock-h) + var(--space-2)); } }
+
+.pf-prevfelt { padding: var(--space-3); border-radius: var(--radius-lg); background: var(--felt); }
+.pf-prevrow { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }

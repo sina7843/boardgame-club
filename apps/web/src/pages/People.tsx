@@ -296,7 +296,7 @@ export function ProfilePage() {
         league={u.bestLeague ?? undefined}
         stats={u.stats ? [{ value: faNum(u.stats.gamesPlayed), label: 'بازی‌ها' }, { value: faNum(u.stats.wins), label: 'برد (رتبهٔ اول)' }, { value: `${faNum(u.stats.winRate)}٪`, label: 'نرخ برد' }] : undefined}
         bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
-        badges={u.relationship === 'friends' ? <Badge tone="success">دوست</Badge> : undefined}
+        badges={<>{u.premium && <Badge tone="premium" icon="crown">پریمیوم</Badge>}{u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}</>}
         {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})}
         meta={[...(presenceLine(presence[u.id]) ? [presenceLine(presence[u.id])!] : []), `عضو از ${jalaliDate(u.joinedAt)}`]}
         actions={<>
@@ -336,6 +336,20 @@ export function ProfilePage() {
               <div className="bgv-row">
                 {favourites.map((g) => <Chip key={g.id} href={`/games/${g.id}`}>{g.nameFa}</Chip>)}
               </div>
+            </Card>
+          )}
+        </div>
+      )}
+      {(u.clubs.length > 0 || u.mutualFriends.length > 0) && (
+        <div className="bgv-cols">
+          {u.clubs.length > 0 && (
+            <Card title="باشگاه‌ها" aria-label="باشگاه‌ها">
+              <div className="bgv-row">{u.clubs.map((c) => <Chip key={c.slug} icon="shield" href={`/clubs/${c.slug}`}>{c.name}</Chip>)}</div>
+            </Card>
+          )}
+          {u.mutualFriends.length > 0 && (
+            <Card title={`دوستان مشترک (${faNum(u.mutualFriends.length)})`} aria-label="دوستان مشترک">
+              <ul className="pf-list pf-list--compact">{u.mutualFriends.map((f) => <PersonRow key={f.id} p={f} />)}</ul>
             </Card>
           )}
         </div>

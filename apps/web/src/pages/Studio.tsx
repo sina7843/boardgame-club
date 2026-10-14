@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { KIND_FA, ITEM_KINDS, KIND_SLOT, cosmetic, type ProfilePrivacy } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Badge, Button, Card, CosmeticTile, Identity, PageHead, StateBlock, Switch } from '@bg/ui/bgv';
+import { Badge, Button, Card, CosmeticTile, Identity, LobbySeat, PageHead, PlayerCard, StateBlock, Switch } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { ItemArt, useWardrobe } from '../lib/cosmeticItems.tsx';
@@ -36,6 +36,7 @@ export function StudioPage() {
   };
   const worn = (slot: string, key: string | null | undefined) => cosmetic(key ?? `${slot}.0`);
   const bubble = worn('bu', w.d.equipped.chatBubble);
+  const id = userIdentity(me);
   const ring = worn('sr', w.d.equipped.seatRing);
 
   return (
@@ -77,6 +78,12 @@ export function StudioPage() {
             </div>
             <span className="t-caption bgv-muted">پیام در گفت‌وگو</span>
             {bubble && <ItemArt item={bubble} me={me} />}
+            <span className="t-caption bgv-muted">کارت بازیکن سر میز</span>
+            <div className="pf-prevfelt"><PlayerCard {...id} name={<bdi>{me.displayName}</bdi>} you seat={1} turn waiting="در حال بازی" /></div>
+            <span className="t-caption bgv-muted">صندلی در لابی</span>
+            <LobbySeat {...id} name={<bdi>{me.displayName}</bdi>} you ready seat={1} />
+            <span className="t-caption bgv-muted">ردیف رتبه‌بندی</span>
+            <div className="pf-prevrow"><b className="bgv-num">۱۲۸</b><Identity {...userIdentity(me, { size: 'sm', you: true })} /></div>
             <Badge tone="info" icon="eye">دیگران دقیقاً همین‌طور می‌بینند.</Badge>
           </div>
         </Card>
