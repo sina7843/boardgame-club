@@ -72,8 +72,9 @@ export const notificationConsumers: Record<string, Consumer> = {
     await notify(db, p.userIds, 'turn', (u) => `turn:${p.tableId}:${p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId) });
   },
   'table.reminder': async (db, e) => {
-    const p = e.payload as { tableId: string; revision: number; gameId: string; userIds: string[] };
-    await notify(db, p.userIds, 'reminder', (u) => `reminder:${p.tableId}:${p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId) });
+    const p = e.payload as { tableId: string; revision: number; gameId: string; userIds: string[]; reminderId?: string; leftSeconds?: number | null };
+    // One notification per reminder (half time, quarter, last hour): the reminder id keeps them apart.
+    await notify(db, p.userIds, 'reminder', (u) => `reminder:${p.tableId}:${p.reminderId ?? p.revision}:${u}`, { tableId: p.tableId, gameNameFa: await gameName(db, p.gameId), leftSeconds: p.leftSeconds ?? null });
   },
   'table.finished': async (db, e) => {
     const p = e.payload as { tableId: string; gameId: string; isTutorial: boolean; vsBot?: boolean; reason: string; placements: { userId: string | null; place: number }[] };

@@ -41,6 +41,10 @@ export type EngineInput =
   | { kind: 'action'; seat: number; action: unknown; logicalTime: number }
   | { kind: 'timeout'; deadlineToken: string; logicalTime: number };
 
+/** Seconds-before-deadline for turn-based reminders, largest first: half time, a quarter (≤ 6 h), the last hour. */
+export const reminderLeads = (turnSeconds: number) =>
+  [...new Set([Math.floor(turnSeconds / 2), Math.min(Math.floor(turnSeconds / 4), 6 * 3600), 3600])].filter((l) => l >= 60 && l < turnSeconds).sort((a, b) => b - a);
+
 /** «m+i» time control from the table's options (live tables only): bank minutes and Fischer increment seconds. */
 export function clockControl(table: { pace: string; settings: unknown }): { initialMs: number; incrementMs: number } | null {
   const v = (table.settings as { options?: { clock?: unknown } }).options?.clock;
@@ -105,13 +109,16 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
       const banked = chessClock(table, step.pendingSeats);
       const dueAt = banked !== null ? sql`now() + make_interval(secs => ${banked})` : sql`now() + make_interval(secs => ${turnSeconds})`;
       await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'turn', token: randomUUID(), expectedRevision: revision, dueAt });
-      if (table.pace === 'turn' && (table.settings as { reminders?: boolean }).reminders) {
-        // Remind a quarter of the turn before the deadline (at most 6 hours before).
-        const lead = Math.min(Math.floor(turnSeconds / 4), 6 * 3600);
-        await tx.insert(scheduledDeadlines).values({
-          tableId: table.id, deadlineKey: 'reminder', token: randomUUID(), expectedRevision: revision,
-          dueAt: sql`now() + make_interval(secs => ${turnSeconds - lead})`
-        });
+      if (table.pace === 'turn' && (table.settings as { reminders?: boolean }).reminders && banked === null) {
+        // Reminders at half time, at a quarter left (at most 6 hours before) and in the last hour (alert escalation).
+        // One pending reminder per table (unique index): the first is scheduled here, each one schedules the next.
+        const lead = reminderLeads(turnSeconds)[0];
+        if (lead !== undefined) {
+          await tx.insert(scheduledDeadlines).values({
+            tableId: table.id, deadlineKey: 'reminder', token: randomUUID(), expectedRevision: revision,
+            dueAt: sql`now() + make_interval(secs => ${turnSeconds - lead})`
+          });
+        }
       }
     }
   }
@@ -275,8 +282,20 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
       const pending = module.pendingSeats(snap.state);
       const users = pending.length ? await tx.select({ userId: participants.userId }).from(participants)
         .where(and(eq(participants.tableId, table.id), inArray(participants.seat, pending))) : [];
+      const [turn] = await tx.select({ dueAt: scheduledDeadlines.dueAt }).from(scheduledDeadlines)
+        .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.deadlineKey, 'turn'), eq(scheduledDeadlines.status, 'pending'))).limit(1);
+      const leftSeconds = turn ? Math.max(0, Math.round((turn.dueAt.getTime() - Date.now()) / 1000)) : null;
+      // Next step of the chain: as many reminders as already fired for this turn (this one included).
+      const [{ fired } = { fired: 0 }] = await tx.select({ fired: sql<number>`count(*)::int` }).from(scheduledDeadlines)
+        .where(and(eq(scheduledDeadlines.tableId, table.id), eq(scheduledDeadlines.deadlineKey, 'reminder'), eq(scheduledDeadlines.status, 'fired'),
+          eq(scheduledDeadlines.expectedRevision, table.revision)));
+      const next = reminderLeads((table.settings as { turnSeconds: number }).turnSeconds)[fired];
+      if (next !== undefined && turn) {
+        await tx.insert(scheduledDeadlines).values({ tableId: table.id, deadlineKey: 'reminder', token: randomUUID(), expectedRevision: table.revision,
+          dueAt: new Date(turn.dueAt.getTime() - next * 1000) });
+      }
       await tx.insert(outboxEvents).values({ topic: 'table.reminder', aggregateId: table.id,
-        payload: { tableId: table.id, revision: table.revision, gameId: table.gameId, userIds: users.map((u) => u.userId).filter(Boolean) } });
+        payload: { tableId: table.id, revision: table.revision, reminderId: d.id, leftSeconds, gameId: table.gameId, userIds: users.map((u) => u.userId).filter(Boolean) } });
       return 'fired';
     }
     if (d.deadlineKey === 'bot') {

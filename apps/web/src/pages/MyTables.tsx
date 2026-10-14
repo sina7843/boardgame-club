@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import type { MyTableItem } from '@bg/contracts';
 import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Progress, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -153,7 +153,11 @@ export function MyTablesPage() {
       <>
         <div className="hm-colhead hm-myrow--players"><span>بازی</span><span>بازیکنان</span><span>وضعیت (به ترتیب فوریت)</span><span /></div>
         <ul className="hm-ul" aria-label="میزهای من">
-          {shown.map((t) => (
+          {shown.map((t, i) => (
+            <Fragment key={t.id}>
+            {tab === 'running' && filter === 'all' && (i === 0 || shown[i - 1]!.isMyTurn !== t.isMyTurn) && (
+              <li className="hm-group" role="presentation">{t.isMyTurn ? <>نوبت شما <Badge tone="you" size="sm">{faNum(turns)}</Badge></> : 'منتظر دیگران'}</li>
+            )}
             <li key={t.id} className={`hm-myrow hm-myrow--players${t.isMyTurn ? ' is-mine' : ''}${isUrgent(t) ? ' is-urgent' : ''}`}>
               <div className="hm-cell">
                 <Cover gameId={t.gameId} />
@@ -161,8 +165,10 @@ export function MyTablesPage() {
               </div>
               <div className="hm-players"><Players t={t} /></div>
               <Status t={t} />
-              <div className="hm-act"><Button variant={t.isMyTurn ? 'primary' : 'secondary'} href={`/tables/${t.id}`}>{t.isMyTurn ? 'بازی کن' : 'باز کردن'}</Button></div>
+              <div className="hm-act">{t.isMyTurn ? <Button variant="primary" href={`/tables/${t.id}`}>بازی کن</Button>
+                : <Button variant="ghost" iconOnly icon="chevron-left" href={`/tables/${t.id}`}>باز کردن</Button>}</div>
             </li>
+            </Fragment>
           ))}
         </ul>
       </>

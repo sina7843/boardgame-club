@@ -202,4 +202,19 @@ describe('deadlines (FR-09)', () => {
     expect(v.history[0].bids).toEqual([5, 1]);
     expect(v.round).toBe(2);
   });
+
+  it('turn-based reminders chain: half time, then a quarter (≤ 6 h), then the last hour, each with the time left', async () => {
+    const t = await startTable(ctx, 'line-three', 2, { pace: 'turn', turnSeconds: 86400 });
+    const turn = (await pendingDeadline(ctx, t.tableId))!;
+    const r1 = (await pendingDeadline(ctx, t.tableId, 'reminder'))!;
+    expect(Math.round((turn.dueAt.getTime() - r1.dueAt.getTime()) / 1000)).toBeCloseTo(43200, -2);
+    await makeDue(ctx, r1.id);
+    expect(await fireDeadline(ctx.db, createDefaultRegistry(), r1.id)).toBe('fired');
+    const r2 = (await pendingDeadline(ctx, t.tableId, 'reminder'))!;
+    expect(Math.round((turn.dueAt.getTime() - r2.dueAt.getTime()) / 1000)).toBe(21600);
+    await makeDue(ctx, r2.id);
+    await fireDeadline(ctx.db, createDefaultRegistry(), r2.id);
+    const r3 = (await pendingDeadline(ctx, t.tableId, 'reminder'))!;
+    expect(Math.round((turn.dueAt.getTime() - r3.dueAt.getTime()) / 1000)).toBe(3600);
+  });
 });

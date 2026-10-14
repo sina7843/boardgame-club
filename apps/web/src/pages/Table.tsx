@@ -616,9 +616,10 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
         <Felt as="main" className="tbl-felt" label={`صفحهٔ بازی ${t.gameNameFa}`}
           top={!finished ? <>
-            <TurnPill mine={myTurn} {...(turnSeat ? { seat: seatNo(turnSeat.seat), who: name(turnSeat.seat), avatar: seatAvatar(turnSeat, name(turnSeat.seat)) } : { simul: statusText })}
+            <TurnPill mine={myTurn} {...(turnSeat ? { seat: seatNo(turnSeat.seat), who: name(turnSeat.seat), avatar: seatAvatar(turnSeat, name(turnSeat.seat)) }
+              : { simul: g.pendingSeats.length > 1 ? `${faNum(t.seats.length - g.pendingSeats.length)} از ${faNum(t.seats.length)} آماده` : statusText })}
               {...(t.mySeat === null ? { text: statusText } : {})}
-              {...(clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {})} />
+              {...(clockProps ? { clock: clockProps } : {})} />
             {g.deadline?.frozen && <span className="bgv-felt-plate"><Icon name="lock" size="sm" />زمان منجمد (توقف سراسری)</span>}
             {shared.length > 0 && <span className="bgv-row tbl-shared">{shared.map((p) => (
               <FeltPlate key={p.key} label={p.label} value={p.max !== undefined ? `${faNum(Number(p.value))}/${faNum(p.max)}` : p.value} />
@@ -646,7 +647,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             <Icon name={finished ? 'flag' : myTurn ? 'play' : 'hourglass'} />
             <strong>{statusText}</strong>
           </span>}
-          {...(clockProps && myTurn ? { clock: { ...clockProps, sub: g.pendingSeats.length > 1 ? 'مهلت مشترک' : 'زمان شما' } } : {})}
+          {...(clockProps && myTurn ? { clock: { ...clockProps, sub: clockProps.state === 'critical' ? 'عجله کنید' : clockProps.state === 'warn' ? 'نیمی گذشت'
+            : clockProps.state === 'stale' ? 'در حال اتصال' : g.pendingSeats.length > 1 ? 'مهلت مشترک' : 'زمان شما' } } : {})}
           actions={<>
             {g.tutorial && !finished && <>
               <Button size="sm" variant="ghost" icon="rotate-ccw" disabled={tutorialBusy} onClick={() => tutorial('start')}>از اول</Button>

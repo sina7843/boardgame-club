@@ -278,15 +278,18 @@ export async function listNotifications(db: Db, userId: string): Promise<Notific
 }
 
 /** Payload holds only public, non-game-secret fields; the text is rendered here so clients never get raw data. */
+/** «۶ ساعت» / «۴۵ دقیقه» for reminder texts. */
+const leftFa = (sec: number) => (sec >= 3600 ? `${Math.round(sec / 3600).toLocaleString('fa-IR')} ساعت` : `${Math.max(1, Math.round(sec / 60)).toLocaleString('fa-IR')} دقیقه`);
+
 export function toNotificationItem(n: typeof notifications.$inferSelect): NotificationItem {
   const p = n.payload as { tableId?: string; gameNameFa?: string; actorName?: string; conversationId?: string; clubSlug?: string; clubName?: string;
-    tournamentId?: string; titleFa?: string; round?: number; rank?: number; cancelled?: boolean; itemNameFa?: string };
+    tournamentId?: string; titleFa?: string; round?: number; rank?: number; cancelled?: boolean; itemNameFa?: string; leftSeconds?: number | null };
   const game = p.gameNameFa ?? 'بازی';
   const actor = p.actorName ?? 'یک بازیکن';
   const kind = n.kind as NotificationItem['kind'];
   const text = {
     turn: `نوبت شما در «${game}» است.`,
-    reminder: `موعد نوبت شما در «${game}» نزدیک است.`,
+    reminder: p.leftSeconds ? `${leftFa(p.leftSeconds)} تا پایان نوبت شما در «${game}» مانده است.` : `موعد نوبت شما در «${game}» نزدیک است.`,
     finished: `بازی «${game}» تمام شد؛ نتیجه را ببینید.`,
     invite: `${actor} شما را به میز «${game}» دعوت کرد.`,
     match: `حریف پیدا شد: «${game}». آمادگی خود را اعلام کنید.`,
