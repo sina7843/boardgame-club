@@ -87,8 +87,14 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
     const { userId } = socket.data.auth;
     void socket.join(`user:${userId}`);
     // Presence heartbeat while the socket lives (touchSession writes at most once a minute).
-    const beat = setInterval(() => touchSession(db, socket.data.auth.sessionId), 60_000);
-    socket.on('disconnect', () => clearInterval(beat));
+    const beat = setInterval(() => {
+      touchSession(db, socket.data.auth.sessionId);
+      void db.update(schema.tableWatchers).set({ seenAt: sql`now()` }).where(eq(schema.tableWatchers.socketId, socket.id)).catch(() => undefined);
+    }, 60_000);
+    socket.on('disconnect', () => {
+      clearInterval(beat);
+      void db.delete(schema.tableWatchers).where(eq(schema.tableWatchers.socketId, socket.id)).catch(() => undefined);
+    });
     socket.emit(ServerEvents.sessionReady, { userId, serverTime: new Date().toISOString() });
 
     socket.on(ClientEvents.tableSubscribe, async (payload: unknown, ack?: Ack) => {
@@ -102,7 +108,12 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         if (parsed.data.inviteCode) socket.data.invites.set(parsed.data.tableId, parsed.data.inviteCode);
         await socket.join(room);
         try {
-          ack?.({ ok: true, snapshot: await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId, inviteCode: parsed.data.inviteCode }) });
+          const snapshot = await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId, inviteCode: parsed.data.inviteCode });
+          if (snapshot.table.mySeat === null) {
+            await db.insert(schema.tableWatchers).values({ tableId: parsed.data.tableId, socketId: socket.id, userId })
+              .onConflictDoUpdate({ target: [schema.tableWatchers.tableId, schema.tableWatchers.socketId], set: { seenAt: sql`now()` } });
+          }
+          ack?.({ ok: true, snapshot });
         } catch (err) {
           if (!wasMember) { socket.data.invites.delete(parsed.data.tableId); await socket.leave(room); } // not authorized: no pushes either
           throw err;

@@ -112,6 +112,8 @@ export const tableLobby = z.object({
   hostId: z.uuid(),
   seats: z.array(seatView),
   mySeat: z.number().int().nullable(),
+  /** Signed-in spectators watching right now (running tables only). */
+  spectators: z.number().int(),
   /** Only returned to participants of a private table. */
   inviteCode: z.string().nullable(),
   policies: z.object({ timeoutFa: z.string(), resignFa: z.string(), disconnectFa: z.string() }),

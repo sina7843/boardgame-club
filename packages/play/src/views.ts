@@ -8,7 +8,7 @@ import { loadSnapshot } from './runtime.ts';
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
 
-const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory } = schema;
+const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory, tableWatchers } = schema;
 
 type GameView = NonNullable<TableSnapshot['game']>;
 
@@ -91,6 +91,14 @@ export function turnStartedEvent(registry: GameRegistry, ctx: TableContext, revi
 }
 
 /** Builds the authorized snapshot for one viewer, enforcing table access (private, tutorial, invite). */
+/** Distinct signed-in watchers seen by a socket heartbeat in the last 150 s (players never count). */
+async function spectatorCount(db: Db, tableId: string): Promise<number> {
+  const [r] = await db.select({ n: sql<number>`count(distinct ${tableWatchers.userId})::int` }).from(tableWatchers)
+    .where(and(eq(tableWatchers.tableId, tableId), sql`${tableWatchers.seenAt} > now() - interval '150 seconds'`,
+      sql`${tableWatchers.userId} not in (select user_id from participants where table_id = ${tableId} and user_id is not null)`));
+  return r?.n ?? 0;
+}
+
 export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: ViewRequest, ctx?: TableContext): Promise<TableSnapshot> {
   const { table, version, game, seats, incident, snap, readyDue, turnDue, result } = ctx ?? await loadTableContext(db, req.tableId);
   const mine = seats.find((s) => s.p.userId === req.userId);
@@ -129,6 +137,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
       ...(p.kind === 'bot' && botCfg ? { bot: botSeat(p.seat) } : {})
     })),
     mySeat,
+    spectators: table.status === 'active' ? await spectatorCount(db, table.id) : 0,
     inviteCode: mySeat !== null && table.visibility === 'private' && !table.isTutorial ? table.inviteCode : null,
     policies: {
       timeoutFa: game.timeoutPolicyFa, resignFa: game.resignPolicyFa,

@@ -866,6 +866,14 @@ export const userMutes = pgTable('user_mutes', {
   createdAt: createdAt()
 }, (t) => [primaryKey({ columns: [t.muterId, t.mutedId] })]);
 
+/** Live spectators: one row per watching socket, refreshed by the socket heartbeat; stale rows (> 150 s) do not count. */
+export const tableWatchers = pgTable('table_watchers', {
+  tableId: uuid().notNull().references(() => gameTables.id, { onDelete: 'cascade' }),
+  socketId: text().notNull(),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  seenAt: createdAt()
+}, (t) => [primaryKey({ columns: [t.tableId, t.socketId] })]);
+
 /** A personal invitation to a (possibly private) table; grants lobby access without the invite link. */
 export const tableInvites = pgTable('table_invites', {
   tableId: uuid().notNull().references(() => gameTables.id, { onDelete: 'cascade' }),

@@ -4,7 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import {
-  ActionDock, CritBar, Badge, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
+  ActionDock, CritBar, Badge, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
@@ -522,8 +522,11 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     <div ref={gameRef} className={full.max ? 'tbl tbl--max' : 'tbl'}>
       <TableScreen desk className={hasChat ? 'tbl-screen' : 'tbl-screen tbl-screen--nochat'}>
         <GameBar title={t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
-          meta={[...tableMeta(t), <Connection key="c" state={s.live ? 'ok' : 'retry'} label={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'} />]}
+          meta={[...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...tableMeta(t),
+            ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
+            <Connection key="c" state={s.live ? 'ok' : 'retry'} label={s.live ? 'متصل' : 'اتصال زنده برقرار نیست؛ با هر اقدام به‌روز می‌شود'} />]}
           actions={<>
+            {!isPlayer && !finished && <Button variant="secondary" size="sm" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>}
             {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} />}
             <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}

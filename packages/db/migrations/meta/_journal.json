@@ -134,6 +134,13 @@
       "when": 1791970656995,
       "tag": "0018_cosmetic_kinds",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792001256168,
+      "tag": "0019_table_watchers",
+      "breakpoints": true
     }
   ]
 }
