@@ -108,7 +108,7 @@ export function CoinsPage() {
         <Card flush aria-labelledby="earn-h">
           <div className="ac-sec__head"><h2 id="earn-h" className="ac-h3" style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Icon name="sparkles" />راه‌های گرفتن سکه</h2></div>
           <ul className="ac-earn">
-            {d.earn.map((e) => <li key={e.labelFa}><span>{e.labelFa}</span><span className="bgv-coin bgv-coin--sm"><bdi dir="ltr">+{faNum(e.coins)}</bdi></span></li>)}
+            {d.earn.map((e) => <li key={e.labelFa}><span>{e.labelFa}</span><Coin size="sm" amount={`+${faNum(e.coins)}`} /></li>)}
           </ul>
           <p className="ac-cap ac-pad">سکهٔ بازی‌ها هم‌پای XP است: سقف روزانه و بازی پیاپی با حریف تکراری سکه را هم کم می‌کند.</p>
         </Card>

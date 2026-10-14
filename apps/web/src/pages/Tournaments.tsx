@@ -43,7 +43,7 @@ export function TournamentsPage() {
   usePoll(list.reload, true, 15000);
   const head = <><PageTabs group="tables" /></>;
   if (list.error) return <>{head}<StateBlock kind="error" title="تورنمنت‌ها دریافت نشد" text={list.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={list.reload}>تلاش دوباره</Button>} /></>;
-  if (!list.data) return <>{head}<Skeleton height={320} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری…</span></>;
+  if (!list.data) return <>{head}<Skeleton height={320} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;
   const items = list.data.items.filter((t) => !mine || t.registered);
   const live = items.filter((t) => t.status === 'open' || t.status === 'running');
   const ended = items.filter((t) => t.status === 'finished' || t.status === 'cancelled');
@@ -117,7 +117,7 @@ export function TournamentPage() {
   const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'میزها و حریف‌یابی', href: '/tables' }, { label: 'تورنمنت‌ها', href: '/tournaments' }, { label: last }]} />;
   if (d.error) return <>{crumbs('…')}<StateBlock kind={d.error.status === 404 ? 'empty' : 'error'} title={d.error.status === 404 ? 'این تورنمنت پیدا نشد' : 'تورنمنت دریافت نشد'}
     action={<Button variant="primary" href="/tournaments">همهٔ تورنمنت‌ها</Button>} /></>;
-  if (!d.data) return <>{crumbs('…')}<Skeleton height={260} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری…</span></>;
+  if (!d.data) return <>{crumbs('…')}<Skeleton height={260} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;
   const t = d.data;
 
   const act = async (path: string, ok: string) => {
@@ -175,7 +175,7 @@ export function TournamentPage() {
           <Card flush as="section" aria-labelledby="stand-h">
             <div className="bgv-row" style={{ padding: 'var(--space-5) var(--space-5) var(--space-2)' }}>
               <h2 id="stand-h" className="pg-h2" style={{ flex: 1 }}><Icon name="list" />جدول</h2>
-              <span className="pg-muted t-caption">{faNum(t.standings.length)} نفر</span>
+              <span className="bgv-muted t-caption">{faNum(t.standings.length)} نفر</span>
             </div>
             {t.standings.length === 0 ? <p className="bgv-muted" style={{ padding: 'var(--space-5)', margin: 0 }}>هنوز کسی ثبت‌نام نکرده است.</p> : (
               <div className="bgv-scroll-x pg-tablewrap">

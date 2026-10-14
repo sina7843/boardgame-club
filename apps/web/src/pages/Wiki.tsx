@@ -142,7 +142,7 @@ export function WikiPage() {
       {failed || games.error ? (
         <StateBlock kind="error" title="دانشنامه بارگذاری نشد" text={games.error?.messageFa} action={<Button onClick={() => location.reload()}>تلاش دوباره</Button>} />
       ) : !data || !games.data ? (
-        <><div className="bgv-grid" aria-hidden>{[0, 1, 2, 3].map((i) => <Skeleton key={i} height={300} radius="var(--radius-lg)" />)}</div><span className="pg-sr" role="status">در حال بارگذاری دانشنامه…</span></>
+        <><div className="bgv-grid" aria-hidden>{[0, 1, 2, 3].map((i) => <Skeleton key={i} height={300} radius="var(--radius-lg)" />)}</div><span className="bgv-sr" role="status">در حال بارگذاری دانشنامه…</span></>
       ) : entries.length === 0 ? (
         <StateBlock kind="empty" title="موردی پیدا نشد" text="عبارت یا فیلتر دیگری را امتحان کنید." action={<Button onClick={clear}>پاک‌کردن فیلترها</Button>} />
       ) : (

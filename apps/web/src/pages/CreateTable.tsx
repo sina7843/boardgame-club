@@ -38,7 +38,7 @@ export function CreateTable() {
   if (status !== 'loading' && !me) {
     return <StateBlock kind="denied" title="برای ساخت میز وارد شوید" action={<Button variant="primary" href={`/login?next=/games/${id}/new`}>ورود</Button>} />;
   }
-  if (loading && !g) return <><Skeleton height={320} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری…</span></>;
+  if (loading && !g) return <><Skeleton height={320} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;
   if (error || !g) return <StateBlock kind="error" title="اطلاعات بازی دریافت نشد" text={error?.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} />;
   if (!g.acceptingNewTables) return <StateBlock kind="empty" title="ساخت میز تازه برای این بازی فعلاً ممکن نیست" action={<Button href={`/games/${g.id}`}>بازگشت</Button>} />;
 

@@ -70,7 +70,7 @@ export function GameDetailPage() {
   };
 
   const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'بازی‌ها', href: '/games' }, { label: last }]} />;
-  if (loading && !g) return <>{crumbs('…')}<Skeleton height={320} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری صفحه بازی…</span></>;
+  if (loading && !g) return <>{crumbs('…')}<Skeleton height={320} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری صفحه بازی…</span></>;
   if (error?.status === 404) return <>{crumbs('بازی پیدا نشد')}<StateBlock kind="empty" title="این بازی پیدا نشد" text="ممکن است نشانی اشتباه باشد یا بازی هنوز منتشر نشده باشد." action={<Button href="/games">همه بازی‌ها</Button>} /></>;
   if (error || !g) return <>{crumbs('خطا')}<StateBlock kind="error" title="صفحه بازی بارگذاری نشد" text={error?.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} /></>;
 

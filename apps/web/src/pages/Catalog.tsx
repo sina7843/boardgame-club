@@ -68,7 +68,7 @@ export function Catalog() {
       {loading && !data && (
         <>
           <div className="bgv-grid" aria-hidden>{[0, 1, 2, 3].map((i) => <Skeleton key={i} height={300} radius="var(--radius-lg)" />)}</div>
-          <span className="pg-sr" role="status">در حال بارگذاری بازی‌ها…</span>
+          <span className="bgv-sr" role="status">در حال بارگذاری بازی‌ها…</span>
         </>
       )}
       {error && <StateBlock kind="error" title="فهرست بازی‌ها بارگذاری نشد" text={error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={reload}>تلاش دوباره</Button>} />}

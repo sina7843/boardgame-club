@@ -620,7 +620,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
               : { simul: g.pendingSeats.length > 1 ? `${faNum(t.seats.length - g.pendingSeats.length)} از ${faNum(t.seats.length)} آماده` : statusText })}
               {...(t.mySeat === null ? { text: statusText } : {})}
               {...(clockProps ? { clock: clockProps } : {})} />
-            {g.deadline?.frozen && <span className="bgv-felt-plate"><Icon name="lock" size="sm" />زمان منجمد (توقف سراسری)</span>}
+            {g.deadline?.frozen && <FeltPlate icon="lock" label="زمان منجمد (توقف سراسری)" />}
             {shared.length > 0 && <span className="bgv-row tbl-shared">{shared.map((p) => (
               <FeltPlate key={p.key} label={p.label} value={p.max !== undefined ? `${faNum(Number(p.value))}/${faNum(p.max)}` : p.value} />
             ))}</span>}

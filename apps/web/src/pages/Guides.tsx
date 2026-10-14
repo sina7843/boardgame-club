@@ -12,7 +12,7 @@ export function GuidesPage() {
   const { me, status } = useSession();
   const { state, start, setDismissed } = useOnboarding();
   const toast = useToast();
-  if (status === 'loading' || (me && !state)) return <><Skeleton height={200} radius="var(--radius-lg)" /><span className="pg-sr" role="status">در حال بارگذاری…</span></>;
+  if (status === 'loading' || (me && !state)) return <><Skeleton height={200} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;
   if (!me || !state) return <StateBlock kind="denied" title="برای دیدن آموزش‌ها وارد شوید" action={<Button variant="primary" href="/login?next=/guides">ورود</Button>} />;
   const doneCount = state.tours.filter((t) => t.completed).length;
   const granted = state.achievement.grantedAt;
