@@ -1278,3 +1278,5 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Admin player management (2026-10-14): admins see masked mobiles only (full number is searchable, never returned).
   Admins cannot act on themselves or on staff accounts (roles are granted out of band). Closing an account is refused
   while the player sits at a running table or is registered in an open tournament, same as self-delete; suspend first.
+- Reaction set (2026-10-14, owner decision): the last reaction emoji is 👏 (design-system README / `REACTION_EMOJIS`),
+  not the 🎉 drawn in the chat artboards. Code already matches; the artboards are out of date on this point.
