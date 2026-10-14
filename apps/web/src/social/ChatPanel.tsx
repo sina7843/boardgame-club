@@ -140,12 +140,21 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     else el?.scrollTo({ top: el.scrollHeight });
   }, [items.length, pending.length]);
 
+  // Slow mode (members): count down to the next allowed message instead of letting the server refuse it.
+  const [nextAt, setNextAt] = useState(0);
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (nextAt <= Date.now()) return;
+    const t = setInterval(() => { tick((n) => n + 1); if (Date.now() >= nextAt) clearInterval(t); }, 1000);
+    return () => clearInterval(t);
+  }, [nextAt]);
   const deliver = async (p: Pending) => {
     setPending((old) => old.map((x) => (x.clientId === p.clientId ? { ...x, failed: false } : x)));
     try {
       const m = await api<MessageItem>(post, { method: 'POST', body: { ...(p.quick ? { quick: p.quick } : { body: p.body }), replyToId: p.replyTo?.id, clientId: p.clientId } });
       setPending((old) => old.filter((x) => x.clientId !== p.clientId));
       setItems((old) => (old.some((x) => x.id === m.id) ? old : [...old, m]));
+      if (meta && !meta.canModerate && meta.slowModeSeconds > 0) setNextAt(Date.now() + meta.slowModeSeconds * 1000);
     } catch (err) {
       setPending((old) => old.map((x) => (x.clientId === p.clientId ? { ...x, failed: true } : x)));
       toast('error', err instanceof ApiFailure ? err.messageFa : 'پیام ارسال نشد؛ اتصال را بررسی کنید.');
@@ -165,7 +174,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
 
   const submit = async (e?: FormEvent) => {
     e?.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || (!editing && nextAt > Date.now())) return;
     if (editing) {
       try {
         const m = await api<MessageItem>(`/messages/${editing.id}`, { method: 'PATCH', body: { body: text } });
@@ -232,6 +241,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   const suggestions = token === undefined ? [] : names.filter((n) => n.startsWith(token)).slice(0, 5);
   const pickMention = (name: string) => { onType(text.replace(/@[^\s@]*$/, `@${name} `)); input.current?.focus(); };
 
+  const waitSec = Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
   const composer = meta.canPost ? (
     <form className="bgv-composer" onSubmit={submit}>
       {(replyTo || editing) && (
@@ -251,8 +261,9 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void submit(); }
             if (e.key === 'Escape' && (replyTo || editing)) { e.preventDefault(); e.stopPropagation(); cancelCompose(); }
           }} />
-        <Button type="submit" variant="primary" iconOnly icon={<Icon name="send" mirror />} disabled={!text.trim()}>{editing ? 'ذخیره' : 'ارسال'}</Button>
+        <Button type="submit" variant="primary" iconOnly icon={<Icon name="send" mirror />} disabled={!text.trim() || (!editing && waitSec > 0)}>{editing ? 'ذخیره' : 'ارسال'}</Button>
       </div>
+      {waitSec > 0 && <p className="t-caption bgv-muted" role="status" style={{ margin: 0 }}>حالت آهسته: پیام بعدی تا {faNum(waitSec)} ثانیه‌ی دیگر</p>}
     </form>
   ) : (
     <div className="bgv-composer">
@@ -318,7 +329,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   return (
     <>
       {frame(body, composer, slow)}
-      {reporting && <ReportDialog targetType="message" targetId={reporting.id} label={`پیام ${reporting.sender.displayName}`} onClose={() => setReporting(null)} />}
+      {reporting && <ReportDialog targetType="message" targetId={reporting.id} label={`پیام ${reporting.sender.displayName}`}
+        quote={{ author: reporting.sender.displayName, text: reporting.body }} mute={{ userId: reporting.sender.id, name: reporting.sender.displayName }} onClose={() => setReporting(null)} />}
     </>
   );
 }
