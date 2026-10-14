@@ -11,16 +11,16 @@ type Kind = NotificationItem['kind'];
 type Cat = 'all' | 'turn' | 'invite' | 'message' | 'result' | 'social';
 const CAT: Record<Kind, Exclude<Cat, 'all'>> = {
   turn: 'turn', reminder: 'turn', invite: 'invite', match: 'invite', message: 'message', mention: 'message', finished: 'result',
-  friend_request: 'social', club: 'social', tournament: 'social'
+  friend_request: 'social', club: 'social', tournament: 'social', gift: 'social'
 };
 const ICON: Record<Kind, string> = {
   turn: 'zap', reminder: 'alarm-clock', invite: 'user-plus', match: 'swords', message: 'message-circle', mention: 'message-circle', finished: 'trophy',
-  friend_request: 'users', club: 'users', tournament: 'calendar'
+  friend_request: 'users', club: 'users', tournament: 'calendar', gift: 'gift'
 };
-const TONE: Partial<Record<Kind, 'turn' | 'urgent' | 'reward'>> = { turn: 'turn', reminder: 'urgent', finished: 'reward' };
+const TONE: Partial<Record<Kind, 'turn' | 'urgent' | 'reward'>> = { turn: 'turn', reminder: 'urgent', finished: 'reward', gift: 'reward' };
 const ACTION: Record<Kind, string> = {
   turn: 'ورود به میز', reminder: 'ورود به میز', invite: 'دیدن دعوت', match: 'ورود به میز', message: 'پاسخ', mention: 'پاسخ', finished: 'بازبینی',
-  friend_request: 'دیدن درخواست', club: 'باز کردن', tournament: 'دیدن تورنمنت'
+  friend_request: 'دیدن درخواست', club: 'باز کردن', tournament: 'دیدن تورنمنت', gift: 'دیدن کمد'
 };
 
 const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran' });

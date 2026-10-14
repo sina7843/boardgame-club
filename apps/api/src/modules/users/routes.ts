@@ -7,7 +7,7 @@ import {
   type ProfileExtras, type PublicProfile
 } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
-import { activeSuspension, assertUnlocked, buyCosmetic, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
+import { activeSuspension, assertUnlocked, buyBundle, buyCosmetic, giftCosmetic, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -135,6 +135,25 @@ export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
       body: z.strictObject({ item: z.string().max(8), requestId: z.uuid() }),
       response: { 200: z.object({ balance: z.number().int() }), 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema } }
   }, async (req) => buyCosmetic(db, requireUser(req).userId, req.body.item, req.body.requestId));
+
+  r.post('/cosmetics/bundles/buy', {
+    schema: { tags: ['users'], summary: 'Buy a seasonal bundle with coins (owned items are not charged); the same requestId never spends twice',
+      body: z.strictObject({ bundle: z.string().max(16), requestId: z.uuid() }),
+      response: { 200: z.object({ balance: z.number().int() }), 401: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema } }
+  }, async (req) => buyBundle(db, requireUser(req).userId, req.body.bundle, req.body.requestId));
+
+  r.post('/cosmetics/gift', {
+    schema: { tags: ['users'], summary: 'Gift a coin item to a friend; the sender pays and the friend is notified',
+      body: z.strictObject({ item: z.string().max(8), userId: z.uuid(), requestId: z.uuid() }),
+      response: { 200: z.object({ balance: z.number().int() }), 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema } }
+  }, async (req) => {
+    const { userId } = requireUser(req);
+    if (req.body.userId === userId) throw new AppError('CANNOT_TARGET_SELF');
+    const [low, high] = userId < req.body.userId ? [userId, req.body.userId] : [req.body.userId, userId];
+    const [f] = await db.select().from(friendships).where(and(eq(friendships.userLow, low), eq(friendships.userHigh, high), eq(friendships.status, 'accepted')));
+    if (!f) throw new AppError('FORBIDDEN');
+    return giftCosmetic(db, userId, req.body.userId, req.body.item, req.body.requestId);
+  });
 
   r.get('/users/:id', {
     schema: { tags: ['users'], summary: 'Public profile (never includes mobile)', params: z.object({ id: z.uuid() }),

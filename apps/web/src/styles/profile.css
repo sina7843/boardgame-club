@@ -111,3 +111,12 @@
 
 .pf-prevfelt { padding: var(--space-3); border-radius: var(--radius-lg); background: var(--felt); }
 .pf-prevrow { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }
+
+/* Shop: seasonal bundle, preview contexts, gift row. */
+.pf-bundle { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); border: 1.5px solid var(--accent); }
+.pf-bundle__art { display: flex; gap: var(--space-2); }
+.pf-bundle__art > * { inline-size: 64px; }
+.pf-itemhero--table { background: var(--felt); border-radius: var(--radius-lg); padding: var(--space-4); }
+.pf-itemhero--chat { background: var(--surface-sunken); border-radius: var(--radius-lg); padding: var(--space-4); }
+.pf-gift { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.pf-gift > :first-child { flex: 1 1 200px; }

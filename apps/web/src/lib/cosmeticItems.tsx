@@ -81,5 +81,17 @@ export function useWardrobe() {
       return true;
     } catch (e) { fail(e, 'خرید انجام نشد.'); return false; }
   };
-  return { me, owned, d, unlocked, stateOf, isEquipped, reason, rarity, equip, buy, kindFa: (c: CosmeticItem) => { const k = kindOfKey(c.key); return k ? KIND_FA[k] : SLOT_FA[c.slot]; } };
+  const buyBundle = async (key: string, nameFa: string) => {
+    try {
+      await api('/cosmetics/bundles/buy', { method: 'POST', body: { bundle: key, requestId: crypto.randomUUID() } });
+      toast('success', `«${nameFa}» خریده شد.`); coinsChanged(); owned.reload(); return true;
+    } catch (e) { fail(e, 'خرید انجام نشد.'); return false; }
+  };
+  const gift = async (c: CosmeticItem, userId: string, name: string) => {
+    try {
+      await api('/cosmetics/gift', { method: 'POST', body: { item: c.key, userId, requestId: crypto.randomUUID() } });
+      toast('success', `«${c.nameFa}» برای ${name} هدیه رفت.`); coinsChanged(); owned.reload(); return true;
+    } catch (e) { fail(e, 'هدیه فرستاده نشد.'); return false; }
+  };
+  return { me, owned, d, unlocked, stateOf, isEquipped, reason, rarity, equip, buy, buyBundle, gift, kindFa: (c: CosmeticItem) => { const k = kindOfKey(c.key); return k ? KIND_FA[k] : SLOT_FA[c.slot]; } };
 }

@@ -235,6 +235,18 @@ export const COSMETICS: readonly CosmeticItem[] = (Object.keys(DEFS) as Cosmetic
   .flatMap((slot) => DEFS[slot].map((d, i) => ({ ...d, slot, i, key: `${slot}.${i}` })));
 const BY_KEY = new Map(COSMETICS.map((c) => [c.key, c]));
 export const cosmetic = (key: string): CosmeticItem | undefined => BY_KEY.get(key);
+
+/** Seasonal coin bundles: a set of coin items at a discount; items already owned are not charged. */
+export interface CosmeticBundle { key: string; nameFa: string; descriptionFa: string; items: readonly string[]; discountPct: number }
+export const COSMETIC_BUNDLES: readonly CosmeticBundle[] = [
+  { key: 'bd.autumn', nameFa: 'بستهٔ پاییزی فیروزه', descriptionFa: 'بنر کاشی فیروزه، پشت کارت کاشی فیروزه و حلقهٔ صندلی خط‌چین طلایی؛ با هم ارزان‌تر.',
+    items: ['bn.4', 'cb.2', 'sr.2'], discountPct: 25 }
+];
+/** Coins still to pay for a bundle given what the player already owns (0 = owns everything). */
+export function bundlePrice(b: CosmeticBundle, owned: ReadonlySet<string>): number {
+  const rest = b.items.filter((k) => !owned.has(k)).map((k) => cosmetic(k)?.unlock).reduce((n, u) => n + (u && 'coins' in u ? u.coins : 0), 0);
+  return Math.round(rest * (100 - b.discountPct) / 100);
+}
 /** Shown rarity: explicit, else derived from how the item unlocks. */
 export function rarityOf(c: CosmeticItem): Rarity {
   if (c.rarity) return c.rarity;

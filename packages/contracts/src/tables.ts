@@ -230,7 +230,7 @@ export type LiveTableItem = z.infer<typeof liveTableItem>;
 
 export const notificationItem = z.object({
   id: z.uuid(),
-  kind: z.enum(['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'mention', 'friend_request', 'club', 'tournament']),
+  kind: z.enum(['turn', 'reminder', 'finished', 'invite', 'match', 'message', 'mention', 'friend_request', 'club', 'tournament', 'gift']),
   /** In-app destination; the target page re-checks authorization. */
   href: z.string(),
   tableId: z.uuid().nullable(),

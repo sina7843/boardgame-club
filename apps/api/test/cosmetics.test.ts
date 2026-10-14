@@ -51,6 +51,37 @@ describe('buying cosmetics', () => {
   });
 });
 
+describe('bundles and gifts', () => {
+  it('a bundle charges the discounted price of the items not owned yet, once per requestId', async () => {
+    const [u] = await users(ctx, 1);
+    await give(u!.id, 1000);
+    // Owning one item makes the bundle cheaper: (250 + 220) × 0.75 = 353 (rounded).
+    expect((await call(ctx, 'POST', '/api/cosmetics/buy', u, { item: 'bn.4', requestId: randomUUID() })).statusCode).toBe(200);
+    const before = await coinBalance(ctx.db, u!.id);
+    const rid = randomUUID();
+    expect((await call(ctx, 'POST', '/api/cosmetics/bundles/buy', u, { bundle: 'bd.autumn', requestId: rid })).statusCode).toBe(200);
+    expect((await call(ctx, 'POST', '/api/cosmetics/bundles/buy', u, { bundle: 'bd.autumn', requestId: rid })).statusCode).toBe(200);
+    expect(before - await coinBalance(ctx.db, u!.id)).toBe(353);
+    const owned = (await ctx.db.select().from(userCosmetics).where(eq(userCosmetics.userId, u!.id))).map((r) => r.itemKey);
+    expect(owned).toEqual(expect.arrayContaining(['bn.4', 'cb.2', 'sr.2']));
+    expect((await call(ctx, 'POST', '/api/cosmetics/bundles/buy', u, { bundle: 'bd.autumn', requestId: randomUUID() })).json().errorCode).toBe('ALREADY_OWNED');
+  });
+
+  it('gifts go to friends only: the sender pays, the friend owns it and is notified', async () => {
+    const [a, b, stranger] = await users(ctx, 3);
+    await give(a!.id, 500);
+    await call(ctx, 'POST', '/api/friends/requests', a, { userId: b!.id });
+    await call(ctx, 'POST', `/api/friends/requests/${a!.id}/accept`, b);
+    expect((await call(ctx, 'POST', '/api/cosmetics/gift', a, { item: 'bu.1', userId: stranger!.id, requestId: randomUUID() })).statusCode).toBe(403);
+    expect((await call(ctx, 'POST', '/api/cosmetics/gift', a, { item: 'bu.1', userId: b!.id, requestId: randomUUID() })).json()).toEqual({ balance: 420 });
+    expect(await coinBalance(ctx.db, b!.id)).toBe(0);
+    expect((await ctx.db.select().from(userCosmetics).where(eq(userCosmetics.userId, b!.id))).map((r) => r.itemKey)).toContain('bu.1');
+    const n = (await call(ctx, 'GET', '/api/me/notifications', b)).json().items.find((x: { kind: string }) => x.kind === 'gift');
+    expect(n.href).toBe('/me/wardrobe');
+    expect((await call(ctx, 'POST', '/api/cosmetics/gift', a, { item: 'bu.1', userId: b!.id, requestId: randomUUID() })).json().errorCode).toBe('ALREADY_OWNED');
+  });
+});
+
 describe('equipping', () => {
   it('rejects locked items and accepts them once unlocked by coins, level or achievement', async () => {
     const [u] = await users(ctx, 1) as [User];

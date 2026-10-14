@@ -1,14 +1,14 @@
 // Cosmetics ownership: free items, items bought with coins (user_cosmetics), and items earned through level,
 // achievements or a league placement (checked live, so they unlock the moment the progress exists).
 import { and, eq, inArray, sql } from 'drizzle-orm';
-import { AppError, COSMETICS, cosmetic, kindOfKey, leagueSchema, type CosmeticItem, type EquippedCosmetics, type ItemKind } from '@bg/contracts';
+import { AppError, bundlePrice, COSMETIC_BUNDLES, COSMETICS, cosmetic, kindOfKey, leagueSchema, type CosmeticItem, type EquippedCosmetics, type ItemKind } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { isPremium } from './billing.ts';
 import { coinBalance, lockCoins } from './coins.ts';
 import { levelFor, totalXp } from './progression.ts';
 import type { Tx } from './runtime.ts';
 
-const { users, coinLedger, userCosmetics, userAchievements, achievementDefinitions, leaguePlacements } = schema;
+const { users, coinLedger, userCosmetics, userAchievements, achievementDefinitions, leaguePlacements, notifications } = schema;
 const LEAGUES = leagueSchema.options;
 
 export interface Progress { level: number; achievements: Set<string>; bestLeague: number; owned: Set<string>; premium: boolean }
@@ -74,6 +74,56 @@ export async function buyCosmetic(db: Db, userId: string, key: string, requestId
     }
     return { balance: await coinBalance(tx, userId) };
   });
+}
+
+/** Buy a seasonal bundle: pays the discounted price of the items not owned yet; the same requestId never spends twice. */
+export async function buyBundle(db: Db, userId: string, key: string, requestId: string): Promise<{ balance: number }> {
+  const b = COSMETIC_BUNDLES.find((x) => x.key === key);
+  if (!b) throw new AppError('NOT_FOUND');
+  return db.transaction(async (tx) => {
+    await lockCoins(tx, userId);
+    const sourceKey = `bundle:${userId}:${requestId}`;
+    const [done] = await tx.select({ id: coinLedger.id }).from(coinLedger).where(eq(coinLedger.sourceKey, sourceKey));
+    if (!done) {
+      const owned = new Set((await tx.select({ k: userCosmetics.itemKey }).from(userCosmetics).where(eq(userCosmetics.userId, userId))).map((r) => r.k));
+      const cost = bundlePrice(b, owned);
+      if (cost === 0) throw new AppError('ALREADY_OWNED');
+      if ((await coinBalance(tx, userId)) < cost) throw new AppError('INSUFFICIENT_COINS');
+      const [row] = await tx.insert(coinLedger).values({ userId, amount: -cost, ruleId: `bundle.${key}`, reason: `خرید «${b.nameFa}».`, sourceKey, metadata: { bundle: key } })
+        .returning({ id: coinLedger.id });
+      await tx.insert(userCosmetics).values(b.items.filter((k) => !owned.has(k)).map((k) => ({ userId, itemKey: k, ledgerId: row!.id })));
+    }
+    return { balance: await coinBalance(tx, userId) };
+  });
+}
+
+/** Gift a coin item to a friend (the caller checks friendship): the sender pays, the item lands in the friend's wardrobe. */
+export async function giftCosmetic(db: Db, fromId: string, toId: string, key: string, requestId: string): Promise<{ balance: number }> {
+  const item = cosmetic(key);
+  if (!item) throw new AppError('NOT_FOUND');
+  if (!('coins' in item.unlock)) throw new AppError('NOT_FOR_SALE');
+  const cost = item.unlock.coins;
+  const r = await db.transaction(async (tx) => {
+    await lockCoins(tx, fromId);
+    const sourceKey = `gift:${fromId}:${requestId}`;
+    const [done] = await tx.select({ id: coinLedger.id }).from(coinLedger).where(eq(coinLedger.sourceKey, sourceKey));
+    let note: string | null = null;
+    if (!done) {
+      const [own] = await tx.select().from(userCosmetics).where(and(eq(userCosmetics.userId, toId), eq(userCosmetics.itemKey, key)));
+      if (own) throw new AppError('ALREADY_OWNED');
+      if ((await coinBalance(tx, fromId)) < cost) throw new AppError('INSUFFICIENT_COINS');
+      const [row] = await tx.insert(coinLedger).values({ userId: fromId, amount: -cost, ruleId: `gift.${key}`, reason: `هدیهٔ «${item.nameFa}».`, sourceKey,
+        metadata: { item: key, to: toId } }).returning({ id: coinLedger.id });
+      await tx.insert(userCosmetics).values({ userId: toId, itemKey: key, ledgerId: row!.id });
+      const [from] = await tx.select({ name: users.displayName }).from(users).where(eq(users.id, fromId));
+      const [n] = await tx.insert(notifications).values({ userId: toId, kind: 'gift', payload: { actorName: from?.name, itemNameFa: item.nameFa }, dedupeKey: `gift:${row!.id}` })
+        .returning({ id: notifications.id });
+      note = n!.id;
+    }
+    return { balance: await coinBalance(tx, fromId), note };
+  });
+  if (r.note) await db.execute(sql`select pg_notify('notification_created', ${r.note})`);
+  return { balance: r.balance };
 }
 
 export async function equippedFor(db: Db | Tx, userId: string): Promise<EquippedCosmetics> {
