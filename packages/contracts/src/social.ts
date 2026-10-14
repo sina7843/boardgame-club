@@ -101,9 +101,13 @@ export const quickChatId = z.enum(QUICK_CHAT.map((q) => q.id) as [(typeof QUICK_
 export const messageBody = z.strictObject({
   body: z.string().min(1).max(1000).optional(),
   quick: quickChatId.optional(),
+  /** An emote from the sender's loadout (stored as «:em.N:», drawn as the emote by clients). */
+  emote: z.string().regex(/^em\.\d{1,3}$/).optional(),
   replyToId: z.uuid().optional(),
   clientId: z.uuid().optional()
-}).refine((b) => (b.body === undefined) !== (b.quick === undefined), { message: 'body or quick' });
+}).refine((b) => [b.body, b.quick, b.emote].filter((x) => x !== undefined).length === 1, { message: 'body, quick or emote' });
+/** Body of an emote message. */
+export const EMOTE_BODY = /^:(em\.\d{1,3}):$/;
 export const messageEditBody = z.strictObject({ body: z.string().min(1).max(1000) });
 /** Own messages can be edited for this long after sending. */
 export const MESSAGE_EDIT_WINDOW_SECONDS = 120;

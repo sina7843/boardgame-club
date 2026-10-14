@@ -3,11 +3,11 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  apiErrorSchema, avatarItemKeys, COSMETICS, equipBody, equippedCosmetics, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
+  apiErrorSchema, avatarItemKeys, COSMETICS, equipBody, equippedCosmetics, loadout, maskMobile, meResponse, parseAvatar, publicProfile, updateProfileBody,
   type ProfileExtras, type PublicProfile
 } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
-import { activeSuspension, assertUnlocked, buyBundle, buyCosmetic, giftCosmetic, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
+import { activeSuspension, assertUnlocked, buyBundle, buyCosmetic, giftCosmetic, loadoutFor, setLoadout, coinBalance, cosmeticsFor, equipCosmetic, equippedFor } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { AppError } from '../../http/errors.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -117,13 +117,18 @@ export function userRoutes(app: FastifyInstance, { db, config }: Deps): void {
   r.get('/me/cosmetics', {
     schema: { tags: ['users'], summary: 'Cosmetic items this player has unlocked, coin balance and level',
       response: { 200: z.object({ unlocked: z.array(z.string()), balance: z.number().int(), level: z.number().int(),
-        achievements: z.record(z.string(), z.string()), equipped: equippedCosmetics }), 401: apiErrorSchema } }
+        achievements: z.record(z.string(), z.string()), equipped: equippedCosmetics, loadout }), 401: apiErrorSchema } }
   }, async (req) => {
     const { userId } = requireUser(req, { allowSuspended: true });
     const defs = await db.select({ key: achievementDefinitions.key, titleFa: achievementDefinitions.titleFa }).from(achievementDefinitions)
       .where(inArray(achievementDefinitions.key, UNLOCK_ACHIEVEMENTS));
-    return { ...(await cosmeticsFor(db, userId)), balance: await coinBalance(db, userId), achievements: Object.fromEntries(defs.map((d) => [d.key, d.titleFa])), equipped: await equippedFor(db, userId) };
+    return { ...(await cosmeticsFor(db, userId)), balance: await coinBalance(db, userId), achievements: Object.fromEntries(defs.map((d) => [d.key, d.titleFa])), equipped: await equippedFor(db, userId), loadout: await loadoutFor(db, userId) };
   });
+
+  r.put('/me/cosmetics/loadout', {
+    schema: { tags: ['users'], summary: 'Emote slots (up to 6 owned emotes) and preferred seat colour', body: loadout,
+      response: { 200: loadout, 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema } }
+  }, async (req) => setLoadout(db, requireUser(req).userId, req.body));
 
   r.patch('/me/cosmetics/equip', {
     schema: { tags: ['users'], summary: 'Equip (or clear with key null) one table cosmetic per kind; the item must be unlocked',

@@ -33,7 +33,7 @@ export const users = pgTable('users', {
   /** Achievement keys the player chose to show first. */
   showcase: text().array().notNull().default(sql`'{}'::text[]`),
   /** Equipped table cosmetics per kind (`{ seatRing: 'sr.2' }`); ownership is checked when equipping. */
-  equipped: jsonb().$type<Partial<Record<'cardBack' | 'boardSkin' | 'emote' | 'chatBubble' | 'seatRing', string>>>().notNull().default({}),
+  equipped: jsonb().$type<Partial<Record<'cardBack' | 'boardSkin' | 'emote' | 'chatBubble' | 'seatRing', string>> & { emotes?: string[]; seatColor?: number | null }>().notNull().default({}),
   profileCompleted: boolean().notNull().default(false),
   /** `deleted` = self-deleted: profile anonymised, mobile released, sessions rejected; the row stays for game history. */
   status: text().notNull().default('active'),

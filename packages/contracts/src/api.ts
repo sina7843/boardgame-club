@@ -192,6 +192,10 @@ const itemKey = z.string().regex(/^[a-z]{2}\.\d{1,2}$/);
 export const equippedCosmetics = z.partialRecord(z.enum(ITEM_KINDS), itemKey);
 export type EquippedCosmetics = z.infer<typeof equippedCosmetics>;
 export const equipBody = z.strictObject({ kind: z.enum(ITEM_KINDS), key: itemKey.nullable() });
+/** Emote slots (up to 6 owned emotes, in order) and the preferred seat colour (1-10) the player sees for their own seat. */
+export const MAX_EMOTE_SLOTS = 6;
+export const loadout = z.object({ emotes: z.array(itemKey).max(MAX_EMOTE_SLOTS), seatColor: z.number().int().min(1).max(10).nullable() });
+export type Loadout = z.infer<typeof loadout>;
 /** What a seat shows other players at the table (the three kinds visible there). */
 export const seatCosmetics = z.object({ seatRing: itemKey.optional(), chatBubble: itemKey.optional(), emote: itemKey.optional() });
 export type SeatCosmetics = z.infer<typeof seatCosmetics>;

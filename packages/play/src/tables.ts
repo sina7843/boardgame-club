@@ -11,7 +11,7 @@ import { activeSuspension } from './sanctions.ts';
 import { isPremium } from './billing.ts';
 import { assertTimeAllowed, effectiveSettings, resolveOptions } from './game-settings.ts';
 
-const { games, gameVersions, gameTables, participants, tutorialProgress, matchmakingTickets, tableInvites, blocks } = schema;
+const { games, gameVersions, gameTables, participants, tutorialProgress, matchmakingTickets, tableInvites, blocks, users } = schema;
 
 export interface PlayConfig {
   /** Max concurrent non-tutorial turn-based tables per user (configurable, not a commercial value). */
@@ -130,8 +130,12 @@ export async function joinTable(db: Db, registry: GameRegistry, cfg: PlayConfig,
     await assertJoinAccess(tx, table, userId, !!invited || (!!inviteCode && inviteCode === table.inviteCode));
     await assertLimits(tx, userId, table.pace as 'live' | 'turn', cfg);
     const taken = new Set(seats.map((s) => s.seat));
+    // Preferred seat colour (wardrobe): sit in that seat when it is free, so the HUD and the board agree on the colour.
+    const [pref] = await tx.select({ e: users.equipped }).from(users).where(eq(users.id, userId));
+    const wanted = (pref?.e.seatColor ?? 0) - 1;
     let seat = 0;
-    while (taken.has(seat)) seat++;
+    if (wanted > 0 && wanted < table.capacity && !taken.has(wanted)) seat = wanted;
+    else while (taken.has(seat)) seat++;
     // Joining means «آماده‌ام»: the joiner sits ready, and the game starts once every seat is filled and ready.
     await tx.insert(participants).values({ tableId: table.id, seat, userId, kind: 'human', ready: true });
     if (seats.length + 1 === table.capacity && seats.every((s) => s.ready)) await startTable(tx, locked);

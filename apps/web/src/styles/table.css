@@ -115,3 +115,7 @@ html[data-immersive] .app-page { gap: 0; }
 /* Long-pressed message: lifted above a scrim with its reaction bar and menu. */
 .chat-msg.is-lifted { position: relative; z-index: var(--z-dialog); }
 .chat-msg.is-lifted::before { content: ''; position: fixed; inset: 0; z-index: -1; background: var(--scrim); }
+
+.chat-emote { display: inline-grid; inline-size: 56px; }
+.chat-emotes { display: flex; flex-wrap: wrap; gap: var(--space-2); padding-block-end: var(--space-2); border-block-end: 1px solid var(--line); margin-block-end: var(--space-2); }
+.chat-emotebtn { inline-size: 48px; block-size: 48px; border: 0; padding: 0; border-radius: var(--radius-md); background: var(--surface-sunken); cursor: pointer; }

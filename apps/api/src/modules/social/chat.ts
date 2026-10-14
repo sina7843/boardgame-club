@@ -9,7 +9,7 @@ import {
   muteChatBody, reactionBody, slowModeBody, userIdBody, type ConversationItem, type MessageItem
 } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
-import { isChatRestricted } from '@bg/play';
+import { isChatRestricted, loadoutFor } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireUser, type AuthContext } from '../auth/session.ts';
 import { assertCanDirectMessage, membershipOf, pair, profiles } from './relations.ts';
@@ -165,7 +165,7 @@ async function unreadCounts(db: Db, userId: string, ids: string[]): Promise<Map<
   return new Map(rows.map((r) => [r.id, r.n]));
 }
 
-interface SendInput { body?: string | undefined; quick?: string | undefined; replyToId?: string | undefined; clientId?: string | undefined }
+interface SendInput { body?: string | undefined; quick?: string | undefined; emote?: string | undefined; replyToId?: string | undefined; clientId?: string | undefined }
 
 export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
@@ -203,7 +203,9 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
         return (await toItems(db, [prior], auth.userId))[0]!;
       }
     }
-    const preset = input.quick ? QUICK_CHAT.find((q) => q.id === input.quick)!.text : null;
+    // Emotes: only from the sender's own loadout; like presets they are fixed and harmless.
+    if (input.emote && !(await loadoutFor(db, auth.userId)).emotes.includes(input.emote)) throw new AppError('COSMETIC_LOCKED');
+    const preset = input.quick ? QUICK_CHAT.find((q) => q.id === input.quick)!.text : input.emote ? `:${input.emote}:` : null;
     // Presets are fixed, harmless text: still allowed while typed chat is restricted.
     if (!preset && await isChatRestricted(db, auth.userId)) throw new AppError('CHAT_RESTRICTED');
     if (c.kind === 'direct') {

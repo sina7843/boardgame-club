@@ -11,7 +11,7 @@ import { coinsChanged } from './coins.tsx';
 import { AvatarArt } from './bgv.tsx';
 import { useSession } from './session.tsx';
 
-export interface Owned { unlocked: string[]; balance: number; level: number; achievements: Record<string, string>; equipped: EquippedCosmetics }
+export interface Owned { unlocked: string[]; balance: number; level: number; achievements: Record<string, string>; equipped: EquippedCosmetics; loadout: { emotes: string[]; seatColor: number | null } }
 
 /** Slots the shop sells and the wardrobe lists (the other avatar layers live in the avatar builder). */
 export const SHOP_SLOTS = ['fr', 't', 'bn', 'cb', 'bk', 'em', 'bu', 'sr'] as const satisfies readonly CosmeticSlot[];
@@ -81,6 +81,10 @@ export function useWardrobe() {
       return true;
     } catch (e) { fail(e, 'خرید انجام نشد.'); return false; }
   };
+  const saveLoadout = async (l: { emotes: string[]; seatColor: number | null }) => {
+    try { await api('/me/cosmetics/loadout', { method: 'PUT', body: l }); owned.reload(); return true; }
+    catch (e) { fail(e, 'ذخیره انجام نشد.'); return false; }
+  };
   const buyBundle = async (key: string, nameFa: string) => {
     try {
       await api('/cosmetics/bundles/buy', { method: 'POST', body: { bundle: key, requestId: crypto.randomUUID() } });
@@ -93,5 +97,5 @@ export function useWardrobe() {
       toast('success', `«${c.nameFa}» برای ${name} هدیه رفت.`); coinsChanged(); owned.reload(); return true;
     } catch (e) { fail(e, 'هدیه فرستاده نشد.'); return false; }
   };
-  return { me, owned, d, unlocked, stateOf, isEquipped, reason, rarity, equip, buy, buyBundle, gift, kindFa: (c: CosmeticItem) => { const k = kindOfKey(c.key); return k ? KIND_FA[k] : SLOT_FA[c.slot]; } };
+  return { me, owned, d, unlocked, stateOf, isEquipped, reason, rarity, equip, buy, buyBundle, gift, saveLoadout, kindFa: (c: CosmeticItem) => { const k = kindOfKey(c.key); return k ? KIND_FA[k] : SLOT_FA[c.slot]; } };
 }

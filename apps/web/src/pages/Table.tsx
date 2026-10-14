@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
-import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
+import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
 import {
   ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
@@ -350,7 +350,9 @@ function useTableChatAlerts(tableId: string | null, open: boolean): { unread: nu
     const on = (e: Event) => {
       const m = (e as CustomEvent<MessageItem>).detail;
       if (m.conversationId !== conversationId || m.deleted || m.editedAt) return;
-      const short = m.body.length > 60 ? `${m.body.slice(0, 60)}…` : m.body;
+      const em = EMOTE_BODY.exec(m.body)?.[1];
+      const body = em ? `«${cosmetic(em)?.nameFa ?? 'ایموت'}»` : m.body;
+      const short = body.length > 60 ? `${body.slice(0, 60)}…` : body;
       setSaid((old) => ({ ...old, [m.sender.id]: short }));
       clearTimeout(timers.current.get(m.sender.id));
       timers.current.set(m.sender.id, setTimeout(() => setSaid(({ [m.sender.id]: _, ...rest }) => rest), 6000));

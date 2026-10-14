@@ -128,7 +128,9 @@ export async function giftCosmetic(db: Db, fromId: string, toId: string, key: st
 
 export async function equippedFor(db: Db | Tx, userId: string): Promise<EquippedCosmetics> {
   const [u] = await db.select({ e: users.equipped }).from(users).where(eq(users.id, userId));
-  return u?.e ?? {};
+  // Only the item kinds; the same column also holds the loadout (emotes, seatColor).
+  const { emotes: _e, seatColor: _s, ...kinds } = u?.e ?? {};
+  return kinds;
 }
 
 /** Equip (or clear with null) one table cosmetic. The key must belong to `kind` and be unlocked right now. */
@@ -140,7 +142,22 @@ export async function equipCosmetic(db: Db, userId: string, kind: ItemKind, key:
   // One atomic jsonb update so two kinds equipped at once cannot overwrite each other.
   const patch = key === null ? sql`${users.equipped} - ${kind}::text` : sql`${users.equipped} || ${JSON.stringify({ [kind]: key })}::jsonb`;
   const [row] = await db.update(users).set({ equipped: patch }).where(eq(users.id, userId)).returning({ e: users.equipped });
-  return row?.e ?? {};
+  const { emotes: _e, seatColor: _s, ...kinds } = row?.e ?? {};
+  return kinds;
+}
+
+export async function loadoutFor(db: Db | Tx, userId: string): Promise<{ emotes: string[]; seatColor: number | null }> {
+  const [u] = await db.select({ e: users.equipped }).from(users).where(eq(users.id, userId));
+  return { emotes: u?.e.emotes ?? [], seatColor: u?.e.seatColor ?? null };
+}
+
+/** Save emote slots (owned emotes only, no duplicates) and the preferred seat colour. */
+export async function setLoadout(db: Db, userId: string, l: { emotes: string[]; seatColor: number | null }) {
+  const emotes = [...new Set(l.emotes)];
+  if (emotes.some((k) => kindOfKey(k) !== 'emote' || !cosmetic(k))) throw new AppError('VALIDATION_FAILED');
+  if (emotes.length) await assertUnlocked(db, userId, emotes);
+  await db.update(users).set({ equipped: sql`${users.equipped} || ${JSON.stringify({ emotes, seatColor: l.seatColor })}::jsonb` }).where(eq(users.id, userId));
+  return { emotes, seatColor: l.seatColor };
 }
 
 /** Equipped keys the table shows next to a seat (only the three kinds other players see). */

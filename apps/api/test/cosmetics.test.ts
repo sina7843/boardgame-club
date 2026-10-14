@@ -82,6 +82,24 @@ describe('bundles and gifts', () => {
   });
 });
 
+describe('loadout: emote slots and preferred seat colour', () => {
+  it('saves owned emotes only, sends them as emote messages, and seats the player in the preferred colour', async () => {
+    const [host, u] = await users(ctx, 2);
+    await give(u!.id, 500);
+    await call(ctx, 'POST', '/api/cosmetics/buy', u, { item: 'em.2', requestId: randomUUID() });
+    expect((await call(ctx, 'PUT', '/api/me/cosmetics/loadout', u, { emotes: ['em.2', 'em.3'], seatColor: 3 })).statusCode).toBe(403);
+    expect((await call(ctx, 'PUT', '/api/me/cosmetics/loadout', u, { emotes: ['em.2'], seatColor: 3 })).json()).toEqual({ emotes: ['em.2'], seatColor: 3 });
+    expect((await call(ctx, 'GET', '/api/me/cosmetics', u)).json().loadout).toEqual({ emotes: ['em.2'], seatColor: 3 });
+    const id = (await call(ctx, 'POST', '/api/tables', host, { gameId: 'sealed-bids', pace: 'turn', capacity: 3, turnSeconds: 86400, visibility: 'public' })).json().id;
+    await call(ctx, 'POST', `/api/tables/${id}/join`, u, {});
+    const seats = (await call(ctx, 'GET', `/api/tables/${id}`, u)).json().table.seats as { seat: number; user: { id: string } | null }[];
+    expect(seats.find((x) => x.user?.id === u!.id)!.seat).toBe(2);
+    const sent = await call(ctx, 'POST', `/api/tables/${id}/chat`, u, { emote: 'em.2', clientId: randomUUID() });
+    expect(sent.json().body).toBe(':em.2:');
+    expect((await call(ctx, 'POST', `/api/tables/${id}/chat`, u, { emote: 'em.3', clientId: randomUUID() })).statusCode).toBe(403);
+  });
+});
+
 describe('equipping', () => {
   it('rejects locked items and accepts them once unlocked by coins, level or achievement', async () => {
     const [u] = await users(ctx, 1) as [User];

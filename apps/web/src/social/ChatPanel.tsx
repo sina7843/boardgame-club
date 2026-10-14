@@ -1,10 +1,11 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ClientEvents, MESSAGE_EDIT_WINDOW_SECONDS, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
+import { ClientEvents, cosmetic, EMOTE_BODY, MESSAGE_EDIT_WINDOW_SECONDS, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, SystemMessage, Typing, UnreadDivider, type MenuItem, type SeatNo } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { AvatarArt } from '../lib/bgv.tsx';
+import { ItemArt } from '../lib/cosmeticItems.tsx';
 import { useRealtime } from '../lib/realtime.tsx';
 import { useSession } from '../lib/session.tsx';
 import { QuickChatChips } from './QuickChat.tsx';
@@ -58,6 +59,13 @@ export function MessageMenu({ items, label = 'گزینه‌های پیام', cla
  */
 /** Table invitations the server drops into private chats (social routes, POST /tables/:id/invites). */
 const INVITE_RE = /^دعوت به میز «(.+)»: \/tables\/([0-9a-f-]{36})$/;
+
+/** «:em.N:» bodies are emotes from the sender's loadout: draw the emote instead of the code. */
+const emoteOf = (body: string) => {
+  const k = EMOTE_BODY.exec(body)?.[1];
+  const c = k ? cosmetic(k) : undefined;
+  return c ? <span className="chat-emote" role="img" aria-label={`ایموت ${c.nameFa}`}><ItemArt item={c} me={{ avatarKey: 'meeple' }} size="lg" /></span> : null;
+};
 
 /** A game event shown in the table chat (never stored as a message). */
 export interface ChatEvent { id: string; at: string; text: string; seat?: number }
@@ -375,7 +383,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
                 </div>}
                 {!mine && declined.includes(m.id) && <span className="t-caption bgv-muted">رد کردید.</span>}
               </div>
-            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={m.body} viewer={me?.displayName}
+            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={emoteOf(m.body) ?? m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
               avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
               state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}
