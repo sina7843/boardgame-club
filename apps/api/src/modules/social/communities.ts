@@ -125,10 +125,12 @@ export function communityRoutes(app: FastifyInstance, { db }: Deps): void {
   r.get('/clubs', {
     schema: { tags: ['clubs'], summary: 'Club directory', querystring: z.object({ q: z.string().max(60).optional() }), response: { 200: z.object({ items: z.array(clubSummary) }), 401: apiErrorSchema } }
   }, async (req) => {
-    requireUser(req);
+    const { userId } = requireUser(req);
     const q = req.query.q ? normalizeSearch(req.query.q) : '';
     const rows = await db.select().from(clubs).where(q ? sql`replace(translate(lower(${clubs.name} || ' ' || ${clubs.slug}), 'يكى', 'یکی'), chr(8204), ' ') like ${`%${q.replace(/[\\%_]/g, (x) => `\\${x}`)}%`}` : undefined).limit(50);
-    return { items: await Promise.all(rows.map(summary)) };
+    const mine = rows.length ? await db.select({ id: memberships.scopeId, status: memberships.status }).from(memberships)
+      .where(and(eq(memberships.scopeType, 'club'), eq(memberships.userId, userId), inArray(memberships.scopeId, rows.map((c) => c.id)))) : [];
+    return { items: await Promise.all(rows.map(async (c) => ({ ...await summary(c), myStatus: (mine.find((m) => m.id === c.id)?.status ?? null) as 'active' | null }))) };
   });
 
   r.post('/clubs', { schema: { tags: ['clubs'], summary: 'Create a club; the creator becomes owner', body: clubBody, response: { 201: clubDetail, ...errors } } }, async (req, reply) => {

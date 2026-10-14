@@ -163,7 +163,9 @@ export const clubBody = z.strictObject({
 });
 export const clubUpdateBody = z.strictObject({ name: z.string().trim().min(2).max(60).optional(), description: z.string().trim().max(1000).optional(), joinPolicy: joinPolicy.optional() });
 export const clubSummary = z.object({
-  id: z.uuid(), slug: z.string(), name: z.string(), description: z.string(), joinPolicy, memberCount: z.number().int(), owner: publicProfile
+  id: z.uuid(), slug: z.string(), name: z.string(), description: z.string(), joinPolicy, memberCount: z.number().int(), owner: publicProfile,
+  /** Directory only: the viewer's own membership status in this club. */
+  myStatus: memberStatus.nullable().optional()
 });
 export const clubDetail = clubSummary.extend({
   myMembership: z.object({ role: memberRole, status: memberStatus }).nullable(),

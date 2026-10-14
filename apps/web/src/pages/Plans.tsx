@@ -146,10 +146,12 @@ export function PaymentResultPage() {
       {!ok && d.status !== 'pending' && <Banner tone="info" text="اگر مبلغی از حساب بانکی کم شده ولی خرید فعال نشد، بانک آن را برمی‌گرداند." />}
       <div className="ac-result__actions">
         {d.status === 'pending' && <Button variant="primary" size="lg" loading={checking} onClick={recheck}>بررسی دوباره</Button>}
-        {d.tournamentId && <Button variant="primary" size="lg" href={`/tournaments/${d.tournamentId}`}>صفحهٔ تورنمنت</Button>}
+        {d.tournamentId && (ok || d.status === 'pending') && <Button variant="primary" size="lg" href={`/tournaments/${d.tournamentId}`}>صفحهٔ تورنمنت</Button>}
         {ok && !entry && (coins ? <Button variant="primary" size="lg" icon="wallet" href="/coins">کیف سکه</Button> : <Button variant="primary" size="lg" href="/games">برویم سر میز</Button>)}
-        {(d.status === 'failed' || d.status === 'expired') && <Button variant="primary" size="lg" icon="life-buoy" href="/support">تماس با پشتیبانی</Button>}
+        {(d.status === 'failed' || d.status === 'expired') && <Button variant="primary" size="lg" icon="rotate-ccw"
+          href={entry && d.tournamentId ? `/tournaments/${d.tournamentId}` : coins ? '/coins' : '/plans'}>تلاش دوباره</Button>}
         <Button href="/plans">اشتراک و سابقه</Button>
+        {(d.status === 'failed' || d.status === 'expired') && <Button variant="ghost" size="sm" icon="life-buoy" href="/support">تماس با پشتیبانی</Button>}
       </div>
     </>
   );

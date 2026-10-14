@@ -149,7 +149,10 @@ export function GroupPage() {
         <div className="bgv-cols">
           {d.conversationId && <div className="sx-chatcard"><ChatPanel load={`/conversations/${d.conversationId}/messages`} post={`/conversations/${d.conversationId}/messages`} conversationId={d.conversationId} title="گفت‌وگوی گروه" /></div>}
           <div className="sx-stack">
-            <Card title="بازی با گروه"><p className="t-body-sm" style={{ margin: 0 }}>برای بازی گروهی، میز بسازید و در لابی «دعوت همه» را بزنید.</p></Card>
+            <Card title="بازی با گروه" className="sx-stack-sm">
+              <p className="t-body-sm" style={{ margin: 0 }}>یک بازی انتخاب کنید و میز بسازید؛ در لابی با «دعوت همه»، دعوت برای همهٔ اعضای گروه می‌رود.</p>
+              <div><Button variant="primary" icon="plus" href="/games">ساخت میز</Button></div>
+            </Card>
             <Card title={`اعضا (${faNum(active.length)})`} className="sx-stack-sm">
               <ul className="sx-rows">
                 {d.members.map((m) => (
@@ -174,10 +177,14 @@ const Crest = ({ name, size }: { name: string; size: number }) => <span classNam
 export function ClubsPage() {
   usePageTitle('باشگاه‌ها');
   const [q, setQ] = useState('');
-  const list = useApi<{ items: { id: string; slug: string; name: string; description: string; joinPolicy: keyof typeof POLICY_FA; memberCount: number }[] }>(`/clubs${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`);
+  const list = useApi<{ items: { id: string; slug: string; name: string; description: string; joinPolicy: keyof typeof POLICY_FA; memberCount: number; myStatus?: keyof typeof STATUS_FA | null }[] }>(`/clubs${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`);
   const navigate = useNavigate();
   const run = useRun();
   const [form, setForm] = useState({ slug: '', name: '', description: '', joinPolicy: 'open' as keyof typeof POLICY_FA });
+  const joinClub = async (slug: string, policy: keyof typeof POLICY_FA) => {
+    await run(() => api(`/clubs/${slug}/join`, { method: 'POST' }), policy === 'request' ? 'درخواست عضویت ثبت شد.' : 'به باشگاه پیوستید.');
+    list.reload();
+  };
   const create = async (e: FormEvent) => {
     e.preventDefault();
     const c = await run(() => api<ClubDetail>('/clubs', { method: 'POST', body: form }), 'باشگاه ساخته شد.');
@@ -206,7 +213,11 @@ export function ClubsPage() {
                       {c.description && <p className="sx-desc">{c.description}</p>}
                       <div className="sx-clubcard__foot">
                         <span className="sx-cap bgv-row"><Icon name="users" size="sm" />{faNum(c.memberCount)} عضو</span>
-                        <Button size="sm" variant="ghost" href={`/clubs/${c.slug}`}>دیدن باشگاه</Button>
+                        {c.myStatus === 'active' ? <Button size="sm" variant="ghost" href={`/clubs/${c.slug}`}>دیدن باشگاه</Button>
+                          : c.myStatus === 'requested' ? <Badge size="sm" tone="warning" icon="hourglass">درخواست در انتظار بررسی</Badge>
+                          : c.joinPolicy === 'invite' && c.myStatus !== 'invited' ? <Badge size="sm" icon="lock">فقط با دعوت</Badge>
+                          : <Button size="sm" variant={c.joinPolicy === 'open' || c.myStatus === 'invited' ? 'primary' : 'secondary'} onClick={() => void joinClub(c.slug, c.joinPolicy)}>
+                              {c.myStatus === 'invited' ? 'پذیرش دعوت' : c.joinPolicy === 'open' ? 'پیوستن' : 'درخواست عضویت'}</Button>}
                       </div>
                     </div>
                   </Card>

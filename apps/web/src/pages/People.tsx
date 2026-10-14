@@ -143,7 +143,9 @@ export function FriendsPage() {
     const next = tabs[(at + (e.key === 'ArrowLeft' ? 1 : -1) + tabs.length) % tabs.length]!;
     next.focus(); next.click();
   };
-  if (data.error) return <StateBlock kind={data.error.status === 401 ? 'denied' : 'error'} title={data.error.status === 401 ? 'برای دیدن دوستان وارد شوید' : 'فهرست دوستان دریافت نشد'} action={<Button variant="primary" onClick={data.reload}>تلاش دوباره</Button>} />;
+  if (data.error?.status === 401) return <StateBlock kind="denied" title="برای دیدن دوستان وارد شوید" text="پیام‌ها و باشگاه‌ها بعد از ورود باز می‌شوند."
+    action={<Button variant="primary" href="/login?next=/friends">ورود با شماره موبایل</Button>} />;
+  if (data.error) return <StateBlock kind="error" title="فهرست دوستان دریافت نشد" action={<Button variant="primary" onClick={data.reload}>تلاش دوباره</Button>} />;
   if (!data.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = data.data;
   return (
