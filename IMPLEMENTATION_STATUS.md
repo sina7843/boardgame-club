@@ -881,3 +881,13 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   at 360). Flaky but passing on re-run: camel-race bots at 360, OTP step under 4 workers. App fixes found by E2E:
   podium ARIA names («[object Object]»), Escape closes the table chat sheet/drawer, club form overflow at 360px;
   catalog/wiki cards show the BGG box photo on hover again. `e2e/design-qa.spec.ts` (screenshot generator) not run.
+
+- BGV design QA follow-up (2026-10-14/15): static QA of all 115 designed screens (`design/qa/VERDICT.md`, local
+  `verdict-*.md`), then fixes in grouped commits: DS cleanup (games on BGV palette aliases, strict ds-check PASS with 0
+  errors), server data (presence heartbeat, spectators via `table_watchers` mig 0019, league/title on seats, move list,
+  my-tables seats/turn/result), chess clock option (mig 0020), and screen work across table, time, chat, play, profile
+  and account (see git log 9601425..HEAD). Checks run per batch: api/web `tsc`, eslint, `vite build`, and the touched
+  API vitest files (tables, chess, social, cosmetics, progression, billing, realtime, chat-reactions — all passing).
+  Not done: in-game actions in the ActionDock (deferred by owner), closed-app web push (dropped by owner), and part of
+  the polish list (larger layout reworks: phone tabs on game/tournament pages, login felt hero, wardrobe grid, avatar
+  builder summary, open-tables phone variant). No screen was checked in a browser by Claude.
