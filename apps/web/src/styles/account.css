@@ -260,3 +260,12 @@
   .ac-row:has(> .ac-signout) { flex-direction: column; align-items: stretch; }
   .ac-signout { inline-size: 100%; }
 }
+
+.ac-login__turn { align-self: flex-start; margin-block: var(--space-4); }
+.ac-login__seats { display: none; }
+@media (max-width: 599px) {
+  /* Phone login (design Login-Phone): no card around the steps; seat glyphs on the felt behind the cover fan. */
+  .ac-login__card { background: transparent; box-shadow: none; padding: 0; border: 0; }
+  .ac-login__turn { display: none; }
+  .ac-login__seats { display: flex; gap: var(--space-2); justify-content: center; margin-block-start: var(--space-3); }
+}

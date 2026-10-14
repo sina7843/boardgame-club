@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { avatarKeys, displayNameSchema, normalizeIranMobile, toAsciiDigits, type Me } from '@bg/contracts';
 import { fa } from '@bg/ui';
-import { Banner, Button, Card, Icon, Logo, OtpField, PhoneField, TextField } from '@bg/ui/bgv';
+import { Banner, Button, Card, FeltPlate, Icon, Logo, OtpField, PhoneField, Seat, TextField, TurnPill } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AVATAR_FA, faNum, safeNext } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -196,10 +196,13 @@ export function Login() {
             <img key={g} src={`/covers/${g}.webp?v=2`} alt="" style={{ '--dx': FAN_POS[i]![0], '--dy': `${FAN_POS[i]![1]}px`, '--rot': `${FAN_POS[i]![2]}deg` } as CSSProperties} />
           ))}
         </div>
+        {/* Sample of what waits after sign-in (design Login-Desktop): your turn, with a calm clock. */}
+        <TurnPill className="ac-login__turn" mine who="شما" text="نوبت شما در کاتان" clock={{ time: '۱۸ ساعت', state: 'calm', p: 0.75 }} aria-hidden />
+        <div className="ac-login__seats" aria-hidden>{([1, 2, 3, 5] as const).map((n) => <Seat key={n} n={n} size="lg" />)}</div>
         <div className="bgv-felt-row ac-login__plates" style={{ justifyContent: 'flex-start', gap: 8 }}>
-          {count ? <span className="bgv-felt-plate"><strong>{fa(count)}</strong>بازی</span> : null}
-          <span className="bgv-felt-plate"><Icon name="timer" size="sm" />زنده و نوبتی</span>
-          <span className="bgv-felt-plate"><Icon name="trophy" size="sm" />لیگ از برنز تا استاد</span>
+          {count ? <FeltPlate label="بازی" value={fa(count)} /> : null}
+          <FeltPlate icon="timer" label="زنده و نوبتی" />
+          <FeltPlate icon="trophy" label="لیگ از برنز تا استاد" />
         </div>
       </section>
     </div>
