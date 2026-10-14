@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import type { TournamentDetail, TournamentSummary } from '@bg/contracts';
-import { Badge, Banner, Breadcrumbs, Button, Card, Chip, Coin, DataTable, Icon, Identity, PageHead, Progress, Segmented, Skeleton, StateBlock } from '@bg/ui/bgv';
+import { Badge, Banner, Breadcrumbs, Button, Card, Chip, Coin, DataTable, Icon, Identity, PageHead, Progress, Segmented, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
 import { useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { coinsChanged } from '../lib/coins.tsx';
@@ -112,6 +112,7 @@ export function TournamentPage() {
   const d = useApi<TournamentDetail>(`/tournaments/${id}`);
   const [busy, setBusy] = useState(false);
   const [roundSel, setRoundSel] = useState<number>();
+  const [pane, setPane] = useState<'table' | 'rounds' | 'prizes' | 'rules'>('table');
   usePageTitle(d.data?.titleFa ?? 'تورنمنت');
   usePoll(d.reload, d.data?.status === 'running' || d.data?.status === 'open');
   const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'میزها و حریف‌یابی', href: '/tables' }, { label: 'تورنمنت‌ها', href: '/tournaments' }, { label: last }]} />;
@@ -167,12 +168,16 @@ export function TournamentPage() {
       {t.status === 'cancelled' && <div role="alert"><Banner tone="warning" text={`این تورنمنت لغو شد${t.cancelReason ? `: ${t.cancelReason}` : '.'} ورودی‌ها برگشت داده می‌شود.`} /></div>}
       {t.me?.refundStatus && <div role="status"><Banner tone="info" text={t.me.refundStatus === 'pending' ? 'بازپرداخت ورودی شما ثبت شده و پشتیبانی آن را به حساب شما واریز می‌کند.' : 'ورودی شما بازپرداخت شد.'} /></div>}
 
-      <div className="bgv-cols">
+      <div className="pg-phonetabs">
+        <Tabs label="بخش‌های تورنمنت" value={pane} onChange={(v) => setPane(v as typeof pane)}
+          items={[{ value: 'table', label: 'جدول' }, { value: 'rounds', label: 'دورها' }, { value: 'prizes', label: 'جایزه‌ها' }, { value: 'rules', label: 'قوانین' }]} />
+      </div>
+      <div className="bgv-cols pg-panes" data-tab={pane}>
         <div className="pg-stack">
           {t.status === 'finished' && leader && (
-            <Card aria-label="قهرمان"><Identity size="lg" {...userIdentity(leader.player, { you: leader.player.id === session?.id, sub: 'قهرمان' })} /></Card>
+            <Card data-pane="table" aria-label="قهرمان"><Identity size="lg" {...userIdentity(leader.player, { you: leader.player.id === session?.id, sub: 'قهرمان' })} /></Card>
           )}
-          <Card flush as="section" aria-labelledby="stand-h">
+          <Card data-pane="table" flush as="section" aria-labelledby="stand-h">
             <div className="bgv-row" style={{ padding: 'var(--space-5) var(--space-5) var(--space-2)' }}>
               <h2 id="stand-h" className="pg-h2" style={{ flex: 1 }}><Icon name="list" />جدول</h2>
               <span className="bgv-muted t-caption">{faNum(t.standings.length)} نفر</span>
@@ -190,7 +195,7 @@ export function TournamentPage() {
             )}
           </Card>
           {t.roundsPlayed.length > 0 && round !== undefined && (
-            <Card flush as="section" aria-labelledby="rounds-h">
+            <Card data-pane="rounds" flush as="section" aria-labelledby="rounds-h">
               <div className="bgv-row" style={{ padding: 'var(--space-5) var(--space-5) var(--space-2)', flexWrap: 'wrap' }}>
                 <h2 id="rounds-h" className="pg-h2" style={{ flex: 1 }}><Icon name="swords" />دورها</h2>
                 <Segmented label="دور" value={String(round)} onChange={(v) => setRoundSel(Number(v))} options={t.roundsPlayed.map((r) => ({ value: String(r.round), label: `دور ${faNum(r.round)}` }))} />
@@ -216,7 +221,7 @@ export function TournamentPage() {
         </div>
 
         <aside className="pg-stack">
-          <Card title="ورود" as="section" aria-label="ورود">
+          <Card data-pane="prizes" title="ورود" as="section" aria-label="ورود">
             <div className="pg-stack">
               <b className="t-title">{entryNode(t)}</b>
               {t.entryKind === 'toman' && t.checkout.fixture && <div role="note"><Banner tone="warning" text="درگاه آزمایشی است و پول واقعی جابه‌جا نمی‌شود." /></div>}
@@ -235,14 +240,14 @@ export function TournamentPage() {
               <p className="bgv-hint"><Icon name="info" size="sm" />جایزه را سکوی بازی می‌دهد و از ورودی‌ها جمع نمی‌شود. انصراف پیش از شروع ورودی را برمی‌گرداند.</p>
             </div>
           </Card>
-          <Card title="جایزه‌ها" as="section" aria-label="جایزه‌ها">
+          <Card data-pane="prizes" title="جایزه‌ها" as="section" aria-label="جایزه‌ها">
             {t.prizes.length === 0 ? <p className="bgv-muted" style={{ margin: 0 }}>این تورنمنت جایزه ندارد.</p> : (
               <ul className="pg-ul pg-stack" style={{ gap: 'var(--space-2)' }}>{t.prizes.map((p) => (
                 <li key={p.place} className="pg-reward"><span className={`pg-rank${p.place <= 3 ? ` r${p.place}` : ''}`}>{faNum(p.place)}</span>{['قهرمان', 'دوم', 'سوم'][p.place - 1] ?? `رتبهٔ ${faNum(p.place)}`}<b>{prizeFa(p)}</b></li>
               ))}</ul>
             )}
           </Card>
-          <Card title="قوانین" as="section" aria-label="قوانین">
+          <Card data-pane="rules" title="قوانین" as="section" aria-label="قوانین">
             {t.descriptionFa && <p className="t-body-sm" style={{ margin: 0 }}>{t.descriptionFa}</p>}
             <ul className="pg-bullets">
               <li>{t.format === 'swiss' ? `${faNum(t.rounds ?? 0)} دور؛ هر دور با هم‌امتیازها هم‌میز می‌شوید.` : `از هر میز ${faNum(t.advance)} نفر بالا می‌رود تا میز نهایی.`}</li>

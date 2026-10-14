@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import type { GameDetail } from '@bg/contracts';
-import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, Icon, Skeleton, StateBlock } from '@bg/ui/bgv';
+import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, Icon, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
 import { AvatarArt } from '../lib/bgv.tsx';
 import { BotPlay } from '../games/BotPlay.tsx';
 import { GameWiki } from './Wiki.tsx';
@@ -62,6 +62,7 @@ export function GameDetailPage() {
   const tutorialStatus = tutorials.data?.items.find((t) => t.gameId === id)?.status;
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [tutorialError, setTutorialError] = useState<string>();
+  const [pane, setPane] = useState<'about' | 'rules' | 'time' | 'wiki'>('about');
   const startTutorial = async () => {
     setTutorialBusy(true); setTutorialError(undefined);
     try { navigate(`/tables/${(await api<{ tableId: string }>(`/tutorials/${id}/start`, { method: 'POST', body: {} })).tableId}`); }
@@ -128,28 +129,33 @@ export function GameDetailPage() {
         </div>
       </article>
 
-      <div className="bgv-cols">
+      <div className="pg-phonetabs">
+        <Tabs label="بخش‌های صفحهٔ بازی" value={pane} onChange={(v) => setPane(v as typeof pane)}
+          items={[{ value: 'about', label: 'درباره' }, { value: 'rules', label: 'قوانین' }, { value: 'time', label: 'زمان' }, { value: 'wiki', label: 'دانشنامه' }]} />
+      </div>
+      <div className="bgv-cols pg-panes" data-tab={pane}>
         <div className="pg-stack">
-          {me && <GameOpenTables gameId={g.id} />}
-          <Card title="قوانین" as="section" aria-label="قوانین"><RulesText lines={g.rulesFa} /></Card>
-          <GameWiki gameId={g.id} />
+          {me && <div data-pane="about"><GameOpenTables gameId={g.id} /></div>}
+          <div data-pane="rules"><Card title="قوانین" as="section" aria-label="قوانین"><RulesText lines={g.rulesFa} /></Card></div>
+          <div data-pane="wiki"><GameWiki gameId={g.id} /></div>
         </div>
         <aside className="pg-stack" aria-label="مشخصات و شروع">
-          {!g.tutorialEnabled && <Card title="آموزش"><p className="pg-policy">{g.tutorialFa}</p></Card>}
-          <Card title="اتمام زمان و انصراف">
+          {!g.tutorialEnabled && <div data-pane="about"><Card title="آموزش"><p className="pg-policy">{g.tutorialFa}</p></Card></div>}
+          <div data-pane="time"><Card title="اتمام زمان و انصراف">
             <p className="pg-policy"><b>اتمام زمان: </b>{g.timeoutPolicyFa}</p>
             <p className="pg-policy"><b>انصراف: </b>{g.resignPolicyFa}</p>
-          </Card>
+          </Card></div>
           {g.options.length > 0 && (
-            <Card title="گزینه‌های قانون">
+            <div data-pane="rules"><Card title="گزینه‌های قانون">
               {g.options.map((o) => (
                 <p key={o.key} className="pg-policy"><b>{o.labelFa}: </b>
                   {o.hostChooses && o.choices.length > 1 ? `به انتخاب میزبان (${o.choices.map((c) => c.labelFa).join('، ')})` : defaultOf(o)}
                 </p>
               ))}
-            </Card>
+              <p className="bgv-hint">میز رتبه‌ای همیشه با قانون رسمی بازی می‌شود.</p>
+              {g.activeVersion && <span className="pg-meta">نسخه قوانین <bdi className="bgv-latin" dir="ltr">{g.activeVersion.rulesVersion}</bdi></span>}
+            </Card></div>
           )}
-          {g.activeVersion && <span className="pg-meta">نسخه قوانین <bdi className="bgv-latin" dir="ltr">{g.activeVersion.rulesVersion}</bdi></span>}
         </aside>
       </div>
     </>
