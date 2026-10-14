@@ -180,7 +180,7 @@ export function TournamentPage() {
             {t.standings.length === 0 ? <p className="bgv-muted" style={{ padding: 'var(--space-5)', margin: 0 }}>هنوز کسی ثبت‌نام نکرده است.</p> : (
               <div className="bgv-scroll-x pg-tablewrap">
                 <DataTable caption="جدول تورنمنت" rows={t.standings.map((r) => ({ ...r, you: r.player.id === session?.id }))} columns={[
-                  { key: 'rank', label: 'رتبه', render: (r) => (r.finalRank ? faNum(r.finalRank) : '—') },
+                  { key: 'rank', label: 'رتبه', render: (r) => (r.finalRank ? (r.finalRank <= 3 ? <span className={`pf-medal ${['tier-gold', 'tier-silver', 'tier-bronze'][r.finalRank - 1]}`}>{faNum(r.finalRank)}</span> : faNum(r.finalRank)) : '—') },
                   { key: 'p', label: 'بازیکن', render: (r) => <a href={`/users/${r.player.id}`} style={{ textDecoration: 'none', color: 'inherit' }}><Identity size="sm" {...userIdentity(r.player, { you: r.you })} /></a> },
                   { key: 'pts', label: 'امتیاز', strong: true, render: (r) => faNum(Math.round(r.points * 100) / 100) },
                   { key: 'w', label: 'برد', render: (r) => faNum(r.wins) },
@@ -238,7 +238,7 @@ export function TournamentPage() {
           <Card title="جایزه‌ها" as="section" aria-label="جایزه‌ها">
             {t.prizes.length === 0 ? <p className="bgv-muted" style={{ margin: 0 }}>این تورنمنت جایزه ندارد.</p> : (
               <ul className="pg-ul pg-stack" style={{ gap: 'var(--space-2)' }}>{t.prizes.map((p) => (
-                <li key={p.place} className="pg-reward"><span className={`pg-rank${p.place <= 3 ? ` r${p.place}` : ''}`}>{faNum(p.place)}</span>رتبهٔ {faNum(p.place)}<b>{prizeFa(p)}</b></li>
+                <li key={p.place} className="pg-reward"><span className={`pg-rank${p.place <= 3 ? ` r${p.place}` : ''}`}>{faNum(p.place)}</span>{['قهرمان', 'دوم', 'سوم'][p.place - 1] ?? `رتبهٔ ${faNum(p.place)}`}<b>{prizeFa(p)}</b></li>
               ))}</ul>
             )}
           </Card>

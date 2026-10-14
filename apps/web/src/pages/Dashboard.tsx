@@ -1,4 +1,4 @@
-import type { DailyGame, GameSummary, PublicProfile } from '@bg/contracts';
+import type { DailyGame, GameSummary, Presence, PublicProfile } from '@bg/contracts';
 import { Badge, Button, Card, Icon, Identity, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
@@ -41,11 +41,8 @@ function KeepLearning({ games }: { games: GameSummary[] | undefined }) {
 }
 
 /** «دوستان آنلاین»: online friends first, with watch / invite / message. */
-function OnlineFriends() {
-  const f = useApi<{ friends: PublicProfile[] }>('/me/friends');
-  const friends = f.data?.friends ?? [];
-  const presence = usePresence(friends.map((x) => x.id));
-  if (!f.data) return null;
+function OnlineFriends({ friends, presence, loaded }: { friends: PublicProfile[]; presence: Record<string, Presence>; loaded: boolean }) {
+  if (!loaded) return null;
   const online = friends.filter((x) => presence[x.id]?.online);
   const shown = [...online, ...friends.filter((x) => !presence[x.id]?.online)].slice(0, 5);
   return (
@@ -143,13 +140,24 @@ function TurnList({ tables, signedIn, loadingSession }: { tables: ReturnType<typ
 }
 
 export function Dashboard() {
-  usePageTitle('داشبورد');
+  usePageTitle('خانه');
   const { me, status } = useSession();
   const games = useApi<{ items: GameSummary[] }>('/games');
   const mine = useMyTables();
   const running = me ? (mine.data?.items ?? []).filter((t) => t.status === 'active').sort(byUrgency) : [];
   const live = running[0];
   const turns = running.filter((t) => t.isMyTurn).length;
+  const fr = useApi<{ friends: PublicProfile[] }>(me ? '/me/friends' : null);
+  const friends = fr.data?.friends ?? [];
+  const presence = usePresence(friends.map((x) => x.id));
+  const onlineFriends = friends.filter((x) => presence[x.id]?.online).length;
+  // «پیشنهاد برای شما»: games sharing a tag with what I played lately, which I have not played yet.
+  const playedIds = [...new Set((mine.data?.items ?? []).map((t) => t.gameId))];
+  const all = games.data?.items ?? [];
+  const playedGames = playedIds.map((id) => all.find((g) => g.id === id)).filter((g) => !!g);
+  const playedTags = new Set(playedGames.flatMap((g) => g.tags));
+  const suggested = all.filter((g) => !playedIds.includes(g.id) && g.tags.some((t) => playedTags.has(t)));
+  const recs = (suggested.length >= 4 ? suggested : [...suggested, ...all.filter((g) => !suggested.includes(g))]).slice(0, 4);
 
   return (
     <>
@@ -157,7 +165,7 @@ export function Dashboard() {
         <div className="hm-hero__text">
           <span className="bgv-hero__eyebrow">{jalaliToday()}</span>
           <h1 id="hello-h" className="t-page" style={{ margin: 0 }}>{me ? <>سلام <bdi>{me.displayName}</bdi>! امشب چی بازی کنیم؟</> : 'باشگاه بردگیم'}</h1>
-          <p className="hm-hero__lead">{turns > 0 ? `${faNum(turns)} میز نوبتی منتظر حرکت شماست.` : 'میز خصوصی بسازید و دوستان را دعوت کنید، یا به یک میز عمومی بپیوندید.'}</p>
+          <p className="hm-hero__lead">{turns > 0 ? `${faNum(turns)} میز نوبتی منتظر حرکت شماست` : 'میز خصوصی بسازید و دوستان را دعوت کنید، یا به یک میز عمومی بپیوندید'}{onlineFriends > 0 ? ` و ${faNum(onlineFriends)} نفر از دوستانتان آنلاین‌اند.` : '.'}</p>
           <div className="hm-hero__ctas">
             <Button variant="primary" size="lg" icon="zap" href="/play">یه میز پیدا کن</Button>
             <Button size="lg" icon="plus" href="/games">میز بساز</Button>
@@ -189,20 +197,21 @@ export function Dashboard() {
       {me && (
         <div className="bgv-cols">
           <KeepLearning games={games.data?.items} />
-          <OnlineFriends />
+          <OnlineFriends friends={friends} presence={presence} loaded={!!fr.data} />
         </div>
       )}
 
       <section className="bgv-stack" style={{ gap: 12 }} aria-labelledby="catalog-h">
         <div className="hm-sechead">
-          <h2 id="catalog-h" className="hm-h2"><Icon name="sparkles" />بازی‌های کاتالوگ</h2>
+          <h2 id="catalog-h" className="hm-h2"><Icon name="sparkles" />پیشنهاد برای شما</h2>
+          {playedGames.length > 0 && <span className="t-caption bgv-muted">بر اساس {playedGames.slice(0, 2).map((g) => g.nameFa).join(' و ')}</span>}
           <a className="hm-link" href="/games">همه‌ی بازی‌ها<Icon name="chevron-left" size="sm" /></a>
         </div>
         {games.loading && !games.data && <Skeleton lines={3} />}
         {games.error && <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button onClick={games.reload}>تلاش دوباره</Button>} />}
         {games.data && (games.data.items.length === 0
           ? <StateBlock kind="empty" title="هنوز بازی‌ای منتشر نشده است" />
-          : <div className="bgv-grid bgv-grid--sm">{games.data.items.slice(0, 4).map((g) => <GameCard key={g.id} game={g} />)}</div>)}
+          : <div className="bgv-grid bgv-grid--sm">{recs.map((g) => <GameCard key={g.id} game={g} />)}</div>)}
       </section>
     </>
   );

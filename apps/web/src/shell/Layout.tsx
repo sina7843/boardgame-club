@@ -62,8 +62,10 @@ export function Layout() {
     { icon: 'layout-grid', label: 'بازی‌ها', href: '/games', active: inGroup('games', pathname) },
     { icon: 'dices', label: 'میزها', href: '/tables', active: inGroup('tables', pathname) || pathname === '/tables/mine', turns },
     { icon: 'message-circle', label: 'پیام‌ها', href: '/messages', active: inGroup('social', pathname), count: unread },
-    { icon: 'menu', label: 'بیشتر', href: '/more', active: pathname === '/more' }
+    { icon: 'menu', label: 'بیشتر', href: '/more', active: false }
   ];
+  // Pages without a dock slot (progress, settings, shop …) light up «بیشتر», where they are listed.
+  dockItems[4]!.active = !dockItems.slice(0, 4).some((d) => d.active);
 
   const page = status === 'error'
     ? <StateBlock kind="error" title="ارتباط با سرور برقرار نشد" text="وضعیت حساب شما دریافت نشد. اتصال را بررسی کنید."
@@ -92,7 +94,7 @@ export function Layout() {
     <OnboardingProvider>
       <a className="app-skip" href="#main">پرش به محتوای اصلی</a>
       <div className="app-root" onClick={route}>
-      <AppShell logo={LOGO} nav={nav} dockItems={dockItems} title={title}
+      <AppShell className="bgv" logo={LOGO} nav={nav} dockItems={dockItems} title={title}
         {...(user ? { user } : {})}
         {...(coins.data ? { coins: coins.data.balance, coinsHref: '/coins' } : {})}
         {...(signedIn ? { notifications, notificationsHref: '/notifications' } : {})}>
@@ -107,7 +109,7 @@ export function Layout() {
           {!online && <Banner tone="warning" icon="wifi-off" title="اتصال اینترنت قطع است" text="اطلاعات نمایش‌داده‌شده ممکن است قدیمی باشد؛ ساعت‌ها آخرین زمان تأییدشده را نشان می‌دهند."
             action={<Button size="sm" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
           {page}
-          <footer className="app-page__foot"><SiteLinks /><EnamadSeal /></footer>
+          {(pathname === '/' || pathname === '/more') && <footer className="app-page__foot"><SiteLinks /><EnamadSeal /></footer>}
         </div>
       </AppShell>
       </div>

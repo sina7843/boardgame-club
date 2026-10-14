@@ -19,7 +19,7 @@ const ICON: Record<Kind, string> = {
 };
 const TONE: Partial<Record<Kind, 'turn' | 'urgent' | 'reward'>> = { turn: 'turn', reminder: 'urgent', finished: 'reward', gift: 'reward' };
 const ACTION: Record<Kind, string> = {
-  turn: 'ورود به میز', reminder: 'ورود به میز', invite: 'دیدن دعوت', match: 'ورود به میز', message: 'پاسخ', mention: 'پاسخ', finished: 'بازبینی',
+  turn: 'ورود به میز', reminder: 'ورود به میز', invite: 'پذیرفتن', match: 'ورود به میز', message: 'پاسخ', mention: 'پاسخ', finished: 'بازبینی',
   friend_request: 'دیدن درخواست', club: 'باز کردن', tournament: 'دیدن تورنمنت', gift: 'دیدن کمد'
 };
 
@@ -72,7 +72,12 @@ export function NotificationsPage() {
           <Notif key={i.id} as="li" className="hm-notif" kind={TONE[i.kind] ?? 'default'} icon={ICON[i.kind]} unread={!i.read}
             title={i.textFa}
             time={<span title={jalaliDate(i.createdAt)}>{jalaliDateTime(i.createdAt)}</span>}
-            actions={[{ label: ACTION[i.kind], variant: i.kind === 'turn' || i.kind === 'reminder' ? 'primary' : 'secondary', href: i.href, onClick: () => { if (!i.read) void markRead(i.id); } }]} />
+            actions={[
+              { label: ACTION[i.kind], variant: i.kind === 'turn' || i.kind === 'reminder' || i.kind === 'invite' ? 'primary' : 'secondary', href: i.href, onClick: () => { if (!i.read) void markRead(i.id); } },
+              // Second action per kind (design): decline an invite here, or start the rematch vote from a result.
+              ...(i.kind === 'invite' && !i.read ? [{ label: 'رد', variant: 'ghost' as const, onClick: () => void markRead(i.id) }] : []),
+              ...(i.kind === 'finished' ? [{ label: 'یه دست دیگه', variant: 'ghost' as const, href: i.href, onClick: () => { if (!i.read) void markRead(i.id); } }] : [])
+            ]} />
         ))
       ])}
     </ul>

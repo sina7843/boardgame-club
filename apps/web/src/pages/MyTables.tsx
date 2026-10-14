@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { MyTableItem } from '@bg/contracts';
-import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
+import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Progress, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
 import { AvatarArt } from '../lib/bgv.tsx';
 import { useOnline } from '@bg/ui';
 import { useApi } from '../lib/api.ts';
@@ -129,6 +129,8 @@ export function MyTablesPage() {
   const tables = useMyTables();
   const [tab, setTab] = useState<Tab>('running');
   const [filter, setFilter] = useState<Filter>('all');
+  const limits = useApi<{ limits: { turnTables: { free: number; premium: number } } }>('/plans');
+  const sub = useApi<{ premium: boolean }>(me ? '/me/subscription' : null);
 
   const all = tables.data?.items ?? [];
   const running = all.filter((t) => t.status !== 'finished' && t.status !== 'cancelled').sort(byUrgency);
@@ -170,7 +172,17 @@ export function MyTablesPage() {
   return (
     <>
       <PageTabs group="tables" />
-      <PageHead title="میزهای من" sub="همه‌ی میزهای در جریان شما، مرتب‌شده بر اساس فوریت؛ و تاریخچه‌ی بازی‌ها." />
+      <PageHead title="میزهای من" sub="همه‌ی میزهای در جریان شما، مرتب‌شده بر اساس فوریت؛ و تاریخچه‌ی بازی‌ها."
+        actions={limits.data && sub.data ? (() => {
+          const max = sub.data.premium ? limits.data.limits.turnTables.premium : limits.data.limits.turnTables.free;
+          const used = running.filter((t) => t.pace === 'turn' && !t.isTutorial).length;
+          return (
+            <Card className="hm-quota">
+              <Progress label="میزهای نوبتی" value={Math.min(1, used / max)} valueText={`${faNum(used)} از ${faNum(max)}`} />
+              {!sub.data.premium && <span className="t-caption bgv-muted">با اشتراک ویژه تا {faNum(limits.data.limits.turnTables.premium)} میز</span>}
+            </Card>
+          );
+        })() : undefined} />
       <div className="hm-tabsbar">
         <Tabs label="وضعیت میزها" value={tab} onChange={(v) => setTab(v as Tab)}
           items={[{ value: 'running', label: 'در جریان', count: running.length }, { value: 'finished', label: 'تمام‌شده', count: finished.length }]} />

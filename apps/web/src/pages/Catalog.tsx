@@ -42,7 +42,7 @@ export function Catalog() {
   return (
     <>
       <PageTabs group="games" />
-      <PageHead title="بازی‌ها" sub="بر اساس نام فارسی یا اصلی، تعداد نفر، زمان و سبک بازی جست‌وجو کنید."
+      <PageHead title="بازی‌ها" sub={`${data && !hasFilters ? `${faNum(data.items.length)} بازی رومیزی؛ ` : ''}بر اساس نام فارسی یا اصلی، تعداد نفر، زمان و سبک بازی جست‌وجو کنید.`}
         actions={<Button href="/wiki" icon="book-open">دانشنامه</Button>} />
 
       <search>

@@ -4,7 +4,7 @@ import { PageTabs as BgvPageTabs } from '@bg/ui/bgv';
 /** Sibling pages that share one nav entry (e.g. پیشرفت / رتبه‌بندی): route links as the DS PageTabs. */
 export const PAGE_GROUPS = {
   games: [['/games', 'بازی‌ها'], ['/wiki', 'دانشنامه']],
-  tables: [['/tables', 'میزهای باز'], ['/tables/mine', 'میزهای من'], ['/play', 'حریف‌یابی سریع'], ['/tournaments', 'تورنمنت‌ها']],
+  tables: [['/tables/mine', 'میزهای من'], ['/tables', 'میزهای باز'], ['/play', 'حریف‌یابی سریع'], ['/tournaments', 'تورنمنت‌ها']],
   progress: [['/progress', 'پیشرفت'], ['/ranking', 'رتبه‌بندی']],
   social: [['/messages', 'پیام‌ها'], ['/friends', 'دوستان'], ['/groups', 'گروه‌ها'], ['/clubs', 'باشگاه‌ها']],
   wallet: [['/plans', 'اشتراک'], ['/coins', 'سکه‌ها'], ['/shop', 'فروشگاه'], ['/me/wardrobe', 'کمد']]

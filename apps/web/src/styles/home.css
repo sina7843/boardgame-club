@@ -137,3 +137,8 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
 .hm-friend:last-child { border-block-end: 0; }
 .hm-friend > :first-child { flex: 1; min-inline-size: 0; }
 .hm-celebrate__rewards { display: grid; gap: var(--space-2); inline-size: 100%; text-align: start; }
+
+.hm-moretile { position: relative; }
+.hm-moretile__badge { position: absolute; inset-block-start: var(--space-2); inset-inline-end: var(--space-2); }
+@media (max-width: 599px) { .hm-turnrow:not(.is-mine) { display: none; } }
+.hm-quota { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); inline-size: min(100%, 280px); }
