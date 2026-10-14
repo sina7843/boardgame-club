@@ -67,10 +67,22 @@ const emoteOf = (body: string) => {
   return c ? <span className="chat-emote" role="img" aria-label={`ایموت ${c.nameFa}`}><ItemArt item={c} me={{ avatarKey: 'meeple' }} size="lg" /></span> : null;
 };
 
+/** A message of only emoji (1-3) is shown large without a bubble (design «شکلک تنها بزرگ»). */
+const bigEmoji = (body: string) => (/^(\p{Extended_Pictographic}\uFE0F?){1,3}$/u.test(body.trim()) ? <span className="chat-bigemoji">{body}</span> : null);
+const dayFmt = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'medium', timeZone: 'Asia/Tehran' });
+const dayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran' });
+/** «امروز» / «دیروز» / Jalali date for the day separators. */
+const dayOf = (iso: string) => {
+  const d = dayKey.format(new Date(iso));
+  if (d === dayKey.format(new Date())) return 'امروز';
+  if (d === dayKey.format(new Date(Date.now() - 86_400_000))) return 'دیروز';
+  return dayFmt.format(new Date(iso));
+};
+
 /** A game event shown in the table chat (never stored as a message). */
 export interface ChatEvent { id: string; at: string; text: string; seat?: number }
 
-export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head, clubSlug, events }: {
+export function ChatPanel({ load, post, conversationId: fixedId, title, quick, onClose, sheet, icon, className, readOnly, people, head, clubSlug, events, sub }: {
   load: string; post: string; conversationId?: string; title?: string; compact?: boolean; quick?: boolean;
   onClose?: () => void; sheet?: boolean; icon?: string; className?: string;
   /** Extra controls in the chat header (DM: back, invite, more). */
@@ -79,6 +91,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
   clubSlug?: string;
   /** Table chats: game events merged into the timeline as system lines. */
   events?: ChatEvent[];
+  /** Muted line after the title («۴ بازیکن، ۱۲ تماشاگر»). */
+  sub?: string;
   /** Spectators: no composer (the server also refuses posting); reactions and mute still work. */
   readOnly?: boolean;
   /** Extra @-mention candidates (e.g. the table's players); people who already wrote here are always offered. */
@@ -253,7 +267,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
 
   const frame = (body: ReactNode, composer?: ReactNode, headExtra?: ReactNode) => (
     <Chat title={title ?? 'گفت‌وگو'} icon={icon ?? 'message-circle'} className={className} sheet={sheet} bottom
-      {...(onClose ? { onClose } : {})} {...(headExtra || head ? { headExtra: <>{head}{headExtra}</> } : {})} composer={readOnly ? undefined : composer}
+      {...(onClose ? { onClose } : {})} {...(headExtra || head || sub ? { headExtra: <>{sub && <span className="t-caption bgv-muted chat-sub">{sub}</span>}{head}{headExtra}</> } : {})} composer={readOnly ? undefined : composer}
       {...(readOnly ? { readOnly: true } : {})}
       {...(meta && conversationId ? { mutedToggle: { muted: meta.muted, onToggle: (v: boolean) => void setMuted(v) } } : {})}>
       {body}
@@ -269,8 +283,9 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
 
   const slow = scoped && (meta.canModerate || meta.slowModeSeconds > 0) ? (
     meta.canModerate
-      ? <Select className="chat-slow" aria-label="حالت آهسته" value={String(meta.slowModeSeconds)} onChange={(e) => void setSlowMode(Number(e.target.value))}
-          options={SLOW_MODE_OPTIONS.map((n) => ({ value: String(n), label: `آهسته: ${SLOW_FA[n]}` }))} />
+      ? <span className="bgv-row chat-slowwrap" style={{ gap: 6 }}><span className="t-caption bgv-muted">حالت آهسته</span>
+          <Select className="chat-slow" aria-label="حالت آهسته" value={String(meta.slowModeSeconds)} onChange={(e) => void setSlowMode(Number(e.target.value))}
+            options={SLOW_MODE_OPTIONS.map((n) => ({ value: String(n), label: SLOW_FA[n] ?? `${faNum(n)} ثانیه` }))} /></span>
       : <span className="t-caption bgv-muted">آهسته: هر {SLOW_FA[meta.slowModeSeconds] ?? `${faNum(meta.slowModeSeconds)} ثانیه`} یک پیام</span>
   ) : undefined;
 
@@ -288,7 +303,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
         <div className="bgv-composer__reply">
           <Icon name={editing ? 'pencil' : 'reply'} size="sm" />
           <span>{editing ? 'ویرایش پیام' : <>پاسخ به <b><bdi>{replyTo!.sender.displayName}</bdi></b>: {replyTo!.body.slice(0, 60)}</>}</span>
-          <Button variant="ghost" size="sm" iconOnly icon="x" onClick={cancelCompose}>لغو</Button>
+          <Button variant="ghost" size="sm" iconOnly icon="x" onClick={cancelCompose}>لغو پاسخ</Button>
         </div>
       )}
       {quick && <QuickChatChips post={post} />}
@@ -303,7 +318,6 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
           ...(watching.length ? [{ title: 'تماشاگرها', items: watching.map(item) }] : [])
         ]} />;
       })()}
-      {typing.length > 0 && <Typing names={typing.map((t) => t.name)} />}
       <div className="bgv-composer__row">
         <label className="bgv-sr" htmlFor={composeId}>متن پیام</label>
         <textarea id={composeId} ref={input} className="bgv-composer__input" rows={1} maxLength={1000} value={text} onChange={(e) => onType(e.target.value)}
@@ -318,6 +332,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
         <Button type="submit" variant="primary" iconOnly icon={<Icon name="send" mirror />} disabled={!text.trim() || (!editing && waitSec > 0)}>{editing ? 'ذخیره' : 'ارسال'}</Button>
       </div>
       {waitSec > 0 && <p className="t-caption bgv-muted" role="status" style={{ margin: 0 }}>حالت آهسته: پیام بعدی تا {faNum(waitSec)} ثانیه‌ی دیگر</p>}
+      {meta.slowModeSeconds > 0 && meta.canModerate && <p className="t-caption bgv-muted" style={{ margin: 0 }}><Icon name="shield" size="sm" /> مدیرها از حالت آهسته معاف‌اند.</p>}
     </form>
   ) : (
     <div className="bgv-composer">
@@ -350,7 +365,9 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
       {events?.filter((e) => !items.length || e.at < items[0]!.createdAt).map((e) => <SystemMessage key={e.id} game text={e.text} {...(e.seat !== undefined ? { seat: ((e.seat % 10) + 1) as SeatNo } : {})} />)}
       {items.map((m, idx) => {
         const mine = m.sender.id === me?.id;
-        const divider = m.id === firstUnread ? <UnreadDivider count={unreadCount} /> : null;
+        const dayLabel = dayOf(m.createdAt);
+        const newDay = idx === 0 || dayOf(items[idx - 1]!.createdAt) !== dayLabel;
+        const divider = <>{newDay && <span className="day chat-day">{dayLabel}</span>}{m.id === firstUnread && <UnreadDivider count={unreadCount} />}</>;
         const im = INVITE_RE.exec(m.body);
         const invite = im ? { game: im[1]!, tableId: im[2]! } : null;
         const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
@@ -383,7 +400,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
                 </div>}
                 {!mine && declined.includes(m.id) && <span className="t-caption bgv-muted">رد کردید.</span>}
               </div>
-            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={emoteOf(m.body) ?? m.body} viewer={me?.displayName}
+            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={emoteOf(m.body) ?? bigEmoji(m.body) ?? m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
               avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
               state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}
@@ -403,6 +420,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
           {p.failed && <MessageMenu items={[{ icon: 'trash-2', label: 'حذف', danger: true, onClick: () => setPending((old) => old.filter((x) => x.clientId !== p.clientId)) }]} />}
         </article>
       ))}
+      {typing.length > 0 && <Typing names={typing.map((t) => t.name)} />}
     </>
   );
 

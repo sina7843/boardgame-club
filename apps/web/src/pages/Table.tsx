@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
-import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
+import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
 import {
   ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
@@ -521,6 +521,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     setGameEvents((e) => (e.some((x) => x.id === 'end') ? e : [...e, { id: 'end', at: new Date().toISOString(), text: `بازی تمام شد؛ نفر اول: ${winners.join('، ')}` }]));
   }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
   // Turn order hint for a single mover: «بعدی» / «بعدی شمایید» / «۳ نوبت بعد» (seat order, wrapping).
+  // Context-aware presets (design 3-chat): «نوبت توئه!» only on someone else's turn, «بازی خوبی بود» / rematch only after.
+  const quickFor = QUICK_CHAT.map((q) => q.id).filter((id) => (id === 'your_turn' ? !myTurn && !finished : id === 'gg' || id === 'rematch' ? finished : id === 'thinking' ? myTurn : true));
   const queueText = (seat: number) => {
     if (g.pendingSeats.length !== 1) return 'منتظر';
     const n = t.seats.length;
@@ -584,7 +586,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
 
   const chatPanel = (props: { sheet?: boolean; onClose?: () => void; className: string }): ReactNode =>
     <ChatPanel {...props} load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" quick={isPlayer} readOnly={!isPlayer}
-      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} events={gameEvents} />;
+      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} events={gameEvents}
+      sub={isPlayer ? `${faNum(t.seats.length)} بازیکن${t.spectators ? `، ${faNum(t.spectators)} تماشاگر` : ''}` : 'شما تماشاگرید'} />;
 
   const turnWho = g.pendingSeats.length === 1 ? g.pendingSeats[0]! : null;
   const turnSeat = turnWho !== null ? t.seats.find((x) => x.seat === turnWho) : undefined;
@@ -598,7 +601,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             <Connection key="c" state={s.live ? 'ok' : 'lost'} label={s.live ? 'متصل' : 'قطع'} />]}
           actions={<>
             {!isPlayer && !finished && <Button variant="secondary" size="sm" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>}
-            {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} />}
+            {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} only={quickFor} />}
             <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
               aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}

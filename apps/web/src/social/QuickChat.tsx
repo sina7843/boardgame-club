@@ -25,7 +25,7 @@ export function QuickChatChips({ post, only, onSent }: { post: string; only?: re
 }
 
 /** Game-bar button: the presets open in a native popover over the board, so nothing has to be typed mid-game. */
-export function QuickChatButton({ post }: { post: string }) {
+export function QuickChatButton({ post, only }: { post: string; only?: readonly string[] }) {
   const id = useId();
   const toast = useToast();
   const mine = useApi<{ loadout: { emotes: string[] } }>('/me/cosmetics');
@@ -42,7 +42,7 @@ export function QuickChatButton({ post }: { post: string }) {
         {emotes.length > 0 && <div className="chat-emotes" role="group" aria-label="ایموت‌های من">
           {emotes.map((c) => <button key={c.key} type="button" className="chat-emotebtn" aria-label={`ایموت ${c.nameFa}`} onClick={() => void sendEmote(c.key)}><ItemArt item={c} me={{ avatarKey: 'meeple' }} /></button>)}
         </div>}
-        <QuickChatChips post={post} onSent={close} />
+        <QuickChatChips post={post} onSent={close} {...(only ? { only } : {})} />
       </div>
     </>
   );
