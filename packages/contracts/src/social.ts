@@ -127,6 +127,8 @@ export const messagesPage = z.object({
   slowModeSeconds: z.number().int(),
   /** Private chats: the other member has read everything up to this moment ("seen"). */
   readUpTo: z.iso.datetime().nullable(),
+  /** Where I had read up to when this page was opened (null = never opened, or no membership row). */
+  myReadUpTo: z.iso.datetime().nullable(),
   /** I muted this conversation (no notifications for it). */
   muted: z.boolean()
 });

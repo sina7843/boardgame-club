@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ClientEvents, MESSAGE_EDIT_WINDOW_SECONDS, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, Typing, type MenuItem } from '@bg/ui/bgv';
+import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, Typing, UnreadDivider, type MenuItem } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -12,7 +12,7 @@ import { ReportDialog } from './ReportDialog.tsx';
 
 interface Page {
   items: MessageItem[]; nextBefore: string | null; canPost: boolean; canModerate: boolean; conversationId?: string;
-  kind: 'direct' | 'table' | 'group' | 'club'; slowModeSeconds: number; readUpTo: string | null; muted: boolean;
+  kind: 'direct' | 'table' | 'group' | 'club'; slowModeSeconds: number; readUpTo: string | null; myReadUpTo?: string | null; muted: boolean;
 }
 /** A message on its way (optimistic): shown at once, replaced by the server copy, or kept with a retry button. */
 interface Pending { clientId: string; body: string; quick?: string; replyTo: MessageItem | null; failed: boolean }
@@ -130,9 +130,14 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     const t = setInterval(() => setTypers((old) => Object.fromEntries(Object.entries(old).filter(([, v]) => v.until > Date.now()))), 1000);
     return () => clearInterval(t);
   }, [typing.length]);
+  // First open: jump to the «پیام تازه» divider when there is one; afterwards follow new messages.
+  const jumped = useRef(false);
   useEffect(() => {
     const el = list.current?.closest('.bgv-chat')?.querySelector('.bgv-chat__list');
-    el?.scrollTo({ top: el.scrollHeight });
+    const divider = !jumped.current ? el?.querySelector('.bgv-unread') : null;
+    if (items.length) jumped.current = true;
+    if (divider) divider.scrollIntoView({ block: 'center' });
+    else el?.scrollTo({ top: el.scrollHeight });
   }, [items.length, pending.length]);
 
   const deliver = async (p: Pending) => {
@@ -256,6 +261,10 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
     </div>
   );
 
+  // Messages from others after my read point when the panel opened (fixed for this visit).
+  const fresh = meta.myReadUpTo ? items.filter((m) => m.sender.id !== me?.id && m.createdAt > meta.myReadUpTo!) : [];
+  const firstUnread = fresh[0]?.id;
+  const unreadCount = fresh.length;
   const body = (
     <>
       <div ref={list} hidden />
@@ -263,6 +272,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
       {items.length === 0 && pending.length === 0 && <p className="t-caption bgv-muted chat-empty">هنوز پیامی نیست. اولین پیام را بفرستید.</p>}
       {items.map((m) => {
         const mine = m.sender.id === me?.id;
+        const divider = m.id === firstUnread ? <UnreadDivider count={unreadCount} /> : null;
         const seen = meta.kind === 'direct' && mine && !!meta.readUpTo && meta.readUpTo >= m.createdAt;
         const actions: MenuItem[] = m.deleted ? [] : [
           ...(meta.canPost ? [{ icon: 'reply', label: 'پاسخ', onClick: () => { setEditing(null); setReplyTo(m); input.current?.focus(); } }] : []),
@@ -272,7 +282,8 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
           ...(mine || meta.canModerate ? [{ icon: 'trash-2', label: 'حذف', danger: true, onClick: () => void remove(m) }] : [])
         ];
         return (
-          <article key={m.id} className={mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}>
+          <Fragment key={m.id}>{divider}
+          <article className={mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}>
             <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
               avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
@@ -281,6 +292,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
             <MessageMenu items={actions} />
             {reacting === m.id && <ReactionBar onPick={(emoji) => void react(m, emoji)} selected={m.reactions.find((r) => r.mine)?.emoji} />}
           </article>
+          </Fragment>
         );
       })}
       {pending.map((p) => (

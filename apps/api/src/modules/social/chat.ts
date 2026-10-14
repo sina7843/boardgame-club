@@ -180,16 +180,17 @@ export function chatRoutes(app: FastifyInstance, { db }: Deps): void {
     )).orderBy(desc(messages.createdAt)).limit(limit + 1);
     const more = rows.length > limit;
     const items = (await toItems(db, rows.slice(0, limit), auth.userId)).reverse();
+    // My read point BEFORE this page marks everything read: where the «پیام تازه» divider goes.
+    const [mine] = await db.select({ mutedAt: conversationMembers.mutedAt, readAt: conversationMembers.lastReadAt }).from(conversationMembers)
+      .where(and(eq(conversationMembers.conversationId, c.id), eq(conversationMembers.userId, auth.userId)));
     if (!before) await markRead(db, c.id, auth.userId);
     const [other] = c.kind === 'direct'
       ? await db.select({ at: conversationMembers.lastReadAt }).from(conversationMembers)
         .where(and(eq(conversationMembers.conversationId, c.id), ne(conversationMembers.userId, auth.userId)))
       : [];
-    const [mine] = await db.select({ mutedAt: conversationMembers.mutedAt }).from(conversationMembers)
-      .where(and(eq(conversationMembers.conversationId, c.id), eq(conversationMembers.userId, auth.userId)));
     return {
       items, muted: !!mine?.mutedAt, nextBefore: more ? items[0]!.createdAt : null, kind: c.kind as ConversationItem['kind'], slowModeSeconds: c.slowModeSeconds,
-      readUpTo: other?.at?.toISOString() ?? null
+      readUpTo: other?.at?.toISOString() ?? null, myReadUpTo: mine?.readAt?.toISOString() ?? null
     };
   };
 
