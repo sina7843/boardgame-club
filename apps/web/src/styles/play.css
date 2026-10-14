@@ -170,3 +170,11 @@ button.cover-flip { cursor: pointer; }
   .pg-panes[data-tab="wiki"] [data-pane="wiki"], .pg-panes[data-tab="table"] [data-pane="table"], .pg-panes[data-tab="rounds"] [data-pane="rounds"],
   .pg-panes[data-tab="prizes"] [data-pane="prizes"] { display: block; }
 }
+
+/* Open tables on phones: chip filter scrolls in one row; the game select, switches and long subtitle step back. */
+@media (max-width: 599px) {
+  .pg-filterbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .pg-filterbar > :not(.bgv-chips):not(.bgv-chipgroup):not(:first-child) { display: none; }
+  .pg-orow__host .bgv-identity__sub { display: none; }
+  .pg-orow { padding-block: var(--space-2); }
+}
