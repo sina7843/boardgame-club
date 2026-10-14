@@ -132,3 +132,15 @@
 
 /* Cosmetic frame drawn outside the avatar AND its seat / «شما» ring (Identity spec). */
 .bgv-avatar.has-frame::after { content: ''; position: absolute; inset: calc(-1 * (var(--_ro, 4px) + 6px)); background: var(--frame) center / contain no-repeat; pointer-events: none; }
+
+/* Wardrobe: two-column sections, frames and banners full width, titles as a list, «more frames» tile. */
+.pf-wgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
+.pf-wgrid > .pf-wwide { grid-column: 1 / -1; }
+@media (max-width: 899px) { .pf-wgrid { grid-template-columns: minmax(0, 1fr); } }
+.pf-titles { list-style: none; margin: 0; padding: 0; display: grid; }
+.pf-titles li { display: flex; align-items: center; gap: var(--space-3); padding-block: var(--space-2); border-block-end: 1px solid var(--line); }
+.pf-titles li:last-child { border-block-end: 0; }
+.pf-titles .ac-row__text { flex: 1; }
+.pf-moretile { display: inline-grid; justify-items: center; gap: 2px; padding: var(--space-3) var(--space-4); margin-block-start: var(--space-3); border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md); color: var(--text); text-decoration: none; }
+.pf-moretile span { font-size: 12.5px; color: var(--text-muted); }

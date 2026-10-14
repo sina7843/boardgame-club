@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { cosmetic, MAX_EMOTE_SLOTS, SLOT_FA } from '@bg/contracts';
-import { Button, Card, Chip, CosmeticTile, PageHead, StateBlock, TextField } from '@bg/ui/bgv';
+import { Badge, Button, Card, Chip, CosmeticTile, Icon, PageHead, StateBlock, TextField } from '@bg/ui/bgv';
 import { faNum } from '../lib/format.ts';
 import { ItemArt, SHOP_ICON, SHOP_ITEMS, SHOP_SLOTS, useWardrobe } from '../lib/cosmeticItems.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -26,8 +26,10 @@ export function WardrobePage() {
     <>
       <PageTabs group="wallet" />
       <PageHead title="کمد من" sub={`${faNum(mine.length)} آیتم از ${faNum(SHOP_ITEMS.length)}. هر آیتم را همین‌جا بپوشید؛ برای دیدن همه با هم به استودیو پروفایل بروید.`}
-        actions={<><Button variant="secondary" icon="palette" href="/me/studio">استودیو پروفایل</Button><Button variant="secondary" icon="shopping-bag" href="/shop">فروشگاه</Button></>} />
-      <TextField label="جستجو در کمد" value={q} onChange={(e) => setQ(e.target.value)} />
+        actions={<>
+          <TextField icon="search" type="search" aria-label="جستجو در کمد" placeholder="جستجو در کمد" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Button variant="secondary" icon="palette" href="/me/studio">استودیو پروفایل</Button><Button variant="secondary" icon="shopping-bag" href="/shop">فروشگاه</Button>
+        </>} />
       <div className="pf-cats bgv-scroll-x" role="group" aria-label="دسته‌ها">
         <Chip selected={slot === 'all'} icon="layout-grid" onClick={() => setSlot('all')}>همه ({faNum(mine.length)})</Chip>
         {SHOP_SLOTS.map((s) => <Chip key={s} selected={slot === s} icon={SHOP_ICON[s]} onClick={() => setSlot(s)}>{SLOT_FA[s]} ({faNum(mine.filter((c) => c.slot === s).length)})</Chip>)}
@@ -59,15 +61,24 @@ export function WardrobePage() {
           ))}
         </div>
       </Card>
+      <div className="pf-wgrid">
       {slots.map((s) => {
         const items = mine.filter((c) => c.slot === s && match(c.nameFa));
         const total = SHOP_ITEMS.filter((c) => c.slot === s).length;
         return (
-          <Card key={s} title={SLOT_FA[s]} aria-label={SLOT_FA[s]} actions={<span className="t-caption bgv-muted">{faNum(items.length)} آیتم</span>}>
+          <Card key={s} className={s === 'fr' || s === 'bn' ? 'pf-wwide' : undefined} title={SLOT_FA[s]} aria-label={SLOT_FA[s]} actions={<span className="t-caption bgv-muted">{faNum(items.length)} آیتم</span>}>
             {items.length === 0
               ? <StateBlock kind="empty" title="چیزی پیدا نشد" action={<Button variant="secondary" href="/shop">دیدن فروشگاه</Button>} />
               : (
-                <div className="pf-tiles">
+                s === 't' ? (
+                  <ul className="pf-titles">{items.map((c) => (
+                    <li key={c.key}>
+                      <span className="ac-row__text"><b>{c.nameFa}</b><span>{w.reason(c)}</span></span>
+                      {w.isEquipped(c) ? <Badge tone="success" size="sm" icon="check">فعلی</Badge>
+                        : <Button size="sm" variant="ghost" loading={busy === c.key} onClick={async () => { setBusy(c.key); try { await w.equip(c); } finally { setBusy(undefined); } }}>انتخاب</Button>}
+                    </li>))}</ul>
+                ) :
+                <div className={`pf-tiles pf-tiles--${s}`}>
                   {items.map((c) => (
                     <CosmeticTile key={c.key} name={c.nameFa} state={busy === c.key ? 'trying' : w.stateOf(c) === 'equipped' ? 'equipped' : 'owned'} rarity={w.rarity(c)}
                       art={<ItemArt item={c} me={w.me!} />}
@@ -75,10 +86,13 @@ export function WardrobePage() {
                   ))}
                 </div>
               )}
-            {items.length > 0 && total > items.length && !q && <p className="t-caption bgv-muted">{faNum(total - items.length)} آیتم دیگر در فروشگاه یا با پیشرفت باز می‌شود.</p>}
+            {items.length > 0 && total > items.length && !q && (s === 'fr'
+              ? <a className="pf-moretile" href="/shop"><Icon name="plus" /><b>قاب‌های بیشتر</b><span>{faNum(total - items.length)} قاب دیگر</span></a>
+              : <p className="t-caption bgv-muted">{faNum(total - items.length)} آیتم دیگر در فروشگاه یا با پیشرفت باز می‌شود.</p>)}
           </Card>
         );
       })}
+      </div>
     </>
   );
 }
