@@ -50,6 +50,9 @@ describe('table lifecycle (FR-05)', () => {
     expect(snap.table.status).toBe('active');
     expect(snap.game.revision).toBe(1);
     expect(snap.game.deadline).not.toBeNull();
+    const mine = (await call(ctx, 'GET', '/api/me/tables', t.players[0])).json().items.find((x: { id: string }) => x.id === t.tableId);
+    expect(mine).toMatchObject({ mySeat: snap.table.mySeat, turnSeats: snap.game.pendingSeats, result: null });
+    expect(mine.seats).toHaveLength(2);
     const [late] = await users(ctx, 1);
     expect((await call(ctx, 'POST', `/api/tables/${t.tableId}/leave`, t.players[0])).json().errorCode).toBe('TABLE_NOT_OPEN');
     expect((await call(ctx, 'GET', `/api/tables/${t.tableId}`, late)).statusCode).toBe(403);

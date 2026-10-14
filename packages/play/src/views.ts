@@ -8,7 +8,7 @@ import { loadSnapshot } from './runtime.ts';
 import { rematchOf } from './rematch.ts';
 import { seatCosmeticsOf } from './cosmetics.ts';
 
-const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables } = schema;
+const { games, gameVersions, gameTables, participants, users, scheduledDeadlines, gameResults, platformIncidents, notifications, tableInvites, tournaments, tournamentTables, ratingHistory } = schema;
 
 type GameView = NonNullable<TableSnapshot['game']>;
 
@@ -172,22 +172,40 @@ export async function listMyTables(db: Db, registry: GameRegistry, userId: strin
     .where(and(eq(participants.userId, userId), sql`(${gameTables.status} in ('open','active') or (${gameTables.status} = 'finished' and ${gameTables.finishedAt} > now() - interval '3 days'))`))
     .orderBy(desc(gameTables.createdAt)).limit(50);
   const ids = rows.map((r) => r.table.id);
-  const counts = ids.length ? await db.select({ tableId: participants.tableId, n: sql<number>`count(*)::int` }).from(participants)
-    .where(inArray(participants.tableId, ids)).groupBy(participants.tableId) : [];
+  const seated = ids.length ? await db.select({ tableId: participants.tableId, seat: participants.seat, kind: participants.kind, settings: gameTables.settings,
+    name: users.displayName, avatarKey: users.avatarKey }).from(participants).innerJoin(gameTables, eq(gameTables.id, participants.tableId))
+    .leftJoin(users, eq(users.id, participants.userId)).where(inArray(participants.tableId, ids)).orderBy(participants.seat) : [];
+  const results = ids.length ? await db.select({ tableId: gameResults.tableId, id: gameResults.id, outcome: gameResults.outcome }).from(gameResults).where(inArray(gameResults.tableId, ids)) : [];
+  const deltas = results.length ? await db.select({ resultId: ratingHistory.resultId, before: ratingHistory.muBefore, after: ratingHistory.muAfter }).from(ratingHistory)
+    .where(and(eq(ratingHistory.userId, userId), inArray(ratingHistory.resultId, results.map((r) => r.id)))) : [];
   const deadlines = ids.length ? await db.select({ tableId: scheduledDeadlines.tableId, dueAt: scheduledDeadlines.dueAt }).from(scheduledDeadlines)
     .where(and(inArray(scheduledDeadlines.tableId, ids), eq(scheduledDeadlines.deadlineKey, 'turn'), eq(scheduledDeadlines.status, 'pending'))) : [];
   const out: MyTableItem[] = [];
   for (const { table, version, game, seat } of rows) {
-    let isMyTurn = false;
+    let turnSeats: number[] = [];
     if (table.status === 'active') {
       const module = registry.resolve(table.gameId, version.rulesVersion);
-      isMyTurn = module.pendingSeats((await loadSnapshot(db, table.id, table.revision)).state).includes(seat);
+      turnSeats = module.pendingSeats((await loadSnapshot(db, table.id, table.revision)).state);
     }
+    const isMyTurn = turnSeats.includes(seat);
+    const mine = seated.filter((x) => x.tableId === table.id);
+    let bots = 0;
+    const seats = mine.map((x) => {
+      if (x.kind !== 'bot') return { seat: x.seat, name: x.name ?? 'جایگزین', avatarKey: x.avatarKey ?? 'meeple', kind: x.kind as 'human' | 'script' };
+      const p = botPersona((x.settings as { bot?: { personas?: number[] } }).bot?.personas, bots++);
+      return { seat: x.seat, name: p.nameFa, avatarKey: p.avatarKey, kind: 'bot' as const };
+    });
+    const res = results.find((r) => r.tableId === table.id);
+    const place = (res?.outcome as { placements?: { seat: number; place: number }[] } | undefined)?.placements?.find((x) => x.seat === seat)?.place;
+    const delta = res && deltas.find((d) => d.resultId === res.id);
     out.push({
       id: table.id, gameId: game.id, gameNameFa: game.nameFa, status: table.status as MyTableItem['status'],
       pace: table.pace as MyTableItem['pace'], isTutorial: table.isTutorial, isMyTurn,
       deadline: deadlines.find((d) => d.tableId === table.id)?.dueAt.toISOString() ?? null,
-      players: counts.find((c) => c.tableId === table.id)?.n ?? 0, capacity: table.capacity, updatedRevision: table.revision
+      players: mine.length, capacity: table.capacity, updatedRevision: table.revision,
+      mySeat: seat, seats, turnSeats,
+      result: place !== undefined ? { place, fieldSize: mine.length, ratingDelta: delta ? Math.round(60 * (delta.after - delta.before)) : null } : null,
+      finishedAt: table.finishedAt?.toISOString() ?? null
     });
   }
   return out;
@@ -199,10 +217,14 @@ export async function listOpenTables(db: Db, gameId?: string) {
     .where(and(eq(gameTables.status, 'open'), eq(gameTables.visibility, 'public'), eq(gameTables.isTutorial, false),
       eq(games.status, 'active'), gameId ? eq(gameTables.gameId, gameId) : undefined))
     .orderBy(desc(gameTables.createdAt)).limit(50);
-  return rows.filter((r) => r.players < r.table.capacity).map(({ table, game, host, players }) => ({
+  const open = rows.filter((r) => r.players < r.table.capacity);
+  const seated = open.length ? await db.select({ tableId: participants.tableId, name: users.displayName, avatarKey: users.avatarKey }).from(participants)
+    .innerJoin(users, eq(users.id, participants.userId)).where(inArray(participants.tableId, open.map((r) => r.table.id))).orderBy(participants.seat) : [];
+  return open.map(({ table, game, host, players }) => ({
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, pace: table.pace as 'live' | 'turn', players, capacity: table.capacity,
     turnSeconds: (table.settings as { turnSeconds: number }).turnSeconds,
-    host: { id: host.id, displayName: host.displayName, avatarKey: host.avatarKey as never, joinedAt: host.createdAt.toISOString() }
+    host: { id: host.id, displayName: host.displayName, avatarKey: host.avatarKey as never, joinedAt: host.createdAt.toISOString() },
+    seated: seated.filter((x) => x.tableId === table.id).map((x) => ({ name: x.name, avatarKey: x.avatarKey }))
   }));
 }
 

@@ -125,3 +125,7 @@ button.cover-flip { cursor: pointer; }
 .pg-steps li.is-done { color: var(--success); }
 .pg-sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 599px) { .pg-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.pg-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.pg-orow__seats { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.pg-seat-empty { background: transparent; border: 1px dashed var(--border); }

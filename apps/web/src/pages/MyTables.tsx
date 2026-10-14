@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { MyTableItem } from '@bg/contracts';
-import { Badge, Button, Card, ChipGroup, Clock, PageHead, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
+import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
+import { AvatarArt } from '../lib/bgv.tsx';
 import { useApi } from '../lib/api.ts';
-import { faNum, PACE_FA, remainingFa } from '../lib/format.ts';
+import { faNum, jalaliDate, PACE_FA, remainingFa } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
@@ -39,16 +40,76 @@ export function Cover({ gameId }: { gameId: string }) {
 export const tableMeta = (t: MyTableItem) =>
   t.status === 'open' ? `${faNum(t.players)} از ${faNum(t.capacity)} نفر` : `${faNum(t.capacity)} نفر`;
 
+const seatClass = (seat: number) => `seat-${(seat % 10) + 1}`;
+function SeatAvatar({ s, you }: { s: MyTableItem['seats'][number]; you?: boolean }) {
+  return <Avatar size="xs" name={s.name} initials={s.name.trim().charAt(0)} className={`${seatClass(s.seat)}${you ? ' is-you' : ''}`}><AvatarArt avatarKey={s.avatarKey} /></Avatar>;
+}
+
+export function Players({ t }: { t: MyTableItem }) {
+  return (
+    <span className="bgv-avatars" aria-label={`بازیکنان: ${t.seats.map((s) => s.name).join('، ')}`}>
+      {t.seats.map((s) => <SeatAvatar key={s.seat} s={s} you={s.seat === t.mySeat} />)}
+    </span>
+  );
+}
+
 function Status({ t }: { t: MyTableItem }) {
+  const other = !t.isMyTurn && t.status === 'active' ? t.seats.find((s) => t.turnSeats.includes(s.seat)) : undefined;
   return (
     <div className="bgv-row hm-status" style={{ gap: 8 }}>
       {t.isMyTurn ? <Badge tone="you" icon="zap">نوبت شما</Badge>
-        : t.status === 'open' ? <Badge icon="hourglass">در انتظار بازیکن</Badge>
+        : t.status === 'open' ? <Badge icon="hourglass">در انتظار بازیکن، {faNum(t.players)} از {faNum(t.capacity)}</Badge>
         : t.status === 'paused' ? <Badge icon="pause">متوقف</Badge>
         : t.status === 'finished' ? <Badge icon="flag">تمام‌شده</Badge>
+        : other ? <span className="hm-meta hm-turnof"><SeatAvatar s={other} />نوبت <bdi>{other.name}</bdi></span>
         : <Badge icon="clock">منتظر دیگران</Badge>}
-      {t.deadline && t.status === 'active' && <DeadlineClock iso={t.deadline} />}
+      {t.deadline && t.status === 'active' && (t.isMyTurn || t.pace === 'live')
+        ? <DeadlineClock iso={t.deadline} />
+        : t.deadline && t.status === 'active' && <Clock size="chip" state="paused" p={1} time={remainingFa(t.deadline)} />}
     </div>
+  );
+}
+
+const PLACE_FA = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم'];
+function ResultCell({ r }: { r: NonNullable<MyTableItem['result']> }) {
+  const won = r.place === 1;
+  const last = r.place === r.fieldSize && r.fieldSize > 1;
+  return (
+    <div className="hm-res">
+      <Badge tone={won ? 'success' : last ? 'danger' : undefined} icon={won ? 'trophy' : last ? 'x' : 'trophy'}>
+        {won ? 'برد' : last ? 'باخت' : `نفر ${PLACE_FA[r.place - 1] ?? faNum(r.place)}`}
+      </Badge>
+      <span className="hm-meta">نفر {faNum(r.place)} از {faNum(r.fieldSize)}</span>
+    </div>
+  );
+}
+function Delta({ d }: { d: number | null }) {
+  if (d === null) return <span className="hm-delta">بدون اثر بر رتبه</span>;
+  return <span className={`hm-delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}`}><Icon name={d >= 0 ? 'arrow-up-right' : 'arrow-down-right'} size="sm" /><bdi dir="ltr">{d > 0 ? '+' : d < 0 ? '−' : ''}{faNum(Math.abs(d))}</bdi></span>;
+}
+
+function History({ items }: { items: MyTableItem[] }) {
+  return (
+    <section className="hm-hist" aria-labelledby="hist-h">
+      <h2 id="hist-h" className="ac-h3 bgv-row" style={{ gap: 8 }}><Icon name="history" />اخیراً تمام‌شده</h2>
+      <Card flush>
+        <div className="hm-colhead hm-histrow--head"><span>بازی</span><span>نتیجه</span><span>امتیاز رتبه‌ای</span><span>تاریخ</span><span /></div>
+        <ul className="hm-ul" aria-label="بازی‌های اخیراً تمام‌شده">
+          {items.map((t) => (
+            <li key={t.id} className="hm-histrow">
+              <div className="hm-cell"><Cover gameId={t.gameId} /><div><b>{tableTitle(t)}</b><span className="hm-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{faNum(t.capacity)} نفر</span></div></div>
+              {t.result ? <ResultCell r={t.result} /> : <span className="hm-meta">بدون نتیجه</span>}
+              <Delta d={t.result?.ratingDelta ?? null} />
+              <span className="hm-meta">{t.finishedAt ? jalaliDate(t.finishedAt) : ''}</span>
+              <div className="bgv-row hm-acts" style={{ gap: 8 }}>
+                <Button size="sm" icon="history" href={`/tables/${t.id}`}>بازبینی</Button>
+                <Button size="sm" variant="primary" icon="rotate-ccw" href={`/games/${t.gameId}/new`}>یه دست دیگه</Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </section>
   );
 }
 
@@ -81,14 +142,15 @@ export function MyTablesPage() {
   } else {
     body = (
       <>
-        <div className="hm-colhead" style={{ gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1.5fr) 128px' }}><span>بازی</span><span>وضعیت (به ترتیب فوریت)</span><span /></div>
+        <div className="hm-colhead hm-myrow--players"><span>بازی</span><span>بازیکنان</span><span>وضعیت (به ترتیب فوریت)</span><span /></div>
         <ul className="hm-ul" aria-label="میزهای من">
           {shown.map((t) => (
-            <li key={t.id} className={`hm-myrow${t.isMyTurn ? ' is-mine' : ''}`}>
+            <li key={t.id} className={`hm-myrow hm-myrow--players${t.isMyTurn ? ' is-mine' : ''}`}>
               <div className="hm-cell">
                 <Cover gameId={t.gameId} />
                 <div><b>{tableTitle(t)}</b><span className="hm-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{tableMeta(t)}</span></div>
               </div>
+              <div className="hm-players"><Players t={t} /></div>
               <Status t={t} />
               <div className="hm-act"><Button variant={t.isMyTurn ? 'primary' : 'secondary'} href={`/tables/${t.id}`}>{t.isMyTurn ? 'بازی کن' : 'باز کردن'}</Button></div>
             </li>
@@ -112,6 +174,7 @@ export function MyTablesPage() {
         )}
       </div>
       <Card flush>{body}</Card>
+      {tab === 'running' && finished.length > 0 && <History items={finished.slice(0, 5)} />}
     </>
   );
 }

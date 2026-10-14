@@ -196,13 +196,20 @@ export const myTableItem = z.object({
   deadline: z.iso.datetime().nullable(),
   players: z.number().int(),
   capacity: z.number().int(),
-  updatedRevision: z.number().int()
+  updatedRevision: z.number().int(),
+  /** My seat and everyone seated (names and avatars only), whose turn it is, and my result once finished. */
+  mySeat: z.number().int(),
+  seats: z.array(z.object({ seat: z.number().int(), name: z.string(), avatarKey: z.string(), kind: z.enum(['human', 'script', 'bot']) })),
+  turnSeats: z.array(z.number().int()),
+  result: z.object({ place: z.number().int(), fieldSize: z.number().int(), ratingDelta: z.number().int().nullable() }).nullable(),
+  finishedAt: z.iso.datetime().nullable()
 });
 export type MyTableItem = z.infer<typeof myTableItem>;
 
 export const openTableItem = z.object({
   id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, players: z.number().int(),
-  capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile
+  capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile,
+  seated: z.array(z.object({ name: z.string(), avatarKey: z.string() }))
 });
 
 export const liveTableItem = z.object({

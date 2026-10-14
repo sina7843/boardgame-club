@@ -65,6 +65,17 @@
 .hm-cell b { font-size: 16px; color: var(--heading); }
 .hm-plate .hm-cell b { color: var(--felt-ink); }
 .hm-act { justify-self: end; }
+.hm-myrow--players { grid-template-columns: minmax(0, 1.4fr) minmax(0, .9fr) minmax(0, 1.5fr) 128px; }
+.hm-turnof { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text); }
+.hm-hist { display: grid; gap: var(--space-3); }
+.hm-histrow, .hm-histrow--head { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 110px 120px auto; align-items: center; gap: var(--space-4); }
+.hm-histrow { padding: var(--space-3) var(--space-5); border-block-end: 1px solid var(--line); }
+.hm-histrow:last-child { border-block-end: 0; }
+.hm-histrow > * { min-inline-size: 0; }
+.hm-res { display: grid; gap: var(--space-1); justify-items: start; }
+.hm-delta { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: 700; color: var(--text-muted); }
+.hm-delta.up { color: var(--success); }
+.hm-delta.down { color: var(--danger); }
 .hm-tabsbar { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; border-block-end: 1px solid var(--line); }
 .hm-tabsbar .bgv-tabs { border: 0; }
 @media (max-width: 899px) {
@@ -72,6 +83,11 @@
   .hm-myrow { grid-template-columns: minmax(0, 1fr) auto; padding: 12px 16px; gap: 8px 12px; }
   .hm-myrow .hm-status { grid-column: 1; grid-row: 2; }
   .hm-myrow .hm-act { grid-column: 2; grid-row: 1 / span 2; }
+  .hm-myrow--players .hm-players { display: none; }
+  .hm-histrow--head { display: none; }
+  .hm-histrow { grid-template-columns: minmax(0, 1fr) auto; padding: var(--space-3) var(--space-4); gap: var(--space-2) var(--space-3); }
+  .hm-histrow .hm-acts { grid-column: 1 / -1; }
+  .hm-histrow .hm-acts .bgv-btn { flex: 1; }
 }
 
 /* Notifications */
