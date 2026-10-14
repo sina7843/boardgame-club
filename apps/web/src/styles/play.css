@@ -17,6 +17,8 @@
 button.cover-flip { cursor: pointer; }
 .game-cover--box { position: absolute; inset: 0; object-fit: contain; padding: var(--space-2); background: var(--surface-sunken); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
 .cover-flip:hover .game-cover--box, .cover-flip:focus-visible .game-cover--box, .cover-flip.is-flipped .game-cover--box { opacity: 1; }
+.bgv-gamecard:hover .game-cover--box, .bgv-gamecard:focus-visible .game-cover--box { opacity: 1; }
+.bgv-gamecard__cover > .cover-flip { position: absolute; inset: 0; }
 @media (prefers-reduced-motion: reduce) { .game-cover--box { transition: none; } }
 
 /* Catalogue / wiki filters */

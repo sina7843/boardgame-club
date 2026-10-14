@@ -12,12 +12,12 @@ async function startTable(host: Page, guests: Page[]) {
   await host.goto('/games/catan/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByRole('group', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).first().selectOption('3');
-  await host.getByRole('group', { name: 'نقشه' }).getByText('نقشه مبتدی دفترچه').click();
+  await host.getByRole('radiogroup', { name: 'نقشه' }).getByRole('radio', { name: 'نقشه مبتدی دفترچه' }).click();
   await host.getByRole('button', { name: 'ساخت میز' }).click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of guests) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(host.getByText('بازیکنان (۳ از ۳)')).toBeVisible();
-  await expect(host.getByText('نقشه: نقشه مبتدی دفترچه')).toBeVisible(); // chosen variant shown before ready
+  await expect(host.locator('.tbl-rules > *').filter({ hasText: 'نقشه' }).filter({ hasText: 'نقشه مبتدی دفترچه' }).first()).toBeVisible(); // chosen variant shown before ready
   await host.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
 }
 

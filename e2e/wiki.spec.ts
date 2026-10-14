@@ -10,10 +10,14 @@ test('encyclopedia: list, filter by mechanic, open a game entry', async ({ page 
   await expect(page.getByRole('link', { name: /شطرنج/ })).toHaveCount(0);
   await page.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-list.png`, fullPage: true });
 
-  // The DS GameCard shows the painted cover only (the hover box photo of the old list card is gone; the game page still flips to the box).
-  const cover = page.getByRole('link', { name: /کاتان/ }).locator('img').first();
-  await expect(cover).toBeVisible();
-  expect(await cover.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
+  // Painted cover at rest; the BGG box photo fades in on hover (pointer devices only).
+  if (!info.project.use.hasTouch) {
+    const box = page.getByRole('link', { name: /کاتان/ }).locator('.game-cover--box');
+    await expect(box).toHaveCSS('opacity', '0');
+    await page.getByRole('link', { name: /کاتان/ }).hover();
+    await expect(box).toHaveCSS('opacity', '1');
+    expect(await box.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
+  }
 
   await page.getByRole('link', { name: /کاتان/ }).click();
   await expect(page).toHaveURL(/\/games\/catan#wiki$/);

@@ -1,6 +1,7 @@
 import type { GameSummary } from '@bg/contracts';
 import { GameCard as BgvGameCard } from '@bg/ui/bgv';
 import { ACCESS_FA, DIFFICULTY_FA, range } from '../lib/format.ts';
+import { GameCover } from './covers.tsx';
 
 /** Catalogue card (DS GameCard): painted cover, Persian name with the Latin original, players / time / difficulty. */
 export function GameCard({ game }: { game: GameSummary }) {
@@ -9,7 +10,7 @@ export function GameCard({ game }: { game: GameSummary }) {
     ...(game.access === 'premium' ? [{ tone: 'premium' as const, icon: 'crown', label: ACCESS_FA.premium }] : [])
   ];
   return (
-    <BgvGameCard href={`/games/${game.id}`} cover={`/covers/${game.id}.webp?v=2`} title={game.nameFa} latin={game.nameOriginal}
+    <BgvGameCard href={`/games/${game.id}`} art={<GameCover gameId={game.id} title="" />} title={game.nameFa} latin={game.nameOriginal}
       aria-label={`${game.nameFa} (${game.nameOriginal})`} flags={flags}
       meta={[
         { icon: 'users', text: range(game.minPlayers, game.maxPlayers, 'نفر') },

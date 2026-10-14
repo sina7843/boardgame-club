@@ -85,5 +85,5 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-shared { gap: var(--space-2); }
 .tbl-badges { gap: var(--space-1); }
 /* Equipped cosmetics (player-chosen art colours arrive as data): seat ring around the HUD avatar, chat bubble colour. */
-.tbl-ring { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--tbl-ring); }
+.tbl-ring { outline: 2px solid var(--tbl-ring); outline-offset: 2px; }
 .tbl-said[style] { background: var(--tbl-bubble); color: var(--tbl-bubble-ink); }

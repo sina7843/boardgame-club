@@ -875,3 +875,9 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   `POST /api/admin/users/:id/{suspend,unsuspend,logout,close}`. Close reuses the self-delete anonymisation
   (`closeAccount` in users/routes.ts). Checks: api `tsc` + web `tsc` clean, eslint clean,
   `vitest run test/admin-players.test.ts test/access.test.ts test/site.test.ts` 12/12 pass. Not checked in a browser.
+- E2E after the BGV redesign (2026-10-14): Playwright suite updated to the new UI (radiogroup option sets, table
+  markup, message menu, admin-only /design, …). Results against the local stack (web :5180 → API :3100, worker):
+  desktop-1440 all non-game specs + all 183 game tests pass; mobile-360 all non-game specs pass (game specs not run
+  at 360). Flaky but passing on re-run: camel-race bots at 360, OTP step under 4 workers. App fixes found by E2E:
+  podium ARIA names («[object Object]»), Escape closes the table chat sheet/drawer, club form overflow at 360px;
+  catalog/wiki cards show the BGG box photo on hover again. `e2e/design-qa.spec.ts` (screenshot generator) not run.

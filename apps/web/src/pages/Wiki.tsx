@@ -6,6 +6,7 @@ import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
+import { GameCover } from '../games/covers.tsx';
 
 // Encyclopedia: a BoardGameGeek snapshot (scripts/bgg-sync.mjs → data/bgg.json) plus Persian text (data/bgg-fa.json)
 // and Persian names for BGG categories/mechanics (data/bgg-terms-fa.json). Loaded lazily so it stays out of the main bundle.
@@ -148,7 +149,7 @@ export function WikiPage() {
         <>
           <b className="t-body" role="status" aria-live="polite">{faNum(entries.length)} بازی</b>
           <div className="bgv-grid pg-wiki">{entries.map(({ s, g, fa }) => (
-            <GameCard key={s.id} href={`/games/${s.id}#wiki`} cover={`/covers/${s.id}.webp?v=2`} title={s.nameFa} latin={g.name}
+            <GameCard key={s.id} href={`/games/${s.id}#wiki`} art={<GameCover gameId={s.id} title="" />} title={s.nameFa} latin={g.name}
               aria-label={`${s.nameFa} (${g.name})`}
               meta={[
                 ...(g.year ? [{ text: yearFa(g.year) }] : []),
