@@ -4,7 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import {
-  ActionDock, Badge, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
+  ActionDock, CritBar, Badge, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
@@ -550,6 +550,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
         </Felt>
 
+        {myTurn && t.pace === 'live' && clock?.state === 'critical' && <CritBar seconds={clock.time} total={10} />}
         <ActionDock className="tbl-dock" waiting={!myTurn && !finished}
           prompt={<span className="tbl-prompt" role="status" aria-live="polite">
             <Icon name={finished ? 'flag' : myTurn ? 'play' : 'hourglass'} />

@@ -1,13 +1,13 @@
 // Copied from the VibeFarsi registry (https://vibefarsi.ir, MIT). Imports rewritten to relative paths.
 import type { CSSProperties } from "react";
-import { cn, mulberry32 } from "../lib/utils.ts";
+import { cn, mulberry32 } from "./vf/lib/utils.ts";
 
 const COLORS = [
-  "var(--brand)",
-  "var(--foreground)",
+  "var(--accent)",
+  "var(--primary)",
+  "var(--invite)",
   "var(--success)",
   "var(--warning)",
-  "var(--destructive)",
 ];
 
 export type ConfettiProps = {
@@ -72,7 +72,7 @@ export function Confetti({
         return (
           <span
             key={i}
-            className="absolute top-1/2 -translate-y-1/2 left-1/2 block"
+            className="absolute top-1/2 -translate-y-1/2 start-1/2 block"
             style={style}
           />
         );

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { faNumber, useToast } from '@bg/ui';
-import { Badge, Banner, Button, Card, Coin, Icon, PageHead, Progress, StateBlock } from '@bg/ui/bgv';
+import { Badge, Banner, Button, Card, Coin, Hero, Icon, PageHead, Progress, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { coinsChanged, useCoins } from '../lib/coins.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
@@ -43,14 +43,8 @@ export function CoinsPage() {
       <PageHead title="سکه‌ها" sub={`با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید${d.shop.length > 0 ? ' و با آن روز پریمیوم بخرید' : ''}. سکه روی رتبه و نتیجه بازی اثری ندارد.`} />
       {d.checkout.fixture && d.packs.length > 0 && <Banner tone="warning" text="حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود." />}
 
-      <section className="bgv-hero ac-balance" aria-labelledby="bal-h">
-        <Coin size="lg" aria-hidden />
-        <div style={{ display: 'grid', gap: 4, flex: '1 1 240px' }}>
-          <h2 id="bal-h" className="bgv-hero__eyebrow">موجودی من</h2>
-          <p className="ac-balance__num" aria-live="polite">{faNum(d.balance)} <small>سکه</small></p>
-        </div>
-        {d.packs.length > 0 && <Button href="/plans">سابقهٔ پرداخت</Button>}
-      </section>
+      <Hero eyebrow="موجودی من" title={<span aria-live="polite">{faNum(d.balance)} سکه</span>} aside={<Coin size="lg" aria-hidden />}
+        actions={d.packs.length > 0 ? <Button href="/plans">سابقهٔ پرداخت</Button> : undefined} />
 
       {d.shop.length > 0 && (
         <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="shop-h">

@@ -13,7 +13,7 @@ export interface Prefs {
 
 const KEY = 'bg.prefs';
 const DEFAULTS: Prefs = { theme: 'system', motion: 'system', muted: false, undo: '500' };
-const THEME_COLOR = { light: '#173A2D', dark: '#191B1A' };
+const THEME_COLOR = { light: '#173A2D', dark: '#191B1A' }; // ds-check-ignore: <meta theme-color> needs literal hex (design/brand/LOGO-USAGE.md)
 const DARK = '(prefers-color-scheme: dark)';
 
 export function readPrefs(raw: string | null): Prefs {

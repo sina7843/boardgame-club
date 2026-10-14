@@ -6,14 +6,13 @@
 .zb__content { transform-origin: 0 0; will-change: transform; }
 /* Toolbar sits above the board (never on top of it, so it cannot cover a space). */
 .zb__controls { order: -1; align-self: flex-end; display: flex; gap: 6px; }
-.zb__controls button { inline-size: 36px; block-size: 36px; border-radius: 12px; border: 1px solid rgb(0 0 0 / 0.25);
-  background: linear-gradient(180deg, #fffdf6, #eadfc4); color: #2a2520; font: 900 1.2rem/1 system-ui, sans-serif; cursor: pointer;
-  box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 3px 8px rgb(0 0 0 / 0.35); }
-.zb__controls button:hover:not(:disabled) { background: linear-gradient(180deg, #fff, #f2e8cf); }
+.zb__controls button { inline-size: var(--control-sm); block-size: var(--control-sm); border-radius: var(--radius-md); border: 1px solid var(--border);
+  background: var(--surface-raised); color: var(--text); font: 800 1.2rem/1 var(--font-fa); cursor: pointer; box-shadow: var(--shadow-tile); }
+.zb__controls button:hover:not(:disabled) { background: var(--surface-sunken); }
 .zb__controls button:disabled { opacity: 0.45; cursor: default; }
-.zb__controls button:focus-visible { outline: 3px solid var(--focus, #ffd34d); outline-offset: 2px; }
-.zb__tip { position: absolute; inset-block-end: 8px; inset-inline: 0; margin: 0 auto; inline-size: fit-content; padding: 4px 12px; border-radius: 999px;
-  background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.75rem; pointer-events: none; }
+.zb__controls button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.zb__tip { position: absolute; inset-block-end: var(--space-2); inset-inline: 0; margin: 0 auto; inline-size: fit-content; padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill); background: var(--scrim); color: var(--on-primary); font-size: 0.75rem; pointer-events: none; }
 
 /* Phones held sideways: keep the whole board inside the screen height. */
 @media (orientation: landscape) and (max-height: 560px) {

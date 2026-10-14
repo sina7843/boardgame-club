@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { QUICK_CHAT } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Button } from '@bg/ui/bgv';
+import { Button, QuickChat } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 
 /** One-tap preset phrases and emoji (DS quick-chat tray). The server stores the fixed text; the message arrives back over the socket. */
@@ -17,13 +17,10 @@ export function QuickChatChips({ post, only, onSent }: { post: string; only?: re
       toast('error', err instanceof ApiFailure ? err.messageFa : 'پیام ارسال نشد.');
     } finally { setBusy(false); }
   };
-  return (
-    <div className="bgv-quicktray quickchat" role="group" aria-label="پیام‌های آماده">
-      {QUICK_CHAT.filter((q) => !only || only.includes(q.id)).map((q) => (
-        <button key={q.id} type="button" className="bgv-chip" disabled={busy} onClick={() => void send(q.id)}>{q.text}</button>
-      ))}
-    </div>
-  );
+  const shown = QUICK_CHAT.filter((q) => !only || only.includes(q.id));
+  // ponytail: no busy lock on the DS tray; the server's clientId/rate limit absorbs a double tap.
+  return <QuickChat className="quickchat" label="پیام‌های آماده" items={shown.map((q) => q.text)}
+    onPick={(t) => { const q = shown.find((x) => x.text === t); if (q && !busy) void send(q.id); }} />;
 }
 
 /** Game-bar button: the presets open in a native popover over the board, so nothing has to be typed mid-game. */

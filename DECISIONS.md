@@ -1280,3 +1280,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   while the player sits at a running table or is registered in an open tournament, same as self-delete; suspend first.
 - Reaction set (2026-10-14, owner decision): the last reaction emoji is 👏 (design-system README / `REACTION_EMOJIS`),
   not the 🎉 drawn in the chat artboards. Code already matches; the artboards are out of date on this point.
+- DS cleanup round 1 (2026-10-14): Coins uses `Hero`, quick chat uses `QuickChat`, live turns show `CritBar` in the
+  last 10 s, ZoomBoard controls use tokens, Confetti moved out of `vf/` with BGV default colours. Kept hand-built on
+  purpose (DS component gaps, report upstream): Home and Tournament heroes (DS `Hero` renders the title as `h2` and its
+  aside grid does not stack on phones); the chat composer (DS `Composer` has no edit mode, Escape-to-cancel, input ref
+  or maxLength) — it already uses the exact `bgv-composer` classes. `bgv.js` errors (3) are in the DS bundle itself.
