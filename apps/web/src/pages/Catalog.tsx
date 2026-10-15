@@ -14,7 +14,7 @@ const ALL = { value: '', label: 'همه' };
 const MODE_FA: Record<string, string> = { live: 'زنده', turn: 'نوبتی', friendly: 'دوستانه', ranked: 'رتبه‌دار' };
 
 export function Catalog() {
-  usePageTitle('بازی‌ها');
+  usePageTitle('بازی‌ها', 'همه بردگیم‌های آنلاین | بردگیم‌ورس');
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get('q') ?? '');
 

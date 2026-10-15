@@ -61,15 +61,15 @@ const famous = games.filter((g) => ['chess', 'catan', 'backgammon', 'uno'].inclu
 
 const pages: Page[] = [
   {
-    path: '/', title: `${BRAND} — بازی آنلاین بردگیم به فارسی`,
-    description: `${fa(games.length)} بردگیم محبوب مثل ${famous} را آنلاین و به فارسی با دوستانتان یا حریفان تازه بازی کنید.`,
-    body: `<h1>${BRAND}</h1><p>بازی آنلاین بردگیم به فارسی: ${fa(games.length)} بازی رومیزی، میز زنده یا نوبتی، رتبه‌بندی و تورنمنت.</p><h2>بازی‌ها</h2>${gameLinks}`,
-    jsonLd: { '@context': 'https://schema.org', '@type': 'WebSite', name: BRAND, alternateName: 'BoardGameVerse', url: `${SITE}/`, inLanguage: 'fa' }
+    path: '/', title: `بردگیم آنلاین به فارسی | ${BRAND}`,
+    description: `بردگیم آنلاین به فارسی: ${fa(games.length)} بازی رومیزی محبوب مثل ${famous} را با دوستانتان یا حریفان تازه بازی کنید.`,
+    body: `<h1>بردگیم آنلاین به فارسی</h1><p>${BRAND} جای بازی بردگیم آنلاین به زبان فارسی است: ${fa(games.length)} بازی رومیزی محبوب، میز زنده یا نوبتی، بازی با دوستان یا حریفان تازه، رتبه‌بندی و تورنمنت.</p><h2>بردگیم‌های آنلاین</h2>${gameLinks}`,
+    jsonLd: { '@context': 'https://schema.org', '@type': 'WebSite', name: BRAND, alternateName: ['دنیای بردگیم', 'BoardGameVerse'], url: `${SITE}/`, inLanguage: 'fa' }
   },
   {
-    path: '/games', title: 'بازی‌ها',
+    path: '/games', title: 'همه بردگیم‌های آنلاین',
     description: `فهرست ${fa(games.length)} بردگیم آنلاین ${BRAND}، از ${famous} تا بازی‌های استراتژی و کارتی؛ قوانین فارسی و بازی با دوستان.`,
-    body: `<h1>بازی‌ها</h1>${gameLinks}`
+    body: `<h1>بردگیم‌های آنلاین</h1>${gameLinks}`
   },
   ...games.map((g): Page => {
     const t = faText[g.id] ?? {};

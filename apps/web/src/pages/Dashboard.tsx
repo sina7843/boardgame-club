@@ -140,7 +140,7 @@ function TurnList({ tables, signedIn, loadingSession }: { tables: ReturnType<typ
 }
 
 export function Dashboard() {
-  usePageTitle('خانه');
+  usePageTitle('خانه', 'بردگیم آنلاین به فارسی | بردگیم‌ورس');
   const { me, status } = useSession();
   const games = useApi<{ items: GameSummary[] }>('/games');
   const mine = useMyTables();
@@ -164,8 +164,8 @@ export function Dashboard() {
       <section className={`bgv-hero hm-hero${live ? '' : ' hm-hero--solo'}`} aria-labelledby="hello-h">
         <div className="hm-hero__text">
           <span className="bgv-hero__eyebrow">{jalaliToday()}</span>
-          <h1 id="hello-h" className="t-page" style={{ margin: 0 }}>{me ? <>سلام <bdi>{me.displayName}</bdi>! امشب چی بازی کنیم؟</> : 'باشگاه بردگیم'}</h1>
-          <p className="hm-hero__lead">{turns > 0 ? `${faNum(turns)} میز نوبتی منتظر حرکت شماست` : 'میز خصوصی بسازید و دوستان را دعوت کنید، یا به یک میز عمومی بپیوندید'}{onlineFriends > 0 ? ` و ${faNum(onlineFriends)} نفر از دوستانتان آنلاین‌اند.` : '.'}</p>
+          <h1 id="hello-h" className="t-page" style={{ margin: 0 }}>{me ? <>سلام <bdi>{me.displayName}</bdi>! امشب چی بازی کنیم؟</> : 'بردگیم آنلاین به فارسی'}</h1>
+          <p className="hm-hero__lead">{turns > 0 ? `${faNum(turns)} میز نوبتی منتظر حرکت شماست` : me ? 'میز خصوصی بسازید و دوستان را دعوت کنید، یا به یک میز عمومی بپیوندید' : `${all.length ? `${faNum(all.length)} ` : ''}بردگیم محبوب را آنلاین بازی کنید؛ با دوستانتان میز بسازید یا با حریفان تازه بازی کنید`}{onlineFriends > 0 ? ` و ${faNum(onlineFriends)} نفر از دوستانتان آنلاین‌اند.` : '.'}</p>
           <div className="hm-hero__ctas">
             <Button variant="primary" size="lg" icon="zap" href="/play">یه میز پیدا کن</Button>
             <Button size="lg" icon="plus" href="/games">میز بساز</Button>
