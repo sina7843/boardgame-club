@@ -45,9 +45,17 @@
 		root * /srv
 		@hashed path /assets/*
 		header @hashed Cache-Control "public, max-age=31536000, immutable"
-		@shell path / /index.html
+		# Routes (no file extension) and HTML documents reference hashed assets: always revalidate.
+		@shell path_regexp ^/([^.]*|.*\.html)$
 		header @shell Cache-Control "no-cache"
-		try_files {path} /index.html
+		# Public routes are prerendered to <route>/index.html (scripts/seo.ts); every other route gets the SPA shell.
+		# A missing hashed asset must 404, not return the shell under an immutable year-long cache.
+		# (try_files takes no matcher, so this is its expanded form.)
+		@app {
+			not path /assets/*
+			file {path} {path}/index.html /spa.html
+		}
+		rewrite @app {file_match.relative}
 		file_server
 	}
 }

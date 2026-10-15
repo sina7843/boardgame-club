@@ -1312,3 +1312,9 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   nav-active-*, input-bg, disabled-*, shadow-button, *-active) are not added because no component reads them. Remaining
   shadows keep their shape with a navy tint. Seat, coin and tier colours are unchanged. Text pairs were checked against
   WCAG AA (all ≥ 4.5, borders ≥ 3).
+- SEO (2026-10-15): canonical domain https://boardgameverse.ir. `apps/web/scripts/seo.ts` runs after `vite build` and
+  writes <route>/index.html for public routes (home, /games, every registry game, /wiki, /guides, /ranking,
+  /tournaments, site pages) with their own title, description, Open Graph, canonical, JSON-LD (WebSite / BoardGame) and
+  readable text in #root that React replaces on mount; plus robots.txt (private routes disallowed) and sitemap.xml.
+  Caddy serves those files and falls back to dist/spa.html, the untouched shell. Unknown routes still answer 200,
+  so the NotFound page adds noindex. No SSR; dynamic pages (profiles, clubs, tournaments by id) are not prerendered.

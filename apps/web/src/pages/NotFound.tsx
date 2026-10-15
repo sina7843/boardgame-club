@@ -1,8 +1,15 @@
+import { useEffect } from 'react';
 import { Button } from '@bg/ui/bgv';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 export function NotFound() {
   usePageTitle('صفحه پیدا نشد');
+  // The server answers every unknown path with the app shell (200), so tell crawlers not to index it.
+  useEffect(() => {
+    const meta = Object.assign(document.createElement('meta'), { name: 'robots', content: 'noindex' });
+    document.head.append(meta);
+    return () => meta.remove();
+  }, []);
   return (
     <div className="ac-404" role="status">
       <div className="bgv-felt" aria-hidden="true">

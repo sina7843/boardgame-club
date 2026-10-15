@@ -6,6 +6,10 @@ export const PAGE_TITLE_EVENT = 'bg:title';
 export function usePageTitle(title: string): void {
   useEffect(() => {
     document.title = `${title} | بردگیم‌ورس`;
+    // Canonical follows client-side navigation (prerendered pages ship it; the generic shell does not).
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.append(canonical); }
+    canonical.href = location.origin + location.pathname;
     // The phone top bar of the app shell shows the page title.
     window.dispatchEvent(new CustomEvent(PAGE_TITLE_EVENT, { detail: title }));
     const main = document.getElementById('main');
