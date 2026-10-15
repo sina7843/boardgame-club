@@ -94,9 +94,14 @@ export function CreateTable() {
                 )}
                 {g.options.map((o) => o.hostChooses && o.choices.length > 1 ? (
                   <div key={o.key} className="pg-field"><span className="bgv-label">{o.labelFa}</span>
-                    <Segmented label={o.labelFa} value={String(o.choices.findIndex((c) => c.value === options[o.key]))}
-                      onChange={(i) => setOptions({ ...options, [o.key]: o.choices[Number(i)]!.value })}
-                      options={o.choices.map((c, i) => ({ value: String(i), label: c.labelFa }))} />
+                    {/* Segments only while they fit a phone row; longer lists (e.g. Unmatched battlefields) use a select. */}
+                    {o.choices.length <= 3 && o.choices.reduce((n, c) => n + c.labelFa.length, 0) <= 24
+                      ? <Segmented label={o.labelFa} value={String(o.choices.findIndex((c) => c.value === options[o.key]))}
+                        onChange={(i) => setOptions({ ...options, [o.key]: o.choices[Number(i)]!.value })}
+                        options={o.choices.map((c, i) => ({ value: String(i), label: c.labelFa }))} />
+                      : <Select aria-label={o.labelFa} value={String(o.choices.findIndex((c) => c.value === options[o.key]))}
+                        onChange={(e) => setOptions({ ...options, [o.key]: o.choices[Number(e.target.value)]!.value })}
+                        options={o.choices.map((c, i) => ({ value: String(i), label: c.labelFa }))} />}
                   </div>
                 ) : <div key={o.key}>{fixed(o.labelFa, o.choices.find((c) => c.value === o.default)?.labelFa, ' (تعیین‌شده برای این بازی)')}</div>)}
               </div>

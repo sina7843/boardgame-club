@@ -4,6 +4,8 @@
 .app-skip { position: absolute; inset-inline-start: var(--space-4); inset-block-start: calc(-1 * var(--space-20)); z-index: var(--z-toast);
   padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); background: var(--primary); color: var(--on-primary); }
 .app-skip:focus { inset-block-start: var(--space-4); }
+/* Focus moves to #main on every route change for screen readers; the region itself is not an interactive target. */
+#main:focus { outline: none; }
 .app-page { display: flex; flex-direction: column; gap: var(--space-6); min-inline-size: 0; outline: none; }
 .app-page__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4);
   padding-block: var(--space-4) var(--space-2); border-block-start: 1px solid var(--line); }
