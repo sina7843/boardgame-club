@@ -1,0 +1,14 @@
+{
+  "appId": "ir.boardgameverse.app",
+  "appName": "بردگیم‌ورس",
+  "webDir": "www",
+  "appendUserAgent": "BGVBazaar/1.0",
+  "backgroundColor": "#142B3B",
+  "server": {
+    "url": "https://boardgameverse.ir",
+    "errorPath": "index.html"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

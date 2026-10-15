@@ -1318,3 +1318,17 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   readable text in #root that React replaces on mount; plus robots.txt (private routes disallowed) and sitemap.xml.
   Caddy serves those files and falls back to dist/spa.html, the untouched shell. Unknown routes still answer 200,
   so the NotFound page adds noindex. No SSR; dynamic pages (profiles, clubs, tournaments by id) are not prerendered.
+- Cafe Bazaar Android app (2026-10-15, owner instruction, "روش ب"): `apps/android` is a Capacitor 8.5.2 WebView shell
+  that loads https://boardgameverse.ir (`server.url`), so every site deploy reaches the app without a new release.
+  This is an owner-requested exception to "no native apps": no game or business logic lives in the shell. Bazaar's
+  payment rules (developers.cafebazaar.ir, rules/payment, read 2026-10-15) require Bazaar billing for every digital sale
+  (subscriptions, coins, avatars, paid access) and forbid links to an outside purchase. The app therefore sells nothing
+  for money: it appends `BGVBazaar/<ver>` to the user agent, and for those requests the API lists no plans or coin
+  packs, marks paid tournament entry unavailable, and refuses the three checkouts with PAYMENT_UNAVAILABLE. Coins
+  earned in play still spend, and premium bought on the site still applies. The UA marker is not a security
+  boundary; spoofing it only hides the store from yourself. Bazaar billing (Poolakey + server receipt check) is a
+  separate later task. Offline: `www/index.html` is the Capacitor `server.errorPath` page. Back button: @capacitor/app
+  default (WebView history, then exit). Release signing reads `~/.bgv/bazaar-keystore.properties` (created by
+  `apps/android/create-keystore.cmd`, outside the repo). Application ID `ir.boardgameverse.app` is permanent once published.
+  Local build machine: Google's SDK/Maven hosts are blocked from Iran, so the SDK came from edgedl.me.gvt1.com via the
+  local proxy and `~/.gradle/init.d/google-mirror.gradle` rewrites google() to that host (machine config, not repo).

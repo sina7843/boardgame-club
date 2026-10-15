@@ -23,3 +23,6 @@ docs
 e2e
 *.cmd
 PRD-source.html
+
+# Cafe Bazaar Android shell: native project and build output are not part of the server image
+apps/android/android

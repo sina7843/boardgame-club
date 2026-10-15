@@ -1,0 +1,19 @@
+{
+  "name": "@bg/android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cafe Bazaar Android shell: a Capacitor WebView over the live site (no digital sales in the app).",
+  "scripts": {
+    "sync": "cap sync android",
+    "aab": "cap sync android && .\\android\\gradlew.bat -p android bundleRelease",
+    "apk": "cap sync android && .\\android\\gradlew.bat -p android assembleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/app": "8.1.1",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2"
+  }
+}
