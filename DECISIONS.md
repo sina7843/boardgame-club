@@ -1306,3 +1306,9 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   (dice animations) and parameters stay with the game. Without a host they render in place. 43 buttons in 27 games were
   wrapped mechanically (single-line buttons only); buttons that belong to an in-board panel (auction bid pass, per-card
   pass, in-prompt choices) stay on the board. Multi-line buttons in other games still render on the board.
+- Navy/amber site theme (2026-10-15): the owner's palette is mapped onto the existing BGV token names in
+  design/system/tokens.css + tokens.json (copied to packages/ui/src/bgv/tokens.css), so no component changed. Primary,
+  invite and accent are all amber #E8A642 with navy text. Their names without a BGV slot (secondary, hero-*,
+  nav-active-*, input-bg, disabled-*, shadow-button, *-active) are not added because no component reads them. Remaining
+  shadows keep their shape with a navy tint. Seat, coin and tier colours are unchanged. Text pairs were checked against
+  WCAG AA (all ≥ 4.5, borders ≥ 3).
