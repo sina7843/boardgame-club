@@ -630,7 +630,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           </> : undefined}
           stage={<div data-theme="dark" data-game={t.gameId} data-hud={g.summary ? 'on' : undefined} className={myTurn ? 'table-night tbl-stage tbl-stage--mine' : 'table-night tbl-stage'}>
             {Renderer
-              ? <DockSlotHost value={toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost>
+              ? <DockSlotHost value={g.tutorial ? null : toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost>
               : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
           </div>}>
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}

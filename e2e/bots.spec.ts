@@ -47,7 +47,8 @@ test('«مسابقهٔ شترها» with two bots: the bots take their turns bet
   for (let mine = 0; mine < 4; mine++) {
     await expect(roll).toBeEnabled({ timeout: 30_000 });
     await roll.click();
-    await expect(roll).toBeDisabled({ timeout: 10_000 });
+    // The roll button lives in the action dock: it goes disabled while sending and leaves the dock once the turn passes.
+    await expect.poll(async () => !(await roll.count()) || await roll.isDisabled(), { timeout: 10_000 }).toBe(true);
   }
   await expect(roll).toBeEnabled({ timeout: 30_000 });
   await p.screenshot({ path: shot(info.project.name, 'camel-midgame'), fullPage: true });

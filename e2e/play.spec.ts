@@ -31,10 +31,10 @@ async function whoseTurn(a: Page, b: Page): Promise<[Page, Page]> {
 
 async function playLineThree(a: Page, b: Page, project: string, label: string) {
   await expect(a.locator('.lt__board')).toBeVisible();
-  const [first] = await whoseTurn(a, b);
-  // First mover takes the top row: 0, 1, 2; the opponent plays 3, 4.
-  for (const cell of [0, 3, 1, 4, 2]) {
-    const [mover, other] = await whoseTurn(a, b);
+  const [first, second] = await whoseTurn(a, b);
+  // First mover takes the top row: 0, 1, 2; the opponent plays 3, 4. Turns alternate (the pill text can lag a moment).
+  for (const [i, cell] of [0, 3, 1, 4, 2].entries()) {
+    const [mover, other] = i % 2 ? [second, first] : [first, second];
     await expect(mover.locator('.lt__cell').nth(cell)).not.toHaveAttribute('aria-disabled', 'true');
     await mover.locator('.lt__cell').nth(cell).click();
     if (cell === 1) await mover.screenshot({ path: shot(`${label}-selecting`, project), fullPage: true });

@@ -36,11 +36,11 @@ test('interactive tutorial: buy, end turn, allies, outpost, scrap, final strike'
 
 async function turn(p: Page, n: number): Promise<boolean> {
   const game = p.locator('.sr');
-  const end = game.locator('.sr-bar').getByRole('button', { name: 'پایان نوبت' });
+  const end = p.locator('.sr-bar, .tbl-dock').getByRole('button', { name: 'پایان نوبت' });
   const drop = game.locator('.sr-hand .sr-pick--drop:not([disabled])');
   if (await drop.count()) { await drop.first().click(); return true; }
   if (!(await end.count())) return false;
-  const all = game.getByRole('button', { name: 'بازی همه' });
+  const all = p.locator('.sr, .tbl-dock').getByRole('button', { name: 'بازی همه' });
   if (await all.count()) { await all.click(); return true; }
   const base = game.locator('.sr-pick--atk:not([disabled])');
   if (await base.count()) { await base.first().click(); return true; }

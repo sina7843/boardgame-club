@@ -105,7 +105,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
         <div className="hb__stacks">
           {COLORS.map((c) => (
             <span key={c} className={`hb-stack hb-c--${c} ${view.stacks[c] ? 'hb-stack--lit' : ''}`}>
-              <img className="hb-stack__burst" key={view.stacks[c]} src={BURST[c]} alt="" aria-hidden="true" />
+              <img className="hb-stack__burst" key={`burst${view.stacks[c]}`} src={BURST[c]} alt="" aria-hidden="true" />
               <b key={view.stacks[c]} className="bg-pop" data-flip={last?.kind === 'play' && last.ok && CARDS[last.card!]!.c === c ? `c-${last.card}` : undefined} data-flip-from={lastFrom}>{view.stacks[c] ? fa(view.stacks[c]) : '–'}</b>
               <small>{COLOR_FA[c]}</small>
             </span>

@@ -30,11 +30,11 @@ test('interactive tutorial: roll, sum, buy', async ({ browser }, info) => {
 
 async function turn(p: Page): Promise<boolean> {
   const game = p.locator('.sb');
-  const roll = game.getByRole('button', { name: 'ریختن تاس‌ها' });
+  const roll = p.locator('.sb, .tbl-dock').getByRole('button', { name: 'ریختن تاس‌ها' });
   if (await roll.count()) { await roll.click(); return true; }
   const choose = game.locator('.sb-console').getByRole('button', { name: /^بخش/ });
   if (await choose.count()) { await choose.last().click(); return true; }
-  const pass = game.getByRole('button', { name: 'پایان نوبت بدون خرید' });
+  const pass = p.locator('.sb, .tbl-dock').getByRole('button', { name: 'پایان نوبت بدون خرید' });
   if (!(await pass.count())) return false;
   const buy = game.locator('.sb-pick--can:not([disabled])');
   if (await buy.count()) { await buy.last().click(); return true; }

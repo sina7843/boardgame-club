@@ -27,7 +27,6 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
   await queueRanked(b);
   for (const p of [a, b]) {
     await expect(p.getByText('حریف پیدا شد!')).toBeVisible({ timeout: 15_000 });
-    await p.getByRole('button', { name: 'رفتن به میز و اعلام آمادگی' }).click();
     await p.getByRole('button', { name: 'آماده‌ام' }).click();
   }
   await expect(a.locator('.lt__board')).toBeVisible();

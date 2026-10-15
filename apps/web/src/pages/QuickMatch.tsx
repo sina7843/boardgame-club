@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import type { GameSummary, TableSnapshot, TicketView } from '@bg/contracts';
 import { Avatar, Badge, Banner, Button, Card, Icon, PageHead, ReadyCheck, Segmented, Select, Skeleton, StateBlock, type SeatNo } from '@bg/ui/bgv';
@@ -139,6 +139,13 @@ export function QuickMatch() {
   const reload = tickets.reload;
 
   useEffect(() => { const i = setInterval(reload, 2000); return () => clearInterval(i); }, [reload]);
+  // The ready check unmounts as soon as the ticket leaves «matched»; a ticket seen matched that has now started moves us to its table.
+  const matchedSeen = useRef<string | null>(null);
+  useEffect(() => {
+    const t = tickets.data?.items[0];
+    if (t?.status === 'matched') matchedSeen.current = t.id;
+    else if (t?.status === 'started' && t.matchedTableId && matchedSeen.current === t.id) { matchedSeen.current = null; navigate(`/tables/${t.matchedTableId}`); }
+  }, [tickets.data, navigate]);
   useEffect(() => { if (!gameId && games.data?.items[0]) setGameId(games.data.items[0].id); }, [games.data, gameId]);
   const game = games.data?.items.find((g) => g.id === gameId);
   useEffect(() => { if (game) setPlayers((p) => Math.min(Math.max(p, game.minPlayers), game.maxPlayers)); }, [game]);

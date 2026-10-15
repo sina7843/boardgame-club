@@ -56,7 +56,7 @@ test('admin creates a tournament, players register, the worker seats them at rou
   await watcher.goto(tournamentUrl);
   await expect(watcher.getByRole('link', { name: 'تماشا', exact: true }).first()).toBeVisible({ timeout: 30_000 });
   await watcher.getByRole('link', { name: 'تماشا', exact: true }).first().click();
-  await expect(watcher.getByText(/تماشاگر،/).first()).toBeVisible({ timeout: 30_000 });
+  await expect(watcher.getByRole('button', { name: 'ترک تماشا' })).toBeVisible({ timeout: 30_000 });
   await expect(watcher.getByLabel('متن پیام')).toHaveCount(0); // spectators may read the table chat, never post
   await watcher.screenshot({ path: shot(info.project.name, 'spectator'), fullPage: true });
   await watcher.goto('/tables');

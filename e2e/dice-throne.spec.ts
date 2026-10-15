@@ -34,11 +34,11 @@ async function turn(p: Page): Promise<boolean> {
   if (await hero.count()) { await hero.first().click(); return true; }
   const defend = game.getByRole('button', { name: /^دفاع/ });
   if (await defend.count()) { await defend.click(); return true; }
-  const roll = game.getByRole('button', { name: /^ریختن (تاس‌ها|دوباره)$/ });
+  const roll = p.locator('.dt, .tbl-dock').getByRole('button', { name: /^ریختن (تاس‌ها|دوباره)$/ });
   const attack = game.locator('button.dt-ab--can:not([disabled])');
   if (await roll.count() && !(await attack.count() && (await game.locator('.dt-rolls').textContent())?.startsWith('۱'))) { await roll.click(); return true; }
   if (await attack.count()) { await attack.last().click(); return true; }
-  const pass = game.getByRole('button', { name: 'بدون حمله' });
+  const pass = p.locator('.dt, .tbl-dock').getByRole('button', { name: 'بدون حمله' });
   if (await pass.count()) { await pass.click(); return true; }
   return false;
 }

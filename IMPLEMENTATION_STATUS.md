@@ -891,3 +891,14 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   Not done: in-game actions in the ActionDock (deferred by owner), closed-app web push (dropped by owner), and part of
   the polish list (larger layout reworks: phone tabs on game/tournament pages, login felt hero, wardrobe grid, avatar
   builder summary, open-tables phone variant). No screen was checked in a browser by Claude.
+
+- 2026-10-15 e2e pass after the redesign and the ActionDock move. Game turn buttons render in the table ActionDock
+  (DockSlot portal) except in tutorials, where they stay on the board so hint highlights keep working. Fixed a real
+  quick-match bug: after both players accepted, the ticket left «matched» and the ready check unmounted before
+  navigating, so players stayed on /play; QuickMatch now moves to the table when a matched ticket starts. Fixed a
+  duplicate React key in the Hanabi firework stacks. Specs updated for the new UI (dock-scoped buttons, player-count
+  segments, settings device tab, profile «بیشتر» menu, notification «پذیرفتن», invite card on the profile).
+  Runs: desktop-1440 full suite 307 passed / 10 failed, then all non-design-qa failures re-run green after the fixes;
+  desktop-1920 full suite 105 passed / 6 failed / 216 skipped (project ignores play/social/progress). Remaining
+  failures are only `e2e/design-qa.spec.ts` (screenshot generator: 120 s timeouts on DM, public-profile and group
+  captures that need seeded data) — tooling, not product behaviour. Mobile projects not run in this pass.

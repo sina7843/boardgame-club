@@ -149,7 +149,7 @@ for (const s of SCREENS.screens) {
       await ctx.addInitScript((theme) => { try { localStorage.setItem('bg.prefs', JSON.stringify({ theme, motion: 'reduce', muted: true, undo: 'off' })); } catch { /* storage blocked */ } }, s.theme);
       const page = await ctx.newPage();
       const url = await resolveRoute(page, s.route, s);
-      if (!url) { entry.status = s.kind === 'table' ? 'needs-flow' : 'needs-data'; await ctx.close(); break; }
+      if (!url) { entry.status = s.kind === 'table' ? 'needs-flow' : 'needs-data'; await ctx.close().catch(() => {}); break; }
       await page.goto(url);
       await page.waitForLoadState('networkidle').catch(() => {});
       await page.waitForTimeout(600);
@@ -158,7 +158,7 @@ for (const s of SCREENS.screens) {
       const dom = await page.evaluate(domAudit, { gameArt: QA.gameArtSelector ?? '.bgv-felt__stage, [data-game-art]', minEdgeGap: QA.thresholds?.minEdgeGapPx ?? 6, dsColors: DS_COLORS, dsRadii: DS_RADII });
       (entry.shots as unknown[]).push({ width: w, file: file.replace('design/', ''), url, ...dom });
       entry.status = 'captured';
-      await ctx.close();
+      await ctx.close().catch(() => {});
     }
     save();
   });

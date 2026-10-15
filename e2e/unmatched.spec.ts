@@ -27,7 +27,7 @@ const faNum = (t: string) => Number(t.replace(/[۰-۹]/g, (c) => String('۰۱۲�
 async function decide(p: Page, n: number, heroes: string[]) {
   const d = panel(p);
   const title = (await d.locator('h3').textContent()) ?? '';
-  const button = (name: string | RegExp) => d.getByRole('button', { name });
+  const button = (name: string | RegExp) => p.locator('.um-panel--decide, .tbl-dock').getByRole('button', { name });
   const fieldset = (label: string) => d.locator('fieldset').filter({ hasText: label }).locator('.um-choice');
   if (await d.locator('.um-hero').count()) {
     for (const h of heroes) {

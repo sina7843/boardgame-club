@@ -32,7 +32,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (await roll.count()) { await roll.click(); return true; }
   const buy = p.locator('.kt .kt-buy:not([disabled])');
   if (await buy.count()) { await buy.first().click(); return true; }
-  const end = p.locator('.kt__bar').getByRole('button', { name: 'پایان نوبت' });
+  const end = p.locator('.kt__bar, .tbl-dock').getByRole('button', { name: 'پایان نوبت' });
   if (await end.count()) { await end.click(); return true; }
   return false;
 }

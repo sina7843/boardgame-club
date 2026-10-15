@@ -20,12 +20,10 @@ async function queue(p: Page, gameLabel: string) {
 
 async function acceptMatch(p: Page) {
   await expect(p.getByText('حریف پیدا شد!')).toBeVisible({ timeout: 15_000 });
-  await p.getByRole('button', { name: 'رفتن به میز و اعلام آمادگی' }).click();
-  await expect(p.getByText('همه بازیکنان باید آمادگی را تأیید کنند.')).toBeVisible({ timeout: 20_000 });
   await p.getByRole('button', { name: 'آماده‌ام' }).click();
 }
 
-const myTurn = (p: Page) => p.getByText('نوبت شماست', { exact: true }).isVisible();
+const myTurn = (p: Page) => p.getByText('نوبت شماست', { exact: true }).first().isVisible();
 async function mover(a: Page, b: Page) {
   for (let i = 0; i < 60; i++) { if (await myTurn(a)) return a; if (await myTurn(b)) return b; await a.waitForTimeout(150); }
   throw new Error('no turn');
@@ -105,7 +103,7 @@ test('friends: request/accept, invite to a private table via notification, table
   await a.goto('/friends');
   await a.getByRole('tab', { name: 'یافتن' }).click();
   await a.getByLabel('جست‌وجوی بازیکن').fill(bName);
-  await a.getByRole('button', { name: 'افزودن دوست' }).click();
+  await a.getByRole('listitem').filter({ hasText: bName }).getByRole('button', { name: 'افزودن دوست' }).click();
   await expect(a.getByText('درخواست فرستاده شد')).toBeVisible();
   await b.goto('/friends');
   await b.getByRole('tab', { name: /درخواست‌ها/ }).click();
@@ -124,7 +122,7 @@ test('friends: request/accept, invite to a private table via notification, table
   const invite = b.locator('li.hm-notif', { hasText: /شما را به میز «سه‌خطی» دعوت کرد/ });
   await expect(invite).toBeVisible({ timeout: 15_000 });
   await b.screenshot({ path: shot('06-invite-notification', p), fullPage: true });
-  await invite.getByRole('link', { name: 'دیدن دعوت' }).click();
+  await invite.getByRole('link', { name: 'پذیرفتن' }).click();
   await b.getByRole('button', { name: 'پیوستن به میز' }).click();
   await expect(b.getByText('بازیکنان (۲ از ۲)')).toBeVisible();
 
@@ -142,8 +140,9 @@ test('friends: request/accept, invite to a private table via notification, table
   await a.getByRole('button', { name: 'ارسال' }).click();
   await expect(a.getByText('بازی بعدی کی؟')).toBeVisible();
   await b.goto(`/users/${(await (await a.request.get('/api/me')).json()).id}`);
-  await b.getByRole('button', { name: 'مسدود کردن' }).click();
-  await expect(b.getByRole('button', { name: 'رفع مسدودی' })).toBeVisible();
+  await b.getByRole('button', { name: 'بیشتر' }).click();
+  await b.getByRole('menu').getByText('مسدود کردن').click();
+  await expect(b.getByText('کاربر مسدود شد.')).toBeVisible();
   await a.reload();
   await a.getByLabel('متن پیام').fill('هنوز هستی؟');
   await a.getByRole('button', { name: 'ارسال' }).click();

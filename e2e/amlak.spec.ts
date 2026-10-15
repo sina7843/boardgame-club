@@ -84,7 +84,7 @@ test('instant roll: no undo, the dice tumble without pips while the roll is in f
   await expect(p.getByText(/آموزش: مرحله ۱ از/)).toBeVisible();
   // The roll is sent at once (no undo window); hold its answer so the in-flight tumble can be seen.
   await p.route('**/api/tables/*/commands', async (route) => { if (route.request().method() === 'POST') await new Promise((ok) => setTimeout(ok, 1500)); await route.continue(); });
-  const roll = p.locator('.am-panel--decide').getByRole('button', { name: /^تاس بریز/ });
+  const roll = p.locator('.am-panel--decide, .tbl-dock').getByRole('button', { name: /^تاس بریز/ });
   const tumbling = p.locator('.amb-die.bg-tumble');
   await motionLog(p);
   await roll.click();

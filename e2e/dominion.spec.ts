@@ -33,7 +33,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     await discard.click();
     return true;
   }
-  if (!(await bar.getByRole('button', { name: 'پایان نوبت' }).count())) return false;
+  if (!(await p.locator('.dm__bar, .tbl-dock').getByRole('button', { name: 'پایان نوبت' }).count())) return false;
   const action = game.locator('.dm-hand--can').filter({ hasText: SIMPLE });
   if (await action.count()) { await action.first().click(); return true; }
   const treasures = bar.getByRole('button', { name: 'رو کردن گنج‌ها' });
@@ -42,7 +42,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     const pile = game.locator('.dm-pile--can').filter({ hasText: name });
     if (await pile.count()) { await pile.first().click(); return true; }
   }
-  await bar.getByRole('button', { name: 'پایان نوبت' }).click();
+  await p.locator('.dm__bar, .tbl-dock').getByRole('button', { name: 'پایان نوبت' }).click();
   return true;
 }
 

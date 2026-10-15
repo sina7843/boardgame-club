@@ -56,7 +56,7 @@ test('three players race to 100 in Snakes and Ladders', async ({ browser }, info
   only(info);
   const pages = await table(browser, info, 'snakes-ladders', 3);
   await playOut(pages, info, 'snakes', '.sl-board', async (p) => {
-    const roll = p.locator('.sl').getByRole('button', { name: 'تاس بریز' });
+    const roll = p.locator('.sl, .tbl-dock').getByRole('button', { name: 'تاس بریز' });
     return (await enabled(roll)) ? roll.first() : null;
   });
 });
@@ -67,7 +67,7 @@ test('two players play Ludo until all four pieces of one player are home', async
   await playOut(pages, info, 'ludo', '.ld-board', async (p) => {
     const move = p.locator('.ld-choices button');
     if (await enabled(move)) return move.first();
-    const roll = p.locator('.ld').getByRole('button', { name: 'تاس بریز' });
+    const roll = p.locator('.ld, .tbl-dock').getByRole('button', { name: 'تاس بریز' });
     return (await enabled(roll)) ? roll.first() : null;
   });
 });
@@ -82,7 +82,7 @@ test('ludo: an instant roll (no undo) tumbles without pips while in flight until
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
   await motionLog(p);
-  const roll = p.locator('.ld').getByRole('button', { name: 'تاس بریز' });
+  const roll = p.locator('.ld, .tbl-dock').getByRole('button', { name: 'تاس بریز' });
   const undo = p.getByRole('button', { name: 'انصراف', exact: true });
   const tumble = p.locator('.ld-die.bg-tumble');
   // The roll is sent at once despite the window (no undo); hold its answer so the in-flight tumble can be seen.
@@ -130,7 +130,7 @@ test('snakes: an instant roll (no undo) tumbles without pips while in flight, th
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
   await motionLog(p);
-  const roll = p.locator('.sl').getByRole('button', { name: 'تاس بریز' });
+  const roll = p.locator('.sl, .tbl-dock').getByRole('button', { name: 'تاس بریز' });
   const undo = p.getByRole('button', { name: 'انصراف', exact: true });
   const tumble = p.locator('.sl-die.bg-tumble');
   // The roll is sent at once despite the window (no undo); hold its answer so the in-flight tumble can be seen.

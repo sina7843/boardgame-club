@@ -40,7 +40,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (await keep.count()) { await keep.first().click(); return true; }
   const build = p.locator('.ct2__hand .ct2-pick--can:not([disabled])');
   if (await build.count() && n % 4 !== 0) { await build.first().click(); return true; }
-  const end = p.locator('.ct2__me').getByRole('button', { name: 'پایان نوبت' });
+  const end = p.locator('.ct2__me, .tbl-dock').getByRole('button', { name: 'پایان نوبت' });
   if (await end.count()) { await end.click(); return true; }
   return false;
 }

@@ -38,7 +38,7 @@ test('interactive tutorial: play, discard, pass, tap, buy', async ({ browser }, 
 
 async function turn(p: Page): Promise<boolean> {
   const game = p.locator('.ra');
-  const pass = game.getByRole('button', { name: /^رد کردن/ });
+  const pass = p.locator('.ra, .tbl-dock').getByRole('button', { name: /^رد کردن/ });
   if (!(await pass.count())) return false;
   const buy = game.locator('.ra-pick.is-can:not([disabled])');
   if (await buy.count()) { await buy.first().click(); return true; }

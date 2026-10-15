@@ -44,7 +44,7 @@ async function advance(p: Page, row: number) {
 
 async function turn(p: Page, n: number): Promise<boolean> {
   const game = p.locator('.ed');
-  const end = game.getByRole('button', { name: 'پایان نوبت', exact: true });
+  const end = p.locator('.ed, .tbl-dock').getByRole('button', { name: 'پایان نوبت', exact: true });
   if (!(await end.count())) return false;
   const seat = await p.locator('.ed-crew__p').evaluateAll((els) => els.findIndex((e) => e.classList.contains('is-now')));
   const row = Math.floor(Number(await game.locator(`circle[data-seat="${seat}"]`).getAttribute('data-hex')) / 6);
@@ -59,7 +59,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
     const buy = game.locator('.ed-buy.is-can:not([disabled])').filter({ hasText: name });
     if (await buy.count()) { await buy.first().click(); return true; }
   }
-  const dump = game.getByRole('button', { name: 'پایان نوبت و دور ریختن دست' });
+  const dump = p.locator('.ed, .tbl-dock').getByRole('button', { name: 'پایان نوبت و دور ریختن دست' });
   await (await dump.count() ? dump : end).click();
   return true;
 }

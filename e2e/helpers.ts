@@ -100,6 +100,7 @@ export const motionLog = (page: Page): Promise<MotionEntry[]> =>
 /** Create-table player count: segmented «۳ نفر» buttons (up to 6 choices) or a select for wider ranges. */
 export async function pickPlayers(page: Page, n: number): Promise<void> {
   const seg = page.getByRole('radiogroup', { name: 'تعداد بازیکن' });
+  await seg.or(page.getByLabel('تعداد بازیکن')).first().waitFor();
   if (await seg.count()) { await seg.getByRole('radio', { name: `${n.toLocaleString('fa-IR')} نفر`, exact: true }).click(); return; }
   await page.getByLabel('تعداد بازیکن').first().selectOption(String(n));
 }

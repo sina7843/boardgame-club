@@ -52,7 +52,7 @@ test('login → catalog → game detail', async ({ page }, info) => {
   await expect(page.getByRole('heading', { name: 'نوبت شماست', level: 2 })).toBeVisible();
   await page.screenshot({ path: shot('06-dashboard', p), fullPage: true });
 
-  await page.goto('/settings');
+  await page.goto('/settings?tab=device');
   await page.getByRole('radiogroup', { name: 'پوسته' }).getByText('روشن', { exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.screenshot({ path: shot('07-settings-light', p), fullPage: true });
