@@ -41,6 +41,8 @@ export function PlansPage() {
   const featured = plans.data.items.filter((p) => p.purchasable).sort((a, b) => b.durationDays - a.durationDays)[0]?.id;
   // No plans listed = the store is closed (launch promo): show only my premium status.
   const store = plans.data.items.length > 0;
+  // The Cafe Bazaar app sells nothing for money; outside the launch promo the server says so instead of the promo note.
+  const closedNote = (navigator.userAgent.includes('BGVBazaar/') && plans.data.checkout.reasonFa) || 'در دوران افتتاح سایت، هر بازیکن با ورود، پریمیوم رایگان هدیه می‌گیرد.';
   return (
     <>
       <PageTabs group="wallet" />
@@ -54,11 +56,11 @@ export function PlansPage() {
             <h2 id="mine-h" className="ac-h3" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>وضعیت من{s.premium && <Badge tone="premium" icon="crown">پریمیوم فعال</Badge>}</h2>
             {s.premium ? <p className="t-body-sm" style={{ margin: 0 }}>{s.premiumUntil ? `تا ${jalaliDate(s.premiumUntil)}` : ''}؛ پس از پایان، بازی‌های در جریان قطع نمی‌شوند.</p>
               : <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>اشتراک فعالی ندارید.</p>}
-            {!store && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>در دوران افتتاح سایت، هر بازیکن با ورود، پریمیوم رایگان هدیه می‌گیرد.</p>}
+            {!store && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>{closedNote}</p>}
           </div>
         </Card>
       )}
-      {!store && !me && <p className="t-body-sm" style={{ margin: 0 }}>در دوران افتتاح سایت، هر بازیکن با ورود، پریمیوم رایگان هدیه می‌گیرد. <Link to="/login?next=/plans">ورود</Link></p>}
+      {!store && !me && <p className="t-body-sm" style={{ margin: 0 }}>{closedNote} <Link to="/login?next=/plans">ورود</Link></p>}
       <div className="ac-plans">
         {plans.data.items.map((p) => {
           const top = p.id === featured;

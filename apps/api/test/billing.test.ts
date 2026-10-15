@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { schema } from '@bg/db';
 import { expireSubscriptions, reconcilePayments } from '@bg/play';
 import { billingFor } from '../src/app.ts';
-import { grantRole, setup, testConfig, type TestCtx } from './helpers.ts';
+import { grantRole, ORIGIN, setup, testConfig, type TestCtx } from './helpers.ts';
 import { call, command, seatsOf, users, view, type User } from './play-helpers.ts';
 
 let ctx: TestCtx;
@@ -49,6 +49,18 @@ describe('plans and checkout availability', () => {
     const none = billingFor(testConfig({ PAYMENT_PROVIDER: 'none' }), ctx.db);
     expect(none.gateway).toBeNull();
     expect(none.unavailableReasonFa).toContain('درگاه');
+  });
+
+  it('the Cafe Bazaar app lists nothing for money and its checkouts refuse; the web store is unchanged', async () => {
+    const [u] = await users(ctx, 1);
+    const app = (method: 'GET' | 'POST', url: string, payload?: object) => ctx.app.inject({ method, url, payload,
+      headers: { origin: ORIGIN, cookie: u!.cookie, 'user-agent': 'Mozilla/5.0 (Linux; Android 14; wv) Chrome/130 Mobile BGVBazaar/1.0' } });
+    const plans = (await app('GET', '/api/plans')).json();
+    expect(plans.items).toEqual([]);
+    expect(plans.checkout).toMatchObject({ available: false, reasonFa: expect.stringContaining('کافه‌بازار') });
+    expect((await app('GET', '/api/me/coins')).json().packs).toEqual([]);
+    expect((await app('POST', '/api/subscriptions/checkout', { planId: monthly })).json().errorCode).toBe('PAYMENT_UNAVAILABLE');
+    expect((await call(ctx, 'GET', '/api/plans', u)).json().items.length).toBeGreaterThan(0);
   });
 });
 

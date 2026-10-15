@@ -1,6 +1,6 @@
 // Plans, checkout, gateway callback, payment status, subscription status and admin billing controls (FR-15).
 import { and, desc, eq, sql } from 'drizzle-orm';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { AppError, apiErrorSchema, coinsResponse, paymentStatus, plansResponse, subscriptionStatus } from '@bg/contracts';
@@ -27,6 +27,10 @@ const EARN = [
   { labelFa: 'هر سطح تازه (ضرب در شماره سطح)', coins: COIN_RULES.levelUp }
 ];
 const SHOP_KEYS = COIN_SHOP.map((i) => i.key) as [CoinShopKey, ...CoinShopKey[]];
+/** The Cafe Bazaar Android app marks its WebView user agent. Bazaar requires its own billing for every digital sale, so the app
+ *  build sells nothing for money: no plans, coin packs or paid entries are listed, and their checkouts refuse. Coins still spend. */
+export const fromBazaarApp = (req: FastifyRequest) => (req.headers['user-agent'] ?? '').includes('BGVBazaar/');
+export const BAZAAR_NO_SALE_FA = 'خرید در نسخهٔ کافه‌بازار فعلاً در دسترس نیست.';
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema, 502: apiErrorSchema };
 
 export function billingRoutes(app: FastifyInstance, { db, billing, config }: Deps): void {
@@ -35,16 +39,21 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   /** The launch promo closes the store: no plans, coin shop or coin packs are listed or sold. */
   const storeClosed = async () => (await welcomePremium(db)).enabled;
   const closed = async () => { if (await storeClosed()) throw new AppError('PAYMENT_UNAVAILABLE'); };
+  const noSale = (req: FastifyRequest) => { if (fromBazaarApp(req)) throw new AppError('PAYMENT_UNAVAILABLE'); };
 
-  r.get('/plans', { schema: { tags: ['billing'], summary: 'Plans with terms; purchasable only with an approved price and a configured gateway', response: { 200: plansResponse } } }, async () => {
-    const rows = await storeClosed() ? [] : await db.select().from(plans).orderBy(plans.durationDays);
+  r.get('/plans', { schema: { tags: ['billing'], summary: 'Plans with terms; purchasable only with an approved price and a configured gateway', response: { 200: plansResponse } } }, async (req) => {
+    const shut = await storeClosed();
+    const app = fromBazaarApp(req);
+    const rows = shut || app ? [] : await db.select().from(plans).orderBy(plans.durationDays);
     return {
       items: rows.map((p) => {
         const reason = !billing.gateway ? billing.unavailableReasonFa : !p.active ? 'این پلن فعلاً عرضه نمی‌شود.' : !p.priceAmount ? 'قیمت این پلن هنوز تعیین نشده است.' : null;
         return { id: p.id, key: p.key, titleFa: p.titleFa, period: p.period as 'monthly', durationDays: p.durationDays, priceAmount: p.priceAmount, currency: p.currency,
           termsFa: p.termsFa, purchasable: !reason, unavailableReasonFa: reason };
       }),
-      checkout: { available: !!billing.gateway, reasonFa: billing.unavailableReasonFa, fixture: !!billing.gateway?.isFixture },
+      // In the app with the launch promo on, the promo note stays; otherwise the app says why nothing is on sale.
+      checkout: app ? { available: false, reasonFa: shut ? null : BAZAAR_NO_SALE_FA, fixture: false }
+        : { available: !!billing.gateway, reasonFa: billing.unavailableReasonFa, fixture: !!billing.gateway?.isFixture },
       limits: { turnTables: { free: config.play.turnTableLimit, premium: config.play.turnTableLimitPremium } }
     };
   });
@@ -52,7 +61,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   r.post('/subscriptions/checkout', {
     schema: { tags: ['billing'], summary: 'Start a payment for a plan; returns the gateway redirect URL', body: z.strictObject({ planId: z.uuid() }),
       response: { 200: z.object({ orderId: z.string(), redirectUrl: z.url() }), ...errors } }
-  }, async (req) => { await closed(); return checkout(db, billing, requireUser(req).userId, { planId: req.body.planId }); });
+  }, async (req) => { noSale(req); await closed(); return checkout(db, billing, requireUser(req).userId, { planId: req.body.planId }); });
 
   /** Browser redirect from the gateway. The query proves nothing; it only triggers server-side verification. */
   r.get('/payments/callback', {
@@ -111,7 +120,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   r.get('/me/coins', { schema: { tags: ['coins'], summary: 'Coin balance, recent movements, shop items, coin packs and earning rules', response: { 200: coinsResponse, 401: apiErrorSchema } } }, async (req) => {
     const { userId } = requireUser(req, { allowSuspended: true });
     const shut = await storeClosed();
-    const packs = shut ? [] : await db.select().from(coinPacks).where(eq(coinPacks.active, true)).orderBy(coinPacks.coins);
+    const packs = shut || fromBazaarApp(req) ? [] : await db.select().from(coinPacks).where(eq(coinPacks.active, true)).orderBy(coinPacks.coins);
     return {
       balance: await coinBalance(db, userId),
       history: (await coinHistory(db, userId)).map((h) => ({ amount: h.amount, ruleId: h.ruleId, reason: h.reason, createdAt: h.createdAt.toISOString() })),
@@ -139,7 +148,7 @@ export function billingRoutes(app: FastifyInstance, { db, billing, config }: Dep
   r.post('/coins/checkout', {
     schema: { tags: ['coins'], summary: 'Start a payment for a coin pack; coins are credited only after server verification',
       body: z.strictObject({ packId: z.uuid() }), response: { 200: z.object({ orderId: z.string(), redirectUrl: z.url() }), ...errors } }
-  }, async (req) => { await closed(); return checkout(db, billing, requireUser(req).userId, { coinPackId: req.body.packId }); });
+  }, async (req) => { noSale(req); await closed(); return checkout(db, billing, requireUser(req).userId, { coinPackId: req.body.packId }); });
 
   // ---------- Development-only fake gateway decision (the labelled "bank page" calls this) ----------
   r.post('/payments/fake/:authority/decision', {

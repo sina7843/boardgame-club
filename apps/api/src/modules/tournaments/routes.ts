@@ -3,13 +3,14 @@
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { apiErrorSchema, createTournamentBody, tournamentDetail, tournamentRefundItem, tournamentSummary } from '@bg/contracts';
+import { AppError, apiErrorSchema, createTournamentBody, tournamentDetail, tournamentRefundItem, tournamentSummary } from '@bg/contracts';
 import {
   adminCancelTournament, createTournament, listRefunds, listTournaments, markRefundPaid, registerForTournament, tournamentCheckout,
   tournamentDetail as detail, withdrawFromTournament
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
+import { BAZAAR_NO_SALE_FA, fromBazaarApp } from '../billing/routes.ts';
 
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema, 502: apiErrorSchema };
 const idParams = z.object({ id: z.uuid() });
@@ -21,7 +22,10 @@ export function tournamentRoutes(app: FastifyInstance, { db, registry, billing }
     async (req) => ({ items: await listTournaments(db, req.auth?.userId ?? null) }));
 
   r.get('/tournaments/:id', { schema: { tags: ['tournaments'], summary: 'Tournament rules, prizes, standings and rounds', params: idParams, response: { 200: tournamentDetail, ...errors } } },
-    async (req) => detail(db, billing, req.params.id, req.auth?.userId ?? null));
+    async (req) => {
+      const t = await detail(db, billing, req.params.id, req.auth?.userId ?? null);
+      return fromBazaarApp(req) ? { ...t, checkout: { available: false, reasonFa: BAZAAR_NO_SALE_FA, fixture: false } } : t;
+    });
 
   r.post('/tournaments/:id/register', {
     schema: { tags: ['tournaments'], summary: 'Register with a free or coin entry (coins are debited once, under the coin lock)', params: idParams, response: { 204: z.null(), ...errors } }
@@ -33,7 +37,10 @@ export function tournamentRoutes(app: FastifyInstance, { db, registry, billing }
   r.post('/tournaments/:id/checkout', {
     schema: { tags: ['tournaments'], summary: 'Start a gateway payment for a Toman entry; the verified payment registers (or queues a refund)', params: idParams,
       response: { 200: z.object({ orderId: z.string(), redirectUrl: z.url() }), ...errors } }
-  }, async (req) => tournamentCheckout(db, billing, requireUser(req).userId, req.params.id));
+  }, async (req) => {
+    if (fromBazaarApp(req)) throw new AppError('PAYMENT_UNAVAILABLE');
+    return tournamentCheckout(db, billing, requireUser(req).userId, req.params.id);
+  });
 
   r.post('/tournaments/:id/withdraw', {
     schema: { tags: ['tournaments'], summary: 'Withdraw before the start: coins return at once, a Toman entry is queued for refund', params: idParams, response: { 204: z.null(), ...errors } }
