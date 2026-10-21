@@ -12,5 +12,8 @@ export * from './zarinpal.ts';
 export * from './coins.ts';
 export * from './cosmetics.ts';
 export * from './tournaments.ts';
+export * from './records.ts';
+export * from './fairplay.ts';
+export * from './swiss-rank.ts';
 export * from './rematch.ts';
 export * from './presence.ts';

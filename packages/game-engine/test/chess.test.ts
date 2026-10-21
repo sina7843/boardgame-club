@@ -72,6 +72,17 @@ describe('chess games', () => {
     expect(JSON.stringify(v)).not.toContain('seen');
   });
 
+  it('exports the finished game as PGN: seven tags, numbered SAN moves, result token', () => {
+    const snap = play(game(), 'f2f3', 'e7e5', 'g2g4', 'd8h4');
+    const rec = chessModule.exportRecord!(st(snap), { event: 'جام "ملی"', site: 'boardgameverse.ir', date: '2026.10.21', round: '3', players: ['علی', 'Sara'], timeControl: '600+5' });
+    expect(rec).toMatchObject({ extension: 'pgn' });
+    expect(rec!.text).toBe([
+      '[Event "جام \\"ملی\\""]', '[Site "boardgameverse.ir"]', '[Date "2026.10.21"]', '[Round "3"]', '[White "علی"]', '[Black "Sara"]', '[Result "0-1"]',
+      '[TimeControl "600+5"]', '[Termination "normal"]', '', '1. f3 e5 2. g4 Qh4# 0-1', ''
+    ].join('\n'));
+    expect(chessModule.exportRecord!(st(game()), { event: 'x', site: 'x', date: 'x', round: null, players: [], timeControl: null })).toBeNull(); // no moves yet
+  });
+
   it('castling rights, en passant and promotion through the module', () => {
     let snap = game('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');
     snap = play(snap, 'a1a2', 'a8b8'); // White's a-rook moved: queen-side castling gone
@@ -162,5 +173,74 @@ describe('chess publicSummary', () => {
     sum = chessModule.publicSummary!(st(play(game(), 'e2e4', 'f7f6', 'd1h5')));
     expect(sum.seats[1]!.badges!.map((b) => b.label)).toEqual(['کیش']);
     expect(sum.seats[0]!.badges).toEqual([]);
+  });
+});
+
+describe('chess table rules: draw offers, FIDE claims, Armageddon', () => {
+  const gameWith = (options: Record<string, unknown>, fen?: string) =>
+    startGame(m, { playerCount: 2, seed: 1, options: { firstMove: 'host', ...options, ...(fen ? { fen } : {}) } }).snapshot;
+  const move = (snap: EngineSnapshot, mv: string, offerDraw = false) => {
+    const seat = st(snap).colors.indexOf(st(snap).pos.turn);
+    const r = applyAction(m, snap, p(seat), { type: 'move', from: mv.slice(0, 2), to: mv.slice(2, 4), ...(offerDraw ? { offerDraw: true } : {}) }, 0);
+    if ('ok' in r) throw new Error(`${mv}: ${r.errorCode}`);
+    return r.snapshot;
+  };
+  const view = (snap: EngineSnapshot) => projectFor(m, snap, { kind: 'spectator' }).view as ChessView;
+  const shuffle = ['g1f3', 'g8f6', 'f3g1', 'f6g8'];
+
+  it('a draw offer goes with a move, at most once per five of the offerer\'s moves', () => {
+    let s = game();
+    expect(view(s).canOfferDraw).toBe(true);
+    s = move(s, 'e2e4', true);
+    expect(st(s).drawOffer).toBe(0);
+    s = move(s, 'e7e5'); // moving instead of accepting declines
+    expect(st(s).drawOffer).toBeNull();
+    expect(view(s).canOfferDraw).toBe(false); // white offered just now
+    s = move(s, 'g1f3', true);
+    expect(st(s).drawOffer).toBeNull(); // too soon: the offer flag is ignored
+    for (const mv of ['b8c6', 'f1b5', 'a7a6', 'b5a4', 'g8f6', 'e1g1', 'f8e7', 'f1e1']) s = move(s, mv);
+    expect(view(s).canOfferDraw).toBe(true); // ten plies after the first offer
+  });
+
+  it('draws by agreement can be barred until a move (minDrawMove)', () => {
+    let s = gameWith({ minDrawMove: '20' });
+    expect(view(s).canOfferDraw).toBe(false);
+    s = move(s, 'e2e4', true);
+    expect(st(s).drawOffer).toBeNull();
+    expect(gameWith({ minDrawMove: 'none' })).toBeTruthy();
+    expect(view(gameWith({ minDrawMove: 'none' })).canOfferDraw).toBe(true);
+  });
+
+  it('automatic rules: the third repetition draws at once', () => {
+    let s = game();
+    for (const mv of [...shuffle, ...shuffle]) s = move(s, mv);
+    expect(st(s).end).toEqual({ kind: 'draw', draw: 'repetition' });
+  });
+
+  it('FIDE claims: threefold repetition must be claimed; five-fold is automatic', () => {
+    let s = gameWith({ drawRule: 'fide' });
+    for (const mv of shuffle) s = move(s, mv);
+    expect(reject(s, 0, { type: 'claimDraw' })).toBe('DRAW_CLAIM_NOT_ALLOWED'); // second occurrence only
+    for (const mv of shuffle) s = move(s, mv);
+    expect(st(s).outcome).toBeNull(); // third occurrence: the game goes on
+    expect(legal(s, 0).some((a) => a.type === 'claimDraw')).toBe(true);
+    expect(legal(s, 1).some((a) => a.type === 'claimDraw')).toBe(false); // only the side to move
+    const claimed = applyAction(m, s, p(0), { type: 'claimDraw' }, 0);
+    expect('ok' in claimed).toBe(false);
+    if (!('ok' in claimed)) {
+      expect(st(claimed.snapshot).end).toEqual({ kind: 'draw', draw: 'repetition' });
+      expect(st(claimed.snapshot).outcome).toMatchObject({ reason: 'draw' });
+    }
+    for (const mv of [...shuffle, ...shuffle]) s = move(s, mv);
+    expect(st(s).end).toEqual({ kind: 'draw', draw: 'repetition' }); // fifth occurrence
+  });
+
+  it('Armageddon: a draw of any kind is a win for Black, and nobody can agree one', () => {
+    const s0 = gameWith({ armageddon: true }, '4k3/8/8/8/8/8/8/4KN2 w - - 0 1');
+    expect(view(s0).canOfferDraw).toBe(false);
+    const s = move(s0, 'e1d1'); // king and knight against king: insufficient material
+    expect(st(s).end).toEqual({ kind: 'draw', draw: 'material' });
+    expect(st(s).outcome).toEqual({ reason: 'win', placements: [{ seat: 1, place: 1 }, { seat: 0, place: 2 }] });
+    expect(chessModule.exportRecord!(st(s), { event: 'e', site: 's', date: 'd', round: null, players: ['a', 'b'], timeControl: null })!.text).toContain('[Result "0-1"]');
   });
 });

@@ -65,6 +65,9 @@ export const ERRORS = {
   NOT_REGISTERED: 'شما در این تورنمنت ثبت‌نام نکرده‌اید.',
   TOURNAMENT_PAY_ONLINE: 'ورودی این تورنمنت با پرداخت آنلاین است.',
   TOURNAMENT_SETTINGS_INVALID: 'تنظیمات تورنمنت با قابلیت‌های این بازی جور نیست.',
+  TOURNAMENT_CHECKIN_CLOSED: 'تأیید حضور هنوز باز نشده یا بسته شده است.',
+  TOURNAMENT_BYE_INVALID: 'درخواست استراحت برای این دور ممکن نیست.',
+  PLAYER_DISQUALIFIED: 'این بازیکن از تورنمنت محروم شده است.',
   ACCOUNT_HAS_ACTIVE_GAMES: 'پیش از حذف حساب، بازی‌ها و میزهای باز خود را تمام یا ترک کنید و از تورنمنت‌های فعال انصراف دهید.',
   ACCOUNT_DELETE_ADMIN: 'حساب مدیر یا ناظر را نمی‌توان حذف کرد؛ ابتدا نقش آن برداشته شود.',
   ONBOARDING_STEP_NOT_DONE: 'این مرحله هنوز انجام نشده است؛ کار خواسته‌شده را انجام دهید.',
@@ -98,7 +101,8 @@ const STATUS: Partial<Record<ErrorCode, number>> = {
   BLOCKED: 403, DM_NOT_ALLOWED: 403, CHAT_RESTRICTED: 403, ACCOUNT_SUSPENDED: 403, NOT_A_MEMBER: 403, MANAGER_REQUIRED: 403,
   OWNER_REQUIRED: 403, INVITE_ONLY: 403, CANNOT_TARGET_SELF: 400,
   OTP_DELIVERY_FAILED: 502, PAYMENT_PROVIDER_ERROR: 502, SERVICE_UNAVAILABLE: 503, PAYMENT_UNAVAILABLE: 409, SEASON_CLOSED: 409, ONBOARDING_STEP_NOT_DONE: 409, ACCOUNT_HAS_ACTIVE_GAMES: 409, ACCOUNT_DELETE_ADMIN: 409,
-  TOURNAMENT_NOT_OPEN: 409, TOURNAMENT_FULL: 409, ALREADY_REGISTERED: 409, NOT_REGISTERED: 409, TOURNAMENT_PAY_ONLINE: 409, TOURNAMENT_SETTINGS_INVALID: 400
+  TOURNAMENT_NOT_OPEN: 409, TOURNAMENT_FULL: 409, ALREADY_REGISTERED: 409, NOT_REGISTERED: 409, TOURNAMENT_PAY_ONLINE: 409, TOURNAMENT_SETTINGS_INVALID: 400,
+  TOURNAMENT_CHECKIN_CLOSED: 409, TOURNAMENT_BYE_INVALID: 409, PLAYER_DISQUALIFIED: 409
 };
 
 /** Server-side domain error; rendered as the standard envelope by the API error handler. */

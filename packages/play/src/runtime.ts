@@ -1,15 +1,15 @@
 // Authoritative table runtime shared by the API (HTTP + Socket.IO commands) and the worker (deadlines).
 // Every state change goes through persistStep inside a transaction that holds the table row lock.
 import { createHash, randomInt, randomUUID } from 'node:crypto';
-import { and, eq, inArray, sql } from 'drizzle-orm';
-import { AppError, botPersona } from '@bg/contracts';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { AppError, botPersona, ratingModeOf } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { failMatch } from './matchmaking.ts';
 import { botTakeover, startTournamentTable } from './tournaments.ts';
 import { applyAction, applyTimeout, createRng, type AnyModule, type EngineSnapshot, type GameRegistry, type RngState, type StepResult } from '@bg/game-engine';
 import type { BotLevel } from '@bg/game-sdk';
 
-const { gameTables, gameVersions, gameSnapshots, gameEvents, commandReceipts, scheduledDeadlines, gameResults, outboxEvents, participants, tutorialProgress } = schema;
+const { gameTables, gameVersions, gameSnapshots, gameEvents, commandReceipts, scheduledDeadlines, gameResults, outboxEvents, participants, tutorialProgress, moveTimes } = schema;
 
 export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
 export type TableRow = typeof gameTables.$inferSelect;
@@ -38,23 +38,54 @@ export async function loadSnapshot(tx: Tx | Db, tableId: string, revision: numbe
 /** Recorded engine input, kept for deterministic replay (internal only). */
 export type EngineInput =
   | { kind: 'start'; seed: number; playerCount: number; options?: Record<string, unknown> }
-  | { kind: 'action'; seat: number; action: unknown; logicalTime: number }
+  | { kind: 'action'; seat: number; action: unknown; logicalTime: number; lagMs?: number }
   | { kind: 'timeout'; deadlineToken: string; logicalTime: number };
 
 /** Seconds-before-deadline for turn-based reminders, largest first: half time, a quarter (≤ 6 h), the last hour. */
 export const reminderLeads = (turnSeconds: number) =>
   [...new Set([Math.floor(turnSeconds / 2), Math.min(Math.floor(turnSeconds / 4), 6 * 3600), 3600])].filter((l) => l >= 60 && l < turnSeconds).sort((a, b) => b - a);
 
-/** «m+i» time control from the table's options (live tables only): bank minutes and Fischer increment seconds. */
-export function clockControl(table: { pace: string; settings: unknown }): { initialMs: number; incrementMs: number } | null {
+/**
+ * «m+i» time control from the table's options (live tables only): bank minutes and Fischer increment seconds.
+ * «a/b+i» gives the host (seat 0) a minutes and the guest (seat 1) b minutes (odds games, Armageddon).
+ */
+export function clockControl(table: { pace: string; settings: unknown }): { initialMs: number; guestInitialMs: number; incrementMs: number } | null {
   const v = (table.settings as { options?: { clock?: unknown } }).options?.clock;
-  const m = table.pace === 'live' && typeof v === 'string' ? /^(\d+)\+(\d+)$/.exec(v) : null;
-  return m ? { initialMs: Number(m[1]) * 60_000, incrementMs: Number(m[2]) * 1000 } : null;
+  const m = table.pace === 'live' && typeof v === 'string' ? /^(\d+)(?:\/(\d+))?\+(\d+)$/.exec(v) : null;
+  return m ? { initialMs: Number(m[1]) * 60_000, guestInitialMs: Number(m[2] ?? m[1]) * 60_000, incrementMs: Number(m[3]) * 1000 } : null;
+}
+
+/** Lag compensation: a mover is credited up to their quota of the lag they report (Lichess-style); the quota refills a little per move. */
+export const LAG_QUOTA_MAX_MS = 1500;
+export const LAG_QUOTA_REGAIN_MS = 100;
+
+/** Initial bank per seat. */
+const initialBanks = (table: typeof gameTables.$inferSelect, ctl: NonNullable<ReturnType<typeof clockControl>>) =>
+  Array.from({ length: table.capacity }, (_, seat) => (seat === 1 ? ctl.guestInitialMs : ctl.initialMs));
+
+/**
+ * The mover acted: stop their clock. They are charged the time since it started minus the lag compensation they are owed
+ * (their own report, capped by their remaining quota and by the time actually used), then get the increment.
+ * Returns what to record; null on a table without a running clock for that seat.
+ */
+function chargeClock(table: typeof gameTables.$inferSelect, seat: number, lagMs: number): { spentMs: number; lagMs: number; leftMs: number } | null {
+  const ctl = clockControl(table);
+  const st = table.clock;
+  if (!ctl || !st || st.seat !== seat) return null;
+  const now = Date.now();
+  const used = Math.max(0, now - st.since);
+  const quota = st.lagQuota?.slice() ?? Array.from({ length: st.left.length }, () => LAG_QUOTA_MAX_MS);
+  const credit = Math.max(0, Math.min(Math.floor(lagMs), quota[seat] ?? 0, used));
+  quota[seat] = Math.min(LAG_QUOTA_MAX_MS, (quota[seat] ?? 0) - credit + LAG_QUOTA_REGAIN_MS);
+  const left = st.left.slice();
+  left[seat] = Math.max(0, left[seat]! - (used - credit)) + ctl.incrementMs;
+  table.clock = { left, since: now, seat: null, lagQuota: quota };
+  return { spentMs: used, lagMs: credit, leftMs: left[seat]! };
 }
 
 /**
- * Chess clock: charge the seat whose clock was running for the time since it started (then add the increment), start
- * the next seat's clock, and return that seat's remaining seconds as the turn deadline. Null = ordinary per-move time.
+ * Chess clock: start the next seat's clock and return its remaining seconds as the turn deadline. Null = ordinary
+ * per-move time. (A running clock that was not stopped by `chargeClock`, i.e. a timeout, is charged here.)
  * ponytail: time during a platform incident is still charged to the running clock; subtract the pause if it matters.
  */
 function chessClock(table: typeof gameTables.$inferSelect, pending: number[]): number | null {
@@ -62,10 +93,26 @@ function chessClock(table: typeof gameTables.$inferSelect, pending: number[]): n
   if (!ctl || pending.length !== 1) return null;
   const now = Date.now();
   const st = table.clock;
-  const left = st?.left.slice() ?? Array.from({ length: table.capacity }, () => ctl.initialMs);
+  const left = st?.left.slice() ?? initialBanks(table, ctl);
   if (st && st.seat !== null) left[st.seat] = Math.max(0, left[st.seat]! - (now - st.since)) + ctl.incrementMs;
-  table.clock = { left, since: now, seat: pending[0]! };
+  table.clock = { left, since: now, seat: pending[0]!, ...(st?.lagQuota ? { lagQuota: st.lagQuota } : {}) };
   return Math.max(1, left[pending[0]!]!) / 1000;
+}
+
+/** Time of an action, for PGN clocks and fair-play review: only on clock tables and tournament tables (the hot path stays light elsewhere). */
+async function recordMoveTime(tx: Tx, table: typeof gameTables.$inferSelect, revision: number, input: Extract<EngineInput, { kind: 'action' }>, charged: ReturnType<typeof chargeClock>) {
+  if (table.isTutorial || (!charged && !(table.settings as { tournament?: unknown }).tournament)) return;
+  let spentMs = charged?.spentMs;
+  if (spentMs === undefined) {
+    const [prev] = await tx.select({ at: moveTimes.createdAt }).from(moveTimes).where(eq(moveTimes.tableId, table.id)).orderBy(desc(moveTimes.revision)).limit(1);
+    const [start] = prev ? [] : await tx.select({ at: gameEvents.createdAt }).from(gameEvents).where(and(eq(gameEvents.tableId, table.id), eq(gameEvents.revision, 1), eq(gameEvents.seq, 0)));
+    const from = prev?.at ?? start?.at;
+    spentMs = from ? Math.max(0, Date.now() - from.getTime()) : 0;
+  }
+  await tx.insert(moveTimes).values({
+    tableId: table.id, revision, seat: input.seat, actionType: String((input.action as { type?: unknown } | null)?.type ?? ''),
+    spentMs: Math.min(spentMs, 2_000_000_000), lagMs: charged?.lagMs ?? 0, leftMs: charged ? Math.round(charged.leftMs) : null
+  });
 }
 
 /** Payload `tableId:revision` lets the push reuse the context the mover's reply already loaded (tableContextAt). */
@@ -95,6 +142,9 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
   ]);
   await tx.update(gameTables).set({ revision }).where(eq(gameTables.id, table.id));
   table.revision = revision;
+  // The mover's clock stops now (also on the move that ends the game, so the record has its final time).
+  const charged = input.kind === 'action' && !table.isTutorial ? chargeClock(table, input.seat, input.lagMs ?? 0) : null;
+  if (input.kind === 'action') await recordMoveTime(tx, table, revision, input, charged);
 
   if (step.scheduleChanges.length === 0) {
     // The running deadline still applies (e.g. one sealed bid inside a round): carry it to the new revision.
@@ -153,7 +203,7 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
         topic: 'table.finished', aggregateId: table.id,
         payload: {
           tableId: table.id, resultId: result.id, gameId: table.gameId, rulesVersion: version.rulesVersion,
-          pace: table.pace, competition: table.competition, isTutorial: table.isTutorial, vsBot: !!botLevel, reason: step.outcome.reason,
+          pace: table.pace, mode: ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options), competition: table.competition, isTutorial: table.isTutorial, vsBot: !!botLevel, reason: step.outcome.reason,
           placements: step.outcome.placements.map((p) => ({ ...p, userId: userBySeat.get(p.seat) ?? null }))
         }
       });
@@ -186,7 +236,7 @@ const stableJson = (v: unknown): string =>
 export const payloadHash = (expectedRevision: number, action: unknown) =>
   createHash('sha256').update(stableJson({ expectedRevision, action })).digest('hex');
 
-export interface CommandInput { userId: string; tableId: string; commandId: string; expectedRevision: number; action: unknown }
+export interface CommandInput { userId: string; tableId: string; commandId: string; expectedRevision: number; action: unknown; /** Network lag the client measured (ms); credited within the mover's quota on clock tables. */ lagMs?: number }
 export interface CommandOutcome { status: 'accepted' | 'rejected'; revision: number; errorCode: string | null; duplicate: boolean }
 
 const deepEqual = (a: unknown, b: unknown) => stableJson(a) === stableJson(b);
@@ -231,7 +281,7 @@ export async function executeCommand(db: Db, registry: GameRegistry, input: Comm
     const logicalTime = Date.now();
     const step = applyAction(module, snap, { kind: 'player', seat: me.seat }, input.action, logicalTime);
     if ('ok' in step) return receipt('rejected', table.revision, step.errorCode);
-    const revision = await persistStep(tx, locked, step, { kind: 'action', seat: me.seat, action: input.action, logicalTime });
+    const revision = await persistStep(tx, locked, step, { kind: 'action', seat: me.seat, action: input.action, logicalTime, ...(input.lagMs ? { lagMs: input.lagMs } : {}) });
 
     if (table.isTutorial && !isResign) {
       await tx.update(gameTables).set({ tutorialStep: table.tutorialStep + 1 }).where(eq(gameTables.id, table.id));
@@ -302,7 +352,8 @@ export async function fireDeadline(db: Db, registry: GameRegistry, deadlineId: s
       await playBotTurn(tx, locked, snap);
       return 'fired';
     }
-    // Tournament tables: a bot finishes the game for a player who let the clock run out (they score 0).
+    // Tournament tables of three or more: a bot finishes the game for a player who let the clock run out (they score 0).
+    // Head-to-head tables fall through to the game's own timeout rule (chess: loss on time).
     if (d.deadlineKey === 'turn' && await botTakeover(tx, locked, module.pendingSeats(snap.state))) {
       await playBotTurn(tx, locked, snap);
       return 'fired';

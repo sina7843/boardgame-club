@@ -10,7 +10,8 @@ import { schema } from '@bg/db';
 import {
   buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
-  skipTutorial, startTutorial, tableContextAt, voteRematch
+  skipTutorial, startTutorial, tableContextAt, tableRecord, voteRematch,
+  fairPlayReview, listFairPlayReports, recordFocus, reportPlayer, resolveFairPlayReport
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
 import { requireRole, requireUser } from '../auth/session.ts';
@@ -67,6 +68,53 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
         params: idParams, querystring: z.object({ invite: z.string().max(64).optional() }), response: { 200: tableSnapshot, ...errors } }
     }, async (req) => snapshot(req.params.id, requireUser(req).userId, req.query.invite));
   }
+
+  r.post('/tables/:id/report', {
+    schema: { tags: ['tables'], summary: 'Report the opponent of a game for suspected cheating; an admin reviews it', params: idParams,
+      body: z.strictObject({ accusedId: z.uuid(), note: z.string().trim().max(500).default('') }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    await reportPlayer(db, requireUser(req).userId, req.params.id, req.body.accusedId, req.body.note);
+    return reply.code(204).send(null);
+  });
+
+  r.post('/tables/:id/focus', {
+    schema: { tags: ['tables'], summary: 'Page hidden/shown signal at a tournament table (fair-play review only)', params: idParams,
+      body: z.strictObject({ hidden: z.boolean() }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    await recordFocus(db, requireUser(req).userId, req.params.id, req.body.hidden);
+    return reply.code(204).send(null);
+  });
+
+  r.get('/admin/fair-play/reports', {
+    schema: { tags: ['admin'], summary: 'Fair-play reports', querystring: z.object({ status: z.enum(['open', 'dismissed', 'actioned']).optional() }) }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    return { items: await listFairPlayReports(db, req.query.status) };
+  });
+
+  r.get('/admin/fair-play/tables/:id', {
+    schema: { tags: ['admin'], summary: 'Move-time statistics, page-hidden time and indicator flags of both players of a table', params: idParams }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    return fairPlayReview(db, req.params.id);
+  });
+
+  r.post('/admin/fair-play/reports/:id', {
+    schema: { tags: ['admin'], summary: 'Close a report (dismissed or actioned) with a note; audited', params: idParams,
+      body: z.strictObject({ status: z.enum(['dismissed', 'actioned']), note: z.string().trim().min(3).max(500) }), response: { 204: z.null(), ...errors } }
+  }, async (req, reply) => {
+    const { userId } = requireRole(req, 'admin');
+    await resolveFairPlayReport(db, userId, req.params.id, req.body.status, req.body.note, req.id);
+    return reply.code(204).send(null);
+  });
+
+  r.get('/tables/:id/record', {
+    schema: { tags: ['tables'], summary: 'Game record for analysis (chess: PGN). Finished games only; arbiters may fetch a running one', params: idParams }
+  }, async (req, reply) => {
+    const auth = requireUser(req);
+    const rec = await tableRecord(db, registry, req.params.id, auth.userId, auth.roles.includes('admin'));
+    return reply.header('content-type', `${rec.mimeType}; charset=utf-8`).header('content-disposition', `attachment; filename="${rec.filename}"`).send(rec.text);
+  });
 
   r.post('/tables/:id/join', {
     schema: { tags: ['tables'], summary: 'Join an open table (invite code required for private tables)', params: idParams,

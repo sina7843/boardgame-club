@@ -315,6 +315,12 @@ function PostGame({ snap, onReport }: { snap: TableSnapshot; onReport: () => voi
             {rel[u.id] === 'incoming' ? 'پذیرش دوستی' : 'افزودن دوست'}: <bdi>{u.displayName}</bdi>
           </Button>
         ))}
+        {t.settings.tournament && others.map((u) => (
+          <Button key={`fp-${u.id}`} size="sm" variant="ghost" icon="shield-alert" onClick={() => {
+            api(`/tables/${t.id}/report`, { method: 'POST', body: { accusedId: u.id } })
+              .then(() => toast('success', 'گزارش برای داور ثبت شد.'), (err: unknown) => toast('error', err instanceof ApiFailure ? err.messageFa : 'گزارش ثبت نشد.'));
+          }}>گزارش مشکوک بودن بازی: <bdi>{u.displayName}</bdi></Button>
+        ))}
         <Button size="sm" variant="ghost" icon="flag" onClick={onReport}>گزارش این میز</Button>
       </div>
     </Card>
@@ -465,6 +471,14 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const full = useFullscreen(gameRef);
   const clock = useTurnClock(s);
   useTurnAlerts(t.id, t.mySeat);
+  // Tournament players: the page being hidden/shown is recorded for fair-play review (stated in the tournament rules).
+  const inTournament = !!t.settings.tournament;
+  useEffect(() => {
+    if (!inTournament || t.mySeat === null || t.status !== 'active') return;
+    const send = () => { api(`/tables/${t.id}/focus`, { method: 'POST', body: { hidden: document.hidden } }).catch(() => undefined); };
+    document.addEventListener('visibilitychange', send);
+    return () => document.removeEventListener('visibilitychange', send);
+  }, [t.id, inTournament, t.mySeat, t.status]);
 
   // Escape cancels a move that is still inside its undo window.
   const { queued, cancelQueued } = s;

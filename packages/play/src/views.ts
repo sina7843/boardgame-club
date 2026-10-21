@@ -1,6 +1,6 @@
 // Read models. Game data leaves the server only through module.project()/legalActions() for one viewer.
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { AppError, botPersona, type League, type TurnStartedEvent, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
+import { AppError, botPersona, ratingModeOf, type League, type TurnStartedEvent, type LiveTableItem, type MyTableItem, type NotificationItem, type TableLobby, type TableSnapshot } from '@bg/contracts';
 import { schema, type Db } from '@bg/db';
 import { projectFor, type GameRegistry } from '@bg/game-engine';
 import type { BotLevel, Viewer } from '@bg/game-sdk';
@@ -131,7 +131,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     const { nameFa, avatarKey, style } = botPersona(botCfg?.personas, seats.filter((x) => x.p.kind === 'bot' && x.p.seat < seat).length);
     return { level: botCfg!.level, nameFa, avatarKey, style };
   };
-  const leagues = await seatLeagues(db, table.gameId, table.pace, seats.flatMap(({ u }) => (u ? [u.id] : [])));
+  const leagues = await seatLeagues(db, table.gameId, ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options), seats.flatMap(({ u }) => (u ? [u.id] : [])));
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -283,7 +283,8 @@ const leftFa = (sec: number) => (sec >= 3600 ? `${Math.round(sec / 3600).toLocal
 
 export function toNotificationItem(n: typeof notifications.$inferSelect): NotificationItem {
   const p = n.payload as { tableId?: string; gameNameFa?: string; actorName?: string; conversationId?: string; clubSlug?: string; clubName?: string;
-    tournamentId?: string; titleFa?: string; round?: number; rank?: number; cancelled?: boolean; itemNameFa?: string; leftSeconds?: number | null };
+    tournamentId?: string; titleFa?: string; round?: number; rank?: number; cancelled?: boolean; itemNameFa?: string; leftSeconds?: number | null;
+    checkin?: 'open' | 'closing'; minutesLeft?: number };
   const game = p.gameNameFa ?? 'بازی';
   const actor = p.actorName ?? 'یک بازیکن';
   const kind = n.kind as NotificationItem['kind'];
@@ -298,7 +299,9 @@ export function toNotificationItem(n: typeof notifications.$inferSelect): Notifi
     friend_request: `${actor} برای شما درخواست دوستی فرستاد.`,
     club: `درخواست تازه در باشگاه «${p.clubName ?? ''}».`,
     gift: `${actor} برای شما «${p.itemNameFa ?? 'یک آیتم'}» هدیه فرستاد؛ در کمد شماست.`,
-    tournament: p.cancelled ? `تورنمنت «${p.titleFa}» لغو شد؛ ورودی شما برمی‌گردد.`
+    tournament: p.checkin === 'open' ? `تأیید حضور تورنمنت «${p.titleFa}» باز شد؛ ${(p.minutesLeft ?? 0).toLocaleString('fa-IR')} دقیقه تا شروع مانده است. حضورتان را تأیید کنید وگرنه از تورنمنت خارج می‌شوید.`
+      : p.checkin === 'closing' ? `فقط ${(p.minutesLeft ?? 0).toLocaleString('fa-IR')} دقیقه تا شروع تورنمنت «${p.titleFa}» مانده و هنوز حضورتان را تأیید نکرده‌اید؛ همین حالا تأیید کنید.`
+      : p.cancelled ? `تورنمنت «${p.titleFa}» لغو شد؛ ورودی شما برمی‌گردد.`
       : p.rank ? `تورنمنت «${p.titleFa}» تمام شد؛ رتبهٔ شما: ${p.rank.toLocaleString('fa-IR')}.`
         : `دور ${(p.round ?? 1).toLocaleString('fa-IR')} تورنمنت «${p.titleFa}» شروع شد؛ سر میز بیایید.`
   }[kind] ?? 'اعلان تازه';

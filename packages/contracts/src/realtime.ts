@@ -9,7 +9,9 @@ export const commandEnvelope = z.strictObject({
   commandId: z.uuid(),
   tableId: z.uuid(),
   expectedRevision: z.number().int().min(0),
-  action: z.record(z.string(), z.unknown()).and(z.object({ type: z.string().min(1).max(64) }))
+  action: z.record(z.string(), z.unknown()).and(z.object({ type: z.string().min(1).max(64) })),
+  /** Round-trip lag the client measured (ms); clock tables credit it within a small quota. */
+  lagMs: z.number().int().min(0).max(5000).optional()
 });
 export type CommandEnvelope = z.infer<typeof commandEnvelope>;
 

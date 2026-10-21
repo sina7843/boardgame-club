@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import type { Actor, ActionHint, GameModule, Outcome, Transition } from '@bg/game-sdk';
 import { chess } from './definition.ts';
+import { toPgn } from './pgn.ts';
 
 export type Color = 'w' | 'b';
 export type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -25,7 +26,23 @@ export interface Position {
 export type DrawReason = 'stalemate' | 'repetition' | 'fiftyMove' | 'material' | 'agreement' | 'timeoutMaterial';
 export interface HistoryEntry { san: string; from: string; to: string; color: Color }
 
+/** Table rules chosen at setup. Older snapshots have none: they play with the original rules. */
+export interface ChessOptions {
+  /** Draws by agreement need this many completed full moves (0 = any time). */
+  minDrawMove: number;
+  /** FIDE claims: threefold repetition and 50 moves must be claimed; they are automatic at five-fold and 75 moves. */
+  fideClaims: boolean;
+  /** Playoff game: a draw of any kind counts as a win for Black; no draw agreements. */
+  armageddon: boolean;
+}
+const DEFAULT_OPTIONS: ChessOptions = { minDrawMove: 0, fideClaims: false, armageddon: false };
+/** A player may make a draw offer at most once per this many plies (5 of their own moves). */
+const OFFER_EVERY_PLIES = 10;
+
 export interface ChessState {
+  opts?: ChessOptions;
+  /** Ply count when each seat last offered a draw. */
+  lastOffer?: [number, number];
   pos: Position;
   /** colors[seat] */
   colors: [Color, Color];
@@ -42,6 +59,7 @@ const square = z.string().regex(/^[a-h][1-8]$/);
 export const chessAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('move'), from: square, to: square, promotion: z.enum(['Q', 'R', 'B', 'N']).optional(), offerDraw: z.boolean().optional() }),
   z.strictObject({ type: z.literal('acceptDraw') }),
+  z.strictObject({ type: z.literal('claimDraw') }),
   z.strictObject({ type: z.literal('resign') })
 ]);
 export type ChessAction = z.infer<typeof chessAction>;
@@ -52,6 +70,8 @@ export interface ChessView {
   colors: [Color, Color];
   /** Seat to move, or null when the game is over. */
   current: number | null;
+  /** The side to move may attach a draw offer to its move now (not before the table's minimum move, not in a playoff, not too often). */
+  canOfferDraw: boolean;
   inCheck: boolean;
   lastMove: { from: string; to: string } | null;
   history: HistoryEntry[];
@@ -285,7 +305,18 @@ const MAX_TIMEOUTS = 1; // a flag fall ends the game (FIDE): the side to move lo
 
 const seatOf = (s: ChessState, c: Color) => (s.colors[0] === c ? 0 : 1);
 const winOutcome = (winner: number, reason: Outcome['reason']): Outcome => ({ placements: [{ seat: winner, place: 1 }, { seat: 1 - winner, place: 2 }], reason });
-const drawOutcome = (): Outcome => ({ placements: [{ seat: 0, place: 1 }, { seat: 1, place: 1 }], reason: 'draw' });
+const optsOf = (s: ChessState): ChessOptions => s.opts ?? DEFAULT_OPTIONS;
+/** A draw of any kind: shared first place, or in an Armageddon playoff a win for Black. */
+const drawOutcome = (s: ChessState): Outcome =>
+  optsOf(s).armageddon ? winOutcome(seatOf(s, 'b'), 'win') : { placements: [{ seat: 0, place: 1 }, { seat: 1, place: 1 }], reason: 'draw' };
+
+/** Draw by agreement allowed now? (`plies` = moves made so far, including the one being played when offering.) */
+const agreementAllowed = (s: ChessState, plies: number) => !optsOf(s).armageddon && Math.floor(plies / 2) >= optsOf(s).minDrawMove;
+const offerAllowed = (s: ChessState, seat: number) =>
+  agreementAllowed(s, s.history.length + 1) && s.history.length - (s.lastOffer?.[seat] ?? -OFFER_EVERY_PLIES) >= OFFER_EVERY_PLIES;
+/** FIDE claim: the side to move may claim when the position stands for the third time or 50 moves passed without a pawn move or capture. */
+const claimable = (s: ChessState): 'repetition' | 'fiftyMove' | null =>
+  !optsOf(s).fideClaims ? null : (s.seen[positionKey(s.pos)] ?? 0) >= 3 ? 'repetition' : s.pos.halfmove >= 100 ? 'fiftyMove' : null;
 
 const finish = (s: ChessState, events: Events): Transition<ChessState> =>
   ({ nextState: s, internalEvents: events, scheduleChanges: [{ kind: s.outcome ? 'clear' : 'set', deadlineKey: 'turn' }] });
@@ -306,7 +337,10 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     const white = options.firstMove === 'host' ? 0 : drawn;
     const pos = fromFen(typeof options.fen === 'string' ? options.fen : START_FEN);
     const colors: [Color, Color] = white === 0 ? ['w', 'b'] : ['b', 'w'];
-    return { pos, colors, history: [], seen: { [positionKey(pos)]: 1 }, drawOffer: null, timeouts: [0, 0], end: null, outcome: null };
+    const opts: ChessOptions = {
+      minDrawMove: Number(options.minDrawMove) || 0, fideClaims: options.drawRule === 'fide', armageddon: options.armageddon === true
+    };
+    return { opts, lastOffer: [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES], pos, colors, history: [], seen: { [positionKey(pos)]: 1 }, drawOffer: null, timeouts: [0, 0], end: null, outcome: null };
   },
 
   validate(s, actor, a) {
@@ -314,7 +348,11 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     if (actor.kind !== 'player' || (actor.seat !== 0 && actor.seat !== 1)) return { ok: false, errorCode: 'NOT_A_PLAYER' };
     if (a.type === 'resign') return { ok: true };
     if (s.colors[actor.seat] !== s.pos.turn) return { ok: false, errorCode: 'NOT_YOUR_TURN' };
-    if (a.type === 'acceptDraw') return s.drawOffer === 1 - actor.seat ? { ok: true } : { ok: false, errorCode: 'NO_DRAW_OFFER' };
+    if (a.type === 'acceptDraw') {
+      if (s.drawOffer !== 1 - actor.seat) return { ok: false, errorCode: 'NO_DRAW_OFFER' };
+      return agreementAllowed(s, s.history.length) ? { ok: true } : { ok: false, errorCode: 'DRAW_TOO_EARLY' };
+    }
+    if (a.type === 'claimDraw') return claimable(s) ? { ok: true } : { ok: false, errorCode: 'DRAW_CLAIM_NOT_ALLOWED' };
     const piece = s.pos.board[sqIndex(a.from)];
     if (!piece || colorOf(piece) !== s.pos.turn) return { ok: false, errorCode: 'NOT_YOUR_PIECE' };
     const candidates = legalMoves(s.pos).filter((m) => m.from === sqIndex(a.from) && m.to === sqIndex(a.to));
@@ -332,8 +370,14 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     }
     if (a.type === 'acceptDraw') {
       s.end = { kind: 'draw', draw: 'agreement' };
-      s.outcome = drawOutcome();
+      s.outcome = drawOutcome(s);
       return finish(s, [{ type: 'drawAgreed', seat }]);
+    }
+    if (a.type === 'claimDraw') {
+      s.end = { kind: 'draw', draw: claimable(s)! };
+      s.outcome = drawOutcome(s);
+      s.drawOffer = null;
+      return finish(s, [{ type: 'drawClaimed', seat, reason: s.end.draw }]);
     }
     const m = findMove(s, a)!;
     const before = s.pos;
@@ -342,18 +386,22 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     s.history.push({ san: notation, from: a.from, to: a.to, color: before.turn });
     s.timeouts[seat] = 0;
     // A pending offer lapses when its receiver moves instead of accepting; a new one goes with this move.
-    s.drawOffer = a.offerDraw ? seat : null;
+    // A draw offer goes with a move, and only when the table's rules allow one now (see `canOfferDraw`).
+    const offer = !!a.offerDraw && offerAllowed({ ...s, history: s.history.slice(0, -1) }, seat);
+    s.drawOffer = offer ? seat : null;
+    if (offer) { s.lastOffer = [...(s.lastOffer ?? [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES])] as [number, number]; s.lastOffer[seat] = s.history.length - 1; }
     const key = positionKey(s.pos);
     s.seen[key] = (s.seen[key] ?? 0) + 1;
     const events: Events = [{ type: 'moved', seat, san: notation }];
     const replies = legalMoves(s.pos);
-    const draw = (reason: DrawReason) => { s.end = { kind: 'draw', draw: reason }; s.outcome = drawOutcome(); s.drawOffer = null; };
+    const draw = (reason: DrawReason) => { s.end = { kind: 'draw', draw: reason }; s.outcome = drawOutcome(s); s.drawOffer = null; };
+    const [repeats, halfmoves] = optsOf(s).fideClaims ? [5, 150] : [3, 100];
     if (!replies.length) {
       if (inCheck(s.pos)) { s.end = { kind: 'checkmate' }; s.outcome = winOutcome(seat, 'win'); s.drawOffer = null; }
       else draw('stalemate');
     } else if (insufficientMaterial(s.pos.board)) draw('material');
-    else if (s.seen[key]! >= 3) draw('repetition');
-    else if (s.pos.halfmove >= 100) draw('fiftyMove');
+    else if (s.seen[key]! >= repeats) draw('repetition');
+    else if (s.pos.halfmove >= halfmoves) draw('fiftyMove');
     return finish(s, events);
   },
 
@@ -372,6 +420,7 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     return {
       board: s.pos.board.slice(), turn: s.pos.turn, colors: [...s.colors] as [Color, Color],
       current: s.outcome ? null : seatOf(s, s.pos.turn),
+      canOfferDraw: !s.outcome && offerAllowed(s, seatOf(s, s.pos.turn)),
       inCheck: inCheck(s.pos),
       lastMove: last ? { from: last.from, to: last.to } : null,
       history: s.history.slice(), captured, drawOffer: s.drawOffer, halfmove: s.pos.halfmove,
@@ -384,7 +433,8 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     const out: ActionHint[] = [];
     if (s.colors[viewer.seat] === s.pos.turn) {
       for (const m of legalMoves(s.pos)) out.push({ type: 'move', from: sqName(m.from), to: sqName(m.to), ...(m.promo ? { promotion: m.promo } : {}) });
-      if (s.drawOffer === 1 - viewer.seat) out.push({ type: 'acceptDraw' });
+      if (s.drawOffer === 1 - viewer.seat && agreementAllowed(s, s.history.length)) out.push({ type: 'acceptDraw' });
+      if (claimable(s)) out.push({ type: 'claimDraw' });
     }
     out.push({ type: 'resign' });
     return out;
@@ -399,7 +449,7 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     if (s.timeouts[seat]! >= MAX_TIMEOUTS) {
       // FIDE 6.9: a flag fall loses, unless the opponent cannot checkmate by any series of legal moves → draw.
       if (canMate(s.pos.board, other(s.pos.turn))) { s.end = { kind: 'timeout' }; s.outcome = winOutcome(1 - seat, 'timeout'); }
-      else { s.end = { kind: 'draw', draw: 'timeoutMaterial' }; s.outcome = drawOutcome(); }
+      else { s.end = { kind: 'draw', draw: 'timeoutMaterial' }; s.outcome = drawOutcome(s); }
     }
     return finish(s, [{ type: 'timed-out', seat }]);
   },
@@ -426,6 +476,8 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
   },
 
   pendingSeats: (s) => (s.outcome ? [] : [seatOf(s, s.pos.turn)]),
+
+  exportRecord: (s, meta) => (s.history.length ? { extension: 'pgn', mimeType: 'application/x-chess-pgn', text: toPgn(s, meta) } : null),
 
   tutorial: {
     seed: 3,

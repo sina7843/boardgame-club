@@ -134,6 +134,25 @@ export interface GameModule<State = unknown, Action extends { type: string } = {
    * localizes them.
    */
   publicSummary?(state: State): PublicSummary;
+  /**
+   * Standard game record for arbiters and analysis (chess: PGN). Public information only, built from the final state;
+   * null when the state has nothing worth exporting.
+   */
+  exportRecord?(state: State, meta: RecordMeta): { extension: string; mimeType: string; text: string } | null;
+}
+
+export interface RecordMeta {
+  event: string;
+  site: string;
+  /** UTC date of the game, `YYYY.MM.DD`. */
+  date: string;
+  round: string | null;
+  /** Display name per seat. */
+  players: string[];
+  /** e.g. `600+5` (seconds + increment), null for per-move time. */
+  timeControl: string | null;
+  /** Server-measured time of every player action in order (clock tables: `leftMs` is the mover's clock after the action). */
+  moveTimes?: { seat: number; actionType: string; spentMs: number; leftMs: number | null }[];
 }
 
 export interface PublicSummary {

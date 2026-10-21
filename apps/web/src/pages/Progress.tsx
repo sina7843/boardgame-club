@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
-import { LEVEL_UP_COINS, type Progression } from '@bg/contracts';
+import { LEVEL_UP_COINS, RATING_MODE_FA, type Progression } from '@bg/contracts';
 import { Badge, Button, Card, League, ListItem, PageHead, Progress, Reward, Ring, Segmented, StateBlock, Trophy } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
-import { faNum, jalaliDate, PACE_FA } from '../lib/format.ts';
+import { faNum, jalaliDate } from '../lib/format.ts';
 import { TIER_FA } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { Hint } from '../shell/Onboarding.tsx';
@@ -104,7 +104,7 @@ export function ProgressPage() {
             {d.ratings.length === 0 ? <p className="bgv-muted">هنوز بازی رتبه‌داری نکرده‌اید. از <a href="/play">حریف‌یابی</a> «رتبه‌دار» را انتخاب کنید.</p> : (
               <Clamped items={d.ratings} limit={6}>{(shown) => (
                 <div>{shown.map((r) => (
-                  <ListItem key={`${r.gameId}-${r.mode}`} title={<>{gameName(r.gameId)}<span className="bgv-sep" />{PACE_FA[r.mode]}</>}
+                  <ListItem key={`${r.gameId}-${r.mode}`} title={<>{gameName(r.gameId)}<span className="bgv-sep" />{RATING_MODE_FA[r.mode]}</>}
                     sub={r.provisional ? <Badge size="sm">موقت ({faNum(r.games)} بازی)</Badge> : undefined}
                     trailing={<span className="bgv-row">{r.league && <League tier={r.league} />}<strong className="bgv-num">{faNum(r.display)}</strong></span>} />))}</div>)}
               </Clamped>

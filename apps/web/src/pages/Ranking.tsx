@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Badge, Card, DataTable, Identity, League, PageHead, Segmented, Select, StateBlock, Button } from '@bg/ui/bgv';
-import type { League as LeagueTier } from '@bg/contracts';
+import { RATING_MODE_FA, type League as LeagueTier, type RatingMode } from '@bg/contracts';
 import { useApi } from '../lib/api.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
@@ -49,7 +49,7 @@ function Ladder({ b }: { b: Board }) {
   );
 }
 
-function History({ gameId, mode }: { gameId: string; mode: 'live' | 'turn' }) {
+function History({ gameId, mode }: { gameId: string; mode: RatingMode }) {
   const h = useApi<{ items: { at: string; place: number; fieldSize: number; before: number; after: number }[] }>(`/me/stats/history?gameId=${gameId}&mode=${mode}`);
   const t = useApi<{ weekly: { week: string; rating: number; games: number; firstPlaces: number }[]; seasons: { nameFa: string; league: string; rating: number }[] }>(`/me/stats/trends?gameId=${gameId}&mode=${mode}`);
   return (
@@ -85,8 +85,11 @@ export function RankingPage() {
   const games = useApi<{ items: { id: string; nameFa: string; competitions: string[] }[] }>('/games');
   const seasons = useApi<{ items: { id: string; nameFa: string; status: string }[] }>('/seasons');
   const [gameId, setGameId] = useState('line-three');
-  const [mode, setMode] = useState<'live' | 'turn'>('live');
+  const [mode, setMode] = useState<RatingMode>('live');
   const [seasonId, setSeasonId] = useState('');
+  const detail = useApi<{ options: { key: string }[] }>(`/games/${gameId}`);
+  // Games with a clock option keep a rating per time class as well.
+  const modes: RatingMode[] = detail.data?.options.some((o) => o.key === 'clock') ? ['live', 'turn', 'bullet', 'blitz', 'rapid', 'classical'] : ['live', 'turn'];
   const board = useApi<Board>(me ? `/games/${gameId}/leaderboard?mode=${mode}${seasonId ? `&seasonId=${seasonId}` : ''}` : null);
   if (!me) return <StateBlock kind="denied" title="برای دیدن رتبه‌بندی وارد شوید" action={<Button variant="primary" href="/login?next=/ranking">ورود</Button>} />;
   return (
@@ -94,10 +97,10 @@ export function RankingPage() {
       <PageTabs group="progress" />
       <PageHead title="رتبه‌بندی و لیگ" sub="رتبه هر بازی و هر حالت (زنده/نوبتی) جداست و فقط از بازی‌های رتبه‌دار حریف‌یابی ساخته می‌شود." />
       <div className="pf-filters">
-        <Select label="بازی" value={gameId} onChange={(e) => setGameId(e.target.value)} options={(games.data?.items ?? []).map((g) => ({ value: g.id, label: g.nameFa }))} />
+        <Select label="بازی" value={gameId} onChange={(e) => { setGameId(e.target.value); setMode('live'); }} options={(games.data?.items ?? []).map((g) => ({ value: g.id, label: g.nameFa }))} />
         <div className="bgv-stack" style={{ gap: 'var(--space-1)' }}>
           <span className="t-label">حالت</span>
-          <Segmented label="حالت" value={mode} onChange={(v) => setMode(v as 'live' | 'turn')} options={[{ value: 'live', label: 'زنده' }, { value: 'turn', label: 'نوبتی' }]} />
+          <Segmented label="حالت" value={mode} onChange={(v) => setMode(v as RatingMode)} options={modes.map((m) => ({ value: m, label: RATING_MODE_FA[m] }))} />
         </div>
         <Select label="فصل" value={seasonId} onChange={(e) => setSeasonId(e.target.value)}
           options={[{ value: '', label: 'فصل جاری / کلی' }, ...(seasons.data?.items ?? []).map((s) => ({ value: s.id, label: `${s.nameFa}${s.status === 'closed' ? ' (بسته)' : ''}` }))]} />

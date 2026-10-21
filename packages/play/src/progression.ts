@@ -7,7 +7,7 @@ import { and, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { schema, type Db } from '@bg/db';
 import type { Tx } from './runtime.ts';
 import { DEFAULT_SEASON, displayRating, ELIGIBILITY, leagueFor, newSkill, rate, type SeasonConfig } from './rating.ts';
-import { ONBOARDING_TOURS, tourComplete } from '@bg/contracts';
+import { AppError, ONBOARDING_TOURS, tourComplete, type RatingMode } from '@bg/contracts';
 import { syncCoins } from './coins.ts';
 
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress,
@@ -39,6 +39,8 @@ const BOT_RULES = { completed: 'xp.bot_match', firstPlace: 'xp.bot_win' } as con
 
 export interface FinishedEvent {
   tableId: string; resultId: string; gameId: string; pace: 'live' | 'turn'; competition: 'friendly' | 'ranked';
+  /** Rating mode (pace, or a chess-clock time class); older events carry only the pace. */
+  mode?: RatingMode;
   isTutorial: boolean; vsBot?: boolean; reason: string; placements: { seat: number; place: number; score?: number; userId: string | null }[];
 }
 
@@ -120,26 +122,60 @@ export async function applyRating(tx: Tx, e: FinishedEvent): Promise<boolean> {
   if (humans.length < 2) return false;
   const [already] = await tx.select({ id: ratingHistory.id }).from(ratingHistory).where(eq(ratingHistory.resultId, e.resultId)).limit(1);
   if (already) return false;
+  const mode = e.mode ?? e.pace;
   const start = newSkill();
-  await tx.insert(ratings).values(humans.map((h) => ({ userId: h.userId, gameId: e.gameId, mode: e.pace, mu: start.mu, sigma: start.sigma })))
+  await tx.insert(ratings).values(humans.map((h) => ({ userId: h.userId, gameId: e.gameId, mode: mode, mu: start.mu, sigma: start.sigma })))
     .onConflictDoNothing();
   // Lock in a stable order to avoid deadlocks between concurrent results.
   const ids = humans.map((h) => h.userId).sort();
   const rows = await tx.select().from(ratings)
-    .where(and(inArray(ratings.userId, ids), eq(ratings.gameId, e.gameId), eq(ratings.mode, e.pace))).orderBy(ratings.userId).for('update');
+    .where(and(inArray(ratings.userId, ids), eq(ratings.gameId, e.gameId), eq(ratings.mode, mode))).orderBy(ratings.userId).for('update');
   const byUser = new Map(rows.map((r) => [r.userId, r]));
   const next = rate(humans.map((h) => ({ skill: { mu: byUser.get(h.userId)!.mu, sigma: byUser.get(h.userId)!.sigma }, place: h.place })));
   const season = await activeSeason(tx);
   for (const [i, h] of humans.entries()) {
     const before = byUser.get(h.userId)!;
     const after = next[i]!;
-    await tx.insert(ratingHistory).values({ userId: h.userId, gameId: e.gameId, mode: e.pace, resultId: e.resultId,
+    await tx.insert(ratingHistory).values({ userId: h.userId, gameId: e.gameId, mode: mode, resultId: e.resultId,
       muBefore: before.mu, sigmaBefore: before.sigma, muAfter: after.mu, sigmaAfter: after.sigma, place: h.place, fieldSize: humans.length, seasonId: season?.id ?? null });
     await tx.update(ratings).set({ mu: after.mu, sigma: after.sigma, gamesPlayed: before.gamesPlayed + 1, lastPlayedAt: sql`now()`, updatedAt: sql`now()` })
-      .where(and(eq(ratings.userId, h.userId), eq(ratings.gameId, e.gameId), eq(ratings.mode, e.pace)));
-    if (season) await updatePlacement(tx, season, h.userId, e.gameId, e.pace, displayRating(after));
+      .where(and(eq(ratings.userId, h.userId), eq(ratings.gameId, e.gameId), eq(ratings.mode, mode)));
+    if (season) await updatePlacement(tx, season, h.userId, e.gameId, mode, displayRating(after));
   }
   return true;
+}
+
+/** Certainty given to a rating an admin sets from scratch (a player who never played the game): fairly settled, still moves with results. */
+export const ADMIN_RATING_SIGMA = 5;
+
+/**
+ * Admin sets a player's displayed rating for one game and pace, also for a game they never played (the row is created).
+ * Skill is stored as mu; `rating` is the display number (60 × mu). Existing certainty is kept unless `sigma` is given.
+ * Games played, history and leagues are untouched; every change is audited with the reason.
+ */
+export async function adminSetRating(db: Db, adminId: string,
+  body: { userId: string; gameId: string; mode: RatingMode; rating: number; sigma?: number | undefined; reason: string }, requestId?: string):
+  Promise<{ before: number | null; after: number }> {
+  return db.transaction(async (tx) => {
+    const [u] = await tx.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.id, body.userId));
+    const [g] = await tx.select({ id: games.id }).from(games).where(eq(games.id, body.gameId));
+    if (!u || !g) throw new AppError('NOT_FOUND');
+    const [cur] = await tx.select().from(ratings).where(and(eq(ratings.userId, body.userId), eq(ratings.gameId, body.gameId), eq(ratings.mode, body.mode))).for('update');
+    const mu = body.rating / 60;
+    const sigma = body.sigma ?? cur?.sigma ?? ADMIN_RATING_SIGMA;
+    await tx.insert(ratings).values({ userId: body.userId, gameId: body.gameId, mode: body.mode, mu, sigma })
+      .onConflictDoUpdate({ target: [ratings.userId, ratings.gameId, ratings.mode], set: { mu, sigma, updatedAt: sql`now()` } });
+    await tx.insert(schema.auditLog).values({ actorId: adminId, action: 'rating.set', targetType: 'user', targetId: body.userId, requestId: requestId ?? null,
+      metadata: { gameId: body.gameId, mode: body.mode, before: cur ? displayRating(cur) : null, after: Math.round(body.rating), sigma, reason: body.reason } });
+    return { before: cur ? displayRating(cur) : null, after: Math.round(body.rating) };
+  });
+}
+
+/** A player's ratings across games, for the admin editor. */
+export async function adminRatings(db: Db, userId: string) {
+  const rows = await db.select({ r: ratings, nameFa: games.nameFa }).from(ratings).innerJoin(games, eq(games.id, ratings.gameId))
+    .where(eq(ratings.userId, userId)).orderBy(games.nameFa);
+  return rows.map(({ r, nameFa }) => ({ gameId: r.gameId, gameNameFa: nameFa, mode: r.mode as RatingMode, rating: displayRating(r), sigma: r.sigma, gamesPlayed: r.gamesPlayed }));
 }
 
 async function updatePlacement(tx: Tx, season: typeof seasons.$inferSelect, userId: string, gameId: string, mode: string, display: number) {

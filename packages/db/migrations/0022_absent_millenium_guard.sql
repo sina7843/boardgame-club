@@ -1,0 +1,1 @@
+ALTER TABLE "tournament_entries" ADD COLUMN "buchholz_cut1" double precision;

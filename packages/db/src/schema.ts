@@ -307,7 +307,7 @@ export const gameTables = pgTable('game_tables', {
   tutorialStep: integer().notNull().default(0),
   revision: integer().notNull().default(0),
   /** Chess-clock tables only: each seat's remaining time (ms) as of `since` (epoch ms), and whose clock runs. */
-  clock: jsonb().$type<{ left: number[]; since: number; seat: number | null }>(),
+  clock: jsonb().$type<{ left: number[]; since: number; seat: number | null; lagQuota?: number[] }>(),
   createdAt: createdAt(),
   startedAt: tsz(),
   finishedAt: tsz()
@@ -396,6 +396,48 @@ export const gameEvents = pgTable('game_events', {
   payload: jsonb().notNull(),
   createdAt: createdAt()
 }, (t) => [unique('game_events_table_rev_seq_uq').on(t.tableId, t.revision, t.seq)]);
+
+/**
+ * Server-measured time of every player action: how long the mover took (from the moment their turn began), the lag
+ * compensation granted, and the clock left afterwards (clock tables). Basis of PGN clock comments and fair-play review.
+ */
+export const moveTimes = pgTable('move_times', {
+  tableId: uuid().notNull().references(() => gameTables.id, { onDelete: 'cascade' }),
+  revision: integer().notNull(),
+  seat: integer().notNull(),
+  actionType: text().notNull(),
+  spentMs: integer().notNull(),
+  lagMs: integer().notNull().default(0),
+  leftMs: integer(),
+  createdAt: createdAt()
+}, (t) => [primaryKey({ columns: [t.tableId, t.revision] })]);
+
+/** Page visibility of a player at a tournament table (tab hidden / shown), for fair-play review. Tournament tables only. */
+export const tableFocusEvents = pgTable('table_focus_events', {
+  id: bigserial({ mode: 'number' }).primaryKey(),
+  tableId: uuid().notNull().references(() => gameTables.id, { onDelete: 'cascade' }),
+  userId: uuid().notNull().references(() => users.id),
+  hidden: boolean().notNull(),
+  createdAt: createdAt()
+}, (t) => [index('table_focus_table_idx').on(t.tableId, t.createdAt)]);
+
+/** A player's report of a suspicious game; an admin reviews it with the move times and focus data. */
+export const fairPlayReports = pgTable('fair_play_reports', {
+  id: id(),
+  tableId: uuid().notNull().references(() => gameTables.id, { onDelete: 'cascade' }),
+  reporterId: uuid().notNull().references(() => users.id),
+  accusedId: uuid().notNull().references(() => users.id),
+  note: text().notNull().default(''),
+  status: text().$type<'open' | 'dismissed' | 'actioned'>().notNull().default('open'),
+  reviewedBy: uuid().references(() => users.id),
+  reviewNote: text(),
+  reviewedAt: tsz(),
+  createdAt: createdAt()
+}, (t) => [
+  unique('fair_play_reports_once_uq').on(t.tableId, t.reporterId, t.accusedId),
+  index('fair_play_reports_status_idx').on(t.status, t.createdAt),
+  oneOf('fair_play_reports_status_chk', t.status, ['open', 'dismissed', 'actioned'])
+]);
 
 export const scheduledDeadlines = pgTable('scheduled_deadlines', {
   id: id(),
@@ -678,6 +720,19 @@ export const tournaments = pgTable('tournaments', {
   /** Coins, or Rial for a Toman entry. 0 when free. */
   entryAmount: bigint({ mode: 'number' }).notNull().default(0),
   prizes: jsonb().$type<TournamentPrize[]>().notNull().default([]),
+  /** Variant choices every table is created with (e.g. chess clock "10+5"), validated against the game's options. */
+  options: jsonb().$type<Record<string, string | number | boolean>>().notNull().default({}),
+  /** Minutes before the start in which registered players must confirm they will play (0 = no check-in; absent ones are withdrawn and refunded). */
+  checkinMinutes: integer().notNull().default(0),
+  /** Pause between a finished round and the next one (seconds). */
+  roundGapSeconds: integer().notNull().default(0),
+  nextRoundAt: tsz(),
+  /** When players were told the check-in window opened / that it is about to close (each sent once). */
+  checkinNotifiedAt: tsz(),
+  checkinRemindedAt: tsz(),
+  /** Tie for first place after every tie-break: 'armageddon' plays one decisive game (draw = Black wins), 'none' shares the prize. */
+  playoff: text().$type<'none' | 'armageddon'>().notNull().default('none'),
+  playoffTableId: uuid(),
   status: text().$type<'open' | 'running' | 'finished' | 'cancelled'>().notNull().default('open'),
   currentRound: integer().notNull().default(0),
   cancelReason: text(),
@@ -702,6 +757,18 @@ export const tournamentEntries = pgTable('tournament_entries', {
   /** Tie-break: tables won outright. */
   wins: integer().notNull().default(0),
   byes: integer().notNull().default(0),
+  /** Rounds that gave this player the pairing bye (1 point) or a requested bye (½ point). */
+  byeRounds: jsonb().$type<number[]>().notNull().default([]),
+  requestedByes: jsonb().$type<number[]>().notNull().default([]),
+  checkedInAt: tsz(),
+  /** Display rating for this game and pace when the tournament started (null = unrated); basis of the ARO tie-break. */
+  startRating: integer(),
+  /** Swiss tie-breaks, filled when the tournament finishes: sum of opponents' points / of beaten opponents' points (+½ drawn). */
+  buchholzCut1: doublePrecision(),
+  buchholz: doublePrecision(),
+  sonnebornBerger: doublePrecision(),
+  disqualifiedAt: tsz(),
+  disqualifiedReason: text(),
   noShows: integer().notNull().default(0),
   eliminatedRound: integer(),
   finalRank: integer(),
@@ -725,6 +792,10 @@ export const tournamentTables = pgTable('tournament_tables', {
   absent: jsonb().$type<string[]>().notNull().default([]),
   /** Final place per player, written once when the table is scored. */
   placements: jsonb().$type<{ userId: string; place: number }[]>(),
+  /** An arbiter (admin) decided this result; the reason is audited. */
+  overridden: boolean().notNull().default(false),
+  /** The decisive game for first place (not part of the standings). */
+  playoff: boolean().notNull().default(false),
   scoredAt: tsz()
 }, (t) => [index('tournament_tables_round_idx').on(t.tournamentId, t.round)]);
 

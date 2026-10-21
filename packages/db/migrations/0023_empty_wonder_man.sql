@@ -1,0 +1,1 @@
+ALTER TABLE "tournament_entries" ADD COLUMN "start_rating" integer;

@@ -177,7 +177,9 @@ export type TableSnapshot = z.infer<typeof tableSnapshot>;
 export const commandBody = z.strictObject({
   commandId: z.uuid(),
   expectedRevision: z.number().int().min(0),
-  action: z.object({ type: z.string().min(1).max(64) }).loose()
+  action: z.object({ type: z.string().min(1).max(64) }).loose(),
+  /** Round-trip lag the client measured (ms); clock tables credit it within a small quota. */
+  lagMs: z.number().int().min(0).max(5000).optional()
 });
 
 export const commandResult = z.object({
@@ -246,6 +248,8 @@ export const tutorialProgressItem = z.object({
 
 /** Persian text for command-level rejection codes (status 200, `rejected`). */
 export const GAME_ERRORS_FA: Record<string, string> = {
+  DRAW_TOO_EARLY: 'در این میز تا حرکت مشخص‌شده تساوی با توافق ممکن نیست.',
+  DRAW_CLAIM_NOT_ALLOWED: 'هنوز شرایط ادعای تساوی (سه‌بار تکرار یا ۵۰ حرکت) برقرار نیست.',
   STALE_REVISION: 'وضعیت میز تغییر کرده است؛ آخرین وضعیت نمایش داده شد. حرکت را دوباره بررسی کنید.',
   TABLE_NOT_ACTIVE: 'این میز در جریان نیست.',
   INVALID_ACTION: 'این حرکت معتبر نیست.',

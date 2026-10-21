@@ -15,8 +15,13 @@ export class ApiFailure extends Error {
 const networkFailure = (code: ErrorCode = 'SERVICE_UNAVAILABLE') =>
   new ApiFailure(0, { errorCode: code, messageFa: navigator.onLine ? ERRORS[code] : 'اتصال اینترنت برقرار نیست.', requestId: '-' });
 
+/** Response times of the last few API calls; their minimum approximates the network round trip (lag compensation on clock tables). */
+const rtts: number[] = [];
+export const lagEstimateMs = (): number => (rtts.length ? Math.round(Math.min(...rtts)) : 0);
+
 export async function api<T>(path: string, init: { method?: string; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
   let res: Response;
+  const t0 = performance.now();
   try {
     res = await fetch(`/api${path}`, {
       method: init.method ?? 'GET',
@@ -29,6 +34,8 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
     if ((err as Error).name === 'AbortError') throw err;
     throw networkFailure();
   }
+  rtts.push(performance.now() - t0);
+  if (rtts.length > 8) rtts.shift();
   if (res.status === 204) return undefined as T;
   const json = await res.json().catch(() => null);
   if (!res.ok) {

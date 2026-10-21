@@ -119,6 +119,11 @@ export const notificationConsumers: Record<string, Consumer> = {
     const p = e.payload as { tournamentId: string; titleFa: string; round: number; tableId: string; userIds: string[] };
     await notify(db, p.userIds, 'tournament', (u) => `tournament-round:${p.tableId}:${u}`, { tournamentId: p.tournamentId, titleFa: p.titleFa, round: p.round, tableId: p.tableId });
   },
+  'tournament.checkin': async (db, e) => {
+    const p = e.payload as { tournamentId: string; titleFa: string; userIds: string[]; minutesLeft: number; reminder: boolean };
+    await notify(db, p.userIds, 'tournament', (u) => `tournament-checkin:${p.tournamentId}:${p.reminder ? 'last' : 'open'}:${u}`,
+      { tournamentId: p.tournamentId, titleFa: p.titleFa, checkin: p.reminder ? 'closing' : 'open', minutesLeft: p.minutesLeft });
+  },
   'tournament.finished': async (db, e) => {
     const p = e.payload as { tournamentId: string; titleFa: string; ranks: { userId: string; rank: number }[] };
     for (const r of p.ranks) await notify(db, [r.userId], 'tournament', (u) => `tournament-end:${p.tournamentId}:${u}`, { tournamentId: p.tournamentId, titleFa: p.titleFa, rank: r.rank });

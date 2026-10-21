@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GAME_ERRORS_FA, type CommandResult, type TableSnapshot } from '@bg/contracts';
 import type { GameAction } from '@bg/ui';
-import { api, ApiFailure } from './api.ts';
+import { api, ApiFailure, lagEstimateMs } from './api.ts';
 import { readPrefs } from './prefs.tsx';
 import { useTableFeed } from './realtime.tsx';
 
@@ -53,7 +53,7 @@ export function useTableSession(tableId: string, invite: string | null) {
     setPending({ ...cmd, status: 'sending' });
     setNotice(null);
     try {
-      const r = await api<CommandResult>(`/tables/${tableId}/commands`, { method: 'POST', body: { commandId: cmd.commandId, expectedRevision: cmd.expectedRevision, action: cmd.action } });
+      const r = await api<CommandResult>(`/tables/${tableId}/commands`, { method: 'POST', body: { commandId: cmd.commandId, expectedRevision: cmd.expectedRevision, action: cmd.action, lagMs: Math.min(lagEstimateMs(), 5000) } });
       accept(r.snapshot);
       setPending(null);
       if (r.status === 'rejected') setNotice(GAME_ERRORS_FA[r.errorCode ?? ''] ?? 'حرکت پذیرفته نشد.');

@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { publicProfile } from './api.ts';
+import { ratingModeSchema } from './rating-mode.ts';
 
 export const leagueSchema = z.enum(['bronze', 'silver', 'gold', 'platinum', 'diamond', 'master']);
 export type League = z.infer<typeof leagueSchema>;
 export const ratingRow = z.object({
-  gameId: z.string(), mode: z.enum(['live', 'turn']), display: z.number().int(), mu: z.number(), sigma: z.number(),
+  gameId: z.string(), mode: ratingModeSchema, display: z.number().int(), mu: z.number(), sigma: z.number(),
   games: z.number().int(), provisional: z.boolean(), leaderboardEligible: z.boolean(), league: leagueSchema.nullable()
 });
 export const ledgerItem = z.object({
@@ -54,7 +55,7 @@ export const tableRewards = z.object({
 });
 
 export const leaderboardResponse = z.object({
-  gameId: z.string(), mode: z.enum(['live', 'turn']),
+  gameId: z.string(), mode: ratingModeSchema,
   season: z.object({ id: z.uuid(), nameFa: z.string(), status: z.string() }).nullable(),
   rules: z.object({ minGames: z.number().int(), maxSigma: z.number() }),
   items: z.array(z.object({ rank: z.number().int(), user: publicProfile, rating: z.number().int(), games: z.number().int(), league: leagueSchema.nullable(),

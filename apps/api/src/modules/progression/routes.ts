@@ -4,10 +4,10 @@ import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { AppError, apiErrorSchema, dailyGameResponse, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
+import { AppError, apiErrorSchema, ratingModeSchema, dailyGameResponse, leaderboardResponse, progressionResponse, tableRewards, TROPHY_TIERS, trophyTier, type TrophyTier } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  ACHIEVEMENT_TYPES, activeSeason, closeSeason, dailyGame, dailyStreaks, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
+  ACHIEVEMENT_TYPES, activeSeason, adminRatings, adminSetRating, closeSeason, dailyGame, dailyStreaks, DEFAULT_SEASON, displayRating, ELIGIBILITY, goalFacts, isPremium, levelFor, manualReward, masteryFor,
   ratingRows, tehranDate, totalXp, weekKey, XP_RULES, type AchievementType, type SeasonConfig
 } from '@bg/play';
 import type { Deps } from '../../app.ts';
@@ -17,7 +17,7 @@ import { profiles } from '../social/relations.ts';
 const { ratings, ratingHistory, seasons, leaguePlacements, rewardLedger, missionDefinitions, missionProgress, achievementDefinitions,
   userAchievements, games, gameResults, auditLog, users, coinLedger } = schema;
 const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 404: apiErrorSchema, 409: apiErrorSchema };
-const modeSchema = z.enum(['live', 'turn']);
+const modeSchema = ratingModeSchema;
 type AchievementDef = typeof achievementDefinitions.$inferSelect;
 type AchievementCriteria = { type: AchievementType; count: number; tier?: string };
 const TRACKS: readonly string[] = ACHIEVEMENT_TYPES;
@@ -315,6 +315,24 @@ export function progressionRoutes(app: FastifyInstance, { db }: Deps): void {
       await tx.insert(auditLog).values({ actorId: userId, action: 'mission.weekly_set', targetType: 'mission', targetId: 'weekly', metadata: { ids, reason: req.body.reason }, requestId: req.id });
     });
     return reply.code(204).send(null);
+  });
+
+  r.get('/admin/users/:id/ratings', {
+    schema: { tags: ['admin'], summary: 'A player\'s ratings per game and pace', params: z.object({ id: z.uuid() }),
+      response: { 200: z.object({ items: z.array(z.object({ gameId: z.string(), gameNameFa: z.string(), mode: modeSchema, rating: z.number().int(), sigma: z.number(), gamesPlayed: z.number().int() })) }), ...errors } }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    return { items: await adminRatings(db, req.params.id) };
+  });
+
+  r.post('/admin/ratings', {
+    schema: { tags: ['admin'], summary: 'Set a player\'s rating for a game and pace, also a game they never played (audited)',
+      body: z.strictObject({ userId: z.uuid(), gameId: z.string().max(64), mode: modeSchema, rating: z.number().int().min(0).max(3000),
+        sigma: z.number().min(1).max(25 / 3).optional(), reason: z.string().trim().min(3).max(300) }),
+      response: { 200: z.object({ before: z.number().int().nullable(), after: z.number().int() }), ...errors } }
+  }, async (req) => {
+    const { userId } = requireRole(req, 'admin');
+    return adminSetRating(db, userId, req.body, req.id);
   });
 
   r.post('/admin/rewards', {

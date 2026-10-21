@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useToast } from '@bg/ui';
+import { RATING_MODE_FA, RATING_MODES, type RatingMode } from '@bg/contracts';
 import { Avatar, Badge, Button, Card, ChipGroup, Dialog, Icon, Select, StateBlock, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -77,6 +78,55 @@ const ACTION_FA: Record<Action, { title: string; button: string; done: string; d
   close: { title: 'بستن حساب', button: 'بستن حساب', done: 'حساب بسته شد.', danger: true }
 };
 
+/** Ratings per game and pace; an admin can set one for any game, also one the player never played (audited with the reason). */
+function RatingsCard({ id }: { id: string }) {
+  const toast = useToast();
+  const games = useApi<{ items: { id: string; nameFa: string }[] }>('/games');
+  const rows = useApi<{ items: { gameId: string; gameNameFa: string; mode: RatingMode; rating: number; sigma: number; gamesPlayed: number }[] }>(`/admin/users/${id}/ratings`);
+  const [gameId, setGameId] = useState('');
+  const [mode, setMode] = useState<RatingMode>('live');
+  const [rating, setRating] = useState('1500');
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const pick = (g: string, m: RatingMode) => {
+    setGameId(g); setMode(m);
+    const cur = rows.data?.items.find((r) => r.gameId === g && r.mode === m);
+    if (cur) setRating(String(cur.rating));
+  };
+  const save = async () => {
+    setBusy(true);
+    try {
+      await api('/admin/ratings', { method: 'POST', body: { userId: id, gameId, mode, rating: Number(rating), reason } });
+      toast('success', 'امتیاز ثبت شد.'); setReason(''); rows.reload();
+    } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'ثبت نشد.'); }
+    setBusy(false);
+  };
+  const valid = gameId !== '' && Number.isInteger(Number(rating)) && Number(rating) >= 0 && Number(rating) <= 3000 && reason.trim().length >= 3;
+  return (
+    <Card className="ac-sec" aria-labelledby="admin-player-ratings-h">
+      <div className="ac-sec__head"><span className="ac-tile"><Icon name="trophy" /></span><h2 id="admin-player-ratings-h" className="ac-h3">امتیاز بازی‌ها</h2></div>
+      {rows.data?.items.length === 0 && <p className="ac-cap ac-pad">این بازیکن هنوز امتیازی ندارد؛ می‌توانید برای هر بازی امتیاز اولیه بدهید.</p>}
+      {rows.data?.items.map((r) => (
+        <div key={`${r.gameId}:${r.mode}`} className="ac-row">
+          <div className="ac-row__text"><b>{r.gameNameFa}</b><span>{RATING_MODE_FA[r.mode]} · {faNum(r.gamesPlayed)} بازی</span></div>
+          <strong>{faNum(r.rating)}</strong>
+          <Button size="sm" variant="ghost" onClick={() => pick(r.gameId, r.mode)}>ویرایش</Button>
+        </div>
+      ))}
+      <div className="ac-pad ac-stack">
+        <div className="ac-grid2">
+          <Select label="بازی" value={gameId} onChange={(e) => pick(e.target.value, mode)}
+            options={[{ value: '', label: 'انتخاب بازی' }, ...(games.data?.items ?? []).map((g) => ({ value: g.id, label: g.nameFa }))]} />
+          <Select label="سرعت" value={mode} onChange={(e) => pick(gameId, e.target.value as RatingMode)} options={RATING_MODES.map((m) => ({ value: m, label: RATING_MODE_FA[m] }))} />
+          <TextField label="امتیاز (۰ تا ۳۰۰۰؛ تازه‌وارد ۱۵۰۰)" inputMode="numeric" value={rating} onChange={(e) => setRating(e.target.value)} />
+          <TextField label="علت (ثبت می‌شود)" value={reason} onChange={(e) => setReason(e.target.value)} />
+        </div>
+        <div><Button variant="primary" loading={busy} disabled={!valid} onClick={() => void save()}>ثبت امتیاز</Button></div>
+      </div>
+    </Card>
+  );
+}
+
 function PlayerDetailAdmin({ id, onBack, onChanged }: { id: string; onBack: () => void; onChanged: () => void }) {
   const p = useApi<PlayerDetail>(`/admin/users/${id}`);
   const toast = useToast();
@@ -143,6 +193,8 @@ function PlayerDetailAdmin({ id, onBack, onChanged }: { id: string; onBack: () =
           </>}
         </Card>
       )}
+
+      {d.status !== 'deleted' && <RatingsCard id={id} />}
 
       <Card className="ac-sec" aria-labelledby="admin-player-sanctions-h">
         <div className="ac-sec__head"><span className="ac-tile"><Icon name="ban" /></span><h2 id="admin-player-sanctions-h" className="ac-h3">سابقه محدودیت‌ها</h2></div>

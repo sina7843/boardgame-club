@@ -13,7 +13,7 @@ describe('chess through the platform', () => {
   it('is in the catalog; a host cannot inject an undeclared setup option (e.g. a start position)', async () => {
     const g = (await call(ctx, 'GET', '/api/games/chess')).json();
     expect(g).toMatchObject({ minPlayers: 2, maxPlayers: 2, isTestGame: false });
-    expect(g.options.map((o: { key: string }) => o.key)).toEqual(['firstMove', 'clock']);
+    expect(g.options.map((o: { key: string }) => o.key)).toEqual(['firstMove', 'clock', 'minDrawMove', 'drawRule']);
     const [u] = await users(ctx, 1);
     const r = await call(ctx, 'POST', '/api/tables', u, { gameId: 'chess', pace: 'live', capacity: 2, turnSeconds: 60, options: { fen: '4k3/8/8/8/8/8/8/Q3K3 w - - 0 1' } });
     expect(r.json().errorCode).toBe('OPTION_NOT_ALLOWED');

@@ -16,9 +16,23 @@ export const chess = defineGame({
     }, {
       key: 'clock', labelFa: 'کنترل زمان (بازی زنده)',
       descriptionFa: 'ساعت شطرنج: هر بازیکن یک بانک زمان دارد که فقط در نوبت خودش کم می‌شود؛ عدد دوم ثانیهٔ هدیه پس از هر حرکت است. با تمام شدن زمان، بازی را می‌بازید (اگر حریف نتواند مات کند، مساوی). در بازی نوبتی همان مهلت هر حرکت می‌ماند.',
-      choices: [{ value: 'none', labelFa: 'مهلت هر حرکت' }, { value: '3+2', labelFa: '۳+۲ برق‌آسا' }, { value: '5+3', labelFa: '۵+۳ برق‌آسا' },
-        { value: '10+0', labelFa: '۱۰+۰ سریع' }, { value: '15+10', labelFa: '۱۵+۱۰ سریع' }],
+      choices: [{ value: 'none', labelFa: 'مهلت هر حرکت' },
+        { value: '1+0', labelFa: '۱+۰ گلوله‌ای' }, { value: '2+1', labelFa: '۲+۱ برق‌آسا' }, { value: '3+0', labelFa: '۳+۰ برق‌آسا' },
+        { value: '3+2', labelFa: '۳+۲ برق‌آسا' }, { value: '5+0', labelFa: '۵+۰ برق‌آسا' }, { value: '5+3', labelFa: '۵+۳ برق‌آسا' },
+        { value: '10+0', labelFa: '۱۰+۰ سریع' }, { value: '10+5', labelFa: '۱۰+۵ سریع' }, { value: '15+10', labelFa: '۱۵+۱۰ سریع' },
+        { value: '30+0', labelFa: '۳۰+۰ سریع' }, { value: '45+15', labelFa: '۴۵+۱۵ کلاسیک' }, { value: '60+30', labelFa: '۶۰+۳۰ کلاسیک' },
+        { value: '90+30', labelFa: '۹۰+۳۰ کلاسیک' }],
       default: 'none'
+    }, {
+      key: 'minDrawMove', labelFa: 'حداقل حرکت برای تساوی با توافق',
+      descriptionFa: 'تا این تعداد حرکت کامل انجام نشده، پیشنهاد و پذیرش تساوی با توافق ممکن نیست (تساوی‌های قانونی مثل پات یا مهرهٔ ناکافی همیشه برقرارند).',
+      choices: [{ value: 'none', labelFa: 'بدون محدودیت' }, { value: '20', labelFa: 'بعد از حرکت ۲۰' }, { value: '30', labelFa: 'بعد از حرکت ۳۰' }, { value: '40', labelFa: 'بعد از حرکت ۴۰' }],
+      default: 'none'
+    }, {
+      key: 'drawRule', labelFa: 'تساوی با تکرار و ۵۰ حرکت',
+      descriptionFa: 'خودکار: سه‌بار تکرار یا ۵۰ حرکت بدون زدن/حرکت سرباز فوراً تساوی است. طبق فیده: بازیکن باید ادعا کند و فقط پنج‌بار تکرار یا ۷۵ حرکت خودکار تساوی می‌شود.',
+      choices: [{ value: 'auto', labelFa: 'خودکار' }, { value: 'fide', labelFa: 'طبق فیده (با ادعا)' }],
+      default: 'auto'
     }],
     capabilities: ['public-state', 'seeded-rng'],
     clientBundleRef: 'chess@1.0.0',

@@ -167,7 +167,10 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
               <Button variant="ghost" size="sm" onClick={() => setPromoTo(null)}>انصراف</Button>
             </section>
           )}
-          {myTurn && !view.outcome && (
+          {myTurn && !view.outcome && legalActions.some((a) => a.type === 'claimDraw') && (
+            <Button disabled={busy} onClick={() => onAction({ type: 'claimDraw' })}>ادعای تساوی (تکرار سه‌باره یا ۵۰ حرکت)</Button>
+          )}
+          {myTurn && !view.outcome && view.canOfferDraw && (
             <label className="ch-drawopt"><input type="checkbox" checked={offerDraw} onChange={(e) => setOfferDraw(e.target.checked)} /> همراه حرکتم پیشنهاد تساوی بده</label>
           )}
           {myTurn && !selected && <p className="ch-help">یک مهره خودی را بزنید تا خانه‌های مجاز روشن شوند.</p>}
