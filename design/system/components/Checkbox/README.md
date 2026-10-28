@@ -1,4 +1,6 @@
-A 22px clay checkbox with a label, optionally with a muted second line.
+A 22px checkbox with a label, optionally with a muted second line.
+
+**Material (v2.0):** unchecked = a well (`--field-edge` 3.5:1, hard inner edge); checked = a flat navy fill with a cream tick.
 
 ## When to use
 

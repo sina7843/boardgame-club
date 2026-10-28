@@ -1,0 +1,18 @@
+name: design-system
+
+# BGV design-system guard. Fails a PR that ADDS design-system debt (ratchet against design/ds-baseline.json).
+# When the migration is complete (IMPLEMENTATION-PLAN phase 7) switch the command to `node scripts/ds-check.mjs --strict`.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ds-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node scripts/ds-check.mjs

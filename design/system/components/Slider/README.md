@@ -1,5 +1,9 @@
 A labelled range input with the current value spelled out.
 
+**Material (v2.1): a well with a token thumb** — the filled share is navy (cream in dark); the thumb is white with a soft `--ink-btn` ring (#A1AAB1 in light, v2.1.11; #4A6476 in dark, v2.1.12). The share comes from `--_v` (static markup sets it, e.g. `style="--_v:70%"`) or `--_p` (set by `Bgv.Slider`).
+
+In detail — 10px flat track (`--well`, hard inner edge), the filled share in `--selected` from the minimum (the right edge in RTL), a 24px thumb with a 1.5px `--ink-btn` frame and a 2px hard shadow that lands while dragged. Never the browser's default range.
+
 ## When to use
 
 Turn time in Create Table, sound volume, bot think delay.

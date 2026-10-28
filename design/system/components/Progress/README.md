@@ -6,14 +6,14 @@ XP to next level, season pass, mission progress, upload progress.
 
 ## Props / what the consumer provides
 
-`value` 0–1, `label`, `valueText`, `tone` (`primary`, `accent` for XP/rewards, `invite` for your share).
+`value` 0–1, `label`, `valueText`, `tone` (`primary`, `accent`, `invite`). Every tone fills with the selection colour (navy, cream in dark): amber fill is reserved for the page's one action, the turn pill and the coin (owner decision 2.4). `accent` and `invite` stay for compatibility.
 
 | Prop | Type | Description |
 |---|---|---|
 | `value` (required) | `number` | 0–1. |
 | `label` | `Node` | — |
 | `valueText` | `Node` | Right-hand value text, e.g. «۹۶۰ از ۱٬۲۰۰». |
-| `tone` | `'primary' \| 'invite' \| 'accent'` | primary (default), invite (you), accent (XP/rewards). |
+| `tone` | `'primary' \| 'invite' \| 'accent'` | All three render navy (cream in dark) since v2.1.2; say whose share it is in the label. |
 
 Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers) passes through to the root element. Types: `ProgressProps` in `components/index.d.ts`.
 
@@ -22,9 +22,11 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 **Do**
 
 - Always show the numbers: «۹۶۰ از ۱٬۲۰۰».
-- Use `accent` (gold) for XP and rewards.
+- Name the progress in the label («سهم شما از امتیاز تیم») instead of relying on colour.
 
 **Don't**
+
+- Do not paint a progress bar amber.
 
 - Do not use progress bars for time running out; use `Clock`.
 

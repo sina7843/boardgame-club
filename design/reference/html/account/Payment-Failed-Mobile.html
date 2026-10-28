@@ -22,7 +22,7 @@ body{margin:0}
 .x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-sec__head>h2{flex:1;min-width:0}
 .x-sec__body{padding:20px;display:grid;gap:16px}
-.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
 .x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-row:last-child{border-bottom:0}
 .x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
@@ -38,9 +38,9 @@ body{margin:0}
 .bgv-btn .bgv-coin{font-weight:900}
 .bgv-switch{gap:10px;flex:none}
 .bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
-.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
-.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
-.bgv-switch__track::before{border-color:var(--success)}
+
+
+
 .x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
 .x-phone>.bgv-topbar{flex:none}
 .x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
@@ -53,12 +53,12 @@ body{margin:0}
 .x-perks{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14.5px;line-height:1.6}
 .x-perks li{display:flex;gap:10px;align-items:flex-start}
 .x-perks li>i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--success-soft);color:var(--success);margin-top:1px}
-.x-plan--top{background:var(--felt);border-color:var(--felt-rim);color:var(--felt-ink);box-shadow:var(--shadow-felt),0 0 0 2px var(--accent)}
+.x-plan--top{background:var(--felt);border-color:var(--felt-rim);color:var(--felt-ink);box-shadow:var(--shadow-felt),0 0 0 2px var(--felt-rim)}
 .x-plan--top :is(h2,.x-plan__price){color:var(--felt-ink)}
 .x-plan--top .x-plan__price small,.x-plan.x-plan--top .x-muted{color:var(--felt-muted)}
-.x-plan--top .x-perks li>i{background:var(--accent);color:var(--on-accent)}
+.x-plan--top .x-perks li>i{background:var(--felt-ink);color:var(--felt)}
 .x-plan--top .bgv-btn--primary{background:var(--brand-cream);color:var(--brand-green)}
-.x-plan--top .bgv-badge{background:rgba(246,240,228,.14);color:var(--felt-ink)}
+.x-plan--top .bgv-badge{background:rgba(243,235,221,.14);color:var(--felt-ink)}
 .x-flag{position:absolute;top:-13px;inset-inline-start:24px}
 .x-cmp{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
 .x-cmp th,.x-cmp td{padding:14px 20px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}
@@ -89,24 +89,23 @@ body{margin:0}
 </style>
 
 <div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
-<header class="bgv-topbar" style="flex:none;padding-inline:16px 8px"><span class="bgv-topbar__title">نتیجهٔ پرداخت</span><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></header>
+<header class="bgv-topbar" style="flex:none;padding-inline:16px 8px"><span class="bgv-topbar__title">نتیجهٔ پرداخت</span><a class="bgv-btn bgv-btn--icon bgv-btn--ghost" href="/plans" aria-label="بستن و برگشت به اشتراک"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></a></header>
 <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:20px 16px 24px;min-height:0">
  <section class="bgv-card" style="display:grid;justify-items:center;gap:12px;text-align:center;padding:28px 20px 20px" aria-live="polite">
   <span style="width:80px;height:80px;border-radius:50%;display:grid;place-items:center;background:var(--danger-soft);color:var(--danger)"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:40px;height:40px"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg></span>
   <h1 class="t-page-sm" style="color:var(--heading);text-wrap:balance">پرداخت انجام نشد</h1>
-  <div class="bgv-row" style="justify-content:center"><span class="bgv-badge bgv-badge--danger"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg>ناموفق</span><span class="t-body-sm">صندوقچه سکه<span class="bgv-sep"></span>۹۹٬۰۰۰ تومان</span></div>
-  <p class="t-body-sm bgv-muted" style="text-wrap:pretty">پرداخت در درگاه زرین‌پال لغو شد. سکه‌ای اضافه نشد و چیزی از حساب شما کم نشده است.</p>
+  <div class="bgv-row" style="justify-content:center"><span class="bgv-badge bgv-badge--danger"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg>ناموفق</span><span class="t-body-sm">پریمیوم ماهانه<span class="bgv-sep"></span>۱۴۹٬۰۰۰ تومان</span></div>
+  <p class="t-body-sm bgv-muted" style="text-wrap:pretty">پرداخت در درگاه زرین‌پال لغو شد. اشتراکی فعال نشد و چیزی از حساب شما کم نشده است.</p>
   <div class="x-receipt" style="width:100%;text-align:start;border-top:1px solid var(--line);margin-top:4px;padding-top:4px">
-   <div><span>شماره سفارش</span><b class="bgv-latin" dir="ltr" style="font-size:14px">BG-20261013-7F3A9C21B4</b></div>
+   <div><span>شماره سفارش</span><b class="bgv-latin" dir="ltr" style="font-size:14px">BG-20261012-1C04E9A7D2</b></div>
    <div><span>درگاه</span><b>زرین‌پال</b></div>
-   <div><span>زمان</span><b>۲۱ مهر ۱۴۰۵، ۱۸:۴۲</b></div></div>
+   <div><span>زمان</span><b>۲۰ مهر ۱۴۰۵، ۱۸:۴۲</b></div></div>
  </section>
  <div class="bgv-banner"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg><div class="bgv-banner__body"><span>اگر مبلغی از حساب بانکی کم شده ولی خرید فعال نشد، بانک آن را برمی‌گرداند.</span></div></div>
  <span class="bgv-spacer"></span>
- <div style="display:grid;gap:8px"><button class="bgv-btn bgv-btn--primary bgv-btn--lg" style="width:100%"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>تلاش دوباره</button><a class="bgv-btn bgv-btn--secondary" href="#" style="width:100%">اشتراک و سابقه</a><a class="bgv-btn bgv-btn--ghost bgv-btn--sm" href="#" style="justify-self:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m4.93 4.93 4.24 4.24" /> <path d="m14.83 9.17 4.24-4.24" /> <path d="m14.83 14.83 4.24 4.24" /> <path d="m9.17 14.83-4.24 4.24" /> <circle cx="12" cy="12" r="4" /></svg>تماس با پشتیبانی</a></div>
+ <div style="display:grid;gap:8px"><button class="bgv-btn bgv-btn--primary bgv-btn--lg" style="width:100%"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>تلاش دوباره</button><a class="bgv-btn bgv-btn--secondary" href="/plans" style="width:100%">برگشت به اشتراک پریمیوم</a><a class="bgv-btn bgv-btn--ghost" href="/plans#history" style="width:100%">سابقهٔ پرداخت</a><a class="bgv-btn bgv-btn--ghost bgv-btn--sm" href="/support" style="justify-self:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m4.93 4.93 4.24 4.24" /> <path d="m14.83 9.17 4.24-4.24" /> <path d="m14.83 14.83 4.24 4.24" /> <path d="m9.17 14.83-4.24 4.24" /> <circle cx="12" cy="12" r="4" /></svg>تماس با پشتیبانی</a></div>
 </div>
 </div>
 </x-dc>
-
 </body>
 </html>

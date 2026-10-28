@@ -1,4 +1,4 @@
-A simple data table with column config, Persian digits and the viewer row highlighted.
+A simple data table with column config, Persian digits and the viewer row highlighted; under 600px it can fold into stacked rows (`stack`).
 
 ## When to use
 
@@ -6,13 +6,14 @@ Rankings, score sheets after a game, transactions, admin lists.
 
 ## Props / what the consumer provides
 
-`columns` ({key,label,align,width,strong,render}), `rows`, `youRow` (index/predicate or rows with `you:true`), `selectedRow`, `caption`.
+`columns` ({key,label,align,width,strong,render,stack}), `rows`, `youRow` (index/predicate or rows with `you:true`), `selectedRow`, `caption`, `stack`.
 
 | Prop | Type | Description |
 |---|---|---|
 | `columns` (required) | `DataTableColumn<Row>[]` | — |
 | `rows` (required) | `Row[]` | — |
-| `youRow` | `number \| ((row: Row, i: number) => boolean)` | Row index, predicate, or rows with `you: true` → coral-soft highlight. |
+| `youRow` | `number \| ((row: Row, i: number) => boolean)` | Row index, predicate, or rows with `you: true` → the whole row gets `--row-you` and a 3px navy bar at its start. |
+| `stack` | `boolean \| 'phone'` | `.bgv-table--stack`: under 600px each row folds into lead · main · end on one line and the other cells below with their column label (`data-stack`, `data-label`). `phone` forces it (previews). |
 | `selectedRow` | `number` | — |
 | `caption` | `string` | Screen-reader caption. |
 | `rowKey` | `string` | — |
@@ -23,7 +24,8 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Highlight the viewer row (coral-soft `--invite-soft`) and also write «شما».
+- Highlight the viewer (or selected) row: a pale tint over the **whole row** plus a 3px navy bar (cream in dark) at its start; also write «شما». Never amber.
+- On phones use `stack`: give rank/icon `stack:'lead'`, the name `main`, the score `end`, and `hide` what does not matter on a phone.
 - Right-align text naturally (RTL), end-align numbers.
 
 **Don't**

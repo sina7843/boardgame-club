@@ -12,7 +12,7 @@ Game over on phone and desktop, usually above the rematch vote.
 |---|---|---|
 | `title` (required) | `Node` | — |
 | `sub` | `Node` | — |
-| `badge` | `Node` | Text (premium trophy badge) or node. |
+| `badge` | `Node` | Text (green `success` badge with a trophy; the crown and premium tone are only for the subscription) or node. |
 | `podium` | `PodiumPlace[] \| Node` | Podium places or a node. |
 | `rewards` | `Array<RewardProps \| Node>` | — |
 | `actions` | `Node` | — |

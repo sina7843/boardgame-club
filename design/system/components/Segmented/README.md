@@ -1,5 +1,7 @@
 A sunken track of 2–4 mutually exclusive options (radiogroup).
 
+**Material (v2.0):** a well (`--well`, hard inner edge, `--well-edge`); options are rows (tint on hover, hard inner edge on press); the chosen one is flat navy.
+
 ## When to use
 
 Pace «زنده / نوبتی», view toggles «فهرست / شبکه», time ranges «هفته / ماه / فصل».

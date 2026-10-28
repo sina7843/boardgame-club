@@ -30,7 +30,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 **Don't**
 
 - Do not hide disabled actions; show them disabled with the reason in the prompt.
-- Do not use coral buttons here.
+- Do not style actions with `--invite`; the only amber here is the one primary button.
 
 ## Example
 

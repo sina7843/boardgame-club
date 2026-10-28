@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import type { MyTableItem, NotificationItem, Progression } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
-import { AppShell, Banner, Button, StateBlock, type NavItemProps } from '@bg/ui/bgv';
+import { AppShell, Banner, Button, SiteHeader, StateBlock } from '@bg/ui/bgv';
 import { api, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { useCoins } from '../lib/coins.tsx';
-import { bestLeague, useLinkRouting, userIdentity } from '../lib/bgv.tsx';
+import { useLinkRouting } from '../lib/bgv.tsx';
+import { faNum } from '../lib/format.ts';
 import { PAGE_TITLE_EVENT } from '../lib/usePageTitle.ts';
 import { Celebration } from './Celebration.tsx';
 import { WelcomeGift } from './WelcomeGift.tsx';
 import { OnboardingProvider, WelcomeInvite } from './Onboarding.tsx';
-import { SiteLinks } from '../pages/SitePage.tsx';
+import { AccountPopover, hasFooter, HeaderSearch, PublicFooter } from './SiteChrome.tsx';
 import { TermsGate } from './Account.tsx';
 import { PAGE_GROUPS } from './PageTabs.tsx';
 
@@ -21,13 +22,15 @@ const LOGO = {
 };
 
 /** Full-screen routes (no shell), as the references show. A live game hides the shell itself (html[data-immersive], Table.tsx). */
-const immersive = (path: string) => path === '/login' || path === '/payments/result' || path === '/dev-gateway';
+const immersive = (path: string) => path === '/login' || path === '/payments/result' || path === '/dev-gateway' || path === '/search';
 
 type Group = keyof typeof PAGE_GROUPS;
 const inGroup = (g: Group, path: string) => PAGE_GROUPS[g].some(([to]) => path === to || path.startsWith(`${to}/`));
 
 export function Layout() {
-  const { me, status, refresh } = useSession();
+  const { me, status, refresh, logout } = useSession();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
   const online = useOnline();
   // Connection back after an outage: one «دوباره وصل شدید» toast (states spec, offline).
   const toast = useToast();
@@ -46,33 +49,39 @@ export function Layout() {
   const coins = useCoins(signedIn);
   const progression = useApi<Progression>(signedIn ? '/me/progression' : null);
 
+  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
+    const away = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest('.app-accountmenu, .bgv-avatarbtn')) setMenuOpen(false); };
+    document.addEventListener('keydown', onEsc); document.addEventListener('mousedown', away);
+    return () => { document.removeEventListener('keydown', onEsc); document.removeEventListener('mousedown', away); };
+  }, [menuOpen]);
+  // The onboarding guides point at these anchors; the design-system header cannot carry data-tour itself.
+  useEffect(() => {
+    const tag = (sel: string, target: string) => document.querySelector(sel)?.setAttribute('data-tour', target);
+    tag('.bgv-sitenav a[href="/"]', 'nav-home'); tag('.bgv-sitenav a[href="/games"]', 'nav-games'); tag('.bgv-sitenav a[href="/tables"]', 'nav-tables');
+    tag('.bgv-siteheader__actions a[href="/messages"]', 'nav-messages'); tag('.bgv-avatarbtn', 'nav-profile');
+  }, [pathname, signedIn, status]);
+
   const at = (to: string, group?: Group) => (group ? inGroup(group, pathname) : pathname === to);
-  const nav: Array<NavItemProps | { group: string }> = [
-    { group: 'بازی' },
-    { icon: 'house', label: 'خانه', href: '/', active: pathname === '/', 'data-tour': 'nav-home' },
-    { icon: 'layout-grid', label: 'بازی‌ها', href: '/games', active: at('/games', 'games'), 'data-tour': 'nav-games' },
-    { icon: 'dices', label: 'میزها و حریف‌یابی', href: '/tables', active: at('/tables', 'tables') || pathname === '/tables/mine', turns, 'data-tour': 'nav-tables' },
-    { group: 'من' },
-    { icon: 'trophy', label: 'پیشرفت و رتبه', href: '/progress', active: at('/progress', 'progress'), 'data-tour': 'nav-progress' },
-    { icon: 'message-circle', label: 'پیام‌ها و دوستان', href: '/messages', active: at('/messages', 'social') || pathname.startsWith('/users/'), count: unread, 'data-tour': 'nav-messages' },
-    { icon: 'wallet', label: 'اشتراک و سکه', href: '/plans', active: at('/plans', 'wallet'), 'data-tour': 'nav-plans' },
-    { group: 'کمک' },
-    { icon: 'book-open', label: 'راهنما', href: '/guides', active: at('/guides') || pathname === '/wiki', 'data-tour': 'nav-guides' },
-    { icon: 'life-buoy', label: 'پشتیبانی', href: '/support', active: at('/support'), 'data-tour': 'nav-support' },
-    { icon: 'settings', label: 'تنظیمات', href: '/settings', active: at('/settings'), 'data-tour': 'nav-settings' }
+  const staff = !!me?.roles.some((r) => r === 'moderator' || r === 'admin');
+  // The five header destinations; everything else lives in the account menu (desktop) and «بیشتر» (phone).
+  const nav = [
+    { label: 'خانه', href: '/', active: pathname === '/' },
+    { label: 'بازی‌ها', href: '/games', active: at('/games', 'games') },
+    { label: 'میزها', href: '/tables', active: (inGroup('tables', pathname) && !pathname.startsWith('/tournaments')) || pathname === '/tables/mine', ...(turns ? { turns } : {}) },
+    { label: 'تورنمنت‌ها', href: '/tournaments', active: pathname === '/tournaments' || pathname.startsWith('/tournaments/') },
+    { label: 'رتبه‌بندی', href: '/ranking', active: pathname === '/ranking' }
   ];
-  const staff = me?.roles.some((r) => r === 'moderator' || r === 'admin');
-  if (staff) nav.push({ group: 'نقش‌ها' }, { icon: 'shield', label: 'نظارت', href: '/mod', active: at('/mod') });
-  if (me?.roles.includes('admin')) nav.push({ icon: 'sliders-horizontal', label: 'مدیریت', href: '/admin', active: at('/admin') });
   const dockItems = [
-    { icon: 'house', label: 'خانه', href: '/', active: pathname === '/' },
-    { icon: 'layout-grid', label: 'بازی‌ها', href: '/games', active: inGroup('games', pathname) },
-    { icon: 'dices', label: 'میزها', href: '/tables', active: inGroup('tables', pathname) || pathname === '/tables/mine', turns },
-    { icon: 'message-circle', label: 'پیام‌ها', href: '/messages', active: inGroup('social', pathname), count: unread },
-    { icon: 'menu', label: 'بیشتر', href: '/more', active: false }
+    { icon: 'house', label: 'خانه', href: '/', active: pathname === '/', 'data-tour': 'nav-home' },
+    { icon: 'dices', label: 'میزها', href: '/tables', active: inGroup('tables', pathname) || pathname === '/tables/mine', turns, 'data-tour': 'nav-tables' },
+    { icon: 'message-circle', label: 'پیام‌ها', href: '/messages', active: inGroup('social', pathname), count: unread, 'data-tour': 'nav-messages' },
+    { icon: 'menu', label: 'بیشتر', href: '/more', active: false, 'data-tour': 'nav-more' }
   ];
-  // Pages without a dock slot (progress, settings, shop …) light up «بیشتر», where they are listed.
-  dockItems[4]!.active = !dockItems.slice(0, 4).some((d) => d.active);
+  // Pages without a dock slot (games, progress, settings, shop …) light up «بیشتر», where they are listed.
+  dockItems[3]!.active = !dockItems.slice(0, 3).some((d) => d.active);
 
   const page = status === 'error'
     ? <StateBlock kind="error" title="ارتباط با سرور برقرار نشد" text="وضعیت حساب شما دریافت نشد. اتصال را بررسی کنید."
@@ -91,32 +100,38 @@ export function Layout() {
     );
   }
 
-  const league = progression.data ? bestLeague(progression.data.ratings) : null;
-  const user = me ? {
-    ...userIdentity(me, { ...(league ? { league } : {}), ...(progression.data ? { level: progression.data.level } : {}) }),
-    href: '/me/profile', 'data-tour': 'nav-profile'
-  } : undefined;
+  const initials = me ? [...me.displayName.trim()][0] ?? '؟' : '';
+  const level = progression.data ? `سطح ${faNum(progression.data.level)}` : undefined;
+  const loginHref = `/login?next=${encodeURIComponent(pathname)}`;
+  const header = (
+    <SiteHeader logo={{ src: LOGO.src, srcDark: LOGO.srcDark }} nav={nav} guest={!signedIn} search={<HeaderSearch />}
+      quickPlay={pathname === '/' ? false : { href: '/play' }} loginHref={loginHref}
+      {...(me ? { user: { initials, name: me.displayName, current: menuOpen || inGroup('progress', pathname) || pathname.startsWith('/me/') }, onAvatar: () => setMenuOpen((o) => !o), menuOpen } : {})}
+      messages={{ href: '/messages', count: unread, current: inGroup('social', pathname) }}
+      notifications={{ href: '/notifications', count: notifications, current: pathname === '/notifications' }}>
+      {menuOpen && me && (
+        <AccountPopover name={me.displayName} {...(level ? { sub: level } : {})} initials={initials}
+          {...(coins.data ? { coins: coins.data.balance } : {})} unreadMessages={unread} admin={me.roles.includes('admin')} staff={staff}
+          onLogout={() => { void logout().then(() => navigate('/')); }} onClose={() => setMenuOpen(false)} />
+      )}
+    </SiteHeader>
+  );
 
   return (
     <OnboardingProvider>
       <a className="app-skip" href="#main">پرش به محتوای اصلی</a>
       <div className="app-root" onClick={route}>
-      <AppShell className="bgv" logo={LOGO} nav={nav} dockItems={dockItems} title={title}
-        {...(user ? { user } : {})}
+      <AppShell className="bgv" logo={LOGO} header={header} dockItems={dockItems} title={title} guest={!signedIn} loginHref={loginHref}
         {...(coins.data ? { coins: coins.data.balance, coinsHref: '/coins' } : {})}
-        {...(signedIn ? { notifications, notificationsHref: '/notifications' } : {})}>
+        {...(signedIn ? { notifications, notificationsHref: '/notifications' } : {})}
+        {...(hasFooter(pathname) ? { footer: <PublicFooter /> } : {})}>
         <div id="main" tabIndex={-1} className="app-page">
-          {!signedIn && status === 'ready' && (
-            <Banner tone="info" icon="user" title="هنوز وارد نشده‌اید" text="برای بازی، میز ساختن و دیدن پیشرفت وارد شوید."
-              action={<Button size="sm" variant="primary" href={`/login?next=${encodeURIComponent(pathname)}`}>ورود / ثبت‌نام</Button>} />
-          )}
           {me?.suspended && <Banner tone="warning" icon="triangle-alert" title="حساب شما موقتاً تعلیق شده است"
             text="جزئیات و اعتراض در بخش پشتیبانی." action={<Button size="sm" href="/support">پشتیبانی</Button>} />}
           {pathname === '/' && <WelcomeInvite />}
           {!online && <Banner tone="warning" icon="wifi-off" title="اتصال اینترنت قطع است" text="اطلاعات نمایش‌داده‌شده ممکن است قدیمی باشد؛ ساعت‌ها آخرین زمان تأییدشده را نشان می‌دهند."
             action={<Button size="sm" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
           {page}
-          {(pathname === '/' || pathname === '/more') && <footer className="app-page__foot"><SiteLinks /><EnamadSeal /></footer>}
         </div>
       </AppShell>
       </div>
@@ -124,16 +139,6 @@ export function Layout() {
       <WelcomeGift />
       <TermsGate />
     </OnboardingProvider>
-  );
-}
-
-/** eNamad trust seal, markup as issued by enamad.ir (the img `code` attribute is part of their snippet). */
-function EnamadSeal() {
-  return (
-    <a className="app-page__seal" referrerPolicy="origin" target="_blank" rel="noopener" href="https://trustseal.enamad.ir/?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" aria-label="نماد اعتماد الکترونیکی (اینماد)">
-      <img referrerPolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" alt="نماد اعتماد الکترونیکی"
-        {...{ code: 'zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi' }} />
-    </a>
   );
 }
 

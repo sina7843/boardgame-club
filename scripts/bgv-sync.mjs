@@ -2,12 +2,15 @@
 // Syncs the BGV design system from design/system into packages/ui/src/bgv (run after a design-system update).
 // tokens.css / bundle.css are copied byte-identical; bundle.js (classic script over window.React) becomes the
 // ES module bgv.js with the same code, and index.d.ts becomes its type declaration.
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync, mkdirSync, readdirSync } from 'node:fs';
 
 const src = 'design/system';
 const out = 'packages/ui/src/bgv';
 mkdirSync(`${out}/reference`, { recursive: true });
 copyFileSync(`${src}/tokens.css`, `${out}/tokens.css`);
+// Self-hosted fonts (v2.1): tokens.css refers to them as fonts/<file>.
+mkdirSync(`${out}/fonts`, { recursive: true });
+for (const f of readdirSync(`${src}/fonts`)) copyFileSync(`${src}/fonts/${f}`, `${out}/fonts/${f}`);
 copyFileSync(`${src}/components/bundle.css`, `${out}/bundle.css`);
 copyFileSync(`${src}/components/bundle.js`, `${out}/reference/bundle.js`);
 copyFileSync(`${src}/components/index.d.ts`, `${out}/reference/index.d.ts`);

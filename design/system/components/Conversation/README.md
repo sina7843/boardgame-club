@@ -1,5 +1,7 @@
 A conversation row: avatar or group icon, name, last message, time, unread count and «@» when you were mentioned.
 
+**Material (v2.0):** a row; the open conversation is flat navy.
+
 ## When to use
 
 Messages page lists (DMs, groups, clubs, table chats).
@@ -19,7 +21,7 @@ Messages page lists (DMs, groups, clubs, table chats).
 | `preview` | `Node` | Last message preview. |
 | `time` | `Node` | — |
 | `unread` | `number` | — |
-| `mention` | `boolean` | You were mentioned: coral «@» badge. |
+| `mention` | `boolean` | You were mentioned: crimson «@» count badge (`count-invite`). |
 | `muted` | `boolean` | — |
 | `active` | `boolean` | — |
 | `href` | `string` | — |
@@ -31,7 +33,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Coral «@» only when the viewer was mentioned.
+- «@» only when the viewer was mentioned.
 - Muted conversations show the bell-off icon and no count.
 
 **Don't**

@@ -1,5 +1,9 @@
 A floating list of actions with icons, separators, trailing meta and destructive items.
 
+**Material (v2.1):** items with `href` render as links (the account menu, `AccountMenu`, is a variant: `.bgv-menu--account` with an identity row and a wallet row).
+
+It is a floating board (hard 6px shadow); items are rows (tint on hover, hard inner edge on press, `is-focus` for the keyboard).
+
 ## When to use
 
 Overflow «بیشتر» menus, the chat message menu (پاسخ، ویرایش، کپی، حذف، گزارش، بی‌صدا کردن), profile actions.

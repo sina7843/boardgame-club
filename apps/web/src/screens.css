@@ -24,3 +24,7 @@
 .app-level-badge { flex: none; object-fit: contain; }
 @media (max-width: 599px) { .app-page .bgv-banner { flex-wrap: wrap; } .app-page .bgv-banner > :last-child:not(.bgv-banner__body) { margin-inline-start: auto; } }
 @media (max-width: 599px) { .app-page .bgv-banner .bgv-banner__body { flex: 1 1 calc(100% - 40px); } }
+
+/* Account menu (design-system AccountMenu) hangs under the header's avatar, on the same 1320 column. */
+.app-accountmenu { position: absolute; inset-block-start: calc(100% - 6px); inset-inline-end: max(32px, calc((100% - var(--content-max)) / 2 + 32px)); z-index: var(--z-sheet); }
+@media (max-width: 1199px) { .app-accountmenu { inset-inline-end: 20px; } }

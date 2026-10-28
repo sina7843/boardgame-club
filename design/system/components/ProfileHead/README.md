@@ -48,7 +48,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 h(B.ProfileHead,{banner:'night', frame:'master', name:'نیلوفر', initials:'ن', status:'online', title:'رستم دستان', league:'master', level:41,
-  badges:h(B.Badge,{tone:'premium', icon:'crown'},'اشتراک ویژه'),
+  badges:h(B.Badge,{tone:'premium', icon:'crown'},'اشتراک پریمیوم'),
   meta:[h(B.Connection,{key:1, label:'آنلاین'}), 'در حال بازی کاتان', 'عضو از ۱۲ فروردین ۱۴۰۲'],
   actions:[h(B.Button,{key:1, variant:'primary', icon:'user-plus'},'دوست شدن'), h(B.Button,{key:2, variant:'secondary', icon:'message-circle'},'پیام')],
   stats:[{value:1284,label:'بازی'},{value:'۶۲٪',label:'برد'},{value:38,label:'جام'},{value:1982,label:'بالاترین ریتینگ'}]})

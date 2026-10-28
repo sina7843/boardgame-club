@@ -21,7 +21,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Name it in `label` for screen readers («پشت کارت پاییز مرجانی»).
+- Name it in `label` for screen readers («پشت کارت پاییز آجری»).
 
 **Don't**
 
@@ -33,5 +33,5 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 felt({style:{padding:'16px'}}, h('div',{style:{display:'flex', gap:'14px', alignItems:'center'}},
-  h(B.CardBack,{color:'#173A2D', label:'پشت کارت جنگلی'}), h(B.CardBack,{color:'#C9553A', label:'پشت کارت پاییز مرجانی', style:{transform:'rotate(-8deg)'}}), h(B.CardBack,{color:'#5B2E99', width:56, label:'پشت کارت شب پرستاره'}, h(B.Icon,{name:'moon', size:22})), h(B.CardBack,{color:'#1F3A5A', width:56, label:'پشت کارت دریا'}, h(B.Icon,{name:'droplet', size:22}))))
+  h(B.CardBack,{color:'#142B3B', label:'پشت کارت سرمه‌ای'}), h(B.CardBack,{color:'#C9553A', label:'پشت کارت پاییز آجری', style:{transform:'rotate(-8deg)'}}), h(B.CardBack,{color:'#5B2E99', width:56, label:'پشت کارت شب پرستاره'}, h(B.Icon,{name:'moon', size:22})), h(B.CardBack,{color:'#1F3A5A', width:56, label:'پشت کارت دریا'}, h(B.Icon,{name:'droplet', size:22}))))
 ```

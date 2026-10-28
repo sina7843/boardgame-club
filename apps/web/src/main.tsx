@@ -1,5 +1,3 @@
-import '@fontsource-variable/vazirmatn/index.css';
-import '@fontsource-variable/manrope/index.css';
 import './app.css';
 import { lazy, StrictMode, Suspense, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -44,6 +42,7 @@ const GroupPage = lazy(() => import('./pages/Communities.tsx').then((m) => ({ de
 const GroupsPage = lazy(() => import('./pages/Communities.tsx').then((m) => ({ default: m.GroupsPage })));
 const SupportPage = lazy(() => import('./pages/Support.tsx').then((m) => ({ default: m.SupportPage })));
 const ModerationPage = lazy(() => import('./pages/Moderation.tsx').then((m) => ({ default: m.ModerationPage })));
+const SearchPage = lazy(() => import('./pages/Search.tsx').then((m) => ({ default: m.SearchPage })));
 const MorePage = lazy(() => import('./pages/More.tsx').then((m) => ({ default: m.MorePage })));
 const ProgressPage = lazy(() => import('./pages/Progress.tsx').then((m) => ({ default: m.ProgressPage })));
 const RankingPage = lazy(() => import('./pages/Ranking.tsx').then((m) => ({ default: m.RankingPage })));
@@ -94,6 +93,7 @@ const router = createBrowserRouter([
       ...SITE_LINKS.map(([slug]) => ({ path: slug, element: <SitePage key={slug} slug={slug} /> })),
       { path: 'mod', element: <ModerationPage /> },
       { path: 'more', element: <MorePage /> },
+      { path: 'search', element: <SearchPage /> },
       { path: 'progress', element: <ProgressPage /> },
       { path: 'ranking', element: <RankingPage /> },
       { path: 'plans', element: <PlansPage /> },

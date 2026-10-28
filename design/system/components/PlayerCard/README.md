@@ -54,6 +54,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 - «شما» is inline after the name (`is-you`), wrapping under it on narrow mini cards; never positioned on the card border.
 - Turn is marked with `turn` (ring + card edge) only; the TurnPill says the words.
 - Wide cards on the felt pass `onFelt` (the Hud duel layout does this).
+- On the felt the «turn» and «you» edges are cream (`#FAF5EC`), and the «شما» tag is a cream pill with navy text, so both read on the navy felt.
 
 **Don't**
 

@@ -1,4 +1,6 @@
-Top-three podium (drawn 2-1-3) with avatars, seat + name and scores; first place gold with a crown.
+Top-three podium (drawn 2-1-3) with avatars, seat + name and scores; first place on the navy (`--selected`) step with a crown.
+
+**Material (v2.1):** the steps are boards (white, `--line`, hard `--shadow-card`), not tokens — a podium does not press, so the second and third steps are flat and pale with no button look. The winner's step is the flat navy `--selected` fill with the crown (cream in dark).
 
 ## When to use
 

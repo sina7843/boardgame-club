@@ -6,11 +6,11 @@ The root of every in-game screen.
 
 ## Props / what the consumer provides
 
-`desk` for the responsive desktop grid (≥1200 rail 296 | felt + dock | chat 360; 900–1199 rail | felt + dock, chat opens from the game bar as a side sheet; <900 the phone order). Fluid height, `min-height: 900px`. `layout` forces `full`/`mid`/`phone` for previews. Children: `GameBar`, `Hud`, `Felt` (with the game's own UI in `stage`), `ActionDock`, `Chat`.
+`desk` for the responsive desktop grid (≥1200 rail 296 | felt + dock | chat 360; 900–1199 rail | felt + dock, chat opens from the game bar as a side sheet; <900 the phone order). Fluid height, `min-height: min(900px, 100dvh)` so laptops 768–900px tall never push the action dock off screen. `layout` forces `full`/`mid`/`phone` for previews. Children: `GameBar`, `Hud`, `Felt` (with the game's own UI in `stage`), `ActionDock`, `Chat`.
 
 | Prop | Type | Description |
 |---|---|---|
-| `desk` | `boolean` | Desktop grid: rail 296 (inline-start, right in RTL) \| felt + action dock \| chat 360 (inline-end) with the game bar on top; fluid height, min 900px. <1200 the chat column hides (open it from the game bar as a side sheet); <900 the phone order. |
+| `desk` | `boolean` | Desktop grid: rail 296 (inline-start, right in RTL) \| felt + action dock \| chat 360 (inline-end) with the game bar on top; fluid height, min `min(900px, 100dvh)`. <1200 the chat column hides (open it from the game bar as a side sheet); <900 the phone order. |
 | `layout` | `'auto' \| 'full' \| 'mid' \| 'phone'` | With `desk`: auto (viewport decides) or force full / mid (rail + felt) / phone — for previews and screenshots. |
 | `children` | `Node` | — |
 
@@ -27,7 +27,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 **Don't**
 
 - Do not redraw a game board, invent game art or stretch a capture.
-- Do not show the app Sidebar or Dock on the table.
+- Do not show the site header, footer or dock on the table.
 - Do not let the HUD scroll the felt off screen.
 
 ## Example

@@ -13,7 +13,6 @@
   "apps/web/src/harness.tsx",
   "packages/ui/src/bgv/tokens.css",
   "packages/ui/src/bgv/bundle.css",
-    "packages/ui/src/bgv/bgv.js",
   "packages/ui/src/bgv/reference/**"
  ],
  "zones": {
@@ -118,6 +117,12 @@
   "/vf/ui/",
   "/vf/animations/",
   "/vf/backgrounds/"
+ ],
+ "retiredClasses": [
+  "bgv-sidebar",
+  "bgv-nav-item",
+  "bgv-app--icons",
+  "bgv-btn--outline"
  ],
  "qa": {
   "baseURL": "http://127.0.0.1:5173",

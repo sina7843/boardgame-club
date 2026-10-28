@@ -21,6 +21,7 @@ export type IconName = string;
 /** Seat number 1–10: each seat has a colour AND a glyph (circle, square, triangle, diamond, star, pentagon, plus, hexagon, down-triangle, crescent). */
 export type SeatNo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type LeagueTier = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master';
+/** 'coral' is the seasonal amber frame (legacy key name kept for code compatibility). */
 export type FrameTier = LeagueTier | 'coral';
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 /** stale = YOUR connection dropped (dashed ring, wifi-off, last confirmed time); frozen = server incident only. */
@@ -36,7 +37,7 @@ export interface LogoProps extends BaseProps {
   height?: number;
   /** Reversed file for dark theme (logo-fa-reversed.svg); both render, CSS shows the right one per theme. */
   srcDark?: string;
-  /** Symbol file (symbol-primary-small.svg) shown instead of the lock-up when the AppShell sidebar collapses to icons. */
+  /** Symbol file (symbol-primary-small.svg) shown instead of the lock-up when the logo has the class `bgv-logo--mark`. */
   markSrc?: string;
   /** Reversed symbol for dark theme. */
   markSrcDark?: string;
@@ -48,7 +49,7 @@ export interface LogoProps extends BaseProps {
 
 /* ── Actions ───────────────────────────────────────────────────── */
 export interface ButtonProps extends BaseProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'style'> {
-  /** Roles: primary = go (join, ready, rematch, send, accept) · secondary (default) = neutral (invite, details, «رد», cancel-but-stay) · ghost = low emphasis («قوانین», links in bars) · leave = exits without destroying («ترک میز», «انصراف از صف», «خروج از حساب»; log-out icon by default) · danger = destroys (delete account, confirm resign). outline = legacy neutral. Never coral. */
+  /** Roles: primary = go (join, ready, rematch, send, accept) · secondary (default) = neutral (invite, details, «رد», cancel-but-stay) · ghost = low emphasis («قوانین», links in bars) · leave = exits without destroying («ترک میز», «انصراف از صف», «خروج از حساب»; log-out icon by default) · danger = destroys (delete account, confirm resign). outline = deprecated, renders as secondary. Only primary is a solid amber tile; never style a button with --invite/--accent. */
   variant?: 'default' | 'primary' | 'secondary' | 'ghost' | 'leave' | 'danger' | 'outline';
   /** sm 36px, md 44px (default), lg 52px. */
   size?: 'sm' | 'md' | 'lg';
@@ -60,13 +61,13 @@ export interface ButtonProps extends BaseProps, Omit<React.ButtonHTMLAttributes<
   iconEnd?: IconName | React.ReactElement;
   /** Square icon button; a string `children` becomes the aria-label. */
   iconOnly?: boolean;
-  /** Spinner, hides label, sets aria-busy. */
+  /** Spinner in the label colour, hides the label, sets aria-busy + aria-disabled and blocks click/Enter/Space; with reduced motion the label stays with «…». */
   loading?: boolean;
-  /** Disabled tile (sunken, muted). */
+  /** Disabled tile: same family, quieter; no hover, no press. */
   disabled?: boolean;
   /** Small crimson count pill after the label. */
   count?: number;
-  /** Render pressed (sunken) — for toggles and open menus. */
+  /** Toggle state: true → aria-pressed="true": the same raised token, navy selection fill with --ink-selected; false → aria-pressed="false". Menu triggers use aria-expanded instead. */
   pressed?: boolean;
   /** Render as a link. */
   href?: string;
@@ -74,7 +75,7 @@ export interface ButtonProps extends BaseProps, Omit<React.ButtonHTMLAttributes<
   children?: Node;
 }
 export interface ChipProps extends BaseProps {
-  /** invite = coral dashed chip for empty seats and invitations only. */
+  /** invite = amber chip with a dashed navy border, for empty seats and invitations only. */
   variant?: 'default' | 'invite';
   /** Selected filter chip (primary fill, aria-pressed). */
   selected?: boolean;
@@ -141,7 +142,7 @@ export interface SwitchProps extends BaseProps {
   label?: Node;
   /** Muted second line. */
   hint?: Node;
-  /** State words shown beside the track. Default ['روشن', 'خاموش']; ON is the green track + check in both themes. */
+  /** State words shown beside the track. Default ['روشن', 'خاموش']; ON is the green (--success) track + check in both themes. */
   stateLabels?: [string, string];
   /** Hide the state word (only when the row already says it). */
   hideState?: boolean;
@@ -196,7 +197,7 @@ export interface IconProps extends BaseProps {
   mirror?: boolean;
 }
 export interface BadgeProps extends BaseProps {
-  /** you = coral «شما» only; count = crimson number pill; premium = gold «ویژه»; test = dashed. */
+  /** you = navy «شما» only; count = crimson number pill; premium = soft «پریمیوم» (never solid amber); test = dashed. */
   tone?: 'neutral' | 'you' | 'success' | 'warning' | 'danger' | 'info' | 'premium' | 'test' | 'count' | 'count-invite';
   size?: 'sm' | 'md';
   /** Leading 14px icon (status is never colour-only). */
@@ -209,6 +210,14 @@ export interface TagProps extends BaseProps {
   icon?: IconName;
   children?: Node;
 }
+export interface ModeTagProps extends BaseProps {
+  /** Real players can join (people half, outlined navy). Default true. */
+  people?: boolean;
+  /** A bot is available (bot half, filled navy). Default true. */
+  bot?: boolean;
+  /** Icons only, for phone; the aria-label still names both modes. */
+  compact?: boolean;
+}
 export interface CoinProps extends BaseProps {
   /** Amount; rendered with Persian digits and «٬». */
   amount?: number | string;
@@ -216,7 +225,7 @@ export interface CoinProps extends BaseProps {
   size?: 'sm' | 'md' | 'lg';
   /** Append the unit word («سکه» when true). */
   unit?: boolean | string;
-  /** Wallet balance chip (.bgv-coinchip) for the sidebar footer and the phone top bar. */
+  /** Wallet balance chip (.bgv-coinchip) for the account menu and the phone top bar. */
   chip?: boolean;
   /** With `chip`: link to the wallet. */
   href?: string;
@@ -233,7 +242,7 @@ export interface AvatarProps extends BaseProps {
   name?: string;
   /** Seat ring colour 1–10. */
   seat?: SeatNo;
-  /** Viewer: coral ring. */
+  /** Viewer: amber ring. */
   you?: boolean;
   /** Presence dot. */
   status?: 'online' | 'away' | 'offline';
@@ -277,13 +286,13 @@ export interface IdentityProps extends BaseProps {
   src?: string;
   /** Seat glyph before the name and seat ring on the avatar. */
   seat?: SeatNo;
-  /** Viewer: coral ring + «شما» badge. */
+  /** Viewer: amber ring + «شما» badge. */
   you?: boolean;
   status?: 'online' | 'away' | 'offline';
   bot?: boolean;
   /** Cosmetic frame tier. */
   frame?: FrameTier;
-  /** Title «لقب» (gold label colour). */
+  /** Title «لقب» (--label: cream in dark; --felt-gold on the felt). */
   title?: Node;
   league?: LeagueTier;
   level?: number;
@@ -318,7 +327,11 @@ export interface CardProps extends BaseProps {
   children?: Node;
 }
 export interface GameCardProps extends BaseProps {
-  /** 480×270 cover URL. */
+  /** Box photo URL (any ratio; shown whole with object-fit: contain on a square shelf). When set, the box is the card's only image, shown at its own shape with 6px corners; hover / keyboard focus enlarges it from its centre (no image swap). */
+  box?: string;
+  /** Node drawn instead of a box photo (house box for our own games). Same shelf treatment as `box`. */
+  boxArt?: Node;
+  /** 480×270 painted cover URL, used only without `box`/`boxArt` (16:9 card). Ignored when a box is given. */
   cover?: string;
   /** Node shown when there is no cover. */
   art?: Node;
@@ -374,14 +387,20 @@ export interface SkeletonProps extends BaseProps {
   lines?: number;
 }
 export interface StateBlockProps extends BaseProps {
-  kind?: 'loading' | 'empty' | 'error' | 'denied' | 'offline';
+  /** guest = «ابتدا وارد حساب خود شوید»: a page a guest reaches from the dock but that needs an account (messages). */
+  kind?: 'loading' | 'empty' | 'error' | 'denied' | 'offline' | 'guest';
   /** Heading; defaults per kind in Persian. */
   title?: Node;
   /** One or two sentences: what happened and what to do. */
   text?: Node;
-  /** Recovery action(s), usually one primary Button. */
+  /** Recovery action(s), usually one primary Button. kind="guest" defaults to «ورود / ثبت‌نام» + a ghost «بدون ورود، بازی سریع». */
   action?: Node;
   icon?: IconName;
+  /** kind="guest": the short «what you get after login» list. */
+  perks?: Array<{ icon?: IconName; title: Node; text?: Node }>;
+  /** kind="guest": /login?next=… */
+  loginHref?: string;
+  quickHref?: string;
   children?: Node;
 }
 export interface DataTableColumn<Row = any> {
@@ -391,17 +410,21 @@ export interface DataTableColumn<Row = any> {
   width?: string | number;
   /** Bold (900) cells, e.g. rank or score. */
   strong?: boolean;
+  /** With DataTable `stack`: where the cell goes on phones — lead (rank/icon), main, end on line 1; unset = below with its label; hide = dropped. Rendered as data-stack; the label as data-label. */
+  stack?: 'lead' | 'main' | 'end' | 'hide';
   render?: (row: Row, index: number) => Node;
 }
 export interface DataTableProps<Row = any> extends BaseProps {
   columns: DataTableColumn<Row>[];
   rows: Row[];
-  /** Row index, predicate, or rows with `you: true` → coral-soft highlight. */
+  /** Row index, predicate, or rows with `you: true` → the whole row gets the --row-you tint and a 3px navy bar at its start. */
   youRow?: number | ((row: Row, i: number) => boolean);
   selectedRow?: number;
   /** Screen-reader caption. */
   caption?: string;
   rowKey?: string;
+  /** .bgv-table--stack: under 600px rows fold into stacked rows (see DataTableColumn.stack). 'phone' forces the folded look (previews). */
+  stack?: boolean | 'phone';
 }
 export interface ListItemProps extends BaseProps {
   /** Leading node (Avatar, Coin…). */
@@ -433,75 +456,199 @@ export interface DividerProps extends BaseProps {
 }
 
 /* ── Navigation ────────────────────────────────────────────────── */
-export interface NavItemProps extends BaseProps {
-  icon?: IconName;
-  label?: Node;
-  href?: string;
-  /** Current page (raised tile, aria-current). */
-  active?: boolean;
-  /** Crimson unread count. */
-  count?: number;
-  /** Tables where it's your turn: coral «you» badge. */
-  turns?: number;
-  /** Any other trailing badge node. */
-  badge?: Node;
-  onClick?: React.MouseEventHandler;
-  children?: Node;
-}
 export interface AppShellProps extends BaseProps {
-  /** auto (default) = the viewport decides: ≥1200 full sidebar, 900–1199 icon sidebar 88px, <900 sticky top bar + floating dock. full / icons / phone force one layout (previews, screenshots). */
-  layout?: 'auto' | 'full' | 'icons' | 'phone';
-  /** Brand-kit files: lock-up (src, srcDark) and symbol (markSrc, markSrcDark). */
+  /** auto (default) = the viewport decides: ≥1200 full header, 900–1199 header with a collapsed search, <900 sticky top bar + floating dock (no header). full / mid / phone force one layout (previews, screenshots). */
+  layout?: 'auto' | 'full' | 'mid' | 'phone';
+  /** Brand-kit files: lock-up (src, srcDark) for the header, symbol (markSrc, markSrcDark) for the phone top bar. */
   logo?: { src: string; srcDark?: string; markSrc?: string; markSrcDark?: string };
-  /** Sidebar items in the canonical order (NavItem props; {group} headings: بازی، من، کمک). */
-  nav?: Array<NavItemProps | { group: Node }>;
-  /** Phone dock items: خانه، بازی‌ها، میزها، پیام‌ها، بیشتر (`turns` = coral count). */
+  /** Header destinations (default: خانه، بازی‌ها، میزها، تورنمنت‌ها، رتبه‌بندی). */
+  nav?: SiteHeaderProps['nav'];
+  /** Phone dock items: خانه، میزها، پیام‌ها، بیشتر — for guests too (no counts). */
   dockItems?: DockProps['items'];
-  /** Identity card in the sidebar footer (links to the profile). */
-  user?: IdentityProps & { href?: string };
-  /** Coin balance: real-gold coin chip in the sidebar footer and the top bar. */
+  /** Guest: header and top bar show «ورود / ثبت‌نام» (secondary) instead of the icons; the dock keeps its four items without counts. */
+  guest?: boolean;
+  /** Avatar button (the account menu holds coins on desktop). */
+  user?: SiteHeaderProps['user'];
+  /** Coin balance in the phone top bar. */
   coins?: number;
   coinsHref?: string;
-  buyLabel?: string;
-  /** Unread notifications on the bell (sidebar header + top bar). */
-  notifications?: number;
+  /** Unread notifications: a number, or the header item {href,count,current}. */
+  notifications?: number | { href?: string; count?: number; current?: boolean } | false;
   notificationsHref?: string;
+  messages?: { href?: string; count?: number; current?: boolean } | false;
+  /** «بازی سریع» in the header; false on the home page (its first section already has it). */
+  quickPlay?: false | { href?: string; label?: Node };
+  /** SiteSearch props, a node, or false. */
+  search?: false | SiteSearchProps | Node;
+  loginHref?: string;
   homeHref?: string;
   /** Phone top-bar title. */
   title?: Node;
   /** Replace the built parts with your own nodes. */
-  sidebar?: Node;
+  header?: Node;
   topbar?: Node;
   dock?: Node;
+  /** SiteFooter on public pages only (games, game page, wiki, support) — never on tables, messages or settings. */
+  footer?: Node;
   /** Page content (inside main.bgv-app__main, between top bar and dock). */
   children?: Node;
 }
-export interface SidebarProps extends BaseProps {
-  /** Brand node, usually <Logo src=…/>. */
-  brand?: Node;
-  /** Header nodes after the brand (notification bell). */
-  headerActions?: Node;
-  /** NavItem props; `{group:'نقش‌ها'}` inserts a group heading. */
-  items?: Array<NavItemProps | { group: Node }>;
-  /** Pinned to the bottom (account, coins). */
-  footer?: Node;
-  /** nav aria-label. Default «بخش‌های اصلی». */
+
+/* ── Site shell (v2.1) ─────────────────────────────────────────── */
+export interface SiteHeaderProps extends BaseProps {
+  logo?: { src: string; srcDark?: string };
+  /** Five destinations; `active` = a 3px navy rule under the label; `turns` = crimson count on «میزها» (members only). */
+  nav?: Array<{ label: Node; href?: string; active?: boolean; turns?: number }>;
+  /** Guest: «ورود / ثبت‌نام» as a secondary token in place of messages, notifications and the avatar; no counts. */
+  guest?: boolean;
+  /** Avatar button; `current` = navy ring (you are on an account page). */
+  user?: { initials?: string; src?: string; name?: string; current?: boolean };
+  /** Messages and notifications icons; `current` = filled navy (you are on that page). */
+  messages?: { href?: string; count?: number; current?: boolean } | false;
+  notifications?: { href?: string; count?: number; current?: boolean } | false;
+  /** Amber «بازی سریع»: a registered exception to «one amber action per page» (it may sit next to the page's primary); false on the home page. */
+  quickPlay?: false | { href?: string; label?: Node };
+  search?: false | SiteSearchProps | Node;
+  loginHref?: string;
+  homeHref?: string;
+  /** auto (viewport) or force mid (900–1199: search collapses to a 44px button) / wide, for previews. */
+  width?: 'auto' | 'mid' | 'wide';
+  /** Avatar click (open AccountMenu); menuOpen sets aria-expanded. */
+  onAvatar?: React.MouseEventHandler;
+  menuOpen?: boolean;
+  children?: Node;
+}
+export interface SiteSearchResult {
+  title: Node;
+  latin?: string;
+  cover?: string;
+  /** Game page. Tapping the row opens it. */
+  href?: string;
+  /** «بازی سریع» on the row. */
+  quickHref?: string;
+  meta?: Array<Node | { icon?: IconName; text: Node }>;
+}
+export interface SiteSearchProps extends BaseProps {
+  value?: string;
+  defaultValue?: string;
+  onChange?: (q: string) => void;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Highlighted option (aria-activedescendant). */
+  activeIndex?: number;
+  /** idle (empty field: recent + popular), results, empty (no result + suggestions). Default: from the value and results. */
+  state?: 'idle' | 'results' | 'empty';
+  /** Up to 6 games (idle: «محبوب این هفته»). */
+  results?: SiteSearchResult[];
+  recent?: Array<string | { label: Node; href?: string }>;
+  filters?: Array<string | { label: Node; href?: string; selected?: boolean; icon?: IconName }>;
+  categories?: Array<string | { label: Node; href?: string }>;
+  suggestions?: Array<string | { label: Node; href?: string }>;
+  /** e.g. finglish: «نتیجه برای «کاتان»؛ katan را فینگلیش خواندیم». */
+  hint?: Node;
+  emptyTitle?: Node;
+  emptyText?: Node;
+  allHref?: string;
+  /** Ctrl K and «/» focus the field (default true). Esc clears, then closes. */
+  shortcut?: boolean;
+  /** Phone: the full-screen sheet opened from the top bar's magnifier. */
+  sheet?: boolean;
+  onClose?: () => void;
+  onClearRecent?: () => void;
+  placeholder?: string;
   label?: string;
+}
+export interface AccountMenuProps extends BaseProps {
+  user: { name: Node; sub?: Node; initials?: string; src?: string };
+  /** Coin balance (also shown on «اشتراک و سکه»). */
+  coins?: number;
+  coinsHref?: string;
+  buyHref?: string;
+  /** Show «پنل مدیریت» (tagged «فقط مدیران»). */
+  admin?: boolean;
+  /** Counts by item key: { messages: 4 }. */
+  counts?: Record<string, number>;
+  /** Replace the canonical 14 items. '-' = separator. */
+  items?: Array<'-' | { icon?: IconName; label: Node; href?: string; key?: string; tag?: Node; danger?: boolean; focus?: boolean }>;
+  label?: string;
+}
+export interface SiteFooterProps extends BaseProps {
+  logo?: { src: string };
+  about?: Node;
+  storeHref?: string | false;
+  storeLabel?: Node;
+  /** Link columns (default: بازی‌های محبوب، جامعه، پشتیبانی و قوانین). Each link is [label, href]. */
+  columns?: Array<{ title: Node; links: Array<[Node, string] | { label: Node; href: string }> }>;
+  /** Phone accordion: which column starts open (default 0). */
+  defaultOpen?: number;
+  seal?: Node | false;
+  copyright?: Node;
+  social?: Array<{ icon: IconName; label: string; href?: string }>;
+  /** Force the phone accordion (previews). */
+  phone?: boolean;
+  /** Force the four desktop columns (previews, mock-ups). */
+  wide?: boolean;
+}
+export interface StepperProps extends BaseProps {
+  /** Default: شماره، کد تأیید، پروفایل. */
+  steps?: Node[];
+  /** 0-based current step: earlier = done (navy disc + tick), current = navy ring, later = white disc. */
+  current?: number;
+  align?: 'center' | 'start';
+  label?: string;
+}
+export interface LoginSheetProps extends BaseProps {
+  /** Game cover (small). */
+  cover?: string;
+  title?: Node;
+  /** e.g. «صندلی ۳ میز کاتانِ نیلوفر ۲ دقیقه برای شما نگه داشته می‌شود.» */
+  text?: Node;
+  step?: number;
+  cta?: Node;
+  legal?: Node;
+  onClose?: () => void;
+  /** Overlay mode: a scrim over the positioned container (tap = onClose) and the sheet pinned to its bottom. */
+  scrim?: boolean;
+  phoneProps?: PhoneFieldProps;
+  children?: Node;
+}
+export interface MoreTileProps extends BaseProps {
+  icon?: IconName;
+  label?: Node;
+  href?: string;
+  /** Crimson unread count. */
+  count?: number;
+  /** Amber «نوبت» count. */
+  turns?: number;
+  children?: Node;
+}
+export interface MoreGroupProps extends BaseProps {
+  /** بازی و میز · پروفایل و پیشرفت · اجتماعی · حساب و کیف پول */
+  title: Node;
+  items?: MoreTileProps[];
   children?: Node;
 }
 export interface TopBarProps extends BaseProps {
   title: Node;
-  /** Shows a back button (arrow-right in RTL). */
+  /** Shows a back button (arrow-right in RTL) in place of the logo. */
   onBack?: () => void;
   backLabel?: string;
+  /** Usually the symbol logo (44px target). */
   leading?: Node;
-  /** Icon buttons at the end (bell with count, search). */
+  /** Magnifier after the title (opens the full-screen SiteSearch sheet): {href} / {onClick} or a node. */
+  search?: { href?: string; onClick?: () => void } | Node;
+  /** After the search: coin chip and bell; for a guest the secondary «ورود / ثبت‌نام». */
   actions?: Node;
   children?: Node;
 }
 export interface DockProps extends BaseProps {
-  /** 5 items: خانه، بازی‌ها، میزها، پیام‌ها، بیشتر. `count` = crimson unread; `turns` = coral count of tables waiting for your move. */
+  /** 4 items: خانه، میزها، پیام‌ها، بیشتر (games and a game page keep خانه current). The current one is an amber token. `count` = crimson unread; `turns` = count of tables waiting for your move. On 404 and notifications no item is active. */
   items: Array<{ icon: IconName; label: Node; href?: string; active?: boolean; count?: number; turns?: number; onClick?: React.MouseEventHandler }>;
+  /** Pages without AppShell: float 12px from the bottom and sides (`.bgv-dock--float`, fixed, z `--z-dock`); hidden from 900px up. */
+  float?: boolean;
+  /** Guest: same four items, no counts. */
+  guest?: boolean;
   label?: string;
 }
 export interface PageTabsProps extends BaseProps {
@@ -524,7 +671,7 @@ export interface BreadcrumbsProps extends BaseProps {
   label?: string;
 }
 export interface PaginationProps extends BaseProps {
-  /** Current page, 1-based. */
+  /** Current page, 1-based: the navy selection token with aria-current="page". */
   page: number;
   pages: number;
   onChange?: (page: number) => void;
@@ -541,6 +688,8 @@ export interface MenuItem {
   disabled?: boolean;
   /** Keyboard-focus highlight (for specs). */
   focus?: boolean;
+  /** Renders the item as a link (account menu). */
+  href?: string;
   onClick?: React.MouseEventHandler;
 }
 export interface MenuProps extends BaseProps {
@@ -604,7 +753,7 @@ export interface PopoverProps extends BaseProps {
   children?: Node;
 }
 export interface ToastProps extends BaseProps {
-  /** turn = coral «نوبت شماست»; critical = crimson last seconds; default = ink. */
+  /** turn = amber «نوبت شماست»; critical = crimson last seconds; default = ink. */
   tone?: 'default' | 'turn' | 'critical';
   title?: Node;
   text?: Node;
@@ -631,7 +780,11 @@ export interface CritBarProps extends BaseProps {
   total?: number;
   /** Remaining fraction 0–1. */
   p?: number;
-  /** Override the copy. */
+  /** One bold line, e.g. «۸ ثانیه تا حرکت خودکار». */
+  title?: Node;
+  /** One short line, e.g. «وگرنه یک کارت کشیده و نوبت رد می‌شود». */
+  sub?: Node;
+  /** Old name of `title`. */
   text?: Node;
   icon?: IconName;
   action?: Node;
@@ -649,7 +802,7 @@ export interface GameBarProps extends BaseProps {
   /** Persian game name. */
   title: Node;
   latin?: string;
-  /** Meta items (pace, clock rule, table type, Connection, Spectators) — separated by dots, never «·». */
+  /** Meta items (pace, clock rule, table type, Connection, Spectators): each is a whole .bgv-gamebar__mi; when space runs out a whole item drops. Separated by dots, never «·». */
   meta?: Node[];
   /** Icon buttons at the end (sound, fullscreen, chat, leave). */
   actions?: Node;
@@ -709,7 +862,7 @@ export interface TurnPillProps extends BaseProps {
   initials?: string;
   src?: string;
   avatar?: AvatarProps;
-  /** Your turn: coral pill «نوبت شماست». */
+  /** Your turn: amber pill «نوبت شماست». */
   mine?: boolean;
   /** Simultaneous phase text, e.g. «همه انتخاب می‌کنند، ۲ از ۴ آماده». */
   simul?: Node;
@@ -807,7 +960,7 @@ export interface RaceProps extends BaseProps {
   label?: string;
 }
 export interface TeamPlateProps extends BaseProps {
-  /** Gold label, e.g. «تیم» or «جهت». */
+  /** Amber (--felt-gold) label, e.g. «تیم» or «جهت». */
   label?: Node;
   /** Shared resources; with `of` they render pips («۵/۸»). */
   resources?: Array<{ icon?: IconName; label?: Node; value: number; of?: number; tone?: string }>;
@@ -833,7 +986,7 @@ export interface MoveLogProps extends BaseProps {
   label?: string;
 }
 export interface LobbySeatProps extends Omit<IdentityProps, 'name'> {
-  /** Empty seat → coral invite chip. */
+  /** Empty seat → dashed amber invite chip. */
   empty?: boolean;
   inviteLabel?: Node;
   onInvite?: () => void;
@@ -906,7 +1059,7 @@ export interface RematchProps extends BaseProps {
 export interface ResultProps extends BaseProps {
   title: Node;
   sub?: Node;
-  /** Text (premium trophy badge) or node. */
+  /** Text (green success badge with a trophy) or node. */
   badge?: Node;
   /** Podium places or a node. */
   podium?: PodiumPlace[] | Node;
@@ -944,7 +1097,7 @@ export interface MessageProps extends BaseProps {
   league?: LeagueTier;
   title?: Node;
   time?: Node;
-  /** Text; «@name» tokens become mentions (coral when equal to `viewer`). */
+  /** Text; «@name» tokens become mentions (filled navy when equal to `viewer`). */
   text?: string | Node;
   /** Viewer's name, to highlight their mentions. */
   viewer?: string;
@@ -958,7 +1111,7 @@ export interface MessageProps extends BaseProps {
   edited?: boolean;
   /** Big emoji / quick-chat message without bubble. */
   quick?: boolean;
-  /** Message mentions you: coral-soft bubble. */
+  /** Message mentions you: white bubble with a 2px navy outline (cream in dark). */
   mentioned?: boolean;
   deletedText?: Node;
   children?: Node;
@@ -988,7 +1141,7 @@ export interface ReactionBarProps extends BaseProps {
 }
 export interface MentionProps extends BaseProps {
   name?: Node;
-  /** Mention of the viewer: coral. */
+  /** Mention of the viewer: filled navy token (cream in dark). */
   you?: boolean;
   children?: Node;
 }
@@ -1050,7 +1203,7 @@ export interface ConversationProps extends BaseProps {
   preview?: Node;
   time?: Node;
   unread?: number;
-  /** You were mentioned: coral «@» badge. */
+  /** You were mentioned: crimson «@» count badge. */
   mention?: boolean;
   muted?: boolean;
   active?: boolean;
@@ -1060,7 +1213,7 @@ export interface ConversationProps extends BaseProps {
 
 /* ── Notifications ─────────────────────────────────────────────── */
 export interface NotificationItemProps extends BaseProps {
-  /** turn = coral tile, urgent = crimson, reward = gold, default = neutral. */
+  /** turn = amber tile, urgent = crimson, reward = neutral tile (no solid amber, v2.1.2), default = neutral. */
   kind?: 'turn' | 'urgent' | 'reward' | 'default';
   icon?: IconName;
   /** Avatar props instead of the icon tile (friend requests). */
@@ -1158,11 +1311,11 @@ declare const Bgv: {
   Button: React.FC<ButtonProps>; Chip: React.FC<ChipProps>; ChipGroup: React.FC<ChipGroupProps>;
   TextField: React.FC<TextFieldProps>; Textarea: React.FC<TextareaProps>; Select: React.FC<SelectProps>; Checkbox: React.FC<CheckboxProps>; Radio: React.FC<RadioProps>;
   Switch: React.FC<SwitchProps>; Segmented: React.FC<SegmentedProps>; OtpField: React.FC<OtpFieldProps>; PhoneField: React.FC<PhoneFieldProps>; Slider: React.FC<SliderProps>;
-  Icon: React.FC<IconProps>; Badge: React.FC<BadgeProps>; Tag: React.FC<TagProps>; Coin: React.FC<CoinProps>; Avatar: React.FC<AvatarProps>; Frame: React.FC<FrameProps>;
+  Icon: React.FC<IconProps>; Badge: React.FC<BadgeProps>; Tag: React.FC<TagProps>; ModeTag: React.FC<ModeTagProps>; Coin: React.FC<CoinProps>; Avatar: React.FC<AvatarProps>; Frame: React.FC<FrameProps>;
   Seat: React.FC<SeatProps>; Identity: React.FC<IdentityProps>; League: React.FC<LeagueProps>; Card: React.FC<CardProps>; GameCard: React.FC<GameCardProps>; Stat: React.FC<StatProps>;
   Progress: React.FC<ProgressProps>; Ring: React.FC<RingProps>; Skeleton: React.FC<SkeletonProps>; StateBlock: React.FC<StateBlockProps>; DataTable: React.FC<DataTableProps>;
   ListItem: React.FC<ListItemProps>; Tooltip: React.FC<TooltipProps>; Divider: React.FC<DividerProps>;
-  AppShell: React.FC<AppShellProps>; Sidebar: React.FC<SidebarProps>; NavItem: React.FC<NavItemProps>; TopBar: React.FC<TopBarProps>; Dock: React.FC<DockProps>; PageTabs: React.FC<PageTabsProps>; Tabs: React.FC<TabsProps>;
+  AppShell: React.FC<AppShellProps>; SiteHeader: React.FC<SiteHeaderProps>; SiteSearch: React.FC<SiteSearchProps>; AccountMenu: React.FC<AccountMenuProps>; SiteFooter: React.FC<SiteFooterProps>; MoreTile: React.FC<MoreTileProps>; MoreGroup: React.FC<MoreGroupProps>; Stepper: React.FC<StepperProps>; LoginSheet: React.FC<LoginSheetProps>; TopBar: React.FC<TopBarProps>; Dock: React.FC<DockProps>; PageTabs: React.FC<PageTabsProps>; Tabs: React.FC<TabsProps>;
   Breadcrumbs: React.FC<BreadcrumbsProps>; Pagination: React.FC<PaginationProps>; Menu: React.FC<MenuProps>; PageHead: React.FC<PageHeadProps>; Hero: React.FC<HeroProps>;
   Dialog: React.FC<DialogProps>; Sheet: React.FC<SheetProps>; Popover: React.FC<PopoverProps>; Toast: React.FC<ToastProps>; Banner: React.FC<BannerProps>; CritBar: React.FC<CritBarProps>;
   TableScreen: React.FC<TableScreenProps>; GameBar: React.FC<GameBarProps>; Felt: React.FC<FeltProps>; FeltPlate: React.FC<FeltPlateProps>; TurnPill: React.FC<TurnPillProps>;

@@ -1,5 +1,9 @@
 A labelled native select with the BGV chevron.
 
+**Material (v2.1.5):** the closed field is a field like `TextField`. The open list is a floating board like `Menu` (1px line, hard 6px shadow) with 44px rows; hover and keyboard focus use the ghost tint (focus also gets the focus ring), and the chosen option sits on the navy selection token with a check (cream in dark). The chevron turns up while the list is open.
+
+This uses the customizable select (`appearance: base-select`, Chrome and Edge 135+), so it stays a real `<select>`: keyboard, forms and screen readers work as before. Browsers without it (Firefox, Safari for now) show their own list; the closed field looks the same everywhere. Use `<select class="bgv-select">` inside `.bgv-select-wrap`; do not build a fake dropdown out of divs.
+
 ## When to use
 
 Bot difficulty, turn time, language, sort order — any single choice from more than four options.

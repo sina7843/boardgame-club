@@ -12,7 +12,7 @@ Top of every table screen (phone and desktop).
 |---|---|---|
 | `title` (required) | `Node` | Persian game name. |
 | `latin` | `string` | — |
-| `meta` | `Node[]` | Meta items (pace, clock rule, table type, Connection, Spectators) — separated by dots, never «·». |
+| `meta` | `Node[]` | Meta items (pace, clock rule, table type, Connection, Spectators). Each is a whole `.bgv-gamebar__mi`: when space runs out a whole item drops, never half a word. Separated by dots, never «·». |
 | `actions` | `Node` | Icon buttons at the end (sound, fullscreen, chat, leave). |
 | `onBack` | `() => void` | — |
 | `backLabel` | `string` | — |
@@ -24,8 +24,9 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Meta reads like a sentence of facts separated by dots: «زنده • ۳۰ ثانیه هر نوبت • ۳ اخطار = حذف».
-- Actions (max three on phones): sound/vibration (ghost icon), chat (icon with a corner count; pressed while the chat sheet is open), «ترک میز» (`leave`). The rest go to the «بیشتر» menu.
+- Meta reads like a sentence of facts separated by dots: «زنده • ۳۰ ثانیه هر نوبت • ۳ اخطار = حذف». Static markup: `<span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">زنده</span><span class="bgv-gamebar__mi">…</span></span>`.
+- Under 480px the Latin name hides; on phones «ترک میز» may be its icon only (still `leave`, with its label as `aria-label`).
+- Actions on phones, at most three, in this order: chat (icon with a corner count; `pressed` while the chat sheet is open, which reads as the navy selection), «ترک میز» (`leave`), «بیشتر» (ghost). Sound, rules, resign and report live in «بیشتر». Desktop adds sound/vibration (ghost icon). Every action is the same 44px token (2px frame, 4px shadow) — the bar enforces it, even if a `size` is passed.
 - Below 1200px the docked chat disappears and the chat button opens it as a side sheet.
 
 **Don't**
@@ -40,7 +41,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 col(
-  h(B.GameBar,{title:'اونو', latin:'UNO', meta:['زنده','۳۰ ثانیه هر نوبت','۳ اخطار = حذف', h(B.Connection,{state:'ok'}), h(B.Spectators,{count:3, showLabel:true})], actions:[h(B.Button,{key:1, variant:'ghost', iconOnly:true, icon:'volume-2'},'صدا و لرزش'), h(B.Button,{key:2, iconOnly:true, icon:'message-circle', count:2},'گفت‌وگو'), h(B.Button,{key:3, variant:'leave', size:'sm'},'ترک میز')]}),
+  h(B.GameBar,{title:'اونو', latin:'UNO', meta:['زنده','۳۰ ثانیه هر نوبت','۳ اخطار = حذف', h(B.Connection,{state:'ok'}), h(B.Spectators,{count:3, showLabel:true})], actions:[h(B.Button,{key:1, variant:'ghost', iconOnly:true, icon:'volume-2'},'صدا و لرزش'), h(B.Button,{key:2, iconOnly:true, icon:'message-circle', count:2},'گفت‌وگو'), h(B.Button,{key:3, variant:'leave'},'ترک میز')]}),
   h(B.GameBar,{title:'کاتان', latin:'Catan', meta:['نوبتی','۲۴ ساعت هر نوبت','رتبه‌ای', h(B.Connection,{state:'retry'})], actions:h(B.Button,{iconOnly:true, icon:'message-circle', pressed:true, 'aria-pressed':'true'},'گفت‌وگو')}),
   h('div',{style:{maxWidth:'390px'}}, h(B.GameBar,{title:'عجایب هفت‌گانه: دوئل', latin:'7 Wonders Duel', meta:['زنده','۶۰ ثانیه هر نوبت'], actions:[h(B.Button,{key:1, iconOnly:true, icon:'message-circle', count:12},'گفت‌وگو'), h(B.Button,{key:2, variant:'ghost', iconOnly:true, icon:'more-vertical'},'بیشتر')]}))
 )

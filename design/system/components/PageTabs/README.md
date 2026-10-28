@@ -1,5 +1,7 @@
 Segmented-style tabs that switch between sub-pages or views within a page.
 
+**Material (v2.0):** same as Segmented — a well with rows; the current tab is flat navy.
+
 ## When to use
 
 My tables «زنده / نوبتی / تمام‌شده», notifications filters, shop sections.

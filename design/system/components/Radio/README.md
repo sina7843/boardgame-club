@@ -1,4 +1,6 @@
-A clay radio button with a label, used inside a group for one choice.
+A radio button with a label, used inside a group for one choice.
+
+**Material (v2.0):** the ring is a well (`--field-edge`); the chosen dot is navy.
 
 ## When to use
 

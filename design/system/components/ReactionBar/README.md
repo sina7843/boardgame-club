@@ -1,5 +1,7 @@
 The floating quick-reaction strip shown on long-press/hover above the message menu.
 
+**Material (v2.0):** the bar is a floating board (hard 6px shadow); each emoji is a row button — tints on hover (pointer only), a hard inner edge on press.
+
 ## When to use
 
 Message menu on phones (with `Menu` below) and hover on desktop.

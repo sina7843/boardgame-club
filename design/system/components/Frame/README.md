@@ -2,11 +2,11 @@ A cosmetic tier frame drawn as a ring with a transparent gap around the avatar, 
 
 ## When to use
 
-Profile headers, lobby seats, ranking rows, the sidebar identity card — wherever identity shows a chosen frame.
+Profile headers, lobby seats, ranking rows, the account menu and the «بیشتر» profile card — wherever identity shows a chosen frame.
 
 ## Props / what the consumer provides
 
-`tier` (bronze… master, coral), `size` of the avatar inside, and either `avatar` props or an `Avatar` child. `ring` (auto with a seat/«شما» avatar) widens the gap so there are ≥4px between the two rings. CSS: `bgv-frame--xs/sm/xl/2xl`, `--tight`, `--ringed`.
+`tier` (bronze… master, and `coral` = the seasonal amber frame), `size` of the avatar inside, and either `avatar` props or an `Avatar` child. `ring` (auto with a seat/«شما» avatar) widens the gap so there are ≥4px between the two rings. CSS: `bgv-frame--xs/sm/xl/2xl`, `--tight`, `--ringed`.
 
 | Prop | Type | Description |
 |---|---|---|
@@ -25,7 +25,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 - Frames are earned or bought cosmetics; they always sit outside the seat ring with a visible gap.
 - Match `size` to the avatar so ring thickness and gap scale (xs 2px … 2xl 5px).
-- The gap is transparent: the frame works on cream, charcoal, felt and coral rows alike.
+- The gap is transparent: the frame works on cream, navy, felt and soft-amber (`--invite-soft`) rows alike.
 
 **Don't**
 

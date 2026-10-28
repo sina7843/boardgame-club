@@ -1,4 +1,6 @@
-A translucent dark plate on the felt for public info: piles, active colour, longest road, last move.
+An opaque dark plate sunk into the felt for public info: piles, active colour, longest road, last move.
+
+**Material (v2.0):** an opaque plate printed into the felt (`--felt-plate`, hard `--shadow-plate`) — never translucent.
 
 ## When to use
 
@@ -37,7 +39,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 ```js
 felt(null, h('div',{className:'bgv-felt-row', style:{justifyContent:'flex-start'}},
   h(B.FeltPlate,{icon:'layers', label:'دسته', value:48}),
-  h(B.FeltPlate,{label:'رنگ فعال:', value:'آبی'}, h('span',{style:{width:'12px', height:'12px', borderRadius:'50%', background:'#2862C9', boxShadow:'0 0 0 2px #F6F0E4'}})),
+  h(B.FeltPlate,{label:'رنگ فعال:', value:'آبی'}, h('span',{style:{width:'12px', height:'12px', borderRadius:'50%', background:'#2862C9', boxShadow:'0 0 0 2px var(--felt-ink)'}})),
   h(B.FeltPlate,{seat:2}, h('span',null, h('b',null,'سارا'), ' ۷ آبی گذاشت و «اونو!» گفت')),
   h(B.FeltPlate,{label:'دست', value:2}, ' از مسابقهٔ ۵۰۰ امتیازی')))
 ```

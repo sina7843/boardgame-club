@@ -1,8 +1,10 @@
 A board-like surface (radius 20, line border, soft float) with an optional heading row.
 
+**Material (v2.0): board** — `--line` + a 3px hard edge in the line colour (the printed card's thickness), no blur. `interactive` cards lift 2px on hover (pointer only, hard 6px shadow) and land again on press.
+
 ## When to use
 
-Dashboard sections, settings groups, sidebars of content, lists (`flush`), clickable summaries (`interactive`).
+Dashboard sections, settings groups, side columns of content (`.bgv-cols`), lists (`flush`), clickable summaries (`interactive`).
 
 ## Props / what the consumer provides
 
@@ -12,7 +14,7 @@ Dashboard sections, settings groups, sidebars of content, lists (`flush`), click
 |---|---|---|
 | `raised` | `boolean` | surface-raised background. |
 | `flush` | `boolean` | No padding, clips children (lists, tables, covers). |
-| `interactive` | `boolean` | Hover lift; focusable when onClick is given. |
+| `interactive` | `boolean` | Hover lift 2px (pointer only), lands on press; focusable when onClick is given. |
 | `title` | `Node` | Card heading. |
 | `actions` | `Node` | Nodes at the end of the heading row. |
 | `as` | `string` | Root element. Default "section". |

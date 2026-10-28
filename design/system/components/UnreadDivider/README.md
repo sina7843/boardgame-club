@@ -1,4 +1,4 @@
-A coral line marking where unread messages start.
+An amber (`--invite-strong`) line marking where unread messages start.
 
 ## When to use
 

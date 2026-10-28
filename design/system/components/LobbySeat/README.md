@@ -1,4 +1,6 @@
-A lobby seat row: the player's identity with ready state, or an empty seat with the coral invite chip.
+A lobby seat row: the player's identity with ready state, or an empty seat with the dashed invite chip.
+
+**Material (v2.0):** a board row. With `onClick` it becomes a pressable row (`role="button"`, Tab + Enter/Space; tints on hover, hard inner edge on press) — it holds its own buttons, so it is never a `<button>`. The empty seat is a dashed slot.
 
 ## When to use
 
@@ -10,7 +12,7 @@ Identity props (`name`, `initials`, `seat`, `you`, `frame`, `league`, `title`, `
 
 | Prop | Type | Description |
 |---|---|---|
-| `empty` | `boolean` | Empty seat → coral invite chip. |
+| `empty` | `boolean` | Empty seat → dashed invite chip. |
 | `inviteLabel` | `Node` | — |
 | `onInvite` | `() => void` | — |
 | `name` | `Node` | — |
@@ -26,7 +28,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Empty seats always show `Chip variant="invite"` «صندلی خالی، دعوت کنید» (coral = invitation).
+- Empty seats always show `Chip variant="invite"` «صندلی خالی، دعوت کنید» (the dashed slot = invitation).
 - Ready is a word + icon: «آماده» / «منتظر».
 
 **Don't**

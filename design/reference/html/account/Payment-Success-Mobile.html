@@ -22,7 +22,7 @@ body{margin:0}
 .x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-sec__head>h2{flex:1;min-width:0}
 .x-sec__body{padding:20px;display:grid;gap:16px}
-.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
 .x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-row:last-child{border-bottom:0}
 .x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
@@ -38,9 +38,9 @@ body{margin:0}
 .bgv-btn .bgv-coin{font-weight:900}
 .bgv-switch{gap:10px;flex:none}
 .bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
-.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
-.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
-.bgv-switch__track::before{border-color:var(--success)}
+
+
+
 .x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
 .x-phone>.bgv-topbar{flex:none}
 .x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
@@ -53,12 +53,12 @@ body{margin:0}
 .x-perks{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14.5px;line-height:1.6}
 .x-perks li{display:flex;gap:10px;align-items:flex-start}
 .x-perks li>i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--success-soft);color:var(--success);margin-top:1px}
-.x-plan--top{background:var(--felt);border-color:var(--felt-rim);color:var(--felt-ink);box-shadow:var(--shadow-felt),0 0 0 2px var(--accent)}
+.x-plan--top{background:var(--felt);border-color:var(--felt-rim);color:var(--felt-ink);box-shadow:var(--shadow-felt),0 0 0 2px var(--felt-rim)}
 .x-plan--top :is(h2,.x-plan__price){color:var(--felt-ink)}
 .x-plan--top .x-plan__price small,.x-plan.x-plan--top .x-muted{color:var(--felt-muted)}
-.x-plan--top .x-perks li>i{background:var(--accent);color:var(--on-accent)}
+.x-plan--top .x-perks li>i{background:var(--felt-ink);color:var(--felt)}
 .x-plan--top .bgv-btn--primary{background:var(--brand-cream);color:var(--brand-green)}
-.x-plan--top .bgv-badge{background:rgba(246,240,228,.14);color:var(--felt-ink)}
+.x-plan--top .bgv-badge{background:rgba(243,235,221,.14);color:var(--felt-ink)}
 .x-flag{position:absolute;top:-13px;inset-inline-start:24px}
 .x-cmp{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
 .x-cmp th,.x-cmp td{padding:14px 20px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}
@@ -89,7 +89,7 @@ body{margin:0}
 </style>
 
 <div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
-<header class="bgv-topbar" style="flex:none;padding-inline:16px 8px"><span class="bgv-topbar__title">نتیجهٔ پرداخت</span><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></header>
+<header class="bgv-topbar" style="flex:none;padding-inline:16px 8px"><span class="bgv-topbar__title">نتیجهٔ پرداخت</span><a class="bgv-btn bgv-btn--icon bgv-btn--ghost" href="/coins" aria-label="بستن و برگشت به سکه‌ها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></a></header>
 <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:20px 16px 24px;min-height:0">
  <section class="bgv-card" style="display:grid;justify-items:center;gap:12px;text-align:center;padding:28px 20px 20px" aria-live="polite">
   <span style="width:80px;height:80px;border-radius:50%;display:grid;place-items:center;background:var(--success-soft);color:var(--success)"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:40px;height:40px"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></svg></span>
@@ -101,12 +101,11 @@ body{margin:0}
    <div><span>درگاه</span><b>زرین‌پال</b></div>
    <div><span>زمان</span><b>۲۱ مهر ۱۴۰۵، ۱۸:۴۲</b></div></div>
  </section>
- <div class="x-between" style="padding:14px 16px;border-radius:var(--radius-md);background:var(--surface-sunken);flex-wrap:nowrap"><span class="bgv-muted">موجودی تازه</span><span class="bgv-coin">۲٬۴۸۰</span></div>
+ <div class="x-between" style="padding:14px 16px;border-radius:var(--radius-md);background:transparent;box-shadow:inset 0 0 0 1px var(--line);flex-wrap:nowrap"><span class="bgv-muted">موجودی تازه</span><span class="bgv-coin">۲٬۴۸۰</span></div>
  <span class="bgv-spacer"></span>
- <div style="display:grid;gap:8px"><a class="bgv-btn bgv-btn--primary bgv-btn--lg" href="#" style="width:100%"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></svg>کیف سکه</a><a class="bgv-btn bgv-btn--secondary" href="#" style="width:100%">اشتراک و سابقه</a></div>
+ <div style="display:grid;gap:8px"><a class="bgv-btn bgv-btn--primary bgv-btn--lg" href="/coins" style="width:100%"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg>برگشت به سکه‌ها</a><a class="bgv-btn bgv-btn--secondary" href="/shop" style="width:100%"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></svg>خرج سکه در فروشگاه کازمتیک</a><a class="bgv-btn bgv-btn--ghost" href="/plans#history" style="width:100%">سابقهٔ پرداخت</a></div>
 </div>
 </div>
 </x-dc>
-
 </body>
 </html>

@@ -20,7 +20,7 @@ body{margin:0}
 .bgv-pcard--mini .bgv-pcard__name b{flex-wrap:wrap;white-space:normal;row-gap:4px}
 .bgv-pcard--mini.is-you .bgv-pcard__name b::after{margin-inline:auto}
 .bgv-avatar.is-turn::before{inset:-7px}
-.bgv-gamebar .bgv-btn[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-tile-primary)}
+
 .bgv-chat__head{padding-inline:16px 10px}
 .bgv-msg__meta{padding-inline:4px}
 .bgv-logo img.bgv-logo__dark,.bgv-logo img.bgv-logo__mark{display:none}
@@ -43,7 +43,7 @@ body{margin:0}
 .pp{position:absolute;inset-inline:0;inset-block-end:0;z-index:10;padding:0 20px 24px;border-block-end:0}
 .pp-row{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.55}
 .pp-row .bgv-icon{color:var(--heading);margin-block-start:2px}
-.pp-ic{inline-size:56px;block-size:56px;border-radius:var(--radius-md);display:grid;place-items:center;background:var(--accent);color:var(--on-accent);box-shadow:var(--shadow-tile)}
+.pp-ic{inline-size:56px;block-size:56px;border-radius:var(--radius-md);display:grid;place-items:center;background:color-mix(in srgb, var(--heading) 7%, transparent);color:var(--heading);color:var(--on-accent);box-shadow:var(--shadow-tile)}
 
 /* qa1: phone game bar, meta items must not be clipped mid-word */
 @media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
@@ -52,7 +52,7 @@ body{margin:0}
 <div class="bgv" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
 <div class="bgv-tablescreen" style="block-size:844px">
 <header class="bgv-gamebar"><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button>
-<div class="bgv-gamebar__title"><span class="bgv-gamebar__name">کاتان<span class="bgv-latin tc-latin">Catan</span></span><span class="bgv-gamebar__meta">نوبتی<span class="bgv-sep"></span>۲۴ ساعت هر نوبت<span class="bgv-sep"></span>دوستانه</span></div>
+<div class="bgv-gamebar__title"><span class="bgv-gamebar__name">کاتان<span class="bgv-latin tc-latin">Catan</span></span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span><span class="bgv-gamebar__mi">دوستانه</span></span></div>
 <button class="bgv-btn bgv-btn--secondary bgv-btn--icon bgv-iconbtn-count" aria-pressed="false" aria-label="گفت‌وگوی میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></button></header>
 <section class="bgv-hud bgv-hud--strip" aria-label="بازیکن‌ها"><div class="bgv-pcard bgv-pcard--mini is-you"><span class="bgv-avatar bgv-avatar--sm seat-3 is-you">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3" aria-hidden="true"></i>مینا</b></div><div class="bgv-pcard__score">۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /> <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg>۱ کارت</span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-1">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1" aria-hidden="true"></i>نیلوفر</b></div><div class="bgv-pcard__score">۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /> <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg>۱ کارت</span></div></div><div class="bgv-pcard bgv-pcard--mini is-turn" style="--clock-c:var(--clock-calm)"><span class="bgv-avatar bgv-avatar--sm seat-4 is-turn">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4" aria-hidden="true"></i>آرش</b></div><div class="bgv-pcard__score">۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.96;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۳ ساعت</span></span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-2">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2" aria-hidden="true"></i>سارا</b></div><div class="bgv-pcard__score">۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /> <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg>۲ کارت</span></div></div></section>
 <main class="bgv-felt ct-felt" aria-label="میز کاتان">
@@ -79,6 +79,5 @@ body{margin:0}
 </div></section>
 </div>
 </x-dc>
-
 </body>
 </html>

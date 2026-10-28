@@ -20,10 +20,10 @@
 @source "../../../packages/ui/src";
 @source "../../../games";
 
-/* Fonts: the @fontsource packages register the variable faces under these names. */
+/* Fonts: the design system self-hosts Vazirmatn and Manrope (packages/ui/src/bgv/tokens.css, fonts/). */
 :root {
-  --font-fa: "Vazirmatn Variable", Vazirmatn, Tahoma, system-ui, sans-serif;
-  --font-latin: "Manrope Variable", "Vazirmatn Variable", system-ui, sans-serif;
+  --font-fa: Vazirmatn, Tahoma, system-ui, sans-serif;
+  --font-latin: Manrope, Vazirmatn, system-ui, sans-serif;
 }
 
 /* Tailwind: layout utilities only for the site. The colour/shape names below exist for the game renderers'

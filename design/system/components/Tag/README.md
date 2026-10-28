@@ -1,5 +1,7 @@
 A square-cornered outline label for metadata such as rule variants, codes and categories.
 
+**Material (v2.0): print** — flat, with a 1px `--print-edge` hairline.
+
 ## When to use
 
 Game rules («هدف ۵۰۰»), versions, admin codes, table ids, catalog categories.

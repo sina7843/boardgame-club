@@ -1,4 +1,4 @@
-The profile banner background in five variants (felt, coral, gold, night, cream) with a dot texture.
+The profile banner background in five variants (`felt` navy, `coral` amber, `gold` amber-gold, `night`, `cream`) with a dot texture.
 
 ## When to use
 
@@ -32,6 +32,6 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 h('div',{style:{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:'10px'}},
-  ['felt','coral','gold','night','cream'].map(function(v){ return h('div',{key:v, style:{display:'grid', gap:'4px'}}, h(B.BannerArt,{variant:v, height:72, style:{borderRadius:'12px'}}), h('span',{className:'t-caption bgv-muted'}, {felt:'نمد',coral:'مرجانی',gold:'طلایی',night:'شب',cream:'کرم'}[v])); })
+  ['felt','coral','gold','night','cream'].map(function(v){ return h('div',{key:v, style:{display:'grid', gap:'4px'}}, h(B.BannerArt,{variant:v, height:72, style:{borderRadius:'12px'}}), h('span',{className:'t-caption bgv-muted'}, {felt:'نمد',coral:'کهربایی',gold:'طلایی',night:'شب',cream:'کرم'}[v])); })
 )
 ```

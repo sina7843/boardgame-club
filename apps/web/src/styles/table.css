@@ -3,7 +3,7 @@
 /* A live game hides the app shell (Table.tsx sets html[data-immersive]); the table is the whole screen. */
 html[data-immersive] .bgv-app { display: block; padding: 0; }
 /* !important: the DS shell's own responsive rules (several :not() classes) are more specific than any sane selector here. */
-html[data-immersive] :is(.bgv-app > .bgv-sidebar, .bgv-app__top, .bgv-app__dock, .app-page__foot, .app-page > .bgv-banner) { display: none !important; }
+html[data-immersive] :is(.bgv-app > .bgv-siteheader, .bgv-app__top, .bgv-app__dock, .app-page__foot, .app-page > .bgv-banner) { display: none !important; }
 html[data-immersive] .bgv-app__main { max-inline-size: none; }
 html[data-immersive] .app-page { gap: 0; }
 

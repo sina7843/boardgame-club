@@ -14,11 +14,11 @@ Lobby seats, rail cards, ranking rows, notifications, friend lists, chat headers
 | `initials` | `string` | — |
 | `src` | `string` | — |
 | `seat` | `SeatNo` | Seat glyph before the name and seat ring on the avatar. |
-| `you` | `boolean` | Viewer: coral ring + «شما» badge. |
+| `you` | `boolean` | Viewer: amber ring + «شما» badge. |
 | `status` | `'online' \| 'away' \| 'offline'` | — |
 | `bot` | `boolean` | — |
 | `frame` | `FrameTier` | Cosmetic frame tier. |
-| `title` | `Node` | Title «لقب» (gold label colour). |
+| `title` | `Node` | Title «لقب» (`--label`: cream in dark, decision 2.7; `--felt-gold` on the felt). |
 | `league` | `LeagueTier` | — |
 | `level` | `number` | — |
 | `sub` | `Node` | Extra sub-line item. |
@@ -34,7 +34,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 - Show title, frame and league consistently: HUD, chat, lobby and ranking all use this pattern.
 - Sizes: sm for HUD/ranking, md for lobby/rail/notifications, lg for lists and headers.
-- The viewer always gets `you` (coral ring + «شما»).
+- The viewer always gets `you` (amber ring + «شما»).
 
 **Don't**
 

@@ -24,13 +24,13 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Buttons inside switch to cream primary and translucent secondary automatically.
+- Primary buttons inside stay amber with a navy label (5.7:1 against the felt); secondary turns translucent automatically.
 - One hero per page.
 
 **Don't**
 
 - Do not put long paragraphs in a hero.
-- Do not use coral backgrounds for heroes.
+- Do not use amber backgrounds for heroes; amber is for the one primary action.
 
 ## Example
 

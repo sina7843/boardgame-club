@@ -1,6 +1,8 @@
+> **v1.1 (2026-10-20): navy/amber recolour.** Same drawings; colours follow the site theme (navy #142B3B, amber #E8A642/#D8942F, cream #FAF5EC). The brand book PDF and the old `07_Tokens` were retired on 2026-10-20: the design system (`design/system/`) and `design/brand/LOGO-USAGE.md` are the only brand rules.
+
 # Board Game Verse — Brand Kit v1.0
 
-Read `BGV-Brand-Book.pdf` (16 pages) first; it is the rulebook for everything in this folder.
+Rules for everything in this folder: `../LOGO-USAGE.md` and `design/system/docs/0-brand-and-principles.md` (the brand book PDF is retired).
 
 ## Folders
 | Folder | Contents |
@@ -11,15 +13,14 @@ Read `BGV-Brand-Book.pdf` (16 pages) first; it is the rulebook for everything in
 | 04_App-Icon | iOS 1024, Android adaptive (foreground / background / monochrome), web icons, `site.webmanifest` |
 | 05_Favicon | `favicon.ico` (pixel-tuned 16/32 + 48), PNGs, pixel SVG sources, `favicon.svg` (≥48px contexts) |
 | 06_Social | Avatar 1080, share image 1200×630 |
-| 07_Tokens | `bgv-tokens.json` (source of truth) and `bgv-tokens.css` |
 
 ## Naming
-`BGV-[type]-[colorway][-small].svg` — colorways: primary · reversed · mono-green · mono-black · mono-white.
+`BGV-[type]-[colorway][-small].svg` — colorways: primary · reversed · mono-navy · mono-black · mono-white.
 Platform icons keep their platform names (`apple-touch-icon-180.png`, `icon-192.png`, …).
 
 ## Colorway rule
-- Light background → `primary` (top figure Coral Deep #E4603F, others Green #173A2D)
-- Dark background → `reversed` (top figure Coral #F2765B, others Cream #F6F0E4)
+- Light background → `primary` (top figure Amber Deep #D8942F, others Navy #142B3B)
+- Dark background → `reversed` (top figure Amber #E8A642, others Cream #FAF5EC)
 - Photo / busy → `03_Container`
 
 ## Fonts (OFL, free)
@@ -31,16 +32,9 @@ Platform icons keep their platform names (`apple-touch-icon-180.png`, `icon-192.
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#173A2D" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F211A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#142B3B">
 ```
 Do not add `favicon.svg` as a tab icon: browsers would prefer it over the pixel-tuned ICO.
 
-## Dark mode
-Semantic light/dark roles are in `bgv-tokens.json → semantic` and `bgv-tokens.css` (prefers-color-scheme + `data-theme`). Dark mode is built from the brand green; logo switches to `reversed`. See brand book pages 10–11. In UI code use the semantic roles (`--bgv-text`, `--bgv-surface` …), not the primitives (`--bgv-green`, `--bgv-ink` …).
-
-## Primary button (join / sit / start)
-Chosen by the design system, not the brand book. Constraints: not red or coral (must never read like "leave"), label ≥ 4.5:1, visible on cream, destructive red defined separately. Coral is for invite highlights (empty-seat chips, "you"), not the default button. Evaluated options are in `bgv-tokens.json → semantic.primary_action`.
-
-## Left to the design system
-Primary button color, interaction states (hover / pressed / disabled), elevation shadows and status colors (success / warning / error).
+## Colours, dark mode, buttons
+All colours, light/dark roles, button roles and states live only in the design system: `design/system/tokens.css` and `design/system/docs/`. Dark mode is «ink navy» (page #0D1A23, cards #192E3C); the logo switches to `reversed`. Never use colours that are not design-system tokens.

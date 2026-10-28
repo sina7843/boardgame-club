@@ -1,4 +1,6 @@
-The single place that says whose turn it is: avatar + «نوبت …» + clock; coral when it is yours; simultaneous phases show progress.
+The single place that says whose turn it is: avatar + «نوبت …» + clock; amber when it is yours; simultaneous phases show progress.
+
+**Material (v2.0): a plate printed into the felt** (opaque `--felt-plate`, hard `--shadow-plate`). Yours is the flat amber plate — no frame, no shadow, no halo: it is not pressable, so it must not look like an amber «go» token.
 
 ## When to use
 
@@ -15,7 +17,7 @@ Top row of the felt on every table screen, exactly once.
 | `initials` | `string` | — |
 | `src` | `string` | — |
 | `avatar` | `AvatarProps` | — |
-| `mine` | `boolean` | Your turn: coral pill «نوبت شماست». |
+| `mine` | `boolean` | Your turn: amber pill «نوبت شماست». |
 | `simul` | `Node` | Simultaneous phase text, e.g. «همه انتخاب می‌کنند، ۲ از ۴ آماده». |
 | `clock` | `ClockProps \| Node` | Clock props or node after a divider. |
 | `text` | `Node` | Override the text. |
@@ -26,7 +28,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Use `mine` (coral, `--invite`) only when it is the viewer's turn: «نوبت شماست».
+- Use `mine` (amber, `--invite`) only when it is the viewer's turn: «نوبت شماست».
 - Simultaneous phases: «همه انتخاب می‌کنند، ۲ از ۴ آماده» with the shared deadline.
 - The pill never grows past its row: long names ellipsize, the avatar ring and the clock never get cut.
 - Player cards only mark the turn with `turn`; never repeat «نوبت …» elsewhere.

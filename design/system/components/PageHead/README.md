@@ -28,7 +28,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Don't**
 
-- Do not repeat the sidebar label as an eyebrow.
+- Do not repeat the header destination as an eyebrow.
 
 ## Example
 

@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"Bgv","components":[{"name":"Logo"},{"name":"Button"},{"name":"Chip"},{"name":"ChipGroup"},{"name":"TextField"},{"name":"Textarea"},{"name":"Select"},{"name":"Checkbox"},{"name":"Radio"},{"name":"Switch"},{"name":"Segmented"},{"name":"OtpField"},{"name":"PhoneField"},{"name":"Slider"},{"name":"Icon"},{"name":"Badge"},{"name":"Tag"},{"name":"Coin"},{"name":"Avatar"},{"name":"Frame"},{"name":"Seat"},{"name":"Identity"},{"name":"League"},{"name":"Card"},{"name":"GameCard"},{"name":"Stat"},{"name":"Progress"},{"name":"Ring"},{"name":"Skeleton"},{"name":"StateBlock"},{"name":"DataTable"},{"name":"ListItem"},{"name":"Tooltip"},{"name":"Divider"},{"name":"AppShell"},{"name":"Sidebar"},{"name":"NavItem"},{"name":"TopBar"},{"name":"Dock"},{"name":"PageTabs"},{"name":"Tabs"},{"name":"Breadcrumbs"},{"name":"Pagination"},{"name":"Menu"},{"name":"PageHead"},{"name":"Hero"},{"name":"Dialog"},{"name":"Sheet"},{"name":"Popover"},{"name":"Toast"},{"name":"Banner"},{"name":"CritBar"},{"name":"TableScreen"},{"name":"GameBar"},{"name":"Felt"},{"name":"FeltPlate"},{"name":"TurnPill"},{"name":"Clock"},{"name":"Strikes"},{"name":"PlayerCard"},{"name":"Hud"},{"name":"HudStat"},{"name":"Race"},{"name":"TeamPlate"},{"name":"ActionDock"},{"name":"MoveLog"},{"name":"LobbySeat"},{"name":"ReadyCheck"},{"name":"Spectators"},{"name":"Connection"},{"name":"Result"},{"name":"Podium"},{"name":"Reward"},{"name":"Rematch"},{"name":"Chat"},{"name":"Message"},{"name":"SystemMessage"},{"name":"Reactions"},{"name":"ReactionBar"},{"name":"Mention"},{"name":"MentionSuggest"},{"name":"Composer"},{"name":"QuickChat"},{"name":"Typing"},{"name":"UnreadDivider"},{"name":"Conversation"},{"name":"NotificationItem"},{"name":"PushNotification"},{"name":"ProfileHead"},{"name":"BannerArt"},{"name":"Trophy"},{"name":"CosmeticTile"},{"name":"Rarity"},{"name":"CardBack"}]} */
+/* @ds-bundle: {"format":4,"namespace":"Bgv","components":[{"name":"Logo"},{"name":"Button"},{"name":"Chip"},{"name":"ChipGroup"},{"name":"TextField"},{"name":"Textarea"},{"name":"Select"},{"name":"Checkbox"},{"name":"Radio"},{"name":"Switch"},{"name":"Segmented"},{"name":"OtpField"},{"name":"PhoneField"},{"name":"Slider"},{"name":"Icon"},{"name":"Badge"},{"name":"Tag"},{"name":"ModeTag"},{"name":"Coin"},{"name":"Avatar"},{"name":"Frame"},{"name":"Seat"},{"name":"Identity"},{"name":"League"},{"name":"Card"},{"name":"GameCard"},{"name":"Stat"},{"name":"Progress"},{"name":"Ring"},{"name":"Skeleton"},{"name":"StateBlock"},{"name":"DataTable"},{"name":"ListItem"},{"name":"Tooltip"},{"name":"Divider"},{"name":"AppShell"},{"name":"SiteHeader"},{"name":"SiteSearch"},{"name":"AccountMenu"},{"name":"SiteFooter"},{"name":"MoreTile"},{"name":"MoreGroup"},{"name":"Stepper"},{"name":"LoginSheet"},{"name":"TopBar"},{"name":"Dock"},{"name":"PageTabs"},{"name":"Tabs"},{"name":"Breadcrumbs"},{"name":"Pagination"},{"name":"Menu"},{"name":"PageHead"},{"name":"Hero"},{"name":"Dialog"},{"name":"Sheet"},{"name":"Popover"},{"name":"Toast"},{"name":"Banner"},{"name":"CritBar"},{"name":"TableScreen"},{"name":"GameBar"},{"name":"Felt"},{"name":"FeltPlate"},{"name":"TurnPill"},{"name":"Clock"},{"name":"Strikes"},{"name":"PlayerCard"},{"name":"Hud"},{"name":"HudStat"},{"name":"Race"},{"name":"TeamPlate"},{"name":"ActionDock"},{"name":"MoveLog"},{"name":"LobbySeat"},{"name":"ReadyCheck"},{"name":"Spectators"},{"name":"Connection"},{"name":"Result"},{"name":"Podium"},{"name":"Reward"},{"name":"Rematch"},{"name":"Chat"},{"name":"Message"},{"name":"SystemMessage"},{"name":"Reactions"},{"name":"ReactionBar"},{"name":"Mention"},{"name":"MentionSuggest"},{"name":"Composer"},{"name":"QuickChat"},{"name":"Typing"},{"name":"UnreadDivider"},{"name":"Conversation"},{"name":"NotificationItem"},{"name":"PushNotification"},{"name":"ProfileHead"},{"name":"BannerArt"},{"name":"Trophy"},{"name":"CosmeticTile"},{"name":"Rarity"},{"name":"CardBack"}]} */
 /* بردگیم‌ورس (BGV) design system: React components over components/bundle.css.
    Classic script. Reads window.React, assigns window.Bgv. No JSX, no network.
    Icons: lucide (ISC licence), inner SVG embedded below. */
@@ -11,6 +11,13 @@
   var useId = React.useId || function () { var r = React.useRef(null); if (!r.current) { r.current = 'bgv-' + Math.random().toString(36).slice(2, 9); } return r.current; };
 
   var ICONS = {
+    "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"7 10 12 15 17 10\" /> <line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" />",
+    "instagram": "<rect width=\"20\" height=\"20\" x=\"2\" y=\"2\" rx=\"5\" ry=\"5\" /> <path d=\"M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z\" /> <line x1=\"17.5\" x2=\"17.51\" y1=\"6.5\" y2=\"6.5\" />",
+    "log-in": "<path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\" /> <polyline points=\"10 17 15 12 10 7\" /> <line x1=\"15\" x2=\"3\" y1=\"12\" y2=\"12\" />",
+    "arrow-up": "<path d=\"m5 12 7-7 7 7\" /> <path d=\"M12 19V5\" />",
+    "arrow-down": "<path d=\"M12 5v14\" /> <path d=\"m19 12-7 7-7-7\" />",
+    "corner-down-left": "<polyline points=\"9 10 4 15 9 20\" /> <path d=\"M20 4v7a4 4 0 0 1-4 4H4\" />",
+    "hash": "<line x1=\"4\" x2=\"20\" y1=\"9\" y2=\"9\" /> <line x1=\"4\" x2=\"20\" y1=\"15\" y2=\"15\" /> <line x1=\"10\" x2=\"8\" y1=\"3\" y2=\"21\" /> <line x1=\"16\" x2=\"14\" y1=\"3\" y2=\"21\" />",
     "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />",
     "dices": "<rect width=\"12\" height=\"12\" x=\"2\" y=\"10\" rx=\"2\" ry=\"2\" /> <path d=\"m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6\" /> <path d=\"M6 18h.01\" /> <path d=\"M10 14h.01\" /> <path d=\"M15 6h.01\" /> <path d=\"M18 9h.01\" />",
     "layout-grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />",
@@ -108,6 +115,14 @@
     "more-horizontal": "<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" />",
     "more-vertical": "<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"5\" r=\"1\" /> <circle cx=\"12\" cy=\"19\" r=\"1\" />",
     "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />"
+  };
+  /* Filled variants for the active dock item: drawn as real solid glyphs (door, pips and bubble keep their shape), never a CSS fill of the outline icon. */
+  var ICONS_FILLED = {
+    'house': '<path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2h-5.25v-6a1.25 1.25 0 0 0-1.25-1.25h-1a1.25 1.25 0 0 0-1.25 1.25v6H5a2 2 0 0 1-2-2z"/>',
+    'dices': '<path fill="currentColor" fill-rule="evenodd" stroke="none" d="M4.5 10h7A2.5 2.5 0 0 1 14 12.5v7a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 19.5v-7A2.5 2.5 0 0 1 4.5 10ZM6 16.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 1 0 0-3ZM10 12.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 1 0 0-3Z"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M15 6h.01"/><path d="M18 9h.01"/>',
+    'message-circle': '<path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    'layout-grid': '<rect fill="currentColor" width="7" height="7" x="3" y="3" rx="1.5"/><rect fill="currentColor" width="7" height="7" x="14" y="3" rx="1.5"/><rect fill="currentColor" width="7" height="7" x="14" y="14" rx="1.5"/><rect fill="currentColor" width="7" height="7" x="3" y="14" rx="1.5"/>',
+    'menu': '<line stroke-width="2.6" x1="4" x2="20" y1="12" y2="12"/><line stroke-width="2.6" x1="4" x2="20" y1="6" y2="6"/><line stroke-width="2.6" x1="4" x2="20" y1="18" y2="18"/>'
   };
 
   /* ── helpers ───────────────────────────────────────────────────── */
@@ -209,13 +224,13 @@
     var st = typeof size === 'number' ? { inlineSize: size + 'px', blockSize: size + 'px' } : null;
     if (p.mirror) { st = Object.assign({}, st, { transform: 'scaleX(-1)' }); }
     var labelled = p['aria-label'] || p.label;
-    return h('svg', R(p, ['name', 'size', 'label', 'mirror'], cls, st, {
+    return h('svg', R(p, ['name', 'size', 'label', 'mirror', 'filled'], cx(cls, p.filled && 'bgv-icon--filled'), st, {
       viewBox: '0 0 24 24',
       'aria-hidden': labelled ? undefined : 'true',
       role: labelled ? 'img' : undefined,
       'aria-label': p.label,
       focusable: 'false',
-      dangerouslySetInnerHTML: { __html: ICONS[p.name] || '' }
+      dangerouslySetInnerHTML: { __html: (p.filled && ICONS_FILLED[p.name]) || ICONS[p.name] || '' }
     }));
   }
   function ic(name, size, extra) { return name ? (isNode(name) && typeof name !== 'string' ? name : h(Icon, Object.assign({ name: name, size: size }, extra || {}))) : null; }
@@ -225,14 +240,18 @@
     var v = p.variant;
     var hasCount = p.count !== undefined && p.count !== null;
     var cls = cx('bgv-btn', v && v !== 'default' && 'bgv-btn--' + v, p.size === 'sm' && 'bgv-btn--sm', p.size === 'lg' && 'bgv-btn--lg',
-      p.block && 'bgv-btn--block', p.iconOnly && 'bgv-btn--icon', p.iconOnly && hasCount && 'bgv-iconbtn-count', p.loading && 'is-loading', p.pressed && 'is-pressed');
+      p.block && 'bgv-btn--block', p.iconOnly && 'bgv-btn--icon', p.iconOnly && hasCount && 'bgv-iconbtn-count', p.loading && 'is-loading', p.pressed === true && 'is-pressed');
     var label = p.iconOnly && typeof p.children === 'string' ? p.children + (hasCount && p.count ? '، ' + fa(p.count) + ' تازه' : '') : undefined;
     var tag = p.href ? 'a' : 'button';
     var props = R(p, ['variant', 'size', 'block', 'icon', 'iconEnd', 'iconOnly', 'loading', 'count', 'pressed', 'type'], cls, null, {
       type: tag === 'button' ? (p.type || 'button') : undefined,
       'aria-label': label,
-      'aria-busy': p.loading ? 'true' : undefined
+      'aria-busy': p.loading ? 'true' : undefined,
+      'aria-disabled': p.loading ? 'true' : undefined,
+      'aria-pressed': typeof p.pressed === 'boolean' ? String(p.pressed) : undefined
     });
+    /* loading blocks every activation (mouse, Enter, Space) but keeps focus where it is */
+    if (p.loading) { props.onClick = function (e) { e.preventDefault(); e.stopPropagation(); }; }
     if (tag === 'a' && p.disabled) { props['aria-disabled'] = 'true'; props.className = cx(props.className, 'is-disabled'); delete props.disabled; }
     return h(tag, props,
       ic(p.icon !== undefined ? p.icon : (v === 'leave' ? 'log-out' : undefined)),
@@ -379,6 +398,11 @@
     var uid = useId(), id = p.id || uid;
     var o = omit(p, ['label', 'valueText', 'className', 'style', 'children', 'hint']);
     o.type = 'range'; o.className = 'bgv-range'; o.id = id;
+    var min = Number(p.min !== undefined ? p.min : 0), max = Number(p.max !== undefined ? p.max : 100);
+    var _v = useState(p.defaultValue !== undefined ? Number(p.defaultValue) : (min + max) / 2);
+    var cur = p.value !== undefined ? Number(p.value) : _v[0];
+    o.style = { '--_p': pct((cur - min) / ((max - min) || 1)), '--_v': pct((cur - min) / ((max - min) || 1)) };
+    o.onInput = function (e) { _v[1](Number(e.target.value)); if (p.onInput) { p.onInput(e); } };
     if (p.valueText) { o['aria-valuetext'] = typeof p.valueText === 'string' ? p.valueText : undefined; }
     return h('div', { className: cx('bgv-field', p.className), style: p.style },
       p.label || p.valueText ? h('div', { className: 'bgv-progress__row', style: { alignItems: 'center' } },
@@ -393,20 +417,28 @@
     var t = p.tone;
     var cls = cx('bgv-badge', t && t !== 'neutral' && 'bgv-badge--' + t, p.size === 'sm' && 'bgv-badge--sm');
     var kids = typeof p.children === 'number' ? fa(p.children) : p.children;
-    return h('span', R(p, ['tone', 'size', 'icon'], cls), ic(p.icon), kids);
+    return h('span', R(p, ['tone', 'size', 'icon'], cls, null, { role: p['aria-label'] ? 'img' : undefined }), ic(p.icon), kids);
   }
   function Tag(p) {
     return h('span', R(p, ['latin', 'icon'], cx('bgv-tag', p.latin && 'bgv-latin')), ic(p.icon, 'sm'), p.children);
+  }
+  function ModeTag(p) {
+    /* who you can play with: real players and/or a bot. compact = icons only (phone). */
+    var people = p.people !== false, bot = p.bot !== false, compact = !!p.compact;
+    var label = people && bot ? 'بازی آنلاین یا با ربات' : (bot ? 'بازی با ربات' : 'بازی آنلاین');
+    return h('span', R(p, ['people', 'bot', 'compact'], cx('bgv-modetag', compact && 'bgv-modetag--icon'), null, { role: 'img', 'aria-label': label, title: label }),
+      people ? h('span', null, h(Icon, { name: 'users', size: 'sm' }), compact ? null : 'آنلاین') : null,
+      bot ? h('span', null, h(Icon, { name: 'bot', size: 'sm' }), compact ? null : 'ربات') : null);
   }
   function Coin(p) {
     var amt = typeof p.amount === 'number' ? fa(p.amount) : fa(p.amount);
     var label = p.amount !== undefined ? amt + ' سکه' : undefined;
     var coin = h('span', p.chip ? { className: cx('bgv-coin', p.size === 'sm' && 'bgv-coin--sm') } : R(p, ['amount', 'size', 'unit', 'chip', 'href'], cx('bgv-coin', p.size === 'lg' && 'bgv-coin--lg', p.size === 'sm' && 'bgv-coin--sm'), null, {
-      'aria-label': label
+      role: label ? 'img' : undefined, 'aria-label': label
     }), p.amount !== undefined ? h('span', { 'aria-hidden': 'true' }, amt) : null, p.unit ? h('span', { 'aria-hidden': 'true', style: { fontWeight: 700, fontSize: '0.8em', color: 'var(--text-muted)' } }, p.unit === true ? 'سکه' : p.unit) : null, p.chip ? null : p.children);
     if (!p.chip) { return coin; }
-    /* chip: the wallet balance in the sidebar footer and the phone top bar; a link when href is given */
-    return h(p.href ? 'a' : 'span', R(p, ['amount', 'size', 'unit', 'chip', 'href'], 'bgv-coinchip', null, { href: p.href, 'aria-label': label }), coin, p.children);
+    /* chip: the wallet balance in the account menu and the phone top bar; a link when href is given */
+    return h(p.href ? 'a' : 'span', R(p, ['amount', 'size', 'unit', 'chip', 'href'], 'bgv-coinchip', null, { href: p.href, role: p.href ? undefined : 'img', 'aria-label': label }), coin, p.children);
   }
 
   var AV_SIZES = { xs: 'xs', sm: 'sm', lg: 'lg', xl: 'xl', '2xl': '2xl' };
@@ -472,12 +504,14 @@
 
   function GameCard(p) {
     var tag = p.href ? 'a' : 'div';
-    return h(tag, R(p, ['cover', 'art', 'title', 'latin', 'meta', 'flags', 'footer'], 'bgv-gamecard'),
+    var boxed = !!(p.box || p.boxArt);
+    return h(tag, R(p, ['box', 'boxArt', 'cover', 'art', 'title', 'latin', 'meta', 'flags', 'footer'], cx('bgv-gamecard', boxed && 'bgv-gamecard--box')),
       h('div', { className: 'bgv-gamecard__cover' },
-        p.cover ? h('img', { src: p.cover, alt: '' }) : p.art,
-        p.flags && p.flags.length ? h('div', { className: 'bgv-gamecard__flags' }, keyed(p.flags, function (f) { return isNode(f) ? f : h(Badge, f, f.label); })) : null),
+        boxed ? (p.box ? h('img', { className: 'bgv-gamecard__box', src: p.box, alt: '' }) : h('div', { className: 'bgv-gamecard__box' }, p.boxArt)) : null,
+        boxed ? null : (p.cover ? h('img', { src: p.cover, alt: '' }) : p.art)),
       h('div', { className: 'bgv-gamecard__body' },
         h('span', { className: 'bgv-gamecard__title' }, p.title, p.latin ? h('span', { className: 'bgv-gamecard__latin', lang: 'en' }, p.latin) : null),
+        p.flags && p.flags.length ? h('div', { className: 'bgv-gamecard__flags' }, keyed(p.flags, function (f) { return isNode(f) ? f : h(Badge, f, f.label); })) : null,
         p.meta && p.meta.length ? h('div', { className: 'bgv-gamecard__meta' }, keyed(p.meta, function (m) {
           return typeof m === 'object' && !React.isValidElement(m) ? h('span', null, ic(m.icon, 'sm'), fa(m.text)) : h('span', null, fa(m));
         })) : null,
@@ -495,9 +529,9 @@
 
   function Progress(p) {
     var t = p.tone && p.tone !== 'primary' ? 'bgv-progress--' + p.tone : null;
-    return h('div', R(p, ['value', 'label', 'valueText', 'tone'], cx('bgv-progress', t)),
+    return h('div', R(p, ['value', 'label', 'valueText', 'tone', 'aria-label'], cx('bgv-progress', t)),
       p.label || p.valueText ? h('div', { className: 'bgv-progress__row' }, h('span', null, p.label), h('span', { className: 'bgv-num' }, fa(p.valueText))) : null,
-      h('div', { className: 'bgv-progress__track', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': Math.round((p.value || 0) * 100), 'aria-label': typeof p.label === 'string' ? p.label : undefined },
+      h('div', { className: 'bgv-progress__track', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': Math.round((p.value || 0) * 100), 'aria-label': typeof p.label === 'string' ? p.label : p['aria-label'] },
         h('div', { className: 'bgv-progress__fill', style: { '--p': pct(p.value) } })));
   }
 
@@ -523,34 +557,49 @@
 
   var STATE_DEF = {
     loading: ['hourglass', 'در حال بارگذاری…'], empty: ['dices', 'هنوز چیزی اینجا نیست'], error: ['circle-alert', 'مشکلی پیش آمد'],
-    denied: ['lock', 'به این بخش دسترسی ندارید'], offline: ['wifi-off', 'اتصال اینترنت قطع است']
+    denied: ['lock', 'به این بخش دسترسی ندارید'], offline: ['wifi-off', 'اتصال اینترنت قطع است'],
+    guest: ['log-in', 'ابتدا وارد حساب خود شوید']
   };
   function StateBlock(p) {
+    /* kind="guest": a page a guest reaches from the dock but that means nothing without an account (messages).
+       action defaults to «ورود / ثبت‌نام» (/login?next=…) + a ghost «بدون ورود، بازی سریع»; perks = the short «after login you get» list */
     var k = p.kind || 'empty', d = STATE_DEF[k] || STATE_DEF.empty;
-    return h('div', R(p, ['kind', 'title', 'text', 'action', 'icon'], cx('bgv-state', 'bgv-state--' + k), null, {
+    var action = p.action;
+    if (k === 'guest' && action === undefined) {
+      action = h('div', { className: 'bgv-state__actions' },
+        h(Button, { variant: 'primary', size: 'lg', block: true, icon: 'user', href: p.loginHref || '/login' }, 'ورود / ثبت‌نام'),
+        h(Button, { variant: 'ghost', icon: 'zap', href: p.quickHref || '/play' }, 'بدون ورود، بازی سریع'));
+    }
+    return h('div', R(p, ['kind', 'title', 'text', 'action', 'icon', 'perks', 'loginHref', 'quickHref'], cx('bgv-state', 'bgv-state--' + k), null, {
       role: k === 'error' || k === 'offline' ? 'alert' : 'status', 'aria-busy': k === 'loading' ? 'true' : undefined
     }),
       h('span', { className: 'bgv-state__icon' }, h(Icon, { name: p.icon || d[0] })),
       h('h3', { className: 'bgv-state__title' }, p.title || d[1]),
       p.text ? h('p', { className: 'bgv-state__text' }, p.text) : null,
-      p.action ? h('div', { className: 'bgv-row', style: { justifyContent: 'center', marginBlockStart: '4px' } }, p.action) : null,
+      action ? (k === 'guest' ? action : h('div', { className: 'bgv-row', style: { justifyContent: 'center', marginBlockStart: '4px' } }, action)) : null,
+      p.perks && p.perks.length ? h('ul', { className: 'bgv-state__perks' }, keyed(p.perks, function (x) {
+        return h('li', null, h(Icon, { name: x.icon || 'check' }), h('div', null, h('b', null, x.title), x.text ? h('span', null, x.text) : null));
+      })) : null,
       p.children);
   }
 
+
   function DataTable(p) {
+    /* stack: under 600px each row folds into lead · main · end on one line, the rest below with their column label (columns[i].stack = 'lead'|'main'|'end'|'hide') */
     var cols = p.columns || [];
     function isYou(row, i) { return typeof p.youRow === 'function' ? p.youRow(row, i) : p.youRow === i || (row && row.you); }
-    return h('table', R(p, ['columns', 'rows', 'youRow', 'selectedRow', 'caption', 'rowKey'], 'bgv-table'),
+    return h('table', R(p, ['columns', 'rows', 'youRow', 'selectedRow', 'caption', 'rowKey', 'stack'], cx('bgv-table', p.stack && 'bgv-table--stack', p.stack === 'phone' && 'bgv-table--phone')),
       p.caption ? h('caption', { className: 'bgv-sr' }, p.caption) : null,
       h('thead', null, h('tr', null, cols.map(function (c, i) { return h('th', { key: c.key || i, scope: 'col', style: { textAlign: c.align || 'start', inlineSize: c.width } }, c.label); }))),
       h('tbody', null, (p.rows || []).map(function (row, i) {
-        return h('tr', { key: p.rowKey ? row[p.rowKey] : i, className: cx(isYou(row, i) && 'is-you', p.selectedRow === i && 'is-selected') },
+        return h('tr', { key: p.rowKey ? row[p.rowKey] : i, className: cx(isYou(row, i) && 'is-you', p.selectedRow === i && 'is-selected'), 'aria-selected': p.selectedRow === i ? 'true' : undefined },
           cols.map(function (c, j) {
             var v = c.render ? c.render(row, i) : row[c.key];
-            return h('td', { key: c.key || j, style: { textAlign: c.align || 'start', fontWeight: c.strong ? 900 : undefined } }, typeof v === 'number' || typeof v === 'string' ? fa(v) : v);
+            return h('td', { key: c.key || j, 'data-stack': c.stack, 'data-label': typeof c.label === 'string' ? c.label : undefined, style: { textAlign: c.align || 'start', fontWeight: c.strong ? 900 : undefined } }, typeof v === 'number' || typeof v === 'string' ? fa(v) : v);
           }));
       })));
   }
+
 
   function ListItem(p) {
     var tag = p.href ? 'a' : (p.as || 'div');
@@ -590,77 +639,60 @@
   }
 
   /* ── Navigation ────────────────────────────────────────────────── */
-  function NavItem(p) {
-    var tag = p.href !== undefined || !p.onClick ? 'a' : 'button';
-    var lbl = p.label || p.children;
-    return h(tag, R(p, ['icon', 'label', 'active', 'count', 'turns', 'badge'], cx('bgv-nav-item', p.active && 'is-active'), tag === 'button' ? { border: 0, background: p.active ? undefined : 'none', inlineSize: '100%', cursor: 'pointer' } : null, {
-      href: tag === 'a' ? (p.href || '#') : undefined, 'aria-current': p.active ? 'page' : undefined, type: tag === 'button' ? 'button' : undefined, title: typeof lbl === 'string' ? lbl : undefined
-    }),
-      ic(p.icon), h('span', { className: 'bgv-nav-item__label' }, lbl),
-      p.turns ? h(Badge, { tone: 'you', size: 'sm', className: 'bgv-nav-item__badge', 'aria-label': fa(p.turns) + ' میز منتظر حرکت شما' }, fa(p.turns) + ' نوبت') : null,
-      p.count ? h(Badge, { tone: 'count', className: 'bgv-nav-item__badge', 'aria-label': fa(p.count) + ' تازه' }, fa(p.count)) : null,
-      p.badge ? h('span', { className: 'bgv-nav-item__badge' }, p.badge) : null);
-  }
 
-  /* AppShell: the canonical responsive shell (brief/SHELL.html). Pass ready nodes (sidebar/topbar/dock) or let it build them from data. */
+
+  /* AppShell (v2.1): site header (≥900) or top bar + dock (<900) around one centred column. Pass ready nodes (header/topbar/dock/footer) or let it build them from data. */
   function AppShell(p) {
     var lay = p.layout && p.layout !== 'auto' ? 'bgv-app--' + p.layout : null;
     var logo = p.logo || {};
+    var guest = !!p.guest;
     var n = p.notifications;
-    function bell(k) {
-      return n === undefined ? null : h('a', { key: k, className: 'bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count', href: p.notificationsHref || '#', 'aria-label': 'اعلان‌ها' + (n ? '، ' + fa(n) + ' خوانده‌نشده' : '') },
-        h(Icon, { name: 'bell' }), n ? h(Badge, { tone: 'count' }, fa(n)) : null);
-    }
-    var foot = p.user || p.coins !== undefined ? h('div', { className: 'bgv-sidebar__foot' },
-      p.user ? h('a', { href: p.user.href || '#', style: { textDecoration: 'none', color: 'inherit' } }, h(Identity, Object.assign(omit(p.user, ['href', 'league']),
-        p.user.league ? { name: [h('span', { key: 'n' }, p.user.name), h(League, { key: 'l', tier: p.user.league })] } : {}))) : null,
-      p.coins !== undefined ? h('div', { className: 'bgv-row bgv-sidebar__text', style: { justifyContent: 'space-between', flexWrap: 'nowrap' } },
-        h(Coin, { chip: true, amount: p.coins, href: p.coinsHref || '#' }),
-        h(Button, { size: 'sm', variant: 'secondary', icon: 'plus', href: p.coinsHref || '#' }, p.buyLabel || 'خرید سکه')) : null) : null;
-    var sidebar = p.sidebar !== undefined ? p.sidebar : h(Sidebar, {
-      label: 'ناوبری اصلی', items: p.nav, footer: foot,
-      brand: logo.src ? h(Logo, { src: logo.src, srcDark: logo.srcDark, markSrc: logo.markSrc, markSrcDark: logo.markSrcDark, height: 36, href: p.homeHref || '/', alt: '', 'aria-label': 'بردگیم‌ورس' }) : null,
-      headerActions: bell('b') });
+    var header = p.header !== undefined ? p.header : h(SiteHeader, {
+      logo: { src: logo.src, srcDark: logo.srcDark }, nav: p.nav, guest: guest, user: p.user, homeHref: p.homeHref, width: p.layout === 'full' ? 'wide' : p.layout === 'mid' ? 'mid' : undefined,
+      quickPlay: p.quickPlay, search: p.search, loginHref: p.loginHref,
+      messages: p.messages !== undefined ? p.messages : { href: '/messages' },
+      notifications: n === undefined ? { href: p.notificationsHref || '/notifications' } : (typeof n === 'object' ? n : { href: p.notificationsHref || '/notifications', count: n }) });
+    var bell = guest || n === false ? null : h('a', { key: 'b', className: 'bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count', href: p.notificationsHref || '/notifications', 'aria-label': 'اعلان‌ها' + (typeof n === 'number' && n ? '، ' + fa(n) + ' خوانده‌نشده' : '') },
+      h(Icon, { name: 'bell' }), typeof n === 'number' && n ? h(Badge, { tone: 'count' }, fa(n)) : null);
     var top = p.topbar !== undefined ? p.topbar : h(TopBar, {
-      className: 'bgv-app__top', title: p.title,
+      className: 'bgv-app__top', title: p.title, search: p.search === false ? undefined : { href: '/search' },
       leading: logo.markSrc ? h(Logo, { src: logo.markSrc, srcDark: logo.markSrcDark, height: 32, href: p.homeHref || '/', alt: '', 'aria-label': 'خانه' }) : null,
-      actions: [p.coins !== undefined ? h(Coin, { key: 'c', chip: true, size: 'sm', amount: p.coins, href: p.coinsHref || '#' }) : null, bell('b')] });
-    var dock = p.dock !== undefined ? p.dock : (p.dockItems ? h(Dock, { className: 'bgv-app__dock', items: p.dockItems, label: 'ناوبری' }) : null);
-    return h('div', R(p, ['layout', 'logo', 'nav', 'dockItems', 'user', 'coins', 'coinsHref', 'buyLabel', 'notifications', 'notificationsHref', 'homeHref', 'title', 'sidebar', 'topbar', 'dock'], cx('bgv-app', lay)),
-      sidebar,
-      h('main', { className: 'bgv-app__main' }, top, p.children, dock));
+      actions: guest ? [h(Button, { key: 'l', size: 'sm', variant: 'secondary', href: p.loginHref || '/login' }, 'ورود / ثبت‌نام')]
+        : [p.coins !== undefined ? h(Coin, { key: 'c', chip: true, size: 'sm', amount: p.coins, href: p.coinsHref || '/coins' }) : null, bell] });
+    var dock = p.dock !== undefined ? p.dock : (p.dockItems ? h(Dock, { className: 'bgv-app__dock', items: p.dockItems, guest: guest, label: 'ناوبری' }) : null);
+    return h('div', R(p, ['layout', 'logo', 'nav', 'dockItems', 'user', 'coins', 'coinsHref', 'notifications', 'notificationsHref', 'messages', 'homeHref', 'title', 'header', 'topbar', 'dock', 'footer', 'guest', 'quickPlay', 'search', 'loginHref'], cx('bgv-app', lay)),
+      header,
+      h('main', { className: 'bgv-app__main' }, top, p.children, dock),
+      p.footer || null);
   }
 
-  function Sidebar(p) {
-    return h('aside', R(p, ['brand', 'headerActions', 'items', 'footer', 'label'], 'bgv-sidebar'),
-      p.brand || p.headerActions ? h('div', { className: 'bgv-sidebar__brand' }, p.brand, h('span', { className: 'bgv-spacer' }), p.headerActions) : null,
-      p.items ? h('nav', { 'aria-label': p.label || 'بخش‌های اصلی', style: { display: 'grid', gap: '4px' } }, keyed(p.items, function (it) {
-        return it.group ? h('div', { className: 'bgv-sidebar__group' }, it.group) : h(NavItem, it);
-      })) : null,
-      p.children,
-      p.footer ? h('span', { className: 'bgv-spacer' }) : null,
-      p.footer);
-  }
+
+
 
   function TopBar(p) {
-    return h('header', R(p, ['title', 'leading', 'actions', 'onBack', 'backLabel'], 'bgv-topbar'),
+    /* order: logo or back, title, search, coin, bell (guest: search, «ورود / ثبت‌نام») */
+    var s = p.search;
+    var searchBtn = !s ? null : (React.isValidElement(s) ? s : h(Button, { variant: 'ghost', iconOnly: true, icon: 'search', href: s.href, onClick: s.onClick }, 'جست‌وجو'));
+    return h('header', R(p, ['title', 'leading', 'actions', 'onBack', 'backLabel', 'search'], 'bgv-topbar'),
       p.onBack ? h(Button, { variant: 'ghost', iconOnly: true, icon: 'arrow-right', onClick: p.onBack }, p.backLabel || 'بازگشت') : null,
       p.leading,
       h('span', { className: 'bgv-topbar__title' }, p.title),
-      p.actions, p.children);
+      searchBtn, p.actions, p.children);
   }
 
+
   function Dock(p) {
-    return h('nav', R(p, ['items', 'label'], 'bgv-dock', null, { 'aria-label': p.label || 'بخش‌های اصلی' }),
+    /* four destinations for members and guests alike; guests get no counts; nothing is current on 404 or notifications */
+    return h('nav', R(p, ['items', 'label', 'guest', 'float'], cx('bgv-dock', p.float && 'bgv-dock--float'), null, { 'aria-label': p.label || 'بخش‌های اصلی' }),
       keyed(p.items, function (it) {
-        var o = omit(it, ['icon', 'label', 'active', 'count']);
+        var o = omit(it, ['icon', 'label', 'active', 'count', 'turns']);
         o.className = cx('bgv-dock__item', it.active && 'is-active'); o.href = it.href || '#'; o['aria-current'] = it.active ? 'page' : undefined;
-        o = omit(o, ['turns']);
         return h('a', o, h(Icon, { name: it.icon }), h('span', null, it.label),
-          it.turns ? h(Badge, { tone: 'count', className: 'bgv-badge--count-invite', 'aria-label': fa(it.turns) + ' میز منتظر حرکت شما' }, fa(it.turns))
+          p.guest ? null : it.turns ? h(Badge, { tone: 'count', className: 'bgv-badge--count-invite', 'aria-label': fa(it.turns) + ' میز منتظر حرکت شما' }, fa(it.turns))
             : it.count ? h(Badge, { tone: 'count', 'aria-label': fa(it.count) + ' تازه' }, fa(it.count)) : null);
       }));
   }
+
 
   function PageTabs(p) {
     var _s = useState(p.defaultValue !== undefined ? p.defaultValue : (p.items && p.items[0] && p.items[0].value));
@@ -709,7 +741,7 @@
       h(Button, { size: 'sm', variant: 'ghost', iconOnly: true, icon: 'chevron-right', disabled: page <= 1, onClick: function () { go(page - 1); } }, 'صفحهٔ قبل'),
       list.map(function (n, i) {
         return n === '…' ? h('span', { key: 'e' + i, className: 'bgv-muted', 'aria-hidden': 'true', style: { paddingInline: '4px' } }, '…')
-          : h(Button, { key: n, size: 'sm', variant: n === page ? 'primary' : 'ghost', 'aria-current': n === page ? 'page' : undefined, 'aria-label': 'صفحهٔ ' + fa(n), onClick: function () { go(n); } }, fa(n));
+          : h(Button, { key: n, size: 'sm', variant: n === page ? 'secondary' : 'ghost', 'aria-current': n === page ? 'page' : undefined, 'aria-label': 'صفحهٔ ' + fa(n), onClick: function () { go(n); } }, fa(n));
       }),
       h(Button, { size: 'sm', variant: 'ghost', iconOnly: true, icon: 'chevron-left', disabled: page >= pages, onClick: function () { go(page + 1); } }, 'صفحهٔ بعد'));
   }
@@ -719,10 +751,13 @@
       keyed(p.items, function (it) {
         if (it === '-' || it.separator) { return h('div', { className: 'bgv-menu__sep', role: 'separator' }); }
         var o = omit(it, ['icon', 'label', 'danger', 'meta', 'separator', 'focus']);
-        o.type = 'button'; o.role = 'menuitem'; o.className = cx('bgv-menu__item', it.danger && 'bgv-menu__item--danger', it.focus && 'is-focus');
-        return h('button', o, ic(it.icon), it.label, it.meta ? h('small', null, fa(it.meta)) : null);
+        var tag = it.href ? 'a' : 'button';
+        if (tag === 'button') { o.type = 'button'; }
+        o.role = 'menuitem'; o.className = cx('bgv-menu__item', it.danger && 'bgv-menu__item--danger', it.focus && 'is-focus');
+        return h(tag, o, ic(it.icon), it.label, it.meta ? h('small', null, fa(it.meta)) : null);
       }), p.children);
   }
+
 
   function PageHead(p) {
     var Tag = p.level === 2 ? 'h2' : 'h1';
@@ -802,12 +837,15 @@
       p.onClose ? h(Button, { variant: 'ghost', size: 'sm', iconOnly: true, icon: 'x', onClick: p.onClose, style: { marginBlock: '-6px' } }, 'بستن') : null);
   }
   function CritBar(p) {
+    /* in the action dock it takes the place of the turn guide: one bold line + one short line, never two rows of buttons */
     var p01 = p.p !== undefined ? p.p : (typeof p.seconds === 'number' && p.total ? p.seconds / p.total : 0.2);
-    var text = p.text || (p.seconds !== undefined ? fa(p.seconds) + ' ثانیه مانده؛ بعد حرکت خودکار انجام می‌شود' : 'زمان نوبت شما رو به پایان است');
-    return h('div', R(p, ['seconds', 'total', 'p', 'text', 'icon', 'action'], 'bgv-critbar', null, { role: 'alert' }),
-      h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, h(Icon, { name: p.icon || 'alarm-clock' }), h('span', { style: { flex: 1 } }, text), p.action),
-      h('div', { className: 'bgv-critbar__track', 'aria-hidden': 'true' }, h('i', { style: { '--p': Math.max(0, Math.min(1, p01)) } })));
+    var title = p.title || p.text || (p.seconds !== undefined ? fa(p.seconds) + ' ثانیه تا حرکت خودکار' : 'زمان نوبت شما رو به پایان است');
+    return h('div', R(p, ['seconds', 'total', 'p', 'text', 'title', 'sub', 'icon', 'action'], 'bgv-critbar', null, { role: 'alert' }),
+      h('div', { className: 'bgv-critbar__row' }, h(Icon, { name: p.icon || 'alarm-clock', size: 'lg' }),
+        h('div', { className: 'bgv-critbar__text' }, h('span', { className: 'bgv-critbar__t' }, title), p.sub ? h('span', { className: 'bgv-critbar__s' }, p.sub) : null), p.action),
+      h('div', { className: 'bgv-critbar__track', 'aria-hidden': 'true', style: { '--p': Math.max(0, Math.min(1, p01)) } }, h('i')));
   }
+
 
   /* ── Table ─────────────────────────────────────────────────────── */
   function TableScreen(p) {
@@ -815,13 +853,17 @@
     return h('div', R(p, ['desk', 'layout'], cx('bgv-tablescreen', p.desk && 'bgv-tablescreen--desk', lay)), p.children);
   }
   function GameBar(p) {
+    /* meta items are whole units (.bgv-gamebar__mi): when space runs out a whole item drops; the latin name hides under 480px */
     return h('header', R(p, ['title', 'latin', 'meta', 'actions', 'onBack', 'backLabel'], 'bgv-gamebar'),
       h(Button, { variant: 'ghost', iconOnly: true, icon: 'arrow-right', onClick: p.onBack }, p.backLabel || 'بازگشت'),
       h('div', { className: 'bgv-gamebar__title' },
-        h('span', { className: 'bgv-gamebar__name' }, h('span', null, p.title), p.latin ? h('span', { className: 'bgv-gamebar__latin', lang: 'en', dir: 'ltr' }, p.latin) : null),
-        p.meta && p.meta.length ? h('span', { className: 'bgv-gamebar__meta' }, joinSep(p.meta.map(function (m) { return typeof m === 'number' ? fa(m) : m; }))) : null),
+        h('span', { className: 'bgv-gamebar__name' }, h('span', null, p.title), p.latin ? h('span', { className: 'bgv-gamebar__latin bgv-latin', lang: 'en', dir: 'ltr' }, p.latin) : null),
+        p.meta && p.meta.length ? h('span', { className: 'bgv-gamebar__meta' }, keyed(p.meta, function (m, i) {
+          return h('span', { className: cx('bgv-gamebar__mi', i === 0 && 'is-first') }, typeof m === 'number' ? fa(m) : m);
+        })) : null),
       p.actions ? h('div', { className: 'bgv-gamebar__actions' }, p.actions) : null, p.children);
   }
+
   function Felt(p) {
     var v = p.variant || 'felt';
     var tag = p.as || 'div';
@@ -884,7 +926,7 @@
   function HudStat(p) {
     var lbl = typeof p.label === 'string' ? p.label + ': ' + (typeof p.value === 'number' || typeof p.value === 'string' ? fa(p.value) : '') : undefined;
     if (p.tile) {
-      return h('span', R(p, ['icon', 'resource', 'value', 'label', 'delta', 'tile'], 'bgv-hstat bgv-hstat--tile', null, { 'aria-label': lbl }),
+      return h('span', R(p, ['icon', 'resource', 'value', 'label', 'delta', 'tile'], 'bgv-hstat bgv-hstat--tile', null, { role: lbl ? 'img' : undefined, 'aria-label': lbl }),
         h('span', { className: 'bgv-hstat__label', style: { display: 'inline-flex', alignItems: 'center', gap: '4px' } }, p.resource ? h('span', { className: 'bgv-hstat__res', style: { '--_r': p.resource } }) : ic(p.icon), p.label),
         h('b', null, fa(p.value), p.delta !== undefined ? h('span', { className: cx('bgv-hstat__delta', typeof p.delta === 'number' && p.delta < 0 && 'bgv-hstat__delta--down'), style: { marginInlineStart: '4px' } }, signed(p.delta)) : null));
     }
@@ -957,8 +999,8 @@
       p.label ? h('span', { className: 'bgv-team__label' }, p.label) : null,
       keyed(p.resources, function (r) {
         var pips = r.of ? h('span', { className: 'bgv-pips', 'aria-hidden': 'true' }, Array.from({ length: r.of }).map(function (_, i) { return h('i', { key: i, className: i < (r.value || 0) ? undefined : 'is-off' }); })) : null;
-        return h('span', { className: 'bgv-team__res', style: r.tone ? { color: r.tone } : undefined, 'aria-label': (r.label || '') + ' ' + fa(r.value) + (r.of ? ' از ' + fa(r.of) : '') },
-          ic(r.icon, 'sm'), r.label ? h('span', { style: { fontWeight: 400, fontSize: '13px' } }, r.label) : null, pips, h('span', null, fa(r.value), r.of ? h('span', { style: { opacity: 0.7, fontWeight: 700 } }, '/' + fa(r.of)) : null));
+        return h('span', { className: 'bgv-team__res', role: 'img', style: r.tone ? { color: r.tone } : undefined, 'aria-label': (r.label || '') + ' ' + fa(r.value) + (r.of ? ' از ' + fa(r.of) : '') },
+          ic(r.icon, 'sm'), r.label ? h('span', { style: { fontWeight: 400, fontSize: '13px' } }, r.label) : null, pips, h('span', null, fa(r.value), r.of ? h('span', { style: { opacity: 0.85, fontWeight: 700 } }, '/' + fa(r.of)) : null));
       }),
       p.children);
   }
@@ -989,7 +1031,8 @@
     }
     var badge = p.ready === true ? h(Badge, { tone: 'success', icon: 'check' }, 'آماده') : p.ready === false ? h(Badge, { tone: 'warning', icon: 'hourglass' }, 'منتظر') : null;
     var idProps = omit(p, ['empty', 'inviteLabel', 'onInvite', 'ready', 'host', 'actions', 'className', 'style', 'children', 'onClick']);
-    return h('div', { className: cx('bgv-lobbyseat', p.className), style: p.style, onClick: p.onClick },
+    var act = p.onClick ? { role: 'button', tabIndex: 0, onKeyDown: function (e) { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); p.onClick(e); } } } : {};
+    return h('div', Object.assign({ className: cx('bgv-lobbyseat', p.onClick && 'is-interactive', p.className), style: p.style, onClick: p.onClick }, act),
       h(Identity, idProps),
       h('span', { className: 'bgv-spacer' }),
       p.host ? h(Tag, { icon: 'crown' }, 'میزبان') : null,
@@ -1012,7 +1055,7 @@
       p.children);
   }
   function Spectators(p) {
-    return h('span', R(p, ['count', 'showLabel'], 'bgv-spectators', null, { title: 'تماشاگر', 'aria-label': fa(p.count) + ' تماشاگر' }),
+    return h('span', R(p, ['count', 'showLabel'], 'bgv-spectators', null, { role: 'img', title: 'تماشاگر', 'aria-label': fa(p.count) + ' تماشاگر' }),
       h(Icon, { name: 'eye', size: 'sm' }), h('span', { 'aria-hidden': 'true' }, fa(p.count), p.showLabel ? ' تماشاگر' : null));
   }
   var CONN = { ok: 'متصل', retry: 'در حال اتصال دوباره…', lost: 'اتصال قطع شد' };
@@ -1040,7 +1083,7 @@
       p.coin ? h('span', { className: 'bgv-coin', 'aria-hidden': 'true' }) : ic(p.icon),
       p.progress !== undefined ? h('div', { style: { display: 'grid', gap: '4px', flex: 1 } },
         h('span', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' } }, h('span', null, p.label), h('span', { className: 'bgv-num', style: { color: 'var(--text-muted)' } }, fa(p.progressText))),
-        h(Progress, { value: p.progress, tone: 'accent' })) : h('span', null, p.label),
+        h(Progress, { value: p.progress, tone: 'accent', 'aria-label': typeof p.label === 'string' ? p.label : 'پیشرفت' })) : h('span', null, p.label),
       p.value !== undefined ? h('b', { className: dir === 'up' ? 'up' : dir === 'down' ? 'down' : undefined, style: { display: 'inline-flex', alignItems: 'center', gap: '4px' } },
         dir ? h(Icon, { name: dir === 'down' ? 'arrow-down-right' : 'arrow-up-right', size: 'sm' }) : null,
         typeof p.value === 'number' ? signed(p.value) : fa(p.value), p.unit ? ' ' + p.unit : null) : null,
@@ -1065,7 +1108,7 @@
   function Result(p) {
     return h('section', R(p, ['title', 'sub', 'badge', 'podium', 'rewards', 'actions'], 'bgv-result'),
       h('div', { className: 'bgv-result__head' },
-        p.badge ? (typeof p.badge === 'string' ? h(Badge, { tone: 'premium', icon: 'trophy' }, p.badge) : p.badge) : null,
+        p.badge ? (typeof p.badge === 'string' ? h(Badge, { tone: 'success', icon: 'trophy' }, p.badge) : p.badge) : null,
         h('h2', { className: 'bgv-result__title' }, p.title),
         p.sub ? h('span', { style: { fontSize: '14px', color: 'var(--text-muted)' } }, p.sub) : null),
       p.podium ? (Array.isArray(p.podium) ? h(Podium, { places: p.podium }) : p.podium) : null,
@@ -1110,7 +1153,7 @@
     var metaTheirs = !mine ? h('span', { className: 'bgv-msg__meta' }, p.seat ? h(Seat, { n: p.seat }) : null, h('b', null, p.author), p.league ? h(League, { tier: p.league }) : null, p.title ? h('span', { className: 'bgv-identity__title' }, p.title) : null, fa(p.time)) : null;
     var metaMine = mine && state !== 'failed' ? h('span', { className: 'bgv-msg__meta' }, fa(p.time),
       state === 'pending' ? h('span', { style: { display: 'inline-flex', gap: '4px', alignItems: 'center' } }, h(Icon, { name: 'clock', size: 'sm' }), 'در حال ارسال') : null,
-      p.seen && state === 'sent' ? h('span', { className: 'bgv-seen', title: 'دیده شد', 'aria-label': 'دیده شد' }, h(Icon, { name: 'check-check', size: 'sm' })) : null) : null;
+      p.seen && state === 'sent' ? h('span', { className: 'bgv-seen', role: 'img', title: 'دیده شد', 'aria-label': 'دیده شد' }, h(Icon, { name: 'check-check', size: 'sm' })) : null) : null;
     var fail = state === 'failed' ? h('span', { className: 'bgv-msg__fail' }, h(Icon, { name: 'circle-alert', size: 'sm' }), 'ارسال نشد',
       h(Button, { variant: 'ghost', size: 'sm', icon: 'refresh-cw', onClick: p.onRetry, style: { '--_h': '28px', color: 'var(--danger)' } }, 'دوباره')) : null;
     return h('div', R(p, ['mine', 'author', 'seat', 'initials', 'src', 'avatar', 'time', 'text', 'reply', 'reactions', 'onReact', 'seen', 'state', 'edited', 'quick', 'mentioned', 'viewer', 'league', 'title', 'onRetry', 'deletedText'], cls),
@@ -1174,9 +1217,9 @@
       h('div', { className: 'bgv-conv__main' },
         h('span', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
           h('b', { style: { fontSize: '15px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, p.name),
-          p.muted ? h(Icon, { name: 'bell-off', size: 'sm', label: 'بی‌صدا', style: { color: 'var(--text-muted)' } }) : null,
+          p.muted ? h(Icon, { name: 'bell-off', size: 'sm', label: 'بی‌صدا' }) : null,
           h('span', { className: 'bgv-spacer' }),
-          p.time ? h('span', { style: { fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' } }, fa(p.time)) : null),
+          p.time ? h('span', { className: 'bgv-conv__time' }, fa(p.time)) : null),
         h('small', null, p.preview)),
       p.mention ? h(Badge, { tone: 'count-invite', 'aria-label': 'نام شما آمده' }, '@') : null,
       p.unread ? h(Badge, { tone: 'count', 'aria-label': fa(p.unread) + ' پیام خوانده‌نشده' }, fa(p.unread)) : null);
@@ -1251,7 +1294,8 @@
   }
   function Trophy(p) {
     var t = p.tier || 'gold';
-    return h('div', R(p, ['tier', 'locked', 'icon', 'name', 'sub'], cx('bgv-trophy', t !== 'gold' && 'bgv-trophy--' + t, p.locked && 'bgv-trophy--locked'), null, { title: p.locked ? 'قفل' : undefined }),
+    var tag = p.href ? 'a' : (p.onClick ? 'button' : 'div');
+    return h(tag, R(p, ['tier', 'locked', 'icon', 'name', 'sub'], cx('bgv-trophy', t !== 'gold' && 'bgv-trophy--' + t, p.locked && 'bgv-trophy--locked'), null, { title: p.locked ? 'قفل' : undefined, type: tag === 'button' ? 'button' : undefined }),
       h('span', { className: 'bgv-trophy__art', 'aria-hidden': 'true' }, h(Icon, { name: p.locked ? 'lock' : (p.icon || 'trophy'), size: 'lg' })),
       p.name ? h('b', { style: { color: 'var(--text)', fontSize: '13px', lineHeight: 1.4 } }, p.name) : null,
       p.sub ? h('span', { style: { fontSize: '12px' } }, fa(p.sub)) : null);
@@ -1274,11 +1318,242 @@
       h('span', { className: 'bgv-cosm__art' }, p.art),
       h('span', { className: 'bgv-cosm__name' }, p.name),
       p.rarity ? h('span', { className: 'bgv-cosm__meta' }, h(Rarity, { level: p.rarity })) : null,
-      h('span', { className: 'bgv-cosm__state' }, p.premium ? h(Badge, { tone: 'premium', size: 'sm', icon: 'crown' }, 'ویژه') : stateRow));
+      h('span', { className: 'bgv-cosm__state' }, p.premium ? h(Badge, { tone: 'premium', size: 'sm', icon: 'crown' }, 'پریمیوم') : stateRow));
   }
   function CardBack(p) {
     return h('span', R(p, ['color', 'width', 'label'], 'bgv-cardback', { '--_cb': p.color, inlineSize: (p.width || 72) + 'px', color: 'var(--brand-cream)' }, { role: 'img', 'aria-label': p.label || 'پشت کارت' }),
       p.children || h(Icon, { name: 'sparkles', size: Math.round((p.width || 72) * 0.36) }));
+  }
+
+  /* ── Site shell (v2.1): header, search, account menu, footer ───────── */
+  var SITE_NAV = [
+    { label: 'خانه', href: '/' }, { label: 'بازی‌ها', href: '/games' }, { label: 'میزها', href: '/tables' },
+    { label: 'تورنمنت‌ها', href: '/tournaments' }, { label: 'رتبه‌بندی', href: '/ranking' }
+  ];
+  function iconLink(it, icon, label, k) {
+    var n = it.count;
+    return h('a', { key: k, className: 'bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count', href: it.href || '#', 'aria-current': it.current ? 'page' : undefined,
+      'aria-label': label + (n ? '، ' + fa(n) + ' خوانده‌نشده' : '') },
+      h(Icon, { name: icon }), n ? h(Badge, { tone: 'count' }, fa(n)) : null);
+  }
+  function SiteHeader(p) {
+    var logo = p.logo || {};
+    var nav = p.nav || SITE_NAV;
+    var guest = !!p.guest;
+    var user = p.user || {};
+    var qp = p.quickPlay === false ? null : h(Button, { variant: 'primary', size: 'sm', icon: 'zap', href: (p.quickPlay && p.quickPlay.href) || '/play', className: 'bgv-siteheader__quick' },
+      h('span', null, (p.quickPlay && p.quickPlay.label) || 'بازی سریع'));
+    var search = p.search === false ? null : (React.isValidElement(p.search) ? p.search : h(SiteSearch, Object.assign({}, p.search || {})));
+    return h('header', R(p, ['logo', 'nav', 'guest', 'user', 'quickPlay', 'search', 'messages', 'notifications', 'loginHref', 'width', 'homeHref', 'onAvatar', 'menuOpen'],
+      cx('bgv-siteheader', p.width === 'mid' && 'bgv-siteheader--mid', p.width === 'wide' && 'bgv-siteheader--wide')),
+      h('div', { className: 'bgv-siteheader__in' },
+        logo.src ? h(Logo, { src: logo.src, srcDark: logo.srcDark, height: 32, href: p.homeHref || '/', alt: '', 'aria-label': 'بردگیم‌ورس، خانه' }) : null,
+        h('nav', { className: 'bgv-sitenav', 'aria-label': 'ناوبری اصلی' }, keyed(nav, function (it) {
+          return h('a', { href: it.href || '#', 'aria-current': it.active ? 'page' : undefined },
+            it.label, !guest && it.turns ? h(Badge, { tone: 'count', className: 'bgv-badge--count-invite', 'aria-label': fa(it.turns) + ' میز منتظر حرکت شما' }, fa(it.turns)) : null);
+        })),
+        search,
+        h('div', { className: 'bgv-siteheader__actions' },
+          guest ? [qp && React.cloneElement(qp, { key: 'q' }), h(Button, { key: 'l', variant: 'secondary', href: p.loginHref || '/login', className: 'bgv-siteheader__guest' }, 'ورود / ثبت‌نام')]
+            : [qp && React.cloneElement(qp, { key: 'q' }),
+              p.messages !== false ? iconLink(p.messages || {}, 'message-circle', 'پیام‌ها', 'm') : null,
+              p.notifications !== false ? iconLink(p.notifications || {}, 'bell', 'اعلان‌ها', 'n') : null,
+              h('button', { key: 'a', type: 'button', className: 'bgv-avatarbtn', 'aria-haspopup': 'menu', 'aria-expanded': p.menuOpen ? 'true' : 'false',
+                'aria-current': user.current ? 'page' : undefined, 'aria-label': 'حساب من' + (user.name ? '، ' + user.name : ''), onClick: p.onAvatar },
+                h(Avatar, { size: 'sm', initials: user.initials, src: user.src }), h(Icon, { name: 'chevron-down' }))]),
+        p.children));
+  }
+
+  /* SiteSearch: combobox + listbox. state: 'idle' (recent + popular), 'results', 'empty'; `sheet` = the phone full-screen sheet */
+  function SiteSearch(p) {
+    var uid = useId(), listId = uid + '-list';
+    var _q = useState(p.defaultValue || ''), q = p.value !== undefined ? p.value : _q[0];
+    var _o = useState(!!p.defaultOpen), open = p.open !== undefined ? p.open : _o[0];
+    var _a = useState(p.activeIndex !== undefined ? p.activeIndex : -1), act = p.activeIndex !== undefined ? p.activeIndex : _a[0];
+    var ref = React.useRef(null);
+    var rows = p.results || [];
+    function setOpen(v) { _o[1](v); if (p.onOpenChange) { p.onOpenChange(v); } }
+    React.useEffect(function () {
+      if (p.shortcut === false || p.sheet) { return undefined; }
+      function onKey(e) {
+        var t = e.target, typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+        if ((e.key === 'k' || e.key === 'K') && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (ref.current) { ref.current.focus(); } setOpen(true); }
+        else if (e.key === '/' && !typing) { e.preventDefault(); if (ref.current) { ref.current.focus(); } setOpen(true); }
+      }
+      document.addEventListener('keydown', onKey);
+      return function () { document.removeEventListener('keydown', onKey); };
+    }, [p.shortcut, p.sheet]);
+    function onKeyDown(e) {
+      if (e.key === 'Escape') { if (q) { _q[1](''); if (p.onChange) { p.onChange(''); } } else { setOpen(false); e.currentTarget.blur(); } }
+      else if (e.key === 'ArrowDown' && rows.length) { e.preventDefault(); setOpen(true); _a[1](Math.min(rows.length - 1, act + 1)); }
+      else if (e.key === 'ArrowUp' && rows.length) { e.preventDefault(); _a[1](Math.max(0, act - 1)); }
+      else if (e.key === 'Enter' && act >= 0 && rows[act] && typeof window !== 'undefined') { var dest = e.shiftKey ? (rows[act].quickHref || rows[act].href) : rows[act].href; if (dest) { window.location.href = dest; } }
+    }
+    var state = p.state || (q ? (rows.length ? 'results' : 'empty') : 'idle');
+    function row(r, i) {
+      var on = i === act;
+      return h('li', { key: i, id: uid + '-o' + i, role: 'option', 'aria-selected': on ? 'true' : 'false', className: cx('bgv-sitesearch__row', on && 'is-active'),
+        onMouseEnter: function () { _a[1](i); }, onClick: function (e) { var dest = e.target.closest && e.target.closest('[data-quick]') ? (r.quickHref || r.href) : r.href; if (dest && typeof window !== 'undefined') { window.location.href = dest; } } },
+        r.cover ? h('img', { src: r.cover, alt: '' }) : null,
+        h('div', { className: 'bgv-sitesearch__main' },
+          h('span', { className: 'bgv-sitesearch__name' }, h('span', null, r.title), r.latin ? h('span', { className: 'bgv-latin', lang: 'en', dir: 'ltr' }, r.latin) : null),
+          r.meta && r.meta.length ? h('span', { className: 'bgv-sitesearch__meta' }, keyed(r.meta, function (m) {
+            return typeof m === 'object' && !React.isValidElement(m) ? h('span', null, ic(m.icon, 'sm'), fa(m.text)) : h('span', null, fa(m));
+          })) : null),
+        /* not a nested link: an option may not hold focusable content. Click it, or Shift+Enter on the row. */
+        h('span', { className: 'bgv-btn bgv-btn--secondary bgv-btn--sm', 'data-quick': '', 'aria-hidden': 'true' }, ic('zap', 'sm'), 'بازی سریع'));
+    }
+    var chips = function (list, icon) { return h('div', { className: 'bgv-sitesearch__chips' }, keyed(list, function (c) {
+      if (React.isValidElement(c)) { return c; }
+      var o = typeof c === 'string' ? { label: c } : c;
+      return h(Chip, { size: 'sm', icon: o.icon || icon, href: o.href, selected: o.selected }, o.label);
+    })); };
+    var pop = h('div', { className: 'bgv-sitesearch__pop', hidden: !open || undefined },
+      p.hint ? h('div', { className: 'bgv-sitesearch__hint', role: 'note' }, h(Icon, { name: 'info', size: 'sm' }), p.hint) : null,
+      state === 'idle' && p.recent && p.recent.length ? [
+        h('div', { key: 'rl', className: 'bgv-sitesearch__label' }, h('span', null, 'جست‌وجوهای اخیر'), h('button', { type: 'button', onClick: p.onClearRecent }, 'پاک کردن')),
+        React.cloneElement(chips(p.recent, 'history'), { key: 'rc' })] : null,
+      state !== 'idle' && p.filters && p.filters.length ? [
+        h('div', { key: 'fl', className: 'bgv-sitesearch__label' }, h(Icon, { name: 'filter', size: 'sm' }), h('span', null, 'فیلتر')),
+        React.cloneElement(chips(p.filters), { key: 'fc' })] : null,
+      state !== 'empty' && rows.length ? [
+        h('div', { key: 'gl', className: 'bgv-sitesearch__label' }, h('span', null, state === 'idle' ? (p.popularLabel || 'محبوب این هفته') : 'بازی‌ها'), state === 'results' ? h('span', { className: 'bgv-num' }, fa(rows.length) + ' نتیجه') : null),
+        h('ul', { key: 'ul', className: 'bgv-sitesearch__list', role: 'listbox', id: listId, 'aria-label': 'نتیجه‌ها' }, rows.slice(0, 6).map(row))] : null,
+      state === 'results' && p.categories && p.categories.length ? [
+        h('div', { key: 'cl', className: 'bgv-sitesearch__label' }, h('span', null, 'دسته‌ها')), React.cloneElement(chips(p.categories, 'layout-grid'), { key: 'cc' })] : null,
+      state === 'empty' ? h('div', { className: 'bgv-sitesearch__empty', role: 'status' },
+        h('span', { className: 'bgv-state__icon', style: { inlineSize: '48px', blockSize: '48px' } }, h(Icon, { name: 'search' })),
+        h('b', null, p.emptyTitle || ('بازی‌ای با «' + q + '» پیدا نشد')),
+        h('p', null, p.emptyText || 'شاید این‌ها را دوست داشته باشید:'),
+        p.suggestions ? chips(p.suggestions) : null) : null,
+      p.sheet ? null : h('div', { className: 'bgv-sitesearch__foot' },
+        h('span', null, h('kbd', { className: 'bgv-kbd' }, '↑↓'), 'انتخاب'), h('span', null, h('kbd', { className: 'bgv-kbd' }, 'Enter'), 'باز کردن'), h('span', null, h('kbd', { className: 'bgv-kbd' }, 'Shift Enter'), 'بازی سریع'), h('span', null, h('kbd', { className: 'bgv-kbd' }, 'Esc'), 'بستن'),
+        h('a', { href: p.allHref || '/games' }, state === 'empty' ? 'این بازی را می‌خواهی؟ پیشنهاد بده' : 'همهٔ نتیجه‌ها در صفحهٔ بازی‌ها')));
+    var field = h('label', { className: 'bgv-sitesearch__field' },
+      h(Icon, { name: 'search' }),
+      h('input', { ref: ref, type: 'search', role: 'combobox', 'aria-expanded': open && state !== 'empty' && rows.length ? 'true' : 'false', 'aria-controls': open && state !== 'empty' && rows.length ? listId : undefined, 'aria-autocomplete': 'list',
+        'aria-activedescendant': open && state !== 'empty' && act >= 0 && act < Math.min(rows.length, 6) ? uid + '-o' + act : undefined, 'aria-label': p.label || 'جست‌وجوی بازی',
+        placeholder: p.placeholder || 'جست‌وجوی بازی، مثلاً کاتان…', value: q, autoFocus: p.sheet || undefined,
+        onChange: function (e) { _q[1](e.target.value); _a[1](-1); setOpen(true); if (p.onChange) { p.onChange(e.target.value); } },
+        onFocus: function () { setOpen(true); }, onKeyDown: onKeyDown }),
+      q ? h('button', { type: 'button', className: 'bgv-sitesearch__clear', 'aria-label': 'پاک کردن', onClick: function () { _q[1](''); if (p.onChange) { p.onChange(''); } } }, h(Icon, { name: 'x', size: 'sm' }))
+        : (p.sheet ? null : h('kbd', null, 'Ctrl K')));
+    if (p.sheet) {
+      return h('div', R(p, SEARCH_OMIT, 'bgv-sitesearch bgv-sitesearch--sheet', null, { role: 'dialog', 'aria-modal': 'true', 'aria-label': 'جست‌وجو' }),
+        h('div', { className: 'bgv-sitesearch__top' }, h(Button, { variant: 'ghost', iconOnly: true, icon: 'arrow-right', onClick: p.onClose }, 'بستن جست‌وجو'), field), pop);
+    }
+    return h('div', R(p, SEARCH_OMIT, 'bgv-sitesearch', null, { role: 'search' }), field, pop);
+  }
+  var SEARCH_OMIT = ['value', 'defaultValue', 'open', 'defaultOpen', 'activeIndex', 'onOpenChange', 'shortcut', 'results', 'state', 'recent', 'filters', 'categories', 'suggestions', 'hint', 'emptyTitle', 'emptyText', 'allHref', 'sheet', 'onClose', 'onClearRecent', 'popularLabel', 'placeholder', 'label', 'onChange'];
+
+  var ACCOUNT_ITEMS = [
+    { icon: 'user', label: 'پروفایل من', href: '/me' }, { icon: 'trophy', label: 'پیشرفت و رتبه', href: '/me/progress' },
+    { icon: 'palette', label: 'استودیو پروفایل', href: '/me/studio' }, { icon: 'smile', label: 'ساخت آواتار', href: '/me/avatar' },
+    { icon: 'shirt', label: 'کمد من', href: '/me/wardrobe' }, { icon: 'shopping-bag', label: 'فروشگاه کازمتیک', href: '/shop' }, '-',
+    { icon: 'message-circle', label: 'پیام‌ها و دوستان', href: '/messages', key: 'messages' }, { icon: 'users', label: 'باشگاه‌ها و گروه‌ها', href: '/clubs' },
+    { icon: 'wallet', label: 'اشتراک و سکه', href: '/plans', key: 'wallet' }, { icon: 'settings', label: 'تنظیمات', href: '/settings' }, '-',
+    { icon: 'book-open', label: 'راهنما', href: '/guides' }, { icon: 'life-buoy', label: 'پشتیبانی', href: '/support' }, '-',
+    { icon: 'shield', label: 'پنل مدیریت', href: '/admin', key: 'admin', tag: 'فقط مدیران' }, { icon: 'log-out', label: 'خروج', href: '/logout' }
+  ];
+  function AccountMenu(p) {
+    var u = p.user || {};
+    var items = (p.items || ACCOUNT_ITEMS).filter(function (it, i, all) {
+      if (it.key === 'admin' && !p.admin) { return false; }
+      if (it === '-' && all[i + 1] && all[i + 1].key === 'admin' && !p.admin) { return false; }
+      return true;
+    });
+    return h('div', R(p, ['user', 'coins', 'coinsHref', 'buyHref', 'items', 'admin', 'counts', 'label'], 'bgv-menu bgv-menu--account', null, { role: 'group', 'aria-label': p.label || 'حساب من' }),
+      h('div', { className: 'bgv-menu__id' }, h(Avatar, { initials: u.initials, src: u.src }),
+        h('span', null, h('b', null, u.name), u.sub ? h('small', null, fa(u.sub)) : null)),
+      h('div', { className: 'bgv-menu__wallet' },
+        p.coins !== undefined ? h(Coin, { chip: true, size: 'sm', amount: p.coins, href: p.coinsHref || '/coins' }) : h('span'),
+        h(Button, { size: 'sm', variant: 'secondary', href: p.buyHref || '/coins' }, 'خرید سکه')),
+      h('div', { className: 'bgv-menu__sep', 'aria-hidden': 'true' }),
+      h('div', { className: 'bgv-menu__list', role: 'menu', 'aria-label': p.label || 'حساب من' }, keyed(items, function (it) {
+        if (it === '-') { return h('div', { className: 'bgv-menu__sep', role: 'separator' }); }
+        var n = it.key && p.counts ? p.counts[it.key] : undefined;
+        return h('a', { className: cx('bgv-menu__item', it.danger && 'bgv-menu__item--danger', it.focus && 'is-focus'), role: 'menuitem', href: it.href || '#' },
+          ic(it.icon), h('span', null, it.label),
+          n ? h(Badge, { tone: 'count' }, fa(n)) : null,
+          it.key === 'wallet' && p.coins !== undefined ? h('small', null, fa(p.coins) + ' سکه') : null,
+          it.tag ? h('small', { className: 'bgv-menu__tag' }, it.tag) : null);
+      })));
+  }
+
+  var FOOTER_COLS = [
+    { title: 'بازی‌های محبوب', links: [['کاتان آنلاین', '/games/catan'], ['آزول آنلاین', '/games/azul'], ['تیکت تو راید آنلاین', '/games/ticket-to-ride'], ['اونو آنلاین', '/games/uno'], ['شطرنج آنلاین', '/games/chess'], ['تخته‌نرد آنلاین', '/games/backgammon']] },
+    { title: 'جامعه', links: [['تورنمنت‌ها', '/tournaments'], ['رتبه‌بندی', '/ranking'], ['باشگاه‌ها', '/clubs'], ['راهنما', '/guides']] },
+    { title: 'پشتیبانی و قوانین', links: [['پشتیبانی', '/support'], ['تماس با ما', '/contact'], ['قوانین و مقررات', '/terms'], ['حریم خصوصی', '/privacy'], ['قوانین خرید و بازگشت وجه', '/refunds']] }
+  ];
+  function SiteFooter(p) {
+    var cols = p.columns || FOOTER_COLS;
+    var _o = useState(p.defaultOpen !== undefined ? p.defaultOpen : 0), open = _o[0];
+    var logo = p.logo || {};
+    return h('footer', R(p, ['columns', 'defaultOpen', 'logo', 'about', 'storeHref', 'storeLabel', 'seal', 'copyright', 'social', 'phone', 'wide'], cx('bgv-sitefooter', p.phone && 'bgv-sitefooter--phone', p.wide && 'bgv-sitefooter--wide')),
+      h('div', { className: 'bgv-sitefooter__in' },
+        h('div', { className: 'bgv-sitefooter__cols' },
+          h('div', { className: 'bgv-sitefooter__about' },
+            logo.src ? h(Logo, { src: logo.src, height: 32, href: '/', alt: 'بردگیم‌ورس' }) : null,
+            h('p', null, p.about || '۶۷ بردگیم محبوب، آنلاین و به فارسی. با دوستانت میز بساز یا حریف تازه پیدا کن.'),
+            p.storeHref === false ? null : h('a', { className: 'bgv-sitefooter__store', href: p.storeHref || '#' }, h(Icon, { name: 'download' }), p.storeLabel || 'دریافت از کافه‌بازار')),
+          cols.map(function (c, i) {
+            var isOpen = open === i, id = 'bgv-fcol-' + i;
+            return h('div', { key: i, className: cx('bgv-sitefooter__col', isOpen && 'is-open') },
+              h('h3', null, h('button', { type: 'button', 'aria-expanded': isOpen ? 'true' : 'false', 'aria-controls': id, onClick: function () { _o[1](isOpen ? -1 : i); } },
+                c.title, h(Icon, { name: 'chevron-down' }))),
+              h('ul', { id: id }, (c.links || []).map(function (l, j) { return h('li', { key: j }, h('a', { href: l[1] || l.href || '#' }, l[0] || l.label)); })));
+          })),
+        h('div', { className: 'bgv-sitefooter__bottom' },
+          p.seal === false ? null : h('div', { className: 'bgv-sitefooter__seal' }, p.seal || 'نماد اعتماد الکترونیکی'),
+          h('small', null, p.copyright || '© ۱۴۰۵ بردگیم‌ورس. همهٔ حقوق محفوظ است.'),
+          h('div', { className: 'bgv-sitefooter__social' }, (p.social || [{ icon: 'instagram', label: 'اینستاگرام', href: '#' }, { icon: 'send', label: 'تلگرام', href: '#' }]).map(function (s, i) {
+            return h('a', { key: i, href: s.href || '#', 'aria-label': s.label }, h(Icon, { name: s.icon }));
+          })))));
+  }
+
+  /* ── Login flow (v2.1): stepper, in-page login sheet ───────────────── */
+  function Stepper(p) {
+    var steps = p.steps || ['شماره', 'کد تأیید', 'پروفایل'];
+    var cur = p.current || 0;
+    var out = [];
+    steps.forEach(function (s, i) {
+      if (i) { out.push(h('li', { key: 'b' + i, className: cx('bgv-steps__bar', i <= cur && 'is-done'), 'aria-hidden': 'true' })); }
+      var done = i < cur, now = i === cur;
+      out.push(h('li', { key: i, className: cx(done && 'is-done', now && 'is-cur'), 'aria-current': now ? 'step' : undefined },
+        h('b', null, done ? h(Icon, { name: 'check', label: 'انجام شد' }) : fa(i + 1)), s));
+    });
+    return h('ol', R(p, ['steps', 'current', 'align', 'label'], cx('bgv-steps', p.align === 'start' && 'bgv-steps--start'), null, { 'aria-label': p.label || 'مراحل ورود' }), out);
+  }
+  function LoginSheet(p) {
+    var titleId = useId();
+    var sheet = h('section', R(p, ['cover', 'title', 'text', 'step', 'cta', 'legal', 'onClose', 'scrim', 'phoneProps'], cx('bgv-sheet bgv-loginsheet', p.scrim && 'bgv-loginsheet--overlay'), null, { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId }),
+      h('div', { className: 'bgv-sheet__handle', 'aria-hidden': 'true' }),
+      h('div', { className: 'bgv-loginsheet__body' },
+        h('div', { className: 'bgv-loginsheet__head' },
+          p.cover ? h('img', { src: p.cover, alt: '' }) : null,
+          h('div', null, h('h2', { id: titleId }, p.title || 'برای نشستن وارد شوید'), p.text ? h('p', null, p.text) : null),
+          h(Button, { variant: 'ghost', iconOnly: true, icon: 'x', onClick: p.onClose }, 'بستن')),
+        h(Stepper, { current: p.step || 0, align: 'start' }),
+        h(PhoneField, Object.assign({ label: 'شمارهٔ موبایل' }, p.phoneProps || {})),
+        h(Button, { variant: 'primary', size: 'lg', block: true }, p.cta || 'دریافت کد'),
+        h('p', { className: 'bgv-loginsheet__legal' }, p.legal || 'ورود یعنی پذیرش قوانین. بعد از کد و نام نمایشی، مستقیم سر همین صندلی برمی‌گردید.'),
+        p.children));
+    return p.scrim ? h(React.Fragment, null, h('div', { className: 'bgv-loginsheet__scrim', 'aria-hidden': 'true', onClick: p.onClose }), sheet) : sheet;
+  }
+
+  /* ── «بیشتر» page tiles (phone) ──────────────────────────────────── */
+  function MoreTile(p) {
+    return h('a', R(p, ['icon', 'label', 'count', 'turns'], 'bgv-moretile', null, { href: p.href || '#' }),
+      h('span', { className: 'bgv-moretile__icon' }, h(Icon, { name: p.icon || 'layout-grid' })),
+      h('span', { className: 'bgv-moretile__label' }, p.label || p.children),
+      p.turns ? h(Badge, { tone: 'turn', size: 'sm', 'aria-label': fa(p.turns) + ' میز منتظر حرکت شما' }, fa(p.turns))
+        : p.count ? h(Badge, { tone: 'count', 'aria-label': fa(p.count) + ' تازه' }, fa(p.count)) : null);
+  }
+  function MoreGroup(p) {
+    var tid = useId();
+    return h('section', R(p, ['title', 'items'], 'bgv-moregroup', null, { 'aria-labelledby': tid }),
+      h('h2', { className: 'bgv-moregroup__title', id: tid }, p.title),
+      h('div', { className: 'bgv-moregroup__grid' }, p.items ? keyed(p.items, function (it) { return h(MoreTile, it); }) : p.children));
   }
 
   /* ── export ────────────────────────────────────────────────────── */
@@ -1286,8 +1561,8 @@
     Logo: Logo,
     Button: Button, Chip: Chip, ChipGroup: ChipGroup,
     TextField: TextField, Textarea: Textarea, Select: Select, Checkbox: Checkbox, Radio: Radio, Switch: Switch, Segmented: Segmented, OtpField: OtpField, PhoneField: PhoneField, Slider: Slider,
-    Icon: Icon, Badge: Badge, Tag: Tag, Coin: Coin, Avatar: Avatar, Frame: Frame, Seat: Seat, Identity: Identity, League: League, Card: Card, GameCard: GameCard, Stat: Stat, Progress: Progress, Ring: Ring, Skeleton: Skeleton, StateBlock: StateBlock, DataTable: DataTable, ListItem: ListItem, Tooltip: Tooltip, Divider: Divider,
-    AppShell: AppShell, Sidebar: Sidebar, NavItem: NavItem, TopBar: TopBar, Dock: Dock, PageTabs: PageTabs, Tabs: Tabs, Breadcrumbs: Breadcrumbs, Pagination: Pagination, Menu: Menu, PageHead: PageHead, Hero: Hero,
+    Icon: Icon, Badge: Badge, Tag: Tag, ModeTag: ModeTag, Coin: Coin, Avatar: Avatar, Frame: Frame, Seat: Seat, Identity: Identity, League: League, Card: Card, GameCard: GameCard, Stat: Stat, Progress: Progress, Ring: Ring, Skeleton: Skeleton, StateBlock: StateBlock, DataTable: DataTable, ListItem: ListItem, Tooltip: Tooltip, Divider: Divider,
+    AppShell: AppShell, SiteHeader: SiteHeader, SiteSearch: SiteSearch, AccountMenu: AccountMenu, SiteFooter: SiteFooter, MoreTile: MoreTile, MoreGroup: MoreGroup, Stepper: Stepper, LoginSheet: LoginSheet, TopBar: TopBar, Dock: Dock, PageTabs: PageTabs, Tabs: Tabs, Breadcrumbs: Breadcrumbs, Pagination: Pagination, Menu: Menu, PageHead: PageHead, Hero: Hero,
     Dialog: Dialog, Sheet: Sheet, Popover: Popover, Toast: Toast, Banner: Banner, CritBar: CritBar,
     TableScreen: TableScreen, GameBar: GameBar, Felt: Felt, FeltPlate: FeltPlate, TurnPill: TurnPill, Clock: Clock, Strikes: Strikes, PlayerCard: PlayerCard, Hud: Hud, HudStat: HudStat, Race: Race, TeamPlate: TeamPlate, ActionDock: ActionDock, MoveLog: MoveLog, LobbySeat: LobbySeat, ReadyCheck: ReadyCheck, Spectators: Spectators, Connection: Connection, Result: Result, Podium: Podium, Reward: Reward, Rematch: Rematch,
     Chat: Chat, Message: Message, SystemMessage: SystemMessage, Reactions: Reactions, ReactionBar: ReactionBar, Mention: Mention, MentionSuggest: MentionSuggest, Composer: Composer, QuickChat: QuickChat, Typing: Typing, UnreadDivider: UnreadDivider, Conversation: Conversation,

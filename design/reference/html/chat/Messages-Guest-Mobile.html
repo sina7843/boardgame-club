@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پیام‌ها، مهمان</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.x-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-h3{font-size:17px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.x-cap{font-size:13px;line-height:1.6;color:var(--text-muted)}
+.x-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.x-between>*{min-width:0}
+.x-stack{display:grid;gap:16px;min-width:0}
+.x-sec{padding:0;display:grid;overflow:hidden}
+.x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-sec__head>h2{flex:1;min-width:0}
+.x-sec__body{padding:20px;display:grid;gap:16px}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
+.x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.x-row:last-child{border-bottom:0}
+.x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
+.x-row__text b{font-size:15px;color:var(--text)}
+.x-row__text span{font-size:13px;color:var(--text-muted)}
+.x-row--stack{display:grid;gap:10px}
+.x-li{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:60px;border-bottom:1px solid var(--line)}
+.x-li:last-child{border-bottom:0}
+.x-li__main{flex:1;min-width:0;display:grid;line-height:1.45}
+.x-li__main>b{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__main>span{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x-li__acts{display:flex;align-items:center;gap:6px;flex:none}
+.bgv-btn .bgv-coin{font-weight:900}
+.bgv-switch{gap:10px;flex:none}
+.bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
+
+
+
+.x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.x-phone>.bgv-topbar{flex:none}
+.x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
+.x-pbody>*{flex-shrink:0}
+.x-fr{flex-wrap:wrap;padding-inline:20px;row-gap:10px}
+.x-fr .x-li__main{flex:1 1 220px}
+.x-fr .x-li__acts{margin-inline-start:auto}
+.x-grp{font-size:12.5px;font-weight:700;color:var(--label);padding:12px 20px 6px;border-bottom:1px solid var(--line);background:transparent}
+.x-toolbar{display:flex;align-items:center;gap:12px;padding:16px 20px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.x-toolbar .bgv-affix{flex:1 1 240px;min-width:0}
+.bgv-chat__head{padding-inline:16px 12px;gap:10px}
+.bgv-chat__list{padding:16px}
+.bgv-composer{padding:12px 16px}
+.x-crest{display:grid;place-items:center;flex:none;font-weight:900;color:var(--surface);background:var(--heading);border-radius:50%;box-shadow:0 0 0 4px var(--surface),var(--shadow-tile)}
+.x-mosaic{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px;width:80px;height:80px;flex:none;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
+.x-mosaic .bgv-avatar{--_s:31px;box-shadow:none}
+.x-head{display:flex;align-items:center;gap:20px;padding:20px 24px;flex-wrap:wrap}
+.x-head__text{flex:1 1 280px;display:grid;gap:6px;min-width:0}
+.x-clubcard{display:flex;flex-direction:column}
+.x-clubcard__body{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.x-clubcard__foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.x-desc{font-size:14px;line-height:1.75;color:var(--text);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:3.5em}
+@media (max-width:899px){.x-head{padding:16px}.x-chatbox{height:520px!important}}
+.x-pbody .bgv-tab{padding-inline:0;font-size:14px}
+
+/*mg*/.mg{flex:1;min-block-size:0;overflow:auto;display:grid;align-content:start;gap:16px;padding:8px 16px 112px}
+.mg-state{padding:28px 8px 4px;gap:12px}
+.mg-state .bgv-state__title{margin:4px 0 0}
+.mg-state .bgv-state__text{margin:0}
+.mg-cta{inline-size:100%;margin-top:8px}
+.mg-list{list-style:none;margin:0;padding:4px 16px}
+.mg-row{display:flex;gap:12px;align-items:center;padding:12px 0;border-block-end:1px solid var(--line)}
+.mg-row:last-child{border-block-end:0}
+.mg-row>span:last-child{display:grid;gap:2px;line-height:1.5}
+.mg-row b{font-size:14px;color:var(--heading)}
+.mg-row small{font-size:12.5px;color:var(--text-muted)}
+</style>
+
+<div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
+<header class="bgv-topbar"><a class="bgv-logo" href="/" aria-label="خانه"><img class="bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:32px"><img class="bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:32px"></a><span class="bgv-topbar__title">پیام‌ها و دوستان</span><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="/search" aria-label="جست‌وجوی بازی"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg></a><a class="bgv-btn bgv-btn--secondary bgv-btn--sm" href="/login">ورود / ثبت‌نام</a></header>
+<main class="mg">
+ <section class="bgv-state bgv-state--guest mg-state" aria-labelledby="mg-h">
+  <span class="bgv-state__icon"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></span>
+  <h1 class="bgv-state__title" id="mg-h">ابتدا وارد حساب خود شوید</h1>
+  <p class="bgv-state__text">پیام‌ها، دوستان و باشگاه‌های شما بعد از ورود اینجا می‌آیند. ورود با شمارهٔ موبایل کمتر از یک دقیقه طول می‌کشد.</p>
+  <a class="bgv-btn bgv-btn--primary bgv-btn--lg mg-cta" href="/login?next=/messages"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg>ورود / ثبت‌نام</a>
+  <a class="bgv-btn bgv-btn--ghost" href="/play"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>بدون ورود، بازی سریع</a>
+ </section>
+ <ul class="bgv-state__perks mg-list" aria-label="بعد از ورود">
+  <li><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><div><b>پیام خصوصی و دعوت به میز</b><span>دعوت‌ها همین‌جا می‌رسند و با «بنشین» سر میز می‌روید</span></div></li>
+  <li><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg><div><b>دوستان</b><span>ببینید چه کسی آنلاین است و چه بازی می‌کند</span></div></li>
+  <li><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg><div><b>باشگاه‌ها و گروه‌ها</b><span>گفت‌وگوی جمعی، تورنمنت ماهانه و بازی گروهی</span></div></li>
+ </ul>
+</main>
+<nav class="bgv-dock bgv-dock--float" aria-label="بخش‌های اصلی"><a class="bgv-dock__item" href="/"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg><span>خانه</span></a><a class="bgv-dock__item" href="/tables"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg><span>میزها</span></a><a class="bgv-dock__item is-active" href="/messages" aria-current="page"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span>پیام‌ها</span></a><a class="bgv-dock__item" href="/more"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg><span>بیشتر</span></a></nav>
+</div>
+</x-dc>
+</body>
+</html>

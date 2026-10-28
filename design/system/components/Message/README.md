@@ -1,4 +1,4 @@
-A chat message: avatar + seat + author for others, primary bubble for yours; reply quote, mentions, reactions, seen, pending/failed/deleted, edited, quick emoji.
+A chat message: avatar + seat + author for others, a pale navy-tint bubble with an edge for yours (`--bubble-mine` #E6EDF2 / #2A4559); a 2px navy outline when it mentions you; reply quote, mentions, reactions, seen, pending/failed/deleted, edited, quick emoji.
 
 ## When to use
 
@@ -10,7 +10,7 @@ Inside `Chat`.
 
 | Prop | Type | Description |
 |---|---|---|
-| `mine` | `boolean` | Your message: primary bubble at the end side. |
+| `mine` | `boolean` | Your message at the end side: `--bubble-mine` (#E6EDF2, dark #2A4559) with a `--bubble-mine-edge` (#B7C5D0) edge. No amber. |
 | `author` | `Node` | — |
 | `seat` | `SeatNo` | — |
 | `initials` | `string` | — |
@@ -19,7 +19,7 @@ Inside `Chat`.
 | `league` | `LeagueTier` | — |
 | `title` | `Node` | — |
 | `time` | `Node` | — |
-| `text` | `string \| Node` | Text; «@name» tokens become mentions (coral when equal to `viewer`). |
+| `text` | `string \| Node` | Text; «@name» tokens become mentions (filled navy when equal to `viewer`). |
 | `viewer` | `string` | Viewer's name, to highlight their mentions. |
 | `reply` | `{ author: Node; text: Node }` | — |
 | `reactions` | `Array<{ emoji: string; count: number; mine?: boolean; label?: string }>` | — |
@@ -29,7 +29,7 @@ Inside `Chat`.
 | `onRetry` | `() => void` | — |
 | `edited` | `boolean` | — |
 | `quick` | `boolean` | Big emoji / quick-chat message without bubble. |
-| `mentioned` | `boolean` | Message mentions you: coral-soft bubble. |
+| `mentioned` | `boolean` | Message mentions you: white bubble with a 2px navy outline (cream in dark). |
 | `deletedText` | `Node` | — |
 | `children` | `Node` | — |
 
@@ -39,8 +39,8 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Mentions of the viewer are coral (`--invite`) and the bubble gets the coral-soft `mentioned` treatment.
-- Your messages: green bubble (`--primary`), time + double-check when seen.
+- Mentions of the viewer are a filled navy token (`--selected`, cream in dark) and the bubble gets the `mentioned` treatment: white with a 2px navy outline (owner decision 8.3; amber was dropped in v2.1).
+- Your messages: pale-amber bubble in light (solid amber is reserved for «go»), amber `--primary` in dark; navy text, time + double-check when seen.
 - Failed messages show «ارسال نشد» with «دوباره».
 
 **Don't**

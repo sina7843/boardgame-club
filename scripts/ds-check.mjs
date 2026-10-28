@@ -54,10 +54,12 @@ const TW_PHYSICAL = /(?:^|[\s"'`])-?(?:ml|mr|pl|pr|left|right|border-l|border-r|
 const MIDDOT = /[\u00B7\u2022\u22C5\u2027]/;
 const LATIN_DIGIT_IN_FA = /[\u0600-\u06FF][^"'`<>{}\n]{0,12}\b[0-9]{1,}\b|\b[0-9]+\b[^"'`<>{}\n]{0,6}[\u0600-\u06FF]/;
 
+const RETIRED_CLASS = (CFG.retiredClasses || []).length ? new RegExp(String.raw`(?<![\w-])(?:${CFG.retiredClasses.join('|')})(?:__[a-z0-9-]+)?(?![\w-])`) : null;
+
 const RULES = [
   { id: 'DS001', sev: 'error', title: 'hard-coded colour — use a semantic token (var(--text), var(--surface)…)', test: (l) => (COLOR_LIT.test(l.code) ? l.code.match(COLOR_LIT)[0] : null) },
   { id: 'DS002', sev: 'error', title: 'Tailwind arbitrary value for colour/radius/shadow/font/z — use DS classes or tokens', test: (l) => TW_ARBITRARY.test(l.code) && !/-\[var\(--[a-z0-9-]+\)\]/.test(l.code.match(TW_ARBITRARY)?.[0] ?? '') ? l.code.match(TW_ARBITRARY)[0] : null },
-  { id: 'DS003', sev: 'error', title: 'border-radius must be a --radius-* token (brand book: 8 controls · 12 inner tiles · 20 cards · 28 felt/sheets · pill)', test: (l, c) => c.css && cssVal(l.code, 'border(?:-[a-z-]+)?-radius') && !RADIUS_OK.test(cssVal(l.code, 'border(?:-[a-z-]+)?-radius')) ? cssVal(l.code, 'border(?:-[a-z-]+)?-radius') : (c.tsx && /borderRadius\s*:\s*['"`]?\d/.test(l.code) ? 'inline borderRadius' : null) },
+  { id: 'DS003', sev: 'error', title: 'border-radius must be a --radius-* token (brand rule: 8 controls · 12 inner tiles · 20 cards · 28 felt/sheets · pill)', test: (l, c) => c.css && cssVal(l.code, 'border(?:-[a-z-]+)?-radius') && !RADIUS_OK.test(cssVal(l.code, 'border(?:-[a-z-]+)?-radius')) ? cssVal(l.code, 'border(?:-[a-z-]+)?-radius') : (c.tsx && /borderRadius\s*:\s*['"`]?\d/.test(l.code) ? 'inline borderRadius' : null) },
   { id: 'DS004', sev: 'error', title: 'box-shadow must be a --shadow-* token (claymorphism lives in the tokens)', test: (l, c) => c.css && cssVal(l.code, 'box-shadow') && !SHADOW_OK.test(cssVal(l.code, 'box-shadow')) ? 'box-shadow' : (c.tsx && /boxShadow\s*:\s*['"`](?!var\(--shadow)/.test(l.code) ? 'inline boxShadow' : null) },
   { id: 'DS005', sev: 'error', title: 'font-family must be var(--font-fa) / var(--font-latin)', test: (l, c) => c.css && cssVal(l.code, 'font-family') && !FONT_OK.test(cssVal(l.code, 'font-family')) ? 'font-family' : (c.tsx && /fontFamily\s*:/.test(l.code) ? 'inline fontFamily' : null) },
   { id: 'DS006', sev: 'error', title: 'z-index must be a --z-* token', test: (l, c) => c.css && cssVal(l.code, 'z-index') && !Z_OK.test(cssVal(l.code, 'z-index')) ? 'z-index ' + cssVal(l.code, 'z-index') : (c.tsx && /zIndex\s*:\s*\d{2,}/.test(l.code) ? 'inline zIndex' : null) },
@@ -69,6 +71,7 @@ const RULES = [
   { id: 'DS012', sev: 'error', title: 'retired stylesheet import — the app loads design/system tokens.css + bundle.css only', test: (l) => (CFG.retiredImports || []).some((s) => l.code.includes(s)) ? 'retired import' : null },
   { id: 'DS013', sev: 'warn', title: 'Latin digits next to Persian text — render numbers with the DS formatter (fa digits, «٬»)', test: (l, c) => c.tsx && c.kind !== 'comment' && LATIN_DIGIT_IN_FA.test(l.code) && !/\bt\(|`\$\{/.test(l.code) ? 'latin digits' : null },
   { id: 'DS014', sev: 'error', title: 'logo drawn or recoloured in code — use the brand-kit file via <Logo/> (see design/brand/LOGO-USAGE.md)', test: (l, c) => c.tsx && /(BGV|bgv|logo|Logo)[^\n]*<path\b/.test(l.code) ? 'inline logo svg' : null },
+  { id: 'DS016', sev: 'error', title: 'class retired in DS v2.1 (sidebar, nav item, icon rail, outline button) — use SiteHeader / AccountMenu / Dock / secondary Button (design/MIGRATION-v1.6-to-v2.1.md)', test: (l, c) => RETIRED_CLASS && c.kind !== 'comment' && RETIRED_CLASS.test(l.code) ? l.code.match(RETIRED_CLASS)[0] : null },
   { id: 'DS015', sev: 'warn', title: 'inline style with literal spacing/size — prefer DS classes or --space-* tokens', test: (l, c) => c.tsx && /style=\{\{[^}]*(?:padding|margin|gap)\s*:\s*['"`]?\d/.test(l.code) ? 'inline spacing' : null }
 ];
 

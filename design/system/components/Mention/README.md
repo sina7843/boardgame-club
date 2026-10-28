@@ -1,4 +1,4 @@
-An inline @mention; coral when it mentions the viewer.
+An inline @mention: a light navy tint; filled navy (cream in dark) when it mentions the viewer.
 
 ## When to use
 
@@ -11,7 +11,7 @@ Inside message text (Message parses «@name» automatically), notifications.
 | Prop | Type | Description |
 |---|---|---|
 | `name` | `Node` | — |
-| `you` | `boolean` | Mention of the viewer: coral. |
+| `you` | `boolean` | Mention of the viewer: filled navy (`--selected`). |
 | `children` | `Node` | — |
 
 Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers) passes through to the root element. Types: `MentionProps` in `components/index.d.ts`.
@@ -20,7 +20,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Coral `you` mentions only for the viewer.
+- Filled navy `you` mentions only for the viewer; the message that holds one gets the navy outline.
 
 **Don't**
 

@@ -38,13 +38,15 @@ for (const s of screens) {
     if (nonDsFonts.length) problems.push(`@${w} fonts outside the DS: ${nonDsFonts.join(', ')}`);
     if (s.kind === 'table' && !sh.shell?.tablescreen) problems.push(`@${w} table screen is not built on .bgv-tablescreen`);
     if ((s.kind === 'page' || s.kind === 'page-new') && !['/login', '/payments/result'].includes(s.route) && !sh.shell?.app) problems.push(`@${w} page is not inside the canonical .bgv-app shell`);
+    if (sh.shell?.sidebar) problems.push(`@${w} the retired v1.6 sidebar (.bgv-sidebar) is still rendered — v2.1 uses SiteHeader + AccountMenu (design/MIGRATION-v1.6-to-v2.1.md)`);
+    if ((s.kind === 'page' || s.kind === 'page-new') && w >= 900 && sh.shell?.app && !sh.shell?.siteheader) problems.push(`@${w} desktop page has no .bgv-siteheader (v2.1 shell)`);
     if (sh.touching?.length) warnings.push(`@${w} text close to its frame (<${cfg.qa?.thresholds?.minEdgeGapPx ?? 6}px): ${sh.touching.slice(0, 3).join(' | ')}`);
     if (sh.latinDigits?.length) warnings.push(`@${w} Latin digits in Persian text: ${sh.latinDigits.slice(0, 3).join(' | ')}`);
     if (sh.middot) warnings.push(`@${w} ${sh.middot} «·/•» separators (use .bgv-sep)`);
     if (sh.dsCoverage < 0.3) warnings.push(`@${w} only ${(sh.dsCoverage * 100).toFixed(0)}% of elements use bgv-* classes`);
     if (s.theme !== 'light' && sh.theme !== s.theme) warnings.push(`@${w} expected theme ${s.theme}, page had ${sh.theme}`);
   }
-  const gate = s.kind === 'spec' ? 'N/A' : status === 'captured' ? (problems.length ? 'FAIL' : 'PASS') : 'TODO';
+  const gate = s.kind === 'spec' || s.supersededBy ? 'N/A' : status === 'captured' ? (problems.length ? 'FAIL' : 'PASS') : 'TODO';
   rows.push({ ...s, status, gate, problems, warnings, shots: a?.shots ?? [] });
 }
 const count = (g) => rows.filter((r) => r.gate === g).length;

@@ -1,19 +1,21 @@
-A crimson full-width alert bar with a draining track for the last seconds of a live turn.
+A crimson full-width alert bar with a draining track for the last seconds of a live turn: one bold line («۸ ثانیه تا حرکت خودکار») and one short line («وگرنه یک کارت کشیده و نوبت رد می‌شود»).
 
 ## When to use
 
-Above the action dock when your live turn reaches the critical threshold (last 10 s; turn-based tables: last hour, as a notification instead).
+**Inside the action dock, in place of the turn guide**, when your live turn reaches the critical threshold (last 10 s; turn-based tables: last hour, as a notification instead). It takes the guide's slot, so the table never shrinks.
 
 ## Props / what the consumer provides
 
-`seconds` (and `total`) or `p`, `text`, `icon`, `action`.
+`seconds` (and `total`) or `p`, `title`, `sub`, `icon`, `action`. Markup: `.bgv-critbar > .bgv-critbar__row (icon + .bgv-critbar__text > .bgv-critbar__t + .bgv-critbar__s) + .bgv-critbar__track`.
 
 | Prop | Type | Description |
 |---|---|---|
 | `seconds` | `number` | Seconds left (live games, last 10s). |
 | `total` | `number` | Total seconds, to derive `p`. |
 | `p` | `number` | Remaining fraction 0–1. |
-| `text` | `Node` | Override the copy. |
+| `title` | `Node` | The bold line. |
+| `sub` | `Node` | The short second line. |
+| `text` | `Node` | Old name of `title`. |
 | `icon` | `IconName` | — |
 | `action` | `Node` | — |
 

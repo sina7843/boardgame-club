@@ -1,4 +1,4 @@
-Browser-tab and home-screen icons, made from the brand-kit symbol. Tab icons (16, 32, 48, SVG) use the reversed colourway on a solid brand-green tile: the cream brand-kit favicon disappears on light tab bars at 16px, while green with cream figures and the coral top figure stays legible on light and dark tabs. 16 and 32 are the brand kit's pixel-tuned drawings with the colours swapped (no resampling); 48 is rendered from `favicon.svg`. Home-screen and PWA icons (180, 192, 512, maskable 512) are the brand-kit cream app icons, unchanged.
+Browser-tab and home-screen icons, made from the brand-kit symbol. Tab icons (16, 32, 48, SVG) use the reversed colourway on a solid navy tile (`#142B3B`): the cream brand-kit favicon disappears on light tab bars at 16px, while navy with cream figures and the amber top figure (`#E8A642`) stays legible on light and dark tabs. 16 and 32 are the brand kit's pixel-tuned drawings with the colours swapped (no resampling); 48 is rendered from `favicon.svg`. Home-screen and PWA icons (180, 192, 512, maskable 512) are the brand-kit cream app icons, recoloured to navy and amber (v1.4, 2026-10-20).
 
 | File | Size | Use |
 | --- | --- | --- |
@@ -11,7 +11,7 @@ Browser-tab and home-screen icons, made from the brand-kit symbol. Tab icons (16
 | `icon-512.png` | 512×512 | Web app manifest, install splash |
 | `icon-maskable-512.png` | 512×512 | Web app manifest, `purpose: maskable` (symbol in the safe zone) |
 
-`favicon.ico` is not an allowed upload type. Build it from the three PNGs (16, 32, 48 layers), for example `magick favicon-16.png favicon-32.png favicon-48.png favicon.ico` or `png-to-ico`, and serve it from the site root.
+`favicon.ico` (16, 32 and 48 layers) is included; serve it from the site root. To rebuild it: `magick favicon-16.png favicon-32.png favicon-48.png favicon.ico`.
 
 ## HTML head
 
@@ -21,11 +21,10 @@ Browser-tab and home-screen icons, made from the brand-kit symbol. Tab icons (16
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#173A2D" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#191B1A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#142B3B">
 ```
 
-Do not add `favicon.svg` as `rel="icon"`: browsers prefer an SVG over the bitmaps and would skip the pixel-tuned 16/32 drawings. The dark `theme-color` is the charcoal page colour (`--bg` dark), not the brand kit's older green.
+Do not add `favicon.svg` as `rel="icon"`: browsers prefer an SVG over the bitmaps and would skip the pixel-tuned 16/32 drawings. One `theme-color` serves both themes: navy `#142B3B` is the brand colour and also the dark page colour (`--bg` dark).
 
 ## site.webmanifest
 
@@ -37,8 +36,8 @@ Do not add `favicon.svg` as `rel="icon"`: browsers prefer an SVG over the bitmap
   "dir": "rtl",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#173A2D",
-  "background_color": "#F6F0E4",
+  "theme_color": "#142B3B",
+  "background_color": "#F3EBDD",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

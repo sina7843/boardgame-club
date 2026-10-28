@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>بازی سریع، دسکتاپ</title>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.pl-ul{list-style:none;padding:0;margin:0}
+.pl-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.pl-phone>.bgv-topbar{flex:none}
+.pl-scroll{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
+.pl-scroll>*{flex:none}
+.pl-h2{font-size:20px;font-weight:700;line-height:1.5;color:var(--heading);display:flex;align-items:center;gap:8px;margin:0;min-width:0}
+.pl-h3{font-size:16px;font-weight:700;line-height:1.5;color:var(--heading);margin:0}
+.pl-link{font-size:14px;font-weight:700;color:var(--link);text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.pl-thumb{inline-size:96px;block-size:54px;border-radius:var(--radius-sm);object-fit:cover;flex:none;display:block;background:var(--surface-raised)}
+.pl-muted{color:var(--text-muted)}
+.pl-meta{display:flex;align-items:center;gap:4px 6px;flex-wrap:wrap;font-size:13px;color:var(--text-muted);min-width:0}
+.pl-sechead{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.pl-sechead>.pl-h2{flex:1 1 auto}
+.pl-cover-fallback{inline-size:100%;block-size:100%;display:grid;place-items:center;background:var(--surface-raised)}
+.pl-cover-fallback img{inline-size:56px!important;block-size:56px!important;object-fit:contain!important;opacity:.55}
+.pl-iconbox{display:grid;place-items:center;flex:none}
+.bgv-pagetabs{flex:none}
+.bgv-app{min-height:100vh}
+.bgv-hero .bgv-clock[data-state="warn"]{--clock-c:var(--clock-on-felt-warn)}.bgv-hero .bgv-clock[data-state="critical"]{--clock-c:var(--clock-on-felt-critical)}
+.pl-phone .bgv-pagetabs a{padding-inline:11px}
+.pl-short{display:none}
+@media (max-width:599px){.bgv-pagetabs a{padding-inline:11px}.pl-long{display:none}.pl-short{display:inline}}
+.bgv-progress__row{flex-wrap:wrap;gap:0 8px}.bgv-progress__row>span{white-space:nowrap}
+
+.pl-sec{display:grid;gap:14px;align-content:start}
+.pl-sec>h2{font-size:18px;font-weight:700;color:var(--heading);display:flex;align-items:center;gap:8px;margin:0}
+.pl-sub{font-size:14px;font-weight:700;color:var(--text);margin:0}
+.pl-model{display:grid;gap:10px;padding:14px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.pl-tl{position:relative;block-size:10px;border-radius:var(--radius-pill);background:linear-gradient(to left,var(--clock-calm) 0 50%,var(--clock-warn) 50% 96%,var(--clock-critical) 96% 100%);opacity:.9}
+.pl-tl i{position:absolute;inset-block-start:-5px;inline-size:2px;block-size:20px;background:var(--text);border-radius:var(--radius-pill)}
+.pl-tl-labels{position:relative;block-size:34px;font-size:12px;color:var(--text-muted);line-height:1.4}
+.pl-tl-labels span{position:absolute;inset-block-start:0;transform:translateX(50%);text-align:center;white-space:nowrap}
+.pl-seats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pl-sum{display:grid;gap:0}
+.pl-sum div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-block-end:1px solid var(--line);font-size:14px}
+.pl-sum div:last-child{border-block-end:0}
+.pl-sum dt{color:var(--text-muted)}.pl-sum dd{margin:0;font-weight:700;text-align:end}
+.pl-sticky{position:absolute;inset-inline:12px;inset-block-end:92px;z-index:var(--z-sticky);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-float);padding:12px 12px 12px 16px;display:flex;gap:12px;align-items:center}
+.pl-pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px;align-items:stretch}
+.pl-formgrid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px 20px;align-items:center}
+@media (max-width:599px){.pl-formgrid{grid-template-columns:minmax(0,1fr)}}
+.pl-model .bgv-row{flex-wrap:wrap}
+
+
+/*ct-build*/
+.ct-game{display:flex;align-items:center;gap:20px;margin-block:12px 24px}
+.ct-game__box{inline-size:84px;block-size:84px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(60,40,20,.3));flex:none}
+.ct-game__t{flex:1;display:grid;gap:4px;min-width:0}
+.ct-game__t p{margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px;color:var(--text-muted)}
+.ct-game__t p b{color:var(--text)}
+.ct-cols{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
+.ct-main{display:grid;gap:20px;min-width:0}
+.ct-aside{position:sticky;inset-block-start:96px;display:grid;gap:16px}
+.ct-step{display:grid;gap:18px;padding:22px 24px}
+.ct-step__hd{display:flex;align-items:flex-start;gap:14px}
+.ct-step__hd>div{flex:1;display:grid;gap:2px}
+.ct-step__hd h2{margin:0;font-size:18px;color:var(--heading)}
+.ct-step__hd p{margin:0;font-size:13px;color:var(--text-muted)}
+.ct-step__n{inline-size:30px;block-size:30px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:800;font-size:14px;background:#142B3B;color:#fff}
+[data-theme="dark"] .ct-step__n{background:var(--heading);color:var(--bg)}
+.ct-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ct-preset{position:relative;display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:var(--radius-md);background:var(--surface);cursor:pointer;box-shadow:inset 0 0 0 1.5px #7D8B96,inset 0 -3px 0 rgba(20,43,59,.14),0 6px 12px -8px rgba(110,80,40,.5)}
+.ct-preset input{position:absolute;opacity:0;pointer-events:none}
+.ct-preset__ic{inline-size:42px;block-size:42px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--surface-sunken);color:var(--heading)}
+.ct-preset__t{display:grid;gap:3px;min-width:0}
+.ct-preset__t b{font-size:15px;color:var(--heading)}
+.ct-preset__t small{font-size:12px;font-weight:700;color:var(--text)}
+.ct-preset__t span{font-size:12px;line-height:1.7;color:var(--text-muted)}
+.ct-preset__mark{position:absolute;inset-block-start:12px;inset-inline-end:12px;inline-size:22px;block-size:22px;border-radius:50%;display:none;place-items:center;background:#142B3B;color:#fff}
+.ct-preset.is-on{box-shadow:inset 0 0 0 2.5px #142B3B,0 8px 16px -10px rgba(20,43,59,.6)}
+.ct-preset.is-on .ct-preset__mark{display:grid}
+.ct-preset.is-on .ct-preset__ic{background:#142B3B;color:#fff}
+.ct-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.ct-col{display:grid;gap:12px;align-content:start;min-width:0}
+.ct-colhd{display:flex;align-items:center;justify-content:space-between;gap:12px;min-block-size:40px}
+.ct-colhd h3,.ct-sub h3{margin:0;font-size:15px;color:var(--heading);display:flex;align-items:center;gap:6px}
+.ct-col .pl-seats{grid-template-columns:1fr}
+.ct-more>summary{list-style:none;cursor:pointer}
+.ct-more>summary::-webkit-details-marker{display:none}
+.ct-more__chev{color:var(--text-muted);transition:transform var(--dur-fast);align-self:center}
+.ct-more[open] .ct-more__chev{transform:rotate(180deg)}
+.ct-sub{display:grid;gap:14px;padding-block-start:18px;border-block-start:1px solid var(--line)}
+@media (max-width:1199px){.ct-cols{grid-template-columns:minmax(0,1fr) 320px}.ct-two{grid-template-columns:1fr}}
+@media (max-width:899px){.ct-cols{grid-template-columns:1fr}.ct-aside{position:static}.ct-presets{grid-template-columns:1fr}}
+
+/*qm*/.pl-radar{position:relative;inline-size:200px;block-size:200px;margin:0 auto;display:grid;place-items:center}.pl-radar>i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--heading);opacity:0;animation:pl-ping 2.4s var(--ease-out) infinite}.pl-radar>i:nth-child(2){animation-delay:.8s}.pl-radar>i:nth-child(3){animation-delay:1.6s}.pl-radar>b{position:absolute;inset:18px;border-radius:50%;border:1.5px dashed var(--line)}.pl-radar>em{position:absolute;inset:52px;border-radius:50%;background:var(--surface);box-shadow:var(--shadow-card);border:1px solid var(--line)}.pl-orbit{position:absolute}.pl-slot{inline-size:40px;block-size:40px;border-radius:50%;border:1.5px dashed var(--border);background:var(--surface);display:grid;place-items:center;color:var(--text-muted)}.pl-skill{position:relative;block-size:12px;border-radius:var(--radius-pill);background:var(--surface-sunken);box-shadow:var(--shadow-field)}.pl-skill .max{position:absolute;inset-block:0;inset-inline:0;border-radius:var(--radius-pill);background:var(--clock-track);border:1px dashed var(--border)}.pl-skill .now{position:absolute;inset-block:0;inset-inline:25% 25%;border-radius:var(--radius-pill);background:var(--heading);opacity:.85}.pl-skill .me{position:absolute;inset-block:-6px;inset-inline-start:50%;inline-size:3px;border-radius:var(--radius-pill);background:var(--heading);transform:translateX(50%)}.pl-center{display:grid;justify-items:center;text-align:center;gap:6px}@keyframes pl-ping{0%{transform:scale(.38);opacity:.7}100%{transform:scale(1);opacity:0}}
+.qm-cols{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start;max-inline-size:1100px}
+.qm-search{display:grid;gap:18px;padding:28px}
+.pl-center{display:grid;justify-items:center;text-align:center}
+.qm-bot{display:flex;align-items:center;gap:12px;padding:12px 0;border-block:1px solid var(--line)}
+.qm-bot>div{flex:1;display:grid;gap:2px}
+.qm-set{display:grid;gap:16px;padding:22px;position:sticky;inset-block-start:96px}
+.qm-set h2{margin:0;font-size:17px;color:var(--heading)}
+.qm-game{display:flex;align-items:center;gap:12px;padding-block-end:14px;border-block-end:1px solid var(--line)}
+.qm-game img{inline-size:56px;block-size:56px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(60,40,20,.25))}
+.qm-game>div{flex:1;display:grid;gap:2px}
+.qm-row{display:grid;gap:8px}.qm-row>span{font-size:13px;font-weight:700;color:var(--text-muted)}
+@media (max-width:1199px){.qm-cols{grid-template-columns:1fr}.qm-set{position:static}}
+</style>
+
+<div class="bgv bgv-app bgv-app--site" data-theme="light" dir="rtl">
+<header class="bgv-siteheader"><div class="bgv-siteheader__in"><a class="bgv-logo" href="/" aria-label="بردگیم‌ورس، خانه"><img class="bgv-logo__light" src="../assets/logo-fa-primary.svg" alt=""><img class="bgv-logo__dark" src="../assets/logo-fa-reversed.svg" alt=""></a><nav class="bgv-sitenav" aria-label="ناوبری اصلی"><a href="/">خانه</a><a href="/games">بازی‌ها</a><a href="/tables" aria-current="page">میزها<span role="img" class="bgv-badge bgv-badge--count bgv-badge--count-invite" aria-label="3 میز منتظر حرکت شما">۳</span></a><a href="/tournaments">تورنمنت‌ها</a><a href="/ranking">رتبه‌بندی</a></nav><div class="bgv-sitesearch" role="search"><label class="bgv-sitesearch__field"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg><input type="search" placeholder="جست‌وجوی بازی، مثلاً کاتان…" aria-label="جست‌وجوی بازی"><kbd>Ctrl K</kbd></label></div><div class="bgv-siteheader__actions"><a class="bgv-btn bgv-btn--primary bgv-btn--sm bgv-siteheader__quick" href="/play"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg><span>بازی سریع</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/messages" aria-label="پیام‌ها، ۴ خوانده‌نشده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۴</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a><button class="bgv-avatarbtn" type="button" aria-label="حساب من، مینا" aria-haspopup="menu"><span class="bgv-avatar bgv-avatar--sm">م</span><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button></div></div></header>
+<main class="bgv-app__main">
+<header class="bgv-topbar bgv-app__top"><a class="bgv-logo" href="/" aria-label="خانه"><img class="bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:32px"><img class="bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:32px"></a><span class="bgv-topbar__title">بازی سریع</span><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="/search" aria-label="جست‌وجوی بازی"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg></a><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header>
+<nav class="bgv-crumbs" aria-label="مسیر"><a href="/tables">میزها</a><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg><span aria-current="page">بازی سریع</span></nav><div class="bgv-pagehead"><div class="bgv-pagehead__text"><h1 class="bgv-pagehead__title">بازی سریع</h1><p class="bgv-pagehead__sub">با آخرین بازی و تنظیمات شما دنبال حریف هم‌سطح می‌گردیم؛ هر وقت خواستید عوضش کنید.</p></div></div><div class="qm-cols"><section class="bgv-card qm-search"><div class="pl-center" style="gap:2px"><div class="pl-radar" aria-hidden="true"><i></i><i></i><i></i><b></b><em></em><span style="position:relative"><span class="bgv-frame bgv-frame--gold"><span class="bgv-avatar bgv-avatar--lg is-you">م</span></span></span><span class="pl-orbit" style="inset-block-start:4px;inset-inline-start:50%;transform:translateX(50%)"><span class="bgv-avatar bgv-avatar--sm seat-2">آ</span></span><span class="pl-orbit pl-slot" style="inset-block-end:34px;inset-inline-start:14px"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg></span><span class="pl-orbit pl-slot" style="inset-block-end:34px;inset-inline-end:14px"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg></span></div><span class="t-num-xl bgv-num" role="timer" style="color:var(--heading)">۰:۲۴</span><h2 class="t-title" style="margin:0;color:var(--heading)">دنبال حریف هم‌سطح می‌گردیم</h2><span class="pl-muted" style="font-size:14px">۱ از ۳ حریف پیدا شد: آرش</span></div><section style="display:grid;gap:10px"><div class="bgv-row"><b style="font-size:14px;flex:1">دامنه‌ی مهارت</b><span class="bgv-badge bgv-badge--info"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10" /> <path d="M7 17 17 7" /></svg>در حال باز شدن</span></div><div role="img" class="pl-skill" aria-label="دامنه‌ی مهارت ۱٬۳۵۰ تا ۱٬۷۵۰"><span class="max"></span><span class="now"></span><span class="me"></span></div><div class="bgv-row" style="justify-content:space-between;font-size:12.5px;color:var(--text-muted)"><span class="bgv-num">۱٬۹۵۰</span><b style="color:var(--text)">شما ۱٬۵۵۰، الان <bdi dir="ltr">±۲۰۰</bdi></b><span class="bgv-num">۱٬۱۵۰</span></div><span class="pl-muted" style="font-size:12.5px">هر ۱۰ ثانیه ۵۰ امتیاز بازتر می‌شود، تا سقف <bdi dir="ltr">±۴۰۰</bdi>.</span></section><div class="qm-bot"><span class="bgv-notif__icon"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg></span><div><b>بازی با ربات</b><span class="pl-meta">اگر تا ۰:۳۰ حریف پیدا نشد این دکمه فعال می‌شود.</span></div><button class="bgv-btn bgv-btn--secondary" disabled aria-label="بازی با ربات، ۶ ثانیهٔ دیگر">بازی با ربات در ۰:۰۶</button></div><button class="bgv-btn bgv-btn--leave"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>انصراف از صف</button></section><aside class="bgv-card qm-set"><h2>این جست‌وجو</h2><div class="qm-game"><img src="../assets/box/uno.webp" alt=""><div><b>اونو</b><span class="pl-meta">۲ تا ۱۰ نفر<span class="bgv-sep"></span>آسان</span></div><a class="bgv-btn bgv-btn--secondary bgv-btn--sm" href="/games">تغییر بازی</a></div><div class="qm-row"><span>نوع</span><div class="bgv-chips" role="radiogroup" aria-label="نوع"><button class="bgv-chip is-selected" aria-pressed="true">زنده</button><button class="bgv-chip" aria-pressed="false">نوبتی</button></div></div><div class="qm-row"><span>رقابت</span><div class="bgv-chips" role="radiogroup" aria-label="رقابت"><button class="bgv-chip is-selected" aria-pressed="true">رتبه‌ای</button><button class="bgv-chip" aria-pressed="false">دوستانه</button></div></div><div class="qm-row"><span>بازیکنان</span><div class="bgv-chips" role="radiogroup" aria-label="بازیکنان"><button class="bgv-chip" aria-pressed="false">۲</button><button class="bgv-chip" aria-pressed="false">۳</button><button class="bgv-chip is-selected" aria-pressed="true">۴</button><button class="bgv-chip" aria-pressed="false">۶</button></div></div><div class="qm-row"><span>زمان هر حرکت</span><div class="bgv-chips" role="radiogroup" aria-label="زمان"><button class="bgv-chip" aria-pressed="false">۳۰ ثانیه</button><button class="bgv-chip is-selected" aria-pressed="true">۶۰ ثانیه</button><button class="bgv-chip" aria-pressed="false">۲ دقیقه</button></div></div><p class="bgv-hint" style="margin:0"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>تغییر هر گزینه جست‌وجو را از نو شروع می‌کند.</p></aside></div>
+<nav class="bgv-dock bgv-app__dock" aria-label="بخش‌های اصلی"><a class="bgv-dock__item" href="/"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg><span>خانه</span></a><a class="bgv-dock__item is-active" href="/tables" aria-current="page"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg><span>میزها</span><span class="bgv-badge bgv-badge--count bgv-badge--count-invite" role="img" aria-label="۳ میز منتظر حرکت شما">۳</span></a><a class="bgv-dock__item" href="/messages"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span>پیام‌ها</span><span class="bgv-badge bgv-badge--count" role="img" aria-label="۴ تازه">۴</span></a><a class="bgv-dock__item" href="/more"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg><span>بیشتر</span></a></nav>
+</main>
+</div>
+</x-dc>
+</body>
+</html>

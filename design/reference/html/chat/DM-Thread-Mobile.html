@@ -20,7 +20,7 @@ body{margin:0}
 .bgv-pcard--mini .bgv-pcard__name b{flex-wrap:wrap;white-space:normal;row-gap:4px}
 .bgv-pcard--mini.is-you .bgv-pcard__name b::after{margin-inline:auto}
 .bgv-avatar.is-turn::before{inset:-7px}
-.bgv-gamebar .bgv-btn[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-tile-primary)}
+
 .bgv-chat__head{padding-inline:16px 10px}
 .bgv-msg__meta{padding-inline:4px}
 .bgv-logo img.bgv-logo__dark,.bgv-logo img.bgv-logo__mark{display:none}
@@ -36,7 +36,7 @@ body{margin:0}
 .conv-sub{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);min-inline-size:0}
 .conv-sub > span:first-child{flex:1;min-inline-size:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gico{inline-size:40px;block-size:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
-.day{align-self:center;font-size:12px;font-weight:700;color:var(--text-muted);padding:4px 12px;border-radius:var(--radius-pill);background:var(--surface-sunken)}
+.day{align-self:center;font-size:12px;font-weight:700;color:var(--text-muted);padding:4px 12px;border-radius:var(--radius-pill);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
 .bgv-invitecard{max-inline-size:320px;padding:14px 16px;gap:12px}
 .bgv-invitecard img{inline-size:64px;block-size:40px;border-radius:var(--radius-sm);object-fit:cover;flex:none}
 .bgv-conv{padding:10px 12px;min-block-size:64px}
@@ -51,7 +51,7 @@ body{margin:0}
 <button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="دعوت به میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <line x1="19" x2="19" y1="8" y2="14" /> <line x1="22" x2="16" y1="11" y2="11" /></svg></button><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بیشتر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
 <div class="bgv-chat__list bgv-chat__list--bottom" style="flex:1;min-block-size:0;overflow:hidden;padding:12px 16px;display:flex;flex-direction:column;gap:10px"><span class="day">امروز</span><div class="bgv-msg"><span class="bgv-avatar bgv-avatar--xs">ن</span><div class="bgv-msg__col"><span class="bgv-msg__meta"><b>نیلوفر</b>۲۱:۳۴</span><div class="bgv-msg__bubble">فردا شب یه دست آزول؟ میزش رو ساختم</div></div></div><div class="bgv-msg"><span class="bgv-avatar bgv-avatar--xs">ن</span><div class="bgv-msg__col"><div class="bgv-invitecard"><div style="display:flex;gap:12px;align-items:center;min-inline-size:0"><img src="../assets/covers/azul.webp" alt="">
 <span style="display:grid;line-height:1.45;min-inline-size:0"><b style="font-size:15px;color:var(--heading)">دعوت به میز آزول</b><span style="font-size:12.5px;color:var(--text-muted);display:flex;align-items:center;flex-wrap:wrap">نوبتی<span class="bgv-sep"></span>۲۴ ساعت<span class="bgv-sep"></span>دوستانه<span style="flex-basis:100%">۲ از ۳ نفر</span></span></span></div>
-<div style="display:flex;gap:8px"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" style="flex:1">بنشین</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm">رد</button></div></div></div></div><div class="bgv-msg bgv-msg--mine"><div class="bgv-msg__col"><div class="bgv-msg__bubble">حتماً! فقط نوبتی باشه، فردا تا عصر سرم شلوغه</div><div class="bgv-reactions"><button class="bgv-react" aria-pressed="false">👍 ۱</button></div><span class="bgv-msg__meta">۲۱:۳۵<span class="bgv-seen" aria-label="دیده شد"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 7 17l-5-5" /> <path d="m22 10-7.5 7.5L13 16" /></svg></span></span></div></div><div class="bgv-msg"><span class="bgv-avatar bgv-avatar--xs">ن</span><div class="bgv-msg__col"><span class="bgv-msg__meta"><b>نیلوفر</b>۲۱:۳۶</span><div class="bgv-msg__bubble">نوبتیه، ۲۴ ساعت. یاسمن رو هم دعوت کنم؟</div></div></div><div class="bgv-msg bgv-msg--mine"><div class="bgv-msg__col"><div class="bgv-msg__bubble">آره، سه نفره بهتره</div><span class="bgv-msg__meta">الان<span>ارسال شد</span><span class="tc-sent" aria-label="ارسال شد"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></span></div></div><span class="bgv-typing" role="status"><i></i><i></i><i></i>نیلوفر در حال نوشتن…</span></div>
+<div style="display:flex;gap:8px"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" style="flex:1">بنشین</button><button class="bgv-btn bgv-btn--leave bgv-btn--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>رد</button></div></div></div></div><div class="bgv-msg bgv-msg--mine"><div class="bgv-msg__col"><div class="bgv-msg__bubble">حتماً! فقط نوبتی باشه، فردا تا عصر سرم شلوغه</div><div class="bgv-reactions"><button class="bgv-react" aria-pressed="false">👍 ۱</button></div><span class="bgv-msg__meta">۲۱:۳۵<span role="img" class="bgv-seen" aria-label="دیده شد"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 7 17l-5-5" /> <path d="m22 10-7.5 7.5L13 16" /></svg></span></span></div></div><div class="bgv-msg"><span class="bgv-avatar bgv-avatar--xs">ن</span><div class="bgv-msg__col"><span class="bgv-msg__meta"><b>نیلوفر</b>۲۱:۳۶</span><div class="bgv-msg__bubble">نوبتیه، ۲۴ ساعت. یاسمن رو هم دعوت کنم؟</div></div></div><div class="bgv-msg bgv-msg--mine"><div class="bgv-msg__col"><div class="bgv-msg__bubble">آره، سه نفره بهتره</div><span class="bgv-msg__meta">الان<span>ارسال شد</span><span role="img" class="tc-sent" aria-label="ارسال شد"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></span></div></div><span class="bgv-typing" role="status"><i></i><i></i><i></i>نیلوفر در حال نوشتن…</span></div>
 <div class="bgv-composer"><div class="bgv-composer__row">
 <button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="شکلک و پیام آماده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11v1a10 10 0 1 1-9-10" /> <path d="M8 14s1.5 2 4 2 4-2 4-2" /> <line x1="9" x2="9.01" y1="9" y2="9" /> <line x1="15" x2="15.01" y1="9" y2="9" /> <path d="M16 5h6" /> <path d="M19 2v6" /></svg></button>
 <label class="bgv-sr" for="c-dmp">متن پیام</label><input id="c-dmp" class="bgv-composer__input" placeholder="پیام به نیلوفر…">
@@ -59,6 +59,5 @@ body{margin:0}
 <div style="block-size:16px;background:var(--surface);flex:none"></div></div>
 </div>
 </x-dc>
-
 </body>
 </html>

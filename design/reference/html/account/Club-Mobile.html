@@ -22,7 +22,7 @@ body{margin:0}
 .x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-sec__head>h2{flex:1;min-width:0}
 .x-sec__body{padding:20px;display:grid;gap:16px}
-.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
 .x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-row:last-child{border-bottom:0}
 .x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
@@ -38,9 +38,9 @@ body{margin:0}
 .bgv-btn .bgv-coin{font-weight:900}
 .bgv-switch{gap:10px;flex:none}
 .bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
-.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
-.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
-.bgv-switch__track::before{border-color:var(--success)}
+
+
+
 .x-phone{position:relative;overflow:hidden;display:flex;flex-direction:column}
 .x-phone>.bgv-topbar{flex:none}
 .x-pbody{flex:1;min-height:0;overflow:hidden;padding:16px 16px 104px;display:flex;flex-direction:column;gap:16px}
@@ -48,14 +48,14 @@ body{margin:0}
 .x-fr{flex-wrap:wrap;padding-inline:20px;row-gap:10px}
 .x-fr .x-li__main{flex:1 1 220px}
 .x-fr .x-li__acts{margin-inline-start:auto}
-.x-grp{font-size:12.5px;font-weight:700;color:var(--label);padding:12px 20px 6px;border-bottom:1px solid var(--line);background:var(--surface-sunken)}
+.x-grp{font-size:12.5px;font-weight:700;color:var(--label);padding:12px 20px 6px;border-bottom:1px solid var(--line);background:transparent}
 .x-toolbar{display:flex;align-items:center;gap:12px;padding:16px 20px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
 .x-toolbar .bgv-affix{flex:1 1 240px;min-width:0}
 .bgv-chat__head{padding-inline:16px 12px;gap:10px}
 .bgv-chat__list{padding:16px}
 .bgv-composer{padding:12px 16px}
-.x-crest{display:grid;place-items:center;flex:none;font-weight:900;color:var(--on-accent);background:var(--accent);border-radius:50%;box-shadow:0 0 0 4px var(--surface),var(--shadow-tile)}
-.x-mosaic{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px;width:80px;height:80px;flex:none;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:var(--shadow-tile)}
+.x-crest{display:grid;place-items:center;flex:none;font-weight:900;color:var(--surface);background:var(--heading);border-radius:50%;box-shadow:0 0 0 4px var(--surface),var(--shadow-tile)}
+.x-mosaic{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px;width:80px;height:80px;flex:none;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
 .x-mosaic .bgv-avatar{--_s:31px;box-shadow:none}
 .x-head{display:flex;align-items:center;gap:20px;padding:20px 24px;flex-wrap:wrap}
 .x-head__text{flex:1 1 280px;display:grid;gap:6px;min-width:0}
@@ -67,7 +67,7 @@ body{margin:0}
 </style>
 
 <div class="bgv x-phone" data-theme="light" dir="rtl" style="width:390px;height:844px">
-<header class="bgv-topbar"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="#" aria-label="بازگشت"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></a><span class="bgv-topbar__title">باشگاه</span><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header>
+<header class="bgv-topbar"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="#" aria-label="بازگشت"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></a><span class="bgv-topbar__title">باشگاه</span><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="/search" aria-label="جست‌وجوی بازی"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg></a><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header>
 <div class="x-pbody" style="padding-top:12px;gap:14px">
  <section class="bgv-card bgv-card--flush">
   <div class="bgv-banner-art bgv-banner-art--felt" style="height:80px"></div>
@@ -78,16 +78,10 @@ body{margin:0}
    <span class="bgv-hint" style="justify-content:center">مالک و مدیرهای باشگاه درخواست را بررسی می‌کنند.</span>
   </div></section>
  <section class="bgv-card" style="display:grid;gap:8px;padding:16px"><h2 class="x-h3">معرفی</h2><p class="t-body-sm" style="color:var(--text);text-wrap:pretty">شب‌های کاتان و کارکاسون، تورنمنت ماهانه و آموزش برای تازه‌واردها.</p></section>
- <section class="bgv-card bgv-card--flush"><div class="x-sec__head" style="padding:12px 16px"><h2 class="x-h3">مالک و مدیرها</h2></div><div class="x-li" style="padding-inline:16px;min-height:56px"><span class="bgv-avatar bgv-avatar--sm" style="background:var(--success-soft)">ک<span class="bgv-avatar__status"></span></span><div class="x-li__main"><b>کاوه</b><span>آنلاین</span></div><div class="x-li__acts"><span class="bgv-badge bgv-badge--premium bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" /></svg>مالک</span></div></div><div class="x-li" style="padding-inline:16px;min-height:56px"><span class="bgv-avatar bgv-avatar--sm" style="background:var(--info-soft)">ن<span class="bgv-avatar__status"></span></span><div class="x-li__main"><b>نیلوفر</b><span>آنلاین</span></div><div class="x-li__acts"><span class="bgv-badge bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>مدیر</span></div></div><div class="x-li" style="padding-inline:16px;min-height:56px"><span class="bgv-avatar bgv-avatar--sm" style="background:var(--warning-soft)">آ<span class="bgv-avatar__status bgv-avatar__status--offline"></span></span><div class="x-li__main"><b>آرش</b><span>آخرین بازدید ۱ ساعت پیش</span></div><div class="x-li__acts"><span class="bgv-badge bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>مدیر</span></div></div></section>
+ <section class="bgv-card bgv-card--flush"><div class="x-sec__head" style="padding:12px 16px"><h2 class="x-h3">مالک و مدیرها</h2></div><div class="x-li" style="padding-inline:16px;min-height:56px"><span class="bgv-avatar bgv-avatar--sm" style="background:var(--success-soft)">ک<span class="bgv-avatar__status"></span></span><div class="x-li__main"><b>کاوه</b><span>آنلاین</span></div><div class="x-li__acts"><span class="bgv-badge bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>مالک</span></div></div><div class="x-li" style="padding-inline:16px;min-height:56px"><span class="bgv-avatar bgv-avatar--sm" style="background:var(--info-soft)">ن<span class="bgv-avatar__status"></span></span><div class="x-li__main"><b>نیلوفر</b><span>آنلاین</span></div><div class="x-li__acts"><span class="bgv-badge bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>مدیر</span></div></div><div class="x-li" style="padding-inline:16px;min-height:56px"><span class="bgv-avatar bgv-avatar--sm" style="background:var(--warning-soft)">آ<span class="bgv-avatar__status bgv-avatar__status--offline"></span></span><div class="x-li__main"><b>آرش</b><span>آخرین بازدید ۱ ساعت پیش</span></div><div class="x-li__acts"><span class="bgv-badge bgv-badge--sm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>مدیر</span></div></div></section>
 </div>
-<nav class="bgv-dock" style="position:absolute;inset-inline:12px;inset-block-end:12px;z-index:5" aria-label="ناوبری">
-<a class="bgv-dock__item" href="/"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>خانه</a>
-<a class="bgv-dock__item" href="/games"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg>بازی‌ها</a>
-<a class="bgv-dock__item" href="/tables"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg>میزها<span class="bgv-badge bgv-badge--count bgv-badge--count-invite">۳</span></a>
-<a class="bgv-dock__item is-active" href="/messages" aria-current="page"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>پیام‌ها<span class="bgv-badge bgv-badge--count">۴</span></a>
-<a class="bgv-dock__item" href="/more"><svg class="bgv-icon " viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg>بیشتر</a></nav>
+<nav class="bgv-dock bgv-dock--float" aria-label="بخش‌های اصلی"><a class="bgv-dock__item" href="/"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg><span>خانه</span></a><a class="bgv-dock__item" href="/tables"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></svg><span>میزها</span><span class="bgv-badge bgv-badge--count bgv-badge--count-invite" role="img" aria-label="۳ میز منتظر حرکت شما">۳</span></a><a class="bgv-dock__item is-active" href="/messages" aria-current="page"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span>پیام‌ها</span><span class="bgv-badge bgv-badge--count" role="img" aria-label="۴ تازه">۴</span></a><a class="bgv-dock__item" href="/more"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /></svg><span>بیشتر</span></a></nav>
 </div>
 </x-dc>
-
 </body>
 </html>

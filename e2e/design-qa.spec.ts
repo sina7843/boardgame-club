@@ -8,7 +8,7 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { test, type Browser, type Page } from '@playwright/test';
 import { signIn } from './helpers.ts';
 
-type Screen = { id: string; page: string; title: string; route: string | null; kind: string; state: string; theme: 'light' | 'dark'; responsive: boolean; viewports: number[]; reference: string[]; capture: string };
+type Screen = { id: string; page: string; title: string; route: string | null; kind: string; state: string; theme: 'light' | 'dark'; responsive: boolean; viewports: number[]; reference: string[]; capture: string; supersededBy?: string };
 const SCREENS: { screens: Screen[] } = JSON.parse(readFileSync('design/reference/screens.json', 'utf8'));
 const CFG = JSON.parse(readFileSync('design/ds.config.json', 'utf8'));
 const QA = CFG.qa ?? {};
@@ -128,7 +128,7 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
   return {
     hScroll: se.scrollWidth - se.clientWidth,
     dsCoverage: total ? +(bgv / total).toFixed(3) : 0,
-    shell: { app: !!document.querySelector('.bgv-app'), sidebar: !!document.querySelector('.bgv-sidebar'), topbar: !!document.querySelector('.bgv-topbar'), dock: !!document.querySelector('.bgv-dock'), tablescreen: !!document.querySelector('.bgv-tablescreen') },
+    shell: { app: !!document.querySelector('.bgv-app'), siteheader: !!document.querySelector('.bgv-siteheader'), sidebar: !!document.querySelector('.bgv-sidebar'), topbar: !!document.querySelector('.bgv-topbar'), dock: !!document.querySelector('.bgv-dock'), tablescreen: !!document.querySelector('.bgv-tablescreen') },
     theme: root.dataset.theme ?? 'system',
     offTokenColors: offColors, offTokenRadii: offRadii, fonts, overflow, touching, latinDigits, middot
   };
@@ -140,6 +140,7 @@ for (const s of SCREENS.screens) {
     test.setTimeout(120_000);
     const entry: Record<string, unknown> = { id: s.id, page: s.page, route: s.route, kind: s.kind, capture: s.capture, theme: s.theme, shots: [] };
     audit[s.id] = entry;
+    if (s.supersededBy) { entry.status = 'superseded'; entry.supersededBy = s.supersededBy; save(); test.skip(true, `${s.id}: superseded by ${s.supersededBy}`); return; }
     if (!s.route || s.capture === 'manual') { entry.status = s.kind === 'spec' ? 'spec-only' : 'manual'; save(); test.skip(true, `${s.id}: ${entry.status}`); return; }
     if (QA.roles?.[s.route] && !process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`]) { entry.status = `needs-role:${QA.roles[s.route]}`; save(); test.skip(true, entry.status as string); return; }
     const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' ? undefined : await session(browser);

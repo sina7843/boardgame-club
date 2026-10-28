@@ -15,7 +15,7 @@ Everywhere a person appears: HUD cards, chat, lobby, lists, profile.
 | `src` | `string` | Image URL (the user's 11-layer avatar render). |
 | `name` | `string` | Accessible name (role="img"). |
 | `seat` | `SeatNo` | Seat ring colour 1–10. |
-| `you` | `boolean` | Viewer: coral ring. |
+| `you` | `boolean` | Viewer: amber ring. |
 | `status` | `'online' \| 'away' \| 'offline'` | Presence dot. |
 | `bot` | `boolean` | Bot chip at the corner. |
 | `turn` | `boolean` | Spinning turn ring. |
@@ -30,7 +30,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Always show the seat ring (`seat`) at the table; the viewer gets the coral ring (`you`).
+- Always show the seat ring (`seat`) at the table; the viewer gets the amber ring (`you`, `--invite-strong`).
 - Pair the avatar with name and seat glyph (`Identity`, `PlayerCard`); never identify a player by ring colour only.
 - Use xs in chat, sm in HUD strips, md in lists, xl/2xl in profiles.
 

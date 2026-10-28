@@ -1,4 +1,6 @@
-A pill used for filters, quick choices and, in its coral `invite` variant, empty seats and invitations.
+A pill used for filters, quick choices and, in its dashed amber `invite` variant, empty seats and invitations.
+
+**Material (v2.0): small token** — white fill, 1.5px frame and a 3px hard shadow in `--ink-btn` (soft slate #A1AAB1 in light since v2.1.11, slate #4A6476 in dark since v2.1.12); hover lifts 1px, press lands. Selected = the same raised token, navy (`--selected`) with a deeper `--ink-selected` frame and shadow. `invite` is an empty dashed slot, not a token. On the felt: in light the same white chip with `--ink-btn` (v2.1.11); in dark cream cardboard with the slate `--ink-btn` frame and shadow.
 
 ## When to use
 
@@ -10,8 +12,8 @@ Catalog filters (تعداد بازیکن، زمان، سبک), table options, qu
 
 | Prop | Type | Description |
 |---|---|---|
-| `variant` | `'default' \| 'invite'` | invite = coral dashed chip for empty seats and invitations only. |
-| `selected` | `boolean` | Selected filter chip (primary fill, aria-pressed). |
+| `variant` | `'default' \| 'invite'` | invite = transparent slot with a dashed `--heading` border, for empty seats and invitations only. |
+| `selected` | `boolean` | Selected filter chip (navy `--selected` fill, aria-pressed). |
 | `size` | `'sm' \| 'md'` | sm 28px, md 36px. |
 | `icon` | `IconName` | Leading 16px icon. |
 | `count` | `number` | Muted count after the label. |
@@ -25,7 +27,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Use `variant="invite"` (coral `--invite`, dashed `--on-invite` border) for empty seats and invite highlights only.
+- Use `variant="invite"` (transparent, dashed `--heading` border) for empty seats and invite highlights only; the dashed border and the plus icon tell it apart from a selected chip, which is solid amber too.
 - Selected chips use the primary fill; keep labels short («۲ تا ۴ نفر», «زنده»).
 - Group chips in a `ChipGroup` so they wrap or scroll consistently.
 

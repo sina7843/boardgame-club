@@ -1,4 +1,4 @@
-A felt plate for shared/team state: a gold label and resources with counts or pips.
+A felt plate for shared/team state: an amber (`--felt-gold`) label and resources with counts or pips.
 
 ## When to use
 
@@ -10,7 +10,7 @@ Co-op games (Hanabi hint/fuse tokens, The Mind lives/stars), table direction in 
 
 | Prop | Type | Description |
 |---|---|---|
-| `label` | `Node` | Gold label, e.g. «تیم» or «جهت». |
+| `label` | `Node` | Amber (--felt-gold) label, e.g. «تیم» or «جهت». |
 | `resources` | `Array<{ icon?: IconName; label?: Node; value: number; of?: number; tone?: string }>` | Shared resources; with `of` they render pips («۵/۸»). |
 | `children` | `Node` | — |
 

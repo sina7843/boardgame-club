@@ -137,7 +137,7 @@ export function WelcomeInvite() {
   );
 }
 
-/** Visible element carrying data-tour="target" (the same anchor can exist in the desktop sidebar and the phone dock). */
+/** Visible element carrying data-tour="target" (the same anchor can exist in the desktop header and the phone dock). */
 function useTargetRect(target: string | undefined): DOMRect | null {
   const [rect, setRect] = useState<DOMRect | null>(null);
   useEffect(() => {
@@ -147,7 +147,7 @@ function useTargetRect(target: string | undefined): DOMRect | null {
     const tick = () => {
       const visible = (t: string) => [...document.querySelectorAll(`[data-tour="${t}"]`)].find((e) => e.getClientRects().length > 0);
       // Nav links missing from the phone dock live under «بیشتر».
-      const el = visible(target) ?? (target.startsWith('nav-') ? visible('nav-more') : undefined);
+      const el = visible(target) ?? (target.startsWith('nav-') ? (visible('nav-more') ?? visible('nav-profile')) : undefined);
       if (el && !scrolled) { scrolled = true; el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
       const r = el?.getBoundingClientRect() ?? null;
       setRect((old) => (old && r && old.x === r.x && old.y === r.y && old.width === r.width && old.height === r.height) || (!old && !r) ? old : r);

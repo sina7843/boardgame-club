@@ -5,7 +5,7 @@ Tailwind `@theme inline` mapping in `apps/web/src/app.css`). The BGV design syst
 `scripts/ds-check.mjs` rule DS007 flags every legacy variable below; DS012 flags the retired imports.
 
 > Some names exist in both systems (`--bg --surface --surface-raised --text --line --border --primary --accent --danger --success --warning --felt --focus --link --dur-fast`).
-> Their **meaning and values changed** (e.g. `--primary` is now the green/cream "go" colour, `--accent` is brand gold, `--felt` is the fixed table green).
+> Their **meaning and values changed** (e.g. `--primary` is now the amber "go" colour with navy label, `--accent` is amber, `--felt` is the navy table).
 > Re-check every use of them visually against the reference.
 
 ## Colour roles
@@ -30,7 +30,7 @@ Tailwind `@theme inline` mapping in `apps/web/src/app.css`). The BGV design syst
 | `--felt-foreground`, `--felt-text` | `--felt-ink` (secondary: `--felt-muted`) |
 | `--wood`, `--wood-text` | `--felt-rim` / `--felt-ink` |
 | invite / «you» highlight (was ad-hoc coral) | `--invite`, `--invite-strong`, `--invite-soft`, `--on-invite` |
-| navigation chrome (sidebar, top bar, dock) | `--surface-chrome` |
+| navigation chrome (site header, top bar, dock) | `--surface-chrome` |
 | hard-coded seat colours (`SEAT_COLORS` in Table.tsx, renderer CSS) | `--seat-1 … --seat-10` (+ glyphs, see Seat README) |
 
 ## Shape, depth, type, spacing, motion
@@ -49,7 +49,7 @@ Tailwind `@theme inline` mapping in `apps/web/src/app.css`). The BGV design syst
 | `--fs-xs`, `--lh` | `.t-caption`, `.t-micro` |
 | `--sp-1`, `--spacing` | `--space-1 … --space-20` |
 | `--touch` | `--control-md` (44) |
-| `--nav-w` | `--sidebar-w` (272; 88 when collapsed) |
+| `--nav-w` | none — the sidebar is gone in v2.1 (`--sidebar-w` removed). Desktop navigation is the 72px `SiteHeader` (`--header-h`). |
 | `--motion`, `--motion-ease` | `--dur-*`, `--ease-out`, `--ease-spring`, `--ease-in-out` |
 | `--surface-filter`, `--line-style` | removed (no equivalent; don't recreate) |
 
@@ -60,7 +60,7 @@ Tailwind `@theme inline` mapping in `apps/web/src/app.css`). The BGV design syst
 | `apps/web/src/styles.css` + old BEM classes | `packages/ui/src/bgv/bundle.css` (`bgv-*` classes) + small screen modules using tokens |
 | `packages/ui/src/components.tsx`, `packages/ui/src/vf/**` (45 files) | `packages/ui/src/bgv/components/*.tsx` (94 DS components, API = `design/system/components/index.d.ts`) |
 | `apps/web/src/app.css` `@theme inline` VibeFarsi mapping | Tailwind `@theme inline` mapped to BGV tokens (`--color-bg: var(--bg)` …) **for layout utilities only**; colour utilities come from tokens |
-| `THEME_COLOR` in `apps/web/src/lib/prefs.tsx` (`#efeeea` / `#15120f`) | `#173A2D` light / `#191B1A` dark (meta theme-color) |
+| `THEME_COLOR` in `apps/web/src/lib/prefs.tsx` (`#efeeea` / `#15120f`) | `#142B3B` for both themes (one meta theme-color) |
 | `public/` favicon + manifest | `design/brand/favicon-production/*` (see `design/brand/LOGO-USAGE.md`) |
 | Fonts: Vazirmatn variable | Vazirmatn (400/700/900) + **Manrope** (600/800) for Latin (`@fontsource-variable/manrope`) |
 | `apps/web/scripts/contrast.mjs` (dark theme never measured) | fix the dark selector (`[data-theme="dark"]`) and run it in CI on `tokens.css` |

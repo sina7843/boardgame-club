@@ -1,4 +1,4 @@
-The 56px phone top bar on `--surface-chrome`: symbol (home), page title, the real-gold coin chip and the bell; or back + title on inner pages.
+The 56px (`--topbar-h`) phone top bar on `--surface-chrome`. Order: symbol (home) or back, page title, **search magnifier**, the real-gold coin chip, the bell. Guest: magnifier and a secondary «ورود / ثبت‌نام». The logo and the coin keep a 44px hit area.
 
 ## When to use
 
@@ -6,7 +6,7 @@ Phone pages outside the table (inside `AppShell` it is sticky and edge to edge).
 
 ## Props / what the consumer provides
 
-`title`, `onBack`, `leading` (symbol logo), `actions` (coin chip `size="sm"`, bell with count).
+`title`, `onBack`, `leading` (symbol logo), `search` (`{href}` or `{onClick}`: opens the full-screen `SiteSearch` sheet), `actions` (coin chip `size="sm"`, bell with count; for a guest the secondary «ورود / ثبت‌نام»).
 
 | Prop | Type | Description |
 |---|---|---|
@@ -14,7 +14,8 @@ Phone pages outside the table (inside `AppShell` it is sticky and edge to edge).
 | `onBack` | `() => void` | Shows a back button (arrow-right in RTL). |
 | `backLabel` | `string` | — |
 | `leading` | `Node` | — |
-| `actions` | `Node` | Icon buttons at the end (bell with count, search). |
+| `search` | `{ href, onClick } \| Node` | Magnifier after the title. |
+| `actions` | `Node` | After the search: coin chip and bell, or the guest login button. |
 | `children` | `Node` | — |
 
 Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers) passes through to the root element. Types: `TopBarProps` in `components/index.d.ts`.
@@ -23,12 +24,12 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Canonical: symbol → title → coin chip → bell with a crimson count.
+- Canonical: symbol → title → search → coin chip → bell with a crimson count. Guest: symbol → title → search → «ورود / ثبت‌نام» (secondary).
 - Back is `arrow-right` in RTL and labelled «بازگشت».
 
 **Don't**
 
-- Do not exceed two actions.
+- Do not add more than search + two actions.
 - Do not centre the title.
 
 ## Example

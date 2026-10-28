@@ -1,4 +1,4 @@
-Page buttons with previous/next and ellipses.
+Page buttons with previous/next and ellipses. The current page (`aria-current="page"`) is the navy selection token (cream in dark), the same raised token as the toggle-on button.
 
 ## When to use
 
@@ -22,6 +22,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 **Do**
 
 - Keep it under the table, end-aligned.
+- The current page is a selection, so it is navy, never amber.
 - Prefer infinite lists on phones.
 
 **Don't**

@@ -22,7 +22,7 @@ body{margin:0}
 .x-sec__head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-sec__head>h2{flex:1;min-width:0}
 .x-sec__body{padding:20px;display:grid;gap:16px}
-.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:var(--shadow-tile)}
+.x-tile{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;background:var(--surface-raised);color:var(--heading);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-tile)}
 .x-row{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .x-row:last-child{border-bottom:0}
 .x-row__text{flex:1 1 220px;min-width:0;display:grid;gap:2px;line-height:1.55}
@@ -38,17 +38,17 @@ body{margin:0}
 .bgv-btn .bgv-coin{font-weight:900}
 .bgv-switch{gap:10px;flex:none}
 .bgv-switch__state{min-width:3.2em;text-align:start;font-weight:700}
-.bgv-switch[aria-checked="true"] .bgv-switch__track{background:var(--success)}
-.bgv-switch[aria-checked="true"] .bgv-switch__track::after{background:var(--surface)}
-.bgv-switch__track::before{border-color:var(--success)}
-.x-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:0;list-style:none;font-size:13px;line-height:1;flex-wrap:wrap}
-.x-steps li{display:flex;align-items:center;gap:8px;color:var(--text-muted);white-space:nowrap}
-.x-steps b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;background:var(--surface-sunken);box-shadow:var(--shadow-field)}
-.x-steps .is-done b{background:var(--primary);color:var(--on-primary);box-shadow:none}
-.x-steps .is-cur{color:var(--text);font-weight:700}
-.x-steps .is-cur b{background:var(--surface);color:var(--heading);box-shadow:0 0 0 2px var(--primary)}
-.x-steps .x-bar{width:20px;height:2px;border-radius:2px;background:var(--line)}
-.x-steps .x-bar.is-done{background:var(--primary)}
+
+
+
+
+
+
+
+
+
+
+
 .bgv-tel{min-height:52px}
 .bgv-tel>input{font-size:20px;font-weight:700;color:var(--text);min-width:0}
 .bgv-tel>span{gap:6px;display:flex;align-items:center}
@@ -68,21 +68,25 @@ body{margin:0}
  .x-login__hero{order:-1;padding:20px 20px 16px}.x-login__hero .x-fan{min-height:150px;--fw:128px}
  .x-login__hero .bgv-turn{display:none}.x-login__form{padding:4px 0 16px;gap:20px}.x-login__card{padding:24px 20px}
  .x-login__hero h2{font-size:24px}}
+
+/*ctx*/.x-ctx{display:flex;align-items:center;gap:8px;margin:0;padding:10px 12px;border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);background:var(--surface);font-size:13px;line-height:1.6;color:var(--text)}.x-ctx .bgv-icon{flex:none;color:var(--heading)}.x-close{position:absolute;inset-block-start:14px;inset-inline-start:12px}
+
+
 </style>
 
 <div class="bgv x-login" data-theme="light" dir="rtl">
  <section class="x-login__form">
   <span class="bgv-spacer"></span>
-  <div class="bgv-card x-login__card">
-   <ol class="x-steps" aria-label="مراحل ورود"><li class="is-cur" aria-current="step"><b>۱</b>شماره</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۲</b>کد تأیید</li><li class="x-bar" aria-hidden="true"></li><li class=""><b>۳</b>پروفایل</li></ol>
-   <div style="display:grid;gap:4px;text-align:center"><h1 class="t-page" style="color:var(--heading)">ورود یا ثبت‌نام</h1>
-    <p class="t-body-sm bgv-muted" style="text-wrap:balance">با شماره موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p></div>
-   <div class="bgv-field"><label class="bgv-label" for="mob">شماره موبایل</label>
-    <div class="bgv-tel" dir="ltr"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></svg>+98</span><input id="mob" inputmode="tel" autocomplete="tel" placeholder="912 345 6789" value="912 480 3215" aria-describedby="mob-h"></div>
+  <div class="bgv-card x-login__card" style="position:relative"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon x-close" href="/" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></a>
+   <ol class="bgv-steps" aria-label="مراحل ورود"><li class="is-cur" aria-current="step"><b>۱</b>شماره</li><li class="bgv-steps__bar" aria-hidden="true"></li><li><b>۲</b>کد تأیید</li><li class="bgv-steps__bar" aria-hidden="true"></li><li><b>۳</b>پروفایل</li></ol>
+   <p class="x-ctx"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 17 4 12 9 7" /> <path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg><span>بعد از ورود به همان صفحه‌ای برمی‌گردید که بودید.</span></p><div style="display:grid;gap:4px;text-align:center"><h1 class="t-page" style="color:var(--heading)">ورود یا ثبت‌نام</h1>
+    <p class="t-body-sm bgv-muted" style="text-wrap:balance">با شمارهٔ موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p></div>
+   <div class="bgv-field"><label class="bgv-label" for="mob">شمارهٔ موبایل</label>
+    <div class="bgv-tel" dir="ltr"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></svg>+۹۸</span><input id="mob" inputmode="tel" autocomplete="tel" placeholder="۹۱۲ ۰۰۰ ۰۰۰۰" value="۹۱۲ ۴۸۰ ۳۲۱۵" aria-describedby="mob-h"></div>
     <span class="bgv-hint" id="mob-h">شماره شما در پروفایل عمومی نمایش داده نمی‌شود.</span></div>
    <button class="bgv-btn bgv-btn--primary bgv-btn--lg bgv-btn--block">دریافت کد</button>
    <p class="bgv-hint" style="justify-content:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true" style="margin-top:3px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
-   <p class="x-legal">ورود یا ثبت‌نام به معنی پذیرش <a href="#">قوانین و مقررات</a> و <a href="#">حریم خصوصی</a> است.</p>
+   <p class="x-legal">ورود یا ثبت‌نام به معنی پذیرش <a href="/terms">قوانین و مقررات</a> و <a href="/privacy">حریم خصوصی</a> است.</p>
   </div>
   <span class="bgv-spacer"></span>
   <nav class="x-login__links" aria-label="پیوندهای سایت"><a href="#">درباره ما</a><a href="#">قوانین و مقررات</a><a href="#">حریم خصوصی</a><a href="#">قوانین خرید و بازگشت وجه</a><a href="#">تماس با ما</a></nav>
@@ -102,6 +106,5 @@ body{margin:0}
  </section>
 </div>
 </x-dc>
-
 </body>
 </html>

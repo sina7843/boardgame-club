@@ -80,3 +80,4 @@ pnpm-debug.log*
 /.tmp-trophy
 # Original BGV design-system handoff drop (its content lives in design/)
 BGV-DesignSystem-Handoff/
+BGV-DesignSystem-Handoff-v2.1/

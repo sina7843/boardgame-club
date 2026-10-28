@@ -42,7 +42,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 row(
   h(B.Dialog,{style:{width:'340px'}, title:'ترک میز؟', icon:'log-out', onClose:function(){}, footer:[h(B.Button,{key:1, variant:'secondary'},'ماندن'), h(B.Button,{key:2, variant:'leave'},'ترک میز')]},
     h('p',null,'بازی رتبه‌ای در جریان است. اگر بروید ربات جای شما بازی می‌کند و باخت برای شما ثبت می‌شود.')),
-  h(B.Dialog,{style:{width:'340px'}, title:'دعوت به میز کاتان', onClose:function(){}, footer:[h(B.Button,{key:1, variant:'secondary'},'رد'), h(B.Button,{key:2, variant:'primary'},'پیوستن')]},
+  h(B.Dialog,{style:{width:'340px'}, title:'دعوت به میز کاتان', onClose:function(){}, footer:[h(B.Button,{key:1, variant:'secondary', icon:'x'},'رد'), h(B.Button,{key:2, variant:'primary'},'پیوستن')]},
     h(B.Identity,{name:'نیلوفر', initials:'ن', frame:'master', league:'master', title:'رستم دستان'}), h('p',{className:'bgv-muted'},'زنده، ۶۰ ثانیه هر نوبت، دوستانه'))
 )
 ```

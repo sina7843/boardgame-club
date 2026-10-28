@@ -40,6 +40,6 @@ col(
   h(B.Banner,{tone:'warning', title:'۱۵۰ سکه کم دارید', text:'یک بستهٔ سکه بخرید یا با مأموریت‌های هفتگی سکه جمع کنید.', action:h(B.Button,{size:'sm', variant:'primary'},'خرید سکه')}),
   h(B.Banner,{title:'به‌روزرسانی امشب', text:'ساعت ۲ تا ۳ بامداد میزهای زنده ساخته نمی‌شوند؛ میزهای نوبتی متوقف می‌مانند.', onClose:function(){}}),
   h(B.Banner,{tone:'danger', title:'پرداخت ناموفق بود', text:'مبلغی از حساب شما کم نشده است.'}),
-  h(B.Banner,{tone:'success', title:'اشتراک ویژه فعال شد'})
+  h(B.Banner,{tone:'success', title:'اشتراک پریمیوم فعال شد'})
 )
 ```

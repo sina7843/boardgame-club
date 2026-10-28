@@ -1,5 +1,7 @@
 A labelled single-line input with optional prefix icon, trailing node, hint and error.
 
+**Material (v2.0):** a well — a hard 2px inner edge (`--shadow-field`) and a 1px `--field-edge` (3.5:1, WCAG 1.4.11).
+
 ## When to use
 
 Usernames, search, table names, club names, coupon codes. Use `PhoneField` for mobile numbers and `OtpField` for login codes.

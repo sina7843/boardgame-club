@@ -2,7 +2,7 @@ Our in-game dashboard that replaces the game's own player panels: phone strip, d
 
 ## When to use
 
-Every table: strip on phones (≤4 players; 5–6 as `grid3`; 7–10 first four + «+۶»), rail on desktop (296px at the inline start, with `Race`), duel above/below the board on the felt.
+Every table: strip on phones (≤4 players; 5–6 as `grid3`; 7–10 the next three in turn order + you (always last) + «+N»), rail on desktop (296px at the inline start, with `Race`), duel above/below the board on the felt.
 
 ## Props / what the consumer provides
 
