@@ -13,6 +13,7 @@
   "apps/web/src/harness.tsx",
   "packages/ui/src/bgv/tokens.css",
   "packages/ui/src/bgv/bundle.css",
+  "packages/ui/src/bgv/bgv.js",
   "packages/ui/src/bgv/reference/**"
  ],
  "zones": {
