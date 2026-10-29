@@ -206,6 +206,7 @@ test('club roles and membership, report from club chat, moderator suspension and
   // Moderator 1 suspends
   await mod1.goto('/mod');
   await mod1.getByRole('row', { name: new RegExp(slug.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[+d])) }).getByRole('button', { name: 'بررسی' }).click();
+  await mod1.getByRole('button', { name: 'نمایش متن' }).click(); // the reported text stays hidden until a moderator opens it
   await expect(mod1.getByText('پیام توهین‌آمیز آزمایشی')).toBeVisible();
   await mod1.getByText('تعلیق', { exact: true }).click();
   await mod1.getByLabel('یادداشت تصمیم (در سابقه ثبت می‌شود)').fill('توهین');

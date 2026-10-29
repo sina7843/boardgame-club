@@ -176,6 +176,8 @@ button.cover-flip { cursor: pointer; }
   .pg-panes[data-tab="about"] [data-pane="about"], .pg-panes[data-tab="rules"] [data-pane="rules"], .pg-panes[data-tab="time"] [data-pane="time"],
   .pg-panes[data-tab="wiki"] [data-pane="wiki"], .pg-panes[data-tab="table"] [data-pane="table"], .pg-panes[data-tab="rounds"] [data-pane="rounds"],
   .pg-panes[data-tab="prizes"] [data-pane="prizes"] { display: block; }
+  /* Joining must not hide behind a tab: the entry card (register / check-in) shows on every tab. */
+  .pg-panes[data-tab] [data-pane][aria-label="ورود"] { display: block; }
 }
 
 /* Open tables on phones: chip filter scrolls in one row; the game select, switches and long subtitle step back. */
