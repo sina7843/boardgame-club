@@ -562,7 +562,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       ...(ss.badges?.length && !words ? { badge: <span className="bgv-row tbl-badges">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</span> } : {})
     } : {};
     return {
-      name: <bdi>{n}</bdi>, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
+      name: n, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
       onClick: () => setSheetSeat(x.seat),
       ...(x.bot ? { botLevel: BOT_LEVEL_FA[x.bot.level] } : {}),
       ...(x.kind === 'script' ? { sub: 'حریف آموزشی' } : {}),

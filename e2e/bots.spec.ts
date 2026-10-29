@@ -8,6 +8,13 @@ const RESULT = /بردید|باختید|مساوی/;
 const shot = (project: string, name: string) => `docs/evidence/site/bots/${project}-${name}.png`;
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'bot flow runs at 360 and 1440');
 
+/** Wide HUD cards say «ربات، سطح …»; the phone strip (mini cards) only lists the players as named buttons. */
+async function expectBots(p: import('@playwright/test').Page, bots: number, timeout = 10_000) {
+  const hud = p.getByRole('region', { name: 'بازیکنان' }).first();
+  if ((p.viewportSize()?.width ?? 1440) < 600) await expect(hud.getByRole('button')).toHaveCount(bots + 1, { timeout });
+  else await expect(hud.getByText(/ربات، سطح/)).toHaveCount(bots, { timeout });
+}
+
 test('play «سه‌خطی» against a hard bot to the result', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'بازیکن تنها');
@@ -17,7 +24,7 @@ test('play «سه‌خطی» against a hard bot to the result', async ({ browser
   await p.screenshot({ path: shot(info.project.name, 'offer'), fullPage: true });
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.lt__board')).toBeVisible();
-  await expect(p.getByRole('region', { name: 'بازیکنان' }).first().getByText(/ربات، سطح/).first()).toBeVisible();
+  await expectBots(p, 1);
 
   for (let n = 0; n < 12; n++) {
     if (await p.getByRole('heading', { name: RESULT }).count()) break;
@@ -41,7 +48,7 @@ test('«مسابقهٔ شترها» with two bots: the bots take their turns bet
   await p.getByRole('radio', { name: 'آسان' }).click();
   await p.getByLabel('تعداد بازیکن (شما و ربات‌ها)').selectOption('3');
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
-  await expect(p.getByRole('region', { name: 'بازیکنان' }).first().getByText(/ربات، سطح/)).toHaveCount(2, { timeout: 10_000 });
+  await expectBots(p, 2);
   // Four of my turns: each needs both bots to act in between (a full game is covered by the API test).
   const roll = p.getByRole('button', { name: /^تاس از هرم/ });
   for (let mine = 0; mine < 4; mine++) {
@@ -63,7 +70,7 @@ test('«نه، ممنون!» against a bot: the bot answers each of my moves', a
   await p.getByRole('radio', { name: 'متوسط' }).click();
   await p.getByRole('button', { name: 'بازی با ربات' }).click();
   await expect(p.locator('.nt-card--big')).toBeVisible();
-  await expect(p.getByRole('region', { name: 'بازیکنان' }).first().getByText(/ربات، سطح/).first()).toBeVisible();
+  await expectBots(p, 1);
   // Three of my moves; between them the bot must act (pass or take), which moves the shared sequence on.
   const take = p.locator('.nt-btn--take');
   for (let mine = 0; mine < 3; mine++) {
