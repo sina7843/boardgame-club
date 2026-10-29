@@ -136,3 +136,15 @@ html[data-immersive] .app-page { gap: 0; }
 /* Player rail on phones: four compact cards share the width, so the turn-order line wraps instead of sticking out. */
 .tbl-rail .bgv-pstate { white-space: normal; flex-wrap: wrap; justify-content: center; text-align: center; font-size: 11px; line-height: 1.3; }
 .tbl-rail .bgv-pcard__name { min-inline-size: 0; max-inline-size: 100%; overflow-wrap: anywhere; }
+
+/* After-game card: the button stack took its width from the first chip row and squeezed «گزارش این میز» (icon stuck out). */
+.tbl-post > * > .bgv-stack, .tbl-post .bgv-stack { inline-size: 100%; align-items: flex-start; }
+.tbl-post .bgv-btn { flex-shrink: 0; white-space: nowrap; }
+
+/* «خبرتان کنیم؟» pre-prompt body (DS Push-Preprompt): bell tile, headline, three reasons, privacy note. */
+.np { display: grid; gap: var(--space-3); justify-items: center; text-align: center; }
+.np__icon { display: grid; place-items: center; inline-size: 56px; block-size: 56px; border-radius: var(--radius-md); background: var(--surface-sunken); border: 1px solid var(--border); color: var(--heading); }
+.np__title { margin: 0; }
+.np__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); justify-self: stretch; text-align: start; }
+.np__list li { display: flex; align-items: center; gap: var(--space-2); }
+.np__note { margin: 0; display: flex; align-items: flex-start; gap: var(--space-2); text-align: start; }

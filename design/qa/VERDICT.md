@@ -1,6 +1,6 @@
 # BGV design QA — verdict (2026-10-29, design system v2.1)
 
-**Overall: NOT PASS** — 12 designed screens are not captured yet, and the independent visual review (step 3 of `/bgv-qa`) was not run.
+**Overall: NOT PASS (automated gates clean)** — 106 PASS · 0 FAIL; 2 screens cannot be captured (below); visual review done for the home and the live table / chat / overlay screens, not yet for every other page.
 
 ## Gates
 | Gate | Result |
@@ -9,12 +9,9 @@
 | Live capture + DOM audit (desktop-1440 project, widths 1440 / 1000 / 390, both themes) | **96 PASS · 0 FAIL · 12 not captured · 14 spec-only** of 122 screens |
 | Independent visual review (side by side with the references) | **started, home only** (see below) |
 
-## Not captured (12)
-- Need a backend change: `Table-Lobby-Guest-Mobile` (guests cannot see a table; a 2-minute held seat and `LoginSheet` at the table do not exist yet).
-- Time based, need a game clock to run down: `Turn-Start-Mobile`, `Turn-Warn-Mobile`, `Turn-Critical-Mobile`, `Turn-Timeout-Mobile`.
-- OS / first-visit overlays with no hook yet: `Push-Lockscreen-Mobile`, `Push-Preprompt-Mobile`, `Onboarding-Tour-Mobile`, `Celebration-LevelUp-Mobile`.
-- Hook written but the capture times out (120 s) in the harness: `Msg-Menu-Others-Mobile`, `Msg-Menu-Mine-Mobile`, `Mention-Compose-Mobile`.
-- `Profile-Public-Mobile-Dark` passes when run alone; it timed out in the last combined run.
+## Not captured (2)
+- `Push-Lockscreen-Mobile`: an OS lock-screen notification, not part of the web page; cannot be captured in a browser.
+- `Table-Lobby-Guest-Mobile`: needs a backend change (guests cannot see a table; the 2-minute held seat and `LoginSheet` at the table do not exist yet). Deferred, decision in DECISIONS.md.
 
 ## Fixed during this QA
 - **Audit tool**: the colour probe read the previous value while a transition ran, so almost every token looked "off-token" (all 60 failures of the first run). Fixed in `e2e/design-qa.spec.ts` (probe without transitions); colours written with `color-mix()` (computed as `color(srgb …)`) are accepted; lobby screens are not required to use `.bgv-tablescreen` (the reference lobby does not); a screen can have its own table or interaction (`PREPARE`).
@@ -26,6 +23,12 @@
 - **Harness fixes**: `screens.json` `theme` is unreliable (Home-Member* say dark, reference is light) → theme now follows the id (`Dark` → dark, else light). Full-page shots scroll first so lazy game art loads (cards were blank).
 - **Home member @1440 / @390 — structure, tokens, shell, hero, cards: match the reference.** Remaining gaps (data/feature, not tokens): hero lacks the big «آخرین بازیت» box art; no weekly-leaders strip; no tournament feature band; footer lacks the «بازی‌های محبوب» column and «دریافت از کافه‌بازار» button; the enamad box shows a broken image; «نوبت شماست»/open-tables rows are empty-state in this data set.
 - Other screens not yet compared one by one.
+
+## Second pass (same day)
+- **Live tables had expired** (the 60 s turn clock ran out; HUD/chat shots were result screens). Captures now run without the worker (`design/qa/pw.noworker.config.ts`), after `qa-setup*`; Turn-* screens move the pending turn deadline in the dev DB (`setTurnLeft`). Timeout shot shows the client's 0:00 state only (no auto-move, no strike: those need the worker).
+- **Table @390**: two-player HUD uses the DS phone `strip` layout (board visible above the fold; `duel` kept for the result). «گزارش این میز» no longer shrinks in the after-game card.
+- **Overlays**: Onboarding tour, Level-up celebration and the «خبرتان کنیم؟» pre-prompt (rebuilt like the reference, also shown in a turn-based lobby) are captured by hooks. Level-up keeps the product's shield art where the reference has a numeric ring (decision, not a token issue).
+- **Harness**: list-based routes wait for their link (no more `needs-data` flakes).
 
 ## Polish items (warnings, not gates)
 - 17 Latin digits inside Latin game names in `bgv-gamecard__latin` (names such as «7 Wonders Duel»): expected, add to the audit allow-list.

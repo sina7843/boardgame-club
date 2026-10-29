@@ -1373,3 +1373,9 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 ## 3D box art and home gaps (2026-10-29, owner: decide everything)
 - Box photos stay the self-hosted BGG photos (`/covers/box/<id>.webp`); no third-party 3D renders scraped from the web (mixed licensing and inconsistent angles). The 3D look is CSS (`.box3d` in home.css): perspective turn, spine, lit face, floor shadow; calmer on hover, off under reduced motion.
 - Home: last-game hero plate shows the 3D box; «برترین‌های <بازی محبوب>» podium (top 3 of that game's live leaderboard, hidden under 3 ranked players). The footer store button stays off (no store app); the enamad seal is an external image and only fails offline.
+
+## Design QA second pass (2026-10-29)
+- Guest table lobby (`Table-Lobby-Guest-Mobile`) is deferred: it needs an unauthenticated read of an open public table plus a server-held seat (2 min) before login. Not faked in the UI.
+- Phone table HUD: DS `strip` layout for ≤5 players (board above the fold); `duel` only for the finished two-player result.
+- «خبرتان کنیم؟» also appears in the lobby of a turn-based table (asked once per device), restyled like the DS pre-prompt.
+- QA runs without the worker so live tables do not expire; `design/qa/pw.noworker.config.ts`.

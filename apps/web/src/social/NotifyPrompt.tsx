@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Sheet } from '@bg/ui/bgv';
+import { Button, Icon, Sheet } from '@bg/ui/bgv';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 
 const ASKED = 'bg.notifyAsked';
@@ -15,12 +15,22 @@ export function NotifyPrompt() {
   const done = () => { try { localStorage.setItem(ASKED, '1'); } catch { /* storage unavailable */ } setOpen(false); };
   return (
     <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) done(); }}>
-      <Sheet title="خبرتان کنیم؟" icon="bell" onClose={done} closeLabel="فعلاً نه"
+      <Sheet aria-label="خبرتان کنیم؟"
         footer={<>
-          <Button variant="primary" block onClick={async () => { await setBrowserNotifications(true); done(); }}>اجازه‌ی اعلان</Button>
-          <Button variant="ghost" block onClick={done}>فعلاً نه</Button>
+          <Button variant="primary" block icon="bell" onClick={async () => { await setBrowserNotifications(true); done(); }}>اجازه‌ی اعلان</Button>
+          <Button variant="secondary" block onClick={done}>فعلاً نه</Button>
         </>}>
-        <p className="t-body-sm" style={{ margin: 0 }}>وقتی نوبت شما شد یا مهلت رو به پایان است، مرورگر خبرتان می‌کند؛ حتی اگر این برگه در پس‌زمینه باشد. اعلان‌ها هیچ اطلاعات پنهان بازی را نشان نمی‌دهند.</p>
+        <div className="np">
+          <span className="np__icon"><Icon name="bell" /></span>
+          <h2 className="t-title np__title">وقتی نوبت شما شد، خبرتان کنیم؟</h2>
+          <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>اگر نوبتی بازی می‌کنید، مرورگر می‌تواند حتی وقتی این برگه در پس‌زمینه است خبرتان کند.</p>
+          <ul className="np__list">
+            <li><Icon name="play" size="sm" />وقتی نوبت شما شروع می‌شود</li>
+            <li><Icon name="alarm-clock" size="sm" />یادآوری وقتی مهلت رو به پایان است</li>
+            <li><Icon name="trophy" size="sm" />وقتی بازی تمام می‌شود</li>
+          </ul>
+          <p className="t-caption bgv-muted np__note"><Icon name="lock" size="sm" />اعلان‌ها هیچ اطلاعات پنهان بازی (کارت‌ها یا متن پیام‌ها) را نشان نمی‌دهند. هر وقت خواستید از تنظیمات خاموشش کنید.</p>
+        </div>
       </Sheet>
     </div>
   );

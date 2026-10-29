@@ -4,6 +4,7 @@
 //   then: node scripts/ds-qa-report.mjs
 // Output: design/qa/app/<screen>@<width>.png + design/qa/app/audit.json
 // Only reads design/reference/screens.json + design/ds.config.json. Never edit those to make QA pass.
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { test, type Browser, type Page } from '@playwright/test';
 import { signIn } from './helpers.ts';
@@ -23,7 +24,7 @@ const save = () => writeFileSync(AUDIT_FILE, JSON.stringify(audit, null, 1));
 // Values: a path, or { url, storage } when the table belongs to another account (e2e/qa-setup.spec.ts).
 const TABLES: Record<string, string | { url: string; storage: string }> = process.env.BGV_QA_TABLES ? JSON.parse(process.env.BGV_QA_TABLES) : {};
 // A table is looked up by screen id first (state screens), then by the game named first in the state text.
-const tableOf = (s: { id: string; kind: string; state: string }) => (s.kind === 'table' ? TABLES[s.id] ?? TABLES[(s.state.split(',')[0] ?? '').trim()] : undefined);
+const tableOf = (s: { id: string; kind: string; state: string }) => (s.kind === 'table' ? TABLES[s.id] ?? TABLES[(s.state.split(',')[0] ?? '').trim()] ?? (s.id.startsWith('Turn-') ? TABLES.chess : undefined) : undefined);
 const ONLY = process.env.BGV_QA_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
 
 // Literal colours/radii the design system itself uses (bundle.css) are part of the DS, so they are allowed too.
@@ -36,7 +37,19 @@ const DS_RADII = [...new Set([...BUNDLE_CSS.matchAll(/border-radius:\s*([^;}]+)/
 /** Interactions that bring a screen into its designed state (overlays, disconnects, open chat). Screens without one stay manual. */
 const chatOpen = async (page: Page) => { await page.locator('.tbl-chatbtn:visible, .tbl-chatpeek:visible').first().click({ timeout: 4000 }).catch(() => undefined); await page.waitForTimeout(600); };
 const hold = async (page: Page, sel: string) => { await page.locator(sel).first().evaluate((el) => el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }))); await page.waitForTimeout(900); };
+/** Moves the pending turn deadline of the table in the page URL (dev DB only) so the clock shows the wanted state. The worker is off in this run, so nothing fires. */
+const setTurnLeft = async (page: Page, seconds: number) => {
+  const id = page.url().split('/').pop()?.split('?')[0] ?? '';
+  if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error('not a table url');
+  execFileSync('docker', ['exec', 'boardgame-dev-postgres-1', 'psql', '-U', 'boardgame', '-d', 'boardgame', '-c',
+    `update scheduled_deadlines set due_at = now() + interval '${seconds} seconds' where table_id = '${id}' and deadline_key = 'turn' and status = 'pending'`]);
+  await page.reload(); await page.waitForLoadState('networkidle').catch(() => {}); await page.waitForTimeout(800);
+};
 const PREPARE: Record<string, (page: Page) => Promise<void>> = {
+  'Turn-Start-Mobile': async (page) => { await setTurnLeft(page, 290); },
+  'Turn-Warn-Mobile': async (page) => { await setTurnLeft(page, 140); },
+  'Turn-Critical-Mobile': async (page) => { await setTurnLeft(page, 9); },
+  'Turn-Timeout-Mobile': async (page) => { await setTurnLeft(page, -3); },
   'Table-ConnectionLost-Mobile': async (page) => { await page.context().setOffline(true); await page.waitForTimeout(4000); },
   'Offline-Mobile': async (page) => { await page.context().setOffline(true); await page.evaluate(() => window.dispatchEvent(new Event('offline'))); await page.waitForTimeout(1500); },
   'Chat-Docked-Desktop': async () => undefined,
@@ -46,6 +59,19 @@ const PREPARE: Record<string, (page: Page) => Promise<void>> = {
   'Msg-Menu-Others-Mobile': async (page) => { await chatOpen(page); await hold(page, '.chat-msg:not(.chat-msg--mine)'); },
   'Msg-Menu-Mine-Mobile': async (page) => { await chatOpen(page); await hold(page, '.chat-msg--mine'); },
   'Mention-Compose-Mobile': async (page) => { await chatOpen(page); await page.getByPlaceholder('پیام به میز…').fill('@نیل'); await page.waitForTimeout(500); },
+  'Onboarding-Tour-Mobile': async (page) => { await page.getByRole('button', { name: 'شروع گشت' }).first().click({ timeout: 5000 }); await page.waitForTimeout(900); },
+  'Celebration-LevelUp-Mobile': async (page) => {
+    const me = await (await page.request.get('/api/me')).json() as { id?: string; user?: { id: string } };
+    const id = me.id ?? me.user?.id;
+    await page.evaluate((u) => localStorage.setItem(`bg.celebrated.${u}`, JSON.stringify({ level: 0, keys: [] })), id);
+    await page.goto('/'); await page.waitForSelector('dialog[open]', { timeout: 15000 });
+  },
+  'Push-Preprompt-Mobile': async (page) => { // an open turn-based table of its own, with the «asked once» flag cleared
+    const t = TABLES['lobby (waiting)'] as { url: string; storage: string } | undefined; if (!t) throw new Error('no lobby table');
+    await page.context().addCookies(JSON.parse(readFileSync(t.storage, 'utf8')).cookies);
+    await page.addInitScript(() => { try { localStorage.removeItem('bg.notifyAsked'); Object.defineProperty(Notification, 'permission', { get: () => 'default' }); } catch { /* storage blocked */ } });
+    await page.goto(t.url); await page.waitForSelector('text=خبرتان کنیم؟', { timeout: 15000 });
+  },
   'Hud-Bubbles-Mobile': async (page) => { const id = page.url().split('/').pop(); await page.request.post(`/api/tables/${id}/chat`, { headers: { origin: QA.baseURL }, data: { body: 'نوبت توئه! 😄' } }); await page.waitForTimeout(900); },
   'Shop-Item-Sheet-Mobile': async (page) => { await page.locator('.bgv-cosm').first().click({ timeout: 4000 }); await page.waitForTimeout(700); },
   'Avatar-Builder-Mobile-Buy': async (page) => { await page.getByRole('button', { name: /خرید/ }).first().click({ timeout: 4000 }); await page.waitForTimeout(700); }
@@ -77,7 +103,9 @@ async function resolveRoute(page: Page, route: string, s: Screen): Promise<strin
   const [, list, prefix] = rule.split(':');
   if (!list || !prefix) return null;
   await page.goto(list);
-  const href = await page.locator(`a[href^="${prefix}"]`).first().getAttribute('href').catch(() => null);
+  const link = page.locator(`a[href^="${prefix}"]`).first();
+  await link.waitFor({ timeout: 20_000 }).catch(() => undefined); // the list loads after navigation
+  const href = await link.getAttribute('href', { timeout: 2000 }).catch(() => null);
   return href;
 }
 
@@ -130,7 +158,7 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
     if (p && !inArt(p)) {
       const ps = getComputedStyle(p); const r = el.getBoundingClientRect(); const pr = p.getBoundingClientRect();
       const clips = ps.overflow !== 'visible' || ps.overflowX !== 'visible';
-      if (!clips && framed(ps) && s.position !== 'absolute' && s.position !== 'fixed' && (r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom + 1) && overflow.length < 40) overflow.push(label(el));
+      if (!clips && framed(ps) && s.position !== 'absolute' && s.position !== 'fixed' && (r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom + 1) && overflow.length < 40) overflow.push(label(el) + " in " + (el.parentElement?.className || el.parentElement?.tagName) + "{" + (el.parentElement?.textContent || "").slice(0, 30) + "} gp=" + el.parentElement?.parentElement?.className + " " + Math.round(r.left) + "," + Math.round(r.right) + "|" + Math.round(pr.left) + "," + Math.round(pr.right));
     }
     // text touching the edge of its framed box (owner rule: ≥12px padding in tiles, never touching)
     const direct = Array.from(el.childNodes).some((n) => n.nodeType === 3 && (n.textContent || '').trim());

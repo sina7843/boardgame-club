@@ -129,6 +129,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
 
   return (
     <>
+      {me && t.pace === 'turn' && !t.isTutorial && <NotifyPrompt />}
       <Breadcrumbs items={[{ label: 'میزها', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : host?.user ? `میز ${host.user.displayName}` : 'میز' }]} />
       <PageHead title={<span className="tbl-head">
         <img className="tbl-head__cover" src={`/covers/${t.gameId}.webp?v=2`} alt="" />
@@ -625,7 +626,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
           </>} />
 
-        <Hud layout={notPhone ? 'rail' : players.length === 2 ? 'duel' : players.length <= 5 ? 'strip' : 'grid3'} className="tbl-rail" label="بازیکنان" players={players}>
+        <Hud layout={notPhone ? 'rail' : players.length === 2 && finished ? 'duel' : players.length <= 5 ? 'strip' : 'grid3'} className="tbl-rail" label="بازیکنان" players={players}>
           {sum?.moves && sum.moves.length > 0 && <MoveLog className="tbl-moves" label="حرکت‌ها"
             items={sum.moves.map((m, i) => ({ seat: seatNo(m.seat), name: <bdi>{name(m.seat)}</bdi>, text: <bdi>{m.text}</bdi>, isNew: i === sum.moves!.length - 1 }))} />}
           {finished && t.mySeat !== null && !t.isTutorial && <PostGame snap={snap} onReport={() => setReporting(true)} />}
