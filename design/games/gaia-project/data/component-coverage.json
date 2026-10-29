@@ -1,0 +1,1680 @@
+[
+  {
+    "component": "Space sectors",
+    "physicalQuantity": 10,
+    "uniqueFacesOrColourDesigns": 13,
+    "folder": "space-sectors",
+    "status": "available",
+    "note": "Ten tiles and thirteen supplied faces.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "sector-1",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-1.svg"
+      },
+      {
+        "id": "sector-10",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-10.svg"
+      },
+      {
+        "id": "sector-2",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-2.svg"
+      },
+      {
+        "id": "sector-3",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-3.svg"
+      },
+      {
+        "id": "sector-4",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-4.svg"
+      },
+      {
+        "id": "sector-5",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-5.svg"
+      },
+      {
+        "id": "sector-5outlined",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-5outlined.svg"
+      },
+      {
+        "id": "sector-6",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-6.svg"
+      },
+      {
+        "id": "sector-6outlined",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-6outlined.svg"
+      },
+      {
+        "id": "sector-7",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-7.svg"
+      },
+      {
+        "id": "sector-7outlined",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-7outlined.svg"
+      },
+      {
+        "id": "sector-8",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-8.svg"
+      },
+      {
+        "id": "sector-9",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "space-sectors/sector-9.svg"
+      }
+    ]
+  },
+  {
+    "component": "Faction boards",
+    "physicalQuantity": 7,
+    "uniqueFacesOrColourDesigns": 14,
+    "folder": "boards",
+    "status": "available-BGA-digital-no-resource-strip",
+    "note": "Fourteen user-approved BGA boards installed under original IDs; canvas1753x999; resource strip omitted.",
+    "flat": true,
+    "flatCandidates": 0,
+    "flatCandidateResourceStripRemoved": true,
+    "flatCandidateApproval": "approved",
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "faction-Ambas",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Ambas.svg"
+      },
+      {
+        "id": "faction-Bal-Taks",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Bal-Taks.svg"
+      },
+      {
+        "id": "faction-Bescods",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Bescods.svg"
+      },
+      {
+        "id": "faction-Firaks",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Firaks.svg"
+      },
+      {
+        "id": "faction-Geodens",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Geodens.svg"
+      },
+      {
+        "id": "faction-Gleens",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Gleens.svg"
+      },
+      {
+        "id": "faction-Hadsch-Hallas",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Hadsch-Hallas.svg"
+      },
+      {
+        "id": "faction-Itars",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Itars.svg"
+      },
+      {
+        "id": "faction-Ivits",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Ivits.svg"
+      },
+      {
+        "id": "faction-Lantids",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Lantids.svg"
+      },
+      {
+        "id": "faction-Nevlas",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Nevlas.svg"
+      },
+      {
+        "id": "faction-Taklons",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Taklons.svg"
+      },
+      {
+        "id": "faction-Terrans",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Terrans.svg"
+      },
+      {
+        "id": "faction-Xenos",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/faction-Xenos.svg"
+      }
+    ]
+  },
+  {
+    "component": "Research board",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "boards",
+    "status": "available",
+    "note": "Higher-resolution scan.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "research-board",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/research-board.svg"
+      }
+    ]
+  },
+  {
+    "component": "Scoring board",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "boards",
+    "status": "available-original-photograph",
+    "note": "High-resolution original scoring-board photograph from BGG image 3819927, with the complete starfield and surrounding planets. Native 1737 x 1718 pixels extracted from a 2187 x 3566 punchboard photo. Only surrounding paper and adjacent pieces were masked; board colours and text retained, with no generated detail or enlargement. Scoring tiles remain separate.",
+    "nativeWidth": 1737,
+    "nativeHeight": 1718,
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "scoring-board",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "boards/scoring-board.svg"
+      }
+    ]
+  },
+  {
+    "component": "Standard technology tiles",
+    "physicalQuantity": 36,
+    "uniqueFacesOrColourDesigns": 9,
+    "folder": "technology",
+    "status": "available",
+    "note": "Nine designs, four copies each.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "TECcre",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECcre.svg"
+      },
+      {
+        "id": "TECgai",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECgai.svg"
+      },
+      {
+        "id": "TECknw",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECknw.svg"
+      },
+      {
+        "id": "TECore",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECore.svg"
+      },
+      {
+        "id": "TECpia",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECpia.svg"
+      },
+      {
+        "id": "TECpow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECpow.svg"
+      },
+      {
+        "id": "TECqic",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECqic.svg"
+      },
+      {
+        "id": "TECtyp",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECtyp.svg"
+      },
+      {
+        "id": "TECvps",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/TECvps.svg"
+      }
+    ]
+  },
+  {
+    "component": "Advanced technology tiles",
+    "physicalQuantity": 15,
+    "uniqueFacesOrColourDesigns": 15,
+    "folder": "technology",
+    "status": "available",
+    "note": "Fifteen designs.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "ADVfedP",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVfedP.svg"
+      },
+      {
+        "id": "ADVfedV",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVfedV.svg"
+      },
+      {
+        "id": "ADVgai",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVgai.svg"
+      },
+      {
+        "id": "ADVknw",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVknw.svg"
+      },
+      {
+        "id": "ADVlab",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVlab.svg"
+      },
+      {
+        "id": "ADVminB",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVminB.svg"
+      },
+      {
+        "id": "ADVminV",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVminV.svg"
+      },
+      {
+        "id": "ADVore",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVore.svg"
+      },
+      {
+        "id": "ADVqic",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVqic.svg"
+      },
+      {
+        "id": "ADVsecO",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVsecO.svg"
+      },
+      {
+        "id": "ADVsecV",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVsecV.svg"
+      },
+      {
+        "id": "ADVstp",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVstp.svg"
+      },
+      {
+        "id": "ADVtrsB",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVtrsB.svg"
+      },
+      {
+        "id": "ADVtrsV",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVtrsV.svg"
+      },
+      {
+        "id": "ADVtyp",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "technology/ADVtyp.svg"
+      }
+    ]
+  },
+  {
+    "component": "Round boosters",
+    "physicalQuantity": 10,
+    "uniqueFacesOrColourDesigns": 10,
+    "folder": "round-boosters",
+    "status": "available",
+    "note": "Ten unique designs.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "BOOgai",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOgai.svg"
+      },
+      {
+        "id": "BOOknw",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOknw.svg"
+      },
+      {
+        "id": "BOOlab",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOlab.svg"
+      },
+      {
+        "id": "BOOmin",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOmin.svg"
+      },
+      {
+        "id": "BOOnav",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOnav.svg"
+      },
+      {
+        "id": "BOOpia",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOpia.svg"
+      },
+      {
+        "id": "BOOpwt",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOpwt.svg"
+      },
+      {
+        "id": "BOOqic",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOqic.svg"
+      },
+      {
+        "id": "BOOter",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOter.svg"
+      },
+      {
+        "id": "BOOtrs",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-boosters/BOOtrs.svg"
+      }
+    ]
+  },
+  {
+    "component": "Round scoring tiles",
+    "physicalQuantity": 10,
+    "uniqueFacesOrColourDesigns": 10,
+    "folder": "round-scoring",
+    "status": "fronts-and-shared-back-available",
+    "note": "Nine front designs for ten physical tiles, plus one shared grey reverse with a red lamp from the original BGA artwork. Reverse native 182 x 211; digital artwork, not a physical scan.",
+    "frontDesigns": 9,
+    "reverseDesigns": 1,
+    "reverseAsset": "round-scoring-back",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "RNDfed",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDfed.svg"
+      },
+      {
+        "id": "RNDgai3",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDgai3.svg"
+      },
+      {
+        "id": "RNDgai4",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDgai4.svg"
+      },
+      {
+        "id": "RNDmin",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDmin.svg"
+      },
+      {
+        "id": "RNDpia",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDpia.svg"
+      },
+      {
+        "id": "RNDstp",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDstp.svg"
+      },
+      {
+        "id": "RNDter",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDter.svg"
+      },
+      {
+        "id": "RNDtrs3",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDtrs3.svg"
+      },
+      {
+        "id": "RNDtrs4",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/RNDtrs4.svg"
+      },
+      {
+        "id": "round-scoring-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "round-scoring/round-scoring-back.svg"
+      }
+    ]
+  },
+  {
+    "component": "Final scoring tiles",
+    "physicalQuantity": 6,
+    "uniqueFacesOrColourDesigns": 6,
+    "folder": "final-scoring",
+    "status": "available",
+    "note": "Six designs.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "FINbld",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "final-scoring/FINbld.svg"
+      },
+      {
+        "id": "FINfed",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "final-scoring/FINfed.svg"
+      },
+      {
+        "id": "FINgai",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "final-scoring/FINgai.svg"
+      },
+      {
+        "id": "FINsat",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "final-scoring/FINsat.svg"
+      },
+      {
+        "id": "FINsec",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "final-scoring/FINsec.svg"
+      },
+      {
+        "id": "FINtyp",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "final-scoring/FINtyp.svg"
+      }
+    ]
+  },
+  {
+    "component": "Federation tokens",
+    "physicalQuantity": 19,
+    "uniqueFacesOrColourDesigns": 14,
+    "folder": "federation-tokens",
+    "status": "available",
+    "note": "Six regular types plus Gleens, both sides: front (green) and spent side (grey, *-back) from the BGA sprite.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "FEDcre",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDcre.svg"
+      },
+      {
+        "id": "FEDgle",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDgle.svg"
+      },
+      {
+        "id": "FEDknw",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDknw.svg"
+      },
+      {
+        "id": "FEDore",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDore.svg"
+      },
+      {
+        "id": "FEDpwt",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDpwt.svg"
+      },
+      {
+        "id": "FEDqic",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDqic.svg"
+      },
+      {
+        "id": "FEDvps",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDvps.svg"
+      },
+      {
+        "id": "FEDvps-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDvps-back.svg"
+      },
+      {
+        "id": "FEDqic-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDqic-back.svg"
+      },
+      {
+        "id": "FEDpwt-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDpwt-back.svg"
+      },
+      {
+        "id": "FEDore-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDore-back.svg"
+      },
+      {
+        "id": "FEDcre-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDcre-back.svg"
+      },
+      {
+        "id": "FEDknw-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDknw-back.svg"
+      },
+      {
+        "id": "FEDgle-back",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "federation-tokens/FEDgle-back.svg"
+      }
+    ]
+  },
+  {
+    "component": "Space stations",
+    "physicalQuantity": 6,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available-digital",
+    "note": "Source image and implementation SVG.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "SpaceStation",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/SpaceStation.svg"
+      }
+    ]
+  },
+  {
+    "component": "Action tokens",
+    "physicalQuantity": 20,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available-digital",
+    "note": "Source illustration.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "ActionToken",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/ActionToken.svg"
+      }
+    ]
+  },
+  {
+    "component": "Record tokens",
+    "physicalQuantity": 15,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available-digital",
+    "note": "One source illustration, reverse not independently found.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "RecordToken",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/RecordToken.svg"
+      }
+    ]
+  },
+  {
+    "component": "Gaia planet tokens",
+    "physicalQuantity": 12,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "One design repeated twelve times.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "gaia-planet-token",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/gaia-planet-token.svg"
+      }
+    ]
+  },
+  {
+    "component": "Lost planet token",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "One design.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "LostPlanet",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/LostPlanet.svg"
+      }
+    ]
+  },
+  {
+    "component": "Mines",
+    "physicalQuantity": 56,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "structures",
+    "status": "available-digital",
+    "note": "Eight per colour, seven colours.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "MI-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-blue.svg"
+      },
+      {
+        "id": "MI-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-brown.svg"
+      },
+      {
+        "id": "MI-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-grey.svg"
+      },
+      {
+        "id": "MI-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-orange.svg"
+      },
+      {
+        "id": "MI-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-red.svg"
+      },
+      {
+        "id": "MI-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-white.svg"
+      },
+      {
+        "id": "MI-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/MI-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Trading stations",
+    "physicalQuantity": 28,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "structures",
+    "status": "available-digital",
+    "note": "Four per colour.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "TS-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-blue.svg"
+      },
+      {
+        "id": "TS-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-brown.svg"
+      },
+      {
+        "id": "TS-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-grey.svg"
+      },
+      {
+        "id": "TS-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-orange.svg"
+      },
+      {
+        "id": "TS-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-red.svg"
+      },
+      {
+        "id": "TS-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-white.svg"
+      },
+      {
+        "id": "TS-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/TS-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Research labs",
+    "physicalQuantity": 21,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "structures",
+    "status": "available-digital",
+    "note": "Three per colour.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "RL-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-blue.svg"
+      },
+      {
+        "id": "RL-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-brown.svg"
+      },
+      {
+        "id": "RL-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-grey.svg"
+      },
+      {
+        "id": "RL-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-orange.svg"
+      },
+      {
+        "id": "RL-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-red.svg"
+      },
+      {
+        "id": "RL-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-white.svg"
+      },
+      {
+        "id": "RL-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/RL-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Academies",
+    "physicalQuantity": 14,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "structures",
+    "status": "available-digital",
+    "note": "Two per colour.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "AC-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-blue.svg"
+      },
+      {
+        "id": "AC-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-brown.svg"
+      },
+      {
+        "id": "AC-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-grey.svg"
+      },
+      {
+        "id": "AC-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-orange.svg"
+      },
+      {
+        "id": "AC-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-red.svg"
+      },
+      {
+        "id": "AC-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-white.svg"
+      },
+      {
+        "id": "AC-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/AC-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Planetary institutes",
+    "physicalQuantity": 7,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "structures",
+    "status": "available-digital",
+    "note": "One per colour.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "PI-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-blue.svg"
+      },
+      {
+        "id": "PI-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-brown.svg"
+      },
+      {
+        "id": "PI-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-grey.svg"
+      },
+      {
+        "id": "PI-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-orange.svg"
+      },
+      {
+        "id": "PI-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-red.svg"
+      },
+      {
+        "id": "PI-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-white.svg"
+      },
+      {
+        "id": "PI-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/PI-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Gaiaformers",
+    "physicalQuantity": 21,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "structures",
+    "status": "available-digital",
+    "note": "Three per colour.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "GF-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-blue.svg"
+      },
+      {
+        "id": "GF-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-brown.svg"
+      },
+      {
+        "id": "GF-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-grey.svg"
+      },
+      {
+        "id": "GF-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-orange.svg"
+      },
+      {
+        "id": "GF-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-red.svg"
+      },
+      {
+        "id": "GF-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-white.svg"
+      },
+      {
+        "id": "GF-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "structures/GF-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Satellites",
+    "physicalQuantity": 175,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "tokens-markers",
+    "status": "available-all-seven-colours-digital",
+    "note": "All seven original BGA digital colour variants are present: red, yellow, brown, orange, blue, gray, white. Native sprite pixels and alpha retained; these are digital artwork, not physical photographs.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "satellite-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-blue.svg"
+      },
+      {
+        "id": "satellite-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-brown.svg"
+      },
+      {
+        "id": "satellite-gray",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-gray.svg"
+      },
+      {
+        "id": "satellite-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-orange.svg"
+      },
+      {
+        "id": "satellite-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-red.svg"
+      },
+      {
+        "id": "satellite-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-white.svg"
+      },
+      {
+        "id": "satellite-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/satellite-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Player tokens",
+    "physicalQuantity": 49,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "tokens-markers",
+    "status": "available-all-seven-colours-digital",
+    "note": "All seven original BGA digital colour variants are present: red, yellow, brown, orange, blue, gray, white. Native sprite pixels and alpha retained; these are digital artwork, not physical photographs.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "player-token-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-blue.svg"
+      },
+      {
+        "id": "player-token-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-brown.svg"
+      },
+      {
+        "id": "player-token-gray",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-gray.svg"
+      },
+      {
+        "id": "player-token-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-orange.svg"
+      },
+      {
+        "id": "player-token-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-red.svg"
+      },
+      {
+        "id": "player-token-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-white.svg"
+      },
+      {
+        "id": "player-token-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/player-token-yellow.svg"
+      }
+    ]
+  },
+  {
+    "component": "Credit markers",
+    "physicalQuantity": 14,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "Digital symbol and original physical-piece illustration.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "Credits",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/Credits.svg"
+      },
+      {
+        "id": "credit-marker-physical",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/credit-marker-physical.svg"
+      }
+    ]
+  },
+  {
+    "component": "Ore markers",
+    "physicalQuantity": 7,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "Digital symbol and original physical-piece illustration.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "Ores",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/Ores.svg"
+      },
+      {
+        "id": "ore-marker-physical",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/ore-marker-physical.svg"
+      }
+    ]
+  },
+  {
+    "component": "Knowledge markers",
+    "physicalQuantity": 7,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "Digital symbol and original physical-piece illustration.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "Knowledge",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/Knowledge.svg"
+      },
+      {
+        "id": "knowledge-marker-physical",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/knowledge-marker-physical.svg"
+      }
+    ]
+  },
+  {
+    "component": "QIC",
+    "physicalQuantity": 30,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "Digital symbol and original physical-piece illustration.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "Qic",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/Qic.svg"
+      },
+      {
+        "id": "qic-physical",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/qic-physical.svg"
+      }
+    ]
+  },
+  {
+    "component": "Power tokens",
+    "physicalQuantity": 50,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available-higher-resolution",
+    "note": "Native 179 x 159 physical illustration from publisher PDF page 3, replacing 60 x 53; transparent, no enlargement.",
+    "nativeWidth": 179,
+    "nativeHeight": 159,
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "Power",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/Power.svg"
+      },
+      {
+        "id": "power-token-physical",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/power-token-physical.svg"
+      }
+    ]
+  },
+  {
+    "component": "Brainstone",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "available",
+    "note": "Digital symbol and original physical-piece illustration.",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "Brainstone",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/Brainstone.svg"
+      },
+      {
+        "id": "brainstone-physical",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "tokens-markers/brainstone-physical.svg"
+      }
+    ]
+  },
+  {
+    "component": "First player marker",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "tokens-markers",
+    "status": "low-resolution",
+    "note": "Original 48 × 91 px rulebook illustration.",
+    "flat": false,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "first-player-marker",
+        "flat": false,
+        "preferredFlat": false,
+        "status": "retained-no-flat-equivalent",
+        "preferredSVG": "tokens-markers/first-player-marker.svg"
+      }
+    ]
+  },
+  {
+    "component": "Turn order card",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "reference-cards",
+    "status": "low-resolution",
+    "note": "Original 56 × 87 px rulebook image."
+  },
+  {
+    "component": "Player aids",
+    "physicalQuantity": 4,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "reference-cards",
+    "status": "partial-low-resolution",
+    "note": "One original front at 56 × 87 px; reverse missing."
+  },
+  {
+    "component": "Terraforming reference card",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "reference-cards",
+    "status": "partial-low-resolution",
+    "note": "One original 87 × 56 px face. The Automa rulebook describes this card as double-sided; its independent reverse is missing."
+  },
+  {
+    "component": "Automa faction cards",
+    "physicalQuantity": 7,
+    "uniqueFacesOrColourDesigns": 7,
+    "folder": "automa-faction-cards",
+    "status": "available-English-fronts",
+    "note": "Seven complete English fronts; independent backs missing."
+  },
+  {
+    "component": "Automa decision cards",
+    "physicalQuantity": 17,
+    "uniqueFacesOrColourDesigns": 17,
+    "folder": null,
+    "status": "missing-original-card-scans",
+    "note": "The seventeen numbered decision-card scans are absent. Small rulebook component illustrations are retained separately, without assigning deck numbers. Original structured data are in data/automa-data.json.",
+    "availableOriginalCardFronts": 0
+  },
+  {
+    "component": "Automa player aid",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 0,
+    "folder": null,
+    "status": "missing-independent-art",
+    "note": "Official rulebook preserved; separate original aid artwork not yet downloaded."
+  },
+  {
+    "component": "Main rulebook",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "reference-documents/official-rulebook.pdf",
+    "status": "available-in-package",
+    "note": "24-page PDF."
+  },
+  {
+    "component": "Automa rulebook",
+    "physicalQuantity": 1,
+    "uniqueFacesOrColourDesigns": 1,
+    "folder": "reference-documents/official-automa-rulebook.pdf",
+    "status": "available-in-package",
+    "note": "Official publisher PDF."
+  },
+  {
+    "component": "Planet artwork",
+    "folder": "planet-art",
+    "physicalQuantity": null,
+    "uniqueFacesOrColourDesigns": 9,
+    "status": "flat-audited",
+    "flat": true,
+    "flatReview": "index.html",
+    "assetFlatStatus": [
+      {
+        "id": "planet-blue",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-blue.svg"
+      },
+      {
+        "id": "planet-brown",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-brown.svg"
+      },
+      {
+        "id": "planet-gaia",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-gaia.svg"
+      },
+      {
+        "id": "planet-grey",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-grey.svg"
+      },
+      {
+        "id": "planet-orange",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-orange.svg"
+      },
+      {
+        "id": "planet-red",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-red.svg"
+      },
+      {
+        "id": "planet-transdim",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-transdim.svg"
+      },
+      {
+        "id": "planet-white",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-white.svg"
+      },
+      {
+        "id": "planet-yellow",
+        "flat": true,
+        "preferredFlat": true,
+        "status": "approved-flat",
+        "preferredSVG": "planet-art/planet-yellow.svg"
+      }
+    ]
+  }
+]

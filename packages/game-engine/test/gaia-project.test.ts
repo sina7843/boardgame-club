@@ -613,5 +613,65 @@ describe('gaia-project publicSummary', () => {
     expect(sum.strikesMax).toBe(3);
     expect(sum.seats.map((x) => x.strikes)).toEqual([0, 0, 0]);
     expect(sum.shared![0]!.max).toBe(6);
+    // Gaia rail panel (design/games/gaia-project COMPONENTS.md §2)
+    for (const x of sum.seats) {
+      expect(Object.keys(x.power!)).toEqual(['gaia', 'b1', 'b2', 'b3']);
+      expect(x.stats!.map((y) => y.key)).toEqual(['c', 'o', 'k', 'q']);
+    }
+    expect(sum.seats.map((x) => x.turnOrder).sort()).toEqual(state.order.map((_, i) => i + 1));
   });
+});
+
+describe('gaia-project auto-charge and the client draft', () => {
+  /** Two seats next to each other: seat 1 builds next to seat 0's structure so seat 0 is offered power. */
+  const leechGame = () => {
+    let snap = ready(['terrans', 'xenos']);
+    for (let n = 0; n < 40; n++) {
+      const s = st(snap);
+      const seat = actor(snap);
+      if (s.pending[0]?.kind === 'leech') return { snap, seat: s.pending[0].seat };
+      const mine = legal(snap, seat).find((a) => a.type === 'mine') ?? legal(snap, seat).find((a) => a.type !== 'resign')!;
+      snap = act(snap, seat, mine);
+    }
+    return null;
+  };
+
+  it('autoCharge is a free setting any seat may change at any time; decline answers the next offer itself', () => {
+    let snap = ready(['terrans', 'xenos']);
+    const other = 1 - st(snap).current;
+    snap = act(snap, other, { type: 'autoCharge', mode: 'decline' });
+    expect(st(snap).pl[other]!.auto).toEqual({ mode: 'decline' });
+    expect(reject(snap, other, { type: 'autoCharge', mode: 'upto' })).toBe('ILLEGAL_CHOICE');
+    snap = act(snap, other, { type: 'autoCharge', mode: 'upto', n: 2, lastRound: true });
+    expect(st(snap).pl[other]!.auto).toEqual({ mode: 'upto', n: 2, lastRound: true });
+  });
+
+  it('a VP-costing offer waits for the player; switching to decline answers it in the engine', () => {
+    const g = leechGame();
+    expect(g).not.toBeNull();
+    if (!g) return;
+    const declined = act(g.snap, g.seat, { type: 'autoCharge', mode: 'decline' });
+    expect(st(declined).pending.some((d) => d.kind === 'leech' && d.seat === g.seat)).toBe(false);
+    expect(st(declined).log.some((e) => e.t === 'decline' && e.seat === g.seat)).toBe(true);
+  });
+
+  it('a state rebuilt from the public view applies every legal move exactly like the server', () => {
+    let snap = ready(['terrans', 'xenos', 'geodens']);
+    for (let n = 0; n < 60 && !st(snap).outcome; n++) {
+      const seat = actor(snap);
+      const s = st(snap);
+      const moves = legal(snap, seat).filter((a) => a.type !== 'resign');
+      if (!s.pending.length) {
+        const { decision, income, ...rest } = gaiaProjectModule.project(s, p(seat)) as never as Record<string, unknown>;
+        void decision; void income;
+        const rebuilt = { ...rest, ins: 0, turnDone: false } as never as GaiaState;
+        for (const a of moves.slice(0, 12)) {
+          const server = gaiaProjectModule.apply(structuredClone(s), p(seat), a as never, { rng: null as never, logicalTime: 0 }).nextState;
+          const client = gaiaProjectModule.apply(structuredClone(rebuilt), p(seat), a as never, { rng: null as never, logicalTime: 0 }).nextState;
+          expect(gaiaProjectModule.project(client, p(seat))).toEqual(gaiaProjectModule.project(server, p(seat)));
+        }
+      }
+      snap = act(snap, seat, moves[n % moves.length]!);
+    }
+  }, 120_000);
 });

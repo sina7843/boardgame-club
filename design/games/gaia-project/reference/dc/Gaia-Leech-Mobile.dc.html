@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پروژه گایا، شارژ قدرت، موبایل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+.gp[lang="en"]{font-family:var(--font-latin)}
+.gp-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:16px;min-inline-size:0}
+.gp-ic{display:inline-block;block-size:20px;inline-size:auto;vertical-align:middle}
+/* status bar, BGA style */
+.gp-actbar{flex-direction:column;align-items:stretch;gap:8px}
+.gp-actbar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.gp-actbar .gp-costpill{block-size:24px;padding:0 6px;font-size:13px}
+.gp-actbar .gp-costpill .gp-ic{block-size:15px}
+.gp-leechset{margin-inline-start:auto}
+.gp-actbar__label{font-size:13px;font-weight:700;color:var(--label);margin-inline-end:4px}
+.gp-chipbtn{display:inline-flex;align-items:center;gap:3px;block-size:32px;padding:0 10px;border-radius:var(--radius-pill);border:1px solid var(--line);background:var(--surface);color:var(--heading);font:inherit;font-size:13px;font-weight:900;cursor:pointer;unicode-bidi:isolate;direction:ltr}
+.gp-chipbtn .gp-ic{block-size:17px}
+.gp-chipbtn:hover{border-color:var(--control-edge)}
+.gp-chipbtn:disabled{opacity:.42;cursor:not-allowed}
+.gp-actbar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important;border-radius:8px}
+.gp-costpill{display:inline-flex;align-items:center;gap:4px;padding:0 8px;block-size:28px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);vertical-align:middle}
+.gp-costpill .gp-ic{block-size:18px}
+/* zones */
+.gp-split{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:16px;align-items:start}
+/* map */
+.gp-sec{inline-size:26.531%;block-size:37.203%}
+.gp-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-fed{padding:10px 12px;border-radius:var(--radius-md);background:var(--felt-plate);color:var(--felt-ink);display:grid;gap:8px}
+.gp-fed>b{font-size:13px;font-weight:700;color:var(--felt-muted)}
+.gp-fed__grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.gp-fed__t{display:grid;justify-items:center;gap:4px;font-size:14px;font-weight:900}
+.gp-fed__t img{inline-size:100%;max-inline-size:64px;block-size:auto;display:block}
+.gp-fed__t.is-out img{opacity:.35}
+/* boards */
+.gp-board{position:relative;inline-size:100%}
+.gp-board>img{position:absolute;display:block}
+.gp-board>.gp-base{position:static;inline-size:100%;block-size:auto}
+.gp-board>.gp-at,.gp-at{position:absolute;transform:translate(-50%,-50%)}
+.gp-tech{inline-size:16.3%}
+.gp-adv{inline-size:13.3%}
+.gp-token{inline-size:12.4%;pointer-events:none}
+.gp-token--q{inline-size:13.6%}
+.gp-act{position:absolute;transform:translate(-50%,-50%);inline-size:8.16%;block-size:7.61%;border:0;padding:0;background:transparent;border-radius:14px;cursor:pointer}
+.gp-act--q{inline-size:9.52%;block-size:8.11%}
+.gp-act:hover,.gp-act.is-hover{box-shadow:0 0 0 3px var(--pick)}
+.gp-act:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.gp-act:disabled{cursor:default;box-shadow:none}
+.gp-disc{position:absolute;inline-size:2.4%;aspect-ratio:1;border-radius:50%;border:2px solid var(--ink-felt);box-shadow:var(--shadow-piece);transform:translate(-50%,-50%)}
+.gp-disc--lg{inline-size:3.3%}
+.gp-c-red{background:var(--gp-red)}.gp-c-yellow{background:var(--gp-yellow)}.gp-c-brown{background:var(--gp-brown)}.gp-c-orange{background:var(--gp-orange)}
+.gp-rnd{inline-size:17.7%;transform:translate(-50%,-50%) rotate(var(--a))}
+.gp-tok{inline-size:3.2%;pointer-events:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+.gp-tok--fin{inline-size:3.1%}
+/* planet-type counters: the player's own token with the count on it, on the ring planets */
+.gp-cnt{position:absolute;inline-size:5.4%;transform:translate(-50%,-50%);display:grid;place-items:center}
+.gp-cnt img{grid-area:1/1;inline-size:100%;block-size:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+.gp-cnt b{grid-area:1/1;position:relative;z-index:1;margin-block-start:-8%;color:#FFFFFF;font-family:var(--font-latin);font-weight:800;font-size:20px;text-shadow:1px 1px 0 #0D1A23,-1px 1px 0 #0D1A23,1px -1px 0 #0D1A23,-1px -1px 0 #0D1A23,0 2px 0 #0D1A23}
+.gp-fin{inline-size:14.4%}
+.gp-board--fac{border-radius:var(--radius-md);overflow:hidden}
+.gp-bld{inline-size:6.6%;filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23) drop-shadow(2px 0 0 var(--own)) drop-shadow(-2px 0 0 var(--own)) drop-shadow(0 2px 0 var(--own)) drop-shadow(0 -2px 0 var(--own))}
+.gp-bld--pi{inline-size:9.6%}
+.gp-bld{transition:opacity var(--dur-fast) var(--ease-out);cursor:help}
+.gp-bld:hover,.gp-bld.is-peek{opacity:.18}
+.gp-bld--ac{inline-size:8.6%}
+.gp-ptok{inline-size:4.8%;pointer-events:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+.gp-pwn{position:absolute;transform:translate(-50%,-50%);font-size:13px;padding:4px 9px}
+.gp-fwrap{display:grid;grid-template-columns:minmax(0,1fr) 11.6%;gap:10px;align-items:end}
+.gp-fwrap>.gp-boost{margin-block-end:1.4%}
+.gp-fwrap>.gp-boost img{inline-size:100%;block-size:auto;border-radius:8px;box-shadow:0 0 0 2px var(--felt-line)}
+.gp-owned{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.gp-owned figure{margin:0;display:grid;gap:4px;justify-items:center;font-size:12px;color:var(--felt-muted)}
+.gp-owned img{display:block;block-size:128px;inline-size:auto;border-radius:6px}
+.gp-owned button{position:relative;padding:0;border:0;background:none;border-radius:8px;cursor:pointer}
+.gp-owned button:hover,.gp-owned button.is-hover{box-shadow:0 0 0 3px var(--pick)}
+.gp-owned button:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:3px}
+.gp-owned .gp-used{position:relative}
+.gp-owned .gp-used::after{content:"";position:absolute;inset:6% 18% 6% 8%;background:url(../assets/games/gaia/actiontoken.webp) center/contain no-repeat}
+.gp-tip{position:absolute;z-index:var(--z-sheet);inline-size:260px;display:grid;gap:6px;color:var(--text);font-size:13.5px;line-height:1.65}
+.gp-tip{display:none}
+.gp-board:has([aria-describedby="gp-tip-pw1"]:is(:hover,:focus-visible)) #gp-tip-pw1{display:grid}
+.gp-tip b{color:var(--heading);font-size:14px}
+.gp-tip small{color:var(--text-muted);font-size:12.5px;line-height:1.6}
+.gp-boosters{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.gp-boost{position:relative;margin:0;padding:0;border:0;background:none;display:grid;justify-items:center;gap:4px;color:var(--felt-muted);font:inherit;font-size:12px;cursor:pointer}
+.gp-boost img{inline-size:100%;block-size:auto;display:block;border-radius:6px}
+.gp-boost.is-taken img{filter:brightness(.6)}
+.gp-boost .bgv-avatar{position:absolute;inset-block-start:38%;inset-inline-start:50%;transform:translateX(-50%)}
+.gp[dir="rtl"] .gp-boost .bgv-avatar{transform:translateX(50%)}
+.gp-boost.is-free img{box-shadow:0 0 0 2px var(--felt-line)}
+.gp-hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--felt-muted)}
+.gp-fboard{position:relative}
+.gp-fboard>img{inline-size:100%;block-size:auto;display:block;border-radius:var(--radius-md)}
+.gp-conv{position:absolute;inline-size:11.12%;block-size:7.01%;border:0;padding:0;background:transparent;border-radius:6px;cursor:pointer}
+.gp-conv:hover,.gp-conv.is-hover{box-shadow:0 0 0 3px var(--pick)}
+/* player panels, BGA style */
+.gp-vp{inline-size:50px;block-size:50px;flex:none;border-radius:8px;background:url(../assets/games/gaia/vp.webp) center/cover;display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--ink-felt)}
+.gp-vp b{min-inline-size:32px;padding:1px 4px;border-radius:6px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:18px;font-weight:900;text-align:center;line-height:1.35}
+.gp-side{display:grid;justify-items:center;gap:4px;flex:none}
+.gp-order{inline-size:28px;block-size:28px;border-radius:50%;background:var(--success);color:#FFFFFF;font-size:15px;font-weight:900;display:grid;place-items:center}
+
+body{margin:0}
+.gp{--pick:#E8A642;--hexline:rgba(132,164,214,.85)}
+.gp .bgv-pcard--mini{padding:10px 12px}
+.gp .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.gp .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.gp .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.gp .bgv-turn{max-inline-size:100%;min-inline-size:0}
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+.gp-ic{display:inline-block;block-size:16px;inline-size:auto;vertical-align:-3px}
+.gp-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.gp-tabs button{flex:1;block-size:36px;padding-inline:6px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.gp-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.gp-mview{position:relative;contain:paint;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md);background:#060B1C}
+.gp-map{position:absolute;inline-size:808px;aspect-ratio:2450/1895;left:-180px;top:-262px}
+.gp-map>img{position:absolute;display:block}
+.gp-sec{inline-size:26.531%;block-size:37.203%}
+.gp-piece{inline-size:5.2%;transform:translate(-50%,-50%);filter:drop-shadow(1px 0 0 #0D1A23) drop-shadow(-1px 0 0 #0D1A23) drop-shadow(0 1px 0 #0D1A23) drop-shadow(0 -1px 0 #0D1A23) saturate(1.25) contrast(1.1)}
+.gp-piece--own{filter:drop-shadow(1px 0 0 #0D1A23) drop-shadow(-1px 0 0 #0D1A23) drop-shadow(0 1px 0 #0D1A23) drop-shadow(0 -1px 0 #0D1A23) drop-shadow(1.5px 0 0 #F0624F) drop-shadow(-1.5px 0 0 #F0624F) drop-shadow(0 1.5px 0 #F0624F) drop-shadow(0 -1.5px 0 #F0624F) saturate(1.25) contrast(1.1)}
+.gp-piece--mt{inline-size:8.2%}
+.gp-piece--ts{inline-size:6.5%}
+.gp-grid{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-grid path{fill:none;stroke:var(--hexline);stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
+.gp-tag{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt);white-space:nowrap;unicode-bidi:isolate;direction:ltr}
+.gp-tag .gp-ic{block-size:14px}
+.gp-costpill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:26px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);unicode-bidi:isolate;direction:ltr}
+.gp-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-hex{fill:rgba(232,166,66,.10);stroke:var(--pick);stroke-width:11;stroke-dasharray:26 16;stroke-linejoin:round}
+.gp-hex--picked{fill:rgba(232,166,66,.24);stroke-width:15;stroke-dasharray:none}
+.gp-hexbtn{position:absolute;inline-size:6.53%;block-size:7.39%;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;clip-path:polygon(0 50%,25% 0,75% 0,100% 50%,75% 100%,25% 100%)}
+.gp-check{position:absolute;inline-size:24px;block-size:24px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--ink-felt)}
+.gp-check .bgv-icon{inline-size:15px;block-size:15px;stroke-width:3}
+.gp-zoom{position:absolute;inset-block-start:8px;inset-inline-start:8px;display:grid;gap:6px}
+.gp-mapinfo{position:absolute;inset-block-end:8px;inset-inline-end:8px}
+.gp-steps{display:flex;gap:6px;align-items:center}
+.gp-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.gp-step.is-done{background:var(--success-soft);color:var(--success)}
+.gp-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.gp-cost{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13.5px;color:var(--text);line-height:1.6}
+.gp-cost b{font-weight:900;color:var(--heading)}
+.gp .bgv-actiondock__actions{flex-wrap:nowrap}
+.gp .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+
+
+.gp-bview{position:relative;flex:1;min-block-size:0;overflow:auto;display:flex;flex-direction:column;gap:10px;border-radius:var(--radius-md);scrollbar-width:none}
+.gp-bview>*{flex:none}
+.gp-ptabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.gp-ptabs button{flex:none;display:inline-flex;align-items:center;gap:6px;block-size:32px;padding-inline:10px;border:0;border-radius:var(--radius-pill);background:var(--felt-plate);color:var(--felt-muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.gp-ptabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.gp-owned{gap:10px;padding:10px}
+.gp-owned img{block-size:72px}
+.gp-cnt b{font-size:11px}
+.gp-fwrap{gap:6px}
+.gp-boosters{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.gp-fed{padding:8px 10px}
+.gp-fed__t img{block-size:40px}
+.gp-sheetwrap{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end}
+.gp-sheet{position:relative;max-block-size:78%;padding:0 14px 14px;gap:10px}
+.gp-sheet__head{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.6}
+.gp-sheet__head b{color:var(--heading);font-weight:900}
+.gp-sheet__head .bgv-clock{margin-inline-start:auto;flex:none}
+.gp-main{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gp-main .bgv-btn{inline-size:100%;block-size:auto;min-block-size:48px;padding:6px 10px;flex-direction:column;gap:2px;white-space:normal;line-height:1.4}
+.gp-main .bgv-btn small{font-size:11.5px;font-weight:400;color:var(--text-muted)}
+.gp-free{display:flex;flex-wrap:wrap;gap:6px}
+.gp-free .gp-chipbtn{block-size:36px}
+.gp-sheet .gp-label{font-size:12px;font-weight:700;color:var(--label)}
+.gp-sheet .gp-row{display:flex;align-items:center;gap:8px}
+.gp-sheet .gp-row .bgv-btn{flex:1}
+.gp-sheet .gp-hint2{margin:0;font-size:12px;line-height:1.6;color:var(--text-muted)}
+.gp-dockbar{display:flex;align-items:center;gap:8px}
+.gp-dockbar>span{flex:1;min-inline-size:0;font-size:14px;line-height:1.5}
+.gp-dockbar b{color:var(--heading);font-weight:900}
+.gp-chk{display:flex;gap:8px;align-items:center;font-size:13px}
+
+</style>
+</helmet>
+<div class="bgv gp" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان، برای صفحهٔ هر بازیکن بزنید"><div class="bgv-pcard bgv-pcard--mini is-leader" role="button" tabindex="0" aria-label="نیلوفر، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-2">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>زنوس</small></div><div class="bgv-pcard__score">۳۲<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="آرش، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-3">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3"></i>آرش</b><small>تاکلون‌ها</small></div><div class="bgv-pcard__score">۱۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>پاس داده</span></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="سارا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-4">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4"></i>سارا</b><small>ژئودن‌ها</small></div><div class="bgv-pcard__score">۱۴<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا، شما، برای صفحهٔ خودتان بزنید"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you is-turn" style="--clock-c:var(--clock-calm);">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1"></i><span class="bgv-sr">مینا</span></b><small>هادش هالا</small></div><div class="bgv-pcard__score">۱۸<small>امتیاز</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز پروژه گایا">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--other" role="status"><span class="bgv-turn__who">نوبت سارا</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">دور <strong>۴</strong> از ۶</span></div>
+ <div class="gp-tabs" role="tablist" aria-label="کدام صفحه از بازی"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">پژوهش</button><button type="button" role="tab" aria-selected="false">امتیاز</button><button type="button" role="tab" aria-selected="false">صفحهٔ من</button></div>
+ <div class="gp-mview" role="tabpanel" aria-label="نقشهٔ فضا، بزرگ‌شده روی سیاره‌های قابل ساخت">
+  <div class="gp-map" dir="ltr">
+   <img class="gp-sec" src="../assets/games/gaia/sector-4.webp" alt="" style="left:9.796%;top:7.388%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-5.webp" alt="" style="left:34.286%;top:3.694%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-6.webp" alt="" style="left:58.776%;top:0%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-7.webp" alt="" style="left:0%;top:36.939%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-1.webp" alt="" style="left:24.49%;top:33.245%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-2.webp" alt="" style="left:48.98%;top:29.551%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-8.webp" alt="" style="left:73.469%;top:25.858%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-9.webp" alt="" style="left:14.694%;top:62.797%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-3.webp" alt="" style="left:39.184%;top:59.103%">
+   <img class="gp-sec" src="../assets/games/gaia/sector-10.webp" alt="" style="left:63.673%;top:55.409%">
+   <svg class="gp-grid" viewBox="0 0 2450 1895" aria-hidden="true"><path d="M240 350L280 280M280 280L360 280M240 350L280 420M240 490L280 420M240 490L280 560M240 630L280 560M280 700L360 700M240 630L280 700M360 280L400 210M400 210L480 210M400 770L480 770M360 700L400 770M480 210L520 140M520 140L600 140M600 140L640 210M600 840L640 770M520 840L600 840M480 770L520 840M640 210L720 210M720 210L760 280M720 770L760 700M640 770L720 770M760 280L840 280M840 280L880 350M840 420L880 350M840 420L880 490M840 560L880 490M840 560L880 630M840 700L880 630M760 700L840 700M840 280L880 210M880 210L960 210M840 280L880 350M840 420L880 350M840 420L880 490M840 560L880 490M880 630L960 630M840 560L880 630M1000 140L960 210M1000 140L1080 140M1000 700L1080 700M1000 700L960 630M1080 140L1120 70M1120 70L1200 70M1200 70L1240 140M1200 770L1240 700M1120 770L1200 770M1080 700L1120 770M1240 140L1320 140M1320 140L1360 210M1320 700L1360 630M1240 700L1320 700M1360 210L1440 210M1440 210L1480 280M1440 350L1480 280M1440 350L1480 420M1440 490L1480 420M1440 490L1480 560M1440 630L1480 560M1360 630L1440 630M1440 210L1480 140M1480 140L1560 140M1440 210L1480 280M1440 350L1480 280M1440 350L1480 420M1440 490L1480 420M1480 560L1560 560M1440 490L1480 560M1560 140L1600 70M1600 70L1680 70M1600 630L1680 630M1560 560L1600 630M1680 70L1720 0M1720 0L1800 0M1800 0L1840 70M1800 700L1840 630M1720 700L1800 700M1680 630L1720 700M1840 70L1920 70M1920 70L1960 140M1920 630L1960 560M1840 630L1920 630M1960 140L2040 140M2040 140L2080 210M2040 280L2080 210M2040 280L2080 350M2040 420L2080 350M2040 420L2080 490M2040 560L2080 490M1960 560L2040 560M0 910L40 840M120 840L40 840M0 910L40 980M0 1050L40 980M0 1050L40 1120M0 1190L40 1120M120 1260L40 1260M0 1190L40 1260M120 840L160 770M160 770L240 770M160 1330L240 1330M120 1260L160 1330M240 770L280 700M280 700L360 700M360 700L400 770M360 1400L400 1330M280 1400L360 1400M240 1330L280 1400M400 770L480 770M480 770L520 840M480 1330L520 1260M400 1330L480 1330M520 840L600 840M600 840L640 910M600 980L640 910M600 980L640 1050M600 1120L640 1050M600 1120L640 1190M600 1260L640 1190M520 1260L600 1260M600 840L640 770M640 770L720 770M600 840L640 910M600 980L640 910M600 980L640 1050M600 1120L640 1050M640 1190L720 1190M600 1120L640 1190M720 770L760 700M760 700L840 700M760 1260L840 1260M720 1190L760 1260M840 700L880 630M880 630L960 630M1000 700L960 630M1000 1260L960 1330M880 1330L960 1330M840 1260L880 1330M1000 700L1080 700M1080 700L1120 770M1080 1260L1120 1190M1000 1260L1080 1260M1120 770L1200 770M1200 770L1240 840M1200 910L1240 840M1200 910L1240 980M1200 1050L1240 980M1200 1050L1240 1120M1200 1190L1240 1120M1120 1190L1200 1190M1200 770L1240 700M1240 700L1320 700M1200 770L1240 840M1200 910L1240 840M1200 910L1240 980M1200 1050L1240 980M1240 1120L1320 1120M1200 1050L1240 1120M1320 700L1360 630M1360 630L1440 630M1360 1190L1440 1190M1320 1120L1360 1190M1440 630L1480 560M1480 560L1560 560M1560 560L1600 630M1560 1260L1600 1190M1480 1260L1560 1260M1440 1190L1480 1260M1600 630L1680 630M1680 630L1720 700M1680 1190L1720 1120M1600 1190L1680 1190M1720 700L1800 700M1800 700L1840 770M1800 840L1840 770M1800 840L1840 910M1800 980L1840 910M1800 980L1840 1050M1800 1120L1840 1050M1720 1120L1800 1120M1800 700L1840 630M1840 630L1920 630M1800 700L1840 770M1800 840L1840 770M1800 840L1840 910M1800 980L1840 910M1840 1050L1920 1050M1800 980L1840 1050M1920 630L1960 560M1960 560L2040 560M1960 1120L2040 1120M1920 1050L1960 1120M2040 560L2080 490M2080 490L2160 490M2160 490L2200 560M2160 1190L2200 1120M2080 1190L2160 1190M2040 1120L2080 1190M2200 560L2280 560M2280 560L2320 630M2280 1120L2320 1050M2200 1120L2280 1120M2320 630L2400 630M2400 630L2440 700M2400 770L2440 700M2400 770L2440 840M2400 910L2440 840M2400 910L2440 980M2400 1050L2440 980M2320 1050L2400 1050M360 1400L400 1330M400 1330L480 1330M360 1400L400 1470M360 1540L400 1470M360 1540L400 1610M360 1680L400 1610M400 1750L480 1750M360 1680L400 1750M480 1330L520 1260M520 1260L600 1260M520 1820L600 1820M480 1750L520 1820M600 1260L640 1190M640 1190L720 1190M720 1190L760 1260M720 1890L760 1820M640 1890L720 1890M600 1820L640 1890M760 1260L840 1260M840 1260L880 1330M840 1820L880 1750M760 1820L840 1820M880 1330L960 1330M1000 1400L960 1330M1000 1400L960 1470M1000 1540L960 1470M1000 1540L960 1610M1000 1680L960 1610M1000 1680L960 1750M880 1750L960 1750M1000 1260L960 1330M1000 1260L1080 1260M1000 1400L960 1330M1000 1400L960 1470M1000 1540L960 1470M1000 1540L960 1610M1000 1680L1080 1680M1000 1680L960 1610M1080 1260L1120 1190M1120 1190L1200 1190M1120 1750L1200 1750M1080 1680L1120 1750M1200 1190L1240 1120M1240 1120L1320 1120M1320 1120L1360 1190M1320 1820L1360 1750M1240 1820L1320 1820M1200 1750L1240 1820M1360 1190L1440 1190M1440 1190L1480 1260M1440 1750L1480 1680M1360 1750L1440 1750M1480 1260L1560 1260M1560 1260L1600 1330M1560 1400L1600 1330M1560 1400L1600 1470M1560 1540L1600 1470M1560 1540L1600 1610M1560 1680L1600 1610M1480 1680L1560 1680M1560 1260L1600 1190M1600 1190L1680 1190M1560 1260L1600 1330M1560 1400L1600 1330M1560 1400L1600 1470M1560 1540L1600 1470M1600 1610L1680 1610M1560 1540L1600 1610M1680 1190L1720 1120M1720 1120L1800 1120M1720 1680L1800 1680M1680 1610L1720 1680M1800 1120L1840 1050M1840 1050L1920 1050M1920 1050L1960 1120M1920 1750L1960 1680M1840 1750L1920 1750M1800 1680L1840 1750M1960 1120L2040 1120M2040 1120L2080 1190M2040 1680L2080 1610M1960 1680L2040 1680M2080 1190L2160 1190M2160 1190L2200 1260M2160 1330L2200 1260M2160 1330L2200 1400M2160 1470L2200 1400M2160 1470L2200 1540M2160 1610L2200 1540M2080 1610L2160 1610" /></svg>
+   <img class="gp-piece gp-piece--mt gp-piece--own" src="../assets/games/gaia/mi-red.webp" alt="معدن مینا" style="left:37.551%;top:66.491%">
+   <img class="gp-piece gp-piece--ts gp-piece--own" src="../assets/games/gaia/ts-red.webp" alt="ایستگاه تجاری مینا" style="left:57.143%;top:59.103%">
+   <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-yellow.webp" alt="معدن نیلوفر" style="left:27.755%;top:51.715%">
+   <img class="gp-piece gp-piece--ts" src="../assets/games/gaia/ts-yellow.webp" alt="ایستگاه تجاری نیلوفر" style="left:71.837%;top:48.021%">
+   <img class="gp-piece" src="../assets/games/gaia/pi-yellow.webp" alt="مؤسسهٔ سیاره‌ای نیلوفر" style="left:52.245%;top:92.348%">
+   <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-brown.webp" alt="معدن آرش" style="left:32.653%;top:48.021%">
+   <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-brown.webp" alt="معدن آرش" style="left:57.143%;top:51.715%">
+   <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-orange.webp" alt="معدن سارا" style="left:57.143%;top:36.939%">
+   <img class="gp-piece gp-piece--ts" src="../assets/games/gaia/ts-orange.webp" alt="ایستگاه تجاری سارا" style="left:42.449%;top:62.797%">
+  </div>
+  <div class="gp-zoom" role="group" aria-label="بزرگ‌نمایی نقشه"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+  
+  </div>
+</main>
+<section class="bgv-actiondock" aria-label="تصمیم شما: شارژ قدرت">
+ <div class="bgv-actiondock__prompt"><span style="min-inline-size:0;font-size:14px;line-height:1.6"><b style="color:var(--heading)">سارا</b> کنار شما معدن ساخت. <b>۲</b><img class="gp-ic" src="../assets/games/gaia/power.webp" alt="قدرت"> شارژ می‌کنید؟ هزینه <span class="gp-costpill">۱ امتیاز</span></span></div>
+ <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button">شارژ ۲ قدرت</button><button class="bgv-btn bgv-btn--secondary" type="button">رد</button></div>
+ <div class="gp-row" style="display:flex;align-items:center;gap:8px"><label class="gp-chk" style="flex:1"><input type="checkbox"> دفعهٔ بعد نپرس</label><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" aria-haspopup="dialog">تنظیم شارژ خودکار</button></div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

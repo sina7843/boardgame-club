@@ -7,7 +7,7 @@ import type { Actor, EngineRng, GameModule, Outcome, Transition } from '@bg/game
 import { gaiaProject } from './definition.ts';
 import { SMALL_CENTERS, SMALL_SECTORS, buildMap, randomMap } from './map.ts';
 import {
-  CONTENT, RESEARCH_COST, RESEARCH_INCOME, activeSeats, addGains, advance, buildMine, burn, canBurn, canPay,
+  CONTENT, RESEARCH_COST, RESEARCH_INCOME, activeSeats, addGains, advance, buildMine, burn, canBurn, canPay, chargeable, leechAmount,
   conversions, countBuilding, decisionOptions, factionOf, fedPlan, fedTokensAvailable, formFederation, gaiaform,
   gaiaformPlan, gain, hasPI, log, minePlan, pay, planetTypes, queueTech, researchBlock, resolveDecision, sources,
   spendable, specialActions, suggestFederations, techOptions, upgrade, upgradeCost, UPGRADES, vp
@@ -58,6 +58,7 @@ export const gaiaAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('convert'), id }),
   z.strictObject({ type: z.literal('burn') }),
   z.strictObject({ type: z.literal('decide'), choice: id }),
+  z.strictObject({ type: z.literal('autoCharge'), mode: z.enum(['ask', 'free', 'upto', 'decline']), n: z.number().int().min(1).max(3).optional(), lastRound: z.boolean().optional() }),
   z.strictObject({ type: z.literal('resign') })
 ]);
 export type GaiaAction = z.infer<typeof gaiaAction>;
@@ -240,6 +241,9 @@ function flow(s: GaiaState) {
   for (let guard = 0; guard < 200 && !s.outcome; guard++) {
     // Drop decisions that lost all their options (e.g. the only tile was taken meanwhile).
     while (s.pending.length && (!s.active[s.pending[0]!.seat] || decisionOptions(s, s.pending[0]!).length === 0)) s.pending.shift();
+    const head = s.pending[0];
+    const auto = head?.kind === 'leech' ? autoLeech(s, head) : null;
+    if (head && auto) { s.pending.shift(); s.ins = 0; resolveDecision(s, head, auto); continue; }
     if (s.pending.length) return;
     if (s.phase === 'faction') {
       const next = s.order.find((seat) => s.active[seat] && !s.pl[seat]!.faction);
@@ -274,6 +278,7 @@ const ownsFed = (s: GaiaState, seat: number, fid: string) => s.pl[seat]!.feds.so
 function check(s: GaiaState, seat: number, a: GaiaAction): string | null {
   const p = s.pl[seat]!;
   const x = { s, seat };
+  if (a.type === 'autoCharge') return a.mode === 'upto' && !a.n ? 'ILLEGAL_CHOICE' : null; // any time, own setting
   if (s.pending.length) {
     if (a.type !== 'decide' || s.pending[0]!.seat !== seat) return s.pending[0]!.seat === seat ? 'WRONG_PHASE' : 'NOT_YOUR_TURN';
     return decisionOptions(s, s.pending[0]!).includes(a.choice) ? null : 'ILLEGAL_CHOICE';
@@ -409,7 +414,19 @@ function act(s: GaiaState, seat: number, a: GaiaAction, events: Events) {
   s.turnDone = true;
 }
 
-const FREE = new Set(['convert', 'burn']);
+const FREE = new Set(['convert', 'burn', 'autoCharge']);
+
+/** The seat's auto-charge answer to the leech at the head of the queue, or null to ask (HANDOFF.md decision 9). */
+function autoLeech(s: GaiaState, d: Extract<Decision, { kind: 'leech' }>): 'accept' | 'decline' | null {
+  if (sources(s, d.seat).some((src) => src.effects.leech)) return null;
+  const m = s.pl[d.seat]!.auto ?? { mode: 'free' };
+  if (m.lastRound && s.round >= ROUNDS) return null;
+  if (m.mode === 'decline') return 'decline';
+  if (m.mode === 'ask') return null;
+  const n = leechAmount(s, d.seat, d.amount);
+  if (n < Math.min(d.amount, chargeable(s, d.seat, d.amount))) return null; // short of VP: ask
+  return Math.max(0, n - 1) <= (m.mode === 'free' ? 0 : m.n ?? 1) ? 'accept' : null;
+}
 
 function result(s: GaiaState, events: Events, resetDeadline: boolean): Transition<GaiaState> {
   return {
@@ -588,6 +605,11 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
       flow(s);
       return result(s, events, true);
     }
+    if (a.type === 'autoCharge') {
+      s.pl[seat]!.auto = { mode: a.mode, ...(a.mode === 'upto' ? { n: a.n! } : {}), ...(a.lastRound ? { lastRound: true } : {}) };
+      flow(s); // a waiting leech of this seat may now resolve itself
+      return result(s, events, false);
+    }
     s.pl[seat]!.timeouts = 0;
     act(s, seat, a, events);
     flow(s);
@@ -641,8 +663,13 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
         stats: [
           { key: 'c', label: 'اعتبار', value: p.c, icon: 'coins' },
           { key: 'o', label: 'سنگ', value: p.o, icon: 'gem' },
-          { key: 'k', label: 'دانش', value: p.k, icon: 'star' }
+          { key: 'k', label: 'دانش', value: p.k, icon: 'star' },
+          { key: 'q', label: 'QIC', value: p.q }
         ],
+        ...(p.faction ? { badges: [{ key: `faction:${p.faction}`, label: CONTENT.factions[p.faction]!.nameFa }] } : {}),
+        ...(s.order.includes(seat) ? { turnOrder: s.order.indexOf(seat) + 1 } : {}),
+        ...(p.faction && s.active[seat] ? { income: (({ c = 0, o = 0, k = 0, q = 0, pw = 0, t = 0 }) => ({ c, o, k, q, pwCharge: pw, pwTokens: t }))(incomeOf(s, seat)) } : {}),
+        power: { gaia: p.power.gaia, b1: p.power.b1, b2: p.power.b2, b3: p.power.b3 },
         ...(s.outcome ? (s.outcome.placements.some((x) => x.seat === seat && x.place === 1) ? { status: 'winner' as const } : {}) : !s.active[seat] ? { status: 'out' as const } : p.passed ? { status: 'passed' as const } : {}),
         strikes: p.timeouts
       })),

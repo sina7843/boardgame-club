@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پروژه گایا، ۱۴ جناح</title>
+
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.gf{background:var(--bg);color:var(--text);font-family:var(--font-fa);padding:40px 48px;display:grid;gap:24px}
+.gf h1{margin:0;font-size:32px;font-weight:900;color:var(--heading);line-height:1.4}
+.gf-lead{margin:0;font-size:16px;line-height:1.8;color:var(--text-muted);max-inline-size:960px}
+.gf-rules{margin:0;padding-inline-start:18px;display:grid;gap:4px;font-size:14px;line-height:1.75}
+.gf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.gf-card{padding:16px;display:grid;gap:12px;align-content:start}
+.gf-head{display:flex;gap:10px;align-items:center}
+.gf-planet{inline-size:40px;block-size:40px;flex:none}
+.gf-head h2{margin:0;font-size:18px;font-weight:900;color:var(--heading);line-height:1.5}
+.gf-head h2 .bgv-latin{font-size:13px;font-weight:600;color:var(--text-muted)}
+.gf-head small{font-size:12.5px;color:var(--text-muted)}
+.gf code{font-family:var(--font-latin);font-size:12px;direction:ltr;unicode-bidi:isolate}
+.gf-board{display:block;inline-size:100%;block-size:auto;border-radius:var(--radius-sm);background:#0D1A23}
+.gf dl{margin:0;display:grid;gap:4px}
+.gf dt{font-size:12px;font-weight:700;color:var(--label)}
+.gf dd{margin:0 0 6px;font-size:13.5px;line-height:1.75}
+</style>
+
+</head>
+<body>
+
+
+<div class="bgv gf" data-theme="light" dir="rtl">
+<header style="display:grid;gap:8px"><span class="bgv-tag" style="justify-self:start">گایا، همهٔ جناح‌ها از <code>content/*.ts</code></span><h1>۱۴ جناح، یک قالب صفحه</h1><p class="gf-lead">هر ۱۴ صفحهٔ جناح در مجموعهٔ فلت یک قاب ۱۷۵۳×۹۹۹ دارند، پس لایهٔ روی صفحه (ساختمان‌های باقی‌مانده، ژتون‌های قدرت در کاسه‌ها، دکمه‌های تبدیل، بوستر کنار صفحه) با همان مختصات صفحهٔ هادش هالا روی همه می‌نشیند. فقط تصویر و داده عوض می‌شود.</p>
+<ul class="gf-rules"><li>تصویر: <code>faction-{id}.webp</code> اندازهٔ کامل برای «صفحهٔ من» و <code>faction-{id}-sm.webp</code> برای فهرست و انتخاب جناح.</li><li>متن توانایی و مؤسسه عین <code>abilityFa</code> و <code>piFa</code> در کد؛ نام سیاره از <code>PLANET_FA</code>.</li><li>رنگ استروک ساختمان‌های خودی = رنگ سیارهٔ خانه. اقدام ویژهٔ جناح (نارنجی) روی صفحه کلیک می‌شود و تبدیل‌های جناح به ردیف تبدیل نوار کنش اضافه می‌شوند.</li></ul></header>
+<div class="gf-grid">
+<article class="bgv-card gf-card" aria-labelledby="gf-terrans">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-blue.webp" alt=""><div><h2 id="gf-terrans">ترن‌ها <span class="bgv-latin">Terrans</span></h2><small>خانه: زمین‌گون · <code>terrans</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-terrans-sm.webp" alt="صفحهٔ جناح ترن‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع در سطح ۱ پروژهٔ گایا (یک گایاساز) با ۴ ژتون در کاسهٔ I و ۴ ژتون در کاسهٔ II. در مرحلهٔ گایا ژتون‌های ناحیهٔ گایا به کاسهٔ II برمی‌گردند، نه کاسهٔ I.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای، در مرحلهٔ گایا به‌ازای هر ژتونی که از ناحیهٔ گایا به کاسهٔ II می‌رود ۱ قدرت می‌گیرید که فقط با نرخ تبدیل‌های قدرت خرج می‌شود: ۴ → ۱ QIC، ۴ → ۱ دانش، ۳ → ۱ سنگ معدن، ۱ → ۱ اعتبار (نه اقدام‌های قدرت). قدرت خرج‌نشده از بین می‌رود.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-lantids">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-blue.webp" alt=""><div><h2 id="gf-lantids">لانتیدها <span class="bgv-latin">Lantids</span></h2><small>خانه: زمین‌گون · <code>lantids</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-lantids-sm.webp" alt="صفحهٔ جناح لانتیدها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع با ۱۳ اعتبار و ۴ ژتون در کاسهٔ I (کاسهٔ II خالی). می‌توانید روی سیاره‌ای که بازیکن دیگری مستعمره کرده معدن بسازید: بدون زمین‌سازی، با هزینهٔ عادی ۲ اعتبار و ۱ سنگ معدن (و QIC برای برد). روی گایاساز نمی‌شود.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>مؤسسهٔ سیاره‌ای ۴ شارژ قدرت درآمد می‌دهد (بدون ژتون). هر بار روی سیارهٔ بازیکن دیگری معدن بسازید ۲ دانش می‌گیرید.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-hadsch-hallas">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-red.webp" alt=""><div><h2 id="gf-hadsch-hallas">هادش هالا <span class="bgv-latin">Hadsch Hallas</span></h2><small>خانه: اکسیدی · <code>hadsch-hallas</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-hadsch-hallas-sm.webp" alt="صفحهٔ جناح هادش هالا" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع در سطح ۱ اقتصاد؛ درآمد پایه ۳ اعتبار بیشتر دارد.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای، اعتبار را آزادانه تبدیل می‌کنید: ۴ اعتبار → ۱ QIC، ۳ اعتبار → ۱ سنگ معدن، ۴ اعتبار → ۱ دانش.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-ivits">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-red.webp" alt=""><div><h2 id="gf-ivits">آیویت‌ها <span class="bgv-latin">Ivits</span></h2><small>خانه: اکسیدی · <code>ivits</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-ivits-sm.webp" alt="صفحهٔ جناح آیویت‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>در آماده‌سازی معدن نمی‌گذارید؛ پس از همه مؤسسهٔ سیاره‌ای را روی یک سیارهٔ اکسید می‌گذارید. درآمد پایه ۱ QIC بیشتر دارد. ماهواره‌ها به‌جای ژتون قدرت ۱ QIC هزینه دارند. همهٔ فدراسیون‌ها یک فدراسیون رو به رشدند و هر فدراسیون تازه ارزش قدرت ۷ × (تعداد توکن‌های فدراسیون شما + ۱) لازم دارد.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>اقدام ویژه (هر دور یک بار): یک ایستگاه فضایی روی یک خانهٔ خالی فضا در برد ناوبری بگذارید (برای برد بیشتر QIC بدهید). ایستگاه فقط در فدراسیون ارزش قدرت ۱ دارد، برد شما را گسترش می‌دهد و برای کاشی پایانی ماهواره شمرده می‌شود.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-geodens">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-orange.webp" alt=""><div><h2 id="gf-geodens">ژئودن‌ها <span class="bgv-latin">Geodens</span></h2><small>خانه: آتشفشانی · <code>geodens</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-geodens-sm.webp" alt="صفحهٔ جناح ژئودن‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع در سطح ۱ زمین‌سازی.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای، هر بار روی نوع سیاره‌ای که تا حالا نداشته‌اید معدن بسازید ۳ دانش می‌گیرید.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-bal-taks">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-orange.webp" alt=""><div><h2 id="gf-bal-taks">بال‌تاک‌ها <span class="bgv-latin">Bal T'aks</span></h2><small>خانه: آتشفشانی · <code>bal-taks</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-bal-taks-sm.webp" alt="صفحهٔ جناح بال‌تاک‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع بدون QIC، با ۲ ژتون در کاسهٔ I و ۲ ژتون در کاسهٔ II و در سطح ۱ پروژهٔ گایا (یک گایاساز). اقدام آکادمی QIC شما به‌جای QIC ۴ اعتبار می‌دهد. اقدام آزاد: یک گایاساز آزاد را به ناحیهٔ گایا بفرستید و ۱ QIC بگیرید؛ گایاساز در فاز گایای دور بعد برمی‌گردد. تا پیش از مؤسسهٔ سیاره‌ای نمی‌توانید در مسیر ناوبری پیشرفت کنید.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای می‌توانید در مسیر ناوبری پیشرفت کنید.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-xenos">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-yellow.webp" alt=""><div><h2 id="gf-xenos">زنوس <span class="bgv-latin">Xenos</span></h2><small>خانه: بیابانی · <code>xenos</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-xenos-sm.webp" alt="صفحهٔ جناح زنوس" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع در سطح ۱ هوش مصنوعی؛ در آماده‌سازی پس از همه یک معدن سوم می‌گذارید.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>مؤسسهٔ سیاره‌ای به‌جای ژتون قدرت ۱ QIC درآمد می‌دهد و فدراسیون شما با ارزش قدرت ۶ (به‌جای ۷) تشکیل می‌شود.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-gleens">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-yellow.webp" alt=""><div><h2 id="gf-gleens">گلین‌ها <span class="bgv-latin">Gleens</span></h2><small>خانه: بیابانی · <code>gleens</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-gleens-sm.webp" alt="صفحهٔ جناح گلین‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع بدون QIC و در سطح ۱ ناوبری (که ۱ QIC می‌دهد). پس از آماده‌سازی تا وقتی آکادمی QIC نساخته‌اید به‌جای هر QIC یک سنگ معدن می‌گیرید. معدن روی سیارهٔ گایا به‌جای ۱ QIC، ۱ سنگ معدن اضافه هزینه دارد و ۲ امتیاز می‌دهد.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>درآمد مؤسسهٔ سیاره‌ای ۴ شارژ قدرت و ۱ سنگ معدن است و با ساخت آن بی‌درنگ ژتون فدراسیون ویژهٔ گلین‌ها (۱ سنگ معدن، ۱ دانش، ۲ اعتبار) را می‌گیرید.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-ambas">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-brown.webp" alt=""><div><h2 id="gf-ambas">آمباس‌ها <span class="bgv-latin">Ambas</span></h2><small>خانه: باتلاقی · <code>ambas</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-ambas-sm.webp" alt="صفحهٔ جناح آمباس‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع در سطح ۱ ناوبری؛ درآمد پایه ۲ سنگ معدن و ۱ دانش است.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>درآمد مؤسسهٔ سیاره‌ای: ۴ شارژ قدرت و ۲ ژتون قدرت. اقدام ویژه (هر دور یک بار): جای مؤسسهٔ سیاره‌ای را با یکی از معدن‌های خود عوض کنید؛ این ساخت یا ارتقا نیست و قدرت به دیگران نمی‌دهد.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-taklons">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-brown.webp" alt=""><div><h2 id="gf-taklons">تاکلون‌ها <span class="bgv-latin">Taklons</span></h2><small>خانه: باتلاقی · <code>taklons</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-taklons-sm.webp" alt="صفحهٔ جناح تاکلون‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>سنگ مغز در کاسهٔ I شروع می‌کند و مانند یک ژتون جابه‌جا می‌شود، اما هنگام خرج کردن ۳ قدرت ارزش دارد و به کاسهٔ I برمی‌گردد.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای، هر بار قدرتی را از همسایه بپذیرید ۱ ژتون قدرت به کاسهٔ I می‌گیرید و ترتیب گرفتن ژتون و شارژ را خودتان انتخاب می‌کنید.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-firaks">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-grey.webp" alt=""><div><h2 id="gf-firaks">فیراک‌ها <span class="bgv-latin">Firaks</span></h2><small>خانه: تیتانیومی · <code>firaks</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-firaks-sm.webp" alt="صفحهٔ جناح فیراک‌ها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع با ۲ دانش و ۳ سنگ معدن؛ درآمد پایه ۲ دانش و ۱ سنگ معدن.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>اقدام ویژه (هر دور یک بار): یک آزمایشگاه پژوهشی را به ایستگاه تجاری تنزل دهید و یک سطح در هر مسیر پژوهش جلو بروید. این کار ساخت ایستگاه تجاری حساب می‌شود (کاشی دور و همسایه‌ها می‌توانند قدرت بگیرند).</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-bescods">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-grey.webp" alt=""><div><h2 id="gf-bescods">بسکادها <span class="bgv-latin">Bescods</span></h2><small>خانه: تیتانیومی · <code>bescods</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-bescods-sm.webp" alt="صفحهٔ جناح بسکادها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>درآمد پایه فقط ۱ سنگ معدن است؛ هر ایستگاه تجاری ۱ دانش و آزمایشگاه‌های پژوهشی ۳، ۴ و ۵ اعتبار درآمد می‌دهند. اقدام ویژه (هر دور یک بار): در یکی از مسیرهای پژوهشی که پایین‌ترین سطح شما را دارد، رایگان یک سطح جلو بروید.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>مؤسسهٔ سیاره‌ای ۴ شارژ قدرت و ۲ ژتون قدرت درآمد می‌دهد و ارزش قدرت همهٔ سازه‌های شما روی سیاره‌های تیتانیومی (خاکستری) ۱ واحد بیشتر می‌شود.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-itars">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-white.webp" alt=""><div><h2 id="gf-itars">ایتارها <span class="bgv-latin">Itars</span></h2><small>خانه: یخی · <code>itars</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-itars-sm.webp" alt="صفحهٔ جناح ایتارها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع با ۵ سنگ معدن و ۴ ژتون در کاسهٔ I؛ درآمد پایه ۱ ژتون قدرت بیشتر دارد و آکادمی دانش ۳ دانش درآمد می‌دهد. هنگام سوزاندن قدرت، ژتون حذف‌شده به ناحیهٔ گایا می‌رود.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای، در هر مرحلهٔ گایا (پیش از برگشتن ژتون‌ها) می‌توانید هر بار ۴ ژتون ناحیهٔ گایا را برای همیشه کنار بگذارید و یک کاشی فناوری بگیرید.</dd></dl>
+</article>
+<article class="bgv-card gf-card" aria-labelledby="gf-nevlas">
+ <header class="gf-head"><img class="gf-planet" src="../assets/games/gaia/planet-white.webp" alt=""><div><h2 id="gf-nevlas">نِولاها <span class="bgv-latin">Nevlas</span></h2><small>خانه: یخی · <code>nevlas</code></small></div></header>
+ <img class="gf-board" src="../assets/games/gaia/faction-nevlas-sm.webp" alt="صفحهٔ جناح نِولاها" width="880" height="501">
+ <dl><dt>توانایی</dt><dd>شروع در سطح ۱ دانش و با ۲ دانش؛ هر آزمایشگاه پژوهشی به‌جای دانش ۲ شارژ قدرت درآمد می‌دهد. اقدام آزاد: ۱ ژتون از کاسهٔ III را به ناحیهٔ گایا ببرید و ۱ دانش بگیرید.</dd><dt>مؤسسهٔ سیاره‌ای</dt><dd>با مؤسسهٔ سیاره‌ای، هنگام خرج کردن قدرت هر ژتون کاسهٔ III دو قدرت حساب می‌شود.</dd></dl>
+</article>
+</div>
+</div>
+
+
+</body>
+</html>

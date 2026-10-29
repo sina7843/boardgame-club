@@ -60,7 +60,13 @@ export interface PlayerState {
   /** Free-form per-player storage for content (counters, flags). Must stay JSON. */
   mark: Record<string, number | boolean | string>;
   timeouts: number;
+  /** Auto-charge (leech) setting of this player at this table; missing = `free` (1 power for free, ask the rest). */
+  auto?: AutoCharge;
 }
+
+/** ask: always ask · free: take free (1-power) charges · upto: take charges costing up to `n` VP · decline: refuse all.
+ *  `lastRound`: always ask in round 6. Custom leeches (Taklons brainstone) and VP shortfalls are always asked. */
+export interface AutoCharge { mode: 'ask' | 'free' | 'upto' | 'decline'; n?: number; lastRound?: boolean }
 
 export type Decision =
   | { kind: 'leech'; seat: number; amount: number; from: number }

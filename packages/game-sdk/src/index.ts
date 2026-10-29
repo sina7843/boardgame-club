@@ -167,6 +167,12 @@ export interface PublicSummary {
     status?: 'playing' | 'done' | 'passed' | 'out' | 'winner';
     /** Turn timeouts used so far (games with a MAX_TIMEOUTS rule). */
     strikes?: number;
+    /** Place in this round's turn order, 1 = first. */
+    turnOrder?: number;
+    /** Income per round by resource key (e.g. `c`, `pwCharge`). */
+    income?: Record<string, number>;
+    /** Power pools by key (e.g. Gaia bowls `gaia`, `b1`, `b2`, `b3`). */
+    power?: Record<string, number>;
   }>;
   /** Shared resources: deck size, round, team pool. */
   shared?: Array<{ key: string; label: string; value: number | string; max?: number }>;

@@ -1,0 +1,267 @@
+{
+ "note": "Tech/booster/round/final/federation ids were matched from labelFa text and tile icons. Confirm each one against the tile once (QA step G1).",
+ "techStandard": {
+  "std1": "art/technology/TECqic.webp",
+  "std2": "art/technology/TECvps.webp",
+  "std3": "art/technology/TECpia.webp",
+  "std4": "art/technology/TECtyp.webp",
+  "std5": "art/technology/TECore.webp",
+  "std6": "art/technology/TECknw.webp",
+  "std7": "art/technology/TECgai.webp",
+  "std8": "art/technology/TECcre.webp",
+  "std9": "art/technology/TECpow.webp"
+ },
+ "techAdvanced": {
+  "adv1": "art/technology/ADVfedP.webp",
+  "adv2": "art/technology/ADVlab.webp",
+  "adv3": "art/technology/ADVtyp.webp",
+  "adv4": "art/technology/ADVminV.webp",
+  "adv5": "art/technology/ADVtrsV.webp",
+  "adv6": "art/technology/ADVfedV.webp",
+  "adv7": "art/technology/ADVsecV.webp",
+  "adv8": "art/technology/ADVsecO.webp",
+  "adv9": "art/technology/ADVgai.webp",
+  "adv10": "art/technology/ADVqic.webp",
+  "adv11": "art/technology/ADVore.webp",
+  "adv12": "art/technology/ADVknw.webp",
+  "adv13": "art/technology/ADVtrsB.webp",
+  "adv14": "art/technology/ADVminB.webp",
+  "adv15": "art/technology/ADVstp.webp"
+ },
+ "boosters": {
+  "b1": "art/round-boosters/BOOknw.webp",
+  "b2": "art/round-boosters/BOOpwt.webp",
+  "b3": "art/round-boosters/BOOqic.webp",
+  "b4": "art/round-boosters/BOOter.webp",
+  "b5": "art/round-boosters/BOOnav.webp",
+  "b6": "art/round-boosters/BOOmin.webp",
+  "b7": "art/round-boosters/BOOtrs.webp",
+  "b8": "art/round-boosters/BOOlab.webp",
+  "b9": "art/round-boosters/BOOpia.webp",
+  "b10": "art/round-boosters/BOOgai.webp"
+ },
+ "roundScoring": {
+  "r1": "art/round-scoring/RNDter.webp",
+  "r2": "art/round-scoring/RNDstp.webp",
+  "r3": "art/round-scoring/RNDmin.webp",
+  "r4": "art/round-scoring/RNDfed.webp",
+  "r5": "art/round-scoring/RNDtrs4.webp",
+  "r6": "art/round-scoring/RNDgai4.webp",
+  "r7": "art/round-scoring/RNDpia.webp",
+  "r8": "art/round-scoring/RNDtrs3.webp",
+  "r9": "art/round-scoring/RNDgai3.webp",
+  "r10": "art/round-scoring/RNDpia.webp",
+  "back": "art/round-scoring/round-scoring-back.webp"
+ },
+ "finalScoring": {
+  "f1": "art/final-scoring/FINbld.webp",
+  "f2": "art/final-scoring/FINfed.webp",
+  "f3": "art/final-scoring/FINtyp.webp",
+  "f4": "art/final-scoring/FINgai.webp",
+  "f5": "art/final-scoring/FINsec.webp",
+  "f6": "art/final-scoring/FINsat.webp"
+ },
+ "federations": {
+  "fed1": "art/federation-tokens/FEDvps.webp",
+  "fed2": "art/federation-tokens/FEDqic.webp",
+  "fed3": "art/federation-tokens/FEDpwt.webp",
+  "fed4": "art/federation-tokens/FEDore.webp",
+  "fed5": "art/federation-tokens/FEDcre.webp",
+  "fed6": "art/federation-tokens/FEDknw.webp",
+  "gleens": "art/federation-tokens/FEDgle.webp",
+  "spent": "art/federation-tokens/<file>-back.webp (grey side; fed1 is grey on both sides)"
+ },
+ "resources": {
+  "c": "art/tokens-markers/Credits.webp",
+  "o": "art/tokens-markers/Ores.webp",
+  "k": "art/tokens-markers/Knowledge.webp",
+  "q": "art/tokens-markers/Qic.webp",
+  "pw": "art/tokens-markers/Power.webp",
+  "powerToken": "art/tokens-markers/power-token-physical.webp",
+  "vp": "art/reference-only/source-symbols/VP.webp (score badge in the player panel)",
+  "recordToken": "art/tokens-markers/RecordToken.webp"
+ },
+ "pieces": {
+  "structure": "art/structures/{MI|TS|RL|PI|AC}-{color}.webp  (color: blue red orange yellow brown grey white)",
+  "gaiaformer": "art/tokens-markers/player-token-{markerColor}.webp  (octagon; NOT the player marker; markerColor uses \"gray\")",
+  "playerMarker": "art/tokens-markers/satellite-{markerColor}.webp  (research tracks, final tracks, planet counters, federation satellites)",
+  "spaceStation": "art/tokens-markers/SpaceStation.webp",
+  "lostPlanet": "art/tokens-markers/LostPlanet.webp",
+  "brainstone": "art/tokens-markers/brainstone-physical.webp",
+  "gaiaPlanetToken": "art/tokens-markers/gaia-planet-token.webp",
+  "firstPlayer": "art/tokens-markers/first-player-marker.webp",
+  "actionToken": "art/tokens-markers/ActionToken.webp"
+ },
+ "planets": {
+  "r": "art/planet-art/planet-blue.webp",
+  "o": "art/planet-art/planet-red.webp",
+  "v": "art/planet-art/planet-orange.webp",
+  "d": "art/planet-art/planet-yellow.webp",
+  "s": "art/planet-art/planet-brown.webp",
+  "t": "art/planet-art/planet-grey.webp",
+  "i": "art/planet-art/planet-white.webp",
+  "g": "art/planet-art/planet-gaia.webp",
+  "m": "art/planet-art/planet-transdim.webp"
+ },
+ "boards": {
+  "research": "art/boards/research-board.webp",
+  "scoring": "art/boards/scoring-board.webp",
+  "sector": "art/space-sectors/sector-{1..10}.webp (5/6/7 also have *outlined for the 2-player back sides)"
+ },
+ "factions": {
+  "hadsch-hallas": {
+   "nameFa": "هادش هالا",
+   "nameEn": "Hadsch Hallas",
+   "home": "o",
+   "color": "red",
+   "board": "art/boards/faction-Hadsch-Hallas.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-HadschHallas.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-red.webp",
+   "satellite": "art/tokens-markers/satellite-red.webp",
+   "gaiaformer": "art/tokens-markers/player-token-red.webp"
+  },
+  "xenos": {
+   "nameFa": "زنوس",
+   "nameEn": "Xenos",
+   "home": "d",
+   "color": "yellow",
+   "board": "art/boards/faction-Xenos.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Xenos.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-yellow.webp",
+   "satellite": "art/tokens-markers/satellite-yellow.webp",
+   "gaiaformer": "art/tokens-markers/player-token-yellow.webp"
+  },
+  "geodens": {
+   "nameFa": "ژئودن‌ها",
+   "nameEn": "Geodens",
+   "home": "v",
+   "color": "orange",
+   "board": "art/boards/faction-Geodens.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Geodens.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-orange.webp",
+   "satellite": "art/tokens-markers/satellite-orange.webp",
+   "gaiaformer": "art/tokens-markers/player-token-orange.webp"
+  },
+  "firaks": {
+   "nameFa": "فیراک‌ها",
+   "nameEn": "Firaks",
+   "home": "t",
+   "color": "grey",
+   "board": "art/boards/faction-Firaks.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Firaks.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-grey.webp",
+   "satellite": "art/tokens-markers/satellite-gray.webp",
+   "gaiaformer": "art/tokens-markers/player-token-gray.webp"
+  },
+  "terrans": {
+   "nameFa": "ترن‌ها",
+   "nameEn": "Terrans",
+   "home": "r",
+   "color": "blue",
+   "board": "art/boards/faction-Terrans.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Terrans.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-blue.webp",
+   "satellite": "art/tokens-markers/satellite-blue.webp",
+   "gaiaformer": "art/tokens-markers/player-token-blue.webp"
+  },
+  "lantids": {
+   "nameFa": "لانتیدها",
+   "nameEn": "Lantids",
+   "home": "r",
+   "color": "blue",
+   "board": "art/boards/faction-Lantids.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Lantids.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-blue.webp",
+   "satellite": "art/tokens-markers/satellite-blue.webp",
+   "gaiaformer": "art/tokens-markers/player-token-blue.webp"
+  },
+  "ivits": {
+   "nameFa": "آیویت‌ها",
+   "nameEn": "Ivits",
+   "home": "o",
+   "color": "red",
+   "board": "art/boards/faction-Ivits.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Ivits.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-red.webp",
+   "satellite": "art/tokens-markers/satellite-red.webp",
+   "gaiaformer": "art/tokens-markers/player-token-red.webp"
+  },
+  "bal-taks": {
+   "nameFa": "بال‌تاک‌ها",
+   "nameEn": "Bal T'aks",
+   "home": "v",
+   "color": "orange",
+   "board": "art/boards/faction-Bal-Taks.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-BalTaks.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-orange.webp",
+   "satellite": "art/tokens-markers/satellite-orange.webp",
+   "gaiaformer": "art/tokens-markers/player-token-orange.webp"
+  },
+  "gleens": {
+   "nameFa": "گلین‌ها",
+   "nameEn": "Gleens",
+   "home": "d",
+   "color": "yellow",
+   "board": "art/boards/faction-Gleens.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Gleens.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-yellow.webp",
+   "satellite": "art/tokens-markers/satellite-yellow.webp",
+   "gaiaformer": "art/tokens-markers/player-token-yellow.webp"
+  },
+  "ambas": {
+   "nameFa": "آمباس‌ها",
+   "nameEn": "Ambas",
+   "home": "s",
+   "color": "brown",
+   "board": "art/boards/faction-Ambas.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Ambas.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-brown.webp",
+   "satellite": "art/tokens-markers/satellite-brown.webp",
+   "gaiaformer": "art/tokens-markers/player-token-brown.webp"
+  },
+  "taklons": {
+   "nameFa": "تاکلون‌ها",
+   "nameEn": "Taklons",
+   "home": "s",
+   "color": "brown",
+   "board": "art/boards/faction-Taklons.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Taklons.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-brown.webp",
+   "satellite": "art/tokens-markers/satellite-brown.webp",
+   "gaiaformer": "art/tokens-markers/player-token-brown.webp"
+  },
+  "bescods": {
+   "nameFa": "بسکادها",
+   "nameEn": "Bescods",
+   "home": "t",
+   "color": "grey",
+   "board": "art/boards/faction-Bescods.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Bescods.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-grey.webp",
+   "satellite": "art/tokens-markers/satellite-gray.webp",
+   "gaiaformer": "art/tokens-markers/player-token-gray.webp"
+  },
+  "itars": {
+   "nameFa": "ایتارها",
+   "nameEn": "Itars",
+   "home": "i",
+   "color": "white",
+   "board": "art/boards/faction-Itars.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Itars.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-white.webp",
+   "satellite": "art/tokens-markers/satellite-white.webp",
+   "gaiaformer": "art/tokens-markers/player-token-white.webp"
+  },
+  "nevlas": {
+   "nameFa": "نِولاها",
+   "nameEn": "Nevlas",
+   "home": "i",
+   "color": "white",
+   "board": "art/boards/faction-Nevlas.webp",
+   "portrait": "art/artwork/faction-portraits/portrait-Nevlas.webp",
+   "structures": "art/structures/{MI|TS|RL|PI|AC}-white.webp",
+   "satellite": "art/tokens-markers/satellite-white.webp",
+   "gaiaformer": "art/tokens-markers/player-token-white.webp"
+  }
+ }
+}

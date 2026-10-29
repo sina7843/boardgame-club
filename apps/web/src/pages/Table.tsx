@@ -10,7 +10,7 @@ import {
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
-import { RENDERERS } from '../games/renderers.tsx';
+import { CONFIRMS_IN_RENDERER, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt, frameProps } from '../lib/bgv.tsx';
 import { durationFa, faNum, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
@@ -559,7 +559,8 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       ...(ss.strikes !== undefined && sum?.strikesMax ? { strikes: ss.strikes, strikesOf: sum.strikesMax } : {}),
       ...(ss.status === 'out' ? { out: true } : ss.status === 'done' ? { done: true } : ss.status === 'passed' ? { done: STATUS_FA.passed } : {}),
       ...(sum?.leaderSeat === x.seat ? { leader: true } : {}),
-      ...(ss.badges?.length && !words ? { badge: <span className="bgv-row tbl-badges">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</span> } : {})
+      ...(ss.badges?.length && !words ? { badge: <span className="bgv-row tbl-badges">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</span> } : {}),
+      ...SEAT_CARDS[t.clientBundleRef]?.(ss, active)
     } : {};
     return {
       name: n, seat: seatNo(x.seat), avatar: seatAvatar(x, n), you: x.seat === t.mySeat, bot: !!x.bot, turn: active,
@@ -570,6 +571,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       ...(x.titleKey && cosmetic(x.titleKey) ? { title: cosmetic(x.titleKey)!.nameFa } : {}),
       ...(x.user && online[x.user.id] && !online[x.user.id]!.online ? { offline: 'آفلاین' } : {}),
       ...(g.clocks ? { clock: bank(x.seat)! } : active && clockProps ? { clock: { ...clockProps, size: 'chip' as const } } : {}),
+      ...live,
       ...(words ? { badge: (() => {
         const b = seatArt(x, "chatBubble");
         const atMe = t.mySeat !== null && words.includes(`@${name(t.mySeat)}`);
@@ -577,7 +579,6 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         return <>{live.badge}<span className={`bgv-bubble-float tbl-said${atMe ? ' is-mention' : ''}`} aria-hidden
           style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}><b>{n}:</b> {words}</span></>;
       })() } : {}),
-      ...live,
       ...(place ? { score: place.score ?? place.place, scoreLabel: place.score !== undefined ? 'امتیاز' : 'رتبه', leader: place.place === 1 } : {}),
       ...(!place && !active && !finished && !ss?.status ? { waiting: queueText(x.seat) } : {}),
       ...(active ? { waiting: 'در حال بازی' } : {})
@@ -645,7 +646,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           </> : undefined}
           stage={<div data-theme="dark" data-game={t.gameId} data-hud={g.summary ? 'on' : undefined} className={myTurn ? 'table-night tbl-stage tbl-stage--mine' : 'table-night tbl-stage'}>
             {Renderer
-              ? <DockSlotHost value={g.tutorial ? null : toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost>
+              ? <DockSlotHost value={g.tutorial ? null : toDock}><Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={CONFIRMS_IN_RENDERER.has(t.clientBundleRef) ? (a) => s.act(a, true) : s.act} expected={g.tutorial?.expected ?? null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} /></DockSlotHost>
               : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
           </div>}>
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}

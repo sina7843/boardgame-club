@@ -1,0 +1,20 @@
+{
+  "sourceCollection": "../ready to use",
+  "packageKind": "user-approved-flat-collection",
+  "date": "2026-10-28",
+  "status": "complete",
+  "totalAssets": 220,
+  "approvedScopedAssets": 169,
+  "scopedFlatAssets": 168,
+  "retainedWithoutFlatEquivalent": [
+    "first-player-marker"
+  ],
+  "unrelatedAssetsCopiedUnchanged": 51,
+  "allOriginalIDsPreserved": true,
+  "allOriginalSVGNamesPreserved": true,
+  "svgCount": 220,
+  "pngCount": 220,
+  "uniqueSourceFiles": 90,
+  "coordinateReviewCount": 140,
+  "sourceAndReviewFoldersChanged": false
+}

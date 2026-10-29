@@ -902,3 +902,14 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   desktop-1920 full suite 105 passed / 6 failed / 216 skipped (project ignores play/social/progress). Remaining
   failures are only `e2e/design-qa.spec.ts` (screenshot generator: 120 s timeouts on DM, public-profile and group
   captures that need seeded data) — tooling, not product behaviour. Mobile projects not run in this pass.
+
+- 2026-10-29 Gaia Project table, handoff v1.4 phases G0–G6 (design/games/gaia-project). Renderer rebuilt on the
+  publisher's flat art at layout.json positions: space map, research board + federation supply, scoring board,
+  boosters, 14 faction boards, owned tiles; rail player panel through `SEAT_CARDS`; action bar with drafted turn,
+  undo before «تأیید», engine disabled reasons; auto-charge as a server/engine setting; phone tabs + actions sheet;
+  English game layer toggle. Checks run: workspace typecheck, eslint on changed files, ds-check (0 errors),
+  game-engine Gaia tests 94/94 (new: summary fields, autoCharge, client-draft equivalence). e2e
+  `gaia-project.spec.ts`: desktop-1440 3/3 passed; mobile-360 tutorial and undo-before-confirm passed, the phone
+  two-player full game did not finish (host timed out 3×; runs were also disturbed by parallel suites restarting the
+  dev servers). Phone bar was made compact and spec clicks non-blocking; rerun pending. Not done: `/bgv-gaia-qa`
+  visual QA, detailed «N لازم، M دارید» reasons, popover zoom with rule text, English content texts.

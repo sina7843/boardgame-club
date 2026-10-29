@@ -60,13 +60,15 @@ import RaceGalaxyRenderer from '@bg/game-race-galaxy/renderer';
 import BattleshipRenderer from '@bg/game-battleship/renderer';
 import ArkNovaRenderer from '@bg/game-ark-nova/renderer';
 import BrassRenderer from '@bg/game-brass/renderer';
-import GaiaProjectRenderer from '@bg/game-gaia-project/renderer';
+import GaiaProjectRenderer, { gaiaSeatCard } from '@bg/game-gaia-project/renderer';
 import TerraformingMarsRenderer from '@bg/game-terraforming-mars/renderer';
 import HeatRenderer from '@bg/game-heat/renderer';
 import CryptidRenderer from '@bg/game-cryptid/renderer';
 import SetRenderer from '@bg/game-set/renderer';
 import YahtzeeRenderer from '@bg/game-yahtzee/renderer';
 import type { GameRendererProps } from '@bg/ui';
+import type { PlayerCardProps } from '@bg/ui/bgv';
+import type { PublicSummaryView } from '@bg/contracts';
 
 /**
  * Reviewed UI bundles keyed by the clientBundleRef pinned on each table. A table only renders with the bundle it
@@ -141,4 +143,15 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'cryptid@1.0.0': CryptidRenderer as ComponentType<GameRendererProps<never>>,
   'set@1.0.0': SetRenderer as ComponentType<GameRendererProps<never>>,
   'yahtzee@1.0.0': YahtzeeRenderer as ComponentType<GameRendererProps<never>>
+};
+
+/**
+ * Optional per-game rail panel: turns one seat of the public summary into PlayerCard props (the shell keeps the head,
+ * clock and states). Same keys as RENDERERS.
+ */
+/** Renderers with their own «تأیید» step: their moves skip the shell's undo window (undo happens before confirm). */
+export const CONFIRMS_IN_RENDERER = new Set(['gaia-project@1.0.0']);
+
+export const SEAT_CARDS: Record<string, (seat: PublicSummaryView['seats'][number], turn: boolean) => Partial<PlayerCardProps>> = {
+  'gaia-project@1.0.0': gaiaSeatCard
 };

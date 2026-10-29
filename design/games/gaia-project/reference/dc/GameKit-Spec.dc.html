@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>کیت بازی، مشخصات سه الگوی اول</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.gk{--pick:#E8A642;background:var(--bg);color:var(--text);font-family:var(--font-fa);padding:40px 48px;display:grid;gap:24px}
+.gk h1{margin:0;font-size:32px;font-weight:900;color:var(--heading);line-height:1.4}
+.gk-lead{margin:0;font-size:16px;line-height:1.8;color:var(--text-muted);max-inline-size:860px}
+.gk-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start}
+.gk-card{padding:20px;display:grid;gap:16px}
+.gk-card h2{margin:0;font-size:20px;font-weight:900;color:var(--heading)}
+.gk-card h3{margin:0;font-size:14px;font-weight:700;color:var(--label)}
+.gk-card p,.gk-card li{margin:0;font-size:14px;line-height:1.75}
+.gk-card ul{margin:0;padding-inline-start:18px;display:grid;gap:6px}
+.gk-felt{padding:16px;gap:12px;display:grid;border-radius:var(--radius-lg)}
+.gk-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;justify-items:center}
+.gk-state{display:grid;gap:8px;justify-items:center;font-size:12px;color:var(--felt-muted);text-align:center}
+.gk-tile{position:relative;inline-size:72px;padding:0;border:0;background:none;border-radius:4px;cursor:pointer}
+.gk-tile img{display:block;inline-size:100%;block-size:auto;border-radius:4px}
+.gk-tile.is-sel{outline:2px dashed var(--pick);outline-offset:2px}
+.gk-tile.is-picked{outline:3px solid var(--pick);outline-offset:2px}
+.gk-tile.is-dim{opacity:.45;cursor:default}
+.gk-tile.is-focus{outline:2px dashed var(--pick);outline-offset:2px;box-shadow:0 0 0 7px var(--felt),0 0 0 10px var(--focus-on-felt)}
+.gk-check{position:absolute;inset-block-start:-9px;inset-inline-start:-9px;inline-size:20px;block-size:20px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt)}
+.gk-check .bgv-icon{inline-size:13px;block-size:13px;stroke-width:3}
+.gk-light{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;justify-items:center;padding:16px;border-radius:var(--radius-md);background:var(--surface-sunken)}
+.gk-light .gk-state{color:var(--text-muted)}
+.gk-light .gk-tile.is-sel{outline-color:var(--focus)}
+.gk-light .gk-tile.is-picked{outline-color:var(--focus)}
+.gk-light .gk-check{background:var(--focus);color:var(--on-selected);box-shadow:0 0 0 2px var(--surface)}
+.gk-table{inline-size:100%;border-collapse:collapse;font-size:13px}
+.gk-table th,.gk-table td{padding:8px 6px;border-block-end:1px solid var(--line);text-align:start;vertical-align:top;line-height:1.6}
+.gk-table th{color:var(--label);font-weight:700}
+.gk code,.gk-code{font-family:var(--font-latin);font-size:12.5px;direction:ltr;unicode-bidi:isolate}
+.gk-code{display:block;padding:12px;border-radius:var(--radius-sm);background:var(--surface-sunken);white-space:pre-wrap;line-height:1.7;text-align:left}
+.gk-pop{display:grid;gap:8px;inline-size:100%;max-inline-size:280px;justify-self:center}
+.gk-pop img{inline-size:100%;block-size:auto;border-radius:var(--radius-sm)}
+.gk-pop b{font-size:15px;color:var(--heading)}
+.gk-pop small{font-size:12.5px;color:var(--text-muted);line-height:1.6}
+.gk-ic{display:inline-block;block-size:16px;vertical-align:-3px}
+.gk-steps{display:flex;gap:6px;flex-wrap:wrap}
+.gk-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.gk-step.is-done{background:var(--success-soft);color:var(--success)}
+.gk-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.gk .bgv-actiondock{border-radius:var(--radius-md)}
+.gk .bgv-actiondock__actions{flex-wrap:wrap;gap:8px}
+.gk .bgv-actiondock__actions>.bgv-btn{flex:0 0 auto;min-inline-size:0;white-space:nowrap}
+.gk-cost{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:26px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);unicode-bidi:isolate;direction:ltr;vertical-align:middle}
+.gk-label{font-size:12px;font-weight:700;color:var(--label)}
+</style>
+</helmet>
+<div class="bgv gk" data-theme="light" dir="rtl">
+<header style="display:grid;gap:8px"><span class="bgv-tag" style="justify-self:start">کیت بازی، پیشنهاد برای DS v2.2</span><h1>سه الگوی اول کیت بازی، از روی پایلوت گایا</h1><p class="gk-lead">این سه الگو داخل استیج هر بازی تکرار می‌شوند و حس یکدست BGA را می‌سازند. هر بازی فقط داده می‌دهد؛ ظاهر و رفتار از کیت می‌آید. هنر قطعه‌ها همان «ready to use» هر بازی است.</p></header>
+<div class="gk-cols">
+
+<section class="bgv-card gk-card" aria-labelledby="gk1">
+ <h2 id="gk1">۱. قابل انتخاب و انتخاب‌شده</h2>
+ <h3>روی ماهوت</h3>
+ <div class="bgv-felt gk-felt">
+  <div class="gk-row">
+   <div class="gk-state"><button class="gk-tile is-sel" type="button" aria-pressed="false" aria-label="قابل انتخاب"><img src="../assets/games/gaia/tecknw.webp" alt=""></button>قابل انتخاب</div>
+   <div class="gk-state"><button class="gk-tile is-picked" type="button" aria-pressed="true" aria-label="انتخاب‌شده"><img src="../assets/games/gaia/tecqic.webp" alt=""><span class="gk-check" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg></span></button>انتخاب‌شده</div>
+   <div class="gk-state"><button class="gk-tile is-dim" type="button" disabled="" aria-label="غیرفعال"><img src="../assets/games/gaia/tecore.webp" alt=""></button>غیرفعال</div>
+   <div class="gk-state"><button class="gk-tile is-focus" type="button" aria-label="فوکوس کیبورد"><img src="../assets/games/gaia/tecgai.webp" alt=""></button>فوکوس</div>
+  </div>
+ </div>
+ <h3>روی سطح روشن (شیت، کارت، نتیجه)</h3>
+ <div class="gk-light">
+  <div class="gk-state"><button class="gk-tile is-sel" type="button" aria-pressed="false" aria-label="قابل انتخاب"><img src="../assets/games/gaia/booknw.webp" alt="" style="inline-size:40px"></button>قابل انتخاب</div>
+  <div class="gk-state"><button class="gk-tile is-picked" type="button" aria-pressed="true" aria-label="انتخاب‌شده"><img src="../assets/games/gaia/boopwt.webp" alt="" style="inline-size:40px"><span class="gk-check" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg></span></button>انتخاب‌شده</div>
+  <div class="gk-state"><button class="gk-tile is-dim" type="button" disabled="" aria-label="گرفته‌شده"><img src="../assets/games/gaia/booqic.webp" alt="" style="inline-size:40px"></button>گرفته‌شده</div>
+ </div>
+ <table class="gk-table">
+  <thead><tr><th>حالت</th><th>ظاهر</th><th>رفتار</th></tr></thead>
+  <tbody>
+   <tr><td>قابل انتخاب</td><td>خط‌چین ۲px، <code>--pick</code> روی ماهوت، <code>--focus</code> روی روشن</td><td><code>button</code> با <code>aria-pressed="false"</code></td></tr>
+   <tr><td>انتخاب‌شده</td><td>خط پر ۳px و نشان تیک</td><td><code>aria-pressed="true"</code>؛ زدن دوباره، برمی‌دارد</td></tr>
+   <tr><td>غیرفعال</td><td>شفافیت ۰٫۴۵، بی‌خط</td><td><code>disabled</code>، فقط وقتی دانستنش مهم است (فناوری که دارید)</td></tr>
+   <tr><td>فوکوس</td><td>حلقهٔ بیرونی ۳px با فاصله</td><td>جدا از «انتخاب‌شده»؛ Tab بین گزینه‌ها می‌گردد</td></tr>
+  </tbody>
+ </table>
+ <ul><li>ناحیهٔ لمس هر گزینه حداقل ۴۴px است، حتی وقتی قطعه کوچک‌تر دیده می‌شود.</li><li>بدون هاله و سایهٔ محو روی ماهوت، طبق قانون میز.</li><li>بقیهٔ صفحه کم‌رنگ نمی‌شود؛ فقط گزینه‌ها علامت می‌گیرند.</li></ul>
+</section>
+
+<section class="bgv-card gk-card" aria-labelledby="gk2">
+ <h2 id="gk2">۲. بزرگ‌نمایی قطعه</h2>
+ <h3>دسکتاپ: پاپ‌اور با هاور (۳۰۰ میلی‌ثانیه) یا فوکوس</h3>
+ <div class="bgv-felt gk-felt" style="justify-items:center">
+  <div class="bgv-popover gk-pop" role="tooltip"><img src="../assets/games/gaia/advqic.webp" alt="" width="167" height="132"><b>فناوری پیشرفته، هوش مصنوعی</b><span style="font-size:14px">اقدام: ۱ <span class="bgv-latin">QIC</span> و ۵ اعتبار</span><small>شرط: سطح ۴ در این مسیر و یک ژتون فدراسیون سبز.</small><small>هنوز کسی آن را نگرفته است.</small></div>
+ </div>
+ <h3>گوشی: لمس، و داک به پنل بزرگ‌نمایی تبدیل می‌شود</h3>
+ <section class="bgv-actiondock" aria-label="نمونهٔ داک بزرگ‌نمایی">
+  <div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start"><img src="../assets/games/gaia/tecqic.webp" alt="" style="inline-size:100%;border-radius:var(--radius-sm)"><div style="display:grid;gap:2px"><b style="font-size:14px;color:var(--heading)">فوری: ۱ سنگ معدن و ۱ <span class="bgv-latin">QIC</span></b><span style="font-size:12.5px;color:var(--text-muted);line-height:1.6">ناوبری ۱ ← ۲</span></div></div>
+  <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button">گرفتن</button><button class="bgv-btn bgv-btn--secondary" type="button">برگرد</button></div>
+ </section>
+ <table class="gk-table">
+  <thead><tr><th>بخش</th><th>از کجا</th></tr></thead>
+  <tbody>
+   <tr><td>تصویر</td><td>همان فایل «ready to use»، دو برابر اندازهٔ روی صفحه</td></tr>
+   <tr><td>عنوان</td><td>نوع قطعه و جایش («فناوری پیشرفته، هوش مصنوعی»)</td></tr>
+   <tr><td>متن قانون</td><td><code>labelFa</code> از <code>content/</code> بازی، عین کد</td></tr>
+   <tr><td>شرط و صاحب</td><td>از state؛ اگر نیست، حذف</td></tr>
+  </tbody>
+ </table>
+ <ul><li>Esc می‌بندد؛ پاپ‌اور هیچ‌وقت روی اکشن‌داک نمی‌افتد.</li><li>روی گوشی پاپ‌اور شناور نداریم؛ داک جای بزرگ‌نمایی است و دکمهٔ کنش همان‌جاست.</li><li>هر قطعه‌ای که متن قانون دارد، بزرگ‌نمایی دارد؛ حتی اگر قابل انتخاب نباشد.</li></ul>
+</section>
+
+<section class="bgv-card gk-card" aria-labelledby="gk3">
+ <h2 id="gk3">۳. کنش چندمرحله‌ای: تأیید و برگشت</h2>
+ <span class="gk-label">الف) انتخاب کنش</span>
+ <section class="bgv-actiondock" aria-label="نمونه: انتخاب کنش">
+  <div class="bgv-actiondock__prompt"><span style="font-weight:700;color:var(--heading)">نوبت شماست: یک کنش انتخاب کنید</span></div>
+  <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">ساخت معدن</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">ارتقا</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">پژوهش</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">پروژهٔ گایا</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">فدراسیون</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">اقدام قدرت</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">پاس</button></div>
+ </section>
+ <span class="gk-label">ب) انتخاب هدف</span>
+ <section class="bgv-actiondock" aria-label="نمونه: انتخاب هدف">
+  <div class="bgv-actiondock__prompt"><div class="gk-steps"><span class="gk-step is-cur" aria-current="step">سیاره</span><span class="gk-step">تأیید</span></div><span style="font-weight:700;color:var(--heading)">یک سیارهٔ علامت‌دار را بزنید</span></div>
+  <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" disabled="">تأیید</button><button class="bgv-btn bgv-btn--ghost" type="button">لغو این کنش</button></div>
+ </section>
+ <span class="gk-label">ج) تأیید</span>
+ <section class="bgv-actiondock" aria-label="نمونه: تأیید">
+  <div class="bgv-actiondock__prompt"><span style="font-size:14px;line-height:1.6"><b style="color:var(--heading)">مینا</b>، ساخت معدن روی سیارهٔ زمین‌گون را تأیید کنید <span class="gk-cost">۴<img class="gk-ic" src="../assets/games/gaia/ores.webp" alt="سنگ معدن"> ۲<img class="gk-ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span></span></div>
+  <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button">تأیید و پایان نوبت</button><button class="bgv-btn bgv-btn--secondary" type="button">برگرد</button><button class="bgv-btn bgv-btn--ghost" type="button">لغو این کنش</button></div>
+ </section>
+ <ul><li>هزینه مثل BGA داخل همان جمله با آیکون منابع می‌آید، و روی هر گزینهٔ نقشه یک برچسب کوچک هزینه دارد؛ ردیف جدای هزینه و پیش‌نمایش منابع نداریم.</li><li>دسکتاپ بازی‌های سنگین: این نوار بالای میز می‌چسبد (مثل نوار وضعیت BGA). گوشی: پایین، جای اکشن‌داک.</li><li>«تأیید» فقط وقتی همهٔ مرحله‌ها پر است فعال است. «برگرد» یک مرحله، «لغو این کنش» تا انتخاب کنش.</li><li>برگشت فقط تا پیش از «تأیید» است: هر چه در این نوبت زده شده (تبدیل‌های رایگان هم) موقت است و «برگرد» یکی‌یکی برمی‌گرداند. بعد از «تأیید» حرکت قطعی است و هیچ برگشتی ندارد.</li><li>«تأیید» همیشه لازم است، در میز نوبتی و زنده؛ «تأیید خودکار» نداریم چون برگشت را از بین می‌برد.</li></ul>
+ <h3>قرارداد با رندرر</h3>
+ <code class="gk-code">// renderer marks pieces; the kit styles them
+data-pick="selectable" | "picked" | "dim"
+
+// game → ActionDock
+steps: [{ label, state: 'done'|'cur'|'todo' }]
+prompt, cost: [{ res, n }], preview: [{ res, from, to }]
+canConfirm, canUndo /* true only before confirm */, actions: [{ id, label, variant }]</code>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

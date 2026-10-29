@@ -141,7 +141,10 @@ export const publicSummarySchema = z.object({
     stats: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), icon: z.string().optional(), resource: z.string().optional(), delta: z.number().optional() })).max(4).optional(),
     badges: z.array(z.object({ key: z.string(), label: z.string(), tone: z.enum(['neutral', 'success', 'warning', 'danger', 'premium']).optional() })).optional(),
     status: z.enum(['playing', 'done', 'passed', 'out', 'winner']).optional(),
-    strikes: z.number().int().optional()
+    strikes: z.number().int().optional(),
+    turnOrder: z.number().int().optional(),
+    income: z.record(z.string(), z.number()).optional(),
+    power: z.record(z.string(), z.number()).optional()
   })),
   shared: z.array(z.object({ key: z.string(), label: z.string(), value: z.union([z.number(), z.string()]), max: z.number().optional() })).optional(),
   strikesMax: z.number().int().optional(),

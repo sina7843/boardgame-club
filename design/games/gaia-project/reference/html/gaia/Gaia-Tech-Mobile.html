@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پروژه گایا، انتخاب فناوری، موبایل</title>
+
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.gp{--gp-red:#C8402F;--gp-yellow:#E9B92F;--gp-brown:#8A5A35;--gp-orange:#E07A22;--pick:#E8A642}
+.gp .bgv-pcard--mini{padding:10px 12px}
+.gp .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.gp .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.gp .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.gp .bgv-turn{max-inline-size:100%;min-inline-size:0}
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+.gp-ic{display:inline-block;block-size:16px;inline-size:auto;vertical-align:-3px}
+.gp-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.gp-tabs button{flex:1;block-size:36px;padding-inline:6px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.gp-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.gp-bview{position:relative;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md)}
+.gp-board{position:absolute;inline-size:100%;top:-150px;left:0}
+.gp-board>.gp-base{position:static;display:block;inline-size:100%;block-size:auto}
+.gp-board>img{position:absolute}
+.gp-at{transform:translate(-50%,-50%)}
+.gp-board>.gp-tok{position:absolute;inline-size:3.2%;filter:drop-shadow(0 1px 0 rgba(0,0,0,.45))}
+.gp-adv{inline-size:13.3%}
+.gp-token{inline-size:12.4%}
+.gp-token--q{inline-size:13.6%}
+.gp-tbtn{position:absolute;transform:translate(-50%,-50%);inline-size:16.3%;padding:0;border:0;background:none;border-radius:4px;cursor:pointer;outline:2px dashed var(--pick);outline-offset:2px}
+.gp-tbtn::after{content:"";position:absolute;inset:-6px}
+.gp-tbtn img{display:block;inline-size:100%;block-size:auto;border-radius:4px}
+.gp-tbtn[aria-pressed="true"]{outline:3px solid var(--pick)}
+.gp-tbtn.is-owned{outline:none;opacity:.45;cursor:default}
+.gp-tbtn .gp-check{position:absolute;inset-block-start:-9px;inset-inline-start:-9px}
+.gp-check{inline-size:20px;block-size:20px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt)}
+.gp-check .bgv-icon{inline-size:13px;block-size:13px;stroke-width:3}
+.gp-disc{position:absolute;inline-size:2.4%;aspect-ratio:1;border-radius:50%;border:1.5px solid var(--ink-felt);transform:translate(-50%,-50%)}
+.gp-c-red{background:var(--gp-red)}.gp-c-yellow{background:var(--gp-yellow)}.gp-c-brown{background:var(--gp-brown)}.gp-c-orange{background:var(--gp-orange)}
+.gp-steps{display:flex;gap:6px;align-items:center}
+.gp-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.gp-step.is-done{background:var(--success-soft);color:var(--success)}
+.gp-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.gp-zoomrow{display:grid;grid-template-columns:132px minmax(0,1fr);gap:12px;align-items:start}
+.gp-zoomrow img{inline-size:100%;block-size:auto;display:block;border-radius:var(--radius-sm)}
+.gp-zoomrow h3{margin:0 0 4px;font-size:15px;font-weight:900;line-height:1.6;color:var(--heading)}
+.gp-zoomrow p{margin:0;font-size:13px;line-height:1.7;color:var(--text)}
+.gp-zoomrow small{display:block;margin-block-start:4px;font-size:12px;line-height:1.6;color:var(--text-muted)}
+.gp .bgv-actiondock__actions{flex-wrap:nowrap}
+.gp .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+</style>
+
+</head>
+<body>
+
+
+<div class="bgv gp" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان، برای صفحهٔ هر بازیکن بزنید"><div class="bgv-pcard bgv-pcard--mini is-leader" role="button" tabindex="0" aria-label="نیلوفر، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-2">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>زنوس</small></div><div class="bgv-pcard__score">۳۲<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="آرش، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-3">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3"></i>آرش</b><small>تاکلون‌ها</small></div><div class="bgv-pcard__score">۱۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>پاس داده</span></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="سارا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-4">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4"></i>سارا</b><small>ژئودن‌ها</small></div><div class="bgv-pcard__score">۱۴<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا، شما، برای صفحهٔ خودتان بزنید"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you is-turn" style="--clock-c:var(--clock-calm);">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1"></i><span class="bgv-sr">مینا</span></b><small>هادش هالا</small></div><div class="bgv-pcard__score">۱۸<small>امتیاز</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز پروژه گایا">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.85;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۰ ساعت</span></span></span><span class="bgv-felt-plate">دور <strong>۴</strong> از ۶</span></div>
+ <div class="gp-tabs" role="tablist" aria-label="کدام صفحه از بازی"><button type="button" role="tab" aria-selected="false">نقشه</button><button type="button" role="tab" aria-selected="true">پژوهش</button><button type="button" role="tab" aria-selected="false">امتیاز</button><button type="button" role="tab" aria-selected="false">صفحهٔ من</button></div>
+ <div class="gp-bview" role="tabpanel" aria-label="صفحهٔ پژوهش، ردیف فناوری‌ها">
+  <div class="gp-board" dir="ltr">
+   <img class="gp-base" src="../assets/games/gaia/research-board.webp" alt="صفحهٔ پژوهش" width="1838" height="1972">
+   <img class="gp-at gp-adv" src="../assets/games/gaia/advore.webp" alt="" style="left:10.07%;top:12.42%">
+   <img class="gp-at gp-adv" src="../assets/games/gaia/advfedv.webp" alt="" style="left:26.39%;top:12.42%">
+   <img class="gp-at gp-adv" src="../assets/games/gaia/advqic.webp" alt="" style="left:42.71%;top:12.42%">
+   <img class="gp-at gp-adv" src="../assets/games/gaia/advlab.webp" alt="" style="left:59.03%;top:12.42%">
+   <img class="gp-at gp-adv" src="../assets/games/gaia/advtrsb.webp" alt="" style="left:75.35%;top:12.42%">
+   <img class="gp-at gp-adv" src="../assets/games/gaia/advstp.webp" alt="" style="left:91.68%;top:12.42%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر" title="نیلوفر" style="left:5.17%;top:52.74%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-red.webp" alt="مینا" title="مینا" style="left:3.54%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-brown.webp" alt="آرش" title="آرش" style="left:6.8%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-orange.webp" alt="سارا" title="سارا" style="left:5.17%;top:38.79%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-orange.webp" alt="سارا" title="سارا" style="left:21.38%;top:52.74%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-red.webp" alt="مینا" title="مینا" style="left:19.75%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-brown.webp" alt="آرش" title="آرش" style="left:23.01%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر" title="نیلوفر" style="left:21.38%;top:38.79%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-red.webp" alt="مینا" title="مینا" style="left:35.96%;top:51.55%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-brown.webp" alt="آرش" title="آرش" style="left:39.23%;top:51.55%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-orange.webp" alt="سارا" title="سارا" style="left:37.6%;top:53.92%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر" title="نیلوفر" style="left:37.6%;top:38.79%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-red.webp" alt="مینا" title="مینا" style="left:52.18%;top:52.74%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-brown.webp" alt="آرش" title="آرش" style="left:55.44%;top:52.74%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر" title="نیلوفر" style="left:52.18%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-orange.webp" alt="سارا" title="سارا" style="left:55.44%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر" title="نیلوفر" style="left:68.39%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-brown.webp" alt="آرش" title="آرش" style="left:71.65%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-red.webp" alt="مینا" title="مینا" style="left:68.39%;top:38.79%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-orange.webp" alt="سارا" title="سارا" style="left:71.65%;top:38.79%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-orange.webp" alt="سارا" title="سارا" style="left:86.24%;top:52.74%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-red.webp" alt="مینا" title="مینا" style="left:84.6%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-brown.webp" alt="آرش" title="آرش" style="left:87.87%;top:45.64%">
+   <img class="gp-at gp-tok" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر" title="نیلوفر" style="left:86.24%;top:38.79%">
+   <button class="gp-tbtn is-owned" type="button" disabled="" aria-label="درآمد ۱ سنگ معدن و ۱ شارژ قدرت، این فناوری را دارید" style="left:8.71%;top:65.31%"><img src="../assets/games/gaia/tecore.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="true" aria-label="فوری ۱ سنگ معدن و ۱ QIC، انتخاب شده" style="left:24.92%;top:65.31%"><img src="../assets/games/gaia/tecqic.webp" alt=""><span class="gp-check" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg></span></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="درآمد ۱ دانش و ۱ اعتبار" style="left:41.13%;top:65.31%"><img src="../assets/games/gaia/tecknw.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="هر معدن روی سیارهٔ گایا ۳ امتیاز" style="left:57.35%;top:65.31%"><img src="../assets/games/gaia/tecgai.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="اقدام ۴ شارژ قدرت" style="left:73.56%;top:65.31%"><img src="../assets/games/gaia/tecpow.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="فوری ۱ دانش برای هر نوع سیاره" style="left:89.77%;top:65.31%"><img src="../assets/games/gaia/tectyp.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="درآمد ۴ اعتبار" style="left:15.23%;top:79.36%"><img src="../assets/games/gaia/teccre.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="ارزش قدرت مؤسسه و آکادمی‌ها ۴" style="left:47.06%;top:79.36%"><img src="../assets/games/gaia/tecpia.webp" alt=""></button>
+   <button class="gp-tbtn" type="button" aria-pressed="false" aria-label="فوری ۷ امتیاز" style="left:78.89%;top:79.36%"><img src="../assets/games/gaia/tecvps.webp" alt=""></button>
+   <img class="gp-at gp-token" src="../assets/games/gaia/actiontoken.webp" alt="" style="left:23.78%;top:94.83%">
+   <img class="gp-at gp-token" src="../assets/games/gaia/actiontoken.webp" alt="" style="left:32.54%;top:94.83%">
+   <img class="gp-at gp-token gp-token--q" src="../assets/games/gaia/actiontoken.webp" alt="" style="left:80.25%;top:94.22%">
+  </div>
+ </div>
+</main>
+<section class="bgv-actiondock" aria-label="کنش شما: انتخاب فناوری">
+ <div class="bgv-actiondock__prompt"><div class="gp-steps" aria-label="مراحل کنش"><span class="gp-step is-done"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>آزمایشگاه</span><span class="gp-step is-cur" aria-current="step">فناوری</span><span class="gp-step">تأیید</span></div></div>
+ <div class="gp-zoomrow">
+  <img src="../assets/games/gaia/tecqic.webp" alt="کاشی فناوری: ۱ سنگ معدن و ۱ QIC" width="178" height="134">
+  <div><h3>فوری: ۱ سنگ معدن و ۱ <span class="bgv-latin">QIC</span></h3><p>با این کاشی در مسیر ناوبری یک سطح جلو می‌روید: ۱ ← ۲، برد ناوبری ۱ ← ۲.</p><small>هر فناوری استاندارد را فقط یک بار می‌توانید بگیرید.</small></div>
+ </div>
+ <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button">گرفتن این فناوری</button><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>برگرد</button></div>
+</section>
+</div>
+</div>
+
+
+</body>
+</html>

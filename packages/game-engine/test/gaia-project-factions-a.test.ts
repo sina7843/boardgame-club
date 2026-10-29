@@ -170,7 +170,8 @@ describe('gaia-project factions-a: Lantids', () => {
     expect(n.pl[seat]!.o).toBe(before.o - 1);
     expect(n.pl[seat]!.q).toBe(before.q - q);
     expect(n.pl[seat]!.k).toBe(before.k);
-    expect(n.pending.some((d) => d.kind === 'leech' && d.seat === other)).toBe(true);
+    // offered to the owner: asked, or taken at once by the default auto-charge (free 1-power charges)
+    expect(n.pending.some((d) => d.kind === 'leech' && d.seat === other) || n.log.some((e) => e.t === 'leech' && e.seat === other)).toBe(true);
     // a second Lantids mine on the same planet is not possible
     turnOf(next, seat);
     expect(reject(next, seat, { type: 'mine', hex: target })).toBe('CELL_OCCUPIED');

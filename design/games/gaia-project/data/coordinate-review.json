@@ -1,0 +1,982 @@
+[
+  {
+    "id": "faction-Ambas",
+    "svg": "boards/faction-Ambas.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Bal-Taks",
+    "svg": "boards/faction-Bal-Taks.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Bescods",
+    "svg": "boards/faction-Bescods.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Firaks",
+    "svg": "boards/faction-Firaks.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Geodens",
+    "svg": "boards/faction-Geodens.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Gleens",
+    "svg": "boards/faction-Gleens.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Hadsch-Hallas",
+    "svg": "boards/faction-Hadsch-Hallas.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Itars",
+    "svg": "boards/faction-Itars.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Ivits",
+    "svg": "boards/faction-Ivits.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Lantids",
+    "svg": "boards/faction-Lantids.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Nevlas",
+    "svg": "boards/faction-Nevlas.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Taklons",
+    "svg": "boards/faction-Taklons.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Terrans",
+    "svg": "boards/faction-Terrans.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "faction-Xenos",
+    "svg": "boards/faction-Xenos.svg",
+    "width": 1753,
+    "height": 999,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Top 118 pixels omitted for comparison only. Whole BGA board scaled uniformly to width 1753; height rounded to 999. No landmark registration or 0.5% certificate; original placement coordinates must be reviewed before integration."
+  },
+  {
+    "id": "scoring-board",
+    "svg": "boards/scoring-board.svg",
+    "width": 1737,
+    "height": 1718,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform scale and centering on unchanged canvas. Distributed landmark offsets measured; full 0.5% alignment cannot be certified, so original kept and -flat alternative supplied."
+  },
+  {
+    "id": "ADVfedP",
+    "svg": "technology/ADVfedP.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVfedV",
+    "svg": "technology/ADVfedV.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVgai",
+    "svg": "technology/ADVgai.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVknw",
+    "svg": "technology/ADVknw.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVlab",
+    "svg": "technology/ADVlab.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVminB",
+    "svg": "technology/ADVminB.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVminV",
+    "svg": "technology/ADVminV.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVore",
+    "svg": "technology/ADVore.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVqic",
+    "svg": "technology/ADVqic.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVsecO",
+    "svg": "technology/ADVsecO.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVsecV",
+    "svg": "technology/ADVsecV.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVstp",
+    "svg": "technology/ADVstp.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVtrsB",
+    "svg": "technology/ADVtrsB.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVtrsV",
+    "svg": "technology/ADVtrsV.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "ADVtyp",
+    "svg": "technology/ADVtyp.svg",
+    "width": 167,
+    "height": 132,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECcre",
+    "svg": "technology/TECcre.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECgai",
+    "svg": "technology/TECgai.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECknw",
+    "svg": "technology/TECknw.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECore",
+    "svg": "technology/TECore.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECpia",
+    "svg": "technology/TECpia.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECpow",
+    "svg": "technology/TECpow.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECqic",
+    "svg": "technology/TECqic.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECtyp",
+    "svg": "technology/TECtyp.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "TECvps",
+    "svg": "technology/TECvps.svg",
+    "width": 178,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOgai",
+    "svg": "round-boosters/BOOgai.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOknw",
+    "svg": "round-boosters/BOOknw.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOlab",
+    "svg": "round-boosters/BOOlab.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOmin",
+    "svg": "round-boosters/BOOmin.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOnav",
+    "svg": "round-boosters/BOOnav.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOpia",
+    "svg": "round-boosters/BOOpia.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOpwt",
+    "svg": "round-boosters/BOOpwt.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOqic",
+    "svg": "round-boosters/BOOqic.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOter",
+    "svg": "round-boosters/BOOter.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "BOOtrs",
+    "svg": "round-boosters/BOOtrs.svg",
+    "width": 102,
+    "height": 298,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDfed",
+    "svg": "round-scoring/RNDfed.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDgai3",
+    "svg": "round-scoring/RNDgai3.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDgai4",
+    "svg": "round-scoring/RNDgai4.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDmin",
+    "svg": "round-scoring/RNDmin.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDpia",
+    "svg": "round-scoring/RNDpia.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDstp",
+    "svg": "round-scoring/RNDstp.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDter",
+    "svg": "round-scoring/RNDter.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDtrs3",
+    "svg": "round-scoring/RNDtrs3.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "RNDtrs4",
+    "svg": "round-scoring/RNDtrs4.svg",
+    "width": 177,
+    "height": 202,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FINbld",
+    "svg": "final-scoring/FINbld.svg",
+    "width": 203,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FINfed",
+    "svg": "final-scoring/FINfed.svg",
+    "width": 203,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FINgai",
+    "svg": "final-scoring/FINgai.svg",
+    "width": 203,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FINsat",
+    "svg": "final-scoring/FINsat.svg",
+    "width": 203,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FINsec",
+    "svg": "final-scoring/FINsec.svg",
+    "width": 203,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FINtyp",
+    "svg": "final-scoring/FINtyp.svg",
+    "width": 203,
+    "height": 134,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDcre",
+    "svg": "federation-tokens/FEDcre.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDgle",
+    "svg": "federation-tokens/FEDgle.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDknw",
+    "svg": "federation-tokens/FEDknw.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDore",
+    "svg": "federation-tokens/FEDore.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDpwt",
+    "svg": "federation-tokens/FEDpwt.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDqic",
+    "svg": "federation-tokens/FEDqic.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "FEDvps",
+    "svg": "federation-tokens/FEDvps.svg",
+    "width": 173,
+    "height": 212,
+    "reason": "Appearance approved; placement should be reviewed before game integration. "
+  },
+  {
+    "id": "AC-blue",
+    "svg": "structures/AC-blue.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "AC-brown",
+    "svg": "structures/AC-brown.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "AC-grey",
+    "svg": "structures/AC-grey.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "AC-orange",
+    "svg": "structures/AC-orange.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "AC-red",
+    "svg": "structures/AC-red.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "AC-white",
+    "svg": "structures/AC-white.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "AC-yellow",
+    "svg": "structures/AC-yellow.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-blue",
+    "svg": "structures/GF-blue.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-brown",
+    "svg": "structures/GF-brown.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-grey",
+    "svg": "structures/GF-grey.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-orange",
+    "svg": "structures/GF-orange.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-red",
+    "svg": "structures/GF-red.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-white",
+    "svg": "structures/GF-white.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "GF-yellow",
+    "svg": "structures/GF-yellow.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-blue",
+    "svg": "structures/MI-blue.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-brown",
+    "svg": "structures/MI-brown.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-grey",
+    "svg": "structures/MI-grey.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-orange",
+    "svg": "structures/MI-orange.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-red",
+    "svg": "structures/MI-red.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-white",
+    "svg": "structures/MI-white.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "MI-yellow",
+    "svg": "structures/MI-yellow.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-blue",
+    "svg": "structures/PI-blue.svg",
+    "width": 114,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-brown",
+    "svg": "structures/PI-brown.svg",
+    "width": 115,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-grey",
+    "svg": "structures/PI-grey.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-orange",
+    "svg": "structures/PI-orange.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-red",
+    "svg": "structures/PI-red.svg",
+    "width": 115,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-white",
+    "svg": "structures/PI-white.svg",
+    "width": 116,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "PI-yellow",
+    "svg": "structures/PI-yellow.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-blue",
+    "svg": "structures/RL-blue.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-brown",
+    "svg": "structures/RL-brown.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-grey",
+    "svg": "structures/RL-grey.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-orange",
+    "svg": "structures/RL-orange.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-red",
+    "svg": "structures/RL-red.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-white",
+    "svg": "structures/RL-white.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RL-yellow",
+    "svg": "structures/RL-yellow.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-blue",
+    "svg": "structures/TS-blue.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-brown",
+    "svg": "structures/TS-brown.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-grey",
+    "svg": "structures/TS-grey.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-orange",
+    "svg": "structures/TS-orange.svg",
+    "width": 110,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-red",
+    "svg": "structures/TS-red.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-white",
+    "svg": "structures/TS-white.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "TS-yellow",
+    "svg": "structures/TS-yellow.svg",
+    "width": 113,
+    "height": 105,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "ActionToken",
+    "svg": "tokens-markers/ActionToken.svg",
+    "width": 182,
+    "height": 149,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "Brainstone",
+    "svg": "tokens-markers/Brainstone.svg",
+    "width": 114,
+    "height": 108,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "Credits",
+    "svg": "tokens-markers/Credits.svg",
+    "width": 120,
+    "height": 86,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "Knowledge",
+    "svg": "tokens-markers/Knowledge.svg",
+    "width": 114,
+    "height": 86,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "LostPlanet",
+    "svg": "tokens-markers/LostPlanet.svg",
+    "width": 148,
+    "height": 149,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "Ores",
+    "svg": "tokens-markers/Ores.svg",
+    "width": 114,
+    "height": 86,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "Power",
+    "svg": "tokens-markers/Power.svg",
+    "width": 114,
+    "height": 108,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "Qic",
+    "svg": "tokens-markers/Qic.svg",
+    "width": 114,
+    "height": 108,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "RecordToken",
+    "svg": "tokens-markers/RecordToken.svg",
+    "width": 182,
+    "height": 149,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "SpaceStation",
+    "svg": "tokens-markers/SpaceStation.svg",
+    "width": 238,
+    "height": 240,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "gaia-planet-token",
+    "svg": "tokens-markers/gaia-planet-token.svg",
+    "width": 130,
+    "height": 126,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "planet-blue",
+    "svg": "planet-art/planet-blue.svg",
+    "width": 114,
+    "height": 112,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-brown",
+    "svg": "planet-art/planet-brown.svg",
+    "width": 110,
+    "height": 110,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-gaia",
+    "svg": "planet-art/planet-gaia.svg",
+    "width": 113,
+    "height": 114,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-grey",
+    "svg": "planet-art/planet-grey.svg",
+    "width": 112,
+    "height": 112,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-orange",
+    "svg": "planet-art/planet-orange.svg",
+    "width": 123,
+    "height": 80,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-red",
+    "svg": "planet-art/planet-red.svg",
+    "width": 110,
+    "height": 109,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-transdim",
+    "svg": "planet-art/planet-transdim.svg",
+    "width": 85,
+    "height": 85,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-white",
+    "svg": "planet-art/planet-white.svg",
+    "width": 108,
+    "height": 109,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "planet-yellow",
+    "svg": "planet-art/planet-yellow.svg",
+    "width": 107,
+    "height": 107,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Uniform fit into the original alpha bounding box, centered and with no recolouring. BGA and current planet silhouettes/art detail differ slightly; no <=0.5%-width landmark registration certified, so staged as -flat candidate."
+  },
+  {
+    "id": "first-player-marker",
+    "svg": "tokens-markers/first-player-marker.svg",
+    "width": 48,
+    "height": 91,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "power-token-physical",
+    "svg": "tokens-markers/power-token-physical.svg",
+    "width": 179,
+    "height": 159,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "qic-physical",
+    "svg": "tokens-markers/qic-physical.svg",
+    "width": 64,
+    "height": 65,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "credit-marker-physical",
+    "svg": "tokens-markers/credit-marker-physical.svg",
+    "width": 77,
+    "height": 41,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "ore-marker-physical",
+    "svg": "tokens-markers/ore-marker-physical.svg",
+    "width": 60,
+    "height": 47,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "knowledge-marker-physical",
+    "svg": "tokens-markers/knowledge-marker-physical.svg",
+    "width": 67,
+    "height": 45,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  },
+  {
+    "id": "brainstone-physical",
+    "svg": "tokens-markers/brainstone-physical.svg",
+    "width": 40,
+    "height": 40,
+    "reason": "Appearance approved; placement should be reviewed before game integration. Original SVG canvas retained. uniform scale and translation using alpha bounds; internal landmark correspondence not certified. Internal landmark registration is not certified; original registration was not certified before visual approval."
+  }
+]

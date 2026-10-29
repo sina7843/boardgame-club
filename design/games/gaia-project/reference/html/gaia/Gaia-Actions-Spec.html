@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>گایا، نوار کنش و جریان کنش‌ها</title>
+
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+body{margin:0}
+.ga{--pick:#E8A642;background:var(--bg);color:var(--text);font-family:var(--font-fa);padding:40px 48px;display:grid;gap:24px}
+.ga h1{margin:0;font-size:32px;font-weight:900;color:var(--heading);line-height:1.4}
+.ga h2{margin:0;font-size:20px;font-weight:900;color:var(--heading)}
+.ga h3{margin:0;font-size:14px;font-weight:700;color:var(--label)}
+.ga p,.ga li{margin:0;font-size:14px;line-height:1.75}
+.ga ul{margin:0;padding-inline-start:18px;display:grid;gap:4px}
+.ga-lead{font-size:16px!important;color:var(--text-muted);max-inline-size:900px}
+.ga-card{padding:20px;display:grid;gap:14px;align-content:start}
+.ga-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start}
+.ga-wide{grid-column:1/-1}
+.ga-t{inline-size:100%;border-collapse:collapse;font-size:13.5px}
+.ga-t th,.ga-t td{padding:9px 8px;border-block-end:1px solid var(--line);text-align:start;vertical-align:top;line-height:1.65}
+.ga-t th{color:var(--label);font-weight:700;white-space:nowrap}
+.ga-t td:first-child{font-weight:900;color:var(--heading);white-space:nowrap}
+.ga code{font-family:var(--font-latin);font-size:12.5px;direction:ltr;unicode-bidi:isolate}
+.ic{display:inline-block;block-size:17px;inline-size:auto;vertical-align:-3px}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);font-size:13px;unicode-bidi:isolate;direction:ltr;vertical-align:middle;white-space:nowrap}
+.dot{display:inline-block;inline-size:12px;block-size:12px;border-radius:50%;vertical-align:-1px;margin-inline-end:4px}
+.dot--p{background:#7A2E8C}.dot--g{background:#2E8B57}.dot--o{background:#E07A22}
+.bar{display:grid;gap:8px;padding:12px 14px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:14px;line-height:1.6}
+.bar b{color:var(--heading);font-weight:900}
+.bar__row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar .bgv-btn{white-space:nowrap}
+.opt{display:flex;align-items:center;gap:10px;inline-size:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--surface);font:inherit;font-size:14px;font-weight:700;color:var(--heading);cursor:pointer;text-align:start}
+.opt img.b{block-size:40px;inline-size:auto}
+.opt .pill{margin-inline-start:auto}
+.opt[aria-pressed="true"]{box-shadow:0 0 0 3px var(--focus)}
+.opt:disabled{opacity:.45;cursor:not-allowed}
+.trk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.trk button{display:grid;gap:2px;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--surface);font:inherit;font-size:13px;font-weight:700;color:var(--heading);cursor:pointer;text-align:center}
+.trk button small{font-size:12px;font-weight:400;color:var(--text-muted)}
+.trk button:disabled{opacity:.45;cursor:not-allowed}
+.trk button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--focus)}
+.snap{position:relative;border-radius:var(--radius-md);overflow:hidden;background:#060B1C}
+.snap>img{display:block;inline-size:100%;block-size:auto}
+.snap .pc{position:absolute;transform:translate(-50%,-50%);inline-size:22%;filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23) drop-shadow(2px 0 0 #F0624F) drop-shadow(-2px 0 0 #F0624F) drop-shadow(0 2px 0 #F0624F) drop-shadow(0 -2px 0 #F0624F)}
+.pop{position:absolute;inset-inline-start:4%;inset-block-start:4%;inline-size:78%;display:grid;gap:6px;padding:10px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-float),inset 0 0 0 1px var(--line)}
+.pop b{font-size:13px;color:var(--heading)}
+.lbl{font-size:12px;font-weight:700;color:var(--label)}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px}
+</style>
+
+</head>
+<body>
+
+
+<div class="bgv ga" data-theme="light" dir="rtl">
+<header style="display:grid;gap:8px"><span class="bgv-tag" style="justify-self:start">گایا، از روی قوانین پیاده‌شده در کد (<code>games/gaia-project/src</code>)</span><h1>نوار کنش و جریان هر کنش</h1><p class="ga-lead">برگشت فقط تا پیش از «تأیید» است؛ بعد از تأیید حرکت قطعی است. در نوبت شما نوار بالای میز کنش‌های اصلی و تبدیل‌های رایگان را نشان می‌دهد. اقدام‌های رنگی (بنفش، سبز، نارنجی) روی خود صفحه‌ها کلیک می‌شوند. بعد از انتخاب هر کنش، نوار به جریان همان کنش تبدیل می‌شود: نیازمندی، هزینه، انتخاب‌ها و «تأیید».</p></header>
+
+<section class="bgv-card ga-card ga-wide" aria-labelledby="ga1">
+ <h2 id="ga1">همهٔ کنش‌ها</h2>
+ <table class="ga-t">
+  <thead><tr><th>کنش</th><th>کجا زده می‌شود</th><th>هزینه و نیازمندی</th><th>مراحل در نوار</th><th>کد</th></tr></thead>
+  <tbody>
+   <tr><td>ساخت معدن</td><td>نوار</td><td><span class="pill">۱<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۲<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span> + هر گام زمین‌سازی ۳/۳/۲/۱ سنگ (سطح ۰ تا ۳+ زمین‌سازی) + برای برد: هر <img class="ic" src="../assets/games/gaia/qic.webp" alt="QIC"> ۲ خانه. سیارهٔ گایا: ۱ <img class="ic" src="../assets/games/gaia/qic.webp" alt="QIC"> به‌جای زمین‌سازی. روی گایاساز خودی: بدون برد.</td><td>۱) سیاره روی نقشه؛ روی هر سیارهٔ مجاز برچسب هزینه ۲) تأیید</td><td><code>mine</code></td></tr>
+   <tr><td>ارتقای سازه</td><td>نوار</td><td>معدن ← ایستگاه تجاری <span class="pill">۲<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۳<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span> (۶ اعتبار اگر رقیبی در فاصلهٔ ۲ نباشد)؛ ایستگاه ← آزمایشگاه <span class="pill">۳<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۵<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span> یا مؤسسهٔ سیاره‌ای <span class="pill">۴<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۶<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span>؛ آزمایشگاه ← آکادمی دانش یا آکادمی QIC <span class="pill">۶<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۶<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span></td><td>۱) سازهٔ خودی روی نقشه ۲) مقصد، با هزینهٔ هر گزینه ۳) آزمایشگاه یا آکادمی: کاشی فناوری و سطح پژوهش ۴) تأیید</td><td><code>upgrade</code></td></tr>
+   <tr><td>پژوهش</td><td>نوار</td><td><span class="pill">۴<img class="ic" src="../assets/games/gaia/knowledge.webp" alt="دانش"></span>. سطح ۵: یک ژتون فدراسیون سبز لازم است و فقط یک نفر به آن می‌رسد.</td><td>۱) مسیر (فقط مسیرهای مجاز فعال) ۲) تأیید</td><td><code>research</code></td></tr>
+   <tr><td>پروژهٔ گایا</td><td>نوار</td><td>یک گایاساز آزاد (از سطح ۱ مسیر گایا) + ژتون قدرت به ناحیهٔ گایا: ۶ (سطح ۱ و ۲)، ۴ (سطح ۳)، ۳ (سطح ۴ و ۵) + QIC برای برد.</td><td>۱) سیارهٔ بنفش (ترانس‌دیم) ۲) تأیید. دور بعد در فاز گایا سبز می‌شود و معدن روی آن ۱ سنگ و ۲ اعتبار است.</td><td><code>gaiaform</code></td></tr>
+   <tr><td>تشکیل فدراسیون</td><td>نوار</td><td>سازه‌های خودیِ آزاد با ارزش قدرت ≥ ۷ (معدن ۱، ایستگاه و آزمایشگاه ۲، مؤسسه و آکادمی ۳) + ماهواره برای وصل کردن: هر ماهواره ۱ ژتون قدرت که از چرخه بیرون می‌رود.</td><td>۱) پیشنهادهای موتور یا انتخاب دستی سازه‌ها و خانه‌های ماهواره ۲) توکن فدراسیون از ذخیره ۳) تأیید</td><td><code>federation</code></td></tr>
+   <tr><td><span class="dot dot--p"></span>اقدام قدرت</td><td>صفحهٔ پژوهش</td><td>۳ تا ۷ قدرت از کاسهٔ III؛ هر دور یک بار برای کل میز.</td><td>کلیک روی هشت‌ضلعی؛ اگر زمین‌سازی دارد، بعد سیاره.</td><td><code>power</code> pw1..pw7</td></tr>
+   <tr><td><span class="dot dot--g"></span>اقدام QIC</td><td>صفحهٔ پژوهش</td><td>۴ QIC: کاشی فناوری؛ ۳ QIC: پاداش دوبارهٔ فدراسیون؛ ۲ QIC: ۳ امتیاز + ۱ برای هر نوع سیاره.</td><td>کلیک؛ برای فناوری و فدراسیون، انتخاب بعدی.</td><td><code>power</code> qic1..qic3</td></tr>
+   <tr><td><span class="dot dot--o"></span>اقدام ویژه</td><td>بوستر، فناوری، آکادمی QIC، صفحهٔ جناح</td><td>رایگان؛ هر دور یک بار برای همان بازیکن.</td><td>کلیک روی خود قطعه؛ بعد از استفاده ژتون اقدام رویش.</td><td><code>special</code></td></tr>
+   <tr><td>تبدیل رایگان</td><td>نوار، ردیف دوم</td><td>۴ قدرت ← QIC، ۳ قدرت ← سنگ، ۴ قدرت ← دانش، ۱ قدرت ← اعتبار، QIC ← سنگ، سنگ ← ژتون قدرت، دانش ← اعتبار، سنگ ← اعتبار، سوزاندن قدرت (۲ ژتون II: یکی حذف، یکی به III)، به‌علاوهٔ تبدیل‌های جناح.</td><td>یک کلیک؛ نوبت تمام نمی‌شود. تا «تأیید» کنش اصلی موقت است و «برگرد» برمی‌گرداند.</td><td><code>convert</code>، <code>burn</code></td></tr>
+   <tr><td>پاس</td><td>نوار</td><td>—</td><td>۱) یکی از بوسترهای آزاد برای دور بعد (دور ۶: بدون بوستر) ۲) تأیید؛ امتیاز پاس بوستر و فناوری‌ها حساب می‌شود.</td><td><code>pass</code></td></tr>
+  </tbody>
+ </table>
+</section>
+
+<div class="ga-grid">
+<section class="bgv-card ga-card" aria-labelledby="ga2">
+ <h2 id="ga2">ارتقا: انتخاب مقصد با هزینه</h2>
+ <div class="snap">
+  <img src="../assets/games/gaia/sector-2.webp" alt="بخش ۲ نقشه با ایستگاه تجاری مینا">
+  <img class="pc" src="../assets/games/gaia/ts-red.webp" alt="" style="left:30.8%;top:79.4%">
+  <div class="pop" role="dialog" aria-label="ارتقای ایستگاه تجاری"><b>ایستگاه تجاری را به چه ارتقا می‌دهید؟</b>
+   <button class="opt" type="button" aria-pressed="true"><img class="b" src="../assets/games/gaia/rl-red.webp" alt="">آزمایشگاه پژوهشی <span class="pill">۳<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۵<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span></button>
+   <button class="opt" type="button" aria-pressed="false"><img class="b" src="../assets/games/gaia/pi-red.webp" alt="">مؤسسهٔ سیاره‌ای <span class="pill">۴<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۶<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span></button>
+  </div>
+ </div>
+ <div class="bar"><div class="bar__row"><span><b>ارتقا:</b> آزمایشگاه پژوهشی روی اکسید، بخش ۲ <span class="pill">۳<img class="ic" src="../assets/games/gaia/ores.webp" alt="سنگ"> ۵<img class="ic" src="../assets/games/gaia/credits.webp" alt="اعتبار"></span></span></div><div class="bar__row"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button">تأیید و انتخاب فناوری</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">برگرد</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">لغو کنش</button></div></div>
+ <ul><li>فقط سازه‌های خودی‌ای که ارتقای مجاز و قابل پرداخت دارند حلقه می‌گیرند.</li><li>گزینه‌ای که پولش نیست یا مهره‌اش تمام شده غیرفعال است و دلیلش را می‌گوید («سنگ کافی نیست»، «مؤسسه ساخته شده»).</li><li>بعد از آزمایشگاه یا آکادمی، صفحهٔ پژوهش برای انتخاب کاشی فناوری باز می‌شود.</li></ul>
+</section>
+
+<section class="bgv-card ga-card" aria-labelledby="ga3">
+ <h2 id="ga3">پژوهش: انتخاب مسیر</h2>
+ <div class="bar"><div class="bar__row"><span><b>پژوهش</b> <span class="pill">۴<img class="ic" src="../assets/games/gaia/knowledge.webp" alt="دانش"></span>: یک مسیر انتخاب کنید</span></div>
+  <div class="trk" role="group" aria-label="مسیرهای پژوهش">
+   <button type="button" aria-pressed="false">زمین‌سازی<small>۱ ← ۲</small></button>
+   <button type="button" aria-pressed="true">ناوبری<small>۱ ← ۲، برد ۲</small></button>
+   <button type="button" aria-pressed="false">هوش مصنوعی<small>۰ ← ۱</small></button>
+   <button type="button" aria-pressed="false">پروژهٔ گایا<small>۰ ← ۱، گایاساز</small></button>
+   <button type="button" aria-pressed="false">اقتصاد<small>۲ ← ۳</small></button>
+   <button type="button" disabled="" title="سطح ۵ ژتون فدراسیون سبز می‌خواهد">علم<small>۱ ← ۲</small></button>
+  </div>
+  <div class="bar__row"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button">تأیید</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">لغو کنش</button></div></div>
+ <ul><li>هم‌زمان روی صفحهٔ پژوهش، خانهٔ مقصد هر مسیر علامت می‌خورد؛ کلیک روی صفحه همان انتخاب است.</li><li>پاداش سطح جدید (مثلاً گایاساز در سطح ۱ گایا، QIC در سطح ۱ ناوبری) کنار هر گزینه.</li><li>رسیدن به سطح ۳: شارژ ۳ قدرت.</li></ul>
+</section>
+
+<section class="bgv-card ga-card" aria-labelledby="ga4">
+ <h2 id="ga4">پروژهٔ گایا و فدراسیون</h2>
+ <span class="lbl">پروژهٔ گایا</span>
+ <div class="bar"><span><b>پروژهٔ گایا:</b> یک سیارهٔ بنفش در برد خود انتخاب کنید <span class="pill">۶<img class="ic" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت"> → G</span></span><div class="bar__row"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" disabled="">تأیید</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">لغو کنش</button></div></div>
+ <p>گایاساز (مهرهٔ هشت‌ضلعی رنگ بازیکن) روی سیارهٔ بنفش می‌نشیند و ژتون‌ها از کاسه‌ها به ناحیهٔ گایا می‌روند (اول از کاسهٔ I).</p>
+ <span class="lbl">تشکیل فدراسیون</span>
+ <div class="bar"><span><b>فدراسیون:</b> ارزش قدرت سازه‌ها <span dir="ltr" style="unicode-bidi:isolate">۱ + ۲ + ۲ + ۲ = <b>۷</b></span> از ۷ لازم <span class="pill">۲<img class="ic" src="../assets/games/gaia/sat-red.webp" alt="ماهواره"> = ۲<img class="ic" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت"></span></span>
+  <div class="bar__row"><span class="lbl">توکن:</span><img class="ic" src="../assets/games/gaia/fedvps.webp" alt="۱۲ امتیاز" style="block-size:38px"><img class="ic" src="../assets/games/gaia/fedqic.webp" alt="۸ امتیاز و QIC" style="block-size:38px"><img class="ic" src="../assets/games/gaia/fedcre.webp" alt="۷ امتیاز و ۶ اعتبار" style="block-size:38px"></div>
+  <div class="bar__row"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button">تأیید</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">پیشنهاد بعدی</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">لغو کنش</button></div></div>
+ <p>موتور تا سه فدراسیون ممکن پیشنهاد می‌دهد (<code>suggestFederations</code>)؛ روی نقشه سازه‌ها و خانه‌های ماهواره علامت می‌خورند.</p>
+</section>
+
+<section class="bgv-card ga-card" aria-labelledby="ga5">
+ <h2 id="ga5">خارج از نوبت: شارژ قدرت</h2>
+ <div class="bar"><span><b>سارا</b> کنار شما معدن ساخت. <b>۲</b> قدرت شارژ می‌کنید؟ هزینه <span class="pill">۱ امتیاز</span></span><div class="bar__row"><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button">شارژ ۲ قدرت</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">رد</button></div>
+  <label class="chk"><input type="checkbox"> دفعهٔ بعد بدون پرسیدن همین کار را بکن</label></div>
+ <span class="lbl">تنظیم «شارژ خودکار» (مثل BGA، برای هر بازیکن و هر میز)</span>
+ <div class="bar" role="radiogroup" aria-label="شارژ خودکار">
+  <label class="chk"><input type="radio" name="leech"> همیشه بپرس</label>
+  <label class="chk"><input type="radio" name="leech" checked=""> شارژ رایگان (۱ قدرت) را خودکار بپذیر؛ بقیه را بپرس</label>
+  <label class="chk"><input type="radio" name="leech"> تا <select aria-label="سقف امتیاز"><option>۱</option><option selected="">۲</option><option>۳</option></select> امتیاز هزینه خودکار بپذیر</label>
+  <label class="chk"><input type="radio" name="leech"> همه را خودکار رد کن</label>
+  <label class="chk"><input type="checkbox" checked=""> در دور آخر همیشه بپرس</label>
+ </div>
+ <ul><li>هزینه همیشه «قدرت − ۱» امتیاز است؛ اگر کاسه‌ها جا نداشته باشند، مقدار کمتر نشان داده می‌شود و قانون خودکار روی همان مقدار اجرا می‌شود.</li><li>اگر امتیاز کافی ندارید، شارژ پولی خودکار پذیرفته نمی‌شود و پرسیده می‌شود.</li><li>تاکلون‌ها: ترتیب سنگ مغز و ژتون همیشه پرسیده می‌شود (تصمیم، نه مقدار).</li><li>تنظیم سمت سرور است (<code>pending.kind = 'leech'</code> بی‌درنگ با پاسخ ذخیره‌شده بسته می‌شود)، پس میز نوبتی منتظر بازیکنِ آفلاین نمی‌ماند. در نوار کنش دسکتاپ و منوی میز موبایل در دسترس است.</li></ul>
+</section>
+
+<section class="bgv-card ga-card" aria-labelledby="ga6">
+ <h2 id="ga6">اقدام‌های ویژهٔ جناح</h2>
+ <table class="ga-t"><tbody>
+  <tr><td>آیویت‌ها</td><td>ساخت ایستگاه فضایی روی یک خانهٔ خالی در برد ناوبری</td></tr>
+  <tr><td>فیراک‌ها</td><td>تنزل آزمایشگاه به ایستگاه تجاری و یک پیشرفت پژوهش</td></tr>
+  <tr><td>آمباس‌ها</td><td>جابه‌جایی مؤسسهٔ سیاره‌ای با یکی از معدن‌ها</td></tr>
+  <tr><td>بسکادها</td><td>یک سطح رایگان در پایین‌ترین مسیر پژوهش</td></tr>
+  <tr><td>بال‌تاک‌ها</td><td>تبدیل رایگان: ۱ گایاساز به ناحیهٔ گایا ← ۱ QIC</td></tr>
+  <tr><td>نِولاها</td><td>تبدیل رایگان: ۱ ژتون کاسهٔ III به ناحیهٔ گایا ← ۱ دانش</td></tr>
+  <tr><td>هادش هالا</td><td>با مؤسسه، تبدیل اعتبار: ۴ ← QIC، ۳ ← سنگ، ۴ ← دانش</td></tr>
+ </tbody></table>
+ <p>اقدام‌ها (نارنجی) روی صفحهٔ جناح کلیک می‌شوند؛ تبدیل‌های رایگان جناح به ردیف تبدیل‌های نوار اضافه می‌شوند. متن همه از <code>content/factions-*.ts</code>.</p>
+</section>
+
+<section class="bgv-card ga-card" aria-labelledby="ga7">
+ <h2 id="ga7">چرا یک دکمه غیرفعال است</h2>
+ <table class="ga-t"><thead><tr><th>کد خطا</th><th>متن کنار دکمه</th></tr></thead><tbody>
+  <tr><td><code>NOT_ENOUGH_RESOURCES</code></td><td>«سنگ کافی نیست: ۴ لازم، ۱ دارید»</td></tr>
+  <tr><td><code>NO_PIECES</code></td><td>«همهٔ معدن‌ها ساخته شده»، «گایاساز آزاد ندارید»</td></tr>
+  <tr><td><code>ILLEGAL_PLACEMENT</code></td><td>«خارج از برد ناوبری»، «این سیاره را نمی‌شود زمین‌سازی کرد»</td></tr>
+  <tr><td><code>GAIA_NOT_READY</code></td><td>«تا فاز گایای دور بعد صبر کنید»</td></tr>
+  <tr><td><code>CELL_OCCUPIED</code></td><td>«این سیاره مال بازیکن دیگری است»</td></tr>
+ </tbody></table>
+ <p>دکمه‌ها از فهرست حرکت‌های مجاز موتور (<code>legalFor</code> در <code>rules.ts</code>) ساخته می‌شوند؛ دلیل‌ها از همین کدها.</p>
+</section>
+</div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>پروژه گایا، امتیاز، موبایل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
+<style>
+.gp[lang="en"]{font-family:var(--font-latin)}
+.gp-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:16px;min-inline-size:0}
+.gp-ic{display:inline-block;block-size:20px;inline-size:auto;vertical-align:middle}
+/* status bar, BGA style */
+.gp-actbar{flex-direction:column;align-items:stretch;gap:8px}
+.gp-actbar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.gp-actbar .gp-costpill{block-size:24px;padding:0 6px;font-size:13px}
+.gp-actbar .gp-costpill .gp-ic{block-size:15px}
+.gp-leechset{margin-inline-start:auto}
+.gp-actbar__label{font-size:13px;font-weight:700;color:var(--label);margin-inline-end:4px}
+.gp-chipbtn{display:inline-flex;align-items:center;gap:3px;block-size:32px;padding:0 10px;border-radius:var(--radius-pill);border:1px solid var(--line);background:var(--surface);color:var(--heading);font:inherit;font-size:13px;font-weight:900;cursor:pointer;unicode-bidi:isolate;direction:ltr}
+.gp-chipbtn .gp-ic{block-size:17px}
+.gp-chipbtn:hover{border-color:var(--control-edge)}
+.gp-chipbtn:disabled{opacity:.42;cursor:not-allowed}
+.gp-actbar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important;border-radius:8px}
+.gp-costpill{display:inline-flex;align-items:center;gap:4px;padding:0 8px;block-size:28px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);vertical-align:middle}
+.gp-costpill .gp-ic{block-size:18px}
+/* zones */
+.gp-split{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:16px;align-items:start}
+/* map */
+.gp-sec{inline-size:26.531%;block-size:37.203%}
+.gp-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-fed{padding:10px 12px;border-radius:var(--radius-md);background:var(--felt-plate);color:var(--felt-ink);display:grid;gap:8px}
+.gp-fed>b{font-size:13px;font-weight:700;color:var(--felt-muted)}
+.gp-fed__grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.gp-fed__t{display:grid;justify-items:center;gap:4px;font-size:14px;font-weight:900}
+.gp-fed__t img{inline-size:100%;max-inline-size:64px;block-size:auto;display:block}
+.gp-fed__t.is-out img{opacity:.35}
+/* boards */
+.gp-board{position:relative;inline-size:100%}
+.gp-board>img{position:absolute;display:block}
+.gp-board>.gp-base{position:static;inline-size:100%;block-size:auto}
+.gp-board>.gp-at,.gp-at{position:absolute;transform:translate(-50%,-50%)}
+.gp-tech{inline-size:16.3%}
+.gp-adv{inline-size:13.3%}
+.gp-token{inline-size:12.4%;pointer-events:none}
+.gp-token--q{inline-size:13.6%}
+.gp-act{position:absolute;transform:translate(-50%,-50%);inline-size:8.16%;block-size:7.61%;border:0;padding:0;background:transparent;border-radius:14px;cursor:pointer}
+.gp-act--q{inline-size:9.52%;block-size:8.11%}
+.gp-act:hover,.gp-act.is-hover{box-shadow:0 0 0 3px var(--pick)}
+.gp-act:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.gp-act:disabled{cursor:default;box-shadow:none}
+.gp-disc{position:absolute;inline-size:2.4%;aspect-ratio:1;border-radius:50%;border:2px solid var(--ink-felt);box-shadow:var(--shadow-piece);transform:translate(-50%,-50%)}
+.gp-disc--lg{inline-size:3.3%}
+.gp-c-red{background:var(--gp-red)}.gp-c-yellow{background:var(--gp-yellow)}.gp-c-brown{background:var(--gp-brown)}.gp-c-orange{background:var(--gp-orange)}
+.gp-rnd{inline-size:17.7%;transform:translate(-50%,-50%) rotate(var(--a))}
+.gp-tok{inline-size:3.2%;pointer-events:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+.gp-tok--fin{inline-size:3.1%}
+/* planet-type counters: the player's own token with the count on it, on the ring planets */
+.gp-cnt{position:absolute;inline-size:5.4%;transform:translate(-50%,-50%);display:grid;place-items:center}
+.gp-cnt img{grid-area:1/1;inline-size:100%;block-size:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+.gp-cnt b{grid-area:1/1;position:relative;z-index:1;margin-block-start:-8%;color:#FFFFFF;font-family:var(--font-latin);font-weight:800;font-size:20px;text-shadow:1px 1px 0 #0D1A23,-1px 1px 0 #0D1A23,1px -1px 0 #0D1A23,-1px -1px 0 #0D1A23,0 2px 0 #0D1A23}
+.gp-fin{inline-size:14.4%}
+.gp-board--fac{border-radius:var(--radius-md);overflow:hidden}
+.gp-bld{inline-size:6.6%;filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23) drop-shadow(2px 0 0 var(--own)) drop-shadow(-2px 0 0 var(--own)) drop-shadow(0 2px 0 var(--own)) drop-shadow(0 -2px 0 var(--own))}
+.gp-bld--pi{inline-size:9.6%}
+.gp-bld{transition:opacity var(--dur-fast) var(--ease-out);cursor:help}
+.gp-bld:hover,.gp-bld.is-peek{opacity:.18}
+.gp-bld--ac{inline-size:8.6%}
+.gp-ptok{inline-size:4.8%;pointer-events:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+.gp-pwn{position:absolute;transform:translate(-50%,-50%);font-size:13px;padding:4px 9px}
+.gp-fwrap{display:grid;grid-template-columns:minmax(0,1fr) 11.6%;gap:10px;align-items:end}
+.gp-fwrap>.gp-boost{margin-block-end:1.4%}
+.gp-fwrap>.gp-boost img{inline-size:100%;block-size:auto;border-radius:8px;box-shadow:0 0 0 2px var(--felt-line)}
+.gp-owned{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.gp-owned figure{margin:0;display:grid;gap:4px;justify-items:center;font-size:12px;color:var(--felt-muted)}
+.gp-owned img{display:block;block-size:128px;inline-size:auto;border-radius:6px}
+.gp-owned button{position:relative;padding:0;border:0;background:none;border-radius:8px;cursor:pointer}
+.gp-owned button:hover,.gp-owned button.is-hover{box-shadow:0 0 0 3px var(--pick)}
+.gp-owned button:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:3px}
+.gp-owned .gp-used{position:relative}
+.gp-owned .gp-used::after{content:"";position:absolute;inset:6% 18% 6% 8%;background:url(../assets/games/gaia/actiontoken.webp) center/contain no-repeat}
+.gp-tip{position:absolute;z-index:var(--z-sheet);inline-size:260px;display:grid;gap:6px;color:var(--text);font-size:13.5px;line-height:1.65}
+.gp-tip{display:none}
+.gp-board:has([aria-describedby="gp-tip-pw1"]:is(:hover,:focus-visible)) #gp-tip-pw1{display:grid}
+.gp-tip b{color:var(--heading);font-size:14px}
+.gp-tip small{color:var(--text-muted);font-size:12.5px;line-height:1.6}
+.gp-boosters{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.gp-boost{position:relative;margin:0;padding:0;border:0;background:none;display:grid;justify-items:center;gap:4px;color:var(--felt-muted);font:inherit;font-size:12px;cursor:pointer}
+.gp-boost img{inline-size:100%;block-size:auto;display:block;border-radius:6px}
+.gp-boost.is-taken img{filter:brightness(.6)}
+.gp-boost .bgv-avatar{position:absolute;inset-block-start:38%;inset-inline-start:50%;transform:translateX(-50%)}
+.gp[dir="rtl"] .gp-boost .bgv-avatar{transform:translateX(50%)}
+.gp-boost.is-free img{box-shadow:0 0 0 2px var(--felt-line)}
+.gp-hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--felt-muted)}
+.gp-fboard{position:relative}
+.gp-fboard>img{inline-size:100%;block-size:auto;display:block;border-radius:var(--radius-md)}
+.gp-conv{position:absolute;inline-size:11.12%;block-size:7.01%;border:0;padding:0;background:transparent;border-radius:6px;cursor:pointer}
+.gp-conv:hover,.gp-conv.is-hover{box-shadow:0 0 0 3px var(--pick)}
+/* player panels, BGA style */
+.gp-vp{inline-size:50px;block-size:50px;flex:none;border-radius:8px;background:url(../assets/games/gaia/vp.webp) center/cover;display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--ink-felt)}
+.gp-vp b{min-inline-size:32px;padding:1px 4px;border-radius:6px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:18px;font-weight:900;text-align:center;line-height:1.35}
+.gp-side{display:grid;justify-items:center;gap:4px;flex:none}
+.gp-order{inline-size:28px;block-size:28px;border-radius:50%;background:var(--success);color:#FFFFFF;font-size:15px;font-weight:900;display:grid;place-items:center}
+
+body{margin:0}
+.gp{--pick:#E8A642;--hexline:rgba(132,164,214,.85)}
+.gp .bgv-pcard--mini{padding:10px 12px}
+.gp .bgv-pcard--mini>.bgv-avatar{margin-block:4px 9px}
+.gp .bgv-pcard--mini .bgv-pcard__score{flex-wrap:wrap;row-gap:0}
+.gp .bgv-pcard--mini.is-leader .bgv-pcard__score::before{flex-basis:100%;text-align:center}
+.gp .bgv-turn{max-inline-size:100%;min-inline-size:0}
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
+.gp-ic{display:inline-block;block-size:16px;inline-size:auto;vertical-align:-3px}
+.gp-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.gp-tabs button{flex:1;block-size:36px;padding-inline:6px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.gp-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.gp-mview{position:relative;contain:paint;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md);background:#060B1C}
+.gp-map{position:absolute;inline-size:808px;aspect-ratio:2450/1895;left:-180px;top:-262px}
+.gp-map>img{position:absolute;display:block}
+.gp-sec{inline-size:26.531%;block-size:37.203%}
+.gp-piece{inline-size:5.2%;transform:translate(-50%,-50%);filter:drop-shadow(1px 0 0 #0D1A23) drop-shadow(-1px 0 0 #0D1A23) drop-shadow(0 1px 0 #0D1A23) drop-shadow(0 -1px 0 #0D1A23) saturate(1.25) contrast(1.1)}
+.gp-piece--own{filter:drop-shadow(1px 0 0 #0D1A23) drop-shadow(-1px 0 0 #0D1A23) drop-shadow(0 1px 0 #0D1A23) drop-shadow(0 -1px 0 #0D1A23) drop-shadow(1.5px 0 0 #F0624F) drop-shadow(-1.5px 0 0 #F0624F) drop-shadow(0 1.5px 0 #F0624F) drop-shadow(0 -1.5px 0 #F0624F) saturate(1.25) contrast(1.1)}
+.gp-piece--mt{inline-size:8.2%}
+.gp-piece--ts{inline-size:6.5%}
+.gp-grid{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-grid path{fill:none;stroke:var(--hexline);stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
+.gp-tag{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt);white-space:nowrap;unicode-bidi:isolate;direction:ltr}
+.gp-tag .gp-ic{block-size:14px}
+.gp-costpill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:26px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);unicode-bidi:isolate;direction:ltr}
+.gp-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-hex{fill:rgba(232,166,66,.10);stroke:var(--pick);stroke-width:11;stroke-dasharray:26 16;stroke-linejoin:round}
+.gp-hex--picked{fill:rgba(232,166,66,.24);stroke-width:15;stroke-dasharray:none}
+.gp-hexbtn{position:absolute;inline-size:6.53%;block-size:7.39%;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;clip-path:polygon(0 50%,25% 0,75% 0,100% 50%,75% 100%,25% 100%)}
+.gp-check{position:absolute;inline-size:24px;block-size:24px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--ink-felt)}
+.gp-check .bgv-icon{inline-size:15px;block-size:15px;stroke-width:3}
+.gp-zoom{position:absolute;inset-block-start:8px;inset-inline-start:8px;display:grid;gap:6px}
+.gp-mapinfo{position:absolute;inset-block-end:8px;inset-inline-end:8px}
+.gp-steps{display:flex;gap:6px;align-items:center}
+.gp-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.gp-step.is-done{background:var(--success-soft);color:var(--success)}
+.gp-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.gp-cost{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13.5px;color:var(--text);line-height:1.6}
+.gp-cost b{font-weight:900;color:var(--heading)}
+.gp .bgv-actiondock__actions{flex-wrap:nowrap}
+.gp .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+
+
+.gp-bview{position:relative;flex:1;min-block-size:0;overflow:auto;display:flex;flex-direction:column;gap:10px;border-radius:var(--radius-md);scrollbar-width:none}
+.gp-bview>*{flex:none}
+.gp-ptabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.gp-ptabs button{flex:none;display:inline-flex;align-items:center;gap:6px;block-size:32px;padding-inline:10px;border:0;border-radius:var(--radius-pill);background:var(--felt-plate);color:var(--felt-muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.gp-ptabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.gp-owned{gap:10px;padding:10px}
+.gp-owned img{block-size:72px}
+.gp-cnt b{font-size:11px}
+.gp-fwrap{gap:6px}
+.gp-boosters{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.gp-fed{padding:8px 10px}
+.gp-fed__t img{block-size:40px}
+.gp-sheetwrap{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end}
+.gp-sheet{position:relative;max-block-size:78%;padding:0 14px 14px;gap:10px}
+.gp-sheet__head{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.6}
+.gp-sheet__head b{color:var(--heading);font-weight:900}
+.gp-sheet__head .bgv-clock{margin-inline-start:auto;flex:none}
+.gp-main{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gp-main .bgv-btn{inline-size:100%;block-size:auto;min-block-size:48px;padding:6px 10px;flex-direction:column;gap:2px;white-space:normal;line-height:1.4}
+.gp-main .bgv-btn small{font-size:11.5px;font-weight:400;color:var(--text-muted)}
+.gp-free{display:flex;flex-wrap:wrap;gap:6px}
+.gp-free .gp-chipbtn{block-size:36px}
+.gp-sheet .gp-label{font-size:12px;font-weight:700;color:var(--label)}
+.gp-sheet .gp-row{display:flex;align-items:center;gap:8px}
+.gp-sheet .gp-row .bgv-btn{flex:1}
+.gp-sheet .gp-hint2{margin:0;font-size:12px;line-height:1.6;color:var(--text-muted)}
+.gp-dockbar{display:flex;align-items:center;gap:8px}
+.gp-dockbar>span{flex:1;min-inline-size:0;font-size:14px;line-height:1.5}
+.gp-dockbar b{color:var(--heading);font-weight:900}
+.gp-chk{display:flex;gap:8px;align-items:center;font-size:13px}
+
+</style>
+</helmet>
+<div class="bgv gp" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px">
+<header class="bgv-gamebar"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان، برای صفحهٔ هر بازیکن بزنید"><div class="bgv-pcard bgv-pcard--mini is-leader" role="button" tabindex="0" aria-label="نیلوفر، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-2">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2"></i>نیلوفر</b><small>زنوس</small></div><div class="bgv-pcard__score">۳۲<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="آرش، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-3">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3"></i>آرش</b><small>تاکلون‌ها</small></div><div class="bgv-pcard__score">۱۲<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>پاس داده</span></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="سارا، برای جزئیات بزنید"><span class="bgv-avatar bgv-avatar--sm seat-4">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4"></i>سارا</b><small>ژئودن‌ها</small></div><div class="bgv-pcard__score">۱۴<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-hstat"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا، شما، برای صفحهٔ خودتان بزنید"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you is-turn" style="--clock-c:var(--clock-calm);">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1"></i><span class="bgv-sr">مینا</span></b><small>هادش هالا</small></div><div class="bgv-pcard__score">۱۸<small>امتیاز</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز پروژه گایا">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">دور <strong>۴</strong> از ۶</span></div>
+ <div class="gp-tabs" role="tablist" aria-label="کدام صفحه از بازی"><button type="button" role="tab" aria-selected="false">نقشه</button><button type="button" role="tab" aria-selected="false">پژوهش</button><button type="button" role="tab" aria-selected="true">امتیاز</button><button type="button" role="tab" aria-selected="false">صفحهٔ من</button></div>
+ <div class="gp-bview" role="tabpanel" aria-label="صفحهٔ امتیاز، بوسترها و توکن‌های فدراسیون">
+ <div class="gp-board" dir="ltr" role="group" aria-label="صفحهٔ امتیاز">
+    <img class="gp-base" src="../assets/games/gaia/scoring-board.webp" alt="صفحهٔ امتیاز با چرخهٔ سیاره‌ها" width="1737" height="1718">
+    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۱، انجام شد" style="left:26.88%;top:42.37%;--a:-75deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۲، انجام شد" style="left:32.99%;top:31.67%;--a:-45deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۳، انجام شد" style="left:43.57%;top:25.49%;--a:-15deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rndtrs3.webp" alt="دور ۴: هر ایستگاه تجاری ۳ امتیاز" style="left:55.79%;top:25.49%;--a:15deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rndfed.webp" alt="دور ۵: هر فدراسیون ۵ امتیاز" style="left:66.37%;top:31.67%;--a:45deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rndpia.webp" alt="دور ۶: مؤسسه یا آکادمی ۵ امتیاز" style="left:72.48%;top:42.37%;--a:75deg">
+    <img class="gp-at gp-fin" src="../assets/games/gaia/finbld.webp" alt="امتیاز پایانی: بیشترین سازه روی نقشه" style="left:69.6%;top:55.59%">
+    <img class="gp-at gp-fin" src="../assets/games/gaia/finsec.webp" alt="امتیاز پایانی: حضور در بیشترین بخش" style="left:69.6%;top:74.1%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر 7" title="نیلوفر 7" style="left:44.51%;top:51.11%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-red.webp" alt="مینا 5" title="مینا 5" style="left:37.42%;top:54.13%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-brown.webp" alt="آرش 4" title="آرش 4" style="left:33.87%;top:57.16%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-orange.webp" alt="سارا 5" title="سارا 5" style="left:37.42%;top:60.19%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر 4" title="نیلوفر 4" style="left:33.87%;top:69.27%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-red.webp" alt="مینا 3" title="مینا 3" style="left:30.33%;top:72.29%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-brown.webp" alt="آرش 2" title="آرش 2" style="left:26.78%;top:75.32%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-orange.webp" alt="سارا 3" title="سارا 3" style="left:30.33%;top:78.35%">
+    <span class="gp-cnt" style="left:83.13%;top:23.28%" title="مینا: ۲"><img src="../assets/games/gaia/sat-red.webp" alt=""><b>۲</b></span>
+    <span class="gp-cnt" style="left:67.82%;top:90.28%" title="نیلوفر: ۳"><img src="../assets/games/gaia/sat-yellow.webp" alt=""><b>۳</b></span>
+    <span class="gp-cnt" style="left:32.01%;top:90.28%" title="آرش: ۲"><img src="../assets/games/gaia/sat-brown.webp" alt=""><b>۲</b></span>
+    <span class="gp-cnt" style="left:91.48%;top:60.13%" title="سارا: ۲"><img src="../assets/games/gaia/sat-orange.webp" alt=""><b>۲</b></span>
+   </div>
+   <div class="gp-boosters" dir="rtl" role="group" aria-label="بوسترهای دور">
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر مینا"><img src="../assets/games/gaia/booter.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-1">م</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر نیلوفر"><img src="../assets/games/gaia/boonav.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-2">ن</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر آرش"><img src="../assets/games/gaia/booqic.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-3">آ</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر سارا"><img src="../assets/games/gaia/boomin.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-4">س</span></button>
+    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: +۱ دانش، +۱ سنگ معدن"><img src="../assets/games/gaia/booknw.webp" alt=""></button>
+    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: +۱ سنگ معدن، +۲ ژتون قدرت"><img src="../assets/games/gaia/boopwt.webp" alt=""></button>
+    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: هنگام پاس ۲ امتیاز برای هر ایستگاه تجاری"><img src="../assets/games/gaia/bootrs.webp" alt=""></button>
+   </div>
+   <p class="gp-hint">هنگام پاس، بوستر خود را برمی‌گردانید و یکی از سه بوستر آزاد را برمی‌دارید.</p>
+ <div class="gp-fed" role="group" aria-label="توکن‌های فدراسیون باقی‌مانده"><b>توکن‌های فدراسیون</b><div class="gp-fed__grid">
+    <span class="gp-fed__t" title="۱۲ امتیاز"><img src="../assets/games/gaia/fedvps.webp" alt="۱۲ امتیاز">×۲</span>
+    <span class="gp-fed__t" title="۸ امتیاز و ۱ QIC"><img src="../assets/games/gaia/fedqic.webp" alt="۸ امتیاز و ۱ QIC">×۳</span>
+    <span class="gp-fed__t" title="۸ امتیاز و ۲ ژتون قدرت"><img src="../assets/games/gaia/fedpwt.webp" alt="۸ امتیاز و ۲ ژتون قدرت">×۳</span>
+    <span class="gp-fed__t" title="۷ امتیاز و ۲ سنگ معدن"><img src="../assets/games/gaia/fedore.webp" alt="۷ امتیاز و ۲ سنگ معدن">×۲</span>
+    <span class="gp-fed__t" title="۷ امتیاز و ۶ اعتبار"><img src="../assets/games/gaia/fedcre.webp" alt="۷ امتیاز و ۶ اعتبار">×۲</span>
+    <span class="gp-fed__t is-out" title="۶ امتیاز و ۲ دانش"><img src="../assets/games/gaia/fedknw.webp" alt="۶ امتیاز و ۲ دانش">×۰</span>
+  </div></div>
+ </div>
+</main>
+<section class="bgv-actiondock" aria-label="نوار کنش">
+ <div class="gp-dockbar"><span><b>نوبت شماست</b></span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span><button class="bgv-btn bgv-btn--primary" type="button" aria-haspopup="dialog"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6" /></svg>کنش‌ها</button></div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

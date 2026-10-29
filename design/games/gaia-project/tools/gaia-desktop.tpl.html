@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="[[@lang]]" dir="[[@dir]]">
+<head>
+<meta charset="utf-8">
+<title>[[پروژه گایا، میز دسکتاپ||Gaia Project, desktop table]]</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.gp{--own:#F0624F;--gp-red:#C8402F;--gp-yellow:#E9B92F;--gp-brown:#8A5A35;--gp-orange:#E07A22;--pick:#E8A642;--hexline:rgba(132,164,214,.85)}
+.gp[lang="en"]{font-family:var(--font-latin)}
+.gp-desk{grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.gp-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.gp-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:16px;min-inline-size:0}
+.gp-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.gp-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.gp-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.gp-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+.gp-ic{display:inline-block;block-size:20px;inline-size:auto;vertical-align:middle}
+.gp-planet{block-size:16px;inline-size:16px;vertical-align:-3px}
+/* status bar, BGA style */
+.gp-status{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.gp-status__text{flex:1 1 360px;min-inline-size:0}
+.gp-status__text b{color:var(--heading);font-weight:900}
+.gp-status .bgv-btn{white-space:nowrap}
+.gp-actbar{flex-direction:column;align-items:stretch;gap:8px}
+.gp-actbar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.gp-actbar .gp-costpill{block-size:24px;padding:0 6px;font-size:13px}
+.gp-actbar .gp-costpill .gp-ic{block-size:15px}
+.gp-leechset{margin-inline-start:auto}
+.gp-actbar__label{font-size:13px;font-weight:700;color:var(--label);margin-inline-end:4px}
+.gp-chipbtn{display:inline-flex;align-items:center;gap:3px;block-size:32px;padding:0 10px;border-radius:var(--radius-pill);border:1px solid var(--line);background:var(--surface);color:var(--heading);font:inherit;font-size:13px;font-weight:900;cursor:pointer;unicode-bidi:isolate;direction:ltr}
+.gp-chipbtn .gp-ic{block-size:17px}
+.gp-chipbtn:hover{border-color:var(--control-edge)}
+.gp-chipbtn:disabled{opacity:.42;cursor:not-allowed}
+.gp-actbar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important;border-radius:8px}
+.gp-costpill{display:inline-flex;align-items:center;gap:4px;padding:0 8px;block-size:28px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-weight:900;color:var(--heading);vertical-align:middle}
+.gp-costpill .gp-ic{block-size:18px}
+/* zones */
+.gp-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.gp-split{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:16px;align-items:start}
+/* map */
+.gp-map{position:relative;inline-size:100%;aspect-ratio:2450/1895}
+.gp-map>img{position:absolute;display:block}
+.gp-sec{inline-size:26.531%;block-size:37.203%}
+.gp-grid{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-grid path{fill:none;stroke:var(--hexline);stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
+.gp-piece{inline-size:5.2%;transform:translate(-50%,-50%);filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23) saturate(1.25) contrast(1.1)}
+.gp-piece--own{filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23) drop-shadow(2px 0 0 var(--own)) drop-shadow(-2px 0 0 var(--own)) drop-shadow(0 2px 0 var(--own)) drop-shadow(0 -2px 0 var(--own)) saturate(1.25) contrast(1.1)}
+.gp-piece--mt{inline-size:8.2%}
+.gp-piece--ts{inline-size:6.5%}
+.gp-piece--rl{inline-size:6.2%}
+.gp-piece--ac{inline-size:5.6%}
+.gp-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.gp-hex{fill:rgba(232,166,66,.10);stroke:var(--pick);stroke-width:9;stroke-dasharray:24 14;stroke-linejoin:round}
+.gp-hex--picked{fill:rgba(232,166,66,.28);stroke-width:13;stroke-dasharray:none}
+.gp-hexbtn{position:absolute;inline-size:6.53%;block-size:7.39%;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;clip-path:polygon(0 50%,25% 0,75% 0,100% 50%,75% 100%,25% 100%)}
+.gp-hexbtn:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px;clip-path:none;border-radius:8px}
+.gp-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--ink-felt)}
+.gp-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+.gp-tag{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12.5px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt),0 2px 0 var(--ink-felt);white-space:nowrap}
+.gp-tag .gp-ic{block-size:15px}
+.gp-zoom{position:absolute;inset-block-start:8px;inset-inline-end:8px;display:grid;gap:8px}
+.gp-fed{padding:10px 12px;border-radius:var(--radius-md);background:var(--felt-plate);color:var(--felt-ink);display:grid;gap:8px}
+.gp-fed>b{font-size:13px;font-weight:700;color:var(--felt-muted)}
+.gp-fed__grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.gp-fed__t{display:grid;justify-items:center;gap:4px;font-size:14px;font-weight:900}
+.gp-fed__t img{inline-size:100%;max-inline-size:64px;block-size:auto;display:block}
+.gp-fed__t.is-out img{opacity:.35}
+/* boards */
+.gp-board{position:relative;inline-size:100%}
+.gp-board>img{position:absolute;display:block}
+.gp-board>.gp-base{position:static;inline-size:100%;block-size:auto}
+.gp-board>.gp-at,.gp-at{position:absolute;transform:translate(-50%,-50%)}
+.gp-tech{inline-size:16.3%}
+.gp-adv{inline-size:13.3%}
+.gp-token{inline-size:12.4%;pointer-events:none}
+.gp-token--q{inline-size:13.6%}
+.gp-act{position:absolute;transform:translate(-50%,-50%);inline-size:8.16%;block-size:7.61%;border:0;padding:0;background:transparent;border-radius:14px;cursor:pointer}
+.gp-act--q{inline-size:9.52%;block-size:8.11%}
+.gp-act:hover,.gp-act.is-hover{box-shadow:0 0 0 3px var(--pick)}
+.gp-act:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.gp-act:disabled{cursor:default;box-shadow:none}
+.gp-disc{position:absolute;inline-size:2.4%;aspect-ratio:1;border-radius:50%;border:2px solid var(--ink-felt);box-shadow:var(--shadow-piece);transform:translate(-50%,-50%)}
+.gp-disc--lg{inline-size:3.3%}
+.gp-c-red{background:var(--gp-red)}.gp-c-yellow{background:var(--gp-yellow)}.gp-c-brown{background:var(--gp-brown)}.gp-c-orange{background:var(--gp-orange)}
+.gp-rnd{inline-size:17.7%;transform:translate(-50%,-50%) rotate(var(--a))}
+.gp-tok{inline-size:3.2%;pointer-events:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+.gp-tok--fin{inline-size:3.1%}
+/* planet-type counters: the player's own token with the count on it, on the ring planets */
+.gp-cnt{position:absolute;inline-size:5.4%;transform:translate(-50%,-50%);display:grid;place-items:center}
+.gp-cnt img{grid-area:1/1;inline-size:100%;block-size:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+.gp-cnt b{grid-area:1/1;position:relative;z-index:1;margin-block-start:-8%;color:#FFFFFF;font-family:var(--font-latin);font-weight:800;font-size:20px;text-shadow:1px 1px 0 #0D1A23,-1px 1px 0 #0D1A23,1px -1px 0 #0D1A23,-1px -1px 0 #0D1A23,0 2px 0 #0D1A23}
+.gp-fin{inline-size:14.4%}
+.gp-board--fac{border-radius:var(--radius-md);overflow:hidden}
+.gp-bld{inline-size:6.6%;filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23) drop-shadow(2px 0 0 var(--own)) drop-shadow(-2px 0 0 var(--own)) drop-shadow(0 2px 0 var(--own)) drop-shadow(0 -2px 0 var(--own))}
+.gp-bld--pi{inline-size:9.6%}
+.gp-bld{transition:opacity var(--dur-fast) var(--ease-out);cursor:help}
+.gp-bld:hover,.gp-bld.is-peek{opacity:.18}
+.gp-bld--ac{inline-size:8.6%}
+.gp-ptok{inline-size:4.8%;pointer-events:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+.gp-pwn{position:absolute;transform:translate(-50%,-50%);font-size:13px;padding:4px 9px}
+.gp-fwrap{display:grid;grid-template-columns:minmax(0,1fr) 11.6%;gap:10px;align-items:end}
+.gp-fwrap>.gp-boost{margin-block-end:1.4%}
+.gp-fwrap>.gp-boost img{inline-size:100%;block-size:auto;border-radius:8px;box-shadow:0 0 0 2px var(--felt-line)}
+.gp-owned{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.gp-owned figure{margin:0;display:grid;gap:4px;justify-items:center;font-size:12px;color:var(--felt-muted)}
+.gp-owned img{display:block;block-size:128px;inline-size:auto;border-radius:6px}
+.gp-owned button{position:relative;padding:0;border:0;background:none;border-radius:8px;cursor:pointer}
+.gp-owned button:hover,.gp-owned button.is-hover{box-shadow:0 0 0 3px var(--pick)}
+.gp-owned button:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:3px}
+.gp-owned .gp-used{position:relative}
+.gp-owned .gp-used::after{content:"";position:absolute;inset:6% 18% 6% 8%;background:url(../assets/games/gaia/actiontoken.webp) center/contain no-repeat}
+.gp-tip{position:absolute;z-index:var(--z-sheet);inline-size:260px;display:grid;gap:6px;color:var(--text);font-size:13.5px;line-height:1.65}
+.gp-tip{display:none}
+.gp-board:has([aria-describedby="gp-tip-pw1"]:is(:hover,:focus-visible)) #gp-tip-pw1{display:grid}
+.gp-tip b{color:var(--heading);font-size:14px}
+.gp-tip small{color:var(--text-muted);font-size:12.5px;line-height:1.6}
+.gp-boosters{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.gp-boost{position:relative;margin:0;padding:0;border:0;background:none;display:grid;justify-items:center;gap:4px;color:var(--felt-muted);font:inherit;font-size:12px;cursor:pointer}
+.gp-boost img{inline-size:100%;block-size:auto;display:block;border-radius:6px}
+.gp-boost.is-taken img{filter:brightness(.6)}
+.gp-boost .bgv-avatar{position:absolute;inset-block-start:38%;inset-inline-start:50%;transform:translateX(-50%)}
+.gp[dir="rtl"] .gp-boost .bgv-avatar{transform:translateX(50%)}
+.gp-boost.is-free img{box-shadow:0 0 0 2px var(--felt-line)}
+.gp-hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--felt-muted)}
+.gp-tabs{display:flex;gap:4px;padding:4px;border-radius:var(--radius-md);background:var(--felt-plate);inline-size:max-content;max-inline-size:100%}
+.gp-tabs button{block-size:var(--control-sm);padding-inline:14px;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.gp-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.gp-fboard{position:relative}
+.gp-fboard>img{inline-size:100%;block-size:auto;display:block;border-radius:var(--radius-md)}
+.gp-bowlplate{position:absolute;transform:translate(-50%,-50%);font-size:14px}
+.gp-conv{position:absolute;inline-size:11.12%;block-size:7.01%;border:0;padding:0;background:transparent;border-radius:6px;cursor:pointer}
+.gp-conv:hover,.gp-conv.is-hover{box-shadow:0 0 0 3px var(--pick)}
+/* player panels, BGA style */
+.gp-panel{padding:10px 12px;display:grid;gap:8px}
+.gp-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.gp-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.gp-panel__id b{font-size:15px;font-weight:900;color:var(--heading);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gp-panel__id small{font-size:12.5px;color:var(--text-muted);display:flex;align-items:center;gap:4px}
+.gp-vp{inline-size:50px;block-size:50px;flex:none;border-radius:8px;background:url(../assets/games/gaia/vp.webp) center/cover;display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--ink-felt)}
+.gp-vp b{min-inline-size:32px;padding:1px 4px;border-radius:6px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:18px;font-weight:900;text-align:center;line-height:1.35}
+.gp-side{display:grid;justify-items:center;gap:4px;flex:none}
+.gp-order{inline-size:28px;block-size:28px;border-radius:50%;background:var(--success);color:#FFFFFF;font-size:15px;font-weight:900;display:grid;place-items:center}
+.gp-panel.is-turn .gp-order{background:var(--primary);color:var(--on-primary)}
+.gp-panel__res{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px 4px;border-radius:var(--radius-sm);background:var(--surface-sunken)}
+.gp-r{display:grid;justify-items:center;gap:0}
+.gp-r>span{display:flex;align-items:center;gap:4px;font-size:17px;font-weight:900;color:var(--heading)}
+.gp-r>span .gp-ic{block-size:22px}
+.gp-r small{font-size:12.5px;font-weight:700;color:var(--success)}
+.gp-panel__pow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.gp-bowl{display:flex;align-items:center;justify-content:center;gap:5px}
+.gp-bowl i{inline-size:24px;block-size:24px;border-radius:50%;background:#6F2A82;color:#FFFFFF;font-style:normal;font-family:var(--font-latin);font-size:11px;font-weight:800;display:grid;place-items:center}
+.gp-bowl--g i{background:#2E7D4F}
+.gp-bowl b{font-size:16px;font-weight:900;color:var(--heading)}
+.gp-bowl.is-ready i{box-shadow:0 0 0 2px var(--primary)}
+.gp-panel__inc{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;font-size:12.5px;color:var(--text-muted)}
+.gp-panel__inc b{color:var(--success);font-weight:900}
+.gp-panel__inc .gp-ic{block-size:16px}
+.gp-panel__foot{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.gp-r small,.gp-panel__inc b,.gp-tag,.gp-costpill,.gp-fed__t{unicode-bidi:isolate;direction:ltr}
+.gp-log{max-block-size:300px;overflow:auto}
+.gp-log .bgv-log__item{font-size:13.5px}
+.gp-log .gp-ic{block-size:16px}
+.gp-log .bgv-log__item--round{color:var(--text-muted);font-weight:700}
+</style>
+</helmet>
+<div class="bgv gp" data-theme="light" dir="[[@dir]]" lang="[[@lang]]" style="min-height: 2700px;">
+<div class="bgv-tablescreen bgv-tablescreen--desk gp-desk" dir="ltr">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Gaia Project</span></span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span><span class="bgv-gamebar__mi">۴ نفر</span></span></div><div class="gp-lang" role="group" aria-label="زبان بازی"><button type="button" aria-pressed="[[true||false]]">فا</button><button type="button" aria-pressed="[[false||true]]">EN</button></div><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="قوانین پروژه گایا"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--sm" type="button"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg>ترک میز</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+
+<div class="gp-main" dir="[[@dir]]">
+<section class="gp-status gp-actbar" aria-live="polite" aria-label="[[نوار کنش||Action bar]]">
+ <div class="gp-actbar__row"><span class="gp-status__text"><b>[[نوبت شماست||Your turn]]</b>[[: یک کنش انتخاب کنید، یا اقدام ویژه را روی صفحه بزنید.||: choose an action, or click a special action on a board.]]</span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="[[زمان نوبت شما||Your turn time]]"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">[[۲۱ ساعت||21h]]</span></span><button class="bgv-btn bgv-btn--ghost bgv-btn--sm gp-leechset" type="button" aria-haspopup="dialog" title="[[وقتی رقیب کنار شما می‌سازد، این مقدار شارژ بدون پرسیدن پذیرفته می‌شود||Charges up to this size are accepted without asking when an opponent builds next to you]]"><img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">[[شارژ خودکار: رایگان (۱)||Auto-charge: free (1)]]</button></div>
+ <div class="gp-actbar__row" role="toolbar" aria-label="[[کنش‌های اصلی||Main actions]]">
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">[[ساخت معدن||Build a mine]] <span class="gp-costpill">[[#1]]<img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">[[#2]]<img class="gp-ic" src="../assets/games/gaia/credits.webp" alt="">+</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">[[ارتقای سازه||Upgrade]]</button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">[[پژوهش||Research]] <span class="gp-costpill">[[#4]]<img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt=""></span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" disabled="" title="[[گایاساز آزاد ندارید؛ با سطح ۱ پروژهٔ گایا باز می‌شود.||No free gaiaformer; unlocks at Gaia Project level 1.]]">[[پروژهٔ گایا||Gaia Project]]</button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" disabled="" title="[[ارزش قدرت سازه‌های آزاد شما ۳ از ۷ است.||Your free structures have power value 3 of 7.]]">[[تشکیل فدراسیون||Form a federation]]</button>
+  <span class="bgv-spacer"></span>
+  <button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">[[پاس||Pass]]</button>
+ </div>
+ <div class="gp-actbar__row gp-actbar__free" role="toolbar" aria-label="[[تبدیل‌های رایگان||Free actions]]"><span class="gp-actbar__label">[[تبدیل رایگان||Free actions]]</span>
+  <button class="gp-chipbtn" type="button" disabled="" title="[[۴ قدرت از کاسهٔ III||4 power from bowl III]]">[[#4]]<img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/qic.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button" disabled="">[[#3]]<img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/ores.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button" disabled="">[[#4]]<img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button" disabled="">[[#1]]<img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/credits.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button"><img class="gp-ic" src="../assets/games/gaia/qic.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/ores.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button"><img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/power-token.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button"><img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/credits.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button"><img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">→<img class="gp-ic" src="../assets/games/gaia/credits.webp" alt=""></button>
+  <button class="gp-chipbtn" type="button" title="[[۲ ژتون از کاسهٔ II: یکی حذف، یکی به کاسهٔ III||2 tokens from bowl II: remove one, move one to bowl III]]">[[سوزاندن قدرت||Burn power]] II→III</button>
+ </div>
+ <p class="gp-actbar__hint">[[اقدام‌های بنفش (قدرت)، سبز (QIC) و نارنجی (بوستر، فناوری، آکادمی، جناح) روی خود صفحه‌ها زده می‌شوند؛ آن‌هایی که الان در دسترس‌اند حلقهٔ کهربایی دارند.||Purple (power), green (QIC) and orange (booster, tech, academy, faction) actions are clicked on the boards; the ones available now have an amber ring.]]</p>
+</section>
+
+<main class="bgv-felt gp-zone" aria-label="[[نقشهٔ فضا||Space map]]">
+ <div style="position:relative">
+ <div class="gp-map" dir="ltr" role="group" aria-label="[[نقشهٔ ده بخش؛ سه سیارهٔ قابل ساخت علامت دارند||Ten-sector map; three buildable planets are marked]]">
+  <img class="gp-sec" src="../assets/games/gaia/sector-4.webp" alt="" style="left:9.796%;top:7.388%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-5.webp" alt="" style="left:34.286%;top:3.694%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-6.webp" alt="" style="left:58.776%;top:0%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-7.webp" alt="" style="left:0%;top:36.939%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-1.webp" alt="" style="left:24.49%;top:33.245%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-2.webp" alt="" style="left:48.98%;top:29.551%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-8.webp" alt="" style="left:73.469%;top:25.858%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-9.webp" alt="" style="left:14.694%;top:62.797%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-3.webp" alt="" style="left:39.184%;top:59.103%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-10.webp" alt="" style="left:63.673%;top:55.409%">
+  <svg class="gp-grid" viewBox="0 0 2450 1895" aria-hidden="true"><path d="[[@hexgrid]]" /></svg>
+  <img class="gp-piece gp-piece--mt gp-piece--own" src="../assets/games/gaia/mi-red.webp" alt="[[معدن مینا||Mina's mine]]" style="left:37.551%;top:66.491%">
+  <img class="gp-piece gp-piece--ts gp-piece--own" src="../assets/games/gaia/ts-red.webp" alt="[[ایستگاه تجاری مینا||Mina's trading station]]" style="left:57.143%;top:59.103%">
+  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-yellow.webp" alt="[[معدن نیلوفر||Niloufar's mine]]" style="left:27.755%;top:51.715%">
+  <img class="gp-piece gp-piece--ac" src="../assets/games/gaia/ac-yellow.webp" alt="[[آکادمی نیلوفر||Niloufar's academy]]" style="left:71.837%;top:48.021%">
+  <img class="gp-piece" src="../assets/games/gaia/pi-yellow.webp" alt="[[مؤسسهٔ سیاره‌ای نیلوفر||Niloufar's planetary institute]]" style="left:52.245%;top:92.348%">
+  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-brown.webp" alt="[[معدن آرش||Arash's mine]]" style="left:32.653%;top:48.021%">
+  <img class="gp-piece gp-piece--rl" src="../assets/games/gaia/rl-brown.webp" alt="[[آزمایشگاه پژوهشی آرش||Arash's research lab]]" style="left:57.143%;top:51.715%">
+  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-orange.webp" alt="[[معدن سارا||Sara's mine]]" style="left:57.143%;top:36.939%">
+  <img class="gp-piece gp-piece--ts" src="../assets/games/gaia/ts-orange.webp" alt="[[ایستگاه تجاری سارا||Sara's trading station]]" style="left:42.449%;top:62.797%">
+ </div>
+ <div class="gp-zoom" role="group" aria-label="[[بزرگ‌نمایی نقشه||Map zoom]]"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="[[بزرگ‌تر||Zoom in]]"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="[[کوچک‌تر||Zoom out]]"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="[[کل نقشه||Fit map]]"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ </div>
+</main>
+
+<section class="bgv-felt gp-zone" aria-label="[[پژوهش، امتیاز و بوسترها||Research, scoring and boosters]]">
+ <div class="gp-split">
+  <div style="display:grid;gap:14px">
+  <div class="gp-board" dir="ltr">
+   <img class="gp-base" src="../assets/games/gaia/research-board.webp" alt="[[صفحهٔ پژوهش||Research board]]" width="1838" height="1972">
+[[@research]]
+   <div class="bgv-popover gp-tip" id="gp-tip-pw1" role="tooltip" dir="[[@dir]]" style="left:0.5%;bottom:10.5%"><b>[[اقدام قدرت||Power action]]</b><span>[[۷ قدرت از کاسهٔ III خرج کنید و ۳ دانش بگیرید.||Spend 7 power from bowl III, gain 3 knowledge.]]</span><small>[[هر اقدام در هر دور یک بار؛ بعد از استفاده ژتون اقدام رویش می‌نشیند. شما الان ۰ قدرت در کاسهٔ III دارید.||Once per round; an action token covers it after use. You have 0 power in bowl III.]]</small></div>
+  </div>
+[[@fedsupply]]
+  </div>
+  <div style="display:grid;gap:14px">
+[[@scoring]]
+   <div class="gp-boosters" dir="[[@dir]]" role="group" aria-label="[[بوسترهای دور||Round boosters]]">
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="[[بوستر مینا||Mina's booster]]"><img src="../assets/games/gaia/booter.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-1">[[م||M]]</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="[[بوستر نیلوفر||Niloufar's booster]]"><img src="../assets/games/gaia/boonav.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-2">[[ن||N]]</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="[[بوستر آرش||Arash's booster]]"><img src="../assets/games/gaia/booqic.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-3">[[آ||A]]</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="[[بوستر سارا||Sara's booster]]"><img src="../assets/games/gaia/boomin.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-4">[[س||S]]</span></button>
+    <button class="gp-boost is-free" type="button" aria-label="[[بوستر آزاد: +۱ دانش، +۱ سنگ معدن||Free booster: +1 knowledge, +1 ore]]"><img src="../assets/games/gaia/booknw.webp" alt=""></button>
+    <button class="gp-boost is-free" type="button" aria-label="[[بوستر آزاد: +۱ سنگ معدن، +۲ ژتون قدرت||Free booster: +1 ore, +2 power tokens]]"><img src="../assets/games/gaia/boopwt.webp" alt=""></button>
+    <button class="gp-boost is-free" type="button" aria-label="[[بوستر آزاد: هنگام پاس ۲ امتیاز برای هر ایستگاه تجاری||Free booster: pass, 2 VP per trading station]]"><img src="../assets/games/gaia/bootrs.webp" alt=""></button>
+   </div>
+   <p class="gp-hint">[[هنگام پاس، بوستر خود را برمی‌گردانید و یکی از سه بوستر آزاد را برمی‌دارید.||When you pass, return your booster and take one of the three free ones.]]</p>
+  </div>
+ </div>
+</section>
+
+<section class="bgv-felt gp-zone" aria-label="[[صفحهٔ بازیکن‌ها||Player boards]]">
+ <div class="gp-tabs" role="tablist" aria-label="[[صفحهٔ کدام بازیکن||Whose board]]"><button type="button" role="tab" aria-selected="true"><i class="bgv-seat seat-1"></i>[[مینا، شما||Mina, you]]</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-2"></i>[[نیلوفر||Niloufar]]</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-3"></i>[[آرش||Arash]]</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-4"></i>[[سارا||Sara]]</button></div>
+[[@faction]]
+ <p class="gp-hint">[[روی هر تبدیل یا اقدام صفحه بروید تا توضیحش را ببینید و بزنید تا انجام شود.||Hover any conversion or action on the board to see what it does; click to use it.]]</p>
+</section>
+</div>
+
+<aside class="gp-rail" dir="[[@dir]]" aria-label="[[بازیکنان||Players]]">
+ <div class="bgv-pcard gp-panel" role="button" tabindex="0" aria-label="[[نیلوفر، صفحهٔ بازیکن||Niloufar, player board]]">
+  <div class="gp-panel__head"><span class="bgv-avatar bgv-avatar--sm seat-2">[[ن||N]]</span><div class="gp-panel__id"><b><i class="bgv-seat seat-2"></i>[[نیلوفر||Niloufar]]<span class="bgv-league bgv-league--diamond">[[الماس||Diamond]]</span></b><small><img class="gp-planet" src="../assets/games/gaia/planet-yellow.webp" alt="">[[زنوس||Xenos]]</small></div><span class="gp-vp" title="[[امتیاز||Victory points]]"><b>[[#32]]</b></span><span class="gp-side"><span class="gp-order" title="[[ترتیب نوبت در این دور||Turn order this round]]">[[#1]]</span></span></div>
+  <div class="gp-panel__res"><span class="gp-r" title="[[اعتبار||Credits]]"><span><img class="gp-ic" src="../assets/games/gaia/credits.webp" alt="">[[#8]]</span><small>[[#+6]]</small></span><span class="gp-r" title="[[سنگ معدن||Ore]]"><span><img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">[[#3]]</span><small>[[#+3]]</small></span><span class="gp-r" title="[[دانش||Knowledge]]"><span><img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt="">[[#2]]</span><small>[[#+3]]</small></span><span class="gp-r" title="QIC"><span><img class="gp-ic" src="../assets/games/gaia/qic.webp" alt="">[[#1]]</span><small>[[#+1]]</small></span></div>
+  <div class="gp-panel__pow" title="[[چرخهٔ قدرت: ناحیهٔ گایا و کاسه‌های I، II، III||Power cycle: Gaia area and bowls I, II, III]]"><span class="gp-bowl gp-bowl--g"><i>G</i><b>[[#0]]</b></span><span class="gp-bowl"><i>I</i><b>[[#0]]</b></span><span class="gp-bowl"><i>II</i><b>[[#3]]</b></span><span class="gp-bowl"><i>III</i><b>[[#0]]</b></span></div>
+  <div class="gp-panel__inc"><img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">[[شارژ قدرت||Power charge]] <b>[[#+5]]</b><span>[[ژتون قدرت||Power tokens]] <b>[[#+0]]</b></span></div>
+ </div>
+ <div class="bgv-pcard gp-panel" role="button" tabindex="0" aria-label="[[سارا، صفحهٔ بازیکن||Sara, player board]]">
+  <div class="gp-panel__head"><span class="bgv-avatar bgv-avatar--sm seat-4">[[س||S]]</span><div class="gp-panel__id"><b><i class="bgv-seat seat-4"></i>[[سارا||Sara]]<span class="bgv-league bgv-league--platinum">[[پلاتین||Platinum]]</span></b><small><img class="gp-planet" src="../assets/games/gaia/planet-orange.webp" alt="">[[ژئودن‌ها||Geodens]]</small></div><span class="gp-vp" title="[[امتیاز||Victory points]]"><b>[[#14]]</b></span><span class="gp-side"><span class="gp-order" title="[[ترتیب نوبت در این دور||Turn order this round]]">[[#2]]</span></span></div>
+  <div class="gp-panel__res"><span class="gp-r" title="[[اعتبار||Credits]]"><span><img class="gp-ic" src="../assets/games/gaia/credits.webp" alt="">[[#7]]</span><small>[[#+6]]</small></span><span class="gp-r" title="[[سنگ معدن||Ore]]"><span><img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">[[#0]]</span><small>[[#+4]]</small></span><span class="gp-r" title="[[دانش||Knowledge]]"><span><img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt="">[[#3]]</span><small>[[#+3]]</small></span><span class="gp-r" title="QIC"><span><img class="gp-ic" src="../assets/games/gaia/qic.webp" alt="">[[#0]]</span><small>[[#+0]]</small></span></div>
+  <div class="gp-panel__pow"><span class="gp-bowl gp-bowl--g"><i>G</i><b>[[#1]]</b></span><span class="gp-bowl"><i>I</i><b>[[#1]]</b></span><span class="gp-bowl"><i>II</i><b>[[#7]]</b></span><span class="gp-bowl"><i>III</i><b>[[#0]]</b></span></div>
+  <div class="gp-panel__inc"><img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">[[شارژ قدرت||Power charge]] <b>[[#+2]]</b><span>[[ژتون قدرت||Power tokens]] <b>[[#+0]]</b></span></div>
+  <div class="gp-panel__foot"><span class="bgv-strikes" aria-hidden="true"><i></i><i></i><i></i></span><span style="color:var(--text-muted)">[[یک تأخیر از سه||1 of 3 timeouts]]</span></div>
+ </div>
+ <div class="bgv-pcard gp-panel is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="[[مینا، شما||Mina, you]]">
+  <div class="gp-panel__head"><span class="bgv-avatar bgv-avatar--sm seat-1 is-you is-turn" style="--clock-c:var(--clock-calm);">[[م||M]]</span><div class="gp-panel__id"><b><i class="bgv-seat seat-1"></i>[[مینا||Mina]]<span class="bgv-league bgv-league--gold">[[طلا||Gold]]</span></b><small><img class="gp-planet" src="../assets/games/gaia/planet-red.webp" alt="">[[هادش هالا||Hadsch Hallas]]</small></div><span class="gp-vp" title="[[امتیاز||Victory points]]"><b>[[#18]]</b></span><span class="gp-side"><span class="gp-order" title="[[ترتیب نوبت در این دور||Turn order this round]]">[[#3]]</span></span></div>
+  <div class="gp-panel__res"><span class="gp-r" title="[[اعتبار||Credits]]"><span><img class="gp-ic" src="../assets/games/gaia/credits.webp" alt="">[[#18]]</span><small>[[#+9]]</small></span><span class="gp-r" title="[[سنگ معدن||Ore]]"><span><img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">[[#5]]</span><small>[[#+3]]</small></span><span class="gp-r" title="[[دانش||Knowledge]]"><span><img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt="">[[#4]]</span><small>[[#+2]]</small></span><span class="gp-r" title="QIC"><span><img class="gp-ic" src="../assets/games/gaia/qic.webp" alt="">[[#1]]</span><small>[[#+0]]</small></span></div>
+  <div class="gp-panel__pow"><span class="gp-bowl gp-bowl--g"><i>G</i><b>[[#0]]</b></span><span class="gp-bowl"><i>I</i><b>[[#4]]</b></span><span class="gp-bowl"><i>II</i><b>[[#2]]</b></span><span class="gp-bowl"><i>III</i><b>[[#0]]</b></span></div>
+  <div class="gp-panel__inc"><img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">[[شارژ قدرت||Power charge]] <b>[[#+4]]</b><span>[[ژتون قدرت||Power tokens]] <b>[[#+1]]</b></span></div>
+ </div>
+ <div class="bgv-pcard gp-panel" role="button" tabindex="0" aria-label="[[آرش، صفحهٔ بازیکن||Arash, player board]]">
+  <div class="gp-panel__head"><span class="bgv-avatar bgv-avatar--sm seat-3">[[آ||A]]</span><div class="gp-panel__id"><b><i class="bgv-seat seat-3"></i>[[آرش||Arash]]<span class="bgv-league bgv-league--silver">[[نقره||Silver]]</span></b><small><img class="gp-planet" src="../assets/games/gaia/planet-brown.webp" alt="">[[تاکلون‌ها||Taklons]]</small></div><span class="gp-vp" title="[[امتیاز||Victory points]]"><b>[[#12]]</b></span><span class="gp-side"><span class="gp-order" title="[[ترتیب نوبت در این دور||Turn order this round]]">[[#4]]</span></span></div>
+  <div class="gp-panel__res"><span class="gp-r" title="[[اعتبار||Credits]]"><span><img class="gp-ic" src="../assets/games/gaia/credits.webp" alt="">[[#11]]</span><small>[[#+4]]</small></span><span class="gp-r" title="[[سنگ معدن||Ore]]"><span><img class="gp-ic" src="../assets/games/gaia/ores.webp" alt="">[[#1]]</span><small>[[#+2]]</small></span><span class="gp-r" title="[[دانش||Knowledge]]"><span><img class="gp-ic" src="../assets/games/gaia/knowledge.webp" alt="">[[#1]]</span><small>[[#+2]]</small></span><span class="gp-r" title="QIC"><span><img class="gp-ic" src="../assets/games/gaia/qic.webp" alt="">[[#0]]</span><small>[[#+1]]</small></span></div>
+  <div class="gp-panel__pow"><span class="gp-bowl gp-bowl--g"><i>G</i><b>[[#0]]</b></span><span class="gp-bowl"><i>I</i><b>[[#0]]</b></span><span class="gp-bowl"><i>II</i><b>[[#4]]</b></span><span class="gp-bowl is-ready"><i>III</i><b>[[#2]]</b></span></div>
+  <div class="gp-panel__inc"><img class="gp-ic" src="../assets/games/gaia/power.webp" alt="">[[شارژ قدرت||Power charge]] <b>[[#+2]]</b><span>[[ژتون قدرت||Power tokens]] <b>[[#+1]]</b></span></div>
+  <div class="gp-panel__foot"><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>[[پاس داده؛ نفر اول دور بعد||Passed; first next round]]</span></div>
+ </div>
+ <section class="bgv-card" style="padding:12px;display:grid;gap:8px" aria-label="[[گزارش بازی||Game log]]"><b style="font-size:14px;color:var(--heading);padding-inline:4px">[[گزارش بازی||Game log]]</b><div class="bgv-log gp-log">
+  <div class="bgv-log__item"><i class="bgv-seat seat-4"></i><span>[[<b>سارا</b> روی سیارهٔ آتشفشانی معدن ساخت||<b>Sara</b> built a mine on a volcanic planet]]</span><time>[[۳ ساعت||3h]]</time></div>
+  <div class="bgv-log__item"><i class="bgv-seat seat-1"></i><span>[[<b>مینا</b>||<b>Mina</b>]] [[#2]] <img class="gp-ic" src="../assets/games/gaia/power.webp" alt="[[قدرت||power]]"> [[شارژ کرد و ۱ امتیاز داد||charged, paid 1 VP]]</span><time>[[۳ ساعت||3h]]</time></div>
+  <div class="bgv-log__item"><i class="bgv-seat seat-3"></i><span>[[<b>آرش</b> پاس داد||<b>Arash</b> passed]]</span><time>[[دیروز||1d]]</time></div>
+  <div class="bgv-log__item"><i class="bgv-seat seat-2"></i><span>[[<b>نیلوفر</b> ایستگاه تجاری ساخت؛ +۳ امتیاز دور||<b>Niloufar</b> built a trading station; +3 VP (round)]]</span><time>[[دیروز||1d]]</time></div>
+  <div class="bgv-log__item bgv-log__item--round"><span>[[دور ۴ شروع شد||Round 4 started]]</span></div>
+ </div></section>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

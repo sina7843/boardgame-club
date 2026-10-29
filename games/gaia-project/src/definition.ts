@@ -97,7 +97,7 @@ export const gaiaProject = defineGame({
 
       '## امتیاز دور',
       'در هر دور فقط کاشی همان دور فعال است و برای هر کاری که در فاز اقدام آن دور انجام دهید امتیاز می‌دهد (گام‌های زمین‌سازی رایگان هم شمرده می‌شوند). ۱۰ کاشی ممکن:',
-      ...Object.values(CONTENT.rounds).map((r) => `• ${r.labelFa}`),
+      ...new Set(Object.values(CONTENT.rounds).map((r) => `• ${r.labelFa}`)), // r7 and r10 are the same printed tile
 
       '## جناح‌ها',
       'هر جناح یک سیارهٔ خانگی، توانایی همیشگی و توانایی مؤسسهٔ سیاره‌ای دارد:',

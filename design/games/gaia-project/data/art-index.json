@@ -1,0 +1,1364 @@
+[
+ {
+  "path": "art/artwork/faction-portraits/portrait-Ambas.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 65512
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-BalTaks.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 63736
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Bescods.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 70686
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Firaks.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 75264
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Geodens.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 70690
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Gleens.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 67692
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-HadschHallas.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 59958
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Itars.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 64536
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Ivits.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 62026
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Lantids.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 59416
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Nevlas.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 65794
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Taklons.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 66980
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Terrans.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 65374
+ },
+ {
+  "path": "art/artwork/faction-portraits/portrait-Xenos.webp",
+  "w": 588,
+  "h": 497,
+  "bytes": 61248
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-firaks.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 21756
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-geodens.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 15742
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-hadschHallas.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 21606
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-itars.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 11326
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-taklons.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 14200
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-terrans.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 15920
+ },
+ {
+  "path": "art/automa-faction-cards/automa-faction-xenos.webp",
+  "w": 249,
+  "h": 382,
+  "bytes": 19944
+ },
+ {
+  "path": "art/boards/faction-Ambas.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 219378
+ },
+ {
+  "path": "art/boards/faction-Bal-Taks.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 234170
+ },
+ {
+  "path": "art/boards/faction-Bescods.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 208728
+ },
+ {
+  "path": "art/boards/faction-Firaks.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 213606
+ },
+ {
+  "path": "art/boards/faction-Geodens.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 229344
+ },
+ {
+  "path": "art/boards/faction-Gleens.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 216400
+ },
+ {
+  "path": "art/boards/faction-Hadsch-Hallas.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 220420
+ },
+ {
+  "path": "art/boards/faction-Itars.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 212916
+ },
+ {
+  "path": "art/boards/faction-Ivits.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 225434
+ },
+ {
+  "path": "art/boards/faction-Lantids.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 222138
+ },
+ {
+  "path": "art/boards/faction-Nevlas.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 209912
+ },
+ {
+  "path": "art/boards/faction-Taklons.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 216280
+ },
+ {
+  "path": "art/boards/faction-Terrans.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 219582
+ },
+ {
+  "path": "art/boards/faction-Xenos.webp",
+  "w": 1753,
+  "h": 999,
+  "bytes": 211068
+ },
+ {
+  "path": "art/boards/research-board.webp",
+  "w": 1838,
+  "h": 1972,
+  "bytes": 548028
+ },
+ {
+  "path": "art/boards/scoring-board.webp",
+  "w": 1737,
+  "h": 1718,
+  "bytes": 297064
+ },
+ {
+  "path": "art/federation-tokens/FEDcre-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 33078
+ },
+ {
+  "path": "art/federation-tokens/FEDcre.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 30898
+ },
+ {
+  "path": "art/federation-tokens/FEDgle-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 34168
+ },
+ {
+  "path": "art/federation-tokens/FEDgle.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 31600
+ },
+ {
+  "path": "art/federation-tokens/FEDknw-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 32388
+ },
+ {
+  "path": "art/federation-tokens/FEDknw.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 30844
+ },
+ {
+  "path": "art/federation-tokens/FEDore-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 32106
+ },
+ {
+  "path": "art/federation-tokens/FEDore.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 30058
+ },
+ {
+  "path": "art/federation-tokens/FEDpwt-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 32384
+ },
+ {
+  "path": "art/federation-tokens/FEDpwt.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 31122
+ },
+ {
+  "path": "art/federation-tokens/FEDqic-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 32532
+ },
+ {
+  "path": "art/federation-tokens/FEDqic.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 30146
+ },
+ {
+  "path": "art/federation-tokens/FEDvps-back.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 32594
+ },
+ {
+  "path": "art/federation-tokens/FEDvps.webp",
+  "w": 346,
+  "h": 424,
+  "bytes": 31888
+ },
+ {
+  "path": "art/final-scoring/FINbld.webp",
+  "w": 406,
+  "h": 268,
+  "bytes": 22670
+ },
+ {
+  "path": "art/final-scoring/FINfed.webp",
+  "w": 406,
+  "h": 268,
+  "bytes": 23866
+ },
+ {
+  "path": "art/final-scoring/FINgai.webp",
+  "w": 406,
+  "h": 268,
+  "bytes": 21640
+ },
+ {
+  "path": "art/final-scoring/FINsat.webp",
+  "w": 406,
+  "h": 268,
+  "bytes": 18552
+ },
+ {
+  "path": "art/final-scoring/FINsec.webp",
+  "w": 406,
+  "h": 268,
+  "bytes": 19232
+ },
+ {
+  "path": "art/final-scoring/FINtyp.webp",
+  "w": 406,
+  "h": 268,
+  "bytes": 21190
+ },
+ {
+  "path": "art/planet-art/planet-blue.webp",
+  "w": 228,
+  "h": 224,
+  "bytes": 16464
+ },
+ {
+  "path": "art/planet-art/planet-brown.webp",
+  "w": 220,
+  "h": 220,
+  "bytes": 14002
+ },
+ {
+  "path": "art/planet-art/planet-gaia.webp",
+  "w": 226,
+  "h": 228,
+  "bytes": 19180
+ },
+ {
+  "path": "art/planet-art/planet-grey.webp",
+  "w": 224,
+  "h": 224,
+  "bytes": 14696
+ },
+ {
+  "path": "art/planet-art/planet-orange.webp",
+  "w": 246,
+  "h": 160,
+  "bytes": 13588
+ },
+ {
+  "path": "art/planet-art/planet-red.webp",
+  "w": 220,
+  "h": 218,
+  "bytes": 12910
+ },
+ {
+  "path": "art/planet-art/planet-transdim.webp",
+  "w": 170,
+  "h": 170,
+  "bytes": 10212
+ },
+ {
+  "path": "art/planet-art/planet-white.webp",
+  "w": 216,
+  "h": 218,
+  "bytes": 12080
+ },
+ {
+  "path": "art/planet-art/planet-yellow.webp",
+  "w": 214,
+  "h": 214,
+  "bytes": 13336
+ },
+ {
+  "path": "art/round-boosters/BOOgai.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 25402
+ },
+ {
+  "path": "art/round-boosters/BOOknw.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 18450
+ },
+ {
+  "path": "art/round-boosters/BOOlab.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 23598
+ },
+ {
+  "path": "art/round-boosters/BOOmin.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 22572
+ },
+ {
+  "path": "art/round-boosters/BOOnav.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 22654
+ },
+ {
+  "path": "art/round-boosters/BOOpia.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 24524
+ },
+ {
+  "path": "art/round-boosters/BOOpwt.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 19522
+ },
+ {
+  "path": "art/round-boosters/BOOqic.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 19938
+ },
+ {
+  "path": "art/round-boosters/BOOter.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 22548
+ },
+ {
+  "path": "art/round-boosters/BOOtrs.webp",
+  "w": 204,
+  "h": 596,
+  "bytes": 23452
+ },
+ {
+  "path": "art/reference-cards/player-aid-front.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2402
+ },
+ {
+  "path": "art/reference-cards/terraforming-reference.webp",
+  "w": 87,
+  "h": 56,
+  "bytes": 2772
+ },
+ {
+  "path": "art/reference-cards/turn-order-card.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2010
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-01.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2004
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-02.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 1944
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-03.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2038
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-04.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 1942
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-05.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2016
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-06.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 1960
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-07.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2080
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-08.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2056
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-09.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2010
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-10.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2008
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-11.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2018
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-12.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2046
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-13.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 1944
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-14.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2018
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-15.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2058
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-16.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2084
+ },
+ {
+  "path": "art/reference-only/automa-rulebook-illustrations/rulebook-automa-illustration-17.webp",
+  "w": 56,
+  "h": 87,
+  "bytes": 2098
+ },
+ {
+  "path": "art/reference-only/source-symbols/Federations.webp",
+  "w": 60,
+  "h": 66,
+  "bytes": 1462
+ },
+ {
+  "path": "art/reference-only/source-symbols/Gaiaformation.webp",
+  "w": 113,
+  "h": 105,
+  "bytes": 1070
+ },
+ {
+  "path": "art/reference-only/source-symbols/Hand.webp",
+  "w": 145,
+  "h": 105,
+  "bytes": 2214
+ },
+ {
+  "path": "art/reference-only/source-symbols/Navigation.webp",
+  "w": 95,
+  "h": 92,
+  "bytes": 2070
+ },
+ {
+  "path": "art/reference-only/source-symbols/PlanetTypes.webp",
+  "w": 58,
+  "h": 57,
+  "bytes": 1926
+ },
+ {
+  "path": "art/reference-only/source-symbols/Sectors.webp",
+  "w": 69,
+  "h": 73,
+  "bytes": 2264
+ },
+ {
+  "path": "art/reference-only/source-symbols/Terraformation.webp",
+  "w": 69,
+  "h": 66,
+  "bytes": 1596
+ },
+ {
+  "path": "art/reference-only/source-symbols/VP.webp",
+  "w": 95,
+  "h": 92,
+  "bytes": 1764
+ },
+ {
+  "path": "art/reference-only/source-symbols/planet-no-terraform.webp",
+  "w": 155,
+  "h": 139,
+  "bytes": 6630
+ },
+ {
+  "path": "art/reference-only/source-symbols/planet-terraform.webp",
+  "w": 155,
+  "h": 139,
+  "bytes": 4822
+ },
+ {
+  "path": "art/round-scoring/RNDfed.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 33946
+ },
+ {
+  "path": "art/round-scoring/RNDgai3.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 35626
+ },
+ {
+  "path": "art/round-scoring/RNDgai4.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 33474
+ },
+ {
+  "path": "art/round-scoring/RNDmin.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 33670
+ },
+ {
+  "path": "art/round-scoring/RNDpia.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 36670
+ },
+ {
+  "path": "art/round-scoring/RNDstp.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 33388
+ },
+ {
+  "path": "art/round-scoring/RNDter.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 32058
+ },
+ {
+  "path": "art/round-scoring/RNDtrs3.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 33608
+ },
+ {
+  "path": "art/round-scoring/RNDtrs4.webp",
+  "w": 354,
+  "h": 404,
+  "bytes": 32440
+ },
+ {
+  "path": "art/round-scoring/round-scoring-back.webp",
+  "w": 182,
+  "h": 211,
+  "bytes": 9368
+ },
+ {
+  "path": "art/space-sectors/sector-1.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 74114
+ },
+ {
+  "path": "art/space-sectors/sector-10.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 75688
+ },
+ {
+  "path": "art/space-sectors/sector-2.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 77172
+ },
+ {
+  "path": "art/space-sectors/sector-3.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 77878
+ },
+ {
+  "path": "art/space-sectors/sector-4.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 74448
+ },
+ {
+  "path": "art/space-sectors/sector-5.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 75618
+ },
+ {
+  "path": "art/space-sectors/sector-5outlined.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 73700
+ },
+ {
+  "path": "art/space-sectors/sector-6.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 75362
+ },
+ {
+  "path": "art/space-sectors/sector-6outlined.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 73940
+ },
+ {
+  "path": "art/space-sectors/sector-7.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 76888
+ },
+ {
+  "path": "art/space-sectors/sector-7outlined.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 75766
+ },
+ {
+  "path": "art/space-sectors/sector-8.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 73070
+ },
+ {
+  "path": "art/space-sectors/sector-9.webp",
+  "w": 650,
+  "h": 705,
+  "bytes": 75998
+ },
+ {
+  "path": "art/structures/AC-blue.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 8636
+ },
+ {
+  "path": "art/structures/AC-brown.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 9080
+ },
+ {
+  "path": "art/structures/AC-grey.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 6832
+ },
+ {
+  "path": "art/structures/AC-orange.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 10038
+ },
+ {
+  "path": "art/structures/AC-red.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 8450
+ },
+ {
+  "path": "art/structures/AC-white.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 8740
+ },
+ {
+  "path": "art/structures/AC-yellow.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 9844
+ },
+ {
+  "path": "art/structures/GF-blue.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 1880
+ },
+ {
+  "path": "art/structures/GF-brown.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 1798
+ },
+ {
+  "path": "art/structures/GF-grey.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 1412
+ },
+ {
+  "path": "art/structures/GF-orange.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 2068
+ },
+ {
+  "path": "art/structures/GF-red.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 1642
+ },
+ {
+  "path": "art/structures/GF-white.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 1934
+ },
+ {
+  "path": "art/structures/GF-yellow.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 2188
+ },
+ {
+  "path": "art/structures/MI-blue.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 1656
+ },
+ {
+  "path": "art/structures/MI-brown.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 2072
+ },
+ {
+  "path": "art/structures/MI-grey.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 1612
+ },
+ {
+  "path": "art/structures/MI-orange.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 2572
+ },
+ {
+  "path": "art/structures/MI-red.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 2182
+ },
+ {
+  "path": "art/structures/MI-white.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 2268
+ },
+ {
+  "path": "art/structures/MI-yellow.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 2338
+ },
+ {
+  "path": "art/structures/PI-blue.webp",
+  "w": 228,
+  "h": 210,
+  "bytes": 9666
+ },
+ {
+  "path": "art/structures/PI-brown.webp",
+  "w": 230,
+  "h": 210,
+  "bytes": 11086
+ },
+ {
+  "path": "art/structures/PI-grey.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 8166
+ },
+ {
+  "path": "art/structures/PI-orange.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 12454
+ },
+ {
+  "path": "art/structures/PI-red.webp",
+  "w": 230,
+  "h": 210,
+  "bytes": 10868
+ },
+ {
+  "path": "art/structures/PI-white.webp",
+  "w": 232,
+  "h": 210,
+  "bytes": 12082
+ },
+ {
+  "path": "art/structures/PI-yellow.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 12604
+ },
+ {
+  "path": "art/structures/RL-blue.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4578
+ },
+ {
+  "path": "art/structures/RL-brown.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 4616
+ },
+ {
+  "path": "art/structures/RL-grey.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 3294
+ },
+ {
+  "path": "art/structures/RL-orange.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 5404
+ },
+ {
+  "path": "art/structures/RL-red.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4400
+ },
+ {
+  "path": "art/structures/RL-white.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4856
+ },
+ {
+  "path": "art/structures/RL-yellow.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4966
+ },
+ {
+  "path": "art/structures/TS-blue.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4072
+ },
+ {
+  "path": "art/structures/TS-brown.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 4320
+ },
+ {
+  "path": "art/structures/TS-grey.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 2620
+ },
+ {
+  "path": "art/structures/TS-orange.webp",
+  "w": 220,
+  "h": 210,
+  "bytes": 5102
+ },
+ {
+  "path": "art/structures/TS-red.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 3878
+ },
+ {
+  "path": "art/structures/TS-white.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4540
+ },
+ {
+  "path": "art/structures/TS-yellow.webp",
+  "w": 226,
+  "h": 210,
+  "bytes": 4594
+ },
+ {
+  "path": "art/technology/ADVfedP.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 14808
+ },
+ {
+  "path": "art/technology/ADVfedV.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 17372
+ },
+ {
+  "path": "art/technology/ADVgai.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 17160
+ },
+ {
+  "path": "art/technology/ADVknw.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 13212
+ },
+ {
+  "path": "art/technology/ADVlab.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 15604
+ },
+ {
+  "path": "art/technology/ADVminB.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 13526
+ },
+ {
+  "path": "art/technology/ADVminV.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 16084
+ },
+ {
+  "path": "art/technology/ADVore.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 12948
+ },
+ {
+  "path": "art/technology/ADVqic.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 13518
+ },
+ {
+  "path": "art/technology/ADVsecO.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 14714
+ },
+ {
+  "path": "art/technology/ADVsecV.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 16946
+ },
+ {
+  "path": "art/technology/ADVstp.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 12832
+ },
+ {
+  "path": "art/technology/ADVtrsB.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 14330
+ },
+ {
+  "path": "art/technology/ADVtrsV.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 17740
+ },
+ {
+  "path": "art/technology/ADVtyp.webp",
+  "w": 334,
+  "h": 264,
+  "bytes": 14708
+ },
+ {
+  "path": "art/technology/TECcre.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 12474
+ },
+ {
+  "path": "art/technology/TECgai.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 17164
+ },
+ {
+  "path": "art/technology/TECknw.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 14312
+ },
+ {
+  "path": "art/technology/TECore.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 14022
+ },
+ {
+  "path": "art/technology/TECpia.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 15768
+ },
+ {
+  "path": "art/technology/TECpow.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 15764
+ },
+ {
+  "path": "art/technology/TECqic.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 16644
+ },
+ {
+  "path": "art/technology/TECtyp.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 18546
+ },
+ {
+  "path": "art/technology/TECvps.webp",
+  "w": 356,
+  "h": 268,
+  "bytes": 16712
+ },
+ {
+  "path": "art/tokens-markers/ActionToken.webp",
+  "w": 364,
+  "h": 298,
+  "bytes": 8820
+ },
+ {
+  "path": "art/tokens-markers/Brainstone.webp",
+  "w": 228,
+  "h": 216,
+  "bytes": 6562
+ },
+ {
+  "path": "art/tokens-markers/Credits.webp",
+  "w": 240,
+  "h": 172,
+  "bytes": 6086
+ },
+ {
+  "path": "art/tokens-markers/Knowledge.webp",
+  "w": 228,
+  "h": 172,
+  "bytes": 4318
+ },
+ {
+  "path": "art/tokens-markers/LostPlanet.webp",
+  "w": 296,
+  "h": 298,
+  "bytes": 12196
+ },
+ {
+  "path": "art/tokens-markers/Ores.webp",
+  "w": 228,
+  "h": 172,
+  "bytes": 2094
+ },
+ {
+  "path": "art/tokens-markers/Power.webp",
+  "w": 228,
+  "h": 216,
+  "bytes": 5280
+ },
+ {
+  "path": "art/tokens-markers/Qic.webp",
+  "w": 228,
+  "h": 216,
+  "bytes": 6500
+ },
+ {
+  "path": "art/tokens-markers/RecordToken.webp",
+  "w": 364,
+  "h": 298,
+  "bytes": 11886
+ },
+ {
+  "path": "art/tokens-markers/SpaceStation.webp",
+  "w": 476,
+  "h": 480,
+  "bytes": 25996
+ },
+ {
+  "path": "art/tokens-markers/brainstone-physical.webp",
+  "w": 80,
+  "h": 80,
+  "bytes": 2608
+ },
+ {
+  "path": "art/tokens-markers/credit-marker-physical.webp",
+  "w": 154,
+  "h": 82,
+  "bytes": 2348
+ },
+ {
+  "path": "art/tokens-markers/first-player-marker.webp",
+  "w": 48,
+  "h": 91,
+  "bytes": 1786
+ },
+ {
+  "path": "art/tokens-markers/gaia-planet-token.webp",
+  "w": 260,
+  "h": 252,
+  "bytes": 16606
+ },
+ {
+  "path": "art/tokens-markers/knowledge-marker-physical.webp",
+  "w": 134,
+  "h": 90,
+  "bytes": 1654
+ },
+ {
+  "path": "art/tokens-markers/ore-marker-physical.webp",
+  "w": 120,
+  "h": 94,
+  "bytes": 1098
+ },
+ {
+  "path": "art/tokens-markers/player-token-blue.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 9512
+ },
+ {
+  "path": "art/tokens-markers/player-token-brown.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 8686
+ },
+ {
+  "path": "art/tokens-markers/player-token-gray.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 6922
+ },
+ {
+  "path": "art/tokens-markers/player-token-orange.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 10468
+ },
+ {
+  "path": "art/tokens-markers/player-token-red.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 8946
+ },
+ {
+  "path": "art/tokens-markers/player-token-white.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 9300
+ },
+ {
+  "path": "art/tokens-markers/player-token-yellow.webp",
+  "w": 218,
+  "h": 194,
+  "bytes": 10612
+ },
+ {
+  "path": "art/tokens-markers/power-token-physical.webp",
+  "w": 358,
+  "h": 318,
+  "bytes": 8170
+ },
+ {
+  "path": "art/tokens-markers/qic-physical.webp",
+  "w": 128,
+  "h": 130,
+  "bytes": 2582
+ },
+ {
+  "path": "art/tokens-markers/satellite-blue.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 2834
+ },
+ {
+  "path": "art/tokens-markers/satellite-brown.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 2784
+ },
+ {
+  "path": "art/tokens-markers/satellite-gray.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 2264
+ },
+ {
+  "path": "art/tokens-markers/satellite-orange.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 3080
+ },
+ {
+  "path": "art/tokens-markers/satellite-red.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 2802
+ },
+ {
+  "path": "art/tokens-markers/satellite-white.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 2894
+ },
+ {
+  "path": "art/tokens-markers/satellite-yellow.webp",
+  "w": 124,
+  "h": 142,
+  "bytes": 3232
+ }
+]

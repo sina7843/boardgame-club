@@ -1379,3 +1379,19 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Phone table HUD: DS `strip` layout for ≤5 players (board above the fold); `duel` only for the finished two-player result.
 - «خبرتان کنیم؟» also appears in the lobby of a turn-based table (asked once per device), restyled like the DS pre-prompt.
 - QA runs without the worker so live tables do not expire; `design/qa/pw.noworker.config.ts`.
+
+## Gaia Project table handoff v1.4, phase G0 (2026-10-29, owner request)
+- Package installed as-is: `design/games/gaia-project/` and its `.claude` commands/agent. DS v2.1 handoff was already in the repo; the 3 files that differ (`ds.config.json`, `e2e/design-qa.spec.ts`, `scripts/ds-qa-report.mjs`) are newer in the repo and kept.
+- `PublicSummary` seats gain optional generic `turnOrder`, `income`, `power` (game-sdk + contracts schema). Gaia fills them; the faction travels as badge key `faction:<id>`.
+- Game-specific rail panels go through `SEAT_CARDS` in `apps/web/src/games/renderers.tsx` (keyed like `RENDERERS`): the game returns PlayerCard props, the shell keeps head, clock and states. Gaia's is `gaiaSeatCard`.
+- Art copied into `games/gaia-project/src/art/` with its sub-folders (bundled by Vite, only imported files ship). Old flat files stay until the phase that replaces them (G1 map, G2 research, G3 faction boards); CDN/LFS still open.
+- The renderer's old player boards and turn line are gone (G3/G4): zone 3 (faction boards) and the action bar replace them.
+
+## Gaia Project table, phases G1–G6 (2026-10-29, owner request)
+- Renderer rewritten on the handoff art: map from `art/space-sectors` placed on the engine's axial grid (120 px column pitch, 140 px row, sector image anchored on its centre hex, rotation = 60°·`rotation`); sector art at rotation 0 was checked against the engine's sector 1 ring order. Planets come from the art; the renderer draws only pieces (structures, gaiaformers, satellites, gaia-planet token, lost planet).
+- Board positions come straight from `layout.json` (copied to `games/gaia-project/src/design/` with `content-id-map.json`; art resolved by path through `import.meta.glob`). Map piece widths are scaled from the 4-player frame to the actual map size, so 2- and 3-player maps keep the same piece size.
+- Undo before confirm: a turn is a local draft run through the engine's own `validate`/`apply`/`legalActions` on a state rebuilt from the public view (`ins` 0, `turnDone` false; only while nothing is pending). An engine test checks that this rebuilt state applies every legal move exactly like the server. «تأیید» sends the steps one at a time without the shell's undo window (`CONFIRMS_IN_RENDERER`); a step the server rejects drops the rest.
+- Auto-charge is engine state (`PlayerState.auto`, action `autoCharge`, free, any seat, any time); `flow()` answers the head leech when the setting allows. Default `free`: 1-power charges are taken without asking (HANDOFF decision 9). Custom leeches (Taklons) and VP shortfalls are always asked. «دفعهٔ بعد نپرس» sets «تا N امتیاز» to the current offer's cost.
+- Disabled reasons are engine error codes (most relevant code among the candidate actions) with a short Persian line; the detailed «۴ لازم، ۱ دارید» wording is not built.
+- Not designed yet, built from the suggested pattern (for design review): faction choice as cards (portrait + home planet + abilities); faction special action as an orange button in the owned-tiles row; spectator = same table without the bar; 2-player map uses the `*outlined` sector backs; English/dark phone reuse the Persian light layout with DS tokens.
+- English game layer covers the renderer's own strings and faction names; content tile texts (`labelFa`) stay Persian (no English content in the engine). Zoom (Kit 2) is a 2× scale on hover/focus with a 300 ms delay plus `title` text, not a popover with rule text.

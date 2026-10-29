@@ -1,0 +1,22 @@
+{
+ "game": "gaia-project",
+ "version": "1.0",
+ "generated": "2026-10-28",
+ "canvas": "https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier (page «۱۲. پایلوت BGA: پروژه گایا», version 30)",
+ "note": "reference/img/<id>@<width>.jpg is the design; reference/html/gaia/<id>.html opens offline; reference/dc/<id>.dc.html is the canvas source. Mock data (names, numbers) may differ from a live table; structure, pieces, positions and states may not.",
+ "seats": { "mina": "viewer, Hadsch Hallas (red), in turn", "niloufar": "Xenos (yellow)", "arash": "Taklons (brown), passed", "sara": "Geodens (orange)" },
+ "screens": [
+  { "id": "Gaia-Table-Desktop", "kind": "table", "viewports": [1440], "theme": "light", "lang": "fa", "state": "round 4 of 6, viewer's turn, nothing picked yet: action bar idle, map with all pieces, research/scoring/boosters, viewer's faction board", "reference": ["img/Gaia-Table-Desktop@1440.jpg"] },
+  { "id": "Gaia-Table-Desktop-EN", "kind": "table", "viewports": [1440], "theme": "light", "lang": "en", "state": "same as Gaia-Table-Desktop, game layer in English (shell stays Persian)", "reference": ["img/Gaia-Table-Desktop-EN@1440.jpg"] },
+  { "id": "Gaia-Table-Desktop-Dark", "kind": "table", "viewports": [1440], "theme": "dark", "lang": "fa", "state": "same as Gaia-Table-Desktop, dark theme", "reference": ["img/Gaia-Table-Desktop-Dark@1440.jpg"] },
+  { "id": "Gaia-Turn-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "viewer's turn, «ساخت معدن» chosen: map tab zoomed on the 3 buildable planets with cost tags, one picked, dock asks to confirm", "reference": ["img/Gaia-Turn-Mobile@390.jpg"] },
+  { "id": "Gaia-Tech-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "after building a lab: research tab, tech tiles selectable, one picked, dock shows the zoomed tile and its rule", "reference": ["img/Gaia-Tech-Mobile@390.jpg"] },
+  { "id": "Gaia-Actions-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "viewer's turn, actions sheet open over the map: main actions (cost, disabled reason), free conversions, auto-charge setting", "reference": ["img/Gaia-Actions-Mobile@390.jpg"] },
+  { "id": "Gaia-Board-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "«صفحهٔ من» tab: player sub-tabs, viewer's faction board with remaining buildings, power tokens, conversions, booster, owned tiles; collapsed action bar", "reference": ["img/Gaia-Board-Mobile@390.jpg"] },
+  { "id": "Gaia-Scoring-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "«امتیاز» tab: scoring board (played rounds flipped), final tracks, planet counters, boosters, federation supply", "reference": ["img/Gaia-Scoring-Mobile@390.jpg"] },
+  { "id": "Gaia-Leech-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "Sara's turn; she built next to the viewer: dock offers a 2-power charge for 1 VP, «دفعهٔ بعد نپرس», link to auto-charge settings", "reference": ["img/Gaia-Leech-Mobile@390.jpg"] },
+  { "id": "GameKit-Spec", "kind": "spec", "viewports": [1440], "theme": "light", "state": "Game Kit 1-3: pick states, piece zoom, multi-step dock (DS v2.2 proposal)", "reference": ["img/GameKit-Spec@1440.jpg"] },
+  { "id": "Gaia-Actions-Spec", "kind": "spec", "viewports": [1440], "theme": "light", "state": "every action with cost, steps and code; upgrade/research/gaia/federation flows; leech + auto-charge; faction specials; disabled reasons", "reference": ["img/Gaia-Actions-Spec@1440.jpg"] },
+  { "id": "Gaia-Factions", "kind": "spec", "viewports": [1440], "theme": "light", "state": "all 14 factions: board, home planet, ability and PI text from content/*.ts", "reference": ["img/Gaia-Factions@1440.jpg"] }
+ ]
+}
