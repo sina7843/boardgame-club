@@ -215,10 +215,11 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
         style={{ ['--c' as string]: clanColor(f.seat) }} role={clickable ? 'button' : 'img'} aria-label={label} tabIndex={clickable ? 0 : undefined}
         onClick={clickable ? (e) => { e.stopPropagation(); clickFig(f); } : undefined}
         onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickFig(f); } } : undefined}>
-        {f.kind === 'leader' && <><circle r="17" className="blr-fig__body" /><path d="M-9 5 L-7 -7 L-2 -1 L0 -9 L2 -1 L7 -7 L9 5Z" className="blr-fig__crown" /></>}
-        {f.kind === 'warrior' && <><circle r="11.5" className="blr-fig__body" /><path d="M-5 4 L0 -6 L5 4Z" className="blr-fig__mark" /></>}
-        {f.kind === 'ship' && <><path d="M-17 2 H17 L11 12 H-11Z" className="blr-fig__body" /><path d="M0 -14 V2 M0 -14 L12 -2 H0" className="blr-fig__mark blr-fig__sail" /></>}
-        {f.kind === 'monster' && <><path d="M0 -17 L16 0 L0 17 L-16 0Z" className="blr-fig__body" /><text className="blr-fig__txt" textAnchor="middle" dy="5">{(CARD_BY_ID[f.mon ?? '']?.nameFa ?? '؟')[0]}</text></>}
+        <ellipse cy="12" rx={f.kind === 'ship' ? 18 : 12} ry="4" className="blr-fig__shadow" />
+        {f.kind === 'leader' && <><circle r="17" className="blr-fig__body" /><circle r="17" className="blr-fig__shine" /><path d="M-9 5 L-7 -7 L-2 -1 L0 -9 L2 -1 L7 -7 L9 5Z" className="blr-fig__crown" /></>}
+        {f.kind === 'warrior' && <><circle r="11.5" className="blr-fig__body" /><circle r="11.5" className="blr-fig__shine" /><path d="M-5 4 L0 -6 L5 4Z" className="blr-fig__mark" /></>}
+        {f.kind === 'ship' && <><path d="M-17 2 H17 L11 12 H-11Z" className="blr-fig__body" /><path d="M-17 2 H17 L11 12 H-11Z" className="blr-fig__shine" /><path d="M0 -14 V2 M0 -14 L12 -2 H0" className="blr-fig__mark blr-fig__sail" /></>}
+        {f.kind === 'monster' && <><path d="M0 -17 L16 0 L0 17 L-16 0Z" className="blr-fig__body" /><path d="M0 -17 L16 0 L0 17 L-16 0Z" className="blr-fig__shine" /><text className="blr-fig__txt" textAnchor="middle" dy="5">{(CARD_BY_ID[f.mon ?? '']?.nameFa ?? '؟')[0]}</text></>}
       </g>
     );
   };
@@ -241,7 +242,19 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
         <div className="blr__board">
           <ZoomBoard label="نقشهٔ میدگارد">
             <svg className="blr-map" viewBox={`0 0 ${C * 2} ${C * 2}`} role="group" aria-label="نقشهٔ میدگارد">
+              <defs>
+                <radialGradient id="blr-g-sea" cx="50%" cy="50%" r="55%"><stop offset="0" stopColor="#1d5775" /><stop offset="0.7" stopColor="#0e3044" /><stop offset="1" stopColor="#071723" /></radialGradient>
+                <linearGradient id="blr-g-manheim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b8934a" /><stop offset="1" stopColor="#6f5320" /></linearGradient>
+                <linearGradient id="blr-g-alfheim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#9aa8b4" /><stop offset="1" stopColor="#4e5c69" /></linearGradient>
+                <linearGradient id="blr-g-jotunheim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6ea8c8" /><stop offset="1" stopColor="#2b5a78" /></linearGradient>
+                <radialGradient id="blr-g-ygg" cx="50%" cy="40%" r="65%"><stop offset="0" stopColor="#5fa86a" /><stop offset="1" stopColor="#1f5232" /></radialGradient>
+                <radialGradient id="blr-g-coin" cx="35%" cy="30%" r="75%"><stop offset="0" stopColor="#fff0b0" /><stop offset="0.6" stopColor="#e0b655" /><stop offset="1" stopColor="#8a5f14" /></radialGradient>
+                <radialGradient id="blr-g-fig" cx="35%" cy="28%" r="80%"><stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.45" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.35" /></radialGradient>
+                <filter id="blr-f-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" floodColor="#000" floodOpacity="0.6" /></filter>
+                <filter id="blr-f-rough" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" /><feColorMatrix in="n" type="saturate" values="0" result="g" /><feComponentTransfer in="g" result="a"><feFuncA type="linear" slope="0.18" /></feComponentTransfer><feComposite in="a" in2="SourceGraphic" operator="in" /></filter>
+              </defs>
               <circle cx={C} cy={C} r={C - 4} className="blr-sea" />
+              <circle cx={C} cy={C} r={C - 40} className="blr-wave" /><circle cx={C} cy={C} r={C - 80} className="blr-wave blr-wave--2" />
               {RING.map((p) => {
                 const a = angleOf(p), dead = view.destroyed.includes(p);
                 const tg = targets.has(p), src = sources.has(p), pl = view.pillaged.includes(p);
@@ -254,6 +267,7 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
                     role={clickable ? 'button' : 'group'} tabIndex={clickable ? 0 : undefined} aria-label={`${PROVINCES[p].nameFa}، ${REGION_FA[PROVINCES[p].region!]}${dead ? '، نابودشده' : ''}${pl ? '، غارت‌شده' : ''}${tg ? '، قابل انتخاب' : ''}`}
                     onClick={clickable ? () => clickPlace(p) : undefined} onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickPlace(p); } } : undefined}>
                     <path d={sector(120, 316, a - 22, a + 22)} className="blr-prov__land" />
+                    <path d={sector(120, 316, a - 22, a + 22)} className="blr-prov__rough" filter="url(#blr-f-rough)" />
                     {!dead && slots.slice(0, PROVINCES[p].villages).map((s, k) => <circle key={k} cx={s.x} cy={s.y} r="14" className="blr-slot" />)}
                     {!dead && here.map((f, k) => renderFigure(f, slots[k] ?? slots[0]!))}
                     <text {...pt(142, a)} className="blr-prov__name" textAnchor="middle">{PROVINCES[p].nameFa}</text>
@@ -286,6 +300,7 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
                 aria-label={`ایگدراسیل${view.pillaged.includes('ygg') ? '، غارت‌شده' : ''}`}
                 onClick={targets.has('ygg') || sources.has('ygg') ? () => clickPlace('ygg') : undefined}>
                 <circle cx={C} cy={C} r="108" className="blr-prov__land blr-ygg__land" />
+                <g className="blr-tree" aria-hidden transform={`translate(${C} ${C - 4})`}><path d="M-6 56 C-4 20 -14 6 -34 -4 M6 56 C4 20 14 6 34 -4 M0 56 V-20 M0 10 C-14 -2 -26 -14 -40 -34 M0 10 C14 -2 26 -14 40 -34 M0 -20 C-6 -34 -8 -44 -6 -54 M0 -20 C6 -34 8 -44 6 -54" className="blr-tree__bough" /><g className="blr-tree__leaf"><circle cx="-40" cy="-38" r="16" /><circle cx="40" cy="-38" r="16" /><circle cx="-8" cy="-58" r="18" /><circle cx="10" cy="-56" r="16" /><circle cx="-24" cy="-22" r="13" /><circle cx="24" cy="-22" r="13" /></g></g>
                 <text x={C} y={C - 68} className="blr-prov__name" textAnchor="middle">ایگدراسیل</text>
                 {byPlace('ygg').map((f, k) => renderFigure(f, slotPositions('ygg')[k] ?? slotPositions('ygg')[0]!))}
                 <g transform={`translate(${C} ${C + 82})`} className={`blr-token${view.pillaged.includes('ygg') ? ' is-flipped' : ''}`}>
