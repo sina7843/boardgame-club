@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
+import { player, pickPlayers } from './helpers.ts';
 
 // «گایا پراجکت» end to end: the tutorial (round 6 teaching position: mine with terraforming, trading station,
 // federation with a satellite, research, a power action, pass to the final scoring) through the highlighted hints, and a
@@ -36,7 +36,7 @@ test('interactive tutorial: mine, trading station, federation, research, power a
       if (!(await clickHint(p))) break;
       if (step === '۱' && k === 1) {
         await p.screenshot({ path: shot(info.project.name, 'tutorial-hex'), fullPage: true });
-        await p.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, 'boards-tutorial') }).catch(() => undefined);
+        await p.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, 'boards-tutorial'), timeout: 5000 }).catch(() => undefined);
       }
       await p.waitForTimeout(250);
     }
@@ -48,17 +48,16 @@ test('interactive tutorial: mine, trading station, federation, research, power a
 test('undo before confirm: the drafted mine stands on its hex, «برگرد» takes it away, «تأیید» sends it', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'نوآموز');
-  await recordMotion(p);
   await p.goto('/games/gaia-project');
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   await expect(p.getByText(/آموزش: مرحله ۱ از ۶/)).toBeVisible();
-  const mines = p.locator('.gp-map [data-flip$="-mine"]');
+  const mines = p.locator('.gp-map [data-gp-piece="MI"]');
   const before = await mines.count();
   const seq = await p.locator('.gp').getAttribute('data-seq');
   await p.locator('button.gp-hex--hint').first().click();
   await expect(mines).toHaveCount(before + 1);
-  await p.waitForTimeout(700);
-  expect((await motionLog(p)).some((m) => m.flip?.startsWith('st-'))).toBe(true);
+  // only the new mine animates (fade in); the pieces already on the map keep still
+  await expect(p.locator('.gp-map .gp-new')).toHaveCount(1);
   expect(await p.locator('.gp').getAttribute('data-seq')).toBe(seq); // nothing sent yet
   await p.locator('.gp-undo:visible').click();
   await expect(mines).toHaveCount(before);
@@ -151,7 +150,7 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
       await expect.poll(() => p.locator('.gp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
       if (n === 12) for (const [i, q] of pages.entries()) {
         await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: info.project.name.startsWith('desktop'), timeout: 20_000 }).catch(() => undefined);
-        await q.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, `boards-${i}`) }).catch(() => undefined);
+        await q.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, `boards-${i}`), timeout: 5000 }).catch(() => undefined);
       }
       acted = true;
       break;

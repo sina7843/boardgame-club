@@ -8,8 +8,8 @@
 // from the rules, and «برگرد» removes the last step. Confirm sends the steps one by one; after that there is no undo.
 // Out-of-turn power charges (leech) and the auto-charge setting are sent at once.
 import './renderer.css';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, fa, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Button, fa, type GameAction, type GameRendererProps } from '@bg/ui';
 import {
   BUILDING_FA, BUILD_COST, CONTENT, POWER_ACTIONS, RESEARCH_COST, RES_FA, BASE_CONVERSIONS, TRACKS, TRACK_FA, buildMap, gaiaProjectModule, minePlan,
   type Building, type Gain, type GaiaAction, type GaiaState, type GaiaView, type Track
@@ -22,6 +22,13 @@ import IDS from './design/content-id-map.json' with { type: 'json' };
 const ART = import.meta.glob<string>('./art/**/*.webp', { eager: true, import: 'default' });
 /** Web URL of a file under art/ (paths as in content-id-map.json, e.g. `art/boards/research-board.webp`). */
 const art = (path: string) => ART[`./${path}`] ?? '';
+/** Half-size copies of the big boards and sectors (art-sm/, same paths) for phones. */
+const ART_SM = import.meta.glob<string>('./art-sm/**/*.webp', { eager: true, import: 'default' });
+const srcSet = (path: string, w: number) => { const sm = ART_SM[`./art-sm/${path.slice(4)}`]; return sm ? `${sm} ${Math.round(w / 2)}w, ${art(path)} ${w}w` : undefined; };
+/** A board image: intrinsic size known (no layout shift), decoded off the main thread, half size on phones. */
+function BoardImg({ path, w, h, alt, sizes }: { path: string; w: number; h: number; alt: string; sizes: string }) {
+  return <img className="gp-board__img" src={art(path)} srcSet={srcSet(path, w)} sizes={sizes} width={w} height={h} alt={alt} decoding="async" draggable={false} />;
+}
 type FactionIds = Record<string, { nameEn: string; color: string; board: string; portrait: string }>;
 const FACTIONS = IDS.factions as FactionIds;
 const pick = (table: Record<string, string>, id: string) => art(table[id] ?? '');
@@ -35,6 +42,8 @@ const COLORS = LAYOUT.colors as Record<string, string>;
 /** Faction colour (home planet): structures `grey`, markers/gaiaformers `gray` (HANDOFF.md «هنر»). */
 const colorOf = (v: GaiaView, seat: number) => COLORS[CONTENT.factions[v.pl[seat]?.faction ?? '']?.home ?? ''] ?? 'grey';
 const markerOf = (v: GaiaView, seat: number) => colorOf(v, seat).replace('grey', 'gray');
+/** `--own` for the viewer's stroke layer. */
+const ownVar = (v: GaiaView, me: number | null) => (me !== null && v.pl[me]?.faction ? { '--own': OWN[colorOf(v, me)] } as CSSProperties : undefined);
 const OWN: Record<string, string> = { red: '#F0624F', blue: '#5AA9F0', orange: '#F59A3C', yellow: '#F5D04A', brown: '#C98B55', grey: '#B8C2CC', white: '#FFFFFF' };
 const STRUCT: Record<Building, string> = { mine: 'MI', ts: 'TS', lab: 'RL', pi: 'PI', ac1: 'AC', ac2: 'AC', gf: 'GF', station: 'station' };
 const structArt = (b: Building, color: string) => (b === 'gf' ? art(`art/tokens-markers/player-token-${color.replace('grey', 'gray')}.webp`)
@@ -241,6 +250,8 @@ interface Ctx {
   hint: (a: GameAction) => boolean;
   expectedHex: number | null;
   costOf: (hex: number) => Gain | null;
+  /** ' gp-new' for a piece that appeared with this state (fade in once), '' otherwise. */
+  fresh: (key: string) => string;
 }
 
 const M = LAYOUT.map;
@@ -250,7 +261,7 @@ const CORNERS = [[HW / 2, 0], [HW / 4, HY / 2], [-HW / 4, HY / 2], [-HW / 2, 0],
 const NB = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]] as const;
 
 /** Space map (COMPONENTS.md §3): sector art on the hex grid, outer sector strokes, pieces, selectable hexes. */
-function SpaceMap({ c }: { c: Ctx }) {
+const SpaceMap = memo(function SpaceMap({ c }: { c: Ctx }) {
   const { view } = c;
   const [zoom, setZoom] = useState(1);
   const xy = (h: { q: number; r: number }) => ({ x: HX * h.q, y: HY * (h.r + h.q / 2) });
@@ -260,7 +271,7 @@ function SpaceMap({ c }: { c: Ctx }) {
   const W = maxX - minX, H = maxY - minY;
   const P = (p: { x: number; y: number }) => ({ x: p.x - minX, y: p.y - minY });
   const scale = (pct: number) => (pct * M.frame.w) / W; // layout widths are % of the 4-player frame
-  const original = buildMap(view.placements);
+  const original = useMemo(() => buildMap(view.placements), [view.placements]);
   const idx = new Map(view.hexes.map((h, i) => [`${h.q},${h.r}`, i]));
   const outline = view.hexes.flatMap((h, i) => NB.flatMap(([dq, dr], k) => {
     const j = idx.get(`${h.q + dq},${h.r + dr}`);
@@ -269,6 +280,27 @@ function SpaceMap({ c }: { c: Ctx }) {
     return [`M${p.x + a[0]},${p.y + a[1]}L${p.x + b[0]},${p.y + b[1]}`];
   })).join('');
   const sw = (b: Building) => scale(b === 'station' ? M.pieceWidthPct.GF * 0.8 : (M.pieceWidthPct as Record<string, number>)[STRUCT[b]] ?? 6);
+  // Pieces go into two stroke layers (one CSS filter per layer, not per piece): everyone's, and the viewer's own
+  // with the second faction-colour stroke. Keys start with the hex so a new piece never remounts its neighbours.
+  const pieces: ReactNode[] = [], ownPieces: ReactNode[] = [];
+  view.hexes.forEach((h, i) => {
+    const p = P(cs[i]!);
+    const put = (own: boolean, key: string, el: (k: string, cls: string) => ReactNode) => (own ? ownPieces : pieces).push(el(key, c.fresh(key)));
+    if (h.planet === 'g' && original[i]?.planet === 'm') put(false, `${i}gt`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="token" data-hex={i} src={art(IDS.pieces.gaiaPlanetToken)} alt="" loading="lazy" decoding="async" style={at(p.x, p.y, W, H, scale(4.6))} />);
+    if (h.planet === 'l') put(false, `${i}lost`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="lost" data-hex={i} src={art(IDS.pieces.lostPlanet)} alt="سیارهٔ گمشده" decoding="async" style={at(p.x, p.y, W, H, scale(4.6))} />);
+    if (h.building && h.owner !== null) {
+      const b = h.building, o = h.owner;
+      put(o === c.me && b !== 'gf', `${i}b`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece={b === 'gf' ? 'GF' : STRUCT[b]} data-hex={i} data-seat={o}
+        src={structArt(b, colorOf(view, o))} alt={`${BUILDING_FA[b]} ${c.who(o)}`} title={`${c.who(o)}: ${BUILDING_FA[b]}`} decoding="async" style={at(p.x, p.y, W, H, sw(b))} />);
+    }
+    if (h.extra !== null) {
+      const o = h.extra;
+      put(o === c.me, `${i}x`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="MI" data-hex={i} data-seat={o} src={structArt('mine', colorOf(view, o))} alt={`معدن ${c.who(o)}`}
+        title={`${c.who(o)}: معدن`} decoding="async" style={at(p.x + 42, p.y - 34, W, H, sw('mine') * 0.7)} />);
+    }
+    h.sats.forEach((s, n) => put(false, `${i}s${s}`, (k, f) => <img key={k} className={`gp-at${f}`} data-gp-piece="sat" data-hex={i} data-seat={s}
+      src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt={`ماهوارهٔ ${c.who(s)}`} title={`ماهوارهٔ ${c.who(s)}`} decoding="async" style={at(p.x - 30 + n * 30, p.y + (n % 2) * 20, W, H, scale(3.2))} />));
+  });
 
   return (
     <div className="gp-mapbox" data-gp-board="map">
@@ -283,44 +315,35 @@ function SpaceMap({ c }: { c: Ctx }) {
             const n = p.sector.replace(/[AB]/, '');
             const back = p.sector.endsWith('B');
             const o = P(xy({ q: p.center[0], r: p.center[1] }));
-            return <img key={p.sector} className="gp-sector" src={art(`art/space-sectors/sector-${n}${back ? 'outlined' : ''}.webp`)} alt="" draggable={false}
+            const file = `art/space-sectors/sector-${n}${back ? 'outlined' : ''}.webp`;
+            return <img key={p.sector} className="gp-sector" src={art(file)} srcSet={srcSet(file, M.sector.w)} sizes="(max-width: 760px) 50vw, 25vw" width={M.sector.w} height={M.sector.h} decoding="async" alt="" draggable={false}
               style={{ left: `${((o.x - SCX) / W) * 100}%`, top: `${((o.y - SCY) / H) * 100}%`, width: `${(M.sector.w / W) * 100}%`,
                 transformOrigin: `${(SCX / M.sector.w) * 100}% ${(SCY / M.sector.h) * 100}%`, transform: `rotate(${60 * p.rotation}deg)` }} />;
           })}
           <svg className="gp-outline" viewBox={`0 0 ${W} ${H}`} aria-hidden="true"><path d={outline} /></svg>
+          <div className="gp-layer">{pieces}</div>
+          <div className="gp-layer gp-layer--own" style={ownVar(view, c.me)}>{ownPieces}</div>
           {view.hexes.map((h, i) => {
             const p = P(cs[i]!);
-            const pieces: ReactNode[] = [];
-            if (h.planet === 'g' && original[i]?.planet === 'm') pieces.push(<img key="gt" className="gp-at gp-piece" data-gp-piece="token" data-hex={i} src={art(IDS.pieces.gaiaPlanetToken)} alt="" style={at(p.x, p.y, W, H, scale(4.6))} />);
-            if (h.planet === 'l') pieces.push(<img key="lost" className="gp-at gp-piece" data-gp-piece="lost" data-hex={i} src={art(IDS.pieces.lostPlanet)} alt="سیارهٔ گمشده" style={at(p.x, p.y, W, H, scale(4.6))} />);
-            if (h.building && h.owner !== null) {
-              const own = h.owner === c.me && h.building !== 'gf';
-              pieces.push(<img key="b" data-flip={`st-${i}-${h.building}`} className={`gp-at gp-piece${own ? ' gp-piece--own' : ''}`} data-gp-piece={h.building === 'gf' ? 'GF' : STRUCT[h.building]} data-hex={i} data-seat={h.owner}
-                src={structArt(h.building, colorOf(view, h.owner))} alt={`${BUILDING_FA[h.building]} ${c.who(h.owner)}`} title={`${c.who(h.owner)}: ${BUILDING_FA[h.building]}`}
-                style={{ ...at(p.x, p.y, W, H, sw(h.building)), ...(own ? { '--own': OWN[colorOf(view, h.owner)] } : {}) } as CSSProperties} />);
-            }
-            if (h.extra !== null) pieces.push(<img key="x" data-flip={`ex-${i}`} className={`gp-at gp-piece${h.extra === c.me ? ' gp-piece--own' : ''}`} data-gp-piece="MI" data-hex={i} data-seat={h.extra}
-              src={structArt('mine', colorOf(view, h.extra))} alt={`معدن ${c.who(h.extra)}`} title={`${c.who(h.extra)}: معدن`} style={{ ...at(p.x + 42, p.y - 34, W, H, sw('mine') * 0.7), '--own': OWN[colorOf(view, h.extra)] } as CSSProperties} />);
-            h.sats.forEach((s, k) => pieces.push(<img key={`s${s}`} data-flip={`sat-${i}-${s}`} className="gp-at gp-piece" data-gp-piece="sat" data-hex={i} data-seat={s}
-              src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt={`ماهوارهٔ ${c.who(s)}`} title={`ماهوارهٔ ${c.who(s)}`} style={at(p.x - 30 + k * 30, p.y + (k % 2) * 20, W, H, scale(3.2))} />));
             const acts = c.pickHex.get(i);
             const picked = c.pickedHex === i;
             const hinted = c.expectedHex === i;
+            if (!acts && !picked && !hinted) return null;
             const label = `${h.planet === 'e' ? 'فضای خالی' : h.planet}، بخش ${fa(h.sector)}${h.building && h.owner !== null ? `، ${BUILDING_FA[h.building]} ${c.who(h.owner)}` : ''}`;
             const cost = acts && !picked ? c.costOf(i) : null;
+            const box = { ...at(p.x, p.y, W, H, (HW / W) * 100), height: `${(HY / H) * 100}%` };
             return [
-              ...pieces,
-              acts || picked ? <button key="h" type="button" className={`gp-hex${hinted ? ' gp-hex--hint' : ''}`} data-pick={picked ? 'picked' : 'selectable'} aria-pressed={picked} data-hex={i}
-                aria-label={label} style={{ ...at(p.x, p.y, W, H, (HW / W) * 100), height: `${(HY / H) * 100}%` }} onClick={() => c.onHex(i)}>{picked && <span className="gp-check" aria-hidden="true">✓</span>}</button>
-                : hinted ? <span key="h" className="gp-hex gp-hex--hint" aria-hidden="true" style={{ ...at(p.x, p.y, W, H, (HW / W) * 100), height: `${(HY / H) * 100}%` }} /> : null,
-              cost ? <span key="t" className="gp-at gp-tag" style={at(p.x, p.y + HY * 0.42, W, H, scale(6))}><CostPill g={cost} /></span> : null
+              acts || picked ? <button key={`h${i}`} type="button" className={`gp-hex${hinted ? ' gp-hex--hint' : ''}`} data-pick={picked ? 'picked' : 'selectable'} aria-pressed={picked} data-hex={i}
+                aria-label={label} style={box} onClick={() => c.onHex(i)}>{picked && <span className="gp-check" aria-hidden="true">✓</span>}</button>
+                : <span key={`h${i}`} className="gp-hex gp-hex--hint" aria-hidden="true" style={box} />,
+              cost ? <span key={`t${i}`} className="gp-at gp-tag" style={at(p.x, p.y + HY * 0.42, W, H, scale(6))}><CostPill g={cost} /></span> : null
             ];
           })}
         </div>
       </div>
     </div>
   );
-}
+});
 
 const RB = LAYOUT.researchBoard;
 const SB = LAYOUT.scoringBoard;
@@ -328,7 +351,7 @@ const FB = LAYOUT.factionBoard;
 const CLUSTER = RB.playerMarker.cluster.offsets as Record<string, number[][]>;
 
 /** Research board (§4) with the federation supply under it. */
-function ResearchBoard({ c }: { c: Ctx }) {
+const ResearchBoard = memo(function ResearchBoard({ c }: { c: Ctx }) {
   const { view } = c;
   const W = RB.w, H = RB.h;
   const tile = (id: string | null, x: number, y: number, w: number, kind: 'adv' | 'std', slot: number) => {
@@ -345,8 +368,8 @@ function ResearchBoard({ c }: { c: Ctx }) {
     return seats.map((s, k) => {
       const [ox, oy] = off[k % off.length] as [number, number];
       const x = 15 + 298 * ti + 80 + ox * RB.playerMarker.cluster.pitchX, y = (RB.playerMarker.levelMidY as Record<string, number>)[String(lvl)]! + oy * RB.playerMarker.cluster.pitchY;
-      return <img key={`${t}-${s}`} data-flip={`rs-${s}-${t}`} className="gp-at gp-piece" data-gp-piece="sat" data-track={ti} data-level={lvl} data-seat={s} title={`${c.who(s)}: ${TRACK_FA[t]} ${fa(lvl)}`}
-        src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt="" style={at(x, y, W, H, RB.playerMarker.widthPct)} />;
+      return <img key={`${t}-${s}`} className="gp-at" data-gp-piece="sat" data-track={ti} data-level={lvl} data-seat={s} title={`${c.who(s)}: ${TRACK_FA[t]} ${fa(lvl)}`}
+        src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt="" decoding="async" style={at(x, y, W, H, RB.playerMarker.widthPct)} />;
     });
   }));
   // Research step targets: the next level cell of each track (main action or free research decision).
@@ -367,21 +390,21 @@ function ResearchBoard({ c }: { c: Ctx }) {
         <button type="button" className={`gp-at gp-act${list.length ? ' is-avail' : ''}${hint ? ' gp-hint' : ''}`} data-gp-action={id} disabled={!list.length}
           aria-label={pa ? `${gainFa(pa.cost)}: ${pa.labelFa}${taken ? ' (گرفته‌شده)' : ''}` : id} title={pa ? `${gainFa(pa.cost)} ← ${pa.labelFa}، هر دور یک بار` : id}
           style={{ ...at(x, y, W, H, bw), height: `${bh}%` }} onClick={() => list.length && c.tryAct(list[0]!)} />
-        {taken && <img className="gp-at gp-piece" data-gp-piece="token" data-id={id} src={art(IDS.pieces.actionToken)} alt="" style={at(x, y, W, H, used)} />}
+        {taken && <img className={`gp-at gp-token${c.fresh(`used-${id}`)}`} data-gp-piece="token" data-id={id} src={art(IDS.pieces.actionToken)} alt="" style={at(x, y, W, H, used)} />}
       </span>
     );
   };
   return (
     <div className="gp-col">
       <div className="gp-board" data-gp-board="research" style={{ aspectRatio: `${W} / ${H}` }}>
-        <img className="gp-board__img" src={art(IDS.boards.research)} alt="صفحهٔ پژوهش" draggable={false} />
+        <BoardImg path={IDS.boards.research} w={W} h={H} alt="صفحهٔ پژوهش" sizes="(max-width: 760px) 100vw, 40vw" />
         {view.techBoard.adv.map((id, i) => { const [x, y] = RB.advancedTech.centres[i] as [number, number]; return tile(id, x, y, RB.advancedTech.widthPct, 'adv', i); })}
         {view.techBoard.std.map((id, i) => {
           const [x, y] = (i < 6 ? RB.standardTech.centres[i] : RB.standardTechBottom.centres[i - 6]) as [number, number];
           return tile(id, x, y, RB.standardTech.widthPct, 'std', i);
         })}
-        {view.terraFed && <img className="gp-at gp-piece" data-gp-piece="fed" data-id={view.terraFed} src={fedArt(view.terraFed)} alt={fedFa(view.terraFed)} title={fedFa(view.terraFed)} style={at(95, 75, W, H, 7)} />}
-        {markers}
+        {view.terraFed && <img className="gp-at" data-gp-piece="fed" data-id={view.terraFed} src={fedArt(view.terraFed)} alt={fedFa(view.terraFed)} title={fedFa(view.terraFed)} style={at(95, 75, W, H, 7)} />}
+        <div className="gp-layer">{markers}</div>
         {steps}
         {RB.powerActions.ids.map((id, i) => { const [x, y] = RB.powerActions.centres[i] as [number, number]; return action(id, x, y, RB.powerActions.buttonPct.w, RB.powerActions.buttonPct.h, RB.powerActions.usedTokenWidthPct); })}
         {RB.qicActions.ids.map((id, i) => { const [x, y] = RB.qicActions.centres[i] as [number, number]; return action(id, x, y, RB.qicActions.buttonPct.w, RB.qicActions.buttonPct.h, RB.qicActions.usedTokenWidthPct); })}
@@ -399,10 +422,10 @@ function ResearchBoard({ c }: { c: Ctx }) {
       </ul>
     </div>
   );
-}
+});
 
 /** Scoring board (§5) and the booster row (§6). */
-function ScoringBoard({ c }: { c: Ctx }) {
+const ScoringBoard = memo(function ScoringBoard({ c }: { c: Ctx }) {
   const { view, state } = c;
   const W = SB.w, H = SB.h;
   const seats = view.pl.flatMap((p, s) => (p.faction ? [s] : []));
@@ -411,15 +434,20 @@ function ScoringBoard({ c }: { c: Ctx }) {
     const list = seats.map((s) => ({ s, n: view.hexes.filter((h) => h.planet === code && (h.owner === s || h.extra === s) && h.building !== 'gf' && h.building !== 'station').length })).filter((e) => e.n > 0);
     return list.map(({ s, n }, k) => (
       <span key={`${color}-${s}`} className="gp-at gp-cnt" data-gp-piece="cnt" data-seat={s} data-id={color} title={`${c.who(s)}: ${fa(n)}`} style={at(x! + (k - (list.length - 1) / 2) * 70, y!, W, H, SB.planetCounters.widthPct)}>
-        <img className="gp-piece" src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt="" /><b>{fa(n)}</b>
+        <img src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt="" decoding="async" /><b>{fa(n)}</b>
       </span>
     ));
   });
+  const finals = useMemo(() => view.finalTiles.flatMap((id, row) => seats.map((s, k) => {
+    const v = Math.max(0, Math.min(10, CONTENT.finals[id]?.value(state, s) ?? 0));
+    return <img key={`${id}-${s}`} className="gp-at" data-gp-piece="sat" data-seat={s} data-level={v} title={`${c.who(s)}: ${fa(v)}`} decoding="async"
+      src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt="" style={at(342 + 61.6 * v, (row ? 1190 : 878) + 52 * k, W, H, SB.finalTrackMarkers.widthPct)} />;
+  })), [state]); // eslint-disable-line react-hooks/exhaustive-deps -- everything here derives from state
   const all = [...new Set([...view.boosters, ...view.pl.flatMap((p) => (p.booster ? [p.booster] : []))])].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
   return (
     <div className="gp-col">
       <div className="gp-board" data-gp-board="scoring" style={{ aspectRatio: `${W} / ${H}` }}>
-        <img className="gp-board__img" src={art(IDS.boards.scoring)} alt="صفحهٔ امتیاز" draggable={false} />
+        <BoardImg path={IDS.boards.scoring} w={W} h={H} alt="صفحهٔ امتیاز" sizes="(max-width: 760px) 100vw, 40vw" />
         {view.roundTiles.map((id, i) => {
           const [x, y, rot] = SB.roundTiles.centres[i] as [number, number, number];
           const played = i + 1 < view.round && view.phase !== 'faction' && view.phase !== 'setup' && view.phase !== 'booster';
@@ -430,11 +458,7 @@ function ScoringBoard({ c }: { c: Ctx }) {
           const [x, y] = SB.finalTiles.centres[i] as [number, number];
           return <img key={id} className="gp-at gp-zoomable" tabIndex={0} data-gp-piece="fin" data-id={id} data-slot={i} src={pick(IDS.finalScoring, id)} alt={CONTENT.finals[id]?.labelFa ?? id} title={CONTENT.finals[id]?.labelFa ?? id} style={at(x, y, W, H, SB.finalTiles.widthPct)} />;
         })}
-        {view.finalTiles.flatMap((id, row) => seats.map((s, k) => {
-          const v = Math.max(0, Math.min(10, CONTENT.finals[id]?.value(state, s) ?? 0));
-          return <img key={`${id}-${s}`} className="gp-at gp-piece" data-gp-piece="sat" data-seat={s} data-level={v} title={`${c.who(s)}: ${fa(v)}`}
-            src={art(`art/tokens-markers/satellite-${markerOf(view, s)}.webp`)} alt="" style={at(342 + 61.6 * v, (row ? 1190 : 878) + 52 * k, W, H, SB.finalTrackMarkers.widthPct)} />;
-        }))}
+        <div className="gp-layer">{finals}</div>
         {counters}
       </div>
       <div className="gp-boosters" data-gp-board="boosters">
@@ -451,10 +475,10 @@ function ScoringBoard({ c }: { c: Ctx }) {
       <p className="gp-note">{view.round >= 6 ? 'دور ۶: پاس بدون بوستر.' : UI.boostersNote[0]}</p>
     </div>
   );
-}
+});
 
 /** Faction board of one player (§7), own booster beside it, owned tiles under it. */
-function FactionBoardView({ c, seat }: { c: Ctx; seat: number }) {
+const FactionBoardView = memo(function FactionBoardView({ c, seat }: { c: Ctx; seat: number }) {
   const { view } = c;
   const p = view.pl[seat]!;
   const fid = p.faction!;
@@ -465,13 +489,13 @@ function FactionBoardView({ c, seat }: { c: Ctx; seat: number }) {
   const slots = (Object.entries(FB.slots) as [string, { centres: number[][]; widthPct: number }][]).flatMap(([k, def]) => {
     const kinds: Building[] = k === 'MI' ? ['mine'] : k === 'TS' ? ['ts'] : k === 'RL' ? ['lab'] : k === 'PI' ? ['pi'] : ['ac1', 'ac2'];
     const b = built(kinds);
-    return def.centres.slice(b).map(([x, y], i) => <img key={`${k}${i}`} className={`gp-at gp-piece gp-slot${own ? ' gp-piece--own' : ''}`} data-gp-piece={k} data-slot={b + i} data-seat={seat}
-      src={structArt(kinds[0]!, color)} alt="" style={{ ...at(x!, y!, W, H, def.widthPct), ...(own ? { '--own': OWN[color] } : {}) } as CSSProperties} />);
+    return def.centres.slice(b).map(([x, y], i) => <img key={`${k}${b + i}`} className="gp-at gp-slot" data-gp-piece={k} data-slot={b + i} data-seat={seat}
+      src={structArt(kinds[0]!, color)} alt="" decoding="async" style={at(x!, y!, W, H, def.widthPct)} />);
   });
   const bowls = FB.powerBowls;
   const scatter = (n: number, [cx, cy]: number[], key: string) => Array.from({ length: n }, (_, k) => {
     const r = 26 * Math.sqrt(k), t = k * 2.4;
-    return <img key={`${key}${k}`} className="gp-at gp-piece" data-gp-piece="ptok" src={art(IDS.resources.powerToken)} alt="" style={at(cx! + r * Math.cos(t), cy! + r * 0.8 * Math.sin(t), W, H, bowls.tokenWidthPct)} />;
+    return <img key={`${key}${k}`} className={`gp-at${c.fresh(`${seat}${key}${k}`)}`} data-gp-piece="ptok" src={art(IDS.resources.powerToken)} alt="" decoding="async" style={at(cx! + r * Math.cos(t), cy! + r * 0.8 * Math.sin(t), W, H, bowls.tokenWidthPct)} />;
   });
   const brain = p.power.brain;
   const conv = FB.conversions;
@@ -482,10 +506,12 @@ function FactionBoardView({ c, seat }: { c: Ctx; seat: number }) {
     <div className="gp-fboard-wrap">
       <div className="gp-fboard-grid">
         <div className="gp-board" data-gp-board="faction" data-faction={fid} data-seat={seat} style={{ aspectRatio: `${W} / ${H}` }}>
-          <img className="gp-board__img" src={art(FACTIONS[fid]?.board ?? '')} alt={`صفحهٔ ${factionFa(fid)}`} draggable={false} />
-          {slots}
-          {scatter(p.power.gaia, bowls.gaia, 'g')}{scatter(p.power.b1, bowls.I, 'a')}{scatter(p.power.b2, bowls.II, 'b')}{scatter(p.power.b3, bowls.III, 'c')}
-          {brain !== null && <img className="gp-at gp-piece" data-gp-piece="ptok" data-id="brainstone" src={art(IDS.pieces.brainstone)} alt="سنگ مغز"
+          <BoardImg path={FACTIONS[fid]?.board ?? ''} w={W} h={H} alt={`صفحهٔ ${factionFa(fid)}`} sizes="(max-width: 760px) 100vw, 60vw" />
+          <div className={own ? 'gp-layer gp-layer--own' : 'gp-layer'} style={own ? ownVar(view, seat) : undefined}>{slots}</div>
+          <div className="gp-layer">
+            {scatter(p.power.gaia, bowls.gaia, 'g')}{scatter(p.power.b1, bowls.I, 'a')}{scatter(p.power.b2, bowls.II, 'b')}{scatter(p.power.b3, bowls.III, 'c')}
+          </div>
+          {brain !== null && <img className="gp-at" data-gp-piece="ptok" data-id="brainstone" src={art(IDS.pieces.brainstone)} alt="سنگ مغز"
             style={at(...((brain === 0 ? bowls.gaia : brain === 1 ? bowls.I : brain === 2 ? bowls.II : bowls.III) as [number, number]), W, H, bowls.tokenWidthPct * 1.3)} />}
           {own && conv.ids.map((id, i) => {
             const a = c.legal.find((x) => x.type === 'convert' && x.id === id);
@@ -517,15 +543,26 @@ function FactionBoardView({ c, seat }: { c: Ctx; seat: number }) {
       </div>
     </div>
   );
-}
+});
 
 // ---------------- the table ----------------
 
 type Mode = { kind: 'mine' | 'upgrade' | 'gaiaform' | 'federation' | 'pass' | 'research'; id?: undefined } | { kind: 'power' | 'special'; id: string };
 type Tab = 'map' | 'research' | 'scoring' | 'board';
 
+/** Live media query (phone layout renders only the open tab). */
+function useMedia(query: string) {
+  const [on, setOn] = useState(() => typeof matchMedia === 'function' && matchMedia(query).matches);
+  useEffect(() => {
+    const m = matchMedia(query);
+    const fn = () => setOn(m.matches);
+    m.addEventListener('change', fn);
+    return () => m.removeEventListener('change', fn);
+  }, [query]);
+  return on;
+}
+
 export default function GaiaProjectRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected }: GameRendererProps<GaiaView>) {
-  const root = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState<Lang>(() => { try { return localStorage.getItem('gp.lang') === 'en' ? 'en' : 'fa'; } catch { return 'fa'; } });
   const t = (k: UiKey) => UI[k][lang === 'en' ? 1 : 0];
   const [draft, setDraft] = useState<GameAction[]>([]);
@@ -550,17 +587,23 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const sending = outbox.length > 0;
   // My own turn with nothing open: everything is a local draft until «تأیید».
   const drafting = mySeat !== null && !served.outcome && !served.pending.length && served.current === mySeat && legalActions.some((a) => a.type !== 'resign');
-  const sim = simulate(served, mySeat, [...outbox, ...(drafting ? draft : [])]);
+  // The engine runs once per snapshot or draft step, never per render (hover, sheet, tab).
+  const steps = useMemo(() => [...outbox, ...(drafting ? draft : [])], [outbox, draft, drafting]);
+  const sim = useMemo(() => simulate(served, mySeat, steps), [served, mySeat, steps]);
   const state = sim.s;
-  const view = sim.n ? gaiaProjectModule.project(state, mySeat === null ? { kind: 'spectator' } : { kind: 'player', seat: mySeat }) : served;
+  const view = useMemo(() => (sim.n ? gaiaProjectModule.project(state, mySeat === null ? { kind: 'spectator' } : { kind: 'player', seat: mySeat }) : served), [sim, state, served, mySeat]);
   useEffect(() => { if (drafting && sim.n < outbox.length + draft.length) setDraft((d) => d.slice(0, Math.max(0, sim.n - outbox.length))); }, [drafting, sim.n, outbox.length, draft.length]);
   useEffect(() => { if (!drafting) { setDraft([]); setMode(null); setHexSel(null); } }, [drafting]);
-  useFlip(root, `${view.seq}|${draft.length}`);
+  // Pieces new in this state fade in once (CSS); pieces that move glide by their own left/top transition.
+  // Refs, not render-local sets: StrictMode renders twice and the memoized boards keep the first render's closure.
+  const seen = useRef<{ seq: number | null; keys: Set<string>; drawn: Set<string> }>({ seq: null, keys: new Set(), drawn: new Set() });
+  useEffect(() => { const s = seen.current; for (const k of s.drawn) s.keys.add(k); s.drawn.clear(); s.seq = view.seq; });
+  const phone = useMedia('(max-width: 760px)');
 
   const who = (s: number) => (s === mySeat ? t('you') : seatName(s));
-  const legal = (sending ? [] : drafting
+  const legal = useMemo(() => (sending ? [] : drafting && steps.length
     ? gaiaProjectModule.legalActions(state, { kind: 'player', seat: mySeat! })
-    : legalActions).filter((a) => a.type !== 'resign') as GameAction[];
+    : legalActions).filter((a) => a.type !== 'resign') as GameAction[], [sending, drafting, steps.length, state, mySeat, legalActions]);
   const myDecision = mySeat !== null && view.decision?.seat === mySeat;
   const hasMain = draft.some((a) => !FREE.has(a.type) && a.type !== 'decide');
   const canConfirm = drafting && hasMain && !myDecision;
@@ -579,15 +622,18 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
 
   // What a hex does in the current step.
   const ofMode = (a: GameAction) => (mode ? (mode.kind === 'power' || mode.kind === 'special' ? a.type === mode.kind && a.id === mode.id : a.type === mode.kind) : true);
-  const pickHex = new Map<number, GameAction[]>();
-  if (!sending && !(mode && (mode.kind === 'research' || mode.kind === 'pass' || mode.kind === 'federation'))) {
+  const lostPlanet = view.decision?.kind === 'lostPlanet';
+  const pickHex = useMemo(() => {
+    const out = new Map<number, GameAction[]>();
+    if (sending || (mode && (mode.kind === 'research' || mode.kind === 'pass' || mode.kind === 'federation'))) return out;
     for (const a of legal) {
-      const hx = typeof a.hex === 'number' ? a.hex : a.type === 'decide' && view.decision?.kind === 'lostPlanet' ? Number(a.choice) : null;
+      const hx = typeof a.hex === 'number' ? a.hex : a.type === 'decide' && lostPlanet ? Number(a.choice) : null;
       if (hx === null || !ofMode(a)) continue;
       if (!mode && (a.type === 'power' || a.type === 'special')) continue; // board actions start from their piece
-      pickHex.set(hx, [...(pickHex.get(hx) ?? []), a]);
+      out.set(hx, [...(out.get(hx) ?? []), a]);
     }
-  }
+    return out;
+  }, [legal, mode, sending, lostPlanet]); // eslint-disable-line react-hooks/exhaustive-deps -- ofMode reads mode
   const onHex = (i: number) => {
     const list = pickHex.get(i) ?? [];
     if (list.length === 1) add(list[0]!);
@@ -605,10 +651,13 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     return typeof plan === 'string' ? null : plan.cost;
   };
   const expectedHex = typeof expected?.hex === 'number' && !draft.length ? expected.hex : null;
-  const c: Ctx = { view, state, me: mySeat, who, legal, pickHex, pickedHex: hexSel, onHex, tryAct, hint, expectedHex, costOf };
+  const fresh = (k: string) => { const s = seen.current; s.drawn.add(k); return s.seq !== null && s.seq !== view.seq && !s.keys.has(k) ? ' gp-new' : ''; };
+  // Stable while nothing the boards show changes, so the memoized boards skip sheet/tab/auto-charge re-renders.
+  const c: Ctx = useMemo(() => ({ view, state, me: mySeat, who, legal, pickHex, pickedHex: hexSel, onHex, tryAct, hint, expectedHex, costOf, fresh }),
+    [view, state, mySeat, legal, pickHex, hexSel, expectedHex, mode, busy, sending, drafting, expected, lang, seatName, onAction]); // eslint-disable-line react-hooks/exhaustive-deps -- the closures read exactly these
 
   // Main-action buttons: legal from the engine, or disabled with the engine's reason.
-  const reason = (cands: GaiaAction[]) => {
+  const reason = (cands: GaiaAction[]) => { // only called for a disabled button, inside the memo below
     if (mySeat === null) return 'NOT_YOUR_TURN';
     const codes = cands.map((a) => gaiaProjectModule.validate(state, { kind: 'player', seat: mySeat }, a)).flatMap((r) => (r.ok ? [] : [r.errorCode]));
     return REASON_ORDER.find((x) => codes.includes(x)) ?? codes[0] ?? 'WRONG_PHASE';
@@ -621,6 +670,8 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
     { kind: 'gaiaform', label: 'gaiaform', cands: () => hexIds.filter((i) => view.hexes[i]!.planet === 'm').map((hex) => ({ type: 'gaiaform', hex })) },
     { kind: 'federation', label: 'federation', cands: () => [{ type: 'federation', hexes: [0], token: Object.keys(view.fedSupply)[0] ?? 'fed1' }] }
   ];
+  const reasons = useMemo(() => Object.fromEntries(MAIN.map((m) => [m.kind, legal.some((a) => a.type === m.kind) ? null : reason(m.cands())])) as Record<string, string | null>,
+    [state, legal]); // eslint-disable-line react-hooks/exhaustive-deps -- MAIN and reason derive from state
   const startMain = (k: 'mine' | 'upgrade' | 'gaiaform' | 'research' | 'federation' | 'pass') => {
     const list = legal.filter((a) => a.type === k);
     if (k === 'research' || k === 'federation' || k === 'pass') { if (k === 'pass' && list.length === 1) { add(list[0]!); return; } setMode({ kind: k }); if (k === 'research') setTab('research'); if (k === 'pass') setTab('scoring'); return; }
@@ -699,8 +750,8 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
           {drafting && view.phase === 'actions' && !hasMain && !mode && hexSel === null && !myDecision && (
             <div className="gp-main">
               {MAIN.map((m) => {
-                const ok = legal.some((a) => a.type === m.kind);
-                const code = ok ? null : reason(m.cands());
+                const code = reasons[m.kind] ?? null;
+                const ok = !code;
                 return <span key={m.kind} className="gp-mainbtn">
                   <Button size="sm" variant="secondary" data-move={m.kind} data-reason={code ?? undefined} disabled={!ok || busy} title={code ? REASON_FA[code] : undefined}
                     className={expected?.type === m.kind ? 'gp-hint' : undefined} onClick={() => startMain(m.kind)}>{t(m.label)}{m.cost && <CostPill g={m.cost} plus={m.kind === 'mine'} />}</Button>
@@ -745,18 +796,18 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   const tabOrder = mySeat !== null && seats.includes(mySeat) ? [mySeat, ...seats.filter((s) => s !== mySeat)] : seats;
 
   return (
-    <div className="gp" ref={root} data-seq={served.seq} data-round={view.round} data-phase={view.phase} data-turn={sending ? 'sending' : drafting ? 'draft' : myDecision ? 'decide' : 'wait'} data-tab={tab} lang={lang} dir={lang === 'en' ? 'ltr' : 'rtl'}>
+    <div className="gp" data-seq={served.seq} data-round={view.round} data-phase={view.phase} data-turn={sending ? 'sending' : drafting ? 'draft' : myDecision ? 'decide' : 'wait'} data-tab={tab} lang={lang} dir={lang === 'en' ? 'ltr' : 'rtl'}>
       {bar}
       <nav className="gp-tabs" role="tablist" aria-label="صفحه‌ها">
         {(['map', 'research', 'scoring', 'board'] as const).map((k) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(k === 'map' ? 'map' : k === 'research' ? 'tracks' : k === 'scoring' ? 'scoring' : 'mine2')}</button>)}
       </nav>
       {facPick}
-      <section className="gp-zone" data-zone="map"><SpaceMap c={c} /></section>
+      {(!phone || tab === 'map') && <section className="gp-zone" data-zone="map"><SpaceMap c={c} /></section>}
       <section className="gp-zone gp-zone--mid">
-        <div data-zone="research"><ResearchBoard c={c} /></div>
-        <div data-zone="scoring"><ScoringBoard c={c} /></div>
+        {(!phone || tab === 'research') && <div data-zone="research"><ResearchBoard c={c} /></div>}
+        {(!phone || tab === 'scoring') && <div data-zone="scoring"><ScoringBoard c={c} /></div>}
       </section>
-      {shown !== undefined && (
+      {shown !== undefined && (!phone || tab === 'board') && (
         <section className="gp-zone" data-zone="board">
           <div className="gp-ptabs" role="tablist" aria-label="صفحهٔ بازیکن‌ها">
             {tabOrder.map((s) => <button key={s} type="button" role="tab" aria-selected={s === shown} onClick={() => setBoardSeat(s)}><i className={`bgv-seat seat-${s + 1}`} />{s === mySeat ? `${seatName(s)}، ${t('you')}` : seatName(s)}</button>)}

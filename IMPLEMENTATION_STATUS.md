@@ -913,3 +913,8 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   two-player full game did not finish (host timed out 3×; runs were also disturbed by parallel suites restarting the
   dev servers). Phone bar was made compact and spec clicks non-blocking; rerun pending. Not done: `/bgv-gaia-qa`
   visual QA, detailed «N لازم، M دارید» reasons, popover zoom with rule text, English content texts.
+
+- 2026-10-29 Gaia performance/motion pass (items 1–8): one-piece motion (no page-relative FLIP), stroke filters per
+  layer, memoized engine work and boards, stable onAction, phone renders only the open tab with half-size art.
+  Checks: typecheck, eslint, ds-check, Gaia engine tests 94/94, e2e `gaia-project.spec.ts` 6/6 (desktop-1440 and
+  mobile-360, including the phone two-player game to the result, 1.3 min). Not measured with a profiler.

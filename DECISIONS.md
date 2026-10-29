@@ -1395,3 +1395,9 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Disabled reasons are engine error codes (most relevant code among the candidate actions) with a short Persian line; the detailed «۴ لازم، ۱ دارید» wording is not built.
 - Not designed yet, built from the suggested pattern (for design review): faction choice as cards (portrait + home planet + abilities); faction special action as an orange button in the owned-tiles row; spectator = same table without the bar; 2-player map uses the `*outlined` sector backs; English/dark phone reuse the Persian light layout with DS tokens.
 - English game layer covers the renderer's own strings and faction names; content tile texts (`labelFa`) stay Persian (no English content in the engine). Zoom (Kit 2) is a 2× scale on hover/focus with a 300 ms delay plus `title` text, not a popover with rule text.
+
+## Gaia table performance and motion (2026-10-29, owner request)
+- No `useFlip` on the Gaia table: it measured pieces against the page, so any reflow above a board (action bar growing, sheet, zoom) animated every piece. Pieces glide by their own `left/top` transition (board-relative) and a piece new in this state fades in once (`gp-new`, tracked in refs so StrictMode's double render cannot mark everything new).
+- Piece strokes are one CSS filter per layer (plus a second layer for the viewer's own pieces), not a filter chain per image.
+- Engine work in the renderer is memoized per snapshot/draft step; boards are `memo`; the shell passes a stable `onAction`. Phones render only the open tab and load half-size board/sector art from `art-sm/` via `srcset`.
+- `contain: layout` only (no paint containment): paint containment would clip the 2× hover zoom at board edges.

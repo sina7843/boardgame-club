@@ -25,7 +25,7 @@
 .gp-boost.gp-zoomable:is(:hover, :focus-visible), .gp-own.gp-zoomable:is(:hover, :focus-visible) { transform: scale(1.8); }
 
 /* ---------- action bar (COMPONENTS.md §8) ---------- */
-.gp-actbar { position: sticky; inset-block-start: 0; z-index: var(--z-dock, 20); display: flex; flex-direction: column; gap: 8px; padding: 10px 16px;
+.gp-actbar { position: sticky; inset-block-start: 0; will-change: transform; contain: layout; z-index: var(--z-dock, 20); display: flex; flex-direction: column; gap: 8px; padding: 10px 16px;
   border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line); font-size: 15px; line-height: 1.6; }
 .gp-actbar.is-waiting { background: var(--surface-sunken); color: var(--text-muted); }
 .gp-actbar__row1 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
@@ -58,7 +58,7 @@
 .gp-auto label { display: inline-flex; align-items: center; gap: 4px; }
 
 /* ---------- zones and tabs ---------- */
-.gp-zone { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--radius-md); background: var(--felt-plate, var(--surface-sunken)); min-inline-size: 0; }
+.gp-zone { contain: layout; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--radius-md); background: var(--felt-plate, var(--surface-sunken)); min-inline-size: 0; }
 .gp-zone--mid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .gp-col { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
 .gp-tabs { display: none; gap: 2px; padding: 3px; border-radius: var(--radius-md); background: var(--felt-plate, var(--surface-sunken)); }
@@ -72,14 +72,25 @@
 .gp-log ol { margin: 6px 0 0; padding-inline-start: 18px; }
 
 /* ---------- placed pieces ---------- */
-.gp-board { position: relative; inline-size: 100%; }
-.gp-board__img { display: block; inline-size: 100%; block-size: 100%; border-radius: var(--radius-sm); }
+.gp-board { position: relative; inline-size: 100%; contain: layout; }
+.gp-board__img { display: block; inline-size: 100%; block-size: auto; border-radius: var(--radius-sm); }
 .gp-at { position: absolute; transform: translate(-50%, -50%); }
 img.gp-at, .gp-at > img { display: block; block-size: auto; }
 .gp-at > img { inline-size: 100%; }
-.gp-piece { filter: drop-shadow(1.5px 0 0 var(--gp-stroke)) drop-shadow(-1.5px 0 0 var(--gp-stroke)) drop-shadow(0 1.5px 0 var(--gp-stroke)) drop-shadow(0 -1.5px 0 var(--gp-stroke)) saturate(1.25) contrast(1.1); pointer-events: none; }
-.gp-piece--own { filter: drop-shadow(1.5px 0 0 var(--gp-stroke)) drop-shadow(-1.5px 0 0 var(--gp-stroke)) drop-shadow(0 1.5px 0 var(--gp-stroke)) drop-shadow(0 -1.5px 0 var(--gp-stroke))
+/* Piece strokes: one filter per layer (all pieces of a board share it), never one per piece — a filter chain on every
+   <img> repainted the whole table on each change. The viewer's own pieces sit in a second layer with the --own stroke. */
+.gp-layer { position: absolute; inset: 0; pointer-events: none;
+  filter: drop-shadow(1.5px 0 0 var(--gp-stroke)) drop-shadow(-1.5px 0 0 var(--gp-stroke)) drop-shadow(0 1.5px 0 var(--gp-stroke)) drop-shadow(0 -1.5px 0 var(--gp-stroke)) saturate(1.25) contrast(1.1); }
+.gp-layer--own { filter: drop-shadow(1.5px 0 0 var(--gp-stroke)) drop-shadow(-1.5px 0 0 var(--gp-stroke)) drop-shadow(0 1.5px 0 var(--gp-stroke)) drop-shadow(0 -1.5px 0 var(--gp-stroke))
   drop-shadow(2px 0 0 var(--own)) drop-shadow(-2px 0 0 var(--own)) drop-shadow(0 2px 0 var(--own)) drop-shadow(0 -2px 0 var(--own)) saturate(1.25) contrast(1.1); }
+/* Motion: a piece that moves glides by its own left/top (board-relative, so page reflow never moves it); a new piece
+   fades in once. Nothing else animates. */
+.gp-layer > .gp-at { transition: left .35s var(--ease-out, ease-out), top .35s var(--ease-out, ease-out); }
+.gp-new { animation: gp-in .32s var(--ease-out, ease-out) both; }
+@keyframes gp-in { from { opacity: 0; scale: .6; } }
+@media (prefers-reduced-motion: reduce) { .gp-layer > .gp-at { transition: none; } .gp-new { animation: none; } }
+:root[data-motion='reduce'] .gp-layer > .gp-at { transition: none; }
+:root[data-motion='reduce'] .gp-new { animation: none; }
 
 /* map (§3) */
 .gp-mapbox { position: relative; border-radius: var(--radius-md); background: #060B1C; overflow: hidden; }
@@ -116,7 +127,7 @@ span.gp-hex--hint { pointer-events: none; }
 
 /* scoring board (§5), boosters (§6) */
 .gp-cnt { display: grid; place-items: center; }
-.gp-cnt > img { grid-area: 1 / 1; inline-size: 100%; }
+.gp-cnt > img { grid-area: 1 / 1; inline-size: 100%; filter: drop-shadow(0 2px 0 rgb(0 0 0 / .5)); }
 .gp-cnt b { grid-area: 1 / 1; position: relative; z-index: 1; margin-block-start: -8%; color: #FFFFFF; font-weight: 800; font-size: clamp(10px, 1.4vw, 20px);
   text-shadow: 1px 1px 0 var(--gp-stroke), -1px 1px 0 var(--gp-stroke), 1px -1px 0 var(--gp-stroke), -1px -1px 0 var(--gp-stroke); }
 .gp-boosters { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
@@ -132,8 +143,8 @@ span.gp-hex--hint { pointer-events: none; }
 .gp-fboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 11.6%; gap: 10px; align-items: end; }
 .gp-fboard-grid .gp-board { border-radius: var(--radius-md); overflow: hidden; }
 .gp-ownbooster { margin-block-end: 1.4%; }
-.gp-slot { pointer-events: auto; cursor: help; transition: opacity var(--dur-fast, .15s) var(--ease-out, ease-out); }
-.gp-slot:hover { opacity: .18; }
+.gp-layer > .gp-slot { pointer-events: auto; cursor: help; transition: opacity var(--dur-fast, .15s) var(--ease-out, ease-out); }
+.gp-layer > .gp-slot:hover { opacity: .18; }
 .gp-conv { position: absolute; transform: translate(-50%, -50%); border-radius: 6px; cursor: pointer; }
 .gp-conv.is-avail { box-shadow: 0 0 0 2px var(--pick); }
 .gp-owned { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; padding: 12px; border-radius: var(--radius-md); background: var(--surface-sunken); min-block-size: 64px; }
