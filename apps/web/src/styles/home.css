@@ -174,3 +174,27 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
   .hm-tourney > img { min-block-size: 140px; max-block-size: 180px; }
   .hm-collage { min-block-size: 220px; }
 }
+
+/* 3D box: the flat box photo turned a little, with a spine on the inline-start edge, a lit face and a soft floor shadow. */
+.box3d { position: relative; display: grid; max-inline-size: 100%; max-block-size: 100%; transform-style: preserve-3d; transform: perspective(900px) rotateY(-14deg) rotateX(2deg); transform-origin: 50% 60%;
+  filter: drop-shadow(14px 16px 10px color-mix(in srgb, var(--ink-felt) 30%, transparent)) drop-shadow(0 2px 2px color-mix(in srgb, var(--ink-felt) 22%, transparent)); transition: transform var(--dur-base) var(--ease-out); }
+.box3d img { display: block; max-inline-size: 100%; max-block-size: 100%; inline-size: auto; block-size: auto; object-fit: contain; border-radius: var(--radius-xs); }
+.box3d::before { content: ""; position: absolute; inset-block: 1px; inset-inline-start: -11px; inline-size: 12px; transform-origin: 100% 50%; transform: rotateY(-62deg);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ink-felt) 60%, transparent), color-mix(in srgb, var(--ink-felt) 28%, transparent) 60%, color-mix(in srgb, var(--surface) 25%, transparent)); border-radius: var(--radius-xs); }
+.box3d::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius-xs); pointer-events: none;
+  background: linear-gradient(115deg, color-mix(in srgb, var(--surface) 30%, transparent), transparent 38%, color-mix(in srgb, var(--ink-felt) 12%, transparent)); }
+@media (hover: hover) { .bgv-gamecard--box:hover .box3d { transform: perspective(900px) rotateY(-6deg) rotateX(0) scale(1.05); } }
+[data-motion="reduce"] .box3d { transition: none; }
+@media (prefers-reduced-motion: reduce) { .box3d { transition: none; } }
+
+.hm-lastbox { inline-size: 72px; block-size: 96px; display: grid; place-items: center; flex: none; }
+.hm-cell--box { gap: var(--space-4); }
+.hm-leaders { display: grid; gap: var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); }
+.hm-podium { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: var(--space-2); text-align: center; }
+.hm-podium__p { display: grid; justify-items: center; gap: var(--space-1); min-inline-size: 0; }
+.hm-podium__p a { color: inherit; text-decoration: none; }
+.hm-podium__step { inline-size: 100%; display: grid; place-items: center; font-weight: 700; border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--heading); }
+.hm-podium__p--1 .hm-podium__step { block-size: 64px; background: var(--felt-plate); color: var(--felt-ink); }
+.hm-podium__p--2 .hm-podium__step { block-size: 44px; }
+.hm-podium__p--3 .hm-podium__step { block-size: 32px; }
+.hm-podium__p.is-you b { color: var(--link); }

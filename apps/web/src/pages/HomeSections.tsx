@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import type { GameSummary, OpenTableItem, TournamentSummary } from '@bg/contracts';
-import { Badge, Button, Card, Chip, Icon } from '@bg/ui/bgv';
+import { Badge, Button, Card, Chip, Icon, Identity } from '@bg/ui/bgv';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
+import { userIdentity } from '../lib/bgv.tsx';
 import { faNum, jalaliDateTime } from '../lib/format.ts';
 
 export type Facet = 'all' | 'duo' | 'party' | 'bot' | 'coop';
@@ -131,5 +132,32 @@ export function CoverCollage({ games }: { games: GameSummary[] }) {
     <div className="hm-collage" aria-hidden>
       {picks.map((g, i) => <img key={g.id} className={`hm-collage__${i}`} src={`/covers/box/${g.id}.webp`} alt="" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />)}
     </div>
+  );
+}
+
+/** Top three of a game's live leaderboard as a podium; the viewer's own place under it. */
+export function WeeklyLeaders({ game, meId }: { game: GameSummary; meId: string }) {
+  const b = useApi<{ items: { rank: number; user: { id: string; displayName: string; avatarKey: string }; rating: number }[]; me: { rank: number | null; rating: number } | null }>(`/games/${game.id}/leaderboard?mode=live`);
+  const top = b.data?.items.slice(0, 3) ?? [];
+  if (top.length < 3) return null;
+  // Podium order in RTL reading: 2nd, 1st, 3rd.
+  const order = [top[1]!, top[0]!, top[2]!];
+  return (
+    <section className="hm-leaders" aria-labelledby="leaders-h">
+      <div className="bgv-row" style={{ justifyContent: 'space-between' }}>
+        <h2 id="leaders-h" className="hm-h2"><Icon name="trophy" size="sm" /> برترین‌های {game.nameFa}</h2>
+        <a className="hm-link" href="/ranking">جدول کامل<Icon name="chevron-left" size="sm" /></a>
+      </div>
+      <ol className="hm-podium">
+        {order.map((r) => (
+          <li key={r.user.id} className={`hm-podium__p hm-podium__p--${r.rank}${r.user.id === meId ? ' is-you' : ''}`}>
+            <a href={`/users/${r.user.id}`}><Identity {...userIdentity(r.user, { size: r.rank === 1 ? 'lg' : 'md', you: r.user.id === meId })} /></a>
+            <b className="bgv-num">{faNum(r.rating)}</b>
+            <span className="hm-podium__step">{faNum(r.rank)}</span>
+          </li>
+        ))}
+      </ol>
+      {b.data?.me?.rank && <p className="t-caption bgv-muted" style={{ margin: 0 }}>رتبهٔ شما: {faNum(b.data.me.rank)} · امتیاز {faNum(b.data.me.rating)}</p>}
+    </section>
   );
 }

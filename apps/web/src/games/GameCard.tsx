@@ -15,7 +15,8 @@ export function BoxArt({ game }: { game: Pick<GameSummary, 'id' | 'nameFa'> }) {
       </span>
     );
   }
-  return <img src={`/covers/box/${game.id}.webp`} alt="" loading="lazy" decoding="async" onError={() => setMissing(true)} />;
+  // The photo is flat; `.box3d` (home.css) gives it a spine, thickness and a slight turn so it reads as a standing box.
+  return <span className="box3d"><img src={`/covers/box/${game.id}.webp`} alt="" loading="lazy" decoding="async" onError={() => setMissing(true)} /></span>;
 }
 
 /** Catalogue card (DS GameCard v2.1): box photo on a shelf, Persian name with the Latin original, players / time / difficulty. */

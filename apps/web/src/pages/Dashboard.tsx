@@ -6,8 +6,9 @@ import { faNum, jalaliToday, PACE_FA, range } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { userIdentity } from '../lib/bgv.tsx';
+import { BoxArt } from '../games/GameCard.tsx';
 import { presenceLine, usePresence } from '../lib/presence.ts';
-import { CoverCollage, FACETS, FacetChips, HowItWorks, inFacet, OpenTablesRow, popularGames, Shelf, TournamentBanner, type Facet } from './HomeSections.tsx';
+import { CoverCollage, FACETS, FacetChips, HowItWorks, inFacet, OpenTablesRow, popularGames, Shelf, TournamentBanner, WeeklyLeaders, type Facet } from './HomeSections.tsx';
 import { byUrgency, Cover, DeadlineClock, tableMeta, tableTitle, useMyTables } from './MyTables.tsx';
 
 /** «ادامه‌ی یادگیری»: tutorials in progress first, then games not tried yet (up to three cards). */
@@ -206,7 +207,7 @@ export function Dashboard() {
         {me && !live && last && (
           <div className="hm-plate hm-last">
             <span className="bgv-hero__eyebrow">بازی سریع · آخرین بازی تو</span>
-            <div className="hm-cell"><Cover gameId={last.id} /><div><b style={{ fontSize: 17 }}>{last.nameFa}</b><span className="hm-plate__sub">{range(last.minPlayers, last.maxPlayers, 'نفر')}</span></div></div>
+            <div className="hm-cell hm-cell--box"><span className="hm-lastbox"><BoxArt game={last} /></span><div><b style={{ fontSize: 17 }}>{last.nameFa}</b><span className="hm-plate__sub">{range(last.minPlayers, last.maxPlayers, 'نفر')}</span></div></div>
             <div className="bgv-row" style={{ gap: 8 }}>
               <Button variant="primary" icon="zap" href={`/play?game=${last.id}`}>بازی سریع</Button>
               <Button icon="refresh-cw" href="/play">تغییر بازی</Button>
@@ -242,6 +243,8 @@ export function Dashboard() {
             )}
         </>
       )}
+
+      {me && popular[0] && <WeeklyLeaders game={popular[0]} meId={me.id} />}
 
       <TournamentBanner />
 
