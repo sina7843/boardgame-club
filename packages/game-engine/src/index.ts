@@ -63,6 +63,7 @@ import { arkNovaModule } from '@bg/game-ark-nova';
 import { brassModule } from '@bg/game-brass';
 import { gaiaProjectModule } from '@bg/game-gaia-project';
 import { terraformingMarsModule } from '@bg/game-terraforming-mars';
+import { bloodRageModule } from '@bg/game-blood-rage';
 import { heatModule } from '@bg/game-heat';
 import { cryptidModule } from '@bg/game-cryptid';
 import { setModule } from '@bg/game-set';
@@ -125,7 +126,7 @@ export class GameRegistry {
 }
 
 /** Reviewed in-repo modules. Adding a game = adding its module here (docs/ADDING_A_GAME.md). */
-export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule, ttrModule, backgammonModule, checkersModule, othelloModule, quoridorModule, onitamaModule, goModule, santoriniModule, takModule, abaloneModule, hiveModule, noThanksModule, sixNimmtModule, loveLetterModule, skullModule, coupModule, forSaleModule, highSocietyModule, sushiGoModule, lostCitiesModule, theMindModule, splendorModule, azulModule, jaipurModule, patchworkModule, kingdominoModule, pointSaladModule, cockroachModule, scoutModule, centuryModule, sspModule, hanabiModule, camelModule, machiModule, kotModule, citadelsModule, carcModule, beanModule, duelModule, domModule, srModule, crewModuleNine, deepSeaModule, sbModule, dtModule, edModule, raModule, rgModule, bsModule, yahtzeeModule, setModule, cryptidModule, heatModule, terraformingMarsModule, gaiaProjectModule, brassModule, arkNovaModule] as unknown as GameModule<never, never, never>[];
+export const reviewedModules = [lineThreeModule, sealedBidsModule, unoModule, unmatchedModule, catanModule, chessModule, snakesModule, ludoModule, riskModule, amlakModule, ttrModule, backgammonModule, checkersModule, othelloModule, quoridorModule, onitamaModule, goModule, santoriniModule, takModule, abaloneModule, hiveModule, noThanksModule, sixNimmtModule, loveLetterModule, skullModule, coupModule, forSaleModule, highSocietyModule, sushiGoModule, lostCitiesModule, theMindModule, splendorModule, azulModule, jaipurModule, patchworkModule, kingdominoModule, pointSaladModule, cockroachModule, scoutModule, centuryModule, sspModule, hanabiModule, camelModule, machiModule, kotModule, citadelsModule, carcModule, beanModule, duelModule, domModule, srModule, crewModuleNine, deepSeaModule, sbModule, dtModule, edModule, raModule, rgModule, bsModule, yahtzeeModule, setModule, cryptidModule, bloodRageModule, heatModule, terraformingMarsModule, gaiaProjectModule, brassModule, arkNovaModule] as unknown as GameModule<never, never, never>[];
 export const createDefaultRegistry = () => new GameRegistry(reviewedModules);
 
 // ---------- Running the game ----------

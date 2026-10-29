@@ -38,6 +38,7 @@
     "@bg/game-gaia-project": "workspace:*",
     "@bg/game-go": "workspace:*",
     "@bg/game-hanabi": "workspace:*",
+    "@bg/game-blood-rage": "workspace:*",
     "@bg/game-heat": "workspace:*",
     "@bg/game-high-society": "workspace:*",
     "@bg/game-hive": "workspace:*",

@@ -80,6 +80,7 @@
     "@bg/game-yahtzee": "workspace:*",
     "@bg/game-set": "workspace:*",
     "@bg/game-cryptid": "workspace:*",
+    "@bg/game-blood-rage": "workspace:*",
     "@bg/game-heat": "workspace:*",
     "@bg/game-brass": "workspace:*",
     "@bg/game-terraforming-mars": "workspace:*",
