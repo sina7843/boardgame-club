@@ -72,7 +72,7 @@ export function GameSettingsAdmin({ gameId }: { gameId: string }) {
           <>
             <Chips title="حالت بازی" label="حالت بازی" value={draft.paces} onChange={(paces) => set({ paces: paces as Current['paces'] })}
               options={sup.paces.map((p) => ({ value: p, label: PACE_FA[p] }))} />
-            <Chips title="نوع رقابت" hint="رتبه‌دار فقط از حریف‌یابی ساخته می‌شود." label="نوع رقابت" value={draft.competitions} onChange={(competitions) => set({ competitions: competitions as Current['competitions'] })}
+            <Chips title="نوع رقابت" hint="رتبه‌دار فقط از بازی سریع ساخته می‌شود." label="نوع رقابت" value={draft.competitions} onChange={(competitions) => set({ competitions: competitions as Current['competitions'] })}
               options={sup.competitions.map((c) => ({ value: c, label: COMPETITION_FA[c] }))} />
             {counts.length > 1 && (
               <div className="ac-row" style={{ alignItems: 'flex-end' }}>

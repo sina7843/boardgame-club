@@ -124,7 +124,7 @@ function MatchedCheck({ tableId, gameNameFa, readyDeadline, now, onDecline }: { 
 }
 
 export function QuickMatch() {
-  usePageTitle('حریف‌یابی');
+  usePageTitle('بازی سریع');
   const { me, status } = useSession();
   const [params] = useSearchParams();
   const toast = useToast();
@@ -153,7 +153,7 @@ export function QuickMatch() {
   useEffect(() => { if (game && !game.paces.includes(pace)) setPace(game.paces[0]!); }, [game, pace]);
   useEffect(() => { if (game) setTurnSeconds(defaultTime(pace === 'live' ? game.liveSeconds : game.turnSeconds, pace)); }, [pace, game]);
 
-  if (status !== 'loading' && !me) return <GuestState title="برای حریف‌یابی وارد شوید" text="حریف‌یابی سریع به حساب شما نیاز دارد؛ ورود چند ثانیه است." next="/play" />;
+  if (status !== 'loading' && !me) return <GuestState title="برای بازی سریع وارد شوید" text="بازی سریع به حساب شما نیاز دارد؛ ورود چند ثانیه است." next="/play" />;
   if (games.error) return <StateBlock kind="error" title="فهرست بازی‌ها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />;
   if (!games.data || !tickets.data) return <><Skeleton height={240} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;
 
@@ -176,7 +176,7 @@ export function QuickMatch() {
   return (
     <>
       <PageTabs group="tables" />
-      <PageHead title="حریف‌یابی" sub="بازی و حالت را انتخاب کنید؛ «زنده» یعنی همه هم‌زمان آنلاین‌اند و «نوبتی» یعنی هر کس در مهلت خودش حرکت می‌کند. قبل از شروع هر دو طرف آمادگی را تأیید می‌کنند." />
+      <PageHead title="بازی سریع" sub="بازی و حالت را انتخاب کنید؛ «زنده» یعنی همه هم‌زمان آنلاین‌اند و «نوبتی» یعنی هر کس در مهلت خودش حرکت می‌کند. قبل از شروع هر دو طرف آمادگی را تأیید می‌کنند." />
       <div className="pg-stack" style={{ maxInlineSize: 640 }}>
         {active ? <TicketStatus t={active} onChange={reload} game={games.data.items.find((g) => g.id === active.gameId)} /> : (
           <>

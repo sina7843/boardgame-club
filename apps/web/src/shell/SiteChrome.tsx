@@ -89,7 +89,7 @@ export function PublicFooter() {
   return (
     <SiteFooter logo={{ src: '/brand/logo-fa-reversed.svg' }} storeHref={false} seal={<EnamadSeal />}
       columns={[
-        { title: 'بازی‌ها', links: [['همهٔ بازی‌ها', '/games'], ['دانشنامه', '/wiki'], ['حریف‌یابی سریع', '/play'], ['میزهای باز', '/tables']] },
+        { title: 'بازی‌ها', links: [['همهٔ بازی‌ها', '/games'], ['دانشنامه', '/wiki'], ['بازی سریع', '/play'], ['میزهای باز', '/tables']] },
         { title: 'جامعه', links: [['تورنمنت‌ها', '/tournaments'], ['رتبه‌بندی', '/ranking'], ['باشگاه‌ها', '/clubs'], ['راهنما', '/guides']] },
         { title: 'پشتیبانی و قوانین', links: [['پشتیبانی', '/support'], ...SITE_LINKS.map(([s, label]): [string, string] => [label, `/${s}`])] }
       ]} />

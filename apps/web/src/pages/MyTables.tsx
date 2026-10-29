@@ -186,7 +186,7 @@ export function MyTablesPage() {
           return (
             <Card className="hm-quota">
               <Progress label="میزهای نوبتی" value={Math.min(1, used / max)} valueText={`${faNum(used)} از ${faNum(max)}`} />
-              {!sub.data.premium && <span className="t-caption bgv-muted">با اشتراک ویژه تا {faNum(limits.data.limits.turnTables.premium)} میز</span>}
+              {!sub.data.premium && <span className="t-caption bgv-muted">با اشتراک پریمیوم تا {faNum(limits.data.limits.turnTables.premium)} میز</span>}
             </Card>
           );
         })() : undefined} />

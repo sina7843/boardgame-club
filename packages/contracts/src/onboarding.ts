@@ -30,7 +30,7 @@ export const ONBOARDING_TOURS: readonly OnboardingTour[] = [
     key: 'welcome', kind: 'tour', titleFa: 'آشنایی با باشگاه', summaryFa: 'گشتی کوتاه در بخش‌های اصلی سایت.',
     steps: [
       { key: 'games', target: 'nav-games', titleFa: 'بازی‌ها', bodyFa: 'همهٔ بازی‌ها با قانون، آموزش تعاملی و ساخت میز از همین‌جا.' },
-      { key: 'tables', target: 'nav-tables', titleFa: 'میزها و حریف‌یابی', bodyFa: 'به میز باز دیگران بپیوندید، با حریف‌یابی سریع هم‌بازی هم‌سطح پیدا کنید یا در تورنمنت شرکت کنید.' },
+      { key: 'tables', target: 'nav-tables', titleFa: 'میزها', bodyFa: 'به میز باز دیگران بپیوندید، با بازی سریع هم‌بازی هم‌سطح پیدا کنید یا در تورنمنت شرکت کنید.' },
       { key: 'progress', target: 'nav-progress', titleFa: 'پیشرفت و رتبه', bodyFa: 'سطح، مأموریت‌های هفتگی، دستاوردها و رتبهٔ شما در لیگ اینجاست.' },
       { key: 'messages', target: 'nav-messages', titleFa: 'پیام و دوستان', bodyFa: 'گفت‌وگوها، دوستان، گروه‌های خصوصی و باشگاه‌های عمومی.' },
       { key: 'profile', target: 'nav-profile', titleFa: 'پروفایل شما', bodyFa: 'آواتار، معرفی و ویترین دستاوردها؛ چیزی که دیگران می‌بینند.' },
@@ -51,7 +51,7 @@ export const ONBOARDING_TOURS: readonly OnboardingTour[] = [
   {
     key: 'join-table', kind: 'walkthrough', titleFa: 'پیوستن به میز', summaryFa: 'پشت میز بازیکن دیگری بنشینید.',
     steps: [
-      { key: 'tables', target: 'nav-tables', href: '/tables', doneOn: '^/tables/?$', titleFa: 'میزهای باز', bodyFa: 'روی «میزها و حریف‌یابی» بزنید تا میزهای منتظر بازیکن را ببینید.' },
+      { key: 'tables', target: 'nav-tables', href: '/tables', doneOn: '^/tables/?$', titleFa: 'میزهای باز', bodyFa: 'روی «میزها» بزنید تا میزهای منتظر بازیکن را ببینید.' },
       { key: 'join', target: 'open-tables', verify: 'joined_other_table', titleFa: 'به یک میز بپیوندید',
         bodyFa: 'کنار یکی از میزها «پیوستن» را بزنید. میزی نبود؟ از «حریف‌یابی» استفاده کنید یا با لینک دعوت دوستتان وارد شوید.' }
     ]

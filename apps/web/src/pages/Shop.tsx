@@ -54,7 +54,7 @@ export function ShopPage() {
           <Card key={b.key} className="pf-bundle" aria-label={b.nameFa}>
             <div className="pf-bundle__art">{b.items.map((k) => { const c = cosmetic(k); return c ? <ItemArt key={k} item={c} me={w.me!} /> : null; })}</div>
             <div className="bgv-stack" style={{ gap: 6, flex: 1, minInlineSize: 0 }}>
-              <span className="bgv-row" style={{ gap: 8 }}><Badge tone="premium" size="sm" icon="sparkles">فصلی</Badge><Badge size="sm">{faNum(b.discountPct)}٪ تخفیف</Badge></span>
+              <span className="bgv-row" style={{ gap: 8 }}><Badge tone="info" size="sm" icon="sparkles">فصلی</Badge><Badge size="sm">{faNum(b.discountPct)}٪ تخفیف</Badge></span>
               <b className="t-title">{b.nameFa}</b>
               <span className="t-body-sm bgv-muted">{b.descriptionFa}</span>
             </div>

@@ -115,7 +115,7 @@ export function TournamentPage() {
   const [pane, setPane] = useState<'table' | 'rounds' | 'prizes' | 'rules'>('table');
   usePageTitle(d.data?.titleFa ?? 'تورنمنت');
   usePoll(d.reload, d.data?.status === 'running' || d.data?.status === 'open');
-  const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'میزها و حریف‌یابی', href: '/tables' }, { label: 'تورنمنت‌ها', href: '/tournaments' }, { label: last }]} />;
+  const crumbs = (last: string) => <Breadcrumbs items={[{ label: 'میزها', href: '/tables' }, { label: 'تورنمنت‌ها', href: '/tournaments' }, { label: last }]} />;
   if (d.error) return <>{crumbs('…')}<StateBlock kind={d.error.status === 404 ? 'empty' : 'error'} title={d.error.status === 404 ? 'این تورنمنت پیدا نشد' : 'تورنمنت دریافت نشد'}
     action={<Button variant="primary" href="/tournaments">همهٔ تورنمنت‌ها</Button>} /></>;
   if (!d.data) return <>{crumbs('…')}<Skeleton height={260} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;

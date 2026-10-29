@@ -109,7 +109,7 @@ export function GameDetailPage() {
           ) : g.acceptingNewTables && (
             <>
               <div className="pg-actions">
-                <Button variant="primary" icon="zap" href={`/play?game=${g.id}`}>حریف‌یابی سریع</Button>
+                <Button variant="primary" icon="zap" href={`/play?game=${g.id}`}>بازی سریع</Button>
                 <Button icon="plus" href={`/games/${g.id}/new`}>ساخت میز</Button>
                 <Button variant="ghost" href="/tables">میزهای باز دیگران</Button>
               </div>

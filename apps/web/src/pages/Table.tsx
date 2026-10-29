@@ -129,7 +129,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
 
   return (
     <>
-      <Breadcrumbs items={[{ label: 'میزها و حریف‌یابی', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : host?.user ? `میز ${host.user.displayName}` : 'میز' }]} />
+      <Breadcrumbs items={[{ label: 'میزها', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : host?.user ? `میز ${host.user.displayName}` : 'میز' }]} />
       <PageHead title={<span className="tbl-head">
         <img className="tbl-head__cover" src={`/covers/${t.gameId}.webp?v=2`} alt="" />
         <span>{t.isTutorial ? `آموزش ${t.gameNameFa}` : host?.user ? <>{t.gameNameFa}، میز <bdi>{host.user.displayName}</bdi></> : t.gameNameFa}
@@ -706,7 +706,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             <div className="bgv-stack">
               <Hud layout="rail" players={players} label="بازیکنان" />
               <Policies table={t} />
-              {canResign && <Button variant="danger" icon="flag" block onClick={() => { setDrawer(false); setConfirmResign(true); }}>انصراف از بازی</Button>}
+              {canResign && <Button variant="leave" icon="flag" block onClick={() => { setDrawer(false); setConfirmResign(true); }}>انصراف از بازی</Button>}
               {t.mySeat !== null && !t.isTutorial && <Button variant="ghost" icon="flag" block onClick={() => { setDrawer(false); setReporting(true); }}>گزارش این میز</Button>}
             </div>
           </Sheet>
@@ -746,7 +746,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
       {confirmResign && (
         <Dialog modal danger icon="flag" title="انصراف از بازی؟" onClose={() => setConfirmResign(false)}
           footer={<><Button variant="secondary" onClick={() => setConfirmResign(false)}>ادامه بازی</Button>
-            <Button variant="danger" onClick={() => { setConfirmResign(false); s.act({ type: 'resign' }, true); }}>انصراف قطعی</Button></>}>
+            <Button variant="leave" onClick={() => { setConfirmResign(false); s.act({ type: 'resign' }, true); }}>انصراف قطعی</Button></>}>
           {t.policies.resignFa} این کار قابل بازگشت نیست.
         </Dialog>
       )}

@@ -80,7 +80,7 @@ function DailyCard({ games }: { games: GameSummary[] | undefined }) {
     <Card flush as="section" aria-labelledby="daily-h">
       <div className="hm-daily__cover">
         <img src={`/covers/${d.gameId}.webp?v=2`} alt="" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
-        <span className="hm-daily__badge"><Badge tone="premium" icon="calendar">بازی روز</Badge></span>
+        <span className="hm-daily__badge"><Badge tone="info" icon="calendar">بازی روز</Badge></span>
       </div>
       <div className="hm-daily__body">
         <div className="bgv-row" style={{ justifyContent: 'space-between' }}>

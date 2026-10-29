@@ -49,7 +49,7 @@ export function PlayersAdmin() {
               <button key={p.id} type="button" className={`ac-adminrow${selected === p.id ? ' is-selected' : ''}`} aria-current={selected === p.id || undefined} onClick={() => select(p.id)}>
                 <PlayerAvatar p={p} />
                 <span className="ac-adminrow__name"><b><bdi>{p.displayName}</bdi></b><bdi dir="ltr" className="bgv-latin ac-cap">{p.mobileMasked ?? '—'}</bdi></span>
-                {p.roles.map((r) => <Badge key={r} tone="premium" size="sm">{ROLE_FA[r] ?? r}</Badge>)}
+                {p.roles.map((r) => <Badge key={r} icon="shield" size="sm">{ROLE_FA[r] ?? r}</Badge>)}
                 {statusBadge(p.status)}
               </button>
             ))}
@@ -167,7 +167,7 @@ function PlayerDetailAdmin({ id, onBack, onChanged }: { id: string; onBack: () =
           <div className="bgv-row" style={{ gap: 10 }}>
             <h2 id="admin-player-h" className="t-page-sm" style={{ color: 'var(--heading)', margin: 0 }}><bdi>{d.displayName}</bdi></h2>
             <Badge tone={d.status === 'active' ? 'success' : 'danger'}>{STATUS_FA[d.status]}</Badge>
-            {d.roles.map((r) => <Badge key={r} tone="premium">{ROLE_FA[r] ?? r}</Badge>)}
+            {d.roles.map((r) => <Badge key={r} icon="shield">{ROLE_FA[r] ?? r}</Badge>)}
           </div>
           <span className="ac-cap"><bdi dir="ltr" className="bgv-latin">{d.mobileMasked ?? '—'}</bdi> · عضویت {jalaliDate(d.joinedAt)}{d.lastSeenAt && ` · آخرین بازدید ${jalaliDateTime(d.lastSeenAt)}`}</span>
         </div>

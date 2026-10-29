@@ -49,7 +49,7 @@ export function OpenTables() {
       <PageTabs group="tables" />
       <PageHead title="میزهای باز" sub={`${list.data ? `${faNum(list.data.items.length)} میز عمومی منتظر بازیکن. ` : ''}روی میزی که جای خالی دارد بزنید تا بنشینید؛ میز خصوصی فقط با لینک دعوت باز می‌شود.`}
         actions={<>
-          <Button href="/play" icon="zap">حریف‌یابی سریع</Button>
+          <Button href="/play" icon="zap">بازی سریع</Button>
           <Button variant="primary" href="/games" icon="plus">میز بساز</Button>
         </>} />
       <div className="pg-filterbar">

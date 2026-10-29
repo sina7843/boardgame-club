@@ -30,7 +30,7 @@ export function MorePage() {
       { href: '/friends', label: 'دوستان', icon: 'users', ...(invites ? { count: invites } : {}) }, { href: '/groups', label: 'گروه‌ها', icon: 'message-circle' },
       { href: '/clubs', label: 'باشگاه‌ها', icon: 'flag' }, { href: '/friends?tab=invite', label: 'دعوت از دوستان', icon: 'user-plus' }]],
     ['حساب و کیف پول', [
-      { href: '/plans', label: 'اشتراک ویژه', icon: 'gem' }, { href: '/coins', label: 'سکه‌ها', icon: 'coins' },
+      { href: '/plans', label: 'اشتراک پریمیوم', icon: 'gem' }, { href: '/coins', label: 'سکه‌ها', icon: 'coins' },
       { href: '/shop', label: 'فروشگاه کازمتیک', icon: 'shopping-bag' }, { href: '/settings', label: 'تنظیمات', icon: 'settings' }]],
     ['کمک', [{ href: '/guides', label: 'راهنما', icon: 'book-open' }, { href: '/support', label: 'پشتیبانی', icon: 'life-buoy' }]]
   ];

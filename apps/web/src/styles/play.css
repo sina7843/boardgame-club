@@ -21,9 +21,6 @@ button.cover-flip { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .game-cover--box { transition: none; } }
 
 /* Catalogue / wiki filters */
-.pg-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); gap: var(--space-3); align-items: end; }
-.pg-filters > .pg-q { grid-column: span 2; }
-@media (max-width: 599px) { .pg-filters > .pg-q { grid-column: 1 / -1; } }
 .pg-tags { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .pg-tags > legend { float: inline-start; margin-inline-end: var(--space-1); padding: 0; }
 .pg-results { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
@@ -145,14 +142,24 @@ button.cover-flip { cursor: pointer; }
   .pg-createbar > .pg-meta { flex: 1; min-inline-size: 0; }
 }
 
-/* Catalog on phones: search + «فیلترها» + tag chips; the selects open on demand; two cards per row. */
+/* Catalog (v2.1): presets on top, filters in a column beside the grid; on phones the filters open on demand and the grid has two columns. */
+.pg-presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-4); }
+.pg-preset { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); text-align: start; cursor: pointer; font: inherit; color: inherit; }
+.pg-preset__icon { flex: none; display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: var(--radius-md); background: var(--surface-sunken); color: var(--heading); }
+.pg-preset__text { display: grid; gap: 2px; min-inline-size: 0; }
+.pg-preset__text small { color: var(--text-muted); font-size: 13px; }
+.pg-catlayout { display: grid; grid-template-columns: minmax(260px, 300px) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+.pg-catlayout > search { position: sticky; inset-block-start: calc(var(--header-h) + var(--space-4)); display: block; }
+.pg-filtbody { display: grid; gap: var(--space-4); }
 .pg-filtbtn { display: none; }
-@media (max-width: 599px) {
-  .pg-filtbtn { display: inline-flex; align-self: end; }
-  .pg-catform:not(.is-open) .pg-filters > :not(.pg-q):not(.pg-filtbtn) { display: none; }
-  .pg-catform .pg-filters { grid-template-columns: minmax(0, 1fr) auto; }
-  .pg-catform.is-open .pg-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pg-catform.is-open .pg-q { grid-column: 1 / -1; }
+.pg-results__sort { margin-inline-start: auto; min-inline-size: 160px; }
+.pg-catgrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); }
+.pg-more { display: grid; justify-items: center; gap: var(--space-2); padding-block: var(--space-4); }
+@media (max-width: 899px) {
+  .pg-catlayout { grid-template-columns: minmax(0, 1fr); }
+  .pg-catlayout > search { position: static; }
+  .pg-filtbtn { display: inline-flex; }
+  .pg-catform:not(.is-open) .pg-filtbody { display: none; }
   .pg-catgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 }
 
