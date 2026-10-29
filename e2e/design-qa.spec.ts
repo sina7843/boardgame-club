@@ -171,7 +171,7 @@ for (const s of SCREENS.screens) {
     for (const w of s.viewports) {
       const h = s.responsive ? 900 : 844;
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: QA.baseURL, storageState: state, hasTouch: w < 900 });
-      await ctx.addInitScript((theme) => { try { localStorage.setItem('bg.prefs', JSON.stringify({ theme, motion: 'reduce', muted: true, undo: 'off' })); } catch { /* storage blocked */ } }, s.theme);
+      await ctx.addInitScript((theme) => { try { localStorage.setItem('bg.prefs', JSON.stringify({ theme, motion: 'reduce', muted: true, undo: 'off' })); } catch { /* storage blocked */ } }, /Dark/.test(s.id) ? 'dark' : 'light'); // reference ids without "Dark" are light shots; screens.json theme is unreliable
       const page = await ctx.newPage();
       const url = await resolveRoute(page, s.route, s);
       if (!url) { entry.status = s.kind === 'table' ? 'needs-flow' : 'needs-data'; await ctx.close().catch(() => {}); break; }
@@ -179,6 +179,10 @@ for (const s of SCREENS.screens) {
       await page.waitForLoadState('networkidle').catch(() => {});
       await page.waitForTimeout(600);
       if (PREPARE[s.id]) { await PREPARE[s.id]!(page).catch((e) => { entry.note = String(e).slice(0, 160); }); await page.waitForTimeout(500); }
+      if (s.responsive) { // lazy images only load once scrolled into view
+        await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 600) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); } window.scrollTo(0, 0); }).catch(() => {});
+        await page.waitForLoadState('networkidle').catch(() => {});
+      }
       const file = `${OUT}/${s.id}@${w}.png`;
       await page.screenshot({ path: file, fullPage: s.responsive });
       const dom = await page.evaluate(domAudit, { gameArt: QA.gameArtSelector ?? '.bgv-felt__stage, [data-game-art]', minEdgeGap: QA.thresholds?.minEdgeGapPx ?? 6, dsColors: DS_COLORS, dsRadii: DS_RADII });

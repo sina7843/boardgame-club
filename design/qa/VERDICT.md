@@ -7,7 +7,7 @@
 |---|---|
 | Static guard `node scripts/ds-check.mjs --strict` | **PASS** (strict zones: `apps/web/src`, `packages/ui/src`; generated `bgv.js` excluded). 221 errors in non-strict zones (legacy tokens in `games/*/src`) and 4471 warnings stay on the baseline. |
 | Live capture + DOM audit (desktop-1440 project, widths 1440 / 1000 / 390, both themes) | **96 PASS · 0 FAIL · 12 not captured · 14 spec-only** of 122 screens |
-| Independent visual review (side by side with the references) | **not run** |
+| Independent visual review (side by side with the references) | **started, home only** (see below) |
 
 ## Not captured (12)
 - Need a backend change: `Table-Lobby-Guest-Mobile` (guests cannot see a table; a 2-minute held seat and `LoginSheet` at the table do not exist yet).
@@ -21,6 +21,11 @@
 - **Player rail at 390** (Catan, Hanabi, Coup, Ludo): the turn-order line («۳ نوبت بعد») stuck out of the narrow cards; it now wraps (`table.css`).
 - **Cosmetic previews** (Shop, Studio, Wardrobe): item colours come from the item; the preview is marked `data-game-art` like game art.
 - **Spectator game bar at 390**: «ترک تماشا» is icon-only on phones.
+
+## Visual review (single agent, side by side)
+- **Harness fixes**: `screens.json` `theme` is unreliable (Home-Member* say dark, reference is light) → theme now follows the id (`Dark` → dark, else light). Full-page shots scroll first so lazy game art loads (cards were blank).
+- **Home member @1440 / @390 — structure, tokens, shell, hero, cards: match the reference.** Remaining gaps (data/feature, not tokens): hero lacks the big «آخرین بازیت» box art; no weekly-leaders strip; no tournament feature band; footer lacks the «بازی‌های محبوب» column and «دریافت از کافه‌بازار» button; the enamad box shows a broken image; «نوبت شماست»/open-tables rows are empty-state in this data set.
+- Other screens not yet compared one by one.
 
 ## Polish items (warnings, not gates)
 - 17 Latin digits inside Latin game names in `bgv-gamecard__latin` (names such as «7 Wonders Duel»): expected, add to the audit allow-list.
