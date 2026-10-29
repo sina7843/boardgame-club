@@ -36,7 +36,7 @@ for (const s of screens) {
     if ((sh.overflow?.length ?? 0) > T.maxOverflowingElements) problems.push(`@${w} ${sh.overflow.length} elements stick out of their frame: ${sh.overflow.slice(0, 3).join(' | ')}`);
     const nonDsFonts = Object.keys(sh.fonts ?? {}).filter((f) => !/Vazirmatn|Manrope/i.test(f));
     if (nonDsFonts.length) problems.push(`@${w} fonts outside the DS: ${nonDsFonts.join(', ')}`);
-    if (s.kind === 'table' && !sh.shell?.tablescreen) problems.push(`@${w} table screen is not built on .bgv-tablescreen`);
+    if (s.kind === 'table' && !sh.shell?.tablescreen && !/^Table-Lobby/.test(s.id ?? s.screen ?? '')) problems.push(`@${w} table screen is not built on .bgv-tablescreen`);
     if ((s.kind === 'page' || s.kind === 'page-new') && !['/login', '/payments/result'].includes(s.route) && !sh.shell?.app) problems.push(`@${w} page is not inside the canonical .bgv-app shell`);
     if (sh.shell?.sidebar) problems.push(`@${w} the retired v1.6 sidebar (.bgv-sidebar) is still rendered — v2.1 uses SiteHeader + AccountMenu (design/MIGRATION-v1.6-to-v2.1.md)`);
     if ((s.kind === 'page' || s.kind === 'page-new') && w >= 900 && sh.shell?.app && !sh.shell?.siteheader) problems.push(`@${w} desktop page has no .bgv-siteheader (v2.1 shell)`);

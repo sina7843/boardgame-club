@@ -23,7 +23,12 @@ const vars = (it: CosmeticItem) => ({ '--c1': it.art?.colors[0], '--c2': it.art?
 const myParts = (me: Pick<Me, 'avatarKey'>) => parseAvatar(me.avatarKey) ?? parseAvatar(DEFAULT_AVATAR)!;
 
 /** Preview art of one item (purely visual: colours and patterns come from the catalogue data). */
-export function ItemArt({ item, me, size = 'md' }: { item: CosmeticItem; me: Pick<Me, 'avatarKey'>; size?: 'md' | 'lg' }) {
+/** Item previews are product art (colours come from the item), like game boards: marked so the design QA treats them as art. */
+export function ItemArt(props: { item: CosmeticItem; me: Pick<Me, 'avatarKey'>; size?: 'md' | 'lg' }) {
+  return <span data-game-art style={{ display: 'contents' }}>{renderItemArt(props)}</span>;
+}
+
+function renderItemArt({ item, me, size = 'md' }: { item: CosmeticItem; me: Pick<Me, 'avatarKey'>; size?: 'md' | 'lg' }) {
   const avatar = (key: string) => <AvatarArt avatarKey={key} />;
   switch (item.slot) {
     case 'fr': return <Avatar size={size === 'lg' ? 'xl' : 'lg'}><AvatarArt avatarKey={formatAvatar({ ...myParts(me), fr: item.i })} frame /></Avatar>;

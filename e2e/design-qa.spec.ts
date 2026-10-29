@@ -20,7 +20,10 @@ const save = () => writeFileSync(AUDIT_FILE, JSON.stringify(audit, null, 1));
 
 // Optional: live table URLs for table screens, e.g. BGV_QA_TABLES='{"catan":"/tables/abc","uno":"/tables/def"}'.
 // Without it, table screens are reported as "needs-flow" and the QA agent captures them with a game flow (see /bgv-qa).
-const TABLES: Record<string, string> = process.env.BGV_QA_TABLES ? JSON.parse(process.env.BGV_QA_TABLES) : {};
+// Values: a path, or { url, storage } when the table belongs to another account (e2e/qa-setup.spec.ts).
+const TABLES: Record<string, string | { url: string; storage: string }> = process.env.BGV_QA_TABLES ? JSON.parse(process.env.BGV_QA_TABLES) : {};
+// A table is looked up by screen id first (state screens), then by the game named first in the state text.
+const tableOf = (s: { id: string; kind: string; state: string }) => (s.kind === 'table' ? TABLES[s.id] ?? TABLES[(s.state.split(',')[0] ?? '').trim()] : undefined);
 const ONLY = process.env.BGV_QA_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
 
 // Literal colours/radii the design system itself uses (bundle.css) are part of the DS, so they are allowed too.
@@ -29,9 +32,30 @@ const BUNDLE_CSS = BUNDLE ? readFileSync(BUNDLE, 'utf8') : '';
 const DS_COLORS = [...new Set(BUNDLE_CSS.match(/#[0-9A-Fa-f]{3,8}\b|rgba?\([^)]*\)/g) ?? [])];
 const DS_RADII = [...new Set([...BUNDLE_CSS.matchAll(/border-radius:\s*([^;}]+)/g)].flatMap((m) => (m[1] ?? '').trim().split(/\s+/)).filter((v) => /^\d+(\.\d+)?px$/.test(v)))];
 
+
+/** Interactions that bring a screen into its designed state (overlays, disconnects, open chat). Screens without one stay manual. */
+const chatOpen = async (page: Page) => { await page.locator('.tbl-chatbtn:visible, .tbl-chatpeek:visible').first().click({ timeout: 4000 }).catch(() => undefined); await page.waitForTimeout(600); };
+const hold = async (page: Page, sel: string) => { await page.locator(sel).first().evaluate((el) => el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }))); await page.waitForTimeout(900); };
+const PREPARE: Record<string, (page: Page) => Promise<void>> = {
+  'Table-ConnectionLost-Mobile': async (page) => { await page.context().setOffline(true); await page.waitForTimeout(4000); },
+  'Offline-Mobile': async (page) => { await page.context().setOffline(true); await page.evaluate(() => window.dispatchEvent(new Event('offline'))); await page.waitForTimeout(1500); },
+  'Chat-Docked-Desktop': async () => undefined,
+  'Chat-Sheet-Mobile': chatOpen,
+  'Chat-Sheet-Mobile-Dark': chatOpen,
+  'Chat-Spectator-Mobile': chatOpen,
+  'Msg-Menu-Others-Mobile': async (page) => { await chatOpen(page); await hold(page, '.chat-msg:not(.chat-msg--mine)'); },
+  'Msg-Menu-Mine-Mobile': async (page) => { await chatOpen(page); await hold(page, '.chat-msg--mine'); },
+  'Mention-Compose-Mobile': async (page) => { await chatOpen(page); await page.getByPlaceholder('پیام به میز…').fill('@نیل'); await page.waitForTimeout(500); },
+  'Hud-Bubbles-Mobile': async (page) => { const id = page.url().split('/').pop(); await page.request.post(`/api/tables/${id}/chat`, { headers: { origin: QA.baseURL }, data: { body: 'نوبت توئه! 😄' } }); await page.waitForTimeout(900); },
+  'Shop-Item-Sheet-Mobile': async (page) => { await page.locator('.bgv-cosm').first().click({ timeout: 4000 }); await page.waitForTimeout(700); },
+  'Avatar-Builder-Mobile-Buy': async (page) => { await page.getByRole('button', { name: /خرید/ }).first().click({ timeout: 4000 }); await page.waitForTimeout(700); }
+};
+
 let storage: string | undefined;
 async function session(browser: Browser) {
   if (storage) return storage;
+  // BGV_QA_REUSE=1: keep the account (and its tables) made by e2e/qa-setup.spec.ts.
+  if (process.env.BGV_QA_REUSE && existsSync(`${OUT}/.storage.json`)) return (storage = `${OUT}/.storage.json`);
   const ctx = await browser.newContext({ locale: 'fa-IR', timezoneId: 'Asia/Tehran', baseURL: QA.baseURL });
   const page = await ctx.newPage();
   await signIn(page, 'مینا');
@@ -43,8 +67,8 @@ async function session(browser: Browser) {
 
 async function resolveRoute(page: Page, route: string, s: Screen): Promise<string | null> {
   if (s.kind === 'table') {
-    const game = (s.state.split(',')[0] ?? '').trim();
-    return TABLES[game] ?? null;
+    const t = tableOf(s);
+    return typeof t === 'string' ? t : t?.url ?? null;
   }
   if (!route.includes(':')) return route;
   const rule: string | undefined = QA.params?.[route];
@@ -61,7 +85,7 @@ async function resolveRoute(page: Page, route: string, s: Screen): Promise<strin
 function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[]; dsRadii: string[] }) {
   const root = document.documentElement;
   const cs = getComputedStyle(root);
-  const probe = document.createElement('div'); document.body.appendChild(probe);
+  const probe = document.createElement('div'); probe.style.cssText = 'transition:none !important;animation:none !important'; document.body.appendChild(probe); // local fix: without this a colour transition returns the previous value and almost every token is read as the first one
   const norm = (v: string) => { probe.style.color = ''; probe.style.color = v; return getComputedStyle(probe).color; };
   const allowedColor = new Set<string>(['rgba(0, 0, 0, 0)']);
   const allowedRadius = new Set<string>(['0px', '50%', '9999px', '999px']);
@@ -97,7 +121,7 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
     if (!visible(el) || inArt(el) || el.closest('svg') && el.tagName !== 'svg') continue;
     total++; if (typeof el.className === 'string' && /\bbgv-/.test(el.className)) bgv++;
     const s = getComputedStyle(el);
-    const check = (v: string) => { if (v && !v.startsWith('rgba(0, 0, 0, 0)') && !allowedColor.has(v)) offColors[v] = (offColors[v] || 0) + 1; };
+    const check = (v: string) => { if (v && !v.startsWith('rgba(0, 0, 0, 0)') && !v.startsWith('color(') && !allowedColor.has(v)) offColors[v] = (offColors[v] || 0) + 1; };
     if ((el.textContent || '').trim()) check(s.color);
     check(s.backgroundColor);
     if (parseFloat(s.borderTopWidth) > 0) check(s.borderTopColor);
@@ -141,9 +165,9 @@ for (const s of SCREENS.screens) {
     const entry: Record<string, unknown> = { id: s.id, page: s.page, route: s.route, kind: s.kind, capture: s.capture, theme: s.theme, shots: [] };
     audit[s.id] = entry;
     if (s.supersededBy) { entry.status = 'superseded'; entry.supersededBy = s.supersededBy; save(); test.skip(true, `${s.id}: superseded by ${s.supersededBy}`); return; }
-    if (!s.route || s.capture === 'manual') { entry.status = s.kind === 'spec' ? 'spec-only' : 'manual'; save(); test.skip(true, `${s.id}: ${entry.status}`); return; }
+    if (!s.route || (s.capture === 'manual' && !PREPARE[s.id])) { entry.status = s.kind === 'spec' ? 'spec-only' : 'manual'; save(); test.skip(true, `${s.id}: ${entry.status}`); return; }
     if (QA.roles?.[s.route] && !process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`]) { entry.status = `needs-role:${QA.roles[s.route]}`; save(); test.skip(true, entry.status as string); return; }
-    const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' ? undefined : await session(browser);
+    const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' ? undefined : (() => { const t = tableOf(s); return typeof t === 'object' ? t.storage : undefined; })() ?? await session(browser);
     for (const w of s.viewports) {
       const h = s.responsive ? 900 : 844;
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: QA.baseURL, storageState: state, hasTouch: w < 900 });
@@ -154,6 +178,7 @@ for (const s of SCREENS.screens) {
       await page.goto(url);
       await page.waitForLoadState('networkidle').catch(() => {});
       await page.waitForTimeout(600);
+      if (PREPARE[s.id]) { await PREPARE[s.id]!(page).catch((e) => { entry.note = String(e).slice(0, 160); }); await page.waitForTimeout(500); }
       const file = `${OUT}/${s.id}@${w}.png`;
       await page.screenshot({ path: file, fullPage: s.responsive });
       const dom = await page.evaluate(domAudit, { gameArt: QA.gameArtSelector ?? '.bgv-felt__stage, [data-game-art]', minEdgeGap: QA.thresholds?.minEdgeGapPx ?? 6, dsColors: DS_COLORS, dsRadii: DS_RADII });

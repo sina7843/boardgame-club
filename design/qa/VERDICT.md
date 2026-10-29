@@ -1,40 +1,39 @@
-# BGV design QA — verdict (2026-10-14)
+# BGV design QA — verdict (2026-10-29, design system v2.1)
 
-Static, source-level review of every designed screen (`design/reference/screens.json`, 115 screens) and the design
-system (`design/system`) against the code. Seven independent reviewers; no app run, no captures, so pixel-level
-differences are not covered. Overall: **FAIL**.
+**Overall: NOT PASS** — 12 designed screens are not captured yet, and the independent visual review (step 3 of `/bgv-qa`) was not run.
 
-| Group | Done | Partial | Missing | Report |
-|---|---|---|---|---|
-| table | 0 | 20 | 2 | verdict-table.md |
-| time | 0 | 9 | 2 | verdict-time.md |
-| chat | 0 | 13 | 0 | verdict-chat.md |
-| profile | 0 | 17 | 1 | verdict-profile.md |
-| play | 1 | 23 | 1 | verdict-play.md |
-| account | 0 | 25 | 1 | verdict-account.md |
-| **total** | **1** | **107** | **7** | |
+## Gates
+| Gate | Result |
+|---|---|
+| Static guard `node scripts/ds-check.mjs --strict` | **PASS** (strict zones: `apps/web/src`, `packages/ui/src`; generated `bgv.js` excluded). 221 errors in non-strict zones (legacy tokens in `games/*/src`) and 4471 warnings stay on the baseline. |
+| Live capture + DOM audit (desktop-1440 project, widths 1440 / 1000 / 390, both themes) | **96 PASS · 0 FAIL · 12 not captured · 14 spec-only** of 122 screens |
+| Independent visual review (side by side with the references) | **not run** |
 
-Design system (verdict-ds.md): 94/94 components with identical props; tokens.css and bundle.css byte-identical;
-brand assets match. `ds-check --strict` fails with 156 errors (legacy colours in `apps/web/src/app.css`,
-`packages/ui/src/game-legacy.css`). Several designed pieces are hand-built instead of DS components
-(Composer, QuickChat, SystemMessage, UnreadDivider, CritBar, Spectators, Hero, Popover/Tooltip in onboarding).
+## Not captured (12)
+- Need a backend change: `Table-Lobby-Guest-Mobile` (guests cannot see a table; a 2-minute held seat and `LoginSheet` at the table do not exist yet).
+- Time based, need a game clock to run down: `Turn-Start-Mobile`, `Turn-Warn-Mobile`, `Turn-Critical-Mobile`, `Turn-Timeout-Mobile`.
+- OS / first-visit overlays with no hook yet: `Push-Lockscreen-Mobile`, `Push-Preprompt-Mobile`, `Onboarding-Tour-Mobile`, `Celebration-LevelUp-Mobile`.
+- Hook written but the capture times out (120 s) in the harness: `Msg-Menu-Others-Mobile`, `Msg-Menu-Mine-Mobile`, `Mention-Compose-Mobile`.
+- `Profile-Public-Mobile-Dark` passes when run alone; it timed out in the last combined run.
 
-Owner decisions: reaction set ends with 👏 (DECISIONS.md).
+## Fixed during this QA
+- **Audit tool**: the colour probe read the previous value while a transition ran, so almost every token looked "off-token" (all 60 failures of the first run). Fixed in `e2e/design-qa.spec.ts` (probe without transitions); colours written with `color-mix()` (computed as `color(srgb …)`) are accepted; lobby screens are not required to use `.bgv-tablescreen` (the reference lobby does not); a screen can have its own table or interaction (`PREPARE`).
+- **Player rail at 390** (Catan, Hanabi, Coup, Ludo): the turn-order line («۳ نوبت بعد») stuck out of the narrow cards; it now wraps (`table.css`).
+- **Cosmetic previews** (Shop, Studio, Wardrobe): item colours come from the item; the preview is marked `data-game-art` like game art.
+- **Spectator game bar at 390**: «ترک تماشا» is icon-only on phones.
 
-## Fix plan (priority order)
+## Polish items (warnings, not gates)
+- 17 Latin digits inside Latin game names in `bgv-gamecard__latin` (names such as «7 Wonders Duel»): expected, add to the audit allow-list.
+- 14 «·» separators in UI text → `bgv-sep`.
+- Text closer than 6 px to its frame: «همهٔ بازی‌ها» / «دانشنامه» chips, game bar meta items, a few cosmetic names; 2 links with a negative gap («تورنمنت‌ها», «کمد من»).
+- 5 pages have under 50 % of elements on `bgv-*` classes.
 
-1. **Table core** — phone player strip layouts (compact / 2-row / 2-player), shared actions in the ActionDock,
-   hide in-board TurnIndicator under the HUD, connection-lost banner + action lock, spectator bar, result screens.
-2. **Time** — CritBar countdown, turn-start / timeout toasts, strike banner, 50% step visual-only, frozen clock while
-   reconnecting/incident, urgent rows in My Tables.
-3. **Server data the designs need** (contracts + API): presence, per-player clocks, move log, league/title on seats,
-   spectator count, table player lists / turn / result in my-tables and open-tables.
-4. **Play** — quick-match joining + ready check, finished-tables history, game-detail open tables, create-table invites
-   and phone sticky bar, open-tables filters, phone catalog.
-5. **Chat** — SystemMessage + UnreadDivider, long-press menu with reaction bar, missing menu actions, DM invite card,
-   floating HUD bubbles, grouped mention picker, slow-mode countdown.
-6. **Profile / account** — own-profile page, Studio tabs + batch save, frame outside rings, ranking ladder and "you"
-   card, friends two-column with presence, phone layouts (Settings, Wallet), plans comparison, payment retry.
-7. **DS cleanup** — remove legacy colours to get `ds-check --strict` to zero, swap hand-built pieces for DS components,
-   fix confetti colours.
-8. **Web push** (service worker + server sender + pre-prompt) — separate track; needs a push provider decision.
+## How to re-run
+```
+docker start boardgame-dev-postgres-1   # DATABASE_URL=postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame
+pnpm db:migrate && pnpm db:seed
+BGV_QA_SETUP=1 pnpm exec playwright test e2e/qa-setup.spec.ts e2e/qa-setup2.spec.ts e2e/qa-roles.spec.ts e2e/qa-data.spec.ts --project=desktop-1440
+BGV_QA_REUSE=1 BGV_QA_TABLES="$(cat design/qa/tables.json)" BGV_QA_MODERATOR_STORAGE=design/qa/app/.storage-moderator.json \
+  BGV_QA_ADMIN_STORAGE=design/qa/app/.storage-admin.json pnpm exec playwright test e2e/design-qa.spec.ts --project=desktop-1440
+node scripts/ds-qa-report.mjs     # → design/qa/index.html, summary.md
+```

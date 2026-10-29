@@ -132,3 +132,7 @@ html[data-immersive] .app-page { gap: 0; }
 /* Renderer turn controls portalled into the action dock (DockSlot). */
 .tbl-dockslot { display: contents; }
 .tbl-dockslot > * { flex: none; }
+
+/* Player rail on phones: four compact cards share the width, so the turn-order line wraps instead of sticking out. */
+.tbl-rail .bgv-pstate { white-space: normal; flex-wrap: wrap; justify-content: center; text-align: center; font-size: 11px; line-height: 1.3; }
+.tbl-rail .bgv-pcard__name { min-inline-size: 0; max-inline-size: 100%; overflow-wrap: anywhere; }

@@ -617,7 +617,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
             ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
             <Connection key="c" state={s.live ? 'ok' : 'lost'} label={s.live ? 'متصل' : 'قطع'} />]}
           actions={<>
-            {!isPlayer && !finished && <Button variant="secondary" size="sm" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>}
+            {!isPlayer && !finished && <Button variant="secondary" size="sm" icon="log-out" iconOnly={!notPhone} onClick={() => navigate('/tables')}>ترک تماشا</Button>}
             {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} only={quickFor} />}
             <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
