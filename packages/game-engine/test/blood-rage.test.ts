@@ -379,7 +379,7 @@ describe('blood rage phases', () => {
     let snap = arrange(2, (s) => { clean(s); s.age = 3; s.clans[1]!.glory = 4; s.clans[0]!.glory = 9; });
     snap = act(snap, 0, { type: 'pass' });
     snap = act(snap, 1, { type: 'pass' });
-    const out = projectFor(m, snap, p(0)).outcome ?? st(snap).outcome;
+    const out = st(snap).outcome;
     expect(st(snap).step).toBe('over');
     expect(out?.placements.find((x) => x.seat === 0)?.place).toBe(1);
   });
@@ -408,6 +408,23 @@ describe('blood rage privacy and resignation', () => {
     expect(st(snap).step).toBe('draft');
     expect(st(snap).draft.picked.every((x) => !x)).toBe(true);
     expect(st(snap).packs.every((x) => x.length === 7)).toBe(true);
+  });
+});
+
+describe('blood rage tutorial', () => {
+  it('the scripted lesson is legal step by step and the learner wins', () => {
+    const t = bloodRageModule.tutorial;
+    let snap = startGame(m, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
+    expect(t.steps.length).toBeGreaterThanOrEqual(3);
+    expect(t.steps.length).toBeLessThanOrEqual(8);
+    for (const [i, step] of t.steps.entries()) {
+      expect(pending(st(snap)), `step ${i + 1} waits on the learner`).toContain(0);
+      snap = act(snap, 0, step.expected as BRAction);
+      if (step.reply) snap = act(snap, 1, step.reply as BRAction);
+    }
+    const out = st(snap).outcome;
+    expect(out).not.toBeNull();
+    expect(out!.placements.find((x) => x.seat === 0)!.place).toBe(1);
   });
 });
 

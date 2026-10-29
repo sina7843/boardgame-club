@@ -10,9 +10,9 @@ import { z } from 'zod';
 import type { Actor, ActionHint, EngineContext, EngineRng, GameModule, Outcome, PublicSummary, Transition, Viewer } from '@bg/game-sdk';
 import { bloodRage as def } from './definition.ts';
 import {
-  ageDeck, adjacent, CARD_BY_ID, DESTROYED_AT_START, ENDGAME_BONUS_LAST, ENDGAME_BONUS_STEP, fjordsOf, FJORDS, GLORY_REWARD,
+  ageDeck, adjacent, CARD_BY_ID, DESTROYED_AT_START, ENDGAME_BONUS_LAST, ENDGAME_BONUS_STEP, GLORY_REWARD,
   isFjord, isUpgrade, LAST_STEP, OUTER, OUTER_REWARDS, PROVINCES, RAGNAROK_GLORY, RING, STATS, TRACKS, WARRIORS,
-  type CardId, type FigureKind, type FjordId, type Place, type ProvinceId, type Reward, type Stat, placesOf, FJORD_IDS, PROVINCE_IDS
+  type CardId, type FigureKind, type Place, type ProvinceId, type Reward, type Stat, placesOf, FJORD_IDS, PROVINCE_IDS
 } from './data.ts';
 
 export const HAND_PICKS = 6;
@@ -151,7 +151,7 @@ function shuffle<T>(rng: EngineRng, xs: T[]): T[] {
 const log = (s: BRState, e: LogEntry) => { s.log.push(e); if (s.log.length > 60) s.log.shift(); };
 const defOf = (s: BRState, inst: number) => CARD_BY_ID[s.inst[inst]!]!;
 const isOuter = (p: Place): p is ProvinceId => !isFjord(p) && p !== 'ygg';
-const alive = (s: BRState, p: ProvinceId) => !s.destroyed.includes(p);
+const alive = (s: Pick<BRState, 'destroyed'>, p: ProvinceId) => !s.destroyed.includes(p);
 const rageMax = (s: BRState, seat: number) => TRACKS.rage[s.clans[seat]!.steps.rage]!;
 export const axesOf = (s: Pick<BRState, 'clans'>, seat: number) => TRACKS.axes[s.clans[seat]!.steps.axes]!;
 export const hornsOf = (s: Pick<BRState, 'clans'>, seat: number) => TRACKS.horns[s.clans[seat]!.steps.horns]!;
@@ -164,11 +164,9 @@ export function has(s: Pick<BRState, 'clans' | 'inst'>, seat: number, id: CardId
   const slots = [c.warrior, c.leader, c.ship, ...c.monsters, ...c.clans];
   return slots.some((i) => i !== null && s.inst[i] === id);
 }
-const hasAny = (s: BRState, seat: number, ids: CardId[]) => ids.some((i) => has(s, seat, i));
 const inReserve = (s: BRState, seat: number, kind: FigureKind) => s.figs.find((f) => f.seat === seat && f.kind === kind && f.at === 'reserve');
 const onBoard = (f: Figure) => f.at !== 'reserve' && f.at !== 'valhalla' && f.at !== 'box';
 export const boardCount = (s: Pick<BRState, 'figs'>, seat: number) => s.figs.filter((f) => f.seat === seat && onBoard(f)).length;
-const figsAt = (s: BRState, p: Place) => s.figs.filter((f) => f.at === p);
 export const villagesFree = (s: Pick<BRState, 'figs'>, p: ProvinceId) => (p === 'ygg' ? 99 : PROVINCES[p].villages - s.figs.filter((f) => f.at === p).length);
 const shipLike = (f: Figure) => f.kind === 'ship' || (f.kind === 'monster' && f.mon === 'm1-serpent');
 const freeMon = (f: Figure) => f.kind === 'monster' && (f.mon === 'm1-dwarf' || f.mon === 'm3-hel');
@@ -293,7 +291,7 @@ function tutorialPosition(s: BRState): BRState {
   s.rewards = { ygg: 'all', myr: 'axes', elv: 'glory', ang: 'rage', gim: 'horns', and: 'glory', utg: 'rage', hor: 'axes', mus: 'horns' };
   const give = (seat: number, defs: CardId[]) => { for (const d of defs) { s.inst.push(d); s.clans[seat]!.hand.push(s.inst.length - 1); } };
   give(0, ['q3-man', 'm3-hel', 'b3-rage', 'b3-crush']);
-  give(1, ['b3-smash', 'b3-crush']);
+  give(1, ['b3-tsmite', 'b3-crush']);
   const put = (seat: number, kind: FigureKind, k: number, at: Place) => {
     const f = s.figs.filter((x) => x.seat === seat && x.kind === kind)[k]!;
     f.at = at;
@@ -337,7 +335,7 @@ export function invadeCost(s: BRState, seat: number, f: Figure, fromValhalla = f
   if (freeMon(f)) return 0;
   return f.mon === 'm2-elf' ? 1 : CARD_BY_ID[f.mon!]!.mstr!;
 }
-export function invadeTargets(s: BRState, f: Figure): Place[] {
+export function invadeTargets(s: Pick<BRState, 'figs' | 'destroyed'>, f: Figure): Place[] {
   if (shipLike(f)) return FJORD_IDS;
   const out: Place[] = OUTER.filter((p) => alive(s, p) && villagesFree(s, p) > 0);
   if (f.kind === 'monster' && f.mon === 'm2-elf') out.push('ygg');
@@ -1220,9 +1218,18 @@ export const bloodRageModule: GameModule<BRState, BRAction, BRView> = {
   tutorial: {
     seed: 7,
     options: { tutorial: true },
-    introFa: 'آموزش: عصر سوم را از میانهٔ نبرد شروع می‌کنید. سه نیرو در صفحه دارید و ۴ خشم. با حمله، لشکرکشی، ارتقا، مأموریت و غارت جلو بروید؛ پایان عصر راگناروک است و بیشترین افتخار برنده می‌شود.',
-    steps: [],
-    completedFa: 'آموزش تمام شد.'
+    introFa: 'آموزش: عصر سوم را با ۴ خشم و چند نیرو در صفحه شروع می‌کنید (رقیب ۲ خشم دارد). با ارتقا، حمله، تعهد به مأموریت، لشکرکشی و یک غارت واقعی افتخار جمع کنید؛ پایان عصر راگناروک است و بیشترین افتخار برنده می‌شود.',
+    steps: [
+      { instructionFa: 'ارتقا: کارت «سرباز هل» را بازی کنید. هزینه‌اش ۰ خشم است و هیولا را بی‌درنگ رایگان وارد صفحه می‌کنید.', expected: { type: 'upgrade', card: 1 }, reply: null },
+      { instructionFa: 'حمله: سرباز هل را رایگان در استان هورگر بگذارید (روستای خالی آن را انتخاب کنید).', expected: { type: 'decide', yes: true, at: 'hor' }, reply: { type: 'invade', figure: 12, at: 'utg' } },
+      { instructionFa: 'مأموریت: کارت «مانهایم!» را رایگان و پنهان تعهد کنید. اگر پایان عصر بیشترین قدرت را در یک استان مانهایم (میرک‌ولر، الواگر یا آنگربودا) داشته باشید، افتخار می‌گیرید.', expected: { type: 'quest', card: 0 }, reply: { type: 'pass' } },
+      { instructionFa: 'لشکرکشی: با ۱ خشم رهبر و جنگجوی میرک‌ولر را به گیملی ببرید؛ آنجا رقیب شما هست و می‌توانید آن را غارت کنید. (الواگر را نگه می‌دارید تا مأموریتتان بماند.)', expected: { type: 'march', from: 'myr', to: 'gim', figures: [0, 1] }, reply: null },
+      { instructionFa: 'غارت: گیملی را غارت کنید. رایگان است. چون رقیب آنجاست نبرد می‌شود.', expected: { type: 'pillage', at: 'gim' }, reply: null },
+      { instructionFa: 'نبرد: کارت «غرّش تیر» (+۶) را پنهان بازی کنید؛ رقیب هم همزمان کارتش را می‌گذارد. قدرت نیروها به‌علاوهٔ کارت مقایسه می‌شود.', expected: { type: 'play', card: 2 }, reply: { type: 'play', card: 4 } },
+      { instructionFa: 'برنده شدید: افتخار تبرتان و پاداش غارت را گرفتید. حالا «گذشتن» را بزنید تا خشم باقی‌مانده را رها کنید و عصر تمام شود.', expected: { type: 'pass' }, reply: null },
+      { instructionFa: 'مأموریت انجام شد! یکی از ویژگی‌هایتان را یک پله بالا ببرید (مثلاً خشم).', expected: { type: 'decide', stat: 'rage' }, reply: null }
+    ],
+    completedFa: 'آموزش تمام شد: با ارتقا، حمله، لشکرکشی، مأموریت و غارت پیروز شدید. در بازی کامل سه عصر کامل بازی می‌کنید و هر عصر با درفت کارت شروع می‌شود.'
   }
 };
 

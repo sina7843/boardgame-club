@@ -1,0 +1,134 @@
+/* خشم خون renderer. The map is a physical object on a night sea: its colours stay the same in both themes. Every clan colour
+   also comes with its name and the seat number in text, and every figure kind has its own silhouette. */
+.blr {
+  --blr-ink: #f4ecd8; --blr-dim: #b9c3cc; --blr-gold: #e0b655; --blr-red: #d4574e; --blr-sea: #0d2230; --blr-panel: #14303f;
+  display: grid; gap: var(--sp-4, 16px); min-inline-size: 0; container-type: inline-size; color: var(--text);
+}
+.blr h3 { margin: 0; font-size: var(--fs-md, 16px); display: flex; gap: var(--sp-2, 8px); align-items: baseline; flex-wrap: wrap; }
+.blr h3 small { font-weight: 400; color: var(--text-2); font-size: var(--fs-sm, 13px); }
+.blr__head { display: flex; flex-wrap: wrap; gap: var(--sp-2, 8px); align-items: center; }
+.blr-chip { padding: 2px 10px; border-radius: 999px; font-size: var(--fs-xs, 12px); border: 1px solid color-mix(in srgb, var(--blr-gold) 45%, transparent); background: color-mix(in srgb, var(--blr-panel) 70%, transparent); color: var(--blr-ink); }
+.blr-chip--age { font-weight: 800; border-color: var(--blr-gold); }
+.blr-chip--doom { border-color: var(--blr-red); color: #ffd9d4; }
+.blr-chip--ragn { display: inline-flex; gap: 10px; }
+.blr-chip--ragn .is-now { color: var(--blr-gold); font-weight: 800; }
+.blr-chip--ragn .is-gone { text-decoration: line-through; opacity: 0.6; }
+.blr__status { margin: 0; padding: var(--sp-2, 8px) var(--sp-3, 12px); border-radius: var(--r-md, 10px); background: color-mix(in srgb, var(--blr-panel) 80%, transparent); color: var(--blr-dim); font-weight: 600; }
+.blr__status.is-mine { background: color-mix(in srgb, var(--blr-gold) 24%, var(--blr-panel)); color: var(--blr-ink); box-shadow: inset 0 0 0 1px var(--blr-gold); }
+.blr__hint { margin: 0; color: var(--text-2); font-size: var(--fs-sm, 13px); }
+
+.blr__main { display: grid; gap: var(--sp-4, 16px); min-inline-size: 0; }
+@container (min-width: 980px) { .blr__main { grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); align-items: start; } }
+.blr__board { display: grid; gap: var(--sp-2, 8px); min-inline-size: 0; }
+.blr__side { display: grid; gap: var(--sp-3, 12px); min-inline-size: 0; align-content: start; }
+
+/* ---------- map ---------- */
+.blr-map { inline-size: 100%; block-size: auto; display: block; touch-action: manipulation; font-family: inherit; max-block-size: 82vh; }
+.blr-sea { fill: var(--blr-sea); stroke: #3d6a85; stroke-width: 2; }
+.blr-prov__land { stroke: #0a1822; stroke-width: 3; stroke-linejoin: round; transition: filter 0.2s; }
+.blr-prov--manheim .blr-prov__land { fill: #6d5a2d; }
+.blr-prov--alfheim .blr-prov__land { fill: #566370; }
+.blr-prov--jotunheim .blr-prov__land { fill: #2f5d78; }
+.blr-ygg__land { fill: #2d6a40; stroke: #0a1822; }
+.blr-prov__name { fill: var(--blr-ink); font-size: 17px; font-weight: 800; paint-order: stroke; stroke: rgb(0 0 0 / 0.55); stroke-width: 3px; }
+.blr-prov__dead { fill: #f2b3ad; font-size: 15px; font-weight: 700; }
+.blr-prov.is-destroyed .blr-prov__land { fill: #2a2222; filter: saturate(0.2); }
+.blr-prov.is-doom .blr-prov__land { stroke: var(--blr-red); stroke-width: 5; stroke-dasharray: 10 6; }
+.blr-prov.is-battle .blr-prov__land, .blr-fjord.is-battle .blr-fjord__water { stroke: var(--blr-gold); stroke-width: 5; }
+.blr-prov.is-target, .blr-prov.is-source, .blr-fjord.is-target { cursor: pointer; }
+.blr-prov.is-target .blr-prov__land { stroke: #ffe28a; stroke-width: 5; filter: brightness(1.25); animation: blr-pulse 1.4s ease-in-out infinite; }
+.blr-prov.is-source .blr-prov__land { stroke: #8fe3ff; stroke-width: 5; filter: brightness(1.15); }
+.blr-fjord.is-target .blr-fjord__water { stroke: #ffe28a; stroke-width: 4; filter: brightness(1.3); animation: blr-pulse 1.4s ease-in-out infinite; }
+.blr-prov:focus-visible .blr-prov__land, .blr-fjord:focus-visible .blr-fjord__water { outline: none; stroke: #fff; stroke-width: 6; }
+@keyframes blr-pulse { 50% { filter: brightness(1.55); } }
+.blr-slot { fill: rgb(0 0 0 / 0.22); stroke: rgb(255 255 255 / 0.18); stroke-width: 1.5; }
+.blr-fjord__water { fill: #1b4f6b; stroke: #6fb1cf; stroke-width: 2; stroke-dasharray: 3 4; }
+.blr-token circle { fill: #e0b655; stroke: #5c3f0b; stroke-width: 2; }
+.blr-token text { font-size: 13px; font-weight: 900; fill: #2a1c04; }
+.blr-token.is-flipped circle { fill: #3a3a3a; stroke: #888; }
+.blr-token.is-flipped text { fill: #ddd; }
+.blr-ragn circle { fill: #7a1d1d; stroke: #f2b3ad; stroke-width: 1.5; }
+.blr-ragn text { font-size: 12px; font-weight: 800; fill: #fff; }
+
+/* figures */
+.blr-fig { cursor: default; }
+.blr-fig__body { fill: var(--c); stroke: #0a1822; stroke-width: 2.5; }
+.blr-fig--leader .blr-fig__body { stroke: #f0c75e; stroke-width: 3; }
+.blr-fig__crown { fill: #0a1822; opacity: 0.85; }
+.blr-fig__mark { fill: #0a1822; opacity: 0.8; }
+.blr-fig__sail { fill: none; stroke: #0a1822; stroke-width: 2.5; stroke-linejoin: round; }
+.blr-fig__txt { font-size: 15px; font-weight: 900; fill: #0a1822; }
+.blr-fig.is-hot { cursor: pointer; }
+.blr-fig.is-hot .blr-fig__body { stroke: #fff; stroke-width: 3.5; }
+.blr-fig.is-hot:focus-visible .blr-fig__body { stroke: #ffe28a; stroke-width: 5; }
+.blr-fig.is-sel .blr-fig__body { stroke: #ffe28a; stroke-width: 5; filter: drop-shadow(0 0 6px #ffe28a); }
+.blr-fig.is-dead { opacity: 0.4; }
+.blr-fig.is-hint .blr-fig__body { stroke: #ffe28a; stroke-width: 5; animation: blr-pulse 1.2s ease-in-out infinite; }
+
+.blr-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; list-style: none; color: var(--text-2); font-size: var(--fs-xs, 12px); }
+.blr-legend .lg { display: inline-block; inline-size: 12px; block-size: 12px; margin-inline-end: 4px; background: var(--text-2); vertical-align: middle; }
+.lg--leader { border-radius: 50%; box-shadow: 0 0 0 2px var(--blr-gold); }
+.lg--warrior { border-radius: 50%; }
+.lg--ship { clip-path: polygon(0 40%, 100% 40%, 80% 100%, 20% 100%); }
+.lg--monster { transform: rotate(45deg) scale(0.8); }
+
+/* ---------- clans ---------- */
+.blr-seats { display: grid; gap: var(--sp-2, 8px); }
+.blr-seat { padding: var(--sp-3, 12px); border-radius: var(--r-md, 10px); background: color-mix(in srgb, var(--blr-panel) 85%, transparent); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); border-inline-start: 6px solid var(--c); display: grid; gap: var(--sp-2, 8px); min-inline-size: 0; }
+.blr-seat.is-turn { box-shadow: 0 0 0 2px var(--blr-gold); }
+.blr-seat.is-out { opacity: 0.55; }
+.blr-seat header { display: flex; align-items: baseline; gap: var(--sp-2, 8px); flex-wrap: wrap; }
+.blr-seat header small { color: var(--text-2); }
+.blr-seat__dot { inline-size: 12px; block-size: 12px; border-radius: 50%; background: var(--c); align-self: center; box-shadow: 0 0 0 2px rgb(0 0 0 / 0.5); }
+.blr-seat__glory { margin-inline-start: auto; color: var(--blr-gold); font-size: var(--fs-sm, 13px); }
+.blr-seat__glory b { font-size: 22px; font-variant-numeric: tabular-nums; }
+.blr-seat__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; margin: 0; }
+.blr-seat__stats > div { display: grid; text-align: center; background: rgb(0 0 0 / 0.18); border-radius: 8px; padding: 4px 2px; }
+.blr-seat__stats dt { font-size: 11px; color: var(--text-2); }
+.blr-seat__stats dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.blr-seat__stats .is-zero dd { color: #ff9d94; }
+.blr-tracks { display: grid; gap: 3px; }
+.blr-track { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-2); }
+.blr-track i { flex: 1; block-size: 5px; border-radius: 3px; background: rgb(255 255 255 / 0.14); }
+.blr-track i.on { background: var(--blr-gold); }
+.blr-slots { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.blr-slots li { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: rgb(255 255 255 / 0.1); cursor: help; }
+.blr-reserve { padding: var(--sp-3, 12px); border-radius: var(--r-md, 10px); background: color-mix(in srgb, var(--blr-panel) 85%, transparent); }
+.blr-reserve ul { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: var(--sp-2, 8px) 0 0; padding: 0; list-style: none; font-size: var(--fs-sm, 13px); }
+
+/* ---------- cards ---------- */
+.blr-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-2, 8px); }
+.blr-card { display: grid; gap: 4px; align-content: start; min-inline-size: 0; }
+.blr-card__face { all: unset; box-sizing: border-box; display: grid; grid-template-rows: auto auto auto auto 1fr; gap: 2px; padding: 8px; min-block-size: 168px; border-radius: 12px; background: #22394a; border: 2px solid #4d6a7e; color: var(--blr-ink); text-align: start; position: relative; }
+button.blr-card__face { cursor: pointer; }
+button.blr-card__face:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.blr-card.is-selected .blr-card__face { border-color: #ffe28a; box-shadow: 0 0 0 3px #ffe28a, 0 6px 18px rgb(0 0 0 / 0.5); transform: translateY(-4px); }
+.blr-card.is-dim { opacity: 0.55; }
+.blr-card--battle .blr-card__face { background: #4a2328; border-color: #b85a52; }
+.blr-card--quest .blr-card__face { background: #1f4630; border-color: #4e9a68; }
+.blr-card--monster .blr-card__face { background: #3f2f55; border-color: #8d70c4; }
+.blr-card--clan .blr-card__face, .blr-card--warrior .blr-card__face, .blr-card--ship .blr-card__face, .blr-card--leader .blr-card__face { background: #2b3a46; border-color: #8fa3b3; }
+.blr-card__kind { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--blr-dim); }
+.blr-card__kind i { font-style: normal; background: rgb(0 0 0 / 0.3); border-radius: 6px; padding: 0 6px; }
+.blr-card__num { font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--blr-gold); }
+.blr-card__sub { font-size: 10.5px; color: var(--blr-dim); }
+.blr-card__name { font-weight: 800; font-size: 14px; }
+.blr-card__text { font-size: 11.5px; line-height: 1.5; color: #d8e0e6; }
+.blr-card--back { min-block-size: 168px; border-radius: 12px; background: repeating-linear-gradient(45deg, #1d3344 0 8px, #274459 8px 16px); border: 2px solid #4d6a7e; display: grid; place-items: center; font-size: 30px; color: var(--blr-gold); inline-size: 100px; }
+
+/* ---------- battle, choices, actions ---------- */
+.blr-battle, .blr-choice, .blr-actions, .blr-hand, .blr-log { padding: var(--sp-3, 12px); border-radius: var(--r-md, 10px); background: color-mix(in srgb, var(--blr-panel) 85%, transparent); display: grid; gap: var(--sp-2, 8px); min-inline-size: 0; }
+.blr-battle { border: 2px solid var(--blr-gold); }
+.blr-battle__sides { display: flex; flex-wrap: wrap; gap: var(--sp-3, 12px); margin: 0; padding: 0; list-style: none; }
+.blr-battle__sides li { display: grid; gap: 4px; justify-items: start; padding: 8px; border-radius: 10px; border-inline-start: 5px solid var(--c); background: rgb(0 0 0 / 0.18); max-inline-size: 190px; }
+.blr-battle__sides li.is-winner { box-shadow: 0 0 0 2px #7ee08b; }
+.blr-battle__sides li.is-loser { opacity: 0.75; }
+.blr-total { font-weight: 800; color: var(--blr-gold); }
+.blr-choice { border: 2px solid var(--blr-gold); }
+.blr-choice p, .blr-actions p { margin: 0; }
+.blr-row { display: flex; flex-wrap: wrap; gap: var(--sp-2, 8px); align-items: center; }
+.blr-slotpick p { margin: 0; }
+.blr-log ol { margin: 0; padding-inline-start: 18px; display: grid; gap: 2px; font-size: var(--fs-sm, 13px); color: var(--text-2); }
+
+@media (prefers-reduced-motion: reduce) { .blr-prov.is-target .blr-prov__land, .blr-fjord.is-target .blr-fjord__water, .blr-fig.is-hint .blr-fig__body { animation: none; } .blr-card.is-selected .blr-card__face { transform: none; } }
+[data-motion="reduce"] .blr-prov.is-target .blr-prov__land, [data-motion="reduce"] .blr-fjord.is-target .blr-fjord__water, [data-motion="reduce"] .blr-fig.is-hint .blr-fig__body { animation: none; }

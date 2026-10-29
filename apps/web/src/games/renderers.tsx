@@ -62,6 +62,7 @@ import ArkNovaRenderer from '@bg/game-ark-nova/renderer';
 import BrassRenderer from '@bg/game-brass/renderer';
 import GaiaProjectRenderer, { gaiaSeatCard } from '@bg/game-gaia-project/renderer';
 import TerraformingMarsRenderer from '@bg/game-terraforming-mars/renderer';
+import BloodRageRenderer from '@bg/game-blood-rage/renderer';
 import HeatRenderer from '@bg/game-heat/renderer';
 import CryptidRenderer from '@bg/game-cryptid/renderer';
 import SetRenderer from '@bg/game-set/renderer';
@@ -139,6 +140,7 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
   'brass@1.0.0': BrassRenderer as ComponentType<GameRendererProps<never>>,
   'gaia-project@1.0.0': GaiaProjectRenderer as ComponentType<GameRendererProps<never>>,
   'terraforming-mars@1.0.0': TerraformingMarsRenderer as ComponentType<GameRendererProps<never>>,
+  'blood-rage@1.0.0': BloodRageRenderer as ComponentType<GameRendererProps<never>>,
   'heat@1.0.0': HeatRenderer as ComponentType<GameRendererProps<never>>,
   'cryptid@1.0.0': CryptidRenderer as ComponentType<GameRendererProps<never>>,
   'set@1.0.0': SetRenderer as ComponentType<GameRendererProps<never>>,
