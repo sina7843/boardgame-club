@@ -1419,3 +1419,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   picture); fjords elv–ang, mus–hor, utg–and, gim–myr; regions Manheim = myr/elv/ang, Jotunheim = mus/hor/utg, Alfheim = and/gim.
 - Village and token coordinates in `renderer.tsx` (`SLOTS`) were read off the picture by hand. Still reconstructed: the stat track steps and the ship strength.
 - Catalog cover and box use the cover from Wikipedia (https://en.wikipedia.org/wiki/Blood_Rage_(board_game)).
+- 2026-10-30: map and card art now come from Board Game Arena's own Blood Rage client files (owner request and stated permission;
+  licence not verified by me): `board.webp` (island, from BGA `img/board.png` 1600 px), `sea.webp` (`img/bg-see.jpg`), `cards.webp`
+  (`img/cards.jpg`, 14 × 11 sprite of card illustrations; cells mapped by English card name in `ART` in `renderer.tsx`). Version folder
+  `220513-1624` was found through the Wayback Machine index. Card text stays in Persian on top of the art.

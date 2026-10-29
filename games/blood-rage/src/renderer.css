@@ -211,3 +211,12 @@ html[dir="rtl"] .blr-card__num { translate: 50% 0; }
 .blr-fig__body { stroke-width: 3; }
 .blr-fig.is-sel .blr-fig__body, .blr-fig.is-hot .blr-fig__body { stroke-width: 5; }
 .blr-fig.is-hint .blr-fig__body { stroke-width: 6; }
+
+/* ---------- v4: printed card illustrations (cards.webp sprite) ---------- */
+.blr-card__face { min-block-size: 270px; }
+.blr-card__art { position: absolute; inset-block-start: 0; inset-inline: 0; block-size: 132px; background-image: url(/games/blood-rage/cards.webp); background-size: 1400% 1100%; background-repeat: no-repeat; background-color: #2a1d12; }
+.blr-card__art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(0 0 0 / 0.55) 0%, transparent 28%, transparent 70%, rgb(0 0 0 / 0.35) 100%); }
+.blr-card__kind { position: relative; z-index: 1; background: transparent; padding-block-end: 6px; text-shadow: 0 1px 2px #000; }
+.blr-card__num { inset-block-start: 106px; }
+.blr-card__sub { margin-block-start: 112px; position: relative; }
+.blr-card__name, .blr-card__text { position: relative; }

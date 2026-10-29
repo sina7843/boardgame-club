@@ -2,7 +2,7 @@
 // figures stand in village slots. Under it: the clans (glory, Rage, stat tracks, upgrades), your reserve, your hand and the
 // pillage battle. Hidden things (hands, drafted packs, quests, chosen battle cards) are only drawn for their owner.
 import './renderer.css';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, DockSlot, ZoomBoard, type GameAction, type GameRendererProps } from '@bg/ui';
 import {
   adjacent, CARD_BY_ID, FJORDS, FJORD_IDS, PROVINCES, REGION_FA, REWARD_FA, RING, STAT_FA, STATS, TRACKS, LAST_STEP, RAGNAROK_GLORY,
@@ -24,8 +24,9 @@ const STAGE_FA: Record<BattleView['stage'], string> = {
 };
 const iso = (s: string) => `⁨${s}⁩`;
 
-// ---------- geometry (coordinates of the printed board picture, 441 x 441) ----------
-const BOARD = 441;
+// ---------- geometry (coordinates of the printed board in the rulebook, 441 x 441) ----------
+/** Where the island picture (board.webp) sits in these coordinates. */
+const PIC = { x: -1.5, y: -3.9, size: 450.7 };
 /** Village circles and the pillage-reward square of every province, read off the board picture. */
 const SLOTS: Record<Exclude<ProvinceId, 'ygg'>, { v: [number, number][]; reward: [number, number] }> = {
   myr: { v: [[107, 122], [148, 105], [138, 160]], reward: [135, 130] },
@@ -46,6 +47,29 @@ function slotPositions(p: ProvinceId): { x: number; y: number }[] {
 const rewardAt = (p: Exclude<ProvinceId, 'ygg'>) => ({ x: SLOTS[p].reward[0], y: SLOTS[p].reward[1] });
 const fjordSlot = (f: FjordId, k: number) => { const c = FJORD_AT[f]; return { x: c[0] + ((k % 2) - 0.5) * 22, y: c[1] + (Math.floor(k / 2) - 0.5) * 22 }; };
 
+
+// ---------- card art (cards.webp: 14 × 11 sprite of illustrations) ----------
+const ART: Record<string, number[]> = {
+  "Loki's Trickery": [0], "Thor's Hammer": [2], "Heimdall's Sight": [3], "Odin's Smite": [4], "Frigga's Grace": [6], "Tyr's Bash": [8],
+  "Tyr's Smash": [9, 42], "Tyr's Crush": [11, 43, 77], "Tyr's Smite": [12, 44, 78], 'Manheim!': [13, 47, 81], 'Jotunheim!': [15, 49, 83],
+  'Alfheim!': [17, 51, 85], 'Glorious Death!': [19, 54, 88], 'Yggdrasil!': [20, 53, 86], 'Brothers in Arms': [22], "Loki's Dragons": [23],
+  Troll: [24], 'Lord of Hammers': [25], 'Dwarf Chieftain': [26], 'Sea Serpent': [27], "Loki's Blessing": [28], "Loki's Domain": [29],
+  "Frigga's Charm": [30], "Tyr's Domain": [31], "Thor's Glory": [32], "Frigga's Succor": [33], "Loki's Backstab": [34], "Odin's Tide": [36],
+  "Heimdall's Eye": [38], "Thor's Oath": [41], "Tyr's Rage": [45, 79], "Heimdall's Watch": [46, 80], 'Experts in Arms': [56], 'Fire Dragons': [57],
+  'Lord of Axes': [58], Valkyrie: [59], 'Dark Elf': [60], 'Fire Giant': [61], "Odin's Inspiration": [62], "Thor's Domain": [63],
+  "Loki's Eminence": [64], "Frigga's Protection": [65], "Tyr's Challenge": [66], "Tyr's Prowess": [67], "Loki's Poison": [68],
+  "Thor's Ascension": [69], "Heimdall's Gaze": [71], "Odin's Judgement": [72], "Thor's Primacy": [75], 'Masters in Arms': [90],
+  'Eternal Dragons': [91], 'Lord of Spears': [92], 'Volur Witch': [93], 'Frost Giant': [94], 'Soldier from Hel': [95], "Frigga's Domain": [96],
+  "Odin's Throne": [97], "Tyr's Wrath": [98], "Loki's Wrath": [99], "Frigga's Sacrifice": [100], "Thor's Conquest": [101], 'Widespread!': [106],
+  "Tyr's Judgement": [120]
+};
+function artStyle(def: CardDef): CSSProperties | undefined {
+  const cells = ART[def.nameEn];
+  if (!cells) return undefined;
+  const k = cells[Math.min(def.age, cells.length) - 1]!;
+  return { backgroundPosition: `${((k % 14) / 13) * 100}% ${(Math.floor(k / 14) / 10) * 100}%` };
+}
+
 type Hint = GameAction;
 
 function CardView({ def, selected, dim, onClick, children, label }: { def: CardDef; selected?: boolean; dim?: boolean; onClick?: () => void; children?: ReactNode; label?: string }) {
@@ -53,6 +77,7 @@ function CardView({ def, selected, dim, onClick, children, label }: { def: CardD
   const sub = def.kind === 'battle' ? 'قدرت' : def.kind === 'quest' ? 'افتخار' : def.mstr !== undefined ? `قدرت · هزینه ${fa(def.cost ?? 0)}` : 'خشم';
   const inner = (
     <>
+      <span className="blr-card__art" style={artStyle(def)} aria-hidden />
       <span className="blr-card__kind">{CARD_KIND_FA[def.kind]}<i>{fa(def.age)}</i></span>
       <b className="blr-card__num" aria-hidden>{big}</b>
       <small className="blr-card__sub">{sub}</small>
@@ -241,8 +266,9 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
       <div className="blr__main">
         <div className="blr__board">
           <ZoomBoard label="نقشهٔ میدگارد">
-            <svg className="blr-map" viewBox={`0 0 ${BOARD} ${BOARD}`} role="group" aria-label="نقشهٔ میدگارد">
-              <image href="/games/blood-rage/board.webp" width={BOARD} height={BOARD} className="blr-board" />
+            <svg className="blr-map" viewBox={`${PIC.x} ${PIC.y} ${PIC.size} ${PIC.size}`} role="group" aria-label="نقشهٔ میدگارد">
+              <image href="/games/blood-rage/sea.webp" x={PIC.x} y={PIC.y} width={PIC.size} height={PIC.size} preserveAspectRatio="xMidYMid slice" className="blr-board" />
+              <image href="/games/blood-rage/board.webp" x={PIC.x} y={PIC.y} width={PIC.size} height={PIC.size} className="blr-board" />
               {RING.map((p) => {
                 const dead = view.destroyed.includes(p);
                 const tg = targets.has(p), src = sources.has(p), pl = view.pillaged.includes(p);
