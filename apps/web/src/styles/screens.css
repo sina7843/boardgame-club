@@ -1,5 +1,0 @@
-
-/* A dialog taller than the screen scrolls in its body; the header and the action row stay put (the report dialog ran off the bottom). */
-.bgv-dialog { display: flex; flex-direction: column; max-block-size: calc(100dvh - var(--space-6)); }
-.bgv-dialog__body { overflow-y: auto; min-block-size: 0; }
-.bgv-dialog__head, .bgv-dialog__foot { flex: none; }
