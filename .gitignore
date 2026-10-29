@@ -81,3 +81,8 @@ pnpm-debug.log*
 # Original BGV design-system handoff drop (its content lives in design/)
 BGV-DesignSystem-Handoff/
 BGV-DesignSystem-Handoff-v2.1/
+# Gaia handoff drop (its content lives in design/games/gaia-project) and its local test output
+BGV-Gaia-Handoff-v1/
+test-results*/
+# local helper for the Bazaar upload, not part of the repository
+/apps/android/bazaar-bin.cmd
