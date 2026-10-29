@@ -39,7 +39,7 @@ test('two players play «املاک» for 20 rounds to the result', async ({ bro
   const [host, guest] = pages as [Page, Page];
   await host.goto('/games/amlak/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('radiogroup', { name: 'پایان بازی' }).getByRole('radio', { name: '۲۰ دور، بیشترین دارایی' }).click();
+  await host.getByRole('combobox', { name: 'پایان بازی' }).selectOption({ label: '۲۰ دور، بیشترین دارایی' });
   await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);

@@ -12,7 +12,7 @@ async function startTable(host: Page, guests: Page[]) {
   await host.goto('/games/catan/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await pickPlayers(host, 3);
-  await host.getByRole('radiogroup', { name: 'نقشه' }).getByRole('radio', { name: 'نقشه مبتدی دفترچه' }).click();
+  await host.getByRole('combobox', { name: 'نقشه' }).selectOption({ label: 'نقشه مبتدی دفترچه' }); // long labels render as a select
   await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of guests) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
