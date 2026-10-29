@@ -13,7 +13,7 @@ async function table(browser: Browser, info: TestInfo, gameId: string, n: number
   await host.goto(`/games/${gameId}/new`);
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   if (await host.getByRole('radiogroup', { name: 'تعداد بازیکن' }).or(host.getByLabel('تعداد بازیکن')).count()) await pickPlayers(host, n);
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(host.getByText(`بازیکنان (${n.toLocaleString('fa-IR')} از ${n.toLocaleString('fa-IR')})`)).toBeVisible();

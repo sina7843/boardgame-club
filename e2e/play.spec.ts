@@ -8,7 +8,7 @@ test.describe.configure({ mode: 'serial' });
 async function createAndStart(host: Page, guest: Page, gameId: string, pace: 'زنده' | 'نوبتی') {
   await host.goto(`/games/${gameId}/new`);
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: pace, exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   await expect(host.getByRole('heading', { name: /بازیکنان/ })).toBeVisible();
   const invite = await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue();
   await guest.goto(invite.replace(/^https?:\/\/[^/]+/, ''));

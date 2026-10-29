@@ -98,7 +98,7 @@ test('three players play «کاغذ و دریا» to the result', async ({ brows
   await host.goto('/games/sea-salt-paper/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await pickPlayers(host, 3);
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready

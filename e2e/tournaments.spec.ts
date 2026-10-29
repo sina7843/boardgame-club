@@ -12,6 +12,7 @@ const shot = (project: string, name: string) => `docs/evidence/site/tournaments/
 
 test('admin creates a tournament, players register, the worker seats them at round one', async ({ browser }, info) => {
   test.skip(!['mobile-360', 'desktop-1440'].includes(info.project.name), 'runs at 360 and 1440');
+  test.setTimeout(600_000); // phones are slower; registration must still be open when the players arrive
   const vp = info.project.use.viewport ?? null;
   const title = `جام آزمایشی ${Date.now() % 100000}`;
 
@@ -22,10 +23,10 @@ test('admin creates a tournament, players register, the worker seats them at rou
   const panel = admin.locator('main');
   await panel.getByLabel('بازی', { exact: true }).selectOption('line-three');
   await panel.getByLabel('عنوان', { exact: true }).fill(title);
-  // Starts in about two minutes (the API needs a minute's notice; the field drops seconds). The browser runs in
+  // Starts in about four minutes (the API needs a minute's notice; the field drops seconds). The browser runs in
   // Asia/Tehran, so the field takes Tehran wall time.
   const tehran = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-    .format(new Date(Date.now() + 120_000)).replace(' ', 'T');
+    .format(new Date(Date.now() + 240_000)).replace(' ', 'T');
   await panel.getByLabel('شروع', { exact: true }).fill(tehran);
   await panel.getByLabel('حداقل ثبت‌نام', { exact: true }).fill('2');
   await panel.getByLabel('تعداد دور', { exact: true }).fill('1');
@@ -37,13 +38,13 @@ test('admin creates a tournament, players register, the worker seats them at rou
   for (const p of players) {
     await p.goto('/tournaments');
     await p.locator('.pg-tcard').filter({ hasText: title }).getByRole('link', { name: /جزئیات/ }).click();
-    await p.getByRole('button', { name: 'ثبت‌نام' }).click();
+    await p.getByRole('button', { name: 'ثبت‌نام', exact: true }).click();
     await expect(p.getByText('ثبت‌نام کرده‌اید')).toBeVisible();
   }
   await players[0]!.screenshot({ path: shot(info.project.name, 'registered'), fullPage: true });
 
   // The worker starts round one at the start time; the page polls and shows the table link.
-  for (const p of players) await expect(p.getByRole('link', { name: 'میز شما آماده است؛ ورود به میز' })).toBeVisible({ timeout: 150_000 });
+  for (const p of players) await expect(p.getByRole('link', { name: 'میز شما آماده است؛ ورود به میز' })).toBeVisible({ timeout: 260_000 });
   await players[0]!.screenshot({ path: shot(info.project.name, 'round'), fullPage: true });
   await players[0]!.getByRole('link', { name: 'میز شما آماده است؛ ورود به میز' }).click();
   await expect(players[0]!).toHaveURL(/\/tables\//);

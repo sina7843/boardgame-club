@@ -12,7 +12,7 @@ async function startTable(host: Page, guest: Page, mapFa: string) {
   await host.goto('/games/unmatched/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await host.getByRole('radiogroup', { name: 'میدان نبرد' }).getByRole('radio', { name: mapFa, exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();

@@ -35,7 +35,7 @@ test('two players play a short 9×9 game and agree on the count', async ({ brows
   const [host, guest] = pages as [Page, Page];
   await host.goto('/games/go/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();

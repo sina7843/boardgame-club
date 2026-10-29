@@ -3,7 +3,10 @@ import { signIn } from './helpers.ts';
 
 test('site pages from the footer, terms accepted at sign-up, account deleted from settings', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('navigation', { name: 'اطلاعات سایت' }).getByRole('link', { name: 'قوانین و مقررات' }).click();
+  const footer = page.getByRole('contentinfo');
+  const group = footer.getByRole('button', { name: 'پشتیبانی و قوانین' }); // an accordion on phones
+  if (await group.isVisible()) await group.click();
+  await footer.getByRole('link', { name: 'قوانین و مقررات' }).first().click();
   await expect(page.getByRole('heading', { name: 'قوانین و مقررات', level: 1 })).toBeVisible();
   await page.goto('/contact');
   await expect(page.getByRole('link', { name: /@/ })).toBeVisible();

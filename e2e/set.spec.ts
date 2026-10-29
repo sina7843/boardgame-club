@@ -53,7 +53,7 @@ test('two players race through a full game of «ست» to the result', async ({ 
   const live = host.getByText('زنده', { exact: true });
   if (await live.count()) await live.first().click();
   await pickPlayers(host, 2);
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();

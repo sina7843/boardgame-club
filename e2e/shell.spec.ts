@@ -48,7 +48,8 @@ test('login → catalog → game detail', async ({ page }, info) => {
   await page.screenshot({ path: shot('05-detail', p), fullPage: true });
 
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /سلام مهره‌باز/, level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'امشب چی بازی کنیم؟', level: 1 })).toBeVisible();
+  await expect(page.getByText(/سلام مهره‌باز/)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'نوبت شماست', level: 2 })).toBeVisible();
   await page.screenshot({ path: shot('06-dashboard', p), fullPage: true });
 

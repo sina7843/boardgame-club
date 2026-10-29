@@ -128,7 +128,7 @@ test('two players build their zoos to the result', async ({ browser }, info) => 
   const [host] = pages as [Page, Page];
   await host.goto('/games/ark-nova/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await pages[1]!.goto(invite);
   await pages[1]!.getByRole('button', { name: 'پیوستن به میز' }).click();

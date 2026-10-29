@@ -77,7 +77,7 @@ test('three-player sealed bids: each client sees only its own sealed value', asy
   const [a, b, c] = [await player(browser, vp, 'Ava'), await player(browser, vp, 'بهار'), await player(browser, vp, 'Cyrus')];
   await a.goto('/games/sealed-bids/new');
   await pickPlayers(a, 3);
-  await a.getByRole('button', { name: 'ساخت میز' }).click();
+  await a.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const p of [b, c]) { await p.goto(invite); await p.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(a.getByText('بازیکنان (۳ از ۳)')).toBeVisible();
@@ -127,7 +127,7 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   const b = await player(browser, vp, 'مهمان');
   await a.goto('/games/line-three/new');
   await a.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'نوبتی', exact: true }).click();
-  await a.getByRole('button', { name: 'ساخت میز' }).click();
+  await a.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await b.goto(invite);
   await b.getByRole('button', { name: 'پیوستن به میز' }).click();

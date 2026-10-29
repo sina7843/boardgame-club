@@ -39,7 +39,7 @@ test('welcome tour, verified profile walkthrough, skip and hints', async ({ brow
   await page.getByRole('link', { name: 'ساخت میز' }).click();
   await expect(card.getByRole('heading', { name: 'تنظیم و ساخت' })).toBeVisible();
   await page.screenshot({ path: `test-results/onboarding-${info.project.name}-create.png` });
-  await page.getByRole('button', { name: 'ساخت میز' }).click();
+  await page.getByRole('button', { name: 'ساخت میز' }).first().click();
   await expect(page).toHaveURL(/\/tables\//);
   await expect(page.getByText('آموزش «ساخت میز» کامل شد.')).toBeVisible({ timeout: 10_000 });
 

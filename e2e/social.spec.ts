@@ -35,6 +35,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   const a = await newPage(browser, vp);
   // Discover as a guest
   await a.goto('/games');
+  await a.getByRole('searchbox', { name: 'جست‌وجو' }).fill('سه‌خطی'); // the catalogue shows 12 at a time
   await a.getByRole('link', { name: /سه‌خطی/ }).click();
   await expect(a.getByRole('heading', { name: 'سه‌خطی', level: 1 })).toBeVisible();
   await a.screenshot({ path: shot('01-guest-detail', p), fullPage: true });
@@ -114,7 +115,7 @@ test('friends: request/accept, invite to a private table via notification, table
   // Private table + personal invitation
   await a.goto('/games/line-three/new');
   await a.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'نوبتی', exact: true }).click();
-  await a.getByRole('button', { name: 'ساخت میز' }).click();
+  await a.getByRole('button', { name: 'ساخت میز' }).first().click();
   await expect(a.getByRole('heading', { name: 'دعوت دوستان' })).toBeVisible();
   await a.getByRole('button', { name: 'دعوت', exact: true }).click();
   await expect(a.getByRole('button', { name: 'دعوت شد' })).toBeVisible();
@@ -152,6 +153,7 @@ test('friends: request/accept, invite to a private table via notification, table
 });
 
 test('club roles and membership, report from club chat, moderator suspension and appeal', async ({ browser }, info) => {
+  test.setTimeout(300_000); // many accounts and pages; 120 s was too tight
   const vp = info.project.use.viewport ?? null;
   const p = info.project.name;
   const owner = await newPage(browser, vp);

@@ -45,7 +45,7 @@ test('two players play «تخته‌نرد» to the result through the board', a
   const [host, guest] = pages as [Page, Page];
   await host.goto('/games/backgammon/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
@@ -87,7 +87,7 @@ test('instant roll: no undo, the dice tumble with no pips while the roll is in f
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   // With the cube in play each turn starts with an explicit roll (otherwise the server rolls at once).
   await host.getByText('با کیوب', { exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();

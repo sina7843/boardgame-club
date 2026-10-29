@@ -60,7 +60,7 @@ test('three players play «هم‌فکر» to the result', async ({ browser }, i
   const [host] = pages as [Page, Page, Page];
   await host.goto('/games/the-mind/new');
   await pickPlayers(host, 3);
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready

@@ -46,7 +46,8 @@ export function Login() {
     return () => clearInterval(t);
   }, [step.kind]);
 
-  if (me && step.kind !== 'profile') return <Navigate to={next} replace />;
+  // While a verify/save runs, `me` appears before the next step is set; do not leave the page early (new users must see the profile step).
+  if (me && !busy && step.kind !== 'profile') return <Navigate to={next} replace />;
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);

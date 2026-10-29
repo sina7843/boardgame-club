@@ -10,8 +10,8 @@ async function startTable(host: Page, guests: Page[]) {
   await host.goto('/games/uno/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
   await pickPlayers(host, 3);
-  await host.getByRole('radiogroup', { name: 'طول مسابقه' }).getByRole('radio', { name: 'یک دست' }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('combobox', { name: 'طول مسابقه' }).selectOption({ label: 'یک دست' }); // long labels render as a select
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of guests) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await expect(host.getByText('بازیکنان (۳ از ۳)')).toBeVisible();

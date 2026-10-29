@@ -40,11 +40,12 @@ export function Catalog() {
 
   // Debounced free-text search kept in the URL so results are shareable and survive reload.
   useEffect(() => {
+    if (q.trim() === (params.get('q') ?? '')) return; // nothing to sync (a stray replace here could clobber a navigation already under way)
     const t = setTimeout(() => {
       setParams((p) => { const n = new URLSearchParams(p); if (q.trim()) n.set('q', q.trim()); else n.delete('q'); return n; }, { replace: true });
     }, 250);
     return () => clearTimeout(t);
-  }, [q, setParams]);
+  }, [q, params, setParams]);
 
   const setKey = (key: string, value: string) => {
     setShown(PAGE);

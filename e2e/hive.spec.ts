@@ -48,7 +48,7 @@ test('two players place and move bugs, then one resigns', async ({ browser }, in
   const [host, guest] = pages as [Page, Page];
   await host.goto('/games/hive/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByRole('button', { name: 'ساخت میز' }).click();
+  await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   await guest.goto(invite);
   await guest.getByRole('button', { name: 'پیوستن به میز' }).click();
