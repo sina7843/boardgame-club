@@ -918,3 +918,7 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   layer, memoized engine work and boards, stable onAction, phone renders only the open tab with half-size art.
   Checks: typecheck, eslint, ds-check, Gaia engine tests 94/94, e2e `gaia-project.spec.ts` 6/6 (desktop-1440 and
   mobile-360, including the phone two-player game to the result, 1.3 min). Not measured with a profiler.
+- 2026-10-29 Gaia items 9–11: view log trimmed to 40; platform batch command (atomic turn, one revision per step);
+  legalActions caching skipped after measuring 0.9 ms avg / 2.8 ms max. Checks: typecheck, eslint, api
+  gaia-project 4/4 (batch accepted/rejected/invalid), api tables+chess 17/17, engine Gaia 94/94, e2e gaia 6/6
+  (desktop-1440, mobile-360).

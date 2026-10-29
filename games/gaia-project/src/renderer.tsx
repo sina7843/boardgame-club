@@ -588,11 +588,12 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   // My own turn with nothing open: everything is a local draft until «تأیید».
   const drafting = mySeat !== null && !served.outcome && !served.pending.length && served.current === mySeat && legalActions.some((a) => a.type !== 'resign');
   // The engine runs once per snapshot or draft step, never per render (hover, sheet, tab).
-  const steps = useMemo(() => [...outbox, ...(drafting ? draft : [])], [outbox, draft, drafting]);
+  const steps = useMemo(() => [...outbox, ...(drafting ? draft : [])].flatMap((a) => (a.type === 'batch' ? a.actions as GameAction[] : [a])), [outbox, draft, drafting]);
   const sim = useMemo(() => simulate(served, mySeat, steps), [served, mySeat, steps]);
   const state = sim.s;
   const view = useMemo(() => (sim.n ? gaiaProjectModule.project(state, mySeat === null ? { kind: 'spectator' } : { kind: 'player', seat: mySeat }) : served), [sim, state, served, mySeat]);
-  useEffect(() => { if (drafting && sim.n < outbox.length + draft.length) setDraft((d) => d.slice(0, Math.max(0, sim.n - outbox.length))); }, [drafting, sim.n, outbox.length, draft.length]);
+  const sentSteps = steps.length - (drafting ? draft.length : 0);
+  useEffect(() => { if (drafting && sim.n < steps.length) setDraft((d) => d.slice(0, Math.max(0, sim.n - sentSteps))); }, [drafting, sim.n, steps.length, sentSteps]);
   useEffect(() => { if (!drafting) { setDraft([]); setMode(null); setHexSel(null); } }, [drafting]);
   // Pieces new in this state fade in once (CSS); pieces that move glide by their own left/top transition.
   // Refs, not render-local sets: StrictMode renders twice and the memoized boards keep the first render's closure.
@@ -618,7 +619,8 @@ export default function GaiaProjectRenderer({ view: served, legalActions, mySeat
   };
   const back = () => { if (mode || hexSel !== null) { setMode(null); setHexSel(null); } else setDraft((d) => d.slice(0, -1)); };
   const cancel = () => { setDraft([]); setMode(null); setHexSel(null); };
-  const confirm = () => { if (!canConfirm) return; setOutbox(draft); setDraft([]); setSheet(false); };
+  // One request per turn (atomic on the server); tutorials check each scripted step, so they go one by one.
+  const confirm = () => { if (!canConfirm) return; setOutbox(expected || draft.length === 1 ? draft : [{ type: 'batch', actions: draft }]); setDraft([]); setSheet(false); };
 
   // What a hex does in the current step.
   const ofMode = (a: GameAction) => (mode ? (mode.kind === 'power' || mode.kind === 'special' ? a.type === mode.kind && a.id === mode.id : a.type === mode.kind) : true);

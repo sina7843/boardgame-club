@@ -415,6 +415,7 @@ function act(s: GaiaState, seat: number, a: GaiaAction, events: Events) {
 }
 
 const FREE = new Set(['convert', 'burn', 'autoCharge']);
+const VIEW_LOG = 40;
 
 /** The seat's auto-charge answer to the leech at the head of the queue, or null to ask (HANDOFF.md decision 9). */
 function autoLeech(s: GaiaState, d: Extract<Decision, { kind: 'leech' }>): 'accept' | 'decline' | null {
@@ -623,6 +624,7 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
     const d = s.pending[0];
     return {
       ...rest,
+      log: rest.log.slice(-VIEW_LOG), // the table shows the latest entries; the full 80 stay in the engine state
       decision: d ? { ...structuredClone(d), options: decisionOptions(s, d) } : null,
       income: s.pl.map((p, seat) => (p.faction && s.active[seat] ? incomeOf(s, seat) : {}))
     };

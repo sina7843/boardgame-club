@@ -1401,3 +1401,5 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Piece strokes are one CSS filter per layer (plus a second layer for the viewer's own pieces), not a filter chain per image.
 - Engine work in the renderer is memoized per snapshot/draft step; boards are `memo`; the shell passes a stable `onAction`. Phones render only the open tab and load half-size board/sector art from `art-sm/` via `srcset`.
 - `contain: layout` only (no paint containment): paint containment would clip the 2× hover zoom at board edges.
+- Batch command (platform): `{ type: 'batch', actions: [...] }` (1–30 steps, no nested batch or resign, not in tutorials) is validated step by step through the module and stored all-or-nothing, one revision and input event per step, so replay stays per action. Gaia sends a multi-step turn as one batch.
+- Gaia view log trimmed to the last 40 entries (engine keeps 80). Server `legalActions` caching not built: measured 0.9 ms average, 2.8 ms max per call (4 players, 124 moves).

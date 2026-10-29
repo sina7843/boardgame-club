@@ -273,6 +273,27 @@ export async function executeCommand(db: Db, registry: GameRegistry, input: Comm
 
     const tutorialStep = table.isTutorial ? module.tutorial.steps[table.tutorialStep] : undefined;
     const isResign = (input.action as { type?: unknown } | null)?.type === 'resign';
+    const batch = batchOf(input.action);
+    if (batch) {
+      if (batch === 'invalid' || table.isTutorial) return receipt('rejected', table.revision, 'INVALID_ACTION');
+      // One player turn made of several steps (free actions, the main action, its decisions): every step goes
+      // through the module like a single command; one rejection rejects the whole turn and nothing is stored.
+      const logicalTime = Date.now();
+      const steps: [StepResult, unknown][] = [];
+      let cur = await loadSnapshot(tx, table.id, table.revision);
+      for (const action of batch) {
+        const step = applyAction(module, cur, { kind: 'player', seat: me.seat }, action, logicalTime);
+        if ('ok' in step) return receipt('rejected', table.revision, step.errorCode);
+        steps.push([step, action]);
+        cur = step.snapshot;
+        if (step.outcome) break;
+      }
+      let revision = table.revision;
+      for (const [k, [step, action]] of steps.entries()) {
+        revision = await persistStep(tx, locked, step, { kind: 'action', seat: me.seat, action, logicalTime, ...(k === 0 && input.lagMs ? { lagMs: input.lagMs } : {}) });
+      }
+      return receipt('accepted', revision, null);
+    }
     if (tutorialStep?.expected && !isResign && !deepEqual(input.action, tutorialStep.expected)) {
       return receipt('rejected', table.revision, 'TUTORIAL_EXPECTED_OTHER');
     }
@@ -294,6 +315,15 @@ export async function executeCommand(db: Db, registry: GameRegistry, input: Comm
     }
     return receipt('accepted', revision, null);
   });
+}
+
+/** Steps of a `{ type: 'batch', actions: [...] }` command (1–30 plain actions), 'invalid', or null for a single action. */
+function batchOf(action: unknown): unknown[] | 'invalid' | null {
+  const a = action as { type?: unknown; actions?: unknown } | null;
+  if (a?.type !== 'batch') return null;
+  const list = a.actions;
+  if (!Array.isArray(list) || list.length < 1 || list.length > 30) return 'invalid';
+  return list.every((x) => x && typeof x === 'object' && typeof (x as { type?: unknown }).type === 'string' && !['batch', 'resign'].includes((x as { type: string }).type)) ? list : 'invalid';
 }
 
 export async function lookupReceipt(db: Db, userId: string, tableId: string, commandId: string) {

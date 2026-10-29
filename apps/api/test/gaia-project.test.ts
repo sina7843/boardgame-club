@@ -54,6 +54,39 @@ describe('gaia-project through the platform', () => {
     for (const x of snap.game.result.placements as { place: number; score: number }[]) expect(x.score).toBeGreaterThan(0);
   });
 
+  it('a batch command plays a whole turn atomically: one revision per step, or nothing when a step is refused', async () => {
+    const t = await startTable(ctx, 'gaia-project', 2);
+    // set-up phases one action at a time, until a seat may convert and pass
+    let me: Awaited<ReturnType<typeof view>> | null = null, actor = t.players[0]!;
+    for (let n = 0; n < 40; n++) {
+      for (const u of t.players) {
+        const v = await view(ctx, u, t.tableId);
+        const acts = v.game.legalActions as Act[];
+        if (acts.some((a) => a.type === 'convert') && acts.some((a) => a.type === 'pass')) { me = v; actor = u; break; }
+        const a = pick(acts, v.game.view.round as number);
+        if (a) await command(ctx, u, t.tableId, v.game.revision, a);
+      }
+      if (me) break;
+    }
+    expect(me).not.toBeNull();
+    const acts = me!.game.legalActions as Act[];
+    const convert = acts.find((a) => a.type === 'convert')!, pass = acts.find((a) => a.type === 'pass')!;
+    const rev = me!.game.revision as number;
+
+    const bad = await command(ctx, actor, t.tableId, rev, { type: 'batch', actions: [convert, { type: 'mine', hex: 9999 }] });
+    expect(bad.json()).toMatchObject({ status: 'rejected' });
+    expect((await view(ctx, actor, t.tableId)).game.revision).toBe(rev);
+
+    const ok = await command(ctx, actor, t.tableId, rev, { type: 'batch', actions: [convert, pass] });
+    expect(ok.json()).toMatchObject({ status: 'accepted', revision: rev + 2 });
+    const after = await view(ctx, actor, t.tableId);
+    expect((after.game.view.log as { t: string }[]).slice(-3).map((e) => e.t)).toEqual(expect.arrayContaining(['convert', 'pass']));
+
+    for (const body of [{ type: 'batch', actions: [] }, { type: 'batch', actions: [{ type: 'resign' }] }]) {
+      expect((await command(ctx, actor, t.tableId, rev + 2, body)).json()).toMatchObject({ status: 'rejected', errorCode: 'INVALID_ACTION' });
+    }
+  });
+
   it('the interactive tutorial runs on the server to a win', async () => {
     const [u] = await users(ctx, 1);
     const { tableId } = (await call(ctx, 'POST', '/api/tutorials/gaia-project/start', u, { restart: false })).json();
