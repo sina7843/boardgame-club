@@ -18,11 +18,20 @@
 /* Tutorial highlight (expected move). */
 .gp-hint { box-shadow: 0 0 0 3px var(--primary); }
 
-/* Kit 2: zoom on hover (300 ms) or focus, never over the action bar (z below the sticky bar). */
-.gp-zoomable { transition: transform var(--dur-fast, .15s) var(--ease-out, ease-out) 0s; }
-.gp-zoomable:is(:hover, :focus-visible) { z-index: 3; transition-delay: .3s; }
-.gp-board .gp-zoomable:is(:hover, :focus-visible) { transform: translate(-50%, -50%) scale(2); }
-.gp-boost.gp-zoomable:is(:hover, :focus-visible), .gp-own.gp-zoomable:is(:hover, :focus-visible) { transform: scale(1.8); }
+/* Kit 2: zoom popover. Hover (after 300 ms) or keyboard focus shows the piece 2x with title and rule text; it sits
+   above its piece, under the sticky action bar (lower z), never open by itself; Esc blurs (closes). */
+.gp-tip { position: absolute; z-index: 3; inset-block-end: calc(100% + 8px); left: 50%; translate: -50% 0; inline-size: 260px; display: grid; gap: 6px;
+  padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface); color: var(--text); box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line);
+  font-size: 13.5px; line-height: 1.65; text-align: start; white-space: normal; pointer-events: none; }
+/* hidden tips take no space (a hidden 260px block at a board edge widened the phone page) */
+.gp-tip:not(:is(:hover, :focus-visible) > .gp-tip) { display: none; }
+.gp-tip > img { inline-size: 100%; block-size: auto; max-block-size: 220px; object-fit: contain; border-radius: 6px; }
+.gp-tip > b { color: var(--heading); font-size: 14px; }
+.gp-tip > small { color: var(--text-muted); font-size: 12.5px; line-height: 1.6; }
+:hover > .gp-tip { animation: gp-tip-in var(--dur-fast, .15s) var(--ease-out, ease-out) .3s both; }
+@keyframes gp-tip-in { from { opacity: 0; } }
+.gp-board :is(.gp-at, .gp-tile, .gp-act):is(:hover, :focus-visible) { z-index: 4; }
+.gp-boost, .gp-own, .gp-fedbtn { position: relative; }
 
 /* ---------- action bar (COMPONENTS.md §8) ---------- */
 .gp-actbar { position: sticky; inset-block-start: 0; will-change: transform; contain: layout; z-index: var(--z-dock, 20); display: flex; flex-direction: column; gap: 8px; padding: 10px 16px;
@@ -104,6 +113,7 @@ img.gp-at, .gp-at > img { display: block; block-size: auto; }
 .gp-hex[data-pick="selectable"] { background: rgba(232,166,66,.16); box-shadow: inset 0 0 0 3px var(--pick); outline: none; }
 .gp-hex[data-pick="picked"] { background: rgba(232,166,66,.3); box-shadow: inset 0 0 0 5px var(--pick); outline: none; }
 .gp-hex--hint { background: rgba(255,214,102,.35); }
+span.gp-hex[data-pick="picked"] { pointer-events: none; background: rgba(232,166,66,.22); box-shadow: inset 0 0 0 5px var(--pick); outline: none; }
 span.gp-hex--hint { pointer-events: none; }
 .gp-hex:focus-visible { clip-path: none; border-radius: 8px; outline: 3px solid var(--focus-on-felt, var(--focus)); }
 .gp-check { display: grid; place-items: center; inline-size: 26px; block-size: 26px; margin: auto; border-radius: 50%; background: var(--pick); color: var(--ink-felt, #0D1A23); font-weight: 900; box-shadow: 0 0 0 2px var(--ink-felt, #0D1A23); }
@@ -123,6 +133,8 @@ span.gp-hex--hint { pointer-events: none; }
 .gp-fedsupply li { display: grid; justify-items: center; gap: 4px; font-size: 14px; font-weight: 900; }
 .gp-fedsupply img { inline-size: 100%; max-inline-size: 64px; block-size: auto; display: block; }
 .gp-fedsupply li.is-empty img { opacity: .35; }
+.gp-fedbtn { display: block; padding: 0; border: 0; background: none; border-radius: 8px; }
+button.gp-fedbtn { cursor: pointer; }
 .gp-fedsupply small { unicode-bidi: isolate; direction: ltr; }
 
 /* scoring board (§5), boosters (§6) */
@@ -147,6 +159,13 @@ span.gp-hex--hint { pointer-events: none; }
 .gp-layer > .gp-slot:hover { opacity: .18; }
 .gp-conv { position: absolute; transform: translate(-50%, -50%); border-radius: 6px; cursor: pointer; }
 .gp-conv.is-avail { box-shadow: 0 0 0 2px var(--pick); }
+.gp-owned__cap { flex-basis: 100%; font-size: 12px; color: var(--felt-muted, var(--text-muted)); }
+.gp-panel__foot { font-size: 12.5px; color: var(--text-muted); }
+.gp-spent { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; font-size: 13.5px; }
+.gp-result h3 { margin: 0; font-size: 16px; color: var(--heading); }
+.gp-result__scroll { overflow-x: auto; }
+.gp-result table { inline-size: 100%; font-size: 13.5px; }
+.gp-result :is(th, td) { padding: 6px 8px; text-align: start; white-space: nowrap; }
 .gp-owned { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; padding: 12px; border-radius: var(--radius-md); background: var(--surface-sunken); min-block-size: 64px; }
 .gp-own { position: relative; display: inline-block; padding: 0; border: 0; background: none; border-radius: 8px; }
 .gp-own > img:first-child { display: block; block-size: 128px; inline-size: auto; border-radius: 6px; }
@@ -173,7 +192,10 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
   .gp-actbar__say { flex-basis: 0; flex-grow: 1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   .gp-actbar:not(.is-open) .gp-actbar__rows > :not(.gp-flow) { display: none; }
   .gp-actbar.is-open .gp-actbar__rows { max-block-size: 60dvh; overflow: auto; }
-  .gp-main { display: grid; grid-template-columns: 1fr 1fr; }
+  .gp-main, .gp-flow .gp-btnrow:has(.gp-mainbtn) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .gp-actbar { max-inline-size: 100%; }
+  .gp-actbar :is(.gp-btnrow, .gp-main) button { min-inline-size: 0; max-inline-size: 100%; block-size: auto; min-block-size: 44px; white-space: normal; flex-wrap: wrap; }
+  .gp-mainbtn { min-inline-size: 0; }
   .gp-main .bgv-btn, .gp-mainbtn .bgv-btn { inline-size: 100%; min-block-size: 48px; }
   .gp-mainbtn { display: grid; }
   .gp-free .gp-chipbtn { block-size: 44px; }
@@ -189,7 +211,16 @@ button.gp-own:hover, .gp-own.is-avail { box-shadow: 0 0 0 3px var(--pick); }
   .gp-boosters { gap: 6px; }
   .gp-fedsupply img { max-inline-size: 40px; }
   .gp-mapscroll { max-block-size: 62dvh; }
+  /* zoom on the phone = a dock above the action bar (9.7): the tapped piece's tip is copied there; pieces show none */
+  .gp-tip { display: none !important; }
+  .gp-zoomdock { position: sticky; inset-block-end: 0; z-index: var(--z-dock, 30); order: 98; display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; gap: 10px; align-items: start;
+    padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line); }
+  .gp-zoomdock .gp-tip { display: contents !important; }
+  .gp-zoomdock .gp-tip > img { grid-row: span 2; inline-size: 132px; block-size: auto; border-radius: 6px; }
+  .gp-zoomdock .gp-tip > b { color: var(--heading); font-size: 14px; }
+  .gp-zoomdock .gp-tip > small { grid-column: 2; color: var(--text-muted); font-size: 12.5px; line-height: 1.6; }
 }
+.gp-zoomdock:not(:has(.gp-tip)) { display: none; }
 
 /* ---------- player panel in the shell rail (§2). Lives in the shell's PlayerCard, outside .gp ---------- */
 .gp-panel { --gp-bowl: #6F2A82; --gp-bowl-g: #2E7D4F; display: grid; gap: 8px; }

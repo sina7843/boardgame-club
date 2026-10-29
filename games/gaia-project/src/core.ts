@@ -136,7 +136,10 @@ export function fire(s: GaiaState, seat: number, e: GameEvent) {
 export const CAP = { c: 30, o: 15, k: 15 } as const;
 export function vp(s: GaiaState, seat: number, n: number, why: string) {
   if (!n) return;
-  s.pl[seat]!.vp += n;
+  const p = s.pl[seat]!;
+  p.vp += n;
+  const kind = why.split(':')[0]!; // tally for the end-of-game breakdown (the log only keeps the latest entries)
+  p.vpBy = { ...p.vpBy, [kind]: (p.vpBy?.[kind] ?? 0) + n };
   log(s, { t: 'vp', seat, n, why });
 }
 

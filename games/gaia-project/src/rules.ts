@@ -668,7 +668,8 @@ export const gaiaProjectModule: GameModule<GaiaState, GaiaAction, GaiaView> = {
           { key: 'k', label: 'دانش', value: p.k, icon: 'star' },
           { key: 'q', label: 'QIC', value: p.q }
         ],
-        ...(p.faction ? { badges: [{ key: `faction:${p.faction}`, label: CONTENT.factions[p.faction]!.nameFa }] } : {}),
+        ...(p.faction ? { badges: [{ key: `faction:${p.faction}`, label: CONTENT.factions[p.faction]!.nameFa },
+          ...(p.passed && s.passOrder[0] === seat && s.phase === 'actions' ? [{ key: 'firstNext', label: 'نفر اول دور بعد' }] : [])] } : {}),
         ...(s.order.includes(seat) ? { turnOrder: s.order.indexOf(seat) + 1 } : {}),
         ...(p.faction && s.active[seat] ? { income: (({ c = 0, o = 0, k = 0, q = 0, pw = 0, t = 0 }) => ({ c, o, k, q, pwCharge: pw, pwTokens: t }))(incomeOf(s, seat)) } : {}),
         power: { gaia: p.power.gaia, b1: p.power.b1, b2: p.power.b2, b3: p.power.b3 },

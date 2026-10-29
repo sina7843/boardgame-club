@@ -39,6 +39,8 @@ test('interactive tutorial: mine, trading station, federation, research, power a
         await p.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, 'boards-tutorial'), timeout: 5000 }).catch(() => undefined);
       }
       await p.waitForTimeout(250);
+      // V8: nothing on the table may make the page wider than the screen
+      expect(await p.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
     }
   }
   await expect(p.getByRole('heading', { name: 'آموزش کامل شد' })).toBeVisible();

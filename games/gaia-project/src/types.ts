@@ -60,6 +60,8 @@ export interface PlayerState {
   /** Free-form per-player storage for content (counters, flags). Must stay JSON. */
   mark: Record<string, number | boolean | string>;
   timeouts: number;
+  /** VP scored through `vp()` by kind (`round`, `final`, `research`, `resources`, `tech`…); federations and other gains are not in it. */
+  vpBy?: Record<string, number>;
   /** Auto-charge (leech) setting of this player at this table; missing = `free` (1 power for free, ask the rest). */
   auto?: AutoCharge;
 }

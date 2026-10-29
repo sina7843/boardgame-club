@@ -922,3 +922,11 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   legalActions caching skipped after measuring 0.9 ms avg / 2.8 ms max. Checks: typecheck, eslint, api
   gaia-project 4/4 (batch accepted/rejected/invalid), api tables+chess 17/17, engine Gaia 94/94, e2e gaia 6/6
   (desktop-1440, mobile-360).
+- 2026-10-29 Gaia handoff, exact pass 1 (QA-CHECKLIST): G1 id→art mapping checked for all 44 tiles (match);
+  F2 upgrade options with engine cost; F3 all research tracks, disabled with reason; F5 engine proposals on the map,
+  «پیشنهاد بعدی», token from the supply; F6/Kit 2 hover-focus popovers (300 ms, Esc) and phone zoom dock (9.7);
+  8.7 exact shortfall reasons; 8.3 full conversion row (disabled with reason); 8.8 leech text with real amount/cost;
+  spectators without action bar; panel «پاس داده؛ نفر اول دور بعد»; end-of-game breakdown (engine `vpBy` tally);
+  P3 lazy loading below the fold. Fixed: phone page widened to ~500px by hidden tips (V8). Checks: typecheck,
+  eslint, ds-check, engine Gaia 94/94, e2e gaia 6/6 (1440 + 360, with a no-horizontal-scroll assertion).
+  Not done yet: full QA run with VERDICT.md (geometry G2–G10 measured, V1–V12 visual comparison).
