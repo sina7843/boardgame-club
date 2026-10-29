@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { avatarKeys, displayNameSchema, normalizeIranMobile, toAsciiDigits, type Me } from '@bg/contracts';
 import { fa } from '@bg/ui';
-import { Banner, Button, Card, FeltPlate, Icon, Logo, OtpField, PhoneField, Seat, TextField, TurnPill } from '@bg/ui/bgv';
+import { Banner, Button, Card, FeltPlate, Icon, Logo, OtpField, PhoneField, Seat, Stepper, TextField, TurnPill } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AVATAR_FA, faNum, safeNext } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -11,23 +11,8 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { SITE_LINKS } from './SitePage.tsx';
 
 type Step = { kind: 'mobile' } | { kind: 'code'; challengeId: string; mobile: string; resendAt: number; fixture: boolean } | { kind: 'profile' };
-const STEPS = ['شماره', 'کد تأیید', 'پروفایل'] as const;
 const FAN = ['terraforming-mars', 'catan', 'azul', 'hanabi'] as const;
 const FAN_POS = [[-0.83, 15, -10], [-0.28, 5, -3.3], [0.28, 5, 3.3], [0.83, 15, 10]] as const;
-
-/** Three-step progress: done steps carry a check, the current one is ringed. */
-function StepDots({ current }: { current: number }) {
-  return (
-    <ol className="ac-steps" aria-label="مراحل ورود">
-      {STEPS.flatMap((s, i) => [
-        <li key={s} className={i < current ? 'is-done' : i === current ? 'is-cur' : undefined} aria-current={i === current ? 'step' : undefined}>
-          <b>{i < current ? <Icon name="check" size="sm" /> : fa(i + 1)}</b>{s}
-        </li>,
-        ...(i < STEPS.length - 1 ? [<li key={`${s}-bar`} className={`ac-bar${i < current ? ' is-done' : ''}`} aria-hidden />] : [])
-      ])}
-    </ol>
-  );
-}
 
 /** Avatar glyphs: the meeple is the brand's game piece, the rest are DS icons. */
 const AVATAR_ART: Record<string, { tone: string; node: ReactNode }> = {
@@ -117,7 +102,7 @@ export function Login() {
       <section className="ac-login__form">
         <span className="bgv-spacer" />
         <Card className="ac-login__card">
-          <StepDots current={current} />
+          <Stepper current={current} label="مراحل ورود" />
 
           {step.kind === 'mobile' && (
             <form className="ac-stack" style={{ gap: 14 }} onSubmit={sendCode} noValidate key="mobile">

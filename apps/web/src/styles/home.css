@@ -142,3 +142,35 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
 .hm-moretile__badge { position: absolute; inset-block-start: var(--space-2); inset-inline-end: var(--space-2); }
 @media (max-width: 599px) { .hm-turnrow:not(.is-mine) { display: none; } }
 .hm-quota { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); inline-size: min(100%, 280px); }
+
+/* House box for our own games (no box photo): navy tile with the symbol, the name and the maker line. */
+.game-housebox { display: grid; place-items: center; align-content: center; gap: var(--space-1); inline-size: 100%; block-size: 100%; aspect-ratio: 1; box-sizing: border-box; padding: var(--space-3); text-align: center; background: var(--felt-plate); color: var(--felt-ink); border-radius: var(--radius-sm); }
+.game-housebox b { font-size: 15px; line-height: 1.4; }
+.game-housebox small { font-size: 11px; color: var(--felt-muted); }
+
+/* Home v2.1: shelves, open tables, tournament banner, guest hero, steps */
+.hm-shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: var(--space-4); }
+.hm-opengrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: var(--space-4); }
+.hm-opencard { display: grid; gap: var(--space-3); }
+.hm-tourney { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); border-radius: var(--radius-lg); overflow: hidden; background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-felt); }
+.hm-tourney > img { inline-size: 100%; block-size: 100%; min-block-size: 200px; object-fit: cover; display: block; }
+.hm-tourney__body { display: grid; gap: var(--space-3); align-content: center; padding: var(--space-6); min-inline-size: 0; }
+.hm-tourney .hm-meta { color: var(--felt-muted); }
+.hm-tourney .hm-link { color: var(--felt-ink); }
+.hm-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: var(--space-4); }
+.hm-step { display: flex; gap: var(--space-4); align-items: flex-start; }
+.hm-step__n { flex: none; display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: var(--radius-md); background: var(--selected); color: var(--on-selected); font-weight: 800; font-size: 20px; }
+.hm-trust { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: 13px; color: var(--felt-muted); margin: 0; padding: 0; list-style: none; }
+.hm-trust li { display: inline-flex; align-items: center; gap: var(--space-1); }
+.hm-collage { position: relative; min-block-size: 280px; }
+.hm-collage img { position: absolute; inline-size: 44%; border-radius: var(--radius-sm); box-shadow: var(--shadow-piece); background: var(--surface); }
+.hm-collage__0 { inset-block-start: 0; inset-inline-start: 4%; transform: rotate(-4deg); }
+.hm-collage__1 { inset-block-start: 8%; inset-inline-end: 4%; transform: rotate(3deg); }
+.hm-collage__2 { inset-block-end: 0; inset-inline-start: 14%; transform: rotate(2deg); }
+.hm-collage__3 { inset-block-end: 4%; inset-inline-end: 12%; transform: rotate(-3deg); }
+.hm-last { display: grid; gap: var(--space-3); }
+@media (max-width: 899px) {
+  .hm-tourney { grid-template-columns: minmax(0, 1fr); }
+  .hm-tourney > img { min-block-size: 140px; max-block-size: 180px; }
+  .hm-collage { min-block-size: 220px; }
+}

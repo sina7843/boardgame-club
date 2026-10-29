@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
+import { GuestState } from '../shell/GuestState.tsx';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
@@ -155,8 +156,7 @@ export function FriendsPage() {
     const next = tabs[(at + (e.key === 'ArrowLeft' ? 1 : -1) + tabs.length) % tabs.length]!;
     next.focus(); next.click();
   };
-  if (data.error?.status === 401) return <StateBlock kind="denied" title="برای دیدن دوستان وارد شوید" text="پیام‌ها و باشگاه‌ها بعد از ورود باز می‌شوند."
-    action={<Button variant="primary" href="/login?next=/friends">ورود با شماره موبایل</Button>} />;
+  if (data.error?.status === 401) return <GuestState title="برای دیدن پیام‌ها و دوستان وارد شوید" text="گفت‌وگوها، دوستان و باشگاه‌ها بعد از ورود باز می‌شوند." next="/messages" />;
   if (data.error) return <StateBlock kind="error" title="فهرست دوستان دریافت نشد" action={<Button variant="primary" onClick={data.reload}>تلاش دوباره</Button>} />;
   if (!data.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
   const d = data.data;

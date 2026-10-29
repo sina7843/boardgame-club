@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { GuestState } from '../shell/GuestState.tsx';
 import { useNavigate } from 'react-router';
 import { Avatar, Badge, Banner, Button, Card, ChipGroup, Identity, PageHead, Select, Skeleton, StateBlock, Switch } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
@@ -31,7 +32,7 @@ export function OpenTables() {
     return () => clearInterval(t);
   }, [auto, reload]);
 
-  if (status !== 'loading' && !me) return <StateBlock kind="denied" title="برای دیدن میزهای باز وارد شوید" action={<Button variant="primary" href="/login?next=/tables">ورود</Button>} />;
+  if (status !== 'loading' && !me) return <GuestState title="برای دیدن میزهای باز وارد شوید" text="میزهای عمومی و دعوت‌ها بعد از ورود نمایش داده می‌شوند." next="/tables" />;
 
   const join = async (id: string) => {
     setJoining(id); setError(undefined);

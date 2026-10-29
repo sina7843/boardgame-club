@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { GuestState } from '../shell/GuestState.tsx';
 import { useNavigate, useSearchParams } from 'react-router';
 import type { GameSummary, TableSnapshot, TicketView } from '@bg/contracts';
 import { Avatar, Badge, Banner, Button, Card, Icon, PageHead, ReadyCheck, Segmented, Select, Skeleton, StateBlock, type SeatNo } from '@bg/ui/bgv';
@@ -152,7 +153,7 @@ export function QuickMatch() {
   useEffect(() => { if (game && !game.paces.includes(pace)) setPace(game.paces[0]!); }, [game, pace]);
   useEffect(() => { if (game) setTurnSeconds(defaultTime(pace === 'live' ? game.liveSeconds : game.turnSeconds, pace)); }, [pace, game]);
 
-  if (status !== 'loading' && !me) return <StateBlock kind="denied" title="برای حریف‌یابی وارد شوید" action={<Button variant="primary" href="/login?next=/play">ورود</Button>} />;
+  if (status !== 'loading' && !me) return <GuestState title="برای حریف‌یابی وارد شوید" text="حریف‌یابی سریع به حساب شما نیاز دارد؛ ورود چند ثانیه است." next="/play" />;
   if (games.error) return <StateBlock kind="error" title="فهرست بازی‌ها دریافت نشد" action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />;
   if (!games.data || !tickets.data) return <><Skeleton height={240} radius="var(--radius-lg)" /><span className="bgv-sr" role="status">در حال بارگذاری…</span></>;
 

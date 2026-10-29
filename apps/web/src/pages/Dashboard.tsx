@@ -1,12 +1,13 @@
-import type { DailyGame, GameSummary, Presence, PublicProfile } from '@bg/contracts';
+import { useState } from 'react';
+import type { DailyGame, GameSummary, OpenTableItem, Presence, PublicProfile } from '@bg/contracts';
 import { Badge, Button, Card, Icon, Identity, Skeleton, StateBlock } from '@bg/ui/bgv';
-import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliToday, PACE_FA, range } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { presenceLine, usePresence } from '../lib/presence.ts';
+import { CoverCollage, FACETS, FacetChips, HowItWorks, inFacet, OpenTablesRow, popularGames, Shelf, TournamentBanner, type Facet } from './HomeSections.tsx';
 import { byUrgency, Cover, DeadlineClock, tableMeta, tableTitle, useMyTables } from './MyTables.tsx';
 
 /** «ادامه‌ی یادگیری»: tutorials in progress first, then games not tried yet (up to three cards). */
@@ -144,55 +145,105 @@ export function Dashboard() {
   const { me, status } = useSession();
   const games = useApi<{ items: GameSummary[] }>('/games');
   const mine = useMyTables();
+  const open = useApi<{ items: OpenTableItem[] }>(me ? '/tables' : null);
+  const [facet, setFacet] = useState<Facet>('all');
   const running = me ? (mine.data?.items ?? []).filter((t) => t.status === 'active').sort(byUrgency) : [];
   const live = running[0];
   const turns = running.filter((t) => t.isMyTurn).length;
   const fr = useApi<{ friends: PublicProfile[] }>(me ? '/me/friends' : null);
   const friends = fr.data?.friends ?? [];
   const presence = usePresence(friends.map((x) => x.id));
-  const onlineFriends = friends.filter((x) => presence[x.id]?.online).length;
-  // «پیشنهاد برای شما»: games sharing a tag with what I played lately, which I have not played yet.
-  const playedIds = [...new Set((mine.data?.items ?? []).map((t) => t.gameId))];
   const all = games.data?.items ?? [];
+  const playedIds = [...new Set((mine.data?.items ?? []).map((t) => t.gameId))];
   const playedGames = playedIds.map((id) => all.find((g) => g.id === id)).filter((g) => !!g);
-  const playedTags = new Set(playedGames.flatMap((g) => g.tags));
-  const suggested = all.filter((g) => !playedIds.includes(g.id) && g.tags.some((t) => playedTags.has(t)));
-  const recs = (suggested.length >= 4 ? suggested : [...suggested, ...all.filter((g) => !suggested.includes(g))]).slice(0, 4);
+  const last = playedGames[0];
+  const popular = popularGames(all, open.data?.items ?? []);
+  const quickDuo = all.filter((g) => g.maxPlayers === 2 && g.maxMinutes <= 30);
+  const party = all.filter((g) => inFacet(g, 'party'));
+  const filtered = all.filter((g) => inFacet(g, facet));
+  const facetLabel = FACETS.find(([k]) => k === facet)![1];
 
   return (
     <>
-      <section className={`bgv-hero hm-hero${live ? '' : ' hm-hero--solo'}`} aria-labelledby="hello-h">
+      <section className={`bgv-hero hm-hero${me && (live || last) ? '' : me ? ' hm-hero--solo' : ''}`} aria-labelledby="hello-h">
         <div className="hm-hero__text">
-          <span className="bgv-hero__eyebrow">{jalaliToday()}</span>
-          <h1 id="hello-h" className="t-page" style={{ margin: 0 }}>{me ? <>سلام <bdi>{me.displayName}</bdi>! امشب چی بازی کنیم؟</> : 'بردگیم آنلاین به فارسی'}</h1>
-          <p className="hm-hero__lead">{turns > 0 ? `${faNum(turns)} میز نوبتی منتظر حرکت شماست` : me ? 'میز خصوصی بسازید و دوستان را دعوت کنید، یا به یک میز عمومی بپیوندید' : `${all.length ? `${faNum(all.length)} ` : ''}بردگیم محبوب را آنلاین بازی کنید؛ با دوستانتان میز بسازید یا با حریفان تازه بازی کنید`}{onlineFriends > 0 ? ` و ${faNum(onlineFriends)} نفر از دوستانتان آنلاین‌اند.` : '.'}</p>
+          {me
+            ? <span className="bgv-hero__eyebrow">سلام <bdi>{me.displayName}</bdi>، خوش برگشتی · {jalaliToday()}</span>
+            : <span className="bgv-hero__eyebrow">بردگیم آنلاین به فارسی</span>}
+          <h1 id="hello-h" className="t-page" style={{ margin: 0 }}>امشب چی بازی کنیم؟</h1>
+          <p className="hm-hero__lead">
+            {me
+              ? (turns > 0 ? `${faNum(turns)} میز منتظر حرکت توست؛ یا همین حالا یک دست سریع بزن.` : 'میز خصوصی بساز و دوستانت را دعوت کن، یا به یک میز عمومی بپیوند.')
+              : `${faNum(all.length)} بردگیم محبوب! با دوستانت میز بساز یا حریف تازه پیدا کن.`}
+          </p>
           <div className="hm-hero__ctas">
-            <Button variant="primary" size="lg" icon="zap" href="/play">یه میز پیدا کن</Button>
-            <Button size="lg" icon="plus" href="/games">میز بساز</Button>
+            <Button variant="primary" size="lg" icon="zap" href="/play">بازی سریع</Button>
+            <Button size="lg" icon={me ? 'plus' : 'user-plus'} href="/games">{me ? 'ساخت میز' : 'ساخت میز با دوستان'}</Button>
           </div>
+          {!me && (
+            <>
+              <p className="hm-hero__lead" style={{ margin: 0, fontSize: 13 }}><Icon name="lock" size="sm" /> ورود فقط وقتی پشت میز می‌نشینی.</p>
+              <ul className="hm-trust"><li><Icon name="check" size="sm" />رایگان</li><li><Icon name="check" size="sm" />بدون نصب</li><li><Icon name="check" size="sm" />زنده و نوبتی</li></ul>
+            </>
+          )}
         </div>
-        {live && (
+        {me && live && (
           <div className="hm-plate">
             <div className="bgv-row" style={{ justifyContent: 'space-between' }}>
-              <span className="bgv-hero__eyebrow">میز زنده‌ی شما</span>
+              <span className="bgv-hero__eyebrow">میز زندهٔ تو</span>
               <Badge size="sm" icon="zap">{PACE_FA[live.pace]}</Badge>
             </div>
             <div className="hm-cell"><Cover gameId={live.gameId} /><div><b style={{ fontSize: 17 }}>{tableTitle(live)}</b><span className="hm-plate__sub">{tableMeta(live)}</span></div></div>
             <div className="bgv-row" style={{ justifyContent: 'space-between', gap: '8px 12px' }}>
               <span className="bgv-row">
-                {live.isMyTurn ? <Badge tone="you" icon="zap">نوبت شماست</Badge> : <span className="hm-plate__sub">منتظر حرکت دیگران</span>}
+                {live.isMyTurn ? <Badge tone="you" icon="zap">نوبت توست</Badge> : <span className="hm-plate__sub">منتظر حرکت دیگران</span>}
                 {live.deadline && <DeadlineClock iso={live.deadline} />}
               </span>
               <Button variant="primary" icon="play" href={`/tables/${live.id}`}>برگرد سر میز</Button>
             </div>
           </div>
         )}
+        {me && !live && last && (
+          <div className="hm-plate hm-last">
+            <span className="bgv-hero__eyebrow">بازی سریع · آخرین بازی تو</span>
+            <div className="hm-cell"><Cover gameId={last.id} /><div><b style={{ fontSize: 17 }}>{last.nameFa}</b><span className="hm-plate__sub">{range(last.minPlayers, last.maxPlayers, 'نفر')}</span></div></div>
+            <div className="bgv-row" style={{ gap: 8 }}>
+              <Button variant="primary" icon="zap" href={`/play?game=${last.id}`}>بازی سریع</Button>
+              <Button icon="refresh-cw" href="/play">تغییر بازی</Button>
+            </div>
+          </div>
+        )}
+        {!me && all.length >= 4 && <CoverCollage games={popular} />}
       </section>
 
-      <div className="bgv-cols">
-        <TurnList tables={mine} signedIn={!!me} loadingSession={status === 'loading'} />
-        {me && <DailyCard games={games.data?.items} />}
-      </div>
+      {me && (
+        <div className="bgv-cols">
+          <TurnList tables={mine} signedIn loadingSession={status === 'loading'} />
+          <DailyCard games={games.data?.items} />
+        </div>
+      )}
+
+      {me && <OpenTablesRow items={open.data?.items ?? []} />}
+
+      {games.loading && !games.data && <Skeleton lines={3} />}
+      {games.error && <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />}
+      {games.data && all.length === 0 && <StateBlock kind="empty" title="هنوز بازی‌ای منتشر نشده است" />}
+      {all.length > 0 && (
+        <>
+          <FacetChips games={all} value={facet} onChange={setFacet} />
+          {facet !== 'all'
+            ? <Shelf id="facet-h" icon="layout-grid" title={`بازی‌های ${facetLabel}`} games={filtered} limit={12} />
+            : (
+              <>
+                {me && <Shelf id="recent-h" icon="history" title="بازی‌های اخیر تو" games={playedGames} href="/tables/mine" />}
+                <Shelf id="popular-h" icon="flame" title="محبوب این هفته" games={popular} />
+                {me ? <Shelf id="duo-h" icon="swords" title="دونفره‌های سریع" games={quickDuo} /> : <Shelf id="party-h" icon="users" title="مهمانی و جمعی" games={party} />}
+              </>
+            )}
+        </>
+      )}
+
+      <TournamentBanner />
 
       {me && (
         <div className="bgv-cols">
@@ -201,18 +252,7 @@ export function Dashboard() {
         </div>
       )}
 
-      <section className="bgv-stack" style={{ gap: 12 }} aria-labelledby="catalog-h">
-        <div className="hm-sechead">
-          <h2 id="catalog-h" className="hm-h2"><Icon name="sparkles" />پیشنهاد برای شما</h2>
-          {playedGames.length > 0 && <span className="t-caption bgv-muted">بر اساس {playedGames.slice(0, 2).map((g) => g.nameFa).join(' و ')}</span>}
-          <a className="hm-link" href="/games">همه‌ی بازی‌ها<Icon name="chevron-left" size="sm" /></a>
-        </div>
-        {games.loading && !games.data && <Skeleton lines={3} />}
-        {games.error && <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />}
-        {games.data && (games.data.items.length === 0
-          ? <StateBlock kind="empty" title="هنوز بازی‌ای منتشر نشده است" />
-          : <div className="bgv-grid bgv-grid--sm">{recs.map((g) => <GameCard key={g.id} game={g} />)}</div>)}
-      </section>
+      {!me && <HowItWorks />}
     </>
   );
 }

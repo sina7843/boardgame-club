@@ -222,6 +222,7 @@ export const openTableItem = z.object({
   capacity: z.number().int(), turnSeconds: z.number().int(), host: publicProfile,
   seated: z.array(z.object({ id: z.uuid(), name: z.string(), avatarKey: z.string() }))
 });
+export type OpenTableItem = z.infer<typeof openTableItem>;
 
 export const liveTableItem = z.object({
   id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, startedAt: z.iso.datetime().nullable(),

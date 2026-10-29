@@ -41,15 +41,6 @@
 .ac-login__title { text-wrap: balance; }
 .ac-login__legal { font-size: 12.5px; line-height: 1.7; color: var(--text-muted); text-align: center; text-wrap: pretty; margin: 0; }
 .ac-login__legal a { color: var(--link); }
-.ac-steps { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1; flex-wrap: wrap; }
-.ac-steps li { display: flex; align-items: center; gap: 8px; color: var(--text-muted); white-space: nowrap; }
-.ac-steps b { inline-size: 28px; block-size: 28px; border-radius: var(--radius-pill); display: grid; place-items: center; font-size: 13px; font-weight: 900;
-  background: var(--surface-sunken); box-shadow: var(--shadow-field); }
-.ac-steps .is-done b { background: var(--primary); color: var(--on-primary); box-shadow: none; }
-.ac-steps .is-cur { color: var(--text); font-weight: 700; }
-.ac-steps .is-cur b { background: var(--surface); color: var(--heading); outline: 2px solid var(--primary); }
-.ac-steps .ac-bar { inline-size: 20px; block-size: 2px; border-radius: var(--radius-xs); background: var(--line); }
-.ac-steps .ac-bar.is-done { background: var(--primary); }
 .ac-login__head { display: grid; gap: 4px; text-align: center; }
 .ac-login__head h1 { color: var(--heading); margin: 0; }
 .ac-login__head p { margin: 0; text-wrap: pretty; }

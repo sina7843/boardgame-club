@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
+import { GuestState } from '../shell/GuestState.tsx';
 import type { MyTableItem } from '@bg/contracts';
 import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Progress, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
 import { AvatarArt } from '../lib/bgv.tsx';
@@ -140,7 +141,7 @@ export function MyTablesPage() {
 
   let body;
   if (status !== 'loading' && !me) {
-    body = <StateBlock kind="denied" title="برای دیدن میزهای خود وارد شوید" action={<Button variant="primary" href="/login">ورود / ثبت‌نام</Button>} />;
+    body = <GuestState title="برای دیدن میزهای خود وارد شوید" text="میزهایی که منتظر حرکت شما هستند اینجا نمایش داده می‌شوند." next="/tables/mine" />;
   } else if (tables.error) {
     body = <StateBlock kind="error" title="میزهای شما دریافت نشد" text={tables.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={tables.reload}>تلاش دوباره</Button>} />;
   } else if (!tables.data) {

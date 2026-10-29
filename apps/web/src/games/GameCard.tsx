@@ -1,9 +1,24 @@
+import { useState } from 'react';
 import { GAME_TAG_FA, type GameSummary } from '@bg/contracts';
 import { GameCard as BgvGameCard, Tag } from '@bg/ui/bgv';
 import { ACCESS_FA, DIFFICULTY_FA, range } from '../lib/format.ts';
-import { GameCover } from './covers.tsx';
 
-/** Catalogue card (DS GameCard): painted cover, Persian name with the Latin original, players / time / difficulty. */
+/** The game's box photo on the shelf; our own games (no photo) get the house box. */
+export function BoxArt({ game }: { game: Pick<GameSummary, 'id' | 'nameFa'> }) {
+  const [missing, setMissing] = useState(false);
+  if (missing) {
+    return (
+      <span className="game-housebox">
+        <img src="/brand/symbol-reversed-small.svg" alt="" width={28} height={28} />
+        <b>{game.nameFa}</b>
+        <small>ساخت بردگیم‌ورس</small>
+      </span>
+    );
+  }
+  return <img src={`/covers/box/${game.id}.webp`} alt="" loading="lazy" decoding="async" onError={() => setMissing(true)} />;
+}
+
+/** Catalogue card (DS GameCard v2.1): box photo on a shelf, Persian name with the Latin original, players / time / difficulty. */
 export function GameCard({ game }: { game: GameSummary }) {
   const flags = [
     ...(game.isTestGame ? [{ tone: 'test' as const, icon: 'triangle-alert', label: 'آزمایشی' }] : []),
@@ -11,7 +26,7 @@ export function GameCard({ game }: { game: GameSummary }) {
     ...(game.botAvailable ? [{ icon: 'bot', label: 'ربات' }] : [])
   ];
   return (
-    <BgvGameCard href={`/games/${game.id}`} art={<GameCover gameId={game.id} title="" />} title={game.nameFa} latin={game.nameOriginal}
+    <BgvGameCard href={`/games/${game.id}`} boxArt={<BoxArt game={game} />} title={game.nameFa} latin={game.nameOriginal}
       aria-label={`${game.nameFa} (${game.nameOriginal})`} flags={flags}
       meta={[
         { icon: 'users', text: range(game.minPlayers, game.maxPlayers, 'نفر') },
