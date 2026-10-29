@@ -1411,3 +1411,11 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Optional card effects are asked one at a time through a queue of decisions (free invasion, Succor, Thor's Domain, Blessing, Hammers, Prowess, Protection, Tide, late cards, stat raises).
 - Resign: the clan's figures leave the board, it plays defaults for the rest and ranks below the others (later resignation better); one clan left wins. Tutorial: the third Age from a fixed position, 8 steps, the learner wins.
 - Not done: bots, a hint highlighter for the tutorial in the UI, the 5th-clan expansions.
+
+### Blood Rage: real board layout (2026-10-30, owner request)
+- The board picture from the official rulebook (https://cdn.1j1ju.com/medias/88/21/c2-blood-rage-rulebook.pdf, page 4) is used as the map
+  (`apps/web/public/games/blood-rage/board.webp`, upscaled from 441 px). Owner states they are allowed to use it; licence not verified by me.
+- The rules data now follows that picture: ring myr, elv, ang, mus, hor, utg, and, gim; villages 3/4/5/5/4/3/3/5 (counted by eye from the
+  picture); fjords elv–ang, mus–hor, utg–and, gim–myr; regions Manheim = myr/elv/ang, Jotunheim = mus/hor/utg, Alfheim = and/gim.
+- Village and token coordinates in `renderer.tsx` (`SLOTS`) were read off the picture by hand. Still reconstructed: the stat track steps and the ship strength.
+- Catalog cover and box use the cover from Wikipedia (https://en.wikipedia.org/wiki/Blood_Rage_(board_game)).

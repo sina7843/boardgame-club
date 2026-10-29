@@ -24,27 +24,27 @@ const STAGE_FA: Record<BattleView['stage'], string> = {
 };
 const iso = (s: string) => `⁨${s}⁩`;
 
-// ---------- geometry ----------
-const C = 380;
-const rad = (d: number) => (d * Math.PI) / 180;
-const pt = (r: number, deg: number) => ({ x: C + r * Math.cos(rad(deg)), y: C + r * Math.sin(rad(deg)) });
-const angleOf = (p: ProvinceId) => -90 + 45 * RING.indexOf(p);
-function sector(r1: number, r2: number, a1: number, a2: number): string {
-  const p1 = pt(r2, a1), p2 = pt(r2, a2), p3 = pt(r1, a2), p4 = pt(r1, a1);
-  return `M${p1.x},${p1.y} A${r2},${r2} 0 0 1 ${p2.x},${p2.y} L${p3.x},${p3.y} A${r1},${r1} 0 0 0 ${p4.x},${p4.y}Z`;
-}
+// ---------- geometry (coordinates of the printed board picture, 441 x 441) ----------
+const BOARD = 441;
+/** Village circles and the pillage-reward square of every province, read off the board picture. */
+const SLOTS: Record<Exclude<ProvinceId, 'ygg'>, { v: [number, number][]; reward: [number, number] }> = {
+  myr: { v: [[107, 122], [148, 105], [138, 160]], reward: [135, 130] },
+  elv: { v: [[178, 43], [218, 52], [157, 68], [207, 130]], reward: [207, 90] },
+  ang: { v: [[290, 82], [330, 95], [263, 127], [330, 135], [298, 165]], reward: [300, 125] },
+  mus: { v: [[323, 197], [358, 210], [295, 232], [375, 247], [323, 268]], reward: [337, 233] },
+  hor: { v: [[267, 292], [320, 322], [235, 347], [278, 367]], reward: [282, 322] },
+  utg: { v: [[193, 313], [157, 348], [207, 373]], reward: [188, 345] },
+  and: { v: [[83, 288], [143, 290], [108, 347]], reward: [113, 302] },
+  gim: { v: [[47, 203], [90, 185], [142, 190], [68, 238], [107, 247]], reward: [98, 215] }
+};
+const YGG: [number, number] = [212, 232];
+const FJORD_AT: Record<FjordId, [number, number]> = { f1: [281, 50], f2: [353, 317], f3: [120, 373], f4: [70, 147] };
 function slotPositions(p: ProvinceId): { x: number; y: number }[] {
-  if (p === 'ygg') return Array.from({ length: 20 }, (_, k) => ({ x: C + ((k % 5) - 2) * 30, y: C - 30 + Math.floor(k / 5) * 30 }));
-  const n = PROVINCES[p].villages;
-  const a = angleOf(p);
-  const inner = Math.ceil(n / 2), outer = n - inner;
-  const out: { x: number; y: number }[] = [];
-  const row = (count: number, r: number) => { for (let k = 0; k < count; k++) out.push(pt(r, a + (count === 1 ? 0 : (k / (count - 1) - 0.5) * 26))); };
-  row(inner, 186); row(outer, 246);
-  return out;
+  if (p === 'ygg') return Array.from({ length: 20 }, (_, k) => ({ x: YGG[0] - 40 + (k % 5) * 20, y: YGG[1] + 10 + Math.floor(k / 5) * 20 }));
+  return SLOTS[p].v.map(([x, y]) => ({ x, y }));
 }
-const fjordPos = (f: FjordId) => { const [a] = FJORDS[f]; return pt(338, angleOf(a) + 22.5); };
-const fjordSlot = (f: FjordId, k: number) => { const c = fjordPos(f); return { x: c.x + ((k % 2) - 0.5) * 26, y: c.y + (Math.floor(k / 2) - 0.5) * 24 }; };
+const rewardAt = (p: Exclude<ProvinceId, 'ygg'>) => ({ x: SLOTS[p].reward[0], y: SLOTS[p].reward[1] });
+const fjordSlot = (f: FjordId, k: number) => { const c = FJORD_AT[f]; return { x: c[0] + ((k % 2) - 0.5) * 22, y: c[1] + (Math.floor(k / 2) - 0.5) * 22 }; };
 
 type Hint = GameAction;
 
@@ -211,7 +211,7 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
     const dead = battle?.dead.includes(f.id);
     const label = `${KIND_FA[f.kind]}${f.mon ? ` ${CARD_BY_ID[f.mon]?.nameFa}` : ''} ${names(f.seat)} (${CLAN_FA[f.seat % 5]})`;
     return (
-      <g key={f.id} transform={`translate(${pos.x} ${pos.y})`} className={`blr-fig blr-fig--${f.kind}${sel ? ' is-sel' : ''}${clickable ? ' is-hot' : ''}${dead ? ' is-dead' : ''}${exp && typeof exp.figure === 'number' && exp.figure === f.id ? ' is-hint' : ''}`}
+      <g key={f.id} transform={`translate(${pos.x} ${pos.y}) scale(0.6)`} className={`blr-fig blr-fig--${f.kind}${sel ? ' is-sel' : ''}${clickable ? ' is-hot' : ''}${dead ? ' is-dead' : ''}${exp && typeof exp.figure === 'number' && exp.figure === f.id ? ' is-hint' : ''}`}
         style={{ ['--c' as string]: clanColor(f.seat) }} role={clickable ? 'button' : 'img'} aria-label={label} tabIndex={clickable ? 0 : undefined}
         onClick={clickable ? (e) => { e.stopPropagation(); clickFig(f); } : undefined}
         onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickFig(f); } } : undefined}>
@@ -241,48 +241,37 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
       <div className="blr__main">
         <div className="blr__board">
           <ZoomBoard label="نقشهٔ میدگارد">
-            <svg className="blr-map" viewBox={`0 0 ${C * 2} ${C * 2}`} role="group" aria-label="نقشهٔ میدگارد">
-              <defs>
-                <radialGradient id="blr-g-sea" cx="50%" cy="50%" r="55%"><stop offset="0" stopColor="#1d5775" /><stop offset="0.7" stopColor="#0e3044" /><stop offset="1" stopColor="#071723" /></radialGradient>
-                <linearGradient id="blr-g-manheim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b8934a" /><stop offset="1" stopColor="#6f5320" /></linearGradient>
-                <linearGradient id="blr-g-alfheim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#9aa8b4" /><stop offset="1" stopColor="#4e5c69" /></linearGradient>
-                <linearGradient id="blr-g-jotunheim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6ea8c8" /><stop offset="1" stopColor="#2b5a78" /></linearGradient>
-                <radialGradient id="blr-g-ygg" cx="50%" cy="40%" r="65%"><stop offset="0" stopColor="#5fa86a" /><stop offset="1" stopColor="#1f5232" /></radialGradient>
-                <radialGradient id="blr-g-coin" cx="35%" cy="30%" r="75%"><stop offset="0" stopColor="#fff0b0" /><stop offset="0.6" stopColor="#e0b655" /><stop offset="1" stopColor="#8a5f14" /></radialGradient>
-                <radialGradient id="blr-g-fig" cx="35%" cy="28%" r="80%"><stop offset="0" stopColor="#fff" stopOpacity="0.55" /><stop offset="0.45" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.35" /></radialGradient>
-                <filter id="blr-f-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" floodColor="#000" floodOpacity="0.6" /></filter>
-                <filter id="blr-f-rough" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" /><feColorMatrix in="n" type="saturate" values="0" result="g" /><feComponentTransfer in="g" result="a"><feFuncA type="linear" slope="0.18" /></feComponentTransfer><feComposite in="a" in2="SourceGraphic" operator="in" /></filter>
-              </defs>
-              <circle cx={C} cy={C} r={C - 4} className="blr-sea" />
-              <circle cx={C} cy={C} r={C - 40} className="blr-wave" /><circle cx={C} cy={C} r={C - 80} className="blr-wave blr-wave--2" />
+            <svg className="blr-map" viewBox={`0 0 ${BOARD} ${BOARD}`} role="group" aria-label="نقشهٔ میدگارد">
+              <image href="/games/blood-rage/board.webp" width={BOARD} height={BOARD} className="blr-board" />
               {RING.map((p) => {
-                const a = angleOf(p), dead = view.destroyed.includes(p);
+                const dead = view.destroyed.includes(p);
                 const tg = targets.has(p), src = sources.has(p), pl = view.pillaged.includes(p);
                 const here = byPlace(p);
                 const inBattle = battle?.at === p;
                 const slots = slotPositions(p);
+                const rw = rewardAt(p);
                 const clickable = tg || src;
+                const spots = [...slots, { x: rw.x, y: rw.y }];
                 return (
                   <g key={p} className={`blr-prov blr-prov--${PROVINCES[p].region}${dead ? ' is-destroyed' : ''}${tg ? ' is-target' : ''}${src ? ' is-source' : ''}${inBattle ? ' is-battle' : ''}${doomed === p ? ' is-doom' : ''}`}
                     role={clickable ? 'button' : 'group'} tabIndex={clickable ? 0 : undefined} aria-label={`${PROVINCES[p].nameFa}، ${REGION_FA[PROVINCES[p].region!]}${dead ? '، نابودشده' : ''}${pl ? '، غارت‌شده' : ''}${tg ? '، قابل انتخاب' : ''}`}
                     onClick={clickable ? () => clickPlace(p) : undefined} onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickPlace(p); } } : undefined}>
-                    <path d={sector(120, 316, a - 22, a + 22)} className="blr-prov__land" />
-                    <path d={sector(120, 316, a - 22, a + 22)} className="blr-prov__rough" filter="url(#blr-f-rough)" />
-                    {!dead && slots.slice(0, PROVINCES[p].villages).map((s, k) => <circle key={k} cx={s.x} cy={s.y} r="14" className="blr-slot" />)}
+                    <g className="blr-prov__land">{spots.map((q, k) => <circle key={k} cx={q.x} cy={q.y} r="30" />)}</g>
+                    {!dead && slots.map((q, k) => <circle key={k} cx={q.x} cy={q.y} r="12" className="blr-slot" />)}
                     {!dead && here.map((f, k) => renderFigure(f, slots[k] ?? slots[0]!))}
-                    <text {...pt(142, a)} className="blr-prov__name" textAnchor="middle">{PROVINCES[p].nameFa}</text>
+                    <text x={rw.x} y={rw.y + 25} className="blr-prov__name" textAnchor="middle">{PROVINCES[p].nameFa}</text>
                     {dead
-                      ? <text {...pt(214, a)} className="blr-prov__dead" textAnchor="middle">نابود شد</text>
-                      : <g transform={`translate(${pt(294, a).x} ${pt(294, a).y})`} className={`blr-token${pl ? ' is-flipped' : ''}`}>
-                        <circle r="16" /><text textAnchor="middle" dy="5">{pl ? '✕' : REWARD_GLYPH[view.rewards[p]]}</text>
+                      ? <text x={rw.x} y={rw.y + 4} className="blr-prov__dead" textAnchor="middle">نابود شد</text>
+                      : <g transform={`translate(${rw.x} ${rw.y})`} className={`blr-token${pl ? ' is-flipped' : ''}`}>
+                        <circle r="11" /><text textAnchor="middle" dy="4">{pl ? '✕' : REWARD_GLYPH[view.rewards[p]]}</text>
                         <title>{pl ? 'غارت شده' : `پاداش: ${REWARD_FA[view.rewards[p]]}`}</title>
                       </g>}
-                    {tokenAge(p) > 0 && !dead && <g transform={`translate(${pt(318, a - 16).x} ${pt(318, a - 16).y})`} className="blr-ragn"><circle r="11" /><text textAnchor="middle" dy="4">{fa(tokenAge(p))}</text><title>راگناروک عصر {fa(tokenAge(p))}</title></g>}
+                    {tokenAge(p) > 0 && !dead && <g transform={`translate(${rw.x + 16} ${rw.y - 14})`} className="blr-ragn"><circle r="7" /><text textAnchor="middle" dy="3">{fa(tokenAge(p))}</text><title>راگناروک عصر {fa(tokenAge(p))}</title></g>}
                   </g>
                 );
               })}
               {FJORD_IDS.map((f) => {
-                const c = fjordPos(f);
+                const c = FJORD_AT[f];
                 const here = byPlace(f);
                 const tg = targets.has(f);
                 const inBattle = battle && (FJORDS[f] as ProvinceId[]).includes(battle.at);
@@ -290,7 +279,7 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
                   <g key={f} className={`blr-fjord${tg ? ' is-target' : ''}${inBattle ? ' is-battle' : ''}`} role={tg ? 'button' : 'group'} tabIndex={tg ? 0 : undefined}
                     aria-label={`خلیج میان ${PROVINCES[FJORDS[f][0]].nameFa} و ${PROVINCES[FJORDS[f][1]].nameFa}${tg ? '، قابل انتخاب' : ''}`}
                     onClick={tg ? () => clickPlace(f) : undefined} onKeyDown={tg ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickPlace(f); } } : undefined}>
-                    <ellipse cx={c.x} cy={c.y} rx="44" ry="34" className="blr-fjord__water" />
+                    <ellipse cx={c[0]} cy={c[1]} rx="30" ry="24" className="blr-fjord__water" />
                     {here.map((fg, k) => renderFigure(fg, fjordSlot(f, k)))}
                   </g>
                 );
@@ -299,12 +288,11 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
                 role={targets.has('ygg') || sources.has('ygg') ? 'button' : 'group'} tabIndex={targets.has('ygg') || sources.has('ygg') ? 0 : undefined}
                 aria-label={`ایگدراسیل${view.pillaged.includes('ygg') ? '، غارت‌شده' : ''}`}
                 onClick={targets.has('ygg') || sources.has('ygg') ? () => clickPlace('ygg') : undefined}>
-                <circle cx={C} cy={C} r="108" className="blr-prov__land blr-ygg__land" />
-                <g className="blr-tree" aria-hidden transform={`translate(${C} ${C - 4})`}><path d="M-6 56 C-4 20 -14 6 -34 -4 M6 56 C4 20 14 6 34 -4 M0 56 V-20 M0 10 C-14 -2 -26 -14 -40 -34 M0 10 C14 -2 26 -14 40 -34 M0 -20 C-6 -34 -8 -44 -6 -54 M0 -20 C6 -34 8 -44 6 -54" className="blr-tree__bough" /><g className="blr-tree__leaf"><circle cx="-40" cy="-38" r="16" /><circle cx="40" cy="-38" r="16" /><circle cx="-8" cy="-58" r="18" /><circle cx="10" cy="-56" r="16" /><circle cx="-24" cy="-22" r="13" /><circle cx="24" cy="-22" r="13" /></g></g>
-                <text x={C} y={C - 68} className="blr-prov__name" textAnchor="middle">ایگدراسیل</text>
+                <circle cx={YGG[0]} cy={YGG[1] + 30} r="75" className="blr-prov__land blr-ygg__land" />
+                <text x={YGG[0]} y={YGG[1] - 12} className="blr-prov__name" textAnchor="middle">ایگدراسیل</text>
                 {byPlace('ygg').map((f, k) => renderFigure(f, slotPositions('ygg')[k] ?? slotPositions('ygg')[0]!))}
-                <g transform={`translate(${C} ${C + 82})`} className={`blr-token${view.pillaged.includes('ygg') ? ' is-flipped' : ''}`}>
-                  <circle r="16" /><text textAnchor="middle" dy="5">{view.pillaged.includes('ygg') ? '✕' : REWARD_GLYPH.all}</text>
+                <g transform={`translate(${YGG[0]} ${YGG[1]})`} className={`blr-token${view.pillaged.includes('ygg') ? ' is-flipped' : ''}`}>
+                  <circle r="11" /><text textAnchor="middle" dy="4">{view.pillaged.includes('ygg') ? '✕' : REWARD_GLYPH.all}</text>
                   <title>{view.pillaged.includes('ygg') ? 'غارت شده' : 'پاداش: یک پله به هر سه ویژگی'}</title>
                 </g>
               </g>

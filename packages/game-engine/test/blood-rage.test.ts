@@ -145,12 +145,12 @@ describe('blood rage actions', () => {
     const s = st(snap);
     expect(boardCount(s, 0)).toBe(hornsOf(s, 0));
     expect(reject(snap, 0, { type: 'invade', figure: fig(s, 0, 'warrior', 4).id, at: 'elv' })).toBe('BR_HORNS');
-    const full = arrange(3, (x) => { clean(x); for (let k = 0; k < 4; k++) put(x, 1, 'warrior', k, 'myr'); x.clans[0]!.steps.horns = 3; });
-    expect(villagesFree(st(full), 'myr')).toBe(0);
-    expect(reject(full, 0, { type: 'invade', figure: fig(st(full), 0, 'warrior').id, at: 'myr' })).toBe('BR_BAD_PLACE');
+    const full = arrange(3, (x) => { clean(x); for (let k = 0; k < 4; k++) put(x, 1, 'warrior', k, 'elv'); x.clans[0]!.steps.horns = 3; });
+    expect(villagesFree(st(full), 'elv')).toBe(0);
+    expect(reject(full, 0, { type: 'invade', figure: fig(st(full), 0, 'warrior').id, at: 'elv' })).toBe('BR_BAD_PLACE');
   });
   it('march: 1 rage, one province to one other, needs empty villages, ships cannot march', () => {
-    let snap = arrange(2, (s) => { clean(s); put(s, 0, 'warrior', 0, 'myr'); put(s, 0, 'warrior', 1, 'myr'); put(s, 0, 'ship', 0, 'f1'); for (let k = 0; k < 3; k++) put(s, 1, 'warrior', k, 'gim'); });
+    let snap = arrange(2, (s) => { clean(s); put(s, 0, 'warrior', 0, 'myr'); put(s, 0, 'warrior', 1, 'myr'); put(s, 0, 'ship', 0, 'f1'); for (let k = 0; k < 4; k++) put(s, 1, 'warrior', k, 'gim'); });
     const ids = [fig(st(snap), 0, 'warrior', 0).id, fig(st(snap), 0, 'warrior', 1).id];
     expect(reject(snap, 0, { type: 'march', from: 'myr', to: 'gim', figures: ids })).toBe('BR_NO_ROOM');
     expect(reject(snap, 0, { type: 'march', from: 'myr', to: 'elv', figures: [fig(st(snap), 0, 'ship').id] })).toBe('BR_BAD_FIGURE');
@@ -214,24 +214,24 @@ describe('blood rage pillage and battle', () => {
   /** Seat 0 pillages myr where seat 1 also stands; seat 2 has a warrior in the neighbouring elv. */
   function standoff(edit: (s: BRState) => void = () => undefined, players = 3): EngineSnapshot {
     return arrange(players, (s) => {
-      clean(s);
-      put(s, 0, 'leader', 0, 'myr'); put(s, 0, 'warrior', 0, 'myr');
-      put(s, 1, 'warrior', 0, 'myr'); put(s, 1, 'warrior', 1, 'myr');
+      clean(s); s.rewards.elv = 'glory';
+      put(s, 0, 'leader', 0, 'elv'); put(s, 0, 'warrior', 0, 'elv');
+      put(s, 1, 'warrior', 0, 'elv'); put(s, 1, 'warrior', 1, 'elv');
       edit(s);
     });
   }
   it('an unopposed pillage gives the reward and no battle glory', () => {
-    let snap = arrange(2, (s) => { clean(s); put(s, 0, 'leader', 0, 'elv'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
+    let snap = arrange(2, (s) => { clean(s); s.rewards.myr = 'axes'; put(s, 0, 'leader', 0, 'myr'); });
+    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
     expect(st(snap).battle).toBeNull();
-    expect(st(snap).pillaged).toEqual(['elv']);
+    expect(st(snap).pillaged).toEqual(['myr']);
     expect(st(snap).clans[0]!.steps.axes).toBe(1);
     expect(st(snap).clans[0]!.glory).toBe(0);
-    expect(reject(snap, 1, { type: 'pillage', at: 'elv' })).not.toBe('ACCEPTED');
+    expect(reject(snap, 1, { type: 'pillage', at: 'myr' })).not.toBe('ACCEPTED');
   });
   it('battle: cards are chosen secretly, the strongest side wins, glory = Axes, losers die, the winner pillages', () => {
     let snap = standoff((s) => { give(s, 0, 'b1-bash'); give(s, 1, 'b1-trickery'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     // call to battle: nobody has anybody to bring, so it moves straight to the cards
     expect(st(snap).battle?.stage).toBe('cards');
     expect(pending(st(snap)).sort()).toEqual([0, 1]);
@@ -246,11 +246,11 @@ describe('blood rage pillage and battle', () => {
     expect(s.figs.filter((f) => f.seat === 1 && f.at === 'valhalla')).toHaveLength(2);
     expect(s.clans[0]!.hand).toHaveLength(0);
     expect(s.clans[1]!.hand).toHaveLength(1);
-    expect(s.pillaged).toContain('myr');
+    expect(s.pillaged).toContain('elv');
   });
   it('a tie: everybody loses, nobody pillages', () => {
     let snap = standoff((s) => { give(s, 0, 'b1-bash'); give(s, 1, 'b1-smash'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
     // 3 + 2 vs 2 + 3? leader 2 + warrior 1 + Bash 2 = 5; 2 warriors 2 + Smash 3 = 5
@@ -262,30 +262,30 @@ describe('blood rage pillage and battle', () => {
   });
   it('call to battle: an adjacent clan may bring a figure, the pillager last; ships and non-adjacent figures cannot come', () => {
     let snap = standoff((s) => {
-      put(s, 1, 'warrior', 1, 'elv'); // the standoff in myr now has a free village
-      put(s, 2, 'warrior', 0, 'elv'); put(s, 2, 'warrior', 1, 'utg'); put(s, 2, 'ship', 0, 'f1');
+      put(s, 1, 'warrior', 1, 'myr'); // the standoff in myr now has a free village
+      put(s, 2, 'warrior', 0, 'myr'); put(s, 2, 'warrior', 1, 'utg'); put(s, 2, 'ship', 0, 'f1');
       give(s, 2, 'b1-bash');
     });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     expect(st(snap).battle?.stage).toBe('call');
     expect(pending(st(snap))).toEqual([1]);
     snap = act(snap, 1, { type: 'call' });
     expect(pending(st(snap))).toEqual([2]);
-    expect(callable(st(snap), 2, 'myr').map((f) => f.at)).toEqual(['elv']);
+    expect(callable(st(snap), 2, 'elv').map((f) => f.at)).toEqual(['myr']);
     expect(reject(snap, 2, { type: 'call', figure: fig(st(snap), 2, 'warrior', 1).id })).toBe('BR_BAD_CALL');
     snap = act(snap, 2, { type: 'call', figure: fig(st(snap), 2, 'warrior', 0).id });
-    expect(fig(st(snap), 2, 'warrior', 0).at).toBe('myr');
+    expect(fig(st(snap), 2, 'warrior', 0).at).toBe('elv');
     expect(st(snap).battle?.stage).toBe('cards');
   });
   it('Odin\'s Smite destroys a warrior of every opponent first; Thor\'s Primacy cancels the text', () => {
     let snap = standoff((s) => { give(s, 0, 'b1-smite'); give(s, 1, 'b1-bash'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
     // seat 1 lost a warrior before comparing: 1 + 2 = 3 against leader 2 + warrior 1 + 1 = 4
     expect(st(snap).figs.filter((f) => f.seat === 1 && f.at === 'valhalla')).toHaveLength(2);
     let primacy = standoff((s) => { give(s, 0, 'b1-smite'); give(s, 1, 'b3-primacy'); });
-    primacy = act(primacy, 0, { type: 'pillage', at: 'myr' });
+    primacy = act(primacy, 0, { type: 'pillage', at: 'elv' });
     primacy = act(primacy, 0, { type: 'play', card: st(primacy).clans[0]!.hand[0]! });
     primacy = act(primacy, 1, { type: 'play', card: st(primacy).clans[1]!.hand[0]! });
     // Primacy (+3) with both warriors alive = 5 beats 4; seat 0 loses, seat 1 (not the pillager) gets only Axes glory
@@ -294,19 +294,19 @@ describe('blood rage pillage and battle', () => {
   });
   it('Frigga\'s Protection lets a loser pay Rage to keep figures; Valkyrie and Thor\'s Glory pay out', () => {
     let snap = standoff((s) => { give(s, 0, 'b1-tsmite'); upgrade(s, 1, 'u2-protection', 'clan'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     expect(st(snap).queue[0]?.k).toBe('protect');
     snap = act(snap, 1, { type: 'decide', figures: [fig(st(snap), 1, 'warrior', 0).id] });
     expect(st(snap).clans[1]!.rage).toBe(5);
-    expect(fig(st(snap), 1, 'warrior', 0).at).toBe('myr');
+    expect(fig(st(snap), 1, 'warrior', 0).at).toBe('elv');
     expect(fig(st(snap), 1, 'warrior', 1).at).toBe('valhalla');
     const s = st(standoff((x) => { give(x, 0, 'b1-tsmite'); upgrade(x, 0, 'u1-glory', 'clan'); }));
     expect(has(s, 0, 'u1-glory')).toBe(true);
   });
   it('Heimdall\'s Watch: all revealed cards go, the Watch player gains their strength in glory, everybody plays again', () => {
     let snap = standoff((s) => { give(s, 0, 'b2-watch', 'b1-bash'); give(s, 1, 'b1-tsmite', 'b1-smash'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     const [watch, bash] = st(snap).clans[0]!.hand as [number, number];
     snap = act(snap, 0, { type: 'play', card: watch });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
@@ -317,7 +317,7 @@ describe('blood rage pillage and battle', () => {
   });
   it('Heimdall\'s Eye is optional and decided after the others are known', () => {
     let snap = standoff((s) => { give(s, 0, 'b2-eye'); give(s, 1, 'b1-bash'); });
-    snap = act(snap, 0, { type: 'pillage', at: 'myr' });
+    snap = act(snap, 0, { type: 'pillage', at: 'elv' });
     snap = act(snap, 0, { type: 'play', card: st(snap).clans[0]!.hand[0]! });
     snap = act(snap, 1, { type: 'play', card: st(snap).clans[1]!.hand[0]! });
     expect(st(snap).queue[0]?.k).toBe('late');

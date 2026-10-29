@@ -1,6 +1,6 @@
 // Blood Rage («خشم خون»): static data. Cards follow the Board Game Arena card list (82 cards, copies per player count);
-// the board layout and the stat tracks are reconstructed (see DECISIONS.md, «Blood Rage»): provinces, regions, villages,
-// fjords and track steps are a faithful-in-spirit model, not a scan of the printed board.
+// the board layout (provinces, regions, villages, fjords) follows the printed board shown in the rulebook; the stat track
+// steps are reconstructed (see DECISIONS.md, «Blood Rage»).
 
 export type Region = 'manheim' | 'alfheim' | 'jotunheim';
 export type ProvinceId = 'ygg' | 'myr' | 'elv' | 'ang' | 'gim' | 'and' | 'utg' | 'hor' | 'mus';
@@ -9,16 +9,16 @@ export type Place = ProvinceId | FjordId;
 
 export interface ProvinceDef { nameFa: string; region: Region | null; villages: number }
 /** Outer provinces in ring order (clockwise); Yggdrasil in the middle touches all of them. */
-export const RING: ProvinceId[] = ['myr', 'elv', 'ang', 'gim', 'and', 'utg', 'hor', 'mus'];
+export const RING: Exclude<ProvinceId, 'ygg'>[] = ['myr', 'elv', 'ang', 'mus', 'hor', 'utg', 'and', 'gim'];
 export const PROVINCES: Record<ProvinceId, ProvinceDef> = {
   ygg: { nameFa: 'ایگدراسیل', region: null, villages: 0 },
-  myr: { nameFa: 'میرک‌ولر', region: 'manheim', villages: 4 },
-  elv: { nameFa: 'الواگر', region: 'manheim', villages: 5 },
-  ang: { nameFa: 'آنگربودا', region: 'manheim', villages: 3 },
-  gim: { nameFa: 'گیملی', region: 'alfheim', villages: 4 },
+  myr: { nameFa: 'میرک‌ولر', region: 'manheim', villages: 3 },
+  elv: { nameFa: 'الواگر', region: 'manheim', villages: 4 },
+  ang: { nameFa: 'آنگربودا', region: 'manheim', villages: 5 },
+  gim: { nameFa: 'گیملی', region: 'alfheim', villages: 5 },
   and: { nameFa: 'آندلانگ', region: 'alfheim', villages: 3 },
-  utg: { nameFa: 'اوتگارد', region: 'jotunheim', villages: 4 },
-  hor: { nameFa: 'هورگر', region: 'jotunheim', villages: 3 },
+  utg: { nameFa: 'اوتگارد', region: 'jotunheim', villages: 3 },
+  hor: { nameFa: 'هورگر', region: 'jotunheim', villages: 4 },
   mus: { nameFa: 'موسپل‌هایم', region: 'jotunheim', villages: 5 }
 };
 export const REGION_FA: Record<Region, string> = { manheim: 'مانهایم', alfheim: 'آلفهایم', jotunheim: 'یوتون‌هایم' };
@@ -27,7 +27,7 @@ export const OUTER = RING;
 
 /** Each fjord lies between two neighbouring provinces and supports both. */
 export const FJORDS: Record<FjordId, [ProvinceId, ProvinceId]> = {
-  f1: ['myr', 'elv'], f2: ['ang', 'gim'], f3: ['and', 'utg'], f4: ['hor', 'mus']
+  f1: ['elv', 'ang'], f2: ['mus', 'hor'], f3: ['utg', 'and'], f4: ['gim', 'myr']
 };
 export const FJORD_IDS = Object.keys(FJORDS) as FjordId[];
 export const isFjord = (p: Place): p is FjordId => p.startsWith('f');

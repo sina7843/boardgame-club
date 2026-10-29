@@ -181,3 +181,33 @@ html[dir="rtl"] .blr-card__num { translate: 50% 0; }
 .blr-battle__sides li { background: #1a120a; border: 1px solid #6d5230; border-inline-start: 6px solid var(--c); }
 .blr-choice { background: linear-gradient(180deg, #4a3a1a, #2a210d); border: 3px solid var(--blr-gold); }
 .blr button, .blr [role="button"].bgv-btn { touch-action: manipulation; }
+
+/* ---------- v3: the printed board picture is the map; regions are invisible hit areas that light up ---------- */
+.blr-map { border-radius: 6px; box-shadow: 0 6px 22px rgb(0 0 0 / 0.55); background: #12202a; }
+.blr-board { image-rendering: auto; pointer-events: none; }
+.blr-prov__land { filter: none; stroke: none; fill: none; opacity: 1; }
+.blr-prov__land circle { fill: transparent; stroke: none; }
+.blr-ygg__land { fill: transparent; stroke: none; }
+.blr-prov.is-target .blr-prov__land, .blr-prov.is-source .blr-prov__land, .blr-prov.is-battle .blr-prov__land, .blr-prov.is-doom .blr-prov__land, .blr-prov.is-destroyed .blr-prov__land { filter: none; animation: none; stroke: none; }
+.blr-prov.is-target .blr-prov__land { opacity: 0.4; animation: blr-pulse 1.4s ease-in-out infinite; }
+.blr-prov.is-target .blr-prov__land circle, .blr-ygg.is-target .blr-ygg__land { fill: #ffe28a; }
+.blr-prov.is-source .blr-prov__land { opacity: 0.35; }
+.blr-prov.is-source .blr-prov__land circle, .blr-ygg.is-source .blr-ygg__land { fill: #8fe3ff; }
+.blr-prov.is-battle .blr-prov__land { opacity: 0.35; }
+.blr-prov.is-battle .blr-prov__land circle, .blr-ygg.is-battle .blr-ygg__land { fill: #ff6b5b; }
+.blr-prov.is-doom .blr-prov__land { opacity: 0.3; }
+.blr-prov.is-doom .blr-prov__land circle { fill: #d4574e; }
+.blr-prov.is-destroyed .blr-prov__land { opacity: 0.82; }
+.blr-prov.is-destroyed .blr-prov__land circle { fill: #0b0707; }
+.blr-slot { fill: rgb(0 0 0 / 0.12); stroke: rgb(255 255 255 / 0.55); stroke-width: 1.2; stroke-dasharray: 2 2; }
+.blr-prov__name { font-size: 9.5px; stroke-width: 2.4px; }
+.blr-prov__dead { font-size: 9px; }
+.blr-fjord__water { fill: #2a7ba5; fill-opacity: 0.25; stroke: #bfe6f7; stroke-width: 1.5; stroke-dasharray: 2 3; }
+.blr-fjord.is-target .blr-fjord__water { fill: #ffe28a; fill-opacity: 0.45; stroke: #ffe28a; stroke-width: 2.5; filter: none; }
+.blr-fjord.is-battle .blr-fjord__water { stroke: #ff6b5b; stroke-width: 3; }
+.blr-token circle { stroke-width: 1.5; }
+.blr-token text { font-size: 8.5px; }
+.blr-ragn text { font-size: 8px; }
+.blr-fig__body { stroke-width: 3; }
+.blr-fig.is-sel .blr-fig__body, .blr-fig.is-hot .blr-fig__body { stroke-width: 5; }
+.blr-fig.is-hint .blr-fig__body { stroke-width: 6; }
