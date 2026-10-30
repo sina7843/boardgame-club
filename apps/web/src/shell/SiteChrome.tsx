@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import type { GameSummary } from '@bg/contracts';
 import { AccountMenu, SiteFooter, SiteSearch, type SiteSearchResult } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
@@ -28,14 +29,35 @@ const asResult = (g: GameSummary): SiteSearchResult => ({
 export function HeaderSearch({ sheet, onClose }: { sheet?: boolean; onClose?: () => void }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const games = useApi<{ items: GameSummary[] }>(open || sheet ? '/games' : null);
   const all = useMemo(() => (games.data?.items ?? []).filter((g) => !g.isTestGame), [games.data]);
   const results = useMemo(() => (q ? searchGames(all, q) : all.slice(0, 6)).map(asResult), [all, q]);
   const empty = q !== '' && results.length === 0;
+  const allHref = q.trim() ? `/games?q=${encodeURIComponent(q.trim())}` : '/games';
+  // The header popover closes on a click or focus outside it and after navigating (the DS component only closes on Esc).
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    if (sheet || !open) return;
+    const away = (e: Event) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('pointerdown', away); document.addEventListener('focusin', away);
+    return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('focusin', away); };
+  }, [open, sheet]);
+  // Enter (the phone keyboard's search key) with no row picked: the only match, else every match on the games page.
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Enter' || !q.trim() || (e.target as HTMLElement).getAttribute('aria-activedescendant')) return;
+    e.preventDefault();
+    setOpen(false);
+    navigate(results.length === 1 && results[0]!.href ? results[0]!.href : allHref);
+  };
   return (
-    <SiteSearch value={q} onChange={setQ} open={sheet ? true : open} onOpenChange={setOpen} results={results} state={q ? (empty ? 'empty' : 'results') : 'idle'}
-      allHref="/games" {...(sheet ? { sheet: true, ...(onClose ? { onClose } : {}) } : {})}
-      emptyTitle={`بازی‌ای با «${q}» پیدا نشد`} emptyText="نام فارسی یا لاتین بازی را امتحان کنید، یا فهرست همهٔ بازی‌ها را ببینید." />
+    <div ref={box} className="app-search" onKeyDown={onKeyDown}>
+      <SiteSearch value={q} onChange={setQ} open={sheet ? true : open} onOpenChange={setOpen} results={results} state={q ? (empty ? 'empty' : 'results') : 'idle'}
+        allHref={allHref} {...(sheet ? { sheet: true, ...(onClose ? { onClose } : {}) } : {})}
+        emptyTitle={`بازی‌ای با «${q}» پیدا نشد`} emptyText="نام فارسی یا لاتین بازی را امتحان کنید، یا فهرست همهٔ بازی‌ها را ببینید." />
+    </div>
   );
 }
 

@@ -1505,3 +1505,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Tabs could shrink inside their scrolling row, so labels overlapped on phones: `.bgv-tab` no longer shrinks.
 - «نوبت شماست» toast/tone only when my seat becomes pending; later `turn.started` events while it stays pending only move the timers (they came after every move, hence the stacked toasts).
 - The public profile «پروفایل دریافت نشد» capture was the QA harness without a friend to open, not an app error (checked with a real user at 390).
+
+## Header search and admin tables (2026-10-30, owner request)
+- Search: the desktop popover now closes on a click/focus outside it and after navigating; Enter (also the phone keyboard's search key) with no row picked opens the only match, else /games?q=…; «بستن» on a directly opened /search goes home instead of leaving the site.
+- Admin «میزها» tab (/admin?tab=tables): every table newest first with status counts, game and player-name filters, tutorials hidden by default; seats with placements, bot/left marks, moves (revision), result reason and dates; player names link to «بازیکنان». API GET /admin/tables (admin only) returns seats, revision and the stored outcome, never game state. The admin tabs now live in the URL (?tab=).

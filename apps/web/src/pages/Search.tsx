@@ -6,5 +6,6 @@ import { HeaderSearch } from '../shell/SiteChrome.tsx';
 export function SearchPage() {
   usePageTitle('جست‌وجو');
   const navigate = useNavigate();
-  return <HeaderSearch sheet onClose={() => navigate(-1)} />;
+  // Opened directly (no page of ours behind it): «بستن» goes home instead of leaving the site.
+  return <HeaderSearch sheet onClose={() => ((window.history.state as { idx?: number } | null)?.idx ? navigate(-1) : navigate('/'))} />;
 }

@@ -272,3 +272,16 @@
   .ac-login__turn { display: none; }
   .ac-login__seats { display: flex; gap: var(--space-2); justify-content: center; margin-block-start: var(--space-3); }
 }
+
+/* Admin «میزها»: filters, then one row per table (head, seats with placements, dates). */
+.ac-tblfilters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.ac-tblfilters > :first-child { flex: 1 1 220px; }
+.ac-tbllist { list-style: none; margin: 0; padding: 0; }
+.ac-tblrow { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-block-start: 1px solid var(--line); }
+.ac-tblrow__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.ac-tblrow__head > .bgv-btn { margin-inline-start: auto; }
+.ac-tblrow__seats { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.ac-tblseat { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--surface-sunken); font-size: 14px; }
+.ac-tblseat.is-first { box-shadow: var(--shadow-press-primary); }
+.ac-tblrow__meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.ac-tblpager { display: flex; align-items: center; justify-content: center; gap: var(--space-3); padding: var(--space-3); border-block-start: 1px solid var(--line); }

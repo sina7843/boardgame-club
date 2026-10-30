@@ -10,19 +10,23 @@ import { faNum } from '../lib/format.ts';
 import { GameAccess, MissionsAdmin, PlansAdmin, ReferralAdmin, SeasonsAdmin, SupportAdmin, WelcomePremiumAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
 import { PlayersAdmin } from './AdminPlayers.tsx';
+import { TablesAdmin } from './AdminTables.tsx';
 import { SiteAdmin } from './AdminSite.tsx';
 import { TournamentsAdmin } from './AdminTournaments.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
 const TABS = [
-  { value: 'games', label: 'بازی‌ها' }, { value: 'players', label: 'بازیکنان' }, { value: 'progress', label: 'مأموریت و فصل' }, { value: 'tournaments', label: 'تورنمنت‌ها' }, { value: 'plans', label: 'اشتراک و سکه' },
+  { value: 'games', label: 'بازی‌ها' }, { value: 'players', label: 'بازیکنان' }, { value: 'tables', label: 'میزها' }, { value: 'progress', label: 'مأموریت و فصل' }, { value: 'tournaments', label: 'تورنمنت‌ها' }, { value: 'plans', label: 'اشتراک و سکه' },
   { value: 'referral', label: 'دعوت دوستان' }, { value: 'support', label: 'پشتیبانی' }, { value: 'site', label: 'صفحه‌های سایت' }, { value: 'incident', label: 'توقف سراسری' }
 ];
 
 export function Admin() {
   usePageTitle('مدیریت');
   const { me, status } = useSession();
-  const [tab, setTab] = useState('games');
+  // The tab lives in the URL (?tab=…) so a player link from «میزها» opens that player in «بازیکنان».
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') ?? 'games';
+  const setTab = (v: string) => setParams({ tab: v });
   const isAdmin = !!me?.roles.includes('admin');
   if (status === 'loading') return <StateBlock kind="loading" title="در حال بررسی دسترسی…" />;
   if (!me) return <StateBlock kind="denied" title="ابتدا وارد شوید" action={<Button variant="primary" href="/login?next=/admin">ورود</Button>} />;
@@ -33,6 +37,7 @@ export function Admin() {
       <PageHead title="مدیریت" sub="هر تغییر با علت در گزارش عملیات ثبت می‌شود." />
       {tab === 'games' && <GamesAdmin />}
       {tab === 'players' && <PlayersAdmin />}
+      {tab === 'tables' && <TablesAdmin />}
       {tab === 'progress' && <><MissionsAdmin /><SeasonsAdmin /></>}
       {tab === 'tournaments' && <TournamentsAdmin />}
       {tab === 'plans' && <><WelcomePremiumAdmin /><PlansAdmin /><PlansAdmin path="/admin/coin-packs" title="بسته‌های سکه و قیمت" /></>}

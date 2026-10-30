@@ -3,12 +3,12 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, homeOverview as homeOverviewSchema, liveTableItem, myTableItem, notificationItem, openTableItem,
+  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, adminTables as adminTablesSchema, adminTablesQuery, homeOverview as homeOverviewSchema, liveTableItem, myTableItem, notificationItem, openTableItem,
   receiptLookup, rematchBody, tableSnapshot, tutorialProgressItem
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, homeOverview, joinTable, leaveTable, listLiveTables, listMyTables,
+  adminTablesList, buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, homeOverview, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
   skipTutorial, startTutorial, tableContextAt, tableRecord, voteRematch,
   fairPlayReview, listFairPlayReports, recordFocus, reportPlayer, resolveFairPlayReport
@@ -87,6 +87,14 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   }, async (req, reply) => {
     await recordFocus(db, requireUser(req).userId, req.params.id, req.body.hidden);
     return reply.code(204).send(null);
+  });
+
+  r.get('/admin/tables', {
+    schema: { tags: ['admin'], summary: 'All tables with status, players and result (filter by status, game, player name)', querystring: adminTablesQuery,
+      response: { 200: adminTablesSchema } }
+  }, async (req) => {
+    requireRole(req, 'admin');
+    return adminTablesList(db, req.query);
   });
 
   r.get('/admin/fair-play/reports', {

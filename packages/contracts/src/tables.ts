@@ -443,3 +443,29 @@ export const GAME_ERRORS_FA: Record<string, string> = {
   BR_BAD_CHOICE: 'این انتخاب معتبر نیست.',
   BR_PHASE: 'این کنش در این مرحله ممکن نیست.',
 };
+
+/** Admin: every table ever created with its status, seats and result (list for /admin «میزها»). */
+export const adminTableStatus = z.enum(['open', 'active', 'paused', 'finished', 'cancelled']);
+export const adminTablesQuery = z.object({
+  status: z.enum(['all', 'open', 'active', 'paused', 'finished', 'cancelled']).default('all'),
+  gameId: z.string().max(64).optional(),
+  q: z.string().trim().max(64).optional(),
+  tutorials: z.enum(['true', 'false']).default('false'),
+  offset: z.coerce.number().int().min(0).default(0)
+});
+export const adminTableItem = z.object({
+  id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), status: adminTableStatus,
+  pace: z.enum(['live', 'turn']), competition: z.enum(['friendly', 'ranked']), visibility: z.enum(['public', 'private']),
+  kind: z.enum(['normal', 'matchmade', 'tournament', 'tutorial']), capacity: z.number().int(),
+  host: z.string().nullable(),
+  seats: z.array(z.object({ seat: z.number().int(), name: z.string(), bot: z.boolean(), userId: z.uuid().nullable(), place: z.number().int().nullable(), left: z.boolean() })),
+  moves: z.number().int(),
+  resultReason: z.string().nullable(),
+  createdAt: z.iso.datetime(), startedAt: z.iso.datetime().nullable(), finishedAt: z.iso.datetime().nullable()
+});
+export const adminTables = z.object({
+  items: z.array(adminTableItem), total: z.number().int(), hasMore: z.boolean(),
+  counts: z.record(adminTableStatus, z.number().int())
+});
+export type AdminTableItem = z.infer<typeof adminTableItem>;
+export type AdminTables = z.infer<typeof adminTables>;

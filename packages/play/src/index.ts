@@ -18,3 +18,4 @@ export * from './swiss-rank.ts';
 export * from './rematch.ts';
 export * from './presence.ts';
 export * from './home.ts';
+export * from './admin-tables.ts';

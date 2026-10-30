@@ -117,3 +117,6 @@
 
 /* Tabs scroll sideways (bundle.css) but the items could still shrink, so labels and count badges overlapped on phones. */
 .bgv-tabs > .bgv-tab { flex: none; }
+
+/* HeaderSearch wraps the DS search only to watch clicks outside it; the wrapper takes no box of its own. */
+.app-search { display: contents; }

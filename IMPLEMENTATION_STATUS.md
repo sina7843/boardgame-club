@@ -938,3 +938,6 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   Checks: web typecheck, eslint, ds-check --changed PASS; e2e referral, shell, release, coins at 1440 + 360 pass (axe now clean
   on dashboard and plans); design-qa captures Shop/Friends/Progress/Wallet. Known failing before this change (also on HEAD):
   social.spec.ts:32 on mobile-360 stops at «دور ۲ آشکار شد».
+- 2026-10-30 Header search fixes (outside click, Enter, direct-load close) and admin «میزها» (GET /admin/tables).
+  Checks: typecheck (web, play, api), eslint, ds-check PASS; api admin-tables.test.ts + home.test.ts 4/4; e2e search.spec.ts,
+  admin-tables.spec.ts, shell.spec.ts at 1440 + 360 pass.
