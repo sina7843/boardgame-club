@@ -154,10 +154,10 @@ export function CreateTable() {
           )}
 
           {mode !== 'bot' && (
-            <details className="bgv-card pg-step pg-more" open>
+            <details className="bgv-card pg-step pg-extra" open>
               <summary className="pg-step__head"><span className="pg-step__n">۳</span><div><h2 className="pg-h2">تنظیمات بیشتر</h2>
                 <p className="pg-meta">{PACE_FA[pace]}، {clocked ? String(options.clock) : durationFa(turnSeconds)}، دوستانه، {visibility === 'private' ? 'خصوصی' : 'عمومی'}{ruleFa ? `، ${ruleFa}` : ''}؛ با تغییر هر گزینه حالت «سفارشی» می‌شود</p></div>
-                <Icon name="chevron-down" className="pg-more__chev" /></summary>
+                <Icon name="chevron-down" className="pg-extra__chev" /></summary>
               <div className="pg-stack">
                 {g.paces.length > 1 ? (
                   <div className="pg-field"><span className="bgv-label">حالت بازی</span>

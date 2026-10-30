@@ -3,7 +3,9 @@ import { expect, test } from '@playwright/test';
 test('encyclopedia: list, filter by mechanic, open a game entry', async ({ page }, info) => {
   await page.goto('/wiki');
   await expect(page.getByRole('heading', { name: 'دانشنامهٔ بازی‌ها', level: 1 })).toBeVisible();
-  await expect(page.getByRole('main').getByRole('link', { name: /کاتان/ })).toBeVisible(); // the footer also links «کاتان آنلاین»
+  // Eight entries at first (Wiki-Desktop), then «نمایش ۸ بازی دیگر».
+  await expect(page.getByRole('main').locator('.bgv-gamecard')).toHaveCount(8);
+  await expect(page.getByRole('button', { name: /نمایش ۸ بازی دیگر/ })).toBeVisible();
 
   await page.getByLabel('سازوکار').selectOption({ label: 'مبادله' });
   await expect(page.getByRole('main').getByRole('link', { name: /کاتان/ })).toBeVisible();

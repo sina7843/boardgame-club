@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { normalizeSearch, type GameSummary } from '@bg/contracts';
-import { Button, Card, Chip, GameCard, PageHead, Select, Skeleton, StateBlock, TextField } from '@bg/ui/bgv';
+import { Button, Card, Chip, GameCard, PageHead, Progress, Select, Skeleton, StateBlock, TextField } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -87,6 +87,7 @@ export function GameWiki({ gameId }: { gameId: string }) {
   );
 }
 
+const PAGE = 8;
 type Sort = 'rank' | 'rating' | 'weight' | 'year';
 const SORTS: Record<Sort, (a: Bgg, b: Bgg) => number> = {
   rank: (a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9),
@@ -107,6 +108,9 @@ export function WikiPage() {
   const games = useApi<{ items: GameSummary[] }>('/games');
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState('');
+  // Wiki-Desktop: eight entries, then «نمایش ۸ بازی دیگر»; a new search or filter starts again from eight.
+  const [shown, setShown] = useState(PAGE);
+  useEffect(() => setShown(PAGE), [q, params]);
   const set = (key: string, value: string) =>
     setParams((p) => { const n = new URLSearchParams(p); if (value) n.set(key, value); else n.delete(key); return n; }, { replace: true });
   const category = params.get('category') ?? '', mechanic = params.get('mechanic') ?? '';
@@ -131,8 +135,8 @@ export function WikiPage() {
       <PageTabs group="games" />
       <PageHead title="دانشنامهٔ بازی‌ها" sub={<>تاریخچه، طراحان، پیچیدگی، امتیاز و سازوکار بازی‌های سایت، برگرفته از <bdi>BoardGameGeek</bdi>.</>} />
       <search>
-        <form className="pg-filters" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو در دانشنامه" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))' }}>
-          <div className="pg-q" style={{ gridColumn: 'span 2' }}><TextField label="جست‌وجو" icon="search" type="search" placeholder="نام بازی یا طراح" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <form className="pg-wikifilters" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو در دانشنامه">
+          <div><TextField label="جست‌وجو" icon="search" type="search" placeholder="نام بازی یا طراح" value={q} onChange={(e) => setQ(e.target.value)} /></div>
           <Select label="دسته" value={category} onChange={(e) => set('category', e.target.value)} options={[{ value: '', label: 'همه' }, ...categories]} />
           <Select label="سازوکار" value={mechanic} onChange={(e) => set('mechanic', e.target.value)} options={[{ value: '', label: 'همه' }, ...mechanics]} />
           <Select label="مرتب‌سازی" value={sort} onChange={(e) => set('sort', e.target.value === 'rank' ? '' : e.target.value)}
@@ -148,7 +152,7 @@ export function WikiPage() {
       ) : (
         <>
           <b className="t-body" role="status" aria-live="polite">{faNum(entries.length)} بازی</b>
-          <div className="bgv-grid pg-wiki">{entries.map(({ s, g, fa }) => (
+          <div className="pg-wiki">{entries.slice(0, shown).map(({ s, g, fa }) => (
             <GameCard key={s.id} href={`/games/${s.id}#wiki`} art={<GameCover gameId={s.id} title="" />} title={s.nameFa} latin={g.name}
               aria-label={`${s.nameFa} (${g.name})`}
               meta={[
@@ -160,6 +164,13 @@ export function WikiPage() {
               ]}
               footer={fa?.taglineFa ? <p className="pg-wiki__tag">{fa.taglineFa}</p> : undefined} />
           ))}</div>
+          {entries.length > shown && (
+            <div className="pg-more">
+              <span className="t-caption bgv-muted">{faNum(shown)} از {faNum(entries.length)} بازی</span>
+              <Progress aria-label="نمایش‌داده‌شده" value={shown / entries.length} className="pg-more__bar" />
+              <Button onClick={() => setShown(shown + PAGE)}>نمایش {faNum(Math.min(PAGE, entries.length - shown))} بازی دیگر</Button>
+            </div>
+          )}
           <p className="bgv-hint">داده‌ها از <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer"><bdi>BoardGameGeek</bdi></a>، به‌روزرسانی {jalaliDate(data.fetchedAt)}.</p>
         </>
       )}

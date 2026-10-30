@@ -210,9 +210,9 @@ button.cover-flip { cursor: pointer; }
 .pg-seats > li > :first-child { flex: 1; min-inline-size: 0; }
 .pg-seats > .pg-seats__empty { justify-content: center; border-style: dashed; }
 .pg-seats__empty .pg-meta { display: inline-flex; align-items: center; gap: 6px; }
-.pg-more > summary { cursor: pointer; list-style: none; }
-.pg-more > summary::-webkit-details-marker { display: none; }
-.pg-more[open] .pg-more__chev { transform: rotate(180deg); }
+.pg-extra > summary { cursor: pointer; list-style: none; }
+.pg-extra > summary::-webkit-details-marker { display: none; }
+.pg-extra[open] .pg-extra__chev { transform: rotate(180deg); }
 @media (max-width: 899px) {
   .pg-modes, .pg-players { grid-template-columns: minmax(0, 1fr); }
 }
@@ -245,3 +245,14 @@ button.cover-flip { cursor: pointer; }
 .pg-flist__row > :first-child { flex: 1; min-inline-size: 0; }
 .pg-flist__n { font-size: 13px; color: var(--text-muted); }
 .pg-flist > .bgv-btn { justify-self: start; }
+
+/* Wiki-Desktop: search and three selects in one row, four entries per row, eight at a time. */
+.pg-wikifilters { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: var(--space-3); align-items: end; }
+.pg-wiki { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+.pg-more__bar { inline-size: 200px; }
+@media (max-width: 1199px) { .pg-wiki { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 899px) {
+  .pg-wikifilters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pg-wikifilters > :first-child { grid-column: 1 / -1; }
+  .pg-wiki { grid-template-columns: minmax(0, 1fr); }
+}
