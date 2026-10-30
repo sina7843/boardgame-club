@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Badge, Button, Card, DataTable, Message, PageHead, Segmented, Select, StateBlock, Tabs, Textarea, TextField } from '@bg/ui/bgv';
+import { Badge, Button, Card, DataTable, Icon, Message, PageHead, PageTabs, Segmented, Select, StateBlock, Tabs, Textarea, TextField } from '@bg/ui/bgv';
+import { ADMIN_TABS } from './adminTabs.ts';
 import { useToast } from '@bg/ui';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, jalaliDateTime } from '../lib/format.ts';
@@ -15,6 +16,7 @@ interface Detail {
   signals: Record<string, number>; priorSanctions: { id: string; kind: keyof typeof SANCTION_FA; reason: string; active: boolean }[];
 }
 const TARGET_FA: Record<string, string> = { user: 'رفتار کاربر', display_name: 'نام نمایشی', bio: 'متن معرفی', message: 'پیام', table: 'میز' };
+const TARGET_ICON: Record<string, string> = { user: 'door-open', display_name: 'user', bio: 'pencil', message: 'message-circle', table: 'layout-grid' };
 const SIGNAL_FA: Record<string, string> = { timeout_loss: 'باخت با اتمام زمان', resigned: 'انصراف', ready_no_show: 'عدم پذیرش حریف‌یابی' };
 const Loading = () => <StateBlock kind="loading" title="در حال بارگذاری…" />;
 
@@ -103,13 +105,15 @@ function Queue() {
       <Card flush className="sx-tablecard" aria-label="صف گزارش‌ها">
         <div className="bgv-row" style={{ padding: 'var(--space-4) var(--space-5)' }}>
           <Segmented label="وضعیت" value={status} onChange={(v) => { setStatus(v as typeof status); setOpen(null); }} options={[{ value: 'open', label: 'باز' }, { value: 'resolved', label: 'رسیدگی‌شده' }, { value: 'dismissed', label: 'ردشده' }]} />
+          <span className="bgv-spacer" />
+          {q.data && <span className="sx-cap">{faNum(q.data.items.length)} گزارش {status === 'open' ? 'باز' : status === 'resolved' ? 'رسیدگی‌شده' : 'ردشده'}، قدیمی‌ترین پایین</span>}
         </div>
         {q.error && <StateBlock kind="error" title="صف دریافت نشد" text={q.error.messageFa} />}
         {!q.data && !q.error && <Loading />}
         {q.data && (q.data.items.length === 0 ? <StateBlock kind="empty" title="گزارشی در این وضعیت نیست" /> : (
           <div className="bgv-scroll-x">
             <DataTable caption="گزارش‌ها" rows={q.data.items} selectedRow={q.data.items.findIndex((r) => r.id === open)} columns={[
-              { key: 'type', label: 'نوع', render: (r) => TARGET_FA[r.targetType] },
+              { key: 'type', label: 'نوع', render: (r) => <span className="bgv-row sx-modtype"><Icon name={TARGET_ICON[r.targetType] ?? 'flag'} size="sm" />{TARGET_FA[r.targetType]}</span> },
               { key: 'subject', label: 'موضوع', render: (r) => r.subject ? <bdi>{r.subject.displayName}</bdi> : '-' },
               { key: 'reason', label: 'توضیح', render: (r) => r.reason.slice(0, 60) },
               { key: 'date', label: 'تاریخ', render: (r) => jalaliDate(r.createdAt) },
@@ -184,12 +188,17 @@ export function ModerationPage() {
   usePageTitle('نظارت');
   const { me, status } = useSession();
   const [tab, setTab] = useState('reports');
+  const admin = !!me?.roles.includes('admin');
+  const reports = useApi<{ items: QueueItem[] }>(me ? '/mod/reports?status=open' : null);
+  const appeals = useApi<{ items: unknown[] }>(me ? '/mod/appeals' : null);
   if (status === 'loading') return <StateBlock kind="loading" title="در حال بررسی دسترسی…" />;
   if (!me?.roles.some((r) => r === 'moderator' || r === 'admin')) return <StateBlock kind="denied" title="دسترسی ندارید" text="این بخش فقط برای ناظران است." />;
   return (
     <>
-      <PageHead title="نظارت" sub="ناظر فقط داده همان گزارش را می‌بیند؛ هر مشاهده و تصمیم در سابقه ثبت می‌شود." />
-      <Tabs label="نظارت" value={tab} onChange={setTab} items={[{ value: 'reports', label: 'گزارش‌ها' }, { value: 'appeals', label: 'اعتراض‌ها' }, { value: 'audit', label: 'سابقه' }]} />
+      {admin && <PageTabs label="بخش‌های مدیریت" value="mod" items={[{ value: 'mod', label: 'نظارت', href: '/mod' }, ...ADMIN_TABS.map((t) => ({ ...t, href: `/admin?tab=${t.value}` }))]} />}
+      <PageHead title="نظارت" sub="ناظر فقط دادهٔ همان گزارش را می‌بیند؛ هر مشاهده و تصمیم در سابقه ثبت می‌شود."
+        actions={<Badge icon="shield">نقش شما: {admin ? 'مدیر' : 'ناظر'}</Badge>} />
+      <Tabs label="نظارت" value={tab} onChange={setTab} items={[{ value: 'reports', label: 'گزارش‌ها', count: reports.data?.items.length ?? 0 }, { value: 'appeals', label: 'اعتراض‌ها', count: appeals.data?.items.length ?? 0 }, { value: 'audit', label: 'سابقه' }]} />
       {tab === 'reports' ? <Queue /> : tab === 'appeals' ? <Appeals /> : <Audit />}
     </>
   );

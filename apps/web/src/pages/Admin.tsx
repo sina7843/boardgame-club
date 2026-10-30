@@ -11,15 +11,11 @@ import { GameAccess, MissionsAdmin, PlansAdmin, ReferralAdmin, SeasonsAdmin, Sup
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
 import { PlayersAdmin } from './AdminPlayers.tsx';
 import { TablesAdmin } from './AdminTables.tsx';
+import { ADMIN_TABS } from './adminTabs.ts';
 import { SiteAdmin } from './AdminSite.tsx';
 import { TournamentsAdmin } from './AdminTournaments.tsx';
 
 const STATUS_FA: Record<GameSummary['status'], string> = { draft: 'پیش‌نویس', active: 'فعال', suspended: 'متوقف' };
-const TABS = [
-  { value: 'games', label: 'بازی‌ها' }, { value: 'players', label: 'بازیکنان' }, { value: 'tables', label: 'میزها' }, { value: 'progress', label: 'مأموریت و فصل' }, { value: 'tournaments', label: 'تورنمنت‌ها' }, { value: 'plans', label: 'اشتراک و سکه' },
-  { value: 'referral', label: 'دعوت دوستان' }, { value: 'support', label: 'پشتیبانی' }, { value: 'site', label: 'صفحه‌های سایت' }, { value: 'incident', label: 'توقف سراسری' }
-];
-
 export function Admin() {
   usePageTitle('مدیریت');
   const { me, status } = useSession();
@@ -33,7 +29,7 @@ export function Admin() {
   if (!isAdmin) return <StateBlock kind="denied" title="دسترسی ندارید" text="این بخش فقط برای مدیر محصول است." />;
   return (
     <>
-      <PageTabs label="بخش‌های مدیریت" items={TABS} value={tab} onChange={setTab} />
+      <PageTabs label="بخش‌های مدیریت" items={[{ value: 'mod', label: 'نظارت', href: '/mod' }, ...ADMIN_TABS]} value={tab} onChange={setTab} />
       <PageHead title="مدیریت" sub="هر تغییر با علت در گزارش عملیات ثبت می‌شود." />
       {tab === 'games' && <GamesAdmin />}
       {tab === 'players' && <PlayersAdmin />}
