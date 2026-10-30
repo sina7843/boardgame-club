@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { faNumber, useToast } from '@bg/ui';
-import { Badge, Banner, Button, Card, Coin, Hero, Icon, PageHead, Progress, StateBlock } from '@bg/ui/bgv';
+import { Badge, Banner, Button, Card, Coin, Icon, PageHead, Progress, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { coinsChanged, useCoins } from '../lib/coins.tsx';
 import { faNum, jalaliDate } from '../lib/format.ts';
@@ -41,14 +41,21 @@ export function CoinsPage() {
   return (
     <>
       <PageTabs group="wallet" />
-      <PageHead title="سکه‌ها" sub={`با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید${d.shop.length > 0 ? ' و با آن روز پریمیوم بخرید' : ''}. سکه روی رتبه و نتیجه بازی اثری ندارد.`} />
+      <PageHead className="app-hide-phone" title="سکه‌ها" sub={`با بازی، برد، مأموریت، دستاورد و بالا رفتن سطح سکه بگیرید${d.shop.length > 0 ? ' و با آن روز پریمیوم بخرید' : ''}. سکه روی رتبه و نتیجه بازی اثری ندارد.`} />
       {d.checkout.fixture && d.packs.length > 0 && <Banner tone="warning" text="حالت آزمایشی: درگاه پرداخت آزمایشی است و پول واقعی جابه‌جا نمی‌شود." />}
 
-      <Hero eyebrow="موجودی من" title={<span aria-live="polite">{faNum(d.balance)} سکه</span>} aside={<Coin size="lg" aria-hidden />}
-        actions={<>
+      {/* Coins-Desktop / Wallet-Mobile: coin and amount together, the two actions beside them (a row of two on the phone). */}
+      <section className="bgv-hero ac-balance" aria-label="موجودی من">
+        <div className="ac-balance__amt">
+          <Coin size="lg" aria-hidden />
+          <div className="ac-balance__text"><span className="bgv-hero__eyebrow">موجودی من</span>
+            <b aria-live="polite">{faNum(d.balance)} <span>سکه</span></b></div>
+        </div>
+        <div className="ac-balance__ctas">
           {d.packs.length > 0 && <Button variant="primary" icon="plus" onClick={() => document.getElementById('packs-h')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>خرید سکه</Button>}
-          <Button icon="history" href="/plans">سابقه</Button>
-        </>} />
+          <Button variant="secondary" icon="history" href="/plans">سابقهٔ پرداخت</Button>
+        </div>
+      </section>
       {sub.data && (
         <Card className="ac-premium" aria-label="وضعیت پریمیوم">
           <span className="ac-tile"><Icon name="crown" /></span>

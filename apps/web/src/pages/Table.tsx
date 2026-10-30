@@ -317,7 +317,7 @@ function PostGame({ snap, onReport }: { snap: TableSnapshot; onReport: () => voi
           </Button>
         ))}
         {t.settings.tournament && others.map((u) => (
-          <Button key={`fp-${u.id}`} size="sm" variant="ghost" icon="shield-alert" onClick={() => {
+          <Button key={`fp-${u.id}`} size="sm" variant="ghost" icon="shield" onClick={() => {
             api(`/tables/${t.id}/report`, { method: 'POST', body: { accusedId: u.id } })
               .then(() => toast('success', 'گزارش برای داور ثبت شد.'), (err: unknown) => toast('error', err instanceof ApiFailure ? err.messageFa : 'گزارش ثبت نشد.'));
           }}>گزارش مشکوک بودن بازی: <bdi>{u.displayName}</bdi></Button>
@@ -735,7 +735,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
                 <div className="bgv-row" style={{ gap: 8 }}>
                   {x.league && <League tier={x.league} />}
                   {x.titleKey && cosmetic(x.titleKey) && <Badge size="sm">{cosmetic(x.titleKey)!.nameFa}</Badge>}
-                  {x.bot && <Badge size="sm" icon="cpu">ربات {BOT_LEVEL_FA[x.bot.level]}</Badge>}
+                  {x.bot && <Badge size="sm" icon="bot">ربات {BOT_LEVEL_FA[x.bot.level]}</Badge>}
                   {x.seat === t.mySeat && <Badge tone="you" size="sm">شما</Badge>}
                 </div>
                 {ss?.primary && <div className="tbl-sheetrow"><span>{ss.primary.label}</span><b className="bgv-num">{faNum(ss.primary.value)}{ss.primary.target !== undefined ? ` از ${faNum(ss.primary.target)}` : ''}</b></div>}

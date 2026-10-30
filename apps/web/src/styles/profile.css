@@ -120,7 +120,7 @@
 /* Shop-Desktop / Shop-Mobile: the seasonal bundle as a felt hero, chips, item grid with rarity + kind. */
 .pf-balance { display: grid; gap: 2px; }
 .pf-balance .bgv-coin { font-size: 22px; }
-.pf-hero { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-6) var(--space-8); padding: 28px 32px; }
+.pf-hero { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-6) var(--space-8); padding: 28px 32px; }
 .pf-hero__text { flex: 1 1 320px; display: grid; gap: 10px; min-inline-size: 0; }
 .pf-hero__eyebrow { display: flex; align-items: center; gap: 6px; }
 .pf-hero__title { margin: 0; font-size: 30px; font-weight: 900; color: var(--felt-ink); }
