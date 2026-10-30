@@ -1469,7 +1469,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   with the texture below it) and the resource, card-resource and parameter icons (`resources.png`). The fighter icon and
   Mars surface stay. Res Arcana: essences are the BGA essence tokens. Not changed: Race for the Galaxy (BGA ships its
   card faces separately; its goods are flat SVG shapes, plainer than ours).
-- Ark Nova: animal (401–528) and sponsor (201–264) cards show their BGA photo (`photos.webp`, 16 × 12; sponsors are
+- Ark Nova: animal (401–528), sponsor (201–264) and conservation project (101–132) cards show their BGA photo
+  (`photos.webp`, 16 × 14; projects come from `projects.jpg` in id order; sponsors are
   cropped to the picture, clear of printed icons and name). Our card ids are the printed numbers, so each card gets its
   own photo. Brass: cotton, manufacturer, coal, iron, canal, rail and merchant pictures are BGA icons; pottery, brewery,
   beer and our map stay. Not changed: For Sale (BGA client art holds only box art and backs).

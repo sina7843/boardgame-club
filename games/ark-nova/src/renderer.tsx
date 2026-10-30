@@ -83,11 +83,12 @@ function Gains({ d }: { d: { appeal: number; cp: number; rep: number } }) {
   );
 }
 
-// Card photos are the BGA Ark Nova client art (see DECISIONS.md): photos.webp holds the 128 animal photos (401–528) then
-// the picture part of the 64 sponsor cards (201–264), 16 × 12. Our card ids are the printed numbers, so they match.
+// Card photos are the BGA Ark Nova client art (see DECISIONS.md): photos.webp holds the 128 animal photos (401–528), the
+// picture part of the 64 sponsor cards (201–264), then the 32 conservation project pictures (101–132), 16 × 14. Our card
+// ids are the printed numbers, so they match.
 function Photo({ id }: { id: number }) {
-  const i = id >= 401 ? id - 401 : 128 + id - 201;
-  return <span className="an-card__photo" style={{ backgroundImage: `url(${photos})`, backgroundPosition: `${((i % 16) / 15) * 100}% ${(Math.floor(i / 16) / 11) * 100}%` }} aria-hidden="true" />;
+  const i = id >= 401 ? id - 401 : id >= 201 ? 128 + id - 201 : 192 + id - 101;
+  return <span className="an-card__photo" style={{ backgroundImage: `url(${photos})`, backgroundPosition: `${((i % 16) / 15) * 100}% ${(Math.floor(i / 16) / 13) * 100}%` }} aria-hidden="true" />;
 }
 
 /** Printed-card layout: cost coin and name on top, icons, requirement, clamped text, bonuses at the bottom. */
@@ -129,6 +130,7 @@ function CardFace({ id, full = true }: { id: number; full?: boolean }) {
     return (
       <>
         <span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b></span>
+        {id >= 101 && id <= 132 && <Photo id={id} />}
         {full && txt && <small className="an-fx" title={txt}>{txt}</small>}
         <small className="an-card__need">{pr.slots.map((sl) => `${sl.need ? fa(sl.need) : sl.size === 4 ? '۴–۵' : sl.size === 2 ? '۱–۲' : fa(sl.size ?? 0)} → ${fa(sl.cp)}${sl.rep ? `+${fa(sl.rep)}ا` : ''}`).join(' · ')} حفاظت</small>
       </>
