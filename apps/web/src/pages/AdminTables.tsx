@@ -17,9 +17,10 @@ export function TablesAdmin() {
   const [draft, setDraft] = useState('');
   const [q, setQ] = useState('');
   const [tutorials, setTutorials] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   const [offset, setOffset] = useState(0);
   const games = useApi<{ items: GameSummary[] }>('/games');
-  const list = useApi<AdminTables>(`/admin/tables?status=${status}&offset=${offset}&tutorials=${tutorials}${gameId ? `&gameId=${gameId}` : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`);
+  const list = useApi<AdminTables>(`/admin/tables?status=${status}&offset=${offset}&tutorials=${tutorials}&deleted=${deleted}${gameId ? `&gameId=${gameId}` : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`);
   const counts = list.data?.counts;
   const all = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : 0;
   const reset = () => setOffset(0);
@@ -32,6 +33,7 @@ export function TablesAdmin() {
           <Select aria-label="بازی" value={gameId} onChange={(e) => { reset(); setGameId(e.target.value); }}
             options={[{ value: '', label: 'همهٔ بازی‌ها' }, ...(games.data?.items ?? []).map((g) => ({ value: g.id, label: g.nameFa }))]} />
           <Switch label="میزهای آموزش هم" checked={tutorials} onChange={(v) => { reset(); setTutorials(v); }} />
+          <Switch label="میزهای کاربران حذف‌شده هم" checked={deleted} onChange={(v) => { reset(); setDeleted(v); }} />
         </div>
         <ChipGroup size="sm" label="وضعیت" value={status} onChange={(v) => { reset(); setStatus(v as typeof status); }}
           options={STATUSES.map((s) => ({ value: s, label: `${s === 'all' ? 'همه' : STATUS_FA[s]}${counts ? ` (${faNum(s === 'all' ? all : counts[s])})` : ''}` }))} />

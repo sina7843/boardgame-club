@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { grantRole, login, setup, type TestCtx } from './helpers.ts';
 import { startTable } from './play-helpers.ts';
@@ -45,5 +46,17 @@ describe('admin watching', () => {
     // REST viewing writes no watcher row: players still see nobody watching.
     const own = (await ctx.app.inject({ method: 'GET', url: `/api/tables/${t.tableId}`, headers: { cookie: t.players[0]!.cookie } })).json();
     expect(own.table.spectators).toBe(0);
+  });
+});
+
+describe('admin tables: deleted accounts', () => {
+  it('hides tables with a deleted player unless deleted=true', async () => {
+    const admin = await login(ctx.app);
+    await grantRole(ctx.db, admin.mobile, 'admin');
+    const t = await startTable(ctx, 'chess', 2);
+    await ctx.db.execute(sql`update users set status = 'deleted' where id = ${t.players[1]!.id}`);
+    const ids = async (url: string) => (await get(url, admin.cookie)).json().items.map((x: { id: string }) => x.id) as string[];
+    expect(await ids('/api/admin/tables')).not.toContain(t.tableId);
+    expect(await ids('/api/admin/tables?deleted=true')).toContain(t.tableId);
   });
 });

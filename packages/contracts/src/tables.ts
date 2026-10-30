@@ -451,6 +451,8 @@ export const adminTablesQuery = z.object({
   gameId: z.string().max(64).optional(),
   q: z.string().trim().max(64).optional(),
   tutorials: z.enum(['true', 'false']).default('false'),
+  /** Tables with a deleted account among the host and seats are hidden unless asked for. */
+  deleted: z.enum(['true', 'false']).default('false'),
   offset: z.coerce.number().int().min(0).default(0)
 });
 export const adminTableItem = z.object({

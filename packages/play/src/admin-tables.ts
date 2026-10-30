@@ -7,11 +7,13 @@ import { schema, type Db } from '@bg/db';
 const { games, gameTables, participants, users, gameResults, tournamentTables } = schema;
 const PAGE = 50;
 
-export async function adminTablesList(db: Db, query: { status: string; gameId?: string | undefined; q?: string | undefined; tutorials: string; offset: number }): Promise<AdminTables> {
+export async function adminTablesList(db: Db, query: { status: string; gameId?: string | undefined; q?: string | undefined; tutorials: string; deleted?: string; offset: number }): Promise<AdminTables> {
   const like = query.q ? `%${query.q.replace(/[\\%_]/g, (c) => `\\${c}`)}%` : '';
   const base: (SQL | undefined)[] = [
     query.tutorials === 'true' ? undefined : eq(gameTables.isTutorial, false),
     query.gameId ? eq(gameTables.gameId, query.gameId) : undefined,
+    query.deleted === 'true' ? undefined : sql`not exists (select 1 from users u where u.status = 'deleted' and (u.id = ${gameTables.hostId}
+      or u.id in (select p.user_id from participants p where p.table_id = ${gameTables.id})))`,
     query.q ? sql`exists (select 1 from participants p join users u on u.id = p.user_id where p.table_id = ${gameTables.id}
       and ${ilike(sql`u.display_name`, like)})` : undefined
   ];
