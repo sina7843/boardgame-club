@@ -3,7 +3,7 @@ import { GuestState } from '../shell/GuestState.tsx';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Badge, Banner, Breadcrumbs, Button, Card, Chip, ChipGroup, Icon, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
+import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, ChipGroup, Icon, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -279,6 +279,7 @@ export function ProfilePage() {
   const toast = useToast();
   const act = useAct(card.reload);
   const [report, setReport] = useState<'user' | 'display_name' | 'bio' | null>(null);
+  const [ptab, setPtab] = useState<'overview' | 'games' | 'trophies'>('overview');
   const presence = usePresence(card.data ? [card.data.id] : []);
   if (card.error) return <StateBlock kind={card.error.status === 404 ? 'empty' : 'error'} title={card.error.status === 404 ? 'این بازیکن پیدا نشد' : 'پروفایل دریافت نشد'} />;
   if (!card.data) return <StateBlock kind="loading" title="در حال بارگذاری…" />;
@@ -293,22 +294,7 @@ export function ProfilePage() {
     catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'گفت‌وگو باز نشد.'); }
   };
   const self = u.relationship === 'self';
-  return (
-    <>
-      {!phone && !self && <Breadcrumbs items={[{ label: 'دوستان', href: '/friends' }, { label: u.displayName }]} />}
-      <ProfileHead compact={phone}
-        name={<bdi>{u.displayName}</bdi>}
-        initials={id0.initials}
-        avatar={{ ...id0.avatar, name: `آواتار ${u.displayName}` }}
-        title={id0.title}
-        level={u.level ?? undefined}
-        league={u.bestLeague ?? undefined}
-        stats={u.stats ? [{ value: faNum(u.stats.gamesPlayed), label: 'بازی‌ها' }, { value: faNum(u.stats.wins), label: 'برد (رتبهٔ اول)' }, { value: `${faNum(u.stats.winRate)}٪`, label: 'نرخ برد' }] : undefined}
-        bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
-        badges={<>{u.premium && <Badge tone="premium" icon="crown">پریمیوم</Badge>}{u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}</>}
-        {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})}
-        meta={[...(presenceLine(presence[u.id]) ? [presenceLine(presence[u.id])!] : []), `عضو از ${jalaliDate(u.joinedAt)}`]}
-        actions={<>
+  const actions = <>
           {self && <>
             <Button variant="primary" icon="palette" href="/me/avatar">ساخت آواتار</Button>
             <Button variant="secondary" icon="pencil" href="/me/profile">ویرایش پروفایل</Button>
@@ -328,83 +314,149 @@ export function ProfilePage() {
             { icon: 'flag', label: 'گزارش نام', onClick: () => setReport('display_name') },
             ...(u.bio ? [{ icon: 'flag', label: 'گزارش معرفی', onClick: () => setReport('bio') }] : [])
           ]} />}
-        </>}>
+        </>;
+  const presenceText = presenceLine(presence[u.id]);
+  const best = u.ratings?.length ? [...u.ratings].sort((a, b) => b.rating - a.rating)[0] : undefined;
+  // Profile-Public-Mobile: the sections sit behind three tabs.
+  const show = (t: typeof ptab) => !phone || ptab === t;
+  return (
+    <>
+      {!phone && !self && <Breadcrumbs items={[{ label: 'پیام‌ها و دوستان', href: '/messages' }, { label: 'دوستان', href: '/friends' }, { label: u.displayName }]} />}
+      {phone ? (
+        <section className="pf-mhead" aria-label={u.displayName}>
+          <span className="pf-mhead__bn">{bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : null}</span>
+          <div className="pf-mhead__id">
+            <Avatar {...id0.avatar} initials={id0.initials} size="xl" {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})} />
+            <div className="bgv-row pf-mhead__name"><h1 className="t-page-sm"><bdi>{u.displayName}</bdi></h1>{u.premium && <Badge size="sm" tone="premium" icon="crown">پریمیوم</Badge>}</div>
+            <span className="pf-mhead__meta">{[id0.title ? <span key="t">{id0.title}</span> : null, u.bestLeague ? <League key="l" tier={u.bestLeague} /> : null, u.level !== null ? <span key="v">سطح {faNum(u.level)}</span> : null]
+              .filter((x) => x !== null).flatMap((x, i) => (i ? [<span key={`s${i}`} className="bgv-sep" />, x] : [x]))}</span>
+            <span className="t-caption bgv-muted">{presenceText ?? `عضو از ${jalaliDate(u.joinedAt)}`}</span>
+          </div>
+          <div className="pf-mhead__actions">{actions}</div>
+          {u.bio && <p dir="auto" className="t-body-sm pf-mhead__bio">{u.bio}</p>}
+          {u.stats && (
+            <div className="bgv-card pf-mstats">
+              <div><b className="t-num-md bgv-num">{faNum(u.stats.gamesPlayed)}</b><span>بازی</span></div>
+              <div><b className="t-num-md bgv-num">{faNum(u.stats.wins)}</b><span>برد</span></div>
+              <div><b className="t-num-md bgv-num">{faNum(u.stats.winRate)}٪</b><span>نرخ برد</span></div>
+              {best && <div><b className="t-num-md bgv-num">{faNum(best.rating)}</b><span>امتیاز رتبه</span></div>}
+            </div>
+          )}
+          <Tabs label="بخش‌های پروفایل" value={ptab} onChange={(v) => setPtab(v as typeof ptab)}
+            items={[{ value: 'overview', label: 'نمای کلی' }, { value: 'games', label: 'بازی‌ها' }, { value: 'trophies', label: 'جام‌ها' }]} />
+        </section>
+      ) : <ProfileHead
+        name={<bdi>{u.displayName}</bdi>}
+        initials={id0.initials}
+        avatar={{ ...id0.avatar, name: `آواتار ${u.displayName}` }}
+        title={id0.title}
+        level={u.level ?? undefined}
+        league={u.bestLeague ?? undefined}
+        stats={u.stats ? [{ value: faNum(u.stats.gamesPlayed), label: 'بازی‌ها' }, { value: faNum(u.stats.wins), label: 'برد (رتبهٔ اول)' }, { value: `${faNum(u.stats.winRate)}٪`, label: 'نرخ برد' }] : undefined}
+        bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
+        badges={<>{u.premium && <Badge tone="premium" icon="crown">پریمیوم</Badge>}{u.relationship === 'friends' && <Badge tone="success">دوست</Badge>}</>}
+        {...(presence[u.id] ? { status: presence[u.id]!.online ? 'online' as const : 'offline' as const } : {})}
+        meta={[...(presenceLine(presence[u.id]) ? [presenceLine(presence[u.id])!] : []), `عضو از ${jalaliDate(u.joinedAt)}`]}
+        actions={actions}>
         {u.bio && <p dir="auto" className="t-body">{u.bio}</p>}
-      </ProfileHead>
-      {(favourites.length > 0 || trophies.length > 0) && (
-        <div className="bgv-cols">
-          {trophies.length > 0 && (
-            <Card title="ویترین جام‌ها" aria-label="جام‌ها">
-              <div className="pf-trophies">
-                {trophies.map((a) => <Trophy key={a.key} tier={a.tier} name={a.titleFa} />)}
-              </div>
-            </Card>
-          )}
-          {favourites.length > 0 && (
-            <Card title="بازی‌های محبوب" aria-label="بازی‌های محبوب">
-              <div className="bgv-row">
-                {favourites.map((g) => <Chip key={g.id} href={`/games/${g.id}`}>{g.nameFa}</Chip>)}
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
-      {(u.clubs.length > 0 || u.mutualFriends.length > 0) && (
-        <div className="bgv-cols">
-          {u.clubs.length > 0 && (
-            <Card title="باشگاه‌ها" aria-label="باشگاه‌ها">
-              <div className="bgv-row">{u.clubs.map((c) => <Chip key={c.slug} icon="shield" href={`/clubs/${c.slug}`}>{c.name}</Chip>)}</div>
-            </Card>
-          )}
-          {u.mutualFriends.length > 0 && (
-            <Card title={`دوستان مشترک (${faNum(u.mutualFriends.length)})`} aria-label="دوستان مشترک">
-              <ul className="pf-list pf-list--compact">{u.mutualFriends.map((f) => <PersonRow key={f.id} p={f} />)}</ul>
-            </Card>
-          )}
-        </div>
-      )}
+      </ProfileHead>}
       {u.relationship !== 'blocked' && u.stats === null && u.recent === null && u.ratings === null && !self && (
         <p className="t-body-sm bgv-muted" role="status">این بازیکن آمار و سابقهٔ بازی خود را نمایش نمی‌دهد.</p>
       )}
-      {(u.recent || u.ratings?.length || u.mastery?.length) ? (
-        <div className="bgv-cols">
-          <div className="bgv-stack">
-            {u.recent && (
-              <Card title="بازی‌های اخیر" aria-label="بازی‌های اخیر">
-                {u.recent.length === 0 ? <p className="t-body-sm bgv-muted">هنوز بازی عمومی تمام‌شده‌ای نیست.</p> : (
-                  <ul className="pf-record">
-                    {u.recent.map((g, i) => (
-                      <li key={`${g.gameId}${g.finishedAt}${i}`}>
-                        <span><a href={`/games/${g.gameId}`} className="t-label">{g.gameNameFa}</a><span className="bgv-sep" /><span className="t-caption bgv-muted">{faNum(g.fieldSize)} نفر<span className="bgv-sep" />{jalaliDate(g.finishedAt)}</span></span>
-                        <Badge tone={g.place === 1 ? 'success' : 'neutral'} icon={g.place === 1 ? 'crown' : undefined}>{g.place === 1 ? 'اول' : `رتبهٔ ${faNum(g.place)}`}</Badge>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Card>
-            )}
-            {u.mastery && u.mastery.length > 0 && (
-              <Card title="تسلط بر بازی‌ها" aria-label="تسلط بر بازی‌ها">
-                <div className="pf-mastery">
-                  {u.mastery.map((m) => <div key={m.gameId}><a href={`/games/${m.gameId}`} className="t-label">{m.gameNameFa}</a><Badge tone="neutral">{m.tierFa}</Badge></div>)}
-                </div>
-              </Card>
-            )}
-          </div>
-          {u.ratings && u.ratings.length > 0 && (
-            <Card title="امتیاز رتبه‌بندی" aria-label="امتیاز رتبه‌بندی">
-              <ul className="pf-record">
+      {phone && ((ptab === 'overview' && !trophies.length && !favourites.length && !u.clubs.length && !u.mutualFriends.length)
+        || (ptab === 'games' && !u.recent?.length && !u.mastery?.length && !u.ratings?.length) || (ptab === 'trophies' && !trophies.length))
+        && <p className="t-body-sm bgv-muted" role="status">{ptab === 'trophies' ? 'هنوز جامی نگرفته است.' : ptab === 'games' ? 'هنوز بازی عمومی تمام‌شده‌ای نیست.' : 'هنوز چیزی برای نمایش نیست.'}</p>}
+      {/* Profile-Public-Desktop: trophies, recent games and mastery in the main column; favourites, clubs and mutual friends beside. */}
+      <div className="bgv-cols pf-profcols">
+        <div className="pf-profmain">
+          {trophies.length > 0 && (show('overview') || show('trophies')) && (
+            <section className="bgv-card pf-pcard" aria-labelledby="tro-h">
+              <div className="bgv-row"><h2 id="tro-h" className="pf-h2">ویترین جام‌ها</h2>
+                <span className="t-caption bgv-muted">{faNum(trophies.length)} جام</span></div>
+              <div className="pf-trophies">
+                {trophies.slice(0, phone && ptab === 'trophies' ? undefined : phone ? 4 : 5).map((a) => <Trophy key={a.key} tier={a.tier} name={a.titleFa} />)}
+              </div>
+            </section>
+          )}
+          {u.recent && show('games') && (
+            <section className="bgv-card pf-pcard" aria-labelledby="recent-h">
+              <div className="bgv-row"><h2 id="recent-h" className="pf-h2">بازی‌های اخیر</h2></div>
+              {u.recent.length === 0 ? <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>هنوز بازی عمومی تمام‌شده‌ای نیست.</p> : (
+                <ul className="pf-ul pf-rows">
+                  {u.recent.map((g, i) => (
+                    <li key={`${g.gameId}${g.finishedAt}${i}`} className="pf-mrow">
+                      <img src={`/covers/${g.gameId}.webp`} alt="" loading="lazy" />
+                      <div className="pf-mrow__text"><a href={`/games/${g.gameId}`}><b>{g.gameNameFa}</b></a>
+                        <span className="t-caption bgv-muted">{faNum(g.fieldSize)} نفر<span className="bgv-sep" />{jalaliDate(g.finishedAt)}</span></div>
+                      <Badge tone={g.place === 1 ? 'success' : 'neutral'} icon={g.place === 1 ? 'crown' : undefined}>{g.place === 1 ? 'اول' : `${faNum(g.place)} از ${faNum(g.fieldSize)}`}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+          {u.mastery && u.mastery.length > 0 && show('games') && (
+            <section className="bgv-card pf-pcard" aria-labelledby="mast-h">
+              <div className="bgv-row"><h2 id="mast-h" className="pf-h2">تسلط بر بازی‌ها</h2>
+                <span className="t-caption bgv-muted">{faNum(u.mastery.length)} بازی تجربه‌شده</span></div>
+              <div className="pf-mastery">
+                {u.mastery.map((m) => (
+                  <a key={m.gameId} href={`/games/${m.gameId}`} className="pf-mcard">
+                    <span className="pf-mcard__head"><img src={`/covers/${m.gameId}.webp`} alt="" loading="lazy" /><b>{m.gameNameFa}</b></span>
+                    <Badge tone={m.tier === 'master' ? 'premium' : m.tier === 'seasoned' ? 'success' : 'neutral'} icon={m.tier === 'master' ? 'star' : undefined}>{m.tierFa}</Badge>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+        <aside className="pf-profside">
+          {favourites.length > 0 && show('overview') && (
+            <section className="bgv-card pf-pcard" aria-labelledby="fav-h">
+              <div className="bgv-row"><h2 id="fav-h" className="pf-h2">بازی‌های محبوب</h2></div>
+              <ul className="pf-ul pf-favs">
+                {favourites.map((g) => {
+                  const r = u.ratings?.find((x) => x.gameId === g.id);
+                  return (
+                    <li key={g.id}><a href={`/games/${g.id}`} className="pf-fav">
+                      <img src={`/covers/${g.id}.webp`} alt="" loading="lazy" />
+                      <span className="pf-mrow__text"><b>{g.nameFa}</b>
+                        {r && <span className="t-caption bgv-muted bgv-row">{r.league && <League tier={r.league} />}<span className="bgv-num">{faNum(r.rating)}</span></span>}</span>
+                    </a></li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+          {u.ratings && u.ratings.length > 0 && show('games') && (
+            <section className="bgv-card pf-pcard" aria-labelledby="rat-h">
+              <div className="bgv-row"><h2 id="rat-h" className="pf-h2">امتیاز رتبه‌بندی</h2></div>
+              <ul className="pf-ul pf-rows">
                 {u.ratings.map((r) => (
-                  <li key={`${r.gameId}${r.mode}`}>
-                    <span><span className="t-label">{r.gameNameFa}</span><span className="bgv-sep" /><span className="t-caption bgv-muted">{r.mode === 'turn' ? 'نوبتی' : 'زنده'}</span></span>
-                    <span className="bgv-row">{r.league && <League tier={r.league} />}<span className="t-num-md">{faNum(r.rating)}</span></span>
+                  <li key={`${r.gameId}${r.mode}`} className="pf-lrow">
+                    <span className="pf-mrow__text"><b>{r.gameNameFa}</b><span className="t-caption bgv-muted">{r.mode === 'turn' ? 'نوبتی' : 'زنده'}</span></span>
+                    <span className="bgv-row">{r.league && <League tier={r.league} />}<b className="bgv-num">{faNum(r.rating)}</b></span>
                   </li>
                 ))}
               </ul>
-            </Card>
+            </section>
           )}
-        </div>
-      ) : null}
+          {u.clubs.length > 0 && show('overview') && (
+            <section className="bgv-card pf-pcard" aria-labelledby="clubs-h">
+              <div className="bgv-row"><h2 id="clubs-h" className="pf-h2">باشگاه‌ها</h2><span className="t-caption bgv-muted">{faNum(u.clubs.length)} باشگاه</span></div>
+              <ul className="pf-ul pf-rows">{u.clubs.map((c) => (
+                <li key={c.slug} className="pf-lrow"><span className="ac-tile"><Icon name="shield" /></span><a href={`/clubs/${c.slug}`} className="pf-mrow__text"><b>{c.name}</b></a></li>
+              ))}</ul>
+            </section>
+          )}
+          {u.mutualFriends.length > 0 && show('overview') && (
+            <section className="bgv-card pf-mutual" aria-label="دوستان مشترک">
+              <span className="bgv-avatars" aria-hidden="true">{u.mutualFriends.slice(0, 3).map((f) => <span key={f.id} className="bgv-avatar bgv-avatar--sm">{[...f.displayName][0]}</span>)}</span>
+              <span className="t-body-sm">{u.mutualFriends.slice(0, 2).map((f) => f.displayName).join('، ')}{u.mutualFriends.length > 2 ? ` و ${faNum(u.mutualFriends.length - 2)} دوست مشترک دیگر` : u.mutualFriends.length === 1 ? '، دوست مشترک' : '، دوستان مشترک'}</span>
+            </section>
+          )}
+        </aside>
+      </div>
       {self && <InviteCard />}
       {report && <ReportDialog targetType={report} targetId={u.id} label={u.displayName} onClose={() => setReport(null)} />}
     </>

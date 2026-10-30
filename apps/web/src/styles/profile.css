@@ -136,7 +136,32 @@
 .pf-record > li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) 0; border-block-end: 1px solid var(--line); }
 .pf-record > li:last-child { border-block-end: 0; }
 .pf-mastery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: var(--space-3); }
-.pf-mastery > div { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); }
+/* Profile-Public-Desktop: main column + aside of cards; game covers in every row. */
+.pf-profcols { align-items: start; }
+.pf-profmain, .pf-profside { display: grid; gap: var(--space-6); align-content: start; min-inline-size: 0; }
+.pf-mcard { display: grid; gap: var(--space-2); justify-items: start; padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+.pf-mcard__head { display: flex; align-items: center; gap: var(--space-2); }
+.pf-mcard__head > img { inline-size: 40px; block-size: 24px; object-fit: cover; border-radius: var(--radius-xs); }
+.pf-favs { display: grid; gap: var(--space-4); }
+.pf-fav { display: flex; align-items: center; gap: var(--space-3); color: inherit; text-decoration: none; }
+.pf-fav > img { inline-size: 104px; block-size: 58px; object-fit: cover; border-radius: var(--radius-sm); flex: none; }
+.pf-mutual { display: flex; align-items: center; gap: var(--space-3); }
+/* Profile-Public-Mobile head: full-bleed banner, centred avatar and name, actions row, stats card, tabs. */
+.pf-mhead { display: grid; gap: var(--space-3); }
+.pf-mhead__bn { display: block; position: relative; overflow: hidden; block-size: 112px; margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0; background: var(--felt); }
+.pf-mhead__bn > .pf-bn { block-size: 100%; }
+.pf-mhead__id { display: grid; justify-items: center; text-align: center; gap: 6px; margin-block-start: -56px; position: relative; }
+.pf-mhead__id > .bgv-avatar { background: var(--surface); }
+.pf-mhead__name { justify-content: center; gap: var(--space-2); }
+.pf-mhead__name > h1 { margin: 0; color: var(--heading); }
+.pf-mhead__meta { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; font-size: 14px; }
+.pf-mhead__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.pf-mhead__actions > .bgv-btn { flex: 1 1 0; }
+.pf-mhead__bio { margin: 0; text-align: center; }
+.pf-mstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); padding: 4px 8px; }
+.pf-mstats > div { display: grid; justify-items: center; padding-block: var(--space-2); }
+.pf-mstats b { color: var(--heading); }
+.pf-mstats span { font-size: 12px; color: var(--text-muted); }
 
 /* Ranking: you-card, league ladder, medals, own row outside the top list. */
 .pf-medal { display: inline-grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: var(--radius-pill); color: var(--on-accent); font-weight: 800; }
