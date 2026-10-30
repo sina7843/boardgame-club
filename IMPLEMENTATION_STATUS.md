@@ -944,3 +944,7 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
 - 2026-10-30 Ranking, public/own profile, wardrobe and studio rebuilt on the references (desktop + phone).
   Checks: web typecheck, eslint, ds-check PASS; e2e progress:20, avatar, onboarding, referral, wardrobe (new) at 1440 + 360 pass;
   design-qa captures Ranking/Profile-Own/Wardrobe/Studio compared with the reference PNGs.
+- 2026-10-30 Club, settings, moderation, create table, game page, catalog, encyclopedia, notifications and wallet premium card on the references;
+  admin silent watching and deleted-account filter. Checks: typecheck (web, play, api), eslint, ds-check PASS; api admin-tables 3/3;
+  e2e admin-tables, wiki, shell, onboarding, coins, bots, release:73, azul:36 pass at 1440/360 (some only after a re-run under load).
+  Known failing before these changes: social.spec.ts:32.

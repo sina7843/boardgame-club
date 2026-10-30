@@ -1519,3 +1519,12 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 
 ## Admins watch any table silently (2026-10-30, owner request)
 - A site admin may open every table (private and tutorial too) at /tables/:id as a spectator: the server projects the spectator view (no hidden information, no legal actions). For admins the socket writes no `table_watchers` row, so the players' spectator count and the home page's «تماشاگر» never include them, and no notification is sent. Moderators are not included.
+
+## Remaining pages against the references (2026-10-30)
+- Club: members switch between نمای کلی / گفت‌وگو (with online members) / اعضا / درخواست‌ها. The design's «میزها» and «رویدادها» have no backend and are left out.
+- Settings: one page in two groups (account across devices; this device). Old ?tab= links scroll to their group.
+- Moderation: shared admin nav led by «نظارت» on /mod and /admin (tab list in pages/adminTabs.ts), role badge, counts on the tabs.
+- Create table: four mode cards (link, live, ranked → quick match, bot). The game's first pace stays the default and «تنظیمات بیشتر» is open by default, because ~60 game e2e flows choose pace, time and options in this form.
+- Game page: rules summary (first four sections) with «قوانین کامل»; the design's «نمای بازی» preview card needs per-game screenshots that do not exist yet, so it is left out.
+- Catalog: competition and access selects removed (not in the design; ranked play starts from quick match).
+- Notifications: five switches; «خلاصهٔ روزانه» from the design has no backend, so quiet hours take its place.
