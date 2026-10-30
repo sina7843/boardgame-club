@@ -1435,3 +1435,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Splendor (`splendor` 261022-1506): card pictures (`cards.webp`, 6 × 6 sprite: rows sapphire, onyx, ruby, emerald, diamond;
   two pictures per level, chosen by card id parity; last row = deck backs, cut to `back-1..3.webp`), noble portraits
   (`nobles.webp`, 5 × 3, noble id → cell) and the wooden-rim gem tokens (`gem-*.webp`). Costs and points stay our own overlay.
+- Kingdomino (`kingdomino` 260901-1959): the six terrain textures are single squares cut from BGA `img/tiles.jpg`
+  (crown-free squares). Our domino set is still the reconstructed one; real BGA dominoes not mapped yet.
+- Carcassonne (`carcassonne` 260513-1508): every tile type A–X is drawn from BGA `img/tiles_second_edition.jpg`
+  (its first 72 cells are the base game, grouped by type; one picture per type in `art/tiles.webp`, 6 × 4). The pictures
+  of G, H and I are turned against our canonical edges (`ART_OFF`). Followers stay our own SVG meeples.
