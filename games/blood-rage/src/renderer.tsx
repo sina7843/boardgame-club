@@ -5,7 +5,7 @@ import './renderer.css';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, DockSlot, ZoomBoard, type GameAction, type GameRendererProps } from '@bg/ui';
 import {
-  adjacent, CARD_BY_ID, FJORDS, FJORD_IDS, PROVINCES, REGION_FA, REWARD_FA, RING, STAT_FA, STATS, TRACKS, LAST_STEP, RAGNAROK_GLORY,
+  adjacent, CARD_BY_ID, CARDS, FJORDS, FJORD_IDS, PROVINCES, REGION_FA, REWARD_FA, RING, STAT_FA, STATS, TRACKS, LAST_STEP, RAGNAROK_GLORY,
   type CardDef, type FjordId, type Place, type ProvinceId, type Stat
 } from './data.ts';
 import { villagesFree, type BRView, type BattleView, type Figure, type LogEntry } from './rules.ts';
@@ -13,6 +13,17 @@ import { villagesFree, type BRView, type BattleView, type Figure, type LogEntry 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const CLAN_FA = ['آبی', 'زرد', 'قرمز', 'عاج', 'بنفش'];
 const clanColor = (seat: number) => `var(--seat-${(seat % 5) + 1})`;
+/** Seat → clan of the printed game (raven, serpent, wolf, bear, ram): emblem and figure portraits in cards.webp. */
+const CLAN_NAME = ['کلاغ', 'مار', 'گرگ', 'خرس', 'قوچ'];
+const CLAN_ART = [
+  { emblem: 139, warrior: 140, leader: 141, ship: 142 },
+  { emblem: 135, warrior: 136, leader: 137, ship: 138 },
+  { emblem: 131, warrior: 132, leader: 133, ship: 134 },
+  { emblem: 143, warrior: 144, leader: 145, ship: 146 },
+  { emblem: 147, warrior: 148, leader: 149, ship: 150 }
+];
+const cell = (k: number) => ({ x: (k % 14) * 150, y: Math.floor(k / 14) * 230 });
+const spritePos = (k: number) => `${((k % 14) / 13) * 100}% ${(Math.floor(k / 14) / 10) * 100}%`;
 const KIND_FA: Record<string, string> = { leader: 'رهبر', warrior: 'جنگجو', ship: 'کشتی', monster: 'هیولا' };
 const CARD_KIND_FA: Record<CardDef['kind'], string> = { clan: 'ارتقای قبیله', warrior: 'ارتقای جنگجو', ship: 'ارتقای کشتی', leader: 'ارتقای رهبر', monster: 'هیولا', battle: 'نبرد', quest: 'مأموریت' };
 const REWARD_GLYPH: Record<string, string> = { rage: 'خ+', axes: 'ت+', horns: 'ش+', glory: '۵', all: '★' };
@@ -67,7 +78,28 @@ function artStyle(def: CardDef): CSSProperties | undefined {
   const cells = ART[def.nameEn];
   if (!cells) return undefined;
   const k = cells[Math.min(def.age, cells.length) - 1]!;
-  return { backgroundPosition: `${((k % 14) / 13) * 100}% ${(Math.floor(k / 14) / 10) * 100}%` };
+  return { backgroundPosition: spritePos(k) };
+}
+
+/** One SVG pattern per portrait (clan warriors, leaders, ships and monsters), cut from cards.webp. */
+const PORTRAITS = [
+  ...CLAN_ART.flatMap((c) => [`f${c.warrior}`, `f${c.leader}`, `s${c.ship}`]),
+  ...CARDS.filter((d) => d.kind === 'monster').map((d) => `f${ART[d.nameEn]?.[0] ?? 0}`)
+];
+function FigurePatterns() {
+  return (
+    <defs>
+      {[...new Set(PORTRAITS)].map((id) => {
+        const c = cell(Number(id.slice(1)));
+        const box = id.startsWith('s') ? { x: c.x + 15, y: c.y + 60, w: 120 } : { x: c.x + 25, y: c.y + 22, w: 100 };
+        return (
+          <pattern key={id} id={`blr-pat-${id}`} width="1" height="1" patternContentUnits="objectBoundingBox" viewBox={`${box.x} ${box.y} ${box.w} ${box.w}`} preserveAspectRatio="xMidYMid slice">
+            <image href="/games/blood-rage/cards.webp" width="2100" height="2530" />
+          </pattern>
+        );
+      })}
+    </defs>
+  );
 }
 
 type Hint = GameAction;
@@ -241,10 +273,15 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
         onClick={clickable ? (e) => { e.stopPropagation(); clickFig(f); } : undefined}
         onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickFig(f); } } : undefined}>
         <ellipse cy="12" rx={f.kind === 'ship' ? 18 : 12} ry="4" className="blr-fig__shadow" />
-        {f.kind === 'leader' && <><circle r="17" className="blr-fig__body" /><circle r="17" className="blr-fig__shine" /><path d="M-9 5 L-7 -7 L-2 -1 L0 -9 L2 -1 L7 -7 L9 5Z" className="blr-fig__crown" /></>}
-        {f.kind === 'warrior' && <><circle r="11.5" className="blr-fig__body" /><circle r="11.5" className="blr-fig__shine" /><path d="M-5 4 L0 -6 L5 4Z" className="blr-fig__mark" /></>}
-        {f.kind === 'ship' && <><path d="M-17 2 H17 L11 12 H-11Z" className="blr-fig__body" /><path d="M-17 2 H17 L11 12 H-11Z" className="blr-fig__shine" /><path d="M0 -14 V2 M0 -14 L12 -2 H0" className="blr-fig__mark blr-fig__sail" /></>}
-        {f.kind === 'monster' && <><path d="M0 -17 L16 0 L0 17 L-16 0Z" className="blr-fig__body" /><path d="M0 -17 L16 0 L0 17 L-16 0Z" className="blr-fig__shine" /><text className="blr-fig__txt" textAnchor="middle" dy="5">{(CARD_BY_ID[f.mon ?? '']?.nameFa ?? '؟')[0]}</text></>}
+        {(() => {
+          const r = f.kind === 'warrior' ? 12 : 16;
+          const k = f.kind === 'monster' ? ART[CARD_BY_ID[f.mon ?? '']?.nameEn ?? '']?.[0] : CLAN_ART[f.seat % 5]![f.kind as 'warrior' | 'leader' | 'ship'];
+          return <>
+            {f.kind === 'monster' ? <path d={`M0 ${-r - 6} L${r + 6} 0 L0 ${r + 6} L${-r - 6} 0Z`} className="blr-fig__body" /> : <circle r={r + 3} className="blr-fig__body" />}
+            <circle r={r} fill={`url(#blr-pat-${f.kind === 'ship' ? 's' : 'f'}${k ?? 0})`} />
+            {f.kind === 'leader' && <path d="M-9 -19 L-7 -27 L-2 -22 L0 -29 L2 -22 L7 -27 L9 -19Z" className="blr-fig__crown" />}
+          </>;
+        })()}
       </g>
     );
   };
@@ -267,6 +304,7 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
         <div className="blr__board">
           <ZoomBoard label="نقشهٔ میدگارد">
             <svg className="blr-map" viewBox={`${PIC.x} ${PIC.y} ${PIC.size} ${PIC.size}`} role="group" aria-label="نقشهٔ میدگارد">
+              <FigurePatterns />
               <image href="/games/blood-rage/sea.webp" x={PIC.x} y={PIC.y} width={PIC.size} height={PIC.size} preserveAspectRatio="xMidYMid slice" className="blr-board" />
               <image href="/games/blood-rage/board.webp" x={PIC.x} y={PIC.y} width={PIC.size} height={PIC.size} className="blr-board" />
               {RING.map((p) => {
@@ -339,8 +377,8 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
               return (
                 <article key={s.seat} className={`blr-seat${s.seat === me ? ' is-me' : ''}${turn ? ' is-turn' : ''}${s.resigned ? ' is-out' : ''}`} style={{ ['--c' as string]: clanColor(s.seat) }}>
                   <header>
-                    <i className="blr-seat__dot" aria-hidden />
-                    <b>{nm(s.seat)}</b><small>{CLAN_FA[s.seat % 5]}{s.seat === me ? ' · شما' : ''}{s.seat === view.first ? ' · آغازگر' : ''}{s.resigned ? ' · انصراف' : ''}</small>
+                    <i className="blr-seat__dot blr-emblem" style={{ backgroundPosition: spritePos(CLAN_ART[s.seat % 5]!.emblem) }} aria-hidden />
+                    <b>{nm(s.seat)}</b><small>قبیلهٔ {CLAN_NAME[s.seat % 5]} · {CLAN_FA[s.seat % 5]}{s.seat === me ? ' · شما' : ''}{s.seat === view.first ? ' · آغازگر' : ''}{s.resigned ? ' · انصراف' : ''}</small>
                     <span className="blr-seat__glory" aria-label={`${fa(s.glory)} افتخار`}><b>{fa(s.glory)}</b> افتخار</span>
                   </header>
                   <dl className="blr-seat__stats">
@@ -352,7 +390,7 @@ export default function BloodRageRenderer({ view, legalActions, mySeat, seatName
                     <div><dt>مأموریت</dt><dd>{fa(s.quests)}</dd></div>
                   </dl>
                   <div className="blr-tracks" aria-hidden>
-                    {STATS.map((st) => <span key={st} className="blr-track" title={`${STAT_FA[st]}: پلهٔ ${fa(s.steps[st] + 1)} از ${fa(LAST_STEP + 1)}`}>{STAT_FA[st]}{TRACKS[st].map((_, k) => <i key={k} className={k <= s.steps[st] ? 'on' : ''} />)}</span>)}
+                    {STATS.map((st) => TRACKS[st].map((v, k) => <i key={`${st}${k}`} className={k === s.steps[st] ? 'on' : k < s.steps[st] ? 'past' : ''} title={`${STAT_FA[st]}: پلهٔ ${fa(s.steps[st] + 1)} از ${fa(LAST_STEP + 1)}`}>{fa(v)}</i>))}
                   </div>
                   <ul className="blr-slots" aria-label={`ارتقاهای ${CLAN_FA[s.seat % 5]}`}>
                     {[s.warrior, s.leader, s.ship, ...s.monsters, ...s.clans].filter(Boolean).map((d, i) => <li key={i} title={CARD_BY_ID[d!]?.textFa}>{CARD_BY_ID[d!]?.nameFa}</li>)}

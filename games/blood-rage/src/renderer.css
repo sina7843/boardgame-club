@@ -220,3 +220,22 @@ html[dir="rtl"] .blr-card__num { translate: 50% 0; }
 .blr-card__num { inset-block-start: 106px; }
 .blr-card__sub { margin-block-start: 112px; position: relative; }
 .blr-card__name, .blr-card__text { position: relative; }
+
+/* ---------- v5: clan portraits as figures, BGA emblems and stat tracks ---------- */
+.blr-fig__body { stroke: #0a1822; stroke-width: 2; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.7)); }
+.blr-fig--leader .blr-fig__body { stroke: #f0c75e; stroke-width: 3; }
+.blr-fig__crown { fill: #f0c75e; stroke: #3a2606; stroke-width: 1.5; }
+.blr-fig image { pointer-events: none; }
+.blr-emblem { inline-size: 34px; block-size: 34px; border-radius: 50%; background-image: url(/games/blood-rage/cards.webp); background-size: 1400% 1100%; box-shadow: 0 0 0 2px var(--c), 0 2px 4px rgb(0 0 0 / 0.6); clip-path: circle(48%); }
+.blr-seat .blr-emblem { background-color: transparent; transform: scale(1.35); }
+.blr-tracks { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; padding: 6px; border-radius: 8px; background: #efe3c6 url(/games/blood-rage/clan-stats.webp) no-repeat; background-size: 0 0; }
+.blr-tracks i { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; font-style: normal; font-weight: 800; font-size: 12px; color: #fff; text-shadow: 0 1px 2px #000;
+  background-image: url(/games/blood-rage/clan-stats.webp); background-size: 816% 354%; opacity: 0.55; }
+.blr-tracks i:nth-child(n+1):nth-child(-n+6) { background-position-y: 14.5%; }
+.blr-tracks i:nth-child(n+7):nth-child(-n+12) { background-position-y: 53.8%; }
+.blr-tracks i:nth-child(n+13) { background-position-y: 92.8%; }
+.blr-tracks i:nth-child(6n+1) { background-position-x: 24.6%; } .blr-tracks i:nth-child(6n+2) { background-position-x: 38.6%; }
+.blr-tracks i:nth-child(6n+3) { background-position-x: 52.6%; } .blr-tracks i:nth-child(6n+4) { background-position-x: 66.7%; }
+.blr-tracks i:nth-child(6n+5) { background-position-x: 80.6%; } .blr-tracks i:nth-child(6n) { background-position-x: 94.4%; }
+.blr-tracks i.past { opacity: 0.8; }
+.blr-tracks i.on { opacity: 1; box-shadow: 0 0 0 3px #ffbf2e, 0 0 10px #ffbf2e; font-size: 15px; }
