@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { LEVEL_UP_COINS, RATING_MODE_FA, type Progression } from '@bg/contracts';
-import { Badge, Button, Card, League, ListItem, PageHead, Progress, Reward, Ring, Segmented, StateBlock, Trophy } from '@bg/ui/bgv';
+import { Badge, Button, Icon, League, PageHead, Progress, Reward, Ring, Segmented, StateBlock, Trophy } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
-import { faNum, jalaliDate } from '../lib/format.ts';
+import { faNum, jalaliDate, remainingFa } from '../lib/format.ts';
 import { TIER_FA } from '../lib/rewards.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { Hint } from '../shell/Onboarding.tsx';
@@ -44,99 +44,108 @@ export function ProgressPage() {
   const earnedFirst = [...d.achievements].sort((a, b) => Number(!a.grantedAt) - Number(!b.grantedAt) || (a.grantedAt ? 0 : ratio(b) - ratio(a)));
   const span = Math.max(1, d.nextLevelAt - d.levelFloor);
   const into = d.xp - d.levelFloor;
+  // The season card shows the best-placed ranked game (Progress-Desktop); the full list lives on /ranking.
+  const top = [...d.ratings].sort((a, b) => b.display - a.display)[0];
   return (
     <>
       <PageTabs group="progress" />
-      <PageHead title="پیشرفت" sub="مهارت، سطح حساب و تسلط هر بازی جدا از هم سنجیده می‌شوند؛ XP و دستاورد روی رتبه اثر ندارند." />
-      <div className="pf-prog">
-        <Card title="سطح حساب">
-          <div className="bgv-stack">
-            <div className="pf-level">
-              <div className="bgv-stack" style={{ gap: 'var(--space-1)' }}>
-                <strong className="t-h3">سطح {faNum(d.level)}</strong>
-                <span className="t-caption bgv-muted"><bdi>{faNum(d.xp)}</bdi> XP</span>
-              </div>
-              <Ring value={into / span} size={88} tone="accent" label="تا سطح بعد"><b className="t-num-lg">{faNum(d.level)}</b></Ring>
+      <PageHead className="app-hide-phone" title="پیشرفت" sub="مهارت، سطح حساب و تسلط هر بازی جدا از هم سنجیده می‌شوند؛ XP و دستاورد روی رتبه اثر ندارند." />
+      <div className="pf-prog3">
+        <section className="bgv-card pf-pcard" aria-label="سطح حساب">
+          <div className="pf-level">
+            <Ring value={into / span} size={84} label="تا سطح بعد"><b className="t-num-lg">{faNum(d.level)}</b></Ring>
+            <div className="pf-level__text"><span className="t-caption bgv-muted">سطح حساب</span>
+              <b className="t-title pf-level__n">سطح {faNum(d.level)}</b>
+              <span className="t-caption bgv-muted bgv-num"><bdi>{faNum(d.xp)} XP</bdi></span></div>
+          </div>
+          <Progress label={`تا سطح ${faNum(d.level + 1)}`} tone="accent" value={into / span} valueText={`${faNum(into)} از ${faNum(span)}`} />
+          <Reward coin label={`پاداش سطح ${faNum(d.level + 1)}`} value={faNum((d.level + 1) * LEVEL_UP_COINS)} unit="سکه" />
+        </section>
+
+        <section className="bgv-card pf-pcard" aria-labelledby="ms-h">
+          <div className="bgv-row"><h2 id="ms-h" className="pf-h2">مأموریت‌های این هفته</h2>
+            <Badge icon="calendar">تا {jalaliDate(d.missions.endsAt)}</Badge>
+            <Hint id="missions">هر شنبه مأموریت‌های تازه می‌آید. با کامل کردن میزها (حتی با باخت) پیش می‌روند و XP می‌دهند؛ هیچ‌کدام برد اجباری ندارد.</Hint></div>
+          {d.missions.items.map((m) => (
+            <div key={m.key} className="pf-mission" title={m.descriptionFa}>
+              <div className="bgv-row pf-mission__head"><b>{m.titleFa}</b>
+                {m.completed ? <Badge tone="success" icon="check">کامل</Badge> : <span className="t-caption bgv-num pf-mission__xp"><bdi dir="ltr">+{faNum(m.xp)} XP</bdi></span>}</div>
+              <div className="pf-mission__bar"><Progress aria-label={m.titleFa} value={m.progress / Math.max(1, m.target)} />
+                <span className="t-caption bgv-muted bgv-num">{faNum(m.progress)} از {faNum(m.target)}</span></div>
             </div>
-            <Progress label="تا سطح بعد" tone="accent" value={into / span} valueText={`${faNum(into)} از ${faNum(span)}`} />
-            <Reward coin label={`پاداش سطح ${faNum(d.level + 1)}`} value={`+${faNum((d.level + 1) * LEVEL_UP_COINS)}`} unit="سکه" />
-          </div>
-        </Card>
+          ))}
+        </section>
 
-        <Card title="مأموریت‌های این هفته">
-          <div className="bgv-stack">
-            <div className="bgv-row"><Badge icon="calendar">تا {jalaliDate(d.missions.endsAt)}</Badge><Hint id="missions">هر شنبه مأموریت‌های تازه می‌آید. با کامل کردن میزها (حتی با باخت) پیش می‌روند و XP می‌دهند.</Hint></div>
-            <p className="t-body-sm bgv-muted">هیچ مأموریتی برد اجباری ندارد.</p>
-            {d.missions.items.map((m) => (
-              <div key={m.key} className="bgv-stack" style={{ gap: 'var(--space-1)' }}>
-                <div className="bgv-row"><strong style={{ flex: 1 }}>{m.titleFa}</strong>
-                  {m.completed ? <Badge tone="success" icon="check">کامل (+{faNum(m.xp)} XP)</Badge> : <span className="t-caption bgv-muted">+{faNum(m.xp)} XP</span>}</div>
-                <span className="t-caption bgv-muted">{m.descriptionFa}</span>
-                <Progress label={m.titleFa} value={m.progress / Math.max(1, m.target)} valueText={`${faNum(m.progress)} از ${faNum(m.target)}`} />
+        <section className="bgv-card pf-pcard" aria-labelledby="season-h">
+          <div className="bgv-row"><h2 id="season-h" className="pf-h2">{d.season?.nameFa ?? 'مهارت (رتبه‌دار)'}</h2>
+            {d.season && <Badge icon="clock">{remainingFa(d.season.endsAt)} مانده</Badge>}</div>
+          {top ? (
+            <div className="pf-seasontop">
+              <img src={`/covers/${top.gameId}.webp`} alt="" loading="lazy" />
+              <div className="pf-seasontop__text"><b>{gameName(top.gameId)}، {RATING_MODE_FA[top.mode]}</b>
+                <span className="t-caption bgv-muted bgv-row">{top.league && <League tier={top.league} />}{top.provisional ? `موقت، ${faNum(top.games)} بازی` : `${faNum(top.games)} بازی`}</span></div>
+              <b className="t-num-lg bgv-num pf-seasontop__n">{faNum(top.display)}</b>
+            </div>
+          ) : <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>هنوز بازی رتبه‌داری نکرده‌اید. در «بازی سریع» حالت «رتبه‌دار» را انتخاب کنید.</p>}
+          {d.ratings.length > 1 && <span className="t-caption bgv-muted">و {faNum(d.ratings.length - 1)} بازی رتبه‌دار دیگر</span>}
+          <a href={top ? `/ranking?game=${top.gameId}` : '/ranking'} className="t-label">جدول رتبه‌بندی{top ? ` ${gameName(top.gameId)}` : ''}</a>
+        </section>
+      </div>
+
+      <section className="bgv-card pf-pcard" aria-labelledby="ach-h">
+        <div className="bgv-row pf-achhead"><h2 id="ach-h" className="pf-h2">دستاوردها</h2>
+          <span className="t-caption bgv-muted">{faNum(earned)} از {faNum(d.achievements.length)} جام</span>
+          <Hint id="achievements">جام‌ها خودکار و فقط از نتیجهٔ واقعی بازی‌ها و آموزش‌ها داده می‌شوند و روی پروفایل شما دیده می‌شوند.</Hint>
+          <Segmented label="فیلتر دستاوردها" value={achFilter} onChange={(v) => setAchFilter(v as typeof achFilter)}
+            options={[{ value: 'all', label: 'همه' }, { value: 'earned', label: 'کسب‌شده' }, { value: 'near', label: 'نزدیک به کسب' }]} /></div>
+        {/* Every earned trophy, then the next few locked ones; the rest behind the toggle. */}
+        <Clamped items={achFilter === 'all' ? earnedFirst : achFilter === 'earned' ? earnedFirst.filter((a) => a.grantedAt) : earnedFirst.filter((a) => !a.grantedAt && ratio(a) >= 0.5)}
+          limit={achFilter === 'all' ? earned + 6 : 12}>{(shown) => (
+          <ul className="pf-ach">{shown.map((a) => (
+            <li key={a.key} className={a.grantedAt ? 'pf-achtile' : 'pf-achtile is-locked'}>
+              <div className="pf-achtile__head">
+                <Trophy tier={a.tier} locked={!a.grantedAt} />
+                <div className="pf-achtile__name"><span className="t-micro">{TIER_FA[a.tier]}</span><b>{a.titleFa}</b></div>
               </div>
-            ))}
-          </div>
-        </Card>
+              <span className="t-caption bgv-muted">{a.descriptionFa}</span>
+              {a.grantedAt ? <span className="t-caption pf-achtile__got"><Icon name="circle-check" size="sm" />کسب‌شده {jalaliDate(a.grantedAt)}</span> : (
+                <div className="pf-mission__bar"><Progress aria-label={`پیشرفت ${a.titleFa}`} value={ratio(a)} />
+                  <span className="t-caption bgv-muted bgv-num">{faNum(a.progress)} از {faNum(a.target)}</span></div>
+              )}
+            </li>))}</ul>)}
+        </Clamped>
+      </section>
 
-        <Card className="pf-wide" title="دستاوردها"
-          actions={<span className="bgv-row"><span className="t-caption bgv-muted">{faNum(earned)} از {faNum(d.achievements.length)} جام</span><Hint id="achievements">جام‌ها خودکار و فقط از نتیجهٔ واقعی بازی‌ها و آموزش‌ها داده می‌شوند و روی پروفایل شما دیده می‌شوند.</Hint></span>}>
-          <div className="bgv-stack">
-            {/* Every earned trophy, then the next few locked ones; the rest behind the toggle. */}
-            <Segmented label="فیلتر دستاوردها" value={achFilter} onChange={(v) => setAchFilter(v as typeof achFilter)}
-              options={[{ value: 'all', label: 'همه' }, { value: 'earned', label: 'کسب‌شده' }, { value: 'near', label: 'نزدیک به کسب' }]} />
-            <Clamped items={achFilter === 'all' ? earnedFirst : achFilter === 'earned' ? earnedFirst.filter((a) => a.grantedAt) : earnedFirst.filter((a) => !a.grantedAt && ratio(a) >= 0.5)}
-              limit={achFilter === 'all' ? earned + 4 : 12}>{(shown) => (
-              <ul className="pf-ach">{shown.map((a) => (
-                <li key={a.key}>
-                  <Trophy tier={a.tier} locked={!a.grantedAt} name={a.titleFa} sub={TIER_FA[a.tier]} />
-                  <span className="t-caption bgv-muted">{a.descriptionFa}</span>
-                  {a.grantedAt ? <Badge tone="success" icon="check">کسب‌شده {jalaliDate(a.grantedAt)}</Badge> : (
-                    <Progress label={`پیشرفت ${a.titleFa}`} value={ratio(a)} valueText={`${faNum(a.progress)} / ${faNum(a.target)}`} />
-                  )}
+      <div className="pf-prog2">
+        <section className="bgv-card pf-pcard" aria-labelledby="mastery-h">
+          <div className="bgv-row"><h2 id="mastery-h" className="pf-h2">تسلط بر بازی‌ها</h2>
+            <span className="t-caption bgv-muted">{faNum(played.length)} از {faNum(d.mastery.length)} بازی</span></div>
+          {played.length === 0 ? <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>هنوز بازی‌ای را تمام نکرده‌اید. با آموزش یا اولین بازی، تسلط شروع می‌شود. <a href="/games">دیدن بازی‌ها</a></p> : (
+            <Clamped items={played} limit={6}>{(shown) => (
+              <ul className="pf-ul pf-rows">{shown.map((m) => (
+                <li key={m.gameId} className="pf-mrow">
+                  <img src={`/covers/${m.gameId}.webp`} alt="" loading="lazy" />
+                  <div className="pf-mrow__text"><b>{m.gameNameFa}</b>
+                    <span className="t-caption bgv-muted">{faNum(m.completed)} بازی<span className="bgv-sep" />{faNum(m.wins)} اول<span className="bgv-sep" />{faNum(m.ranked)} رتبه‌دار{m.tutorial ? <><span className="bgv-sep" />آموزش ✓</> : null}</span></div>
+                  <Badge tone={m.tier === 'master' ? 'premium' : m.tier === 'seasoned' ? 'success' : 'neutral'}>{m.tierFa}</Badge>
                 </li>))}</ul>)}
             </Clamped>
-          </div>
-        </Card>
+          )}
+        </section>
 
-        <Card title="مهارت (رتبه‌دار)">
-          <div className="bgv-stack">
-            {d.season && <p className="t-body-sm bgv-muted">فصل فعال: {d.season.nameFa}، تا {jalaliDate(d.season.endsAt)}</p>}
-            {d.ratings.length === 0 ? <p className="bgv-muted">هنوز بازی رتبه‌داری نکرده‌اید. از <a href="/play">حریف‌یابی</a> «رتبه‌دار» را انتخاب کنید.</p> : (
-              <Clamped items={d.ratings} limit={6}>{(shown) => (
-                <div>{shown.map((r) => (
-                  <ListItem key={`${r.gameId}-${r.mode}`} title={<>{gameName(r.gameId)}<span className="bgv-sep" />{RATING_MODE_FA[r.mode]}</>}
-                    sub={r.provisional ? <Badge size="sm">موقت ({faNum(r.games)} بازی)</Badge> : undefined}
-                    trailing={<span className="bgv-row">{r.league && <League tier={r.league} />}<strong className="bgv-num">{faNum(r.display)}</strong></span>} />))}</div>)}
-              </Clamped>
-            )}
-            <a href="/ranking">جدول رتبه‌بندی و سابقه</a>
-          </div>
-        </Card>
-
-        <Card title="تسلط بر بازی‌ها" actions={<span className="t-caption bgv-muted">{faNum(played.length)} از {faNum(d.mastery.length)} بازی</span>}>
-          <div className="bgv-stack">
-            {played.length === 0 ? <p className="bgv-muted">هنوز بازی‌ای را تمام نکرده‌اید. با آموزش یا اولین بازی، تسلط شروع می‌شود. <a href="/games">دیدن بازی‌ها</a></p> : (
-              <Clamped items={played} limit={8}>{(shown) => (
-                <div>{shown.map((m) => (
-                  <ListItem key={m.gameId} title={m.gameNameFa}
-                    sub={<>{faNum(m.completed)} بازی<span className="bgv-sep" />{faNum(m.wins)} اول<span className="bgv-sep" />{faNum(m.ranked)} رتبه‌دار{m.tutorial ? <><span className="bgv-sep" />آموزش ✓</> : null}</>}
-                    trailing={<Badge tone={m.tier === 'master' ? 'premium' : 'neutral'}>{m.tierFa}</Badge>} />))}</div>)}
-              </Clamped>
-            )}
-          </div>
-        </Card>
-
-        <Card className="pf-wide" title="پاداش‌های اخیر و دلیل آن‌ها">
-          <div className="bgv-stack">
-            {d.ledger.length === 0 ? <p className="bgv-muted">هنوز پاداشی ثبت نشده است. بازی کامل، آموزش و مأموریت XP می‌دهند.</p> : (
-              <Clamped items={d.ledger} limit={8}>{(shown) => (
-                <div>{shown.map((l, i) => (
-                  <ListItem key={i} title={l.reason} sub={<Badge size="sm">{ruleFa(l.ruleId)}</Badge>}
-                    trailing={<strong className="bgv-num" dir="ltr">{l.amount > 0 ? `+${faNum(l.amount)}` : faNum(l.amount)}</strong>} />))}</div>)}
-              </Clamped>
-            )}
-          </div>
-        </Card>
+        <section className="bgv-card pf-pcard" aria-labelledby="ledger-h">
+          <div className="bgv-row"><h2 id="ledger-h" className="pf-h2">پاداش‌های اخیر و دلیل آن‌ها</h2></div>
+          {d.ledger.length === 0 ? <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>هنوز پاداشی ثبت نشده است. بازی کامل، آموزش و مأموریت XP می‌دهند.</p> : (
+            <Clamped items={d.ledger} limit={6}>{(shown) => (
+              <ul className="pf-ul pf-rows">{shown.map((l, i) => (
+                <li key={i} className="pf-lrow">
+                  <Badge size="sm">{ruleFa(l.ruleId)}</Badge>
+                  <div className="pf-mrow__text"><span>{l.reason}</span><span className="t-caption bgv-muted">{jalaliDate(l.createdAt)}</span></div>
+                  <b className="bgv-num" dir="ltr">{l.amount > 0 ? `+${faNum(l.amount)}` : faNum(l.amount)}{l.kind === 'xp' ? ' XP' : ''}</b>
+                </li>))}</ul>)}
+            </Clamped>
+          )}
+        </section>
       </div>
     </>
   );
