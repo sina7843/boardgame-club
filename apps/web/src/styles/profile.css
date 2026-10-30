@@ -72,6 +72,33 @@
   .pf-prog3, .pf-prog2 { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
 }
 
+/* Ranking-Desktop / Ranking-Mobile: filter bar, table card with league tiles, my rank + history aside. */
+.pf-rankbar { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3) var(--space-4); }
+.pf-rankbar > .bgv-field { flex: 0 1 260px; }
+.pf-rankbar__mode { display: grid; gap: var(--space-1); }
+.pf-rankbar > .bgv-chip { min-block-size: 44px; }
+.pf-rankcols { align-items: start; }
+.pf-rankside { display: grid; gap: var(--space-6); align-content: start; min-inline-size: 0; }
+.pf-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: var(--space-2); }
+.pf-step { display: grid; gap: 4px; align-content: start; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface); border: 1.5px solid var(--line); min-inline-size: 0; }
+.pf-step.is-current { border-color: var(--heading); }
+.pf-step__name { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pf-step__bar { display: block; block-size: 6px; margin-block-start: 4px; border-radius: var(--radius-pill); background: var(--clock-track); overflow: hidden; }
+.pf-step__bar > i { display: block; block-size: 100%; border-radius: var(--radius-pill); background: var(--heading); }
+.pf-rank1 { display: inline-grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: var(--radius-sm); background: var(--heading); color: var(--surface); }
+.pf-myrank { display: grid; gap: var(--space-3); justify-items: center; text-align: center; }
+.pf-myrank__meta { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+.pf-hist__after { color: var(--text); }
+.pf-selfstart { justify-self: start; }
+.pf-ranknote { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; }
+@media (max-width: 899px) {
+  .pf-rankbar { flex-wrap: nowrap; align-items: center; gap: var(--space-2); }
+  .pf-rankbar > .bgv-field { flex: 1 1 auto; }
+  .pf-rankbar .bgv-label, .pf-rankbar__mode > .t-label { display: none; }
+  .pf-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pf-step > .t-caption, .pf-step > .pf-step__bar { display: none; }
+}
+
 /* Ranking */
 .pf-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: var(--space-4); align-items: end; }
 .pf-rank-user { display: flex; align-items: center; gap: var(--space-2); }
@@ -112,22 +139,12 @@
 .pf-mastery > div { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); }
 
 /* Ranking: you-card, league ladder, medals, own row outside the top list. */
-.pf-rankhead { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--space-4); }
-@media (max-width: 899px) { .pf-rankhead { grid-template-columns: minmax(0, 1fr); } }
-.pf-you { display: grid; gap: var(--space-3); }
-.pf-you__stats { display: flex; flex-wrap: wrap; gap: var(--space-5); }
-.pf-you__stats > div { display: grid; }
-.pf-you__stats span { font-size: 12.5px; color: var(--text-muted); }
-.pf-ladder { display: grid; gap: var(--space-2); }
-.pf-ladder__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
-.pf-ladder__list li { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
-.pf-ladder__list li.is-you { background: var(--invite-soft); font-weight: 700; }
 .pf-medal { display: inline-grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: var(--radius-pill); color: var(--on-accent); font-weight: 800; }
 .pf-medal.tier-gold { background: var(--tier-gold); }
 .pf-medal.tier-silver { background: var(--tier-silver); }
 .pf-medal.tier-bronze { background: var(--tier-bronze); }
-.pf-up { color: var(--success); font-weight: 700; }
-.pf-down { color: var(--danger); font-weight: 700; }
+.pf-up { display: inline-flex; align-items: center; gap: 2px; color: var(--success); font-weight: 700; }
+.pf-down { display: inline-flex; align-items: center; gap: 2px; color: var(--danger); font-weight: 700; }
 .pf-yourow { display: flex; gap: var(--space-3); margin: 0; padding: var(--space-3) var(--space-5); border-block-start: 2px dashed var(--line); background: var(--invite-soft); }
 
 /* Friends: list + requests aside; on phones the requests come first. */

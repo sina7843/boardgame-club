@@ -45,13 +45,14 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
   await a.screenshot({ path: shot('01-result-rewards', info.project.name), fullPage: true });
 
   await a.goto('/progress');
-  await expect(a.getByRole('heading', { name: 'سطح حساب' })).toBeVisible();
-  await expect(a.getByText(/موقت \(۱ بازی\)/)).toBeVisible();
+  await expect(a.getByRole('region', { name: 'سطح حساب' })).toBeVisible();
+  await expect(a.getByText(/موقت، ۱ بازی/)).toBeVisible(); // the season card shows the best ranked game
   await expect(a.getByText('سه میز کامل').first()).toBeVisible();
   await a.screenshot({ path: shot('02-progress', info.project.name), fullPage: true });
   await a.goto('/ranking');
-  await expect(a.getByRole('heading', { name: 'رتبه‌بندی و لیگ' })).toBeVisible();
-  await expect(a.getByText(/تحلیل روند هفتگی و مقایسه فصل‌ها بخشی از/)).toBeVisible();
+  await expect(a.getByRole('group', { name: 'نردبان لیگ' })).toBeVisible();
+  // Desktop aside (Ranking-Desktop); the phone shows only the leagues and the table (Ranking-Mobile).
+  if ((info.project.use.viewport?.width ?? 1440) >= 900) await expect(a.getByText(/نمودار هفتگی و مقایسهٔ فصل‌ها بخشی از/)).toBeVisible();
   await a.screenshot({ path: shot('03-ranking', info.project.name), fullPage: true });
   await a.context().close(); await b.context().close();
 });

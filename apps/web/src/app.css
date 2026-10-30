@@ -120,3 +120,8 @@
 
 /* HeaderSearch wraps the DS search only to watch clicks outside it; the wrapper takes no box of its own. */
 .app-search { display: contents; }
+/* Phone-only counterpart of .app-hide-phone. */
+.app-phone-only { display: none; }
+@media (max-width: 899px) {
+  .app-phone-only { display: revert-layer; }
+}
