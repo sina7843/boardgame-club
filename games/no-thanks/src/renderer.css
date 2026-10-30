@@ -53,3 +53,7 @@
 @keyframes nt-pulse { 50% { outline-color: transparent; } }
 
 @media (prefers-reduced-motion: reduce) { .nt-btn--hint { animation: none; } }
+
+/* v2: the face-up card is the BGA card picture (sprite) */
+.nt-card--art { background-size: 1000% 400%; background-repeat: no-repeat; background-color: #fcefcb; }
+.nt-card--art .nt-card__corner, .nt-card--art .nt-card__n { visibility: hidden; }

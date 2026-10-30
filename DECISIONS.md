@@ -1445,3 +1445,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   (the coin shown is the one with the stack's top value). Onitama (`onitama` 251029-1923): pawns and the board paper
   (grid area of `img/board.jpg`). Sushi Go (`sushigo` 231219-1413): card pictures (top of each card, without the English
   caption) replace our plates. The Jaipur e2e now picks «یک دست» from the setup select (the form became a select).
+- Card games from BGA client sprites (2026-10-30): Lost Cities (`cards.png`, colour × value; our white/red expeditions are
+  renamed «ویرانه»/«دره» to match the purple ruins and red canyon art), Love Letter (portraits; the printed values are
+  cropped off because our edition numbers King/Countess/Princess 6/7/8), Hanabi (card faces), 6 nimmt! (card faces carry
+  number and heads), No Thanks! (face-up card), Skull (flower and skull coasters). The 6 nimmt! and Lost Cities e2e pick
+  «یک دست» from the setup select.

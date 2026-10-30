@@ -11,17 +11,21 @@ import fwB from './art/fw-blue.webp';
 import fwW from './art/fw-white.webp';
 import fuse from './art/fuse.webp';
 import clue from './art/clue.webp';
+import cardsArt from './art/cards.webp';
 import { CARDS, COLORS, type Color, type HanabiView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
-// Art is cut from a generated sprite sheet (see DECISIONS.md).
+// Bursts and tokens are cut from a generated sprite sheet; card faces are BGA client art (see DECISIONS.md).
 const BURST: Record<Color, string> = { r: fwR, y: fwY, g: fwG, b: fwB, w: fwW };
 export const COLOR_FA: Record<Color, string> = { r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی', w: 'سفید' };
 
+/** cards.webp (BGA Hanabi client art): 5 values × rows red, yellow, green, blue, white, multicolour, back. */
+const ROW: Record<Color, number> = { r: 0, y: 1, g: 2, b: 3, w: 4 };
+const cardArt = (c: Color, n: number | null) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${((n ?? 1) - 1) * 25}% ${(ROW[c] * 100) / 6}%` });
+
 export function Firework({ c, n, size = 'md' }: { c: Color; n: number | null; size?: 'sm' | 'md' }) {
   return (
-    <span className={`hb-card hb-card--${size} hb-c--${c}`} aria-label={`${COLOR_FA[c]} ${n ? fa(n) : ''}`}>
-      <img src={BURST[c]} alt="" aria-hidden="true" />
+    <span className={`hb-card hb-card--${size} hb-c--${c}`} style={cardArt(c, n)} aria-label={`${COLOR_FA[c]} ${n ? fa(n) : ''}`}>
       {n !== null && <b>{fa(n)}</b>}
     </span>
   );

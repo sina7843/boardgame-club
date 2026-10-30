@@ -68,3 +68,6 @@
 /* My card on its way to the fireworks or the discard (undo window / waiting for the server): face down, no value. */
 .hb__pending { display: inline-flex; min-inline-size: 0; }
 .hb-mine--pending { inline-size: 2.6rem; min-block-size: 3.4rem; cursor: default; background: linear-gradient(160deg, #3a4486, #1b2350); box-shadow: inset 0 0 0 2px #ffd23f; }
+
+/* v2: BGA card pictures (sprite); the number stays on top */
+.hb-card { background-size: 500% 700%; background-repeat: no-repeat; }

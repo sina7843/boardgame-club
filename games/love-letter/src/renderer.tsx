@@ -19,7 +19,7 @@ const EFFECT_FA: Record<number, string> = {
   5: 'یک نفر کارتش را عوض کند', 6: 'دست‌تان را عوض کنید', 7: 'با شاه یا شاهزاده باید بازی شود', 8: 'دور بیندازید، می‌بازید'
 };
 
-// Portraits are cut from a generated sheet (see DECISIONS.md); decorative, the card name and value stay as text.
+// Portraits are cut from the BGA Love Letter client art (see DECISIONS.md); decorative, the card name and value stay as text.
 const ART: Record<number, string> = { 1: guard, 2: priest, 3: baron, 4: handmaid, 5: prince, 6: king, 7: countess, 8: princess };
 
 function LLCard({ v, size = 'md', onClick, selected, hint, disabled, flip, flipFrom }: { flip?: string; flipFrom?: string; v: number; size?: 'sm' | 'md'; onClick?: () => void; selected?: boolean; hint?: boolean; disabled?: boolean }) {

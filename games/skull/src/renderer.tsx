@@ -10,7 +10,7 @@ import type { Disc, SkullView } from './rules.ts';
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const SEAT = ['#d1495b', '#2f80c9', '#3fa34d', '#e0a526', '#8e5bd1', '#e07a2f'];
 
-// Revealed faces are cut from a generated sprite sheet (see DECISIONS.md); backs stay vector in the seat colour.
+// Revealed faces are BGA Skull coasters (see DECISIONS.md); backs stay vector in the seat colour.
 function Coaster({ face, color, size = 'md', flip }: { face: Disc | 'back'; color: string; size?: 'sm' | 'md'; flip?: boolean }) {
   return (
     <span className={['sk-disc', `sk-disc--${size}`, flip ? 'bg-flip-in' : ''].join(' ')} style={{ ['--seat' as string]: color }}>

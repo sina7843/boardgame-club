@@ -55,3 +55,10 @@
 @keyframes lc-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes lc-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .lc *, .lc__last { animation: none !important; transition: none !important; } }
+
+/* v2: BGA card pictures (sprite); the printed corner numbers replace our value and glyph */
+.lc-card { overflow: hidden; }
+.lc-card__art { position: absolute; inset-inline: 0; inset-block-start: 0; inline-size: 100%; aspect-ratio: 113 / 176; background-size: 1000% 600.6%; background-repeat: no-repeat; }
+.lc-card--sm .lc-card__art { inset-block-start: -3%; }
+.lc-card__v, .lc-card__g { visibility: hidden; }
+.lc-card__n { position: relative; align-self: end; inline-size: 100%; text-align: center; background: rgb(0 0 0 / 0.55); }

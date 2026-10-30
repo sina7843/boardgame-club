@@ -57,3 +57,7 @@ button.sn-card:hover, button.sn-card:focus-visible { transform: translateY(-8px)
   .sn-slot, .sn-card--small { inline-size: 2.1rem; block-size: 3rem; }
 }
 @media (prefers-reduced-motion: reduce) { .sn-row--take, .sn-card--hint { animation: none; } }
+
+/* v2: BGA card faces (sprite) carry the number and bull heads */
+.sn-card { background-size: 1000% 1100%; background-repeat: no-repeat; border: 0; }
+.sn-card__heads, .sn-card__n { visibility: hidden; }

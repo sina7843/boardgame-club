@@ -4,10 +4,14 @@
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import cardsArt from './art/cards.webp';
 import { COLORS, canPlay, color, expScore, value, type CardId, type Color, type LostCitiesView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
-export const COLOR_FA: Record<Color, string> = { y: 'صحرا', b: 'دریا', w: 'کوهستان', g: 'جنگل', r: 'آتشفشان' };
+export const COLOR_FA: Record<Color, string> = { y: 'صحرا', b: 'دریا', w: 'ویرانه', g: 'جنگل', r: 'دره' };
+/** cards.webp (BGA Lost Cities client art): 10 × 6 cells of 113 × 176 px, rows y b w g r, columns 2..10 then the wager; back at row 5. */
+const ROW: Record<Color, number> = { y: 0, b: 1, w: 2, g: 3, r: 4 };
+const art = (col: number, row: number) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${(col / 9) * 100}% ${row * 19.977}%` });
 
 function Glyph({ c }: { c: Color }) {
   switch (c) {
@@ -20,11 +24,12 @@ function Glyph({ c }: { c: Color }) {
 }
 
 export function Card({ id, size = 'md', back, flip, flipFrom, exit }: { id?: CardId; size?: 'sm' | 'md'; back?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
-  if (back || !id) return <span className={`lc-card lc-card--${size} lc-card--back`} aria-hidden="true" />;
+  if (back || !id) return <span className={`lc-card lc-card--${size} lc-card--back`} aria-hidden="true"><i className="lc-card__art" style={art(0, 5)} /></span>;
   const c = color(id);
   const v = value(id);
   return (
     <span className={['lc-card', `lc-card--${size}`, `lc-c--${c}`, v ? '' : 'lc-card--wager'].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`${COLOR_FA[c]} ${v ? fa(v) : 'شرط'}`}>
+      <i className="lc-card__art" style={art(v ? v - 2 : 9, ROW[c])} />
       <span className="lc-card__v">{v ? fa(v) : '×'}</span>
       <svg viewBox="-20 -20 40 40" aria-hidden="true" className="lc-card__g">{v ? <Glyph c={c} /> : <path d="M-12 -2 Q-6 -10 0 -4 Q6 -10 12 -2 L4 8 Q0 12 -4 8 Z" />}</svg>
       {size === 'md' && <span className="lc-card__n">{v ? COLOR_FA[c] : 'شرط'}</span>}

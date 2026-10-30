@@ -4,7 +4,10 @@ import './renderer.css';
 import { useMemo, useRef } from 'react';
 import { TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { cardPoints, runs, type NoThanksView } from './rules.ts';
+import cardsArt from './art/cards.webp';
 
+/** cards.webp (BGA No Thanks! client art): 10 × 4 cells, card n at cell n (cell 0 is the back). */
+const cardArt = (n: number) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${((n % 10) / 9) * 100}% ${(Math.floor(n / 10) / 3) * 100}%` });
 const fa = (n: number) => n.toLocaleString('fa-IR');
 /** Warm-to-hot card colours: low cards cool, high cards red. */
 const hue = (c: number) => 200 - ((c - 3) / 32) * 200;
@@ -48,7 +51,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
           <span className="nt-deck__n">{fa(view.deckCount)}</span>
         </div>
         {view.card !== null ? (
-          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big" style={{ ['--h' as string]: hue(view.card) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ژتون رویش`}>
+          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...cardArt(view.card) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ژتون رویش`}>
             <span className="nt-card__corner">{fa(view.card)}</span>
             <strong className="nt-card__n">{fa(view.card)}</strong>
             <span className="nt-pot" aria-hidden="true">

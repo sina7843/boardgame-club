@@ -4,6 +4,7 @@ import './renderer.css';
 import { useRef } from 'react';
 import { TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import bull from './art/bull.webp';
+import cardsArt from './art/cards.webp';
 import { bullheads, type SixNimmtView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -14,19 +15,21 @@ function Bull() {
   return <img src={bull} className="sn-bull" alt="" aria-hidden="true" draggable={false} />;
 }
 
+/** cards.webp (BGA 6 nimmt! client art): 10 × 11 cells, card n at cell n − 1; the printed number and heads replace ours. */
+const cardArt = (c: number) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${(((c - 1) % 10) / 9) * 100}% ${(Math.floor((c - 1) / 10) / 10) * 100}%` });
+
 function Card({ c, small, onClick, state, hint, flip, flipFrom, exit }: { flip?: string; flipFrom?: string; exit?: string; c: number; small?: boolean; onClick?: () => void; state?: 'take' | 'up'; hint?: boolean }) {
   const b = bullheads(c);
   const body = (
     <>
-      <img src={bull} className="sn-card__bg" alt="" aria-hidden="true" draggable={false} />
       <span className="sn-card__heads" aria-hidden="true">{Array.from({ length: b }, (_, k) => <Bull key={k} />)}</span>
       <strong className="sn-card__n">{fa(c)}</strong>
     </>
   );
   const cls = ['sn-card', `sn-card--${tier(c)}`, small ? 'sn-card--small' : '', state ? `sn-card--${state}` : '', hint ? 'sn-card--hint' : ''].join(' ');
   return onClick
-    ? <button type="button" className={cls} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} onClick={onClick} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</button>
-    : <span className={cls} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</span>;
+    ? <button type="button" className={cls} style={cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} onClick={onClick} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</button>
+    : <span className={cls} style={cardArt(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={`کارت ${fa(c)}، ${fa(b)} گاو`}>{body}</span>;
 }
 
 export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<SixNimmtView>) {
