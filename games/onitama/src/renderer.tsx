@@ -8,6 +8,7 @@ import rM from './art/rM.webp';
 import rS from './art/rS.webp';
 import bM from './art/bM.webp';
 import bS from './art/bS.webp';
+import paper from './art/paper.webp';
 import { TEMPLE, cardById, type OnitamaView, type Piece } from './rules.ts';
 
 const S = 120, M = 26, SIZE = 5 * S + 2 * M;
@@ -85,12 +86,11 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
         <ZoomBoard label="صفحه اونیتاما">
           <svg className="oni-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه اونیتاما" style={{ direction: 'ltr' }}>
             <defs>
-              <linearGradient id="oni-paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f4ead2" /><stop offset="1" stopColor="#e3d2ad" /></linearGradient>
               <linearGradient id="oni-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3a2a22" /><stop offset="1" stopColor="#1a120d" /></linearGradient>
               <filter id="oni-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="5" stdDeviation="4" floodOpacity=".45" /></filter>
             </defs>
             <rect width={SIZE} height={SIZE} rx="18" fill="url(#oni-frame)" />
-            <rect x={M} y={M} width={5 * S} height={5 * S} fill="url(#oni-paper)" />
+            <image href={paper} x={M} y={M} width={5 * S} height={5 * S} preserveAspectRatio="none" />
             {Array.from({ length: 6 }, (_, k) => (
               <g key={k} className="oni-ink">
                 <line x1={M + k * S} y1={M} x2={M + k * S} y2={M + 5 * S} />
@@ -167,7 +167,7 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
 
 const pieceFa = (p: Piece, me: number) => `${(p[0] === 'r') === (me === 0) ? 'شما' : 'حریف'} — ${p[1] === 'M' ? 'استاد' : 'شاگرد'}`;
 
-// Piece art is cut from a generated sheet (see DECISIONS.md).
+// Pieces and the board paper are the BGA Onitama client art (see DECISIONS.md).
 const ART: Record<Piece, string> = { rM, rS, bM, bS };
 
 function Token({ x, y, p }: { x: number; y: number; p: Piece }) {

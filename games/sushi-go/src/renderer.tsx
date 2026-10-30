@@ -6,7 +6,9 @@ import { TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import tempura from './art/tempura.webp';
 import sashimi from './art/sashimi.webp';
 import dumpling from './art/dumpling.webp';
-import maki from './art/maki.webp';
+import maki1 from './art/maki1.webp';
+import maki2 from './art/maki2.webp';
+import maki3 from './art/maki3.webp';
 import salmon from './art/salmon.webp';
 import squid from './art/squid.webp';
 import egg from './art/egg.webp';
@@ -26,25 +28,16 @@ const NOTE: Record<Kind, string> = {
 };
 const ORDER: Kind[] = ['wasabi', 'squid', 'salmon', 'egg', 'tempura', 'sashimi', 'dumpling', 'maki3', 'maki2', 'maki1', 'pudding', 'chopsticks'];
 
-// Dish art is cut from a generated sprite sheet (see DECISIONS.md); maki repeats the roll by its count.
-const ART: Record<Kind, string> = {
-  tempura, sashimi, dumpling, maki1: maki, maki2: maki, maki3: maki, salmon, squid, egg, pudding, wasabi, chopsticks
-};
-
-function Dish({ k }: { k: Kind }) {
-  const c = MAKI[k] ?? 0;
-  if (!c) return <image href={ART[k]} x="-19" y="-19" width="38" height="38" />;
-  const xs = c === 1 ? [0] : c === 2 ? [-9, 9] : [-12, 0, 12], w = c === 1 ? 36 : c === 2 ? 24 : 20;
-  return <g>{xs.map((x) => <image key={x} href={maki} x={x - w / 2} y={-w / 2} width={w} height={w} />)}</g>;
-}
+// Card pictures are the BGA Sushi Go client art (top of each card, without its English caption; see DECISIONS.md).
+const ART: Record<Kind, string> = { tempura, sashimi, dumpling, maki1, maki2, maki3, salmon, squid, egg, pudding, wasabi, chopsticks };
 
 export function Plate({ k, size = 'md', fresh, wasabi, flip, flipFrom, exit, pending }: { k: Kind; size?: 'sm' | 'md'; fresh?: boolean; wasabi?: boolean; flip?: string; flipFrom?: string; exit?: string; pending?: boolean }) {
   return (
     <span className={['sg-plate', `sg-plate--${size}`, `sg-k--${k}`, fresh ? 'sg-plate--fresh' : '', pending ? 'sg-plate--pending' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
-      <svg viewBox="-30 -30 60 60" aria-hidden="true">
-        <circle r="28" className="sg-plate__rim" /><circle r="22" className="sg-plate__in" />
-        {wasabi && <path d="M-22 14 Q-24 6 -16 4 Q-14 -2 -8 2 Q0 4 -2 12 Q-4 20 -22 14 Z" fill="#7cb342" opacity=".9" />}
-        <Dish k={k} />
+      <svg viewBox="0 0 54 66" aria-hidden="true">
+        <image href={ART[k]} width="54" height="66" preserveAspectRatio="none" />
+        <rect width="54" height="66" rx="4" className="sg-plate__rim" />
+        {wasabi && <path d="M2 64 Q0 54 8 52 Q10 46 16 50 Q24 52 22 60 Q20 68 2 64 Z" fill="#7cb342" stroke="#2e4a14" strokeWidth="1" />}
       </svg>
       {size === 'md' && <span className="sg-plate__name">{NAME[k]}</span>}
       {size === 'md' && <span className="sg-plate__note">{NOTE[k]}</span>}

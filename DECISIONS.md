@@ -1441,3 +1441,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   (its first 72 cells are the base game, grouped by type; one picture per type in `art/tiles.webp`, 6 × 4). The pictures
   of G, H and I are turned against our canonical edges (`ART_OFF`). Followers stay our own SVG meeples.
 - Hive (`hive` 260123-1639): bug icons from BGA `img/tokens90_new.png`; the hex tiles and felt stay ours.
+- Jaipur (`jaipur` 250812-1233): full card pictures from `img/cards.png` and the printed goods coins from `img/tokens.png`
+  (the coin shown is the one with the stack's top value). Onitama (`onitama` 251029-1923): pawns and the board paper
+  (grid area of `img/board.jpg`). Sushi Go (`sushigo` 231219-1413): card pictures (top of each card, without the English
+  caption) replace our plates. The Jaipur e2e now picks «یک دست» from the setup select (the form became a select).

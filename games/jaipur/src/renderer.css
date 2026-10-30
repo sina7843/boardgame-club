@@ -61,3 +61,9 @@
 @media (prefers-reduced-motion: reduce) { .jp * { animation: none !important; transition: none !important; } }
 
 .jp-stack b, .jp-stall__herd b, .jp__herd b, .jp__earn b, .jp-stall__coins { display: inline-block; }
+
+/* v2: BGA art: full card pictures with the name on a band, printed goods coins */
+.jp-card { position: relative; overflow: hidden; align-content: end; padding: 0; background: #3a2414; }
+.jp-card img, .jp-card--md img, .jp-card--sm img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; filter: none; }
+.jp-card__n { position: relative; inline-size: 100%; padding: 0.05rem 0; background: rgb(0 0 0 / 0.55); color: #fff; text-align: center; }
+.jp-coin { display: inline-block; inline-size: 2rem; block-size: 2rem; border-radius: 50%; background-size: 2400% 100%; background-repeat: no-repeat; box-shadow: 0 1px 3px rgb(0 0 0 / 0.5); }

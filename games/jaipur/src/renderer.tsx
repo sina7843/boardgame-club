@@ -11,13 +11,23 @@ import cloth from './art/cloth.webp';
 import spice from './art/spice.webp';
 import leather from './art/leather.webp';
 import camel from './art/camel.webp';
+import coinsArt from './art/coins.webp';
 import { GOODS, PRECIOUS, type Card, type Good, type JaipurView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const CARD_FA: Record<Card, string> = { diamond: 'الماس', gold: 'طلا', silver: 'نقره', cloth: 'پارچه', spice: 'ادویه', leather: 'چرم', camel: 'شتر' };
 
-// Goods art is cut from a generated sheet (see DECISIONS.md).
+// Card pictures and goods coins are the BGA Jaipur client art (see DECISIONS.md).
 const ART: Record<Card, string> = { diamond, gold, silver, cloth, spice, leather, camel };
+/** tokens.webp: 24 coins in a row; the printed coin for each good and value. */
+const COIN_AT: Record<Good, Record<number, number>> = {
+  leather: { 1: 1, 2: 2, 3: 3, 4: 4 }, spice: { 1: 5, 2: 6, 3: 7, 5: 8 }, cloth: { 1: 9, 2: 10, 3: 11, 5: 12 },
+  silver: { 5: 13 }, gold: { 5: 14, 6: 15 }, diamond: { 5: 16, 7: 17 }
+};
+const coinArt = (g: Good, v: number | undefined) => {
+  const at = COIN_AT[g], i = (v !== undefined ? at[v] : undefined) ?? Object.values(at)[0]!;
+  return { backgroundImage: `url(${coinsArt})`, backgroundPosition: `${(i / 23) * 100}% 0` };
+};
 
 export function GoodCard({ c, size = 'md', flip, flipFrom, exit }: { c: Card; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
   return (
@@ -98,7 +108,7 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
       <section className="jp__tokens" data-flip-anchor="tokens" aria-label="سکه‌های کالا">
         {GOODS.map((g) => (
           <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${CARD_FA[g]}: ${fa(view.tokens[g].length)} سکه`}>
-            <img src={ART[g]} alt="" draggable={false} />
+            <i className="jp-coin" style={coinArt(g, view.tokens[g][0])} aria-hidden="true" />
             <b className="bg-pop" key={view.tokens[g].length}>{view.tokens[g].length ? fa(view.tokens[g][0]!) : '×'}</b>
             <small>{fa(view.tokens[g].length)}</small>
           </span>
