@@ -1509,3 +1509,10 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 ## Header search and admin tables (2026-10-30, owner request)
 - Search: the desktop popover now closes on a click/focus outside it and after navigating; Enter (also the phone keyboard's search key) with no row picked opens the only match, else /games?q=…; «بستن» on a directly opened /search goes home instead of leaving the site.
 - Admin «میزها» tab (/admin?tab=tables): every table newest first with status counts, game and player-name filters, tutorials hidden by default; seats with placements, bot/left marks, moves (revision), result reason and dates; player names link to «بازیکنان». API GET /admin/tables (admin only) returns seats, revision and the stored outcome, never game state. The admin tabs now live in the URL (?tab=).
+
+## Ranking, profiles, wardrobe and studio against the references (2026-10-30)
+- Ranking: league tiles (mine outlined with progress) above the table, my rank / history / trends aside; player search and «فقط دوستان» filter the loaded board (top 100). Phone (Ranking-Mobile): game + mode only, season-named league card with one bar, no aside.
+- Public profile: main column (trophies, recent games with covers, mastery cards) and aside (favourites with rating, ratings, clubs, mutual friends). Phone: centred head, stats card and three tabs (نمای کلی / بازی‌ها / جام‌ها).
+- Own profile renders the same page (`ProfilePage own`) plus the completeness card (one chip per item) and six shortcuts; editing stays below (#profile-edit). The page h1 is now the player's name.
+- Wardrobe: three-column sections, emote tiles show their table slot (tap adds/removes), frames end with a «قاب‌های بیشتر» tile to the shop; favourite seat colour moved under the sections.
+- Studio: one tabbed editor (آواتار, قاب, معرفی و لقب, بنر, بازی‌های محبوب, ویترین, کازمتیک میز). Frames and table cosmetics are worn at once as in the wardrobe; profile fields stay a draft (dot on the tab, count in the head) until «ذخیرهٔ همه», and the live preview shows the draft title. The design has no bio field, so «لقب» became «معرفی و لقب».
