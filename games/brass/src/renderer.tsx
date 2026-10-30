@@ -31,6 +31,8 @@ import brassArt from './art/mat-brass.webp';
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 export const IND_FA: Record<Industry, string> = { cotton: 'کارخانهٔ پنبه', manufacturer: 'تولیدی', pottery: 'سفال‌گری', coal: 'معدن زغال', iron: 'ذوب‌آهن', brewery: 'آبجوسازی' };
+// Cotton, manufacturer, coal, iron, canal, rail and merchant pictures are BGA Brass client icons (see DECISIONS.md);
+// pottery, brewery and beer stay painted.
 const IND_ART: Record<Industry, string> = { cotton: cottonArt, manufacturer: manufacturerArt, pottery: potteryArt, coal: coalArt, iron: ironArt, brewery: breweryArt };
 const IND_HUE: Record<Industry, string> = { cotton: '#d9c9a3', manufacturer: '#9aa4ad', pottery: '#d18a5b', coal: '#3b3631', iron: '#b5652b', brewery: '#c9a24a' };
 const ACT_FA: Record<string, string> = { build: 'ساخت صنعت', network: 'ساخت مسیر', develop: 'توسعه', sell: 'فروش', loan: 'وام £۳۰', scout: 'پیشاهنگ', pass: 'رد کردن' };

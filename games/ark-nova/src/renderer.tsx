@@ -26,6 +26,7 @@ import artZoo from './art/board-zoo.webp';
 import artParchment from './art/board-parchment.webp';
 import artWood from './art/board-wood.webp';
 import artCard from './art/board-card.webp';
+import photos from './art/photos.webp';
 import {
   ACTION_FA, ANIMAL, ICON_FA, KIND_FA, PROJECT, REG, SPONSOR, TILES, UNI_FA, CELLS, xy, nameOf, target, MAX_CP, MAX_X,
   type ActionKey, type ArkView, type MapView, type Icon, type Req
@@ -82,6 +83,13 @@ function Gains({ d }: { d: { appeal: number; cp: number; rep: number } }) {
   );
 }
 
+// Card photos are the BGA Ark Nova client art (see DECISIONS.md): photos.webp holds the 128 animal photos (401–528) then
+// the picture part of the 64 sponsor cards (201–264), 16 × 12. Our card ids are the printed numbers, so they match.
+function Photo({ id }: { id: number }) {
+  const i = id >= 401 ? id - 401 : 128 + id - 201;
+  return <span className="an-card__photo" style={{ backgroundImage: `url(${photos})`, backgroundPosition: `${((i % 16) / 15) * 100}% ${(Math.floor(i / 16) / 11) * 100}%` }} aria-hidden="true" />;
+}
+
 /** Printed-card layout: cost coin and name on top, icons, requirement, clamped text, bonuses at the bottom. */
 function CardFace({ id, full = true }: { id: number; full?: boolean }) {
   const a = ANIMAL[id];
@@ -94,6 +102,7 @@ function CardFace({ id, full = true }: { id: number; full?: boolean }) {
     return (
       <>
         <span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b><span className="an-cost" title="هزینه">{fa(a.cost)}</span></span>
+        <Photo id={id} />
         <span className="an-card__icons">{iconCounts(a.icons).map(([i, n]) => <IconChip key={i} i={i} n={n} />)}</span>
         <small className="an-card__need">{a.std ? `محوطهٔ ${fa(a.size)}+` : 'فقط باغ‌وحش کودکان'}{a.sp && a.std ? ` یا ${SP_FA[a.sp.k]}` : ''}{terr ? `، کنار ${terr}` : ''}</small>
         {Object.keys(a.req).length > 0 && <small className="an-req">شرط: {reqText(a.req)}</small>}
@@ -106,6 +115,7 @@ function CardFace({ id, full = true }: { id: number; full?: boolean }) {
     return (
       <>
         <span className="an-card__head"><b className="an-card__name">{nameOf(id)}</b><span className="an-cost an-cost--lvl" title="سطح حامی">{fa(s.level)}</span></span>
+        {id <= 264 && <Photo id={id} />}
         <span className="an-card__icons">{iconCounts(s.icons).map(([i, n]) => <IconChip key={i} i={i} n={n} />)}</span>
         {(s.rock > 0 || s.water > 0) && <small className="an-card__need">{[s.water ? `${fa(s.water)} نماد آب` : '', s.rock ? `${fa(s.rock)} نماد صخره` : ''].filter(Boolean).join('، ')}</small>}
         {Object.keys(s.req).length > 0 && <small className="an-req">شرط: {reqText(s.req)}</small>}
