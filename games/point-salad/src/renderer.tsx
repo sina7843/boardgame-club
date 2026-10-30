@@ -16,7 +16,7 @@ const fa = (n: number) => n.toLocaleString('fa-IR');
 export const VEG_FA: Record<Veg, string> = { tomato: 'گوجه', lettuce: 'کاهو', carrot: 'هویج', cabbage: 'کلم', pepper: 'فلفل', onion: 'پیاز' };
 const sign = (n: number) => (n > 0 ? `+${fa(n)}` : `−${fa(-n)}`);
 
-// Vegetable art is cut from a generated sheet (see DECISIONS.md).
+// Vegetable discs are the BGA Point Salad client art (see DECISIONS.md).
 const ART: Record<Veg, string> = { tomato, lettuce, carrot, cabbage, pepper, onion };
 
 export function VegIcon({ v, size = 1.4 }: { v: Veg; size?: number }) {

@@ -8,7 +8,7 @@ import sea from './art/m-sea.webp';
 import bat from './art/m-bat.webp';
 import dino from './art/m-dino.webp';
 
-// Monster paintings and the city backdrop are cut from a generated sheet (see DECISIONS.md).
+// Monster figures are the BGA King of Tokyo client art; the city backdrop is cut from a generated sheet (see DECISIONS.md).
 const PORTRAITS = [dragon, robot, gorilla, sea, bat, dino]; // renderer MONSTERS order
 
 export function Monster({ k, className = '' }: { k: number; className?: string }) {

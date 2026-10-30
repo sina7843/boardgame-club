@@ -10,9 +10,13 @@ import type { CrewTask, CrewView } from './rules.ts';
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const KIND_FA = { top: 'بالاترین', bottom: 'پایین‌ترین', only: 'تنها' } as const;
 
+/** Card picture cell in the BGA sprites (rows blue, green, pink, yellow; rockets / submarines by rank); the theme's CSS picks the sheet. */
+const SUIT_ROW: Record<string, number> = { b: 0, g: 1, p: 2, y: 3 };
+const cell = (c: string) => ({ '--k': rank(c) - 1, '--row': suit(c) === 'r' ? -1 : SUIT_ROW[suit(c)] }) as CSSProperties;
+
 export function CrewCard({ c, size = 'md', flip, flipFrom, exit }: { c: string; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) {
   return (
-    <span className={`cw-card cw-card--${size} cw-s--${suit(c)}`} aria-label={cardFa(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
+    <span className={`cw-card cw-card--${size} cw-s--${suit(c)}`} style={cell(c)} aria-label={cardFa(c)} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
       <b>{fa(rank(c))}</b>
       <i aria-hidden>{suit(c) === 'r' ? '▲' : '●'}</i>
     </span>

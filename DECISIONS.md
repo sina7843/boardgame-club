@@ -1450,3 +1450,10 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   cropped off because our edition numbers King/Countess/Princess 6/7/8), Hanabi (card faces), 6 nimmt! (card faces carry
   number and heads), No Thanks! (face-up card), Skull (flower and skull coasters). The 6 nimmt! and Lost Cities e2e pick
   «یک دست» from the setup select.
+- More BGA client art (2026-10-30): Abalone (board and marbles; the board picture sets the SVG viewBox so its holes sit on
+  our grid), Catan (terrain hexes from `terrains_hexes.png`, cropped so the printed hex fills our pointy-top clip; robber),
+  Coup (portraits), The Crew and The Crew: Deep Sea (card sprites `cards-space.webp` / `cards-sea.webp`, picked per table
+  theme in CSS), King of Tokyo (monster figures; «خفاش غول» became «بیگانه» to match Alienoid), Point Salad (vegetable
+  discs), Sea Salt & Paper (origami photos: the printed card of the same kind and colour, else the first of that kind; our
+  colour stays as the frame), 7 Wonders Duel (one card picture per colour). Not changed: classic games (BGA art is 50–64 px,
+  lower than ours), Heat cars (ours are larger), Santorini (BGA draws it in 3D), Quoridor (irregular photo atlas).

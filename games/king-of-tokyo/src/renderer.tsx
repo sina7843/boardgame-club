@@ -8,7 +8,7 @@ import { POWERS, type Face, type KotView } from './rules.ts';
 import { Bolt, DieGlyph, Monster } from './art.tsx';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
-export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'خفاش غول', 'دایناسور'];
+export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'بیگانه', 'دایناسور'];
 const HUE = [350, 200, 30, 170, 280, 100];
 
 export function DieFace({ f, tumble }: { f: Face; tumble?: boolean }) {

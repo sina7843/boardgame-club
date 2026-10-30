@@ -15,7 +15,7 @@ const fa = (n: number) => n.toLocaleString('fa-IR');
 const ACTS: Act[] = ['income', 'foreignAid', 'tax', 'steal', 'exchange', 'assassinate', 'coup'];
 const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ سکه', coup: '۷ سکه', tax: '+۳ سکه', assassinate: '۳ سکه', steal: '۲ سکه از حریف', exchange: '۲ کارت از دسته' };
 
-// Portraits are cut from a generated sheet (see DECISIONS.md); decorative, the role name stays as text.
+// Portraits are the BGA Coup client art (see DECISIONS.md); decorative, the role name stays as text.
 const ART: Record<Role, string> = { duke, assassin, captain, ambassador, contessa };
 
 function Card({ role, lost, size = 'md', fresh, flip, flipFrom, exit }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean; flip?: string; flipFrom?: string; exit?: string }) {

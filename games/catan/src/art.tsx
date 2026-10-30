@@ -1,5 +1,5 @@
-// Catan art: painted terrain hexes, ocean, robber, harbor badge, resource and development card art (WebP, cut from a
-// generated sheet — see DECISIONS.md), framed in code, plus the board's wood/brass/token defs and CSS dice faces.
+// Catan art: terrain hexes and the robber are BGA Catan client art; ocean, harbor badge, resource and development card art
+// are WebP cut from a generated sheet (see DECISIONS.md), framed in code, plus wood/brass/token defs and CSS dice faces.
 // Purely decorative: every part is aria-hidden or sits inside an element that already carries the accessible label.
 import { useId } from 'react';
 import type { Res, Terrain } from './board.ts';

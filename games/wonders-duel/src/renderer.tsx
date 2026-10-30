@@ -16,7 +16,7 @@ import { CARDS, PROGRESS_FA, RES_FA, WONDERS, type Card, type Color, type DuelVi
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const SCI: Record<string, string> = { wheel: '⚙', compass: '⌖', quill: '✒', mortar: '⚗', sundial: '◷', globe: '◍', law: '⚖' };
 const COLOR_FA: Record<Color, string> = { brown: 'مواد خام', grey: 'کالا', blue: 'مدنی', red: 'نظامی', green: 'علمی', yellow: 'تجاری', purple: 'صنف' };
-// Painted art cut from a generated sheet (see DECISIONS.md), one per card colour.
+// One BGA 7 Wonders Duel card picture per card colour (see DECISIONS.md).
 const ART: Record<Color, string> = { brown: artBrown, grey: artGrey, blue: artBlue, red: artRed, green: artGreen, yellow: artYellow, purple: artPurple };
 const RES_LETTER: Record<Res, string> = { W: 'چ', C: 'ر', S: 'س', G: 'ش', P: 'پ' };
 

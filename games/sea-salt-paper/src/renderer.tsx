@@ -4,20 +4,7 @@
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
-import crab from './art/crab.webp';
-import boat from './art/boat.webp';
-import fish from './art/fish.webp';
-import swimmer from './art/swimmer.webp';
-import shark from './art/shark.webp';
-import shell from './art/shell.webp';
-import octopus from './art/octopus.webp';
-import penguin from './art/penguin.webp';
-import sailor from './art/sailor.webp';
-import lighthouse from './art/lighthouse.webp';
-import shoal from './art/shoal.webp';
-import colony from './art/colony.webp';
-import captain from './art/captain.webp';
-import mermaid from './art/mermaid.webp';
+import photos from './art/photos.webp';
 import { CARDS, duoKind, type Kind, type SspView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -25,17 +12,19 @@ export const KIND_FA: Record<Kind, string> = {
   crab: 'خرچنگ', boat: 'قایق', fish: 'ماهی', swimmer: 'شناگر', shark: 'کوسه', shell: 'صدف', octopus: 'هشت‌پا', penguin: 'پنگوئن',
   sailor: 'ملوان', lighthouse: 'فانوس', shoal: 'دسته‌ماهی', colony: 'کلونی', captain: 'ناخدا', mermaid: 'پری دریایی'
 };
-// Origami art is cut from a generated sprite sheet (see DECISIONS.md).
-const ART: Record<Kind, string> = {
-  crab, boat, fish, swimmer, shark, shell, octopus,
-  penguin, sailor, lighthouse, shoal, colony, captain, mermaid
+// Origami photos are the BGA Sea Salt & Paper client art (see DECISIONS.md): photos.webp holds the picture part of its 55
+// cards (10 × 6). A card shows the printed card of its kind and colour, or the first of its kind; its colour stays as the frame.
+const PHOTO: Record<string, number> = { 'mermaid/white': 0, 'crab/navy': 1, 'crab/sky': 3, 'crab/black': 5, 'crab/yellow': 6, 'crab/green': 8, 'crab/gray': 9, 'boat/navy': 10, 'boat/sky': 12, 'boat/black': 14, 'boat/yellow': 16, 'fish/navy': 18, 'fish/sky': 20, 'fish/black': 21, 'fish/yellow': 23, 'fish/green': 24, 'swimmer/navy': 25, 'swimmer/sky': 26, 'swimmer/black': 27, 'swimmer/yellow': 28, 'swimmer/orange': 29, 'shark/navy': 30, 'shark/sky': 31, 'shark/black': 32, 'shark/green': 33, 'shark/purple': 34, 'shell/navy': 35, 'shell/sky': 36, 'shell/black': 37, 'shell/yellow': 38, 'shell/green': 39, 'shell/gray': 40, 'octopus/sky': 41, 'octopus/yellow': 42, 'octopus/green': 43, 'octopus/purple': 44, 'octopus/gray': 45, 'penguin/purple': 46, 'penguin/orange': 47, 'penguin/pink': 48, 'sailor/pink': 49, 'sailor/orange': 50, 'lighthouse/purple': 51, 'shoal/gray': 52, 'colony/green': 53, 'captain/orange': 54 };
+const photo = (kind: Kind, color: string) => {
+  const i = PHOTO[`${kind}/${color}`] ?? Object.entries(PHOTO).filter(([k]) => k.startsWith(`${kind}/`)).map(([, v]) => v).sort((x, y) => x - y)[0]!;
+  return { backgroundImage: `url(${photos})`, backgroundPosition: `${((i % 10) / 9) * 100}% ${(Math.floor(i / 10) / 5) * 100}%` };
 };
 
 export function PaperCard({ id, size = 'md', from, exit, flip = true }: { id: number; size?: 'sm' | 'md'; from?: string; exit?: string; flip?: boolean }) {
   const c = CARDS[id]!;
   return (
     <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={KIND_FA[c.kind]}>
-      <img src={ART[c.kind]} className="sp2-card__art" alt="" aria-hidden="true" draggable={false} />
+      <span className="sp2-card__art" style={photo(c.kind, c.color)} aria-hidden="true" />
       {size === 'md' && <small>{KIND_FA[c.kind]}</small>}
     </span>
   );

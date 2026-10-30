@@ -103,3 +103,6 @@
 @keyframes kt-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (min-width: 900px) { .kt { padding: 0.8rem; } .kt-die { inline-size: 3.3rem; block-size: 3.3rem; } }
 @media (prefers-reduced-motion: reduce) { .kt * { animation: none !important; transition: none !important; } }
+
+/* v2: BGA monster figures are cut-outs; give them a coloured backdrop */
+.kt-art { object-fit: contain; background: radial-gradient(circle at 50% 40%, hsl(var(--h, 30) 70% 78%), hsl(var(--h, 30) 45% 32%)); }

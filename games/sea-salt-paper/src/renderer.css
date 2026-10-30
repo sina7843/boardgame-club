@@ -51,3 +51,6 @@
 @keyframes sp2-drop { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes sp2-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sp2 * { animation: none !important; transition: none !important; } }
+
+/* v2: BGA origami photos (sprite of 10 × 6 squares) */
+.sp2-card__art { display: block; background-size: 1000% 600%; background-repeat: no-repeat; }

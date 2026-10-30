@@ -62,3 +62,10 @@
 @keyframes cw-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (max-width: 480px) { .cw-card--md { inline-size: 2.45rem; block-size: 3.5rem; } .cw-task { min-inline-size: 4.6rem; } }
 @media (prefers-reduced-motion: reduce) { .cw * { animation: none !important; transition: none !important; } }
+
+/* v2: BGA card pictures. Space: 11 × 4 (columns 1–9, rockets in column 10 by rank). Deep sea: 9 × 5 (submarines in row 5). */
+.cw--space .cw-card { background: url("./art/cards-space.webp") calc(var(--k) * 10%) calc(var(--row) * 33.333%) / 1100% 400% no-repeat; }
+.cw--space .cw-s--r { background-position: 90% calc(var(--k) * 33.333%); }
+.cw--sea .cw-card { background: url("./art/cards-sea.webp") calc(var(--k) * 12.5%) calc(var(--row) * 25%) / 900% 500% no-repeat; }
+.cw--sea .cw-s--r { background-position: calc(var(--k) * 12.5%) 100%; }
+.cw--space .cw-card > *, .cw--sea .cw-card > * { visibility: hidden; }

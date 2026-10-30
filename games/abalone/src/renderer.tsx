@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import marbleB from './art/marble-b.webp';
 import marbleW from './art/marble-w.webp';
+import boardArt from './art/board.webp';
 import { CELLS, DIRS, WIN, legalMoves, neighbor, tryMove, type AbaloneView, type Color } from './rules.ts';
 
 type Board = (Color | null)[];
@@ -22,7 +23,10 @@ function shift(board: Board, ids: (string | null)[], color: Color, mv: Move) {
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const R = 40, SIZE = 760, CX = SIZE / 2, CY = SIZE / 2;
-// Marbles are transparent cut-outs from a generated sheet (see DECISIONS.md).
+// Marbles and the board are the BGA Abalone client art (see DECISIONS.md). board.webp is 705 × 659 with the centre hole
+// at (350.5, 330) and 54.4 px between holes; BOARD places it on our grid (R·√3 between cells).
+const K = (R * Math.sqrt(3)) / 54.4;
+const BOARD = { x: CX - 350.5 * K, y: CY - 330 * K, w: 705 * K, h: 659 * K };
 const marbleImg = (c: Color, x: number, y: number, cls?: string) => (
   <image className={cls} href={c === 'b' ? marbleB : marbleW} x={x - R * 0.86} y={y - R * 0.86} width={R * 1.72} height={R * 1.72} />
 );
@@ -111,13 +115,13 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
       </div>
 
       <ZoomBoard label="صفحه آبالون">
-        <svg className="abl-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه آبالون" style={{ direction: 'ltr' }}>
+        <svg className="abl-board" viewBox={`${BOARD.x} ${BOARD.y} ${BOARD.w} ${BOARD.h}`} role="grid" aria-label="صفحه آبالون" style={{ direction: 'ltr' }}>
           <defs>
             <radialGradient id="abl-tray" cx=".5" cy=".45" r=".7"><stop offset="0" stopColor="#6b4223" /><stop offset="1" stopColor="#2e1a0b" /></radialGradient>
-            <radialGradient id="abl-dimple" cx=".5" cy=".6" r=".6"><stop offset="0" stopColor="#3a2412" /><stop offset="1" stopColor="#21130a" /></radialGradient>
             <filter id="abl-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity=".55" /></filter>
           </defs>
-          <polygon points={hexPts} fill="url(#abl-tray)" stroke="#c9a46a" strokeWidth="6" strokeLinejoin="round" />
+          <polygon points={hexPts} fill="url(#abl-tray)" />
+          <image href={boardArt} x={BOARD.x} y={BOARD.y} width={BOARD.w} height={BOARD.h} />
           {CELLS.map((_, i) => {
             const { x, y } = xy(i);
             const mine = board[i] === myColor && canMove;
@@ -128,7 +132,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
                 aria-label={`خانه ${fa(i + 1)}: ${board[i] ? (board[i] === myColor ? 'گوی شما' : 'گوی حریف') : 'خالی'}${isSel ? '، انتخاب‌شده' : ''}`}
                 className={['abl-cell', mine ? 'abl-cell--mine' : '', isSel ? 'abl-cell--sel' : '', isHint ? 'abl-cell--hint' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
-                <circle cx={x} cy={y} r={R * 0.86} fill="url(#abl-dimple)" />
+                <circle cx={x} cy={y} r={R * 0.86} fill="transparent" />
               </g>
             );
           })}
