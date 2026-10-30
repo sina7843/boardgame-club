@@ -286,3 +286,9 @@
 .ac-tblseat.is-first { box-shadow: var(--shadow-press-primary); }
 .ac-tblrow__meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
 .ac-tblpager { display: flex; align-items: center; justify-content: center; gap: var(--space-3); padding: var(--space-3); border-block-start: 1px solid var(--line); }
+
+/* Wallet-Mobile: premium status card with two actions side by side. */
+.ac-premium2 { display: grid; gap: var(--space-3); }
+.ac-premium2__ctas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+/* Notifications-Desktop: the five switches stacked with even gaps. */
+.nt-how .bgv-card__body, .nt-how { display: grid; gap: var(--space-4); }

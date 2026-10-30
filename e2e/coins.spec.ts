@@ -17,14 +17,15 @@ test('wallet shows balance and rules; coins buy premium days', async ({ browser 
   const p = await newPage(browser, info.project.use.viewport ?? null);
   const mobile = await signIn(p, `Sekke${Math.random().toString(36).slice(2, 6)}`, '/coins');
   await p.goto('/coins');
-  await expect(p.getByRole('heading', { name: 'سکه‌ها', level: 1 })).toBeVisible();
+  // Coins-Desktop / Wallet-Mobile: the balance hero (the page title sits in the phone top bar).
+  await expect(p.getByRole('region', { name: 'موجودی من' })).toBeVisible();
   await expect(p.getByRole('heading', { name: 'راه‌های گرفتن سکه' })).toBeVisible();
   await expect(p.getByRole('button', { name: '۲۰۰ سکه کم دارید' })).toBeDisabled();
   await p.screenshot({ path: `docs/evidence/site/coins/${info.project.name}-empty.png`, fullPage: true });
 
   credit(mobile, 1250);
   await p.reload();
-  await expect(p.getByRole('heading', { name: '۱٬۲۵۰ سکه' })).toBeVisible(); // the header chip moved into the account menu on wide screens
+  await expect(p.getByRole('region', { name: 'موجودی من' })).toContainText('۱٬۲۵۰');
   await p.getByRole('button', { name: 'خرید با سکه' }).first().click();
   await expect(p.getByText(/پریمیوم شما تا .* فعال است/)).toBeVisible();
   await expect(p.locator('#main').getByText('۱٬۰۵۰')).toBeVisible();

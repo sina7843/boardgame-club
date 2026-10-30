@@ -56,16 +56,24 @@ export function CoinsPage() {
           <Button variant="secondary" icon="history" href="/plans">سابقهٔ پرداخت</Button>
         </div>
       </section>
-      {sub.data && (
-        <Card className="ac-premium" aria-label="وضعیت پریمیوم">
-          <span className="ac-tile"><Icon name="crown" /></span>
-          <div className="ac-row__text">
-            <b className="bgv-row" style={{ gap: 8 }}>پریمیوم {sub.data.premium ? <Badge tone="premium" size="sm">فعال</Badge> : <Badge size="sm">غیرفعال</Badge>}</b>
-            <span>{sub.data.premium && sub.data.premiumUntil ? `تا ${jalaliDate(sub.data.premiumUntil)}` : 'با سکه یا اشتراک فعال می‌شود.'}</span>
-          </div>
-          <Button size="sm" href="/plans">پلن‌ها</Button>
-        </Card>
-      )}
+      {sub.data && (() => {
+        // Wallet-Mobile: status, days left, then «۱ روز با N سکه» (the cheapest coin item) and the plans.
+        const day = [...d.shop].sort((x, y) => x.cost - y.cost)[0];
+        const left = sub.data.premium && sub.data.premiumUntil ? Math.max(0, Math.ceil((Date.parse(sub.data.premiumUntil) - Date.now()) / 86_400_000)) : 0;
+        return (
+          <Card className="ac-premium2" aria-label="وضعیت پریمیوم">
+            <div className="ac-between">
+              <b className="bgv-row" style={{ gap: 8 }}>پریمیوم {sub.data.premium ? <Badge tone="premium" size="sm" icon="crown">فعال</Badge> : <Badge size="sm">غیرفعال</Badge>}</b>
+              <span className="ac-cap">{sub.data.premium && sub.data.premiumUntil ? `تا ${jalaliDate(sub.data.premiumUntil)}` : 'با سکه یا اشتراک فعال می‌شود'}</span>
+            </div>
+            {sub.data.premium && <span className="ac-cap">{faNum(left)} روز مانده</span>}
+            <div className="ac-premium2__ctas">
+              {day && <Button size="sm" loading={busy === day.key} disabled={day.cost > d.balance || !!busy} onClick={() => spend(day.key)}>۱ روز با <Coin amount={day.cost} size="sm" /></Button>}
+              <Button size="sm" href="/plans">پلن‌ها</Button>
+            </div>
+          </Card>
+        );
+      })()}
 
       {d.shop.length > 0 && (
         <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="shop-h">

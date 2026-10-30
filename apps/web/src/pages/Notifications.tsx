@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { NotificationItem } from '@bg/contracts';
-import { Button, Card, ChipGroup, NotificationItem as Notif, PageHead, Skeleton, StateBlock, Switch } from '@bg/ui/bgv';
+import type { AlertPrefs, NotificationItem, UserSettings } from '@bg/contracts';
+import { Button, Card, ChipGroup, Icon, NotificationItem as Notif, PageHead, Skeleton, StateBlock, Switch } from '@bg/ui/bgv';
 import { useToast } from '@bg/ui';
-import { api, useApi } from '../lib/api.ts';
+import { api, ApiFailure, useApi } from '../lib/api.ts';
+import { saveAlertPrefs, useAlertPrefs } from '../lib/prefs.tsx';
 import { jalaliDate, jalaliDateTime, faNum } from '../lib/format.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
@@ -41,6 +42,8 @@ export function NotificationsPage() {
   const reload = n.reload;
   const [cat, setCat] = useState<Cat>('all');
   const [browser, setBrowser] = useState(browserNotificationsEnabled());
+  const alerts = useAlertPrefs();
+  const settings = useApi<UserSettings>('/me/settings');
   useEffect(() => {
     window.addEventListener('bg:notification', reload);
     return () => window.removeEventListener('bg:notification', reload);
@@ -83,6 +86,13 @@ export function NotificationsPage() {
     </ul>
   );
 
+  const saveAlerts = async (next: AlertPrefs) => {
+    try { await saveAlertPrefs(next); } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'ذخیره نشد.'); }
+  };
+  const saveSettings = async (next: UserSettings) => {
+    try { await api('/me/settings', { method: 'PUT', body: next }); settings.reload(); } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'ذخیره نشد.'); }
+  };
+
   return (
     <>
       <PageHead title="اعلان‌ها" sub={unread ? `${faNum(unread)} اعلان خوانده‌نشده` : 'همه‌ی اعلان‌ها خوانده شده‌اند'}
@@ -95,13 +105,21 @@ export function NotificationsPage() {
       <div className="bgv-cols">
         <Card flush style={{ overflow: 'hidden' }}>{list}</Card>
         <aside className="bgv-stack">
-          <Card title="چطور خبردار شوید">
-            <Switch label="اعلان مرورگر" hint="وقتی برگه باز است ولی در پس‌زمینه است. اجازه مرورگر فقط با همین کلید درخواست می‌شود."
+          {/* Notifications-Desktop: five switches, the same account settings as on /settings. */}
+          <Card title="چطور خبردار شوید" className="nt-how">
+            <Switch label="صدا" hint="وقتی نوبت شما شد، داخل سایت" checked={alerts.sound} onChange={(sound: boolean) => void saveAlerts({ ...alerts, sound })} />
+            <Switch label="لرزش" hint="روی گوشی، داخل سایت" checked={alerts.vibration} onChange={(vibration: boolean) => void saveAlerts({ ...alerts, vibration })} />
+            <Switch label="اعلان مرورگر" hint="وقتی در سایت نیستید؛ در این مرورگر فعال است. اجازه فقط با همین کلید درخواست می‌شود."
               checked={browser} onChange={async (v) => {
                 const ok = await setBrowserNotifications(v);
                 setBrowser(v && ok);
                 if (v && !ok) toast('error', 'مرورگر اجازه اعلان نداد یا پشتیبانی نمی‌کند.');
               }} />
+            {settings.data && <Switch label="یادآوری مهلت نوبتی" hint="نوبت و یادآوری پیش از پایان مهلت" checked={settings.data.notify.turn}
+              onChange={(turn: boolean) => void saveSettings({ ...settings.data!, notify: { ...settings.data!.notify, turn } })} />}
+            <Switch label="ساعت سکوت" hint={`اعلان‌ها بی‌صدا از ${faNum(alerts.quietHours.startHour)}:۰۰ تا ${faNum(alerts.quietHours.endHour)}:۰۰`} checked={alerts.quietHours.enabled}
+              onChange={(enabled: boolean) => void saveAlerts({ ...alerts, quietHours: { ...alerts.quietHours, enabled } })} />
+            <p className="t-caption bgv-muted" style={{ margin: 0 }}><Icon name="info" size="sm" /> پیامک نمی‌فرستیم؛ بیرون از سایت فقط اعلان مرورگر.</p>
           </Card>
         </aside>
       </div>
