@@ -16,7 +16,7 @@ const CLAIMS = 3;
 async function startTable(host: Page, guests: Page[], mapLabel: string) {
   await host.goto('/games/ticket-to-ride/new');
   await host.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'زنده', exact: true }).click();
-  await host.getByText(mapLabel, { exact: true }).click();
+  await host.getByRole('combobox', { name: 'نقشه' }).selectOption({ label: mapLabel });
   await pickPlayers(host, 3);
   await host.getByRole('button', { name: 'ساخت میز' }).first().click();
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');

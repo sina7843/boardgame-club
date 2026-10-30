@@ -1,5 +1,6 @@
 // Ticket to Ride art: vector map defs (sea, land watercolours, paper, wood), terrain symbols, cartouche and claimed
-// train cars, plus painted WebP train cards, compass and seat train pieces cut from a generated sheet (see DECISIONS.md). Decorative only: every part is aria-hidden or
+// train cars; train cards are the BGA Ticket to Ride client art (turned upright), compass and seat train pieces are cut
+// from a generated sheet (see DECISIONS.md). Decorative only: every part is aria-hidden or
 // inside an element that carries the label.
 import { useId } from 'react';
 import { COLORS } from './board.ts';
@@ -156,19 +157,19 @@ const CAR_IMG = [carRed, carOrange, carYellow, carGreen, carBlue, carPink, carBl
 export const SEAT_TRAIN = [trainRed, trainBlue, trainYellow, trainGreen, trainBlack];
 
 /** Painted card face inside a rounded 48 × 72 card; the matching colour fills the part the square art does not reach. */
-function Painted({ src, fill, uid }: { src: string; fill: string; uid: string }) {
+function Painted({ src, fill, uid, full }: { src: string; fill: string; uid: string; full?: boolean }) {
   return (
     <svg viewBox="0 0 48 72" className="ttr-cardart" aria-hidden="true" focusable="false">
       <clipPath id={uid}><rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" /></clipPath>
-      <g clipPath={`url(#${uid})`}><rect width="48" height="72" fill={fill} /><image href={src} x="-4" y="8" width="56" height="56" /></g>
+      <g clipPath={`url(#${uid})`}><rect width="48" height="72" fill={fill} />{full ? <image href={src} width="48" height="72" preserveAspectRatio="none" /> : <image href={src} x="-4" y="8" width="56" height="56" />}</g>
       <rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" fill="none" stroke="#1d140a" strokeWidth="1.1" />
     </svg>
   );
 }
 
-/** Train card face (painted car in the card colour, rainbow locomotive for LOCO). */
+/** Train card face (the printed card, upright). */
 export function CardArt({ c }: { c: number }) {
-  return <Painted src={CAR_IMG[c]!} fill={SHADES[c]![1]} uid={`ttr-cc-${useId().replace(/:/g, '')}`} />;
+  return <Painted src={CAR_IMG[c]!} fill={SHADES[c]![1]} uid={`ttr-cc-${useId().replace(/:/g, '')}`} full />;
 }
 
 /** Back of a train card (the closed deck). */

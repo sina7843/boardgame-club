@@ -1457,3 +1457,6 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   discs), Sea Salt & Paper (origami photos: the printed card of the same kind and colour, else the first of that kind; our
   colour stays as the frame), 7 Wonders Duel (one card picture per colour). Not changed: classic games (BGA art is 50–64 px,
   lower than ours), Heat cars (ours are larger), Santorini (BGA draws it in 3D), Quoridor (irregular photo atlas).
+- Ticket to Ride (`tickettoride` 261008-1415): train cards are BGA `img/train-cards.jpg`, turned upright. The map stays
+  ours (our Iran map has no BGA counterpart). The TTR e2e picks the map from the setup select; the Lost Cities e2e keeps
+  its radio («یک دست» is a radio there, a select in 6 nimmt!).
