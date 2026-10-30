@@ -10,6 +10,7 @@
 @import "@bg/ui/game-hud-3.css";
 @import "./screens.css" layer(components);
 @import "./styles/home.css" layer(components);
+@import "./styles/home-ref.css" layer(components);
 @import "./styles/play.css" layer(components);
 @import "./styles/profile.css" layer(components);
 @import "./styles/social.css" layer(components);

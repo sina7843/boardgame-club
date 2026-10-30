@@ -3,12 +3,12 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, liveTableItem, myTableItem, notificationItem, openTableItem,
+  AppError, apiErrorSchema, commandBody, commandResult, createBotTableBody, createTableBody, homeOverview as homeOverviewSchema, liveTableItem, myTableItem, notificationItem, openTableItem,
   receiptLookup, rematchBody, tableSnapshot, tutorialProgressItem
 } from '@bg/contracts';
 import { schema } from '@bg/db';
 import {
-  buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, joinTable, leaveTable, listLiveTables, listMyTables,
+  buildTableSnapshot, closeIncident, createBotTable, createTable, currentIncident, executeCommand, homeOverview, joinTable, leaveTable, listLiveTables, listMyTables,
   listNotifications, listOpenTables, lookupReceipt, markNotificationsRead, myTutorials, openIncident, setReady,
   skipTutorial, startTutorial, tableContextAt, tableRecord, voteRematch,
   fairPlayReview, listFairPlayReports, recordFocus, reportPlayer, resolveFairPlayReport
@@ -53,6 +53,10 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
     requireUser(req);
     return { items: await listOpenTables(db, req.query.gameId) };
   });
+
+  r.get('/home', {
+    schema: { tags: ['tables'], summary: 'Home page: live counts, running tables to watch, top players this week (public aggregate)', response: { 200: homeOverviewSchema } }
+  }, async (req) => homeOverview(db, registry, req.auth?.userId ?? null));
 
   r.get('/tables/live', {
     schema: { tags: ['tables'], summary: 'Games in progress open to spectators (public and tournament tables)', querystring: z.object({ gameId: z.string().max(64).optional() }),

@@ -1490,3 +1490,10 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   (`props.webp`, card v at cell v − 1); the printed corner values replace our overlaid number and tier label (both stay
   in the aria-label). Not used: the El Dorado and Citadels images found on GitHub are AI-generated fan art, not the
   printed art, so they are no better than ours.
+
+## Home page rebuilt on the designed markup (2026-10-30, owner request)
+- `Dashboard.tsx` mirrors design/reference/html/play/Home-Guest.html and Home-Member.html block for block (cx-* classes). Their page CSS is generated into `apps/web/src/styles/home-ref.css` by `scripts/home-ref-css.py` (shell rules dropped, each page's rules scoped under `.cx-guest` / `.cx-member`); rerun it when the design hands over a new home. That generated file is excluded from ds-check like `bundle.css`: the design's own CSS has 91 literal shadows/radii/colours.
+- New public `GET /home`: live public/tournament tables and the people seated at running tables, sessions seen in 5 minutes, four tables to watch (seats, whose turn, deadline, spectators), weekly XP leaders (Tehran week, reward_ledger), popularity by tables started in 7 days, quick-match queue per game. Names and avatars only, as on the public leaderboards; no game state.
+- Truthful copy where the design states something the product does not do: «بدون ورود تماشا کن» became «ببین چه بازی‌هایی در جریان است…» (watching needs an account; the guest «تماشا» goes to login); «حدود ۲۰ ثانیه تا پیدا شدن حریف» is not shown (no estimate); «دنبال میز X‌اند» only when someone is really queued, else «سر میز X‌اند».
+- «تیمی» is the cooperative facet; «زنده الان» links to /tables. Test games never lead «محبوب این هفته».
+- The welcome-tour banner is gone from home (not in the design); the tour starts from /guides. «دوستان آنلاین» and «ادامهٔ یادگیری» (not in the design) are removed. Footer: «بازی‌های محبوب» column and the Cafe Bazaar link (cafebazaar.ir/app/ir.boardgameverse.app; 404 until the app is published).

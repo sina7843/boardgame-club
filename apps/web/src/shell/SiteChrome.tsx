@@ -84,12 +84,16 @@ export function EnamadSeal() {
   );
 }
 
+/** The Android app on Cafe Bazaar (apps/android, appId ir.boardgameverse.app). */
+const BAZAAR_URL = 'https://cafebazaar.ir/app/ir.boardgameverse.app';
+
 /** Footer for the public pages only (games, game page, wiki, support, guides, home); never on tables, messages or settings. */
 export function PublicFooter() {
   return (
-    <SiteFooter logo={{ src: '/brand/logo-fa-reversed.svg' }} storeHref={false} seal={<EnamadSeal />}
+    <SiteFooter logo={{ src: '/brand/logo-fa-reversed.svg' }} storeHref={BAZAAR_URL} seal={<EnamadSeal />}
       columns={[
-        { title: 'بازی‌ها', links: [['همهٔ بازی‌ها', '/games'], ['دانشنامه', '/wiki'], ['بازی سریع', '/play'], ['میزهای باز', '/tables']] },
+        { title: 'بازی‌های محبوب', links: [['کاتان آنلاین', '/games/catan'], ['آزول آنلاین', '/games/azul'], ['تیکت تو راید آنلاین', '/games/ticket-to-ride'],
+          ['اونو آنلاین', '/games/uno'], ['شطرنج آنلاین', '/games/chess'], ['تخته‌نرد آنلاین', '/games/backgammon']] },
         { title: 'جامعه', links: [['تورنمنت‌ها', '/tournaments'], ['رتبه‌بندی', '/ranking'], ['باشگاه‌ها', '/clubs'], ['راهنما', '/guides']] },
         { title: 'پشتیبانی و قوانین', links: [['پشتیبانی', '/support'], ...SITE_LINKS.map(([s, label]): [string, string] => [label, `/${s}`])] }
       ]} />

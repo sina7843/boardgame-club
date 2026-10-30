@@ -930,3 +930,7 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   P3 lazy loading below the fold. Fixed: phone page widened to ~500px by hidden tips (V8). Checks: typecheck,
   eslint, ds-check, engine Gaia 94/94, e2e gaia 6/6 (1440 + 360, with a no-horizontal-scroll assertion).
   Not done yet: full QA run with VERDICT.md (geometry G2–G10 measured, V1–V12 visual comparison).
+- 2026-10-30 Home page (guest + member) rebuilt 1:1 on the designed markup with real data (new public GET /home).
+  Checks: workspace typecheck, eslint, ds-check --strict PASS, api home.test.ts 3/3, e2e shell + site + onboarding
+  8/8 (desktop-1440, mobile-360); side-by-side capture vs reference at 1440 and 390: same blocks in the same order,
+  remaining differences are data (dev DB: no pending turns, no open tournament, Latin test names).

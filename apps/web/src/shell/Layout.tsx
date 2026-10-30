@@ -11,7 +11,7 @@ import { faNum } from '../lib/format.ts';
 import { PAGE_TITLE_EVENT } from '../lib/usePageTitle.ts';
 import { Celebration } from './Celebration.tsx';
 import { WelcomeGift } from './WelcomeGift.tsx';
-import { OnboardingProvider, WelcomeInvite } from './Onboarding.tsx';
+import { OnboardingProvider } from './Onboarding.tsx';
 import { AccountPopover, hasFooter, HeaderSearch, PublicFooter } from './SiteChrome.tsx';
 import { TermsGate } from './Account.tsx';
 import { PAGE_GROUPS } from './PageTabs.tsx';
@@ -128,7 +128,6 @@ export function Layout() {
         <div id="main" tabIndex={-1} className="app-page">
           {me?.suspended && <Banner tone="warning" icon="triangle-alert" title="حساب شما موقتاً تعلیق شده است"
             text="جزئیات و اعتراض در بخش پشتیبانی." action={<Button size="sm" href="/support">پشتیبانی</Button>} />}
-          {pathname === '/' && <WelcomeInvite />}
           {!online && <Banner tone="warning" icon="wifi-off" title="اتصال اینترنت قطع است" text="اطلاعات نمایش‌داده‌شده ممکن است قدیمی باشد؛ ساعت‌ها آخرین زمان تأییدشده را نشان می‌دهند."
             action={<Button size="sm" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
           {page}

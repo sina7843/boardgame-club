@@ -215,6 +215,8 @@ export const myTableItem = z.object({
   mySeat: z.number().int(),
   seats: z.array(z.object({ seat: z.number().int(), name: z.string(), avatarKey: z.string(), kind: z.enum(['human', 'script', 'bot']) })),
   turnSeats: z.array(z.number().int()),
+  /** Last public move «name: text» from the game's summary (games that publish moves), for the home turn cards. */
+  lastMove: z.string().nullable().optional(),
   result: z.object({ place: z.number().int(), fieldSize: z.number().int(), ratingDelta: z.number().int().nullable() }).nullable(),
   finishedAt: z.iso.datetime().nullable()
 });
@@ -233,6 +235,32 @@ export const liveTableItem = z.object({
   tournament: z.object({ id: z.uuid(), titleFa: z.string(), round: z.number().int() }).nullable()
 });
 export type LiveTableItem = z.infer<typeof liveTableItem>;
+
+/** Home page (guest and member): live counts, tables to watch, the week's top players. Public, no hidden game data. */
+export const homeOverview = z.object({
+  /** Running public/tournament tables; distinct people seated at any running table; sessions seen in the last 5 minutes. */
+  liveTables: z.number().int(), playingNow: z.number().int(), onlineNow: z.number().int(),
+  live: z.array(z.object({
+    id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, competition: z.enum(['friendly', 'ranked']),
+    turnSeconds: z.number().int().nullable(),
+    seats: z.array(z.object({ name: z.string(), avatarKey: z.string() })),
+    /** Whose move it is when exactly one seat is pending. */
+    turnName: z.string().nullable(), deadline: z.iso.datetime().nullable(), spectators: z.number().int()
+  })),
+  /** XP earned this (Saturday-based, Tehran) week across all games. */
+  weekly: z.object({
+    endsAt: z.iso.datetime(),
+    top: z.array(z.object({ rank: z.number().int(), user: z.object({ id: z.uuid(), displayName: z.string(), avatarKey: z.string() }), points: z.number().int(), games: z.array(z.string()) })),
+    me: z.object({ rank: z.number().int().nullable(), points: z.number().int() }).nullable(),
+    /** Points of the 10th place (null with fewer than 10 players), for «N تا رتبهٔ ۱۰». */
+    tenth: z.number().int().nullable()
+  }),
+  /** Games by tables started in the last 7 days (most first); the client fills the rest in its own order. */
+  popular: z.array(z.string()),
+  /** Per game: players searching in quick match, and players seated at running tables. */
+  queues: z.record(z.string(), z.object({ searching: z.number().int(), seated: z.number().int() }))
+});
+export type HomeOverview = z.infer<typeof homeOverview>;
 
 export const notificationItem = z.object({
   id: z.uuid(),

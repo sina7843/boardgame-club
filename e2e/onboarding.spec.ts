@@ -7,14 +7,13 @@ test('welcome tour, verified profile walkthrough, skip and hints', async ({ brow
   const page = await player(browser, info.project.use.viewport ?? null, `Guide${Date.now() % 100000}`);
   const card = page.getByRole('dialog');
 
-  // Dashboard invitation (never forced) → guided tour through every step.
-  await page.goto('/');
-  await page.getByRole('button', { name: 'شروع گشت' }).click();
+  // Welcome tour from the guides hub (the designed home has no banner for it) → guided tour through every step.
+  await page.goto('/guides');
+  await page.getByRole('listitem').filter({ hasText: 'آشنایی با باشگاه' }).getByRole('button', { name: 'شروع' }).click();
   await expect(card.getByRole('heading', { name: 'بازی‌ها' })).toBeVisible();
   while (await card.getByRole('button', { name: 'بعدی' }).isVisible()) await card.getByRole('button', { name: 'بعدی' }).click();
   await card.getByRole('button', { name: 'تمام' }).click();
   await expect(page.getByText('آموزش «آشنایی با باشگاه» کامل شد.')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'شروع گشت' })).toHaveCount(0);
 
   // Walkthrough: the customize step only passes once the profile is really saved (server check).
   await page.goto('/guides');

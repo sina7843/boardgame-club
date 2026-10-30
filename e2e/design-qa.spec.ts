@@ -59,7 +59,7 @@ const PREPARE: Record<string, (page: Page) => Promise<void>> = {
   'Msg-Menu-Others-Mobile': async (page) => { await chatOpen(page); await hold(page, '.chat-msg:not(.chat-msg--mine)'); },
   'Msg-Menu-Mine-Mobile': async (page) => { await chatOpen(page); await hold(page, '.chat-msg--mine'); },
   'Mention-Compose-Mobile': async (page) => { await chatOpen(page); await page.getByPlaceholder('پیام به میز…').fill('@نیل'); await page.waitForTimeout(500); },
-  'Onboarding-Tour-Mobile': async (page) => { await page.getByRole('button', { name: 'شروع گشت' }).first().click({ timeout: 5000 }); await page.waitForTimeout(900); },
+  'Onboarding-Tour-Mobile': async (page) => { await page.goto('/guides'); await page.getByRole('listitem').filter({ hasText: 'آشنایی با باشگاه' }).getByRole('button', { name: 'شروع' }).click({ timeout: 5000 }); await page.waitForTimeout(900); },
   'Celebration-LevelUp-Mobile': async (page) => {
     const me = await (await page.request.get('/api/me')).json() as { id?: string; user?: { id: string } };
     const id = me.id ?? me.user?.id;

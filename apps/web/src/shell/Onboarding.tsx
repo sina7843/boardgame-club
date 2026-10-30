@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffe
 import { useLocation, useNavigate } from 'react-router';
 import { ONBOARDING_TOURS, type OnboardingState, type OnboardingTour } from '@bg/contracts';
 import { cn, useToast } from '@bg/ui';
-import { Banner, Button } from '@bg/ui/bgv';
+import { Button } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -122,20 +122,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Dashboard invitation to the welcome tour for players who have neither started nor skipped it (never forced). */
-export function WelcomeInvite() {
-  const { state, start, setDismissed, running } = useOnboarding();
-  const toast = useToast();
-  const w = state?.tours.find((t) => t.key === 'welcome');
-  if (!w || running || w.dismissed || w.completedSteps.length > 0) return null;
-  return (
-    <Banner title="تازه آمده‌اید؟" text="یک گشت کوتاه در بخش‌های اصلی سایت؛ هر وقت خواستید از «راهنما» هم در دسترس است."
-      action={<span className="bgv-row">
-        <Button size="sm" variant="primary" onClick={() => start('welcome')}>شروع گشت</Button>
-        <Button size="sm" variant="ghost" onClick={() => setDismissed('welcome', true).catch(() => toast('error', 'ذخیره نشد؛ دوباره تلاش کنید.'))}>نه، ممنون</Button>
-      </span>} />
-  );
-}
 
 /** Visible element carrying data-tour="target" (the same anchor can exist in the desktop header and the phone dock). */
 function useTargetRect(target: string | undefined): DOMRect | null {

@@ -205,9 +205,12 @@ export async function listMyTables(db: Db, registry: GameRegistry, userId: strin
   const out: MyTableItem[] = [];
   for (const { table, version, game, seat } of rows) {
     let turnSeats: number[] = [];
+    let last: { seat: number; text: string } | undefined;
     if (table.status === 'active') {
       const module = registry.resolve(table.gameId, version.rulesVersion);
-      turnSeats = module.pendingSeats((await loadSnapshot(db, table.id, table.revision)).state);
+      const state = (await loadSnapshot(db, table.id, table.revision)).state;
+      turnSeats = module.pendingSeats(state);
+      last = module.publicSummary?.(state)?.moves?.at(-1);
     }
     const isMyTurn = turnSeats.includes(seat);
     const mine = seated.filter((x) => x.tableId === table.id);
@@ -226,6 +229,7 @@ export async function listMyTables(db: Db, registry: GameRegistry, userId: strin
       deadline: deadlines.find((d) => d.tableId === table.id)?.dueAt.toISOString() ?? null,
       players: mine.length, capacity: table.capacity, updatedRevision: table.revision,
       mySeat: seat, seats, turnSeats,
+      lastMove: last ? `${seats.find((x) => x.seat === last.seat)?.name ?? ''}: ${last.text}` : null,
       result: place !== undefined ? { place, fieldSize: mine.length, ratingDelta: delta ? Math.round(60 * (delta.after - delta.before)) : null } : null,
       finishedAt: table.finishedAt?.toISOString() ?? null
     });
