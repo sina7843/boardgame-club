@@ -35,9 +35,6 @@
 .fs-card--cheque.fs-card--sm svg { inline-size: 3.6rem; block-size: 2.1rem; }
 
 .fs-card--prop .fs-card__bg { fill: #f6ecd6; stroke: #6b5232; stroke-width: 2; }
-.fs-card__shade { fill: rgb(0 0 0 / 0.18); stroke: #6b5232; stroke-width: 2; }
-.fs-card__num { font-size: 28px; font-weight: 900; fill: #fff; stroke: #000; stroke-width: 3px; paint-order: stroke; }
-.fs-card__label { font-size: 10px; font-weight: 800; fill: #fff; stroke: #000; stroke-width: 2.5px; paint-order: stroke; }
 
 .fs-card--cheque .fs-card__bg { fill: #d9ecd4; stroke: #2f6b45; stroke-width: 2; }
 .fs-cheque__guil { stroke: #6aa37c; stroke-width: 1.2; stroke-dasharray: 3 2; }

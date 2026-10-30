@@ -1,16 +1,17 @@
-// بنگاه renderer: an estate agent's desk. Property cards climb from a cottage (۱) to a floating castle (۳۰); cheques are
+// بنگاه renderer: an estate agent's desk. Property cards climb from a sewer hole (۱) to a space station (۳۰); cheques are
 // banknote-green slips. Players sit along the top with coins, bids and cards in hand; the market is in the middle and
 // your hand (and bid stepper) at the bottom.
 import './renderer.css';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import type { ForSaleView } from './rules.ts';
-import cottage from './art/prop-cottage.webp';
-import castle from './art/prop-castle.webp';
+import props from './art/props.webp';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const TIER = ['کپر', 'کلبه', 'خانه', 'آپارتمان', 'برج', 'کاخ'];
-// Painted art cut from a generated sheet (see DECISIONS.md): cottage for 1-15, castle for 16-30.
+// Property cards are the printed For Sale (2nd edition) cards from github.com/rayvax/for-sale-board-game (see DECISIONS.md):
+// props.webp holds card v at cell v − 1 (10 × 3); the printed card carries its own value in each corner.
+const PROP_W = 86, PROP_H = 120;
 const tier = (v: number) => Math.min(5, Math.floor((v - 1) / 5));
 
 export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; flipExit?: string }) {
@@ -20,10 +21,9 @@ export function Prop({ v, size = 'md', flip, flipFrom, flipExit }: { v: number; 
       <svg viewBox="-45 -62 90 124" aria-hidden="true" direction="ltr">
         <clipPath id={clip}><rect x="-43" y="-60" width="86" height="120" rx="8" /></clipPath>
         <rect x="-43" y="-60" width="86" height="120" rx="8" className="fs-card__bg" />
-        <image href={v > 15 ? castle : cottage} x="-43" y="-60" width="86" height="120" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clip})`} />
-        <rect x="-43" y="-60" width="86" height="120" rx="8" className="fs-card__shade" />
-        <text x="-36" y="-34" className="fs-card__num">{fa(v)}</text>
-        <text x="0" y="54" textAnchor="middle" className="fs-card__label">{TIER[tier(v)]}</text>
+        <g clipPath={`url(#${clip})`}>
+          <image href={props} x={-43 - ((v - 1) % 10) * PROP_W} y={-60 - Math.floor((v - 1) / 10) * PROP_H} width={PROP_W * 10} height={PROP_H * 3} preserveAspectRatio="none" />
+        </g>
       </svg>
     </span>
   );

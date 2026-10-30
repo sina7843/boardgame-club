@@ -1486,3 +1486,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   Thief and Paladin art from the hero leaflets and guides in github.com/LoJo97/dice-throne and
   github.com/btgaffor/dice-throne. Looked at and not used: Star Realms and Race for the Galaxy (our decks are our own
   cards), Uno (only a flat fan redraw found), Cockroach Poker (64 × 99 px scans), Camel Up (no usable assets).
+- For Sale property cards are the printed 2nd-edition cards (all 30) from github.com/rayvax/for-sale-board-game
+  (`props.webp`, card v at cell v − 1); the printed corner values replace our overlaid number and tier label (both stay
+  in the aria-label). Not used: the El Dorado and Citadels images found on GitHub are AI-generated fan art, not the
+  printed art, so they are no better than ours.
