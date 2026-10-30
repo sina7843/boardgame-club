@@ -9,6 +9,7 @@ import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ChatPanel } from '../social/ChatPanel.tsx';
+import { usePresence } from '../lib/presence.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 const ROLE_FA = { owner: 'مالک', manager: 'مدیر', member: 'عضو' } as const;
@@ -252,6 +253,8 @@ export function ClubPage() {
   const run = useRun();
   const [editing, setEditing] = useState(false);
   const [desc, setDesc] = useState('');
+  const [view, setView] = useState<'overview' | 'chat' | 'members' | 'requests'>('overview');
+  const presence = usePresence(c.data?.members.map((m) => m.user.id) ?? []);
   if (c.error) return <StateBlock kind={c.error.status === 404 ? 'empty' : c.error.status === 401 ? 'denied' : 'error'} title={c.error.status === 404 ? 'این باشگاه پیدا نشد' : 'باشگاه دریافت نشد'} text={c.error.messageFa} />;
   if (!c.data) return <Loading />;
   const d = c.data;
@@ -259,6 +262,33 @@ export function ClubPage() {
   const manager = mine?.status === 'active' && (mine.role === 'owner' || mine.role === 'manager');
   const owner = mine?.status === 'active' && mine.role === 'owner';
   const act = async (fn: () => Promise<unknown>, ok?: string) => { await run(fn, ok); c.reload(); };
+  const pendingCard = d.pending.length === 0 ? <StateBlock kind="empty" title="درخواستی در انتظار نیست" /> : (
+    <Card title={<>در انتظار <Badge tone="count">{d.pending.length}</Badge></>}>
+              <ul className="sx-rows">{d.pending.map((m) => (
+                <MemberRow key={m.user.id} m={m}>
+                  {m.status === 'requested' && <>
+                    <Button size="sm" variant="primary" onClick={() => act(() => api(`/clubs/${d.slug}/requests/${m.user.id}/approve`, { method: 'POST' }), 'پذیرفته شد.')}>پذیرش</Button>
+                    <Button size="sm" variant="secondary" onClick={() => act(() => api(`/clubs/${d.slug}/requests/${m.user.id}/reject`, { method: 'POST' }))}>رد</Button>
+                  </>}
+                </MemberRow>))}</ul>
+            </Card>
+  );
+  const membersCard = (
+    <Card title={`اعضا (${faNum(d.members.length)})`} className="sx-stack-sm">
+            <ul className="sx-rows">{d.members.map((m) => (
+              <MemberRow key={m.user.id} m={m}>
+                {owner && m.role !== 'owner' && (
+                  <Button size="sm" variant="ghost" onClick={() => act(() => api(`/clubs/${d.slug}/members/${m.user.id}`, { method: 'PATCH', body: { role: m.role === 'manager' ? 'member' : 'manager' } }), 'نقش تغییر کرد.')}>
+                    {m.role === 'manager' ? 'برداشتن مدیریت' : 'مدیر کردن'}
+                  </Button>
+                )}
+                {manager && m.role !== 'owner' && (owner || m.role === 'member') && (
+                  <Button size="sm" variant="ghost" onClick={() => act(() => api(`/clubs/${d.slug}/members/${m.user.id}`, { method: 'DELETE' }), 'عضو حذف شد.')}>حذف</Button>
+                )}
+              </MemberRow>))}</ul>
+            {manager && <FriendInvite exclude={new Set([...d.members, ...d.pending].map((m) => m.user.id))} onInvite={(userId) => act(() => api(`/clubs/${d.slug}/invites`, { method: 'POST', body: { userId } }), 'دعوت فرستاده شد.')} />}
+          </Card>
+  );
   const join = (ok: string) => act(() => api(`/clubs/${d.slug}/join`, { method: 'POST' }), ok);
   return (
     <>
@@ -280,11 +310,26 @@ export function ClubPage() {
             {mine?.status === 'invited' && <Button variant="primary" onClick={() => join('به باشگاه پیوستید.')}>پذیرش دعوت</Button>}
             {mine?.status === 'requested' && <Badge tone="warning" icon="hourglass">درخواست شما در انتظار بررسی است</Badge>}
             {!mine && d.joinPolicy === 'invite' && <Badge icon="lock">عضویت فقط با دعوت</Badge>}
+            {/* Club-Chat-Moderation-Desktop: a member switches between the club's sections. Tables and events are not built yet. */}
+            {mine?.status === 'active' && <Segmented label="بخش‌های باشگاه" value={view} onChange={(v) => setView(v as typeof view)} options={[
+              { value: 'overview', label: 'نمای کلی' }, ...(d.conversationId ? [{ value: 'chat', label: 'گفت‌وگو' }] : []), { value: 'members', label: 'اعضا' },
+              ...(manager ? [{ value: 'requests', label: d.pending.length ? `درخواست‌ها ${faNum(d.pending.length)}` : 'درخواست‌ها' }] : [])]} />}
             {mine?.status === 'active' && mine.role !== 'owner' && <Button variant="leave" onClick={() => act(() => api(`/clubs/${d.slug}/members/${myId}`, { method: 'DELETE' }), 'از باشگاه خارج شدید.')}>ترک باشگاه</Button>}
           </div>
         </div>
       </Card>
-      <div className="bgv-cols">
+      {view === 'chat' && d.conversationId && (
+        <div className="bgv-cols sx-clubchat">
+          <div className="sx-chatcard"><ChatPanel load={`/conversations/${d.conversationId}/messages`} post={`/conversations/${d.conversationId}/messages`} conversationId={d.conversationId} title="گفت‌وگوی باشگاه" clubSlug={d.slug} /></div>
+          <Card title={`اعضای آنلاین ${faNum(d.members.filter((m) => presence[m.user.id]?.online).length)}`}>
+            <ul className="sx-rows">{[...d.members].sort((a, b) => Number(!!presence[b.user.id]?.online) - Number(!!presence[a.user.id]?.online)).slice(0, 12).map((m) => (
+              <MemberRow key={m.user.id} m={m}><span className="sx-cap">{presence[m.user.id]?.playing ? `در حال بازی ${presence[m.user.id]!.playing!.gameNameFa}` : presence[m.user.id]?.online ? 'آنلاین' : ''}</span></MemberRow>))}</ul>
+          </Card>
+        </div>
+      )}
+      {view === 'members' && membersCard}
+      {view === 'requests' && manager && pendingCard}
+      {view === 'overview' && <div className="bgv-cols">
         <div className="sx-stack">
           <Card title="معرفی" className="sx-stack-sm" actions={manager && !editing ? <Button size="sm" variant="secondary" icon="pencil" onClick={() => { setDesc(d.description); setEditing(true); }}>ویرایش معرفی</Button> : undefined}>
             {editing ? (
@@ -302,33 +347,10 @@ export function ClubPage() {
           {d.conversationId && <div className="sx-chatcard"><ChatPanel load={`/conversations/${d.conversationId}/messages`} post={`/conversations/${d.conversationId}/messages`} conversationId={d.conversationId} title="گفت‌وگوی باشگاه" clubSlug={d.slug} /></div>}
         </div>
         <div className="sx-stack">
-          {manager && d.pending.length > 0 && (
-            <Card title={<>در انتظار <Badge tone="count">{d.pending.length}</Badge></>}>
-              <ul className="sx-rows">{d.pending.map((m) => (
-                <MemberRow key={m.user.id} m={m}>
-                  {m.status === 'requested' && <>
-                    <Button size="sm" variant="primary" onClick={() => act(() => api(`/clubs/${d.slug}/requests/${m.user.id}/approve`, { method: 'POST' }), 'پذیرفته شد.')}>پذیرش</Button>
-                    <Button size="sm" variant="secondary" onClick={() => act(() => api(`/clubs/${d.slug}/requests/${m.user.id}/reject`, { method: 'POST' }))}>رد</Button>
-                  </>}
-                </MemberRow>))}</ul>
-            </Card>
-          )}
-          <Card title={`اعضا (${faNum(d.members.length)})`} className="sx-stack-sm">
-            <ul className="sx-rows">{d.members.map((m) => (
-              <MemberRow key={m.user.id} m={m}>
-                {owner && m.role !== 'owner' && (
-                  <Button size="sm" variant="ghost" onClick={() => act(() => api(`/clubs/${d.slug}/members/${m.user.id}`, { method: 'PATCH', body: { role: m.role === 'manager' ? 'member' : 'manager' } }), 'نقش تغییر کرد.')}>
-                    {m.role === 'manager' ? 'برداشتن مدیریت' : 'مدیر کردن'}
-                  </Button>
-                )}
-                {manager && m.role !== 'owner' && (owner || m.role === 'member') && (
-                  <Button size="sm" variant="ghost" onClick={() => act(() => api(`/clubs/${d.slug}/members/${m.user.id}`, { method: 'DELETE' }), 'عضو حذف شد.')}>حذف</Button>
-                )}
-              </MemberRow>))}</ul>
-            {manager && <FriendInvite exclude={new Set([...d.members, ...d.pending].map((m) => m.user.id))} onInvite={(userId) => act(() => api(`/clubs/${d.slug}/invites`, { method: 'POST', body: { userId } }), 'دعوت فرستاده شد.')} />}
-          </Card>
+          {manager && d.pending.length > 0 && pendingCard}
+          {membersCard}
         </div>
-      </div>
+      </div>}
     </>
   );
 }
