@@ -8,18 +8,29 @@ import { GameWiki } from './Wiki.tsx';
 import { GameCover } from '../games/covers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
-import { ACCESS_FA, COMPETITION_FA, DIFFICULTY_FA, durationFa, faNum, PACE_FA, range } from '../lib/format.ts';
+import { ACCESS_FA, defaultTime, DIFFICULTY_FA, durationFa, faNum, PACE_FA, range } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 /** Rules lines; a line starting with "## " opens a titled section (Goal, Setup, Turn, Scoring, End, Tips). */
-export function RulesText({ lines }: { lines: string[] }) {
+/** GameDetail-Desktop «خلاصهٔ قوانین»: the first four sections, at most three lines each; the rest stays under «قوانین کامل». */
+export function rulesSummary(lines: string[]): string[] {
+  const out: string[] = [];
+  let sections = 0; let inSection = 0;
+  for (const l of lines) {
+    if (l.startsWith('## ')) { if (++sections > 4) break; inSection = 0; out.push(l); }
+    else if (inSection++ < 3) out.push(l);
+  }
+  return out;
+}
+
+export function RulesText({ lines, columns }: { lines: string[]; columns?: boolean }) {
   const sections: { title: string | null; items: string[] }[] = [];
   for (const l of lines) {
     if (l.startsWith('## ')) sections.push({ title: l.slice(3), items: [] });
     else (sections.at(-1) ?? sections[sections.push({ title: null, items: [] }) - 1]!).items.push(l);
   }
   return (
-    <div className="pg-rules">{sections.map((s, i) => (
+    <div className={columns ? 'pg-rules pg-rules--cols' : 'pg-rules'}>{sections.map((s, i) => (
       <div key={i} className="pg-sec">
         {s.title && <h3>{s.title}</h3>}
         {s.items.length > 0 && <ol>{s.items.map((r) => <li key={r}>{r}</li>)}</ol>}
@@ -62,7 +73,11 @@ export function GameDetailPage() {
   const tutorialStatus = tutorials.data?.items.find((t) => t.gameId === id)?.status;
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [tutorialError, setTutorialError] = useState<string>();
-  const [pane, setPane] = useState<'about' | 'rules' | 'time' | 'wiki'>('about');
+  // A link to /games/:id#wiki opens the encyclopedia tab on the phone.
+  const [pane, setPane] = useState<'about' | 'rules' | 'time' | 'wiki'>(() => (location.hash === '#wiki' ? 'wiki' : 'about'));
+  const [fullRules, setFullRules] = useState(false);
+  const prog = useApi<{ ratings: { gameId: string; display: number }[] }>(me ? '/me/progression' : null);
+  const myRating = prog.data?.ratings.filter((r) => r.gameId === id).sort((a, b) => b.display - a.display)[0]?.display;
   const startTutorial = async () => {
     setTutorialBusy(true); setTutorialError(undefined);
     try { navigate(`/tables/${(await api<{ tableId: string }>(`/tutorials/${id}/start`, { method: 'POST', body: {} })).tableId}`); }
@@ -87,20 +102,19 @@ export function GameDetailPage() {
           <div className="pg-head-actions">
             <Badge icon={g.access === 'premium' ? 'crown' : 'lock-open'} tone={g.access === 'premium' ? 'premium' : 'neutral'}>{ACCESS_FA[g.access]}</Badge>
             {g.paces.map((p) => <Badge key={p} icon={p === 'live' ? 'zap' : 'hourglass'}>{PACE_FA[p]}</Badge>)}
-            {g.botAvailable && <Badge icon="bot">ربات</Badge>}
+            {g.competitions.includes('ranked') && <Badge icon="trophy">رتبه‌ای</Badge>}
+            {g.botAvailable && <Badge icon="bot">ربات آسان، متوسط، سخت</Badge>}
             {g.isTestGame && <Badge tone="test" icon="triangle-alert">بازی آزمایشی</Badge>}
             {g.status === 'suspended' && <Badge tone="danger">متوقف‌شده</Badge>}
           </div>
           <h1 className="t-page" style={{ margin: 0 }}>{g.nameFa} <bdi className="bgv-latin bgv-muted" dir="ltr">{g.nameOriginal}</bdi></h1>
           {g.isTestGame && <Banner tone="info" text="این بازی اختصاصی و برای آزمون موتور بازی ساخته شده است؛ جزو فهرست نهایی بازی‌های عرضه نیست." />}
           <p className="t-body" style={{ margin: 0 }}>{g.summaryFa}</p>
-          <dl className="pg-facts" aria-label="مشخصات">
-            <div><dt>تعداد نفر</dt><dd>{range(g.minPlayers, g.maxPlayers, 'نفر')}</dd></div>
-            <div><dt>زمان</dt><dd>{range(g.minMinutes, g.maxMinutes, 'دقیقه')}</dd></div>
-            <div><dt>دشواری</dt><dd>{DIFFICULTY_FA[g.difficulty]}</dd></div>
-            <div><dt>دسترسی</dt><dd>{ACCESS_FA[g.access]}{g.access === 'premium' ? '، نیازمند اشتراک' : '، بدون اشتراک'}</dd></div>
-            <div><dt>حالت‌ها</dt><dd>{g.paces.map((p) => PACE_FA[p]).join('، ')}</dd></div>
-            <div><dt>نوع رقابت</dt><dd>{g.competitions.map((c) => COMPETITION_FA[c]).join('، ')}</dd></div>
+          <dl className="pg-facts pg-facts--4" aria-label="مشخصات">
+            <div><dt><Icon name="users" size="sm" />بازیکن</dt><dd>{range(g.minPlayers, g.maxPlayers, 'نفر')}</dd></div>
+            <div><dt><Icon name="clock" size="sm" />مدت</dt><dd>{range(g.minMinutes, g.maxMinutes, 'دقیقه')}</dd></div>
+            <div><dt><Icon name="lock-open" size="sm" />سختی</dt><dd>{DIFFICULTY_FA[g.difficulty]}</dd></div>
+            <div><dt><Icon name="star" size="sm" />امتیاز شما</dt><dd className="bgv-num">{myRating !== undefined ? faNum(myRating) : '—'}</dd></div>
           </dl>
           {g.access === 'premium' && <Banner tone="info" text={<>ساخت میز این بازی به اشتراک پریمیوم نیاز دارد. اگر میزبان پریمیوم باشد، دوستانی که دعوت می‌کند می‌توانند بدون اشتراک بازی کنند. <a href="/plans">اشتراک</a></>} />}
           {!g.acceptingNewTables && <Banner tone="warning" text="پذیرش میز جدید برای این بازی موقتاً متوقف است." />}
@@ -111,19 +125,19 @@ export function GameDetailPage() {
               <div className="pg-actions">
                 <Button variant="primary" icon="zap" href={`/play?game=${g.id}`}>بازی سریع</Button>
                 <Button icon="plus" href={`/games/${g.id}/new`}>ساخت میز</Button>
-                <Button variant="ghost" href="/tables">میزهای باز دیگران</Button>
+                {g.botAvailable && <Button icon="bot" href="#bot-play">بازی با ربات</Button>}
               </div>
               {g.tutorialEnabled && (
                 <div className="pg-tutor">
-                  <Icon name="book-open" />
+                  <span className="ac-tile"><Icon name="book-open" /></span>
                   <div><b>آموزش تعاملی</b><span className="bgv-muted t-body-sm">{g.tutorialFa}</span>
                     {tutorialStatus === 'completed' && <span className="t-body-sm">آموزش این بازی را کامل کرده‌اید.</span>}
                   </div>
-                  <Button loading={tutorialBusy} onClick={startTutorial}>{tutorialLabel}</Button>
+                  <Button variant="ghost" loading={tutorialBusy} onClick={startTutorial}>{tutorialStatus ? tutorialLabel : 'شروع آموزش'}<Icon name="chevron-left" size="sm" /></Button>
                 </div>
               )}
               {tutorialError && <p className="bgv-hint bgv-hint--error" role="alert">{tutorialError}</p>}
-              {g.botAvailable && <Card raised title="بازی با ربات"><BotPlay gameId={g.id} minPlayers={g.minPlayers} maxPlayers={g.maxPlayers} /></Card>}
+              {g.botAvailable && <div id="bot-play"><Card raised title="بازی با ربات"><BotPlay gameId={g.id} minPlayers={g.minPlayers} maxPlayers={g.maxPlayers} /></Card></div>}
             </>
           )}
         </div>
@@ -136,14 +150,24 @@ export function GameDetailPage() {
       <div className="bgv-cols pg-panes" data-tab={pane}>
         <div className="pg-stack">
           {me && <div data-pane="about"><GameOpenTables gameId={g.id} /></div>}
-          <div data-pane="rules"><Card title="قوانین" as="section" aria-label="قوانین"><RulesText lines={g.rulesFa} /></Card></div>
+          <div data-pane="rules"><Card title={fullRules ? 'قوانین کامل' : 'خلاصهٔ قوانین'} as="section" aria-label="قوانین"
+            actions={<Button size="sm" variant="ghost" aria-expanded={fullRules} onClick={() => setFullRules(!fullRules)}>{fullRules ? 'خلاصه' : 'قوانین کامل'}</Button>}>
+            <RulesText lines={fullRules ? g.rulesFa : rulesSummary(g.rulesFa)} columns={!fullRules} /></Card></div>
           <div data-pane="wiki"><GameWiki gameId={g.id} /></div>
         </div>
         <aside className="pg-stack" aria-label="مشخصات و شروع">
           {!g.tutorialEnabled && <div data-pane="about"><Card title="آموزش"><p className="pg-policy">{g.tutorialFa}</p></Card></div>}
-          <div data-pane="time"><Card title="اتمام زمان و انصراف">
-            <p className="pg-policy"><b>اتمام زمان: </b>{g.timeoutPolicyFa}</p>
-            <p className="pg-policy"><b>انصراف: </b>{g.resignPolicyFa}</p>
+          <div data-pane="time"><Card title="زمان و اتمام زمان">
+            <table className="pg-timetable">
+              <thead><tr><th scope="col"><span className="bgv-sr">مورد</span></th>{g.paces.map((p) => <th key={p} scope="col">{PACE_FA[p]}</th>)}</tr></thead>
+              <tbody>
+                <tr><th scope="row">مدل ساعت</th>{g.paces.map((p) => <td key={p}>{p === 'live' ? 'مهلت هر حرکت' : 'مهلت هر نوبت'}</td>)}</tr>
+                <tr><th scope="row">گزینه‌ها</th>{g.paces.map((p) => <td key={p}>{(p === 'live' ? g.liveSeconds : g.turnSeconds).map(durationFa).join('، ')}</td>)}</tr>
+                <tr><th scope="row">پیش‌فرض</th>{g.paces.map((p) => <td key={p}>{durationFa(defaultTime(p === 'live' ? g.liveSeconds : g.turnSeconds, p))}</td>)}</tr>
+                <tr><th scope="row">اتمام زمان</th><td colSpan={g.paces.length}>{g.timeoutPolicyFa}</td></tr>
+                <tr><th scope="row">انصراف</th><td colSpan={g.paces.length}>{g.resignPolicyFa}</td></tr>
+              </tbody>
+            </table>
           </Card></div>
           {g.options.length > 0 && (
             <div data-pane="rules"><Card title="گزینه‌های قانون">

@@ -3,23 +3,23 @@ import { expect, test } from '@playwright/test';
 test('encyclopedia: list, filter by mechanic, open a game entry', async ({ page }, info) => {
   await page.goto('/wiki');
   await expect(page.getByRole('heading', { name: 'دانشنامهٔ بازی‌ها', level: 1 })).toBeVisible();
-  await expect(page.getByRole('link', { name: /کاتان/ })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: /کاتان/ })).toBeVisible(); // the footer also links «کاتان آنلاین»
 
   await page.getByLabel('سازوکار').selectOption({ label: 'مبادله' });
-  await expect(page.getByRole('link', { name: /کاتان/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: /شطرنج/ })).toHaveCount(0);
+  await expect(page.getByRole('main').getByRole('link', { name: /کاتان/ })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: /شطرنج/ })).toHaveCount(0);
   await page.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-list.png`, fullPage: true });
 
   // Painted cover at rest; the BGG box photo fades in on hover (pointer devices only).
   if (!info.project.use.hasTouch) {
-    const box = page.getByRole('link', { name: /کاتان/ }).locator('.game-cover--box');
+    const box = page.getByRole('main').getByRole('link', { name: /کاتان/ }).locator('.game-cover--box');
     await expect(box).toHaveCSS('opacity', '0');
-    await page.getByRole('link', { name: /کاتان/ }).hover();
+    await page.getByRole('main').getByRole('link', { name: /کاتان/ }).hover();
     await expect(box).toHaveCSS('opacity', '1');
     expect(await box.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
   }
 
-  await page.getByRole('link', { name: /کاتان/ }).click();
+  await page.getByRole('main').getByRole('link', { name: /کاتان/ }).click();
   await expect(page).toHaveURL(/\/games\/catan#wiki$/);
   // Game page cover flips by tap too, for touch screens.
   const flip = page.getByRole('button', { name: 'نمایش جعبهٔ اصلی بازی' });

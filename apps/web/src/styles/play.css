@@ -187,3 +187,61 @@ button.cover-flip { cursor: pointer; }
   .pg-orow__host .bgv-identity__sub { display: none; }
   .pg-orow { padding-block: var(--space-2); }
 }
+
+/* CreateTable-Desktop: numbered steps, four mode cards, seat list beside the friend picker, collapsible extra settings. */
+.pg-newhead { display: inline-flex; align-items: center; gap: var(--space-4); }
+.pg-newhead > img { inline-size: 84px; block-size: 84px; object-fit: contain; }
+.pg-step { display: grid; gap: var(--space-4); }
+.pg-step__head { display: flex; align-items: flex-start; gap: var(--space-3); }
+.pg-step__head > div { flex: 1; min-inline-size: 0; }
+.pg-step__head .pg-meta { margin: 0; }
+.pg-step__n { display: inline-grid; place-items: center; inline-size: 32px; block-size: 32px; flex: none; border-radius: var(--radius-pill); background: var(--heading); color: var(--surface); font-weight: 700; }
+.pg-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.pg-mode { position: relative; display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); border: 1.5px solid var(--line); background: var(--surface); color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.pg-mode.is-on { border-color: var(--heading); }
+.pg-mode__ic { display: grid; place-items: center; inline-size: 44px; block-size: 44px; flex: none; border-radius: var(--radius-md); background: var(--surface-sunken); }
+.pg-mode.is-on .pg-mode__ic { background: var(--heading); color: var(--surface); }
+.pg-mode__text { display: grid; gap: 2px; min-inline-size: 0; flex: 1; }
+.pg-mode__line { font-size: 13px; font-weight: 700; }
+.pg-mode__tick { position: absolute; inset-block-start: var(--space-3); inset-inline-end: var(--space-3); color: var(--heading); }
+.pg-players { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); align-items: start; }
+.pg-seats { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pg-seats > li { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--line); }
+.pg-seats > li > :first-child { flex: 1; min-inline-size: 0; }
+.pg-seats > .pg-seats__empty { justify-content: center; border-style: dashed; }
+.pg-seats__empty .pg-meta { display: inline-flex; align-items: center; gap: 6px; }
+.pg-more > summary { cursor: pointer; list-style: none; }
+.pg-more > summary::-webkit-details-marker { display: none; }
+.pg-more[open] .pg-more__chev { transform: rotate(180deg); }
+@media (max-width: 899px) {
+  .pg-modes, .pg-players { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* GameDetail-Desktop: four facts with icons, rules summary in two columns, timing table. */
+.pg-facts--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--line); }
+.pg-facts--4 dt { display: inline-flex; align-items: center; gap: 4px; }
+.pg-tutor { background: var(--surface); border: 1px solid var(--line); }
+.pg-rules--cols { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-8); }
+.pg-timetable { inline-size: 100%; border-collapse: collapse; font-size: 14px; }
+.pg-timetable th, .pg-timetable td { padding: var(--space-2) var(--space-1); text-align: start; vertical-align: top; border-block-end: 1px solid var(--line); }
+.pg-timetable thead th { font-weight: 400; color: var(--text-muted); }
+.pg-timetable tbody th { font-weight: 400; color: var(--text-muted); white-space: nowrap; }
+.pg-timetable tr:last-child > * { border-block-end: 0; }
+@media (max-width: 899px) {
+  .pg-facts--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pg-rules--cols { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Catalog-Desktop: presets with a fan of boxes, filter lists with counts. */
+.pg-preset__art { display: flex; flex: none; inline-size: 92px; block-size: 56px; position: relative; }
+.pg-preset__art > img { position: absolute; inset-block-end: 0; inline-size: 44px; block-size: 52px; object-fit: contain; }
+/* Painted last = on top: the boxes come in reverse, so the first match sits in front. */
+.pg-preset__art > img:nth-last-child(1) { inset-inline-start: 0; }
+.pg-preset__art > img:nth-last-child(2) { inset-inline-start: 22px; transform: rotate(-6deg); }
+.pg-preset__art > img:nth-last-child(3) { inset-inline-start: 44px; transform: rotate(-12deg); }
+.pg-preset__text b { display: inline-flex; align-items: center; gap: 6px; }
+.pg-flist { display: grid; gap: var(--space-2); border: 0; padding: 0; margin: 0; }
+.pg-flist__row { display: flex; align-items: center; gap: var(--space-2); }
+.pg-flist__row > :first-child { flex: 1; min-inline-size: 0; }
+.pg-flist__n { font-size: 13px; color: var(--text-muted); }
+.pg-flist > .bgv-btn { justify-self: start; }

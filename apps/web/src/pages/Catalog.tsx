@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { GAME_TAG_FA, type GameSummary, type GameTag } from '@bg/contracts';
-import { Button, Chip, ChipGroup, Icon, PageHead, Segmented, Select, Skeleton, StateBlock, Switch, TextField } from '@bg/ui/bgv';
+import { Button, Checkbox, Chip, Icon, PageHead, Radio, Segmented, Select, Skeleton, StateBlock, Switch, TextField } from '@bg/ui/bgv';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
@@ -12,7 +12,6 @@ import { PageTabs } from '../shell/PageTabs.tsx';
 type FilterKey = 'players' | 'maxMinutes' | 'difficulty' | 'mode' | 'access' | 'tags';
 const SERVER_KEYS = ['q', 'players', 'maxMinutes', 'difficulty', 'mode', 'access', 'tags'];
 const TAG_OPTIONS = (Object.keys(GAME_TAG_FA) as GameTag[]).map((value) => ({ value, label: GAME_TAG_FA[value] }));
-const ALL = { value: '', label: 'همه' };
 const MODE_FA: Record<string, string> = { live: 'زنده', turn: 'نوبتی', friendly: 'دوستانه', ranked: 'رتبه‌دار' };
 const PAGE = 12;
 
@@ -25,12 +24,14 @@ const sortGames = (items: GameSummary[], sort: string) => {
 };
 
 /** Quick starting points shown above the grid; each one sets filters. */
-const PRESETS: { label: string; text: string; icon: string; set: Record<string, string> }[] = [
-  { label: 'شروع آسان', text: 'قانون کوتاه، یاد گرفتن سریع', icon: 'sparkles', set: { difficulty: 'easy' } },
-  { label: 'دونفره', text: 'تو و یک حریف', icon: 'swords', set: { players: '2' } },
-  { label: 'با ربات', text: 'بدون انتظار برای حریف', icon: 'bot', set: { bot: '1' } },
-  { label: 'کمتر از ۳۰ دقیقه', text: 'یک دست سریع', icon: 'clock', set: { maxMinutes: '30' } }
+const PRESETS: { label: string; text: string; icon: string; set: Record<string, string>; match: (g: GameSummary) => boolean }[] = [
+  { label: 'شروع آسان', text: 'قانون کوتاه', icon: 'sparkles', set: { difficulty: 'easy' }, match: (g) => g.difficulty === 'easy' },
+  { label: 'دونفره', text: 'تن‌به‌تن', icon: 'swords', set: { players: '2' }, match: (g) => g.minPlayers <= 2 && g.maxPlayers >= 2 },
+  { label: 'با ربات', text: 'بدون انتظار', icon: 'bot', set: { bot: '1' }, match: (g) => g.botAvailable },
+  { label: 'کمتر از ۳۰ دقیقه', text: 'یک دست سریع', icon: 'clock', set: { maxMinutes: '30' }, match: (g) => g.minMinutes <= 30 }
 ];
+const TIMES = [30, 60, 120];
+const DIFF: [string, string][] = [['easy', 'آسان'], ['medium', 'متوسط'], ['hard', 'دشوار']];
 
 export function Catalog() {
   usePageTitle('بازی‌ها', 'همه بردگیم‌های آنلاین | بردگیم‌ورس');
@@ -55,11 +56,12 @@ export function Catalog() {
 
   const apiQs = new URLSearchParams([...params].filter(([k]) => SERVER_KEYS.includes(k))).toString();
   const { data, error, loading, reload } = useApi<{ items: GameSummary[] }>(`/games${apiQs ? `?${apiQs}` : ''}`);
+  // Unfiltered list for the counts next to each filter and the preset art.
+  const everything = useApi<{ items: GameSummary[] }>('/games');
+  const all = useMemo(() => (everything.data?.items ?? []).filter((g) => !g.isTestGame), [everything.data]);
+  const [moreTags, setMoreTags] = useState(false);
   const hasFilters = params.toString().replace(/(^|&)sort=[^&]*/, '').length > 0;
   const clear = () => { setQ(''); setShown(PAGE); setParams({}, { replace: true }); };
-  const sel = (key: FilterKey, label: string, options: { value: string; label: string }[]) => (
-    <Select label={label} value={params.get(key) ?? ''} onChange={(e) => setFilter(key, e.target.value)} options={[ALL, ...options]} />
-  );
   const mode = params.get('mode');
   const onlyBot = params.get('bot') === '1';
   const sort = params.get('sort') ?? 'popular';
@@ -68,18 +70,30 @@ export function Catalog() {
   const items = useMemo(() => sortGames((data?.items ?? []).filter((g) => !onlyBot || g.botAvailable), sort), [data, onlyBot, sort]);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const live = mode === 'live' || mode === 'turn' ? mode : '';
+  const tags = (params.get('tags') ?? '').split(',').filter((t): t is GameTag => t in GAME_TAG_FA);
+  const tagCount = (t: string) => all.filter((g) => (g.tags as string[]).includes(t)).length;
+  // Every active filter as a removable chip next to the count (Catalog-Desktop).
+  const active: [string, string][] = [
+    ...(mode ? [['mode', MODE_FA[mode] ?? mode] as [string, string]] : []),
+    ...(players ? [['players', players === '6' ? '+۶ نفر' : `${faNum(Number(players))} نفر`] as [string, string]] : []),
+    ...(params.get('maxMinutes') ? [['maxMinutes', `تا ${faNum(Number(params.get('maxMinutes')))} دقیقه`] as [string, string]] : []),
+    ...(params.get('difficulty') ? [['difficulty', DIFF.find(([v]) => v === params.get('difficulty'))?.[1] ?? ''] as [string, string]] : []),
+    ...(onlyBot ? [['bot', 'با ربات'] as [string, string]] : []),
+    ...tags.map((t) => [`tag:${t}`, GAME_TAG_FA[t]] as [string, string])
+  ];
+  const dropFilter = (key: string) => key.startsWith('tag:') ? setFilter('tags', tags.filter((t) => t !== key.slice(4)).join(',')) : setKey(key, '');
 
   return (
     <>
       <PageTabs group="games" />
-      <PageHead title="بازی‌ها" sub={`${data && !hasFilters ? `${faNum(data.items.length)} بردگیم رومیزی؛ ` : ''}نوبتی یا زنده، با دوستان یا با ربات؛ بر اساس نام فارسی یا اصلی جست‌وجو کنید.`}
-        actions={<Button href="/wiki" icon="book-open">دانشنامه</Button>} />
+      <PageHead title="بازی‌ها" sub={`${all.length ? `${faNum(all.length)} بردگیم رومیزی؛ ` : ''}نوبتی یا زنده، با دوستان یا با ربات.`} />
 
       <div className="pg-presets" role="group" aria-label="شروع سریع">
         {PRESETS.map((p) => (
           <button key={p.label} type="button" className="bgv-card pg-preset" onClick={() => { setShown(PAGE); setParams(new URLSearchParams(p.set), { replace: true }); setQ(''); }}>
-            <span className="pg-preset__icon"><Icon name={p.icon} /></span>
-            <span className="pg-preset__text"><b>{p.label}</b><small>{p.text}</small></span>
+            {/* Catalog-Desktop: a fan of three matching boxes, the count and a short line. */}
+            <span className="pg-preset__art" aria-hidden="true">{all.filter(p.match).slice(0, 3).reverse().map((g) => <img key={g.id} src={`/covers/box/${g.id}.webp`} alt="" loading="lazy" />)}</span>
+            <span className="pg-preset__text"><b><Icon name={p.icon} size="sm" />{p.label}</b><small>{faNum(all.filter(p.match).length)} بازی<span className="bgv-sep" />{p.text}</small></span>
           </button>
         ))}
       </div>
@@ -101,19 +115,34 @@ export function Catalog() {
               <div className="pg-stack" style={{ gap: 'var(--space-2)' }}>
                 <span className="bgv-label">تعداد نفر</span>
                 <div className="bgv-chips" role="group" aria-label="تعداد نفر">
-                  {[2, 3, 4, 5].map((n) => <Chip key={n} selected={players === String(n)} onClick={() => setFilter('players', players === String(n) ? '' : String(n))}>{faNum(n)}</Chip>)}
+                  {[2, 3, 4, 5, 6].map((n) => <Chip key={n} selected={players === String(n)} onClick={() => setFilter('players', players === String(n) ? '' : String(n))}>{n === 6 ? '+۶' : faNum(n)}</Chip>)}
                 </div>
               </div>
-              {sel('maxMinutes', 'زمان یک دست', [5, 15, 30, 60, 120].map((n) => ({ value: String(n), label: `تا ${faNum(n)} دقیقه` })))}
-              {sel('difficulty', 'دشواری', [{ value: 'easy', label: 'آسان' }, { value: 'medium', label: 'متوسط' }, { value: 'hard', label: 'دشوار' }])}
-              <Select label="رقابت" value={mode === 'friendly' || mode === 'ranked' ? mode : ''} onChange={(e) => setFilter('mode', e.target.value)} options={[ALL, { value: 'friendly', label: MODE_FA.friendly! }, { value: 'ranked', label: MODE_FA.ranked! }]} />
-              {sel('access', 'دسترسی', [{ value: 'free', label: 'رایگان' }, { value: 'premium', label: 'پریمیوم' }])}
-              <Switch label="با ربات" hint="فقط بازی‌هایی که ربات دارند" checked={onlyBot} onChange={(v) => setKey('bot', v ? '1' : '')} />
-              <fieldset className="pg-tags">
+              <fieldset className="pg-flist" role="radiogroup" aria-label="زمان یک دست">
+                <legend className="bgv-label">زمان یک دست</legend>
+                {[0, ...TIMES].map((n) => (
+                  <div key={n} className="pg-flist__row"><Radio name="maxMinutes" checked={(params.get('maxMinutes') ?? '') === (n ? String(n) : '')} onChange={() => setFilter('maxMinutes', n ? String(n) : '')} label={n ? `تا ${faNum(n)} دقیقه` : 'همه'} />
+                    <span className="pg-flist__n">{faNum(n ? all.filter((g) => g.minMinutes <= n).length : all.length)}</span></div>
+                ))}
+              </fieldset>
+              <fieldset className="pg-flist">
+                <legend className="bgv-label">دشواری</legend>
+                {DIFF.map(([v, label]) => (
+                  <div key={v} className="pg-flist__row"><Checkbox checked={params.get('difficulty') === v} onChange={(e) => setFilter('difficulty', e.target.checked ? v : '')} label={label} />
+                    <span className="pg-flist__n">{faNum(all.filter((g) => g.difficulty === v).length)}</span></div>
+                ))}
+              </fieldset>
+              <div className="pg-stack" style={{ gap: 'var(--space-2)' }}>
+                <span className="bgv-label">با ربات</span>
+                <Switch label="فقط بازی‌هایی که ربات دارند" hint="برای تمرین، بدون انتظار" checked={onlyBot} onChange={(v) => setKey('bot', v ? '1' : '')} />
+              </div>
+              <fieldset className="pg-flist">
                 <legend className="bgv-label">برچسب‌ها</legend>
-                <ChipGroup size="sm" label="برچسب‌ها" options={TAG_OPTIONS}
-                  value={(params.get('tags') ?? '').split(',').filter((t): t is GameTag => t in GAME_TAG_FA)}
-                  onChange={(v) => setFilter('tags', (v as string[]).join(','))} />
+                {[...TAG_OPTIONS].sort((a, b) => tagCount(b.value) - tagCount(a.value)).slice(0, moreTags ? undefined : 7).map((t) => (
+                  <div key={t.value} className="pg-flist__row"><Checkbox checked={tags.includes(t.value)} onChange={(e) => setFilter('tags', (e.target.checked ? [...tags, t.value] : tags.filter((x) => x !== t.value)).join(','))} label={t.label} />
+                    <span className="pg-flist__n">{faNum(tagCount(t.value))}</span></div>
+                ))}
+                {TAG_OPTIONS.length > 7 && <Button size="sm" variant="ghost" icon={moreTags ? 'chevron-up' : 'plus'} onClick={() => setMoreTags(!moreTags)}>{moreTags ? 'برچسب‌های کمتر' : `${faNum(TAG_OPTIONS.length - 7)} برچسب دیگر`}</Button>}
               </fieldset>
             </div>
           </form>
@@ -136,8 +165,7 @@ export function Catalog() {
               <>
                 <div className="pg-results">
                   <b className="t-title" role="status" aria-live="polite">{faNum(items.length)} بازی</b>
-                  {mode && <Chip size="sm" selected icon="x" onClick={() => setFilter('mode', '')} aria-label="حذف فیلتر حالت">{MODE_FA[mode] ?? mode}</Chip>}
-                  {onlyBot && <Chip size="sm" selected icon="x" onClick={() => setKey('bot', '')} aria-label="حذف فیلتر ربات">با ربات</Chip>}
+                  {active.map(([k, label]) => <Chip key={k} size="sm" selected icon="x" onClick={() => dropFilter(k)} aria-label={`حذف فیلتر ${label}`}>{label}</Chip>)}
                   <span className="pg-results__sort"><Select label="مرتب‌سازی" value={sort} onChange={(e) => setKey('sort', e.target.value === 'popular' ? '' : e.target.value)} options={SORTS.map(([value, label]) => ({ value, label }))} /></span>
                 </div>
                 <div className="bgv-grid pg-catgrid" data-tour="catalog-grid">{items.slice(0, shown).map((g) => <GameCard key={g.id} game={g} />)}</div>

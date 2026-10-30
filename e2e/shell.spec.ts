@@ -38,7 +38,7 @@ test('login → catalog → game detail', async ({ page }, info) => {
 
   // Arabic yeh in the query still finds the Persian name (FR-02).
   await page.getByRole('searchbox', { name: 'جست‌وجو' }).fill('مزايده');
-  await expect(page.getByText('۱ بازی')).toBeVisible();
+  await expect(page.getByText('۱ بازی', { exact: true })).toBeVisible(); // the presets also say «N بازی»
   await page.screenshot({ path: shot('04-search', p), fullPage: true });
 
   await page.getByRole('link', { name: /مزایده سربسته/ }).click();
