@@ -1,4 +1,4 @@
-// آرکانا renderer: an alchemist's table. Essences are cut gems (fire, life, calm, death, gold) with counts; cards
+// آرکانا renderer: an alchemist's table. Essences are the BGA essence tokens (fire, life, calm, death, gold) with counts; cards
 // are vellum plates showing cost gems, what they collect each round and their power (pay → gain, ★ for points).
 // Places of power and monuments wait on a velvet shelf; your mage and artifacts sit in front of you.
 import './renderer.css';

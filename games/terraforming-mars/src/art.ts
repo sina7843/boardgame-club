@@ -1,5 +1,6 @@
-// Painted in-game art (one GPT-Image sheet cut into cells + one Mars surface texture). Numbers, names and every
-// rules-relevant shape stay in code; these images are decoration and icons only (each use carries a text label).
+// In-game art. Tiles (city, greenery, ocean, special), resource, card-resource and parameter icons are the BGA Terraforming
+// Mars client art (see DECISIONS.md; the fighter icon and Mars surface stay from the earlier painted sheet). Numbers,
+// names and every rules-relevant shape stay in code; these images are decoration and icons only (each use carries a text label).
 import tileGreenery from './art/tile-greenery.webp';
 import tileOcean from './art/tile-ocean.webp';
 import tileCity from './art/tile-city.webp';

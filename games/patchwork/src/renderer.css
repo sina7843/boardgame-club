@@ -1,7 +1,7 @@
-/* چهل‌تکه: a quilter's table — printed fabrics in many hues, stitched seams, wooden buttons, a linen time track. */
+/* چهل‌تکه: a quilter's table — printed fabrics (BGA patch art), stitched seams, wooden buttons, a linen time track. */
 .pw { --linen: #efe5d2; --ink: #33261a; display: grid; gap: 0.7rem; inline-size: 100%; color: #f6ecdb; text-align: center; }
 .pw > :first-child { justify-self: center; }
-.fabric { background: repeating-linear-gradient(45deg, hsl(var(--h) 55% 52%) 0 4px, hsl(var(--h) 55% 46%) 4px 8px); box-shadow: inset 0 0 0 1px hsl(var(--h) 50% 30% / 0.7); }
+.fabric { background: url("./art/fabrics.webp") var(--fx) var(--fy) / 1100% 300% no-repeat; box-shadow: inset 0 0 0 1px rgb(60 40 20 / 0.55); }
 .fabric-leather { background: radial-gradient(circle at 40% 35%, #b07a45, #6e4423); box-shadow: inset 0 0 0 1px #3e2510; }
 .fabric-plain { background: repeating-linear-gradient(90deg, #8a7f6e 0 3px, #7d7262 3px 6px); box-shadow: inset 0 0 0 1px #4a4236; }
 .pw-btn { display: inline-block; inline-size: 0.55rem; block-size: 0.55rem; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f3d9a6, #b7863f); box-shadow: inset 0 0 0 1px #6e4a1a; vertical-align: middle; }

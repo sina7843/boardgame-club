@@ -1460,3 +1460,12 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Ticket to Ride (`tickettoride` 261008-1415): train cards are BGA `img/train-cards.jpg`, turned upright. The map stays
   ours (our Iran map has no BGA counterpart). The TTR e2e picks the map from the setup select; the Lost Cities e2e keeps
   its radio («یک دست» is a radio there, a select in 6 nimmt!).
+- Patchwork: fabrics are one 64 px square cut from each of the 33 BGA patch pictures (`fabrics.webp`, 11 × 3); patch id
+  n wears square n on every cell, so the cloth survives any turn or flip. BGA's pictures are scaled per piece and do not
+  map one-to-one to our shapes, so whole-piece pictures are not used.
+- Space Base: ship pictures per level (starting, 1, 2, 3) and sector from the BGA card sheets, cut above the printed
+  numbers (`ships.webp`, 12 × 4); our generated stats stay in code.
+- Terraforming Mars: city, greenery, ocean and special tiles (BGA `tiles.png`; the player-marker square is painted over
+  with the texture below it) and the resource, card-resource and parameter icons (`resources.png`). The fighter icon and
+  Mars surface stay. Res Arcana: essences are the BGA essence tokens. Not changed: Race for the Galaxy (BGA ships its
+  card faces separately; its goods are flat SVG shapes, plainer than ours).

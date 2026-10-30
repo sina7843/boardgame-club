@@ -93,3 +93,6 @@
 @keyframes sb-rise { from { opacity: 0; transform: translateY(6px); } }
 @keyframes sb-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sb * { animation: none !important; transition: none !important; } }
+
+/* v2: BGA ship pictures (sprite of 12 sectors × 4 levels) */
+.sb-ship__art, .sb-station__art { display: block; justify-self: center; background-size: 1200% 400%; background-repeat: no-repeat; }

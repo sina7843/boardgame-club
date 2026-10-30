@@ -2,20 +2,19 @@
 // red sum of deployed ships below); dice glow on the bays they hit; the shipyard shows three levels of ships with
 // cost, sector, blue/red rewards and purchase bonus. Rivals appear as compact strips of their red income per sector.
 import './renderer.css';
-import { useRef, useState, type ReactNode } from 'react';
+import ships from './art/ships.webp';
+import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import scout from './art/ship-scout.webp';
-import freighter from './art/ship-freighter.webp';
-import cruiser from './art/ship-cruiser.webp';
-import station from './art/ship-station.webp';
-import { GOAL, SHIPS, sectorsFor, type Reward, type SbView } from './rules.ts';
+import { GOAL, SHIPS, sectorsFor, type Reward, type SbView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const rw = (r: Reward | undefined) => [r?.credits ? `${fa(r.credits)}¢` : '', r?.vp ? `${fa(r.vp)}★` : ''].filter(Boolean).join(' ') || '—';
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 
 // Ship paintings are cut from a generated sprite sheet (see DECISIONS.md); picked by cost tier (costs run 0-14).
-const shipArt = (cost: number) => (cost <= 5 ? scout : cost <= 9 ? freighter : cost <= 13 ? cruiser : station);
+// Ship pictures are the BGA Space Base client art (see DECISIONS.md): ships.webp holds, per level (rows: starting, 1, 2, 3),
+// the ship of the printed card for each sector (columns 1–12), cut without its numbers.
+const shipArt = (x: Ship): CSSProperties => ({ backgroundImage: `url(${ships})`, backgroundPosition: `${((x.sector - 1) / 11) * 100}% ${(x.level / 3) * 100}%` });
 
 /** A die; `n` null = the roll is still pending (undo window / server), so it tumbles with no pips. */
 export function Die({ n, i = 0 }: { n: number | null; i?: number }) {
@@ -49,7 +48,7 @@ export function ShipCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }
   const x = SHIPS[id]!;
   return (
     <span className={`sb-ship sb-ship--${size} sb-l--${x.level}`} aria-label={`${x.name}، بخش ${fa(x.sector)}${x.cost ? `، ${fa(x.cost)} اعتبار` : ''}`}>
-      <img className="sb-ship__art" src={shipArt(x.cost)} alt="" aria-hidden="true" />
+      <span className="sb-ship__art" style={shipArt(x)} aria-hidden="true" />
       <b className="sb-ship__sec">{fa(x.sector)}</b>
       {x.cost > 0 && <b className="sb-ship__cost">{fa(x.cost)}</b>}
       <span className="sb-ship__name">{x.name}</span>
@@ -122,7 +121,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
               ) : (
                 <>
                   <span className={`sb-station sb-l--${x.level}`} title={x.name} data-flip={flipOf(st)}>
-                    <img className="sb-station__art" src={shipArt(x.cost)} alt="" aria-hidden="true" />
+                    <span className="sb-station__art" style={shipArt(x)} aria-hidden="true" />
                     <span className="sb-station__name">{x.name}</span>
                     <b className="sb-bay__blue">{rw(x.blue)}</b>
                   </span>

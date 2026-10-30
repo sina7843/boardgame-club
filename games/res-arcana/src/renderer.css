@@ -54,3 +54,6 @@ button.ra-gem { min-inline-size: 1.7rem; block-size: 1.7rem; cursor: pointer; fo
 @keyframes ra-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (max-width: 480px) { .ra-card--md { inline-size: 5.4rem; } }
 @media (prefers-reduced-motion: reduce) { .ra * { animation: none !important; transition: none !important; } }
+
+/* v2: essences are the BGA Res Arcana tokens (transparent shapes) */
+.ra-gem { border-radius: 0; background-color: transparent; background-size: contain; box-shadow: none; filter: drop-shadow(0 0 1px rgb(255 240 210 / 0.7)); }

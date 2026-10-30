@@ -7,7 +7,9 @@ import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type Ga
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
-const hue = (id: number) => (id * 47) % 360;
+// Fabrics are cut from the BGA Patchwork client art (see DECISIONS.md): fabrics.webp holds one 64 px square from each
+// of its 33 patch pictures (11 × 3); patch id n uses square n, so every cell of a patch shows the same printed cloth.
+const cloth = (id: number) => ({ ['--fx' as string]: `${(id % 11) * 10}%`, ['--fy' as string]: `${Math.floor(id / 11) * 50}%` });
 const fabric = (id: number | null) => (id === null ? undefined : id === -1 ? 'fabric-leather' : id >= 98 ? 'fabric-plain' : 'fabric');
 
 export function Shape({ id, rot = 0, flip = false, cell = 0.7 }: { id: number; rot?: number; flip?: boolean; cell?: number }) {
@@ -15,7 +17,7 @@ export function Shape({ id, rot = 0, flip = false, cell = 0.7 }: { id: number; r
   const h = Math.max(...cells.map((c) => c[0])) + 1, w = Math.max(...cells.map((c) => c[1])) + 1;
   const btn = PATCHES[id]!.buttons;
   return (
-    <span className="pw-shape" style={{ gridTemplateColumns: `repeat(${w}, ${cell}rem)`, gridTemplateRows: `repeat(${h}, ${cell}rem)`, ['--h' as string]: hue(id) }} aria-hidden="true">
+    <span className="pw-shape" style={{ gridTemplateColumns: `repeat(${w}, ${cell}rem)`, gridTemplateRows: `repeat(${h}, ${cell}rem)`, ...cloth(id) }} aria-hidden="true">
       {cells.map(([r, c], i) => <i key={i} className="fabric" style={{ gridRow: r + 1, gridColumn: c + 1 }}>{i < btn ? <b className="pw-btn" /> : null}</i>)}
     </span>
   );
@@ -29,7 +31,7 @@ function Quilt({ q, was, big, preview, ok, onCell, hintCell, anchor }: { q: (num
         const fresh = !!was && id !== null && was[r]![c] === null;
         const pv = preview?.has(k);
         const cls = ['pw-cell', fabric(id) ?? '', pv ? (ok ? 'pw-cell--ok' : 'pw-cell--bad') : '', hintCell && hintCell[0] === r && hintCell[1] === c ? 'pw-hint' : '', fresh ? 'bg-land' : ''].join(' ');
-        const style = { ...(id !== null && id >= 0 && id < 98 ? { ['--h' as string]: hue(id) } : {}), ...(fresh ? { ['--i' as string]: (r + c) % 6 } : {}) };
+        const style = { ...(id !== null && id >= 0 && id < 98 ? cloth(id) : {}), ...(fresh ? { ['--i' as string]: (r + c) % 6 } : {}) };
         return onCell
           ? <button key={k} type="button" className={cls} style={style} onClick={() => onCell(r, c)} aria-label={`ردیف ${fa(r + 1)} ستون ${fa(c + 1)}`} />
           : <span key={k} className={cls} style={style} />;
