@@ -14,7 +14,7 @@ import { DIRS, START_RESERVE, destinations, key, parse, placements, type Bug, ty
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const R = 46;
 const BUG_FA: Record<Bug, string> = { Q: 'ملکه زنبور', S: 'عنکبوت', B: 'سوسک', G: 'ملخ', A: 'مورچه' };
-// Bug and felt art are cut from a generated sheet (see DECISIONS.md).
+// Bug icons are the BGA Hive client art; the felt is cut from a generated sheet (see DECISIONS.md).
 const BUG_IMG: Record<Bug, string> = { Q: bugQ, S: bugS, B: bugB, G: bugG, A: bugA };
 const px = ([q, r]: Hex) => ({ x: R * Math.sqrt(3) * (q + r / 2), y: R * 1.5 * r });
 const hexPoints = (x: number, y: number, rr: number) => Array.from({ length: 6 }, (_, k) => {

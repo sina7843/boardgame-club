@@ -1440,3 +1440,4 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Carcassonne (`carcassonne` 260513-1508): every tile type A–X is drawn from BGA `img/tiles_second_edition.jpg`
   (its first 72 cells are the base game, grouped by type; one picture per type in `art/tiles.webp`, 6 × 4). The pictures
   of G, H and I are turned against our canonical edges (`ART_OFF`). Followers stay our own SVG meeples.
+- Hive (`hive` 260123-1639): bug icons from BGA `img/tokens90_new.png`; the hex tiles and felt stay ours.
