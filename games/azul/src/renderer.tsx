@@ -1,23 +1,22 @@
-// Tile art is cut from a generated sheet (see DECISIONS.md).
+// Art (tiles, factory, player board, table) is the BGA Azul client art (see DECISIONS.md).
 // کاشی‌کار renderer: Isfahan tile-work. Factories are round kiln plates, the centre a brass tray; each player's
-// board has a stepped set of pattern lines, the 5×5 wall with faint glazes for empty spots, and the floor with its
-// penalties. Tap a tile group, then the line (or floor) to put it on.
+// board is the printed player board with the tiles laid on its pattern lines, wall and floor line. Tap a tile group, then the line (or floor) to put it on.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
-import tileBlue from './art/tile-blue.webp';
-import tileYellow from './art/tile-yellow.webp';
-import tileRed from './art/tile-red.webp';
-import tileBlack from './art/tile-black.webp';
-import tileTeal from './art/tile-teal.webp';
-import tileFirst from './art/tile-first.webp';
+import tileBlue from './art/tile-b.svg';
+import tileYellow from './art/tile-y.svg';
+import tileRed from './art/tile-r.svg';
+import tileBlack from './art/tile-k.svg';
+import tileTeal from './art/tile-w.svg';
+import tileFirst from './art/tile-first.svg';
 import { FLOOR, endBonus, floorPenalty, wallColor, type AzulView, type Board, type Color } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const neg = (n: number) => (n < 0 ? `−${fa(-n)}` : fa(n));
 export const COLOR_FA: Record<Color, string> = { b: 'لاجوردی', y: 'زعفرانی', r: 'اناری', k: 'مشکی', w: 'فیروزه‌ای' };
 
-/* Painted glaze per colour, cut from a generated sprite sheet (see DECISIONS.md). */
+/* Tile face per colour (BGA client art). */
 const TILE_ART: Record<Color | 'first', string> = { b: tileBlue, y: tileYellow, r: tileRed, k: tileBlack, w: tileTeal, first: tileFirst };
 
 export function Tile({ c, size = 'md', ghost, flip, from, land, exit }: { c: Color | 'first'; size?: 'sm' | 'md'; ghost?: boolean; flip?: string; from?: string; land?: boolean; exit?: string }) {
@@ -190,7 +189,6 @@ export default function AzulRenderer({ view: real, legalActions, mySeat, seatNam
                     : <div key={r} className="az-line" data-flip-anchor={`line-${s}-${r}`}>{cells}</div>;
                 })}
               </div>
-              <div className="az-arrows" aria-hidden="true">{b.lines.map((_, r) => <i key={r}>›</i>)}</div>
               <div className="az-wall" aria-label={`دیوار: ${fa(b.wall.flat().filter(Boolean).length)} از ۲۵ کاشی`}>
                 {b.wall.map((row, r) => row.map((on, c) => {
                   const fresh = on && !!was && !was.wall[r]![c];
@@ -263,8 +261,8 @@ function BoardFrame({ s, b, me, turn, place, name, scorePop, floor, children }: 
       {open ? (
         <>
           <ScoreTrack score={b.score} s={s} />
-          <div className="az-board__body">{children}</div>
-          <div className="az-board__foot">{floor}{me && <BonusKey wall={b.wall} />}</div>
+          <div className="az-pb">{children}{floor}</div>
+          {me && <div className="az-board__foot"><BonusKey wall={b.wall} /></div>}
         </>
       ) : (
         <p className="az-board__sum">

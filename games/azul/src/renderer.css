@@ -1,5 +1,5 @@
 /* کاشی‌کار — Isfahan tile-work. Palette: lapis #2a6ac4 / #0d2a55, saffron #efb436, pomegranate #c43a43, kohl #3a3e48,
-   turquoise #38c3bd, plaster/grout #b9a67a, brass #e2c277. Signature: painted glazed tiles (art cut from a generated sheet, see DECISIONS.md). */
+   turquoise #38c3bd, plaster/grout #b9a67a, brass #e2c277. Tiles, factories, player board and table are the BGA Azul client art (see DECISIONS.md). */
 .az { --ink: #22303f; --brass: #e2c277; --grout: #b9a67a; display: grid; gap: 0.7rem; inline-size: 100%; padding: 0.4rem; border-radius: 16px; color: #f2ead8; text-align: center;
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='-11 -11 22 22'%3E%3Cpath d='M-5-5H5V5H-5ZM0-7.2L7.2 0L0 7.2L-7.2 0Z' fill='none' stroke='%23e2c277' stroke-opacity='.13' stroke-width='.6'/%3E%3C/svg%3E"),
@@ -18,7 +18,7 @@
 .az-tile--ghost img { opacity: 0.22; filter: grayscale(1); }
 
 /* kiln plates: glazed ceramic with a lapis-and-ivory rim; the centre is a hammered brass tray */
-.az__market { background: linear-gradient(rgb(11 29 56 / 0.35), rgb(11 29 56 / 0.35)), url("./art/bd-table.webp") center / cover; border-radius: 14px; padding-inline: 0.6rem; box-shadow: inset 0 0 0 1px rgb(226 194 119 / 0.4); display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; align-items: center; padding-block: 0.6rem; }
+.az__market { background: linear-gradient(rgb(11 29 56 / 0.35), rgb(11 29 56 / 0.35)), url("./art/table.webp") center / 16rem; border-radius: 14px; padding-inline: 0.6rem; box-shadow: inset 0 0 0 1px rgb(226 194 119 / 0.4); display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; align-items: center; padding-block: 0.6rem; }
 .az-factory { position: relative; display: grid; grid-template-columns: repeat(2, auto); place-content: center; gap: 0.15rem; inline-size: 4.8rem; block-size: 4.8rem; border-radius: 50%;
   background: radial-gradient(circle at 42% 34%, #fffaf0 0, #eadfc3 55%, #cdb98b 100%);
   box-shadow: 0 0 0 2px #fbf4e2, 0 0 0 4px #1b4f9c, 0 0 0 5px #0b1d38, inset 0 -4px 8px rgb(80 60 20 / 0.35), 0 8px 10px -4px #000; }
@@ -41,7 +41,7 @@
    on top, the stepped pattern lines → the 5×5 wall (faint glazes on empty spots), the floor line and the bonus key below. */
 .az__boards { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.65rem; justify-content: center; align-items: flex-start; }
 .az-board { --paper-ink: #1d3a66; display: grid; gap: 0.45rem; min-inline-size: 0; padding: 0.55rem; border-radius: 14px; color: var(--paper-ink);
-  background: linear-gradient(rgb(250 244 228 / 0.35), rgb(250 244 228 / 0.35)), url("./art/board-plaster.webp") center / 22rem;
+  background: linear-gradient(rgb(250 244 228 / 0.35), rgb(250 244 228 / 0.35)), url("./art/table-dark.webp") 0 0 / 6rem;
   box-shadow: inset 0 0 0 2px #fbf4e2, inset 0 0 0 4px #1b4f9c, inset 0 0 0 5px rgb(11 29 56 / 0.6), 0 10px 18px -8px #000; }
 .az-board { flex: 0 1 auto; }
 .az-board--turn, .az-board--win { box-shadow: inset 0 0 0 2px #fbf4e2, inset 0 0 0 4px #e0a526, 0 0 0 3px #ffd98a, 0 0 16px rgb(255 217 138 / 0.5), 0 10px 18px -8px #000; }
@@ -96,3 +96,31 @@ button.az-floor:hover, button.az-floor:focus-visible { box-shadow: 0 0 0 3px #ff
 @keyframes az-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @keyframes az-glow { 50% { box-shadow: 0 0 0 2px rgb(255 217 138 / 0.3); } }
 @media (prefers-reduced-motion: reduce) { .az *, .az__gains { animation: none !important; transition: none !important; } }
+
+/* v2: BGA art. The player board is the printed board (740×484 px); every spot is placed in its pixels via --u. */
+.az { background: url("./art/table-dark.webp") 0 0 / 7rem, #00587a; }
+.az-tile { border-radius: 3px; box-shadow: 1px 1px 2px rgb(0 0 0 / 0.7), inset 0 0 0 1px rgb(255 255 255 / 0.25); }
+.az-tile img { object-fit: fill; }
+.az-factory { background: url("./art/factory.webp") center / contain no-repeat; box-shadow: 0 6px 10px -4px rgb(0 0 0 / 0.7); border-radius: 50%; }
+.az-factory::before { content: none; }
+.az-board { background: rgb(0 40 60 / 0.55); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25), 0 10px 18px -8px #000; color: #f2ead8; }
+.az-board .az-bonus { color: #1d3a66; }
+.az-pb { --u: calc(100cqw / 740); container-type: inline-size; position: relative; direction: ltr; justify-self: center; inline-size: 100%; aspect-ratio: 740 / 484; border-radius: 6px; background: url("./art/playerboard.webp") 0 0 / 100% 100%; box-shadow: 0 4px 10px rgb(0 0 0 / 0.5); }
+.az-board--opp { inline-size: min(100%, 27rem); }
+.az-board--me { inline-size: min(100%, 38rem); }
+.az-board--folded { inline-size: auto; }
+.az-pb .az-tile, .az-pb .az-cell { inline-size: calc(var(--u) * 58); block-size: calc(var(--u) * 58); }
+.az-pb .az-cell { background: none; box-shadow: none; }
+.az-pb .az-tile--ghost { visibility: hidden; }
+.az-pb .az-lines { position: absolute; inset: 0; display: block; padding: 0; background: none; box-shadow: none; }
+.az-pb .az-line { position: absolute; right: calc(var(--u) * 389); block-size: calc(var(--u) * 63); padding: calc(var(--u) * 2.5); gap: calc(var(--u) * 11.6); flex-direction: row-reverse; align-items: center; background: none; }
+.az-pb .az-line:nth-child(1) { top: calc(var(--u) * 12); }
+.az-pb .az-line:nth-child(2) { top: calc(var(--u) * 82); }
+.az-pb .az-line:nth-child(3) { top: calc(var(--u) * 152); }
+.az-pb .az-line:nth-child(4) { top: calc(var(--u) * 221); }
+.az-pb .az-line:nth-child(5) { top: calc(var(--u) * 291); }
+.az-pb .az-wall { position: absolute; left: calc(var(--u) * 385); top: calc(var(--u) * 12); inline-size: calc(var(--u) * 339); block-size: calc(var(--u) * 341); padding: 0; gap: 0; grid-template: repeat(5, 1fr) / repeat(5, 1fr); place-items: center; background: rgb(255 255 255 / 0.69); box-shadow: 0 0 10px 5px rgb(255 255 255 / 0.69); }
+.az-pb .az-floor { position: absolute; left: calc(var(--u) * 1); top: calc(var(--u) * 407); inline-size: calc(var(--u) * 530); block-size: calc(var(--u) * 71); max-inline-size: none; display: grid; grid-template-columns: repeat(7, 1fr); place-items: center; gap: 0; padding: 0; background: none; box-shadow: none; }
+.az-pb button.az-floor { box-shadow: 0 0 0 2px rgb(255 140 120 / 0.9); }
+.az-pb .az-floor__slot small { display: none; }
+@media (min-width: 900px) { .az-pb .az-tile--sm, .az-pb .az-cell, .az-board--me .az-pb .az-tile--sm, .az-board--me .az-pb .az-cell { inline-size: calc(var(--u) * 58); block-size: calc(var(--u) * 58); } }

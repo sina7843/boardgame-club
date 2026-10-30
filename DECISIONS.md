@@ -1423,3 +1423,12 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   licence not verified by me): `board.webp` (island, from BGA `img/board.png` 1600 px), `sea.webp` (`img/bg-see.jpg`), `cards.webp`
   (`img/cards.jpg`, 14 × 11 sprite of card illustrations; cells mapped by English card name in `ART` in `renderer.tsx`). Version folder
   `220513-1624` was found through the Wayback Machine index. Card text stays in Persian on top of the art.
+
+### BGA client art for every game (2026-10-30, owner request)
+- Owner asked for real art in every game and states they may use it (licence not verified by me). Source: Board Game Arena's
+  client files, `https://x.boardgamearena.net/data/themereleases/current/games/<slug>/<version>/img/...`. The version folder of
+  every game is in the `gamefilter`/game list JSON of `https://en.boardgamearena.com/gamepanel?game=<slug>`; each game's
+  `<slug>.css` names its images. Downloads stay in gitignored `design/qa/<game>/ref`, index in `design/qa/bga-index.json`.
+- Azul (`azul` 260626-1038): tiles (`tile-*.svg`), factory, table backgrounds and the printed player board. The renderer lays
+  lines, wall and floor on the board at BGA's pixel positions (740 × 484 board, `--u` = 1 board px); the wall gets BGA's white wash
+  so placed tiles stand out from the printed spots. Score track and bonus key stay as our own elements.
