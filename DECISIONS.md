@@ -1432,3 +1432,6 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Azul (`azul` 260626-1038): tiles (`tile-*.svg`), factory, table backgrounds and the printed player board. The renderer lays
   lines, wall and floor on the board at BGA's pixel positions (740 × 484 board, `--u` = 1 board px); the wall gets BGA's white wash
   so placed tiles stand out from the printed spots. Score track and bonus key stay as our own elements.
+- Splendor (`splendor` 261022-1506): card pictures (`cards.webp`, 6 × 6 sprite: rows sapphire, onyx, ruby, emerald, diamond;
+  two pictures per level, chosen by card id parity; last row = deck backs, cut to `back-1..3.webp`), noble portraits
+  (`nobles.webp`, 5 × 3, noble id → cell) and the wooden-rim gem tokens (`gem-*.webp`). Costs and points stay our own overlay.

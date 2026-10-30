@@ -10,23 +10,18 @@ import gemG from './art/gem-emerald.webp';
 import gemR from './art/gem-ruby.webp';
 import gemK from './art/gem-onyx.webp';
 import gemO from './art/gem-gold.webp';
-import mineW from './art/mine-diamond.webp';
-import mineU from './art/mine-sapphire.webp';
-import mineG from './art/mine-emerald.webp';
-import mineR from './art/mine-ruby.webp';
-import mineK from './art/mine-onyx.webp';
-import noble0 from './art/noble-0.webp';
-import noble1 from './art/noble-1.webp';
-import noble2 from './art/noble-2.webp';
-import noble3 from './art/noble-3.webp';
+import cardsArt from './art/cards.webp';
+import noblesArt from './art/nobles.webp';
 import { CARDS, GEMS, NOBLES, bonuses, payment, type Gem, type SplendorView, type Token } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const GEM_FA: Record<Token, string> = { w: 'الماس', u: 'یاقوت کبود', g: 'زمرد', r: 'یاقوت سرخ', k: 'عقیق سیاه', o: 'طلا' };
-// Painted art cut from a generated sheet (see DECISIONS.md). Gems/mines are keyed by token colour; nobles by index mod 4.
+// BGA Splendor client art (see DECISIONS.md). cards.webp: 6 × 6 sprite, one row per colour, two pictures per level;
+// nobles.webp: 5 × 3 portraits.
 const GEM_ART: Record<Token, string> = { w: gemW, u: gemU, g: gemG, r: gemR, k: gemK, o: gemO };
-const MINE_ART: Record<Gem, string> = { w: mineW, u: mineU, g: mineG, r: mineR, k: mineK };
-const NOBLE_ART = [noble0, noble1, noble2, noble3];
+const CARD_ROW: Record<Gem, number> = { u: 0, k: 1, r: 2, g: 3, w: 4 };
+const cardArt = (id: number) => { const c = CARDS[id]!; return { backgroundImage: `url(${cardsArt})`, backgroundPosition: `${((c.level - 1) * 2 + (id % 2)) * 20}% ${CARD_ROW[c.color] * 20}%` }; };
+const nobleArt = (id: number) => ({ backgroundImage: `url(${noblesArt})`, backgroundPosition: `${(id % 5) * 25}% ${Math.floor(id / 5) * 50}%` });
 const LEVEL_FA = ['', 'معدن', 'کارگاه', 'کاروان'];
 
 export function Chip({ t, n, size = 'md', on }: { t: Token; n?: number; size?: 'sm' | 'md'; on?: boolean }) {
@@ -42,7 +37,7 @@ export function DevCard({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' })
   const c = CARDS[id]!;
   return (
     <span className={['sp-card', `sp-card--${size}`, `sp-t--${c.color}`, `sp-l--${c.level}`].join(' ')} aria-label={`${GEM_FA[c.color]}، ${fa(c.points)} اعتبار، قیمت: ${GEMS.filter((g) => c.cost[g]).map((g) => `${fa(c.cost[g]!)} ${GEM_FA[g]}`).join('، ')}`}>
-      <img className="sp-card__art" src={MINE_ART[c.color]} alt="" draggable={false} />
+      <span className="sp-card__art" style={cardArt(id)} aria-hidden="true" />
       <span className="sp-card__top"><b className="sp-card__pts">{c.points ? fa(c.points) : ''}</b><Chip t={c.color} size="sm" /></span>
       <span className="sp-card__tier" aria-hidden="true">{Array.from({ length: c.level }, (_, i) => <i key={i} />)}</span>
       <span className="sp-card__cost">{GEMS.filter((g) => c.cost[g]).map((g) => <span key={g} className={`sp-cost sp-t--${g}`}>{fa(c.cost[g]!)}</span>)}</span>
@@ -54,7 +49,7 @@ export function NobleTile({ id }: { id: number }) {
   const n = NOBLES[id]!;
   return (
     <span className="sp-noble" aria-label={`بزرگ: ${GEMS.filter((g) => n.need[g]).map((g) => `${fa(n.need[g]!)} ${GEM_FA[g]}`).join('، ')}`}>
-      <img className="sp-noble__face" src={NOBLE_ART[id % 4]} alt="" draggable={false} />
+      <span className="sp-noble__face" style={nobleArt(id)} aria-hidden="true" />
       <b className="sp-noble__pts"><span>۳</span></b>
       <span className="sp-noble__need">{GEMS.filter((g) => n.need[g]).map((g) => <span key={g} className={`sp-req sp-t--${g}`}>{fa(n.need[g]!)}</span>)}</span>
     </span>

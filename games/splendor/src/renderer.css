@@ -132,3 +132,11 @@
   .sp-card--md .sp-card__cost { gap: 1px; padding: 0.15rem 0.2rem 0.2rem; }
   .sp-card--md .sp-card__pts { font-size: 0.95rem; }
 }
+
+/* v2: BGA art — card pictures and nobles from sprites, deck backs, wooden-rim gem tokens */
+.sp-card__art { background-size: 600% 600%; background-repeat: no-repeat; }
+.sp-card::after { background: linear-gradient(180deg, transparent 40%, rgb(0 0 0 / 0.45)); }
+.sp-noble__face { display: block; inline-size: 3.2rem; block-size: 3.2rem; border-radius: 6px; background-size: 500% 300%; background-repeat: no-repeat; }
+.sp-deck.sp-l--1 { background: url("./art/back-1.webp") center / cover; }
+.sp-deck.sp-l--2 { background: url("./art/back-2.webp") center / cover; }
+.sp-deck.sp-l--3 { background: url("./art/back-3.webp") center / cover; }
