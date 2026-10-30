@@ -3,7 +3,7 @@ import { GuestState } from '../shell/GuestState.tsx';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { cosmetic, type Presence, type ProfileCard, type PublicProfile, type TrophyTier, type UserCard } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Badge, Banner, Breadcrumbs, Button, Card, Chip, ChipGroup, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
+import { Badge, Banner, Breadcrumbs, Button, Card, Chip, ChipGroup, Icon, Identity, League, PageHead, ProfileHead, StateBlock, Tabs, TextField, Trophy } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { faNum, jalaliDate } from '../lib/format.ts';
 import { userIdentity } from '../lib/bgv.tsx';
@@ -119,7 +119,7 @@ function Invite() {
   );
 }
 
-type FriendsTab = 'friends' | 'requests' | 'find' | 'invite' | 'blocked';
+type FriendsTab = 'friends' | 'requests' | 'find' | 'blocked';
 
 export function FriendsPage() {
   usePageTitle('دوستان');
@@ -132,8 +132,10 @@ export function FriendsPage() {
   const { me } = useSession();
   const mine = useApi<{ items: { id: string; status: string; mySeat: number }[] }>(me ? '/me/tables' : null);
   const [params] = useSearchParams();
-  const [tab, setTab] = useState<FriendsTab>((params.get('tab') as FriendsTab | null) ?? 'friends');
+  // Friends-Desktop has four tabs; the referral invite lives under «یافتن» (old ?tab=invite links land there).
+  const [tab, setTab] = useState<FriendsTab>(params.get('tab') === 'invite' ? 'find' : (params.get('tab') as FriendsTab | null) ?? 'friends');
   const toast = useToast();
+  const copy = useCopy();
   const act = useAct(data.reload);
   // «دعوت به میز»: invite to my newest open table; with none open, start one first.
   const inviteToTable = async (userId: string) => {
@@ -163,24 +165,32 @@ export function FriendsPage() {
   return (
     <>
       <PageTabs group="social" />
-      <PageHead title="دوستان" sub={`${faNum(d.friends.length)} دوست، ${faNum(d.friends.filter((f) => presence[f.id]?.online).length)} نفر آنلاین. پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است.`}
+      <PageHead className="app-hide-phone" title="دوستان" sub={`${faNum(d.friends.length)} دوست، ${faNum(d.friends.filter((f) => presence[f.id]?.online).length)} نفر آنلاین. پیام خصوصی به‌طور پیش‌فرض فقط بین دوستان ممکن است.`}
         actions={<>{me && <CopyProfileLink userId={me.id} />}<Button variant="primary" icon="user-plus" onClick={() => setTab('find')}>افزودن دوست</Button></>} />
       <div onKeyDown={arrows}>
         <Tabs label="دوستان" value={tab} onChange={(v) => setTab(v as FriendsTab)} items={[
           { value: 'friends', label: `دوستان (${faNum(d.friends.length)})` },
           { value: 'requests', label: 'درخواست‌ها', count: d.incoming.length },
           { value: 'find', label: 'یافتن' },
-          { value: 'invite', label: 'دعوت دوستان' },
           { value: 'blocked', label: 'مسدود و بی‌صدا' }
         ]} />
       </div>
+      {tab === 'friends' && d.incoming.length > 0 && (
+        <button type="button" className="bgv-card pf-reqstrip" onClick={() => setTab('requests')}>
+          <span className="bgv-avatars" aria-hidden="true">{d.incoming.slice(0, 3).map((f) => <span key={f.id} className="bgv-avatar bgv-avatar--sm">{[...f.displayName][0]}</span>)}</span>
+          <span className="pf-reqstrip__text"><b>{faNum(d.incoming.length)} درخواست دوستی</b>
+            <span className="t-caption bgv-muted">{d.incoming.slice(0, 3).map((f) => f.displayName).join('، ')}</span></span>
+          <Icon name="chevron-left" />
+        </button>
+      )}
       {tab === 'friends' && (
         <div className="bgv-cols pf-friends">
           <div className="bgv-stack">
             <div className="pf-toolbar">
               <TextField icon="search" type="search" aria-label="جست‌وجو در دوستان" placeholder="جست‌وجو در دوستان" value={fq} onChange={(e) => setFq(e.target.value)} />
               <ChipGroup size="sm" label="نمایش" value={ff} onChange={(v) => setFf(v as typeof ff)}
-                options={[{ value: 'all', label: 'همه' }, { value: 'online', label: 'آنلاین' }, { value: 'playing', label: 'در حال بازی' }]} />
+                options={[{ value: 'all', label: `همه ${faNum(d.friends.length)}` }, { value: 'online', label: `آنلاین ${faNum(d.friends.filter((f) => presence[f.id]?.online).length)}` },
+                  { value: 'playing', label: `در حال بازی ${faNum(d.friends.filter((f) => presence[f.id]?.playing).length)}` }]} />
             </div>
             {d.friends.length === 0 ? <StateBlock kind="empty" title="هنوز دوستی ندارید" text="از زبانه «یافتن» بازیکن‌ها را پیدا کنید." action={<Button variant="primary" icon="search" onClick={() => setTab('find')}>یافتن بازیکن</Button>} />
               : ([['online', 'آنلاین'], ['offline', 'آفلاین']] as const).map(([k, label]) => {
@@ -205,21 +215,20 @@ export function FriendsPage() {
                 );
               })}
           </div>
-          <aside className="bgv-stack" aria-label="درخواست‌ها">
-            <Card title={`درخواست‌های دریافتی${d.incoming.length ? ` (${faNum(d.incoming.length)})` : ''}`}>
-              {d.incoming.length ? <ul className="pf-list pf-list--compact">{d.incoming.map((f) => (
-                <PersonRow key={f.id} p={f}><>
-                  <Button size="sm" variant="primary" onClick={() => act(`/friends/requests/${f.id}/accept`, 'POST', undefined, 'دوستی پذیرفته شد.')}>پذیرش</Button>
-                  <Button size="sm" variant="secondary" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>رد</Button>
-                </></PersonRow>))}</ul> : <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>درخواست تازه‌ای ندارید.</p>}
-            </Card>
+          <aside className="bgv-stack app-hide-phone" aria-label="درخواست‌ها">
             {d.outgoing.length > 0 && (
               <Card title={`فرستاده‌شده (${faNum(d.outgoing.length)})`}>
                 <ul className="pf-list pf-list--compact">{d.outgoing.map((f) => (
                   <PersonRow key={f.id} p={f}><Button size="sm" variant="ghost" onClick={() => act(`/friends/${f.id}`, 'DELETE')}>لغو</Button></PersonRow>))}</ul>
               </Card>
             )}
-            {me && <Card title="لینک پروفایل شما"><p className="t-body-sm bgv-muted" style={{ marginBlockStart: 0 }}>برای دوستانتان بفرستید تا شما را اضافه کنند.</p><CopyProfileLink userId={me.id} size="sm" /></Card>}
+            {me && <Card title="لینک پروفایل شما">
+              <p className="t-body-sm bgv-muted" style={{ marginBlockStart: 0 }}>لینک را بفرستید تا دوستانتان پروفایل شما را ببینند و درخواست دوستی بدهند.</p>
+              <div className="pf-linkrow">
+                <TextField aria-label="لینک پروفایل" readOnly dir="ltr" value={`${location.origin}/users/${me.id}`} onFocus={(e) => e.currentTarget.select()} />
+                <Button variant="secondary" icon="copy" onClick={() => copy(`${location.origin}/users/${me.id}`, 'لینک پروفایل کپی شد.')}>کپی</Button>
+              </div>
+            </Card>}
           </aside>
         </div>
       )}
@@ -238,8 +247,7 @@ export function FriendsPage() {
           ) : <StateBlock kind="empty" title="درخواستی نفرستاده‌اید" />}
         </div>
       )}
-      {tab === 'find' && <Search onChange={data.reload} />}
-      {tab === 'invite' && <Invite />}
+      {tab === 'find' && <><Search onChange={data.reload} /><Invite /></>}
       {tab === 'blocked' && (
         <div className="bgv-stack">
           {d.blocked.length ? (

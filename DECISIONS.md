@@ -1497,3 +1497,11 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Truthful copy where the design states something the product does not do: «بدون ورود تماشا کن» became «ببین چه بازی‌هایی در جریان است…» (watching needs an account; the guest «تماشا» goes to login); «حدود ۲۰ ثانیه تا پیدا شدن حریف» is not shown (no estimate); «دنبال میز X‌اند» only when someone is really queued, else «سر میز X‌اند».
 - «تیمی» is the cooperative facet; «زنده الان» links to /tables. Test games never lead «محبوب این هفته».
 - The welcome-tour banner is gone from home (not in the design); the tour starts from /guides. «دوستان آنلاین» and «ادامهٔ یادگیری» (not in the design) are removed. Footer: «بازی‌های محبوب» column and the Cafe Bazaar link (cafebazaar.ir/app/ir.boardgameverse.app; 404 until the app is published).
+
+## Shell and shop/friends pages against the references (2026-10-30)
+- Phone top bar: the page title never reached it on a fresh load (the page's effect ran before the shell's listener); the shell now starts from the last title. Sibling pages share the reference title («پیشرفت و رتبه», «پیام‌ها و دوستان», «اشتراک و سکه») and sub-pages get the designed back arrow (shop/wardrobe/studio → /me/profile, own profile → /more, avatar → /me/studio, a user → /friends, a club → /clubs, a thread → /messages).
+- Page tabs follow the references: social = پیام‌ها/دوستان/باشگاه‌ها with unread and friend counts (گروه‌ها stays in «بیشتر»); plans/coins = اشتراک/سکه‌ها; the shop and wardrobe have the four commerce tabs on desktop only.
+- Shop: seasonal bundle is the felt hero (no end date is shown because bundles have none); items show rarity and kind. Friends: four tabs (the referral invite moved under «یافتن»; old ?tab=invite links land there), incoming requests as one strip, profile link field with copy.
+- Tabs could shrink inside their scrolling row, so labels overlapped on phones: `.bgv-tab` no longer shrinks.
+- «نوبت شماست» toast/tone only when my seat becomes pending; later `turn.started` events while it stays pending only move the timers (they came after every move, hence the stacked toasts).
+- The public profile «پروفایل دریافت نشد» capture was the QA harness without a friend to open, not an app error (checked with a real user at 390).

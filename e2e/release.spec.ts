@@ -140,7 +140,7 @@ test('turn-based: the waiting player returns through «نوبت من» and moves
   await waiter.goto('/');
   await expect(mover.locator('.lt__cell').nth(4)).not.toHaveAttribute('aria-disabled', 'true');
   await mover.locator('.lt__cell').nth(4).click();
-  const panel = waiter.locator('section[aria-labelledby="my-turn-h"] ul'); // the table rows (the header also links to all tables)
+  const panel = waiter.locator('section[aria-labelledby="turn-h"] .cx-b-turn'); // the turn cards (the header also links to all tables)
   await expect(panel.getByRole('link').first()).toBeVisible({ timeout: 15_000 });
   await waiter.screenshot({ path: shot(info.project.name, 'my-turn-dashboard'), fullPage: true });
   await panel.getByRole('link').first().click();

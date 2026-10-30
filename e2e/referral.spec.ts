@@ -13,7 +13,7 @@ test('invite link: a friend who signs up through it becomes a friend automatical
   await a.goto('/me/profile');
   await a.getByTestId('invite-card').getByRole('link', { name: 'دعوت‌شده‌ها و کد دعوت' }).click();
   await expect(a).toHaveURL(/\/friends\?tab=invite/);
-  await expect(a.getByRole('tab', { name: 'دعوت دوستان' })).toHaveAttribute('aria-selected', 'true');
+  await expect(a.getByRole('tab', { name: 'یافتن' })).toHaveAttribute('aria-selected', 'true');
   const link = await a.getByLabel('لینک دعوت').inputValue();
   expect(link).toMatch(/\/login\?ref=[A-Z2-9]{8}$/);
   await a.screenshot({ path: `docs/evidence/site/phase-02/${info.project.name}-referral-invite.png` });
@@ -25,6 +25,6 @@ test('invite link: a friend who signs up through it becomes a friend automatical
   await expect(b.getByRole('link', { name: inviterName })).toBeVisible();
 
   await a.reload();
-  await a.getByRole('tab', { name: 'دعوت دوستان' }).click();
+  await a.getByRole('tab', { name: 'یافتن' }).click();
   await expect(a.getByText('دعوت‌شده‌ها (۱)')).toBeVisible();
 });

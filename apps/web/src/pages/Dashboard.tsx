@@ -104,7 +104,7 @@ function Categories({ games, liveTables, value, onChange, member }: { games: Gam
     const cls = member ? 'cx-d-pill' : 'cx-e-cat';
     const ic = <span className={member ? 'cx-d-pill__ic' : 'cx-e-cat__ic'}>{icon}</span>;
     if (key === 'live') return <a className={cls} href="/tables">{ic}{label}<small>{count}</small></a>;
-    return <button type="button" className={cls} {...(member ? { 'aria-selected': on } : { 'aria-pressed': on })} onClick={() => onChange(key)}>{ic}{label}<small>{count}</small></button>;
+    return <button type="button" className={cls} aria-pressed={on} onClick={() => onChange(key)}>{ic}{label}<small>{count}</small></button>;
   };
   const items = [
     btn('all', 'همه', <Icon name="layout-grid" />, faNum(games.length)),

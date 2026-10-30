@@ -24,7 +24,7 @@ export function WardrobePage() {
 
   return (
     <>
-      <PageTabs group="wallet" />
+      <PageTabs group="shop" />
       <PageHead title="کمد من" sub={`${faNum(mine.length)} آیتم از ${faNum(SHOP_ITEMS.length)}. هر آیتم را همین‌جا بپوشید؛ برای دیدن همه با هم به استودیو پروفایل بروید.`}
         actions={<>
           <TextField icon="search" type="search" aria-label="جستجو در کمد" placeholder="جستجو در کمد" value={q} onChange={(e) => setQ(e.target.value)} />

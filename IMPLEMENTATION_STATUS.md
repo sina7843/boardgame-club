@@ -934,3 +934,7 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   Checks: workspace typecheck, eslint, ds-check --strict PASS, api home.test.ts 3/3, e2e shell + site + onboarding
   8/8 (desktop-1440, mobile-360); side-by-side capture vs reference at 1440 and 390: same blocks in the same order,
   remaining differences are data (dev DB: no pending turns, no open tournament, Latin test names).
+- 2026-10-30 Shell/top bar titles and back arrows, page tabs per references, shop and friends pages, stacked turn toasts.
+  Checks: web typecheck, eslint, ds-check --changed PASS; e2e referral, shell, release, coins at 1440 + 360 pass (axe now clean
+  on dashboard and plans); design-qa captures Shop/Friends/Progress/Wallet. Known failing before this change (also on HEAD):
+  social.spec.ts:32 on mobile-360 stops at «دور ۲ آشکار شد».

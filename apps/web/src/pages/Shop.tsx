@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { bundlePrice, COSMETIC_BUNDLES, cosmetic, SLOT_FA, type CosmeticItem, type PublicProfile } from '@bg/contracts';
-import { Badge, Banner, Button, Card, Checkbox, Chip, Coin, CosmeticTile, Icon, PageHead, Rarity, Segmented, Select, Sheet, StateBlock } from '@bg/ui/bgv';
+import { Badge, Banner, Button, Checkbox, Chip, Coin, Icon, PageHead, Rarity, Segmented, Select, Sheet, StateBlock } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { ItemArt, SHOP_ICON, SHOP_ITEMS, SHOP_SLOTS, useWardrobe } from '../lib/cosmeticItems.tsx';
@@ -37,36 +37,42 @@ export function ShopPage() {
 
   return (
     <>
-      <PageTabs group="wallet" />
-      <PageHead title="فروشگاه کازمتیک" sub="همه‌چیز فقط ظاهری است؛ هیچ آیتمی در بازی امتیاز یا برتری نمی‌دهد."
-        actions={<><Coin amount={d.balance} unit /><Button variant="secondary" icon="plus" href="/coins">خرید سکه</Button></>} />
-
-      <div className="pf-cats bgv-scroll-x" role="group" aria-label="دسته‌ها">
-        <Chip selected={slot === 'all'} icon="layout-grid" onClick={() => setSlot('all')}>همه</Chip>
-        {SHOP_SLOTS.map((s) => <Chip key={s} selected={slot === s} icon={SHOP_ICON[s]} onClick={() => setSlot(s)}>{SLOT_FA[s]}</Chip>)}
-        <Chip href="/me/avatar" icon="palette">لایه‌های آواتار</Chip>
-      </div>
+      <PageTabs group="shop" />
+      <PageHead className="app-hide-phone" title="فروشگاه کازمتیک" sub="همه‌چیز فقط ظاهری است؛ هیچ آیتمی در بازی امتیاز یا برتری نمی‌دهد."
+        actions={<div className="bgv-row" style={{ gap: 16 }}>
+          <span className="pf-balance"><span className="t-caption bgv-muted">موجودی</span><Coin amount={d.balance} /></span>
+          <Button variant="secondary" icon="plus" href="/coins">خرید سکه</Button></div>} />
 
       {COSMETIC_BUNDLES.map((b) => {
         const full = bundlePrice({ ...b, discountPct: 0 }, new Set());
         const cost = bundlePrice(b, w.unlocked);
+        const first = cosmetic(b.items[0]!);
         return (
-          <Card key={b.key} className="pf-bundle" aria-label={b.nameFa}>
-            <div className="pf-bundle__art">{b.items.map((k) => { const c = cosmetic(k); return c ? <ItemArt key={k} item={c} me={w.me!} /> : null; })}</div>
-            <div className="bgv-stack" style={{ gap: 6, flex: 1, minInlineSize: 0 }}>
-              <span className="bgv-row" style={{ gap: 8 }}><Badge tone="info" size="sm" icon="sparkles">فصلی</Badge><Badge size="sm">{faNum(b.discountPct)}٪ تخفیف</Badge></span>
-              <b className="t-title">{b.nameFa}</b>
-              <span className="t-body-sm bgv-muted">{b.descriptionFa}</span>
+          <section key={b.key} className="bgv-hero bgv-felt pf-hero" aria-label={b.nameFa}>
+            <div className="pf-hero__text">
+              <span className="bgv-hero__eyebrow pf-hero__eyebrow"><Icon name="sparkles" size="sm" />بستهٔ فصلی</span>
+              <h2 className="pf-hero__title">{b.nameFa}</h2>
+              <p className="t-body-sm pf-hero__desc">{b.descriptionFa}</p>
+              {cost > 0
+                ? <div className="pf-hero__price"><Coin amount={cost} /><s>{faNum(full)}</s>{cost < full && <Badge>{faNum(Math.round((1 - cost / full) * 100))}٪ کمتر</Badge>}</div>
+                : <Badge icon="check">همه را دارید</Badge>}
+              <div className="pf-hero__ctas">
+                {cost > 0 && <Button variant="primary" size="lg" loading={busy} disabled={busy || cost > d.balance} onClick={() => act(() => w.buyBundle(b.key, b.nameFa))}>
+                  {cost > d.balance ? `${faNum(cost - d.balance)} سکه کم دارید` : <>خرید بسته با <Coin amount={cost} /></>}</Button>}
+                {first && <Button className="app-hide-phone" variant="secondary" size="lg" icon="eye" onClick={() => { setView('table'); setOpen(first); }}>پیش‌نمایش روی میز</Button>}
+              </div>
             </div>
-            <div className="bgv-stack" style={{ gap: 6, justifyItems: 'end' }}>
-              {cost > 0 ? <><s className="t-caption bgv-muted"><Coin amount={full} /></s><Coin amount={cost} /></> : <Badge icon="check">همه را دارید</Badge>}
-              {cost > 0 && <Button variant="primary" loading={busy} disabled={busy || cost > d.balance} onClick={() => act(() => w.buyBundle(b.key, b.nameFa))}>
-                {cost > d.balance ? `${faNum(cost - d.balance)} سکه کم دارید` : 'خرید بسته'}</Button>}
-            </div>
-          </Card>
+            <div className="pf-bundleart" aria-hidden="true">{b.items.map((k) => { const c = cosmetic(k); return c ? <ItemArt key={k} item={c} me={w.me!} size="lg" /> : null; })}</div>
+          </section>
         );
       })}
-      <div className="pf-shopbar">
+
+      <div className="bgv-chips pf-shopchips" role="group" aria-label="دسته‌ها">
+        <Chip selected={slot === 'all'} icon="layout-grid" onClick={() => setSlot('all')}>همه</Chip>
+        {SHOP_SLOTS.map((s) => <Chip key={s} selected={slot === s} icon={SHOP_ICON[s]} onClick={() => setSlot(s)}>{SLOT_FA[s]}</Chip>)}
+        <Chip href="/me/avatar" icon="user">آواتار</Chip>
+      </div>
+      <div className="pf-shopbar app-hide-phone">
         <span className="t-body-sm bgv-muted">{faNum(all.length)} آیتم<span className="bgv-sep" />{faNum(ownedCount)} آیتم را دارید</span>
         <Checkbox checked={missing} onChange={(e) => setMissing(e.target.checked)} label="فقط آنچه ندارم" />
         <Select aria-label="کمیابی" value={rarity} onChange={(e) => setRarity(e.target.value)}
@@ -78,14 +84,22 @@ export function ShopPage() {
       {items.length === 0
         ? <StateBlock kind="empty" title="آیتمی پیدا نشد" text="همهٔ آیتم‌های این دسته را دارید." />
         : (
-          <div className="pf-tiles pf-tiles--shop">
+          <div className="pf-sgrid">
             {items.map((c) => {
               const st = w.stateOf(c);
               const p = price(c);
               return (
-                <CosmeticTile key={c.key} name={c.nameFa} state={st} rarity={w.rarity(c)} premium={'premium' in c.unlock}
-                  price={st === 'locked' && p !== null ? p : undefined} lockText={st === 'locked' ? w.reason(c) : undefined}
-                  art={<ItemArt item={c} me={w.me!} />} onClick={() => setOpen(c)} />
+                <button key={c.key} type="button" className={`bgv-cosm${st === 'equipped' ? ' is-equipped' : ''}${st === 'locked' ? ' is-locked' : ''}`}
+                  aria-pressed={st === 'equipped' ? 'true' : undefined} onClick={() => setOpen(c)}>
+                  <span className="bgv-cosm__art"><ItemArt item={c} me={w.me!} /></span>
+                  <span className="bgv-cosm__name">{c.nameFa}</span>
+                  <span className="pf-cmeta"><Rarity level={w.rarity(c)} /><span>{w.kindFa(c)}</span></span>
+                  <span className="bgv-cosm__state">
+                    {'premium' in c.unlock && st === 'locked' ? <Badge tone="premium" size="sm" icon="crown">پریمیوم</Badge>
+                      : st === 'locked' ? (p !== null ? <Coin amount={p} size="sm" /> : <><Icon name="lock" size="sm" />{w.reason(c)}</>)
+                        : <><Icon name="check" size="sm" />{st === 'equipped' ? 'دارید، پوشیده' : 'دارید'}</>}
+                  </span>
+                </button>
               );
             })}
           </div>

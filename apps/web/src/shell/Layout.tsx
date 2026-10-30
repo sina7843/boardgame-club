@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import type { MyTableItem, NotificationItem, Progression } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
-import { AppShell, Banner, Button, SiteHeader, StateBlock } from '@bg/ui/bgv';
+import { AppShell, Badge, Banner, Button, Coin, Icon, SiteHeader, StateBlock, TopBar } from '@bg/ui/bgv';
 import { api, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { useCoins } from '../lib/coins.tsx';
 import { useLinkRouting } from '../lib/bgv.tsx';
 import { faNum } from '../lib/format.ts';
-import { PAGE_TITLE_EVENT } from '../lib/usePageTitle.ts';
+import { lastPageTitle, PAGE_TITLE_EVENT } from '../lib/usePageTitle.ts';
 import { Celebration } from './Celebration.tsx';
 import { WelcomeGift } from './WelcomeGift.tsx';
 import { OnboardingProvider } from './Onboarding.tsx';
@@ -25,6 +25,21 @@ const LOGO = {
 const immersive = (path: string) => path === '/login' || path === '/payments/result' || path === '/dev-gateway' || path === '/search';
 
 type Group = keyof typeof PAGE_GROUPS;
+
+/** Phone top bar per the references: a shared title for sibling pages, and a back arrow (to the designed parent) on sub-pages. */
+function phoneTop(path: string): { title?: string; back?: string } {
+  if (path === '/progress' || path === '/ranking') return { title: 'پیشرفت و رتبه', back: '/more' };
+  if (path === '/messages' || path === '/friends' || path === '/clubs') return { title: 'پیام‌ها و دوستان' };
+  if (path === '/plans' || path === '/coins') return { title: 'اشتراک و سکه' };
+  if (path === '/shop' || path === '/me/wardrobe' || path === '/me/studio') return { back: '/me/profile' };
+  if (path === '/me/profile') return { back: '/more' };
+  if (path === '/me/avatar') return { back: '/me/studio' };
+  if (path.startsWith('/users/')) return { back: '/friends' };
+  if (path.startsWith('/clubs/')) return { back: '/clubs' };
+  if (path.startsWith('/messages/')) return { back: '/messages' };
+  if (path.startsWith('/groups/')) return { back: '/groups' };
+  return {};
+}
 const inGroup = (g: Group, path: string) => PAGE_GROUPS[g].some(([to]) => path === to || path.startsWith(`${to}/`));
 
 export function Layout() {
@@ -117,11 +132,23 @@ export function Layout() {
     </SiteHeader>
   );
 
+  const phone = phoneTop(pathname);
+  const topbar = phone.back
+    ? <TopBar className="bgv-app__top" title={phone.title ?? title} search={{ href: '/search' }}
+        leading={<Button variant="ghost" iconOnly icon="arrow-right" href={phone.back}>بازگشت</Button>}
+        actions={signedIn ? [
+          coins.data ? <Coin key="c" chip size="sm" amount={coins.data.balance} href="/coins" /> : null,
+          <a key="b" className="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications"
+            aria-label={`اعلان‌ها${notifications ? `، ${faNum(notifications)} خوانده‌نشده` : ''}`}>
+            <Icon name="bell" />{notifications ? <Badge tone="count">{faNum(notifications)}</Badge> : null}</a>
+        ] : [<Button key="l" size="sm" variant="secondary" href={loginHref}>ورود / ثبت‌نام</Button>]} />
+    : undefined;
+
   return (
     <OnboardingProvider>
       <a className="app-skip" href="#main">پرش به محتوای اصلی</a>
       <div className="app-root" onClick={route}>
-      <AppShell className="bgv" logo={LOGO} header={header} dockItems={dockItems} title={title} guest={!signedIn} loginHref={loginHref}
+      <AppShell className="bgv" logo={LOGO} header={header} dockItems={dockItems} title={phone.title ?? title} {...(topbar ? { topbar } : {})} guest={!signedIn} loginHref={loginHref}
         {...(coins.data ? { coins: coins.data.balance, coinsHref: '/coins' } : {})}
         {...(signedIn ? { notifications, notificationsHref: '/notifications' } : {})}
         {...(hasFooter(pathname) ? { footer: <PublicFooter /> } : {})}>
@@ -142,8 +169,9 @@ export function Layout() {
 }
 
 function usePageTitleText(): string {
-  const [title, setTitle] = useState('بردگیم‌ورس');
+  const [title, setTitle] = useState(lastPageTitle);
   useEffect(() => {
+    setTitle(lastPageTitle);
     const on = (e: Event) => setTitle((e as CustomEvent<string>).detail);
     window.addEventListener(PAGE_TITLE_EVENT, on);
     return () => window.removeEventListener(PAGE_TITLE_EVENT, on);

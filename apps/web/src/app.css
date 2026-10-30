@@ -109,3 +109,11 @@
 :root[data-motion='reduce'] *, :root[data-motion='reduce'] *::before, :root[data-motion='reduce'] *::after {
   animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important;
 }
+
+/* Desktop-only blocks (e.g. the four commerce tabs above the shop): the phone shows the page title in the top bar instead. */
+@media (max-width: 899px) {
+  .app-hide-phone { display: none; }
+}
+
+/* Tabs scroll sideways (bundle.css) but the items could still shrink, so labels and count badges overlapped on phones. */
+.bgv-tabs > .bgv-tab { flex: none; }

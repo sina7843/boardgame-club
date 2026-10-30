@@ -84,7 +84,7 @@ export function PlansPage() {
       </div>
       <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="cmp-h">
         <h2 id="cmp-h" className="ac-h2">رایگان و پریمیوم کنار هم</h2>
-        <Card flush className="ac-tablecard"><div className="bgv-scroll-x">
+        <Card flush className="ac-tablecard"><div className="bgv-scroll-x" tabIndex={0} role="region" aria-labelledby="cmp-h">
           <table className="bgv-table ac-cmp">
             <thead><tr><th scope="col">امکان</th><th scope="col">رایگان</th><th scope="col" className="ac-cmp__hl">پریمیوم</th></tr></thead>
             <tbody>
@@ -104,7 +104,7 @@ export function PlansPage() {
       {me && s && s.payments.length > 0 && (
         <section className="ac-stack" style={{ gap: 12 }} aria-labelledby="pay-h">
           <h2 id="pay-h" className="ac-h2">سابقه پرداخت</h2>
-          <Card flush className="ac-tablecard"><div className="bgv-scroll-x">
+          <Card flush className="ac-tablecard"><div className="bgv-scroll-x" tabIndex={0} role="region" aria-labelledby="pay-h">
             <table className="bgv-table">
               <caption className="bgv-sr">سابقه پرداخت</caption>
               <thead><tr><th scope="col">تاریخ</th><th scope="col">خرید</th><th scope="col">مبلغ</th><th scope="col">وضعیت</th><th scope="col">شماره سفارش</th></tr></thead>

@@ -41,6 +41,8 @@ def scope(selector, root):
         sel = sel.strip()
         if not KEEP.search(sel) or SHELL.search(sel):
             continue
+        # The member pills are toggle buttons in the app (aria-pressed): aria-selected is not allowed on a plain button (axe).
+        sel = sel.replace('[aria-selected="true"]', '[aria-pressed="true"]')
         m = re.match(r'^(\[data-theme="dark"\]|:root\[data-theme="dark"\]|html\[data-theme="dark"\])\s*(.*)$', sel)
         parts.append(f'{m.group(1)} {root} {m.group(2)}' if m else f'{root} {sel}')
     return ', '.join(parts)
