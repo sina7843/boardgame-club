@@ -7,19 +7,8 @@
 
 .cc-tile { display: block; inline-size: 100%; block-size: 100%; }
 /* Roads: dark shoulder, packed-earth surface, cobble dashes. */
-.cc-road-edge { fill: none; stroke: #7a5d33; stroke-width: 14; stroke-linecap: butt; }
-.cc-road { fill: none; stroke-width: 10; stroke-linecap: butt; }
-.cc-well { fill: #9b8a68; stroke: #3d3222; stroke-width: 1.6; }
-.cc-well__in { fill: #2f6f8f; stroke: #3d3222; stroke-width: 1; }
 /* Cities: sandstone with a roofscape, shaded under a crenellated wall. */
-.cc-wall__shade { fill: none; stroke: #4a2a12; stroke-opacity: 0.35; stroke-width: 16; }
-.cc-wall__base { fill: none; stroke: #5a3720; stroke-width: 8; stroke-linejoin: round; }
-.cc-wall { fill: none; stroke: #d9aa72; stroke-width: 5; stroke-linejoin: round; }
-.cc-wall__crenel { fill: none; stroke: #5a3720; stroke-width: 1.3; stroke-dasharray: 3 2.5; stroke-linejoin: round; opacity: 0.7; }
-.cc-shield { fill: #2f62c9; stroke: #f3e6c4; stroke-width: 1.3; stroke-linejoin: round; }
-.cc-shield__cross { fill: #ffd98a; }
 /* Monastery: painted courtyard plot clipped to a rounded square. */
-.cc-abbey__frame { fill: none; stroke: #6a4a2a; stroke-width: 1.4; }
 
 /* Players: small heraldic plaques, the active one lit in its follower colour. */
 .cc__players { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }

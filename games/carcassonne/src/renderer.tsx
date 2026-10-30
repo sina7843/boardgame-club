@@ -1,13 +1,10 @@
 // قلعه‌سازان renderer: an open map of square tiles drawn in SVG (painted meadow, terracotta-roofed cities behind
-// walls, cobbled roads, monastery gardens; textures cut from a generated sheet, see DECISIONS.md). Legal spots for the drawn tile glow; tap one, rotate, choose where your
+// walls, roads, monasteries; the tile pictures are the BGA Carcassonne client art, see DECISIONS.md). Legal spots for the drawn tile glow; tap one, rotate, choose where your
 // follower stands (or none), then place. Board coordinates are module-defined, so the map itself is LTR.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
-import texCity from './art/tex-city.webp';
-import texField from './art/tex-field.webp';
-import texMonastery from './art/tex-monastery.webp';
-import texRoad from './art/tex-road.webp';
+import tilesArt from './art/tiles.webp';
 import { TILES, feature, groups, key, segments, type CarcView, type Placed } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
@@ -15,29 +12,9 @@ export const SEAT_COLORS = ['#e0473c', '#2f7de1', '#f2c230', '#3aa65a', '#9b59d0
 const DIRS = ['بالا', 'راست', 'پایین', 'چپ'];
 const MID = [[50, 0], [100, 50], [50, 100], [0, 50]] as const;
 
-/** Canonical city shapes: filled outline plus the open wall path (only the sides facing fields, never the tile edge). */
-const SHAPES = [
-  { d: 'M0,0H100V100H0Z', wall: '' },
-  { d: 'M0,0H100Q88,10 76,22Q50,46 24,22Q12,10 0,0Z', wall: 'M100,0Q88,10 76,22Q50,46 24,22Q12,10 0,0' },
-  { d: 'M0,0H100V100Q50,62 0,100Z', wall: 'M100,100Q50,62 0,100' },
-  { d: 'M0,0H100Q66,50 100,100H0Q34,50 0,0Z', wall: 'M100,0Q66,50 100,100M0,100Q34,50 0,0' },
-  { d: 'M0,0H100V100Q50,50 0,0Z', wall: 'M100,100Q50,50 0,0' }
-] as const;
-/** City shape for one group of (unrotated) directions: index into SHAPES plus a rotation. */
-function cityShape(g: number[]): { i: number; rot: number } {
-  if (g.length === 4) return { i: 0, rot: 0 };
-  if (g.length === 1) return { i: 1, rot: g[0]! };
-  if (g.length === 3) { const miss = [0, 1, 2, 3].find((d) => !g.includes(d))!; return { i: 2, rot: (miss + 2) % 4 }; }
-  if ((g[0]! + 2) % 4 === g[1]) return { i: 3, rot: Math.min(g[0]!, g[1]!) };
-  const a = g.includes(0) && g.includes(3) ? 3 : Math.min(g[0]!, g[1]!);
-  return { i: 4, rot: a };
-}
-/** Where a city's pennant sits (tile space, before rotation). */
-function pennantAt(g: number[]): [number, number] {
-  if (g.length === 4) return [26, 26];
-  const k = g.length === 3 ? 0.62 : 0.5;
-  return [50 + (MID[g[0]!]![0] - 50) * k, 50 + (MID[g[0]!]![1] - 50) * k];
-}
+/** Tile pictures: tiles.webp is a 6 × 4 sprite of A–X in key order. `off`: the picture shows the tile turned `off` quarter turns clockwise. */
+const ART_OFF: Record<string, number> = { G: 1, H: 1, I: 2 };
+const artCell = (t: string) => { const k = t.charCodeAt(0) - 65; return { x: -(k % 6) * 100, y: -Math.floor(k / 6) * 100 }; };
 /** Anchor point (in tile space, before rotation) where a follower on a segment stands. */
 function anchor(t: string, seg: string): [number, number] {
   if (seg === 'm') return [50, 52];
@@ -67,41 +44,10 @@ export function Meeple({ color, x, y }: { color: string; x: number; y: number })
 }
 
 export function TileArt({ t, rot = 0, meeples = {}, title, fresh }: { t: string; rot?: number; meeples?: Record<string, number>; title?: string; fresh?: boolean }) {
-  const tile = TILES[t]!;
-  const crossing = tile.roads.length >= 3;
   return (
     <svg viewBox="0 0 100 100" className="cc-tile" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
       <g transform={`rotate(${rot * 90} 50 50)`}>
-        <rect width="100" height="100" fill="url(#cc-field)" />
-        {tile.roads.map((g, i) => {
-          const [a, b] = g;
-          const da = MID[a!]!;
-          const p = b === undefined ? `M${da[0]},${da[1]} L50,50` : `M${da[0]},${da[1]} Q50,50 ${MID[b]![0]},${MID[b]![1]}`;
-          return <g key={`r${i}`}><path d={p} className="cc-road-edge" /><path d={p} className="cc-road" stroke="url(#cc-road)" /></g>;
-        })}
-        {crossing && <g><circle cx="50" cy="50" r="10" className="cc-well" /><circle cx="50" cy="50" r="5.5" className="cc-well__in" /></g>}
-        {tile.cities.map((g, i) => {
-          const s = cityShape(g);
-          const sh = SHAPES[s.i]!;
-          const [px, py] = pennantAt(g);
-          return (
-            <g key={`c${i}`}>
-              <g transform={`rotate(${s.rot * 90} 50 50)`}>
-                <path d={sh.d} fill="url(#cc-roofs)" />
-                {sh.wall && <g clipPath={`url(#cc-cl-${s.i})`}><path d={sh.wall} className="cc-wall__shade" /></g>}
-                {sh.wall && <><path d={sh.wall} className="cc-wall__base" /><path d={sh.wall} className="cc-wall" /><path d={sh.wall} className="cc-wall__crenel" /></>}
-              </g>
-              {tile.shield && i === 0 && (
-                <g transform={`rotate(${-rot * 90} ${px} ${py})`}>
-                  <path className="cc-shield" transform={`translate(${px - 6.5} ${py - 8})`} d="M0 0h13v8c0 5.5-6.5 9-6.5 9S0 13.5 0 8Z" />
-                  <path className="cc-shield__cross" transform={`translate(${px - 6.5} ${py - 8})`} d="M5.5 3h2v3h3v2h-3v5h-2V8h-3V6h3Z" />
-                </g>
-              )}
-            </g>
-          );
-        })}
-        {tile.monastery && <image href={texMonastery} x="22" y="22" width="56" height="56" clipPath="url(#cc-abbey-clip)" />}
-        {tile.monastery && <rect x="22" y="22" width="56" height="56" rx="10" className="cc-abbey__frame" />}
+        <g transform={`rotate(${-(ART_OFF[t] ?? 0) * 90} 50 50)`}><image href={tilesArt} {...artCell(t)} width="600" height="400" preserveAspectRatio="none" /></g>
         {Object.entries(meeples).map(([seg, seat]) => { const [x, y] = anchor(t, seg); return <g key={seg} transform={`rotate(${-rot * 90} ${x} ${y})`}><g className={fresh ? 'bg-land' : undefined} style={fresh ? { ['--i' as string]: 8 } : undefined}><Meeple color={SEAT_COLORS[seat]!} x={x} y={y} /></g></g>; })}
       </g>
     </svg>
@@ -113,13 +59,7 @@ export function TileDefs() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
       <defs>
-        {/* Textures are cut from a generated sheet (see DECISIONS.md); tiled in tile units (a tile is 100 wide). */}
-        <pattern id="cc-field" width="50" height="50" patternUnits="userSpaceOnUse"><image href={texField} width="50" height="50" /></pattern>
-        <pattern id="cc-roofs" width="50" height="50" patternUnits="userSpaceOnUse"><image href={texCity} width="50" height="50" /></pattern>
-        <pattern id="cc-road" width="30" height="30" patternUnits="userSpaceOnUse"><image href={texRoad} width="30" height="30" /></pattern>
-        <clipPath id="cc-abbey-clip"><rect x="22" y="22" width="56" height="56" rx="10" /></clipPath>
         <linearGradient id="cc-shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity="0.6" /><stop offset="0.5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.35" /></linearGradient>
-        {SHAPES.map((s, i) => <clipPath key={i} id={`cc-cl-${i}`}><path d={s.d} /></clipPath>)}
       </defs>
     </svg>
   );
