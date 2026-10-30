@@ -1,8 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import type { AlertPrefs, UserSettings } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Banner, Button, Card, Dialog, Icon, Identity, PageHead, Segmented, Select, Slider, StateBlock, Switch, Tabs, Tag, TextField } from '@bg/ui/bgv';
+import { Banner, Button, Card, Dialog, Icon, Identity, PageHead, Segmented, Select, Slider, StateBlock, Switch, Tag, TextField } from '@bg/ui/bgv';
 import { userIdentity } from '../lib/bgv.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { browserNotificationsEnabled, setBrowserNotifications } from '../lib/realtime.tsx';
@@ -55,19 +55,17 @@ export function Settings() {
   const { me, status, logout } = useSession();
   const { prefs, update } = usePrefs();
   const navigate = useNavigate();
-  const [params, setParams] = useSearchParams();
-  const wanted = params.get('tab') as SettingsTab | null;
-  const tab: SettingsTab = wanted && (wanted === 'device' || me) ? wanted : me ? 'account' : 'device';
-  const setTab = (t: SettingsTab) => setParams((p) => { const n = new URLSearchParams(p); n.set('tab', t); return n; }, { replace: true });
+  const [params] = useSearchParams();
+  // Old ?tab= links (notifications page, shell test) scroll to their group on the single page.
+  const wanted = params.get('tab');
+  useEffect(() => { if (wanted) document.getElementById(wanted === 'device' ? 'device-g' : wanted === 'alerts' ? 'notify-h' : 'account-g')?.scrollIntoView({ block: 'start' }); }, [wanted]);
+  const device = deviceName();
 
   return (
     <>
-      <PageHead title="تنظیمات" sub="ظاهر و صدا روی همین دستگاه ذخیره می‌شوند." />
-      <Tabs label="بخش‌های تنظیمات" value={tab} onChange={(v) => setTab(v as SettingsTab)} items={[
-        ...(me ? [{ value: 'account', label: 'حساب و حریم خصوصی' }, { value: 'alerts', label: 'اعلان، صدا و لرزش' }] : []),
-        { value: 'device', label: 'این دستگاه' }
-      ]} />
-      {me && tab === 'account' && (
+      <PageHead title="تنظیمات" sub="تغییرها خودکار ذخیره می‌شوند؛ ظاهر و صدا روی همین دستگاه می‌مانند." />
+      {me && <>
+        <h2 id="account-g" className="ac-group"><Icon name="user" size="sm" />حساب شما، روی همهٔ دستگاه‌ها</h2>
         <div className="ac-sets">
           <div className="ac-stack" style={{ gap: 20 }}>
             <Section id="profile-h" icon="user" title="حساب">
@@ -79,56 +77,63 @@ export function Settings() {
                 <div className="ac-row__text"><b>شمارهٔ موبایل</b><span>برای ورود؛ به هیچ بازیکنی نشان داده نمی‌شود.</span></div>
                 <bdi dir="ltr" className="bgv-latin">{me.mobileMasked}</bdi>
               </div>
-              {(
-                <div className="ac-row">
-                  <div className="ac-row__text"><b>خروج از حساب</b><span>از همین دستگاه خارج می‌شوید؛ میزهای نوبتی شما ادامه دارند.</span></div>
-                  <Button size="sm" variant="leave" className="ac-signout" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
-                </div>
-              )}
+              <div className="ac-row">
+                <div className="ac-row__text"><b>خروج از حساب</b><span>از همین دستگاه خارج می‌شوید؛ میزهای نوبتی شما ادامه دارند.</span></div>
+                <Button size="sm" variant="leave" className="ac-signout" onClick={() => void logout().then(() => navigate('/'))}>خروج از حساب</Button>
+              </div>
             </Section>
             <PrivacyForm only="privacy" />
           </div>
-          <div className="ac-stack" style={{ gap: 20 }}><DeleteAccountCard /></div>
-        </div>
-      )}
-      {me && tab === 'alerts' && (
-        <div className="ac-sets">
-          <div className="ac-stack" style={{ gap: 20 }}><TurnAlerts /></div>
           <div className="ac-stack" style={{ gap: 20 }}><PrivacyForm only="notify" /></div>
         </div>
-      )}
+      </>}
       {!me && status !== 'loading' && (
         <Card><StateBlock kind="denied" title="برای تنظیمات حساب وارد شوید" action={<Button variant="primary" href="/login?next=/settings">ورود</Button>} /></Card>
       )}
 
-      {tab === 'device' && <div className="ac-sets">
-        <Section id="display-h" icon="palette" title="نمایش و دسترس‌پذیری" extra={<Tag>فقط همین دستگاه</Tag>}>
-          <ThemePicker />
-          <div className="ac-row">
-            <div className="ac-row__text"><b>حرکت و انیمیشن</b><span>پخش کارت، تاس و جشن‌ها</span></div>
-            <Segmented label="حرکت و انیمیشن" value={prefs.motion} onChange={(motion) => update({ motion: motion as Prefs['motion'] })}
-              options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'reduce', label: 'کاهش‌یافته' }, { value: 'full', label: 'کامل' }]} />
-          </div>
-          <div className="ac-row ac-row--stack">
-            <div className="ac-row__text"><b>زمان انصراف حرکت</b><span>پس از هر حرکت مهم (بازی کردن کارت، جابه‌جایی مهره، خرید) تا این مدت می‌توانید «انصراف» بزنید. تاس، کشیدن کارت، پایان نوبت و «رد» همیشه بی‌درنگ فرستاده می‌شوند.</span></div>
-            <Segmented block label="زمان انصراف حرکت" value={prefs.undo} onChange={(undo) => update({ undo: undo as Prefs['undo'] })}
-              options={[{ value: 'off', label: 'خاموش' }, { value: '500', label: '۰٫۵ ثانیه' }, { value: '1000', label: '۱ ثانیه' }, { value: '2000', label: '۲ ثانیه' }]} />
-          </div>
-        </Section>
-        <Section id="sound-h" icon="volume-2" title="صدا" extra={<Tag>فقط همین دستگاه</Tag>}>
-          <div className="ac-row">
-            <div className="ac-row__text"><b>بی‌صدا</b><span>صداهای بازی از مرحله بعدی توسعه پخش می‌شوند و این تنظیم را رعایت می‌کنند.</span></div>
-            <Switch aria-label="بی‌صدا" checked={prefs.muted} onChange={(muted) => update({ muted })} />
-          </div>
-        </Section>
-      </div>}
+      <h2 id="device-g" className="ac-group"><Icon name="settings" size="sm" />این دستگاه{device ? `: ${device}` : ''}</h2>
+      <div className="ac-sets">
+        <div className="ac-stack" style={{ gap: 20 }}>
+          <Section id="display-h" icon="palette" title="نمایش و دسترس‌پذیری" extra={<Tag>فقط همین دستگاه</Tag>}>
+            <ThemePicker />
+            <div className="ac-row">
+              <div className="ac-row__text"><b>حرکت و انیمیشن</b><span>پخش کارت، تاس و جشن‌ها</span></div>
+              <Segmented label="حرکت و انیمیشن" value={prefs.motion} onChange={(motion) => update({ motion: motion as Prefs['motion'] })}
+                options={[{ value: 'system', label: 'مطابق دستگاه' }, { value: 'reduce', label: 'کاهش‌یافته' }, { value: 'full', label: 'کامل' }]} />
+            </div>
+            <div className="ac-row ac-row--stack">
+              <div className="ac-row__text"><b>زمان انصراف حرکت</b><span>پس از هر حرکت مهم (بازی کردن کارت، جابه‌جایی مهره، خرید) تا این مدت می‌توانید «انصراف» بزنید. تاس، کشیدن کارت، پایان نوبت و «رد» همیشه بی‌درنگ فرستاده می‌شوند.</span></div>
+              <Segmented block label="زمان انصراف حرکت" value={prefs.undo} onChange={(undo) => update({ undo: undo as Prefs['undo'] })}
+                options={[{ value: 'off', label: 'خاموش' }, { value: '500', label: '۰٫۵ ثانیه' }, { value: '1000', label: '۱ ثانیه' }, { value: '2000', label: '۲ ثانیه' }]} />
+            </div>
+          </Section>
+          {me && <DeleteAccountCard />}
+        </div>
+        <div className="ac-stack" style={{ gap: 20 }}>
+          {me ? <TurnAlerts /> : (
+            <Section id="sound-h" icon="volume-2" title="صدا" extra={<Tag>فقط همین دستگاه</Tag>}>
+              <div className="ac-row">
+                <div className="ac-row__text"><b>بی‌صدا</b><span>همهٔ صداهای بازی روی این دستگاه.</span></div>
+                <Switch aria-label="بی‌صدا" checked={prefs.muted} onChange={(muted) => update({ muted })} />
+              </div>
+            </Section>
+          )}
+        </div>
+      </div>
     </>
   );
 }
 
+/** «کروم روی ویندوز»: browser and system from the user agent, for the device group title. */
+function deviceName(): string {
+  const ua = navigator.userAgent;
+  const browser = /Edg\//.test(ua) ? 'اج' : /Firefox\//.test(ua) ? 'فایرفاکس' : /Chrome\//.test(ua) ? 'کروم' : /Safari\//.test(ua) ? 'سافاری' : '';
+  const os = /Android/.test(ua) ? 'اندروید' : /iPhone|iPad/.test(ua) ? 'آی‌او‌اس' : /Windows/.test(ua) ? 'ویندوز' : /Mac OS/.test(ua) ? 'مک' : /Linux/.test(ua) ? 'لینوکس' : '';
+  return browser && os ? `${browser} روی ${os}` : browser || os;
+}
+
 const NOTIFY_FA: [keyof UserSettings['notify'], string][] = [['turn', 'نوبت و یادآوری مهلت'], ['invite', 'دعوت به میز و حریف‌یابی'], ['message', 'پیام خصوصی'], ['result', 'پایان بازی'], ['social', 'درخواست دوستی و باشگاه']];
 
-type SettingsTab = 'account' | 'alerts' | 'device';
 
 function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
   const s = useApi<UserSettings>('/me/settings');

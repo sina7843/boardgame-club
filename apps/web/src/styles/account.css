@@ -88,6 +88,7 @@
 /* ── Settings ───────────────────────────────────────────────────────── */
 .ac-group { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--label); margin: 0; }
 .ac-group::after { content: ""; flex: 1; block-size: 1px; background: var(--line); }
+.ac-group { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0; padding-block-end: var(--space-2); border-block-end: 1px solid var(--line); font-size: 14px; font-weight: 400; color: var(--text-muted); }
 .ac-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; align-items: start; }
 .ac-theme { display: grid; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 700; text-align: center; color: var(--text-muted); }
 .ac-theme.is-on { color: var(--text); }
