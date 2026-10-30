@@ -272,3 +272,15 @@
 .pf-sum > div { display: flex; justify-content: space-between; gap: var(--space-2); border-block-end: 1px solid var(--line); padding-block: 2px; }
 .pf-sum dt { color: var(--text-muted); }
 .pf-sum dd { margin: 0; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+
+/* Studio-Desktop: editor beside the live preview. */
+.pf-studio { align-items: start; }
+.pf-studio__avatar { display: grid; justify-items: center; gap: var(--space-4); text-align: center; padding-block: var(--space-4); }
+.pf-studio__preview { position: sticky; inset-block-start: var(--space-4); }
+.pf-prevchat { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); }
+.pf-tiles--frames { grid-template-columns: repeat(auto-fill, minmax(min(100%, 124px), 1fr)); }
+@media (max-width: 899px) {
+  .pf-studio__preview { position: static; order: -1; }
+  .pf-studio__preview:not(.is-table) .pf-pv--table, .pf-studio__preview:not(.is-chat) .pf-pv--chat, .pf-studio__preview:not(.is-rank) .pf-pv--rank { display: none; }
+  .pf-savebar.app-phone-only > .bgv-btn { flex: 1; }
+}
