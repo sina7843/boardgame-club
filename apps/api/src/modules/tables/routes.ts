@@ -23,7 +23,7 @@ const errors = { 400: apiErrorSchema, 401: apiErrorSchema, 403: apiErrorSchema, 
 
 export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps): void {
   const r = app.withTypeProvider<ZodTypeProvider>();
-  const snapshot = (tableId: string, userId: string, inviteCode?: string) => buildTableSnapshot(db, registry, { tableId, userId, inviteCode });
+  const snapshot = (tableId: string, userId: string, inviteCode?: string, admin?: boolean) => buildTableSnapshot(db, registry, { tableId, userId, inviteCode, admin });
 
   r.get('/status', { schema: { tags: ['tables'], summary: 'Platform incident status', response: { 200: z.object({ incident: tableSnapshot.shape.incident }) } } },
     async () => ({ incident: await currentIncident(db) }));
@@ -70,7 +70,7 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
     r.get(path, {
       schema: { tags: ['tables'], summary: 'Authorized table snapshot for the signed-in viewer (player or spectator)',
         params: idParams, querystring: z.object({ invite: z.string().max(64).optional() }), response: { 200: tableSnapshot, ...errors } }
-    }, async (req) => snapshot(req.params.id, requireUser(req).userId, req.query.invite));
+    }, async (req) => { const auth = requireUser(req); return snapshot(req.params.id, auth.userId, req.query.invite, auth.roles.includes('admin')); });
   }
 
   r.post('/tables/:id/report', {

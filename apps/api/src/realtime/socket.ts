@@ -76,7 +76,7 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
 
   const pushSnapshot = async (socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>, tableId: string, ctx?: TableContext) => {
     try {
-      socket.emit(ServerEvents.tableSnapshot, await buildTableSnapshot(db, registry, { tableId, userId: socket.data.auth.userId, inviteCode: socket.data.invites.get(tableId) }, ctx));
+      socket.emit(ServerEvents.tableSnapshot, await buildTableSnapshot(db, registry, { tableId, userId: socket.data.auth.userId, inviteCode: socket.data.invites.get(tableId), admin: socket.data.auth.roles.includes('admin') }, ctx));
     } catch {
       // Access lost (e.g. left a private table): stop pushing to this socket.
       await socket.leave(`table:${tableId}`);
@@ -108,8 +108,10 @@ export async function attachRealtime(httpServer: HttpServer, config: Config, db:
         if (parsed.data.inviteCode) socket.data.invites.set(parsed.data.tableId, parsed.data.inviteCode);
         await socket.join(room);
         try {
-          const snapshot = await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId, inviteCode: parsed.data.inviteCode });
-          if (snapshot.table.mySeat === null) {
+          const admin = socket.data.auth.roles.includes('admin');
+          const snapshot = await buildTableSnapshot(db, registry, { tableId: parsed.data.tableId, userId, inviteCode: parsed.data.inviteCode, admin });
+          // An admin watches silently: no watcher row, so players see no extra spectator.
+          if (snapshot.table.mySeat === null && !admin) {
             await db.insert(schema.tableWatchers).values({ tableId: parsed.data.tableId, socketId: socket.id, userId })
               .onConflictDoUpdate({ target: [schema.tableWatchers.tableId, schema.tableWatchers.socketId], set: { seenAt: sql`now()` } });
           }

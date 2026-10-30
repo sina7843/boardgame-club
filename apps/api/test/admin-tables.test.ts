@@ -29,3 +29,21 @@ describe('admin tables', () => {
     expect(byName.items.some((x: { id: string }) => x.id === t.tableId)).toBe(true);
   });
 });
+
+describe('admin watching', () => {
+  it('an admin can open any table (private too) as a spectator; other players cannot', async () => {
+    const admin = await login(ctx.app);
+    await grantRole(ctx.db, admin.mobile, 'admin');
+    const t = await startTable(ctx, 'chess', 2); // private by default
+    const outsider = await login(ctx.app);
+    expect((await get(`/api/tables/${t.tableId}`, outsider.cookie)).statusCode).toBe(403);
+    const seen = await get(`/api/tables/${t.tableId}`, admin.cookie);
+    expect(seen.statusCode).toBe(200);
+    const snap = seen.json();
+    expect(snap.table.mySeat).toBeNull();
+    expect(snap.game.legalActions).toEqual([]);
+    // REST viewing writes no watcher row: players still see nobody watching.
+    const own = (await ctx.app.inject({ method: 'GET', url: `/api/tables/${t.tableId}`, headers: { cookie: t.players[0]!.cookie } })).json();
+    expect(own.table.spectators).toBe(0);
+  });
+});

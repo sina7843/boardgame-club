@@ -26,3 +26,27 @@ test('admin sees all tables with their status and filters them', async ({ browse
   await expect(admin.getByText('میزی پیدا نشد')).toBeVisible();
   await admin.screenshot({ path: `test-results/admin-tables-${info.project.name}.png`, fullPage: true });
 });
+
+test('admin watches a private table silently: the players see no spectator', async ({ browser }, info) => {
+  test.skip(info.project.name !== 'desktop-1440', 'one width is enough for the access check');
+  const vp = info.project.use.viewport ?? null;
+  const a = await newPage(browser, vp); await signIn(a, `میزبان ${Math.random().toString(36).slice(2, 6)}`);
+  const b = await newPage(browser, vp); await signIn(b, `مهمان ${Math.random().toString(36).slice(2, 6)}`);
+  await a.goto('/games/line-three/new');
+  await a.getByRole('button', { name: 'ساخت میز' }).first().click();
+  const invite = (await a.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
+  await b.goto(invite);
+  await b.getByRole('button', { name: 'پیوستن به میز' }).click();
+  await a.getByRole('button', { name: 'آماده‌ام' }).click();
+  await expect(a.locator('.lt__board')).toBeVisible();
+  const tableUrl = new URL(a.url()).pathname;
+
+  const admin = await newPage(browser, vp);
+  grant(await signIn(admin, `مدیر ناظر ${Math.random().toString(36).slice(2, 6)}`), 'admin');
+  await admin.goto(tableUrl);
+  await expect(admin.locator('.lt__board')).toBeVisible();
+  await expect(admin.getByText('شما تماشاگرید')).toBeVisible();
+  await a.reload();
+  await expect(a.locator('.lt__board')).toBeVisible();
+  await expect(a.getByText(/تماشاگر/)).toHaveCount(0);
+});

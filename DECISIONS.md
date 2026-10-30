@@ -1516,3 +1516,6 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Own profile renders the same page (`ProfilePage own`) plus the completeness card (one chip per item) and six shortcuts; editing stays below (#profile-edit). The page h1 is now the player's name.
 - Wardrobe: three-column sections, emote tiles show their table slot (tap adds/removes), frames end with a «قاب‌های بیشتر» tile to the shop; favourite seat colour moved under the sections.
 - Studio: one tabbed editor (آواتار, قاب, معرفی و لقب, بنر, بازی‌های محبوب, ویترین, کازمتیک میز). Frames and table cosmetics are worn at once as in the wardrobe; profile fields stay a draft (dot on the tab, count in the head) until «ذخیرهٔ همه», and the live preview shows the draft title. The design has no bio field, so «لقب» became «معرفی و لقب».
+
+## Admins watch any table silently (2026-10-30, owner request)
+- A site admin may open every table (private and tutorial too) at /tables/:id as a spectator: the server projects the spectator view (no hidden information, no legal actions). For admins the socket writes no `table_watchers` row, so the players' spectator count and the home page's «تماشاگر» never include them, and no notification is sent. Moderators are not included.

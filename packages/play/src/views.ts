@@ -34,7 +34,8 @@ function describeVariants(registry: GameRegistry, table: { gameId: string; isTut
   });
 }
 
-export interface ViewRequest { tableId: string; userId: string; inviteCode?: string | undefined }
+/** `admin`: a site admin may watch any table (private and tutorial too) as a spectator; the caller keeps them out of the watcher count. */
+export interface ViewRequest { tableId: string; userId: string; inviteCode?: string | undefined; admin?: boolean | undefined }
 
 /**
  * Everything about a table that does not depend on the viewer, read once (independent reads in parallel).
@@ -114,7 +115,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
   const mySeat = mine ? mine.p.seat : null;
 
   let lobbyOnly = false;
-  if (mySeat === null) {
+  if (mySeat === null && !req.admin) {
     if (table.isTutorial) throw new AppError('FORBIDDEN');
     // Tournament tables are private (nobody can join) but open to spectators: a tournament is meant to be watched.
     const isTournament = !!(table.settings as { tournament?: unknown }).tournament;
