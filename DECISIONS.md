@@ -1479,3 +1479,10 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   and victory cards below their printed value). Machi Koro buildings and landmarks are the printed card art from
   github.com/Color-Kat/machicoro, cropped between the (Russian) name and effect text. The Dominion Strategy wiki sits
   behind a bot challenge, so it was not used.
+- Bohnanza beans are the printed (German edition) card pictures from github.com/Alyarafa20/bohnanza-demo-gui; the
+  printed bean counts left in some pictures equal ours (same deck). Unmatched cards show the printed card picture of each
+  card (scans from github.com/ntta/unmatched-scraper; our card slugs are theirs), keyed hero/slug in `card-art.ts`; a
+  card the scans lack keeps the portrait art. Dice Throne hero portraits are the printed Barbarian, Pyromancer, Shadow
+  Thief and Paladin art from the hero leaflets and guides in github.com/LoJo97/dice-throne and
+  github.com/btgaffor/dice-throne. Looked at and not used: Star Realms and Race for the Galaxy (our decks are our own
+  cards), Uno (only a flat fan redraw found), Cockroach Poker (64 × 99 px scans), Camel Up (no usable assets).

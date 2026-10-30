@@ -287,3 +287,6 @@ button.um-card--playable:hover, button.um-card--playable:focus-visible { --ty: -
 .um-passage circle.um-passage__inner { fill: none; stroke: rgb(242 183 5 / 0.5); stroke-width: 1.5; filter: none; }
 .um-passage .um-passage__key { fill: #f2b705; stroke: none; filter: none; }
 .um-heroes__set { grid-column: 1 / -1; margin: var(--sp-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+
+/* v2: printed card picture (sprite) in place of the portrait art, same 120 : 64 window */
+.um-card__pic { aspect-ratio: 120 / 64; background-repeat: no-repeat; }

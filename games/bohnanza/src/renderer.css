@@ -114,3 +114,6 @@ button.bn-plot--buy:focus-visible { outline: 3px solid #ffe1a0; outline-offset: 
   .bn-mat--sm { grid-template-columns: 1fr; grid-template-areas: 'fields' 'bank'; }
   .bn-mat--sm .bn-treasury { grid-auto-flow: column; align-items: center; gap: 0.3rem; padding: 0.2rem 0.5rem; }
 }
+
+/* v2: beans are the printed card pictures (squares), so round them like a card window */
+.bn-bean { border-radius: 6px; filter: none; box-shadow: 0 1px 2px rgb(0 0 0 / 0.3); }

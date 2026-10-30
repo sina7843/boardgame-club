@@ -10,7 +10,8 @@ import pyro from './art/hero-pyro.webp';
 import paladin from './art/hero-paladin.webp';
 import { HEROES, MAX_HP, abilityEffect, symOf, type Ability, type DtView, type Effect, type Hero } from './rules.ts';
 
-// Hero portraits are cut from a generated sprite sheet (see DECISIONS.md).
+// Hero portraits are the printed Dice Throne hero art (Barbarian, Pyromancer, Shadow Thief, Paladin) from the hero
+// leaflets and guides in github.com/LoJo97/dice-throne and github.com/btgaffor/dice-throne (see DECISIONS.md).
 export const PORTRAIT: Record<string, string> = { warrior, shadow, pyro, paladin };
 const fa = (n: number) => n.toLocaleString('fa-IR');
 export const effText = (e: Effect) => [e.dmg ? `${fa(e.dmg)} آسیب` : '', e.heal ? `+${fa(e.heal)} جان` : '', e.cp ? `+${fa(e.cp)} CP` : '', e.steal ? `دزدی ${fa(e.steal)} CP` : '',

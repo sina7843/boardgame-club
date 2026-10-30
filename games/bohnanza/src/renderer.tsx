@@ -1,6 +1,7 @@
 // لوبیاکاری renderer: a market-garden table. Bean cards are tall seed packets (colour, bean, beanometer); your fields
 // are furrowed plots where cards stack; the trade cloth in the middle holds the two face-up cards. The active player
 // builds offers (cards to give, beans wanted, partner) and the partner answers in a small offer slip.
+// Bean pictures are the printed (German edition) card art from github.com/Alyarafa20/bohnanza-demo-gui (see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';

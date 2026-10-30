@@ -1,5 +1,6 @@
 // Unmatched renderer: players strip, vector battlefield (spaces, zones, lines, fighters), one decision panel driven by
 // the server prompt, combat panel, own hand and event log. Shows only the projection; other hands are counts.
+import { cardPicture } from './card-art.ts';
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
@@ -143,6 +144,7 @@ function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, exit
 }) {
   const d = cardDefOf(view, card);
   if (!d) return null;
+  const pic = cardPicture(view.heroes[card.seat] ?? '', d.slug);
   const label = `${d.nameFa}، ${TYPE_FA[d.type]}${d.value !== null ? ` ${fa(d.value)}` : ''}، تقویت ${fa(d.boost)}، ${bannerFa(view, card.seat, d)}${d.textFa ? `. ${d.textFa}` : ''}`;
   const body = (
     <>
@@ -150,7 +152,9 @@ function UmCard({ view, card, state, onClick, hint, small, fan, flip, from, exit
         <span className="um-card__type"><span aria-hidden="true">{TYPE_ICON[d.type]}</span> {TYPE_FA[d.type]}</span>
         {d.value !== null && <span className="um-card__value">{fa(d.value)}</span>}
       </span>
-      {!small && <CardArt type={d.type} emblem={d.form ?? (d.banner === 'sidekick' ? SIDEKICK_EMBLEM[view.heroes[card.seat] ?? ''] : undefined) ?? heroEmblem(view, card.seat)} color={heroColor(view, card.seat)} />}
+      {!small && (pic
+        ? <span className="um-card__art um-card__pic" style={pic} aria-hidden="true" />
+        : <CardArt type={d.type} emblem={d.form ?? (d.banner === 'sidekick' ? SIDEKICK_EMBLEM[view.heroes[card.seat] ?? ''] : undefined) ?? heroEmblem(view, card.seat)} color={heroColor(view, card.seat)} />)}
       <span className="um-card__name">{d.nameFa}</span>
       <span className="um-card__banner">{bannerFa(view, card.seat, d)}</span>
       {!small && d.textFa && <span className="um-card__text">{d.textFa}</span>}
