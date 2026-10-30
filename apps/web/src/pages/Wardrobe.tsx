@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { cosmetic, MAX_EMOTE_SLOTS, SLOT_FA } from '@bg/contracts';
-import { Badge, Button, Card, Chip, CosmeticTile, Icon, PageHead, StateBlock, TextField } from '@bg/ui/bgv';
+import { MAX_EMOTE_SLOTS, SLOT_FA } from '@bg/contracts';
+import { Badge, Breadcrumbs, Button, Card, Chip, CosmeticTile, Icon, PageHead, StateBlock, TextField } from '@bg/ui/bgv';
 import { faNum } from '../lib/format.ts';
 import { ItemArt, SHOP_ICON, SHOP_ITEMS, SHOP_SLOTS, useWardrobe } from '../lib/cosmeticItems.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { PageTabs } from '../shell/PageTabs.tsx';
+
+const PLURAL: Partial<Record<string, string>> = { fr: 'قاب‌ها', t: 'لقب‌ها', bn: 'بنرهای پروفایل', em: 'اموت‌ها' };
 
 /** Wardrobe: everything I can wear, per kind; one item per kind is worn at a time. */
 export function WardrobePage() {
@@ -25,31 +27,64 @@ export function WardrobePage() {
   return (
     <>
       <PageTabs group="shop" />
+      <Breadcrumbs className="app-hide-phone" items={[{ label: 'پروفایل من', href: '/me/profile' }, { label: 'کمد من' }]} />
       <PageHead title="کمد من" sub={`${faNum(mine.length)} آیتم از ${faNum(SHOP_ITEMS.length)}. هر آیتم را همین‌جا بپوشید؛ برای دیدن همه با هم به استودیو پروفایل بروید.`}
         actions={<>
           <TextField icon="search" type="search" aria-label="جستجو در کمد" placeholder="جستجو در کمد" value={q} onChange={(e) => setQ(e.target.value)} />
           <Button variant="secondary" icon="palette" href="/me/studio">استودیو پروفایل</Button><Button variant="secondary" icon="shopping-bag" href="/shop">فروشگاه</Button>
         </>} />
       <div className="pf-cats bgv-scroll-x" role="group" aria-label="دسته‌ها">
-        <Chip selected={slot === 'all'} icon="layout-grid" onClick={() => setSlot('all')}>همه ({faNum(mine.length)})</Chip>
-        {SHOP_SLOTS.map((s) => <Chip key={s} selected={slot === s} icon={SHOP_ICON[s]} onClick={() => setSlot(s)}>{SLOT_FA[s]} ({faNum(mine.filter((c) => c.slot === s).length)})</Chip>)}
+        <Chip selected={slot === 'all'} icon="layout-grid" onClick={() => setSlot('all')}>همه {faNum(mine.length)}</Chip>
+        {SHOP_SLOTS.map((s) => <Chip key={s} selected={slot === s} icon={SHOP_ICON[s]} onClick={() => setSlot(s)}>{SLOT_FA[s]} {faNum(mine.filter((c) => c.slot === s).length)}</Chip>)}
       </div>
-      <Card title={`اسلات ایموت (${faNum(w.d.loadout.emotes.length)} از ${faNum(MAX_EMOTE_SLOTS)})`} aria-label="اسلات ایموت">
-        <p className="t-body-sm bgv-muted" style={{ marginBlockStart: 0 }}>این ایموت‌ها سر میز در «پیام آماده» برای شما می‌آیند. برای افزودن یا برداشتن روی هر ایموت بزنید.</p>
-        <div className="pf-slots">
-          {Array.from({ length: MAX_EMOTE_SLOTS }, (_, i) => {
-            const c = w.d!.loadout.emotes[i] ? cosmetic(w.d!.loadout.emotes[i]!) : undefined;
-            return <span key={i} className={`pf-slot${c ? ' is-full' : ''}`} aria-label={c ? c.nameFa : 'اسلات خالی'}>{c ? <ItemArt item={c} me={w.me!} /> : null}</span>;
-          })}
-        </div>
-        <div className="bgv-row">
-          {mine.filter((c) => c.slot === 'em').map((c) => {
-            const on = w.d!.loadout.emotes.includes(c.key);
-            return <Chip key={c.key} selected={on} {...({ disabled: !on && w.d!.loadout.emotes.length >= MAX_EMOTE_SLOTS } as object)}
-              onClick={() => void w.saveLoadout({ ...w.d!.loadout, emotes: on ? w.d!.loadout.emotes.filter((k) => k !== c.key) : [...w.d!.loadout.emotes, c.key] })}>{c.nameFa}</Chip>;
-          })}
-        </div>
-      </Card>
+      <div className="pf-wgrid">
+      {slots.map((s) => {
+        const items = mine.filter((c) => c.slot === s && match(c.nameFa));
+        const total = SHOP_ITEMS.filter((c) => c.slot === s).length;
+        return (
+          <Card key={s} className={`pf-w--${s}`} title={PLURAL[s] ?? SLOT_FA[s]} aria-label={PLURAL[s] ?? SLOT_FA[s]} actions={<span className="t-caption bgv-muted">{faNum(items.length)} آیتم</span>}>
+            {items.length === 0
+              ? <StateBlock kind="empty" title="چیزی پیدا نشد" action={<Button variant="secondary" href="/shop">دیدن فروشگاه</Button>} />
+              : (
+                s === 't' ? (
+                  <ul className="pf-titles">{items.map((c) => (
+                    <li key={c.key}>
+                      <span className="ac-row__text"><b>{c.nameFa}</b><span>{w.reason(c)}</span></span>
+                      {w.isEquipped(c) ? <Badge tone="you" size="sm" icon="check">پوشیده</Badge>
+                        : <Button size="sm" variant="secondary" loading={busy === c.key} onClick={async () => { setBusy(c.key); try { await w.equip(c); } finally { setBusy(undefined); } }}>بپوش</Button>}
+                    </li>))}</ul>
+                ) :
+                <div className={`pf-tiles pf-tiles--${s}`}>
+                  {items.map((c) => {
+                    // Emotes are not worn one at a time: a tap puts one in a free slot or takes it out (four slots at the table).
+                    if (s === 'em') {
+                      const at = w.d!.loadout.emotes.indexOf(c.key);
+                      const full = at < 0 && w.d!.loadout.emotes.length >= MAX_EMOTE_SLOTS;
+                      return (
+                        <button key={c.key} type="button" className={`bgv-cosm${at >= 0 ? ' is-equipped' : ''}`} aria-pressed={at >= 0} disabled={full}
+                          onClick={() => void w.saveLoadout({ ...w.d!.loadout, emotes: at >= 0 ? w.d!.loadout.emotes.filter((k) => k !== c.key) : [...w.d!.loadout.emotes, c.key] })}>
+                          <span className="bgv-cosm__art"><ItemArt item={c} me={w.me!} /></span>
+                          <span className="bgv-cosm__name">{c.nameFa}</span>
+                          <span className="bgv-cosm__state">{at >= 0 ? `اسلات ${faNum(at + 1)}` : 'آزاد'}</span>
+                        </button>
+                      );
+                    }
+                    return (
+                      <CosmeticTile key={c.key} name={c.nameFa} state={busy === c.key ? 'trying' : w.stateOf(c) === 'equipped' ? 'equipped' : 'owned'}
+                        art={<ItemArt item={c} me={w.me!} />}
+                        onClick={async () => { if (w.isEquipped(c)) return; setBusy(c.key); try { await w.equip(c); } finally { setBusy(undefined); } }} />
+                    );
+                  })}
+                  {s === 'fr' && total > items.length && !q && (
+                    <a className="bgv-cosm pf-moretile" href="/shop"><span className="bgv-cosm__art"><Icon name="shopping-bag" /></span><b className="bgv-cosm__name">قاب‌های بیشتر</b><span className="bgv-cosm__state">{faNum(total - items.length)} قاب دیگر</span></a>
+                  )}
+                </div>
+              )}
+            {s === 'em' && <p className="t-caption bgv-muted" style={{ margin: 'var(--space-3) 0 0' }}>{faNum(MAX_EMOTE_SLOTS)} اموت در اسلات‌ها سر میز در دسترس‌اند؛ برای جابه‌جایی روی هر اموت بزنید.</p>}
+          </Card>
+        );
+      })}
+      </div>
       <Card title="رنگ صندلی محبوب" aria-label="رنگ صندلی محبوب">
         <p className="t-body-sm bgv-muted" style={{ marginBlockStart: 0 }}>سر میز صندلی خودتان را با این رنگ می‌بینید (بقیه رنگ صندلی شما را طبق جای نشستن می‌بینند).</p>
         <div className="pf-seatcolors" role="radiogroup" aria-label="رنگ صندلی">
@@ -61,38 +96,6 @@ export function WardrobePage() {
           ))}
         </div>
       </Card>
-      <div className="pf-wgrid">
-      {slots.map((s) => {
-        const items = mine.filter((c) => c.slot === s && match(c.nameFa));
-        const total = SHOP_ITEMS.filter((c) => c.slot === s).length;
-        return (
-          <Card key={s} className={s === 'fr' || s === 'bn' ? 'pf-wwide' : undefined} title={SLOT_FA[s]} aria-label={SLOT_FA[s]} actions={<span className="t-caption bgv-muted">{faNum(items.length)} آیتم</span>}>
-            {items.length === 0
-              ? <StateBlock kind="empty" title="چیزی پیدا نشد" action={<Button variant="secondary" href="/shop">دیدن فروشگاه</Button>} />
-              : (
-                s === 't' ? (
-                  <ul className="pf-titles">{items.map((c) => (
-                    <li key={c.key}>
-                      <span className="ac-row__text"><b>{c.nameFa}</b><span>{w.reason(c)}</span></span>
-                      {w.isEquipped(c) ? <Badge tone="success" size="sm" icon="check">فعلی</Badge>
-                        : <Button size="sm" variant="ghost" loading={busy === c.key} onClick={async () => { setBusy(c.key); try { await w.equip(c); } finally { setBusy(undefined); } }}>انتخاب</Button>}
-                    </li>))}</ul>
-                ) :
-                <div className={`pf-tiles pf-tiles--${s}`}>
-                  {items.map((c) => (
-                    <CosmeticTile key={c.key} name={c.nameFa} state={busy === c.key ? 'trying' : w.stateOf(c) === 'equipped' ? 'equipped' : 'owned'} rarity={w.rarity(c)}
-                      art={<ItemArt item={c} me={w.me!} />}
-                      onClick={async () => { if (w.isEquipped(c)) return; setBusy(c.key); try { await w.equip(c); } finally { setBusy(undefined); } }} />
-                  ))}
-                </div>
-              )}
-            {items.length > 0 && total > items.length && !q && (s === 'fr'
-              ? <a className="pf-moretile" href="/shop"><Icon name="plus" /><b>قاب‌های بیشتر</b><span>{faNum(total - items.length)} قاب دیگر</span></a>
-              : <p className="t-caption bgv-muted">{faNum(total - items.length)} آیتم دیگر در فروشگاه یا با پیشرفت باز می‌شود.</p>)}
-          </Card>
-        );
-      })}
-      </div>
     </>
   );
 }
