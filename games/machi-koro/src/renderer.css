@@ -49,3 +49,6 @@
 
 @keyframes mk-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .mk * { animation: none !important; transition: none !important; } }
+
+/* v2: building pictures are the printed card art (rectangles), so give them card corners */
+.mk-card__art, .mk-lm img { block-size: auto; aspect-ratio: 256 / 180; object-fit: cover; border-radius: 6px; }

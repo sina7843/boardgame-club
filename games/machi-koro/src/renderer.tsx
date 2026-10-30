@@ -1,5 +1,6 @@
 // شهر تاس renderer: a toy-town board. Dice tumble in the middle; the supply row shows every establishment with its
 // numbers, colour and price; each player's street lists their cards, coins and the four landmarks (lit when built).
+// Building pictures are the printed Machi Koro card art (from github.com/Color-Kat/machicoro, see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';

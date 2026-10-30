@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CARDS, KINGDOM, type CardId, type DomView } from './rules.ts';
 
-// Art is cut from a generated sprite sheet (see DECISIONS.md).
+// Card art is the printed Dominion 2nd-edition illustration of each card (scans from github.com/connorburt/dominion-cards,
+// see DECISIONS.md); card back, coin and VP icons stay from a generated sprite sheet.
 import copperArt from './art/copper.webp';
 import silverArt from './art/silver.webp';
 import goldArt from './art/gold.webp';

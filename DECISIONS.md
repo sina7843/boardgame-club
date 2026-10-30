@@ -1474,3 +1474,8 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
   cropped to the picture, clear of printed icons and name). Our card ids are the printed numbers, so each card gets its
   own photo. Brass: cotton, manufacturer, coal, iron, canal, rail and merchant pictures are BGA icons; pottery, brewery,
   beer and our map stay. Not changed: For Sale (BGA client art holds only box art and backs).
+- Beyond BGA (2026-10-30, owner: "search the whole internet"): Dominion card art is the printed 2nd-edition illustration
+  of each base card (scans from github.com/connorburt/dominion-cards; actions cropped to the picture window, treasures
+  and victory cards below their printed value). Machi Koro buildings and landmarks are the printed card art from
+  github.com/Color-Kat/machicoro, cropped between the (Russian) name and effect text. The Dominion Strategy wiki sits
+  behind a bot challenge, so it was not used.
