@@ -13,7 +13,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 import { CopyProfileLink } from './MyProfile.tsx';
 import { MessageMenu } from '../social/ChatPanel.tsx';
-import { InviteCard, referralUrl, rewardFa, useCopy, type Referral } from '../social/InviteCard.tsx';
+import { referralUrl, rewardFa, useCopy, type Referral } from '../social/InviteCard.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 const phoneMq = '(max-width: 899px)';
@@ -268,13 +268,15 @@ export function FriendsPage() {
   );
 }
 
-export function ProfilePage() {
+/** A player's profile. `/me/profile` renders the same page for oneself with `own` (Profile-Own-Desktop): completeness card and shortcuts in `extra`. */
+export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boolean; extra?: ReactNode } = {}) {
   const phone = usePhone();
-  const { id = '' } = useParams();
+  const params = useParams();
+  const id = userId ?? params.id ?? '';
   const card = useApi<ProfileCard>(`/users/${id}/card`);
   const ach = useApi<{ level: number; items: { key: string; titleFa: string; tier: TrophyTier }[] }>(`/users/${id}/achievements`);
   const gameList = useApi<{ items: { id: string; nameFa: string }[] }>(card.data?.favoriteGames.length ? '/games' : null);
-  usePageTitle(card.data?.displayName ?? 'پروفایل');
+  usePageTitle(own ? 'پروفایل من' : card.data?.displayName ?? 'پروفایل');
   const navigate = useNavigate();
   const toast = useToast();
   const act = useAct(card.reload);
@@ -296,9 +298,8 @@ export function ProfilePage() {
   const self = u.relationship === 'self';
   const actions = <>
           {self && <>
-            <Button variant="primary" icon="palette" href="/me/avatar">ساخت آواتار</Button>
-            <Button variant="secondary" icon="pencil" href="/me/profile">ویرایش پروفایل</Button>
-            <Button variant="secondary" icon="palette" href="/me/studio">استودیو و کمد</Button>
+            <Button variant="secondary" icon="pencil" href={own ? '#profile-edit' : '/me/profile'}>ویرایش پروفایل</Button>
+            {own && <Button variant="secondary" icon="eye" href={`/users/${u.id}`}>نمای عمومی</Button>}
           </>}
           {u.relationship === 'none' && <Button variant="primary" icon="user-plus" onClick={() => act('/friends/requests', 'POST', { userId: u.id }, 'درخواست دوستی فرستاده شد.')}>افزودن دوست</Button>}
           {u.relationship === 'incoming' && <Button variant="primary" onClick={() => act(`/friends/requests/${u.id}/accept`, 'POST')}>پذیرش دوستی</Button>}
@@ -321,7 +322,8 @@ export function ProfilePage() {
   const show = (t: typeof ptab) => !phone || ptab === t;
   return (
     <>
-      {!phone && !self && <Breadcrumbs items={[{ label: 'پیام‌ها و دوستان', href: '/messages' }, { label: 'دوستان', href: '/friends' }, { label: u.displayName }]} />}
+      {!phone && (own ? <Breadcrumbs items={[{ label: 'خانه', href: '/' }, { label: 'پروفایل من' }]} />
+        : !self && <Breadcrumbs items={[{ label: 'پیام‌ها و دوستان', href: '/messages' }, { label: 'دوستان', href: '/friends' }, { label: u.displayName }]} />)}
       {phone ? (
         <section className="pf-mhead" aria-label={u.displayName}>
           <span className="pf-mhead__bn">{bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : null}</span>
@@ -360,6 +362,7 @@ export function ProfilePage() {
         actions={actions}>
         {u.bio && <p dir="auto" className="t-body">{u.bio}</p>}
       </ProfileHead>}
+      {extra}
       {u.relationship !== 'blocked' && u.stats === null && u.recent === null && u.ratings === null && !self && (
         <p className="t-body-sm bgv-muted" role="status">این بازیکن آمار و سابقهٔ بازی خود را نمایش نمی‌دهد.</p>
       )}
@@ -457,7 +460,6 @@ export function ProfilePage() {
           )}
         </aside>
       </div>
-      {self && <InviteCard />}
       {report && <ReportDialog targetType={report} targetId={u.id} label={u.displayName} onClose={() => setReport(null)} />}
     </>
   );

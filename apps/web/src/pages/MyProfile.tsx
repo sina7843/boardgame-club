@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { avatarKeys, cosmetic, displayNameSchema, parseAvatar, type Me } from '@bg/contracts';
+import { avatarKeys, displayNameSchema, parseAvatar, type Me } from '@bg/contracts';
 import { useToast } from '@bg/ui';
-import { Avatar, Button, Card, Chip, Icon, ListItem, PageHead, ProfileHead, Progress, StateBlock, TextField } from '@bg/ui/bgv';
+import { Avatar, Button, Card, Chip, Icon, Progress, StateBlock, TextField } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { AVATAR_FA, faNum, jalaliDate } from '../lib/format.ts';
@@ -9,6 +9,7 @@ import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ProfileEditor } from './ProfileEditor.tsx';
 import { InviteCard } from '../social/InviteCard.tsx';
+import { ProfilePage } from './People.tsx';
 
 /** Copies the public profile URL; if the clipboard is blocked, the toast shows the link so it can be copied by hand. */
 export function CopyProfileLink({ userId, size = 'md' }: { userId: string; size?: 'sm' | 'md' }) {
@@ -73,35 +74,39 @@ const COMPLETE: [string, (m: Me) => boolean][] = [
   ['ویترین جام‌ها', (m) => m.showcase.length > 0]
 ];
 
-function Overview({ me }: { me: Me }) {
-  const id = userIdentity(me);
+/** Profile-Own-Desktop: how complete the profile is (one chip per item) beside six shortcuts. */
+function OwnExtras({ me }: { me: Me }) {
   const missing = COMPLETE.filter(([, ok]) => !ok(me)).map(([label]) => label);
   const done = COMPLETE.length - missing.length;
-  const bannerCss = me.bannerKey && me.bannerKey !== 'bn.0' ? cosmetic(me.bannerKey)?.css : undefined;
+  const tiles: [string, string, string, string][] = [
+    ['palette', 'استودیو پروفایل', 'قاب، لقب، بنر و ویترین', '/me/studio'], ['smile', 'ساخت آواتار', 'چهره، مو و لباس', '/me/avatar'],
+    ['shirt', 'کمد من', 'آیتم‌های میز و چت', '/me/wardrobe'], ['shopping-bag', 'فروشگاه کازمتیک', 'خرید با سکه', '/shop'],
+    ['trophy', 'پیشرفت و رتبه', 'سطح، مأموریت‌ها و دستاوردها', '/progress'], ['settings', 'تنظیمات حساب', 'حریم خصوصی، اعلان‌ها، دستگاه‌ها', '/settings']
+  ];
   return (
-    <>
-      <ProfileHead name={<bdi>{me.displayName}</bdi>} initials={id.initials} avatar={{ ...id.avatar, name: `آواتار ${me.displayName}` }} title={id.title}
-        bannerArt={bannerCss ? <div className="pf-bn" style={{ '--bn': bannerCss } as React.CSSProperties} /> : undefined}
-        meta={[`عضو از ${jalaliDate(me.joinedAt)}`]}
-        actions={<><Button variant="ghost" icon="eye" href={`/users/${me.id}`}>دیدن پروفایل</Button><CopyProfileLink userId={me.id} /></>} />
-      {missing.length > 0 && (
-        <Card className="bgv-stack" aria-label="کامل کردن پروفایل">
-          <Progress value={done / COMPLETE.length} label="پروفایل شما" valueText={`${faNum(done)} از ${faNum(COMPLETE.length)} کامل`} tone="invite" />
-          <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>مانده: {missing.join('، ')}</p>
-          <div><Button size="sm" variant="primary" icon="palette" href="/me/studio">کامل کردن در استودیو</Button></div>
-        </Card>
-      )}
-      <Card flush aria-label="بخش‌های پروفایل">
-        <ListItem icon="palette" title="استودیو پروفایل" sub="آواتار، قاب، لقب، بنر، ویترین" href="/me/studio" trailing={<Icon name="chevron-left" />} />
-        <ListItem icon="shirt" title="کمد" sub="آیتم‌های میز و چت" href="/me/wardrobe" trailing={<Icon name="chevron-left" />} />
-        <ListItem icon="shopping-bag" title="فروشگاه" sub="خرید با سکه" href="/shop" trailing={<Icon name="chevron-left" />} />
-        <ListItem icon="trophy" title="پیشرفت" sub="سطح، مأموریت‌ها و دستاوردها" href="/progress" trailing={<Icon name="chevron-left" />} />
-      </Card>
-    </>
+    <div className="pf-own">
+      <section className="bgv-card pf-pcard" aria-labelledby="complete-h">
+        <div className="bgv-row"><h2 id="complete-h" className="pf-h2">{missing.length ? `پروفایل شما ${faNum(done)} از ${faNum(COMPLETE.length)} کامل است` : 'پروفایل شما کامل است'}</h2>
+          {missing.length > 0 && <Button size="sm" variant="secondary" href="/me/studio">تکمیل {missing[0]}</Button>}</div>
+        <Progress aria-label="کامل بودن پروفایل" value={done / COMPLETE.length} />
+        <div className="bgv-chips">{COMPLETE.map(([label, ok]) => (
+          <Chip key={label} size="sm" selected={false} icon={ok(me) ? 'check' : undefined} href={ok(me) ? undefined : '/me/studio'}>{label}</Chip>
+        ))}</div>
+      </section>
+      <nav className="bgv-card pf-owntiles" aria-label="بخش‌های پروفایل">
+        {tiles.map(([icon, title, sub, href]) => (
+          <a key={href} href={href} className="pf-owntile">
+            <span className="ac-tile"><Icon name={icon} /></span>
+            <span className="pf-mrow__text"><b>{title}</b><span className="t-caption bgv-muted">{sub}</span></span>
+            <Icon name="chevron-left" />
+          </a>
+        ))}
+      </nav>
+    </div>
   );
 }
 
-/** My profile: identity (name, avatar) and public customization, separate from device and privacy settings. */
+/** My profile (Profile-Own-Desktop): the public profile as others see it, plus completeness and shortcuts; editing below. */
 export function MyProfile() {
   usePageTitle('پروفایل من');
   const { me, status } = useSession();
@@ -109,13 +114,13 @@ export function MyProfile() {
   if (!me) return <StateBlock kind="denied" title="برای ویرایش پروفایل وارد شوید" action={<Button variant="primary" href="/login?next=/me/profile">ورود</Button>} />;
   return (
     <>
-      <PageHead title="پروفایل من" sub="آنچه دیگران در صفحهٔ پروفایل شما می‌بینند." />
-      <div className="bgv-stack">
-        <Overview me={me} />
+      <ProfilePage userId={me.id} own extra={<OwnExtras me={me} />} />
+      <section id="profile-edit" className="bgv-stack" aria-labelledby="edit-h">
+        <h2 id="edit-h" className="pf-h2">ویرایش پروفایل</h2>
         <Card title="نام و آواتار" aria-label="نام و آواتار"><ProfileForm me={me} /></Card>
         <InviteCard />
         <ProfileEditor me={me} />
-      </div>
+      </section>
     </>
   );
 }

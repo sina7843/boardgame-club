@@ -146,6 +146,19 @@
 .pf-fav { display: flex; align-items: center; gap: var(--space-3); color: inherit; text-decoration: none; }
 .pf-fav > img { inline-size: 104px; block-size: 58px; object-fit: cover; border-radius: var(--radius-sm); flex: none; }
 .pf-mutual { display: flex; align-items: center; gap: var(--space-3); }
+/* Profile-Own-Desktop: completeness card beside a 2 × 3 grid of shortcuts. */
+.pf-own { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--space-6); align-items: start; }
+.pf-own .bgv-chip { text-decoration: none; }
+.pf-owntiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0; overflow: hidden; }
+.pf-owntile { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); color: inherit; text-decoration: none; border-block-end: 1px solid var(--line); }
+.pf-owntile:nth-child(odd) { border-inline-end: 1px solid var(--line); }
+.pf-owntile:nth-last-child(-n + 2) { border-block-end: 0; }
+@media (max-width: 899px) {
+  .pf-own { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  .pf-owntiles { grid-template-columns: minmax(0, 1fr); }
+  .pf-owntile:nth-child(odd) { border-inline-end: 0; }
+  .pf-owntile:nth-last-child(2) { border-block-end: 1px solid var(--line); }
+}
 /* Profile-Public-Mobile head: full-bleed banner, centred avatar and name, actions row, stats card, tabs. */
 .pf-mhead { display: grid; gap: var(--space-3); }
 .pf-mhead__bn { display: block; position: relative; overflow: hidden; block-size: 112px; margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0; background: var(--felt); }
