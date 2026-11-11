@@ -1528,3 +1528,10 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Game page: rules summary (first four sections) with «قوانین کامل»; the design's «نمای بازی» preview card needs per-game screenshots that do not exist yet, so it is left out.
 - Catalog: competition and access selects removed (not in the design; ranked play starts from quick match).
 - Notifications: five switches; «خلاصهٔ روزانه» from the design has no backend, so quiet hours take its place.
+
+## Design system v2.2 handoff (2026-11-11, owner request)
+- `BGV-DesignSystem-Handoff-v2.2/repo` compared file by file with the repo. `design/system`, `design/reference`, `apps/web/public` and the `packages/ui/src/bgv` copies (tokens.css, bundle.css, bgv.js/bgv.d.ts with `Chip size="lg"`, reference/) were already identical (owner's copy). Taken from the handoff: version-bumped docs (`design/README.md`, `CLAUDE.design-system.md`, `DECISIONS.md`, `IMPLEMENTATION-PLAN.md`, `MIGRATION-v1.6-to-v2.1.md`, `LINKS.md`, `START-HERE.md`) and `.claude/skills/bgv-design-system/SKILL.md`. Kept ours: `e2e/design-qa.spec.ts` and `scripts/ds-qa-report.mjs` (local live-table extensions), `design/ds.config.json` except step 3 below.
+- Migration steps: `python scripts/home-ref-css.py` regenerated `apps/web/src/styles/home-ref.css` from the tokenized v2.2 home references; its line was removed from `exclude` in `design/ds.config.json`; `ds-check --strict` on it: 0 errors, 0 warnings.
+- Home category rows are `Chip size="lg"` (old `cx-d-pill`/`cx-e-cat` gone). «زنده الان» stays a link to /tables with the same chip classes written by hand, because `Chip`'s `icon` prop cannot draw the live dot; `a.bgv-chip` gets no underline (home.css). Member home shows counts only on «همه» and «زنده الان», like the reference.
+- Game name «ترافورمینگ مارس» (was «تررافورمینگ») in `games/terraforming-mars/src/definition.ts`, its renderer.css comment and `e2e/terraforming-mars.spec.ts`.
+- Raw handoff folder ignored in `.gitignore`, like v2.1. `design/install.mjs` not run (hooks conflict with CLAUDE.md, same as v2.1).

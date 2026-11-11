@@ -1,8 +1,9 @@
-# design/ — BGV design system handoff (v2.1.13, «printed token», site header, navy/amber)
+# design/ — BGV design system handoff (v2.2, «printed token», site header, navy/amber, tokenized home CSS)
 
 | Path | What |
 |---|---|
 | `CLAUDE.design-system.md` | The rules. Imported into `CLAUDE.md` by `install.mjs`; Claude Code always follows it. |
+| `MIGRATION-v2.1-to-v2.2.md` | **Start here if you have v2.1:** 12 new shadow tokens + `--radius-box`, `Chip size="lg"`, the six home reference files and the `home-ref.css` steps. |
 | `MIGRATION-v1.6-to-v2.1.md` | **Start here if you used v1.6:** new/removed components, the 72 new and 11 removed `bgv-*` classes, token changes, new/removed screens, Gaia split. |
 | `IMPLEMENTATION-PLAN.md` | Phases 0–7 with checklists and the screen list per route (generated from `reference/screens.json`). |
 | `MIGRATION-MAP.md` | Old VibeFarsi tokens/files → BGV tokens/files. |
@@ -19,7 +20,7 @@
 | `claude-hooks.json`, `install.mjs` | Claude Code hooks + installer. |
 | `qa/` | Output of `/bgv-qa` (only `VERDICT.md` is kept in git). |
 
-Not in this package: the Gaia Project table (`design/games/gaia-project/`) ships in `BGV-Gaia-Handoff-v1.4.zip`.
+Not in this package: the Gaia Project table (`design/games/gaia-project/`) ships in `BGV-Gaia-Handoff-v1.5.zip`.
 
 Tools outside this folder: `scripts/ds-check.mjs` (static guard, also the hook; DS016 = retired v1.6 classes), `e2e/design-qa.spec.ts`
 (live capture + DOM audit), `scripts/ds-qa-report.mjs` (side-by-side report), `.claude/` (skill `bgv-design-system`, commands

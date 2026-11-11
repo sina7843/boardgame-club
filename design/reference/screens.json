@@ -1,11 +1,11 @@
 {
- "version": "2.1",
- "generated": "2026-10-28",
+ "version": "2.2",
+ "generated": "2026-10-30",
  "source": {
   "pages": "https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier",
-  "pagesVersion": "1793197822-aab1",
+  "pagesVersion": "1793364682-ef83",
   "designSystem": "https://claude.ai/artifact/3DPEkKeSg5PfZjphyRMMCu",
-  "designSystemVersion": "1793112049-9637"
+  "designSystemVersion": "1793364705-4605"
  },
  "pages": {
   "concept": "کانسپت‌ها و مشخصات ساختار (v2.1)",
@@ -17,7 +17,7 @@
   "account": "اجتماعی، کیف پول و حساب"
  },
  "excluded": {
-  "gaia": "The canvas page «۱۲. پایلوت BGA: پروژه گایا» (gaia/*) ships separately in Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip → design/games/gaia-project."
+  "gaia": "The canvas page «۱۲. پایلوت BGA: پروژه گایا» (gaia/*) ships separately in Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip → design/games/gaia-project."
  },
  "removedSince1.6": [
   "Alert-Settings-Mobile",
@@ -153,7 +153,7 @@
    "capture": "manual",
    "canvasPage": "table",
    "supersededBy": "design/games/gaia-project",
-   "note": "Superseded by the BGA-style Gaia pilot (Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip). Kept only as the v2.0 HUD-frame reference; do not QA the live Gaia table against it."
+   "note": "Superseded by the BGA-style Gaia pilot (Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip). Kept only as the v2.0 HUD-frame reference; do not QA the live Gaia table against it."
   },
   {
    "id": "Hud-Gaia-PlayerSheet-Mobile",
@@ -174,7 +174,7 @@
    "capture": "manual",
    "canvasPage": "table",
    "supersededBy": "design/games/gaia-project",
-   "note": "Superseded by the BGA-style Gaia pilot (Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip). Kept only as the v2.0 HUD-frame reference; do not QA the live Gaia table against it."
+   "note": "Superseded by the BGA-style Gaia pilot (Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip). Kept only as the v2.0 HUD-frame reference; do not QA the live Gaia table against it."
   },
   {
    "id": "Hud-Gaia-Desktop",
@@ -199,7 +199,7 @@
    "capture": "manual",
    "canvasPage": "table",
    "supersededBy": "design/games/gaia-project",
-   "note": "Superseded by the BGA-style Gaia pilot (Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip). Kept only as the v2.0 HUD-frame reference; do not QA the live Gaia table against it."
+   "note": "Superseded by the BGA-style Gaia pilot (Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip). Kept only as the v2.0 HUD-frame reference; do not QA the live Gaia table against it."
   },
   {
    "id": "Hud-Catan-Mobile",
@@ -2431,7 +2431,9 @@
    ],
    "html": "reference/html/play/Home-Member.html",
    "capture": "auto",
-   "canvasPage": "shell"
+   "canvasPage": "shell",
+   "changed": "2.2",
+   "note": "v2.2: <style> tokenized (v2.2 shadow tokens, --radius-box, --z-felt); the dev team builds home-ref.css from this file."
   },
   {
    "id": "Home-Member-Phone",
@@ -2450,7 +2452,9 @@
    ],
    "html": "reference/html/play/Home-Member-Phone.html",
    "capture": "auto",
-   "canvasPage": "shell"
+   "canvasPage": "shell",
+   "changed": "2.2",
+   "note": "v2.2: <style> tokenized (v2.2 shadow tokens, --radius-box, --z-felt); the dev team builds home-ref.css from this file."
   },
   {
    "id": "Home-Member-Dark",
@@ -2474,7 +2478,9 @@
    "html": "reference/html/play/Home-Member-Dark.html",
    "capture": "auto",
    "canvasPage": "shell",
-   "new": "2.1"
+   "new": "2.1",
+   "changed": "2.2",
+   "note": "v2.2: <style> tokenized (v2.2 shadow tokens, --radius-box, --z-felt); the dev team builds home-ref.css from this file."
   },
   {
    "id": "Home-Member-Phone-Dark",
@@ -2494,7 +2500,9 @@
    "html": "reference/html/play/Home-Member-Phone-Dark.html",
    "capture": "auto",
    "canvasPage": "shell",
-   "new": "2.1"
+   "new": "2.1",
+   "changed": "2.2",
+   "note": "v2.2: <style> tokenized (v2.2 shadow tokens, --radius-box, --z-felt); the dev team builds home-ref.css from this file."
   },
   {
    "id": "Home-Guest",
@@ -2517,7 +2525,9 @@
    ],
    "html": "reference/html/play/Home-Guest.html",
    "capture": "auto",
-   "canvasPage": "shell"
+   "canvasPage": "shell",
+   "changed": "2.2",
+   "note": "v2.2: <style> tokenized (v2.2 shadow tokens, --radius-box, --z-felt); the dev team builds home-ref.css from this file."
   },
   {
    "id": "Home-Guest-Phone",
@@ -2536,7 +2546,9 @@
    ],
    "html": "reference/html/play/Home-Guest-Phone.html",
    "capture": "auto",
-   "canvasPage": "shell"
+   "canvasPage": "shell",
+   "changed": "2.2",
+   "note": "v2.2: <style> tokenized (v2.2 shadow tokens, --radius-box, --z-felt); the dev team builds home-ref.css from this file."
   },
   {
    "id": "Messages-Guest-Mobile",

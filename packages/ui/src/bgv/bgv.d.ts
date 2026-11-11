@@ -80,9 +80,9 @@ export interface ChipProps extends BaseProps {
   variant?: 'default' | 'invite';
   /** Selected filter chip (primary fill, aria-pressed). */
   selected?: boolean;
-  /** sm 28px, md 36px. */
-  size?: 'sm' | 'md';
-  /** Leading 16px icon. */
+  /** sm 28px, md 36px, lg 52px (48px under 900px) with the icon in a 36px disc, for category rows. */
+  size?: 'sm' | 'md' | 'lg';
+  /** Leading icon: 16px; in lg a 20px icon inside the `bgv-chip__ic` disc. */
   icon?: IconName;
   /** Muted count after the label. */
   count?: number;
@@ -100,7 +100,7 @@ export interface ChipGroupProps extends BaseProps {
   onChange?: (value: string | string[]) => void;
   /** One horizontally scrolling row instead of wrapping. */
   scroll?: boolean;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   /** Group accessible name. */
   label?: string;
   children?: Node;

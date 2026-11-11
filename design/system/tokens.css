@@ -1,4 +1,4 @@
-/* بردگیم‌ورس — دیزاین سیستم 2.1 — generated from tokens.json */
+/* بردگیم‌ورس — دیزاین سیستم 2.2 — generated from tokens.json */
 @font-face { font-family: "Vazirmatn"; src: url("fonts/Vazirmatn-Variable.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
 @font-face { font-family: "Manrope"; src: url("fonts/Manrope-Variable-latin.woff2") format("woff2"); font-weight: 200 800; font-style: normal; font-display: swap; }
 :root, [data-theme="light"] {
@@ -139,6 +139,18 @@
   --shadow-float: 0 6px 0 rgba(20,43,59,0.14);
   --shadow-felt: inset 0 4px 0 rgba(0,0,0,0.22), 0 6px 0 #142B3B;
   --shadow-piece: 0 3px 0 rgba(0,0,0,0.45);
+  --shadow-ring: inset 0 0 0 1px var(--line);
+  --shadow-ring-felt: inset 0 0 0 1px var(--felt-line);
+  --shadow-ring-strong: inset 0 0 0 2px var(--heading);
+  --shadow-gap: 0 0 0 2px var(--surface);
+  --shadow-gap-felt: 0 0 0 2px var(--felt);
+  --shadow-halo-danger: 0 0 0 3px var(--danger-soft);
+  --shadow-halo-success: 0 0 0 3px var(--success-soft);
+  --shadow-box-sm: 0 3px 0 rgba(0,0,0,0.45), 0 16px 20px -12px #172C3A;
+  --shadow-box-md: 0 3px 0 rgba(0,0,0,0.45), 0 26px 30px -16px #172C3A;
+  --shadow-box-lg: 0 3px 0 rgba(0,0,0,0.45), 0 30px 34px -14px #172C3A;
+  --shadow-housebox: inset -10px 0 0 rgba(0,0,0,0.22), 0 16px 14px -6px rgba(20,43,59,0.35);
+  --shadow-housebox-sm: inset -5px 0 0 rgba(0,0,0,0.22), 0 6px 6px -3px rgba(20,43,59,0.35);
 }
 [data-theme="dark"] {
   --brand-green: #142B3B;
@@ -278,6 +290,18 @@
   --shadow-float: 0 6px 0 rgba(0,0,0,0.5);
   --shadow-felt: inset 0 4px 0 rgba(0,0,0,0.3), 0 6px 0 #0A141B;
   --shadow-piece: 0 3px 0 rgba(0,0,0,0.5);
+  --shadow-ring: inset 0 0 0 1px var(--line);
+  --shadow-ring-felt: inset 0 0 0 1px var(--felt-line);
+  --shadow-ring-strong: inset 0 0 0 2px var(--heading);
+  --shadow-gap: 0 0 0 2px var(--surface);
+  --shadow-gap-felt: 0 0 0 2px var(--felt);
+  --shadow-halo-danger: 0 0 0 3px var(--danger-soft);
+  --shadow-halo-success: 0 0 0 3px var(--success-soft);
+  --shadow-box-sm: 0 3px 0 rgba(0,0,0,0.5), 0 16px 20px -12px rgba(5,12,17,0.55);
+  --shadow-box-md: 0 3px 0 rgba(0,0,0,0.5), 0 26px 30px -16px rgba(5,12,17,0.55);
+  --shadow-box-lg: 0 3px 0 rgba(0,0,0,0.5), 0 30px 34px -14px rgba(5,12,17,0.55);
+  --shadow-housebox: inset -10px 0 0 rgba(0,0,0,0.22), 0 16px 14px -6px rgba(0,0,0,0.4);
+  --shadow-housebox-sm: inset -5px 0 0 rgba(0,0,0,0.22), 0 6px 6px -3px rgba(0,0,0,0.4);
 }
 :root {
   --space-0_5: 2px;
@@ -293,6 +317,7 @@
   --space-16: 64px;
   --space-20: 80px;
   --radius-xs: 4px;
+  --radius-box: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { motionLog, player, recordMotion } from './helpers.ts';
 
-// «تررافورمینگ مارس» end to end: the tutorial (the last generation: titanium payment, heat → temperature, an aquifer
+// «ترافورمینگ مارس» end to end: the tutorial (the last generation: titanium payment, heat → temperature, an aquifer
 // ocean, a greenery next to a city, a milestone, the final scoring) by following the highlighted hints, and a full
 // two-player game to the result where both clients raise the global parameters through the standard projects.
 test.describe.configure({ mode: 'serial', timeout: 2_400_000 });

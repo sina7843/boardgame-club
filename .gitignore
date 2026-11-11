@@ -81,6 +81,7 @@ pnpm-debug.log*
 # Original BGV design-system handoff drop (its content lives in design/)
 BGV-DesignSystem-Handoff/
 BGV-DesignSystem-Handoff-v2.1/
+BGV-DesignSystem-Handoff-v2.2/
 # Gaia handoff drop (its content lives in design/games/gaia-project) and its local test output
 BGV-Gaia-Handoff-v1/
 test-results*/

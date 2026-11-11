@@ -2,9 +2,9 @@
 
 | چه | لینک | توضیح |
 |---|---|---|
-| دیزاین سیستم BGV v2.1.13 (۱۰۰ کامپوننت، توکن‌ها، مستندات، دارایی‌های برند) | https://claude.ai/artifact/3DPEkKeSg5PfZjphyRMMCu | نسخهٔ زنده؛ کپی آفلاین این بسته از نسخهٔ `1793112049-9637` در `repo/design/system` است |
-| صفحه‌های طراحی‌شده (۱۳۴ آرت‌بورد در ۱۲ صفحه؛ ۱۲۲ تای آن‌ها در این بسته) | https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier | کپی آفلاین از نسخهٔ `1793197822-aab1`: `repo/design/reference` (PNG در هر عرض + HTML دقیق هر صفحه). صفحهٔ «۱۲. پایلوت BGA: پروژه گایا» جدا تحویل شده است (پایین). |
-| پروژه گایا، بستهٔ جدا | `Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip` | ← `repo/design/games/gaia-project/`، دستورهای `/bgv-gaia-implement` و `/bgv-gaia-qa` |
+| دیزاین سیستم BGV v2.2 (۱۰۰ کامپوننت، توکن‌ها، مستندات، دارایی‌های برند) | https://claude.ai/artifact/3DPEkKeSg5PfZjphyRMMCu | نسخهٔ زنده؛ کپی آفلاین این بسته از نسخهٔ `1793364705-4605` در `repo/design/system` است |
+| صفحه‌های طراحی‌شده (۱۷۱ آرت‌بورد در ۱۶ صفحه، با پایلوت‌های بازی؛ ۱۲۲ تای آن‌ها در این بسته) | https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier | کپی آفلاین از نسخهٔ `1793364682-ef83`: `repo/design/reference` (PNG در هر عرض + HTML دقیق هر صفحه). صفحهٔ «۱۲. پایلوت BGA: پروژه گایا» جدا تحویل شده است (پایین). |
+| پروژه گایا، بستهٔ جدا | `Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip` | ← `repo/design/games/gaia-project/`، دستورهای `/bgv-gaia-implement` و `/bgv-gaia-qa` |
 | سند بررسی و تصمیم‌ها (audit) | https://claude.ai/code/artifact/8d50c51d-73a7-4cae-933f-486e4a8d0420 | وضعیت کد قبلی، تصمیم‌های مالک محصول |
 | مخزن کد | https://github.com/sina7843/boardgame-club | |
 

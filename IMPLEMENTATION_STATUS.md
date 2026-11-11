@@ -948,3 +948,8 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   admin silent watching and deleted-account filter. Checks: typecheck (web, play, api), eslint, ds-check PASS; api admin-tables 3/3;
   e2e admin-tables, wiki, shell, onboarding, coins, bots, release:73, azul:36 pass at 1440/360 (some only after a re-run under load).
   Known failing before these changes: social.spec.ts:32.
+- 2026-11-11 Design system v2.2: tokenized home-ref.css regenerated and now guarded by ds-check, home category rows on `Chip size="lg"`,
+  «ترافورمینگ مارس». Checks: web typecheck, eslint, web vitest 11/11, ds-check --strict PASS (home-ref.css 0 errors/0 warnings);
+  design-qa captures of the six Home-* screens PASS and compared with the v2.2 reference PNGs (1440 light, 390 dark).
+  Dev DB re-seeded (`pnpm db:seed`) so the catalog shows the new name. e2e terraforming-mars.spec.ts:13 at 1440 fails at
+  `button «آموزش تعاملی»`: the game page shows «شروع آموزش» since 852d134 (pre-existing, not part of v2.2); 2 later tests did not run.

@@ -198,3 +198,5 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
 .hm-podium__p--2 .hm-podium__step { block-size: 44px; }
 .hm-podium__p--3 .hm-podium__step { block-size: 32px; }
 .hm-podium__p.is-you b { color: var(--link); }
+/* v2.2 category row: «زنده الان» is a link chip (to /tables); the DS chip has no link underline. */
+a.bgv-chip { text-decoration: none; }

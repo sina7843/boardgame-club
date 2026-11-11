@@ -4,7 +4,7 @@
 // /tournaments. A block whose data is empty keeps its place and says so instead of showing invented numbers.
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import type { DailyGame, GameSummary, HomeOverview, MyTableItem, OpenTableItem, TournamentSummary } from '@bg/contracts';
-import { Avatar, Badge, Button, Icon, ModeTag, Skeleton, StateBlock } from '@bg/ui/bgv';
+import { Avatar, Badge, Button, Chip, Icon, ModeTag, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDateTime, PACE_FA } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -99,17 +99,14 @@ const inFacet = (g: GameSummary, f: Facet) => f === 'all' || (f === 'duo' && g.m
   || (f === 'bot' && g.botAvailable) || (f === 'team' && g.tags.includes('cooperative'));
 
 function Categories({ games, liveTables, value, onChange, member }: { games: GameSummary[]; liveTables: number | null; value: Facet; onChange: (f: Facet) => void; member: boolean }) {
-  const btn = (key: Facet | 'live', label: string, icon: ReactNode, count: string) => {
-    const on = key === value;
-    const cls = member ? 'cx-d-pill' : 'cx-e-cat';
-    const ic = <span className={member ? 'cx-d-pill__ic' : 'cx-e-cat__ic'}>{icon}</span>;
-    if (key === 'live') return <a className={cls} href="/tables">{ic}{label}<small>{count}</small></a>;
-    return <button type="button" className={cls} aria-pressed={on} onClick={() => onChange(key)}>{ic}{label}<small>{count}</small></button>;
-  };
-  const items = [
-    btn('all', 'همه', <Icon name="layout-grid" />, faNum(games.length)),
-    ...(liveTables !== null ? [btn('live', 'زنده الان', <span className="cx-b-dot" />, `${faNum(liveTables)} میز`)] : []),
-    ...FACETS.map(([k, label, icon]) => btn(k, label, <Icon name={icon} />, faNum(games.filter((g) => inFacet(g, k)).length)))
+  // v2.2: category rows are Chip size="lg"; the member home shows counts only on «همه» and «زنده الان».
+  const chip = (key: Facet, label: string, icon: string, count?: number) =>
+    <Chip size="lg" icon={icon} count={count} selected={key === value} onClick={() => onChange(key)}>{label}</Chip>;
+  const items: ReactNode[] = [
+    chip('all', 'همه', 'layout-grid', games.length),
+    // «زنده الان» opens the live tables (a link, not a filter); its icon is the live dot, which Chip's icon prop cannot draw.
+    ...(liveTables !== null ? [<a className="bgv-chip bgv-chip--lg" href="/tables"><span className="bgv-chip__ic" aria-hidden="true"><span className="cx-b-dot" /></span>زنده الان<span className="bgv-num bgv-chip__count">{faNum(liveTables)} میز</span></a>] : []),
+    ...FACETS.map(([k, label, icon]) => chip(k, label, icon, member ? undefined : games.filter((g) => inFacet(g, k)).length))
   ];
   if (member) return <div className="cx-d-cats"><div className="cx-d-pills" role="group" aria-label="دسته‌بندی بازی‌ها">{items.map((x, i) => <span key={i} style={{ display: 'contents' }}>{x}</span>)}</div>
     <a className="cx-b-more cx-hide-phone" href="/games">همهٔ بازی‌ها<Icon name="arrow-left" size="sm" /></a></div>;

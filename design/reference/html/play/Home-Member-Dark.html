@@ -1,10 +1,11 @@
 <!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>خانه، عضو — مفهوم</title>
-<link rel="stylesheet" href="../ds/bgv/tokens.css"><link rel="stylesheet" href="../ds/bgv/components/bundle.css"></head><body><x-dc><style>
+<link rel="stylesheet" href="../ds/bgv/tokens.css"><link rel="stylesheet" href="../ds/bgv/components/bundle.css"></head><body><x-dc><style>/* v2.2 z-index: 1 = --z-felt. calc(--z-felt + 1) is a local layer inside one card (flags over the shelf image, the quick-play box over its card); -1 keeps a blurred floor shadow under its box. Overlays on the hero use --z-hud. */
+
 .cx-app{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
 .cx-main{inline-size:100%;max-inline-size:1320px;margin-inline:auto;padding:24px 32px 48px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px;flex:1 0 auto}
 .cx-main>*{min-width:0}
 /* header */
-.cx-header{position:sticky;inset-block-start:0;z-index:var(--z-sticky,20);background:var(--surface-chrome);border-block-end:1px solid var(--line);box-shadow:0 10px 24px -22px rgba(20,43,59,.55)}
+.cx-header{position:sticky;inset-block-start:0;z-index:var(--z-sticky);background:var(--surface-chrome);border-block-end:1px solid var(--line);box-shadow:0 10px 24px -22px rgba(20,43,59,.55)}
 .cx-header__in{max-inline-size:1320px;margin-inline:auto;block-size:72px;padding-inline:32px;box-sizing:border-box;display:flex;align-items:center;gap:20px}
 .cx-header .bgv-logo{flex:none;display:flex;align-items:center}
 .cx-header .cx-logo-full{block-size:32px;display:block}.cx-header .cx-logo-mark{block-size:32px;display:none}
@@ -18,7 +19,7 @@
 .cx-search__field input{all:unset;flex:1;min-inline-size:0;color:var(--text);font:inherit}
 .cx-search__field input::placeholder{color:var(--text-muted)}
 .cx-search__field.is-open{border-color:var(--focus);background:var(--surface-raised)}
-.cx-kbd{flex:none;font-family:var(--font-latin);font-size:12px;font-weight:800;direction:ltr;padding:3px 7px;border-radius:6px;background:var(--surface-raised);color:var(--text-muted);box-shadow:inset 0 -2px 0 var(--line)}
+.cx-kbd{flex:none;font-family:var(--font-latin);font-size:12px;font-weight:800;direction:ltr;padding:3px 7px;border-radius:var(--radius-box);background:var(--surface-raised);color:var(--text-muted);box-shadow:inset 0 -2px 0 var(--line)}
 .cx-search-btn{display:none}
 .cx-actions{display:flex;align-items:center;gap:8px;flex:none;margin-inline-start:auto}
 .cx-avatarbtn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;cursor:pointer;color:var(--text-muted)}
@@ -68,19 +69,19 @@
 /* shelf card (collapsed game card with box photo) */
 .cx-card{all:unset;box-sizing:border-box;display:grid;grid-template-rows:auto 1fr;cursor:pointer;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden;min-inline-size:0;position:relative;transition:transform var(--dur-base),box-shadow var(--dur-base)}
 .cx-card:hover{transform:translateY(-2px)}
-.cx-card[aria-expanded="true"]{box-shadow:var(--shadow-card),inset 0 0 0 2.5px var(--heading)}
+.cx-card[aria-expanded="true"]{box-shadow:var(--shadow-card),var(--shadow-ring-strong)}
 .cx-shelf{aspect-ratio:1/1;display:grid;place-items:center;padding:18px;box-sizing:border-box;background:radial-gradient(120% 90% at 50% 20%,var(--surface-raised),var(--surface-sunken));position:relative}
-.cx-shelf>img{position:absolute;inset:16px 16px 22px;inline-size:calc(100% - 32px);block-size:calc(100% - 38px);object-fit:contain;display:block;z-index:1;filter:drop-shadow(0 14px 12px rgba(20,43,59,.28)) drop-shadow(0 2px 2px rgba(20,43,59,.2))}
-.cx-shelf::after{content:"";position:absolute;inset-inline:22%;inset-block-end:12px;block-size:10px;border-radius:50%;background:rgba(20,43,59,.16);filter:blur(6px)}
-.cx-flags{position:absolute;inset-block-start:10px;inset-inline-start:10px;display:flex;gap:6px;z-index:2}
+.cx-shelf>img{position:absolute;inset:16px 16px 22px;inline-size:calc(100% - 32px);block-size:calc(100% - 38px);object-fit:contain;display:block;z-index:var(--z-felt);filter:drop-shadow(0 14px 12px color-mix(in srgb,var(--brand-ink) 28%,transparent)) drop-shadow(0 2px 2px color-mix(in srgb,var(--brand-ink) 20%,transparent))}
+.cx-shelf::after{content:"";position:absolute;inset-inline:22%;inset-block-end:12px;block-size:10px;border-radius:50%;background:color-mix(in srgb,var(--brand-ink) 16%,transparent);filter:blur(6px)}
+.cx-flags{position:absolute;inset-block-start:10px;inset-inline-start:10px;display:flex;gap:6px;z-index:calc(var(--z-felt) + 1)}
 .cx-card__body{padding:12px 14px 14px;display:grid;gap:6px;align-content:start}
 .cx-card__name{font-size:16px;font-weight:900;color:var(--heading);line-height:1.4;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .cx-card__name small{font-family:var(--font-latin);font-size:12px;font-weight:600;color:var(--text-muted)}
 .cx-meta{display:flex;align-items:center;gap:4px 6px;flex-wrap:wrap;font-size:13px;color:var(--text-muted)}
 .cx-meta .bgv-icon{inline-size:15px;block-size:15px}
 /* house box for our own games (sealed-bids, line-three) */
-.cx-housebox{inline-size:72%;aspect-ratio:1/1;position:relative;border-radius:6px;background:var(--brand-green);box-shadow:inset -10px 0 0 rgba(0,0,0,.22),0 16px 14px -6px rgba(20,43,59,.35);display:grid;place-items:center;align-content:center;gap:8px;color:#FAF5EC;text-align:center;padding:12% 12% 22%;box-sizing:border-box;z-index:1}
-.cx-housebox::before{content:"";position:absolute;inset:7%;inset-inline-end:calc(7% + 10px);border:1.5px solid rgba(250,245,236,.45);border-radius:4px}
+.cx-housebox{inline-size:72%;aspect-ratio:1/1;position:relative;border-radius:var(--radius-box);background:var(--brand-green);box-shadow:var(--shadow-housebox);display:grid;place-items:center;align-content:center;gap:8px;color:var(--brand-cream);text-align:center;padding:12% 12% 22%;box-sizing:border-box;z-index:var(--z-felt)}
+.cx-housebox::before{content:"";position:absolute;inset:7%;inset-inline-end:calc(7% + 10px);border:1.5px solid color-mix(in srgb,var(--brand-cream) 45%,transparent);border-radius:var(--radius-xs)}
 .cx-housebox img{inline-size:34%;block-size:auto}
 .cx-housebox b{font-size:clamp(14px,2.2vw,20px);font-weight:900;line-height:1.3}
 .cx-housebox i{position:absolute;inset-inline:0;inset-block-end:9%;font-style:normal;font-size:10px;font-weight:700;color:var(--primary)}
@@ -96,12 +97,12 @@ body{margin:0}
 .cx-b-sub{margin:0;font-size:15px;line-height:1.7;color:var(--text-muted)}
 .cx-b-more{flex:none;display:inline-flex;align-items:center;gap:4px;min-block-size:44px;padding-inline:8px;margin-inline-end:-8px;font-size:14px;font-weight:700;color:var(--link);text-decoration:none;white-space:nowrap}
 .cx-b-more:hover{text-decoration:underline}
-.cx-b-dot{inline-size:8px;block-size:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 3px var(--danger-soft);flex:none;display:inline-block}
-.cx-b-dot--ok{background:var(--success);box-shadow:0 0 0 3px var(--success-soft)}
+.cx-b-dot{inline-size:8px;block-size:8px;border-radius:50%;background:var(--danger);box-shadow:var(--shadow-halo-danger);flex:none;display:inline-block}
+.cx-b-dot--ok{background:var(--success);box-shadow:var(--shadow-halo-success)}
 /* mini shelf thumb (box photo, contain) */
-.cx-b-thumb{flex:none;inline-size:72px;block-size:72px;border-radius:var(--radius-md);background:radial-gradient(120% 90% at 50% 20%,var(--surface-raised),var(--surface-sunken));box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;position:relative;overflow:hidden}
-.cx-b-thumb>img{inline-size:calc(100% - 14px);block-size:calc(100% - 14px);object-fit:contain;display:block;filter:drop-shadow(0 5px 5px rgba(20,43,59,.3))}
-.cx-b-thumb>.cx-housebox{inline-size:76%;padding:14% 12% 14%;gap:2px;box-shadow:inset -5px 0 0 rgba(0,0,0,.22),0 6px 6px -3px rgba(20,43,59,.35)}
+.cx-b-thumb{flex:none;inline-size:72px;block-size:72px;border-radius:var(--radius-md);background:radial-gradient(120% 90% at 50% 20%,var(--surface-raised),var(--surface-sunken));box-shadow:var(--shadow-ring);display:grid;place-items:center;position:relative;overflow:hidden}
+.cx-b-thumb>img{inline-size:calc(100% - 14px);block-size:calc(100% - 14px);object-fit:contain;display:block;filter:drop-shadow(0 5px 5px color-mix(in srgb,var(--brand-ink) 30%,transparent))}
+.cx-b-thumb>.cx-housebox{inline-size:76%;padding:14% 12% 14%;gap:2px;box-shadow:var(--shadow-housebox-sm)}
 .cx-b-thumb>.cx-housebox b{font-size:9px}
 .cx-b-thumb>.cx-housebox::before{inset:6%;inset-inline-end:calc(6% + 5px)}
 .cx-b-thumb--sm{inline-size:56px;block-size:56px}
@@ -121,7 +122,7 @@ body{margin:0}
 .cx-b-tour{position:relative;overflow:hidden;min-block-size:340px;display:grid;align-content:end;border-radius:var(--radius-xl)}
 .cx-b-tour__art{position:absolute;inset-block:0;inset-inline-end:0;inline-size:66%;block-size:100%;object-fit:cover;display:block}
 .cx-b-tour::after{content:"";position:absolute;inset:0;background:linear-gradient(to left,var(--felt) 34%,transparent 80%);pointer-events:none}
-.cx-b-tour__body{position:relative;z-index:1;display:grid;gap:14px;justify-items:start;max-inline-size:470px}
+.cx-b-tour__body{position:relative;z-index:var(--z-felt);display:grid;gap:14px;justify-items:start;max-inline-size:470px}
 .cx-b-tour__body h2{margin:0;font-size:30px;font-weight:900;line-height:1.35}
 .cx-b-tour__body p{margin:0;font-size:15px;line-height:1.8;color:var(--felt-muted)}
 .cx-b-facts{display:flex;flex-wrap:wrap;gap:8px}
@@ -132,8 +133,8 @@ body{margin:0}
 .cx-b-daily .cx-shelf>img{inset:14px 14px 20px;inline-size:calc(100% - 28px);block-size:calc(100% - 34px)}
 .cx-b-daily p{margin:0;font-size:14px;line-height:1.75;color:var(--text-muted)}
 .cx-b-streak{display:inline-flex;gap:4px}
-.cx-b-streak i{inline-size:10px;block-size:10px;border-radius:50%;background:var(--surface-sunken);box-shadow:inset 0 0 0 1px var(--line)}
-.cx-b-streak i.is-on{background:var(--heading);box-shadow:inset 0 -2px 0 rgba(20,43,59,.2)}
+.cx-b-streak i{inline-size:10px;block-size:10px;border-radius:50%;background:var(--surface-sunken);box-shadow:var(--shadow-ring)}
+.cx-b-streak i.is-on{background:var(--heading);box-shadow:none}
 @media (max-width:1199px){
  .cx-b-shelf{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
  .cx-b-shelf>:nth-child(n+6){display:none}
@@ -168,7 +169,7 @@ body{margin:0}
 .cx-b-turn__opp>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cx-b-turn__clock{grid-area:clock;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
 .cx-b-turn>.bgv-btn{grid-area:cta;align-self:end}
-.cx-b-last{grid-area:last;margin:0;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;line-height:1.7;color:var(--text);display:grid;align-content:center;gap:2px}
+.cx-b-last{grid-area:last;margin:0;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-ring);font-size:13px;line-height:1.7;color:var(--text);display:grid;align-content:center;gap:2px}
 .cx-b-last small{font-size:12px;font-weight:700;color:var(--text-muted)}
 .cx-b-turn .bgv-avatars{flex:none}
 .cx-b-more-av{display:inline-grid;place-items:center;inline-size:24px;block-size:24px;border-radius:50%;background:var(--surface-sunken);color:var(--text-muted);font-size:11px;font-weight:900;margin-inline-start:4px;flex:none}
@@ -178,7 +179,7 @@ body{margin:0}
 .cx-b-quick__txt h2{margin:0;font-size:26px;font-weight:900;line-height:1.35;color:var(--felt-ink)}
 .cx-b-quick__meta{display:flex;align-items:center;flex-wrap:wrap;font-size:14px;font-weight:700;color:var(--felt-muted)}
 .cx-b-quick__art{grid-area:art;inline-size:116px;align-self:start;margin:6px 6px 0;transform:rotate(-6deg)}
-.cx-b-quick__art img{inline-size:100%;block-size:auto;display:block;border-radius:6px;box-shadow:var(--shadow-piece),0 18px 26px -14px rgba(0,0,0,.7)}
+.cx-b-quick__art img{inline-size:100%;block-size:auto;display:block;border-radius:var(--radius-box);box-shadow:var(--shadow-box-md)}
 .cx-b-quick__live{grid-area:live;justify-self:start}
 .cx-b-quick>.bgv-btn{grid-area:cta}
 .cx-b-quick__foot{grid-area:foot;display:flex;align-items:center;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;font-size:13px;color:var(--felt-muted)}
@@ -219,7 +220,7 @@ body{margin:0}
 .cx-header .bgv-coinchip,.cx-a-strip .cx-actions>.bgv-coinchip{display:none!important}
 mark.cx-a-hl::before{display:none!important}
 mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:6px;text-decoration-color:var(--heading)}
-.cx-a-row.is-focus{background:var(--surface)!important;box-shadow:inset 0 0 0 1.5px var(--line)!important}
+.cx-a-row.is-focus{background:var(--surface)!important;box-shadow:var(--shadow-ring)!important}
 .cx-a-row:hover{background:var(--surface-sunken)}
 .cx-a-wallet{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 8px 8px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-sunken)}
 
@@ -241,13 +242,13 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 .cx-d-daily__streak{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:700;color:var(--text-muted)}
 /* quick-play tile: box pops out of the card top */
 .cx-b-quick.cx-d-quick{overflow:visible;isolation:isolate}
-.cx-d-quick .cx-b-quick__art{inline-size:140px;margin:-70px 0 0;align-self:start;transform:rotate(-6deg);position:relative;z-index:2}
-.cx-d-quick .cx-b-quick__art img{border-radius:8px;box-shadow:var(--shadow-piece),0 28px 30px -18px var(--brand-ink)}
+.cx-d-quick .cx-b-quick__art{inline-size:140px;margin:-70px 0 0;align-self:start;transform:rotate(-6deg);position:relative;z-index:calc(var(--z-felt) + 1)}
+.cx-d-quick .cx-b-quick__art img{border-radius:var(--radius-sm);box-shadow:var(--shadow-box-lg)}
 .cx-d-quick .cx-b-quick__art::after{content:"";position:absolute;inset-inline:14%;inset-block-end:-14px;block-size:12px;border-radius:50%;background:var(--felt-plate);filter:blur(6px);z-index:-1}
 .cx-d-proof{gap:10px}
 .cx-d-proof .bgv-avatars{flex:none}
-.cx-d-proof .bgv-avatars>.bgv-avatar,.cx-d-proofchip .bgv-avatars>.bgv-avatar{--_ring:transparent;margin:0;background:var(--seat-c);color:var(--brand-ink);box-shadow:0 0 0 2px var(--felt)}
-.cx-d-proofchip .bgv-avatars>.bgv-avatar{box-shadow:0 0 0 2px var(--surface)}
+.cx-d-proof .bgv-avatars>.bgv-avatar,.cx-d-proofchip .bgv-avatars>.bgv-avatar{--_ring:transparent;margin:0;background:var(--seat-c);color:var(--brand-ink);box-shadow:var(--shadow-gap-felt)}
+.cx-d-proofchip .bgv-avatars>.bgv-avatar{box-shadow:var(--shadow-gap)}
 .cx-d-proof .bgv-avatars>.bgv-avatar+.bgv-avatar,.cx-d-proofchip .bgv-avatars>.bgv-avatar+.bgv-avatar{margin-inline-start:-6px}
 /* social proof chip (live tables head) */
 .cx-d-proofchip{flex:none;display:inline-flex;align-items:center;gap:10px;min-block-size:44px;padding-block:4px;padding-inline:8px 16px;border-radius:var(--radius-pill);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-card);font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;box-sizing:border-box}
@@ -256,15 +257,7 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 /* category pill switcher */
 .cx-d-browse{display:grid;gap:32px;min-width:0}
 .cx-d-cats{display:flex;align-items:center;gap:12px;min-width:0}
-.cx-d-pills{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 2px 10px;margin-block-end:-6px;min-width:0;flex:1 1 auto}
-.cx-d-pill{all:unset;box-sizing:border-box;flex:none;display:inline-flex;align-items:center;gap:10px;block-size:52px;padding-inline:8px 20px;border-radius:var(--radius-pill);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-tile);font-size:15px;font-weight:800;color:var(--heading);cursor:pointer;white-space:nowrap}
-.cx-d-pill:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-.cx-d-pill__ic{inline-size:36px;block-size:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--surface-raised);color:var(--heading)}
-.cx-d-pill__ic .bgv-icon{inline-size:19px;block-size:19px}
-.cx-d-pill small{font-size:12px;font-weight:700;color:var(--text-muted)}
-.cx-d-pill[aria-selected="true"]{background:var(--heading);border-color:var(--heading);color:var(--surface);box-shadow:inset 0 -2px 0 rgba(0,0,0,.4)}
-.cx-d-pill[aria-selected="true"] .cx-d-pill__ic{background:var(--surface)}
-.cx-d-pill[aria-selected="true"] small{color:var(--on-primary)}
+.cx-d-pills{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 2px 12px;margin-block-end:-8px;min-width:0;flex:1 1 auto}
 /* weekly leaderboard podium */
 .cx-d-lb{display:grid;grid-template-rows:auto auto 1fr auto;gap:14px;padding:20px}
 .cx-d-lb>.cx-d-podium{align-self:end}
@@ -277,7 +270,7 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 .cx-d-podium small{font-size:12px;font-weight:700;color:var(--text-muted)}
 .cx-d-podium .bgv-podium__step{font-size:20px}
 .cx-d-crown{inline-size:24px;block-size:24px;color:var(--heading);fill:none;margin-block-end:-6px}
-.cx-d-me{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-md);background:color-mix(in srgb, var(--heading) 7%, transparent);box-shadow:inset 0 0 0 1.5px var(--heading)}
+.cx-d-me{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-md);background:color-mix(in srgb, var(--heading) 7%, transparent);box-shadow:var(--shadow-ring-strong)}
 .cx-d-me__rank{min-inline-size:40px;block-size:40px;padding-inline:4px;box-sizing:border-box;border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--surface);font-weight:900;font-size:16px;color:var(--heading);box-shadow:var(--shadow-tile)}
 .cx-d-me__id{display:grid;gap:0;min-width:0}
 .cx-d-me__id b{font-size:15px;font-weight:900;color:var(--heading)}
@@ -303,8 +296,6 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
  .cx-d-quick .cx-b-quick__art{inline-size:100px;margin:-56px 4px 0}
  .cx-d-cats{margin-inline:-16px}
  .cx-d-pills{padding-inline:16px}
- .cx-d-pill{block-size:48px;font-size:14px}
- .cx-d-pill__ic{inline-size:32px;block-size:32px}
  .cx-d-browse{gap:24px}
  .cx-b-head .cx-d-proofchip{order:3}
 }
@@ -315,15 +306,10 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 .cx-actions{margin-inline-start:0}
 /* flat white shelves and thumbs: no gradient plates, no tinted boxes inside cards */
 .cx-shelf{background:var(--surface)}
-.cx-b-thumb{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.cx-b-thumb{background:var(--surface);box-shadow:var(--shadow-ring)}
 .cx-housebox i{color:var(--felt-muted)}
 .cx-flags .bgv-modetag{background:var(--surface)}
-/* selection = navy (category pills, dock) */
-.cx-d-pill{border:0}
-.cx-d-pill__ic{background:var(--surface-sunken)}
-.cx-d-pill[aria-selected="true"]{background:var(--brand-ink);color:#FFFFFF;box-shadow:inset 0 -2px 0 #000,0 3px 8px -2px rgba(20,43,59,.35)}
-.cx-d-pill[aria-selected="true"] .cx-d-pill__ic{background:#FFFFFF;color:var(--brand-ink)}
-.cx-d-pill[aria-selected="true"] small{color:#E6ECEF}
+/* category pills: DS bgv-chip--lg (v2.1.14); this page only lays out the row */
 
 /* one hero: greeting + headline + the game to play now */
 .bgv-felt.cx-f-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:center;gap:32px 48px;padding:44px 48px;border-radius:var(--radius-xl);overflow:hidden}
@@ -332,9 +318,9 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 .cx-f-hero .cx-d-display{color:var(--felt-ink);font-size:56px;line-height:1.25}
 .cx-f-sub{margin:0;font-size:16px;line-height:1.8;color:var(--felt-muted);text-wrap:pretty}
 .cx-f-sub strong{color:var(--felt-ink);font-weight:900}
-.cx-f-qp{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"art body" "art proof" "art ctas";align-items:center;gap:12px 32px;padding-inline-start:48px;border-inline-start:1px solid rgba(243,235,221,.16);min-width:0}
+.cx-f-qp{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"art body" "art proof" "art ctas";align-items:center;gap:12px 32px;padding-inline-start:48px;border-inline-start:1px solid var(--felt-line);min-width:0}
 .cx-f-qp__art{grid-area:art;inline-size:164px;margin:14px 10px;transform:rotate(-5deg)}
-.cx-f-qp__art img{inline-size:100%;block-size:auto;display:block;border-radius:8px;box-shadow:var(--shadow-piece),0 22px 26px -16px rgba(0,0,0,.7)}
+.cx-f-qp__art img{inline-size:100%;block-size:auto;display:block;border-radius:var(--radius-sm);box-shadow:var(--shadow-box-md)}
 .cx-f-qp__body{grid-area:body;display:grid;gap:4px;justify-items:start;min-width:0}
 .cx-f-eyebrow{display:inline-flex;align-items:center;font-size:14px;font-weight:700;color:var(--felt-muted)}
 .cx-f-qp__name{margin:0;font-size:36px;font-weight:900;line-height:1.3;color:var(--felt-ink);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -346,7 +332,7 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 /* «نوبت شماست»: plain white cards, amber «نوبت شما» pill with its lip, last move as plain text under a hairline */
 .cx-f-band{grid-template-columns:repeat(4,minmax(0,1fr))}
 .cx-b-turn{background:var(--surface)}
-.cx-f-turnpill{justify-self:start;display:inline-flex;align-items:center;justify-content:center;block-size:22px;padding-inline:10px;border-radius:var(--radius-pill);background:var(--invite);color:var(--on-invite);font-size:12px;font-weight:800;line-height:1;white-space:nowrap;box-shadow:inset 0 -2px 0 #A86E1C}
+.cx-f-turnpill{justify-self:start;display:inline-flex;align-items:center;justify-content:center;block-size:22px;padding-inline:10px;border-radius:var(--radius-pill);background:var(--invite);color:var(--on-invite);font-size:12px;font-weight:800;line-height:1;white-space:nowrap;box-shadow:none}
 .cx-f-turnpill--count{min-inline-size:28px;block-size:26px;font-size:14px}
 .cx-b-last{padding:12px 0 0;border-radius:0;background:none;border-block-start:1px solid var(--line);align-content:start;box-shadow:none}
 .cx-f-daily{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"thumb id" "txt txt" "cta cta";grid-template-rows:auto 1fr auto;gap:14px 12px}
@@ -366,12 +352,12 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 .cx-b-tour::after{display:none}
 .cx-b-tour__art{position:static;grid-area:art;inline-size:100%;block-size:100%;object-fit:cover}
 .cx-b-tour__body{grid-area:body;padding:32px;align-content:center}
-.cx-b-tour .bgv-badge{background:var(--felt-plate);color:var(--felt-ink);box-shadow:inset 0 0 0 1px rgba(243,235,221,.18)}
+.cx-b-tour .bgv-badge{background:var(--felt-plate);color:var(--felt-ink);box-shadow:var(--shadow-ring-felt)}
 .cx-b-facts .bgv-felt-plate .bgv-icon{color:var(--felt-muted)}
 @media (max-width:1199px){
  .bgv-felt.cx-f-hero{grid-template-columns:minmax(0,1fr);padding:32px 36px;gap:24px}
  .cx-f-hero .cx-d-display{font-size:46px}
- .cx-f-qp{padding-inline-start:0;border-inline-start:0;padding-block-start:24px;border-block-start:1px solid rgba(243,235,221,.16);gap:10px 28px}
+ .cx-f-qp{padding-inline-start:0;border-inline-start:0;padding-block-start:24px;border-block-start:1px solid var(--felt-line);gap:10px 28px}
  .cx-f-qp__art{inline-size:132px}
  .cx-f-band{grid-template-columns:repeat(3,minmax(0,1fr))}
  .cx-f-daily{grid-column:1/-1;grid-template-columns:auto minmax(0,1fr) minmax(0,1.4fr) auto;grid-template-areas:"thumb id txt cta";grid-template-rows:auto;align-items:center}
@@ -417,21 +403,18 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 .cx-app>.bgv-sitefooter{margin-block-start:var(--space-10)}
 /*nav-underline*/.cx-nav a[aria-current="page"]{background:none!important;font-weight:900}
 
-/*r2*/.cx-f-hero .cx-f-qp__ctas a.bgv-btn.cx-f-create.cx-f-create.cx-f-create{grid-column:1/-1;justify-self:center;background:transparent!important;box-shadow:none!important;border:0!important;--_h:40px;font-size:14px;color:var(--felt-ink,#fff);text-decoration:underline;text-underline-offset:4px}
+/*r2*/.cx-f-hero .cx-f-qp__ctas a.bgv-btn.cx-f-create.cx-f-create.cx-f-create{grid-column:1/-1;justify-self:center;background:transparent!important;box-shadow:none!important;border:0!important;--_h:40px;font-size:14px;color:var(--felt-ink);text-decoration:underline;text-underline-offset:4px}
 
 /* DS v2.1.8 box photo: sized to its own shape, centred, 6px corners; faint line above the text; hover enlarges the box from its centre, the image never changes */
-.cx-shelf>img:not(.cx-reveal):not([style*="object-fit"]){inset:auto;top:calc(50% - 3px);left:50%;inline-size:auto;block-size:auto;max-inline-size:calc(100% - 32px);max-block-size:calc(100% - 38px);border-radius:6px;transform:translate(-50%,-50%);transition:transform var(--dur-base) var(--ease-out)}
+.cx-shelf>img:not(.cx-reveal):not([style*="object-fit"]){inset:auto;inset-inline:0;top:calc(50% - 3px);margin-inline:auto;inline-size:auto;block-size:auto;max-inline-size:calc(100% - 32px);max-block-size:calc(100% - 38px);border-radius:var(--radius-box);transform:translateY(-50%);transition:transform var(--dur-base) var(--ease-out)}
 .cx-shelf>.cx-housebox{transition:transform var(--dur-base) var(--ease-out)}
 .cx-card .cx-card__body{border-block-start:1px solid var(--line)}
-@media (hover:hover){.cx-card:hover .cx-shelf>img:not(.cx-reveal):not([style*="object-fit"]){transform:translate(-50%,-50%) scale(1.06)}.cx-card:hover .cx-shelf>.cx-housebox{transform:scale(1.06)}}
-.cx-card:is(:focus-visible,.is-hover) .cx-shelf>img:not(.cx-reveal):not([style*="object-fit"]){transform:translate(-50%,-50%) scale(1.06)}
+@media (hover:hover){.cx-card:hover .cx-shelf>img:not(.cx-reveal):not([style*="object-fit"]){transform:translateY(-50%) scale(1.06)}.cx-card:hover .cx-shelf>.cx-housebox{transform:scale(1.06)}}
+.cx-card:is(:focus-visible,.is-hover) .cx-shelf>img:not(.cx-reveal):not([style*="object-fit"]){transform:translateY(-50%) scale(1.06)}
 .cx-card:is(:focus-visible,.is-hover) .cx-shelf>.cx-housebox{transform:scale(1.06)}
 @media (prefers-reduced-motion:reduce){.cx-shelf>img,.cx-shelf>.cx-housebox{transition:none}}
 
 /* DS v2.1.12: in dark the selected filter is a cream selection token like every other selection */
-[data-theme="dark"] .cx-d-pill[aria-selected="true"]{background:var(--selected);color:var(--on-selected);box-shadow:inset 0 0 0 1.5px var(--ink-selected),0 4px 0 var(--ink-selected)}
-[data-theme="dark"] .cx-d-pill[aria-selected="true"] small{color:var(--on-selected)}
-[data-theme="dark"] .cx-d-pill[aria-selected="true"] .cx-d-pill__ic{background:var(--on-selected);color:var(--selected)}
 </style>
 <div class="bgv cx-app" data-theme="dark" dir="rtl"><header class="bgv-siteheader"><div class="bgv-siteheader__in"><a class="bgv-logo" href="/" aria-label="بردگیم‌ورس، خانه"><img class="bgv-logo__light" src="../assets/logo-fa-primary.svg" alt=""><img class="bgv-logo__dark" src="../assets/logo-fa-reversed.svg" alt=""></a><nav class="bgv-sitenav" aria-label="ناوبری اصلی"><a href="/" aria-current="page">خانه</a><a href="/games">بازی‌ها</a><a href="/tables">میزها<span role="img" class="bgv-badge bgv-badge--count bgv-badge--count-invite" aria-label="3 میز منتظر حرکت شما">۳</span></a><a href="/tournaments">تورنمنت‌ها</a><a href="/ranking">رتبه‌بندی</a></nav><div class="bgv-sitesearch" role="search"><label class="bgv-sitesearch__field"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg><input type="search" placeholder="جست‌وجوی بازی، مثلاً کاتان…" aria-label="جست‌وجوی بازی"><kbd>Ctrl K</kbd></label></div><div class="bgv-siteheader__actions"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/messages" aria-label="پیام‌ها، ۴ خوانده‌نشده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۴</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a><button class="bgv-avatarbtn" type="button" aria-label="حساب من، مینا" aria-haspopup="menu"><span class="bgv-avatar bgv-avatar--sm">م</span><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button></div></div></header><header class="bgv-topbar cx-topbar"><a class="bgv-logo" href="/" aria-label="خانه"><img class="bgv-logo__light" src="../assets/symbol-primary-small.svg" alt="" style="block-size:32px"><img class="bgv-logo__dark" src="../assets/symbol-reversed-small.svg" alt="" style="block-size:32px"></a><span class="bgv-topbar__title">خانه</span><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="/search" aria-label="جست‌وجوی بازی"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></svg></a><a class="bgv-coinchip" href="/coins" aria-label="۲٬۴۸۰ سکه"><span class="bgv-coin bgv-coin--sm">۲٬۴۸۰</span></a><a class="bgv-btn bgv-btn--ghost bgv-btn--icon bgv-iconbtn-count" href="/notifications" aria-label="اعلان‌ها، ۵ خوانده‌نشده"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="bgv-badge bgv-badge--count">۵</span></a></header><main class="cx-main">
 <section class="bgv-felt cx-f-hero" aria-labelledby="hello-h">
@@ -458,13 +441,13 @@ mark.cx-a-hl{background:none!important;color:var(--heading)!important;text-decor
 <article class="cx-b-tile cx-b-open" aria-label="میز کوپ"><div class="cx-b-row"><span class="cx-b-thumb cx-b-thumb--sm"><img src="../assets/box/coup.webp" alt=""></span><div class="cx-b-id"><b class="cx-b-name">کوپ<small>Coup</small></b><span class="cx-meta"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>زنده<span class="bgv-sep"></span>دوستانه<span class="bgv-sep"></span>۶۰ ثانیه هر نوبت</span></div></div><div role="group" class="cx-b-seats" aria-label="۳ از ۵ صندلی پر"><span class="bgv-avatars cx-d-stack"><span class="bgv-avatar bgv-avatar--sm seat-8">د</span><span class="bgv-avatar bgv-avatar--sm seat-7">ف</span><span class="bgv-avatar bgv-avatar--sm seat-1">ی</span></span><span class="cx-b-seat0" title="صندلی خالی"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></span><span class="cx-b-seat0" title="صندلی خالی"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></span><span class="cx-b-seatcount">۳ از ۵</span></div><div class="cx-b-row cx-b-row--between"><span class="cx-b-host"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" /></svg>میزبان: داوود</span><a class="bgv-btn bgv-btn--secondary" href="/tables/join/coup"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" /> <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" /> <path d="M5 18v2" /> <path d="M19 18v2" /></svg>بنشین</a></div></article>
 </div></section>
 <div class="cx-d-browse">
-<div class="cx-d-cats"><div class="cx-d-pills" role="tablist" aria-label="دسته‌بندی بازی‌ها">
-<button class="cx-d-pill" role="tab" aria-selected="true"><span class="cx-d-pill__ic"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg></span>همه<small>۶۷</small></button>
-<button class="cx-d-pill" role="tab" aria-selected="false"><span class="cx-d-pill__ic"><span class="cx-b-dot"></span></span>زنده الان<small>۴۲ میز</small></button>
-<button class="cx-d-pill" role="tab" aria-selected="false"><span class="cx-d-pill__ic"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" /> <line x1="13" x2="19" y1="19" y2="13" /> <line x1="16" x2="20" y1="16" y2="20" /> <line x1="19" x2="21" y1="21" y2="19" /> <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" /> <line x1="5" x2="9" y1="14" y2="18" /> <line x1="7" x2="4" y1="17" y2="20" /> <line x1="3" x2="5" y1="19" y2="21" /></svg></span>دونفره</button>
-<button class="cx-d-pill" role="tab" aria-selected="false"><span class="cx-d-pill__ic"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>مهمانی</button>
-<button class="cx-d-pill" role="tab" aria-selected="false"><span class="cx-d-pill__ic"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg></span>با ربات</button>
-<button class="cx-d-pill" role="tab" aria-selected="false"><span class="cx-d-pill__ic"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3" /> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /> <path d="m21 3 1 11h-2" /> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /> <path d="M3 4h8" /></svg></span>تیمی</button>
+<div class="cx-d-cats"><div class="cx-d-pills" role="group" aria-label="دسته‌بندی بازی‌ها">
+<button type="button" class="bgv-chip bgv-chip--lg is-selected" aria-pressed="true"><span class="bgv-chip__ic" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg></span>همه<span class="bgv-num bgv-chip__count">۶۷</span></button>
+<button type="button" class="bgv-chip bgv-chip--lg" aria-pressed="false"><span class="bgv-chip__ic" aria-hidden="true"><span class="cx-b-dot"></span></span>زنده الان<span class="bgv-num bgv-chip__count">۴۲ میز</span></button>
+<button type="button" class="bgv-chip bgv-chip--lg" aria-pressed="false"><span class="bgv-chip__ic" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" /> <line x1="13" x2="19" y1="19" y2="13" /> <line x1="16" x2="20" y1="16" y2="20" /> <line x1="19" x2="21" y1="21" y2="19" /> <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" /> <line x1="5" x2="9" y1="14" y2="18" /> <line x1="7" x2="4" y1="17" y2="20" /> <line x1="3" x2="5" y1="19" y2="21" /></svg></span>دونفره</button>
+<button type="button" class="bgv-chip bgv-chip--lg" aria-pressed="false"><span class="bgv-chip__ic" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>مهمانی</button>
+<button type="button" class="bgv-chip bgv-chip--lg" aria-pressed="false"><span class="bgv-chip__ic" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg></span>با ربات</button>
+<button type="button" class="bgv-chip bgv-chip--lg" aria-pressed="false"><span class="bgv-chip__ic" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3" /> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /> <path d="m21 3 1 11h-2" /> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /> <path d="M3 4h8" /></svg></span>تیمی</button>
 </div><a class="cx-b-more cx-hide-phone" href="/games">همهٔ بازی‌ها<svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></svg></a></div>
 <section class="cx-b-sec" aria-labelledby="rec-h"><div class="cx-b-head"><div class="cx-b-headtxt"><h2 class="cx-b-h2" id="rec-h"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></svg>بازی‌های اخیر تو</h2></div><a class="cx-b-more" href="/me/history">همه<svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></svg></a></div><div class="cx-b-shelf">
 <button class="cx-card" aria-expanded="false" aria-controls="cx-panel-catan">

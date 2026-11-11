@@ -90,7 +90,7 @@
     - `Catalog-Expanded` ← `Catalog-Desktop` (کارت بازی بازشونده) + `GameCard-Spec`.
     - `Catalog-Phone`، `CreateTable-Phone`، `MyTables-Phone`، `Notifications-Phone`، `Alert-Settings-Mobile` ← طبق قاعدهٔ طراحی گوشی v2.1، این صفحه‌ها همان صفحهٔ دسکتاپ در ۳۹۰ هستند: مرجعشان `…-Desktop@390.png` است.
 - **جابه‌جا:** `Home-Member`، `Home-Member-Phone`، `Home-Guest`، `Home-Guest-Phone` از `concept/` به `play/` رفتند (دیگر کانسپت نیستند، صفحهٔ واقعی‌اند).
-- **پروژه گایا:** صفحهٔ «۱۲. پایلوت BGA» بوم (`gaia/*`) در این بسته نیست و جدا در `Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip` آمده است (← `design/games/gaia-project/`). سه صفحهٔ قدیمی `table/Hud-Gaia-Desktop`، `Hud-Gaia-Mobile` و `Hud-Gaia-PlayerSheet-Mobile` هنوز رندر شده‌اند، ولی `"capture": "manual"` و `"supersededBy": "design/games/gaia-project"` دارند. `/bgv-qa` آن‌ها را `superseded` گزارش می‌کند و جزو دروازهٔ QA نیستند.
+- **پروژه گایا:** صفحهٔ «۱۲. پایلوت BGA» بوم (`gaia/*`) در این بسته نیست و جدا در `Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip` آمده است (← `design/games/gaia-project/`). سه صفحهٔ قدیمی `table/Hud-Gaia-Desktop`، `Hud-Gaia-Mobile` و `Hud-Gaia-PlayerSheet-Mobile` هنوز رندر شده‌اند، ولی `"capture": "manual"` و `"supersededBy": "design/games/gaia-project"` دارند. `/bgv-qa` آن‌ها را `superseded` گزارش می‌کند و جزو دروازهٔ QA نیستند.
 - **فیلدهای تازهٔ `screens.json`:** `supersededBy`، `note`، `new`، `canvasPage` (صفحهٔ بوم)، و در ریشه `source`، `excluded` و `removedSince1.6`.
 - همهٔ تصویرهای مرجع از نو رندر شده‌اند (۲۲۰ تصویر: هر صفحهٔ واکنش‌گرا در ۱۴۴۰، ۱۰۰۰ و ۳۹۰) و تصویر همهٔ ۱۰۰ کامپوننت در دو تم.
 

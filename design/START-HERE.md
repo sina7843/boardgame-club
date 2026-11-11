@@ -1,4 +1,4 @@
-# بردگیم‌ورس — بستهٔ تحویل دیزاین سیستم به تیم فنی (v2.1، «توکن چاپی» و هدر سایت)
+# بردگیم‌ورس — بستهٔ تحویل دیزاین سیستم به تیم فنی (v2.2، «توکن چاپی»، هدر سایت و CSS توکنی صفحه‌ی خانه)
 
 این پوشه هر چیزی است که برای پیاده‌سازی دیزاین سیستم BGV روی کد `boardgame-club` لازم است. بسته برای کار با **Claude Code** بهینه شده است:
 
@@ -6,9 +6,18 @@
 - **هوک‌ها** هر تغییری را که از دیزاین سیستم بیرون بزند همان لحظه رد می‌کنند.
 - **QA نهایی** با یک دستور اجرا می‌شود.
 
+> **به‌روزرسانی v2.2 (۸ آبان ۱۴۰۵):** اول `repo/design/MIGRATION-v2.1-to-v2.2.md` را بخوانید. خلاصه: درخواست شما برای `home-ref.css` انجام شد. `<style>` دو فایل مرجع `reference/html/play/Home-Guest.html` و `Home-Member.html` (و نسخه‌های گوشی و تیره) حالا فقط توکن دارد: ۱۲ توکن سایه‌ی تازه (`--shadow-ring`، `--shadow-ring-felt`، `--shadow-ring-strong`، `--shadow-gap`، `--shadow-gap-felt`، `--shadow-halo-danger`، `--shadow-halo-success`، `--shadow-box-sm/md/lg`، `--shadow-housebox`، `--shadow-housebox-sm`) و `--radius-box` (۶px). Chip هم از v2.1.14 اندازه‌ی `lg` دارد (`bgv-chip--lg`، ردیف دسته‌های خانه). قدم‌های بعد شما:
+> 1. `repo/` این بسته را جایگزین کنید (یا دست‌کم `design/system/` و `design/reference/`) و `design/system/tokens.css` و `components/bundle.css` را دوباره در `packages/ui/src/bgv/` کپی کنید.
+> 2. `python scripts/home-ref-css.py` را اجرا کنید تا `apps/web/src/styles/home-ref.css` از فایل‌های مرجع تازه ساخته شود.
+> 3. خط `apps/web/src/styles/home-ref.css` را از `exclude` در `design/ds.config.json` بردارید.
+> 4. `node scripts/ds-check.mjs --strict` را اجرا کنید (روی بخش محتوای خانه صفر خطا؛ هدر و فوترِ داخل این دو صفحه کپی `SiteHeader` و `SiteFooter` است و اسکریپت شما آن را برنمی‌دارد).
+> 5. مقایسه‌ی تصویری ۱۴۴۰ و ۳۹۰ در روشن و تیره با `reference/img/play/Home-*.png` (تازه رندر شده‌اند).
+>
+> **نام بازی:** «ترافورمینگ مارس» درست است (نه «تررافورمینگ»). در صفحه‌های مرجع اصلاح شد؛ در کد هم `nameFa` در `games/terraforming-mars/src/definition.ts` و متن مورد انتظار در تست e2e ترافورمینگ (`terraforming-mars.spec.ts` در پوشه‌ی e2e ریپو) را اصلاح کنید، چون صفحه‌ی بازی‌های سایت نام را از کد می‌خواند.
+>
 > **به‌روزرسانی v2.1 (۷ آبان ۱۴۰۵):** اول `repo/design/MIGRATION-v1.6-to-v2.1.md` را بخوانید. خلاصه: هدر سایت جای سایدبار را گرفته (`SiteHeader`، `SiteSearch`، `AccountMenu`، `SiteFooter`)، ورود درون‌صفحه و مهمان (`LoginSheet`، `Stepper`)، داک شناور، و زبان «توکن چاپی» (قاب جوهری و سایهٔ سخت، بدون سایهٔ محو). ۷ کامپوننت تازه، `Sidebar` و `NavItem` حذف شدند؛ ۷۲ کلاس تازه و ۱۱ کلاس حذف‌شده. ریپو امروز v1.3 را دارد: کل `repo/` همین بسته را جایگزین کنید و `node design/install.mjs` را دوباره اجرا کنید.
 >
-> **پروژه گایا در این بسته نیست.** صفحهٔ گایا جدا در `Games Handoff/dist/BGV-Gaia-Handoff-v1.4.zip` تحویل شده است. سه صفحهٔ قدیمی `Hud-Gaia-*` فقط برای سابقه مانده‌اند و در `screens.json` با `supersededBy` علامت خورده‌اند.
+> **پروژه گایا در این بسته نیست.** صفحهٔ گایا جدا در `Games Handoff/dist/BGV-Gaia-Handoff-v1.5.zip` تحویل شده است. سه صفحهٔ قدیمی `Hud-Gaia-*` فقط برای سابقه مانده‌اند و در `screens.json` با `supersededBy` علامت خورده‌اند.
 
 ## محتوای بسته
 | مسیر | چیست |
@@ -20,6 +29,7 @@
 | `repo/design/brand/` | کیت کامل برند (لوگو، نشان، آیکن اپ، تصویر شبکه‌های اجتماعی) و **فاویکن نهایی** (`favicon-production/`). قوانین استفاده در `LOGO-USAGE.md` است. |
 | `repo/design/CLAUDE.design-system.md` | قوانین اجباری، که Claude Code همیشه می‌خواند. |
 | `repo/design/IMPLEMENTATION-PLAN.md` | ترتیب کار، فاز ۰ تا ۷، با چک‌لیست و فهرست صفحه‌های هر route. |
+| `repo/design/MIGRATION-v2.1-to-v2.2.md` | تفاوت‌های v2.1 و v2.2: توکن‌های تازه‌ی سایه و `--radius-box`، `Chip size="lg"`، شش صفحه‌ی خانه و قدم‌های `home-ref.css`. |
 | `repo/design/MIGRATION-v1.6-to-v2.1.md` | تفاوت‌های v1.6 و v2.1: کامپوننت‌ها، کلاس‌ها، توکن‌ها، صفحه‌ها و ابزارها. |
 | `repo/design/MIGRATION-MAP.md` | نگاشت توکن‌ها و فایل‌های قدیمی (VibeFarsi) به توکن‌ها و فایل‌های جدید. |
 | `repo/scripts/ds-check.mjs` | گارد ایستا: رنگ هاردکد، radius، سایه و فونت خارج از توکن، کلاس‌های پالت Tailwind، چپ و راست فیزیکی، توکن و ایمپورت قدیمی، لوگوی بازکشیده و… |

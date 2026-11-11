@@ -1,4 +1,4 @@
-/* تررافورمینگ مارس — a mission-control console over a rust-red planet. Logical properties only.
+/* ترافورمینگ مارس — a mission-control console over a rust-red planet. Logical properties only.
    Palette: oxide #3a1a12 / #1d0d09, dust #c4653a, console steel #2a2f38, signal amber #ffb400, ocean #3f86c4, greenery #4f9a3a.
    Painted art (tiles, resource and parameter icons, Mars texture) comes from src/art; numbers and rules shapes stay in code.
    Spacing scale: sections 1.1rem apart, panels 0.9rem padding / 0.7rem inner gap, grids with fixed slot heights. */

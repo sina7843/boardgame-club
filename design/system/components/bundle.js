@@ -261,12 +261,14 @@
   }
 
   function Chip(p) {
-    var cls = cx('bgv-chip', p.variant === 'invite' && 'bgv-chip--invite', p.size === 'sm' && 'bgv-chip--sm', p.selected && 'is-selected');
+    var lg = p.size === 'lg';
+    var cls = cx('bgv-chip', p.variant === 'invite' && 'bgv-chip--invite', p.size === 'sm' && 'bgv-chip--sm', lg && 'bgv-chip--lg', p.selected && 'is-selected');
     var tag = p.href ? 'a' : (p.as || 'button');
     return h(tag, R(p, ['variant', 'selected', 'size', 'icon', 'count', 'as'], cls, null, {
       type: tag === 'button' ? 'button' : undefined,
       'aria-pressed': typeof p.selected === 'boolean' && p.variant !== 'invite' ? String(p.selected) : undefined
-    }), ic(p.icon, 'sm'), p.children, p.count !== undefined ? h('span', { className: 'bgv-num', style: { opacity: 0.75 } }, fa(p.count)) : null);
+    }), lg ? (p.icon ? h('span', { className: 'bgv-chip__ic', 'aria-hidden': 'true' }, ic(p.icon)) : null) : ic(p.icon, 'sm'), p.children,
+      p.count !== undefined ? (lg ? h('span', { className: 'bgv-num bgv-chip__count' }, fa(p.count)) : h('span', { className: 'bgv-num', style: { opacity: 0.75 } }, fa(p.count))) : null);
   }
 
   function ChipGroup(p) {

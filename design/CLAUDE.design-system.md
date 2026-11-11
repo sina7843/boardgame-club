@@ -1,6 +1,6 @@
 # BGV design system — mandatory rules for every UI change
 
-This repository is being migrated to the **BGV (بردگیم‌ورس) design system v2.1** («printed token» language: every pressable thing is a game token with an ink frame and a hard shadow, nothing else is raised; ivory page + white cards; site header instead of the sidebar; navy selections, amber only for the main action; ink-navy dark). Coming from v1.6? Read `design/MIGRATION-v1.6-to-v2.1.md` first. The design system is the only allowed
+This repository is being migrated to the **BGV (بردگیم‌ورس) design system v2.2** («printed token» language: every pressable thing is a game token with an ink frame and a hard shadow, nothing else is raised; ivory page + white cards; site header instead of the sidebar; navy selections, amber only for the main action; ink-navy dark). Coming from v1.6? Read `design/MIGRATION-v1.6-to-v2.1.md` first. The design system is the only allowed
 source of colour, type, spacing, radius, elevation, motion, icons, logos and UI components. These rules are not
 suggestions: a hook (`scripts/ds-check.mjs`) blocks edits that add violations, CI fails on them, and `/bgv-qa` is the
 final gate. If a rule blocks you, fix the code — never weaken the rule, the config, or the baseline.
@@ -18,8 +18,9 @@ final gate. If a rule blocks you, fix the code — never weaken the rule, the co
 | Component look | `design/reference/components/<Name>_{light,dark}.png` |
 | Brand: logos, favicon, app icons (the design system is the only brand source; no brand book PDF) | `design/brand/` and `design/brand/LOGO-USAGE.md` |
 | Site shell (header, search, account menu, footer, «بیشتر» tiles, login sheet) | DS components `SiteHeader`, `SiteSearch`, `AccountMenu`, `SiteFooter`, `MoreTile`/`MoreGroup`, `LoginSheet`, `Stepper` + specs `reference/html/concept/{Header-Footer-Spec,Header-Search-Desktop,Search-States-Spec,GameCard-Spec,Flow-Simplify}.html` (any page-local CSS there is design intent only: use the DS component, never copy it into pages) |
-| Gaia Project table | **Not here.** `design/games/gaia-project/` from `BGV-Gaia-Handoff-v1.4.zip`. The old `table/Hud-Gaia-*` screens are `supersededBy` it. |
+| Gaia Project table | **Not here.** `design/games/gaia-project/` from `BGV-Gaia-Handoff-v1.5.zip`. The old `table/Hud-Gaia-*` screens are `supersededBy` it. |
 | v1.6 → v2.1 changes (classes, components, screens) | `design/MIGRATION-v1.6-to-v2.1.md` |
+| v2.1 → v2.2 changes (home tokens, `Chip size="lg"`) | `design/MIGRATION-v2.1-to-v2.2.md` |
 | Old token → new token | `design/MIGRATION-MAP.md` |
 | Order of work | `design/IMPLEMENTATION-PLAN.md` |
 
@@ -38,6 +39,8 @@ screen and `/bgv-qa` for the final comparison against the design.
 - `Badge tone="premium"` + crown only for premium; roles = neutral + `shield`; wins = `success` + `trophy`; mastery = `info` + `star` (v2.1.3).
 - Online/bot availability = `ModeTag` (desktop: «آنلاین | ربات», phone: `compact`, icons only). Only for games that have a bot.
 - No gradients and no grey/tinted boxes inside cards; separate with a hairline instead.
+- **v2.2 shadow tokens (never write a box-shadow by hand):** hairline frame `--shadow-ring` (on felt `--shadow-ring-felt`), strong 2px heading frame `--shadow-ring-strong` (open card, «شما»), gap between stacked avatars `--shadow-gap` / `--shadow-gap-felt`, status-dot halo `--shadow-halo-danger` / `--shadow-halo-success`, game box art `--shadow-box-sm/md/lg` (the only blurred shadows, box art only), placeholder box `--shadow-housebox(-sm)`. Game boxes use `--radius-box` (6px). z-index: `--z-felt` (1); a local layer inside one card is `calc(var(--z-felt) + 1)`; overlays on the hero `--z-hud`.
+- **Category rows** (home «همه، زنده الان…») are `Chip size="lg"` (`bgv-chip--lg`, `bgv-chip__ic`, `bgv-chip__count`, `aria-pressed`), not page-local pills.
 
 ## Hard rules (enforced)
 1. **Colour** only through semantic tokens: `var(--bg|--surface|--surface-raised|--surface-sunken|--surface-chrome|--text|--text-muted|--heading|--line|--border|--primary|--on-primary|--invite|--accent|--danger|--success|--warning|--info|--felt|--felt-ink|--seat-1…10|--clock-*|--tier-*|--coin*)`. No hex/rgb/hsl, no Tailwind palette classes (`text-white`, `bg-amber-300`), no arbitrary values (`bg-[#…]`). Primitives (`--brand-*`) are for the logo/brand only.

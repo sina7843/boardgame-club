@@ -88,7 +88,7 @@ reminders + web push, reactions/mentions, new routes, rematch). Do it in paralle
 - [ ] `TableScreen` frame; renderer inside `.bgv-felt__stage`; hide renderer player panels/turn text; HUD from `publicSummary`; seat colours via `--seat-*` in renderers.
 - [ ] Clocks + alerts (warn 50% silent, critical with sound/vibration per prefs, timeout/auto-move, strikes), `stale` on own disconnect, opponent offline.
 - [ ] Chat: docked (≥1200), sheet overlay (phone — never resizes the table), reactions, mentions, spectators read-only, system messages, message menus.
-- [ ] **Gaia Project is not part of this phase.** Build it from `design/games/gaia-project/` (`BGV-Gaia-Handoff-v1.4.zip`, commands `/bgv-gaia-implement`, `/bgv-gaia-qa`). Superseded here: Hud-Gaia-Mobile · Hud-Gaia-PlayerSheet-Mobile · Hud-Gaia-Desktop.
+- [ ] **Gaia Project is not part of this phase.** Build it from `design/games/gaia-project/` (`BGV-Gaia-Handoff-v1.5.zip`, commands `/bgv-gaia-implement`, `/bgv-gaia-qa`). Superseded here: Hud-Gaia-Mobile · Hud-Gaia-PlayerSheet-Mobile · Hud-Gaia-Desktop.
 
 ## Phase 5 — New pages and overlays
 | Route | Reference screens | Kind |

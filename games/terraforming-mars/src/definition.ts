@@ -1,6 +1,6 @@
 import { defineGame } from '@bg/game-sdk';
 
-// Terraforming Mars («تررافورمینگ مارس») — 2–5 players, base game on the Tharsis map. Rules implementation: rules.ts.
+// Terraforming Mars («ترافورمینگ مارس») — 2–5 players, base game on the Tharsis map. Rules implementation: rules.ts.
 // Catalog texts below are minimal placeholders; the integrator writes the complete Persian rules guide and tutorial.
 export const terraformingMars = defineGame({
   manifest: {
@@ -24,7 +24,7 @@ export const terraformingMars = defineGame({
     assetsRef: 'terraforming-mars/1'
   },
   catalog: {
-    nameFa: 'تررافورمینگ مارس',
+    nameFa: 'ترافورمینگ مارس',
     nameOriginal: 'Terraforming Mars',
     summaryFa: 'بازی ۲ تا ۵ نفرهٔ شرکت‌هایی که مریخ را قابل سکونت می‌کنند: دما، اکسیژن و اقیانوس‌ها را بالا ببرید، شهر و فضای سبز بسازید و با کارت‌های پروژه بیشترین امتیاز را بگیرید.',
     rulesFa: [
