@@ -65,11 +65,12 @@ function ModeRow({ game }: { game: GameSummary }) {
 }
 
 /** Shelf card: box, Persian name with the original, players and time; the mode tag row under it. */
-function ShelfCard({ game }: { game: GameSummary }) {
+export function ShelfCard({ game, why }: { game: GameSummary; why?: string }) {
   return (
     <div className="T-wrap has-tag">
       <a className="cx-card" href={`/games/${game.id}`}>
         <span className="cx-shelf">
+          {why && <span className="gd-why">{why}</span>}
           {game.isTestGame && <span className="cx-flags"><Badge size="sm" tone="test">آزمایشی</Badge></span>}
           <ShelfBox game={game} alt={`جعبهٔ ${game.nameFa}`} />
         </span>
