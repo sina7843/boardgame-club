@@ -6,7 +6,7 @@ import {
 } from '../core.ts';
 import type { AbilityImpl, AbilityKey, CardDef, ContentChunk, MapDef, ScoringDef } from '../types.ts';
 
-const fa = (n: unknown) => Number(n).toLocaleString('fa-IR');
+const fa = (n: unknown) => Number(n).toLocaleString('fa-IR').replace(/٬/g, ',');
 
 const abilities: Partial<Record<AbilityKey, AbilityImpl>> = {
   // Immediate effect with a value.

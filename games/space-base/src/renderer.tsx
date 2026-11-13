@@ -7,7 +7,7 @@ import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { GOAL, SHIPS, sectorsFor, type Reward, type SbView, type Ship } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const rw = (r: Reward | undefined) => [r?.credits ? `${fa(r.credits)}¢` : '', r?.vp ? `${fa(r.vp)}★` : ''].filter(Boolean).join(' ') || '—';
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 

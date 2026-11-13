@@ -183,7 +183,7 @@ function PrivacyForm({ only }: { only: 'privacy' | 'notify' }) {
 }
 
 const SOUNDS = [{ value: 'chime', label: 'زنگوله' }, { value: 'bell', label: 'ناقوس' }, { value: 'pulse', label: 'ضربان' }, { value: 'soft', label: 'ملایم' }];
-const HOURS = Array.from({ length: 24 }, (_, h) => ({ value: String(h), label: `${h.toLocaleString('fa-IR')}:۰۰` }));
+const HOURS = Array.from({ length: 24 }, (_, h) => ({ value: String(h), label: `${h.toLocaleString('fa-IR').replace(/٬/g, ',')}:۰۰` }));
 
 /** «هشدار نوبت»: account-wide sound, vibration and quiet hours (Tehran time). */
 function TurnAlerts() {

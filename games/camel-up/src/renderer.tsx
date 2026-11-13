@@ -13,7 +13,7 @@ import camelWhite from './art/camel-white.webp';
 import pyramid from './art/pyramid.webp';
 import { CAMELS, TRACK, type Camel, type CamelView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CAMEL_FA: Record<Camel, string> = { blue: 'آبی', green: 'سبز', orange: 'نارنجی', yellow: 'زرد', white: 'سفید' };
 
 // Painted camels and pyramid are cut from a generated sheet (see DECISIONS.md).

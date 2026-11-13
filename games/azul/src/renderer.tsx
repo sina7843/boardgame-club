@@ -12,7 +12,7 @@ import tileTeal from './art/tile-w.svg';
 import tileFirst from './art/tile-first.svg';
 import { FLOOR, endBonus, floorPenalty, wallColor, type AzulView, type Board, type Color } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const neg = (n: number) => (n < 0 ? `−${fa(-n)}` : fa(n));
 export const COLOR_FA: Record<Color, string> = { b: 'لاجوردی', y: 'زعفرانی', r: 'اناری', k: 'مشکی', w: 'فیروزه‌ای' };
 

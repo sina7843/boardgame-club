@@ -9,7 +9,7 @@ import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
 import type { CardRef, Fighter, LogEntry, Prompt, UnmatchedView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Hint = { type: string; [k: string]: unknown };
 
 const TYPE_FA: Record<CardDef['type'], string> = { attack: 'حمله', defense: 'دفاع', versatile: 'همه‌کاره', scheme: 'نقشه' };

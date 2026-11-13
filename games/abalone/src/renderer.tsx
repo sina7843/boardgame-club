@@ -21,7 +21,7 @@ function shift(board: Board, ids: (string | null)[], color: Color, mv: Move) {
   return { board: r.board, ids: out, pushed: r.pushed, lost: r.lost };
 }
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const R = 40, SIZE = 760, CX = SIZE / 2, CY = SIZE / 2;
 // Marbles and the board are the BGA Abalone client art (see DECISIONS.md). board.webp is 705 × 659 with the centre hole
 // at (350.5, 330) and 54.4 px between holes; BOARD places it on our grid (R·√3 between cells).

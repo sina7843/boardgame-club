@@ -25,10 +25,10 @@ test('wallet shows balance and rules; coins buy premium days', async ({ browser 
 
   credit(mobile, 1250);
   await p.reload();
-  await expect(p.getByRole('region', { name: 'موجودی من' })).toContainText('۱٬۲۵۰');
+  await expect(p.getByRole('region', { name: 'موجودی من' })).toContainText('۱,۲۵۰');
   await p.getByRole('button', { name: 'خرید با سکه' }).first().click();
   await expect(p.getByText(/پریمیوم شما تا .* فعال است/)).toBeVisible();
-  await expect(p.locator('#main').getByText('۱٬۰۵۰')).toBeVisible();
+  await expect(p.locator('#main').getByText('۱,۰۵۰')).toBeVisible();
   await expect(p.getByText('خرید «یک روز پریمیوم».')).toBeVisible();
   await p.screenshot({ path: `docs/evidence/site/coins/${info.project.name}-spent.png`, fullPage: true });
   await p.goto('/plans');

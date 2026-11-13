@@ -8,7 +8,7 @@ import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, he
 import { BoardDefs, CARD_BACK, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import { COST, LIMITS, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Hint = { type: string; [k: string]: unknown };
 
 export const SEAT_COLOR = ['#c8323c', '#2f62c9', '#f1ece0', '#e0861a'];

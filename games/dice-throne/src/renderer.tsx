@@ -13,7 +13,7 @@ import { HEROES, MAX_HP, abilityEffect, symOf, type Ability, type DtView, type E
 // Hero portraits are the printed Dice Throne hero art (Barbarian, Pyromancer, Shadow Thief, Paladin) from the hero
 // leaflets and guides in github.com/LoJo97/dice-throne and github.com/btgaffor/dice-throne (see DECISIONS.md).
 export const PORTRAIT: Record<string, string> = { warrior, shadow, pyro, paladin };
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const effText = (e: Effect) => [e.dmg ? `${fa(e.dmg)} آسیب` : '', e.heal ? `+${fa(e.heal)} جان` : '', e.cp ? `+${fa(e.cp)} CP` : '', e.steal ? `دزدی ${fa(e.steal)} CP` : '',
   e.wound ? `زخم ${fa(e.wound)}` : '', e.stun ? 'گیجی' : '', e.shield ? 'سپر' : '', e.undefendable ? 'دفاع‌ناپذیر' : ''].filter(Boolean).join('، ');
 const needText = (h: Hero, a: Ability) => (a.need.sym ? `${a.need.counts!.map(fa).join('/')}× ${h.symFa[a.need.sym]}` : a.need.combo ? Object.entries(a.need.combo).map(([s, c]) => `${fa(c)}× ${h.symFa[s]}`).join(' + ') : a.need.straight === 5 ? 'ردیف بلند (۵)' : 'ردیف کوتاه (۴)');

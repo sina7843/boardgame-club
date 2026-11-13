@@ -13,7 +13,7 @@ import {
   type CardDef, type Project, type Req, type Res, type Tag, type TmView
 } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const sfa = (n: number) => (n < 0 ? `${fa(-n)}−` : n > 0 ? `${fa(n)}+` : fa(0));
 const TAG_FA: Record<Tag, string> = { building: 'ساختمان', space: 'فضا', science: 'علم', power: 'انرژی', earth: 'زمین', jovian: 'مشتری', plant: 'گیاه', microbe: 'میکروب', animal: 'جانور', city: 'شهر' };
 const PHASE_FA: Record<TmView['phase'], string> = { corp: 'انتخاب شرکت', draft: 'درفت', research: 'پژوهش', action: 'کنش‌ها', final: 'دور پایانی فضای سبز', end: 'پایان بازی' };

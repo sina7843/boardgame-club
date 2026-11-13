@@ -14,7 +14,7 @@ import spider from './art/spider.webp';
 import stinkbug from './art/stinkbug.webp';
 import { CREATURES, type CockroachView, type Creature } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CREATURE_FA: Record<Creature, string> = { cockroach: 'سوسک', bat: 'خفاش', fly: 'مگس', toad: 'وزغ', rat: 'موش', scorpion: 'عقرب', spider: 'عنکبوت', stinkbug: 'سن' };
 
 // Creature art is cut from a generated sprite sheet (see DECISIONS.md).

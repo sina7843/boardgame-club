@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, TurnIndicator, ZoomBoard, useFlip, usePieceIds, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CHECKERS, nextSteps, pipCount, step as applyStep, target, type BgView, type From, type LogEntry, type Pos, type Step } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const W = 1000, H = 720, F = 34, TRAY = 74, BAR = 62;
 const PW = (W - 2 * F - TRAY - BAR) / 12;
 const BAR_L = F + 6 * PW, BAR_R = BAR_L + BAR;

@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '
 import type { ForSaleView } from './rules.ts';
 import props from './art/props.webp';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const TIER = ['کپر', 'کلبه', 'خانه', 'آپارتمان', 'برج', 'کاخ'];
 // Property cards are the printed For Sale (2nd edition) cards from github.com/rayvax/for-sale-board-game (see DECISIONS.md):
 // props.webp holds card v at cell v − 1 (10 × 3); the printed card carries its own value in each corner.

@@ -1,4 +1,7 @@
 import './app.css';
+// DS v2.4: preload Peyda 400 and 700 (the weights of body text and headings); the URLs are the same hashed assets tokens.css uses.
+import peyda400 from '@bg/ui/bgv/fonts/peyda/Peyda-Regular.woff2?url';
+import peyda700 from '@bg/ui/bgv/fonts/peyda/Peyda-Bold.woff2?url';
 import { lazy, StrictMode, Suspense, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
@@ -13,6 +16,12 @@ import { Login } from './pages/Login.tsx';
 import { NotFound } from './pages/NotFound.tsx';
 import { RealtimeProvider } from './lib/realtime.tsx';
 import { SITE_LINKS, SitePage } from './pages/SitePage.tsx';
+
+for (const href of [peyda400, peyda700]) {
+  const l = document.createElement('link');
+  Object.assign(l, { rel: 'preload', as: 'font', type: 'font/woff2', href, crossOrigin: 'anonymous' });
+  document.head.append(l);
+}
 
 /** The design showcase is an internal tool: admins only (the server enforces nothing here; the page holds no data). */
 function AdminOnly({ children }: { children: ReactNode }) {

@@ -15,7 +15,7 @@ export function InvitePanel({ tableId }: { tableId: string }) {
     try {
       const r = await api<{ invited: number }>(`/tables/${tableId}/invites`, { method: 'POST', body });
       setSent((s) => new Set(s).add(key));
-      toast('success', r.invited ? `دعوت برای ${r.invited.toLocaleString('fa-IR')} نفر فرستاده شد.` : 'کسی برای دعوت باقی نماند.');
+      toast('success', r.invited ? `دعوت برای ${r.invited.toLocaleString('fa-IR').replace(/٬/g, ',')} نفر فرستاده شد.` : 'کسی برای دعوت باقی نماند.');
     } catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'دعوت انجام نشد.'); }
   };
   const activeGroups = groups.data?.items.filter((g) => g.myStatus === 'active') ?? [];

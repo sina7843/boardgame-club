@@ -24,7 +24,7 @@ import coin from './art/coin.webp';
 const PORTRAIT = [assassin, thief, magician, king, bishop, merchant, architect, warlord]; // CHARACTERS index 1..8
 const DISTRICT_ART: Record<string, string> = { yellow, blue, green, red };
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
 export function DistrictCard({ id, size = 'md', from, exit }: { id: number; size?: 'sm' | 'md'; from?: string; exit?: string }) {
   const d = DISTRICTS[id]!;

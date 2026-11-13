@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { down, type HandCard, type ScoutView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
 export function Act({ c, size = 'md', flipped, flip, flipFrom, exit }: { c: HandCard; size?: 'sm' | 'md'; flipped?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
   const top = flipped ? down(c) : c.up;

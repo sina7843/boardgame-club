@@ -30,7 +30,7 @@ function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]
 }
 const HOP = 380;
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const S = 100, M = 34, SIZE = 8 * S + 2 * M;
 // Pieces and board woods are cut from a generated sheet (see DECISIONS.md).
 const PIECE: Record<Piece, string> = { d: manD, D: kingD, l: manL, L: kingL };

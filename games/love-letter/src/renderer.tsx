@@ -13,7 +13,7 @@ import countess from './art/ll-countess.webp';
 import princess from './art/ll-princess.webp';
 import { CARD_FA, type LogEntry, type LoveLetterView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const EFFECT_FA: Record<number, string> = {
   1: 'کارت یک نفر را حدس بزنید', 2: 'دست یک نفر را ببینید', 3: 'دست‌ها را مقایسه کنید', 4: 'تا نوبت بعد در امانید',
   5: 'یک نفر کارتش را عوض کند', 6: 'دست‌تان را عوض کنید', 7: 'با شاه یا شاهزاده باید بازی شود', 8: 'دور بیندازید، می‌بازید'

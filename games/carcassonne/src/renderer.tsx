@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } f
 import tilesArt from './art/tiles.webp';
 import { TILES, feature, groups, key, segments, type CarcView, type Placed } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const SEAT_COLORS = ['#e0473c', '#2f7de1', '#f2c230', '#3aa65a', '#9b59d0'];
 const DIRS = ['بالا', 'راست', 'پایین', 'چپ'];
 const MID = [[50, 0], [100, 50], [50, 100], [0, 50]] as const;

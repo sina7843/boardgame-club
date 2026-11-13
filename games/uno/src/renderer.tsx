@@ -6,7 +6,7 @@ import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from
 import { COLORS, type Card, type Color, type LogEntry, type UnoView } from './rules.ts';
 import { CardBack, CardFace, cardLabel, COLOR_FA } from './cards.tsx';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Hint = { type: string; card?: unknown; seat?: unknown; needsColor?: unknown; color?: unknown };
 
 function describe(e: LogEntry, name: (s: number) => string): string {

@@ -14,7 +14,7 @@ import camel from './art/camel.webp';
 import coinsArt from './art/coins.webp';
 import { GOODS, PRECIOUS, type Card, type Good, type JaipurView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CARD_FA: Record<Card, string> = { diamond: 'الماس', gold: 'طلا', silver: 'نقره', cloth: 'پارچه', spice: 'ادویه', leather: 'چرم', camel: 'شتر' };
 
 // Card pictures and goods coins are the BGA Jaipur client art (see DECISIONS.md).

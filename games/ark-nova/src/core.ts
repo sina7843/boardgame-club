@@ -442,7 +442,7 @@ export function build(c: Ctx, kind: string, cells: string[], free: boolean): Bui
 export const capacity = (c: Ctx, b: Building) => (isStandard(b) ? sizeOfKind(b.kind) + qsum(c, 'enclosureSize', b) : SPECIAL_CAP[b.kind] ?? 0);
 
 // ---------------- Bonuses ----------------
-const faN = (n?: number) => (n ?? 1).toLocaleString('fa-IR');
+const faN = (n?: number) => (n ?? 1).toLocaleString('fa-IR').replace(/٬/g, ',');
 export const BONUS_FA: Record<string, (n?: number) => string> = {
   money: (n) => `${faN(n)} پول`, x: (n) => `${faN(n)} نشان X`, rep: (n) => `${faN(n)} اعتبار`, cp: (n) => `${faN(n)} امتیاز حفاظت`, appeal: (n) => `${faN(n)} جذابیت`,
   card: (n) => `${faN(n)} کارت از محدودهٔ اعتبار یا دسته`, snap: () => 'برداشتن ۱ کارت از ویترین', worker: () => 'یک کارمند انجمن', upgrade: () => 'ارتقای یک کارت کنش',

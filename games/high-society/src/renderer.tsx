@@ -9,7 +9,7 @@ import prestigeArt from './art/prestige.webp';
 import disgraceArt from './art/disgrace.webp';
 import { isDisgrace, isRed, lux, status, type HighSocietyView, type StatusCard } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const LUX = ['', 'گلاب‌پاش', 'کلاه', 'دستکش', 'عطر', 'شامپاین', 'تابلو', 'پیانو', 'اسب', 'قایق', 'کاخ ییلاقی'];
 const SPECIAL: Record<string, { big: string; name: string }> = {
   prestige: { big: '×۲', name: 'افتخار' }, passe: { big: '−۵', name: 'از مد افتاده' }, scandal: { big: '½', name: 'رسوایی' }, faux: { big: '✕', name: 'گاف' }

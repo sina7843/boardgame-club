@@ -27,7 +27,7 @@ import parkingImg from './art/parking.webp';
 import policeImg from './art/police.webp';
 import centreImg from './art/centre.webp';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const SEAT_COLORS = ['#d62f35', '#1c63c9', '#23843f', '#e0a400', '#7a3fa0', '#e06a1b', '#0f8f8f', '#6b4f3a'];
 const S = 1100;
 const C = 150; // corner size

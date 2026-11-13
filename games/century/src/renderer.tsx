@@ -11,7 +11,7 @@ import spiceG from './art/spice-g.webp';
 import spiceB from './art/spice-b.webp';
 import { MERCHANTS, ORDERS, SPICES, scoreOf, upgrade, type Bag, type CenturyView, type Spice } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const SPICE_FA: Record<Spice, string> = { y: 'زردچوبه', r: 'زعفران', g: 'هل', b: 'دارچین' };
 
 // Spice art is cut from a generated sheet (see DECISIONS.md). Tiny (sm) glyphs stay coloured cubes.

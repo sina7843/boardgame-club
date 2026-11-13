@@ -8,7 +8,7 @@ import discW from './art/disc-w.webp';
 import texBaize from './art/tex-baize.webp';
 import { flips, type Disc, type OthelloView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const S = 100, M = 34, SIZE = 8 * S + 2 * M;
 // Disc and baize art are cut from a generated sheet (see DECISIONS.md).
 const DISC = { b: discB, w: discW };

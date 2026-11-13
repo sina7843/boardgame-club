@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 // Fabrics are cut from the BGA Patchwork client art (see DECISIONS.md): fabrics.webp holds one 64 px square from each
 // of its 33 patch pictures (11 × 3); patch id n uses square n, so every cell of a patch shows the same printed cloth.
 const cloth = (id: number) => ({ ['--fx' as string]: `${(id % 11) * 10}%`, ['--fy' as string]: `${Math.floor(id / 11) * 50}%` });

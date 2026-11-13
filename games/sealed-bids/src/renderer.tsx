@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActionBar, Hand, Token, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { ROUNDS, type SealedBidsView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
 export default function SealedBidsRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, queued }: GameRendererProps<SealedBidsView>) {
   // Undo-window preview: the tapped token is already sealed in the envelope (only you see your own bid); undo returns it.

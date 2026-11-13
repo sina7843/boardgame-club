@@ -6,7 +6,7 @@ import type { Industry } from './types.ts';
 // The per-tile lines of the rules guide are generated from content/ so every number matches the engine.
 const IND: Record<Industry, string> = { cotton: 'کارخانهٔ پنبه', manufacturer: 'تولیدی', pottery: 'سفال‌گری', coal: 'معدن زغال', iron: 'ذوب‌آهن', brewery: 'آبجوسازی' };
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
-const n = (x: number) => x.toLocaleString('fa-IR');
+const n = (x: number) => x.toLocaleString('fa-IR').replace(/٬/g, ',');
 const tileLine = (ind: Industry) => `${IND[ind]}: ` + TILES.filter((t) => t.industry === ind).map((t) => {
   const need = [t.coal ? `${n(t.coal)} زغال` : '', t.iron ? `${n(t.iron)} آهن` : '', t.beer ? `فروش با ${n(t.beer)} آبجو` : ind === 'cotton' || ind === 'manufacturer' || ind === 'pottery' ? 'فروش بدون آبجو' : ''].filter(Boolean).join('، ');
   const prod = typeof t.produce === 'number' ? (t.produce ? `${n(t.produce)} مکعب` : '') : `${n(t.produce.canal)} بشکه در کانال / ${n(t.produce.rail)} در راه‌آهن`;

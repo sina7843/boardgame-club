@@ -2,20 +2,19 @@
 // Syncs the BGV design system from design/system into packages/ui/src/bgv (run after a design-system update).
 // tokens.css / bundle.css are copied byte-identical; bundle.js (classic script over window.React) becomes the
 // ES module bgv.js with the same code, and index.d.ts becomes its type declaration.
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync, mkdirSync, cpSync } from 'node:fs';
 
 const src = 'design/system';
 const out = 'packages/ui/src/bgv';
 mkdirSync(`${out}/reference`, { recursive: true });
 copyFileSync(`${src}/tokens.css`, `${out}/tokens.css`);
-// Self-hosted fonts (v2.1): tokens.css refers to them as fonts/<file>.
-mkdirSync(`${out}/fonts`, { recursive: true });
-for (const f of readdirSync(`${src}/fonts`)) copyFileSync(`${src}/fonts/${f}`, `${out}/fonts/${f}`);
+// Self-hosted fonts: tokens.css refers to them as fonts/<file> (v2.1) and fonts/peyda/<file> (v2.4).
+cpSync(`${src}/fonts`, `${out}/fonts`, { recursive: true });
 copyFileSync(`${src}/components/bundle.css`, `${out}/bundle.css`);
 copyFileSync(`${src}/components/bundle.js`, `${out}/reference/bundle.js`);
 copyFileSync(`${src}/components/index.d.ts`, `${out}/reference/index.d.ts`);
 
-const js = readFileSync(`${src}/components/bundle.js`, 'utf8');
+const js = readFileSync(`${src}/components/bundle.js`, 'utf8').replace(/\r\n/g, '\n'); // v2.4 ships CRLF
 const open = "(function () {\n  'use strict';\n  var React = window.React;";
 const close = '  window.Bgv = Bgv;\n})();';
 if (!js.includes(open) || !js.includes(close)) throw new Error('bgv-sync: bundle.js wrapper changed; update this script');

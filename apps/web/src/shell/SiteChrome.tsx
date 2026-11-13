@@ -22,7 +22,7 @@ export function searchGames(games: GameSummary[], q: string): GameSummary[] {
 
 const asResult = (g: GameSummary): SiteSearchResult => ({
   title: g.nameFa, latin: g.nameOriginal, cover: `/covers/${g.id}.webp?v=2`, href: `/games/${g.id}`, quickHref: `/play?game=${g.id}`,
-  meta: [{ icon: 'users', text: `${faNum(g.minPlayers)}–${faNum(g.maxPlayers)} نفر` }, { icon: 'clock', text: `${faNum(g.minMinutes)}–${faNum(g.maxMinutes)} دقیقه` }]
+  meta: [{ icon: 'users', text: `${faNum(g.minPlayers)} تا ${faNum(g.maxPlayers)} نفر` }, { icon: 'clock', text: `${faNum(g.minMinutes)} تا ${faNum(g.maxMinutes)} دقیقه` }]
 });
 
 /** Header search (and the phone sheet): games are loaded on first use and filtered here. */

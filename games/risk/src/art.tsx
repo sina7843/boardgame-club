@@ -135,11 +135,11 @@ export function ArmyToken({ seat, n, r = 14, lift = false }: { seat: number; n: 
       <image href={mini} x={-r * 0.85} y={-r * 1.05} width={r * 1.7} height={r * 1.7} />
       <g transform={`translate(0 ${(r * 0.72).toFixed(1)})`}>
         <rect x={-r * 0.62} y={-r * 0.36} width={r * 1.24} height={r * 0.72} rx={r * 0.36} fill="#fbf3dc" stroke="#140d05" strokeWidth={r * 0.08} />
-        <text y={r * 0.26} fontSize={r * 0.82} className="rk-token__n" fill={INK}>{n.toLocaleString('fa-IR')}</text>
+        <text y={r * 0.26} fontSize={r * 0.82} className="rk-token__n" fill={INK}>{n.toLocaleString('fa-IR').replace(/٬/g, ',')}</text>
       </g>
       <g transform={`translate(${(r * 0.8).toFixed(1)} ${(-r * 0.8).toFixed(1)})`}>
         <circle r={r * 0.42} fill="#fbf3dc" stroke="#140d05" strokeWidth={r * 0.08} />
-        <text y={r * 0.15} fontSize={r * 0.5} className="rk-token__seat">{(seat + 1).toLocaleString('fa-IR')}</text>
+        <text y={r * 0.15} fontSize={r * 0.5} className="rk-token__seat">{(seat + 1).toLocaleString('fa-IR').replace(/٬/g, ',')}</text>
       </g>
     </g>
   );

@@ -10,7 +10,7 @@ import {
 } from './data.ts';
 import { villagesFree, type BRView, type BattleView, type Figure, type LogEntry } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const CLAN_FA = ['آبی', 'زرد', 'قرمز', 'عاج', 'بنفش'];
 const clanColor = (seat: number) => `var(--seat-${(seat % 5) + 1})`;
 /** Seat → clan of the printed game (raven, serpent, wolf, bear, ram): emblem and figure portraits in cards.webp. */

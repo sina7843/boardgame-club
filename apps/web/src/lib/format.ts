@@ -4,11 +4,11 @@ import type { GameSummary } from '@bg/contracts';
 const jalaliLong = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'long', timeZone: 'Asia/Tehran' });
 const weekday = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', timeZone: 'Asia/Tehran' });
 
-export const faNum = (n: number) => n.toLocaleString('fa-IR');
+export const faNum = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const jalaliDate = (iso: string | Date) => jalaliLong.format(typeof iso === 'string' ? new Date(iso) : iso);
 export const jalaliToday = (now = new Date()) => `${weekday.format(now)}، ${jalaliLong.format(now)}`;
 
-export const range = (a: number, b: number, unit: string) => (a === b ? `${faNum(a)} ${unit}` : `${faNum(a)}-${faNum(b)} ${unit}`);
+export const range = (a: number, b: number, unit: string) => (a === b ? `${faNum(a)} ${unit}` : `${faNum(a)} تا ${faNum(b)} ${unit}`);
 
 export const DIFFICULTY_FA: Record<GameSummary['difficulty'], string> = { easy: 'آسان', medium: 'متوسط', hard: 'دشوار' };
 export const PACE_FA: Record<GameSummary['paces'][number], string> = { live: 'زنده', turn: 'نوبتی' };
@@ -48,4 +48,4 @@ const jalaliWhen = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'l
 export const jalaliDateTime = (iso: string) => jalaliWhen.format(new Date(iso));
 
 /** Stored in Rial; shown in Toman. */
-export const tomanFa = (rial: number) => `${Math.round(rial / 10).toLocaleString('fa-IR')} تومان`;
+export const tomanFa = (rial: number) => `${Math.round(rial / 10).toLocaleString('fa-IR').replace(/٬/g, ',')} تومان`;

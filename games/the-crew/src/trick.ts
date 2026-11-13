@@ -9,7 +9,7 @@ export const SUIT_FA: Record<string, string> = { p: 'صورتی', b: 'آبی', g
 export const DECK: string[] = [...SUITS.flatMap((s) => Array.from({ length: 9 }, (_, i) => `${s}${i + 1}`)), 'r1', 'r2', 'r3', 'r4'];
 export const suit = (c: string) => c[0]!;
 export const rank = (c: string) => Number(c.slice(1));
-export const cardFa = (c: string) => `${SUIT_FA[suit(c)]} ${Number(c.slice(1)).toLocaleString('fa-IR')}`;
+export const cardFa = (c: string) => `${SUIT_FA[suit(c)]} ${Number(c.slice(1)).toLocaleString('fa-IR').replace(/٬/g, ',')}`;
 export const sortHand = (h: string[]) => h.slice().sort((a, b) => 'pbgyr'.indexOf(suit(a)) - 'pbgyr'.indexOf(suit(b)) || rank(a) - rank(b));
 
 export type CommKind = 'top' | 'bottom' | 'only';

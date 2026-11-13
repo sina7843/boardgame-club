@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
 import { attrs, isSet, type SetView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const COUNT_FA = ['یک', 'دو', 'سه'];
 const SHAPE_FA = ['لوزی', 'موج', 'بیضی'];
 const COLOR_FA = ['قرمز', 'سبز', 'بنفش'];

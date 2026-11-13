@@ -8,7 +8,7 @@ import cardsArt from './art/cards.webp';
 
 /** cards.webp (BGA No Thanks! client art): 10 × 4 cells, card n at cell n (cell 0 is the back). */
 const cardArt = (n: number) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${((n % 10) / 9) * 100}% ${(Math.floor(n / 10) / 3) * 100}%` });
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Warm-to-hot card colours: low cards cool, high cards red. */
 const hue = (c: number) => 200 - ((c - 3) / 32) * 200;
 

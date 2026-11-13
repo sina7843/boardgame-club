@@ -9,7 +9,7 @@ import texKaya from './art/tex-kaya.webp';
 import { areaScore, play, type GoView, type Stone } from './rules.ts';
 
 // Stones and the kaya wood are cut from a generated sheet (see DECISIONS.md).
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const COLS = 'ABCDEFGHJKLMNOPQRST';
 const STARS: Record<number, number[]> = { 9: [2, 4, 6], 13: [3, 6, 9], 19: [3, 9, 15] };
 

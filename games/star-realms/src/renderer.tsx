@@ -13,7 +13,7 @@ import { TYPE, type Faction, type Fx, type SrView } from './rules.ts';
 // Faction emblems are cut from a generated sprite sheet (see DECISIONS.md); 'none' keeps the plain glyph.
 const EMBLEM: Partial<Record<Faction, string>> = { fed, blob, cult, emp };
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const FACTION_FA = { fed: 'فدراسیون', blob: 'هیولاها', cult: 'ماشین‌پرستان', emp: 'امپراتوری', none: '' } as const;
 
 export function fxText(fx: Fx | undefined) {

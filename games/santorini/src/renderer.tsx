@@ -7,7 +7,7 @@ import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps } fro
 import { DOME, SEA, STONE, WORKER_SRC } from './pieces.ts';
 import { buildTargets, moveTargets, type SantoriniView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const S = 130, M = 40, SIZE = 5 * S + 2 * M;
 
 type Queued = { type: string; at?: number; from?: number; to?: number; build?: number };

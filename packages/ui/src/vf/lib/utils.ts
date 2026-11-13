@@ -28,12 +28,12 @@ export function en(value: string): string {
   return value.replace(/[۰-۹]/g, (d) => String(FA_DIGITS.indexOf(d))).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
 }
 
-/** Thousands-separated Persian number: 12450000 -> ۱۲٬۴۵۰٬۰۰۰ */
+/** Thousands-separated Persian number (DS v2.4.3: plain comma): 12450000 -> ۱۲,۴۵۰,۰۰۰ */
 export function faNumber(value: number): string {
-  return fa(Math.round(value).toLocaleString("en-US")).replace(/,/g, "٬");
+  return fa(Math.round(value).toLocaleString("en-US"));
 }
 
-/** Amount in toman with unit: 12450000 -> ۱۲٬۴۵۰٬۰۰۰ تومان */
+/** Amount in toman with unit: 12450000 -> ۱۲,۴۵۰,۰۰۰ تومان */
 export function formatToman(value: number): string {
   return `${faNumber(value)} تومان`;
 }

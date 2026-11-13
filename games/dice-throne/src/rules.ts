@@ -141,7 +141,7 @@ function startTurn(s: DtState, seat: number) {
   s.turn += 1;
   s.dice = [1, 1, 1, 1, 1]; s.rollsLeft = 3; s.rolled = false; s.pending = null;
   const f = s.fighters[seat]!;
-  if (f.wound) { f.hp -= f.wound; s.log.push({ seat, text: `زخم: −${f.wound.toLocaleString('fa-IR')}` }); checkEnd(s); if (s.outcome) return; }
+  if (f.wound) { f.hp -= f.wound; s.log.push({ seat, text: `زخم: −${f.wound.toLocaleString('fa-IR').replace(/٬/g, ',')}` }); checkEnd(s); if (s.outcome) return; }
   if (s.turn > 1) f.cp = Math.min(15, f.cp + 1);
   if (f.stun) { f.stun = false; s.log.push({ seat, text: 'گیج بود و نوبتش سوخت' }); startTurn(s, 1 - seat); }
 }
@@ -233,7 +233,7 @@ export const dtModule: GameModule<DtState, DtAction, DtView> = {
         f.hp = Math.min(MAX_HP, f.hp + heal);
         f.cp = Math.min(15, f.cp + cp);
         if (back) hurt(s, att, back);
-        s.log.push({ seat, text: `دفاع: ${dealt.toLocaleString('fa-IR')} آسیب گرفت${back ? `، ${back.toLocaleString('fa-IR')} برگرداند` : ''}` });
+        s.log.push({ seat, text: `دفاع: ${dealt.toLocaleString('fa-IR').replace(/٬/g, ',')} آسیب گرفت${back ? `، ${back.toLocaleString('fa-IR').replace(/٬/g, ',')} برگرداند` : ''}` });
         s.pending = null;
         checkEnd(s);
         if (!s.outcome) startTurn(s, 1 - att);

@@ -17,7 +17,7 @@ import wasabi from './art/wasabi.webp';
 import chopsticks from './art/chopsticks.webp';
 import { MAKI, setScore, type Kind, type Played, type SushiGoView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const NAME: Record<Kind, string> = {
   tempura: 'تمپورا', sashimi: 'ساشیمی', dumpling: 'دامپلینگ', maki1: 'ماکی ۱', maki2: 'ماکی ۲', maki3: 'ماکی ۳', salmon: 'نیگیری سالمون',
   squid: 'نیگیری ماهی مرکب', egg: 'نیگیری تخم‌مرغ', pudding: 'پودینگ', wasabi: 'واسابی', chopsticks: 'چاپستیک'

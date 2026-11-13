@@ -8,7 +8,7 @@ import heart from './art/heart.webp';
 import star from './art/star.webp';
 import type { TheMindView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
 // Art is cut from a generated sprite sheet (see DECISIONS.md).
 const Heart = ({ on }: { on: boolean }) => <img src={heart} alt="" className={`tm-ico tm-ico--life ${on ? 'on' : ''}`} aria-hidden="true" />;

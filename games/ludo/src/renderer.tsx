@@ -13,7 +13,7 @@ import pawnYellow from './art/pawn-yellow.webp';
 import pawnBlue from './art/pawn-blue.webp';
 import { TRACK, trackSquare, type LogEntry, type LudoView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const C = 50;
 export const SLOT_COLORS = ['#d62f35', '#23843f', '#e0a400', '#1c63c9'];
 const PAWN_ART = [pawnRed, pawnGreen, pawnYellow, pawnBlue]; // same order as SLOT_COLORS

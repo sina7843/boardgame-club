@@ -8,7 +8,7 @@ import dieArt from './art/die.webp';
 import { BoardDefs, LadderArt, PawnArt, SnakeArt, pipsOf } from './art.tsx';
 import { LADDERS, SNAKES, type LogEntry, type SnakesView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const TOKEN_COLORS = ['#d62f35', '#1c63c9', '#23843f', '#e0a400', '#7a3fa0', '#e06a1b'];
 const CELL = 60;
 

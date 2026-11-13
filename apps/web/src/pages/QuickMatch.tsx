@@ -106,7 +106,7 @@ function MatchedCheck({ tableId, gameNameFa, readyDeadline, now, onDecline }: { 
         <Card>
           <ol className="pg-steps">
             <li className="is-done"><Icon name="check" size="sm" />حریف پیدا شد</li>
-            <li className={all ? 'is-done' : 'is-now'}><Icon name={all ? 'check' : 'hourglass'} size="sm" />آمادگی همه ({tb.seats.filter((x) => x.ready).length.toLocaleString('fa-IR')} از {tb.seats.length.toLocaleString('fa-IR')})</li>
+            <li className={all ? 'is-done' : 'is-now'}><Icon name={all ? 'check' : 'hourglass'} size="sm" />آمادگی همه ({tb.seats.filter((x) => x.ready).length.toLocaleString('fa-IR').replace(/٬/g, ',')} از {tb.seats.length.toLocaleString('fa-IR').replace(/٬/g, ',')})</li>
             <li className={all ? 'is-now' : ''}><Icon name="armchair" size="sm" />چیدن میز و شروع بازی</li>
           </ol>
         </Card>
