@@ -1,0 +1,5558 @@
+{
+ "note": "Mid-game 4-player position of every reference screen, built only through the repo engine (work/engine/mock2.mjs); view = projectState(seat 0); sub/flows = engine prompts captured on clones.",
+ "seed": 3,
+ "state": {
+  "n": 4,
+  "players": [
+   {
+    "map": "6",
+    "money": 35,
+    "appeal": 28,
+    "cp": 2,
+    "rep": 6,
+    "x": 2,
+    "slots": [
+     "cards",
+     "sponsors",
+     "build",
+     "animals",
+     "association"
+    ],
+    "up": {
+     "animals": true,
+     "build": true,
+     "cards": false,
+     "association": false,
+     "sponsors": false
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 1,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 1,
+    "hired": 0,
+    "hand": [
+     210,
+     409,
+     127,
+     486,
+     429
+    ],
+    "finals": [
+     7,
+     8
+    ],
+    "zoo": [
+     428,
+     473,
+     452,
+     475,
+     414,
+     237,
+     217
+    ],
+    "data": {},
+    "under": {},
+    "partners": [
+     "africa"
+    ],
+    "unis": [
+     "science"
+    ],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e4",
+      "cells": [
+       "2_11",
+       "3_10",
+       "3_12",
+       "4_11"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e3",
+      "cells": [
+       "4_7",
+       "4_9",
+       "5_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "e2",
+      "cells": [
+       "6_7",
+       "7_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "1_10"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "e2",
+      "cells": [
+       "4_5",
+       "5_6"
+      ],
+      "full": true
+     },
+     {
+      "id": 6,
+      "kind": "pavilion",
+      "cells": [
+       "6_9"
+      ]
+     },
+     {
+      "id": 7,
+      "kind": "e1",
+      "cells": [
+       "3_4"
+      ]
+     },
+     {
+      "id": 8,
+      "kind": "e3",
+      "cells": [
+       "1_4",
+       "1_6",
+       "2_5"
+      ],
+      "full": true
+     }
+    ],
+    "nextId": 9,
+    "left": [
+     false,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 1,
+    "marks": [
+     "c2"
+    ],
+    "taken": [
+     "3_10",
+     "2_5"
+    ],
+    "timeouts": 0
+   },
+   {
+    "map": "1",
+    "money": 17,
+    "appeal": 39,
+    "cp": 6,
+    "rep": 7,
+    "x": 1,
+    "slots": [
+     "animals",
+     "sponsors",
+     "cards",
+     "build",
+     "association"
+    ],
+    "up": {
+     "animals": true,
+     "build": true,
+     "cards": false,
+     "association": true,
+     "sponsors": false
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 1,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 1,
+    "hired": 0,
+    "hand": [
+     118,
+     411,
+     231,
+     404
+    ],
+    "finals": [
+     3,
+     5
+    ],
+    "zoo": [
+     450,
+     493,
+     447,
+     408,
+     477,
+     472,
+     261
+    ],
+    "data": {},
+    "under": {},
+    "partners": [
+     "asia",
+     "europe"
+    ],
+    "unis": [],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e5",
+      "cells": [
+       "4_11",
+       "4_7",
+       "4_9",
+       "5_10",
+       "5_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e3",
+      "cells": [
+       "6_9",
+       "7_10",
+       "7_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "e2",
+      "cells": [
+       "2_5",
+       "3_6"
+      ],
+      "full": true
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "2_7"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "e1",
+      "cells": [
+       "1_4"
+      ],
+      "full": true
+     },
+     {
+      "id": 6,
+      "kind": "e2",
+      "cells": [
+       "1_8",
+       "2_9"
+      ],
+      "full": true
+     },
+     {
+      "id": 7,
+      "kind": "e4",
+      "cells": [
+       "3_2",
+       "3_4",
+       "4_1",
+       "4_3"
+      ],
+      "full": true
+     }
+    ],
+    "nextId": 8,
+    "left": [
+     false,
+     false,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 2,
+    "marks": [
+     "r7",
+     "c2",
+     "c5"
+    ],
+    "taken": [
+     "4_11",
+     "7_8",
+     "3_6",
+     "4_1"
+    ],
+    "timeouts": 0
+   },
+   {
+    "map": "7",
+    "money": 31,
+    "appeal": 13,
+    "cp": 3,
+    "rep": 9,
+    "x": 3,
+    "slots": [
+     "animals",
+     "cards",
+     "build",
+     "sponsors",
+     "association"
+    ],
+    "up": {
+     "animals": true,
+     "build": false,
+     "cards": true,
+     "association": false,
+     "sponsors": false
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 2,
+    "hired": 1,
+    "hand": [
+     131,
+     526,
+     232,
+     202,
+     264,
+     120
+    ],
+    "finals": [
+     6,
+     4
+    ],
+    "zoo": [
+     449,
+     410,
+     522,
+     405,
+     238,
+     223
+    ],
+    "data": {},
+    "under": {},
+    "partners": [
+     "americas"
+    ],
+    "unis": [
+     "rep"
+    ],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e3",
+      "cells": [
+       "5_2",
+       "6_1",
+       "6_3"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e2",
+      "cells": [
+       "5_4",
+       "5_6"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "pz",
+      "cells": [
+       "3_8",
+       "4_5",
+       "4_7"
+      ],
+      "used": 1
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "7_2"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "e1",
+      "cells": [
+       "2_7"
+      ],
+      "full": true
+     },
+     {
+      "id": 6,
+      "kind": "e2",
+      "cells": [
+       "0_5",
+       "1_6"
+      ]
+     }
+    ],
+    "nextId": 7,
+    "left": [
+     false,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 1,
+    "marks": [
+     "r7",
+     "r8",
+     "r9",
+     "c2"
+    ],
+    "taken": [
+     "5_4",
+     "4_7",
+     "7_2",
+     "0_5"
+    ],
+    "timeouts": 0
+   },
+   {
+    "map": "3",
+    "money": 12,
+    "appeal": 22,
+    "cp": 1,
+    "rep": 8,
+    "x": 0,
+    "slots": [
+     "animals",
+     "cards",
+     "sponsors",
+     "build",
+     "association"
+    ],
+    "up": {
+     "animals": false,
+     "build": false,
+     "cards": false,
+     "association": false,
+     "sponsors": true
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 2,
+    "hired": 1,
+    "hand": [
+     492,
+     248,
+     510
+    ],
+    "finals": [
+     2,
+     11
+    ],
+    "zoo": [
+     440,
+     432,
+     445,
+     478,
+     214
+    ],
+    "data": {},
+    "under": {},
+    "partners": [],
+    "unis": [
+     "hand"
+    ],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e4",
+      "cells": [
+       "0_1",
+       "0_3",
+       "1_2",
+       "1_4"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e2",
+      "cells": [
+       "1_0",
+       "2_1"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "e3",
+      "cells": [
+       "3_0",
+       "3_2",
+       "4_1"
+      ],
+      "full": true
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "0_5"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "pavilion",
+      "cells": [
+       "5_2"
+      ]
+     },
+     {
+      "id": 6,
+      "kind": "e1",
+      "cells": [
+       "3_4"
+      ],
+      "full": true
+     }
+    ],
+    "nextId": 7,
+    "left": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 0,
+    "marks": [
+     "r7",
+     "r8"
+    ],
+    "taken": [
+     "0_3",
+     "1_2",
+     "1_4",
+     "2_1",
+     "3_2",
+     "0_5",
+     "5_2",
+     "3_4"
+    ],
+    "timeouts": 0
+   }
+  ],
+  "stage": "play",
+  "current": 0,
+  "first": 3,
+  "drafts": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "deck": [
+   416,
+   515,
+   419,
+   430,
+   425,
+   413,
+   480,
+   474,
+   479,
+   490,
+   444,
+   481,
+   471,
+   514,
+   466,
+   401,
+   499,
+   505,
+   426,
+   453,
+   500,
+   454,
+   436,
+   483,
+   482,
+   403,
+   519,
+   412,
+   524,
+   441,
+   451,
+   476,
+   508,
+   516,
+   507,
+   243,
+   498,
+   225,
+   119,
+   258,
+   212,
+   126,
+   227,
+   229,
+   233,
+   467,
+   222,
+   246,
+   458,
+   241,
+   123,
+   117,
+   220,
+   497,
+   438,
+   502,
+   254,
+   462,
+   256,
+   249,
+   116,
+   423,
+   437,
+   244,
+   125,
+   501,
+   489,
+   417,
+   204,
+   517,
+   488,
+   448,
+   201,
+   234,
+   494,
+   113,
+   122,
+   209,
+   130,
+   468,
+   253,
+   245,
+   205,
+   236,
+   215,
+   218,
+   213,
+   491,
+   427,
+   439,
+   124,
+   431,
+   415,
+   230,
+   459,
+   464,
+   242,
+   226,
+   247,
+   211,
+   504,
+   513,
+   528,
+   487,
+   129,
+   221,
+   114,
+   495,
+   216,
+   421,
+   509,
+   255,
+   435,
+   434,
+   257,
+   207,
+   506,
+   525,
+   527,
+   442,
+   433,
+   206,
+   263
+  ],
+  "discard": [
+   523,
+   518,
+   251,
+   521,
+   252,
+   418,
+   461,
+   520,
+   457,
+   239,
+   422,
+   511,
+   484,
+   240,
+   443,
+   424,
+   259
+  ],
+  "display": [
+   402,
+   121,
+   128,
+   260,
+   250,
+   503
+  ],
+  "finalsDeck": [
+   1,
+   10,
+   9
+  ],
+  "brk": 6,
+  "brkMax": 10,
+  "breakDue": null,
+  "zoosAvail": [
+   "australia"
+  ],
+  "unisAvail": [],
+  "assoc": {
+   "rep": [],
+   "zoo": [],
+   "uni": [],
+   "project": []
+  },
+  "donations": 0,
+  "baseProjects": [
+   102,
+   105,
+   106,
+   101
+  ],
+  "baseDeck": [
+   110,
+   107,
+   104,
+   112,
+   103,
+   109,
+   111,
+   108
+  ],
+  "projects": [],
+  "ptoks": {
+   "101": [
+    null,
+    2,
+    null
+   ],
+   "102": [
+    null,
+    1,
+    0
+   ],
+   "105": [
+    null,
+    null,
+    1
+   ],
+   "106": [
+    null,
+    null,
+    null
+   ]
+  },
+  "extraSupports": [],
+  "bonusTiles": {
+   "5": [
+    "mult",
+    "money10"
+   ],
+   "8": [
+    "uni",
+    "enc3"
+   ]
+  },
+  "cp10": false,
+  "endAt": null,
+  "turnsDone": 37,
+  "inTurn": false,
+  "act": null,
+  "queue": [
+   {
+    "k": "option",
+    "seat": 0,
+    "options": [
+     {
+      "value": "a:cards:0",
+      "label": "کارت‌ها با قدرت 1"
+     },
+     {
+      "value": "a:cards:1",
+      "label": "کارت‌ها با قدرت 2 (1 نشان X)"
+     },
+     {
+      "value": "a:cards:2",
+      "label": "کارت‌ها با قدرت 3 (2 نشان X)"
+     },
+     {
+      "value": "x:cards",
+      "label": "کنش نشان X با کارت کارت‌ها"
+     },
+     {
+      "value": "a:sponsors:0",
+      "label": "حامیان با قدرت 2"
+     },
+     {
+      "value": "a:sponsors:1",
+      "label": "حامیان با قدرت 3 (1 نشان X)"
+     },
+     {
+      "value": "a:sponsors:2",
+      "label": "حامیان با قدرت 4 (2 نشان X)"
+     },
+     {
+      "value": "x:sponsors",
+      "label": "کنش نشان X با کارت حامیان"
+     },
+     {
+      "value": "a:build:0",
+      "label": "ساخت II با قدرت 3"
+     },
+     {
+      "value": "a:build:1",
+      "label": "ساخت II با قدرت 4 (1 نشان X)"
+     },
+     {
+      "value": "a:build:2",
+      "label": "ساخت II با قدرت 5 (2 نشان X)"
+     },
+     {
+      "value": "x:build",
+      "label": "کنش نشان X با کارت ساخت"
+     },
+     {
+      "value": "a:animals:0",
+      "label": "حیوانات II با قدرت 4"
+     },
+     {
+      "value": "a:animals:1",
+      "label": "حیوانات II با قدرت 5 (1 نشان X)"
+     },
+     {
+      "value": "a:animals:2",
+      "label": "حیوانات II با قدرت 6 (2 نشان X)"
+     },
+     {
+      "value": "x:animals",
+      "label": "کنش نشان X با کارت حیوانات"
+     },
+     {
+      "value": "a:association:0",
+      "label": "انجمن با قدرت 5"
+     },
+     {
+      "value": "a:association:1",
+      "label": "انجمن با قدرت 6 (1 نشان X)"
+     },
+     {
+      "value": "a:association:2",
+      "label": "انجمن با قدرت 7 (2 نشان X)"
+     },
+     {
+      "value": "x:association",
+      "label": "کنش نشان X با کارت انجمن"
+     }
+    ],
+    "label": "کنش این نوبت را انتخاب کنید",
+    "fx": "core:turn",
+    "data": {
+     "label": "کنش این نوبت را انتخاب کنید",
+     "extra": false
+    }
+   }
+  ],
+  "venomCleared": false,
+  "turnUsed": [],
+  "seq": 4,
+  "log": [],
+  "final": null,
+  "outcome": null,
+  "options": {
+   "map": "advanced"
+  }
+ },
+ "view": {
+  "n": 4,
+  "stage": "play",
+  "current": 0,
+  "first": 3,
+  "seq": 4,
+  "deckCount": 123,
+  "discardCount": 17,
+  "display": [
+   402,
+   121,
+   128,
+   260,
+   250,
+   503
+  ],
+  "brk": 6,
+  "brkMax": 10,
+  "zoosAvail": [
+   "australia"
+  ],
+  "unisAvail": [],
+  "assoc": {
+   "rep": [],
+   "zoo": [],
+   "uni": [],
+   "project": []
+  },
+  "donations": 0,
+  "donationCost": 2,
+  "baseProjects": [
+   102,
+   105,
+   106,
+   101
+  ],
+  "projects": [],
+  "ptoks": {
+   "101": [
+    null,
+    2,
+    null
+   ],
+   "102": [
+    null,
+    1,
+    0
+   ],
+   "105": [
+    null,
+    null,
+    1
+   ],
+   "106": [
+    null,
+    null,
+    null
+   ]
+  },
+  "extraSupports": [],
+  "bonusTiles": {
+   "5": [
+    "mult",
+    "money10"
+   ],
+   "8": [
+    "uni",
+    "enc3"
+   ]
+  },
+  "cp10": false,
+  "endAt": null,
+  "turnsDone": 37,
+  "inTurn": false,
+  "act": null,
+  "log": [],
+  "final": null,
+  "outcome": null,
+  "options": {
+   "map": "advanced"
+  },
+  "maps": {
+   "1": {
+    "id": "1",
+    "nameFa": "برج دیدبانی",
+    "textFa": "هر بار که یک محوطهٔ استاندارد مجاور خانهٔ برج دیدبانی را به روی پر برمی‌گردانید، ۲ جذابیت بگیرید (پس از رهاسازی و پر کردن دوباره هم). روی محوطه‌های ویژه اثری ندارد.",
+    "water": [
+     "4_5",
+     "5_6",
+     "5_12",
+     "6_7",
+     "7_6",
+     "8_5",
+     "8_7"
+    ],
+    "rock": [
+     "0_5",
+     "0_7",
+     "0_9",
+     "1_0",
+     "1_6",
+     "2_1",
+     "3_0",
+     "3_10",
+     "3_12"
+    ],
+    "blocked": [],
+    "upgrade": [
+     "3_4",
+     "4_7",
+     "5_8"
+    ],
+    "bonuses": {
+     "0_1": "۱ نشان X",
+     "0_11": "۵ پول",
+     "3_6": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "4_1": "یک کارت کنش به خانهٔ ۱",
+     "4_11": "۱ اعتبار",
+     "6_5": "۵ پول",
+     "7_2": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "7_8": "۱ نشان X",
+     "7_12": "۱ نشان X"
+    },
+    "left": [
+     {
+      "label": "برداشتن ۱ کارت از ویترین",
+      "income": true
+     },
+     {
+      "label": "محوطهٔ ۲ خانهٔ رایگان",
+      "income": true
+     },
+     {
+      "label": "۵ پول",
+      "income": true
+     },
+     {
+      "label": "بازی یک حامی با پرداخت پول به اندازهٔ سطحش",
+      "income": true
+     },
+     {
+      "label": "یک کارمند انجمن",
+      "income": false
+     },
+     {
+      "label": "۱۲ پول",
+      "income": false
+     },
+     {
+      "label": "۳ نشان X",
+      "income": false
+     }
+    ],
+    "partner": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "یک کارمند انجمن",
+     "4": "۲ امتیاز حفاظت"
+    },
+    "uni": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "۱ امتیاز حفاظت"
+    },
+    "worker": {},
+    "marks": {
+     "1_6": "برج دیدبانی"
+    },
+    "turnAbility": null
+   },
+   "3": {
+    "id": "3",
+    "nameFa": "دریاچهٔ نقره‌ای",
+    "textFa": "منطقهٔ سودآور دور دریاچه: یازده خانهٔ کنار دریاچه هر کدام ۲ پول پاداش جایگذاری دارند. خانهٔ چهارم لبهٔ نقشه: یک کنش اضافه پس از پایان کنش جاری (اراده).",
+    "water": [
+     "0_11",
+     "1_6",
+     "2_3",
+     "2_5",
+     "2_7",
+     "5_10",
+     "5_12",
+     "6_1",
+     "6_9"
+    ],
+    "rock": [
+     "3_12",
+     "4_11",
+     "5_0",
+     "6_3",
+     "7_0",
+     "8_5",
+     "8_7"
+    ],
+    "blocked": [],
+    "upgrade": [
+     "0_1",
+     "1_0",
+     "1_2",
+     "1_4",
+     "2_1"
+    ],
+    "bonuses": {
+     "0_5": "۲ پول",
+     "0_7": "۲ پول",
+     "1_2": "۲ پول",
+     "1_4": "۲ پول",
+     "1_8": "۲ پول",
+     "2_1": "۲ پول",
+     "2_9": "۲ پول",
+     "3_2": "۲ پول",
+     "3_4": "۲ پول",
+     "3_6": "۲ پول",
+     "3_8": "۲ پول",
+     "0_3": "۱ اعتبار",
+     "1_12": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "4_9": "۱ اعتبار",
+     "5_2": "یک کارت کنش به خانهٔ ۱",
+     "5_6": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "6_11": "۱ نشان X",
+     "7_2": "بازی یک حامی با پرداخت پول به اندازهٔ سطحش",
+     "8_9": "۱ نشان X"
+    },
+    "left": [
+     {
+      "label": "برداشتن ۱ کارت از ویترین",
+      "income": true
+     },
+     {
+      "label": "محوطهٔ ۲ خانهٔ رایگان",
+      "income": true
+     },
+     {
+      "label": "۵ پول",
+      "income": true
+     },
+     {
+      "label": "اراده: پس از پایان کنش، یک کنش دیگر",
+      "income": false
+     },
+     {
+      "label": "یک کارمند انجمن",
+      "income": false
+     },
+     {
+      "label": "۱۲ پول",
+      "income": false
+     },
+     {
+      "label": "۳ نشان X",
+      "income": false
+     }
+    ],
+    "partner": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "یک کارمند انجمن",
+     "4": "۱ امتیاز حفاظت"
+    },
+    "uni": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "۲ امتیاز حفاظت"
+    },
+    "worker": {},
+    "marks": {},
+    "turnAbility": null
+   },
+   "6": {
+    "id": "6",
+    "nameFa": "پژوهشکده",
+    "textFa": "فعال وقتی خانهٔ کنار پژوهشکده ساخته شده باشد: هنگام بازی کارت حیوان ۱ شرط به انتخاب خودتان را نادیده بگیرید (نه نیاز صخره یا آب).",
+    "water": [
+     "0_1",
+     "0_3",
+     "5_10",
+     "5_12",
+     "7_4",
+     "7_6",
+     "8_1",
+     "8_3",
+     "8_11"
+    ],
+    "rock": [
+     "2_7",
+     "2_9",
+     "3_6",
+     "3_8",
+     "4_1",
+     "5_0",
+     "7_10"
+    ],
+    "blocked": [],
+    "upgrade": [
+     "4_3",
+     "5_4",
+     "6_1",
+     "7_0"
+    ],
+    "bonuses": {
+     "1_2": "۱ نشان X",
+     "1_8": "یک کارت کنش به خانهٔ ۱",
+     "2_5": "۵ پول",
+     "3_0": "۱ نشان X",
+     "3_10": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "5_2": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "6_11": "۱ اعتبار",
+     "7_2": "یک دانشگاه",
+     "8_7": "۵ پول"
+    },
+    "left": [
+     {
+      "label": "برداشتن ۱ کارت از ویترین",
+      "income": true
+     },
+     {
+      "label": "محوطهٔ ۲ خانهٔ رایگان",
+      "income": true
+     },
+     {
+      "label": "۵ پول",
+      "income": true
+     },
+     {
+      "label": "دو بار: یک کارت کنش به خانهٔ ۱",
+      "income": true
+     },
+     {
+      "label": "یک کارمند انجمن",
+      "income": false
+     },
+     {
+      "label": "۱۲ پول",
+      "income": false
+     },
+     {
+      "label": "۳ نشان X",
+      "income": false
+     }
+    ],
+    "partner": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "یک کارمند انجمن",
+     "4": "۱ امتیاز حفاظت"
+    },
+    "uni": {
+     "2": "ارتقای یک کارت کنش"
+    },
+    "worker": {
+     "3": "۲ امتیاز حفاظت"
+    },
+    "marks": {
+     "0_11": "اتصال پژوهشکده"
+    },
+    "turnAbility": null
+   },
+   "7": {
+    "id": "7",
+    "nameFa": "بستنی‌فروشی‌ها",
+    "textFa": "وقتی هر سه خانهٔ پاداش کیوسک پوشانده شده باشند: در درآمد هر استراحت به ازای هر کیوسک باغ‌وحش ۱ پول اضافه بگیرید.",
+    "water": [
+     "7_0",
+     "7_4",
+     "7_10",
+     "8_1",
+     "8_3",
+     "8_5",
+     "8_11"
+    ],
+    "rock": [
+     "0_1",
+     "0_3",
+     "1_8",
+     "2_9",
+     "3_4",
+     "4_1",
+     "4_3",
+     "4_9",
+     "5_8"
+    ],
+    "blocked": [],
+    "upgrade": [
+     "3_8",
+     "3_10",
+     "3_12"
+    ],
+    "bonuses": {
+     "0_5": "۱ اعتبار",
+     "1_2": "کیوسک رایگان",
+     "1_10": "۱ اعتبار",
+     "3_2": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "3_6": "بازی یک حامی با پرداخت پول به اندازهٔ سطحش",
+     "4_7": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "4_11": "۱ کارت از محدودهٔ اعتبار یا دسته",
+     "5_4": "کیوسک رایگان",
+     "5_10": "کیوسک رایگان",
+     "7_2": "۱ نشان X",
+     "7_6": "یک کارت کنش به خانهٔ ۱",
+     "7_12": "۵ پول",
+     "8_9": "۱ نشان X"
+    },
+    "left": [
+     {
+      "label": "برداشتن ۱ کارت از ویترین",
+      "income": true
+     },
+     {
+      "label": "محوطهٔ ۲ خانهٔ رایگان",
+      "income": true
+     },
+     {
+      "label": "۵ پول",
+      "income": true
+     },
+     {
+      "label": "کیسه ۲: تا ۲ کارت دست را زیر نقشه بگذارید، هر کدام ۲ جذابیت",
+      "income": true
+     },
+     {
+      "label": "یک کارمند انجمن",
+      "income": false
+     },
+     {
+      "label": "۱۲ پول",
+      "income": false
+     },
+     {
+      "label": "۳ نشان X",
+      "income": false
+     }
+    ],
+    "partner": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "یک کارمند انجمن"
+    },
+    "uni": {
+     "2": "ارتقای یک کارت کنش",
+     "3": "۱ امتیاز حفاظت"
+    },
+    "worker": {
+     "3": "۲ امتیاز حفاظت"
+    },
+    "marks": {},
+    "turnAbility": null
+   }
+  },
+  "players": [
+   {
+    "seat": 0,
+    "map": "6",
+    "money": 35,
+    "appeal": 28,
+    "cp": 2,
+    "rep": 6,
+    "x": 2,
+    "vp": -82,
+    "target": 110,
+    "slots": [
+     "cards",
+     "sponsors",
+     "build",
+     "animals",
+     "association"
+    ],
+    "strengths": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "up": {
+     "animals": true,
+     "build": true,
+     "cards": false,
+     "association": false,
+     "sponsors": false
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 1,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 1,
+    "hired": 0,
+    "handCount": 5,
+    "finalsCount": 2,
+    "zoo": [
+     428,
+     473,
+     452,
+     475,
+     414,
+     237,
+     217
+    ],
+    "data": {},
+    "underCount": {},
+    "partners": [
+     "africa"
+    ],
+    "unis": [
+     "science"
+    ],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e4",
+      "cells": [
+       "2_11",
+       "3_10",
+       "3_12",
+       "4_11"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e3",
+      "cells": [
+       "4_7",
+       "4_9",
+       "5_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "e2",
+      "cells": [
+       "6_7",
+       "7_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "1_10"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "e2",
+      "cells": [
+       "4_5",
+       "5_6"
+      ],
+      "full": true
+     },
+     {
+      "id": 6,
+      "kind": "pavilion",
+      "cells": [
+       "6_9"
+      ]
+     },
+     {
+      "id": 7,
+      "kind": "e1",
+      "cells": [
+       "3_4"
+      ]
+     },
+     {
+      "id": 8,
+      "kind": "e3",
+      "cells": [
+       "1_4",
+       "1_6",
+       "2_5"
+      ],
+      "full": true
+     }
+    ],
+    "left": [
+     false,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 1,
+    "marks": [
+     "c2"
+    ],
+    "taken": [
+     "3_10",
+     "2_5"
+    ],
+    "icons": {
+     "bird": 0,
+     "herbivore": 1,
+     "predator": 1,
+     "primate": 1,
+     "reptile": 3,
+     "bear": 1,
+     "pet": 0,
+     "africa": 4,
+     "americas": 1,
+     "asia": 1,
+     "australia": 0,
+     "europe": 0,
+     "science": 2,
+     "rock": 1,
+     "water": 0
+    },
+    "range": 3,
+    "handLimit": 3,
+    "drafting": false
+   },
+   {
+    "seat": 1,
+    "map": "1",
+    "money": 17,
+    "appeal": 39,
+    "cp": 6,
+    "rep": 7,
+    "x": 1,
+    "vp": -63,
+    "target": 102,
+    "slots": [
+     "animals",
+     "sponsors",
+     "cards",
+     "build",
+     "association"
+    ],
+    "strengths": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "up": {
+     "animals": true,
+     "build": true,
+     "cards": false,
+     "association": true,
+     "sponsors": false
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 1,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 1,
+    "hired": 0,
+    "handCount": 4,
+    "finalsCount": 2,
+    "zoo": [
+     450,
+     493,
+     447,
+     408,
+     477,
+     472,
+     261
+    ],
+    "data": {},
+    "underCount": {},
+    "partners": [
+     "asia",
+     "europe"
+    ],
+    "unis": [],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e5",
+      "cells": [
+       "4_11",
+       "4_7",
+       "4_9",
+       "5_10",
+       "5_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e3",
+      "cells": [
+       "6_9",
+       "7_10",
+       "7_8"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "e2",
+      "cells": [
+       "2_5",
+       "3_6"
+      ],
+      "full": true
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "2_7"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "e1",
+      "cells": [
+       "1_4"
+      ],
+      "full": true
+     },
+     {
+      "id": 6,
+      "kind": "e2",
+      "cells": [
+       "1_8",
+       "2_9"
+      ],
+      "full": true
+     },
+     {
+      "id": 7,
+      "kind": "e4",
+      "cells": [
+       "3_2",
+       "3_4",
+       "4_1",
+       "4_3"
+      ],
+      "full": true
+     }
+    ],
+    "left": [
+     false,
+     false,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 2,
+    "marks": [
+     "r7",
+     "c2",
+     "c5"
+    ],
+    "taken": [
+     "4_11",
+     "7_8",
+     "3_6",
+     "4_1"
+    ],
+    "icons": {
+     "bird": 0,
+     "herbivore": 2,
+     "predator": 1,
+     "primate": 0,
+     "reptile": 3,
+     "bear": 1,
+     "pet": 0,
+     "africa": 1,
+     "americas": 0,
+     "asia": 3,
+     "australia": 3,
+     "europe": 1,
+     "science": 0,
+     "rock": 2,
+     "water": 0
+    },
+    "range": 4,
+    "handLimit": 3,
+    "drafting": false
+   },
+   {
+    "seat": 2,
+    "map": "7",
+    "money": 31,
+    "appeal": 13,
+    "cp": 3,
+    "rep": 9,
+    "x": 3,
+    "vp": -95,
+    "target": 108,
+    "slots": [
+     "animals",
+     "cards",
+     "build",
+     "sponsors",
+     "association"
+    ],
+    "strengths": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "up": {
+     "animals": true,
+     "build": false,
+     "cards": true,
+     "association": false,
+     "sponsors": false
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 2,
+    "hired": 1,
+    "handCount": 6,
+    "finalsCount": 2,
+    "zoo": [
+     449,
+     410,
+     522,
+     405,
+     238,
+     223
+    ],
+    "data": {},
+    "underCount": {},
+    "partners": [
+     "americas"
+    ],
+    "unis": [
+     "rep"
+    ],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e3",
+      "cells": [
+       "5_2",
+       "6_1",
+       "6_3"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e2",
+      "cells": [
+       "5_4",
+       "5_6"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "pz",
+      "cells": [
+       "3_8",
+       "4_5",
+       "4_7"
+      ],
+      "used": 1
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "7_2"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "e1",
+      "cells": [
+       "2_7"
+      ],
+      "full": true
+     },
+     {
+      "id": 6,
+      "kind": "e2",
+      "cells": [
+       "0_5",
+       "1_6"
+      ]
+     }
+    ],
+    "left": [
+     false,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 1,
+    "marks": [
+     "r7",
+     "r8",
+     "r9",
+     "c2"
+    ],
+    "taken": [
+     "5_4",
+     "4_7",
+     "7_2",
+     "0_5"
+    ],
+    "icons": {
+     "bird": 1,
+     "herbivore": 1,
+     "predator": 2,
+     "primate": 0,
+     "reptile": 0,
+     "bear": 0,
+     "pet": 1,
+     "africa": 1,
+     "americas": 1,
+     "asia": 1,
+     "australia": 1,
+     "europe": 0,
+     "science": 3,
+     "rock": 0,
+     "water": 1
+    },
+    "range": 4,
+    "handLimit": 3,
+    "drafting": false
+   },
+   {
+    "seat": 3,
+    "map": "3",
+    "money": 12,
+    "appeal": 22,
+    "cp": 1,
+    "rep": 8,
+    "x": 0,
+    "vp": -90,
+    "target": 112,
+    "slots": [
+     "animals",
+     "cards",
+     "sponsors",
+     "build",
+     "association"
+    ],
+    "strengths": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "up": {
+     "animals": false,
+     "build": false,
+     "cards": false,
+     "association": false,
+     "sponsors": true
+    },
+    "tok": {
+     "animals": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "build": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "cards": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "association": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     },
+     "sponsors": {
+      "mult": 0,
+      "venom": 0,
+      "con": 0
+     }
+    },
+    "workers": 2,
+    "hired": 1,
+    "handCount": 3,
+    "finalsCount": 2,
+    "zoo": [
+     440,
+     432,
+     445,
+     478,
+     214
+    ],
+    "data": {},
+    "underCount": {},
+    "partners": [],
+    "unis": [
+     "hand"
+    ],
+    "buildings": [
+     {
+      "id": 1,
+      "kind": "e4",
+      "cells": [
+       "0_1",
+       "0_3",
+       "1_2",
+       "1_4"
+      ],
+      "full": true
+     },
+     {
+      "id": 2,
+      "kind": "e2",
+      "cells": [
+       "1_0",
+       "2_1"
+      ],
+      "full": true
+     },
+     {
+      "id": 3,
+      "kind": "e3",
+      "cells": [
+       "3_0",
+       "3_2",
+       "4_1"
+      ],
+      "full": true
+     },
+     {
+      "id": 4,
+      "kind": "kiosk",
+      "cells": [
+       "0_5"
+      ]
+     },
+     {
+      "id": 5,
+      "kind": "pavilion",
+      "cells": [
+       "5_2"
+      ]
+     },
+     {
+      "id": 6,
+      "kind": "e1",
+      "cells": [
+       "3_4"
+      ],
+      "full": true
+     }
+    ],
+    "left": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "supported": 0,
+    "marks": [
+     "r7",
+     "r8"
+    ],
+    "taken": [
+     "0_3",
+     "1_2",
+     "1_4",
+     "2_1",
+     "3_2",
+     "0_5",
+     "5_2",
+     "3_4"
+    ],
+    "icons": {
+     "bird": 0,
+     "herbivore": 3,
+     "predator": 0,
+     "primate": 0,
+     "reptile": 1,
+     "bear": 0,
+     "pet": 0,
+     "africa": 1,
+     "americas": 1,
+     "asia": 2,
+     "australia": 0,
+     "europe": 1,
+     "science": 0,
+     "rock": 1,
+     "water": 1
+    },
+    "range": 4,
+    "handLimit": 5,
+    "drafting": false
+   }
+  ],
+  "me": {
+   "seat": 0,
+   "hand": [
+    210,
+    409,
+    127,
+    486,
+    429
+   ],
+   "finals": [
+    7,
+    8
+   ],
+   "under": {},
+   "draft": null
+  },
+  "prompt": {
+   "seat": 0,
+   "k": "option",
+   "label": "کنش این نوبت را انتخاب کنید",
+   "optional": false,
+   "options": [
+    {
+     "value": "a:cards:0",
+     "label": "کارت‌ها با قدرت 1"
+    },
+    {
+     "value": "a:cards:1",
+     "label": "کارت‌ها با قدرت 2 (1 نشان X)"
+    },
+    {
+     "value": "a:cards:2",
+     "label": "کارت‌ها با قدرت 3 (2 نشان X)"
+    },
+    {
+     "value": "x:cards",
+     "label": "کنش نشان X با کارت کارت‌ها"
+    },
+    {
+     "value": "a:sponsors:0",
+     "label": "حامیان با قدرت 2"
+    },
+    {
+     "value": "a:sponsors:1",
+     "label": "حامیان با قدرت 3 (1 نشان X)"
+    },
+    {
+     "value": "a:sponsors:2",
+     "label": "حامیان با قدرت 4 (2 نشان X)"
+    },
+    {
+     "value": "x:sponsors",
+     "label": "کنش نشان X با کارت حامیان"
+    },
+    {
+     "value": "a:build:0",
+     "label": "ساخت II با قدرت 3"
+    },
+    {
+     "value": "a:build:1",
+     "label": "ساخت II با قدرت 4 (1 نشان X)"
+    },
+    {
+     "value": "a:build:2",
+     "label": "ساخت II با قدرت 5 (2 نشان X)"
+    },
+    {
+     "value": "x:build",
+     "label": "کنش نشان X با کارت ساخت"
+    },
+    {
+     "value": "a:animals:0",
+     "label": "حیوانات II با قدرت 4"
+    },
+    {
+     "value": "a:animals:1",
+     "label": "حیوانات II با قدرت 5 (1 نشان X)"
+    },
+    {
+     "value": "a:animals:2",
+     "label": "حیوانات II با قدرت 6 (2 نشان X)"
+    },
+    {
+     "value": "x:animals",
+     "label": "کنش نشان X با کارت حیوانات"
+    },
+    {
+     "value": "a:association:0",
+     "label": "انجمن با قدرت 5"
+    },
+    {
+     "value": "a:association:1",
+     "label": "انجمن با قدرت 6 (1 نشان X)"
+    },
+    {
+     "value": "a:association:2",
+     "label": "انجمن با قدرت 7 (2 نشان X)"
+    },
+    {
+     "value": "x:association",
+     "label": "کنش نشان X با کارت انجمن"
+    }
+   ]
+  },
+  "pending": [
+   0
+  ]
+ },
+ "legal": [
+  {
+   "type": "answer",
+   "value": "a:cards:0"
+  },
+  {
+   "type": "answer",
+   "value": "a:cards:1"
+  },
+  {
+   "type": "answer",
+   "value": "a:cards:2"
+  },
+  {
+   "type": "answer",
+   "value": "x:cards"
+  },
+  {
+   "type": "answer",
+   "value": "a:sponsors:0"
+  },
+  {
+   "type": "answer",
+   "value": "a:sponsors:1"
+  },
+  {
+   "type": "answer",
+   "value": "a:sponsors:2"
+  },
+  {
+   "type": "answer",
+   "value": "x:sponsors"
+  },
+  {
+   "type": "answer",
+   "value": "a:build:0"
+  },
+  {
+   "type": "answer",
+   "value": "a:build:1"
+  },
+  {
+   "type": "answer",
+   "value": "a:build:2"
+  },
+  {
+   "type": "answer",
+   "value": "x:build"
+  },
+  {
+   "type": "answer",
+   "value": "a:animals:0"
+  },
+  {
+   "type": "answer",
+   "value": "a:animals:1"
+  },
+  {
+   "type": "answer",
+   "value": "a:animals:2"
+  },
+  {
+   "type": "answer",
+   "value": "x:animals"
+  },
+  {
+   "type": "answer",
+   "value": "a:association:0"
+  },
+  {
+   "type": "answer",
+   "value": "a:association:1"
+  },
+  {
+   "type": "answer",
+   "value": "a:association:2"
+  },
+  {
+   "type": "answer",
+   "value": "x:association"
+  },
+  {
+   "type": "resign"
+  }
+ ],
+ "sub": {
+  "a:cards:0": {
+   "seat": 0,
+   "k": "option",
+   "label": "کنش کارت‌ها",
+   "optional": false,
+   "options": [
+    {
+     "value": "deck",
+     "label": "کشیدن 1 کارت از دسته"
+    }
+   ]
+  },
+  "a:cards:1": {
+   "seat": 0,
+   "k": "option",
+   "label": "کنش کارت‌ها",
+   "optional": false,
+   "options": [
+    {
+     "value": "deck",
+     "label": "کشیدن 1 کارت از دسته"
+    }
+   ]
+  },
+  "a:cards:2": {
+   "seat": 0,
+   "k": "option",
+   "label": "کنش کارت‌ها",
+   "optional": false,
+   "options": [
+    {
+     "value": "deck",
+     "label": "کشیدن 2 کارت از دسته"
+    }
+   ]
+  },
+  "a:sponsors:0": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک حامی بازی کنید یا پول بگیرید",
+   "optional": false,
+   "options": [
+    {
+     "value": "break",
+     "label": "پیشروی 2 خانه در مسیر استراحت و 2 پول"
+    }
+   ]
+  },
+  "a:sponsors:1": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک حامی بازی کنید یا پول بگیرید",
+   "optional": false,
+   "options": [
+    {
+     "value": "break",
+     "label": "پیشروی 3 خانه در مسیر استراحت و 3 پول"
+    }
+   ]
+  },
+  "a:sponsors:2": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک حامی بازی کنید یا پول بگیرید",
+   "optional": false,
+   "options": [
+    {
+     "value": "sp:210:0",
+     "label": "کارشناس قارهٔ آمریکا (سطح 4)"
+    },
+    {
+     "value": "break",
+     "label": "پیشروی 4 خانه در مسیر استراحت و 4 پول"
+    }
+   ]
+  },
+  "a:build:0": {
+   "seat": 0,
+   "k": "place",
+   "label": "یک ساختمان بسازید",
+   "optional": false,
+   "kinds": [
+    "e1",
+    "e2",
+    "e3",
+    "kiosk",
+    "pavilion",
+    "pz"
+   ],
+   "free": false,
+   "placements": [
+    {
+     "kind": "e1",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_11",
+      "7_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_5",
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_0",
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_0",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_5",
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_7",
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "0_7",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_2",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "2_3",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_2",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_4",
+      "6_1",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_2",
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_5",
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_0",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_5"
+     ]
+    }
+   ]
+  },
+  "a:build:1": {
+   "seat": 0,
+   "k": "place",
+   "label": "یک ساختمان بسازید",
+   "optional": false,
+   "kinds": [
+    "e1",
+    "e2",
+    "e3",
+    "e4",
+    "kiosk",
+    "pavilion",
+    "pz"
+   ],
+   "free": false,
+   "placements": [
+    {
+     "kind": "e1",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_11",
+      "7_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_5",
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_0",
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_0",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_5",
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_7",
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "0_7",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_2",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "1_2",
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "2_3",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_2",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_4",
+      "6_1",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_2",
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_5",
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_0",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_5"
+     ]
+    }
+   ]
+  },
+  "a:build:2": {
+   "seat": 0,
+   "k": "place",
+   "label": "یک ساختمان بسازید",
+   "optional": false,
+   "kinds": [
+    "e1",
+    "e2",
+    "e3",
+    "e4",
+    "e5",
+    "kiosk",
+    "pavilion",
+    "pz",
+    "rh",
+    "ba"
+   ],
+   "free": false,
+   "placements": [
+    {
+     "kind": "e1",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_11",
+      "7_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_5",
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_0",
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_0",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_5",
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_7",
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "0_7",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_2",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "1_2",
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e4",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e5",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e5",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e5",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1",
+      "6_3",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "e5",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "2_3",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_2",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_4",
+      "6_1",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_2",
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_5",
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_0",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "rh",
+     "cells": [
+      "5_4",
+      "6_1",
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "ba",
+     "cells": [
+      "5_2",
+      "6_1",
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "ba",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    }
+   ]
+  },
+  "a:animals:0": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک حیوان بازی کنید",
+   "optional": false,
+   "options": [
+    {
+     "value": "486@7@0",
+     "label": "مارمولک دیواری — محوطهٔ ۱ خانه، 4 پول"
+    },
+    {
+     "value": "429@none@0",
+     "label": "گورخر گروی — بدون محوطه، 9 پول"
+    }
+   ]
+  },
+  "a:animals:1": {
+   "seat": 0,
+   "k": "option",
+   "label": "اعتبار اضافه",
+   "optional": true,
+   "options": [
+    {
+     "value": "rep",
+     "label": "+۱ اعتبار در آغاز کنش"
+    }
+   ]
+  },
+  "a:animals:2": {
+   "seat": 0,
+   "k": "option",
+   "label": "اعتبار اضافه",
+   "optional": true,
+   "options": [
+    {
+     "value": "rep",
+     "label": "+۱ اعتبار در آغاز کنش"
+    }
+   ]
+  },
+  "a:association:0": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک کار انجمن",
+   "optional": false,
+   "options": [
+    {
+     "value": "rep",
+     "label": "افزایش ۲ اعتبار"
+    },
+    {
+     "value": "zoo:australia",
+     "label": "باغ‌وحش همکار استرالیا"
+    },
+    {
+     "value": "pr:101:0:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 5 حفاظت"
+    },
+    {
+     "value": "pr:101:2:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 2 حفاظت"
+    },
+    {
+     "value": "pr:127:0:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:1:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 1 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:2:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت"
+    }
+   ]
+  },
+  "a:association:1": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک کار انجمن",
+   "optional": false,
+   "options": [
+    {
+     "value": "rep",
+     "label": "افزایش ۲ اعتبار"
+    },
+    {
+     "value": "zoo:australia",
+     "label": "باغ‌وحش همکار استرالیا"
+    },
+    {
+     "value": "pr:101:0:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 5 حفاظت"
+    },
+    {
+     "value": "pr:101:2:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 2 حفاظت"
+    },
+    {
+     "value": "pr:127:0:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:1:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 1 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:2:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت"
+    }
+   ]
+  },
+  "a:association:2": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک کار انجمن",
+   "optional": false,
+   "options": [
+    {
+     "value": "rep",
+     "label": "افزایش ۲ اعتبار"
+    },
+    {
+     "value": "zoo:australia",
+     "label": "باغ‌وحش همکار استرالیا"
+    },
+    {
+     "value": "pr:101:0:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 5 حفاظت"
+    },
+    {
+     "value": "pr:101:2:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 2 حفاظت"
+    },
+    {
+     "value": "pr:127:0:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:1:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 1 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:2:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت"
+    }
+   ]
+  }
+ },
+ "flows": {
+  "sponsors4": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک حامی بازی کنید یا پول بگیرید",
+   "optional": false,
+   "options": [
+    {
+     "value": "sp:210:0",
+     "label": "کارشناس قارهٔ آمریکا (سطح 4)"
+    },
+    {
+     "value": "break",
+     "label": "پیشروی 4 خانه در مسیر استراحت و 4 پول"
+    }
+   ]
+  },
+  "cards3": {
+   "seat": 0,
+   "k": "option",
+   "label": "کنش کارت‌ها",
+   "optional": false,
+   "options": [
+    {
+     "value": "deck",
+     "label": "کشیدن 2 کارت از دسته"
+    }
+   ]
+  },
+  "animals": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک حیوان بازی کنید",
+   "optional": false,
+   "options": [
+    {
+     "value": "486@7@0",
+     "label": "مارمولک دیواری — محوطهٔ ۱ خانه، 4 پول"
+    },
+    {
+     "value": "429@none@0",
+     "label": "گورخر گروی — بدون محوطه، 9 پول"
+    }
+   ]
+  },
+  "animals2": {
+   "seat": 0,
+   "k": "option",
+   "label": "حیوان بعدی (اختیاری)",
+   "optional": true,
+   "options": [
+    {
+     "value": "429@none@0",
+     "label": "گورخر گروی — بدون محوطه، 9 پول"
+    }
+   ]
+  },
+  "assoc": {
+   "seat": 0,
+   "k": "option",
+   "label": "یک کار انجمن",
+   "optional": false,
+   "options": [
+    {
+     "value": "rep",
+     "label": "افزایش ۲ اعتبار"
+    },
+    {
+     "value": "zoo:australia",
+     "label": "باغ‌وحش همکار استرالیا"
+    },
+    {
+     "value": "pr:101:0:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 5 حفاظت"
+    },
+    {
+     "value": "pr:101:2:0:board:0:0",
+     "label": "حمایت از تنوع گونه‌ها: 2 حفاظت"
+    },
+    {
+     "value": "pr:127:0:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:1:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 1 حفاظت + 2 اعتبار"
+    },
+    {
+     "value": "pr:127:2:0:hand:0:0",
+     "label": "حمایت از برنامهٔ تکثیر نخستی‌ها (از دست): 2 حفاظت"
+    }
+   ]
+  },
+  "build": {
+   "seat": 0,
+   "k": "place",
+   "label": "یک ساختمان بسازید",
+   "optional": false,
+   "kinds": [
+    "e1",
+    "e2",
+    "e3",
+    "kiosk",
+    "pavilion",
+    "pz"
+   ],
+   "free": false,
+   "placements": [
+    {
+     "kind": "e1",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e1",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_11",
+      "7_12"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_5",
+      "0_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_7",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_11",
+      "0_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_0",
+      "1_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "3_0",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_5",
+      "8_7"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "8_7",
+      "8_9"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "e2",
+     "cells": [
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "0_7",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_1"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "2_1",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "1_2",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "4_3",
+      "5_2",
+      "5_4"
+     ]
+    },
+    {
+     "kind": "e3",
+     "cells": [
+      "5_4",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "kiosk",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_9"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "0_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "5_4"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "6_11"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_7"
+     ]
+    },
+    {
+     "kind": "pavilion",
+     "cells": [
+      "8_9"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_1"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "6_3",
+      "6_5",
+      "7_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_1",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "2_3",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_2",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "2_1",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "6_3",
+      "6_5"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_4",
+      "6_1",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_2",
+      "2_3",
+      "3_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_2",
+      "4_3",
+      "5_2"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "4_3",
+      "5_4",
+      "6_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_5",
+      "0_7",
+      "1_8"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "0_11",
+      "0_9",
+      "1_12"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "1_0",
+      "1_2",
+      "2_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "3_0",
+      "3_2",
+      "4_3"
+     ]
+    },
+    {
+     "kind": "pz",
+     "cells": [
+      "5_2",
+      "5_4",
+      "6_5"
+     ]
+    }
+   ]
+  },
+  "assocAfter": {
+   "seat": 0,
+   "k": "option",
+   "label": "پاداش 5 امتیاز حفاظت",
+   "optional": false,
+   "options": [
+    {
+     "value": "money",
+     "label": "۵ پول"
+    },
+    {
+     "value": "tile:mult",
+     "label": "نشان دوبرابرکننده روی هر کارت کنش"
+    },
+    {
+     "value": "tile:money10",
+     "label": "۱۰ پول"
+    }
+   ]
+  },
+  "assocAfterView": {
+   "cp": 7
+  },
+  "cp2": {
+   "seat": 0,
+   "k": "option",
+   "label": "پاداش 2 امتیاز حفاظت",
+   "optional": false,
+   "options": [
+    {
+     "value": "up:cards",
+     "label": "ارتقای کارت‌ها"
+    },
+    {
+     "value": "up:association",
+     "label": "ارتقای انجمن"
+    },
+    {
+     "value": "up:sponsors",
+     "label": "ارتقای حامیان"
+    },
+    {
+     "value": "worker",
+     "label": "یک کارمند انجمن"
+    }
+   ]
+  },
+  "cp5": {
+   "seat": 0,
+   "k": "option",
+   "label": "پاداش 5 امتیاز حفاظت",
+   "optional": false,
+   "options": [
+    {
+     "value": "money",
+     "label": "۵ پول"
+    },
+    {
+     "value": "tile:mult",
+     "label": "نشان دوبرابرکننده روی هر کارت کنش"
+    },
+    {
+     "value": "tile:money10",
+     "label": "۱۰ پول"
+    }
+   ]
+  },
+  "breakDiscard": {
+   "seat": 0,
+   "k": "pick",
+   "label": "استراحت: 4 کارت دور بریزید (سقف دست)",
+   "optional": false,
+   "ids": [
+    210,
+    409,
+    127,
+    486,
+    429,
+    206,
+    263
+   ],
+   "min": 4,
+   "max": 4
+  },
+  "breakHand": [
+   210,
+   409,
+   127,
+   486,
+   429,
+   206,
+   263
+  ],
+  "income": [
+   {
+    "appeal": 20,
+    "kiosk": 1,
+    "left": [
+     "برداشتن ۱ کارت از ویترین"
+    ]
+   },
+   {
+    "appeal": 23,
+    "kiosk": 2,
+    "left": [
+     "برداشتن ۱ کارت از ویترین",
+     "محوطهٔ ۲ خانهٔ رایگان"
+    ]
+   },
+   {
+    "appeal": 14,
+    "kiosk": 1,
+    "left": [
+     "برداشتن ۱ کارت از ویترین"
+    ]
+   },
+   {
+    "appeal": 18,
+    "kiosk": 1,
+    "left": []
+   }
+  ],
+  "finalDiscard": {
+   "seat": 0,
+   "k": "pick",
+   "label": "یک کارت امتیاز پایانی را کنار بگذارید",
+   "optional": false,
+   "ids": [
+    7,
+    8
+   ],
+   "min": 1,
+   "max": 1
+  },
+  "finalPoints": [
+   {
+    "cards": [
+     7,
+     8
+    ],
+    "pts": [
+     1,
+     0
+    ]
+   },
+   {
+    "cards": [
+     3,
+     5
+    ],
+    "pts": [
+     0,
+     0
+    ]
+   },
+   {
+    "cards": [
+     6,
+     4
+    ],
+    "pts": [
+     4,
+     0
+    ]
+   },
+   {
+    "cards": [
+     2,
+     11
+    ],
+    "pts": [
+     1,
+     0
+    ]
+   }
+  ],
+  "draft": {
+   "cards": [
+    214,
+    260,
+    231,
+    216,
+    410,
+    510,
+    420,
+    403
+   ],
+   "maps": [
+    "4",
+    "1"
+   ]
+  },
+  "draftPlayers": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "scoringNames": {
+   "1": {
+    "nameFa": "باغ‌وحش حیوانات بزرگ",
+    "textFa": "حیوانات بزرگ: ۱ → ۱، ۲ → ۲، ۴ → ۳، ۵+ → ۴ حفاظت."
+   },
+   "2": {
+    "nameFa": "باغ‌وحش حیوانات کوچک",
+    "textFa": "حیوانات کوچک: ۳ → ۱، ۶ → ۲، ۸ → ۳، ۱۰+ → ۴ حفاظت."
+   },
+   "3": {
+    "nameFa": "باغ‌وحش پژوهشی",
+    "textFa": "نمادهای پژوهش: ۳ → ۱، ۴ → ۲، ۵ → ۳، ۶+ → ۴ حفاظت."
+   },
+   "4": {
+    "nameFa": "باغ‌وحش معماری",
+    "textFa": "هر شرط ۱ حفاظت: همهٔ خانه‌های آب به سازه وصل باشند؛ همهٔ خانه‌های صخره به سازه وصل باشند؛ همهٔ خانه‌های ساخت‌وساز لبهٔ نقشه پوشیده باشند؛ همهٔ خانه‌های ساخت‌وساز نقشه پوشیده باشند."
+   },
+   "5": {
+    "nameFa": "باغ‌وحش حفاظتی",
+    "textFa": "پروژه‌های حفاظتی پشتیبانی‌شده: ۳ → ۱، ۴ → ۲، ۵ → ۳، ۶+ → ۴ حفاظت."
+   },
+   "6": {
+    "nameFa": "باغ‌وحش طبیعت‌گرایان",
+    "textFa": "خانه‌های ساخت‌وساز خالی (خانه‌های ساخت II هم حساب می‌شوند): ۶ → ۱، ۱۲ → ۲، ۱۸ → ۳، ۲۴+ → ۴ حفاظت."
+   },
+   "7": {
+    "nameFa": "باغ‌وحش محبوب",
+    "textFa": "اعتبار: ۶ → ۱، ۹ → ۲، ۱۲ → ۳، ۱۵ → ۴ حفاظت."
+   },
+   "8": {
+    "nameFa": "باغ‌وحش حمایت‌شده",
+    "textFa": "کارت‌های حامی در باغ‌وحش‌تان: ۳ → ۱، ۶ → ۲، ۸ → ۳، ۱۰+ → ۴ حفاظت."
+   },
+   "9": {
+    "nameFa": "باغ‌وحش گونه‌های متنوع",
+    "textFa": "به ازای هر دستهٔ جانوری (پرنده، گیاه‌خوار، شکارچی، نخستی، خزنده، خرس، باغ‌وحش کودکان) که نمادش را بیشتر از بازیکن قبلی در ترتیب نوبت دارید ۱ حفاظت؛ حداکثر ۴. تساوی امتیاز ندارد."
+   },
+   "10": {
+    "nameFa": "پارک صخره‌نوردی",
+    "textFa": "نمادهای صخره: ۱ → ۱، ۳ → ۲، ۵ → ۳، ۷+ → ۴ حفاظت."
+   },
+   "11": {
+    "nameFa": "پارک آبی",
+    "textFa": "نمادهای آب: ۲ → ۱، ۴ → ۲، ۶ → ۳، ۸+ → ۴ حفاظت."
+   }
+  }
+ },
+ "handInfo": [
+  {
+   "id": 210,
+   "kind": "sponsor",
+   "level": 4,
+   "error": null
+  },
+  {
+   "id": 409,
+   "kind": "animal",
+   "cost": 16,
+   "error": "CONDITIONS"
+  },
+  {
+   "id": 127,
+   "kind": "project",
+   "error": null
+  },
+  {
+   "id": 486,
+   "kind": "animal",
+   "cost": 4,
+   "error": null
+  },
+  {
+   "id": 429,
+   "kind": "animal",
+   "cost": 9,
+   "error": null
+  }
+ ]
+}

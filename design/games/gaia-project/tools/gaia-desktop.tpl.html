@@ -46,6 +46,24 @@ body{margin:0}
 /* zones */
 .gp-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
 .gp-split{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:16px;align-items:start}
+.gp-split--even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+/* BGA "View all": map and research board side by side at the same height, then every player's board, then the rest */
+.gp-zone.gp-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.387fr);gap:14px;align-items:center}
+.gp-mapwrap{position:relative;min-inline-size:0}
+/* the board rows keep the same left-to-right order in every language (owner, review 8): research | map, own board first on the left, scoring | boosters */
+.gp-zone.gp-top,.gp-pboards,.gp-split--even{direction:ltr}
+.gp[dir="rtl"] .gp-pboards>.gp-pb,.gp[dir="rtl"] .gp-split--even>*{direction:rtl}
+.gp-pboards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 18px;align-items:start}
+.gp-pb{display:grid;gap:8px;min-inline-size:0}
+.gp-pb__head{display:flex;align-items:center;gap:6px;min-inline-size:0;font-size:14px;color:var(--felt-ink)}
+.gp-pb__head b{font-weight:900}
+.gp-pb__head small{margin-inline-start:auto;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--felt-muted)}
+.gp-pb .gp-owned{gap:10px;padding:8px 10px}
+.gp-pb .gp-owned img{block-size:72px}
+.gp-pb .gp-owned figure{font-size:11.5px}
+.gp-pb .gp-owned:not(:has(figure)){display:none}
+.gp-pb:not(.is-you) .gp-bld{filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23)}
+.gp-pb.is-you .gp-board--fac{box-shadow:0 0 0 2px var(--own)}
 /* map */
 .gp-map{position:relative;inline-size:100%;aspect-ratio:2450/1895}
 .gp-map>img{position:absolute;display:block}
@@ -172,7 +190,7 @@ body{margin:0}
 .gp-log .bgv-log__item--round{color:var(--text-muted);font-weight:700}
 </style>
 </helmet>
-<div class="bgv gp" data-theme="light" dir="[[@dir]]" lang="[[@lang]]" style="min-height: 2700px;">
+<div class="bgv gp" data-theme="light" dir="[[@dir]]" lang="[[@lang]]" style="min-height: 2320px;">
 <div class="bgv-tablescreen bgv-tablescreen--desk gp-desk" dir="ltr">
 <header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Gaia Project</span></span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span><span class="bgv-gamebar__mi">۴ نفر</span></span></div><div class="gp-lang" role="group" aria-label="زبان بازی"><button type="button" aria-pressed="[[true||false]]">فا</button><button type="button" aria-pressed="[[false||true]]">EN</button></div><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="قوانین پروژه گایا"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--sm" type="button"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg>ترک میز</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
 
@@ -202,8 +220,13 @@ body{margin:0}
  <p class="gp-actbar__hint">[[اقدام‌های بنفش (قدرت)، سبز (QIC) و نارنجی (بوستر، فناوری، آکادمی، جناح) روی خود صفحه‌ها زده می‌شوند؛ آن‌هایی که الان در دسترس‌اند حلقهٔ کهربایی دارند.||Purple (power), green (QIC) and orange (booster, tech, academy, faction) actions are clicked on the boards; the ones available now have an amber ring.]]</p>
 </section>
 
-<main class="bgv-felt gp-zone" aria-label="[[نقشهٔ فضا||Space map]]">
- <div style="position:relative">
+<main class="bgv-felt gp-zone gp-top" aria-label="[[نقشهٔ فضا و صفحهٔ پژوهش||Space map and research board]]">
+  <div class="gp-board gp-board--res" dir="ltr">
+   <img class="gp-base" src="../assets/games/gaia/research-board.webp" alt="[[صفحهٔ پژوهش||Research board]]" width="1838" height="1972">
+[[@research]]
+   <div class="bgv-popover gp-tip" id="gp-tip-pw1" role="tooltip" dir="[[@dir]]" style="left:0.5%;bottom:10.5%"><b>[[اقدام قدرت||Power action]]</b><span>[[۷ قدرت از کاسهٔ III خرج کنید و ۳ دانش بگیرید.||Spend 7 power from bowl III, gain 3 knowledge.]]</span><small>[[هر اقدام در هر دور یک بار؛ بعد از استفاده ژتون اقدام رویش می‌نشیند. شما الان ۰ قدرت در کاسهٔ III دارید.||Once per round; an action token covers it after use. You have 0 power in bowl III.]]</small></div>
+  </div>
+ <div class="gp-mapwrap">
  <div class="gp-map" dir="ltr" role="group" aria-label="[[نقشهٔ ده بخش؛ سه سیارهٔ قابل ساخت علامت دارند||Ten-sector map; three buildable planets are marked]]">
   <img class="gp-sec" src="../assets/games/gaia/sector-4.webp" alt="" style="left:9.796%;top:7.388%">
   <img class="gp-sec" src="../assets/games/gaia/sector-5.webp" alt="" style="left:34.286%;top:3.694%">
@@ -230,18 +253,19 @@ body{margin:0}
  </div>
 </main>
 
-<section class="bgv-felt gp-zone" aria-label="[[پژوهش، امتیاز و بوسترها||Research, scoring and boosters]]">
- <div class="gp-split">
-  <div style="display:grid;gap:14px">
-  <div class="gp-board" dir="ltr">
-   <img class="gp-base" src="../assets/games/gaia/research-board.webp" alt="[[صفحهٔ پژوهش||Research board]]" width="1838" height="1972">
-[[@research]]
-   <div class="bgv-popover gp-tip" id="gp-tip-pw1" role="tooltip" dir="[[@dir]]" style="left:0.5%;bottom:10.5%"><b>[[اقدام قدرت||Power action]]</b><span>[[۷ قدرت از کاسهٔ III خرج کنید و ۳ دانش بگیرید.||Spend 7 power from bowl III, gain 3 knowledge.]]</span><small>[[هر اقدام در هر دور یک بار؛ بعد از استفاده ژتون اقدام رویش می‌نشیند. شما الان ۰ قدرت در کاسهٔ III دارید.||Once per round; an action token covers it after use. You have 0 power in bowl III.]]</small></div>
-  </div>
-[[@fedsupply]]
-  </div>
-  <div style="display:grid;gap:14px">
+<section class="bgv-felt gp-zone" aria-label="[[صفحهٔ همهٔ بازیکن‌ها||All player boards]]">
+ <div class="gp-pboards" dir="ltr">
+[[@factions]]
+ </div>
+ <p class="gp-hint">[[روی هر تبدیل یا اقدام صفحه بروید تا توضیحش را ببینید و بزنید تا انجام شود.||Hover any conversion or action on the board to see what it does; click to use it.]]</p>
+</section>
+
+<section class="bgv-felt gp-zone" aria-label="[[امتیاز، بوسترها و فدراسیون‌ها||Scoring, boosters and federations]]">
+ <div class="gp-split gp-split--even">
+  <div>
 [[@scoring]]
+  </div>
+  <div style="display:grid;gap:14px;align-content:start">
    <div class="gp-boosters" dir="[[@dir]]" role="group" aria-label="[[بوسترهای دور||Round boosters]]">
     <button class="gp-boost is-taken" type="button" disabled="" aria-label="[[بوستر مینا||Mina's booster]]"><img src="../assets/games/gaia/booter.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-1">[[م||M]]</span></button>
     <button class="gp-boost is-taken" type="button" disabled="" aria-label="[[بوستر نیلوفر||Niloufar's booster]]"><img src="../assets/games/gaia/boonav.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-2">[[ن||N]]</span></button>
@@ -252,14 +276,9 @@ body{margin:0}
     <button class="gp-boost is-free" type="button" aria-label="[[بوستر آزاد: هنگام پاس ۲ امتیاز برای هر ایستگاه تجاری||Free booster: pass, 2 VP per trading station]]"><img src="../assets/games/gaia/bootrs.webp" alt=""></button>
    </div>
    <p class="gp-hint">[[هنگام پاس، بوستر خود را برمی‌گردانید و یکی از سه بوستر آزاد را برمی‌دارید.||When you pass, return your booster and take one of the three free ones.]]</p>
+[[@fedsupply]]
   </div>
  </div>
-</section>
-
-<section class="bgv-felt gp-zone" aria-label="[[صفحهٔ بازیکن‌ها||Player boards]]">
- <div class="gp-tabs" role="tablist" aria-label="[[صفحهٔ کدام بازیکن||Whose board]]"><button type="button" role="tab" aria-selected="true"><i class="bgv-seat seat-1"></i>[[مینا، شما||Mina, you]]</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-2"></i>[[نیلوفر||Niloufar]]</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-3"></i>[[آرش||Arash]]</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-4"></i>[[سارا||Sara]]</button></div>
-[[@faction]]
- <p class="gp-hint">[[روی هر تبدیل یا اقدام صفحه بروید تا توضیحش را ببینید و بزنید تا انجام شود.||Hover any conversion or action on the board to see what it does; click to use it.]]</p>
 </section>
 </div>
 
@@ -301,7 +320,7 @@ body{margin:0}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2320}}'>
 class Component extends DCLogic {
   renderVals() { return {}; }
 }

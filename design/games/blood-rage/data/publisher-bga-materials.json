@@ -1,0 +1,2094 @@
+{
+  "cards": {
+    "1": {
+      "num": 1,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "steal_rage_on_lose",
+      "title": "Loki's Trickery",
+      "value": "0",
+      "rules": "If you lose, steal 1 rage from the winning player.",
+      "extra": ""
+    },
+    "2": {
+      "num": 2,
+      "age": 1,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "steal_rage_on_lose",
+      "title": "Loki's Trickery",
+      "value": "0",
+      "rules": "If you lose, steal 1 rage from the winning player.",
+      "extra": ""
+    },
+    "3": {
+      "num": 3,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "glory_3_on_win",
+      "title": "Thor's Hammer",
+      "value": "1",
+      "rules": "Gain 3 glory if you win this battle.",
+      "extra": ""
+    },
+    "4": {
+      "num": 4,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "copy_highest_card",
+      "title": "Heimdall's Sight",
+      "value": "-1",
+      "rules": "This card has the same value as the highest revealed enemy card.",
+      "extra": ""
+    },
+    "5": {
+      "num": 5,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "kill_warrior_before",
+      "title": "Odin's Smite",
+      "value": "1",
+      "rules": "Destroy one warrior from each opponent in this province before comparing STR",
+      "extra": ""
+    },
+    "6": {
+      "num": 6,
+      "age": 1,
+      "players": 3,
+      "type": "battle",
+      "rule_id": "kill_warrior_before",
+      "title": "Odin's Smite",
+      "value": "1",
+      "rules": "Destroy one warrior from each opponent in this province before comparing STR",
+      "extra": ""
+    },
+    "7": {
+      "num": 7,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "stat_on_pillage_other",
+      "title": "Frigga's Grace",
+      "value": "2",
+      "rules": "If you pillage successfully, raise another clan stats by 1.",
+      "extra": ""
+    },
+    "8": {
+      "num": 8,
+      "age": 1,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "stat_on_pillage_other",
+      "title": "Frigga's Grace",
+      "value": "2",
+      "rules": "If you pillage successfully, raise another clan stats by 1.",
+      "extra": ""
+    },
+    "9": {
+      "num": 9,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr's Bash",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "10": {
+      "num": 10,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr's Smash",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "11": {
+      "num": 11,
+      "age": 1,
+      "players": 3,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr's Smash",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "12": {
+      "num": 12,
+      "age": 1,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr's Crush",
+      "value": "4",
+      "rules": "",
+      "extra": ""
+    },
+    "13": {
+      "num": 13,
+      "age": 1,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr's Smite",
+      "value": "5",
+      "rules": "",
+      "extra": ""
+    },
+    "14": {
+      "num": 14,
+      "age": 1,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_manheim",
+      "title": "Manheim!",
+      "value": "5",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Manheim (yellow) province."
+    },
+    "15": {
+      "num": 15,
+      "age": 1,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_manheim",
+      "title": "Manheim!",
+      "value": "5",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Manheim (yellow) province."
+    },
+    "16": {
+      "num": 16,
+      "age": 1,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_jotunheim",
+      "title": "Jotunheim!",
+      "value": "5",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Jotunheim (blue) province."
+    },
+    "17": {
+      "num": 17,
+      "age": 1,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_jotunheim",
+      "title": "Jotunheim!",
+      "value": "5",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Jotunheim (blue) province."
+    },
+    "18": {
+      "num": 18,
+      "age": 1,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_alfheim",
+      "title": "Alfheim!",
+      "value": "5",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Alfheim (grey) province."
+    },
+    "19": {
+      "num": 19,
+      "age": 1,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_alfheim",
+      "title": "Alfheim!",
+      "value": "5",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Alfheim (grey) province."
+    },
+    "20": {
+      "num": 20,
+      "age": 1,
+      "players": 3,
+      "type": "quest",
+      "rule_id": "quest_yggdrasil",
+      "title": "Yggdrasil!",
+      "value": "6",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in Yggdrasil."
+    },
+    "21": {
+      "num": 21,
+      "age": 1,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "6",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "22": {
+      "num": 22,
+      "age": 1,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "6",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "23": {
+      "num": 23,
+      "age": 1,
+      "players": 1,
+      "type": "warrior",
+      "rule_id": "warrior_pair_3",
+      "title": "Brothers in Arms",
+      "value": "1",
+      "rules": "*Each pair of your warriors in a province is 3 total STR",
+      "extra": ""
+    },
+    "24": {
+      "num": 24,
+      "age": 1,
+      "players": 1,
+      "type": "ship",
+      "rule_id": "ship_killed_4",
+      "title": "Loki's Dragons",
+      "value": "2",
+      "rules": "Gain 4 glory when a ship of yours is destroyed.",
+      "extra": ""
+    },
+    "25": {
+      "num": 25,
+      "age": 1,
+      "players": 1,
+      "type": "leader",
+      "rule_id": "move_on_pillage",
+      "title": "Lord of Hammers",
+      "value": "3",
+      "rules": "If you successfully pillage with your leader, you may move him to an adjacent province.",
+      "extra": ""
+    },
+    "26": {
+      "num": 26,
+      "age": 1,
+      "players": 1,
+      "type": "monster",
+      "rule_id": "troll",
+      "title": "Troll",
+      "value": "2",
+      "rules": "When this monster invades a province, destroy all enemy warriors in it.",
+      "extra": ""
+    },
+    "27": {
+      "num": 27,
+      "age": 1,
+      "players": 1,
+      "type": "monster",
+      "rule_id": "dwarf_chieftain",
+      "title": "Dwarf Chieftain",
+      "value": "2",
+      "rules": "*Costs no rage to upgrade or invade.",
+      "extra": ""
+    },
+    "28": {
+      "num": 28,
+      "age": 1,
+      "players": 3,
+      "type": "monster",
+      "rule_id": "sea_serpent",
+      "title": "Sea Serpent",
+      "value": "3",
+      "rules": "This monster counts as a ship.",
+      "extra": ""
+    },
+    "29": {
+      "num": 29,
+      "age": 1,
+      "players": 4,
+      "type": "clan",
+      "rule_id": "free_invade_on_lose",
+      "title": "Loki’s Blessing",
+      "value": "1",
+      "rules": "If you lose a battle, you may invade that province with a warrior for free.",
+      "extra": ""
+    },
+    "30": {
+      "num": 30,
+      "age": 1,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "valhalla_release_1",
+      "title": "Loki’s Domain",
+      "value": "1",
+      "rules": "Gain 1 glory for each figure you release from Valhalla.",
+      "extra": ""
+    },
+    "31": {
+      "num": 31,
+      "age": 1,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "upgrade_discount_1",
+      "title": "Frigga’s Charm",
+      "value": "0",
+      "rules": "Upgrade cards cost you 1 less rage to play.",
+      "extra": ""
+    },
+    "32": {
+      "num": 32,
+      "age": 1,
+      "players": 3,
+      "type": "clan",
+      "rule_id": "battle_quest_3",
+      "title": "Tyr’s Domain",
+      "value": "0",
+      "rules": "After you reveal a quest card in combat, you may treat it as a +3 battle card.",
+      "extra": ""
+    },
+    "33": {
+      "num": 33,
+      "age": 1,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "glory_on_deaths_2",
+      "title": "Thor’s Glory",
+      "value": "2",
+      "rules": "Gain 2 glory whenever at least 2 enemy figures are destroyed in a battle you participate in.",
+      "extra": ""
+    },
+    "34": {
+      "num": 34,
+      "age": 1,
+      "players": 3,
+      "type": "clan",
+      "rule_id": "invade_free_warrior",
+      "title": "Frigga’s Succor",
+      "value": "2",
+      "rules": "When you invade with any figure, you may invade with an additional warrior in that province for free.",
+      "extra": ""
+    },
+    "35": {
+      "num": 35,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "glory_2_on_lose",
+      "title": "Loki’s Backstab",
+      "value": "0",
+      "rules": "If you lose, steal 2 glory from the winning player.",
+      "extra": ""
+    },
+    "36": {
+      "num": 36,
+      "age": 2,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "glory_2_on_lose",
+      "title": "Loki’s Backstab",
+      "value": "0",
+      "rules": "If you lose, steal 2 glory from the winning player.",
+      "extra": ""
+    },
+    "37": {
+      "num": 37,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "destroy_before_battle",
+      "title": "Odin’s Tide",
+      "value": "1",
+      "rules": "Before comparing STR, each player chooses and destroys all but one of his figures in this battle.",
+      "extra": ""
+    },
+    "38": {
+      "num": 38,
+      "age": 2,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "destroy_before_battle",
+      "title": "Odin’s Tide",
+      "value": "1",
+      "rules": "Before comparing STR, each player chooses and destroys all but one of his figures in this battle.",
+      "extra": ""
+    },
+    "39": {
+      "num": 39,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "after_battle",
+      "title": "Heimdall’s Eye",
+      "value": "2",
+      "rules": "You may play this card (and add its STR) after all players’ battle cards are revealed.",
+      "extra": ""
+    },
+    "40": {
+      "num": 40,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "after_battle",
+      "title": "Heimdall’s Eye",
+      "value": "2",
+      "rules": "You may play this card (and add its STR) after all players’ battle cards are revealed.",
+      "extra": ""
+    },
+    "41": {
+      "num": 41,
+      "age": 2,
+      "players": 3,
+      "type": "battle",
+      "rule_id": "after_battle",
+      "title": "Heimdall’s Eye",
+      "value": "2",
+      "rules": "You may play this card (and add its STR) after all players’ battle cards are revealed.",
+      "extra": ""
+    },
+    "42": {
+      "num": 42,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "stat_on_win",
+      "title": "Thor’s Oath",
+      "value": "1",
+      "rules": "If you win, raise one of your clan stats by 1.",
+      "extra": ""
+    },
+    "43": {
+      "num": 43,
+      "age": 2,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Smash",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "44": {
+      "num": 44,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Crush",
+      "value": "4",
+      "rules": "",
+      "extra": ""
+    },
+    "45": {
+      "num": 45,
+      "age": 2,
+      "players": 3,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Smite",
+      "value": "5",
+      "rules": "",
+      "extra": ""
+    },
+    "46": {
+      "num": 46,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Rage",
+      "value": "6",
+      "rules": "",
+      "extra": ""
+    },
+    "47": {
+      "num": 47,
+      "age": 2,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "discard_and_glory",
+      "title": "Heimdall’s Watch",
+      "value": "0",
+      "rules": "Discard all revealed cards. Gain glory equal to the total +STR revealed. Then play new cards.",
+      "extra": ""
+    },
+    "48": {
+      "num": 48,
+      "age": 2,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_manheim",
+      "title": "Manheim!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Manheim (yellow) province."
+    },
+    "49": {
+      "num": 49,
+      "age": 2,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_manheim",
+      "title": "Manheim!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Manheim (yellow) province."
+    },
+    "50": {
+      "num": 50,
+      "age": 2,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_jotunheim",
+      "title": "Jotunheim!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Jotunheim (blue) province."
+    },
+    "51": {
+      "num": 51,
+      "age": 2,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_jotunheim",
+      "title": "Jotunheim!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Jotunheim (blue) province."
+    },
+    "52": {
+      "num": 52,
+      "age": 2,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_alfheim",
+      "title": "Alfheim!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Alfheim (grey) province."
+    },
+    "53": {
+      "num": 53,
+      "age": 2,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_alfheim",
+      "title": "Alfheim!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Alfheim (grey) province."
+    },
+    "54": {
+      "num": 54,
+      "age": 2,
+      "players": 3,
+      "type": "quest",
+      "rule_id": "quest_yggdrasil",
+      "title": "Yggdrasil!",
+      "value": "8",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in Yggdrasil."
+    },
+    "55": {
+      "num": 55,
+      "age": 2,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "8",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "56": {
+      "num": 56,
+      "age": 2,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "8",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "57": {
+      "num": 57,
+      "age": 2,
+      "players": 1,
+      "type": "warrior",
+      "rule_id": "warrior_2",
+      "title": "Experts in Arms",
+      "value": "2",
+      "rules": "Your warriors are now 2 STR.",
+      "extra": ""
+    },
+    "58": {
+      "num": 58,
+      "age": 2,
+      "players": 1,
+      "type": "ship",
+      "rule_id": "ship_killed_8",
+      "title": "Fire Dragons",
+      "value": "2",
+      "rules": "Gain 8 glory when a ship of yours is destroyed.",
+      "extra": ""
+    },
+    "59": {
+      "num": 59,
+      "age": 2,
+      "players": 1,
+      "type": "leader",
+      "rule_id": "stat_on_pillage_leader",
+      "title": "Lord of Axes",
+      "value": "3",
+      "rules": "If you successfully pillage with your leader, raise one of your clan stats by 1.",
+      "extra": ""
+    },
+    "60": {
+      "num": 60,
+      "age": 2,
+      "players": 1,
+      "type": "monster",
+      "rule_id": "valkyrie",
+      "title": "Valkyrie",
+      "value": "2",
+      "rules": "Gain 2 glory per enemy figure destroyed in battle with this monster.",
+      "extra": ""
+    },
+    "61": {
+      "num": 61,
+      "age": 2,
+      "players": 1,
+      "type": "monster",
+      "rule_id": "dark_elf",
+      "title": "Dark Elf",
+      "value": "1",
+      "rules": "This monster may invade Yggdrasil. *Has 3 STR in Yggdrasil.",
+      "extra": ""
+    },
+    "62": {
+      "num": 62,
+      "age": 2,
+      "players": 3,
+      "type": "monster",
+      "rule_id": "fire_giant",
+      "title": "Fire Giant",
+      "value": "4",
+      "rules": "When this monster invades a province, destroy all enemy non-Monster figures in it.",
+      "extra": ""
+    },
+    "63": {
+      "num": 63,
+      "age": 2,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "double_ragnarok_glory",
+      "title": "Odin’s Inspiration",
+      "value": "2",
+      "rules": "Double your glory award for dying during Ragnarök.",
+      "extra": ""
+    },
+    "64": {
+      "num": 64,
+      "age": 2,
+      "players": 4,
+      "type": "clan",
+      "rule_id": "instant_pillage",
+      "title": "Thor’s Domain",
+      "value": "1",
+      "rules": "After you invade a province, you may pay 2 rage to immediately try to pillage it.",
+      "extra": ""
+    },
+    "65": {
+      "num": 65,
+      "age": 2,
+      "players": 3,
+      "type": "clan",
+      "rule_id": "valhalla_release_2",
+      "title": "Loki’s Eminence",
+      "value": "2",
+      "rules": "Gain 2 glory for each figure you release from Valhalla.",
+      "extra": ""
+    },
+    "66": {
+      "num": 66,
+      "age": 2,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "prevent_destroy",
+      "title": "Frigga’s Protection",
+      "value": "0",
+      "rules": "You may pay 1 rage to prevent a figure of yours from being destroyed.",
+      "extra": ""
+    },
+    "67": {
+      "num": 67,
+      "age": 2,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "repillage",
+      "title": "Tyr’s Challenge",
+      "value": "0",
+      "rules": "As your action, you may pay 2 rage to 'repillage' an already pillaged province.",
+      "extra": ""
+    },
+    "68": {
+      "num": 68,
+      "age": 2,
+      "players": 3,
+      "type": "clan",
+      "rule_id": "keep_revealed_cards",
+      "title": "Tyr’s Prowess",
+      "value": "2",
+      "rules": "If you win a battle, you may keep any of your revealed cards, paying 1 rage each.",
+      "extra": ""
+    },
+    "69": {
+      "num": 69,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "take_cards_on_lose",
+      "title": "Loki’s Poison",
+      "value": "0",
+      "rules": "If you lose, take the winning player’s revealed cards into your hand.",
+      "extra": ""
+    },
+    "70": {
+      "num": 70,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "rage_glory_on_win",
+      "title": "Thor’s Ascension",
+      "value": "1",
+      "rules": "If you win, gain 3 rage and 3 glory.",
+      "extra": ""
+    },
+    "71": {
+      "num": 71,
+      "age": 3,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "rage_glory_on_win",
+      "title": "Thor’s Ascension",
+      "value": "1",
+      "rules": "If you win, gain 3 rage and 3 glory.",
+      "extra": ""
+    },
+    "72": {
+      "num": 72,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "after_battle",
+      "title": "Heimdall’s Gaze",
+      "value": "3",
+      "rules": "You may play this card (and add its STR) after all players’ battle cards are revealed.",
+      "extra": ""
+    },
+    "73": {
+      "num": 73,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "glory_on_killed",
+      "title": "Odin’s Judgement",
+      "value": "2",
+      "rules": "Gain 2 glory for each figure destroyed in this battle (including yours).",
+      "extra": ""
+    },
+    "74": {
+      "num": 74,
+      "age": 3,
+      "players": 3,
+      "type": "battle",
+      "rule_id": "after_battle",
+      "title": "Heimdall’s Gaze",
+      "value": "3",
+      "rules": "You may play this card (and add its STR) after all players’ battle cards are revealed.",
+      "extra": ""
+    },
+    "75": {
+      "num": 75,
+      "age": 3,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "glory_on_killed",
+      "title": "Odin’s Judgement",
+      "value": "2",
+      "rules": "Gain 2 glory for each figure destroyed in this battle (including yours).",
+      "extra": ""
+    },
+    "76": {
+      "num": 76,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "cancel_text",
+      "title": "Thor’s Primacy",
+      "value": "3",
+      "rules": "Cancel the text of each opponent’s revealed card before it takes effect.",
+      "extra": ""
+    },
+    "77": {
+      "num": 77,
+      "age": 3,
+      "players": 3,
+      "type": "battle",
+      "rule_id": "cancel_text",
+      "title": "Thor’s Primacy",
+      "value": "3",
+      "rules": "Cancel the text of each opponent’s revealed card before it takes effect.",
+      "extra": ""
+    },
+    "78": {
+      "num": 78,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Crush",
+      "value": "4",
+      "rules": "",
+      "extra": ""
+    },
+    "79": {
+      "num": 79,
+      "age": 3,
+      "players": 4,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Smite",
+      "value": "5",
+      "rules": "",
+      "extra": ""
+    },
+    "80": {
+      "num": 80,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Rage",
+      "value": "6",
+      "rules": "",
+      "extra": ""
+    },
+    "81": {
+      "num": 81,
+      "age": 3,
+      "players": 1,
+      "type": "battle",
+      "rule_id": "discard_and_glory",
+      "title": "Heimdall’s Watch",
+      "value": "0",
+      "rules": "Discard all revealed cards. Gain glory equal to the total +STR revealed. Then play new cards.",
+      "extra": ""
+    },
+    "82": {
+      "num": 82,
+      "age": 3,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_manheim",
+      "title": "Manheim!",
+      "value": "9",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Manheim (yellow) province."
+    },
+    "83": {
+      "num": 83,
+      "age": 3,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_manheim",
+      "title": "Manheim!",
+      "value": "9",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Manheim (yellow) province."
+    },
+    "84": {
+      "num": 84,
+      "age": 3,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_jotunheim",
+      "title": "Jotunheim!",
+      "value": "9",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Jotunheim (blue) province."
+    },
+    "85": {
+      "num": 85,
+      "age": 3,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_jotunheim",
+      "title": "Jotunheim!",
+      "value": "9",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Jotunheim (blue) province."
+    },
+    "86": {
+      "num": 86,
+      "age": 3,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_alfheim",
+      "title": "Alfheim!",
+      "value": "9",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Alfheim (grey) province."
+    },
+    "87": {
+      "num": 87,
+      "age": 3,
+      "players": 3,
+      "type": "quest",
+      "rule_id": "quest_yggdrasil",
+      "title": "Yggdrasil!",
+      "value": "10",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in Yggdrasil."
+    },
+    "88": {
+      "num": 88,
+      "age": 3,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_alfheim",
+      "title": "Alfheim!",
+      "value": "9",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least one Alfheim (grey) province."
+    },
+    "89": {
+      "num": 89,
+      "age": 3,
+      "players": 1,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "11",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "90": {
+      "num": 90,
+      "age": 3,
+      "players": 4,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "11",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "91": {
+      "num": 91,
+      "age": 3,
+      "players": 1,
+      "type": "warrior",
+      "rule_id": "warrior_pair_6",
+      "title": "Masters in Arms",
+      "value": "2",
+      "rules": "*Each pair of your warriors in a province is 6 total STR.",
+      "extra": ""
+    },
+    "92": {
+      "num": 92,
+      "age": 3,
+      "players": 1,
+      "type": "ship",
+      "rule_id": "ship_killed_12",
+      "title": "Eternal Dragons",
+      "value": "2",
+      "rules": "Gain 12 glory when a ship of yours is destroyed.",
+      "extra": ""
+    },
+    "93": {
+      "num": 93,
+      "age": 3,
+      "players": 1,
+      "type": "leader",
+      "rule_id": "all_stats_on_pillage_leader",
+      "title": "Lord of Spears",
+      "value": "3",
+      "rules": "If you successfully pillage with your leader, raise all your clan stats by 1.",
+      "extra": ""
+    },
+    "94": {
+      "num": 94,
+      "age": 3,
+      "players": 3,
+      "type": "monster",
+      "rule_id": "volur_witch",
+      "title": "Volur Witch",
+      "value": "3",
+      "rules": "May retreat from an outer province to Yggdrasil instead of being destroyed.",
+      "extra": ""
+    },
+    "95": {
+      "num": 95,
+      "age": 3,
+      "players": 1,
+      "type": "monster",
+      "rule_id": "frost_giant",
+      "title": "Frost Giant",
+      "value": "4",
+      "rules": "If you successfully pillage with this monster, gain the pillage reward again.",
+      "extra": ""
+    },
+    "96": {
+      "num": 96,
+      "age": 3,
+      "players": 1,
+      "type": "monster",
+      "rule_id": "soldier_hel",
+      "title": "Soldier of Hel",
+      "value": "3",
+      "rules": "*Costs no rage to upgrade or invade.",
+      "extra": ""
+    },
+    "97": {
+      "num": 97,
+      "age": 3,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "invade_from_valhalla",
+      "title": "Frigga’s Domain",
+      "value": "0",
+      "rules": "You may pay 1 rage to invade with any one of your figures in Valhalla.",
+      "extra": ""
+    },
+    "98": {
+      "num": 98,
+      "age": 3,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "double_quest",
+      "title": "Odin’s Throne",
+      "value": "2",
+      "rules": "Double the glory award for quests you complete.",
+      "extra": ""
+    },
+    "99": {
+      "num": 99,
+      "age": 3,
+      "players": 4,
+      "type": "clan",
+      "rule_id": "valhalla_release_3",
+      "title": "Loki’s Wrath",
+      "value": "3",
+      "rules": "Gain 3 glory for each figure you release from Valhalla.",
+      "extra": ""
+    },
+    "100": {
+      "num": 100,
+      "age": 3,
+      "players": 3,
+      "type": "clan",
+      "rule_id": "battle_quest_5",
+      "title": "Tyr’s Wrath",
+      "value": "1",
+      "rules": "After you reveal a quest card  in combat, you may treat it as a +5 battle card.",
+      "extra": ""
+    },
+    "101": {
+      "num": 101,
+      "age": 3,
+      "players": 3,
+      "type": "clan",
+      "rule_id": "destroy_for_stat",
+      "title": "Frigga’s Sacrifice",
+      "value": "1",
+      "rules": "As your action, you may destroy  2 of your figures  to raise one of your clan stats by 1.",
+      "extra": ""
+    },
+    "102": {
+      "num": 102,
+      "age": 3,
+      "players": 1,
+      "type": "clan",
+      "rule_id": "glory_figs_endgame",
+      "title": "Thor’s Conquest",
+      "value": "3",
+      "rules": "Gain 3 glory for each figure you have on the board at the end of the game.",
+      "extra": ""
+    },
+    "103": {
+      "num": 103,
+      "age": 1,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "glory_3_on_win",
+      "title": "Thor’s Hammer",
+      "value": "1",
+      "rules": "Gain 3 glory if you win this battle.",
+      "extra": ""
+    },
+    "104": {
+      "num": 104,
+      "age": 1,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Smash",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "105": {
+      "num": 105,
+      "age": 1,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Smite",
+      "value": "5",
+      "rules": "",
+      "extra": ""
+    },
+    "106": {
+      "num": 106,
+      "age": 1,
+      "players": 5,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "6",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "107": {
+      "num": 107,
+      "age": 1,
+      "players": 5,
+      "type": "quest",
+      "rule_id": "quest_2_provinces",
+      "title": "Widespread!",
+      "value": "7",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least 2 different provinces."
+    },
+    "108": {
+      "num": 108,
+      "age": 1,
+      "players": 5,
+      "type": "warrior",
+      "rule_id": "warrior_pair_3",
+      "title": "Brothers in Arms",
+      "value": "1",
+      "rules": "*Each pair of your warriors in a province is 3 total STR",
+      "extra": ""
+    },
+    "109": {
+      "num": 109,
+      "age": 1,
+      "players": 5,
+      "type": "ship",
+      "rule_id": "ship_killed_4",
+      "title": "Loki's Dragons",
+      "value": "2",
+      "rules": "Gain 4 glory when a ship of yours is destroyed.",
+      "extra": ""
+    },
+    "110": {
+      "num": 110,
+      "age": 1,
+      "players": 5,
+      "type": "leader",
+      "rule_id": "move_on_pillage",
+      "title": "Lord of Hammers",
+      "value": "3",
+      "rules": "If you successfully pillage with your leader, you may move him to an adjacent province.",
+      "extra": ""
+    },
+    "111": {
+      "num": 111,
+      "age": 2,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "after_battle",
+      "title": "Heimdall’s Eye",
+      "value": "2",
+      "rules": "You may play this card (and add its STR) after all players’ battle cards are revealed.",
+      "extra": ""
+    },
+    "112": {
+      "num": 112,
+      "age": 2,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "stat_on_win",
+      "title": "Thor’s Oath",
+      "value": "1",
+      "rules": "If you win, raise one of your clan stats by 1.",
+      "extra": ""
+    },
+    "113": {
+      "num": 113,
+      "age": 2,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Smash",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "114": {
+      "num": 114,
+      "age": 2,
+      "players": 5,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "8",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "115": {
+      "num": 115,
+      "age": 2,
+      "players": 5,
+      "type": "quest",
+      "rule_id": "quest_2_provinces",
+      "title": "Widespread!",
+      "value": "10",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least 2 different provinces."
+    },
+    "116": {
+      "num": 116,
+      "age": 2,
+      "players": 5,
+      "type": "warrior",
+      "rule_id": "warrior_2",
+      "title": "Experts in Arms",
+      "value": "2",
+      "rules": "Your warriors are now 2 STR.",
+      "extra": ""
+    },
+    "117": {
+      "num": 117,
+      "age": 2,
+      "players": 5,
+      "type": "ship",
+      "rule_id": "ship_killed_8",
+      "title": "Fire Dragons",
+      "value": "2",
+      "rules": "Gain 8 glory when a ship of yours is destroyed.",
+      "extra": ""
+    },
+    "118": {
+      "num": 118,
+      "age": 2,
+      "players": 5,
+      "type": "leader",
+      "rule_id": "stat_on_pillage_leader",
+      "title": "Lord of Axes",
+      "value": "3",
+      "rules": "If you successfully pillage with your leader, raise one of your clan stats by 1.",
+      "extra": ""
+    },
+    "119": {
+      "num": 119,
+      "age": 3,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "take_cards_on_lose",
+      "title": "Loki’s Poison",
+      "value": "0",
+      "rules": "If you lose, take the winning player’s revealed cards into your hand.",
+      "extra": ""
+    },
+    "120": {
+      "num": 120,
+      "age": 3,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Crush",
+      "value": "4",
+      "rules": "",
+      "extra": ""
+    },
+    "121": {
+      "num": 121,
+      "age": 3,
+      "players": 5,
+      "type": "battle",
+      "rule_id": "",
+      "title": "Tyr’s Judgement",
+      "value": "8",
+      "rules": "",
+      "extra": ""
+    },
+    "122": {
+      "num": 122,
+      "age": 3,
+      "players": 5,
+      "type": "quest",
+      "rule_id": "quest_valhalla",
+      "title": "Glorious Death!",
+      "value": "11",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have at least 4 figures in Valhalla (before Ragnarök)."
+    },
+    "123": {
+      "num": 123,
+      "age": 3,
+      "players": 5,
+      "type": "quest",
+      "rule_id": "quest_2_provinces",
+      "title": "Widespread!",
+      "value": "15",
+      "rules": "If completed, raise one of your clan stats by 1.",
+      "extra": "Have the most STR in at least 2 different provinces."
+    },
+    "124": {
+      "num": 124,
+      "age": 3,
+      "players": 5,
+      "type": "warrior",
+      "rule_id": "warrior_pair_6",
+      "title": "Masters in Arms",
+      "value": "2",
+      "rules": "*Each pair of your warriors in a province is 6 total STR.",
+      "extra": ""
+    },
+    "125": {
+      "num": 125,
+      "age": 3,
+      "players": 5,
+      "type": "ship",
+      "rule_id": "ship_killed_12",
+      "title": "Eternal Dragons",
+      "value": "2",
+      "rules": "Gain 12 glory when a ship of yours is destroyed.",
+      "extra": ""
+    },
+    "126": {
+      "num": 126,
+      "age": 3,
+      "players": 5,
+      "type": "leader",
+      "rule_id": "all_stats_on_pillage_leader",
+      "title": "Lord of Spears",
+      "value": "3",
+      "rules": "If you successfully pillage with your leader, raise all your clan stats by 1.",
+      "extra": ""
+    },
+    "127": {
+      "num": 127,
+      "age": 0,
+      "players": 1,
+      "type": "back",
+      "rule_id": "",
+      "title": "",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "128": {
+      "num": 128,
+      "age": 0,
+      "players": 1,
+      "type": "back",
+      "rule_id": "",
+      "title": "",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "129": {
+      "num": 129,
+      "age": 0,
+      "players": 1,
+      "type": "back",
+      "rule_id": "",
+      "title": "",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "130": {
+      "num": 130,
+      "age": 0,
+      "players": 1,
+      "type": "base_clan",
+      "rule_id": "",
+      "title": "",
+      "value": "0",
+      "rules": "",
+      "extra": ""
+    },
+    "131": {
+      "num": 131,
+      "age": 0,
+      "players": 1,
+      "type": "base_monster",
+      "rule_id": "",
+      "title": "",
+      "value": "0",
+      "rules": "",
+      "extra": ""
+    },
+    "132": {
+      "num": 132,
+      "age": 0,
+      "players": 1,
+      "type": "base_icon",
+      "rule_id": "",
+      "title": "",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "133": {
+      "num": 133,
+      "age": 0,
+      "players": 1,
+      "type": "base_leader",
+      "rule_id": "",
+      "title": "Leader",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "134": {
+      "num": 134,
+      "age": 0,
+      "players": 1,
+      "type": "base_warrior",
+      "rule_id": "",
+      "title": "Warrior",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "135": {
+      "num": 135,
+      "age": 0,
+      "players": 1,
+      "type": "base_ship",
+      "rule_id": "",
+      "title": "Ship",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "136": {
+      "num": 136,
+      "age": 0,
+      "players": 1,
+      "type": "base_icon",
+      "rule_id": "",
+      "title": "",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "137": {
+      "num": 137,
+      "age": 0,
+      "players": 1,
+      "type": "base_leader",
+      "rule_id": "",
+      "title": "Leader",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "138": {
+      "num": 138,
+      "age": 0,
+      "players": 1,
+      "type": "base_warrior",
+      "rule_id": "",
+      "title": "Warrior",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "139": {
+      "num": 139,
+      "age": 0,
+      "players": 1,
+      "type": "base_ship",
+      "rule_id": "",
+      "title": "Ship",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "140": {
+      "num": 140,
+      "age": 0,
+      "players": 1,
+      "type": "base_icon",
+      "rule_id": "",
+      "title": "",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "141": {
+      "num": 141,
+      "age": 0,
+      "players": 1,
+      "type": "base_leader",
+      "rule_id": "",
+      "title": "Leader",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "142": {
+      "num": 142,
+      "age": 0,
+      "players": 1,
+      "type": "base_warrior",
+      "rule_id": "",
+      "title": "Warrior",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "143": {
+      "num": 143,
+      "age": 0,
+      "players": 1,
+      "type": "base_ship",
+      "rule_id": "",
+      "title": "Ship",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "144": {
+      "num": 144,
+      "age": 0,
+      "players": 1,
+      "type": "base_icon",
+      "rule_id": "",
+      "title": "",
+      "value": "4",
+      "rules": "",
+      "extra": ""
+    },
+    "145": {
+      "num": 145,
+      "age": 0,
+      "players": 1,
+      "type": "base_leader",
+      "rule_id": "",
+      "title": "Leader",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "146": {
+      "num": 146,
+      "age": 0,
+      "players": 1,
+      "type": "base_warrior",
+      "rule_id": "",
+      "title": "Warrior",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "147": {
+      "num": 147,
+      "age": 0,
+      "players": 1,
+      "type": "base_ship",
+      "rule_id": "",
+      "title": "Ship",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    },
+    "148": {
+      "num": 148,
+      "age": 0,
+      "players": 1,
+      "type": "base_icon",
+      "rule_id": "",
+      "title": "",
+      "value": "5",
+      "rules": "",
+      "extra": ""
+    },
+    "149": {
+      "num": 149,
+      "age": 0,
+      "players": 1,
+      "type": "base_leader",
+      "rule_id": "",
+      "title": "Leader",
+      "value": "3",
+      "rules": "",
+      "extra": ""
+    },
+    "150": {
+      "num": 150,
+      "age": 0,
+      "players": 1,
+      "type": "base_warrior",
+      "rule_id": "",
+      "title": "Warrior",
+      "value": "1",
+      "rules": "",
+      "extra": ""
+    },
+    "151": {
+      "num": 151,
+      "age": 0,
+      "players": 1,
+      "type": "base_ship",
+      "rule_id": "",
+      "title": "Ship",
+      "value": "2",
+      "rules": "",
+      "extra": ""
+    }
+  },
+  "regions": [
+    {
+      "region": 0,
+      "title": "Yggdrasil"
+    },
+    {
+      "region": 1,
+      "title": "Manheim"
+    },
+    {
+      "region": 2,
+      "title": "Jotunheim"
+    },
+    {
+      "region": 3,
+      "title": "Alfheim"
+    }
+  ],
+  "provinces": [
+    {
+      "province": 0,
+      "region": 0,
+      "title": "Yggdrasil",
+      "x": 766,
+      "y": 844,
+      "doom_x": 766,
+      "doom_y": 844
+    },
+    {
+      "province": 1,
+      "region": 1,
+      "title": "Myrkvlor",
+      "x": 491,
+      "y": 479,
+      "doom_x": 603,
+      "doom_y": 462
+    },
+    {
+      "province": 2,
+      "region": 1,
+      "title": "Elvagar",
+      "x": 750,
+      "y": 331,
+      "doom_x": 852,
+      "doom_y": 420
+    },
+    {
+      "province": 3,
+      "region": 1,
+      "title": "Angerboda",
+      "x": 1088,
+      "y": 460,
+      "doom_x": 1024,
+      "doom_y": 538
+    },
+    {
+      "province": 4,
+      "region": 2,
+      "title": "Muspelheim",
+      "x": 1216,
+      "y": 847,
+      "doom_x": 1290,
+      "doom_y": 994
+    },
+    {
+      "province": 5,
+      "region": 2,
+      "title": "Horgr",
+      "x": 1020,
+      "y": 1167,
+      "doom_x": 912,
+      "doom_y": 1154
+    },
+    {
+      "province": 6,
+      "region": 2,
+      "title": "Utgard",
+      "x": 687,
+      "y": 1248,
+      "doom_x": 771,
+      "doom_y": 1222
+    },
+    {
+      "province": 7,
+      "region": 3,
+      "title": "Andlang",
+      "x": 414,
+      "y": 1097,
+      "doom_x": 425,
+      "doom_y": 996
+    },
+    {
+      "province": 8,
+      "region": 3,
+      "title": "Gimle",
+      "x": 360,
+      "y": 782,
+      "doom_x": 477,
+      "doom_y": 848
+    }
+  ],
+  "fjords": [
+    {
+      "fjord": 0,
+      "province1": 2,
+      "province2": 3,
+      "x": 953,
+      "y": 220
+    },
+    {
+      "fjord": 1,
+      "province1": 4,
+      "province2": 5,
+      "x": 1353,
+      "y": 1159
+    },
+    {
+      "fjord": 2,
+      "province1": 6,
+      "province2": 7,
+      "x": 464,
+      "y": 1428
+    },
+    {
+      "fjord": 3,
+      "province1": 8,
+      "province2": 1,
+      "x": 273,
+      "y": 552
+    }
+  ],
+  "slots": [
+    {
+      "slot": 0,
+      "province": 0,
+      "x": 766,
+      "y": 844
+    },
+    {
+      "slot": 1,
+      "province": 1,
+      "x": 502,
+      "y": 583
+    },
+    {
+      "slot": 2,
+      "province": 1,
+      "x": 389,
+      "y": 445
+    },
+    {
+      "slot": 3,
+      "province": 1,
+      "x": 547,
+      "y": 386
+    },
+    {
+      "slot": 4,
+      "province": 2,
+      "x": 575,
+      "y": 253
+    },
+    {
+      "slot": 5,
+      "province": 2,
+      "x": 651,
+      "y": 166
+    },
+    {
+      "slot": 6,
+      "province": 2,
+      "x": 799,
+      "y": 201
+    },
+    {
+      "slot": 7,
+      "province": 2,
+      "x": 752,
+      "y": 481
+    },
+    {
+      "slot": 8,
+      "province": 3,
+      "x": 957,
+      "y": 466
+    },
+    {
+      "slot": 9,
+      "province": 3,
+      "x": 1053,
+      "y": 308
+    },
+    {
+      "slot": 10,
+      "province": 3,
+      "x": 1196,
+      "y": 358
+    },
+    {
+      "slot": 11,
+      "province": 3,
+      "x": 1196,
+      "y": 496
+    },
+    {
+      "slot": 12,
+      "province": 3,
+      "x": 1085,
+      "y": 604
+    },
+    {
+      "slot": 13,
+      "province": 4,
+      "x": 1167,
+      "y": 717
+    },
+    {
+      "slot": 14,
+      "province": 4,
+      "x": 1297,
+      "y": 777
+    },
+    {
+      "slot": 15,
+      "province": 4,
+      "x": 1359,
+      "y": 893
+    },
+    {
+      "slot": 16,
+      "province": 4,
+      "x": 1169,
+      "y": 979
+    },
+    {
+      "slot": 17,
+      "province": 4,
+      "x": 1073,
+      "y": 855
+    },
+    {
+      "slot": 18,
+      "province": 5,
+      "x": 967,
+      "y": 1057
+    },
+    {
+      "slot": 19,
+      "province": 5,
+      "x": 1160,
+      "y": 1169
+    },
+    {
+      "slot": 20,
+      "province": 5,
+      "x": 1011,
+      "y": 1321
+    },
+    {
+      "slot": 21,
+      "province": 5,
+      "x": 858,
+      "y": 1258
+    },
+    {
+      "slot": 22,
+      "province": 6,
+      "x": 710,
+      "y": 1144
+    },
+    {
+      "slot": 23,
+      "province": 6,
+      "x": 753,
+      "y": 1357
+    },
+    {
+      "slot": 24,
+      "province": 6,
+      "x": 574,
+      "y": 1264
+    },
+    {
+      "slot": 25,
+      "province": 7,
+      "x": 397,
+      "y": 1257
+    },
+    {
+      "slot": 26,
+      "province": 7,
+      "x": 310,
+      "y": 1050
+    },
+    {
+      "slot": 27,
+      "province": 7,
+      "x": 522,
+      "y": 1057
+    },
+    {
+      "slot": 28,
+      "province": 8,
+      "x": 388,
+      "y": 897
+    },
+    {
+      "slot": 29,
+      "province": 8,
+      "x": 249,
+      "y": 864
+    },
+    {
+      "slot": 30,
+      "province": 8,
+      "x": 174,
+      "y": 741
+    },
+    {
+      "slot": 31,
+      "province": 8,
+      "x": 333,
+      "y": 675
+    },
+    {
+      "slot": 32,
+      "province": 8,
+      "x": 514,
+      "y": 700
+    }
+  ],
+  "clans": {
+    "1": {
+      "clan": 1,
+      "title": "Wolf",
+      "color": "9D3644",
+      "color2": "CC4751"
+    },
+    "2": {
+      "clan": 2,
+      "title": "Serpent",
+      "color": "DFA471",
+      "color2": "FFBB81"
+    },
+    "3": {
+      "clan": 3,
+      "title": "Raven",
+      "color": "428AA7",
+      "color2": "50A8CC"
+    },
+    "4": {
+      "clan": 4,
+      "title": "Bear",
+      "color": "856348",
+      "color2": "BA8A64"
+    },
+    "5": {
+      "clan": 5,
+      "title": "Ram",
+      "color": "70A15E",
+      "color2": "91D17A"
+    }
+  },
+  "pillages": [
+    {
+      "id": 0,
+      "nb": 1,
+      "type": "yggdrasil",
+      "title": "Yggdrasil",
+      "desc": "After a successfull pillage, increase all three of your clan stats one step.",
+      "class": "bg-icon_yggdrasil"
+    },
+    {
+      "id": 1,
+      "nb": 3,
+      "type": "rage",
+      "title": "Pillage for Rage",
+      "desc": "After a successfull pillage, increase your clan’s Rage stat one step.",
+      "class": "bg-icon_rage"
+    },
+    {
+      "id": 2,
+      "nb": 2,
+      "type": "axe",
+      "title": "Pillage for Axes",
+      "desc": "After a successfull pillage, increase your clan’s Axes stat one step.",
+      "class": "bg-icon_axe"
+    },
+    {
+      "id": 3,
+      "nb": 2,
+      "type": "horn",
+      "title": "Pillage for Horns",
+      "desc": "After a successfull pillage, increase your clan’s Horns stat one step.",
+      "class": "bg-icon_horn"
+    },
+    {
+      "id": 4,
+      "nb": 1,
+      "type": "glory",
+      "title": "Pillage for Glory",
+      "desc": "After a successfull pillage, gain 5 Glory.",
+      "class": "bg-icon_glory"
+    }
+  ],
+  "stat_rage": [
+    6,
+    7,
+    8,
+    9,
+    12,
+    12
+  ],
+  "stat_axe": [
+    3,
+    4,
+    5,
+    6,
+    8,
+    8
+  ],
+  "stat_horn": [
+    4,
+    5,
+    6,
+    7,
+    10,
+    10
+  ]
+}

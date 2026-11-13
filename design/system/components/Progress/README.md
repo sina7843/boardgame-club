@@ -12,7 +12,7 @@ XP to next level, season pass, mission progress, upload progress.
 |---|---|---|
 | `value` (required) | `number` | 0–1. |
 | `label` | `Node` | — |
-| `valueText` | `Node` | Right-hand value text, e.g. «۹۶۰ از ۱٬۲۰۰». |
+| `valueText` | `Node` | Right-hand value text, e.g. «۹۶۰ از ۱,۲۰۰». |
 | `tone` | `'primary' \| 'invite' \| 'accent'` | All three render navy (cream in dark) since v2.1.2; say whose share it is in the label. |
 
 Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers) passes through to the root element. Types: `ProgressProps` in `components/index.d.ts`.
@@ -21,7 +21,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Always show the numbers: «۹۶۰ از ۱٬۲۰۰».
+- Always show the numbers: «۹۶۰ از ۱,۲۰۰».
 - Name the progress in the label («سهم شما از امتیاز تیم») instead of relying on colour.
 
 **Don't**
@@ -36,7 +36,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 col(
-  h(B.Progress,{value:0.8, label:'سطح ۱۲', valueText:'۹۶۰ از ۱٬۲۰۰', tone:'accent'}),
+  h(B.Progress,{value:0.8, label:'سطح ۱۲', valueText:'۹۶۰ از ۱,۲۰۰', tone:'accent'}),
   h(B.Progress,{value:0.45, label:'مأموریت هفتگی: ۵ برد', valueText:'۲ از ۵'}),
   h(B.Progress,{value:0.62, label:'سهم شما از امتیاز تیم', valueText:'۶۲٪', tone:'invite'})
 )

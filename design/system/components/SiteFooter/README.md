@@ -1,6 +1,6 @@
-The site footer: about (with «دریافت از کافه‌بازار»), popular games, community, support and rules; below, the trust seal, copyright, Instagram and Telegram.
+The site footer: about (with «دریافت از کافه‌بازار»), popular games, community, support and rules; under the about text, «ما را دنبال کنید» with Telegram and Instagram (v2.3); below, the trust seal and copyright.
 
-**Material (v2.1):** a navy board in both themes (deeper navy in dark) with a hard inner edge; links are cream on navy. «دریافت از کافه‌بازار» is a cream cardboard token with a dark print, like the tokens on the felt. Social links are round flat discs.
+**Material (v2.1):** a navy board in both themes (deeper navy in dark) with a hard inner edge; links are cream on navy. «دریافت از کافه‌بازار» is a cream cardboard token with a dark print, like the tokens on the felt. Social links are round flat discs. The footer is a full-width band with square top corners (v2.4, 5 Nov 2026: no rounding).
 
 ## When to use
 
@@ -13,12 +13,14 @@ The site footer: about (with «دریافت از کافه‌بازار»), popul
 | `logo` | `{ src }` | The reversed lock-up. |
 | `about` | `Node` | One sentence. |
 | `storeHref`, `storeLabel` | | Cafe Bazaar link; `storeHref={false}` hides it. |
-| `columns` | `Array<{ title, links: [label, href][] }>` | Default: بازی‌های محبوب، جامعه، پشتیبانی و قوانین. |
+| `columns` | `Array<{ title, links: [label, href][] }>` | Default: بازی‌های محبوب، با بردگیم‌ورس، راهنما و پشتیبانی. |
 | `defaultOpen` | `number` | Phone accordion: the column open at first (default 0). |
-| `seal`, `copyright`, `social` | | Bottom row. |
+| `seal`, `copyright` | | Bottom row. |
+| `social` | `Array<{ icon, label, handle, href }> \| false` | v2.3: labelled pills under the about text: a cream disc with the icon, the network's name and the visible address (`handle`, left-to-right). `href` must be the real address; it opens in a new tab. |
+| `socialLabel` | `Node` | Heading above them, default «ما را دنبال کنید». |
 | `phone`, `wide` | `boolean` | Force the phone accordion / the desktop columns (previews). |
 
-Types: `SiteFooterProps` in `components/index.d.ts`. Classes: `.bgv-sitefooter`, `__in`, `__cols`, `__col`, `__about`, `__store`, `__bottom`, `__seal`, `__social`.
+Types: `SiteFooterProps` in `components/index.d.ts`. Classes: `.bgv-sitefooter`, `__in`, `__cols`, `__col`, `__about`, `__store`, `__follow`, `__followlabel`, `__social`, `__socialic`, `__socialtxt`, `__bottom`, `__seal`.
 
 ## Responsive
 
@@ -29,6 +31,7 @@ Types: `SiteFooterProps` in `components/index.d.ts`. Classes: `.bgv-sitefooter`,
 **Do**
 
 - Keep link text as plain names («کاتان آنلاین», «قوانین و مقررات»); this is for search engines and trust.
+- Social links show the network's name and its address, never a bare icon; no `href="#"` in production.
 
 **Don't**
 

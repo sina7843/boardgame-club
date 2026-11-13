@@ -1535,3 +1535,19 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Home category rows are `Chip size="lg"` (old `cx-d-pill`/`cx-e-cat` gone). «زنده الان» stays a link to /tables with the same chip classes written by hand, because `Chip`'s `icon` prop cannot draw the live dot; `a.bgv-chip` gets no underline (home.css). Member home shows counts only on «همه» and «زنده الان», like the reference.
 - Game name «ترافورمینگ مارس» (was «تررافورمینگ») in `games/terraforming-mars/src/definition.ts`, its renderer.css comment and `e2e/terraforming-mars.spec.ts`.
 - Raw handoff folder ignored in `.gitignore`, like v2.1. `design/install.mjs` not run (hooks conflict with CLAUDE.md, same as v2.1).
+
+## Game handoff packs Edit-Pack-EE.1 (2026-11-11, owner request: install only)
+- Installed in order, each `repo/` merged into the root (no existing file overwritten): Ark Nova v1.0 → `design/games/ark-nova/`, Blood Rage v1.0 → `design/games/blood-rage/`, Brass v1.0 → `design/games/brass/`, Terraforming Mars v2.0 → `design/games/terraforming-mars/`, each with its local `.claude` commands (`/bgv-<game>-implement|qa|fix`) and QA agent. The Gaia pack (v1.4) is byte-identical to `design/games/gaia-project/` already in the repo (built in 507d230), so nothing changed for it.
+- Owner chose install only: the tables themselves (phases A0–A6, R0–R6, B0–B6, T0–T6) are not built yet; renderers and engines are unchanged.
+- Art and rulebook PDFs are committed with the packs, like the Gaia pack (largest file 16 MB). The CDN / Git LFS question each START-HERE raises stays open.
+- `design/games/brass/tools/engine/node_modules` is ignored by the root `.gitignore`, so Brass's design-side engine tool needs its two stub packages re-copied from the pack to run; the site does not use it.
+- The Blood Rage START-HERE says the repo has no Blood Rage engine; it does (`games/blood-rage`). Check that engine against `design/games/blood-rage/ENGINE.md` at phase R0.
+- The raw `Edit-Pack-EE.1/` folder is ignored.
+
+## Complete design handoff BGV-Complete-Handoff-2026-11 (2026-11-13, owner request)
+- Branch `design/complete-handoff-2026-11` (not `main`: a push to `main` can deploy the live site).
+- `repo/` copied over the root: DS v2.4.3 in `design/system` (Peyda font, tokens, components), 122+ reference screens, brand/favicons (also `apps/web/public` favicons), `design/games/{chess,group-a,group-b,group-c,group-d}` new, `gaia-project` v1.7, `terraforming-mars` v2.2, `brass`/`ark-nova`/`blood-rage` v1.2 (these replace the v1.0/v2.0 packs installed on 2026-11-11, which were never committed), 68 `RULES.md`, `.claude` commands/agents incl. `/bgv-start`. No stale files left from the older packs.
+- Kept ours instead of the handoff copy (the handoff ships the older v2.1/v2.2 versions): `e2e/design-qa.spec.ts`, `scripts/ds-qa-report.mjs` (live-table QA extensions) and `design/ds.config.json` (`bgv.js` exclude).
+- The zip's `CLAUDE.md`, `README.md`, `docs/` and per-package `START-HERE.md`/`LINKS.md` kept in `design/handoff-2026-11/`; the local `CLAUDE.md` imports its `CLAUDE.md`. Its «Repo facts» are as of 2026-11-10 (main `6421fb9`, TM typo): already outdated (DS v2.2 merged in `8c10613`, typo fixed).
+- `node design/install.mjs` run on owner request: `ds:*` scripts in `package.json`; local `.claude/settings.json` gained the ds-check PostToolUse and Stop hooks (this overrides the «no Stop hooks» line of `CLAUDE.md` for this machine); baseline kept.
+- Not done by the install: `packages/ui/src/bgv` still carries DS v2.2 (Vazirmatn); syncing it to v2.4.3 is phase 1 (`/bgv-implement`).

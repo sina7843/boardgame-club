@@ -1,0 +1,2242 @@
+[
+  {
+    "id": "card-113",
+    "svg": "cards-conservation/card-113.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-114",
+    "svg": "cards-conservation/card-114.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-115",
+    "svg": "cards-conservation/card-115.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-116",
+    "svg": "cards-conservation/card-116.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-117",
+    "svg": "cards-conservation/card-117.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-118",
+    "svg": "cards-conservation/card-118.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-119",
+    "svg": "cards-conservation/card-119.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-120",
+    "svg": "cards-conservation/card-120.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-121",
+    "svg": "cards-conservation/card-121.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-122",
+    "svg": "cards-conservation/card-122.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-123",
+    "svg": "cards-conservation/card-123.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-124",
+    "svg": "cards-conservation/card-124.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-125",
+    "svg": "cards-conservation/card-125.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-126",
+    "svg": "cards-conservation/card-126.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-127",
+    "svg": "cards-conservation/card-127.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-128",
+    "svg": "cards-conservation/card-128.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-129",
+    "svg": "cards-conservation/card-129.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-130",
+    "svg": "cards-conservation/card-130.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-131",
+    "svg": "cards-conservation/card-131.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-132",
+    "svg": "cards-conservation/card-132.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-201",
+    "svg": "cards-sponsor/card-201.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-202",
+    "svg": "cards-sponsor/card-202.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-203",
+    "svg": "cards-sponsor/card-203.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-204",
+    "svg": "cards-sponsor/card-204.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-205",
+    "svg": "cards-sponsor/card-205.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-206",
+    "svg": "cards-sponsor/card-206.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-207",
+    "svg": "cards-sponsor/card-207.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-208",
+    "svg": "cards-sponsor/card-208.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-209",
+    "svg": "cards-sponsor/card-209.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-210",
+    "svg": "cards-sponsor/card-210.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-211",
+    "svg": "cards-sponsor/card-211.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-212",
+    "svg": "cards-sponsor/card-212.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-213",
+    "svg": "cards-sponsor/card-213.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-214",
+    "svg": "cards-sponsor/card-214.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-215",
+    "svg": "cards-sponsor/card-215.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-216",
+    "svg": "cards-sponsor/card-216.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-217",
+    "svg": "cards-sponsor/card-217.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-218",
+    "svg": "cards-sponsor/card-218.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-219",
+    "svg": "cards-sponsor/card-219.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-220",
+    "svg": "cards-sponsor/card-220.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-221",
+    "svg": "cards-sponsor/card-221.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-222",
+    "svg": "cards-sponsor/card-222.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-223",
+    "svg": "cards-sponsor/card-223.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-224",
+    "svg": "cards-sponsor/card-224.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-225",
+    "svg": "cards-sponsor/card-225.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-226",
+    "svg": "cards-sponsor/card-226.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-227",
+    "svg": "cards-sponsor/card-227.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-228",
+    "svg": "cards-sponsor/card-228.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-229",
+    "svg": "cards-sponsor/card-229.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-230",
+    "svg": "cards-sponsor/card-230.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-231",
+    "svg": "cards-sponsor/card-231.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-232",
+    "svg": "cards-sponsor/card-232.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-233",
+    "svg": "cards-sponsor/card-233.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-234",
+    "svg": "cards-sponsor/card-234.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-235",
+    "svg": "cards-sponsor/card-235.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-236",
+    "svg": "cards-sponsor/card-236.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-237",
+    "svg": "cards-sponsor/card-237.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-238",
+    "svg": "cards-sponsor/card-238.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-239",
+    "svg": "cards-sponsor/card-239.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-240",
+    "svg": "cards-sponsor/card-240.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-241",
+    "svg": "cards-sponsor/card-241.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-242",
+    "svg": "cards-sponsor/card-242.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-243",
+    "svg": "cards-sponsor/card-243.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-244",
+    "svg": "cards-sponsor/card-244.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-245",
+    "svg": "cards-sponsor/card-245.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-246",
+    "svg": "cards-sponsor/card-246.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-247",
+    "svg": "cards-sponsor/card-247.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-248",
+    "svg": "cards-sponsor/card-248.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-249",
+    "svg": "cards-sponsor/card-249.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-250",
+    "svg": "cards-sponsor/card-250.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-251",
+    "svg": "cards-sponsor/card-251.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-252",
+    "svg": "cards-sponsor/card-252.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-253",
+    "svg": "cards-sponsor/card-253.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-254",
+    "svg": "cards-sponsor/card-254.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-255",
+    "svg": "cards-sponsor/card-255.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-256",
+    "svg": "cards-sponsor/card-256.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-257",
+    "svg": "cards-sponsor/card-257.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-258",
+    "svg": "cards-sponsor/card-258.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-259",
+    "svg": "cards-sponsor/card-259.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-260",
+    "svg": "cards-sponsor/card-260.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-261",
+    "svg": "cards-sponsor/card-261.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-262",
+    "svg": "cards-sponsor/card-262.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-263",
+    "svg": "cards-sponsor/card-263.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-264",
+    "svg": "cards-sponsor/card-264.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-401",
+    "svg": "cards-animal/card-401.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-402",
+    "svg": "cards-animal/card-402.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-403",
+    "svg": "cards-animal/card-403.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-404",
+    "svg": "cards-animal/card-404.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-405",
+    "svg": "cards-animal/card-405.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-406",
+    "svg": "cards-animal/card-406.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-407",
+    "svg": "cards-animal/card-407.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-408",
+    "svg": "cards-animal/card-408.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-409",
+    "svg": "cards-animal/card-409.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-410",
+    "svg": "cards-animal/card-410.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-411",
+    "svg": "cards-animal/card-411.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-412",
+    "svg": "cards-animal/card-412.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-413",
+    "svg": "cards-animal/card-413.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-414",
+    "svg": "cards-animal/card-414.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-415",
+    "svg": "cards-animal/card-415.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-416",
+    "svg": "cards-animal/card-416.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-417",
+    "svg": "cards-animal/card-417.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-418",
+    "svg": "cards-animal/card-418.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-419",
+    "svg": "cards-animal/card-419.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-420",
+    "svg": "cards-animal/card-420.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-421",
+    "svg": "cards-animal/card-421.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-422",
+    "svg": "cards-animal/card-422.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-423",
+    "svg": "cards-animal/card-423.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-424",
+    "svg": "cards-animal/card-424.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-425",
+    "svg": "cards-animal/card-425.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-426",
+    "svg": "cards-animal/card-426.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-427",
+    "svg": "cards-animal/card-427.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-428",
+    "svg": "cards-animal/card-428.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-429",
+    "svg": "cards-animal/card-429.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-430",
+    "svg": "cards-animal/card-430.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-431",
+    "svg": "cards-animal/card-431.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-432",
+    "svg": "cards-animal/card-432.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-433",
+    "svg": "cards-animal/card-433.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-434",
+    "svg": "cards-animal/card-434.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-435",
+    "svg": "cards-animal/card-435.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-436",
+    "svg": "cards-animal/card-436.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-437",
+    "svg": "cards-animal/card-437.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-438",
+    "svg": "cards-animal/card-438.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-439",
+    "svg": "cards-animal/card-439.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-440",
+    "svg": "cards-animal/card-440.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-441",
+    "svg": "cards-animal/card-441.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-442",
+    "svg": "cards-animal/card-442.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-443",
+    "svg": "cards-animal/card-443.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-444",
+    "svg": "cards-animal/card-444.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-445",
+    "svg": "cards-animal/card-445.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-446",
+    "svg": "cards-animal/card-446.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-447",
+    "svg": "cards-animal/card-447.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-448",
+    "svg": "cards-animal/card-448.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-449",
+    "svg": "cards-animal/card-449.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-450",
+    "svg": "cards-animal/card-450.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-451",
+    "svg": "cards-animal/card-451.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-452",
+    "svg": "cards-animal/card-452.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-453",
+    "svg": "cards-animal/card-453.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-454",
+    "svg": "cards-animal/card-454.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-455",
+    "svg": "cards-animal/card-455.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-456",
+    "svg": "cards-animal/card-456.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-457",
+    "svg": "cards-animal/card-457.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-458",
+    "svg": "cards-animal/card-458.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-459",
+    "svg": "cards-animal/card-459.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-460",
+    "svg": "cards-animal/card-460.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-461",
+    "svg": "cards-animal/card-461.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-462",
+    "svg": "cards-animal/card-462.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-463",
+    "svg": "cards-animal/card-463.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-464",
+    "svg": "cards-animal/card-464.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-465",
+    "svg": "cards-animal/card-465.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-466",
+    "svg": "cards-animal/card-466.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-467",
+    "svg": "cards-animal/card-467.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-468",
+    "svg": "cards-animal/card-468.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-469",
+    "svg": "cards-animal/card-469.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-470",
+    "svg": "cards-animal/card-470.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-471",
+    "svg": "cards-animal/card-471.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-472",
+    "svg": "cards-animal/card-472.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-473",
+    "svg": "cards-animal/card-473.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-474",
+    "svg": "cards-animal/card-474.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-475",
+    "svg": "cards-animal/card-475.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-476",
+    "svg": "cards-animal/card-476.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-477",
+    "svg": "cards-animal/card-477.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-478",
+    "svg": "cards-animal/card-478.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-479",
+    "svg": "cards-animal/card-479.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-480",
+    "svg": "cards-animal/card-480.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-481",
+    "svg": "cards-animal/card-481.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-482",
+    "svg": "cards-animal/card-482.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-483",
+    "svg": "cards-animal/card-483.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-484",
+    "svg": "cards-animal/card-484.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-485",
+    "svg": "cards-animal/card-485.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-486",
+    "svg": "cards-animal/card-486.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-487",
+    "svg": "cards-animal/card-487.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-488",
+    "svg": "cards-animal/card-488.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-489",
+    "svg": "cards-animal/card-489.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-490",
+    "svg": "cards-animal/card-490.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-491",
+    "svg": "cards-animal/card-491.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-492",
+    "svg": "cards-animal/card-492.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-493",
+    "svg": "cards-animal/card-493.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-494",
+    "svg": "cards-animal/card-494.svg",
+    "width": 744,
+    "height": 1040,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-495",
+    "svg": "cards-animal/card-495.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-496",
+    "svg": "cards-animal/card-496.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-497",
+    "svg": "cards-animal/card-497.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-498",
+    "svg": "cards-animal/card-498.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-499",
+    "svg": "cards-animal/card-499.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-500",
+    "svg": "cards-animal/card-500.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-501",
+    "svg": "cards-animal/card-501.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-502",
+    "svg": "cards-animal/card-502.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-503",
+    "svg": "cards-animal/card-503.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-504",
+    "svg": "cards-animal/card-504.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-505",
+    "svg": "cards-animal/card-505.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-506",
+    "svg": "cards-animal/card-506.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-507",
+    "svg": "cards-animal/card-507.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-508",
+    "svg": "cards-animal/card-508.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-509",
+    "svg": "cards-animal/card-509.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-510",
+    "svg": "cards-animal/card-510.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-511",
+    "svg": "cards-animal/card-511.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-512",
+    "svg": "cards-animal/card-512.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-513",
+    "svg": "cards-animal/card-513.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-514",
+    "svg": "cards-animal/card-514.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-515",
+    "svg": "cards-animal/card-515.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-516",
+    "svg": "cards-animal/card-516.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-517",
+    "svg": "cards-animal/card-517.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-518",
+    "svg": "cards-animal/card-518.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-519",
+    "svg": "cards-animal/card-519.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-520",
+    "svg": "cards-animal/card-520.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-521",
+    "svg": "cards-animal/card-521.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-522",
+    "svg": "cards-animal/card-522.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-523",
+    "svg": "cards-animal/card-523.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-525",
+    "svg": "cards-animal/card-525.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-526",
+    "svg": "cards-animal/card-526.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-527",
+    "svg": "cards-animal/card-527.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-528",
+    "svg": "cards-animal/card-528.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-101",
+    "svg": "cards-base-project/card-101.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-102",
+    "svg": "cards-base-project/card-102.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-103",
+    "svg": "cards-base-project/card-103.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-104",
+    "svg": "cards-base-project/card-104.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-105",
+    "svg": "cards-base-project/card-105.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-106",
+    "svg": "cards-base-project/card-106.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-107",
+    "svg": "cards-base-project/card-107.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-108",
+    "svg": "cards-base-project/card-108.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-109",
+    "svg": "cards-base-project/card-109.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-110",
+    "svg": "cards-base-project/card-110.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-111",
+    "svg": "cards-base-project/card-111.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-112",
+    "svg": "cards-base-project/card-112.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-001",
+    "svg": "cards-final-scoring/card-001.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-002",
+    "svg": "cards-final-scoring/card-002.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-003",
+    "svg": "cards-final-scoring/card-003.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-004",
+    "svg": "cards-final-scoring/card-004.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-005",
+    "svg": "cards-final-scoring/card-005.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-006",
+    "svg": "cards-final-scoring/card-006.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-007",
+    "svg": "cards-final-scoring/card-007.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-008",
+    "svg": "cards-final-scoring/card-008.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-009",
+    "svg": "cards-final-scoring/card-009.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-010",
+    "svg": "cards-final-scoring/card-010.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-011",
+    "svg": "cards-final-scoring/card-011.svg",
+    "width": 744,
+    "height": 1039,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "card-back-zoo",
+    "svg": "card-backs/card-back-zoo.svg",
+    "width": 407,
+    "height": 555,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-1",
+    "svg": "boards/map-1.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-2",
+    "svg": "boards/map-2.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-3",
+    "svg": "boards/map-3.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-4",
+    "svg": "boards/map-4.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-5",
+    "svg": "boards/map-5.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-6",
+    "svg": "boards/map-6.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-7",
+    "svg": "boards/map-7.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-8",
+    "svg": "boards/map-8.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-A",
+    "svg": "boards/map-A.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "map-0",
+    "svg": "boards/map-0.svg",
+    "width": 2000,
+    "height": 1041,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "solo-tile",
+    "svg": "solo/solo-tile.svg",
+    "width": 743,
+    "height": 1200,
+    "reason": "BGA layout differs from original physical scan; review internal coordinates."
+  },
+  {
+    "id": "enclosure-1-empty",
+    "svg": "enclosures/enclosure-1-empty.svg",
+    "width": 254,
+    "height": 222,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-1-occupied",
+    "svg": "enclosures/enclosure-1-occupied.svg",
+    "width": 254,
+    "height": 222,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-2-empty",
+    "svg": "enclosures/enclosure-2-empty.svg",
+    "width": 255,
+    "height": 457,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-2-occupied",
+    "svg": "enclosures/enclosure-2-occupied.svg",
+    "width": 341,
+    "height": 610,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-3-empty",
+    "svg": "enclosures/enclosure-3-empty.svg",
+    "width": 461,
+    "height": 460,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-3-occupied",
+    "svg": "enclosures/enclosure-3-occupied.svg",
+    "width": 460,
+    "height": 458,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-4-empty",
+    "svg": "enclosures/enclosure-4-empty.svg",
+    "width": 459,
+    "height": 576,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-4-occupied",
+    "svg": "enclosures/enclosure-4-occupied.svg",
+    "width": 613,
+    "height": 768,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-5-empty",
+    "svg": "enclosures/enclosure-5-empty.svg",
+    "width": 459,
+    "height": 694,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "enclosure-5-occupied",
+    "svg": "enclosures/enclosure-5-occupied.svg",
+    "width": 613,
+    "height": 925,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "kiosk",
+    "svg": "special-buildings/kiosk.svg",
+    "width": 100,
+    "height": 87,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "pavilion",
+    "svg": "special-buildings/pavilion.svg",
+    "width": 100,
+    "height": 87,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "petting-zoo",
+    "svg": "special-buildings/petting-zoo.svg",
+    "width": 458,
+    "height": 578,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "reptile-house",
+    "svg": "special-buildings/reptile-house.svg",
+    "width": 664,
+    "height": 458,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "large-bird-aviary",
+    "svg": "special-buildings/large-bird-aviary.svg",
+    "width": 664,
+    "height": 578,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-rhesus-monkey-park",
+    "svg": "unique-buildings/unique-rhesus-monkey-park.svg",
+    "width": 811,
+    "height": 458,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-zoo-school",
+    "svg": "unique-buildings/unique-zoo-school.svg",
+    "width": 457,
+    "height": 574,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-adventure-playground",
+    "svg": "unique-buildings/unique-adventure-playground.svg",
+    "width": 253,
+    "height": 456,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-sea-turtle-tank",
+    "svg": "unique-buildings/unique-sea-turtle-tank.svg",
+    "width": 662,
+    "height": 575,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-aquarium",
+    "svg": "unique-buildings/unique-aquarium.svg",
+    "width": 662,
+    "height": 575,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-cable-car",
+    "svg": "unique-buildings/unique-cable-car.svg",
+    "width": 253,
+    "height": 928,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-polar-bear-exhibit",
+    "svg": "unique-buildings/unique-polar-bear-exhibit.svg",
+    "width": 866,
+    "height": 338,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-barred-owl-hut",
+    "svg": "unique-buildings/unique-barred-owl-hut.svg",
+    "width": 688,
+    "height": 253,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-okapi-stable",
+    "svg": "unique-buildings/unique-okapi-stable.svg",
+    "width": 835,
+    "height": 338,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-water-playground",
+    "svg": "unique-buildings/unique-water-playground.svg",
+    "width": 458,
+    "height": 338,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-penguin-pool",
+    "svg": "unique-buildings/unique-penguin-pool.svg",
+    "width": 661,
+    "height": 456,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-baboon-rock",
+    "svg": "unique-buildings/unique-baboon-rock.svg",
+    "width": 662,
+    "height": 574,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-spotted-hyena-compound",
+    "svg": "unique-buildings/unique-spotted-hyena-compound.svg",
+    "width": 867,
+    "height": 456,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-side-entrance",
+    "svg": "unique-buildings/unique-side-entrance.svg",
+    "width": 457,
+    "height": 338,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "unique-meerkat-den",
+    "svg": "unique-buildings/unique-meerkat-den.svg",
+    "width": 661,
+    "height": 338,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "partner-americas",
+    "svg": "partner-zoos/partner-americas.svg",
+    "width": 348,
+    "height": 273,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "partner-europe",
+    "svg": "partner-zoos/partner-europe.svg",
+    "width": 347,
+    "height": 273,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "partner-africa",
+    "svg": "partner-zoos/partner-africa.svg",
+    "width": 348,
+    "height": 274,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "partner-asia",
+    "svg": "partner-zoos/partner-asia.svg",
+    "width": 348,
+    "height": 274,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "partner-australia",
+    "svg": "partner-zoos/partner-australia.svg",
+    "width": 260,
+    "height": 205,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "university-research",
+    "svg": "universities/university-research.svg",
+    "width": 485,
+    "height": 335,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "university-reputation",
+    "svg": "universities/university-reputation.svg",
+    "width": 485,
+    "height": 335,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "university-hand-size",
+    "svg": "universities/university-hand-size.svg",
+    "width": 485,
+    "height": 335,
+    "reason": "Official BGA counterpart shape/framing differs from original physical scan. Review internal coordinates."
+  },
+  {
+    "id": "bonus-snap-three-cards",
+    "svg": "bonus-tiles/bonus-snap-three-cards.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-two-reputation",
+    "svg": "bonus-tiles/bonus-two-reputation.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-partner-zoo",
+    "svg": "bonus-tiles/bonus-partner-zoo.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-multiplier",
+    "svg": "bonus-tiles/bonus-multiplier.svg",
+    "width": 326,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-university",
+    "svg": "bonus-tiles/bonus-university.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-enclosure-three",
+    "svg": "bonus-tiles/bonus-enclosure-three.svg",
+    "width": 326,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-ten-money",
+    "svg": "bonus-tiles/bonus-ten-money.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-three-x",
+    "svg": "bonus-tiles/bonus-three-x.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "bonus-sponsor",
+    "svg": "bonus-tiles/bonus-sponsor.svg",
+    "width": 327,
+    "height": 317,
+    "reason": "Original BGA shape/rotation/layout differs from prior physical scan. External canvas retained; review internal coordinates."
+  },
+  {
+    "id": "multiplier",
+    "svg": "tokens/multiplier.svg",
+    "width": 1200,
+    "height": 1195,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "venom",
+    "svg": "tokens/venom.svg",
+    "width": 1200,
+    "height": 1200,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "constriction",
+    "svg": "tokens/constriction.svg",
+    "width": 1200,
+    "height": 1200,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "x-token",
+    "svg": "tokens/x-token.svg",
+    "width": 1200,
+    "height": 1200,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "money-1",
+    "svg": "money/money-1.svg",
+    "width": 64,
+    "height": 67,
+    "reason": "BGA digital money icon replaces photographed physical banknote; aspect and value-label placement differ."
+  },
+  {
+    "id": "money-5",
+    "svg": "money/money-5.svg",
+    "width": 75,
+    "height": 74,
+    "reason": "BGA digital money icon replaces photographed physical banknote; aspect and value-label placement differ."
+  },
+  {
+    "id": "money-10",
+    "svg": "money/money-10.svg",
+    "width": 80,
+    "height": 86,
+    "reason": "BGA digital money icon replaces photographed physical banknote; aspect and value-label placement differ."
+  },
+  {
+    "id": "money-20",
+    "svg": "money/money-20.svg",
+    "width": 85,
+    "height": 89,
+    "reason": "BGA digital money icon replaces photographed physical banknote; aspect and value-label placement differ."
+  },
+  {
+    "id": "break-token",
+    "svg": "wooden-pieces/break-token.svg",
+    "width": 89,
+    "height": 85,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "wooden-counters",
+    "svg": "wooden-pieces/wooden-counters.svg",
+    "width": 93,
+    "height": 82,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "association-workers",
+    "svg": "wooden-pieces/association-workers.svg",
+    "width": 139,
+    "height": 90,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "player-cubes",
+    "svg": "wooden-pieces/player-cubes.svg",
+    "width": 113,
+    "height": 79,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-africa",
+    "svg": "icons/icon-africa.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-americas",
+    "svg": "icons/icon-americas.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-asia",
+    "svg": "icons/icon-asia.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-australia",
+    "svg": "icons/icon-australia.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-europe",
+    "svg": "icons/icon-europe.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-bird",
+    "svg": "icons/icon-bird.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-herbivore",
+    "svg": "icons/icon-herbivore.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-primate",
+    "svg": "icons/icon-primate.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-predator",
+    "svg": "icons/icon-predator.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-reptile",
+    "svg": "icons/icon-reptile.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-bear",
+    "svg": "icons/icon-bear.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-petting-zoo-animal",
+    "svg": "icons/icon-petting-zoo-animal.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-research",
+    "svg": "icons/icon-research.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-rock",
+    "svg": "icons/icon-rock.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  },
+  {
+    "id": "icon-water",
+    "svg": "icons/icon-water.svg",
+    "width": 208,
+    "height": 208,
+    "reason": "Official BGA counterpart; internal layout differs from physical source. Review coordinates before application integration."
+  }
+]

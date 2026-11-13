@@ -1,0 +1,5854 @@
+[
+ {
+  "id": 401,
+  "kind": "animal",
+  "name": "Cheetah",
+  "nameFa": "یوزپلنگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-401.webp",
+  "cost": 17,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "predator",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sprint",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 402,
+  "kind": "animal",
+  "name": "Lion",
+  "nameFa": "شیر",
+  "textFa": "",
+  "art": "art/cards-animal/card-402.webp",
+  "cost": 16,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "africa"
+  ],
+  "req": {
+   "predator": 3
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pack",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 403,
+  "kind": "animal",
+  "name": "Leopard",
+  "nameFa": "پلنگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-403.webp",
+  "cost": 20,
+  "size": 3,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "africa"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 7,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "hunter",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 404,
+  "kind": "animal",
+  "name": "Caracal",
+  "nameFa": "کاراکال",
+  "textFa": "",
+  "art": "art/cards-animal/card-404.webp",
+  "cost": 9,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "hunter",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 405,
+  "kind": "animal",
+  "name": "Fennec Fox",
+  "nameFa": "روباه فنک",
+  "textFa": "",
+  "art": "art/cards-animal/card-405.webp",
+  "cost": 8,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "clever",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 406,
+  "kind": "animal",
+  "name": "Siberian Tiger",
+  "nameFa": "ببر سیبری",
+  "textFa": "",
+  "art": "art/cards-animal/card-406.webp",
+  "cost": 30,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "asia"
+  ],
+  "req": {
+   "asia": 3
+  },
+  "appeal": 10,
+  "cp": 2,
+  "rep": 1,
+  "ab": []
+ },
+ {
+  "id": 407,
+  "kind": "animal",
+  "name": "Sumatran Tiger",
+  "nameFa": "ببر سوماترا",
+  "textFa": "",
+  "art": "art/cards-animal/card-407.webp",
+  "cost": 26,
+  "size": 4,
+  "rock": 0,
+  "water": 2,
+  "std": true,
+  "icons": [
+   "predator",
+   "asia"
+  ],
+  "req": {
+   "science": 2
+  },
+  "appeal": 8,
+  "cp": 2,
+  "rep": 1,
+  "ab": []
+ },
+ {
+  "id": 408,
+  "kind": "animal",
+  "name": "Sloth Bear",
+  "nameFa": "خرس تنبل",
+  "textFa": "",
+  "art": "art/cards-animal/card-408.webp",
+  "cost": 14,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "bear",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "boost",
+    "association"
+   ]
+  ]
+ },
+ {
+  "id": 409,
+  "kind": "animal",
+  "name": "Sun Bear",
+  "nameFa": "خرس مالایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-409.webp",
+  "cost": 16,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "bear",
+   "asia"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "action",
+    "association"
+   ]
+  ]
+ },
+ {
+  "id": 410,
+  "kind": "animal",
+  "name": "Yellow-throated Marten",
+  "nameFa": "سمور گلوزرد",
+  "textFa": "",
+  "art": "art/cards-animal/card-410.webp",
+  "cost": 7,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "hunter",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 411,
+  "kind": "animal",
+  "name": "Grizzly Bear",
+  "nameFa": "خرس گریزلی",
+  "textFa": "",
+  "art": "art/cards-animal/card-411.webp",
+  "cost": 22,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "bear",
+   "americas"
+  ],
+  "req": {
+   "predator": 2,
+   "animals2": 1
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "inventive",
+    0
+   ],
+   [
+    "fullThroated",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 412,
+  "kind": "animal",
+  "name": "Jaguar",
+  "nameFa": "جگوار",
+  "textFa": "",
+  "art": "art/cards-animal/card-412.webp",
+  "cost": 16,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "americas"
+  ],
+  "req": {
+   "americas": 1
+  },
+  "appeal": 8,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "hunter",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 413,
+  "kind": "animal",
+  "name": "Cougar",
+  "nameFa": "شیر کوهی",
+  "textFa": "",
+  "art": "art/cards-animal/card-413.webp",
+  "cost": 10,
+  "size": 3,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "jumping",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 414,
+  "kind": "animal",
+  "name": "South American Coati",
+  "nameFa": "کوآتی آمریکای جنوبی",
+  "textFa": "",
+  "art": "art/cards-animal/card-414.webp",
+  "cost": 11,
+  "size": 2,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "bear",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "inventive",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 415,
+  "kind": "animal",
+  "name": "Raccoon",
+  "nameFa": "راکون",
+  "textFa": "",
+  "art": "art/cards-animal/card-415.webp",
+  "cost": 11,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "bear",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "boost",
+    "association"
+   ]
+  ]
+ },
+ {
+  "id": 416,
+  "kind": "animal",
+  "name": "Eurasian Brown Bear",
+  "nameFa": "خرس قهوه‌ای اوراسیایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-416.webp",
+  "cost": 20,
+  "size": 5,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "predator",
+   "bear",
+   "europe"
+  ],
+  "req": {
+   "bear": 1,
+   "animals2": 1
+  },
+  "appeal": 8,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "multiplier",
+    "association"
+   ],
+   [
+    "fullThroated",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 417,
+  "kind": "animal",
+  "name": "Wolf",
+  "nameFa": "گرگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-417.webp",
+  "cost": 12,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pack",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 418,
+  "kind": "animal",
+  "name": "Eurasian Lynx",
+  "nameFa": "سیاه‌گوش اوراسیایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-418.webp",
+  "cost": 11,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "europe"
+  ],
+  "req": {
+   "europe": 2
+  },
+  "appeal": 2,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "iconic",
+    "europe"
+   ]
+  ]
+ },
+ {
+  "id": 419,
+  "kind": "animal",
+  "name": "European Badger",
+  "nameFa": "گورکن اروپایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-419.webp",
+  "cost": 5,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "boost",
+    "animals"
+   ]
+  ]
+ },
+ {
+  "id": 420,
+  "kind": "animal",
+  "name": "Stoat",
+  "nameFa": "قاقم",
+  "textFa": "",
+  "art": "art/cards-animal/card-420.webp",
+  "cost": 4,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "europe"
+  ],
+  "req": {
+   "europe": 1
+  },
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "hunter",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 421,
+  "kind": "animal",
+  "name": "New Zealand Fur Seal",
+  "nameFa": "فک خزدار نیوزیلندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-421.webp",
+  "cost": 17,
+  "size": 5,
+  "rock": 1,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "predator",
+   "australia"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 8,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "fullThroated",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 422,
+  "kind": "animal",
+  "name": "Australian Sea Lion",
+  "nameFa": "شیر دریایی استرالیایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-422.webp",
+  "cost": 18,
+  "size": 4,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "predator",
+   "australia"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 7,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "sunbathing",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 423,
+  "kind": "animal",
+  "name": "New Zealand Sea Lion",
+  "nameFa": "شیر دریایی نیوزیلندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-423.webp",
+  "cost": 17,
+  "size": 3,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "predator",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pack",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 424,
+  "kind": "animal",
+  "name": "Australian Dingo",
+  "nameFa": "دینگوی استرالیایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-424.webp",
+  "cost": 13,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pack",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 425,
+  "kind": "animal",
+  "name": "Tasmanian Devil",
+  "nameFa": "شیطان تاسمانی",
+  "textFa": "",
+  "art": "art/cards-animal/card-425.webp",
+  "cost": 11,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "predator",
+   "australia"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 4,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "pouch",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 426,
+  "kind": "animal",
+  "name": "African Bush Elephant",
+  "nameFa": "فیل بوته‌زار آفریقایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-426.webp",
+  "cost": 36,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "africa",
+   "africa"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 10,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "resistance",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 427,
+  "kind": "animal",
+  "name": "White Rhinoceros",
+  "nameFa": "کرگدن سفید",
+  "textFa": "",
+  "art": "art/cards-animal/card-427.webp",
+  "cost": 24,
+  "size": 4,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "africa"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "assertion",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 428,
+  "kind": "animal",
+  "name": "Northern Giraffe",
+  "nameFa": "زرافهٔ شمالی",
+  "textFa": "",
+  "art": "art/cards-animal/card-428.webp",
+  "cost": 16,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "boost",
+    "sponsors"
+   ]
+  ]
+ },
+ {
+  "id": 429,
+  "kind": "animal",
+  "name": "Grevy's Zebra",
+  "nameFa": "گورخر گروی",
+  "textFa": "",
+  "art": "art/cards-animal/card-429.webp",
+  "cost": 12,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "africa"
+  ],
+  "req": {
+   "africa": 3
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "boost",
+    "sponsors"
+   ],
+   [
+    "flock",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 430,
+  "kind": "animal",
+  "name": "Pygmy Hippopotamus",
+  "nameFa": "اسب آبی کوتوله",
+  "textFa": "",
+  "art": "art/cards-animal/card-430.webp",
+  "cost": 15,
+  "size": 2,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "africa"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "action",
+    "sponsors"
+   ]
+  ]
+ },
+ {
+  "id": 431,
+  "kind": "animal",
+  "name": "Asian Elephant",
+  "nameFa": "فیل آسیایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-431.webp",
+  "cost": 33,
+  "size": 5,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "asia",
+   "asia"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 8,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "resistance",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 432,
+  "kind": "animal",
+  "name": "Indian Rhinoceros",
+  "nameFa": "کرگدن هندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-432.webp",
+  "cost": 25,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "asia"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "assertion",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 433,
+  "kind": "animal",
+  "name": "Giant Panda",
+  "nameFa": "پاندای غول‌پیکر",
+  "textFa": "",
+  "art": "art/cards-animal/card-433.webp",
+  "cost": 27,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "bear",
+   "asia"
+  ],
+  "req": {
+   "herbivore": 1,
+   "bear": 1,
+   "partner": 1
+  },
+  "appeal": 10,
+  "cp": 2,
+  "rep": 1,
+  "ab": []
+ },
+ {
+  "id": 434,
+  "kind": "animal",
+  "name": "Red Panda",
+  "nameFa": "پاندای سرخ",
+  "textFa": "",
+  "art": "art/cards-animal/card-434.webp",
+  "cost": 16,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "bear",
+   "asia"
+  ],
+  "req": {
+   "science": 2
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "multiplier",
+    "sponsors"
+   ]
+  ]
+ },
+ {
+  "id": 435,
+  "kind": "animal",
+  "name": "Malayan Tapir",
+  "nameFa": "تاپیر مالایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-435.webp",
+  "cost": 17,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "digging",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 436,
+  "kind": "animal",
+  "name": "American Bison",
+  "nameFa": "گاومیش کوهان‌دار آمریکایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-436.webp",
+  "cost": 18,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "americas",
+   "americas"
+  ],
+  "req": {
+   "americas": 3
+  },
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "iconic",
+    "americas"
+   ]
+  ]
+ },
+ {
+  "id": 437,
+  "kind": "animal",
+  "name": "Muskox",
+  "nameFa": "گاو مشک",
+  "textFa": "",
+  "art": "art/cards-animal/card-437.webp",
+  "cost": 13,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "americas"
+  ],
+  "req": {
+   "americas": 1
+  },
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sponsorMagnet",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 438,
+  "kind": "animal",
+  "name": "Reindeer",
+  "nameFa": "گوزن شمالی",
+  "textFa": "",
+  "art": "art/cards-animal/card-438.webp",
+  "cost": 12,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "flock",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 439,
+  "kind": "animal",
+  "name": "Llama",
+  "nameFa": "لاما",
+  "textFa": "",
+  "art": "art/cards-animal/card-439.webp",
+  "cost": 10,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "flock",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 440,
+  "kind": "animal",
+  "name": "Mountain Tapir",
+  "nameFa": "تاپیر کوهی",
+  "textFa": "",
+  "art": "art/cards-animal/card-440.webp",
+  "cost": 15,
+  "size": 2,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "digging",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 441,
+  "kind": "animal",
+  "name": "European Bison",
+  "nameFa": "گاومیش کوهان‌دار اروپایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-441.webp",
+  "cost": 19,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "europe",
+   "europe"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sponsorMagnet",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 442,
+  "kind": "animal",
+  "name": "Moose",
+  "nameFa": "گوزن موس",
+  "textFa": "",
+  "art": "art/cards-animal/card-442.webp",
+  "cost": 19,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "europe"
+  ],
+  "req": {
+   "herbivore": 2
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "multiplier",
+    "sponsors"
+   ],
+   [
+    "flock",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 443,
+  "kind": "animal",
+  "name": "Red Deer",
+  "nameFa": "مرال",
+  "textFa": "",
+  "art": "art/cards-animal/card-443.webp",
+  "cost": 12,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "flock",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 444,
+  "kind": "animal",
+  "name": "Alpine Ibex",
+  "nameFa": "بز کوهی آلپ",
+  "textFa": "",
+  "art": "art/cards-animal/card-444.webp",
+  "cost": 10,
+  "size": 2,
+  "rock": 2,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "jumping",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 445,
+  "kind": "animal",
+  "name": "Crested Porcupine",
+  "nameFa": "تشی کاکل‌دار",
+  "textFa": "",
+  "art": "art/cards-animal/card-445.webp",
+  "cost": 8,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "digging",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 446,
+  "kind": "animal",
+  "name": "Dugong",
+  "nameFa": "دوگونگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-446.webp",
+  "cost": 25,
+  "size": 5,
+  "rock": 0,
+  "water": 2,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "australia",
+   "australia"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 9,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "digging",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 447,
+  "kind": "animal",
+  "name": "Red Kangaroo",
+  "nameFa": "کانگوروی قرمز",
+  "textFa": "",
+  "art": "art/cards-animal/card-447.webp",
+  "cost": 23,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pouch",
+    2
+   ],
+   [
+    "flock",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 448,
+  "kind": "animal",
+  "name": "Koala",
+  "nameFa": "کوآلا",
+  "textFa": "",
+  "art": "art/cards-animal/card-448.webp",
+  "cost": 21,
+  "size": 3,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "bear",
+   "australia"
+  ],
+  "req": {
+   "australia": 1
+  },
+  "appeal": 8,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "pouch",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 449,
+  "kind": "animal",
+  "name": "Platypus",
+  "nameFa": "نوک‌اردکی",
+  "textFa": "",
+  "art": "art/cards-animal/card-449.webp",
+  "cost": 10,
+  "size": 2,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "venom",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 450,
+  "kind": "animal",
+  "name": "Common Wombat",
+  "nameFa": "ومبات معمولی",
+  "textFa": "",
+  "art": "art/cards-animal/card-450.webp",
+  "cost": 9,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "herbivore",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pouch",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 451,
+  "kind": "animal",
+  "name": "Proboscis Monkey",
+  "nameFa": "میمون دماغ‌دراز",
+  "textFa": "",
+  "art": "art/cards-animal/card-451.webp",
+  "cost": 32,
+  "size": 5,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "asia"
+  ],
+  "req": {
+   "primate": 2,
+   "animals2": 1
+  },
+  "appeal": 10,
+  "cp": 2,
+  "rep": 0,
+  "ab": [
+   [
+    "dominance",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 452,
+  "kind": "animal",
+  "name": "Senegal Bushbaby",
+  "nameFa": "گالاگوی سنگالی",
+  "textFa": "",
+  "art": "art/cards-animal/card-452.webp",
+  "cost": 10,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "africa"
+  ],
+  "req": {
+   "africa": 2
+  },
+  "appeal": 1,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "iconic",
+    "africa"
+   ]
+  ]
+ },
+ {
+  "id": 453,
+  "kind": "animal",
+  "name": "Collared Mangabey",
+  "nameFa": "منگابی یقه‌دار",
+  "textFa": "",
+  "art": "art/cards-animal/card-453.webp",
+  "cost": 20,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "africa"
+  ],
+  "req": {
+   "africa": 1
+  },
+  "appeal": 8,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "action",
+    "cards"
+   ]
+  ]
+ },
+ {
+  "id": 454,
+  "kind": "animal",
+  "name": "Ring-tailed Lemur",
+  "nameFa": "لمور دم‌حلقه‌ای",
+  "textFa": "",
+  "art": "art/cards-animal/card-454.webp",
+  "cost": 12,
+  "size": 3,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sunbathing",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 455,
+  "kind": "animal",
+  "name": "Mantled Guereza",
+  "nameFa": "گرزای ردادار",
+  "textFa": "",
+  "art": "art/cards-animal/card-455.webp",
+  "cost": 13,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "clever",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 456,
+  "kind": "animal",
+  "name": "Barbary Macaque",
+  "nameFa": "ماکاک بربری",
+  "textFa": "",
+  "art": "art/cards-animal/card-456.webp",
+  "cost": 13,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "africa"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pilfering",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 457,
+  "kind": "animal",
+  "name": "Mandrill",
+  "nameFa": "ماندریل",
+  "textFa": "",
+  "art": "art/cards-animal/card-457.webp",
+  "cost": 28,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "primate",
+   "africa"
+  ],
+  "req": {
+   "primate": 3
+  },
+  "appeal": 9,
+  "cp": 2,
+  "rep": 0,
+  "ab": [
+   [
+    "multiplier",
+    "cards"
+   ]
+  ]
+ },
+ {
+  "id": 458,
+  "kind": "animal",
+  "name": "Japanese Macaque",
+  "nameFa": "ماکاک ژاپنی",
+  "textFa": "",
+  "art": "art/cards-animal/card-458.webp",
+  "cost": 18,
+  "size": 3,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "primate",
+   "asia"
+  ],
+  "req": {
+   "asia": 1
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pilfering",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 459,
+  "kind": "animal",
+  "name": "Red-shanked Douc",
+  "nameFa": "دوک ساق‌سرخ",
+  "textFa": "",
+  "art": "art/cards-animal/card-459.webp",
+  "cost": 17,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "asia"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "inventive",
+    0
+   ]
+  ]
+ },
+ {
+  "id": 460,
+  "kind": "animal",
+  "name": "Dusky-leaf Monkey",
+  "nameFa": "میمون برگ‌خوار تیره",
+  "textFa": "",
+  "art": "art/cards-animal/card-460.webp",
+  "cost": 12,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "clever",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 461,
+  "kind": "animal",
+  "name": "Horsfield's Tarsier",
+  "nameFa": "تارسیر هورسفیلد",
+  "textFa": "",
+  "art": "art/cards-animal/card-461.webp",
+  "cost": 14,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "asia"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 3,
+  "cp": 0,
+  "rep": 2,
+  "ab": [
+   [
+    "jumping",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 462,
+  "kind": "animal",
+  "name": "Northern Plains Gray Langur",
+  "nameFa": "لانگور خاکستری دشت‌های شمالی",
+  "textFa": "",
+  "art": "art/cards-animal/card-462.webp",
+  "cost": 13,
+  "size": 3,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "jumping",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 463,
+  "kind": "animal",
+  "name": "Panamanian White-faced Capuchin",
+  "nameFa": "کاپوچین سفیدصورت پانامایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-463.webp",
+  "cost": 11,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "americas"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pilfering",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 464,
+  "kind": "animal",
+  "name": "Brown Spider Monkey",
+  "nameFa": "میمون عنکبوتی قهوه‌ای",
+  "textFa": "",
+  "art": "art/cards-animal/card-464.webp",
+  "cost": 17,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "americas"
+  ],
+  "req": {
+   "primate": 1
+  },
+  "appeal": 6,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "inventive",
+    0
+   ]
+  ]
+ },
+ {
+  "id": 465,
+  "kind": "animal",
+  "name": "Golden Lion Tamarin",
+  "nameFa": "تامارین شیری طلایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-465.webp",
+  "cost": 10,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "clever",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 466,
+  "kind": "animal",
+  "name": "Bolivian Red Howler",
+  "nameFa": "زوزه‌کش سرخ بولیوی",
+  "textFa": "",
+  "art": "art/cards-animal/card-466.webp",
+  "cost": 12,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "boost",
+    "cards"
+   ]
+  ]
+ },
+ {
+  "id": 467,
+  "kind": "animal",
+  "name": "Ecuadorian Squirrel Monkey",
+  "nameFa": "میمون سنجابی اکوادوری",
+  "textFa": "",
+  "art": "art/cards-animal/card-467.webp",
+  "cost": 12,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "clever",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 468,
+  "kind": "animal",
+  "name": "Cotton-top Tamarin",
+  "nameFa": "تامارین پنبه‌سر",
+  "textFa": "",
+  "art": "art/cards-animal/card-468.webp",
+  "cost": 15,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "primate",
+   "americas"
+  ],
+  "req": {
+   "science": 2
+  },
+  "appeal": 4,
+  "cp": 1,
+  "rep": 1,
+  "ab": []
+ },
+ {
+  "id": 469,
+  "kind": "animal",
+  "name": "Nile Crocodile",
+  "nameFa": "تمساح نیل",
+  "textFa": "",
+  "art": "art/cards-animal/card-469.webp",
+  "cost": 13,
+  "size": 5,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "africa"
+  ],
+  "req": {
+   "reptile": 3
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "snapping",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 3
+  }
+ },
+ {
+  "id": 470,
+  "kind": "animal",
+  "name": "Western Green Mamba",
+  "nameFa": "مامبای سبز غربی",
+  "textFa": "",
+  "art": "art/cards-animal/card-470.webp",
+  "cost": 13,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "africa"
+  ],
+  "req": {
+   "africa": 1,
+   "reptile": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "venom",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 471,
+  "kind": "animal",
+  "name": "African Spurred Tortoise",
+  "nameFa": "لاک‌پشت خاردار آفریقایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-471.webp",
+  "cost": 22,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 1,
+  "rep": 0,
+  "ab": [
+   [
+    "sunbathing",
+    3
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 2
+  }
+ },
+ {
+  "id": 472,
+  "kind": "animal",
+  "name": "Rock Monitor",
+  "nameFa": "بزمجهٔ صخره‌ای",
+  "textFa": "",
+  "art": "art/cards-animal/card-472.webp",
+  "cost": 12,
+  "size": 2,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sunbathing",
+    3
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 473,
+  "kind": "animal",
+  "name": "Common Agama",
+  "nameFa": "آگامای معمولی",
+  "textFa": "",
+  "art": "art/cards-animal/card-473.webp",
+  "cost": 9,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sunbathing",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 474,
+  "kind": "animal",
+  "name": "Indian Rock Python",
+  "nameFa": "پیتون صخره‌ای هندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-474.webp",
+  "cost": 14,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "asia"
+  ],
+  "req": {
+   "reptile": 2
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "constriction",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 475,
+  "kind": "animal",
+  "name": "Indian Cobra",
+  "nameFa": "کبرای هندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-475.webp",
+  "cost": 13,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "asia"
+  ],
+  "req": {
+   "science": 2,
+   "animals2": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "hypnosis",
+    3
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 476,
+  "kind": "animal",
+  "name": "Komodo Dragon",
+  "nameFa": "اژدهای کومودو",
+  "textFa": "",
+  "art": "art/cards-animal/card-476.webp",
+  "cost": 14,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "asia"
+  ],
+  "req": {
+   "asia": 2
+  },
+  "appeal": 2,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "iconic",
+    "asia"
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 2
+  }
+ },
+ {
+  "id": 477,
+  "kind": "animal",
+  "name": "Veiled Chameleon",
+  "nameFa": "آفتاب‌پرست نقاب‌دار",
+  "textFa": "",
+  "art": "art/cards-animal/card-477.webp",
+  "cost": 14,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "snapping",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 478,
+  "kind": "animal",
+  "name": "Chinese Water Dragon",
+  "nameFa": "اژدهای آبی چینی",
+  "textFa": "",
+  "art": "art/cards-animal/card-478.webp",
+  "cost": 8,
+  "size": 1,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sunbathing",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 479,
+  "kind": "animal",
+  "name": "American Alligator",
+  "nameFa": "آلیگاتور آمریکایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-479.webp",
+  "cost": 18,
+  "size": 4,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "snapping",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 2
+  }
+ },
+ {
+  "id": 480,
+  "kind": "animal",
+  "name": "Broad-snouted Caiman",
+  "nameFa": "کایمن پوزه‌پهن",
+  "textFa": "",
+  "art": "art/cards-animal/card-480.webp",
+  "cost": 16,
+  "size": 4,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "snapping",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 2
+  }
+ },
+ {
+  "id": 481,
+  "kind": "animal",
+  "name": "Galapagos Giant Tortoise",
+  "nameFa": "لاک‌پشت غول‌پیکر گالاپاگوس",
+  "textFa": "",
+  "art": "art/cards-animal/card-481.webp",
+  "cost": 30,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "americas"
+  ],
+  "req": {
+   "americas": 2,
+   "animals2": 1
+  },
+  "appeal": 8,
+  "cp": 2,
+  "rep": 1,
+  "ab": [
+   [
+    "sunbathing",
+    4
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 2
+  }
+ },
+ {
+  "id": 482,
+  "kind": "animal",
+  "name": "Anaconda",
+  "nameFa": "آناکوندا",
+  "textFa": "",
+  "art": "art/cards-animal/card-482.webp",
+  "cost": 13,
+  "size": 2,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "americas"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "constriction",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 483,
+  "kind": "animal",
+  "name": "Boa Constrictor",
+  "nameFa": "مار بوآ",
+  "textFa": "",
+  "art": "art/cards-animal/card-483.webp",
+  "cost": 16,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "americas"
+  ],
+  "req": {
+   "science": 2
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "constriction",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 484,
+  "kind": "animal",
+  "name": "European Pond Turtle",
+  "nameFa": "لاک‌پشت برکه‌ای اروپایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-484.webp",
+  "cost": 9,
+  "size": 1,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 485,
+  "kind": "animal",
+  "name": "Common European Adder",
+  "nameFa": "افعی اروپایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-485.webp",
+  "cost": 10,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "europe"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 2,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "hypnosis",
+    3
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 486,
+  "kind": "animal",
+  "name": "Common Wall Lizard",
+  "nameFa": "مارمولک دیواری",
+  "textFa": "",
+  "art": "art/cards-animal/card-486.webp",
+  "cost": 4,
+  "size": 1,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 2,
+  "cp": 0,
+  "rep": 0,
+  "ab": [],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 487,
+  "kind": "animal",
+  "name": "European Grass Snake",
+  "nameFa": "مار علفی",
+  "textFa": "",
+  "art": "art/cards-animal/card-487.webp",
+  "cost": 8,
+  "size": 1,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "clever",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 488,
+  "kind": "animal",
+  "name": "Slow Worm",
+  "nameFa": "مارمولک بی‌پا",
+  "textFa": "",
+  "art": "art/cards-animal/card-488.webp",
+  "cost": 4,
+  "size": 1,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 2,
+  "cp": 0,
+  "rep": 0,
+  "ab": [],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 489,
+  "kind": "animal",
+  "name": "Saltwater Crocodile",
+  "nameFa": "تمساح آب‌شور",
+  "textFa": "",
+  "art": "art/cards-animal/card-489.webp",
+  "cost": 23,
+  "size": 5,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "reptile",
+   "reptile",
+   "australia"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "snapping",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 3
+  }
+ },
+ {
+  "id": 490,
+  "kind": "animal",
+  "name": "Gould's Monitor",
+  "nameFa": "بزمجهٔ گولد",
+  "textFa": "",
+  "art": "art/cards-animal/card-490.webp",
+  "cost": 15,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "scavenging",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 2
+  }
+ },
+ {
+  "id": 491,
+  "kind": "animal",
+  "name": "Frilled Lizard",
+  "nameFa": "مارمولک یقه‌دار",
+  "textFa": "",
+  "art": "art/cards-animal/card-491.webp",
+  "cost": 12,
+  "size": 2,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sprint",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 492,
+  "kind": "animal",
+  "name": "Inland Taipan",
+  "nameFa": "تایپان سرزمین‌های داخلی",
+  "textFa": "",
+  "art": "art/cards-animal/card-492.webp",
+  "cost": 10,
+  "size": 2,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "australia"
+  ],
+  "req": {
+   "australia": 1,
+   "science": 1
+  },
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "venom",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "rh",
+   "n": 1
+  }
+ },
+ {
+  "id": 493,
+  "kind": "animal",
+  "name": "Thorny Devil",
+  "nameFa": "شیطان خاردار",
+  "textFa": "",
+  "art": "art/cards-animal/card-493.webp",
+  "cost": 6,
+  "size": 1,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "reptile",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [],
+  "sp": {
+   "k": "rh",
+   "n": 0
+  }
+ },
+ {
+  "id": 494,
+  "kind": "animal",
+  "name": "African Ostrich",
+  "nameFa": "شترمرغ آفریقایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-494.webp",
+  "cost": 20,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 8,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sprint",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 4
+  }
+ },
+ {
+  "id": 495,
+  "kind": "animal",
+  "name": "Secretary Bird",
+  "nameFa": "پرندهٔ منشی",
+  "textFa": "",
+  "art": "art/cards-animal/card-495.webp",
+  "cost": 14,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 1,
+  "rep": 0,
+  "ab": [],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 496,
+  "kind": "animal",
+  "name": "Marabou",
+  "nameFa": "لک‌لک مارابو",
+  "textFa": "",
+  "art": "art/cards-animal/card-496.webp",
+  "cost": 10,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "scavenging",
+    2
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 497,
+  "kind": "animal",
+  "name": "Lesser Flamingo",
+  "nameFa": "فلامینگوی کوچک",
+  "textFa": "",
+  "art": "art/cards-animal/card-497.webp",
+  "cost": 15,
+  "size": 2,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "bird",
+   "africa"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "posturing",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 498,
+  "kind": "animal",
+  "name": "Shoebill",
+  "nameFa": "لک‌لک نوک‌کفشی",
+  "textFa": "",
+  "art": "art/cards-animal/card-498.webp",
+  "cost": 9,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "africa"
+  ],
+  "req": {
+   "science": 2
+  },
+  "appeal": 3,
+  "cp": 1,
+  "rep": 0,
+  "ab": [],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 499,
+  "kind": "animal",
+  "name": "Cinereous Vulture",
+  "nameFa": "کرکس سیاه",
+  "textFa": "",
+  "art": "art/cards-animal/card-499.webp",
+  "cost": 16,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "scavenging",
+    3
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 500,
+  "kind": "animal",
+  "name": "Long-billed Vulture",
+  "nameFa": "کرکس نوک‌بلند",
+  "textFa": "",
+  "art": "art/cards-animal/card-500.webp",
+  "cost": 20,
+  "size": 4,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "asia"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 5,
+  "cp": 1,
+  "rep": 1,
+  "ab": [
+   [
+    "scavenging",
+    3
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 501,
+  "kind": "animal",
+  "name": "Indian Peafowl",
+  "nameFa": "طاووس هندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-501.webp",
+  "cost": 18,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "asia"
+  ],
+  "req": {
+   "asia": 1
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "posturing",
+    2
+   ]
+  ]
+ },
+ {
+  "id": 502,
+  "kind": "animal",
+  "name": "Great Hornbill",
+  "nameFa": "نوک‌شاخی بزرگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-502.webp",
+  "cost": 13,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "asia"
+  ],
+  "req": {},
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "boost",
+    "build"
+   ]
+  ]
+ },
+ {
+  "id": 503,
+  "kind": "animal",
+  "name": "Snowy Owl",
+  "nameFa": "جغد برفی",
+  "textFa": "",
+  "art": "art/cards-animal/card-503.webp",
+  "cost": 11,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "asia"
+  ],
+  "req": {
+   "bird": 2
+  },
+  "appeal": 4,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "perception",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 504,
+  "kind": "animal",
+  "name": "Andean Condor",
+  "nameFa": "کندور آند",
+  "textFa": "",
+  "art": "art/cards-animal/card-504.webp",
+  "cost": 17,
+  "size": 5,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "americas"
+  ],
+  "req": {
+   "bird": 1
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "scavenging",
+    4
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 505,
+  "kind": "animal",
+  "name": "Bald Eagle",
+  "nameFa": "عقاب سرسفید",
+  "textFa": "",
+  "art": "art/cards-animal/card-505.webp",
+  "cost": 23,
+  "size": 4,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "bird",
+   "americas"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 8,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "determination",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 506,
+  "kind": "animal",
+  "name": "King Vulture",
+  "nameFa": "کرکس شاه",
+  "textFa": "",
+  "art": "art/cards-animal/card-506.webp",
+  "cost": 12,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "americas"
+  ],
+  "req": {
+   "bird": 3
+  },
+  "appeal": 9,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "scavenging",
+    5
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 507,
+  "kind": "animal",
+  "name": "Greater Rhea",
+  "nameFa": "رئای بزرگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-507.webp",
+  "cost": 12,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "americas"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "sprint",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 508,
+  "kind": "animal",
+  "name": "Scarlet Macaw",
+  "nameFa": "ماکائوی سرخ",
+  "textFa": "",
+  "art": "art/cards-animal/card-508.webp",
+  "cost": 16,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "americas"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "posturing",
+    3
+   ]
+  ]
+ },
+ {
+  "id": 509,
+  "kind": "animal",
+  "name": "Golden Eagle",
+  "nameFa": "عقاب طلایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-509.webp",
+  "cost": 20,
+  "size": 5,
+  "rock": 1,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "europe"
+  ],
+  "req": {
+   "animals2": 1
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "determination",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 510,
+  "kind": "animal",
+  "name": "White Stork",
+  "nameFa": "لک‌لک سفید",
+  "textFa": "",
+  "art": "art/cards-animal/card-510.webp",
+  "cost": 9,
+  "size": 4,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "europe"
+  ],
+  "req": {
+   "europe": 1
+  },
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "multiplier",
+    "build"
+   ]
+  ],
+  "sp": {
+   "k": "ba",
+   "n": 1
+  }
+ },
+ {
+  "id": 511,
+  "kind": "animal",
+  "name": "Greater Flamingo",
+  "nameFa": "فلامینگوی بزرگ",
+  "textFa": "",
+  "art": "art/cards-animal/card-511.webp",
+  "cost": 16,
+  "size": 3,
+  "rock": 0,
+  "water": 1,
+  "std": true,
+  "icons": [
+   "bird",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "posturing",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 512,
+  "kind": "animal",
+  "name": "Eurasian Eagle-owl",
+  "nameFa": "شاه‌بوف",
+  "textFa": "",
+  "art": "art/cards-animal/card-512.webp",
+  "cost": 10,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "europe"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "perception",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 513,
+  "kind": "animal",
+  "name": "Barn Owl",
+  "nameFa": "جغد انبار",
+  "textFa": "",
+  "art": "art/cards-animal/card-513.webp",
+  "cost": 12,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "europe"
+  ],
+  "req": {},
+  "appeal": 3,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "perception",
+    4
+   ]
+  ]
+ },
+ {
+  "id": 514,
+  "kind": "animal",
+  "name": "Emu",
+  "nameFa": "امو",
+  "textFa": "",
+  "art": "art/cards-animal/card-514.webp",
+  "cost": 22,
+  "size": 5,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "australia"
+  ],
+  "req": {
+   "australia": 2
+  },
+  "appeal": 7,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "peacocking",
+    null
+   ]
+  ]
+ },
+ {
+  "id": 515,
+  "kind": "animal",
+  "name": "Australian Pelican",
+  "nameFa": "پلیکان استرالیایی",
+  "textFa": "",
+  "art": "art/cards-animal/card-515.webp",
+  "cost": 13,
+  "size": 4,
+  "rock": 0,
+  "water": 2,
+  "std": true,
+  "icons": [
+   "bird",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "action",
+    "build"
+   ]
+  ]
+ },
+ {
+  "id": 516,
+  "kind": "animal",
+  "name": "Northern Cassowary",
+  "nameFa": "کاسواری شمالی",
+  "textFa": "",
+  "art": "art/cards-animal/card-516.webp",
+  "cost": 12,
+  "size": 3,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "australia"
+  ],
+  "req": {
+   "partner": 1
+  },
+  "appeal": 6,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "multiplier",
+    "build"
+   ]
+  ]
+ },
+ {
+  "id": 517,
+  "kind": "animal",
+  "name": "Laughing Kookaburra",
+  "nameFa": "کوکابورای خندان",
+  "textFa": "",
+  "art": "art/cards-animal/card-517.webp",
+  "cost": 9,
+  "size": 2,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "australia"
+  ],
+  "req": {
+   "australia": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "iconic",
+    "australia"
+   ]
+  ]
+ },
+ {
+  "id": 518,
+  "kind": "animal",
+  "name": "Lesser Bird-of-paradise",
+  "nameFa": "پرندهٔ بهشتی کوچک",
+  "textFa": "",
+  "art": "art/cards-animal/card-518.webp",
+  "cost": 15,
+  "size": 1,
+  "rock": 0,
+  "water": 0,
+  "std": true,
+  "icons": [
+   "bird",
+   "australia"
+  ],
+  "req": {},
+  "appeal": 5,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "posturing",
+    1
+   ]
+  ]
+ },
+ {
+  "id": 519,
+  "kind": "animal",
+  "name": "(domestic) Goat",
+  "nameFa": "بز",
+  "textFa": "",
+  "art": "art/cards-animal/card-519.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 520,
+  "kind": "animal",
+  "name": "Sheep",
+  "nameFa": "گوسفند",
+  "textFa": "",
+  "art": "art/cards-animal/card-520.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 521,
+  "kind": "animal",
+  "name": "Horse",
+  "nameFa": "اسب",
+  "textFa": "",
+  "art": "art/cards-animal/card-521.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 1,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 522,
+  "kind": "animal",
+  "name": "Donkey",
+  "nameFa": "الاغ",
+  "textFa": "",
+  "art": "art/cards-animal/card-522.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ],
+   [
+    "inventive",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 523,
+  "kind": "animal",
+  "name": "Domestic Rabbit",
+  "nameFa": "خرگوش اهلی",
+  "textFa": "",
+  "art": "art/cards-animal/card-523.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 524,
+  "kind": "animal",
+  "name": "Mangalica",
+  "nameFa": "خوک مانگالیتسا",
+  "textFa": "",
+  "art": "art/cards-animal/card-524.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ],
+   [
+    "digging",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 525,
+  "kind": "animal",
+  "name": "Guinea Pig",
+  "nameFa": "خوکچهٔ هندی",
+  "textFa": "",
+  "art": "art/cards-animal/card-525.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 526,
+  "kind": "animal",
+  "name": "Alpaca",
+  "nameFa": "آلپاکا",
+  "textFa": "",
+  "art": "art/cards-animal/card-526.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 527,
+  "kind": "animal",
+  "name": "Coconut Lorikeet",
+  "nameFa": "لوریکیت نارگیلی",
+  "textFa": "",
+  "art": "art/cards-animal/card-527.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 528,
+  "kind": "animal",
+  "name": "Bennett's Wallaby",
+  "nameFa": "والابی بنت",
+  "textFa": "",
+  "art": "art/cards-animal/card-528.webp",
+  "cost": 7,
+  "size": 0,
+  "rock": 0,
+  "water": 0,
+  "std": false,
+  "icons": [
+   "pet"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0,
+  "ab": [
+   [
+    "pettingZoo",
+    null
+   ],
+   [
+    "pouch",
+    1
+   ]
+  ],
+  "sp": {
+   "k": "pz",
+   "n": 1
+  }
+ },
+ {
+  "id": 201,
+  "kind": "sponsor",
+  "name": "Science Lab",
+  "nameFa": "آزمایشگاه علمی",
+  "textFa": "هنگام بازی و در درآمد هر استراحت: یک کارت از محدودهٔ اعتبار یا دسته بگیرید. پایان بازی: ۳–۵ نماد پژوهش ۱ حفاظت، ۶+ نماد ۲ حفاظت.",
+  "art": "art/cards-sponsor/card-201.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "sponsors2": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 202,
+  "kind": "sponsor",
+  "name": "Spokesperson",
+  "nameFa": "سخنگو",
+  "textFa": "به ازای هر نماد پژوهش که وارد باغ‌وحش خود می‌کنید ۱ اعتبار بگیرید.",
+  "art": "art/cards-sponsor/card-202.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 203,
+  "kind": "sponsor",
+  "name": "Veterinarian",
+  "nameFa": "دامپزشک",
+  "textFa": "برای ۱/۲/۳ دانشگاه در باغ‌وحش‌تان ۲/۵/۱۰ پول بگیرید. از این پس حمایت از پروژهٔ حفاظتی در کنش انجمن فقط قدرت ۴ (به‌جای ۵) لازم دارد. پایان بازی: اگر ۳ دانشگاه داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-203.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 204,
+  "kind": "sponsor",
+  "name": "Science Museum",
+  "nameFa": "موزهٔ علوم",
+  "textFa": "به ازای هر نماد پژوهش در باغ‌وحش‌تان ۲ پول بگیرید. به ازای هر نماد پژوهش که وارد باغ‌وحش خود می‌کنید ۱ امتیاز حفاظت بگیرید.",
+  "art": "art/cards-sponsor/card-204.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "science": 4
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 205,
+  "kind": "sponsor",
+  "name": "Gorilla Field Research",
+  "nameFa": "پژوهش میدانی گوریل",
+  "textFa": "هنگام بازی این کارت ۲ اعتبار و ۱ امتیاز حفاظت بگیرید.",
+  "art": "art/cards-sponsor/card-205.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "science": 3
+  },
+  "appeal": 0,
+  "cp": 1,
+  "rep": 2
+ },
+ {
+  "id": 206,
+  "kind": "sponsor",
+  "name": "Medical Breakthrough",
+  "nameFa": "پیشرفت پزشکی",
+  "textFa": "به ازای هر بار که تاکنون از یک پروژهٔ حفاظتی حمایت کرده‌اید ۲ جذابیت بگیرید. در مرحلهٔ درآمد هر استراحت ۱ امتیاز حفاظت بگیرید.",
+  "art": "art/cards-sponsor/card-206.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "science": 4
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 207,
+  "kind": "sponsor",
+  "name": "Basic Research",
+  "nameFa": "پژوهش بنیادی",
+  "textFa": "نمادهای متفاوت دستهٔ حیوانات و قاره در باغ‌وحش‌تان را بشمارید. به ازای هر ۲ نماد متفاوت ۱ امتیاز حفاظت می‌گیرید و هر بازیکن دیگر ۲ پول می‌گیرد.",
+  "art": "art/cards-sponsor/card-207.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "sponsors2": 1,
+   "appeal25": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 208,
+  "kind": "sponsor",
+  "name": "Science Library",
+  "nameFa": "کتابخانهٔ علمی",
+  "textFa": "به ازای هر نماد پژوهش در باغ‌وحش‌تان ۱ جذابیت بگیرید. به ازای هر نماد پژوهش که در هر باغ‌وحشی بازی شود ۲ پول بگیرید. پایان بازی: اگر دست‌کم ۵ نماد متفاوت دستهٔ حیوانات داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-208.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 209,
+  "kind": "sponsor",
+  "name": "Technology Institute",
+  "nameFa": "مؤسسهٔ فناوری",
+  "textFa": "هنگام بازی این کارت و در مرحلهٔ درآمد هر استراحت ۱ نشان X بگیرید (حداکثر ۵ نشان X). پایان بازی: اگر ۳ دانشگاه داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-209.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 210,
+  "kind": "sponsor",
+  "name": "Expert On The Americas",
+  "nameFa": "کارشناس قارهٔ آمریکا",
+  "textFa": "به ازای هر نماد آمریکا در باغ‌وحش‌تان ۱ جذابیت بگیرید. به ازای هر نماد آمریکا که وارد باغ‌وحش خود می‌کنید، می‌توانید ۱ کیوسک رایگان روی نقشهٔ باغ‌وحش بسازید (قوانین عادی ساخت، از جمله فاصلهٔ کیوسک‌ها). پایان بازی: اگر ۵ کیوسک یا بیشتر داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-210.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "americas"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 211,
+  "kind": "sponsor",
+  "name": "Expert On Europe",
+  "nameFa": "کارشناس اروپا",
+  "textFa": "به ازای هر نماد اروپا در باغ‌وحش‌تان ۱ جذابیت بگیرید. به ازای هر نماد اروپا که وارد باغ‌وحش خود می‌کنید، می‌توانید ۱ محوطهٔ ۱ خانه رایگان بسازید (قوانین عادی ساخت). پایان بازی: اگر ۵ محوطهٔ ۱ خانهٔ اشغال‌شده یا بیشتر داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-211.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "europe"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 212,
+  "kind": "sponsor",
+  "name": "Expert On Australia",
+  "nameFa": "کارشناس استرالیا",
+  "textFa": "به ازای هر نماد استرالیا در باغ‌وحش‌تان ۱ جذابیت بگیرید. به ازای هر نماد استرالیا که وارد باغ‌وحش خود می‌کنید، می‌توانید ۱ کارت از دست خود را زیر این کارت بگذارید و ۲ جذابیت بگیرید (کیسه‌دار ۱). کارت‌های زیر این کارت دیگر کاری ندارند.",
+  "art": "art/cards-sponsor/card-212.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "australia"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 213,
+  "kind": "sponsor",
+  "name": "Expert On Asia",
+  "nameFa": "کارشناس آسیا",
+  "textFa": "به ازای هر نماد آسیا در باغ‌وحش‌تان ۱ جذابیت بگیرید. به ازای هر نماد آسیا که وارد باغ‌وحش خود می‌کنید، می‌توانید ۱ آلاچیق رایگان بسازید (قوانین عادی ساخت؛ آلاچیق ۱ جذابیت می‌دهد).",
+  "art": "art/cards-sponsor/card-213.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "asia"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 214,
+  "kind": "sponsor",
+  "name": "Expert On Africa",
+  "nameFa": "کارشناس آفریقا",
+  "textFa": "به ازای هر نماد آفریقا در باغ‌وحش‌تان ۱ جذابیت بگیرید. به ازای هر نماد آفریقا که وارد باغ‌وحش خود می‌کنید، پس از پایان کنش می‌توانید هر کارت کنش را به خانهٔ ۱ ببرید. پایان بازی: به ازای هر نشان X در اختیارتان ۱ جذابیت.",
+  "art": "art/cards-sponsor/card-214.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "africa"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 215,
+  "kind": "sponsor",
+  "name": "Breeding Cooperation",
+  "nameFa": "برنامهٔ جهانی تکثیر",
+  "textFa": "هنگام بازی ۲ نشان بازیکن روی این کارت بگذارید. هنگام حمایت از یک پروژهٔ حفاظتی پایه (زیر صفحهٔ انجمن) می‌توانید دقیقاً ۱ نشان را به‌جای هر نمادی کنار بگذارید؛ هر دو نشان را نمی‌توان برای یک پروژه به کار برد. پایان بازی: اگر ۵ بار یا بیشتر از پروژه‌های حفاظتی حمایت کرده باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-215.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "partner": 2
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 216,
+  "kind": "sponsor",
+  "name": "Talented Communicator",
+  "nameFa": "ارتباط‌گر توانا",
+  "textFa": "یک کارمند انجمن دیگر استخدام کنید؛ بی‌درنگ در دسترس است (اگر همهٔ کارمندان را استخدام کرده‌اید اثری ندارد). پایان بازی: اگر اعتبارتان ۹ یا بیشتر باشد ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-216.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "sponsors2": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 217,
+  "kind": "sponsor",
+  "name": "Engineer",
+  "nameFa": "مهندس",
+  "textFa": "هر بار کنش ساخت انجام می‌دهید، می‌توانید دقیقاً ۱ نسخهٔ دیگر از یکی از ساختمان‌های ساخته‌شده در همان کنش را با هزینهٔ عادی بسازید (نه محوطهٔ ویژه). پایان بازی: اگر نقشهٔ باغ‌وحش کاملاً پوشیده باشد (به‌جز صخره و آب) ۵ جذابیت.",
+  "art": "art/cards-sponsor/card-217.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 218,
+  "kind": "sponsor",
+  "name": "Breeding Program",
+  "nameFa": "برنامهٔ تکثیر",
+  "textFa": "هنگام بازی ۲ نشان بازیکن روی این کارت بگذارید. هنگام حمایت از یک پروژهٔ حفاظتی پایه (زیر صفحهٔ انجمن) می‌توانید دقیقاً ۱ نشان را به‌جای هر نمادی کنار بگذارید؛ هر دو نشان را نمی‌توان برای یک پروژه به کار برد. پایان بازی: اگر ۵ بار یا بیشتر از پروژه‌های حفاظتی حمایت کرده باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-218.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "science": 2
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 219,
+  "kind": "sponsor",
+  "name": "Diversity Researcher",
+  "nameFa": "پژوهشگر تنوع",
+  "textFa": "به ازای هر نماد آب و صخره در باغ‌وحش‌تان ۲ پول بگیرید. می‌توانید خانه‌های آب و صخره را بپوشانید و همهٔ شرط‌های آب و صخره را هنگام ساخت سازه‌های یکتا و بازی حیوانات نادیده بگیرید. پایان بازی: به ازای هر دست ۱ نماد آب + ۱ نماد صخره ۲ جذابیت (حداکثر ۳ دست).",
+  "art": "art/cards-sponsor/card-219.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "sponsors2": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 220,
+  "kind": "sponsor",
+  "name": "Federal Grants",
+  "nameFa": "کمک‌هزینهٔ دولتی",
+  "textFa": "هنگام بازی این کارت و در مرحلهٔ درآمد هر استراحت ۳ پول بگیرید. پایان بازی: اگر اعتبارتان ۹ یا بیشتر باشد ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-220.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 221,
+  "kind": "sponsor",
+  "name": "Archaeologist",
+  "nameFa": "باستان‌شناس",
+  "textFa": "هر بار پاداش جای‌گذاری یک خانهٔ لبه را می‌گیرید، یک پاداش جای‌گذاری رایگان دیگر به انتخاب خود از میان پاداش‌های هنوز پوشیده‌نشدهٔ باغ‌وحش‌تان بگیرید (لازم نیست روی لبه باشد). پایان بازی: اگر همهٔ خانه‌های لبه (به‌جز صخره و آب) را پوشانده باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-221.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 222,
+  "kind": "sponsor",
+  "name": "Release Of Patents",
+  "nameFa": "آزادسازی حق اختراع",
+  "textFa": "به ازای هر نماد پژوهش در باغ‌وحش‌تان ۱ امتیاز حفاظت بگیرید (حداکثر ۳). هر بازیکن دیگر به ازای هر امتیاز حفاظتی که این‌گونه گرفتید ۲ پول می‌گیرد.",
+  "art": "art/cards-sponsor/card-222.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "appeal25": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 223,
+  "kind": "sponsor",
+  "name": "Science Institute",
+  "nameFa": "مؤسسهٔ علمی",
+  "textFa": "اثری ندارد؛ ۲ نماد پژوهش به باغ‌وحش‌تان می‌افزاید.",
+  "art": "art/cards-sponsor/card-223.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science",
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 224,
+  "kind": "sponsor",
+  "name": "Migration Recording",
+  "nameFa": "ثبت مهاجرت",
+  "textFa": "۱ نشان X بگیرید. هر بار از یک پروژهٔ «رهاسازی در طبیعت» (کارت‌های ۱۱۳ تا ۱۲۲) حمایت می‌کنید ۱ امتیاز حفاظت اضافه بگیرید. می‌توانید با رهاسازی حیوان دیگری از گونهٔ لازم، چند بار از هر پروژهٔ رهاسازی حمایت کنید (در هر کنش انجمن فقط ۱ نشان روی هر پروژه).",
+  "art": "art/cards-sponsor/card-224.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {
+   "science": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 225,
+  "kind": "sponsor",
+  "name": "Quarantine Lab",
+  "nameFa": "آزمایشگاه قرنطینه",
+  "textFa": "۱ نشان X بگیرید. اثرهای زهر، فشردن، هیپنوتیزم و دستبرد بر شما اثری ندارند. پایان بازی: اگر هر ۵ نماد قاره را داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-225.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 226,
+  "kind": "sponsor",
+  "name": "Foreign Institute",
+  "nameFa": "مؤسسهٔ خارجی",
+  "textFa": "هنگام بازی این کارت ۲ اعتبار بگیرید. پایان بازی: اگر هر ۵ نماد قاره را داشته باشید ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-226.webp",
+  "level": 6,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "science"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 2
+ },
+ {
+  "id": 227,
+  "kind": "sponsor",
+  "name": "Waza Special Assignment",
+  "nameFa": "مأموریت ویژهٔ WAZA",
+  "textFa": "تا پایان بازی حیوانات کوچک یا بزرگ را انتخاب کنید. از دسته یکی‌یکی کارت رو کنید تا حیوانی از نوع انتخابی بیاید؛ آن را به دست بگیرید و بقیه را دور بریزید. از این پس حیوانات نوع دیگر را نمی‌توانید بازی کنید (حیوانات ۳ خانه آزادند). هر حیوان کوچک انتخابی ۲ و هر حیوان بزرگ انتخابی ۴ جذابیت اضافه می‌دهد.",
+  "art": "art/cards-sponsor/card-227.webp",
+  "level": 6,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "rep": 6
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 228,
+  "kind": "sponsor",
+  "name": "Waza Small Animal Program",
+  "nameFa": "برنامهٔ حیوانات کوچک WAZA",
+  "textFa": "به ازای هر حیوان کوچک در باغ‌وحش‌تان ۲ پول بگیرید. هر بار در کنش حیوانات فقط حیوان کوچک بازی کنید، می‌توانید ۱ حیوان کوچک دیگر از دست با هزینهٔ عادی بازی کنید؛ سپس (حتی اگر بازی نکردید) ۱ حیوان کوچک از ویترین (هر خانه‌ای) به دست بگیرید، اگر باشد.",
+  "art": "art/cards-sponsor/card-228.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "rep": 3
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 229,
+  "kind": "sponsor",
+  "name": "Expert In Small Animals",
+  "nameFa": "کارشناس حیوانات کوچک",
+  "textFa": "به ازای هر حیوان کوچک در باغ‌وحش‌تان ۱ جذابیت. هر حیوان کوچک ۳ پول ارزان‌تر است.",
+  "art": "art/cards-sponsor/card-229.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 230,
+  "kind": "sponsor",
+  "name": "Expert In Large Animals",
+  "nameFa": "کارشناس حیوانات بزرگ",
+  "textFa": "به ازای هر حیوان بزرگ در باغ‌وحش‌تان ۲ جذابیت بگیرید. هر حیوان بزرگ (محوطهٔ ۴ یا ۵ خانه) ۴ پول ارزان‌تر است.",
+  "art": "art/cards-sponsor/card-230.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 231,
+  "kind": "sponsor",
+  "name": "Sponsorship: Primates",
+  "nameFa": "حمایت: نخستی‌ها",
+  "textFa": "به ازای هر نماد نخستی در باغ‌وحش‌تان ۱ جذابیت بگیرید. در مرحلهٔ درآمد هر استراحت برای ۱–۲ / ۳–۴ / ۵+ نماد نخستی ۳ / ۶ / ۹ پول بگیرید.",
+  "art": "art/cards-sponsor/card-231.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "primate": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 232,
+  "kind": "sponsor",
+  "name": "Sponsorship: Reptiles",
+  "nameFa": "حمایت: خزندگان",
+  "textFa": "به ازای هر نماد خزنده در باغ‌وحش‌تان ۱ جذابیت بگیرید. در مرحلهٔ درآمد هر استراحت برای ۱–۲ / ۳–۴ / ۵+ نماد خزنده ۳ / ۶ / ۹ پول بگیرید.",
+  "art": "art/cards-sponsor/card-232.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "reptile": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 233,
+  "kind": "sponsor",
+  "name": "Sponsorship: Vultures",
+  "nameFa": "حمایت مالی: کرکس‌ها",
+  "textFa": "به ازای هر نماد پرنده در باغ‌وحش‌تان ۱ جذابیت بگیرید. درآمد هر استراحت: ۱–۲ نماد پرنده ۳ پول، ۳–۴ نماد ۶ پول، ۵+ نماد ۹ پول.",
+  "art": "art/cards-sponsor/card-233.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "bird": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 234,
+  "kind": "sponsor",
+  "name": "Sponsorship: Lions",
+  "nameFa": "حمایت مالی: شیرها",
+  "textFa": "به ازای هر نماد شکارچی در باغ‌وحش‌تان ۱ جذابیت بگیرید. درآمد هر استراحت: ۱–۲ نماد شکارچی ۳ پول، ۳–۴ نماد ۶ پول، ۵+ نماد ۹ پول.",
+  "art": "art/cards-sponsor/card-234.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "predator": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 235,
+  "kind": "sponsor",
+  "name": "Sponsorship: Elephants",
+  "nameFa": "حمایت مالی: فیل‌ها",
+  "textFa": "به ازای هر نماد گیاه‌خوار در باغ‌وحش‌تان ۱ جذابیت بگیرید. درآمد هر استراحت: ۱–۲ نماد گیاه‌خوار ۳ پول، ۳–۴ نماد ۶ پول، ۵+ نماد ۹ پول.",
+  "art": "art/cards-sponsor/card-235.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "herbivore": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 236,
+  "kind": "sponsor",
+  "name": "Primatologist",
+  "nameFa": "نخستی‌شناس",
+  "textFa": "به ازای هر نماد نخستی که وارد هر باغ‌وحشی (از جمله باغ‌وحش دیگران) می‌شود ۳ پول بگیرید.",
+  "art": "art/cards-sponsor/card-236.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "primate"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 237,
+  "kind": "sponsor",
+  "name": "Herpetologist",
+  "nameFa": "خزنده‌شناس",
+  "textFa": "به ازای هر نماد خزنده که وارد هر باغ‌وحشی (از جمله باغ‌وحش دیگران) می‌شود ۳ پول بگیرید.",
+  "art": "art/cards-sponsor/card-237.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "reptile"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 238,
+  "kind": "sponsor",
+  "name": "Ornithologist",
+  "nameFa": "پرنده‌شناس",
+  "textFa": "به ازای هر نماد پرنده که وارد هر باغ‌وحشی (از جمله باغ‌وحش دیگران) می‌شود ۳ پول بگیرید.",
+  "art": "art/cards-sponsor/card-238.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "bird"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 239,
+  "kind": "sponsor",
+  "name": "Expert In Predators",
+  "nameFa": "کارشناس شکارچیان",
+  "textFa": "به ازای هر نماد شکارچی که وارد هر باغ‌وحشی (از جمله باغ‌وحش دیگران) می‌شود ۳ پول بگیرید.",
+  "art": "art/cards-sponsor/card-239.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "predator"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 240,
+  "kind": "sponsor",
+  "name": "Expert In Herbivores",
+  "nameFa": "کارشناس گیاه‌خواران",
+  "textFa": "به ازای هر نماد گیاه‌خوار که وارد هر باغ‌وحشی (از جمله باغ‌وحش دیگران) می‌شود ۳ پول بگیرید.",
+  "art": "art/cards-sponsor/card-240.webp",
+  "level": 4,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "herbivore"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 241,
+  "kind": "sponsor",
+  "name": "Hydrologist",
+  "nameFa": "آب‌شناس",
+  "textFa": "به ازای هر نماد آب در باغ‌وحش‌تان (روی این کارت و نیازهای آب کارت‌ها) ۱ جذابیت بگیرید. هر بار خانه‌ای کنار یک خانهٔ آب را می‌پوشانید، به ازای هر چنین خانه‌ای ۱ پول. پایان بازی: اگر همهٔ خانه‌های آب متصل باشند ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-241.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 1,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 242,
+  "kind": "sponsor",
+  "name": "Geologist",
+  "nameFa": "زمین‌شناس",
+  "textFa": "به ازای هر ۲ نماد صخره در باغ‌وحش‌تان ۳ جذابیت بگیرید. هر بار خانه‌ای کنار یک خانهٔ صخره را می‌پوشانید، به ازای هر چنین خانه‌ای ۱ پول. پایان بازی: اگر همهٔ خانه‌های صخره متصل باشند ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-242.webp",
+  "level": 5,
+  "rock": 1,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 243,
+  "kind": "sponsor",
+  "name": "Meerkat Den",
+  "nameFa": "لانهٔ میرکت",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۱ صخره. به ازای هر نماد گیاه‌خوار که وارد باغ‌وحش می‌کنید ۲ جذابیت. پایان بازی: ۶+ نماد گیاه‌خوار ۱ حفاظت.",
+  "art": "art/cards-sponsor/card-243.webp",
+  "level": 5,
+  "rock": 1,
+  "water": 0,
+  "icons": [
+   "herbivore"
+  ],
+  "req": {
+   "rep": 3
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 244,
+  "kind": "sponsor",
+  "name": "Penguin Pool",
+  "nameFa": "استخر پنگوئن",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۱ خانهٔ آب. به ازای هر نماد پرنده که وارد باغ‌وحش خود می‌کنید ۲ جذابیت. پایان بازی: ۶+ نماد پرنده ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-244.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 1,
+  "icons": [
+   "bird"
+  ],
+  "req": {
+   "rep": 3
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 245,
+  "kind": "sponsor",
+  "name": "Aquarium",
+  "nameFa": "آکواریوم",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۲ خانهٔ آب. به ازای هر نماد آب که وارد باغ‌وحش خود می‌کنید ۲ جذابیت. پایان بازی: ۶+ نماد آب ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-245.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 2,
+  "icons": [],
+  "req": {
+   "rep": 3
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 246,
+  "kind": "sponsor",
+  "name": "Cable Car",
+  "nameFa": "تله‌کابین",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۲ خانهٔ صخره. به ازای هر نماد صخره که وارد باغ‌وحش خود می‌کنید ۲ جذابیت. پایان بازی: ۶+ نماد صخره ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-246.webp",
+  "level": 6,
+  "rock": 2,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 247,
+  "kind": "sponsor",
+  "name": "Baboon Rock",
+  "nameFa": "صخرهٔ بابون",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۱ خانهٔ صخره. به ازای هر نماد نخستی که وارد باغ‌وحش خود می‌کنید ۲ جذابیت. پایان بازی: ۶+ نماد نخستی ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-247.webp",
+  "level": 6,
+  "rock": 1,
+  "water": 0,
+  "icons": [
+   "primate"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 248,
+  "kind": "sponsor",
+  "name": "Rhesus Monkey Park",
+  "nameFa": "پارک میمون رزوس",
+  "textFa": "سازهٔ یکتا. به ازای هر نماد نخستی که وارد باغ‌وحش خود می‌کنید ۱ نشان X بگیرید (حداکثر ۵ نشان).",
+  "art": "art/cards-sponsor/card-248.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "primate"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 249,
+  "kind": "sponsor",
+  "name": "Barred Owl Hut",
+  "nameFa": "کلبهٔ جغد راه‌راه",
+  "textFa": "سازهٔ یکتا. به ازای هر نماد پرنده که وارد باغ‌وحش خود می‌کنید: ۲ کارت از دسته بکشید، ۱ را نگه دارید و دیگری را دور بیندازید (ادراک ۲).",
+  "art": "art/cards-sponsor/card-249.webp",
+  "level": 6,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "bird"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 250,
+  "kind": "sponsor",
+  "name": "Sea Turtle Tank",
+  "nameFa": "مخزن لاک‌پشت دریایی",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۱ خانهٔ آب. به ازای هر نماد خزنده که وارد باغ‌وحش خود می‌کنید می‌توانید تا ۲ کارت از دست را هر کدام ۴ پول بفروشید (آفتاب‌گیری ۲).",
+  "art": "art/cards-sponsor/card-250.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 1,
+  "icons": [
+   "reptile"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 251,
+  "kind": "sponsor",
+  "name": "Polar Bear Exhibit",
+  "nameFa": "نمایشگاه خرس قطبی",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۱ خانهٔ آب. به ازای هر نماد خرس که وارد هر باغ‌وحشی می‌شود ۲ جذابیت. پایان بازی: ۳–۵ نماد خرس ۱ امتیاز حفاظت، ۶+ نماد ۲.",
+  "art": "art/cards-sponsor/card-251.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 1,
+  "icons": [
+   "predator",
+   "bear"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 252,
+  "kind": "sponsor",
+  "name": "Spotted Hyena Compound",
+  "nameFa": "محوطهٔ کفتار خال‌دار",
+  "textFa": "سازهٔ یکتا کنار دست‌کم ۱ خانهٔ صخره. به ازای هر نماد شکارچی که وارد باغ‌وحش خود می‌کنید: شکارچی X (X = نمادهای شکارچی باغ‌وحش‌تان).",
+  "art": "art/cards-sponsor/card-252.webp",
+  "level": 5,
+  "rock": 1,
+  "water": 0,
+  "icons": [
+   "predator"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 253,
+  "kind": "sponsor",
+  "name": "Okapi Stable",
+  "nameFa": "اصطبل اوکاپی",
+  "textFa": "سازهٔ یکتا. ۳ نشان روی این کارت بگذارید. به ازای هر نماد گیاه‌خوار که وارد باغ‌وحش خود می‌کنید می‌توانید ۱ نشان را بردارید و یک حامی از دست را با پرداخت پول به اندازهٔ سطحش بازی کنید (حداکثر ۳ بار در بازی).",
+  "art": "art/cards-sponsor/card-253.webp",
+  "level": 6,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "herbivore"
+  ],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 254,
+  "kind": "sponsor",
+  "name": "Zoo School",
+  "nameFa": "مدرسهٔ باغ‌وحش",
+  "textFa": "سازهٔ یکتا روی دست‌کم ۲ خانهٔ مرزی. ۱ اعتبار و ۱ امتیاز حفاظت بگیرید و ۱ کارت از محدودهٔ اعتبار یا دسته بردارید.",
+  "art": "art/cards-sponsor/card-254.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 1,
+  "rep": 1
+ },
+ {
+  "id": 255,
+  "kind": "sponsor",
+  "name": "Adventure Playground",
+  "nameFa": "زمین بازی ماجراجویی",
+  "textFa": "۴ جذابیت بگیرید. سازهٔ یکتا کنار دست‌کم ۱ خانهٔ صخره.",
+  "art": "art/cards-sponsor/card-255.webp",
+  "level": 3,
+  "rock": 1,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 256,
+  "kind": "sponsor",
+  "name": "Water Playground",
+  "nameFa": "زمین بازی آبی",
+  "textFa": "۴ جذابیت بگیرید. سازهٔ یکتا کنار دست‌کم ۱ خانهٔ آب.",
+  "art": "art/cards-sponsor/card-256.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 1,
+  "icons": [],
+  "req": {},
+  "appeal": 4,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 257,
+  "kind": "sponsor",
+  "name": "Side Entrance",
+  "nameFa": "ورودی جانبی",
+  "textFa": "سازهٔ یکتا روی ۲ خانهٔ مرزی؛ لازم نیست کنار سازه‌های دیگر باشد و از این پس می‌توانید کنار آن بسازید. درآمد هر استراحت: به ازای هر سازهٔ کنار آن (جز محوطه‌های استاندارد خالی) ۲ پول. پایان بازی: اگر نقشه کاملاً پوشیده باشد ۵ جذابیت.",
+  "art": "art/cards-sponsor/card-257.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 258,
+  "kind": "sponsor",
+  "name": "Native Seabirds",
+  "nameFa": "پرندگان دریایی بومی",
+  "textFa": "به ازای هر خانهٔ آب متصل ۱ جذابیت بگیرید. پایان بازی: به ازای هر ۲ خانهٔ آب جدا ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-258.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "bird"
+  ],
+  "req": {
+   "appeal25": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 259,
+  "kind": "sponsor",
+  "name": "Native Lizards",
+  "nameFa": "مارمولک‌های بومی",
+  "textFa": "به ازای هر خانهٔ صخره متصل ۱ جذابیت بگیرید. پایان بازی: به ازای هر ۲ خانهٔ صخره جدا ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-259.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "reptile"
+  ],
+  "req": {
+   "appeal25": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 260,
+  "kind": "sponsor",
+  "name": "Native Farm Animals",
+  "nameFa": "دام‌های بومی",
+  "textFa": "به ازای هر خانهٔ ساخت مرزی که متصل است ولی پوشیده نیست ۱ جذابیت بگیرید. پایان بازی: به ازای هر ۶ خانهٔ ساخت خالی در هر گروه پیوسته ۱ امتیاز حفاظت (خانه‌های نیازمند ساخت II هم حساب می‌شوند).",
+  "art": "art/cards-sponsor/card-260.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "herbivore"
+  ],
+  "req": {
+   "appeal25": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 261,
+  "kind": "sponsor",
+  "name": "Guided School Tours",
+  "nameFa": "بازدیدهای آموزشی مدارس",
+  "textFa": "۱ امتیاز حفاظت و ۱ جذابیت بگیرید. پایان بازی: اگر دست‌کم ۵ نماد دستهٔ جانوری (با خرس و باغ‌وحش کودکان) در باغ‌وحش‌تان باشد ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-261.webp",
+  "level": 3,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {},
+  "appeal": 1,
+  "cp": 1,
+  "rep": 0
+ },
+ {
+  "id": 262,
+  "kind": "sponsor",
+  "name": "Explorer",
+  "nameFa": "کاشف",
+  "textFa": "به ازای هر نماد قاره یا دستهٔ جانوری متفاوت در باغ‌وحش‌تان ۲ پول بگیرید. هر بار نماد قاره یا دستهٔ جانوری‌ای وارد باغ‌وحش خود می‌کنید که هنوز ندارید، ۱ جذابیت و ۲ پول بگیرید (برای هر نوع نماد یک بار).",
+  "art": "art/cards-sponsor/card-262.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "sponsors2": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 263,
+  "kind": "sponsor",
+  "name": "Waza Large Animal Program",
+  "nameFa": "برنامهٔ حیوانات بزرگ WAZA",
+  "textFa": "می‌توانید یک محوطهٔ ۵ خانه رایگان بسازید. هر بار حیوان بزرگ (محوطهٔ ۴ یا ۵ خانه) بازی می‌کنید می‌توانید یکی از شرط‌هایش را نادیده بگیرید (نه نیاز صخره یا آب).",
+  "art": "art/cards-sponsor/card-263.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [],
+  "req": {
+   "sponsors2": 1,
+   "rep": 6
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 264,
+  "kind": "sponsor",
+  "name": "Free-range New World Monkeys",
+  "nameFa": "میمون‌های آزاد دنیای نو",
+  "textFa": "به ازای هر خانهٔ متصل دارای پاداش جایگذاری ۱ جذابیت بگیرید. پایان بازی: به ازای هر ۲ خانهٔ جدا دارای پاداش جایگذاری ۱ امتیاز حفاظت.",
+  "art": "art/cards-sponsor/card-264.webp",
+  "level": 5,
+  "rock": 0,
+  "water": 0,
+  "icons": [
+   "primate"
+  ],
+  "req": {
+   "appeal25": 1
+  },
+  "appeal": 0,
+  "cp": 0,
+  "rep": 0
+ },
+ {
+  "id": 101,
+  "kind": "icons",
+  "name": "Species Diversity",
+  "nameFa": "تنوع گونه‌ها",
+  "art": "art/cards-base-project/card-101.webp",
+  "base": true,
+  "icon": "categories",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 3
+   }
+  ]
+ },
+ {
+  "id": 102,
+  "kind": "icons",
+  "name": "Habitat Diversity",
+  "nameFa": "تنوع زیستگاه‌ها",
+  "art": "art/cards-base-project/card-102.webp",
+  "base": true,
+  "icon": "continents",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 3
+   }
+  ]
+ },
+ {
+  "id": 103,
+  "kind": "icons",
+  "name": "Africa",
+  "nameFa": "آفریقا",
+  "art": "art/cards-base-project/card-103.webp",
+  "base": true,
+  "icon": "africa",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 104,
+  "kind": "icons",
+  "name": "Americas",
+  "nameFa": "آمریکا",
+  "art": "art/cards-base-project/card-104.webp",
+  "base": true,
+  "icon": "americas",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 105,
+  "kind": "icons",
+  "name": "Australia",
+  "nameFa": "استرالیا",
+  "art": "art/cards-base-project/card-105.webp",
+  "base": true,
+  "icon": "australia",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 106,
+  "kind": "icons",
+  "name": "Asia",
+  "nameFa": "آسیا",
+  "art": "art/cards-base-project/card-106.webp",
+  "base": true,
+  "icon": "asia",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 107,
+  "kind": "icons",
+  "name": "Europe",
+  "nameFa": "اروپا",
+  "art": "art/cards-base-project/card-107.webp",
+  "base": true,
+  "icon": "europe",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 108,
+  "kind": "icons",
+  "name": "Primates",
+  "nameFa": "نخستی‌ها",
+  "art": "art/cards-base-project/card-108.webp",
+  "base": true,
+  "icon": "primate",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 109,
+  "kind": "icons",
+  "name": "Reptiles",
+  "nameFa": "خزندگان",
+  "art": "art/cards-base-project/card-109.webp",
+  "base": true,
+  "icon": "reptile",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 110,
+  "kind": "icons",
+  "name": "Predators",
+  "nameFa": "شکارچی‌ها",
+  "art": "art/cards-base-project/card-110.webp",
+  "base": true,
+  "icon": "predator",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 111,
+  "kind": "icons",
+  "name": "Herbivores",
+  "nameFa": "گیاه‌خواران",
+  "art": "art/cards-base-project/card-111.webp",
+  "base": true,
+  "icon": "herbivore",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 112,
+  "kind": "icons",
+  "name": "Birds",
+  "nameFa": "پرندگان",
+  "art": "art/cards-base-project/card-112.webp",
+  "base": true,
+  "icon": "bird",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 113,
+  "kind": "release",
+  "name": "Bavarian Forest national park",
+  "nameFa": "پارک ملی جنگل باواریا",
+  "art": "art/cards-conservation/card-113.webp",
+  "base": false,
+  "icon": "europe",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 114,
+  "kind": "release",
+  "name": "Yosemite national park",
+  "nameFa": "پارک ملی یوسمیتی",
+  "art": "art/cards-conservation/card-114.webp",
+  "base": false,
+  "icon": "americas",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 115,
+  "kind": "release",
+  "name": "Angthong national park",
+  "nameFa": "پارک ملی آنگ‌تونگ",
+  "art": "art/cards-conservation/card-115.webp",
+  "base": false,
+  "icon": "asia",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 116,
+  "kind": "release",
+  "name": "Serengeti national park",
+  "nameFa": "پارک ملی سرنگتی",
+  "art": "art/cards-conservation/card-116.webp",
+  "base": false,
+  "icon": "africa",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 117,
+  "kind": "release",
+  "name": "Blue mountains national park",
+  "nameFa": "پارک ملی کوه‌های آبی",
+  "art": "art/cards-conservation/card-117.webp",
+  "base": false,
+  "icon": "australia",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 118,
+  "kind": "release",
+  "name": "Savanna",
+  "nameFa": "ساوانا",
+  "art": "art/cards-conservation/card-118.webp",
+  "base": false,
+  "icon": "predator",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 119,
+  "kind": "release",
+  "name": "Low Mountain Range",
+  "nameFa": "رشته‌کوه کم‌ارتفاع",
+  "art": "art/cards-conservation/card-119.webp",
+  "base": false,
+  "icon": "bird",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 120,
+  "kind": "release",
+  "name": "Bamboo Forest",
+  "nameFa": "جنگل بامبو",
+  "art": "art/cards-conservation/card-120.webp",
+  "base": false,
+  "icon": "herbivore",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 121,
+  "kind": "release",
+  "name": "Sea Cave",
+  "nameFa": "غار دریایی",
+  "art": "art/cards-conservation/card-121.webp",
+  "base": false,
+  "icon": "reptile",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 122,
+  "kind": "release",
+  "name": "Jungle",
+  "nameFa": "جنگل بارانی",
+  "art": "art/cards-conservation/card-122.webp",
+  "base": false,
+  "icon": "primate",
+  "slots": [
+   {
+    "cp": 5,
+    "rep": 0,
+    "size": 4
+   },
+   {
+    "cp": 4,
+    "rep": 0,
+    "size": 3
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "size": 2
+   }
+  ],
+  "played": {
+   "rep": 1
+  }
+ },
+ {
+  "id": 123,
+  "kind": "breed",
+  "name": "Bird breeding program",
+  "nameFa": "برنامهٔ تکثیر پرندگان",
+  "art": "art/cards-conservation/card-123.webp",
+  "base": false,
+  "icon": "bird",
+  "slots": [
+   {
+    "cp": 2,
+    "rep": 2
+   },
+   {
+    "cp": 1,
+    "rep": 2
+   },
+   {
+    "cp": 2,
+    "rep": 0
+   }
+  ]
+ },
+ {
+  "id": 124,
+  "kind": "breed",
+  "name": "Predator breeding program",
+  "nameFa": "برنامهٔ تکثیر شکارچی‌ها",
+  "art": "art/cards-conservation/card-124.webp",
+  "base": false,
+  "icon": "predator",
+  "slots": [
+   {
+    "cp": 2,
+    "rep": 2
+   },
+   {
+    "cp": 1,
+    "rep": 2
+   },
+   {
+    "cp": 2,
+    "rep": 0
+   }
+  ]
+ },
+ {
+  "id": 125,
+  "kind": "breed",
+  "name": "Reptile breeding program",
+  "nameFa": "برنامهٔ تکثیر خزندگان",
+  "art": "art/cards-conservation/card-125.webp",
+  "base": false,
+  "icon": "reptile",
+  "slots": [
+   {
+    "cp": 2,
+    "rep": 2
+   },
+   {
+    "cp": 1,
+    "rep": 2
+   },
+   {
+    "cp": 2,
+    "rep": 0
+   }
+  ]
+ },
+ {
+  "id": 126,
+  "kind": "breed",
+  "name": "Herbivore breeding program",
+  "nameFa": "برنامهٔ تکثیر گیاه‌خواران",
+  "art": "art/cards-conservation/card-126.webp",
+  "base": false,
+  "icon": "herbivore",
+  "slots": [
+   {
+    "cp": 2,
+    "rep": 2
+   },
+   {
+    "cp": 1,
+    "rep": 2
+   },
+   {
+    "cp": 2,
+    "rep": 0
+   }
+  ]
+ },
+ {
+  "id": 127,
+  "kind": "breed",
+  "name": "Primate breeding program",
+  "nameFa": "برنامهٔ تکثیر نخستی‌ها",
+  "art": "art/cards-conservation/card-127.webp",
+  "base": false,
+  "icon": "primate",
+  "slots": [
+   {
+    "cp": 2,
+    "rep": 2
+   },
+   {
+    "cp": 1,
+    "rep": 2
+   },
+   {
+    "cp": 2,
+    "rep": 0
+   }
+  ]
+ },
+ {
+  "id": 128,
+  "kind": "icons",
+  "name": "Aquatic",
+  "nameFa": "آبزیان",
+  "art": "art/cards-conservation/card-128.webp",
+  "base": false,
+  "icon": "water",
+  "slots": [
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 129,
+  "kind": "icons",
+  "name": "Geological",
+  "nameFa": "زمین‌شناسی",
+  "art": "art/cards-conservation/card-129.webp",
+  "base": false,
+  "icon": "rock",
+  "slots": [
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 3
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 130,
+  "kind": "icons",
+  "name": "Small Animals",
+  "nameFa": "حیوانات کوچک",
+  "art": "art/cards-conservation/card-130.webp",
+  "base": false,
+  "icon": "small",
+  "slots": [
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 8
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 131,
+  "kind": "icons",
+  "name": "Large Animals",
+  "nameFa": "حیوانات بزرگ",
+  "art": "art/cards-conservation/card-131.webp",
+  "base": false,
+  "icon": "large",
+  "slots": [
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 3
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 132,
+  "kind": "icons",
+  "name": "Research",
+  "nameFa": "پژوهش",
+  "art": "art/cards-conservation/card-132.webp",
+  "base": false,
+  "icon": "science",
+  "slots": [
+   {
+    "cp": 4,
+    "rep": 0,
+    "need": 5
+   },
+   {
+    "cp": 3,
+    "rep": 0,
+    "need": 4
+   },
+   {
+    "cp": 2,
+    "rep": 0,
+    "need": 2
+   }
+  ]
+ },
+ {
+  "id": 1,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش حیوانات بزرگ",
+  "textFa": "حیوانات بزرگ: ۱ → ۱، ۲ → ۲، ۴ → ۳، ۵+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-001.webp"
+ },
+ {
+  "id": 2,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش حیوانات کوچک",
+  "textFa": "حیوانات کوچک: ۳ → ۱، ۶ → ۲، ۸ → ۳، ۱۰+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-002.webp"
+ },
+ {
+  "id": 3,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش پژوهشی",
+  "textFa": "نمادهای پژوهش: ۳ → ۱، ۴ → ۲، ۵ → ۳، ۶+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-003.webp"
+ },
+ {
+  "id": 4,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش معماری",
+  "textFa": "هر شرط ۱ حفاظت: همهٔ خانه‌های آب به سازه وصل باشند؛ همهٔ خانه‌های صخره به سازه وصل باشند؛ همهٔ خانه‌های ساخت‌وساز لبهٔ نقشه پوشیده باشند؛ همهٔ خانه‌های ساخت‌وساز نقشه پوشیده باشند.",
+  "art": "art/cards-final-scoring/card-004.webp"
+ },
+ {
+  "id": 5,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش حفاظتی",
+  "textFa": "پروژه‌های حفاظتی پشتیبانی‌شده: ۳ → ۱، ۴ → ۲، ۵ → ۳، ۶+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-005.webp"
+ },
+ {
+  "id": 6,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش طبیعت‌گرایان",
+  "textFa": "خانه‌های ساخت‌وساز خالی (خانه‌های ساخت II هم حساب می‌شوند): ۶ → ۱، ۱۲ → ۲، ۱۸ → ۳، ۲۴+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-006.webp"
+ },
+ {
+  "id": 7,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش محبوب",
+  "textFa": "اعتبار: ۶ → ۱، ۹ → ۲، ۱۲ → ۳، ۱۵ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-007.webp"
+ },
+ {
+  "id": 8,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش حمایت‌شده",
+  "textFa": "کارت‌های حامی در باغ‌وحش‌تان: ۳ → ۱، ۶ → ۲، ۸ → ۳، ۱۰+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-008.webp"
+ },
+ {
+  "id": 9,
+  "kind": "final-scoring",
+  "nameFa": "باغ‌وحش گونه‌های متنوع",
+  "textFa": "به ازای هر دستهٔ جانوری (پرنده، گیاه‌خوار، شکارچی، نخستی، خزنده، خرس، باغ‌وحش کودکان) که نمادش را بیشتر از بازیکن قبلی در ترتیب نوبت دارید ۱ حفاظت؛ حداکثر ۴. تساوی امتیاز ندارد.",
+  "art": "art/cards-final-scoring/card-009.webp"
+ },
+ {
+  "id": 10,
+  "kind": "final-scoring",
+  "nameFa": "پارک صخره‌نوردی",
+  "textFa": "نمادهای صخره: ۱ → ۱، ۳ → ۲، ۵ → ۳، ۷+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-010.webp"
+ },
+ {
+  "id": 11,
+  "kind": "final-scoring",
+  "nameFa": "پارک آبی",
+  "textFa": "نمادهای آب: ۲ → ۱، ۴ → ۲، ۶ → ۳، ۸+ → ۴ حفاظت.",
+  "art": "art/cards-final-scoring/card-011.webp"
+ }
+]

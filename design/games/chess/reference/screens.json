@@ -1,0 +1,311 @@
+{
+ "canvas": "https://claude.ai/artifact/NhRomGy1qHDxcE3QoYedhU (page «۱. شطرنج، میز مسابقه»)",
+ "screens": [
+  {
+   "id": "D01-lobby",
+   "title": "دسکتاپ ۱: انتخاب زمان و پیدا کردن حریف",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D01-lobby.jpg",
+   "html": "reference/html/D01-lobby.html",
+   "dc": "reference/dc/D01-lobby.dc.html"
+  },
+  {
+   "id": "D02-turn",
+   "title": "دسکتاپ ۲: نوبت شما",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D02-turn.jpg",
+   "html": "reference/html/D02-turn.html",
+   "dc": "reference/dc/D02-turn.dc.html"
+  },
+  {
+   "id": "D03-check",
+   "title": "دسکتاپ ۳: کیش",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D03-check.jpg",
+   "html": "reference/html/D03-check.html",
+   "dc": "reference/dc/D03-check.dc.html"
+  },
+  {
+   "id": "D04-promotion",
+   "title": "دسکتاپ ۴: ارتقای سرباز",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D04-promotion.jpg",
+   "html": "reference/html/D04-promotion.html",
+   "dc": "reference/dc/D04-promotion.dc.html"
+  },
+  {
+   "id": "D05-premove",
+   "title": "دسکتاپ ۵: پری‌موو در نوبت حریف",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D05-premove.jpg",
+   "html": "reference/html/D05-premove.html",
+   "dc": "reference/dc/D05-premove.dc.html"
+  },
+  {
+   "id": "D06-lowtime",
+   "title": "دسکتاپ ۶: وقت کم",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D06-lowtime.jpg",
+   "html": "reference/html/D06-lowtime.html",
+   "dc": "reference/dc/D06-lowtime.dc.html"
+  },
+  {
+   "id": "D07-draw-offer",
+   "title": "دسکتاپ ۷: پیشنهاد مساوی از حریف",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D07-draw-offer.jpg",
+   "html": "reference/html/D07-draw-offer.html",
+   "dc": "reference/dc/D07-draw-offer.dc.html"
+  },
+  {
+   "id": "D08-resign",
+   "title": "دسکتاپ ۸: تسلیم و پیشنهاد فرستاده‌شده",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D08-resign.jpg",
+   "html": "reference/html/D08-resign.html",
+   "dc": "reference/dc/D08-resign.dc.html"
+  },
+  {
+   "id": "D09-game-over",
+   "title": "دسکتاپ ۹: پایان بازی",
+   "width": 1520,
+   "height": 1476,
+   "img": "reference/img/D09-game-over.jpg",
+   "html": "reference/html/D09-game-over.html",
+   "dc": "reference/dc/D09-game-over.dc.html"
+  },
+  {
+   "id": "D10-reconnect",
+   "title": "دسکتاپ ۱۰: قطع شدن اتصال شما",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D10-reconnect.jpg",
+   "html": "reference/html/D10-reconnect.html",
+   "dc": "reference/dc/D10-reconnect.dc.html"
+  },
+  {
+   "id": "D11-opp-offline",
+   "title": "دسکتاپ ۱۱: قطع شدن حریف",
+   "width": 1520,
+   "height": 1081,
+   "img": "reference/img/D11-opp-offline.jpg",
+   "html": "reference/html/D11-opp-offline.html",
+   "dc": "reference/dc/D11-opp-offline.dc.html"
+  },
+  {
+   "id": "D12-spectator",
+   "title": "دسکتاپ ۱۲: تماشاچی و مسابقه",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D12-spectator.jpg",
+   "html": "reference/html/D12-spectator.html",
+   "dc": "reference/dc/D12-spectator.dc.html"
+  },
+  {
+   "id": "D13-dark",
+   "title": "دسکتاپ ۱۳: حالت تیره",
+   "width": 1520,
+   "height": 1055,
+   "img": "reference/img/D13-dark.jpg",
+   "html": "reference/html/D13-dark.html",
+   "dc": "reference/dc/D13-dark.dc.html"
+  },
+  {
+   "id": "D14-en-passant",
+   "title": "دسکتاپ ۱۴: آن‌پاسان",
+   "width": 1520,
+   "height": 1107,
+   "img": "reference/img/D14-en-passant.jpg",
+   "html": "reference/html/D14-en-passant.html",
+   "dc": "reference/dc/D14-en-passant.dc.html"
+  },
+  {
+   "id": "P01",
+   "title": "گوشی ۱: بازی جدید",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P01.jpg",
+   "html": "reference/html/P01.html",
+   "dc": "reference/dc/P01.dc.html"
+  },
+  {
+   "id": "P02",
+   "title": "گوشی ۲: دنبال حریف",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P02.jpg",
+   "html": "reference/html/P02.html",
+   "dc": "reference/dc/P02.dc.html"
+  },
+  {
+   "id": "P03",
+   "title": "گوشی ۳: نوبت شما",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P03.jpg",
+   "html": "reference/html/P03.html",
+   "dc": "reference/dc/P03.dc.html"
+  },
+  {
+   "id": "P04",
+   "title": "گوشی ۴: کیش",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P04.jpg",
+   "html": "reference/html/P04.html",
+   "dc": "reference/dc/P04.dc.html"
+  },
+  {
+   "id": "P05",
+   "title": "گوشی ۵: ارتقای سرباز",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P05.jpg",
+   "html": "reference/html/P05.html",
+   "dc": "reference/dc/P05.dc.html"
+  },
+  {
+   "id": "P06",
+   "title": "گوشی ۶: پری‌موو در نوبت حریف",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P06.jpg",
+   "html": "reference/html/P06.html",
+   "dc": "reference/dc/P06.dc.html"
+  },
+  {
+   "id": "P07",
+   "title": "گوشی ۷: وقت کم",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P07.jpg",
+   "html": "reference/html/P07.html",
+   "dc": "reference/dc/P07.dc.html"
+  },
+  {
+   "id": "P08",
+   "title": "گوشی ۸: پیشنهاد مساوی از حریف",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P08.jpg",
+   "html": "reference/html/P08.html",
+   "dc": "reference/dc/P08.dc.html"
+  },
+  {
+   "id": "P09",
+   "title": "گوشی ۹: تأیید تسلیم",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P09.jpg",
+   "html": "reference/html/P09.html",
+   "dc": "reference/dc/P09.dc.html"
+  },
+  {
+   "id": "P10",
+   "title": "گوشی ۱۰: بردید",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P10.jpg",
+   "html": "reference/html/P10.html",
+   "dc": "reference/dc/P10.dc.html"
+  },
+  {
+   "id": "P11",
+   "title": "گوشی ۱۱: مساوی",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P11.jpg",
+   "html": "reference/html/P11.html",
+   "dc": "reference/dc/P11.dc.html"
+  },
+  {
+   "id": "P12",
+   "title": "گوشی ۱۲: همهٔ حرکت‌ها",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P12.jpg",
+   "html": "reference/html/P12.html",
+   "dc": "reference/dc/P12.dc.html"
+  },
+  {
+   "id": "P13",
+   "title": "گوشی ۱۳: قطع شدن اتصال شما",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P13.jpg",
+   "html": "reference/html/P13.html",
+   "dc": "reference/dc/P13.dc.html"
+  },
+  {
+   "id": "P14",
+   "title": "گوشی ۱۴: قطع شدن حریف",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P14.jpg",
+   "html": "reference/html/P14.html",
+   "dc": "reference/dc/P14.dc.html"
+  },
+  {
+   "id": "P15",
+   "title": "گوشی ۱۵: تماشاچی",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P15.jpg",
+   "html": "reference/html/P15.html",
+   "dc": "reference/dc/P15.dc.html"
+  },
+  {
+   "id": "P16",
+   "title": "گوشی ۱۶: بین دو دور مسابقه",
+   "width": 470,
+   "height": 1028,
+   "img": "reference/img/P16.jpg",
+   "html": "reference/html/P16.html",
+   "dc": "reference/dc/P16.dc.html"
+  },
+  {
+   "id": "P17",
+   "title": "گوشی ۱۷: حالت تیره: نوبت شما",
+   "width": 470,
+   "height": 976,
+   "img": "reference/img/P17.jpg",
+   "html": "reference/html/P17.html",
+   "dc": "reference/dc/P17.dc.html"
+  },
+  {
+   "id": "P18",
+   "title": "گوشی ۱۸: حالت تیره: باخت با وقت",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P18.jpg",
+   "html": "reference/html/P18.html",
+   "dc": "reference/dc/P18.dc.html"
+  },
+  {
+   "id": "P19",
+   "title": "گوشی ۱۹: آن‌پاسان",
+   "width": 470,
+   "height": 1007,
+   "img": "reference/img/P19.jpg",
+   "html": "reference/html/P19.html",
+   "dc": "reference/dc/P19.dc.html"
+  },
+  {
+   "id": "Chess-Spec",
+   "title": "مشخصات برای تیم فنی",
+   "width": 1520,
+   "height": 4161,
+   "img": "reference/img/Chess-Spec.jpg",
+   "html": "reference/html/Chess-Spec.html",
+   "dc": "reference/dc/Chess-Spec.dc.html"
+  }
+ ]
+}

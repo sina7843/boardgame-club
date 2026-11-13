@@ -1,0 +1,45 @@
+{
+  "url": "https://boardgamearena.com/tutorial/tutorial/frame.html?game=bloodrage&tutorial=1161",
+  "retrieved": "2026-10-30",
+  "tutorial_id": 1161,
+  "archive_table": 331393276,
+  "source_game_release": "220513-1624",
+  "source_platform_release": "221228-1000",
+  "method": "Public tutorial iframe; static material fields parsed from gameui.completesetup JSON without running downloaded scripts.",
+  "source_file": "tutorial-1161-frame.html",
+  "fields": [
+    "cards",
+    "regions",
+    "provinces",
+    "fjords",
+    "slots",
+    "clans",
+    "pillages",
+    "stat_rage",
+    "stat_axe",
+    "stat_horn"
+  ],
+  "counts": {
+    "cards": 151,
+    "regions": 4,
+    "provinces": 9,
+    "fjords": 4,
+    "slots": 33,
+    "clans": 5,
+    "pillages": 5,
+    "stat_rage": 6,
+    "stat_axe": 6,
+    "stat_horn": 6
+  },
+  "verifiedCurrentSource": {
+    "url": "https://en.boardgamearena.com/archive/archive/frame.html?version=260916-0950&table=917761391&player=96959293&comments=",
+    "source_file": "current-example-frame.html",
+    "retrieved": "2026-10-30",
+    "source_game_release": "231218-1618",
+    "source_platform_release": "260916-0950",
+    "all_material_fields_identical": true,
+    "all_templates_identical": false,
+    "all_component_templates_identical": true,
+    "comparison_file": "current-materials-comparison.json"
+  }
+}

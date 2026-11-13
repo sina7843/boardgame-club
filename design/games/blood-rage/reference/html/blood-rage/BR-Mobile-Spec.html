@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>بلاد ریج: گوشی، اقدام‌ها، کامپوننت‌ها</title>
+
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.bdr{--pick:#E8A642;--bdr-wolf:#9D3644;--bdr-serpent:#DFA471;--bdr-raven:#428AA7;--bdr-bear:#856348;--bdr-ram:#70A15E;
+ --bdr-wolf-ink:#8A2B38;--bdr-serpent-ink:#8C5A26;--bdr-raven-ink:#2D6E88;--bdr-bear-ink:#6E4F36;--bdr-ram-ink:#4E7F3D;
+ --bdr-sea:#1B2A33;--bdr-plate:rgba(10,12,16,.82);--bdr-blood:#7E1F17;--bdr-parch:#E9DFCB;--bdr-parch-ink:#3B2A1B}
+.bdr[data-theme="dark"]{--bdr-wolf-ink:#F08C99;--bdr-serpent-ink:#F2C08F;--bdr-raven-ink:#8CCBE4;--bdr-bear-ink:#D9B391;--bdr-ram-ink:#A6D894}
+.bdr[lang="en"]{font-family:var(--font-latin)}
+.bdr-num{unicode-bidi:isolate;direction:ltr}
+.bdr-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+/* desktop frame: game column + sticky rail on the right (BGA) */
+.bdr-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.bdr-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.bdr-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.bdr-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.bdr-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.bdr-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.bdr-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA page title + action buttons): text, the actions with their cost, then the steps */
+.bdr-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.bdr-bar.is-waiting{background:var(--surface-sunken)}
+.bdr-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.bdr-bar__text{flex:1 1 360px;min-inline-size:0}
+.bdr-bar__text b{color:var(--heading);font-weight:900}
+.bdr-bar .bgv-btn{white-space:nowrap}
+.bdr-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.bdr-kinds{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bdr-bar .bdr-kinds .bgv-btn{padding-inline:10px;gap:6px}
+.bdr-kinds .bgv-btn[aria-pressed="true"]{background:var(--selected);color:var(--on-selected);box-shadow:none}
+.bdr-kinds .bgv-btn[aria-pressed="true"] .bdr-pill{background:rgba(255,255,255,.18);color:inherit}
+.bdr-kinds .bgv-btn:disabled .bdr-pill{opacity:.7}
+.bdr-pill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle;white-space:nowrap}
+.bdr-pill .bdr-ic{block-size:16px}
+.bdr-rage{display:inline-flex;align-items:center;gap:2px;font-weight:900;color:var(--bdr-blood)}
+.bdr[data-theme="dark"] .bdr-rage{color:#F0AAA3}
+.bdr-rage img{block-size:18px;border-radius:50%}
+.bdr-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bdr-step{display:inline-flex;align-items:center;gap:4px;block-size:26px;padding-inline:9px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.bdr-step.is-done{background:var(--success-soft);color:var(--success)}
+.bdr-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.bdr-step .bgv-icon{inline-size:14px;block-size:14px}
+.bdr-targets{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.bdr-target{display:inline-flex;align-items:center;gap:6px;min-block-size:38px;padding:3px 10px 3px 6px;border-radius:var(--radius-sm);border:1.5px dashed var(--pick);background:var(--surface);font:inherit;font-size:13.5px;color:var(--text);cursor:pointer}
+.bdr-target img{block-size:30px;inline-size:auto}
+.bdr-target small{color:var(--text-muted);font-size:12px}
+.bdr-target[aria-selected="true"],.bdr-target.is-on{border-style:solid;border-width:2.5px;background:var(--invite-soft);color:var(--heading);font-weight:700}
+.bdr-target:disabled{border-color:var(--line);color:var(--on-btn-disabled);cursor:default;background:var(--btn-disabled)}
+.bdr-target:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.bdr-sum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:14px}
+.bdr-sum b{font-weight:900;color:var(--heading)}
+.bdr-sum__fx{flex-basis:100%;font-size:13.5px;color:var(--text)}
+.bdr-sum__fx b{color:var(--danger)}
+.bdr-sum__total{margin-inline-start:auto;font-size:15px}
+/* zones on felt */
+.bdr-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.bdr-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.bdr-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.bdr-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.bdr-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: BGA card faces (English, user choice), Persian name under each, Persian text in the tooltip */
+.bdr-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,150px);flex:none}
+.bdr-card>img{display:block;inline-size:100%;block-size:auto;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 3px 8px rgba(0,0,0,.3)}
+.bdr-card[data-pick="selectable"]>img{outline:2.5px dashed var(--pick);outline-offset:3px}
+.bdr-card[data-pick="picked"]{transform:translateY(-10px)}
+.bdr-card[data-pick="picked"]>img{outline:3.5px solid var(--pick);outline-offset:3px}
+.bdr-card[data-pick="off"]>img{filter:saturate(.35) brightness(.7)}
+.bdr-card:disabled,.bdr-card[aria-disabled="true"]{cursor:default}
+.bdr-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:5px}
+.bdr-card .bdr-check{inset-block-start:-9px;inset-inline-end:-9px}
+.bdr-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:3}
+.bdr-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+.bdr-cardtag{position:absolute;inset-block-end:6px;left:50%;transform:translateX(-50%);max-inline-size:94%;padding:1px 7px;border-radius:var(--radius-pill);background:var(--bdr-plate);color:#FFFFFF;font-size:11.5px;font-weight:700;white-space:nowrap;z-index:2}
+.bdr-hand{display:flex;flex-wrap:wrap;gap:16px 12px;justify-content:center;align-items:flex-end;padding-block-start:10px}
+.bdr-hcard{display:grid;justify-items:center;gap:6px}
+.bdr-hcard small{font-size:12.5px;color:var(--felt-ink);max-inline-size:var(--cw,150px);text-align:center;line-height:1.4;font-weight:700}
+.bdr-hcard small i{display:block;font-style:normal;font-weight:400;color:var(--felt-muted);font-size:11.5px}
+/* tooltip (hover / long-press): English card enlarged + Persian translation */
+.bdr-tip{display:grid;grid-template-columns:auto 1fr;gap:12px;inline-size:420px;padding:12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-float),inset 0 0 0 1px var(--line);color:var(--text);font-size:14px;line-height:1.7}
+.bdr-tip img{inline-size:150px;border-radius:6px}
+.bdr-tip h3{margin:0;font-size:16px;font-weight:900;color:var(--heading)}
+.bdr-tip h3 small{display:block;font-family:var(--font-latin);font-size:12.5px;font-weight:700;color:var(--text-muted)}
+.bdr-tip p{margin:6px 0 0}
+.bdr-tip .bdr-tip__meta{display:flex;flex-wrap:wrap;gap:6px;margin-block-start:8px}
+/* ---------- the map: BGA board (1600 units) on the sea ---------- */
+.bdr-mapbox{position:relative;border-radius:var(--radius-md);overflow:hidden;background:var(--bdr-sea) center/cover no-repeat;box-shadow:var(--shadow-card)}
+.bdr-mapbox__tools{position:absolute;inset-inline-start:12px;inset-block-start:50%;transform:translateY(-50%);display:grid;gap:8px;z-index:5}
+.bdr-mapbox__top{position:absolute;inset-block-start:12px;inset-inline:12px;display:flex;align-items:flex-start;gap:8px;z-index:5;pointer-events:none}
+.bdr-mapbox__top>*{pointer-events:auto}
+.bdr-mapbox__logo{inline-size:150px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.bdr-mapbox__bottom{position:absolute;inset-block-end:12px;inset-inline-start:12px;display:flex;gap:8px;z-index:5}
+.bdr-age{margin-inline-start:auto;display:grid;gap:2px;padding:6px 14px;border-radius:var(--radius-md);background:var(--bdr-plate);color:#FFFFFF;text-align:center;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+.bdr-age b{font-size:17px;font-weight:900}
+.bdr-age small{font-size:12px;color:#D8CDBA}
+.bdr-mapbtn{display:inline-flex;align-items:center;gap:6px;block-size:40px;padding-inline:10px;border:0;border-radius:var(--radius-sm);background:var(--bdr-plate);color:#FFFFFF;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.bdr-mapbtn img{block-size:26px}
+.bdr-mapbtn .bgv-icon{inline-size:20px;block-size:20px}
+.bdr-mapbtn b{font-weight:900}
+.bdr-map{position:relative;margin-inline:auto;aspect-ratio:1;container-type:inline-size}
+.bdr-map>.bdr-base{position:absolute;inset:0;display:block;inline-size:100%;block-size:100%}
+.bdr-at{position:absolute;transform:translate(-50%,-50%)}
+.bdr-tok{inline-size:7.5%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));cursor:pointer}
+.bdr-tok.is-mine{filter:drop-shadow(0 0 0 #FFF) drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.bdr-tok.is-ghost{opacity:.82;filter:drop-shadow(0 0 .6cqi var(--pick)) drop-shadow(0 0 .3cqi var(--pick))}
+.bdr-tok.is-doomed{filter:drop-shadow(0 0 .5cqi #FF5A2A) drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.bdr-tok.is-sel{border-radius:50%;filter:drop-shadow(0 0 .45cqi var(--pick)) drop-shadow(0 0 .2cqi var(--pick)) drop-shadow(0 0 .2cqi var(--pick))}
+.bdr-tok.is-fx{filter:grayscale(.2) drop-shadow(0 0 .6cqi #E0505C);opacity:.9}
+.bdr-x{position:absolute;inset-inline-end:8%;inset-block-start:4%;inline-size:34%;z-index:4}
+.bdr-reward{inline-size:4.4%;border-radius:.4cqi;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.bdr-reward.is-done{inline-size:4.4%}
+.bdr-destroyed{inline-size:10.6%;border-radius:50%;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7))}
+.bdr-doom{inline-size:4.4%;box-shadow:0 0 0 .25cqi rgba(255,255,255,.65),0 2px 5px rgba(0,0,0,.7);border-radius:.3cqi}
+.bdr-mlabel{position:absolute;transform:translate(-50%,0);padding:.15cqi .8cqi;border-radius:var(--radius-pill);background:var(--bdr-plate);color:#FFFFFF;font-size:max(11px,1.25cqi);font-weight:700;white-space:nowrap;line-height:1.5}
+/* targets of the current action: amber dashed ring; picked = solid ring */
+.bdr-spot{position:absolute;transform:translate(-50%,-50%);inline-size:4.6%;aspect-ratio:1;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;box-shadow:0 0 0 .3cqi var(--pick),0 0 0 .55cqi rgba(0,0,0,.45)}
+.bdr-spot img{inline-size:70%;margin:15%;display:block;opacity:.95}
+.bdr-spot.is-on{box-shadow:0 0 0 .45cqi var(--pick),0 0 1.4cqi .2cqi var(--pick)}
+.bdr-spot:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.bdr-prov{position:absolute;transform:translate(-50%,-50%);padding:.2cqi .9cqi;border-radius:var(--radius-pill);border:.25cqi dashed var(--pick);background:rgba(10,12,16,.6);color:#FFFFFF;font-size:max(11px,1.3cqi);font-weight:700;white-space:nowrap}
+.bdr-prov.is-on{border-style:solid;background:var(--pick);color:var(--ink-felt)}
+/* ---------- rail ---------- */
+.bdr-dash{padding:12px;display:grid;gap:10px}
+.bdr-dash__tools{display:flex;gap:4px;justify-content:flex-end}
+.bdr-saga{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.bdr-saga span{display:grid;place-items:center;min-block-size:44px;padding:3px;border-radius:6px;background:var(--surface-sunken);font-size:11px;line-height:1.35;text-align:center;color:var(--text-muted);font-weight:700}
+.bdr-saga span.is-done{color:var(--success);background:var(--success-soft)}
+.bdr-saga span.is-cur{background:var(--selected);color:var(--on-selected)}
+.bdr-ages{display:grid;gap:4px;margin:0;padding:0;list-style:none}
+.bdr-ages li{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:var(--radius-sm);font-size:13px;background:var(--surface-sunken)}
+.bdr-ages li.is-cur{background:var(--invite-soft);color:var(--heading);font-weight:700}
+.bdr-ages li.is-past{opacity:.6}
+.bdr-ages img{block-size:24px;border-radius:3px}
+.bdr-ages b{font-weight:900}
+.bdr-ages small{margin-inline-start:auto;font-size:12px;white-space:nowrap}
+/* player panel (BGA br_board): clan, glory, rage, cards, first player, stats x/max, figures */
+.bdr-panel{display:grid;gap:8px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);border-inline-start:5px solid var(--cc)}
+.bdr-panel.is-turn{box-shadow:var(--shadow-card),inset 0 0 0 2px var(--pick)}
+.bdr-panel.is-out{background:var(--surface-sunken)}
+.bdr-panel__head{display:flex;align-items:center;gap:10px}
+.bdr-panel__clan{inline-size:48px;block-size:48px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr-panel__id{flex:1;min-inline-size:0;display:grid;gap:1px}
+.bdr-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:6px}
+.bdr-panel__id small{font-size:12px;color:var(--text-muted)}
+.bdr-glory{display:grid;place-items:center;inline-size:54px;block-size:54px;border-radius:50%;background:var(--selected);color:var(--on-selected);line-height:1}
+.bdr-glory b{font-size:21px;font-weight:900}
+.bdr-glory small{font-size:10.5px;font-weight:700;opacity:.85}
+.bdr-panel__row{display:flex;align-items:stretch;gap:6px}
+.bdr-ragebox{position:relative;display:grid;place-items:center;inline-size:58px;block-size:58px;flex:none}
+.bdr-ragebox img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:4px}
+.bdr-ragebox b{position:relative;font-size:26px;font-weight:900;color:#FFFFFF;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.bdr-box{flex:1;display:grid;place-items:center;gap:0;padding:4px 2px;border-radius:var(--radius-sm);background:var(--surface-sunken);text-align:center}
+.bdr-box__v{display:inline-flex;align-items:center;gap:4px;font-size:17px;font-weight:900;color:var(--heading)}
+.bdr-box__v img{block-size:24px}
+.bdr-box small{font-size:11px;color:var(--text-muted);line-height:1.3}
+.bdr-box.is-full .bdr-box__v{color:var(--danger)}
+.bdr-stats{display:flex;gap:6px}
+.bdr-stat{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;block-size:32px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13.5px;font-weight:900;color:var(--heading)}
+.bdr-stat img{inline-size:22px;block-size:22px;border-radius:50%}
+.bdr-stat small{font-weight:700;color:var(--text-muted);font-size:12px}
+.bdr-stat.is-legend{box-shadow:inset 0 0 0 1.5px var(--pick)}
+.bdr-panel__foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bdr-fp{block-size:22px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.bdr-chipcount{display:inline-flex;align-items:center;gap:4px;block-size:28px;padding-inline:8px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:12.5px;font-weight:700;color:var(--text)}
+.bdr-chipcount img{block-size:20px}
+.bdr-chipcount b{font-weight:900;color:var(--heading)}
+.bdr-panel__foot .bgv-btn{margin-inline-start:auto}
+.bdr-log{max-block-size:260px;overflow:auto}
+/* ---------- clan sheets (BGA: 9 card slots, upgrades on top) ---------- */
+.bdr-sheets{display:grid;gap:12px}
+.bdr-sheet{display:grid;gap:8px;padding:12px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.bdr-sheet.is-me{background:rgba(255,255,255,.11);box-shadow:inset 0 0 0 2px var(--cc)}
+.bdr-sheet__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink)}
+.bdr-sheet__head img.bdr-cl{inline-size:34px;block-size:34px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr-sheet__head h3{margin:0;font-size:15px;font-weight:900}
+.bdr-sheet__head small{color:var(--felt-muted);font-size:12.5px}
+.bdr-sheet__head .bdr-sheet__btns{margin-inline-start:auto;display:flex;gap:6px}
+.bdr-slots{display:grid;grid-template-columns:repeat(9,var(--sw,106px));gap:6px;justify-content:center}
+.bdr-slot{position:relative;inline-size:var(--sw,106px);aspect-ratio:150/230}
+.bdr-slot>img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:5px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.25)}
+.bdr-slot>img.is-up{transform:translate(0,0)}
+.bdr-slot__q{position:absolute;inset-block-end:6%;inset-inline:8%;display:flex;justify-content:center}
+.bdr-slot__q img{inline-size:46%;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.6);transform:rotate(-6deg)}
+.bdr-slot__q b{position:absolute;inset-block-start:-10px;inset-inline-end:14%;min-inline-size:22px;block-size:22px;border-radius:11px;background:var(--bdr-blood);color:#FFF;font-size:12.5px;font-weight:900;display:grid;place-items:center;box-shadow:0 0 0 2px #FFF}
+.bdr-reserve{display:flex;flex-wrap:wrap;align-items:center;gap:4px 2px;padding:6px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.22)}
+.bdr-reserve>span{font-size:12.5px;color:var(--felt-muted);margin-inline-end:8px}
+.bdr-reserve .bdr-rtok{position:relative;inline-size:58px;padding:0;border:0;background:none;cursor:pointer}
+.bdr-reserve .bdr-rtok img{inline-size:100%;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.bdr-reserve .bdr-rtok[data-pick="selectable"]{border-radius:50%;box-shadow:0 0 0 2px var(--pick) inset}
+.bdr-reserve .bdr-rtok[data-pick="picked"] img{filter:drop-shadow(0 0 6px var(--pick)) drop-shadow(0 0 3px var(--pick))}
+.bdr-reserve .bdr-rtok[data-pick="off"] img{opacity:.45}
+.bdr-reserve .bdr-rtok b{position:absolute;inset-block-end:-2px;inset-inline-end:-2px;min-inline-size:20px;block-size:20px;border-radius:10px;background:var(--bdr-plate);color:#FFF;font-size:12px;font-weight:900;display:grid;place-items:center}
+.bdr-reserve .bdr-sep{inline-size:1px;align-self:stretch;background:rgba(255,255,255,.18);margin-inline:8px}
+/* ---------- phase frames ---------- */
+.bdr-frame{display:grid;gap:12px;padding:20px;border-radius:var(--radius-lg);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line)}
+.bdr-frame>h2{margin:0;font-size:20px;font-weight:900;color:var(--heading);display:flex;align-items:center;gap:10px}
+.bdr-frame>h2 .bdr-no{display:inline-grid;place-items:center;min-inline-size:32px;block-size:32px;padding-inline:6px;border-radius:var(--radius-pill);background:var(--selected);color:var(--on-selected);font-size:15px}
+.bdr-frame>p{margin:0;font-size:14px;line-height:1.8;color:var(--text-muted);max-inline-size:1100px}
+.bdr-cols{display:grid;gap:14px;align-items:start}
+.bdr-panelbox{display:grid;gap:10px;padding:14px;border-radius:var(--radius-md);background:var(--surface-sunken);box-shadow:inset 0 0 0 1px var(--line)}
+.bdr-panelbox h3{margin:0;font-size:15px;font-weight:900;color:var(--heading);display:flex;gap:8px;align-items:center}
+.bdr-panelbox h3 img{block-size:26px}
+.bdr-panelbox p{margin:0;font-size:13.5px;line-height:1.8}
+.bdr-battle{display:grid;gap:6px}
+.bdr-bline{display:grid;grid-template-columns:170px 64px 70px 1fr;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-inline-start:5px solid var(--cc)}
+.bdr-bline.is-win{box-shadow:inset 0 0 0 2px var(--success)}
+.bdr-bline.is-lose{opacity:.85}
+.bdr-bline__who{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px}
+.bdr-bline__who img{inline-size:30px;border-radius:50%}
+.bdr-bline__who small{display:block;font-weight:400;font-size:11.5px;color:var(--text-muted)}
+.bdr-bline__figs{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
+.bdr-bline__figs img{inline-size:46px}
+.bdr-bline__figs span{font-size:12px;color:var(--text-muted);margin-inline-start:4px}
+.bdr-bline__str{display:grid;place-items:center;inline-size:52px;block-size:52px;border-radius:50%;background:var(--bdr-blood);color:#FFFFFF;font-size:24px;font-weight:900;line-height:1;box-shadow:0 0 0 3px rgba(255,255,255,.7)}
+.bdr-bline__str small{display:none}
+.bdr-bline__card{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+.bdr-bline__card img{inline-size:60px;border-radius:4px}
+.bdr-result{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--success-soft);color:var(--text);font-size:13.5px;line-height:1.7}
+.bdr-result b{color:var(--heading)}
+.bdr-result.is-bad{background:var(--danger-soft)}
+.bdr-q{display:grid;gap:8px;justify-items:center;text-align:center;font-size:13px}
+.bdr-q img{inline-size:110px;border-radius:5px}
+.bdr-q .bgv-badge{font-size:12px}
+.bdr-ok{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:var(--radius-pill);background:var(--success-soft);color:var(--success);font-weight:900;font-size:12.5px}
+.bdr-no2{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:var(--radius-pill);background:var(--danger-soft);color:var(--danger);font-weight:900;font-size:12.5px}
+.bdr-table{inline-size:100%;border-collapse:collapse;font-size:13.5px}
+.bdr-table th,.bdr-table td{padding:7px 8px;text-align:start;border-block-end:1px solid var(--line);vertical-align:top}
+.bdr-table th{font-size:12.5px;color:var(--text-muted);font-weight:700}
+.bdr-table td b{font-weight:900;color:var(--heading)}
+.bdr-table tr.is-win td{background:var(--invite-soft)}
+.bdr-table code{font-family:ui-monospace,Consolas,monospace;font-size:12px;direction:ltr;unicode-bidi:isolate;background:var(--surface-sunken);padding:1px 5px;border-radius:4px}
+.bdr-statboard{position:relative;inline-size:100%;aspect-ratio:800/347}
+.bdr-statboard>img{inline-size:100%;display:block}
+.bdr-statboard .bdr-stok{position:absolute;inline-size:11%;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.bdr-valh{display:flex;flex-wrap:wrap;gap:6px 14px}
+.bdr-valh>div{display:flex;align-items:center;gap:2px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-inline-start:4px solid var(--cc)}
+.bdr-valh img{inline-size:52px}
+.bdr-note{margin:0;padding:8px 12px;border-radius:var(--radius-sm);background:var(--info-soft);color:var(--text);font-size:13px;line-height:1.75}
+.bdr-note b{color:var(--heading)}
+/* ---------- review 1: BGA layout (measured on BGA 1440 px: play column 1178 + boards 240) ---------- */
+.bgv-tablescreen--desk.bdr-desk.bdr{grid-template-columns:minmax(0,1fr) 300px}
+.bdr-bar{padding:10px 14px}
+.bdr-bar__row{justify-content:center}
+.bdr-bar__text{flex:0 1 auto;margin:0;text-align:center;font-size:16px}
+.bdr-bar__note{margin:0;text-align:center;font-size:13px;line-height:1.7;color:var(--text-muted)}
+.bdr-bar__note b{color:var(--danger)}
+.bdr-mapbox__logo{position:absolute;inset-block-start:10px;left:12px;inline-size:180px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.bdr-mapbox .bdr-mapbox__tools{inset-inline-start:12px}
+.bdr-mapbox .bdr-mapbox__bottom{inset-inline-start:auto;inset-inline-end:auto;left:12px}
+.bdr-mapbox__battle{position:absolute;inset-block-start:12px;left:50%;transform:translateX(-50%);z-index:5}
+.bdr-pager{position:absolute;right:12px;top:12px;display:grid;gap:8px;justify-items:center;z-index:6}
+.bdr-agebadge{block-size:40px;padding-inline:14px;border:0;border-radius:var(--radius-sm);background:var(--surface);color:var(--heading);font:inherit;font-size:16px;font-weight:900;box-shadow:var(--shadow-tile-sm);cursor:pointer}
+.bdr-mapbox>.bdr-map{position:absolute;left:50%;transform:translateX(-50%);inset-block-start:0}
+.bdr-tok{inline-size:11%}
+.bdr-pdone{display:flex;align-items:center;gap:.5cqi;padding:.5cqi .8cqi;border-radius:.5cqi;background:rgba(0,0,0,.86);color:#FFFFFF;font-size:max(10px,1.05cqi);line-height:1.35;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.bdr-pdone img{inline-size:3.2cqi;border-radius:.3cqi}
+.bdr-ztitle{margin:0;text-align:center;font-size:18px;font-weight:900;color:var(--felt-ink)}
+.bdr-zsub{margin:0;text-align:center;font-size:13px;color:var(--felt-muted)}
+.bdr-handzone .bdr-hand{justify-content:flex-start;padding-block-start:6px}
+.bdr-sheetszone{padding:10px}
+.bdr-sheets{gap:10px}
+.bdr-sheet{justify-items:center;gap:10px;padding:12px 10px 16px;background:rgba(255,255,255,.12);box-shadow:none}
+.bdr-sheet__name{margin:0;font-size:18px;font-weight:900;color:var(--felt-ink)}
+.bdr-sheet .bdr-sheet__name{filter:brightness(1.6)}
+.bdr-sheet__btns{display:flex;gap:8px;justify-content:center}
+.bdr-slots{grid-template-columns:repeat(var(--cols,5),var(--sw,150px));gap:10px}
+.bdr-slot.is-void{visibility:hidden}
+.bdr-slot__inv{position:absolute;inset:0;display:grid;place-items:center;border-radius:5px;box-shadow:inset 0 0 0 3px var(--pick);background:rgba(232,166,66,.12)}
+.bdr-slot__inv img{inline-size:30%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+.bdr-slot__inv.is-on{box-shadow:inset 0 0 0 4px var(--pick),0 0 12px var(--pick);background:rgba(232,166,66,.25)}
+.bdr-frame,.bdr-cols>*,.bdr-panelbox{min-inline-size:0}
+.bdr-panelbox{grid-template-columns:minmax(0,1fr)}
+.bdr-bline__sum{font-size:12.5px;color:var(--text-muted)}
+.bdr-bline__card{justify-content:center}
+.bdr-resgrid{display:grid;grid-template-columns:repeat(4,90px);gap:6px;justify-content:center}
+.bdr-resgrid img{inline-size:100%}
+/* BGA player board */
+.bdr-panel{gap:6px;padding:10px 12px;border-inline-start:0;box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line),inset 0 4px 0 var(--cc)}
+.bdr-panel.is-turn{box-shadow:var(--shadow-card),inset 0 0 0 2px var(--pick),inset 0 5px 0 var(--cc)}
+.bdr-panel__head{display:flex;align-items:center;gap:8px;font-size:15px}
+.bdr-panel__head b{font-weight:900}
+.bdr-panel__head .bgv-clock{margin-inline-start:auto}
+.bdr-panel__score{font-size:14px;color:var(--text-muted)}
+.bdr-panel__score b{font-size:16px;font-weight:900;color:var(--heading)}
+.bdr-panel__score small{font-size:12px}
+.bdr-panel__line1{display:flex;align-items:center;gap:10px}
+.bdr-panel__clan{inline-size:58px;block-size:58px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr-ragebox{inline-size:52px;block-size:52px}
+.bdr-cardbox{position:relative;display:grid;place-items:center;inline-size:34px;block-size:52px}
+.bdr-cardbox img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.bdr-cardbox b{position:relative;font-size:20px;font-weight:900;color:#1A1A1A}
+.bdr-fp{block-size:28px;margin-inline-start:auto}
+.bdr-stats{gap:5px}
+.bdr-stat{block-size:30px;font-size:13px}
+.bdr-panel__more{justify-self:start}
+
+/* ---------- review 2: responsive (BGA breakpoints: clan sheet 9 cols >=1720, 5 cols, 3 cols <=1090) ---------- */
+.bdr-mapbox{block-size:var(--mh,720px)}
+.bdr-slots{grid-template-columns:repeat(var(--cols,5),minmax(0,var(--sw,150px)))}
+.bdr-slot{inline-size:100%}
+.bdr-frame [style*="overflow:hidden"]{max-inline-size:100%}
+.bdr-frame .bgv-dialog{max-inline-size:100%!important}
+.bdr-frame .bgv-dialog,.bdr-frame .bgv-dialog__body,.bdr-frame .bgv-dialog__body>*,.bdr-bar,.bdr-bar__row{min-inline-size:0}
+@media (min-width:1720px){.bdr-sheetszone .bdr-slots{--cols:9!important}.bdr-sheetszone .bdr-slot.is-void{display:none}}
+@media (max-width:1100px){
+ .bgv-tablescreen--desk.bdr-desk.bdr{grid-template-columns:minmax(0,1fr);grid-template-rows:var(--gamebar-h) auto auto}
+ .bdr-desk.bdr>.bdr-rail{grid-column:1;grid-row:2;position:static;max-block-size:none;display:flex;gap:8px;overflow-x:auto;padding-block-end:4px}
+ .bdr-rail>.bdr-panel{flex:0 0 248px}
+ .bdr-rail>section{flex:0 0 300px;max-block-size:250px;overflow:auto}
+ .bdr-desk.bdr>.bdr-main{grid-column:1;grid-row:3}
+ .bdr-sheetszone .bdr-slots{--cols:3!important}
+ .bdr-sheetszone .bdr-slot.is-void{display:none}
+ .bdr-cols{grid-template-columns:minmax(0,1fr)!important}
+ .bdr-frame [style*="grid-template-columns:200px 1fr"]{grid-template-columns:minmax(0,1fr)!important}
+ .bdr-frame .bgv-dialog{inline-size:auto!important}
+}
+@media (max-width:760px){
+ .bdr-mapbox{block-size:auto;aspect-ratio:1}
+ .bdr-mapbox__logo{inline-size:110px}
+ .bdr-mapbox__tools{display:none}
+ .bdr-hand{gap:8px}
+ .bdr-handzone .bdr-card{--cw:104px!important}
+ .bdr-frame{padding:14px}
+ .bdr-frame [style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .bdr-bline{grid-template-columns:1fr 56px 60px;row-gap:4px}
+ .bdr-bline__sum{grid-column:1/-1}
+ .bdr-table{font-size:12.5px}
+}
+.bdr-phones{display:flex;flex-wrap:wrap;justify-content:center;gap:32px;align-items:flex-start;padding:40px 16px}
+.bdr-phone{display:grid;gap:10px;justify-items:start}
+.bdr-phone>h3{margin:0;font-size:16px;font-weight:900;color:var(--heading);display:flex;gap:8px;align-items:center}
+.bdr-phone>h3 .bdr-no{display:inline-grid;place-items:center;min-inline-size:28px;block-size:28px;padding-inline:5px;border-radius:var(--radius-pill);background:var(--selected);color:var(--on-selected);font-size:13px}
+.bdr-phone>p{margin:0;max-inline-size:390px;font-size:13px;line-height:1.75;color:var(--text-muted)}
+.bdr-dev{position:relative;inline-size:390px;block-size:844px;overflow:hidden;border-radius:28px;box-shadow:0 0 0 10px #10161C,0 12px 30px rgba(0,0,0,.25);background:var(--bg)}
+.bdr-dev>.bgv-tablescreen{block-size:844px}
+.bdr .bgv-pcard--mini{padding:6px 8px}
+.bdr .bgv-pcard--mini img.bdr-mcl{inline-size:30px;block-size:30px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.bdr-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.bdr-tabs button{flex:1;block-size:38px;padding-inline:4px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.bdr-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.bdr-mview{position:relative;contain:paint;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md);background:var(--bdr-sea) center/cover}
+.bdr-mview--scroll{overflow:auto;background:none;display:flex;flex-direction:column;gap:10px}
+.bdr-mview--scroll>*{flex:none}
+.bdr-mview>.bdr-mapwrap{position:absolute}
+.bdr-zoombtns{position:absolute;inset-block-start:8px;inset-inline-start:8px;display:grid;gap:6px;z-index:6}
+.bdr-mapinfo{position:absolute;inset-block-start:8px;inset-inline-end:8px;z-index:6;max-inline-size:62%}
+.bdr .bgv-actiondock__actions{flex-wrap:nowrap}
+.bdr .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+.bdr-dockprompt{min-inline-size:0;font-size:14px;line-height:1.6;display:grid;gap:6px}
+.bdr-dockprompt>span b{color:var(--heading)}
+.bdr-dockhint{font-size:12px;color:var(--text-muted);line-height:1.5}
+.bdr-dockfx{font-size:12.5px;line-height:1.6;color:var(--text)}
+.bdr-dockfx b{color:var(--danger)}
+.bdr-mhand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px}
+.bdr-mhand .bdr-hcard,.bdr-mhand .bdr-card{inline-size:100%}
+.bdr-mhand .bdr-hcard small{font-size:11.5px}
+.bdr-mhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--felt-ink);font-size:13.5px}
+.bdr-mhead b{font-weight:900}
+.bdr-mhead small{color:var(--felt-muted);font-size:12px}
+.bdr-msheet .bdr-slots{grid-template-columns:repeat(3,var(--sw))}
+.bdr-sheetwrap{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end;background:var(--scrim)}
+.bdr-bsheet{position:relative;max-block-size:86%;padding:0 14px 14px;gap:9px;overflow:auto}
+.bdr-bsheet__head{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.6}
+.bdr-bsheet__head b{color:var(--heading);font-weight:900}
+.bdr-bsheet__head .bgv-clock{margin-inline-start:auto;flex:none}
+.bdr-sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.bdr-sgrid .bgv-btn{block-size:auto;min-block-size:58px;padding-block:6px;flex-direction:column;gap:2px;white-space:normal;line-height:1.4}
+.bdr-sgrid .bgv-btn small{font-size:11.5px;font-weight:600;color:var(--text-muted)}
+.bdr-sgrid .bgv-btn[aria-pressed="true"]{background:var(--selected);color:var(--on-selected);box-shadow:none}
+.bdr-sgrid .bgv-btn[aria-pressed="true"] small{color:inherit;opacity:.85}
+.bdr-mrow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:13px;border-inline-start:4px solid var(--cc)}
+.bdr-mrow img{inline-size:30px;border-radius:50%}
+.bdr-mrow b{font-weight:900;color:var(--heading)}
+
+.bdr-spec{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding:0 16px 40px}
+.bdr-spec .bdr-table td:first-child{white-space:nowrap}
+.bdr-comps{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.bdr-spec__two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,640px),1fr));gap:24px;align-items:start}
+.bdr-comp{display:grid;gap:8px;align-content:start;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken);box-shadow:inset 0 0 0 1px var(--line)}
+.bdr-comp h4{margin:0;display:flex;gap:8px;align-items:center;font-size:14px;font-weight:900;color:var(--heading)}
+.bdr-comp h4 .bdr-no{display:inline-grid;place-items:center;min-inline-size:28px;block-size:28px;padding-inline:5px;border-radius:var(--radius-pill);background:var(--selected);color:var(--on-selected);font-size:13px}
+.bdr-comp p{margin:0;font-size:12.5px;line-height:1.7;color:var(--text-muted)}
+.bdr-comp code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;direction:ltr;unicode-bidi:isolate;background:var(--surface);padding:1px 4px;border-radius:4px}
+.bdr-comp__art{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-block-size:60px;padding:8px;border-radius:var(--radius-sm);background:var(--surface)}
+.bdr-comp__art.is-dark{background:var(--bdr-sea)}
+.bdr-comp__art img{max-block-size:84px}
+.bdr-swatch{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+.bdr-swatch i{inline-size:22px;block-size:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.bdr-api{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.bdr-api pre{margin:0;padding:12px;border-radius:var(--radius-sm);background:#0F1B24;color:#E6EDF2;font:12px/1.6 ui-monospace,Consolas,monospace;direction:ltr;text-align:left;white-space:pre-wrap}
+</style>
+
+</head>
+<body>
+
+
+<div class="bgv bdr" data-theme="light" dir="rtl" lang="fa" style="min-height:3300px;inline-size:100%;background:var(--bg)">
+<div class="bdr-phones" dir="rtl"><div class="bdr-phone"><h3><span class="bdr-no">۲۵</span>یورش با بزرگ‌نمایی خودکار</h3><p>نقشه روی روستاهای مجاز بزرگ می‌شود؛ اثر ترول پیش از «ثبت» در داک دیده می‌شود.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="../assets/games/blood-rage/icon-clan-1.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="../assets/games/blood-rage/icon-clan-4.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="../assets/games/blood-rage/icon-clan-2.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="../assets/games/blood-rage/icon-clan-3.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۴ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">عصر <strong>۲</strong>، اقدام</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview" role="tabpanel" aria-label="نقشه" style="background-image:url(../assets/games/blood-rage/sea-background.webp)" dir="ltr">
+ <div class="bdr-mapwrap" style="left:-3px;top:-39px"><div class="bdr-map" style="inline-size:472.3809523809524px" data-age="2"><img class="bdr-base" src="../assets/games/blood-rage/main-board.webp" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="../assets/games/blood-rage/icon-yggdrasil.webp" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="../assets/games/blood-rage/icon-axe.webp" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="../assets/games/blood-rage/icon-rage.webp" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<img src="../assets/games/blood-rage/icon-glory.webp" class="bdr-at bdr-reward" style="left:68%;top:28.75%" data-province="3" title="پاداش غارت: ۵ افتخار" alt="۵ افتخار">
+<img src="../assets/games/blood-rage/ragnarok.webp" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="../assets/games/blood-rage/icon-horn.webp" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="../assets/games/blood-rage/ragnarok.webp" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="../assets/games/blood-rage/icon-rage.webp" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="../assets/games/blood-rage/icon-horn.webp" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="../assets/games/blood-rage/icon-destiny.webp" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="../assets/games/blood-rage/raven-leader-token.webp" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:56%;top:52.75%" data-fig="f22" data-seat="2"><img src="../assets/games/blood-rage/bear-leader-token.webp" style="inline-size:100%;display:block" alt="سردار آرش, قدرت ۳"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="../assets/games/blood-rage/raven-card-058-fire-dragons-token.webp" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="../assets/games/blood-rage/serpent-card-024-loki-s-dragons-token.webp" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="../assets/games/blood-rage/wolf-ship-token.webp" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="../assets/games/blood-rage/wolf-card-025-lord-of-hammers-token.webp" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-fx" style="left:74.75%;top:22.375%" data-fig="f23" data-seat="2"><img src="../assets/games/blood-rage/bear-card-057-experts-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"><img src="../assets/games/blood-rage/remove.webp" class="bdr-x" alt=""></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="../assets/games/blood-rage/bear-card-057-experts-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:31%" data-fig="f32" data-seat="2"><img src="../assets/games/blood-rage/bear-card-027-dwarf-chieftain-token.webp" style="inline-size:100%;display:block" alt="سرکردهٔ کوتوله‌ها آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="../assets/games/blood-rage/serpent-leader-token.webp" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="../assets/games/blood-rage/serpent-card-060-valkyrie-token.webp" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span>
+<button class="bdr-spot" type="button" style="left:24.313%;top:27.813%" data-slot="2" aria-label="روستای خالی در میرکولور"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:34.188%;top:24.125%" data-slot="3" aria-label="روستای خالی در میرکولور"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:49.938%;top:12.563%" data-slot="6" aria-label="روستای خالی در الواگار"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:47%;top:30.063%" data-slot="7" aria-label="روستای خالی در الواگار"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot is-on" type="button" style="left:67.813%;top:37.75%" data-slot="12" aria-label="روستای خالی در آنگربودا" aria-pressed="true"></button>
+<span class="bdr-at bdr-tok is-ghost" style="left:67.813%;top:37.75%"><img src="../assets/games/blood-rage/raven-card-026-troll-token.webp" style="inline-size:100%;display:block" alt=""></span>
+<button class="bdr-spot" type="button" style="left:63.188%;top:82.563%" data-slot="20" aria-label="روستای خالی در هورگر"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:53.625%;top:78.625%" data-slot="21" aria-label="روستای خالی در هورگر"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:32.625%;top:66.063%" data-slot="27" aria-label="روستای خالی در آندلانگ"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:10.875%;top:46.313%" data-slot="30" aria-label="روستای خالی در گیمله"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:20.813%;top:42.188%" data-slot="31" aria-label="روستای خالی در گیمله"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button>
+<button class="bdr-spot" type="button" style="left:32.125%;top:43.75%" data-slot="32" aria-label="روستای خالی در گیمله"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></button></div></div>
+ <div class="bdr-zoombtns" role="group" aria-label="بزرگ‌نمایی"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ <span class="bgv-felt-plate bdr-mapinfo" dir="rtl">بزرگ‌نمایی خودکار: ۱۱ روستای خالی</span>
+</div>
+</main>
+<section class="bgv-actiondock" aria-label="اقدام شما">
+ <div class="bgv-actiondock__prompt"><span class="bdr-dockprompt"><span class="bdr-steps"><span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>یورش</span><span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ترول</span><span class="bdr-step is-cur">روستا</span></span><span><b>ترول ← آنگربودا</b> <span class="bdr-pill"><span class="bdr-rage"><img src="../assets/games/blood-rage/icon-rage-mini.webp" alt=""><span class="bdr-num">۲</span></span></span> خشم ۴ ← ۲</span><span class="bdr-dockfx">اثر ترول: <b>جنگجوی آرش</b> نابود می‌شود.</span><span class="bdr-dockhint">تا «ثبت» با «برگرد» عوض می‌شود.</span></span></div>
+ <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت</button><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>برگرد</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="لغو این اقدام"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div>
+</section>
+</div></div></div><div class="bdr-phone"><h3><span class="bdr-no">۲۶</span>شیت اقدام‌ها</h3><p>همان دکمه‌های BGA؛ «بازی مأموریت» نیست چون کارت مأموریت در دست ندارید.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="../assets/games/blood-rage/icon-clan-1.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="../assets/games/blood-rage/icon-clan-4.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="../assets/games/blood-rage/icon-clan-2.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="../assets/games/blood-rage/icon-clan-3.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۴ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">عصر <strong>۲</strong>، اقدام</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview" role="tabpanel" aria-label="نقشه" style="background-image:url(../assets/games/blood-rage/sea-background.webp)" dir="ltr">
+ <div class="bdr-mapwrap" style="left:0px;top:17px"><div class="bdr-map" style="inline-size:366px" data-age="2"><img class="bdr-base" src="../assets/games/blood-rage/main-board.webp" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="../assets/games/blood-rage/icon-yggdrasil.webp" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="../assets/games/blood-rage/icon-axe.webp" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="../assets/games/blood-rage/icon-rage.webp" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<img src="../assets/games/blood-rage/icon-glory.webp" class="bdr-at bdr-reward" style="left:68%;top:28.75%" data-province="3" title="پاداش غارت: ۵ افتخار" alt="۵ افتخار">
+<img src="../assets/games/blood-rage/ragnarok.webp" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="../assets/games/blood-rage/icon-horn.webp" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="../assets/games/blood-rage/ragnarok.webp" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="../assets/games/blood-rage/icon-rage.webp" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="../assets/games/blood-rage/icon-horn.webp" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="../assets/games/blood-rage/icon-destiny.webp" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="../assets/games/blood-rage/raven-leader-token.webp" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:56%;top:52.75%" data-fig="f22" data-seat="2"><img src="../assets/games/blood-rage/bear-leader-token.webp" style="inline-size:100%;display:block" alt="سردار آرش, قدرت ۳"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="../assets/games/blood-rage/raven-card-058-fire-dragons-token.webp" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="../assets/games/blood-rage/serpent-card-024-loki-s-dragons-token.webp" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="../assets/games/blood-rage/wolf-ship-token.webp" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="../assets/games/blood-rage/wolf-card-025-lord-of-hammers-token.webp" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:22.375%" data-fig="f23" data-seat="2"><img src="../assets/games/blood-rage/bear-card-057-experts-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="../assets/games/blood-rage/bear-card-057-experts-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:31%" data-fig="f32" data-seat="2"><img src="../assets/games/blood-rage/bear-card-027-dwarf-chieftain-token.webp" style="inline-size:100%;display:block" alt="سرکردهٔ کوتوله‌ها آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="../assets/games/blood-rage/serpent-leader-token.webp" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="../assets/games/blood-rage/serpent-card-060-valkyrie-token.webp" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span></div></div>
+ <div class="bdr-zoombtns" role="group" aria-label="بزرگ‌نمایی"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ 
+</div>
+</main>
+
+</div><div class="bdr-sheetwrap"><section class="bgv-sheet bdr-bsheet" role="dialog" aria-label="اقدام‌ها"><span class="bgv-sheet__handle"></span>
+ <div class="bdr-bsheet__head"><b>یک اقدام انتخاب کنید</b><span class="bdr-pill"><span class="bdr-rage"><img src="../assets/games/blood-rage/icon-rage-mini.webp" alt=""><span class="bdr-num">۴</span></span></span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div>
+ <div class="bdr-sgrid"><button class="bgv-btn bgv-btn--secondary" type="button" data-act="upgrade">بازی ارتقا<small>خشم = قدرت کارت</small></button><button class="bgv-btn bgv-btn--secondary" type="button" data-act="monster">بازی هیولا<small>جن تاریکی، ۱ خشم</small></button><button class="bgv-btn bgv-btn--secondary" type="button" data-act="invade">یورش<small>خشم = قدرت مهره</small></button><button class="bgv-btn bgv-btn--secondary" type="button" data-act="march">لشکرکشی<small>۱ خشم</small></button><button class="bgv-btn bgv-btn--secondary" type="button" data-act="pillage">غارت<small>رایگان</small></button><button class="bgv-btn bgv-btn--ghost" type="button" data-act="pass">کنار کشیدن<small>خشم باقی می‌سوزد</small></button></div>
+ <p class="bdr-note">مهره روی نقشه ۴ از ۵ (شاخ): فقط یک یورش دیگر جا دارید.</p>
+</section></div></div></div><div class="bdr-phone"><h3><span class="bdr-no">۲۷</span>هدایای خدایان</h3><p>دستهٔ رسیده در سه ستون؛ زدن روی کارت بزرگش می‌کند، دوباره زدن انتخاب.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="draft">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="../assets/games/blood-rage/icon-clan-1.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="../assets/games/blood-rage/icon-clan-4.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="../assets/games/blood-rage/icon-clan-2.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="../assets/games/blood-rage/icon-clan-3.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۴ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">هدایای خدایان</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="false">نقشه</button><button type="button" role="tab" aria-selected="true">دست ۳</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview bdr-mview--scroll"><div class="bdr-mhead"><b>دستهٔ رسیده از سارا</b><small>یکی را نگه دارید، ۵ تا به نیلوفر می‌رسد</small></div><div class="bdr-mhand"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="44" data-flip="card-44" data-pick="picked" style="--cw:110px" aria-label="Tyr's Crush (خردکردن تیر): نبرد · +۴ قدرت"><img src="../assets/games/blood-rage/card-044-tyr-s-crush.webp" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="43" data-flip="card-43" data-pick="selectable" style="--cw:110px" aria-label="Tyr's Smash (درهم‌شکستن تیر): نبرد · +۳ قدرت"><img src="../assets/games/blood-rage/card-043-tyr-s-smash.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="62" data-flip="card-62" data-pick="selectable" style="--cw:110px" aria-label="Fire Giant (غول آتش): وقتی این هیولا به استانی یورش می‌برد، همهٔ مهره‌های غیرهیولای دشمن در آن نابود می‌شوند."><img src="../assets/games/blood-rage/card-062-fire-giant.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="68" data-flip="card-68" data-pick="selectable" style="--cw:110px" aria-label="Tyr's Prowess (دلاوری تیر): اگر نبردی را ببرید، می‌توانید هر کدام از کارت‌های آشکارشده‌تان را با ۱ خشم برای هر کارت نگه دارید."><img src="../assets/games/blood-rage/card-068-tyr-s-prowess.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="54" data-flip="card-54" data-pick="selectable" style="--cw:110px" aria-label="Yggdrasil! (ایگدراسیل!): در ایگدراسیل بیشترین قدرت را داشته باشید. اگر انجام شود، یکی از ویژگی‌های قبیله یک پله بالا می‌رود."><img src="../assets/games/blood-rage/card-054-yggdrasil.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="41" data-flip="card-41" data-pick="selectable" style="--cw:110px" aria-label="Heimdall's Eye (چشم هایمدال): می‌توانید این کارت را پس از آشکار شدن کارت‌های نبرد همه بازی کنید (و قدرتش را اضافه کنید)."><img src="../assets/games/blood-rage/card-041-heimdall-s-eye.webp" alt=""></button></div></div><div class="bdr-mhead"><b>نگه‌داشته‌ها</b><small>۲ از ۶ + ۱ از عصر ۱</small></div><div style="display:flex;gap:8px"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="58" data-flip="card-58" style="--cw:64px" aria-label="Fire Dragons (اژدهاهای آتش): هر بار یکی از کشتی‌هایتان نابود شود، ۸ افتخار می‌گیرید."><img src="../assets/games/blood-rage/card-058-fire-dragons.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="48" data-flip="card-48" style="--cw:64px" aria-label="Manheim! (مانهایم!): در یکی از استان‌های مانهایم (زرد) بیشترین قدرت را داشته باشید. اگر انجام شود، یکی از ویژگی‌های قبیله یک پله بالا می‌رود."><img src="../assets/games/blood-rage/card-048-manheim.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="13" data-flip="card-13" style="--cw:64px" aria-label="Tyr's Smite (ضربت تیر): نبرد · +۵ قدرت"><img src="../assets/games/blood-rage/card-013-tyr-s-smite.webp" alt=""></button></div></div></div>
+</main>
+<section class="bgv-actiondock" aria-label="انتخاب کارت"><div class="bgv-actiondock__prompt"><span class="bdr-dockprompt"><span><b>انتخاب ۳ از ۶</b> نیلوفر و سارا انتخاب کرده‌اند</span></span></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>نگه دار</button></div></section>
+</div></div></div><div class="bdr-phone"><h3><span class="bdr-no">۲۸</span>نبرد: کارت پنهان</h3><p>قدرت مهره‌های هر طرف، بعد انتخاب پنهانی کارت.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="../assets/games/blood-rage/icon-clan-1.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="../assets/games/blood-rage/icon-clan-4.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="../assets/games/blood-rage/icon-clan-2.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="../assets/games/blood-rage/icon-clan-3.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۲ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">نبرد، مرحلهٔ ۲ از ۳</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview bdr-mview--scroll"><div class="bdr-mhead"><img src="../assets/games/blood-rage/battle.webp" style="block-size:22px" alt=""><b>نبرد در آنگربودا</b><small>قدرت مهره‌ها پیش از کارت</small></div><div class="bdr-mrow" style="--cc:var(--bdr-raven)"><img src="../assets/games/blood-rage/icon-clan-3.webp" alt=""><span><b>مینا</b> (غارتگر)<br><small>جنگجو، جنگجو، کشتی، ترول</small></span><b class="bdr-num" style="font-size:20px">۷</b></div><div class="bdr-mrow" style="--cc:var(--bdr-bear)"><img src="../assets/games/blood-rage/icon-clan-4.webp" alt=""><span><b>آرش</b> <br><small>سردار، سرکردهٔ کوتوله‌ها</small></span><b class="bdr-num" style="font-size:20px">۵</b></div><div class="bdr-mhead"><b>یک کارت پنهانی انتخاب کنید</b><small>آرش انتخاب کرده</small></div><div class="bdr-mhand"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="44" data-flip="card-44" data-pick="picked" style="--cw:110px" aria-label="Tyr's Crush (خردکردن تیر): نبرد · +۴ قدرت"><img src="../assets/games/blood-rage/card-044-tyr-s-crush.webp" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="39" data-flip="card-39" data-pick="selectable" style="--cw:110px" aria-label="Heimdall's Eye (چشم هایمدال): می‌توانید این کارت را پس از آشکار شدن کارت‌های نبرد همه بازی کنید (و قدرتش را اضافه کنید)."><img src="../assets/games/blood-rage/card-039-heimdall-s-eye.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="63" data-flip="card-63" data-pick="selectable" style="--cw:110px" aria-label="Odin's Inspiration (الهام اودین): افتخار مرگ در راگناروک برای شما دو برابر است."><img src="../assets/games/blood-rage/card-063-odin-s-inspiration.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="61" data-flip="card-61" data-pick="selectable" style="--cw:110px" aria-label="Dark Elf (جن تاریکی): این هیولا می‌تواند به ایگدراسیل یورش ببرد. در ایگدراسیل ۳ قدرت دارد."><img src="../assets/games/blood-rage/card-061-dark-elf.webp" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="13" data-flip="card-13" data-pick="selectable" style="--cw:110px" aria-label="Tyr's Smite (ضربت تیر): نبرد · +۵ قدرت"><img src="../assets/games/blood-rage/card-013-tyr-s-smite.webp" alt=""></button></div></div></div>
+</main>
+<section class="bgv-actiondock" aria-label="کارت نبرد"><div class="bgv-actiondock__prompt"><span class="bdr-dockprompt"><span><b>خردکردن تیر</b> <span class="bdr-num">+۴</span> ← جمع <b class="bdr-num">۱۱</b></span></span></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>رو به پایین بگذار</button><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>برگرد</button></div></section>
+</div></div></div><div class="bdr-phone"><h3><span class="bdr-no">۲۹</span>قبیلهٔ من</h3><p>نه جایگاه در سه ردیف، ذخیره و والهالا، ویژگی‌ها.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="../assets/games/blood-rage/icon-clan-1.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="../assets/games/blood-rage/icon-clan-4.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="../assets/games/blood-rage/icon-clan-2.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="../assets/games/blood-rage/icon-clan-3.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۴ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">عصر <strong>۲</strong>، اقدام</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="false">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="true">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview bdr-mview--scroll bdr-msheet"><div class="bdr-mhead"><img src="../assets/games/blood-rage/icon-clan-3.webp" style="inline-size:28px;border-radius:50%" alt=""><b>قبیلهٔ کلاغ</b><small>۲۱ افتخار</small></div><div class="bdr-stats"><span class="bdr-stat"><img src="../assets/games/blood-rage/icon-rage-mini.webp" alt=""><span class="bdr-num">۷<small>/۱۲</small></span></span><span class="bdr-stat"><img src="../assets/games/blood-rage/icon-axe-mini.webp" alt=""><span class="bdr-num">۳<small>/۸</small></span></span><span class="bdr-stat"><img src="../assets/games/blood-rage/icon-horn-mini.webp" alt=""><span class="bdr-num">۵<small>/۱۰</small></span></span></div><div style="display:flex;gap:8px"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">ذخیره: ۶</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">مأموریت‌ها: ۱</button></div><div class="bdr-slots" dir="ltr" style="--sw:104px;--cols:3"><div class="bdr-slot" data-slot-kind="clan-card"><img src="../assets/games/blood-rage/raven-icon-reference.webp" alt=""></div><div class="bdr-slot" data-slot-kind="leader"><img src="../assets/games/blood-rage/raven-leader-reference.webp" alt=""></div><div class="bdr-slot" data-slot-kind="warrior" data-card="23" data-flip="card-23"><img src="../assets/games/blood-rage/card-023-brothers-in-arms.webp" alt="Brothers in Arms — برادران سلاح"></div><div class="bdr-slot" data-slot-kind="monster" data-card="26" data-flip="card-26"><img src="../assets/games/blood-rage/card-026-troll.webp" alt="Troll — ترول"></div><div class="bdr-slot" data-slot-kind="monster2"><img src="../assets/games/blood-rage/slot-monster.webp" alt=""></div><div class="bdr-slot" data-slot-kind="ship" data-card="58" data-flip="card-58"><img src="../assets/games/blood-rage/card-058-fire-dragons.webp" alt="Fire Dragons — اژدهاهای آتش"></div><div class="bdr-slot" data-slot-kind="clan0" data-card="33" data-flip="card-33"><img src="../assets/games/blood-rage/card-033-thor-s-glory.webp" alt="Thor's Glory — شکوه تور"></div><div class="bdr-slot" data-slot-kind="clan1"><img src="../assets/games/blood-rage/slot-clan.webp" alt=""></div><div class="bdr-slot" data-slot-kind="clan2"><img src="../assets/games/blood-rage/slot-clan.webp" alt=""></div></div></div>
+</main>
+
+</div></div></div><div class="bdr-phone"><h3><span class="bdr-no">۳۰</span>پایان عصر</h3><p>مأموریت، راگناروک و والهالا در یک شیت؛ فقط انتخاب ویژگی تصمیم است.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="quest">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="../assets/games/blood-rage/icon-clan-1.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="../assets/games/blood-rage/icon-clan-4.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="../assets/games/blood-rage/icon-clan-2.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="../assets/games/blood-rage/icon-clan-3.webp" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۲ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۳۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">عصر <strong>۲</strong>، مأموریت‌ها</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۴</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview" role="tabpanel" aria-label="نقشه" style="background-image:url(../assets/games/blood-rage/sea-background.webp)" dir="ltr">
+ <div class="bdr-mapwrap" style="left:0px;top:17px"><div class="bdr-map" style="inline-size:366px" data-age="2"><img class="bdr-base" src="../assets/games/blood-rage/main-board.webp" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="../assets/games/blood-rage/icon-yggdrasil.webp" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="../assets/games/blood-rage/icon-axe.webp" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="../assets/games/blood-rage/icon-rage.webp" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:68%;top:28.75%" data-province="3" dir="rtl"><img src="../assets/games/blood-rage/icon-glory.webp" alt=""><span>غارت موفق<br>توسط <b>مینا</b></span></span>
+<img src="../assets/games/blood-rage/ragnarok.webp" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="../assets/games/blood-rage/icon-horn.webp" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="../assets/games/blood-rage/ragnarok.webp" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="../assets/games/blood-rage/icon-rage.webp" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="../assets/games/blood-rage/icon-horn.webp" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="../assets/games/blood-rage/icon-destiny.webp" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="../assets/games/blood-rage/raven-leader-token.webp" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="../assets/games/blood-rage/raven-card-058-fire-dragons-token.webp" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="../assets/games/blood-rage/serpent-card-024-loki-s-dragons-token.webp" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="../assets/games/blood-rage/wolf-ship-token.webp" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:67.813%;top:37.75%" data-fig="f10" data-seat="0"><img src="../assets/games/blood-rage/raven-card-026-troll-token.webp" style="inline-size:100%;display:block" alt="ترول مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="../assets/games/blood-rage/wolf-card-025-lord-of-hammers-token.webp" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="../assets/games/blood-rage/wolf-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="../assets/games/blood-rage/bear-card-057-experts-in-arms-token.webp" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="../assets/games/blood-rage/serpent-leader-token.webp" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="../assets/games/blood-rage/serpent-warrior-token.webp" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="../assets/games/blood-rage/serpent-card-060-valkyrie-token.webp" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span></div></div>
+ <div class="bdr-zoombtns" role="group" aria-label="بزرگ‌نمایی"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ 
+</div>
+</main>
+
+</div><div class="bdr-sheetwrap"><section class="bgv-sheet bdr-bsheet" role="dialog" aria-label="پایان عصر ۲"><span class="bgv-sheet__handle"></span>
+ <div class="bdr-bsheet__head"><b>پایان عصر ۲</b></div>
+ <div class="bdr-mrow" style="--cc:var(--bdr-raven)"><img src="../assets/games/blood-rage/card-048-manheim.webp" style="inline-size:40px;border-radius:3px" alt=""><span><b>مانهایم! انجام شد</b><br><small>یک ویژگی را بالا ببرید</small></span><span class="bdr-ok"><span class="bdr-num">+۷</span></span></div>
+ <div class="bdr-kinds"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button"><img src="../assets/games/blood-rage/icon-rage-mini.webp" class="bdr-ic" alt="">خشم ۷→۸</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button"><img src="../assets/games/blood-rage/icon-axe-mini.webp" class="bdr-ic" alt="">تبر ۳→۴</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button"><img src="../assets/games/blood-rage/icon-horn-mini.webp" class="bdr-ic" alt="">شاخ ۵→۶</button></div>
+ <div class="bdr-mrow" style="--cc:#E0505C"><img src="../assets/games/blood-rage/ragnarok.webp" alt=""><span><b>راگناروک: الواگار</b><br><small>کشتی شما در آبدره هم می‌میرد: ۳ + اژدهاهای آتش ۸</small></span><span class="bdr-ok"><span class="bdr-num">+۱۱</span></span></div>
+ <div class="bdr-mrow" style="--cc:var(--bdr-raven)"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" alt=""><span><b>آزادی از والهالا</b><br><small>۲ مهره به ذخیره برمی‌گردد</small></span><span></span></div>
+ <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ادامه</button></div>
+</section></div></div></div></div><div class="bdr-spec" dir="rtl"><div class="bdr-spec__two"><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">31</span>اقدام‌ها، هزینه‌ها و کدهای خطا</h2><p>از کتاب قوانین CMON (ص ۱۳ تا ۱۹) و متن کارت‌ها؛ چون موتور در ریپو نیست، این جدول قرارداد UI و موتور است (ENGINE.md §۵). دکمهٔ هر اقدام هزینه‌اش را از فیلد <code>cost</code> در <code>legalActions</code> نشان می‌دهد و اگر غیرمجاز است، دلیلش را از <code>reason</code>.</p>
+ <table class="bdr-table"><thead><tr><th>اقدام</th><th>هزینه</th><th>شرط و اثر</th><th>هدف روی میز</th><th>کد خطا</th></tr></thead><tbody><tr><td><b>یورش</b><br><code>invade</code></td><td>خشم = قدرت مهره (سردار، سرکردهٔ کوتوله‌ها، سرباز هِل: ۰)</td><td>مهره در ذخیره؛ مهره‌های روی نقشه کمتر از شاخ؛ روستای خالی در استان بیرونی سالم. کشتی (و مار دریایی) فقط به آبدره. ایگدراسیل فقط جن تاریکی.</td><td>روستاهای خالی، آبدره‌ها</td><td><code>NO_RAGE</code> <code>HORNS_FULL</code> <code>NOT_IN_RESERVE</code> <code>VILLAGE_TAKEN</code> <code>PROVINCE_DESTROYED</code> <code>YGGDRASIL_MARCH_ONLY</code> <code>SHIP_FJORD_ONLY</code></td></tr><tr><td><b>لشکرکشی</b><br><code>march</code></td><td>۱ خشم</td><td>از یک استان (نه آبدره) به یک استان دیگر، هر تعداد مهرهٔ غیرکشتی، تا جای روستای خالی. ایگدراسیل بی‌سقف. همسایه بودن لازم نیست.</td><td>استان مبدأ، مهره‌ها، استان مقصد</td><td><code>NO_RAGE</code> <code>SHIPS_CANNOT_MOVE</code> <code>NOT_ENOUGH_VILLAGES</code> <code>SAME_PROVINCE</code></td></tr><tr><td><b>ارتقا</b><br><code>upgrade</code></td><td>خشم = قدرت کارت (افسون فریگا <span class="bdr-num">−۱</span>)</td><td>کارت ارتقا از دست روی جایگاه همان نوع؛ کارت قبلی دور ریخته می‌شود (هیولای قبلی از بازی بیرون). حداکثر ۲ هیولا. ارتقای مهره یا هیولا: یورش رایگان فوری اختیاری.</td><td>جایگاه‌های صفحهٔ قبیله</td><td><code>NO_RAGE</code> <code>NOT_UPGRADE_CARD</code> <code>SLOT_MISMATCH</code></td></tr><tr><td><b>مأموریت</b><br><code>quest</code></td><td>رایگان (خشم باید بیش از صفر باشد)</td><td>کارت مأموریت از دست رو به پایین روی کارت قبیله. تعداد نامحدود.</td><td>کارت‌های مأموریت دست</td><td><code>NO_RAGE</code> <code>NOT_QUEST_CARD</code></td></tr><tr><td><b>غارت</b><br><code>pillage</code></td><td>رایگان (خشم باید بیش از صفر باشد)</td><td>استان سالم و غارت‌نشده که مهرهٔ شما در آن یا آبدرهٔ پشتیبانش هست ← نبرد (§۲۱).</td><td>نشان‌های غارت</td><td><code>NO_RAGE</code> <code>ALREADY_PILLAGED</code> <code>NO_PRESENCE</code> <code>PROVINCE_DESTROYED</code></td></tr><tr><td><b>کنار کشیدن</b><br><code>pass</code></td><td>همهٔ خشم باقی</td><td>تا پایان فاز اقدام دیگر اقدامی ندارید؛ در نبردها هنوز شرکت می‌کنید.</td><td>—</td><td><code>—</code></td></tr><tr><td><b>کارت قبیله</b><br><code>clan</code></td><td>طبق کارت</td><td>اقدام کارت قبیله: هماورد تیر (۲ خشم، غارت دوباره)، فداکاری فریگا (۲ مهره را نابود کن، یک ویژگی <span class="bdr-num">+۱</span>).</td><td>استان / مهره‌ها</td><td><code>NO_RAGE</code> <code>CARD_NOT_OWNED</code></td></tr></tbody></table>
+ <p class="bdr-note"><b>خشم صفر</b>: هیچ اقدامی، حتی رایگان؛ ولی فراخوان نبرد و کارت نبرد ممکن است. <b>پایان فاز اقدام</b>: خشم همه صفر یا همهٔ استان‌های سالم غارت‌شده. <b>یورش سردار</b> رایگان است.</p></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">32</span>تصمیم‌های بیرون از نوبت (pending)</h2><p>موتور در <code>state.pending</code> می‌گوید منتظر چه کسی و چه تصمیمی است؛ <code>pendingSeats</code> همین صندلی‌ها را برمی‌گرداند و UI نوار وضعیت را از آن می‌سازد («منتظر آرش: فراخوان نبرد»).</p>
+ <table class="bdr-table"><thead><tr><th>نوع</th><th>چه کسی</th><th>کِی</th><th>گزینه‌ها</th><th>طرح</th></tr></thead><tbody><tr><td><code>draftPick</code></td><td>همه، هم‌زمان</td><td>هدایای خدایان</td><td>یک کارت (۲ نفره: دو کارت) از دستهٔ رسیده</td><td>§۲۰، §۲۷</td></tr><tr><td><code>freeInvade</code></td><td>بازیکن نوبت</td><td>پس از ارتقای مهره یا هیولا</td><td>یورش رایگان با همان مهره یا رد</td><td>§۲</td></tr><tr><td><code>extraWarrior</code></td><td>بازیکن نوبت</td><td>یاری فریگا پس از هر یورش</td><td>یک جنگجوی رایگان در همان استان یا رد</td><td>§۲</td></tr><tr><td><code>instantPillage</code></td><td>بازیکن نوبت</td><td>قلمرو تور پس از یورش</td><td>۲ خشم و غارت فوری یا رد</td><td>§۲</td></tr><tr><td><code>callToBattle</code></td><td>هر بازیکن به ترتیب از چپ غارتگر</td><td>غارت</td><td>یک مهره از استان همسایه به روستای خالی یا رد</td><td>§۲۱</td></tr><tr><td><code>battleCard</code></td><td>همهٔ شرکت‌کننده‌ها، هم‌زمان</td><td>نبرد</td><td>یک کارت پنهان (یا هیچ اگر دست خالی است)</td><td>§۲۱، §۲۸</td></tr><tr><td><code>afterReveal</code></td><td>به ترتیب از غارتگر</td><td>پس از آشکار شدن</td><td>کارت با دایرهٔ سفید یا رد</td><td>§۲۱</td></tr><tr><td><code>keepOneFigure</code></td><td>هر شرکت‌کننده</td><td>موج اودین</td><td>یک مهره برای ماندن</td><td>§۲۱</td></tr><tr><td><code>replayCards</code></td><td>شرکت‌کننده‌ها</td><td>دیدبان هایمدال</td><td>کارت تازه</td><td>§۲۱</td></tr><tr><td><code>saveFigure</code></td><td>صاحب مهره</td><td>پناه فریگا هنگام نابودی</td><td>۱ خشم و نجات یا رد</td><td>§۲۱</td></tr><tr><td><code>retreat</code></td><td>صاحب جادوگر وُلور</td><td>نابودی در استان بیرونی</td><td>عقب‌نشینی به ایگدراسیل یا رد</td><td>§۲۱</td></tr><tr><td><code>keepCards</code></td><td>برنده</td><td>دلاوری تیر</td><td>هر کارت آشکار با ۱ خشم</td><td>§۲۱</td></tr><tr><td><code>moveLeader</code></td><td>غارتگر</td><td>سرور پتک‌ها پس از غارت</td><td>استان همسایه یا ماندن</td><td>§۲۱</td></tr><tr><td><code>loserInvade</code></td><td>بازنده</td><td>برکت لوکی</td><td>یورش رایگان با جنگجو یا رد</td><td>§۲۱</td></tr><tr><td><code>raiseStat</code></td><td>یک بازیکن</td><td>مأموریت موفق، سوگند تور، سرور تبرها، لطف فریگا، فداکاری فریگا</td><td>خشم / تبر / شاخ</td><td>§۲۲، §۳۰</td></tr><tr><td><code>discardKeep</code></td><td>همه، هم‌زمان</td><td>دور ریختن (عصر ۱ و ۲)</td><td>یک کارت برای عصر بعد</td><td>§۲۲</td></tr></tbody></table></section></div><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">33</span>قرارداد موتور در یک نگاه</h2><p>متن کامل، نوع‌ها و نمونهٔ وضعیت در ENGINE.md و data/mock-state.json. ساختار مثل بقیهٔ بازی‌های <code>games/</code>: <code>definition.ts</code>، <code>rules.ts</code> (GameModule)، <code>types.ts</code>، <code>content/</code>، <code>renderer.tsx</code>، <code>renderer.css</code>.</p>
+ <div class="bdr-api"><pre>// state (server, hidden parts included)
+BloodRageState {
+  players, clans[seat], age 1..3,
+  phase: 'draft'|'action'|'discard'|'quest'
+       |'ragnarok'|'valhalla'|'ended',
+  first, turn, ragnarok[3], destroyed[],
+  pillage{prov: {reward, pillaged}},
+  figures[{id, seat, kind, monster?, where}],
+  rage[], stats[{rage,axe,horn}], glory[],
+  hands[][], quests[][], upgrades[],
+  draft?, battle?, pending?, decks[3],
+  discardPublic[], log[], outcome
+}</pre><pre>// legalActions(state, viewer) -> ActionHint[]
+{ type:'invade', figure:'f12', slot:9,
+  cost:{rage:2}, effects:[{kind:'destroy',
+  figures:['f31']}] }
+{ type:'march', from:0, to:3,
+  figures:['f0'], cost:{rage:1} }
+{ type:'upgrade', card:61, slot:'monster',
+  index:1, cost:{rage:1}, replaces:null }
+{ type:'pillage', province:3, cost:{rage:0} }
+{ type:'invade', disabled:true,
+  reason:'HORNS_FULL' }</pre><pre>// publicSummary(state) (DS contract)
+seats[k] = {
+  primary:{label:'افتخار', value:glory},
+  stats:[ {key:'rage', value:rage[k]},
+          {key:'cards', value:hand count},
+          {key:'map', value:'4/5'},
+          {key:'quests', value:count} ],
+  badges:[first player, out of rage],
+  status:'playing'|'passed'|'done'
+}
+shared: age, phase, doom province</pre></div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">34</span>همهٔ کامپوننت‌ها با شمارهٔ COMPONENTS.md</h2><div class="bdr-comps"><div class="bdr-comp"><h4><span class="bdr-no">0</span>رنگ قبیله‌ها</h4><div class="bdr-comp__art"><span class="bdr-swatch"><i style="background:#9D3644"></i>گرگ <code>#9D3644</code></span><span class="bdr-swatch"><i style="background:#DFA471"></i>مار <code>#DFA471</code></span><span class="bdr-swatch"><i style="background:#428AA7"></i>کلاغ <code>#428AA7</code></span><span class="bdr-swatch"><i style="background:#856348"></i>خرس <code>#856348</code></span><span class="bdr-swatch"><i style="background:#70A15E"></i>قوچ <code>#70A15E</code></span></div><p>از دادهٔ BGA؛ متن روی سطح روشن با نسخهٔ <code>-ink</code>.</p></div><div class="bdr-comp"><h4><span class="bdr-no">1</span>نوار بازی (DS)</h4><div class="bdr-comp__art"><span class="bdr-pill">bgv-gamebar</span><span class="bdr-pill">فا / EN</span></div><p>همان نوار بالای همهٔ میزها؛ دکمهٔ زبان و قوانین.</p></div><div class="bdr-comp"><h4><span class="bdr-no">2</span>نوار وضعیت و اقدام</h4><div class="bdr-comp__art"><span class="bdr-pill">bdr-bar</span><span class="bdr-pill">sticky</span></div><p>متن نوبت، اقدام‌ها، قدم‌ها، هدف‌ها، خلاصه و ثبت.</p></div><div class="bdr-comp"><h4><span class="bdr-no">3</span>دکمه‌های اقدام</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/icon-rage-mini.webp" alt=""></div><p>برچسب‌های BGA: بازی مأموریت/ارتقا/هیولا (فقط با چنین کارتی)، یورش، لشکرکشی، غارت، کنار کشیدن؛ هزینه در «یورش با».</p></div><div class="bdr-comp"><h4><span class="bdr-no">4</span>هدف‌ها و خط اثر</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/spot-target.webp" alt=""><img src="../assets/games/blood-rage/hover-invade.webp" alt=""></div><p>هدف‌ها فقط روی نقشه و صفحهٔ قبیله (BGA)؛ زیر نوار یک خط هزینه و اثر.</p></div><div class="bdr-comp"><h4><span class="bdr-no">5</span>جعبهٔ نقشه</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/blood-rage-logo.webp" alt=""></div><p>لوگو چپ بالا؛ نشان عصر و فلش بخش‌ها راست بالا؛ آخرین نبرد وسط؛ بزرگ‌نمایی چپ؛ بایگانی، دورریخته، والهالا چپ پایین.</p></div><div class="bdr-comp"><h4><span class="bdr-no">6</span>نقشه (۱۶۰۰)</h4><div class="bdr-comp__art is-dark"><img src="../assets/games/blood-rage/main-board.webp" alt="" style="max-block-size:120px"></div><p>همهٔ جاها درصدی از ۱۶۰۰ واحد؛ layout.json.</p></div><div class="bdr-comp"><h4><span class="bdr-no">7</span>نشان غارت</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/icon-yggdrasil.webp" alt=""><img src="../assets/games/blood-rage/icon-rage.webp" alt=""><img src="../assets/games/blood-rage/icon-axe.webp" alt=""><img src="../assets/games/blood-rage/icon-horn.webp" alt=""><img src="../assets/games/blood-rage/icon-glory.webp" alt=""></div><p>وسط استان؛ پس از غارت پلاک تیرهٔ «غارت موفق توسط …» (BGA).</p></div><div class="bdr-comp"><h4><span class="bdr-no">8</span>استان نابودشده</h4><div class="bdr-comp__art is-dark"><img src="../assets/games/blood-rage/ragnarok.webp" alt=""></div><p>قرص راگناروک روی مرکز استان (۱۰٫۶٪).</p></div><div class="bdr-comp"><h4><span class="bdr-no">9</span>نشان نابودی</h4><div class="bdr-comp__art is-dark"><img src="../assets/games/blood-rage/icon-destiny.webp" alt=""></div><p>روی جای doom استانِ راگناروکِ این عصر.</p></div><div class="bdr-comp"><h4><span class="bdr-no">10</span>مهرهٔ روی نقشه</h4><div class="bdr-comp__art is-dark"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" alt=""><img src="../assets/games/blood-rage/raven-leader-token.webp" alt=""><img src="../assets/games/blood-rage/raven-ship-token.webp" alt=""><img src="../assets/games/blood-rage/raven-card-026-troll-token.webp" alt=""></div><p>توکن BGA با قدرت و نشان قبیله؛ ارتقا ← توکن ارتقایافته.</p></div><div class="bdr-comp"><h4><span class="bdr-no">11</span>جای مهره‌ها</h4><div class="bdr-comp__art is-dark"><img src="../assets/games/blood-rage/spot-target.webp" alt=""></div><p>روستا = یک مهره؛ ایگدراسیل حلقه دور مرکز؛ کشتی‌ها ردیفی روی آبدره.</p></div><div class="bdr-comp"><h4><span class="bdr-no">12</span>هدف، شبح و پیش‌نمایش اثر</h4><div class="bdr-comp__art is-dark"><img src="../assets/games/blood-rage/spot-target.webp" alt=""><img src="../assets/games/blood-rage/remove.webp" alt=""><img src="../assets/games/blood-rage/hover-invade.webp" alt=""></div><p>حلقهٔ کهربایی؛ شبح مهرهٔ در حال یورش؛ قرمز = نابود می‌شود.</p></div><div class="bdr-comp"><h4><span class="bdr-no">13</span>کارت دست</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/card-044-tyr-s-crush.webp" alt=""></div><p>تصویر انگلیسی BGA بدون زیرنویس؛ نام و متن فارسی در راهنما.</p></div><div class="bdr-comp"><h4><span class="bdr-no">14</span>راهنمای کارت</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/card-064-thor-s-domain.webp" alt=""></div><p>hover / نگه‌داشتن: نام و متن فارسی و انگلیسی.</p></div><div class="bdr-comp"><h4><span class="bdr-no">15</span>صفحهٔ قبیله</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/raven-icon-reference.webp" alt=""><img src="../assets/games/blood-rage/raven-leader-reference.webp" alt=""><img src="../assets/games/blood-rage/slot-monster.webp" alt=""><img src="../assets/games/blood-rage/slot-clan.webp" alt=""></div><p>۹ جایگاه BGA در ۵ ستون، همیشه چپ‌به‌راست؛ «ذخیره» و «مأموریت‌ها».</p></div><div class="bdr-comp"><h4><span class="bdr-no">16</span>پنجرهٔ ذخیره</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/raven-card-023-brothers-in-arms-token.webp" alt=""><img src="../assets/games/blood-rage/raven-card-026-troll-token.webp" alt=""></div><p>همهٔ توکن‌های ذخیره در شبکه (BGA)؛ والهالا پنجرهٔ خودش.</p></div><div class="bdr-comp"><h4><span class="bdr-no">17</span>نشان عصر و مسیر عصرها</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/icon-destiny.webp" alt=""><img src="../assets/games/blood-rage/ragnarok.webp" alt=""></div><p>نشان «عصر ۲» روی نقشه پنجرهٔ سه عصر و فازها را باز می‌کند.</p></div><div class="bdr-comp"><h4><span class="bdr-no">18</span>پنل بازیکن</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/icon-clan-3.webp" alt=""><img src="../assets/games/blood-rage/icon-rage.webp" alt=""><img src="../assets/games/blood-rage/board-card.webp" alt=""><img src="../assets/games/blood-rage/firstplayer.webp" alt=""></div><p>BGA: نام، افتخار ★، نشان قبیله، خشم، کارت دست، بازیکن اول، سه ویژگی x/حداکثر، جزئیات آمار.</p></div><div class="bdr-comp"><h4><span class="bdr-no">19</span>گزارش</h4><div class="bdr-comp__art"><span class="bdr-pill">bgv-log</span></div><p>هر خط با رنگ قبیله؛ کارت‌ها با نام فارسی.</p></div><div class="bdr-comp"><h4><span class="bdr-no">20</span>هدایای خدایان</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/age-2-back.webp" alt=""></div><p>دستهٔ رسیده، نگه‌داشته‌ها، منتظر بقیه.</p></div><div class="bdr-comp"><h4><span class="bdr-no">21</span>نبرد</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/battle.webp" alt=""></div><p>فراخوان، کارت پنهان، آشکار و نتیجه.</p></div><div class="bdr-comp"><h4><span class="bdr-no">22</span>پایان عصر</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/ragnarok.webp" alt=""></div><p>دور ریختن، مأموریت، راگناروک، والهالا.</p></div><div class="bdr-comp"><h4><span class="bdr-no">23</span>پایان بازی</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/icon-glory.webp" alt=""></div><p>امتیاز افسانه‌ای <span class="bdr-num">+۱۰</span>/<span class="bdr-num">+۲۰</span> و رتبه.</p></div><div class="bdr-comp"><h4><span class="bdr-no">24</span>پنجره‌ها</h4><div class="bdr-comp__art"><img src="../assets/games/blood-rage/clan-statistics.webp" alt=""></div><p>آمار قبیله، والهالا، مأموریت‌ها، راهنما.</p></div><div class="bdr-comp"><h4><span class="bdr-no">۲۵–۳۰</span>گوشی</h4><div class="bdr-comp__art"><span class="bdr-pill">HUD</span><span class="bdr-pill">زبانه‌ها</span><span class="bdr-pill">داک</span><span class="bdr-pill">شیت</span></div><p>یورش، اقدام‌ها، درفت، نبرد، قبیله، پایان عصر.</p></div></div></section></div>
+</div>
+
+
+</body>
+</html>

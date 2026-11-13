@@ -1,0 +1,9259 @@
+{
+ "note": "Reference positions of the artboards from one seeded 4-player game (seed 33) played by engine/sim.mjs with the repo rules.ts unchanged: main = Rail Era round 6, viewer seat 0 to play (2 actions); start = first Canal round; eraEnd/final = before and after scoring with the breakdown; tutorial = step 2. hints[].cost = dry run of each legal action (money, market cubes, sources of coal/iron/beer, income, VP).",
+ "seed": 33,
+ "main": {
+  "state": {
+   "players": 4,
+   "era": "rail",
+   "round": 6,
+   "order": [
+    1,
+    3,
+    0,
+    2
+   ],
+   "turn": 2,
+   "actionsLeft": 2,
+   "deck": [],
+   "hands": [
+    [
+     44,
+     50,
+     61,
+     0,
+     20,
+     40
+    ],
+    [
+     34,
+     47,
+     9,
+     28
+    ],
+    [
+     6,
+     17,
+     56,
+     41,
+     58,
+     60
+    ],
+    [
+     8,
+     36,
+     5,
+     23
+    ]
+   ],
+   "discards": [
+    [
+     63,
+     30,
+     57,
+     55,
+     42,
+     39,
+     21,
+     37,
+     45,
+     14
+    ],
+    [
+     48,
+     46,
+     16,
+     4,
+     29,
+     59,
+     22,
+     18,
+     13,
+     53,
+     12,
+     52
+    ],
+    [
+     15,
+     10,
+     51,
+     1,
+     49,
+     31,
+     62,
+     54,
+     24,
+     38
+    ],
+    [
+     33,
+     3,
+     11,
+     25,
+     43,
+     2,
+     19,
+     32,
+     26,
+     7,
+     27,
+     35
+    ]
+   ],
+   "facedown": [
+    [],
+    [],
+    [],
+    []
+   ],
+   "money": [
+    43,
+    33,
+    41,
+    35
+   ],
+   "income": [
+    11,
+    21,
+    34,
+    30
+   ],
+   "vp": [
+    16,
+    26,
+    23,
+    13
+   ],
+   "spent": [
+    0,
+    29,
+    0,
+    30
+   ],
+   "mat": [
+    {
+     "cotton": 0,
+     "manufacturer": 1,
+     "pottery": 1,
+     "coal": 3,
+     "iron": 4,
+     "brewery": 1
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 3,
+     "pottery": 1,
+     "coal": 3,
+     "iron": 4,
+     "brewery": 6
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 2,
+     "pottery": 0,
+     "coal": 4,
+     "iron": 3,
+     "brewery": 4
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 1,
+     "pottery": 0,
+     "coal": 5,
+     "iron": 1,
+     "brewery": 4
+    }
+   ],
+   "board": {
+    "cannock": [
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 2,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "tamworth": [
+     null,
+     null
+    ],
+    "farm-cannock": [
+     null
+    ],
+    "belper": [
+     null,
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "derby": [
+     {
+      "owner": 3,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null,
+     {
+      "owner": 0,
+      "industry": "iron",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "leek": [
+     null,
+     null
+    ],
+    "stoke-on-trent": [
+     null,
+     {
+      "owner": 1,
+      "industry": "pottery",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     },
+     null
+    ],
+    "stone": [
+     {
+      "owner": 1,
+      "industry": "brewery",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "uttoxeter": [
+     {
+      "owner": 2,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 2,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "stafford": [
+     {
+      "owner": 1,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "burton-on-trent": [
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 3,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "birmingham": [
+     null,
+     {
+      "owner": 1,
+      "industry": "manufacturer",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 1,
+      "industry": "iron",
+      "level": 4,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "walsall": [
+     {
+      "owner": 2,
+      "industry": "iron",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "wolverhampton": [
+     null,
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "coalbrookdale": [
+     {
+      "owner": 1,
+      "industry": "brewery",
+      "level": 3,
+      "flipped": false,
+      "cubes": 2
+     },
+     null,
+     null
+    ],
+    "dudley": [
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 0,
+      "industry": "iron",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "kidderminster": [
+     null,
+     null
+    ],
+    "worcester": [
+     null,
+     null
+    ],
+    "coventry": [
+     {
+      "owner": 0,
+      "industry": "pottery",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     },
+     {
+      "owner": 2,
+      "industry": "coal",
+      "level": 3,
+      "flipped": false,
+      "cubes": 3
+     },
+     null
+    ],
+    "nuneaton": [
+     null,
+     {
+      "owner": 0,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "redditch": [
+     {
+      "owner": 2,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "farm-worcester": [
+     null
+    ]
+   },
+   "links": {
+    "oxford~redditch": 2,
+    "birmingham~oxford": 1,
+    "birmingham~redditch": 1,
+    "gloucester~redditch": 1,
+    "dudley~wolverhampton": 3,
+    "birmingham~dudley": 3,
+    "derby~nottingham": 0,
+    "burton-on-trent~derby": 3,
+    "burton-on-trent~cannock": 3,
+    "derby~uttoxeter": 0,
+    "cannock~stafford": 2,
+    "belper~derby": 3,
+    "cannock~wolverhampton": 3,
+    "stone~uttoxeter": 2,
+    "cannock~walsall": 2,
+    "cannock~farm-cannock": 2,
+    "birmingham~walsall": 3,
+    "burton-on-trent~stone": 3,
+    "burton-on-trent~tamworth": 3,
+    "birmingham~nuneaton": 0,
+    "birmingham~tamworth": 0,
+    "birmingham~coventry": 3,
+    "stafford~stone": 3,
+    "stoke-on-trent~stone": 3,
+    "stoke-on-trent~warrington": 3
+   },
+   "coal": 14,
+   "iron": 7,
+   "merchants": {
+    "oxford": {
+     "tiles": [
+      "m2-blank-2",
+      "m4-cotton"
+     ],
+     "beer": [
+      false,
+      true
+     ]
+    },
+    "shrewsbury": {
+     "tiles": [
+      "m2-blank-1"
+     ],
+     "beer": [
+      false
+     ]
+    },
+    "gloucester": {
+     "tiles": [
+      "m2-manufacturer",
+      "m3-blank"
+     ],
+     "beer": [
+      true,
+      false
+     ]
+    },
+    "warrington": {
+     "tiles": [
+      "m2-cotton",
+      "m2-all"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    },
+    "nottingham": {
+     "tiles": [
+      "m4-manufacturer",
+      "m3-pottery"
+     ],
+     "beer": [
+      false,
+      true
+     ]
+    }
+   },
+   "wild": {
+    "location": 4,
+    "industry": 4
+   },
+   "last": {
+    "seat": 3,
+    "type": "network",
+    "cards": [
+     35
+    ],
+    "links": [
+     "stoke-on-trent~stone",
+     "stoke-on-trent~warrington"
+    ]
+   },
+   "seq": 104,
+   "timeouts": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "outcome": null
+  },
+  "view": {
+   "players": 4,
+   "era": "rail",
+   "round": 6,
+   "order": [
+    1,
+    3,
+    0,
+    2
+   ],
+   "turn": 2,
+   "actionsLeft": 2,
+   "money": [
+    43,
+    33,
+    41,
+    35
+   ],
+   "income": [
+    11,
+    21,
+    34,
+    30
+   ],
+   "vp": [
+    16,
+    26,
+    23,
+    13
+   ],
+   "spent": [
+    0,
+    29,
+    0,
+    30
+   ],
+   "mat": [
+    {
+     "cotton": 0,
+     "manufacturer": 1,
+     "pottery": 1,
+     "coal": 3,
+     "iron": 4,
+     "brewery": 1
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 3,
+     "pottery": 1,
+     "coal": 3,
+     "iron": 4,
+     "brewery": 6
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 2,
+     "pottery": 0,
+     "coal": 4,
+     "iron": 3,
+     "brewery": 4
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 1,
+     "pottery": 0,
+     "coal": 5,
+     "iron": 1,
+     "brewery": 4
+    }
+   ],
+   "board": {
+    "cannock": [
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 2,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "tamworth": [
+     null,
+     null
+    ],
+    "farm-cannock": [
+     null
+    ],
+    "belper": [
+     null,
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "derby": [
+     {
+      "owner": 3,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null,
+     {
+      "owner": 0,
+      "industry": "iron",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "leek": [
+     null,
+     null
+    ],
+    "stoke-on-trent": [
+     null,
+     {
+      "owner": 1,
+      "industry": "pottery",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     },
+     null
+    ],
+    "stone": [
+     {
+      "owner": 1,
+      "industry": "brewery",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "uttoxeter": [
+     {
+      "owner": 2,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 2,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "stafford": [
+     {
+      "owner": 1,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "burton-on-trent": [
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 3,
+      "industry": "brewery",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "birmingham": [
+     null,
+     {
+      "owner": 1,
+      "industry": "manufacturer",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 1,
+      "industry": "iron",
+      "level": 4,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "walsall": [
+     {
+      "owner": 2,
+      "industry": "iron",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "wolverhampton": [
+     null,
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "coalbrookdale": [
+     {
+      "owner": 1,
+      "industry": "brewery",
+      "level": 3,
+      "flipped": false,
+      "cubes": 2
+     },
+     null,
+     null
+    ],
+    "dudley": [
+     {
+      "owner": 3,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     {
+      "owner": 0,
+      "industry": "iron",
+      "level": 3,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "kidderminster": [
+     null,
+     null
+    ],
+    "worcester": [
+     null,
+     null
+    ],
+    "coventry": [
+     {
+      "owner": 0,
+      "industry": "pottery",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     },
+     {
+      "owner": 2,
+      "industry": "coal",
+      "level": 3,
+      "flipped": false,
+      "cubes": 3
+     },
+     null
+    ],
+    "nuneaton": [
+     null,
+     {
+      "owner": 0,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     }
+    ],
+    "redditch": [
+     {
+      "owner": 2,
+      "industry": "coal",
+      "level": 2,
+      "flipped": true,
+      "cubes": 0
+     },
+     null
+    ],
+    "farm-worcester": [
+     null
+    ]
+   },
+   "links": {
+    "oxford~redditch": 2,
+    "birmingham~oxford": 1,
+    "birmingham~redditch": 1,
+    "gloucester~redditch": 1,
+    "dudley~wolverhampton": 3,
+    "birmingham~dudley": 3,
+    "derby~nottingham": 0,
+    "burton-on-trent~derby": 3,
+    "burton-on-trent~cannock": 3,
+    "derby~uttoxeter": 0,
+    "cannock~stafford": 2,
+    "belper~derby": 3,
+    "cannock~wolverhampton": 3,
+    "stone~uttoxeter": 2,
+    "cannock~walsall": 2,
+    "cannock~farm-cannock": 2,
+    "birmingham~walsall": 3,
+    "burton-on-trent~stone": 3,
+    "burton-on-trent~tamworth": 3,
+    "birmingham~nuneaton": 0,
+    "birmingham~tamworth": 0,
+    "birmingham~coventry": 3,
+    "stafford~stone": 3,
+    "stoke-on-trent~stone": 3,
+    "stoke-on-trent~warrington": 3
+   },
+   "coal": 14,
+   "iron": 7,
+   "merchants": {
+    "oxford": {
+     "tiles": [
+      "m2-blank-2",
+      "m4-cotton"
+     ],
+     "beer": [
+      false,
+      true
+     ]
+    },
+    "shrewsbury": {
+     "tiles": [
+      "m2-blank-1"
+     ],
+     "beer": [
+      false
+     ]
+    },
+    "gloucester": {
+     "tiles": [
+      "m2-manufacturer",
+      "m3-blank"
+     ],
+     "beer": [
+      true,
+      false
+     ]
+    },
+    "warrington": {
+     "tiles": [
+      "m2-cotton",
+      "m2-all"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    },
+    "nottingham": {
+     "tiles": [
+      "m4-manufacturer",
+      "m3-pottery"
+     ],
+     "beer": [
+      false,
+      true
+     ]
+    }
+   },
+   "wild": {
+    "location": 4,
+    "industry": 4
+   },
+   "last": {
+    "seat": 3,
+    "type": "network",
+    "cards": [
+     35
+    ],
+    "links": [
+     "stoke-on-trent~stone",
+     "stoke-on-trent~warrington"
+    ]
+   },
+   "seq": 104,
+   "outcome": null,
+   "current": 0,
+   "deckCount": 0,
+   "handCounts": [
+    6,
+    4,
+    6,
+    4
+   ],
+   "hand": [
+    44,
+    50,
+    61,
+    0,
+    20,
+    40
+   ],
+   "discardTop": [
+    14,
+    52,
+    38,
+    35
+   ],
+   "incomeLevels": [
+    1,
+    6,
+    12,
+    10
+   ]
+  },
+  "hints": [
+   {
+    "type": "build",
+    "industry": "manufacturer",
+    "loc": "derby",
+    "slot": 1,
+    "cards": [
+     61
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "derby",
+      "slot": 1,
+      "owner": 0,
+      "industry": "manufacturer",
+      "level": 2,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "manufacturer",
+    "loc": "birmingham",
+    "slot": 3,
+    "cards": [
+     61
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "birmingham",
+      "slot": 3,
+      "owner": 0,
+      "industry": "manufacturer",
+      "level": 2,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "manufacturer",
+    "loc": "coventry",
+    "slot": 2,
+    "cards": [
+     61
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "coventry",
+      "slot": 2,
+      "owner": 0,
+      "industry": "manufacturer",
+      "level": 2,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "manufacturer",
+    "loc": "nuneaton",
+    "slot": 0,
+    "cards": [
+     61
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "nuneaton",
+      "slot": 0,
+      "owner": 0,
+      "industry": "manufacturer",
+      "level": 2,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "tamworth~walsall"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [
+      {
+       "loc": "coventry",
+       "slot": 1,
+       "owner": 2,
+       "industry": "coal",
+       "n": 1
+      }
+     ],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~worcester"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [
+      {
+       "loc": "coventry",
+       "slot": 1,
+       "owner": 2,
+       "industry": "coal",
+       "n": 1
+      }
+     ],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "coventry~nuneaton"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [
+      {
+       "loc": "coventry",
+       "slot": 1,
+       "owner": 2,
+       "industry": "coal",
+       "n": 1
+      }
+     ],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "dudley~kidderminster"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [
+      {
+       "loc": "coventry",
+       "slot": 1,
+       "owner": 2,
+       "industry": "coal",
+       "n": 1
+      }
+     ],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "nuneaton~tamworth"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [
+      {
+       "loc": "coventry",
+       "slot": 1,
+       "owner": 2,
+       "industry": "coal",
+       "n": 1
+      }
+     ],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "dudley~kidderminster",
+     "coalbrookdale~kidderminster"
+    ],
+    "cost": {
+     "money": -15,
+     "spent": 15,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [
+      {
+       "loc": "coalbrookdale",
+       "slot": 0,
+       "owner": 1,
+       "industry": "brewery",
+       "n": 1
+      },
+      {
+       "loc": "coventry",
+       "slot": 1,
+       "owner": 2,
+       "industry": "coal",
+       "n": 2
+      }
+     ],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "cotton"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "pottery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "coal"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "brewery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "pottery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "coal"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "brewery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery",
+     "coal"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery",
+     "brewery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "coal"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "brewery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "brewery"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "brewery",
+     "brewery"
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "sell",
+    "loc": "coventry",
+    "slot": 0,
+    "merchant": "warrington",
+    "cost": {
+     "money": 5,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 5,
+     "incomeLevel": 2,
+     "vp": 0,
+     "from": [],
+     "flipped": [
+      {
+       "loc": "coventry",
+       "slot": 0,
+       "owner": 0,
+       "industry": "pottery",
+       "level": 1
+      }
+     ],
+     "beerMerchant": [
+      {
+       "merchant": "warrington",
+       "space": 1
+      }
+     ]
+    }
+   },
+   {
+    "type": "sell",
+    "loc": "coventry",
+    "slot": 0,
+    "merchant": "nottingham",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 5,
+     "incomeLevel": 2,
+     "vp": 3,
+     "from": [],
+     "flipped": [
+      {
+       "loc": "coventry",
+       "slot": 0,
+       "owner": 0,
+       "industry": "pottery",
+       "level": 1
+      }
+     ],
+     "beerMerchant": [
+      {
+       "merchant": "nottingham",
+       "space": 1
+      }
+     ]
+    }
+   },
+   {
+    "type": "loan",
+    "cost": {
+     "money": 30,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": -3,
+     "incomeLevel": -3,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "scout",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "pass",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   }
+  ],
+  "blocked": {},
+  "log": [
+   {
+    "seat": 0,
+    "a": {
+     "type": "loan",
+     "card": 45
+    },
+    "era": "rail",
+    "round": 5
+   },
+   {
+    "seat": 0,
+    "a": {
+     "type": "network",
+     "card": 14,
+     "links": [
+      "birmingham~nuneaton",
+      "birmingham~tamworth"
+     ]
+    },
+    "era": "rail",
+    "round": 5
+   },
+   {
+    "seat": 2,
+    "a": {
+     "type": "build",
+     "card": 24,
+     "industry": "iron",
+     "loc": "walsall",
+     "slot": 0
+    },
+    "era": "rail",
+    "round": 5
+   },
+   {
+    "seat": 2,
+    "a": {
+     "type": "build",
+     "card": 38,
+     "industry": "coal",
+     "loc": "coventry",
+     "slot": 1
+    },
+    "era": "rail",
+    "round": 5
+   },
+   {
+    "seat": 1,
+    "a": {
+     "type": "build",
+     "card": 12,
+     "industry": "pottery",
+     "loc": "stoke-on-trent",
+     "slot": 1
+    },
+    "era": "rail",
+    "round": 6
+   },
+   {
+    "seat": 1,
+    "a": {
+     "type": "build",
+     "card": 52,
+     "industry": "brewery",
+     "loc": "stone",
+     "slot": 0
+    },
+    "era": "rail",
+    "round": 6
+   },
+   {
+    "seat": 3,
+    "a": {
+     "type": "network",
+     "card": 27,
+     "links": [
+      "birmingham~coventry",
+      "stafford~stone"
+     ]
+    },
+    "era": "rail",
+    "round": 6
+   },
+   {
+    "seat": 3,
+    "a": {
+     "type": "network",
+     "card": 35,
+     "links": [
+      "stoke-on-trent~stone",
+      "stoke-on-trent~warrington"
+     ]
+    },
+    "era": "rail",
+    "round": 6
+   }
+  ]
+ },
+ "start": {
+  "state": {
+   "players": 4,
+   "era": "canal",
+   "round": 1,
+   "order": [
+    1,
+    2,
+    0,
+    3
+   ],
+   "turn": 2,
+   "actionsLeft": 1,
+   "deck": [
+    47,
+    43,
+    54,
+    44,
+    16,
+    11,
+    14,
+    29,
+    19,
+    31,
+    23,
+    18,
+    27,
+    13,
+    41,
+    58,
+    42,
+    17,
+    24,
+    50,
+    48,
+    63,
+    6,
+    51,
+    52,
+    61
+   ],
+   "hands": [
+    [
+     36,
+     34,
+     40,
+     38,
+     8,
+     15,
+     3,
+     9
+    ],
+    [
+     32,
+     5,
+     45,
+     39,
+     1,
+     12,
+     30,
+     26
+    ],
+    [
+     25,
+     55,
+     10,
+     33,
+     49,
+     56,
+     37,
+     59
+    ],
+    [
+     62,
+     28,
+     60,
+     21,
+     46,
+     53,
+     35,
+     57
+    ]
+   ],
+   "discards": [
+    [],
+    [
+     7
+    ],
+    [
+     20
+    ],
+    []
+   ],
+   "facedown": [
+    [
+     4
+    ],
+    [
+     2
+    ],
+    [
+     0
+    ],
+    [
+     22
+    ]
+   ],
+   "money": [
+    17,
+    14,
+    14,
+    17
+   ],
+   "income": [
+    10,
+    10,
+    10,
+    10
+   ],
+   "vp": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "spent": [
+    0,
+    3,
+    3,
+    0
+   ],
+   "mat": [
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    }
+   ],
+   "board": {
+    "cannock": [
+     null,
+     null
+    ],
+    "tamworth": [
+     null,
+     null
+    ],
+    "farm-cannock": [
+     null
+    ],
+    "belper": [
+     null,
+     null,
+     null
+    ],
+    "derby": [
+     null,
+     null,
+     null
+    ],
+    "leek": [
+     null,
+     null
+    ],
+    "stoke-on-trent": [
+     null,
+     null,
+     null
+    ],
+    "stone": [
+     null,
+     null
+    ],
+    "uttoxeter": [
+     null,
+     null
+    ],
+    "stafford": [
+     null,
+     null
+    ],
+    "burton-on-trent": [
+     null,
+     null
+    ],
+    "birmingham": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "walsall": [
+     null,
+     null
+    ],
+    "wolverhampton": [
+     null,
+     null
+    ],
+    "coalbrookdale": [
+     null,
+     null,
+     null
+    ],
+    "dudley": [
+     null,
+     null
+    ],
+    "kidderminster": [
+     null,
+     null
+    ],
+    "worcester": [
+     null,
+     null
+    ],
+    "coventry": [
+     null,
+     null,
+     null
+    ],
+    "nuneaton": [
+     null,
+     null
+    ],
+    "redditch": [
+     null,
+     null
+    ],
+    "farm-worcester": [
+     null
+    ]
+   },
+   "links": {
+    "coalbrookdale~shrewsbury": 1,
+    "oxford~redditch": 2
+   },
+   "coal": 13,
+   "iron": 8,
+   "merchants": {
+    "oxford": {
+     "tiles": [
+      "m2-blank-2",
+      "m4-cotton"
+     ],
+     "beer": [
+      false,
+      true
+     ]
+    },
+    "shrewsbury": {
+     "tiles": [
+      "m2-blank-1"
+     ],
+     "beer": [
+      false
+     ]
+    },
+    "gloucester": {
+     "tiles": [
+      "m2-manufacturer",
+      "m3-blank"
+     ],
+     "beer": [
+      true,
+      false
+     ]
+    },
+    "warrington": {
+     "tiles": [
+      "m2-cotton",
+      "m2-all"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    },
+    "nottingham": {
+     "tiles": [
+      "m4-manufacturer",
+      "m3-pottery"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    }
+   },
+   "wild": {
+    "location": 4,
+    "industry": 4
+   },
+   "last": {
+    "seat": 2,
+    "type": "network",
+    "cards": [
+     20
+    ],
+    "links": [
+     "oxford~redditch"
+    ]
+   },
+   "seq": 2,
+   "timeouts": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "outcome": null
+  },
+  "view": {
+   "players": 4,
+   "era": "canal",
+   "round": 1,
+   "order": [
+    1,
+    2,
+    0,
+    3
+   ],
+   "turn": 2,
+   "actionsLeft": 1,
+   "money": [
+    17,
+    14,
+    14,
+    17
+   ],
+   "income": [
+    10,
+    10,
+    10,
+    10
+   ],
+   "vp": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "spent": [
+    0,
+    3,
+    3,
+    0
+   ],
+   "mat": [
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    },
+    {
+     "cotton": 0,
+     "manufacturer": 0,
+     "pottery": 0,
+     "coal": 0,
+     "iron": 0,
+     "brewery": 0
+    }
+   ],
+   "board": {
+    "cannock": [
+     null,
+     null
+    ],
+    "tamworth": [
+     null,
+     null
+    ],
+    "farm-cannock": [
+     null
+    ],
+    "belper": [
+     null,
+     null,
+     null
+    ],
+    "derby": [
+     null,
+     null,
+     null
+    ],
+    "leek": [
+     null,
+     null
+    ],
+    "stoke-on-trent": [
+     null,
+     null,
+     null
+    ],
+    "stone": [
+     null,
+     null
+    ],
+    "uttoxeter": [
+     null,
+     null
+    ],
+    "stafford": [
+     null,
+     null
+    ],
+    "burton-on-trent": [
+     null,
+     null
+    ],
+    "birmingham": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "walsall": [
+     null,
+     null
+    ],
+    "wolverhampton": [
+     null,
+     null
+    ],
+    "coalbrookdale": [
+     null,
+     null,
+     null
+    ],
+    "dudley": [
+     null,
+     null
+    ],
+    "kidderminster": [
+     null,
+     null
+    ],
+    "worcester": [
+     null,
+     null
+    ],
+    "coventry": [
+     null,
+     null,
+     null
+    ],
+    "nuneaton": [
+     null,
+     null
+    ],
+    "redditch": [
+     null,
+     null
+    ],
+    "farm-worcester": [
+     null
+    ]
+   },
+   "links": {
+    "coalbrookdale~shrewsbury": 1,
+    "oxford~redditch": 2
+   },
+   "coal": 13,
+   "iron": 8,
+   "merchants": {
+    "oxford": {
+     "tiles": [
+      "m2-blank-2",
+      "m4-cotton"
+     ],
+     "beer": [
+      false,
+      true
+     ]
+    },
+    "shrewsbury": {
+     "tiles": [
+      "m2-blank-1"
+     ],
+     "beer": [
+      false
+     ]
+    },
+    "gloucester": {
+     "tiles": [
+      "m2-manufacturer",
+      "m3-blank"
+     ],
+     "beer": [
+      true,
+      false
+     ]
+    },
+    "warrington": {
+     "tiles": [
+      "m2-cotton",
+      "m2-all"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    },
+    "nottingham": {
+     "tiles": [
+      "m4-manufacturer",
+      "m3-pottery"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    }
+   },
+   "wild": {
+    "location": 4,
+    "industry": 4
+   },
+   "last": {
+    "seat": 2,
+    "type": "network",
+    "cards": [
+     20
+    ],
+    "links": [
+     "oxford~redditch"
+    ]
+   },
+   "seq": 2,
+   "outcome": null,
+   "current": 0,
+   "deckCount": 26,
+   "handCounts": [
+    8,
+    8,
+    8,
+    8
+   ],
+   "hand": [
+    36,
+    34,
+    40,
+    38,
+    8,
+    15,
+    3,
+    9
+   ],
+   "discardTop": [
+    null,
+    7,
+    20,
+    null
+   ],
+   "incomeLevels": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "hints": [
+   {
+    "type": "build",
+    "industry": "cotton",
+    "loc": "belper",
+    "slot": 0,
+    "cards": [
+     3
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "belper",
+      "slot": 0,
+      "owner": 0,
+      "industry": "cotton",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "coal",
+    "loc": "belper",
+    "slot": 1,
+    "cards": [
+     3
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "belper",
+      "slot": 1,
+      "owner": 0,
+      "industry": "coal",
+      "level": 1,
+      "flipped": false,
+      "cubes": 2
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "cotton",
+    "loc": "leek",
+    "slot": 0,
+    "cards": [
+     8,
+     9
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "leek",
+      "slot": 0,
+      "owner": 0,
+      "industry": "cotton",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "cotton",
+    "loc": "leek",
+    "slot": 1,
+    "cards": [
+     8,
+     9
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "leek",
+      "slot": 1,
+      "owner": 0,
+      "industry": "cotton",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "coal",
+    "loc": "leek",
+    "slot": 1,
+    "cards": [
+     8,
+     9
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "leek",
+      "slot": 1,
+      "owner": 0,
+      "industry": "coal",
+      "level": 1,
+      "flipped": false,
+      "cubes": 2
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "brewery",
+    "loc": "uttoxeter",
+    "slot": 0,
+    "cards": [
+     15
+    ],
+    "cost": {
+     "money": -7,
+     "spent": 7,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "uttoxeter",
+      "slot": 0,
+      "owner": 0,
+      "industry": "brewery",
+      "level": 1,
+      "flipped": false,
+      "cubes": 1
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "cotton",
+    "loc": "uttoxeter",
+    "slot": 1,
+    "cards": [
+     15
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "uttoxeter",
+      "slot": 1,
+      "owner": 0,
+      "industry": "cotton",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "brewery",
+    "loc": "uttoxeter",
+    "slot": 1,
+    "cards": [
+     15
+    ],
+    "cost": {
+     "money": -7,
+     "spent": 7,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "uttoxeter",
+      "slot": 1,
+      "owner": 0,
+      "industry": "brewery",
+      "level": 1,
+      "flipped": false,
+      "cubes": 1
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "cotton",
+    "loc": "worcester",
+    "slot": 0,
+    "cards": [
+     34
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "worcester",
+      "slot": 0,
+      "owner": 0,
+      "industry": "cotton",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "cotton",
+    "loc": "worcester",
+    "slot": 1,
+    "cards": [
+     34
+    ],
+    "cost": {
+     "money": -12,
+     "spent": 12,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "worcester",
+      "slot": 1,
+      "owner": 0,
+      "industry": "cotton",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "coal",
+    "loc": "coventry",
+    "slot": 1,
+    "cards": [
+     36,
+     38
+    ],
+    "cost": {
+     "money": -5,
+     "spent": 5,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "coventry",
+      "slot": 1,
+      "owner": 0,
+      "industry": "coal",
+      "level": 1,
+      "flipped": false,
+      "cubes": 2
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "manufacturer",
+    "loc": "redditch",
+    "slot": 0,
+    "cards": [
+     40
+    ],
+    "cost": {
+     "money": -9,
+     "spent": 9,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "redditch",
+      "slot": 0,
+      "owner": 0,
+      "industry": "manufacturer",
+      "level": 1,
+      "flipped": false,
+      "cubes": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "coal",
+    "loc": "redditch",
+    "slot": 0,
+    "cards": [
+     40
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 5,
+     "coalMarket": 1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "redditch",
+      "slot": 0,
+      "owner": 0,
+      "industry": "coal",
+      "level": 1,
+      "flipped": false,
+      "cubes": 1
+     },
+     "soldToMarket": {
+      "coal": 1,
+      "iron": 0
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "iron",
+    "loc": "redditch",
+    "slot": 1,
+    "cards": [
+     40
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 6,
+     "coalMarket": -1,
+     "ironMarket": 2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "redditch",
+      "slot": 1,
+      "owner": 0,
+      "industry": "iron",
+      "level": 1,
+      "flipped": false,
+      "cubes": 2
+     },
+     "soldToMarket": {
+      "coal": 0,
+      "iron": 2
+     }
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "cannock~farm-cannock"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "cannock~walsall"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~tamworth"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~walsall"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~oxford"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "belper~derby"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~coventry"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~dudley"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~worcester"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "burton-on-trent~derby"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "burton-on-trent~stone"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "burton-on-trent~tamworth"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "burton-on-trent~walsall"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "cannock~stafford"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "cannock~wolverhampton"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "coalbrookdale~kidderminster"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "coalbrookdale~wolverhampton"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "derby~nottingham"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "dudley~kidderminster"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "dudley~wolverhampton"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "gloucester~redditch"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "gloucester~worcester"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "kidderminster~worcester"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "leek~stoke-on-trent"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "nuneaton~tamworth"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "stafford~stone"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "stoke-on-trent~stone"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "stoke-on-trent~warrington"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "walsall~wolverhampton"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "cotton"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "coal"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "iron"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "brewery"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "coal"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "iron"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "brewery"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "coal"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "iron"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "brewery"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "iron"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "iron",
+     "iron"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "iron",
+     "brewery"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "brewery"
+    ],
+    "cost": {
+     "money": -2,
+     "spent": 2,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "brewery",
+     "brewery"
+    ],
+    "cost": {
+     "money": -4,
+     "spent": 4,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "loan",
+    "cost": {
+     "money": 30,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": -3,
+     "incomeLevel": -3,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "scout",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "pass",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   }
+  ],
+  "blocked": {}
+ },
+ "eraEnd": {
+  "before": {
+   "state": {
+    "players": 4,
+    "era": "canal",
+    "round": 8,
+    "order": [
+     2,
+     0,
+     3,
+     1
+    ],
+    "turn": 3,
+    "actionsLeft": 1,
+    "deck": [],
+    "hands": [
+     [],
+     [
+      30
+     ],
+     [],
+     []
+    ],
+    "discards": [
+     [
+      40,
+      36,
+      15,
+      9,
+      8,
+      29,
+      17,
+      34,
+      38,
+      42,
+      47,
+      14,
+      3,
+      63,
+      48
+     ],
+     [
+      7,
+      39,
+      5,
+      26,
+      1,
+      44,
+      23,
+      50,
+      24,
+      12,
+      18,
+      54,
+      45,
+      32
+     ],
+     [
+      20,
+      37,
+      55,
+      16,
+      11,
+      56,
+      10,
+      58,
+      33,
+      41,
+      61,
+      25,
+      52,
+      49,
+      59
+     ],
+     [
+      46,
+      28,
+      35,
+      62,
+      60,
+      13,
+      43,
+      27,
+      21,
+      57,
+      31,
+      51,
+      19,
+      53,
+      6
+     ]
+    ],
+    "facedown": [
+     [
+      4
+     ],
+     [
+      2
+     ],
+     [
+      0
+     ],
+     [
+      22
+     ]
+    ],
+    "money": [
+     15,
+     37,
+     34,
+     8
+    ],
+    "income": [
+     12,
+     7,
+     13,
+     12
+    ],
+    "vp": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "spent": [
+     6,
+     0,
+     0,
+     11
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 2,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 4,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 2,
+      "iron": 2,
+      "brewery": 2
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 3,
+      "iron": 1,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      null,
+      null
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      null,
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      null
+     ],
+     "stoke-on-trent": [
+      null,
+      null,
+      null
+     ],
+     "stone": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      },
+      {
+       "owner": 0,
+       "industry": "coal",
+       "level": 1,
+       "flipped": false,
+       "cubes": 2
+      }
+     ],
+     "uttoxeter": [
+      {
+       "owner": 0,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      },
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      }
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "burton-on-trent": [
+      null,
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      }
+     ],
+     "birmingham": [
+      null,
+      {
+       "owner": 2,
+       "industry": "manufacturer",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      null,
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 2
+      }
+     ],
+     "coalbrookdale": [
+      null,
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      null,
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "nuneaton": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 3
+      },
+      {
+       "owner": 3,
+       "industry": "iron",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {
+     "coalbrookdale~shrewsbury": 1,
+     "oxford~redditch": 2,
+     "derby~nottingham": 0,
+     "gloucester~redditch": 2,
+     "coalbrookdale~kidderminster": 1,
+     "coalbrookdale~wolverhampton": 3,
+     "belper~derby": 0,
+     "birmingham~coventry": 2,
+     "burton-on-trent~derby": 0,
+     "gloucester~worcester": 2,
+     "nuneaton~tamworth": 1,
+     "stafford~stone": 3,
+     "dudley~wolverhampton": 3,
+     "birmingham~dudley": 3,
+     "birmingham~oxford": 2,
+     "burton-on-trent~walsall": 0,
+     "birmingham~tamworth": 1,
+     "birmingham~walsall": 0,
+     "cannock~walsall": 0,
+     "birmingham~worcester": 3
+    },
+    "coal": 14,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       false,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 1,
+     "type": "loan",
+     "cards": [
+      32
+     ]
+    },
+    "seq": 59,
+    "timeouts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "outcome": null
+   },
+   "view": {
+    "players": 4,
+    "era": "canal",
+    "round": 8,
+    "order": [
+     2,
+     0,
+     3,
+     1
+    ],
+    "turn": 3,
+    "actionsLeft": 1,
+    "money": [
+     15,
+     37,
+     34,
+     8
+    ],
+    "income": [
+     12,
+     7,
+     13,
+     12
+    ],
+    "vp": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "spent": [
+     6,
+     0,
+     0,
+     11
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 2,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 4,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 2,
+      "iron": 2,
+      "brewery": 2
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 3,
+      "iron": 1,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      null,
+      null
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      null,
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      null
+     ],
+     "stoke-on-trent": [
+      null,
+      null,
+      null
+     ],
+     "stone": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      },
+      {
+       "owner": 0,
+       "industry": "coal",
+       "level": 1,
+       "flipped": false,
+       "cubes": 2
+      }
+     ],
+     "uttoxeter": [
+      {
+       "owner": 0,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      },
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      }
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "burton-on-trent": [
+      null,
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      }
+     ],
+     "birmingham": [
+      null,
+      {
+       "owner": 2,
+       "industry": "manufacturer",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      null,
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 2
+      }
+     ],
+     "coalbrookdale": [
+      null,
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      null,
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "nuneaton": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 3
+      },
+      {
+       "owner": 3,
+       "industry": "iron",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {
+     "coalbrookdale~shrewsbury": 1,
+     "oxford~redditch": 2,
+     "derby~nottingham": 0,
+     "gloucester~redditch": 2,
+     "coalbrookdale~kidderminster": 1,
+     "coalbrookdale~wolverhampton": 3,
+     "belper~derby": 0,
+     "birmingham~coventry": 2,
+     "burton-on-trent~derby": 0,
+     "gloucester~worcester": 2,
+     "nuneaton~tamworth": 1,
+     "stafford~stone": 3,
+     "dudley~wolverhampton": 3,
+     "birmingham~dudley": 3,
+     "birmingham~oxford": 2,
+     "burton-on-trent~walsall": 0,
+     "birmingham~tamworth": 1,
+     "birmingham~walsall": 0,
+     "cannock~walsall": 0,
+     "birmingham~worcester": 3
+    },
+    "coal": 14,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       false,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 1,
+     "type": "loan",
+     "cards": [
+      32
+     ]
+    },
+    "seq": 59,
+    "outcome": null,
+    "current": 1,
+    "deckCount": 0,
+    "handCounts": [
+     0,
+     1,
+     0,
+     0
+    ],
+    "hand": [],
+    "discardTop": [
+     48,
+     32,
+     59,
+     6
+    ],
+    "incomeLevels": [
+     1,
+     -3,
+     2,
+     1
+    ]
+   },
+   "hints": [],
+   "blocked": {}
+  },
+  "after": {
+   "state": {
+    "players": 4,
+    "era": "rail",
+    "round": 1,
+    "order": [
+     2,
+     1,
+     0,
+     3
+    ],
+    "turn": 0,
+    "actionsLeft": 2,
+    "deck": [
+     41,
+     51,
+     59,
+     52,
+     14,
+     50,
+     25,
+     7,
+     42,
+     37,
+     62,
+     31,
+     43,
+     8,
+     12,
+     29,
+     61,
+     0,
+     9,
+     18,
+     58,
+     38,
+     36,
+     5,
+     24,
+     60,
+     28,
+     13,
+     20,
+     40,
+     23,
+     26
+    ],
+    "hands": [
+     [
+      44,
+      39,
+      30,
+      63,
+      55,
+      45,
+      57,
+      21
+     ],
+     [
+      22,
+      16,
+      53,
+      34,
+      47,
+      4,
+      46,
+      48
+     ],
+     [
+      6,
+      49,
+      17,
+      54,
+      1,
+      15,
+      56,
+      10
+     ],
+     [
+      32,
+      2,
+      35,
+      33,
+      11,
+      19,
+      3,
+      27
+     ]
+    ],
+    "discards": [
+     [],
+     [],
+     [],
+     []
+    ],
+    "facedown": [
+     [],
+     [],
+     [],
+     []
+    ],
+    "money": [
+     16,
+     34,
+     36,
+     9
+    ],
+    "income": [
+     12,
+     7,
+     13,
+     12
+    ],
+    "vp": [
+     16,
+     23,
+     23,
+     13
+    ],
+    "spent": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 2,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 4,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 2,
+      "iron": 2,
+      "brewery": 2
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 3,
+      "iron": 1,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      null,
+      null
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      null,
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      null
+     ],
+     "stoke-on-trent": [
+      null,
+      null,
+      null
+     ],
+     "stone": [
+      null,
+      null
+     ],
+     "uttoxeter": [
+      null,
+      null
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "burton-on-trent": [
+      null,
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      }
+     ],
+     "birmingham": [
+      null,
+      null,
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      null,
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 2
+      }
+     ],
+     "coalbrookdale": [
+      null,
+      null,
+      null
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      null,
+      null,
+      null
+     ],
+     "nuneaton": [
+      null,
+      null
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 3
+      },
+      null
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {},
+    "coal": 14,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 1,
+     "type": "pass",
+     "cards": [
+      30
+     ]
+    },
+    "seq": 60,
+    "timeouts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "outcome": null
+   },
+   "view": {
+    "players": 4,
+    "era": "rail",
+    "round": 1,
+    "order": [
+     2,
+     1,
+     0,
+     3
+    ],
+    "turn": 0,
+    "actionsLeft": 2,
+    "money": [
+     16,
+     34,
+     36,
+     9
+    ],
+    "income": [
+     12,
+     7,
+     13,
+     12
+    ],
+    "vp": [
+     16,
+     23,
+     23,
+     13
+    ],
+    "spent": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 2,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 1,
+      "iron": 4,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 0,
+      "coal": 2,
+      "iron": 2,
+      "brewery": 2
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 3,
+      "iron": 1,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      null,
+      null
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      null,
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      null
+     ],
+     "stoke-on-trent": [
+      null,
+      null,
+      null
+     ],
+     "stone": [
+      null,
+      null
+     ],
+     "uttoxeter": [
+      null,
+      null
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "burton-on-trent": [
+      null,
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      }
+     ],
+     "birmingham": [
+      null,
+      null,
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      null,
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 2
+      }
+     ],
+     "coalbrookdale": [
+      null,
+      null,
+      null
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 1
+      },
+      null
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      null,
+      null,
+      null
+     ],
+     "nuneaton": [
+      null,
+      null
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": false,
+       "cubes": 3
+      },
+      null
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {},
+    "coal": 14,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       true,
+       true
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 1,
+     "type": "pass",
+     "cards": [
+      30
+     ]
+    },
+    "seq": 60,
+    "outcome": null,
+    "current": 2,
+    "deckCount": 32,
+    "handCounts": [
+     8,
+     8,
+     8,
+     8
+    ],
+    "hand": [
+     44,
+     39,
+     30,
+     63,
+     55,
+     45,
+     57,
+     21
+    ],
+    "discardTop": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "incomeLevels": [
+     1,
+     -3,
+     2,
+     1
+    ]
+   },
+   "hints": [],
+   "blocked": {}
+  },
+  "score": {
+   "links": [
+    {
+     "id": "coalbrookdale~shrewsbury",
+     "owner": 1,
+     "vp": 5
+    },
+    {
+     "id": "oxford~redditch",
+     "owner": 2,
+     "vp": 3
+    },
+    {
+     "id": "derby~nottingham",
+     "owner": 0,
+     "vp": 3
+    },
+    {
+     "id": "gloucester~redditch",
+     "owner": 2,
+     "vp": 3
+    },
+    {
+     "id": "coalbrookdale~kidderminster",
+     "owner": 1,
+     "vp": 3
+    },
+    {
+     "id": "coalbrookdale~wolverhampton",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "belper~derby",
+     "owner": 0,
+     "vp": 1
+    },
+    {
+     "id": "birmingham~coventry",
+     "owner": 2,
+     "vp": 6
+    },
+    {
+     "id": "burton-on-trent~derby",
+     "owner": 0,
+     "vp": 1
+    },
+    {
+     "id": "gloucester~worcester",
+     "owner": 2,
+     "vp": 2
+    },
+    {
+     "id": "nuneaton~tamworth",
+     "owner": 1,
+     "vp": 0
+    },
+    {
+     "id": "stafford~stone",
+     "owner": 3,
+     "vp": 0
+    },
+    {
+     "id": "dudley~wolverhampton",
+     "owner": 3,
+     "vp": 0
+    },
+    {
+     "id": "birmingham~dudley",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "birmingham~oxford",
+     "owner": 2,
+     "vp": 5
+    },
+    {
+     "id": "burton-on-trent~walsall",
+     "owner": 0,
+     "vp": 0
+    },
+    {
+     "id": "birmingham~tamworth",
+     "owner": 1,
+     "vp": 3
+    },
+    {
+     "id": "birmingham~walsall",
+     "owner": 0,
+     "vp": 3
+    },
+    {
+     "id": "cannock~walsall",
+     "owner": 0,
+     "vp": 0
+    },
+    {
+     "id": "birmingham~worcester",
+     "owner": 3,
+     "vp": 3
+    }
+   ],
+   "tiles": [
+    {
+     "loc": "derby",
+     "slot": 2,
+     "owner": 0,
+     "industry": "iron",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "birmingham",
+     "slot": 1,
+     "owner": 2,
+     "industry": "manufacturer",
+     "level": 1,
+     "vp": 3
+    },
+    {
+     "loc": "birmingham",
+     "slot": 2,
+     "owner": 1,
+     "industry": "iron",
+     "level": 4,
+     "vp": 9
+    },
+    {
+     "loc": "coalbrookdale",
+     "slot": 1,
+     "owner": 1,
+     "industry": "iron",
+     "level": 1,
+     "vp": 3
+    },
+    {
+     "loc": "coalbrookdale",
+     "slot": 2,
+     "owner": 3,
+     "industry": "coal",
+     "level": 1,
+     "vp": 1
+    },
+    {
+     "loc": "coventry",
+     "slot": 1,
+     "owner": 2,
+     "industry": "coal",
+     "level": 1,
+     "vp": 1
+    },
+    {
+     "loc": "coventry",
+     "slot": 2,
+     "owner": 0,
+     "industry": "iron",
+     "level": 1,
+     "vp": 3
+    },
+    {
+     "loc": "redditch",
+     "slot": 1,
+     "owner": 3,
+     "industry": "iron",
+     "level": 1,
+     "vp": 3
+    }
+   ],
+   "per": [
+    {
+     "links": 8,
+     "tiles": 8
+    },
+    {
+     "links": 11,
+     "tiles": 12
+    },
+    {
+     "links": 19,
+     "tiles": 4
+    },
+    {
+     "links": 9,
+     "tiles": 4
+    }
+   ],
+   "removed": [
+    {
+     "loc": "stone",
+     "slot": 0,
+     "owner": 3,
+     "industry": "brewery",
+     "flipped": false
+    },
+    {
+     "loc": "stone",
+     "slot": 1,
+     "owner": 0,
+     "industry": "coal",
+     "flipped": false
+    },
+    {
+     "loc": "uttoxeter",
+     "slot": 0,
+     "owner": 0,
+     "industry": "brewery",
+     "flipped": false
+    },
+    {
+     "loc": "uttoxeter",
+     "slot": 1,
+     "owner": 2,
+     "industry": "brewery",
+     "flipped": false
+    },
+    {
+     "loc": "birmingham",
+     "slot": 1,
+     "owner": 2,
+     "industry": "manufacturer",
+     "flipped": true
+    },
+    {
+     "loc": "coalbrookdale",
+     "slot": 1,
+     "owner": 1,
+     "industry": "iron",
+     "flipped": true
+    },
+    {
+     "loc": "coalbrookdale",
+     "slot": 2,
+     "owner": 3,
+     "industry": "coal",
+     "flipped": true
+    },
+    {
+     "loc": "coventry",
+     "slot": 1,
+     "owner": 2,
+     "industry": "coal",
+     "flipped": true
+    },
+    {
+     "loc": "coventry",
+     "slot": 2,
+     "owner": 0,
+     "industry": "iron",
+     "flipped": true
+    },
+    {
+     "loc": "nuneaton",
+     "slot": 0,
+     "owner": 1,
+     "industry": "brewery",
+     "flipped": false
+    },
+    {
+     "loc": "redditch",
+     "slot": 1,
+     "owner": 3,
+     "industry": "iron",
+     "flipped": true
+    }
+   ],
+   "income": [
+    1,
+    -3,
+    2,
+    1
+   ]
+  }
+ },
+ "final": {
+  "before": {
+   "state": {
+    "players": 4,
+    "era": "rail",
+    "round": 8,
+    "order": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "turn": 3,
+    "actionsLeft": 1,
+    "deck": [],
+    "hands": [
+     [],
+     [],
+     [],
+     [
+      5
+     ]
+    ],
+    "discards": [
+     [
+      63,
+      30,
+      57,
+      55,
+      42,
+      39,
+      21,
+      37,
+      45,
+      14,
+      40,
+      44,
+      20,
+      61,
+      0,
+      50
+     ],
+     [
+      48,
+      46,
+      16,
+      4,
+      29,
+      59,
+      22,
+      18,
+      13,
+      53,
+      12,
+      52,
+      47,
+      34,
+      28,
+      9
+     ],
+     [
+      15,
+      10,
+      51,
+      1,
+      49,
+      31,
+      62,
+      54,
+      24,
+      38,
+      41,
+      60,
+      56,
+      17,
+      58,
+      6
+     ],
+     [
+      33,
+      3,
+      11,
+      25,
+      43,
+      2,
+      19,
+      32,
+      26,
+      7,
+      27,
+      35,
+      36,
+      8,
+      23
+     ]
+    ],
+    "facedown": [
+     [],
+     [],
+     [],
+     []
+    ],
+    "money": [
+     122,
+     90,
+     127,
+     73
+    ],
+    "income": [
+     4,
+     14,
+     20,
+     26
+    ],
+    "vp": [
+     19,
+     26,
+     23,
+     13
+    ],
+    "spent": [
+     6,
+     19,
+     0,
+     0
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 3,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 6
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 1,
+      "coal": 4,
+      "iron": 3,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 6,
+      "iron": 2,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 4,
+       "flipped": false,
+       "cubes": 5
+      }
+     ],
+     "stoke-on-trent": [
+      null,
+      {
+       "owner": 1,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "stone": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "uttoxeter": [
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 0
+      }
+     ],
+     "burton-on-trent": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "birmingham": [
+      null,
+      {
+       "owner": 1,
+       "industry": "manufacturer",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      {
+       "owner": 2,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "coalbrookdale": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      null
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      {
+       "owner": 0,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "nuneaton": [
+      null,
+      {
+       "owner": 0,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {
+     "oxford~redditch": 2,
+     "birmingham~oxford": 1,
+     "birmingham~redditch": 1,
+     "gloucester~redditch": 1,
+     "dudley~wolverhampton": 3,
+     "birmingham~dudley": 3,
+     "derby~nottingham": 0,
+     "burton-on-trent~derby": 3,
+     "burton-on-trent~cannock": 3,
+     "derby~uttoxeter": 0,
+     "cannock~stafford": 2,
+     "belper~derby": 3,
+     "cannock~wolverhampton": 3,
+     "stone~uttoxeter": 2,
+     "cannock~walsall": 2,
+     "cannock~farm-cannock": 2,
+     "birmingham~walsall": 3,
+     "burton-on-trent~stone": 3,
+     "burton-on-trent~tamworth": 3,
+     "birmingham~nuneaton": 0,
+     "birmingham~tamworth": 0,
+     "birmingham~coventry": 3,
+     "stafford~stone": 3,
+     "stoke-on-trent~stone": 3,
+     "stoke-on-trent~warrington": 3,
+     "coventry~nuneaton": 0,
+     "walsall~wolverhampton": 2,
+     "tamworth~walsall": 2,
+     "birmingham~worcester": 0,
+     "gloucester~worcester": 1,
+     "coalbrookdale~shrewsbury": 1
+    },
+    "coal": 10,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       false,
+       false
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 3,
+     "type": "loan",
+     "cards": [
+      23
+     ]
+    },
+    "seq": 123,
+    "timeouts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "outcome": null
+   },
+   "view": {
+    "players": 4,
+    "era": "rail",
+    "round": 8,
+    "order": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "turn": 3,
+    "actionsLeft": 1,
+    "money": [
+     122,
+     90,
+     127,
+     73
+    ],
+    "income": [
+     4,
+     14,
+     20,
+     26
+    ],
+    "vp": [
+     19,
+     26,
+     23,
+     13
+    ],
+    "spent": [
+     6,
+     19,
+     0,
+     0
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 3,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 6
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 1,
+      "coal": 4,
+      "iron": 3,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 6,
+      "iron": 2,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 4,
+       "flipped": false,
+       "cubes": 5
+      }
+     ],
+     "stoke-on-trent": [
+      null,
+      {
+       "owner": 1,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "stone": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "uttoxeter": [
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 0
+      }
+     ],
+     "burton-on-trent": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "birmingham": [
+      null,
+      {
+       "owner": 1,
+       "industry": "manufacturer",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      {
+       "owner": 2,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "coalbrookdale": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      null
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      {
+       "owner": 0,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "nuneaton": [
+      null,
+      {
+       "owner": 0,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {
+     "oxford~redditch": 2,
+     "birmingham~oxford": 1,
+     "birmingham~redditch": 1,
+     "gloucester~redditch": 1,
+     "dudley~wolverhampton": 3,
+     "birmingham~dudley": 3,
+     "derby~nottingham": 0,
+     "burton-on-trent~derby": 3,
+     "burton-on-trent~cannock": 3,
+     "derby~uttoxeter": 0,
+     "cannock~stafford": 2,
+     "belper~derby": 3,
+     "cannock~wolverhampton": 3,
+     "stone~uttoxeter": 2,
+     "cannock~walsall": 2,
+     "cannock~farm-cannock": 2,
+     "birmingham~walsall": 3,
+     "burton-on-trent~stone": 3,
+     "burton-on-trent~tamworth": 3,
+     "birmingham~nuneaton": 0,
+     "birmingham~tamworth": 0,
+     "birmingham~coventry": 3,
+     "stafford~stone": 3,
+     "stoke-on-trent~stone": 3,
+     "stoke-on-trent~warrington": 3,
+     "coventry~nuneaton": 0,
+     "walsall~wolverhampton": 2,
+     "tamworth~walsall": 2,
+     "birmingham~worcester": 0,
+     "gloucester~worcester": 1,
+     "coalbrookdale~shrewsbury": 1
+    },
+    "coal": 10,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       false,
+       false
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 3,
+     "type": "loan",
+     "cards": [
+      23
+     ]
+    },
+    "seq": 123,
+    "outcome": null,
+    "current": 3,
+    "deckCount": 0,
+    "handCounts": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "hand": [],
+    "discardTop": [
+     50,
+     9,
+     6,
+     23
+    ],
+    "incomeLevels": [
+     -6,
+     2,
+     5,
+     8
+    ]
+   },
+   "hints": [],
+   "blocked": {}
+  },
+  "after": {
+   "state": {
+    "players": 4,
+    "era": "rail",
+    "round": 8,
+    "order": [
+     2,
+     3,
+     0,
+     1
+    ],
+    "turn": 0,
+    "actionsLeft": 0,
+    "deck": [],
+    "hands": [
+     [],
+     [],
+     [],
+     []
+    ],
+    "discards": [
+     [
+      63,
+      30,
+      57,
+      55,
+      42,
+      39,
+      21,
+      37,
+      45,
+      14,
+      40,
+      44,
+      20,
+      61,
+      0,
+      50
+     ],
+     [
+      48,
+      46,
+      16,
+      4,
+      29,
+      59,
+      22,
+      18,
+      13,
+      53,
+      12,
+      52,
+      47,
+      34,
+      28,
+      9
+     ],
+     [
+      15,
+      10,
+      51,
+      1,
+      49,
+      31,
+      62,
+      54,
+      24,
+      38,
+      41,
+      60,
+      56,
+      17,
+      58,
+      6
+     ],
+     [
+      33,
+      3,
+      11,
+      25,
+      43,
+      2,
+      19,
+      32,
+      26,
+      7,
+      27,
+      35,
+      36,
+      8,
+      23,
+      5
+     ]
+    ],
+    "facedown": [
+     [],
+     [],
+     [],
+     []
+    ],
+    "money": [
+     122,
+     90,
+     127,
+     73
+    ],
+    "income": [
+     4,
+     14,
+     20,
+     26
+    ],
+    "vp": [
+     66,
+     80,
+     69,
+     92
+    ],
+    "spent": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 3,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 6
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 1,
+      "coal": 4,
+      "iron": 3,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 6,
+      "iron": 2,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 4,
+       "flipped": false,
+       "cubes": 5
+      }
+     ],
+     "stoke-on-trent": [
+      null,
+      {
+       "owner": 1,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "stone": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "uttoxeter": [
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 0
+      }
+     ],
+     "burton-on-trent": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "birmingham": [
+      null,
+      {
+       "owner": 1,
+       "industry": "manufacturer",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      {
+       "owner": 2,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "coalbrookdale": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      null
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      {
+       "owner": 0,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "nuneaton": [
+      null,
+      {
+       "owner": 0,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {},
+    "coal": 10,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       false,
+       false
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 3,
+     "type": "pass",
+     "cards": [
+      5
+     ]
+    },
+    "seq": 124,
+    "timeouts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "outcome": {
+     "placements": [
+      {
+       "seat": 3,
+       "place": 1,
+       "score": 92
+      },
+      {
+       "seat": 1,
+       "place": 2,
+       "score": 80
+      },
+      {
+       "seat": 2,
+       "place": 3,
+       "score": 69
+      },
+      {
+       "seat": 0,
+       "place": 4,
+       "score": 66
+      }
+     ],
+     "reason": "score"
+    }
+   },
+   "view": {
+    "players": 4,
+    "era": "rail",
+    "round": 8,
+    "order": [
+     2,
+     3,
+     0,
+     1
+    ],
+    "turn": 0,
+    "actionsLeft": 0,
+    "money": [
+     122,
+     90,
+     127,
+     73
+    ],
+    "income": [
+     4,
+     14,
+     20,
+     26
+    ],
+    "vp": [
+     66,
+     80,
+     69,
+     92
+    ],
+    "spent": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "mat": [
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 1
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 3,
+      "pottery": 1,
+      "coal": 3,
+      "iron": 4,
+      "brewery": 6
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 2,
+      "pottery": 1,
+      "coal": 4,
+      "iron": 3,
+      "brewery": 4
+     },
+     {
+      "cotton": 0,
+      "manufacturer": 1,
+      "pottery": 0,
+      "coal": 6,
+      "iron": 2,
+      "brewery": 4
+     }
+    ],
+    "board": {
+     "cannock": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "tamworth": [
+      null,
+      null
+     ],
+     "farm-cannock": [
+      null
+     ],
+     "belper": [
+      null,
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "derby": [
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null,
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "leek": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 4,
+       "flipped": false,
+       "cubes": 5
+      }
+     ],
+     "stoke-on-trent": [
+      null,
+      {
+       "owner": 1,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "stone": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "uttoxeter": [
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "stafford": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": false,
+       "cubes": 0
+      }
+     ],
+     "burton-on-trent": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "brewery",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "birmingham": [
+      null,
+      {
+       "owner": 1,
+       "industry": "manufacturer",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 1,
+       "industry": "iron",
+       "level": 4,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "walsall": [
+      {
+       "owner": 2,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "wolverhampton": [
+      null,
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "coalbrookdale": [
+      {
+       "owner": 1,
+       "industry": "brewery",
+       "level": 3,
+       "flipped": false,
+       "cubes": 1
+      },
+      null,
+      null
+     ],
+     "dudley": [
+      {
+       "owner": 3,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 0,
+       "industry": "iron",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "kidderminster": [
+      null,
+      null
+     ],
+     "worcester": [
+      null,
+      null
+     ],
+     "coventry": [
+      {
+       "owner": 0,
+       "industry": "pottery",
+       "level": 1,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 3,
+       "flipped": true,
+       "cubes": 0
+      },
+      {
+       "owner": 3,
+       "industry": "iron",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "nuneaton": [
+      null,
+      {
+       "owner": 0,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      }
+     ],
+     "redditch": [
+      {
+       "owner": 2,
+       "industry": "coal",
+       "level": 2,
+       "flipped": true,
+       "cubes": 0
+      },
+      null
+     ],
+     "farm-worcester": [
+      null
+     ]
+    },
+    "links": {},
+    "coal": 10,
+    "iron": 9,
+    "merchants": {
+     "oxford": {
+      "tiles": [
+       "m2-blank-2",
+       "m4-cotton"
+      ],
+      "beer": [
+       false,
+       true
+      ]
+     },
+     "shrewsbury": {
+      "tiles": [
+       "m2-blank-1"
+      ],
+      "beer": [
+       false
+      ]
+     },
+     "gloucester": {
+      "tiles": [
+       "m2-manufacturer",
+       "m3-blank"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "warrington": {
+      "tiles": [
+       "m2-cotton",
+       "m2-all"
+      ],
+      "beer": [
+       true,
+       false
+      ]
+     },
+     "nottingham": {
+      "tiles": [
+       "m4-manufacturer",
+       "m3-pottery"
+      ],
+      "beer": [
+       false,
+       false
+      ]
+     }
+    },
+    "wild": {
+     "location": 4,
+     "industry": 4
+    },
+    "last": {
+     "seat": 3,
+     "type": "pass",
+     "cards": [
+      5
+     ]
+    },
+    "seq": 124,
+    "outcome": {
+     "placements": [
+      {
+       "seat": 3,
+       "place": 1,
+       "score": 92
+      },
+      {
+       "seat": 1,
+       "place": 2,
+       "score": 80
+      },
+      {
+       "seat": 2,
+       "place": 3,
+       "score": 69
+      },
+      {
+       "seat": 0,
+       "place": 4,
+       "score": 66
+      }
+     ],
+     "reason": "score"
+    },
+    "current": null,
+    "deckCount": 0,
+    "handCounts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "hand": [],
+    "discardTop": [
+     50,
+     9,
+     6,
+     5
+    ],
+    "incomeLevels": [
+     -6,
+     2,
+     5,
+     8
+    ]
+   },
+   "hints": [],
+   "blocked": {}
+  },
+  "score": {
+   "links": [
+    {
+     "id": "oxford~redditch",
+     "owner": 2,
+     "vp": 3
+    },
+    {
+     "id": "birmingham~oxford",
+     "owner": 1,
+     "vp": 4
+    },
+    {
+     "id": "birmingham~redditch",
+     "owner": 1,
+     "vp": 3
+    },
+    {
+     "id": "gloucester~redditch",
+     "owner": 1,
+     "vp": 3
+    },
+    {
+     "id": "dudley~wolverhampton",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "birmingham~dudley",
+     "owner": 3,
+     "vp": 4
+    },
+    {
+     "id": "derby~nottingham",
+     "owner": 0,
+     "vp": 5
+    },
+    {
+     "id": "burton-on-trent~derby",
+     "owner": 3,
+     "vp": 6
+    },
+    {
+     "id": "burton-on-trent~cannock",
+     "owner": 3,
+     "vp": 5
+    },
+    {
+     "id": "derby~uttoxeter",
+     "owner": 0,
+     "vp": 7
+    },
+    {
+     "id": "cannock~stafford",
+     "owner": 2,
+     "vp": 4
+    },
+    {
+     "id": "belper~derby",
+     "owner": 3,
+     "vp": 4
+    },
+    {
+     "id": "cannock~wolverhampton",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "stone~uttoxeter",
+     "owner": 2,
+     "vp": 7
+    },
+    {
+     "id": "cannock~walsall",
+     "owner": 2,
+     "vp": 3
+    },
+    {
+     "id": "cannock~farm-cannock",
+     "owner": 2,
+     "vp": 2
+    },
+    {
+     "id": "birmingham~walsall",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "burton-on-trent~stone",
+     "owner": 3,
+     "vp": 6
+    },
+    {
+     "id": "burton-on-trent~tamworth",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "birmingham~nuneaton",
+     "owner": 0,
+     "vp": 3
+    },
+    {
+     "id": "birmingham~tamworth",
+     "owner": 0,
+     "vp": 2
+    },
+    {
+     "id": "birmingham~coventry",
+     "owner": 3,
+     "vp": 5
+    },
+    {
+     "id": "stafford~stone",
+     "owner": 3,
+     "vp": 5
+    },
+    {
+     "id": "stoke-on-trent~stone",
+     "owner": 3,
+     "vp": 4
+    },
+    {
+     "id": "stoke-on-trent~warrington",
+     "owner": 3,
+     "vp": 3
+    },
+    {
+     "id": "coventry~nuneaton",
+     "owner": 0,
+     "vp": 4
+    },
+    {
+     "id": "walsall~wolverhampton",
+     "owner": 2,
+     "vp": 2
+    },
+    {
+     "id": "tamworth~walsall",
+     "owner": 2,
+     "vp": 1
+    },
+    {
+     "id": "birmingham~worcester",
+     "owner": 0,
+     "vp": 2
+    },
+    {
+     "id": "gloucester~worcester",
+     "owner": 1,
+     "vp": 2
+    },
+    {
+     "id": "coalbrookdale~shrewsbury",
+     "owner": 1,
+     "vp": 2
+    }
+   ],
+   "tiles": [
+    {
+     "loc": "cannock",
+     "slot": 0,
+     "owner": 3,
+     "industry": "coal",
+     "level": 3,
+     "vp": 3
+    },
+    {
+     "loc": "cannock",
+     "slot": 1,
+     "owner": 2,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    },
+    {
+     "loc": "belper",
+     "slot": 1,
+     "owner": 1,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    },
+    {
+     "loc": "derby",
+     "slot": 0,
+     "owner": 3,
+     "industry": "brewery",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "derby",
+     "slot": 2,
+     "owner": 0,
+     "industry": "iron",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "stoke-on-trent",
+     "slot": 1,
+     "owner": 1,
+     "industry": "pottery",
+     "level": 1,
+     "vp": 10
+    },
+    {
+     "loc": "stone",
+     "slot": 0,
+     "owner": 1,
+     "industry": "brewery",
+     "level": 3,
+     "vp": 7
+    },
+    {
+     "loc": "stone",
+     "slot": 1,
+     "owner": 1,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    },
+    {
+     "loc": "uttoxeter",
+     "slot": 0,
+     "owner": 2,
+     "industry": "brewery",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "uttoxeter",
+     "slot": 1,
+     "owner": 2,
+     "industry": "brewery",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "stafford",
+     "slot": 0,
+     "owner": 1,
+     "industry": "brewery",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "burton-on-trent",
+     "slot": 0,
+     "owner": 3,
+     "industry": "coal",
+     "level": 3,
+     "vp": 3
+    },
+    {
+     "loc": "burton-on-trent",
+     "slot": 1,
+     "owner": 3,
+     "industry": "brewery",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "birmingham",
+     "slot": 1,
+     "owner": 1,
+     "industry": "manufacturer",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "birmingham",
+     "slot": 2,
+     "owner": 1,
+     "industry": "iron",
+     "level": 4,
+     "vp": 9
+    },
+    {
+     "loc": "walsall",
+     "slot": 0,
+     "owner": 2,
+     "industry": "iron",
+     "level": 3,
+     "vp": 7
+    },
+    {
+     "loc": "wolverhampton",
+     "slot": 1,
+     "owner": 3,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    },
+    {
+     "loc": "dudley",
+     "slot": 0,
+     "owner": 3,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    },
+    {
+     "loc": "dudley",
+     "slot": 1,
+     "owner": 0,
+     "industry": "iron",
+     "level": 3,
+     "vp": 7
+    },
+    {
+     "loc": "coventry",
+     "slot": 0,
+     "owner": 0,
+     "industry": "pottery",
+     "level": 1,
+     "vp": 10
+    },
+    {
+     "loc": "coventry",
+     "slot": 1,
+     "owner": 2,
+     "industry": "coal",
+     "level": 3,
+     "vp": 3
+    },
+    {
+     "loc": "coventry",
+     "slot": 2,
+     "owner": 3,
+     "industry": "iron",
+     "level": 2,
+     "vp": 5
+    },
+    {
+     "loc": "nuneaton",
+     "slot": 1,
+     "owner": 0,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    },
+    {
+     "loc": "redditch",
+     "slot": 0,
+     "owner": 2,
+     "industry": "coal",
+     "level": 2,
+     "vp": 2
+    }
+   ],
+   "per": [
+    {
+     "links": 23,
+     "tiles": 24
+    },
+    {
+     "links": 14,
+     "tiles": 40
+    },
+    {
+     "links": 22,
+     "tiles": 24
+    },
+    {
+     "links": 54,
+     "tiles": 25
+    }
+   ],
+   "removed": [
+    {
+     "loc": "stoke-on-trent",
+     "slot": 1,
+     "owner": 1,
+     "industry": "pottery",
+     "flipped": true
+    },
+    {
+     "loc": "stafford",
+     "slot": 1,
+     "owner": 2,
+     "industry": "pottery",
+     "flipped": false
+    },
+    {
+     "loc": "coventry",
+     "slot": 0,
+     "owner": 0,
+     "industry": "pottery",
+     "flipped": true
+    }
+   ],
+   "income": [
+    -6,
+    2,
+    5,
+    8
+   ]
+  },
+  "placements": [
+   {
+    "seat": 3,
+    "place": 1,
+    "score": 92
+   },
+   {
+    "seat": 1,
+    "place": 2,
+    "score": 80
+   },
+   {
+    "seat": 2,
+    "place": 3,
+    "score": 69
+   },
+   {
+    "seat": 0,
+    "place": 4,
+    "score": 66
+   }
+  ]
+ },
+ "tutorial": {
+  "state": {
+   "players": 2,
+   "era": "rail",
+   "round": 7,
+   "order": [
+    0,
+    1
+   ],
+   "turn": 0,
+   "actionsLeft": 1,
+   "deck": [],
+   "hands": [
+    [
+     21,
+     22,
+     37
+    ],
+    [
+     30
+    ]
+   ],
+   "discards": [
+    [
+     0,
+     1,
+     2,
+     36
+    ],
+    [
+     17,
+     18,
+     19
+    ]
+   ],
+   "facedown": [
+    [],
+    []
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "income": [
+    20,
+    30
+   ],
+   "vp": [
+    52,
+    55
+   ],
+   "spent": [
+    8,
+    0
+   ],
+   "mat": [
+    {
+     "cotton": 6,
+     "manufacturer": 1,
+     "pottery": 1,
+     "coal": 3,
+     "iron": 2,
+     "brewery": 2
+    },
+    {
+     "cotton": 3,
+     "manufacturer": 1,
+     "pottery": 1,
+     "coal": 5,
+     "iron": 2,
+     "brewery": 3
+    }
+   ],
+   "board": {
+    "cannock": [
+     null,
+     null
+    ],
+    "tamworth": [
+     null,
+     null
+    ],
+    "farm-cannock": [
+     null
+    ],
+    "belper": [
+     null,
+     null,
+     null
+    ],
+    "derby": [
+     null,
+     null,
+     null
+    ],
+    "leek": [
+     null,
+     null
+    ],
+    "stoke-on-trent": [
+     null,
+     null,
+     null
+    ],
+    "stone": [
+     null,
+     null
+    ],
+    "uttoxeter": [
+     null,
+     null
+    ],
+    "stafford": [
+     null,
+     null
+    ],
+    "burton-on-trent": [
+     null,
+     null
+    ],
+    "birmingham": [
+     {
+      "owner": 0,
+      "industry": "cotton",
+      "level": 3,
+      "cubes": 0,
+      "flipped": false
+     },
+     null,
+     null,
+     null
+    ],
+    "walsall": [
+     null,
+     null
+    ],
+    "wolverhampton": [
+     null,
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "cubes": 1,
+      "flipped": false
+     }
+    ],
+    "coalbrookdale": [
+     null,
+     null,
+     null
+    ],
+    "dudley": [
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "cubes": 0,
+      "flipped": true
+     },
+     {
+      "owner": 1,
+      "industry": "iron",
+      "level": 2,
+      "cubes": 0,
+      "flipped": true
+     }
+    ],
+    "kidderminster": [
+     null,
+     null
+    ],
+    "worcester": [
+     null,
+     null
+    ],
+    "coventry": [
+     null,
+     null,
+     null
+    ],
+    "nuneaton": [
+     null,
+     null
+    ],
+    "redditch": [
+     null,
+     null
+    ],
+    "farm-worcester": [
+     null
+    ]
+   },
+   "links": {
+    "birmingham~oxford": 0
+   },
+   "coal": 9,
+   "iron": 6,
+   "merchants": {
+    "oxford": {
+     "tiles": [
+      "m2-all",
+      "m2-manufacturer"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    },
+    "shrewsbury": {
+     "tiles": [
+      "m2-blank-2"
+     ],
+     "beer": [
+      false
+     ]
+    },
+    "gloucester": {
+     "tiles": [
+      "m2-cotton",
+      "m2-blank-1"
+     ],
+     "beer": [
+      false,
+      false
+     ]
+    },
+    "warrington": {
+     "tiles": [
+      null,
+      null
+     ],
+     "beer": [
+      false,
+      false
+     ]
+    },
+    "nottingham": {
+     "tiles": [
+      null,
+      null
+     ],
+     "beer": [
+      false,
+      false
+     ]
+    }
+   },
+   "wild": {
+    "location": 4,
+    "industry": 4
+   },
+   "last": {
+    "seat": 0,
+    "type": "network",
+    "cards": [
+     36
+    ],
+    "links": [
+     "birmingham~oxford"
+    ]
+   },
+   "seq": 1,
+   "timeouts": [
+    0,
+    0
+   ],
+   "outcome": null
+  },
+  "view": {
+   "players": 2,
+   "era": "rail",
+   "round": 7,
+   "order": [
+    0,
+    1
+   ],
+   "turn": 0,
+   "actionsLeft": 1,
+   "money": [
+    12,
+    12
+   ],
+   "income": [
+    20,
+    30
+   ],
+   "vp": [
+    52,
+    55
+   ],
+   "spent": [
+    8,
+    0
+   ],
+   "mat": [
+    {
+     "cotton": 6,
+     "manufacturer": 1,
+     "pottery": 1,
+     "coal": 3,
+     "iron": 2,
+     "brewery": 2
+    },
+    {
+     "cotton": 3,
+     "manufacturer": 1,
+     "pottery": 1,
+     "coal": 5,
+     "iron": 2,
+     "brewery": 3
+    }
+   ],
+   "board": {
+    "cannock": [
+     null,
+     null
+    ],
+    "tamworth": [
+     null,
+     null
+    ],
+    "farm-cannock": [
+     null
+    ],
+    "belper": [
+     null,
+     null,
+     null
+    ],
+    "derby": [
+     null,
+     null,
+     null
+    ],
+    "leek": [
+     null,
+     null
+    ],
+    "stoke-on-trent": [
+     null,
+     null,
+     null
+    ],
+    "stone": [
+     null,
+     null
+    ],
+    "uttoxeter": [
+     null,
+     null
+    ],
+    "stafford": [
+     null,
+     null
+    ],
+    "burton-on-trent": [
+     null,
+     null
+    ],
+    "birmingham": [
+     {
+      "owner": 0,
+      "industry": "cotton",
+      "level": 3,
+      "cubes": 0,
+      "flipped": false
+     },
+     null,
+     null,
+     null
+    ],
+    "walsall": [
+     null,
+     null
+    ],
+    "wolverhampton": [
+     null,
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "cubes": 1,
+      "flipped": false
+     }
+    ],
+    "coalbrookdale": [
+     null,
+     null,
+     null
+    ],
+    "dudley": [
+     {
+      "owner": 1,
+      "industry": "coal",
+      "level": 2,
+      "cubes": 0,
+      "flipped": true
+     },
+     {
+      "owner": 1,
+      "industry": "iron",
+      "level": 2,
+      "cubes": 0,
+      "flipped": true
+     }
+    ],
+    "kidderminster": [
+     null,
+     null
+    ],
+    "worcester": [
+     null,
+     null
+    ],
+    "coventry": [
+     null,
+     null,
+     null
+    ],
+    "nuneaton": [
+     null,
+     null
+    ],
+    "redditch": [
+     null,
+     null
+    ],
+    "farm-worcester": [
+     null
+    ]
+   },
+   "links": {
+    "birmingham~oxford": 0
+   },
+   "coal": 9,
+   "iron": 6,
+   "merchants": {
+    "oxford": {
+     "tiles": [
+      "m2-all",
+      "m2-manufacturer"
+     ],
+     "beer": [
+      true,
+      true
+     ]
+    },
+    "shrewsbury": {
+     "tiles": [
+      "m2-blank-2"
+     ],
+     "beer": [
+      false
+     ]
+    },
+    "gloucester": {
+     "tiles": [
+      "m2-cotton",
+      "m2-blank-1"
+     ],
+     "beer": [
+      false,
+      false
+     ]
+    },
+    "warrington": {
+     "tiles": [
+      null,
+      null
+     ],
+     "beer": [
+      false,
+      false
+     ]
+    },
+    "nottingham": {
+     "tiles": [
+      null,
+      null
+     ],
+     "beer": [
+      false,
+      false
+     ]
+    }
+   },
+   "wild": {
+    "location": 4,
+    "industry": 4
+   },
+   "last": {
+    "seat": 0,
+    "type": "network",
+    "cards": [
+     36
+    ],
+    "links": [
+     "birmingham~oxford"
+    ]
+   },
+   "seq": 1,
+   "outcome": null,
+   "current": 0,
+   "deckCount": 0,
+   "handCounts": [
+    3,
+    1
+   ],
+   "hand": [
+    21,
+    22,
+    37
+   ],
+   "discardTop": [
+    36,
+    19
+   ],
+   "incomeLevels": [
+    5,
+    10
+   ]
+  },
+  "hints": [
+   {
+    "type": "build",
+    "industry": "iron",
+    "loc": "birmingham",
+    "slot": 2,
+    "cards": [
+     21,
+     22
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 12,
+     "coalMarket": -1,
+     "ironMarket": 4,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "birmingham",
+      "slot": 2,
+      "owner": 0,
+      "industry": "iron",
+      "level": 3,
+      "flipped": false,
+      "cubes": 1
+     },
+     "soldToMarket": {
+      "coal": 0,
+      "iron": 4
+     }
+    }
+   },
+   {
+    "type": "build",
+    "industry": "coal",
+    "loc": "coventry",
+    "slot": 1,
+    "cards": [
+     37
+    ],
+    "cost": {
+     "money": -11,
+     "spent": 11,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": [],
+     "built": {
+      "loc": "coventry",
+      "slot": 1,
+      "owner": 0,
+      "industry": "coal",
+      "level": 3,
+      "flipped": false,
+      "cubes": 4
+     }
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~tamworth"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~walsall"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~coventry"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~dudley"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~nuneaton"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~redditch"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "birmingham~worcester"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "network",
+    "links": [
+     "oxford~redditch"
+    ],
+    "cost": {
+     "money": -8,
+     "spent": 8,
+     "coalMarket": -1,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "cotton"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "pottery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "coal"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "iron"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "cotton",
+     "brewery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "manufacturer"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "pottery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "coal"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "iron"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "manufacturer",
+     "brewery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery",
+     "coal"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery",
+     "iron"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "pottery",
+     "brewery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "coal"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "iron"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "coal",
+     "brewery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "iron"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "iron",
+     "iron"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "iron",
+     "brewery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "brewery"
+    ],
+    "cost": {
+     "money": -3,
+     "spent": 3,
+     "coalMarket": 0,
+     "ironMarket": -1,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "develop",
+    "industries": [
+     "brewery",
+     "brewery"
+    ],
+    "cost": {
+     "money": -6,
+     "spent": 6,
+     "coalMarket": 0,
+     "ironMarket": -2,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "sell",
+    "loc": "birmingham",
+    "slot": 0,
+    "merchant": "oxford",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 5,
+     "incomeLevel": 3,
+     "vp": 0,
+     "from": [],
+     "flipped": [
+      {
+       "loc": "birmingham",
+       "slot": 0,
+       "owner": 0,
+       "industry": "cotton",
+       "level": 3
+      }
+     ],
+     "beerMerchant": [
+      {
+       "merchant": "oxford",
+       "space": 0
+      }
+     ]
+    }
+   },
+   {
+    "type": "loan",
+    "cost": {
+     "money": 30,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": -6,
+     "incomeLevel": -3,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "scout",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   },
+   {
+    "type": "pass",
+    "cost": {
+     "money": 0,
+     "spent": 0,
+     "coalMarket": 0,
+     "ironMarket": 0,
+     "income": 0,
+     "incomeLevel": 0,
+     "vp": 0,
+     "from": [],
+     "flipped": [],
+     "beerMerchant": []
+    }
+   }
+  ],
+  "blocked": {},
+  "step": 2,
+  "steps": 4,
+  "instruction": "«فروش» را بزنید، کارخانهٔ پنبهٔ بیرمنگام → آکسفورد را تیک بزنید و کارت دوم «کاونتری» را دور بیندازید. فروش به تاجری که کالای شما را می‌خرد ۱ آبجو می‌خواهد؛ بشکهٔ آبجوی کنار همان تاجر را مصرف می‌کنید و پاداش آکسفورد (+۲ خانهٔ درآمد) را هم می‌گیرید. کاشی برمی‌گردد و درآمدتان ۳ خانه دیگر هم بالا می‌رود.",
+  "expected": {
+   "type": "sell",
+   "card": 37,
+   "sales": [
+    {
+     "loc": "birmingham",
+     "slot": 0,
+     "merchant": "oxford"
+    }
+   ]
+  },
+  "intro": "آخرین دو دور دورهٔ راه‌آهن است و دستهٔ کشیدنی تمام شده. شما ۵۲ امتیاز دارید و حریف ۵۵. در بیرمنگام یک کارخانهٔ پنبهٔ سطح ۳ (برنگشته) دارید، £۲۰ پول و درآمد ۵. در هر نوبت ۲ اقدام دارید و هر اقدام یک کارت را دور می‌اندازد. نقشه: بیرمنگام را با راه‌آهن به تاجر آکسفورد وصل کنید، پنبه را بفروشید، یک تولیدی بسازید و آن را هم بفروشید تا در امتیازشماری پایان بازی جلو بزنید."
+ }
+}

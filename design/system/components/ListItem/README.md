@@ -41,6 +41,6 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 h(B.Card,{flush:true}, h('div',{className:'bgv-list'},
   h(B.ListItem,{leading:h(B.Avatar,{initials:'س', status:'online'}), title:'سارا', sub:'در حال بازی آزول', trailing:h(B.Button,{size:'sm', variant:'primary'},'تماشا')}),
   h(B.ListItem,{icon:'history', title:'کاتان، برد', sub:'۱۰ امتیاز، ۲۱ مهر', trailing:h('b',{className:'bgv-num', style:{color:'var(--success)'}}, h('bdi',{dir:'ltr'},'+۱۹'))}),
-  h(B.ListItem,{leading:h(B.Coin,{}), title:'خرید ۲۰۰ سکه', sub:'۲۹٬۰۰۰ تومان', trailing:h(B.Badge,{tone:'success', icon:'check'},'موفق')})
+  h(B.ListItem,{leading:h(B.Coin,{}), title:'خرید ۲۰۰ سکه', sub:'۲۹,۰۰۰ تومان', trailing:h(B.Badge,{tone:'success', icon:'check'},'موفق')})
 ))
 ```

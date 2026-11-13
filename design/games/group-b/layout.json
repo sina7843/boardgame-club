@@ -1,0 +1,143 @@
+{
+ "note": "Shared frame geometry measured in px on the 1440×900 desktop frame and the 390×844 phone frame (x from the left edge; the UI is RTL, so the rail is on the right). Game boards inside the felt keep their own aspect ratio.",
+ "frame": "gc.mjs",
+ "desktop": {
+  "frame": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 900
+  },
+  "parts": {
+   ".bgv-gamebar": {
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 56
+   },
+   ".cx-rail": {
+    "x": 1060,
+    "y": 56,
+    "w": 380,
+    "h": 844
+   },
+   ".cx-status": {
+    "x": 1086,
+    "y": 82,
+    "w": 328,
+    "h": 48
+   },
+   ".cx-card": {
+    "x": 1072,
+    "y": 68,
+    "w": 356,
+    "h": 76
+   },
+   ".cx-actions": {
+    "x": 1072,
+    "y": 840,
+    "w": 356,
+    "h": 48
+   },
+   ".cx-felt": {
+    "x": 340,
+    "y": 56,
+    "w": 720,
+    "h": 844
+   },
+   ".gc-opps": {
+    "x": 356,
+    "y": 66,
+    "w": 688,
+    "h": 73
+   },
+   ".gc-table": {
+    "x": 356,
+    "y": 147,
+    "w": 688,
+    "h": 550
+   },
+   ".gc-me": {
+    "x": 356,
+    "y": 705,
+    "w": 688,
+    "h": 185
+   },
+   ".cx-pbar": {
+    "x": 356,
+    "y": 838,
+    "w": 688,
+    "h": 52
+   },
+   ".bgv-chat": {
+    "x": 0,
+    "y": 56,
+    "w": 339,
+    "h": 844
+   },
+   "aside": {
+    "x": 1060,
+    "y": 56,
+    "w": 380,
+    "h": 844
+   }
+  }
+ },
+ "phone": {
+  "frame": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844
+  },
+  "parts": {
+   ".bgv-gamebar": {
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 62
+   },
+   ".cx-pfelt": {
+    "x": 0,
+    "y": 62,
+    "w": 390,
+    "h": 700
+   },
+   ".gc-opps": {
+    "x": 0,
+    "y": 70,
+    "w": 390,
+    "h": 98
+   },
+   ".gc-table": {
+    "x": 0,
+    "y": 174,
+    "w": 390,
+    "h": 385
+   },
+   ".cx-pstat": {
+    "x": 10,
+    "y": 565,
+    "w": 370,
+    "h": 36
+   },
+   ".cx-pbar": {
+    "x": 0,
+    "y": 708,
+    "w": 390,
+    "h": 46
+   },
+   ".cx-pdock": {
+    "x": 0,
+    "y": 762,
+    "w": 390,
+    "h": 82
+   }
+  }
+ },
+ "rules": {
+  "touchTarget": "phone game controls get a 44px minimum hit area (::after), visual size unchanged",
+  "separator": "no «·» next to Persian digits; use .bgv-sep",
+  "digits": "Persian digits, no tabular-nums"
+ }
+}

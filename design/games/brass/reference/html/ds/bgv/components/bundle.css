@@ -1,0 +1,1328 @@
+/* بردگیم‌ورس — component styles. Every value comes from tokens.css; nothing here redefines a token.
+   Language (v2.0): «توکن چاپی» — printed game tokens. Pressables have a 2px ink frame and a hard offset shadow (lift on hover,
+   land on press); cards are printed boards (radius-lg, line + 3px hard edge); every shadow is hard, no blur;
+   the table is felt sunk into its rim. RTL-first: logical properties only. */
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+.bgv { font-family: var(--font-fa); font-size: 17px; line-height: 1.8; color: var(--text); background: var(--bg); direction: rtl; -webkit-font-smoothing: antialiased; }
+.bgv *, .bgv *::before, .bgv *::after { box-sizing: border-box; }
+.bgv :where(h1,h2,h3,h4,p,ul,ol,figure) { margin: 0; }
+.bgv :where(h1,h2,h3,h4) { color: var(--heading); text-wrap: balance; }
+.bgv :where(button,input,select,textarea) { font: inherit; color: inherit; }
+.bgv :where(a) { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+.bgv :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.bgv-felt :focus-visible, .bgv-hero :focus-visible { outline-color: var(--focus-on-felt); }
+.bgv-latin { font-family: var(--font-latin); }
+.bgv-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+.bgv-muted { color: var(--text-muted); }
+.bgv-sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.bgv-icon { inline-size: var(--icon-md); block-size: var(--icon-md); flex: none; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.bgv-icon--sm { inline-size: var(--icon-sm); block-size: var(--icon-sm); }
+.bgv-icon--lg { inline-size: var(--icon-lg); block-size: var(--icon-lg); }
+.bgv-stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.bgv-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.bgv-spacer { flex: 1; }
+.bgv-divider { block-size: 1px; background: var(--line); border: 0; margin: 0; }
+
+/* ── Button ───────────────────────────────────────────────────────── */
+/* ── Button (v2.0 «توکن چاپی») — ONE block. Every button is a printed game token: a 2px ink frame and a hard
+   offset shadow (no blur). Variants and containers only set variables; the mechanics are written once:
+   hover = the fill shifts and the token lifts 1px (pointer devices only) · press = the token lands on the table (moves down by its
+   shadow, keeps only its frame) · toggle on = landed + navy · disabled = lies flat, grey frame · focus = 2px ring · loading = spinner.
+   The shadow's height is reserved with margin-block-end, so a pressed token never overlaps what is below it.
+   Roles: primary = go · secondary (default) = neutral, incl. «رد» · ghost = low emphasis · leave = exit without destroying · danger = destroys. */
+.bgv-btn {
+  --_h: var(--control-md); --_bw: var(--btn-frame, 2px); --_drop: 4px;
+  --_bg: var(--btn-n-bg, var(--btn-neutral)); --_bg-hover: var(--btn-n-hover, var(--btn-neutral-hover)); --_fg: var(--btn-n-fg, var(--btn-neutral-ink)); --_ink: var(--btn-n-ink, var(--ink-btn, var(--ink)));
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); block-size: var(--_h); min-inline-size: var(--_h); padding-inline: 18px; margin-block-end: var(--_drop); border: 0; border-radius: var(--radius-sm); font-family: var(--font-fa); font-size: 15px; font-weight: 700; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+  background: var(--_bg); color: var(--_fg); box-shadow: inset 0 0 0 var(--_bw) var(--_ink), 0 var(--_drop) 0 var(--_ink);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+}
+/* v2.1.10 light: primary = 1.5px frame + drop in burnt amber (--ink-btn-primary), secondary = white with a soft slate frame + drop (--ink-btn); dark keeps the warm ink */
+.bgv-btn--primary { --_bg: var(--primary); --_bg-hover: var(--primary-hover); --_fg: var(--on-primary); --_ink: var(--btn-p-ink, var(--ink-btn-primary, var(--ink))); }
+.bgv-btn--danger { --_bg: var(--danger); --_bg-hover: var(--danger-hover); --_fg: var(--on-danger); --_ink: var(--btn-x-ink, var(--ink-danger)); }
+.bgv-btn--leave { --_bg: var(--btn-l-bg, var(--leave)); --_bg-hover: var(--btn-l-hover, var(--leave-hover)); --_fg: var(--btn-l-fg, var(--on-leave)); --_ink: var(--btn-l-ink, var(--ink-leave)); }
+.bgv-btn--ghost { --_bg: transparent; --_bg-hover: var(--btn-g-hover, var(--ghost-hover)); --_fg: var(--btn-g-fg, var(--heading)); --_ink: transparent; --_drop: 0px; }
+/* secondary and the legacy outline use the defaults above */
+.bgv-btn--sm { --_h: var(--control-sm); --_bw: 1.5px; --_drop: 3px; padding-inline: 12px; font-size: 14px; }
+.bgv-btn--lg { --_h: var(--control-lg); --_drop: 5px; padding-inline: 24px; font-size: 16px; }
+.bgv-btn--block { display: flex; inline-size: 100%; }
+.bgv-btn--icon { padding-inline: 0; inline-size: var(--_h); }
+@media (hover: hover) {
+  .bgv-btn:not(:disabled, .is-disabled, [aria-disabled="true"], .is-loading, [aria-pressed="true"]):hover { background: var(--_bg-hover); }
+  .bgv-btn:not(.bgv-btn--ghost, :disabled, .is-disabled, [aria-disabled="true"], .is-loading, [aria-pressed="true"]):hover { transform: translateY(-1px); box-shadow: inset 0 0 0 var(--_bw) var(--_ink), 0 calc(var(--_drop) + 1px) 0 var(--_ink); }
+}
+.bgv-btn--ghost:not(:disabled, .is-disabled, [aria-disabled="true"]):active { background: var(--_bg-hover); }
+.bgv-btn:not(.bgv-btn--ghost, :disabled, .is-disabled, [aria-disabled="true"], .is-loading):active, .bgv-btn.is-pressed:not(.bgv-btn--ghost) { transform: translateY(var(--_drop)); box-shadow: inset 0 0 0 var(--_bw) var(--_ink), 0 0 0 var(--_ink); }
+/* a toggle that is on (aria-pressed="true") is the same raised token, filled navy with a deeper ink — one family with its siblings; never amber (amber = go) */
+.bgv-btn[aria-pressed="true"]:not(.bgv-btn--primary, .bgv-btn--danger) { --_bg: var(--btn-s-bg, var(--selected)); --_bg-hover: var(--btn-s-bg, var(--selected)); --_fg: var(--btn-s-fg, var(--on-selected)); --_ink: var(--btn-s-ink, var(--ink-selected)); }
+.bgv-btn:is(:disabled, .is-disabled, [aria-disabled="true"]):not(.is-loading) { --_bg: var(--btn-d-bg, var(--btn-disabled)); --_fg: var(--btn-d-fg, var(--on-btn-disabled)); --_ink: var(--btn-d-ink, var(--ink-disabled)); cursor: not-allowed; transform: translateY(var(--_drop)); box-shadow: inset 0 0 0 var(--_bw) var(--_ink); }
+.bgv-btn--primary:is(:disabled, .is-disabled, [aria-disabled="true"]):not(.is-loading) { --_bg: var(--primary-disabled); --_fg: var(--on-primary-disabled); }
+.bgv-btn--ghost:is(:disabled, .is-disabled, [aria-disabled="true"]):not(.is-loading) { --_bg: transparent; --_ink: transparent; transform: none; }
+.bgv-btn.is-loading { position: relative; color: transparent; cursor: progress; }
+.bgv-btn.is-loading::after { content: ""; position: absolute; inset: 0; margin: auto; inline-size: 18px; block-size: 18px; border-radius: 50%; border: 2.5px solid var(--_fg); border-inline-end-color: transparent; animation: bgv-spin 800ms linear infinite; }
+@media (prefers-reduced-motion: reduce) { .bgv-btn.is-loading { color: var(--_fg); } .bgv-btn.is-loading::after { content: "…"; position: static; inline-size: auto; block-size: auto; margin: 0; border: 0; animation: none; } }
+[data-motion="reduce"] .bgv-btn.is-loading { color: var(--_fg); }
+[data-motion="reduce"] .bgv-btn.is-loading::after { content: "…"; position: static; inline-size: auto; block-size: auto; margin: 0; border: 0; animation: none; }
+.bgv-btn__count { min-inline-size: 20px; block-size: 20px; padding-inline: 6px; border-radius: var(--radius-pill); background: var(--danger); color: var(--on-danger); font-size: 12px; line-height: 20px; }
+/* containers re-map colours only; buttons never get hidden variants */
+/* felt and hero: cream cardboard tokens with a dark print */
+:is(.bgv-felt, .bgv-hero) {
+  --btn-n-bg: var(--felt-btn-bg); --btn-n-hover: var(--felt-btn-hover); --btn-n-fg: var(--felt-btn-fg); --btn-n-ink: var(--felt-btn-ink);
+  --btn-p-ink: var(--felt-btn-primary-ink); --btn-x-ink: var(--ink-felt);
+  --btn-l-bg: #FBEAE7; --btn-l-hover: #F8DDD8; --btn-l-fg: #9C352F; --btn-l-ink: var(--ink-felt);
+  --btn-g-fg: var(--felt-ink); --btn-g-hover: rgba(250,245,236,0.10);
+  --btn-s-bg: #142B3B; --btn-s-fg: #FAF5EC; --btn-s-ink: var(--ink-felt);
+  --btn-d-bg: #2A4558; --btn-d-fg: #7F97A3; --btn-d-ink: #1A3040;
+  --chip-bg: var(--felt-btn-bg); --chip-hover: var(--felt-btn-hover); --chip-fg: var(--felt-btn-fg); --chip-ink: var(--felt-btn-ink);
+  --chip-s-bg: #142B3B; --chip-s-fg: #FAF5EC; --chip-s-ink: var(--ink-felt); --chip-invite: var(--felt-ink);
+}
+/* light surfaces floating over the felt or hero are light again: back to the defaults */
+:is(.bgv-felt, .bgv-hero) :is(.bgv-card, .bgv-actiondock, .bgv-result, .bgv-chat, .bgv-sheet, .bgv-dialog, .bgv-menu, .bgv-popover) {
+  --btn-n-bg: initial; --btn-n-hover: initial; --btn-n-fg: initial; --btn-n-ink: initial; --btn-p-ink: initial; --btn-x-ink: initial;
+  --btn-l-bg: initial; --btn-l-hover: initial; --btn-l-fg: initial; --btn-l-ink: initial;
+  --btn-g-fg: initial; --btn-g-hover: initial; --btn-s-bg: initial; --btn-s-fg: initial; --btn-s-ink: initial; --btn-d-bg: initial; --btn-d-fg: initial; --btn-d-ink: initial;
+  --chip-bg: initial; --chip-hover: initial; --chip-fg: initial; --chip-ink: initial; --chip-s-bg: initial; --chip-s-fg: initial; --chip-s-ink: initial; --chip-invite: initial;
+}
+:is(.bgv-felt, .bgv-hero) :is(.bgv-card, .bgv-actiondock, .bgv-result, .bgv-chat, .bgv-sheet, .bgv-dialog, .bgv-menu, .bgv-popover) :focus-visible { outline-color: var(--focus); }
+/* toast actions: small tokens in the page colours with a deep ink, so they read on navy, cream, amber and crimson toasts */
+.bgv-toast { --btn-n-bg: var(--bg); --btn-n-hover: var(--surface); --btn-n-fg: var(--text); --btn-n-ink: #0A1720; --btn-l-bg: var(--bg); --btn-l-hover: var(--surface); --btn-l-fg: var(--danger); --btn-l-ink: #0A1720; --btn-g-fg: currentColor; --btn-g-hover: rgba(127,127,127,0.18); }
+
+/* ── Fields ───────────────────────────────────────────────────────── */
+.bgv-field { display: grid; gap: 6px; }
+.bgv-label { font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--text); }
+.bgv-hint { font-size: 13px; line-height: 1.6; color: var(--text-muted); display: flex; gap: 6px; align-items: flex-start; }
+.bgv-hint--error { color: var(--danger); }
+.bgv-input, .bgv-select, .bgv-textarea { inline-size: 100%; min-block-size: var(--control-md); padding: 10px 14px; border: 1px solid var(--field-edge); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-size: 16px; line-height: 1.5; box-shadow: var(--shadow-field); outline: 0; transition: border-color var(--dur-fast); }
+.bgv-input::placeholder, .bgv-textarea::placeholder { color: var(--text-muted); opacity: 1; }
+.bgv-input:focus-visible, .bgv-select:focus-visible, .bgv-textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.bgv-input[aria-invalid="true"], .bgv-field.is-error .bgv-input { border-color: var(--danger); border-width: 1.5px; background: var(--danger-soft); }
+.bgv-input[disabled] { background: var(--surface-sunken); color: var(--text-muted); }
+.bgv-textarea { min-block-size: 96px; resize: vertical; }
+.bgv-select-wrap { position: relative; }
+.bgv-select-wrap .bgv-select { appearance: none; padding-inline-end: 40px; }
+.bgv-select-wrap::after { content: ""; position: absolute; inset-inline-end: 16px; inset-block-start: 50%; inline-size: 8px; block-size: 8px; border-inline-end: 2px solid var(--text); border-block-end: 2px solid var(--text); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.bgv[dir="rtl"] .bgv-select-wrap::after, .bgv .bgv-select-wrap::after { border-inline-end: 0; border-inline-start: 0; border-right: 2px solid var(--text); border-bottom: 2px solid var(--text); }
+.bgv-affix { position: relative; display: flex; align-items: center; }
+.bgv-affix > .bgv-icon { position: absolute; inset-inline-start: 14px; color: var(--text-muted); pointer-events: none; }
+.bgv-affix > .bgv-input { padding-inline-start: 42px; }
+.bgv-affix__end { position: absolute; inset-inline-end: 6px; }
+.bgv-otp { display: flex; gap: var(--space-2); direction: ltr; justify-content: center; }
+.bgv-otp input { inline-size: 48px; block-size: 56px; text-align: center; font-size: 24px; font-weight: 900; border: 1px solid var(--field-edge); border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow-field); }
+.bgv-otp input.is-filled { border-color: var(--heading); border-width: 1.5px; }
+
+/* check, radio, switch */
+.bgv-check, .bgv-radio { display: inline-flex; align-items: center; gap: 10px; min-block-size: var(--control-md); font-size: 15px; cursor: pointer; }
+.bgv-check input, .bgv-radio input { appearance: none; margin: 0; inline-size: 22px; block-size: 22px; flex: none; border: 1.5px solid var(--field-edge); background: var(--surface); box-shadow: var(--shadow-field); display: grid; place-items: center; cursor: pointer; }
+.bgv-check input { border-radius: var(--radius-xs); }
+.bgv-radio input { border-radius: 50%; }
+.bgv-check input:checked { background: var(--selected); border-color: var(--selected); box-shadow: none; }
+.bgv-check input:checked::after { content: ""; inline-size: 6px; block-size: 11px; border: solid var(--on-selected); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.bgv-radio input:checked { border-color: var(--selected); }
+.bgv-radio input:checked::after { content: ""; inline-size: 10px; block-size: 10px; border-radius: 50%; background: var(--selected); box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1.5px 0 rgba(0,0,0,0.35); }
+.bgv-switch { display: inline-flex; align-items: center; gap: 12px; min-block-size: var(--control-md); cursor: pointer; border: 0; background: none; padding: 0; font-size: 15px; color: var(--text); text-align: start; }
+.bgv-switch__track { position: relative; inline-size: 48px; block-size: 28px; flex: none; border-radius: var(--radius-pill); background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--field-edge), var(--shadow-field); transition: background var(--dur-fast); }
+.bgv-switch__track::after { content: ""; position: absolute; inset-block-start: 3px; inset-inline-start: 3px; inline-size: 22px; block-size: 22px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow-tile-sm); transition: inset-inline-start var(--dur-base) var(--ease-spring); }
+/* ON = green track (both themes) + a check inside the thumb + the word «روشن»; never colour-only */
+.bgv-switch__track::before { content: ""; position: absolute; z-index: 1; inset-block-start: 9px; inset-inline-start: 32px; inline-size: 5px; block-size: 9px; border: solid var(--success); border-width: 0 2px 2px 0; transform: rotate(45deg); opacity: 0; transition: opacity var(--dur-fast); }
+.bgv-switch[aria-checked="true"] .bgv-switch__track { background: var(--success); box-shadow: inset 0 0 0 1px var(--success), var(--shadow-field); }
+.bgv-switch[aria-checked="true"] .bgv-switch__track::before { opacity: 1; }
+.bgv-switch[aria-checked="true"] .bgv-switch__track::after { inset-inline-start: 23px; background: var(--surface); }
+.bgv-switch__state { font-size: 12px; font-weight: 700; color: var(--text-muted); min-inline-size: 3em; }
+.bgv-switch[aria-checked="true"] .bgv-switch__state { color: var(--success); }
+.bgv-range { inline-size: 100%; accent-color: var(--primary); }
+
+/* segmented + chips */
+.bgv-seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--surface-sunken); box-shadow: var(--shadow-field); }
+.bgv-seg__item { display: inline-flex; align-items: center; justify-content: center; gap: 6px; block-size: var(--control-sm); padding-inline: 14px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.bgv-seg--block { display: flex; } .bgv-seg--block .bgv-seg__item { flex: 1; }
+.bgv-chip { display: inline-flex; align-items: center; gap: 6px; block-size: var(--control-sm); padding-inline: 14px; border-radius: var(--radius-pill); border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.bgv-chip--sm { block-size: 28px; padding-inline: 10px; font-size: 13px; }
+.bgv-chips { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.bgv-chips--scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-block: 2px; }
+
+/* ── Badges, tags, coins ──────────────────────────────────────────── */
+.bgv-badge { display: inline-flex; align-items: center; gap: 4px; block-size: 24px; padding-inline: 10px; border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--text); font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap; }
+.bgv-badge .bgv-icon { inline-size: 14px; block-size: 14px; }
+.bgv-badge--you { background: var(--invite); color: var(--on-invite); }
+.bgv-badge--success { background: var(--success-soft); color: var(--success); }
+.bgv-badge--warning { background: var(--warning-soft); color: var(--warning); }
+.bgv-badge--danger { background: var(--danger-soft); color: var(--danger); }
+.bgv-badge--info { background: var(--info-soft); color: var(--info); }
+.bgv-badge--premium { background: var(--accent); color: var(--on-accent); }
+.bgv-badge--test { background: transparent; border: 1.5px dashed var(--border); color: var(--text-muted); }
+.bgv-badge--count { min-inline-size: 20px; block-size: 20px; padding-inline: 6px; justify-content: center; background: var(--danger); color: var(--on-danger); }
+.bgv-badge--sm { block-size: 20px; padding-inline: 8px; font-size: 12px; }
+.bgv-felt .bgv-badge { background: var(--felt-plate); color: var(--felt-ink); }
+.bgv-felt .bgv-badge--you { background: var(--invite); color: var(--on-invite); }
+.bgv-tag { display: inline-flex; align-items: center; gap: 4px; block-size: 24px; padding-inline: 8px; border-radius: var(--radius-xs); border: 1px solid var(--line); color: var(--label); font-size: 12px; font-weight: 700; }
+.bgv-coin { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-variant-numeric: tabular-nums; }
+/* coins are real metallic gold (--coin-light/--coin/--coin-dark), deliberately outside the brand palette, so money reads as money */
+.bgv-coin::before { content: ""; inline-size: 18px; block-size: 18px; flex: none; border-radius: 50%; background: radial-gradient(circle at 34% 28%, var(--coin-light) 0 22%, var(--coin) 48%, var(--coin-dark) 100%); box-shadow: inset 0 0 0 2px var(--coin-dark), inset 0 0 0 3.5px var(--coin-light), 0 1px 0 rgba(0,0,0,0.35); }
+.bgv-coin--sm { gap: 5px; } .bgv-coin--sm::before { inline-size: 14px; block-size: 14px; box-shadow: inset 0 0 0 1.5px var(--coin-dark), inset 0 0 0 2.5px var(--coin-light), 0 1px 0 rgba(0,0,0,0.35); }
+.bgv-coin--lg { font-size: 28px; gap: 10px; } .bgv-coin--lg::before { inline-size: 32px; block-size: 32px; box-shadow: inset 0 0 0 3px var(--coin-dark), inset 0 0 0 5px var(--coin-light), 0 2px 0 rgba(0,0,0,0.35); }
+/* coin chip: the balance in the phone top bar and the account menu (links to the wallet) */
+.bgv-coinchip { display: inline-flex; align-items: center; gap: 6px; block-size: 32px; padding-inline: 8px 12px; border-radius: var(--radius-pill); background: var(--surface-sunken); box-shadow: var(--shadow-field); font-size: 14px; font-weight: 900; color: var(--text); text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bgv-dot { inline-size: 8px; block-size: 8px; border-radius: 50%; background: var(--danger); flex: none; }
+
+/* ── Avatar, seat, identity, league ──────────────────────────────── */
+.bgv-avatar { --_s: 40px; --_ring: transparent; position: relative; inline-size: var(--_s); block-size: var(--_s); flex: none; border-radius: 50%; background: var(--surface-raised); color: var(--heading); display: grid; place-items: center; font-weight: 900; font-size: calc(var(--_s) * 0.4); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--_ring); }
+.bgv-avatar > img, .bgv-avatar > svg { inline-size: 100%; block-size: 100%; border-radius: 50%; object-fit: cover; }
+.bgv-avatar--xs { --_s: 24px; box-shadow: 0 0 0 1.5px var(--surface), 0 0 0 3px var(--_ring); }
+.bgv-avatar--sm { --_s: 32px; }
+.bgv-avatar--lg { --_s: 56px; }
+.bgv-avatar--xl { --_s: 96px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--_ring); }
+.bgv-avatar--2xl { --_s: 128px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 8px var(--_ring); }
+.bgv-felt .bgv-avatar { box-shadow: 0 0 0 2px var(--felt), 0 0 0 4px var(--_ring); background: rgba(243,235,221,0.14); color: var(--felt-ink); }
+.bgv-avatar[class*="seat-"] { --_ring: var(--seat-c); }
+.bgv-avatar.is-you { --_ring: var(--invite-strong); }
+.bgv-avatar__status { position: absolute; inset-block-end: 0; inset-inline-end: 0; inline-size: 28%; block-size: 28%; min-inline-size: 10px; min-block-size: 10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--success); }
+.bgv-avatar__status--away { background: var(--warning); }
+.bgv-avatar__status--offline { background: var(--surface); box-shadow: inset 0 0 0 2px var(--border); }
+.bgv-avatar__bot { position: absolute; inset-block-end: -4px; inset-inline-start: -4px; inline-size: 18px; block-size: 18px; border-radius: var(--radius-xs); background: var(--surface); color: var(--heading); display: grid; place-items: center; box-shadow: 0 0 0 1px var(--line); }
+.bgv-avatar__bot .bgv-icon { inline-size: 12px; block-size: 12px; }
+.bgv-avatar.is-turn::before { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--clock-c, var(--clock-calm)); border-inline-end-color: transparent; animation: bgv-spin 2.4s linear infinite; }
+/* rings are drawn outside the avatar box, so a ringed avatar reserves its ring: it never pokes past a content edge or touches a neighbour */
+.bgv-avatar { --_ro: 4px; } .bgv-avatar--xs { --_ro: 3px; } .bgv-avatar--xl { --_ro: 6px; } .bgv-avatar--2xl { --_ro: 8px; }
+.bgv-avatar:is([class*="seat-"], .is-you, .is-yes, .is-no) { margin: var(--_ro); }
+.bgv-avatar.is-turn { margin: 9px; }
+.bgv-avatar:has(> .bgv-avatar__bot):not(.is-turn) { margin: 4px; }
+.bgv-frame > .bgv-avatar { margin: 0; }
+/* cosmetic frame = a ring with a transparent gap: seat / «شما» / turn rings never sit on the frame colour, on any background.
+   --_ft = ring thickness, --_fp = space from the frame edge to the avatar (ringed avatars get ≥4px between the two rings) */
+.bgv-frame { --_ft: 3px; --_fp: 6px; position: relative; display: inline-grid; place-items: center; padding: var(--_fp); border-radius: 50%; flex: none; }
+.bgv-frame::before { content: ""; position: absolute; inset: 0; border-radius: 50%; padding: var(--_ft); background: conic-gradient(from 210deg, var(--_f1), var(--_f2), var(--_f1)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+.bgv-frame--xs, .bgv-frame--tight { --_ft: 2px; --_fp: 4px; } .bgv-frame--sm { --_ft: 2.5px; --_fp: 5px; } .bgv-frame--xl { --_ft: 4px; --_fp: 9px; } .bgv-frame--2xl { --_ft: 5px; --_fp: 11px; }
+.bgv-frame--ringed { --_fp: 11px; } .bgv-frame--xs.bgv-frame--ringed { --_fp: 9px; } .bgv-frame--tight.bgv-frame--ringed { --_fp: 10px; } .bgv-frame--sm.bgv-frame--ringed { --_fp: 11px; }
+.bgv-frame--xl.bgv-frame--ringed { --_fp: 15px; } .bgv-frame--2xl.bgv-frame--ringed { --_fp: 18px; }
+.bgv-frame--bronze { --_f1: var(--tier-bronze); --_f2: #E7C2A0; } .bgv-frame--silver { --_f1: var(--tier-silver); --_f2: #E9EEEC; }
+.bgv-frame--gold { --_f1: var(--tier-gold); --_f2: #F3E3BE; } .bgv-frame--platinum { --_f1: var(--tier-turquoise); --_f2: #BDEBE5; }
+.bgv-frame--diamond { --_f1: var(--tier-diamond); --_f2: #DCE7FB; } .bgv-frame--master { --_f1: var(--tier-master); --_f2: var(--invite); }
+.bgv-frame--coral { --_f1: var(--invite-strong); --_f2: var(--accent); }
+/* seats */
+.seat-1 { --seat-c: var(--seat-1); } .seat-2 { --seat-c: var(--seat-2); } .seat-3 { --seat-c: var(--seat-3); } .seat-4 { --seat-c: var(--seat-4); } .seat-5 { --seat-c: var(--seat-5); }
+.seat-6 { --seat-c: var(--seat-6); } .seat-7 { --seat-c: var(--seat-7); } .seat-8 { --seat-c: var(--seat-8); } .seat-9 { --seat-c: var(--seat-9); } .seat-10 { --seat-c: var(--seat-10); }
+.bgv-seat { inline-size: 16px; block-size: 16px; flex: none; display: inline-block; background: var(--seat-c, var(--seat-1)); outline: 1.5px solid var(--seat-outline); outline-offset: -1.5px; border-radius: 50%; vertical-align: middle; }
+.bgv-felt .bgv-seat { outline-color: rgba(243,235,221,0.6); }
+.bgv-seat.seat-2 { border-radius: 3px; }
+.bgv-seat.seat-3 { border-radius: 0; clip-path: polygon(50% 4%, 96% 92%, 4% 92%); outline: 0; filter: drop-shadow(0 0 1px rgba(20,43,59,0.9)); }
+.bgv-seat.seat-4 { border-radius: 2px; transform: rotate(45deg) scale(0.82); }
+.bgv-seat.seat-5 { border-radius: 0; clip-path: polygon(50% 0, 61% 36%, 98% 36%, 68% 58%, 79% 94%, 50% 72%, 21% 94%, 32% 58%, 2% 36%, 39% 36%); outline: 0; filter: drop-shadow(0 0 1px rgba(20,43,59,0.9)); }
+.bgv-seat.seat-6 { border-radius: 0; clip-path: polygon(50% 0, 98% 38%, 79% 96%, 21% 96%, 2% 38%); outline: 0; filter: drop-shadow(0 0 1px rgba(20,43,59,0.9)); }
+.bgv-seat.seat-7 { border-radius: 0; clip-path: polygon(35% 0, 65% 0, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0 65%, 0 35%, 35% 35%); outline: 0; filter: drop-shadow(0 0 1px rgba(20,43,59,0.9)); }
+.bgv-seat.seat-8 { border-radius: 0; clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%); outline: 0; filter: drop-shadow(0 0 1px rgba(20,43,59,0.9)); }
+.bgv-seat.seat-9 { border-radius: 0; clip-path: polygon(4% 8%, 96% 8%, 50% 96%); outline: 0; filter: drop-shadow(0 0 1px rgba(20,43,59,0.9)); }
+.bgv-seat.seat-10 { border-radius: 50%; -webkit-mask: radial-gradient(circle at 70% 40%, transparent 38%, #000 40%); mask: radial-gradient(circle at 70% 40%, transparent 38%, #000 40%); outline: 0; }
+.bgv-seat--lg { inline-size: 22px; block-size: 22px; }
+.bgv-identity { display: flex; align-items: center; gap: var(--space-3); min-inline-size: 0; }
+.bgv-identity__text { display: grid; min-inline-size: 0; line-height: 1.35; }
+.bgv-identity__name { font-weight: 700; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.bgv-identity__sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; }
+.bgv-identity__title { color: var(--label); font-weight: 700; }
+.bgv-identity--lg .bgv-identity__name { font-size: 20px; font-weight: 900; color: var(--heading); }
+.bgv-identity--lg .bgv-identity__sub { font-size: 14px; }
+.bgv-felt .bgv-identity__name { color: var(--felt-ink); } .bgv-felt .bgv-identity__sub { color: var(--felt-muted); } .bgv-felt .bgv-identity__title { color: var(--felt-gold); }
+.bgv-league { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+.bgv-league::before { content: ""; inline-size: 12px; block-size: 14px; background: var(--_t, var(--tier-bronze)); clip-path: polygon(50% 0, 100% 18%, 100% 60%, 50% 100%, 0 60%, 0 18%); box-shadow: inset 0 0 0 1px rgba(20,43,59,0.4); }
+.bgv-league--bronze { --_t: var(--tier-bronze); } .bgv-league--silver { --_t: var(--tier-silver); } .bgv-league--gold { --_t: var(--tier-gold); }
+.bgv-league--platinum { --_t: var(--tier-turquoise); } .bgv-league--diamond { --_t: var(--tier-diamond); } .bgv-league--master { --_t: var(--tier-master); }
+.bgv-felt .bgv-league { color: var(--felt-muted); }
+.bgv-avatars { display: flex; } .bgv-avatars > .bgv-avatar + .bgv-avatar { margin-inline-start: -8px; }
+
+/* ── Cards, surfaces, data ────────────────────────────────────────── */
+.bgv-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-5); }
+.bgv-card--raised { background: var(--surface-raised); }
+.bgv-card--flush { padding: 0; overflow: hidden; }
+.bgv-card--interactive { cursor: pointer; transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base); }
+.bgv-card__head { display: flex; align-items: center; gap: var(--space-3); margin-block-end: var(--space-4); }
+.bgv-card__title { font-size: 20px; font-weight: 700; line-height: 1.5; color: var(--heading); }
+.bgv-hero { position: relative; overflow: hidden; border-radius: var(--radius-lg); background: var(--felt); color: var(--felt-ink); padding: var(--space-8); box-shadow: var(--shadow-felt); }
+.bgv-hero :where(h1,h2,h3) { color: var(--felt-ink); }
+.bgv-hero__eyebrow { color: var(--felt-gold); font-size: 14px; font-weight: 700; }
+.bgv-pagehead { display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; }
+.bgv-pagehead__text { flex: 1; min-inline-size: 240px; display: grid; gap: 4px; }
+.bgv-pagehead__title { font-size: 32px; line-height: 1.4; font-weight: 900; color: var(--heading); }
+.bgv-pagehead__sub { font-size: 15px; color: var(--text-muted); }
+.bgv-gamecard { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); text-decoration: none; color: inherit; }
+.bgv-gamecard__cover { position: relative; aspect-ratio: 16 / 9; background: var(--surface-raised); overflow: hidden; }
+.bgv-gamecard__cover img { inline-size: 100%; block-size: 100%; object-fit: cover; display: block; }
+.bgv-gamecard__flags { position: absolute; inset-block-start: 10px; inset-inline-start: 10px; display: flex; gap: 6px; }
+.bgv-gamecard__body { padding: 14px 16px 16px; display: grid; gap: 6px; }
+.bgv-gamecard__title { font-size: 18px; font-weight: 900; line-height: 1.4; color: var(--heading); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.bgv-gamecard__latin { font-family: var(--font-latin); font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.bgv-gamecard__meta { display: flex; gap: 14px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
+.bgv-gamecard__meta span { display: inline-flex; align-items: center; gap: 4px; }
+.bgv-stat { display: grid; gap: 2px; }
+.bgv-stat__label { font-size: 13px; color: var(--text-muted); }
+.bgv-stat__value { font-size: 28px; font-weight: 900; line-height: 1.15; color: var(--heading); font-variant-numeric: tabular-nums; }
+.bgv-stat__delta { font-size: 13px; font-weight: 700; color: var(--success); }
+.bgv-stat__delta--down { color: var(--danger); }
+.bgv-progress { display: grid; gap: 6px; }
+.bgv-progress__row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); }
+.bgv-progress__track { block-size: 10px; border-radius: var(--radius-pill); background: var(--surface-sunken); box-shadow: var(--shadow-field); overflow: hidden; }
+.bgv-progress__fill { block-size: 100%; inline-size: var(--p, 40%); border-radius: inherit; background: var(--primary); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); }
+.bgv-progress--invite .bgv-progress__fill { background: var(--invite); } .bgv-progress--accent .bgv-progress__fill { background: var(--accent); }
+.bgv-ring { --_s: 48px; --_w: 5px; position: relative; inline-size: var(--_s); block-size: var(--_s); border-radius: 50%; background: conic-gradient(var(--_c, var(--primary)) calc(var(--p, 0.5) * 360deg), var(--clock-track) 0); display: grid; place-items: center; flex: none; }
+.bgv-ring::before { content: ""; position: absolute; inset: var(--_w); border-radius: 50%; background: var(--_bg, var(--surface)); }
+.bgv-ring > * { position: relative; }
+.bgv-skel { border-radius: var(--radius-sm); background: linear-gradient(90deg, var(--surface-raised) 0%, var(--surface-sunken) 50%, var(--surface-raised) 100%); background-size: 200% 100%; animation: bgv-shimmer 1.4s var(--ease-in-out) infinite; }
+.bgv-state { display: grid; justify-items: center; gap: var(--space-3); text-align: center; padding: var(--space-10) var(--space-6); }
+.bgv-state__icon { inline-size: 64px; block-size: 64px; border-radius: var(--radius-lg); background: var(--surface-raised); color: var(--heading); display: grid; place-items: center; box-shadow: var(--shadow-tile); }
+.bgv-state__icon .bgv-icon { inline-size: 28px; block-size: 28px; }
+.bgv-state--error .bgv-state__icon { background: var(--danger-soft); color: var(--danger); }
+.bgv-state__title { font-size: 20px; font-weight: 700; color: var(--heading); }
+.bgv-state__text { font-size: 15px; color: var(--text-muted); max-inline-size: 40ch; }
+.bgv-table { inline-size: 100%; border-collapse: collapse; font-size: 15px; }
+.bgv-table th { text-align: start; font-size: 13px; font-weight: 700; color: var(--text-muted); padding: 10px 12px; border-block-end: 1px solid var(--line); }
+.bgv-table td { padding: 12px; border-block-end: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.bgv-table tr.is-you td { background: var(--invite-soft); }
+.bgv-list { display: grid; }
+.bgv-list__item { display: flex; align-items: center; gap: var(--space-3); padding: 12px var(--space-4); min-block-size: 56px; border-block-end: 1px solid var(--line); }
+.bgv-list__item:last-child { border-block-end: 0; }
+.bgv-list__main { flex: 1; min-inline-size: 0; display: grid; line-height: 1.45; }
+.bgv-list__title { font-weight: 700; font-size: 15px; }
+.bgv-list__sub { font-size: 13px; color: var(--text-muted); }
+.bgv-tooltip { display: inline-block; padding: 6px 10px; border-radius: var(--radius-sm); background: var(--text); color: var(--bg); font-size: 13px; line-height: 1.5; box-shadow: var(--shadow-float); max-inline-size: 260px; }
+
+/* ── Navigation ──────────────────────────────────────────────────── */
+/* chrome (site header, top bar, dock) sits on --surface-chrome: = surface in light, surface #20394A on the navy page in dark */
+.bgv-topbar { display: flex; align-items: center; gap: var(--space-2); block-size: 56px; padding-inline: var(--space-4); background: var(--surface-chrome); border-block-end: 1px solid var(--line); }
+.bgv-topbar__title { flex: 1; font-size: 17px; font-weight: 900; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bgv-dock { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 6px; border-radius: var(--radius-xl); background: var(--surface-chrome); border: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-dock__item { position: relative; display: grid; justify-items: center; gap: 2px; padding-block: 6px; border-radius: var(--radius-lg); color: var(--text-muted); font-size: 12px; font-weight: 700; text-decoration: none; }
+.bgv-dock__item .bgv-icon { inline-size: 24px; block-size: 24px; }
+.bgv-dock__item .bgv-badge--count { position: absolute; inset-block-start: 2px; inset-inline-end: calc(50% - 22px); }
+/* a page without AppShell: the same floating position as .bgv-app__dock, phone widths only */
+.bgv-dock--float { position: fixed; inset-inline: 12px; inset-block-end: 12px; z-index: var(--z-dock); }
+@media (min-width: 900px) { .bgv-dock--float:not(.bgv-dock--keep) { display: none; } }
+.bgv-pagetabs { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--surface-sunken); box-shadow: var(--shadow-field); overflow-x: auto; scrollbar-width: none; inline-size: max-content; max-inline-size: 100%; }
+.bgv-pagetabs a, .bgv-pagetabs button { block-size: var(--control-sm); padding-inline: 16px; display: inline-flex; align-items: center; border-radius: var(--radius-sm); color: var(--text-muted); font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; border: 0; background: none; }
+.bgv-tabs { display: flex; gap: var(--space-6); border-block-end: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.bgv-tab { position: relative; padding-block: 10px; font-size: 15px; font-weight: 700; color: var(--text-muted); background: none; border: 0; white-space: nowrap; cursor: pointer; }
+.bgv-tab.is-active, .bgv-tab[aria-selected="true"] { color: var(--heading); }
+.bgv-tab.is-active::after, .bgv-tab[aria-selected="true"]::after { content: ""; position: absolute; inset-inline: 0; inset-block-end: -1px; block-size: 3px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; background: var(--heading); }
+.bgv-crumbs { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
+.bgv-crumbs a { color: var(--text-muted); }
+.bgv-crumbs [aria-current] { color: var(--text); font-weight: 700; }
+.bgv-pager { display: flex; gap: 6px; align-items: center; }
+.bgv-pager .bgv-btn { min-inline-size: var(--control-sm); }
+.bgv-menu { min-inline-size: 220px; padding: 6px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-float); display: grid; gap: 2px; }
+.bgv-menu__item { display: flex; align-items: center; gap: 10px; min-block-size: 40px; padding-inline: 10px; border-radius: var(--radius-sm); font-size: 15px; color: var(--text); background: none; border: 0; text-align: start; cursor: pointer; inline-size: 100%; }
+.bgv-menu__item--danger { color: var(--danger); }
+.bgv-menu__sep { block-size: 1px; background: var(--line); margin-block: 4px; }
+
+/* ── Overlays ────────────────────────────────────────────────────── */
+.bgv-scrim { position: absolute; inset: 0; background: var(--scrim); }
+.bgv-dialog { inline-size: min(480px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); display: grid; }
+.bgv-dialog__head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-5) var(--space-5) var(--space-2); }
+.bgv-dialog__title { flex: 1; font-size: 20px; font-weight: 700; color: var(--heading); }
+.bgv-dialog__body { padding: 0 var(--space-5) var(--space-5); font-size: 15px; color: var(--text); display: grid; gap: var(--space-4); }
+.bgv-dialog__foot { display: flex; gap: var(--space-2); justify-content: flex-end; padding: var(--space-4) var(--space-5); border-block-start: 1px solid var(--line); }
+.bgv-sheet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: var(--shadow-float); display: flex; flex-direction: column; overflow: hidden; }
+.bgv-sheet__handle { inline-size: 40px; block-size: 5px; border-radius: var(--radius-pill); background: var(--border); margin: 8px auto 4px; opacity: 0.6; flex: none; }
+.bgv-sheet--side { border-radius: var(--radius-lg); }
+.bgv-popover { padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-toast { display: flex; align-items: center; gap: var(--space-3); min-block-size: 52px; padding: 10px 12px 10px 16px; border-radius: var(--radius-md); background: var(--text); color: var(--bg); box-shadow: var(--shadow-float); font-size: 15px; max-inline-size: 440px; }
+.bgv-toast__icon { inline-size: 32px; block-size: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: rgba(243,235,221,0.14); flex: none; }
+[data-theme="dark"] .bgv-toast__icon { background: rgba(20,43,59,0.1); }
+.bgv-toast__body { flex: 1; display: grid; line-height: 1.45; }
+.bgv-toast__title { font-weight: 700; }
+.bgv-toast__text { font-size: 13px; opacity: 0.86; }
+.bgv-toast--turn { background: var(--invite); color: var(--on-invite); }
+.bgv-toast--turn .bgv-toast__icon { background: rgba(20,43,59,0.12); }
+.bgv-toast--critical { background: var(--danger); color: var(--on-danger); }
+.bgv-banner { display: flex; align-items: flex-start; gap: var(--space-3); padding: 12px var(--space-4); border-radius: var(--radius-md); background: var(--info-soft); color: var(--text); font-size: 15px; line-height: 1.6; }
+.bgv-banner > .bgv-icon { color: var(--info); margin-block-start: 2px; }
+.bgv-banner__body { flex: 1; display: grid; gap: 2px; }
+.bgv-banner__title { font-weight: 700; }
+.bgv-banner--success { background: var(--success-soft); } .bgv-banner--success > .bgv-icon { color: var(--success); }
+.bgv-banner--warning { background: var(--warning-soft); } .bgv-banner--warning > .bgv-icon { color: var(--warning); }
+.bgv-banner--danger { background: var(--danger-soft); } .bgv-banner--danger > .bgv-icon { color: var(--danger); }
+
+/* ── Table: screen, felt, game bar ───────────────────────────────── */
+.bgv-tablescreen { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--gamebar-h) auto 1fr auto; gap: var(--space-2); block-size: 100%; padding: var(--space-2); background: var(--bg); }
+/* desktop table: rail (inline-start = right in RTL) · felt + action dock · chat (inline-end = left); fluid height, min 900px or the viewport, whichever is smaller (laptops 768–900px tall) */
+.bgv-tablescreen--desk { grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--chat-w); grid-template-rows: var(--gamebar-h) minmax(0, 1fr) auto; gap: var(--space-3); padding: var(--space-3); block-size: auto; min-block-size: min(900px, 100dvh); }
+.bgv-tablescreen--desk > .bgv-gamebar { grid-column: 1 / -1; }
+.bgv-tablescreen--desk > .bgv-hud--rail { grid-column: 1; grid-row: 2 / 4; }
+.bgv-tablescreen--desk > .bgv-felt { grid-column: 2; grid-row: 2; }
+.bgv-tablescreen--desk > .bgv-actiondock { grid-column: 2; grid-row: 3; }
+.bgv-tablescreen--desk > .bgv-chat { grid-column: 3; grid-row: 2 / 4; }
+.bgv-gamebar { display: flex; align-items: center; gap: 10px; min-block-size: var(--gamebar-h); padding: 6px 10px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-card); min-inline-size: 0; }
+.bgv-gamebar__title { display: grid; flex: 1; min-inline-size: 0; line-height: 1.35; }
+.bgv-gamebar__name { font-size: 16px; font-weight: 900; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; gap: 8px; align-items: center; }
+.bgv-gamebar > .bgv-btn, .bgv-gamebar__actions { flex: none; }
+.bgv-gamebar__actions { display: flex; align-items: center; gap: 6px; }
+.bgv-gamebar .bgv-iconbtn-count > .bgv-badge--count { inset-block-start: -2px; }
+.bgv-gamebar__latin { flex: 0 1 auto; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-latin); font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.bgv-gamebar__name > :first-child { flex: none; max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; }
+.bgv-gamebar__meta { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.bgv-felt { position: relative; border-radius: var(--radius-xl); background-color: var(--felt); background-image: radial-gradient(rgba(243,235,221,0.035) 1px, transparent 1.2px), radial-gradient(120% 80% at 50% 0%, rgba(243,235,221,0.07), transparent 60%); background-size: 5px 5px, 100% 100%; box-shadow: var(--shadow-felt); border: 1px solid var(--felt-rim); color: var(--felt-ink); padding: var(--space-4); min-block-size: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.bgv-felt__board { position: relative; flex: 1; min-block-size: 0; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-piece); }
+/* the game's own UI (board, hand, game controls) renders as-is in the stage, letterboxed, never stretched; --ar = its aspect ratio */
+.bgv-felt__stage { position: relative; flex: 1 1 auto; min-block-size: 0; aspect-ratio: var(--ar, auto); }
+.bgv-felt__stage > img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.bgv-felt--world { background: var(--_world, #070b18); background-size: cover; }
+.bgv-felt-plate { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; min-inline-size: 0; border-radius: var(--radius-md); background: var(--felt-plate); color: var(--felt-ink); font-size: 13px; }
+.bgv-felt-plate strong { font-weight: 900; font-size: 15px; font-variant-numeric: tabular-nums; }
+.bgv-felt-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+.bgv-slot { border: 1.5px dashed var(--felt-line); border-radius: var(--radius-md); }
+
+/* turn pill: the single place that says whose turn it is */
+.bgv-turn { display: inline-flex; align-items: center; gap: 10px; block-size: 44px; max-inline-size: 100%; min-inline-size: 0; padding-inline: 8px 16px; border-radius: var(--radius-pill); background: var(--felt-plate); color: var(--felt-ink); font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow-plate); }
+.bgv-turn--mine { background: var(--invite); color: var(--on-invite); box-shadow: none; }
+.bgv-turn--mine .bgv-clock { --_bg: var(--invite); --clock-track: rgba(20,43,59,0.18); }
+.bgv-turn--simul { padding-inline-start: 14px; }
+.bgv-turn__who { display: flex; align-items: center; gap: 8px; min-inline-size: 0; }
+.bgv-turn__text { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
+.bgv-turn > .bgv-clock, .bgv-turn__who > .bgv-avatar, .bgv-turn__who > .bgv-icon { flex: none; }
+.bgv-turn__sep { inline-size: 1px; block-size: 20px; background: currentColor; opacity: 0.25; }
+
+/* ── Clock ───────────────────────────────────────────────────────── */
+/* states: calm (>50%), warn (50%→critical), critical (live: last 10 s; turn-based: last hour), paused (not running: not your turn, bank clocks),
+   stale (YOUR connection dropped: dashed ring, wifi-off, last confirmed time), frozen (server incident only: all clocks paused and compensated) */
+.bgv-clock { --clock-c: var(--clock-calm); --_s: 34px; display: inline-flex; align-items: center; gap: 8px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--clock-c); white-space: nowrap; }
+.bgv-clock__ring { position: relative; inline-size: var(--_s); block-size: var(--_s); border-radius: 50%; flex: none; background: conic-gradient(var(--clock-c) calc(var(--p, 1) * 360deg), var(--clock-track) 0); display: grid; place-items: center; }
+.bgv-clock__ring::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--_bg, var(--surface)); }
+.bgv-clock__ring > .bgv-icon { position: relative; inline-size: 14px; block-size: 14px; }
+.bgv-clock__time { font-size: 15px; line-height: 1; }
+.bgv-clock__sub { font-size: 12px; font-weight: 700; color: inherit; }
+.bgv-clock__stack { display: grid; gap: 3px; }
+.bgv-clock[data-state="warn"] { --clock-c: var(--clock-warn); }
+.bgv-clock[data-state="critical"] { --clock-c: var(--clock-critical); }
+.bgv-clock[data-state="critical"] .bgv-clock__ring { animation: bgv-pulse 1s var(--ease-in-out) infinite; }
+.bgv-clock[data-state="paused"] { --clock-c: var(--text-muted); font-weight: 700; }
+.bgv-clock[data-state="frozen"] { --clock-c: var(--info); }
+/* stale = YOUR connection dropped: dashed ring + wifi-off, the last confirmed time, never counts on its own */
+.bgv-clock[data-state="stale"] { --clock-c: var(--text-muted); font-weight: 700; }
+.bgv-clock[data-state="stale"] .bgv-clock__ring { background: none; border: 2px dashed var(--clock-c); }
+.bgv-clock[data-state="stale"] .bgv-clock__ring::before { display: none; }
+.bgv-clock[data-state="stale"] .bgv-clock__time { color: var(--clock-c); }
+.bgv-felt .bgv-clock, .bgv-turn .bgv-clock { --clock-calm: var(--felt-ink); --clock-track: rgba(243,235,221,0.2); --_bg: var(--felt); }
+.bgv-felt .bgv-clock[data-state="warn"], .bgv-turn .bgv-clock[data-state="warn"] { --clock-c: var(--clock-on-felt-warn); }
+.bgv-felt .bgv-clock[data-state="critical"], .bgv-turn .bgv-clock[data-state="critical"] { --clock-c: var(--clock-on-felt-critical); }
+.bgv-felt .bgv-clock[data-state="paused"] { --clock-c: var(--felt-muted); }
+.bgv-felt .bgv-clock[data-state="stale"], .bgv-turn .bgv-clock[data-state="stale"] { --clock-c: var(--felt-muted); }
+.bgv-turn--mine .bgv-clock { --clock-calm: var(--on-invite); --clock-c: var(--on-invite); --_bg: var(--invite); }
+.bgv-turn--mine .bgv-clock[data-state="critical"] { --clock-c: #6B0F1F; }
+.bgv-turn--mine .bgv-clock[data-state="stale"] { --clock-c: var(--on-invite); }
+.bgv-clock--lg { --_s: 52px; } .bgv-clock--lg .bgv-clock__time { font-size: 22px; } .bgv-clock--lg .bgv-clock__ring::before { inset: 5px; }
+.bgv-clock--chip { --_s: 18px; gap: 6px; block-size: 28px; padding-inline: 5px 10px; border-radius: var(--radius-pill); background: var(--surface-sunken); }
+.bgv-clock--chip .bgv-clock__ring::before { inset: 3px; }
+.bgv-clock--chip .bgv-clock__time { font-size: 13px; }
+.bgv-clock--bar { display: grid; gap: 8px; inline-size: 100%; }
+.bgv-clock--bar .bgv-clock__track { block-size: 4px; border-radius: var(--radius-pill); background: var(--clock-track); overflow: hidden; }
+.bgv-clock--bar .bgv-clock__track::after { content: ""; display: block; block-size: 100%; inline-size: calc(var(--p, 1) * 100%); background: var(--clock-c); border-radius: inherit; }
+.bgv-strikes { display: inline-flex; gap: 3px; align-items: center; }
+.bgv-strikes i { inline-size: 8px; block-size: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--border); }
+.bgv-strikes i.is-on { background: var(--warning); box-shadow: none; }
+.bgv-strikes--critical i.is-on { background: var(--danger); }
+.bgv-felt .bgv-strikes i { box-shadow: inset 0 0 0 1.5px var(--felt-muted); }
+.bgv-felt .bgv-strikes i.is-on { background: var(--clock-on-felt-warn); box-shadow: none; }
+
+/* ── HUD: player cards ───────────────────────────────────────────── */
+.bgv-hud { display: flex; gap: var(--space-2); }
+.bgv-hud--strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+.bgv-hud--rail { flex-direction: column; gap: var(--space-2); }
+.bgv-hud--duel { flex-direction: column; justify-content: space-between; }
+.bgv-pcard { --_edge: transparent; position: relative; display: grid; gap: 6px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-card), inset 0 0 0 2px var(--_edge); min-inline-size: 0; transition: box-shadow var(--dur-base); }
+.bgv-pcard__top { display: flex; align-items: center; gap: 10px; min-inline-size: 0; }
+.bgv-pcard__top > .bgv-avatar, .bgv-pcard--mini > .bgv-avatar { margin: 4px; }
+.bgv-pcard__name { flex: 1; min-inline-size: 0; display: grid; line-height: 1.3; }
+.bgv-pcard__name b { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
+.bgv-pcard__name small { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bgv-pcard__score { font-size: 20px; font-weight: 900; color: var(--heading); font-variant-numeric: tabular-nums; line-height: 1; display: grid; justify-items: end; gap: 2px; }
+.bgv-pcard__score small { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+.bgv-pcard__stats { display: flex; gap: 10px; flex-wrap: wrap; }
+.bgv-pcard__foot { display: flex; align-items: center; gap: 6px; min-block-size: 24px; }
+.bgv-pcard.is-turn { --_edge: var(--clock-c, var(--heading)); background: var(--surface); }
+.bgv-pcard.is-you { --_edge: var(--invite-strong); }
+.bgv-pcard.is-you .bgv-pcard__name b::after { content: "شما"; flex: none; order: 9; block-size: 18px; padding-inline: 7px; border-radius: var(--radius-pill); background: var(--invite); color: var(--on-invite); font-size: 12px; font-weight: 900; line-height: 18px; }
+.bgv-pcard.is-you.is-turn { --_edge: var(--clock-c, var(--invite-strong)); }
+/* out: fade the avatar and numbers, not the whole card, so «حذف شد» keeps its contrast */
+.bgv-pcard.is-out :is(.bgv-avatar, .bgv-pcard__score, .bgv-pcard__stats, .bgv-pcard__detail) { opacity: 0.55; filter: grayscale(1); } .bgv-pcard.is-out .bgv-pcard__name b { text-decoration: line-through; color: var(--text-muted); }
+.bgv-felt .bgv-pcard.is-out .bgv-pcard__name b { color: inherit; }
+.bgv-pcard.is-offline .bgv-avatar { filter: grayscale(1); }
+.bgv-pcard.is-leader .bgv-pcard__score::before { content: "پیشتاز"; font-size: 12px; font-weight: 900; color: var(--label); }
+/* mini (phone strip): symmetric 12px padding; the turn ring and «شما» never touch the card or the row above */
+.bgv-pcard--mini { padding: 12px 12px 10px; justify-items: center; align-content: start; text-align: center; gap: 6px; }
+.bgv-pcard--mini .bgv-pcard__name { justify-items: center; }
+.bgv-pcard--mini .bgv-pcard__name b { font-size: 13px; justify-content: center; max-inline-size: 100%; flex-wrap: wrap; row-gap: 6px; white-space: normal; }
+.bgv-pcard--mini .bgv-pcard__score { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; row-gap: 0; gap: 3px; font-size: 17px; }
+.bgv-pcard--mini.is-leader .bgv-pcard__score::before { flex-basis: 100%; text-align: center; }
+.bgv-pcard--mini .bgv-pcard__stats { gap: 6px; flex-wrap: nowrap; }
+/* a clock in a mini card drops the chip tile (ring + time only) so it fits 4-up on a 390 phone without touching the card */
+.bgv-pcard--mini .bgv-clock--chip { --_s: 14px; gap: 4px; padding-inline: 0; block-size: 20px; background: none; }
+.bgv-pcard--mini .bgv-clock--chip .bgv-clock__ring::before { inset: 2.5px; }
+/* compact row card for 6+ player strips */
+.bgv-pcard--row { padding: 10px 12px; gap: 4px; }
+
+.bgv-pcard--wide { padding: 14px 16px; gap: 10px; }
+.bgv-pcard--wide .bgv-pcard__score { font-size: 28px; }
+.bgv-pcard__detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; padding-block-start: 8px; border-block-start: 1px solid var(--line); }
+.bgv-hstat { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bgv-hstat .bgv-icon { inline-size: 15px; block-size: 15px; color: var(--text-muted); }
+.bgv-hstat__res { inline-size: 12px; block-size: 12px; border-radius: var(--radius-xs); background: var(--_r, var(--border)); box-shadow: inset 0 0 0 1px rgba(20,43,59,0.35); flex: none; }
+.bgv-hstat__label { font-weight: 400; color: var(--text-muted); font-size: 12px; }
+.bgv-hstat--tile { display: grid; justify-items: start; gap: 0; padding: 6px 10px; border-radius: var(--radius-sm); background: var(--surface-sunken); }
+.bgv-hstat--tile b { font-size: 18px; font-weight: 900; }
+.bgv-hstat__delta { font-size: 12px; font-weight: 900; color: var(--success); animation: bgv-pop var(--dur-spring) var(--ease-spring); }
+.bgv-hstat__delta--down { color: var(--danger); }
+.bgv-pstate { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+.bgv-pstate .bgv-icon { inline-size: 14px; block-size: 14px; }
+.bgv-pstate--done { color: var(--success); } .bgv-pstate--wait { color: var(--warning); } .bgv-pstate--off { color: var(--danger); }
+/* HUD on felt (duel layouts render cards directly on the table) */
+.bgv-felt .bgv-pcard { background: var(--felt-plate); border-color: var(--felt-line); box-shadow: inset 0 0 0 2px var(--_edge); color: var(--felt-ink); }
+.bgv-felt .bgv-pcard__score { color: var(--felt-ink); } .bgv-felt .bgv-pcard__name small, .bgv-felt .bgv-hstat .bgv-icon, .bgv-felt .bgv-pcard__score small { color: var(--felt-muted); }
+.bgv-felt .bgv-hstat { color: var(--felt-ink); }
+.bgv-felt .bgv-hstat__label, .bgv-felt .bgv-pstate { color: var(--felt-muted); } .bgv-felt .bgv-pstate--wait { color: var(--clock-on-felt-warn); } .bgv-felt .bgv-pstate--off { color: var(--clock-on-felt-critical); } .bgv-felt .bgv-pstate--done { color: var(--felt-ink); }
+/* standings race: who leads at a glance */
+.bgv-race { display: grid; gap: 6px; }
+.bgv-race__row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 13px; }
+.bgv-race__bar { block-size: 8px; border-radius: var(--radius-pill); background: var(--surface-sunken); overflow: hidden; }
+.bgv-race__bar i { display: block; block-size: 100%; inline-size: var(--p, 50%); background: var(--seat-c, var(--primary)); border-radius: inherit; box-shadow: inset 0 0 0 1px var(--seat-outline); }
+.bgv-race__row b { font-variant-numeric: tabular-nums; }
+/* co-op team plate */
+.bgv-team { display: flex; align-items: center; gap: var(--space-3); padding: 10px 14px; border-radius: var(--radius-md); background: var(--felt-plate); color: var(--felt-ink); flex-wrap: wrap; }
+.bgv-team__label { font-size: 12px; font-weight: 700; color: var(--felt-gold); }
+.bgv-team__res { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.bgv-pips { display: inline-flex; gap: 3px; } .bgv-pips i { inline-size: 10px; block-size: 10px; border-radius: 50%; background: currentColor; } .bgv-pips i.is-off { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; opacity: 0.6; }
+
+/* action dock: your resources, the prompt, your actions, your clock */
+.bgv-actiondock { display: grid; gap: 10px; padding: 12px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-actiondock__prompt { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 15px; font-weight: 700; color: var(--heading); }
+.bgv-actiondock__prompt .bgv-spacer + .bgv-clock { margin-inline-start: auto; }
+.bgv-actiondock__res { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.bgv-actiondock__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.bgv-actiondock__actions > .bgv-btn { flex: 1; }
+.bgv-tablescreen--desk .bgv-actiondock__actions > .bgv-btn { flex: 1 1 auto; }
+.bgv-actiondock.is-waiting { background: var(--surface-sunken); box-shadow: var(--shadow-field); }
+
+/* move log */
+.bgv-log { display: grid; gap: 2px; font-size: 14px; line-height: 1.55; }
+.bgv-log__item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm); }
+.bgv-log__item .bgv-seat { margin-block-start: 3px; }
+.bgv-log__item time { margin-inline-start: auto; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.bgv-log__item.is-new { background: var(--surface-raised); }
+.bgv-log__item--round { justify-content: center; font-size: 12px; font-weight: 700; color: var(--label); }
+
+/* lobby, ready check, spectators, connection */
+.bgv-lobbyseat { display: flex; align-items: center; gap: var(--space-3); padding: 12px 14px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); min-block-size: 68px; }
+.bgv-lobbyseat--empty { background: transparent; border: 1.5px dashed var(--border); justify-content: center; }
+.bgv-ready { display: grid; justify-items: center; gap: var(--space-3); text-align: center; }
+.bgv-spectators { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+.bgv-conn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--success); }
+.bgv-conn::before { content: ""; inline-size: 8px; block-size: 8px; border-radius: 50%; background: currentColor; }
+.bgv-conn--lost { color: var(--danger); } .bgv-conn--retry { color: var(--warning); }
+
+/* result + rematch */
+.bgv-result { display: grid; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-result__head { text-align: center; display: grid; gap: 4px; justify-items: center; }
+.bgv-result__title { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--heading); }
+.bgv-podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; align-items: end; gap: var(--space-2); }
+.bgv-podium__place { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.bgv-podium__step { inline-size: 100%; border-radius: var(--radius-md) var(--radius-md) 0 0; background: var(--surface-raised); box-shadow: var(--shadow-tile); display: grid; place-items: center; font-size: 22px; font-weight: 900; color: var(--heading); }
+.bgv-podium__place:nth-child(1) .bgv-podium__step { block-size: 56px; }
+.bgv-podium__place:nth-child(2) .bgv-podium__step { block-size: 84px; background: var(--accent); color: var(--on-accent); }
+.bgv-podium__place:nth-child(3) .bgv-podium__step { block-size: 40px; }
+.bgv-reward { display: flex; align-items: center; gap: var(--space-3); padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 15px; }
+.bgv-reward b { margin-inline-start: auto; font-variant-numeric: tabular-nums; font-weight: 900; }
+.bgv-reward .up { color: var(--success); } .bgv-reward .down { color: var(--danger); }
+.bgv-rematch { display: grid; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.bgv-vote { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--text-muted); }
+.bgv-vote .bgv-avatar.is-yes { --_ring: var(--success); } .bgv-vote .bgv-avatar.is-no { --_ring: var(--danger); opacity: 0.6; }
+
+/* ── Chat ────────────────────────────────────────────────────────── */
+.bgv-chat { display: flex; flex-direction: column; min-block-size: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+.bgv-chat__head { display: flex; align-items: center; gap: var(--space-2); padding-block: 8px; padding-inline: 16px 10px; border-block-end: 1px solid var(--line); min-block-size: 52px; }
+.bgv-chat__title { flex: 1; font-size: 15px; font-weight: 900; color: var(--heading); display: flex; align-items: center; gap: 8px; }
+.bgv-chat__list { flex: 1; min-block-size: 0; overflow-y: auto; padding: var(--space-3); display: flex; flex-direction: column; gap: 10px; }
+.bgv-chat--sheet { border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: var(--shadow-float); }
+.bgv-msg { display: flex; gap: 8px; align-items: flex-end; max-inline-size: 88%; }
+.bgv-msg__col { display: grid; gap: 3px; min-inline-size: 0; }
+.bgv-msg__meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding-inline: 4px; }
+.bgv-msg__meta b { color: var(--text); font-weight: 700; }
+.bgv-msg__bubble { position: relative; padding: 8px 12px; border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs); background: var(--surface-raised); color: var(--text); font-size: 15px; line-height: 1.65; overflow-wrap: anywhere; }
+.bgv-msg--mine { align-self: flex-end; flex-direction: row-reverse; }
+.bgv-msg--mine .bgv-msg__col { justify-items: end; }
+.bgv-msg--mine .bgv-msg__bubble { background: var(--primary); color: var(--on-primary); border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg); }
+.bgv-msg--mine .bgv-msg__meta { flex-direction: row-reverse; }
+.bgv-msg--quick .bgv-msg__bubble { background: transparent; font-size: 30px; line-height: 1.2; padding: 0 4px; }
+.bgv-msg--mentioned .bgv-msg__bubble { background: var(--invite-soft); box-shadow: inset 0 0 0 1.5px var(--invite-strong); }
+.bgv-msg--pending .bgv-msg__bubble { opacity: 0.8; }
+.bgv-msg--failed .bgv-msg__bubble { box-shadow: inset 0 0 0 1.5px var(--danger); }
+.bgv-msg__reply { display: grid; gap: 0; margin-block-end: 6px; padding: 4px 10px; border-radius: var(--radius-sm); background: rgba(20,43,59,0.08); font-size: 13px; line-height: 1.5; border-inline-start: 0; }
+.bgv-msg--mine .bgv-msg__reply { background: rgba(243,235,221,0.16); }
+.bgv-msg__reply b { font-size: 12px; }
+.bgv-msg__edited { font-size: 12px; color: var(--text-muted); }
+.bgv-seen { display: inline-flex; color: var(--success); }
+.bgv-sys { align-self: center; display: inline-flex; align-items: center; gap: 6px; max-inline-size: 92%; padding: 4px 12px; border-radius: var(--radius-pill); background: var(--surface-sunken); color: var(--text-muted); font-size: 13px; text-align: center; }
+.bgv-sys b { color: var(--text); font-weight: 700; }
+.bgv-sys--game { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+.bgv-reactions { display: flex; gap: 4px; flex-wrap: wrap; }
+.bgv-react { display: inline-flex; align-items: center; gap: 4px; block-size: 26px; padding-inline: 8px; border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--line); font-size: 13px; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
+.bgv-reactbar { display: flex; gap: 2px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-reactbar button { inline-size: 40px; block-size: 40px; border-radius: 50%; border: 0; background: none; font-size: 22px; cursor: pointer; }
+.bgv-mention { display: inline-flex; padding-inline: 4px; border-radius: var(--radius-xs); font-weight: 700; background: rgba(20,43,59,0.1); color: inherit; }
+.bgv-msg--mine .bgv-mention { background: rgba(243,235,221,0.2); }
+.bgv-mention--you { background: var(--invite); color: var(--on-invite); }
+.bgv-suggest { display: grid; padding: 6px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-suggest__item { display: flex; align-items: center; gap: 10px; min-block-size: 44px; padding-inline: 8px; border-radius: var(--radius-sm); font-size: 14px; }
+.bgv-suggest__item.is-focus { background: var(--surface-raised); }
+.bgv-composer { display: grid; gap: 8px; padding: 10px; border-block-start: 1px solid var(--line); background: var(--surface); }
+.bgv-composer__row { display: flex; align-items: flex-end; gap: 6px; }
+.bgv-composer__input { flex: 1; min-block-size: 44px; max-block-size: 120px; padding: 10px 14px; border-radius: var(--radius-pill); border: 1px solid var(--field-edge); background: var(--surface-sunken); box-shadow: var(--shadow-field); font-size: 15px; line-height: 1.5; resize: none; }
+.bgv-composer__reply { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: var(--radius-sm); background: var(--surface-raised); font-size: 13px; }
+.bgv-composer__reply span { flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bgv-quicktray { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-block: 2px; padding-inline-end: 24px; -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); }
+.bgv-quicktray .bgv-chip { block-size: 32px; font-size: 14px; font-weight: 400; padding-inline: 12px; }
+.bgv-typing { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); padding-inline: 4px; }
+.bgv-typing i { inline-size: 6px; block-size: 6px; border-radius: 50%; background: currentColor; animation: bgv-bounce 1.2s var(--ease-in-out) infinite; }
+.bgv-typing i:nth-child(2) { animation-delay: 0.15s; } .bgv-typing i:nth-child(3) { animation-delay: 0.3s; }
+.bgv-unread { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; color: var(--invite-strong); }
+.bgv-unread::before, .bgv-unread::after { content: ""; flex: 1; block-size: 1px; background: currentColor; opacity: 0.5; }
+.bgv-chat__readonly { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-block-start: 1px solid var(--line); background: var(--surface-sunken); color: var(--text-muted); font-size: 14px; }
+.bgv-bubble-float { position: absolute; padding: 6px 10px; border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-xs); background: var(--surface); color: var(--text); font-size: 13px; box-shadow: var(--shadow-float); max-inline-size: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: bgv-pop var(--dur-spring) var(--ease-spring); }
+
+/* ── Notifications ───────────────────────────────────────────────── */
+.bgv-notif { display: flex; gap: var(--space-3); padding: 14px var(--space-4); border-block-end: 1px solid var(--line); align-items: flex-start; }
+.bgv-notif.is-unread { background: var(--surface); }
+.bgv-notif__icon { inline-size: 40px; block-size: 40px; border-radius: var(--radius-sm); display: grid; place-items: center; flex: none; background: var(--surface-raised); color: var(--heading); box-shadow: var(--shadow-tile); }
+.bgv-notif__icon--turn { background: var(--invite); color: var(--on-invite); }
+.bgv-notif__icon--urgent { background: var(--danger); color: var(--on-danger); }
+.bgv-notif__icon--reward { background: var(--accent); color: var(--on-accent); }
+.bgv-notif__body { flex: 1; display: grid; gap: 2px; min-inline-size: 0; font-size: 15px; line-height: 1.55; }
+.bgv-notif__time { font-size: 13px; color: var(--text-muted); }
+.bgv-notif__actions { display: flex; gap: 6px; margin-block-start: 6px; }
+.bgv-notif .bgv-dot { margin-block-start: 8px; background: var(--invite-strong); }
+.bgv-push { display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; padding: 12px 14px; border-radius: var(--radius-lg); background: rgba(250,245,236,0.94); color: #142B3B; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.4); font-family: var(--font-fa); }
+.bgv-push__icon { grid-row: span 2; inline-size: 40px; block-size: 40px; border-radius: var(--radius-tile); overflow: hidden; }
+.bgv-push__head { display: flex; gap: 6px; font-size: 12px; color: #59666B; } .bgv-push__head b { color: #142B3B; }
+.bgv-push__text { font-size: 14px; line-height: 1.5; }
+
+/* ── Profile & cosmetics ─────────────────────────────────────────── */
+.bgv-banner-art { --_b1: var(--felt); --_b2: var(--brand-green); position: relative; block-size: 160px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: linear-gradient(135deg, var(--_b1), var(--_b2)); overflow: hidden; }
+.bgv-banner-art--felt { --_b1: #2B4A5E; --_b2: var(--brand-green); }
+.bgv-banner-art--coral { --_b1: var(--invite); --_b2: var(--brand-coral-deep); }
+.bgv-banner-art--gold { --_b1: var(--accent); --_b2: #A88849; }
+.bgv-banner-art--night { --_b1: #0A1824; --_b2: #1F3A5A; }
+.bgv-banner-art--cream { --_b1: var(--brand-cream); --_b2: #E6DBC8; }
+.bgv-banner-art::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(243,235,221,0.12) 1.5px, transparent 1.6px); background-size: 14px 14px; }
+.bgv-profilehead { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+/* the avatar overlaps the banner by --_lift; the name block starts 16px BELOW the banner edge, never on it */
+.bgv-profilehead { --_lift: 56px; }
+.bgv-profilehead--compact { --_lift: 40px; }
+.bgv-profilehead__main { display: flex; align-items: flex-end; gap: var(--space-4) var(--space-5); padding: 0 var(--space-5) var(--space-5); margin-block-start: calc(-1 * var(--_lift)); position: relative; flex-wrap: wrap; }
+.bgv-profilehead__text { flex: 1; min-inline-size: 220px; display: grid; gap: 4px; padding-block-start: calc(var(--_lift) + var(--space-4)); }
+.bgv-profilehead--compact .bgv-profilehead__text { min-inline-size: 160px; }
+.bgv-profilehead__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.bgv-profilehead__bio { padding: 0 var(--space-5) var(--space-5); }
+.bgv-profilehead__stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border-block-start: 1px solid var(--line); border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
+.bgv-profilehead__stats > div { background: var(--surface); padding: 12px 16px; display: grid; gap: 2px; }
+.bgv-profilehead__stats b { font-size: 20px; font-weight: 900; color: var(--heading); font-variant-numeric: tabular-nums; }
+.bgv-profilehead__stats span { font-size: 13px; color: var(--text-muted); }
+.bgv-trophy { display: grid; justify-items: center; gap: 6px; text-align: center; font-size: 13px; color: var(--text-muted); inline-size: 88px; }
+.bgv-trophy__art { inline-size: 56px; block-size: 56px; border-radius: var(--radius-md); background: var(--_t, var(--tier-gold)); display: grid; place-items: center; color: var(--brand-ink); box-shadow: inset 0 -4px 0 rgba(20,43,59,0.25), inset 0 2px 0 rgba(255,255,255,0.4); }
+.bgv-trophy--bronze { --_t: var(--tier-bronze); } .bgv-trophy--silver { --_t: var(--tier-silver); } .bgv-trophy--turquoise { --_t: var(--tier-turquoise); } .bgv-trophy--diamond { --_t: var(--tier-diamond); }
+.bgv-trophy--locked .bgv-trophy__art { background: var(--surface-sunken); color: var(--text-muted); box-shadow: var(--shadow-field); }
+.bgv-cosm { position: relative; display: grid; align-content: start; gap: 8px; min-inline-size: 0; padding: 12px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); text-align: center; cursor: pointer; }
+.bgv-cosm__art { aspect-ratio: 1; border-radius: var(--radius-sm); background: var(--surface-sunken); display: grid; place-items: center; overflow: hidden; }
+.bgv-cosm__name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-inline-size: 0; }
+.bgv-cosm__meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: var(--text-muted); min-inline-size: 0; }
+.bgv-cosm__state { font-size: 12px; color: var(--text-muted); display: flex; justify-content: center; align-items: center; gap: 4px; }
+.bgv-cosm.is-equipped::after { content: "پوشیده"; position: absolute; inset-block-start: 18px; inset-inline-start: 18px; padding: 0 7px; border-radius: var(--radius-pill); background: var(--primary); color: var(--on-primary); font-size: 12px; font-weight: 900; line-height: 18px; }
+.bgv-cosm.is-locked .bgv-cosm__art { opacity: 0.5; filter: grayscale(0.6); }
+.bgv-rarity { font-size: 12px; font-weight: 900; padding-inline: 6px; border-radius: var(--radius-xs); }
+.bgv-rarity--common { background: var(--surface-raised); color: var(--text-muted); }
+.bgv-rarity--rare { background: var(--info-soft); color: var(--info); }
+.bgv-rarity--epic { background: #EADDF8; color: #5B2E99; }
+[data-theme="dark"] .bgv-rarity--epic { background: #2E2245; color: #CDB2F2; }
+.bgv-rarity--legend { background: var(--accent); color: var(--on-accent); }
+.bgv-cardback { aspect-ratio: 5 / 7; border-radius: var(--radius-md); border: 4px solid var(--brand-cream); background: var(--_cb, var(--brand-green)); box-shadow: var(--shadow-piece); display: grid; place-items: center; }
+
+/* ── Brand ───────────────────────────────────────────────────────── */
+.bgv-logo { display: inline-flex; align-items: center; gap: 8px; }
+.bgv-logo img { display: block; block-size: 32px; inline-size: auto; }
+/* variants: lockup in the site header, symbol in the phone top bar; primary on light, reversed on dark */
+.bgv-logo img.bgv-logo__dark, .bgv-logo img.bgv-logo__mark { display: none; }
+[data-theme="dark"] .bgv-logo img.bgv-logo__light { display: none; }
+[data-theme="dark"] .bgv-logo img.bgv-logo__dark:not(.bgv-logo__mark) { display: block; }
+/* .bgv-logo--mark: show the symbol instead of the lock-up (narrow places) */
+.bgv-logo--mark img.bgv-logo__full { display: none; }
+.bgv-logo--mark img.bgv-logo__mark.bgv-logo__light, .bgv-logo--mark img.bgv-logo__mark:not(.bgv-logo__light):not(.bgv-logo__dark) { display: block; }
+[data-theme="dark"] .bgv-logo--mark img.bgv-logo__mark.bgv-logo__light { display: none; }
+[data-theme="dark"] .bgv-logo--mark img.bgv-logo__mark.bgv-logo__dark { display: block; }
+
+/* ── Motion ──────────────────────────────────────────────────────── */
+@keyframes bgv-spin { to { transform: rotate(360deg); } }
+@keyframes bgv-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes bgv-pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes bgv-shimmer { to { background-position: -200% 0; } }
+@keyframes bgv-bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-3px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bgv, .bgv *, .bgv *::before, .bgv *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; } }
+[data-motion="reduce"] *, [data-motion="reduce"] *::before, [data-motion="reduce"] *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+
+/* separator dot between meta items (never type «·» next to Persian digits: it reads as «۰») */
+.bgv-sep { display: inline-block; inline-size: 4px; block-size: 4px; border-radius: 50%; background: currentColor; opacity: 0.45; flex: none; vertical-align: middle; margin-inline: 5px; }
+
+/* ── v1.1 additions (gaps found while composing 114 screens) ────────── */
+.bgv { box-sizing: border-box; }
+.bgv-hero .bgv-badge { background: var(--felt-plate); color: var(--felt-ink); }
+.bgv-hero .bgv-clock { --clock-calm: var(--felt-ink); --clock-track: rgba(243,235,221,0.2); --_bg: var(--felt); }
+.bgv-hero .bgv-clock[data-state="warn"] { --clock-c: var(--clock-on-felt-warn); }
+.bgv-hero .bgv-clock[data-state="critical"] { --clock-c: var(--clock-on-felt-critical); }
+.bgv-felt .bgv-card, .bgv-felt .bgv-actiondock, .bgv-felt .bgv-result, .bgv-felt .bgv-chat, .bgv-felt .bgv-sheet, .bgv-felt .bgv-dialog, .bgv-felt .bgv-menu { color: var(--text); }
+.bgv-felt .bgv-badge--success { background: var(--success-soft); color: var(--success); }
+.bgv-felt .bgv-badge--warning { background: var(--warning-soft); color: var(--warning); }
+.bgv-felt .bgv-badge--danger { background: var(--danger-soft); color: var(--danger); }
+/* clocks */
+.bgv-felt .bgv-clock--chip, .bgv-hero .bgv-clock--chip { background: rgba(243,235,221,0.14); }
+.bgv-felt .bgv-clock[data-state="frozen"] { --clock-c: var(--clock-on-felt-frozen); }
+.bgv-turn--mine .bgv-clock[data-state="warn"], .bgv-turn--mine .bgv-clock[data-state="paused"] { --clock-c: var(--on-invite); }
+.bgv-clock--chip .bgv-clock__ring > .bgv-icon { inline-size: 10px; block-size: 10px; }
+.bgv-critbar { display: grid; gap: 8px; padding: 10px 14px; border-radius: var(--radius-md); background: var(--danger); color: var(--on-danger); font-weight: 700; font-size: 15px; }
+.bgv-critbar__track { block-size: 4px; border-radius: var(--radius-pill); background: rgba(243,235,221,0.3); overflow: hidden; }
+.bgv-critbar__track i { display: block; block-size: 100%; inline-size: calc(var(--p, 0.2) * 100%); background: currentColor; }
+.bgv-haptic { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--radius-pill); background: rgba(20,43,59,0.12); font-size: 12px; }
+.bgv-haptic .bgv-icon { inline-size: 16px; block-size: 16px; }
+/* HUD */
+.bgv-hud--grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 6px; }
+.bgv-race__row { grid-template-columns: 20px 72px minmax(0, 1fr) auto; }
+.bgv-race__name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bgv-res { --_r: var(--border); }
+.bgv-mlog { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 2px 8px; font-family: var(--font-latin); font-size: 14px; font-variant-numeric: tabular-nums; }
+.bgv-die { inline-size: 36px; block-size: 36px; border-radius: var(--radius-md); background: var(--brand-cream); color: var(--brand-ink); display: grid; place-items: center; font-weight: 900; box-shadow: inset 0 -3px 0 rgba(20,43,59,0.2), var(--shadow-piece); }
+/* bubbles: tail follows the side of the speaker */
+.bgv-bubble-float--start { border-radius: var(--radius-md) var(--radius-md) var(--radius-xs) var(--radius-md); } .bgv-bubble-float--end { border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-xs); }
+/* chat */
+.bgv-msg--deleted .bgv-msg__bubble { background: transparent; box-shadow: inset 0 0 0 1px var(--line); border: 1px dashed var(--line); color: var(--text-muted); font-style: italic; }
+.bgv-msg__fail { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--danger); font-weight: 700; }
+.bgv-chat__list--bottom { justify-content: flex-end; }
+.bgv-conv { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-md); text-decoration: none; color: var(--text); }
+.bgv-conv__main { flex: 1; min-inline-size: 0; display: grid; line-height: 1.45; }
+.bgv-conv__time { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.bgv-conv__main .bgv-icon { color: var(--text-muted); }
+.bgv-conv__main small { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.bgv-invitecard { display: grid; gap: 8px; padding: 12px; border-radius: var(--radius-md); background: var(--surface); border: 1.5px solid var(--invite-strong); }
+.bgv-suggest__head { padding: 6px 8px 2px; font-size: 12px; font-weight: 700; color: var(--label); }
+.bgv-menu__item small { margin-inline-start: auto; font-size: 12px; color: var(--text-muted); }
+/* lists and rows */
+.bgv-row-item { display: grid; align-items: center; gap: 12px; padding: 12px 20px; border-block-end: 1px solid var(--line); }
+.bgv-row-item.is-mine { background: linear-gradient(to left, var(--invite-soft), transparent); }
+.bgv-colhead { display: grid; gap: 12px; padding: 8px 20px; font-size: 13px; font-weight: 700; color: var(--text-muted); border-block-end: 1px solid var(--line); }
+.bgv-setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-block-size: 56px; padding-block: 8px; border-block-end: 1px solid var(--line); }
+.bgv-setrow__text { display: grid; gap: 2px; } .bgv-setrow__text small { font-size: 13px; color: var(--text-muted); }
+.bgv-sticky-actions { position: sticky; inset-block-end: 0; display: flex; gap: 8px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-block-start: 1px solid var(--line); box-shadow: var(--shadow-float); }
+.bgv-sticky-actions > .bgv-btn { flex: 1; }
+.bgv-tel { display: flex; align-items: stretch; border: 1px solid var(--field-edge); border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow-field); overflow: hidden; direction: ltr; }
+.bgv-tel > span { display: grid; place-items: center; padding-inline: 12px; border-inline-end: 1px solid var(--line); font-family: var(--font-latin); font-weight: 800; color: var(--text-muted); }
+.bgv-tel > input { flex: 1; border: 0; background: none; padding: 10px 14px; font-size: 18px; letter-spacing: 0.06em; outline: 0; }
+.bgv-tel:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+.bgv-otp input[aria-invalid="true"] { border-color: var(--danger); background: var(--danger-soft); color: var(--danger); }
+.bgv-state--denied .bgv-state__icon { background: var(--info-soft); color: var(--info); }
+.bgv-num--signed { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+
+.bgv-badge--count-invite { background: var(--invite); color: var(--on-invite); }
+.bgv-iconbtn-count { position: relative; } .bgv-iconbtn-count > .bgv-badge--count { position: absolute; inset-block-start: -4px; inset-inline-end: -4px; box-shadow: 0 0 0 2px var(--surface); }
+.bgv-table tr.is-selected td { background: var(--surface-raised); }
+/* touch: small controls keep a 44px hit area on coarse pointers */
+@media (pointer: coarse) { .bgv-chip, .bgv-pagetabs a, .bgv-pagetabs button, .bgv-seg__item, .bgv-btn--sm, .bgv-menu__item, .bgv-reactbar button { min-block-size: 44px; } .bgv-reactbar button { min-inline-size: 44px; } .bgv-react { position: relative; } .bgv-react::before { content: ""; position: absolute; inset: -9px -2px; } }
+
+/* ── v1.2 (owner review) ─────────────────────────────────────────── */
+/* breathing room: content never touches a frame */
+.bgv-tag, .bgv-badge, .bgv-rarity { max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; }
+.bgv-rarity { display: inline-block; padding: 1px 8px; line-height: 18px; white-space: nowrap; }
+.bgv-cosm { padding: 12px; overflow: hidden; }
+.bgv-chip { padding-inline: 14px; }
+.bgv-chips { min-inline-size: 0; }
+.bgv-card > :first-child { margin-block-start: 0; }
+/* ── App shell (v2.1: site header instead of the sidebar) ─────────────── */
+/* ≥900 sticky .bgv-siteheader + one centred column (max --content-max) · <900 sticky top bar + floating dock, no header.
+   Same markup at every width: .bgv-app > header.bgv-siteheader + main.bgv-app__main (first child .bgv-topbar.bgv-app__top, last child .bgv-dock.bgv-app__dock).
+   .bgv-app--full / --mid / --phone force one layout (previews, screenshots, embedded mockups); without them the viewport decides. .bgv-app--site is the same shell (kept for markup written for v1.8). */
+.bgv-app { display: block; min-block-size: 100vh; background: var(--bg); color: var(--text); }
+.bgv-app__main { min-inline-size: 0; display: flex; flex-direction: column; gap: var(--space-6); max-inline-size: var(--content-max); margin-inline: auto; padding: var(--space-6) 32px var(--space-8); box-sizing: border-box; }
+.bgv-app__top, .bgv-app__dock { display: none; }
+/* layout helpers for page content */
+.bgv-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); gap: var(--space-6); align-items: start; }
+.bgv-cols > * { min-inline-size: 0; }
+.bgv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: var(--space-4); }
+.bgv-grid--sm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); }
+.bgv-scroll-x { overflow-x: auto; scrollbar-width: thin; }
+@media (max-width: 1199px) {
+  .bgv-app:not(.bgv-app--full):not(.bgv-app--phone) > .bgv-app__main { padding-inline: 20px; }
+  .bgv-cols { grid-template-columns: minmax(0, 1fr); }
+}
+.bgv-app--full .bgv-cols { grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); }
+.bgv-app--mid > .bgv-app__main { padding-inline: 20px; }
+.bgv-app--phone .bgv-cols, .bgv-app--mid .bgv-cols { grid-template-columns: minmax(0, 1fr); }
+/* phone (<900): sticky top bar + floating dock; the header and the footer's desktop columns step aside */
+.bgv-app--phone > .bgv-siteheader { display: none; }
+.bgv-app--phone > .bgv-app__main { padding: var(--space-4); gap: var(--space-4); padding-block-end: 104px; }
+.bgv-app--phone > .bgv-app__main > .bgv-app__top { display: flex; position: sticky; inset-block-start: 0; z-index: var(--z-sticky); margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0; }
+.bgv-app--phone > .bgv-app__main > .bgv-app__dock { display: grid; position: fixed; inset-inline: 12px; inset-block-end: 12px; z-index: var(--z-dock); }
+.bgv-app--phone .bgv-pagehead__title { font-size: 24px; }
+@media (max-width: 899px) {
+  .bgv-app:not(.bgv-app--full):not(.bgv-app--mid) > .bgv-siteheader { display: none; }
+  .bgv-app:not(.bgv-app--full):not(.bgv-app--mid) > .bgv-app__main { padding: var(--space-4); gap: var(--space-4); padding-block-end: 104px; }
+  .bgv-app:not(.bgv-app--full):not(.bgv-app--mid) > .bgv-app__main > .bgv-app__top { display: flex; position: sticky; inset-block-start: 0; z-index: var(--z-sticky); margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0; }
+  .bgv-app:not(.bgv-app--full):not(.bgv-app--mid) > .bgv-app__main > .bgv-app__dock { display: grid; position: fixed; inset-inline: 12px; inset-block-end: 12px; z-index: var(--z-dock); }
+  .bgv-pagehead__title { font-size: 24px; }
+}
+
+/* ── Table screen responsive ─────────────────────────────────────────── */
+/* ≥1200 rail | felt + dock | chat · 900–1199 rail | felt + dock (chat = game-bar button → side sheet) · <900 phone order.
+   .bgv-tablescreen--full / --mid / --phone force one layout (previews); without them the viewport decides. */
+.bgv-tablescreen--mid { grid-template-columns: var(--rail-w) minmax(0, 1fr); }
+.bgv-tablescreen--mid > .bgv-chat, .bgv-tablescreen--phone > .bgv-chat { display: none; }
+.bgv-tablescreen--phone { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--gamebar-h) auto auto auto; min-block-size: 0; }
+.bgv-tablescreen--phone > * { grid-column: 1; grid-row: auto; }
+.bgv-tablescreen--phone > .bgv-hud--rail { flex-direction: row; overflow-x: auto; }
+.bgv-tablescreen--phone > .bgv-hud--rail > .bgv-pcard { flex: none; inline-size: 240px; }
+@media (max-width: 1199px) {
+  .bgv-tablescreen--desk:not(.bgv-tablescreen--full):not(.bgv-tablescreen--phone) { grid-template-columns: var(--rail-w) minmax(0, 1fr); }
+  .bgv-tablescreen--desk:not(.bgv-tablescreen--full) > .bgv-chat { display: none; }
+}
+@media (max-width: 899px) {
+  .bgv-tablescreen--desk:not(.bgv-tablescreen--full):not(.bgv-tablescreen--mid) { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--gamebar-h) auto auto auto; min-block-size: 0; }
+  .bgv-tablescreen--desk:not(.bgv-tablescreen--full):not(.bgv-tablescreen--mid) > * { grid-column: 1; grid-row: auto; }
+  .bgv-tablescreen--desk:not(.bgv-tablescreen--full):not(.bgv-tablescreen--mid) > .bgv-hud--rail { flex-direction: row; overflow-x: auto; }
+  .bgv-tablescreen--desk:not(.bgv-tablescreen--full):not(.bgv-tablescreen--mid) > .bgv-hud--rail > .bgv-pcard { flex: none; inline-size: 240px; }
+}
+
+/* ── QA3 pass: component-scoped fixes (visual review of every preview, light + dark) ─────────────── */
+/* turn ring: 2px clear gap between the spinning arc and the seat/«شما» ring (was 1px, read as touching) */
+.bgv-avatar.is-turn::before { inset: -8px; }
+.bgv-avatar.is-turn { margin: 10px; }
+/* switch: the off thumb was dark green on the charcoal track in dark (no contrast) */
+[data-theme="dark"] .bgv-switch:not([aria-checked="true"]) .bgv-switch__track::after { background: var(--text-muted); }
+/* phone top bar: the bell count sat 2px from the bar's top edge */
+.bgv-topbar .bgv-iconbtn-count > .bgv-badge--count { inset-block-start: 0; }
+/* HUD stat delta on the felt: --success (dark green) vanished on the felt in light */
+.bgv-felt .bgv-hstat__delta { color: #96D4B0; } .bgv-felt .bgv-hstat__delta--down { color: var(--clock-on-felt-critical); }
+/* race: a fixed value column so every bar starts and ends on the same line («۹۵» vs «۲۱۰») */
+.bgv-race__row { grid-template-columns: 20px 72px minmax(0, 1fr) minmax(2.5em, auto); }
+/* xs avatar (mention list, chips): the 18px bot tile covered the whole initial */
+.bgv-avatar--xs > .bgv-avatar__bot { inline-size: 13px; block-size: 13px; inset-block-end: -5px; inset-inline-start: -5px; border-radius: var(--radius-xs); }
+.bgv-avatar--xs > .bgv-avatar__bot .bgv-icon { inline-size: 9px; block-size: 9px; }
+/* cosmetic tile: «پوشیده» kept ≥4px off the art tile edge and off the item art */
+.bgv-cosm.is-equipped::after { inset-block-start: 16px; inset-inline-start: 16px; }
+/* mention chip: visible on charcoal / dark-green surfaces and on the cream «mine» bubble in dark */
+[data-theme="dark"] .bgv-mention:not(.bgv-mention--you) { background: rgba(243,235,221,0.14); }
+
+/* ── Lead pass: QA requests ─────────────── */
+/* new: meta line whose separators never dangle at a line end */
+.bgv-metaline { display: block; overflow: hidden; min-inline-size: 0; }
+.bgv-metaline__in { display: flex; flex-wrap: wrap; align-items: center; margin-inline-start: -14px; }
+.bgv-metaline__it { position: relative; padding-inline-start: 14px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.bgv-metaline__it::before { content: ""; position: absolute; inset-inline-start: 5px; inset-block-start: 50%; inline-size: 4px; block-size: 4px; margin-block-start: -2px; border-radius: 50%; background: currentColor; opacity: .45; }
+/* the turn pill never shrinks on a felt row; plates carry one-line copy */
+.bgv-felt-row > .bgv-turn { flex: none; }
+.bgv-felt-row > .bgv-felt-plate { white-space: nowrap; min-inline-size: 0; }
+/* failed message: label on one line, retry wraps as a whole */
+.bgv-msg__fail { white-space: nowrap; flex-wrap: wrap; }
+
+/* ── v1.4 navy/amber theme: accessibility fixes (amber reaches only ~2.2:1 on cream) ─────────── */
+/* «شما» ring, own card edge, try-on outline, mention frame, invite card, unread line: on light use the deep amber-brown (--link #8D581A, ≥5:1); amber stays in dark and on felt */
+.bgv-avatar.is-you:not([data-theme="dark"] *) { --_ring: var(--link); }
+.bgv-pcard.is-you:not([data-theme="dark"] *) { --_edge: var(--link); }
+.bgv-invitecard:not([data-theme="dark"] *) { border-color: var(--link); }
+.bgv-unread:not([data-theme="dark"] *), .bgv-notif .bgv-dot:not([data-theme="dark"] *) { color: var(--link); }
+.bgv-notif .bgv-dot:not([data-theme="dark"] *) { background: var(--link); }
+.bgv-felt .bgv-avatar.is-you, .bgv-felt .bgv-pcard.is-you { --_ring: var(--invite-strong); --_edge: var(--invite-strong); }
+/* invite chip ≠ selected chip: soft amber fill + dashed deep-amber border (form, not colour, says «invite») */
+/* BannerArt «coral» variant retuned to brick so it no longer duplicates «gold» */
+.bgv-banner-art--coral { --_b1: #C8693A; --_b2: #8E3F24; }
+
+/* ===== v1.6 (2026-10-21): light «عاج نرم + بالشتک سفید», selection navy, ModeTag ===== */
+/* cards white + warm hairline; floating surfaces white + hairline */
+.bgv-card:not([data-theme="dark"] *) { border-color: var(--line); }
+:is(.bgv-menu, .bgv-dialog, .bgv-sheet, .bgv-popover):not([data-theme="dark"] *) { background: #FFFFFF; border-color: var(--line); }
+/* selection = navy; amber only for the main action, «نوبت شما», coins */
+.bgv-badge--you:not([data-theme="dark"] *), .bgv-pcard.is-you .bgv-pcard__name b:not([data-theme="dark"] *)::after { background: #142B3B; color: #FFFFFF; }
+[data-theme="dark"] .bgv-badge--you, [data-theme="dark"] .bgv-pcard.is-you .bgv-pcard__name b::after { background: #FAF5EC; color: #142B3B; }
+/* soft status tints get their strong colour as a 1px edge */
+.bgv-badge--info:not([data-theme="dark"] *), .bgv-banner:not([data-theme="dark"] *) { box-shadow: inset 0 0 0 1px #8FB4C2; }
+.bgv-badge--success:not([data-theme="dark"] *), .bgv-banner--success:not([data-theme="dark"] *) { box-shadow: inset 0 0 0 1px #8DB9A3; }
+.bgv-badge--warning:not([data-theme="dark"] *), .bgv-banner--warning:not([data-theme="dark"] *) { box-shadow: inset 0 0 0 1px #D2A56C; }
+.bgv-badge--danger:not([data-theme="dark"] *), .bgv-banner--danger:not([data-theme="dark"] *) { box-shadow: inset 0 0 0 1px #D49790; }
+/* new: play-mode tag (people or bot) */
+.bgv-modetag { display: inline-flex; align-items: stretch; border-radius: var(--radius-pill); overflow: hidden; box-shadow: inset 0 0 0 1.5px #142B3B; font-size: 13px; font-weight: 800; line-height: 1; color: #142B3B; }
+.bgv-modetag > span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; }
+.bgv-modetag > span + span { background: #142B3B; color: #FFFFFF; }
+.bgv-modetag svg { inline-size: 15px; block-size: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bgv-modetag--icon > span { padding: 5px 9px; }
+[data-theme="dark"] .bgv-modetag { box-shadow: inset 0 0 0 1.5px #FAF5EC; color: #FAF5EC; }
+[data-theme="dark"] .bgv-modetag > span + span { background: #FAF5EC; color: #142B3B; }
+/* v1.6 promoted from concept review: navigation selection and podium are navy; turn count badge keeps amber */
+.bgv-badge--turn { background: var(--invite); color: var(--on-invite); box-shadow: none; font-weight: 800; }
+/* v2.1.8 GameCard: the box photo is the only face (white shelf, contact shadow). The photo is sized to its own shape, centred on the shelf, with 6px corners; a faint line separates it from the text. Hover / keyboard focus lifts the card and enlarges the box from its centre; the image never changes */
+.bgv-gamecard { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+.bgv-gamecard--box .bgv-gamecard__cover { aspect-ratio: 1 / 1; background: var(--surface); }
+.bgv-gamecard--box .bgv-gamecard__cover::after { content: ""; position: absolute; inset-inline: 22%; inset-block-end: 12px; block-size: 10px; border-radius: 50%; background: rgba(20,43,59,.16); filter: blur(6px); transition: transform var(--dur-base) var(--ease-out); }
+.bgv-gamecard--box .bgv-gamecard__box { position: absolute; inset: 16px 16px 22px; inline-size: calc(100% - 32px); block-size: calc(100% - 38px); z-index: 1; transform-origin: 50% 50%; transition: transform var(--dur-base) var(--ease-out); }
+.bgv-gamecard--box img.bgv-gamecard__box { inset: auto; top: calc(50% - 3px); left: 50%; inline-size: auto; block-size: auto; max-inline-size: calc(100% - 32px); max-block-size: calc(100% - 38px); border-radius: 6px; transform: translate(-50%, -50%); filter: drop-shadow(0 14px 12px rgba(20,43,59,.28)) drop-shadow(0 2px 2px rgba(20,43,59,.2)); }
+div.bgv-gamecard__box { display: grid; place-items: center; filter: none; }
+.bgv-gamecard__reveal { display: none; } /* retired in v2.1.7: no cover swap on hover */
+.bgv-gamecard--box .bgv-gamecard__flags { z-index: 3; }
+.bgv-gamecard--box .bgv-gamecard__body { border-block-start: 1px solid var(--line); }
+@media (hover: hover) {
+  .bgv-gamecard--box:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
+  .bgv-gamecard--box:hover div.bgv-gamecard__box { transform: scale(1.06); }
+  .bgv-gamecard--box:hover img.bgv-gamecard__box { transform: translate(-50%, -50%) scale(1.06); }
+  .bgv-gamecard--box:hover .bgv-gamecard__cover::after { transform: scaleX(1.14); }
+}
+.bgv-gamecard--box:focus-visible, .bgv-gamecard--box.is-hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
+.bgv-gamecard--box:is(:focus-visible, .is-hover) div.bgv-gamecard__box { transform: scale(1.06); }
+.bgv-gamecard--box:is(:focus-visible, .is-hover) img.bgv-gamecard__box { transform: translate(-50%, -50%) scale(1.06); }
+.bgv-gamecard--box:focus-visible .bgv-gamecard__cover::after, .bgv-gamecard--box.is-hover .bgv-gamecard__cover::after { transform: scaleX(1.14); }
+.bgv-gamecard--box .bgv-gamecard__body { gap: 6px; }
+[data-theme="dark"] .bgv-gamecard--box .bgv-gamecard__cover::after { background: rgba(0,0,0,.35); }
+/* reduced motion: no transitions and no lift; the box still shows its larger size, instantly */
+@media (prefers-reduced-motion: reduce) { .bgv-gamecard, .bgv-gamecard__box, .bgv-gamecard__cover::after { transition: none; } .bgv-gamecard--box:is(:hover, :focus-visible, .is-hover) { transform: none; } }
+[data-motion="reduce"] .bgv-gamecard, [data-motion="reduce"] .bgv-gamecard__box, [data-motion="reduce"] .bgv-gamecard__cover::after { transition: none; } [data-motion="reduce"] .bgv-gamecard--box:is(:hover, :focus-visible, .is-hover) { transform: none; }
+/* v1.6 Persian digits: proportional by default (tabular widths made «۱» stand far from its neighbours); keep tabular only where a column or a ticking time must not jump (tables, clocks) or via .bgv-num--tabular */
+.bgv-num, .bgv-stat__value, .bgv-coin, .bgv-coinchip, .bgv-felt-plate strong, .bgv-pcard__score, .bgv-hstat, .bgv-race__row b, .bgv-team__res, .bgv-reward b, .bgv-react, .bgv-profilehead__stats b { font-variant-numeric: proportional-nums; font-feature-settings: "tnum" 0; }
+.bgv-num--tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+/* v1.6 owner review round 4 */
+/* GameCard: flags sit under the title, inside the body */
+.bgv-gamecard__body .bgv-gamecard__flags { position: static; display: flex; flex-wrap: wrap; gap: 6px; }
+/* Chat: own messages are a pale amber bubble with navy text; the quoted message inside is white with an amber bar (no amber on amber) */
+.bgv-msg--mine.bgv-msg--failed .bgv-msg__bubble:not([data-theme="dark"] *) { box-shadow: inset 0 0 0 1.5px var(--danger); }
+/* Composer: the send button is round like the pill field next to it */
+.bgv-composer__row .bgv-btn--icon { border-radius: var(--radius-pill); }
+/* tags and neutral badges: white with a hairline slate edge, never white-on-white */
+.bgv-tag:not([data-theme="dark"] *) { background: #FFFFFF; border-color: transparent; box-shadow: inset 0 0 0 1px var(--print-edge); color: #3A4F5E; }
+.bgv-badge:not([class*="bgv-badge--"]):not([data-theme="dark"] *) { background: #FFFFFF; box-shadow: inset 0 0 0 1px var(--print-edge); color: #142B3B; }
+/* (v1.6) reward rows — superseded: v2.0 draws them as wells */
+/* podium: the non-winner steps are edged white pillows; the winner stays navy */
+/* player cards and icon tiles sitting on white surfaces get a warm edge */
+/* v1.6 round 5 (owner review) */
+/* 2. tracks and fields are wells (v2.0: hard inner edge, flat navy selection) */
+:is(.bgv-input, .bgv-select, .bgv-textarea, .bgv-otp input, .bgv-tel):not([data-theme="dark"] *) { background: #FBF9F5; border-color: var(--field-edge); box-shadow: var(--shadow-field); }
+.bgv-tel > input:not([data-theme="dark"] *) { background: transparent; box-shadow: none; }
+.bgv-tel > span:not([data-theme="dark"] *) { border-inline-end-color: var(--well-edge); }
+.bgv-otp input.is-filled:not([data-theme="dark"] *) { background: #FFFFFF; border-color: #142B3B; box-shadow: var(--shadow-field); }
+:is(.bgv-input[aria-invalid="true"], .bgv-field.is-error .bgv-input, .bgv-otp input[aria-invalid="true"]):not([data-theme="dark"] *) { background: var(--danger-soft); border-color: var(--danger); box-shadow: inset 0 2px 0 rgba(156,53,47,.14); }
+.bgv-field.is-error .bgv-tel:not([data-theme="dark"] *), .bgv-tel[aria-invalid="true"]:not([data-theme="dark"] *) { background: var(--danger-soft); border-color: var(--danger); }
+.bgv-gamebar__actions { align-items: center; }
+/* every game-bar action is one token size (44px, 2px frame, 4px shadow), whatever size prop it was given */
+.bgv-gamebar__actions > .bgv-btn { --_h: var(--control-md); --_bw: var(--btn-frame, 2px); --_drop: 4px; font-size: 15px; }
+.bgv-gamebar__actions > .bgv-btn:not(.bgv-btn--icon) { padding-inline: 16px; }
+/* ghost actions (sound, more) keep the 44px box but have no token, so no shadow space */
+.bgv-gamebar__actions > .bgv-btn--ghost { --_drop: 0px; }
+/* 5. «نوبت شماست» pill stays amber; the clock inside gets a light face and a navy track so the ring reads on amber */
+.bgv-turn--mine .bgv-clock { --_bg: #FFF7E8; --clock-track: rgba(20,43,59,.30); }
+.bgv-actiondock.is-waiting:not([data-theme="dark"] *) { background: var(--surface-sunken); box-shadow: var(--shadow-field), inset 0 0 0 1px var(--well-edge); }
+/* 7. Conversation list: the open conversation is a navy-edged tinted row, not white on white */
+
+/* ══ v2.0 materials «توکن چاپی» ═══════════════════════════════════════════════════════════════════════════
+   One recipe per material; raised ⇔ pressable; every shadow is hard (no blur).
+   TOKEN  pressable on its own: fill + ink frame + hard offset shadow (sm 1.5/3px, md 2/4px, lg 2/5px); hover lifts 1px, press lands.
+   ROW    pressable inside a board (menu, nav, dock, list, tab items): flat; hover tints; press = hard inner edge. Selected = flat navy.
+   WELL   fields and tracks: flat fill + hard 2px inner edge + hairline.   BOARD  cards, panels: line + 3px hard edge (shadow-card).
+   PRINT  badges, tags, meta: flat.   TABLE / PLATE / PIECE  the felt, plates printed into it, pieces on it. */
+
+/* TOKEN sm: chips, reactions, quick replies */
+.bgv-chip, .bgv-react { --_ink: var(--chip-ink, var(--ink-btn, var(--ink))); border: 0; margin-block-end: 3px; background: var(--chip-bg, var(--btn-neutral)); color: var(--chip-fg, var(--btn-neutral-ink)); box-shadow: inset 0 0 0 1.5px var(--_ink), 0 3px 0 var(--_ink); transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+/* selected = the same raised token, navy (cream in dark) with a deeper ink */
+.bgv-chip.is-selected, .bgv-chip[aria-pressed="true"], .bgv-react.is-mine { --_ink: var(--chip-s-ink, var(--ink-selected)); background: var(--chip-s-bg, var(--selected)); color: var(--chip-s-fg, var(--on-selected)); }
+/* invite keeps its own form: an empty dashed slot, never a token */
+.bgv-chip--invite { background: transparent; border: 1.5px dashed var(--chip-invite, var(--heading)); color: var(--chip-invite, var(--heading)); box-shadow: none; }
+/* TOKEN lg: cosmetic tiles (the art sits on the token, no grey box) */
+/* v2.1.11: unselected tokens (chips, reactions, cosmetic tiles, slider thumb, icon tiles) take the soft --ink-btn in light; selected, equipped and trophies keep the strong ink */
+.bgv-cosm { border: 0; background: var(--btn-neutral); box-shadow: inset 0 0 0 2px var(--ink-btn, var(--ink)), 0 5px 0 var(--ink-btn, var(--ink)); cursor: pointer; text-align: center; transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+.bgv-cosm__art { background: transparent; }
+/* equipped = a heavier 3px frame and «پوشیده»; it stays raised like its neighbours */
+.bgv-cosm.is-equipped, .bgv-cosm.is-equipped:not(:disabled):hover { box-shadow: inset 0 0 0 3px var(--ink), 0 5px 0 var(--ink); }
+.bgv-cosm.is-trying { outline: 1.5px dashed var(--link); outline-offset: 3px; }
+/* trophies in the profile showcase are pressable tokens in their tier colour */
+.bgv-trophy__art { box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out), transform var(--dur-instant) var(--ease-out); }
+.bgv-trophy--locked .bgv-trophy__art { box-shadow: var(--shadow-field), inset 0 0 0 1.5px var(--well-edge); }
+.bgv-trophy:is(button, a) { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: none; cursor: pointer; border-radius: var(--radius-md); }
+/* token hover (pointer devices only) and press: the same mechanics as buttons */
+@media (hover: hover) {
+  :is(.bgv-chip:not(.bgv-chip--invite), .bgv-react):not(.is-selected, [aria-pressed="true"], .is-mine, :disabled):hover { background: var(--chip-hover, var(--btn-neutral-hover)); transform: translateY(-1px); box-shadow: inset 0 0 0 1.5px var(--_ink), 0 4px 0 var(--_ink); }
+  .bgv-cosm:not(:disabled):hover { background: var(--btn-neutral-hover); transform: translateY(-1px); box-shadow: inset 0 0 0 2px var(--ink-btn, var(--ink)), 0 6px 0 var(--ink-btn, var(--ink)); }
+  .bgv-chip--invite:hover { background: var(--ghost-hover); }
+  .bgv-trophy:is(button, a):not(.bgv-trophy--locked):hover .bgv-trophy__art { background: color-mix(in srgb, var(--_t, var(--tier-gold)) 88%, #FFFFFF); transform: translateY(-1px); box-shadow: inset 0 0 0 2px var(--ink), 0 5px 0 var(--ink); }
+  :is(.bgv-menu__item, .bgv-dock__item, .bgv-conv, .bgv-seg__item, .bgv-pagetabs a, .bgv-pagetabs button, .bgv-reactbar button, .bgv-suggest__item, .bgv-lobbyseat.is-interactive):not(.is-active, [aria-current="page"], [aria-checked="true"], .is-selected, :disabled):hover { background: var(--ghost-hover); }
+  .bgv-card--interactive:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
+}
+:is(.bgv-chip:not(.bgv-chip--invite), .bgv-react):not(:disabled):active { transform: translateY(3px); box-shadow: inset 0 0 0 1.5px var(--_ink); }
+.bgv-cosm:not(:disabled):active { transform: translateY(5px); box-shadow: inset 0 0 0 2px var(--ink-btn, var(--ink)); }
+.bgv-chip--invite:active { background: var(--surface-sunken); box-shadow: var(--shadow-row-press); }
+.bgv-trophy:is(button, a):not(.bgv-trophy--locked):active .bgv-trophy__art { transform: translateY(4px); box-shadow: inset 0 0 0 2px var(--ink); }
+/* ROWS */
+:is(.bgv-menu__item, .bgv-dock__item, .bgv-conv, .bgv-seg__item, .bgv-pagetabs a, .bgv-pagetabs button, .bgv-reactbar button, .bgv-suggest__item, .bgv-lobbyseat.is-interactive) { position: relative; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out); }
+:is(.bgv-menu__item, .bgv-dock__item, .bgv-conv, .bgv-seg__item, .bgv-pagetabs a, .bgv-pagetabs button, .bgv-reactbar button, .bgv-suggest__item, .bgv-lobbyseat.is-interactive):not(.is-active, [aria-current="page"], [aria-checked="true"], .is-selected, :disabled):active { background: var(--surface-sunken); box-shadow: var(--shadow-row-press); }
+.bgv-menu__item.is-focus, .bgv-suggest__item.is-focus { background: var(--ghost-hover); }
+.bgv-lobbyseat.is-interactive { cursor: pointer; }
+/* the one selection: flat navy (cream in dark), in both themes */
+:is(.bgv-conv.is-active, .bgv-seg__item[aria-checked="true"], .bgv-seg__item.is-selected, .bgv-pagetabs .is-active, .bgv-pagetabs [aria-current="page"]) { background: var(--selected); color: var(--on-selected); box-shadow: none; }
+:is(.bgv-conv.is-active, .bgv-seg__item[aria-checked="true"], .bgv-seg__item.is-selected, .bgv-pagetabs .is-active, .bgv-pagetabs [aria-current="page"]) .bgv-icon { color: inherit; }
+:is(.bgv-conv.is-active) .bgv-badge--count { box-shadow: 0 0 0 2px var(--selected); }
+.bgv-conv.is-active .bgv-conv__main :not(.bgv-badge, .bgv-badge *, .bgv-tag) { color: inherit; }
+/* WELLS: decorative tracks share one recipe */
+:is(.bgv-seg, .bgv-pagetabs, .bgv-progress__track, .bgv-reward, .bgv-hstat--tile, .bgv-coinchip) { background: var(--well); box-shadow: var(--shadow-field), inset 0 0 0 1.5px var(--well-edge); }
+/* switch and checkbox: the thumb is a token seated in its slot (v2.1.9): ink ring only, no drop, exactly centred (3px on every side) in both states; the checked box is a landed token */
+.bgv-switch__track::after { box-shadow: inset 0 0 0 1.5px var(--ink); }
+/* SLIDER: a well track with a token thumb */
+.bgv-range { --_p: 50%; --_dir: to left; -webkit-appearance: none; appearance: none; inline-size: 100%; block-size: 28px; margin: 0; background: transparent; cursor: pointer; }
+[dir="ltr"] .bgv-range, .bgv-range[dir="ltr"] { --_dir: to right; }
+.bgv-range::-webkit-slider-runnable-track { block-size: 10px; border-radius: var(--radius-pill); background: /* the filled share starts at the minimum: the right edge in RTL */ linear-gradient(var(--_dir), var(--selected) 0 var(--_p), var(--well) var(--_p) 100%); box-shadow: var(--shadow-field), inset 0 0 0 1.5px var(--well-edge); }
+.bgv-range::-moz-range-track { block-size: 10px; border-radius: var(--radius-pill); background: var(--well); box-shadow: var(--shadow-field), inset 0 0 0 1.5px var(--well-edge); }
+.bgv-range::-moz-range-progress { block-size: 10px; border-radius: var(--radius-pill); background: var(--selected); }
+.bgv-range::-webkit-slider-thumb { -webkit-appearance: none; inline-size: 24px; block-size: 24px; margin-block-start: -8px; border: 0; border-radius: 50%; background: var(--btn-neutral); box-shadow: inset 0 0 0 1.5px var(--ink-btn, var(--ink)), 0 2px 0 var(--ink-btn, var(--ink)); }
+.bgv-range::-moz-range-thumb { inline-size: 24px; block-size: 24px; border: 0; border-radius: 50%; background: var(--btn-neutral); box-shadow: inset 0 0 0 1.5px var(--ink-btn, var(--ink)), 0 2px 0 var(--ink-btn, var(--ink)); }
+.bgv-range:active::-webkit-slider-thumb { box-shadow: inset 0 0 0 1.5px var(--ink-btn, var(--ink)); }
+.bgv-range:active::-moz-range-thumb { box-shadow: inset 0 0 0 1.5px var(--ink-btn, var(--ink)); }
+.bgv-range:disabled { cursor: not-allowed; opacity: 0.55; }
+/* PIECES and BOARDS: decorative icons and the podium never get a token shadow, because they do not press */
+:is(.bgv-state__icon, .bgv-notif__icon) { box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line); }
+.bgv-podium__step { background: var(--surface); box-shadow: var(--shadow-card), inset 0 0 0 1px var(--line); }
+.bgv-podium__place:nth-child(2) .bgv-podium__step { background: var(--selected); color: var(--on-selected); box-shadow: var(--shadow-card); }
+/* boards that press land again */
+:is(.bgv-card--interactive, .bgv-gamecard--box):active { transform: translateY(0); box-shadow: var(--shadow-card); }
+/* PLATES printed into the felt */
+:is(.bgv-felt-plate, .bgv-team) { box-shadow: var(--shadow-plate); }
+
+/* ===== v2.1 «پوسته‌ی سایت» (2026-10-22): header, search, account menu, footer, stepper, login sheet, «بیشتر» tiles, stacked tables,
+   game-bar items, chat colours and the owner's colour decisions — Cowork's update list, drawn in the printed-token language ===== */
+
+/* SITE HEADER (≥900): 72px, sticky, chrome surface with a hairline; logo · five destinations · search · «بازی سریع» · messages · notifications · avatar */
+.bgv-siteheader { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); background: var(--surface-chrome); border-block-end: 1px solid var(--line); }
+.bgv-siteheader__in { max-inline-size: var(--content-max); margin-inline: auto; block-size: var(--header-h); padding-inline: 32px; box-sizing: border-box; display: flex; align-items: center; gap: 20px; }
+.bgv-siteheader .bgv-logo { flex: none; display: flex; align-items: center; min-block-size: 44px; }
+.bgv-siteheader .bgv-logo img { block-size: 32px; inline-size: auto; }
+.bgv-sitenav { display: flex; align-items: center; gap: 2px; flex: none; }
+.bgv-sitenav a { position: relative; display: inline-flex; align-items: center; gap: 6px; block-size: 44px; padding-inline: 12px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; color: var(--text-muted); text-decoration: none; white-space: nowrap; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+@media (hover: hover) { .bgv-sitenav a:hover { color: var(--heading); background: var(--ghost-hover); } }
+.bgv-sitenav a:active { background: var(--surface-sunken); box-shadow: var(--shadow-row-press); }
+/* current destination: a 3px navy rule under the label (cream in dark), never a fill */
+.bgv-sitenav a[aria-current="page"] { color: var(--heading); font-weight: 900; }
+.bgv-sitenav a[aria-current="page"]::after { content: ""; position: absolute; inset-inline: 12px; inset-block-end: 2px; block-size: 3px; border-radius: 3px; background: var(--selected); }
+.bgv-sitenav .bgv-badge { block-size: 20px; padding-inline: 7px; font-size: 11.5px; }
+.bgv-siteheader__actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.bgv-siteheader__actions > .bgv-btn--ghost { color: var(--heading); }
+/* the icon of the section you are in (messages, notifications) is a flat selection; ghost buttons have no token to raise */
+:is(.bgv-siteheader__actions, .bgv-topbar) :is(a, button).bgv-btn--ghost[aria-current] { --_bg: var(--selected); --_bg-hover: var(--selected); --_fg: var(--on-selected); background: var(--selected); color: var(--on-selected); }
+.bgv-siteheader__actions .bgv-iconbtn-count > .bgv-badge--count { box-shadow: 0 0 0 2px var(--surface-chrome); }
+/* avatar button: a neutral disc (not amber) with a chevron; the current account page gets a navy ring */
+.bgv-avatarbtn { display: inline-flex; align-items: center; gap: 4px; min-block-size: 44px; min-inline-size: 44px; padding: 2px 4px 2px 2px; background: none; border: 0; border-radius: var(--radius-pill); cursor: pointer; color: var(--text-muted); font: inherit; }
+@media (hover: hover) { .bgv-avatarbtn:hover { background: var(--ghost-hover); } }
+.bgv-avatarbtn .bgv-icon { inline-size: 16px; block-size: 16px; }
+.bgv-avatarbtn .bgv-avatar { background: var(--avatar-disc); color: var(--heading); box-shadow: inset 0 0 0 1.5px var(--print-edge); }
+.bgv-avatarbtn[aria-current] .bgv-avatar { box-shadow: inset 0 0 0 1.5px var(--print-edge), 0 0 0 2px var(--surface-chrome), 0 0 0 4px var(--selected); }
+.bgv-avatarbtn[aria-expanded="true"] { background: var(--surface-sunken); }
+/* guest: «ورود / ثبت‌نام» is a secondary token in place of the icons */
+.bgv-siteheader__guest { white-space: nowrap; }
+/* 900–1199: search shrinks to a 44px round button (opens the same popover); «بازی سریع» keeps its label */
+@media (max-width: 1199px) {
+  .bgv-siteheader:not(.bgv-siteheader--wide) .bgv-siteheader__in { padding-inline: 20px; gap: 12px; }
+  .bgv-siteheader:not(.bgv-siteheader--wide) .bgv-sitenav a { padding-inline: 9px; font-size: 14px; }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  .bgv-siteheader:not(.bgv-siteheader--wide) .bgv-sitesearch { flex: none; min-inline-size: 44px; inline-size: 44px; max-inline-size: 44px; }
+  .bgv-siteheader:not(.bgv-siteheader--wide) .bgv-sitesearch__field { inline-size: 44px; padding: 0; justify-content: center; border-radius: 50%; cursor: pointer; }
+  .bgv-siteheader:not(.bgv-siteheader--wide) .bgv-sitesearch__field :is(input, kbd, .bgv-sitesearch__clear) { display: none; }
+}
+/* forced widths for previews and mock-ups */
+.bgv-siteheader--mid .bgv-siteheader__in { padding-inline: 20px; gap: 12px; }
+.bgv-siteheader--mid .bgv-sitenav a { padding-inline: 9px; font-size: 14px; }
+.bgv-siteheader--mid .bgv-sitesearch { flex: none; min-inline-size: 44px; inline-size: 44px; max-inline-size: 44px; }
+.bgv-siteheader--mid .bgv-sitesearch__field { inline-size: 44px; padding: 0; justify-content: center; border-radius: 50%; cursor: pointer; }
+.bgv-siteheader--mid .bgv-sitesearch__field :is(input, kbd, .bgv-sitesearch__clear) { display: none; }
+
+/* SITE SEARCH: a well-shaped field; the popover is a floating board (combobox + listbox) */
+.bgv-sitesearch { position: relative; flex: 1 1 auto; min-inline-size: 200px; max-inline-size: 340px; margin-inline-start: auto; }
+.bgv-sitesearch__field { display: flex; align-items: center; gap: 8px; block-size: 44px; padding-inline: 14px 8px; border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--field-edge); box-shadow: var(--shadow-field); color: var(--text-muted); font-size: 14px; box-sizing: border-box; cursor: text; }
+.bgv-sitesearch__field:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+.bgv-sitesearch__field .bgv-icon { inline-size: 18px; block-size: 18px; flex: none; color: var(--heading); }
+.bgv-sitesearch__field input { all: unset; flex: 1; min-inline-size: 0; color: var(--text); font: inherit; font-size: 15px; }
+.bgv-sitesearch__field input::placeholder { color: var(--text-muted); }
+.bgv-sitesearch__field input:focus { outline: none; }
+.bgv-sitesearch__field input::-webkit-search-cancel-button, .bgv-sitesearch__field input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.bgv-sitesearch__field kbd, .bgv-kbd { flex: none; font-family: var(--font-latin); font-size: 11px; font-weight: 700; direction: ltr; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--print-edge); color: var(--text-muted); background: var(--surface); line-height: 18px; }
+.bgv-sitesearch__clear { all: unset; display: grid; place-items: center; inline-size: 28px; block-size: 28px; border-radius: 50%; color: var(--text-muted); cursor: pointer; }
+.bgv-sitesearch__clear:focus-visible { outline: 2px solid var(--focus); }
+.bgv-sitesearch__pop { position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; inline-size: min(560px, calc(100vw - 32px)); z-index: var(--z-sheet); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); padding: 8px; display: grid; gap: 6px; box-sizing: border-box; }
+.bgv-sitesearch__pop[hidden] { display: none; }
+.bgv-sitesearch__label { display: flex; align-items: center; gap: 8px; padding: 6px 8px 0; font-size: 12px; font-weight: 700; color: var(--label); }
+.bgv-sitesearch__label > :last-child:not(:first-child) { margin-inline-start: auto; }
+.bgv-sitesearch__label a, .bgv-sitesearch__label button { all: unset; cursor: pointer; color: var(--link); font-weight: 700; }
+.bgv-sitesearch__chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 8px 4px; }
+.bgv-sitesearch__list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.bgv-sitesearch__row { position: relative; display: flex; align-items: center; gap: 12px; min-block-size: 64px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; color: inherit; text-decoration: none; }
+@media (hover: hover) { .bgv-sitesearch__row:hover { background: var(--ghost-hover); } }
+.bgv-sitesearch__row[aria-selected="true"], .bgv-sitesearch__row.is-active { background: var(--ghost-hover); box-shadow: inset -3px 0 0 var(--selected); }
+[dir="ltr"] :is(.bgv-sitesearch__row[aria-selected="true"], .bgv-sitesearch__row.is-active) { box-shadow: inset 3px 0 0 var(--selected); }
+.bgv-sitesearch__row img { inline-size: 44px; block-size: 44px; border-radius: var(--radius-sm); object-fit: cover; flex: none; box-shadow: 0 0 0 1px var(--line); }
+.bgv-sitesearch__main { flex: 1; min-inline-size: 0; display: grid; gap: 2px; }
+.bgv-sitesearch__name { display: flex; align-items: baseline; gap: 8px; font-size: 15px; font-weight: 900; color: var(--heading); }
+.bgv-sitesearch__name .bgv-latin { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.bgv-sitesearch__name mark { background: none; color: inherit; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.bgv-sitesearch__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 12.5px; color: var(--text-muted); }
+.bgv-sitesearch__meta > span { display: inline-flex; align-items: center; gap: 4px; }
+.bgv-sitesearch__row > .bgv-btn { flex: none; }
+.bgv-sitesearch__hint { display: flex; align-items: center; gap: 8px; margin: 2px 8px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--info-soft); color: var(--info); font-size: 13px; box-shadow: inset 0 0 0 1px var(--info); }
+.bgv-sitesearch__empty { display: grid; justify-items: center; gap: 8px; padding: 20px 12px; text-align: center; }
+.bgv-sitesearch__empty b { font-size: 15px; color: var(--heading); }
+.bgv-sitesearch__empty p { margin: 0; font-size: 13px; color: var(--text-muted); }
+.bgv-sitesearch__foot { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; padding: 8px 10px 4px; border-block-start: 1px solid var(--line); font-size: 12px; color: var(--text-muted); }
+.bgv-sitesearch__foot > a { margin-inline-start: auto; font-weight: 700; color: var(--link); text-decoration: none; font-size: 13px; }
+.bgv-sitesearch__foot > span { display: inline-flex; align-items: center; gap: 4px; }
+/* phone: the magnifier in the top bar opens a full-screen sheet with the same list */
+.bgv-sitesearch--sheet { position: static; max-inline-size: none; min-inline-size: 0; margin: 0; display: grid; gap: 10px; align-content: start; padding: 12px 16px; background: var(--bg); }
+.bgv-sitesearch--sheet .bgv-sitesearch__top { display: flex; align-items: center; gap: 8px; }
+.bgv-sitesearch--sheet .bgv-sitesearch__field { flex: 1; }
+.bgv-sitesearch--sheet .bgv-sitesearch__pop { position: static; inline-size: auto; box-shadow: none; border: 0; background: none; padding: 0; }
+.bgv-sitesearch--sheet .bgv-sitesearch__row { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-card); flex-wrap: wrap; }
+.bgv-sitesearch--sheet .bgv-sitesearch__row > .bgv-btn { margin-inline-start: auto; }
+
+/* ACCOUNT MENU: the avatar's menu — who you are, coins, then 14 items in four groups */
+.bgv-menu--account { inline-size: 264px; box-sizing: border-box; }
+.bgv-menu--account .bgv-menu__item { text-decoration: none; font-family: inherit; }
+.bgv-menu--account .bgv-menu__item > span:not(.bgv-badge) { flex: 1; }
+.bgv-menu--account .bgv-menu__item .bgv-badge--count { margin-inline-start: auto; }
+.bgv-menu__list { display: grid; gap: 2px; }
+.bgv-menu__id { display: flex; align-items: center; gap: 10px; padding: 6px 8px; }
+.bgv-menu__id > span:last-child { display: grid; line-height: 1.5; min-inline-size: 0; }
+.bgv-menu__id b { font-size: 15px; color: var(--heading); }
+.bgv-menu__id small { font-size: 12px; color: var(--text-muted); }
+.bgv-menu__id .bgv-avatar { background: var(--avatar-disc); color: var(--heading); box-shadow: inset 0 0 0 1.5px var(--print-edge); }
+.bgv-menu__wallet { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 8px; padding: 10px 4px 12px; border-block-start: 1px solid var(--line); }
+.bgv-menu__item small.bgv-menu__tag { padding: 1px 8px; border-radius: var(--radius-pill); box-shadow: inset 0 0 0 1px var(--print-edge); font-size: 11px; font-weight: 700; }
+
+/* SITE FOOTER: public pages only (games, game page, wiki, support). A navy board in both themes; phone columns are an accordion */
+.bgv-sitefooter { background: var(--brand-green); color: #F3EBDD; border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: inset 0 3px 0 rgba(243,235,221,0.08); margin-block-start: var(--space-10); }
+[data-theme="dark"] .bgv-sitefooter { background: #0A141B; box-shadow: inset 0 1px 0 var(--line); }
+.bgv-sitefooter__in { max-inline-size: var(--content-max); margin-inline: auto; padding: 40px 32px 24px; box-sizing: border-box; display: grid; gap: 28px; }
+.bgv-sitefooter__cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; }
+.bgv-sitefooter h3 { font-size: 15px; font-weight: 900; color: #F3EBDD; margin: 0 0 12px; }
+.bgv-sitefooter h3 button { all: unset; display: flex; align-items: center; justify-content: space-between; inline-size: 100%; cursor: default; }
+.bgv-sitefooter h3 button .bgv-icon { display: none; }
+.bgv-sitefooter ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bgv-sitefooter a { color: #C9D9DD; text-decoration: none; font-size: 14px; }
+.bgv-sitefooter a:hover { color: #FFFFFF; text-decoration: underline; }
+.bgv-sitefooter :is(a, button):focus-visible { outline: 2px solid var(--focus-on-felt); outline-offset: 2px; border-radius: 4px; }
+.bgv-sitefooter__about { display: grid; gap: 14px; align-content: start; }
+.bgv-sitefooter__about p { margin: 0; color: #C9D9DD; font-size: 14px; line-height: 1.8; }
+.bgv-sitefooter__about .bgv-logo img { block-size: 32px; }
+/* «دریافت از کافه‌بازار»: a cream cardboard token, the footer is a felt-like dark board */
+.bgv-sitefooter a.bgv-sitefooter__store { display: inline-flex; align-items: center; gap: 10px; justify-self: start; min-block-size: 44px; padding-inline: 14px; border-radius: var(--radius-sm); background: var(--felt-control); color: var(--brand-ink); font-weight: 700; text-decoration: none; box-shadow: inset 0 0 0 2px var(--ink-felt), 0 4px 0 var(--ink-felt); margin-block-end: 4px; transition: transform var(--dur-instant) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out), background-color var(--dur-fast); }
+@media (hover: hover) { .bgv-sitefooter a.bgv-sitefooter__store:hover { background: var(--felt-control-hover); color: var(--brand-ink); text-decoration: none; transform: translateY(-1px); box-shadow: inset 0 0 0 2px var(--ink-felt), 0 5px 0 var(--ink-felt); } }
+.bgv-sitefooter a.bgv-sitefooter__store:active { transform: translateY(4px); box-shadow: inset 0 0 0 2px var(--ink-felt); }
+.bgv-sitefooter__bottom { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-block-start: 20px; border-block-start: 1px solid rgba(243,235,221,0.16); }
+.bgv-sitefooter__bottom small { color: #9FBCC2; font-size: 13px; }
+.bgv-sitefooter__seal { inline-size: 88px; block-size: 88px; border-radius: var(--radius-md); background: #FAF5EC; color: #203445; display: grid; place-items: center; text-align: center; font-size: 11px; font-weight: 700; line-height: 1.5; padding: 8px; box-sizing: border-box; }
+.bgv-sitefooter__social { display: flex; gap: 8px; margin-inline-start: auto; }
+.bgv-sitefooter__social a { inline-size: 44px; block-size: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(243,235,221,0.1); color: #F3EBDD; }
+@media (max-width: 1199px) { .bgv-sitefooter__cols { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 899px) { .bgv-sitefooter__in { padding: 28px 16px 112px; } .bgv-sitefooter__cols { grid-template-columns: 1fr; gap: 20px; } }
+@media (max-width: 599px) {
+  .bgv-sitefooter__cols { gap: 0; }
+  .bgv-sitefooter__about { padding-block-end: 20px; }
+  .bgv-sitefooter__col { border-block-start: 1px solid rgba(243,235,221,0.16); }
+  .bgv-sitefooter__col h3 { margin: 0; }
+  .bgv-sitefooter__col h3 button { min-block-size: 52px; cursor: pointer; }
+  .bgv-sitefooter__col h3 button .bgv-icon { display: block; transition: transform var(--dur-fast); }
+  .bgv-sitefooter__col.is-open h3 button .bgv-icon { transform: rotate(180deg); }
+  .bgv-sitefooter__col:not(.is-open) ul { display: none; }
+  .bgv-sitefooter ul { gap: 0; padding-block-end: 8px; }
+  .bgv-sitefooter ul a { display: flex; align-items: center; min-block-size: 44px; }
+}
+/* forced desktop footer for previews and mock-ups */
+.bgv-sitefooter--wide .bgv-sitefooter__in { padding: 40px 32px 24px; }
+.bgv-sitefooter--wide .bgv-sitefooter__cols { grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; }
+/* forced phone footer for previews */
+.bgv-sitefooter--phone .bgv-sitefooter__in { padding: 28px 16px 24px; }
+.bgv-sitefooter--phone .bgv-sitefooter__cols { grid-template-columns: 1fr; gap: 0; }
+.bgv-sitefooter--phone .bgv-sitefooter__about { padding-block-end: 20px; }
+.bgv-sitefooter--phone .bgv-sitefooter__col { border-block-start: 1px solid rgba(243,235,221,0.16); }
+.bgv-sitefooter--phone .bgv-sitefooter__col h3 { margin: 0; }
+.bgv-sitefooter--phone .bgv-sitefooter__col h3 button { min-block-size: 52px; cursor: pointer; }
+.bgv-sitefooter--phone .bgv-sitefooter__col h3 button .bgv-icon { display: block; }
+.bgv-sitefooter--phone .bgv-sitefooter__col.is-open h3 button .bgv-icon { transform: rotate(180deg); }
+.bgv-sitefooter--phone .bgv-sitefooter__col:not(.is-open) ul { display: none; }
+.bgv-sitefooter--phone ul { gap: 0; padding-block-end: 8px; }
+.bgv-sitefooter--phone ul a { display: flex; align-items: center; min-block-size: 44px; }
+
+/* STEPPER (login): done = navy disc with a tick · current = 2px navy ring · next = white disc with a field edge; a rule between steps */
+.bgv-steps { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1; flex-wrap: wrap; }
+.bgv-steps--start { justify-content: flex-start; }
+.bgv-steps > li { display: flex; align-items: center; gap: 8px; color: var(--text-muted); white-space: nowrap; }
+.bgv-steps > li > b { inline-size: 28px; block-size: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 900; background: var(--surface); color: var(--text-muted); box-shadow: inset 0 0 0 1.5px var(--field-edge); }
+.bgv-steps > li > b .bgv-icon { inline-size: 16px; block-size: 16px; }
+.bgv-steps > li.is-done > b { background: var(--selected); color: var(--on-selected); box-shadow: none; }
+.bgv-steps > li.is-cur { color: var(--text); font-weight: 700; }
+.bgv-steps > li.is-cur > b { background: var(--surface); color: var(--heading); box-shadow: inset 0 0 0 2px var(--selected); }
+.bgv-steps > li.bgv-steps__bar { inline-size: 20px; block-size: 2px; border-radius: 2px; background: var(--line); }
+.bgv-steps > li.bgv-steps__bar.is-done { background: var(--selected); }
+
+/* LOGIN SHEET: a guest taps «بنشین»; the seat is held 2 minutes; after login they land back in the same seat */
+.bgv-loginsheet { box-sizing: border-box; inline-size: 100%; }
+/* with `scrim`: the scrim covers the page (its positioned container) and the sheet rises from the bottom above it */
+.bgv-loginsheet__scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--scrim); }
+.bgv-loginsheet--overlay { position: absolute; inset-inline: 0; inset-block-end: 0; z-index: calc(var(--z-sheet) + 1); }
+.bgv-loginsheet__body { display: grid; gap: 14px; padding: 4px 20px 24px; }
+.bgv-loginsheet__head { display: flex; align-items: flex-start; gap: 12px; }
+.bgv-loginsheet__head img { inline-size: 72px; block-size: 48px; object-fit: cover; border-radius: var(--radius-sm); flex: none; box-shadow: 0 0 0 1px var(--line); }
+.bgv-loginsheet__head > div { flex: 1; display: grid; gap: 4px; }
+.bgv-loginsheet__head h2 { margin: 0; font-size: 18px; line-height: 1.5; color: var(--heading); }
+.bgv-loginsheet__head p { margin: 0; font-size: 13.5px; line-height: 1.7; color: var(--text-muted); }
+.bgv-loginsheet__legal { margin: 0; font-size: 12.5px; line-height: 1.7; color: var(--text-muted); }
+
+/* GUEST STATE «ابتدا وارد حساب خود شوید»: StateBlock kind="guest" with a short «after login you get» list */
+.bgv-state--guest .bgv-state__icon { background: var(--surface); color: var(--heading); }
+.bgv-state__perks { list-style: none; margin: 8px 0 0; padding: 4px 16px; inline-size: 100%; max-inline-size: 440px; box-sizing: border-box; display: grid; text-align: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.bgv-state__perks li { display: flex; align-items: flex-start; gap: 12px; padding-block: 12px; }
+.bgv-state__perks li + li { border-block-start: 1px solid var(--line); }
+.bgv-state__perks li > .bgv-icon { flex: none; inline-size: 20px; block-size: 20px; margin-block-start: 2px; color: var(--heading); }
+.bgv-state__perks b { display: block; font-size: 14px; color: var(--heading); }
+.bgv-state__perks span { font-size: 12.5px; line-height: 1.7; color: var(--text-muted); }
+.bgv-state__actions { display: grid; gap: 8px; justify-items: center; inline-size: 100%; max-inline-size: 440px; }
+
+/* «بیشتر» (phone): grouped two-column shortcut tiles; each tile is a clickable card */
+.bgv-moregroup { display: grid; gap: 8px; }
+.bgv-moregroup__title { margin: 0; padding: 0 4px; font-size: 12px; font-weight: 700; color: var(--label); }
+.bgv-moregroup__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.bgv-moretile { display: flex; align-items: center; gap: 10px; min-block-size: 52px; padding: 8px 12px; box-sizing: border-box; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-card); color: var(--text); text-decoration: none; transition: transform var(--dur-instant) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out); }
+@media (hover: hover) { .bgv-moretile:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); } }
+.bgv-moretile:active { transform: translateY(1px); box-shadow: none; }
+.bgv-moretile__icon { display: grid; place-items: center; flex: none; inline-size: 32px; block-size: 32px; border-radius: var(--radius-sm); background: var(--well); box-shadow: inset 0 0 0 1.5px var(--well-edge); color: var(--heading); }
+.bgv-moretile__icon .bgv-icon { inline-size: 18px; block-size: 18px; }
+.bgv-moretile__label { flex: 1; min-inline-size: 0; font-size: 14px; font-weight: 700; line-height: 1.3; }
+
+/* TABLES ON PHONES: .bgv-table--stack turns each row into a stacked row — lead (rank/icon), main, end on line 1; the rest wrap below with their column label */
+@media (max-width: 599px) {
+  .bgv-table--stack, .bgv-table--stack tbody { display: block; min-inline-size: 0; inline-size: 100%; }
+  .bgv-table--stack thead { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+  .bgv-table--stack tr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 12px 10px; border-block-end: 1px solid var(--line); }
+  .bgv-table--stack tr::after { content: ""; order: 3; flex: 0 0 100%; block-size: 0; }
+  .bgv-table--stack td { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; min-inline-size: 0; inline-size: auto; font-size: 13px; color: var(--text-muted); background: none; box-shadow: none; }
+  .bgv-table--stack td[data-label]:not([data-stack])::before { content: attr(data-label) "\00a0"; font-weight: 700; }
+  .bgv-table--stack td[data-stack="lead"] { order: 0; }
+  .bgv-table--stack td[data-stack="main"] { order: 1; flex: 1 1 0; font-size: 15px; color: var(--text); }
+  .bgv-table--stack td[data-stack="end"] { order: 2; font-size: 15px; font-weight: 800; color: var(--text); }
+  .bgv-table--stack td:not([data-stack]) { order: 4; }
+  .bgv-table--stack td[data-stack="hide"] { display: none; }
+  .bgv-scroll-x:has(> .bgv-table--stack) { overflow: visible; }
+  .bgv-table--stack :is(tr.is-you, tr.is-selected, tr[aria-selected="true"]) { background: var(--row-you); box-shadow: inset -3px 0 0 var(--selected); }
+  .bgv-table.bgv-table--stack tr:is(.is-you, .is-selected, [aria-selected="true"]) > td { background: none; box-shadow: none; }
+  [dir="ltr"] .bgv-table--stack :is(tr.is-you, tr.is-selected, tr[aria-selected="true"]) { box-shadow: inset 3px 0 0 var(--selected); }
+}
+.bgv-table--stack.bgv-table--phone, .bgv-table--stack.bgv-table--phone tbody { display: block; min-inline-size: 0; inline-size: 100%; }
+.bgv-table--stack.bgv-table--phone thead { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+.bgv-table--stack.bgv-table--phone tr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 12px 10px; border-block-end: 1px solid var(--line); }
+.bgv-table--stack.bgv-table--phone tr::after { content: ""; order: 3; flex: 0 0 100%; block-size: 0; }
+.bgv-table--stack.bgv-table--phone td { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; min-inline-size: 0; inline-size: auto; font-size: 13px; color: var(--text-muted); background: none; box-shadow: none; }
+.bgv-table--stack.bgv-table--phone td[data-label]:not([data-stack])::before { content: attr(data-label) "\00a0"; font-weight: 700; }
+.bgv-table--stack.bgv-table--phone td[data-stack="main"] { order: 1; flex: 1 1 0; font-size: 15px; color: var(--text); }
+.bgv-table--stack.bgv-table--phone td[data-stack="end"] { order: 2; font-size: 15px; font-weight: 800; color: var(--text); }
+.bgv-table--stack.bgv-table--phone td:not([data-stack]) { order: 4; }
+.bgv-table--stack.bgv-table--phone td[data-stack="hide"] { display: none; }
+.bgv-table--stack.bgv-table--phone :is(tr.is-you, tr.is-selected) { background: var(--row-you); box-shadow: inset -3px 0 0 var(--selected); }
+.bgv-table.bgv-table--stack.bgv-table--phone tr:is(.is-you, .is-selected, [aria-selected="true"]) > td { background: none; box-shadow: none; }
+/* the «you» / selected row: a tint over the WHOLE row plus a 3px navy bar at its start (cream in dark) — never amber */
+.bgv-table tr:is(.is-you, .is-selected, [aria-selected="true"]) > td { background: var(--row-you); }
+.bgv-table tr:is(.is-you, .is-selected, [aria-selected="true"]) > td:first-child { box-shadow: inset -3px 0 0 var(--selected); }
+[dir="ltr"] .bgv-table tr:is(.is-you, .is-selected, [aria-selected="true"]) > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
+
+/* GAME BAR: meta items are whole units (.bgv-gamebar__mi); when space runs out a whole item drops, never half a word */
+.bgv-gamebar__meta { flex-wrap: wrap; column-gap: 0; row-gap: 12px; line-height: 18px; block-size: 18px; overflow: hidden; }
+.bgv-gamebar__mi { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.bgv-gamebar__mi:not(:first-child)::before { content: ""; inline-size: 4px; block-size: 4px; border-radius: 50%; background: currentColor; opacity: 0.45; margin-inline: 6px 2px; flex: none; }
+.bgv-gamebar__mi.is-first::before { content: none; }
+@media (max-width: 479px) { .bgv-gamebar__name .bgv-latin, .bgv-gamebar__title .bgv-latin { display: none; } }
+
+/* CRIT BAR in the action dock: it takes the place of the turn guide, so the table never shrinks */
+.bgv-critbar__row { display: flex; align-items: center; gap: 12px; }
+.bgv-critbar__row > .bgv-icon { flex: none; }
+.bgv-critbar__text { display: grid; flex: 1; min-inline-size: 0; }
+.bgv-critbar__t { font-size: 16px; font-weight: 900; line-height: 1.35; }
+.bgv-critbar__s { font-size: 13px; font-weight: 400; line-height: 1.5; }
+.bgv-actiondock > .bgv-critbar { padding: 12px 16px; }
+
+/* CHAT: mine = a pale navy tint with an edge, others = white with an edge, «@you» = 2px navy outline + a filled navy mention */
+.bgv-msg__bubble { box-shadow: inset 0 0 0 1px var(--well-edge); }
+.bgv-msg--mine .bgv-msg__bubble { background: var(--bubble-mine); color: var(--heading); box-shadow: inset 0 0 0 1px var(--bubble-mine-edge); }
+.bgv-msg--mine .bgv-msg__reply { background: var(--surface); box-shadow: inset -3px 0 0 var(--selected); }
+[dir="ltr"] .bgv-msg--mine .bgv-msg__reply { box-shadow: inset 3px 0 0 var(--selected); }
+.bgv-msg--mentioned .bgv-msg__bubble { background: var(--surface); box-shadow: inset 0 0 0 2px var(--selected); }
+.bgv-mention { background: color-mix(in srgb, var(--selected) 12%, transparent); color: var(--heading); }
+.bgv-mention--you, .bgv-msg .bgv-mention--you { background: var(--selected); color: var(--on-selected); }
+.bgv-msg--mine .bgv-mention:not(.bgv-mention--you) { background: color-mix(in srgb, var(--selected) 16%, transparent); }
+/* send is not the page's main action: a navy token (cream in dark) */
+.bgv-composer__row .bgv-btn--primary { --_bg: var(--selected); --_bg-hover: var(--selected); --_fg: var(--on-selected); --_ink: var(--btn-s-ink, var(--ink-selected)); }
+
+/* COLOUR ROLES (owner decisions): amber only for the one main action, «نوبت شما» and coins */
+.bgv-progress__fill { background: var(--selected); box-shadow: none; }
+.bgv-cosm.is-equipped::after, .bgv-badge--equipped { background: var(--heading); color: var(--surface); box-shadow: none; }
+.bgv-badge--premium:not([data-theme="dark"] *) { background: #FFF7E8; color: #6B4A12; box-shadow: inset 0 0 0 1px #D2A56C; }
+.bgv-rarity--legend:not([data-theme="dark"] *) { background: #FFF4DC; color: #7A4E0E; box-shadow: inset 0 0 0 1px #D2A56C; }
+/* decision 2.4: amber fill is only for the page's one action, the turn pill and the coin, so premium, legendary and progress stay soft in dark too */
+[data-theme="dark"] :is(.bgv-badge--premium, .bgv-rarity--legend) { background: #453723; color: #F2C77E; box-shadow: inset 0 0 0 1px #A8834A; }
+:is(.bgv-progress--invite, .bgv-progress--accent) .bgv-progress__fill { background: var(--selected); }
+.bgv-rarity--common:not([data-theme="dark"] *) { background: #FFFFFF; color: #3A4F5E; box-shadow: inset 0 0 0 1px var(--print-edge); }
+.bgv-notif__icon--reward { background: var(--surface); color: var(--heading); }
+.bgv-avatar:not([class*="seat-"]):not(.is-you):not(:has(> img)):not(:has(> svg)) { background: var(--avatar-disc); color: var(--heading); }
+.bgv-trophy--gold { --_t: var(--tier-gold, #D4A537); }
+.bgv-turn--mine .bgv-clock[data-state="warn"] { --clock-c: #9A5A0C; }
+.bgv-turn--mine .bgv-clock[data-state="warn"] .bgv-clock__time { color: var(--on-invite); }
+.bgv-badge--count-invite { background: var(--danger); color: var(--on-danger); }
+
+/* SWITCH: on = navy track with a tick (cream track with a navy thumb in dark); «روشن / خاموش» beside it */
+.bgv-switch[aria-checked="true"] .bgv-switch__track { background: var(--selected); box-shadow: inset 0 0 0 1px var(--selected); }
+.bgv-switch[aria-checked="true"] .bgv-switch__track::before { border-color: var(--selected); }
+.bgv-switch[aria-checked="true"] .bgv-switch__state { color: var(--heading); }
+[data-theme="dark"] .bgv-switch[aria-checked="true"] .bgv-switch__track::after { background: #142B3B; }
+[data-theme="dark"] .bgv-switch[aria-checked="true"] .bgv-switch__track::before { border-color: #FAF5EC; }
+
+/* SLIDER: --_v (set by markup) or --_p (set by Bgv.Slider) is the filled share */
+.bgv-range { --_p: var(--_v, 50%); }
+
+/* PAGINATION: the current page is the selection token (navy, cream in dark) — the same raised token as its siblings */
+.bgv-pager .bgv-btn[aria-current="page"] { --_bg: var(--btn-s-bg, var(--selected)); --_bg-hover: var(--btn-s-bg, var(--selected)); --_fg: var(--btn-s-fg, var(--on-selected)); --_ink: var(--btn-s-ink, var(--ink-selected)); }
+
+/* DOCK: the current destination is an amber token (owner decision; the filled icon is gone); no item is current on 404 or notifications */
+.bgv-dock__item.is-active { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 1.5px var(--ink-btn-primary, var(--ink)), 0 3px 0 var(--ink-btn-primary, var(--ink)); }
+.bgv-dock__item.is-active .bgv-badge--count { box-shadow: 0 0 0 2px var(--primary); }
+
+/* PLAYER CARD on the felt: the «turn» and «you» edges are cream, and the «شما» tag is a cream pill */
+.bgv-felt .bgv-pcard.is-you, .bgv-felt .bgv-pcard.is-turn { --_edge: #FAF5EC; }
+.bgv-felt .bgv-pcard.is-you .bgv-pcard__name b::after, .bgv-felt .bgv-badge--you { background: #FAF5EC; color: #142B3B; }
+
+/* TOUCH: 44px hit area for the small chrome controls without growing them */
+:is(.bgv-topbar .bgv-logo, .bgv-coinchip, .bgv-chip--sm, .bgv-tab, .bgv-crumbs a, .bgv-react) { position: relative; }
+:is(.bgv-topbar .bgv-logo, .bgv-coinchip, .bgv-chip--sm)::after { content: ""; position: absolute; inset: -6px -4px; }
+.bgv-react::after { content: ""; position: absolute; inset: -9px -2px; }
+.bgv-crumbs a::after { content: ""; position: absolute; inset: -12px -4px; }
+.bgv-tab { min-inline-size: 44px; text-align: center; }
+.bgv-reactions { gap: 8px; }
+/* tabs that may overflow on phones: a fade shows there is more */
+@media (max-width: 599px) {
+  .bgv-pagetabs, .bgv-tabs { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); padding-inline-end: 28px; }
+  [dir="ltr"] :is(.bgv-pagetabs, .bgv-tabs) { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+}
+/* GameCard: ModeTag in `flags` sits under the game name; on phones it shows icons only */
+.bgv-gamecard__flags .bgv-modetag { flex: none; }
+@media (max-width: 599px) { .bgv-gamecard .bgv-modetag > span { font-size: 0; gap: 0; padding: 5px 9px; } }
+/* SELECT (v2.1.5): the open list in the design-system look: a floating board like Menu, 44px rows, the chosen option on the navy selection token with a check.
+   Customizable select (appearance: base-select, Chrome/Edge 135+); other browsers keep their native list, the closed field looks the same everywhere. */
+@supports (appearance: base-select) {
+  .bgv-select, .bgv-select-wrap .bgv-select, .bgv-select::picker(select) { appearance: base-select; }
+  .bgv-select { display: flex; align-items: center; cursor: pointer; }
+  .bgv-select-wrap .bgv-select::picker-icon { display: none; }
+  .bgv-select-wrap::after { transition: transform var(--dur-fast) var(--ease-out); }
+  .bgv-select-wrap:has(.bgv-select:open)::after { transform: translateY(-20%) rotate(-135deg); }
+  .bgv-select:open { border-color: var(--ink); }
+  .bgv-select::picker(select) { margin-block: 6px; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--text); box-shadow: var(--shadow-float); min-inline-size: anchor-size(inline); max-block-size: min(320px, 50vh); overflow-y: auto; font-family: inherit; }
+  .bgv-select option { display: flex; align-items: center; gap: 10px; min-block-size: 44px; padding-inline: 12px; border-radius: var(--radius-sm); font-size: 15px; color: var(--text); background: none; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out); }
+  .bgv-select option::checkmark { order: 2; margin-inline-start: auto; font-weight: 900; }
+  .bgv-select option:not(:checked)::checkmark { visibility: hidden; }
+  .bgv-select option:hover, .bgv-select option:focus-visible { background: var(--ghost-hover); outline: none; }
+  .bgv-select option:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
+  .bgv-select option:checked { background: var(--selected); color: var(--on-selected); font-weight: 700; }
+  .bgv-select option:disabled { color: var(--text-muted); cursor: not-allowed; background: none; }
+}

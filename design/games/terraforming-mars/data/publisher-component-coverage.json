@@ -1,0 +1,1800 @@
+[
+ {
+  "component": "Project cards, base + Corporate Era",
+  "physicalCount": 208,
+  "designs": 208,
+  "available": 208,
+  "status": "complete",
+  "folder": "cards/projects",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "project-001",
+    "flat": true,
+    "svg": "cards/projects/001-colonizer-training-camp.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-002",
+    "flat": true,
+    "svg": "cards/projects/002-asteroid-mining-consortium.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-003",
+    "flat": true,
+    "svg": "cards/projects/003-deep-well-heating.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-004",
+    "flat": true,
+    "svg": "cards/projects/004-cloud-seeding.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-005",
+    "flat": true,
+    "svg": "cards/projects/005-search-for-life.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-006",
+    "flat": true,
+    "svg": "cards/projects/006-inventors-guild.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-007",
+    "flat": true,
+    "svg": "cards/projects/007-martian-rails.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-008",
+    "flat": true,
+    "svg": "cards/projects/008-capital.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-009",
+    "flat": true,
+    "svg": "cards/projects/009-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-010",
+    "flat": true,
+    "svg": "cards/projects/010-comet.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-011",
+    "flat": true,
+    "svg": "cards/projects/011-big-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-012",
+    "flat": true,
+    "svg": "cards/projects/012-water-import-from-europa.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-013",
+    "flat": true,
+    "svg": "cards/projects/013-space-elevator.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-014",
+    "flat": true,
+    "svg": "cards/projects/014-development-center.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-015",
+    "flat": true,
+    "svg": "cards/projects/015-equatorial-magnetizer.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-016",
+    "flat": true,
+    "svg": "cards/projects/016-domed-crater.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-017",
+    "flat": true,
+    "svg": "cards/projects/017-noctis-city.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-018",
+    "flat": true,
+    "svg": "cards/projects/018-methane-from-titan.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-019",
+    "flat": true,
+    "svg": "cards/projects/019-imported-hydrogen.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-020",
+    "flat": true,
+    "svg": "cards/projects/020-research-outpost.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-021",
+    "flat": true,
+    "svg": "cards/projects/021-phobos-space-haven.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-022",
+    "flat": true,
+    "svg": "cards/projects/022-black-polar-dust.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-023",
+    "flat": true,
+    "svg": "cards/projects/023-arctic-algae.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-024",
+    "flat": true,
+    "svg": "cards/projects/024-predators.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-025",
+    "flat": true,
+    "svg": "cards/projects/025-space-station.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-026",
+    "flat": true,
+    "svg": "cards/projects/026-eos-chasma-national-park.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-027",
+    "flat": true,
+    "svg": "cards/projects/027-interstellar-colony-ship.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-028",
+    "flat": true,
+    "svg": "cards/projects/028-security-fleet.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-029",
+    "flat": true,
+    "svg": "cards/projects/029-cupola-city.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-030",
+    "flat": true,
+    "svg": "cards/projects/030-lunar-beam.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-031",
+    "flat": true,
+    "svg": "cards/projects/031-optimal-aerobraking.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-032",
+    "flat": true,
+    "svg": "cards/projects/032-underground-city.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-033",
+    "flat": true,
+    "svg": "cards/projects/033-regolith-eaters.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-034",
+    "flat": true,
+    "svg": "cards/projects/034-ghg-producing-bacteria.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-035",
+    "flat": true,
+    "svg": "cards/projects/035-ants.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-036",
+    "flat": true,
+    "svg": "cards/projects/036-release-of-inert-gases.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-037",
+    "flat": true,
+    "svg": "cards/projects/037-nitrogen-rich-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-038",
+    "flat": true,
+    "svg": "cards/projects/038-rover-construction.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-039",
+    "flat": true,
+    "svg": "cards/projects/039-deimos-down.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-040",
+    "flat": true,
+    "svg": "cards/projects/040-asteroid-mining.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-041",
+    "flat": true,
+    "svg": "cards/projects/041-food-factory.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-042",
+    "flat": true,
+    "svg": "cards/projects/042-archaebacteria.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-043",
+    "flat": true,
+    "svg": "cards/projects/043-carbonate-processing.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-044",
+    "flat": true,
+    "svg": "cards/projects/044-natural-preserve.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-045",
+    "flat": true,
+    "svg": "cards/projects/045-nuclear-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-046",
+    "flat": true,
+    "svg": "cards/projects/046-lightning-harvest.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-047",
+    "flat": true,
+    "svg": "cards/projects/047-algae.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-048",
+    "flat": true,
+    "svg": "cards/projects/048-adapted-lichen.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-049",
+    "flat": true,
+    "svg": "cards/projects/049-tardigrades.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-050",
+    "flat": true,
+    "svg": "cards/projects/050-virus.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-051",
+    "flat": true,
+    "svg": "cards/projects/051-miranda-resort.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-052",
+    "flat": true,
+    "svg": "cards/projects/052-fish.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-053",
+    "flat": true,
+    "svg": "cards/projects/053-lake-marineris.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-054",
+    "flat": true,
+    "svg": "cards/projects/054-small-animals.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-055",
+    "flat": true,
+    "svg": "cards/projects/055-kelp-farming.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-056",
+    "flat": true,
+    "svg": "cards/projects/056-mine.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-057",
+    "flat": true,
+    "svg": "cards/projects/057-vesta-shipyard.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-058",
+    "flat": true,
+    "svg": "cards/projects/058-beam-from-a-thorium-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-059",
+    "flat": true,
+    "svg": "cards/projects/059-mangrove.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-060",
+    "flat": true,
+    "svg": "cards/projects/060-trees.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-061",
+    "flat": true,
+    "svg": "cards/projects/061-great-escarpment-consortium.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-062",
+    "flat": true,
+    "svg": "cards/projects/062-mineral-deposit.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-063",
+    "flat": true,
+    "svg": "cards/projects/063-mining-expedition.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-064",
+    "flat": true,
+    "svg": "cards/projects/064-mining-area.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-065",
+    "flat": true,
+    "svg": "cards/projects/065-building-industries.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-066",
+    "flat": true,
+    "svg": "cards/projects/066-land-claim.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-067",
+    "flat": true,
+    "svg": "cards/projects/067-mining-rights.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-068",
+    "flat": true,
+    "svg": "cards/projects/068-sponsors.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-069",
+    "flat": true,
+    "svg": "cards/projects/069-electro-catapult.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-070",
+    "flat": true,
+    "svg": "cards/projects/070-earth-catapult.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-071",
+    "flat": true,
+    "svg": "cards/projects/071-advanced-alloys.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-072",
+    "flat": true,
+    "svg": "cards/projects/072-birds.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-073",
+    "flat": true,
+    "svg": "cards/projects/073-mars-university.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-074",
+    "flat": true,
+    "svg": "cards/projects/074-viral-enhancers.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-075",
+    "flat": true,
+    "svg": "cards/projects/075-towing-a-comet.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-076",
+    "flat": true,
+    "svg": "cards/projects/076-space-mirrors.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-077",
+    "flat": true,
+    "svg": "cards/projects/077-solar-wind-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-078",
+    "flat": true,
+    "svg": "cards/projects/078-ice-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-079",
+    "flat": true,
+    "svg": "cards/projects/079-quantum-extractor.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-080",
+    "flat": true,
+    "svg": "cards/projects/080-giant-ice-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-081",
+    "flat": true,
+    "svg": "cards/projects/081-ganymede-colony.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-082",
+    "flat": true,
+    "svg": "cards/projects/082-callisto-penal-mines.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-083",
+    "flat": true,
+    "svg": "cards/projects/083-giant-space-mirror.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-084",
+    "flat": true,
+    "svg": "cards/projects/084-trans-neptune-probe.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-085",
+    "flat": true,
+    "svg": "cards/projects/085-commercial-district.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-086",
+    "flat": true,
+    "svg": "cards/projects/086-robotic-workforce.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-087",
+    "flat": true,
+    "svg": "cards/projects/087-grass.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-088",
+    "flat": true,
+    "svg": "cards/projects/088-heather.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-089",
+    "flat": true,
+    "svg": "cards/projects/089-peroxide-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-090",
+    "flat": true,
+    "svg": "cards/projects/090-research.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-091",
+    "flat": true,
+    "svg": "cards/projects/091-gene-repair.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-092",
+    "flat": true,
+    "svg": "cards/projects/092-io-mining-industries.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-093",
+    "flat": true,
+    "svg": "cards/projects/093-bushes.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-094",
+    "flat": true,
+    "svg": "cards/projects/094-mass-converter.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-095",
+    "flat": true,
+    "svg": "cards/projects/095-physics-complex.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-096",
+    "flat": true,
+    "svg": "cards/projects/096-greenhouses.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-097",
+    "flat": true,
+    "svg": "cards/projects/097-nuclear-zone.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-098",
+    "flat": true,
+    "svg": "cards/projects/098-tropical-resort.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-099",
+    "flat": true,
+    "svg": "cards/projects/099-toll-station.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-100",
+    "flat": true,
+    "svg": "cards/projects/100-fueled-generators.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-101",
+    "flat": true,
+    "svg": "cards/projects/101-ironworks.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-102",
+    "flat": true,
+    "svg": "cards/projects/102-power-grid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-103",
+    "flat": true,
+    "svg": "cards/projects/103-steelworks.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-104",
+    "flat": true,
+    "svg": "cards/projects/104-ore-processor.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-105",
+    "flat": true,
+    "svg": "cards/projects/105-earth-office.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-106",
+    "flat": true,
+    "svg": "cards/projects/106-acquired-company.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-107",
+    "flat": true,
+    "svg": "cards/projects/107-media-archives.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-108",
+    "flat": true,
+    "svg": "cards/projects/108-open-city.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-109",
+    "flat": true,
+    "svg": "cards/projects/109-media-group.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-110",
+    "flat": true,
+    "svg": "cards/projects/110-business-network.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-111",
+    "flat": true,
+    "svg": "cards/projects/111-business-contacts.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-112",
+    "flat": true,
+    "svg": "cards/projects/112-bribed-committee.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-113",
+    "flat": true,
+    "svg": "cards/projects/113-solar-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-114",
+    "flat": true,
+    "svg": "cards/projects/114-breathing-filters.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-115",
+    "flat": true,
+    "svg": "cards/projects/115-artificial-photosynthesis.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-116",
+    "flat": true,
+    "svg": "cards/projects/116-artificial-lake.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-117",
+    "flat": true,
+    "svg": "cards/projects/117-geothermal-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-118",
+    "flat": true,
+    "svg": "cards/projects/118-farming.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-119",
+    "flat": true,
+    "svg": "cards/projects/119-dust-seals.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-120",
+    "flat": true,
+    "svg": "cards/projects/120-urbanized-area.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-121",
+    "flat": true,
+    "svg": "cards/projects/121-sabotage.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-122",
+    "flat": true,
+    "svg": "cards/projects/122-moss.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-123",
+    "flat": true,
+    "svg": "cards/projects/123-industrial-center.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-124",
+    "flat": true,
+    "svg": "cards/projects/124-hired-raiders.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-125",
+    "flat": true,
+    "svg": "cards/projects/125-hackers.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-126",
+    "flat": true,
+    "svg": "cards/projects/126-ghg-factories.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-127",
+    "flat": true,
+    "svg": "cards/projects/127-subterranean-reservoir.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-128",
+    "flat": true,
+    "svg": "cards/projects/128-ecological-zone.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-129",
+    "flat": true,
+    "svg": "cards/projects/129-zeppelins.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-130",
+    "flat": true,
+    "svg": "cards/projects/130-worms.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-131",
+    "flat": true,
+    "svg": "cards/projects/131-decomposers.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-132",
+    "flat": true,
+    "svg": "cards/projects/132-fusion-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-133",
+    "flat": true,
+    "svg": "cards/projects/133-symbiotic-fungus.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-134",
+    "flat": true,
+    "svg": "cards/projects/134-extreme-cold-fungus.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-135",
+    "flat": true,
+    "svg": "cards/projects/135-advanced-ecosystems.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-136",
+    "flat": true,
+    "svg": "cards/projects/136-great-dam.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-137",
+    "flat": true,
+    "svg": "cards/projects/137-cartel.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-138",
+    "flat": true,
+    "svg": "cards/projects/138-strip-mine.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-139",
+    "flat": true,
+    "svg": "cards/projects/139-wave-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-140",
+    "flat": true,
+    "svg": "cards/projects/140-lava-flows.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-141",
+    "flat": true,
+    "svg": "cards/projects/141-power-plant.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-142",
+    "flat": true,
+    "svg": "cards/projects/142-mohole-area.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-143",
+    "flat": true,
+    "svg": "cards/projects/143-large-convoy.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-144",
+    "flat": true,
+    "svg": "cards/projects/144-titanium-mine.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-145",
+    "flat": true,
+    "svg": "cards/projects/145-tectonic-stress-power.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-146",
+    "flat": true,
+    "svg": "cards/projects/146-nitrophilic-moss.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-147",
+    "flat": true,
+    "svg": "cards/projects/147-herbivores.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-148",
+    "flat": true,
+    "svg": "cards/projects/148-insects.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-149",
+    "flat": true,
+    "svg": "cards/projects/149-ceo-s-favorite-project.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-150",
+    "flat": true,
+    "svg": "cards/projects/150-anti-gravity-technology.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-151",
+    "flat": true,
+    "svg": "cards/projects/151-investment-loan.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-152",
+    "flat": true,
+    "svg": "cards/projects/152-insulation.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-153",
+    "flat": true,
+    "svg": "cards/projects/153-adaptation-technology.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-154",
+    "flat": true,
+    "svg": "cards/projects/154-caretaker-contract.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-155",
+    "flat": true,
+    "svg": "cards/projects/155-designed-microorganisms.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-156",
+    "flat": true,
+    "svg": "cards/projects/156-standard-technology.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-157",
+    "flat": true,
+    "svg": "cards/projects/157-nitrite-reducing-bacteria.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-158",
+    "flat": true,
+    "svg": "cards/projects/158-industrial-microbes.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-159",
+    "flat": true,
+    "svg": "cards/projects/159-lichen.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-160",
+    "flat": true,
+    "svg": "cards/projects/160-power-supply-consortium.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-161",
+    "flat": true,
+    "svg": "cards/projects/161-convoy-from-europa.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-162",
+    "flat": true,
+    "svg": "cards/projects/162-imported-ghg.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-163",
+    "flat": true,
+    "svg": "cards/projects/163-imported-nitrogen.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-164",
+    "flat": true,
+    "svg": "cards/projects/164-micro-mills.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-165",
+    "flat": true,
+    "svg": "cards/projects/165-magnetic-field-generators.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-166",
+    "flat": true,
+    "svg": "cards/projects/166-shuttles.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-167",
+    "flat": true,
+    "svg": "cards/projects/167-import-of-advanced-ghg.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-168",
+    "flat": true,
+    "svg": "cards/projects/168-windmills.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-169",
+    "flat": true,
+    "svg": "cards/projects/169-tundra-farming.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-170",
+    "flat": true,
+    "svg": "cards/projects/170-aerobraked-ammonia-asteroid.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-171",
+    "flat": true,
+    "svg": "cards/projects/171-magnetic-field-dome.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-172",
+    "flat": true,
+    "svg": "cards/projects/172-pets.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-173",
+    "flat": true,
+    "svg": "cards/projects/173-protected-habitats.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-174",
+    "flat": true,
+    "svg": "cards/projects/174-protected-valley.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-175",
+    "flat": true,
+    "svg": "cards/projects/175-satellites.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-176",
+    "flat": true,
+    "svg": "cards/projects/176-noctis-farming.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-177",
+    "flat": true,
+    "svg": "cards/projects/177-water-splitting-plant.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-178",
+    "flat": true,
+    "svg": "cards/projects/178-heat-trappers.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-179",
+    "flat": true,
+    "svg": "cards/projects/179-soil-factory.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-180",
+    "flat": true,
+    "svg": "cards/projects/180-fuel-factory.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-181",
+    "flat": true,
+    "svg": "cards/projects/181-ice-cap-melting.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-182",
+    "flat": true,
+    "svg": "cards/projects/182-corporate-stronghold.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-183",
+    "flat": true,
+    "svg": "cards/projects/183-biomass-combustors.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-184",
+    "flat": true,
+    "svg": "cards/projects/184-livestock.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-185",
+    "flat": true,
+    "svg": "cards/projects/185-olympus-conference.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-186",
+    "flat": true,
+    "svg": "cards/projects/186-rad-suits.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-187",
+    "flat": true,
+    "svg": "cards/projects/187-aquifer-pumping.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-188",
+    "flat": true,
+    "svg": "cards/projects/188-flooding.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-189",
+    "flat": true,
+    "svg": "cards/projects/189-energy-saving.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-190",
+    "flat": true,
+    "svg": "cards/projects/190-local-heat-trapping.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-191",
+    "flat": true,
+    "svg": "cards/projects/191-permafrost-extraction.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-192",
+    "flat": true,
+    "svg": "cards/projects/192-invention-contest.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-193",
+    "flat": true,
+    "svg": "cards/projects/193-plantation.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-194",
+    "flat": true,
+    "svg": "cards/projects/194-power-infrastructure.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-195",
+    "flat": true,
+    "svg": "cards/projects/195-indentured-workers.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-196",
+    "flat": true,
+    "svg": "cards/projects/196-lagrange-observatory.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-197",
+    "flat": true,
+    "svg": "cards/projects/197-terraforming-ganymede.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-198",
+    "flat": true,
+    "svg": "cards/projects/198-immigration-shuttles.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-199",
+    "flat": true,
+    "svg": "cards/projects/199-restricted-area.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-200",
+    "flat": true,
+    "svg": "cards/projects/200-immigrant-city.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-201",
+    "flat": true,
+    "svg": "cards/projects/201-energy-tapping.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-202",
+    "flat": true,
+    "svg": "cards/projects/202-underground-detonations.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-203",
+    "flat": true,
+    "svg": "cards/projects/203-soletta.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-204",
+    "flat": true,
+    "svg": "cards/projects/204-technology-demonstration.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-205",
+    "flat": true,
+    "svg": "cards/projects/205-rad-chem-factory.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-206",
+    "flat": true,
+    "svg": "cards/projects/206-special-design.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-207",
+    "flat": true,
+    "svg": "cards/projects/207-medical-lab.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "project-208",
+    "flat": true,
+    "svg": "cards/projects/208-ai-central.svg",
+    "status": "replaced"
+   }
+  ],
+  "note": "Complete BGA digital faces including rules and flavour; native resolution disclosed."
+ },
+ {
+  "component": "Corporation cards",
+  "physicalCount": 17,
+  "designs": 13,
+  "available": 13,
+  "status": "complete",
+  "folder": "cards/corporations",
+  "note": "Complete BGA digital faces including rules and flavour; native resolution disclosed.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "corporation-corp-beginner-corporation",
+    "flat": true,
+    "svg": "cards/corporations/beginner-corporation.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-credicor",
+    "flat": true,
+    "svg": "cards/corporations/credicor.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-ecoline",
+    "flat": true,
+    "svg": "cards/corporations/ecoline.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-helion",
+    "flat": true,
+    "svg": "cards/corporations/helion.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-interplanetary-cinematics",
+    "flat": true,
+    "svg": "cards/corporations/interplanetary-cinematics.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-inventrix",
+    "flat": true,
+    "svg": "cards/corporations/inventrix.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-mining-guild",
+    "flat": true,
+    "svg": "cards/corporations/mining-guild.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-phobolog",
+    "flat": true,
+    "svg": "cards/corporations/phobolog.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-saturn-systems",
+    "flat": true,
+    "svg": "cards/corporations/saturn-systems.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-teractor",
+    "flat": true,
+    "svg": "cards/corporations/teractor.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-tharsis-republic",
+    "flat": true,
+    "svg": "cards/corporations/tharsis-republic.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-thorgate",
+    "flat": true,
+    "svg": "cards/corporations/thorgate.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "corporation-corp-united-nations-mars-initiative",
+    "flat": true,
+    "svg": "cards/corporations/united-nations-mars-initiative.svg",
+    "status": "replaced"
+   }
+  ]
+ },
+ {
+  "component": "Tharsis game board",
+  "physicalCount": 1,
+  "designs": 1,
+  "available": 1,
+  "status": "available-source-artwork",
+  "folder": "boards",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "board-tharsis",
+    "flat": true,
+    "svg": "boards/board-tharsis.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Player boards",
+  "physicalCount": 5,
+  "designs": 1,
+  "available": 1,
+  "status": "available-source-artwork",
+  "folder": "boards",
+  "note": "One identical design repeated five times.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "player-board",
+    "flat": true,
+    "svg": "boards/player-board.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Ocean tiles",
+  "physicalCount": 9,
+  "designs": 1,
+  "available": 1,
+  "status": "available-source-artwork",
+  "folder": "tiles",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "tile-ocean",
+    "flat": true,
+    "svg": "tiles/ocean.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Double-sided greenery/city tiles",
+  "physicalCount": 60,
+  "designs": 2,
+  "available": 2,
+  "status": "available-both-faces",
+  "folder": "tiles",
+  "note": "Each of sixty physical tiles has greenery on one side and city on the other.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "tile-city",
+    "flat": true,
+    "svg": "tiles/city.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-greenery",
+    "flat": true,
+    "svg": "tiles/greenery.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Special tiles",
+  "physicalCount": 11,
+  "designs": 10,
+  "available": 11,
+  "status": "available-source-artwork",
+  "folder": "tiles/special",
+  "note": "Mining Area and Mining Rights use the same source artwork; both are supplied separately.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "tile-capital",
+    "flat": true,
+    "svg": "tiles/special/capital.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-commercial-district",
+    "flat": true,
+    "svg": "tiles/special/commercial-district.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-ecological-zone",
+    "flat": true,
+    "svg": "tiles/special/ecological-zone.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-industrial-center",
+    "flat": true,
+    "svg": "tiles/special/industrial-center.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-lava-flows",
+    "flat": true,
+    "svg": "tiles/special/lava-flows.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-mining-area",
+    "flat": true,
+    "svg": "tiles/special/mining-area.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-mining-rights",
+    "flat": true,
+    "svg": "tiles/special/mining-rights.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-mohole-area",
+    "flat": true,
+    "svg": "tiles/special/mohole-area.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-natural-preserve",
+    "flat": true,
+    "svg": "tiles/special/natural-preserve.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-nuclear-zone",
+    "flat": true,
+    "svg": "tiles/special/nuclear-zone.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "tile-restricted-area",
+    "flat": true,
+    "svg": "tiles/special/restricted-area.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Player markers",
+  "physicalCount": 200,
+  "designs": 5,
+  "available": 5,
+  "status": "digital-illustrations",
+  "folder": "markers/player",
+  "note": "Five BGA source illustrations, not new drawings and not independent physical scans; forty per colour.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "player-cube-red",
+    "flat": true,
+    "svg": "markers/player/red-cube.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "player-cube-blue",
+    "flat": true,
+    "svg": "markers/player/blue-cube.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "player-cube-green",
+    "flat": true,
+    "svg": "markers/player/green-cube.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "player-cube-yellow",
+    "flat": true,
+    "svg": "markers/player/yellow-cube.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "player-cube-black",
+    "flat": true,
+    "svg": "markers/player/black-cube.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Resource markers",
+  "physicalCount": 200,
+  "designs": 3,
+  "available": 3,
+  "status": "official-rulebook-illustrations",
+  "folder": "markers/resources",
+  "note": "Copper, silver and gold; native small publisher illustrations retained.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "resource-copper",
+    "flat": true,
+    "svg": "markers/resources/copper-cube.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "resource-silver",
+    "flat": true,
+    "svg": "markers/resources/silver-cube.svg",
+    "status": "replaced"
+   },
+   {
+    "id": "resource-gold",
+    "flat": true,
+    "svg": "markers/resources/gold-cube.svg",
+    "status": "replaced"
+   }
+  ]
+ },
+ {
+  "component": "White board markers",
+  "physicalCount": 3,
+  "designs": 1,
+  "available": 1,
+  "status": "official-rulebook-illustration-group",
+  "folder": "markers",
+  "note": "Original publisher illustration shows the three cubes together.",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "white-board-markers",
+    "flat": true,
+    "svg": "markers/white-board-markers.svg",
+    "status": "replaced"
+   }
+  ]
+ },
+ {
+  "component": "First-player marker",
+  "physicalCount": 1,
+  "designs": 1,
+  "available": 1,
+  "status": "official-rulebook-illustration",
+  "folder": "markers",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "first-player-marker",
+    "flat": true,
+    "svg": "markers/first-player-marker.svg",
+    "status": "replaced"
+   }
+  ]
+ },
+ {
+  "component": "Project card back",
+  "physicalCount": 208,
+  "designs": 1,
+  "available": 1,
+  "status": "available-source-artwork",
+  "folder": "cards/backs",
+  "flat": true,
+  "flatReview": "comparison/index.html",
+  "assetFlatStatus": [
+   {
+    "id": "project-card-back",
+    "flat": true,
+    "svg": "cards/backs/project-card-back.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Reference cards",
+  "physicalCount": 8,
+  "designs": null,
+  "available": 0,
+  "status": "missing-original-source",
+  "folder": null,
+  "note": "Original reference-card scans are absent from the source collection. No invented or redrawn substitutes are included."
+ },
+ {
+  "component": "Corporation card backs and remaining unscanned reverses",
+  "physicalCount": null,
+  "designs": null,
+  "available": 0,
+  "status": "not-independently-verified",
+  "folder": null,
+  "note": "Only the supplied project-card back is classified; it is not asserted to be a scan of every card type."
+ },
+ {
+  "component": "markers supplementary flat audit",
+  "physicalCount": null,
+  "designs": 2,
+  "available": 2,
+  "folder": "markers",
+  "flat": false,
+  "assetFlatStatus": [
+   {
+    "id": "player-cube-white",
+    "flat": true,
+    "svg": "markers/white-cube.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "transparent-marker-group",
+    "flat": false,
+    "svg": "markers/transparent-marker-group.svg",
+    "status": "unavailable"
+   }
+  ]
+ },
+ {
+  "component": "printed-panels supplementary flat audit",
+  "physicalCount": null,
+  "designs": 3,
+  "available": 3,
+  "folder": "printed-panels",
+  "flat": true,
+  "assetFlatStatus": [
+   {
+    "id": "panel-standard-projects",
+    "flat": true,
+    "svg": "printed-panels/standard-projects.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "panel-milestones",
+    "flat": true,
+    "svg": "printed-panels/milestones.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "panel-awards",
+    "flat": true,
+    "svg": "printed-panels/awards.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "source-sheets supplementary flat audit",
+  "physicalCount": null,
+  "designs": 10,
+  "available": 10,
+  "folder": "source-sheets",
+  "flat": true,
+  "assetFlatStatus": [
+   {
+    "id": "sheet-icons",
+    "flat": true,
+    "svg": "source-sheets/icons.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-resources",
+    "flat": true,
+    "svg": "source-sheets/resources.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-tiles",
+    "flat": true,
+    "svg": "source-sheets/tiles.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-milestones_awards",
+    "flat": true,
+    "svg": "source-sheets/milestones_awards.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-oxygen",
+    "flat": true,
+    "svg": "source-sheets/oxygen.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-temperature",
+    "flat": true,
+    "svg": "source-sheets/temperature.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-stanproj_hold",
+    "flat": true,
+    "svg": "source-sheets/stanproj_hold.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-phobos",
+    "flat": true,
+    "svg": "source-sheets/phobos.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-ganymede",
+    "flat": true,
+    "svg": "source-sheets/ganymede.svg",
+    "status": "already-flat"
+   },
+   {
+    "id": "sheet-cubes_opaque",
+    "flat": true,
+    "svg": "source-sheets/cubes_opaque.svg",
+    "status": "already-flat"
+   }
+  ]
+ },
+ {
+  "component": "Tag icons",
+  "physicalCount": null,
+  "designs": 12,
+  "available": 12,
+  "status": "complete",
+  "folder": "markers/tags",
+  "flat": true,
+  "note": "Added 2026-10-29 from BGA badges.png (sources/), cut at native 115 px; used for the player-panel tag counts."
+ },
+ {
+  "component": "Corporation logos",
+  "physicalCount": null,
+  "designs": 13,
+  "available": 13,
+  "status": "complete",
+  "folder": "markers/corp-logos",
+  "flat": true,
+  "note": "Added 2026-10-29 from BGA corps_logos.png (sources/), trimmed native cells; used in the player panels like BGA."
+ }
+]

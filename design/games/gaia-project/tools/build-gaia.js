@@ -109,37 +109,68 @@ for (const [f, alt, n] of feds) fedsupply += `    <span class="gp-fed__t${n ? ''
 `;
 fedsupply += '  </div></div>\n';
 
-// --- Faction board (1753 x 999, flat; no top resource strip): remaining buildings, power tokens, conversions, owned tiles ---
+// --- Faction boards (1753 x 999, flat; no top resource strip): ALL players, own first then turn order (BGA "View all") ---
+// Remaining buildings sit in the rightmost slots of each track; power tokens scatter in their bowl.
 const FW = 1753, FH = 999;
 const fat = (cls, file, x, y, alt) => `  <img class="gp-at ${cls}" ${A}${file}.webp" alt="${alt}" title="${alt}" style="left:${pct(x, FW)};top:${pct(y, FH)}">\n`;
-let faction = ' <div class="gp-fwrap" dir="ltr">\n <div class="gp-board gp-board--fac" dir="ltr" role="tabpanel" aria-label="[[صفحهٔ جناح هادش هالا: ساختمان‌های باقی‌مانده و قدرت||Hadsch Hallas board: buildings left and power]]">\n';
-faction += `  <img class="gp-base" ${A}faction-hadsch-hallas.webp" alt="[[صفحهٔ جناح هادش هالا||Hadsch Hallas faction board]]" width="1753" height="999">\n`;
-faction += fat('gp-bld gp-bld--pi', 'pi-red', 300, 487, '[[مؤسسهٔ سیاره‌ای||Planetary institute]]');
-[922, 1113].forEach((x) => { faction += fat('gp-bld gp-bld--ac', 'ac-red', x, 483, '[[آکادمی||Academy]]'); });
-[892, 1017, 1150].forEach((x) => { faction += fat('gp-bld', 'rl-red', x, 705, '[[آزمایشگاه پژوهشی||Research lab]]'); });
-[345, 433, 522].forEach((x) => { faction += fat('gp-bld', 'ts-red', x, 708, '[[ایستگاه تجاری||Trading station]]'); });
-[612, 700, 792, 883].forEach((x) => { faction += fat('gp-bld', 'mi-red', x, 912, '[[معدن||Mine]]'); });
-// power tokens: the real power-token piece (tokens-markers/power-token-physical), scattered in the bowls (bowl I: 4, bowl II: 2)
-const coins = [[420, 223], [520, 218], [470, 273], [565, 283], [430, 63], [520, 93]];
-coins.forEach(([x, y], i) => { faction += fat('gp-ptok', 'power-token', x, y, i < 4 ? '[[ژتون قدرت، کاسهٔ I||Power token, bowl I]]' : '[[ژتون قدرت، کاسهٔ II||Power token, bowl II]]'); });
+const SLOTS = {
+  pi: [[300, 487]], ac: [[922, 483], [1113, 483]], rl: [[892, 705], [1017, 705], [1150, 705]],
+  ts: [[257, 708], [345, 708], [433, 708], [522, 708]], mi: [[257, 912], [347, 912], [437, 912], [525, 912], [612, 912], [700, 912], [792, 912], [883, 912]],
+};
+const BLD = { pi: ['gp-bld gp-bld--pi', '[[مؤسسهٔ سیاره‌ای||Planetary institute]]'], ac: ['gp-bld gp-bld--ac', '[[آکادمی||Academy]]'], rl: ['gp-bld', '[[آزمایشگاه پژوهشی||Research lab]]'], ts: ['gp-bld', '[[ایستگاه تجاری||Trading station]]'], mi: ['gp-bld', '[[معدن||Mine]]'] };
+// token spots per bowl, clear of the printed bowl label (board px, measured on the flat board)
+const BOWLS = {
+  g: [[[165, 105], [215, 150], [150, 175]], '[[ژتون قدرت، ناحیهٔ گایا||Power token, Gaia area]]'],
+  1: [[[340, 240], [410, 230], [550, 230], [620, 240], [345, 300], [410, 305], [550, 305], [615, 300]], '[[ژتون قدرت، کاسهٔ I||Power token, bowl I]]'],
+  2: [[[340, 70], [410, 55], [550, 55], [620, 70], [345, 130], [410, 140], [550, 140], [615, 130]], '[[ژتون قدرت، کاسهٔ II||Power token, bowl II]]'],
+  3: [[[862, 118], [912, 145], [862, 218], [912, 195], [885, 168]], '[[ژتون قدرت، کاسهٔ III||Power token, bowl III]]'],
+};
+const MINA_COINS = { 1: [[420, 223], [520, 218], [470, 273], [565, 283]], 2: [[430, 63], [520, 93]] }; // as approved in review 4
+const stdAlt = Object.fromEntries(std.concat(stdBottom));
+const PB = [
+  { id: 'mina', you: true, seat: 1, color: 'red', fac: 'hadsch-hallas', facName: '[[هادش هالا||Hadsch Hallas]]', name: '[[مینا||Mina]]', bld: { pi: 1, ac: 2, rl: 3, ts: 3, mi: 4 }, bowls: { 1: 4, 2: 2 } },
+  { id: 'arash', seat: 3, color: 'brown', fac: 'taklons', facName: '[[تاکلون‌ها||Taklons]]', name: '[[آرش||Arash]]', bld: { pi: 1, ac: 2, rl: 2, ts: 4, mi: 6 }, bowls: { 2: 4, 3: 2 }, boost: 'booqic', tiles: ['tecqic'] },
+  { id: 'niloufar', seat: 2, color: 'yellow', fac: 'xenos', facName: '[[زنوس||Xenos]]', name: '[[نیلوفر||Niloufar]]', bld: { pi: 0, ac: 1, rl: 3, ts: 4, mi: 5 }, bowls: { 2: 3 }, boost: 'boonav', tiles: ['tecknw', 'tectyp'] },
+  { id: 'sara', seat: 4, color: 'orange', fac: 'geodens', facName: '[[ژئودن‌ها||Geodens]]', name: '[[سارا||Sara]]', bld: { pi: 1, ac: 2, rl: 3, ts: 3, mi: 6 }, bowls: { g: 1, 1: 1, 2: 7 }, boost: 'boomin', tiles: ['tecgai'] },
+];
 const conv = [['[[۴ قدرت ← ۱ QIC||4 power → 1 QIC]]', 47.35], ['[[۳ قدرت ← ۱ سنگ معدن||3 power → 1 ore]]', 56.36], ['[[۴ قدرت ← ۱ دانش||4 power → 1 knowledge]]', 63.86], ['[[۱ قدرت ← ۱ اعتبار||1 power → 1 credit]]', 72.87], ['[[۱ دانش ← ۱ اعتبار||1 knowledge → 1 credit]]', 78.88], ['[[۱ سنگ معدن ← ۱ ژتون قدرت||1 ore → 1 power token]]', 87.89]];
-conv.forEach(([label, top], i) => { faction += `  <button class="gp-conv" type="button" aria-label="${label}" style="left:88.14%;top:${top}%"></button>\n`; });
-faction += ' </div>\n';
-// booster stands beside the board, as tall as the board's lower section
-faction += `  <button class="gp-boost is-avail" type="button" title="[[اقدام بوستر در دسترس: ۱ گام زمین‌سازی و ساخت معدن||Booster action available: 1 terraforming step and a mine]]" aria-label="[[بوستر مینا: +۲ اعتبار؛ اقدام: ۱ گام زمین‌سازی و ساخت معدن||Mina's booster: +2 credits; action: 1 terraforming step and a mine]]"><img ${A}booter.webp" alt=""></button>\n`;
-faction += ' </div>\n';
-faction += ' <div class="gp-owned" role="group" aria-label="[[کاشی‌ها و توکن‌های مینا||Mina\'s tiles and tokens]]">\n';
-faction += `  <figure><button type="button" aria-label="[[درآمد ۱ سنگ معدن و ۱ شارژ قدرت||Income: 1 ore, 1 power charge]]"><img ${A}tecore.webp" alt=""></button><figcaption>[[فناوری||Tech]]</figcaption></figure>\n`;
-faction += `  <figure><button class="gp-used" type="button" disabled="" aria-label="[[اقدام ۴ شارژ قدرت، استفاده شده||Action: charge 4 power, used]]"><img ${A}tecpow.webp" alt=""></button><figcaption>[[اقدام استفاده‌شده||Action used]]</figcaption></figure>\n`;
-faction += `  <figure><img ${A}fedcre.webp" alt="[[۷ امتیاز و ۶ اعتبار||7 VP and 6 credits]]"><figcaption>[[فدراسیون||Federation]]</figcaption></figure>\n`;
-faction += ' </div>\n';
+let factions = '';
+for (const p of PB) {
+  let f = `  <article class="gp-pb${p.you ? ' is-you' : ''}" aria-label="[[صفحهٔ||Board of]] ${p.name}، ${p.facName}">\n`;
+  f += `   <header class="gp-pb__head"><i class="bgv-seat seat-${p.seat}"></i><b>${p.name}</b>${p.you ? '<span class="bgv-badge bgv-badge--sm">[[شما||you]]</span>' : ''}<small><img class="gp-planet" ${A}planet-${p.color}.webp" alt="">${p.facName}</small></header>\n`;
+  f += '   <div class="gp-fwrap" dir="ltr">\n';
+  f += `   <div class="gp-board gp-board--fac" dir="ltr" role="group" aria-label="[[صفحهٔ جناح||Faction board]] ${p.facName}: [[ساختمان‌های باقی‌مانده و قدرت||buildings left and power]]">\n`;
+  f += `  <img class="gp-base" ${A}faction-${p.fac}.webp" alt="[[صفحهٔ جناح||Faction board]] ${p.facName}" width="1753" height="999">\n`;
+  for (const t of ['pi', 'ac', 'rl', 'ts', 'mi']) SLOTS[t].slice(SLOTS[t].length - p.bld[t]).forEach(([x, y]) => { f += fat(BLD[t][0], `${t}-${p.color}`, x, y, BLD[t][1]); });
+  for (const [b, n] of Object.entries(p.bowls)) {
+    const [spots, alt] = BOWLS[b];
+    const pts = p.you && MINA_COINS[b] ? MINA_COINS[b] : spots.slice(0, n);
+    pts.forEach(([x, y]) => { f += fat('gp-ptok', 'power-token', x, y, alt); });
+  }
+  if (p.you) conv.forEach(([label, top]) => { f += `  <button class="gp-conv" type="button" aria-label="${label}" style="left:88.14%;top:${top}%"></button>\n`; });
+  f += '   </div>\n';
+  f += p.you
+    ? `   <button class="gp-boost is-avail" type="button" title="[[اقدام بوستر در دسترس: ۱ گام زمین‌سازی و ساخت معدن||Booster action available: 1 terraforming step and a mine]]" aria-label="[[بوستر مینا: +۲ اعتبار؛ اقدام: ۱ گام زمین‌سازی و ساخت معدن||Mina's booster: +2 credits; action: 1 terraforming step and a mine]]"><img ${A}booter.webp" alt=""></button>\n`
+    : `   <span class="gp-boost"><img ${A}${p.boost}.webp" alt="[[بوستر||Booster of]] ${p.name}"></span>\n`;
+  f += '   </div>\n';
+  f += `   <div class="gp-owned" role="group" aria-label="[[کاشی‌ها و توکن‌های||Tiles and tokens of]] ${p.name}">\n`;
+  if (p.you) {
+    f += `    <figure><button type="button" aria-label="[[درآمد ۱ سنگ معدن و ۱ شارژ قدرت||Income: 1 ore, 1 power charge]]"><img ${A}tecore.webp" alt=""></button><figcaption>[[فناوری||Tech]]</figcaption></figure>\n`;
+    f += `    <figure><button class="gp-used" type="button" disabled="" aria-label="[[اقدام ۴ شارژ قدرت، استفاده شده||Action: charge 4 power, used]]"><img ${A}tecpow.webp" alt=""></button><figcaption>[[اقدام استفاده‌شده||Action used]]</figcaption></figure>\n`;
+    f += `    <figure><img ${A}fedcre.webp" alt="[[۷ امتیاز و ۶ اعتبار||7 VP and 6 credits]]"><figcaption>[[فدراسیون||Federation]]</figcaption></figure>\n`;
+  } else {
+    for (const t of p.tiles) f += `    <figure><img ${A}${t}.webp" alt="${stdAlt[t]}" title="${stdAlt[t]}"><figcaption>[[فناوری||Tech]]</figcaption></figure>\n`;
+  }
+  f += '   </div>\n  </article>\n';
+  factions += f;
+}
 
 for (const [lang, theme] of [['fa', 'light'], ['en', 'light'], ['fa', 'dark']]) {
   const out = src
     .replace(/\[\[@research\]\]/g, research.trimEnd())
     .replace(/\[\[@scoring\]\]/g, scoring.trimEnd())
     .replace(/\[\[@fedsupply\]\]/g, fedsupply.trimEnd())
-    .replace(/\[\[@faction\]\]/g, faction.trimEnd())
+    .replace(/\[\[@factions\]\]/g, factions.trimEnd())
     .replace(/\[\[@dir\]\]/g, lang === 'fa' ? 'rtl' : 'ltr')
     .replace(/\[\[@lang\]\]/g, lang)
     .replace('data-theme="light"', `data-theme="${theme}"`)

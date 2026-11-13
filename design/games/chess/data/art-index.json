@@ -1,0 +1,438 @@
+{
+ "note": "Default set: classic (Games Redesign/chess/pieces/classic, GPT «Classic Flat», approved 2026-11-08). Other sets: Games Redesign/chess/images/pieces (vector). Boards are CSS colours (data/board-tokens.json); board/overlay SVGs in art/boards for reference.",
+ "defaultSet": "classic",
+ "pieces": [
+  {
+   "set": "classic",
+   "piece": "wk",
+   "file": "art/pieces/classic/w-k.webp",
+   "source512": "art/pieces/classic/png/w-k.png"
+  },
+  {
+   "set": "classic",
+   "piece": "wq",
+   "file": "art/pieces/classic/w-q.webp",
+   "source512": "art/pieces/classic/png/w-q.png"
+  },
+  {
+   "set": "classic",
+   "piece": "wr",
+   "file": "art/pieces/classic/w-r.webp",
+   "source512": "art/pieces/classic/png/w-r.png"
+  },
+  {
+   "set": "classic",
+   "piece": "wb",
+   "file": "art/pieces/classic/w-b.webp",
+   "source512": "art/pieces/classic/png/w-b.png"
+  },
+  {
+   "set": "classic",
+   "piece": "wn",
+   "file": "art/pieces/classic/w-n.webp",
+   "source512": "art/pieces/classic/png/w-n.png"
+  },
+  {
+   "set": "classic",
+   "piece": "wp",
+   "file": "art/pieces/classic/w-p.webp",
+   "source512": "art/pieces/classic/png/w-p.png"
+  },
+  {
+   "set": "classic",
+   "piece": "bk",
+   "file": "art/pieces/classic/b-k.webp",
+   "source512": "art/pieces/classic/png/b-k.png"
+  },
+  {
+   "set": "classic",
+   "piece": "bq",
+   "file": "art/pieces/classic/b-q.webp",
+   "source512": "art/pieces/classic/png/b-q.png"
+  },
+  {
+   "set": "classic",
+   "piece": "br",
+   "file": "art/pieces/classic/b-r.webp",
+   "source512": "art/pieces/classic/png/b-r.png"
+  },
+  {
+   "set": "classic",
+   "piece": "bb",
+   "file": "art/pieces/classic/b-b.webp",
+   "source512": "art/pieces/classic/png/b-b.png"
+  },
+  {
+   "set": "classic",
+   "piece": "bn",
+   "file": "art/pieces/classic/b-n.webp",
+   "source512": "art/pieces/classic/png/b-n.png"
+  },
+  {
+   "set": "classic",
+   "piece": "bp",
+   "file": "art/pieces/classic/b-p.webp",
+   "source512": "art/pieces/classic/png/b-p.png"
+  },
+  {
+   "set": "flat",
+   "piece": "wk",
+   "file": "art/pieces/flat/w-k.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "wq",
+   "file": "art/pieces/flat/w-q.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "wr",
+   "file": "art/pieces/flat/w-r.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "wb",
+   "file": "art/pieces/flat/w-b.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "wn",
+   "file": "art/pieces/flat/w-n.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "wp",
+   "file": "art/pieces/flat/w-p.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "bk",
+   "file": "art/pieces/flat/b-k.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "bq",
+   "file": "art/pieces/flat/b-q.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "br",
+   "file": "art/pieces/flat/b-r.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "bb",
+   "file": "art/pieces/flat/b-b.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "bn",
+   "file": "art/pieces/flat/b-n.svg"
+  },
+  {
+   "set": "flat",
+   "piece": "bp",
+   "file": "art/pieces/flat/b-p.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "wk",
+   "file": "art/pieces/walnut/w-k.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "wq",
+   "file": "art/pieces/walnut/w-q.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "wr",
+   "file": "art/pieces/walnut/w-r.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "wb",
+   "file": "art/pieces/walnut/w-b.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "wn",
+   "file": "art/pieces/walnut/w-n.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "wp",
+   "file": "art/pieces/walnut/w-p.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "bk",
+   "file": "art/pieces/walnut/b-k.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "bq",
+   "file": "art/pieces/walnut/b-q.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "br",
+   "file": "art/pieces/walnut/b-r.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "bb",
+   "file": "art/pieces/walnut/b-b.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "bn",
+   "file": "art/pieces/walnut/b-n.svg"
+  },
+  {
+   "set": "walnut",
+   "piece": "bp",
+   "file": "art/pieces/walnut/b-p.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "wk",
+   "file": "art/pieces/clay/w-k.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "wq",
+   "file": "art/pieces/clay/w-q.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "wr",
+   "file": "art/pieces/clay/w-r.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "wb",
+   "file": "art/pieces/clay/w-b.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "wn",
+   "file": "art/pieces/clay/w-n.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "wp",
+   "file": "art/pieces/clay/w-p.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "bk",
+   "file": "art/pieces/clay/b-k.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "bq",
+   "file": "art/pieces/clay/b-q.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "br",
+   "file": "art/pieces/clay/b-r.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "bb",
+   "file": "art/pieces/clay/b-b.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "bn",
+   "file": "art/pieces/clay/b-n.svg"
+  },
+  {
+   "set": "clay",
+   "piece": "bp",
+   "file": "art/pieces/clay/b-p.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "wk",
+   "file": "art/pieces/persian/w-k.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "wq",
+   "file": "art/pieces/persian/w-q.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "wr",
+   "file": "art/pieces/persian/w-r.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "wb",
+   "file": "art/pieces/persian/w-b.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "wn",
+   "file": "art/pieces/persian/w-n.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "wp",
+   "file": "art/pieces/persian/w-p.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "bk",
+   "file": "art/pieces/persian/b-k.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "bq",
+   "file": "art/pieces/persian/b-q.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "br",
+   "file": "art/pieces/persian/b-r.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "bb",
+   "file": "art/pieces/persian/b-b.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "bn",
+   "file": "art/pieces/persian/b-n.svg"
+  },
+  {
+   "set": "persian",
+   "piece": "bp",
+   "file": "art/pieces/persian/b-p.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "wk",
+   "file": "art/pieces/glass/w-k.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "wq",
+   "file": "art/pieces/glass/w-q.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "wr",
+   "file": "art/pieces/glass/w-r.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "wb",
+   "file": "art/pieces/glass/w-b.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "wn",
+   "file": "art/pieces/glass/w-n.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "wp",
+   "file": "art/pieces/glass/w-p.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "bk",
+   "file": "art/pieces/glass/b-k.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "bq",
+   "file": "art/pieces/glass/b-q.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "br",
+   "file": "art/pieces/glass/b-r.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "bb",
+   "file": "art/pieces/glass/b-b.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "bn",
+   "file": "art/pieces/glass/b-n.svg"
+  },
+  {
+   "set": "glass",
+   "piece": "bp",
+   "file": "art/pieces/glass/b-p.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "wk",
+   "file": "art/pieces/neon/w-k.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "wq",
+   "file": "art/pieces/neon/w-q.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "wr",
+   "file": "art/pieces/neon/w-r.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "wb",
+   "file": "art/pieces/neon/w-b.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "wn",
+   "file": "art/pieces/neon/w-n.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "wp",
+   "file": "art/pieces/neon/w-p.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "bk",
+   "file": "art/pieces/neon/b-k.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "bq",
+   "file": "art/pieces/neon/b-q.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "br",
+   "file": "art/pieces/neon/b-r.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "bb",
+   "file": "art/pieces/neon/b-b.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "bn",
+   "file": "art/pieces/neon/b-n.svg"
+  },
+  {
+   "set": "neon",
+   "piece": "bp",
+   "file": "art/pieces/neon/b-p.svg"
+  }
+ ]
+}

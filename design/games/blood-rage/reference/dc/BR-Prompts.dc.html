@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>بلاد ریج، پرسش‌های تازه</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.bdr{--pick:#E8A642;--bdr-wolf:#9D3644;--bdr-serpent:#DFA471;--bdr-raven:#428AA7;--bdr-bear:#856348;--bdr-ram:#70A15E;
+ --bdr-wolf-ink:#8A2B38;--bdr-serpent-ink:#8C5A26;--bdr-raven-ink:#2D6E88;--bdr-bear-ink:#6E4F36;--bdr-ram-ink:#4E7F3D;
+ --bdr-sea:#1B2A33;--bdr-plate:rgba(10,12,16,.82);--bdr-blood:#7E1F17;--bdr-parch:#E9DFCB;--bdr-parch-ink:#3B2A1B}
+.bdr[data-theme="dark"]{--bdr-wolf-ink:#F08C99;--bdr-serpent-ink:#F2C08F;--bdr-raven-ink:#8CCBE4;--bdr-bear-ink:#D9B391;--bdr-ram-ink:#A6D894}
+.bdr[lang="en"]{font-family:var(--font-latin)}
+.bdr-num{unicode-bidi:isolate;direction:ltr}
+.bdr-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+/* desktop frame: game column + sticky rail on the right (BGA) */
+.bdr-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.bdr-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.bdr-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.bdr-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.bdr-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.bdr-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.bdr-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA page title + action buttons): text, the actions with their cost, then the steps */
+.bdr-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.bdr-bar.is-waiting{background:var(--surface-sunken)}
+.bdr-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.bdr-bar__text{flex:1 1 360px;min-inline-size:0}
+.bdr-bar__text b{color:var(--heading);font-weight:900}
+.bdr-bar .bgv-btn{white-space:nowrap}
+.bdr-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.bdr-kinds{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bdr-bar .bdr-kinds .bgv-btn{padding-inline:10px;gap:6px}
+.bdr-kinds .bgv-btn[aria-pressed="true"]{background:var(--selected);color:var(--on-selected);box-shadow:none}
+.bdr-kinds .bgv-btn[aria-pressed="true"] .bdr-pill{background:rgba(255,255,255,.18);color:inherit}
+.bdr-kinds .bgv-btn:disabled .bdr-pill{opacity:.7}
+.bdr-pill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle;white-space:nowrap}
+.bdr-pill .bdr-ic{block-size:16px}
+.bdr-rage{display:inline-flex;align-items:center;gap:2px;font-weight:900;color:var(--bdr-blood)}
+.bdr[data-theme="dark"] .bdr-rage{color:#F0AAA3}
+.bdr-rage img{block-size:18px;border-radius:50%}
+.bdr-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bdr-step{display:inline-flex;align-items:center;gap:4px;block-size:26px;padding-inline:9px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.bdr-step.is-done{background:var(--success-soft);color:var(--success)}
+.bdr-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.bdr-step .bgv-icon{inline-size:14px;block-size:14px}
+.bdr-targets{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.bdr-target{display:inline-flex;align-items:center;gap:6px;min-block-size:38px;padding:3px 10px 3px 6px;border-radius:var(--radius-sm);border:1.5px dashed var(--pick);background:var(--surface);font:inherit;font-size:13.5px;color:var(--text);cursor:pointer}
+.bdr-target img{block-size:30px;inline-size:auto}
+.bdr-target small{color:var(--text-muted);font-size:12px}
+.bdr-target[aria-selected="true"],.bdr-target.is-on{border-style:solid;border-width:2.5px;background:var(--invite-soft);color:var(--heading);font-weight:700}
+.bdr-target:disabled{border-color:var(--line);color:var(--on-btn-disabled);cursor:default;background:var(--btn-disabled)}
+.bdr-target:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.bdr-sum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:14px}
+.bdr-sum b{font-weight:900;color:var(--heading)}
+.bdr-sum__fx{flex-basis:100%;font-size:13.5px;color:var(--text)}
+.bdr-sum__fx b{color:var(--danger)}
+.bdr-sum__total{margin-inline-start:auto;font-size:15px}
+/* zones on felt */
+.bdr-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.bdr-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.bdr-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.bdr-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.bdr-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: BGA card faces (English, user choice), Persian name under each, Persian text in the tooltip */
+.bdr-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,150px);flex:none}
+.bdr-card>img{display:block;inline-size:100%;block-size:auto;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 3px 8px rgba(0,0,0,.3)}
+.bdr-card[data-pick="selectable"]>img{outline:2.5px dashed var(--pick);outline-offset:3px}
+.bdr-card[data-pick="picked"]{transform:translateY(-10px)}
+.bdr-card[data-pick="picked"]>img{outline:3.5px solid var(--pick);outline-offset:3px}
+.bdr-card[data-pick="off"]>img{filter:saturate(.35) brightness(.7)}
+.bdr-card:disabled,.bdr-card[aria-disabled="true"]{cursor:default}
+.bdr-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:5px}
+.bdr-card .bdr-check{inset-block-start:-9px;inset-inline-end:-9px}
+.bdr-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:3}
+.bdr-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+.bdr-cardtag{position:absolute;inset-block-end:6px;left:50%;transform:translateX(-50%);max-inline-size:94%;padding:1px 7px;border-radius:var(--radius-pill);background:var(--bdr-plate);color:#FFFFFF;font-size:11.5px;font-weight:700;white-space:nowrap;z-index:2}
+.bdr-hand{display:flex;flex-wrap:wrap;gap:16px 12px;justify-content:center;align-items:flex-end;padding-block-start:10px}
+.bdr-hcard{display:grid;justify-items:center;gap:6px}
+.bdr-hcard small{font-size:12.5px;color:var(--felt-ink);max-inline-size:var(--cw,150px);text-align:center;line-height:1.4;font-weight:700}
+.bdr-hcard small i{display:block;font-style:normal;font-weight:400;color:var(--felt-muted);font-size:11.5px}
+/* tooltip (hover / long-press): English card enlarged + Persian translation */
+.bdr-tip{display:grid;grid-template-columns:auto 1fr;gap:12px;inline-size:420px;padding:12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-float),inset 0 0 0 1px var(--line);color:var(--text);font-size:14px;line-height:1.7}
+.bdr-tip img{inline-size:150px;border-radius:6px}
+.bdr-tip h3{margin:0;font-size:16px;font-weight:900;color:var(--heading)}
+.bdr-tip h3 small{display:block;font-family:var(--font-latin);font-size:12.5px;font-weight:700;color:var(--text-muted)}
+.bdr-tip p{margin:6px 0 0}
+.bdr-tip .bdr-tip__meta{display:flex;flex-wrap:wrap;gap:6px;margin-block-start:8px}
+/* ---------- the map: BGA board (1600 units) on the sea ---------- */
+.bdr-mapbox{position:relative;border-radius:var(--radius-md);overflow:hidden;background:var(--bdr-sea) center/cover no-repeat;box-shadow:var(--shadow-card)}
+.bdr-mapbox__tools{position:absolute;inset-inline-start:12px;inset-block-start:50%;transform:translateY(-50%);display:grid;gap:8px;z-index:5}
+.bdr-mapbox__top{position:absolute;inset-block-start:12px;inset-inline:12px;display:flex;align-items:flex-start;gap:8px;z-index:5;pointer-events:none}
+.bdr-mapbox__top>*{pointer-events:auto}
+.bdr-mapbox__logo{inline-size:150px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.bdr-mapbox__bottom{position:absolute;inset-block-end:12px;inset-inline-start:12px;display:flex;gap:8px;z-index:5}
+.bdr-age{margin-inline-start:auto;display:grid;gap:2px;padding:6px 14px;border-radius:var(--radius-md);background:var(--bdr-plate);color:#FFFFFF;text-align:center;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+.bdr-age b{font-size:17px;font-weight:900}
+.bdr-age small{font-size:12px;color:#D8CDBA}
+.bdr-mapbtn{display:inline-flex;align-items:center;gap:6px;block-size:40px;padding-inline:10px;border:0;border-radius:var(--radius-sm);background:var(--bdr-plate);color:#FFFFFF;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.bdr-mapbtn img{block-size:26px}
+.bdr-mapbtn .bgv-icon{inline-size:20px;block-size:20px}
+.bdr-mapbtn b{font-weight:900}
+.bdr-map{position:relative;margin-inline:auto;aspect-ratio:1;container-type:inline-size}
+.bdr-map>.bdr-base{position:absolute;inset:0;display:block;inline-size:100%;block-size:100%}
+.bdr-at{position:absolute;transform:translate(-50%,-50%)}
+.bdr-tok{inline-size:7.5%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));cursor:pointer}
+.bdr-tok.is-mine{filter:drop-shadow(0 0 0 #FFF) drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.bdr-tok.is-ghost{opacity:.82;filter:drop-shadow(0 0 .6cqi var(--pick)) drop-shadow(0 0 .3cqi var(--pick))}
+.bdr-tok.is-doomed{filter:drop-shadow(0 0 .5cqi #FF5A2A) drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.bdr-tok.is-sel{border-radius:50%;filter:drop-shadow(0 0 .45cqi var(--pick)) drop-shadow(0 0 .2cqi var(--pick)) drop-shadow(0 0 .2cqi var(--pick))}
+.bdr-tok.is-fx{filter:grayscale(.2) drop-shadow(0 0 .6cqi #E0505C);opacity:.9}
+.bdr-x{position:absolute;inset-inline-end:8%;inset-block-start:4%;inline-size:34%;z-index:4}
+.bdr-reward{inline-size:4.4%;border-radius:.4cqi;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.bdr-reward.is-done{inline-size:4.4%}
+.bdr-destroyed{inline-size:10.6%;border-radius:50%;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7))}
+.bdr-doom{inline-size:4.4%;box-shadow:0 0 0 .25cqi rgba(255,255,255,.65),0 2px 5px rgba(0,0,0,.7);border-radius:.3cqi}
+.bdr-mlabel{position:absolute;transform:translate(-50%,0);padding:.15cqi .8cqi;border-radius:var(--radius-pill);background:var(--bdr-plate);color:#FFFFFF;font-size:max(11px,1.25cqi);font-weight:700;white-space:nowrap;line-height:1.5}
+/* targets of the current action: amber dashed ring; picked = solid ring */
+.bdr-spot{position:absolute;transform:translate(-50%,-50%);inline-size:4.6%;aspect-ratio:1;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;box-shadow:0 0 0 .3cqi var(--pick),0 0 0 .55cqi rgba(0,0,0,.45)}
+.bdr-spot img{inline-size:70%;margin:15%;display:block;opacity:.95}
+.bdr-spot.is-on{box-shadow:0 0 0 .45cqi var(--pick),0 0 1.4cqi .2cqi var(--pick)}
+.bdr-spot:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.bdr-prov{position:absolute;transform:translate(-50%,-50%);padding:.2cqi .9cqi;border-radius:var(--radius-pill);border:.25cqi dashed var(--pick);background:rgba(10,12,16,.6);color:#FFFFFF;font-size:max(11px,1.3cqi);font-weight:700;white-space:nowrap}
+.bdr-prov.is-on{border-style:solid;background:var(--pick);color:var(--ink-felt)}
+/* ---------- rail ---------- */
+.bdr-dash{padding:12px;display:grid;gap:10px}
+.bdr-dash__tools{display:flex;gap:4px;justify-content:flex-end}
+.bdr-saga{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.bdr-saga span{display:grid;place-items:center;min-block-size:44px;padding:3px;border-radius:6px;background:var(--surface-sunken);font-size:11px;line-height:1.35;text-align:center;color:var(--text-muted);font-weight:700}
+.bdr-saga span.is-done{color:var(--success);background:var(--success-soft)}
+.bdr-saga span.is-cur{background:var(--selected);color:var(--on-selected)}
+.bdr-ages{display:grid;gap:4px;margin:0;padding:0;list-style:none}
+.bdr-ages li{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:var(--radius-sm);font-size:13px;background:var(--surface-sunken)}
+.bdr-ages li.is-cur{background:var(--invite-soft);color:var(--heading);font-weight:700}
+.bdr-ages li.is-past{opacity:.6}
+.bdr-ages img{block-size:24px;border-radius:3px}
+.bdr-ages b{font-weight:900}
+.bdr-ages small{margin-inline-start:auto;font-size:12px;white-space:nowrap}
+/* player panel (BGA br_board): clan, glory, rage, cards, first player, stats x/max, figures */
+.bdr-panel{display:grid;gap:8px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);border-inline-start:5px solid var(--cc)}
+.bdr-panel.is-turn{box-shadow:var(--shadow-card),inset 0 0 0 2px var(--pick)}
+.bdr-panel.is-out{background:var(--surface-sunken)}
+.bdr-panel__head{display:flex;align-items:center;gap:10px}
+.bdr-panel__clan{inline-size:48px;block-size:48px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr-panel__id{flex:1;min-inline-size:0;display:grid;gap:1px}
+.bdr-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:6px}
+.bdr-panel__id small{font-size:12px;color:var(--text-muted)}
+.bdr-glory{display:grid;place-items:center;inline-size:54px;block-size:54px;border-radius:50%;background:var(--selected);color:var(--on-selected);line-height:1}
+.bdr-glory b{font-size:21px;font-weight:900}
+.bdr-glory small{font-size:10.5px;font-weight:700;opacity:.85}
+.bdr-panel__row{display:flex;align-items:stretch;gap:6px}
+.bdr-ragebox{position:relative;display:grid;place-items:center;inline-size:58px;block-size:58px;flex:none}
+.bdr-ragebox img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:4px}
+.bdr-ragebox b{position:relative;font-size:26px;font-weight:900;color:#FFFFFF;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.bdr-box{flex:1;display:grid;place-items:center;gap:0;padding:4px 2px;border-radius:var(--radius-sm);background:var(--surface-sunken);text-align:center}
+.bdr-box__v{display:inline-flex;align-items:center;gap:4px;font-size:17px;font-weight:900;color:var(--heading)}
+.bdr-box__v img{block-size:24px}
+.bdr-box small{font-size:11px;color:var(--text-muted);line-height:1.3}
+.bdr-box.is-full .bdr-box__v{color:var(--danger)}
+.bdr-stats{display:flex;gap:6px}
+.bdr-stat{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;block-size:32px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13.5px;font-weight:900;color:var(--heading)}
+.bdr-stat img{inline-size:22px;block-size:22px;border-radius:50%}
+.bdr-stat small{font-weight:700;color:var(--text-muted);font-size:12px}
+.bdr-stat.is-legend{box-shadow:inset 0 0 0 1.5px var(--pick)}
+.bdr-panel__foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bdr-fp{block-size:22px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.bdr-chipcount{display:inline-flex;align-items:center;gap:4px;block-size:28px;padding-inline:8px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:12.5px;font-weight:700;color:var(--text)}
+.bdr-chipcount img{block-size:20px}
+.bdr-chipcount b{font-weight:900;color:var(--heading)}
+.bdr-panel__foot .bgv-btn{margin-inline-start:auto}
+.bdr-log{max-block-size:260px;overflow:auto}
+/* ---------- clan sheets (BGA: 9 card slots, upgrades on top) ---------- */
+.bdr-sheets{display:grid;gap:12px}
+.bdr-sheet{display:grid;gap:8px;padding:12px;border-radius:var(--radius-md);background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.bdr-sheet.is-me{background:rgba(255,255,255,.11);box-shadow:inset 0 0 0 2px var(--cc)}
+.bdr-sheet__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink)}
+.bdr-sheet__head img.bdr-cl{inline-size:34px;block-size:34px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr-sheet__head h3{margin:0;font-size:15px;font-weight:900}
+.bdr-sheet__head small{color:var(--felt-muted);font-size:12.5px}
+.bdr-sheet__head .bdr-sheet__btns{margin-inline-start:auto;display:flex;gap:6px}
+.bdr-slots{display:grid;grid-template-columns:repeat(9,var(--sw,106px));gap:6px;justify-content:center}
+.bdr-slot{position:relative;inline-size:var(--sw,106px);aspect-ratio:150/230}
+.bdr-slot>img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:5px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.25)}
+.bdr-slot>img.is-up{transform:translate(0,0)}
+.bdr-slot__q{position:absolute;inset-block-end:6%;inset-inline:8%;display:flex;justify-content:center}
+.bdr-slot__q img{inline-size:46%;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.6);transform:rotate(-6deg)}
+.bdr-slot__q b{position:absolute;inset-block-start:-10px;inset-inline-end:14%;min-inline-size:22px;block-size:22px;border-radius:11px;background:var(--bdr-blood);color:#FFF;font-size:12.5px;font-weight:900;display:grid;place-items:center;box-shadow:0 0 0 2px #FFF}
+.bdr-reserve{display:flex;flex-wrap:wrap;align-items:center;gap:4px 2px;padding:6px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.22)}
+.bdr-reserve>span{font-size:12.5px;color:var(--felt-muted);margin-inline-end:8px}
+.bdr-reserve .bdr-rtok{position:relative;inline-size:58px;padding:0;border:0;background:none;cursor:pointer}
+.bdr-reserve .bdr-rtok img{inline-size:100%;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.bdr-reserve .bdr-rtok[data-pick="selectable"]{border-radius:50%;box-shadow:0 0 0 2px var(--pick) inset}
+.bdr-reserve .bdr-rtok[data-pick="picked"] img{filter:drop-shadow(0 0 6px var(--pick)) drop-shadow(0 0 3px var(--pick))}
+.bdr-reserve .bdr-rtok[data-pick="off"] img{opacity:.45}
+.bdr-reserve .bdr-rtok b{position:absolute;inset-block-end:-2px;inset-inline-end:-2px;min-inline-size:20px;block-size:20px;border-radius:10px;background:var(--bdr-plate);color:#FFF;font-size:12px;font-weight:900;display:grid;place-items:center}
+.bdr-reserve .bdr-sep{inline-size:1px;align-self:stretch;background:rgba(255,255,255,.18);margin-inline:8px}
+/* ---------- phase frames ---------- */
+.bdr-frame{display:grid;gap:12px;padding:20px;border-radius:var(--radius-lg);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line)}
+.bdr-frame>h2{margin:0;font-size:20px;font-weight:900;color:var(--heading);display:flex;align-items:center;gap:10px}
+.bdr-frame>h2 .bdr-no{display:inline-grid;place-items:center;min-inline-size:32px;block-size:32px;padding-inline:6px;border-radius:var(--radius-pill);background:var(--selected);color:var(--on-selected);font-size:15px}
+.bdr-frame>p{margin:0;font-size:14px;line-height:1.8;color:var(--text-muted);max-inline-size:1100px}
+.bdr-cols{display:grid;gap:14px;align-items:start}
+.bdr-panelbox{display:grid;gap:10px;padding:14px;border-radius:var(--radius-md);background:var(--surface-sunken);box-shadow:inset 0 0 0 1px var(--line)}
+.bdr-panelbox h3{margin:0;font-size:15px;font-weight:900;color:var(--heading);display:flex;gap:8px;align-items:center}
+.bdr-panelbox h3 img{block-size:26px}
+.bdr-panelbox p{margin:0;font-size:13.5px;line-height:1.8}
+.bdr-battle{display:grid;gap:6px}
+.bdr-bline{display:grid;grid-template-columns:170px 64px 70px 1fr;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-inline-start:5px solid var(--cc)}
+.bdr-bline.is-win{box-shadow:inset 0 0 0 2px var(--success)}
+.bdr-bline.is-lose{opacity:.85}
+.bdr-bline__who{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px}
+.bdr-bline__who img{inline-size:30px;border-radius:50%}
+.bdr-bline__who small{display:block;font-weight:400;font-size:11.5px;color:var(--text-muted)}
+.bdr-bline__figs{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
+.bdr-bline__figs img{inline-size:46px}
+.bdr-bline__figs span{font-size:12px;color:var(--text-muted);margin-inline-start:4px}
+.bdr-bline__str{display:grid;place-items:center;inline-size:52px;block-size:52px;border-radius:50%;background:var(--bdr-blood);color:#FFFFFF;font-size:24px;font-weight:900;line-height:1;box-shadow:0 0 0 3px rgba(255,255,255,.7)}
+.bdr-bline__str small{display:none}
+.bdr-bline__card{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+.bdr-bline__card img{inline-size:60px;border-radius:4px}
+.bdr-result{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--success-soft);color:var(--text);font-size:13.5px;line-height:1.7}
+.bdr-result b{color:var(--heading)}
+.bdr-result.is-bad{background:var(--danger-soft)}
+.bdr-q{display:grid;gap:8px;justify-items:center;text-align:center;font-size:13px}
+.bdr-q img{inline-size:110px;border-radius:5px}
+.bdr-q .bgv-badge{font-size:12px}
+.bdr-ok{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:var(--radius-pill);background:var(--success-soft);color:var(--success);font-weight:900;font-size:12.5px}
+.bdr-no2{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:var(--radius-pill);background:var(--danger-soft);color:var(--danger);font-weight:900;font-size:12.5px}
+.bdr-table{inline-size:100%;border-collapse:collapse;font-size:13.5px}
+.bdr-table th,.bdr-table td{padding:7px 8px;text-align:start;border-block-end:1px solid var(--line);vertical-align:top}
+.bdr-table th{font-size:12.5px;color:var(--text-muted);font-weight:700}
+.bdr-table td b{font-weight:900;color:var(--heading)}
+.bdr-table tr.is-win td{background:var(--invite-soft)}
+.bdr-table code{font-family:ui-monospace,Consolas,monospace;font-size:12px;direction:ltr;unicode-bidi:isolate;background:var(--surface-sunken);padding:1px 5px;border-radius:4px}
+.bdr-statboard{position:relative;inline-size:100%;aspect-ratio:800/347}
+.bdr-statboard>img{inline-size:100%;display:block}
+.bdr-statboard .bdr-stok{position:absolute;inline-size:11%;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.bdr-valh{display:flex;flex-wrap:wrap;gap:6px 14px}
+.bdr-valh>div{display:flex;align-items:center;gap:2px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-inline-start:4px solid var(--cc)}
+.bdr-valh img{inline-size:52px}
+.bdr-note{margin:0;padding:8px 12px;border-radius:var(--radius-sm);background:var(--info-soft);color:var(--text);font-size:13px;line-height:1.75}
+.bdr-note b{color:var(--heading)}
+/* ---------- review 1: BGA layout (measured on BGA 1440 px: play column 1178 + boards 240) ---------- */
+.bgv-tablescreen--desk.bdr-desk.bdr{grid-template-columns:minmax(0,1fr) 300px}
+.bdr-bar{padding:10px 14px}
+.bdr-bar__row{justify-content:center}
+.bdr-bar__text{flex:0 1 auto;margin:0;text-align:center;font-size:16px}
+.bdr-bar__note{margin:0;text-align:center;font-size:13px;line-height:1.7;color:var(--text-muted)}
+.bdr-bar__note b{color:var(--danger)}
+.bdr-mapbox__logo{position:absolute;inset-block-start:10px;left:12px;inline-size:180px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.bdr-mapbox .bdr-mapbox__tools{inset-inline-start:12px}
+.bdr-mapbox .bdr-mapbox__bottom{inset-inline-start:auto;inset-inline-end:auto;left:12px}
+.bdr-mapbox__battle{position:absolute;inset-block-start:12px;left:50%;transform:translateX(-50%);z-index:5}
+.bdr-pager{position:absolute;right:12px;top:12px;display:grid;gap:8px;justify-items:center;z-index:6}
+.bdr-agebadge{block-size:40px;padding-inline:14px;border:0;border-radius:var(--radius-sm);background:var(--surface);color:var(--heading);font:inherit;font-size:16px;font-weight:900;box-shadow:var(--shadow-tile-sm);cursor:pointer}
+.bdr-mapbox>.bdr-map{position:absolute;left:50%;transform:translateX(-50%);inset-block-start:0}
+.bdr-tok{inline-size:11%}
+.bdr-pdone{display:flex;align-items:center;gap:.5cqi;padding:.5cqi .8cqi;border-radius:.5cqi;background:rgba(0,0,0,.86);color:#FFFFFF;font-size:max(10px,1.05cqi);line-height:1.35;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.bdr-pdone img{inline-size:3.2cqi;border-radius:.3cqi}
+.bdr-ztitle{margin:0;text-align:center;font-size:18px;font-weight:900;color:var(--felt-ink)}
+.bdr-zsub{margin:0;text-align:center;font-size:13px;color:var(--felt-muted)}
+.bdr-handzone .bdr-hand{justify-content:flex-start;padding-block-start:6px}
+.bdr-sheetszone{padding:10px}
+.bdr-sheets{gap:10px}
+.bdr-sheet{justify-items:center;gap:10px;padding:12px 10px 16px;background:rgba(255,255,255,.12);box-shadow:none}
+.bdr-sheet__name{margin:0;font-size:18px;font-weight:900;color:var(--felt-ink)}
+.bdr-sheet .bdr-sheet__name{filter:brightness(1.6)}
+.bdr-sheet__btns{display:flex;gap:8px;justify-content:center}
+.bdr-slots{grid-template-columns:repeat(var(--cols,5),var(--sw,150px));gap:10px}
+.bdr-slot.is-void{visibility:hidden}
+.bdr-slot__inv{position:absolute;inset:0;display:grid;place-items:center;border-radius:5px;box-shadow:inset 0 0 0 3px var(--pick);background:rgba(232,166,66,.12)}
+.bdr-slot__inv img{inline-size:30%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+.bdr-slot__inv.is-on{box-shadow:inset 0 0 0 4px var(--pick),0 0 12px var(--pick);background:rgba(232,166,66,.25)}
+.bdr-frame,.bdr-cols>*,.bdr-panelbox{min-inline-size:0}
+.bdr-panelbox{grid-template-columns:minmax(0,1fr)}
+.bdr-bline__sum{font-size:12.5px;color:var(--text-muted)}
+.bdr-bline__card{justify-content:center}
+.bdr-resgrid{display:grid;grid-template-columns:repeat(4,90px);gap:6px;justify-content:center}
+.bdr-resgrid img{inline-size:100%}
+/* BGA player board */
+.bdr-panel{gap:6px;padding:10px 12px;border-inline-start:0;box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line),inset 0 4px 0 var(--cc)}
+.bdr-panel.is-turn{box-shadow:var(--shadow-card),inset 0 0 0 2px var(--pick),inset 0 5px 0 var(--cc)}
+.bdr-panel__head{display:flex;align-items:center;gap:8px;font-size:15px}
+.bdr-panel__head b{font-weight:900}
+.bdr-panel__head .bgv-clock{margin-inline-start:auto}
+.bdr-panel__score{font-size:14px;color:var(--text-muted)}
+.bdr-panel__score b{font-size:16px;font-weight:900;color:var(--heading)}
+.bdr-panel__score small{font-size:12px}
+.bdr-panel__line1{display:flex;align-items:center;gap:10px}
+.bdr-panel__clan{inline-size:58px;block-size:58px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr-ragebox{inline-size:52px;block-size:52px}
+.bdr-cardbox{position:relative;display:grid;place-items:center;inline-size:34px;block-size:52px}
+.bdr-cardbox img{position:absolute;inset:0;inline-size:100%;block-size:100%;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.bdr-cardbox b{position:relative;font-size:20px;font-weight:900;color:#1A1A1A}
+.bdr-fp{block-size:28px;margin-inline-start:auto}
+.bdr-stats{gap:5px}
+.bdr-stat{block-size:30px;font-size:13px}
+.bdr-panel__more{justify-self:start}
+
+/* ---------- review 2: responsive (BGA breakpoints: clan sheet 9 cols >=1720, 5 cols, 3 cols <=1090) ---------- */
+.bdr-mapbox{block-size:var(--mh,720px)}
+.bdr-slots{grid-template-columns:repeat(var(--cols,5),minmax(0,var(--sw,150px)))}
+.bdr-slot{inline-size:100%}
+.bdr-frame [style*="overflow:hidden"]{max-inline-size:100%}
+.bdr-frame .bgv-dialog{max-inline-size:100%!important}
+.bdr-frame .bgv-dialog,.bdr-frame .bgv-dialog__body,.bdr-frame .bgv-dialog__body>*,.bdr-bar,.bdr-bar__row{min-inline-size:0}
+@media (min-width:1720px){.bdr-sheetszone .bdr-slots{--cols:9!important}.bdr-sheetszone .bdr-slot.is-void{display:none}}
+@media (max-width:1100px){
+ .bgv-tablescreen--desk.bdr-desk.bdr{grid-template-columns:minmax(0,1fr);grid-template-rows:var(--gamebar-h) auto auto}
+ .bdr-desk.bdr>.bdr-rail{grid-column:1;grid-row:2;position:static;max-block-size:none;display:flex;gap:8px;overflow-x:auto;padding-block-end:4px}
+ .bdr-rail>.bdr-panel{flex:0 0 248px}
+ .bdr-rail>section{flex:0 0 300px;max-block-size:250px;overflow:auto}
+ .bdr-desk.bdr>.bdr-main{grid-column:1;grid-row:3}
+ .bdr-sheetszone .bdr-slots{--cols:3!important}
+ .bdr-sheetszone .bdr-slot.is-void{display:none}
+ .bdr-cols{grid-template-columns:minmax(0,1fr)!important}
+ .bdr-frame [style*="grid-template-columns:200px 1fr"]{grid-template-columns:minmax(0,1fr)!important}
+ .bdr-frame .bgv-dialog{inline-size:auto!important}
+}
+@media (max-width:760px){
+ .bdr-mapbox{block-size:auto;aspect-ratio:1}
+ .bdr-mapbox__logo{inline-size:110px}
+ .bdr-mapbox__tools{display:none}
+ .bdr-hand{gap:8px}
+ .bdr-handzone .bdr-card{--cw:104px!important}
+ .bdr-frame{padding:14px}
+ .bdr-frame [style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .bdr-bline{grid-template-columns:1fr 56px 60px;row-gap:4px}
+ .bdr-bline__sum{grid-column:1/-1}
+ .bdr-table{font-size:12.5px}
+}
+.bdr-phones{display:flex;flex-wrap:wrap;justify-content:center;gap:32px;align-items:flex-start;padding:40px 16px}
+.bdr-phone{display:grid;gap:10px;justify-items:start}
+.bdr-phone>h3{margin:0;font-size:16px;font-weight:900;color:var(--heading);display:flex;gap:8px;align-items:center}
+.bdr-phone>h3 .bdr-no{display:inline-grid;place-items:center;min-inline-size:28px;block-size:28px;padding-inline:5px;border-radius:var(--radius-pill);background:var(--selected);color:var(--on-selected);font-size:13px}
+.bdr-phone>p{margin:0;max-inline-size:390px;font-size:13px;line-height:1.75;color:var(--text-muted)}
+.bdr-dev{position:relative;inline-size:390px;block-size:844px;overflow:hidden;border-radius:28px;box-shadow:0 0 0 10px #10161C,0 12px 30px rgba(0,0,0,.25);background:var(--bg)}
+.bdr-dev>.bgv-tablescreen{block-size:844px}
+.bdr .bgv-pcard--mini{padding:6px 8px}
+.bdr .bgv-pcard--mini img.bdr-mcl{inline-size:30px;block-size:30px;border-radius:50%;box-shadow:0 0 0 2px var(--cc)}
+.bdr .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.bdr-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.bdr-tabs button{flex:1;block-size:38px;padding-inline:4px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.bdr-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.bdr-mview{position:relative;contain:paint;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md);background:var(--bdr-sea) center/cover}
+.bdr-mview--scroll{overflow:auto;background:none;display:flex;flex-direction:column;gap:10px}
+.bdr-mview--scroll>*{flex:none}
+.bdr-mview>.bdr-mapwrap{position:absolute}
+.bdr-zoombtns{position:absolute;inset-block-start:8px;inset-inline-start:8px;display:grid;gap:6px;z-index:6}
+.bdr-mapinfo{position:absolute;inset-block-start:8px;inset-inline-end:8px;z-index:6;max-inline-size:62%}
+.bdr .bgv-actiondock__actions{flex-wrap:nowrap}
+.bdr .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+.bdr-dockprompt{min-inline-size:0;font-size:14px;line-height:1.6;display:grid;gap:6px}
+.bdr-dockprompt>span b{color:var(--heading)}
+.bdr-dockhint{font-size:12px;color:var(--text-muted);line-height:1.5}
+.bdr-dockfx{font-size:12.5px;line-height:1.6;color:var(--text)}
+.bdr-dockfx b{color:var(--danger)}
+.bdr-mhand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px}
+.bdr-mhand .bdr-hcard,.bdr-mhand .bdr-card{inline-size:100%}
+.bdr-mhand .bdr-hcard small{font-size:11.5px}
+.bdr-mhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--felt-ink);font-size:13.5px}
+.bdr-mhead b{font-weight:900}
+.bdr-mhead small{color:var(--felt-muted);font-size:12px}
+.bdr-msheet .bdr-slots{grid-template-columns:repeat(3,var(--sw))}
+.bdr-sheetwrap{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end;background:var(--scrim)}
+.bdr-bsheet{position:relative;max-block-size:86%;padding:0 14px 14px;gap:9px;overflow:auto}
+.bdr-bsheet__head{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.6}
+.bdr-bsheet__head b{color:var(--heading);font-weight:900}
+.bdr-bsheet__head .bgv-clock{margin-inline-start:auto;flex:none}
+.bdr-sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.bdr-sgrid .bgv-btn{block-size:auto;min-block-size:58px;padding-block:6px;flex-direction:column;gap:2px;white-space:normal;line-height:1.4}
+.bdr-sgrid .bgv-btn small{font-size:11.5px;font-weight:600;color:var(--text-muted)}
+.bdr-sgrid .bgv-btn[aria-pressed="true"]{background:var(--selected);color:var(--on-selected);box-shadow:none}
+.bdr-sgrid .bgv-btn[aria-pressed="true"] small{color:inherit;opacity:.85}
+.bdr-mrow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:13px;border-inline-start:4px solid var(--cc)}
+.bdr-mrow img{inline-size:30px;border-radius:50%}
+.bdr-mrow b{font-weight:900;color:var(--heading)}
+
+.bdr-pr{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding:28px 16px 40px}
+.bdr-pr>h1{margin:0;font-size:26px;font-weight:900;color:var(--heading)}
+.bdr-pr>p{margin:-12px 0 0;font-size:14.5px;line-height:1.8;color:var(--text-muted)}
+.bdr-pr>h2{margin:0;font-size:20px;font-weight:900;color:var(--heading)}
+.bdr-pr-noart{display:grid;align-content:center;justify-items:center;gap:4px;aspect-ratio:5/7.7;padding:6px;border-radius:5px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);text-align:center;font-size:12.5px;line-height:1.5;color:var(--heading)}
+.bdr-pr-noart small{font-family:var(--font-latin);font-size:11px;color:var(--text-muted)}
+.bdr-pr-dec{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start}
+.bdr-pr-slots{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.bdr-pr-slot{position:relative;inline-size:130px;display:grid;gap:4px;justify-items:center;font-size:12.5px;color:var(--text)}
+.bdr-pr-slot>img{inline-size:100%;border-radius:5px;display:block}
+.bdr-pr-slot.is-pick>img{outline:3.5px solid var(--danger);outline-offset:3px}
+.bdr-pr-slot.is-alt>img{outline:2.5px dashed var(--pick);outline-offset:3px}
+.bdr-pr-slot .bdr-x{position:absolute;inset-block-start:30%;inset-inline-start:50%;inline-size:56px;transform:translateX(-50%)}
+.bdr-pr-setup{display:grid;gap:14px;padding:16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.bdr-pr-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bdr-pr-row>span:first-child{inline-size:120px;font-size:14px;font-weight:700;color:var(--label)}
+.bdr-pr-help{margin:0;font-size:12.5px;line-height:1.7;color:var(--text-muted)}
+.bdr-pr-clans{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.bdr-pr-clan{display:grid;justify-items:center;gap:4px;padding:10px 6px;border:0;border-radius:var(--radius-md);background:var(--surface-sunken);box-shadow:inset 0 0 0 1.5px var(--line);font:inherit;font-size:13px;color:var(--text);cursor:pointer}
+.bdr-pr-clan img{inline-size:56px;block-size:56px;border-radius:50%}
+.bdr-pr-clan b{font-size:14px;color:var(--heading)}
+.bdr-pr-clan[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--pick);background:var(--invite-soft)}
+.bdr-pr-clan:disabled{opacity:.5;cursor:default}
+.bdr-pr-clan .bdr-pr-ini{display:grid;place-items:center;inline-size:56px;block-size:56px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);font-size:20px;font-weight:900}
+.bdr-cardbox.is-zero{opacity:.4}
+.bdr-cardbox.is-zero b{color:#7A1A1A}
+.bdr-pr-zero{color:var(--text-muted);font-weight:700}
+.bdr-pr-cnt{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:12.5px;font-weight:700;color:var(--text)}
+.bdr-pr-cnt img{inline-size:14px;block-size:20px;border-radius:2px}
+.bdr-pr-cnt.is-zero{color:var(--text-muted);opacity:.7}
+.bdr-pr-specs{display:flex;gap:10px;flex-wrap:wrap}
+.bdr-pr-back{display:grid;justify-items:center;gap:4px;font-size:12.5px}
+.bdr-pr-back img{inline-size:60px;border-radius:4px}
+.bdr-pr-phones{padding:0}
+</style>
+</helmet>
+<div class="bgv bdr" data-theme="light" dir="rtl" lang="fa" style="min-height:8239px;inline-size:100%;background:var(--bg)">
+<div class="bdr-pr" dir="rtl"><h1>بلاد ریج: صفحه‌ها و پرسش‌هایی که طرح نداشت</h1><p>هر قاب یکی از قانون‌های بی‌رابط فهرست RULES.md را نشان می‌دهد (U1 تا U10)، با همان نوار وضعیت، نقشه، دست و صفحهٔ قبیلهٔ BR-Desktop. کارت‌هایی که تصویرشان بریده نشده با نامشان نشان داده شده‌اند.</p><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۱</span>لشکرکشی: مبدأ، مهره‌ها، مقصد</h2><p>مثل یورش از نوار وضعیت شروع می‌شود: «لشکرکشی» ← روی نقشه استان مبدأ (استانی که مهرهٔ شما در آن است؛ آبدره نه) ← مهره‌ها با دکمه‌های نوار یا روی نقشه (هر تعداد) ← استان مقصد با روستای خالی کافی. همسایگی لازم نیست. هزینه همیشه ۱ خشم است و تا «ثبت» با «انصراف» برمی‌گردد.</p><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>مینا</b>: لشکرکشی از <b>آنگربودا</b> به <b>میرکولور</b> <span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>مبدأ</span> <span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>۲ مهره</span> <span class="bdr-step is-cur">مقصد</span></p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="cancel">انصراف</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note"><span class="bdr-rage"><img src="/_blob/7a74649cf4fc1a7f0115de6f551b6780" alt=""><span class="bdr-num">۱</span></span> خشم ۴ ← ۳، مهره‌های روی نقشه همان ۴ تا می‌مانند. میرکولور ۲ روستای خالی دارد؛ پس تا ۲ مهره جا دارد. از دو استان یا به دو استان نمی‌شود.</p></section>
+ <div class="bdr-panelbox"><h3>مهره‌های مبدأ</h3><span class="bdr-kinds"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="fig" aria-pressed="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>جنگجو ۱</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="fig" aria-pressed="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>جنگجو ۲</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="all">همه</button></span><div style="position:relative;inline-size:1320px;block-size:420px;overflow:hidden;border-radius:var(--radius-md);background:url(/_blob/9daf2d7a4e1a8328a03a7174e01a864c) center/cover" dir="ltr"><div style="position:absolute;left:43px;top:-157px"><div class="bdr-map" style="inline-size:1250px" data-age="2"><img class="bdr-base" src="/_blob/708d695bdb0f947c150888f108c7d2e1" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="/_blob/b694caee7a8a68907cbcb2a5be70073d" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="/_blob/1bf15de2be07150e952651fb3d6dae2d" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<img src="/_blob/db7f3b6e525a3ec087b8c362ce2f57e5" class="bdr-at bdr-reward" style="left:68%;top:28.75%" data-province="3" title="پاداش غارت: ۵ افتخار" alt="۵ افتخار">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="/_blob/ec17a3fc11f6977a6ac3cf3780be05bd" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="/_blob/b6ae5270f774e6db70f0dc02f380b004" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:56%;top:52.75%" data-fig="f22" data-seat="2"><img src="/_blob/a8928607977379f1dddd2bd079369927" style="inline-size:100%;display:block" alt="سردار آرش, قدرت ۳"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="/_blob/64dcba8b4eeed3daba44e76e7ba226c1" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="/_blob/dbdc7399f243bc7c2d4290ccaf141efe" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="/_blob/195119bc3d3b24702f6cef86c2983ad7" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine is-sel" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine is-sel" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="/_blob/9adabe5e3a890d5d8a4a76cc2d2e54c1" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:22.375%" data-fig="f23" data-seat="2"><img src="/_blob/2a096c5f7612d599b82a0516fc72cec2" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="/_blob/2a096c5f7612d599b82a0516fc72cec2" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:31%" data-fig="f32" data-seat="2"><img src="/_blob/4dc75d192abc211ca5e9aba75ee30eb5" style="inline-size:100%;display:block" alt="سرکردهٔ کوتوله‌ها آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="/_blob/87da5dfc9fc331546dbf809dd31a90fb" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="/_blob/2b855ee32b333bc6c7ade52b87c1327e" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span>
+<button class="bdr-spot is-on" type="button" style="left:24.313%;top:27.813%" data-slot="2" aria-label="روستای خالی در میرکولور" aria-pressed="true"></button>
+<span class="bdr-at bdr-tok is-ghost" style="left:24.313%;top:27.813%"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt=""></span>
+<button class="bdr-spot is-on" type="button" style="left:34.188%;top:24.125%" data-slot="3" aria-label="روستای خالی در میرکولور" aria-pressed="true"></button>
+<span class="bdr-at bdr-tok is-ghost" style="left:34.188%;top:24.125%"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt=""></span>
+<button class="bdr-prov is-on" type="button" style="left:68%;top:34.688%" data-province="3">مبدأ: آنگربودا</button>
+<button class="bdr-prov is-on" type="button" style="left:30.688%;top:35.875%" data-province="1">مقصد: میرکولور</button></div></div></div></div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۲</span>ارتقا با جایگزینی کارت قبلی</h2><p>وقتی جایگاه پر است، بعد از زدن کارت ارتقا جایگاه‌های ممکن روی صفحهٔ قبیله حلقه می‌گیرند و نوار می‌پرسد کدام کارت کنار برود. هیولای قبلی با مهره‌اش (هر جا باشد) به جعبه برمی‌گردد؛ کارت ارتقای قبلی دور ریخته می‌شود. اگر فقط یک جایگاه ممکن باشد، پرسشی نیست و فقط هشدار می‌آید.</p><div class="bdr-cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+ <div class="bdr-panelbox"><h3>هیولا: هر دو جایگاه پر است</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>غول آتش</b> جای کدام هیولا را می‌گیرد؟</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="r1" aria-pressed="true">ترول</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="r2">جن تاریکی</button><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="cancel">انصراف</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note"><span class="bdr-rage"><img src="/_blob/7a74649cf4fc1a7f0115de6f551b6780" alt=""><span class="bdr-num">۴</span></span> خشم ۴ ← ۰</p></section>
+ <div class="bgv-banner bgv-banner--warning"><div class="bgv-banner__body"><span class="bgv-banner__title">ترول به جعبه برمی‌گردد</span><span>مهرهٔ ترول در آنگربودا هم از نقشه برداشته می‌شود و دیگر به بازی برنمی‌گردد.</span></div></div>
+ <div class="bdr-pr-slots" dir="ltr"><div class="bdr-pr-slot is-pick"><img src="/_blob/6f5806849d6d4f363ab20104ecc651ce" alt="ترول"><img src="/_blob/8c939f8c8bcafa62514fc6279440fbc8" class="bdr-x" alt=""><span>جایگاه هیولا ۱</span></div><div class="bdr-pr-slot is-alt"><img src="/_blob/094fd29e1ee7bba35961fe25a77f0cd9" alt="جن تاریکی"><span>جایگاه هیولا ۲</span></div><span style="font-size:22px;color:var(--text-muted)">←</span><div class="bdr-pr-slot "><img src="/_blob/73b65b174c6fb8d3968f978af4503a54" alt="غول آتش"><span>کارت تازه</span></div></div></div>
+ <div class="bdr-panelbox"><h3>قبیله: هر سه جایگاه پر است</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>الهام اودین</b> جای کدام کارت قبیله را می‌گیرد؟</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="c1">شکوه تور</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="c2" aria-pressed="true">افسون فریگا</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="c3">یاری فریگا</button><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="cancel">انصراف</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note"><span class="bdr-rage"><img src="/_blob/7a74649cf4fc1a7f0115de6f551b6780" alt=""><span class="bdr-num">۲</span></span> خشم ۴ ← ۲؛ کارت کنار رفته دور ریخته می‌شود</p></section>
+ <div class="bdr-pr-slots" dir="ltr"><div class="bdr-pr-slot is-alt"><img src="/_blob/7d25cadb2b3612b267c7e8adc5781791" alt="شکوه تور"><span>قبیله ۱</span></div><div class="bdr-pr-slot is-pick"><img src="/_blob/8e1c64e162a73b4446fb5dc217718520" alt="افسون فریگا"><img src="/_blob/8c939f8c8bcafa62514fc6279440fbc8" class="bdr-x" alt=""><span>قبیله ۲</span></div><div class="bdr-pr-slot is-alt"><img src="/_blob/e4acffdaab4b4fd9d8497419fc3c32a6" alt="یاری فریگا"><span>قبیله ۳</span></div></div></div>
+</div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۳</span>کارت نبرد: همهٔ کارت‌های دست</h2><p>هر شرکت‌کننده باید یک کارت بگذارد و دکمهٔ «بدون کارت» نیست. هر کارتی از دست زدنی است؛ ارتقا و مأموریت قدرت ندارند و فقط بلوف‌اند. کسی که دستش خالی است پرسشی نمی‌گیرد و نوارش فقط خبر می‌دهد.</p><div class="bdr-panelbox"><h3>نمای مینا: انتخاب کارت</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">یک کارت نبرد رو به پایین بگذارید</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="play-card"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>رو به پایین بگذار</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note">مهره‌های شما ۷ + خردکردن تیر ۴ = ۱۱؛ کارت ارتقا یا مأموریت = ۰ (بلوف)</p></section>
+ <section class="bgv-felt bdr-zone bdr-handzone" aria-label="دست من">
+ <h2 class="bdr-ztitle">دست من</h2>
+ <div class="bdr-hand"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="44" data-flip="card-44" data-pick="picked" style="--cw:120px" aria-label="Tyr's Crush (خردکردن تیر): نبرد · +۴ قدرت"><img src="/_blob/278527749f4398540f9971550a807ccf" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="39" data-flip="card-39" data-pick="selectable" style="--cw:120px" aria-label="Heimdall's Eye (چشم هایمدال): می‌توانید این کارت را پس از آشکار شدن کارت‌های نبرد همه بازی کنید (و قدرتش را اضافه کنید)."><img src="/_blob/5c282a954871fba9813d3b0607cc29d3" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="63" data-flip="card-63" data-pick="selectable" style="--cw:120px" aria-label="Odin's Inspiration (الهام اودین): افتخار مرگ در راگناروک برای شما دو برابر است."><img src="/_blob/e8ac0d6d01b2d7e5e239c405cf661deb" alt=""><span class="bdr-cardtag">بلوف، ۰</span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="61" data-flip="card-61" data-pick="selectable" style="--cw:120px" aria-label="Dark Elf (جن تاریکی): این هیولا می‌تواند به ایگدراسیل یورش ببرد. در ایگدراسیل ۳ قدرت دارد."><img src="/_blob/094fd29e1ee7bba35961fe25a77f0cd9" alt=""><span class="bdr-cardtag">بلوف، ۰</span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="13" data-flip="card-13" data-pick="selectable" style="--cw:120px" aria-label="Tyr's Smite (ضربت تیر): نبرد · +۵ قدرت"><img src="/_blob/5473a486a3152fbecdeac82786accc58" alt=""></button></div></div>
+</section></div>
+ <div class="bdr-cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+ <div class="bdr-panelbox"><h3>دست خالی (نمای آرش اگر کارتی نداشت)</h3><section class="bdr-bar is-waiting" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">کارتی در دست ندارید؛ فقط با قدرت مهره‌هایتان می‌جنگید</p></div><p class="bdr-bar__note">قدرت شما در این نبرد: <b>۵</b></p></section></div>
+ <div class="bdr-panelbox"><h3>پس از گذاشتن کارت</h3><section class="bdr-bar is-waiting" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">منتظر انتخاب کارت بقیه</p><span class="bdr-steps"><span class="bdr-step is-done" style="--cc:var(--bdr-raven)"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>مینا، گذاشت</span><span class="bdr-step " style="--cc:var(--bdr-bear)">آرش، در حال انتخاب</span></span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div></section></div>
+ </div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۴</span>فراخوان: «رد تا پایان این نبرد»</h2><p>برچسب درست «رد تا پایان این نبرد» است (فقط همین نبرد، نه همهٔ نبردها) و قرمز است. پیش از ارسال یک نوار تأیید می‌آید. این دکمه فقط وقتی هست که دست‌کم ۲ مهرهٔ شما اجازهٔ پیوستن دارند؛ با یک مهره فقط «رد» دیده می‌شود.</p><div class="bdr-cols" style="grid-template-columns:minmax(0,1fr) 560px">
+ <div style="display:grid;gap:12px">
+ <div class="bdr-panelbox"><h3>۱. نوبت فراخوان آرش (۲ مهرهٔ مجاز)</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">یک مهره برای پیوستن به نبرد انتخاب کنید</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="pass">رد</button><button class="bgv-btn bgv-btn--danger bgv-btn--sm" type="button" data-act="pass-all">رد تا پایان این نبرد</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note">رایگان، حتی با خشم صفر. مجاز: سردار در ایگدراسیل و جنگجو در الواگار. نیلوفر رد کرد؛ بعد: سارا، مینا.</p></section></div>
+ <div class="bdr-panelbox"><h3>۲. بعد از زدن «رد تا پایان این نبرد»</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">تا پایان این نبرد دیگر مهره‌ای نمی‌فرستید؟</p><button class="bgv-btn bgv-btn--danger bgv-btn--sm" type="button" data-act="pass-all-ok">بله، رد تا پایان این نبرد</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="cancel">انصراف</button></div></section></div>
+ <div class="bdr-panelbox"><h3>۳. فقط یک مهرهٔ مجاز</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">یک مهره برای پیوستن به نبرد انتخاب کنید</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="pass">رد</button></div><p class="bdr-bar__note">با یک مهره «رد» همان معنی را دارد، پس دکمهٔ دوم نیست.</p></section></div>
+ </div>
+ <div class="bdr-panelbox"><h3>هدف روی نقشه</h3><div style="position:relative;inline-size:530px;block-size:420px;overflow:hidden;border-radius:var(--radius-md);background:url(/_blob/9daf2d7a4e1a8328a03a7174e01a864c) center/cover" dir="ltr"><div style="position:absolute;left:-447px;top:-228px"><div class="bdr-map" style="inline-size:1150px" data-age="2"><img class="bdr-base" src="/_blob/708d695bdb0f947c150888f108c7d2e1" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="/_blob/b694caee7a8a68907cbcb2a5be70073d" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="/_blob/1bf15de2be07150e952651fb3d6dae2d" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<img src="/_blob/db7f3b6e525a3ec087b8c362ce2f57e5" class="bdr-at bdr-reward" style="left:68%;top:28.75%" data-province="3" title="پاداش غارت: ۵ افتخار" alt="۵ افتخار">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="/_blob/ec17a3fc11f6977a6ac3cf3780be05bd" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="/_blob/b6ae5270f774e6db70f0dc02f380b004" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-sel" style="left:56%;top:52.75%" data-fig="f22" data-seat="2"><img src="/_blob/a8928607977379f1dddd2bd079369927" style="inline-size:100%;display:block" alt="سردار آرش, قدرت ۳"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="/_blob/64dcba8b4eeed3daba44e76e7ba226c1" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="/_blob/dbdc7399f243bc7c2d4290ccaf141efe" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="/_blob/195119bc3d3b24702f6cef86c2983ad7" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:67.813%;top:37.75%" data-fig="f10" data-seat="0"><img src="/_blob/0fd65736205c02e3b3af235c561d5930" style="inline-size:100%;display:block" alt="ترول مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="/_blob/9adabe5e3a890d5d8a4a76cc2d2e54c1" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="/_blob/2a096c5f7612d599b82a0516fc72cec2" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:31%" data-fig="f32" data-seat="2"><img src="/_blob/4dc75d192abc211ca5e9aba75ee30eb5" style="inline-size:100%;display:block" alt="سرکردهٔ کوتوله‌ها آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="/_blob/87da5dfc9fc331546dbf809dd31a90fb" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="/_blob/2b855ee32b333bc6c7ade52b87c1327e" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span>
+<button class="bdr-spot" type="button" style="left:74.75%;top:22.375%" data-slot="10" aria-label="روستای خالی در آنگربودا"><img src="/_blob/570606e6f8d50ed7cdca1bf9e27c873a" alt=""></button></div></div></div></div>
+</div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۵</span>تعداد کارت دست: حالت صفر</h2><p>تعداد کارت دست همیشه برای همه دیده می‌شود. صفر کم‌رنگ می‌شود: در پنل دسکتاپ، در نوار بازیکنان گوشی (§گوشی ب) و در پنجرهٔ نبرد پیش از آشکار شدن («بی‌کارت»).</p><div class="bdr-cols" style="grid-template-columns:300px 300px minmax(0,1fr)"><div class="bdr-panelbox"><h3>پنل با کارت</h3><div class="bdr-panel" style="--cc:var(--bdr-wolf)" data-seat="1" data-flip-anchor="seat-1" role="button" tabindex="0" aria-label="نیلوفر, قبیلهٔ گرگ">
+ <div class="bdr-panel__head"><b style="color:var(--bdr-wolf-ink)">نیلوفر</b><span class="bgv-league bgv-league--diamond">الماس</span></div>
+ <div class="bdr-panel__score" title="افتخار"><b class="bdr-num">۲۷</b> ★ <small>افتخار</small></div>
+ <div class="bdr-panel__line1"><img src="/_blob/39afff0d64d38918ee77302fc89a0eb4" class="bdr-panel__clan" alt="قبیلهٔ گرگ" title="قبیلهٔ گرگ"><span class="bdr-ragebox" title="خشم فعلی؛ شروع هر عصر ۶"><img src="/_blob/4689774063a5f43dc1839f896a2d1b62" alt=""><b class="bdr-num">۲</b></span><span class="bdr-cardbox" title="کارت در دست"><img src="/_blob/a82f78963172292f287311d75c92a33e" alt=""><b class="bdr-num">۳</b></span><img src="/_blob/faf55a997c2db6d0fcc46481c466e8f7" class="bdr-fp" title="بازیکن اول این عصر" alt="بازیکن اول"></div>
+ <div class="bdr-stats"><span class="bdr-stat" title="خشم: پلهٔ ۱ از ۶"><img src="/_blob/7a74649cf4fc1a7f0115de6f551b6780" alt=""><span class="bdr-num">۶/۱۲</span></span><span class="bdr-stat" title="تبر: پلهٔ ۳ از ۶"><img src="/_blob/175e85c88dac78b5c0d3547a959b2ca6" alt=""><span class="bdr-num">۵/۸</span></span><span class="bdr-stat" title="شاخ: پلهٔ ۲ از ۶"><img src="/_blob/24675f82fa5b2953de996a5222689a4e" alt=""><span class="bdr-num">۵/۱۰</span></span></div>
+ <button class="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-panel__more" type="button" data-open="stats-1">جزئیات آمار</button>
+</div></div><div class="bdr-panelbox"><h3>پنل بی‌کارت</h3><div class="bdr-panel" style="--cc:var(--bdr-serpent)" data-seat="3" data-flip-anchor="seat-3" role="button" tabindex="0" aria-label="سارا, قبیلهٔ مار">
+ <div class="bdr-panel__head"><b style="color:var(--bdr-serpent-ink)">سارا</b><span class="bgv-league bgv-league--platinum">پلاتین</span></div>
+ <div class="bdr-panel__score" title="افتخار"><b class="bdr-num">۱۹</b> ★ <small>افتخار</small></div>
+ <div class="bdr-panel__line1"><img src="/_blob/ae43c9013e8bf53b2ecc801b86499c44" class="bdr-panel__clan" alt="قبیلهٔ مار" title="قبیلهٔ مار"><span class="bdr-ragebox" title="خشم فعلی؛ شروع هر عصر ۷"><img src="/_blob/4689774063a5f43dc1839f896a2d1b62" alt=""><b class="bdr-num">۰</b></span><span class="bdr-cardbox is-zero" title="کارتی در دست ندارد"><img src="/_blob/a82f78963172292f287311d75c92a33e" alt=""><b class="bdr-num">۰</b></span></div>
+ <div class="bdr-stats"><span class="bdr-stat" title="خشم: پلهٔ ۲ از ۶"><img src="/_blob/7a74649cf4fc1a7f0115de6f551b6780" alt=""><span class="bdr-num">۷/۱۲</span></span><span class="bdr-stat" title="تبر: پلهٔ ۲ از ۶"><img src="/_blob/175e85c88dac78b5c0d3547a959b2ca6" alt=""><span class="bdr-num">۴/۸</span></span><span class="bdr-stat" title="شاخ: پلهٔ ۳ از ۶"><img src="/_blob/24675f82fa5b2953de996a5222689a4e" alt=""><span class="bdr-num">۶/۱۰</span></span></div>
+ <button class="bgv-btn bgv-btn--secondary bgv-btn--sm bdr-panel__more" type="button" data-open="stats-3">جزئیات آمار</button>
+</div></div><div class="bdr-panelbox"><h3>پنجرهٔ نبرد</h3><div class="bgv-dialog" role="dialog" style="position:static;inline-size:100%;max-inline-size:none;transform:none"><div class="bgv-dialog__head"><img src="/_blob/4a05f81c5d3853b22fe5e0db21ea35ec" style="block-size:26px" alt=""><h3 class="bgv-dialog__title">نبرد در آنگربودا: انتخاب کارت</h3></div><div class="bgv-dialog__body" style="display:grid;gap:10px"><div class="bdr-battle"><div class="bdr-bline" style="--cc:var(--bdr-raven)"><div class="bdr-bline__who"><img src="/_blob/f2830d0076a11df765e0a323d41440dd" alt=""><span>مینا<small>(غارتگر)</small></span></div><div class="bdr-bline__str"><b class="bdr-num">۷</b></div><div class="bdr-bline__card"><img src="/_blob/c9fcb77db14d9c1b580443428055d32f" alt="کارت پنهان"></div><div class="bdr-bline__sum"><span class="bdr-pr-cnt"><img src="/_blob/a82f78963172292f287311d75c92a33e" alt="">۵ کارت</span></div></div><div class="bdr-bline" style="--cc:var(--bdr-bear)"><div class="bdr-bline__who"><img src="/_blob/5f5ec5978a06ffd66319e00887ffff59" alt=""><span>آرش</span></div><div class="bdr-bline__str"><b class="bdr-num">۵</b></div><div class="bdr-bline__card"><img src="/_blob/c9fcb77db14d9c1b580443428055d32f" alt="کارت پنهان"></div><div class="bdr-bline__sum"><span class="bdr-pr-cnt is-zero"><img src="/_blob/a82f78963172292f287311d75c92a33e" alt="">بی‌کارت</span></div></div></div><p class="bdr-note">پیش از آشکار شدن، کنار هر قبیله تعداد کارت دستش دیده می‌شود؛ قبیلهٔ بی‌کارت فقط با مهره‌هایش می‌جنگد.</p></div></div></div></div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۶</span>پس از آشکار شدن، و تصمیم‌های کارت</h2><p>بعد از آشکار شدن، به ترتیب از غارتگر هر کس می‌تواند یک کارت با دایرهٔ سفید بازی کند یا رد کند؛ تا یک دور کامل رد. بعد هر کارتی که تصمیم می‌خواهد، نوار خودش را برای همان بازیکن باز می‌کند (یک نمونه برای هر نوع تصمیم). بقیه در این مدت نوار «منتظر …» دارند.</p><div class="bdr-panelbox"><h3>پس از آشکار شدن (نمای مینا)</h3><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">کارت‌ها آشکار شد: کارتی با دایرهٔ سفید بازی می‌کنید؟</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="play"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>بازی چشم هایمدال</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="pass">رد</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note">ترتیب: مینا (غارتگر) ← آرش؛ وقتی همه پشت هم رد کنند، قدرت‌ها مقایسه می‌شود. آشکارشده‌ها: خردکردن تیر (مینا)، پتک تور (آرش).</p></section>
+ <section class="bgv-felt bdr-zone bdr-handzone" aria-label="دست من">
+ <h2 class="bdr-ztitle">دست من</h2>
+ <div class="bdr-hand"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="39" data-flip="card-39" data-pick="picked" style="--cw:110px" aria-label="Heimdall's Eye (چشم هایمدال): می‌توانید این کارت را پس از آشکار شدن کارت‌های نبرد همه بازی کنید (و قدرتش را اضافه کنید)."><img src="/_blob/5c282a954871fba9813d3b0607cc29d3" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="63" data-flip="card-63" data-pick="off" style="--cw:110px" aria-label="Odin's Inspiration (الهام اودین): افتخار مرگ در راگناروک برای شما دو برابر است."><img src="/_blob/e8ac0d6d01b2d7e5e239c405cf661deb" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="61" data-flip="card-61" data-pick="off" style="--cw:110px" aria-label="Dark Elf (جن تاریکی): این هیولا می‌تواند به ایگدراسیل یورش ببرد. در ایگدراسیل ۳ قدرت دارد."><img src="/_blob/094fd29e1ee7bba35961fe25a77f0cd9" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="13" data-flip="card-13" data-pick="off" style="--cw:110px" aria-label="Tyr's Smite (ضربت تیر): نبرد · +۵ قدرت"><img src="/_blob/5473a486a3152fbecdeac82786accc58" alt=""></button></div></div>
+</section></div>
+ <div class="bdr-cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+ <div class="bdr-panelbox"><h3>موج اودین <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">keepOneFigure</small></h3><div class="bdr-pr-dec"><span class="bdr-pr-noart" style="inline-size:96px"><b>موج اودین</b><small>Odin's Tide</small></span><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>آرش</b>: یک مهره را نگه دارید؛ بقیهٔ مهره‌هایتان در این نبرد نابود می‌شوند</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="keep">سردار</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="keep" aria-pressed="true">سرکردهٔ کوتوله‌ها</button><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت</button></div></section></div></div></div>
+ <div class="bdr-panelbox"><h3>دیدبان هایمدال <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">replayCards</small></h3><div class="bdr-pr-dec"><span class="bdr-pr-noart" style="inline-size:96px"><b>دیدبان هایمدال</b><small>Heimdall's Watch</small></span><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>مینا</b>: همهٔ کارت‌های آشکار دور ریخته شد؛ یک کارت تازه رو به پایین بگذارید</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="play"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>رو به پایین بگذار</button></div><p class="bdr-bar__note">کارت را از «دست من» بزنید؛ دیدبان هایمدال افتخار جمع قدرت کارت‌های دورریخته را می‌گیرد.</p></section></div></div></div>
+ <div class="bdr-panelbox"><h3>پناه فریگا <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">saveFigure</small></h3><div class="bdr-pr-dec"><span class="bdr-pr-noart" style="inline-size:96px"><b>پناه فریگا</b><small>Frigga's Protection</small></span><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>آرش</b>: با ۱ خشم برای هر مهره، مهره‌هایتان را از نابودی نجات دهید</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="save" aria-pressed="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>سردار</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="save">سرکردهٔ کوتوله‌ها</button><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm">نجات ۱ مهره (۱ خشم)</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="pass">رد</button></div><p class="bdr-bar__note">خشم آرش: ۵</p></section></div></div></div>
+ <div class="bdr-panelbox"><h3>جادوگر وُلور <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">retreat</small></h3><div class="bdr-pr-dec"><span class="bdr-pr-noart" style="inline-size:96px"><b>جادوگر وُلور</b><small>Volur Witch</small></span><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>سارا</b>: جادوگر وُلور به جای نابود شدن به ایگدراسیل عقب بنشیند؟</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="retreat">عقب‌نشینی به ایگدراسیل</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="die">نابود شود</button></div><p class="bdr-bar__note">فقط از استان بیرونی.</p></section></div></div></div>
+ <div class="bdr-panelbox"><h3>دلاوری تیر <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">keepCards</small></h3><div class="bdr-pr-dec"><img src="/_blob/4763fe49b85f4a99d5b99a2d3eebc1ea" alt="دلاوری تیر" style="inline-size:96px;border-radius:5px;display:block"><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>مینا</b>: کارت‌های آشکارتان را با ۱ خشم برای هر کدام نگه دارید</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="keep" aria-pressed="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>خردکردن تیر</button><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm">نگه داشتن (۱ خشم)</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="pass">رد</button></div></section></div></div></div>
+ <div class="bdr-panelbox"><h3>سرور پتک‌ها <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">moveLeader</small></h3><div class="bdr-pr-dec"><img src="/_blob/f2e9b4f261df4dcc3928b27f108994eb" alt="سرور پتک‌ها" style="inline-size:96px;border-radius:5px;display:block"><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>نیلوفر</b>: سردار را به یک استان همسایه ببرید یا بماند</p><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="to" aria-pressed="true">ایگدراسیل</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="to">الواگار</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="stay">بماند</button></div><p class="bdr-bar__note">استان‌های همسایه روی نقشه هم حلقه می‌گیرند؛ فقط روستای خالی.</p></section></div></div></div>
+ <div class="bdr-panelbox"><h3>برکت لوکی <small style="font-weight:700;color:var(--text-muted);font-family:var(--font-latin)">loserInvade</small></h3><div class="bdr-pr-dec"><span class="bdr-pr-noart" style="inline-size:96px"><b>برکت لوکی</b><small>Loki's Blessing</small></span><div style="display:grid;gap:6px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>آرش</b>: نبرد را باختید: با یک جنگجو رایگان به آنگربودا یورش می‌برید؟</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="invade">یورش با جنگجو</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="pass">رد</button></div><p class="bdr-bar__note">جنگجو از ذخیره؛ روستا را روی نقشه بزنید.</p></section></div></div></div>
+ </div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۷</span>آزادی از والهالا در پنجرهٔ پایان عصر</h2><p>پنجرهٔ پایان عصر (کنار مأموریت‌ها و راگناروک در BR-Desktop §۲۲) یک بخش «آزادی از والهالا» می‌گیرد: چند مهرهٔ هر بازیکن به ذخیره برگشت و افتخار کارت‌های لوکی (قلمرو، برتری، خشم لوکی) کنار همان ردیف.</p><div class="bdr-cols" style="grid-template-columns:560px minmax(0,1fr)"><div class="bgv-dialog" role="dialog" style="position:static;inline-size:100%;max-inline-size:none;transform:none"><div class="bgv-dialog__head"><h3 class="bgv-dialog__title">عصر ۲: آزادی از والهالا</h3><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div><div class="bgv-dialog__body" style="display:grid;gap:10px">
+ <table class="bdr-table"><thead><tr><th>بازیکن</th><th>مهره‌های آزادشده</th><th>افتخار</th></tr></thead><tbody><tr><td><b style="color:var(--bdr-raven-ink)">مینا</b></td><td>۲ مهره به ذخیره</td><td>—</td></tr><tr><td><b style="color:var(--bdr-wolf-ink)">نیلوفر</b></td><td>۱ مهره به ذخیره</td><td><span style="display:inline-flex;gap:6px;align-items:center"><img src="/_blob/5cec20ca7bf0791f9de20e31d1bc4b7e" style="inline-size:28px;border-radius:3px" alt="">قلمرو لوکی <span class="bdr-ok"><span class="bdr-num">+۱</span></span></span></td></tr><tr><td><b style="color:var(--bdr-bear-ink)">آرش</b></td><td>۴ مهره به ذخیره</td><td>—</td></tr><tr><td><b style="color:var(--bdr-serpent-ink)">سارا</b></td><td>۱ مهره به ذخیره</td><td>—</td></tr></tbody></table>
+ <div style="display:flex;justify-content:center"><button class="bgv-btn bgv-btn--secondary" type="button">بستن</button></div></div></div><p class="bdr-note">نیلوفر قلمرو لوکی دارد: برای هر مهرهٔ آزادشده ۱ افتخار. اگر کسی کارت لوکی نداشته باشد ستون افتخارش «—» است. همین ردیف‌ها در گزارش هم می‌آیند.</p></div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۸</span>درفت دونفره: دو کارت در هر انتخاب</h2><p>در بازی دونفره از ۸ کارت هر بار ۲ کارت نگه داشته می‌شود، ۳ بار؛ ۲ کارت آخر بی‌نمایش کنار می‌رود. دکمه تا انتخاب کارت دوم خاموش است.</p><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>هدایای خدایان</b>: دو کارت نگه دارید</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="keep"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>نگه دار (۲ از ۲)</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note">انتخاب ۱ از ۳؛ ۶ کارت دیگر به نیلوفر می‌رسد. نیلوفر هنوز انتخاب نکرده.</p></section>
+ <section class="bgv-felt bdr-zone bdr-handzone" aria-label="دو کارت نگه دارید">
+ <h2 class="bdr-ztitle">دو کارت نگه دارید</h2>
+ <div class="bdr-hand"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="44" data-flip="card-44" data-pick="picked" style="--cw:120px" aria-label="Tyr's Crush (خردکردن تیر): نبرد · +۴ قدرت"><img src="/_blob/278527749f4398540f9971550a807ccf" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="43" data-flip="card-43" data-pick="selectable" style="--cw:120px" aria-label="Tyr's Smash (درهم‌شکستن تیر): نبرد · +۳ قدرت"><img src="/_blob/c045a3aa3079a2cbca225fbd52c22e05" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="62" data-flip="card-62" data-pick="selectable" style="--cw:120px" aria-label="Fire Giant (غول آتش): وقتی این هیولا به استانی یورش می‌برد، همهٔ مهره‌های غیرهیولای دشمن در آن نابود می‌شوند."><img src="/_blob/73b65b174c6fb8d3968f978af4503a54" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="68" data-flip="card-68" data-pick="picked" style="--cw:120px" aria-label="Tyr's Prowess (دلاوری تیر): اگر نبردی را ببرید، می‌توانید هر کدام از کارت‌های آشکارشده‌تان را با ۱ خشم برای هر کارت نگه دارید."><img src="/_blob/4763fe49b85f4a99d5b99a2d3eebc1ea" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="54" data-flip="card-54" data-pick="selectable" style="--cw:120px" aria-label="Yggdrasil! (ایگدراسیل!): در ایگدراسیل بیشترین قدرت را داشته باشید. اگر انجام شود، یکی از ویژگی‌های قبیله یک پله بالا می‌رود."><img src="/_blob/100198e3700aec43deb5abb1d6986ee7" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="41" data-flip="card-41" data-pick="selectable" style="--cw:120px" aria-label="Heimdall's Eye (چشم هایمدال): می‌توانید این کارت را پس از آشکار شدن کارت‌های نبرد همه بازی کنید (و قدرتش را اضافه کنید)."><img src="/_blob/2ac56083de31779f3efbcf9de87805d3" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="56" data-flip="card-56" data-pick="selectable" style="--cw:120px" aria-label="Glorious Death! (مرگ باشکوه!): پیش از راگناروک دست‌کم ۴ مهره در والهالا داشته باشید. اگر انجام شود، یکی از ویژگی‌های قبیله یک پله بالا می‌رود."><img src="/_blob/2267e979267b49fcffc78f97e4ef48dc" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="60" data-flip="card-60" data-pick="selectable" style="--cw:120px" aria-label="Valkyrie (والکیری): برای هر مهرهٔ دشمن که در نبردی همراه این هیولا نابود شود، ۲ افتخار می‌گیرید."><img src="/_blob/82e77db3000aa2ceae2dbda8365624bf" alt=""></button></div></div>
+</section></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۹</span>ساخت میز و انتخاب قبیله</h2><p>گزینه‌های میز در صفحهٔ ساخت میز؛ انتخاب قبیله بعد از نشستن، به ترتیب صندلی (قبیلهٔ گرفته‌شده خاموش است). قبیلهٔ پنجم فقط در میز پنج‌نفره.</p><div class="bdr-cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+ <div class="bdr-pr-setup"><h3 style="margin:0;font-size:16px;font-weight:900;color:var(--heading)">ساخت میز بلاد ریج</h3>
+  <div class="bdr-pr-row"><span>تعداد بازیکن</span><div class="bgv-seg" role="radiogroup"><button class="bgv-seg__item" type="button" aria-checked="false">۲</button><button class="bgv-seg__item" type="button" aria-checked="false">۳</button><button class="bgv-seg__item" type="button" aria-checked="true">۴</button><button class="bgv-seg__item" type="button" aria-checked="false">۵</button></div></div>
+  <div class="bdr-pr-row"><span>درفت</span><div class="bgv-seg" role="radiogroup"><button class="bgv-seg__item" type="button" aria-checked="true">با درفت</button><button class="bgv-seg__item" type="button" aria-checked="false">بی‌درفت</button></div></div>
+  <p class="bdr-pr-help">«بی‌درفت» برای بازی اول است: در هر عصر ۶ کارت مستقیم به دست می‌رسد و هدایای خدایان انجام نمی‌شود. پیش‌فرض «با درفت» است.</p>
+  <div class="bdr-pr-row"><span>انتخاب قبیله</span><div class="bgv-seg" role="radiogroup"><button class="bgv-seg__item" type="button" aria-checked="true">به ترتیب صندلی</button><button class="bgv-seg__item" type="button" aria-checked="false">تصادفی</button></div></div>
+  <div class="bdr-pr-row"><span>زمان هر نوبت</span><select class="bgv-select bgv-select--sm" style="inline-size:200px" aria-label="زمان هر نوبت"><option selected>۲۴ ساعت</option></select></div>
+  <div class="bdr-pr-row"><button class="bgv-btn bgv-btn--primary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ساختن میز</button></div></div>
+ <div style="display:grid;gap:12px"><section class="bdr-bar" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>مینا</b>، قبیله‌تان را انتخاب کنید</p><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت کلاغ</button><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><p class="bdr-bar__note">نیلوفر، آرش و سارا انتخاب کرده‌اند؛ شما آخرین نفرید.</p></section><div class="bdr-pr-clans"><button class="bdr-pr-clan" type="button" disabled=""><img src="/_blob/39afff0d64d38918ee77302fc89a0eb4" alt=""><b>گرگ</b><span>نیلوفر</span></button><button class="bdr-pr-clan" type="button" disabled=""><img src="/_blob/ae43c9013e8bf53b2ecc801b86499c44" alt=""><b>مار</b><span>سارا</span></button><button class="bdr-pr-clan" type="button" aria-pressed="true"><img src="/_blob/f2830d0076a11df765e0a323d41440dd" alt=""><b>کلاغ</b><span>انتخاب شما</span></button><button class="bdr-pr-clan" type="button" disabled=""><img src="/_blob/5f5ec5978a06ffd66319e00887ffff59" alt=""><b>خرس</b><span>آرش</span></button><button class="bdr-pr-clan" type="button" disabled=""><span class="bdr-pr-ini">ق</span><b>قوچ</b><span>فقط پنج‌نفره</span></button></div></div>
+</div></section><section class="bdr-frame" dir="rtl"><h2><span class="bdr-no">۱۰</span>تمام شدن زمان نوبت و تماشاگر</h2><p>از قاب مشترک DS: پیام زمان در نوار وضعیت همه، و حالت تماشاگر با دست‌های پنهان. قاعده: در فاز اقدام فقط همان نوبت رد می‌شود و خشم می‌ماند؛ در نبرد یک کارت تصادفی گذاشته می‌شود (موتور: E16 و E4).</p><div class="bdr-cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+ <div style="display:grid;gap:12px">
+ <div class="bdr-panelbox"><h3>زمان نوبت تمام شد (فاز اقدام)</h3><div class="bgv-banner bgv-banner--warning"><div class="bgv-banner__body"><span class="bgv-banner__title">زمان نوبت آرش تمام شد</span><span>این نوبت رد شد و خشمش (۵) ماند. بار ۱ از ۳؛ بار سوم از میز کنار گذاشته می‌شود.</span></div></div><section class="bdr-bar is-waiting" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text"><b>سارا</b> یک اقدام انتخاب می‌کند</p></div></section></div>
+ <div class="bdr-panelbox"><h3>زمان انتخاب کارت نبرد تمام شد</h3><div class="bgv-banner bgv-banner--warning"><div class="bgv-banner__body"><span class="bgv-banner__title">زمان آرش برای کارت نبرد تمام شد</span><span>یک کارت تصادفی از دستش رو به پایین گذاشته شد.</span></div></div></div>
+ </div>
+ <div class="bdr-panelbox"><h3>تماشاگر</h3><section class="bdr-bar is-waiting" aria-label="نوار وضعیت"><div class="bdr-bar__row"><p class="bdr-bar__text">شما تماشاگر این میز هستید؛ دست بازیکنان دیده نمی‌شود</p><span class="bgv-badge bgv-badge--info"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /> <circle cx="12" cy="12" r="3" /></svg>تماشا</span></div><p class="bdr-bar__note">نقشه، صفحه‌های قبیله و گزارش مثل بازیکنان؛ «دست من» جایش را به تعداد کارت هر نفر می‌دهد. گفت‌وگوی میز فقط خواندنی است.</p></section><div class="bdr-pr-specs"><div class="bdr-pr-back" style="--cc:var(--bdr-raven)"><img src="/_blob/c9fcb77db14d9c1b580443428055d32f" alt=""><b style="color:var(--bdr-raven-ink)">مینا</b><span class="bdr-pr-cnt">۵ کارت</span></div><div class="bdr-pr-back" style="--cc:var(--bdr-wolf)"><img src="/_blob/c9fcb77db14d9c1b580443428055d32f" alt=""><b style="color:var(--bdr-wolf-ink)">نیلوفر</b><span class="bdr-pr-cnt">۳ کارت</span></div><div class="bdr-pr-back" style="--cc:var(--bdr-bear)"><img src="/_blob/c9fcb77db14d9c1b580443428055d32f" alt=""><b style="color:var(--bdr-bear-ink)">آرش</b><span class="bdr-pr-cnt">۵ کارت</span></div><div class="bdr-pr-back" style="--cc:var(--bdr-serpent)"><img src="/_blob/c9fcb77db14d9c1b580443428055d32f" alt=""><b style="color:var(--bdr-serpent-ink)">سارا</b><span class="bdr-pr-cnt">۴ کارت</span></div></div></div>
+</div></section><h2>گوشی</h2><div class="bdr-phones bdr-pr-phones" dir="rtl"><div class="bdr-phone"><h3><span class="bdr-no">الف</span>لشکرکشی (§۱)</h3><p>مبدأ و مهره‌ها انتخاب شده؛ روستاهای خالی مقصد روی نقشه، هزینه در داک.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="/_blob/39afff0d64d38918ee77302fc89a0eb4" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="/_blob/5f5ec5978a06ffd66319e00887ffff59" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="/_blob/ae43c9013e8bf53b2ecc801b86499c44" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="/_blob/f2830d0076a11df765e0a323d41440dd" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۴ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">عصر <strong>۲</strong>، اقدام</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview" role="tabpanel" aria-label="نقشه" style="background-image:url(/_blob/9daf2d7a4e1a8328a03a7174e01a864c)" dir="ltr">
+ <div class="bdr-mapwrap" style="left:-149px;top:-11px"><div class="bdr-map" style="inline-size:672px" data-age="2"><img class="bdr-base" src="/_blob/708d695bdb0f947c150888f108c7d2e1" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="/_blob/b694caee7a8a68907cbcb2a5be70073d" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="/_blob/1bf15de2be07150e952651fb3d6dae2d" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<img src="/_blob/db7f3b6e525a3ec087b8c362ce2f57e5" class="bdr-at bdr-reward" style="left:68%;top:28.75%" data-province="3" title="پاداش غارت: ۵ افتخار" alt="۵ افتخار">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="/_blob/ec17a3fc11f6977a6ac3cf3780be05bd" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="/_blob/b6ae5270f774e6db70f0dc02f380b004" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:56%;top:52.75%" data-fig="f22" data-seat="2"><img src="/_blob/a8928607977379f1dddd2bd079369927" style="inline-size:100%;display:block" alt="سردار آرش, قدرت ۳"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="/_blob/64dcba8b4eeed3daba44e76e7ba226c1" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="/_blob/dbdc7399f243bc7c2d4290ccaf141efe" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="/_blob/195119bc3d3b24702f6cef86c2983ad7" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine is-sel" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine is-sel" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="/_blob/9adabe5e3a890d5d8a4a76cc2d2e54c1" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:22.375%" data-fig="f23" data-seat="2"><img src="/_blob/2a096c5f7612d599b82a0516fc72cec2" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="/_blob/2a096c5f7612d599b82a0516fc72cec2" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:31%" data-fig="f32" data-seat="2"><img src="/_blob/4dc75d192abc211ca5e9aba75ee30eb5" style="inline-size:100%;display:block" alt="سرکردهٔ کوتوله‌ها آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="/_blob/87da5dfc9fc331546dbf809dd31a90fb" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="/_blob/2b855ee32b333bc6c7ade52b87c1327e" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span>
+<button class="bdr-spot is-on" type="button" style="left:24.313%;top:27.813%" data-slot="2" aria-label="روستای خالی در میرکولور" aria-pressed="true"></button>
+<span class="bdr-at bdr-tok is-ghost" style="left:24.313%;top:27.813%"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt=""></span>
+<button class="bdr-spot is-on" type="button" style="left:34.188%;top:24.125%" data-slot="3" aria-label="روستای خالی در میرکولور" aria-pressed="true"></button>
+<span class="bdr-at bdr-tok is-ghost" style="left:34.188%;top:24.125%"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt=""></span></div></div>
+ <div class="bdr-zoombtns" role="group" aria-label="بزرگ‌نمایی"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ <span class="bgv-felt-plate bdr-mapinfo" dir="rtl">آنگربودا ← میرکولور</span>
+</div>
+</main>
+<section class="bgv-actiondock" aria-label="اقدام شما"><div class="bgv-actiondock__prompt"><span class="bdr-dockprompt"><span class="bdr-steps"><span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>لشکرکشی</span><span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>مبدأ</span><span class="bdr-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>۲ مهره</span><span class="bdr-step is-cur">مقصد</span></span><span><b>آنگربودا ← میرکولور</b> <span class="bdr-pill"><span class="bdr-rage"><img src="/_blob/7a74649cf4fc1a7f0115de6f551b6780" alt=""><span class="bdr-num">۱</span></span></span> خشم ۴ ← ۳</span><span class="bdr-dockhint">همسایگی لازم نیست؛ تا «ثبت» با «برگرد» عوض می‌شود.</span></span></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>ثبت</button><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>برگرد</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="لغو این اقدام"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div></section>
+</div></div></div><div class="bdr-phone"><h3><span class="bdr-no">ب</span>کارت نبرد و «بی‌کارت» (§۳، §۵)</h3><p>همهٔ کارت‌ها زدنی؛ آرش بی‌کارت است و در نوار بازیکنان هم کم‌رنگ دیده می‌شود.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="/_blob/39afff0d64d38918ee77302fc89a0eb4" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-bear)" role="button" tabindex="0" aria-label="آرش"><img src="/_blob/5f5ec5978a06ffd66319e00887ffff59" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، <span class="bdr-pr-zero">بی‌کارت</span></small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="/_blob/ae43c9013e8bf53b2ecc801b86499c44" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--cc:var(--bdr-raven);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><img src="/_blob/f2830d0076a11df765e0a323d41440dd" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۲ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">نبرد، کارت</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview bdr-mview--scroll"><div class="bdr-mhead"><img src="/_blob/4a05f81c5d3853b22fe5e0db21ea35ec" style="block-size:22px" alt=""><b>نبرد در آنگربودا</b><small>پیش از آشکار شدن</small></div><div class="bdr-mrow" style="--cc:var(--bdr-raven)"><img src="/_blob/f2830d0076a11df765e0a323d41440dd" alt=""><span><b>مینا</b> <span class="bdr-pr-cnt">۵ کارت</span><br><small>جنگجو، جنگجو، کشتی، ترول</small></span><b class="bdr-num" style="font-size:20px">۷</b></div><div class="bdr-mrow" style="--cc:var(--bdr-bear)"><img src="/_blob/5f5ec5978a06ffd66319e00887ffff59" alt=""><span><b>آرش</b> <span class="bdr-pr-cnt is-zero">بی‌کارت</span><br><small>سردار، سرکردهٔ کوتوله‌ها</small></span><b class="bdr-num" style="font-size:20px">۵</b></div><div class="bdr-mhead"><b>یک کارت پنهانی بگذارید</b><small>همهٔ کارت‌ها؛ ارتقا و مأموریت = ۰</small></div><div class="bdr-mhand"><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="44" data-flip="card-44" data-pick="picked" style="--cw:100px" aria-label="Tyr's Crush (خردکردن تیر): نبرد · +۴ قدرت"><img src="/_blob/278527749f4398540f9971550a807ccf" alt=""><span class="bdr-check"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="39" data-flip="card-39" data-pick="selectable" style="--cw:100px" aria-label="Heimdall's Eye (چشم هایمدال): می‌توانید این کارت را پس از آشکار شدن کارت‌های نبرد همه بازی کنید (و قدرتش را اضافه کنید)."><img src="/_blob/5c282a954871fba9813d3b0607cc29d3" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="63" data-flip="card-63" data-pick="selectable" style="--cw:100px" aria-label="Odin's Inspiration (الهام اودین): افتخار مرگ در راگناروک برای شما دو برابر است."><img src="/_blob/e8ac0d6d01b2d7e5e239c405cf661deb" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="61" data-flip="card-61" data-pick="selectable" style="--cw:100px" aria-label="Dark Elf (جن تاریکی): این هیولا می‌تواند به ایگدراسیل یورش ببرد. در ایگدراسیل ۳ قدرت دارد."><img src="/_blob/094fd29e1ee7bba35961fe25a77f0cd9" alt=""></button></div><div class="bdr-hcard"><button class="bdr-card" type="button" data-card="13" data-flip="card-13" data-pick="selectable" style="--cw:100px" aria-label="Tyr's Smite (ضربت تیر): نبرد · +۵ قدرت"><img src="/_blob/5473a486a3152fbecdeac82786accc58" alt=""></button></div></div></div>
+</main>
+<section class="bgv-actiondock" aria-label="کارت نبرد"><div class="bgv-actiondock__prompt"><span class="bdr-dockprompt"><span><b>خردکردن تیر</b> <span class="bdr-num">+۴</span>؛ آرش کارتی ندارد</span></span></div><div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button" data-act="confirm"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>رو به پایین بگذار</button></div></section>
+</div></div></div><div class="bdr-phone"><h3><span class="bdr-no">ج</span>تأیید «رد تا پایان این نبرد» (§۴)</h3><p>شیت تأیید پیش از ارسال، با دکمهٔ قرمز.</p><div class="bdr-dev"><div class="bgv-tablescreen bdr" style="height:844px" data-age="2" data-phase="action">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">بلاد ریج</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان به ترتیب نوبت"><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-wolf)" role="button" tabindex="0" aria-label="نیلوفر"><img src="/_blob/39afff0d64d38918ee77302fc89a0eb4" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>نیلوفر</b><small>۲ خشم، ۳ کارت</small></div><div class="bgv-pcard__score">۲۷<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-turn" style="--cc:var(--bdr-bear);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="آرش"><img src="/_blob/5f5ec5978a06ffd66319e00887ffff59" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>آرش</b><small>۵ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۱۴<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini" style="--cc:var(--bdr-serpent)" role="button" tabindex="0" aria-label="سارا"><img src="/_blob/ae43c9013e8bf53b2ecc801b86499c44" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b>سارا</b><small>۰ خشم، ۴ کارت</small></div><div class="bgv-pcard__score">۱۹<small>افتخار</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you" style="--cc:var(--bdr-raven)" role="button" tabindex="0" aria-label="مینا"><img src="/_blob/f2830d0076a11df765e0a323d41440dd" class="bdr-mcl" alt=""><div class="bgv-pcard__name"><b><span class="bgv-sr">مینا</span>شما</b><small>۲ خشم، ۵ کارت</small></div><div class="bgv-pcard__score">۲۱<small>افتخار</small></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز بلاد ریج">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--other" role="status"><span class="bgv-turn__who">نوبت آرش</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">فراخوان نبرد</span></div>
+ <div class="bdr-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="true">نقشه</button><button type="button" role="tab" aria-selected="false">دست ۵</button><button type="button" role="tab" aria-selected="false">قبیلهٔ من</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="bdr-mview" role="tabpanel" aria-label="نقشه" style="background-image:url(/_blob/9daf2d7a4e1a8328a03a7174e01a864c)" dir="ltr">
+ <div class="bdr-mapwrap" style="left:-312px;top:-110px"><div class="bdr-map" style="inline-size:800px" data-age="2"><img class="bdr-base" src="/_blob/708d695bdb0f947c150888f108c7d2e1" alt="نقشهٔ بلاد ریج: ایگدراسیل و هشت استان">
+<img src="/_blob/b694caee7a8a68907cbcb2a5be70073d" class="bdr-at bdr-reward" style="left:47.875%;top:52.75%" data-province="0" title="پاداش غارت: هر سه ویژگی قبیله یک پله" alt="هر سه ویژگی قبیله یک پله">
+<img src="/_blob/1bf15de2be07150e952651fb3d6dae2d" class="bdr-at bdr-reward" style="left:30.688%;top:29.938%" data-province="1" title="پاداش غارت: ویژگی تبر یک پله" alt="ویژگی تبر یک پله">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:46.875%;top:20.688%" data-province="2" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<img src="/_blob/db7f3b6e525a3ec087b8c362ce2f57e5" class="bdr-at bdr-reward" style="left:68%;top:28.75%" data-province="3" title="پاداش غارت: ۵ افتخار" alt="۵ افتخار">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:76%;top:52.938%" data-province="4" alt="موسپلهایم نابود شده">
+<img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" class="bdr-at bdr-reward" style="left:63.75%;top:72.938%" data-province="5" title="پاداش غارت: ویژگی شاخ یک پله" alt="ویژگی شاخ یک پله">
+<img src="/_blob/1f9f0fd60fd6f743a89e8a93c38db7ec" class="bdr-at bdr-destroyed" style="left:42.938%;top:78%" data-province="6" alt="اوتگارد نابود شده">
+<img src="/_blob/4689774063a5f43dc1839f896a2d1b62" class="bdr-at bdr-reward" style="left:25.875%;top:68.563%" data-province="7" title="پاداش غارت: ویژگی خشم یک پله" alt="ویژگی خشم یک پله">
+<span class="bdr-at bdr-pdone" style="left:22.5%;top:48.875%" data-province="8" dir="rtl"><img src="/_blob/5d441e1143323b0ac6b292caa7a8298f" alt=""><span>غارت موفق<br>توسط <b>نیلوفر</b></span></span>
+<img src="/_blob/ec17a3fc11f6977a6ac3cf3780be05bd" class="bdr-at bdr-doom" style="left:53.25%;top:26.25%" title="نشان نابودی: این استان در راگناروک همین عصر نابود می‌شود" alt="نشان نابودی">
+<span class="bdr-at bdr-tok is-mine" style="left:43.813%;top:45.714%" data-fig="f0" data-seat="0"><img src="/_blob/b6ae5270f774e6db70f0dc02f380b004" style="inline-size:100%;display:block" alt="سردار مینا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:51.938%;top:45.714%" data-fig="f14" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-sel" style="left:56%;top:52.75%" data-fig="f22" data-seat="2"><img src="/_blob/a8928607977379f1dddd2bd079369927" style="inline-size:100%;display:block" alt="سردار آرش, قدرت ۳"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.563%;top:13.75%" data-fig="f9" data-seat="0"><img src="/_blob/64dcba8b4eeed3daba44e76e7ba226c1" style="inline-size:100%;display:block" alt="کشتی مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:84.563%;top:72.438%" data-fig="f42" data-seat="3"><img src="/_blob/dbdc7399f243bc7c2d4290ccaf141efe" style="inline-size:100%;display:block" alt="کشتی سارا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:17.063%;top:34.5%" data-fig="f20" data-seat="1"><img src="/_blob/195119bc3d3b24702f6cef86c2983ad7" style="inline-size:100%;display:block" alt="کشتی نیلوفر, قدرت ۲"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:59.813%;top:29.125%" data-fig="f1" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:65.813%;top:19.25%" data-fig="f2" data-seat="0"><img src="/_blob/04322ff4ba08a086c0bbf30d2c6eaf4e" style="inline-size:100%;display:block" alt="جنگجو مینا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok is-mine" style="left:67.813%;top:37.75%" data-fig="f10" data-seat="0"><img src="/_blob/0fd65736205c02e3b3af235c561d5930" style="inline-size:100%;display:block" alt="ترول مینا, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.25%;top:56.063%" data-fig="f11" data-seat="1"><img src="/_blob/9adabe5e3a890d5d8a4a76cc2d2e54c1" style="inline-size:100%;display:block" alt="سردار نیلوفر, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:15.563%;top:54%" data-fig="f12" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:31.375%;top:36.438%" data-fig="f13" data-seat="1"><img src="/_blob/76ddb47eef251f436abe4600ff49c667" style="inline-size:100%;display:block" alt="جنگجو نیلوفر, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:35.938%;top:15.813%" data-fig="f24" data-seat="2"><img src="/_blob/2a096c5f7612d599b82a0516fc72cec2" style="inline-size:100%;display:block" alt="جنگجو آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:74.75%;top:31%" data-fig="f32" data-seat="2"><img src="/_blob/4dc75d192abc211ca5e9aba75ee30eb5" style="inline-size:100%;display:block" alt="سرکردهٔ کوتوله‌ها آرش, قدرت ۲"></span>
+<span class="bdr-at bdr-tok" style="left:24.813%;top:78.563%" data-fig="f33" data-seat="3"><img src="/_blob/87da5dfc9fc331546dbf809dd31a90fb" style="inline-size:100%;display:block" alt="سردار سارا, قدرت ۳"></span>
+<span class="bdr-at bdr-tok" style="left:60.438%;top:66.063%" data-fig="f34" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:72.5%;top:73.063%" data-fig="f35" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:19.375%;top:65.625%" data-fig="f36" data-seat="3"><img src="/_blob/f06070732b0268e779435bc8cec25ca0" style="inline-size:100%;display:block" alt="جنگجو سارا, قدرت ۱"></span>
+<span class="bdr-at bdr-tok" style="left:40.688%;top:10.375%" data-fig="f43" data-seat="3"><img src="/_blob/2b855ee32b333bc6c7ade52b87c1327e" style="inline-size:100%;display:block" alt="والکیری سارا, قدرت ۲"></span>
+<button class="bdr-spot" type="button" style="left:74.75%;top:22.375%" data-slot="10" aria-label="روستای خالی در آنگربودا"><img src="/_blob/570606e6f8d50ed7cdca1bf9e27c873a" alt=""></button></div></div>
+ <div class="bdr-zoombtns" role="group" aria-label="بزرگ‌نمایی"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ 
+</div>
+</main>
+
+</div><div class="bdr-sheetwrap"><section class="bgv-sheet bdr-bsheet" role="dialog" aria-label="تأیید"><span class="bgv-sheet__handle"></span><div class="bdr-bsheet__head"><b>تا پایان این نبرد دیگر مهره‌ای نمی‌فرستید؟</b></div><p class="bdr-note">فقط همین نبرد در آنگربودا؛ در نبردهای بعدی دوباره پرسیده می‌شود.</p><button class="bgv-btn bgv-btn--danger" type="button">بله، رد تا پایان این نبرد</button><button class="bgv-btn bgv-btn--ghost" type="button">انصراف</button></section></div></div></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":8239}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

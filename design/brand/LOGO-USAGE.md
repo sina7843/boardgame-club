@@ -21,7 +21,7 @@
 | Native app icons | `BGV-Brand-Kit/04_App-Icon/ios`, `android-adaptive` | stores |
 | Social | `06_Social/BGV-og-image-1200x630.png` (link previews), `BGV-avatar-1080.png` (accounts) | `og:image` |
 
-> `favicon-production/` supersedes `BGV-Brand-Kit/05_Favicon/`: at 16px the cream brand-kit favicon disappears on light tab bars, so the production tab icons use the reversed colourway on a solid navy tile `#142B3B` (pixel-tuned 16/32 drawings, colours swapped, no resampling). Colours and tokens come only from `design/system/tokens.css`.
+> `favicon-production/` supersedes `BGV-Brand-Kit/05_Favicon/` and the web PNGs in `04_App-Icon/web/` (v2.4.2, owner decision 21 Aban 1405): our symbol in the primary colourway (navy figures, Amber Deep top figure) on a **white `#FFFFFF` tile**. Tab icons are rounded tiles with a 1px `--ink-btn` `#A1AAB1` edge so the white tile stays visible on white/light tab bars (16/32 are the brand kit's pixel-tuned drawings, cream turned white, figures untouched). apple-touch 180 and maskable 512 are full-bleed white squares. Colours and tokens come only from `design/system/tokens.css`.
 
 ## 2. HTML head (apps/web/index.html)
 ```html
@@ -34,7 +34,7 @@
 <meta property="og:image" content="/brand/BGV-og-image-1200x630.png">
 ```
 - Never add `favicon.svg` as `rel="icon"` (browsers would prefer it over the pixel-tuned bitmaps).
-- One `theme-color` (`#142B3B`) serves both themes; `prefs.tsx` no longer needs to swap it. `site.webmanifest`: `theme_color #142B3B`, `background_color #F3EBDD`.
+- One `theme-color` (`#142B3B`) serves both themes; `prefs.tsx` no longer needs to swap it. `site.webmanifest`: `theme_color #142B3B`, `background_color #FFFFFF` (matches the white icon tile on the install splash).
 
 ## 3. Colourway rule
 | Background | Use |

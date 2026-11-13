@@ -1,6 +1,6 @@
 # BGV design system — mandatory rules for every UI change
 
-This repository is being migrated to the **BGV (بردگیم‌ورس) design system v2.2** («printed token» language: every pressable thing is a game token with an ink frame and a hard shadow, nothing else is raised; ivory page + white cards; site header instead of the sidebar; navy selections, amber only for the main action; ink-navy dark). Coming from v1.6? Read `design/MIGRATION-v1.6-to-v2.1.md` first. The design system is the only allowed
+This repository is being migrated to the **BGV (بردگیم‌ورس) design system v2.2.1** («printed token» language: every pressable thing is a game token with an ink frame and a hard shadow, nothing else is raised; ivory page + white cards; site header instead of the sidebar; navy selections, amber only for the main action; ink-navy dark). Coming from v1.6? Read `design/MIGRATION-v1.6-to-v2.1.md` first. The design system is the only allowed
 source of colour, type, spacing, radius, elevation, motion, icons, logos and UI components. These rules are not
 suggestions: a hook (`scripts/ds-check.mjs`) blocks edits that add violations, CI fails on them, and `/bgv-qa` is the
 final gate. If a rule blocks you, fix the code — never weaken the rule, the config, or the baseline.
@@ -32,7 +32,7 @@ screen and `/bgv-qa` for the final comparison against the design.
 - Light page `--bg` #F2EEE7 (ivory), cards and floating surfaces white with the warm `--line` hairline.
 - **Buttons (v2.1.10–2.1.12):** primary = solid amber with a 1.5px burnt-amber frame/shadow `--ink-btn-primary` #B57A25; secondary/neutral (the default `Button`, «جزئیات», «تغییر بازی», «ماندن», «رد», non-ghost icon buttons) = white (dark: `--surface-raised`) with a 1.5px soft-slate frame/shadow `--ink-btn` (#A1AAB1 light, #4A6476 dark). A toggle that is on (`pressed`) is the same token filled navy (`--selected`). The DS CSS does all of this; never add your own.
 - «ترک میز / خروج از حساب / انصراف از صف» = `variant="leave"` (soft pink token, crimson label, `log-out` icon). «رد» is `secondary`. Never `danger` for leaving.
-- **Shell (v2.1):** desktop ≥900 = sticky `SiteHeader` (logo, خانه · بازی‌ها · میزها · تورنمنت‌ها · رتبه‌بندی, `SiteSearch`, «بازی سریع», messages, bell, avatar → `AccountMenu`). Coins live in the account menu on desktop. «بازی سریع» is hidden on the home page. Phone <900 = `TopBar` + floating `Dock` (خانه، میزها، پیام‌ها، بیشتر; also for guests, without counts); the active dock item is an **amber token with a normal icon**; games and game pages keep خانه active; 404 and notifications have none active. «بیشتر» = `MoreTile`/`MoreGroup`. `SiteFooter` only on public pages (home, games, game page, wiki, support), never on tables, messages or settings.
+- **Shell (v2.1):** desktop ≥900 = sticky `SiteHeader` (logo, خانه · بازی‌ها · میزها · تورنمنت‌ها · رتبه‌بندی, `SiteSearch`, «بازی سریع», messages, bell, avatar → `AccountMenu`). Coins live in the account menu on desktop. «بازی سریع» is hidden on the home page. Phone <900 = `TopBar` + floating `Dock` (خانه، میزها، پیام‌ها، بیشتر; also for guests, without counts); the active dock item is an **amber token with a normal icon**; games and game pages keep «بیشتر» active (all games open from «بیشتر» → «بازی‌ها» and the home «همهٔ بازی‌ها» link, shown on phones too); 404 and notifications have none active. «بیشتر» = `MoreTile`/`MoreGroup`. `SiteFooter` only on public pages (home, games, game page, wiki, support), never on tables, messages or settings.
 - **Amber** only for: the one main action per view, the «نوبت شما» pill, coins, and the two owner exceptions — «بازی سریع» in the header and the active dock item. Every selection (chip, segment, tab, checkbox, radio, active menu item, page number, switch on, the «شما» row) is **navy** (cream in dark).
 - **Guests:** «ورود / ثبت‌نام» is a secondary token in header/top bar (opens `/login?next=…`); account-only pages show `StateBlock kind="guest"`; sitting at a table opens `LoginSheet` in place (seat held 2 min); login is a 3-step `Stepper`.
 - Names: «بازی سریع» (not «حریف‌یابی»), «اشتراک پریمیوم», «فروشگاه کازمتیک», «ورود / ثبت‌نام».
@@ -66,3 +66,14 @@ screen and `/bgv-qa` for the final comparison against the design.
 - Never edit `design/system/**`, `design/reference/**`, `design/ds.config.json` or raise numbers in `design/ds-baseline.json`. Run `node scripts/ds-check.mjs --ratchet` after a migration step to lower the baseline.
 - `// ds-check-ignore` is allowed only inside game-art code with a one-line reason; it is reviewed in `/bgv-qa`.
 - A screen is **done** only when: it uses DS components/tokens only, `node scripts/ds-check.mjs --changed` passes, and its capture matches the reference at every width in both required themes.
+
+
+## قاعده‌های v2.4 (۱۸ آبان ۱۴۰۵)
+- فونت فارسی پیدا (`--font-fa`)؛ هیچ لینک Google Fonts نیاید.
+- رقم فارسی بدون `tabular-nums` (جز ساعت و ستون جدول)؛ «·» کنار رقم ممنوع، `.bgv-sep` یا «،»؛ بازه «X تا Y».
+- نام انگلیسی بازی زیر نام فارسی با `.t-game-latin`؛ نام فارسی همان نام کاتالوگ، بدون «!».
+- کارت بازی: یک ردیف برچسب بعد از همهٔ متن‌ها ([آزمایشی][ModeTag][دسته‌ها])؛ عکس جعبه با `filter: drop-shadow`.
+- ردیف افقی گوشی با `.bgv-hscroll` تا لبهٔ صفحه.
+- چت: پیام شما راست، دیگران چپ، ارسال راست؛ در LTR هم.
+- صفحهٔ بازی: هیچ دادهٔ BGG؛ بخش پیشنهاد «بازی‌های بیشتر»؛ پاراگراف بلند جاستیفای.
+- هدف لمسی گوشی دست‌کم ۴۴ پیکسل.

@@ -46,3 +46,15 @@
 ## ۵. چه چیزی عوض نشد
 
 بقیه‌ی ۱۱۶ صفحه‌ی مرجع، کامپوننت‌های دیگر، ابزارها (`ds-check`، QA) و `ds.config.json` همان v2.1 هستند. `screens.json` فیلد `changed: "2.2"` روی شش صفحه‌ی خانه دارد.
+
+## v2.2.1: راه گوشی به «همهٔ بازی‌ها» (۸ آبان ۱۴۰۵)
+
+روی گوشی در طرح‌ها راهی به فهرست کامل بازی‌ها نبود. حالا مثل سایت زنده:
+
+| کجا | تغییر | فایل مرجع |
+|---|---|---|
+| صفحه‌ی «بیشتر» | کاشی «بازی‌ها» (`layout-grid` ← `/games`) اولین کاشی گروه «بازی و میز» | `reference/html/play/More-Phone.html` |
+| خانه (عضو و مهمان) | لینک `cx-b-more` «همهٔ بازی‌ها» کنار ردیف دسته‌ها روی گوشی هم دیده می‌شود؛ ردیف چیپ‌ها اسکرول می‌خورد و لینک ته ردیف ثابت است، ۱۶px از لبه. کلاس `cx-hide-phone` از این لینک برداشته شد. | شش فایل `Home-*` |
+| داک | در `/games` و `/games/:slug` آیتم «بیشتر» فعال است (`is-active` و `aria-current="page"`)، نه «خانه» | `Catalog-Desktop`، `GameDetail-Desktop`، `GameDetail-Phone` |
+
+مستندات: `system/components/Dock/README.md`، `AppShell/README.md`، `MoreTile/README.md` و `system/docs/0-brand-and-principles.md`. توکن یا کامپوننت تازه‌ای اضافه نشد. `screens.json` روی این ۱۱ صفحه `changed: "2.2.1"` دارد.

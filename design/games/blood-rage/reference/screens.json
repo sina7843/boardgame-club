@@ -1,0 +1,145 @@
+{
+ "note": "Canvas page «۱۶. پایلوت BGA: بلاد ریج» (https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier). state = key in data/mock-state.json. BR-Desktop is responsive: compare the table at 1440, 1024 and 768. kind spec = not compared pixel by pixel.",
+ "screens": [
+  {
+   "id": "BR-Desktop",
+   "width": 1440,
+   "height": 9360,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main (table) + frames §2, §20-§24",
+   "reference": [
+    "img/BR-Desktop@1440.jpg",
+    "html/blood-rage/BR-Desktop.html",
+    "dc/BR-Desktop.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Desktop",
+   "width": 1024,
+   "height": 3400,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main; player boards in a row on top, clan sheets 3 columns",
+   "reference": [
+    "img/BR-Desktop-table@1024.jpg",
+    "html/blood-rage/BR-Desktop.html",
+    "dc/BR-Desktop.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Desktop",
+   "width": 768,
+   "height": 3600,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main at 768",
+   "reference": [
+    "img/BR-Desktop-table@768.jpg",
+    "html/blood-rage/BR-Desktop.html",
+    "dc/BR-Desktop.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Phone-25",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "Invade with auto-zoom, Angerboda picked, Troll effect in the dock (main)",
+   "reference": [
+    "img/BR-Phone-25@390.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Phone-26",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "Actions sheet with BGA labels (main)",
+   "reference": [
+    "img/BR-Phone-26@390.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Phone-27",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "Gods' Gifts pick 3 of 6",
+   "reference": [
+    "img/BR-Phone-27@390.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Phone-28",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "Battle: figure STR, secret card (battle)",
+   "reference": [
+    "img/BR-Phone-28@390.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Phone-29",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "My clan sheet, 3 columns left to right (main)",
+   "reference": [
+    "img/BR-Phone-29@390.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Phone-30",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "End of Age 2 sheet: quest, Ragnarök, Valhalla (afterBattle)",
+   "reference": [
+    "img/BR-Phone-30@390.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "BR-Mobile-Spec",
+   "width": 2580,
+   "height": 3300,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "spec",
+   "state": "§31 actions, §32 decisions, §33 contract, §34 component sheet",
+   "reference": [
+    "img/BR-Mobile-Spec@2580.jpg",
+    "html/blood-rage/BR-Mobile-Spec.html",
+    "dc/BR-Mobile-Spec.dc.html"
+   ]
+  }
+ ]
+}

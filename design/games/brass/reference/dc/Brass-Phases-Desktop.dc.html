@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>برس: دور اول کانال، پایان دوره، پایان بازی، آموزش</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.br{--pick:#E8A642;--br-red:#A14A2F;--br-yellow:#C3A243;--br-purple:#967BAC;--br-grey:#A5AFBE;--br-plate:rgba(12,12,20,.8);--br-coin:#2F2A22;
+ --br-red-ink:#8E3B22;--br-yellow-ink:#765D16;--br-purple-ink:#6A4C8A;--br-grey-ink:#4E5866}
+.br[data-theme="dark"]{--br-red-ink:#EE9373;--br-yellow-ink:#E6CB6E;--br-purple-ink:#C8AEE4;--br-grey-ink:#C9D1DC}
+.br[lang="en"]{font-family:var(--font-latin)}
+.br-num,.br-gbp{unicode-bidi:isolate;direction:ltr}
+.br-gbp{font-weight:900;white-space:nowrap}
+.br-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+/* desktop frame: game column + sticky rail on the right (BGA) */
+.br-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.br-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.br-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.br-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.br-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.br-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.br-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA): text, the 7 actions with their cost, then the steps of the chosen action */
+.br-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.br-bar.is-waiting{background:var(--surface-sunken)}
+.br-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.br-bar__text{flex:1 1 360px;min-inline-size:0}
+.br-bar__text b{color:var(--heading);font-weight:900}
+.br-bar .bgv-btn{white-space:nowrap}
+.br-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.br-kinds{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.br-bar .br-kinds .bgv-btn{padding-inline:9px;gap:5px}
+.br-kinds .bgv-btn[aria-pressed="true"]{background:var(--selected);color:var(--on-selected);box-shadow:none}
+.br-kinds .bgv-btn[aria-pressed="true"] .br-pill{background:rgba(255,255,255,.18);color:inherit}
+.br-pill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle;white-space:nowrap}
+.br-pill .br-ic{block-size:16px}
+.br-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.br-step{display:inline-flex;align-items:center;gap:4px;block-size:26px;padding-inline:9px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.br-step.is-done{background:var(--success-soft);color:var(--success)}
+.br-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.br-step .bgv-icon{inline-size:14px;block-size:14px}
+.br-targets{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.br-target{display:inline-flex;align-items:center;gap:6px;min-block-size:36px;padding:3px 10px 3px 6px;border-radius:var(--radius-sm);border:1.5px dashed var(--pick);background:var(--surface);font:inherit;font-size:13.5px;color:var(--text);cursor:pointer}
+.br-target img{block-size:28px;inline-size:auto;border-radius:3px}
+.br-target[aria-selected="true"],.br-target.is-on{border-style:solid;border-width:2.5px;background:var(--invite-soft);color:var(--heading);font-weight:700}
+.br-target:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.br-sum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:14px}
+.br-sum b{font-weight:900;color:var(--heading)}
+.br-sum .br-ic{block-size:20px}
+.br-sum__total{margin-inline-start:auto;font-size:15px}
+.br-sum__total b{color:var(--danger)}
+/* zones on felt */
+.br-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.br-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.br-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.br-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.br-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: publisher art, never redrawn */
+.br-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:7px;cursor:pointer;inline-size:var(--cw,120px);flex:none}
+.br-card>img{display:block;inline-size:100%;block-size:auto;border-radius:7px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 3px 8px rgba(0,0,0,.3)}
+.br-card[data-pick="selectable"]>img{outline:2.5px dashed var(--pick);outline-offset:3px}
+.br-card[data-pick="picked"]{transform:translateY(-10px)}
+.br-card[data-pick="picked"]>img{outline:3.5px solid var(--pick);outline-offset:3px}
+.br-card:disabled,.br-card[aria-disabled="true"]{cursor:default}
+.br-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:5px}
+.br-card .br-check{inset-block-start:-9px;inset-inline-end:-9px}
+.br-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:3}
+.br-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+.br-hand{display:flex;flex-wrap:wrap;gap:14px 12px;justify-content:center;align-items:flex-end;padding-block-start:10px}
+.br-hcard{display:grid;justify-items:center;gap:6px}
+.br-hcard small{font-size:12px;color:var(--felt-muted);max-inline-size:var(--cw,120px);text-align:center;line-height:1.4}
+/* the board: night side, 1000x1000 units; every piece is a % position of the image */
+.br-board{position:relative;inline-size:100%;aspect-ratio:1;overflow:hidden;border-radius:var(--radius-md);background:#0B0D14;container-type:inline-size}
+.br-board>.br-base{position:absolute;inset:0;display:block;inline-size:100%;block-size:100%}
+.br-at{position:absolute;transform:translate(-50%,-50%)}
+.br-tile{inline-size:4.45%;border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.6)}
+.br-tile.is-ghost{outline:3px solid var(--pick);outline-offset:1px;opacity:.95}
+.br-oncubes{position:absolute;transform:translate(-50%,0);display:flex;gap:1px;pointer-events:none}
+.br-oncubes img{inline-size:1.25cqi;block-size:auto;filter:drop-shadow(0 1px 0 rgba(0,0,0,.7))}
+.br-oncubes img.is-beer{inline-size:1.15cqi}
+.br-link{inline-size:5.2%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))}
+.br-merch{inline-size:4.6%;border-radius:4px}
+.br-beer{inline-size:1.35%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.br-mcube{inline-size:1.5%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7))}
+.br-vpm{inline-size:2.2%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7))}
+.br-incm{inline-size:1.5%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7))}
+.br-char{inline-size:4.6%;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.br-char.is-turn{box-shadow:0 0 0 3px var(--pick),0 1px 3px rgba(0,0,0,.6)}
+.br-pile{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;inline-size:7.4%}
+.br-pile img{inline-size:100%;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.br-pile b{position:absolute;inset-block-end:-6%;inset-inline-start:50%;transform:translateX(-50%);min-inline-size:2.4cqi;padding:0 .5cqi;border-radius:.6cqi;background:var(--br-plate);color:#FFFFFF;font-size:1.7cqi;font-weight:900;line-height:1.45;text-align:center;box-shadow:0 0 0 1.5px rgba(255,255,255,.25)}
+.br-pile.is-empty img{opacity:.25}
+.br-plate{position:absolute;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--radius-pill);background:rgba(8,9,16,.8);color:#FFFFFF;font-size:13.5px;font-weight:700;line-height:1.5;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+.br-plate b{font-weight:900}
+.br-plate img{block-size:18px;inline-size:auto}
+/* map targets (current action): amber dashed ring, picked = solid ring */
+.br-slot,.br-linkbtn,.br-mbtn{position:absolute;transform:translate(-50%,-50%);padding:0;border:0;background:transparent;cursor:pointer}
+.br-slot{inline-size:4.7%;aspect-ratio:1;border-radius:5px;outline:2.5px dashed var(--pick);outline-offset:0;background:rgba(232,166,66,.14)}
+.br-slot[aria-pressed="true"]{outline:3.5px solid var(--pick);background:none}
+.br-linkbtn{inline-size:5.6%;block-size:2.6%;border-radius:999px;outline:2.5px dashed var(--pick);background:rgba(232,166,66,.18)}
+.br-linkbtn[aria-pressed="true"]{outline-style:solid;outline-width:3.5px}
+.br-mbtn{inline-size:4.8%;aspect-ratio:1;border-radius:6px;outline:2.5px dashed var(--pick)}
+.br-slot:focus-visible,.br-linkbtn:focus-visible,.br-mbtn:focus-visible{outline-color:var(--focus-on-felt)}
+.br-board .br-check{inline-size:22px;block-size:22px;transform:translate(-50%,-50%)}
+.br-tip{position:absolute;z-index:4;inline-size:max-content;max-inline-size:250px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:13px;line-height:1.55;box-shadow:var(--shadow-pop)}
+.br-tip b{color:var(--heading);font-weight:900}
+.br-tip .br-ic{block-size:16px}
+/* rail: dashboard + BGA player panels + log */
+.br-dash{padding:8px 12px;display:grid;gap:8px}
+.br-dash__tools{display:flex;justify-content:space-between}
+.br-dash__row{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.br-era{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:900;color:var(--heading)}
+.br-era img{block-size:26px}
+.br-era small{font-size:12.5px;font-weight:700;color:var(--text-muted)}
+.br-stat{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:var(--heading)}
+.br-stat img{block-size:22px;inline-size:auto;border-radius:2px}
+.br-stat small{font-weight:700;color:var(--text-muted);font-size:12px}
+.br-panel{padding:10px 12px;display:grid;gap:8px}
+.br-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.br-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.br-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.br-panel__id small{font-size:12.5px;color:var(--text-muted)}
+.br-panel__char{inline-size:40px;block-size:40px;border-radius:50%;flex:none;box-shadow:0 0 0 2px var(--pc)}
+.br-panel__row{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));align-items:center;gap:6px}
+.br-panel__row2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:center;gap:6px}
+.br-vp{display:grid;place-items:center;align-content:center;inline-size:50px;block-size:50px;flex:none;border-radius:50%;background:var(--br-coin);color:#FFFFFF;box-shadow:0 0 0 2px #E9D7A8,0 0 0 3.5px var(--br-coin);line-height:1}
+.br-vp b{font-size:20px;font-weight:900}
+.br-vp small{font-size:10.5px;font-weight:700;opacity:.92}
+.br-box{display:grid;justify-items:center;gap:1px;padding:4px 2px;border-radius:var(--radius-sm);background:var(--surface-sunken);line-height:1.2}
+.br-box__v{display:inline-flex;align-items:center;gap:4px;font-size:17px;font-weight:900;color:var(--heading)}
+.br-box__v img{block-size:22px;inline-size:auto}
+.br-box small{font-size:11.5px;font-weight:700;color:var(--text-muted)}
+.br-box.is-neg .br-box__v{color:var(--danger)}
+.br-disc{inline-size:38px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.br-log{max-block-size:300px;overflow:auto}
+.br-log .bgv-log__item{font-size:13.5px}
+.br-log .br-ic{block-size:16px}
+/* player areas: light plate header + the night industry mat with the remaining tiles on it */
+.br-player{display:grid;gap:10px;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate);box-shadow:inset 0 0 0 2px var(--pc,transparent)}
+.br-ahead{--br-red-ink:#8E3B22;--br-yellow-ink:#765D16;--br-purple-ink:#6A4C8A;--br-grey-ink:#4E5866;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F5EEDF,#E2D3B6);color:#1E2328;box-shadow:inset 0 0 0 1px rgba(80,58,20,.3),inset 0 1px 0 rgba(255,255,255,.7)}
+.br-ahead__name{display:inline-flex;align-items:center;gap:8px;block-size:34px;padding-inline:4px 14px;border-radius:17px;background:#FAF7F0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);font-size:16px;font-weight:900}
+.br-ahead__name img{inline-size:28px;block-size:28px;border-radius:50%}
+.br-ahead__name small{font-size:12.5px;font-weight:700;color:#4A535B}
+.br-ahead .br-vp{inline-size:56px;block-size:56px}
+.br-ahead .br-vp b{font-size:22px}
+.br-chip{display:inline-flex;align-items:center;gap:6px;block-size:44px;padding-inline:8px 10px;border-radius:8px;background:#FFFFFF;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);font-size:19px;font-weight:900;color:#1E2328;line-height:1}
+.br-chip img{block-size:30px;inline-size:auto;border-radius:2px}
+.br-chip small{display:block;font-size:11px;font-weight:700;color:#4A535B;margin-block-start:2px}
+.br-chip span{display:grid}
+.br-chip.is-neg b{color:#B3261E}
+.br-ahead__end{margin-inline-start:auto;display:flex;align-items:center;gap:8px}
+.br-matwrap{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:12px;align-items:start}
+.br-mat{position:relative;inline-size:100%;aspect-ratio:1800/1456;overflow:hidden;border-radius:var(--radius-sm);background:#0B0D14;container-type:inline-size}
+.br-mat>.br-base{position:absolute;inset:0;inline-size:100%;block-size:100%}
+.br-mtile{position:absolute;transform:translate(-50%,-50%);inline-size:7.75%;border-radius:4px}
+.br-mtile.is-stack{box-shadow:.35cqi .35cqi 0 #1C1C1C,.7cqi .7cqi 0 rgba(0,0,0,.55)}
+.br-mtile.is-next{outline:.45cqi solid var(--pick);outline-offset:.2cqi}
+.br-mcount{position:absolute;transform:translate(-50%,-50%);min-inline-size:2.8cqi;padding:0 .55cqi;border-radius:.7cqi;background:var(--br-plate);color:#FFFFFF;font-size:2cqi;font-weight:900;line-height:1.4;text-align:center;box-shadow:0 0 0 1.5px rgba(255,255,255,.3)}
+.br-side{display:grid;gap:10px;justify-items:center;color:var(--felt-ink);font-size:12.5px;text-align:center}
+.br-side figure{margin:0;display:grid;justify-items:center;gap:4px}
+.br-side figcaption{color:var(--felt-muted)}
+.br-side .br-card{--cw:104px}
+.br-linkstack{position:relative;inline-size:120px}
+.br-linkstack img{display:block;inline-size:100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.br-linkstack b{position:absolute;inset-block-start:50%;inset-inline-start:50%;transform:translate(-50%,-50%);padding:0 6px;border-radius:6px;background:var(--br-plate);color:#FFFFFF;font-size:15px;font-weight:900}
+.br-player.is-compact .br-matwrap{grid-template-columns:minmax(0,1fr) 130px}
+
+/* BGA map zone: toolbar (zoom, era plate) over a zoomable, pannable board box */
+.br-mapzone{gap:8px}
+.br-maptools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.br-maptools__zoom{display:inline-flex;align-items:center;gap:4px}
+.br-zoomv{min-inline-size:44px;text-align:center;font-size:13px;font-weight:900;color:var(--felt-ink)}
+.br-eraplate{display:inline-flex;align-items:center;gap:12px;block-size:36px;padding-inline:12px;border-radius:var(--radius-pill);background:rgba(8,9,16,.82);color:#FFFFFF;font-size:13.5px;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+.br-eraplate>img{block-size:22px}
+.br-eraplate b{font-weight:900}
+.br-eraplate span{display:inline-flex;align-items:center;gap:4px;color:#E6E1D6}
+.br-eraplate span img{block-size:20px;inline-size:auto;border-radius:2px}
+.br-maptools__end{margin-inline-start:auto;display:inline-flex;gap:2px}
+.br-mapbox{position:relative;overflow:hidden;border-radius:var(--radius-md);cursor:grab}
+.br-mapbox:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+/* BGA panel rows: income track + next tile of each industry */
+.br-itrack{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding:4px;border-radius:var(--radius-sm);background:#2A2620}
+.br-itrack__c{position:relative;display:grid;place-items:center;block-size:30px;border-radius:50%;background:#45403A;box-shadow:inset 0 0 0 1.5px #6E6656}
+.br-itrack__c b{font-size:12px;font-weight:900;color:#E9DFC9}
+.br-itrack__c.is-on{background:none;box-shadow:none}
+.br-itrack__c.is-on img{grid-area:1/1;inline-size:30px;block-size:auto}
+.br-itrack__c.is-on b{grid-area:1/1;position:relative;color:#FFFFFF;text-shadow:0 1px 2px rgba(0,0,0,.9)}
+.br-ntiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr)) 30px;gap:4px;align-items:center}
+.br-ntile{display:grid;justify-items:center;gap:2px}
+.br-ntile img{inline-size:100%;max-inline-size:40px;border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.45)}
+.br-ntile i{display:flex;gap:2px;block-size:5px}
+.br-ntile s{inline-size:5px;block-size:5px;border-radius:50%;background:var(--heading);text-decoration:none}
+.br-ntile.is-empty{aspect-ratio:1;border-radius:3px;border:1.5px dashed var(--line)}
+.br-ntiles__more{display:grid;place-items:center;inline-size:30px;block-size:30px;padding:0;border:0;border-radius:50%;background:var(--selected);color:var(--on-selected);cursor:pointer}
+.br-ntiles__more .bgv-icon{inline-size:18px;block-size:18px}
+.br-ntiles__more:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+/* the mat dialog (opened from the panel +) */
+.br-matdialog{inline-size:min(940px,100%)}
+.br-matdialog .br-player{background:var(--felt-plate)}
+.br .bgv-pcard--mini{padding:8px 10px}
+.br .bgv-pcard--mini>.bgv-avatar{margin-block:2px 6px}
+.br .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.br .bgv-pcard__score small{font-size:11px}
+.br-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.br-tabs button{flex:1;block-size:38px;padding-inline:4px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.br-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.br-subtabs{display:flex;gap:6px;overflow:auto}
+.br-subtabs button{flex:none;display:inline-flex;align-items:center;gap:6px;block-size:36px;padding-inline:6px 10px;border-radius:var(--radius-pill);border:1px solid var(--felt-line);background:none;color:var(--felt-ink);font:inherit;font-size:13px;font-weight:700}
+.br-subtabs button img{inline-size:24px;block-size:24px;border-radius:50%}
+.br-subtabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink);border-color:transparent}
+.br-mview{position:relative;contain:paint;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md);background:#0B0D14}
+.br-mview--scroll{overflow:auto;background:none;display:flex;flex-direction:column;gap:10px}
+.br-mview--scroll>*{flex:none}
+.br-mview .br-board.br-mboard{position:absolute;border-radius:0}
+.br-zoombtns{position:absolute;inset-block-start:8px;inset-inline-start:8px;display:grid;gap:6px;z-index:2}
+.br-mapinfo{position:absolute;inset-block-start:8px;inset-inline-end:8px;z-index:2;max-inline-size:62%}
+.br .bgv-actiondock__actions{flex-wrap:nowrap}
+.br .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+.br-dockprompt{min-inline-size:0;font-size:14px;line-height:1.6;display:grid;gap:6px}
+.br-dockprompt>span b{color:var(--heading)}
+.br-dockhint{font-size:12px;color:var(--text-muted);line-height:1.5}
+.br-dockcost{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px}
+.br-dockcost .br-ic{block-size:17px}
+.br-mhand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 8px}
+.br-mhand .br-hcard,.br-mhand .br-card{inline-size:100%}
+.br-mhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--felt-ink);font-size:13.5px}
+.br-mhead b{font-weight:900}
+.br-mhead small{color:var(--felt-muted);font-size:12px}
+.br-mview .br-ahead{gap:6px 8px;padding:8px}
+.br-mview .br-ahead__name{block-size:30px;font-size:14px}
+.br-mview .br-vp{inline-size:46px;block-size:46px}
+.br-mview .br-vp b{font-size:18px}
+.br-mview .br-chip{block-size:38px;padding-inline:6px 8px;font-size:16px}
+.br-mview .br-chip img{block-size:24px}
+.br-mview .br-matwrap{grid-template-columns:1fr}
+.br-mview .br-side{grid-auto-flow:column;justify-content:start;align-items:center}
+.br-mview .br-side .br-card{--cw:70px}
+.br-mview .br-linkstack{inline-size:96px}
+/* actions sheet */
+.br-sheetwrap{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end}
+.br-sheet{position:relative;max-block-size:86%;padding:0 14px 14px;gap:9px;overflow:auto}
+.br-sheet__head{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.6}
+.br-sheet__head b{color:var(--heading);font-weight:900}
+.br-sheet__head .bgv-clock{margin-inline-start:auto;flex:none}
+.br-sheet .br-label{font-size:12px;font-weight:700;color:var(--label)}
+.br-sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.br-sgrid .bgv-btn{block-size:auto;min-block-size:54px;padding-block:6px;flex-direction:column;gap:2px;white-space:normal;line-height:1.4}
+.br-sgrid .bgv-btn small{font-size:11.5px;font-weight:600;color:var(--text-muted)}
+.br-sgrid .bgv-btn .br-pill{block-size:22px}
+.br-score{display:grid;gap:8px}
+.br-score__row{display:grid;grid-template-columns:auto 1fr repeat(3,auto);align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:13.5px}
+.br-score__row img{inline-size:30px;block-size:30px;border-radius:50%}
+.br-score__row b{font-weight:900;color:var(--heading)}
+.br-score__row .br-gain{min-inline-size:44px;text-align:center}
+.br-score__row .br-gain small{display:block;font-size:10.5px;font-weight:700;color:var(--text-muted)}
+.br-score__row.is-you{box-shadow:inset 0 0 0 2px var(--pick)}
+
+.br-spec{padding:32px;display:grid;gap:28px;background:var(--surface-sunken);color:var(--text)}
+.br-spec h1{margin:0;font-size:28px;font-weight:900;color:var(--heading)}
+.br-spec>p{margin:0;max-inline-size:980px;font-size:15px;line-height:1.8}
+.br-phase{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start;padding:20px;border-radius:var(--radius-lg);background:var(--surface);box-shadow:var(--shadow-card)}
+.br-phase>header{grid-column:1/-1;display:grid;gap:4px}
+.br-phase h2{margin:0;font-size:20px;font-weight:900;color:var(--heading)}
+.br-phase h2 span{display:inline-grid;place-items:center;inline-size:30px;block-size:30px;margin-inline-end:8px;border-radius:50%;background:var(--selected);color:var(--on-selected);font-size:15px}
+.br-phase header p{margin:0;font-size:14px;line-height:1.75;color:var(--text-muted)}
+.br-phase__col{display:grid;gap:12px;min-inline-size:0;align-content:start}
+.br-phase .bgv-felt{padding:12px;border-radius:var(--radius-md)}
+.br-notes{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:13.5px;line-height:1.7}
+.br-notes b{color:var(--heading)}
+.br-notes code,.br-acard code{font-family:var(--font-mono,monospace);font-size:12px;padding:0 4px;border-radius:4px;background:var(--surface-sunken);direction:ltr;unicode-bidi:isolate}
+.br-vpchip{position:absolute;transform:translate(-50%,-50%);padding:0 5px;border-radius:7px;background:#F7E7B4;color:#2B1E05;font-size:12px;font-weight:900;line-height:1.5;box-shadow:0 0 0 1.5px #2B1E05,0 2px 4px rgba(0,0,0,.5);pointer-events:none;white-space:nowrap}
+.br-vpchip.is-tile{background:#FFFFFF}
+.br-vpchip.is-gone{background:#E9C2BC;color:#5A1209;box-shadow:0 0 0 1.5px #5A1209}
+.br-inc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.br-inc span{display:grid;justify-items:center;gap:2px;padding:6px;border-radius:var(--radius-sm);background:var(--surface-sunken);font-size:12px;color:var(--text-muted)}
+.br-inc b{font-size:17px;font-weight:900;color:var(--heading)}
+.br-inc b.is-neg{color:var(--danger)}
+.br-facedown{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--felt-plate);color:var(--felt-ink);font-size:13.5px}
+.br-facedown img{inline-size:54px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.br-tutbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-md);background:var(--invite-soft);color:var(--heading);font-size:14.5px;line-height:1.7}
+.br-tutbar b{font-weight:900}
+.br .br-hint{box-shadow:0 0 0 3px var(--pick),0 0 0 7px rgba(232,166,66,.35)!important}
+.br-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.br-acard{display:grid;gap:8px;align-content:start;padding:16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card);font-size:13.5px;line-height:1.7}
+.br-acard h3{margin:0;display:flex;align-items:center;gap:8px;font-size:17px;font-weight:900;color:var(--heading)}
+.br-acard h3 small{font-size:12.5px;font-weight:700;color:var(--text-muted)}
+.br-acard dl{margin:0;display:grid;grid-template-columns:96px 1fr;gap:4px 10px}
+.br-acard dt{font-weight:900;color:var(--label);font-size:12.5px}
+.br-acard dd{margin:0}
+.br-acard .br-ic{block-size:17px}
+.br-acard .br-example{padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface-sunken)}
+.br-flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
+.br-flow>span{display:inline-flex;align-items:center;gap:6px;block-size:34px;padding-inline:12px;border-radius:var(--radius-pill);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);font-weight:700}
+.br-flow>i{color:var(--text-muted);font-style:normal}
+</style>
+</helmet>
+<div class="bgv br" data-theme="light" dir="rtl" lang="fa" style="min-height: 4110px;">
+<div class="br-spec">
+ <h1>برس: فازهای غیر از نوبت عادی</h1>
+ <p>هر پنج بخش با همان نقشه، نوار اقدام و پنل‌های میز اصلی ساخته شده و عددها از یک بازی واقعی همین موتور است (engine/mock.mjs، بذر ۳۳).</p>
+ <section class="br-phase" aria-label="دور اول دورهٔ کانال">
+ <header><h2><span>۱</span>دور اول دورهٔ کانال: یک اقدام، یک کارت رو به پایین</h2><p>فقط در دور اول کانال هر نفر ۱ اقدام دارد (موتور: actionsLeft = 1). ترتیب نوبت دور اول تصادفی است. هر کس ۸ کارت دارد و ۱ کارت رو به پایین در دورریختهٔ خودش است که هیچ‌کس نمی‌بیند؛ پایان کانال با بقیه بُر می‌خورد.</p></header>
+ <div class="br-phase__col"><div class="bgv-felt" style="inline-size:640px"><div class="br-board br__map" dir="ltr" role="group" aria-label="نقشهٔ بیرمنگام (روی شب)">
+  <img src="../assets/games/brass/board-night.webp" class="br-base" alt="" width="1000" height="1000">
+  <span class="br-at" data-flip="link-coalbrookdale~shrewsbury" style="left:16%;top:53.5%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-2deg)"><img src="../assets/games/brass/link-yellow-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر کول‌بروک‌دیل ↔ شروزبری: نیلوفر"></span>
+  <span class="br-at" data-flip="link-oxford~redditch" style="left:66.47%;top:82.65%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(3deg)"><img src="../assets/games/brass/link-purple-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر آکسفورد ↔ ردیچ: آرش"></span>
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر آکسفورد" style="left:80.35%;top:85.35%">
+  <img src="../assets/games/brass/merchant-cotton.webp" class="br-at br-merch" alt="تاجر آکسفورد" style="left:85.03%;top:85.3%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-oxford-1" alt="آبجوی تاجر" style="left:85.83%;top:81.33%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر شروزبری" style="left:8.8%;top:57%">
+  <img src="../assets/games/brass/merchant-manufacturer.webp" class="br-at br-merch" alt="تاجر گلاستر" style="left:58.14%;top:92.78%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر گلاستر" style="left:62.8%;top:92.8%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-gloucester-0" alt="آبجوی تاجر" style="left:57%;top:89%">
+  <img src="../assets/games/brass/merchant-cotton.webp" class="br-at br-merch" alt="تاجر وارینگتون" style="left:25.5%;top:12.7%">
+  <img src="../assets/games/brass/merchant-all.webp" class="br-at br-merch" alt="تاجر وارینگتون" style="left:30.4%;top:12.7%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-warrington-0" alt="آبجوی تاجر" style="left:24.5%;top:16.25%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-warrington-1" alt="آبجوی تاجر" style="left:31.1%;top:16.25%">
+  <img src="../assets/games/brass/merchant-manufacturer.webp" class="br-at br-merch" alt="تاجر ناتینگهام" style="left:88.06%;top:19.1%">
+  <img src="../assets/games/brass/merchant-pottery.webp" class="br-at br-merch" alt="تاجر ناتینگهام" style="left:92.8%;top:19.1%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-nottingham-0" alt="آبجوی تاجر" style="left:87.3%;top:22.66%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-nottingham-1" alt="آبجوی تاجر" style="left:93.7%;top:22.66%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:34%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:34%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:36.945%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:36.945%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:39.89%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:39.89%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:42.835%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:42.835%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:45.78%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:45.78%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:48.725%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:48.725%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:51.67%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:39.89%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:39.89%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:42.835%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:42.835%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:45.78%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:45.78%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:48.725%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:48.725%">
+  <span class="br-pile" style="left:14.05%;top:15.2%" title="دستهٔ کشیدنی"><img src="../assets/games/brass/card-back.webp" alt="دستهٔ کشیدنی"><b class="br-num">۲۶</b></span>
+  <span class="br-pile" style="left:14.05%;top:29.1%" title="کارت‌های شهر آزاد"><img src="../assets/games/brass/card-wild-location.webp" alt="کارت‌های شهر آزاد"><b class="br-num">۴</b></span>
+  <span class="br-pile" style="left:14.05%;top:42.6%" title="کارت‌های صنعت آزاد"><img src="../assets/games/brass/card-wild-industry.webp" alt="کارت‌های صنعت آزاد"><b class="br-num">۴</b></span>
+  <img src="../assets/games/brass/character-yellow-front.webp" class="br-at br-char" alt="ترتیب نوبت ۱: نیلوفر" style="left:17.6%;top:68.25%">
+  <img src="../assets/games/brass/character-purple-front.webp" class="br-at br-char" alt="ترتیب نوبت ۲: آرش" style="left:17.6%;top:76.25%">
+  <img src="../assets/games/brass/character-red-front.webp" class="br-at br-char is-turn" alt="ترتیب نوبت ۳: مینا" style="left:17.6%;top:84%">
+  <img src="../assets/games/brass/character-grey-front.webp" class="br-at br-char" alt="ترتیب نوبت ۴: سارا" style="left:17.6%;top:91.75%">
+  <img src="../assets/games/brass/income-red.webp" class="br-at br-incm" alt="مینا: درآمد ۰" style="left:1.5%;top:56.85%">
+  <img src="../assets/games/brass/income-yellow.webp" class="br-at br-incm" alt="نیلوفر: درآمد ۰" style="left:2.2%;top:56.85%">
+  <img src="../assets/games/brass/income-purple.webp" class="br-at br-incm" alt="آرش: درآمد ۰" style="left:2.9%;top:56.85%">
+  <img src="../assets/games/brass/income-grey.webp" class="br-at br-incm" alt="سارا: درآمد ۰" style="left:3.6%;top:56.85%">
+  <img src="../assets/games/brass/vp-red.webp" class="br-at br-vpm" alt="مینا: ۰ امتیاز" style="left:1.5%;top:92.8%">
+  <img src="../assets/games/brass/vp-yellow.webp" class="br-at br-vpm" alt="نیلوفر: ۰ امتیاز" style="left:2.2%;top:92.8%">
+  <img src="../assets/games/brass/vp-purple.webp" class="br-at br-vpm" alt="آرش: ۰ امتیاز" style="left:2.9%;top:92.8%">
+  <img src="../assets/games/brass/vp-grey.webp" class="br-at br-vpm" alt="سارا: ۰ امتیاز" style="left:3.6%;top:92.8%">
+ </div></div></div>
+ <div class="br-phase__col">
+  <section class="br-bar br__actions"><div class="br-bar__row"><span class="br-bar__text"><b>نوبت شماست</b>: اقدام ۱ از ۱ (دور اول کانال). نفر سوم این دور هستید.</span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div><div class="br-kinds" role="group" aria-label="نوع اقدام"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="build" aria-label="ساخت صنعت" aria-pressed="false">ساخت صنعت <span class="br-pill">۱۴ جا، از <span class="br-gbp">£۴</span></span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="network" aria-label="ساخت مسیر" aria-pressed="false">ساخت مسیر <span class="br-pill"><span class="br-gbp">£۳</span></span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="develop" aria-label="توسعه" aria-pressed="false">توسعه <span class="br-pill"><img src="../assets/games/brass/iron-cube.webp" class="br-ic" alt="">هر کاشی</span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="sell" aria-label="فروش" aria-pressed="false" disabled="" data-reason="NO_SELL" title="کالای فروختنی وصل به تاجر ندارید">فروش</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="loan" aria-label="وام" aria-pressed="false">وام <span class="br-pill">+<span class="br-gbp">£۳۰</span>، درآمد −۳</span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="scout" aria-label="پیشاهنگ" aria-pressed="false">پیشاهنگ <span class="br-pill">۳ → ۲ آزاد</span></button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="pass" aria-label="رد کردن" aria-pressed="false">رد کردن</button></div><p class="br-bar__hint">کانال £۳ است و ۲۹ خط کانال مجاز دارید: تا وقتی کاشی و مسیری روی نقشه ندارید، همهٔ نقشه شبکهٔ شماست.</p></section>
+  <div class="bgv-felt"><div class="br-zone__head"><h2>دست شما</h2><small>۸ کارت</small></div><div class="br-hand" style="--cw:74px"><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-36" aria-label="کاونتری" style="--cw:74px"><img src="../assets/games/brass/card-coventry.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-34" aria-label="وُستر" style="--cw:74px"><img src="../assets/games/brass/card-worcester.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-40" aria-label="ردیچ" style="--cw:74px"><img src="../assets/games/brass/card-redditch.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-38" aria-label="کاونتری" style="--cw:74px"><img src="../assets/games/brass/card-coventry.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-8" aria-label="لیک" style="--cw:74px"><img src="../assets/games/brass/card-leek.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-15" aria-label="آتاکستر" style="--cw:74px"><img src="../assets/games/brass/card-uttoxeter.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-3" aria-label="بلپر" style="--cw:74px"><img src="../assets/games/brass/card-belper.webp" alt=""></button></div><div class="br-hcard"><button class="br-card" type="button" data-pick="selectable" data-flip="card-9" aria-label="لیک" style="--cw:74px"><img src="../assets/games/brass/card-leek.webp" alt=""></button></div></div></div>
+  <div class="br-facedown"><img src="../assets/games/brass/card-back.webp" alt=""><span><b>۱ کارت رو به پایین</b> در دورریختهٔ شما؛ نه شما می‌بینید نه حریف‌ها. در پنل هر بازیکن جای «آخرین کارت» با پشت کارت نشان داده می‌شود تا اولین کارت رو.</span></div>
+ </div>
+</section>
+ <section class="br-phase" aria-label="پایان دوره">
+ <header><h2><span>۲</span>پایان دورهٔ کانال: درآمد، امتیاز مسیرها و کاشی‌ها، حذف سطح I</h2><p>وقتی دسته و همهٔ دست‌ها خالی شود: اول درآمد دور پرداخت می‌شود، بعد هر مسیر به اندازهٔ آیکون‌های مسیرِ دو سرش (تاجر ۲؛ شهر = جمع آیکون کاشی‌های برگشتهٔ آن شهر) امتیاز می‌دهد، مسیرها برداشته می‌شوند و هر کاشی برگشته امتیاز خودش را می‌دهد. سپس همهٔ کاشی‌های سطح I می‌روند (برگشته یا نه)، آبجوی تاجرها پر می‌شود و هر نفر ۸ کارت تازه می‌گیرد. روی نقشه: زرد = امتیاز هر مسیر، سفید = امتیاز هر کاشی، قرمز = کاشی سطح I که حذف می‌شود.</p></header>
+ <div class="br-phase__col"><div class="bgv-felt" style="inline-size:640px"><div class="br-board br__map" dir="ltr" role="group" aria-label="نقشهٔ بیرمنگام (روی شب)">
+  <img src="../assets/games/brass/board-night.webp" class="br-base" alt="" width="1000" height="1000">
+  <span class="br-at" data-flip="link-coalbrookdale~shrewsbury" style="left:16%;top:53.5%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-2deg)"><img src="../assets/games/brass/link-yellow-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر کول‌بروک‌دیل ↔ شروزبری: نیلوفر"></span>
+  <span class="br-at" data-flip="link-oxford~redditch" style="left:66.47%;top:82.65%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(3deg)"><img src="../assets/games/brass/link-purple-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر آکسفورد ↔ ردیچ: آرش"></span>
+  <span class="br-at" data-flip="link-derby~nottingham" style="left:82%;top:20.67%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-24deg)"><img src="../assets/games/brass/link-red-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر دربی ↔ ناتینگهام: مینا"></span>
+  <span class="br-at" data-flip="link-gloucester~redditch" style="left:52.35%;top:86.76%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-70deg)"><img src="../assets/games/brass/link-purple-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر گلاستر ↔ ردیچ: آرش"></span>
+  <span class="br-at" data-flip="link-coalbrookdale~kidderminster" style="left:24.38%;top:68.3%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(61deg)"><img src="../assets/games/brass/link-yellow-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر کول‌بروک‌دیل ↔ کیدرمینستر: نیلوفر"></span>
+  <span class="br-at" data-flip="link-coalbrookdale~wolverhampton" style="left:28.96%;top:53.54%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(1deg)"><img src="../assets/games/brass/link-grey-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر کول‌بروک‌دیل ↔ ولورهمپتون: سارا"></span>
+  <span class="br-at" data-flip="link-belper~derby" style="left:76.8%;top:15%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(78deg)"><img src="../assets/games/brass/link-red-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر بلپر ↔ دربی: مینا"></span>
+  <span class="br-at" data-flip="link-birmingham~coventry" style="left:72.08%;top:72%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(15deg)"><img src="../assets/games/brass/link-purple-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر بیرمنگام ↔ کاونتری: آرش"></span>
+  <span class="br-at" data-flip="link-burton-on-trent~derby" style="left:75.75%;top:32.3%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-61deg)"><img src="../assets/games/brass/link-red-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر برتن‌آن‌ترنت ↔ دربی: مینا"></span>
+  <span class="br-at" data-flip="link-gloucester~worcester" style="left:44.1%;top:91.76%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(15deg)"><img src="../assets/games/brass/link-purple-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر گلاستر ↔ وُستر: آرش"></span>
+  <span class="br-at" data-flip="link-nuneaton~tamworth" style="left:78.2%;top:52.5%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(65deg)"><img src="../assets/games/brass/link-yellow-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر نانیتن ↔ تمورث: نیلوفر"></span>
+  <span class="br-at" data-flip="link-stafford~stone" style="left:31.3%;top:32.75%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(49deg)"><img src="../assets/games/brass/link-grey-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر استافورد ↔ استون: سارا"></span>
+  <span class="br-at" data-flip="link-dudley~wolverhampton" style="left:36.46%;top:61.67%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(80deg)"><img src="../assets/games/brass/link-grey-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر دادلی ↔ ولورهمپتون: سارا"></span>
+  <span class="br-at" data-flip="link-birmingham~dudley" style="left:52.3%;top:66.4%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(4deg)"><img src="../assets/games/brass/link-grey-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر بیرمنگام ↔ دادلی: سارا"></span>
+  <span class="br-at" data-flip="link-birmingham~oxford" style="left:71.2%;top:76.5%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(52deg)"><img src="../assets/games/brass/link-purple-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر بیرمنگام ↔ آکسفورد: آرش"></span>
+  <span class="br-at" data-flip="link-burton-on-trent~walsall" style="left:59.04%;top:47.08%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-69deg)"><img src="../assets/games/brass/link-red-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر برتن‌آن‌ترنت ↔ والسال: مینا"></span>
+  <span class="br-at" data-flip="link-birmingham~tamworth" style="left:69.67%;top:58.33%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-70deg)"><img src="../assets/games/brass/link-yellow-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر تمورث ↔ بیرمنگام: نیلوفر"></span>
+  <span class="br-at" data-flip="link-birmingham~walsall" style="left:55.7%;top:62.9%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(61deg)"><img src="../assets/games/brass/link-red-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر والسال ↔ بیرمنگام: مینا"></span>
+  <span class="br-at" data-flip="link-cannock~walsall" style="left:53.96%;top:50.4%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(73deg)"><img src="../assets/games/brass/link-red-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر کنک ↔ والسال: مینا"></span>
+  <span class="br-at" data-flip="link-birmingham~worcester" style="left:46.18%;top:80.6%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(-61deg)"><img src="../assets/games/brass/link-grey-canal.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر بیرمنگام ↔ وُستر: سارا"></span>
+  <img src="../assets/games/brass/tile-brewery-2-grey-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-derby-0" alt="آبجوسازی II سارا" style="left:76.2%;top:21.04%">
+  <span class="br-oncubes" style="left:76.2%;top:21.64%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-iron-2-red-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-derby-2" alt="ذوب‌آهن II مینا، برگشته" style="left:78.52%;top:25.72%">
+  <img src="../assets/games/brass/tile-brewery-1-grey-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-stone-0" alt="آبجوسازی I سارا" style="left:28.51%;top:25.15%">
+  <span class="br-oncubes" style="left:28.51%;top:25.75%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-coal-1-red-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-stone-1" alt="معدن زغال I مینا" style="left:33.14%;top:25.15%">
+  <span class="br-oncubes" style="left:33.14%;top:25.75%" aria-hidden="true"><img src="../assets/games/brass/coal-cube.webp" class="" alt=""><img src="../assets/games/brass/coal-cube.webp" class="" alt=""></span>
+  <img src="../assets/games/brass/tile-brewery-1-red-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-uttoxeter-0" alt="آبجوسازی I مینا" style="left:54.26%;top:23.42%">
+  <span class="br-oncubes" style="left:54.26%;top:24.02%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-brewery-1-purple-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-uttoxeter-1" alt="آبجوسازی I آرش" style="left:59%;top:23.42%">
+  <span class="br-oncubes" style="left:59%;top:24.02%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-brewery-2-yellow-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-stafford-0" alt="آبجوسازی II نیلوفر" style="left:37.84%;top:34.54%">
+  <span class="br-oncubes" style="left:37.84%;top:35.14%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-brewery-2-grey-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-burton-on-trent-1" alt="آبجوسازی II سارا" style="left:70.74%;top:37.44%">
+  <span class="br-oncubes" style="left:70.74%;top:38.04%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-manufacturer-1-purple-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-birmingham-1" alt="تولیدی I آرش، برگشته" style="left:65.3%;top:65.4%">
+  <img src="../assets/games/brass/tile-iron-4-yellow-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-birmingham-2" alt="ذوب‌آهن IV نیلوفر، برگشته" style="left:60.65%;top:70.12%">
+  <img src="../assets/games/brass/tile-coal-2-grey-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-wolverhampton-1" alt="معدن زغال II سارا" style="left:39.35%;top:53.98%">
+  <span class="br-oncubes" style="left:39.35%;top:54.58%" aria-hidden="true"><img src="../assets/games/brass/coal-cube.webp" class="" alt=""><img src="../assets/games/brass/coal-cube.webp" class="" alt=""></span>
+  <img src="../assets/games/brass/tile-iron-1-yellow-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-coalbrookdale-1" alt="ذوب‌آهن I نیلوفر، برگشته" style="left:20.94%;top:58.38%">
+  <img src="../assets/games/brass/tile-coal-1-grey-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-coalbrookdale-2" alt="معدن زغال I سارا، برگشته" style="left:25.59%;top:58.34%">
+  <img src="../assets/games/brass/tile-coal-2-grey-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-dudley-0" alt="معدن زغال II سارا" style="left:39.38%;top:66.25%">
+  <span class="br-oncubes" style="left:39.38%;top:66.85%" aria-hidden="true"><img src="../assets/games/brass/coal-cube.webp" class="" alt=""></span>
+  <img src="../assets/games/brass/tile-coal-1-purple-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-coventry-1" alt="معدن زغال I آرش، برگشته" style="left:78.88%;top:73.25%">
+  <img src="../assets/games/brass/tile-iron-1-red-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-coventry-2" alt="ذوب‌آهن I مینا، برگشته" style="left:83.55%;top:73.25%">
+  <img src="../assets/games/brass/tile-brewery-1-yellow-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-nuneaton-0" alt="آبجوسازی I نیلوفر" style="left:76.59%;top:60.08%">
+  <span class="br-oncubes" style="left:76.59%;top:60.68%" aria-hidden="true"><img src="../assets/games/brass/beer-barrel.webp" class="is-beer" alt=""></span>
+  <img src="../assets/games/brass/tile-coal-2-purple-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-redditch-0" alt="معدن زغال II آرش" style="left:55.96%;top:81.95%">
+  <span class="br-oncubes" style="left:55.96%;top:82.55%" aria-hidden="true"><img src="../assets/games/brass/coal-cube.webp" class="" alt=""><img src="../assets/games/brass/coal-cube.webp" class="" alt=""><img src="../assets/games/brass/coal-cube.webp" class="" alt=""></span>
+  <img src="../assets/games/brass/tile-iron-1-grey-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-redditch-1" alt="ذوب‌آهن I سارا، برگشته" style="left:60.66%;top:81.95%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر آکسفورد" style="left:80.35%;top:85.35%">
+  <img src="../assets/games/brass/merchant-cotton.webp" class="br-at br-merch" alt="تاجر آکسفورد" style="left:85.03%;top:85.3%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-oxford-1" alt="آبجوی تاجر" style="left:85.83%;top:81.33%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر شروزبری" style="left:8.8%;top:57%">
+  <img src="../assets/games/brass/merchant-manufacturer.webp" class="br-at br-merch" alt="تاجر گلاستر" style="left:58.14%;top:92.78%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر گلاستر" style="left:62.8%;top:92.8%">
+  <img src="../assets/games/brass/merchant-cotton.webp" class="br-at br-merch" alt="تاجر وارینگتون" style="left:25.5%;top:12.7%">
+  <img src="../assets/games/brass/merchant-all.webp" class="br-at br-merch" alt="تاجر وارینگتون" style="left:30.4%;top:12.7%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-warrington-0" alt="آبجوی تاجر" style="left:24.5%;top:16.25%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-warrington-1" alt="آبجوی تاجر" style="left:31.1%;top:16.25%">
+  <img src="../assets/games/brass/merchant-manufacturer.webp" class="br-at br-merch" alt="تاجر ناتینگهام" style="left:88.06%;top:19.1%">
+  <img src="../assets/games/brass/merchant-pottery.webp" class="br-at br-merch" alt="تاجر ناتینگهام" style="left:92.8%;top:19.1%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-nottingham-0" alt="آبجوی تاجر" style="left:87.3%;top:22.66%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-nottingham-1" alt="آبجوی تاجر" style="left:93.7%;top:22.66%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:34%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:34%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:36.945%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:36.945%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:39.89%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:39.89%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:42.835%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:42.835%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:45.78%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:45.78%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:48.725%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:48.725%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:51.67%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:51.67%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:39.89%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:39.89%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:42.835%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:42.835%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:45.78%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:45.78%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:48.725%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:48.725%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:51.67%">
+  <span class="br-pile is-empty" style="left:14.05%;top:15.2%" title="دستهٔ کشیدنی"><img src="../assets/games/brass/card-back.webp" alt="دستهٔ کشیدنی"><b class="br-num">۰</b></span>
+  <span class="br-pile" style="left:14.05%;top:29.1%" title="کارت‌های شهر آزاد"><img src="../assets/games/brass/card-wild-location.webp" alt="کارت‌های شهر آزاد"><b class="br-num">۴</b></span>
+  <span class="br-pile" style="left:14.05%;top:42.6%" title="کارت‌های صنعت آزاد"><img src="../assets/games/brass/card-wild-industry.webp" alt="کارت‌های صنعت آزاد"><b class="br-num">۴</b></span>
+  <img src="../assets/games/brass/character-purple-front.webp" class="br-at br-char" alt="ترتیب نوبت ۱: آرش" style="left:17.6%;top:68.25%">
+  <img src="../assets/games/brass/character-red-front.webp" class="br-at br-char" alt="ترتیب نوبت ۲: مینا" style="left:17.6%;top:76.25%">
+  <img src="../assets/games/brass/character-grey-front.webp" class="br-at br-char" alt="ترتیب نوبت ۳: سارا" style="left:17.6%;top:84%">
+  <img src="../assets/games/brass/character-yellow-front.webp" class="br-at br-char is-turn" alt="ترتیب نوبت ۴: نیلوفر" style="left:17.6%;top:91.75%">
+  <img src="../assets/games/brass/income-red.webp" class="br-at br-incm" alt="مینا: درآمد +۱" style="left:1.5%;top:49.55%">
+  <img src="../assets/games/brass/income-yellow.webp" class="br-at br-incm" alt="نیلوفر: درآمد −۳" style="left:1.5%;top:67.6%">
+  <img src="../assets/games/brass/income-purple.webp" class="br-at br-incm" alt="آرش: درآمد +۲" style="left:1.5%;top:44%">
+  <img src="../assets/games/brass/income-grey.webp" class="br-at br-incm" alt="سارا: درآمد +۱" style="left:2.2%;top:49.55%">
+  <img src="../assets/games/brass/vp-red.webp" class="br-at br-vpm" alt="مینا: ۰ امتیاز" style="left:1.5%;top:92.8%">
+  <img src="../assets/games/brass/vp-yellow.webp" class="br-at br-vpm" alt="نیلوفر: ۰ امتیاز" style="left:2.2%;top:92.8%">
+  <img src="../assets/games/brass/vp-purple.webp" class="br-at br-vpm" alt="آرش: ۰ امتیاز" style="left:2.9%;top:92.8%">
+  <img src="../assets/games/brass/vp-grey.webp" class="br-at br-vpm" alt="سارا: ۰ امتیاز" style="left:3.6%;top:92.8%">
+<span class="br-vpchip" style="left:16%;top:53.5%">+۵</span>
+<span class="br-vpchip" style="left:66.47%;top:82.65%">+۳</span>
+<span class="br-vpchip" style="left:82%;top:20.669999999999998%">+۳</span>
+<span class="br-vpchip" style="left:52.35%;top:86.76%">+۳</span>
+<span class="br-vpchip" style="left:24.380000000000003%;top:68.3%">+۳</span>
+<span class="br-vpchip" style="left:28.96%;top:53.54%">+۳</span>
+<span class="br-vpchip" style="left:76.8%;top:15%">+۱</span>
+<span class="br-vpchip" style="left:72.08%;top:72%">+۶</span>
+<span class="br-vpchip" style="left:75.75%;top:32.3%">+۱</span>
+<span class="br-vpchip" style="left:44.1%;top:91.76%">+۲</span>
+<span class="br-vpchip" style="left:78.2%;top:52.5%">+۰</span>
+<span class="br-vpchip" style="left:31.3%;top:32.75%">+۰</span>
+<span class="br-vpchip" style="left:36.46%;top:61.67%">+۰</span>
+<span class="br-vpchip" style="left:52.3%;top:66.4%">+۳</span>
+<span class="br-vpchip" style="left:71.2%;top:76.5%">+۵</span>
+<span class="br-vpchip" style="left:59.04%;top:47.08%">+۰</span>
+<span class="br-vpchip" style="left:69.67%;top:58.33%">+۳</span>
+<span class="br-vpchip" style="left:55.7%;top:62.9%">+۳</span>
+<span class="br-vpchip" style="left:53.96%;top:50.4%">+۰</span>
+<span class="br-vpchip" style="left:46.18%;top:80.6%">+۳</span>
+<span class="br-vpchip is-tile" style="left:79.92%;top:24.119999999999997%">+۵</span>
+<span class="br-vpchip is-tile" style="left:66.7%;top:63.8%">+۳</span>
+<span class="br-vpchip is-tile" style="left:62.05%;top:68.52000000000001%">+۹</span>
+<span class="br-vpchip is-tile" style="left:22.34%;top:56.779999999999994%">+۳</span>
+<span class="br-vpchip is-tile" style="left:26.99%;top:56.739999999999995%">+۱</span>
+<span class="br-vpchip is-tile" style="left:80.28%;top:71.65%">+۱</span>
+<span class="br-vpchip is-tile" style="left:84.95%;top:71.65%">+۳</span>
+<span class="br-vpchip is-tile" style="left:62.06%;top:80.35%">+۳</span>
+<span class="br-vpchip is-gone" style="left:27.110000000000003%;top:26.75%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:31.74%;top:26.75%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:52.86%;top:25.02%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:57.6%;top:25.02%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:63.9%;top:67%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:19.54%;top:59.98%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:24.19%;top:59.94%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:77.47999999999999%;top:74.85%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:82.15%;top:74.85%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:75.19%;top:61.67999999999999%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+<span class="br-vpchip is-gone" style="left:59.260000000000005%;top:83.55%"><svg class="bgv-icon" style="inline-size:10px;block-size:10px;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></span>
+ </div></div></div>
+ <div class="br-phase__col">
+  <section class="bgv-card" style="padding:14px;display:grid;gap:10px"><b style="font-size:16px;color:var(--heading)">درآمد دور ۸ (پیش از امتیاز)</b><div class="br-inc"><span><img src="../assets/games/brass/character-red-front.webp" alt="" style="inline-size:28px;border-radius:50%"><b class="br-num">+£۱</b>مینا</span><span><img src="../assets/games/brass/character-yellow-front.webp" alt="" style="inline-size:28px;border-radius:50%"><b class="br-num is-neg">−£۳</b>نیلوفر</span><span><img src="../assets/games/brass/character-purple-front.webp" alt="" style="inline-size:28px;border-radius:50%"><b class="br-num">+£۲</b>آرش</span><span><img src="../assets/games/brass/character-grey-front.webp" alt="" style="inline-size:28px;border-radius:50%"><b class="br-num">+£۱</b>سارا</span></div><p class="br-notes" style="padding:0;list-style:none">درآمد منفی پرداخت می‌شود. اگر پول کم بیاید، سرور ارزان‌ترین کاشی‌های همان بازیکن را برمی‌دارد و نصف هزینه‌شان را می‌دهد؛ اگر باز کم بود هر £۱ کسری = ۱ امتیاز کمتر (زیر صفر نه). این‌ها در گزارش بازی با نام کاشی می‌آیند.</p></section>
+  <section class="bgv-card" style="padding:14px;display:grid;gap:10px"><b style="font-size:16px;color:var(--heading)">امتیاز دورهٔ کانال</b><div class="br-score"><div class="br-score__row"><img src="../assets/games/brass/character-yellow-front.webp" alt=""><b style="color:var(--br-yellow-ink)">نیلوفر</b><span class="br-gain"><b class="br-num">+۱۱</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۱۲</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۲۳</b><small>امتیاز</small></span></div><div class="br-score__row"><img src="../assets/games/brass/character-purple-front.webp" alt=""><b style="color:var(--br-purple-ink)">آرش</b><span class="br-gain"><b class="br-num">+۱۹</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۴</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۲۳</b><small>امتیاز</small></span></div><div class="br-score__row is-you"><img src="../assets/games/brass/character-red-front.webp" alt=""><b style="color:var(--br-red-ink)">مینا</b><span class="br-gain"><b class="br-num">+۸</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۸</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۱۶</b><small>امتیاز</small></span></div><div class="br-score__row"><img src="../assets/games/brass/character-grey-front.webp" alt=""><b style="color:var(--br-grey-ink)">سارا</b><span class="br-gain"><b class="br-num">+۹</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۴</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۱۳</b><small>امتیاز</small></span></div></div></section>
+  <ul class="br-notes"><li><b>۲۰</b> مسیر و <b>۸</b> کاشی برگشته امتیاز گرفتند؛ <b>۱۱</b> کاشی سطح I حذف شد.</li><li>ترتیب نمایش: درآمد ← مسیرها یکی‌یکی (عدد روی مسیر، پرواز امتیاز به نشانگر) ← کاشی‌ها ← حذف سطح I ← پر شدن آبجو ← دست تازه. با «رد شدن» همه یک‌جا.</li><li>پایان دورهٔ راه‌آهن همین است، بدون حذف و دست تازه؛ درآمد دور آخر بازی پرداخت نمی‌شود.</li></ul>
+ </div>
+</section>
+ <section class="br-phase" aria-label="پایان بازی">
+ <header><h2><span>۳</span>پایان بازی: امتیاز دورهٔ راه‌آهن و رتبه</h2><p>پس از امتیازشماری راه‌آهن بازی تمام است. برابری: سطح درآمد بالاتر، بعد پول بیشتر؛ اگر باز برابر بود رتبهٔ مشترک. صفحهٔ نتیجهٔ میز همان Table-Result دیزاین سیستم است؛ این کارت فقط ریز امتیاز برس است که در آن صفحه بالای جدول رتبه می‌نشیند.</p></header>
+ <div class="br-phase__col"><section class="bgv-card" style="padding:14px;display:grid;gap:10px"><b style="font-size:16px;color:var(--heading)">امتیاز دورهٔ راه‌آهن و رتبهٔ نهایی</b><div class="br-score"><div class="br-score__row"><img src="../assets/games/brass/character-grey-front.webp" alt=""><b style="color:var(--br-grey-ink)">سارا</b><span class="br-gain"><b class="br-num">+۵۴</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۲۵</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۹۲</b><small>رتبهٔ ۱</small></span></div><div class="br-score__row"><img src="../assets/games/brass/character-yellow-front.webp" alt=""><b style="color:var(--br-yellow-ink)">نیلوفر</b><span class="br-gain"><b class="br-num">+۱۴</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۴۰</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۸۰</b><small>رتبهٔ ۲</small></span></div><div class="br-score__row"><img src="../assets/games/brass/character-purple-front.webp" alt=""><b style="color:var(--br-purple-ink)">آرش</b><span class="br-gain"><b class="br-num">+۲۲</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۲۴</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۶۹</b><small>رتبهٔ ۳</small></span></div><div class="br-score__row is-you"><img src="../assets/games/brass/character-red-front.webp" alt=""><b style="color:var(--br-red-ink)">مینا</b><span class="br-gain"><b class="br-num">+۲۳</b><small>مسیرها</small></span><span class="br-gain"><b class="br-num">+۲۴</b><small>کاشی‌ها</small></span><span class="br-gain"><b class="br-num">۶۶</b><small>رتبهٔ ۴</small></span></div></div></section></div>
+ <div class="br-phase__col"><ul class="br-notes"><li>برنده: <b style="color:var(--br-grey-ink)">سارا</b> با ۹۲ امتیاز. ستون آخر امتیاز کل است؛ دو ستون اول فقط آنچه همین امتیازشماری داد.</li><li>در پنل هر بازیکن نتیجه با نشان رتبه («رتبهٔ ۱») جای «در نوبت» می‌آید و دکمه‌های اقدام حذف می‌شوند.</li><li>کناره‌گیری: بازی بلافاصله تمام می‌شود و کناره‌گیر آخر است (resignPolicyFa).</li></ul></div>
+</section>
+ <section class="br-phase" aria-label="آموزش تعاملی">
+ <header><h2><span>۴</span>آموزش تعاملی (۲ نفر، دو دور آخر راه‌آهن)</h2><p>همان قالب میز با نوار آموزش بالای نوار اقدام. کنترل بعدی که باید زده شود حلقهٔ کهربایی تپنده دارد (کلاس <code>br-hint</code>، تست e2e روی آن کلیک می‌کند): نوع اقدام ← هدف ← کارت ← «ثبت». متن هر مرحله از tutorial.steps موتور است.</p></header>
+ <div class="br-phase__col"><div class="bgv-felt" style="inline-size:640px"><div class="br-board br__map" dir="ltr" role="group" aria-label="نقشهٔ بیرمنگام (روی شب)">
+  <img src="../assets/games/brass/board-night.webp" class="br-base" alt="" width="1000" height="1000">
+  <span class="br-at" data-flip="link-birmingham~oxford" style="left:71.2%;top:76.5%;inline-size:5.2%;line-height:0;transform:translate(-50%,-50%) rotate(52deg)"><img src="../assets/games/brass/link-red-rail.webp" style="inline-size:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.65))" alt="مسیر بیرمنگام ↔ آکسفورد: مینا"></span>
+  <img src="../assets/games/brass/tile-cotton-3-red-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-birmingham-0" alt="کارخانهٔ پنبه III مینا" style="left:60.65%;top:65.4%">
+  <img src="../assets/games/brass/tile-coal-2-yellow-front.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-wolverhampton-1" alt="معدن زغال II نیلوفر" style="left:39.35%;top:53.98%">
+  <span class="br-oncubes" style="left:39.35%;top:54.58%" aria-hidden="true"><img src="../assets/games/brass/coal-cube.webp" class="" alt=""></span>
+  <img src="../assets/games/brass/tile-coal-2-yellow-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-dudley-0" alt="معدن زغال II نیلوفر، برگشته" style="left:39.38%;top:66.25%">
+  <img src="../assets/games/brass/tile-iron-2-yellow-back.webp" class="br-at br-tile" data-br-piece="tile" data-flip="tile-dudley-1" alt="ذوب‌آهن II نیلوفر، برگشته" style="left:44%;top:66.22%">
+  <img src="../assets/games/brass/merchant-all.webp" class="br-at br-merch" alt="تاجر آکسفورد" style="left:80.35%;top:85.35%">
+  <img src="../assets/games/brass/merchant-manufacturer.webp" class="br-at br-merch" alt="تاجر آکسفورد" style="left:85.03%;top:85.3%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-oxford-0" alt="آبجوی تاجر" style="left:79.33%;top:81.33%">
+  <img src="../assets/games/brass/beer-barrel.webp" class="br-at br-beer" data-flip="beer-oxford-1" alt="آبجوی تاجر" style="left:85.83%;top:81.33%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر شروزبری" style="left:8.8%;top:57%">
+  <img src="../assets/games/brass/merchant-cotton.webp" class="br-at br-merch" alt="تاجر گلاستر" style="left:58.14%;top:92.78%">
+  <img src="../assets/games/brass/merchant-blank.webp" class="br-at br-merch" alt="تاجر گلاستر" style="left:62.8%;top:92.8%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:34%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:34%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:36.945%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:36.945%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:39.89%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:39.89%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:42.835%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:86.67%;top:42.835%">
+  <img src="../assets/games/brass/coal-cube.webp" class="br-at br-mcube" alt="" style="left:84.33%;top:45.78%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:39.89%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:39.89%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:42.835%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:42.835%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:90%;top:45.78%">
+  <img src="../assets/games/brass/iron-cube.webp" class="br-at br-mcube" alt="" style="left:92.07%;top:45.78%">
+  <span class="br-pile is-empty" style="left:14.05%;top:15.2%" title="دستهٔ کشیدنی"><img src="../assets/games/brass/card-back.webp" alt="دستهٔ کشیدنی"><b class="br-num">۰</b></span>
+  <span class="br-pile" style="left:14.05%;top:29.1%" title="کارت‌های شهر آزاد"><img src="../assets/games/brass/card-wild-location.webp" alt="کارت‌های شهر آزاد"><b class="br-num">۴</b></span>
+  <span class="br-pile" style="left:14.05%;top:42.6%" title="کارت‌های صنعت آزاد"><img src="../assets/games/brass/card-wild-industry.webp" alt="کارت‌های صنعت آزاد"><b class="br-num">۴</b></span>
+  <img src="../assets/games/brass/character-red-front.webp" class="br-at br-char is-turn" alt="ترتیب نوبت ۱: مینا" style="left:17.6%;top:68.25%">
+  <img src="../assets/games/brass/character-yellow-front.webp" class="br-at br-char" alt="ترتیب نوبت ۲: نیلوفر" style="left:17.6%;top:76.25%">
+  <img src="../assets/games/brass/income-red.webp" class="br-at br-incm" alt="مینا: درآمد +۵" style="left:1.5%;top:20.6%">
+  <img src="../assets/games/brass/income-yellow.webp" class="br-at br-incm" alt="نیلوفر: درآمد +۱۰" style="left:23.65%;top:1.54%">
+  <img src="../assets/games/brass/vp-red.webp" class="br-at br-vpm" alt="مینا: ۵۲ امتیاز" style="left:98.4%;top:19.9%">
+  <img src="../assets/games/brass/vp-yellow.webp" class="br-at br-vpm" alt="نیلوفر: ۵۵ امتیاز" style="left:98.4%;top:31.46%">
+  <button class="br-slot" type="button" aria-pressed="false" data-loc="birmingham" data-slot="0" aria-label="بیرمنگام خانهٔ ۱" style="left:60.65%;top:65.4%"></button>
+  <button class="br-mbtn" type="button" data-merchant="oxford" data-space="0" aria-pressed="false" aria-label="آکسفورد" style="left:80.35%;top:85.35%"></button>
+ </div></div></div>
+ <div class="br-phase__col">
+  <div class="br-tutbar" role="status"><b>آموزش: مرحله ۲ از ۴</b></div>
+  <section class="br-bar br__actions"><div class="br-bar__row"><span class="br-bar__text">«فروش» را بزنید، کارخانهٔ پنبهٔ بیرمنگام → آکسفورد را تیک بزنید و کارت دوم «کاونتری» را دور بیندازید. فروش به تاجری که کالای شما را می‌خرد ۱ آبجو می‌خواهد؛ بشکهٔ آبجوی کنار همان تاجر را مصرف می‌کنید و پاداش آکسفورد (+۲ خانهٔ درآمد) را هم می‌گیرید. کاشی برمی‌گردد و درآمدتان ۳ خانه دیگر هم بالا می‌رود.</span></div><div class="br-kinds" role="group" aria-label="نوع اقدام"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="build" aria-label="ساخت صنعت" aria-pressed="false">ساخت صنعت <span class="br-pill">۲ جا، از <span class="br-gbp">£۶</span></span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="network" aria-label="ساخت مسیر" aria-pressed="false">ساخت مسیر <span class="br-pill"><span class="br-gbp">£۵</span>+<img src="../assets/games/brass/coal-cube.webp" class="br-ic" alt="زغال"></span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="develop" aria-label="توسعه" aria-pressed="false">توسعه <span class="br-pill"><img src="../assets/games/brass/iron-cube.webp" class="br-ic" alt="">هر کاشی</span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm br-hint" type="button" data-act="sell" data-hint="" aria-label="فروش" aria-pressed="false">فروش <span class="br-pill">۱ کاشی</span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="loan" aria-label="وام" aria-pressed="false">وام <span class="br-pill">+<span class="br-gbp">£۳۰</span>، درآمد −۳</span></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="scout" aria-label="پیشاهنگ" aria-pressed="false">پیشاهنگ <span class="br-pill">۳ → ۲ آزاد</span></button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="pass" aria-label="رد کردن" aria-pressed="false">رد کردن</button></div></section>
+  <ul class="br-notes"><li>پس از «فروش»، کاشی پنبهٔ بیرمنگام روی نقشه و در فهرست هدف حلقهٔ تپنده می‌گیرد، بعد کارت «کاونتری» در دست، بعد «ثبت».</li><li>پایان آموزش: کارت «آموزش کامل شد» با ریز امتیاز (متن completedFa) و دکمهٔ «بازی واقعی».</li></ul>
+ </div>
+</section>
+ <section class="br-phase" style="grid-template-columns:360px minmax(0,1fr)" aria-label="پنجرهٔ صفحهٔ صنعت">
+ <header><h2><span>۵</span>صفحهٔ صنعت: در پنجره، از دکمهٔ + پنل</h2><p>مثل BGA صفحهٔ بازیکن‌ها زیر نقشه نیست. پنل هر بازیکن در ریل کاشی بعدی هر صنعت (با نقطه برای تعداد آن سطح) را نشان می‌دهد و + کل صفحه را در این پنجره باز می‌کند. در گوشی همین در سربرگ «صفحهٔ من» است.</p></header>
+ <div class="br-phase__col"> <div class="bgv-pcard br-panel br-pl--me is-you is-turn" data-seat="0" data-flip-anchor="seat-0" style="--pc:var(--br-red);--seat-c:var(--br-red);--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا، شما">
+  <div class="br-panel__head"><img src="../assets/games/brass/character-red-front.webp" class="br-panel__char" alt=""><div class="br-panel__id"><b style="color:var(--br-red-ink)">مینا<span class="bgv-league bgv-league--gold">طلا</span></b><small><span>در نوبت، اقدام ۱ از ۲</span></small></div><img src="../assets/games/brass/card-stone.webp" class="br-disc" data-flip="card-14" alt="آخرین کارت دورریخته: استون" title="آخرین کارت دورریخته: استون"></div>
+  <div class="br-panel__row"><span class="br-vp" title="امتیاز پیروزی"><b class="br-num">۱۶</b><small>امتیاز</small></span>
+   <span class="br-box"><span class="br-box__v"><img src="../assets/games/brass/coin-1.webp" class="br-ic" alt=""><span class="br-gbp">£۴۳</span></span><small>پول</small></span>
+   <span class="br-box" title="خانهٔ ۱۱ مسیر پیشرفت"><span class="br-box__v"><img src="../assets/games/brass/income-red.webp" class="br-ic" alt=""><b class="br-num">+۱</b></span><small>درآمد</small></span>
+   <span class="br-box" title="خرج این دور؛ کمترین خرج زودتر بازی می‌کند"><span class="br-box__v"><span class="br-gbp">£۰</span></span><small>خرج دور</small></span></div>
+  <div class="br-panel__row2"><span class="br-stat" title="کارت در دست"><img src="../assets/games/brass/card-back.webp" alt=""><b class="br-num">۶</b></span><span class="br-stat" title="کاشی مسیر باقی"><img src="../assets/games/brass/link-red-rail.webp" alt=""><b class="br-num">۱۰</b></span><span class="br-stat" title="کاشی صنعت روی نقشه"><img src="../assets/games/brass/tile-cotton-1-red-front.webp" alt=""><b class="br-num">۴</b></span></div>
+  <div class="br-itrack" role="img" aria-label="مسیر درآمد: +۱"><span class="br-itrack__c"><b class="br-num">−۲</b></span><span class="br-itrack__c"><b class="br-num">−۱</b></span><span class="br-itrack__c"><b class="br-num">۰</b></span><span class="br-itrack__c is-on"><img src="../assets/games/brass/income-red.webp" alt=""><b class="br-num">+۱</b></span><span class="br-itrack__c"><b class="br-num">+۲</b></span><span class="br-itrack__c"><b class="br-num">+۳</b></span><span class="br-itrack__c"><b class="br-num">+۴</b></span></div>
+  <div class="br-ntiles"><span class="br-ntile" title="کارخانهٔ پنبه I: ۳ از این سطح، ۱۱ در کل"><img src="../assets/games/brass/tile-cotton-1-red-front.webp" alt=""><i aria-hidden="true"><s></s><s></s><s></s></i></span><span class="br-ntile" title="تولیدی II: ۲ از این سطح، ۱۰ در کل"><img src="../assets/games/brass/tile-manufacturer-2-red-front.webp" alt=""><i aria-hidden="true"><s></s><s></s></i></span><span class="br-ntile" title="سفال‌گری II: ۱ از این سطح، ۴ در کل"><img src="../assets/games/brass/tile-pottery-2-red-front.webp" alt=""><i aria-hidden="true"><s></s></i></span><span class="br-ntile" title="معدن زغال III: ۲ از این سطح، ۴ در کل"><img src="../assets/games/brass/tile-coal-3-red-front.webp" alt=""><i aria-hidden="true"><s></s><s></s></i></span><span class="br-ntile is-empty" title="ذوب‌آهن: تمام شد"></span><span class="br-ntile" title="آبجوسازی I: ۱ از این سطح، ۶ در کل"><img src="../assets/games/brass/tile-brewery-1-red-front.webp" alt=""><i aria-hidden="true"><s></s></i></span><button class="br-ntiles__more" type="button" aria-haspopup="dialog" aria-label="صفحهٔ صنعت مینا"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button></div>
+ </div></div>
+ <div class="br-phase__col" style="padding:24px;border-radius:var(--radius-md);background:var(--scrim)"><section class="bgv-dialog br-matdialog" role="dialog" aria-modal="true" aria-label="صفحهٔ صنعت مینا">
+ <div class="bgv-dialog__head"><span class="bgv-dialog__title" style="color:var(--br-red-ink)">صفحهٔ صنعت مینا (شما)</span><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div>
+ <div class="bgv-dialog__body"><section class="br-player br-area is-me" style="--pc:var(--br-red);--seat-c:var(--br-red)" data-seat="0" aria-label="صفحهٔ بازیکن مینا">
+ <div class="br-ahead"><span class="br-ahead__name" style="color:var(--br-red-ink)"><img src="../assets/games/brass/character-red-front.webp" alt="">مینا <small>شما</small></span><span class="br-vp"><b class="br-num">۱۶</b><small>امتیاز</small></span>
+  <span class="br-chip"><img src="../assets/games/brass/coin-5.webp" alt=""><span><b><span class="br-gbp">£۴۳</span></b><small>پول</small></span></span>
+  <span class="br-chip"><img src="../assets/games/brass/income-red.webp" alt=""><span><b class="br-num">+۱</b><small>درآمد هر دور</small></span></span>
+  <span class="br-chip"><span><b><span class="br-gbp">£۰</span></b><small>خرج این دور</small></span></span>
+  <span class="br-chip"><img src="../assets/games/brass/card-back.webp" alt=""><span><b class="br-num">۶</b><small>کارت</small></span></span></div>
+ <div class="br-matwrap"><div class="br-mat" dir="ltr" role="group" aria-label="صفحهٔ صنعت مینا"><img src="../assets/games/brass/player-mat-night.webp" class="br-base" alt=""><img src="../assets/games/brass/tile-cotton-1-red-front.webp" data-industry="cotton" data-level="1" class="br-mtile is-stack is-next" alt="کارخانهٔ پنبه I: ۳" style="left:31.280%;top:69.078%"><span class="br-mcount" style="left:34.280%;top:72.786%">×۳</span><img src="../assets/games/brass/tile-cotton-2-red-front.webp" data-industry="cotton" data-level="2" class="br-mtile is-stack" alt="کارخانهٔ پنبه II: ۲" style="left:31.280%;top:56.891%"><span class="br-mcount" style="left:34.280%;top:60.599%">×۲</span><img src="../assets/games/brass/tile-cotton-3-red-front.webp" data-industry="cotton" data-level="3" class="br-mtile is-stack" alt="کارخانهٔ پنبه III: ۳" style="left:31.300%;top:44.557%"><span class="br-mcount" style="left:34.300%;top:48.264%">×۳</span><img src="../assets/games/brass/tile-cotton-4-red-front.webp" data-industry="cotton" data-level="4" class="br-mtile is-stack" alt="کارخانهٔ پنبه IV: ۳" style="left:31.300%;top:32.259%"><span class="br-mcount" style="left:34.300%;top:35.967%">×۳</span><img src="../assets/games/brass/tile-manufacturer-2-red-front.webp" data-industry="manufacturer" data-level="2" class="br-mtile is-stack is-next" alt="تولیدی II: ۲" style="left:10.500%;top:23.174%"><span class="br-mcount" style="left:13.500%;top:26.882%">×۲</span><img src="../assets/games/brass/tile-manufacturer-3-red-front.webp" data-industry="manufacturer" data-level="3" class="br-mtile" alt="تولیدی III: ۱" style="left:10.500%;top:10.654%"><img src="../assets/games/brass/tile-manufacturer-4-red-front.webp" data-industry="manufacturer" data-level="4" class="br-mtile" alt="تولیدی IV: ۱" style="left:26.260%;top:10.654%"><img src="../assets/games/brass/tile-manufacturer-5-red-front.webp" data-industry="manufacturer" data-level="5" class="br-mtile is-stack" alt="تولیدی V: ۲" style="left:42.020%;top:10.679%"><span class="br-mcount" style="left:45.020%;top:14.387%">×۲</span><img src="../assets/games/brass/tile-manufacturer-6-red-front.webp" data-industry="manufacturer" data-level="6" class="br-mtile" alt="تولیدی VI: ۱" style="left:57.770%;top:10.703%"><img src="../assets/games/brass/tile-manufacturer-7-red-front.webp" data-industry="manufacturer" data-level="7" class="br-mtile" alt="تولیدی VII: ۱" style="left:73.530%;top:10.703%"><img src="../assets/games/brass/tile-manufacturer-8-red-front.webp" data-industry="manufacturer" data-level="8" class="br-mtile is-stack" alt="تولیدی VIII: ۲" style="left:89.280%;top:10.728%"><span class="br-mcount" style="left:92.280%;top:14.436%">×۲</span><img src="../assets/games/brass/tile-pottery-2-red-front.webp" data-industry="pottery" data-level="2" class="br-mtile is-next" alt="سفال‌گری II: ۱" style="left:51.830%;top:56.891%"><img src="../assets/games/brass/tile-pottery-3-red-front.webp" data-industry="pottery" data-level="3" class="br-mtile" alt="سفال‌گری III: ۱" style="left:51.850%;top:44.581%"><img src="../assets/games/brass/tile-pottery-4-red-front.webp" data-industry="pottery" data-level="4" class="br-mtile" alt="سفال‌گری IV: ۱" style="left:51.850%;top:32.259%"><img src="../assets/games/brass/tile-pottery-5-red-front.webp" data-industry="pottery" data-level="5" class="br-mtile" alt="سفال‌گری V: ۱" style="left:67.280%;top:32.283%"><img src="../assets/games/brass/tile-coal-3-red-front.webp" data-industry="coal" data-level="3" class="br-mtile is-stack is-next" alt="معدن زغال III: ۲" style="left:67.960%;top:89.842%"><span class="br-mcount" style="left:70.960%;top:93.550%">×۲</span><img src="../assets/games/brass/tile-coal-4-red-front.webp" data-industry="coal" data-level="4" class="br-mtile is-stack" alt="معدن زغال IV: ۲" style="left:83.870%;top:89.867%"><span class="br-mcount" style="left:86.870%;top:93.575%">×۲</span><img src="../assets/games/brass/tile-brewery-1-red-front.webp" data-industry="brewery" data-level="1" class="br-mtile is-next" alt="آبجوسازی I: ۱" style="left:10.810%;top:88.952%"><img src="../assets/games/brass/tile-brewery-2-red-front.webp" data-industry="brewery" data-level="2" class="br-mtile is-stack" alt="آبجوسازی II: ۲" style="left:10.820%;top:76.531%"><span class="br-mcount" style="left:13.820%;top:80.239%">×۲</span><img src="../assets/games/brass/tile-brewery-3-red-front.webp" data-industry="brewery" data-level="3" class="br-mtile is-stack" alt="آبجوسازی III: ۲" style="left:10.820%;top:64.097%"><span class="br-mcount" style="left:13.820%;top:67.805%">×۲</span><img src="../assets/games/brass/tile-brewery-4-red-front.webp" data-industry="brewery" data-level="4" class="br-mtile" alt="آبجوسازی IV: ۱" style="left:10.820%;top:51.886%"></div><div class="br-side"><figure><span class="br-card" data-flip="card-14" style="--cw:104px"><img src="../assets/games/brass/card-stone.webp" alt=""></span><figcaption>آخرین کارت دورریخته</figcaption></figure><figure><span class="br-linkstack"><img src="../assets/games/brass/link-red-rail.webp" alt=""><b class="br-num">×۱۰</b></span><figcaption>کاشی مسیر باقی</figcaption></figure></div></div>
+</section><p class="br-dockhint" style="margin:0">کاشی بعدی هر صنعت حلقهٔ کهربایی دارد و «×n» تعداد باقی آن سطح است؛ قاب خالی همان چاپ صفحه است. با کلیدهای ← → صفحهٔ بازیکن بعدی.</p></div>
+</section></div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4110}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ترافورمینگ مارس: اندازه‌گیری صفحه‌ها</title>
+
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.tm{--pick:#E8A642;--tm-red:#E5483F;--tm-blue:#3F8FE5;--tm-green:#4FBF5A;--tm-yellow:#F0C419;--tm-black:#2B2B2B;--tm-prod:#6B3A1C;--tm-plate:rgba(13,26,35,.82);
+ --tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#9A7700;--tm-black-ink:#2B2B2B}
+.tm[data-theme="dark"]{--tm-red-ink:#FF7B70;--tm-blue-ink:#7DB6F5;--tm-green-ink:#7FD98A;--tm-yellow-ink:#F5D04A;--tm-black-ink:#D8D8D8}
+.tm[lang="en"]{font-family:var(--font-latin)}
+.tm-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+.tm-num,.tm-costpill,.tm-prodv{unicode-bidi:isolate;direction:ltr}
+/* desktop frame: game column + sticky rail on the right (like BGA) */
+.tm-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.tm-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.tm-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.tm-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.tm-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.tm-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.tm-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA) */
+.tm-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.tm-bar.is-waiting{background:var(--surface-sunken)}
+.tm-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tm-bar__text{flex:1 1 360px;min-inline-size:0}
+.tm-bar__text b{color:var(--heading);font-weight:900}
+.tm-bar .bgv-btn{white-space:nowrap}
+.tm-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.tm-costpill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle}
+.tm-costpill .tm-ic{block-size:16px}
+.tm-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tm-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.tm-step.is-done{background:var(--success-soft);color:var(--success)}
+.tm-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.tm-step .bgv-icon{inline-size:14px;block-size:14px}
+/* zones on felt */
+.tm-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.tm-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.tm-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.tm-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.tm-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: the publisher art, never redrawn; unplayable cards are NOT faded (BGA) */
+.tm-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,140px);flex:none}
+.tm-card>img{display:block;inline-size:100%;block-size:auto;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.25)}
+.tm-card[data-pick="selectable"]>img{outline:2px dashed var(--pick);outline-offset:2px}
+.tm-card[data-pick="picked"]>img{outline:3px solid var(--pick);outline-offset:2px}
+.tm-card[aria-disabled="true"],.tm-card:disabled{cursor:not-allowed}
+.tm-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.tm-card .tm-check{inset-block-start:-8px;inset-inline-end:-8px}
+.tm-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:2}
+.tm-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+/* hand */
+.tm-hand{display:flex;flex-wrap:wrap;gap:12px 10px;align-items:flex-start}
+.tm-hand--desk{justify-content:center}
+.tm-hcard{display:grid;justify-items:center;gap:5px;inline-size:var(--cw,140px)}
+/* board, shown without its printed TR frame (window = layout.json marsBoard.crop) */
+.tm-board{position:relative;inline-size:100%;aspect-ratio:920/774;overflow:hidden;border-radius:var(--radius-md);background:#05070F}
+.tm-board>.tm-base{position:absolute;display:block;inline-size:111.304%;block-size:auto;left:-5.652%;top:-6.202%;max-inline-size:none}
+.tm-board>.tm-at,.tm-at{position:absolute;transform:translate(-50%,-50%)}
+.tm-tile{inline-size:7.35%;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.tm-cube{inline-size:2%;pointer-events:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+.tm-cube--track{inline-size:2.9%}
+.tm-cube--plaque{inline-size:2.56%}
+.tm-spbtn,.tm-mabtn,.tm-hexbtn{position:absolute;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;border-radius:8px}
+.tm-spbtn{inline-size:15.9%;block-size:3.93%}
+.tm-mabtn{inline-size:9.13%;block-size:6.97%}
+.tm-spbtn:hover,.tm-mabtn:hover{box-shadow:0 0 0 3px var(--pick)}
+.tm-spbtn:focus-visible,.tm-mabtn:focus-visible,.tm-hexbtn:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-spbtn:disabled,.tm-mabtn:disabled{cursor:default;box-shadow:none}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important}
+.tm-hexbtn{inline-size:7.26%;block-size:9.97%;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);border-radius:0}
+.tm-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.tm-hex{fill:rgba(232,166,66,.12);stroke:var(--pick);stroke-width:3;stroke-dasharray:8 5;stroke-linejoin:round}
+.tm-hex--picked{fill:rgba(232,166,66,.32);stroke-width:4.5;stroke-dasharray:none}
+.tm-board .tm-check{inline-size:22px;block-size:22px;transform:translate(-50%,-50%)}
+.tm-bonus{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt);white-space:nowrap}
+.tm-bonus .tm-ic{block-size:14px}
+.tm-boardplate{position:absolute;inset-block-start:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--radius-pill);background:rgba(5,7,15,.72);color:#FFFFFF;font-size:13.5px;font-weight:700;line-height:1.5}
+.tm-boardplate b{font-weight:900}
+.tm-boardplate .tm-ic{block-size:20px}
+.tm-boardplate--start{left:8px}
+.tm-boardplate--end{right:8px}
+/* BGA player dashboard pieces (rail panel and area header) */
+.tm-score{display:grid;place-items:center;align-content:center;inline-size:50px;block-size:50px;flex:none;border-radius:50%;background:var(--tm-prod);color:#FFFFFF;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod);line-height:1}
+.tm-score b{font-size:20px;font-weight:900}
+.tm-score small{font-size:10.5px;font-weight:700;opacity:.92}
+.tm-score--sm{inline-size:42px;block-size:42px}
+.tm-score--sm b{font-size:17px}
+.tm-tr{position:relative;display:inline-grid;place-items:center;inline-size:44px;block-size:34px;flex:none;border-radius:6px;background:url(../assets/games/tm/i-tr.webp) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.tm-tr b{padding:0 4px;border-radius:5px;background:var(--tm-plate);color:#FFFFFF;font-size:15px;font-weight:900;line-height:1.3}
+.tm-handn{display:inline-flex;align-items:center;gap:4px;block-size:34px;padding-inline:8px;border-radius:8px;background:var(--surface-sunken);font-size:15px;font-weight:900;color:var(--heading)}
+.tm-handn .tm-ic{block-size:24px;border-radius:3px}
+.tm-logo{display:flex;align-items:center;flex:none;block-size:34px}
+.tm-logo img{display:block;block-size:100%;inline-size:auto;max-inline-size:132px;object-fit:contain}
+.tm-r{display:grid;justify-items:center;gap:2px}
+.tm-r__ic{display:grid;place-items:center}
+.tm-r__ic .tm-ic{grid-area:1/1;block-size:44px}
+.tm-r__ic b{grid-area:1/1;position:relative;min-inline-size:26px;padding:1px 5px 0;border-radius:7px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:19px;font-weight:900;line-height:1.3;text-align:center}
+.tm .tm-prodv{min-inline-size:42px;padding:2px 6px;border-radius:6px;background:var(--tm-prod);color:#FFFFFF;font-size:16px;font-weight:900;text-align:center;line-height:1.45;text-shadow:0 1px 0 rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.tm .tm-prodv.is-neg{background:var(--danger)}
+.tm-tags{display:flex;flex-wrap:wrap;gap:5px 4px}
+.tm-tagc{position:relative;display:grid;place-items:center;inline-size:40px;block-size:40px}
+.tm-tagc img{grid-area:1/1;inline-size:100%;block-size:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.tm-tagc b{grid-area:1/1;position:relative;min-inline-size:22px;padding:1px 4px 0;border-radius:6px;background:rgba(13,26,35,.72);color:#FFFFFF;font-family:var(--font-latin);font-size:17px;font-weight:800;line-height:1.25;text-align:center}
+.tm[lang="fa"] .tm-tagc b{font-family:inherit;font-weight:900}
+.tm-tagc.is-zero{opacity:.38}
+.tm-tagc--hex img{inline-size:88%;block-size:auto}
+/* rail */
+.tm-dash{padding:8px 12px;display:grid;gap:6px}
+.tm-dash__tools{display:flex;justify-content:space-between}
+.tm-dash__params{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tm-param{display:grid;justify-items:center;gap:2px;font-size:16px;color:var(--heading)}
+.tm-param .tm-ic{block-size:36px}
+.tm-param b{font-weight:900}
+.tm-panel{padding:10px 12px;display:grid;gap:8px}
+.tm-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.tm-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.tm-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-panel__id small{font-size:12.5px;color:var(--text-muted)}
+.tm-fp{inline-size:28px;block-size:auto;flex:none}
+.tm-panel__row{display:flex;align-items:center;gap:8px}
+.tm-panel__row .tm-logo{flex:1;min-inline-size:0;justify-content:flex-end}
+.tm-panel__row .tm-logo img{max-inline-size:100%}
+.tm-panel__res{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:8px 3px 6px;border-radius:var(--radius-sm);background:var(--surface-sunken)}
+.tm-log{max-block-size:300px;overflow:auto}
+.tm-log .bgv-log__item{font-size:13.5px}
+.tm-log .tm-ic{block-size:16px}
+/* players area (BGA): header + collapsible sections */
+.tm-player{display:grid;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate);box-shadow:inset 0 0 0 2px var(--pc,transparent)}
+/* area header like BGA: light Mars-dust plate in every theme (user choice), dark text */
+.tm-ahead{--tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#8A6A00;--tm-black-ink:#2B2B2B;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F6ECDD,#E4CDAE);color:#1E2328;box-shadow:inset 0 0 0 1px rgba(107,58,28,.28),inset 0 1px 0 rgba(255,255,255,.7)}
+.tm-ahead__name{display:inline-flex;align-items:center;block-size:30px;padding-inline:14px;border-radius:15px;background:#F4F5F6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);font-size:16px;font-weight:900}
+.tm-ahead__name small{margin-inline-start:6px;font-size:12.5px;font-weight:700;color:#4A535B}
+.tm-ahead .tm-logo{block-size:44px}
+.tm-ahead .tm-score{inline-size:58px;block-size:58px;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod)}
+.tm-ahead .tm-score b{font-size:23px}
+.tm-ahead .tm-score small{font-size:11.5px}
+.tm-ahead .tm-tr{inline-size:58px;block-size:44px}
+.tm-ahead .tm-tr b{font-size:19px}
+.tm-ahead .tm-handn{block-size:46px;padding-inline:10px;gap:6px;background:#FFFFFF;color:#1E2328;font-size:20px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-handn .tm-ic{block-size:34px}
+.tm-ahead__res{display:flex;gap:10px;flex-wrap:wrap}
+.tm-rs{display:flex;align-items:stretch}
+.tm-rs>.tm-ic{block-size:46px;border-radius:4px}
+.tm-rs__nums{display:grid;grid-template-rows:1fr auto;min-inline-size:42px}
+.tm-rs__nums b{display:grid;place-items:center;padding-inline:4px;border-start-end-radius:4px;background:#FFFFFF;color:#1E2328;font-size:19px;font-weight:900;line-height:1.2;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-rs__nums .tm-prodv{min-inline-size:0;padding:1px 5px;border-radius:0;border-end-end-radius:4px;font-size:15px}
+.tm-ahead .tm-tagc{inline-size:40px;block-size:40px}
+.tm-ahead .tm-tagc b{font-size:17px;min-inline-size:22px}
+.tm-ahead .tm-tagc.is-zero{opacity:.4}
+.tm-ahead .tm-tags{gap:5px 4px}
+.tm-ahead__tags{flex-basis:100%}
+.tm-secs{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.tm-sec{display:grid;gap:8px;align-content:start;inline-size:calc(var(--cw) + 20px);padding:0 0 10px;border-radius:var(--radius-sm);border:1.5px dashed var(--felt-line)}
+.tm-sec__head{display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:var(--sec-bg);color:#FFFFFF}
+.tm-sec--grey{--sec-bg:#5E6A72}.tm-sec--green{--sec-bg:#3E8E3A}.tm-sec--blue{--sec-bg:#2F6FB0}.tm-sec--red{--sec-bg:#B23A31}
+.tm-sec__toggle{flex:1;min-inline-size:0;display:flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
+.tm-sec__n{display:grid;place-items:center;min-inline-size:26px;block-size:26px;border-radius:6px;background:rgba(0,0,0,.28);font-weight:900;font-size:14px}
+.tm-sec__t{display:grid;line-height:1.25}
+.tm-sec__t b{font-size:15px;font-weight:900}
+.tm-sec__t small{font-size:11.5px;opacity:.88}
+.tm-sec__menu{display:grid;place-items:center;inline-size:30px;block-size:30px;padding:0;border:0;border-radius:6px;background:rgba(255,255,255,.14);color:#FFFFFF;cursor:pointer}
+.tm-sec__menu .bgv-icon{inline-size:18px;block-size:18px}
+.tm-sec__toggle:focus-visible,.tm-sec__menu:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-sec.is-closed{padding:0;inline-size:auto;border-style:solid}
+.tm-sec__body{padding-inline:10px}
+.tm-grid{display:grid;gap:8px;justify-items:center}
+.tm-stack{display:flex;flex-direction:column;align-items:center}
+.tm-sec__body>.tm-card{inline-size:var(--cw)}
+.tm-stack>.tm-card+.tm-card{margin-block-start:calc(var(--cw) * -1.406 * (1 - var(--band)))}
+.tm-stack--blue{--band:.46}
+.tm-stack--green{--band:.19}
+.tm-stack--red{--band:.13}
+.tm-stack>.tm-card:hover,.tm-stack>.tm-card:focus-visible{z-index:3}
+.tm-cres{position:absolute;inset-block-start:30%;inset-inline-end:6%;display:inline-flex;align-items:center;gap:2px;padding:1px 6px 1px 2px;border-radius:var(--radius-pill);background:var(--tm-plate);color:#FFFFFF;font-size:13px;font-weight:900;direction:ltr}
+.tm-cres .tm-ic{block-size:20px}
+.tm-card>img.tm-cused{position:absolute;inset-block-start:4%;inset-inline-start:4%;inline-size:15%;block-size:auto;box-shadow:none;border-radius:0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+/* payment (Game Kit 3 dock content) */
+.tm-pay{display:grid;gap:6px}
+.tm-payrow{display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:8px;font-size:14px}
+.tm-payrow .tm-ic{block-size:22px}
+.tm-payrow b{font-weight:900;color:var(--heading)}
+.tm-payrow small{color:var(--text-muted);font-size:12.5px}
+.tm-payrow.is-off{opacity:.45}
+.tm-paysum{display:flex;justify-content:space-between;font-size:13.5px;color:var(--text);padding-block-start:4px;border-block-start:1px solid var(--line)}
+.tm-paysum b{font-weight:900;color:var(--success)}
+.tm-spec{padding:32px 40px;display:grid;gap:22px;background:var(--surface-sunken);color:var(--text);font-size:14px;line-height:1.75}
+.tm-spec h1{margin:0;font-size:28px;font-weight:900;color:var(--heading)}
+.tm-spec h2{margin:0 0 8px;font-size:18px;font-weight:900;color:var(--heading)}
+.tm-spec p{margin:0}
+.tm-spec .bgv-card{padding:18px 20px;display:grid;gap:10px}
+.tm-spec table{inline-size:100%;border-collapse:collapse;font-size:13px;line-height:1.6}
+.tm-spec th,.tm-spec td{padding:7px 8px;border-block-end:1px solid var(--line);text-align:start;vertical-align:top}
+.tm-spec th{font-weight:700;color:var(--label);font-size:12.5px;background:var(--surface-sunken)}
+.tm-spec code{font-family:ui-monospace,Consolas,monospace;font-size:12px;padding:1px 5px;border-radius:5px;background:var(--surface-sunken);color:var(--heading);direction:ltr;unicode-bidi:isolate}
+.tm-spec ul{margin:0;padding-inline-start:20px;display:grid;gap:4px}
+.tm-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.tm-g1{display:grid;gap:18px}
+.tm-g1 .tm-measure{max-inline-size:1024px;justify-self:center}
+.tm-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.tm-flow{display:grid;gap:8px;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken)}
+.tm-flow b{color:var(--heading)}
+.tm-mini{position:static}
+.tm-measure{position:relative;inline-size:100%;border-radius:var(--radius-md);overflow:hidden}
+.tm-measure>img{display:block;inline-size:100%;block-size:auto}
+.tm-dot{position:absolute;transform:translate(-50%,-50%);min-inline-size:18px;block-size:18px;padding:0 3px;border-radius:9px;background:rgba(13,26,35,.85);color:#FFFFFF;font:700 10px/18px var(--font-latin);text-align:center;box-shadow:0 0 0 1px #FFFFFF;direction:ltr}
+.tm-dot--s{min-inline-size:8px;block-size:8px;padding:0;border-radius:50%;background:#E8A642;box-shadow:0 0 0 1px #0D1A23}
+.tm-box{position:absolute;transform:translate(-50%,-50%);border:2px dashed #E8A642;border-radius:6px}
+.tm-box--crop{border:3px dashed #5AA9F0;border-radius:0}
+.tm-legend{display:grid;gap:4px;font-size:13px}
+.tm-pickzone{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start}
+.tm-corppick{display:grid;gap:10px;--cw:250px}
+.tm-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.tm-sum b{font-weight:900}
+.tm-ready{display:flex;gap:6px;flex-wrap:wrap}
+.tm-ready span{display:inline-flex;align-items:center;gap:5px;block-size:28px;padding-inline:9px;border-radius:var(--radius-pill);background:var(--felt-plate);color:var(--felt-ink);font-size:12.5px;font-weight:700}
+.tm-ready span .bgv-icon{inline-size:14px;block-size:14px;color:var(--success)}
+</style>
+
+</head>
+<body>
+
+
+<div class="bgv tm" data-theme="light" dir="rtl" lang="fa" style="min-height: 2240px;">
+<div class="tm-spec" dir="rtl">
+<h1>ترافورمینگ مارس: اندازه‌گیری روی تصویرهای واقعی</h1>
+<p>همهٔ عددها پیکسل تصویر منبع‌اند و در <code>layout.json</code> هستند. قطعه با <code>left = x/W</code>، <code>top = y/H</code>، <code>translate(-50%,-50%)</code> و عرض درصدی از عرض صفحه گذاشته می‌شود؛ پس در هر عرضی درست می‌نشیند.</p>
+<div class="tm-g1">
+ <section class="bgv-card"><h2>صفحهٔ تارسیس (۱۰۲۴×۸۷۰)</h2><div class="tm-measure" dir="ltr"><img src="../assets/games/tm/board-tharsis.webp" alt="" width="1024" height="870"><span class="tm-dot" style="left:15.137%;top:41.379%">01</span><span class="tm-dot" style="left:17.09%;top:17.011%">02</span><span class="tm-dot" style="left:37.07%;top:23.103%">03</span><span class="tm-dot" style="left:43.594%;top:23.103%">04</span><span class="tm-dot" style="left:50.117%;top:23.103%">05</span><span class="tm-dot" style="left:56.641%;top:23.103%">06</span><span class="tm-dot" style="left:63.164%;top:23.103%">07</span><span class="tm-dot" style="left:33.809%;top:29.77%">08</span><span class="tm-dot" style="left:40.332%;top:29.77%">09</span><span class="tm-dot" style="left:46.855%;top:29.77%">10</span><span class="tm-dot" style="left:53.379%;top:29.77%">11</span><span class="tm-dot" style="left:59.902%;top:29.77%">12</span><span class="tm-dot" style="left:66.426%;top:29.77%">13</span><span class="tm-dot" style="left:30.547%;top:36.437%">14</span><span class="tm-dot" style="left:37.07%;top:36.437%">15</span><span class="tm-dot" style="left:43.594%;top:36.437%">16</span><span class="tm-dot" style="left:50.117%;top:36.437%">17</span><span class="tm-dot" style="left:56.641%;top:36.437%">18</span><span class="tm-dot" style="left:63.164%;top:36.437%">19</span><span class="tm-dot" style="left:69.687%;top:36.437%">20</span><span class="tm-dot" style="left:27.285%;top:43.103%">21</span><span class="tm-dot" style="left:33.809%;top:43.103%">22</span><span class="tm-dot" style="left:40.332%;top:43.103%">23</span><span class="tm-dot" style="left:46.855%;top:43.103%">24</span><span class="tm-dot" style="left:53.379%;top:43.103%">25</span><span class="tm-dot" style="left:59.902%;top:43.103%">26</span><span class="tm-dot" style="left:66.426%;top:43.103%">27</span><span class="tm-dot" style="left:72.949%;top:43.103%">28</span><span class="tm-dot" style="left:24.023%;top:49.77%">29</span><span class="tm-dot" style="left:30.547%;top:49.77%">30</span><span class="tm-dot" style="left:37.07%;top:49.77%">31</span><span class="tm-dot" style="left:43.594%;top:49.77%">32</span><span class="tm-dot" style="left:50.117%;top:49.77%">33</span><span class="tm-dot" style="left:56.641%;top:49.77%">34</span><span class="tm-dot" style="left:63.164%;top:49.77%">35</span><span class="tm-dot" style="left:69.687%;top:49.77%">36</span><span class="tm-dot" style="left:76.211%;top:49.77%">37</span><span class="tm-dot" style="left:27.285%;top:56.437%">38</span><span class="tm-dot" style="left:33.809%;top:56.437%">39</span><span class="tm-dot" style="left:40.332%;top:56.437%">40</span><span class="tm-dot" style="left:46.855%;top:56.437%">41</span><span class="tm-dot" style="left:53.379%;top:56.437%">42</span><span class="tm-dot" style="left:59.902%;top:56.437%">43</span><span class="tm-dot" style="left:66.426%;top:56.437%">44</span><span class="tm-dot" style="left:72.949%;top:56.437%">45</span><span class="tm-dot" style="left:30.547%;top:63.103%">46</span><span class="tm-dot" style="left:37.07%;top:63.103%">47</span><span class="tm-dot" style="left:43.594%;top:63.103%">48</span><span class="tm-dot" style="left:50.117%;top:63.103%">49</span><span class="tm-dot" style="left:56.641%;top:63.103%">50</span><span class="tm-dot" style="left:63.164%;top:63.103%">51</span><span class="tm-dot" style="left:69.687%;top:63.103%">52</span><span class="tm-dot" style="left:33.809%;top:69.77%">53</span><span class="tm-dot" style="left:40.332%;top:69.77%">54</span><span class="tm-dot" style="left:46.855%;top:69.77%">55</span><span class="tm-dot" style="left:53.379%;top:69.77%">56</span><span class="tm-dot" style="left:59.902%;top:69.77%">57</span><span class="tm-dot" style="left:66.426%;top:69.77%">58</span><span class="tm-dot" style="left:37.07%;top:76.437%">59</span><span class="tm-dot" style="left:43.594%;top:76.437%">60</span><span class="tm-dot" style="left:50.117%;top:76.437%">61</span><span class="tm-dot" style="left:56.641%;top:76.437%">62</span><span class="tm-dot" style="left:63.164%;top:76.437%">63</span><span class="tm-dot" style="left:3.125%;top:96.782%">0</span><span class="tm-dot tm-dot--s" style="left:3.125%;top:93.103%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:89.366%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:85.628%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:81.89%"></span><span class="tm-dot" style="left:3.125%;top:78.152%">5</span><span class="tm-dot tm-dot--s" style="left:3.125%;top:74.414%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:70.676%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:66.938%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:63.2%"></span><span class="tm-dot" style="left:3.125%;top:59.462%">10</span><span class="tm-dot tm-dot--s" style="left:3.125%;top:55.724%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:51.986%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:48.248%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:44.51%"></span><span class="tm-dot" style="left:3.125%;top:40.772%">15</span><span class="tm-dot tm-dot--s" style="left:3.125%;top:37.034%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:33.297%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:29.559%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:25.821%"></span><span class="tm-dot" style="left:3.125%;top:22.083%">20</span><span class="tm-dot tm-dot--s" style="left:3.125%;top:18.345%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:14.607%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:10.869%"></span><span class="tm-dot tm-dot--s" style="left:3.125%;top:7.131%"></span><span class="tm-dot" style="left:3.125%;top:3.218%">25</span><span class="tm-dot tm-dot--s" style="left:6.879%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:10.633%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:14.387%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:18.141%;top:3.218%"></span><span class="tm-dot" style="left:21.895%;top:3.218%">30</span><span class="tm-dot tm-dot--s" style="left:25.648%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:29.402%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:33.156%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:36.91%;top:3.218%"></span><span class="tm-dot" style="left:40.664%;top:3.218%">35</span><span class="tm-dot tm-dot--s" style="left:44.418%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:48.172%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:51.926%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:55.68%;top:3.218%"></span><span class="tm-dot" style="left:59.434%;top:3.218%">40</span><span class="tm-dot tm-dot--s" style="left:63.188%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:66.941%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:70.695%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:74.449%;top:3.218%"></span><span class="tm-dot" style="left:78.203%;top:3.218%">45</span><span class="tm-dot tm-dot--s" style="left:81.957%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:85.711%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:89.465%;top:3.218%"></span><span class="tm-dot tm-dot--s" style="left:93.219%;top:3.218%"></span><span class="tm-dot" style="left:96.973%;top:3.218%">50</span><span class="tm-dot tm-dot--s" style="left:96.973%;top:6.897%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:10.644%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:14.391%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:18.138%"></span><span class="tm-dot" style="left:96.973%;top:21.885%">55</span><span class="tm-dot tm-dot--s" style="left:96.973%;top:25.632%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:29.379%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:33.126%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:36.874%"></span><span class="tm-dot" style="left:96.973%;top:40.621%">60</span><span class="tm-dot tm-dot--s" style="left:96.973%;top:44.368%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:48.115%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:51.862%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:55.609%"></span><span class="tm-dot" style="left:96.973%;top:59.356%">65</span><span class="tm-dot tm-dot--s" style="left:96.973%;top:63.103%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:66.851%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:70.598%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:74.345%"></span><span class="tm-dot" style="left:96.973%;top:78.092%">70</span><span class="tm-dot tm-dot--s" style="left:96.973%;top:81.839%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:85.586%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:89.333%"></span><span class="tm-dot tm-dot--s" style="left:96.973%;top:93.08%"></span><span class="tm-dot" style="left:96.973%;top:96.782%">75</span><span class="tm-dot tm-dot--s" style="left:93.219%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:89.465%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:85.711%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:81.957%;top:96.782%"></span><span class="tm-dot" style="left:78.203%;top:96.782%">80</span><span class="tm-dot tm-dot--s" style="left:74.449%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:70.695%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:66.941%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:63.188%;top:96.782%"></span><span class="tm-dot" style="left:59.434%;top:96.782%">85</span><span class="tm-dot tm-dot--s" style="left:55.68%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:51.926%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:48.172%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:44.418%;top:96.782%"></span><span class="tm-dot" style="left:40.664%;top:96.782%">90</span><span class="tm-dot tm-dot--s" style="left:36.91%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:33.156%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:29.402%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:25.648%;top:96.782%"></span><span class="tm-dot" style="left:21.895%;top:96.782%">95</span><span class="tm-dot tm-dot--s" style="left:18.141%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:14.387%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:10.633%;top:96.782%"></span><span class="tm-dot tm-dot--s" style="left:6.879%;top:96.782%"></span><span class="tm-dot" style="left:3.125%;top:96.782%">100</span><span class="tm-dot tm-dot--s" style="left:27.678%;top:22.773%"></span><span class="tm-dot tm-dot--s" style="left:30.352%;top:20.16%"></span><span class="tm-dot tm-dot--s" style="left:33.244%;top:17.891%"></span><span class="tm-dot tm-dot--s" style="left:36.321%;top:15.989%"></span><span class="tm-dot tm-dot--s" style="left:39.55%;top:14.477%"></span><span class="tm-dot tm-dot--s" style="left:42.896%;top:13.37%"></span><span class="tm-dot tm-dot--s" style="left:46.321%;top:12.681%"></span><span class="tm-dot tm-dot--s" style="left:49.79%;top:12.417%"></span><span class="tm-dot tm-dot--s" style="left:53.262%;top:12.581%"></span><span class="tm-dot tm-dot--s" style="left:56.701%;top:13.171%"></span><span class="tm-dot tm-dot--s" style="left:60.069%;top:14.182%"></span><span class="tm-dot tm-dot--s" style="left:63.329%;top:15.601%"></span><span class="tm-dot tm-dot--s" style="left:66.444%;top:17.413%"></span><span class="tm-dot tm-dot--s" style="left:69.382%;top:19.599%"></span><span class="tm-dot tm-dot--s" style="left:72.109%;top:22.135%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:75.862%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:70.345%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:67.471%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:64.598%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:61.724%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:58.851%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:55.977%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:53.103%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:50.23%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:47.356%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:44.483%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:41.609%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:38.736%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:35.862%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:32.989%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:30.115%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:27.241%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:24.368%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:21.494%"></span><span class="tm-dot tm-dot--s" style="left:88.379%;top:18.621%"></span><span class="tm-box" style="left:10.742%;top:91.264%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:19.141%;top:91.264%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:27.734%;top:91.264%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:36.23%;top:91.264%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:44.922%;top:91.264%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:55.664%;top:91.034%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:63.965%;top:91.034%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:72.363%;top:91.034%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:80.859%;top:91.034%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:89.258%;top:91.034%;inline-size:8.2%;block-size:6.2%"></span><span class="tm-box" style="left:14.453%;top:58.621%;inline-size:14.3%;block-size:3.5%"></span><span class="tm-box" style="left:14.453%;top:62.299%;inline-size:14.3%;block-size:3.5%"></span><span class="tm-box" style="left:14.453%;top:66.092%;inline-size:14.3%;block-size:3.5%"></span><span class="tm-box" style="left:14.453%;top:69.77%;inline-size:14.3%;block-size:3.5%"></span><span class="tm-box" style="left:14.453%;top:73.448%;inline-size:14.3%;block-size:3.5%"></span><span class="tm-box" style="left:14.453%;top:77.471%;inline-size:14.3%;block-size:3.5%"></span><span class="tm-box tm-box--crop" style="left:50%;top:50%;inline-size:89.84%;block-size:88.97%"></span></div><div class="tm-legend">
+  <span><b>کادر آبی = پنجرهٔ نمایش روی میز</b> (x ۵۲ تا ۹۷۲، y ۴۸ تا ۸۲۲): مثل BGA قاب مسیر رتبه نشان داده نمی‌شود؛ رتبه و امتیاز در پنل بازیکن و نسل در داشبورد ریل است. همهٔ مختصات پایین پیکسل تصویر کامل‌اند؛ روی میز <code>x−52</code> و <code>y−48</code> از ۹۲۰×۷۷۴.</span>
+  <span>خانه‌ها (عدد = شناسهٔ <code>board.ts</code>): <code>x = 246 + 33.4·|row−4| + 66.8·col</code>، <code>y = 201 + 58·row</code>؛ شش‌ضلعی نوک‌بالا، شعاع ۳۸٫۶. گانیمد <code>01</code> (۱۵۵، ۳۶۰)، فوبوس <code>02</code> (۱۷۵، ۱۴۸).</span>
+  <span>کاشی: عرض ۷٫۳۵٪ پنجره؛ مکعب صاحب وسط کاشی، ۲٪. نقطه‌های دور صفحه (مسیر رتبه) فقط برای سابقه است و روی میز استفاده نمی‌شود.</span>
+  <span>اکسیژن: مرکز (۵۱۴، ۴۴۸)، شعاع ۳۴۰، زاویه <code>−42.7 + 6·v</code> درجه از عمود. دما: <code>x = 905</code>، <code>y = 612 − (t+28)/2·25</code>؛ ۳۰− روی حباب (۹۰۵، ۶۶۰).</span>
+  <span>کادرهای خط‌چین = دکمه‌های پروژهٔ استاندارد (۱۴٫۳٪×۳٫۵٪) و پلاک نقطه‌های عطف و جایزه‌ها (۸٫۲٪×۶٫۲٪)؛ مکعب صاحب روی آیکون پلاک، ۲٫۳٪.</span>
+ </div></section>
+ <section class="bgv-card"><h2>صفحهٔ بازیکن (۸۸۹×۶۵۳)</h2><div class="tm-measure" dir="ltr"><img src="../assets/games/tm/player-board.webp" alt="" width="889" height="653"><span class="tm-dot tm-dot--s" style="left:22.205%;top:38.591%"></span><span class="tm-dot tm-dot--s" style="left:25.962%;top:38.591%"></span><span class="tm-dot tm-dot--s" style="left:29.719%;top:38.591%"></span><span class="tm-dot tm-dot--s" style="left:33.476%;top:38.591%"></span><span class="tm-dot tm-dot--s" style="left:37.233%;top:38.591%"></span><span class="tm-dot tm-dot--s" style="left:18.448%;top:43.951%"></span><span class="tm-dot tm-dot--s" style="left:22.205%;top:43.951%"></span><span class="tm-dot tm-dot--s" style="left:25.962%;top:43.951%"></span><span class="tm-dot tm-dot--s" style="left:29.719%;top:43.951%"></span><span class="tm-dot tm-dot--s" style="left:33.476%;top:43.951%"></span><span class="tm-dot tm-dot--s" style="left:37.233%;top:43.951%"></span><span class="tm-dot tm-dot--s" style="left:22.205%;top:49.311%"></span><span class="tm-dot tm-dot--s" style="left:25.962%;top:49.311%"></span><span class="tm-dot tm-dot--s" style="left:29.719%;top:49.311%"></span><span class="tm-dot tm-dot--s" style="left:33.476%;top:49.311%"></span><span class="tm-dot tm-dot--s" style="left:37.233%;top:49.311%"></span><span class="tm-dot" style="left:28.684%;top:26.34%">mc</span><span class="tm-dot tm-dot--s" style="left:45.219%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:49.033%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:52.846%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:56.659%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:60.472%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:64.286%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:49.033%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:52.846%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:56.659%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:60.472%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:64.286%;top:44.41%"></span><span class="tm-dot" style="left:60.742%;top:24.196%">steel</span><span class="tm-dot tm-dot--s" style="left:71.991%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:75.793%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:79.595%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:83.397%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:87.199%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:91.001%;top:39.204%"></span><span class="tm-dot tm-dot--s" style="left:75.793%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:79.595%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:83.397%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:87.199%;top:44.41%"></span><span class="tm-dot tm-dot--s" style="left:91.001%;top:44.41%"></span><span class="tm-dot" style="left:87.514%;top:24.196%">titanium</span><span class="tm-dot tm-dot--s" style="left:10.405%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:14.173%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:17.942%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:21.71%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:25.478%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:29.246%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:14.173%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:17.942%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:21.71%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:25.478%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:29.246%;top:65.467%"></span><span class="tm-dot" style="left:25.647%;top:86.983%">plants</span><span class="tm-dot tm-dot--s" style="left:40.889%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:44.634%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:48.38%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:52.126%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:55.872%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:59.618%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:44.634%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:48.38%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:52.126%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:55.872%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:59.618%;top:65.467%"></span><span class="tm-dot" style="left:55.456%;top:88.055%">energy</span><span class="tm-dot tm-dot--s" style="left:70.304%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:74.016%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:77.728%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:81.44%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:85.152%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:88.864%;top:59.877%"></span><span class="tm-dot tm-dot--s" style="left:74.016%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:77.728%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:81.44%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:85.152%;top:65.467%"></span><span class="tm-dot tm-dot--s" style="left:88.864%;top:65.467%"></span><span class="tm-dot" style="left:86.727%;top:86.983%">heat</span></div><div class="tm-legend">
+  <span>نقطه‌ها = خانه‌های مسیر تولید هر منبع (مگاکردیت ۵− تا ۱۰، بقیه ۰ تا ۱۰)؛ مکعب رنگ بازیکن، ۳٫۴٪ عرض صفحه.</span>
+  <span>برچسب‌ها = جای عدد موجودی هر منبع (روی گوشهٔ آیکون جعبه).</span>
+  <span>مگاکردیت: ۰ تا ۵ در (۱۶۴ + ۳۳٫۴·v، ۲۸۷)، ۶ تا ۱۰ در ردیف ۳۲۲، منفی‌ها در ردیف ۲۵۲. فولاد ۰ در (۴۰۲، ۲۵۶)، تیتانیوم ۰ در (۶۴۰، ۲۵۶)، ردیف دوم ۲۹۰. گیاه ۰ در (۹۲٫۵، ۳۹۱)، انرژی (۳۶۳٫۵، ۳۹۱)، گرما (۶۲۵، ۳۹۱)، ردیف دوم ۴۲۷٫۵. گام ۳۳ تا ۳۴.</span>
+ </div></section>
+</div>
+</div>
+</div>
+
+
+</body>
+</html>

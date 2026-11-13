@@ -1,0 +1,1380 @@
+{
+ "note": "Reference position of the artboards (generation 5, viewer = seat 0, Ecoline), checked with games/terraforming-mars/src/core.ts by tools/mock-state.mjs: hand legality, costs, projects, milestones, awards, card actions, legal greenery/city/ocean spaces, scores, tags.",
+ "state": {
+  "playerCount": 4,
+  "corporateEra": true,
+  "draft": false,
+  "generation": 5,
+  "phase": "action",
+  "firstPlayer": 3,
+  "current": 0,
+  "actionsTaken": 0,
+  "temperature": -14,
+  "oxygen": 5,
+  "oceans": 4,
+  "tiles": {
+   "13": {
+    "kind": "ocean",
+    "owner": null
+   },
+   "15": {
+    "kind": "greenery",
+    "owner": 1
+   },
+   "22": {
+    "kind": "city",
+    "owner": 1
+   },
+   "23": {
+    "kind": "greenery",
+    "owner": 1
+   },
+   "26": {
+    "kind": "city",
+    "owner": 2
+   },
+   "30": {
+    "kind": "greenery",
+    "owner": 0
+   },
+   "32": {
+    "kind": "ocean",
+    "owner": null
+   },
+   "33": {
+    "kind": "ocean",
+    "owner": null
+   },
+   "35": {
+    "kind": "greenery",
+    "owner": 2
+   },
+   "38": {
+    "kind": "greenery",
+    "owner": 0
+   },
+   "39": {
+    "kind": "city",
+    "owner": 0
+   },
+   "44": {
+    "kind": "ocean",
+    "owner": null
+   },
+   "47": {
+    "kind": "greenery",
+    "owner": 0
+   },
+   "53": {
+    "kind": "special",
+    "owner": 3,
+    "card": "064"
+   },
+   "54": {
+    "kind": "city",
+    "owner": 3
+   },
+   "60": {
+    "kind": "greenery",
+    "owner": 3
+   }
+  },
+  "claims": {},
+  "players": [
+   {
+    "corp": "R17",
+    "tr": 31,
+    "res": {
+     "mc": 34,
+     "steel": 2,
+     "titanium": 1,
+     "plants": 6,
+     "energy": 3,
+     "heat": 9
+    },
+    "prod": {
+     "mc": 3,
+     "steel": 1,
+     "titanium": 0,
+     "plants": 4,
+     "energy": 2,
+     "heat": 1
+    },
+    "hand": [
+     "060",
+     "088",
+     "118",
+     "016",
+     "064",
+     "116",
+     "135"
+    ],
+    "played": [
+     "087",
+     "093",
+     "141",
+     "045",
+     "049",
+     "172",
+     "033",
+     "078",
+     "009"
+    ],
+    "cardRes": {
+     "172": 2,
+     "049": 3,
+     "033": 2
+    },
+    "used": [
+     "049"
+    ],
+    "passed": false,
+    "trRaised": false,
+    "firstActionDone": true,
+    "nextDiscount": 0,
+    "nextReqBonus": 0,
+    "corpOffer": [],
+    "offer": [],
+    "pick": null,
+    "pack": [],
+    "drafted": [],
+    "draftPick": null
+   },
+   {
+    "corp": "R18",
+    "tr": 28,
+    "res": {
+     "mc": 21,
+     "steel": 0,
+     "titanium": 3,
+     "plants": 2,
+     "energy": 1,
+     "heat": 14
+    },
+    "prod": {
+     "mc": 2,
+     "steel": 0,
+     "titanium": 1,
+     "plants": 1,
+     "energy": 3,
+     "heat": 4
+    },
+    "hand": [
+     "x",
+     "x",
+     "x",
+     "x",
+     "x",
+     "x"
+    ],
+    "played": [
+     "046",
+     "113",
+     "168",
+     "076",
+     "036"
+    ],
+    "cardRes": {},
+    "used": [],
+    "passed": false,
+    "trRaised": false,
+    "firstActionDone": true,
+    "nextDiscount": 0,
+    "nextReqBonus": 0,
+    "corpOffer": [],
+    "offer": [],
+    "pick": null,
+    "pack": [],
+    "drafted": [],
+    "draftPick": null
+   },
+   {
+    "corp": "R13",
+    "tr": 26,
+    "res": {
+     "mc": 12,
+     "steel": 4,
+     "titanium": 0,
+     "plants": 1,
+     "energy": 0,
+     "heat": 3
+    },
+    "prod": {
+     "mc": 5,
+     "steel": 2,
+     "titanium": 0,
+     "plants": 0,
+     "energy": 4,
+     "heat": 0
+    },
+    "hand": [
+     "x",
+     "x",
+     "x"
+    ],
+    "played": [
+     "117",
+     "132",
+     "102",
+     "108"
+    ],
+    "cardRes": {},
+    "used": [],
+    "passed": true,
+    "trRaised": false,
+    "firstActionDone": true,
+    "nextDiscount": 0,
+    "nextReqBonus": 0,
+    "corpOffer": [],
+    "offer": [],
+    "pick": null,
+    "pack": [],
+    "drafted": [],
+    "draftPick": null
+   },
+   {
+    "corp": "R24",
+    "tr": 29,
+    "res": {
+     "mc": 18,
+     "steel": 9,
+     "titanium": 2,
+     "plants": 3,
+     "energy": 1,
+     "heat": 4
+    },
+    "prod": {
+     "mc": 4,
+     "steel": 4,
+     "titanium": 1,
+     "plants": 1,
+     "energy": 1,
+     "heat": 1
+    },
+    "hand": [
+     "x",
+     "x",
+     "x",
+     "x",
+     "x",
+     "x",
+     "x",
+     "x",
+     "x"
+    ],
+    "played": [
+     "064",
+     "056",
+     "062",
+     "138",
+     "101"
+    ],
+    "cardRes": {},
+    "used": [
+     "101"
+    ],
+    "passed": false,
+    "trRaised": false,
+    "firstActionDone": true,
+    "nextDiscount": 0,
+    "nextReqBonus": 0,
+    "corpOffer": [],
+    "offer": [],
+    "pick": null,
+    "pack": [],
+    "drafted": [],
+    "draftPick": null
+   }
+  ],
+  "deck": [
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x"
+  ],
+  "discard": [
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x",
+   "x"
+  ],
+  "milestones": [
+   {
+    "id": "gardener",
+    "seat": 0
+   }
+  ],
+  "awards": [
+   {
+    "id": "banker",
+    "seat": 3
+   }
+  ],
+  "queue": [],
+  "revealed": null,
+  "log": [],
+  "seq": 0,
+  "timeouts": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "outcome": null
+ },
+ "hand": [
+  {
+   "id": "060",
+   "cost": 13,
+   "printed": 13,
+   "error": "REQUIREMENTS_NOT_MET"
+  },
+  {
+   "id": "088",
+   "cost": 6,
+   "printed": 6,
+   "error": null
+  },
+  {
+   "id": "118",
+   "cost": 16,
+   "printed": 16,
+   "error": "REQUIREMENTS_NOT_MET"
+  },
+  {
+   "id": "016",
+   "cost": 24,
+   "printed": 24,
+   "error": null
+  },
+  {
+   "id": "064",
+   "cost": 4,
+   "printed": 4,
+   "error": null
+  },
+  {
+   "id": "116",
+   "cost": 15,
+   "printed": 15,
+   "error": "REQUIREMENTS_NOT_MET"
+  },
+  {
+   "id": "135",
+   "cost": 11,
+   "printed": 11,
+   "error": null
+  }
+ ],
+ "projects": [
+  {
+   "id": "sellPatents",
+   "cost": 0,
+   "error": null
+  },
+  {
+   "id": "powerPlant",
+   "cost": 11,
+   "error": null
+  },
+  {
+   "id": "asteroid",
+   "cost": 14,
+   "error": null
+  },
+  {
+   "id": "aquifer",
+   "cost": 18,
+   "error": null
+  },
+  {
+   "id": "greenery",
+   "cost": 23,
+   "error": null
+  },
+  {
+   "id": "city",
+   "cost": 25,
+   "error": null
+  }
+ ],
+ "milestones": [
+  {
+   "id": "terraformer",
+   "value": [
+    31,
+    28,
+    26,
+    29
+   ],
+   "need": 35,
+   "error": "MILESTONE_NOT_REACHED"
+  },
+  {
+   "id": "mayor",
+   "value": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "need": 3,
+   "error": "MILESTONE_NOT_REACHED"
+  },
+  {
+   "id": "gardener",
+   "value": [
+    3,
+    2,
+    1,
+    1
+   ],
+   "need": 3,
+   "error": "MILESTONE_TAKEN"
+  },
+  {
+   "id": "builder",
+   "value": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "need": 8,
+   "error": "MILESTONE_NOT_REACHED"
+  },
+  {
+   "id": "planner",
+   "value": [
+    7,
+    6,
+    3,
+    9
+   ],
+   "need": 16,
+   "error": "MILESTONE_NOT_REACHED"
+  }
+ ],
+ "awards": [
+  {
+   "id": "landlord",
+   "value": [
+    4,
+    3,
+    2,
+    3
+   ],
+   "error": null
+  },
+  {
+   "id": "banker",
+   "value": [
+    3,
+    2,
+    5,
+    4
+   ],
+   "error": "AWARD_TAKEN"
+  },
+  {
+   "id": "scientist",
+   "value": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "error": null
+  },
+  {
+   "id": "thermalist",
+   "value": [
+    9,
+    14,
+    3,
+    4
+   ],
+   "error": null
+  },
+  {
+   "id": "miner",
+   "value": [
+    3,
+    3,
+    4,
+    11
+   ],
+   "error": null
+  }
+ ],
+ "tableauActions": [
+  {
+   "id": "049",
+   "cost": 0,
+   "error": "ACTION_USED"
+  },
+  {
+   "id": "033",
+   "cost": 0,
+   "error": null
+  }
+ ],
+ "greenerySpaces": [
+  "21",
+  "29",
+  "40",
+  "46",
+  "48"
+ ],
+ "citySpaces": [
+  "03",
+  "05",
+  "08",
+  "09",
+  "10",
+  "11",
+  "12",
+  "16",
+  "17",
+  "20",
+  "24",
+  "29",
+  "36",
+  "37",
+  "41",
+  "42",
+  "49",
+  "50",
+  "51",
+  "52",
+  "56",
+  "57",
+  "58",
+  "61",
+  "62"
+ ],
+ "oceanSpaces": [
+  "04",
+  "06",
+  "07",
+  "28",
+  "34",
+  "43",
+  "45",
+  "63"
+ ],
+ "scores": [
+  {
+   "tr": 31,
+   "milestones": 5,
+   "awards": 0,
+   "greenery": 3,
+   "city": 3,
+   "cards": 1,
+   "total": 43
+  },
+  {
+   "tr": 28,
+   "milestones": 0,
+   "awards": 0,
+   "greenery": 2,
+   "city": 3,
+   "cards": 3,
+   "total": 36
+  },
+  {
+   "tr": 26,
+   "milestones": 0,
+   "awards": 5,
+   "greenery": 1,
+   "city": 1,
+   "cards": 1,
+   "total": 34
+  },
+  {
+   "tr": 29,
+   "milestones": 0,
+   "awards": 2,
+   "greenery": 1,
+   "city": 2,
+   "cards": 0,
+   "total": 34
+  }
+ ],
+ "tags": [
+  {
+   "building": 2,
+   "space": 0,
+   "science": 1,
+   "power": 2,
+   "earth": 1,
+   "jovian": 0,
+   "plant": 3,
+   "microbe": 2,
+   "animal": 1,
+   "city": 0
+  },
+  {
+   "building": 2,
+   "space": 2,
+   "science": 0,
+   "power": 4,
+   "earth": 0,
+   "jovian": 0,
+   "plant": 0,
+   "microbe": 0,
+   "animal": 0,
+   "city": 0
+  },
+  {
+   "building": 3,
+   "space": 0,
+   "science": 1,
+   "power": 4,
+   "earth": 0,
+   "jovian": 0,
+   "plant": 0,
+   "microbe": 0,
+   "animal": 0,
+   "city": 1
+  },
+  {
+   "building": 6,
+   "space": 0,
+   "science": 0,
+   "power": 0,
+   "earth": 0,
+   "jovian": 0,
+   "plant": 0,
+   "microbe": 0,
+   "animal": 0,
+   "city": 0
+  }
+ ],
+ "events": [
+  2,
+  1,
+  0,
+  1
+ ],
+ "convertPlants": false,
+ "greeneryPlants": 7,
+ "convertHeat": true,
+ "values": {
+  "steel": 2,
+  "titanium": 3,
+  "heat": false
+ },
+ "maxPay": 34,
+ "spaces": [
+  {
+   "id": "01",
+   "row": -1,
+   "col": 0,
+   "ocean": false,
+   "bonus": [],
+   "name": "ganymede",
+   "offMap": true
+  },
+  {
+   "id": "02",
+   "row": -1,
+   "col": 1,
+   "ocean": false,
+   "bonus": [],
+   "name": "phobos",
+   "offMap": true
+  },
+  {
+   "id": "03",
+   "row": 0,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "steel",
+    "steel"
+   ]
+  },
+  {
+   "id": "04",
+   "row": 0,
+   "col": 1,
+   "ocean": true,
+   "bonus": [
+    "steel",
+    "steel"
+   ]
+  },
+  {
+   "id": "05",
+   "row": 0,
+   "col": 2,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "06",
+   "row": 0,
+   "col": 3,
+   "ocean": true,
+   "bonus": [
+    "card"
+   ]
+  },
+  {
+   "id": "07",
+   "row": 0,
+   "col": 4,
+   "ocean": true,
+   "bonus": []
+  },
+  {
+   "id": "08",
+   "row": 1,
+   "col": 0,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "09",
+   "row": 1,
+   "col": 1,
+   "ocean": false,
+   "bonus": [
+    "steel"
+   ],
+   "name": "tholus"
+  },
+  {
+   "id": "10",
+   "row": 1,
+   "col": 2,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "11",
+   "row": 1,
+   "col": 3,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "12",
+   "row": 1,
+   "col": 4,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "13",
+   "row": 1,
+   "col": 5,
+   "ocean": true,
+   "bonus": [
+    "card",
+    "card"
+   ]
+  },
+  {
+   "id": "14",
+   "row": 2,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "card"
+   ],
+   "name": "ascraeus"
+  },
+  {
+   "id": "15",
+   "row": 2,
+   "col": 1,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "16",
+   "row": 2,
+   "col": 2,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "17",
+   "row": 2,
+   "col": 3,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "18",
+   "row": 2,
+   "col": 4,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "19",
+   "row": 2,
+   "col": 5,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "20",
+   "row": 2,
+   "col": 6,
+   "ocean": false,
+   "bonus": [
+    "steel"
+   ]
+  },
+  {
+   "id": "21",
+   "row": 3,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "titanium"
+   ],
+   "name": "pavonis"
+  },
+  {
+   "id": "22",
+   "row": 3,
+   "col": 1,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "23",
+   "row": 3,
+   "col": 2,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "24",
+   "row": 3,
+   "col": 3,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "25",
+   "row": 3,
+   "col": 4,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "26",
+   "row": 3,
+   "col": 5,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "27",
+   "row": 3,
+   "col": 6,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "28",
+   "row": 3,
+   "col": 7,
+   "ocean": true,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "29",
+   "row": 4,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ],
+   "name": "arsia"
+  },
+  {
+   "id": "30",
+   "row": 4,
+   "col": 1,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "31",
+   "row": 4,
+   "col": 2,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ],
+   "name": "noctis"
+  },
+  {
+   "id": "32",
+   "row": 4,
+   "col": 3,
+   "ocean": true,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "33",
+   "row": 4,
+   "col": 4,
+   "ocean": true,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "34",
+   "row": 4,
+   "col": 5,
+   "ocean": true,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "35",
+   "row": 4,
+   "col": 6,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "36",
+   "row": 4,
+   "col": 7,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "37",
+   "row": 4,
+   "col": 8,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "38",
+   "row": 5,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "39",
+   "row": 5,
+   "col": 1,
+   "ocean": false,
+   "bonus": [
+    "plants",
+    "plants"
+   ]
+  },
+  {
+   "id": "40",
+   "row": 5,
+   "col": 2,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "41",
+   "row": 5,
+   "col": 3,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "42",
+   "row": 5,
+   "col": 4,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "43",
+   "row": 5,
+   "col": 5,
+   "ocean": true,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "44",
+   "row": 5,
+   "col": 6,
+   "ocean": true,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "45",
+   "row": 5,
+   "col": 7,
+   "ocean": true,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "46",
+   "row": 6,
+   "col": 0,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "47",
+   "row": 6,
+   "col": 1,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "48",
+   "row": 6,
+   "col": 2,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "49",
+   "row": 6,
+   "col": 3,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "50",
+   "row": 6,
+   "col": 4,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "51",
+   "row": 6,
+   "col": 5,
+   "ocean": false,
+   "bonus": [
+    "plants"
+   ]
+  },
+  {
+   "id": "52",
+   "row": 6,
+   "col": 6,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "53",
+   "row": 7,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "steel",
+    "steel"
+   ]
+  },
+  {
+   "id": "54",
+   "row": 7,
+   "col": 1,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "55",
+   "row": 7,
+   "col": 2,
+   "ocean": false,
+   "bonus": [
+    "card"
+   ]
+  },
+  {
+   "id": "56",
+   "row": 7,
+   "col": 3,
+   "ocean": false,
+   "bonus": [
+    "card"
+   ]
+  },
+  {
+   "id": "57",
+   "row": 7,
+   "col": 4,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "58",
+   "row": 7,
+   "col": 5,
+   "ocean": false,
+   "bonus": [
+    "titanium"
+   ]
+  },
+  {
+   "id": "59",
+   "row": 8,
+   "col": 0,
+   "ocean": false,
+   "bonus": [
+    "steel"
+   ]
+  },
+  {
+   "id": "60",
+   "row": 8,
+   "col": 1,
+   "ocean": false,
+   "bonus": [
+    "steel",
+    "steel"
+   ]
+  },
+  {
+   "id": "61",
+   "row": 8,
+   "col": 2,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "62",
+   "row": 8,
+   "col": 3,
+   "ocean": false,
+   "bonus": []
+  },
+  {
+   "id": "63",
+   "row": 8,
+   "col": 4,
+   "ocean": true,
+   "bonus": [
+    "titanium",
+    "titanium"
+   ]
+  }
+ ],
+ "names": {
+  "tholus": "تارسیس تولوس",
+  "ascraeus": "اسکرئوس مونس",
+  "pavonis": "پاوونیس مونس",
+  "arsia": "آرسیا مونس",
+  "noctis": "شهر نوکتیس",
+  "ganymede": "مستعمرهٔ گانیمد",
+  "phobos": "پناهگاه فوبوس"
+ }
+}

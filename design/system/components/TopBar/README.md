@@ -1,4 +1,4 @@
-The 56px (`--topbar-h`) phone top bar on `--surface-chrome`. Order: symbol (home) or back, page title, **search magnifier**, the real-gold coin chip, the bell. Guest: magnifier and a secondary «ورود / ثبت‌نام». The logo and the coin keep a 44px hit area.
+The 56px (`--topbar-h`) phone top bar: warm amber tint with a 2px amber edge in light, `--surface-chrome` with a 1px `--line` edge in dark (v2.4.2: the colour comes from the nearest `[data-theme]`, so a dark section inside a light page gets the dark bar). Order: symbol (home) or back, page title, **search magnifier**, **light/dark button** (v2.3), the real-gold coin chip, the bell. Guest: magnifier, light/dark button and a secondary «ورود / ثبت‌نام». The logo and the coin keep a 44px hit area.
 
 ## When to use
 
@@ -16,6 +16,7 @@ Phone pages outside the table (inside `AppShell` it is sticky and edge to edge).
 | `leading` | `Node` | — |
 | `search` | `{ href, onClick } \| Node` | Magnifier after the title. |
 | `actions` | `Node` | After the search: coin chip and bell, or the guest login button. |
+| `themeToggle` | `{ dark, onToggle, label } \| false` | v2.3: the light/dark button after the magnifier (guests too). |
 | `children` | `Node` | — |
 
 Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers) passes through to the root element. Types: `TopBarProps` in `components/index.d.ts`.
@@ -24,12 +25,12 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Canonical: symbol → title → search → coin chip → bell with a crimson count. Guest: symbol → title → search → «ورود / ثبت‌نام» (secondary).
+- Canonical: symbol → title → search → light/dark → coin chip → bell with a crimson count. Guest: symbol → title → search → light/dark → «ورود / ثبت‌نام» (secondary). The title truncates first.
 - Back is `arrow-right` in RTL and labelled «بازگشت».
 
 **Don't**
 
-- Do not add more than search + two actions.
+- Do not add more than search, the light/dark button and two actions.
 - Do not centre the title.
 
 ## Example

@@ -84,6 +84,8 @@ BGV-DesignSystem-Handoff-v2.1/
 BGV-DesignSystem-Handoff-v2.2/
 # Gaia handoff drop (its content lives in design/games/gaia-project) and its local test output
 BGV-Gaia-Handoff-v1/
+Edit-Pack-EE.1/
+BGV-Complete-Handoff-2026-11/
 test-results*/
 # local helper for the Bazaar upload, not part of the repository
 /apps/android/bazaar-bin.cmd

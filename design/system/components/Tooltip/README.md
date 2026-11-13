@@ -1,4 +1,4 @@
-A small ink bubble that explains an icon or abbreviation on hover/focus.
+A small ink bubble that explains an icon or abbreviation on hover/focus. It floats on `--shadow-float`, like menus and popovers (the v2.4.2 soft drop was reverted in v2.4.3 by the owner).
 
 ## When to use
 

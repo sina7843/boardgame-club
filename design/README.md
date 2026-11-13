@@ -1,4 +1,4 @@
-# design/ — BGV design system handoff (v2.2, «printed token», site header, navy/amber, tokenized home CSS)
+# design/ — BGV design system handoff (v2.2.1, «printed token», site header, navy/amber, tokenized home CSS)
 
 | Path | What |
 |---|---|

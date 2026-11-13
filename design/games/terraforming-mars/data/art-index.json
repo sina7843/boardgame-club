@@ -1,0 +1,2000 @@
+[
+ {
+  "path": "art/boards/board-tharsis.webp",
+  "w": 1024,
+  "h": 870,
+  "bytes": 196394
+ },
+ {
+  "path": "art/boards/player-board.webp",
+  "w": 889,
+  "h": 653,
+  "bytes": 120214
+ },
+ {
+  "path": "art/cards/backs/project-card-back.webp",
+  "w": 430,
+  "h": 600,
+  "bytes": 19530
+ },
+ {
+  "path": "art/cards/corporations/beginner-corporation.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 24476
+ },
+ {
+  "path": "art/cards/corporations/credicor.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 30232
+ },
+ {
+  "path": "art/cards/corporations/ecoline.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 31344
+ },
+ {
+  "path": "art/cards/corporations/helion.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 33350
+ },
+ {
+  "path": "art/cards/corporations/interplanetary-cinematics.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 33640
+ },
+ {
+  "path": "art/cards/corporations/inventrix.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 30908
+ },
+ {
+  "path": "art/cards/corporations/mining-guild.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 39902
+ },
+ {
+  "path": "art/cards/corporations/phobolog.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 31328
+ },
+ {
+  "path": "art/cards/corporations/saturn-systems.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 35810
+ },
+ {
+  "path": "art/cards/corporations/teractor.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 31756
+ },
+ {
+  "path": "art/cards/corporations/tharsis-republic.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 34102
+ },
+ {
+  "path": "art/cards/corporations/thorgate.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 32930
+ },
+ {
+  "path": "art/cards/corporations/united-nations-mars-initiative.webp",
+  "w": 450,
+  "h": 322,
+  "bytes": 34134
+ },
+ {
+  "path": "art/cards/projects/001-colonizer-training-camp.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32404
+ },
+ {
+  "path": "art/cards/projects/002-asteroid-mining-consortium.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26306
+ },
+ {
+  "path": "art/cards/projects/003-deep-well-heating.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30826
+ },
+ {
+  "path": "art/cards/projects/004-cloud-seeding.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27816
+ },
+ {
+  "path": "art/cards/projects/005-search-for-life.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34732
+ },
+ {
+  "path": "art/cards/projects/006-inventors-guild.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32750
+ },
+ {
+  "path": "art/cards/projects/007-martian-rails.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27274
+ },
+ {
+  "path": "art/cards/projects/008-capital.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36468
+ },
+ {
+  "path": "art/cards/projects/009-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 22888
+ },
+ {
+  "path": "art/cards/projects/010-comet.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 25830
+ },
+ {
+  "path": "art/cards/projects/011-big-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29570
+ },
+ {
+  "path": "art/cards/projects/012-water-import-from-europa.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31952
+ },
+ {
+  "path": "art/cards/projects/013-space-elevator.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28854
+ },
+ {
+  "path": "art/cards/projects/014-development-center.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 37228
+ },
+ {
+  "path": "art/cards/projects/015-equatorial-magnetizer.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29076
+ },
+ {
+  "path": "art/cards/projects/016-domed-crater.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31036
+ },
+ {
+  "path": "art/cards/projects/017-noctis-city.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30326
+ },
+ {
+  "path": "art/cards/projects/018-methane-from-titan.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30688
+ },
+ {
+  "path": "art/cards/projects/019-imported-hydrogen.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29962
+ },
+ {
+  "path": "art/cards/projects/020-research-outpost.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30390
+ },
+ {
+  "path": "art/cards/projects/021-phobos-space-haven.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30316
+ },
+ {
+  "path": "art/cards/projects/022-black-polar-dust.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29844
+ },
+ {
+  "path": "art/cards/projects/023-arctic-algae.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28394
+ },
+ {
+  "path": "art/cards/projects/024-predators.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35606
+ },
+ {
+  "path": "art/cards/projects/025-space-station.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28806
+ },
+ {
+  "path": "art/cards/projects/026-eos-chasma-national-park.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 40894
+ },
+ {
+  "path": "art/cards/projects/027-interstellar-colony-ship.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31388
+ },
+ {
+  "path": "art/cards/projects/028-security-fleet.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29266
+ },
+ {
+  "path": "art/cards/projects/029-cupola-city.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28482
+ },
+ {
+  "path": "art/cards/projects/030-lunar-beam.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27080
+ },
+ {
+  "path": "art/cards/projects/031-optimal-aerobraking.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24582
+ },
+ {
+  "path": "art/cards/projects/032-underground-city.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34948
+ },
+ {
+  "path": "art/cards/projects/033-regolith-eaters.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34686
+ },
+ {
+  "path": "art/cards/projects/034-ghg-producing-bacteria.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 37978
+ },
+ {
+  "path": "art/cards/projects/035-ants.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35208
+ },
+ {
+  "path": "art/cards/projects/036-release-of-inert-gases.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 25882
+ },
+ {
+  "path": "art/cards/projects/037-nitrogen-rich-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28664
+ },
+ {
+  "path": "art/cards/projects/038-rover-construction.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31144
+ },
+ {
+  "path": "art/cards/projects/039-deimos-down.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28390
+ },
+ {
+  "path": "art/cards/projects/040-asteroid-mining.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29246
+ },
+ {
+  "path": "art/cards/projects/041-food-factory.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36424
+ },
+ {
+  "path": "art/cards/projects/042-archaebacteria.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36546
+ },
+ {
+  "path": "art/cards/projects/043-carbonate-processing.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 37602
+ },
+ {
+  "path": "art/cards/projects/044-natural-preserve.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 40632
+ },
+ {
+  "path": "art/cards/projects/045-nuclear-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35758
+ },
+ {
+  "path": "art/cards/projects/046-lightning-harvest.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29744
+ },
+ {
+  "path": "art/cards/projects/047-algae.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 39016
+ },
+ {
+  "path": "art/cards/projects/048-adapted-lichen.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36168
+ },
+ {
+  "path": "art/cards/projects/049-tardigrades.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31894
+ },
+ {
+  "path": "art/cards/projects/050-virus.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31912
+ },
+ {
+  "path": "art/cards/projects/051-miranda-resort.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34640
+ },
+ {
+  "path": "art/cards/projects/052-fish.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26446
+ },
+ {
+  "path": "art/cards/projects/053-lake-marineris.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32386
+ },
+ {
+  "path": "art/cards/projects/054-small-animals.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36558
+ },
+ {
+  "path": "art/cards/projects/055-kelp-farming.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33480
+ },
+ {
+  "path": "art/cards/projects/056-mine.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30820
+ },
+ {
+  "path": "art/cards/projects/057-vesta-shipyard.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28884
+ },
+ {
+  "path": "art/cards/projects/058-beam-from-a-thorium-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34576
+ },
+ {
+  "path": "art/cards/projects/059-mangrove.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 43046
+ },
+ {
+  "path": "art/cards/projects/060-trees.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35524
+ },
+ {
+  "path": "art/cards/projects/061-great-escarpment-consortium.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34226
+ },
+ {
+  "path": "art/cards/projects/062-mineral-deposit.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33548
+ },
+ {
+  "path": "art/cards/projects/063-mining-expedition.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 39016
+ },
+ {
+  "path": "art/cards/projects/064-mining-area.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36394
+ },
+ {
+  "path": "art/cards/projects/065-building-industries.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34108
+ },
+ {
+  "path": "art/cards/projects/066-land-claim.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31850
+ },
+ {
+  "path": "art/cards/projects/067-mining-rights.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30416
+ },
+ {
+  "path": "art/cards/projects/068-sponsors.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26418
+ },
+ {
+  "path": "art/cards/projects/069-electro-catapult.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32160
+ },
+ {
+  "path": "art/cards/projects/070-earth-catapult.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28000
+ },
+ {
+  "path": "art/cards/projects/071-advanced-alloys.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32254
+ },
+ {
+  "path": "art/cards/projects/072-birds.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29112
+ },
+ {
+  "path": "art/cards/projects/073-mars-university.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33232
+ },
+ {
+  "path": "art/cards/projects/074-viral-enhancers.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 38388
+ },
+ {
+  "path": "art/cards/projects/075-towing-a-comet.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33388
+ },
+ {
+  "path": "art/cards/projects/076-space-mirrors.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36360
+ },
+ {
+  "path": "art/cards/projects/077-solar-wind-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 25450
+ },
+ {
+  "path": "art/cards/projects/078-ice-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24412
+ },
+ {
+  "path": "art/cards/projects/079-quantum-extractor.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29098
+ },
+ {
+  "path": "art/cards/projects/080-giant-ice-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27286
+ },
+ {
+  "path": "art/cards/projects/081-ganymede-colony.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32716
+ },
+ {
+  "path": "art/cards/projects/082-callisto-penal-mines.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27250
+ },
+ {
+  "path": "art/cards/projects/083-giant-space-mirror.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34380
+ },
+ {
+  "path": "art/cards/projects/084-trans-neptune-probe.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26838
+ },
+ {
+  "path": "art/cards/projects/085-commercial-district.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35418
+ },
+ {
+  "path": "art/cards/projects/086-robotic-workforce.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32262
+ },
+ {
+  "path": "art/cards/projects/087-grass.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29946
+ },
+ {
+  "path": "art/cards/projects/088-heather.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32296
+ },
+ {
+  "path": "art/cards/projects/089-peroxide-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30726
+ },
+ {
+  "path": "art/cards/projects/090-research.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33278
+ },
+ {
+  "path": "art/cards/projects/091-gene-repair.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31838
+ },
+ {
+  "path": "art/cards/projects/092-io-mining-industries.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31844
+ },
+ {
+  "path": "art/cards/projects/093-bushes.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 37474
+ },
+ {
+  "path": "art/cards/projects/094-mass-converter.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30878
+ },
+ {
+  "path": "art/cards/projects/095-physics-complex.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32084
+ },
+ {
+  "path": "art/cards/projects/096-greenhouses.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36422
+ },
+ {
+  "path": "art/cards/projects/097-nuclear-zone.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28760
+ },
+ {
+  "path": "art/cards/projects/098-tropical-resort.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 38644
+ },
+ {
+  "path": "art/cards/projects/099-toll-station.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35898
+ },
+ {
+  "path": "art/cards/projects/100-fueled-generators.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30248
+ },
+ {
+  "path": "art/cards/projects/101-ironworks.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27362
+ },
+ {
+  "path": "art/cards/projects/102-power-grid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32812
+ },
+ {
+  "path": "art/cards/projects/103-steelworks.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33996
+ },
+ {
+  "path": "art/cards/projects/104-ore-processor.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24740
+ },
+ {
+  "path": "art/cards/projects/105-earth-office.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30412
+ },
+ {
+  "path": "art/cards/projects/106-acquired-company.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29316
+ },
+ {
+  "path": "art/cards/projects/107-media-archives.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27420
+ },
+ {
+  "path": "art/cards/projects/108-open-city.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28750
+ },
+ {
+  "path": "art/cards/projects/109-media-group.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30914
+ },
+ {
+  "path": "art/cards/projects/110-business-network.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28922
+ },
+ {
+  "path": "art/cards/projects/111-business-contacts.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24694
+ },
+ {
+  "path": "art/cards/projects/112-bribed-committee.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27614
+ },
+ {
+  "path": "art/cards/projects/113-solar-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 45524
+ },
+ {
+  "path": "art/cards/projects/114-breathing-filters.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30716
+ },
+ {
+  "path": "art/cards/projects/115-artificial-photosynthesis.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36126
+ },
+ {
+  "path": "art/cards/projects/116-artificial-lake.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28130
+ },
+ {
+  "path": "art/cards/projects/117-geothermal-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29956
+ },
+ {
+  "path": "art/cards/projects/118-farming.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33784
+ },
+ {
+  "path": "art/cards/projects/119-dust-seals.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27478
+ },
+ {
+  "path": "art/cards/projects/120-urbanized-area.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31704
+ },
+ {
+  "path": "art/cards/projects/121-sabotage.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33650
+ },
+ {
+  "path": "art/cards/projects/122-moss.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36726
+ },
+ {
+  "path": "art/cards/projects/123-industrial-center.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35954
+ },
+ {
+  "path": "art/cards/projects/124-hired-raiders.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26824
+ },
+ {
+  "path": "art/cards/projects/125-hackers.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32716
+ },
+ {
+  "path": "art/cards/projects/126-ghg-factories.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 39648
+ },
+ {
+  "path": "art/cards/projects/127-subterranean-reservoir.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 22396
+ },
+ {
+  "path": "art/cards/projects/128-ecological-zone.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35324
+ },
+ {
+  "path": "art/cards/projects/129-zeppelins.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29070
+ },
+ {
+  "path": "art/cards/projects/130-worms.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32372
+ },
+ {
+  "path": "art/cards/projects/131-decomposers.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35114
+ },
+ {
+  "path": "art/cards/projects/132-fusion-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 40512
+ },
+ {
+  "path": "art/cards/projects/133-symbiotic-fungus.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31792
+ },
+ {
+  "path": "art/cards/projects/134-extreme-cold-fungus.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31448
+ },
+ {
+  "path": "art/cards/projects/135-advanced-ecosystems.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 37358
+ },
+ {
+  "path": "art/cards/projects/136-great-dam.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32432
+ },
+ {
+  "path": "art/cards/projects/137-cartel.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 23758
+ },
+ {
+  "path": "art/cards/projects/138-strip-mine.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36890
+ },
+ {
+  "path": "art/cards/projects/139-wave-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 25614
+ },
+ {
+  "path": "art/cards/projects/140-lava-flows.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30756
+ },
+ {
+  "path": "art/cards/projects/141-power-plant.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 25750
+ },
+ {
+  "path": "art/cards/projects/142-mohole-area.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30220
+ },
+ {
+  "path": "art/cards/projects/143-large-convoy.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29150
+ },
+ {
+  "path": "art/cards/projects/144-titanium-mine.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30726
+ },
+ {
+  "path": "art/cards/projects/145-tectonic-stress-power.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36800
+ },
+ {
+  "path": "art/cards/projects/146-nitrophilic-moss.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 43208
+ },
+ {
+  "path": "art/cards/projects/147-herbivores.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 36684
+ },
+ {
+  "path": "art/cards/projects/148-insects.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33290
+ },
+ {
+  "path": "art/cards/projects/149-ceo-s-favorite-project.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27272
+ },
+ {
+  "path": "art/cards/projects/150-anti-gravity-technology.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34740
+ },
+ {
+  "path": "art/cards/projects/151-investment-loan.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31034
+ },
+ {
+  "path": "art/cards/projects/152-insulation.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24750
+ },
+ {
+  "path": "art/cards/projects/153-adaptation-technology.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30110
+ },
+ {
+  "path": "art/cards/projects/154-caretaker-contract.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 39458
+ },
+ {
+  "path": "art/cards/projects/155-designed-microorganisms.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26516
+ },
+ {
+  "path": "art/cards/projects/156-standard-technology.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32174
+ },
+ {
+  "path": "art/cards/projects/157-nitrite-reducing-bacteria.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34822
+ },
+ {
+  "path": "art/cards/projects/158-industrial-microbes.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34778
+ },
+ {
+  "path": "art/cards/projects/159-lichen.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 41466
+ },
+ {
+  "path": "art/cards/projects/160-power-supply-consortium.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33614
+ },
+ {
+  "path": "art/cards/projects/161-convoy-from-europa.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28716
+ },
+ {
+  "path": "art/cards/projects/162-imported-ghg.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26908
+ },
+ {
+  "path": "art/cards/projects/163-imported-nitrogen.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28222
+ },
+ {
+  "path": "art/cards/projects/164-micro-mills.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 22184
+ },
+ {
+  "path": "art/cards/projects/165-magnetic-field-generators.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34198
+ },
+ {
+  "path": "art/cards/projects/166-shuttles.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34538
+ },
+ {
+  "path": "art/cards/projects/167-import-of-advanced-ghg.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27502
+ },
+ {
+  "path": "art/cards/projects/168-windmills.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24740
+ },
+ {
+  "path": "art/cards/projects/169-tundra-farming.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 42286
+ },
+ {
+  "path": "art/cards/projects/170-aerobraked-ammonia-asteroid.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28156
+ },
+ {
+  "path": "art/cards/projects/171-magnetic-field-dome.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26756
+ },
+ {
+  "path": "art/cards/projects/172-pets.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33720
+ },
+ {
+  "path": "art/cards/projects/173-protected-habitats.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34308
+ },
+ {
+  "path": "art/cards/projects/174-protected-valley.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35196
+ },
+ {
+  "path": "art/cards/projects/175-satellites.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 23268
+ },
+ {
+  "path": "art/cards/projects/176-noctis-farming.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 27778
+ },
+ {
+  "path": "art/cards/projects/177-water-splitting-plant.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30270
+ },
+ {
+  "path": "art/cards/projects/178-heat-trappers.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 26512
+ },
+ {
+  "path": "art/cards/projects/179-soil-factory.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32222
+ },
+ {
+  "path": "art/cards/projects/180-fuel-factory.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 30326
+ },
+ {
+  "path": "art/cards/projects/181-ice-cap-melting.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24650
+ },
+ {
+  "path": "art/cards/projects/182-corporate-stronghold.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35840
+ },
+ {
+  "path": "art/cards/projects/183-biomass-combustors.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 46934
+ },
+ {
+  "path": "art/cards/projects/184-livestock.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33906
+ },
+ {
+  "path": "art/cards/projects/185-olympus-conference.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35060
+ },
+ {
+  "path": "art/cards/projects/186-rad-suits.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24830
+ },
+ {
+  "path": "art/cards/projects/187-aquifer-pumping.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33284
+ },
+ {
+  "path": "art/cards/projects/188-flooding.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 25884
+ },
+ {
+  "path": "art/cards/projects/189-energy-saving.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32820
+ },
+ {
+  "path": "art/cards/projects/190-local-heat-trapping.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31258
+ },
+ {
+  "path": "art/cards/projects/191-permafrost-extraction.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24536
+ },
+ {
+  "path": "art/cards/projects/192-invention-contest.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 32662
+ },
+ {
+  "path": "art/cards/projects/193-plantation.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34386
+ },
+ {
+  "path": "art/cards/projects/194-power-infrastructure.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 24476
+ },
+ {
+  "path": "art/cards/projects/195-indentured-workers.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35150
+ },
+ {
+  "path": "art/cards/projects/196-lagrange-observatory.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29688
+ },
+ {
+  "path": "art/cards/projects/197-terraforming-ganymede.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 29174
+ },
+ {
+  "path": "art/cards/projects/198-immigration-shuttles.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 28952
+ },
+ {
+  "path": "art/cards/projects/199-restricted-area.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35160
+ },
+ {
+  "path": "art/cards/projects/200-immigrant-city.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 34472
+ },
+ {
+  "path": "art/cards/projects/201-energy-tapping.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31328
+ },
+ {
+  "path": "art/cards/projects/202-underground-detonations.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 37306
+ },
+ {
+  "path": "art/cards/projects/203-soletta.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 23970
+ },
+ {
+  "path": "art/cards/projects/204-technology-demonstration.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35662
+ },
+ {
+  "path": "art/cards/projects/205-rad-chem-factory.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31834
+ },
+ {
+  "path": "art/cards/projects/206-special-design.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 35426
+ },
+ {
+  "path": "art/cards/projects/207-medical-lab.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 31758
+ },
+ {
+  "path": "art/cards/projects/208-ai-central.webp",
+  "w": 320,
+  "h": 450,
+  "bytes": 33326
+ },
+ {
+  "path": "art/markers/first-player-marker.webp",
+  "w": 186,
+  "h": 182,
+  "bytes": 12352
+ },
+ {
+  "path": "art/markers/transparent-marker-group.webp",
+  "w": 144,
+  "h": 108,
+  "bytes": 2368
+ },
+ {
+  "path": "art/markers/white-board-markers.webp",
+  "w": 170,
+  "h": 138,
+  "bytes": 3570
+ },
+ {
+  "path": "art/markers/white-cube.webp",
+  "w": 182,
+  "h": 200,
+  "bytes": 7848
+ },
+ {
+  "path": "art/markers/corp-logos/logo-beginner-corporation.webp",
+  "w": 329,
+  "h": 55,
+  "bytes": 5030
+ },
+ {
+  "path": "art/markers/corp-logos/logo-credicor.webp",
+  "w": 333,
+  "h": 100,
+  "bytes": 7408
+ },
+ {
+  "path": "art/markers/corp-logos/logo-ecoline.webp",
+  "w": 333,
+  "h": 79,
+  "bytes": 7156
+ },
+ {
+  "path": "art/markers/corp-logos/logo-helion.webp",
+  "w": 300,
+  "h": 100,
+  "bytes": 6458
+ },
+ {
+  "path": "art/markers/corp-logos/logo-interplanetary-cinematics.webp",
+  "w": 183,
+  "h": 100,
+  "bytes": 6270
+ },
+ {
+  "path": "art/markers/corp-logos/logo-inventrix.webp",
+  "w": 334,
+  "h": 83,
+  "bytes": 6072
+ },
+ {
+  "path": "art/markers/corp-logos/logo-mining-guild.webp",
+  "w": 317,
+  "h": 99,
+  "bytes": 8000
+ },
+ {
+  "path": "art/markers/corp-logos/logo-phobolog.webp",
+  "w": 331,
+  "h": 99,
+  "bytes": 4726
+ },
+ {
+  "path": "art/markers/corp-logos/logo-saturn-systems.webp",
+  "w": 332,
+  "h": 80,
+  "bytes": 7040
+ },
+ {
+  "path": "art/markers/corp-logos/logo-teractor.webp",
+  "w": 291,
+  "h": 100,
+  "bytes": 4690
+ },
+ {
+  "path": "art/markers/corp-logos/logo-tharsis-republic.webp",
+  "w": 320,
+  "h": 100,
+  "bytes": 4662
+ },
+ {
+  "path": "art/markers/corp-logos/logo-thorgate.webp",
+  "w": 331,
+  "h": 64,
+  "bytes": 5396
+ },
+ {
+  "path": "art/markers/corp-logos/logo-united-nations-mars-initiative.webp",
+  "w": 221,
+  "h": 93,
+  "bytes": 3660
+ },
+ {
+  "path": "art/markers/player/black-cube.webp",
+  "w": 182,
+  "h": 200,
+  "bytes": 5866
+ },
+ {
+  "path": "art/markers/player/blue-cube.webp",
+  "w": 182,
+  "h": 200,
+  "bytes": 9518
+ },
+ {
+  "path": "art/markers/player/green-cube.webp",
+  "w": 184,
+  "h": 200,
+  "bytes": 9448
+ },
+ {
+  "path": "art/markers/player/red-cube.webp",
+  "w": 182,
+  "h": 200,
+  "bytes": 8480
+ },
+ {
+  "path": "art/markers/player/yellow-cube.webp",
+  "w": 182,
+  "h": 200,
+  "bytes": 8178
+ },
+ {
+  "path": "art/markers/resources/copper-cube.webp",
+  "w": 76,
+  "h": 80,
+  "bytes": 2398
+ },
+ {
+  "path": "art/markers/resources/gold-cube.webp",
+  "w": 104,
+  "h": 110,
+  "bytes": 3204
+ },
+ {
+  "path": "art/markers/resources/silver-cube.webp",
+  "w": 82,
+  "h": 86,
+  "bytes": 2454
+ },
+ {
+  "path": "art/markers/tags/tag-animal.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 2956
+ },
+ {
+  "path": "art/markers/tags/tag-building.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 2426
+ },
+ {
+  "path": "art/markers/tags/tag-city.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 3478
+ },
+ {
+  "path": "art/markers/tags/tag-earth.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 8414
+ },
+ {
+  "path": "art/markers/tags/tag-event.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 3176
+ },
+ {
+  "path": "art/markers/tags/tag-jovian.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 6830
+ },
+ {
+  "path": "art/markers/tags/tag-microbe.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 3758
+ },
+ {
+  "path": "art/markers/tags/tag-plant.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 2960
+ },
+ {
+  "path": "art/markers/tags/tag-power.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 2666
+ },
+ {
+  "path": "art/markers/tags/tag-science.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 3564
+ },
+ {
+  "path": "art/markers/tags/tag-space.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 3052
+ },
+ {
+  "path": "art/markers/tags/tag-wild.webp",
+  "w": 115,
+  "h": 115,
+  "bytes": 2560
+ },
+ {
+  "path": "art/printed-panels/awards.webp",
+  "w": 912,
+  "h": 204,
+  "bytes": 30388
+ },
+ {
+  "path": "art/printed-panels/milestones.webp",
+  "w": 896,
+  "h": 200,
+  "bytes": 28100
+ },
+ {
+  "path": "art/printed-panels/standard-projects.webp",
+  "w": 314,
+  "h": 478,
+  "bytes": 25982
+ },
+ {
+  "path": "art/tiles/city.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 21848
+ },
+ {
+  "path": "art/tiles/greenery.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 25384
+ },
+ {
+  "path": "art/tiles/ocean.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 15982
+ },
+ {
+  "path": "art/tiles/special/capital.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 20252
+ },
+ {
+  "path": "art/tiles/special/commercial-district.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 22026
+ },
+ {
+  "path": "art/tiles/special/ecological-zone.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 21196
+ },
+ {
+  "path": "art/tiles/special/industrial-center.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 20664
+ },
+ {
+  "path": "art/tiles/special/lava-flows.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 20136
+ },
+ {
+  "path": "art/tiles/special/mining-area.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 22644
+ },
+ {
+  "path": "art/tiles/special/mining-rights.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 22644
+ },
+ {
+  "path": "art/tiles/special/mohole-area.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 20368
+ },
+ {
+  "path": "art/tiles/special/natural-preserve.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 20472
+ },
+ {
+  "path": "art/tiles/special/nuclear-zone.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 20382
+ },
+ {
+  "path": "art/tiles/special/restricted-area.webp",
+  "w": 260,
+  "h": 300,
+  "bytes": 19440
+ },
+ {
+  "path": "art/source-sheets/badges.webp",
+  "w": 1495,
+  "h": 115,
+  "bytes": 47298
+ },
+ {
+  "path": "art/source-sheets/corps_logos.webp",
+  "w": 2339,
+  "h": 200,
+  "bytes": 78096
+ },
+ {
+  "path": "art/source-sheets/cubes_opaque.webp",
+  "w": 547,
+  "h": 100,
+  "bytes": 14276
+ },
+ {
+  "path": "art/source-sheets/ganymede.webp",
+  "w": 130,
+  "h": 150,
+  "bytes": 4570
+ },
+ {
+  "path": "art/source-sheets/icons.webp",
+  "w": 700,
+  "h": 100,
+  "bytes": 25876
+ },
+ {
+  "path": "art/source-sheets/milestones_awards.webp",
+  "w": 1355,
+  "h": 300,
+  "bytes": 51242
+ },
+ {
+  "path": "art/source-sheets/oxygen.webp",
+  "w": 1776,
+  "h": 500,
+  "bytes": 62398
+ },
+ {
+  "path": "art/source-sheets/phobos.webp",
+  "w": 157,
+  "h": 150,
+  "bytes": 7148
+ },
+ {
+  "path": "art/source-sheets/resources.webp",
+  "w": 1000,
+  "h": 200,
+  "bytes": 46422
+ },
+ {
+  "path": "art/source-sheets/stanproj_hold.webp",
+  "w": 499,
+  "h": 800,
+  "bytes": 49940
+ },
+ {
+  "path": "art/source-sheets/temperature.webp",
+  "w": 177,
+  "h": 1000,
+  "bytes": 26914
+ },
+ {
+  "path": "art/source-sheets/tiles.webp",
+  "w": 1300,
+  "h": 300,
+  "bytes": 88500
+ },
+ {
+  "path": "art/icons/plant.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2086
+ },
+ {
+  "path": "art/icons/animal.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2310
+ },
+ {
+  "path": "art/icons/heat.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2826
+ },
+ {
+  "path": "art/icons/mc.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2630
+ },
+ {
+  "path": "art/icons/microbe.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2948
+ },
+ {
+  "path": "art/icons/energy.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 1764
+ },
+ {
+  "path": "art/icons/science.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2242
+ },
+ {
+  "path": "art/icons/steel.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 1860
+ },
+ {
+  "path": "art/icons/titanium.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2160
+ },
+ {
+  "path": "art/icons/tr.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 3980
+ },
+ {
+  "path": "art/icons/card.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 1622
+ },
+ {
+  "path": "art/icons/oxygen.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 3824
+ },
+ {
+  "path": "art/icons/temperature.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 1534
+ },
+ {
+  "path": "art/icons/fighter.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 2890
+ },
+ {
+  "path": "art/icons/first-player-bga.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 3922
+ },
+ {
+  "path": "art/icons/ocean.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 3412
+ },
+ {
+  "path": "art/icons/generation.webp",
+  "w": 100,
+  "h": 100,
+  "bytes": 3954
+ },
+ {
+  "path": "art/icons/card-sm.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 564
+ },
+ {
+  "path": "art/icons/mc-sm.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 922
+ },
+ {
+  "path": "art/icons/mc-xs.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 548
+ },
+ {
+  "path": "art/icons/arrow.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 900
+ },
+ {
+  "path": "art/icons/temperature-sm.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 666
+ },
+ {
+  "path": "art/icons/oxygen-sm.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1386
+ },
+ {
+  "path": "art/icons/greenery.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1406
+ },
+ {
+  "path": "art/icons/city.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1048
+ },
+ {
+  "path": "art/icons/ocean-tile.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1320
+ },
+ {
+  "path": "art/icons/mc-lg.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 894
+ },
+ {
+  "path": "art/icons/tr-sm.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1280
+ },
+ {
+  "path": "art/icons/mars.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 2180
+ },
+ {
+  "path": "art/icons/steel-value.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 882
+ },
+ {
+  "path": "art/icons/titanium-value.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1042
+ },
+ {
+  "path": "art/icons/land.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 762
+ },
+ {
+  "path": "art/icons/greenery-hex.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1206
+ },
+ {
+  "path": "art/icons/city-hex.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1272
+ },
+ {
+  "path": "art/icons/tile-mars.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1274
+ },
+ {
+  "path": "art/icons/tile-mining.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1318
+ },
+ {
+  "path": "art/icons/tile-commercial.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1166
+ },
+ {
+  "path": "art/icons/tile-nuclear.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1194
+ },
+ {
+  "path": "art/icons/tile-ecological.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1238
+ },
+ {
+  "path": "art/icons/tile-lava.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1160
+ },
+ {
+  "path": "art/icons/tile-mohole.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1146
+ },
+ {
+  "path": "art/icons/tile-restricted.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1310
+ },
+ {
+  "path": "art/icons/tile-industrial.webp",
+  "w": 50,
+  "h": 50,
+  "bytes": 1222
+ }
+]

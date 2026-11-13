@@ -26,7 +26,7 @@ In `SiteHeader` (desktop) and as `sheet` from `TopBar`'s magnifier (phone). The 
 | `hint` | `Node` | Blue note above the list (finglish). |
 | `value` / `defaultValue`, `onChange` | | Controlled or not. |
 | `open` / `defaultOpen`, `onOpenChange`, `activeIndex` | | Popover and highlighted option. |
-| `shortcut` | `boolean` | Ctrl K and `/` focus the field (default true). |
+| `shortcut` | `boolean` | Ctrl K and `/` focus the field (default true). v2.3: the field shows no `Ctrl K` hint (owner); the shortcut is a silent extra. |
 | `sheet`, `onClose` | | Phone full-screen sheet. |
 
 Types: `SiteSearchProps` in `components/index.d.ts`. Classes: `.bgv-sitesearch`, `.bgv-sitesearch__field`, `__pop`, `__row`, `__label`, `__chips`, `__hint`, `__empty`, `__foot`, `.bgv-sitesearch--sheet`.
@@ -48,3 +48,11 @@ Types: `SiteSearchProps` in `components/index.d.ts`. Classes: `.bgv-sitesearch`,
 
 - Do not use amber in the popover: the row button is secondary.
 - Do not search on every keystroke without debouncing (150–200ms).
+
+**Expand (v2.4, header default)**
+
+- `expand`: the field starts as a 44px magnifier. A click (or `/`, Ctrl K) opens it to `min(440px, 38vw)` with a spring (380ms, `--ease-spring`); the disc turns amber with one ring ping; the header menu dims to 28%.
+- Close: Esc, the × button, or a click outside while the query is empty. Closing is quicker (120–200ms, `--ease-in`) and clears the query. Focus returns to the magnifier.
+- The magnifier never rotates. No inner focus box: the pill's amber edge is the focus sign.
+- Controlled: `expanded` + `onExpandedChange`; uncontrolled: `defaultExpanded`. `SiteHeader` sets `expand: true`; pass `search={{ expand: false }}` for the old always-open field.
+- `prefers-reduced-motion`: everything appears without movement.

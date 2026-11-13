@@ -1,0 +1,434 @@
+{
+ "size": 1600,
+ "regions": [
+  {
+   "region": 0,
+   "title": "Yggdrasil"
+  },
+  {
+   "region": 1,
+   "title": "Manheim"
+  },
+  {
+   "region": 2,
+   "title": "Jotunheim"
+  },
+  {
+   "region": 3,
+   "title": "Alfheim"
+  }
+ ],
+ "provinces": [
+  {
+   "province": 0,
+   "region": 0,
+   "title": "Yggdrasil",
+   "x": 766,
+   "y": 844,
+   "doom_x": 766,
+   "doom_y": 844
+  },
+  {
+   "province": 1,
+   "region": 1,
+   "title": "Myrkvlor",
+   "x": 491,
+   "y": 479,
+   "doom_x": 603,
+   "doom_y": 462
+  },
+  {
+   "province": 2,
+   "region": 1,
+   "title": "Elvagar",
+   "x": 750,
+   "y": 331,
+   "doom_x": 852,
+   "doom_y": 420
+  },
+  {
+   "province": 3,
+   "region": 1,
+   "title": "Angerboda",
+   "x": 1088,
+   "y": 460,
+   "doom_x": 1024,
+   "doom_y": 538
+  },
+  {
+   "province": 4,
+   "region": 2,
+   "title": "Muspelheim",
+   "x": 1216,
+   "y": 847,
+   "doom_x": 1290,
+   "doom_y": 994
+  },
+  {
+   "province": 5,
+   "region": 2,
+   "title": "Horgr",
+   "x": 1020,
+   "y": 1167,
+   "doom_x": 912,
+   "doom_y": 1154
+  },
+  {
+   "province": 6,
+   "region": 2,
+   "title": "Utgard",
+   "x": 687,
+   "y": 1248,
+   "doom_x": 771,
+   "doom_y": 1222
+  },
+  {
+   "province": 7,
+   "region": 3,
+   "title": "Andlang",
+   "x": 414,
+   "y": 1097,
+   "doom_x": 425,
+   "doom_y": 996
+  },
+  {
+   "province": 8,
+   "region": 3,
+   "title": "Gimle",
+   "x": 360,
+   "y": 782,
+   "doom_x": 477,
+   "doom_y": 848
+  }
+ ],
+ "fjords": [
+  {
+   "fjord": 0,
+   "province1": 2,
+   "province2": 3,
+   "x": 953,
+   "y": 220
+  },
+  {
+   "fjord": 1,
+   "province1": 4,
+   "province2": 5,
+   "x": 1353,
+   "y": 1159
+  },
+  {
+   "fjord": 2,
+   "province1": 6,
+   "province2": 7,
+   "x": 464,
+   "y": 1428
+  },
+  {
+   "fjord": 3,
+   "province1": 8,
+   "province2": 1,
+   "x": 273,
+   "y": 552
+  }
+ ],
+ "slots": [
+  {
+   "slot": 0,
+   "province": 0,
+   "x": 766,
+   "y": 844
+  },
+  {
+   "slot": 1,
+   "province": 1,
+   "x": 502,
+   "y": 583
+  },
+  {
+   "slot": 2,
+   "province": 1,
+   "x": 389,
+   "y": 445
+  },
+  {
+   "slot": 3,
+   "province": 1,
+   "x": 547,
+   "y": 386
+  },
+  {
+   "slot": 4,
+   "province": 2,
+   "x": 575,
+   "y": 253
+  },
+  {
+   "slot": 5,
+   "province": 2,
+   "x": 651,
+   "y": 166
+  },
+  {
+   "slot": 6,
+   "province": 2,
+   "x": 799,
+   "y": 201
+  },
+  {
+   "slot": 7,
+   "province": 2,
+   "x": 752,
+   "y": 481
+  },
+  {
+   "slot": 8,
+   "province": 3,
+   "x": 957,
+   "y": 466
+  },
+  {
+   "slot": 9,
+   "province": 3,
+   "x": 1053,
+   "y": 308
+  },
+  {
+   "slot": 10,
+   "province": 3,
+   "x": 1196,
+   "y": 358
+  },
+  {
+   "slot": 11,
+   "province": 3,
+   "x": 1196,
+   "y": 496
+  },
+  {
+   "slot": 12,
+   "province": 3,
+   "x": 1085,
+   "y": 604
+  },
+  {
+   "slot": 13,
+   "province": 4,
+   "x": 1167,
+   "y": 717
+  },
+  {
+   "slot": 14,
+   "province": 4,
+   "x": 1297,
+   "y": 777
+  },
+  {
+   "slot": 15,
+   "province": 4,
+   "x": 1359,
+   "y": 893
+  },
+  {
+   "slot": 16,
+   "province": 4,
+   "x": 1169,
+   "y": 979
+  },
+  {
+   "slot": 17,
+   "province": 4,
+   "x": 1073,
+   "y": 855
+  },
+  {
+   "slot": 18,
+   "province": 5,
+   "x": 967,
+   "y": 1057
+  },
+  {
+   "slot": 19,
+   "province": 5,
+   "x": 1160,
+   "y": 1169
+  },
+  {
+   "slot": 20,
+   "province": 5,
+   "x": 1011,
+   "y": 1321
+  },
+  {
+   "slot": 21,
+   "province": 5,
+   "x": 858,
+   "y": 1258
+  },
+  {
+   "slot": 22,
+   "province": 6,
+   "x": 710,
+   "y": 1144
+  },
+  {
+   "slot": 23,
+   "province": 6,
+   "x": 753,
+   "y": 1357
+  },
+  {
+   "slot": 24,
+   "province": 6,
+   "x": 574,
+   "y": 1264
+  },
+  {
+   "slot": 25,
+   "province": 7,
+   "x": 397,
+   "y": 1257
+  },
+  {
+   "slot": 26,
+   "province": 7,
+   "x": 310,
+   "y": 1050
+  },
+  {
+   "slot": 27,
+   "province": 7,
+   "x": 522,
+   "y": 1057
+  },
+  {
+   "slot": 28,
+   "province": 8,
+   "x": 388,
+   "y": 897
+  },
+  {
+   "slot": 29,
+   "province": 8,
+   "x": 249,
+   "y": 864
+  },
+  {
+   "slot": 30,
+   "province": 8,
+   "x": 174,
+   "y": 741
+  },
+  {
+   "slot": 31,
+   "province": 8,
+   "x": 333,
+   "y": 675
+  },
+  {
+   "slot": 32,
+   "province": 8,
+   "x": 514,
+   "y": 700
+  }
+ ],
+ "clans": {
+  "1": {
+   "clan": 1,
+   "title": "Wolf",
+   "color": "9D3644",
+   "color2": "CC4751"
+  },
+  "2": {
+   "clan": 2,
+   "title": "Serpent",
+   "color": "DFA471",
+   "color2": "FFBB81"
+  },
+  "3": {
+   "clan": 3,
+   "title": "Raven",
+   "color": "428AA7",
+   "color2": "50A8CC"
+  },
+  "4": {
+   "clan": 4,
+   "title": "Bear",
+   "color": "856348",
+   "color2": "BA8A64"
+  },
+  "5": {
+   "clan": 5,
+   "title": "Ram",
+   "color": "70A15E",
+   "color2": "91D17A"
+  }
+ },
+ "pillages": [
+  {
+   "id": 0,
+   "nb": 1,
+   "type": "yggdrasil",
+   "title": "Yggdrasil",
+   "desc": "After a successfull pillage, increase all three of your clan stats one step.",
+   "class": "bg-icon_yggdrasil"
+  },
+  {
+   "id": 1,
+   "nb": 3,
+   "type": "rage",
+   "title": "Pillage for Rage",
+   "desc": "After a successfull pillage, increase your clan’s Rage stat one step.",
+   "class": "bg-icon_rage"
+  },
+  {
+   "id": 2,
+   "nb": 2,
+   "type": "axe",
+   "title": "Pillage for Axes",
+   "desc": "After a successfull pillage, increase your clan’s Axes stat one step.",
+   "class": "bg-icon_axe"
+  },
+  {
+   "id": 3,
+   "nb": 2,
+   "type": "horn",
+   "title": "Pillage for Horns",
+   "desc": "After a successfull pillage, increase your clan’s Horns stat one step.",
+   "class": "bg-icon_horn"
+  },
+  {
+   "id": 4,
+   "nb": 1,
+   "type": "glory",
+   "title": "Pillage for Glory",
+   "desc": "After a successfull pillage, gain 5 Glory.",
+   "class": "bg-icon_glory"
+  }
+ ],
+ "stat": {
+  "rage": [
+   6,
+   7,
+   8,
+   9,
+   12,
+   12
+  ],
+  "axe": [
+   3,
+   4,
+   5,
+   6,
+   8,
+   8
+  ],
+  "horn": [
+   4,
+   5,
+   6,
+   7,
+   10,
+   10
+  ]
+ }
+}

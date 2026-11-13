@@ -4,7 +4,7 @@ The floating phone dock (`--surface-chrome`, radius 28) with the four destinatio
 
 ## When to use
 
-Bottom of every phone page outside the table: خانه، میزها، پیام‌ها، بیشتر (inside `AppShell` it floats 12px from the edges). Games are reached from خانه (shelves, search, «همه بازی‌ها»), so the catalog and game pages keep خانه active.
+Bottom of every phone page outside the table: خانه، میزها، پیام‌ها، بیشتر (inside `AppShell` it floats 12px from the edges). All games open from «بیشتر» → «بازی‌ها» and from خانه (shelves, search, «همهٔ بازی‌ها»); the catalog and game pages keep «بیشتر» active, as on the live site (v2.2.1).
 
 ## Props / what the consumer provides
 
@@ -12,7 +12,7 @@ Bottom of every phone page outside the table: خانه، میزها، پیام�
 
 | Prop | Type | Description |
 |---|---|---|
-| `items` (required) | `Array<{ icon: IconName; label: Node; href?: string; active?: boolean; count?: number; turns?: number; onClick?: React.MouseEventHandler }>` | 4 items: خانه، میزها، پیام‌ها، بیشتر (games are reached from خانه). `count` = crimson unread; `turns` = crimson count of tables waiting for your move. |
+| `items` (required) | `Array<{ icon: IconName; label: Node; href?: string; active?: boolean; count?: number; turns?: number; onClick?: React.MouseEventHandler }>` | 4 items: خانه، میزها، پیام‌ها، بیشتر (games open from «بیشتر» → «بازی‌ها»). `count` = crimson unread; `turns` = crimson count of tables waiting for your move. |
 | `label` | `string` | Default «بخش‌های اصلی». |
 | `float` | `boolean` | For a page without `AppShell`: adds `.bgv-dock--float` (fixed, 12px from the bottom and sides, `--z-dock`), hidden from 900px up. Inside `AppShell` the shell positions the dock. |
 | `guest` | `boolean` | Same four items, no counts. |
@@ -23,7 +23,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
-- Keep exactly these four items, for guests too (without counts); the active one is the amber token (owner decision). Games and a game page keep خانه active; 404 and notifications activate nothing.
+- Keep exactly these four items, for guests too (without counts); the active one is the amber token (owner decision). Games and a game page keep «بیشتر» active; 404 and notifications activate nothing.
 - میزها shows the turn count, پیام‌ها the unread count (both crimson, so they read on the amber tile).
 
 - One markup everywhere: `nav.bgv-dock[aria-label="بخش‌های اصلی"] > a.bgv-dock__item` (icon, label in a `span`, then the count badge with its own `aria-label`); the current item has `is-active` and `aria-current="page"`.

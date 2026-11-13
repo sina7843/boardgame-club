@@ -46,6 +46,24 @@ body{margin:0}
 /* zones */
 .gp-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
 .gp-split{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:16px;align-items:start}
+.gp-split--even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+/* BGA "View all": map and research board side by side at the same height, then every player's board, then the rest */
+.gp-zone.gp-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.387fr);gap:14px;align-items:center}
+.gp-mapwrap{position:relative;min-inline-size:0}
+/* the board rows keep the same left-to-right order in every language (owner, review 8): research | map, own board first on the left, scoring | boosters */
+.gp-zone.gp-top,.gp-pboards,.gp-split--even{direction:ltr}
+.gp[dir="rtl"] .gp-pboards>.gp-pb,.gp[dir="rtl"] .gp-split--even>*{direction:rtl}
+.gp-pboards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 18px;align-items:start}
+.gp-pb{display:grid;gap:8px;min-inline-size:0}
+.gp-pb__head{display:flex;align-items:center;gap:6px;min-inline-size:0;font-size:14px;color:var(--felt-ink)}
+.gp-pb__head b{font-weight:900}
+.gp-pb__head small{margin-inline-start:auto;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--felt-muted)}
+.gp-pb .gp-owned{gap:10px;padding:8px 10px}
+.gp-pb .gp-owned img{block-size:72px}
+.gp-pb .gp-owned figure{font-size:11.5px}
+.gp-pb .gp-owned:not(:has(figure)){display:none}
+.gp-pb:not(.is-you) .gp-bld{filter:drop-shadow(1.5px 0 0 #0D1A23) drop-shadow(-1.5px 0 0 #0D1A23) drop-shadow(0 1.5px 0 #0D1A23) drop-shadow(0 -1.5px 0 #0D1A23)}
+.gp-pb.is-you .gp-board--fac{box-shadow:0 0 0 2px var(--own)}
 /* map */
 .gp-map{position:relative;inline-size:100%;aspect-ratio:2450/1895}
 .gp-map>img{position:absolute;display:block}
@@ -172,7 +190,7 @@ body{margin:0}
 .gp-log .bgv-log__item--round{color:var(--text-muted);font-weight:700}
 </style>
 </helmet>
-<div class="bgv gp" data-theme="dark" dir="rtl" lang="fa" style="min-height: 2700px;">
+<div class="bgv gp" data-theme="dark" dir="rtl" lang="fa" style="min-height: 2320px;">
 <div class="bgv-tablescreen bgv-tablescreen--desk gp-desk" dir="ltr">
 <header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">پروژه گایا<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Gaia Project</span></span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span><span class="bgv-gamebar__mi">۴ نفر</span></span></div><div class="gp-lang" role="group" aria-label="زبان بازی"><button type="button" aria-pressed="true">فا</button><button type="button" aria-pressed="false">EN</button></div><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="قوانین پروژه گایا"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--sm" type="button"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg>ترک میز</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
 
@@ -202,38 +220,8 @@ body{margin:0}
  <p class="gp-actbar__hint">اقدام‌های بنفش (قدرت)، سبز (QIC) و نارنجی (بوستر، فناوری، آکادمی، جناح) روی خود صفحه‌ها زده می‌شوند؛ آن‌هایی که الان در دسترس‌اند حلقهٔ کهربایی دارند.</p>
 </section>
 
-<main class="bgv-felt gp-zone" aria-label="نقشهٔ فضا">
- <div style="position:relative">
- <div class="gp-map" dir="ltr" role="group" aria-label="نقشهٔ ده بخش؛ سه سیارهٔ قابل ساخت علامت دارند">
-  <img class="gp-sec" src="../assets/games/gaia/sector-4.webp" alt="" style="left:9.796%;top:7.388%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-5.webp" alt="" style="left:34.286%;top:3.694%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-6.webp" alt="" style="left:58.776%;top:0%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-7.webp" alt="" style="left:0%;top:36.939%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-1.webp" alt="" style="left:24.49%;top:33.245%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-2.webp" alt="" style="left:48.98%;top:29.551%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-8.webp" alt="" style="left:73.469%;top:25.858%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-9.webp" alt="" style="left:14.694%;top:62.797%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-3.webp" alt="" style="left:39.184%;top:59.103%">
-  <img class="gp-sec" src="../assets/games/gaia/sector-10.webp" alt="" style="left:63.673%;top:55.409%">
-  <svg class="gp-grid" viewBox="0 0 2450 1895" aria-hidden="true"><path d="M240 350L280 280M280 280L360 280M240 350L280 420M240 490L280 420M240 490L280 560M240 630L280 560M280 700L360 700M240 630L280 700M360 280L400 210M400 210L480 210M400 770L480 770M360 700L400 770M480 210L520 140M520 140L600 140M600 140L640 210M600 840L640 770M520 840L600 840M480 770L520 840M640 210L720 210M720 210L760 280M720 770L760 700M640 770L720 770M760 280L840 280M840 280L880 350M840 420L880 350M840 420L880 490M840 560L880 490M840 560L880 630M840 700L880 630M760 700L840 700M840 280L880 210M880 210L960 210M840 280L880 350M840 420L880 350M840 420L880 490M840 560L880 490M880 630L960 630M840 560L880 630M1000 140L960 210M1000 140L1080 140M1000 700L1080 700M1000 700L960 630M1080 140L1120 70M1120 70L1200 70M1200 70L1240 140M1200 770L1240 700M1120 770L1200 770M1080 700L1120 770M1240 140L1320 140M1320 140L1360 210M1320 700L1360 630M1240 700L1320 700M1360 210L1440 210M1440 210L1480 280M1440 350L1480 280M1440 350L1480 420M1440 490L1480 420M1440 490L1480 560M1440 630L1480 560M1360 630L1440 630M1440 210L1480 140M1480 140L1560 140M1440 210L1480 280M1440 350L1480 280M1440 350L1480 420M1440 490L1480 420M1480 560L1560 560M1440 490L1480 560M1560 140L1600 70M1600 70L1680 70M1600 630L1680 630M1560 560L1600 630M1680 70L1720 0M1720 0L1800 0M1800 0L1840 70M1800 700L1840 630M1720 700L1800 700M1680 630L1720 700M1840 70L1920 70M1920 70L1960 140M1920 630L1960 560M1840 630L1920 630M1960 140L2040 140M2040 140L2080 210M2040 280L2080 210M2040 280L2080 350M2040 420L2080 350M2040 420L2080 490M2040 560L2080 490M1960 560L2040 560M0 910L40 840M120 840L40 840M0 910L40 980M0 1050L40 980M0 1050L40 1120M0 1190L40 1120M120 1260L40 1260M0 1190L40 1260M120 840L160 770M160 770L240 770M160 1330L240 1330M120 1260L160 1330M240 770L280 700M280 700L360 700M360 700L400 770M360 1400L400 1330M280 1400L360 1400M240 1330L280 1400M400 770L480 770M480 770L520 840M480 1330L520 1260M400 1330L480 1330M520 840L600 840M600 840L640 910M600 980L640 910M600 980L640 1050M600 1120L640 1050M600 1120L640 1190M600 1260L640 1190M520 1260L600 1260M600 840L640 770M640 770L720 770M600 840L640 910M600 980L640 910M600 980L640 1050M600 1120L640 1050M640 1190L720 1190M600 1120L640 1190M720 770L760 700M760 700L840 700M760 1260L840 1260M720 1190L760 1260M840 700L880 630M880 630L960 630M1000 700L960 630M1000 1260L960 1330M880 1330L960 1330M840 1260L880 1330M1000 700L1080 700M1080 700L1120 770M1080 1260L1120 1190M1000 1260L1080 1260M1120 770L1200 770M1200 770L1240 840M1200 910L1240 840M1200 910L1240 980M1200 1050L1240 980M1200 1050L1240 1120M1200 1190L1240 1120M1120 1190L1200 1190M1200 770L1240 700M1240 700L1320 700M1200 770L1240 840M1200 910L1240 840M1200 910L1240 980M1200 1050L1240 980M1240 1120L1320 1120M1200 1050L1240 1120M1320 700L1360 630M1360 630L1440 630M1360 1190L1440 1190M1320 1120L1360 1190M1440 630L1480 560M1480 560L1560 560M1560 560L1600 630M1560 1260L1600 1190M1480 1260L1560 1260M1440 1190L1480 1260M1600 630L1680 630M1680 630L1720 700M1680 1190L1720 1120M1600 1190L1680 1190M1720 700L1800 700M1800 700L1840 770M1800 840L1840 770M1800 840L1840 910M1800 980L1840 910M1800 980L1840 1050M1800 1120L1840 1050M1720 1120L1800 1120M1800 700L1840 630M1840 630L1920 630M1800 700L1840 770M1800 840L1840 770M1800 840L1840 910M1800 980L1840 910M1840 1050L1920 1050M1800 980L1840 1050M1920 630L1960 560M1960 560L2040 560M1960 1120L2040 1120M1920 1050L1960 1120M2040 560L2080 490M2080 490L2160 490M2160 490L2200 560M2160 1190L2200 1120M2080 1190L2160 1190M2040 1120L2080 1190M2200 560L2280 560M2280 560L2320 630M2280 1120L2320 1050M2200 1120L2280 1120M2320 630L2400 630M2400 630L2440 700M2400 770L2440 700M2400 770L2440 840M2400 910L2440 840M2400 910L2440 980M2400 1050L2440 980M2320 1050L2400 1050M360 1400L400 1330M400 1330L480 1330M360 1400L400 1470M360 1540L400 1470M360 1540L400 1610M360 1680L400 1610M400 1750L480 1750M360 1680L400 1750M480 1330L520 1260M520 1260L600 1260M520 1820L600 1820M480 1750L520 1820M600 1260L640 1190M640 1190L720 1190M720 1190L760 1260M720 1890L760 1820M640 1890L720 1890M600 1820L640 1890M760 1260L840 1260M840 1260L880 1330M840 1820L880 1750M760 1820L840 1820M880 1330L960 1330M1000 1400L960 1330M1000 1400L960 1470M1000 1540L960 1470M1000 1540L960 1610M1000 1680L960 1610M1000 1680L960 1750M880 1750L960 1750M1000 1260L960 1330M1000 1260L1080 1260M1000 1400L960 1330M1000 1400L960 1470M1000 1540L960 1470M1000 1540L960 1610M1000 1680L1080 1680M1000 1680L960 1610M1080 1260L1120 1190M1120 1190L1200 1190M1120 1750L1200 1750M1080 1680L1120 1750M1200 1190L1240 1120M1240 1120L1320 1120M1320 1120L1360 1190M1320 1820L1360 1750M1240 1820L1320 1820M1200 1750L1240 1820M1360 1190L1440 1190M1440 1190L1480 1260M1440 1750L1480 1680M1360 1750L1440 1750M1480 1260L1560 1260M1560 1260L1600 1330M1560 1400L1600 1330M1560 1400L1600 1470M1560 1540L1600 1470M1560 1540L1600 1610M1560 1680L1600 1610M1480 1680L1560 1680M1560 1260L1600 1190M1600 1190L1680 1190M1560 1260L1600 1330M1560 1400L1600 1330M1560 1400L1600 1470M1560 1540L1600 1470M1600 1610L1680 1610M1560 1540L1600 1610M1680 1190L1720 1120M1720 1120L1800 1120M1720 1680L1800 1680M1680 1610L1720 1680M1800 1120L1840 1050M1840 1050L1920 1050M1920 1050L1960 1120M1920 1750L1960 1680M1840 1750L1920 1750M1800 1680L1840 1750M1960 1120L2040 1120M2040 1120L2080 1190M2040 1680L2080 1610M1960 1680L2040 1680M2080 1190L2160 1190M2160 1190L2200 1260M2160 1330L2200 1260M2160 1330L2200 1400M2160 1470L2200 1400M2160 1470L2200 1540M2160 1610L2200 1540M2080 1610L2160 1610" /></svg>
-  <img class="gp-piece gp-piece--mt gp-piece--own" src="../assets/games/gaia/mi-red.webp" alt="معدن مینا" style="left:37.551%;top:66.491%">
-  <img class="gp-piece gp-piece--ts gp-piece--own" src="../assets/games/gaia/ts-red.webp" alt="ایستگاه تجاری مینا" style="left:57.143%;top:59.103%">
-  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-yellow.webp" alt="معدن نیلوفر" style="left:27.755%;top:51.715%">
-  <img class="gp-piece gp-piece--ac" src="../assets/games/gaia/ac-yellow.webp" alt="آکادمی نیلوفر" style="left:71.837%;top:48.021%">
-  <img class="gp-piece" src="../assets/games/gaia/pi-yellow.webp" alt="مؤسسهٔ سیاره‌ای نیلوفر" style="left:52.245%;top:92.348%">
-  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-brown.webp" alt="معدن آرش" style="left:32.653%;top:48.021%">
-  <img class="gp-piece gp-piece--rl" src="../assets/games/gaia/rl-brown.webp" alt="آزمایشگاه پژوهشی آرش" style="left:57.143%;top:51.715%">
-  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-orange.webp" alt="معدن سارا" style="left:57.143%;top:36.939%">
-  <img class="gp-piece gp-piece--ts" src="../assets/games/gaia/ts-orange.webp" alt="ایستگاه تجاری سارا" style="left:42.449%;top:62.797%">
- </div>
- <div class="gp-zoom" role="group" aria-label="بزرگ‌نمایی نقشه"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
- </div>
-</main>
-
-<section class="bgv-felt gp-zone" aria-label="پژوهش، امتیاز و بوسترها">
- <div class="gp-split">
-  <div style="display:grid;gap:14px">
-  <div class="gp-board" dir="ltr">
+<main class="bgv-felt gp-zone gp-top" aria-label="نقشهٔ فضا و صفحهٔ پژوهش">
+  <div class="gp-board gp-board--res" dir="ltr">
    <img class="gp-base" src="../assets/games/gaia/research-board.webp" alt="صفحهٔ پژوهش" width="1838" height="1972">
    <img class="gp-at gp-adv" src="../assets/games/gaia/advore.webp" alt="فناوری پیشرفته: اقدام ۳ سنگ معدن" style="left:10.07%;top:12.42%">
    <img class="gp-at gp-adv" src="../assets/games/gaia/advfedv.webp" alt="فناوری پیشرفته: فوری ۵ امتیاز برای هر فدراسیون" style="left:26.39%;top:12.42%">
@@ -289,57 +277,39 @@ body{margin:0}
    <button class="gp-act gp-act--q" type="button" aria-label="اقدام QIC: ۲ QIC: ۳ امتیاز + ۱ برای هر نوع سیاره" style="left:92.22%;top:94.22%"></button>
    <div class="bgv-popover gp-tip" id="gp-tip-pw1" role="tooltip" dir="rtl" style="left:0.5%;bottom:10.5%"><b>اقدام قدرت</b><span>۷ قدرت از کاسهٔ III خرج کنید و ۳ دانش بگیرید.</span><small>هر اقدام در هر دور یک بار؛ بعد از استفاده ژتون اقدام رویش می‌نشیند. شما الان ۰ قدرت در کاسهٔ III دارید.</small></div>
   </div>
-  <div class="gp-fed" role="group" aria-label="توکن‌های فدراسیون باقی‌مانده"><b>توکن‌های فدراسیون</b><div class="gp-fed__grid">
-    <span class="gp-fed__t" title="۱۲ امتیاز"><img src="../assets/games/gaia/fedvps.webp" alt="۱۲ امتیاز">×۲</span>
-    <span class="gp-fed__t" title="۸ امتیاز و ۱ QIC"><img src="../assets/games/gaia/fedqic.webp" alt="۸ امتیاز و ۱ QIC">×۳</span>
-    <span class="gp-fed__t" title="۸ امتیاز و ۲ ژتون قدرت"><img src="../assets/games/gaia/fedpwt.webp" alt="۸ امتیاز و ۲ ژتون قدرت">×۳</span>
-    <span class="gp-fed__t" title="۷ امتیاز و ۲ سنگ معدن"><img src="../assets/games/gaia/fedore.webp" alt="۷ امتیاز و ۲ سنگ معدن">×۲</span>
-    <span class="gp-fed__t" title="۷ امتیاز و ۶ اعتبار"><img src="../assets/games/gaia/fedcre.webp" alt="۷ امتیاز و ۶ اعتبار">×۲</span>
-    <span class="gp-fed__t is-out" title="۶ امتیاز و ۲ دانش"><img src="../assets/games/gaia/fedknw.webp" alt="۶ امتیاز و ۲ دانش">×۰</span>
-  </div></div>
-  </div>
-  <div style="display:grid;gap:14px">
-   <div class="gp-board" dir="ltr" role="group" aria-label="صفحهٔ امتیاز">
-    <img class="gp-base" src="../assets/games/gaia/scoring-board.webp" alt="صفحهٔ امتیاز با چرخهٔ سیاره‌ها" width="1737" height="1718">
-    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۱، انجام شد" style="left:26.88%;top:42.37%;--a:-75deg">
-    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۲، انجام شد" style="left:32.99%;top:31.67%;--a:-45deg">
-    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۳، انجام شد" style="left:43.57%;top:25.49%;--a:-15deg">
-    <img class="gp-rnd" src="../assets/games/gaia/rndtrs3.webp" alt="دور ۴: هر ایستگاه تجاری ۳ امتیاز" style="left:55.79%;top:25.49%;--a:15deg">
-    <img class="gp-rnd" src="../assets/games/gaia/rndfed.webp" alt="دور ۵: هر فدراسیون ۵ امتیاز" style="left:66.37%;top:31.67%;--a:45deg">
-    <img class="gp-rnd" src="../assets/games/gaia/rndpia.webp" alt="دور ۶: مؤسسه یا آکادمی ۵ امتیاز" style="left:72.48%;top:42.37%;--a:75deg">
-    <img class="gp-at gp-fin" src="../assets/games/gaia/finbld.webp" alt="امتیاز پایانی: بیشترین سازه روی نقشه" style="left:69.6%;top:55.59%">
-    <img class="gp-at gp-fin" src="../assets/games/gaia/finsec.webp" alt="امتیاز پایانی: حضور در بیشترین بخش" style="left:69.6%;top:74.1%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر 7" title="نیلوفر 7" style="left:44.51%;top:51.11%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-red.webp" alt="مینا 5" title="مینا 5" style="left:37.42%;top:54.13%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-brown.webp" alt="آرش 4" title="آرش 4" style="left:33.87%;top:57.16%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-orange.webp" alt="سارا 5" title="سارا 5" style="left:37.42%;top:60.19%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر 4" title="نیلوفر 4" style="left:33.87%;top:69.27%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-red.webp" alt="مینا 3" title="مینا 3" style="left:30.33%;top:72.29%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-brown.webp" alt="آرش 2" title="آرش 2" style="left:26.78%;top:75.32%">
-    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-orange.webp" alt="سارا 3" title="سارا 3" style="left:30.33%;top:78.35%">
-    <span class="gp-cnt" style="left:83.13%;top:23.28%" title="مینا: ۲"><img src="../assets/games/gaia/sat-red.webp" alt=""><b>۲</b></span>
-    <span class="gp-cnt" style="left:67.82%;top:90.28%" title="نیلوفر: ۳"><img src="../assets/games/gaia/sat-yellow.webp" alt=""><b>۳</b></span>
-    <span class="gp-cnt" style="left:32.01%;top:90.28%" title="آرش: ۲"><img src="../assets/games/gaia/sat-brown.webp" alt=""><b>۲</b></span>
-    <span class="gp-cnt" style="left:91.48%;top:60.13%" title="سارا: ۲"><img src="../assets/games/gaia/sat-orange.webp" alt=""><b>۲</b></span>
-   </div>
-   <div class="gp-boosters" dir="rtl" role="group" aria-label="بوسترهای دور">
-    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر مینا"><img src="../assets/games/gaia/booter.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-1">م</span></button>
-    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر نیلوفر"><img src="../assets/games/gaia/boonav.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-2">ن</span></button>
-    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر آرش"><img src="../assets/games/gaia/booqic.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-3">آ</span></button>
-    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر سارا"><img src="../assets/games/gaia/boomin.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-4">س</span></button>
-    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: +۱ دانش، +۱ سنگ معدن"><img src="../assets/games/gaia/booknw.webp" alt=""></button>
-    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: +۱ سنگ معدن، +۲ ژتون قدرت"><img src="../assets/games/gaia/boopwt.webp" alt=""></button>
-    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: هنگام پاس ۲ امتیاز برای هر ایستگاه تجاری"><img src="../assets/games/gaia/bootrs.webp" alt=""></button>
-   </div>
-   <p class="gp-hint">هنگام پاس، بوستر خود را برمی‌گردانید و یکی از سه بوستر آزاد را برمی‌دارید.</p>
-  </div>
+ <div class="gp-mapwrap">
+ <div class="gp-map" dir="ltr" role="group" aria-label="نقشهٔ ده بخش؛ سه سیارهٔ قابل ساخت علامت دارند">
+  <img class="gp-sec" src="../assets/games/gaia/sector-4.webp" alt="" style="left:9.796%;top:7.388%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-5.webp" alt="" style="left:34.286%;top:3.694%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-6.webp" alt="" style="left:58.776%;top:0%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-7.webp" alt="" style="left:0%;top:36.939%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-1.webp" alt="" style="left:24.49%;top:33.245%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-2.webp" alt="" style="left:48.98%;top:29.551%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-8.webp" alt="" style="left:73.469%;top:25.858%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-9.webp" alt="" style="left:14.694%;top:62.797%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-3.webp" alt="" style="left:39.184%;top:59.103%">
+  <img class="gp-sec" src="../assets/games/gaia/sector-10.webp" alt="" style="left:63.673%;top:55.409%">
+  <svg class="gp-grid" viewBox="0 0 2450 1895" aria-hidden="true"><path d="M240 350L280 280M280 280L360 280M240 350L280 420M240 490L280 420M240 490L280 560M240 630L280 560M280 700L360 700M240 630L280 700M360 280L400 210M400 210L480 210M400 770L480 770M360 700L400 770M480 210L520 140M520 140L600 140M600 140L640 210M600 840L640 770M520 840L600 840M480 770L520 840M640 210L720 210M720 210L760 280M720 770L760 700M640 770L720 770M760 280L840 280M840 280L880 350M840 420L880 350M840 420L880 490M840 560L880 490M840 560L880 630M840 700L880 630M760 700L840 700M840 280L880 210M880 210L960 210M840 280L880 350M840 420L880 350M840 420L880 490M840 560L880 490M880 630L960 630M840 560L880 630M1000 140L960 210M1000 140L1080 140M1000 700L1080 700M1000 700L960 630M1080 140L1120 70M1120 70L1200 70M1200 70L1240 140M1200 770L1240 700M1120 770L1200 770M1080 700L1120 770M1240 140L1320 140M1320 140L1360 210M1320 700L1360 630M1240 700L1320 700M1360 210L1440 210M1440 210L1480 280M1440 350L1480 280M1440 350L1480 420M1440 490L1480 420M1440 490L1480 560M1440 630L1480 560M1360 630L1440 630M1440 210L1480 140M1480 140L1560 140M1440 210L1480 280M1440 350L1480 280M1440 350L1480 420M1440 490L1480 420M1480 560L1560 560M1440 490L1480 560M1560 140L1600 70M1600 70L1680 70M1600 630L1680 630M1560 560L1600 630M1680 70L1720 0M1720 0L1800 0M1800 0L1840 70M1800 700L1840 630M1720 700L1800 700M1680 630L1720 700M1840 70L1920 70M1920 70L1960 140M1920 630L1960 560M1840 630L1920 630M1960 140L2040 140M2040 140L2080 210M2040 280L2080 210M2040 280L2080 350M2040 420L2080 350M2040 420L2080 490M2040 560L2080 490M1960 560L2040 560M0 910L40 840M120 840L40 840M0 910L40 980M0 1050L40 980M0 1050L40 1120M0 1190L40 1120M120 1260L40 1260M0 1190L40 1260M120 840L160 770M160 770L240 770M160 1330L240 1330M120 1260L160 1330M240 770L280 700M280 700L360 700M360 700L400 770M360 1400L400 1330M280 1400L360 1400M240 1330L280 1400M400 770L480 770M480 770L520 840M480 1330L520 1260M400 1330L480 1330M520 840L600 840M600 840L640 910M600 980L640 910M600 980L640 1050M600 1120L640 1050M600 1120L640 1190M600 1260L640 1190M520 1260L600 1260M600 840L640 770M640 770L720 770M600 840L640 910M600 980L640 910M600 980L640 1050M600 1120L640 1050M640 1190L720 1190M600 1120L640 1190M720 770L760 700M760 700L840 700M760 1260L840 1260M720 1190L760 1260M840 700L880 630M880 630L960 630M1000 700L960 630M1000 1260L960 1330M880 1330L960 1330M840 1260L880 1330M1000 700L1080 700M1080 700L1120 770M1080 1260L1120 1190M1000 1260L1080 1260M1120 770L1200 770M1200 770L1240 840M1200 910L1240 840M1200 910L1240 980M1200 1050L1240 980M1200 1050L1240 1120M1200 1190L1240 1120M1120 1190L1200 1190M1200 770L1240 700M1240 700L1320 700M1200 770L1240 840M1200 910L1240 840M1200 910L1240 980M1200 1050L1240 980M1240 1120L1320 1120M1200 1050L1240 1120M1320 700L1360 630M1360 630L1440 630M1360 1190L1440 1190M1320 1120L1360 1190M1440 630L1480 560M1480 560L1560 560M1560 560L1600 630M1560 1260L1600 1190M1480 1260L1560 1260M1440 1190L1480 1260M1600 630L1680 630M1680 630L1720 700M1680 1190L1720 1120M1600 1190L1680 1190M1720 700L1800 700M1800 700L1840 770M1800 840L1840 770M1800 840L1840 910M1800 980L1840 910M1800 980L1840 1050M1800 1120L1840 1050M1720 1120L1800 1120M1800 700L1840 630M1840 630L1920 630M1800 700L1840 770M1800 840L1840 770M1800 840L1840 910M1800 980L1840 910M1840 1050L1920 1050M1800 980L1840 1050M1920 630L1960 560M1960 560L2040 560M1960 1120L2040 1120M1920 1050L1960 1120M2040 560L2080 490M2080 490L2160 490M2160 490L2200 560M2160 1190L2200 1120M2080 1190L2160 1190M2040 1120L2080 1190M2200 560L2280 560M2280 560L2320 630M2280 1120L2320 1050M2200 1120L2280 1120M2320 630L2400 630M2400 630L2440 700M2400 770L2440 700M2400 770L2440 840M2400 910L2440 840M2400 910L2440 980M2400 1050L2440 980M2320 1050L2400 1050M360 1400L400 1330M400 1330L480 1330M360 1400L400 1470M360 1540L400 1470M360 1540L400 1610M360 1680L400 1610M400 1750L480 1750M360 1680L400 1750M480 1330L520 1260M520 1260L600 1260M520 1820L600 1820M480 1750L520 1820M600 1260L640 1190M640 1190L720 1190M720 1190L760 1260M720 1890L760 1820M640 1890L720 1890M600 1820L640 1890M760 1260L840 1260M840 1260L880 1330M840 1820L880 1750M760 1820L840 1820M880 1330L960 1330M1000 1400L960 1330M1000 1400L960 1470M1000 1540L960 1470M1000 1540L960 1610M1000 1680L960 1610M1000 1680L960 1750M880 1750L960 1750M1000 1260L960 1330M1000 1260L1080 1260M1000 1400L960 1330M1000 1400L960 1470M1000 1540L960 1470M1000 1540L960 1610M1000 1680L1080 1680M1000 1680L960 1610M1080 1260L1120 1190M1120 1190L1200 1190M1120 1750L1200 1750M1080 1680L1120 1750M1200 1190L1240 1120M1240 1120L1320 1120M1320 1120L1360 1190M1320 1820L1360 1750M1240 1820L1320 1820M1200 1750L1240 1820M1360 1190L1440 1190M1440 1190L1480 1260M1440 1750L1480 1680M1360 1750L1440 1750M1480 1260L1560 1260M1560 1260L1600 1330M1560 1400L1600 1330M1560 1400L1600 1470M1560 1540L1600 1470M1560 1540L1600 1610M1560 1680L1600 1610M1480 1680L1560 1680M1560 1260L1600 1190M1600 1190L1680 1190M1560 1260L1600 1330M1560 1400L1600 1330M1560 1400L1600 1470M1560 1540L1600 1470M1600 1610L1680 1610M1560 1540L1600 1610M1680 1190L1720 1120M1720 1120L1800 1120M1720 1680L1800 1680M1680 1610L1720 1680M1800 1120L1840 1050M1840 1050L1920 1050M1920 1050L1960 1120M1920 1750L1960 1680M1840 1750L1920 1750M1800 1680L1840 1750M1960 1120L2040 1120M2040 1120L2080 1190M2040 1680L2080 1610M1960 1680L2040 1680M2080 1190L2160 1190M2160 1190L2200 1260M2160 1330L2200 1260M2160 1330L2200 1400M2160 1470L2200 1400M2160 1470L2200 1540M2160 1610L2200 1540M2080 1610L2160 1610" /></svg>
+  <img class="gp-piece gp-piece--mt gp-piece--own" src="../assets/games/gaia/mi-red.webp" alt="معدن مینا" style="left:37.551%;top:66.491%">
+  <img class="gp-piece gp-piece--ts gp-piece--own" src="../assets/games/gaia/ts-red.webp" alt="ایستگاه تجاری مینا" style="left:57.143%;top:59.103%">
+  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-yellow.webp" alt="معدن نیلوفر" style="left:27.755%;top:51.715%">
+  <img class="gp-piece gp-piece--ac" src="../assets/games/gaia/ac-yellow.webp" alt="آکادمی نیلوفر" style="left:71.837%;top:48.021%">
+  <img class="gp-piece" src="../assets/games/gaia/pi-yellow.webp" alt="مؤسسهٔ سیاره‌ای نیلوفر" style="left:52.245%;top:92.348%">
+  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-brown.webp" alt="معدن آرش" style="left:32.653%;top:48.021%">
+  <img class="gp-piece gp-piece--rl" src="../assets/games/gaia/rl-brown.webp" alt="آزمایشگاه پژوهشی آرش" style="left:57.143%;top:51.715%">
+  <img class="gp-piece gp-piece--mt" src="../assets/games/gaia/mi-orange.webp" alt="معدن سارا" style="left:57.143%;top:36.939%">
+  <img class="gp-piece gp-piece--ts" src="../assets/games/gaia/ts-orange.webp" alt="ایستگاه تجاری سارا" style="left:42.449%;top:62.797%">
  </div>
-</section>
+ <div class="gp-zoom" role="group" aria-label="بزرگ‌نمایی نقشه"><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کل نقشه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button></div>
+ </div>
+</main>
 
-<section class="bgv-felt gp-zone" aria-label="صفحهٔ بازیکن‌ها">
- <div class="gp-tabs" role="tablist" aria-label="صفحهٔ کدام بازیکن"><button type="button" role="tab" aria-selected="true"><i class="bgv-seat seat-1"></i>مینا، شما</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-2"></i>نیلوفر</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-3"></i>آرش</button><button type="button" role="tab" aria-selected="false"><i class="bgv-seat seat-4"></i>سارا</button></div>
- <div class="gp-fwrap" dir="ltr">
- <div class="gp-board gp-board--fac" dir="ltr" role="tabpanel" aria-label="صفحهٔ جناح هادش هالا: ساختمان‌های باقی‌مانده و قدرت">
+<section class="bgv-felt gp-zone" aria-label="صفحهٔ همهٔ بازیکن‌ها">
+ <div class="gp-pboards" dir="ltr">
+  <article class="gp-pb is-you" aria-label="صفحهٔ مینا، هادش هالا">
+   <header class="gp-pb__head"><i class="bgv-seat seat-1"></i><b>مینا</b><span class="bgv-badge bgv-badge--sm">شما</span><small><img class="gp-planet" src="../assets/games/gaia/planet-red.webp" alt="">هادش هالا</small></header>
+   <div class="gp-fwrap" dir="ltr">
+   <div class="gp-board gp-board--fac" dir="ltr" role="group" aria-label="صفحهٔ جناح هادش هالا: ساختمان‌های باقی‌مانده و قدرت">
   <img class="gp-base" src="../assets/games/gaia/faction-hadsch-hallas.webp" alt="صفحهٔ جناح هادش هالا" width="1753" height="999">
   <img class="gp-at gp-bld gp-bld--pi" src="../assets/games/gaia/pi-red.webp" alt="مؤسسهٔ سیاره‌ای" title="مؤسسهٔ سیاره‌ای" style="left:17.11%;top:48.75%">
   <img class="gp-at gp-bld gp-bld--ac" src="../assets/games/gaia/ac-red.webp" alt="آکادمی" title="آکادمی" style="left:52.6%;top:48.35%">
@@ -366,15 +336,165 @@ body{margin:0}
   <button class="gp-conv" type="button" aria-label="۱ قدرت ← ۱ اعتبار" style="left:88.14%;top:72.87%"></button>
   <button class="gp-conv" type="button" aria-label="۱ دانش ← ۱ اعتبار" style="left:88.14%;top:78.88%"></button>
   <button class="gp-conv" type="button" aria-label="۱ سنگ معدن ← ۱ ژتون قدرت" style="left:88.14%;top:87.89%"></button>
- </div>
-  <button class="gp-boost is-avail" type="button" title="اقدام بوستر در دسترس: ۱ گام زمین‌سازی و ساخت معدن" aria-label="بوستر مینا: +۲ اعتبار؛ اقدام: ۱ گام زمین‌سازی و ساخت معدن"><img src="../assets/games/gaia/booter.webp" alt=""></button>
- </div>
- <div class="gp-owned" role="group" aria-label="کاشی‌ها و توکن‌های مینا">
-  <figure><button type="button" aria-label="درآمد ۱ سنگ معدن و ۱ شارژ قدرت"><img src="../assets/games/gaia/tecore.webp" alt=""></button><figcaption>فناوری</figcaption></figure>
-  <figure><button class="gp-used" type="button" disabled="" aria-label="اقدام ۴ شارژ قدرت، استفاده شده"><img src="../assets/games/gaia/tecpow.webp" alt=""></button><figcaption>اقدام استفاده‌شده</figcaption></figure>
-  <figure><img src="../assets/games/gaia/fedcre.webp" alt="۷ امتیاز و ۶ اعتبار"><figcaption>فدراسیون</figcaption></figure>
+   </div>
+   <button class="gp-boost is-avail" type="button" title="اقدام بوستر در دسترس: ۱ گام زمین‌سازی و ساخت معدن" aria-label="بوستر مینا: +۲ اعتبار؛ اقدام: ۱ گام زمین‌سازی و ساخت معدن"><img src="../assets/games/gaia/booter.webp" alt=""></button>
+   </div>
+   <div class="gp-owned" role="group" aria-label="کاشی‌ها و توکن‌های مینا">
+    <figure><button type="button" aria-label="درآمد ۱ سنگ معدن و ۱ شارژ قدرت"><img src="../assets/games/gaia/tecore.webp" alt=""></button><figcaption>فناوری</figcaption></figure>
+    <figure><button class="gp-used" type="button" disabled="" aria-label="اقدام ۴ شارژ قدرت، استفاده شده"><img src="../assets/games/gaia/tecpow.webp" alt=""></button><figcaption>اقدام استفاده‌شده</figcaption></figure>
+    <figure><img src="../assets/games/gaia/fedcre.webp" alt="۷ امتیاز و ۶ اعتبار"><figcaption>فدراسیون</figcaption></figure>
+   </div>
+  </article>
+  <article class="gp-pb" aria-label="صفحهٔ آرش، تاکلون‌ها">
+   <header class="gp-pb__head"><i class="bgv-seat seat-3"></i><b>آرش</b><small><img class="gp-planet" src="../assets/games/gaia/planet-brown.webp" alt="">تاکلون‌ها</small></header>
+   <div class="gp-fwrap" dir="ltr">
+   <div class="gp-board gp-board--fac" dir="ltr" role="group" aria-label="صفحهٔ جناح تاکلون‌ها: ساختمان‌های باقی‌مانده و قدرت">
+  <img class="gp-base" src="../assets/games/gaia/faction-taklons.webp" alt="صفحهٔ جناح تاکلون‌ها" width="1753" height="999">
+  <img class="gp-at gp-bld gp-bld--pi" src="../assets/games/gaia/pi-brown.webp" alt="مؤسسهٔ سیاره‌ای" title="مؤسسهٔ سیاره‌ای" style="left:17.11%;top:48.75%">
+  <img class="gp-at gp-bld gp-bld--ac" src="../assets/games/gaia/ac-brown.webp" alt="آکادمی" title="آکادمی" style="left:52.6%;top:48.35%">
+  <img class="gp-at gp-bld gp-bld--ac" src="../assets/games/gaia/ac-brown.webp" alt="آکادمی" title="آکادمی" style="left:63.49%;top:48.35%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-brown.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:58.01%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-brown.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:65.6%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-brown.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:14.66%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-brown.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:19.68%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-brown.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:24.7%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-brown.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:29.78%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-brown.webp" alt="معدن" title="معدن" style="left:24.93%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-brown.webp" alt="معدن" title="معدن" style="left:29.95%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-brown.webp" alt="معدن" title="معدن" style="left:34.91%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-brown.webp" alt="معدن" title="معدن" style="left:39.93%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-brown.webp" alt="معدن" title="معدن" style="left:45.18%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-brown.webp" alt="معدن" title="معدن" style="left:50.37%;top:91.29%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:19.4%;top:7.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:23.39%;top:5.51%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:31.37%;top:5.51%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:35.37%;top:7.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ III" title="ژتون قدرت، کاسهٔ III" style="left:49.17%;top:11.81%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ III" title="ژتون قدرت، کاسهٔ III" style="left:52.03%;top:14.51%">
+   </div>
+   <span class="gp-boost"><img src="../assets/games/gaia/booqic.webp" alt="بوستر آرش"></span>
+   </div>
+   <div class="gp-owned" role="group" aria-label="کاشی‌ها و توکن‌های آرش">
+    <figure><img src="../assets/games/gaia/tecqic.webp" alt="فوری ۱ سنگ معدن و ۱ QIC" title="فوری ۱ سنگ معدن و ۱ QIC"><figcaption>فناوری</figcaption></figure>
+   </div>
+  </article>
+  <article class="gp-pb" aria-label="صفحهٔ نیلوفر، زنوس">
+   <header class="gp-pb__head"><i class="bgv-seat seat-2"></i><b>نیلوفر</b><small><img class="gp-planet" src="../assets/games/gaia/planet-yellow.webp" alt="">زنوس</small></header>
+   <div class="gp-fwrap" dir="ltr">
+   <div class="gp-board gp-board--fac" dir="ltr" role="group" aria-label="صفحهٔ جناح زنوس: ساختمان‌های باقی‌مانده و قدرت">
+  <img class="gp-base" src="../assets/games/gaia/faction-xenos.webp" alt="صفحهٔ جناح زنوس" width="1753" height="999">
+  <img class="gp-at gp-bld gp-bld--ac" src="../assets/games/gaia/ac-yellow.webp" alt="آکادمی" title="آکادمی" style="left:63.49%;top:48.35%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-yellow.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:50.88%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-yellow.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:58.01%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-yellow.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:65.6%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-yellow.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:14.66%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-yellow.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:19.68%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-yellow.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:24.7%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-yellow.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:29.78%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-yellow.webp" alt="معدن" title="معدن" style="left:29.95%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-yellow.webp" alt="معدن" title="معدن" style="left:34.91%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-yellow.webp" alt="معدن" title="معدن" style="left:39.93%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-yellow.webp" alt="معدن" title="معدن" style="left:45.18%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-yellow.webp" alt="معدن" title="معدن" style="left:50.37%;top:91.29%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:19.4%;top:7.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:23.39%;top:5.51%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:31.37%;top:5.51%">
+   </div>
+   <span class="gp-boost"><img src="../assets/games/gaia/boonav.webp" alt="بوستر نیلوفر"></span>
+   </div>
+   <div class="gp-owned" role="group" aria-label="کاشی‌ها و توکن‌های نیلوفر">
+    <figure><img src="../assets/games/gaia/tecknw.webp" alt="درآمد ۱ دانش و ۱ اعتبار" title="درآمد ۱ دانش و ۱ اعتبار"><figcaption>فناوری</figcaption></figure>
+    <figure><img src="../assets/games/gaia/tectyp.webp" alt="فوری ۱ دانش برای هر نوع سیاره" title="فوری ۱ دانش برای هر نوع سیاره"><figcaption>فناوری</figcaption></figure>
+   </div>
+  </article>
+  <article class="gp-pb" aria-label="صفحهٔ سارا، ژئودن‌ها">
+   <header class="gp-pb__head"><i class="bgv-seat seat-4"></i><b>سارا</b><small><img class="gp-planet" src="../assets/games/gaia/planet-orange.webp" alt="">ژئودن‌ها</small></header>
+   <div class="gp-fwrap" dir="ltr">
+   <div class="gp-board gp-board--fac" dir="ltr" role="group" aria-label="صفحهٔ جناح ژئودن‌ها: ساختمان‌های باقی‌مانده و قدرت">
+  <img class="gp-base" src="../assets/games/gaia/faction-geodens.webp" alt="صفحهٔ جناح ژئودن‌ها" width="1753" height="999">
+  <img class="gp-at gp-bld gp-bld--pi" src="../assets/games/gaia/pi-orange.webp" alt="مؤسسهٔ سیاره‌ای" title="مؤسسهٔ سیاره‌ای" style="left:17.11%;top:48.75%">
+  <img class="gp-at gp-bld gp-bld--ac" src="../assets/games/gaia/ac-orange.webp" alt="آکادمی" title="آکادمی" style="left:52.6%;top:48.35%">
+  <img class="gp-at gp-bld gp-bld--ac" src="../assets/games/gaia/ac-orange.webp" alt="آکادمی" title="آکادمی" style="left:63.49%;top:48.35%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-orange.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:50.88%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-orange.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:58.01%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/rl-orange.webp" alt="آزمایشگاه پژوهشی" title="آزمایشگاه پژوهشی" style="left:65.6%;top:70.57%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-orange.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:19.68%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-orange.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:24.7%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/ts-orange.webp" alt="ایستگاه تجاری" title="ایستگاه تجاری" style="left:29.78%;top:70.87%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-orange.webp" alt="معدن" title="معدن" style="left:24.93%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-orange.webp" alt="معدن" title="معدن" style="left:29.95%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-orange.webp" alt="معدن" title="معدن" style="left:34.91%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-orange.webp" alt="معدن" title="معدن" style="left:39.93%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-orange.webp" alt="معدن" title="معدن" style="left:45.18%;top:91.29%">
+  <img class="gp-at gp-bld" src="../assets/games/gaia/mi-orange.webp" alt="معدن" title="معدن" style="left:50.37%;top:91.29%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ I" title="ژتون قدرت، کاسهٔ I" style="left:19.4%;top:24.02%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:19.4%;top:7.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:23.39%;top:5.51%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:31.37%;top:5.51%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:35.37%;top:7.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:19.68%;top:13.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:23.39%;top:14.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، کاسهٔ II" title="ژتون قدرت، کاسهٔ II" style="left:31.37%;top:14.01%">
+  <img class="gp-at gp-ptok" src="../assets/games/gaia/power-token.webp" alt="ژتون قدرت، ناحیهٔ گایا" title="ژتون قدرت، ناحیهٔ گایا" style="left:9.41%;top:10.51%">
+   </div>
+   <span class="gp-boost"><img src="../assets/games/gaia/boomin.webp" alt="بوستر سارا"></span>
+   </div>
+   <div class="gp-owned" role="group" aria-label="کاشی‌ها و توکن‌های سارا">
+    <figure><img src="../assets/games/gaia/tecgai.webp" alt="هر معدن روی سیارهٔ گایا ۳ امتیاز" title="هر معدن روی سیارهٔ گایا ۳ امتیاز"><figcaption>فناوری</figcaption></figure>
+   </div>
+  </article>
  </div>
  <p class="gp-hint">روی هر تبدیل یا اقدام صفحه بروید تا توضیحش را ببینید و بزنید تا انجام شود.</p>
+</section>
+
+<section class="bgv-felt gp-zone" aria-label="امتیاز، بوسترها و فدراسیون‌ها">
+ <div class="gp-split gp-split--even">
+  <div>
+   <div class="gp-board" dir="ltr" role="group" aria-label="صفحهٔ امتیاز">
+    <img class="gp-base" src="../assets/games/gaia/scoring-board.webp" alt="صفحهٔ امتیاز با چرخهٔ سیاره‌ها" width="1737" height="1718">
+    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۱، انجام شد" style="left:26.88%;top:42.37%;--a:-75deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۲، انجام شد" style="left:32.99%;top:31.67%;--a:-45deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rnd-back.webp" alt="دور ۳، انجام شد" style="left:43.57%;top:25.49%;--a:-15deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rndtrs3.webp" alt="دور ۴: هر ایستگاه تجاری ۳ امتیاز" style="left:55.79%;top:25.49%;--a:15deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rndfed.webp" alt="دور ۵: هر فدراسیون ۵ امتیاز" style="left:66.37%;top:31.67%;--a:45deg">
+    <img class="gp-rnd" src="../assets/games/gaia/rndpia.webp" alt="دور ۶: مؤسسه یا آکادمی ۵ امتیاز" style="left:72.48%;top:42.37%;--a:75deg">
+    <img class="gp-at gp-fin" src="../assets/games/gaia/finbld.webp" alt="امتیاز پایانی: بیشترین سازه روی نقشه" style="left:69.6%;top:55.59%">
+    <img class="gp-at gp-fin" src="../assets/games/gaia/finsec.webp" alt="امتیاز پایانی: حضور در بیشترین بخش" style="left:69.6%;top:74.1%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر 7" title="نیلوفر 7" style="left:44.51%;top:51.11%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-red.webp" alt="مینا 5" title="مینا 5" style="left:37.42%;top:54.13%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-brown.webp" alt="آرش 4" title="آرش 4" style="left:33.87%;top:57.16%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-orange.webp" alt="سارا 5" title="سارا 5" style="left:37.42%;top:60.19%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-yellow.webp" alt="نیلوفر 4" title="نیلوفر 4" style="left:33.87%;top:69.27%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-red.webp" alt="مینا 3" title="مینا 3" style="left:30.33%;top:72.29%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-brown.webp" alt="آرش 2" title="آرش 2" style="left:26.78%;top:75.32%">
+    <img class="gp-at gp-tok gp-tok--fin" src="../assets/games/gaia/sat-orange.webp" alt="سارا 3" title="سارا 3" style="left:30.33%;top:78.35%">
+    <span class="gp-cnt" style="left:83.13%;top:23.28%" title="مینا: ۲"><img src="../assets/games/gaia/sat-red.webp" alt=""><b>۲</b></span>
+    <span class="gp-cnt" style="left:67.82%;top:90.28%" title="نیلوفر: ۳"><img src="../assets/games/gaia/sat-yellow.webp" alt=""><b>۳</b></span>
+    <span class="gp-cnt" style="left:32.01%;top:90.28%" title="آرش: ۲"><img src="../assets/games/gaia/sat-brown.webp" alt=""><b>۲</b></span>
+    <span class="gp-cnt" style="left:91.48%;top:60.13%" title="سارا: ۲"><img src="../assets/games/gaia/sat-orange.webp" alt=""><b>۲</b></span>
+   </div>
+  </div>
+  <div style="display:grid;gap:14px;align-content:start">
+   <div class="gp-boosters" dir="rtl" role="group" aria-label="بوسترهای دور">
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر مینا"><img src="../assets/games/gaia/booter.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-1">م</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر نیلوفر"><img src="../assets/games/gaia/boonav.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-2">ن</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر آرش"><img src="../assets/games/gaia/booqic.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-3">آ</span></button>
+    <button class="gp-boost is-taken" type="button" disabled="" aria-label="بوستر سارا"><img src="../assets/games/gaia/boomin.webp" alt=""><span class="bgv-avatar bgv-avatar--xs seat-4">س</span></button>
+    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: +۱ دانش، +۱ سنگ معدن"><img src="../assets/games/gaia/booknw.webp" alt=""></button>
+    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: +۱ سنگ معدن، +۲ ژتون قدرت"><img src="../assets/games/gaia/boopwt.webp" alt=""></button>
+    <button class="gp-boost is-free" type="button" aria-label="بوستر آزاد: هنگام پاس ۲ امتیاز برای هر ایستگاه تجاری"><img src="../assets/games/gaia/bootrs.webp" alt=""></button>
+   </div>
+   <p class="gp-hint">هنگام پاس، بوستر خود را برمی‌گردانید و یکی از سه بوستر آزاد را برمی‌دارید.</p>
+  <div class="gp-fed" role="group" aria-label="توکن‌های فدراسیون باقی‌مانده"><b>توکن‌های فدراسیون</b><div class="gp-fed__grid">
+    <span class="gp-fed__t" title="۱۲ امتیاز"><img src="../assets/games/gaia/fedvps.webp" alt="۱۲ امتیاز">×۲</span>
+    <span class="gp-fed__t" title="۸ امتیاز و ۱ QIC"><img src="../assets/games/gaia/fedqic.webp" alt="۸ امتیاز و ۱ QIC">×۳</span>
+    <span class="gp-fed__t" title="۸ امتیاز و ۲ ژتون قدرت"><img src="../assets/games/gaia/fedpwt.webp" alt="۸ امتیاز و ۲ ژتون قدرت">×۳</span>
+    <span class="gp-fed__t" title="۷ امتیاز و ۲ سنگ معدن"><img src="../assets/games/gaia/fedore.webp" alt="۷ امتیاز و ۲ سنگ معدن">×۲</span>
+    <span class="gp-fed__t" title="۷ امتیاز و ۶ اعتبار"><img src="../assets/games/gaia/fedcre.webp" alt="۷ امتیاز و ۶ اعتبار">×۲</span>
+    <span class="gp-fed__t is-out" title="۶ امتیاز و ۲ دانش"><img src="../assets/games/gaia/fedknw.webp" alt="۶ امتیاز و ۲ دانش">×۰</span>
+  </div></div>
+  </div>
+ </div>
 </section>
 </div>
 
@@ -416,7 +536,7 @@ body{margin:0}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2320}}'>
 class Component extends DCLogic {
   renderVals() { return {}; }
 }

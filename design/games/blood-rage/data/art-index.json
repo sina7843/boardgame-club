@@ -1,0 +1,1784 @@
+{
+ "boards/clan-statistics.webp": {
+  "w": 800,
+  "h": 347,
+  "bytes": 34740,
+  "source": "ready to use/boards/clan-statistics.png"
+ },
+ "boards/main-board.webp": {
+  "w": 1600,
+  "h": 1600,
+  "bytes": 605010,
+  "source": "ready to use/boards/main-board.png"
+ },
+ "backgrounds/clan-statistics-background.webp": {
+  "w": 800,
+  "h": 347,
+  "bytes": 19356,
+  "source": "ready to use/backgrounds/clan-statistics-background.png"
+ },
+ "backgrounds/sea-background.webp": {
+  "w": 1600,
+  "h": 1600,
+  "bytes": 586590,
+  "source": "ready to use/backgrounds/sea-background.png"
+ },
+ "branding/blood-rage-logo.webp": {
+  "w": 300,
+  "h": 186,
+  "bytes": 23022,
+  "source": "ready to use/branding/blood-rage-logo.png"
+ },
+ "cards/card-001-loki-s-trickery.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11058,
+  "source": "ready to use/cards/card-001-loki-s-trickery.png"
+ },
+ "cards/card-002-loki-s-trickery.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11266,
+  "source": "ready to use/cards/card-002-loki-s-trickery.png"
+ },
+ "cards/card-003-thor-s-hammer.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9326,
+  "source": "ready to use/cards/card-003-thor-s-hammer.png"
+ },
+ "cards/card-004-heimdall-s-sight.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11584,
+  "source": "ready to use/cards/card-004-heimdall-s-sight.png"
+ },
+ "cards/card-005-odin-s-smite.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11100,
+  "source": "ready to use/cards/card-005-odin-s-smite.png"
+ },
+ "cards/card-006-odin-s-smite.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11168,
+  "source": "ready to use/cards/card-006-odin-s-smite.png"
+ },
+ "cards/card-007-frigga-s-grace.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9270,
+  "source": "ready to use/cards/card-007-frigga-s-grace.png"
+ },
+ "cards/card-008-frigga-s-grace.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9334,
+  "source": "ready to use/cards/card-008-frigga-s-grace.png"
+ },
+ "cards/card-009-tyr-s-bash.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8194,
+  "source": "ready to use/cards/card-009-tyr-s-bash.png"
+ },
+ "cards/card-010-tyr-s-smash.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8736,
+  "source": "ready to use/cards/card-010-tyr-s-smash.png"
+ },
+ "cards/card-011-tyr-s-smash.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8894,
+  "source": "ready to use/cards/card-011-tyr-s-smash.png"
+ },
+ "cards/card-012-tyr-s-crush.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9270,
+  "source": "ready to use/cards/card-012-tyr-s-crush.png"
+ },
+ "cards/card-013-tyr-s-smite.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8470,
+  "source": "ready to use/cards/card-013-tyr-s-smite.png"
+ },
+ "cards/card-014-manheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13556,
+  "source": "ready to use/cards/card-014-manheim.png"
+ },
+ "cards/card-015-manheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13904,
+  "source": "ready to use/cards/card-015-manheim.png"
+ },
+ "cards/card-016-jotunheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13708,
+  "source": "ready to use/cards/card-016-jotunheim.png"
+ },
+ "cards/card-017-jotunheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13864,
+  "source": "ready to use/cards/card-017-jotunheim.png"
+ },
+ "cards/card-018-alfheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13570,
+  "source": "ready to use/cards/card-018-alfheim.png"
+ },
+ "cards/card-019-alfheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13860,
+  "source": "ready to use/cards/card-019-alfheim.png"
+ },
+ "cards/card-020-yggdrasil.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12928,
+  "source": "ready to use/cards/card-020-yggdrasil.png"
+ },
+ "cards/card-021-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11014,
+  "source": "ready to use/cards/card-021-glorious-death.png"
+ },
+ "cards/card-022-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11230,
+  "source": "ready to use/cards/card-022-glorious-death.png"
+ },
+ "cards/card-023-brothers-in-arms.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10118,
+  "source": "ready to use/cards/card-023-brothers-in-arms.png"
+ },
+ "cards/card-024-loki-s-dragons.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12812,
+  "source": "ready to use/cards/card-024-loki-s-dragons.png"
+ },
+ "cards/card-025-lord-of-hammers.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11158,
+  "source": "ready to use/cards/card-025-lord-of-hammers.png"
+ },
+ "cards/card-026-troll.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11584,
+  "source": "ready to use/cards/card-026-troll.png"
+ },
+ "cards/card-027-dwarf-chieftain.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11920,
+  "source": "ready to use/cards/card-027-dwarf-chieftain.png"
+ },
+ "cards/card-028-sea-serpent.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10538,
+  "source": "ready to use/cards/card-028-sea-serpent.png"
+ },
+ "cards/card-029-loki-s-blessing.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11098,
+  "source": "ready to use/cards/card-029-loki-s-blessing.png"
+ },
+ "cards/card-030-loki-s-domain.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8866,
+  "source": "ready to use/cards/card-030-loki-s-domain.png"
+ },
+ "cards/card-031-frigga-s-charm.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12280,
+  "source": "ready to use/cards/card-031-frigga-s-charm.png"
+ },
+ "cards/card-032-tyr-s-domain.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9626,
+  "source": "ready to use/cards/card-032-tyr-s-domain.png"
+ },
+ "cards/card-033-thor-s-glory.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11382,
+  "source": "ready to use/cards/card-033-thor-s-glory.png"
+ },
+ "cards/card-034-frigga-s-succor.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12584,
+  "source": "ready to use/cards/card-034-frigga-s-succor.png"
+ },
+ "cards/card-035-loki-s-backstab.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10332,
+  "source": "ready to use/cards/card-035-loki-s-backstab.png"
+ },
+ "cards/card-036-loki-s-backstab.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10402,
+  "source": "ready to use/cards/card-036-loki-s-backstab.png"
+ },
+ "cards/card-037-odin-s-tide.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10102,
+  "source": "ready to use/cards/card-037-odin-s-tide.png"
+ },
+ "cards/card-038-odin-s-tide.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10220,
+  "source": "ready to use/cards/card-038-odin-s-tide.png"
+ },
+ "cards/card-039-heimdall-s-eye.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12446,
+  "source": "ready to use/cards/card-039-heimdall-s-eye.png"
+ },
+ "cards/card-040-heimdall-s-eye.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12444,
+  "source": "ready to use/cards/card-040-heimdall-s-eye.png"
+ },
+ "cards/card-041-heimdall-s-eye.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12658,
+  "source": "ready to use/cards/card-041-heimdall-s-eye.png"
+ },
+ "cards/card-042-thor-s-oath.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9162,
+  "source": "ready to use/cards/card-042-thor-s-oath.png"
+ },
+ "cards/card-043-tyr-s-smash.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8918,
+  "source": "ready to use/cards/card-043-tyr-s-smash.png"
+ },
+ "cards/card-044-tyr-s-crush.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8874,
+  "source": "ready to use/cards/card-044-tyr-s-crush.png"
+ },
+ "cards/card-045-tyr-s-smite.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8672,
+  "source": "ready to use/cards/card-045-tyr-s-smite.png"
+ },
+ "cards/card-046-tyr-s-rage.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9034,
+  "source": "ready to use/cards/card-046-tyr-s-rage.png"
+ },
+ "cards/card-047-heimdall-s-watch.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11462,
+  "source": "ready to use/cards/card-047-heimdall-s-watch.png"
+ },
+ "cards/card-048-manheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13596,
+  "source": "ready to use/cards/card-048-manheim.png"
+ },
+ "cards/card-049-manheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13834,
+  "source": "ready to use/cards/card-049-manheim.png"
+ },
+ "cards/card-050-jotunheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13528,
+  "source": "ready to use/cards/card-050-jotunheim.png"
+ },
+ "cards/card-051-jotunheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13702,
+  "source": "ready to use/cards/card-051-jotunheim.png"
+ },
+ "cards/card-052-alfheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13386,
+  "source": "ready to use/cards/card-052-alfheim.png"
+ },
+ "cards/card-053-alfheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13778,
+  "source": "ready to use/cards/card-053-alfheim.png"
+ },
+ "cards/card-054-yggdrasil.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13036,
+  "source": "ready to use/cards/card-054-yggdrasil.png"
+ },
+ "cards/card-055-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10928,
+  "source": "ready to use/cards/card-055-glorious-death.png"
+ },
+ "cards/card-056-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11090,
+  "source": "ready to use/cards/card-056-glorious-death.png"
+ },
+ "cards/card-057-experts-in-arms.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10348,
+  "source": "ready to use/cards/card-057-experts-in-arms.png"
+ },
+ "cards/card-058-fire-dragons.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10758,
+  "source": "ready to use/cards/card-058-fire-dragons.png"
+ },
+ "cards/card-059-lord-of-axes.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11746,
+  "source": "ready to use/cards/card-059-lord-of-axes.png"
+ },
+ "cards/card-060-valkyrie.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11468,
+  "source": "ready to use/cards/card-060-valkyrie.png"
+ },
+ "cards/card-061-dark-elf.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12990,
+  "source": "ready to use/cards/card-061-dark-elf.png"
+ },
+ "cards/card-062-fire-giant.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12064,
+  "source": "ready to use/cards/card-062-fire-giant.png"
+ },
+ "cards/card-063-odin-s-inspiration.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11248,
+  "source": "ready to use/cards/card-063-odin-s-inspiration.png"
+ },
+ "cards/card-064-thor-s-domain.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10698,
+  "source": "ready to use/cards/card-064-thor-s-domain.png"
+ },
+ "cards/card-065-loki-s-eminence.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8638,
+  "source": "ready to use/cards/card-065-loki-s-eminence.png"
+ },
+ "cards/card-066-frigga-s-protection.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12614,
+  "source": "ready to use/cards/card-066-frigga-s-protection.png"
+ },
+ "cards/card-067-tyr-s-challenge.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10158,
+  "source": "ready to use/cards/card-067-tyr-s-challenge.png"
+ },
+ "cards/card-068-tyr-s-prowess.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10648,
+  "source": "ready to use/cards/card-068-tyr-s-prowess.png"
+ },
+ "cards/card-069-loki-s-poison.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11184,
+  "source": "ready to use/cards/card-069-loki-s-poison.png"
+ },
+ "cards/card-070-thor-s-ascension.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9218,
+  "source": "ready to use/cards/card-070-thor-s-ascension.png"
+ },
+ "cards/card-071-thor-s-ascension.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9372,
+  "source": "ready to use/cards/card-071-thor-s-ascension.png"
+ },
+ "cards/card-072-heimdall-s-gaze.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12402,
+  "source": "ready to use/cards/card-072-heimdall-s-gaze.png"
+ },
+ "cards/card-073-odin-s-judgement.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11184,
+  "source": "ready to use/cards/card-073-odin-s-judgement.png"
+ },
+ "cards/card-074-heimdall-s-gaze.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12560,
+  "source": "ready to use/cards/card-074-heimdall-s-gaze.png"
+ },
+ "cards/card-075-odin-s-judgement.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11334,
+  "source": "ready to use/cards/card-075-odin-s-judgement.png"
+ },
+ "cards/card-076-thor-s-primacy.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12244,
+  "source": "ready to use/cards/card-076-thor-s-primacy.png"
+ },
+ "cards/card-077-thor-s-primacy.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12356,
+  "source": "ready to use/cards/card-077-thor-s-primacy.png"
+ },
+ "cards/card-078-tyr-s-crush.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9156,
+  "source": "ready to use/cards/card-078-tyr-s-crush.png"
+ },
+ "cards/card-079-tyr-s-smite.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8688,
+  "source": "ready to use/cards/card-079-tyr-s-smite.png"
+ },
+ "cards/card-080-tyr-s-rage.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8974,
+  "source": "ready to use/cards/card-080-tyr-s-rage.png"
+ },
+ "cards/card-081-heimdall-s-watch.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11484,
+  "source": "ready to use/cards/card-081-heimdall-s-watch.png"
+ },
+ "cards/card-082-manheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13742,
+  "source": "ready to use/cards/card-082-manheim.png"
+ },
+ "cards/card-083-manheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13914,
+  "source": "ready to use/cards/card-083-manheim.png"
+ },
+ "cards/card-084-jotunheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13704,
+  "source": "ready to use/cards/card-084-jotunheim.png"
+ },
+ "cards/card-085-jotunheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13840,
+  "source": "ready to use/cards/card-085-jotunheim.png"
+ },
+ "cards/card-086-alfheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13358,
+  "source": "ready to use/cards/card-086-alfheim.png"
+ },
+ "cards/card-087-yggdrasil.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12964,
+  "source": "ready to use/cards/card-087-yggdrasil.png"
+ },
+ "cards/card-088-alfheim.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13574,
+  "source": "ready to use/cards/card-088-alfheim.png"
+ },
+ "cards/card-089-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10978,
+  "source": "ready to use/cards/card-089-glorious-death.png"
+ },
+ "cards/card-090-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11270,
+  "source": "ready to use/cards/card-090-glorious-death.png"
+ },
+ "cards/card-091-masters-in-arms.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10670,
+  "source": "ready to use/cards/card-091-masters-in-arms.png"
+ },
+ "cards/card-092-eternal-dragons.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10786,
+  "source": "ready to use/cards/card-092-eternal-dragons.png"
+ },
+ "cards/card-093-lord-of-spears.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10782,
+  "source": "ready to use/cards/card-093-lord-of-spears.png"
+ },
+ "cards/card-094-volur-witch.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12458,
+  "source": "ready to use/cards/card-094-volur-witch.png"
+ },
+ "cards/card-095-frost-giant.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12018,
+  "source": "ready to use/cards/card-095-frost-giant.png"
+ },
+ "cards/card-096-soldier-of-hel.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12316,
+  "source": "ready to use/cards/card-096-soldier-of-hel.png"
+ },
+ "cards/card-097-frigga-s-domain.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11918,
+  "source": "ready to use/cards/card-097-frigga-s-domain.png"
+ },
+ "cards/card-098-odin-s-throne.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10516,
+  "source": "ready to use/cards/card-098-odin-s-throne.png"
+ },
+ "cards/card-099-loki-s-wrath.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10416,
+  "source": "ready to use/cards/card-099-loki-s-wrath.png"
+ },
+ "cards/card-100-tyr-s-wrath.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9886,
+  "source": "ready to use/cards/card-100-tyr-s-wrath.png"
+ },
+ "cards/card-101-frigga-s-sacrifice.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11050,
+  "source": "ready to use/cards/card-101-frigga-s-sacrifice.png"
+ },
+ "cards/card-102-thor-s-conquest.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10800,
+  "source": "ready to use/cards/card-102-thor-s-conquest.png"
+ },
+ "cards/card-103-thor-s-hammer.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9364,
+  "source": "ready to use/cards/card-103-thor-s-hammer.png"
+ },
+ "cards/card-104-tyr-s-smash.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8826,
+  "source": "ready to use/cards/card-104-tyr-s-smash.png"
+ },
+ "cards/card-105-tyr-s-smite.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8644,
+  "source": "ready to use/cards/card-105-tyr-s-smite.png"
+ },
+ "cards/card-106-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11144,
+  "source": "ready to use/cards/card-106-glorious-death.png"
+ },
+ "cards/card-107-widespread.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13396,
+  "source": "ready to use/cards/card-107-widespread.png"
+ },
+ "cards/card-108-brothers-in-arms.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10160,
+  "source": "ready to use/cards/card-108-brothers-in-arms.png"
+ },
+ "cards/card-109-loki-s-dragons.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12966,
+  "source": "ready to use/cards/card-109-loki-s-dragons.png"
+ },
+ "cards/card-110-lord-of-hammers.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11300,
+  "source": "ready to use/cards/card-110-lord-of-hammers.png"
+ },
+ "cards/card-111-heimdall-s-eye.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12582,
+  "source": "ready to use/cards/card-111-heimdall-s-eye.png"
+ },
+ "cards/card-112-thor-s-oath.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9346,
+  "source": "ready to use/cards/card-112-thor-s-oath.png"
+ },
+ "cards/card-113-tyr-s-smash.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9094,
+  "source": "ready to use/cards/card-113-tyr-s-smash.png"
+ },
+ "cards/card-114-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11094,
+  "source": "ready to use/cards/card-114-glorious-death.png"
+ },
+ "cards/card-115-widespread.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13504,
+  "source": "ready to use/cards/card-115-widespread.png"
+ },
+ "cards/card-116-experts-in-arms.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10320,
+  "source": "ready to use/cards/card-116-experts-in-arms.png"
+ },
+ "cards/card-117-fire-dragons.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10940,
+  "source": "ready to use/cards/card-117-fire-dragons.png"
+ },
+ "cards/card-118-lord-of-axes.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11870,
+  "source": "ready to use/cards/card-118-lord-of-axes.png"
+ },
+ "cards/card-119-loki-s-poison.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11104,
+  "source": "ready to use/cards/card-119-loki-s-poison.png"
+ },
+ "cards/card-120-tyr-s-crush.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9268,
+  "source": "ready to use/cards/card-120-tyr-s-crush.png"
+ },
+ "cards/card-121-tyr-s-judgement.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9590,
+  "source": "ready to use/cards/card-121-tyr-s-judgement.png"
+ },
+ "cards/card-122-glorious-death.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11110,
+  "source": "ready to use/cards/card-122-glorious-death.png"
+ },
+ "cards/card-123-widespread.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13442,
+  "source": "ready to use/cards/card-123-widespread.png"
+ },
+ "cards/card-124-masters-in-arms.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10846,
+  "source": "ready to use/cards/card-124-masters-in-arms.png"
+ },
+ "cards/card-125-eternal-dragons.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10914,
+  "source": "ready to use/cards/card-125-eternal-dragons.png"
+ },
+ "cards/card-126-lord-of-spears.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10858,
+  "source": "ready to use/cards/card-126-lord-of-spears.png"
+ },
+ "card-backs/age-1-back.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9752,
+  "source": "ready to use/card-backs/age-1-back.png"
+ },
+ "card-backs/age-2-back.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 10116,
+  "source": "ready to use/card-backs/age-2-back.png"
+ },
+ "card-backs/age-3-back.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 7812,
+  "source": "ready to use/card-backs/age-3-back.png"
+ },
+ "clan-boards/bear-clan-sheet.webp": {
+  "w": 1430,
+  "h": 230,
+  "bytes": 50690,
+  "source": "ready to use/clan-boards/bear-clan-sheet.png"
+ },
+ "clan-boards/ram-clan-sheet.webp": {
+  "w": 1430,
+  "h": 230,
+  "bytes": 57314,
+  "source": "ready to use/clan-boards/ram-clan-sheet.png"
+ },
+ "clan-boards/raven-clan-sheet.webp": {
+  "w": 1430,
+  "h": 230,
+  "bytes": 55420,
+  "source": "ready to use/clan-boards/raven-clan-sheet.png"
+ },
+ "clan-boards/serpent-clan-sheet.webp": {
+  "w": 1430,
+  "h": 230,
+  "bytes": 56436,
+  "source": "ready to use/clan-boards/serpent-clan-sheet.png"
+ },
+ "clan-boards/wolf-clan-sheet.webp": {
+  "w": 1430,
+  "h": 230,
+  "bytes": 56096,
+  "source": "ready to use/clan-boards/wolf-clan-sheet.png"
+ },
+ "clan-reference/bear-icon-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 7504,
+  "source": "ready to use/clan-reference/bear-icon-reference.png"
+ },
+ "clan-reference/bear-leader-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 12526,
+  "source": "ready to use/clan-reference/bear-leader-reference.png"
+ },
+ "clan-reference/bear-ship-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11652,
+  "source": "ready to use/clan-reference/bear-ship-reference.png"
+ },
+ "clan-reference/bear-warrior-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11868,
+  "source": "ready to use/clan-reference/bear-warrior-reference.png"
+ },
+ "clan-reference/ram-icon-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9074,
+  "source": "ready to use/clan-reference/ram-icon-reference.png"
+ },
+ "clan-reference/ram-leader-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 14020,
+  "source": "ready to use/clan-reference/ram-leader-reference.png"
+ },
+ "clan-reference/ram-ship-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11560,
+  "source": "ready to use/clan-reference/ram-ship-reference.png"
+ },
+ "clan-reference/ram-warrior-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13936,
+  "source": "ready to use/clan-reference/ram-warrior-reference.png"
+ },
+ "clan-reference/raven-icon-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8804,
+  "source": "ready to use/clan-reference/raven-icon-reference.png"
+ },
+ "clan-reference/raven-leader-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13754,
+  "source": "ready to use/clan-reference/raven-leader-reference.png"
+ },
+ "clan-reference/raven-ship-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11040,
+  "source": "ready to use/clan-reference/raven-ship-reference.png"
+ },
+ "clan-reference/raven-warrior-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13510,
+  "source": "ready to use/clan-reference/raven-warrior-reference.png"
+ },
+ "clan-reference/serpent-icon-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 9334,
+  "source": "ready to use/clan-reference/serpent-icon-reference.png"
+ },
+ "clan-reference/serpent-leader-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13834,
+  "source": "ready to use/clan-reference/serpent-leader-reference.png"
+ },
+ "clan-reference/serpent-ship-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11472,
+  "source": "ready to use/clan-reference/serpent-ship-reference.png"
+ },
+ "clan-reference/serpent-warrior-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13384,
+  "source": "ready to use/clan-reference/serpent-warrior-reference.png"
+ },
+ "clan-reference/wolf-icon-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 8536,
+  "source": "ready to use/clan-reference/wolf-icon-reference.png"
+ },
+ "clan-reference/wolf-leader-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 13230,
+  "source": "ready to use/clan-reference/wolf-leader-reference.png"
+ },
+ "clan-reference/wolf-ship-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 11702,
+  "source": "ready to use/clan-reference/wolf-ship-reference.png"
+ },
+ "clan-reference/wolf-warrior-reference.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 14096,
+  "source": "ready to use/clan-reference/wolf-warrior-reference.png"
+ },
+ "clan-slots-complete/slot-clan.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 6408,
+  "source": "ready to use/clan-slots-complete/slot-clan.png"
+ },
+ "clan-slots-complete/slot-monster.webp": {
+  "w": 150,
+  "h": 230,
+  "bytes": 6032,
+  "source": "ready to use/clan-slots-complete/slot-monster.png"
+ },
+ "units/bear-card-023-brothers-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5910,
+  "source": "ready to use/units/bear-card-023-brothers-in-arms-token.png"
+ },
+ "units/bear-card-024-loki-s-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7286,
+  "source": "ready to use/units/bear-card-024-loki-s-dragons-token.png"
+ },
+ "units/bear-card-025-lord-of-hammers-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6322,
+  "source": "ready to use/units/bear-card-025-lord-of-hammers-token.png"
+ },
+ "units/bear-card-026-troll-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6710,
+  "source": "ready to use/units/bear-card-026-troll-token.png"
+ },
+ "units/bear-card-027-dwarf-chieftain-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6828,
+  "source": "ready to use/units/bear-card-027-dwarf-chieftain-token.png"
+ },
+ "units/bear-card-028-sea-serpent-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6644,
+  "source": "ready to use/units/bear-card-028-sea-serpent-token.png"
+ },
+ "units/bear-card-057-experts-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6550,
+  "source": "ready to use/units/bear-card-057-experts-in-arms-token.png"
+ },
+ "units/bear-card-058-fire-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6304,
+  "source": "ready to use/units/bear-card-058-fire-dragons-token.png"
+ },
+ "units/bear-card-059-lord-of-axes-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6794,
+  "source": "ready to use/units/bear-card-059-lord-of-axes-token.png"
+ },
+ "units/bear-card-060-valkyrie-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6810,
+  "source": "ready to use/units/bear-card-060-valkyrie-token.png"
+ },
+ "units/bear-card-061-dark-elf-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7114,
+  "source": "ready to use/units/bear-card-061-dark-elf-token.png"
+ },
+ "units/bear-card-062-fire-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6856,
+  "source": "ready to use/units/bear-card-062-fire-giant-token.png"
+ },
+ "units/bear-card-091-masters-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5692,
+  "source": "ready to use/units/bear-card-091-masters-in-arms-token.png"
+ },
+ "units/bear-card-092-eternal-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6618,
+  "source": "ready to use/units/bear-card-092-eternal-dragons-token.png"
+ },
+ "units/bear-card-093-lord-of-spears-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6380,
+  "source": "ready to use/units/bear-card-093-lord-of-spears-token.png"
+ },
+ "units/bear-card-094-volur-witch-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6850,
+  "source": "ready to use/units/bear-card-094-volur-witch-token.png"
+ },
+ "units/bear-card-095-frost-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6766,
+  "source": "ready to use/units/bear-card-095-frost-giant-token.png"
+ },
+ "units/bear-card-096-soldier-of-hel-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6842,
+  "source": "ready to use/units/bear-card-096-soldier-of-hel-token.png"
+ },
+ "units/bear-leader-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6586,
+  "source": "ready to use/units/bear-leader-token.png"
+ },
+ "units/bear-ship-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6788,
+  "source": "ready to use/units/bear-ship-token.png"
+ },
+ "units/bear-warrior-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6558,
+  "source": "ready to use/units/bear-warrior-token.png"
+ },
+ "units/ram-card-023-brothers-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6104,
+  "source": "ready to use/units/ram-card-023-brothers-in-arms-token.png"
+ },
+ "units/ram-card-024-loki-s-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7358,
+  "source": "ready to use/units/ram-card-024-loki-s-dragons-token.png"
+ },
+ "units/ram-card-025-lord-of-hammers-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6458,
+  "source": "ready to use/units/ram-card-025-lord-of-hammers-token.png"
+ },
+ "units/ram-card-026-troll-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6876,
+  "source": "ready to use/units/ram-card-026-troll-token.png"
+ },
+ "units/ram-card-027-dwarf-chieftain-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6918,
+  "source": "ready to use/units/ram-card-027-dwarf-chieftain-token.png"
+ },
+ "units/ram-card-028-sea-serpent-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6752,
+  "source": "ready to use/units/ram-card-028-sea-serpent-token.png"
+ },
+ "units/ram-card-057-experts-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6670,
+  "source": "ready to use/units/ram-card-057-experts-in-arms-token.png"
+ },
+ "units/ram-card-058-fire-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6338,
+  "source": "ready to use/units/ram-card-058-fire-dragons-token.png"
+ },
+ "units/ram-card-059-lord-of-axes-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6876,
+  "source": "ready to use/units/ram-card-059-lord-of-axes-token.png"
+ },
+ "units/ram-card-060-valkyrie-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7004,
+  "source": "ready to use/units/ram-card-060-valkyrie-token.png"
+ },
+ "units/ram-card-061-dark-elf-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7280,
+  "source": "ready to use/units/ram-card-061-dark-elf-token.png"
+ },
+ "units/ram-card-062-fire-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6982,
+  "source": "ready to use/units/ram-card-062-fire-giant-token.png"
+ },
+ "units/ram-card-091-masters-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5900,
+  "source": "ready to use/units/ram-card-091-masters-in-arms-token.png"
+ },
+ "units/ram-card-092-eternal-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6792,
+  "source": "ready to use/units/ram-card-092-eternal-dragons-token.png"
+ },
+ "units/ram-card-093-lord-of-spears-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6510,
+  "source": "ready to use/units/ram-card-093-lord-of-spears-token.png"
+ },
+ "units/ram-card-094-volur-witch-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6900,
+  "source": "ready to use/units/ram-card-094-volur-witch-token.png"
+ },
+ "units/ram-card-095-frost-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6912,
+  "source": "ready to use/units/ram-card-095-frost-giant-token.png"
+ },
+ "units/ram-card-096-soldier-of-hel-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6958,
+  "source": "ready to use/units/ram-card-096-soldier-of-hel-token.png"
+ },
+ "units/ram-leader-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7188,
+  "source": "ready to use/units/ram-leader-token.png"
+ },
+ "units/ram-ship-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7046,
+  "source": "ready to use/units/ram-ship-token.png"
+ },
+ "units/ram-warrior-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7396,
+  "source": "ready to use/units/ram-warrior-token.png"
+ },
+ "units/raven-card-023-brothers-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5976,
+  "source": "ready to use/units/raven-card-023-brothers-in-arms-token.png"
+ },
+ "units/raven-card-024-loki-s-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7294,
+  "source": "ready to use/units/raven-card-024-loki-s-dragons-token.png"
+ },
+ "units/raven-card-025-lord-of-hammers-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6386,
+  "source": "ready to use/units/raven-card-025-lord-of-hammers-token.png"
+ },
+ "units/raven-card-026-troll-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6676,
+  "source": "ready to use/units/raven-card-026-troll-token.png"
+ },
+ "units/raven-card-027-dwarf-chieftain-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6878,
+  "source": "ready to use/units/raven-card-027-dwarf-chieftain-token.png"
+ },
+ "units/raven-card-028-sea-serpent-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6672,
+  "source": "ready to use/units/raven-card-028-sea-serpent-token.png"
+ },
+ "units/raven-card-057-experts-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6604,
+  "source": "ready to use/units/raven-card-057-experts-in-arms-token.png"
+ },
+ "units/raven-card-058-fire-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6300,
+  "source": "ready to use/units/raven-card-058-fire-dragons-token.png"
+ },
+ "units/raven-card-059-lord-of-axes-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6822,
+  "source": "ready to use/units/raven-card-059-lord-of-axes-token.png"
+ },
+ "units/raven-card-060-valkyrie-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6886,
+  "source": "ready to use/units/raven-card-060-valkyrie-token.png"
+ },
+ "units/raven-card-061-dark-elf-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7256,
+  "source": "ready to use/units/raven-card-061-dark-elf-token.png"
+ },
+ "units/raven-card-062-fire-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6902,
+  "source": "ready to use/units/raven-card-062-fire-giant-token.png"
+ },
+ "units/raven-card-091-masters-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5710,
+  "source": "ready to use/units/raven-card-091-masters-in-arms-token.png"
+ },
+ "units/raven-card-092-eternal-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6786,
+  "source": "ready to use/units/raven-card-092-eternal-dragons-token.png"
+ },
+ "units/raven-card-093-lord-of-spears-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6384,
+  "source": "ready to use/units/raven-card-093-lord-of-spears-token.png"
+ },
+ "units/raven-card-094-volur-witch-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7018,
+  "source": "ready to use/units/raven-card-094-volur-witch-token.png"
+ },
+ "units/raven-card-095-frost-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6804,
+  "source": "ready to use/units/raven-card-095-frost-giant-token.png"
+ },
+ "units/raven-card-096-soldier-of-hel-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6890,
+  "source": "ready to use/units/raven-card-096-soldier-of-hel-token.png"
+ },
+ "units/raven-leader-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6954,
+  "source": "ready to use/units/raven-leader-token.png"
+ },
+ "units/raven-ship-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6712,
+  "source": "ready to use/units/raven-ship-token.png"
+ },
+ "units/raven-warrior-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6854,
+  "source": "ready to use/units/raven-warrior-token.png"
+ },
+ "units/serpent-card-023-brothers-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6130,
+  "source": "ready to use/units/serpent-card-023-brothers-in-arms-token.png"
+ },
+ "units/serpent-card-024-loki-s-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7420,
+  "source": "ready to use/units/serpent-card-024-loki-s-dragons-token.png"
+ },
+ "units/serpent-card-025-lord-of-hammers-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6466,
+  "source": "ready to use/units/serpent-card-025-lord-of-hammers-token.png"
+ },
+ "units/serpent-card-026-troll-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6748,
+  "source": "ready to use/units/serpent-card-026-troll-token.png"
+ },
+ "units/serpent-card-027-dwarf-chieftain-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7000,
+  "source": "ready to use/units/serpent-card-027-dwarf-chieftain-token.png"
+ },
+ "units/serpent-card-028-sea-serpent-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6882,
+  "source": "ready to use/units/serpent-card-028-sea-serpent-token.png"
+ },
+ "units/serpent-card-057-experts-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6700,
+  "source": "ready to use/units/serpent-card-057-experts-in-arms-token.png"
+ },
+ "units/serpent-card-058-fire-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6402,
+  "source": "ready to use/units/serpent-card-058-fire-dragons-token.png"
+ },
+ "units/serpent-card-059-lord-of-axes-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6902,
+  "source": "ready to use/units/serpent-card-059-lord-of-axes-token.png"
+ },
+ "units/serpent-card-060-valkyrie-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7050,
+  "source": "ready to use/units/serpent-card-060-valkyrie-token.png"
+ },
+ "units/serpent-card-061-dark-elf-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7328,
+  "source": "ready to use/units/serpent-card-061-dark-elf-token.png"
+ },
+ "units/serpent-card-062-fire-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6926,
+  "source": "ready to use/units/serpent-card-062-fire-giant-token.png"
+ },
+ "units/serpent-card-091-masters-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5936,
+  "source": "ready to use/units/serpent-card-091-masters-in-arms-token.png"
+ },
+ "units/serpent-card-092-eternal-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6766,
+  "source": "ready to use/units/serpent-card-092-eternal-dragons-token.png"
+ },
+ "units/serpent-card-093-lord-of-spears-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6410,
+  "source": "ready to use/units/serpent-card-093-lord-of-spears-token.png"
+ },
+ "units/serpent-card-094-volur-witch-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7094,
+  "source": "ready to use/units/serpent-card-094-volur-witch-token.png"
+ },
+ "units/serpent-card-095-frost-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6984,
+  "source": "ready to use/units/serpent-card-095-frost-giant-token.png"
+ },
+ "units/serpent-card-096-soldier-of-hel-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7118,
+  "source": "ready to use/units/serpent-card-096-soldier-of-hel-token.png"
+ },
+ "units/serpent-leader-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6898,
+  "source": "ready to use/units/serpent-leader-token.png"
+ },
+ "units/serpent-ship-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6858,
+  "source": "ready to use/units/serpent-ship-token.png"
+ },
+ "units/serpent-warrior-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7156,
+  "source": "ready to use/units/serpent-warrior-token.png"
+ },
+ "units/wolf-card-023-brothers-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5778,
+  "source": "ready to use/units/wolf-card-023-brothers-in-arms-token.png"
+ },
+ "units/wolf-card-024-loki-s-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7098,
+  "source": "ready to use/units/wolf-card-024-loki-s-dragons-token.png"
+ },
+ "units/wolf-card-025-lord-of-hammers-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6156,
+  "source": "ready to use/units/wolf-card-025-lord-of-hammers-token.png"
+ },
+ "units/wolf-card-026-troll-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6506,
+  "source": "ready to use/units/wolf-card-026-troll-token.png"
+ },
+ "units/wolf-card-027-dwarf-chieftain-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6588,
+  "source": "ready to use/units/wolf-card-027-dwarf-chieftain-token.png"
+ },
+ "units/wolf-card-028-sea-serpent-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6442,
+  "source": "ready to use/units/wolf-card-028-sea-serpent-token.png"
+ },
+ "units/wolf-card-057-experts-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6346,
+  "source": "ready to use/units/wolf-card-057-experts-in-arms-token.png"
+ },
+ "units/wolf-card-058-fire-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6104,
+  "source": "ready to use/units/wolf-card-058-fire-dragons-token.png"
+ },
+ "units/wolf-card-059-lord-of-axes-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6622,
+  "source": "ready to use/units/wolf-card-059-lord-of-axes-token.png"
+ },
+ "units/wolf-card-060-valkyrie-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6700,
+  "source": "ready to use/units/wolf-card-060-valkyrie-token.png"
+ },
+ "units/wolf-card-061-dark-elf-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7076,
+  "source": "ready to use/units/wolf-card-061-dark-elf-token.png"
+ },
+ "units/wolf-card-062-fire-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6784,
+  "source": "ready to use/units/wolf-card-062-fire-giant-token.png"
+ },
+ "units/wolf-card-091-masters-in-arms-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 5478,
+  "source": "ready to use/units/wolf-card-091-masters-in-arms-token.png"
+ },
+ "units/wolf-card-092-eternal-dragons-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6544,
+  "source": "ready to use/units/wolf-card-092-eternal-dragons-token.png"
+ },
+ "units/wolf-card-093-lord-of-spears-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6214,
+  "source": "ready to use/units/wolf-card-093-lord-of-spears-token.png"
+ },
+ "units/wolf-card-094-volur-witch-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6810,
+  "source": "ready to use/units/wolf-card-094-volur-witch-token.png"
+ },
+ "units/wolf-card-095-frost-giant-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6714,
+  "source": "ready to use/units/wolf-card-095-frost-giant-token.png"
+ },
+ "units/wolf-card-096-soldier-of-hel-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6772,
+  "source": "ready to use/units/wolf-card-096-soldier-of-hel-token.png"
+ },
+ "units/wolf-leader-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6960,
+  "source": "ready to use/units/wolf-leader-token.png"
+ },
+ "units/wolf-ship-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 6904,
+  "source": "ready to use/units/wolf-ship-token.png"
+ },
+ "units/wolf-warrior-token.webp": {
+  "w": 200,
+  "h": 180,
+  "bytes": 7312,
+  "source": "ready to use/units/wolf-warrior-token.png"
+ },
+ "tokens/battle.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 1054,
+  "source": "ready to use/tokens/battle.png"
+ },
+ "tokens/firstplayer.webp": {
+  "w": 55,
+  "h": 29,
+  "bytes": 1122,
+  "source": "ready to use/tokens/firstplayer.png"
+ },
+ "tokens/icon-age.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1870,
+  "source": "ready to use/tokens/icon-age.png"
+ },
+ "tokens/icon-axe-mini.webp": {
+  "w": 30,
+  "h": 30,
+  "bytes": 512,
+  "source": "ready to use/tokens/icon-axe-mini.png"
+ },
+ "tokens/icon-axe.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1192,
+  "source": "ready to use/tokens/icon-axe.png"
+ },
+ "tokens/icon-clan-1.webp": {
+  "w": 60,
+  "h": 60,
+  "bytes": 1522,
+  "source": "ready to use/tokens/icon-clan-1.png"
+ },
+ "tokens/icon-clan-2.webp": {
+  "w": 60,
+  "h": 60,
+  "bytes": 1714,
+  "source": "ready to use/tokens/icon-clan-2.png"
+ },
+ "tokens/icon-clan-3.webp": {
+  "w": 60,
+  "h": 60,
+  "bytes": 1496,
+  "source": "ready to use/tokens/icon-clan-3.png"
+ },
+ "tokens/icon-clan-4.webp": {
+  "w": 60,
+  "h": 60,
+  "bytes": 1504,
+  "source": "ready to use/tokens/icon-clan-4.png"
+ },
+ "tokens/icon-clan-5.webp": {
+  "w": 60,
+  "h": 60,
+  "bytes": 1644,
+  "source": "ready to use/tokens/icon-clan-5.png"
+ },
+ "tokens/icon-destiny.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1718,
+  "source": "ready to use/tokens/icon-destiny.png"
+ },
+ "tokens/icon-glory.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1394,
+  "source": "ready to use/tokens/icon-glory.png"
+ },
+ "tokens/icon-horn-mini.webp": {
+  "w": 30,
+  "h": 30,
+  "bytes": 488,
+  "source": "ready to use/tokens/icon-horn-mini.png"
+ },
+ "tokens/icon-horn.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1010,
+  "source": "ready to use/tokens/icon-horn.png"
+ },
+ "tokens/icon-march.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 728,
+  "source": "ready to use/tokens/icon-march.png"
+ },
+ "tokens/icon-pillage.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1966,
+  "source": "ready to use/tokens/icon-pillage.png"
+ },
+ "tokens/icon-rage-mini.webp": {
+  "w": 30,
+  "h": 30,
+  "bytes": 468,
+  "source": "ready to use/tokens/icon-rage-mini.png"
+ },
+ "tokens/icon-rage.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 1078,
+  "source": "ready to use/tokens/icon-rage.png"
+ },
+ "tokens/icon-yggdrasil.webp": {
+  "w": 70,
+  "h": 70,
+  "bytes": 2062,
+  "source": "ready to use/tokens/icon-yggdrasil.png"
+ },
+ "tokens/ragnarok.webp": {
+  "w": 170,
+  "h": 170,
+  "bytes": 6460,
+  "source": "ready to use/tokens/ragnarok.png"
+ },
+ "ui-icons/board-card.webp": {
+  "w": 29,
+  "h": 45,
+  "bytes": 260,
+  "source": "ready to use/ui-icons/board-card.png"
+ },
+ "ui-icons/button-archive.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 826,
+  "source": "ready to use/ui-icons/button-archive.png"
+ },
+ "ui-icons/button-discard.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 432,
+  "source": "ready to use/ui-icons/button-discard.png"
+ },
+ "ui-icons/button-page-down.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 480,
+  "source": "ready to use/ui-icons/button-page-down.png"
+ },
+ "ui-icons/button-page-up.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 480,
+  "source": "ready to use/ui-icons/button-page-up.png"
+ },
+ "ui-icons/button-zoom-center.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 902,
+  "source": "ready to use/ui-icons/button-zoom-center.png"
+ },
+ "ui-icons/button-zoom-minus.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 254,
+  "source": "ready to use/ui-icons/button-zoom-minus.png"
+ },
+ "ui-icons/button-zoom-plus.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 388,
+  "source": "ready to use/ui-icons/button-zoom-plus.png"
+ },
+ "ui-icons/hover-invade.webp": {
+  "w": 40,
+  "h": 40,
+  "bytes": 346,
+  "source": "ready to use/ui-icons/hover-invade.png"
+ },
+ "ui-icons/remove.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 780,
+  "source": "ready to use/ui-icons/remove.png"
+ },
+ "ui-icons/spot-target.webp": {
+  "w": 42,
+  "h": 42,
+  "bytes": 656,
+  "source": "ready to use/ui-icons/spot-target.png"
+ }
+}

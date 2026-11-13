@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ترافورمینگ مارس، گوشی: دست و پرداخت</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.tm{--pick:#E8A642;--tm-red:#E5483F;--tm-blue:#3F8FE5;--tm-green:#4FBF5A;--tm-yellow:#F0C419;--tm-black:#2B2B2B;--tm-prod:#6B3A1C;--tm-plate:rgba(13,26,35,.82);
+ --tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#9A7700;--tm-black-ink:#2B2B2B}
+.tm[data-theme="dark"]{--tm-red-ink:#FF7B70;--tm-blue-ink:#7DB6F5;--tm-green-ink:#7FD98A;--tm-yellow-ink:#F5D04A;--tm-black-ink:#D8D8D8}
+.tm[lang="en"]{font-family:var(--font-latin)}
+.tm-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+.tm-num,.tm-costpill,.tm-prodv{unicode-bidi:isolate;direction:ltr}
+/* desktop frame: game column + sticky rail on the right (like BGA) */
+.tm-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.tm-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.tm-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.tm-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.tm-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.tm-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.tm-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA) */
+.tm-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.tm-bar.is-waiting{background:var(--surface-sunken)}
+.tm-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tm-bar__text{flex:1 1 360px;min-inline-size:0}
+.tm-bar__text b{color:var(--heading);font-weight:900}
+.tm-bar .bgv-btn{white-space:nowrap}
+.tm-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.tm-costpill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle}
+.tm-costpill .tm-ic{block-size:16px}
+.tm-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tm-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.tm-step.is-done{background:var(--success-soft);color:var(--success)}
+.tm-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.tm-step .bgv-icon{inline-size:14px;block-size:14px}
+/* zones on felt */
+.tm-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.tm-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.tm-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.tm-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.tm-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: the publisher art, never redrawn; unplayable cards are NOT faded (BGA) */
+.tm-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,140px);flex:none}
+.tm-card>img{display:block;inline-size:100%;block-size:auto;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.25)}
+.tm-card[data-pick="selectable"]>img{outline:2px dashed var(--pick);outline-offset:2px}
+.tm-card[data-pick="picked"]>img{outline:3px solid var(--pick);outline-offset:2px}
+.tm-card[aria-disabled="true"],.tm-card:disabled{cursor:not-allowed}
+.tm-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.tm-card .tm-check{inset-block-start:-8px;inset-inline-end:-8px}
+.tm-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:2}
+.tm-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+/* hand */
+.tm-hand{display:flex;flex-wrap:wrap;gap:12px 10px;align-items:flex-start}
+.tm-hand--desk{justify-content:center}
+.tm-hcard{display:grid;justify-items:center;gap:5px;inline-size:var(--cw,140px)}
+/* board, shown without its printed TR frame (window = layout.json marsBoard.crop) */
+.tm-board{position:relative;inline-size:100%;aspect-ratio:920/774;overflow:hidden;border-radius:var(--radius-md);background:#05070F}
+.tm-board>.tm-base{position:absolute;display:block;inline-size:111.304%;block-size:auto;left:-5.652%;top:-6.202%;max-inline-size:none}
+.tm-board>.tm-at,.tm-at{position:absolute;transform:translate(-50%,-50%)}
+.tm-tile{inline-size:7.35%;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.tm-cube{inline-size:2%;pointer-events:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+.tm-cube--track{inline-size:2.9%}
+.tm-cube--plaque{inline-size:2.56%}
+.tm-spbtn,.tm-mabtn,.tm-hexbtn{position:absolute;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;border-radius:8px}
+.tm-spbtn{inline-size:15.9%;block-size:3.93%}
+.tm-mabtn{inline-size:9.13%;block-size:6.97%}
+.tm-spbtn:hover,.tm-mabtn:hover{box-shadow:0 0 0 3px var(--pick)}
+.tm-spbtn:focus-visible,.tm-mabtn:focus-visible,.tm-hexbtn:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-spbtn:disabled,.tm-mabtn:disabled{cursor:default;box-shadow:none}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important}
+.tm-hexbtn{inline-size:7.26%;block-size:9.97%;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);border-radius:0}
+.tm-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.tm-hex{fill:rgba(232,166,66,.12);stroke:var(--pick);stroke-width:3;stroke-dasharray:8 5;stroke-linejoin:round}
+.tm-hex--picked{fill:rgba(232,166,66,.32);stroke-width:4.5;stroke-dasharray:none}
+.tm-board .tm-check{inline-size:22px;block-size:22px;transform:translate(-50%,-50%)}
+.tm-bonus{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt);white-space:nowrap}
+.tm-bonus .tm-ic{block-size:14px}
+.tm-boardplate{position:absolute;inset-block-start:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--radius-pill);background:rgba(5,7,15,.72);color:#FFFFFF;font-size:13.5px;font-weight:700;line-height:1.5}
+.tm-boardplate b{font-weight:900}
+.tm-boardplate .tm-ic{block-size:20px}
+.tm-boardplate--start{left:8px}
+.tm-boardplate--end{right:8px}
+/* BGA player dashboard pieces (rail panel and area header) */
+.tm-score{display:grid;place-items:center;align-content:center;inline-size:50px;block-size:50px;flex:none;border-radius:50%;background:var(--tm-prod);color:#FFFFFF;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod);line-height:1}
+.tm-score b{font-size:20px;font-weight:900}
+.tm-score small{font-size:10.5px;font-weight:700;opacity:.92}
+.tm-score--sm{inline-size:42px;block-size:42px}
+.tm-score--sm b{font-size:17px}
+.tm-tr{position:relative;display:inline-grid;place-items:center;inline-size:44px;block-size:34px;flex:none;border-radius:6px;background:url(../assets/games/tm/i-tr.webp) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.tm-tr b{padding:0 4px;border-radius:5px;background:var(--tm-plate);color:#FFFFFF;font-size:15px;font-weight:900;line-height:1.3}
+.tm-handn{display:inline-flex;align-items:center;gap:4px;block-size:34px;padding-inline:8px;border-radius:8px;background:var(--surface-sunken);font-size:15px;font-weight:900;color:var(--heading)}
+.tm-handn .tm-ic{block-size:24px;border-radius:3px}
+.tm-logo{display:flex;align-items:center;flex:none;block-size:34px}
+.tm-logo img{display:block;block-size:100%;inline-size:auto;max-inline-size:132px;object-fit:contain}
+.tm-r{display:grid;justify-items:center;gap:2px}
+.tm-r__ic{display:grid;place-items:center}
+.tm-r__ic .tm-ic{grid-area:1/1;block-size:44px}
+.tm-r__ic b{grid-area:1/1;position:relative;min-inline-size:26px;padding:1px 5px 0;border-radius:7px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:19px;font-weight:900;line-height:1.3;text-align:center}
+.tm .tm-prodv{min-inline-size:42px;padding:2px 6px;border-radius:6px;background:var(--tm-prod);color:#FFFFFF;font-size:16px;font-weight:900;text-align:center;line-height:1.45;text-shadow:0 1px 0 rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.tm .tm-prodv.is-neg{background:var(--danger)}
+.tm-tags{display:flex;flex-wrap:wrap;gap:5px 4px}
+.tm-tagc{position:relative;display:grid;place-items:center;inline-size:40px;block-size:40px}
+.tm-tagc img{grid-area:1/1;inline-size:100%;block-size:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.tm-tagc b{grid-area:1/1;position:relative;min-inline-size:22px;padding:1px 4px 0;border-radius:6px;background:rgba(13,26,35,.72);color:#FFFFFF;font-family:var(--font-latin);font-size:17px;font-weight:800;line-height:1.25;text-align:center}
+.tm[lang="fa"] .tm-tagc b{font-family:inherit;font-weight:900}
+.tm-tagc.is-zero{opacity:.38}
+.tm-tagc--hex img{inline-size:88%;block-size:auto}
+/* rail */
+.tm-dash{padding:8px 12px;display:grid;gap:6px}
+.tm-dash__tools{display:flex;justify-content:space-between}
+.tm-dash__params{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tm-param{display:grid;justify-items:center;gap:2px;font-size:16px;color:var(--heading)}
+.tm-param .tm-ic{block-size:36px}
+.tm-param b{font-weight:900}
+.tm-panel{padding:10px 12px;display:grid;gap:8px}
+.tm-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.tm-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.tm-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-panel__id small{font-size:12.5px;color:var(--text-muted)}
+.tm-fp{inline-size:28px;block-size:auto;flex:none}
+.tm-panel__row{display:flex;align-items:center;gap:8px}
+.tm-panel__row .tm-logo{flex:1;min-inline-size:0;justify-content:flex-end}
+.tm-panel__row .tm-logo img{max-inline-size:100%}
+.tm-panel__res{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:8px 3px 6px;border-radius:var(--radius-sm);background:var(--surface-sunken)}
+.tm-log{max-block-size:300px;overflow:auto}
+.tm-log .bgv-log__item{font-size:13.5px}
+.tm-log .tm-ic{block-size:16px}
+/* players area (BGA): header + collapsible sections */
+.tm-player{display:grid;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate);box-shadow:inset 0 0 0 2px var(--pc,transparent)}
+/* area header like BGA: light Mars-dust plate in every theme (user choice), dark text */
+.tm-ahead{--tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#8A6A00;--tm-black-ink:#2B2B2B;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F6ECDD,#E4CDAE);color:#1E2328;box-shadow:inset 0 0 0 1px rgba(107,58,28,.28),inset 0 1px 0 rgba(255,255,255,.7)}
+.tm-ahead__name{display:inline-flex;align-items:center;block-size:30px;padding-inline:14px;border-radius:15px;background:#F4F5F6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);font-size:16px;font-weight:900}
+.tm-ahead__name small{margin-inline-start:6px;font-size:12.5px;font-weight:700;color:#4A535B}
+.tm-ahead .tm-logo{block-size:44px}
+.tm-ahead .tm-score{inline-size:58px;block-size:58px;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod)}
+.tm-ahead .tm-score b{font-size:23px}
+.tm-ahead .tm-score small{font-size:11.5px}
+.tm-ahead .tm-tr{inline-size:58px;block-size:44px}
+.tm-ahead .tm-tr b{font-size:19px}
+.tm-ahead .tm-handn{block-size:46px;padding-inline:10px;gap:6px;background:#FFFFFF;color:#1E2328;font-size:20px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-handn .tm-ic{block-size:34px}
+.tm-ahead__res{display:flex;gap:10px;flex-wrap:wrap}
+.tm-rs{display:flex;align-items:stretch}
+.tm-rs>.tm-ic{block-size:46px;border-radius:4px}
+.tm-rs__nums{display:grid;grid-template-rows:1fr auto;min-inline-size:42px}
+.tm-rs__nums b{display:grid;place-items:center;padding-inline:4px;border-start-end-radius:4px;background:#FFFFFF;color:#1E2328;font-size:19px;font-weight:900;line-height:1.2;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-rs__nums .tm-prodv{min-inline-size:0;padding:1px 5px;border-radius:0;border-end-end-radius:4px;font-size:15px}
+.tm-ahead .tm-tagc{inline-size:40px;block-size:40px}
+.tm-ahead .tm-tagc b{font-size:17px;min-inline-size:22px}
+.tm-ahead .tm-tagc.is-zero{opacity:.4}
+.tm-ahead .tm-tags{gap:5px 4px}
+.tm-ahead__tags{flex-basis:100%}
+.tm-secs{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.tm-sec{display:grid;gap:8px;align-content:start;inline-size:calc(var(--cw) + 20px);padding:0 0 10px;border-radius:var(--radius-sm);border:1.5px dashed var(--felt-line)}
+.tm-sec__head{display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:var(--sec-bg);color:#FFFFFF}
+.tm-sec--grey{--sec-bg:#5E6A72}.tm-sec--green{--sec-bg:#3E8E3A}.tm-sec--blue{--sec-bg:#2F6FB0}.tm-sec--red{--sec-bg:#B23A31}
+.tm-sec__toggle{flex:1;min-inline-size:0;display:flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
+.tm-sec__n{display:grid;place-items:center;min-inline-size:26px;block-size:26px;border-radius:6px;background:rgba(0,0,0,.28);font-weight:900;font-size:14px}
+.tm-sec__t{display:grid;line-height:1.25}
+.tm-sec__t b{font-size:15px;font-weight:900}
+.tm-sec__t small{font-size:11.5px;opacity:.88}
+.tm-sec__menu{display:grid;place-items:center;inline-size:30px;block-size:30px;padding:0;border:0;border-radius:6px;background:rgba(255,255,255,.14);color:#FFFFFF;cursor:pointer}
+.tm-sec__menu .bgv-icon{inline-size:18px;block-size:18px}
+.tm-sec__toggle:focus-visible,.tm-sec__menu:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-sec.is-closed{padding:0;inline-size:auto;border-style:solid}
+.tm-sec__body{padding-inline:10px}
+.tm-grid{display:grid;gap:8px;justify-items:center}
+.tm-stack{display:flex;flex-direction:column;align-items:center}
+.tm-sec__body>.tm-card{inline-size:var(--cw)}
+.tm-stack>.tm-card+.tm-card{margin-block-start:calc(var(--cw) * -1.406 * (1 - var(--band)))}
+.tm-stack--blue{--band:.46}
+.tm-stack--green{--band:.19}
+.tm-stack--red{--band:.13}
+.tm-stack>.tm-card:hover,.tm-stack>.tm-card:focus-visible{z-index:3}
+.tm-cres{position:absolute;inset-block-start:30%;inset-inline-end:6%;display:inline-flex;align-items:center;gap:2px;padding:1px 6px 1px 2px;border-radius:var(--radius-pill);background:var(--tm-plate);color:#FFFFFF;font-size:13px;font-weight:900;direction:ltr}
+.tm-cres .tm-ic{block-size:20px}
+.tm-card>img.tm-cused{position:absolute;inset-block-start:4%;inset-inline-start:4%;inline-size:15%;block-size:auto;box-shadow:none;border-radius:0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+/* payment (Game Kit 3 dock content) */
+.tm-pay{display:grid;gap:6px}
+.tm-payrow{display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:8px;font-size:14px}
+.tm-payrow .tm-ic{block-size:22px}
+.tm-payrow b{font-weight:900;color:var(--heading)}
+.tm-payrow small{color:var(--text-muted);font-size:12.5px}
+.tm-payrow.is-off{opacity:.45}
+.tm-paysum{display:flex;justify-content:space-between;font-size:13.5px;color:var(--text);padding-block-start:4px;border-block-start:1px solid var(--line)}
+.tm-paysum b{font-weight:900;color:var(--success)}
+.tm .bgv-pcard--mini{padding:8px 10px}
+.tm .bgv-pcard--mini>.bgv-avatar{margin-block:2px 6px}
+.tm .bgv-turn{max-inline-size:100%;min-inline-size:0}
+.tm .bgv-pcard__score small{font-size:11px}
+@media (max-width:899px){.bgv-gamebar__meta{gap:4px}}
+.tm-tabs{display:flex;gap:2px;padding:3px;border-radius:var(--radius-md);background:var(--felt-plate)}
+.tm-tabs button{flex:1;block-size:38px;padding-inline:6px;border:0;border-radius:var(--radius-sm);background:none;color:var(--felt-muted);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tm-tabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.tm-subtabs{display:flex;gap:6px;overflow:auto}
+.tm-subtabs button{flex:none;display:inline-flex;align-items:center;gap:6px;block-size:34px;padding-inline:10px;border-radius:var(--radius-pill);border:1px solid var(--felt-line);background:none;color:var(--felt-ink);font:inherit;font-size:13px;font-weight:700}
+.tm-subtabs button[aria-selected="true"]{background:var(--felt-control);color:var(--brand-ink);border-color:transparent}
+.tm-mview{position:relative;contain:paint;flex:1;min-block-size:0;overflow:hidden;border-radius:var(--radius-md);background:#1B0E09}
+.tm-mview--scroll{overflow:auto;background:none;display:flex;flex-direction:column;gap:10px}
+.tm-mview--scroll>*{flex:none}
+.tm-mview .tm-board.tm-mboard{position:absolute;border-radius:0}
+.tm-zoombtns{position:absolute;inset-block-start:8px;inset-inline-start:8px;display:grid;gap:6px;z-index:2}
+.tm-mapinfo{position:absolute;inset-block-start:8px;inset-inline-end:8px;z-index:2}
+.tm .bgv-actiondock__actions{flex-wrap:nowrap}
+.tm .bgv-actiondock__actions>.bgv-btn--primary{flex:1}
+.tm-dockprompt{min-inline-size:0;font-size:14px;line-height:1.6;display:grid;gap:6px}
+.tm-dockprompt>span b{color:var(--heading)}
+.tm-dockhint{font-size:12px;color:var(--text-muted);line-height:1.5}
+.tm-mhand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px}
+.tm-mhand .tm-hcard{inline-size:100%}
+.tm-mhand .tm-card{inline-size:100%}
+.tm-mgrid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px}
+.tm-mgrid2 .tm-hcard,.tm-mgrid2 .tm-card{inline-size:100%}
+.tm-mhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--felt-ink);font-size:13.5px}
+.tm-mhead b{font-weight:900}
+.tm-mhead small{color:var(--felt-muted);font-size:12px}
+.tm-mview .tm-ahead{gap:8px 10px;padding:8px}
+.tm-mview .tm-ahead__res{gap:6px}
+.tm-mview .tm-ahead .tm-logo{block-size:32px}
+.tm-mview .tm-rs>.tm-ic{block-size:38px}
+.tm-mview .tm-rs__nums{min-inline-size:34px}
+.tm-mview .tm-ahead .tm-tagc{inline-size:34px;block-size:34px}
+.tm-mview .tm-secs{gap:10px}
+.tm-mtags{display:flex;flex-wrap:wrap;gap:4px}
+.tm-mtags .tm-tag{border-color:var(--felt-line);color:var(--felt-muted)}
+.tm-mtags .tm-tag b{color:var(--felt-ink)}
+.tm-ready{display:flex;gap:6px;flex-wrap:wrap}
+.tm-ready span{display:inline-flex;align-items:center;gap:5px;block-size:28px;padding-inline:9px;border-radius:var(--radius-pill);background:var(--felt-plate);color:var(--felt-ink);font-size:12.5px;font-weight:700}
+.tm-ready span .bgv-icon{inline-size:14px;block-size:14px;color:var(--success)}
+/* actions sheet */
+.tm-sheetwrap{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end}
+.tm-sheet{position:relative;max-block-size:84%;padding:0 14px 14px;gap:9px;overflow:auto}
+.tm-sheet__head{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.6}
+.tm-sheet__head b{color:var(--heading);font-weight:900}
+.tm-sheet__head .bgv-clock{margin-inline-start:auto;flex:none}
+.tm-sheet .tm-label{font-size:12px;font-weight:700;color:var(--label)}
+.tm-sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tm-sgrid .bgv-btn{block-size:auto;min-block-size:48px;padding-block:6px;flex-direction:column;gap:1px;white-space:normal;line-height:1.4}
+.tm-sgrid .bgv-btn>span{display:inline-flex;align-items:center;gap:3px}
+.tm-sgrid .bgv-btn small{font-size:11.5px;font-weight:600;color:var(--text-muted)}
+.tm-sgrid .bgv-btn .tm-costpill{block-size:22px}
+.tm-srow{display:flex;gap:8px}
+.tm-srow .bgv-btn{flex:1}
+.tm-choice{display:grid;gap:8px}
+.tm-choice .bgv-btn{justify-content:flex-start;block-size:auto;min-block-size:48px;white-space:normal;text-align:start;line-height:1.5}
+.tm-choice .bgv-btn[aria-pressed="true"]{box-shadow:0 0 0 3px var(--pick)}
+</style>
+</helmet>
+<div class="bgv tm" data-theme="light" dir="rtl" lang="fa" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
+<div class="bgv-tablescreen" style="height:844px">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">ترافورمینگ مارس</span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span></span></div><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--icon" type="button" aria-label="ترک میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<section class="bgv-hud bgv-hud--strip" aria-label="بازیکنان، برای صفحهٔ هر بازیکن بزنید"><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="سارا"><span class="bgv-avatar bgv-avatar--sm" style="--seat-c:var(--tm-yellow)">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat" style="--seat-c:var(--tm-yellow)"></i>سارا</b><small>صنف معدنچیان</small></div><div class="bgv-pcard__score">۳۴<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا"><span class="bgv-avatar bgv-avatar--sm is-you is-turn" style="--seat-c:var(--tm-red);--clock-c:var(--clock-calm)">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat" style="--seat-c:var(--tm-red)"></i><span class="bgv-sr">مینا</span></b><small>اکولاین</small></div><div class="bgv-pcard__score">۴۳<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="نیلوفر"><span class="bgv-avatar bgv-avatar--sm" style="--seat-c:var(--tm-blue)">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat" style="--seat-c:var(--tm-blue)"></i>نیلوفر</b><small>هلیون</small></div><div class="bgv-pcard__score">۳۶<small>امتیاز</small></div></div><div class="bgv-pcard bgv-pcard--mini" role="button" tabindex="0" aria-label="آرش"><span class="bgv-avatar bgv-avatar--sm" style="--seat-c:var(--tm-green)">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat" style="--seat-c:var(--tm-green)"></i>آرش</b><small>تورگیت</small></div><div class="bgv-pcard__score">۳۴<small>امتیاز</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>پاس داده</span></div></div></section>
+<main class="bgv-felt" style="padding:12px;gap:8px" aria-label="میز ترافورمینگ مارس">
+ <div class="bgv-felt-row" style="flex-wrap:nowrap"><span class="bgv-turn bgv-turn--mine" role="status"><span class="bgv-turn__who">نوبت شماست</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></span><span class="bgv-felt-plate">نسل <strong>۵</strong>، کنش ۱ از ۲</span></div>
+ <div class="tm-tabs" role="tablist" aria-label="بخش‌های میز"><button type="button" role="tab" aria-selected="false">مریخ</button><button type="button" role="tab" aria-selected="true">دست ۷</button><button type="button" role="tab" aria-selected="false">بازیکنان</button></div>
+ <div class="tm-mview tm-mview--scroll" role="tabpanel" aria-label="دست شما">
+ <div class="tm-mhead"><b>دست شما</b><small>برای بزرگ‌نمایی، کارت را نگه دارید</small></div>
+ <div class="tm-mhand"><div class="tm-hcard"><button class="tm-card" type="button" data-pick="none" aria-disabled="true" data-reason="REQUIREMENTS_NOT_MET" title="شرط کارت برقرار نیست" data-id="060" data-flip="card-060" aria-label="درختان، شرط کارت برقرار نیست"><img src="../assets/games/tm/card-060.webp" alt=""></button></div><div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="088" data-flip="card-088" aria-label="خلنگ"><img src="../assets/games/tm/card-088.webp" alt=""></button></div><div class="tm-hcard"><button class="tm-card" type="button" data-pick="none" aria-disabled="true" data-reason="REQUIREMENTS_NOT_MET" title="شرط کارت برقرار نیست" data-id="118" data-flip="card-118" aria-label="کشاورزی، شرط کارت برقرار نیست"><img src="../assets/games/tm/card-118.webp" alt=""></button></div><div class="tm-hcard"><button class="tm-card" type="button" data-pick="picked" data-id="016" data-flip="card-016" aria-label="دهانهٔ گنبدی"><img src="../assets/games/tm/card-016.webp" alt=""><span class="tm-check" aria-hidden="true"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></button></div><div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="064" data-flip="card-064" aria-label="منطقهٔ معدنی"><img src="../assets/games/tm/card-064.webp" alt=""></button></div><div class="tm-hcard"><button class="tm-card" type="button" data-pick="none" aria-disabled="true" data-reason="REQUIREMENTS_NOT_MET" title="شرط کارت برقرار نیست" data-id="116" data-flip="card-116" aria-label="دریاچهٔ مصنوعی، شرط کارت برقرار نیست"><img src="../assets/games/tm/card-116.webp" alt=""></button></div><div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="135" data-flip="card-135" aria-label="زیست‌بوم‌های پیشرفته"><img src="../assets/games/tm/card-135.webp" alt=""></button></div></div>
+</div>
+</main>
+<section class="bgv-actiondock" aria-label="پرداخت" data-tm-pending="pay">
+ <div class="bgv-actiondock__prompt"><span class="tm-dockprompt"><span class="tm-steps"><span class="tm-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>کارت</span><span class="tm-step is-cur">پرداخت</span><span class="tm-step">تأیید</span></span><span>بازی <b>دهانهٔ گنبدی</b> <span class="tm-costpill">۲۴<img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""></span></span>
+  <div class="tm-pay"><div class="tm-payrow"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><span><b>فولاد</b> <small>هر واحد ۲؛ نشان ساختمان</small></span><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کمتر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><b class="tm-num">۲</b><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بیشتر" disabled=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button></div><div class="tm-payrow is-off"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><span><b>تیتانیوم</b> <small>فقط کارت فضایی</small></span><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="کمتر" disabled=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><b class="tm-num">۰</b><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-btn--sm" type="button" aria-label="بیشتر" disabled=""><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button></div><div class="tm-paysum"><span>مگاکردیت <b class="tm-num">۲۰</b> + فولاد <b class="tm-num">۴</b></span><span>جمع <b class="tm-num">۲۴</b> از ۲۴ <svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></div></div></span></div>
+ <div class="bgv-actiondock__actions"><button class="bgv-btn bgv-btn--primary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>تأیید و بازی</button><button class="bgv-btn bgv-btn--secondary" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>برگرد</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="لغو این کنش"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></button></div>
+</section>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -10,7 +10,7 @@ Inside `Chat`.
 
 | Prop | Type | Description |
 |---|---|---|
-| `mine` | `boolean` | Your message at the end side: `--bubble-mine` (#E6EDF2, dark #2A4559) with a `--bubble-mine-edge` (#B7C5D0) edge. No amber. |
+| `mine` | `boolean` | Your message, always on the RIGHT (other people's messages are on the LEFT, avatar on the outer edge); the rule is physical, the same in Persian and English: `--bubble-mine` (#E6EDF2, dark #2A4559) with a `--bubble-mine-edge` (#B7C5D0) edge. No amber. |
 | `author` | `Node` | — |
 | `seat` | `SeatNo` | — |
 | `initials` | `string` | — |
@@ -39,6 +39,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
+- Sides (v2.4.1, owner rule): your messages on the right, everyone else on the left. The bubble's small corner is the bottom outer corner (bottom-right for yours, bottom-left for theirs). The typing indicator sits on the left too.
 - Mentions of the viewer are a filled navy token (`--selected`, cream in dark) and the bubble gets the `mentioned` treatment: white with a 2px navy outline (owner decision 8.3; amber was dropped in v2.1).
 - Your messages: pale-amber bubble in light (solid amber is reserved for «go»), amber `--primary` in dark; navy text, time + double-check when seen.
 - Failed messages show «ارسال نشد» with «دوباره».

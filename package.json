@@ -19,7 +19,13 @@
     "lint": "eslint .",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
     "test:e2e": "playwright test",
-    "check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test"
+    "check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test",
+    "ds:check": "node scripts/ds-check.mjs",
+    "ds:check:strict": "node scripts/ds-check.mjs --strict",
+    "ds:baseline": "node scripts/ds-check.mjs --write-baseline",
+    "ds:ratchet": "node scripts/ds-check.mjs --ratchet",
+    "ds:qa": "playwright test e2e/design-qa.spec.ts --project=desktop-1440",
+    "ds:report": "node scripts/ds-qa-report.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

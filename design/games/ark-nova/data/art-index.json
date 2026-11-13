@@ -1,0 +1,1534 @@
+[
+ {
+  "path": "art/bga/association-board.webp",
+  "bytes": 83398
+ },
+ {
+  "path": "art/bga/conservation-track.webp",
+  "bytes": 112276
+ },
+ {
+  "path": "art/bga/reputation-track.webp",
+  "bytes": 11812
+ },
+ {
+  "path": "art/bga/score-board.webp",
+  "bytes": 254310
+ },
+ {
+  "path": "art/boards/association-board.webp",
+  "bytes": 183768
+ },
+ {
+  "path": "art/boards/main-board.webp",
+  "bytes": 399650
+ },
+ {
+  "path": "art/boards/map-0.webp",
+  "bytes": 216078
+ },
+ {
+  "path": "art/boards/map-1.webp",
+  "bytes": 229818
+ },
+ {
+  "path": "art/boards/map-2.webp",
+  "bytes": 227644
+ },
+ {
+  "path": "art/boards/map-3.webp",
+  "bytes": 228968
+ },
+ {
+  "path": "art/boards/map-4.webp",
+  "bytes": 235782
+ },
+ {
+  "path": "art/boards/map-5.webp",
+  "bytes": 233152
+ },
+ {
+  "path": "art/boards/map-6.webp",
+  "bytes": 236832
+ },
+ {
+  "path": "art/boards/map-7.webp",
+  "bytes": 236470
+ },
+ {
+  "path": "art/boards/map-8.webp",
+  "bytes": 252300
+ },
+ {
+  "path": "art/boards/map-A.webp",
+  "bytes": 226954
+ },
+ {
+  "path": "art/bonus-tiles/bonus-back.webp",
+  "bytes": 11106
+ },
+ {
+  "path": "art/bonus-tiles/bonus-enclosure-three.webp",
+  "bytes": 14202
+ },
+ {
+  "path": "art/bonus-tiles/bonus-multiplier.webp",
+  "bytes": 15764
+ },
+ {
+  "path": "art/bonus-tiles/bonus-partner-zoo.webp",
+  "bytes": 14572
+ },
+ {
+  "path": "art/bonus-tiles/bonus-snap-three-cards.webp",
+  "bytes": 16142
+ },
+ {
+  "path": "art/bonus-tiles/bonus-sponsor.webp",
+  "bytes": 14662
+ },
+ {
+  "path": "art/bonus-tiles/bonus-ten-money.webp",
+  "bytes": 14472
+ },
+ {
+  "path": "art/bonus-tiles/bonus-three-x.webp",
+  "bytes": 14612
+ },
+ {
+  "path": "art/bonus-tiles/bonus-two-reputation.webp",
+  "bytes": 14324
+ },
+ {
+  "path": "art/bonus-tiles/bonus-university.webp",
+  "bytes": 12800
+ },
+ {
+  "path": "art/card-backs/card-back-final.webp",
+  "bytes": 9758
+ },
+ {
+  "path": "art/card-backs/card-back-project.webp",
+  "bytes": 12958
+ },
+ {
+  "path": "art/card-backs/card-back-zoo.webp",
+  "bytes": 21524
+ },
+ {
+  "path": "art/cards-action/action-animals-1.webp",
+  "bytes": 34002
+ },
+ {
+  "path": "art/cards-action/action-animals-2.webp",
+  "bytes": 37978
+ },
+ {
+  "path": "art/cards-action/action-association-1.webp",
+  "bytes": 29072
+ },
+ {
+  "path": "art/cards-action/action-association-2.webp",
+  "bytes": 41348
+ },
+ {
+  "path": "art/cards-action/action-build-1.webp",
+  "bytes": 36532
+ },
+ {
+  "path": "art/cards-action/action-build-2.webp",
+  "bytes": 36356
+ },
+ {
+  "path": "art/cards-action/action-cards-1.webp",
+  "bytes": 37372
+ },
+ {
+  "path": "art/cards-action/action-cards-2.webp",
+  "bytes": 38738
+ },
+ {
+  "path": "art/cards-action/action-sponsors-1.webp",
+  "bytes": 33126
+ },
+ {
+  "path": "art/cards-action/action-sponsors-2.webp",
+  "bytes": 37742
+ },
+ {
+  "path": "art/cards-animal/card-401.webp",
+  "bytes": 47840
+ },
+ {
+  "path": "art/cards-animal/card-402.webp",
+  "bytes": 42988
+ },
+ {
+  "path": "art/cards-animal/card-403.webp",
+  "bytes": 47558
+ },
+ {
+  "path": "art/cards-animal/card-404.webp",
+  "bytes": 40334
+ },
+ {
+  "path": "art/cards-animal/card-405.webp",
+  "bytes": 38222
+ },
+ {
+  "path": "art/cards-animal/card-406.webp",
+  "bytes": 42560
+ },
+ {
+  "path": "art/cards-animal/card-407.webp",
+  "bytes": 46758
+ },
+ {
+  "path": "art/cards-animal/card-408.webp",
+  "bytes": 42896
+ },
+ {
+  "path": "art/cards-animal/card-409.webp",
+  "bytes": 41256
+ },
+ {
+  "path": "art/cards-animal/card-410.webp",
+  "bytes": 49518
+ },
+ {
+  "path": "art/cards-animal/card-411.webp",
+  "bytes": 47944
+ },
+ {
+  "path": "art/cards-animal/card-412.webp",
+  "bytes": 54728
+ },
+ {
+  "path": "art/cards-animal/card-413.webp",
+  "bytes": 41184
+ },
+ {
+  "path": "art/cards-animal/card-414.webp",
+  "bytes": 40864
+ },
+ {
+  "path": "art/cards-animal/card-415.webp",
+  "bytes": 43164
+ },
+ {
+  "path": "art/cards-animal/card-416.webp",
+  "bytes": 46980
+ },
+ {
+  "path": "art/cards-animal/card-417.webp",
+  "bytes": 38122
+ },
+ {
+  "path": "art/cards-animal/card-418.webp",
+  "bytes": 44590
+ },
+ {
+  "path": "art/cards-animal/card-419.webp",
+  "bytes": 44636
+ },
+ {
+  "path": "art/cards-animal/card-420.webp",
+  "bytes": 43798
+ },
+ {
+  "path": "art/cards-animal/card-421.webp",
+  "bytes": 46798
+ },
+ {
+  "path": "art/cards-animal/card-422.webp",
+  "bytes": 41884
+ },
+ {
+  "path": "art/cards-animal/card-423.webp",
+  "bytes": 40160
+ },
+ {
+  "path": "art/cards-animal/card-424.webp",
+  "bytes": 37684
+ },
+ {
+  "path": "art/cards-animal/card-425.webp",
+  "bytes": 48604
+ },
+ {
+  "path": "art/cards-animal/card-426.webp",
+  "bytes": 49310
+ },
+ {
+  "path": "art/cards-animal/card-427.webp",
+  "bytes": 44110
+ },
+ {
+  "path": "art/cards-animal/card-428.webp",
+  "bytes": 49038
+ },
+ {
+  "path": "art/cards-animal/card-429.webp",
+  "bytes": 53796
+ },
+ {
+  "path": "art/cards-animal/card-430.webp",
+  "bytes": 46832
+ },
+ {
+  "path": "art/cards-animal/card-431.webp",
+  "bytes": 50788
+ },
+ {
+  "path": "art/cards-animal/card-432.webp",
+  "bytes": 46606
+ },
+ {
+  "path": "art/cards-animal/card-433.webp",
+  "bytes": 42448
+ },
+ {
+  "path": "art/cards-animal/card-434.webp",
+  "bytes": 40300
+ },
+ {
+  "path": "art/cards-animal/card-435.webp",
+  "bytes": 48522
+ },
+ {
+  "path": "art/cards-animal/card-436.webp",
+  "bytes": 44844
+ },
+ {
+  "path": "art/cards-animal/card-437.webp",
+  "bytes": 44484
+ },
+ {
+  "path": "art/cards-animal/card-438.webp",
+  "bytes": 42160
+ },
+ {
+  "path": "art/cards-animal/card-439.webp",
+  "bytes": 42544
+ },
+ {
+  "path": "art/cards-animal/card-440.webp",
+  "bytes": 47550
+ },
+ {
+  "path": "art/cards-animal/card-441.webp",
+  "bytes": 45952
+ },
+ {
+  "path": "art/cards-animal/card-442.webp",
+  "bytes": 43156
+ },
+ {
+  "path": "art/cards-animal/card-443.webp",
+  "bytes": 51558
+ },
+ {
+  "path": "art/cards-animal/card-444.webp",
+  "bytes": 39138
+ },
+ {
+  "path": "art/cards-animal/card-445.webp",
+  "bytes": 54388
+ },
+ {
+  "path": "art/cards-animal/card-446.webp",
+  "bytes": 42356
+ },
+ {
+  "path": "art/cards-animal/card-447.webp",
+  "bytes": 45594
+ },
+ {
+  "path": "art/cards-animal/card-448.webp",
+  "bytes": 44712
+ },
+ {
+  "path": "art/cards-animal/card-449.webp",
+  "bytes": 34026
+ },
+ {
+  "path": "art/cards-animal/card-450.webp",
+  "bytes": 45244
+ },
+ {
+  "path": "art/cards-animal/card-451.webp",
+  "bytes": 47410
+ },
+ {
+  "path": "art/cards-animal/card-452.webp",
+  "bytes": 38338
+ },
+ {
+  "path": "art/cards-animal/card-453.webp",
+  "bytes": 43692
+ },
+ {
+  "path": "art/cards-animal/card-454.webp",
+  "bytes": 44018
+ },
+ {
+  "path": "art/cards-animal/card-455.webp",
+  "bytes": 41134
+ },
+ {
+  "path": "art/cards-animal/card-456.webp",
+  "bytes": 42222
+ },
+ {
+  "path": "art/cards-animal/card-457.webp",
+  "bytes": 42564
+ },
+ {
+  "path": "art/cards-animal/card-458.webp",
+  "bytes": 45650
+ },
+ {
+  "path": "art/cards-animal/card-459.webp",
+  "bytes": 44926
+ },
+ {
+  "path": "art/cards-animal/card-460.webp",
+  "bytes": 42810
+ },
+ {
+  "path": "art/cards-animal/card-461.webp",
+  "bytes": 44108
+ },
+ {
+  "path": "art/cards-animal/card-462.webp",
+  "bytes": 43754
+ },
+ {
+  "path": "art/cards-animal/card-463.webp",
+  "bytes": 45672
+ },
+ {
+  "path": "art/cards-animal/card-464.webp",
+  "bytes": 45920
+ },
+ {
+  "path": "art/cards-animal/card-465.webp",
+  "bytes": 40572
+ },
+ {
+  "path": "art/cards-animal/card-466.webp",
+  "bytes": 41520
+ },
+ {
+  "path": "art/cards-animal/card-467.webp",
+  "bytes": 39540
+ },
+ {
+  "path": "art/cards-animal/card-468.webp",
+  "bytes": 43066
+ },
+ {
+  "path": "art/cards-animal/card-469.webp",
+  "bytes": 41234
+ },
+ {
+  "path": "art/cards-animal/card-470.webp",
+  "bytes": 51578
+ },
+ {
+  "path": "art/cards-animal/card-471.webp",
+  "bytes": 50460
+ },
+ {
+  "path": "art/cards-animal/card-472.webp",
+  "bytes": 48780
+ },
+ {
+  "path": "art/cards-animal/card-473.webp",
+  "bytes": 43794
+ },
+ {
+  "path": "art/cards-animal/card-474.webp",
+  "bytes": 53566
+ },
+ {
+  "path": "art/cards-animal/card-475.webp",
+  "bytes": 62556
+ },
+ {
+  "path": "art/cards-animal/card-476.webp",
+  "bytes": 53514
+ },
+ {
+  "path": "art/cards-animal/card-477.webp",
+  "bytes": 42994
+ },
+ {
+  "path": "art/cards-animal/card-478.webp",
+  "bytes": 52796
+ },
+ {
+  "path": "art/cards-animal/card-479.webp",
+  "bytes": 48494
+ },
+ {
+  "path": "art/cards-animal/card-480.webp",
+  "bytes": 55340
+ },
+ {
+  "path": "art/cards-animal/card-481.webp",
+  "bytes": 51654
+ },
+ {
+  "path": "art/cards-animal/card-482.webp",
+  "bytes": 52386
+ },
+ {
+  "path": "art/cards-animal/card-483.webp",
+  "bytes": 45736
+ },
+ {
+  "path": "art/cards-animal/card-484.webp",
+  "bytes": 42310
+ },
+ {
+  "path": "art/cards-animal/card-485.webp",
+  "bytes": 63068
+ },
+ {
+  "path": "art/cards-animal/card-486.webp",
+  "bytes": 40190
+ },
+ {
+  "path": "art/cards-animal/card-487.webp",
+  "bytes": 51854
+ },
+ {
+  "path": "art/cards-animal/card-488.webp",
+  "bytes": 42690
+ },
+ {
+  "path": "art/cards-animal/card-489.webp",
+  "bytes": 45880
+ },
+ {
+  "path": "art/cards-animal/card-490.webp",
+  "bytes": 39588
+ },
+ {
+  "path": "art/cards-animal/card-491.webp",
+  "bytes": 43686
+ },
+ {
+  "path": "art/cards-animal/card-492.webp",
+  "bytes": 46520
+ },
+ {
+  "path": "art/cards-animal/card-493.webp",
+  "bytes": 46148
+ },
+ {
+  "path": "art/cards-animal/card-494.webp",
+  "bytes": 48738
+ },
+ {
+  "path": "art/cards-animal/card-495.webp",
+  "bytes": 52010
+ },
+ {
+  "path": "art/cards-animal/card-496.webp",
+  "bytes": 52248
+ },
+ {
+  "path": "art/cards-animal/card-497.webp",
+  "bytes": 36574
+ },
+ {
+  "path": "art/cards-animal/card-498.webp",
+  "bytes": 39068
+ },
+ {
+  "path": "art/cards-animal/card-499.webp",
+  "bytes": 40522
+ },
+ {
+  "path": "art/cards-animal/card-500.webp",
+  "bytes": 48178
+ },
+ {
+  "path": "art/cards-animal/card-501.webp",
+  "bytes": 59410
+ },
+ {
+  "path": "art/cards-animal/card-502.webp",
+  "bytes": 41566
+ },
+ {
+  "path": "art/cards-animal/card-503.webp",
+  "bytes": 46050
+ },
+ {
+  "path": "art/cards-animal/card-504.webp",
+  "bytes": 47524
+ },
+ {
+  "path": "art/cards-animal/card-505.webp",
+  "bytes": 38350
+ },
+ {
+  "path": "art/cards-animal/card-506.webp",
+  "bytes": 42024
+ },
+ {
+  "path": "art/cards-animal/card-507.webp",
+  "bytes": 57982
+ },
+ {
+  "path": "art/cards-animal/card-508.webp",
+  "bytes": 47070
+ },
+ {
+  "path": "art/cards-animal/card-509.webp",
+  "bytes": 44610
+ },
+ {
+  "path": "art/cards-animal/card-510.webp",
+  "bytes": 33014
+ },
+ {
+  "path": "art/cards-animal/card-511.webp",
+  "bytes": 35932
+ },
+ {
+  "path": "art/cards-animal/card-512.webp",
+  "bytes": 41366
+ },
+ {
+  "path": "art/cards-animal/card-513.webp",
+  "bytes": 39394
+ },
+ {
+  "path": "art/cards-animal/card-514.webp",
+  "bytes": 40248
+ },
+ {
+  "path": "art/cards-animal/card-515.webp",
+  "bytes": 45244
+ },
+ {
+  "path": "art/cards-animal/card-516.webp",
+  "bytes": 40150
+ },
+ {
+  "path": "art/cards-animal/card-517.webp",
+  "bytes": 41470
+ },
+ {
+  "path": "art/cards-animal/card-518.webp",
+  "bytes": 38338
+ },
+ {
+  "path": "art/cards-animal/card-519.webp",
+  "bytes": 34818
+ },
+ {
+  "path": "art/cards-animal/card-520.webp",
+  "bytes": 40138
+ },
+ {
+  "path": "art/cards-animal/card-521.webp",
+  "bytes": 41436
+ },
+ {
+  "path": "art/cards-animal/card-522.webp",
+  "bytes": 48568
+ },
+ {
+  "path": "art/cards-animal/card-523.webp",
+  "bytes": 41302
+ },
+ {
+  "path": "art/cards-animal/card-524.webp",
+  "bytes": 62568
+ },
+ {
+  "path": "art/cards-animal/card-525.webp",
+  "bytes": 44336
+ },
+ {
+  "path": "art/cards-animal/card-526.webp",
+  "bytes": 35176
+ },
+ {
+  "path": "art/cards-animal/card-527.webp",
+  "bytes": 40436
+ },
+ {
+  "path": "art/cards-animal/card-528.webp",
+  "bytes": 47014
+ },
+ {
+  "path": "art/cards-base-project/card-101.webp",
+  "bytes": 45550
+ },
+ {
+  "path": "art/cards-base-project/card-102.webp",
+  "bytes": 32838
+ },
+ {
+  "path": "art/cards-base-project/card-103.webp",
+  "bytes": 42054
+ },
+ {
+  "path": "art/cards-base-project/card-104.webp",
+  "bytes": 44176
+ },
+ {
+  "path": "art/cards-base-project/card-105.webp",
+  "bytes": 35140
+ },
+ {
+  "path": "art/cards-base-project/card-106.webp",
+  "bytes": 34176
+ },
+ {
+  "path": "art/cards-base-project/card-107.webp",
+  "bytes": 42264
+ },
+ {
+  "path": "art/cards-base-project/card-108.webp",
+  "bytes": 38394
+ },
+ {
+  "path": "art/cards-base-project/card-109.webp",
+  "bytes": 29882
+ },
+ {
+  "path": "art/cards-base-project/card-110.webp",
+  "bytes": 39092
+ },
+ {
+  "path": "art/cards-base-project/card-111.webp",
+  "bytes": 39600
+ },
+ {
+  "path": "art/cards-base-project/card-112.webp",
+  "bytes": 36274
+ },
+ {
+  "path": "art/cards-conservation/card-113.webp",
+  "bytes": 47812
+ },
+ {
+  "path": "art/cards-conservation/card-114.webp",
+  "bytes": 46046
+ },
+ {
+  "path": "art/cards-conservation/card-115.webp",
+  "bytes": 44464
+ },
+ {
+  "path": "art/cards-conservation/card-116.webp",
+  "bytes": 45696
+ },
+ {
+  "path": "art/cards-conservation/card-117.webp",
+  "bytes": 43120
+ },
+ {
+  "path": "art/cards-conservation/card-118.webp",
+  "bytes": 36486
+ },
+ {
+  "path": "art/cards-conservation/card-119.webp",
+  "bytes": 42368
+ },
+ {
+  "path": "art/cards-conservation/card-120.webp",
+  "bytes": 44162
+ },
+ {
+  "path": "art/cards-conservation/card-121.webp",
+  "bytes": 42246
+ },
+ {
+  "path": "art/cards-conservation/card-122.webp",
+  "bytes": 49314
+ },
+ {
+  "path": "art/cards-conservation/card-123.webp",
+  "bytes": 35024
+ },
+ {
+  "path": "art/cards-conservation/card-124.webp",
+  "bytes": 41062
+ },
+ {
+  "path": "art/cards-conservation/card-125.webp",
+  "bytes": 35888
+ },
+ {
+  "path": "art/cards-conservation/card-126.webp",
+  "bytes": 43852
+ },
+ {
+  "path": "art/cards-conservation/card-127.webp",
+  "bytes": 39322
+ },
+ {
+  "path": "art/cards-conservation/card-128.webp",
+  "bytes": 35078
+ },
+ {
+  "path": "art/cards-conservation/card-129.webp",
+  "bytes": 38370
+ },
+ {
+  "path": "art/cards-conservation/card-130.webp",
+  "bytes": 30462
+ },
+ {
+  "path": "art/cards-conservation/card-131.webp",
+  "bytes": 38368
+ },
+ {
+  "path": "art/cards-conservation/card-132.webp",
+  "bytes": 35494
+ },
+ {
+  "path": "art/cards-final-scoring/card-001.webp",
+  "bytes": 36566
+ },
+ {
+  "path": "art/cards-final-scoring/card-002.webp",
+  "bytes": 33636
+ },
+ {
+  "path": "art/cards-final-scoring/card-003.webp",
+  "bytes": 26594
+ },
+ {
+  "path": "art/cards-final-scoring/card-004.webp",
+  "bytes": 51262
+ },
+ {
+  "path": "art/cards-final-scoring/card-005.webp",
+  "bytes": 38610
+ },
+ {
+  "path": "art/cards-final-scoring/card-006.webp",
+  "bytes": 26690
+ },
+ {
+  "path": "art/cards-final-scoring/card-007.webp",
+  "bytes": 33518
+ },
+ {
+  "path": "art/cards-final-scoring/card-008.webp",
+  "bytes": 35538
+ },
+ {
+  "path": "art/cards-final-scoring/card-009.webp",
+  "bytes": 35072
+ },
+ {
+  "path": "art/cards-final-scoring/card-010.webp",
+  "bytes": 36480
+ },
+ {
+  "path": "art/cards-final-scoring/card-011.webp",
+  "bytes": 34230
+ },
+ {
+  "path": "art/cards-sponsor/card-201.webp",
+  "bytes": 36774
+ },
+ {
+  "path": "art/cards-sponsor/card-202.webp",
+  "bytes": 48262
+ },
+ {
+  "path": "art/cards-sponsor/card-203.webp",
+  "bytes": 42216
+ },
+ {
+  "path": "art/cards-sponsor/card-204.webp",
+  "bytes": 41148
+ },
+ {
+  "path": "art/cards-sponsor/card-205.webp",
+  "bytes": 46406
+ },
+ {
+  "path": "art/cards-sponsor/card-206.webp",
+  "bytes": 37790
+ },
+ {
+  "path": "art/cards-sponsor/card-207.webp",
+  "bytes": 48888
+ },
+ {
+  "path": "art/cards-sponsor/card-208.webp",
+  "bytes": 43386
+ },
+ {
+  "path": "art/cards-sponsor/card-209.webp",
+  "bytes": 35548
+ },
+ {
+  "path": "art/cards-sponsor/card-210.webp",
+  "bytes": 40966
+ },
+ {
+  "path": "art/cards-sponsor/card-211.webp",
+  "bytes": 42676
+ },
+ {
+  "path": "art/cards-sponsor/card-212.webp",
+  "bytes": 41530
+ },
+ {
+  "path": "art/cards-sponsor/card-213.webp",
+  "bytes": 37754
+ },
+ {
+  "path": "art/cards-sponsor/card-214.webp",
+  "bytes": 34536
+ },
+ {
+  "path": "art/cards-sponsor/card-215.webp",
+  "bytes": 43062
+ },
+ {
+  "path": "art/cards-sponsor/card-216.webp",
+  "bytes": 33336
+ },
+ {
+  "path": "art/cards-sponsor/card-217.webp",
+  "bytes": 50672
+ },
+ {
+  "path": "art/cards-sponsor/card-218.webp",
+  "bytes": 35196
+ },
+ {
+  "path": "art/cards-sponsor/card-219.webp",
+  "bytes": 49836
+ },
+ {
+  "path": "art/cards-sponsor/card-220.webp",
+  "bytes": 48804
+ },
+ {
+  "path": "art/cards-sponsor/card-221.webp",
+  "bytes": 57942
+ },
+ {
+  "path": "art/cards-sponsor/card-222.webp",
+  "bytes": 47886
+ },
+ {
+  "path": "art/cards-sponsor/card-223.webp",
+  "bytes": 38314
+ },
+ {
+  "path": "art/cards-sponsor/card-224.webp",
+  "bytes": 28360
+ },
+ {
+  "path": "art/cards-sponsor/card-225.webp",
+  "bytes": 43230
+ },
+ {
+  "path": "art/cards-sponsor/card-226.webp",
+  "bytes": 46568
+ },
+ {
+  "path": "art/cards-sponsor/card-227.webp",
+  "bytes": 50220
+ },
+ {
+  "path": "art/cards-sponsor/card-228.webp",
+  "bytes": 42976
+ },
+ {
+  "path": "art/cards-sponsor/card-229.webp",
+  "bytes": 50336
+ },
+ {
+  "path": "art/cards-sponsor/card-230.webp",
+  "bytes": 32396
+ },
+ {
+  "path": "art/cards-sponsor/card-231.webp",
+  "bytes": 37054
+ },
+ {
+  "path": "art/cards-sponsor/card-232.webp",
+  "bytes": 37666
+ },
+ {
+  "path": "art/cards-sponsor/card-233.webp",
+  "bytes": 36718
+ },
+ {
+  "path": "art/cards-sponsor/card-234.webp",
+  "bytes": 48422
+ },
+ {
+  "path": "art/cards-sponsor/card-235.webp",
+  "bytes": 45294
+ },
+ {
+  "path": "art/cards-sponsor/card-236.webp",
+  "bytes": 30588
+ },
+ {
+  "path": "art/cards-sponsor/card-237.webp",
+  "bytes": 34622
+ },
+ {
+  "path": "art/cards-sponsor/card-238.webp",
+  "bytes": 34010
+ },
+ {
+  "path": "art/cards-sponsor/card-239.webp",
+  "bytes": 31468
+ },
+ {
+  "path": "art/cards-sponsor/card-240.webp",
+  "bytes": 41652
+ },
+ {
+  "path": "art/cards-sponsor/card-241.webp",
+  "bytes": 38898
+ },
+ {
+  "path": "art/cards-sponsor/card-242.webp",
+  "bytes": 45720
+ },
+ {
+  "path": "art/cards-sponsor/card-243.webp",
+  "bytes": 46758
+ },
+ {
+  "path": "art/cards-sponsor/card-244.webp",
+  "bytes": 34080
+ },
+ {
+  "path": "art/cards-sponsor/card-245.webp",
+  "bytes": 42366
+ },
+ {
+  "path": "art/cards-sponsor/card-246.webp",
+  "bytes": 34806
+ },
+ {
+  "path": "art/cards-sponsor/card-247.webp",
+  "bytes": 47026
+ },
+ {
+  "path": "art/cards-sponsor/card-248.webp",
+  "bytes": 32344
+ },
+ {
+  "path": "art/cards-sponsor/card-249.webp",
+  "bytes": 29490
+ },
+ {
+  "path": "art/cards-sponsor/card-250.webp",
+  "bytes": 34990
+ },
+ {
+  "path": "art/cards-sponsor/card-251.webp",
+  "bytes": 47892
+ },
+ {
+  "path": "art/cards-sponsor/card-252.webp",
+  "bytes": 45458
+ },
+ {
+  "path": "art/cards-sponsor/card-253.webp",
+  "bytes": 43392
+ },
+ {
+  "path": "art/cards-sponsor/card-254.webp",
+  "bytes": 42794
+ },
+ {
+  "path": "art/cards-sponsor/card-255.webp",
+  "bytes": 54294
+ },
+ {
+  "path": "art/cards-sponsor/card-256.webp",
+  "bytes": 51790
+ },
+ {
+  "path": "art/cards-sponsor/card-257.webp",
+  "bytes": 58932
+ },
+ {
+  "path": "art/cards-sponsor/card-258.webp",
+  "bytes": 33642
+ },
+ {
+  "path": "art/cards-sponsor/card-259.webp",
+  "bytes": 55564
+ },
+ {
+  "path": "art/cards-sponsor/card-260.webp",
+  "bytes": 43646
+ },
+ {
+  "path": "art/cards-sponsor/card-261.webp",
+  "bytes": 53874
+ },
+ {
+  "path": "art/cards-sponsor/card-262.webp",
+  "bytes": 29108
+ },
+ {
+  "path": "art/cards-sponsor/card-263.webp",
+  "bytes": 39608
+ },
+ {
+  "path": "art/cards-sponsor/card-264.webp",
+  "bytes": 49552
+ },
+ {
+  "path": "art/enclosures/enclosure-1-empty.webp",
+  "bytes": 5156
+ },
+ {
+  "path": "art/enclosures/enclosure-1-occupied.webp",
+  "bytes": 6354
+ },
+ {
+  "path": "art/enclosures/enclosure-2-empty.webp",
+  "bytes": 12852
+ },
+ {
+  "path": "art/enclosures/enclosure-2-occupied.webp",
+  "bytes": 15760
+ },
+ {
+  "path": "art/enclosures/enclosure-3-empty.webp",
+  "bytes": 15562
+ },
+ {
+  "path": "art/enclosures/enclosure-3-occupied.webp",
+  "bytes": 21152
+ },
+ {
+  "path": "art/enclosures/enclosure-4-empty.webp",
+  "bytes": 17654
+ },
+ {
+  "path": "art/enclosures/enclosure-4-occupied.webp",
+  "bytes": 20838
+ },
+ {
+  "path": "art/enclosures/enclosure-5-empty.webp",
+  "bytes": 23088
+ },
+ {
+  "path": "art/enclosures/enclosure-5-occupied.webp",
+  "bytes": 30398
+ },
+ {
+  "path": "art/icons/icon-africa.webp",
+  "bytes": 6756
+ },
+ {
+  "path": "art/icons/icon-americas.webp",
+  "bytes": 8552
+ },
+ {
+  "path": "art/icons/icon-asia.webp",
+  "bytes": 8042
+ },
+ {
+  "path": "art/icons/icon-australia.webp",
+  "bytes": 6008
+ },
+ {
+  "path": "art/icons/icon-bear.webp",
+  "bytes": 5892
+ },
+ {
+  "path": "art/icons/icon-bird.webp",
+  "bytes": 6652
+ },
+ {
+  "path": "art/icons/icon-europe.webp",
+  "bytes": 7760
+ },
+ {
+  "path": "art/icons/icon-herbivore.webp",
+  "bytes": 6576
+ },
+ {
+  "path": "art/icons/icon-petting-zoo-animal.webp",
+  "bytes": 6066
+ },
+ {
+  "path": "art/icons/icon-predator.webp",
+  "bytes": 7358
+ },
+ {
+  "path": "art/icons/icon-primate.webp",
+  "bytes": 6632
+ },
+ {
+  "path": "art/icons/icon-reptile.webp",
+  "bytes": 7130
+ },
+ {
+  "path": "art/icons/icon-research.webp",
+  "bytes": 6184
+ },
+ {
+  "path": "art/icons/icon-rock.webp",
+  "bytes": 1292
+ },
+ {
+  "path": "art/icons/icon-water.webp",
+  "bytes": 1252
+ },
+ {
+  "path": "art/money/money-1.webp",
+  "bytes": 4082
+ },
+ {
+  "path": "art/money/money-10.webp",
+  "bytes": 5162
+ },
+ {
+  "path": "art/money/money-20.webp",
+  "bytes": 5740
+ },
+ {
+  "path": "art/money/money-5.webp",
+  "bytes": 4660
+ },
+ {
+  "path": "art/partner-zoos/partner-africa.webp",
+  "bytes": 5464
+ },
+ {
+  "path": "art/partner-zoos/partner-americas.webp",
+  "bytes": 5724
+ },
+ {
+  "path": "art/partner-zoos/partner-asia.webp",
+  "bytes": 5256
+ },
+ {
+  "path": "art/partner-zoos/partner-australia.webp",
+  "bytes": 4818
+ },
+ {
+  "path": "art/partner-zoos/partner-europe.webp",
+  "bytes": 5418
+ },
+ {
+  "path": "art/pieces/counter-black.webp",
+  "bytes": 1018
+ },
+ {
+  "path": "art/pieces/counter-blue.webp",
+  "bytes": 1480
+ },
+ {
+  "path": "art/pieces/counter-red.webp",
+  "bytes": 1364
+ },
+ {
+  "path": "art/pieces/counter-yellow.webp",
+  "bytes": 1794
+ },
+ {
+  "path": "art/pieces/cube-black.webp",
+  "bytes": 518
+ },
+ {
+  "path": "art/pieces/cube-blue.webp",
+  "bytes": 632
+ },
+ {
+  "path": "art/pieces/cube-red.webp",
+  "bytes": 628
+ },
+ {
+  "path": "art/pieces/cube-yellow.webp",
+  "bytes": 766
+ },
+ {
+  "path": "art/pieces/worker-black.webp",
+  "bytes": 4938
+ },
+ {
+  "path": "art/pieces/worker-blue.webp",
+  "bytes": 5420
+ },
+ {
+  "path": "art/pieces/worker-red.webp",
+  "bytes": 6146
+ },
+ {
+  "path": "art/pieces/worker-yellow.webp",
+  "bytes": 6752
+ },
+ {
+  "path": "art/reference-pages/unique-buildings-reference.webp",
+  "bytes": 13672
+ },
+ {
+  "path": "art/solo/solo-tile.webp",
+  "bytes": 253350
+ },
+ {
+  "path": "art/special-buildings/kiosk.webp",
+  "bytes": 2852
+ },
+ {
+  "path": "art/special-buildings/large-bird-aviary.webp",
+  "bytes": 38888
+ },
+ {
+  "path": "art/special-buildings/pavilion.webp",
+  "bytes": 6242
+ },
+ {
+  "path": "art/special-buildings/petting-zoo.webp",
+  "bytes": 19636
+ },
+ {
+  "path": "art/special-buildings/reptile-house.webp",
+  "bytes": 32486
+ },
+ {
+  "path": "art/tokens/constriction.webp",
+  "bytes": 4022
+ },
+ {
+  "path": "art/tokens/multiplier.webp",
+  "bytes": 3718
+ },
+ {
+  "path": "art/tokens/venom.webp",
+  "bytes": 3652
+ },
+ {
+  "path": "art/tokens/x-token.webp",
+  "bytes": 2000
+ },
+ {
+  "path": "art/ui/act-animals.webp",
+  "bytes": 2204
+ },
+ {
+  "path": "art/ui/act-association.webp",
+  "bytes": 1494
+ },
+ {
+  "path": "art/ui/act-build.webp",
+  "bytes": 1862
+ },
+ {
+  "path": "art/ui/act-cards.webp",
+  "bytes": 2546
+ },
+ {
+  "path": "art/ui/act-sponsors.webp",
+  "bytes": 2720
+ },
+ {
+  "path": "art/ui/add-worker.webp",
+  "bytes": 2068
+ },
+ {
+  "path": "art/ui/appeal.webp",
+  "bytes": 1964
+ },
+ {
+  "path": "art/ui/break.webp",
+  "bytes": 1960
+ },
+ {
+  "path": "art/ui/clever.webp",
+  "bytes": 1766
+ },
+ {
+  "path": "art/ui/conservation-project.webp",
+  "bytes": 1532
+ },
+ {
+  "path": "art/ui/conservation.webp",
+  "bytes": 3430
+ },
+ {
+  "path": "art/ui/constriction.webp",
+  "bytes": 4812
+ },
+ {
+  "path": "art/ui/endgame.webp",
+  "bytes": 2440
+ },
+ {
+  "path": "art/ui/hand-cards.webp",
+  "bytes": 3430
+ },
+ {
+  "path": "art/ui/hand.webp",
+  "bytes": 2694
+ },
+ {
+  "path": "art/ui/immediate.webp",
+  "bytes": 666
+ },
+ {
+  "path": "art/ui/income.webp",
+  "bytes": 1816
+ },
+ {
+  "path": "art/ui/kiosk.webp",
+  "bytes": 2658
+ },
+ {
+  "path": "art/ui/money.webp",
+  "bytes": 1038
+ },
+ {
+  "path": "art/ui/multiplier.webp",
+  "bytes": 4210
+ },
+ {
+  "path": "art/ui/partner-zoo.webp",
+  "bytes": 2814
+ },
+ {
+  "path": "art/ui/release.webp",
+  "bytes": 3282
+ },
+ {
+  "path": "art/ui/reputation.webp",
+  "bytes": 2306
+ },
+ {
+  "path": "art/ui/rock.webp",
+  "bytes": 1494
+ },
+ {
+  "path": "art/ui/scoring-hand.webp",
+  "bytes": 4180
+ },
+ {
+  "path": "art/ui/snapping.webp",
+  "bytes": 1546
+ },
+ {
+  "path": "art/ui/sponsor-card.webp",
+  "bytes": 2468
+ },
+ {
+  "path": "art/ui/strength.webp",
+  "bytes": 396
+ },
+ {
+  "path": "art/ui/take-in-range.webp",
+  "bytes": 1552
+ },
+ {
+  "path": "art/ui/upgrade-card.webp",
+  "bytes": 2796
+ },
+ {
+  "path": "art/ui/venom.webp",
+  "bytes": 4290
+ },
+ {
+  "path": "art/ui/water.webp",
+  "bytes": 1528
+ },
+ {
+  "path": "art/ui/xtoken.webp",
+  "bytes": 2288
+ },
+ {
+  "path": "art/unique-buildings/unique-adventure-playground.webp",
+  "bytes": 11086
+ },
+ {
+  "path": "art/unique-buildings/unique-aquarium.webp",
+  "bytes": 17274
+ },
+ {
+  "path": "art/unique-buildings/unique-baboon-rock.webp",
+  "bytes": 14584
+ },
+ {
+  "path": "art/unique-buildings/unique-barred-owl-hut.webp",
+  "bytes": 13736
+ },
+ {
+  "path": "art/unique-buildings/unique-cable-car.webp",
+  "bytes": 18044
+ },
+ {
+  "path": "art/unique-buildings/unique-meerkat-den.webp",
+  "bytes": 12840
+ },
+ {
+  "path": "art/unique-buildings/unique-okapi-stable.webp",
+  "bytes": 19154
+ },
+ {
+  "path": "art/unique-buildings/unique-penguin-pool.webp",
+  "bytes": 15246
+ },
+ {
+  "path": "art/unique-buildings/unique-polar-bear-exhibit.webp",
+  "bytes": 14350
+ },
+ {
+  "path": "art/unique-buildings/unique-rhesus-monkey-park.webp",
+  "bytes": 16120
+ },
+ {
+  "path": "art/unique-buildings/unique-sea-turtle-tank.webp",
+  "bytes": 17558
+ },
+ {
+  "path": "art/unique-buildings/unique-side-entrance.webp",
+  "bytes": 7214
+ },
+ {
+  "path": "art/unique-buildings/unique-spotted-hyena-compound.webp",
+  "bytes": 16820
+ },
+ {
+  "path": "art/unique-buildings/unique-water-playground.webp",
+  "bytes": 8402
+ },
+ {
+  "path": "art/unique-buildings/unique-zoo-school.webp",
+  "bytes": 10636
+ },
+ {
+  "path": "art/universities/university-hand-size.webp",
+  "bytes": 3422
+ },
+ {
+  "path": "art/universities/university-reputation.webp",
+  "bytes": 3000
+ },
+ {
+  "path": "art/universities/university-research.webp",
+  "bytes": 2832
+ },
+ {
+  "path": "art/wooden-pieces/break-token.webp",
+  "bytes": 1816
+ }
+]
