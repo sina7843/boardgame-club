@@ -67,8 +67,9 @@ const emoteOf = (body: string) => {
   return c ? <span className="chat-emote" role="img" aria-label={`ایموت ${c.nameFa}`}><ItemArt item={c} me={{ avatarKey: 'meeple' }} size="lg" /></span> : null;
 };
 
-/** A message of only emoji (1-3) is shown large without a bubble (design «شکلک تنها بزرگ»). */
-const bigEmoji = (body: string) => (/^(\p{Extended_Pictographic}\uFE0F?){1,3}$/u.test(body.trim()) ? <span className="chat-bigemoji">{body}</span> : null);
+/** A message of only emoji (1-3) is shown large without a bubble (design «شکلک تنها بزرگ»). The text stays a plain string so
+ * the DS Message draws it with the emoji images (v2.4.3: never the system emoji font); `.chat-msg--big` enlarges them. */
+const bigEmoji = (body: string) => /^(\p{Extended_Pictographic}\uFE0F?){1,3}$/u.test(body.trim());
 const dayFmt = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'medium', timeZone: 'Asia/Tehran' });
 const dayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran' });
 /** «امروز» / «دیروز» / Jalali date for the day separators. */
@@ -385,7 +386,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
         ];
         return (
           <Fragment key={m.id}>{divider}
-          <article className={`${mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}${lifted === m.id ? ' is-lifted' : ''}`}
+          <article className={`${mine ? 'chat-msg chat-msg--mine' : 'chat-msg'}${bigEmoji(m.body) ? ' chat-msg--big' : ''}${lifted === m.id ? ' is-lifted' : ''}`}
             onPointerDown={() => { if (m.deleted) return; press.current = window.setTimeout(() => { setLifted(m.id); setReacting(m.id); }, 450); }}
             onPointerUp={() => clearTimeout(press.current)} onPointerLeave={() => clearTimeout(press.current)}
             onContextMenu={(e) => { if (lifted === m.id) e.preventDefault(); }}>
@@ -402,7 +403,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
                 </div>}
                 {!mine && declined.includes(m.id) && <span className="t-caption bgv-muted">رد کردید.</span>}
               </div>
-            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={emoteOf(m.body) ?? bigEmoji(m.body) ?? m.body} viewer={me?.displayName}
+            ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={emoteOf(m.body) ?? m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
               avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
               state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}

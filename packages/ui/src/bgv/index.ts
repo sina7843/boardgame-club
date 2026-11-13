@@ -1,4 +1,4 @@
-// BGV design system v2.1 — the only UI component source for the app (see design/CLAUDE.design-system.md).
+// BGV design system v2.4.3 — the only UI component source for the app (see design/CLAUDE.design-system.md).
 import Bgv from './bgv.js';
 
 export type * from './bgv.js';
@@ -8,3 +8,5 @@ export const {
 export const fa = Bgv.fa as (v: unknown) => string;
 export const formatTime = Bgv.formatTime;
 export const iconNames = Bgv.iconNames;
+/** v2.4.3: text with the supported emoji replaced by the design system's emoji images (`img.bgv-emoji`). */
+export const emojify = (Bgv as unknown as { emojify: (t: string) => import('react').ReactNode }).emojify;

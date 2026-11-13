@@ -5,7 +5,7 @@ import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvat
 import { DockSlotHost, useOnline, useToast } from '@bg/ui';
 import {
   ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
-  ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill,
+  ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill, emojify,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
@@ -581,7 +581,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         const atMe = t.mySeat !== null && words.includes(`@${name(t.mySeat)}`);
         // Floating speech bubble over the card (DS bubble-float); the game's own badges stay visible beside it.
         return <>{live.badge}<span className={`bgv-bubble-float tbl-said${atMe ? ' is-mention' : ''}`} aria-hidden
-          style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}><b>{n}:</b> {words}</span></>;
+          style={b ? { "--tbl-bubble": b[0], "--tbl-bubble-ink": b[1] ?? "inherit" } as React.CSSProperties : undefined}><b>{n}:</b> {emojify(words)}</span></>;
       })() } : {}),
       ...(place ? { score: place.score ?? place.place, scoreLabel: place.score !== undefined ? 'امتیاز' : 'رتبه', leader: place.place === 1 } : {}),
       ...(!place && !active && !finished && !ss?.status ? { waiting: queueText(x.seat) } : {}),

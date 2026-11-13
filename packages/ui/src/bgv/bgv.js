@@ -1620,6 +1620,7 @@ import * as React from 'react';
   Object.defineProperty(Bgv, 'fa', { value: fa, enumerable: false });
   Object.defineProperty(Bgv, 'formatTime', { value: formatTime, enumerable: false });
   Object.defineProperty(Bgv, 'iconNames', { value: Object.keys(ICONS), enumerable: false });
+  Object.defineProperty(Bgv, 'emojify', { value: emojify, enumerable: false });
   _bgv = Bgv;
 }
 
