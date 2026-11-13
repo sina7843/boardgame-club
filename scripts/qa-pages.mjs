@@ -1,3 +1,4 @@
+/* global document, window, getComputedStyle, NodeFilter */ // page.evaluate callbacks run in the browser
 // Boardgameverse page check: axe (WCAG 2.2 AA) + the design-system rules.
 // Usage: node qa-pages.mjs <url> [<url> …] [--widths=390,1000,1440] [--dark] [--out=report.json]
 // Needs: npm i -D playwright axe-core   (and: npx playwright install chromium)
