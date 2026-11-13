@@ -135,7 +135,8 @@ export function Catalog() {
   const sort = params.get('sort') ?? 'popular';
   const players = params.get('players') ?? '';
 
-  const items = useMemo(() => sortGames((data?.items ?? []).filter((g) => !onlyBot || g.botAvailable), sort), [data, onlyBot, sort]);
+  // Test games (engine fixtures) are not part of the public list; their pages stay reachable by address.
+  const items = useMemo(() => sortGames((data?.items ?? []).filter((g) => !g.isTestGame && (!onlyBot || g.botAvailable)), sort), [data, onlyBot, sort]);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const live = mode === 'live' || mode === 'turn' ? mode : '';
   const tags = (params.get('tags') ?? '').split(',').filter((t): t is GameTag => t in GAME_TAG_FA);

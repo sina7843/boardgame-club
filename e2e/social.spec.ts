@@ -34,9 +34,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   const p = info.project.name;
   const a = await newPage(browser, vp);
   // Discover as a guest
-  await a.goto('/games');
-  await a.getByRole('searchbox', { name: 'جست‌وجو' }).fill('دوز'); // the catalogue shows 12 at a time
-  await a.getByRole('link', { name: /دوز/ }).click();
+  await a.goto('/games/line-three'); // a test game: not in the public list, its page opens by address
   await expect(a.getByRole('heading', { name: 'دوز', level: 1 })).toBeVisible();
   await a.screenshot({ path: shot('01-guest-detail', p), fullPage: true });
   await a.getByRole('button', { name: 'آموزش تعاملی' }).click(); // a guest is sent to sign in, then back here

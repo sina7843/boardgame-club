@@ -36,12 +36,15 @@ test('login → catalog → game detail', async ({ page }, info) => {
   await expect(page.getByText(/^[۰-۹]+ بازی$/).first()).toBeVisible();
   await page.screenshot({ path: shot('03-catalog', p), fullPage: true });
 
-  // Arabic yeh in the query still finds the Persian name (FR-02).
-  await page.getByRole('searchbox', { name: 'جست‌وجو' }).fill('مزايده');
+  // Arabic kaf in the query still finds the Persian name (FR-02).
+  await page.getByRole('searchbox', { name: 'جست‌وجو' }).fill('كودتا');
   await expect(page.getByText('۱ بازی', { exact: true })).toBeVisible(); // the presets also say «N بازی»
   await page.screenshot({ path: shot('04-search', p), fullPage: true });
+  // Test games are not in the public list; their page still opens by address.
+  await page.getByRole('searchbox', { name: 'جست‌وجو' }).fill('مزايده');
+  await expect(page.getByText('بازی‌ای با این مشخصات پیدا نشد')).toBeVisible();
 
-  await page.getByRole('link', { name: /مزایده سربسته/ }).click();
+  await page.goto('/games/sealed-bids');
   await expect(page.getByRole('heading', { name: 'مزایده سربسته', level: 1 })).toBeVisible();
   await expect(page.getByText('بازی آزمایشی').first()).toBeVisible();
   await expect(page.getByRole('link', { name: 'میز بساز' }).first()).toBeVisible();

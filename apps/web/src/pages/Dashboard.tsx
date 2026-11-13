@@ -483,7 +483,8 @@ export function Dashboard() {
   const { me, status } = useSession();
   const games = useApi<{ items: GameSummary[] }>('/games');
   const home = useApi<HomeOverview>('/home');
-  const all = games.data?.items ?? [];
+  // Test games (engine fixtures) never appear on the home page, nor in its counts.
+  const all = (games.data?.items ?? []).filter((g) => !g.isTestGame);
   if (status === 'loading' || (games.loading && !games.data)) return <Skeleton lines={6} />;
   if (games.error) return <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />;
   return me ? <MemberHome all={all} home={home.data} /> : <GuestHome all={all} home={home.data} />;
