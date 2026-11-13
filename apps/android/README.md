@@ -15,4 +15,8 @@ The app sells nothing for money because Bazaar requires its own billing for digi
 pnpm --filter @bg/android aab    # android/app/build/outputs/bundle/release/app-release.aab  -> upload to Bazaar
 pnpm --filter @bg/android apk    # android/app/build/outputs/apk/release/app-release.apk
 ```
+After uploading the .aab, Bazaar asks for a `.bin` made by its Bundle Signer (the key never leaves this machine):
+double-click `bazaar-bin.cmd` (needs `%USERPROFILE%\Android\bundlesigner-0.1.13.jar` from
+github.com/cafebazaar/bundle-signer/releases) and upload the `.bin`. Use the exact .aab you uploaded; do not rebuild in between.
+
 Raise `versionCode` (and `versionName`) in `android/app/build.gradle` before every new Bazaar release.

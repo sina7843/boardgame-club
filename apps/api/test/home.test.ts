@@ -26,6 +26,10 @@ describe('home overview', () => {
     expect(home.weekly.me).toBeNull(); // guest
     expect(Array.isArray(home.popular)).toBe(true);
     expect(home.popular).toContain('chess');
+    // Public open tables come with the aggregate (guest home), at most three, never a full table.
+    expect(home.openTables).toBeGreaterThanOrEqual(home.open.length);
+    expect(home.open.length).toBeLessThanOrEqual(3);
+    for (const o of home.open as { players: number; capacity: number }[]) expect(o.players).toBeLessThan(o.capacity);
   });
 
   it('private tables are never listed', async () => {

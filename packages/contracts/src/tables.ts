@@ -240,6 +240,8 @@ export type LiveTableItem = z.infer<typeof liveTableItem>;
 export const homeOverview = z.object({
   /** Running public/tournament tables; distinct people seated at any running table; sessions seen in the last 5 minutes. */
   liveTables: z.number().int(), playingNow: z.number().int(), onlineNow: z.number().int(),
+  /** Public tables still waiting for players (count, capped at 50) and the newest three; same view as GET /tables. */
+  openTables: z.number().int(), open: z.array(openTableItem),
   live: z.array(z.object({
     id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, competition: z.enum(['friendly', 'ranked']),
     turnSeconds: z.number().int().nullable(),
