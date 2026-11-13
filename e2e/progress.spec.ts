@@ -11,7 +11,7 @@ const grant = (mobile: string, role: string) => execFileSync('node', ['packages/
 
 async function queueRanked(p: Page) {
   await p.goto('/play');
-  await p.getByLabel('بازی', { exact: true }).selectOption({ label: 'سه‌خطی' });
+  await p.getByLabel('بازی', { exact: true }).selectOption({ label: 'دوز' });
   await p.locator('form').getByText('نوبتی', { exact: true }).click();
   await p.locator('form').getByText('رتبه‌دار', { exact: true }).click();
   await p.getByRole('button', { name: 'شروع جست‌وجو' }).click();

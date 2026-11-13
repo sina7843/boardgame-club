@@ -14,7 +14,7 @@ export const resArcana = defineGame({
     assetsRef: 'res-arcana/1'
   },
   catalog: {
-    nameFa: 'رس آرکانا',
+    nameFa: 'جادوی کهن',
     nameOriginal: 'Res Arcana',
     summaryFa: 'مسابقهٔ جادوگران تا ۱۰ امتیاز: با یک جادوگر و شش شیء جادویی، جوهرهای آتش، زندگی، آرامش، مرگ و طلا تولید کنید، قدرت اشیا را فعال کنید و با جوهرها مکان‌های قدرت و بناهای یادبود بخرید.',
     rulesFa: [

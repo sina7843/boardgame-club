@@ -1,6 +1,6 @@
 import { defineGame } from '@bg/game-sdk';
 
-// The Crew: The Quest for Planet Nine («خدمه: سیارهٔ نهم») — cooperative trick-taking, 3–5 players. Rules: rules.ts.
+// The Crew: The Quest for Planet Nine («کرو») — cooperative trick-taking, 3–5 players. Rules: rules.ts.
 export const theCrew = defineGame({
   manifest: {
     gameId: 'the-crew',
@@ -24,7 +24,7 @@ export const theCrew = defineGame({
     assetsRef: 'the-crew/1'
   },
   catalog: {
-    nameFa: 'کرو: در جست‌وجوی سیارهٔ نهم',
+    nameFa: 'کرو',
     nameOriginal: 'The Crew: The Quest for Planet Nine',
     summaryFa: 'بازی دست‌گیری همکاری ۳ تا ۵ نفره: همهٔ خدمه با هم می‌برند یا با هم می‌بازند. هر کس باید دست‌هایی را ببرد که کارت‌های وظیفهٔ خودش در آن‌هاست، بی‌آنکه دربارهٔ کارت‌هایش حرف بزند؛ فقط یک بار در ماموریت می‌تواند یک کارت را نشان دهد.',
     rulesFa: [

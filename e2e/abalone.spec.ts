@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { motionLog, player, recordMotion } from './helpers.ts';
 
-// «آبالون» end to end: tutorial (sumito pushes, a broadside step, the sixth marble off) and two players exchanging moves through
+// «ابلون» end to end: tutorial (sumito pushes, a broadside step, the sixth marble off) and two players exchanging moves through
 // the board (select marbles, tap an arrow); the game is resigned after a while since a full game is long.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });
 const RESULT = /بردید|باختید|مساوی/;

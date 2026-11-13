@@ -1,4 +1,4 @@
-// Blood Rage («خشم خون»): static data. Cards follow the Board Game Arena card list (82 cards, copies per player count);
+// Blood Rage («بلاد ریج»): static data. Cards follow the Board Game Arena card list (82 cards, copies per player count);
 // the board layout (provinces, regions, villages, fjords) follows the printed board shown in the rulebook; the stat track
 // steps are reconstructed (see DECISIONS.md, «Blood Rage»).
 

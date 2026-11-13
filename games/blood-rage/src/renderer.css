@@ -1,4 +1,4 @@
-/* خشم خون renderer. The map is a physical object on a night sea: its colours stay the same in both themes. Every clan colour
+/* بلاد ریج renderer. The map is a physical object on a night sea: its colours stay the same in both themes. Every clan colour
    also comes with its name and the seat number in text, and every figure kind has its own silhouette. */
 .blr {
   --blr-ink: #f4ecd8; --blr-dim: #b9c3cc; --blr-gold: #e0b655; --blr-red: #d4574e; --blr-sea: #0d2230; --blr-panel: #14303f;
@@ -89,11 +89,11 @@
 .blr-seat header small { color: var(--text-2); }
 .blr-seat__dot { inline-size: 12px; block-size: 12px; border-radius: 50%; background: var(--c); align-self: center; box-shadow: 0 0 0 2px rgb(0 0 0 / 0.5); }
 .blr-seat__glory { margin-inline-start: auto; color: var(--blr-gold); font-size: var(--fs-sm, 13px); }
-.blr-seat__glory b { font-size: 22px; font-variant-numeric: tabular-nums; }
+.blr-seat__glory b { font-size: 22px; }
 .blr-seat__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; margin: 0; }
 .blr-seat__stats > div { display: grid; text-align: center; background: rgb(0 0 0 / 0.18); border-radius: 8px; padding: 4px 2px; }
 .blr-seat__stats dt { font-size: 11px; color: var(--text-2); }
-.blr-seat__stats dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.blr-seat__stats dd { margin: 0; font-weight: 800; }
 .blr-seat__stats .is-zero dd { color: #ff9d94; }
 .blr-tracks { display: grid; gap: 3px; }
 .blr-track { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-2); }
@@ -118,7 +118,7 @@ button.blr-card__face:focus-visible { outline: 3px solid #fff; outline-offset: 2
 .blr-card--clan .blr-card__face, .blr-card--warrior .blr-card__face, .blr-card--ship .blr-card__face, .blr-card--leader .blr-card__face { background: #2b3a46; border-color: #8fa3b3; }
 .blr-card__kind { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--blr-dim); }
 .blr-card__kind i { font-style: normal; background: rgb(0 0 0 / 0.3); border-radius: 6px; padding: 0 6px; }
-.blr-card__num { font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--blr-gold); }
+.blr-card__num { font-size: 30px; line-height: 1; color: var(--blr-gold); }
 .blr-card__sub { font-size: 10.5px; color: var(--blr-dim); }
 .blr-card__name { font-weight: 800; font-size: 14px; }
 .blr-card__text { font-size: 11.5px; line-height: 1.5; color: #d8e0e6; }

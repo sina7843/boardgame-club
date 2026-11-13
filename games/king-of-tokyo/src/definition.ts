@@ -14,7 +14,7 @@ export const kingOfTokyo = defineGame({
     assetsRef: 'king-of-tokyo/1'
   },
   catalog: {
-    nameFa: 'کینگ آف توکیو',
+    nameFa: 'پادشاه توکیو',
     nameOriginal: 'King of Tokyo',
     summaryFa: 'غول‌های غول‌پیکر برای تصاحب شهر می‌جنگند: تاس می‌ریزید، امتیاز و انرژی جمع می‌کنید، به غول داخل شهر چنگ می‌زنید و کارت‌های قدرت عجیب می‌خرید. اولین غولی که به ۲۰ امتیاز برسد — یا آخرین غول زنده — شاه شهر است.',
     rulesFa: [

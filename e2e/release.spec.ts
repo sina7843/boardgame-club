@@ -160,8 +160,8 @@ test('admin chooses a game\'s modes and rule variants; players only see what is 
   const original = (await (await admin.request.get('/api/admin/games/line-three/settings')).json()).current;
   try {
     await admin.goto('/admin');
-    await admin.getByRole('button', { name: /سه‌خطی/ }).click();
-    await expect(admin.getByRole('heading', { name: 'سه‌خطی', level: 2 })).toBeVisible();
+    await admin.getByRole('button', { name: /دوز/ }).click();
+    await expect(admin.getByRole('heading', { name: 'دوز', level: 2 })).toBeVisible();
     const panel = admin.locator('section[aria-labelledby="game-settings-h"]');
     await panel.getByRole('group', { name: 'حالت بازی' }).getByText('زنده').click();
     const variant = panel.getByRole('region', { name: 'شروع‌کننده' });

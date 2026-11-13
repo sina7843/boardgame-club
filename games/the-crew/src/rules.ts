@@ -1,4 +1,4 @@
-// The Crew: The Quest for Planet Nine («خدمه: سیارهٔ نهم»), cooperative trick-taking for 3–5 (2 only in the
+// The Crew: The Quest for Planet Nine («کرو»), cooperative trick-taking for 3–5 (2 only in the
 // tutorial). One mission per table (host picks 1–10). Task cards are revealed with order tokens; the commander drafts
 // first, then clockwise until all are taken. A task is fulfilled when its owner wins the trick containing the task
 // card; anyone else winning it fails the mission. Numbered tokens must be fulfilled in that relative order, "last"

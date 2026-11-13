@@ -14,7 +14,7 @@ export const century = defineGame({
     assetsRef: 'century/1'
   },
   catalog: {
-    nameFa: 'سنچری: جادهٔ ادویه',
+    nameFa: 'جاده ابریشم',
     nameOriginal: 'Century: Spice Road',
     summaryFa: 'کاروان‌دار جادهٔ ادویه‌اید (۲ تا ۵ نفر): با کارت‌های تاجر زردچوبه جمع کنید، آن را به زعفران و هل و دارچین ارتقا دهید یا معاوضه کنید، تاجرهای بهتر استخدام کنید و سفارش‌های پرسود را با سکهٔ طلا و نقره تحویل بگیرید.',
     rulesFa: [

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player, pickPlayers } from './helpers.ts';
 
-// «گایا پراجکت» end to end: the tutorial (round 6 teaching position: mine with terraforming, trading station,
+// «پروژه گایا» end to end: the tutorial (round 6 teaching position: mine with terraforming, trading station,
 // federation with a satellite, research, a power action, pass to the final scoring) through the highlighted hints, and a
 // full two-player game from faction choice through set-up and six rounds (a mine early, then passing) to the result.
 test.describe.configure({ mode: 'serial', timeout: 600_000 });

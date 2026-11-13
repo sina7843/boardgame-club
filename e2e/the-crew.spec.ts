@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { motionLog, player, recordMotion, pickPlayers } from './helpers.ts';
 
-// «خدمه: سیارهٔ نهم» end to end: the tutorial (draft three tasks, follow suit, ordered tasks, communicate, win with a rocket) and a full three-player mission.
+// «کرو» end to end: the tutorial (draft three tasks, follow suit, ordered tasks, communicate, win with a rocket) and a full three-player mission.
 test.describe.configure({ mode: 'serial', timeout: 900_000 });
 const GAME = 'the-crew';
 const RESULT = /بردید|باختید|مساوی/;

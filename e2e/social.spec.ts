@@ -35,9 +35,9 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   const a = await newPage(browser, vp);
   // Discover as a guest
   await a.goto('/games');
-  await a.getByRole('searchbox', { name: 'جست‌وجو' }).fill('سه‌خطی'); // the catalogue shows 12 at a time
-  await a.getByRole('link', { name: /سه‌خطی/ }).click();
-  await expect(a.getByRole('heading', { name: 'سه‌خطی', level: 1 })).toBeVisible();
+  await a.getByRole('searchbox', { name: 'جست‌وجو' }).fill('دوز'); // the catalogue shows 12 at a time
+  await a.getByRole('link', { name: /دوز/ }).click();
+  await expect(a.getByRole('heading', { name: 'دوز', level: 1 })).toBeVisible();
   await a.screenshot({ path: shot('01-guest-detail', p), fullPage: true });
   await a.getByRole('link', { name: 'برای بازی و آموزش وارد شوید' }).click();
   await signIn(a, `Arya${uniq()}`, '/games/line-three');
@@ -54,10 +54,10 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   // Match with an independent client
   const b = await newPage(browser, vp);
   await signIn(b, `Bita${uniq()}`);
-  await queue(a, 'سه‌خطی');
-  await expect(a.getByText(/در صف «سه‌خطی»/)).toBeVisible();
+  await queue(a, 'دوز');
+  await expect(a.getByText(/در صف «دوز»/)).toBeVisible();
   await a.screenshot({ path: shot('02-queue', p), fullPage: true });
-  await queue(b, 'سه‌خطی');
+  await queue(b, 'دوز');
   await acceptMatch(a);
   await acceptMatch(b);
   await expect(a.locator('.lt__board')).toBeVisible();
@@ -120,7 +120,7 @@ test('friends: request/accept, invite to a private table via notification, table
   await a.getByRole('button', { name: 'دعوت', exact: true }).click();
   await expect(a.getByRole('button', { name: 'دعوت شد' })).toBeVisible();
   await b.goto('/notifications');
-  const invite = b.locator('li.hm-notif', { hasText: /شما را به میز «سه‌خطی» دعوت کرد/ });
+  const invite = b.locator('li.hm-notif', { hasText: /شما را به میز «دوز» دعوت کرد/ });
   await expect(invite).toBeVisible({ timeout: 15_000 });
   await b.screenshot({ path: shot('06-invite-notification', p), fullPage: true });
   await invite.getByRole('link', { name: 'پذیرفتن' }).click();

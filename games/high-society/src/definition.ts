@@ -14,7 +14,7 @@ export const highSociety = defineGame({
     assetsRef: 'high-society/1'
   },
   catalog: {
-    nameFa: 'های سوسایتی',
+    nameFa: 'طبقه اشرافی',
     nameOriginal: 'High Society',
     summaryFa: 'مزایدهٔ اشرافی ۳ تا ۵ نفره (و دونفرهٔ غیررسمی): برای کالاهای تجملی و کارت‌های افتخار پیشنهاد بدهید، برای فرار از رسوایی پول خرج کنید و حواستان باشد آخر بازی کم‌پول‌ترین بازیکن، هر چقدر هم پرآوازه، کنار گذاشته می‌شود.',
     rulesFa: [

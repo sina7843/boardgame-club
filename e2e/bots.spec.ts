@@ -15,7 +15,7 @@ async function expectBots(p: import('@playwright/test').Page, bots: number, time
   else await expect(hud.getByText(/ربات، سطح/)).toHaveCount(bots, { timeout });
 }
 
-test('play «سه‌خطی» against a hard bot to the result', async ({ browser }, info) => {
+test('play «دوز» against a hard bot to the result', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'بازیکن تنها');
   await p.goto('/games/line-three');

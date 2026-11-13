@@ -1,4 +1,4 @@
-// خشم خون renderer: Midgard on a night sea. The map is an SVG ring of eight provinces around Yggdrasil with four fjords;
+// بلاد ریج renderer: Midgard on a night sea. The map is an SVG ring of eight provinces around Yggdrasil with four fjords;
 // figures stand in village slots. Under it: the clans (glory, Rage, stat tracks, upgrades), your reserve, your hand and the
 // pillage battle. Hidden things (hands, drafted packs, quests, chosen battle cards) are only drawn for their owner.
 import './renderer.css';

@@ -14,7 +14,7 @@ export const theMind = defineGame({
     assetsRef: 'the-mind/1'
   },
   catalog: {
-    nameFa: 'د مایند',
+    nameFa: 'ذهن',
     nameOriginal: 'The Mind',
     summaryFa: 'بازی گروهی و بی‌کلام ۲ تا ۴ نفره: همه با هم یک تیم‌اید و باید کارت‌های ۱ تا ۱۰۰ را بدون حرف زدن و بدون نوبت، فقط با حس زمان، به ترتیب صعودی روی میز بگذارید و مرحله به مرحله جلو بروید.',
     rulesFa: [

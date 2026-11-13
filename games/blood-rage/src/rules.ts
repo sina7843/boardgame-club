@@ -1,4 +1,4 @@
-// Blood Rage («خشم خون»), 2–5 players, base game (no expansions). Three Ages, each: Gods' Gifts (card draft) → Action
+// Blood Rage («بلاد ریج»), 2–5 players, base game (no expansions). Three Ages, each: Gods' Gifts (card draft) → Action
 // (spend Rage: invade, march, upgrade, quest, pillage) → Discard → Quest → Ragnarök → Release Valhalla. The clan with the
 // most Glory after the third Age wins. The server owns everything: hands, drafted packs and secretly chosen battle cards
 // are hidden; the board, upgrades, stats and glory are public.

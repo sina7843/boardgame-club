@@ -19,7 +19,7 @@ export const lineThree = defineGame({
     assetsRef: 'line-three/1'
   },
   catalog: {
-    nameFa: 'سه‌خطی',
+    nameFa: 'دوز',
     nameOriginal: 'Line Three',
     summaryFa: 'بازی دونفره روی جدول ۳×۳؛ هر کس زودتر سه نشان خود را در یک ردیف، ستون یا قطر بچیند برنده است.',
     rulesFa: [

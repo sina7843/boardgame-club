@@ -1,4 +1,4 @@
-// Abalone («آبالون»): hexagonal board of 61 cells (side 5), 14 marbles each in the standard layout, black first.
+// Abalone («ابلون»): hexagonal board of 61 cells (side 5), 14 marbles each in the standard layout, black first.
 // A move shifts 1–3 of your marbles that stand in a line by one cell: in-line (along their own line) or broadside
 // (sideways, every target cell empty). In-line moves may push ("sumito") a smaller group of enemy marbles directly in
 // front — 2 push 1, 3 push 1 or 2 — if the cell behind them is empty or off the board (a marble pushed off is lost).
