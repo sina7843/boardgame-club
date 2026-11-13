@@ -11,11 +11,11 @@ export function TableCodeForm({ className = '' }: { className?: string }) {
   const clean = code.trim().toUpperCase();
   return (
     <form className={`T-join ${className}`.trim()} role="search" aria-label="ورود با کد میز"
-      onSubmit={(e) => { e.preventDefault(); if (/^[A-Z0-9]{4,8}$/.test(clean)) navigate(`/t/${clean}`); }}>
+      onSubmit={(e) => { e.preventDefault(); if (/^[A-Z0-9]{6,8}$/.test(clean)) navigate(`/t/${clean}`); }}>
       <span className="T-join__ic"><Icon name="hash" /></span>
       <label htmlFor="tcode">کد میز داری؟</label>
-      <input id="tcode" name="code" placeholder="مثلاً K7Q2" dir="ltr" autoComplete="off" maxLength={8} value={code} onChange={(e) => setCode(e.target.value)} />
-      <Button type="submit" variant="secondary" size="sm" disabled={!/^[A-Z0-9]{4,8}$/.test(clean)}>برو سر میز</Button>
+      <input id="tcode" name="code" placeholder="مثلاً K7Q2MX" dir="ltr" autoComplete="off" maxLength={8} value={code} onChange={(e) => setCode(e.target.value)} />
+      <Button type="submit" variant="secondary" size="sm" disabled={!/^[A-Z0-9]{6,8}$/.test(clean)}>برو سر میز</Button>
     </form>
   );
 }

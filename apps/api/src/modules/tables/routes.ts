@@ -67,10 +67,10 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
   });
 
   // /t/<code> links: the table's id from its short code. Public tables for anyone; a private table only for its own
-  // players (a 4-letter code is guessable, so it must never reveal a private table; its invite link stays the way in).
+  // players (a short code can be guessed, so it must never reveal a private table; its invite link stays the way in).
   r.get('/t/:code', {
     schema: { tags: ['tables'], summary: 'Resolve a short table code (/t/<code>) to the table id',
-      params: z.object({ code: z.string().trim().min(4).max(8).regex(/^[A-Za-z0-9]+$/) }),
+      params: z.object({ code: z.string().trim().min(6).max(8).regex(/^[A-Za-z0-9]+$/) }),
       response: { 200: z.object({ id: z.uuid() }), 404: apiErrorSchema } }
   }, async (req) => {
     const code = req.params.code.toUpperCase();

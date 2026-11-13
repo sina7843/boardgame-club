@@ -1,15 +1,15 @@
 ALTER TABLE "game_tables" ADD COLUMN "code" text;--> statement-breakpoint
 ALTER TABLE "game_tables" ADD CONSTRAINT "game_tables_code_unique" UNIQUE("code");--> statement-breakpoint
--- Short table codes for /t/<code> links: 4 characters from an alphabet without look-alikes (no 0/O, 1/I/L), retried on
--- collision; after 50 tries it widens to 6 characters. Filled on insert so no caller has to know about it.
+-- Short table codes for /t/<code> links: 6 characters from an alphabet without look-alikes (no 0/O, 1/I/L; 31^6 ≈ 887M
+-- codes), retried on collision; after 50 tries it widens to 8 characters. Filled on insert so no caller has to know about it.
 CREATE OR REPLACE FUNCTION game_table_code() RETURNS text LANGUAGE plpgsql VOLATILE AS $$
 DECLARE
   alphabet constant text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  len int := 4;
+  len int := 6;
   c text;
 BEGIN
   FOR attempt IN 1..100 LOOP
-    IF attempt > 50 THEN len := 6; END IF;
+    IF attempt > 50 THEN len := 8; END IF;
     c := '';
     FOR i IN 1..len LOOP
       c := c || substr(alphabet, 1 + floor(random() * length(alphabet))::int, 1);
