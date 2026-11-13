@@ -12,23 +12,14 @@ test('encyclopedia: list, filter by mechanic, open a game entry', async ({ page 
   await expect(page.getByRole('main').getByRole('link', { name: /شطرنج/ })).toHaveCount(0);
   await page.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-list.png`, fullPage: true });
 
-  // Painted cover at rest; the BGG box photo fades in on hover (pointer devices only).
-  if (!info.project.use.hasTouch) {
-    const box = page.getByRole('main').getByRole('link', { name: /کاتان/ }).locator('.game-cover--box');
-    await expect(box).toHaveCSS('opacity', '0');
-    await page.getByRole('main').getByRole('link', { name: /کاتان/ }).hover();
-    await expect(box).toHaveCSS('opacity', '1');
-    expect(await box.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
-  }
+  // DS v2.4.3: every game image is its box (img.bgv-box), no painted cover.
+  const box = page.getByRole('main').getByRole('link', { name: /کاتان/ }).locator('img.bgv-box');
+  await expect(box).toHaveAttribute('src', '/covers/box/catan.webp');
+  await expect.poll(() => box.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
 
+  // DS v2.4: the game page carries no BoardGameGeek data; the entry opens on the encyclopedia page itself.
   await page.getByRole('main').getByRole('link', { name: /کاتان/ }).click();
-  await expect(page).toHaveURL(/\/games\/catan#wiki$/);
-  // Game page cover flips by tap too, for touch screens.
-  const flip = page.getByRole('button', { name: 'نمایش جعبهٔ اصلی بازی' });
-  await flip.click();
-  await expect(flip).toHaveAttribute('aria-pressed', 'true');
-  await expect(flip.locator('.game-cover--box')).toHaveCSS('opacity', '1');
-  await flip.screenshot({ path: `docs/evidence/site/wiki/${info.project.name}-box.png` });
+  await expect(page).toHaveURL(/\/wiki\?game=catan$/);
   const wiki = page.locator('#wiki');
   await expect(wiki.getByRole('heading', { name: 'دانشنامه' })).toBeVisible();
   await expect(wiki.getByText('Klaus Teuber')).toBeVisible();

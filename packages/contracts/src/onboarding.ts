@@ -42,8 +42,8 @@ export const ONBOARDING_TOURS: readonly OnboardingTour[] = [
     steps: [
       { key: 'catalog', target: 'nav-games', href: '/games', doneOn: '^/games/?$', titleFa: 'بازی‌ها را باز کنید', bodyFa: 'روی «بازی‌ها» بزنید.' },
       { key: 'game', target: 'catalog-grid', doneOn: '^/games/[^/]+/?$', titleFa: 'یک بازی انتخاب کنید', bodyFa: 'روی کارت یکی از بازی‌ها بزنید.' },
-      { key: 'new', target: 'game-actions', doneOn: '^/games/[^/]+/new/?$', titleFa: '«ساخت میز» را بزنید',
-        bodyFa: 'در بخش شروع، دکمهٔ «ساخت میز» را بزنید.' },
+      { key: 'new', target: 'game-actions', doneOn: '^/games/[^/]+/new/?$', titleFa: '«میز بساز» را بزنید',
+        bodyFa: 'در بخش شروع، دکمهٔ «میز بساز» را بزنید.' },
       { key: 'create', target: 'create-form', verify: 'hosted_table', titleFa: 'تنظیم و ساخت',
         bodyFa: 'حالت بازی، زمان نوبت و عمومی یا خصوصی بودن را انتخاب کنید و میز را بسازید. بعد دوستانتان را با لینک دعوت بیاورید.' }
     ]

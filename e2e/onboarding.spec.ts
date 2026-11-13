@@ -34,8 +34,8 @@ test('welcome tour, verified profile walkthrough, skip and hints', async ({ brow
   await card.getByRole('button', { name: 'برو' }).click();
   await expect(card.getByRole('heading', { name: 'یک بازی انتخاب کنید' })).toBeVisible();
   await page.goto('/games/line-three');
-  await expect(card.getByRole('heading', { name: '«ساخت میز» را بزنید' })).toBeVisible();
-  await page.getByRole('link', { name: 'ساخت میز' }).click();
+  await expect(card.getByRole('heading', { name: '«میز بساز» را بزنید' })).toBeVisible();
+  await page.getByRole('link', { name: 'میز بساز' }).first().click();
   await expect(card.getByRole('heading', { name: 'تنظیم و ساخت' })).toBeVisible();
   await page.screenshot({ path: `test-results/onboarding-${info.project.name}-create.png` });
   await page.getByRole('button', { name: 'ساخت میز' }).first().click();

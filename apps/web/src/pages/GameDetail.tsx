@@ -154,6 +154,7 @@ export function GameDetailPage() {
             {g.competitions.includes('ranked') && <span><Icon name="trophy" size="sm" />رتبه‌ای</span>}
             {g.competitions.includes('friendly') && <span><Icon name="handshake" size="sm" />دوستانه</span>}
             {g.botAvailable && <span><Icon name="bot" size="sm" />با ربات</span>}
+            {g.isTestGame && <span><Icon name="triangle-alert" size="sm" />بازی آزمایشی</span>}
           </div>
           <h1 className="gd-name" id="gd-h1">{g.nameFa}<small dir="ltr">{g.nameOriginal}</small></h1>
           <p className="gd-desc gd-just">{g.summaryFa}</p>
@@ -263,11 +264,11 @@ export function GameDetailPage() {
         <div className="gd-grid gd-grid--2">
           <section className="gd-card gd-speccard">
             <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="gauge" />مشخصات بازی</h3></div>
-            <dl className="gd-specs">
-              <div><small>تعداد نفر</small><b>{span(g.minPlayers, g.maxPlayers)} نفر</b></div>
-              <div><small>مدت</small><b>{span(g.minMinutes, g.maxMinutes)} دقیقه</b></div>
-              <div><small>سختی</small><b>{DIFFICULTY_FA[g.difficulty]}</b></div>
-            </dl>
+            <ul className="gd-specs">
+              <li><Icon name="users" /><span><small>تعداد نفر</small><b>{span(g.minPlayers, g.maxPlayers)} نفر</b></span></li>
+              <li><Icon name="clock" /><span><small>مدت</small><b>{span(g.minMinutes, g.maxMinutes)} دقیقه</b></span></li>
+              <li><Icon name="gauge" /><span><small>سختی</small><b>{DIFFICULTY_FA[g.difficulty]}</b></span></li>
+            </ul>
           </section>
           <section className="gd-card">
             <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="clock" />زمان و قانون‌ها</h3></div>

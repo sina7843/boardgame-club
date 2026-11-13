@@ -47,12 +47,12 @@ function Terms({ items, terms, kind }: { items: Link_[]; terms: Record<string, s
   );
 }
 
-/** Encyclopedia section on a game page; renders nothing for games without a BGG entry (e.g. test games). */
+/** One encyclopedia entry (on /wiki?game=<id>; DS v2.4: the game page itself carries no BoardGameGeek data). Nothing for games without an entry. */
 export function GameWiki({ gameId }: { gameId: string }) {
   const { data } = useWiki();
   const g = data?.games[gameId];
-  // Links from the encyclopedia land on #wiki; the section only exists once the lazy data arrives.
-  useEffect(() => { if (g && location.hash === '#wiki') document.getElementById('wiki')?.scrollIntoView(); }, [g]);
+  // The entry opens above the list; scroll to it once the lazy data arrives.
+  useEffect(() => { if (g) document.getElementById('wiki')?.scrollIntoView(); }, [g]);
   if (!data || !g) return null;
   const fa = data.fa[gameId];
   const facts: [string, ReactNode][] = [
@@ -113,7 +113,7 @@ export function WikiPage() {
   useEffect(() => setShown(PAGE), [q, params]);
   const set = (key: string, value: string) =>
     setParams((p) => { const n = new URLSearchParams(p); if (value) n.set(key, value); else n.delete(key); return n; }, { replace: true });
-  const category = params.get('category') ?? '', mechanic = params.get('mechanic') ?? '';
+  const category = params.get('category') ?? '', mechanic = params.get('mechanic') ?? '', entry = params.get('game') ?? '';
   const sort = (params.get('sort') as Sort | null) ?? 'rank';
 
   const entries = useMemo(() => {
@@ -134,6 +134,7 @@ export function WikiPage() {
     <>
       <PageTabs group="games" />
       <PageHead title="دانشنامهٔ بازی‌ها" sub={<>تاریخچه، طراحان، پیچیدگی، امتیاز و سازوکار بازی‌های سایت، برگرفته از <bdi>BoardGameGeek</bdi>.</>} />
+      {entry && <GameWiki gameId={entry} />}
       <search>
         <form className="pg-wikifilters" onSubmit={(e) => e.preventDefault()} aria-label="جست‌وجو در دانشنامه">
           <div><TextField label="جست‌وجو" icon="search" type="search" placeholder="نام بازی یا طراح" value={q} onChange={(e) => setQ(e.target.value)} /></div>
@@ -153,7 +154,7 @@ export function WikiPage() {
         <>
           <b className="t-body" role="status" aria-live="polite">{faNum(entries.length)} بازی</b>
           <div className="pg-wiki">{entries.slice(0, shown).map(({ s, g, fa }) => (
-            <GameCard key={s.id} href={`/games/${s.id}#wiki`} boxArt={<GameBox gameId={s.id} nameFa={s.nameFa} fill />} title={s.nameFa} latin={g.name}
+            <GameCard key={s.id} href={`/wiki?game=${s.id}`} boxArt={<GameBox gameId={s.id} nameFa={s.nameFa} fill />} title={s.nameFa} latin={g.name}
               aria-label={`${s.nameFa} (${g.name})`}
               meta={[
                 ...(g.year ? [{ text: yearFa(g.year) }] : []),

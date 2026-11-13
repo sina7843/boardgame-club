@@ -39,7 +39,7 @@ test('guest discovers a game, signs in, finishes the tutorial, queues, accepts a
   await a.getByRole('link', { name: /دوز/ }).click();
   await expect(a.getByRole('heading', { name: 'دوز', level: 1 })).toBeVisible();
   await a.screenshot({ path: shot('01-guest-detail', p), fullPage: true });
-  await a.getByRole('link', { name: 'برای بازی و آموزش وارد شوید' }).click();
+  await a.getByRole('button', { name: 'آموزش تعاملی' }).click(); // a guest is sent to sign in, then back here
   await signIn(a, `Arya${uniq()}`, '/games/line-three');
   await expect(a).toHaveURL(/\/games\/line-three$/);
   // Learn
