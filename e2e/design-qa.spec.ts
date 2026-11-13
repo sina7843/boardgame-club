@@ -130,12 +130,17 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
     }
   }
   // Chromium also enumerates custom properties on the computed style (works even when a stylesheet is not readable).
-  for (let i = 0; i < cs.length; i++) {
-    const name = cs[i]; if (!name || !name.startsWith('--')) continue;
-    const val = cs.getPropertyValue(name).trim(); if (!val) continue;
-    if (name.startsWith('--radius')) allowedRadius.add(val);
-    else if (/^(#|rgb|hsl)/.test(val)) allowedColor.add(norm(val));
+  // v2.4: pages mix themes (dark felt/ink bands with data-theme="dark" on a light page), so read both themes' tokens.
+  const themed = document.createElement('div'); themed.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; document.body.appendChild(themed);
+  for (const tcs of [cs, getComputedStyle(themed)]) {
+    for (let i = 0; i < tcs.length; i++) {
+      const name = tcs[i]; if (!name || !name.startsWith('--')) continue;
+      const val = tcs.getPropertyValue(name).trim(); if (!val) continue;
+      if (name.startsWith('--radius')) allowedRadius.add(val);
+      else if (/^(#|rgb|hsl)/.test(val)) allowedColor.add(norm(val));
+    }
   }
+  themed.remove();
   for (const c of opts.dsColors) allowedColor.add(norm(c));
   for (const r of opts.dsRadii) allowedRadius.add(r);
   probe.remove();
@@ -212,7 +217,7 @@ for (const s of SCREENS.screens) {
         await page.waitForLoadState('networkidle').catch(() => {});
       }
       const file = `${OUT}/${s.id}@${w}.png`;
-      await page.screenshot({ path: file, fullPage: s.responsive });
+      await page.screenshot({ path: file, fullPage: true });
       const dom = await page.evaluate(domAudit, { gameArt: QA.gameArtSelector ?? '.bgv-felt__stage, [data-game-art]', minEdgeGap: QA.thresholds?.minEdgeGapPx ?? 6, dsColors: DS_COLORS, dsRadii: DS_RADII });
       (entry.shots as unknown[]).push({ width: w, file: file.replace('design/', ''), url, ...dom });
       entry.status = 'captured';

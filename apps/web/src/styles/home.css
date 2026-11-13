@@ -175,10 +175,6 @@ dialog.celebrate .bgv-dialog { inline-size: 100%; max-inline-size: none; }
   .hm-collage { min-block-size: 220px; }
 }
 
-/* 3D box: the flat box photo turned a little, with a spine on the inline-start edge, a lit face and a soft floor shadow. */
-  filter: drop-shadow(14px 16px 10px color-mix(in srgb, var(--ink-felt) 30%, transparent)) drop-shadow(0 2px 2px color-mix(in srgb, var(--ink-felt) 22%, transparent)); transition: transform var(--dur-base) var(--ease-out); }
-  background: linear-gradient(90deg, color-mix(in srgb, var(--ink-felt) 60%, transparent), color-mix(in srgb, var(--ink-felt) 28%, transparent) 60%, color-mix(in srgb, var(--surface) 25%, transparent)); border-radius: var(--radius-xs); }
-  background: linear-gradient(115deg, color-mix(in srgb, var(--surface) 30%, transparent), transparent 38%, color-mix(in srgb, var(--ink-felt) 12%, transparent)); }
 
 .hm-lastbox { inline-size: 72px; block-size: 96px; display: grid; place-items: center; flex: none; }
 .hm-cell--box { gap: var(--space-4); }
