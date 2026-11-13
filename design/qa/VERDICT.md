@@ -1,47 +1,38 @@
-# BGV design QA — verdict (2026-10-29, design system v2.1)
+# BGV design QA — verdict (2026-11-13, design system v2.4.3)
 
-**Overall: NOT PASS (automated gates clean)** — 106 PASS · 0 FAIL; 2 screens cannot be captured (below); visual review done for the home and the live table / chat / overlay screens, not yet for every other page.
+**Overall: FAIL.** Static gate clean; automated DOM audit 99 PASS / 7 FAIL; independent visual review found blockers in every page group, and part of the captures show the wrong state (fixtures expired or lost the API session during the run). Per-group detail: `verdict-{play,account,profile,chat,table,time}.md` (local, git-ignored).
 
 ## Gates
 | Gate | Result |
-|---|---|
-| Static guard `node scripts/ds-check.mjs --strict` | **PASS** (strict zones: `apps/web/src`, `packages/ui/src`; generated `bgv.js` excluded). 221 errors in non-strict zones (legacy tokens in `games/*/src`) and 4471 warnings stay on the baseline. |
-| Live capture + DOM audit (desktop-1440 project, widths 1440 / 1000 / 390, both themes) | **96 PASS · 0 FAIL · 12 not captured · 14 spec-only** of 122 screens |
-| Independent visual review (side by side with the references) | **started, home only** (see below) |
+| --- | --- |
+| `ds-check --strict` (app code) | PASS (0 errors in strict zones; 221 legacy-token errors remain in the game-art zone) |
+| tokens.css / bundle.css vs design/system | byte-identical |
+| DS components | 102/102 from the generated bgv.js (1:1 with bundle.js) |
+| `ds-check-ignore` | 1: `apps/web/src/lib/prefs.tsx` meta theme-color hex (LOGO-USAGE.md) |
+| Automated audit | 99 PASS, 7 FAIL (DS quick-chat chip: emoji overhangs the chip ~5px — DS bundle.css), 1 TODO (OS push lock-screen) |
 
-## Not captured (2)
-- `Push-Lockscreen-Mobile`: an OS lock-screen notification, not part of the web page; cannot be captured in a browser.
-- `Table-Lobby-Guest-Mobile`: needs a backend change (guests cannot see a table; the 2-minute held seat and `LoginSheet` at the table do not exist yet). Deferred, decision in DECISIONS.md.
+## Visual review (independent reviewers, one per group)
+| Group | PASS | FAIL | Not judgeable (wrong state / stale capture) |
+| --- | --- | --- | --- |
+| play | 7 | 20 | 9 |
+| account | 2 | 13 | 10 |
+| profile | 2 | 16 | 1 (spec) |
+| chat | 0 | 10 | 3 |
+| table | 0 | 8 | 0 (2 show the wrong state) |
+| time | 0 | 6 | 4 |
 
-## Fixed during this QA
-- **Audit tool**: the colour probe read the previous value while a transition ran, so almost every token looked "off-token" (all 60 failures of the first run). Fixed in `e2e/design-qa.spec.ts` (probe without transitions); colours written with `color-mix()` (computed as `color(srgb …)`) are accepted; lobby screens are not required to use `.bgv-tablescreen` (the reference lobby does not); a screen can have its own table or interaction (`PREPARE`).
-- **Player rail at 390** (Catan, Hanabi, Coup, Ludo): the turn-order line («۳ نوبت بعد») stuck out of the narrow cards; it now wraps (`table.css`).
-- **Cosmetic previews** (Shop, Studio, Wardrobe): item colours come from the item; the preview is marked `data-game-art` like game art.
-- **Spectator game bar at 390**: «ترک تماشا» is icon-only on phones.
+Reviewer notes rejected as v2.4 owner decisions: «header cream with amber line instead of white» and «1440 search is an icon» (v2.4: coloured light header, expanding search); «no «بازی سریع» in the header» on /, /games, /games/:id.
 
-## Visual review (single agent, side by side)
-- **Harness fixes**: `screens.json` `theme` is unreliable (Home-Member* say dark, reference is light) → theme now follows the id (`Dark` → dark, else light). Full-page shots scroll first so lazy game art loads (cards were blank).
-- **Home member @1440 / @390 — structure, tokens, shell, hero, cards: match the reference.** Remaining gaps (data/feature, not tokens): hero lacks the big «آخرین بازیت» box art; no weekly-leaders strip; no tournament feature band; footer lacks the «بازی‌های محبوب» column and «دریافت از کافه‌بازار» button; the enamad box shows a broken image; «نوبت شماست»/open-tables rows are empty-state in this data set.
-- Other screens not yet compared one by one.
+## Blockers (fix first)
+1. **Game page on phones** — grids never collapse at 390 (one word per line, ~10,400px page): late `gd-*` rules in `home-ref.css` without a phone override. Hero covers the breadcrumb; «بازی کن» cut by the sticky tabs (negative margins). Empty «نظر بازیکنان» shows with no reviews.
+2. **Avatars without initials** — table chat (other players), club/group members show «۱», result podium/rematch initials white on white (`ChatPanel.tsx`, `Communities.tsx MemberRow`, result/rematch).
+3. **Table frame** — no pink «ترک میز» in the game bar; game-bar meta overflows (hides «قطع»); connection-lost banner far down the page; lobby: «آماده‌ام»/«ترک میز» touch, invite-link card missing, oversized box in the page head, phone sticky bar overlaps its card; guest sees a lock screen instead of the lobby + LoginSheet.
+4. **Chat** — long-press menu pinned to the screen corner (no lifted message, no reaction strip); chat sheets without scrim; table speech bubble overlaps the top bar/player card; DM thread back arrow centred; DM-Desktop title + tabs missing.
+5. **Profile** — own profile appends the whole Studio editor; phone tab strip overflows; «ویرایش پروفایل» should be primary; public profile actions («پیام» + framed overflow), segmented tabs; Studio/Avatar builder on phone should be full-screen tasks; shop/wardrobe art blank (emotes, seat rings, bundle avatar).
+6. **Account** — clubs: membership options overflow the «ساخت باشگاه» card; login phone field Latin digits / no icon; onboarding tour without scrim, target highlight or pointer; person/club names as amber underlined links.
+7. **Play** — OpenTables rows use amber «پیوستن» (should be neutral «بشین»); Tournaments broken images on finished rows; QuickMatch searching layout single column (no side card); page tabs clip at 390.
+8. **Time** — Alert-Settings-Desktop missing tabs, permission banner, thresholds card, quiet-hours range, «آزمایش صدا» button frame; My-Tables urgency structure (tabs, «دعوت‌ها», «فوری‌ترین اول»).
+9. **DS (report upstream)** — `.bgv-chip img.bgv-emoji` overhangs the chip in the quick-chat tray (bundle.css).
 
-## Second pass (same day)
-- **Live tables had expired** (the 60 s turn clock ran out; HUD/chat shots were result screens). Captures now run without the worker (`design/qa/pw.noworker.config.ts`), after `qa-setup*`; Turn-* screens move the pending turn deadline in the dev DB (`setTurnLeft`). Timeout shot shows the client's 0:00 state only (no auto-move, no strike: those need the worker).
-- **Table @390**: two-player HUD uses the DS phone `strip` layout (board visible above the fold; `duel` kept for the result). «گزارش این میز» no longer shrinks in the after-game card.
-- **Overlays**: Onboarding tour, Level-up celebration and the «خبرتان کنیم؟» pre-prompt (rebuilt like the reference, also shown in a turn-based lobby) are captured by hooks. Level-up keeps the product's shield art where the reference has a numeric ring (decision, not a token issue).
-- **Harness**: list-based routes wait for their link (no more `needs-data` flakes).
-
-## Polish items (warnings, not gates)
-- 17 Latin digits inside Latin game names in `bgv-gamecard__latin` (names such as «7 Wonders Duel»): expected, add to the audit allow-list.
-- 14 «·» separators in UI text → `bgv-sep`.
-- Text closer than 6 px to its frame: «همهٔ بازی‌ها» / «دانشنامه» chips, game bar meta items, a few cosmetic names; 2 links with a negative gap («تورنمنت‌ها», «کمد من»).
-- 5 pages have under 50 % of elements on `bgv-*` classes.
-
-## How to re-run
-```
-docker start boardgame-dev-postgres-1   # DATABASE_URL=postgres://boardgame:local-only-postgres-password@127.0.0.1:5434/boardgame
-pnpm db:migrate && pnpm db:seed
-BGV_QA_SETUP=1 pnpm exec playwright test e2e/qa-setup.spec.ts e2e/qa-setup2.spec.ts e2e/qa-roles.spec.ts e2e/qa-data.spec.ts --project=desktop-1440
-BGV_QA_REUSE=1 BGV_QA_TABLES="$(cat design/qa/tables.json)" BGV_QA_MODERATOR_STORAGE=design/qa/app/.storage-moderator.json \
-  BGV_QA_ADMIN_STORAGE=design/qa/app/.storage-admin.json pnpm exec playwright test e2e/design-qa.spec.ts --project=desktop-1440
-node scripts/ds-qa-report.mjs     # → design/qa/index.html, summary.md
-```
+## Capture fixes needed before re-review
+Home-Guest captured signed in; QuickMatch phone states identical; Shell-Phone at `/` (reference `/tables`); turn/clock screens and chat menus need a live table seeded right before capture; account screens after ~13:47 lost the API session (Plans, Settings, Wallet, Support, Wiki, Login steps, Payment results); club chat screens need membership; Messages-Guest signed out; 1000px widths not captured this round.
