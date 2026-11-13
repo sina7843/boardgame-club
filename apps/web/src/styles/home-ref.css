@@ -1496,8 +1496,8 @@
 .cx-gamepage .gd-weight {display:grid;gap:6px}
 .cx-gamepage .gd-weight__head {display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:14px;color:var(--text-muted)}
 .cx-gamepage .gd-weight__head b {font-size:15px;font-weight:900;color:var(--heading);word-spacing:.12em}
-.cx-gamepage .gd-weight__bar {block-size:10px;border-radius:calc(var(--radius-sm) + 2px);background:var(--surface-sunken);box-shadow:var(--shadow-ring);overflow:hidden}
-.cx-gamepage .gd-weight__bar i {display:block;block-size:100%;border-radius:calc(var(--radius-sm) + 2px);background:linear-gradient(to left,color-mix(in srgb,var(--primary) 45%,var(--surface)),var(--primary))}
+.cx-gamepage .gd-weight__bar {block-size:10px;border-radius:var(--radius-pill);background:var(--surface-sunken);box-shadow:var(--shadow-ring);overflow:hidden}
+.cx-gamepage .gd-weight__bar i {display:block;block-size:100%;border-radius:var(--radius-pill);background:linear-gradient(to left,color-mix(in srgb,var(--primary) 45%,var(--surface)),var(--primary))}
 .cx-gamepage .gd-weight__lbl {display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)}
 .cx-gamepage .gd-tgroup {display:grid;gap:8px}
 .cx-gamepage .gd-tgroup__l {font-size:13px;font-weight:800;color:var(--text-muted)}

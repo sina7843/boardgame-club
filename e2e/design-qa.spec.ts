@@ -35,7 +35,7 @@ const DS_RADII = [...new Set([...BUNDLE_CSS.matchAll(/border-radius:\s*([^;}]+)/
 
 
 /** Interactions that bring a screen into its designed state (overlays, disconnects, open chat). Screens without one stay manual. */
-const chatOpen = async (page: Page) => { await page.locator('.tbl-chatbtn:visible, .tbl-chatpeek:visible').first().click({ timeout: 4000 }).catch(() => undefined); await page.waitForTimeout(600); };
+const chatOpen = async (page: Page) => { await page.locator('.tbl-chatbtn:visible, .tbl-chatpeek:visible').or(page.getByRole('button', { name: 'گفت‌وگوی میز' })).first().click({ timeout: 4000 }).catch(() => undefined); await page.waitForTimeout(600); };
 const hold = async (page: Page, sel: string) => { await page.locator(sel).first().evaluate((el) => el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }))); await page.waitForTimeout(900); };
 /** Moves the pending turn deadline of the table in the page URL (dev DB only) so the clock shows the wanted state. The worker is off in this run, so nothing fires. */
 const setTurnLeft = async (page: Page, seconds: number) => {
@@ -163,7 +163,7 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
     if (p && !inArt(p)) {
       const ps = getComputedStyle(p); const r = el.getBoundingClientRect(); const pr = p.getBoundingClientRect();
       const clips = ps.overflow !== 'visible' || ps.overflowX !== 'visible';
-      if (!clips && framed(ps) && s.position !== 'absolute' && s.position !== 'fixed' && (r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom + 1) && overflow.length < 40) overflow.push(label(el) + " in " + (el.parentElement?.className || el.parentElement?.tagName) + "{" + (el.parentElement?.textContent || "").slice(0, 30) + "} gp=" + el.parentElement?.parentElement?.className + " " + Math.round(r.left) + "," + Math.round(r.right) + "|" + Math.round(pr.left) + "," + Math.round(pr.right));
+      if (!clips && !el.closest('details:not([open])') && framed(ps) && s.position !== 'absolute' && s.position !== 'fixed' && (r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom + 1) && overflow.length < 40) overflow.push(label(el) + " in " + (el.parentElement?.className || el.parentElement?.tagName) + "{" + (el.parentElement?.textContent || "").slice(0, 30) + "} gp=" + el.parentElement?.parentElement?.className + " " + Math.round(r.left) + "," + Math.round(r.right) + "|" + Math.round(pr.left) + "," + Math.round(pr.right));
     }
     // text touching the edge of its framed box (owner rule: ≥12px padding in tiles, never touching)
     const direct = Array.from(el.childNodes).some((n) => n.nodeType === 3 && (n.textContent || '').trim());
