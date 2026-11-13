@@ -6,15 +6,16 @@
 // publisher) are left out until the owner adds a content model (DECISIONS.md).
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { GAME_TAG_FA, type GameDetail, type GameSummary, type HomeOverview, type LiveTableItem, type OpenTableItem, type TournamentSummary } from '@bg/contracts';
+import { emptyGameContent, GAME_TAG_FA, type GameContent, type GameDetail, type GameReviews, type GameSummary, type HomeOverview, type LiveTableItem, type OpenTableItem, type TournamentSummary } from '@bg/contracts';
 import { Avatar, Banner, Breadcrumbs, Button, Icon, League, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { userIdentity } from '../lib/bgv.tsx';
-import { defaultTime, DIFFICULTY_FA, durationFa, faNum, jalaliDateTime, PACE_FA } from '../lib/format.ts';
+import { DIFFICULTY_FA, durationFa, faNum, jalaliDateTime, PACE_FA } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ShelfCard } from './Dashboard.tsx';
 import { TableCodeForm } from '../games/TableCode.tsx';
+import { AboutBody, InfoCard, Moves, ReviewsCard, SpecCard, TagsCard } from '../games/GameContent.tsx';
 
 type Seat = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 const seatNo = (i: number) => ((i % 10) + 1) as Seat;
@@ -100,6 +101,9 @@ export function GameDetailPage() {
   const liveApi = useApi<{ items: LiveTableItem[] }>(me ? `/tables/live?gameId=${encodeURIComponent(id)}` : null);
   const board = useApi<{ items: { rank: number; user: { id: string; displayName: string; avatarKey: string }; rating: number; games: number; league: string | null }[] }>(`/games/${encodeURIComponent(id)}/leaderboard`);
   const tours = useApi<{ items: TournamentSummary[] }>('/tournaments');
+  const contentApi = useApi<GameContent>(`/games/${encodeURIComponent(id)}/content`);
+  const reviewsApi = useApi<GameReviews>(`/games/${encodeURIComponent(id)}/reviews`);
+  const [reviews, setReviews] = useState<GameReviews>();
   const tutorials = useApi<{ items: { gameId: string; status: string }[] }>(me ? '/me/tutorials' : null);
   const prog = useApi<{ ratings: { gameId: string; mode: string; display: number; gamesPlayed?: number }[] }>(me ? '/me/progression' : null);
   const tutorialStatus = tutorials.data?.items.find((t) => t.gameId === id)?.status;
@@ -124,10 +128,12 @@ export function GameDetailPage() {
   const live = member
     ? (liveApi.data?.items ?? []).map((t) => ({ id: t.id, players: t.players, tournament: t.tournament ? `${t.tournament.titleFa}، دور ${faNum(t.tournament.round)}` : null }))
     : (home.data?.live ?? []).filter((t) => t.gameId === g.id).map((t) => ({ id: t.id, players: t.seats.map((s) => s.name), tournament: null }));
+  const c = contentApi.data ?? emptyGameContent();
   const steps = sectionsOf(g.rulesFa).filter((s) => s.title).slice(0, 5);
   const about = sectionsOf(g.rulesFa)[0];
   const tutorialLabel = tutorialStatus === 'in_progress' ? 'ادامه آموزش تعاملی' : tutorialStatus === 'completed' ? 'اجرای دوباره آموزش' : 'آموزش تعاملی';
   const faqs: [string, string][] = [
+    ...c.faq.map((f): [string, string] => [f.qFa, f.aFa]),
     ['اگر وقتم تمام شود چه می‌شود؟', g.timeoutPolicyFa],
     ['اگر وسط بازی میز را ترک کنم؟', g.resignPolicyFa],
     ...(g.botAvailable ? [['می‌توانم با ربات بازی کنم؟', 'بله. در «میز بساز» حالت «با ربات» را انتخاب کنید؛ ربات در سه سطح آسان، متوسط و سخت بازی می‌کند.'] as [string, string]] : []),
@@ -226,8 +232,8 @@ export function GameDetailPage() {
         <div className="gd-grid gd-grid--learn">
           <section className="gd-card gd-about">
             <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="info" />درباره {g.nameFa}</h3></div>
-            <p className="gd-desc gd-just gd-about__p">{g.summaryFa}</p>
-            {about && !about.title && about.items.map((l) => <p key={l} className="gd-just">{l}</p>)}
+            <AboutBody g={g} c={c} />
+            {!c.aboutFa.length && about && !about.title && about.items.map((l) => <p key={l} className="gd-just">{l}</p>)}
           </section>
           <div className="gd-stackcol">
             <section className="gd-card" id="how">
@@ -237,6 +243,7 @@ export function GameDetailPage() {
                   <li key={s.title} className="gd-step"><span className="gd-step__n">{faNum(i + 1)}</span><b>{s.title}</b>{s.items[0] && <p className="gd-just">{s.items[0]}</p>}</li>
                 ))}
               </ol>
+              <Moves c={c} />
             </section>
             {g.tutorialEnabled && (
               <section className="L-box L-band--felt gd-learn" data-theme="dark" aria-labelledby="learn-p">
@@ -264,27 +271,10 @@ export function GameDetailPage() {
       <section className="gd-band" id="data" aria-labelledby="data-h">
         <BandHead id="data-h" icon="list" title="شناسنامه بازی" sub={`مشخصات و زمان‌بندی ${g.nameFa}.`} />
         <div className="gd-grid gd-grid--2">
-          <section className="gd-card gd-speccard">
-            <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="gauge" />مشخصات بازی</h3></div>
-            <ul className="gd-specs">
-              <li><Icon name="users" /><span><small>تعداد نفر</small><b>{span(g.minPlayers, g.maxPlayers)} نفر</b></span></li>
-              <li><Icon name="clock" /><span><small>مدت</small><b>{span(g.minMinutes, g.maxMinutes)} دقیقه</b></span></li>
-              <li><Icon name="gauge" /><span><small>سختی</small><b>{DIFFICULTY_FA[g.difficulty]}</b></span></li>
-            </ul>
-          </section>
-          <section className="gd-card">
-            <div className="gd-cardhead"><h3 className="gd-h3"><Icon name="clock" />زمان و قانون‌ها</h3></div>
-            <div className="gd-info gd-info--2">
-              {g.paces.map((p) => (
-                <p key={p} className="gd-just"><b>{PACE_FA[p]}: </b>{(p === 'live' ? g.liveSeconds : g.turnSeconds).map(durationFa).join('، ')}؛ پیش‌فرض {durationFa(defaultTime(p === 'live' ? g.liveSeconds : g.turnSeconds, p))} برای هر {p === 'live' ? 'حرکت' : 'نوبت'}.</p>
-              ))}
-              {g.options.map((o) => (
-                <p key={o.key} className="gd-just"><b>{o.labelFa}: </b>{o.hostChooses && o.choices.length > 1 ? `به انتخاب میزبان (${o.choices.map((c) => c.labelFa).join('، ')})` : o.choices.find((c) => c.value === o.default)?.labelFa}</p>
-              ))}
-              {g.activeVersion && <p className="gd-just"><b>نسخه قوانین: </b><bdi className="bgv-latin" dir="ltr">{g.activeVersion.rulesVersion}</bdi></p>}
-            </div>
-          </section>
+          <SpecCard g={g} c={c} />
+          <TagsCard c={c} />
         </div>
+        <InfoCard g={g} c={c} />
       </section>
 
       <section className="gd-band" id="community" aria-labelledby="community-h">
@@ -327,6 +317,7 @@ export function GameDetailPage() {
             )}
           </section>
         </div>
+        <ReviewsCard gameId={g.id} data={reviews ?? reviewsApi.data} signedIn={member} onChange={setReviews} />
       </section>
 
       {similar.length > 0 && (
