@@ -48,7 +48,9 @@ function render(p: Page): string {
     .replace(/(<meta property="og:description" content=")[^"]*/, `$1${desc}`)
     .replace(/(<meta property="og:image" content=")[^"]*/, `$1${p.image ?? ogImage}`)
     .replace('</head>', `  ${head}\n  </head>`)
-    .replace('<div id="root"></div>', `<div id="root"><main style="max-inline-size:48rem;margin-inline:auto;padding:1rem">${p.body}</main></div>`);
+    // Visually hidden (still in the DOM for crawlers and screen readers): an unstyled visible copy that React then
+    // swaps for the real page caused a CLS of ~1.0 on the home page (Lighthouse, Nov 2026).
+    .replace('<div id="root"></div>', `<div id="root"><main style="position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">${p.body}</main></div>`);
   if (out === shell || !out.includes('rel="canonical"') || !out.includes(p.body)) throw new Error(`SEO template did not apply to ${p.path}`);
   return out;
 }

@@ -7,6 +7,8 @@
 /* Focus moves to #main on every route change for screen readers; the region itself is not an interactive target. */
 #main:focus { outline: none; }
 .app-page { display: flex; flex-direction: column; gap: var(--space-6); min-inline-size: 0; outline: none; }
+/* Public pages: keep the footer below the fold while data loads, so content arriving never pushes it (CLS). */
+.bgv-app:has(.bgv-sitefooter) .app-page { min-block-size: 100svh; }
 /* Focused or scrolled-to controls never hide under the sticky header / phone top bar (WCAG 2.4.11). */
 :where(.app-page, .bgv-dialog, .bgv-sheet) :is(a, button, input, select, textarea, label) { scroll-margin-block: 80px; }
 .app-page__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4);

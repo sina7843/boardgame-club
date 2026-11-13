@@ -100,7 +100,7 @@ export function AccountPopover({ name, sub, initials, src, coins, unreadMessages
 export function EnamadSeal() {
   return (
     <a className="app-page__seal" referrerPolicy="origin" target="_blank" rel="noopener" href="https://trustseal.enamad.ir/?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" aria-label="نماد اعتماد الکترونیکی (اینماد)">
-      <img referrerPolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" alt="نماد اعتماد الکترونیکی"
+      <img referrerPolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=8074182&Code=zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi" alt="نماد اعتماد الکترونیکی" width={125} height={136} loading="lazy"
         {...{ code: 'zujYLwMpxeZT6OPGu7uoy0mv35gZtFXi' }} />
     </a>
   );

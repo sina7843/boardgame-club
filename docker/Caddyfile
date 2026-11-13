@@ -19,7 +19,7 @@
 
 	header {
 		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://trustseal.enamad.ir; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
-		Strict-Transport-Security "max-age=31536000"
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
@@ -45,6 +45,12 @@
 		root * /srv
 		@hashed path /assets/*
 		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		# Unhashed public images and icons (covers, brand, levels, trophies…): a month, then revalidate.
+		@public_img {
+			path *.webp *.png *.jpg *.svg *.ico *.woff2
+			not path /assets/*
+		}
+		header @public_img Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
 		# Routes (no file extension) and HTML documents reference hashed assets: always revalidate.
 		@shell path_regexp ^/([^.]*|.*\.html)$
 		header @shell Cache-Control "no-cache"
