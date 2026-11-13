@@ -242,6 +242,8 @@ export const homeOverview = z.object({
   liveTables: z.number().int(), playingNow: z.number().int(), onlineNow: z.number().int(),
   /** Public tables still waiting for players (count, capped at 50) and the newest three; same view as GET /tables. */
   openTables: z.number().int(), open: z.array(openTableItem),
+  /** Open public tables per game id (same cap of 50 tables). */
+  openByGame: z.record(z.string(), z.number().int()),
   live: z.array(z.object({
     id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, competition: z.enum(['friendly', 'ranked']),
     turnSeconds: z.number().int().nullable(),

@@ -1,11 +1,11 @@
-import { GAME_TAG_FA, type GameSummary } from '@bg/contracts';
-import { GameCard as BgvGameCard, Tag } from '@bg/ui/bgv';
+import type { GameSummary } from '@bg/contracts';
+import { GameCard as BgvGameCard } from '@bg/ui/bgv';
 import { ACCESS_FA, range } from '../lib/format.ts';
 import { GameBox } from './covers.tsx';
 
 /**
  * Catalogue card (DS GameCard v2.4): the box on its shelf, Persian name with the Latin original, players and time, then
- * one tag row: flags («آزمایشی»، ویژه), who can play (ModeTag «آنلاین | ربات» or «آنلاین»), category tags.
+ * one tag row: flags («آزمایشی»، ویژه) and who can play (ModeTag «آنلاین | ربات» or «آنلاین»); no category tags (Catalog-Desktop).
  */
 export function GameCard({ game, compact = false }: { game: GameSummary; compact?: boolean }) {
   const flags = [
@@ -20,6 +20,6 @@ export function GameCard({ game, compact = false }: { game: GameSummary; compact
         { icon: 'clock', text: range(game.minMinutes, game.maxMinutes, 'دقیقه') }
       ]}
       mode={{ bot: game.botAvailable, ...(compact ? { compact: true } : {}) }}
-      {...(game.tags.length ? { tags: game.tags.slice(0, 2).map((t) => <Tag key={t}>{GAME_TAG_FA[t]}</Tag>) } : {})} />
+    />
   );
 }

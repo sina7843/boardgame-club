@@ -93,7 +93,8 @@ export async function homeOverview(db: Db, registry: GameRegistry, userId: strin
   // Public tables with a free seat (the guest home shows them too: names and avatars only, as on GET /tables).
   const openAll = await listOpenTables(db);
   return {
-    liveTables: counts?.liveTables ?? 0, playingNow: playing?.n ?? 0, onlineNow: online?.n ?? 0, openTables: openAll.length, open: openAll.slice(0, 3), live,
+    liveTables: counts?.liveTables ?? 0, playingNow: playing?.n ?? 0, onlineNow: online?.n ?? 0, openTables: openAll.length, open: openAll.slice(0, 3),
+    openByGame: openAll.reduce<Record<string, number>>((m, t) => ({ ...m, [t.gameId]: (m[t.gameId] ?? 0) + 1 }), {}), live,
     weekly: {
       endsAt: week.endsAt.toISOString(),
       tenth: top[9]?.points ?? null,

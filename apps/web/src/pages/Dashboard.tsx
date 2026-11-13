@@ -115,7 +115,7 @@ function Head({ title, icon, sub, more, extra, id }: { title: ReactNode; icon?: 
 
 /** Ordered by tables started this week, then the design's shelf order, then the catalogue. */
 const SHOWCASE = ['catan', 'ticket-to-ride', 'azul', 'carcassonne', 'splendor', 'king-of-tokyo'];
-function popularOrder(all: GameSummary[], popular: string[] | undefined) {
+export function popularOrder(all: GameSummary[], popular: string[] | undefined) {
   const rank = (id: string) => { const p = popular?.indexOf(id) ?? -1; if (p >= 0) return p; const s = SHOWCASE.indexOf(id); return s >= 0 ? 100 + s : 1000; };
   // Test games (our own prototypes) never lead the shelf, whatever their table count.
   return [...all].sort((a, b) => Number(a.isTestGame) - Number(b.isTestGame) || rank(a.id) - rank(b.id));
@@ -369,7 +369,7 @@ function GuestHome({ all, home }: { all: GameSummary[]; home: HomeOverview | und
 const urgency = (iso: string | null) => {
   if (!iso) return null;
   const s = (new Date(iso).getTime() - Date.now()) / 1000;
-  return s < 3600 ? <Badge size="sm" tone="danger" icon="flame">فوری</Badge> : s < 21600 ? <Badge size="sm" tone="warning" icon="timer">کم‌وقت</Badge> : <Badge size="sm" icon="coffee">سر فرصت</Badge>;
+  return s < 3600 ? <Badge size="sm" tone="danger" icon="flame">فوری</Badge> : s < 21600 ? <Badge size="sm" tone="warning" icon="timer">کم‌وقت</Badge> : <Badge size="sm" icon="clock">سر فرصت</Badge>;
 };
 
 function TurnCard({ t }: { t: MyTableItem }) {

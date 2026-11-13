@@ -125,7 +125,7 @@ export function Layout() {
   const loginHref = `/login?next=${encodeURIComponent(pathname)}`;
   const header = (
     <SiteHeader logo={{ src: LOGO.src, srcDark: LOGO.srcDark }} nav={nav} themeToggle={themeToggle} guest={!signedIn} search={<HeaderSearch />}
-      quickPlay={pathname === '/' ? false : { href: '/play' }} loginHref={loginHref}
+      quickPlay={pathname === '/' || pathname === '/games' || /^\/games\/[^/]+$/.test(pathname) ? false : { href: '/play' }} loginHref={loginHref}
       {...(me ? { user: { initials, name: me.displayName, current: menuOpen || inGroup('progress', pathname) || pathname.startsWith('/me/') }, onAvatar: () => setMenuOpen((o) => !o), menuOpen } : {})}
       messages={{ href: '/messages', count: unread, current: inGroup('social', pathname) }}
       notifications={{ href: '/notifications', count: notifications, current: pathname === '/notifications' }}>
