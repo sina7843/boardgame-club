@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { cardFa, rank, suit } from './trick.ts';
 import type { CrewTask, CrewView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const KIND_FA = { top: 'بالاترین', bottom: 'پایین‌ترین', only: 'تنها' } as const;
 
 /** Card picture cell in the BGA sprites (rows blue, green, pink, yellow; rockets / submarines by rank); the theme's CSS picks the sheet. */

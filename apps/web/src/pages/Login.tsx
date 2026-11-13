@@ -179,7 +179,7 @@ export function Login() {
         </div>
         <div className="ac-fan" aria-hidden>
           {FAN.map((g, i) => (
-            <img key={g} src={`/covers/${g}.webp?v=2`} alt="" style={{ '--dx': FAN_POS[i]![0], '--dy': `${FAN_POS[i]![1]}px`, '--rot': `${FAN_POS[i]![2]}deg` } as CSSProperties} />
+            <img className="bgv-box bgv-box--sm" key={g} src={`/covers/box/${g}.webp`} alt="" style={{ '--dx': FAN_POS[i]![0], '--dy': `${FAN_POS[i]![1]}px`, '--rot': `${FAN_POS[i]![2]}deg` } as CSSProperties} />
           ))}
         </div>
         {/* Sample of what waits after sign-in (design Login-Desktop): your turn, with a calm clock. */}

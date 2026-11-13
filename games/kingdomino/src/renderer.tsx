@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button, TurnIndicator, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
 import { DIRS, DOMINOES, canPlace, scoreKingdom, type Cell, type Half, type KingdominoView, type Terrain } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const TERRAIN_FA: Record<Terrain | 'C', string> = { W: 'گندم‌زار', F: 'جنگل', L: 'دریاچه', G: 'چمنزار', S: 'باتلاق', M: 'معدن', C: 'قلعه' };
 const SEAT = ['#d1495b', '#2f80c9', '#e0a526', '#8e5bd1'];
 

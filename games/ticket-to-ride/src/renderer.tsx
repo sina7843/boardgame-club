@@ -9,7 +9,7 @@ import { CAR_H, CITY_R, layoutOf, type Pt } from './geometry.ts';
 import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SEAT_TRAIN, SHADES, colorIx } from './art.tsx';
 import type { LogEntry, TtrView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Isolate a (possibly Latin) player name inside Persian text. */
 const iso = (s: string) => `⁨${s}⁩`;
 type Hint = { type: string; [k: string]: unknown };

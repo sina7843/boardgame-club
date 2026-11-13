@@ -3,7 +3,7 @@
  * بردگیم‌ورس (BGV) design system — React components (window.Bgv).
  * Types are documentation: every component also passes through `className`, `style`,
  * `aria-*`, `data-*`, `id` and DOM event handlers to its root element (inputs: to the control).
- * Numbers passed as props are rendered with Persian digits and «٬» separators.
+ * Numbers passed as props are rendered with Persian digits and «,» separators.
  */
 import * as React from 'react';
 
@@ -220,7 +220,7 @@ export interface ModeTagProps extends BaseProps {
   compact?: boolean;
 }
 export interface CoinProps extends BaseProps {
-  /** Amount; rendered with Persian digits and «٬». */
+  /** Amount; rendered with Persian digits and «,». */
   amount?: number | string;
   /** sm 14px coin (top bar), md 18px (inherits text size), lg 32px coin / 28px number (wallet). Coins are real metallic gold (--coin-light/--coin/--coin-dark). */
   size?: 'sm' | 'md' | 'lg';
@@ -328,6 +328,10 @@ export interface CardProps extends BaseProps {
   children?: Node;
 }
 export interface GameCardProps extends BaseProps {
+  /** v2.4: category tags (کارتی، کلاسیک، تاسی…), last in the tag row under all the card text. */
+  tags?: React.ReactNode;
+  /** v2.4: who can play, on EVERY card right after the flags: `true` = «آنلاین | ربات», `{ bot: false }` = «آنلاین» only, add `compact: true` on phones. */
+  mode?: boolean | ModeTagProps;
   /** Box photo URL (any ratio; shown whole with object-fit: contain on a square shelf). When set, the box is the card's only image, shown at its own shape with 6px corners; hover / keyboard focus enlarges it from its centre (no image swap). */
   box?: string;
   /** Node drawn instead of a box photo (house box for our own games). Same shelf treatment as `box`. */
@@ -342,7 +346,7 @@ export interface GameCardProps extends BaseProps {
   latin?: string;
   /** Meta items: text or {icon,text}; separated by space, never «·». */
   meta?: Array<Node | { icon?: IconName; text: Node }>;
-  /** Badges on the cover: Badge props (+label) or nodes. */
+  /** Badges (e.g. «آزمایشی»), first in the tag row under all the card text: Badge props (+label) or nodes. */
   flags?: Array<Node | (BadgeProps & { label: Node })>;
   href?: string;
   footer?: Node;
@@ -361,7 +365,7 @@ export interface ProgressProps extends BaseProps {
   /** 0–1. */
   value: number;
   label?: Node;
-  /** Right-hand value text, e.g. «۹۶۰ از ۱٬۲۰۰». */
+  /** Right-hand value text, e.g. «۹۶۰ از ۱,۲۰۰». */
   valueText?: Node;
   /** primary (default), invite (you), accent (XP/rewards). */
   tone?: 'primary' | 'invite' | 'accent';
@@ -481,6 +485,8 @@ export interface AppShellProps extends BaseProps {
   quickPlay?: false | { href?: string; label?: Node };
   /** SiteSearch props, a node, or false. */
   search?: false | SiteSearchProps | Node;
+  /** v2.3: light/dark button in the header and the phone top bar; false hides it. */
+  themeToggle?: ThemeToggleProps | false;
   loginHref?: string;
   homeHref?: string;
   /** Phone top-bar title. */
@@ -496,6 +502,13 @@ export interface AppShellProps extends BaseProps {
 }
 
 /* ── Site shell (v2.1) ─────────────────────────────────────────── */
+/** v2.3: the light/dark button in SiteHeader and TopBar. `dark` = current theme is dark (shows the sun); `onToggle` flips and saves it. */
+export interface ThemeToggleProps extends BaseProps {
+  dark?: boolean;
+  onToggle?: React.MouseEventHandler;
+  /** Accessible name; default names the theme it switches to: «حالت تیره» in light, «حالت روشن» in dark. */
+  label?: string;
+}
 export interface SiteHeaderProps extends BaseProps {
   logo?: { src: string; srcDark?: string };
   /** Five destinations; `active` = a 3px navy rule under the label; `turns` = crimson count on «میزها» (members only). */
@@ -517,6 +530,8 @@ export interface SiteHeaderProps extends BaseProps {
   /** Avatar click (open AccountMenu); menuOpen sets aria-expanded. */
   onAvatar?: React.MouseEventHandler;
   menuOpen?: boolean;
+  /** v2.3: light/dark button, first in the actions (guests too). false hides it. */
+  themeToggle?: ThemeToggleProps | false;
   children?: Node;
 }
 export interface SiteSearchResult {
@@ -530,6 +545,11 @@ export interface SiteSearchResult {
   meta?: Array<Node | { icon?: IconName; text: Node }>;
 }
 export interface SiteSearchProps extends BaseProps {
+  /** v2.4: header search. A magnifier that opens into the field (SiteHeader sets it). */
+  expand?: boolean;
+  expanded?: boolean;
+  defaultExpanded?: boolean;
+  onExpandedChange?: (open: boolean) => void;
   value?: string;
   defaultValue?: string;
   onChange?: (q: string) => void;
@@ -551,7 +571,7 @@ export interface SiteSearchProps extends BaseProps {
   emptyTitle?: Node;
   emptyText?: Node;
   allHref?: string;
-  /** Ctrl K and «/» focus the field (default true). Esc clears, then closes. */
+  /** Ctrl K and «/» focus the field (default true); v2.3: no visible hint in the field. Esc clears, then closes. */
   shortcut?: boolean;
   /** Phone: the full-screen sheet opened from the top bar's magnifier. */
   sheet?: boolean;
@@ -585,7 +605,10 @@ export interface SiteFooterProps extends BaseProps {
   defaultOpen?: number;
   seal?: Node | false;
   copyright?: Node;
-  social?: Array<{ icon: IconName; label: string; href?: string }>;
+  /** v2.3: labelled pills in the about column; give the real address in href and the visible handle (e.g. «t.me/…»). Opens in a new tab. */
+  social?: Array<{ icon: IconName; label: string; href?: string; handle?: string }> | false;
+  /** Heading above the social pills (default «ما را دنبال کنید»). */
+  socialLabel?: Node;
   /** Force the phone accordion (previews). */
   phone?: boolean;
   /** Force the four desktop columns (previews, mock-ups). */
@@ -641,6 +664,8 @@ export interface TopBarProps extends BaseProps {
   search?: { href?: string; onClick?: () => void } | Node;
   /** After the search: coin chip and bell; for a guest the secondary «ورود / ثبت‌نام». */
   actions?: Node;
+  /** v2.3: light/dark button after the search (guests too). false hides it. */
+  themeToggle?: ThemeToggleProps | false;
   children?: Node;
 }
 export interface DockProps extends BaseProps {
@@ -1088,7 +1113,7 @@ export interface ChatProps extends BaseProps {
   children?: Node;
 }
 export interface MessageProps extends BaseProps {
-  /** Your message: primary bubble at the end side. */
+  /** Your message: on the RIGHT (other people's on the LEFT), physical in RTL and LTR. */
   mine?: boolean;
   author?: Node;
   seat?: SeatNo;
@@ -1316,7 +1341,7 @@ declare const Bgv: {
   Seat: React.FC<SeatProps>; Identity: React.FC<IdentityProps>; League: React.FC<LeagueProps>; Card: React.FC<CardProps>; GameCard: React.FC<GameCardProps>; Stat: React.FC<StatProps>;
   Progress: React.FC<ProgressProps>; Ring: React.FC<RingProps>; Skeleton: React.FC<SkeletonProps>; StateBlock: React.FC<StateBlockProps>; DataTable: React.FC<DataTableProps>;
   ListItem: React.FC<ListItemProps>; Tooltip: React.FC<TooltipProps>; Divider: React.FC<DividerProps>;
-  AppShell: React.FC<AppShellProps>; SiteHeader: React.FC<SiteHeaderProps>; SiteSearch: React.FC<SiteSearchProps>; AccountMenu: React.FC<AccountMenuProps>; SiteFooter: React.FC<SiteFooterProps>; MoreTile: React.FC<MoreTileProps>; MoreGroup: React.FC<MoreGroupProps>; Stepper: React.FC<StepperProps>; LoginSheet: React.FC<LoginSheetProps>; TopBar: React.FC<TopBarProps>; Dock: React.FC<DockProps>; PageTabs: React.FC<PageTabsProps>; Tabs: React.FC<TabsProps>;
+  AppShell: React.FC<AppShellProps>; SiteHeader: React.FC<SiteHeaderProps>; ThemeToggle: React.FC<ThemeToggleProps>; SiteSearch: React.FC<SiteSearchProps>; AccountMenu: React.FC<AccountMenuProps>; SiteFooter: React.FC<SiteFooterProps>; MoreTile: React.FC<MoreTileProps>; MoreGroup: React.FC<MoreGroupProps>; Stepper: React.FC<StepperProps>; LoginSheet: React.FC<LoginSheetProps>; TopBar: React.FC<TopBarProps>; Dock: React.FC<DockProps>; PageTabs: React.FC<PageTabsProps>; Tabs: React.FC<TabsProps>;
   Breadcrumbs: React.FC<BreadcrumbsProps>; Pagination: React.FC<PaginationProps>; Menu: React.FC<MenuProps>; PageHead: React.FC<PageHeadProps>; Hero: React.FC<HeroProps>;
   Dialog: React.FC<DialogProps>; Sheet: React.FC<SheetProps>; Popover: React.FC<PopoverProps>; Toast: React.FC<ToastProps>; Banner: React.FC<BannerProps>; CritBar: React.FC<CritBarProps>;
   TableScreen: React.FC<TableScreenProps>; GameBar: React.FC<GameBarProps>; Felt: React.FC<FeltProps>; FeltPlate: React.FC<FeltPlateProps>; TurnPill: React.FC<TurnPillProps>;
@@ -1328,7 +1353,7 @@ declare const Bgv: {
   UnreadDivider: React.FC<UnreadDividerProps>; Conversation: React.FC<ConversationProps>;
   NotificationItem: React.FC<NotificationItemProps>; PushNotification: React.FC<PushNotificationProps>;
   ProfileHead: React.FC<ProfileHeadProps>; BannerArt: React.FC<BannerArtProps>; Trophy: React.FC<TrophyProps>; CosmeticTile: React.FC<CosmeticTileProps>; Rarity: React.FC<RarityProps>; CardBack: React.FC<CardBackProps>;
-  /** Persian digits («٬» separators for numbers). */
+  /** Persian digits («,» separators for numbers). */
   readonly fa: (v: unknown) => unknown;
   /** Seconds → «۰:۴۲» / «۱۲:۰۵» / «۵ ساعت و ۲۰ دقیقه» / «۲ روز». */
   readonly formatTime: (seconds: number, compact?: boolean) => string;
@@ -1336,3 +1361,4 @@ declare const Bgv: {
   readonly iconNames: string[];
 };
 export default Bgv;
+

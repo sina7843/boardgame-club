@@ -120,6 +120,8 @@ export const tableLobby = z.object({
   spectators: z.number().int(),
   /** Only returned to participants of a private table. */
   inviteCode: z.string().nullable(),
+  /** Short code for /t/<code> links (DS v2.4 routes); a private table still needs its invite to be joined. */
+  code: z.string().nullable(),
   policies: z.object({ timeoutFa: z.string(), resignFa: z.string(), disconnectFa: z.string() }),
   /** Rule variants of this table in words (chosen at creation, or the game's defaults for matchmade tables). */
   variants: z.array(z.object({ labelFa: z.string(), valueFa: z.string() })),
@@ -240,6 +242,10 @@ export type LiveTableItem = z.infer<typeof liveTableItem>;
 export const homeOverview = z.object({
   /** Running public/tournament tables; distinct people seated at any running table; sessions seen in the last 5 minutes. */
   liveTables: z.number().int(), playingNow: z.number().int(), onlineNow: z.number().int(),
+  /** Public tables still waiting for players (count, capped at 50) and the newest three; same view as GET /tables. */
+  openTables: z.number().int(), open: z.array(openTableItem),
+  /** Open public tables per game id (same cap of 50 tables). */
+  openByGame: z.record(z.string(), z.number().int()),
   live: z.array(z.object({
     id: z.uuid(), gameId: z.string(), gameNameFa: z.string(), pace: paceSchema, competition: z.enum(['friendly', 'ranked']),
     turnSeconds: z.number().int().nullable(),

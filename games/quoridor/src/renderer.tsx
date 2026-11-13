@@ -6,7 +6,7 @@ import { Button, TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from
 import { PAWN_SRC, OAK } from './pieces.ts';
 import { distance, N, wallOk, type Orient, type QuoridorView, type Side, type Wall } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const C = 84, G = 18, M = 34, SIZE = N * C + (N - 1) * G + 2 * M, P = C + G;
 const SEAT_COLORS =['#d1495b', '#2f80c9', '#3fa34d', '#e0a526'];
 const ROT: Record<Side, number> = { bottom: 0, top: 180, left: -90, right: 90 };

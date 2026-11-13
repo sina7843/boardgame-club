@@ -3,7 +3,7 @@ import { CONTENT } from './core.ts';
 import './content/index.ts';
 import { PLANET_FA, WHEEL } from './map.ts';
 
-// Gaia Project («گایا پراجکت») — 2–4 players, base game without Automa. Rules implementation: rules.ts.
+// Gaia Project («پروژه گایا») — 2–4 players, base game without Automa. Rules implementation: rules.ts.
 // Content lists (factions, tiles, boosters, tokens) are generated from the content registry so the guide always matches
 // the engine; every other number below is taken from core.ts / rules.ts.
 const factions = Object.values(CONTENT.factions).sort((a, b) => WHEEL.indexOf(a.home) - WHEEL.indexOf(b.home) || a.id.localeCompare(b.id));
@@ -27,7 +27,7 @@ export const gaiaProject = defineGame({
     assetsRef: 'gaia-project/1'
   },
   catalog: {
-    nameFa: 'گایا پراجکت',
+    nameFa: 'پروژه گایا',
     nameOriginal: 'Gaia Project',
     summaryFa: 'یکی از ۱۴ جناح فضایی را رهبری کنید: در شش دور سیاره‌ها را زمین‌سازی و مستعمره کنید، معدن‌ها را به ایستگاه تجاری، آزمایشگاه و آکادمی ارتقا دهید، در شش مسیر پژوهش پیش بروید، با چرخهٔ قدرت بازی کنید و فدراسیون بسازید. همهٔ اطلاعات بازی آشکار است و تصمیم‌ها تعیین‌کننده‌اند.',
     rulesFa: [

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
-// «خشم خون» end to end: the interactive tutorial through the real UI (upgrade with a free invasion, commit a quest, march,
+// «بلاد ریج» end to end: the interactive tutorial through the real UI (upgrade with a free invasion, commit a quest, march,
 // pillage with a hidden battle card, pass, quest reward) and the result.
 test.describe.configure({ mode: 'serial', timeout: 300_000 });
 const shot = (project: string, name: string) => `design/qa/blood-rage/shots/${project}-${name}.png`;
@@ -95,7 +95,7 @@ async function act(p: Page): Promise<boolean> {
   return false;
 }
 
-test('two players play «خشم خون» through three ages to the result', async ({ browser }, info) => {
+test('two players play «بلاد ریج» through three ages to the result', async ({ browser }, info) => {
   only(info.project.name);
   test.setTimeout(900_000);
   const vp = info.project.use.viewport ?? null;

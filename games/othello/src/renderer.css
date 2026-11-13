@@ -7,7 +7,7 @@
 .oth-side--turn { background: rgb(201 164 106 / 0.2); box-shadow: 0 0 0 2px #c9a46a, 0 8px 20px -8px rgb(201 164 106 / 0.6); }
 .oth-side__disc { inline-size: 22px; block-size: 22px; flex: none; object-fit: contain; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.5)); }
 .oth-side__name { font-weight: 800; flex: 1; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.oth-side__count { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.oth-side__count { font-size: 1.5rem; font-weight: 900; }
 .oth__bar { grid-column: 1 / -1; block-size: 6px; border-radius: 999px; background: #ecebe6; overflow: hidden; direction: ltr; }
 .oth__bar span { display: block; block-size: 100%; background: #1d1f22; transition: inline-size 0.5s ease; }
 

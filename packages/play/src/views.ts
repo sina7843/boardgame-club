@@ -151,6 +151,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     mySeat,
     spectators: table.status === 'active' ? await spectatorCount(db, table.id) : 0,
     inviteCode: mySeat !== null && table.visibility === 'private' && !table.isTutorial ? table.inviteCode : null,
+    code: table.code ?? null,
     policies: {
       timeoutFa: game.timeoutPolicyFa, resignFa: game.resignPolicyFa,
       disconnectFa: `${table.isTutorial ? DISCONNECT_FA.tutorial : DISCONNECT_FA[table.pace as 'live' | 'turn']} ${table.isTutorial ? '' : INCIDENT_FA}`.trim()
@@ -284,7 +285,7 @@ export async function listNotifications(db: Db, userId: string): Promise<Notific
 
 /** Payload holds only public, non-game-secret fields; the text is rendered here so clients never get raw data. */
 /** «۶ ساعت» / «۴۵ دقیقه» for reminder texts. */
-const leftFa = (sec: number) => (sec >= 3600 ? `${Math.round(sec / 3600).toLocaleString('fa-IR')} ساعت` : `${Math.max(1, Math.round(sec / 60)).toLocaleString('fa-IR')} دقیقه`);
+const leftFa = (sec: number) => (sec >= 3600 ? `${Math.round(sec / 3600).toLocaleString('fa-IR').replace(/٬/g, ',')} ساعت` : `${Math.max(1, Math.round(sec / 60)).toLocaleString('fa-IR').replace(/٬/g, ',')} دقیقه`);
 
 export function toNotificationItem(n: typeof notifications.$inferSelect): NotificationItem {
   const p = n.payload as { tableId?: string; gameNameFa?: string; actorName?: string; conversationId?: string; clubSlug?: string; clubName?: string;
@@ -304,11 +305,11 @@ export function toNotificationItem(n: typeof notifications.$inferSelect): Notifi
     friend_request: `${actor} برای شما درخواست دوستی فرستاد.`,
     club: `درخواست تازه در باشگاه «${p.clubName ?? ''}».`,
     gift: `${actor} برای شما «${p.itemNameFa ?? 'یک آیتم'}» هدیه فرستاد؛ در کمد شماست.`,
-    tournament: p.checkin === 'open' ? `تأیید حضور تورنمنت «${p.titleFa}» باز شد؛ ${(p.minutesLeft ?? 0).toLocaleString('fa-IR')} دقیقه تا شروع مانده است. حضورتان را تأیید کنید وگرنه از تورنمنت خارج می‌شوید.`
-      : p.checkin === 'closing' ? `فقط ${(p.minutesLeft ?? 0).toLocaleString('fa-IR')} دقیقه تا شروع تورنمنت «${p.titleFa}» مانده و هنوز حضورتان را تأیید نکرده‌اید؛ همین حالا تأیید کنید.`
+    tournament: p.checkin === 'open' ? `تأیید حضور تورنمنت «${p.titleFa}» باز شد؛ ${(p.minutesLeft ?? 0).toLocaleString('fa-IR').replace(/٬/g, ',')} دقیقه تا شروع مانده است. حضورتان را تأیید کنید وگرنه از تورنمنت خارج می‌شوید.`
+      : p.checkin === 'closing' ? `فقط ${(p.minutesLeft ?? 0).toLocaleString('fa-IR').replace(/٬/g, ',')} دقیقه تا شروع تورنمنت «${p.titleFa}» مانده و هنوز حضورتان را تأیید نکرده‌اید؛ همین حالا تأیید کنید.`
       : p.cancelled ? `تورنمنت «${p.titleFa}» لغو شد؛ ورودی شما برمی‌گردد.`
-      : p.rank ? `تورنمنت «${p.titleFa}» تمام شد؛ رتبهٔ شما: ${p.rank.toLocaleString('fa-IR')}.`
-        : `دور ${(p.round ?? 1).toLocaleString('fa-IR')} تورنمنت «${p.titleFa}» شروع شد؛ سر میز بیایید.`
+      : p.rank ? `تورنمنت «${p.titleFa}» تمام شد؛ رتبهٔ شما: ${p.rank.toLocaleString('fa-IR').replace(/٬/g, ',')}.`
+        : `دور ${(p.round ?? 1).toLocaleString('fa-IR').replace(/٬/g, ',')} تورنمنت «${p.titleFa}» شروع شد؛ سر میز بیایید.`
   }[kind] ?? 'اعلان تازه';
   const href = p.tableId ? `/tables/${p.tableId}` : p.conversationId ? `/messages/${p.conversationId}`
     : p.clubSlug ? `/clubs/${p.clubSlug}` : p.tournamentId ? `/tournaments/${p.tournamentId}` : kind === 'friend_request' ? '/friends' : kind === 'gift' ? '/me/wardrobe' : '/';

@@ -304,8 +304,8 @@ export function avatarSvg(p: AvatarParts, opts: { frame?: boolean } = {}): strin
 
 export function unlockFa(u: Unlock, achievementTitle?: (key: string) => string | undefined): string {
   if ('free' in u) return 'رایگان';
-  if ('coins' in u) return `${u.coins.toLocaleString('fa-IR')} سکه`;
-  if ('level' in u) return `سطح ${u.level.toLocaleString('fa-IR')}`;
+  if ('coins' in u) return `${u.coins.toLocaleString('fa-IR').replace(/٬/g, ',')} سکه`;
+  if ('level' in u) return `سطح ${u.level.toLocaleString('fa-IR').replace(/٬/g, ',')}`;
   if ('achievement' in u) return `دستاورد «${achievementTitle?.(u.achievement) ?? u.achievement}»`;
   if ('premium' in u) return 'ویژهٔ اشتراک';
   return `لیگ ${LEAGUE_FA[u.league]} یا بالاتر`;

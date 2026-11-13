@@ -212,7 +212,7 @@ export function fighterNameFa(s: Pick<UnmatchedState, 'heroes' | 'fighters'>, fi
   const h = f ? HEROES[s.heroes[f.seat] ?? ''] : undefined;
   if (!f || !h) return fid;
   if (f.hero) return h.hero.nameFa;
-  return h.sidekick.count > 1 ? `${h.sidekick.nameFa} ${(f.idx + 1).toLocaleString('fa-IR')}` : h.sidekick.nameFa;
+  return h.sidekick.count > 1 ? `${h.sidekick.nameFa} ${(f.idx + 1).toLocaleString('fa-IR').replace(/٬/g, ',')}` : h.sidekick.nameFa;
 }
 
 /** May this fighter use the card (banner, Jekyll/Hyde form, on the board and undefeated)? */

@@ -14,7 +14,7 @@ import {
 import { ArmyToken, CARD_BACK, CardIcon, Cartouche, Compass, DieFace, INK, MapDefs, Parchment, SEAT_COLOR, SEAT_FA, SEAT_WASH, Serpent, Ship, StatIcon } from './art.tsx';
 import { income, ownsContinent, territoriesOf, type LogEntry, type Phase, type RiskView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Isolate a (possibly Latin) player name inside Persian text. */
 const iso = (s: string) => `⁨${s}⁩`;
 const tFa = (t: number) => TERRITORY_FA[TERRITORY_IDS[t]!];

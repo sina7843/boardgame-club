@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { player } from './helpers.ts';
 
 // «بازی با ربات»: start from the game page, the bot is labelled as a bot, it answers through the worker, and the
@@ -9,13 +9,13 @@ const shot = (project: string, name: string) => `docs/evidence/site/bots/${proje
 const only = (name: string) => test.skip(!['mobile-360', 'desktop-1440'].includes(name), 'bot flow runs at 360 and 1440');
 
 /** Wide HUD cards say «ربات، سطح …»; the phone strip (mini cards) only lists the players as named buttons. */
-async function expectBots(p: import('@playwright/test').Page, bots: number, timeout = 10_000) {
+async function expectBots(p: Page, bots: number, timeout = 10_000) {
   const hud = p.getByRole('region', { name: 'بازیکنان' }).first();
   if ((p.viewportSize()?.width ?? 1440) < 600) await expect(hud.getByRole('button')).toHaveCount(bots + 1, { timeout });
   else await expect(hud.getByText(/ربات، سطح/)).toHaveCount(bots, { timeout });
 }
 
-test('play «سه‌خطی» against a hard bot to the result', async ({ browser }, info) => {
+test('play «دوز» against a hard bot to the result', async ({ browser }, info) => {
   only(info.project.name);
   const p = await player(browser, info.project.use.viewport ?? null, 'بازیکن تنها');
   await p.goto('/games/line-three');

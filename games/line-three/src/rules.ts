@@ -118,7 +118,7 @@ export const lineThreeModule: GameModule<LineThreeState, LineThreeAction, LineTh
   tutorial: {
     // Seed chosen so the learner (seat 0) moves first and plays X — verified by the engine tests.
     seed: 7,
-    introFa: 'در سه‌خطی هر کس زودتر سه نشان خود را در یک ردیف، ستون یا قطر بچیند برنده است. شما X هستید و اول بازی می‌کنید.',
+    introFa: 'در دوز هر کس زودتر سه نشان خود را در یک ردیف، ستون یا قطر بچیند برنده است. شما X هستید و اول بازی می‌کنید.',
     steps: [
       { instructionFa: 'خانه وسط جدول را انتخاب کنید؛ خانه وسط در چهار خط مشترک است.', expected: { type: 'place', cell: 4 }, reply: { type: 'place', cell: 0 } },
       { instructionFa: 'حریف گوشه را گرفت. حالا گوشه مشخص‌شده را بگیرید تا یک قطر نیمه‌کاره بسازید.', expected: { type: 'place', cell: 2 }, reply: { type: 'place', cell: 1 } },

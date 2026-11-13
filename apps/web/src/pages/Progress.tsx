@@ -81,7 +81,7 @@ export function ProgressPage() {
             {d.season && <Badge icon="clock">{remainingFa(d.season.endsAt)} مانده</Badge>}</div>
           {top ? (
             <div className="pf-seasontop">
-              <img src={`/covers/${top.gameId}.webp`} alt="" loading="lazy" />
+              <img className="bgv-box bgv-box--sm" src={`/covers/box/${top.gameId}.webp`} alt="" loading="lazy" />
               <div className="pf-seasontop__text"><b>{gameName(top.gameId)}، {RATING_MODE_FA[top.mode]}</b>
                 <span className="t-caption bgv-muted bgv-row">{top.league && <League tier={top.league} />}{top.provisional ? `موقت، ${faNum(top.games)} بازی` : `${faNum(top.games)} بازی`}</span></div>
               <b className="t-num-lg bgv-num pf-seasontop__n">{faNum(top.display)}</b>
@@ -124,7 +124,7 @@ export function ProgressPage() {
             <Clamped items={played} limit={6}>{(shown) => (
               <ul className="pf-ul pf-rows">{shown.map((m) => (
                 <li key={m.gameId} className="pf-mrow">
-                  <img src={`/covers/${m.gameId}.webp`} alt="" loading="lazy" />
+                  <img className="bgv-box bgv-box--sm" src={`/covers/box/${m.gameId}.webp`} alt="" loading="lazy" />
                   <div className="pf-mrow__text"><b>{m.gameNameFa}</b>
                     <span className="t-caption bgv-muted">{faNum(m.completed)} بازی<span className="bgv-sep" />{faNum(m.wins)} اول<span className="bgv-sep" />{faNum(m.ranked)} رتبه‌دار{m.tutorial ? <><span className="bgv-sep" />آموزش ✓</> : null}</span></div>
                   <Badge tone={m.tier === 'master' ? 'premium' : m.tier === 'seasoned' ? 'success' : 'neutral'}>{m.tierFa}</Badge>

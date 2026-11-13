@@ -300,6 +300,8 @@ export const gameTables = pgTable('game_tables', {
   settings: jsonb().notNull().default({}),
   /** Private-table invite token; returned only to participants. */
   inviteCode: text().unique(),
+  /** Short public code for /t/<code> links (6 letters/digits, filled by the game_tables_code trigger on insert). */
+  code: text().unique(),
   isTutorial: boolean().notNull().default(false),
   /** Created by the matchmaker; seats must accept (ready) before the ready deadline. */
   isMatchmade: boolean().notNull().default(false),
@@ -995,4 +997,29 @@ export const behaviorSignals = pgTable('behavior_signals', {
   unique('behavior_signals_once_uq').on(t.tableId, t.userId, t.kind),
   index('behavior_signals_user_idx').on(t.userId, t.createdAt),
   oneOf('behavior_signals_kind_chk', t.kind, ['timeout_loss', 'resigned', 'ready_no_show'])
+]);
+
+/** Game page content written by the team (contracts gameContent, validated on write). One row per game. */
+export const gameContents = pgTable('game_contents', {
+  gameId: text().primaryKey().references(() => games.id),
+  data: jsonb().notNull().default({}),
+  updatedBy: uuid().references(() => users.id),
+  updatedAt: createdAt()
+});
+
+/** Players' reviews of a game: one per player per game; staff can hide a review. */
+export const gameReviews = pgTable('game_reviews', {
+  id: id(),
+  gameId: text().notNull().references(() => games.id),
+  userId: uuid().notNull().references(() => users.id),
+  stars: integer().notNull(),
+  body: text().notNull(),
+  hidden: boolean().notNull().default(false),
+  createdAt: createdAt(),
+  updatedAt: createdAt()
+}, (t) => [
+  unique('game_reviews_one_per_user_uq').on(t.gameId, t.userId),
+  index('game_reviews_game_idx').on(t.gameId, t.createdAt),
+  check('game_reviews_stars_chk', sql`${t.stars} between 1 and 5`),
+  check('game_reviews_body_len_chk', sql`char_length(${t.body}) between 3 and 1000`)
 ]);

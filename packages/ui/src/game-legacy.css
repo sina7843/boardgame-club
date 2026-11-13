@@ -78,7 +78,6 @@
 @media (prefers-reduced-motion: reduce) { :root:not([data-motion='full']) .table-night { --dur-base: 0ms; } }
 
 /* Page classes the renderers use (unchanged rules, scoped). */
-.table-night .num { font-variant-numeric: tabular-nums; }
 .table-night .muted { color: var(--text-muted); }
 .table-night .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-block-size: 44px; padding-inline: 1.25rem;
     border-radius: var(--radius-pill); font-weight: 600; font-size: 0.875rem; white-space: nowrap; text-decoration: none; cursor: pointer;

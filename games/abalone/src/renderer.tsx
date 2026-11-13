@@ -1,4 +1,4 @@
-// آبالون renderer: hexagonal walnut tray with dimples, black glass and white pearl marbles (SVG, geometry LTR).
+// ابلون renderer: hexagonal walnut tray with dimples, black glass and white pearl marbles (SVG, geometry LTR).
 // Tap up to three of your marbles in a line; arrows appear for the legal directions; tap an arrow to move.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -21,7 +21,7 @@ function shift(board: Board, ids: (string | null)[], color: Color, mv: Move) {
   return { board: r.board, ids: out, pushed: r.pushed, lost: r.lost };
 }
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const R = 40, SIZE = 760, CX = SIZE / 2, CY = SIZE / 2;
 // Marbles and the board are the BGA Abalone client art (see DECISIONS.md). board.webp is 705 × 659 with the centre hole
 // at (350.5, 330) and 54.4 px between holes; BOARD places it on our grid (R·√3 between cells).
@@ -114,8 +114,8 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
         ))}
       </div>
 
-      <ZoomBoard label="صفحه آبالون">
-        <svg className="abl-board" viewBox={`${BOARD.x} ${BOARD.y} ${BOARD.w} ${BOARD.h}`} role="grid" aria-label="صفحه آبالون" style={{ direction: 'ltr' }}>
+      <ZoomBoard label="صفحه ابلون">
+        <svg className="abl-board" viewBox={`${BOARD.x} ${BOARD.y} ${BOARD.w} ${BOARD.h}`} role="grid" aria-label="صفحه ابلون" style={{ direction: 'ltr' }}>
           <defs>
             <radialGradient id="abl-tray" cx=".5" cy=".45" r=".7"><stop offset="0" stopColor="#6b4223" /><stop offset="1" stopColor="#2e1a0b" /></radialGradient>
             <filter id="abl-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity=".55" /></filter>

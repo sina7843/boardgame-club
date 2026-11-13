@@ -21,8 +21,8 @@ export function searchGames(games: GameSummary[], q: string): GameSummary[] {
 }
 
 const asResult = (g: GameSummary): SiteSearchResult => ({
-  title: g.nameFa, latin: g.nameOriginal, cover: `/covers/${g.id}.webp?v=2`, href: `/games/${g.id}`, quickHref: `/play?game=${g.id}`,
-  meta: [{ icon: 'users', text: `${faNum(g.minPlayers)}–${faNum(g.maxPlayers)} نفر` }, { icon: 'clock', text: `${faNum(g.minMinutes)}–${faNum(g.maxMinutes)} دقیقه` }]
+  title: g.nameFa, latin: g.nameOriginal, cover: `/covers/box/${g.id}.webp`, href: `/games/${g.id}`, quickHref: `/play?game=${g.id}`,
+  meta: [{ icon: 'users', text: `${faNum(g.minPlayers)} تا ${faNum(g.maxPlayers)} نفر` }, { icon: 'clock', text: `${faNum(g.minMinutes)} تا ${faNum(g.maxMinutes)} دقیقه` }]
 });
 
 /** Header search (and the phone sheet): games are loaded on first use and filtered here. */
@@ -55,7 +55,7 @@ export function HeaderSearch({ sheet, onClose }: { sheet?: boolean; onClose?: ()
   return (
     <div ref={box} className="app-search" onKeyDown={onKeyDown}>
       <SiteSearch value={q} onChange={setQ} open={sheet ? true : open} onOpenChange={setOpen} results={results} state={q ? (empty ? 'empty' : 'results') : 'idle'}
-        allHref={allHref} {...(sheet ? { sheet: true, ...(onClose ? { onClose } : {}) } : {})}
+        allHref={allHref} {...(sheet ? { sheet: true, ...(onClose ? { onClose } : {}) } : { expand: true })}
         emptyTitle={`بازی‌ای با «${q}» پیدا نشد`} emptyText="نام فارسی یا لاتین بازی را امتحان کنید، یا فهرست همهٔ بازی‌ها را ببینید." />
     </div>
   );
@@ -109,15 +109,23 @@ export function EnamadSeal() {
 /** The Android app on Cafe Bazaar (apps/android, appId ir.boardgameverse.app). */
 const BAZAAR_URL = 'https://cafebazaar.ir/app/ir.boardgameverse.app';
 
+/**
+ * «همراه ما باشید» in the footer: shown only once the real addresses are configured (VITE_SOCIAL_TELEGRAM /
+ * VITE_SOCIAL_INSTAGRAM, full URLs). The design system's own default is a placeholder, which must never go live.
+ */
+const SOCIAL = ([['send', 'تلگرام', import.meta.env.VITE_SOCIAL_TELEGRAM], ['instagram', 'اینستاگرام', import.meta.env.VITE_SOCIAL_INSTAGRAM]] as [string, string, unknown][])
+  .flatMap(([icon, label, href]) => (typeof href === 'string' && /^https:\/\//.test(href)
+    ? [{ icon, label, href, handle: href.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '') }] : []));
+
 /** Footer for the public pages only (games, game page, wiki, support, guides, home); never on tables, messages or settings. */
 export function PublicFooter() {
   return (
-    <SiteFooter logo={{ src: '/brand/logo-fa-reversed.svg' }} storeHref={BAZAAR_URL} seal={<EnamadSeal />}
+    <SiteFooter logo={{ src: '/brand/logo-fa-reversed.svg' }} storeHref={BAZAAR_URL} seal={<EnamadSeal />} social={SOCIAL.length ? SOCIAL : false}
       columns={[
         { title: 'بازی‌های محبوب', links: [['کاتان آنلاین', '/games/catan'], ['آزول آنلاین', '/games/azul'], ['تیکت تو راید آنلاین', '/games/ticket-to-ride'],
           ['اونو آنلاین', '/games/uno'], ['شطرنج آنلاین', '/games/chess'], ['تخته‌نرد آنلاین', '/games/backgammon']] },
-        { title: 'جامعه', links: [['تورنمنت‌ها', '/tournaments'], ['رتبه‌بندی', '/ranking'], ['باشگاه‌ها', '/clubs'], ['راهنما', '/guides']] },
-        { title: 'پشتیبانی و قوانین', links: [['پشتیبانی', '/support'], ...SITE_LINKS.map(([s, label]): [string, string] => [label, `/${s}`])] }
+        { title: 'با بردگیم‌ورس', links: [['تورنمنت‌ها', '/tournaments'], ['رتبه‌بندی', '/ranking'], ['باشگاه‌ها', '/clubs'], ['راهنما', '/guides']] },
+        { title: 'راهنما و پشتیبانی', links: [['پشتیبانی', '/support'], ...SITE_LINKS.filter(([s]) => s !== 'about').map(([s, label]): [string, string] => [label, `/${s}`])] }
       ]} />
   );
 }

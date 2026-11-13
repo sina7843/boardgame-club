@@ -9,6 +9,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { faNum } from '../lib/format.ts';
 import { GameAccess, MissionsAdmin, PlansAdmin, ReferralAdmin, SeasonsAdmin, SupportAdmin, WelcomePremiumAdmin } from './AdminCommerce.tsx';
 import { GameSettingsAdmin } from './AdminGameSettings.tsx';
+import { GameContentAdmin } from './AdminGameContent.tsx';
 import { PlayersAdmin } from './AdminPlayers.tsx';
 import { TablesAdmin } from './AdminTables.tsx';
 import { ADMIN_TABS } from './adminTabs.ts';
@@ -72,7 +73,7 @@ function GamesAdmin() {
         </div>
         {shown.length === 0 ? <StateBlock kind="empty" title="بازی‌ای پیدا نشد" /> : shown.map((g) => (
           <button key={g.id} type="button" className={`ac-adminrow${selected?.id === g.id ? ' is-selected' : ''}`} aria-current={selected?.id === g.id || undefined} onClick={() => select(g.id)}>
-            <span className="ac-adminrow__cover"><img src={`/covers/${g.id}.webp?v=2`} alt="" loading="lazy" /></span>
+            <span className="ac-adminrow__cover"><img className="bgv-box bgv-box--sm" src={`/covers/box/${g.id}.webp`} alt="" loading="lazy" /></span>
             <span className="ac-adminrow__name"><b>{g.nameFa}</b><bdi className="bgv-latin ac-cap">{g.nameOriginal}</bdi></span>
             {g.status !== 'active' && <Badge tone={g.status === 'draft' ? 'test' : 'danger'} size="sm" icon={g.status === 'draft' ? undefined : 'ban'}>{STATUS_FA[g.status]}</Badge>}
             {g.access === 'premium' && <Badge tone="premium" size="sm">پریمیوم</Badge>}
@@ -115,7 +116,7 @@ function GameDetailAdmin({ game, onBack, onChanged }: { game: GameSummary; onBac
     <>
       <div className="ac-adm__back"><Button variant="ghost" size="sm" icon="arrow-right" onClick={onBack}>بازگشت به فهرست بازی‌ها</Button></div>
       <Card className="ac-head" aria-labelledby="admin-game-h">
-        <span className="ac-head__cover"><img src={`/covers/${game.id}.webp?v=2`} alt="" /></span>
+        <span className="ac-head__cover"><img className="bgv-box bgv-box--sm" src={`/covers/box/${game.id}.webp`} alt="" /></span>
         <div className="ac-head__text">
           <div className="bgv-row" style={{ gap: 10 }}>
             <h2 id="admin-game-h" className="t-page-sm" style={{ color: 'var(--heading)', margin: 0 }}>{game.nameFa}</h2>
@@ -141,6 +142,8 @@ function GameDetailAdmin({ game, onBack, onChanged }: { game: GameSummary; onBac
       </Card>
 
       <GameSettingsAdmin gameId={game.id} />
+
+      <GameContentAdmin gameId={game.id} />
 
       <Card className="ac-sec" aria-labelledby="admin-versions-h">
         <div className="ac-sec__head"><span className="ac-tile"><Icon name="layers" /></span><h2 id="admin-versions-h" className="ac-h3">نسخه‌های قوانین</h2></div>

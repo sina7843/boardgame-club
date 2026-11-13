@@ -14,7 +14,7 @@ import clue from './art/clue.webp';
 import cardsArt from './art/cards.webp';
 import { CARDS, COLORS, type Color, type HanabiView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 // Bursts and tokens are cut from a generated sprite sheet; card faces are BGA client art (see DECISIONS.md).
 const BURST: Record<Color, string> = { r: fwR, y: fwY, g: fwG, b: fwB, w: fwW };
 export const COLOR_FA: Record<Color, string> = { r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی', w: 'سفید' };

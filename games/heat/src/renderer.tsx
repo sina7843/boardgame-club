@@ -23,7 +23,7 @@ import gearArt from './art/gear.webp';
 import { GARAGE, GEAR_COOL, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
 import { pointAt, trackOf, type TrackId } from './tracks.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const CAR_ART = [car0, car1, car2, car3, car4, car5];
 const CAR_FA = ['قرمز', 'آبی', 'سبز', 'زرد', 'مشکی', 'سفید'];
 const WEATHER_ART: Record<WeatherId, string> = { sun: wSun, rain: wRain, fog: wFog, cold: wCold, heatwave: wHeat };

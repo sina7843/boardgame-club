@@ -44,7 +44,7 @@
 .um-dial svg { inline-size: 2.6rem; block-size: 2.6rem; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35)); }
 .um-dial--big svg { inline-size: 5.2rem; block-size: 5.2rem; }
 .um-player:not(.um-player--me) .um-dial--big svg { inline-size: 4.2rem; block-size: 4.2rem; }
-.um-dial small { font-size: var(--fs-xs); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.um-dial small { font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
 .um-dial__rim { fill: #2a2520; stroke: color-mix(in srgb, var(--hc) 55%, #c8a45a); stroke-width: 3; }
 .um-dial__notch { fill: rgb(255 255 255 / 0.12); }
 .um-dial__notch--on { fill: var(--hc); stroke: rgb(255 255 255 / 0.35); stroke-width: 0.8; }

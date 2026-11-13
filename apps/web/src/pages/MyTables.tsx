@@ -38,7 +38,7 @@ export function DeadlineClock({ iso }: { iso: string }) {
 }
 
 export function Cover({ gameId }: { gameId: string }) {
-  return <img className="hm-thumb" src={`/covers/${gameId}.webp?v=2`} alt="" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />;
+  return <img className="bgv-box bgv-box--sm hm-thumb" src={`/covers/box/${gameId}.webp`} alt="" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />;
 }
 
 export const tableMeta = (t: MyTableItem) =>

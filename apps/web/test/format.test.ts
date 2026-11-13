@@ -4,8 +4,8 @@ import { readPrefs } from '../src/lib/prefs.tsx';
 
 describe('display formatting', () => {
   it('renders Persian digits', () => {
-    expect(faNum(1405)).toBe('۱٬۴۰۵');
-    expect(range(2, 4, 'نفر')).toBe('۲-۴ نفر');
+    expect(faNum(1405)).toBe('۱,۴۰۵'); // DS v2.4.3: plain comma between Persian digits
+    expect(range(2, 4, 'نفر')).toBe('۲ تا ۴ نفر');
     expect(range(2, 2, 'نفر')).toBe('۲ نفر');
   });
   it('shows UTC instants as Jalali dates in Tehran time', () => {

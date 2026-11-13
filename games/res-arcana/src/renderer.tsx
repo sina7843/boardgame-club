@@ -13,7 +13,7 @@ import { CARDS, ESS, ESS_FA, vpOf, type Ess, type Pile, type RaView } from './ru
 
 // Painted crystals cut from a generated sheet (see DECISIONS.md), shown as round essence icons.
 const art = (k: Ess) => ({ backgroundImage: `url(${{ e: artE, l: artL, c: artC, d: artD, g: artG }[k]})` });
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** `pop` bumps a gem whose count changed (use for a player's essence pool, not for printed card costs). */
 export function Gems({ pile, empty, pop }: { pile: Pile; empty?: string; pop?: boolean }) {
   const items = ESS.flatMap((k) => (pile[k] ? [<span key={pop ? `${k}${pile[k]}` : k} className={pop ? 'ra-gem bg-pop' : 'ra-gem'} style={art(k)} aria-label={`${fa(pile[k]!)} ${ESS_FA[k]}`}>{fa(pile[k]!)}</span>] : []));

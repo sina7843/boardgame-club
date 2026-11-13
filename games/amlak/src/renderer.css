@@ -87,7 +87,7 @@
 .am-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .am-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
 .am-field { display: grid; gap: 4px; font-size: var(--fs-sm); font-weight: 700; }
-.am-field input, .am-field select { min-block-size: var(--touch, 44px); padding: 0 var(--sp-3); border-radius: var(--r-sm, 8px); border: 2px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-variant-numeric: tabular-nums; }
+.am-field input, .am-field select { min-block-size: var(--touch, 44px); padding: 0 var(--sp-3); border-radius: var(--r-sm, 8px); border: 2px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
 .am-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .am-chip { min-block-size: 36px; min-inline-size: 52px; padding: 0 10px; border-radius: 999px; border: 2px solid #8a6b12; font: inherit; font-weight: 800; cursor: pointer;
   color: #3a2a0a; background: radial-gradient(circle at 35% 30%, #fff3c4, #f2c94c 60%, #c99a1e); box-shadow: 0 2px 0 #8a6b12; }
@@ -108,7 +108,7 @@
 .am-deed__rows div { display: flex; align-items: baseline; gap: 6px; }
 .am-deed__rows dt { white-space: nowrap; }
 .am-deed__rows div::after { content: ''; order: 1; flex: 1; border-block-end: 2px dotted rgb(31 26 20 / 0.35); }
-.am-deed__rows dd { order: 2; margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.am-deed__rows dd { order: 2; margin: 0; font-weight: 800; white-space: nowrap; }
 .am-deed__foot { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 16px 12px; border-block-start: 1px solid rgb(31 26 20 / 0.25); font-size: var(--fs-xs); color: #4a3d2e; }
 .am-deed__foot b { color: var(--am-anar); }
 .am-deed--compact .am-deed__foot { border-block-start: 0; }
@@ -144,7 +144,7 @@
 .am-wallet__who { grid-area: who; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-inline-size: 0; }
 .am-wallet__name { font-weight: 800; max-inline-size: 13ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .am-wallet__me { color: #5a4a3a; font-size: var(--fs-sm); }
-.am-wallet__cash { grid-area: cash; display: grid; justify-items: end; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.am-wallet__cash { grid-area: cash; display: grid; justify-items: end; line-height: 1.05; }
 .am-wallet__cash b { font-size: 1.6rem; font-weight: 900; color: var(--am-anar); text-shadow: 0 1px 0 #fffaf0, 1px 2px 0 rgb(0 0 0 / 0.12); letter-spacing: -0.5px; }
 .am-wallet__cash small { font-size: 10px; font-weight: 800; color: #5a4a3a; }
 .am-wallet__deeds { grid-area: deeds; display: flex; flex-wrap: wrap; gap: 3px; }

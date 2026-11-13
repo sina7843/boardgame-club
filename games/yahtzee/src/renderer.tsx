@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import { CATS, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
 import cup from './art/cup.webp';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CAT_FA: Record<Cat, string> = {
   ones: 'یک‌ها', twos: 'دوها', threes: 'سه‌ها', fours: 'چهارها', fives: 'پنج‌ها', sixes: 'شش‌ها',
   threeKind: 'سه‌تایی', fourKind: 'چهارتایی', fullHouse: 'فول‌هاوس', smallStraight: 'ردیف کوچک', largeStraight: 'ردیف بزرگ', yahtzee: 'یاتزی', chance: 'شانس'

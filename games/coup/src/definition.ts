@@ -14,7 +14,7 @@ export const coup = defineGame({
     assetsRef: 'coup/1'
   },
   catalog: {
-    nameFa: 'کوپ',
+    nameFa: 'کودتا',
     nameOriginal: 'Coup',
     summaryFa: 'دسیسه در دربار: با دو کارت نفوذ مخفی ادعا کنید دوک، آدم‌کش یا کاپیتان هستید، سکه جمع کنید و رقبا را با ترور و کودتا کنار بزنید؛ فقط مراقب باشید کسی بلوفتان را با چالش رو نکند.',
     rulesFa: [

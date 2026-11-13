@@ -28,7 +28,7 @@ import cardBack from './art/card-back.webp';
 import coin from './art/coin.webp';
 import vp from './art/vp.webp';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
 const ART: Record<CardId, string> = { copper: copperArt, silver: silverArt, gold: goldArt, estate: estateArt, duchy: duchyArt, province: provinceArt, cellar: cellarArt, moat: moatArt, merchant: merchantArt, village: villageArt, workshop: workshopArt, militia: militiaArt, remodel: remodelArt, smithy: smithyArt, market: marketArt, mine: mineArt };
 

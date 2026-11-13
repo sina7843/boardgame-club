@@ -14,7 +14,7 @@ export const noThanks = defineGame({
     assetsRef: 'no-thanks/1'
   },
   catalog: {
-    nameFa: 'نو تنکس!',
+    nameFa: 'نه مرسی',
     nameOriginal: 'No Thanks!',
     summaryFa: 'بازی کارتی کوتاه و پرتنش برای ۲ تا ۷ نفر: کارت‌های منفی را با دادن ژتون رد کنید یا با ژتون‌های جمع‌شده رویش بردارید؛ رشته‌های عدد پشت سر هم فقط کوچک‌ترین کارتشان را حساب می‌کنند.',
     rulesFa: [

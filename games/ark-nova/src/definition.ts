@@ -14,7 +14,7 @@ export const arkNova = defineGame({
       key: 'map', labelFa: 'نقشهٔ باغ‌وحش', descriptionFa: 'نقشهٔ A نقشهٔ آغازین استاندارد است؛ نقشه‌های ۱ تا ۸ توانایی ویژه دارند.',
       choices: [
         { value: 'A', labelFa: 'نقشهٔ A (آغازین)' }, { value: '0', labelFa: 'نقشهٔ ۰' },
-        ...['1', '2', '3', '4', '5', '6', '7', '8'].map((v) => ({ value: v, labelFa: `نقشهٔ ${Number(v).toLocaleString('fa-IR')} برای همه` })),
+        ...['1', '2', '3', '4', '5', '6', '7', '8'].map((v) => ({ value: v, labelFa: `نقشهٔ ${Number(v).toLocaleString('fa-IR').replace(/٬/g, ',')} برای همه` })),
         { value: 'advanced', labelFa: 'پیشرفته: هر بازیکن از ۲ نقشهٔ تصادفی ۱ تا ۸ یکی را انتخاب می‌کند' }
       ],
       default: 'A'

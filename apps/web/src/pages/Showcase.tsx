@@ -40,7 +40,7 @@ export function Showcase() {
         <div className="ac-swatches">{TOKENS.map((t) => <div key={t} className="ac-swatch"><i style={{ background: `var(${t})` }} /><bdi dir="ltr">{t}</bdi></div>)}</div>
         <Card>
           <p className="t-page" style={{ margin: 0 }}>تیتر صفحه</p><p className="t-h3" style={{ margin: 0 }}>تیتر بخش</p><p className="t-body" style={{ margin: 0 }}>متن اصلی با رنگ و اندازهٔ استاندارد.</p>
-          <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>متن کوچک و کم‌رنگ</p><p className="t-num-lg" style={{ margin: 0 }}>۱٬۲۳۴٫۵</p>
+          <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>متن کوچک و کم‌رنگ</p><p className="t-num-lg" style={{ margin: 0 }}>۱,۲۳۴٫۵</p>
         </Card>
       </Sec>
 
@@ -74,7 +74,7 @@ export function Showcase() {
           <Frame tier="gold" avatar={{ initials: 'ا', size: 'lg' }} /><Seat n={1} label /><Seat n={2} /><Seat n={5} size="lg" /></Row>
         <Row><Identity name="مینا" initials="م" you league="gold" level={18} title="استاد معامله" /><Identity name="نیلوفر" initials="ن" seat={2} status="online" sub="آنلاین" /></Row>
         <Row>{(['bronze', 'silver', 'gold', 'platinum', 'diamond', 'master'] as const).map((l) => <League key={l} tier={l} />)}</Row>
-        <div className="ac-grid2"><Stat label="بازی‌ها" value={128} delta={12} deltaText="این هفته" /><Stat label="امتیاز" value="۱٬۲۰۰" delta={-4} /></div>
+        <div className="ac-grid2"><Stat label="بازی‌ها" value={128} delta={12} deltaText="این هفته" /><Stat label="امتیاز" value="۱,۲۰۰" delta={-4} /></div>
         <div className="ac-grid2"><Progress label="پیشرفت" value={0.6} valueText="۶ از ۱۰" /><Row><Ring value={0.7} label="هفتاد درصد">۷۰٪</Ring><Skeleton circle width={40} /><Skeleton lines={3} width="60%" /></Row></div>
         <Card flush><DataTable caption="جدول نمونه" columns={[{ key: 'n', label: 'رتبه', strong: true }, { key: 'name', label: 'نام' }, { key: 'v', label: 'امتیاز', align: 'end' }]}
           rows={[{ n: '۱', name: 'نمونه الف', v: '۱۲' }, { n: '۲', name: 'مینا', v: '۹', you: true }]} /></Card>
@@ -92,7 +92,7 @@ export function Showcase() {
 
       <Sec id="card-h" title="کارت و سرصفحه">
         <div className="bgv-grid bgv-grid--sm">
-          <GameCard title="کاتان" latin="Catan" cover="/covers/catan.webp?v=2" meta={[{ icon: 'users', text: '۳ تا ۴ نفر' }, { icon: 'clock', text: '۶۰ دقیقه' }]} flags={[{ tone: 'premium', icon: 'crown', label: 'پریمیوم' }]} href="/games/catan" />
+          <GameCard title="کاتان" latin="Catan" box="/covers/box/catan.webp" mode meta={[{ icon: 'users', text: '۳ تا ۴ نفر' }, { icon: 'clock', text: '۶۰ دقیقه' }]} flags={[{ tone: 'premium', icon: 'crown', label: 'پریمیوم' }]} href="/games/catan" />
           <Card title="کارت با عنوان" actions={<Button size="sm" variant="ghost">همه</Button>}><p className="t-body-sm" style={{ margin: 0 }}>محتوای کارت.</p></Card>
           <Card raised><p className="t-body-sm" style={{ margin: 0 }}>کارت برجسته.</p></Card>
         </div>

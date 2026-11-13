@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps, Do
 import photos from './art/photos.webp';
 import { CARDS, duoKind, type Kind, type SspView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const KIND_FA: Record<Kind, string> = {
   crab: 'خرچنگ', boat: 'قایق', fish: 'ماهی', swimmer: 'شناگر', shark: 'کوسه', shell: 'صدف', octopus: 'هشت‌پا', penguin: 'پنگوئن',
   sailor: 'ملوان', lighthouse: 'فانوس', shoal: 'دسته‌ماهی', colony: 'کلونی', captain: 'ناخدا', mermaid: 'پری دریایی'

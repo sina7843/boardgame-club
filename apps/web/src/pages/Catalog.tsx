@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { GAME_TAG_FA, type GameSummary, type GameTag } from '@bg/contracts';
-import { Button, Checkbox, Chip, Icon, PageHead, Radio, Segmented, Select, Skeleton, StateBlock, Switch, TextField } from '@bg/ui/bgv';
+import { GAME_TAG_FA, type GameSummary, type GameTag, type HomeOverview } from '@bg/contracts';
+import { Button, Checkbox, Chip, Icon, Radio, Segmented, Select, Skeleton, StateBlock, Switch, TextField } from '@bg/ui/bgv';
 import { GameCard } from '../games/GameCard.tsx';
 import { useApi } from '../lib/api.ts';
-import { faNum } from '../lib/format.ts';
+import { DIFFICULTY_FA, faNum } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { PageTabs } from '../shell/PageTabs.tsx';
+import { popularOrder } from './Dashboard.tsx';
 
 // Server-side filters (sent to /games) and client-side ones (`bot`, `sort`) that stay in the URL too.
 type FilterKey = 'players' | 'maxMinutes' | 'difficulty' | 'mode' | 'access' | 'tags';
@@ -23,13 +23,78 @@ const sortGames = (items: GameSummary[], sort: string) => {
   return by[sort] ? [...items].sort(by[sort]) : items;
 };
 
-/** Quick starting points shown above the grid; each one sets filters. */
-const PRESETS: { label: string; text: string; icon: string; set: Record<string, string>; match: (g: GameSummary) => boolean }[] = [
-  { label: 'شروع آسان', text: 'قانون کوتاه', icon: 'sparkles', set: { difficulty: 'easy' }, match: (g) => g.difficulty === 'easy' },
-  { label: 'دونفره', text: 'تن‌به‌تن', icon: 'swords', set: { players: '2' }, match: (g) => g.minPlayers <= 2 && g.maxPlayers >= 2 },
-  { label: 'با ربات', text: 'بدون انتظار', icon: 'bot', set: { bot: '1' }, match: (g) => g.botAvailable },
-  { label: 'کمتر از ۳۰ دقیقه', text: 'یک دست سریع', icon: 'clock', set: { maxMinutes: '30' }, match: (g) => g.minMinutes <= 30 }
+/** The six category tiles under the hero (Catalog-Desktop): a tag (or «دونفره»), its icon on a seat colour, a peeking box. */
+const CATS: { label: string; icon: string; seat: number; set: Record<string, string>; match: (g: GameSummary) => boolean }[] = [
+  { label: 'استراتژیک', icon: 'map', seat: 6, set: { tags: 'strategy' }, match: (g) => g.tags.includes('strategy') },
+  { label: 'خانوادگی', icon: 'house', seat: 2, set: { tags: 'family' }, match: (g) => g.tags.includes('family') },
+  { label: 'کارتی', icon: 'layers', seat: 3, set: { tags: 'card' }, match: (g) => g.tags.includes('card') },
+  { label: 'کلاسیک', icon: 'crown', seat: 9, set: { tags: 'classic' }, match: (g) => g.tags.includes('classic') },
+  { label: 'دورهمی', icon: 'sparkles', seat: 7, set: { tags: 'party' }, match: (g) => g.tags.includes('party') },
+  { label: 'دونفره', icon: 'swords', seat: 1, set: { players: '2' }, match: (g) => g.minPlayers <= 2 && g.maxPlayers >= 2 }
 ];
+const span = (a: number, b: number) => (a === b ? faNum(a) : `${faNum(a)} تا ${faNum(b)}`);
+
+/** «ویترین»: the week's six most played games, one at a time, with its boxes, numbers and the three ways in. */
+function Showcase({ games, home, total }: { games: GameSummary[]; home: HomeOverview | undefined; total: number }) {
+  const [i, setI] = useState(0);
+  if (!games.length) return null;
+  const g = games[i % games.length]!;
+  const next = (d: number) => setI((x) => (x + d + games.length) % games.length);
+  const back = [games[(i + 1) % games.length]!, games[(i + 2) % games.length]!];
+  const seated = home?.queues[g.id]?.seated ?? 0;
+  const box = (id: string) => `/covers/box/${id}.webp`;
+  return (
+    <section className="L-box L-band--felt gh-hero gh-a" data-theme="dark" aria-labelledby="gh-h1" aria-roledescription="ویترین">
+      <div className="gh-a__top">
+        <div className="gh-a__head">
+          <h1 className="gh-kick" id="gh-h1"><img src="/brand/symbol-reversed-small.svg" alt="" />بازی‌ها<span className="gh-n">{faNum(total)} بازی</span></h1>
+          <p>بردگیم‌های محبوب، نوبتی یا زنده؛ با دوستان یا با ربات.</p>
+        </div>
+        <div className="gh-a__nav">
+          <span className="gh-dots" aria-hidden="true">{games.map((x, k) => <i key={x.id} className={k === i ? 'is-on' : undefined} />)}</span>
+          <button type="button" className="gh-arrow" aria-label="بازی قبلی" onClick={() => next(-1)}><Icon name="chevron-right" /></button>
+          <button type="button" className="gh-arrow" aria-label="بازی بعدی" onClick={() => next(1)}><Icon name="chevron-left" /></button>
+        </div>
+      </div>
+      <div className="gh-a__stage" aria-live="polite">
+        <div className="gh-a__info">
+          <span className="L-kicker"><Icon name="star" size="sm" />{i === 0 ? 'بازی این هفته' : 'محبوب این هفته'}</span>
+          <h2 className="gh-a__name">{g.nameFa}<small dir="ltr">{g.nameOriginal}</small></h2>
+          <p className="gh-a__desc">{g.summaryFa}</p>
+          <ul className="gh-stats">
+            <li><Icon name="users" /><b>{span(g.minPlayers, g.maxPlayers)}</b><small>نفر</small></li>
+            <li><Icon name="clock" /><b>{span(g.minMinutes, g.maxMinutes)}</b><small>دقیقه</small></li>
+            <li><Icon name="gauge" /><b>{DIFFICULTY_FA[g.difficulty]}</b><small>سختی</small></li>
+            <li><Icon name="armchair" /><b>{faNum(home?.openByGame[g.id] ?? 0)}</b><small>میز باز</small></li>
+          </ul>
+          <div className="gh-a__ctas">
+            <Button variant="primary" size="lg" icon="zap" href={`/play?game=${g.id}`}>بازی سریع</Button>
+            <Button variant="secondary" size="lg" icon="user-plus" href={`/games/${g.id}/new`}>میز بساز</Button>
+            <a className="gh-tlink" href={`/games/${g.id}`}>صفحه بازی<Icon name="arrow-left" size="sm" /></a>
+          </div>
+        </div>
+        <div className="gh-a__art" aria-hidden="true">
+          <span className="gh-a__lamp" /><span className="gh-a__floor" />
+          <span className="gh-a__box gh-a__box--b1"><img className="bgv-box" src={box(back[0]!.id)} alt="" /></span>
+          <span className="gh-a__box gh-a__box--b2"><img className="bgv-box" src={box(back[1]!.id)} alt="" /></span>
+          <span className="gh-a__box gh-a__box--main"><img className="bgv-box" src={box(g.id)} alt="" /></span>
+          {seated > 0 && <span className="cx-e-proof gh-a__proof"><span className="cx-b-dot cx-b-dot--ok" /><span><b>{faNum(seated)}</b> نفر سر میز {g.nameFa}</span></span>}
+        </div>
+      </div>
+      <ol className="gh-a__rail" aria-label="بازی‌های ویترین">
+        {games.map((x, k) => (
+          <li key={x.id}>
+            <a className={k === i ? 'gh-thumb is-active' : 'gh-thumb'} href={`/games/${x.id}`} aria-current={k === i ? 'true' : undefined}
+              onClick={(e) => { if (k !== i) { e.preventDefault(); setI(k); } }}>
+              <span className="gh-thumb__box"><img className="bgv-box bgv-box--sm" src={box(x.id)} alt="" /></span>
+              <span className="gh-thumb__t"><b>{x.nameFa}</b><small dir="ltr">{x.nameOriginal}</small></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
 const TIMES = [30, 60, 120];
 const DIFF: [string, string][] = [['easy', 'آسان'], ['medium', 'متوسط'], ['hard', 'دشوار']];
 
@@ -60,6 +125,9 @@ export function Catalog() {
   const everything = useApi<{ items: GameSummary[] }>('/games');
   const all = useMemo(() => (everything.data?.items ?? []).filter((g) => !g.isTestGame), [everything.data]);
   const [moreTags, setMoreTags] = useState(false);
+  const home = useApi<HomeOverview>('/home');
+  const featuredAll = useMemo(() => popularOrder(all, home.data?.popular), [all, home.data]);
+  const featured = featuredAll.slice(0, 6);
   const hasFilters = params.toString().replace(/(^|&)sort=[^&]*/, '').length > 0;
   const clear = () => { setQ(''); setShown(PAGE); setParams({}, { replace: true }); };
   const mode = params.get('mode');
@@ -85,17 +153,25 @@ export function Catalog() {
 
   return (
     <>
-      <PageTabs group="games" />
-      <PageHead title="بازی‌ها" sub={`${all.length ? `${faNum(all.length)} بردگیم رومیزی؛ ` : ''}نوبتی یا زنده، با دوستان یا با ربات.`} />
-
-      <div className="pg-presets" role="group" aria-label="شروع سریع">
-        {PRESETS.map((p) => (
-          <button key={p.label} type="button" className="bgv-card pg-preset" onClick={() => { setShown(PAGE); setParams(new URLSearchParams(p.set), { replace: true }); setQ(''); }}>
-            {/* Catalog-Desktop: a fan of three matching boxes, the count and a short line. */}
-            <span className="pg-preset__art" aria-hidden="true">{all.filter(p.match).slice(0, 3).reverse().map((g) => <img key={g.id} src={`/covers/box/${g.id}.webp`} alt="" loading="lazy" />)}</span>
-            <span className="pg-preset__text"><b><Icon name={p.icon} size="sm" />{p.label}</b><small>{faNum(all.filter(p.match).length)} بازی<span className="bgv-sep" />{p.text}</small></span>
-          </button>
-        ))}
+      <div className="cx-catalog">
+        <Showcase games={featured} home={home.data} total={all.length} />
+        <nav className="bgv-tabs cx-tabs gh-tabs" aria-label="بخش‌ها">
+          <a className="bgv-tab is-active" href="/games" aria-current="page">همه بازی‌ها</a>
+          <a className="bgv-tab" href="/wiki"><Icon name="book-open" size="sm" />دانشنامه</a>
+        </nav>
+        <nav className="gh-cats" aria-label="دسته‌ها">
+          {CATS.map((c) => {
+            const list = featuredAll.filter(c.match);
+            return (
+              <a key={c.label} className="gh-cat" href={`/games?${new URLSearchParams(c.set)}`}
+                onClick={(e) => { e.preventDefault(); setShown(PAGE); setParams(new URLSearchParams(c.set), { replace: true }); setQ(''); }}>
+                <span className={`gh-cat__ic seat-${c.seat}`}><Icon name={c.icon} /></span>
+                <span className="gh-cat__t"><b>{c.label}</b><small>{faNum(list.length)} بازی</small></span>
+                {list[0] && <img className="gh-cat__peek" src={`/covers/box/${list[0].id}.webp`} alt="" loading="lazy" />}
+              </a>
+            );
+          })}
+        </nav>
       </div>
 
       <div className="pg-catlayout">

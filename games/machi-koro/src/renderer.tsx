@@ -28,7 +28,7 @@ import lmparkArt from './art/lm-park.webp';
 import lmradioArt from './art/lm-radio.webp';
 import coins from './art/coins.webp';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const ART: Record<CardKey, string> = { wheat: wheatArt, ranch: ranchArt, bakery: bakeryArt, cafe: cafeArt, store: storeArt, forest: forestArt, stadium: stadiumArt, tv: tvArt, business: businessArt, cheese: cheeseArt, furniture: furnitureArt, mine: mineArt, restaurant: restaurantArt, orchard: orchardArt, market: marketArt };
 const LM_ART: Record<Landmark, string> = { station: lmstationArt, mall: lmmallArt, park: lmparkArt, radio: lmradioArt };
 export const CARD_FA: Record<CardKey, string> = {

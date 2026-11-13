@@ -17,7 +17,7 @@ import red from './art/red.webp';
 import garden from './art/garden.webp';
 import { BEANS, BEAN_INFO, payout, type Bean, type BeanView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const SEED: Record<Bean, string> = {
   coffee: '#6b4226', wax: '#e9cf5b', blue: '#3f6fb5', chili: '#c8321f', stink: '#8a9a3a',
   green: '#4caf50', soy: '#d9b26a', blackeye: '#f2ede0', red: '#a8202a', garden: '#c77fa8'

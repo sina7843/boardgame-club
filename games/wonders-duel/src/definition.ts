@@ -14,7 +14,7 @@ export const wondersDuel = defineGame({
     assetsRef: 'wonders-duel/1'
   },
   catalog: {
-    nameFa: 'سون واندرز دوئل',
+    nameFa: 'عجایب هفت‌گانه: دوئل',
     nameOriginal: '7 Wonders Duel',
     summaryFa: 'دو تمدن رو در روی هم، در سه دوران. از هرم کارت‌ها برمی‌دارید و شهرتان را با منابع، علم، ارتش و تجارت می‌سازید، شگفتی بنا می‌کنید و با برتری نظامی، برتری علمی یا بیشترین امتیاز می‌برید.',
     rulesFa: [

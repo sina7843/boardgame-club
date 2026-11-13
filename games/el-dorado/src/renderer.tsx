@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { COLS, MAP, ROWS, TYPE, coinValue, type CardType, type EdView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const PAWN = ['#e0473c', '#2f7de1', '#f2c230', '#9b59d0'];
 const KIND_FA: Record<string, string> = { g: 'جنگل', b: 'آب', y: 'روستا', r: 'آوار', c: 'اردوگاه', m: 'کوه', s: 'شروع', E: 'الدورادو' };
 const SYM_FA: Record<string, string> = { g: 'قمه', b: 'پارو', y: 'سکه', any: 'همه‌کاره' };

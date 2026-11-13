@@ -34,7 +34,7 @@ for (const s of screens) {
     if (nRadii > T.maxOffTokenRadii) problems.push(`@${w} off-token radii: ${Object.keys(sh.offTokenRadii).join(', ')}`);
     if (sh.hScroll > T.maxHorizontalScroll) problems.push(`@${w} horizontal scroll ${sh.hScroll}px`);
     if ((sh.overflow?.length ?? 0) > T.maxOverflowingElements) problems.push(`@${w} ${sh.overflow.length} elements stick out of their frame: ${sh.overflow.slice(0, 3).join(' | ')}`);
-    const nonDsFonts = Object.keys(sh.fonts ?? {}).filter((f) => !/Vazirmatn|Manrope/i.test(f));
+    const nonDsFonts = Object.keys(sh.fonts ?? {}).filter((f) => !/Peyda|Vazirmatn|Manrope/i.test(f));
     if (nonDsFonts.length) problems.push(`@${w} fonts outside the DS: ${nonDsFonts.join(', ')}`);
     if (s.kind === 'table' && !sh.shell?.tablescreen && !/^Table-Lobby/.test(s.id ?? s.screen ?? '')) problems.push(`@${w} table screen is not built on .bgv-tablescreen`);
     if ((s.kind === 'page' || s.kind === 'page-new') && !['/login', '/payments/result'].includes(s.route) && !sh.shell?.app) problems.push(`@${w} page is not inside the canonical .bgv-app shell`);

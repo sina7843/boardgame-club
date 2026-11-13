@@ -28,7 +28,7 @@ import leatherArt from './art/mat-leather.webp';
 import paperArt from './art/mat-paper.webp';
 import brassArt from './art/mat-brass.webp';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 export const IND_FA: Record<Industry, string> = { cotton: 'کارخانهٔ پنبه', manufacturer: 'تولیدی', pottery: 'سفال‌گری', coal: 'معدن زغال', iron: 'ذوب‌آهن', brewery: 'آبجوسازی' };
 // Cotton, manufacturer, coal, iron, canal, rail and merchant pictures are BGA Brass client icons (see DECISIONS.md);

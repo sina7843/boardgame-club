@@ -953,3 +953,11 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
   design-qa captures of the six Home-* screens PASS and compared with the v2.2 reference PNGs (1440 light, 390 dark).
   Dev DB re-seeded (`pnpm db:seed`) so the catalog shows the new name. e2e terraforming-mars.spec.ts:13 at 1440 fails at
   `button «آموزش تعاملی»`: the game page shows «شروع آموزش» since 852d134 (pre-existing, not part of v2.2); 2 later tests did not run.
+- 2026-11-13 Complete design handoff 2026-11 installed (PR #1) and DS v2.4.3 phase 1 on branch design/ds-v2.4.3:
+  DS sync + Peyda, «,» thousands, «X تا Y», game names (GAME_NAMES.md), theme toggle, expanding search, v2.4 footer,
+  chat sides + image emoji, box art everywhere, v2.4 home (guest/member), catalog «ویترین», game page template,
+  /home open tables, CI fixes (lint, design-system workflow). Checks: pnpm lint PASS, pnpm typecheck PASS,
+  pnpm test PASS (1,841 tests; API against a dev DB copy on port 55434), ds-check PASS (baseline ratcheted to 221),
+  design-qa captures of Home-* / Catalog-Desktop / GameDetail-Desktop compared with the v2.4 references;
+  tutorial e2e (backgammon, no-thanks) 2/2 at 1440. Open: /t/<code> links (DB migration, needs approval + live DB
+  backup), social addresses, game-page content model (reviews, screenshots, designer/publisher).

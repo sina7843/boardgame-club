@@ -12,7 +12,7 @@ import pepper from './art/pepper.webp';
 import onion from './art/onion.webp';
 import { CARDS, VEG, counts, ruleScore, scores, type PointSaladView, type Rule, type Veg } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const VEG_FA: Record<Veg, string> = { tomato: 'گوجه', lettuce: 'کاهو', carrot: 'هویج', cabbage: 'کلم', pepper: 'فلفل', onion: 'پیاز' };
 const sign = (n: number) => (n > 0 ? `+${fa(n)}` : `−${fa(-n)}`);
 

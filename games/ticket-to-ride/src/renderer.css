@@ -84,7 +84,7 @@
 .ttr-step { display: inline-flex; align-items: center; gap: 4px; }
 .ttr-step button { inline-size: 40px; block-size: 40px; border-radius: 50%; border: 0; background: var(--surface); color: var(--text); font-size: 1.1em; font-weight: 900; cursor: pointer; }
 .ttr-step button:disabled { opacity: 0.4; cursor: default; }
-.ttr-step output { min-inline-size: 3ch; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ttr-step output { min-inline-size: 3ch; text-align: center; font-weight: 800; }
 .ttr-step button:focus-visible, .ttr-chip:focus-visible, .ttr-card:focus-visible, .ttr-ticket--pick:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
 .ttr-paychips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -117,7 +117,7 @@
 .ttr-handcard__layer { position: absolute; inset-block-start: calc(var(--l) * -3px); inset-inline-start: calc(var(--l) * 3px); inline-size: 54px; }
 .ttr-handcard__layer .ttr-cardart { max-inline-size: none; }
 .ttr-handcard__n { position: absolute; inset-block-start: -9px; inset-inline-end: -9px; min-inline-size: 26px; block-size: 26px; padding-inline: 5px; display: grid; place-items: center; border-radius: 999px; z-index: 2;
-  background: radial-gradient(circle at 35% 30%, #fff3c4, #d9a62e 60%, #8d6210); color: #2a1a05; border: 1.5px solid #3b2a17; font-size: 0.8rem; font-weight: 900; font-variant-numeric: tabular-nums; box-shadow: 0 2px 3px rgb(0 0 0 / 0.4); }
+  background: radial-gradient(circle at 35% 30%, #fff3c4, #d9a62e 60%, #8d6210); color: #2a1a05; border: 1.5px solid #3b2a17; font-size: 0.8rem; font-weight: 900; box-shadow: 0 2px 3px rgb(0 0 0 / 0.4); }
 .ttr-handcard__name { position: absolute; inset-block-end: 0; font-size: 0.66rem; font-weight: 800; color: var(--text-2); }
 
 /* Destination tickets: railway ticket stubs with notched ends, a miniature map and a points medallion. */
@@ -168,7 +168,7 @@
 .ttr-player__head { display: grid; min-inline-size: 0; flex: 1; }
 .ttr-player__name { font-weight: 900; max-inline-size: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ttr-player__color { color: var(--text-2); font-size: var(--fs-xs); }
-.ttr-player__score { flex: none; min-inline-size: 44px; padding: 4px 8px; text-align: center; border-radius: 8px; font-size: 1.15rem; font-weight: 900; font-variant-numeric: tabular-nums; color: #2a1a05;
+.ttr-player__score { flex: none; min-inline-size: 44px; padding: 4px 8px; text-align: center; border-radius: 8px; font-size: 1.15rem; font-weight: 900; color: #2a1a05;
   background: linear-gradient(180deg, #fff3c4, #e6c36a); border: 1.5px solid #8d6210; box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgb(0 0 0 / 0.3); }
 .ttr-player__badges { display: flex; flex-wrap: wrap; gap: 4px; }
 .ttr-player__badges:empty { display: none; }
@@ -176,7 +176,7 @@
 .ttr-stock__bar { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: var(--p); border-radius: 999px;
   background: repeating-linear-gradient(90deg, rgb(0 0 0 / 0.25) 0 1px, transparent 1px 7px), linear-gradient(180deg, color-mix(in srgb, var(--pc) 60%, #fff), var(--pc)); transition: inline-size 400ms ease; }
 .ttr-stock__t { position: relative; display: block; text-align: center; font-size: 0.68rem; font-weight: 900; line-height: 16px; color: #fff; text-shadow: 0 0 2px #000, 0 1px 1px #000; }
-.ttr-player__counts { display: flex; flex-wrap: wrap; gap: 4px 14px; font-weight: 900; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.ttr-player__counts { display: flex; flex-wrap: wrap; gap: 4px 14px; font-weight: 900; font-size: var(--fs-sm); }
 .ttr-stat { display: inline-flex; align-items: center; gap: 4px; }
 .ttr-stat small { color: var(--text-2); font-weight: 600; font-size: var(--fs-xs); }
 .ttr-ico { inline-size: 16px; block-size: 16px; color: var(--text); flex: none; }

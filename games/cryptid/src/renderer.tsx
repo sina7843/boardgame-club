@@ -18,7 +18,7 @@ import artShack from './art/shack.webp';
 import artParchment from './art/parchment.webp';
 import { COLORS, COLS, ROWS, TERRAINS, type Clue, type CryptidView, type LogEntry, type SColor, type Target, type Terrain } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const TERRAIN_FA: Record<Terrain, string> = { forest: 'جنگل', desert: 'بیابان', swamp: 'مرداب', mountain: 'کوهستان', water: 'آب' };
 const TERRAIN_ART: Record<Terrain, string> = { forest: artForest, desert: artDesert, swamp: artSwamp, mountain: artMountain, water: artWater };
 const TERRAIN_FILL: Record<Terrain, string> = { forest: '#2f5d34', desert: '#d6a85a', swamp: '#5e6b3a', mountain: '#8d939a', water: '#2d5f8f' };

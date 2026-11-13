@@ -1551,3 +1551,19 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - The zip's `CLAUDE.md`, `README.md`, `docs/` and per-package `START-HERE.md`/`LINKS.md` kept in `design/handoff-2026-11/`; the local `CLAUDE.md` imports its `CLAUDE.md`. Its «Repo facts» are as of 2026-11-10 (main `6421fb9`, TM typo): already outdated (DS v2.2 merged in `8c10613`, typo fixed).
 - `node design/install.mjs` run on owner request: `ds:*` scripts in `package.json`; local `.claude/settings.json` gained the ds-check PostToolUse and Stop hooks (this overrides the «no Stop hooks» line of `CLAUDE.md` for this machine); baseline kept.
 - Not done by the install: `packages/ui/src/bgv` still carries DS v2.2 (Vazirmatn); syncing it to v2.4.3 is phase 1 (`/bgv-implement`).
+
+## Design system v2.4.3 phase 1 (branch design/ds-v2.4.3, stacked on design/complete-handoff-2026-11 / PR #1)
+- packages/ui synced by scripts/bgv-sync.mjs (now copies fonts/peyda, normalises the CRLF bundle.js, exposes `emojify`). Peyda preloaded (400/700) from main.tsx; Vazirmatn override removed.
+- Thousands separator «,» wherever toLocaleString('fa-IR') is used; ranges «X تا Y»; tabular-nums only on the chess scoresheet and score tables.
+- Game names from design/GAME_NAMES.md (31 renamed; owner decisions at its top). Blood Rage is not in the table: «بلاد ریج» as in every design.
+- Shell: theme toggle in SiteHeader/TopBar/AppShell; expanding header search; footer columns «با بردگیم‌ورس» / «راهنما و پشتیبانی»; «همراه ما باشید» only when VITE_SOCIAL_TELEGRAM / VITE_SOCIAL_INSTAGRAM are set (the DS default shows placeholders). No header «بازی سریع» on /, /games, /games/:id (those pages carry their own; Shell/OpenTables references still show it elsewhere).
+- Chat: own messages right, others left (mirrors DS v2.4.1); emoji-only messages stay strings so Message draws the image emoji; the table bubble uses emojify.
+- Box art everywhere (img.bgv-box, GameBox); painted covers gone. Chess/checkers/go/othello/backgammon boxes from the reference (were gameplay photos).
+- Home = v2.4 landing (guest + member). /home now also returns public open tables (openTables, open[3], openByGame) so guests see «میزهای در حال پر شدن».
+- Catalog: «ویترین» hero carousel, tabs, six category tiles; cards without category tags.
+- scripts/home-ref-css.py generates the page CSS of home + catalog from the references and tokenizes the v2.4 literals (palette match, token fallbacks dropped, z-index/radius scales, small table). Reported to design: the v2.4 L-/T-/J-/gh- blocks were not tokenized.
+- e2e/design-qa.spec.ts: full-page captures, both themes' tokens allowed (dark bands on light pages); report accepts Peyda.
+- Waiting on the owner: (1) `/t/<code>` table links and the «کد میز داری؟» box need a short code per table = DB migration (needs approval + a backup of the live DB first); (2) real Telegram/Instagram addresses; (3) game page sections without data in the code (reviews/ratings, FAQ, screenshots, designer/publisher sheet) need a content model.
+- Local: Windows reserved port 5434 (WinNAT range 5433–5532); the dev DB runs as boardgame-dev-postgres-alt on 127.0.0.1:55434 until `net stop winnat && net start winnat` is run as admin.
+- 2026-11-13 owner: short table links approved without a backup (no live tables yet). Migration 0026: game_tables.code by trigger (4 chars, no look-alikes); GET /api/t/:code (private tables only for their players); /t/:code route and «کد میز داری؟» forms. Invite links of private tables stay /tables/<id>?invite=… (a code alone never opens a private table).
+- 2026-11-13 owner: game page content wanted. Migration 0027: game_contents (validated JSON per game, admin editor on the admin game page, audited) and game_reviews (one per player per game after a finished non-tutorial table; author edits/deletes; moderators hide, audited). Screenshots are site paths (/games/<id>/… or /covers/…), no external images.

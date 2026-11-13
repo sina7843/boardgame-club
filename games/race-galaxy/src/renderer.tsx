@@ -13,7 +13,7 @@ import { CARDS, PHASES, type Good, type Phase, type RgView } from './rules.ts';
 // Goods paintings are cut from a generated sprite sheet (see DECISIONS.md).
 const GOOD_ART: Record<Good, string> = { n: goodN, r: goodR, g: goodG, a: goodA };
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const PHASE_FA: Record<Phase, [string, string, string]> = {
   explore: ['کاوش', '🔭', 'دو کارت بکش، یکی نگه دار (انتخاب‌کننده: چهار)'], develop: ['توسعه', '⚙', 'یک پیشرفت بگذار (انتخاب‌کننده: ۱ ارزان‌تر)'],
   settle: ['استقرار', '🪐', 'یک جهان بگذار (انتخاب‌کننده: یک کارت جایزه)'], consume: ['مصرف', '♻', 'کالاها امتیاز می‌شوند (انتخاب‌کننده: دو برابر)'],

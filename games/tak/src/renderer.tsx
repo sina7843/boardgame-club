@@ -14,7 +14,7 @@ import wC from './art/w-C.webp';
 import texWalnut from './art/tex-walnut.webp';
 import { allMoves, step, type Color, type Dir, type Kind, type Stone, type TakView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const S = 130, M = 36;
 const K = 48; // stone slots per square for identity tracking (ponytail: a taller stack is not tracked above this)
 // Stone and walnut art are cut from a generated sheet (see DECISIONS.md).

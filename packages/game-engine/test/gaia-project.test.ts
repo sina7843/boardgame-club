@@ -570,7 +570,7 @@ describe('gaia-project content registry', () => {
 
   it('catalog: complete rules guide sections; the tutorial option is not a host option', () => {
     const c = gaiaProject.catalog;
-    expect(c.nameFa).toBe('گایا پراجکت');
+    expect(c.nameFa).toBe('پروژه گایا');
     expect(c.nameOriginal).toBe('Gaia Project');
     const sections = c.rulesFa.filter((l) => l.startsWith('## '));
     expect(sections.length).toBeGreaterThanOrEqual(8);

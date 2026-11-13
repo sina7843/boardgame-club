@@ -12,13 +12,13 @@ describe('catalog search and filters (FR-02)', () => {
 
   it('lists the catalog; only the engine fixtures are labelled test games', async () => {
     const items = (await get('/api/games')).json().items as { id: string; isTestGame: boolean }[];
-    expect(items.map((g) => g.id)).toEqual(['abalone', 'ark-nova', 'azul', 'unmatched', 'othello', 'star-realms', 'splendor', 'space-base', 'scout', 'skull', 'uno', 'onitama', 'battleship', 'brass', 'bohnanza', 'tak', 'backgammon', 'terraforming-mars', 'ticket-to-ride', 'jaipur', 'blood-rage', 'the-mind', 'dice-throne', 'el-dorado', 'dominion', 'res-arcana', 'race-galaxy', 'risk', 'santorini', 'set', 'century', 'line-three', 'sushi-go', 'wonders-duel', 'sea-salt-paper', 'citadels', 'six-nimmt', 'chess', 'for-sale', 'lost-cities', 'love-letter', 'snakes-ladders', 'machi-koro', 'sealed-bids', 'ludo', 'amlak', 'no-thanks', 'hanabi', 'high-society', 'hive', 'heat', 'point-salad', 'patchwork', 'checkers', 'catan', 'carcassonne', 'cockroach-poker', 'the-crew', 'crew-deep-sea', 'cryptid', 'camel-up', 'quoridor', 'coup', 'king-of-tokyo', 'kingdomino', 'gaia-project', 'go', 'yahtzee']);
+    expect(items.map((g) => g.id)).toEqual(['ark-nova', 'azul', 'unmatched', 'abalone', 'othello', 'space-base', 'scout', 'uno', 'onitama', 'battleship', 'brass', 'blood-rage', 'tak', 'backgammon', 'terraforming-mars', 'ticket-to-ride', 'century', 'res-arcana', 'bohnanza', 'jaipur', 'skull', 'for-sale', 'dice-throne', 'line-three', 'dominion', 'citadels', 'the-mind', 'race-galaxy', 'risk', 'point-salad', 'santorini', 'set', 'cockroach-poker', 'sushi-go', 'camel-up', 'chess', 'lost-cities', 'six-nimmt', 'high-society', 'wonders-duel', 'star-realms', 'snakes-ladders', 'machi-koro', 'sealed-bids', 'el-dorado', 'ludo', 'amlak', 'love-letter', 'sea-salt-paper', 'no-thanks', 'hanabi', 'heat', 'king-of-tokyo', 'gaia-project', 'patchwork', 'checkers', 'catan', 'carcassonne', 'the-crew', 'crew-deep-sea', 'cryptid', 'hive', 'splendor', 'coup', 'quoridor', 'kingdomino', 'go', 'yahtzee']);
     expect(items.filter((g) => g.isTestGame).map((g) => g.id)).toEqual(['line-three', 'sealed-bids']);
   });
 
   it('matches Persian names regardless of Arabic ي/ك and original names case-insensitively', async () => {
     expect(await ids(`?q=${encodeURIComponent('مزايده')}`)).toEqual(['sealed-bids']);
-    expect(await ids(`?q=${encodeURIComponent('سه‌خطي')}`)).toEqual(['line-three']);
+    expect(await ids(`?q=${encodeURIComponent('كندو')}`)).toEqual(['hive']); // Arabic ك matches «کندو»
     expect(await ids('?q=LINE')).toEqual(['line-three']);
     expect(await ids(`?q=${encodeURIComponent('%')}`)).toEqual([]);
   });

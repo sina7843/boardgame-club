@@ -14,7 +14,7 @@ export const cockroachPoker = defineGame({
     assetsRef: 'cockroach-poker/1'
   },
   catalog: {
-    nameFa: 'کاکروچ پوکر',
+    nameFa: 'سوسک پوکرباز',
     nameOriginal: 'Cockroach Poker',
     summaryFa: 'بازی بلوف با حشره‌ها: کارتی را رو به پایین به کسی بدهید و بگویید «این یک سوسک است» — راست یا دروغ. او باید حدس بزند یا کارت را نگاه کند و به نفر دیگری رد کند. کسی که چهار جانور یک‌جور جلویش جمع شود می‌بازد.',
     rulesFa: [

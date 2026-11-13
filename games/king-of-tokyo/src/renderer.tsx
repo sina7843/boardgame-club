@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from
 import { POWERS, type Face, type KotView } from './rules.ts';
 import { Bolt, DieGlyph, Monster } from './art.tsx';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'بیگانه', 'دایناسور'];
 const HUE = [350, 200, 30, 170, 280, 100];
 

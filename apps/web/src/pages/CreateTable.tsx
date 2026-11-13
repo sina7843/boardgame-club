@@ -90,7 +90,7 @@ export function CreateTable() {
   return (
     <>
       {crumbs('میز تازه')}
-      <PageHead title={<span className="pg-newhead"><img src={`/covers/box/${g.id}.webp`} alt="" onError={(e) => { e.currentTarget.hidden = true; }} />میز تازه</span>}
+      <PageHead title={<span className="pg-newhead"><img className="bgv-box bgv-box--sm" src={`/covers/box/${g.id}.webp`} alt="" onError={(e) => { e.currentTarget.hidden = true; }} />میز تازه</span>}
         sub={<span className="pg-meta"><b>{g.nameFa}</b><span className="bgv-sep" />{range(g.minPlayers, g.maxPlayers, 'نفر')}<span className="bgv-sep" />{range(g.minMinutes, g.maxMinutes, 'دقیقه')}<span className="bgv-sep" />{DIFFICULTY_FA[g.difficulty]}</span>}
         actions={<Button variant="secondary" icon="refresh-cw" href="/games">تغییر بازی</Button>} />
       <form className="bgv-cols" onSubmit={submit} noValidate data-tour="create-form">

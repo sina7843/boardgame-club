@@ -30,7 +30,7 @@ function TicketStatus({ t, onChange, game }: { t: TicketView; onChange: () => vo
   const summary = (
     <Card>
       <div className="bgv-row">
-        <img className="pg-thumb" style={{ inlineSize: 64, blockSize: 36 }} src={`/covers/${t.gameId}.webp?v=2`} alt="" />
+        <img className="bgv-box bgv-box--sm pg-thumb" style={{ inlineSize: 64, blockSize: 36 }} src={`/covers/box/${t.gameId}.webp`} alt="" />
         <div className="pg-stack" style={{ gap: 0 }}>
           <b className="t-title">{t.gameNameFa}</b>
           <span className="pg-meta">{t.competition === 'ranked' ? 'رتبه‌دار' : 'دوستانه'}<span className="bgv-sep" />{PACE_FA[t.pace]}<span className="bgv-sep" />{faNum(t.playerCount)} نفر<span className="bgv-sep" />{durationFa(t.turnSeconds)} برای هر نوبت</span>
@@ -106,7 +106,7 @@ function MatchedCheck({ tableId, gameNameFa, readyDeadline, now, onDecline }: { 
         <Card>
           <ol className="pg-steps">
             <li className="is-done"><Icon name="check" size="sm" />حریف پیدا شد</li>
-            <li className={all ? 'is-done' : 'is-now'}><Icon name={all ? 'check' : 'hourglass'} size="sm" />آمادگی همه ({tb.seats.filter((x) => x.ready).length.toLocaleString('fa-IR')} از {tb.seats.length.toLocaleString('fa-IR')})</li>
+            <li className={all ? 'is-done' : 'is-now'}><Icon name={all ? 'check' : 'hourglass'} size="sm" />آمادگی همه ({tb.seats.filter((x) => x.ready).length.toLocaleString('fa-IR').replace(/٬/g, ',')} از {tb.seats.length.toLocaleString('fa-IR').replace(/٬/g, ',')})</li>
             <li className={all ? 'is-now' : ''}><Icon name="armchair" size="sm" />چیدن میز و شروع بازی</li>
           </ol>
         </Card>

@@ -749,7 +749,7 @@ async function finishTournament(tx: Tx, t: Tournament, playoffWinner?: string) {
     const coins = share('coins'), premiumDays = share('premiumDays');
     for (const userId of userIds) {
       if (coins > 0) {
-        await tx.insert(coinLedger).values({ userId, amount: coins, ruleId: 'tournament.prize', reason: `جایزهٔ رتبهٔ ${rank.toLocaleString('fa-IR')} «${t.titleFa}».`,
+        await tx.insert(coinLedger).values({ userId, amount: coins, ruleId: 'tournament.prize', reason: `جایزهٔ رتبهٔ ${rank.toLocaleString('fa-IR').replace(/٬/g, ',')} «${t.titleFa}».`,
           sourceKey: `tournament-prize:${t.id}:${userId}`, metadata: { tournamentId: t.id, rank } }).onConflictDoNothing({ target: coinLedger.sourceKey });
       }
       if (premiumDays > 0) {

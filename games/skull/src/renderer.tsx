@@ -7,7 +7,7 @@ import rose from './art/disc-rose.webp';
 import skull from './art/disc-skull.webp';
 import type { Disc, SkullView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const SEAT = ['#d1495b', '#2f80c9', '#3fa34d', '#e0a526', '#8e5bd1', '#e07a2f'];
 
 // Revealed faces are BGA Skull coasters (see DECISIONS.md); backs stay vector in the seat colour.

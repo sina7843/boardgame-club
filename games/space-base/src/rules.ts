@@ -15,7 +15,7 @@ const NAMES = ['کاوشگر', 'باربر', 'معدنچی', 'نگهبان', 'ن
 const rarity = (sec: number) => [0, 2, 2, 2, 2, 2, 2, 1, 1, 2, 3, 4, 5][sec]!; // rarer sectors pay more
 export const SHIPS: Ship[] = (() => {
   const out: Ship[] = [];
-  for (let sector = 1; sector <= 12; sector++) out.push({ id: out.length, name: `ناو آغازین ${sector.toLocaleString('fa-IR')}`, sector, level: 0, cost: 0, blue: { credits: sector <= 6 ? 1 : rarity(sector) }, red: { credits: 1 } });
+  for (let sector = 1; sector <= 12; sector++) out.push({ id: out.length, name: `ناو آغازین ${sector.toLocaleString('fa-IR').replace(/٬/g, ',')}`, sector, level: 0, cost: 0, blue: { credits: sector <= 6 ? 1 : rarity(sector) }, red: { credits: 1 } });
   for (const level of [1, 2, 3] as const) {
     for (let sector = 1; sector <= 12; sector++) {
       for (let v = 0; v < 2; v++) {

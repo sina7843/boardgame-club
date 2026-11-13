@@ -14,7 +14,7 @@ import cardsArt from './art/cards.webp';
 import noblesArt from './art/nobles.webp';
 import { CARDS, GEMS, NOBLES, bonuses, payment, type Gem, type SplendorView, type Token } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const GEM_FA: Record<Token, string> = { w: 'الماس', u: 'یاقوت کبود', g: 'زمرد', r: 'یاقوت سرخ', k: 'عقیق سیاه', o: 'طلا' };
 // BGA Splendor client art (see DECISIONS.md). cards.webp: 6 × 6 sprite, one row per colour, two pictures per level;
 // nobles.webp: 5 × 3 portraits.

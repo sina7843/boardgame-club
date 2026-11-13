@@ -5,7 +5,7 @@
 import { crewModule, shuffle, suit, rank, cardFa, sortHand, DECK, type CrewTask, type Edition } from '@bg/game-the-crew';
 import { crewDeepSea } from './definition.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Cond = 'card' | 'firstTrick' | 'nine' | 'fiveTrick' | 'lastTrick' | 'noColor' | 'rocket' | 'noRockets' | 'noNines' | 'lowTrick' | 'moreThan' | 'tricksExact' | 'noTricks' | 'winWith1' | 'allColors';
 export const DIFFICULTY: Record<Cond, number> = {
   card: 1, firstTrick: 1, nine: 1, fiveTrick: 1, lastTrick: 2, noColor: 2, rocket: 2, noRockets: 2, noNines: 2, lowTrick: 2, moreThan: 2,

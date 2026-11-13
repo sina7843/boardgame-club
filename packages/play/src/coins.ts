@@ -56,7 +56,7 @@ export async function syncCoins(tx: Tx, userId: string, level: number): Promise<
   const values: (typeof coinLedger.$inferInsert)[] = rows.map((r) => ({ userId, amount: coinsForReward(r, (k) => tiers?.get(k) ?? 'bronze'), ruleId: r.ruleId, reason: r.reason,
     sourceKey: `reward:${r.id}`, resultId: r.resultId, metadata: { rewardId: r.id } })).filter((v) => v.amount > 0);
   for (let n = 2; n <= level; n++) {
-    values.push({ userId, amount: n * COIN_RULES.levelUp, ruleId: 'level', reason: `رسیدن به سطح ${n.toLocaleString('fa-IR')}.`,
+    values.push({ userId, amount: n * COIN_RULES.levelUp, ruleId: 'level', reason: `رسیدن به سطح ${n.toLocaleString('fa-IR').replace(/٬/g, ',')}.`,
       sourceKey: `level:${n}:${userId}`, resultId: null, metadata: { level: n } });
   }
   if (values.length) await tx.insert(coinLedger).values(values).onConflictDoNothing({ target: coinLedger.sourceKey });

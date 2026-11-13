@@ -32,7 +32,7 @@ import {
   type ActionKey, type ArkView, type MapView, type Icon, type Req
 } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Engine prompt texts carry Latin digits; show them in Persian. */
 const faDigits = (t: string) => t.replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]!);
 type PlayerView = ArkView['players'][number];

@@ -130,7 +130,8 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   // Quick chat from the game bar: one tap, shown at the sender's avatar on the other screen.
   await mover.getByRole('button', { name: 'پیام آماده' }).click();
   await mover.locator('[popover]').getByRole('button', { name: '👍', exact: true }).click();
-  await expect(other.locator('.tbl-said:visible').filter({ hasText: '👍' }).first()).toBeVisible();
+  // DS v2.4.3: emoji are images (img.bgv-emoji, alt = the emoji).
+  await expect(other.locator('.tbl-said:visible').filter({ has: other.locator('img.bgv-emoji[alt="👍"]') }).first()).toBeVisible();
   await other.screenshot({ path: shot('chat-bubble', info.project.name), fullPage: true });
   if (!docked) {
     await mover.getByRole('button', { name: 'گفت‌وگوی میز، ۱ پیام تازه' }).click();

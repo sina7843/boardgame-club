@@ -10,7 +10,7 @@
 .go-side__stone--w { background: url('./art/stone-w.webp') center / cover; }
 .go-side__name { font-weight: 800; }
 .go-side__stat { color: #d9ccb4; }
-.go-side__score { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.go-side__score { font-size: 1.15rem; }
 .go-side__ok { font-size: 0.75rem; color: #8fe0a3; }
 
 .go-board { display: block; inline-size: 100%; max-inline-size: 760px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }

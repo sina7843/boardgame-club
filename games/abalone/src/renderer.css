@@ -1,4 +1,4 @@
-/* آبالون: walnut hex tray with dimples, black glass and white pearl marbles (painted art cut from a generated sheet, see DECISIONS.md). Geometry LTR. */
+/* ابلون: walnut hex tray with dimples, black glass and white pearl marbles (painted art cut from a generated sheet, see DECISIONS.md). Geometry LTR. */
 .abl { display: grid; gap: 0.75rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .abl > :first-child { justify-self: center; }
 .abl__bar { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }

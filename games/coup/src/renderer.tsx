@@ -11,7 +11,7 @@ import ambassador from './art/coup-ambassador.webp';
 import contessa from './art/coup-contessa.webp';
 import { ACT_FA, CLAIM, ROLE_FA, type Act, type Card as Influence, type CoupView, type Role } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const ACTS: Act[] = ['income', 'foreignAid', 'tax', 'steal', 'exchange', 'assassinate', 'coup'];
 const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ سکه', coup: '۷ سکه', tax: '+۳ سکه', assassinate: '۳ سکه', steal: '۲ سکه از حریف', exchange: '۲ کارت از دسته' };
 

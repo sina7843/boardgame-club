@@ -9,7 +9,7 @@
 .bgm-pl__chip--ivory { background: radial-gradient(circle at 35% 30%, #fffaf0, #e6d5b0 60%, #b9a37a); }
 .bgm-pl__chip--ebony { background: radial-gradient(circle at 35% 30%, #e5555d, #a8222c 55%, #4d0a10); box-shadow: inset 0 -2px 3px rgb(0 0 0 / 0.35), 0 0 0 1.5px #e0b341; }
 .bgm-pl__name { font-weight: 800; }
-.bgm-pl__stat { color: #d9ccb4; font-variant-numeric: tabular-nums; }
+.bgm-pl__stat { color: #d9ccb4; }
 .bgm-cube { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #d9ccb4; }
 .bgm-cube__face { display: grid; place-items: center; inline-size: 30px; block-size: 30px; border-radius: 6px; background: #f6efe2; color: #2a1a0d;
   font-weight: 900; box-shadow: 0 3px 0 #b9a37a, 0 6px 10px rgb(0 0 0 / 0.35); }

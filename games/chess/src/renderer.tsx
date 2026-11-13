@@ -6,7 +6,7 @@ import { Button, TurnIndicator, useFlip, useFresh, usePieceIds, type GameRendere
 import { pieceSrc } from './pieces.tsx';
 import type { ChessView, Color, Piece, PieceType, PromoType } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const FILES = 'abcdefgh';
 const Glyph = ({ t, c }: { t: PieceType; c: Color }) => <img className="ch-pc" src={pieceSrc(t, c)} alt="" draggable={false} />;
 const NAME_FA: Record<PieceType, string> = { K: 'شاه', Q: 'وزیر', R: 'رخ', B: 'فیل', N: 'اسب', P: 'سرباز' };

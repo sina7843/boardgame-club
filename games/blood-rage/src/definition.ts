@@ -1,6 +1,6 @@
 import { defineGame } from '@bg/game-sdk';
 
-// Blood Rage («خشم خون») — 2–5 players. Rules implementation: rules.ts, static data: data.ts.
+// Blood Rage («بلاد ریج») — 2–5 players. Rules implementation: rules.ts, static data: data.ts.
 export const bloodRage = defineGame({
   manifest: {
     gameId: 'blood-rage',
@@ -14,7 +14,7 @@ export const bloodRage = defineGame({
     assetsRef: 'blood-rage/1'
   },
   catalog: {
-    nameFa: 'خشم خون',
+    nameFa: 'بلاد ریج',
     nameOriginal: 'Blood Rage',
     summaryFa: 'ویکینگ‌ها در سه عصر پیش از راگناروک می‌جنگند: کارت‌ها را درفت کنید، خشمتان را خرج حمله و غارت کنید و با مرگ پرافتخار در راگناروک بیشترین افتخار را بگیرید.',
     rulesFa: [

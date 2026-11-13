@@ -1,6 +1,6 @@
 import { defineGame } from '@bg/game-sdk';
 
-// Abalone («آبالون») — standard layout, sumito pushes, six off wins. Rules implementation: rules.ts.
+// Abalone («ابلون») — standard layout, sumito pushes, six off wins. Rules implementation: rules.ts.
 export const abalone = defineGame({
   manifest: {
     gameId: 'abalone',
@@ -19,7 +19,7 @@ export const abalone = defineGame({
     assetsRef: 'abalone/1'
   },
   catalog: {
-    nameFa: 'آبالون',
+    nameFa: 'ابلون',
     nameOriginal: 'Abalone',
     summaryFa: 'نبرد گوی‌ها روی صفحهٔ شش‌ضلعی ۶۱ خانه‌ای: گوی‌هایتان را به‌صورت گروهی جابه‌جا کنید، با برتری عددی گوی‌های حریف را هل بدهید و اولین کسی باشید که شش گوی او را از لبهٔ صفحه بیرون می‌اندازد.',
     rulesFa: [

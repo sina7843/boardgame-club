@@ -7,7 +7,7 @@ import bull from './art/bull.webp';
 import cardsArt from './art/cards.webp';
 import { bullheads, type SixNimmtView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const tier = (c: number) => ({ 1: 't1', 2: 't2', 3: 't3', 5: 't5', 7: 't7' }[bullheads(c)] ?? 't1');
 
 // Bull head art is cut from a generated sprite sheet (see DECISIONS.md).

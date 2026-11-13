@@ -1,0 +1,10 @@
+/* Peyda 2.000 (Fontiran) — commercial license held by owner. Usage: --font-fa: Peyda, Tahoma, system-ui, sans-serif; Write Persian digits (U+06F0..U+06F9) in text; do not use tabular-nums. */
+@font-face { font-family: "Peyda"; src: url("Peyda-Thin.woff2") format("woff2"), url("Peyda-Thin.woff") format("woff"); font-weight: 100; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-ExtraLight.woff2") format("woff2"), url("Peyda-ExtraLight.woff") format("woff"); font-weight: 200; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-Light.woff2") format("woff2"), url("Peyda-Light.woff") format("woff"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-Regular.woff2") format("woff2"), url("Peyda-Regular.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-Medium.woff2") format("woff2"), url("Peyda-Medium.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-SemiBold.woff2") format("woff2"), url("Peyda-SemiBold.woff") format("woff"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-Bold.woff2") format("woff2"), url("Peyda-Bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-ExtraBold.woff2") format("woff2"), url("Peyda-ExtraBold.woff") format("woff"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Peyda"; src: url("Peyda-Black.woff2") format("woff2"), url("Peyda-Black.woff") format("woff"); font-weight: 900; font-style: normal; font-display: swap; }

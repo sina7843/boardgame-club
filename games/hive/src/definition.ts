@@ -19,7 +19,7 @@ export const hive = defineGame({
     assetsRef: 'hive/1'
   },
   catalog: {
-    nameFa: 'هایو',
+    nameFa: 'کندو',
     nameOriginal: 'Hive',
     summaryFa: 'بازی دونفرهٔ حشرات بدون صفحه: مهره‌ها کنار هم یک کندو می‌سازند و هر حشره حرکت خاص خودش را دارد. ملکه زنبور حریف را از شش طرف محاصره کنید تا ببرید.',
     rulesFa: [

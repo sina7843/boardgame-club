@@ -14,7 +14,7 @@ const ACTION_KINDS = new Set<Card['kind']>(['skip', 'rev', 'd2']);
 
 export const COLOR_FA: Record<Color, string> = { r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی' };
 const COLOR_INITIAL: Record<Color, string> = { r: 'ق', y: 'ز', g: 'س', b: 'آ' };
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 
 export function cardLabel(c: Card): string {
   const color = c.color ? ` ${COLOR_FA[c.color]}` : '';

@@ -11,7 +11,7 @@ const grant = (mobile: string, role: string) => execFileSync('node', ['packages/
 
 async function queueRanked(p: Page) {
   await p.goto('/play');
-  await p.getByLabel('بازی', { exact: true }).selectOption({ label: 'سه‌خطی' });
+  await p.getByLabel('بازی', { exact: true }).selectOption({ label: 'دوز' });
   await p.locator('form').getByText('نوبتی', { exact: true }).click();
   await p.locator('form').getByText('رتبه‌دار', { exact: true }).click();
   await p.getByRole('button', { name: 'شروع جست‌وجو' }).click();
@@ -40,7 +40,7 @@ test('ranked game result feeds rating, XP, missions and the result screen', asyn
     await expect(mover!.locator('.lt__cell').nth(cell)).not.toHaveText('');
   }
   // After the game (never during it): rating change and XP with reasons, computed by the worker.
-  await expect(a.getByText(/امتیاز رتبه‌دار.*: ۱٬?۵۰۰ →/)).toBeVisible({ timeout: 20_000 });
+  await expect(a.getByText(/امتیاز رتبه‌دار.*: ۱,?۵۰۰ →/)).toBeVisible({ timeout: 20_000 });
   await expect(a.getByText(/بازی کامل شد/)).toBeVisible();
   await a.screenshot({ path: shot('01-result-rewards', info.project.name), fullPage: true });
 

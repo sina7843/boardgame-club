@@ -9,6 +9,8 @@ export default tseslint.config(
       // BGV design system: generated/vendored copies of design/system (scripts/bgv-sync.mjs).
       'packages/ui/src/bgv/bgv.js', 'packages/ui/src/bgv/bgv.d.ts', 'packages/ui/src/bgv/reference/**', 'design/**', 'BGV-DesignSystem-Handoff/**', 'scripts/ds-check.mjs', 'scripts/ds-qa-report.mjs',
       '**/node_modules/**',
+      // Local, untracked: handoff drops, test output, scratch folders, Android build output.
+      'BGV-*/**', 'Edit-Pack-*/**', '.tmp-trophy/**', '.playwright/**', 'test-results*/**', 'apps/android/android/app/build/**',
       '**/dist/**',
       '**/coverage/**',
       'test-results/**',

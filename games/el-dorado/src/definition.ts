@@ -14,7 +14,7 @@ export const elDorado = defineGame({
     assetsRef: 'el-dorado/1'
   },
   catalog: {
-    nameFa: 'در جست‌وجوی الدورادو',
+    nameFa: 'معبد الدورادو',
     nameOriginal: 'The Quest for El Dorado',
     summaryFa: 'مسابقهٔ دسته‌سازی ۲ تا ۴ نفره: گروه کاوشتان را از جنگل، رودخانه، روستا و آوار به شهر طلایی برسانید. با کارت‌های دستتان حرکت می‌کنید و با سکه کارت‌های قوی‌تر می‌خرید تا هر نوبت دورتر بروید؛ اولین‌ها در الدورادو برنده‌اند.',
     rulesFa: [

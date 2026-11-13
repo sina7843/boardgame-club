@@ -13,7 +13,7 @@ import {
 } from '../core.ts';
 import { type AbilityImpl, type AbilityKey, type ActionKey, type ContentChunk, type Cont, type Continent, type Ctx, type State } from '../types.ts';
 
-const fa = (n: unknown) => Number(n).toLocaleString('fa-IR');
+const fa = (n: unknown) => Number(n).toLocaleString('fa-IR').replace(/٬/g, ',');
 const act = (v: unknown) => ACTION_FA[v as ActionKey] ?? String(v);
 const opt = (value: string, label: string) => ({ value, label });
 const PRIMATES_PROJECT = 108;

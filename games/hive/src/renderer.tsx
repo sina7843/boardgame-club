@@ -11,7 +11,7 @@ import bugA from './art/bug-A.webp';
 import texFelt from './art/tex-felt.webp';
 import { DIRS, START_RESERVE, destinations, key, parse, placements, type Bug, type Color, type Hex, type HiveView, type Piece } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const R = 46;
 const BUG_FA: Record<Bug, string> = { Q: 'ملکه زنبور', S: 'عنکبوت', B: 'سوسک', G: 'ملخ', A: 'مورچه' };
 // Bug icons are the BGA Hive client art; the felt is cut from a generated sheet (see DECISIONS.md).

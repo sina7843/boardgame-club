@@ -77,7 +77,7 @@ export function TournamentsAdmin() {
         </div>
         <div className="ac-grid2">
           <TextField label="زمان هر حرکت (ثانیه)" inputMode="numeric" value={f.turnSeconds} onChange={set('turnSeconds')} />
-          <TextField label={`نفر هر میز${game ? ` (${faNum(game.minPlayers)}–${faNum(game.maxPlayers)})` : ''}`} inputMode="numeric" value={f.tableSize} onChange={set('tableSize')} />
+          <TextField label={`نفر هر میز${game ? ` (${faNum(game.minPlayers)} تا ${faNum(game.maxPlayers)})` : ''}`} inputMode="numeric" value={f.tableSize} onChange={set('tableSize')} />
           {f.format === 'swiss'
             ? <TextField label="تعداد دور" inputMode="numeric" value={f.rounds} onChange={set('rounds')}
                 hint={Number(f.rounds) < suggestedRounds ? `برای ${faNum(Number(f.maxEntrants) || 0)} نفر حداقل ${faNum(suggestedRounds)} دور پیشنهاد می‌شود؛ با دور کمتر چند نفر بی‌شکست می‌مانند.` : undefined} />

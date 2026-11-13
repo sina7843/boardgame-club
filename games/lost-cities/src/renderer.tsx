@@ -7,7 +7,7 @@ import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
 import cardsArt from './art/cards.webp';
 import { COLORS, canPlay, color, expScore, value, type CardId, type Color, type LostCitiesView } from './rules.ts';
 
-const fa = (n: number) => n.toLocaleString('fa-IR');
+const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const COLOR_FA: Record<Color, string> = { y: 'صحرا', b: 'دریا', w: 'ویرانه', g: 'جنگل', r: 'دره' };
 /** cards.webp (BGA Lost Cities client art): 10 × 6 cells of 113 × 176 px, rows y b w g r, columns 2..10 then the wager; back at row 5. */
 const ROW: Record<Color, number> = { y: 0, b: 1, w: 2, g: 3, r: 4 };
