@@ -388,7 +388,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
                 <ul className="pf-ul pf-rows">
                   {u.recent.map((g, i) => (
                     <li key={`${g.gameId}${g.finishedAt}${i}`} className="pf-mrow">
-                      <img src={`/covers/${g.gameId}.webp`} alt="" loading="lazy" />
+                      <img className="bgv-box bgv-box--sm" src={`/covers/box/${g.gameId}.webp`} alt="" loading="lazy" />
                       <div className="pf-mrow__text"><a href={`/games/${g.gameId}`}><b>{g.gameNameFa}</b></a>
                         <span className="t-caption bgv-muted">{faNum(g.fieldSize)} نفر<span className="bgv-sep" />{jalaliDate(g.finishedAt)}</span></div>
                       <Badge tone={g.place === 1 ? 'success' : 'neutral'} icon={g.place === 1 ? 'crown' : undefined}>{g.place === 1 ? 'اول' : `${faNum(g.place)} از ${faNum(g.fieldSize)}`}</Badge>
@@ -405,7 +405,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
               <div className="pf-mastery">
                 {u.mastery.map((m) => (
                   <a key={m.gameId} href={`/games/${m.gameId}`} className="pf-mcard">
-                    <span className="pf-mcard__head"><img src={`/covers/${m.gameId}.webp`} alt="" loading="lazy" /><b>{m.gameNameFa}</b></span>
+                    <span className="pf-mcard__head"><img className="bgv-box bgv-box--sm" src={`/covers/box/${m.gameId}.webp`} alt="" loading="lazy" /><b>{m.gameNameFa}</b></span>
                     <Badge tone={m.tier === 'master' ? 'premium' : m.tier === 'seasoned' ? 'success' : 'neutral'} icon={m.tier === 'master' ? 'star' : undefined}>{m.tierFa}</Badge>
                   </a>
                 ))}
@@ -422,7 +422,7 @@ export function ProfilePage({ userId, own, extra }: { userId?: string; own?: boo
                   const r = u.ratings?.find((x) => x.gameId === g.id);
                   return (
                     <li key={g.id}><a href={`/games/${g.id}`} className="pf-fav">
-                      <img src={`/covers/${g.id}.webp`} alt="" loading="lazy" />
+                      <img className="bgv-box bgv-box--sm" src={`/covers/box/${g.id}.webp`} alt="" loading="lazy" />
                       <span className="pf-mrow__text"><b>{g.nameFa}</b>
                         {r && <span className="t-caption bgv-muted bgv-row">{r.league && <League tier={r.league} />}<span className="bgv-num">{faNum(r.rating)}</span></span>}</span>
                     </a></li>

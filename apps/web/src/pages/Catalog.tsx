@@ -92,7 +92,7 @@ export function Catalog() {
         {PRESETS.map((p) => (
           <button key={p.label} type="button" className="bgv-card pg-preset" onClick={() => { setShown(PAGE); setParams(new URLSearchParams(p.set), { replace: true }); setQ(''); }}>
             {/* Catalog-Desktop: a fan of three matching boxes, the count and a short line. */}
-            <span className="pg-preset__art" aria-hidden="true">{all.filter(p.match).slice(0, 3).reverse().map((g) => <img key={g.id} src={`/covers/box/${g.id}.webp`} alt="" loading="lazy" />)}</span>
+            <span className="pg-preset__art" aria-hidden="true">{all.filter(p.match).slice(0, 3).reverse().map((g) => <img key={g.id} className="bgv-box bgv-box--sm" src={`/covers/box/${g.id}.webp`} alt="" loading="lazy" />)}</span>
             <span className="pg-preset__text"><b><Icon name={p.icon} size="sm" />{p.label}</b><small>{faNum(all.filter(p.match).length)} بازی<span className="bgv-sep" />{p.text}</small></span>
           </button>
         ))}

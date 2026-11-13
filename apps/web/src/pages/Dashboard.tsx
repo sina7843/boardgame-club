@@ -42,12 +42,12 @@ function Faces({ people, max = 4, size = 'xs' }: { people: { name: string; avata
 function ShelfBox({ game }: { game: Pick<GameSummary, 'id' | 'nameFa'> }) {
   const [missing, setMissing] = useState(false);
   if (missing) return <span className="cx-housebox"><img src="/brand/symbol-reversed-small.svg" alt="" /><b>{game.nameFa}</b><i />ساخت بردگیم‌ورس</span>;
-  return <img src={`/covers/box/${game.id}.webp`} alt="" loading="lazy" decoding="async" onError={() => setMissing(true)} />;
+  return <img className="bgv-box bgv-box--sm" src={`/covers/box/${game.id}.webp`} alt="" loading="lazy" decoding="async" onError={() => setMissing(true)} />;
 }
 
 const Thumb = ({ gameId, small }: { gameId: string; small?: boolean }) => (
   <span className={small ? 'cx-b-thumb cx-b-thumb--sm' : 'cx-b-thumb'}>
-    <img src={`/covers/box/${gameId}.webp`} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
+    <img className="bgv-box bgv-box--sm" src={`/covers/box/${gameId}.webp`} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
   </span>
 );
 
@@ -164,7 +164,7 @@ function TournamentBand() {
   const prize = next.prizes[0];
   return (
     <section className="bgv-hero cx-b-tour" aria-labelledby="tour-h">
-      <img className="cx-b-tour__art" src={`/covers/${next.gameId}.webp?v=2`} alt="" loading="lazy" />
+      <img className="bgv-box bgv-box--sm cx-b-tour__art" src={`/covers/box/${next.gameId}.webp`} alt="" loading="lazy" />
       <div className="cx-b-tour__body">
         <Badge icon="trophy">{next.status === 'open' ? 'تورنمنت این هفته' : 'تورنمنت در جریان'}</Badge>
         <h2 id="tour-h">{next.titleFa}</h2>
@@ -214,7 +214,7 @@ function GuestHero({ count, playing }: { count: number; playing: number | null }
       </div>
       <div className="cx-e-collage" aria-hidden>
         <div className="cx-e-fan">
-          {FAN.map(([id, vars, pop]) => <span key={id} className={pop ? 'cx-e-box cx-e-box--pop' : 'cx-e-box'} style={cssVars(vars)}><img src={`/covers/box/${id}.webp`} alt="" /></span>)}
+          {FAN.map(([id, vars, pop]) => <span key={id} className={pop ? 'cx-e-box cx-e-box--pop' : 'cx-e-box'} style={cssVars(vars)}><img className="bgv-box bgv-box--sm" src={`/covers/box/${id}.webp`} alt="" /></span>)}
         </div>
         {playing !== null && playing > 0 && (
           <span className="cx-e-proof"><span className="cx-b-dot cx-b-dot--ok" /><span><b>{faNum(playing)}</b> نفر همین حالا در حال بازی</span></span>

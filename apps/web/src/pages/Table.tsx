@@ -132,7 +132,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
       {me && t.pace === 'turn' && !t.isTutorial && <NotifyPrompt />}
       <Breadcrumbs items={[{ label: 'میزها', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : host?.user ? `میز ${host.user.displayName}` : 'میز' }]} />
       <PageHead title={<span className="tbl-head">
-        <img className="tbl-head__cover" src={`/covers/${t.gameId}.webp?v=2`} alt="" />
+        <img className="bgv-box bgv-box--sm tbl-head__cover" src={`/covers/box/${t.gameId}.webp`} alt="" />
         <span>{t.isTutorial ? `آموزش ${t.gameNameFa}` : host?.user ? <>{t.gameNameFa}، میز <bdi>{host.user.displayName}</bdi></> : t.gameNameFa}
           {' '}<bdi className="tbl-head__latin" lang="en">{t.gameNameOriginal}</bdi></span>
       </span>} sub={<span className="bgv-row">{tableMeta(t).map((m, i) => <span key={m} className="bgv-row">{i > 0 && <span className="bgv-sep" />}{m}</span>)}</span>} />

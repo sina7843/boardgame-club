@@ -5,7 +5,7 @@ import { Avatar, Badge, Banner, Breadcrumbs, Button, Card, Icon, Skeleton, State
 import { AvatarArt } from '../lib/bgv.tsx';
 import { BotPlay } from '../games/BotPlay.tsx';
 import { GameWiki } from './Wiki.tsx';
-import { GameCover } from '../games/covers.tsx';
+import { GameBox } from '../games/covers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
 import { ACCESS_FA, defaultTime, DIFFICULTY_FA, durationFa, faNum, PACE_FA, range } from '../lib/format.ts';
@@ -97,7 +97,7 @@ export function GameDetailPage() {
     <>
       {crumbs(g.nameFa)}
       <article className="pg-dethero">
-        <div className="pg-dethero__cover"><GameCover gameId={g.id} title={`تصویر جلد ${g.nameFa}`} flippable /></div>
+        <div className="pg-dethero__cover"><GameBox gameId={g.id} nameFa={g.nameFa} size="lg" fill alt={`جعبهٔ ${g.nameFa}`} /></div>
         <div className="pg-dethero__text" data-tour="game-actions">
           <div className="pg-head-actions">
             <Badge icon={g.access === 'premium' ? 'crown' : 'lock-open'} tone={g.access === 'premium' ? 'premium' : 'neutral'}>{ACCESS_FA[g.access]}</Badge>

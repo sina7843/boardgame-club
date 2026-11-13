@@ -92,7 +92,7 @@ export function Showcase() {
 
       <Sec id="card-h" title="کارت و سرصفحه">
         <div className="bgv-grid bgv-grid--sm">
-          <GameCard title="کاتان" latin="Catan" cover="/covers/catan.webp?v=2" meta={[{ icon: 'users', text: '۳ تا ۴ نفر' }, { icon: 'clock', text: '۶۰ دقیقه' }]} flags={[{ tone: 'premium', icon: 'crown', label: 'پریمیوم' }]} href="/games/catan" />
+          <GameCard title="کاتان" latin="Catan" box="/covers/box/catan.webp" mode meta={[{ icon: 'users', text: '۳ تا ۴ نفر' }, { icon: 'clock', text: '۶۰ دقیقه' }]} flags={[{ tone: 'premium', icon: 'crown', label: 'پریمیوم' }]} href="/games/catan" />
           <Card title="کارت با عنوان" actions={<Button size="sm" variant="ghost">همه</Button>}><p className="t-body-sm" style={{ margin: 0 }}>محتوای کارت.</p></Card>
           <Card raised><p className="t-body-sm" style={{ margin: 0 }}>کارت برجسته.</p></Card>
         </div>

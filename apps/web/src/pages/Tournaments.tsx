@@ -34,7 +34,7 @@ function usePoll(reload: () => void, on: boolean, ms = 5000) {
   }, [reload, on, ms]);
 }
 
-const cover = (gameId: string) => `/covers/${gameId}.webp?v=2`;
+const cover = (gameId: string) => `/covers/box/${gameId}.webp`;
 
 export function TournamentsPage() {
   usePageTitle('تورنمنت‌ها');

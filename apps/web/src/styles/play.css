@@ -10,15 +10,6 @@
 .pg-sec { display: grid; gap: var(--space-3); align-content: start; }
 .pg-head-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 
-/* Game cover images (GameCover): painted cover, box photo fades in on hover / when flipped */
-.game-cover { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; background: var(--surface-raised); }
-.cover-flip { position: relative; display: block; inline-size: 100%; block-size: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; }
-button.cover-flip { cursor: pointer; }
-.game-cover--box { position: absolute; inset: 0; object-fit: contain; padding: var(--space-2); background: var(--surface-sunken); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
-.cover-flip:hover .game-cover--box, .cover-flip:focus-visible .game-cover--box, .cover-flip.is-flipped .game-cover--box { opacity: 1; }
-.bgv-gamecard:hover .game-cover--box, .bgv-gamecard:focus-visible .game-cover--box { opacity: 1; }
-.bgv-gamecard__cover > .cover-flip { position: absolute; inset: 0; }
-@media (prefers-reduced-motion: reduce) { .game-cover--box { transition: none; } }
 
 /* Catalogue / wiki filters */
 .pg-tags { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }

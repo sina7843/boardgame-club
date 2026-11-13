@@ -74,7 +74,7 @@ export function OpenTables() {
               {shown.map((t) => (
                 <li key={t.id} className="pg-orow">
                   <div className="pg-orow__game">
-                    <img className="pg-thumb" style={{ inlineSize: 72, blockSize: 40 }} src={`/covers/${t.gameId}.webp?v=2`} alt="" />
+                    <img className="bgv-box bgv-box--sm pg-thumb" style={{ inlineSize: 72, blockSize: 40 }} src={`/covers/box/${t.gameId}.webp`} alt="" />
                     <div><b>{t.gameNameFa}</b><span className="pg-meta">{PACE_FA[t.pace]}<span className="bgv-sep" />{durationFa(t.turnSeconds)}</span></div>
                   </div>
                   <div className="pg-orow__host"><Identity size="sm" {...userIdentity(t.host)} sub="میزبان" /></div>

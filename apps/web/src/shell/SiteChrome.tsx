@@ -21,7 +21,7 @@ export function searchGames(games: GameSummary[], q: string): GameSummary[] {
 }
 
 const asResult = (g: GameSummary): SiteSearchResult => ({
-  title: g.nameFa, latin: g.nameOriginal, cover: `/covers/${g.id}.webp?v=2`, href: `/games/${g.id}`, quickHref: `/play?game=${g.id}`,
+  title: g.nameFa, latin: g.nameOriginal, cover: `/covers/box/${g.id}.webp`, href: `/games/${g.id}`, quickHref: `/play?game=${g.id}`,
   meta: [{ icon: 'users', text: `${faNum(g.minPlayers)} تا ${faNum(g.maxPlayers)} نفر` }, { icon: 'clock', text: `${faNum(g.minMinutes)} تا ${faNum(g.maxMinutes)} دقیقه` }]
 });
 
