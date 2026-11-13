@@ -7,6 +7,8 @@ try {
   var t = p.theme === 'light' || p.theme === 'dark' ? p.theme : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   document.documentElement.dataset.theme = t;
   if (p.motion && p.motion !== 'system') document.documentElement.dataset.motion = p.motion;
+  // Signed in on this device last time: hide the prerendered guest home (.app-ssr) until the app renders theirs.
+  if (localStorage.getItem('bgv.signedIn') === '1') document.documentElement.dataset.member = '';
 } catch {
   // storage unavailable: light theme applies
 }

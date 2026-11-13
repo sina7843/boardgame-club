@@ -118,7 +118,7 @@ export function Layout() {
   }
 
   // DS v2.3+: light/dark button in the header and the phone top bar. "system" resolves to what is shown now (data-theme).
-  const dark = prefs.theme === 'dark' || (prefs.theme === 'system' && document.documentElement.dataset.theme === 'dark');
+  const dark = prefs.theme === 'dark' || (prefs.theme === 'system' && typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark');
   const themeToggle = { dark, onToggle: () => update({ theme: dark ? 'light' : 'dark' }) };
   const initials = me ? [...me.displayName.trim()][0] ?? '؟' : '';
   const level = progression.data ? `سطح ${faNum(progression.data.level)}` : undefined;

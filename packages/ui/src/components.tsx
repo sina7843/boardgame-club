@@ -68,7 +68,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 export function useOnline(): boolean {
-  const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine));
+  const [online, setOnline] = useState(() => (typeof navigator === 'undefined' || navigator.onLine !== false));
   useEffect(() => {
     const on = () => setOnline(true); const off = () => setOnline(false);
     window.addEventListener('online', on); window.addEventListener('offline', off);

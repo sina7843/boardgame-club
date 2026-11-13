@@ -6,6 +6,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gameRegistry } from '../../../packages/db/src/registry.ts';
+// Built by `vite build --ssr src/prerender.tsx` just before this script (package.json "build").
+import { renderHome } from '../dist-ssr/prerender.js';
 
 const SITE = 'https://boardgameverse.ir';
 const BRAND = 'بردگیم‌ورس';
@@ -27,7 +29,7 @@ const span = (r?: Range) => {
 /** Search snippets show about 155 characters; cut at a word boundary. */
 const clip = (s: string, max = 155) => (s.length <= max ? s : `${s.slice(0, s.lastIndexOf(' ', max - 1))}…`);
 
-interface Page { path: string; title: string; description: string; body: string; image?: string; jsonLd?: object }
+interface Page { path: string; title: string; description: string; body: string; image?: string; jsonLd?: object; app?: string }
 
 const shell = readFileSync(join(dist, 'index.html'), 'utf8');
 const ogImage = `${SITE}/brand/BGV-og-image-1200x630.png`;
@@ -36,6 +38,11 @@ function render(p: Page): string {
   const url = SITE + p.path;
   const title = p.path === '/' ? p.title : `${p.title} | ${BRAND}`;
   const desc = esc(p.description);
+  // Server-rendered page (home only): the markup goes into #root inside .app-ssr, which theme-init.js hides for people
+  // signed in on this device (their home is different). React's hoisted image preloads are dropped: on slow links they
+  // took bandwidth from the render-blocking CSS, and the <img> tags in the markup are discovered just as early.
+  const [, , appBody = ''] = p.app ? /^((?:<link [^>]*>)*)([\s\S]*)$/.exec(p.app)! : [];
+  const app = p.app ? `<div class="app-ssr">${appBody}</div>` : '';
   const head = [
     `<link rel="canonical" href="${url}" />`,
     `<meta property="og:url" content="${url}" />`,
@@ -50,7 +57,7 @@ function render(p: Page): string {
     .replace('</head>', `  ${head}\n  </head>`)
     // Visually hidden (still in the DOM for crawlers and screen readers): an unstyled visible copy that React then
     // swaps for the real page caused a CLS of ~1.0 on the home page (Lighthouse, Nov 2026).
-    .replace('<div id="root"></div>', `<div id="root"><main style="position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">${p.body}</main></div>`);
+    .replace('<div id="root"></div>', `<div id="root">${app}<main style="position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">${p.body}</main></div>`);
   if (out === shell || !out.includes('rel="canonical"') || !out.includes(p.body)) throw new Error(`SEO template did not apply to ${p.path}`);
   return out;
 }
@@ -65,7 +72,9 @@ const pages: Page[] = [
   {
     path: '/', title: `بردگیم آنلاین به فارسی | ${BRAND}`,
     description: `بردگیم آنلاین به فارسی: ${fa(games.length)} بازی رومیزی محبوب مثل ${famous} را با دوستانتان یا حریفان تازه بازی کنید.`,
-    body: `<h1>بردگیم آنلاین به فارسی</h1><p>${BRAND} جای بازی بردگیم آنلاین به زبان فارسی است: ${fa(games.length)} بازی رومیزی محبوب، میز زنده یا نوبتی، بازی با دوستان یا حریفان تازه، رتبه‌بندی و تورنمنت.</p><h2>بردگیم‌های آنلاین</h2>${gameLinks}`,
+    app: renderHome(),
+    // The rendered hero carries the page's <h1>; this crawler copy starts below it.
+    body: `<p>${BRAND} جای بازی بردگیم آنلاین به زبان فارسی است: ${fa(games.length)} بازی رومیزی محبوب، میز زنده یا نوبتی، بازی با دوستان یا حریفان تازه، رتبه‌بندی و تورنمنت.</p><h2>بردگیم‌های آنلاین</h2>${gameLinks}`,
     jsonLd: { '@context': 'https://schema.org', '@type': 'WebSite', name: BRAND, alternateName: ['دنیای بردگیم', 'BoardGameVerse'], url: `${SITE}/`, inLanguage: 'fa' }
   },
   {

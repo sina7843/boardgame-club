@@ -7,7 +7,7 @@ import type { DailyGame, GameSummary, HomeOverview, MyTableItem, OpenTableItem }
 import { Avatar, Badge, Button, Icon, ModeTag, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { faNum, PACE_FA } from '../lib/format.ts';
-import { useSession } from '../lib/session.tsx';
+import { useSession, wasSignedIn } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { byUrgency, DeadlineClock, useMyTables } from './MyTables.tsx';
@@ -302,7 +302,8 @@ function FinalBand({ count, member }: { count: number; member: boolean }) {
 
 // ---------- guest ----------
 
-/** The design's hero fan: five printed boxes, positions as drawn (desktop) and as a row (phone). */
+/** The design's hero fan: five printed boxes, positions as drawn (desktop) and as a row (phone). Catan, the largest, is
+ *  the phone LCP element: it is fetched at high priority (otherwise Chrome holds it until the app's scripts arrive). */
 const FAN: [string, string, boolean][] = [
   ['ticket-to-ride', '--x:4%;--y:12%;--w:32%;--r:6deg;--z:2;--pw:22%;--pr:9deg;--pty:14px;--zp:1', false],
   ['uno', '--x:80%;--y:4%;--w:18%;--r:9deg;--z:2;--pw:21%;--pr:4deg;--pty:4px;--zp:2', true],
@@ -316,7 +317,7 @@ function GuestHero({ count, home }: { count: number; home: HomeOverview | undefi
   const jump: [string, string, string, string][] = [
     ['#filling', 'armchair', `${faNum(home?.openTables ?? 0)} میز در حال پر شدن`, 'همین الان سر میز بشین'],
     ['#live', 'eye', `${faNum(home?.liveTables ?? 0)} بازی در جریان`, 'ببین چه بازی‌هایی در جریان است'],
-    ['#popular', 'flame', `${faNum(count)} بازی`, 'محبوب‌های این هفته']
+    ['#popular', 'flame', count ? `${faNum(count)} بازی` : 'بازی‌های محبوب', 'محبوب‌های این هفته']
   ];
   return (
     <section className="bgv-felt cx-b-hero cx-e-hero" aria-labelledby="g-h1">
@@ -325,7 +326,7 @@ function GuestHero({ count, home }: { count: number; home: HomeOverview | undefi
           <span className="cx-e-kicker"><img src="/brand/symbol-reversed-small.svg" alt="" />بردگیم آنلاین به فارسی</span>
           <span className="cx-e-display">امشب چی<br />بازی کنیم؟</span>
         </h1>
-        <p className="cx-b-hero__sub">{faNum(count)} بردگیم محبوب و آنلاین؛ با دوستانت میز بساز یا هم‌بازی پیدا کن.</p>
+        <p className="cx-b-hero__sub">{count ? `${faNum(count)} بردگیم` : 'بردگیم‌های'} محبوب و آنلاین؛ با دوستانت میز بساز یا هم‌بازی پیدا کن.</p>
         <div className="cx-b-hero__ctas">
           <Button variant="primary" size="lg" icon="zap" href={loginTo('/play')}>بازی سریع</Button>
           <Button variant="secondary" size="lg" icon="user-plus" href={loginTo('/games')}>ساخت میز با دوستان</Button>
@@ -333,7 +334,7 @@ function GuestHero({ count, home }: { count: number; home: HomeOverview | undefi
       </div>
       <div className="cx-e-collage" aria-hidden="true">
         <div className="cx-e-fan">
-          {FAN.map(([id, vars, pop]) => <span key={id} className={pop ? 'cx-e-box cx-e-box--pop' : 'cx-e-box'} style={cssVars(vars)}><img className="bgv-box" src={`/covers/box/${id}.webp`} alt="" /></span>)}
+          {FAN.map(([id, vars, pop]) => <span key={id} className={pop ? 'cx-e-box cx-e-box--pop' : 'cx-e-box'} style={cssVars(vars)}><img className="bgv-box" src={`/covers/box/${id}.webp`} alt="" {...(id === 'catan' ? { fetchPriority: 'high' as const } : {})} /></span>)}
         </div>
         {home && home.playingNow > 0 && (
           <span className="cx-e-proof"><span className="cx-b-dot cx-b-dot--ok" /><span><b>{faNum(home.playingNow)}</b> نفر در حال بازی</span></span>
@@ -485,7 +486,11 @@ export function Dashboard() {
   const home = useApi<HomeOverview>('/home');
   // Test games (engine fixtures) never appear on the home page, nor in its counts.
   const all = (games.data?.items ?? []).filter((g) => !g.isTestGame);
-  if (status === 'loading' || (games.loading && !games.data)) return <Skeleton lines={6} />;
   if (games.error) return <StateBlock kind="error" title="بازی‌ها بارگذاری نشدند" text={games.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={games.reload}>تلاش دوباره</Button>} />;
-  return me ? <MemberHome all={all} home={home.data} /> : <GuestHome all={all} home={home.data} />;
+  // Guests see the hero as soon as the app runs (it is the LCP element): no wait for /me or /games. Someone who was signed
+  // in on this device last time gets the skeleton instead, so they never see the guest page flash before their own home.
+  if (status === 'loading' && wasSignedIn()) return <Skeleton lines={6} />;
+  if (!me) return <GuestHome all={all} home={home.data} />;
+  if (games.loading && !games.data) return <Skeleton lines={6} />;
+  return <MemberHome all={all} home={home.data} />;
 }
