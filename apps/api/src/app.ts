@@ -15,6 +15,7 @@ import type { OtpDelivery } from './modules/auth/delivery.ts';
 import { authRoutes } from './modules/auth/routes.ts';
 import { resolveSession } from './modules/auth/session.ts';
 import { catalogRoutes } from './modules/catalog/routes.ts';
+import { gameContentRoutes } from './modules/catalog/content.ts';
 import { healthRoutes } from './modules/health/routes.ts';
 import { tableRoutes } from './modules/tables/routes.ts';
 import { matchmakingRoutes } from './modules/matchmaking/routes.ts';
@@ -119,6 +120,7 @@ export async function buildApp(deps: Deps, opts: { logStream?: { write(msg: stri
     authRoutes(api, deps);
     userRoutes(api, deps);
     catalogRoutes(api, deps);
+    gameContentRoutes(api, deps);
     tableRoutes(api, deps);
     matchmakingRoutes(api, deps);
     socialRoutes(api, deps);

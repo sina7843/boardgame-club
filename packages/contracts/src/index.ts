@@ -9,3 +9,4 @@ export * from './cosmetics.ts';
 export * from './tournaments.ts';
 export * from './rating-mode.ts';
 export * from './onboarding.ts';
+export * from './game-content.ts';
