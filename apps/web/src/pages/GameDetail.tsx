@@ -14,6 +14,7 @@ import { userIdentity } from '../lib/bgv.tsx';
 import { defaultTime, DIFFICULTY_FA, durationFa, faNum, jalaliDateTime, PACE_FA } from '../lib/format.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { ShelfCard } from './Dashboard.tsx';
+import { TableCodeForm } from '../games/TableCode.tsx';
 
 type Seat = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 const seatNo = (i: number) => ((i % 10) + 1) as Seat;
@@ -200,6 +201,7 @@ export function GameDetailPage() {
             </div>
             <a className="cx-b-more" href={member ? '/tables' : loginTo('/tables')}>همه میزها<Icon name="arrow-left" size="sm" /></a>
           </div>
+          <TableCodeForm className="gd-join" />
           <div className="gd-opens gd-opens--4">
             {open.slice(0, 3).map((t) => <OpenTile key={t.id} t={t} member={member} />)}
             {g.acceptingNewTables && (

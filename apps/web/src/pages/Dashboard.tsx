@@ -11,6 +11,7 @@ import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 import { userIdentity } from '../lib/bgv.tsx';
 import { byUrgency, DeadlineClock, useMyTables } from './MyTables.tsx';
+import { TableCodeForm } from '../games/TableCode.tsx';
 
 type Seat = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 const seatNo = (i: number) => ((i % 10) + 1) as Seat;
@@ -152,6 +153,7 @@ function OpenTables({ items, total, online, games, member }: { items: OpenTableI
         <Head id="open-h" icon="armchair" title="میزهای در حال پر شدن" sub="این میزها جای خالی دارند؛ همین‌جا سر میز بشین."
           more={total > items.length ? ['همهٔ میزها', member ? '/tables' : loginTo('/tables')] : undefined}
           extra={online !== null && online > 0 ? <span className="cx-d-proofchip"><span><strong>{faNum(online)}</strong> نفر آنلاین</span></span> : undefined} />
+        <TableCodeForm />
         {!items.length ? <StateBlock kind="empty" title="الان میزی منتظر بازیکن نیست" text="میز خودت را بساز؛ دیگران همین‌جا آن را می‌بینند." action={<Button href={member ? '/games' : loginTo('/games')}>ساخت میز</Button>} /> : (
           <div className="cx-b-opens">
             {items.map((t) => {

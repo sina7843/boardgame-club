@@ -300,6 +300,8 @@ export const gameTables = pgTable('game_tables', {
   settings: jsonb().notNull().default({}),
   /** Private-table invite token; returned only to participants. */
   inviteCode: text().unique(),
+  /** Short public code for /t/<code> links (4 letters/digits, filled by the game_tables_code trigger on insert). */
+  code: text().unique(),
   isTutorial: boolean().notNull().default(false),
   /** Created by the matchmaker; seats must accept (ready) before the ready deadline. */
   isMatchmade: boolean().notNull().default(false),

@@ -66,6 +66,22 @@ export function tableRoutes(app: FastifyInstance, { db, registry, play }: Deps):
     return { items: await listLiveTables(db, req.query.gameId) };
   });
 
+  // /t/<code> links: the table's id from its short code. Public tables for anyone; a private table only for its own
+  // players (a 4-letter code is guessable, so it must never reveal a private table; its invite link stays the way in).
+  r.get('/t/:code', {
+    schema: { tags: ['tables'], summary: 'Resolve a short table code (/t/<code>) to the table id',
+      params: z.object({ code: z.string().trim().min(4).max(8).regex(/^[A-Za-z0-9]+$/) }),
+      response: { 200: z.object({ id: z.uuid() }), 404: apiErrorSchema } }
+  }, async (req) => {
+    const code = req.params.code.toUpperCase();
+    const [t] = await db.select({ id: schema.gameTables.id, visibility: schema.gameTables.visibility }).from(schema.gameTables).where(eq(schema.gameTables.code, code));
+    const seated = t && t.visibility === 'private' && req.auth
+      ? (await db.select({ n: sql<number>`count(*)::int` }).from(schema.participants)
+        .where(and(eq(schema.participants.tableId, t.id), eq(schema.participants.userId, req.auth.userId))))[0]?.n : 0;
+    if (!t || (t.visibility === 'private' && !seated)) throw new AppError('NOT_FOUND');
+    return { id: t.id };
+  });
+
   for (const path of ['/tables/:id', '/tables/:id/view']) {
     r.get(path, {
       schema: { tags: ['tables'], summary: 'Authorized table snapshot for the signed-in viewer (player or spectator)',

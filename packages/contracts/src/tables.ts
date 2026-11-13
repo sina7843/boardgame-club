@@ -120,6 +120,8 @@ export const tableLobby = z.object({
   spectators: z.number().int(),
   /** Only returned to participants of a private table. */
   inviteCode: z.string().nullable(),
+  /** Short code for /t/<code> links (DS v2.4 routes); a private table still needs its invite to be joined. */
+  code: z.string().nullable(),
   policies: z.object({ timeoutFa: z.string(), resignFa: z.string(), disconnectFa: z.string() }),
   /** Rule variants of this table in words (chosen at creation, or the game's defaults for matchmade tables). */
   variants: z.array(z.object({ labelFa: z.string(), valueFa: z.string() })),

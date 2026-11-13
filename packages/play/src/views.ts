@@ -151,6 +151,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     mySeat,
     spectators: table.status === 'active' ? await spectatorCount(db, table.id) : 0,
     inviteCode: mySeat !== null && table.visibility === 'private' && !table.isTutorial ? table.inviteCode : null,
+    code: table.code ?? null,
     policies: {
       timeoutFa: game.timeoutPolicyFa, resignFa: game.resignPolicyFa,
       disconnectFa: `${table.isTutorial ? DISCONNECT_FA.tutorial : DISCONNECT_FA[table.pace as 'live' | 'turn']} ${table.isTutorial ? '' : INCIDENT_FA}`.trim()
