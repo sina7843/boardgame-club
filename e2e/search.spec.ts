@@ -21,7 +21,7 @@ test('header search closes on an outside click; Enter opens the match (desktop) 
   await expect(box.locator('.bgv-sitesearch__pop')).toBeVisible();
   await page.locator('main').click({ position: { x: 20, y: 300 } });
   await expect(box.locator('.bgv-sitesearch__pop')).toBeHidden();
-  if (!(await box.getByRole('combobox').isVisible())) await open();
+  if ((await box.locator('.bgv-sitesearch__disc').getAttribute('aria-expanded')) !== 'true') await open();
   await box.getByRole('combobox').fill('آزول');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/games(\/azul$|\?q=)/); // one match opens it; otherwise the filtered games page

@@ -44,7 +44,7 @@ test('login → catalog → game detail', async ({ page }, info) => {
   await page.getByRole('link', { name: /مزایده سربسته/ }).click();
   await expect(page.getByRole('heading', { name: 'مزایده سربسته', level: 1 })).toBeVisible();
   await expect(page.getByText('بازی آزمایشی').first()).toBeVisible();
-  await expect(page.getByRole('link', { name: 'ساخت میز' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'میز بساز' }).first()).toBeVisible();
   await page.screenshot({ path: shot('05-detail', p), fullPage: true });
 
   await page.goto('/');

@@ -22,7 +22,8 @@ export async function signIn(page: Page, displayName: string, next = '/'): Promi
 /** First visit after sign-up: the terms dialog must be accepted (checkbox + button) before using the site. */
 export async function acceptTerms(page: Page) {
   const dialog = page.getByRole('dialog', { name: 'قوانین و حریم خصوصی' });
-  await dialog.getByRole('checkbox').check();
+  await dialog.locator('label.bgv-check').click(); // the DS label covers its input; people tap the label
+  await expect(dialog.getByRole('checkbox')).toBeChecked();
   await dialog.getByRole('button', { name: 'می‌پذیرم و ادامه' }).click();
   await expect(dialog).toBeHidden();
 }
