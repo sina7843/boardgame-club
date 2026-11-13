@@ -5,6 +5,7 @@ import { useOnline, useToast } from '@bg/ui';
 import { AppShell, Badge, Banner, Button, Coin, Icon, SiteHeader, StateBlock, TopBar } from '@bg/ui/bgv';
 import { api, useApi } from '../lib/api.ts';
 import { useSession } from '../lib/session.tsx';
+import { usePrefs } from '../lib/prefs.tsx';
 import { useCoins } from '../lib/coins.tsx';
 import { useLinkRouting } from '../lib/bgv.tsx';
 import { faNum } from '../lib/format.ts';
@@ -44,6 +45,7 @@ const inGroup = (g: Group, path: string) => PAGE_GROUPS[g].some(([to]) => path =
 
 export function Layout() {
   const { me, status, refresh, logout } = useSession();
+  const { prefs, update } = usePrefs();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const online = useOnline();
@@ -115,11 +117,14 @@ export function Layout() {
     );
   }
 
+  // DS v2.3+: light/dark button in the header and the phone top bar. "system" resolves to what is shown now (data-theme).
+  const dark = prefs.theme === 'dark' || (prefs.theme === 'system' && document.documentElement.dataset.theme === 'dark');
+  const themeToggle = { dark, onToggle: () => update({ theme: dark ? 'light' : 'dark' }) };
   const initials = me ? [...me.displayName.trim()][0] ?? '؟' : '';
   const level = progression.data ? `سطح ${faNum(progression.data.level)}` : undefined;
   const loginHref = `/login?next=${encodeURIComponent(pathname)}`;
   const header = (
-    <SiteHeader logo={{ src: LOGO.src, srcDark: LOGO.srcDark }} nav={nav} guest={!signedIn} search={<HeaderSearch />}
+    <SiteHeader logo={{ src: LOGO.src, srcDark: LOGO.srcDark }} nav={nav} themeToggle={themeToggle} guest={!signedIn} search={<HeaderSearch />}
       quickPlay={pathname === '/' ? false : { href: '/play' }} loginHref={loginHref}
       {...(me ? { user: { initials, name: me.displayName, current: menuOpen || inGroup('progress', pathname) || pathname.startsWith('/me/') }, onAvatar: () => setMenuOpen((o) => !o), menuOpen } : {})}
       messages={{ href: '/messages', count: unread, current: inGroup('social', pathname) }}
@@ -134,7 +139,7 @@ export function Layout() {
 
   const phone = phoneTop(pathname);
   const topbar = phone.back
-    ? <TopBar className="bgv-app__top" title={phone.title ?? title} search={{ href: '/search' }}
+    ? <TopBar className="bgv-app__top" title={phone.title ?? title} search={{ href: '/search' }} themeToggle={themeToggle}
         leading={<Button variant="ghost" iconOnly icon="arrow-right" href={phone.back}>بازگشت</Button>}
         actions={signedIn ? [
           coins.data ? <Coin key="c" chip size="sm" amount={coins.data.balance} href="/coins" /> : null,
@@ -148,7 +153,7 @@ export function Layout() {
     <OnboardingProvider>
       <a className="app-skip" href="#main">پرش به محتوای اصلی</a>
       <div className="app-root" onClick={route}>
-      <AppShell className="bgv" logo={LOGO} header={header} dockItems={dockItems} title={phone.title ?? title} {...(topbar ? { topbar } : {})} guest={!signedIn} loginHref={loginHref}
+      <AppShell className="bgv" logo={LOGO} header={header} themeToggle={themeToggle} dockItems={dockItems} title={phone.title ?? title} {...(topbar ? { topbar } : {})} guest={!signedIn} loginHref={loginHref}
         {...(coins.data ? { coins: coins.data.balance, coinsHref: '/coins' } : {})}
         {...(signedIn ? { notifications, notificationsHref: '/notifications' } : {})}
         {...(hasFooter(pathname) ? { footer: <PublicFooter /> } : {})}>
