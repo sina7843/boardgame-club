@@ -1,14 +1,4 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8">
-<title>ورود، دسکتاپ</title>
-<link rel="stylesheet" href="../ds/bgv/tokens.css">
-<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
-</head>
-<body>
-<x-dc>
-
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=1440"><title>ورود، دسکتاپ</title><link rel="stylesheet" href="../../../system/tokens.css"><link rel="stylesheet" href="../../../system/components/bundle.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
 <style>
 body{margin:0}
@@ -54,7 +44,7 @@ body{margin:0}
 .bgv-tel>span{gap:6px;display:flex;align-items:center}
 .x-legal{font-size:12.5px;line-height:1.7;color:var(--text-muted);text-align:center;text-wrap:pretty}
 .x-fan{position:relative;--fw:150px}
-.x-fan img{position:absolute;left:50%;top:50%;width:var(--fw);height:calc(var(--fw) * .5625);object-fit:cover;border-radius:var(--radius-md);border:3px solid var(--felt-ink);box-shadow:var(--shadow-piece)}
+.x-fan img{position:absolute;left:50%;top:50%;width:auto;height:calc(var(--fw) * .62);max-width:none;border-radius:var(--bgv-box-radius);filter:var(--bgv-box-shadow-lg)}
 .x-login{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;padding:16px;min-height:900px}
 .x-login__form{display:flex;flex-direction:column;align-items:center;gap:32px;padding:24px 24px 16px;min-width:0}
 .x-login__card{width:min(440px,100%);padding:32px;display:grid;gap:22px;box-shadow:var(--shadow-float)}
@@ -73,38 +63,36 @@ body{margin:0}
 
 
 </style>
-
+</head><body style="margin:0">
 <div class="bgv x-login" data-theme="light" dir="rtl">
  <section class="x-login__form">
   <span class="bgv-spacer"></span>
   <div class="bgv-card x-login__card" style="position:relative"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon x-close" href="/" aria-label="بستن"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg></a>
    <ol class="bgv-steps" aria-label="مراحل ورود"><li class="is-cur" aria-current="step"><b>۱</b>شماره</li><li class="bgv-steps__bar" aria-hidden="true"></li><li><b>۲</b>کد تأیید</li><li class="bgv-steps__bar" aria-hidden="true"></li><li><b>۳</b>پروفایل</li></ol>
-   <p class="x-ctx"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 17 4 12 9 7" /> <path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg><span>بعد از ورود به همان صفحه‌ای برمی‌گردید که بودید.</span></p><div style="display:grid;gap:4px;text-align:center"><h1 class="t-page" style="color:var(--heading)">ورود یا ثبت‌نام</h1>
+   <p class="x-ctx"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 17 4 12 9 7" /> <path d="M20 18v-2a4 4 0 0 0-4-4H4" /></svg><span>بعد از ورود به همان صفحه‌ای برمی‌گردید که بودید.</span></p><div style="display:grid;gap:4px;text-align:center"><h1 class="t-page" style="color:var(--heading)">ورود یا ثبت نام</h1>
     <p class="t-body-sm bgv-muted" style="text-wrap:balance">با شمارهٔ موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p></div>
    <div class="bgv-field"><label class="bgv-label" for="mob">شمارهٔ موبایل</label>
     <div class="bgv-tel" dir="ltr"><span><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></svg>+۹۸</span><input id="mob" inputmode="tel" autocomplete="tel" placeholder="۹۱۲ ۰۰۰ ۰۰۰۰" value="۹۱۲ ۴۸۰ ۳۲۱۵" aria-describedby="mob-h"></div>
     <span class="bgv-hint" id="mob-h">شماره شما در پروفایل عمومی نمایش داده نمی‌شود.</span></div>
    <button class="bgv-btn bgv-btn--primary bgv-btn--lg bgv-btn--block">دریافت کد</button>
    <p class="bgv-hint" style="justify-content:center"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true" style="margin-top:3px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
-   <p class="x-legal">ورود یا ثبت‌نام به معنی پذیرش <a href="/terms">قوانین و مقررات</a> و <a href="/privacy">حریم خصوصی</a> است.</p>
+   <p class="x-legal">ورود یا ثبت نام به معنی پذیرش <a href="/terms">قوانین و مقررات</a> و <a href="/privacy">حریم خصوصی</a> است.</p>
   </div>
   <span class="bgv-spacer"></span>
   <nav class="x-login__links" aria-label="پیوندهای سایت"><a href="#">درباره ما</a><a href="#">قوانین و مقررات</a><a href="#">حریم خصوصی</a><a href="#">قوانین خرید و بازگشت وجه</a><a href="#">تماس با ما</a></nav>
  </section>
  <section class="bgv-felt x-login__hero">
-  <img src="../assets/logo-fa-reversed.svg" alt="بردگیم‌ورس" style="height:48px;width:auto;align-self:flex-start">
+  <img src="../../assets/logo-fa-reversed.svg" alt="بردگیم‌ورس" style="height:48px;width:auto;align-self:flex-start">
   <div style="margin-top:36px;display:grid;gap:10px">
-   <h2 class="t-h2" style="color:var(--felt-ink)">سر میز، با همه.</h2>
-   <p class="t-body x-login__lede" style="color:var(--felt-muted)">۶۷ بازی رومیزی، زنده یا نوبتی؛ با دوستان، باشگاه‌ها یا حریف‌های تازه، هر جا که هستید.</p></div>
-  <div class="x-fan" aria-hidden="true" style=""><img src="../assets/covers/terraforming-mars.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.83),calc(-50% + 15px)) rotate(-10.0deg)"><img src="../assets/covers/catan.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.28),calc(-50% + 5px)) rotate(-3.3deg)"><img src="../assets/covers/azul.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.28),calc(-50% + 5px)) rotate(3.3deg)"><img src="../assets/covers/hanabi.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.83),calc(-50% + 15px)) rotate(10.0deg)"></div>
+   <h2 class="t-h2" style="color:var(--felt-ink)">میز بازی همیشه آماده است.</h2>
+   <p class="t-body x-login__lede" style="color:var(--felt-muted)">۶۸ بازی رومیزی، زنده یا نوبتی؛ با دوستان، باشگاه‌ها یا حریف‌های تازه، هر جا که هستید.</p></div>
+  <div class="x-fan" aria-hidden="true" style=""><img class="bgv-box" src="../../assets/box/terraforming-mars.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.83),calc(-50% + 15px)) rotate(-10.0deg)"><img class="bgv-box" src="../../assets/box/catan.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * -0.28),calc(-50% + 5px)) rotate(-3.3deg)"><img class="bgv-box" src="../../assets/box/azul.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.28),calc(-50% + 5px)) rotate(3.3deg)"><img class="bgv-box" src="../../assets/box/hanabi.webp" alt="" style="transform:translate(calc(-50% + var(--fw) * 0.83),calc(-50% + 15px)) rotate(10.0deg)"></div>
   <div style="display:flex;justify-content:center;padding:8px 0 20px"><span class="bgv-turn bgv-turn--mine"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs is-you">م</span>نوبت شما در کاتان</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:.75"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۱۸ ساعت</span></span></span></div>
   <div class="bgv-felt-row" style="justify-content:flex-start;gap:8px">
-   <span class="bgv-felt-plate"><strong>۶۷</strong>بازی</span>
+   <span class="bgv-felt-plate"><strong>۶۸</strong>بازی</span>
    <span class="bgv-felt-plate"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>زنده و نوبتی</span>
    <span class="bgv-felt-plate"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg>ربات در ۳ سطح</span>
    <span class="bgv-felt-plate"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>لیگ از برنز تا استاد</span></div>
  </section>
 </div>
-</x-dc>
-</body>
-</html>
+</body></html>

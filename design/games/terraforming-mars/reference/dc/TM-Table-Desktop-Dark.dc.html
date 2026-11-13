@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ترافورمینگ مارس، میز دسکتاپ، تیره</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.tm{--pick:#E8A642;--tm-red:#E5483F;--tm-blue:#3F8FE5;--tm-green:#4FBF5A;--tm-yellow:#F0C419;--tm-black:#2B2B2B;--tm-prod:#6B3A1C;--tm-plate:rgba(13,26,35,.82);
+ --tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#9A7700;--tm-black-ink:#2B2B2B}
+.tm[data-theme="dark"]{--tm-red-ink:#FF7B70;--tm-blue-ink:#7DB6F5;--tm-green-ink:#7FD98A;--tm-yellow-ink:#F5D04A;--tm-black-ink:#D8D8D8}
+.tm[lang="en"]{font-family:var(--font-latin)}
+.tm-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+.tm-num,.tm-costpill,.tm-prodv{unicode-bidi:isolate;direction:ltr}
+/* desktop frame: game column + sticky rail on the right (like BGA) */
+.tm-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.tm-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.tm-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.tm-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.tm-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.tm-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.tm-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA) */
+.tm-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.tm-bar.is-waiting{background:var(--surface-sunken)}
+.tm-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tm-bar__text{flex:1 1 360px;min-inline-size:0}
+.tm-bar__text b{color:var(--heading);font-weight:900}
+.tm-bar .bgv-btn{white-space:nowrap}
+.tm-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.tm-costpill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle}
+.tm-costpill .tm-ic{block-size:16px}
+.tm-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tm-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.tm-step.is-done{background:var(--success-soft);color:var(--success)}
+.tm-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.tm-step .bgv-icon{inline-size:14px;block-size:14px}
+/* zones on felt */
+.tm-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.tm-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.tm-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.tm-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.tm-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: the publisher art, never redrawn; unplayable cards are NOT faded (BGA) */
+.tm-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,140px);flex:none}
+.tm-card>img{display:block;inline-size:100%;block-size:auto;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.25)}
+.tm-card[data-pick="selectable"]>img{outline:2px dashed var(--pick);outline-offset:2px}
+.tm-card[data-pick="picked"]>img{outline:3px solid var(--pick);outline-offset:2px}
+.tm-card[aria-disabled="true"],.tm-card:disabled{cursor:not-allowed}
+.tm-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.tm-card .tm-check{inset-block-start:-8px;inset-inline-end:-8px}
+.tm-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:2}
+.tm-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+/* hand */
+.tm-hand{display:flex;flex-wrap:wrap;gap:12px 10px;align-items:flex-start}
+.tm-hand--desk{justify-content:center}
+.tm-hcard{display:grid;justify-items:center;gap:5px;inline-size:var(--cw,140px)}
+/* board, shown without its printed TR frame (window = layout.json marsBoard.crop) */
+.tm-board{position:relative;inline-size:100%;aspect-ratio:920/774;overflow:hidden;border-radius:var(--radius-md);background:#05070F}
+.tm-board>.tm-base{position:absolute;display:block;inline-size:111.304%;block-size:auto;left:-5.652%;top:-6.202%;max-inline-size:none}
+.tm-board>.tm-at,.tm-at{position:absolute;transform:translate(-50%,-50%)}
+.tm-tile{inline-size:7.35%;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.tm-cube{inline-size:2%;pointer-events:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+.tm-cube--track{inline-size:2.9%}
+.tm-cube--plaque{inline-size:2.56%}
+.tm-spbtn,.tm-mabtn,.tm-hexbtn{position:absolute;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;border-radius:8px}
+.tm-spbtn{inline-size:15.9%;block-size:3.93%}
+.tm-mabtn{inline-size:9.13%;block-size:6.97%}
+.tm-spbtn:hover,.tm-mabtn:hover{box-shadow:0 0 0 3px var(--pick)}
+.tm-spbtn:focus-visible,.tm-mabtn:focus-visible,.tm-hexbtn:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-spbtn:disabled,.tm-mabtn:disabled{cursor:default;box-shadow:none}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important}
+.tm-hexbtn{inline-size:7.26%;block-size:9.97%;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);border-radius:0}
+.tm-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.tm-hex{fill:rgba(232,166,66,.12);stroke:var(--pick);stroke-width:3;stroke-dasharray:8 5;stroke-linejoin:round}
+.tm-hex--picked{fill:rgba(232,166,66,.32);stroke-width:4.5;stroke-dasharray:none}
+.tm-board .tm-check{inline-size:22px;block-size:22px;transform:translate(-50%,-50%)}
+.tm-bonus{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt);white-space:nowrap}
+.tm-bonus .tm-ic{block-size:14px}
+.tm-boardplate{position:absolute;inset-block-start:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--radius-pill);background:rgba(5,7,15,.72);color:#FFFFFF;font-size:13.5px;font-weight:700;line-height:1.5}
+.tm-boardplate b{font-weight:900}
+.tm-boardplate .tm-ic{block-size:20px}
+.tm-boardplate--start{left:8px}
+.tm-boardplate--end{right:8px}
+/* BGA player dashboard pieces (rail panel and area header) */
+.tm-score{display:grid;place-items:center;align-content:center;inline-size:50px;block-size:50px;flex:none;border-radius:50%;background:var(--tm-prod);color:#FFFFFF;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod);line-height:1}
+.tm-score b{font-size:20px;font-weight:900}
+.tm-score small{font-size:10.5px;font-weight:700;opacity:.92}
+.tm-score--sm{inline-size:42px;block-size:42px}
+.tm-score--sm b{font-size:17px}
+.tm-tr{position:relative;display:inline-grid;place-items:center;inline-size:44px;block-size:34px;flex:none;border-radius:6px;background:url(../assets/games/tm/i-tr.webp) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.tm-tr b{padding:0 4px;border-radius:5px;background:var(--tm-plate);color:#FFFFFF;font-size:15px;font-weight:900;line-height:1.3}
+.tm-handn{display:inline-flex;align-items:center;gap:4px;block-size:34px;padding-inline:8px;border-radius:8px;background:var(--surface-sunken);font-size:15px;font-weight:900;color:var(--heading)}
+.tm-handn .tm-ic{block-size:24px;border-radius:3px}
+.tm-logo{display:flex;align-items:center;flex:none;block-size:34px}
+.tm-logo img{display:block;block-size:100%;inline-size:auto;max-inline-size:132px;object-fit:contain}
+.tm-r{display:grid;justify-items:center;gap:2px}
+.tm-r__ic{display:grid;place-items:center}
+.tm-r__ic .tm-ic{grid-area:1/1;block-size:44px}
+.tm-r__ic b{grid-area:1/1;position:relative;min-inline-size:26px;padding:1px 5px 0;border-radius:7px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:19px;font-weight:900;line-height:1.3;text-align:center}
+.tm .tm-prodv{min-inline-size:42px;padding:2px 6px;border-radius:6px;background:var(--tm-prod);color:#FFFFFF;font-size:16px;font-weight:900;text-align:center;line-height:1.45;text-shadow:0 1px 0 rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.tm .tm-prodv.is-neg{background:var(--danger)}
+.tm-tags{display:flex;flex-wrap:wrap;gap:5px 4px}
+.tm-tagc{position:relative;display:grid;place-items:center;inline-size:40px;block-size:40px}
+.tm-tagc img{grid-area:1/1;inline-size:100%;block-size:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.tm-tagc b{grid-area:1/1;position:relative;min-inline-size:22px;padding:1px 4px 0;border-radius:6px;background:rgba(13,26,35,.72);color:#FFFFFF;font-family:var(--font-latin);font-size:17px;font-weight:800;line-height:1.25;text-align:center}
+.tm[lang="fa"] .tm-tagc b{font-family:inherit;font-weight:900}
+.tm-tagc.is-zero{opacity:.38}
+.tm-tagc--hex img{inline-size:88%;block-size:auto}
+/* rail */
+.tm-dash{padding:8px 12px;display:grid;gap:6px}
+.tm-dash__tools{display:flex;justify-content:space-between}
+.tm-dash__params{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tm-param{display:grid;justify-items:center;gap:2px;font-size:16px;color:var(--heading)}
+.tm-param .tm-ic{block-size:36px}
+.tm-param b{font-weight:900}
+.tm-panel{padding:10px 12px;display:grid;gap:8px}
+.tm-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.tm-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.tm-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-panel__id small{font-size:12.5px;color:var(--text-muted)}
+.tm-fp{inline-size:28px;block-size:auto;flex:none}
+.tm-panel__row{display:flex;align-items:center;gap:8px}
+.tm-panel__row .tm-logo{flex:1;min-inline-size:0;justify-content:flex-end}
+.tm-panel__row .tm-logo img{max-inline-size:100%}
+.tm-panel__res{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:8px 3px 6px;border-radius:var(--radius-sm);background:var(--surface-sunken)}
+.tm-log{max-block-size:300px;overflow:auto}
+.tm-log .bgv-log__item{font-size:13.5px}
+.tm-log .tm-ic{block-size:16px}
+/* players area (BGA): header + collapsible sections */
+.tm-player{display:grid;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate);box-shadow:inset 0 0 0 2px var(--pc,transparent)}
+/* area header like BGA: light Mars-dust plate in every theme (user choice), dark text */
+.tm-ahead{--tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#8A6A00;--tm-black-ink:#2B2B2B;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F6ECDD,#E4CDAE);color:#1E2328;box-shadow:inset 0 0 0 1px rgba(107,58,28,.28),inset 0 1px 0 rgba(255,255,255,.7)}
+.tm-ahead__name{display:inline-flex;align-items:center;block-size:30px;padding-inline:14px;border-radius:15px;background:#F4F5F6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);font-size:16px;font-weight:900}
+.tm-ahead__name small{margin-inline-start:6px;font-size:12.5px;font-weight:700;color:#4A535B}
+.tm-ahead .tm-logo{block-size:44px}
+.tm-ahead .tm-score{inline-size:58px;block-size:58px;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod)}
+.tm-ahead .tm-score b{font-size:23px}
+.tm-ahead .tm-score small{font-size:11.5px}
+.tm-ahead .tm-tr{inline-size:58px;block-size:44px}
+.tm-ahead .tm-tr b{font-size:19px}
+.tm-ahead .tm-handn{block-size:46px;padding-inline:10px;gap:6px;background:#FFFFFF;color:#1E2328;font-size:20px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-handn .tm-ic{block-size:34px}
+.tm-ahead__res{display:flex;gap:10px;flex-wrap:wrap}
+.tm-rs{display:flex;align-items:stretch}
+.tm-rs>.tm-ic{block-size:46px;border-radius:4px}
+.tm-rs__nums{display:grid;grid-template-rows:1fr auto;min-inline-size:42px}
+.tm-rs__nums b{display:grid;place-items:center;padding-inline:4px;border-start-end-radius:4px;background:#FFFFFF;color:#1E2328;font-size:19px;font-weight:900;line-height:1.2;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-rs__nums .tm-prodv{min-inline-size:0;padding:1px 5px;border-radius:0;border-end-end-radius:4px;font-size:15px}
+.tm-ahead .tm-tagc{inline-size:40px;block-size:40px}
+.tm-ahead .tm-tagc b{font-size:17px;min-inline-size:22px}
+.tm-ahead .tm-tagc.is-zero{opacity:.4}
+.tm-ahead .tm-tags{gap:5px 4px}
+.tm-ahead__tags{flex-basis:100%}
+.tm-secs{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.tm-sec{display:grid;gap:8px;align-content:start;inline-size:calc(var(--cw) + 20px);padding:0 0 10px;border-radius:var(--radius-sm);border:1.5px dashed var(--felt-line)}
+.tm-sec__head{display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:var(--sec-bg);color:#FFFFFF}
+.tm-sec--grey{--sec-bg:#5E6A72}.tm-sec--green{--sec-bg:#3E8E3A}.tm-sec--blue{--sec-bg:#2F6FB0}.tm-sec--red{--sec-bg:#B23A31}
+.tm-sec__toggle{flex:1;min-inline-size:0;display:flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
+.tm-sec__n{display:grid;place-items:center;min-inline-size:26px;block-size:26px;border-radius:6px;background:rgba(0,0,0,.28);font-weight:900;font-size:14px}
+.tm-sec__t{display:grid;line-height:1.25}
+.tm-sec__t b{font-size:15px;font-weight:900}
+.tm-sec__t small{font-size:11.5px;opacity:.88}
+.tm-sec__menu{display:grid;place-items:center;inline-size:30px;block-size:30px;padding:0;border:0;border-radius:6px;background:rgba(255,255,255,.14);color:#FFFFFF;cursor:pointer}
+.tm-sec__menu .bgv-icon{inline-size:18px;block-size:18px}
+.tm-sec__toggle:focus-visible,.tm-sec__menu:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-sec.is-closed{padding:0;inline-size:auto;border-style:solid}
+.tm-sec__body{padding-inline:10px}
+.tm-grid{display:grid;gap:8px;justify-items:center}
+.tm-stack{display:flex;flex-direction:column;align-items:center}
+.tm-sec__body>.tm-card{inline-size:var(--cw)}
+.tm-stack>.tm-card+.tm-card{margin-block-start:calc(var(--cw) * -1.406 * (1 - var(--band)))}
+.tm-stack--blue{--band:.46}
+.tm-stack--green{--band:.19}
+.tm-stack--red{--band:.13}
+.tm-stack>.tm-card:hover,.tm-stack>.tm-card:focus-visible{z-index:3}
+.tm-cres{position:absolute;inset-block-start:30%;inset-inline-end:6%;display:inline-flex;align-items:center;gap:2px;padding:1px 6px 1px 2px;border-radius:var(--radius-pill);background:var(--tm-plate);color:#FFFFFF;font-size:13px;font-weight:900;direction:ltr}
+.tm-cres .tm-ic{block-size:20px}
+.tm-card>img.tm-cused{position:absolute;inset-block-start:4%;inset-inline-start:4%;inline-size:15%;block-size:auto;box-shadow:none;border-radius:0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+/* payment (Game Kit 3 dock content) */
+.tm-pay{display:grid;gap:6px}
+.tm-payrow{display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:8px;font-size:14px}
+.tm-payrow .tm-ic{block-size:22px}
+.tm-payrow b{font-weight:900;color:var(--heading)}
+.tm-payrow small{color:var(--text-muted);font-size:12.5px}
+.tm-payrow.is-off{opacity:.45}
+.tm-paysum{display:flex;justify-content:space-between;font-size:13.5px;color:var(--text);padding-block-start:4px;border-block-start:1px solid var(--line)}
+.tm-paysum b{font-weight:900;color:var(--success)}
+
+</style>
+</helmet>
+<div class="bgv tm" data-theme="dark" dir="rtl" lang="fa" style="min-height: 3920px;">
+<div class="bgv-tablescreen bgv-tablescreen--desk tm-desk" dir="ltr">
+<header class="bgv-gamebar" dir="rtl"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button><div class="bgv-gamebar__title"><span class="bgv-gamebar__name">ترافورمینگ مارس<span class="bgv-latin" dir="ltr" style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Terraforming Mars</span></span><span class="bgv-gamebar__meta"><span class="bgv-gamebar__mi is-first">نوبتی</span><span class="bgv-gamebar__mi">۲۴ ساعت هر نوبت</span><span class="bgv-gamebar__mi">۴ نفر</span><span class="bgv-gamebar__mi">دوران شرکت‌ها</span></span></div><div class="tm-lang" role="group" aria-label="زبان بازی"><button type="button" aria-pressed="true">فا</button><button type="button" aria-pressed="false">EN</button></div><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="قوانین ترافورمینگ مارس"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--secondary bgv-iconbtn-count" type="button" aria-label="گفت‌وگوی میز، ۲ پیام تازه"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg><span class="bgv-badge bgv-badge--count">۲</span></button><button class="bgv-btn bgv-btn--leave bgv-btn--sm" type="button"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></svg>ترک میز</button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost" type="button" aria-label="گزینه‌های میز"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></svg></button></header>
+<div class="tm-main" dir="rtl">
+<section class="tm-bar" aria-live="polite" aria-label="نوار کنش" data-tm-actbar="">
+ <div class="tm-bar__row"><span class="tm-bar__text"><b>نوبت شماست</b>: کنش ۱ از ۲. یک کنش انتخاب کنید؛ کارت‌های قابل بازی در دست و کنش‌های روی صفحه حلقهٔ کهربایی دارند.</span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div>
+ <div class="tm-bar__row" role="toolbar" aria-label="کنش‌ها">
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="play">بازی کارت <span class="tm-costpill">۴ قابل بازی</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="project">پروژهٔ استاندارد</button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="milestone" disabled="" data-reason="MILESTONE_NOT_REACHED" title="به هیچ نقطهٔ عطف آزادی نرسیده‌اید">نقطهٔ عطف <span class="tm-costpill">۸<img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""></span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="award">تأمین جایزه <span class="tm-costpill">۱۴<img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""></span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="cardAction">کنش کارت <span class="tm-costpill">۱</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="convertHeat">۸<img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt="">→<img src="../assets/games/tm/i-temperature-sm.webp" class="tm-ic" alt=""></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" data-act="convertPlants" disabled="" data-reason="CANNOT_CONVERT" title="۶ از ۷ گیاه دارید">۷<img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt="">→<img src="../assets/games/tm/i-greenery.webp" class="tm-ic" alt=""></button>
+  <span class="bgv-spacer"></span>
+  <button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="pass">پاس (تا آخر نسل)</button>
+ </div>
+ <p class="tm-bar__hint">پروژه‌های استاندارد، نقطه‌های عطف و جایزه‌ها روی خود صفحهٔ مریخ هم زدنی‌اند؛ کنش کارت‌های آبی روی همان کارت. بعد از کنش اول، «پایان نوبت» یا کنش دوم.</p>
+</section>
+<section class="bgv-felt tm-zone tm-handzone" aria-label="دست شما">
+ <div class="tm-zone__head"><h2>دست شما</h2><small>۷ کارت؛ قابل بازی‌ها حلقه دارند. نشانگر را روی کارت نگه دارید تا بزرگ شود.</small><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" aria-label="دست شناور: کشوی پایین صفحه"><svg class="bgv-icon bgv-icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5" /> <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></svg>شناور</button></div>
+ <div class="tm-hand tm-hand--desk" style="--cw:134px">
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="none" aria-disabled="true" data-reason="REQUIREMENTS_NOT_MET" title="شرط کارت برقرار نیست" data-id="060" data-flip="card-060" aria-label="درختان، شرط کارت برقرار نیست"><img src="../assets/games/tm/card-060.webp" alt=""></button></div>
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="088" data-flip="card-088" aria-label="خلنگ"><img src="../assets/games/tm/card-088.webp" alt=""></button></div>
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="none" aria-disabled="true" data-reason="REQUIREMENTS_NOT_MET" title="شرط کارت برقرار نیست" data-id="118" data-flip="card-118" aria-label="کشاورزی، شرط کارت برقرار نیست"><img src="../assets/games/tm/card-118.webp" alt=""></button></div>
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="016" data-flip="card-016" aria-label="دهانهٔ گنبدی"><img src="../assets/games/tm/card-016.webp" alt=""></button></div>
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="064" data-flip="card-064" aria-label="منطقهٔ معدنی"><img src="../assets/games/tm/card-064.webp" alt=""></button></div>
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="none" aria-disabled="true" data-reason="REQUIREMENTS_NOT_MET" title="شرط کارت برقرار نیست" data-id="116" data-flip="card-116" aria-label="دریاچهٔ مصنوعی، شرط کارت برقرار نیست"><img src="../assets/games/tm/card-116.webp" alt=""></button></div>
+  <div class="tm-hcard"><button class="tm-card" type="button" data-pick="selectable" data-id="135" data-flip="card-135" aria-label="زیست‌بوم‌های پیشرفته"><img src="../assets/games/tm/card-135.webp" alt=""></button></div>
+ </div>
+</section>
+<main class="bgv-felt tm-zone tm-boardzone" aria-label="صفحهٔ مریخ">
+ <div class="tm-board" dir="ltr" data-tm-board="mars" role="group" aria-label="صفحهٔ مریخ (تارسیس)">
+  <img src="../assets/games/tm/board-tharsis.webp" class="tm-base" alt="صفحهٔ تارسیس با اکسیژن، دما و اقیانوس" width="1024" height="870">
+  <img src="../assets/games/tm/tile-ocean.webp" class="tm-at tm-tile" data-tm-piece="ocean" data-space="13" alt="اقیانوس" style="left:68.283%;top:27.261%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="15" alt="فضای سبز نیلوفر" style="left:35.609%;top:34.755%">
+  <img src="../assets/games/tm/cube-blue.webp" class="tm-at tm-cube " alt="" style="left:35.609%;top:34.755%">
+  <img src="../assets/games/tm/tile-city.webp" class="tm-at tm-tile" data-tm-piece="city" data-space="22" alt="شهر نیلوفر" style="left:31.978%;top:42.248%">
+  <img src="../assets/games/tm/cube-blue.webp" class="tm-at tm-cube " alt="" style="left:31.978%;top:42.248%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="23" alt="فضای سبز نیلوفر" style="left:39.239%;top:42.248%">
+  <img src="../assets/games/tm/cube-blue.webp" class="tm-at tm-cube " alt="" style="left:39.239%;top:42.248%">
+  <img src="../assets/games/tm/tile-city.webp" class="tm-at tm-tile" data-tm-piece="city" data-space="26" alt="شهر آرش" style="left:61.022%;top:42.248%">
+  <img src="../assets/games/tm/cube-green.webp" class="tm-at tm-cube " alt="" style="left:61.022%;top:42.248%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="30" alt="فضای سبز مینا" style="left:28.348%;top:49.742%">
+  <img src="../assets/games/tm/cube-red.webp" class="tm-at tm-cube " alt="" style="left:28.348%;top:49.742%">
+  <img src="../assets/games/tm/tile-ocean.webp" class="tm-at tm-tile" data-tm-piece="ocean" data-space="32" alt="اقیانوس" style="left:42.87%;top:49.742%">
+  <img src="../assets/games/tm/tile-ocean.webp" class="tm-at tm-tile" data-tm-piece="ocean" data-space="33" alt="اقیانوس" style="left:50.13%;top:49.742%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="35" alt="فضای سبز آرش" style="left:64.652%;top:49.742%">
+  <img src="../assets/games/tm/cube-green.webp" class="tm-at tm-cube " alt="" style="left:64.652%;top:49.742%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="38" alt="فضای سبز مینا" style="left:24.717%;top:57.235%">
+  <img src="../assets/games/tm/cube-red.webp" class="tm-at tm-cube " alt="" style="left:24.717%;top:57.235%">
+  <img src="../assets/games/tm/tile-city.webp" class="tm-at tm-tile" data-tm-piece="city" data-space="39" alt="شهر مینا" style="left:31.978%;top:57.235%">
+  <img src="../assets/games/tm/cube-red.webp" class="tm-at tm-cube " alt="" style="left:31.978%;top:57.235%">
+  <img src="../assets/games/tm/tile-ocean.webp" class="tm-at tm-tile" data-tm-piece="ocean" data-space="44" alt="اقیانوس" style="left:68.283%;top:57.235%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="47" alt="فضای سبز مینا" style="left:35.609%;top:64.729%">
+  <img src="../assets/games/tm/cube-red.webp" class="tm-at tm-cube " alt="" style="left:35.609%;top:64.729%">
+  <img src="../assets/games/tm/tile-mining-area.webp" class="tm-at tm-tile" data-tm-piece="special" data-space="53" alt="منطقهٔ معدن سارا" style="left:31.978%;top:72.222%">
+  <img src="../assets/games/tm/cube-yellow.webp" class="tm-at tm-cube " alt="" style="left:31.978%;top:72.222%">
+  <img src="../assets/games/tm/tile-city.webp" class="tm-at tm-tile" data-tm-piece="city" data-space="54" alt="شهر سارا" style="left:39.239%;top:72.222%">
+  <img src="../assets/games/tm/cube-yellow.webp" class="tm-at tm-cube " alt="" style="left:39.239%;top:72.222%">
+  <img src="../assets/games/tm/tile-greenery.webp" class="tm-at tm-tile" data-tm-piece="greenery" data-space="60" alt="فضای سبز سارا" style="left:42.87%;top:79.716%">
+  <img src="../assets/games/tm/cube-yellow.webp" class="tm-at tm-cube " alt="" style="left:42.87%;top:79.716%">
+  <img src="../assets/games/tm/cube-white.webp" class="tm-at tm-cube tm-cube--track" alt="اکسیژن ۵٪" style="left:42.093%;top:8.827%">
+  <img src="../assets/games/tm/cube-white.webp" class="tm-at tm-cube tm-cube--track" alt="دما −۱۴°" style="left:92.717%;top:50.258%">
+  <button class="tm-mabtn" type="button" data-tm-action="milestone-terraformer" disabled="" data-reason="MILESTONE_NOT_REACHED" aria-label="نقطهٔ عطف زمین‌ساز: هنوز نرسیده‌اید" style="left:6.304%;top:96.382%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="milestone-mayor" disabled="" data-reason="MILESTONE_NOT_REACHED" aria-label="نقطهٔ عطف شهردار: هنوز نرسیده‌اید" style="left:15.652%;top:96.382%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="milestone-gardener" disabled="" data-reason="MILESTONE_TAKEN" aria-label="نقطهٔ عطف باغبان: ثبت شده" style="left:25.217%;top:96.382%"></button>
+  <img src="../assets/games/tm/cube-red.webp" class="tm-at tm-cube tm-cube--plaque" alt="مینا: باغبان" style="left:25.217%;top:95.349%">
+  <button class="tm-mabtn" type="button" data-tm-action="milestone-builder" disabled="" data-reason="MILESTONE_NOT_REACHED" aria-label="نقطهٔ عطف سازنده: هنوز نرسیده‌اید" style="left:34.674%;top:96.382%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="milestone-planner" disabled="" data-reason="MILESTONE_NOT_REACHED" aria-label="نقطهٔ عطف برنامه‌ریز: هنوز نرسیده‌اید" style="left:44.348%;top:96.382%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="award-landlord" aria-label="جایزه زمین‌دار: تأمین با ۱۴ مگاکردیت" style="left:56.304%;top:96.124%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="award-banker" disabled="" data-reason="AWARD_TAKEN" aria-label="جایزه بانکدار: تأمین شده" style="left:65.543%;top:96.124%"></button>
+  <img src="../assets/games/tm/cube-yellow.webp" class="tm-at tm-cube tm-cube--plaque" alt="سارا: بانکدار" style="left:65.543%;top:94.832%">
+  <button class="tm-mabtn" type="button" data-tm-action="award-scientist" aria-label="جایزه دانشمند: تأمین با ۱۴ مگاکردیت" style="left:74.891%;top:96.124%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="award-thermalist" aria-label="جایزه گرماشناس: تأمین با ۱۴ مگاکردیت" style="left:84.348%;top:96.124%"></button>
+  <button class="tm-mabtn" type="button" data-tm-action="award-miner" aria-label="جایزه معدنچی: تأمین با ۱۴ مگاکردیت" style="left:93.696%;top:96.124%"></button>
+  <button class="tm-spbtn" type="button" data-act="project-sellPatents" data-tm-action="sp-sellPatents" aria-label="پروژهٔ استاندارد فروش امتیاز اختراع" style="left:10.435%;top:59.69%"></button>
+  <button class="tm-spbtn" type="button" data-act="project-powerPlant" data-tm-action="sp-powerPlant" aria-label="پروژهٔ استاندارد نیروگاه ۱۱ M€" style="left:10.435%;top:63.824%"></button>
+  <button class="tm-spbtn" type="button" data-act="project-asteroid" data-tm-action="sp-asteroid" aria-label="پروژهٔ استاندارد سیارک ۱۴ M€" style="left:10.435%;top:68.088%"></button>
+  <button class="tm-spbtn" type="button" data-act="project-aquifer" data-tm-action="sp-aquifer" aria-label="پروژهٔ استاندارد سفرهٔ آب ۱۸ M€" style="left:10.435%;top:72.222%"></button>
+  <button class="tm-spbtn" type="button" data-act="project-greenery" data-tm-action="sp-greenery" aria-label="پروژهٔ استاندارد فضای سبز ۲۳ M€" style="left:10.435%;top:76.357%"></button>
+  <button class="tm-spbtn" type="button" data-act="project-city" data-tm-action="sp-city" aria-label="پروژهٔ استاندارد شهر ۲۵ M€" style="left:10.435%;top:80.879%"></button>
+  <span class="tm-boardplate tm-boardplate--start">دسته <b class="tm-num">۱۱۸</b>، دورریز <b class="tm-num">۴۱</b></span>
+  <span class="tm-boardplate tm-boardplate--end"><img src="../assets/games/tm/i-generation.webp" class="tm-ic" alt="">نسل <b class="tm-num">۵</b></span>
+ </div>
+</main>
+<section class="bgv-felt tm-zone" aria-label="محوطهٔ بازیکنان">
+<section class="tm-player" style="--pc:var(--tm-red)" data-seat="0" aria-label="محوطهٔ مینا">
+ <div class="tm-ahead"><span class="tm-ahead__name" style="color:var(--tm-red-ink)">مینا، شما</span><span class="tm-logo" title="اکولاین"><img src="../assets/games/tm/logo-ecoline.webp" alt="اکولاین"></span><span class="tm-score tm-score--sm" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۴۳</b><small>امتیاز</small></span><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۳۱</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۷</b></span><span class="tm-ahead__res"><span class="tm-rs" title="مگاکردیت"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۳۴</b><span class="tm-prodv" title="تولید هر نسل">+۳</span></span></span><span class="tm-rs" title="فولاد"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۲</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span><span class="tm-rs" title="تیتانیوم"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱</b><span class="tm-prodv" title="تولید هر نسل">+۰</span></span></span><span class="tm-rs" title="گیاه"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۶</b><span class="tm-prodv" title="تولید هر نسل">+۴</span></span></span><span class="tm-rs" title="انرژی"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۳</b><span class="tm-prodv" title="تولید هر نسل">+۲</span></span></span><span class="tm-rs" title="گرما"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۹</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span></span><span class="tm-tags tm-ahead__tags"><span class="tm-tagc" title="ساختمان: ۲"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc is-zero" title="فضا: ۰"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="علم: ۱"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc" title="انرژی: ۲"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc" title="زمین: ۱"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="شهر: ۰"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="گیاه: ۳"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۳</b></span><span class="tm-tagc" title="میکروب: ۲"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc" title="جانور: ۱"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc" title="رویداد: ۲"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۳"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۳</b></span></span></div>
+ <div class="tm-secs"><section class="tm-sec tm-sec--grey" data-tm-section="hq" style="--cw:218px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>ستاد</b><small>شبکه</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-grid"><div class="tm-card" data-id="R17" aria-label="اکولاین"><img src="../assets/games/tm/corp-ecoline.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--green" data-tm-section="automated" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۴</span><span class="tm-sec__t"><b>خودکار</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--green"><div class="tm-card" data-id="087" aria-label="علف"><img src="../assets/games/tm/card-087.webp" alt=""></div><div class="tm-card" data-id="093" aria-label="بوته‌ها"><img src="../assets/games/tm/card-093.webp" alt=""></div><div class="tm-card" data-id="141" aria-label="نیروگاه"><img src="../assets/games/tm/card-141.webp" alt=""></div><div class="tm-card" data-id="045" aria-label="نیروی هسته‌ای"><img src="../assets/games/tm/card-045.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="effects" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>اثرها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"><div class="tm-card" data-id="172" aria-label="حیوانات خانگی"><img src="../assets/games/tm/card-172.webp" alt=""><span class="tm-cres" title="منبع روی کارت"><img src="../assets/games/tm/i-animal.webp" class="tm-ic" alt="">۲</span></div></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="actions" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۲</span><span class="tm-sec__t"><b>کنش‌ها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"><button class="tm-card" type="button" disabled="" data-id="049" aria-label="خرس‌های آبی، کنش این نسل استفاده شده"><img src="../assets/games/tm/card-049.webp" alt=""><span class="tm-cres" title="منبع روی کارت"><img src="../assets/games/tm/i-microbe.webp" class="tm-ic" alt="">۳</span><img src="../assets/games/tm/cube-red.webp" class="tm-cused" alt="استفاده شده"></button><button class="tm-card is-avail" type="button" data-id="033" aria-label="رگولیت‌خوارها، کنش در دسترس"><img src="../assets/games/tm/card-033.webp" alt=""><span class="tm-cres" title="منبع روی کارت"><img src="../assets/games/tm/i-microbe.webp" class="tm-ic" alt="">۲</span></button></div>
+ </section><section class="tm-sec tm-sec--red is-closed" data-tm-section="events" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="false"><span class="tm-sec__n">۲</span><span class="tm-sec__t"><b>رویدادها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  
+ </section></div>
+</section>
+<section class="tm-player" style="--pc:var(--tm-yellow)" data-seat="3" aria-label="محوطهٔ سارا">
+ <div class="tm-ahead"><span class="tm-ahead__name" style="color:var(--tm-yellow-ink)">سارا</span><span class="tm-logo" title="صنف معدنچیان"><img src="../assets/games/tm/logo-mining-guild.webp" alt="صنف معدنچیان"></span><span class="tm-score tm-score--sm" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۳۴</b><small>امتیاز</small></span><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۲۹</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۹</b></span><span class="tm-ahead__res"><span class="tm-rs" title="مگاکردیت"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱۸</b><span class="tm-prodv" title="تولید هر نسل">+۴</span></span></span><span class="tm-rs" title="فولاد"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۹</b><span class="tm-prodv" title="تولید هر نسل">+۴</span></span></span><span class="tm-rs" title="تیتانیوم"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۲</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span><span class="tm-rs" title="گیاه"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۳</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span><span class="tm-rs" title="انرژی"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span><span class="tm-rs" title="گرما"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۴</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span></span><span class="tm-tags tm-ahead__tags"><span class="tm-tagc" title="ساختمان: ۶"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۶</b></span><span class="tm-tagc is-zero" title="فضا: ۰"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="علم: ۰"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="انرژی: ۰"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="زمین: ۰"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="شهر: ۰"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="گیاه: ۰"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="میکروب: ۰"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="جانور: ۰"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="رویداد: ۱"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۱"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۱</b></span></span></div>
+ <div class="tm-secs"><section class="tm-sec tm-sec--grey" data-tm-section="hq" style="--cw:218px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>ستاد</b><small>شبکه</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-grid"><div class="tm-card" data-id="R24" aria-label="صنف معدنچیان"><img src="../assets/games/tm/corp-mining-guild.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--green" data-tm-section="automated" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۳</span><span class="tm-sec__t"><b>خودکار</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--green"><div class="tm-card" data-id="064" aria-label="منطقهٔ معدنی"><img src="../assets/games/tm/card-064.webp" alt=""></div><div class="tm-card" data-id="056" aria-label="معدن"><img src="../assets/games/tm/card-056.webp" alt=""></div><div class="tm-card" data-id="138" aria-label="معدن روباز"><img src="../assets/games/tm/card-138.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="effects" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۰</span><span class="tm-sec__t"><b>اثرها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="actions" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>کنش‌ها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"><button class="tm-card" type="button" disabled="" data-id="101" aria-label="کارخانهٔ آهن، کنش این نسل استفاده شده"><img src="../assets/games/tm/card-101.webp" alt=""><img src="../assets/games/tm/cube-yellow.webp" class="tm-cused" alt="استفاده شده"></button></div>
+ </section><section class="tm-sec tm-sec--red is-closed" data-tm-section="events" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="false"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>رویدادها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  
+ </section></div>
+</section>
+<section class="tm-player" style="--pc:var(--tm-blue)" data-seat="1" aria-label="محوطهٔ نیلوفر">
+ <div class="tm-ahead"><span class="tm-ahead__name" style="color:var(--tm-blue-ink)">نیلوفر</span><span class="tm-logo" title="هلیون"><img src="../assets/games/tm/logo-helion.webp" alt="هلیون"></span><span class="tm-score tm-score--sm" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۳۶</b><small>امتیاز</small></span><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۲۸</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۶</b></span><span class="tm-ahead__res"><span class="tm-rs" title="مگاکردیت"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۲۱</b><span class="tm-prodv" title="تولید هر نسل">+۲</span></span></span><span class="tm-rs" title="فولاد"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۰</b><span class="tm-prodv" title="تولید هر نسل">+۰</span></span></span><span class="tm-rs" title="تیتانیوم"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۳</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span><span class="tm-rs" title="گیاه"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۲</b><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></span><span class="tm-rs" title="انرژی"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱</b><span class="tm-prodv" title="تولید هر نسل">+۳</span></span></span><span class="tm-rs" title="گرما"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱۴</b><span class="tm-prodv" title="تولید هر نسل">+۴</span></span></span></span><span class="tm-tags tm-ahead__tags"><span class="tm-tagc" title="ساختمان: ۲"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc" title="فضا: ۲"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc is-zero" title="علم: ۰"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="انرژی: ۴"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۴</b></span><span class="tm-tagc is-zero" title="زمین: ۰"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="شهر: ۰"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="گیاه: ۰"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="میکروب: ۰"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="جانور: ۰"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="رویداد: ۱"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۲"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۲</b></span></span></div>
+ <div class="tm-secs"><section class="tm-sec tm-sec--grey" data-tm-section="hq" style="--cw:218px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>ستاد</b><small>شبکه</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-grid"><div class="tm-card" data-id="R18" aria-label="هلیون"><img src="../assets/games/tm/corp-helion.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--green" data-tm-section="automated" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۳</span><span class="tm-sec__t"><b>خودکار</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--green"><div class="tm-card" data-id="046" aria-label="برداشت آذرخش"><img src="../assets/games/tm/card-046.webp" alt=""></div><div class="tm-card" data-id="113" aria-label="انرژی خورشیدی"><img src="../assets/games/tm/card-113.webp" alt=""></div><div class="tm-card" data-id="168" aria-label="آسیاب‌های بادی"><img src="../assets/games/tm/card-168.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="effects" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۰</span><span class="tm-sec__t"><b>اثرها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="actions" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>کنش‌ها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"><button class="tm-card" type="button" data-id="076" aria-label="آینه‌های فضایی"><img src="../assets/games/tm/card-076.webp" alt=""></button></div>
+ </section><section class="tm-sec tm-sec--red is-closed" data-tm-section="events" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="false"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>رویدادها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  
+ </section></div>
+</section>
+<section class="tm-player" style="--pc:var(--tm-green)" data-seat="2" aria-label="محوطهٔ آرش">
+ <div class="tm-ahead"><span class="tm-ahead__name" style="color:var(--tm-green-ink)">آرش <small>پاس داده</small></span><span class="tm-logo" title="تورگیت"><img src="../assets/games/tm/logo-thorgate.webp" alt="تورگیت"></span><span class="tm-score tm-score--sm" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۳۴</b><small>امتیاز</small></span><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۲۶</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۳</b></span><span class="tm-ahead__res"><span class="tm-rs" title="مگاکردیت"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱۲</b><span class="tm-prodv" title="تولید هر نسل">+۵</span></span></span><span class="tm-rs" title="فولاد"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۴</b><span class="tm-prodv" title="تولید هر نسل">+۲</span></span></span><span class="tm-rs" title="تیتانیوم"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۰</b><span class="tm-prodv" title="تولید هر نسل">+۰</span></span></span><span class="tm-rs" title="گیاه"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۱</b><span class="tm-prodv" title="تولید هر نسل">+۰</span></span></span><span class="tm-rs" title="انرژی"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۰</b><span class="tm-prodv" title="تولید هر نسل">+۴</span></span></span><span class="tm-rs" title="گرما"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><span class="tm-rs__nums"><b class="tm-num">۳</b><span class="tm-prodv" title="تولید هر نسل">+۰</span></span></span></span><span class="tm-tags tm-ahead__tags"><span class="tm-tagc" title="ساختمان: ۳"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۳</b></span><span class="tm-tagc is-zero" title="فضا: ۰"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="علم: ۱"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc" title="انرژی: ۴"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۴</b></span><span class="tm-tagc is-zero" title="زمین: ۰"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="شهر: ۱"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc is-zero" title="گیاه: ۰"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="میکروب: ۰"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="جانور: ۰"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="رویداد: ۰"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۱"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۱</b></span></span></div>
+ <div class="tm-secs"><section class="tm-sec tm-sec--grey" data-tm-section="hq" style="--cw:218px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۱</span><span class="tm-sec__t"><b>ستاد</b><small>شبکه</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-grid"><div class="tm-card" data-id="R13" aria-label="تورگیت"><img src="../assets/games/tm/corp-thorgate.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--green" data-tm-section="automated" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۴</span><span class="tm-sec__t"><b>خودکار</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--green"><div class="tm-card" data-id="117" aria-label="انرژی زمین‌گرمایی"><img src="../assets/games/tm/card-117.webp" alt=""></div><div class="tm-card" data-id="132" aria-label="انرژی همجوشی"><img src="../assets/games/tm/card-132.webp" alt=""></div><div class="tm-card" data-id="102" aria-label="شبکهٔ برق"><img src="../assets/games/tm/card-102.webp" alt=""></div><div class="tm-card" data-id="108" aria-label="شهر باز"><img src="../assets/games/tm/card-108.webp" alt=""></div></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="effects" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۰</span><span class="tm-sec__t"><b>اثرها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"></div>
+ </section><section class="tm-sec tm-sec--blue" data-tm-section="actions" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="true"><span class="tm-sec__n">۰</span><span class="tm-sec__t"><b>کنش‌ها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  <div class="tm-sec__body tm-stack tm-stack--blue"></div>
+ </section><section class="tm-sec tm-sec--red is-closed" data-tm-section="events" style="--cw:150px">
+  <div class="tm-sec__head"><button class="tm-sec__toggle" type="button" aria-expanded="false"><span class="tm-sec__n">۰</span><span class="tm-sec__t"><b>رویدادها</b><small>دسته</small></span></button><button class="tm-sec__menu" type="button" aria-label="چیدمان این بخش: شبکه یا دسته"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /> <path d="M4 12h16" /> <path d="M4 18h16" /></svg></button></div>
+  
+ </section></div>
+</section>
+</section>
+</div>
+<aside class="tm-rail" dir="rtl" aria-label="بازیکنان">
+ <section class="bgv-card tm-dash" aria-label="پارامترهای جهانی">
+  <div class="tm-dash__tools"><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="کوچک‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="بزرگ‌تر"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="M12 5v14" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="راهنما"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg></button><button class="bgv-btn bgv-btn--icon bgv-btn--ghost bgv-btn--sm" type="button" aria-label="تنظیمات میز" aria-haspopup="dialog"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></svg></button></div>
+  <div class="tm-dash__params"><span class="tm-param" title="اکسیژن"><img src="../assets/games/tm/i-oxygen.webp" class="tm-ic" alt=""><b class="tm-num">۵%</b></span><span class="tm-param" title="دما"><img src="../assets/games/tm/i-temperature.webp" class="tm-ic" alt=""><b class="tm-num">−۱۴°C</b></span><span class="tm-param" title="اقیانوس از ۹"><img src="../assets/games/tm/i-ocean.webp" class="tm-ic" alt=""><b class="tm-num">۴</b></span><span class="tm-param" title="نسل"><img src="../assets/games/tm/i-generation.webp" class="tm-ic" alt=""><b class="tm-num">۵</b></span></div>
+ </section>
+ <div class="bgv-pcard tm-panel" role="button" tabindex="0" aria-label="سارا">
+  <div class="tm-panel__head"><span class="bgv-avatar bgv-avatar--sm" style="--seat-c:var(--tm-yellow)">س</span><div class="tm-panel__id"><b style="color:var(--tm-yellow-ink)">سارا<span class="bgv-league bgv-league--platinum">پلاتین</span></b></div><img src="../assets/games/tm/first-player.webp" class="tm-fp" alt="نفر اول این نسل" title="نفر اول این نسل"><span class="tm-score" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۳۴</b><small>امتیاز</small></span></div>
+  <div class="tm-panel__row"><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۲۹</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۹</b></span><span class="tm-logo" title="صنف معدنچیان"><img src="../assets/games/tm/logo-mining-guild.webp" alt="صنف معدنچیان"></span></div>
+  <div class="tm-panel__res"><span class="tm-r" title="مگاکردیت"><span class="tm-r__ic"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><b class="tm-num">۱۸</b></span><span class="tm-prodv" title="تولید هر نسل">+۴</span></span><span class="tm-r" title="فولاد"><span class="tm-r__ic"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><b class="tm-num">۹</b></span><span class="tm-prodv" title="تولید هر نسل">+۴</span></span><span class="tm-r" title="تیتانیوم"><span class="tm-r__ic"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><b class="tm-num">۲</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span><span class="tm-r" title="گیاه"><span class="tm-r__ic"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><b class="tm-num">۳</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span><span class="tm-r" title="انرژی"><span class="tm-r__ic"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><b class="tm-num">۱</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span><span class="tm-r" title="گرما"><span class="tm-r__ic"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><b class="tm-num">۴</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></div>
+  <div class="tm-tags" aria-label="نشان‌ها و کاشی‌ها"><span class="tm-tagc" title="ساختمان: ۶"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۶</b></span><span class="tm-tagc is-zero" title="فضا: ۰"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="علم: ۰"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="انرژی: ۰"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="زمین: ۰"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="شهر: ۰"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="گیاه: ۰"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="میکروب: ۰"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="جانور: ۰"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="رویداد: ۱"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۱"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۱</b></span></div>
+ </div>
+ <div class="bgv-pcard tm-panel is-you is-turn" style="--clock-c:var(--clock-calm)" role="button" tabindex="0" aria-label="مینا، شما">
+  <div class="tm-panel__head"><span class="bgv-avatar bgv-avatar--sm is-you is-turn" style="--seat-c:var(--tm-red);--clock-c:var(--clock-calm)">م</span><div class="tm-panel__id"><b style="color:var(--tm-red-ink)">مینا<span class="bgv-league bgv-league--gold">طلا</span></b><small><span>کنش ۱ از ۲</span></small></div><span class="tm-score" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۴۳</b><small>امتیاز</small></span></div>
+  <div class="tm-panel__row"><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۳۱</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۷</b></span><span class="tm-logo" title="اکولاین"><img src="../assets/games/tm/logo-ecoline.webp" alt="اکولاین"></span></div>
+  <div class="tm-panel__res"><span class="tm-r" title="مگاکردیت"><span class="tm-r__ic"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><b class="tm-num">۳۴</b></span><span class="tm-prodv" title="تولید هر نسل">+۳</span></span><span class="tm-r" title="فولاد"><span class="tm-r__ic"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><b class="tm-num">۲</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span><span class="tm-r" title="تیتانیوم"><span class="tm-r__ic"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><b class="tm-num">۱</b></span><span class="tm-prodv" title="تولید هر نسل">+۰</span></span><span class="tm-r" title="گیاه"><span class="tm-r__ic"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><b class="tm-num">۶</b></span><span class="tm-prodv" title="تولید هر نسل">+۴</span></span><span class="tm-r" title="انرژی"><span class="tm-r__ic"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><b class="tm-num">۳</b></span><span class="tm-prodv" title="تولید هر نسل">+۲</span></span><span class="tm-r" title="گرما"><span class="tm-r__ic"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><b class="tm-num">۹</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span></div>
+  <div class="tm-tags" aria-label="نشان‌ها و کاشی‌ها"><span class="tm-tagc" title="ساختمان: ۲"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc is-zero" title="فضا: ۰"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="علم: ۱"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc" title="انرژی: ۲"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc" title="زمین: ۱"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="شهر: ۰"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="گیاه: ۳"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۳</b></span><span class="tm-tagc" title="میکروب: ۲"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc" title="جانور: ۱"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc" title="رویداد: ۲"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۳"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۳</b></span></div>
+ </div>
+ <div class="bgv-pcard tm-panel" role="button" tabindex="0" aria-label="نیلوفر">
+  <div class="tm-panel__head"><span class="bgv-avatar bgv-avatar--sm" style="--seat-c:var(--tm-blue)">ن</span><div class="tm-panel__id"><b style="color:var(--tm-blue-ink)">نیلوفر<span class="bgv-league bgv-league--diamond">الماس</span></b></div><span class="tm-score" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۳۶</b><small>امتیاز</small></span></div>
+  <div class="tm-panel__row"><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۲۸</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۶</b></span><span class="tm-logo" title="هلیون"><img src="../assets/games/tm/logo-helion.webp" alt="هلیون"></span></div>
+  <div class="tm-panel__res"><span class="tm-r" title="مگاکردیت"><span class="tm-r__ic"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><b class="tm-num">۲۱</b></span><span class="tm-prodv" title="تولید هر نسل">+۲</span></span><span class="tm-r" title="فولاد"><span class="tm-r__ic"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><b class="tm-num">۰</b></span><span class="tm-prodv" title="تولید هر نسل">+۰</span></span><span class="tm-r" title="تیتانیوم"><span class="tm-r__ic"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><b class="tm-num">۳</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span><span class="tm-r" title="گیاه"><span class="tm-r__ic"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><b class="tm-num">۲</b></span><span class="tm-prodv" title="تولید هر نسل">+۱</span></span><span class="tm-r" title="انرژی"><span class="tm-r__ic"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><b class="tm-num">۱</b></span><span class="tm-prodv" title="تولید هر نسل">+۳</span></span><span class="tm-r" title="گرما"><span class="tm-r__ic"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><b class="tm-num">۱۴</b></span><span class="tm-prodv" title="تولید هر نسل">+۴</span></span></div>
+  <div class="tm-tags" aria-label="نشان‌ها و کاشی‌ها"><span class="tm-tagc" title="ساختمان: ۲"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc" title="فضا: ۲"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۲</b></span><span class="tm-tagc is-zero" title="علم: ۰"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="انرژی: ۴"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۴</b></span><span class="tm-tagc is-zero" title="زمین: ۰"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="شهر: ۰"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="گیاه: ۰"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="میکروب: ۰"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="جانور: ۰"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="رویداد: ۱"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۲"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۲</b></span></div>
+ </div>
+ <div class="bgv-pcard tm-panel" role="button" tabindex="0" aria-label="آرش">
+  <div class="tm-panel__head"><span class="bgv-avatar bgv-avatar--sm" style="--seat-c:var(--tm-green)">آ</span><div class="tm-panel__id"><b style="color:var(--tm-green-ink)">آرش<span class="bgv-league bgv-league--silver">نقره</span></b><small><span class="bgv-pstate bgv-pstate--done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>پاس داده</span></small></div><span class="tm-score" title="امتیاز فعلی (اگر بازی الان تمام شود)"><b class="tm-num">۳۴</b><small>امتیاز</small></span></div>
+  <div class="tm-panel__row"><span class="tm-tr" title="رتبهٔ زمین‌سازی (TR)"><b>۲۶</b></span><span class="tm-handn" title="کارت در دست"><img src="../assets/games/tm/card-back.webp" class="tm-ic" alt=""><b class="tm-num">۳</b></span><span class="tm-logo" title="تورگیت"><img src="../assets/games/tm/logo-thorgate.webp" alt="تورگیت"></span></div>
+  <div class="tm-panel__res"><span class="tm-r" title="مگاکردیت"><span class="tm-r__ic"><img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""><b class="tm-num">۱۲</b></span><span class="tm-prodv" title="تولید هر نسل">+۵</span></span><span class="tm-r" title="فولاد"><span class="tm-r__ic"><img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""><b class="tm-num">۴</b></span><span class="tm-prodv" title="تولید هر نسل">+۲</span></span><span class="tm-r" title="تیتانیوم"><span class="tm-r__ic"><img src="../assets/games/tm/i-titanium.webp" class="tm-ic" alt=""><b class="tm-num">۰</b></span><span class="tm-prodv" title="تولید هر نسل">+۰</span></span><span class="tm-r" title="گیاه"><span class="tm-r__ic"><img src="../assets/games/tm/i-plant.webp" class="tm-ic" alt=""><b class="tm-num">۱</b></span><span class="tm-prodv" title="تولید هر نسل">+۰</span></span><span class="tm-r" title="انرژی"><span class="tm-r__ic"><img src="../assets/games/tm/i-energy.webp" class="tm-ic" alt=""><b class="tm-num">۰</b></span><span class="tm-prodv" title="تولید هر نسل">+۴</span></span><span class="tm-r" title="گرما"><span class="tm-r__ic"><img src="../assets/games/tm/i-heat.webp" class="tm-ic" alt=""><b class="tm-num">۳</b></span><span class="tm-prodv" title="تولید هر نسل">+۰</span></span></div>
+  <div class="tm-tags" aria-label="نشان‌ها و کاشی‌ها"><span class="tm-tagc" title="ساختمان: ۳"><img src="../assets/games/tm/tag-building.webp" alt=""><b class="tm-num">۳</b></span><span class="tm-tagc is-zero" title="فضا: ۰"><img src="../assets/games/tm/tag-space.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="علم: ۱"><img src="../assets/games/tm/tag-science.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc" title="انرژی: ۴"><img src="../assets/games/tm/tag-power.webp" alt=""><b class="tm-num">۴</b></span><span class="tm-tagc is-zero" title="زمین: ۰"><img src="../assets/games/tm/tag-earth.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="مشتری: ۰"><img src="../assets/games/tm/tag-jovian.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc" title="شهر: ۱"><img src="../assets/games/tm/tag-city.webp" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc is-zero" title="گیاه: ۰"><img src="../assets/games/tm/tag-plant.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="میکروب: ۰"><img src="../assets/games/tm/tag-microbe.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="جانور: ۰"><img src="../assets/games/tm/tag-animal.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc is-zero" title="رویداد: ۰"><img src="../assets/games/tm/tag-event.webp" alt=""><b class="tm-num">۰</b></span><span class="tm-tagc tm-tagc--hex" title="شهر: ۱"><img src="../assets/games/tm/i-city-hex.webp" class="" alt=""><b class="tm-num">۱</b></span><span class="tm-tagc tm-tagc--hex" title="فضای سبز: ۱"><img src="../assets/games/tm/i-greenery-hex.webp" class="" alt=""><b class="tm-num">۱</b></span></div>
+ </div>
+ <section class="bgv-card tm-log" aria-label="گزارش بازی"><ol class="bgv-log">
+  <li class="bgv-log__item bgv-log__item--round">نسل ۵</li>
+  <li class="bgv-log__item"><b>سارا</b> کنش «کارخانهٔ آهن» را زد: ۱ فولاد، اکسیژن ۵٪</li>
+  <li class="bgv-log__item"><b>سارا</b> جایزهٔ «بانکدار» را با ۸ <img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""></li>
+  <li class="bgv-log__item"><b>آرش</b> پاس داد</li>
+  <li class="bgv-log__item"><b>نیلوفر</b> «آینه‌های فضایی» را بازی کرد</li>
+ </ol></section>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3920}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

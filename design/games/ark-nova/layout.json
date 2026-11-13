@@ -1,0 +1,393 @@
+{
+ "note": "Centres in source-image pixels unless marked as fractions. Place pieces with left = x/W·100%, top = y/H·100%, translate(-50%,-50%). Boards are dir=ltr. Measured with tools/gridcrop.py; BGA layout measured on a live BGA table DOM (2026-10-30).",
+ "zooMap": {
+  "image": "art/boards/map-<id>.webp",
+  "size": [
+   2000,
+   1041
+  ],
+  "shownWindow": {
+   "x": 0,
+   "y": 0,
+   "w": 1405,
+   "h": 905,
+   "note": "BGA: notebook + bonus column | hexes | partner/university column; the rules text and building legend are cropped away (image width 142.349% of the window)"
+  },
+  "clipStrip": {
+   "y": 905,
+   "h": 136,
+   "note": "bottom paper strip with clips 1-5 = the action-card band; image top -665.44% of the band"
+  },
+  "hexCentre": "x = 327 + 100.6·col, y = 132.3 + 57.75·row for cell \"col_row\" (hex.ts ids); R = 66.9; same grid on all 10 maps (tools/check-maps.py)",
+  "hexR": 66.9,
+  "leftEdgeTokens": [
+   [
+    133,
+    383
+   ],
+   [
+    133,
+    457
+   ],
+   [
+    133,
+    530
+   ],
+   [
+    133,
+    605
+   ],
+   [
+    133,
+    707
+   ],
+   [
+    133,
+    780
+   ],
+   [
+    133,
+    855
+   ]
+  ],
+  "unhiredWorkers": [
+   [
+    70,
+    290
+   ],
+   [
+    128,
+    290
+   ],
+   [
+    187,
+    290
+   ]
+  ],
+  "partnerSlots": [
+   [
+    1335,
+    440
+   ],
+   [
+    1335,
+    345
+   ],
+   [
+    1335,
+    215
+   ],
+   [
+    1335,
+    115
+   ]
+  ],
+  "universitySlots": [
+   [
+    1335,
+    815
+   ],
+   [
+    1335,
+    710
+   ],
+   [
+    1335,
+    600
+   ]
+  ],
+  "actionClipsX": [
+   227,
+   617,
+   1000,
+   1390,
+   1780
+  ],
+  "playerNote": {
+   "box": "top 10.5%, left 1.1%, width 13.6% of the window",
+   "content": "player name in seat ink + available workers"
+  }
+ },
+ "buildings": {
+  "rule": "publisher image fitted onto the engine cells: rotation k·30° (+ mirror) of the image hex cells (data/building-cells.json, R = 135 px in the art); scale = 66.9/135",
+  "algorithm": "tools/an-lib.js fitBuilding()"
+ },
+ "display": {
+  "folders": 6,
+  "layout": "BGA card pool: 6 equal columns, folder tab (city + number) above a full card",
+  "cities": [
+   "San Diego, USA",
+   "Frankfurt, GER",
+   "Johannesburg, SA",
+   "Sao Paulo, BR",
+   "Okinawa, JP",
+   "Sydney, AUS"
+  ],
+  "range": "folders 1..range(rep) ringed for the viewer"
+ },
+ "reputationTrack": {
+  "image": "art/bga/reputation-track.webp",
+  "size": [
+   2752,
+   95
+  ],
+  "slotCentreX": "r<=1: 0.081, 2: 0.2025, 3: 0.2835, r>=4: 0.351 + 0.054·(r−4) (fraction of width); y 0.5",
+  "bonuses": {
+   "5": "upgrade-card",
+   "8": "add-worker",
+   "10": "upgrade-card",
+   "11": "conservation",
+   "12": "xtoken",
+   "13": "take-in-range",
+   "14": "conservation",
+   "15": "xtoken"
+  }
+ },
+ "conservationTrack": {
+  "image": "art/bga/conservation-track.webp",
+  "size": [
+   3188,
+   330
+  ],
+  "slotCentreX": "cp 0..10: 0.0461 + 0.09077·cp; counters at y 0.2253; cp > 10 stays on slot 10 with the number badge",
+  "bonusTiles": {
+   "5": [
+    [
+     0.446,
+     0.6933
+    ],
+    [
+     0.5553,
+     0.6933
+    ]
+   ],
+   "8": [
+    [
+     0.718,
+     0.6933
+    ],
+    [
+     0.8273,
+     0.6933
+    ]
+   ]
+  }
+ },
+ "associationBoard": {
+  "image": "art/bga/association-board.webp",
+  "size": [
+   3335,
+   986
+  ],
+  "partnerZoos": {
+   "americas": [
+    1083,
+    361
+   ],
+   "europe": [
+    1444,
+    181
+   ],
+   "asia": [
+    1847,
+    181
+   ],
+   "africa": [
+    1444,
+    556
+   ],
+   "australia": [
+    1847,
+    556
+   ]
+  },
+  "universities": {
+   "hand": [
+    2639,
+    208
+   ],
+   "science": [
+    2319,
+    569
+   ],
+   "rep": [
+    2750,
+    569
+   ]
+  },
+  "workerZones": {
+   "rep": [
+    714,
+    764
+   ],
+   "zoo": [
+    1486,
+    866
+   ],
+   "uni": [
+    2533,
+    866
+   ],
+   "project": [
+    3158,
+    764
+   ]
+  },
+  "hotAreas": {
+   "rep": [
+    714,
+    490,
+    290,
+    880
+   ],
+   "zoo": [
+    1486,
+    470,
+    1140,
+    900
+   ],
+   "uni": [
+    2533,
+    470,
+    820,
+    900
+   ],
+   "project": [
+    3158,
+    490,
+    290,
+    880
+   ]
+  },
+  "donationSpaces": [
+   [
+    375,
+    222
+   ],
+   [
+    125,
+    361
+   ],
+   [
+    375,
+    361
+   ],
+   [
+    125,
+    542
+   ],
+   [
+    375,
+    542
+   ],
+   [
+    125,
+    694
+   ],
+   [
+    375,
+    694
+   ],
+   [
+    300,
+    895
+   ]
+  ]
+ },
+ "projects": {
+  "shownBand": "bottom 44% of the card (aspect 400/176)",
+  "levelCentres": [
+   [
+    0.24,
+    0.68
+   ],
+   [
+    0.5,
+    0.68
+   ],
+   [
+    0.76,
+    0.68
+   ]
+  ],
+  "played": "band above the association board",
+  "base": "band below it"
+ },
+ "mainBoard": {
+  "image": "art/boards/main-board.webp",
+  "size": [
+   3000,
+   814
+  ],
+  "use": "score-board sheet only (appeal track); not on the table, like BGA",
+  "appeal": "v 0-51: (180 + 53v, 735); 52-60: (2915, 610 − 52.5(v−52)); 61-113: (2883 − 53(v−61), 75)",
+  "conservation": "green tab of its target number (target = 114 − 2c up to 10, then − 3 each): average of the covered appeal boxes, y 118 (top row) / 672 (bottom) / x 2858 (right column); cp 0 at (55, 100)",
+  "reputation": {
+   "x": [
+    430,
+    610,
+    845,
+    985,
+    1180,
+    1270,
+    1365,
+    1555,
+    1650,
+    1740,
+    1950,
+    2040,
+    2128,
+    2312,
+    2400,
+    2490
+   ],
+   "note": "marker at x − 42 (rep ≥ 1), y 300"
+  },
+  "breakToken": "x = 1760 + (max − brk)·58.7, y 200",
+  "folders": {
+   "x": [
+    528,
+    903,
+    1278,
+    1654,
+    2034,
+    2415
+   ],
+   "y": 487
+  },
+  "bonusTiles": {
+   "5": [
+    [
+     515,
+     192
+    ],
+    [
+     640,
+     192
+    ]
+   ],
+   "8": [
+    [
+     840,
+     192
+    ],
+    [
+     960,
+     192
+    ]
+   ]
+  }
+ },
+ "seats": [
+  "red",
+  "blue",
+  "yellow",
+  "black"
+ ],
+ "colors": {
+  "red": "#D7261E",
+  "blue": "#1F6FC0",
+  "yellow": "#F2C200",
+  "black": "#2A2A2A"
+ }
+}

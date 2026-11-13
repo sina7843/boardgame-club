@@ -1,6 +1,6 @@
 In-page login for a guest at a table lobby. The guest sees the lobby; «بنشین» opens this sheet and holds the seat for 2 minutes; after login they land back in the same seat.
 
-**Material (v2.1):** a bottom sheet (board) over a scrim; the cover is a small photo; «دریافت کد» is the one amber token (lg, full width); close is a ghost icon.
+**Material (v2.1):** a bottom sheet (board) over a scrim; the game is shown by its box (same corners and drop-shadow as `.bgv-box--sm`, v2.4.3); «دریافت کد» is the one amber token (lg, full width); close is a ghost icon.
 
 ## When to use
 
@@ -14,7 +14,7 @@ Game cover and title, why («صندلی ۳ میز کاتانِ نیلوفر ۲ �
 
 | Prop | Type | Description |
 |---|---|---|
-| `cover` | `string` | Game cover. |
+| `cover` | `string` | The game box image (v2.4.3: never a cover photo). |
 | `title`, `text` | `Node` | Default title «برای نشستن وارد شوید». |
 | `step` | `number` | Stepper position (0 number, 1 code, 2 profile). |
 | `cta` | `Node` | Default «دریافت کد». |

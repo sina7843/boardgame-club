@@ -1,0 +1,159 @@
+{
+ "note": "Canvas page «۱۴. پایلوت BGA: برس» (https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier). state = key in data/mock-state.json. Spec boards are not compared pixel by pixel.",
+ "screens": [
+  {
+   "id": "Brass-Table-Desktop",
+   "width": 1440,
+   "height": 1740,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main: Rail Era round 6, seat 0 action 1 of 2, Build → Birmingham space 4 (manufacturer II), card picked",
+   "reference": [
+    "img/Brass-Table-Desktop@1440.jpg",
+    "html/brass/Brass-Table-Desktop.html",
+    "dc/Brass-Table-Desktop.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Table-Desktop-EN",
+   "width": 1440,
+   "height": 1740,
+   "theme": "light",
+   "lang": "en",
+   "kind": "screen",
+   "state": "same as Brass-Table-Desktop, English game layer",
+   "reference": [
+    "img/Brass-Table-Desktop-EN@1440.jpg",
+    "html/brass/Brass-Table-Desktop-EN.html",
+    "dc/Brass-Table-Desktop-EN.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Table-Desktop-Dark",
+   "width": 1440,
+   "height": 1740,
+   "theme": "dark",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "same as Brass-Table-Desktop, dark theme",
+   "reference": [
+    "img/Brass-Table-Desktop-Dark@1440.jpg",
+    "html/brass/Brass-Table-Desktop-Dark.html",
+    "dc/Brass-Table-Desktop-Dark.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Turn-Mobile",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main: Build, auto-zoom on the 4 legal spaces, Birmingham picked, card step",
+   "reference": [
+    "img/Brass-Turn-Mobile@390.jpg",
+    "html/brass/Brass-Turn-Mobile.html",
+    "dc/Brass-Turn-Mobile.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Sell-Mobile",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main: Sell pottery Coventry → Nottingham with merchant beer",
+   "reference": [
+    "img/Brass-Sell-Mobile@390.jpg",
+    "html/brass/Brass-Sell-Mobile.html",
+    "dc/Brass-Sell-Mobile.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Actions-Mobile",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main: actions sheet over the hand tab",
+   "reference": [
+    "img/Brass-Actions-Mobile@390.jpg",
+    "html/brass/Brass-Actions-Mobile.html",
+    "dc/Brass-Actions-Mobile.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Mat-Mobile",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "main: my mat tab with seat switcher",
+   "reference": [
+    "img/Brass-Mat-Mobile@390.jpg",
+    "html/brass/Brass-Mat-Mobile.html",
+    "dc/Brass-Mat-Mobile.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-EraEnd-Mobile",
+   "width": 390,
+   "height": 844,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "screen",
+   "state": "eraEnd: Canal Era scoring sheet",
+   "reference": [
+    "img/Brass-EraEnd-Mobile@390.jpg",
+    "html/brass/Brass-EraEnd-Mobile.html",
+    "dc/Brass-EraEnd-Mobile.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Phases-Desktop",
+   "width": 1440,
+   "height": 4110,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "spec",
+   "state": "start, eraEnd, final, tutorial step 2, mat dialog",
+   "reference": [
+    "img/Brass-Phases-Desktop@1440.jpg",
+    "html/brass/Brass-Phases-Desktop.html",
+    "dc/Brass-Phases-Desktop.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Actions-Spec",
+   "width": 1440,
+   "height": 1360,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "spec",
+   "state": "every action from rules.ts",
+   "reference": [
+    "img/Brass-Actions-Spec@1440.jpg",
+    "html/brass/Brass-Actions-Spec.html",
+    "dc/Brass-Actions-Spec.dc.html"
+   ]
+  },
+  {
+   "id": "Brass-Components",
+   "width": 1440,
+   "height": 5160,
+   "theme": "light",
+   "lang": "fa",
+   "kind": "spec",
+   "state": "every component, numbered as COMPONENTS.md",
+   "reference": [
+    "img/Brass-Components@1440.jpg",
+    "html/brass/Brass-Components.html",
+    "dc/Brass-Components.dc.html"
+   ]
+  }
+ ]
+}

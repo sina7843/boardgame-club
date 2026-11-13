@@ -1,0 +1,2747 @@
+{
+ "note": "State shape = ENGINE.md §2. main = BR-Desktop table (Age 2, action phase, seat 0 Mina/Raven to act). afterTroll = after the confirmed invade. battle = Mina pillages Angerboda, Arash brought his leader (§21). afterBattle = result applied (§22). main.hints = legalActions sample for seat 0 (ENGINE.md §9).",
+ "seats": [
+  "Mina",
+  "Niloufar",
+  "Arash",
+  "Sara"
+ ],
+ "main": {
+  "v": 1,
+  "players": 4,
+  "clans": [
+   3,
+   1,
+   4,
+   2
+  ],
+  "age": 2,
+  "phase": "action",
+  "first": 1,
+  "turn": 0,
+  "ragnarok": [
+   4,
+   2,
+   8
+  ],
+  "destroyed": [
+   6,
+   4
+  ],
+  "pillage": {
+   "0": {
+    "reward": "yggdrasil",
+    "pillaged": false
+   },
+   "1": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "2": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "3": {
+    "reward": "glory",
+    "pillaged": false
+   },
+   "4": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "5": {
+    "reward": "horn",
+    "pillaged": false
+   },
+   "6": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "7": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "8": {
+    "reward": "horn",
+    "pillaged": true,
+    "by": 1
+   }
+  },
+  "stats": [
+   {
+    "rage": 1,
+    "axe": 0,
+    "horn": 1
+   },
+   {
+    "rage": 0,
+    "axe": 2,
+    "horn": 1
+   },
+   {
+    "rage": 2,
+    "axe": 0,
+    "horn": 0
+   },
+   {
+    "rage": 1,
+    "axe": 1,
+    "horn": 2
+   }
+  ],
+  "rage": [
+   4,
+   2,
+   5,
+   0
+  ],
+  "glory": [
+   21,
+   27,
+   14,
+   19
+  ],
+  "upgrades": [
+   {
+    "leader": null,
+    "warrior": 23,
+    "ship": 58,
+    "monster": [
+     26,
+     null
+    ],
+    "clan": [
+     33,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": 25,
+    "warrior": null,
+    "ship": null,
+    "monster": [
+     28,
+     null
+    ],
+    "clan": [
+     30,
+     64,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": 57,
+    "ship": null,
+    "monster": [
+     27,
+     null
+    ],
+    "clan": [
+     31,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": null,
+    "ship": 24,
+    "monster": [
+     60,
+     null
+    ],
+    "clan": [
+     34,
+     null,
+     null
+    ]
+   }
+  ],
+  "hands": [
+   [
+    44,
+    39,
+    63,
+    61,
+    13
+   ],
+   [
+    42,
+    45,
+    49
+   ],
+   [
+    36,
+    37,
+    65,
+    47,
+    3
+   ],
+   [
+    38,
+    52,
+    11,
+    67
+   ]
+  ],
+  "quests": [
+   [
+    48
+   ],
+   [
+    51,
+    56
+   ],
+   [],
+   [
+    53
+   ]
+  ],
+  "passed": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "figures": [
+   {
+    "id": "f0",
+    "seat": 0,
+    "kind": "leader",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f1",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:8"
+   },
+   {
+    "id": "f2",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:9"
+   },
+   {
+    "id": "f3",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f4",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f5",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f6",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f7",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f8",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f9",
+    "seat": 0,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:0"
+   },
+   {
+    "id": "f10",
+    "seat": 0,
+    "kind": "monster",
+    "monster": 26,
+    "where": "reserve"
+   },
+   {
+    "id": "f11",
+    "seat": 1,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:28"
+   },
+   {
+    "id": "f12",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:29"
+   },
+   {
+    "id": "f13",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:1"
+   },
+   {
+    "id": "f14",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f15",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f16",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f17",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f18",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f19",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f20",
+    "seat": 1,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:3"
+   },
+   {
+    "id": "f21",
+    "seat": 1,
+    "kind": "monster",
+    "monster": 28,
+    "where": "reserve"
+   },
+   {
+    "id": "f22",
+    "seat": 2,
+    "kind": "leader",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f23",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:10"
+   },
+   {
+    "id": "f24",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:4"
+   },
+   {
+    "id": "f25",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f26",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f27",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f28",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f29",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f30",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f31",
+    "seat": 2,
+    "kind": "ship",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f32",
+    "seat": 2,
+    "kind": "monster",
+    "monster": 27,
+    "where": "village:11"
+   },
+   {
+    "id": "f33",
+    "seat": 3,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:25"
+   },
+   {
+    "id": "f34",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:18"
+   },
+   {
+    "id": "f35",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:19"
+   },
+   {
+    "id": "f36",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:26"
+   },
+   {
+    "id": "f37",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f38",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f39",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f40",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f41",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f42",
+    "seat": 3,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:1"
+   },
+   {
+    "id": "f43",
+    "seat": 3,
+    "kind": "monster",
+    "monster": 60,
+    "where": "village:5"
+   }
+  ],
+  "battle": null,
+  "pending": null,
+  "discardPublic": [
+   10,
+   12,
+   40
+  ],
+  "log": [
+   {
+    "seat": 1,
+    "type": "pillage",
+    "province": 8,
+    "textFa": "نیلوفر گیمله را بی‌نبرد غارت کرد: شاخ ۴ → ۵",
+    "textEn": "Niloufar pillaged Gimle unopposed: Horns 4 → 5"
+   },
+   {
+    "seat": 2,
+    "type": "invade",
+    "province": 2,
+    "textFa": "آرش با جنگجو به الواگار یورش برد (۲ خشم)",
+    "textEn": "Arash invaded Elvagar with a warrior (2 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "upgrade",
+    "card": 60,
+    "textFa": "سارا والکیری را ارتقا داد و با آن به الواگار یورش برد",
+    "textEn": "Sara upgraded Valkyrie and invaded Elvagar with it"
+   },
+   {
+    "seat": 0,
+    "type": "upgrade",
+    "card": 58,
+    "textFa": "مینا اژدهاهای آتش را روی کشتی گذاشت (۲ خشم)",
+    "textEn": "Mina put Fire Dragons on her ship (2 rage)"
+   },
+   {
+    "seat": 1,
+    "type": "quest",
+    "textFa": "نیلوفر به یک مأموریت متعهد شد",
+    "textEn": "Niloufar committed to a quest"
+   },
+   {
+    "seat": 2,
+    "type": "march",
+    "from": 0,
+    "to": 3,
+    "textFa": "آرش از ایگدراسیل به آنگربودا لشکر کشید (۱ خشم)",
+    "textEn": "Arash marched from Yggdrasil to Angerboda (1 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "invade",
+    "province": 7,
+    "textFa": "سارا با جنگجو به آندلانگ یورش برد؛ خشمش تمام شد",
+    "textEn": "Sara invaded Andlang with a warrior; she is out of rage"
+   }
+  ],
+  "outcome": null
+ },
+ "afterTroll": {
+  "v": 1,
+  "players": 4,
+  "clans": [
+   3,
+   1,
+   4,
+   2
+  ],
+  "age": 2,
+  "phase": "action",
+  "first": 1,
+  "turn": 0,
+  "ragnarok": [
+   4,
+   2,
+   8
+  ],
+  "destroyed": [
+   6,
+   4
+  ],
+  "pillage": {
+   "0": {
+    "reward": "yggdrasil",
+    "pillaged": false
+   },
+   "1": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "2": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "3": {
+    "reward": "glory",
+    "pillaged": false
+   },
+   "4": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "5": {
+    "reward": "horn",
+    "pillaged": false
+   },
+   "6": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "7": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "8": {
+    "reward": "horn",
+    "pillaged": true,
+    "by": 1
+   }
+  },
+  "stats": [
+   {
+    "rage": 1,
+    "axe": 0,
+    "horn": 1
+   },
+   {
+    "rage": 0,
+    "axe": 2,
+    "horn": 1
+   },
+   {
+    "rage": 2,
+    "axe": 0,
+    "horn": 0
+   },
+   {
+    "rage": 1,
+    "axe": 1,
+    "horn": 2
+   }
+  ],
+  "rage": [
+   2,
+   2,
+   5,
+   0
+  ],
+  "glory": [
+   21,
+   27,
+   14,
+   19
+  ],
+  "upgrades": [
+   {
+    "leader": null,
+    "warrior": 23,
+    "ship": 58,
+    "monster": [
+     26,
+     null
+    ],
+    "clan": [
+     33,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": 25,
+    "warrior": null,
+    "ship": null,
+    "monster": [
+     28,
+     null
+    ],
+    "clan": [
+     30,
+     64,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": 57,
+    "ship": null,
+    "monster": [
+     27,
+     null
+    ],
+    "clan": [
+     31,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": null,
+    "ship": 24,
+    "monster": [
+     60,
+     null
+    ],
+    "clan": [
+     34,
+     null,
+     null
+    ]
+   }
+  ],
+  "hands": [
+   [
+    44,
+    39,
+    63,
+    61,
+    13
+   ],
+   [
+    42,
+    45,
+    49
+   ],
+   [
+    36,
+    37,
+    65,
+    47,
+    3
+   ],
+   [
+    38,
+    52,
+    11,
+    67
+   ]
+  ],
+  "quests": [
+   [
+    48
+   ],
+   [
+    51,
+    56
+   ],
+   [],
+   [
+    53
+   ]
+  ],
+  "passed": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "figures": [
+   {
+    "id": "f0",
+    "seat": 0,
+    "kind": "leader",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f1",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:8"
+   },
+   {
+    "id": "f2",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:9"
+   },
+   {
+    "id": "f3",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f4",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f5",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f6",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f7",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f8",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f9",
+    "seat": 0,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:0"
+   },
+   {
+    "id": "f10",
+    "seat": 0,
+    "kind": "monster",
+    "monster": 26,
+    "where": "village:12"
+   },
+   {
+    "id": "f11",
+    "seat": 1,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:28"
+   },
+   {
+    "id": "f12",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:29"
+   },
+   {
+    "id": "f13",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:1"
+   },
+   {
+    "id": "f14",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f15",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f16",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f17",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f18",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f19",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f20",
+    "seat": 1,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:3"
+   },
+   {
+    "id": "f21",
+    "seat": 1,
+    "kind": "monster",
+    "monster": 28,
+    "where": "reserve"
+   },
+   {
+    "id": "f22",
+    "seat": 2,
+    "kind": "leader",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f23",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f24",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:4"
+   },
+   {
+    "id": "f25",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f26",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f27",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f28",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f29",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f30",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f31",
+    "seat": 2,
+    "kind": "ship",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f32",
+    "seat": 2,
+    "kind": "monster",
+    "monster": 27,
+    "where": "village:11"
+   },
+   {
+    "id": "f33",
+    "seat": 3,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:25"
+   },
+   {
+    "id": "f34",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:18"
+   },
+   {
+    "id": "f35",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:19"
+   },
+   {
+    "id": "f36",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:26"
+   },
+   {
+    "id": "f37",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f38",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f39",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f40",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f41",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f42",
+    "seat": 3,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:1"
+   },
+   {
+    "id": "f43",
+    "seat": 3,
+    "kind": "monster",
+    "monster": 60,
+    "where": "village:5"
+   }
+  ],
+  "battle": null,
+  "pending": null,
+  "discardPublic": [
+   10,
+   12,
+   40
+  ],
+  "log": [
+   {
+    "seat": 1,
+    "type": "pillage",
+    "province": 8,
+    "textFa": "نیلوفر گیمله را بی‌نبرد غارت کرد: شاخ ۴ → ۵",
+    "textEn": "Niloufar pillaged Gimle unopposed: Horns 4 → 5"
+   },
+   {
+    "seat": 2,
+    "type": "invade",
+    "province": 2,
+    "textFa": "آرش با جنگجو به الواگار یورش برد (۲ خشم)",
+    "textEn": "Arash invaded Elvagar with a warrior (2 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "upgrade",
+    "card": 60,
+    "textFa": "سارا والکیری را ارتقا داد و با آن به الواگار یورش برد",
+    "textEn": "Sara upgraded Valkyrie and invaded Elvagar with it"
+   },
+   {
+    "seat": 0,
+    "type": "upgrade",
+    "card": 58,
+    "textFa": "مینا اژدهاهای آتش را روی کشتی گذاشت (۲ خشم)",
+    "textEn": "Mina put Fire Dragons on her ship (2 rage)"
+   },
+   {
+    "seat": 1,
+    "type": "quest",
+    "textFa": "نیلوفر به یک مأموریت متعهد شد",
+    "textEn": "Niloufar committed to a quest"
+   },
+   {
+    "seat": 2,
+    "type": "march",
+    "from": 0,
+    "to": 3,
+    "textFa": "آرش از ایگدراسیل به آنگربودا لشکر کشید (۱ خشم)",
+    "textEn": "Arash marched from Yggdrasil to Angerboda (1 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "invade",
+    "province": 7,
+    "textFa": "سارا با جنگجو به آندلانگ یورش برد؛ خشمش تمام شد",
+    "textEn": "Sara invaded Andlang with a warrior; she is out of rage"
+   }
+  ],
+  "outcome": null
+ },
+ "battle": {
+  "v": 1,
+  "players": 4,
+  "clans": [
+   3,
+   1,
+   4,
+   2
+  ],
+  "age": 2,
+  "phase": "action",
+  "first": 1,
+  "turn": 0,
+  "ragnarok": [
+   4,
+   2,
+   8
+  ],
+  "destroyed": [
+   6,
+   4
+  ],
+  "pillage": {
+   "0": {
+    "reward": "yggdrasil",
+    "pillaged": false
+   },
+   "1": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "2": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "3": {
+    "reward": "glory",
+    "pillaged": false
+   },
+   "4": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "5": {
+    "reward": "horn",
+    "pillaged": false
+   },
+   "6": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "7": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "8": {
+    "reward": "horn",
+    "pillaged": true,
+    "by": 1
+   }
+  },
+  "stats": [
+   {
+    "rage": 1,
+    "axe": 0,
+    "horn": 1
+   },
+   {
+    "rage": 0,
+    "axe": 2,
+    "horn": 1
+   },
+   {
+    "rage": 2,
+    "axe": 0,
+    "horn": 0
+   },
+   {
+    "rage": 1,
+    "axe": 1,
+    "horn": 2
+   }
+  ],
+  "rage": [
+   2,
+   2,
+   5,
+   0
+  ],
+  "glory": [
+   21,
+   27,
+   14,
+   19
+  ],
+  "upgrades": [
+   {
+    "leader": null,
+    "warrior": 23,
+    "ship": 58,
+    "monster": [
+     26,
+     null
+    ],
+    "clan": [
+     33,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": 25,
+    "warrior": null,
+    "ship": null,
+    "monster": [
+     28,
+     null
+    ],
+    "clan": [
+     30,
+     64,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": 57,
+    "ship": null,
+    "monster": [
+     27,
+     null
+    ],
+    "clan": [
+     31,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": null,
+    "ship": 24,
+    "monster": [
+     60,
+     null
+    ],
+    "clan": [
+     34,
+     null,
+     null
+    ]
+   }
+  ],
+  "hands": [
+   [
+    44,
+    39,
+    63,
+    61,
+    13
+   ],
+   [
+    42,
+    45,
+    49
+   ],
+   [
+    36,
+    37,
+    65,
+    47,
+    3
+   ],
+   [
+    38,
+    52,
+    11,
+    67
+   ]
+  ],
+  "quests": [
+   [
+    48
+   ],
+   [
+    51,
+    56
+   ],
+   [],
+   [
+    53
+   ]
+  ],
+  "passed": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "figures": [
+   {
+    "id": "f0",
+    "seat": 0,
+    "kind": "leader",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f1",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:8"
+   },
+   {
+    "id": "f2",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:9"
+   },
+   {
+    "id": "f3",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f4",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f5",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f6",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f7",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f8",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f9",
+    "seat": 0,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:0"
+   },
+   {
+    "id": "f10",
+    "seat": 0,
+    "kind": "monster",
+    "monster": 26,
+    "where": "village:12"
+   },
+   {
+    "id": "f11",
+    "seat": 1,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:28"
+   },
+   {
+    "id": "f12",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:29"
+   },
+   {
+    "id": "f13",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:1"
+   },
+   {
+    "id": "f14",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f15",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f16",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f17",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f18",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f19",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f20",
+    "seat": 1,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:3"
+   },
+   {
+    "id": "f21",
+    "seat": 1,
+    "kind": "monster",
+    "monster": 28,
+    "where": "reserve"
+   },
+   {
+    "id": "f22",
+    "seat": 2,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:10"
+   },
+   {
+    "id": "f23",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f24",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:4"
+   },
+   {
+    "id": "f25",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f26",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f27",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f28",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f29",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f30",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f31",
+    "seat": 2,
+    "kind": "ship",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f32",
+    "seat": 2,
+    "kind": "monster",
+    "monster": 27,
+    "where": "village:11"
+   },
+   {
+    "id": "f33",
+    "seat": 3,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:25"
+   },
+   {
+    "id": "f34",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:18"
+   },
+   {
+    "id": "f35",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:19"
+   },
+   {
+    "id": "f36",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:26"
+   },
+   {
+    "id": "f37",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f38",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f39",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f40",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f41",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f42",
+    "seat": 3,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:1"
+   },
+   {
+    "id": "f43",
+    "seat": 3,
+    "kind": "monster",
+    "monster": 60,
+    "where": "village:5"
+   }
+  ],
+  "battle": null,
+  "pending": null,
+  "discardPublic": [
+   10,
+   12,
+   40
+  ],
+  "log": [
+   {
+    "seat": 1,
+    "type": "pillage",
+    "province": 8,
+    "textFa": "نیلوفر گیمله را بی‌نبرد غارت کرد: شاخ ۴ → ۵",
+    "textEn": "Niloufar pillaged Gimle unopposed: Horns 4 → 5"
+   },
+   {
+    "seat": 2,
+    "type": "invade",
+    "province": 2,
+    "textFa": "آرش با جنگجو به الواگار یورش برد (۲ خشم)",
+    "textEn": "Arash invaded Elvagar with a warrior (2 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "upgrade",
+    "card": 60,
+    "textFa": "سارا والکیری را ارتقا داد و با آن به الواگار یورش برد",
+    "textEn": "Sara upgraded Valkyrie and invaded Elvagar with it"
+   },
+   {
+    "seat": 0,
+    "type": "upgrade",
+    "card": 58,
+    "textFa": "مینا اژدهاهای آتش را روی کشتی گذاشت (۲ خشم)",
+    "textEn": "Mina put Fire Dragons on her ship (2 rage)"
+   },
+   {
+    "seat": 1,
+    "type": "quest",
+    "textFa": "نیلوفر به یک مأموریت متعهد شد",
+    "textEn": "Niloufar committed to a quest"
+   },
+   {
+    "seat": 2,
+    "type": "march",
+    "from": 0,
+    "to": 3,
+    "textFa": "آرش از ایگدراسیل به آنگربودا لشکر کشید (۱ خشم)",
+    "textEn": "Arash marched from Yggdrasil to Angerboda (1 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "invade",
+    "province": 7,
+    "textFa": "سارا با جنگجو به آندلانگ یورش برد؛ خشمش تمام شد",
+    "textEn": "Sara invaded Andlang with a warrior; she is out of rage"
+   }
+  ],
+  "outcome": null
+ },
+ "afterBattle": {
+  "v": 1,
+  "players": 4,
+  "clans": [
+   3,
+   1,
+   4,
+   2
+  ],
+  "age": 2,
+  "phase": "action",
+  "first": 1,
+  "turn": 0,
+  "ragnarok": [
+   4,
+   2,
+   8
+  ],
+  "destroyed": [
+   6,
+   4
+  ],
+  "pillage": {
+   "0": {
+    "reward": "yggdrasil",
+    "pillaged": false
+   },
+   "1": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "2": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "3": {
+    "reward": "glory",
+    "pillaged": true,
+    "by": 0
+   },
+   "4": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "5": {
+    "reward": "horn",
+    "pillaged": false
+   },
+   "6": {
+    "reward": "axe",
+    "pillaged": false
+   },
+   "7": {
+    "reward": "rage",
+    "pillaged": false
+   },
+   "8": {
+    "reward": "horn",
+    "pillaged": true,
+    "by": 1
+   }
+  },
+  "stats": [
+   {
+    "rage": 1,
+    "axe": 0,
+    "horn": 1
+   },
+   {
+    "rage": 0,
+    "axe": 2,
+    "horn": 1
+   },
+   {
+    "rage": 2,
+    "axe": 0,
+    "horn": 0
+   },
+   {
+    "rage": 1,
+    "axe": 1,
+    "horn": 2
+   }
+  ],
+  "rage": [
+   2,
+   2,
+   5,
+   0
+  ],
+  "glory": [
+   31,
+   27,
+   14,
+   19
+  ],
+  "upgrades": [
+   {
+    "leader": null,
+    "warrior": 23,
+    "ship": 58,
+    "monster": [
+     26,
+     null
+    ],
+    "clan": [
+     33,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": 25,
+    "warrior": null,
+    "ship": null,
+    "monster": [
+     28,
+     null
+    ],
+    "clan": [
+     30,
+     64,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": 57,
+    "ship": null,
+    "monster": [
+     27,
+     null
+    ],
+    "clan": [
+     31,
+     null,
+     null
+    ]
+   },
+   {
+    "leader": null,
+    "warrior": null,
+    "ship": 24,
+    "monster": [
+     60,
+     null
+    ],
+    "clan": [
+     34,
+     null,
+     null
+    ]
+   }
+  ],
+  "hands": [
+   [
+    39,
+    63,
+    61,
+    13
+   ],
+   [
+    42,
+    45,
+    49
+   ],
+   [
+    36,
+    37,
+    65,
+    47,
+    3
+   ],
+   [
+    38,
+    52,
+    11,
+    67
+   ]
+  ],
+  "quests": [
+   [
+    48
+   ],
+   [
+    51,
+    56
+   ],
+   [],
+   [
+    53
+   ]
+  ],
+  "passed": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "figures": [
+   {
+    "id": "f0",
+    "seat": 0,
+    "kind": "leader",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f1",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:8"
+   },
+   {
+    "id": "f2",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:9"
+   },
+   {
+    "id": "f3",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f4",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f5",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f6",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f7",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f8",
+    "seat": 0,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f9",
+    "seat": 0,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:0"
+   },
+   {
+    "id": "f10",
+    "seat": 0,
+    "kind": "monster",
+    "monster": 26,
+    "where": "village:12"
+   },
+   {
+    "id": "f11",
+    "seat": 1,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:28"
+   },
+   {
+    "id": "f12",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:29"
+   },
+   {
+    "id": "f13",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:1"
+   },
+   {
+    "id": "f14",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "yggdrasil"
+   },
+   {
+    "id": "f15",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f16",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f17",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f18",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f19",
+    "seat": 1,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f20",
+    "seat": 1,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:3"
+   },
+   {
+    "id": "f21",
+    "seat": 1,
+    "kind": "monster",
+    "monster": 28,
+    "where": "reserve"
+   },
+   {
+    "id": "f22",
+    "seat": 2,
+    "kind": "leader",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f23",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "valhalla"
+   },
+   {
+    "id": "f24",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:4"
+   },
+   {
+    "id": "f25",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f26",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f27",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f28",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f29",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f30",
+    "seat": 2,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f31",
+    "seat": 2,
+    "kind": "ship",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f32",
+    "seat": 2,
+    "kind": "monster",
+    "monster": 27,
+    "where": "valhalla"
+   },
+   {
+    "id": "f33",
+    "seat": 3,
+    "kind": "leader",
+    "monster": null,
+    "where": "village:25"
+   },
+   {
+    "id": "f34",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:18"
+   },
+   {
+    "id": "f35",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:19"
+   },
+   {
+    "id": "f36",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "village:26"
+   },
+   {
+    "id": "f37",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f38",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f39",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f40",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f41",
+    "seat": 3,
+    "kind": "warrior",
+    "monster": null,
+    "where": "reserve"
+   },
+   {
+    "id": "f42",
+    "seat": 3,
+    "kind": "ship",
+    "monster": null,
+    "where": "fjord:1"
+   },
+   {
+    "id": "f43",
+    "seat": 3,
+    "kind": "monster",
+    "monster": 60,
+    "where": "village:5"
+   }
+  ],
+  "battle": null,
+  "pending": null,
+  "discardPublic": [
+   10,
+   12,
+   40
+  ],
+  "log": [
+   {
+    "seat": 1,
+    "type": "pillage",
+    "province": 8,
+    "textFa": "نیلوفر گیمله را بی‌نبرد غارت کرد: شاخ ۴ → ۵",
+    "textEn": "Niloufar pillaged Gimle unopposed: Horns 4 → 5"
+   },
+   {
+    "seat": 2,
+    "type": "invade",
+    "province": 2,
+    "textFa": "آرش با جنگجو به الواگار یورش برد (۲ خشم)",
+    "textEn": "Arash invaded Elvagar with a warrior (2 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "upgrade",
+    "card": 60,
+    "textFa": "سارا والکیری را ارتقا داد و با آن به الواگار یورش برد",
+    "textEn": "Sara upgraded Valkyrie and invaded Elvagar with it"
+   },
+   {
+    "seat": 0,
+    "type": "upgrade",
+    "card": 58,
+    "textFa": "مینا اژدهاهای آتش را روی کشتی گذاشت (۲ خشم)",
+    "textEn": "Mina put Fire Dragons on her ship (2 rage)"
+   },
+   {
+    "seat": 1,
+    "type": "quest",
+    "textFa": "نیلوفر به یک مأموریت متعهد شد",
+    "textEn": "Niloufar committed to a quest"
+   },
+   {
+    "seat": 2,
+    "type": "march",
+    "from": 0,
+    "to": 3,
+    "textFa": "آرش از ایگدراسیل به آنگربودا لشکر کشید (۱ خشم)",
+    "textEn": "Arash marched from Yggdrasil to Angerboda (1 rage)"
+   },
+   {
+    "seat": 3,
+    "type": "invade",
+    "province": 7,
+    "textFa": "سارا با جنگجو به آندلانگ یورش برد؛ خشمش تمام شد",
+    "textEn": "Sara invaded Andlang with a warrior; she is out of rage"
+   }
+  ],
+  "outcome": null
+ },
+ "mainHints": [
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:2",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:3",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:6",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:7",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:12",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:20",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:21",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:27",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:30",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:31",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f4",
+   "to": "village:32",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:2",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f13"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:3",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f13"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:6",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f24"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:7",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f24"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:12",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f23"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:20",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f34",
+      "f35"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:21",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f34",
+      "f35"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:27",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f36"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:30",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f12"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:31",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f12"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "invade",
+   "figure": "f10",
+   "to": "village:32",
+   "cost": {
+    "rage": 2
+   },
+   "effects": [
+    {
+     "kind": "destroy",
+     "figures": [
+      "f12"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "march",
+   "from": 0,
+   "to": 1,
+   "figures": [
+    "f0"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 0,
+   "to": 2,
+   "figures": [
+    "f0"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 0,
+   "to": 3,
+   "figures": [
+    "f0"
+   ],
+   "maxFigures": 1,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 0,
+   "to": 5,
+   "figures": [
+    "f0"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 0,
+   "to": 7,
+   "figures": [
+    "f0"
+   ],
+   "maxFigures": 1,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 0,
+   "to": 8,
+   "figures": [
+    "f0"
+   ],
+   "maxFigures": 3,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 3,
+   "to": 0,
+   "figures": [
+    "f1",
+    "f2"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 3,
+   "to": 1,
+   "figures": [
+    "f1",
+    "f2"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 3,
+   "to": 2,
+   "figures": [
+    "f1",
+    "f2"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 3,
+   "to": 5,
+   "figures": [
+    "f1",
+    "f2"
+   ],
+   "maxFigures": 2,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 3,
+   "to": 7,
+   "figures": [
+    "f1"
+   ],
+   "maxFigures": 1,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "march",
+   "from": 3,
+   "to": 8,
+   "figures": [
+    "f1",
+    "f2"
+   ],
+   "maxFigures": 3,
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "upgrade",
+   "card": 63,
+   "slot": "clan",
+   "cost": {
+    "rage": 2
+   }
+  },
+  {
+   "type": "upgrade",
+   "card": 61,
+   "slot": "monster",
+   "cost": {
+    "rage": 1
+   }
+  },
+  {
+   "type": "quest",
+   "disabled": true,
+   "reason": "NOT_QUEST_CARD"
+  },
+  {
+   "type": "pillage",
+   "province": 0,
+   "cost": {
+    "rage": 0
+   }
+  },
+  {
+   "type": "pillage",
+   "province": 2,
+   "cost": {
+    "rage": 0
+   }
+  },
+  {
+   "type": "pillage",
+   "province": 3,
+   "cost": {
+    "rage": 0
+   }
+  },
+  {
+   "type": "pass"
+  }
+ ]
+}

@@ -41,7 +41,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 h('div',{style:{display:'grid', gap:'6px', maxWidth:'420px'}},
   h(B.Reward,{icon:'trophy', label:'ریتینگ کاتان', value:19}),
   h(B.Reward,{icon:'trophy', label:'ریتینگ اونو', value:-12}),
-  h(B.Reward,{icon:'sparkles', label:'سطح ۱۲', progress:0.8, progressText:'۹۶۰ از ۱٬۲۰۰', value:120, unit:'XP'}),
+  h(B.Reward,{icon:'sparkles', label:'سطح ۱۲', progress:0.8, progressText:'۹۶۰ از ۱,۲۰۰', value:120, unit:'XP'}),
   h(B.Reward,{coin:true, label:'سکهٔ سطح ۱۲', value:120}),
   h(B.Reward,{icon:'image', label:'قاب نقره‌ای پروفایل', value:'باز شد'})
 )

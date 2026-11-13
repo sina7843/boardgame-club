@@ -1,0 +1,3132 @@
+{
+ "100": {
+  "name": "Fueled Generators",
+  "nameFa": "مولدهای سوختی",
+  "kind": "automated",
+  "cost": 1,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۱− تولید مگاکردیت و ۱+ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/100-fueled-generators.webp"
+ },
+ "101": {
+  "name": "Ironworks",
+  "nameFa": "کارخانهٔ آهن",
+  "kind": "active",
+  "cost": 11,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۴ انرژی بدهید، ۱ فولاد بگیرید و اکسیژن ۱ پله بالا می‌رود.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/101-ironworks.webp"
+ },
+ "102": {
+  "name": "Power Grid",
+  "nameFa": "شبکهٔ برق",
+  "kind": "automated",
+  "cost": 18,
+  "tags": [
+   "power"
+  ],
+  "textFa": "۱ تولید انرژی برای هر نشان انرژی که دارید (این هم).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/102-power-grid.webp"
+ },
+ "103": {
+  "name": "Steelworks",
+  "nameFa": "کارخانهٔ فولاد",
+  "kind": "active",
+  "cost": 15,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۴ انرژی بدهید، ۲ فولاد بگیرید و اکسیژن ۱ پله بالا می‌رود.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/103-steelworks.webp"
+ },
+ "104": {
+  "name": "Ore Processor",
+  "nameFa": "فرآوری سنگ معدن",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۴ انرژی بدهید، ۱ تیتانیوم بگیرید و اکسیژن ۱ پله بالا می‌رود.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/104-ore-processor.webp"
+ },
+ "105": {
+  "name": "Earth Office",
+  "nameFa": "دفتر زمین",
+  "kind": "active",
+  "cost": 1,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "کارت‌های زمینی ۳ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/105-earth-office.webp"
+ },
+ "106": {
+  "name": "Acquired Company",
+  "nameFa": "شرکت خریداری‌شده",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۳ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/106-acquired-company.webp"
+ },
+ "107": {
+  "name": "Media Archives",
+  "nameFa": "آرشیو رسانه‌ها",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "به ازای هر کارت رویدادی که تاکنون هر بازیکنی بازی کرده ۱ مگاکردیت می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/107-media-archives.webp"
+ },
+ "108": {
+  "name": "Open City",
+  "nameFa": "شهر باز",
+  "kind": "automated",
+  "cost": 23,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "نیاز: ۱۲٪ اکسیژن. ۱− تولید انرژی، ۴+ تولید مگاکردیت، ۲ گیاه. یک شهر بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/108-open-city.webp"
+ },
+ "109": {
+  "name": "Media Group",
+  "nameFa": "گروه رسانه‌ای",
+  "kind": "active",
+  "cost": 6,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "هر وقت کارت رویدادی بازی کنید ۳ مگاکردیت می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/109-media-group.webp"
+ },
+ "110": {
+  "name": "Business Network",
+  "nameFa": "شبکهٔ تجاری",
+  "kind": "active",
+  "cost": 4,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۱− تولید مگاکردیت. کنش: کارت روی دسته را ببینید؛ آن را با ۳ مگاکردیت بخرید یا دور بریزید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/110-business-network.webp"
+ },
+ "111": {
+  "name": "Business Contacts",
+  "nameFa": "ارتباطات تجاری",
+  "kind": "event",
+  "cost": 7,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۴ کارت رو را ببینید؛ ۲ تا را به دست بگیرید و بقیه را دور بریزید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/111-business-contacts.webp"
+ },
+ "112": {
+  "name": "Bribed Committee",
+  "nameFa": "کمیتهٔ رشوه‌گیر",
+  "kind": "event",
+  "cost": 7,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "رتبهٔ زمین‌سازی‌تان ۲ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/112-bribed-committee.webp"
+ },
+ "113": {
+  "name": "Solar Power",
+  "nameFa": "انرژی خورشیدی",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۱ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/113-solar-power.webp"
+ },
+ "114": {
+  "name": "Breathing Filters",
+  "nameFa": "فیلترهای تنفسی",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "science"
+  ],
+  "textFa": "نیاز: ۷٪ اکسیژن.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/114-breathing-filters.webp"
+ },
+ "115": {
+  "name": "Artificial Photosynthesis",
+  "nameFa": "فتوسنتز مصنوعی",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "science"
+  ],
+  "textFa": "۱ تولید گیاه یا ۲ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/115-artificial-photosynthesis.webp"
+ },
+ "116": {
+  "name": "Artificial Lake",
+  "nameFa": "دریاچهٔ مصنوعی",
+  "kind": "automated",
+  "cost": 15,
+  "tags": [
+   "building"
+  ],
+  "textFa": "نیاز: دمای ۶− یا گرم‌تر. یک اقیانوس روی ناحیه‌ای که برای اقیانوس رزرو نشده بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/116-artificial-lake.webp"
+ },
+ "117": {
+  "name": "Geothermal Power",
+  "nameFa": "انرژی زمین‌گرمایی",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۲ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/117-geothermal-power.webp"
+ },
+ "118": {
+  "name": "Farming",
+  "nameFa": "کشاورزی",
+  "kind": "automated",
+  "cost": 16,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۴+ یا گرم‌تر. ۲ تولید مگاکردیت، ۲ تولید گیاه و ۲ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/118-farming.webp"
+ },
+ "119": {
+  "name": "Dust Seals",
+  "nameFa": "آب‌بندهای گرد و غبار",
+  "kind": "automated",
+  "cost": 2,
+  "tags": [],
+  "textFa": "نیاز: حداکثر ۳ اقیانوس.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/119-dust-seals.webp"
+ },
+ "120": {
+  "name": "Urbanized Area",
+  "nameFa": "ناحیهٔ شهری",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۲+ تولید مگاکردیت. شهری کنار دست‌کم ۲ شهر دیگر بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/120-urbanized-area.webp"
+ },
+ "121": {
+  "name": "Sabotage",
+  "nameFa": "خرابکاری",
+  "kind": "event",
+  "cost": 1,
+  "tags": [],
+  "textFa": "تا ۳ تیتانیوم، یا تا ۴ فولاد، یا تا ۷ مگاکردیت از یک بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/121-sabotage.webp"
+ },
+ "122": {
+  "name": "Moss",
+  "nameFa": "خزه",
+  "kind": "automated",
+  "cost": 4,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: ۳ اقیانوس. ۱ گیاه از دست می‌دهید؛ ۱ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/122-moss.webp"
+ },
+ "123": {
+  "name": "Industrial Center",
+  "nameFa": "مرکز صنعتی",
+  "kind": "active",
+  "cost": 4,
+  "tags": [
+   "building"
+  ],
+  "textFa": "این کاشی را کنار یک شهر بگذارید. کنش: ۷ مگاکردیت بدهید و ۱ تولید فولاد بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": 7,
+  "art": "art/cards/projects/123-industrial-center.webp",
+  "tile": "art/tiles/special/industrial-center.webp"
+ },
+ "124": {
+  "name": "Hired Raiders",
+  "nameFa": "مزدوران",
+  "kind": "event",
+  "cost": 1,
+  "tags": [],
+  "textFa": "تا ۲ فولاد یا تا ۳ مگاکردیت از یک بازیکن بدزدید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/124-hired-raiders.webp"
+ },
+ "125": {
+  "name": "Hackers",
+  "nameFa": "هکرها",
+  "kind": "automated",
+  "cost": 3,
+  "tags": [],
+  "textFa": "۱− تولید انرژی. تولید مگاکردیت یک بازیکن ۲ پله کم می‌شود و تولید مگاکردیت شما ۲ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/125-hackers.webp"
+ },
+ "126": {
+  "name": "GHG Factories",
+  "nameFa": "کارخانه‌های گاز گلخانه‌ای",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۴+ تولید گرما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/126-ghg-factories.webp"
+ },
+ "127": {
+  "name": "Subterranean Reservoir",
+  "nameFa": "مخزن زیرزمینی",
+  "kind": "event",
+  "cost": 11,
+  "tags": [],
+  "textFa": "یک اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/127-subterranean-reservoir.webp"
+ },
+ "128": {
+  "name": "Ecological Zone",
+  "nameFa": "منطقهٔ زیست‌محیطی",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "animal",
+   "plant"
+  ],
+  "textFa": "نیاز: یک فضای سبز داشته باشید. این کاشی را کنار یک فضای سبز بگذارید. هر نشان جانور یا گیاه که بازی کنید (این ۲ تا هم) ۱ جانور به این کارت. ۱ امتیاز برای هر ۲ جانور.",
+  "resource": "animal",
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/128-ecological-zone.webp",
+  "tile": "art/tiles/special/ecological-zone.webp"
+ },
+ "129": {
+  "name": "Zeppelins",
+  "nameFa": "زپلین‌ها",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [],
+  "textFa": "نیاز: ۵٪ اکسیژن. ۱ تولید مگاکردیت برای هر شهر روی مریخ.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/129-zeppelins.webp"
+ },
+ "130": {
+  "name": "Worms",
+  "nameFa": "کرم‌ها",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: ۴٪ اکسیژن. ۱ تولید گیاه برای هر ۲ نشان میکروب شما (این هم).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/130-worms.webp"
+ },
+ "131": {
+  "name": "Decomposers",
+  "nameFa": "تجزیه‌کننده‌ها",
+  "kind": "active",
+  "cost": 5,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: ۳٪ اکسیژن. هر نشان جانور، گیاه یا میکروب که بازی کنید (این هم) ۱ میکروب به این کارت. ۱ امتیاز برای هر ۳ میکروب.",
+  "resource": "microbe",
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/131-decomposers.webp"
+ },
+ "132": {
+  "name": "Fusion Power",
+  "nameFa": "انرژی همجوشی",
+  "kind": "automated",
+  "cost": 14,
+  "tags": [
+   "science",
+   "building",
+   "power"
+  ],
+  "textFa": "نیاز: ۲ نشان انرژی. ۳ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/132-fusion-power.webp"
+ },
+ "133": {
+  "name": "Symbiotic Fungus",
+  "nameFa": "قارچ همزیست",
+  "kind": "active",
+  "cost": 4,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: دمای ۱۴− یا گرم‌تر. کنش: ۱ میکروب به کارت دیگری بیفزایید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/133-symbiotic-fungus.webp"
+ },
+ "134": {
+  "name": "Extreme-Cold Fungus",
+  "nameFa": "قارچ سرمادوست",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: دمای ۱۰− یا سردتر. کنش: ۱ گیاه بگیرید یا ۲ میکروب به کارت دیگری بیفزایید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/134-extreme-cold-fungus.webp"
+ },
+ "135": {
+  "name": "Advanced Ecosystems",
+  "nameFa": "زیست‌بوم‌های پیشرفته",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "plant",
+   "microbe",
+   "animal"
+  ],
+  "textFa": "نیاز: یک نشان گیاه، یک نشان میکروب و یک نشان جانور.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/135-advanced-ecosystems.webp"
+ },
+ "136": {
+  "name": "Great Dam",
+  "nameFa": "سد بزرگ",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "نیاز: ۴ اقیانوس. ۲ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/136-great-dam.webp"
+ },
+ "137": {
+  "name": "Cartel",
+  "nameFa": "کارتل",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۱ تولید مگاکردیت برای هر نشان زمین شما (این هم).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/137-cartel.webp"
+ },
+ "138": {
+  "name": "Strip Mine",
+  "nameFa": "معدن روباز",
+  "kind": "automated",
+  "cost": 25,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۲− تولید انرژی، ۲+ تولید فولاد، ۱+ تولید تیتانیوم. اکسیژن ۲ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/138-strip-mine.webp"
+ },
+ "139": {
+  "name": "Wave Power",
+  "nameFa": "انرژی موج",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "power"
+  ],
+  "textFa": "نیاز: ۳ اقیانوس. ۱ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/139-wave-power.webp"
+ },
+ "140": {
+  "name": "Lava Flows",
+  "nameFa": "جریان گدازه",
+  "kind": "event",
+  "cost": 18,
+  "tags": [],
+  "textFa": "این کاشی را روی تارسیس تولوس، اسکرائوس، پاوونیس یا آرسیا بگذارید. دما ۲ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/140-lava-flows.webp",
+  "tile": "art/tiles/special/lava-flows.webp"
+ },
+ "141": {
+  "name": "Power Plant",
+  "nameFa": "نیروگاه",
+  "kind": "automated",
+  "cost": 4,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۱ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/141-power-plant.webp"
+ },
+ "142": {
+  "name": "Mohole Area",
+  "nameFa": "ناحیهٔ موهول",
+  "kind": "automated",
+  "cost": 20,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۴ تولید گرما. این کاشی را روی ناحیهٔ رزرو اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/142-mohole-area.webp",
+  "tile": "art/tiles/special/mohole-area.webp"
+ },
+ "143": {
+  "name": "Large Convoy",
+  "nameFa": "کاروان بزرگ",
+  "kind": "event",
+  "cost": 36,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "۱ اقیانوس بگذارید و ۲ کارت بکشید. ۵ گیاه بگیرید یا ۴ جانور به کارتی دیگر بیفزایید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/143-large-convoy.webp"
+ },
+ "144": {
+  "name": "Titanium Mine",
+  "nameFa": "معدن تیتانیوم",
+  "kind": "automated",
+  "cost": 7,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱ تولید تیتانیوم.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/144-titanium-mine.webp"
+ },
+ "145": {
+  "name": "Tectonic Stress Power",
+  "nameFa": "نیروی تنش زمین‌ساختی",
+  "kind": "automated",
+  "cost": 18,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "نیاز: ۲ نشان علم. ۳ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/145-tectonic-stress-power.webp"
+ },
+ "146": {
+  "name": "Nitrophilic Moss",
+  "nameFa": "خزهٔ نیترات‌دوست",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: ۳ اقیانوس. ۲ گیاه از دست می‌دهید؛ ۲ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/146-nitrophilic-moss.webp"
+ },
+ "147": {
+  "name": "Herbivores",
+  "nameFa": "گیاه‌خواران",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "animal"
+  ],
+  "textFa": "نیاز: ۸٪ اکسیژن. ۱ جانور به این کارت؛ ۱− تولید گیاه یک بازیکن. هر بار فضای سبز بگذارید ۱ جانور به این کارت. ۱ امتیاز برای هر ۲ جانور.",
+  "resource": "animal",
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/147-herbivores.webp"
+ },
+ "148": {
+  "name": "Insects",
+  "nameFa": "حشرات",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: ۶٪ اکسیژن. ۱ تولید گیاه برای هر نشان گیاه که دارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/148-insects.webp"
+ },
+ "149": {
+  "name": "CEO's Favorite Project",
+  "nameFa": "پروژهٔ محبوب مدیرعامل",
+  "kind": "event",
+  "cost": 1,
+  "tags": [],
+  "textFa": "۱ منبع به یکی از کارت‌هایتان که دست‌کم ۱ منبع دارد بیفزایید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/149-ceo-s-favorite-project.webp"
+ },
+ "150": {
+  "name": "Anti-Gravity Technology",
+  "nameFa": "فناوری ضدجاذبه",
+  "kind": "active",
+  "cost": 14,
+  "tags": [
+   "science"
+  ],
+  "textFa": "نیاز: ۷ نشان علم. همهٔ کارت‌هایی که بازی می‌کنید ۲ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/150-anti-gravity-technology.webp"
+ },
+ "151": {
+  "name": "Investment Loan",
+  "nameFa": "وام سرمایه‌گذاری",
+  "kind": "event",
+  "cost": 3,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۱− تولید مگاکردیت؛ ۱۰ مگاکردیت بگیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/151-investment-loan.webp"
+ },
+ "152": {
+  "name": "Insulation",
+  "nameFa": "عایق‌بندی",
+  "kind": "automated",
+  "cost": 2,
+  "tags": [],
+  "textFa": "هر چند پله تولید گرما را کم کنید و به همان اندازه تولید مگاکردیت بگیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/152-insulation.webp"
+ },
+ "153": {
+  "name": "Adaptation Technology",
+  "nameFa": "فناوری سازگاری",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "science"
+  ],
+  "textFa": "شرط‌های سراسری کارت‌هایتان ۲ پله به سود شما جابه‌جا می‌شوند.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/153-adaptation-technology.webp"
+ },
+ "154": {
+  "name": "Caretaker Contract",
+  "nameFa": "قرارداد سرپرستی",
+  "kind": "active",
+  "cost": 3,
+  "tags": [],
+  "textFa": "نیاز: دمای ۰ یا گرم‌تر. کنش: ۸ گرما خرج کنید و ۱ رتبهٔ زمین‌سازی بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/154-caretaker-contract.webp"
+ },
+ "155": {
+  "name": "Designed Microorganisms",
+  "nameFa": "ریزجانداران طراحی‌شده",
+  "kind": "automated",
+  "cost": 16,
+  "tags": [
+   "science",
+   "microbe"
+  ],
+  "textFa": "نیاز: دمای ۱۴− یا سردتر. ۲ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/155-designed-microorganisms.webp"
+ },
+ "156": {
+  "name": "Standard Technology",
+  "nameFa": "فناوری استاندارد",
+  "kind": "active",
+  "cost": 6,
+  "tags": [
+   "science"
+  ],
+  "textFa": "پس از پرداخت هزینهٔ هر پروژهٔ استاندارد جز فروش امتیاز اختراع، ۳ مگاکردیت بگیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/156-standard-technology.webp"
+ },
+ "157": {
+  "name": "Nitrite Reducing Bacteria",
+  "nameFa": "باکتری‌های کاهندهٔ نیتریت",
+  "kind": "active",
+  "cost": 11,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "۳ میکروب به این کارت. کنش: ۱ میکروب به این کارت، یا ۳ میکروب از آن بردارید و ۱ رتبهٔ زمین‌سازی بگیرید.",
+  "resource": "microbe",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/157-nitrite-reducing-bacteria.webp"
+ },
+ "158": {
+  "name": "Industrial Microbes",
+  "nameFa": "میکروب‌های صنعتی",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "microbe",
+   "building"
+  ],
+  "textFa": "۱ تولید انرژی و ۱ تولید فولاد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/158-industrial-microbes.webp"
+ },
+ "159": {
+  "name": "Lichen",
+  "nameFa": "گلسنگ",
+  "kind": "automated",
+  "cost": 7,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۲۴− یا گرم‌تر. ۱ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/159-lichen.webp"
+ },
+ "160": {
+  "name": "Power Supply Consortium",
+  "nameFa": "کنسرسیوم تأمین برق",
+  "kind": "automated",
+  "cost": 5,
+  "tags": [
+   "power"
+  ],
+  "textFa": "نیاز: ۲ نشان انرژی. ۱− تولید انرژی یک بازیکن؛ ۱ تولید انرژی برای شما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/160-power-supply-consortium.webp"
+ },
+ "161": {
+  "name": "Convoy From Europa",
+  "nameFa": "کاروان از اروپا",
+  "kind": "event",
+  "cost": 15,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۱ اقیانوس بگذارید و ۱ کارت بکشید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/161-convoy-from-europa.webp"
+ },
+ "162": {
+  "name": "Imported GHG",
+  "nameFa": "گاز گلخانه‌ای وارداتی",
+  "kind": "event",
+  "cost": 7,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "۱ تولید گرما و ۳ گرما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/162-imported-ghg.webp"
+ },
+ "163": {
+  "name": "Imported Nitrogen",
+  "nameFa": "نیتروژن وارداتی",
+  "kind": "event",
+  "cost": 23,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "۱ رتبهٔ زمین‌سازی و ۴ گیاه. ۳ میکروب به کارتی دیگر و ۲ جانور به کارتی دیگر بیفزایید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/163-imported-nitrogen.webp"
+ },
+ "164": {
+  "name": "Micro-Mills",
+  "nameFa": "آسیاب‌های کوچک",
+  "kind": "automated",
+  "cost": 3,
+  "tags": [],
+  "textFa": "۱ تولید گرما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/164-micro-mills.webp"
+ },
+ "165": {
+  "name": "Magnetic Field Generators",
+  "nameFa": "مولدهای میدان مغناطیسی",
+  "kind": "automated",
+  "cost": 20,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۴− تولید انرژی، ۲ تولید گیاه؛ ۳ رتبهٔ زمین‌سازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/165-magnetic-field-generators.webp"
+ },
+ "166": {
+  "name": "Shuttles",
+  "nameFa": "شاتل‌ها",
+  "kind": "active",
+  "cost": 10,
+  "tags": [
+   "space"
+  ],
+  "textFa": "نیاز: ۵٪ اکسیژن. ۱− تولید انرژی، ۲ تولید مگاکردیت. کارت‌های فضایی ۲ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/166-shuttles.webp"
+ },
+ "167": {
+  "name": "Import of Advanced GHG",
+  "nameFa": "واردات گاز گلخانه‌ای پیشرفته",
+  "kind": "event",
+  "cost": 9,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "۲ تولید گرما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/167-import-of-advanced-ghg.webp"
+ },
+ "168": {
+  "name": "Windmills",
+  "nameFa": "آسیاب‌های بادی",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "نیاز: ۷٪ اکسیژن. ۱ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/168-windmills.webp"
+ },
+ "169": {
+  "name": "Tundra Farming",
+  "nameFa": "کشاورزی توندرا",
+  "kind": "automated",
+  "cost": 16,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۶− یا گرم‌تر. ۱ تولید گیاه، ۲ تولید مگاکردیت و ۱ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/169-tundra-farming.webp"
+ },
+ "170": {
+  "name": "Aerobraked Ammonia Asteroid",
+  "nameFa": "سیارک آمونیاکی ترمز هوایی",
+  "kind": "event",
+  "cost": 26,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۳ تولید گرما و ۱ تولید گیاه. ۲ میکروب به کارتی دیگر بیفزایید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/170-aerobraked-ammonia-asteroid.webp"
+ },
+ "171": {
+  "name": "Magnetic Field Dome",
+  "nameFa": "گنبد میدان مغناطیسی",
+  "kind": "automated",
+  "cost": 5,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۲− تولید انرژی، ۱ تولید گیاه؛ ۱ رتبهٔ زمین‌سازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/171-magnetic-field-dome.webp"
+ },
+ "172": {
+  "name": "Pets",
+  "nameFa": "حیوانات خانگی",
+  "kind": "active",
+  "cost": 10,
+  "tags": [
+   "earth",
+   "animal"
+  ],
+  "textFa": "۱ جانور به این کارت. هر بار هر کسی شهر بگذارد ۱ جانور به این کارت. جانورها را نمی‌توان از این کارت برداشت. ۱ امتیاز برای هر ۲ جانور.",
+  "resource": "animal",
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/172-pets.webp"
+ },
+ "173": {
+  "name": "Protected Habitats",
+  "nameFa": "زیستگاه‌های حفاظت‌شده",
+  "kind": "active",
+  "cost": 5,
+  "tags": [],
+  "textFa": "رقیبان نمی‌توانند گیاه، جانور یا میکروب شما را بردارند.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/173-protected-habitats.webp"
+ },
+ "174": {
+  "name": "Protected Valley",
+  "nameFa": "درهٔ حفاظت‌شده",
+  "kind": "automated",
+  "cost": 23,
+  "tags": [
+   "plant",
+   "building"
+  ],
+  "textFa": "۲ تولید مگاکردیت. یک فضای سبز روی ناحیهٔ ویژهٔ اقیانوس بگذارید (بدون قاعدهٔ عادی جای‌گذاری).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/174-protected-valley.webp"
+ },
+ "175": {
+  "name": "Satellites",
+  "nameFa": "ماهواره‌ها",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۱ تولید مگاکردیت برای هر نشان فضایی که دارید (این هم).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/175-satellites.webp"
+ },
+ "176": {
+  "name": "Noctis Farming",
+  "nameFa": "کشاورزی نوکتیس",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "plant",
+   "building"
+  ],
+  "textFa": "نیاز: دمای ۲۰− یا گرم‌تر. ۱ تولید مگاکردیت و ۲ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/176-noctis-farming.webp"
+ },
+ "177": {
+  "name": "Water Splitting Plant",
+  "nameFa": "نیروگاه تجزیهٔ آب",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "building"
+  ],
+  "textFa": "نیاز: ۲ اقیانوس. کنش: ۳ انرژی خرج کنید و اکسیژن را ۱ پله بالا ببرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/177-water-splitting-plant.webp"
+ },
+ "178": {
+  "name": "Heat Trappers",
+  "nameFa": "تله‌های گرما",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۲− تولید گرمای یک بازیکن؛ ۱ تولید انرژی برای شما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/178-heat-trappers.webp"
+ },
+ "179": {
+  "name": "Soil Factory",
+  "nameFa": "کارخانهٔ خاک",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۱+ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/179-soil-factory.webp"
+ },
+ "180": {
+  "name": "Fuel Factory",
+  "nameFa": "کارخانهٔ سوخت",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۱+ تولید تیتانیوم و ۱+ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/180-fuel-factory.webp"
+ },
+ "181": {
+  "name": "Ice Cap Melting",
+  "nameFa": "ذوب کلاهک یخی",
+  "kind": "event",
+  "cost": 5,
+  "tags": [],
+  "textFa": "نیاز: دمای ۲+ یا گرم‌تر. ۱ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/181-ice-cap-melting.webp"
+ },
+ "182": {
+  "name": "Corporate Stronghold",
+  "nameFa": "دژ شرکتی",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۳+ تولید مگاکردیت. یک شهر بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/182-corporate-stronghold.webp"
+ },
+ "183": {
+  "name": "Biomass Combustors",
+  "nameFa": "کوره‌های زیست‌توده",
+  "kind": "automated",
+  "cost": 4,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "نیاز: ۶٪ اکسیژن. ۱− تولید گیاه یک بازیکن؛ ۲ تولید انرژی برای شما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/183-biomass-combustors.webp"
+ },
+ "184": {
+  "name": "Livestock",
+  "nameFa": "دام‌ها",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "animal"
+  ],
+  "textFa": "نیاز: ۹٪ اکسیژن. ۱− تولید گیاه، ۲+ تولید مگاکردیت. کنش: ۱ جانور به این کارت. ۱ امتیاز برای هر جانور.",
+  "resource": "animal",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/184-livestock.webp"
+ },
+ "185": {
+  "name": "Olympus Conference",
+  "nameFa": "همایش المپوس",
+  "kind": "active",
+  "cost": 10,
+  "tags": [
+   "science",
+   "earth",
+   "building"
+  ],
+  "textFa": "هر نشان علم که بازی کنید (این هم): ۱ منبع علمی به این کارت، یا ۱ منبع علمی از آن بردارید و ۱ کارت بکشید.",
+  "resource": "science",
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/185-olympus-conference.webp"
+ },
+ "186": {
+  "name": "Rad-Suits",
+  "nameFa": "لباس‌های ضدتشعشع",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [],
+  "textFa": "نیاز: ۲ کاشی شهر در بازی. ۱+ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/186-rad-suits.webp"
+ },
+ "187": {
+  "name": "Aquifer Pumping",
+  "nameFa": "پمپاژ سفرهٔ آب",
+  "kind": "active",
+  "cost": 18,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۸ مگاکردیت (فولاد هم قبول است) بدهید و یک اقیانوس بگذارید.",
+  "resource": null,
+  "action": true,
+  "actionCost": 8,
+  "art": "art/cards/projects/187-aquifer-pumping.webp"
+ },
+ "188": {
+  "name": "Flooding",
+  "nameFa": "سیل",
+  "kind": "event",
+  "cost": 7,
+  "tags": [],
+  "textFa": "۱ اقیانوس بگذارید؛ سپس می‌توانید تا ۴ مگاکردیت از صاحب یکی از کاشی‌های کنار آن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/188-flooding.webp"
+ },
+ "189": {
+  "name": "Energy Saving",
+  "nameFa": "صرفه‌جویی انرژی",
+  "kind": "automated",
+  "cost": 15,
+  "tags": [
+   "power"
+  ],
+  "textFa": "۱ تولید انرژی برای هر کاشی شهر در بازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/189-energy-saving.webp"
+ },
+ "190": {
+  "name": "Local Heat Trapping",
+  "nameFa": "به‌دام‌اندازی گرمای محلی",
+  "kind": "event",
+  "cost": 1,
+  "tags": [],
+  "textFa": "۵ گرما خرج کنید و ۴ گیاه بگیرید یا ۲ جانور به کارت دیگری بیفزایید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/190-local-heat-trapping.webp"
+ },
+ "191": {
+  "name": "Permafrost Extraction",
+  "nameFa": "استخراج یخ‌زار دائمی",
+  "kind": "event",
+  "cost": 8,
+  "tags": [],
+  "textFa": "نیاز: دمای ۸− یا گرم‌تر. ۱ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/191-permafrost-extraction.webp"
+ },
+ "192": {
+  "name": "Invention Contest",
+  "nameFa": "مسابقهٔ اختراع",
+  "kind": "event",
+  "cost": 2,
+  "tags": [
+   "science"
+  ],
+  "textFa": "۳ کارت رو را ببینید؛ ۱ تا را به دست بگیرید و بقیه را دور بریزید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/192-invention-contest.webp"
+ },
+ "193": {
+  "name": "Plantation",
+  "nameFa": "کشتزار",
+  "kind": "automated",
+  "cost": 15,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: ۲ نشان علم. یک کاشی فضای سبز بگذارید و اکسیژن را ۱ پله بالا ببرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/193-plantation.webp"
+ },
+ "194": {
+  "name": "Power Infrastructure",
+  "nameFa": "زیرساخت برق",
+  "kind": "active",
+  "cost": 4,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "کنش: هر چند انرژی خرج کنید و همان اندازه مگاکردیت بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/194-power-infrastructure.webp"
+ },
+ "195": {
+  "name": "Indentured Workers",
+  "nameFa": "کارگران قراردادی",
+  "kind": "event",
+  "cost": 0,
+  "tags": [],
+  "textFa": "کارت بعدی که در این نسل بازی می‌کنید ۸ مگاکردیت ارزان‌تر است.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/195-indentured-workers.webp"
+ },
+ "196": {
+  "name": "Lagrange Observatory",
+  "nameFa": "رصدخانهٔ لاگرانژ",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "science",
+   "space"
+  ],
+  "textFa": "۱ کارت بکشید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/196-lagrange-observatory.webp"
+ },
+ "197": {
+  "name": "Terraforming Ganymede",
+  "nameFa": "زمین‌سازی گانیمد",
+  "kind": "automated",
+  "cost": 33,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "به ازای هر نشان مشتری که دارید (این هم) ۱ رتبهٔ زمین‌سازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/197-terraforming-ganymede.webp"
+ },
+ "198": {
+  "name": "Immigration Shuttles",
+  "nameFa": "شاتل‌های مهاجرت",
+  "kind": "automated",
+  "cost": 31,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "۵+ تولید مگاکردیت. ۱ امتیاز برای هر ۳ کاشی شهر در بازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/198-immigration-shuttles.webp"
+ },
+ "199": {
+  "name": "Restricted Area",
+  "nameFa": "منطقهٔ ممنوعه",
+  "kind": "active",
+  "cost": 11,
+  "tags": [
+   "science"
+  ],
+  "textFa": "این کاشی ویژه را بگذارید. کنش: ۲ مگاکردیت بدهید و ۱ کارت بکشید.",
+  "resource": null,
+  "action": true,
+  "actionCost": 2,
+  "art": "art/cards/projects/199-restricted-area.webp",
+  "tile": "art/tiles/special/restricted-area.webp"
+ },
+ "200": {
+  "name": "Immigrant City",
+  "nameFa": "شهر مهاجران",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۲− تولید مگاکردیت. یک شهر بگذارید. هر بار هر کسی شهری بگذارد (این هم) ۱+ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/200-immigrant-city.webp"
+ },
+ "201": {
+  "name": "Energy Tapping",
+  "nameFa": "برداشت انرژی",
+  "kind": "automated",
+  "cost": 3,
+  "tags": [
+   "power"
+  ],
+  "textFa": "۱− تولید انرژی یک بازیکن؛ ۱ تولید انرژی برای شما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/201-energy-tapping.webp"
+ },
+ "202": {
+  "name": "Underground Detonations",
+  "nameFa": "انفجارهای زیرزمینی",
+  "kind": "active",
+  "cost": 6,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۱۰ مگاکردیت بدهید و ۲ تولید گرما بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": 10,
+  "art": "art/cards/projects/202-underground-detonations.webp"
+ },
+ "203": {
+  "name": "Soletta",
+  "nameFa": "سولتا",
+  "kind": "automated",
+  "cost": 35,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۷+ تولید گرما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/203-soletta.webp"
+ },
+ "204": {
+  "name": "Technology Demonstration",
+  "nameFa": "نمایش فناوری",
+  "kind": "event",
+  "cost": 5,
+  "tags": [
+   "science",
+   "space"
+  ],
+  "textFa": "۲ کارت بکشید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/204-technology-demonstration.webp"
+ },
+ "205": {
+  "name": "Rad-Chem Factory",
+  "nameFa": "کارخانهٔ شیمی پرتویی",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی؛ ۲ رتبهٔ زمین‌سازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/205-rad-chem-factory.webp"
+ },
+ "206": {
+  "name": "Special Design",
+  "nameFa": "طراحی ویژه",
+  "kind": "event",
+  "cost": 4,
+  "tags": [
+   "science"
+  ],
+  "textFa": "کارت بعدی که در این نسل بازی می‌کنید می‌تواند شرط‌های سراسری را تا ۲ پله نادیده بگیرد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/206-special-design.webp"
+ },
+ "207": {
+  "name": "Medical Lab",
+  "nameFa": "آزمایشگاه پزشکی",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [
+   "science",
+   "building"
+  ],
+  "textFa": "۱ تولید مگاکردیت برای هر ۲ نشان ساختمان که دارید (این هم).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/207-medical-lab.webp"
+ },
+ "208": {
+  "name": "AI Central",
+  "nameFa": "مرکز هوش مصنوعی",
+  "kind": "active",
+  "cost": 21,
+  "tags": [
+   "science",
+   "building"
+  ],
+  "textFa": "نیاز: ۳ نشان علم. ۱− تولید انرژی. کنش: ۲ کارت بکشید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/208-ai-central.webp"
+ },
+ "R00": {
+  "name": "Beginner Corporation",
+  "nameFa": "شرکت تازه‌کار",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [],
+  "textFa": "با ۴۲ مگاکردیت شروع می‌کنید و ۱۰ کارت آغازین را رایگان نگه می‌دارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/beginner-corporation.webp"
+ },
+ "R08": {
+  "name": "CrediCor",
+  "nameFa": "کردیکور",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [],
+  "textFa": "۵۷ مگاکردیت. پس از پرداخت هزینهٔ کارت یا پروژهٔ استاندارد با هزینهٔ پایهٔ ۲۰ یا بیشتر، ۴ مگاکردیت می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/credicor.webp"
+ },
+ "R17": {
+  "name": "Ecoline",
+  "nameFa": "اکولاین",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "۳۶ مگاکردیت، ۳ گیاه و ۲ تولید گیاه. تبدیل گیاه به فضای سبز برایتان ۷ گیاه است.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/ecoline.webp"
+ },
+ "R18": {
+  "name": "Helion",
+  "nameFa": "هلیون",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۴۲ مگاکردیت و ۳ تولید گرما. می‌توانید گرما را به‌جای مگاکردیت خرج کنید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/helion.webp"
+ },
+ "R19": {
+  "name": "Interplanetary Cinematics",
+  "nameFa": "سینمای میان‌سیاره‌ای",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۳۰ مگاکردیت و ۲۰ فولاد. هر بار کارت رویداد بازی کنید ۲ مگاکردیت می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/interplanetary-cinematics.webp"
+ },
+ "R43": {
+  "name": "Inventrix",
+  "nameFa": "اینونتریکس",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "science"
+  ],
+  "textFa": "۴۵ مگاکردیت. کنش اول: ۳ کارت بکشید. شرط‌های سراسری کارت‌هایتان ۲ پله به سود شما جابه‌جا می‌شوند.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/inventrix.webp"
+ },
+ "R24": {
+  "name": "Mining Guild",
+  "nameFa": "صنف معدنچیان",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "building",
+   "building"
+  ],
+  "textFa": "۳۰ مگاکردیت، ۵ فولاد و ۱ تولید فولاد. هر بار پاداش جای‌گذاری فولاد یا تیتانیوم بگیرید، ۱ تولید فولاد می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/mining-guild.webp"
+ },
+ "R09": {
+  "name": "PhoboLog",
+  "nameFa": "فوبولاگ",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۲۳ مگاکردیت و ۱۰ تیتانیوم. هر تیتانیوم ۱ مگاکردیت بیشتر ارزش دارد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/phobolog.webp"
+ },
+ "R31": {
+  "name": "Tharsis Republic",
+  "nameFa": "جمهوری تارسیس",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۴۰ مگاکردیت. کنش اول: یک شهر بگذارید. هر شهری روی مریخ ۱ تولید مگاکردیت و هر شهر خودتان ۳ مگاکردیت می‌دهد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/tharsis-republic.webp"
+ },
+ "R13": {
+  "name": "Thorgate",
+  "nameFa": "تورگیت",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "power"
+  ],
+  "textFa": "۴۸ مگاکردیت و ۱ تولید انرژی. کارت‌های انرژی و پروژهٔ استاندارد نیروگاه ۳ مگاکردیت ارزان‌ترند.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/thorgate.webp"
+ },
+ "R32": {
+  "name": "United Nations Mars Initiative",
+  "nameFa": "ابتکار مریخ سازمان ملل",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۴۰ مگاکردیت. کنش: اگر این نسل رتبهٔ زمین‌سازی‌تان بالا رفته، ۳ مگاکردیت بدهید و ۱ رتبه بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": 3,
+  "art": "art/cards/corporations/united-nations-mars-initiative.webp"
+ },
+ "R03": {
+  "name": "Saturn Systems",
+  "nameFa": "سامانه‌های زحل",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "jovian"
+  ],
+  "textFa": "۴۲ مگاکردیت و ۱ تولید تیتانیوم. هر نشان مشتری که هر کسی بازی کند (این هم) ۱ تولید مگاکردیت می‌دهد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/saturn-systems.webp"
+ },
+ "R30": {
+  "name": "Teractor",
+  "nameFa": "تراکتور",
+  "kind": "corporation",
+  "cost": 0,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۶۰ مگاکردیت. کارت‌های زمین ۳ مگاکردیت ارزان‌ترند.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/corporations/teractor.webp"
+ },
+ "003": {
+  "name": "Deep Well Heating",
+  "nameFa": "گرمایش چاه عمیق",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۱ تولید انرژی؛ دما ۱ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/003-deep-well-heating.webp"
+ },
+ "009": {
+  "name": "Asteroid",
+  "nameFa": "سیارک",
+  "kind": "event",
+  "cost": 14,
+  "tags": [
+   "space"
+  ],
+  "textFa": "دما ۱ پله بالا می‌رود و ۲ تیتانیوم می‌گیرید. تا ۳ گیاه از هر بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/009-asteroid.webp"
+ },
+ "078": {
+  "name": "Ice Asteroid",
+  "nameFa": "سیارک یخی",
+  "kind": "event",
+  "cost": 23,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۲ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/078-ice-asteroid.webp"
+ },
+ "008": {
+  "name": "Capital",
+  "nameFa": "پایتخت",
+  "kind": "automated",
+  "cost": 26,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "نیاز: ۴ اقیانوس. ۲− تولید انرژی، ۵+ تولید مگاکردیت. این شهر را بگذارید؛ ۱ امتیاز برای هر اقیانوس کنارش.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/008-capital.webp",
+  "tile": "art/tiles/special/capital.webp"
+ },
+ "012": {
+  "name": "Water Import From Europa",
+  "nameFa": "واردات آب از اروپا",
+  "kind": "active",
+  "cost": 25,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "کنش: ۱۲ مگاکردیت (تیتانیوم هم قبول است) بدهید و یک اقیانوس بگذارید. ۱ امتیاز برای هر نشان مشتری.",
+  "resource": null,
+  "action": true,
+  "actionCost": 12,
+  "art": "art/cards/projects/012-water-import-from-europa.webp"
+ },
+ "023": {
+  "name": "Arctic Algae",
+  "nameFa": "جلبک قطبی",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۱۲− یا سردتر. ۱ گیاه. هر وقت هر کسی اقیانوس بگذارد ۲ گیاه می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/023-arctic-algae.webp"
+ },
+ "025": {
+  "name": "Space Station",
+  "nameFa": "ایستگاه فضایی",
+  "kind": "active",
+  "cost": 10,
+  "tags": [
+   "space"
+  ],
+  "textFa": "کارت‌های فضایی ۲ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/025-space-station.webp"
+ },
+ "035": {
+  "name": "Ants",
+  "nameFa": "مورچه‌ها",
+  "kind": "active",
+  "cost": 9,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: ۴٪ اکسیژن. کنش: ۱ میکروب از هر کارتی بردارید و به این کارت بیفزایید. ۱ امتیاز برای هر ۲ میکروب.",
+  "resource": "microbe",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/035-ants.webp"
+ },
+ "052": {
+  "name": "Fish",
+  "nameFa": "ماهی‌ها",
+  "kind": "active",
+  "cost": 9,
+  "tags": [
+   "animal"
+  ],
+  "textFa": "نیاز: دمای ۲+ یا گرم‌تر. ۱− تولید گیاه یک بازیکن. کنش: ۱ جانور به این کارت. ۱ امتیاز برای هر جانور.",
+  "resource": "animal",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/052-fish.webp"
+ },
+ "001": {
+  "name": "Colonizer Training Camp",
+  "nameFa": "اردوگاه آموزش مهاجران",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "jovian",
+   "building"
+  ],
+  "textFa": "نیاز: اکسیژن حداکثر ۵٪.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/001-colonizer-training-camp.webp"
+ },
+ "002": {
+  "name": "Asteroid Mining Consortium",
+  "nameFa": "کنسرسیوم استخراج سیارک",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [
+   "jovian"
+  ],
+  "textFa": "نیاز: تولید تیتانیوم. ۱ پله تولید تیتانیوم یک بازیکن کم و ۱ پله تولید تیتانیوم خودتان زیاد می‌شود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/002-asteroid-mining-consortium.webp"
+ },
+ "004": {
+  "name": "Cloud Seeding",
+  "nameFa": "بارورسازی ابرها",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [],
+  "textFa": "نیاز: ۳ اقیانوس. ۱− تولید مگاکردیت شما و ۱− تولید گرمای یک بازیکن؛ ۲+ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/004-cloud-seeding.webp"
+ },
+ "005": {
+  "name": "Search For Life",
+  "nameFa": "جست‌وجوی حیات",
+  "kind": "active",
+  "cost": 3,
+  "tags": [
+   "science"
+  ],
+  "textFa": "نیاز: اکسیژن حداکثر ۶٪. کنش: ۱ مگاکردیت بدهید و کارت رویی دسته را رو کنید؛ اگر نشان میکروب داشت ۱ منبع علمی به این کارت. ۳ امتیاز اگر دست‌کم ۱ منبع علمی دارد.",
+  "resource": "science",
+  "action": true,
+  "actionCost": 1,
+  "art": "art/cards/projects/005-search-for-life.webp"
+ },
+ "006": {
+  "name": "Inventors' Guild",
+  "nameFa": "انجمن مخترعان",
+  "kind": "active",
+  "cost": 9,
+  "tags": [
+   "science"
+  ],
+  "textFa": "کنش: کارت رویی دسته را ببینید و یا با ۳ مگاکردیت بخرید یا دور بریزید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/006-inventors-guild.webp"
+ },
+ "007": {
+  "name": "Martian Rails",
+  "nameFa": "راه‌آهن مریخی",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۱ انرژی خرج کنید و به ازای هر کاشی شهر روی مریخ ۱ مگاکردیت بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/007-martian-rails.webp"
+ },
+ "010": {
+  "name": "Comet",
+  "nameFa": "دنباله‌دار",
+  "kind": "event",
+  "cost": 21,
+  "tags": [
+   "space"
+  ],
+  "textFa": "دما ۱ پله بالا می‌رود و ۱ اقیانوس بگذارید. تا ۳ گیاه از هر بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/010-comet.webp"
+ },
+ "011": {
+  "name": "Big Asteroid",
+  "nameFa": "سیارک بزرگ",
+  "kind": "event",
+  "cost": 27,
+  "tags": [
+   "space"
+  ],
+  "textFa": "دما ۲ پله بالا می‌رود و ۴ تیتانیوم می‌گیرید. تا ۴ گیاه از هر بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/011-big-asteroid.webp"
+ },
+ "013": {
+  "name": "Space Elevator",
+  "nameFa": "آسانسور فضایی",
+  "kind": "active",
+  "cost": 27,
+  "tags": [
+   "space",
+   "building"
+  ],
+  "textFa": "۱ تولید تیتانیوم. کنش: ۱ فولاد خرج کنید و ۵ مگاکردیت بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/013-space-elevator.webp"
+ },
+ "014": {
+  "name": "Development Center",
+  "nameFa": "مرکز توسعه",
+  "kind": "active",
+  "cost": 11,
+  "tags": [
+   "science",
+   "building"
+  ],
+  "textFa": "کنش: ۱ انرژی خرج کنید و ۱ کارت بکشید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/014-development-center.webp"
+ },
+ "015": {
+  "name": "Equatorial Magnetizer",
+  "nameFa": "مغناطیس‌گر استوایی",
+  "kind": "active",
+  "cost": 11,
+  "tags": [
+   "building"
+  ],
+  "textFa": "کنش: ۱ پله تولید انرژی خود را کم کنید و ۱ رتبهٔ زمین‌سازی بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/015-equatorial-magnetizer.webp"
+ },
+ "016": {
+  "name": "Domed Crater",
+  "nameFa": "دهانهٔ گنبدی",
+  "kind": "automated",
+  "cost": 24,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "نیاز: اکسیژن حداکثر ۷٪. ۱− تولید انرژی، ۳+ تولید مگاکردیت. یک شهر بگذارید و ۳ گیاه بگیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/016-domed-crater.webp"
+ },
+ "017": {
+  "name": "Noctis City",
+  "nameFa": "شهر نوکتیس",
+  "kind": "automated",
+  "cost": 18,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۳+ تولید مگاکردیت. شهر را روی ناحیهٔ ویژهٔ نوکتیس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/017-noctis-city.webp"
+ },
+ "018": {
+  "name": "Methane From Titan",
+  "nameFa": "متان از تیتان",
+  "kind": "automated",
+  "cost": 28,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "نیاز: ۲٪ اکسیژن. ۲+ تولید گرما و ۲+ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/018-methane-from-titan.webp"
+ },
+ "019": {
+  "name": "Imported Hydrogen",
+  "nameFa": "هیدروژن وارداتی",
+  "kind": "event",
+  "cost": 16,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "۳ گیاه بگیرید، یا ۳ میکروب یا ۲ جانور به کارتی دیگر بیفزایید. ۱ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/019-imported-hydrogen.webp"
+ },
+ "020": {
+  "name": "Research Outpost",
+  "nameFa": "پایگاه پژوهشی",
+  "kind": "active",
+  "cost": 18,
+  "tags": [
+   "science",
+   "city",
+   "building"
+  ],
+  "textFa": "اثر: هر کارت ۱ مگاکردیت ارزان‌تر. یک شهر بگذارید که کنار هیچ کاشی دیگری نباشد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/020-research-outpost.webp"
+ },
+ "021": {
+  "name": "Phobos Space Haven",
+  "nameFa": "پناهگاه فضایی فوبوس",
+  "kind": "automated",
+  "cost": 25,
+  "tags": [
+   "space",
+   "city"
+  ],
+  "textFa": "۱+ تولید تیتانیوم. شهر را روی ناحیهٔ پناهگاه فوبوس (بیرون از مریخ) بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/021-phobos-space-haven.webp"
+ },
+ "022": {
+  "name": "Black Polar Dust",
+  "nameFa": "غبار قطبی سیاه",
+  "kind": "automated",
+  "cost": 15,
+  "tags": [],
+  "textFa": "۲− تولید مگاکردیت، ۳+ تولید گرما. ۱ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/022-black-polar-dust.webp"
+ },
+ "024": {
+  "name": "Predators",
+  "nameFa": "شکارچیان",
+  "kind": "active",
+  "cost": 14,
+  "tags": [
+   "animal"
+  ],
+  "textFa": "نیاز: ۱۱٪ اکسیژن. کنش: ۱ جانور از هر کارتی بردارید و به این کارت بیفزایید. ۱ امتیاز برای هر جانور.",
+  "resource": "animal",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/024-predators.webp"
+ },
+ "026": {
+  "name": "Eos Chasma National Park",
+  "nameFa": "پارک ملی ائوس کاسما",
+  "kind": "automated",
+  "cost": 16,
+  "tags": [
+   "plant",
+   "building"
+  ],
+  "textFa": "نیاز: دمای ۱۲− یا گرم‌تر. ۱ جانور به یکی از کارت‌هایتان، ۳ گیاه و ۲+ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/026-eos-chasma-national-park.webp"
+ },
+ "027": {
+  "name": "Interstellar Colony Ship",
+  "nameFa": "فضاپیمای مهاجر میان‌ستاره‌ای",
+  "kind": "event",
+  "cost": 24,
+  "tags": [
+   "earth",
+   "space"
+  ],
+  "textFa": "نیاز: ۵ نشان علم.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/027-interstellar-colony-ship.webp"
+ },
+ "028": {
+  "name": "Security Fleet",
+  "nameFa": "ناوگان امنیتی",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "space"
+  ],
+  "textFa": "کنش: ۱ تیتانیوم خرج کنید و ۱ جنگنده به این کارت بیفزایید. ۱ امتیاز برای هر جنگنده.",
+  "resource": "fighter",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/028-security-fleet.webp"
+ },
+ "029": {
+  "name": "Cupola City",
+  "nameFa": "شهر گنبدی کوپولا",
+  "kind": "automated",
+  "cost": 16,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "نیاز: اکسیژن حداکثر ۹٪. ۱− تولید انرژی، ۳+ تولید مگاکردیت. یک شهر بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/029-cupola-city.webp"
+ },
+ "030": {
+  "name": "Lunar Beam",
+  "nameFa": "پرتو ماه",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [
+   "earth",
+   "power"
+  ],
+  "textFa": "۲− تولید مگاکردیت، ۲+ تولید گرما و ۲+ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/030-lunar-beam.webp"
+ },
+ "031": {
+  "name": "Optimal Aerobraking",
+  "nameFa": "ترمز هوایی بهینه",
+  "kind": "active",
+  "cost": 7,
+  "tags": [
+   "space"
+  ],
+  "textFa": "اثر: هر رویداد فضایی که بازی کنید ۳ مگاکردیت و ۳ گرما می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/031-optimal-aerobraking.webp"
+ },
+ "032": {
+  "name": "Underground City",
+  "nameFa": "شهر زیرزمینی",
+  "kind": "automated",
+  "cost": 18,
+  "tags": [
+   "city",
+   "building"
+  ],
+  "textFa": "۲− تولید انرژی، ۲+ تولید فولاد. یک شهر بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/032-underground-city.webp"
+ },
+ "033": {
+  "name": "Regolith Eaters",
+  "nameFa": "رگولیت‌خوارها",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "science",
+   "microbe"
+  ],
+  "textFa": "کنش: ۱ میکروب به این کارت بیفزایید، یا ۲ میکروب از آن بردارید و اکسیژن را ۱ پله بالا ببرید.",
+  "resource": "microbe",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/033-regolith-eaters.webp"
+ },
+ "034": {
+  "name": "GHG Producing Bacteria",
+  "nameFa": "باکتری‌های تولیدکنندهٔ گاز گلخانه‌ای",
+  "kind": "active",
+  "cost": 8,
+  "tags": [
+   "science",
+   "microbe"
+  ],
+  "textFa": "نیاز: ۴٪ اکسیژن. کنش: ۱ میکروب به این کارت بیفزایید، یا ۲ میکروب از آن بردارید و دما را ۱ پله بالا ببرید.",
+  "resource": "microbe",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/034-ghg-producing-bacteria.webp"
+ },
+ "036": {
+  "name": "Release of Inert Gases",
+  "nameFa": "رهاسازی گازهای بی‌اثر",
+  "kind": "event",
+  "cost": 14,
+  "tags": [],
+  "textFa": "رتبهٔ زمین‌سازی شما ۲ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/036-release-of-inert-gases.webp"
+ },
+ "037": {
+  "name": "Nitrogen-Rich Asteroid",
+  "nameFa": "سیارک غنی از نیتروژن",
+  "kind": "event",
+  "cost": 31,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۲ رتبهٔ زمین‌سازی و دما ۱ پله. ۱ تولید گیاه، یا ۴ تولید گیاه اگر ۳ نشان گیاه دارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/037-nitrogen-rich-asteroid.webp"
+ },
+ "038": {
+  "name": "Rover Construction",
+  "nameFa": "ساخت کاوشگر",
+  "kind": "active",
+  "cost": 8,
+  "tags": [
+   "building"
+  ],
+  "textFa": "اثر: هر بار هر کاشی شهری گذاشته شود (روی مریخ یا بیرون آن) ۲ مگاکردیت می‌گیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/038-rover-construction.webp"
+ },
+ "039": {
+  "name": "Deimos Down",
+  "nameFa": "سقوط دیموس",
+  "kind": "event",
+  "cost": 31,
+  "tags": [
+   "space"
+  ],
+  "textFa": "دما ۳ پله بالا می‌رود و ۴ فولاد می‌گیرید. تا ۸ گیاه از هر بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/039-deimos-down.webp"
+ },
+ "040": {
+  "name": "Asteroid Mining",
+  "nameFa": "استخراج از سیارک",
+  "kind": "automated",
+  "cost": 30,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "۲ تولید تیتانیوم.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/040-asteroid-mining.webp"
+ },
+ "041": {
+  "name": "Food Factory",
+  "nameFa": "کارخانهٔ غذا",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید گیاه، ۴+ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/041-food-factory.webp"
+ },
+ "042": {
+  "name": "ArchaeBacteria",
+  "nameFa": "آرکی‌باکتری",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "نیاز: دمای ۱۸− یا سردتر. ۱ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/042-archaebacteria.webp"
+ },
+ "043": {
+  "name": "Carbonate Processing",
+  "nameFa": "فرآوری کربنات",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۳+ تولید گرما.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/043-carbonate-processing.webp"
+ },
+ "044": {
+  "name": "Natural Preserve",
+  "nameFa": "منطقهٔ حفاظت‌شدهٔ طبیعی",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "science",
+   "building"
+  ],
+  "textFa": "نیاز: حداکثر ۴٪ اکسیژن. ۱ تولید مگاکردیت. این کاشی را جایی بگذارید که کنار هیچ کاشی دیگری نباشد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/044-natural-preserve.webp",
+  "tile": "art/tiles/special/natural-preserve.webp"
+ },
+ "045": {
+  "name": "Nuclear Power",
+  "nameFa": "نیروی هسته‌ای",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۲− تولید مگاکردیت، ۳+ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/045-nuclear-power.webp"
+ },
+ "046": {
+  "name": "Lightning Harvest",
+  "nameFa": "برداشت آذرخش",
+  "kind": "automated",
+  "cost": 8,
+  "tags": [
+   "power"
+  ],
+  "textFa": "نیاز: ۳ نشان علم. ۱ تولید انرژی و ۱ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/046-lightning-harvest.webp"
+ },
+ "047": {
+  "name": "Algae",
+  "nameFa": "جلبک",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: ۵ اقیانوس. ۱ گیاه و ۲ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/047-algae.webp"
+ },
+ "048": {
+  "name": "Adapted Lichen",
+  "nameFa": "گلسنگ سازگار",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "۱ تولید گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/048-adapted-lichen.webp"
+ },
+ "049": {
+  "name": "Tardigrades",
+  "nameFa": "خرس‌های آبی",
+  "kind": "active",
+  "cost": 4,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "کنش: ۱ میکروب به این کارت. ۱ امتیاز برای هر ۴ میکروب.",
+  "resource": "microbe",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/049-tardigrades.webp"
+ },
+ "050": {
+  "name": "Virus",
+  "nameFa": "ویروس",
+  "kind": "event",
+  "cost": 1,
+  "tags": [
+   "microbe"
+  ],
+  "textFa": "تا ۲ جانور از یک کارت بردارید، یا تا ۵ گیاه از یک بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/050-virus.webp"
+ },
+ "051": {
+  "name": "Miranda Resort",
+  "nameFa": "تفرجگاه میراندا",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "۱ تولید مگاکردیت برای هر نشان زمین که دارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/051-miranda-resort.webp"
+ },
+ "053": {
+  "name": "Lake Marineris",
+  "nameFa": "دریاچهٔ مارینریس",
+  "kind": "automated",
+  "cost": 18,
+  "tags": [],
+  "textFa": "نیاز: دمای ۰ یا گرم‌تر. ۲ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/053-lake-marineris.webp"
+ },
+ "054": {
+  "name": "Small Animals",
+  "nameFa": "جانوران کوچک",
+  "kind": "active",
+  "cost": 6,
+  "tags": [
+   "animal"
+  ],
+  "textFa": "نیاز: ۶٪ اکسیژن. ۱− تولید گیاه یک بازیکن. کنش: ۱ جانور به این کارت. ۱ امتیاز برای هر ۲ جانور.",
+  "resource": "animal",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/054-small-animals.webp"
+ },
+ "055": {
+  "name": "Kelp Farming",
+  "nameFa": "پرورش کِلپ",
+  "kind": "automated",
+  "cost": 17,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: ۶ اقیانوس. ۲ تولید مگاکردیت، ۳ تولید گیاه و ۲ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/055-kelp-farming.webp"
+ },
+ "056": {
+  "name": "Mine",
+  "nameFa": "معدن",
+  "kind": "automated",
+  "cost": 4,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱ تولید فولاد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/056-mine.webp"
+ },
+ "057": {
+  "name": "Vesta Shipyard",
+  "nameFa": "کارخانهٔ کشتی‌سازی وستا",
+  "kind": "automated",
+  "cost": 15,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "۱ تولید تیتانیوم.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/057-vesta-shipyard.webp"
+ },
+ "058": {
+  "name": "Beam From A Thorium Asteroid",
+  "nameFa": "پرتو از سیارک توریمی",
+  "kind": "automated",
+  "cost": 32,
+  "tags": [
+   "jovian",
+   "space",
+   "power"
+  ],
+  "textFa": "نیاز: ۱ نشان مشتری. ۳ تولید گرما و ۳ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/058-beam-from-a-thorium-asteroid.webp"
+ },
+ "059": {
+  "name": "Mangrove",
+  "nameFa": "جنگل حرا",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۴+ یا گرم‌تر. یک کاشی فضای سبز روی ناحیهٔ مخصوص اقیانوس بگذارید (اکسیژن ۱ پله).",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/059-mangrove.webp"
+ },
+ "060": {
+  "name": "Trees",
+  "nameFa": "درختان",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۴− یا گرم‌تر. ۳ تولید گیاه و ۱ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/060-trees.webp"
+ },
+ "061": {
+  "name": "Great Escarpment Consortium",
+  "nameFa": "کنسرسیوم پرتگاه بزرگ",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [],
+  "textFa": "نیاز: تولید فولاد. ۱− تولید فولاد یک بازیکن؛ ۱+ تولید فولاد خودتان.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/061-great-escarpment-consortium.webp"
+ },
+ "062": {
+  "name": "Mineral Deposit",
+  "nameFa": "ذخیرهٔ معدنی",
+  "kind": "event",
+  "cost": 5,
+  "tags": [],
+  "textFa": "۵ فولاد بگیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/062-mineral-deposit.webp"
+ },
+ "063": {
+  "name": "Mining Expedition",
+  "nameFa": "هیئت اکتشاف معدن",
+  "kind": "event",
+  "cost": 12,
+  "tags": [],
+  "textFa": "اکسیژن ۱ پله بالا می‌رود. تا ۲ گیاه از یک بازیکن بردارید. ۲ فولاد بگیرید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/063-mining-expedition.webp"
+ },
+ "064": {
+  "name": "Mining Area",
+  "nameFa": "منطقهٔ معدنی",
+  "kind": "automated",
+  "cost": 4,
+  "tags": [
+   "building"
+  ],
+  "textFa": "این کاشی را روی ناحیه‌ای با پاداش فولاد یا تیتانیوم، کنار یکی از کاشی‌های خودتان بگذارید؛ ۱ پله تولید همان منبع.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/064-mining-area.webp",
+  "tile": "art/tiles/special/mining-area.webp"
+ },
+ "065": {
+  "name": "Building Industries",
+  "nameFa": "صنایع ساختمانی",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی، ۲+ تولید فولاد.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/065-building-industries.webp"
+ },
+ "066": {
+  "name": "Land Claim",
+  "nameFa": "ادعای زمین",
+  "kind": "event",
+  "cost": 1,
+  "tags": [],
+  "textFa": "نشانهٔ خود را روی یک ناحیهٔ غیررزرو بگذارید؛ فقط شما می‌توانید آنجا کاشی بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/066-land-claim.webp"
+ },
+ "067": {
+  "name": "Mining Rights",
+  "nameFa": "حق استخراج",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "building"
+  ],
+  "textFa": "این کاشی را روی ناحیه‌ای با پاداش فولاد یا تیتانیوم بگذارید؛ ۱ پله تولید همان منبع.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/067-mining-rights.webp",
+  "tile": "art/tiles/special/mining-rights.webp"
+ },
+ "068": {
+  "name": "Sponsors",
+  "nameFa": "حامیان مالی",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "۲ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/068-sponsors.webp"
+ },
+ "069": {
+  "name": "Electro Catapult",
+  "nameFa": "منجنیق الکتریکی",
+  "kind": "active",
+  "cost": 17,
+  "tags": [
+   "building"
+  ],
+  "textFa": "نیاز: حداکثر ۸٪ اکسیژن. ۱− تولید انرژی. کنش: ۱ گیاه یا ۱ فولاد بدهید و ۷ مگاکردیت بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/069-electro-catapult.webp"
+ },
+ "070": {
+  "name": "Earth Catapult",
+  "nameFa": "منجنیق زمین",
+  "kind": "active",
+  "cost": 23,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "کارت‌هایی که بازی می‌کنید ۲ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/070-earth-catapult.webp"
+ },
+ "071": {
+  "name": "Advanced Alloys",
+  "nameFa": "آلیاژهای پیشرفته",
+  "kind": "active",
+  "cost": 9,
+  "tags": [
+   "science"
+  ],
+  "textFa": "ارزش هر فولاد و هر تیتانیوم ۱ مگاکردیت بیشتر است.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/071-advanced-alloys.webp"
+ },
+ "072": {
+  "name": "Birds",
+  "nameFa": "پرندگان",
+  "kind": "active",
+  "cost": 10,
+  "tags": [
+   "animal"
+  ],
+  "textFa": "نیاز: ۱۳٪ اکسیژن. ۲− تولید گیاه یک بازیکن. کنش: ۱ جانور به این کارت. ۱ امتیاز برای هر جانور.",
+  "resource": "animal",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/072-birds.webp"
+ },
+ "073": {
+  "name": "Mars University",
+  "nameFa": "دانشگاه مریخ",
+  "kind": "active",
+  "cost": 8,
+  "tags": [
+   "science",
+   "building"
+  ],
+  "textFa": "هر نشان علم که بازی کنید (این هم) می‌توانید ۱ کارت از دست دور بریزید و ۱ کارت بکشید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/073-mars-university.webp"
+ },
+ "074": {
+  "name": "Viral Enhancers",
+  "nameFa": "تقویت‌کننده‌های ویروسی",
+  "kind": "active",
+  "cost": 9,
+  "tags": [
+   "science",
+   "microbe"
+  ],
+  "textFa": "هر نشان گیاه، میکروب یا جانور که بازی کنید (این هم): ۱ گیاه بگیرید یا ۱ منبع به همان کارت بیفزایید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/074-viral-enhancers.webp"
+ },
+ "075": {
+  "name": "Towing A Comet",
+  "nameFa": "یدک‌کشیدن دنباله‌دار",
+  "kind": "event",
+  "cost": 23,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۲ گیاه بگیرید، اکسیژن ۱ پله بالا می‌رود و ۱ اقیانوس بگذارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/075-towing-a-comet.webp"
+ },
+ "076": {
+  "name": "Space Mirrors",
+  "nameFa": "آینه‌های فضایی",
+  "kind": "active",
+  "cost": 3,
+  "tags": [
+   "power",
+   "space"
+  ],
+  "textFa": "کنش: ۷ مگاکردیت بدهید و ۱ تولید انرژی بگیرید.",
+  "resource": null,
+  "action": true,
+  "actionCost": 7,
+  "art": "art/cards/projects/076-space-mirrors.webp"
+ },
+ "077": {
+  "name": "Solar Wind Power",
+  "nameFa": "نیروی باد خورشیدی",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "science",
+   "space",
+   "power"
+  ],
+  "textFa": "۱ تولید انرژی و ۲ تیتانیوم.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/077-solar-wind-power.webp"
+ },
+ "079": {
+  "name": "Quantum Extractor",
+  "nameFa": "استخراج‌گر کوانتومی",
+  "kind": "active",
+  "cost": 13,
+  "tags": [
+   "science",
+   "power"
+  ],
+  "textFa": "نیاز: ۴ نشان علم. ۴ تولید انرژی. کارت‌های فضایی ۲ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/079-quantum-extractor.webp"
+ },
+ "080": {
+  "name": "Giant Ice Asteroid",
+  "nameFa": "سیارک یخی غول‌پیکر",
+  "kind": "event",
+  "cost": 36,
+  "tags": [
+   "space"
+  ],
+  "textFa": "دما ۲ پله بالا می‌رود و ۲ اقیانوس بگذارید. تا ۶ گیاه از هر بازیکن بردارید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/080-giant-ice-asteroid.webp"
+ },
+ "081": {
+  "name": "Ganymede Colony",
+  "nameFa": "مستعمرهٔ گانیمد",
+  "kind": "automated",
+  "cost": 20,
+  "tags": [
+   "jovian",
+   "space",
+   "city"
+  ],
+  "textFa": "یک شهر در ناحیهٔ ویژهٔ گانیمد بگذارید. ۱ امتیاز برای هر نشان مشتری.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/081-ganymede-colony.webp"
+ },
+ "082": {
+  "name": "Callisto Penal Mines",
+  "nameFa": "معادن تأدیبی کالیستو",
+  "kind": "automated",
+  "cost": 24,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "۳ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/082-callisto-penal-mines.webp"
+ },
+ "083": {
+  "name": "Giant Space Mirror",
+  "nameFa": "آینهٔ فضایی غول‌پیکر",
+  "kind": "automated",
+  "cost": 17,
+  "tags": [
+   "power",
+   "space"
+  ],
+  "textFa": "۳ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/083-giant-space-mirror.webp"
+ },
+ "084": {
+  "name": "Trans-Neptune Probe",
+  "nameFa": "کاوشگر فرانپتونی",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "science",
+   "space"
+  ],
+  "textFa": "۱ امتیاز.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/084-trans-neptune-probe.webp"
+ },
+ "085": {
+  "name": "Commercial District",
+  "nameFa": "منطقهٔ تجاری",
+  "kind": "automated",
+  "cost": 16,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۱− تولید انرژی و ۴+ تولید مگاکردیت. این کاشی را بگذارید؛ ۱ امتیاز برای هر شهر کنارش.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/085-commercial-district.webp",
+  "tile": "art/tiles/special/commercial-district.webp"
+ },
+ "086": {
+  "name": "Robotic Workforce",
+  "nameFa": "نیروی کار رباتیک",
+  "kind": "automated",
+  "cost": 9,
+  "tags": [
+   "science"
+  ],
+  "textFa": "جعبهٔ تولید یکی از کارت‌های ساختمانی خود را تکرار کنید.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/086-robotic-workforce.webp"
+ },
+ "087": {
+  "name": "Grass",
+  "nameFa": "علف",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۱۶− یا گرم‌تر. ۱ تولید گیاه و ۳ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/087-grass.webp"
+ },
+ "088": {
+  "name": "Heather",
+  "nameFa": "خلنگ",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۱۴− یا گرم‌تر. ۱ تولید گیاه و ۱ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/088-heather.webp"
+ },
+ "089": {
+  "name": "Peroxide Power",
+  "nameFa": "نیروی پراکسید",
+  "kind": "automated",
+  "cost": 7,
+  "tags": [
+   "power",
+   "building"
+  ],
+  "textFa": "۱− تولید مگاکردیت و ۲+ تولید انرژی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/089-peroxide-power.webp"
+ },
+ "090": {
+  "name": "Research",
+  "nameFa": "پژوهش",
+  "kind": "automated",
+  "cost": 11,
+  "tags": [
+   "science",
+   "science"
+  ],
+  "textFa": "۲ کارت بکشید. (۲ نشان علم)",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/090-research.webp"
+ },
+ "091": {
+  "name": "Gene Repair",
+  "nameFa": "ترمیم ژن",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "science"
+  ],
+  "textFa": "نیاز: ۳ نشان علم. ۲ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/091-gene-repair.webp"
+ },
+ "092": {
+  "name": "Io Mining Industries",
+  "nameFa": "صنایع معدنی آیو",
+  "kind": "automated",
+  "cost": 41,
+  "tags": [
+   "jovian",
+   "space"
+  ],
+  "textFa": "۲ تولید تیتانیوم و ۲ تولید مگاکردیت. ۱ امتیاز برای هر نشان مشتری.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/092-io-mining-industries.webp"
+ },
+ "093": {
+  "name": "Bushes",
+  "nameFa": "بوته‌ها",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "plant"
+  ],
+  "textFa": "نیاز: دمای ۱۰− یا گرم‌تر. ۲ تولید گیاه و ۲ گیاه.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/093-bushes.webp"
+ },
+ "094": {
+  "name": "Mass Converter",
+  "nameFa": "مبدل جرم",
+  "kind": "active",
+  "cost": 8,
+  "tags": [
+   "science",
+   "power"
+  ],
+  "textFa": "نیاز: ۵ نشان علم. ۶ تولید انرژی. کارت‌های فضایی ۲ مگاکردیت ارزان‌تر.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/094-mass-converter.webp"
+ },
+ "095": {
+  "name": "Physics Complex",
+  "nameFa": "مجتمع فیزیک",
+  "kind": "active",
+  "cost": 12,
+  "tags": [
+   "science",
+   "building"
+  ],
+  "textFa": "کنش: ۶ انرژی بدهید و ۱ منبع علمی به این کارت بیفزایید. ۲ امتیاز برای هر منبع علمی.",
+  "resource": "science",
+  "action": true,
+  "actionCost": null,
+  "art": "art/cards/projects/095-physics-complex.webp"
+ },
+ "096": {
+  "name": "Greenhouses",
+  "nameFa": "گلخانه‌ها",
+  "kind": "automated",
+  "cost": 6,
+  "tags": [
+   "plant",
+   "building"
+  ],
+  "textFa": "۱ گیاه برای هر شهر در بازی.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/096-greenhouses.webp"
+ },
+ "097": {
+  "name": "Nuclear Zone",
+  "nameFa": "منطقهٔ هسته‌ای",
+  "kind": "automated",
+  "cost": 10,
+  "tags": [
+   "earth"
+  ],
+  "textFa": "این کاشی را بگذارید؛ دما ۲ پله بالا می‌رود.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/097-nuclear-zone.webp",
+  "tile": "art/tiles/special/nuclear-zone.webp"
+ },
+ "098": {
+  "name": "Tropical Resort",
+  "nameFa": "استراحتگاه گرمسیری",
+  "kind": "automated",
+  "cost": 13,
+  "tags": [
+   "building"
+  ],
+  "textFa": "۲− تولید گرما و ۳+ تولید مگاکردیت.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/098-tropical-resort.webp"
+ },
+ "099": {
+  "name": "Toll Station",
+  "nameFa": "ایستگاه عوارض",
+  "kind": "automated",
+  "cost": 12,
+  "tags": [
+   "space"
+  ],
+  "textFa": "۱ تولید مگاکردیت برای هر نشان فضایی حریفان.",
+  "resource": null,
+  "action": false,
+  "actionCost": null,
+  "art": "art/cards/projects/099-toll-station.webp"
+ }
+}

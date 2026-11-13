@@ -1,0 +1,18 @@
+{
+ "game": "ark-nova",
+ "version": "1.0",
+ "generated": "2026-10-30",
+ "canvas": "https://claude.ai/artifact/61m4wUqVQ373pFLzuqsier (page «۱۵. پایلوت BGA: آرک نوا»)",
+ "note": "reference/img/<id>@<width>.jpg is the design; reference/html/an/<id>.html opens offline; reference/dc/<id>.dc.html is the canvas source. Phone boards hold 4 phones (390x844 each) side by side. Mock data (names, numbers, cards, buildings) may differ from a live table; structure, pieces, positions and states may not. The position is data/mock-state.json.",
+ "seats": { "mina": "seat 0, viewer, red, map 6 Research Institute, in turn (choosing an action card)", "niloufar": "seat 1, blue, map 1 Observation Tower", "arash": "seat 2, yellow, map 7 Ice Cream Parlors", "sara": "seat 3, black, map 3 Silver Lake, first player" },
+ "screens": [
+  { "id": "AN-Table-Desktop", "kind": "table", "viewports": [1440], "theme": "light", "lang": "fa", "state": "viewer's turn, choosing an action card: rail (status box, BGA panels in turn order, log), action bar with 5 cards + X selector, hand (3 playable ringed, 2 with reason, none dimmed), display (6 folders, 1-3 in range) + reputation strip, conservation strip with bonus tiles, played-projects band (empty), BGA association board, base projects with cubes, viewer's zoo (switch, icon summary, map window with buildings and pieces, played cards in stacked columns, final scoring, action cards on the clip band)", "reference": ["img/AN-Table-Desktop@1440.jpg"] },
+  { "id": "AN-Table-Desktop-Dark", "kind": "table", "viewports": [1440], "theme": "dark", "lang": "fa", "state": "same as AN-Table-Desktop, dark theme", "reference": ["img/AN-Table-Desktop-Dark@1440.jpg"] },
+  { "id": "AN-Actions-Desktop", "kind": "flows", "viewports": [1440], "theme": "light", "lang": "fa", "state": "6 flows from engine prompts: Animals II (wall lizard picked, enclosure 3_4 ringed), Build II (enclosure 2 kind, legal spaces + preview), Association 5 (board areas, project 101 level 1 picked, then the CP 5 bonus tiles), Sponsors with 2 X, Cards with 2 X, X-token action", "reference": ["img/AN-Actions-Desktop@1440.jpg"] },
+  { "id": "AN-Phases-Desktop", "kind": "flows", "viewports": [1440], "theme": "light", "lang": "fa", "state": "opening draft (8 cards, 2 picked, 2 advanced maps), CP 2 bonus, break (discard 4 of 7, income table), game end (keep 1 of 2 final scoring cards, result table)", "reference": ["img/AN-Phases-Desktop@1440.jpg"] },
+  { "id": "AN-Turn-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "4 phones: my zoo tab, boards tab (display swipe, strips, association, projects), hand drawer with zoom, players tab (Niloufar expanded); action dock on all", "reference": ["img/AN-Turn-Mobile@1816.jpg"] },
+  { "id": "AN-Flows-Mobile", "kind": "table", "viewports": [390], "theme": "light", "lang": "fa", "state": "4 phones: build with auto-zoom + preview + kinds row, animals sheet, association sheet over the board, opening draft", "reference": ["img/AN-Flows-Mobile@1816.jpg"] },
+  { "id": "AN-Spec", "kind": "spec", "viewports": [1440], "theme": "light", "state": "action cards side I/II from the code, prompt protocol and hooks, zoo grid with all 58 cells + slots on map A, reputation / conservation strips and BGA association board with every measured point", "reference": ["img/AN-Spec@1440.jpg"] },
+  { "id": "AN-Components", "kind": "spec", "viewports": [1440], "theme": "light", "state": "every component with its COMPONENTS.md §15 number: live panel, action bar, zoo header, zoom; boards and 10 maps; all buildings; action cards; pieces in 4 colours, tokens, money; icons; one card of each kind and backs; tiles", "reference": ["img/AN-Components@1440.jpg"] }
+ ]
+}

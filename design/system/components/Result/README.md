@@ -38,6 +38,6 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 ```js
 h('div',{style:{maxWidth:'480px'}}, h(B.Result,{badge:'پیروزی، رتبه‌ای', title:'شما بردید!',
   podium:[{name:'مینا', initials:'م', seat:3, you:true, meta:'۱۰ امتیاز'},{name:'نیلوفر', initials:'ن', seat:1, meta:'۸ امتیاز'},{name:'آرش', initials:'آ', seat:2, meta:'۷ امتیاز'}],
-  rewards:[{icon:'trophy', label:'ریتینگ کاتان ۱٬۴۸۲ ← ۱٬۵۰۱', value:19}],
+  rewards:[{icon:'trophy', label:'ریتینگ کاتان ۱,۴۸۲ ← ۱,۵۰۱', value:19}],
   actions:[h(B.Button,{key:1},'بازگشت به لابی'), h(B.Button,{key:2, variant:'primary', icon:'rotate-ccw'},'یه دست دیگه')]}))
 ```

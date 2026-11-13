@@ -1,0 +1,144 @@
+{
+  "game": "Blood Rage",
+  "checked_on": "2026-10-30",
+  "scope": "Components represented by the BGA implementation, including 5th-player content. Physical product completeness is listed separately from digital asset completeness.",
+  "sources": {
+    "game_panel": "https://en.boardgamearena.com/gamepanel?game=bloodrage",
+    "public_tutorial": "https://boardgamearena.com/tutorial/tutorial/frame.html?game=bloodrage&tutorial=1161",
+    "base_rulebook": "https://cmon-files.s3.amazonaws.com/BLR001-Rulebook.pdf",
+    "fifth_player_inventory": "https://www.asmodee.de/produkte/blood-rage-erweiterung-fuer-den-5-spieler"
+  },
+  "verified_bga_materials": {
+    "deck_cards": 126,
+    "cards_per_age": 42,
+    "base_cards_per_age": 34,
+    "fifth_player_cards_per_age": 8,
+    "age_card_backs": 3,
+    "clan_upgrade_placeholder": 1,
+    "monster_upgrade_placeholder": 1,
+    "clan_identification_cards": 5,
+    "base_leader_cards": 5,
+    "base_warrior_cards": 5,
+    "base_ship_cards": 5,
+    "total_sprite_cards": 151,
+    "clans": [
+      "Wolf",
+      "Serpent",
+      "Raven",
+      "Bear",
+      "Ram"
+    ],
+    "monsters": [
+      "Sea Serpent",
+      "Dwarf Chieftain",
+      "Troll",
+      "Fire Giant",
+      "Dark Elf",
+      "Valkyrie",
+      "Frost Giant",
+      "Soldier of Hel",
+      "Volur Witch"
+    ],
+    "provinces": 9,
+    "fjords": 4,
+    "village_slots": 32,
+    "yggdrasil_anchor_slots": 1,
+    "pillage_reward_variants": 5,
+    "pillage_quantity_by_variant": {
+      "yggdrasil": 1,
+      "rage": 3,
+      "axe": 2,
+      "horn": 2,
+      "glory": 1
+    },
+    "stat_steps_per_track": 6
+  },
+  "physical_inventory_with_fifth_player": {
+    "cards": 126,
+    "main_board": 1,
+    "age_track_sheet": 1,
+    "valhalla_sheet": 1,
+    "clan_sheets": 5,
+    "clan_figures": 50,
+    "monster_figures": 9,
+    "clan_tokens": 20,
+    "glory_markers": 5,
+    "ragnarok_tokens": 8,
+    "pillage_tokens": 9,
+    "doom_token": 1,
+    "saga_token": 1,
+    "first_player_token": 1,
+    "small_plastic_bases": 55,
+    "large_plastic_bases": 10
+  },
+  "digital_substitutions": [
+    {
+      "physical": "Main board with outer Glory track",
+      "bga": "1600x1600 RGBA province map; scores are shown in the player interface, so the physical outer track is absent."
+    },
+    {
+      "physical": "Five printed clan sheets",
+      "bga": "Five assembled digital clan sheets using clan identity, troop cards, stat tracks and upgrade slots."
+    },
+    {
+      "physical": "Age Track and Valhalla sheets",
+      "bga": "Digital panels and icons; these are not full scans of the physical sheets."
+    },
+    {
+      "physical": "Clan and monster miniatures",
+      "bga": "Two-dimensional illustrations and clan-colored figure tokens; no 3D model files."
+    },
+    {
+      "physical": "Nine pillage tokens",
+      "bga": "Five unique reward types reused in quantities 1+3+2+2+1, with a digital pillaged state."
+    },
+    {
+      "physical": "Eight Ragnarök tokens and Doom token",
+      "bga": "Province destruction/doom graphics, province material names and digital indicators."
+    },
+    {
+      "physical": "Plastic figure bases and physical markers",
+      "bga": "Clan-colored digital outlines and interface markers; physical manufacturing geometry is not supplied."
+    }
+  ],
+  "not_established_as_bga_content": [
+    "Mystics of Midgard",
+    "Gods of Asgard",
+    "Monsters expansion",
+    "Kickstarter-exclusive clans and monsters"
+  ],
+  "notes": [
+    "One image file per distinct face or digital variant does not imply one file per physical copy.",
+    "Card artwork is textless in the sprite. Complete card faces require the exact BGA text overlays from materials.json and templates.json.",
+    "Historical tutorial release 220513-1624 and current card sprite release 231218-1618 retain the same 151-cell order; all corresponding cells were compared and sample artwork was visually checked.",
+    "Current board and logo preserve alpha transparency. Current board is 1600x1600; current logo is 300x186."
+  ],
+  "packagedAssetCount": 446,
+  "packagedCategories": {
+    "cards": 126,
+    "clan-slots-complete": 2,
+    "clan-reference": 20,
+    "boards": 3,
+    "units": 105,
+    "clan-boards": 5,
+    "card-art": 126,
+    "card-backs": 3,
+    "clan-slots": 2,
+    "clan-art": 20,
+    "tokens": 20,
+    "ui-icons": 11,
+    "backgrounds": 2,
+    "branding": 1
+  },
+  "formats": [
+    "PNG",
+    "SVG (embedded original/rendered raster)"
+  ],
+  "sourceArtResolution": {
+    "cardWidth": 150,
+    "cardHeight": 230,
+    "mapWidth": 1600,
+    "mapHeight": 1600,
+    "upscaled": false
+  }
+}

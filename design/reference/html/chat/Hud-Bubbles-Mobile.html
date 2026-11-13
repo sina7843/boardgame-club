@@ -1,14 +1,4 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8">
-<title>حباب‌های گفت‌وگو روی میز</title>
-<link rel="stylesheet" href="../ds/bgv/tokens.css">
-<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
-</head>
-<body>
-<x-dc>
-
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=390"><title>حباب‌های گفت‌وگو روی میز</title><link rel="stylesheet" href="../../../system/tokens.css"><link rel="stylesheet" href="../../../system/components/bundle.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;800&amp;display=swap">
 <style>
 body{margin:0}
@@ -52,8 +42,16 @@ body{margin:0}
 
 /* qa1: phone game bar, meta items must not be clipped mid-word */
 @media (max-width:899px){.bgv-gamebar__meta{gap:4px}.bgv-gamebar__meta .bgv-sep{margin-inline:3px}}
-</style>
 
+/* v2.4 game-latin (owner pick 3b): Persian first, English small caps under it */
+.cx-card__name,.cx-b-name{display:grid;gap:1px;justify-items:start}
+.cx-card__name small,.cx-b-name small{font-family:var(--font-latin);font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;color:var(--link);direction:ltr;unicode-bidi:isolate;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-inline-size:100%}
+.cx-f-qp__name{display:grid;gap:2px;justify-items:start}
+.cx-f-qp__name small{font-family:var(--font-latin);font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--felt-muted);direction:ltr;unicode-bidi:isolate}
+.tc-latin,.trow__t .bgv-latin{font-family:var(--font-latin);font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;color:var(--link)}
+.bgv-gamebar .tc-latin{color:var(--text-muted)}
+</style>
+</head><body style="margin:0">
 <div class="bgv" data-theme="light" dir="rtl" style="width: 390px; height: 844px; overflow: hidden; position: relative;">
 <div class="bgv-tablescreen" style="block-size:844px">
 <header class="bgv-gamebar"><button class="bgv-btn bgv-btn--ghost bgv-btn--icon" aria-label="بازگشت به میزها"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></svg></button>
@@ -62,15 +60,13 @@ body{margin:0}
 <section class="bgv-hud bgv-hud--strip" aria-label="بازیکن‌ها"><div class="bgv-pcard bgv-pcard--mini is-you"><span class="bgv-avatar bgv-avatar--sm seat-3 is-you">م</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-3" aria-hidden="true"></i>مینا</b></div><div class="bgv-pcard__score">۶<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>منتظر</span></div></div><div class="bgv-pcard bgv-pcard--mini is-turn" style="--clock-c:var(--clock-calm)"><span class="bgv-avatar bgv-avatar--sm seat-1 is-turn">ن</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-1" aria-hidden="true"></i>نیلوفر</b></div><div class="bgv-pcard__score">۶<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.7;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۱</span></span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-4">آ</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-4" aria-hidden="true"></i>آرش</b></div><div class="bgv-pcard__score">۱<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-badge bgv-badge--danger bgv-badge--sm">اونو!</span></div></div><div class="bgv-pcard bgv-pcard--mini"><span class="bgv-avatar bgv-avatar--sm seat-2">س</span><div class="bgv-pcard__name"><b><i class="bgv-seat seat-2" aria-hidden="true"></i>سارا</b></div><div class="bgv-pcard__score">۴<small>کارت</small></div><div class="bgv-pcard__foot"><span class="bgv-pstate"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14" /> <path d="M5 2h14" /> <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /> <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg>منتظر</span></div></div></section>
 <main class="bgv-felt uno-felt" aria-label="میز اونو">
 <div class="bgv-felt-row"><span class="bgv-turn"><span class="bgv-turn__who"><span class="bgv-avatar bgv-avatar--xs seat-1">ن</span>نوبت نیلوفر</span><span class="bgv-turn__sep"></span><span class="bgv-clock" data-state="calm" style="--p:0.7;"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۰:۲۱</span></span></span></div>
-<div class="uno-pile uno-pile--low"><img src="../assets/games/timechat-uno-pile.webp" alt="کارت رو: برگشت آبی؛ دسته‌ی کشیدن ۶۹ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
+<div class="uno-pile uno-pile--low"><img src="../../assets/games/timechat-uno-pile.webp" alt="کارت رو: برگشت آبی؛ دسته کشیدن ۶۹ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
 <div class="bgv-felt-row" style="justify-content:center"><span class="bgv-felt-plate">رنگ فعال <strong>آبی</strong></span><span class="bgv-felt-plate">جهت <strong>عادی</strong></span><span class="bgv-felt-plate">هدف <strong>۵۰۰</strong></span></div>
-<div class="uno-hand"><img src="../assets/games/timechat-uno-hand-idle.webp" alt="دست شما، ۶ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
+<div class="uno-hand"><img src="../../assets/games/timechat-uno-hand-idle.webp" alt="دست شما، ۶ کارت" style="display:block;inline-size:100%;block-size:100%;object-fit:contain;"></div>
 </main>
 <section class="bgv-actiondock is-waiting"><div class="bgv-actiondock__prompt"><span>بعد از نیلوفر، آرش و سارا نوبت شماست</span><span class="bgv-clock bgv-clock--lg" data-state="paused" style="--p:1;"><span class="bgv-clock__ring"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1" /> <rect x="6" y="4" width="4" height="16" rx="1" /></svg></span><span class="bgv-clock__stack"><span class="bgv-clock__time">۰:۳۰</span><span class="bgv-clock__sub">زمان شما</span></span></span></div></section>
 </div>
 <div class="bgv-bubble-float bgv-bubble-float--up" role="status" style="inset-block-start:310px;inset-inline-end:24px"><span class="bf-name">آرش</span><span class="bgv-mention bgv-mention--you">@مینا</span> نوبت توئه!</div>
-<div class="bgv-bubble-float bgv-bubble-float--up" role="status" style="inset-block-start:262px;inset-inline-end:24px"><span class="bf-name">سارا</span>اوه! 😅</div>
+<div class="bgv-bubble-float bgv-bubble-float--up" role="status" style="inset-block-start:262px;inset-inline-end:24px"><span class="bf-name">سارا</span>اوه! <img class="bgv-emoji" src="../../assets/emoji/sweat.webp" alt="😅"></div>
 </div>
-</x-dc>
-</body>
-</html>
+</body></html>

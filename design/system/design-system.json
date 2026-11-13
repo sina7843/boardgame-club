@@ -1,0 +1,424 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-20T23:30:45Z"
+ },
+ "title": "بردگیم‌ورس — دیزاین سیستم (نسخه‌ی اصلاح‌شده‌ی QA)",
+ "namespace": "Bgv",
+ "libraries": [
+  {
+   "name": "react",
+   "version": "18"
+  },
+  {
+   "name": "react-dom",
+   "version": "18"
+  }
+ ],
+ "groups": [
+  "Lockups",
+  "Symbol",
+  "App icons",
+  "Favicon",
+  "Social"
+ ],
+ "assetGroups": {
+  "Lockups": {
+   "name": "Lockups",
+   "tile": "l",
+   "order": [
+    "BGV-horizontal-bgv-primary.svg",
+    "BGV-horizontal-en-primary.svg",
+    "BGV-horizontal-fa-primary.svg",
+    "BGV-stacked-bgv-primary.svg",
+    "BGV-horizontal-bgv-reversed.svg",
+    "BGV-horizontal-en-reversed.svg",
+    "BGV-horizontal-fa-reversed.svg",
+    "BGV-stacked-bgv-reversed.svg",
+    "BGV-horizontal-bgv-mono-black.svg",
+    "BGV-horizontal-bgv-mono-navy.svg",
+    "BGV-horizontal-bgv-mono-white.svg",
+    "BGV-horizontal-en-mono-black.svg",
+    "BGV-horizontal-en-mono-navy.svg",
+    "BGV-horizontal-en-mono-white.svg",
+    "BGV-horizontal-fa-mono-black.svg",
+    "BGV-horizontal-fa-mono-navy.svg",
+    "BGV-horizontal-fa-mono-white.svg",
+    "BGV-stacked-bgv-mono-black.svg",
+    "BGV-stacked-bgv-mono-navy.svg",
+    "BGV-stacked-bgv-mono-white.svg"
+   ],
+   "files": {
+    "BGV-horizontal-bgv-primary.svg": {
+     "name": "BGV-horizontal-bgv-primary.svg",
+     "blob": "db46692fa49f0528701d939a24340269",
+     "size": 11169,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-en-primary.svg": {
+     "name": "BGV-horizontal-en-primary.svg",
+     "blob": "f80eb141c4af92c82504d0afd6d67a33",
+     "size": 17757,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-fa-primary.svg": {
+     "name": "BGV-horizontal-fa-primary.svg",
+     "blob": "5ca082264c21596fad8537f611d06d56",
+     "size": 15183,
+     "type": "image/svg+xml"
+    },
+    "BGV-stacked-bgv-primary.svg": {
+     "name": "BGV-stacked-bgv-primary.svg",
+     "blob": "eac8035b83f90dfa4f5b2e6f535bfec7",
+     "size": 11169,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-bgv-reversed.svg": {
+     "name": "BGV-horizontal-bgv-reversed.svg",
+     "blob": "0cca360e5dcbdb6d44169ec35d4b1060",
+     "size": 11169,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-en-reversed.svg": {
+     "name": "BGV-horizontal-en-reversed.svg",
+     "blob": "2d1da3f723adb97e4eb6189427a5a641",
+     "size": 17757,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-fa-reversed.svg": {
+     "name": "BGV-horizontal-fa-reversed.svg",
+     "blob": "4507a1ca83f72b02fa0340c4bc5e2655",
+     "size": 15183,
+     "type": "image/svg+xml"
+    },
+    "BGV-stacked-bgv-reversed.svg": {
+     "name": "BGV-stacked-bgv-reversed.svg",
+     "blob": "54f0ebb1ce1081cbf819dcabd67d6ca1",
+     "size": 11169,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-bgv-mono-black.svg": {
+     "name": "BGV-horizontal-bgv-mono-black.svg",
+     "blob": "dce7d5a8148b378a3d4647c16758e64d",
+     "size": 3395,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-bgv-mono-navy.svg": {
+     "name": "BGV-horizontal-bgv-mono-navy.svg",
+     "blob": "75ac65d161244a00cbc7d45e9b84f5fd",
+     "size": 11169,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-bgv-mono-white.svg": {
+     "name": "BGV-horizontal-bgv-mono-white.svg",
+     "blob": "fd019f2016adc8b77b5b4895db420e7c",
+     "size": 3395,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-en-mono-black.svg": {
+     "name": "BGV-horizontal-en-mono-black.svg",
+     "blob": "f7f98cc50f4825357e938b7bd9d6872a",
+     "size": 9983,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-en-mono-navy.svg": {
+     "name": "BGV-horizontal-en-mono-navy.svg",
+     "blob": "b6f0ccfc1a4bf116130d88aa5837a30a",
+     "size": 17757,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-en-mono-white.svg": {
+     "name": "BGV-horizontal-en-mono-white.svg",
+     "blob": "17963cd296440cd93dc1fd1650094601",
+     "size": 9983,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-fa-mono-black.svg": {
+     "name": "BGV-horizontal-fa-mono-black.svg",
+     "blob": "d3d8e8aa236e646fd3d1fbc7c4863999",
+     "size": 7409,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-fa-mono-navy.svg": {
+     "name": "BGV-horizontal-fa-mono-navy.svg",
+     "blob": "e25e8d670f1cea3e375df5cb5018e407",
+     "size": 15183,
+     "type": "image/svg+xml"
+    },
+    "BGV-horizontal-fa-mono-white.svg": {
+     "name": "BGV-horizontal-fa-mono-white.svg",
+     "blob": "c76086bfd97b301b1527a6a6a10495eb",
+     "size": 7409,
+     "type": "image/svg+xml"
+    },
+    "BGV-stacked-bgv-mono-black.svg": {
+     "name": "BGV-stacked-bgv-mono-black.svg",
+     "blob": "e8996913956791ee25b1a1289332648b",
+     "size": 3395,
+     "type": "image/svg+xml"
+    },
+    "BGV-stacked-bgv-mono-navy.svg": {
+     "name": "BGV-stacked-bgv-mono-navy.svg",
+     "blob": "5f5177e2e5ee62e0a6391f09d891836d",
+     "size": 11169,
+     "type": "image/svg+xml"
+    },
+    "BGV-stacked-bgv-mono-white.svg": {
+     "name": "BGV-stacked-bgv-mono-white.svg",
+     "blob": "a7a998ede30aea437200dff0e04d5ef0",
+     "size": 3395,
+     "type": "image/svg+xml"
+    }
+   }
+  },
+  "Symbol": {
+   "name": "Symbol",
+   "tile": "m",
+   "order": [
+    "BGV-symbol-primary-small.svg",
+    "BGV-symbol-primary.svg",
+    "BGV-symbol-reversed-small.svg",
+    "BGV-symbol-reversed.svg",
+    "BGV-container-small.svg",
+    "BGV-container.svg",
+    "BGV-symbol-mono-black-small.svg",
+    "BGV-symbol-mono-black.svg",
+    "BGV-symbol-mono-navy-small.svg",
+    "BGV-symbol-mono-navy.svg",
+    "BGV-symbol-mono-white-small.svg",
+    "BGV-symbol-mono-white.svg"
+   ],
+   "files": {
+    "BGV-symbol-primary-small.svg": {
+     "name": "BGV-symbol-primary-small.svg",
+     "blob": "c79c71c48db4d720f405caa1afe0186a",
+     "size": 9828,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-primary.svg": {
+     "name": "BGV-symbol-primary.svg",
+     "blob": "d58ac4ebf902715d8503685fabf0c895",
+     "size": 9828,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-reversed-small.svg": {
+     "name": "BGV-symbol-reversed-small.svg",
+     "blob": "e7fd2f3454843cfd7ca9133be4af8ab3",
+     "size": 9828,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-reversed.svg": {
+     "name": "BGV-symbol-reversed.svg",
+     "blob": "babe080d817252481761e5a630480e46",
+     "size": 9828,
+     "type": "image/svg+xml"
+    },
+    "BGV-container-small.svg": {
+     "name": "BGV-container-small.svg",
+     "blob": "8bbe0c5ed1ca30d21416d6bee0ccb4e9",
+     "size": 9900,
+     "type": "image/svg+xml"
+    },
+    "BGV-container.svg": {
+     "name": "BGV-container.svg",
+     "blob": "f1cc49a56ea715f8ae0c97b276284ddc",
+     "size": 9902,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-mono-black-small.svg": {
+     "name": "BGV-symbol-mono-black-small.svg",
+     "blob": "24929830c9fbc676b706340d952c6ce9",
+     "size": 2054,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-mono-black.svg": {
+     "name": "BGV-symbol-mono-black.svg",
+     "blob": "40ee502c49212e25a1ac3b34cec73b10",
+     "size": 2054,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-mono-navy-small.svg": {
+     "name": "BGV-symbol-mono-navy-small.svg",
+     "blob": "40cbbe94d0872b16142fd7d74b8db04b",
+     "size": 9828,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-mono-navy.svg": {
+     "name": "BGV-symbol-mono-navy.svg",
+     "blob": "6879a0189a9bfd857f27cf7c75cc1c38",
+     "size": 9828,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-mono-white-small.svg": {
+     "name": "BGV-symbol-mono-white-small.svg",
+     "blob": "2dbedc8692da1b8cf72bc328336d2801",
+     "size": 2054,
+     "type": "image/svg+xml"
+    },
+    "BGV-symbol-mono-white.svg": {
+     "name": "BGV-symbol-mono-white.svg",
+     "blob": "ddabd17c3345b41f810cf251b9ce6118",
+     "size": 2054,
+     "type": "image/svg+xml"
+    }
+   }
+  },
+  "App icons": {
+   "name": "App icons",
+   "tile": "m",
+   "order": [
+    "BGV-app-icon-ios-1024.svg",
+    "BGV-maskable-512.svg",
+    "apple-touch-icon-180.png",
+    "favicon-32.png",
+    "favicon-48.png",
+    "icon-192.png",
+    "icon-512.png"
+   ],
+   "files": {
+    "BGV-app-icon-ios-1024.svg": {
+     "name": "BGV-app-icon-ios-1024.svg",
+     "blob": "d9df630cf0a50c43ee65ced20d6b1eae",
+     "size": 9897,
+     "type": "image/svg+xml"
+    },
+    "BGV-maskable-512.svg": {
+     "name": "BGV-maskable-512.svg",
+     "blob": "f43d480ea4a18b4503332d20b486a3bd",
+     "size": 9889,
+     "type": "image/svg+xml"
+    },
+    "apple-touch-icon-180.png": {
+     "name": "apple-touch-icon-180.png",
+     "blob": "69e4c98f3ac2a5d0c7bfcd554d528ac3",
+     "size": 4989,
+     "type": "image/png"
+    },
+    "favicon-32.png": {
+     "name": "favicon-32.png",
+     "blob": "f74032c377f37c74ae662f6fba7ad326",
+     "size": 562,
+     "type": "image/png"
+    },
+    "favicon-48.png": {
+     "name": "favicon-48.png",
+     "blob": "6be5bbd23ea3bc9dfbedbad4d4bf5c3d",
+     "size": 2019,
+     "type": "image/png"
+    },
+    "icon-192.png": {
+     "name": "icon-192.png",
+     "blob": "f86849fe7058adf385dcb7f0a105f281",
+     "size": 8606,
+     "type": "image/png"
+    },
+    "icon-512.png": {
+     "name": "icon-512.png",
+     "blob": "f3dd87bd8eb6120f4bc7d38ea9b7df82",
+     "size": 23329,
+     "type": "image/png"
+    }
+   }
+  },
+  "Favicon": {
+   "name": "Favicon",
+   "tile": "m",
+   "order": [
+    "favicon-16.png",
+    "favicon-32.png",
+    "favicon-48.png",
+    "favicon.svg",
+    "apple-touch-icon-180.png",
+    "icon-192.png",
+    "icon-512.png",
+    "icon-maskable-512.png"
+   ],
+   "files": {
+    "favicon-16.png": {
+     "name": "favicon-16.png",
+     "size": 341,
+     "type": "image/png",
+     "blob": "f7d35ad32a7ef31ab3ef1245c8f4c29c"
+    },
+    "favicon-32.png": {
+     "name": "favicon-32.png",
+     "size": 562,
+     "type": "image/png",
+     "blob": "f74032c377f37c74ae662f6fba7ad326"
+    },
+    "favicon-48.png": {
+     "name": "favicon-48.png",
+     "size": 2019,
+     "type": "image/png",
+     "blob": "6be5bbd23ea3bc9dfbedbad4d4bf5c3d"
+    },
+    "favicon.svg": {
+     "name": "favicon.svg",
+     "size": 2149,
+     "type": "image/svg+xml",
+     "blob": "eed614f86ba72a0e3051859f3aed0dd5"
+    },
+    "apple-touch-icon-180.png": {
+     "name": "apple-touch-icon-180.png",
+     "size": 4989,
+     "type": "image/png",
+     "blob": "69e4c98f3ac2a5d0c7bfcd554d528ac3"
+    },
+    "icon-192.png": {
+     "name": "icon-192.png",
+     "size": 8606,
+     "type": "image/png",
+     "blob": "f86849fe7058adf385dcb7f0a105f281"
+    },
+    "icon-512.png": {
+     "name": "icon-512.png",
+     "size": 23329,
+     "type": "image/png",
+     "blob": "f3dd87bd8eb6120f4bc7d38ea9b7df82"
+    },
+    "icon-maskable-512.png": {
+     "name": "icon-maskable-512.png",
+     "size": 12785,
+     "type": "image/png",
+     "blob": "9713c551bdb8c329b47103fb8fb760be"
+    }
+   }
+  },
+  "Social": {
+   "name": "Social",
+   "tile": "l",
+   "order": [
+    "BGV-avatar-1080.png",
+    "BGV-og-image-1200x630.png"
+   ],
+   "files": {
+    "BGV-avatar-1080.png": {
+     "name": "BGV-avatar-1080.png",
+     "blob": "cb79b9e7173c87e86aec572eb9220e32",
+     "size": 28134,
+     "type": "image/png"
+    },
+    "BGV-og-image-1200x630.png": {
+     "name": "BGV-og-image-1200x630.png",
+     "blob": "94666d2f55aeb2b5caebb4b10b8c4c1d",
+     "size": 25916,
+     "type": "image/png"
+    }
+   }
+  }
+ },
+ "sections": {},
+ "blobs": {},
+ "docs": {
+  "readme": "project/README.md",
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Claude",
+  "at": "2026-11-12T19:30:00Z",
+  "via": "Claude Code (desktop)",
+  "note": "v2.4.3 owner round 8 (21 Aban 1405): box art token, Fluent emoji images, UNO table image; plus thousands separator = plain comma «,» between Persian digits (fa() in bundle.js, docs 5-content + 6-developer-contract). Keeps v2.4.2 (round 7) except the Tooltip shadow, reverted to --shadow-float (owner)."
+ }
+}

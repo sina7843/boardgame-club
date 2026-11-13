@@ -26,6 +26,7 @@ Types: `MoreTileProps`, `MoreGroupProps` in `components/index.d.ts`. Classes: `.
 
 **Do**
 
+- Start «بازی و میز» with «بازی‌ها» (`layout-grid`, `/games`): on the phone it is the path to the full catalog (v2.2.1).
 - Keep labels to one line at 358px (two columns).
 - Put the profile card (identity, level) above the groups.
 

@@ -1,0 +1,40 @@
+{
+  "sourceCollection": "../ready to use",
+  "status": "complete",
+  "date": "2026-10-28",
+  "totalAssets": 263,
+  "scopeCount": 263,
+  "flatAssets": 262,
+  "preferredFlat": 262,
+  "replaced": 226,
+  "alreadyFlat": 36,
+  "unavailable": 1,
+  "alternatives": 0,
+  "categories": {
+    "project-cards": 208,
+    "corporation-cards": 13,
+    "boards": 2,
+    "card-backs": 1,
+    "tiles": 14,
+    "markers": 12,
+    "printed-panels": 3,
+    "source-sheets": 10
+  },
+  "sourcePriority": "BGA full/card-complete artwork before existing physical scans",
+  "uniqueSourceFiles": 20,
+  "coordinateReviewCount": 226,
+  "allOriginalNamesPreserved": true,
+  "allOriginalCanvasesPreserved": true,
+  "noAIOrRedraw": true,
+  "projectNativeSource": [
+    320,
+    450
+  ],
+  "corporationNativeSource": [
+    450,
+    320
+  ],
+  "retainedWithoutEquivalent": [
+    "transparent-marker-group"
+  ]
+}

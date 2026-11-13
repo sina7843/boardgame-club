@@ -33,7 +33,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 col(
-  row(h(B.League,{tier:'bronze'}), h(B.League,{tier:'silver'}), h(B.League,{tier:'gold'}), h(B.League,{tier:'platinum'}), h(B.League,{tier:'diamond'}), h(B.League,{tier:'master'}), h(B.League,{tier:'gold'},'لیگ طلا، ۱٬۵۸۴')),
+  row(h(B.League,{tier:'bronze'}), h(B.League,{tier:'silver'}), h(B.League,{tier:'gold'}), h(B.League,{tier:'platinum'}), h(B.League,{tier:'diamond'}), h(B.League,{tier:'master'}), h(B.League,{tier:'gold'},'لیگ طلا، ۱,۵۸۴')),
   felt({style:{padding:'12px 16px'}}, row(h(B.League,{tier:'gold'}), h(B.League,{tier:'diamond'}), h(B.League,{tier:'master'})))
 )
 ```

@@ -1,0 +1,13 @@
+import { pathToFileURL } from 'node:url';
+import fs from 'node:fs';
+const r = await import(pathToFileURL('E:/AI/Claude/bgv-brass/engine/src/rules.ts'));
+const d = JSON.parse(fs.readFileSync('../work/sim-47.json'));
+const s = d.snaps[process.argv[2] || 'rail4'];
+const lab = (c) => c >= 900 ? (c === 900 ? 'WILD-LOC' : 'WILD-IND') : r.CARDS[c].kind === 'location' ? r.CARDS[c].loc : r.CARDS[c].industries.join('/');
+console.log('order', s.order, 'turn', s.turn, 'deck', s.deck.length, 'coal', s.coal, 'iron', s.iron, 'wild', s.wild);
+for (let p = 0; p < 4; p++) console.log(p, 'hand', s.hands[p].map(lab).join(','), '| mat', JSON.stringify(s.mat[p]), '| disc', s.discards[p].length, s.discards[p].length ? lab(s.discards[p].at(-1)) : '');
+for (const [loc, row] of Object.entries(s.board)) row.forEach((t, i) => t && console.log(' ', loc, i, t.owner, t.industry, t.level, t.flipped ? 'F' : '-', t.cubes));
+console.log('links', s.links);
+console.log('merchants', JSON.stringify(s.merchants));
+const h = r.legalFor(s, 0); const c = {}; for (const x of h) c[x.type] = (c[x.type] || 0) + 1; console.log(c);
+console.log(h.filter((x) => x.type === 'sell'));

@@ -1,4 +1,4 @@
-The desktop site header (v2.1): 72px, sticky, on `--surface-chrome` with a hairline. It replaces the sidebar. In order: logo, five destinations, search, «بازی سریع», messages, notifications, avatar.
+The desktop site header (v2.1): 72px, sticky, on `--surface-chrome` with a hairline. It replaces the sidebar. In order: logo, five destinations, search, light/dark button (v2.3), «بازی سریع», messages, notifications, avatar.
 
 **Material (v2.1):** a chrome strip, no shadow. Destinations are rows (tint on hover; current = a 3px navy rule under the label, cream in dark). «بازی سریع» is the one amber token in the header. It is a **registered exception** to «one amber action per page» (owner decision, 30 Mehr 1405): it is the site-wide action, so on desktop it may sit next to the page's own primary action; it hides on the home page. Messages and notifications are ghost icons; the icon of the page you are on is a flat navy fill. The avatar is a neutral disc, never amber.
 
@@ -19,6 +19,7 @@ Every page at 900px and wider, inside `AppShell` (which builds it from `nav`, `u
 | `search` | `SiteSearchProps \| Node \| false` | The header search. |
 | `width` | `'auto' \| 'mid' \| 'wide'` | Force the 900–1199 or ≥1200 look (previews). |
 | `onAvatar`, `menuOpen` | | Open the account menu; sets `aria-expanded`. |
+| `themeToggle` | `{ dark, onToggle, label } \| false` | v2.3: the light/dark button (`ThemeToggle`), first in the actions, for guests too. Moon in light, sun in dark; its name says the theme it switches to. |
 
 Types: `SiteHeaderProps` in `components/index.d.ts`. Classes: `.bgv-siteheader`, `.bgv-siteheader__in`, `.bgv-sitenav`, `.bgv-siteheader__actions`, `.bgv-siteheader__quick`, `.bgv-avatarbtn`.
 
@@ -37,6 +38,7 @@ Types: `SiteHeaderProps` in `components/index.d.ts`. Classes: `.bgv-siteheader`,
 - Keep exactly five destinations in this order. Coins live in the avatar menu on desktop, not in the header.
 - Give the current destination `active`; on an account page mark the avatar `current`; on messages or notifications mark that icon `current`.
 - Guest header: secondary «ورود / ثبت‌نام» that goes to the full login page and returns to the same page.
+- Keep the light/dark button on every header (owner, 13 Aban 1405). First visit is **dark** (owner, 13 Aban 1405); the button switches and saves the choice; settings offer روشن، تیره، مثل دستگاه.
 
 **Don't**
 
@@ -51,3 +53,10 @@ h(B.SiteHeader, {logo:{src:'logo-fa-primary.svg', srcDark:'logo-fa-reversed.svg'
   nav:[{label:'خانه', href:'/'},{label:'بازی‌ها', href:'/games', active:true},{label:'میزها', href:'/tables', turns:3},{label:'تورنمنت‌ها', href:'/tournaments'},{label:'رتبه‌بندی', href:'/ranking'}],
   user:{initials:'م', name:'مینا'}, messages:{href:'/messages', count:4}, notifications:{href:'/notifications', count:5}})
 ```
+
+**v2.4 (13 Aban)**
+
+- Light theme: warm amber tint (`color-mix(primary 9%, #FFFDF8)`) with a 2px amber line under it; the logo stays readable. Dark theme unchanged.
+- Nav: hover and selected share one rectangle (`--radius-sm`); selected is navy with cream text (cream with navy text in dark).
+- Actions keep one 8px step: search, theme toggle, inbox, avatar.
+- Signed in: one inbox button for notifications + messages (badge = sum, menu with two tabs), then the account menu (profile, my tables, coins, wardrobe, settings, logout). The theme toggle stays in the header.

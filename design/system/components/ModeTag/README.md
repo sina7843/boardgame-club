@@ -22,7 +22,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 - Desktop: the labelled pill «آنلاین | ربات». Phone: `compact` (icons only); the screen-reader label still says «بازی آنلاین یا با ربات».
 - The people half is outlined navy, the bot half is filled navy; in dark the colours invert to cream.
-- Show it only when a bot is available; games without a bot need no tag.
+- Show it on every game card, after all the text and right after flags such as «آزمایشی»: «آنلاین | ربات» when a bot is available, `bot:false` («آنلاین» alone) when it is not.
 
 **Don't**
 

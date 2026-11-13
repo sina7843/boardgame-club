@@ -2,7 +2,7 @@ An eye icon with the number of spectators.
 
 ## When to use
 
-Game bar meta, lobby, table lists.
+Inside the game only: game bar and lobby (v2.3.1, owner). Tap opens a sheet that lists every spectator with name, `@id` and since when. Public lists (home, open/live tables) show **no** spectator count.
 
 ## Props / what the consumer provides
 
@@ -23,7 +23,8 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Don't**
 
-- Do not list spectator names in the HUD.
+- Do not show the spectator count on public table cards (home, live tables).
+- Do not hide who is watching from the players: the sheet always shows names and `@id`.
 
 ## Example
 

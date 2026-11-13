@@ -1,0 +1,2200 @@
+[
+ {
+  "path": "art/boards/board-day.webp",
+  "width": 1200,
+  "height": 1200,
+  "bytes": 455708,
+  "publisherSource": "ready to use - flat/boards/board-day.png"
+ },
+ {
+  "path": "art/boards/board-night.webp",
+  "width": 2400,
+  "height": 2400,
+  "bytes": 925132,
+  "publisherSource": "ready to use - flat/boards/board-night.png"
+ },
+ {
+  "path": "art/boards/player-mat-day.webp",
+  "width": 639,
+  "height": 569,
+  "bytes": 98744,
+  "publisherSource": "ready to use - flat/boards/player-mat-day.png"
+ },
+ {
+  "path": "art/boards/player-mat-night.webp",
+  "width": 1800,
+  "height": 1456,
+  "bytes": 430326,
+  "publisherSource": "ready to use - flat/boards/player-mat-night.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7824,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6802,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7790,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7180,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7826,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6886,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7818,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-1-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7038,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-1-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7890,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6770,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8128,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7260,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8048,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7010,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8014,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-2-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7030,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-2-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7958,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6860,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8168,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7290,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7978,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7078,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8062,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-3-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7158,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-3-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8050,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6950,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8410,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7354,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8300,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7172,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8150,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-brewery-4-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7122,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-brewery-4-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8192,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7650,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8456,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8074,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8542,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8142,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8458,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-1-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8024,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-1-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8156,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7856,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8380,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8374,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8500,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8260,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8414,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-2-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8250,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-2-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8408,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8078,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8640,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8478,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8584,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8336,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8552,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-3-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8574,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-3-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8372,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8226,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8624,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8704,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8614,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8624,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8546,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-coal-4-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8796,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-coal-4-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7832,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7552,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8260,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8296,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8040,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8048,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8120,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-1-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7984,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-1-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8324,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7652,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8576,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8214,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8522,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8112,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8470,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-2-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8048,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-2-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8154,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7578,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8490,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8450,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8322,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8294,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8314,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-3-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8122,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-3-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8202,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7694,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8530,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8204,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8434,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8352,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8290,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-cotton-4-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8080,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-cotton-4-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8406,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8892,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8920,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9410,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8712,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8932,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8616,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-1-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8856,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-1-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8490,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8946,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8864,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9460,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8766,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8926,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8770,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-2-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9118,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-2-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8682,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9152,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9104,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9512,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8894,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9226,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8796,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-3-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9174,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-3-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8530,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9306,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9064,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9626,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8906,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9230,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 8720,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-iron-4-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 9314,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-iron-4-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7668,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6622,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7720,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7038,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7838,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6784,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7784,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-1-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6726,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-1-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7294,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6636,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7492,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7092,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7398,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6954,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7404,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-2-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6800,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-2-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6858,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6396,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6962,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7014,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6944,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6684,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6922,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-3-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6418,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-3-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7502,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6882,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7716,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7278,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7636,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7032,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7568,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-4-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6962,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-4-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7642,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6888,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7842,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7290,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7850,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7176,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7912,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-5-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6974,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-5-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7520,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6758,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7588,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7364,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7580,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7040,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7450,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-6-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6828,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-6-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6950,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6566,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7216,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7026,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7136,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6762,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7076,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-7-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6586,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-7-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7740,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7044,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7786,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7648,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7894,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7248,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7912,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-manufacturer-8-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 7014,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-manufacturer-8-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5576,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5666,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5774,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6044,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5702,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5782,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5812,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-1-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5906,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-1-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5420,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5084,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5536,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5474,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5580,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5308,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5674,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-2-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5280,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-2-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5768,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5844,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5898,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6154,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5850,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6014,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5906,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-3-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 6160,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-3-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5648,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5170,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5788,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5598,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5714,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5512,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5822,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-4-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5394,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-4-yellow-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-grey-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5794,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-grey-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-grey-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5222,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-grey-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-purple-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5930,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-purple-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-purple-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5658,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-purple-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-red-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5948,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-red-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-red-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5420,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-red-front.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-yellow-back.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5954,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-yellow-back.png"
+ },
+ {
+  "path": "art/industry-tiles/tile-pottery-5-yellow-front.webp",
+  "width": 192,
+  "height": 192,
+  "bytes": 5394,
+  "publisherSource": "ready to use - flat/industry-tiles/tile-pottery-5-yellow-front.png"
+ },
+ {
+  "path": "art/cards-location/card-belper.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 29814,
+  "publisherSource": "ready to use - flat/cards-location/card-belper.png"
+ },
+ {
+  "path": "art/cards-location/card-birmingham.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 40128,
+  "publisherSource": "ready to use - flat/cards-location/card-birmingham.png"
+ },
+ {
+  "path": "art/cards-location/card-burton-on-trent.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 31398,
+  "publisherSource": "ready to use - flat/cards-location/card-burton-on-trent.png"
+ },
+ {
+  "path": "art/cards-location/card-cannock.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32382,
+  "publisherSource": "ready to use - flat/cards-location/card-cannock.png"
+ },
+ {
+  "path": "art/cards-location/card-coalbrookdale.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 35836,
+  "publisherSource": "ready to use - flat/cards-location/card-coalbrookdale.png"
+ },
+ {
+  "path": "art/cards-location/card-coventry.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 34510,
+  "publisherSource": "ready to use - flat/cards-location/card-coventry.png"
+ },
+ {
+  "path": "art/cards-location/card-derby.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32056,
+  "publisherSource": "ready to use - flat/cards-location/card-derby.png"
+ },
+ {
+  "path": "art/cards-location/card-dudley.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 33488,
+  "publisherSource": "ready to use - flat/cards-location/card-dudley.png"
+ },
+ {
+  "path": "art/cards-location/card-kidderminster.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 33230,
+  "publisherSource": "ready to use - flat/cards-location/card-kidderminster.png"
+ },
+ {
+  "path": "art/cards-location/card-leek.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32948,
+  "publisherSource": "ready to use - flat/cards-location/card-leek.png"
+ },
+ {
+  "path": "art/cards-location/card-nuneaton.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 34628,
+  "publisherSource": "ready to use - flat/cards-location/card-nuneaton.png"
+ },
+ {
+  "path": "art/cards-location/card-redditch.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 34158,
+  "publisherSource": "ready to use - flat/cards-location/card-redditch.png"
+ },
+ {
+  "path": "art/cards-location/card-stafford.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 31986,
+  "publisherSource": "ready to use - flat/cards-location/card-stafford.png"
+ },
+ {
+  "path": "art/cards-location/card-stoke-on-trent.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 34590,
+  "publisherSource": "ready to use - flat/cards-location/card-stoke-on-trent.png"
+ },
+ {
+  "path": "art/cards-location/card-stone.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32716,
+  "publisherSource": "ready to use - flat/cards-location/card-stone.png"
+ },
+ {
+  "path": "art/cards-location/card-tamworth.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 30130,
+  "publisherSource": "ready to use - flat/cards-location/card-tamworth.png"
+ },
+ {
+  "path": "art/cards-location/card-uttoxeter.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 34236,
+  "publisherSource": "ready to use - flat/cards-location/card-uttoxeter.png"
+ },
+ {
+  "path": "art/cards-location/card-walsall.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 37176,
+  "publisherSource": "ready to use - flat/cards-location/card-walsall.png"
+ },
+ {
+  "path": "art/cards-location/card-wolverhampton.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 36336,
+  "publisherSource": "ready to use - flat/cards-location/card-wolverhampton.png"
+ },
+ {
+  "path": "art/cards-location/card-worcester.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 33502,
+  "publisherSource": "ready to use - flat/cards-location/card-worcester.png"
+ },
+ {
+  "path": "art/cards-industry/card-brewery-1.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32770,
+  "publisherSource": "ready to use - flat/cards-industry/card-brewery-1.png"
+ },
+ {
+  "path": "art/cards-industry/card-brewery-2.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32794,
+  "publisherSource": "ready to use - flat/cards-industry/card-brewery-2.png"
+ },
+ {
+  "path": "art/cards-industry/card-brewery-3.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32516,
+  "publisherSource": "ready to use - flat/cards-industry/card-brewery-3.png"
+ },
+ {
+  "path": "art/cards-industry/card-coal-1.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 25386,
+  "publisherSource": "ready to use - flat/cards-industry/card-coal-1.png"
+ },
+ {
+  "path": "art/cards-industry/card-coal-2.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 25248,
+  "publisherSource": "ready to use - flat/cards-industry/card-coal-2.png"
+ },
+ {
+  "path": "art/cards-industry/card-cotton-manufacturer-1.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 33070,
+  "publisherSource": "ready to use - flat/cards-industry/card-cotton-manufacturer-1.png"
+ },
+ {
+  "path": "art/cards-industry/card-cotton-manufacturer-2.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 33084,
+  "publisherSource": "ready to use - flat/cards-industry/card-cotton-manufacturer-2.png"
+ },
+ {
+  "path": "art/cards-industry/card-cotton-manufacturer-3.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 30278,
+  "publisherSource": "ready to use - flat/cards-industry/card-cotton-manufacturer-3.png"
+ },
+ {
+  "path": "art/cards-industry/card-iron-1.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 31230,
+  "publisherSource": "ready to use - flat/cards-industry/card-iron-1.png"
+ },
+ {
+  "path": "art/cards-industry/card-iron-2.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 31342,
+  "publisherSource": "ready to use - flat/cards-industry/card-iron-2.png"
+ },
+ {
+  "path": "art/cards-industry/card-pottery.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 32890,
+  "publisherSource": "ready to use - flat/cards-industry/card-pottery.png"
+ },
+ {
+  "path": "art/cards-wild/card-wild-industry.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 38228,
+  "publisherSource": "ready to use - flat/cards-wild/card-wild-industry.png"
+ },
+ {
+  "path": "art/cards-wild/card-wild-location.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 36524,
+  "publisherSource": "ready to use - flat/cards-wild/card-wild-location.png"
+ },
+ {
+  "path": "art/card-backs/card-back.webp",
+  "width": 320,
+  "height": 449,
+  "bytes": 38886,
+  "publisherSource": "ready to use - flat/card-backs/card-back.png"
+ },
+ {
+  "path": "art/links/link-grey-canal.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6046,
+  "publisherSource": "ready to use - flat/links/link-grey-canal.png"
+ },
+ {
+  "path": "art/links/link-grey-rail.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6000,
+  "publisherSource": "ready to use - flat/links/link-grey-rail.png"
+ },
+ {
+  "path": "art/links/link-purple-canal.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6286,
+  "publisherSource": "ready to use - flat/links/link-purple-canal.png"
+ },
+ {
+  "path": "art/links/link-purple-rail.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6228,
+  "publisherSource": "ready to use - flat/links/link-purple-rail.png"
+ },
+ {
+  "path": "art/links/link-red-canal.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6490,
+  "publisherSource": "ready to use - flat/links/link-red-canal.png"
+ },
+ {
+  "path": "art/links/link-red-rail.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6480,
+  "publisherSource": "ready to use - flat/links/link-red-rail.png"
+ },
+ {
+  "path": "art/links/link-yellow-canal.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6422,
+  "publisherSource": "ready to use - flat/links/link-yellow-canal.png"
+ },
+ {
+  "path": "art/links/link-yellow-rail.webp",
+  "width": 220,
+  "height": 93,
+  "bytes": 6550,
+  "publisherSource": "ready to use - flat/links/link-yellow-rail.png"
+ },
+ {
+  "path": "art/merchants/merchant-all.webp",
+  "width": 200,
+  "height": 200,
+  "bytes": 8356,
+  "publisherSource": "ready to use - flat/merchants/merchant-all.png"
+ },
+ {
+  "path": "art/merchants/merchant-back.webp",
+  "width": 200,
+  "height": 200,
+  "bytes": 3940,
+  "publisherSource": "ready to use - flat/merchants/merchant-back.png"
+ },
+ {
+  "path": "art/merchants/merchant-blank.webp",
+  "width": 200,
+  "height": 199,
+  "bytes": 3928,
+  "publisherSource": "ready to use - flat/merchants/merchant-blank.png"
+ },
+ {
+  "path": "art/merchants/merchant-cotton.webp",
+  "width": 200,
+  "height": 200,
+  "bytes": 8622,
+  "publisherSource": "ready to use - flat/merchants/merchant-cotton.png"
+ },
+ {
+  "path": "art/merchants/merchant-manufacturer.webp",
+  "width": 200,
+  "height": 199,
+  "bytes": 8466,
+  "publisherSource": "ready to use - flat/merchants/merchant-manufacturer.png"
+ },
+ {
+  "path": "art/merchants/merchant-pottery.webp",
+  "width": 200,
+  "height": 200,
+  "bytes": 5842,
+  "publisherSource": "ready to use - flat/merchants/merchant-pottery.png"
+ },
+ {
+  "path": "art/characters/character-grey-back.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 7166,
+  "publisherSource": "ready to use - flat/characters/character-grey-back.png"
+ },
+ {
+  "path": "art/characters/character-grey-front.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 7652,
+  "publisherSource": "ready to use - flat/characters/character-grey-front.png"
+ },
+ {
+  "path": "art/characters/character-purple-back.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 7316,
+  "publisherSource": "ready to use - flat/characters/character-purple-back.png"
+ },
+ {
+  "path": "art/characters/character-purple-front.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 6742,
+  "publisherSource": "ready to use - flat/characters/character-purple-front.png"
+ },
+ {
+  "path": "art/characters/character-red-back.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 7576,
+  "publisherSource": "ready to use - flat/characters/character-red-back.png"
+ },
+ {
+  "path": "art/characters/character-red-front.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 7390,
+  "publisherSource": "ready to use - flat/characters/character-red-front.png"
+ },
+ {
+  "path": "art/characters/character-yellow-back.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 8496,
+  "publisherSource": "ready to use - flat/characters/character-yellow-back.png"
+ },
+ {
+  "path": "art/characters/character-yellow-front.webp",
+  "width": 176,
+  "height": 176,
+  "bytes": 7432,
+  "publisherSource": "ready to use - flat/characters/character-yellow-front.png"
+ },
+ {
+  "path": "art/markers/income-grey.webp",
+  "width": 60,
+  "height": 54,
+  "bytes": 2294,
+  "publisherSource": "ready to use - flat/markers/income-grey.png"
+ },
+ {
+  "path": "art/markers/income-purple.webp",
+  "width": 60,
+  "height": 54,
+  "bytes": 2330,
+  "publisherSource": "ready to use - flat/markers/income-purple.png"
+ },
+ {
+  "path": "art/markers/income-red.webp",
+  "width": 60,
+  "height": 54,
+  "bytes": 2312,
+  "publisherSource": "ready to use - flat/markers/income-red.png"
+ },
+ {
+  "path": "art/markers/income-yellow.webp",
+  "width": 60,
+  "height": 54,
+  "bytes": 2466,
+  "publisherSource": "ready to use - flat/markers/income-yellow.png"
+ },
+ {
+  "path": "art/markers/vp-grey.webp",
+  "width": 174,
+  "height": 148,
+  "bytes": 5882,
+  "publisherSource": "ready to use - flat/markers/vp-grey.png"
+ },
+ {
+  "path": "art/markers/vp-purple.webp",
+  "width": 174,
+  "height": 148,
+  "bytes": 5770,
+  "publisherSource": "ready to use - flat/markers/vp-purple.png"
+ },
+ {
+  "path": "art/markers/vp-red.webp",
+  "width": 174,
+  "height": 148,
+  "bytes": 5548,
+  "publisherSource": "ready to use - flat/markers/vp-red.png"
+ },
+ {
+  "path": "art/markers/vp-yellow.webp",
+  "width": 174,
+  "height": 148,
+  "bytes": 6124,
+  "publisherSource": "ready to use - flat/markers/vp-yellow.png"
+ },
+ {
+  "path": "art/money/coin-1.webp",
+  "width": 128,
+  "height": 128,
+  "bytes": 8532,
+  "publisherSource": "ready to use - flat/money/coin-1.png"
+ },
+ {
+  "path": "art/money/coin-15.webp",
+  "width": 128,
+  "height": 128,
+  "bytes": 8418,
+  "publisherSource": "ready to use - flat/money/coin-15.png"
+ },
+ {
+  "path": "art/money/coin-5.webp",
+  "width": 128,
+  "height": 128,
+  "bytes": 8278,
+  "publisherSource": "ready to use - flat/money/coin-5.png"
+ },
+ {
+  "path": "art/resources/beer-barrel.webp",
+  "width": 104,
+  "height": 136,
+  "bytes": 4026,
+  "publisherSource": "ready to use - flat/resources/beer-barrel.png"
+ },
+ {
+  "path": "art/resources/coal-cube.webp",
+  "width": 52,
+  "height": 58,
+  "bytes": 1312,
+  "publisherSource": "ready to use - flat/resources/coal-cube.png"
+ },
+ {
+  "path": "art/resources/iron-cube.webp",
+  "width": 52,
+  "height": 58,
+  "bytes": 1938,
+  "publisherSource": "ready to use - flat/resources/iron-cube.png"
+ },
+ {
+  "path": "art/artwork/art-brewery.webp",
+  "width": 160,
+  "height": 160,
+  "bytes": 6496,
+  "publisherSource": "ready to use - flat/artwork/art-brewery.png"
+ },
+ {
+  "path": "art/artwork/art-coal-mine.webp",
+  "width": 160,
+  "height": 160,
+  "bytes": 6702,
+  "publisherSource": "ready to use - flat/artwork/art-coal-mine.png"
+ },
+ {
+  "path": "art/artwork/art-cotton-mill.webp",
+  "width": 160,
+  "height": 170,
+  "bytes": 7758,
+  "publisherSource": "ready to use - flat/artwork/art-cotton-mill.png"
+ },
+ {
+  "path": "art/artwork/art-iron-works.webp",
+  "width": 160,
+  "height": 160,
+  "bytes": 9694,
+  "publisherSource": "ready to use - flat/artwork/art-iron-works.png"
+ },
+ {
+  "path": "art/artwork/art-manufactured-goods.webp",
+  "width": 160,
+  "height": 160,
+  "bytes": 6274,
+  "publisherSource": "ready to use - flat/artwork/art-manufactured-goods.png"
+ },
+ {
+  "path": "art/artwork/art-pottery.webp",
+  "width": 160,
+  "height": 160,
+  "bytes": 4376,
+  "publisherSource": "ready to use - flat/artwork/art-pottery.png"
+ },
+ {
+  "path": "art/player-aids/player-aid-back.webp",
+  "width": 739,
+  "height": 1038,
+  "bytes": 289918,
+  "publisherSource": "ready to use - flat/player-aids/player-aid-back.png"
+ },
+ {
+  "path": "art/player-aids/player-aid-front.webp",
+  "width": 76,
+  "height": 106,
+  "bytes": 2400,
+  "publisherSource": "ready to use - flat/player-aids/player-aid-front.png"
+ }
+]

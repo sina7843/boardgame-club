@@ -1,0 +1,107 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=2700"><title>جریان‌های تاییدشده، گوشی</title><link rel="stylesheet" href="../../../system/tokens.css"><link rel="stylesheet" href="../../../system/components/bundle.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.fl{background:var(--bg);color:var(--text);font-family:var(--font-fa);padding:48px;box-sizing:border-box;display:grid;gap:28px}
+.fl-head h1{margin:0 0 6px;font-size:32px;font-weight:900;color:var(--heading)}
+.fl-head p{margin:0;font-size:16px;line-height:1.8;color:var(--text-muted);max-width:110ch}
+.row{display:flex;gap:40px;align-items:flex-start}
+.col{display:grid;gap:12px;inline-size:390px}
+.cap{display:grid;gap:2px}
+.cap b{font-size:16px;color:var(--heading)}
+.cap span{font-size:13.5px;line-height:1.7;color:var(--text-muted)}
+.ph{position:relative;inline-size:390px;block-size:780px;border-radius:28px;overflow:hidden;background:var(--bg);box-shadow:var(--shadow-ring);display:flex;flex-direction:column}
+.ic{inline-size:20px;block-size:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.lat{font-family:Manrope,sans-serif;direction:ltr;unicode-bidi:isolate}
+/* game bar + felt */
+.gbar{display:flex;align-items:center;gap:10px;block-size:56px;padding-inline:12px;background:var(--surface-chrome);border-block-end:1px solid var(--line);flex:none}
+.gbar b{font-size:16px;color:var(--heading)}
+.gbar .sp{flex:1}
+.gbar .pill{display:inline-flex;align-items:center;gap:6px;block-size:36px;padding-inline:10px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:700;color:var(--text)}
+.felt{flex:1;background:var(--felt);display:grid;place-items:center;color:var(--felt-muted);font-size:14px}
+.felt img{inline-size:auto;block-size:auto;max-inline-size:150px;max-block-size:150px;opacity:.85}
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:absolute;inset-inline:0;inset-block-end:0;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 28px;display:grid;gap:14px;box-shadow:var(--shadow-float)}
+.sheet .grab{justify-self:center;inline-size:40px;block-size:4px;border-radius:2px;background:var(--line)}
+.sheet h3{margin:0;font-size:20px;font-weight:900;color:var(--heading)}
+.sheet p{margin:0;font-size:15px;line-height:1.8;color:var(--text)}
+.sheet .muted{font-size:13.5px;color:var(--text-muted)}
+.btns{display:grid;gap:10px}
+.btns .bgv-btn{inline-size:100%;justify-content:center;min-block-size:50px}
+.item{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 10px;border-radius:var(--radius-md);background:var(--surface-sunken)}
+.item .bgv-box-slot{--bgv-box-size:44px}
+.item b{display:block;font-size:14.5px;color:var(--heading)}
+.item span{font-size:12.5px;color:var(--text-muted)}
+.item em{font-style:normal;font-size:12px;font-weight:700;color:var(--link)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:12.5px;font-weight:700;color:var(--text)}
+.meter{display:grid;gap:6px}
+.meter .bar{block-size:8px;border-radius:4px;background:var(--surface-sunken);overflow:hidden}
+.meter .bar i{display:block;block-size:100%;background:var(--primary)}
+.meter span{font-size:13px;color:var(--text-muted)}
+/* spectators */
+.spec{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:6px 0;border-block-end:1px solid var(--line)}
+.spec:last-child{border-block-end:0}
+.spec b{display:block;font-size:15px;color:var(--heading)}
+.spec .id{font-size:12.5px;color:var(--text-muted)}
+.spec .t{font-size:12.5px;color:var(--text-muted)}
+/* avatar picker */
+.top{display:flex;align-items:center;gap:10px;block-size:56px;padding-inline:16px;flex:none}
+.steps{display:flex;gap:6px;margin-inline-start:auto}
+.steps i{inline-size:24px;block-size:4px;border-radius:2px;background:var(--line)}
+.steps i.on{background:var(--primary)}
+.body{padding:8px 20px 20px;display:grid;gap:16px;align-content:start;flex:1}
+.body h2{margin:0;font-size:24px;font-weight:900;color:var(--heading)}
+.body p{margin:0;font-size:15px;line-height:1.8;color:var(--text-muted)}
+.av{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.av span{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--text-muted);background:var(--surface-sunken);box-shadow:var(--shadow-ring);text-align:center;line-height:1.3}
+.av span.on{box-shadow:0 0 0 3px var(--primary);color:var(--heading)}
+.foot{padding:16px 20px 24px;display:grid;gap:10px;flex:none}
+.foot .bgv-btn{inline-size:100%;justify-content:center;min-block-size:52px}
+.foot small{text-align:center;font-size:13px;color:var(--text-muted)}
+</style>
+</head><body style="margin:0">
+<div class="bgv fl" data-theme="{{theme}}" dir="rtl" style="width:2700px">
+<div class="fl-head"><h1>جریان‌های تاییدشده</h1><p>این‌ها را تایید کرده بودی و طراحی‌شان کردم: خروج از بازی با ربات، سقف بازی‌های هم‌زمان (زنده ۱، نوبتی ۳ و با اشتراک ویژه ۱۵، با ربات ۱۵)، فهرست تماشاگرها با آیدی داخل بازی، و انتخاب آواتار آماده هنگام ثبت نام. آواتارها جای خالی‌اند تا مجموعه‌ی تازه از روی پرامپت ساخته شود.</p></div>
+<div class="row">
+
+<div class="col"><div class="cap"><b>۱. خروج از بازی با ربات</b><span>بدون جریمه و بدون پیغام ترسناک. بازی ذخیره می‌شود و در «میزهای من» با «ادامه» می‌ماند.</span></div>
+<div class="ph"><div class="gbar"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="#" aria-label="خروج"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></a><b>اونو · با ربات</b><span class="sp"></span><span class="pill">ربات متوسط</span></div><div class="felt"><img class="bgv-box bgv-box--lg" src="../../assets/box/uno.webp" alt=""></div>
+<div class="scrim"></div><div class="sheet"><span class="grab"></span><h3>از بازی بیرون می‌روی؟</h3><p>بازی همین‌جا ذخیره می‌شود. هر وقت خواستی از «میزهای من» ادامه بده. بازی با ربات جریمه و امتیاز منفی ندارد.</p><div class="btns"><a class="bgv-btn bgv-btn--primary" href="#">خروج و ذخیره</a><a class="bgv-btn" href="#">شروع دوباره</a><a class="bgv-btn bgv-btn--ghost" href="#">برگشت به بازی</a></div></div></div></div>
+
+<div class="col"><div class="cap"><b>۲. سقف بازی نوبتی</b><span>حساب رایگان ۳ بازی نوبتی هم‌زمان دارد و اشتراک ویژه ۱۵. وقتی به سقف رسید، بازی‌های فعالش را نشان می‌دهیم.</span></div>
+<div class="ph"><div class="gbar"><b>ساخت میز</b><span class="sp"></span></div><div class="felt" style="background:var(--bg)"></div>
+<div class="scrim"></div><div class="sheet"><span class="grab"></span><h3>۳ بازی نوبتی فعال داری</h3><div class="meter"><div class="bar"><i style="inline-size:100%"></i></div><span>۳ از ۳ بازی نوبتی برای حساب رایگان</span></div><p>برای میز تازه، یکی را تمام کن یا از اشتراک ویژه استفاده کن.</p>
+<div class="item"><span class="bgv-box-slot"><img class="bgv-box bgv-box--sm" src="../../assets/box/azul.webp" alt=""></span><div><b>آزول</b><span>نوبت توست · ۵ ساعت مانده</span></div><em>برو</em></div>
+<div class="item"><span class="bgv-box-slot"><img class="bgv-box bgv-box--sm" src="../../assets/box/terraforming-mars.webp" alt=""></span><div><b>ترافورمینگ مارس</b><span>منتظر کاوه</span></div><em>ببین</em></div>
+<div class="item"><span class="bgv-box-slot"><img class="bgv-box bgv-box--sm" src="../../assets/box/ticket-to-ride.webp" alt=""></span><div><b>تیکت تو راید</b><span>منتظر رضا</span></div><em>ببین</em></div>
+<div class="btns"><a class="bgv-btn bgv-btn--primary" href="#">تا ۱۵ بازی با اشتراک ویژه</a><a class="bgv-btn bgv-btn--ghost" href="#">باشه</a></div></div></div></div>
+
+<div class="col"><div class="cap"><b>۳. یک بازی زنده در لحظه</b><span>وقتی بازی زنده‌ی دیگری در جریان است، به جای خطا دکمه‌ی برگشت به همان میز را نشان می‌دهیم.</span></div>
+<div class="ph"><div class="gbar"><b>بازی سریع</b><span class="sp"></span></div><div class="felt" style="background:var(--bg)"></div>
+<div class="scrim"></div><div class="sheet"><span class="grab"></span><h3>یک بازی زنده در جریان داری</h3><p>هم‌زمان فقط یک بازی زنده با بقیه می‌شود. اول آن را تمام کن یا از میز بیرون بیا.</p>
+<div class="item"><span class="bgv-box-slot"><img class="bgv-box bgv-box--sm" src="../../assets/box/catan.webp" alt=""></span><div><b>کاتان · زنده</b><span>دور ۱۴ · نوبت سارا</span></div><em>۰:۴۲</em></div>
+<div class="btns"><a class="bgv-btn bgv-btn--primary" href="#">برگشت سر میز کاتان</a><a class="bgv-btn" href="#">بازی با ربات به جایش</a></div><p class="muted">بازی با ربات و بازی نوبتی در این مدت آزاد است.</p></div></div></div>
+
+<div class="col"><div class="cap"><b>۴. سقف بازی با ربات</b><span>تا ۱۵ بازی با ربات ذخیره می‌ماند. از شانزدهمی، قدیمی‌ترین را پیشنهاد می‌دهیم که بسته شود.</span></div>
+<div class="ph"><div class="gbar"><b>بازی با ربات</b><span class="sp"></span></div><div class="felt" style="background:var(--bg)"></div>
+<div class="scrim"></div><div class="sheet"><span class="grab"></span><h3>۱۵ بازی با ربات ذخیره داری</h3><div class="meter"><div class="bar"><i style="inline-size:100%"></i></div><span>۱۵ از ۱۵ بازی ذخیره‌شده</span></div><p>برای بازی تازه، یکی از بازی‌های قبلی را ببند. قدیمی‌ترین:</p>
+<div class="item"><span class="bgv-box-slot"><img class="bgv-box bgv-box--sm" src="../../assets/box/chess.webp" alt=""></span><div><b>شطرنج · با ربات</b><span>آخرین حرکت: ۱۲ روز پیش</span></div><em>ادامه</em></div>
+<div class="btns"><a class="bgv-btn bgv-btn--primary" href="#">ببند و بازی تازه شروع کن</a><a class="bgv-btn" href="#">دیدن همه</a></div></div></div></div>
+
+<div class="col"><div class="cap"><b>۵. تماشاگرها با آیدی</b><span>بازیکن‌ها داخل بازی می‌بینند چه کسی تماشا می‌کند، با اسم و آیدی. بیرون از بازی، روی کارت میزهای زنده، تعداد تماشاگر نشان داده نمی‌شود.</span></div>
+<div class="ph"><div class="gbar"><b>کاتان · دور ۱۴</b><span class="sp"></span><span class="pill"><svg class="ic" viewBox="0 0 24 24" style="inline-size:16px;block-size:16px"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>۳</span></div><div class="felt"><img class="bgv-box bgv-box--lg" src="../../assets/box/catan.webp" alt=""></div>
+<div class="scrim"></div><div class="sheet"><span class="grab"></span><h3>۳ نفر تماشا می‌کنند</h3>
+<div class="spec"><span class="bgv-avatar seat-3">ن</span><div><b>نیلوفر</b><span class="id lat">@niloofar.k</span></div><span class="t">از دور ۹</span></div>
+<div class="spec"><span class="bgv-avatar seat-6">م</span><div><b>مهدی</b><span class="id lat">@mahdi_bg</span></div><span class="t">از دور ۱۲</span></div>
+<div class="spec"><span class="bgv-avatar seat-8">ه</span><div><b>هستی</b><span class="id lat">@hasti.games</span></div><span class="t">همین الان</span></div>
+<p class="muted">تماشاگرها دست بازیکن‌ها را نمی‌بینند و فقط پیام‌ها را می‌خوانند.</p></div></div></div>
+
+<div class="col"><div class="cap"><b>۶. آواتار آماده هنگام ثبت نام</b><span>یک ضربه و تمام. سازنده‌ی کامل بعداً از پروفایل باز می‌شود، با سه زبانه و دکمه‌ی «تصادفی».</span></div>
+<div class="ph"><div class="top"><a class="bgv-btn bgv-btn--ghost bgv-btn--icon" href="#" aria-label="بازگشت"><svg class="ic" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg></a><span class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+<div class="body"><h2>یک آواتار انتخاب کن</h2><p>دیگران سر میز همین را کنار اسمت می‌بینند. بعداً هر وقت خواستی عوضش کن.</p>
+<div class="av"><span class="on">آواتار ۱</span><span>آواتار ۲</span><span>آواتار ۳</span><span>آواتار ۴</span><span>آواتار ۵</span><span>آواتار ۶</span><span>آواتار ۷</span><span>آواتار ۸</span><span>آواتار ۹</span><span>آواتار ۱۰</span><span>آواتار ۱۱</span><span>آواتار ۱۲</span></div></div>
+<div class="foot"><a class="bgv-btn bgv-btn--primary" href="#">همین خوبه</a><small>آواتار خودت را بعداً در پروفایل بساز</small></div></div></div>
+
+</div>
+</div>
+</body></html>

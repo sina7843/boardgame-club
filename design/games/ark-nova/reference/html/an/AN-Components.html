@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>آرک نوا: همهٔ کامپوننت‌ها</title>
+
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.an{--pick:#E8A642;--an-red:#D7261E;--an-blue:#1F6FC0;--an-yellow:#F2C200;--an-black:#2A2A2A;--an-plate:rgba(13,26,35,.8);
+ --an-red-ink:#B81E17;--an-blue-ink:#1A5FA6;--an-yellow-ink:#8A6D00;--an-black-ink:#2A2A2A;--an-paper:#F4EEDF;--an-wood:#5B3A22}
+.an[data-theme="dark"]{--an-red-ink:#FF7F78;--an-blue-ink:#7DB4F0;--an-yellow-ink:#F5D04A;--an-black-ink:#D8D8D8}
+.an-num{unicode-bidi:isolate;direction:ltr}
+.an-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+/* desktop frame: game column + sticky rail (BGA) */
+.an-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.an-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.an-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.an-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+/* status / action bar (BGA) */
+.an-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.an-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.an-bar__text{flex:1 1 360px;min-inline-size:0}
+.an-bar__text b{color:var(--heading);font-weight:900}
+.an-bar .bgv-btn{white-space:nowrap}
+.an-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.an-pill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle}
+.an-pill .an-ic{block-size:17px}
+.an-xseg{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.an-xseg>span{display:inline-flex;align-items:center;gap:4px;padding-inline:6px 4px;font-size:13px;font-weight:700;color:var(--text-muted)}
+.an-xseg button{min-inline-size:34px;block-size:30px;border:0;border-radius:6px;background:none;font:inherit;font-size:14px;font-weight:900;color:var(--text);cursor:pointer}
+.an-xseg button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+.an-xseg button:disabled{color:var(--on-btn-disabled);cursor:not-allowed}
+.an-strength{display:inline-grid;place-items:center;min-inline-size:22px;block-size:22px;padding-inline:4px;border-radius:5px;background:#1E1E1E;color:#FFFFFF;font-size:13px;font-weight:900;line-height:1}
+.an-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.an-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.an-step.is-done{background:var(--success-soft);color:var(--success)}
+.an-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.an-step .bgv-icon{inline-size:14px;block-size:14px}
+/* zones on felt */
+.an-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.an-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.an-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.an-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.an-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: the publisher art (English), never redrawn; Persian name under the card, Persian text in the zoom */
+.an-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,128px);flex:none;color:inherit;font:inherit}
+.an-card>img{display:block;inline-size:100%;block-size:auto;aspect-ratio:400/558;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.25)}
+.an-card[data-pick="selectable"]>img{outline:3px solid var(--pick);outline-offset:2px}
+.an-card[data-pick="picked"]>img{outline:4px solid var(--pick);outline-offset:2px;transform:translateY(-6px)}
+.an-card[aria-disabled="true"]{cursor:not-allowed}
+.an-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.an-card__fa{display:block;margin-block-start:4px;font-size:12.5px;font-weight:700;line-height:1.35;text-align:center;color:var(--felt-ink)}
+.an-card__why{display:block;font-size:11.5px;font-weight:400;line-height:1.35;text-align:center;color:var(--felt-muted)}
+.an-check{position:absolute;inset-block-start:-8px;inset-inline-end:-8px;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:2}
+.an-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+.an-hand{display:flex;flex-wrap:wrap;gap:14px 12px;align-items:flex-start;justify-content:center}
+/* zoom (hover / long-press): big card + Persian name and rules text from the code */
+.an-zoom{display:grid;grid-template-columns:auto 260px;gap:14px;padding:12px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-float),inset 0 0 0 1px var(--line);color:var(--text);inline-size:max-content;max-inline-size:620px}
+.an-zoom>img{inline-size:300px;border-radius:8px}
+.an-zoom h3{margin:0 0 4px;font-size:17px;font-weight:900;color:var(--heading)}
+.an-zoom p{margin:0 0 6px;font-size:13.5px;line-height:1.75}
+.an-zoom small{color:var(--text-muted);font-size:12.5px}
+/* boards: images with absolutely placed pieces (percent of the board) */
+.an-boardimg{position:relative;inline-size:100%;border-radius:var(--radius-sm);overflow:hidden}
+.an-boardimg>.an-base{display:block;inline-size:100%;block-size:auto}
+.an-at{position:absolute;transform:translate(-50%,-50%)}
+.an-piece{pointer-events:none;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.55))}
+.an-main-board{aspect-ratio:3000/814}
+.an-assoc{aspect-ratio:3000/1346}
+.an-counter{inline-size:1.55%}
+.an-cube{inline-size:1.2%}
+.an-worker{inline-size:2.4%}
+.an-fcard{inline-size:5.93%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+.an-fcard.is-range{outline:3px solid var(--pick);outline-offset:1px}
+.an-btile{inline-size:3.7%}
+.an-brk{inline-size:2.6%}
+.an-badge{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:var(--radius-pill);background:var(--an-plate);color:#FFFFFF;font-size:12.5px;font-weight:900;white-space:nowrap}
+.an-boards{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;align-items:start}
+.an-projrow{display:flex;gap:8px;justify-content:center}
+.an-proj{position:relative;--cw:112px}
+.an-proj .an-lvl{position:absolute;inline-size:14%;transform:translate(-50%,-50%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.an-proj .an-lvl-x{position:absolute;transform:translate(-50%,-50%);inline-size:20%;aspect-ratio:1;border-radius:50%;background:rgba(13,26,35,.8);color:#FFFFFF;display:grid;place-items:center;font-weight:900;font-size:12px}
+.an-done{position:absolute;transform:translate(-50%,-50%);inline-size:4.6%;aspect-ratio:1;border-radius:50%;background:rgba(13,26,35,.78);color:#FFFFFF;display:grid;place-items:center}
+.an-done .bgv-icon{inline-size:70%;block-size:70%;stroke-width:3}
+.an-ptile{inline-size:8.6%}
+.an-utile{inline-size:9.5%}
+.an-hot{position:absolute;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;border-radius:12px;cursor:pointer}
+.an-hot.is-avail{box-shadow:0 0 0 3px var(--pick)}
+.an-hot:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+/* zoo: map image + buildings + pieces, action cards hang below the map (BGA) */
+.an-zoomap{position:relative}
+.an-map{position:relative;aspect-ratio:2000/1041;border-radius:var(--radius-sm) var(--radius-sm) 0 0;overflow:visible}
+.an-map>.an-base{display:block;inline-size:100%;block-size:auto;border-radius:var(--radius-sm)}
+.an-bld{position:absolute;transform-origin:50% 50%;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.an-zoomap .an-cube{inline-size:2.1%}
+.an-zoomap .an-worker{inline-size:2.6%}
+.an-zoomap .an-ptile{inline-size:7.4%}
+.an-zoomap .an-utile{inline-size:6.6%}
+.an-acts{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.6%;padding-inline:3.2%;margin-block-start:-2.6%}
+.an-act{position:relative;display:block;padding:0;border:0;background:none;cursor:pointer;border-radius:8px;text-align:center;color:inherit;font:inherit}
+.an-act>img{display:block;inline-size:100%;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.an-act.is-avail>img{outline:3px solid var(--pick);outline-offset:2px}
+.an-act:disabled{cursor:default}
+.an-act__str{position:absolute;inset-block-start:-12px;inset-inline-start:50%;transform:translateX(-50%);display:inline-grid;place-items:center;inline-size:30px;block-size:30px;border-radius:7px;background:#1E1E1E;color:#FFFFFF;font-size:17px;font-weight:900;box-shadow:0 0 0 2px #FFFFFF}
+.an-act__toks{position:absolute;inset-block-start:34%;inset-inline-end:6%;display:flex;flex-direction:column;gap:4px}
+.an-act__toks img{inline-size:34px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.an-act__fa{display:block;margin-block-start:4px;font-size:12.5px;font-weight:700;color:var(--felt-ink)}
+.an-hexes{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.an-hex{fill:rgba(232,166,66,.28);stroke:var(--pick);stroke-width:11;stroke-dasharray:20 10;stroke-linejoin:round}
+.an-hex--ghost{fill:rgba(232,166,66,.15);stroke:#FFFFFF;stroke-width:14;stroke-dasharray:none}
+.an-bld--ghost{opacity:.88;filter:drop-shadow(0 0 6px var(--pick)) drop-shadow(0 0 2px var(--pick))}
+/* player area header (BGA dashboard) */
+.an-player{display:grid;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate);box-shadow:inset 0 0 0 2px var(--pc,transparent)}
+.an-ahead{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F7F1E3,#E6D8B8);color:#1E2328;box-shadow:inset 0 0 0 1px rgba(91,58,34,.3),inset 0 1px 0 rgba(255,255,255,.7);
+ --an-red-ink:#B81E17;--an-blue-ink:#1A5FA6;--an-yellow-ink:#8A6D00;--an-black-ink:#2A2A2A}
+.an-ahead__name{display:inline-flex;align-items:center;gap:6px;block-size:30px;padding-inline:14px;border-radius:15px;background:#FFFFFF;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);font-size:16px;font-weight:900}
+.an-ahead__name small{font-size:12.5px;font-weight:700;color:#4A535B}
+.an-ahead__map{font-size:13px;font-weight:700;color:#4A535B}
+.an-cnts{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.an-cnt{display:inline-grid;place-items:center;position:relative}
+.an-cnt>img{grid-area:1/1;block-size:40px;inline-size:auto}
+.an-cnt>b{grid-area:1/1;position:relative;min-inline-size:24px;padding:1px 5px 0;border-radius:7px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:17px;font-weight:900;line-height:1.3;text-align:center}
+.an-cnt--coin>b{background:none;font-size:18px;text-shadow:0 1px 1px rgba(0,0,0,.8)}
+.an-icons{display:flex;flex-wrap:wrap;gap:4px}
+.an-icn{position:relative;display:grid;place-items:center;inline-size:32px;block-size:32px}
+.an-icn img{grid-area:1/1;inline-size:100%;block-size:100%;object-fit:contain}
+.an-icn b{grid-area:1/1;align-self:end;justify-self:end;position:relative;min-inline-size:17px;margin:-4px -5px;padding:0 3px;border-radius:9px;background:#1E1E1E;color:#FFFFFF;font-size:12px;font-weight:900;line-height:1.45;text-align:center;box-shadow:0 0 0 1.5px #FFFFFF}
+.an-icn.is-zero{opacity:.32}
+.an-score{display:grid;place-items:center;align-content:center;inline-size:52px;block-size:52px;flex:none;border-radius:50%;background:#2E6B4F;color:#FFFFFF;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px #2E6B4F;line-height:1}
+.an-score.is-neg{background:#7A2E2A;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px #7A2E2A}
+.an-score b{font-size:18px;font-weight:900}
+.an-score small{font-size:10.5px;font-weight:700;opacity:.92}
+.an-tableau{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.an-tableau .an-card{--cw:84px}
+.an-tableau .an-card__fa{font-size:11.5px}
+.an-hit polygon{fill:transparent;stroke:none}
+.an-tableau__label{flex-basis:100%;margin:0;font-size:13px;font-weight:700;color:var(--felt-muted)}
+.an-row2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start}
+/* rail */
+.an-dash{padding:8px 12px;display:grid;gap:8px}
+.an-dash__tools{display:flex;justify-content:space-between}
+.an-dash__info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.an-dinfo{display:grid;justify-items:center;gap:2px;font-size:12.5px;color:var(--text-muted)}
+.an-dinfo b{font-size:16px;font-weight:900;color:var(--heading)}
+.an-dinfo img{block-size:30px}
+.an-panel{padding:10px 12px;display:grid;gap:8px}
+.an-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.an-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.an-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.an-panel__id small{font-size:12.5px;color:var(--text-muted)}
+.an-panel .an-cnts{padding:6px 4px;border-radius:var(--radius-sm);background:var(--surface-sunken);justify-content:space-between;gap:4px}
+.an-panel .an-cnt>img{block-size:34px}
+.an-panel .an-cnt>b{font-size:15px;min-inline-size:20px}
+.an-panel .an-icn{inline-size:28px;block-size:28px}
+.an-goal{font-size:12.5px;color:var(--text-muted)}
+.an-goal b{color:var(--heading);font-weight:900}
+.an-log{max-block-size:300px;overflow:auto}
+.an-log .bgv-log__item{font-size:13.5px}
+.an-log .an-ic{block-size:16px}
+
+.an-desk{grid-template-columns:minmax(0,1fr) 300px}
+/* display: 6 folders, card big (BGA card-pool) */
+.an-pool{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.an-folder{display:grid;gap:4px;justify-items:center;padding:0 0 6px;border-radius:6px 6px 4px 4px;background:linear-gradient(180deg,#E9D3A3,#D7B983);box-shadow:inset 0 0 0 1px rgba(98,76,10,.45),0 2px 4px rgba(0,0,0,.3)}
+.an-folder__tab{display:flex;align-items:center;justify-content:space-between;inline-size:100%;block-size:26px;padding-inline:8px 4px;box-sizing:border-box;direction:ltr}
+.an-folder__tab i{font-size:11px;font-style:italic;color:#624C0A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.an-folder__tab b{display:grid;place-items:center;min-inline-size:22px;block-size:22px;border-radius:3px;background:#1E1E1E;color:#FFFFFF;font-size:15px;font-weight:900}
+.an-folder .an-card{--cw:calc(100% - 14px)}
+.an-folder.is-range{box-shadow:inset 0 0 0 1px rgba(98,76,10,.45),0 0 0 3px var(--pick)}
+.an-folder__cost{font-size:11.5px;font-weight:700;color:#624C0A}
+.an-strip{position:relative;inline-size:100%;border-radius:4px;box-shadow:0 1px 5px rgba(0,0,0,.6)}
+.an-strip>.an-base{display:block;inline-size:100%;block-size:auto;border-radius:4px}
+.an-rep{margin-block-start:-4px}
+.an-rep .an-counter{inline-size:2.5%}
+.an-repb{position:absolute;inset-block-start:100%;transform:translate(-50%,2px);inline-size:2.4%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.an-cons .an-counter{inline-size:2.9%}
+.an-cons .an-btile{inline-size:4.75%}
+.an-cnum{position:absolute;transform:translate(-50%,-50%);padding:0 5px;border-radius:9px;background:#1E1E1E;color:#FFFFFF;font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px #FFFFFF}
+.an-zoomhint{position:absolute;inset-block-start:6px;inset-inline-end:6px;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:0;border-radius:var(--radius-pill);background:rgba(13,26,35,.78);color:#FFFFFF;font:inherit;font-size:12px;font-weight:700;cursor:zoom-in}
+.an-zoomhint .bgv-icon{inline-size:14px;block-size:14px}
+/* association area (BGA): projects bands above and below the board */
+.an-assoc2{display:grid;gap:8px;justify-items:center}
+.an-bab{position:relative;inline-size:100%;aspect-ratio:3335/986;border-radius:6px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.45)}
+.an-bab>.an-base{display:block;inline-size:100%;block-size:auto}
+.an-bab .an-ptile{inline-size:9.4%}
+.an-bab .an-utile{inline-size:10.4%}
+.an-bab .an-worker{inline-size:2.6%}
+.an-bab .an-done{inline-size:3.6%}
+.an-projband{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.an-pbot{position:relative;inline-size:var(--pw,230px);aspect-ratio:400/176;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.45);background:#FFFFFF}
+.an-pbot>img.an-pimg{position:absolute;inset-inline:0;inset-block-end:0;inline-size:100%;block-size:auto}
+.an-pbot .an-lvl{position:absolute;inline-size:9%;transform:translate(-50%,-50%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.an-pbot .an-lvl-x{position:absolute;transform:translate(-50%,-50%);inline-size:11%;aspect-ratio:1;border-radius:50%;background:rgba(13,26,35,.8);color:#FFFFFF;display:grid;place-items:center}
+.an-pbot .an-lvl-x .bgv-icon{inline-size:70%;block-size:70%}
+.an-pbot .an-hot{border-radius:50%}
+.an-pslot{inline-size:var(--pw,230px);aspect-ratio:400/176;border-radius:6px;border:1.5px dashed var(--felt-line);display:grid;place-items:center;color:var(--felt-muted);font-size:12px}
+.an-pname{display:block;margin-block-start:3px;font-size:12px;font-weight:700;text-align:center;color:var(--felt-ink)}
+/* one zoo at a time */
+.an-viewer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.an-viewer b{font-weight:900}
+.an-seg{display:inline-flex;gap:3px;padding:3px;border-radius:var(--radius-sm);background:rgba(0,0,0,.25)}
+.an-seg button{display:inline-flex;align-items:center;gap:6px;block-size:32px;padding-inline:10px;border:0;border-radius:6px;background:none;color:var(--felt-ink);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.an-seg button[aria-pressed="true"]{background:var(--felt-control);color:var(--brand-ink)}
+.an-seg i{inline-size:10px;block-size:10px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 1.5px #FFFFFF}
+.an-isum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:6px 10px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F7F1E3,#E6D8B8);box-shadow:inset 0 0 0 1px rgba(91,58,34,.3)}
+.an-isum .an-icons{gap:6px}
+.an-isum .an-icn{inline-size:34px;block-size:34px}
+.an-map{aspect-ratio:1405/905;overflow:hidden;border-radius:var(--radius-sm)}
+.an-map>.an-base{position:absolute;inset-inline-start:0;inset-block-start:0;inline-size:142.349%;max-inline-size:none;block-size:auto;border-radius:0}
+.an-note2{position:absolute;inset-block-start:10.5%;inset-inline-start:1.1%;inline-size:13.6%;display:grid;justify-items:center;gap:2px;font-family:'Permanent Marker',Vazirmatn,sans-serif;pointer-events:none}
+.an-note2 b{font-size:clamp(11px,1.5vw,17px);font-weight:900;color:var(--sc)}
+.an-note2 span{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:900;color:#1E2328}
+.an-note2 img{block-size:22px}
+.an-played{display:flex;gap:18px;align-items:flex-start;justify-content:center;flex-wrap:wrap;padding:10px 12px;border-radius:var(--radius-sm);background:#F4EDB5;box-shadow:inset 0 0 0 1px rgba(91,58,34,.3)}
+.an-pcol{display:grid;justify-items:center;gap:6px;min-inline-size:150px;padding:8px;border-radius:8px;border:1px solid rgba(91,58,34,.35);background:#FFFDF1}
+.an-pcol h4{display:flex;align-items:center;gap:6px;margin:0;font-size:12.5px;font-weight:900;color:#4A3B12}
+.an-pcol h4 img{block-size:22px}
+.an-stack2{display:grid;grid-template-columns:repeat(var(--cols,2),var(--cw,120px));column-gap:6px}
+.an-stack2>.an-card{--cw:120px;margin-block-end:calc(var(--cw) * -1.395 * .82)}
+.an-stack2>.an-card:nth-last-child(-n+2){margin-block-end:0}
+.an-stack2>.an-card:hover{z-index:3}
+.an-actband{position:relative;margin-block-start:10px}
+.an-clips{position:relative;aspect-ratio:2000/136;overflow:hidden;border-radius:6px}
+.an-clips>img{position:absolute;inset-inline-start:0;inset-block-start:-665.44%;inline-size:100%;max-inline-size:none}
+.an-actband .an-acts{margin-block-start:-3.4%;padding-inline:2%}
+
+.bgv-pcard.an-bp{padding:0;overflow:hidden}
+.an-bp__head{display:flex;align-items:center;gap:8px;padding:8px 10px 6px}
+.an-bp__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.an-bp__id b{display:flex;align-items:center;gap:6px;font-size:15.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.an-bp__id small{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)}
+.an-bscore{display:inline-flex;align-items:center;gap:2px;font-size:15px;font-weight:900;color:var(--heading)}
+.an-star{inline-size:16px;block-size:16px;fill:#F2B400;stroke:#9A6812;stroke-width:1}
+.an-bpi{display:flex;align-items:center;justify-content:space-between;gap:2px;padding:7px 8px 8px;border-block-start:1px solid var(--border)}
+.an-bc{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:2px;block-size:36px}
+.an-bc>b{font-family:var(--font-fa);font-weight:900;line-height:1;font-size:19px;color:var(--heading)}
+.an-bc--money>img{inline-size:36px;block-size:36px;border-radius:20%;box-shadow:0 0 0 1.5px #FFFFFF,0 1px 2px rgba(0,0,0,.5)}
+.an-bc--money>b,.an-bc--rep>b,.an-bc--cp>b,.an-bc--appeal>b{position:absolute;inset:0;display:grid;place-items:center}
+.an-bc--money>b{color:#FFFFFF;font-size:20px;text-shadow:0 1px 2px #000,0 0 4px rgba(0,0,0,.6)}
+.an-bc--x>img{inline-size:26px}
+.an-bc--rep>img{inline-size:40px}
+.an-bc--rep>b{color:#FFFFFF;font-size:17px;padding-block-end:9px;text-shadow:0 1px 2px #000}
+.an-bc--cp>img{inline-size:33px}
+.an-bc--cp>b{color:#FFFFFF;font-size:17px;padding-block-end:2px;text-shadow:0 1px 2px #0E3B16,0 0 3px #0E3B16}
+.an-bc--appeal{min-inline-size:34px}
+.an-bc--appeal>img{inline-size:27px}
+.an-bc--appeal>b{color:#3A1410;font-size:18px;text-shadow:0 0 2px #FFFFFF,0 0 3px #FFFFFF}
+.an-bc .an-inc{position:absolute;inset-block-start:-7px;inset-inline-end:-8px;min-inline-size:18px;padding:0 3px;border-radius:9px;background:#5A6670;color:#FFFFFF;font-size:11px;font-style:normal;font-weight:900;line-height:1.5;text-align:center;box-shadow:0 0 0 1.5px #FFFFFF}
+.an-bc--hand>b{font-size:19px}
+.an-bc--hand>b small{font-size:12.5px;font-weight:700;color:var(--text-muted)}
+.an-bc--hand>img{block-size:30px;border-radius:3px;box-shadow:0 0 0 1px #FFFFFF}
+.an-bpa{display:flex;justify-content:space-around;padding:9px 6px 8px;border-block-start:1px solid var(--border)}
+.an-bpa__s{position:relative;display:grid;place-items:center;inline-size:34px;block-size:34px}
+.an-bpa__s>img:first-child{inline-size:30px;block-size:30px;box-sizing:border-box;border:2.5px solid #009FE3;border-radius:6px;background:#FFFFFF;box-shadow:0 0 1px 1px rgba(0,0,0,.9)}
+.an-bpa__s.is-up>img:first-child{border-color:#A71B71}
+.an-bpa__tok{position:absolute;inset-block-start:-6px;inset-inline-start:-6px;inline-size:17px;border-radius:50%;box-shadow:0 0 0 1.5px #FFFFFF,1px 1px 3px rgba(0,0,0,.5)}
+.an-bpicons{border-block-start:1px solid var(--border)}
+.an-bpr{display:flex;justify-content:space-between;padding:5px 8px;border-block-end:1px solid var(--line)}
+.an-bpr:last-child{border-block-end:0}
+.an-bpn{display:inline-flex;align-items:center;gap:3px}
+.an-bpn>b{min-inline-size:11px;font-family:var(--font-fa);font-size:18px;font-weight:900;color:var(--heading);text-align:center}
+.an-bpr--col .an-bpn{flex-direction:column-reverse;gap:1px}
+.an-bpn.is-zero{opacity:.38}
+.an-badge2{display:grid;place-items:center;inline-size:27px;block-size:27px;border-radius:50%;border:1.5px solid var(--border);box-shadow:0 0 0 1px #FFFFFF,0 1px 2px rgba(0,0,0,.45);overflow:hidden;background:#FFFFFF}
+.an-badge2>img{inline-size:100%;block-size:100%;object-fit:cover}
+.an-badge2.is-terrain>img{inline-size:88%;block-size:auto;object-fit:contain}
+.an-eye{display:grid;place-items:center;inline-size:30px;block-size:30px;padding:0;border:0;border-radius:50%;background:var(--surface-sunken);color:var(--heading);cursor:pointer}
+.an-eye[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+.an-eye .bgv-icon{inline-size:18px;block-size:18px}
+.an-cfg{padding:10px 12px;display:grid;gap:8px}
+.an-cfg__row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.an-brkbox{display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border-radius:var(--radius-sm);background:#5B3A22;color:#FFFFFF;font-size:20px;font-weight:900}
+.an-brkbox img{block-size:30px;filter:invert(1)}
+.an-brkbox small{font-size:12px;font-weight:700;opacity:.85}
+.an-pile{display:inline-flex;align-items:center;gap:5px;font-size:15px;font-weight:900;color:var(--heading)}
+.an-pile img{block-size:34px;border-radius:3px}
+.an[data-theme="dark"] .an-bc--x>img,.an[data-theme="dark"] .an-bc--rep>img{filter:drop-shadow(0 0 1px #FFFFFF) drop-shadow(0 0 1px #FFFFFF)}
+.an-ahead .an-bpi{border:0;padding:0;gap:14px;justify-content:flex-start}
+.an-sheet{padding:28px;display:grid;gap:22px;background:var(--bg);color:var(--text)}
+.an-sheet>h1{margin:0;font-size:26px;font-weight:900;color:var(--heading)}
+.an-sheet>p{margin:-12px 0 0;font-size:14.5px;color:var(--text-muted)}
+.an-flows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.an-flow{padding:14px;display:grid;gap:12px;align-content:start}
+.an-flow__head{display:flex;align-items:center;gap:10px}
+.an-flow__n{display:grid;place-items:center;inline-size:30px;block-size:30px;border-radius:8px;background:var(--selected);color:var(--on-selected);font-weight:900}
+.an-flow__head h2{margin:0;font-size:17px;font-weight:900;color:var(--heading)}
+.an-flow__head small{margin-inline-start:auto;font-size:12.5px;color:var(--text-muted)}
+.an-flow .an-bar{position:static}
+.an-flow .bgv-felt{padding:10px;border-radius:var(--radius-md)}
+.an-note{margin:0;padding:8px 10px;border-radius:var(--radius-sm);background:var(--info-soft);color:var(--text);font-size:13px;line-height:1.7}
+.an-note b{color:var(--heading)}
+.an-optc{display:inline-flex;align-items:center;gap:6px;text-align:start}
+.an-optc img{block-size:42px;inline-size:auto;border-radius:3px}
+.an-kinds{display:flex;flex-wrap:wrap;gap:6px}
+.an-kind{display:grid;justify-items:center;gap:2px;inline-size:74px;padding:6px 4px;border:0;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:inset 0 0 0 1.5px var(--line);font:inherit;font-size:12px;color:var(--text);cursor:pointer}
+.an-kind img{block-size:34px;inline-size:auto}
+.an-kind b{font-size:12.5px;font-weight:900;color:var(--heading)}
+.an-kind[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--pick);background:var(--invite-soft)}
+.an-kind:disabled{opacity:.45;cursor:not-allowed}
+.an-tiles{display:flex;gap:10px;flex-wrap:wrap}
+.an-tilebtn{display:grid;justify-items:center;gap:4px;inline-size:120px;padding:8px;border:0;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:inset 0 0 0 1.5px var(--line);font:inherit;font-size:12.5px;line-height:1.5;color:var(--text);cursor:pointer;text-align:center}
+.an-tilebtn img{block-size:56px;inline-size:auto}
+.an-tilebtn[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--pick);background:var(--invite-soft)}
+.an-tbl{inline-size:100%;border-collapse:collapse;font-size:13.5px}
+.an-tbl th,.an-tbl td{padding:7px 8px;border-block-end:1px solid var(--line);text-align:start}
+.an-tbl th{font-weight:700;color:var(--label);font-size:12.5px}
+.an-tbl td b{font-weight:900;color:var(--heading)}
+.an-tbl .an-ic{block-size:20px}
+.an-maps2{display:flex;gap:12px}
+.an-mapbtn{display:grid;gap:4px;padding:6px;border:0;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:inset 0 0 0 1.5px var(--line);font:inherit;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;inline-size:300px;text-align:start}
+.an-mapbtn img{inline-size:100%;border-radius:6px}
+.an-mapbtn small{font-weight:400;color:var(--text-muted);line-height:1.6}
+.an-mapbtn[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--pick);background:var(--invite-soft)}
+
+.an-spec{padding:28px;display:grid;gap:20px;background:var(--bg);color:var(--text)}
+.an-spec h1{margin:0;font-size:26px;font-weight:900;color:var(--heading)}
+.an-spec h2{margin:0 0 8px;font-size:18px;font-weight:900;color:var(--heading)}
+.an-spec>p{margin:-10px 0 0;font-size:14px;color:var(--text-muted)}
+.an-sec{padding:16px;display:grid;gap:10px}
+.an-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.an-code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;direction:ltr;unicode-bidi:isolate;background:var(--surface-sunken);padding:1px 5px;border-radius:4px}
+.an-dot{position:absolute;transform:translate(-50%,-50%);inline-size:12px;block-size:12px;border-radius:50%;background:#FF2BD6;box-shadow:0 0 0 2px #FFFFFF}
+.an-dot--c{background:#00B7FF}.an-dot--y{background:#FFD400}.an-dot--g{background:#22C55E}
+.an-dotl{position:absolute;transform:translate(-50%,-140%);font:700 10px/1 ui-monospace,Consolas,monospace;color:#FFFFFF;background:rgba(0,0,0,.7);padding:1px 3px;border-radius:3px;direction:ltr;white-space:nowrap}
+.an-comp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.an-ci{display:grid;gap:4px;justify-items:center;align-content:start;padding:8px;border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12px;line-height:1.45;text-align:center}
+.an-ci img{max-inline-size:100%;max-block-size:110px;inline-size:auto}
+.an-ci b{font-size:12.5px;color:var(--heading)}
+.an-ci code{font-family:ui-monospace,Consolas,monospace;font-size:11px;direction:ltr;color:var(--text-muted)}
+.an-cnum{display:inline-grid;place-items:center;min-inline-size:34px;block-size:22px;padding-inline:5px;border-radius:6px;background:var(--selected);color:var(--on-selected);font-size:12px;font-weight:900}
+.an-wide{grid-column:1/-1}
+.an-ci .an-cnum{justify-self:center}
+.an-ci .an-zoom>img{max-block-size:none;inline-size:300px}
+.an-ci .an-panel img,.an-ci .an-ahead img,.an-ci .an-bar img{max-block-size:none}
+.an-ci--wide{grid-column:span 2}
+.an-ci--wide img{max-block-size:150px}
+</style>
+
+</head>
+<body>
+
+
+<div class="bgv an" data-theme="light" dir="rtl" lang="fa" style="min-height: 6510px;">
+<div class="an-spec" dir="rtl"><h1>آرک نوا: همهٔ کامپوننت‌ها (COMPONENTS.md §۱۵)</h1><p>فقط هنر ناشر (ready to use - flat) و آیکون‌های BGA؛ هیچ قطعه‌ای کشیده نشده. رنگ صندلی‌ها: قرمز، آبی، زرد، مشکی.</p>
+  <section class="bgv-card an-sec"><h2>§15.1 قاب میز و پنل‌ها</h2><div class="an-comp"><div class="an-ci an-wide" style="justify-items:stretch;text-align:start"><span class="an-cnum">15.1.1</span><div style="max-inline-size:360px"> <div class="bgv-pcard an-panel an-bp is-you is-turn" data-seat="0">
+  <div class="an-bp__head"><span class="bgv-avatar bgv-avatar--sm is-you is-turn" style="--seat-c:var(--an-red)">م</span><div class="an-bp__id"><b style="color:var(--an-red-ink)">مینا</b><small><span class="an-bscore" title="امتیاز فعلی = جذابیت − عدد هدف حفاظت"><b class="an-num">−۸۲</b><svg class="an-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.5l-6 3.3 1.3-6.7-5-4.6 6.8-.8z" /></svg></span><span class="bgv-league bgv-league--gold">طلا</span><span>در حال انتخاب</span></small></div><button class="an-eye" type="button" aria-pressed="true" aria-label="دیدن باغ‌وحش مینا" title="دیدن باغ‌وحش"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg></button></div>
+  <span class="an-bpi" dir="ltr">
+   <span class="an-bc an-bc--money" title="پول"><img src="../assets/games/ark-nova/ui--money.webp" class="" alt=""><b class="an-num">۳۵</b></span>
+   <span class="an-bc an-bc--x" title="نشان X (حداکثر ۵)"><b class="an-num">۲</b><img src="../assets/games/ark-nova/ui--xtoken.webp" class="" alt=""></span>
+   <span class="an-bc an-bc--rep" title="اعتبار"><img src="../assets/games/ark-nova/ui--reputation.webp" class="" alt=""><b class="an-num">۶</b></span>
+   <span class="an-bc an-bc--cp" title="امتیاز حفاظت"><img src="../assets/games/ark-nova/ui--conservation.webp" class="" alt=""><b class="an-num">۲</b></span>
+   <span class="an-bc an-bc--appeal" title="جذابیت"><img src="../assets/games/ark-nova/ui--appeal.webp" class="" alt=""><b class="an-num">۲۸</b><i class="an-inc an-num" title="درآمد استراحت">۲۰</i></span>
+   <span class="an-bc an-bc--hand" title="کارت در دست / سقف در استراحت"><b class="an-num">۵<small>/۳</small></b><img src="../assets/games/ark-nova/card-backs--card-back-zoo.webp" alt=""></span>
+  </span>
+  <span class="an-bpa" dir="ltr" aria-label="ترتیب کارت‌های کنش (چپ = قدرت ۱)"><span class="an-bpa__s" title="کارت‌ها I، قدرت ۱"><img src="../assets/games/ark-nova/ui--act-cards.webp" class="" alt=""></span><span class="an-bpa__s" title="حامیان I، قدرت ۲"><img src="../assets/games/ark-nova/ui--act-sponsors.webp" class="" alt=""></span><span class="an-bpa__s is-up" title="ساخت II، قدرت ۳"><img src="../assets/games/ark-nova/ui--act-build.webp" class="" alt=""></span><span class="an-bpa__s is-up" title="حیوانات II، قدرت ۴"><img src="../assets/games/ark-nova/ui--act-animals.webp" class="" alt=""><img src="../assets/games/ark-nova/tokens--venom.webp" class="an-bpa__tok" alt=""></span><span class="an-bpa__s" title="انجمن I، قدرت ۵"><img src="../assets/games/ark-nova/ui--act-association.webp" class="" alt=""></span></span>
+  <div class="an-bpicons" dir="ltr"><div class="an-bpr"><span class="an-bpn" title="آفریقا: ۴"><b class="an-num">۴</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-africa.webp" alt=""></span></span><span class="an-bpn is-zero" title="اروپا: ۰"><b class="an-num">۰</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-europe.webp" alt=""></span></span><span class="an-bpn" title="آسیا: ۱"><b class="an-num">۱</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-asia.webp" alt=""></span></span><span class="an-bpn" title="آمریکا: ۱"><b class="an-num">۱</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-americas.webp" alt=""></span></span><span class="an-bpn is-zero" title="استرالیا: ۰"><b class="an-num">۰</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-australia.webp" alt=""></span></span></div><div class="an-bpr an-bpr--col"><span class="an-bpn is-zero" title="پرنده: ۰"><b class="an-num">۰</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-bird.webp" alt=""></span></span><span class="an-bpn" title="شکارچی: ۱"><b class="an-num">۱</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-predator.webp" alt=""></span></span><span class="an-bpn" title="گیاه‌خوار: ۱"><b class="an-num">۱</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-herbivore.webp" alt=""></span></span><span class="an-bpn" title="خزنده: ۳"><b class="an-num">۳</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-reptile.webp" alt=""></span></span><span class="an-bpn" title="نخستی: ۱"><b class="an-num">۱</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-primate.webp" alt=""></span></span></div><div class="an-bpr"><span class="an-bpn" title="خرس: ۱"><b class="an-num">۱</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-bear.webp" alt=""></span></span><span class="an-bpn is-zero" title="باغ‌وحش کودکان: ۰"><b class="an-num">۰</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-petting-zoo-animal.webp" alt=""></span></span><span class="an-bpn" title="پژوهش: ۲"><b class="an-num">۲</b><span class="an-badge2"><img src="../assets/games/ark-nova/icons--icon-research.webp" alt=""></span></span><span class="an-bpn" title="صخره: ۱"><b class="an-num">۱</b><span class="an-badge2 is-terrain"><img src="../assets/games/ark-nova/ui--rock.webp" alt=""></span></span><span class="an-bpn is-zero" title="آب: ۰"><b class="an-num">۰</b><span class="an-badge2 is-terrain"><img src="../assets/games/ark-nova/ui--water.webp" alt=""></span></span></div></div>
+ </div></div><b>پنل بازیکن در ریل (BGA): امتیاز، پول، جذابیت، حفاظت، اعتبار، X، دست، کارمند، هدف، نمادها</b></div><div class="an-ci an-wide" style="justify-items:stretch;text-align:start"><span class="an-cnum">15.1.2</span><section class="an-bar an-prompt" aria-live="polite" aria-label="نوار کنش" data-an-actbar="">
+ <div class="an-bar__row"><span class="an-bar__text"><b>نوبت شماست</b>: یک کارت کنش را بازی کنید (قدرت = شمارهٔ خانه) یا کنش نشان X. کارت‌های کنش روی نقشهٔ شما هم زدنی‌اند.</span><span class="bgv-clock bgv-clock--chip" data-state="calm" style="--p:0.875;" role="timer" aria-label="زمان نوبت شما"><span class="bgv-clock__ring"></span><span class="bgv-clock__time">۲۱ ساعت</span></span></div>
+ <div class="an-bar__row an-options" role="toolbar" aria-label="کارت‌های کنش">
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm an-opt" type="button" data-opt="a:cards:0"><img src="../assets/games/ark-nova/ui--act-cards.webp" class="an-ic" alt="">کارت‌ها <span class="an-strength an-num">۱</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm an-opt" type="button" data-opt="a:sponsors:0"><img src="../assets/games/ark-nova/ui--act-sponsors.webp" class="an-ic" alt="">حامیان <span class="an-strength an-num">۲</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm an-opt" type="button" data-opt="a:build:0"><img src="../assets/games/ark-nova/ui--act-build.webp" class="an-ic" alt="">ساخت II <span class="an-strength an-num">۳</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm an-opt" type="button" data-opt="a:animals:0"><img src="../assets/games/ark-nova/ui--act-animals.webp" class="an-ic" alt="">حیوانات II <span class="an-strength an-num">۴</span></button>
+  <button class="bgv-btn bgv-btn--secondary bgv-btn--sm an-opt" type="button" data-opt="a:association:0"><img src="../assets/games/ark-nova/ui--act-association.webp" class="an-ic" alt="">انجمن <span class="an-strength an-num">۵</span></button>
+  <span class="an-xseg" role="group" aria-label="نشان X خرج کنید"><span><img src="../assets/games/ark-nova/ui--xtoken.webp" class="an-ic" alt="">خرج</span><button type="button" aria-pressed="true">۰</button><button type="button" aria-pressed="false">۱</button><button type="button" aria-pressed="false">۲</button><button type="button" aria-pressed="false" disabled="">۳</button><button type="button" aria-pressed="false" disabled="">۴</button><button type="button" aria-pressed="false" disabled="">۵</button></span>
+  <span class="bgv-spacer"></span>
+  <button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button" data-act="x-mode" aria-haspopup="menu"><img src="../assets/games/ark-nova/ui--xtoken.webp" class="an-ic" alt="">کنش نشان X…</button>
+ </div>
+ <p class="an-bar__hint">هر نشان X یک قدرت اضافه است. «کنش نشان X»: یک کارت را بدون اجرا به خانهٔ ۱ ببرید و ۱ نشان X بگیرید. بعد از انتخاب، کنش قدم‌به‌قدم همین‌جا پرسیده می‌شود.</p>
+</section><b>نوار کنش (چسبان بالای ستون)</b></div><div class="an-ci an-wide" style="justify-items:stretch;text-align:start"><span class="an-cnum">15.1.3</span><div class="bgv-felt" style="padding:8px"><div class="an-ahead"><span class="an-ahead__name" style="color:var(--an-blue-ink)">نیلوفر</span><span class="an-bscore" title="امتیاز فعلی = جذابیت − عدد هدف حفاظت"><b class="an-num">−۶۳</b><svg class="an-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.5l-6 3.3 1.3-6.7-5-4.6 6.8-.8z" /></svg></span><span class="an-bpi" dir="ltr">
+   <span class="an-bc an-bc--money" title="پول"><img src="../assets/games/ark-nova/ui--money.webp" class="" alt=""><b class="an-num">۱۷</b></span>
+   <span class="an-bc an-bc--x" title="نشان X (حداکثر ۵)"><b class="an-num">۱</b><img src="../assets/games/ark-nova/ui--xtoken.webp" class="" alt=""></span>
+   <span class="an-bc an-bc--rep" title="اعتبار"><img src="../assets/games/ark-nova/ui--reputation.webp" class="" alt=""><b class="an-num">۷</b></span>
+   <span class="an-bc an-bc--cp" title="امتیاز حفاظت"><img src="../assets/games/ark-nova/ui--conservation.webp" class="" alt=""><b class="an-num">۶</b></span>
+   <span class="an-bc an-bc--appeal" title="جذابیت"><img src="../assets/games/ark-nova/ui--appeal.webp" class="" alt=""><b class="an-num">۳۹</b><i class="an-inc an-num" title="درآمد استراحت">۲۳</i></span>
+   <span class="an-bc an-bc--hand" title="کارت در دست / سقف در استراحت"><b class="an-num">۴<small>/۳</small></b><img src="../assets/games/ark-nova/card-backs--card-back-zoo.webp" alt=""></span>
+  </span></div></div><b>سربرگ باغ‌وحش</b></div><div class="an-ci an-wide" style="justify-items:stretch;text-align:start"><span class="an-cnum">15.1.4</span><div class="an-zoom" role="tooltip"><img src="../assets/games/ark-nova/cards-animal--card-486.webp" alt=""><div><h3>مارمولک دیواری</h3><p></p><small dir="ltr" class="bgv-latin">#486</small></div></div><b>بزرگ‌نمایی کارت با متن فارسی (textFa کد)</b></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.2 بوردها و ۱۰ نقشه</h2><div class="an-comp"><div class="an-ci an-ci--wide"><span class="an-cnum">15.2.1</span><img src="../assets/games/ark-nova/boards--main-board.webp" alt=""><b>بورد اصلی (فقط در پنجرهٔ «بورد امتیاز»)</b><code>art/boards/main-board.webp</code></div><div class="an-ci an-ci--wide"><span class="an-cnum">15.2.1b</span><img src="../assets/games/ark-nova/bga--reputation-track.webp" alt=""><b>نوار اعتبار (BGA)</b><code>art/bga/reputation-track.webp</code></div><div class="an-ci an-ci--wide"><span class="an-cnum">15.2.1c</span><img src="../assets/games/ark-nova/bga--conservation-track.webp" alt=""><b>نوار حفاظت (BGA)</b><code>art/bga/conservation-track.webp</code></div><div class="an-ci an-ci--wide"><span class="an-cnum">15.2.2b</span><img src="../assets/games/ark-nova/bga--association-board.webp" alt=""><b>بورد انجمن BGA (روی میز)</b><code>art/bga/association-board.webp</code></div><div class="an-ci an-ci--wide"><span class="an-cnum">15.2.2</span><img src="../assets/games/ark-nova/boards--association-board.webp" alt=""><b>بورد انجمن</b><code>art/boards/association-board.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.1</span><img src="../assets/games/ark-nova/boards--map-0.webp" alt=""><b>نقشهٔ ۰: نقشهٔ ۰</b><code>art/boards/map-0.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.2</span><img src="../assets/games/ark-nova/boards--map-1.webp" alt=""><b>نقشهٔ ۱: برج دیدبانی</b><code>art/boards/map-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.3</span><img src="../assets/games/ark-nova/boards--map-2.webp" alt=""><b>نقشهٔ ۲: محوطه‌های روباز</b><code>art/boards/map-2.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.4</span><img src="../assets/games/ark-nova/boards--map-3.webp" alt=""><b>نقشهٔ ۳: دریاچهٔ نقره‌ای</b><code>art/boards/map-3.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.5</span><img src="../assets/games/ark-nova/boards--map-4.webp" alt=""><b>نقشهٔ ۴: بندر تجاری</b><code>art/boards/map-4.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.6</span><img src="../assets/games/ark-nova/boards--map-5.webp" alt=""><b>نقشهٔ ۵: رستوران پارک</b><code>art/boards/map-5.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.7</span><img src="../assets/games/ark-nova/boards--map-6.webp" alt=""><b>نقشهٔ ۶: پژوهشکده</b><code>art/boards/map-6.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.8</span><img src="../assets/games/ark-nova/boards--map-7.webp" alt=""><b>نقشهٔ ۷: بستنی‌فروشی‌ها</b><code>art/boards/map-7.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.9</span><img src="../assets/games/ark-nova/boards--map-8.webp" alt=""><b>نقشهٔ ۸: تپه‌های هالیوود</b><code>art/boards/map-8.webp</code></div><div class="an-ci"><span class="an-cnum">15.2.3.10</span><img src="../assets/games/ark-nova/boards--map-A.webp" alt=""><b>نقشهٔ A: نقشهٔ A</b><code>art/boards/map-A.webp</code></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.3 ساختمان‌ها</h2><p class="an-note">روی نقشه با چرخش k×۳۰° (و قرینه) روی خانه‌های موتور می‌نشینند؛ پر/خالی = Building.full.</p><div class="an-comp"><div class="an-ci"><span class="an-cnum">15.3.1.1</span><img src="../assets/games/ark-nova/enclosures--enclosure-1-empty.webp" alt=""><b>محوطهٔ 1 خالی</b><code>art/enclosures/enclosure-1-empty.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.2</span><img src="../assets/games/ark-nova/enclosures--enclosure-1-occupied.webp" alt=""><b>محوطهٔ 1 پر</b><code>art/enclosures/enclosure-1-occupied.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.3</span><img src="../assets/games/ark-nova/enclosures--enclosure-2-empty.webp" alt=""><b>محوطهٔ 2 خالی</b><code>art/enclosures/enclosure-2-empty.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.4</span><img src="../assets/games/ark-nova/enclosures--enclosure-2-occupied.webp" alt=""><b>محوطهٔ 2 پر</b><code>art/enclosures/enclosure-2-occupied.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.5</span><img src="../assets/games/ark-nova/enclosures--enclosure-3-empty.webp" alt=""><b>محوطهٔ 3 خالی</b><code>art/enclosures/enclosure-3-empty.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.6</span><img src="../assets/games/ark-nova/enclosures--enclosure-3-occupied.webp" alt=""><b>محوطهٔ 3 پر</b><code>art/enclosures/enclosure-3-occupied.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.7</span><img src="../assets/games/ark-nova/enclosures--enclosure-4-empty.webp" alt=""><b>محوطهٔ 4 خالی</b><code>art/enclosures/enclosure-4-empty.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.8</span><img src="../assets/games/ark-nova/enclosures--enclosure-4-occupied.webp" alt=""><b>محوطهٔ 4 پر</b><code>art/enclosures/enclosure-4-occupied.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.9</span><img src="../assets/games/ark-nova/enclosures--enclosure-5-empty.webp" alt=""><b>محوطهٔ 5 خالی</b><code>art/enclosures/enclosure-5-empty.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.1.10</span><img src="../assets/games/ark-nova/enclosures--enclosure-5-occupied.webp" alt=""><b>محوطهٔ 5 پر</b><code>art/enclosures/enclosure-5-occupied.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.2.1</span><img src="../assets/games/ark-nova/special-buildings--kiosk.webp" alt=""><b>kiosk</b><code>art/special-buildings/kiosk.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.2.2</span><img src="../assets/games/ark-nova/special-buildings--large-bird-aviary.webp" alt=""><b>large-bird-aviary</b><code>art/special-buildings/large-bird-aviary.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.2.3</span><img src="../assets/games/ark-nova/special-buildings--pavilion.webp" alt=""><b>pavilion</b><code>art/special-buildings/pavilion.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.2.4</span><img src="../assets/games/ark-nova/special-buildings--petting-zoo.webp" alt=""><b>petting-zoo</b><code>art/special-buildings/petting-zoo.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.2.5</span><img src="../assets/games/ark-nova/special-buildings--reptile-house.webp" alt=""><b>reptile-house</b><code>art/special-buildings/reptile-house.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.1</span><img src="../assets/games/ark-nova/unique-buildings--unique-adventure-playground.webp" alt=""><b>unique-adventure-playground</b><code>art/unique-buildings/unique-adventure-playground.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.2</span><img src="../assets/games/ark-nova/unique-buildings--unique-aquarium.webp" alt=""><b>unique-aquarium</b><code>art/unique-buildings/unique-aquarium.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.3</span><img src="../assets/games/ark-nova/unique-buildings--unique-baboon-rock.webp" alt=""><b>unique-baboon-rock</b><code>art/unique-buildings/unique-baboon-rock.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.4</span><img src="../assets/games/ark-nova/unique-buildings--unique-barred-owl-hut.webp" alt=""><b>unique-barred-owl-hut</b><code>art/unique-buildings/unique-barred-owl-hut.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.5</span><img src="../assets/games/ark-nova/unique-buildings--unique-cable-car.webp" alt=""><b>unique-cable-car</b><code>art/unique-buildings/unique-cable-car.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.6</span><img src="../assets/games/ark-nova/unique-buildings--unique-meerkat-den.webp" alt=""><b>unique-meerkat-den</b><code>art/unique-buildings/unique-meerkat-den.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.7</span><img src="../assets/games/ark-nova/unique-buildings--unique-okapi-stable.webp" alt=""><b>unique-okapi-stable</b><code>art/unique-buildings/unique-okapi-stable.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.8</span><img src="../assets/games/ark-nova/unique-buildings--unique-penguin-pool.webp" alt=""><b>unique-penguin-pool</b><code>art/unique-buildings/unique-penguin-pool.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.9</span><img src="../assets/games/ark-nova/unique-buildings--unique-polar-bear-exhibit.webp" alt=""><b>unique-polar-bear-exhibit</b><code>art/unique-buildings/unique-polar-bear-exhibit.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.10</span><img src="../assets/games/ark-nova/unique-buildings--unique-rhesus-monkey-park.webp" alt=""><b>unique-rhesus-monkey-park</b><code>art/unique-buildings/unique-rhesus-monkey-park.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.11</span><img src="../assets/games/ark-nova/unique-buildings--unique-sea-turtle-tank.webp" alt=""><b>unique-sea-turtle-tank</b><code>art/unique-buildings/unique-sea-turtle-tank.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.12</span><img src="../assets/games/ark-nova/unique-buildings--unique-side-entrance.webp" alt=""><b>unique-side-entrance</b><code>art/unique-buildings/unique-side-entrance.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.13</span><img src="../assets/games/ark-nova/unique-buildings--unique-spotted-hyena-compound.webp" alt=""><b>unique-spotted-hyena-compound</b><code>art/unique-buildings/unique-spotted-hyena-compound.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.14</span><img src="../assets/games/ark-nova/unique-buildings--unique-water-playground.webp" alt=""><b>unique-water-playground</b><code>art/unique-buildings/unique-water-playground.webp</code></div><div class="an-ci"><span class="an-cnum">15.3.3.15</span><img src="../assets/games/ark-nova/unique-buildings--unique-zoo-school.webp" alt=""><b>unique-zoo-school</b><code>art/unique-buildings/unique-zoo-school.webp</code></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.4 کارت‌های کنش</h2><div class="an-comp"><div class="an-ci"><span class="an-cnum">15.4.1.1</span><img src="../assets/games/ark-nova/cards-action--action-animals-1.webp" alt=""><b>action-animals-1</b><code>art/cards-action/action-animals-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.2</span><img src="../assets/games/ark-nova/cards-action--action-animals-2.webp" alt=""><b>action-animals-2</b><code>art/cards-action/action-animals-2.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.3</span><img src="../assets/games/ark-nova/cards-action--action-association-1.webp" alt=""><b>action-association-1</b><code>art/cards-action/action-association-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.4</span><img src="../assets/games/ark-nova/cards-action--action-association-2.webp" alt=""><b>action-association-2</b><code>art/cards-action/action-association-2.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.5</span><img src="../assets/games/ark-nova/cards-action--action-build-1.webp" alt=""><b>action-build-1</b><code>art/cards-action/action-build-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.6</span><img src="../assets/games/ark-nova/cards-action--action-build-2.webp" alt=""><b>action-build-2</b><code>art/cards-action/action-build-2.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.7</span><img src="../assets/games/ark-nova/cards-action--action-cards-1.webp" alt=""><b>action-cards-1</b><code>art/cards-action/action-cards-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.8</span><img src="../assets/games/ark-nova/cards-action--action-cards-2.webp" alt=""><b>action-cards-2</b><code>art/cards-action/action-cards-2.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.9</span><img src="../assets/games/ark-nova/cards-action--action-sponsors-1.webp" alt=""><b>action-sponsors-1</b><code>art/cards-action/action-sponsors-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.4.1.10</span><img src="../assets/games/ark-nova/cards-action--action-sponsors-2.webp" alt=""><b>action-sponsors-2</b><code>art/cards-action/action-sponsors-2.webp</code></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.5 قطعه‌های چوبی، نشان‌ها، پول</h2><p class="an-note">مکعب = نشان لبهٔ نقشه، حمایت پروژه؛ شمارنده = جذابیت، حفاظت، اعتبار؛ کارمند = انجمن. ۴ رنگ از تصویر ۴رنگ ناشر بریده شده (pack-art.py).</p><div class="an-comp"><div class="an-ci"><span class="an-cnum">15.5.1.1</span><img src="../assets/games/ark-nova/pieces--counter-black.webp" alt=""><b>counter-black</b><code>art/pieces/counter-black.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.2</span><img src="../assets/games/ark-nova/pieces--counter-blue.webp" alt=""><b>counter-blue</b><code>art/pieces/counter-blue.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.3</span><img src="../assets/games/ark-nova/pieces--counter-red.webp" alt=""><b>counter-red</b><code>art/pieces/counter-red.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.4</span><img src="../assets/games/ark-nova/pieces--counter-yellow.webp" alt=""><b>counter-yellow</b><code>art/pieces/counter-yellow.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.5</span><img src="../assets/games/ark-nova/pieces--cube-black.webp" alt=""><b>cube-black</b><code>art/pieces/cube-black.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.6</span><img src="../assets/games/ark-nova/pieces--cube-blue.webp" alt=""><b>cube-blue</b><code>art/pieces/cube-blue.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.7</span><img src="../assets/games/ark-nova/pieces--cube-red.webp" alt=""><b>cube-red</b><code>art/pieces/cube-red.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.8</span><img src="../assets/games/ark-nova/pieces--cube-yellow.webp" alt=""><b>cube-yellow</b><code>art/pieces/cube-yellow.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.9</span><img src="../assets/games/ark-nova/pieces--worker-black.webp" alt=""><b>worker-black</b><code>art/pieces/worker-black.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.10</span><img src="../assets/games/ark-nova/pieces--worker-blue.webp" alt=""><b>worker-blue</b><code>art/pieces/worker-blue.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.11</span><img src="../assets/games/ark-nova/pieces--worker-red.webp" alt=""><b>worker-red</b><code>art/pieces/worker-red.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.1.12</span><img src="../assets/games/ark-nova/pieces--worker-yellow.webp" alt=""><b>worker-yellow</b><code>art/pieces/worker-yellow.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.2.1</span><img src="../assets/games/ark-nova/wooden-pieces--break-token.webp" alt=""><b>break-token</b><code>art/wooden-pieces/break-token.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.3.1</span><img src="../assets/games/ark-nova/tokens--constriction.webp" alt=""><b>constriction</b><code>art/tokens/constriction.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.3.2</span><img src="../assets/games/ark-nova/tokens--multiplier.webp" alt=""><b>multiplier</b><code>art/tokens/multiplier.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.3.3</span><img src="../assets/games/ark-nova/tokens--venom.webp" alt=""><b>venom</b><code>art/tokens/venom.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.3.4</span><img src="../assets/games/ark-nova/tokens--x-token.webp" alt=""><b>x-token</b><code>art/tokens/x-token.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.4.1</span><img src="../assets/games/ark-nova/money--money-1.webp" alt=""><b>money-1</b><code>art/money/money-1.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.4.2</span><img src="../assets/games/ark-nova/money--money-10.webp" alt=""><b>money-10</b><code>art/money/money-10.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.4.3</span><img src="../assets/games/ark-nova/money--money-20.webp" alt=""><b>money-20</b><code>art/money/money-20.webp</code></div><div class="an-ci"><span class="an-cnum">15.5.4.4</span><img src="../assets/games/ark-nova/money--money-5.webp" alt=""><b>money-5</b><code>art/money/money-5.webp</code></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.6 آیکون‌ها</h2><p class="an-note">۶.۲ از sprite محلی BGA (img__icons.png) با cut-bga-icons.py؛ دانلود تازه نشده.</p><div class="an-comp"><div class="an-ci"><span class="an-cnum">15.6.1.1</span><img src="../assets/games/ark-nova/icons--icon-bird.webp" alt=""><b>پرنده</b><code>art/icons/icon-bird.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.2</span><img src="../assets/games/ark-nova/icons--icon-predator.webp" alt=""><b>شکارچی</b><code>art/icons/icon-predator.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.3</span><img src="../assets/games/ark-nova/icons--icon-herbivore.webp" alt=""><b>گیاه‌خوار</b><code>art/icons/icon-herbivore.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.4</span><img src="../assets/games/ark-nova/icons--icon-primate.webp" alt=""><b>نخستی</b><code>art/icons/icon-primate.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.5</span><img src="../assets/games/ark-nova/icons--icon-reptile.webp" alt=""><b>خزنده</b><code>art/icons/icon-reptile.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.6</span><img src="../assets/games/ark-nova/icons--icon-bear.webp" alt=""><b>خرس</b><code>art/icons/icon-bear.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.7</span><img src="../assets/games/ark-nova/icons--icon-petting-zoo-animal.webp" alt=""><b>باغ‌وحش کودکان</b><code>art/icons/icon-petting-zoo-animal.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.8</span><img src="../assets/games/ark-nova/icons--icon-africa.webp" alt=""><b>آفریقا</b><code>art/icons/icon-africa.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.9</span><img src="../assets/games/ark-nova/icons--icon-americas.webp" alt=""><b>آمریکا</b><code>art/icons/icon-americas.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.10</span><img src="../assets/games/ark-nova/icons--icon-asia.webp" alt=""><b>آسیا</b><code>art/icons/icon-asia.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.11</span><img src="../assets/games/ark-nova/icons--icon-australia.webp" alt=""><b>استرالیا</b><code>art/icons/icon-australia.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.12</span><img src="../assets/games/ark-nova/icons--icon-europe.webp" alt=""><b>اروپا</b><code>art/icons/icon-europe.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.13</span><img src="../assets/games/ark-nova/icons--icon-research.webp" alt=""><b>پژوهش</b><code>art/icons/icon-research.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.14</span><img src="../assets/games/ark-nova/icons--icon-rock.webp" alt=""><b>صخره</b><code>art/icons/icon-rock.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.1.15</span><img src="../assets/games/ark-nova/icons--icon-water.webp" alt=""><b>آب</b><code>art/icons/icon-water.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.1</span><img src="../assets/games/ark-nova/ui--act-animals.webp" alt=""><b>act-animals</b><code>art/ui/act-animals.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.2</span><img src="../assets/games/ark-nova/ui--act-association.webp" alt=""><b>act-association</b><code>art/ui/act-association.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.3</span><img src="../assets/games/ark-nova/ui--act-build.webp" alt=""><b>act-build</b><code>art/ui/act-build.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.4</span><img src="../assets/games/ark-nova/ui--act-cards.webp" alt=""><b>act-cards</b><code>art/ui/act-cards.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.5</span><img src="../assets/games/ark-nova/ui--act-sponsors.webp" alt=""><b>act-sponsors</b><code>art/ui/act-sponsors.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.6</span><img src="../assets/games/ark-nova/ui--add-worker.webp" alt=""><b>add-worker</b><code>art/ui/add-worker.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.7</span><img src="../assets/games/ark-nova/ui--appeal.webp" alt=""><b>appeal</b><code>art/ui/appeal.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.8</span><img src="../assets/games/ark-nova/ui--break.webp" alt=""><b>break</b><code>art/ui/break.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.9</span><img src="../assets/games/ark-nova/ui--clever.webp" alt=""><b>clever</b><code>art/ui/clever.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.10</span><img src="../assets/games/ark-nova/ui--conservation-project.webp" alt=""><b>conservation-project</b><code>art/ui/conservation-project.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.11</span><img src="../assets/games/ark-nova/ui--conservation.webp" alt=""><b>conservation</b><code>art/ui/conservation.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.12</span><img src="../assets/games/ark-nova/ui--constriction.webp" alt=""><b>constriction</b><code>art/ui/constriction.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.13</span><img src="../assets/games/ark-nova/ui--endgame.webp" alt=""><b>endgame</b><code>art/ui/endgame.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.14</span><img src="../assets/games/ark-nova/ui--hand-cards.webp" alt=""><b>hand-cards</b><code>art/ui/hand-cards.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.15</span><img src="../assets/games/ark-nova/ui--hand.webp" alt=""><b>hand</b><code>art/ui/hand.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.16</span><img src="../assets/games/ark-nova/ui--immediate.webp" alt=""><b>immediate</b><code>art/ui/immediate.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.17</span><img src="../assets/games/ark-nova/ui--income.webp" alt=""><b>income</b><code>art/ui/income.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.18</span><img src="../assets/games/ark-nova/ui--kiosk.webp" alt=""><b>kiosk</b><code>art/ui/kiosk.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.19</span><img src="../assets/games/ark-nova/ui--money.webp" alt=""><b>money</b><code>art/ui/money.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.20</span><img src="../assets/games/ark-nova/ui--multiplier.webp" alt=""><b>multiplier</b><code>art/ui/multiplier.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.21</span><img src="../assets/games/ark-nova/ui--partner-zoo.webp" alt=""><b>partner-zoo</b><code>art/ui/partner-zoo.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.22</span><img src="../assets/games/ark-nova/ui--release.webp" alt=""><b>release</b><code>art/ui/release.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.23</span><img src="../assets/games/ark-nova/ui--reputation.webp" alt=""><b>reputation</b><code>art/ui/reputation.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.24</span><img src="../assets/games/ark-nova/ui--rock.webp" alt=""><b>rock</b><code>art/ui/rock.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.25</span><img src="../assets/games/ark-nova/ui--scoring-hand.webp" alt=""><b>scoring-hand</b><code>art/ui/scoring-hand.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.26</span><img src="../assets/games/ark-nova/ui--snapping.webp" alt=""><b>snapping</b><code>art/ui/snapping.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.27</span><img src="../assets/games/ark-nova/ui--sponsor-card.webp" alt=""><b>sponsor-card</b><code>art/ui/sponsor-card.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.28</span><img src="../assets/games/ark-nova/ui--strength.webp" alt=""><b>strength</b><code>art/ui/strength.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.29</span><img src="../assets/games/ark-nova/ui--take-in-range.webp" alt=""><b>take-in-range</b><code>art/ui/take-in-range.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.30</span><img src="../assets/games/ark-nova/ui--upgrade-card.webp" alt=""><b>upgrade-card</b><code>art/ui/upgrade-card.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.31</span><img src="../assets/games/ark-nova/ui--venom.webp" alt=""><b>venom</b><code>art/ui/venom.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.32</span><img src="../assets/games/ark-nova/ui--water.webp" alt=""><b>water</b><code>art/ui/water.webp</code></div><div class="an-ci"><span class="an-cnum">15.6.2.33</span><img src="../assets/games/ark-nova/ui--xtoken.webp" alt=""><b>xtoken</b><code>art/ui/xtoken.webp</code></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.7 کارت‌ها (یکی از هر نوع) و پشت‌ها</h2><div class="an-comp"><div class="an-ci"><span class="an-cnum">15.7.1</span><img src="../assets/games/ark-nova/cards-animal--card-486.webp" alt=""><b>حیوان ×۱۲۸</b><code>art/cards-animal/</code></div><div class="an-ci"><span class="an-cnum">15.7.2</span><img src="../assets/games/ark-nova/cards-sponsor--card-210.webp" alt=""><b>حامی ×۶۴</b><code>art/cards-sponsor/</code></div><div class="an-ci"><span class="an-cnum">15.7.3</span><img src="../assets/games/ark-nova/cards-base-project--card-101.webp" alt=""><b>پروژهٔ پایه ×۱۲</b><code>art/cards-base-project/</code></div><div class="an-ci"><span class="an-cnum">15.7.4</span><img src="../assets/games/ark-nova/cards-conservation--card-127.webp" alt=""><b>پروژهٔ حفاظت ×۲۰</b><code>art/cards-conservation/</code></div><div class="an-ci"><span class="an-cnum">15.7.5</span><img src="../assets/games/ark-nova/cards-final-scoring--card-007.webp" alt=""><b>امتیاز پایانی ×۱۱</b><code>art/cards-final-scoring/</code></div><div class="an-ci"><span class="an-cnum">15.7.6.1</span><img src="../assets/games/ark-nova/card-backs--card-back-final.webp" alt=""><b>card-back-final</b><code>art/card-backs/card-back-final.webp</code></div><div class="an-ci"><span class="an-cnum">15.7.6.2</span><img src="../assets/games/ark-nova/card-backs--card-back-project.webp" alt=""><b>card-back-project</b><code>art/card-backs/card-back-project.webp</code></div><div class="an-ci"><span class="an-cnum">15.7.6.3</span><img src="../assets/games/ark-nova/card-backs--card-back-zoo.webp" alt=""><b>card-back-zoo</b><code>art/card-backs/card-back-zoo.webp</code></div></div></section>
+  <section class="bgv-card an-sec"><h2>§15.8 کاشی‌ها</h2><p class="an-note">باغ‌وحش همکار ۱۹۱×۱۵۷ و دانشگاه ۱۴۵×۱۱۶ کم‌وضوح‌اند (تا حدود ۷۰px خوب). سولو در موتور نیست.</p><div class="an-comp"><div class="an-ci"><span class="an-cnum">15.8.1.1</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-back.webp" alt=""><b>bonus-back</b><code>art/bonus-tiles/bonus-back.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.2</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-enclosure-three.webp" alt=""><b>bonus-enclosure-three</b><code>art/bonus-tiles/bonus-enclosure-three.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.3</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-multiplier.webp" alt=""><b>bonus-multiplier</b><code>art/bonus-tiles/bonus-multiplier.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.4</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-partner-zoo.webp" alt=""><b>bonus-partner-zoo</b><code>art/bonus-tiles/bonus-partner-zoo.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.5</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-snap-three-cards.webp" alt=""><b>bonus-snap-three-cards</b><code>art/bonus-tiles/bonus-snap-three-cards.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.6</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-sponsor.webp" alt=""><b>bonus-sponsor</b><code>art/bonus-tiles/bonus-sponsor.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.7</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-ten-money.webp" alt=""><b>bonus-ten-money</b><code>art/bonus-tiles/bonus-ten-money.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.8</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-three-x.webp" alt=""><b>bonus-three-x</b><code>art/bonus-tiles/bonus-three-x.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.9</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-two-reputation.webp" alt=""><b>bonus-two-reputation</b><code>art/bonus-tiles/bonus-two-reputation.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.1.10</span><img src="../assets/games/ark-nova/bonus-tiles--bonus-university.webp" alt=""><b>bonus-university</b><code>art/bonus-tiles/bonus-university.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.2.1</span><img src="../assets/games/ark-nova/partner-zoos--partner-africa.webp" alt=""><b>partner-africa</b><code>art/partner-zoos/partner-africa.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.2.2</span><img src="../assets/games/ark-nova/partner-zoos--partner-americas.webp" alt=""><b>partner-americas</b><code>art/partner-zoos/partner-americas.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.2.3</span><img src="../assets/games/ark-nova/partner-zoos--partner-asia.webp" alt=""><b>partner-asia</b><code>art/partner-zoos/partner-asia.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.2.4</span><img src="../assets/games/ark-nova/partner-zoos--partner-australia.webp" alt=""><b>partner-australia</b><code>art/partner-zoos/partner-australia.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.2.5</span><img src="../assets/games/ark-nova/partner-zoos--partner-europe.webp" alt=""><b>partner-europe</b><code>art/partner-zoos/partner-europe.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.3.1</span><img src="../assets/games/ark-nova/universities--university-hand-size.webp" alt=""><b>university-hand-size</b><code>art/universities/university-hand-size.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.3.2</span><img src="../assets/games/ark-nova/universities--university-reputation.webp" alt=""><b>university-reputation</b><code>art/universities/university-reputation.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.3.3</span><img src="../assets/games/ark-nova/universities--university-research.webp" alt=""><b>university-research</b><code>art/universities/university-research.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.4.1</span><img src="../assets/games/ark-nova/solo--solo-tile.webp" alt=""><b>solo-tile</b><code>art/solo/solo-tile.webp</code></div><div class="an-ci"><span class="an-cnum">15.8.4.2</span><img src="../assets/games/ark-nova/reference-pages--unique-buildings-reference.webp" alt=""><b>unique-buildings-reference</b><code>art/reference-pages/unique-buildings-reference.webp</code></div></div></section>
+ </div>
+</div>
+
+
+</body>
+</html>

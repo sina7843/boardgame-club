@@ -1,0 +1,3022 @@
+{
+  "game": "Brass: Birmingham",
+  "scope": "Retail base game, 2018 art; no expansions or deluxe Iron Clays",
+  "uniqueAssetCount": 319,
+  "allBoxCategoriesRepresented": true,
+  "completeHighResolutionArchive": false,
+  "cards": {
+    "physicalTotal": 76,
+    "drawCards": 64,
+    "wildCards": 8,
+    "playerAids": 4,
+    "drawCountsByPlayers": {
+      "2": 40,
+      "3": 54,
+      "4": 64
+    },
+    "printedFrontVariants": 33,
+    "note": "20 location designs, 11 printed industry variants, 2 wild designs. Physical repetitions in deck-instances.json. Original aid front is low resolution."
+  },
+  "industryTiles": {
+    "physicalTotal": 180,
+    "perPlayer": 45,
+    "uniqueLevelsPerColor": 29,
+    "colors": 4,
+    "frontBackAssets": 232,
+    "status": "all levels and colors, both sides"
+  },
+  "links": {
+    "physicalTotal": 56,
+    "assets": 8,
+    "status": "all four colors; canal and rail faces"
+  },
+  "merchants": {
+    "physicalTotal": 9,
+    "frontDesigns": 5,
+    "commonBack": true
+  },
+  "characters": {
+    "physicalTotal": 4,
+    "faces": 8,
+    "status": "four colors, both portrait faces"
+  },
+  "boards": {
+    "mainBoardSides": 2,
+    "playerMatSides": 2,
+    "physicalPlayerMats": 4,
+    "dayBoardResolution": [
+      1200,
+      1200
+    ],
+    "dayMatResolution": [
+      639,
+      569
+    ]
+  },
+  "resources": {
+    "coal": 30,
+    "iron": 18,
+    "beer": 15,
+    "status": "Original small publisher illustrations retained; iron source corrected from black page3-085 to orange page3-086 without recolouring."
+  },
+  "markers": {
+    "income": 4,
+    "vp": 4,
+    "status": "four original colors; small rulebook illustrations"
+  },
+  "money": {
+    "physicalTotal": 77,
+    "denominations": [
+      1,
+      5,
+      15
+    ],
+    "status": "all three retail designs"
+  },
+  "additionalOriginalReference": "Readable photograph of the German original player aid, both sides, is included in supplementary-reference-photos.",
+  "knownLimitations": [
+    "Original actions side of the player aid is only 76 × 106 pixels; its card-distribution side is 739 × 1038. A readable source for the original front is still missing.",
+    "Day player mat is 639 × 569 pixels; day main board is 1200 × 1200. Night originals are 2818 × 2280 and 4000 × 4000.",
+    "Wooden resources and score/income markers use small publisher rulebook illustrations, not high-resolution photographs.",
+    "Community reference sheets are supplied separately and do not replace missing original scans.",
+    "SVGs embed original raster artwork. They are not editable vector tracings or publisher print masters."
+  ],
+  "assetFlatStatus": [
+    {
+      "id": "card-derby",
+      "category": "cards-location",
+      "svg": "cards-location/card-derby.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-wild-location",
+      "category": "cards-wild",
+      "svg": "cards-wild/card-wild-location.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-wild-industry",
+      "category": "cards-wild",
+      "svg": "cards-wild/card-wild-industry.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-cotton-manufacturer-1",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-cotton-manufacturer-1.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-birmingham",
+      "category": "cards-location",
+      "svg": "cards-location/card-birmingham.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-cotton-manufacturer-2",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-cotton-manufacturer-2.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-pottery",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-pottery.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-stone",
+      "category": "cards-location",
+      "svg": "cards-location/card-stone.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-walsall",
+      "category": "cards-location",
+      "svg": "cards-location/card-walsall.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-burton-on-trent",
+      "category": "cards-location",
+      "svg": "cards-location/card-burton-on-trent.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-wolverhampton",
+      "category": "cards-location",
+      "svg": "cards-location/card-wolverhampton.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-iron-1",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-iron-1.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-brewery-1",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-brewery-1.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-stafford",
+      "category": "cards-location",
+      "svg": "cards-location/card-stafford.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-cannock",
+      "category": "cards-location",
+      "svg": "cards-location/card-cannock.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-tamworth",
+      "category": "cards-location",
+      "svg": "cards-location/card-tamworth.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-stoke-on-trent",
+      "category": "cards-location",
+      "svg": "cards-location/card-stoke-on-trent.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-coventry",
+      "category": "cards-location",
+      "svg": "cards-location/card-coventry.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-coal-1",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-coal-1.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-dudley",
+      "category": "cards-location",
+      "svg": "cards-location/card-dudley.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-cotton-manufacturer-3",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-cotton-manufacturer-3.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-brewery-2",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-brewery-2.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-iron-2",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-iron-2.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-uttoxeter",
+      "category": "cards-location",
+      "svg": "cards-location/card-uttoxeter.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-coalbrookdale",
+      "category": "cards-location",
+      "svg": "cards-location/card-coalbrookdale.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-kidderminster",
+      "category": "cards-location",
+      "svg": "cards-location/card-kidderminster.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-worcester",
+      "category": "cards-location",
+      "svg": "cards-location/card-worcester.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-leek",
+      "category": "cards-location",
+      "svg": "cards-location/card-leek.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-belper",
+      "category": "cards-location",
+      "svg": "cards-location/card-belper.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-brewery-3",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-brewery-3.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-coal-2",
+      "category": "cards-industry",
+      "svg": "cards-industry/card-coal-2.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-redditch",
+      "category": "cards-location",
+      "svg": "cards-location/card-redditch.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-nuneaton",
+      "category": "cards-location",
+      "svg": "cards-location/card-nuneaton.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "card-back",
+      "category": "card-backs",
+      "svg": "card-backs/card-back.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-grey-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-grey-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-grey-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-grey-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-purple-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-purple-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-purple-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-purple-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-red-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-red-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-red-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-red-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-1-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-1-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-2-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-2-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-3-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-3-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-cotton-4-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-cotton-4-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-1-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-1-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-2-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-2-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-3-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-3-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-iron-4-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-iron-4-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-1-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-1-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-2-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-2-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-3-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-3-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-brewery-4-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-brewery-4-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-1-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-1-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-2-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-2-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-3-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-3-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-coal-4-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-coal-4-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-1-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-1-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-2-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-2-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-3-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-3-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-4-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-4-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-pottery-5-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-pottery-5-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-1-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-1-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-2-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-2-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-3-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-3-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-4-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-4-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-5-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-5-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-6-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-6-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-7-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-7-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-yellow-front",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-yellow-front.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "tile-manufacturer-8-yellow-back",
+      "category": "industry-tiles",
+      "svg": "industry-tiles/tile-manufacturer-8-yellow-back.svg",
+      "flat": false,
+      "status": "partial-flat",
+      "partialFlat": true,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-grey-canal",
+      "category": "links",
+      "svg": "links/link-grey-canal.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-grey-rail",
+      "category": "links",
+      "svg": "links/link-grey-rail.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-purple-canal",
+      "category": "links",
+      "svg": "links/link-purple-canal.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-purple-rail",
+      "category": "links",
+      "svg": "links/link-purple-rail.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-red-canal",
+      "category": "links",
+      "svg": "links/link-red-canal.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-red-rail",
+      "category": "links",
+      "svg": "links/link-red-rail.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-yellow-canal",
+      "category": "links",
+      "svg": "links/link-yellow-canal.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "link-yellow-rail",
+      "category": "links",
+      "svg": "links/link-yellow-rail.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "coin-1",
+      "category": "money",
+      "svg": "money/coin-1.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "coin-5",
+      "category": "money",
+      "svg": "money/coin-5.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "coin-15",
+      "category": "money",
+      "svg": "money/coin-15.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-grey-front",
+      "category": "characters",
+      "svg": "characters/character-grey-front.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-purple-front",
+      "category": "characters",
+      "svg": "characters/character-purple-front.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-red-front",
+      "category": "characters",
+      "svg": "characters/character-red-front.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-yellow-front",
+      "category": "characters",
+      "svg": "characters/character-yellow-front.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-grey-back",
+      "category": "characters",
+      "svg": "characters/character-grey-back.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-purple-back",
+      "category": "characters",
+      "svg": "characters/character-purple-back.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-red-back",
+      "category": "characters",
+      "svg": "characters/character-red-back.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "character-yellow-back",
+      "category": "characters",
+      "svg": "characters/character-yellow-back.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "board-night",
+      "category": "boards",
+      "svg": "boards/board-night.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "board-day",
+      "category": "boards",
+      "svg": "boards/board-day.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "player-mat-night",
+      "category": "boards",
+      "svg": "boards/player-mat-night.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "player-mat-day",
+      "category": "boards",
+      "svg": "boards/player-mat-day.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "merchant-pottery",
+      "category": "merchants",
+      "svg": "merchants/merchant-pottery.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "merchant-manufacturer",
+      "category": "merchants",
+      "svg": "merchants/merchant-manufacturer.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "merchant-cotton",
+      "category": "merchants",
+      "svg": "merchants/merchant-cotton.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "merchant-all",
+      "category": "merchants",
+      "svg": "merchants/merchant-all.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "merchant-blank",
+      "category": "merchants",
+      "svg": "merchants/merchant-blank.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "merchant-back",
+      "category": "merchants",
+      "svg": "merchants/merchant-back.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "vp-grey",
+      "category": "markers",
+      "svg": "markers/vp-grey.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "vp-red",
+      "category": "markers",
+      "svg": "markers/vp-red.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "vp-purple",
+      "category": "markers",
+      "svg": "markers/vp-purple.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "vp-yellow",
+      "category": "markers",
+      "svg": "markers/vp-yellow.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "income-red",
+      "category": "markers",
+      "svg": "markers/income-red.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "income-yellow",
+      "category": "markers",
+      "svg": "markers/income-yellow.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "income-grey",
+      "category": "markers",
+      "svg": "markers/income-grey.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "income-purple",
+      "category": "markers",
+      "svg": "markers/income-purple.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "beer-barrel",
+      "category": "resources",
+      "svg": "resources/beer-barrel.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "coal-cube",
+      "category": "resources",
+      "svg": "resources/coal-cube.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "iron-cube",
+      "category": "resources",
+      "svg": "resources/iron-cube.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": true
+    },
+    {
+      "id": "player-aid-front",
+      "category": "player-aids",
+      "svg": "player-aids/player-aid-front.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "player-aid-back",
+      "category": "player-aids",
+      "svg": "player-aids/player-aid-back.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "art-brewery",
+      "category": "artwork",
+      "svg": "artwork/art-brewery.svg",
+      "flat": true,
+      "status": "replaced",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "art-coal-mine",
+      "category": "artwork",
+      "svg": "artwork/art-coal-mine.svg",
+      "flat": true,
+      "status": "replaced",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "art-cotton-mill",
+      "category": "artwork",
+      "svg": "artwork/art-cotton-mill.svg",
+      "flat": true,
+      "status": "replaced",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "art-iron-works",
+      "category": "artwork",
+      "svg": "artwork/art-iron-works.svg",
+      "flat": true,
+      "status": "replaced",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "art-manufactured-goods",
+      "category": "artwork",
+      "svg": "artwork/art-manufactured-goods.svg",
+      "flat": true,
+      "status": "replaced",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "art-pottery",
+      "category": "artwork",
+      "svg": "artwork/art-pottery.svg",
+      "flat": true,
+      "status": "replaced",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "fan-aid-red",
+      "category": "supplementary-community-aids",
+      "svg": "supplementary-community-aids/fan-aid-red.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "fan-aid-purple",
+      "category": "supplementary-community-aids",
+      "svg": "supplementary-community-aids/fan-aid-purple.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "fan-aid-grey",
+      "category": "supplementary-community-aids",
+      "svg": "supplementary-community-aids/fan-aid-grey.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "fan-aid-yellow",
+      "category": "supplementary-community-aids",
+      "svg": "supplementary-community-aids/fan-aid-yellow.svg",
+      "flat": true,
+      "status": "already-flat",
+      "partialFlat": false,
+      "sourceCorrection": false
+    },
+    {
+      "id": "original-german-aid-photo",
+      "category": "supplementary-reference-photos",
+      "svg": "supplementary-reference-photos/original-german-aid-photo.svg",
+      "flat": false,
+      "status": "unavailable",
+      "partialFlat": false,
+      "sourceCorrection": false
+    }
+  ],
+  "flatAuditSummary": {
+    "sourceCollection": "../ready to use",
+    "date": "2026-10-29",
+    "status": "complete",
+    "totalAssets": 319,
+    "scopeCount": 319,
+    "flatAssets": 68,
+    "preferredFlat": 68,
+    "replaced": 6,
+    "alreadyFlat": 62,
+    "unavailable": 19,
+    "partialFlat": 232,
+    "alternatives": 0,
+    "sourceCorrections": [
+      "iron-cube"
+    ],
+    "categories": {
+      "cards-location": 20,
+      "cards-wild": 2,
+      "cards-industry": 11,
+      "card-backs": 1,
+      "industry-tiles": 232,
+      "links": 8,
+      "money": 3,
+      "characters": 8,
+      "boards": 4,
+      "merchants": 6,
+      "markers": 8,
+      "resources": 3,
+      "player-aids": 2,
+      "artwork": 6,
+      "supplementary-community-aids": 4,
+      "supplementary-reference-photos": 1
+    },
+    "uniqueSourceFiles": 146,
+    "coordinateReviewCount": 0,
+    "allOriginalNamesPreserved": true,
+    "allOriginalCanvasesPreserved": true,
+    "noAIOrRedraw": true,
+    "sourcePriority": "Public Birmingham BGA source checked but not located; complete original artwork from recorded local/public publisher and community sources; no Lancashire substitutions",
+    "retainedWithoutEquivalent": [
+      "character-grey-back",
+      "character-purple-back",
+      "character-red-back",
+      "character-yellow-back",
+      "player-mat-day",
+      "vp-grey",
+      "vp-red",
+      "vp-purple",
+      "vp-yellow",
+      "income-red",
+      "income-yellow",
+      "income-grey",
+      "income-purple",
+      "beer-barrel",
+      "coal-cube",
+      "iron-cube",
+      "player-aid-front",
+      "player-aid-back",
+      "original-german-aid-photo"
+    ]
+  },
+  "flat": false,
+  "noteFlat": "All319existingassets audited. Industry232areoriginaldigitalartwithopaqueexternalcornermatte and therefore partial-flat, not fullyflat. No geometry was guessed. Original nonflat references retained; wrong black iron source corrected to official orange source.",
+  "encoding": "Standalone SVGs embed original raster artwork; newly encoded assets use lossless WebP. They are not editable vector tracings. No AI artwork, recolouring or text recreation."
+}

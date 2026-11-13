@@ -1,0 +1,2532 @@
+{
+  "game": "Ark Nova",
+  "scope": "English base game, including solo tile; excludes Marine Worlds, promos, and map packs",
+  "cards": {
+    "zoo": 212,
+    "animals": 128,
+    "sponsors": 64,
+    "conservationInZooDeck": 20,
+    "baseConservation": 12,
+    "finalScoring": 11,
+    "physicalActionCards": 20,
+    "uniqueActionFaces": 10,
+    "commonBackDesigns": 3,
+    "allBaseCardFronts": true,
+    "allBaseCardBacks": true
+  },
+  "maps": {
+    "uniqueDesigns": [
+      "A",
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "physicalMats": 8,
+    "allBaseLayouts": true
+  },
+  "boards": {
+    "mainBoard": true,
+    "mainBoardReverseOrientation": false,
+    "associationBoard": true
+  },
+  "enclosures": {
+    "physical": 90,
+    "sizes": [
+      28,
+      24,
+      15,
+      13,
+      10
+    ],
+    "faces": 10,
+    "bothSides": true
+  },
+  "specialBuildings": {
+    "kioskPavilionPhysical": 34,
+    "kioskPavilionFaces": 2,
+    "specialEnclosuresPhysical": 12,
+    "specialEnclosureDesigns": 3,
+    "bothSidesSameArtwork": true
+  },
+  "uniqueBuildings": {
+    "physical": 15,
+    "allIndependentFronts": true,
+    "independentNeutralBacks": false,
+    "publisherBackReference": true
+  },
+  "partnerZoos": {
+    "physical": 20,
+    "designs": 5
+  },
+  "universities": {
+    "physical": 12,
+    "designs": 3
+  },
+  "bonusTiles": {
+    "physical": 9,
+    "frontDesigns": 9,
+    "commonReverse": true
+  },
+  "tokens": {
+    "x": 20,
+    "multiplier": 8,
+    "venom": 8,
+    "constriction": 8,
+    "money": 70,
+    "moneyDesigns": 4,
+    "moneyByDenomination": {
+      "1": 40,
+      "5": 10,
+      "10": 10,
+      "20": 10
+    }
+  },
+  "woodenPieces": {
+    "breakToken": 1,
+    "counters": 12,
+    "workers": 16,
+    "cubes": 100,
+    "source": "Four original BGA player-colour sprite counterparts grouped without recolouring; physical counts unchanged."
+  },
+  "soloTile": true,
+  "referencePapers": [
+    "official-rulebook.pdf",
+    "official-glossary.pdf",
+    "official-icon-overview.pdf"
+  ],
+  "completeHighResolutionArchive": false,
+  "knownLimitations": [
+    "Main board alternate orientation is not available as an independent source.",
+    "Independent neutral reverse scans of all 15 unique buildings are missing; the original publisher overview is retained.",
+    "Two storage organizers are listed in the rulebook; independent organizer images are absent. Reference PDFs are in real components/sources, outside ready to use.",
+    "BGA money symbols and four-colour component groups replace photographed physical components; appearance and internal coordinates differ. Native sprite resolution is recorded per asset."
+  ],
+  "encoding": "Standalone SVGs embed original raster artwork. Full BGA DOM compositions use official templates, fonts, data and icons. They are not editable vector tracings; no AI artwork or recolouring.",
+  "assetCount": 337,
+  "storageOrganizers": {
+    "physical": 2,
+    "independentAssets": 0,
+    "status": "missing-non-playing-storage"
+  },
+  "referencePaperLocationsRelativeToCollectionRoot": {
+    "official-rulebook.pdf": "../real components/sources/official-rulebook.pdf",
+    "official-glossary.pdf": "../real components/sources/official-glossary.pdf",
+    "official-icon-overview.pdf": "../real components/sources/official-icon-overview.pdf"
+  },
+  "assetFlatStatus": [
+    {
+      "id": "card-113",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-113.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-114",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-114.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-115",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-115.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-116",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-116.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-117",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-117.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-118",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-118.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-119",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-119.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-120",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-120.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-121",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-121.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-122",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-122.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-123",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-123.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-124",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-124.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-125",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-125.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-126",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-126.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-127",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-127.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-128",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-128.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-129",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-129.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-130",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-130.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-131",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-131.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-132",
+      "category": "cards-conservation",
+      "svg": "cards-conservation/card-132.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-201",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-201.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-202",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-202.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-203",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-203.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-204",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-204.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-205",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-205.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-206",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-206.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-207",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-207.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-208",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-208.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-209",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-209.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-210",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-210.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-211",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-211.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-212",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-212.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-213",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-213.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-214",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-214.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-215",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-215.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-216",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-216.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-217",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-217.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-218",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-218.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-219",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-219.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-220",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-220.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-221",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-221.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-222",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-222.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-223",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-223.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-224",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-224.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-225",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-225.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-226",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-226.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-227",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-227.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-228",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-228.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-229",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-229.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-230",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-230.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-231",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-231.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-232",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-232.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-233",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-233.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-234",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-234.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-235",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-235.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-236",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-236.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-237",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-237.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-238",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-238.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-239",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-239.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-240",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-240.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-241",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-241.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-242",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-242.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-243",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-243.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-244",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-244.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-245",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-245.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-246",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-246.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-247",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-247.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-248",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-248.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-249",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-249.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-250",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-250.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-251",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-251.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-252",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-252.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-253",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-253.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-254",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-254.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-255",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-255.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-256",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-256.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-257",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-257.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-258",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-258.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-259",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-259.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-260",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-260.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-261",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-261.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-262",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-262.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-263",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-263.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-264",
+      "category": "cards-sponsor",
+      "svg": "cards-sponsor/card-264.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-401",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-401.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-402",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-402.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-403",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-403.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-404",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-404.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-405",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-405.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-406",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-406.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-407",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-407.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-408",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-408.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-409",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-409.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-410",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-410.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-411",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-411.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-412",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-412.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-413",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-413.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-414",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-414.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-415",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-415.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-416",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-416.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-417",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-417.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-418",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-418.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-419",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-419.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-420",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-420.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-421",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-421.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-422",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-422.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-423",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-423.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-424",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-424.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-425",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-425.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-426",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-426.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-427",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-427.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-428",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-428.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-429",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-429.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-430",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-430.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-431",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-431.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-432",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-432.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-433",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-433.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-434",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-434.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-435",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-435.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-436",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-436.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-437",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-437.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-438",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-438.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-439",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-439.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-440",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-440.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-441",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-441.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-442",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-442.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-443",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-443.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-444",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-444.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-445",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-445.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-446",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-446.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-447",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-447.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-448",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-448.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-449",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-449.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-450",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-450.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-451",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-451.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-452",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-452.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-453",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-453.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-454",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-454.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-455",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-455.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-456",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-456.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-457",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-457.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-458",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-458.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-459",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-459.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-460",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-460.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-461",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-461.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-462",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-462.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-463",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-463.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-464",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-464.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-465",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-465.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-466",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-466.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-467",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-467.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-468",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-468.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-469",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-469.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-470",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-470.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-471",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-471.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-472",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-472.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-473",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-473.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-474",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-474.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-475",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-475.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-476",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-476.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-477",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-477.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-478",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-478.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-479",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-479.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-480",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-480.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-481",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-481.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-482",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-482.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-483",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-483.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-484",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-484.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-485",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-485.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-486",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-486.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-487",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-487.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-488",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-488.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-489",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-489.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-490",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-490.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-491",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-491.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-492",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-492.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-493",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-493.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-494",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-494.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-495",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-495.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-496",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-496.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-497",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-497.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-498",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-498.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-499",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-499.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-500",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-500.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-501",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-501.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-502",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-502.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-503",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-503.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-504",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-504.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-505",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-505.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-506",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-506.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-507",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-507.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-508",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-508.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-509",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-509.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-510",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-510.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-511",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-511.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-512",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-512.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-513",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-513.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-514",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-514.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-515",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-515.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-516",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-516.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-517",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-517.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-518",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-518.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-519",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-519.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-520",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-520.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-521",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-521.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-522",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-522.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-523",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-523.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-524",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-524.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "card-525",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-525.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-526",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-526.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-527",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-527.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-528",
+      "category": "cards-animal",
+      "svg": "cards-animal/card-528.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-101",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-101.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-102",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-102.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-103",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-103.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-104",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-104.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-105",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-105.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-106",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-106.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-107",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-107.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-108",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-108.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-109",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-109.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-110",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-110.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-111",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-111.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-112",
+      "category": "cards-base-project",
+      "svg": "cards-base-project/card-112.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-001",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-001.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-002",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-002.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-003",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-003.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-004",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-004.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-005",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-005.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-006",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-006.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-007",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-007.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-008",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-008.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-009",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-009.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-010",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-010.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-011",
+      "category": "cards-final-scoring",
+      "svg": "cards-final-scoring/card-011.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-back-zoo",
+      "category": "card-backs",
+      "svg": "card-backs/card-back-zoo.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "card-back-project",
+      "category": "card-backs",
+      "svg": "card-backs/card-back-project.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "card-back-final",
+      "category": "card-backs",
+      "svg": "card-backs/card-back-final.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-association-1",
+      "category": "cards-action",
+      "svg": "cards-action/action-association-1.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-association-2",
+      "category": "cards-action",
+      "svg": "cards-action/action-association-2.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-build-1",
+      "category": "cards-action",
+      "svg": "cards-action/action-build-1.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-build-2",
+      "category": "cards-action",
+      "svg": "cards-action/action-build-2.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-cards-1",
+      "category": "cards-action",
+      "svg": "cards-action/action-cards-1.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-cards-2",
+      "category": "cards-action",
+      "svg": "cards-action/action-cards-2.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-sponsors-1",
+      "category": "cards-action",
+      "svg": "cards-action/action-sponsors-1.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-sponsors-2",
+      "category": "cards-action",
+      "svg": "cards-action/action-sponsors-2.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-animals-1",
+      "category": "cards-action",
+      "svg": "cards-action/action-animals-1.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "action-animals-2",
+      "category": "cards-action",
+      "svg": "cards-action/action-animals-2.svg",
+      "flat": true,
+      "status": "already-flat"
+    },
+    {
+      "id": "map-1",
+      "category": "boards",
+      "svg": "boards/map-1.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-2",
+      "category": "boards",
+      "svg": "boards/map-2.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-3",
+      "category": "boards",
+      "svg": "boards/map-3.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-4",
+      "category": "boards",
+      "svg": "boards/map-4.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-5",
+      "category": "boards",
+      "svg": "boards/map-5.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-6",
+      "category": "boards",
+      "svg": "boards/map-6.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-7",
+      "category": "boards",
+      "svg": "boards/map-7.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-8",
+      "category": "boards",
+      "svg": "boards/map-8.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-A",
+      "category": "boards",
+      "svg": "boards/map-A.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "map-0",
+      "category": "boards",
+      "svg": "boards/map-0.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "main-board",
+      "category": "boards",
+      "svg": "boards/main-board.svg",
+      "flat": false,
+      "status": "unavailable"
+    },
+    {
+      "id": "association-board",
+      "category": "boards",
+      "svg": "boards/association-board.svg",
+      "flat": false,
+      "status": "unavailable"
+    },
+    {
+      "id": "solo-tile",
+      "category": "solo",
+      "svg": "solo/solo-tile.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-1-empty",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-1-empty.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-1-occupied",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-1-occupied.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-2-empty",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-2-empty.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-2-occupied",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-2-occupied.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-3-empty",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-3-empty.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-3-occupied",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-3-occupied.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-4-empty",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-4-empty.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-4-occupied",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-4-occupied.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-5-empty",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-5-empty.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "enclosure-5-occupied",
+      "category": "enclosures",
+      "svg": "enclosures/enclosure-5-occupied.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "kiosk",
+      "category": "special-buildings",
+      "svg": "special-buildings/kiosk.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "pavilion",
+      "category": "special-buildings",
+      "svg": "special-buildings/pavilion.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "petting-zoo",
+      "category": "special-buildings",
+      "svg": "special-buildings/petting-zoo.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "reptile-house",
+      "category": "special-buildings",
+      "svg": "special-buildings/reptile-house.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "large-bird-aviary",
+      "category": "special-buildings",
+      "svg": "special-buildings/large-bird-aviary.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-rhesus-monkey-park",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-rhesus-monkey-park.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-zoo-school",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-zoo-school.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-adventure-playground",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-adventure-playground.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-sea-turtle-tank",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-sea-turtle-tank.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-aquarium",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-aquarium.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-cable-car",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-cable-car.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-polar-bear-exhibit",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-polar-bear-exhibit.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-barred-owl-hut",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-barred-owl-hut.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-okapi-stable",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-okapi-stable.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-water-playground",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-water-playground.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-penguin-pool",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-penguin-pool.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-baboon-rock",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-baboon-rock.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-spotted-hyena-compound",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-spotted-hyena-compound.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-side-entrance",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-side-entrance.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-meerkat-den",
+      "category": "unique-buildings",
+      "svg": "unique-buildings/unique-meerkat-den.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "partner-americas",
+      "category": "partner-zoos",
+      "svg": "partner-zoos/partner-americas.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "partner-europe",
+      "category": "partner-zoos",
+      "svg": "partner-zoos/partner-europe.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "partner-africa",
+      "category": "partner-zoos",
+      "svg": "partner-zoos/partner-africa.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "partner-asia",
+      "category": "partner-zoos",
+      "svg": "partner-zoos/partner-asia.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "partner-australia",
+      "category": "partner-zoos",
+      "svg": "partner-zoos/partner-australia.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "university-research",
+      "category": "universities",
+      "svg": "universities/university-research.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "university-reputation",
+      "category": "universities",
+      "svg": "universities/university-reputation.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "university-hand-size",
+      "category": "universities",
+      "svg": "universities/university-hand-size.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-snap-three-cards",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-snap-three-cards.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-two-reputation",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-two-reputation.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-partner-zoo",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-partner-zoo.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-multiplier",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-multiplier.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-university",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-university.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-enclosure-three",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-enclosure-three.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-ten-money",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-ten-money.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-three-x",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-three-x.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-sponsor",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-sponsor.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "bonus-back",
+      "category": "bonus-tiles",
+      "svg": "bonus-tiles/bonus-back.svg",
+      "flat": false,
+      "status": "unavailable"
+    },
+    {
+      "id": "multiplier",
+      "category": "tokens",
+      "svg": "tokens/multiplier.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "venom",
+      "category": "tokens",
+      "svg": "tokens/venom.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "constriction",
+      "category": "tokens",
+      "svg": "tokens/constriction.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "x-token",
+      "category": "tokens",
+      "svg": "tokens/x-token.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "money-1",
+      "category": "money",
+      "svg": "money/money-1.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "money-5",
+      "category": "money",
+      "svg": "money/money-5.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "money-10",
+      "category": "money",
+      "svg": "money/money-10.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "money-20",
+      "category": "money",
+      "svg": "money/money-20.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "break-token",
+      "category": "wooden-pieces",
+      "svg": "wooden-pieces/break-token.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "wooden-counters",
+      "category": "wooden-pieces",
+      "svg": "wooden-pieces/wooden-counters.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "association-workers",
+      "category": "wooden-pieces",
+      "svg": "wooden-pieces/association-workers.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "player-cubes",
+      "category": "wooden-pieces",
+      "svg": "wooden-pieces/player-cubes.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "unique-buildings-reference",
+      "category": "reference-pages",
+      "svg": "reference-pages/unique-buildings-reference.svg",
+      "flat": false,
+      "status": "unavailable"
+    },
+    {
+      "id": "icon-africa",
+      "category": "icons",
+      "svg": "icons/icon-africa.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-americas",
+      "category": "icons",
+      "svg": "icons/icon-americas.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-asia",
+      "category": "icons",
+      "svg": "icons/icon-asia.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-australia",
+      "category": "icons",
+      "svg": "icons/icon-australia.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-europe",
+      "category": "icons",
+      "svg": "icons/icon-europe.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-bird",
+      "category": "icons",
+      "svg": "icons/icon-bird.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-herbivore",
+      "category": "icons",
+      "svg": "icons/icon-herbivore.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-primate",
+      "category": "icons",
+      "svg": "icons/icon-primate.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-predator",
+      "category": "icons",
+      "svg": "icons/icon-predator.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-reptile",
+      "category": "icons",
+      "svg": "icons/icon-reptile.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-bear",
+      "category": "icons",
+      "svg": "icons/icon-bear.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-petting-zoo-animal",
+      "category": "icons",
+      "svg": "icons/icon-petting-zoo-animal.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-research",
+      "category": "icons",
+      "svg": "icons/icon-research.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-rock",
+      "category": "icons",
+      "svg": "icons/icon-rock.svg",
+      "flat": true,
+      "status": "replaced"
+    },
+    {
+      "id": "icon-water",
+      "category": "icons",
+      "svg": "icons/icon-water.svg",
+      "flat": true,
+      "status": "replaced"
+    }
+  ],
+  "flatAuditSummary": {
+    "sourceCollection": "../ready to use",
+    "date": "2026-10-29",
+    "status": "complete",
+    "totalAssets": 337,
+    "scopeCount": 337,
+    "flatAssets": 333,
+    "preferredFlat": 333,
+    "replaced": 320,
+    "alreadyFlat": 13,
+    "unavailable": 4,
+    "alternatives": 0,
+    "categories": {
+      "cards-conservation": 20,
+      "cards-sponsor": 64,
+      "cards-animal": 128,
+      "cards-base-project": 12,
+      "cards-final-scoring": 11,
+      "card-backs": 3,
+      "cards-action": 10,
+      "boards": 12,
+      "solo": 1,
+      "enclosures": 10,
+      "special-buildings": 5,
+      "unique-buildings": 15,
+      "partner-zoos": 5,
+      "universities": 3,
+      "bonus-tiles": 10,
+      "tokens": 4,
+      "money": 4,
+      "wooden-pieces": 4,
+      "reference-pages": 1,
+      "icons": 15
+    },
+    "uniqueSourceFiles": 264,
+    "coordinateReviewCount": 320,
+    "allOriginalNamesPreserved": true,
+    "allOriginalCanvasesPreserved": true,
+    "noAIOrRedraw": true,
+    "sourcePriority": "Original complete BGA artwork and official DOM composition, otherwise complete original retained",
+    "retainedWithoutEquivalent": [
+      "main-board",
+      "association-board",
+      "bonus-back",
+      "unique-buildings-reference"
+    ]
+  },
+  "flat": false,
+  "noteFlat": "All existing337designs are accounted for. Physical reverse faces/organizers not originally supplied were not invented. Full original references retained when BGA is incomplete."
+}

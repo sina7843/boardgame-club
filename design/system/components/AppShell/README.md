@@ -60,7 +60,7 @@ Types: `AppShellProps` in `components/index.d.ts`. Markup: `.bgv-app > header.bg
 ```js
 h(B.AppShell, {logo:L, user:{initials:'م', name:'مینا'}, messages:{href:'/messages', count:4}, notifications:5, coins:2480, title:'بازی‌ها',
   nav:[{label:'خانه', href:'/'},{label:'بازی‌ها', href:'/games', active:true},{label:'میزها', href:'/tables', turns:3},{label:'تورنمنت‌ها', href:'/tournaments'},{label:'رتبه‌بندی', href:'/ranking'}],
-  dockItems:[{icon:'house', label:'خانه', active:true},{icon:'dices', label:'میزها', turns:3},{icon:'message-circle', label:'پیام‌ها', count:4},{icon:'menu', label:'بیشتر'}],
+  dockItems:[{icon:'house', label:'خانه'},{icon:'dices', label:'میزها', turns:3},{icon:'message-circle', label:'پیام‌ها', count:4},{icon:'menu', label:'بیشتر', active:true}],
   footer:h(B.SiteFooter, {logo:{src:L.srcDark}})},
   h(B.PageHead, {title:'بازی‌ها'}))
 ```

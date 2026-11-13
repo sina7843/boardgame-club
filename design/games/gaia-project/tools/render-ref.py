@@ -6,8 +6,8 @@ from PIL import Image, ImageChops
 html, img, profile = sys.argv[1:4]
 CHROME = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 SCREENS = {  # id: (width, window height, trim the bottom)
-    'Gaia-Table-Desktop': (1440, 2700, False), 'Gaia-Table-Desktop-EN': (1440, 2700, False),
-    'Gaia-Table-Desktop-Dark': (1440, 2700, False),
+    'Gaia-Table-Desktop': (1440, 2320, False), 'Gaia-Table-Desktop-EN': (1440, 2320, False),
+    'Gaia-Table-Desktop-Dark': (1440, 2320, False),
     'Gaia-Turn-Mobile': (390, 844, False), 'Gaia-Tech-Mobile': (390, 844, False),
     'Gaia-Actions-Mobile': (390, 844, False), 'Gaia-Board-Mobile': (390, 844, False),
     'Gaia-Scoring-Mobile': (390, 844, False), 'Gaia-Leech-Mobile': (390, 844, False),

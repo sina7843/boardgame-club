@@ -40,6 +40,7 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 col(
+  cap('همهٔ چیپ‌های یک گروه یک اندازه دارند (اینجا md، ارتفاع ۳۶ پیکسل)'),
   h(B.ChipGroup,{label:'سرعت بازی', options:['همه','زنده','نوبتی'], defaultValue:'زنده'}),
   h(B.ChipGroup,{label:'سبک', scroll:true, value:['کارتی','خانوادگی'], options:[{value:'کارتی',label:'کارتی',icon:'layers'},{value:'استراتژی',label:'استراتژی',icon:'swords'},{value:'خانوادگی',label:'خانوادگی',icon:'heart'},{value:'تیمی',label:'تیمی',icon:'handshake'},{value:'دونفره',label:'دونفره',icon:'users'}]})
 )

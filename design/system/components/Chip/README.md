@@ -25,7 +25,7 @@ Catalog filters (تعداد بازیکن، زمان، سبک), table options, qu
 |---|---|---|
 | `variant` | `'default' \| 'invite'` | invite = transparent slot with a dashed `--heading` border, for empty seats and invitations only. |
 | `selected` | `boolean` | Selected filter chip (navy `--selected` fill, aria-pressed). |
-| `size` | `'sm' \| 'md' \| 'lg'` | sm 28px, md 36px, lg 52px (48px under 900px). |
+| `size` | `'sm' \| 'md' \| 'lg'` | sm 28px (10px sides, 13px text), md 36px (14px sides, 14px text, default), lg 52px (48px under 900px). One size per row or group. |
 | `icon` | `IconName` | Leading 16px icon; in `lg` a 20px icon inside a 36px disc (`bgv-chip__ic`). |
 | `count` | `number` | Muted count after the label. |
 | `href` | `string` | — |
@@ -54,7 +54,11 @@ Rendered with `React.createElement` (`h`) and `Bgv` (`B`); the preview card defi
 
 ```js
 col(
-  row(h(B.Chip,{selected:true, icon:'check'},'زنده'), h(B.Chip,{selected:false},'نوبتی'), h(B.Chip,{icon:'users', count:24},'۲ تا ۴ نفر'), h(B.Chip,{size:'sm'},'خانوادگی'), h(B.Chip,{size:'sm', selected:true},'رتبه‌ای')),
-  row(h(B.Chip,{variant:'invite', icon:'plus'},'صندلی خالی، دعوت کنید'), h(B.Chip,{variant:'invite', size:'sm', icon:'user-plus'},'دعوت دوست'))
+  cap('اندازهٔ md، ارتفاع ۳۶ پیکسل (پیش‌فرض): فیلترها، گزینه‌ها و دعوت'),
+  row(h(B.Chip,{selected:true, icon:'check'},'زنده'), h(B.Chip,{selected:false},'نوبتی'), h(B.Chip,{icon:'users', count:24},'۲ تا ۴ نفر'), h(B.Chip,{variant:'invite', icon:'plus'},'صندلی خالی، دعوت کنید')),
+  cap('اندازهٔ sm، ارتفاع ۲۸ پیکسل: جاهای فشرده، مثل برچسب کارت و دعوت در فهرست'),
+  row(h(B.Chip,{size:'sm'},'خانوادگی'), h(B.Chip,{size:'sm', selected:true},'رتبه‌ای'), h(B.Chip,{variant:'invite', size:'sm', icon:'user-plus'},'دعوت دوست')),
+  cap('اندازهٔ lg، ارتفاع ۵۲ پیکسل (در گوشی ۴۸): فقط ردیف دسته‌بندی صفحهٔ خانه'),
+  row(h(B.Chip,{size:'lg', selected:true, icon:'layout-grid', count:67},'همه'), h(B.Chip,{size:'lg', selected:false, icon:'swords', count:24},'دونفره'), h(B.Chip,{size:'lg', selected:false, icon:'bot', count:9},'با ربات'))
 )
 ```

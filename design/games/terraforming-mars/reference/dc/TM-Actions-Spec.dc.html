@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ترافورمینگ مارس: همهٔ کنش‌ها و جریان‌ها</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../ds/bgv/tokens.css">
+<link rel="stylesheet" href="../ds/bgv/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&amp;family=Manrope:wght@600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.tm{--pick:#E8A642;--tm-red:#E5483F;--tm-blue:#3F8FE5;--tm-green:#4FBF5A;--tm-yellow:#F0C419;--tm-black:#2B2B2B;--tm-prod:#6B3A1C;--tm-plate:rgba(13,26,35,.82);
+ --tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#9A7700;--tm-black-ink:#2B2B2B}
+.tm[data-theme="dark"]{--tm-red-ink:#FF7B70;--tm-blue-ink:#7DB6F5;--tm-green-ink:#7FD98A;--tm-yellow-ink:#F5D04A;--tm-black-ink:#D8D8D8}
+.tm[lang="en"]{font-family:var(--font-latin)}
+.tm-ic{display:inline-block;block-size:18px;inline-size:auto;vertical-align:-4px}
+.tm-num,.tm-costpill,.tm-prodv{unicode-bidi:isolate;direction:ltr}
+/* desktop frame: game column + sticky rail on the right (like BGA) */
+.tm-desk{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:var(--gamebar-h) auto;block-size:auto;min-block-size:900px;align-items:start}
+.tm-desk>.bgv-gamebar{grid-column:1/-1;grid-row:1}
+.tm-main{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:14px;min-inline-size:0}
+.tm-rail{grid-column:2;grid-row:2;position:sticky;inset-block-start:0;max-block-size:100dvh;overflow:auto;display:grid;gap:8px;align-content:start}
+.tm-lang{display:inline-flex;padding:3px;gap:2px;border-radius:var(--radius-sm);background:var(--surface-sunken);box-shadow:var(--shadow-field)}
+.tm-lang button{block-size:30px;padding-inline:10px;border:0;border-radius:6px;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer}
+.tm-lang button[aria-pressed="true"]{background:var(--selected);color:var(--on-selected)}
+/* status / action bar (BGA) */
+.tm-bar{position:sticky;inset-block-start:0;z-index:var(--z-dock);display:flex;flex-direction:column;gap:8px;padding:10px 16px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-card),inset 0 0 0 1px var(--line);font-size:15px;line-height:1.6;color:var(--text)}
+.tm-bar.is-waiting{background:var(--surface-sunken)}
+.tm-bar__row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tm-bar__text{flex:1 1 360px;min-inline-size:0}
+.tm-bar__text b{color:var(--heading);font-weight:900}
+.tm-bar .bgv-btn{white-space:nowrap}
+.tm-bar__hint{margin:0;font-size:12.5px;line-height:1.6;color:var(--text-muted)}
+.tm-costpill{display:inline-flex;align-items:center;gap:3px;padding:0 7px;block-size:24px;border-radius:var(--radius-pill);background:var(--surface-sunken);font-size:13px;font-weight:900;color:var(--heading);vertical-align:middle}
+.tm-costpill .tm-ic{block-size:16px}
+.tm-steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tm-step{display:inline-flex;align-items:center;gap:4px;block-size:24px;padding-inline:8px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:var(--surface-sunken);color:var(--text-muted)}
+.tm-step.is-done{background:var(--success-soft);color:var(--success)}
+.tm-step.is-cur{background:var(--invite-soft);color:var(--heading)}
+.tm-step .bgv-icon{inline-size:14px;block-size:14px}
+/* zones on felt */
+.tm-zone{padding:14px;gap:10px;display:flex;flex-direction:column}
+.tm-zone__head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.tm-zone__head h2{margin:0;font-size:15px;font-weight:900;color:var(--felt-ink)}
+.tm-zone__head small{color:var(--felt-muted);font-size:12.5px}
+.tm-zone__head .bgv-btn{margin-inline-start:auto}
+/* cards: the publisher art, never redrawn; unplayable cards are NOT faded (BGA) */
+.tm-card{position:relative;display:block;margin:0;padding:0;border:0;background:none;border-radius:6px;cursor:pointer;inline-size:var(--cw,140px);flex:none}
+.tm-card>img{display:block;inline-size:100%;block-size:auto;border-radius:6px;box-shadow:0 1px 0 rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.25)}
+.tm-card[data-pick="selectable"]>img{outline:2px dashed var(--pick);outline-offset:2px}
+.tm-card[data-pick="picked"]>img{outline:3px solid var(--pick);outline-offset:2px}
+.tm-card[aria-disabled="true"],.tm-card:disabled{cursor:not-allowed}
+.tm-card:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:4px}
+.tm-card .tm-check{inset-block-start:-8px;inset-inline-end:-8px}
+.tm-check{position:absolute;inline-size:26px;block-size:26px;border-radius:50%;background:var(--pick);color:var(--ink-felt);display:grid;place-items:center;box-shadow:0 0 0 2px var(--ink-felt);z-index:2}
+.tm-check .bgv-icon{inline-size:16px;block-size:16px;stroke-width:3}
+/* hand */
+.tm-hand{display:flex;flex-wrap:wrap;gap:12px 10px;align-items:flex-start}
+.tm-hand--desk{justify-content:center}
+.tm-hcard{display:grid;justify-items:center;gap:5px;inline-size:var(--cw,140px)}
+/* board, shown without its printed TR frame (window = layout.json marsBoard.crop) */
+.tm-board{position:relative;inline-size:100%;aspect-ratio:920/774;overflow:hidden;border-radius:var(--radius-md);background:#05070F}
+.tm-board>.tm-base{position:absolute;display:block;inline-size:111.304%;block-size:auto;left:-5.652%;top:-6.202%;max-inline-size:none}
+.tm-board>.tm-at,.tm-at{position:absolute;transform:translate(-50%,-50%)}
+.tm-tile{inline-size:7.35%;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.tm-cube{inline-size:2%;pointer-events:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+.tm-cube--track{inline-size:2.9%}
+.tm-cube--plaque{inline-size:2.56%}
+.tm-spbtn,.tm-mabtn,.tm-hexbtn{position:absolute;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;cursor:pointer;border-radius:8px}
+.tm-spbtn{inline-size:15.9%;block-size:3.93%}
+.tm-mabtn{inline-size:9.13%;block-size:6.97%}
+.tm-spbtn:hover,.tm-mabtn:hover{box-shadow:0 0 0 3px var(--pick)}
+.tm-spbtn:focus-visible,.tm-mabtn:focus-visible,.tm-hexbtn:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-spbtn:disabled,.tm-mabtn:disabled{cursor:default;box-shadow:none}
+.is-avail{box-shadow:0 0 0 3px var(--pick)!important}
+.tm-hexbtn{inline-size:7.26%;block-size:9.97%;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);border-radius:0}
+.tm-picks{position:absolute;inset:0;inline-size:100%;block-size:100%;pointer-events:none}
+.tm-hex{fill:rgba(232,166,66,.12);stroke:var(--pick);stroke-width:3;stroke-dasharray:8 5;stroke-linejoin:round}
+.tm-hex--picked{fill:rgba(232,166,66,.32);stroke-width:4.5;stroke-dasharray:none}
+.tm-board .tm-check{inline-size:22px;block-size:22px;transform:translate(-50%,-50%)}
+.tm-bonus{position:absolute;transform:translate(-50%,0);display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--felt-control);color:var(--brand-ink);font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px var(--ink-felt);white-space:nowrap}
+.tm-bonus .tm-ic{block-size:14px}
+.tm-boardplate{position:absolute;inset-block-start:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--radius-pill);background:rgba(5,7,15,.72);color:#FFFFFF;font-size:13.5px;font-weight:700;line-height:1.5}
+.tm-boardplate b{font-weight:900}
+.tm-boardplate .tm-ic{block-size:20px}
+.tm-boardplate--start{left:8px}
+.tm-boardplate--end{right:8px}
+/* BGA player dashboard pieces (rail panel and area header) */
+.tm-score{display:grid;place-items:center;align-content:center;inline-size:50px;block-size:50px;flex:none;border-radius:50%;background:var(--tm-prod);color:#FFFFFF;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod);line-height:1}
+.tm-score b{font-size:20px;font-weight:900}
+.tm-score small{font-size:10.5px;font-weight:700;opacity:.92}
+.tm-score--sm{inline-size:42px;block-size:42px}
+.tm-score--sm b{font-size:17px}
+.tm-tr{position:relative;display:inline-grid;place-items:center;inline-size:44px;block-size:34px;flex:none;border-radius:6px;background:url(../assets/games/tm/i-tr.webp) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.tm-tr b{padding:0 4px;border-radius:5px;background:var(--tm-plate);color:#FFFFFF;font-size:15px;font-weight:900;line-height:1.3}
+.tm-handn{display:inline-flex;align-items:center;gap:4px;block-size:34px;padding-inline:8px;border-radius:8px;background:var(--surface-sunken);font-size:15px;font-weight:900;color:var(--heading)}
+.tm-handn .tm-ic{block-size:24px;border-radius:3px}
+.tm-logo{display:flex;align-items:center;flex:none;block-size:34px}
+.tm-logo img{display:block;block-size:100%;inline-size:auto;max-inline-size:132px;object-fit:contain}
+.tm-r{display:grid;justify-items:center;gap:2px}
+.tm-r__ic{display:grid;place-items:center}
+.tm-r__ic .tm-ic{grid-area:1/1;block-size:44px}
+.tm-r__ic b{grid-area:1/1;position:relative;min-inline-size:26px;padding:1px 5px 0;border-radius:7px;background:rgba(13,26,35,.78);color:#FFFFFF;font-size:19px;font-weight:900;line-height:1.3;text-align:center}
+.tm .tm-prodv{min-inline-size:42px;padding:2px 6px;border-radius:6px;background:var(--tm-prod);color:#FFFFFF;font-size:16px;font-weight:900;text-align:center;line-height:1.45;text-shadow:0 1px 0 rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.tm .tm-prodv.is-neg{background:var(--danger)}
+.tm-tags{display:flex;flex-wrap:wrap;gap:5px 4px}
+.tm-tagc{position:relative;display:grid;place-items:center;inline-size:40px;block-size:40px}
+.tm-tagc img{grid-area:1/1;inline-size:100%;block-size:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.tm-tagc b{grid-area:1/1;position:relative;min-inline-size:22px;padding:1px 4px 0;border-radius:6px;background:rgba(13,26,35,.72);color:#FFFFFF;font-family:var(--font-latin);font-size:17px;font-weight:800;line-height:1.25;text-align:center}
+.tm[lang="fa"] .tm-tagc b{font-family:inherit;font-weight:900}
+.tm-tagc.is-zero{opacity:.38}
+.tm-tagc--hex img{inline-size:88%;block-size:auto}
+/* rail */
+.tm-dash{padding:8px 12px;display:grid;gap:6px}
+.tm-dash__tools{display:flex;justify-content:space-between}
+.tm-dash__params{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tm-param{display:grid;justify-items:center;gap:2px;font-size:16px;color:var(--heading)}
+.tm-param .tm-ic{block-size:36px}
+.tm-param b{font-weight:900}
+.tm-panel{padding:10px 12px;display:grid;gap:8px}
+.tm-panel__head{display:flex;align-items:center;gap:8px;min-inline-size:0}
+.tm-panel__id{flex:1;min-inline-size:0;display:grid;line-height:1.35}
+.tm-panel__id b{font-size:15px;font-weight:900;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-panel__id small{font-size:12.5px;color:var(--text-muted)}
+.tm-fp{inline-size:28px;block-size:auto;flex:none}
+.tm-panel__row{display:flex;align-items:center;gap:8px}
+.tm-panel__row .tm-logo{flex:1;min-inline-size:0;justify-content:flex-end}
+.tm-panel__row .tm-logo img{max-inline-size:100%}
+.tm-panel__res{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:8px 3px 6px;border-radius:var(--radius-sm);background:var(--surface-sunken)}
+.tm-log{max-block-size:300px;overflow:auto}
+.tm-log .bgv-log__item{font-size:13.5px}
+.tm-log .tm-ic{block-size:16px}
+/* players area (BGA): header + collapsible sections */
+.tm-player{display:grid;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--felt-plate);box-shadow:inset 0 0 0 2px var(--pc,transparent)}
+/* area header like BGA: light Mars-dust plate in every theme (user choice), dark text */
+.tm-ahead{--tm-red-ink:#C8322A;--tm-blue-ink:#2A72C4;--tm-green-ink:#2E8A3B;--tm-yellow-ink:#8A6A00;--tm-black-ink:#2B2B2B;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:10px 14px;border-radius:var(--radius-sm);background:linear-gradient(180deg,#F6ECDD,#E4CDAE);color:#1E2328;box-shadow:inset 0 0 0 1px rgba(107,58,28,.28),inset 0 1px 0 rgba(255,255,255,.7)}
+.tm-ahead__name{display:inline-flex;align-items:center;block-size:30px;padding-inline:14px;border-radius:15px;background:#F4F5F6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);font-size:16px;font-weight:900}
+.tm-ahead__name small{margin-inline-start:6px;font-size:12.5px;font-weight:700;color:#4A535B}
+.tm-ahead .tm-logo{block-size:44px}
+.tm-ahead .tm-score{inline-size:58px;block-size:58px;box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px var(--tm-prod)}
+.tm-ahead .tm-score b{font-size:23px}
+.tm-ahead .tm-score small{font-size:11.5px}
+.tm-ahead .tm-tr{inline-size:58px;block-size:44px}
+.tm-ahead .tm-tr b{font-size:19px}
+.tm-ahead .tm-handn{block-size:46px;padding-inline:10px;gap:6px;background:#FFFFFF;color:#1E2328;font-size:20px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-handn .tm-ic{block-size:34px}
+.tm-ahead__res{display:flex;gap:10px;flex-wrap:wrap}
+.tm-rs{display:flex;align-items:stretch}
+.tm-rs>.tm-ic{block-size:46px;border-radius:4px}
+.tm-rs__nums{display:grid;grid-template-rows:1fr auto;min-inline-size:42px}
+.tm-rs__nums b{display:grid;place-items:center;padding-inline:4px;border-start-end-radius:4px;background:#FFFFFF;color:#1E2328;font-size:19px;font-weight:900;line-height:1.2;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.tm-ahead .tm-rs__nums .tm-prodv{min-inline-size:0;padding:1px 5px;border-radius:0;border-end-end-radius:4px;font-size:15px}
+.tm-ahead .tm-tagc{inline-size:40px;block-size:40px}
+.tm-ahead .tm-tagc b{font-size:17px;min-inline-size:22px}
+.tm-ahead .tm-tagc.is-zero{opacity:.4}
+.tm-ahead .tm-tags{gap:5px 4px}
+.tm-ahead__tags{flex-basis:100%}
+.tm-secs{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.tm-sec{display:grid;gap:8px;align-content:start;inline-size:calc(var(--cw) + 20px);padding:0 0 10px;border-radius:var(--radius-sm);border:1.5px dashed var(--felt-line)}
+.tm-sec__head{display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:var(--sec-bg);color:#FFFFFF}
+.tm-sec--grey{--sec-bg:#5E6A72}.tm-sec--green{--sec-bg:#3E8E3A}.tm-sec--blue{--sec-bg:#2F6FB0}.tm-sec--red{--sec-bg:#B23A31}
+.tm-sec__toggle{flex:1;min-inline-size:0;display:flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
+.tm-sec__n{display:grid;place-items:center;min-inline-size:26px;block-size:26px;border-radius:6px;background:rgba(0,0,0,.28);font-weight:900;font-size:14px}
+.tm-sec__t{display:grid;line-height:1.25}
+.tm-sec__t b{font-size:15px;font-weight:900}
+.tm-sec__t small{font-size:11.5px;opacity:.88}
+.tm-sec__menu{display:grid;place-items:center;inline-size:30px;block-size:30px;padding:0;border:0;border-radius:6px;background:rgba(255,255,255,.14);color:#FFFFFF;cursor:pointer}
+.tm-sec__menu .bgv-icon{inline-size:18px;block-size:18px}
+.tm-sec__toggle:focus-visible,.tm-sec__menu:focus-visible{outline:3px solid var(--focus-on-felt);outline-offset:2px}
+.tm-sec.is-closed{padding:0;inline-size:auto;border-style:solid}
+.tm-sec__body{padding-inline:10px}
+.tm-grid{display:grid;gap:8px;justify-items:center}
+.tm-stack{display:flex;flex-direction:column;align-items:center}
+.tm-sec__body>.tm-card{inline-size:var(--cw)}
+.tm-stack>.tm-card+.tm-card{margin-block-start:calc(var(--cw) * -1.406 * (1 - var(--band)))}
+.tm-stack--blue{--band:.46}
+.tm-stack--green{--band:.19}
+.tm-stack--red{--band:.13}
+.tm-stack>.tm-card:hover,.tm-stack>.tm-card:focus-visible{z-index:3}
+.tm-cres{position:absolute;inset-block-start:30%;inset-inline-end:6%;display:inline-flex;align-items:center;gap:2px;padding:1px 6px 1px 2px;border-radius:var(--radius-pill);background:var(--tm-plate);color:#FFFFFF;font-size:13px;font-weight:900;direction:ltr}
+.tm-cres .tm-ic{block-size:20px}
+.tm-card>img.tm-cused{position:absolute;inset-block-start:4%;inset-inline-start:4%;inline-size:15%;block-size:auto;box-shadow:none;border-radius:0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+/* payment (Game Kit 3 dock content) */
+.tm-pay{display:grid;gap:6px}
+.tm-payrow{display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:8px;font-size:14px}
+.tm-payrow .tm-ic{block-size:22px}
+.tm-payrow b{font-weight:900;color:var(--heading)}
+.tm-payrow small{color:var(--text-muted);font-size:12.5px}
+.tm-payrow.is-off{opacity:.45}
+.tm-paysum{display:flex;justify-content:space-between;font-size:13.5px;color:var(--text);padding-block-start:4px;border-block-start:1px solid var(--line)}
+.tm-paysum b{font-weight:900;color:var(--success)}
+.tm-spec{padding:32px 40px;display:grid;gap:22px;background:var(--surface-sunken);color:var(--text);font-size:14px;line-height:1.75}
+.tm-spec h1{margin:0;font-size:28px;font-weight:900;color:var(--heading)}
+.tm-spec h2{margin:0 0 8px;font-size:18px;font-weight:900;color:var(--heading)}
+.tm-spec p{margin:0}
+.tm-spec .bgv-card{padding:18px 20px;display:grid;gap:10px}
+.tm-spec table{inline-size:100%;border-collapse:collapse;font-size:13px;line-height:1.6}
+.tm-spec th,.tm-spec td{padding:7px 8px;border-block-end:1px solid var(--line);text-align:start;vertical-align:top}
+.tm-spec th{font-weight:700;color:var(--label);font-size:12.5px;background:var(--surface-sunken)}
+.tm-spec code{font-family:ui-monospace,Consolas,monospace;font-size:12px;padding:1px 5px;border-radius:5px;background:var(--surface-sunken);color:var(--heading);direction:ltr;unicode-bidi:isolate}
+.tm-spec ul{margin:0;padding-inline-start:20px;display:grid;gap:4px}
+.tm-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.tm-g1{display:grid;gap:18px}
+.tm-g1 .tm-measure{max-inline-size:1024px;justify-self:center}
+.tm-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.tm-flow{display:grid;gap:8px;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken)}
+.tm-flow b{color:var(--heading)}
+.tm-mini{position:static}
+.tm-measure{position:relative;inline-size:100%;border-radius:var(--radius-md);overflow:hidden}
+.tm-measure>img{display:block;inline-size:100%;block-size:auto}
+.tm-dot{position:absolute;transform:translate(-50%,-50%);min-inline-size:18px;block-size:18px;padding:0 3px;border-radius:9px;background:rgba(13,26,35,.85);color:#FFFFFF;font:700 10px/18px var(--font-latin);text-align:center;box-shadow:0 0 0 1px #FFFFFF;direction:ltr}
+.tm-dot--s{min-inline-size:8px;block-size:8px;padding:0;border-radius:50%;background:#E8A642;box-shadow:0 0 0 1px #0D1A23}
+.tm-box{position:absolute;transform:translate(-50%,-50%);border:2px dashed #E8A642;border-radius:6px}
+.tm-box--crop{border:3px dashed #5AA9F0;border-radius:0}
+.tm-legend{display:grid;gap:4px;font-size:13px}
+.tm-pickzone{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start}
+.tm-corppick{display:grid;gap:10px;--cw:250px}
+.tm-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--felt-ink);font-size:14px}
+.tm-sum b{font-weight:900}
+.tm-ready{display:flex;gap:6px;flex-wrap:wrap}
+.tm-ready span{display:inline-flex;align-items:center;gap:5px;block-size:28px;padding-inline:9px;border-radius:var(--radius-pill);background:var(--felt-plate);color:var(--felt-ink);font-size:12.5px;font-weight:700}
+.tm-ready span .bgv-icon{inline-size:14px;block-size:14px;color:var(--success)}
+</style>
+</helmet>
+<div class="bgv tm" data-theme="light" dir="rtl" lang="fa" style="min-height: 2400px;">
+<div class="tm-spec" dir="rtl">
+<h1>ترافورمینگ مارس: نوار کنش و همهٔ جریان‌ها</h1>
+<p>همه از <code>rules.ts</code> (<code>legalActions</code>، <code>validateAction</code>) و <code>core.ts</code> (<code>playError</code>، <code>projectCost</code>، <code>autoPay</code>، <code>legalSpaces</code>). رندرر قانون را تکرار نمی‌کند: دکمه‌ها از <code>legalActions</code>، دلیل غیرفعال از کد خطا، جای مجاز از <code>respond.options</code>.</p>
+<div class="tm-g2">
+ <section class="bgv-card"><h2>ساختار نوبت</h2><ul>
+  <li>هر نسل: <b>پژوهش</b> (هم‌زمان؛ با «درفت» اگر میزبان روشن کند) ← <b>کنش‌ها</b> (به ترتیب نوبت، ۱ یا ۲ کنش، تا همه پاس دهند) ← <b>تولید</b> (خودکار، فقط در گزارش).</li>
+  <li>نسل ۱: انتخاب شرکت و ۱۰ کارت هم‌زمان و پنهان؛ اگر شرکت کنش اول دارد (جمهوری تارسیس: شهر، اینونتریکس: ۳ کارت) نوار فقط همان را نشان می‌دهد.</li>
+  <li>بعد از کنش اول: «پایان نوبت» یا کنش دوم. «پاس» یعنی بیرون تا آخر نسل.</li>
+  <li>وقتی دما، اکسیژن و اقیانوس کامل شد: دور پایانی فضای سبز، فقط «گیاه ← فضای سبز» و «پاس».</li>
+  <li><b>برگشت فقط پیش از «تأیید».</b> انتخاب کارت، پرداخت و انتخاب پلاک تا تأیید موقت‌اند و «برگرد» یکی‌یکی برمی‌گرداند. بعد از تأیید برگشت نیست. <b>تأیید خودکار نداریم.</b></li>
+  <li>تصمیم‌هایی که بعد از تأیید از موتور می‌آیند (جای کاشی، هدف، انتخاب) برگشت ندارند، اما تا «تأیید» خودشان می‌شود گزینهٔ دیگری زد.</li>
+ </ul></section>
+ <section class="bgv-card"><h2>پرداخت (کیت ۳، داک چندمرحله‌ای)</h2><ul>
+  <li>پیش‌فرض = <code>autoPay</code> موتور: تیتانیوم و فولاد بدون اضافه‌پرداخت، بعد مگاکردیت، بعد گرمای هلیون.</li>
+  <li>کاربر فولاد/تیتانیوم/گرما را با − و + عوض می‌کند؛ مگاکردیت بقیه را پر می‌کند. ارزش هر واحد از <code>values()</code> (پیشرفته: فولاد ۳، تیتانیوم ۴).</li>
+  <li>فولاد فقط برای نشان ساختمان، تیتانیوم فقط نشان فضا (<code>legalActions</code>: <code>steel</code>، <code>titanium</code>)؛ ردیف غیرمجاز کم‌رنگ با دلیل.</li>
+  <li>اضافه‌پرداخت با فولاد/تیتانیوم پس داده نمی‌شود: دکمهٔ تأیید قرمز با متن «اضافه‌پرداخت ۱» مثل BGA. خطای سرور: <code>BAD_PAYMENT</code>.</li>
+ </ul>
+ <div class="tm-flow"><b>نمونه روی دسکتاپ (نوار، بعد از زدن «دهانهٔ گنبدی»):</b>
+  <div class="tm-bar tm-mini"><div class="tm-bar__row"><span class="tm-steps"><span class="tm-step is-done"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>کارت</span><span class="tm-step is-cur">پرداخت</span><span class="tm-step">تأیید</span></span><span class="tm-bar__text">بازی <b>دهانهٔ گنبدی</b> <span class="tm-costpill">۲۴<img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""></span>: <img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""> <b>۲</b> (۴) + <img src="../assets/games/tm/i-mc.webp" class="tm-ic" alt=""> <b>۲۰</b></span></div>
+  <div class="tm-bar__row"><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button">− <img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""></button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button" disabled="">+ <img src="../assets/games/tm/i-steel.webp" class="tm-ic" alt=""></button><span class="bgv-spacer"></span><button class="bgv-btn bgv-btn--primary bgv-btn--sm" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>تأیید</button><button class="bgv-btn bgv-btn--secondary bgv-btn--sm" type="button"><svg class="bgv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></svg>برگرد</button><button class="bgv-btn bgv-btn--ghost bgv-btn--sm" type="button">لغو کنش</button></div></div>
+ </div></section>
+</div>
+<section class="bgv-card"><h2>همهٔ کنش‌ها</h2><table><thead><tr><th>کنش</th><th>کجا</th><th>هزینه از</th><th>مراحل</th><th>حرکت</th><th>خطاهای ممکن (دلیل غیرفعال)</th></tr></thead><tbody><tr><td>بازی کارت</td><td>دست (کارت با حلقه) یا «بازی کارت» در نوار</td><td><code>cost</code> در <code>legalActions</code> (بعد از تخفیف)؛ فولاد اگر <code>steel</code>، تیتانیوم اگر <code>titanium</code>؛ هلیون: گرما</td><td>کارت ← پرداخت ← تأیید ← تصمیم‌های کارت</td><td><code>play {card, pay}</code></td><td>REQUIREMENTS_NOT_MET, CANNOT_AFFORD, PRODUCTION_TOO_LOW, NOT_ENOUGH_RESOURCES, NO_TARGET, CANNOT_PLAY, NO_SPACE</td></tr><tr><td>کنش کارت آبی یا شرکت</td><td>روی کارت در تابلو (حلقهٔ کهربایی) یا «کنش کارت»</td><td><code>action.cost</code>، <code>payWith</code></td><td>کارت ← (پرداخت) ← تأیید ← تصمیم</td><td><code>cardAction {card, pay}</code></td><td>ACTION_USED, CANNOT_USE, CANNOT_AFFORD</td></tr><tr><td>پروژهٔ استاندارد</td><td>پنل چاپ‌شده روی صفحهٔ مریخ یا نوار</td><td><code>projectCost</code> (تورگیت: نیروگاه ۸)</td><td>پروژه ← (فروش: انتخاب کارت‌ها) ← پرداخت ← تأیید ← جای کاشی</td><td><code>project {project, pay, cards}</code></td><td>PARAMETER_MAXED, NO_SPACE, CANNOT_AFFORD, BAD_CARDS</td></tr><tr><td>ثبت نقطهٔ عطف</td><td>پلاک روی صفحه یا نوار</td><td><code>MILESTONE_COST</code> = ۸</td><td>پلاک ← پرداخت ← تأیید</td><td><code>milestone {id, pay}</code></td><td>MILESTONE_TAKEN, MILESTONE_NOT_REACHED, CANNOT_AFFORD</td></tr><tr><td>تأمین جایزه</td><td>پلاک روی صفحه یا نوار</td><td><code>AWARD_COSTS[awards.length]</code> = ۸ / ۱۴ / ۲۰</td><td>پلاک ← پرداخت ← تأیید</td><td><code>award {id, pay}</code></td><td>AWARD_TAKEN, CANNOT_AFFORD</td></tr><tr><td>گیاه ← فضای سبز</td><td>جعبهٔ گیاه صفحهٔ بازیکن یا نوار</td><td><code>greeneryPlants</code> (۸؛ اکولاین ۷)</td><td>تأیید ← جای فضای سبز</td><td><code>convertPlants</code></td><td>CANNOT_CONVERT</td></tr><tr><td>گرما ← دما</td><td>جعبهٔ گرما یا نوار</td><td>۸ گرما</td><td>تأیید</td><td><code>convertHeat</code></td><td>CANNOT_CONVERT</td></tr><tr><td>کنش اول شرکت</td><td>تنها دکمهٔ نوار در اولین نوبت</td><td>—</td><td>تأیید</td><td><code>firstAction</code></td><td>FIRST_ACTION_REQUIRED (برای هر کنش دیگر)</td></tr><tr><td>پایان نوبت</td><td>نوار، فقط بعد از کنش اول</td><td>—</td><td>یک زدن</td><td><code>endTurn</code></td><td>NO_ACTION_TAKEN</td></tr><tr><td>پاس</td><td>نوار</td><td>—</td><td>تأیید (با پرسش «تا آخر نسل»)</td><td><code>pass</code></td><td>—</td></tr><tr><td>انتخاب آغازین</td><td>ناحیهٔ دست</td><td>۳ × کارت؛ شرکت تازه‌کار رایگان</td><td>شرکت + کارت‌ها ← تأیید</td><td><code>corp {corp, cards}</code></td><td>ALREADY_CHOSEN, BAD_CARDS, CANNOT_AFFORD</td></tr><tr><td>درفت</td><td>ناحیهٔ دست</td><td>—</td><td>کارت ← نگه دار</td><td><code>draft {card}</code></td><td>ALREADY_CHOSEN, BAD_CARDS</td></tr><tr><td>پژوهش</td><td>ناحیهٔ دست</td><td>۳ × کارت؛ سقف <code>max</code> در <code>legalActions</code></td><td>کارت‌ها ← تأیید</td><td><code>research {cards}</code></td><td>ALREADY_CHOSEN, BAD_CARDS, CANNOT_AFFORD</td></tr><tr><td>پاسخ به تصمیم</td><td>داک/نوار + روی صفحه</td><td>—</td><td>انتخاب ← تأیید</td><td><code>respond {space | seat | card | index | cards | amount | skip}</code></td><td>BAD_SPACE, BAD_TARGET, BAD_CHOICE, BAD_CARDS, BAD_AMOUNT, NOT_OPTIONAL</td></tr></tbody></table></section>
+<div class="tm-g2">
+ <section class="bgv-card"><h2>تصمیم‌های میانی (<code>prompt.kind</code>)</h2><p>جملهٔ نوار = <code>labelFa</code> موتور. اگر <code>optional</code>، دکمهٔ «رد کردن» (<code>skip</code>). تصمیم بازیکن دیگر: نوار خاکستری «سارا در حال تصمیم» (<code>promptSeat</code>).</p><table><thead><tr><th>نوع</th><th>کی</th><th>نمایش</th></tr></thead><tbody><tr><td><code>space</code></td><td>گذاشتن کاشی (اقیانوس، فضای سبز، شهر، ویژه) یا نشانهٔ ادعا</td><td>خانه‌های <code>options</code> روی صفحهٔ مریخ با خط‌چین کهربایی و پاداش چاپ‌شده؛ گوشی خودکار روی آن‌ها زوم می‌کند</td></tr><tr><td><code>player</code></td><td>برداشتن منبع یا کاهش تولید یک بازیکن</td><td>دکمهٔ هر بازیکن مجاز با رنگش و مقدارش؛ اگر <code>optional</code>، «هیچ‌کس»</td></tr><tr><td><code>card</code></td><td>افزودن منبع به یکی از کارت‌های شما</td><td>همان کارت‌های تابلو انتخاب‌پذیر (کیت ۱)</td></tr><tr><td><code>choice</code></td><td>یکی از چند اثر کارت</td><td>دکمه با متن <code>options</code> موتور (مثل «۲ میکروب بردارید: اکسیژن ۱ پله»)</td></tr><tr><td><code>cards</code></td><td>انتخاب چند کارت از کارت‌های دیده‌شده</td><td>کارت‌ها در ناحیهٔ دست، چندانتخابی بین <code>min</code> و <code>max</code></td></tr><tr><td><code>amount</code></td><td>یک عدد (مثلاً چقدر گرما خرج شود)</td><td>شمارنده با − و + بین <code>min</code> و <code>max</code></td></tr></tbody></table></section>
+ <section class="bgv-card"><h2>دلیل غیرفعال (کد ← متن)</h2><table><thead><tr><th>کد موتور</th><th>متن زیر دکمه/کارت</th></tr></thead><tbody><tr><td><code>REQUIREMENTS_NOT_MET</code></td><td>شرط کارت برقرار نیست</td></tr><tr><td><code>CANNOT_AFFORD</code></td><td>پول کافی ندارید (با فولاد/تیتانیوم/گرمای مجاز)</td></tr><tr><td><code>NO_SPACE</code></td><td>جای مجاز روی نقشه نیست</td></tr><tr><td><code>PRODUCTION_TOO_LOW</code></td><td>تولید برای این کاهش کافی نیست</td></tr><tr><td><code>NOT_ENOUGH_RESOURCES</code></td><td>منبع لازم را ندارید</td></tr><tr><td><code>NO_TARGET</code></td><td>هیچ بازیکنی این تولید را ندارد</td></tr><tr><td><code>PARAMETER_MAXED</code></td><td>این پارامتر کامل شده</td></tr><tr><td><code>ACTION_USED</code></td><td>این نسل استفاده شده</td></tr><tr><td><code>MILESTONE_TAKEN</code></td><td>ثبت شده (نام صاحب)</td></tr><tr><td><code>MILESTONE_NOT_REACHED</code></td><td>هنوز نرسیده‌اید (مقدار شما از نیاز)</td></tr><tr><td><code>AWARD_TAKEN</code></td><td>تأمین شده (نام تأمین‌کننده)</td></tr><tr><td><code>CANNOT_CONVERT</code></td><td>گیاه/گرمای کافی ندارید یا جای مجاز نیست</td></tr><tr><td><code>NOT_YOUR_TURN</code></td><td>نوبت شما نیست</td></tr><tr><td><code>FIRST_ACTION_REQUIRED</code></td><td>اول کنش شرکتتان</td></tr></tbody></table></section>
+</div>
+<div class="tm-g3">
+ <section class="bgv-card"><h2>خارج از نوبت</h2><p>نوار خاکستری «نوبت سارا» با ساعت او. دست، تابلو و صفحه‌ها دیدنی و بزرگ‌نمایی‌پذیرند ولی هیچ کنشی زدنی نیست.</p></section>
+ <section class="bgv-card"><h2>مرحله‌های هم‌زمان</h2><p>انتخاب آغازین، درفت و پژوهش: کنار هر بازیکن «آماده» یا «در حال انتخاب» (<code>ready</code> در view). انتخاب شما تا «تأیید» با «برگرد» عوض می‌شود؛ بعد از آن <code>ALREADY_CHOSEN</code>.</p></section>
+ <section class="bgv-card"><h2>پایان زمان</h2><p>متن قانون از <code>timeoutPolicyFa</code>: در کنش‌ها تصمیم‌های باز با اولین گزینه بسته می‌شوند و بازیکن پاس می‌دهد؛ در پژوهش کارتی خریده نمی‌شود.</p></section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2400}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

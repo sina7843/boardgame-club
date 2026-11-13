@@ -1,0 +1,97 @@
+{
+ "note": "Sizes in CSS px at the reference widths. Board grid is always dir=ltr. Desktop frame = DS table frame (rail | felt | chat).",
+ "desktop": {
+  "frame": [
+   1440,
+   900
+  ],
+  "columns": {
+   "rail": 380,
+   "felt": "minmax(0,1fr)",
+   "chat": 340
+  },
+  "gamebar": 56,
+  "board": 688,
+  "square": 86,
+  "playerBar": 52,
+  "feltPadding": [
+   12,
+   16
+  ],
+  "gap": 8,
+  "breakpoints": {
+   "chatToButton": 1199,
+   "phone": 899
+  }
+ },
+ "phone": {
+  "frame": [
+   390,
+   844
+  ],
+  "board": 390,
+  "square": 48.75,
+  "playerBar": 46,
+  "dock": {
+   "columns": 5,
+   "items": [
+    "گزینه‌ها",
+    "مساوی",
+    "تسلیم",
+    "قبلی",
+    "بعدی"
+   ]
+  },
+  "moveStrip": true
+ },
+ "board": {
+  "coordinates": {
+   "rank": "inside left column, top-left of square",
+   "file": "inside bottom row, bottom-right of square",
+   "font": "Manrope 700, 20% of square"
+  },
+  "overlays": {
+   "lastMove": "rgba(245,230,99,.55)",
+   "selected": "rgba(245,230,99,.72)",
+   "legalDot": "circle 28% of square, rgba(0,0,0,.16)",
+   "capture": "ring 7.5% of square, rgba(0,0,0,.16)",
+   "check": "radial #E5484D .95→0 at 70%",
+   "premove": "rgba(229,72,77,.45)",
+   "hover": "inset white frame 6% of square",
+   "arrow": "#F29E2E @ 80%"
+  },
+  "promotion": "white column over the target file from the far edge: Q, N, R, B (rows = 1 square each), ✕ half a square; board dimmed rgba(0,0,0,.38)"
+ },
+ "piece": {
+  "set": "classic",
+  "fill": "100% of square (art has its own margins)",
+  "capturedIcon": 20,
+  "capturedOverlap": -7,
+  "capturedChip": "light chip #E9E4DA only behind BLACK captured pieces"
+ },
+ "clock": {
+  "width": {
+   "desktop": 136,
+   "phone": 104
+  },
+  "height": {
+   "desktop": 46,
+   "phone": 38
+  },
+  "digits": "Peyda 900, Persian digits, fixed-width box, no tabular-nums",
+  "states": [
+   "pre",
+   "idle",
+   "run",
+   "warn",
+   "crit",
+   "flag",
+   "off"
+  ],
+  "thresholds": {
+   "warn": "max(20% of base, 20 s)",
+   "crit": "10 s",
+   "tenthsBelow": "10 s"
+  }
+ }
+}

@@ -1,0 +1,88 @@
+{
+ "note": "Owner decision 2026-11-07: main row 1/3/5/10 min without increment; increments only under «زمان‌های بیشتر» (friend games and tournaments). Class = FIDE estimate base + 60 × increment (repo clockClass).",
+ "main": [
+  {
+   "value": "1+0",
+   "fa": "۱ دقیقه",
+   "class": "bullet",
+   "classFa": "بولت",
+   "quickPairing": true
+  },
+  {
+   "value": "3+0",
+   "fa": "۳ دقیقه",
+   "class": "blitz",
+   "classFa": "بلیتس",
+   "quickPairing": true
+  },
+  {
+   "value": "5+0",
+   "fa": "۵ دقیقه",
+   "class": "blitz",
+   "classFa": "بلیتس",
+   "quickPairing": true,
+   "default": true
+  },
+  {
+   "value": "10+0",
+   "fa": "۱۰ دقیقه",
+   "class": "rapid",
+   "classFa": "رپید",
+   "quickPairing": true
+  }
+ ],
+ "more": [
+  {
+   "value": "1+1",
+   "fa": "۱ + ۱",
+   "class": "bullet",
+   "classFa": "بولت",
+   "quickPairing": false,
+   "note": "not in definition.ts yet: add it"
+  },
+  {
+   "value": "3+2",
+   "fa": "۳ + ۲",
+   "class": "blitz",
+   "classFa": "بلیتس",
+   "quickPairing": false
+  },
+  {
+   "value": "5+3",
+   "fa": "۵ + ۳",
+   "class": "blitz",
+   "classFa": "بلیتس",
+   "quickPairing": false
+  },
+  {
+   "value": "10+5",
+   "fa": "۱۰ + ۵",
+   "class": "rapid",
+   "classFa": "رپید",
+   "quickPairing": false
+  }
+ ],
+ "adminOnly": [
+  "2+1",
+  "15+10",
+  "30+0",
+  "45+15",
+  "60+30",
+  "90+30",
+  "5/4+0 (Armageddon)"
+ ],
+ "competition": {
+  "labelFa": "نوع رقابت",
+  "options": [
+   {
+    "value": "friendly",
+    "fa": "دوستانه"
+   },
+   {
+    "value": "ranked",
+    "fa": "رتبه‌دار"
+   }
+  ],
+  "source": "apps/web/src/pages/QuickMatch.tsx (existing control and wording)"
+ }
+}

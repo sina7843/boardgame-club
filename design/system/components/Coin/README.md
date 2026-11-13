@@ -6,11 +6,11 @@ Wallet, shop prices, rewards; the chip shows the balance in the account menu (de
 
 ## Props / what the consumer provides
 
-`amount` (number → «۲٬۴۸۰»), `size` (`sm` top bar, md inline, `lg` wallet hero), `unit` to add the word «سکه», `chip` for the balance chip and `href` to link it to the wallet.
+`amount` (number → «۲,۴۸۰»), `size` (`sm` top bar, md inline, `lg` wallet hero), `unit` to add the word «سکه», `chip` for the balance chip and `href` to link it to the wallet.
 
 | Prop | Type | Description |
 |---|---|---|
-| `amount` | `number \| string` | Amount; rendered with Persian digits and «٬». |
+| `amount` | `number \| string` | Amount; rendered with Persian digits and «,». |
 | `size` | `'sm' \| 'md' \| 'lg'` | sm 14px coin (top bar), md 18px (inherits text size), lg 32px coin / 28px number (wallet). Coins are real metallic gold (--coin-light/--coin/--coin-dark). |
 | `unit` | `boolean \| string` | Append the unit word («سکه» when true). |
 | `chip` | `boolean` | Wallet balance chip (.bgv-coinchip) for the account menu and the phone top bar. |

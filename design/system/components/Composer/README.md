@@ -28,6 +28,7 @@ Everything else (`className`, `style`, `id`, `aria-*`, `data-*`, event handlers)
 
 **Do**
 
+- The send button is on the RIGHT, the field in the middle, the emoji button on the LEFT (v2.4.1, owner rule; physical in RTL and LTR). The DS does it with CSS `order`, so the DOM order stays emoji, field, send and Tab still goes field → send.
 - Placeholder «پیام به میز… (@ برای نام بردن)».
 - Quick messages are context-aware (UNO: «اونو!», Catan: «کسی گندم داره؟»).
 - The send icon is mirrored for RTL.

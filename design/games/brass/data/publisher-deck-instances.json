@@ -1,0 +1,993 @@
+[
+  {
+    "players": 2,
+    "drawCount": 40,
+    "totalIncludingWildAndAids": 52,
+    "cards": [
+      {
+        "instanceId": "birmingham-1",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-2",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-3",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-1",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-2",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "walsall-1",
+        "assetId": "card-walsall",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "burton-on-trent-1",
+        "assetId": "card-burton-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "burton-on-trent-2",
+        "assetId": "card-burton-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wolverhampton-1",
+        "assetId": "card-wolverhampton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wolverhampton-2",
+        "assetId": "card-wolverhampton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-1",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-2",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-3",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-4",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-1",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-2",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-3",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-4",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-5",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stafford-1",
+        "assetId": "card-stafford",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stafford-2",
+        "assetId": "card-stafford",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cannock-1",
+        "assetId": "card-cannock",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cannock-2",
+        "assetId": "card-cannock",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "tamworth-1",
+        "assetId": "card-tamworth",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-1",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-2",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-3",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-1",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-2",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "dudley-1",
+        "assetId": "card-dudley",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "dudley-2",
+        "assetId": "card-dudley",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-1",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-2",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-3",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "kidderminster-1",
+        "assetId": "card-kidderminster",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "kidderminster-2",
+        "assetId": "card-kidderminster",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "worcester-1",
+        "assetId": "card-worcester",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "worcester-2",
+        "assetId": "card-worcester",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "redditch-1",
+        "assetId": "card-redditch",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "nuneaton-1",
+        "assetId": "card-nuneaton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-1",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-2",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-3",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-4",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-1",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-2",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-3",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-4",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "player-aid-1",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-2",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-3",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-4",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      }
+    ]
+  },
+  {
+    "players": 3,
+    "drawCount": 54,
+    "totalIncludingWildAndAids": 66,
+    "cards": [
+      {
+        "instanceId": "cotton-manufacturer-1-1",
+        "assetId": "card-cotton-manufacturer-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-1",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-2",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-3",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-2-1",
+        "assetId": "card-cotton-manufacturer-2",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-1",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-2",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stone-1",
+        "assetId": "card-stone",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stone-2",
+        "assetId": "card-stone",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "walsall-1",
+        "assetId": "card-walsall",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "burton-on-trent-1",
+        "assetId": "card-burton-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "burton-on-trent-2",
+        "assetId": "card-burton-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wolverhampton-1",
+        "assetId": "card-wolverhampton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wolverhampton-2",
+        "assetId": "card-wolverhampton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-1",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-2",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-3",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-4",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-1",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-2",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-3",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-4",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-5",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stafford-1",
+        "assetId": "card-stafford",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stafford-2",
+        "assetId": "card-stafford",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cannock-1",
+        "assetId": "card-cannock",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cannock-2",
+        "assetId": "card-cannock",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "tamworth-1",
+        "assetId": "card-tamworth",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stoke-on-trent-1",
+        "assetId": "card-stoke-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stoke-on-trent-2",
+        "assetId": "card-stoke-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stoke-on-trent-3",
+        "assetId": "card-stoke-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-1",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-2",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-3",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-1",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-2",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "dudley-1",
+        "assetId": "card-dudley",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "dudley-2",
+        "assetId": "card-dudley",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-1",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-2",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-3",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-4",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "uttoxeter-1",
+        "assetId": "card-uttoxeter",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-1",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-2",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-3",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "kidderminster-1",
+        "assetId": "card-kidderminster",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "kidderminster-2",
+        "assetId": "card-kidderminster",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "worcester-1",
+        "assetId": "card-worcester",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "worcester-2",
+        "assetId": "card-worcester",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "leek-1",
+        "assetId": "card-leek",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "leek-2",
+        "assetId": "card-leek",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "redditch-1",
+        "assetId": "card-redditch",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "nuneaton-1",
+        "assetId": "card-nuneaton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-1",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-2",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-3",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-4",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-1",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-2",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-3",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-4",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "player-aid-1",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-2",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-3",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-4",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      }
+    ]
+  },
+  {
+    "players": 4,
+    "drawCount": 64,
+    "totalIncludingWildAndAids": 76,
+    "cards": [
+      {
+        "instanceId": "derby-1",
+        "assetId": "card-derby",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "derby-2",
+        "assetId": "card-derby",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "derby-3",
+        "assetId": "card-derby",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-1-1",
+        "assetId": "card-cotton-manufacturer-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-1-2",
+        "assetId": "card-cotton-manufacturer-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-1",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-2",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "birmingham-3",
+        "assetId": "card-birmingham",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-2-1",
+        "assetId": "card-cotton-manufacturer-2",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-2-2",
+        "assetId": "card-cotton-manufacturer-2",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-1",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-2",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "pottery-3",
+        "assetId": "card-pottery",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stone-1",
+        "assetId": "card-stone",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stone-2",
+        "assetId": "card-stone",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "walsall-1",
+        "assetId": "card-walsall",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "burton-on-trent-1",
+        "assetId": "card-burton-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "burton-on-trent-2",
+        "assetId": "card-burton-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wolverhampton-1",
+        "assetId": "card-wolverhampton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wolverhampton-2",
+        "assetId": "card-wolverhampton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-1",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-2",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-3",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "iron-1-4",
+        "assetId": "card-iron-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-1",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-2",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-3",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-4",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "brewery-1-5",
+        "assetId": "card-brewery-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stafford-1",
+        "assetId": "card-stafford",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stafford-2",
+        "assetId": "card-stafford",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cannock-1",
+        "assetId": "card-cannock",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cannock-2",
+        "assetId": "card-cannock",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "tamworth-1",
+        "assetId": "card-tamworth",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stoke-on-trent-1",
+        "assetId": "card-stoke-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stoke-on-trent-2",
+        "assetId": "card-stoke-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "stoke-on-trent-3",
+        "assetId": "card-stoke-on-trent",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-1",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-2",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coventry-3",
+        "assetId": "card-coventry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-1",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-2",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coal-1-3",
+        "assetId": "card-coal-1",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "dudley-1",
+        "assetId": "card-dudley",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "dudley-2",
+        "assetId": "card-dudley",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-1",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-2",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-3",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "cotton-manufacturer-3-4",
+        "assetId": "card-cotton-manufacturer-3",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "uttoxeter-1",
+        "assetId": "card-uttoxeter",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "uttoxeter-2",
+        "assetId": "card-uttoxeter",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-1",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-2",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "coalbrookdale-3",
+        "assetId": "card-coalbrookdale",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "kidderminster-1",
+        "assetId": "card-kidderminster",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "kidderminster-2",
+        "assetId": "card-kidderminster",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "worcester-1",
+        "assetId": "card-worcester",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "worcester-2",
+        "assetId": "card-worcester",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "leek-1",
+        "assetId": "card-leek",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "leek-2",
+        "assetId": "card-leek",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "belper-1",
+        "assetId": "card-belper",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "belper-2",
+        "assetId": "card-belper",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "redditch-1",
+        "assetId": "card-redditch",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "nuneaton-1",
+        "assetId": "card-nuneaton",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-1",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-2",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-3",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-location-4",
+        "assetId": "card-wild-location",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-1",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-2",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-3",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "wild-industry-4",
+        "assetId": "card-wild-industry",
+        "backAssetId": "card-back"
+      },
+      {
+        "instanceId": "player-aid-1",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-2",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-3",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      },
+      {
+        "instanceId": "player-aid-4",
+        "assetId": "player-aid-front",
+        "backAssetId": "player-aid-back"
+      }
+    ]
+  }
+]

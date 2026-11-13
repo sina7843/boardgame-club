@@ -1,0 +1,541 @@
+{
+ "note": "Map units 0..1600 (BGA board). On screen: left = x/16 %, top = y/16 %, translate(-50%,-50%); sizes are % of the map width. COMPONENTS.md §6-§12.",
+ "mapSize": 1600,
+ "provinces": [
+  {
+   "id": 0,
+   "nameEn": "Yggdrasil",
+   "nameFa": "ایگدراسیل",
+   "region": 0,
+   "x": 766,
+   "y": 844,
+   "doomX": 766,
+   "doomY": 844,
+   "villages": null,
+   "adjacent": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "fjords": []
+  },
+  {
+   "id": 1,
+   "nameEn": "Myrkulor",
+   "nameFa": "میرکولور",
+   "region": 1,
+   "x": 491,
+   "y": 479,
+   "doomX": 603,
+   "doomY": 462,
+   "villages": [
+    1,
+    2,
+    3
+   ],
+   "adjacent": [
+    0,
+    2,
+    8
+   ],
+   "fjords": [
+    3
+   ]
+  },
+  {
+   "id": 2,
+   "nameEn": "Elvagar",
+   "nameFa": "الواگار",
+   "region": 1,
+   "x": 750,
+   "y": 331,
+   "doomX": 852,
+   "doomY": 420,
+   "villages": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "adjacent": [
+    0,
+    1,
+    3
+   ],
+   "fjords": [
+    0
+   ]
+  },
+  {
+   "id": 3,
+   "nameEn": "Angerboda",
+   "nameFa": "آنگربودا",
+   "region": 1,
+   "x": 1088,
+   "y": 460,
+   "doomX": 1024,
+   "doomY": 538,
+   "villages": [
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "adjacent": [
+    0,
+    2,
+    4
+   ],
+   "fjords": [
+    0
+   ]
+  },
+  {
+   "id": 4,
+   "nameEn": "Muspelheim",
+   "nameFa": "موسپلهایم",
+   "region": 2,
+   "x": 1216,
+   "y": 847,
+   "doomX": 1290,
+   "doomY": 994,
+   "villages": [
+    13,
+    14,
+    15,
+    16,
+    17
+   ],
+   "adjacent": [
+    0,
+    3,
+    5
+   ],
+   "fjords": [
+    1
+   ]
+  },
+  {
+   "id": 5,
+   "nameEn": "Horgr",
+   "nameFa": "هورگر",
+   "region": 2,
+   "x": 1020,
+   "y": 1167,
+   "doomX": 912,
+   "doomY": 1154,
+   "villages": [
+    18,
+    19,
+    20,
+    21
+   ],
+   "adjacent": [
+    0,
+    4,
+    6
+   ],
+   "fjords": [
+    1
+   ]
+  },
+  {
+   "id": 6,
+   "nameEn": "Utgard",
+   "nameFa": "اوتگارد",
+   "region": 2,
+   "x": 687,
+   "y": 1248,
+   "doomX": 771,
+   "doomY": 1222,
+   "villages": [
+    22,
+    23,
+    24
+   ],
+   "adjacent": [
+    0,
+    5,
+    7
+   ],
+   "fjords": [
+    2
+   ]
+  },
+  {
+   "id": 7,
+   "nameEn": "Andlang",
+   "nameFa": "آندلانگ",
+   "region": 3,
+   "x": 414,
+   "y": 1097,
+   "doomX": 425,
+   "doomY": 996,
+   "villages": [
+    25,
+    26,
+    27
+   ],
+   "adjacent": [
+    0,
+    6,
+    8
+   ],
+   "fjords": [
+    2
+   ]
+  },
+  {
+   "id": 8,
+   "nameEn": "Gimle",
+   "nameFa": "گیمله",
+   "region": 3,
+   "x": 360,
+   "y": 782,
+   "doomX": 477,
+   "doomY": 848,
+   "villages": [
+    28,
+    29,
+    30,
+    31,
+    32
+   ],
+   "adjacent": [
+    0,
+    1,
+    7
+   ],
+   "fjords": [
+    3
+   ]
+  }
+ ],
+ "villages": [
+  {
+   "id": 1,
+   "province": 1,
+   "x": 502,
+   "y": 583
+  },
+  {
+   "id": 2,
+   "province": 1,
+   "x": 389,
+   "y": 445
+  },
+  {
+   "id": 3,
+   "province": 1,
+   "x": 547,
+   "y": 386
+  },
+  {
+   "id": 4,
+   "province": 2,
+   "x": 575,
+   "y": 253
+  },
+  {
+   "id": 5,
+   "province": 2,
+   "x": 651,
+   "y": 166
+  },
+  {
+   "id": 6,
+   "province": 2,
+   "x": 799,
+   "y": 201
+  },
+  {
+   "id": 7,
+   "province": 2,
+   "x": 752,
+   "y": 481
+  },
+  {
+   "id": 8,
+   "province": 3,
+   "x": 957,
+   "y": 466
+  },
+  {
+   "id": 9,
+   "province": 3,
+   "x": 1053,
+   "y": 308
+  },
+  {
+   "id": 10,
+   "province": 3,
+   "x": 1196,
+   "y": 358
+  },
+  {
+   "id": 11,
+   "province": 3,
+   "x": 1196,
+   "y": 496
+  },
+  {
+   "id": 12,
+   "province": 3,
+   "x": 1085,
+   "y": 604
+  },
+  {
+   "id": 13,
+   "province": 4,
+   "x": 1167,
+   "y": 717
+  },
+  {
+   "id": 14,
+   "province": 4,
+   "x": 1297,
+   "y": 777
+  },
+  {
+   "id": 15,
+   "province": 4,
+   "x": 1359,
+   "y": 893
+  },
+  {
+   "id": 16,
+   "province": 4,
+   "x": 1169,
+   "y": 979
+  },
+  {
+   "id": 17,
+   "province": 4,
+   "x": 1073,
+   "y": 855
+  },
+  {
+   "id": 18,
+   "province": 5,
+   "x": 967,
+   "y": 1057
+  },
+  {
+   "id": 19,
+   "province": 5,
+   "x": 1160,
+   "y": 1169
+  },
+  {
+   "id": 20,
+   "province": 5,
+   "x": 1011,
+   "y": 1321
+  },
+  {
+   "id": 21,
+   "province": 5,
+   "x": 858,
+   "y": 1258
+  },
+  {
+   "id": 22,
+   "province": 6,
+   "x": 710,
+   "y": 1144
+  },
+  {
+   "id": 23,
+   "province": 6,
+   "x": 753,
+   "y": 1357
+  },
+  {
+   "id": 24,
+   "province": 6,
+   "x": 574,
+   "y": 1264
+  },
+  {
+   "id": 25,
+   "province": 7,
+   "x": 397,
+   "y": 1257
+  },
+  {
+   "id": 26,
+   "province": 7,
+   "x": 310,
+   "y": 1050
+  },
+  {
+   "id": 27,
+   "province": 7,
+   "x": 522,
+   "y": 1057
+  },
+  {
+   "id": 28,
+   "province": 8,
+   "x": 388,
+   "y": 897
+  },
+  {
+   "id": 29,
+   "province": 8,
+   "x": 249,
+   "y": 864
+  },
+  {
+   "id": 30,
+   "province": 8,
+   "x": 174,
+   "y": 741
+  },
+  {
+   "id": 31,
+   "province": 8,
+   "x": 333,
+   "y": 675
+  },
+  {
+   "id": 32,
+   "province": 8,
+   "x": 514,
+   "y": 700
+  }
+ ],
+ "fjords": [
+  {
+   "id": 0,
+   "supports": [
+    2,
+    3
+   ],
+   "x": 953,
+   "y": 220
+  },
+  {
+   "id": 1,
+   "supports": [
+    4,
+    5
+   ],
+   "x": 1353,
+   "y": 1159
+  },
+  {
+   "id": 2,
+   "supports": [
+    6,
+    7
+   ],
+   "x": 464,
+   "y": 1428
+  },
+  {
+   "id": 3,
+   "supports": [
+    8,
+    1
+   ],
+   "x": 273,
+   "y": 552
+  }
+ ],
+ "yggdrasil": {
+  "x": 766,
+  "y": 844,
+  "ring": {
+   "radius": 130,
+   "startDeg": -120,
+   "minSlots": 6
+  }
+ },
+ "fjordShips": {
+  "spacing": 95
+ },
+ "sizes": {
+  "figureToken": "11%",
+  "pillageToken": "4.4%",
+  "destroyedDisc": "10.6%",
+  "doomToken": "4.4%",
+  "spotTarget": "4.6%",
+  "removeMark": "34% of the token"
+ },
+ "statsBoard": {
+  "width": 800,
+  "height": 347,
+  "stepX": [
+   229,
+   328,
+   427,
+   527,
+   626,
+   725
+  ],
+  "rowY": {
+   "rage": 80,
+   "axe": 183,
+   "horn": 286
+  },
+  "token": "11% of the board width, centred on (stepX, rowY - 6)"
+ },
+ "clanSheetOrder": {
+  "cols5": [
+   "clanCard",
+   "leader",
+   "warrior",
+   "monster",
+   "monster2",
+   "blank",
+   "ship",
+   "clan0",
+   "clan1",
+   "clan2"
+  ],
+  "cols9": "same without blank",
+  "cols3": "same without blank",
+  "direction": "always left-to-right, also in Persian"
+ },
+ "breakpoints": {
+  "sheet9cols": ">=1720px",
+  "sheet5cols": "default",
+  "sheet3cols": "<=1100px",
+  "railOnTop": "<=1100px",
+  "squareMap": "<=760px"
+ },
+ "desktop": {
+  "railWidth": 300,
+  "mapBoxHeight": 720,
+  "cardWidth": 150
+ },
+ "clanColors": {
+  "wolf": {
+   "color": "#9D3644",
+   "color2": "#CC4751"
+  },
+  "serpent": {
+   "color": "#DFA471",
+   "color2": "#FFBB81"
+  },
+  "raven": {
+   "color": "#428AA7",
+   "color2": "#50A8CC"
+  },
+  "bear": {
+   "color": "#856348",
+   "color2": "#BA8A64"
+  },
+  "ram": {
+   "color": "#70A15E",
+   "color2": "#91D17A"
+  }
+ }
+}
