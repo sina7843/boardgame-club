@@ -4,7 +4,7 @@ import { avatarSvg, parseAvatar, type ConversationItem } from '@bg/contracts';
 import { Button, Card, ChipGroup, Conversation, PageHead, StateBlock, Tag, TextField } from '@bg/ui/bgv';
 import { useApi } from '../lib/api.ts';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { ChatPanel } from '../social/ChatPanel.tsx';
+import { ChatPanel, MessageMenu } from '../social/ChatPanel.tsx';
 import { PageTabs } from '../shell/PageTabs.tsx';
 
 const hm = new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
@@ -65,8 +65,8 @@ function Inbox({ activeId }: { activeId?: string }) {
               head={<>
                 <Button iconOnly variant="ghost" icon="arrow-right" href="/messages" className="sx-dm__back">همه گفت‌وگوها</Button>
                 {active?.other && <>
-                  <Button size="sm" variant="secondary" icon="armchair" href="/games">دعوت به میز</Button>
-                  <Button size="sm" variant="ghost" iconOnly icon="user" href={`/users/${active.other.id}`}>پروفایل</Button>
+                  <Button iconOnly variant="ghost" icon="user-plus" href="/games" className="sx-dm__act">دعوت به میز</Button>
+                  <MessageMenu className="sx-dm__act" label="گزینه‌های گفت‌وگو" items={[{ icon: 'user', label: 'نمایش پروفایل', href: `/users/${active.other.id}` }]} />
                 </>}
               </>} />
           </>
@@ -76,12 +76,13 @@ function Inbox({ activeId }: { activeId?: string }) {
   );
 }
 
+const Head = () => <><PageTabs group="social" /><PageHead title="پیام‌ها و دوستان" sub="گفت‌وگوهای خصوصی، گروه‌ها و باشگاه‌ها." /></>;
+
 export function MessagesPage() {
   usePageTitle('پیام‌ها');
   return (
     <>
-      <PageTabs group="social" />
-      <PageHead title="پیام‌ها" sub="گفت‌وگوهای خصوصی، گروه‌ها و باشگاه‌ها." />
+      <Head />
       <Inbox />
     </>
   );
@@ -90,5 +91,5 @@ export function MessagesPage() {
 export function ConversationPage() {
   const { id = '' } = useParams();
   usePageTitle('گفت‌وگو');
-  return <Inbox activeId={id} />;
+  return <><Head /><Inbox activeId={id} /></>;
 }

@@ -10,6 +10,7 @@ import { coinsChanged } from '../lib/coins.tsx';
 import { AvatarArt, frameProps } from '../lib/bgv.tsx';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
+import { TaskTop } from '../shell/TaskTop.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
 
 interface Owned { unlocked: string[]; balance: number; level: number; achievements: Record<string, string> }
@@ -64,7 +65,8 @@ export function AvatarBuilder() {
 
   return (
     <>
-      <PageHead title="ساخت آواتار" sub="هر چیزی را امتحان کنید؛ آیتم‌های قفل با سکه یا با پیشرفت در بازی باز می‌شوند."
+      <TaskTop title="ساخت آواتار" close="/me/studio" />
+      <PageHead className="app-hide-phone" title="ساخت آواتار" sub="هر چیزی را امتحان کنید؛ آیتم‌های قفل با سکه یا با پیشرفت در بازی باز می‌شوند."
         actions={<>
           <Button variant="secondary" href="/coins" icon="plus">خرید سکه</Button>
           <Button variant="primary" icon="check" loading={busy === 'save'} disabled={lockedNow.length > 0 || !!busy || key === me.avatarKey} onClick={save}>ذخیرهٔ آواتار</Button>
@@ -94,7 +96,7 @@ export function AvatarBuilder() {
 
         <Card aria-label="آیتم‌ها">
           <div className="bgv-stack">
-            <div className="bgv-row" role="group" aria-label="بخش‌ها">
+            <div className="bgv-hscroll" role="group" aria-label="بخش‌ها">
               {AVATAR_SLOTS.map((s) => <Chip key={s} selected={slot === s} onClick={() => setSlot(s)}>{SLOT_FA[s]}</Chip>)}
             </div>
             <div className="pf-tiles" role="radiogroup" aria-label={SLOT_FA[slot]}>
@@ -124,6 +126,11 @@ export function AvatarBuilder() {
             )}
           </div>
         </Card>
+      </div>
+
+      <div className="pf-savebar app-phone-only">
+        <Button variant="primary" icon="check" loading={busy === 'save'} disabled={lockedNow.length > 0 || !!busy || key === me.avatarKey} onClick={save}>ذخیرهٔ آواتار</Button>
+        {tryingLocked && priced !== null && <Button variant="primary" disabled={!!busy || d.balance < priced} onClick={() => setSheet(true)}>{d.balance < priced ? 'سکهٔ کافی ندارید' : `خرید با ${faNum(priced)}`}</Button>}
       </div>
 
       {sheet && priced !== null && (

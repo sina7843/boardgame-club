@@ -8,8 +8,9 @@ html[data-immersive] .bgv-app__main { max-inline-size: none; }
 html[data-immersive] .app-page { gap: 0; }
 
 /* Lobby */
-.tbl-head { display: inline-flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
-.tbl-head__cover { inline-size: 112px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-tile); flex: none; }
+.tbl-head { display: flex; align-items: center; gap: var(--space-3); }
+.tbl-head > .bgv-pagehead { flex: 1; min-inline-size: 0; align-items: center; }
+.tbl-head .bgv-pagehead__text { min-inline-size: 0; }
 .tbl-head__latin { font-family: var(--font-latin); font-size: 15px; font-weight: 600; color: var(--text-muted); }
 .tbl-seats .bgv-lobbyseat { flex-wrap: wrap; row-gap: var(--space-2); }
 .tbl-seats .bgv-lobbyseat > .bgv-identity { min-inline-size: 0; }
@@ -34,15 +35,22 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-prompt { display: inline-flex; align-items: center; gap: var(--space-2); min-inline-size: 0; }
 .tbl-tutorial { display: grid; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }
 .tbl-rail .bgv-pcard { position: relative; }
-.tbl-said.bgv-bubble-float { inset-block-end: calc(100% - var(--space-2)); inset-inline-start: var(--space-3); z-index: var(--z-hud); }
+/* In flow inside the seat card: never straddles the top bar or a neighbouring card. */
+.tbl-said.bgv-bubble-float { position: relative; inset: auto; align-self: flex-start; margin-block-start: var(--space-1); max-inline-size: 100%; }
 .tbl-said b { font-weight: 700; }
 .tbl-said.is-mention { outline: 2px solid var(--invite); }
 .tbl-post { margin-block-start: var(--space-2); }
 
 /* Result card over the felt (the board stays reachable with «دیدن صفحهٔ بازی»). */
 .tbl-felt { position: relative; }
-.tbl-result-wrap { position: absolute; inset: 0; z-index: var(--z-hud); display: grid; place-items: center; padding: var(--space-4); overflow: auto;
-  border-radius: inherit; background: color-mix(in srgb, var(--felt) 70%, transparent); }
+.tbl-result-wrap { order: -1; display: grid; justify-items: center; }
+/* The result sits on a white card inside the felt: felt-context avatar and vote colours (cream on translucent) would be white on white. */
+.tbl-result .bgv-avatar { background: var(--surface-raised); color: var(--heading); box-shadow: var(--shadow-gap); }
+.tbl-result .bgv-avatar:is([class*="seat-"], .is-you, .is-yes, .is-no) { outline: 2px solid var(--_ring); outline-offset: 2px; }
+.tbl-result .bgv-pstate { color: var(--text-muted); }
+.tbl-result .bgv-pstate--done { color: var(--success); }
+.tbl-result .bgv-pstate--wait { color: var(--warning); }
+.tbl-result .bgv-pstate--off { color: var(--danger); }
 .tbl-result { inline-size: min(100%, 620px); }
 
 /* Move notices float at the top, never pushing the board around. */
@@ -61,8 +69,6 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-overlay--side > .bgv-sheet { inline-size: min(100%, 400px); overflow-y: auto; }
 /* About half the screen so the table stays visible above it (design Chat-Sheet). */
 .tbl-chatsheet { block-size: min(55dvh, 520px); }
-.tbl-overlay:has(> .tbl-chatsheet) { background: transparent; pointer-events: none; }
-.tbl-overlay > .tbl-chatsheet { pointer-events: auto; }
 @media (min-width: 900px) {
   .tbl-overlay:not(.tbl-overlay--side) { flex-direction: row; justify-content: flex-end; padding: var(--space-3); }
   .tbl-overlay:not(.tbl-overlay--side) > .tbl-chatsheet { inline-size: var(--chat-w); block-size: auto; border-radius: var(--radius-lg); }
@@ -73,7 +79,6 @@ html[data-immersive] .app-page { gap: 0; }
   .tbl-felt { padding: var(--space-2); }
   .tbl-felt > .bgv-felt__stage { min-block-size: 0; }
   .tbl-rail { overflow-y: visible; }
-  .tbl-head__cover { inline-size: 80px; }
 }
 
 /* Popover menus (message actions, quick chat). */
@@ -98,12 +103,17 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-said[style] { background: var(--tbl-bubble); color: var(--tbl-bubble-ink); }
 
 /* Lobby on phones: the ready / leave buttons live in a bar pinned above the dock, not below the chat. */
-.tbl-lobbybar { display: none; }
+.tbl-lobbyacts { display: grid; gap: var(--space-3); }
+.tbl-lobbybar, .tbl-lobbyroot-pad { display: none; }
 @media (max-width: 899px) {
-  .tbl-lobbyacts { display: none; }
-  .tbl-lobbybar { display: flex; gap: var(--space-2); position: sticky; inset-block-end: calc(var(--dock-h) + var(--space-2)); z-index: var(--z-sticky);
-    padding: var(--space-3); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
-  .tbl-lobbybar > * { flex: 1; }
+  .tbl-lobbyacts, .tbl-lobbynote { display: none; }
+  /* One bar above the dock; the spacer keeps the end of the page clear of it. */
+  .tbl-lobbybar { display: grid; gap: var(--space-2); position: fixed; inset-inline: var(--space-2); inset-block-end: calc(var(--dock-h) + var(--space-2)); z-index: var(--z-sticky);
+    padding: var(--space-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
+  .tbl-lobbybar__note { margin: 0; }
+  .tbl-lobbybar__row { display: flex; align-items: center; gap: var(--space-3); }
+  .tbl-lobbybar__row > .bgv-btn:not(.bgv-btn--icon) { flex: 1; }
+  .tbl-lobbyroot-pad { display: block; block-size: 160px; }
 }
 
 .tbl-sheetrow { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-1); border-block-end: 1px solid var(--line); }
@@ -111,9 +121,14 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-rail .bgv-pcard { cursor: pointer; }
 
 /* Phones: the result is its own full screen page (no player strip, board or dock behind it). */
-@media (max-width: 899px) {
-  .tbl-result-wrap { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--bg); place-items: start center; }
-}
+
+/* Quick-chat chips must not shrink below their text (the tray scrolls instead); upstream DS bundle.css lets them shrink so the emoji overhangs the frame. */
+.bgv-quicktray > .bgv-chip { flex: none; }
+
+/* Long-pressed message menu: under the lifted bubble, 12px from every edge; reaction strip above it. */
+.chat-msg.is-lifted { anchor-name: --chat-lift; }
+.chat-pop--lift { position-anchor: --chat-lift; position-area: block-end span-inline-start; margin: var(--space-3); max-inline-size: calc(100vw - var(--space-3) * 2); position-try-fallbacks: flip-block; }
+.chat-msg.is-lifted > .bgv-reactbar { position: absolute; inset-block-end: calc(100% + var(--space-2)); inset-inline-end: var(--space-3); }
 
 /* Long-pressed message: lifted above a scrim with its reaction bar and menu. */
 .chat-msg.is-lifted { position: relative; z-index: var(--z-dialog); }
@@ -154,3 +169,9 @@ html[data-immersive] .app-page { gap: 0; }
 
 /* Player names are plain strings (the card uses them as its accessible name); isolate them so a Latin name keeps its direction. */
 .bgv-pcard__name b { unicode-bidi: isolate; }
+
+/* Game top: game bar + connection banner directly under it (the grid row grows with the banner). */
+.tbl-top { grid-column: 1 / -1; grid-row: 1; display: grid; gap: var(--space-2); min-inline-size: 0; }
+.tbl-screen:has(> .tbl-top > .tbl-offline) { grid-template-rows: auto minmax(0, 1fr) auto !important; }
+@media (max-width: 899px) { .tbl-screen:has(> .tbl-top > .tbl-offline) { grid-template-rows: auto auto auto auto !important; } }
+.tbl-guest { position: relative; min-block-size: 70dvh; }

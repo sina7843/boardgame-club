@@ -114,7 +114,7 @@ test('friends: request/accept, invite to a private table via notification, table
   await a.goto('/games/line-three/new');
   await a.getByRole('radiogroup', { name: 'حالت بازی' }).getByRole('radio', { name: 'نوبتی', exact: true }).click();
   await a.getByRole('button', { name: 'ساخت میز' }).first().click();
-  await expect(a.getByRole('heading', { name: 'دعوت دوستان' })).toBeVisible();
+  await expect(a.getByRole('heading', { name: 'دعوت به میز' })).toBeVisible();
   await a.getByRole('button', { name: 'دعوت', exact: true }).click();
   await expect(a.getByRole('button', { name: 'دعوت شد' })).toBeVisible();
   await b.goto('/notifications');
@@ -169,7 +169,7 @@ test('club roles and membership, report from club chat, moderator suspension and
   await owner.goto('/clubs');
   await owner.getByLabel('نام', { exact: true }).fill('باشگاه آزمون');
   await owner.getByLabel('نشانی (لاتین)').fill(slug);
-  await owner.locator('form').getByText('عضویت با درخواست').click();
+  await owner.locator('form').getByText('با درخواست').click();
   await owner.getByRole('button', { name: 'ساخت باشگاه' }).click();
   await expect(owner).toHaveURL(new RegExp(`/clubs/${slug}$`));
 

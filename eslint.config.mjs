@@ -12,6 +12,7 @@ export default tseslint.config(
       // Local, untracked: handoff drops, test output, scratch folders, Android build output.
       'BGV-*/**', 'Edit-Pack-*/**', '.tmp-trophy/**', '.playwright/**', 'test-results*/**', 'apps/android/android/app/build/**',
       '**/dist/**',
+      '**/dist-ssr/**',
       '**/coverage/**',
       'test-results/**',
       'playwright-report/**',

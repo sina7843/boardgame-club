@@ -42,14 +42,18 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await p.screenshot({ path: `docs/evidence/site/avatar/${info.project.name}-builder.png`, fullPage: true });
 
   // Settings only links to the profile; identity and customization live on «پروفایل من».
-  await p.goto('/settings');
+  await p.goto('/settings?tab=profile');
   await p.getByRole('link', { name: 'ویرایش پروفایل' }).click();
-  await expect(p.getByRole('heading', { name: 'ویرایش پروفایل', level: 2 })).toBeVisible(); // Profile-Own: the head shows the name, editing sits below
+  // Profile-Own: the head carries the primary «ویرایش پروفایل», which opens the Studio (the editor lives there).
+  await p.locator('#main').getByRole('link', { name: 'ویرایش پروفایل' }).first().click();
+  await expect(p).toHaveURL(/\/me\/studio/);
+  await p.getByRole('tab', { name: /معرفی و لقب/ }).click();
   await p.getByLabel('معرفی کوتاه').fill('عاشق بازی‌های رومیزی');
   await p.getByLabel('لقب').selectOption({ label: 'اهل بازی' });
   await p.getByRole('tab', { name: 'بنر' }).click();
   await p.getByRole('button', { name: 'دریا', exact: true }).click();
-  await p.getByRole('button', { name: 'ذخیرهٔ همه' }).click();
+  // desktop: «ذخیرهٔ همه» in the page head; phone: the pinned «ذخیرهٔ تغییرات» bar
+  await p.getByRole('button', { name: /^ذخیرهٔ (همه|تغییرات)$/ }).locator('visible=true').first().click();
   await expect(p.getByText('پروفایل ذخیره شد.')).toBeVisible();
 
   const me = await (await p.request.get('/api/me')).json() as { id: string; avatarKey: string };
@@ -60,7 +64,7 @@ test('build an avatar, buy a locked item, customize the profile', async ({ brows
   await expect(p.getByText('عاشق بازی‌های رومیزی')).toBeVisible();
   await expect(p.getByRole('img', { name: `آواتار ${name}` }).last()).toBeVisible();
   await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
-  await p.getByRole('button', { name: 'کپی لینک پروفایل' }).click();
+  await p.getByRole('button', { name: 'اشتراک‌گذاری پروفایل' }).click();
   await expect(p.getByText('لینک پروفایل کپی شد.')).toBeVisible();
   expect(await p.evaluate(() => navigator.clipboard.readText())).toBe(`${new URL(p.url()).origin}/users/${me.id}`);
   await p.screenshot({ path: `docs/evidence/site/avatar/${info.project.name}-profile.png`, fullPage: true });

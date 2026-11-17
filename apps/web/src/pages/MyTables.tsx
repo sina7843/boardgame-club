@@ -1,14 +1,13 @@
 import { Fragment, useEffect, useState } from 'react';
 import { GuestState } from '../shell/GuestState.tsx';
 import type { MyTableItem } from '@bg/contracts';
-import { Avatar, Badge, Button, Card, ChipGroup, Clock, Icon, PageHead, Progress, Skeleton, StateBlock, Tabs } from '@bg/ui/bgv';
+import { Avatar, Badge, Button, Card, Clock, Icon, PageHead, Segmented, Skeleton, StateBlock } from '@bg/ui/bgv';
 import { AvatarArt } from '../lib/bgv.tsx';
 import { useOnline } from '@bg/ui';
 import { useApi } from '../lib/api.ts';
 import { faNum, jalaliDate, PACE_FA, remainingFa } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
 import { usePageTitle } from '../lib/usePageTitle.ts';
-import { PageTabs } from '../shell/PageTabs.tsx';
 
 /** /me/tables, refreshed on every notification and every 30 s (deadlines move). */
 export function useMyTables() {
@@ -121,15 +120,13 @@ function History({ items }: { items: MyTableItem[] }) {
   );
 }
 
-type Tab = 'running' | 'finished';
-type Filter = 'all' | 'turn' | 'live' | 'open';
+type Tab = 'running' | 'invites' | 'finished';
 
 export function MyTablesPage() {
   usePageTitle('میزهای من');
   const { me, status } = useSession();
   const tables = useMyTables();
   const [tab, setTab] = useState<Tab>('running');
-  const [filter, setFilter] = useState<Filter>('all');
   const limits = useApi<{ limits: { turnTables: { free: number; premium: number } } }>('/plans');
   const sub = useApi<{ premium: boolean }>(me ? '/me/subscription' : null);
 
@@ -137,7 +134,7 @@ export function MyTablesPage() {
   const running = all.filter((t) => t.status !== 'finished' && t.status !== 'cancelled').sort(byUrgency);
   const finished = all.filter((t) => t.status === 'finished');
   const turns = running.filter((t) => t.isMyTurn).length;
-  const shown = tab === 'finished' ? finished : running.filter((t) => filter === 'all' || (filter === 'turn' ? t.isMyTurn : filter === 'live' ? t.pace === 'live' && t.status !== 'open' : t.status === 'open'));
+  const shown = tab === 'finished' ? finished : tab === 'invites' ? [] : running;
 
   let body;
   if (status !== 'loading' && !me) {
@@ -146,6 +143,8 @@ export function MyTablesPage() {
     body = <StateBlock kind="error" title="میزهای شما دریافت نشد" text={tables.error.messageFa} action={<Button variant="primary" icon="refresh-cw" onClick={tables.reload}>تلاش دوباره</Button>} />;
   } else if (!tables.data) {
     body = <div style={{ padding: 20 }}><Skeleton lines={4} /></div>;
+  } else if (tab === 'invites') {
+    body = <StateBlock kind="empty" icon="users" title="دعوت تازه‌ای ندارید" text="دعوت دوستان به میز، به صورت کارت در گفت‌وگوی خصوصی و در اعلان‌ها می‌رسد." action={<Button href="/messages">باز کردن پیام‌ها</Button>} />;
   } else if (!shown.length) {
     body = <StateBlock kind="empty" title={tab === 'finished' ? 'هنوز میز تمام‌شده‌ای ندارید' : 'میزی منتظر شما نیست'} text="میز بسازید یا به یک میز باز بپیوندید."
       action={<Button href="/games">شروع بازی تازه</Button>} />;
@@ -156,7 +155,7 @@ export function MyTablesPage() {
         <ul className="hm-ul" aria-label="میزهای من">
           {shown.map((t, i) => (
             <Fragment key={t.id}>
-            {tab === 'running' && filter === 'all' && (i === 0 || shown[i - 1]!.isMyTurn !== t.isMyTurn) && (
+            {tab === 'running' && (i === 0 || shown[i - 1]!.isMyTurn !== t.isMyTurn) && (
               <li className="hm-group" role="presentation">{t.isMyTurn ? <>نوبت شما <Badge tone="you" size="sm">{faNum(turns)}</Badge></> : 'منتظر دیگران'}</li>
             )}
             <li key={t.id} className={`hm-myrow hm-myrow--players${t.isMyTurn ? ' is-mine' : ''}${isUrgent(t) ? ' is-urgent' : ''}`}>
@@ -176,29 +175,19 @@ export function MyTablesPage() {
     );
   }
 
+  const maxTurn = limits.data && sub.data ? (sub.data.premium ? limits.data.limits.turnTables.premium : limits.data.limits.turnTables.free) : undefined;
+  const usedTurn = running.filter((t) => t.pace === 'turn' && !t.isTutorial).length;
   return (
     <>
-      <PageTabs group="tables" />
-      <PageHead title="میزهای من" sub="همه‌ی میزهای در جریان شما، مرتب‌شده بر اساس فوریت؛ و تاریخچه‌ی بازی‌ها."
-        actions={limits.data && sub.data ? (() => {
-          const max = sub.data.premium ? limits.data.limits.turnTables.premium : limits.data.limits.turnTables.free;
-          const used = running.filter((t) => t.pace === 'turn' && !t.isTutorial).length;
-          return (
-            <Card className="hm-quota">
-              <Progress label="میزهای نوبتی" value={Math.min(1, used / max)} valueText={`${faNum(used)} از ${faNum(max)}`} />
-              {!sub.data.premium && <span className="t-caption bgv-muted">با اشتراک پریمیوم تا {faNum(limits.data.limits.turnTables.premium)} میز</span>}
-            </Card>
-          );
-        })() : undefined} />
-      <div className="hm-tabsbar">
-        <Tabs label="وضعیت میزها" value={tab} onChange={(v) => setTab(v as Tab)}
-          items={[{ value: 'running', label: 'در جریان', count: running.length }, { value: 'finished', label: 'تمام‌شده', count: finished.length }]} />
-        <span className="bgv-spacer" />
-        {tab === 'running' && (
-          <ChipGroup size="sm" label="فیلتر میزها" value={filter} onChange={(v) => setFilter(v as Filter)}
-            options={[{ value: 'all', label: 'همه' }, { value: 'turn', label: 'نوبت من', count: turns }, { value: 'live', label: 'زنده' }, { value: 'open', label: 'در انتظار بازیکن' }]} />
-        )}
-      </div>
+      <PageHead title="میزهای من" />
+      <Segmented block label="وضعیت میزها" value={tab} onChange={(v) => setTab(v as Tab)}
+        options={[{ value: 'running', label: `در جریان ${faNum(running.length)}` }, { value: 'invites', label: 'دعوت‌ها' }, { value: 'finished', label: `تاریخچه ${faNum(finished.length)}` }]} />
+      {tab === 'running' && (
+        <div className="bgv-row" style={{ justifyContent: 'space-between' }}>
+          <span className="hm-meta">{maxTurn ? `${faNum(usedTurn)} از ${faNum(maxTurn)} میز نوبتی` : `${faNum(running.length)} میز`}</span>
+          <span className="hm-meta bgv-row" style={{ gap: 4 }}><Icon name="arrow-down" size="sm" />فوری‌ترین اول</span>
+        </div>
+      )}
       <Card flush>{body}</Card>
       {tab === 'running' && finished.length > 0 && <History items={finished.slice(0, 5)} />}
     </>

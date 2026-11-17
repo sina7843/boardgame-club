@@ -292,3 +292,11 @@
 .ac-premium2__ctas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 /* Notifications-Desktop: the five switches stacked with even gaps. */
 .nt-how .bgv-card__body, .nt-how { display: grid; gap: var(--space-4); }
+
+/* Onboarding tour: dim the page, ring the target (the scrim has a hole), arrow points from the card to it. */
+.hm-tour-scrim { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--scrim); pointer-events: none; }
+.hm-tour-spot:not(.hm-tour-spot--soft) { outline-color: var(--surface); outline-offset: 3px; }
+.hm-tour[data-arrow="top"]::after, .hm-tour[data-arrow="bottom"]::after { content: ''; position: absolute; inline-size: 16px; block-size: 16px; inset-inline-start: calc(var(--ax, 50%) - 8px); background: var(--surface); transform: rotate(45deg); }
+.hm-tour[data-arrow="top"]::after { top: -9px; border-inline-start: 1px solid var(--line); border-block-start: 1px solid var(--line); }
+.hm-tour[data-arrow="bottom"]::after { bottom: -9px; border-inline-end: 1px solid var(--line); border-block-end: 1px solid var(--line); }
+.ac-telpre { display: inline-flex; align-items: center; gap: var(--space-2); }

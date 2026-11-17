@@ -56,6 +56,12 @@
 @keyframes pg-ping { 0% { transform: scale(.38); opacity: .7; } 100% { transform: scale(1); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pg-radar > i { animation: none; opacity: .25; } }
 .pg-center { display: grid; justify-items: center; text-align: center; gap: var(--space-2); }
+/* Quick match, searching: radar card + «این جستجو» side card */
+.pg-qm { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); align-items: start; }
+@media (min-width: 900px) { .pg-qm { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } }
+.pg-qm__range { position: relative; block-size: 8px; margin-block: var(--space-4) var(--space-1); border-radius: var(--radius-pill); background: var(--selected); box-shadow: var(--shadow-field); }
+.pg-qm__range > i { position: absolute; inset-block: -4px; inset-inline-start: 50%; inline-size: 4px; margin-inline-start: -2px; border-radius: var(--radius-pill); background: var(--primary); }
+.pg-qm__ends { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); }
 
 /* Open tables */
 .pg-orow { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 1fr) auto; align-items: center; gap: var(--space-3) var(--space-4); padding: var(--space-3) var(--space-5); border-block-end: 1px solid var(--line); }

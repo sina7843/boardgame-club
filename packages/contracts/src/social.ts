@@ -111,7 +111,7 @@ export const EMOTE_BODY = /^:(em\.\d{1,3}):$/;
 export const messageEditBody = z.strictObject({ body: z.string().min(1).max(1000) });
 /** Own messages can be edited for this long after sending. */
 export const MESSAGE_EDIT_WINDOW_SECONDS = 120;
-export const REACTION_EMOJIS = ['👍', '😂', '😮', '😢', '🔥', '👏'] as const;
+export const REACTION_EMOJIS = ['👍', '😂', '😮', '😢', '🔥', '👏', '🎉'] as const;
 export const reactionBody = z.strictObject({ emoji: z.enum(REACTION_EMOJIS) });
 export const muteChatBody = z.strictObject({ muted: z.boolean() });
 export const reactionItem = z.object({ emoji: z.string(), count: z.number().int(), mine: z.boolean() });

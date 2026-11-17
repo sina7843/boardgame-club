@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ClientEvents, cosmetic, EMOTE_BODY, MESSAGE_EDIT_WINDOW_SECONDS, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
+import { ClientEvents, cosmetic, EMOTE_BODY, MESSAGE_EDIT_WINDOW_SECONDS, parseAvatar, SLOW_MODE_OPTIONS, type MessageItem, type ReadEvent, type TypingEvent } from '@bg/contracts';
 import { useToast } from '@bg/ui';
 import { Button, Chat, Icon, Menu, Message, MentionSuggest, ReactionBar, Select, StateBlock, SystemMessage, Typing, UnreadDivider, type MenuItem, type SeatNo } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
@@ -19,6 +19,7 @@ interface Page {
 interface Pending { clientId: string; body: string; quick?: string; replyTo: MessageItem | null; failed: boolean }
 
 const time = new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
+const LIFT_EMOJIS = ['👍', '😂', '😮', '😢', '🔥', '🎉'];
 const EDIT_MS = MESSAGE_EDIT_WINDOW_SECONDS * 1000;
 const SLOW_FA: Record<number, string> = { 0: 'خاموش', 10: '۱۰ ثانیه', 30: '۳۰ ثانیه', 60: '۱ دقیقه', 300: '۵ دقیقه' };
 
@@ -46,7 +47,7 @@ export function MessageMenu({ items, label = 'گزینه‌های پیام', cla
   return (
     <>
       <Button variant="ghost" size="sm" iconOnly icon="more-vertical" className={className} popoverTarget={id}>{label}</Button>
-      <div id={id} popover="auto" className="chat-pop">
+      <div id={id} popover="auto" className={open ? 'chat-pop chat-pop--lift' : 'chat-pop'}>
         <Menu label={label} items={items.map((it) => ({ ...it, onClick: (e) => { close(); it.onClick?.(e); } }))} />
       </div>
     </>
@@ -378,7 +379,7 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
           ...(meta.canPost ? [{ icon: 'reply', label: 'پاسخ', onClick: () => { setEditing(null); setReplyTo(m); input.current?.focus(); } }] : []),
           ...(mine && meta.canPost && now - new Date(m.createdAt).getTime() < EDIT_MS ? [{ icon: 'pencil', label: `ویرایش (${editLeft(m.createdAt)} مانده)`, onClick: () => { setReplyTo(null); setEditing(m); onType(m.body); input.current?.focus(); } }] : []),
           { icon: 'copy', label: 'کپی', onClick: () => void navigator.clipboard.writeText(m.body).then(() => toast('success', 'متن پیام کپی شد.'), () => toast('error', 'کپی ممکن نشد.')) },
-          { icon: 'smile', label: 'واکنش', onClick: () => setReacting(m.id) },
+          ...(lifted === m.id ? [] : [{ icon: 'smile', label: 'واکنش', onClick: () => setReacting(m.id) }]),
           ...(!mine ? [{ icon: 'bell-off', label: `بی‌صدا کردن ${m.sender.displayName}`, onClick: () => void muteSender(m) }] : []),
           ...(!mine && meta.canModerate && meta.kind === 'club' && clubSlug ? [{ icon: 'user-minus', label: `اخراج ${m.sender.displayName} از باشگاه`, danger: true, onClick: () => void kick(m) }] : []),
           ...(!mine ? [{ icon: 'flag', label: 'گزارش', danger: true, onClick: () => setReporting(m) }] : []),
@@ -405,11 +406,11 @@ export function ChatPanel({ load, post, conversationId: fixedId, title, quick, o
               </div>
             ) : <Message mine={mine} author={<bdi>{m.sender.displayName}</bdi>} text={emoteOf(m.body) ?? m.body} viewer={me?.displayName}
               time={<time dateTime={m.createdAt}>{time.format(new Date(m.createdAt))}</time>}
-              avatar={{ children: <AvatarArt avatarKey={m.sender.avatarKey} />, name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
+              avatar={{ ...(parseAvatar(m.sender.avatarKey) ? { children: <AvatarArt avatarKey={m.sender.avatarKey} /> } : {}), name: m.sender.displayName }} initials={m.sender.displayName.charAt(0)}
               state={m.deleted ? 'deleted' : 'sent'} reactions={m.reactions} onReact={(emoji) => void react(m, emoji)}
               mentioned={!!me && m.mentions.includes(me.id)} edited={!!m.editedAt} seen={seen} {...(m.deleted ? {} : reply(m.replyTo))} />}
             <MessageMenu items={actions} open={lifted === m.id} onClosed={unlift} />
-            {reacting === m.id && <ReactionBar onPick={(emoji) => void react(m, emoji)} selected={m.reactions.find((r) => r.mine)?.emoji} />}
+            {reacting === m.id && <ReactionBar emojis={LIFT_EMOJIS} onPick={(emoji) => void react(m, emoji)} selected={m.reactions.find((r) => r.mine)?.emoji} />}
           </article>
           {events?.filter((e) => e.at >= m.createdAt && (idx === items.length - 1 || e.at < items[idx + 1]!.createdAt)).map((e) =>
             <SystemMessage key={e.id} game text={e.text} {...(e.seat !== undefined ? { seat: ((e.seat % 10) + 1) as SeatNo } : {})} />)}

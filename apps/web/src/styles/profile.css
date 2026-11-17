@@ -116,7 +116,7 @@
 .pf-seatprev { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface-sunken); }
 .pf-bnsw { display: block; inline-size: 100%; block-size: 56px; border-radius: var(--radius-sm); background: var(--bn); }
 .pf-titlechip { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: var(--shadow-tile); }
-.pf-emote { display: grid; place-items: center; inline-size: 56px; block-size: 56px; border-radius: var(--radius-pill); background: var(--c1); color: var(--c2); }
+.pf-emote { display: grid; place-items: center; inline-size: 56px; block-size: 56px; border-radius: var(--radius-pill); background: var(--c1); color: var(--on-selected); }
 .pf-skin { display: block; inline-size: 100%; block-size: 56px; border-radius: var(--radius-sm); }
 .pf-bubble { display: inline-block; padding: var(--space-2) var(--space-3); border-radius: var(--radius-lg); color: var(--text); }
 .pf-ring { display: inline-grid; padding: var(--space-1); border-radius: var(--radius-pill); }
@@ -197,7 +197,16 @@
 
 .pf-savebar { display: flex; align-items: center; gap: var(--space-2); position: sticky; inset-block-end: var(--space-3); z-index: var(--z-sticky);
   padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); background: var(--surface-raised); box-shadow: var(--shadow-float); }
-@media (max-width: 899px) { .pf-savebar { inset-block-end: calc(var(--dock-h) + var(--space-2)); } }
+/* Phone task screens (no dock): ✕ bar on top, save bar pinned to the bottom. */
+.pf-tasktop { display: none; }
+@media (max-width: 899px) {
+  .pf-tasktop { display: flex; align-items: center; gap: var(--space-2); position: sticky; inset-block-start: 0; z-index: var(--z-sticky); padding: var(--space-2) var(--space-4); background: var(--surface-chrome); border-block-end: 1px solid var(--line); }
+  .pf-tasktop > h1 { margin: 0; flex: 1; color: var(--heading); }
+  .app-immersive > main { padding-inline: var(--space-4); padding-block-end: var(--space-4); }
+  .pf-tasktop { margin-inline: calc(-1 * var(--space-4)); margin-block-end: var(--space-4); }
+  .pf-savebar { inset-block-end: var(--space-3); }
+}
+.pf-mhead__actions > .bgv-btn--icon { flex: none; }
 
 .pf-prevfelt { padding: var(--space-3); border-radius: var(--radius-lg); background: var(--felt); }
 .pf-prevrow { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--invite-soft); }

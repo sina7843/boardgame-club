@@ -24,6 +24,13 @@ const AVATAR_ART: Record<string, { tone: string; node: ReactNode }> = {
   star: { tone: 'danger', node: <Icon name="star" size={30} /> }
 };
 
+// The DS renders `prefix` as a child, so a node works at runtime; its typing says string. The DS icon set has no plain smartphone glyph; «vibrate» is its phone icon.
+const PHONE_PREFIX = (
+  <span className="ac-telpre">
+    <Icon name="vibrate" size="sm" />+۹۸
+  </span>
+) as unknown as string;
+
 export function Login() {
   usePageTitle('ورود');
   const [params] = useSearchParams();
@@ -111,8 +118,9 @@ export function Login() {
                 <h1 className="t-page">ورود یا ثبت‌نام</h1>
                 <p className="t-body-sm bgv-muted">با شماره موبایل وارد شوید؛ اگر حساب ندارید، همین‌جا ساخته می‌شود.</p>
               </div>
-              <PhoneField label="شماره موبایل" name="mobile" placeholder="912 345 6789" autoFocus autoComplete="tel" value={mobile}
-                onChange={(e) => setMobile(e.target.value)} error={error} hint="شماره شما در پروفایل عمومی نمایش داده نمی‌شود." />
+              <PhoneField label="شماره موبایل" name="mobile" placeholder="۹۱۲ ۳۴۵ ۶۷۸۹" autoFocus autoComplete="tel" value={fa(mobile)}
+                prefix={PHONE_PREFIX}
+                onChange={(e) => setMobile(toAsciiDigits(e.target.value))} error={error} hint="شماره شما در پروفایل عمومی نمایش داده نمی‌شود." />
               <Button type="submit" variant="primary" size="lg" block loading={busy}>دریافت کد</Button>
               <p className="bgv-hint" style={{ justifyContent: 'center' }}><Icon name="shield" size="sm" style={{ marginBlockStart: 3 }} />کد یک‌بارمصرف با پیامک ارسال می‌شود.</p>
               <p className="ac-login__legal">ورود یا ثبت‌نام به معنی پذیرش <Link to="/terms">قوانین و مقررات</Link> و <Link to="/privacy">حریم خصوصی</Link> است.</p>

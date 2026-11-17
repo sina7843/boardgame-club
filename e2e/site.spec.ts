@@ -4,7 +4,7 @@ import { signIn } from './helpers.ts';
 test('site pages from the footer, terms accepted at sign-up, account deleted from settings', async ({ page }) => {
   await page.goto('/');
   const footer = page.getByRole('contentinfo');
-  const group = footer.getByRole('button', { name: 'پشتیبانی و قوانین' }); // an accordion on phones
+  const group = footer.getByRole('button', { name: 'راهنما و پشتیبانی' }); // an accordion on phones
   if (await group.isVisible()) await group.click();
   await footer.getByRole('link', { name: 'قوانین و مقررات' }).first().click();
   await expect(page.getByRole('heading', { name: 'قوانین و مقررات', level: 1 })).toBeVisible();
@@ -15,7 +15,7 @@ test('site pages from the footer, terms accepted at sign-up, account deleted fro
   await page.reload();
   await expect(page.getByRole('dialog', { name: 'قوانین و حریم خصوصی' })).toHaveCount(0);
 
-  await page.goto('/settings');
+  await page.goto('/settings?tab=account');
   await page.getByRole('button', { name: 'حذف حساب' }).click();
   const dialog = page.getByRole('alertdialog', { name: 'حذف همیشگی حساب' });
   await expect(dialog.getByRole('button', { name: 'حذف همیشگی' })).toBeDisabled();

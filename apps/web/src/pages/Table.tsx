@@ -5,7 +5,7 @@ import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvat
 import { DockSlotHost, useOnline, useToast } from '@bg/ui';
 import {
   ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
-  ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill, emojify,
+  LoginSheet, ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill, emojify,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
@@ -20,7 +20,7 @@ import { usePageTitle } from '../lib/usePageTitle.ts';
 import { useTableSession } from '../lib/useTableSession.ts';
 import { useTurnAlerts } from '../lib/alerts.ts';
 import { ChatPanel, type ChatEvent } from '../social/ChatPanel.tsx';
-import { QuickChatButton, QuickChatChips } from '../social/QuickChat.tsx';
+import { QuickChatButton } from '../social/QuickChat.tsx';
 import { InvitePanel } from '../social/InvitePanel.tsx';
 import { ReportDialog } from '../social/ReportDialog.tsx';
 
@@ -106,6 +106,12 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
   const host = t.seats.find((s) => s.user?.id === t.hostId);
   const copy = (link: string) => navigator.clipboard.writeText(link).then(() => toast('success', 'لینک دعوت کپی شد.'), () => toast('error', 'کپی ممکن نشد؛ لینک را دستی انتخاب کنید.'));
   const toInvite = () => document.getElementById('table-invite')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Public tables can always be shared by plain URL; private ones need the invite code.
+  const shareLink = inviteLink ?? (t.visibility === 'public' ? `${location.origin}/tables/${t.id}` : null);
+  const phone = !useWide(900);
+  const hasLobbyChat = !!me && !t.isTutorial;
+  const [chatOpen, setChatOpen] = useState(false);
+  const { unread } = useTableChatAlerts(hasLobbyChat ? t.id : null, chatOpen || !phone);
 
   const actions = !me && t.settings.tournament ? (
     <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>میز تورنمنت؛ شما تماشاگرید و بازی با آمادگی بازیکنان شروع می‌شود.</p>
@@ -131,11 +137,12 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
     <>
       {me && t.pace === 'turn' && !t.isTutorial && <NotifyPrompt />}
       <Breadcrumbs items={[{ label: 'میزها', href: '/tables' }, { label: t.gameNameFa, href: `/games/${t.gameId}` }, { label: t.isTutorial ? 'آموزش' : host?.user ? `میز ${host.user.displayName}` : 'میز' }]} />
-      <PageHead title={<span className="tbl-head">
-        <img className="bgv-box bgv-box--sm tbl-head__cover" src={`/covers/box/${t.gameId}.webp`} alt="" />
-        <span>{t.isTutorial ? `آموزش ${t.gameNameFa}` : host?.user ? <>{t.gameNameFa}، میز <bdi>{host.user.displayName}</bdi></> : t.gameNameFa}
-          {' '}<bdi className="tbl-head__latin" lang="en">{t.gameNameOriginal}</bdi></span>
-      </span>} sub={<span className="bgv-row">{tableMeta(t).map((m, i) => <span key={m} className="bgv-row">{i > 0 && <span className="bgv-sep" />}{m}</span>)}</span>} />
+      <div className="tbl-head">
+        <span className="bgv-box-slot" style={{ '--bgv-box-size': '64px' } as React.CSSProperties}><img className="bgv-box bgv-box--sm" src={`/covers/box/${t.gameId}.webp`} alt="" /></span>
+        <PageHead title={<>{t.isTutorial ? `آموزش ${t.gameNameFa}` : host?.user ? <>{t.gameNameFa}، میز <bdi>{host.user.displayName}</bdi></> : t.gameNameFa}
+          {' '}<bdi className="tbl-head__latin" lang="en">{t.gameNameOriginal}</bdi></>}
+          sub={<span className="bgv-row">{tableMeta(t).map((m, i) => <span key={m} className="bgv-row">{i > 0 && <span className="bgv-sep" />}{m}</span>)}</span>} />
+      </div>
       <div className="bgv-cols">
         <div className="bgv-stack">
           <Card title={<span className="bgv-row"><Icon name="users" />بازیکنان ({faNum(t.seats.length)} از {faNum(t.capacity)})</span>}>
@@ -151,7 +158,7 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
             </div>
             {empty > 0 && <p className="t-caption bgv-muted" style={{ margin: 'var(--space-3) 0 0' }}>بازی وقتی شروع می‌شود که همه جایگاه‌ها پر و همه آماده باشند.</p>}
           </Card>
-          {me && !t.isTutorial && <ChatPanel className="tbl-lobbychat" load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" />}
+          {hasLobbyChat && !phone && <ChatPanel className="tbl-lobbychat"load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" />}
         </div>
         <div className="bgv-stack">
           {t.isMatchmade && me ? (
@@ -163,23 +170,39 @@ function LobbyView({ snap, invite, onChange }: { snap: TableSnapshot; invite: st
           ) : (
             <Card title={<span className="bgv-row"><Icon name="hourglass" />در انتظار آمادگی، {faNum(readyCount)} از {faNum(t.capacity)} آماده</span>}>
               <div className="bgv-stack" style={{ gap: 'var(--space-3)' }}>
-                {me && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>با اعلام آمادگی، قوانین زمان و انصراف این میز را می‌پذیرید.</p>}
+                {me && <p className="t-body-sm bgv-muted tbl-lobbynote" style={{ margin: 0 }}>با اعلام آمادگی، قوانین زمان و انصراف این میز را می‌پذیرید.</p>}
                 {error && <Banner tone="danger" text={error} />}
                 <div className="tbl-lobbyacts">{actions}</div>
               </div>
             </Card>
           )}
-          {!t.isMatchmade && <div className="tbl-lobbybar" role="group" aria-label="آمادگی">{actions}</div>}
-          {inviteLink && (
-            <div id="table-invite"><Card title={<span className="bgv-row"><Icon name="link" />دعوت به میز</span>}>
-              <TextField label="لینک دعوت" readOnly value={inviteLink} dir="ltr" onFocus={(e) => e.target.select()}
-                end={<Button variant="secondary" size="sm" icon="copy" onClick={() => void copy(inviteLink)}>کپی</Button>} />
-            </Card></div>
-          )}
-          {me && !t.isMatchmade && !t.isTutorial && <div id={inviteLink ? undefined : 'table-invite'}><InvitePanel tableId={t.id} /></div>}
+          {me && !t.isMatchmade && !t.isTutorial
+            ? <div id="table-invite"><InvitePanel tableId={t.id} link={shareLink} onCopy={copy} /></div>
+            : shareLink && (
+              <div id="table-invite"><Card title={<span className="bgv-row"><Icon name="link" />دعوت به میز</span>}>
+                <TextField label="لینک دعوت" readOnly value={shareLink} dir="ltr" onFocus={(e) => e.target.select()}
+                  end={<Button variant="secondary" size="sm" icon="copy" onClick={() => void copy(shareLink)}>کپی</Button>} />
+              </Card></div>
+            )}
           <Policies table={t} />
         </div>
       </div>
+      <div className="tbl-lobbyroot-pad" aria-hidden />
+      {!t.isMatchmade && (
+        <div className="tbl-lobbybar" role="group" aria-label="آمادگی">
+          {me && <p className="t-caption bgv-muted tbl-lobbybar__note">با اعلام آمادگی، قوانین زمان و انصراف این میز را می‌پذیرید.</p>}
+          <div className="tbl-lobbybar__row">
+            {hasLobbyChat && <Button variant="secondary" iconOnly icon="message-circle" count={unread} onClick={() => setChatOpen(true)}
+              aria-label={`گفت‌وگوی میز${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
+            {actions}
+          </div>
+        </div>
+      )}
+      {chatOpen && phone && hasLobbyChat && (
+        <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setChatOpen(false); }}>
+          <ChatPanel sheet onClose={() => setChatOpen(false)} className="tbl-chatsheet" load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" />
+        </div>
+      )}
     </>
   );
 }
@@ -289,6 +312,7 @@ function ResultCard({ snap, onHide, onSnap }: { snap: TableSnapshot; onHide: () 
  * each human opponent who is not a friend yet, and reporting the table.
  */
 function PostGame({ snap, onReport }: { snap: TableSnapshot; onReport: () => void }) {
+  const hasMoves = (snap.game?.summary?.moves?.length ?? 0) > 0;
   const t = snap.table;
   const toast = useToast();
   const others = t.seats.filter((x) => x.seat !== t.mySeat && x.user).map((x) => x.user!);
@@ -310,7 +334,6 @@ function PostGame({ snap, onReport }: { snap: TableSnapshot; onReport: () => voi
   return (
     <Card title="بعد از بازی" className="tbl-post">
       <div className="bgv-stack" style={{ gap: 'var(--space-2)' }}>
-        <QuickChatChips post={`/tables/${t.id}/chat`} only={['gg', 'rematch']} onSent={() => toast('success', 'به گفت‌وگوی میز فرستاده شد.')} />
         {addable.map((u) => (
           <Button key={u.id} size="sm" variant="secondary" icon="user-plus" onClick={() => void befriend(u.id)}>
             {rel[u.id] === 'incoming' ? 'پذیرش دوستی' : 'افزودن دوست'}: <bdi>{u.displayName}</bdi>
@@ -322,7 +345,8 @@ function PostGame({ snap, onReport }: { snap: TableSnapshot; onReport: () => voi
               .then(() => toast('success', 'گزارش برای داور ثبت شد.'), (err: unknown) => toast('error', err instanceof ApiFailure ? err.messageFa : 'گزارش ثبت نشد.'));
           }}>گزارش مشکوک بودن بازی: <bdi>{u.displayName}</bdi></Button>
         ))}
-        <Button size="sm" variant="ghost" icon="flag" onClick={onReport}>گزارش این میز</Button>
+        {hasMoves && <Button size="sm" variant="ghost" icon="history" onClick={() => document.querySelector('.tbl-moves')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>تاریخچهٔ حرکت‌ها</Button>}
+        <Button size="sm" variant="ghost" icon="flag" onClick={onReport}>گزارش میز</Button>
       </div>
     </Card>
   );
@@ -511,6 +535,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   };
 
   const statusText = finished ? 'بازی تمام شد'
+    : !netOnline ? 'کنش‌ها تا اتصال دوباره قفل است'
     : myTurn ? 'حرکت با شماست'
       : waitingFor.length ? `منتظر حرکت ${waitingFor.join('، ')}` : 'منتظر حرکت دیگران';
   const clockProps = clock ? { time: clock.time, p: clock.p, state: clock.state, label: 'مهلت نوبت', ...(clock.state === 'stale' ? { sub: 'در حال اتصال دوباره' } : {}) } : undefined;
@@ -618,18 +643,27 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   return (
     <div ref={gameRef} className={full.max ? 'tbl tbl--max' : 'tbl'}>
       <TableScreen desk className={hasChat ? 'tbl-screen' : 'tbl-screen tbl-screen--nochat'}>
+        <div className="tbl-top">
         <GameBar title={t.isTutorial ? `آموزش ${t.gameNameFa}` : t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
-          meta={[...(finished ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>] : []), ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...tableMeta(t),
+          meta={[...(!s.live && !finished ? [<Connection key="c" state="lost" label="قطع" />] : []),
+            ...(finished ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>, COMPETITION_FA[t.competition]] : []),
+            ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...(finished ? [] : tableMeta(t)),
             ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
-            <Connection key="c" state={s.live ? 'ok' : 'lost'} label={s.live ? 'متصل' : 'قطع'} />]}
+            ...(s.live && !finished ? [<Connection key="c" state="ok" label="متصل" />] : [])]}
           actions={<>
-            {!isPlayer && !finished && <Button variant="secondary" size="sm" icon="log-out" iconOnly={!notPhone} onClick={() => navigate('/tables')}>ترک تماشا</Button>}
+            {!isPlayer && !finished && <Button variant="leave" size="sm" icon="log-out" iconOnly={!notPhone} onClick={() => navigate('/tables')}>ترک تماشا</Button>}
+            {isPlayer && <Button variant="leave" size="sm" icon="log-out" iconOnly={!notPhone}
+              onClick={() => (canResign ? setConfirmResign(true) : navigate(t.isTutorial ? `/games/${t.gameId}` : '/tables'))}>ترک میز</Button>}
             {hasChat && isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} only={quickFor} />}
             <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
             {hasChat && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
               aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
             <Button variant="ghost" iconOnly icon="more-vertical" onClick={() => setDrawer(true)}>بازیکنان و قوانین</Button>
           </>} />
+        {!netOnline && !finished && <Banner className="tbl-offline" tone="danger" icon="wifi-off" title="اتصال شما قطع شد"
+          text="کنش‌ها تا اتصال دوباره قفل است؛ ساعت آخرین زمان تأییدشده را نشان می‌دهد."
+          action={<Button size="sm" variant="secondary" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
+        </div>
 
         <Hud layout={notPhone ? 'rail' : players.length === 2 && finished ? 'duel' : players.length <= 5 ? 'strip' : 'grid3'} className="tbl-rail" label="بازیکنان" players={players}>
           {sum?.moves && sum.moves.length > 0 && <MoveLog className="tbl-moves" label="حرکت‌ها"
@@ -656,18 +690,15 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
           {finished && g.result && !hideResult && <div className="tbl-result-wrap"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
         </Felt>
 
-        {!netOnline && !finished && <Banner className="tbl-offline" tone="danger" icon="wifi-off" title="اتصال شما قطع شد"
-          text="کنش‌ها تا اتصال دوباره قفل است؛ ساعت آخرین زمان تأییدشده را نشان می‌دهد."
-          action={<Button size="sm" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
         {myTurn && t.pace === 'live' && clock?.state === 'critical' && <CritBar seconds={clock.time} total={10} />}
         {(() => {
           const n = sum?.seats.find((x) => x.seat === t.mySeat)?.strikes ?? 0;
           return !finished && n > 0 && sum?.strikesMax ? <Banner className="tbl-strikes" tone="danger" icon="alarm-clock"
             text={`اخطار زمان ${faNum(n)} از ${faNum(sum.strikesMax)}`} /> : null;
         })()}
-        <ActionDock className="tbl-dock" waiting={!myTurn && !finished}
+        <ActionDock className="tbl-dock" waiting={(!myTurn && !finished) || !netOnline}
           prompt={<span className="tbl-prompt" role="status" aria-live="polite">
-            <Icon name={finished ? 'flag' : myTurn ? 'play' : 'hourglass'} />
+            <Icon name={finished ? 'flag' : !netOnline ? 'wifi-off' : myTurn ? 'play' : 'hourglass'} />
             <strong>{statusText}</strong>
           </span>}
           {...(clockProps && myTurn ? { clock: { ...clockProps, sub: clockProps.state === 'critical' ? 'عجله کنید' : clockProps.state === 'warn' ? 'نیمی گذشت'
@@ -773,6 +804,23 @@ function useWide(minPx = 1200) {
   return wide;
 }
 
+/**
+ * Guests: the API only serves table snapshots to signed-in users, so the lobby cannot be shown read-only yet
+ * (needs a public lobby snapshot endpoint). The login sheet opens in place; its CTA continues on /login and returns here.
+ */
+function GuestTable() {
+  const navigate = useNavigate();
+  const next = encodeURIComponent(location.pathname + location.search);
+  return (
+    <div className="tbl-guest"
+      onClick={(e) => { if ((e.target as HTMLElement).closest('.bgv-loginsheet .bgv-btn--primary')) navigate(`/login?next=${next}`); }}>
+      <PageHead title="لابی میز" sub="برای نشستن پشت این میز، اول وارد شوید." />
+      <LoginSheet scrim title="برای نشستن پشت میز وارد شوید" text="بعد از ورود، مستقیم به همین میز برمی‌گردید."
+        onClose={() => navigate('/tables')} cta="ورود / ثبت‌نام" />
+    </div>
+  );
+}
+
 export function TablePage() {
   const { id = '' } = useParams();
   const [params] = useSearchParams();
@@ -783,7 +831,7 @@ export function TablePage() {
   usePageTitle(snap ? `${snap.table.isTutorial ? 'آموزش' : 'میز'} ${snap.table.gameNameFa}` : 'میز');
 
   if (status !== 'loading' && !me) {
-    return <StateBlock kind="denied" title="برای دیدن میز وارد شوید" action={<Button variant="primary" href={`/login?next=${encodeURIComponent(location.pathname + location.search)}`}>ورود</Button>} />;
+    return <GuestTable />;
   }
   if (s.loadError?.status === 403) return <StateBlock kind="denied" title="به این میز دسترسی ندارید" text="این میز خصوصی است. برای پیوستن، از میزبان لینک دعوت بگیرید." />;
   if (s.loadError?.status === 404) return <StateBlock kind="empty" title="این میز پیدا نشد" action={<Button variant="secondary" href="/tables">میزهای باز</Button>} />;

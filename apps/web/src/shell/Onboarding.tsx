@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffe
 import { useLocation, useNavigate } from 'react-router';
 import { ONBOARDING_TOURS, type OnboardingState, type OnboardingTour } from '@bg/contracts';
 import { cn, useToast } from '@bg/ui';
-import { Button } from '@bg/ui/bgv';
+import { Button, Icon } from '@bg/ui/bgv';
 import { api, ApiFailure } from '../lib/api.ts';
 import { faNum } from '../lib/format.ts';
 import { useSession } from '../lib/session.tsx';
@@ -39,6 +39,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const { me, status } = useSession();
   const { pathname } = useLocation();
   const toast = useToast();
+  const navigate = useNavigate();
   const [state, setState] = useState<OnboardingState>();
   const [active, setActive] = useState<Active | null>(readActive);
 
@@ -61,7 +62,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     const done = state?.tours.find((t) => t.key === tourKey)?.completedSteps ?? [];
     const first = mode === 'replay' ? 0 : Math.max(0, tour.steps.findIndex((s) => !done.includes(s.key)));
     setActive({ tour, index: first });
-  }, [state]);
+    if (tour.kind === 'tour') navigate('/'); // the tour points at the shell, so it opens over home
+  }, [state, navigate]);
 
   const setDismissed = useCallback(async (tourKey: string, dismissed: boolean) => {
     setState(await api<OnboardingState>(`/me/onboarding/${tourKey}`, { method: 'PATCH', body: { dismissed } }));
@@ -147,6 +149,7 @@ function useTargetRect(target: string | undefined): DOMRect | null {
   return rect;
 }
 
+const STEP_ICON: Record<string, string> = { 'nav-games': 'dices', 'nav-tables': 'layout-grid', 'nav-progress': 'trophy', 'nav-messages': 'message-circle', 'nav-profile': 'user', 'nav-guides': 'circle-help' };
 const GAP = 12;
 const PAD = 6;
 
@@ -165,12 +168,23 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
   useLayoutEffect(() => {
     const el = card.current;
     if (!el) return;
+    const arrow = () => {
+      // Pointer arrow on the card edge facing the target, centred on it.
+      if (!rect) { el.removeAttribute('data-arrow'); return; }
+      const c = el.getBoundingClientRect();
+      const mid = rect.left + rect.width / 2;
+      const fromStart = getComputedStyle(el).direction === 'rtl' ? c.right - mid : mid - c.left; // offset from the inline-start edge
+      const x = Math.min(Math.max(20, fromStart), c.width - 20);
+      el.style.setProperty('--ax', `${x}px`);
+      el.dataset.arrow = rect.top >= c.bottom - 1 ? 'bottom' : rect.bottom <= c.top + 1 ? 'top' : '';
+    };
     if (!matchMedia('(min-width: 640px)').matches) {
       // Phone sheet covers the bottom of the screen: add that much scroll room so nothing stays hidden under it.
       el.style.top = ''; el.style.left = '';
       const room = `${el.offsetHeight + 16}px`;
       document.body.style.paddingBottom = room;
       document.documentElement.style.scrollPaddingBottom = room;
+      arrow();
       return;
     }
     if (!rect) { el.style.top = ''; el.style.left = ''; return; }
@@ -187,6 +201,7 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
     else { top = innerHeight - h - 8; left = 8; }
     el.style.top = `${top}px`;
     el.style.left = `${left}px`;
+    arrow();
   }, [rect, index]);
 
   useEffect(() => () => { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingBottom = ''; }, []);
@@ -199,14 +214,16 @@ function TourCard({ active, onClose, onSkip, onBack, onNext, onCheck }: {
 
   return (
     <>
+      {rect && isTour && <div className="hm-tour-scrim" aria-hidden
+        style={{ clipPath: `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, ${rect.left - PAD}px ${rect.top - PAD}px, ${rect.left - PAD}px ${rect.bottom + PAD}px, ${rect.right + PAD}px ${rect.bottom + PAD}px, ${rect.right + PAD}px ${rect.top - PAD}px, ${rect.left - PAD}px ${rect.top - PAD}px)` }} />}
       {rect && <div className={cn('hm-tour-spot', !isTour && 'hm-tour-spot--soft')} aria-hidden
         style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2 }} />}
       <div ref={card} role="dialog" aria-modal="false" aria-labelledby="tour-h" className={cn('bgv-popover hm-tour bgv-stack', !rect && 'hm-tour--center')} style={{ gap: 12 }}>
         <div className="bgv-row" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
-          <span className="hm-meta">{tour.titleFa}<span className="bgv-sep" />مرحله‌ی {faNum(index + 1)} از {faNum(tour.steps.length)}</span>
+          <span className="hm-meta">{tour.titleFa}<span className="bgv-sep" />{faNum(index + 1)} از {faNum(tour.steps.length)}</span>
           <Button variant="ghost" iconOnly icon="x" size="sm" onClick={onClose}>بستن (بعداً ادامه می‌دهم)</Button>
         </div>
-        <h2 id="tour-h" className="t-title" style={{ margin: 0 }}>{step.titleFa}</h2>
+        <h2 id="tour-h" className="t-title bgv-row" style={{ margin: 0, flexWrap: 'nowrap' }}>{STEP_ICON[step.target ?? ''] && <Icon name={STEP_ICON[step.target!]!} />}{step.titleFa}</h2>
         <p style={{ margin: 0 }} aria-live="polite">{step.bodyFa}</p>
         <div className="hm-tour__dots" aria-hidden>{tour.steps.map((s, i) => <span key={s.key} className={cn(i <= index && 'is-on')} />)}</div>
         <div className="hm-tour__actions tour-card__actions">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import type { MyTableItem, NotificationItem, Progression } from '@bg/contracts';
 import { useOnline, useToast } from '@bg/ui';
@@ -24,6 +24,11 @@ const LOGO = {
 
 /** Full-screen routes (no shell), as the references show. A live game hides the shell itself (html[data-immersive], Table.tsx). */
 const immersive = (path: string) => path === '/login' || path === '/payments/result' || path === '/dev-gateway' || path === '/search';
+
+/** Focused editors: full-screen (no dock, no top bar) on phones; the page brings its own ✕ bar and sticky save bar. */
+const taskOnPhone = (path: string) => path === '/me/studio' || path === '/me/avatar';
+const phoneMq = '(max-width: 899px)';
+const subscribePhone = (cb: () => void) => { const m = matchMedia(phoneMq); m.addEventListener('change', cb); return () => m.removeEventListener('change', cb); };
 
 type Group = keyof typeof PAGE_GROUPS;
 
@@ -57,6 +62,7 @@ export function Layout() {
     else if (wasOffline.current) { wasOffline.current = false; toast('success', 'دوباره وصل شدید.'); }
   }, [online, toast]);
   const { pathname } = useLocation();
+  const onPhone = useSyncExternalStore(subscribePhone, () => matchMedia(phoneMq).matches, () => false);
   const route = useLinkRouting();
   const title = usePageTitleText();
   const signedIn = !!me;
@@ -105,7 +111,7 @@ export function Layout() {
         action={<Button variant="primary" icon="refresh-cw" onClick={() => void refresh()}>تلاش دوباره</Button>} />
     : <Outlet />;
 
-  if (immersive(pathname)) {
+  if (immersive(pathname) || (onPhone && taskOnPhone(pathname))) {
     return (
       <OnboardingProvider>
         <div className="app-immersive" onClick={route}>
