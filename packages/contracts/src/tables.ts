@@ -92,6 +92,8 @@ export const seatView = z.object({
   league: leagueSchema.nullable().optional(),
   /** Current rating in this game and mode (rating mode of the table), when the player has one. */
   rating: z.number().int().nullable().optional(),
+  /** Running tables: the player has a live table connection (socket) right now. */
+  connected: z.boolean().optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()

@@ -436,7 +436,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
                 hover === name && drag.current ? 'is-hover' : '',
                 epVictim === name ? 'is-ep' : '',
                 exp && (exp.from === name || (selected === exp.from && exp.to === name)) ? 'is-hint' : ''].filter(Boolean).join(' ');
-              const interactive = (canAct && (movable.has(name) || !!target)) || (canPremove && (ownPiece(name) || !!selected));
+              const interactive = (canAct && (movable.has(name) || !!target)) || (canPremove && (ownPiece(name) || !!selected || !!premove)); // a tap on an empty square cancels a premove
               return (
                 <button key={f} type="button" role="gridcell" data-sq={name} className={cls} onClick={() => tap(name)}
                   aria-disabled={!interactive || undefined} aria-pressed={selected === name || undefined}

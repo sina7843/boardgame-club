@@ -858,7 +858,7 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     const running = c.running === x.seat && t.status === 'active';
     const first = running && !!c.first;
     const ms = running && !first && dueMs !== null ? Math.max(0, dueMs) : c.left[x.seat] ?? 0;
-    const off = !finished && !aborted && x.seat !== t.mySeat && !!x.user && !!online[x.user.id] && !online[x.user.id]!.online;
+    const off = !finished && !aborted && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online));
     const state: FrameClockState = flaggedSeat === x.seat ? 'flag' : off ? 'off' : aborted || first ? 'pre'
       : !running ? 'idle' : ms <= 10_000 ? 'crit' : ms <= warnMs ? 'warn' : 'run';
     return { ms, state, ...(first ? { first: true, firstMs: Math.max(0, dueMs ?? 0) } : {}) };
@@ -869,7 +869,7 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     seats: t.seats.map((x) => {
       const n = name(x.seat);
       return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
-        offline: !finished && x.seat !== t.mySeat && !!x.user && !!online[x.user.id] && !online[x.user.id]!.online };
+        offline: !finished && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online)) };
     }),
     clocks, live, finished, aborted,
     timeLabel: timeLabel(t) ?? undefined,

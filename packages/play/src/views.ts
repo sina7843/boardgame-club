@@ -111,6 +111,13 @@ async function seatRatings(db: Db, gameId: string, mode: string, ids: string[]):
   return new Map(rows.map((r) => [r.userId, displayRating(r)]));
 }
 
+/** Players with a live table socket right now (a row per subscribed socket, refreshed by its heartbeat). */
+async function connectedUsers(db: Db, tableId: string): Promise<Set<string>> {
+  const rows = await db.selectDistinct({ userId: tableWatchers.userId }).from(tableWatchers)
+    .where(and(eq(tableWatchers.tableId, tableId), sql`${tableWatchers.seenAt} > now() - interval '150 seconds'`));
+  return new Set(rows.map((r) => r.userId));
+}
+
 /** Distinct signed-in watchers seen by a socket heartbeat in the last 150 s (players never count). */
 async function spectatorCount(db: Db, tableId: string): Promise<number> {
   const [r] = await db.select({ n: sql<number>`count(distinct ${tableWatchers.userId})::int` }).from(tableWatchers)
@@ -144,7 +151,8 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
   };
   const seatMode = ratingModeOf(table.pace, (table.settings as { options?: { clock?: unknown } }).options);
   const seatIds = seats.flatMap(({ u }) => (u ? [u.id] : []));
-  const [leagues, ratingsBy] = await Promise.all([seatLeagues(db, table.gameId, seatMode, seatIds), seatRatings(db, table.gameId, seatMode, seatIds)]);
+  const [leagues, ratingsBy, online] = await Promise.all([seatLeagues(db, table.gameId, seatMode, seatIds), seatRatings(db, table.gameId, seatMode, seatIds),
+    table.status === 'active' ? connectedUsers(db, table.id) : Promise.resolve(null)]);
   const lobby: TableLobby = {
     id: table.id, gameId: game.id, gameNameFa: game.nameFa, gameNameOriginal: game.nameOriginal,
     status: table.status as TableLobby['status'], pace: table.pace as TableLobby['pace'],
@@ -154,7 +162,7 @@ export async function buildTableSnapshot(db: Db, registry: GameRegistry, req: Vi
     isTutorial: table.isTutorial, isMatchmade: table.isMatchmade, readyDeadline: null, hostId: table.hostId,
     seats: seats.map(({ p, u }) => ({
       seat: p.seat, kind: p.kind as 'human' | 'script' | 'bot', ready: p.ready,
-      ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null, rating: ratingsBy.get(u.id) ?? null } : {}),
+      ...(u ? { titleKey: u.titleKey, league: leagues.get(u.id) ?? null, rating: ratingsBy.get(u.id) ?? null, ...(online ? { connected: online.has(u.id) } : {}) } : {}),
       user: u ? { id: u.id, displayName: u.displayName, avatarKey: u.avatarKey as never, joinedAt: u.createdAt.toISOString() } : null,
       // equipped comes with the seats' users row (no extra query on the move path).
       ...(u && seatCosmeticsOf(u.equipped) ? { cosmetics: seatCosmeticsOf(u.equipped)! } : {}),
