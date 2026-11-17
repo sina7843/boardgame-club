@@ -309,7 +309,9 @@ export const gameTables = pgTable('game_tables', {
   tutorialStep: integer().notNull().default(0),
   revision: integer().notNull().default(0),
   /** Chess-clock tables only: each seat's remaining time (ms) as of `since` (epoch ms), and whose clock runs. */
-  clock: jsonb().$type<{ left: number[]; since: number; seat: number | null; lagQuota?: number[] }>(),
+  clock: jsonb().$type<{ left: number[]; since: number; seat: number | null; lagQuota?: number[];
+    /** Seats that made their first move (the bank starts with it); absent on tables from before this rule = all moved. */
+    moved?: boolean[]; aborted?: boolean }>(),
   createdAt: createdAt(),
   startedAt: tsz(),
   finishedAt: tsz()

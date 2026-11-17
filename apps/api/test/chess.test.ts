@@ -31,28 +31,61 @@ describe('chess through the platform', () => {
     expect(after.game.view.current).toBe(1 - white);
   });
 
-  it('chess clock: banks run only on your turn, gain the increment, and a flag fall loses', async () => {
+  it('chess clock: each bank starts with its own first move, gains the increment after a move, and a flag fall loses', async () => {
     const t = await startTable(ctx, 'chess', 2, { options: { clock: '3+2' } });
     const bySeat = await seatsOf(ctx, t.tableId, t.players);
     const v = await view(ctx, t.players[0]!, t.tableId);
     const white = v.game.view.colors.indexOf('w') as number;
-    expect(v.game.clocks).toMatchObject({ running: white, initialMs: 180_000, left: [180_000, 180_000] });
+    // ENGINE.md P1: before the first move only a 30 s first-move countdown runs; the bank waits.
+    expect(v.game.clocks).toMatchObject({ running: white, initialMs: 180_000, left: [180_000, 180_000], first: true });
     const due0 = new Date(v.game.deadline.dueAt).getTime() - Date.now();
-    expect(due0).toBeGreaterThan(170_000);
-    expect(due0).toBeLessThanOrEqual(181_000);
+    expect(due0).toBeGreaterThan(25_000);
+    expect(due0).toBeLessThanOrEqual(31_000);
     await command(ctx, bySeat(white), t.tableId, v.game.revision, { type: 'move', from: 'e2', to: 'e4' });
-    const a = await view(ctx, t.players[0]!, t.tableId);
+    let a = await view(ctx, t.players[0]!, t.tableId);
+    // The first move is free (no charge, no increment); Black is now on its own first-move countdown.
+    expect(a.game.clocks).toMatchObject({ running: 1 - white, left: [180_000, 180_000], first: true });
+    await command(ctx, bySeat(1 - white), t.tableId, a.game.revision, { type: 'move', from: 'e7', to: 'e5' });
+    a = await view(ctx, t.players[0]!, t.tableId);
+    expect(a.game.clocks.first).toBeUndefined();
+    expect(new Date(a.game.deadline.dueAt).getTime() - Date.now()).toBeGreaterThan(170_000);
+    await command(ctx, bySeat(white), t.tableId, a.game.revision, { type: 'move', from: 'g1', to: 'f3' });
+    a = await view(ctx, t.players[0]!, t.tableId);
     expect(a.game.clocks.running).toBe(1 - white);
     // White spent a moment and earned +2 s; Black's bank is untouched.
     expect(a.game.clocks.left[white]).toBeGreaterThan(180_000);
     expect(a.game.clocks.left[1 - white]).toBe(180_000);
-    // Black's flag falls: White can still mate, so White wins on time.
+    // Black's flag falls: White can still mate, so White wins on time (no increment is added to the flagged bank).
     const d = (await pendingDeadline(ctx, t.tableId))!;
     await makeDue(ctx, d.id);
     expect(await fireDeadline(ctx.db, createDefaultRegistry(), d.id)).toBe('fired');
     const end = await view(ctx, t.players[0]!, t.tableId);
     expect(end.table.status).toBe('finished');
     expect(end.game.result.placements.find((p: { place: number }) => p.place === 1).seat).toBe(white);
+  });
+
+  it('quick pairing on a clock: the queue is keyed by the bank and the matched table plays on that clock', async () => {
+    const [a, b] = await users(ctx, 2);
+    const q = (u: typeof a, clock: string) => call(ctx, 'POST', '/api/matchmaking/tickets', u, { gameId: 'chess', pace: 'live', competition: 'ranked', playerCount: 2, turnSeconds: 60, clock });
+    expect((await q(a!, '2+0')).json().errorCode).toBe('OPTION_NOT_ALLOWED'); // not a clock choice of chess
+    expect((await q(a!, '3+0')).statusCode).toBe(201);
+    expect((await q(b!, '3+0')).statusCode).toBe(201);
+    const mine = (await call(ctx, 'GET', '/api/me/matchmaking', a)).json().items as { matchedTableId: string | null }[];
+    const tableId = mine.find((t) => t.matchedTableId)?.matchedTableId;
+    expect(tableId).toBeTruthy();
+    const snap = await view(ctx, a!, tableId!);
+    expect(snap.table).toMatchObject({ competition: 'ranked', settings: { turnSeconds: 180, options: { clock: '3+0' } } });
+  });
+
+  it('a side that does not make its first move in time aborts the game (no result)', async () => {
+    const t = await startTable(ctx, 'chess', 2, { options: { clock: '5+0' } });
+    const d = (await pendingDeadline(ctx, t.tableId))!;
+    await makeDue(ctx, d.id);
+    expect(await fireDeadline(ctx.db, createDefaultRegistry(), d.id)).toBe('fired');
+    const end = await view(ctx, t.players[0]!, t.tableId);
+    expect(end.table.status).toBe('cancelled');
+    expect(end.game.clocks).toMatchObject({ aborted: true });
+    expect(end.game.result).toBeNull();
   });
 
   it('the interactive tutorial runs on the server to checkmate', async () => {

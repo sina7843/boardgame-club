@@ -7,15 +7,22 @@ const tag = (name: string, value: string) => `[${name} "${value.replaceAll('\\',
 /** `1-0`, `0-1`, `1/2-1/2`, or `*` for a game that is not over. */
 export function pgnResult(s: ChessState): string {
   if (!s.outcome) return '*';
-  if (s.outcome.reason === 'draw') return '1/2-1/2';
+  // A drawn Armageddon game stays 1/2-1/2 on the record (N4); the tie-break win for Black is a comment.
+  if (s.outcome.reason === 'draw' || s.end?.kind === 'draw') return '1/2-1/2';
   const winner = s.outcome.placements.find((p) => p.place === 1)?.seat;
   if (winner === undefined) return '1/2-1/2';
   return s.colors[winner] === 'w' ? '1-0' : '0-1';
 }
 
-const termination = (s: ChessState): string | null => {
+const DRAW_EN = { stalemate: 'stalemate', repetition: 'repetition', fiftyMove: 'the 50-move rule', material: 'insufficient material',
+  agreement: 'agreement', timeoutMaterial: 'timeout vs insufficient material' } as const;
+/** Termination tag that tells the ends apart for the arbiter (N3), in the common "... won by ..." / "Game drawn by ..." form. */
+const termination = (s: ChessState, white: string, black: string): string | null => {
   if (!s.end) return null;
-  return s.end.kind === 'timeout' ? 'time forfeit' : 'normal';
+  if (s.end.kind === 'draw') return `Game drawn by ${DRAW_EN[s.end.draw ?? 'agreement']}`;
+  const winner = s.outcome?.placements.find((p) => p.place === 1)?.seat;
+  const who = winner === undefined ? '?' : s.colors[winner] === 'w' ? white : black;
+  return `${who} won ${s.end.kind === 'checkmate' ? 'by checkmate' : s.end.kind === 'resign' ? 'by resignation' : 'on time'}`;
 };
 
 export function toPgn(s: ChessState, meta: RecordMeta): string {
@@ -27,7 +34,7 @@ export function toPgn(s: ChessState, meta: RecordMeta): string {
     tag('White', white), tag('Black', black), tag('Result', result)
   ];
   if (meta.timeControl) tags.push(tag('TimeControl', meta.timeControl));
-  const end = termination(s);
+  const end = termination(s, white, black);
   if (end) tags.push(tag('Termination', end));
   // Clock comments `{[%clk h:mm:ss]}` (the mover's clock after the move) when the game ran on a clock.
   const clocks = (meta.moveTimes ?? []).filter((m) => m.actionType === 'move');
@@ -47,6 +54,7 @@ export function toPgn(s: ChessState, meta: RecordMeta): string {
     const c = clk(i);
     if (c) tokens.push(c);
   });
+  if (s.end?.kind === 'draw' && s.opts?.armageddon) tokens.push('{Armageddon: Black wins the tie-break}');
   tokens.push(result);
   // Lines stay under 80 characters (PGN export format).
   const lines: string[] = [];

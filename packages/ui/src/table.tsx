@@ -57,4 +57,41 @@ export interface GameRendererProps<View> {
   queued?: GameAction | null;
   /** The player's own move after the undo window: sent, waiting for the server (e.g. keep dice tumbling until the result). */
   sending?: GameAction | null;
+  /**
+   * Only for games that draw their own table frame (chess): the shell hides its HUD, turn pill and action dock and
+   * passes the platform data instead. Display only; the server stays the authority (clock, result, eligibility).
+   */
+  frame?: TableFrame;
+}
+
+/** Clock state of one seat (chess ENGINE.md §2): pre · idle · run · warn · crit · flag · off. */
+export type FrameClockState = 'pre' | 'idle' | 'run' | 'warn' | 'crit' | 'flag' | 'off';
+export interface TableFrameSeat {
+  seat: number;
+  name: string;
+  /** The shell's avatar for this seat (DS Avatar with the equipped ring). */
+  avatar: ReactNode;
+  rating?: number | null;
+  /** League name in Persian, when placed this season. */
+  league?: string | null;
+  offline?: boolean;
+  bot?: boolean;
+}
+export interface TableFrame {
+  seats: TableFrameSeat[];
+  /** Per seat, null on tables without a chess clock. `ms` is already predicted from the server time. */
+  clocks: { ms: number; state: FrameClockState; first?: boolean; /** First-move countdown left (ms) while `first`. */ firstMs?: number }[] | null;
+  /** Own connection is live (false = reconnecting: actions locked, clocks keep running). */
+  live: boolean;
+  finished: boolean;
+  /** Nobody made the first move in time: the game was aborted (no result, no rating change). */
+  aborted?: boolean;
+  /** «بلیتس ۵ دقیقه» etc., for headings. */
+  timeLabel?: string;
+  /** Shell-built panels the frame places: the result (rematch, rating change, PGN, share, report) and tournament card. */
+  result?: ReactNode;
+  tournament?: ReactNode;
+  /** Opens the table chat sheet (phones / narrow desktop). */
+  openChat?: () => void;
+  unread?: number;
 }

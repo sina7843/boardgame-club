@@ -253,3 +253,45 @@
   .pg-wikifilters > :first-child { grid-column: 1 / -1; }
   .pg-wiki { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---------- chess «بازی جدید» (design/games/chess D01/P01/P02, CX-13) ---------- */
+.chl { display: grid; grid-template-rows: auto minmax(0, 1fr); position: fixed; inset: 0; z-index: var(--z-felt); background: var(--bg); }
+.chl__body { display: grid; grid-template-columns: 480px minmax(0, 1fr); min-block-size: 0; }
+.chl__side { background: var(--surface); padding: 22px 24px; display: flex; flex-direction: column; gap: var(--space-4); overflow: auto; border-inline-end: 1px solid var(--line); }
+.chl__stage { background: var(--felt); display: grid; place-items: center; position: relative; padding: var(--space-4); }
+.chl-h { margin: 0; font-size: 24px; font-weight: 900; color: var(--heading); }
+.chl-tc { display: grid; gap: var(--space-3); }
+.chl-tc__row { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: var(--space-3); }
+.chl-tc__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.chl-cat { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; font-weight: 700; color: var(--label); }
+.chl-cat .bgv-icon { color: var(--warning); }
+.chl-tile { display: grid; place-items: center; block-size: 64px; border: 0; border-radius: var(--radius-md); background: var(--btn-neutral); color: var(--heading);
+  box-shadow: var(--shadow-tile); cursor: pointer; font: inherit; padding: var(--space-2); }
+.chl-tile b { font: 900 18px/1.1 var(--font-fa); }
+.chl-tile--inc b { direction: ltr; unicode-bidi: isolate; }
+.chl-tile[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); box-shadow: var(--shadow-tile-primary); }
+.chl-tile:disabled { opacity: .45; cursor: not-allowed; }
+.chl-more { display: flex; align-items: center; gap: var(--space-2); border: 0; background: none; padding: 0; font: 700 14.5px var(--font-fa); color: var(--link); cursor: pointer; justify-self: start; min-block-size: 44px; }
+.chl-more__up { transform: rotate(180deg); }
+.chl-hint { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.chl-hint--err { color: var(--danger); }
+.chl-row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.chl-row--between { justify-content: space-between; }
+.chl-cta .bgv-btn { block-size: 56px; font-size: 18px; }
+.chl-seek { display: grid; justify-items: center; gap: 14px; text-align: center; color: var(--felt-ink); padding: 28px 36px; border-radius: var(--radius-lg); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.chl-seek h3 { margin: 0; font-size: 22px; font-weight: 900; color: var(--felt-ink); }
+.chl-seek p { margin: 0; font-size: 15px; color: var(--felt-muted); }
+.chl-seek__t { font: 900 34px/1 var(--font-fa); direction: ltr; }
+.chl-ring { inline-size: 72px; block-size: 72px; border-radius: 50%; border: 6px solid var(--felt-line); border-block-start-color: var(--felt-gold); animation: chl-spin 1.1s linear infinite; }
+@keyframes chl-spin { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) { .chl-ring { animation: none; } }
+.chl-phone-seek { display: none; }
+@media (max-width: 899px) {
+  .chl { position: static; min-block-size: 100dvh; }
+  .chl__body { grid-template-columns: minmax(0, 1fr); }
+  .chl__stage { display: none; }
+  .chl__side { padding: var(--space-4); border: 0; }
+  .chl-tc__row { grid-template-columns: 64px minmax(0, 1fr); }
+  .chl-tc__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chl-phone-seek { display: block; }
+}

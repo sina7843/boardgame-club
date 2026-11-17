@@ -9,7 +9,7 @@ export type RatingMode = (typeof RATING_MODES)[number];
 export const ratingModeSchema = z.enum(RATING_MODES);
 
 export const RATING_MODE_FA: Record<RatingMode, string> = {
-  live: 'زنده', turn: 'نوبتی', bullet: 'گلوله‌ای', blitz: 'برق‌آسا', rapid: 'سریع', classical: 'کلاسیک'
+  live: 'زنده', turn: 'نوبتی', bullet: 'بولت', blitz: 'بلیتس', rapid: 'رپید', classical: 'کلاسیک'
 };
 
 /**

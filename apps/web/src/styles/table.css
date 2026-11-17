@@ -175,3 +175,47 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-screen:has(> .tbl-top > .tbl-offline) { grid-template-rows: auto minmax(0, 1fr) auto !important; }
 @media (max-width: 899px) { .tbl-screen:has(> .tbl-top > .tbl-offline) { grid-template-rows: auto auto auto auto !important; } }
 .tbl-guest { position: relative; min-block-size: 70dvh; }
+
+/* ---------- games with their own frame (chess, design/games/chess): game bar | renderer (rail + felt) | chat ---------- */
+.tbl-own { display: grid; grid-template-rows: auto auto minmax(0, 1fr); position: fixed; inset: 0; z-index: var(--z-felt); min-block-size: 0; overflow: hidden; }
+.tbl-own > .bgv-gamebar { grid-row: 1; }
+.tbl-pops--own { position: static; display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-3) 0; }
+.tbl-own__body { grid-row: 3; min-block-size: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.tbl-own__body--chat { grid-template-columns: minmax(0, 1fr) 340px; }
+.tbl-own__chat { position: static; max-block-size: none; min-block-size: 0; border-radius: 0; border-inline-start: 1px solid var(--line); }
+.tbl-own__body > .ch { min-block-size: 0; }
+@media (max-width: 899px) {
+  .tbl-own { position: static; block-size: auto; min-block-size: 100dvh; overflow: visible; }
+}
+.tbl-ownres { display: grid; gap: var(--space-3); padding: 0 20px var(--space-3); }
+.tbl-ownres__rating { margin: 0; text-align: center; font-size: 14px; color: var(--text); }
+.tbl-ownres__up { color: var(--success); font-weight: 700; }
+.tbl-ownres__down { color: var(--danger); font-weight: 700; }
+.tbl-ownres__btns { display: grid; gap: var(--space-2); }
+.tbl-ownres__foot { display: flex; justify-content: center; gap: var(--space-1); padding-block-start: var(--space-2); border-block-start: 1px solid var(--line); }
+.tbl-ownt { display: grid; gap: var(--space-2); background: var(--surface); border-radius: var(--radius-md); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-3); }
+.tbl-ownt__round { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text); text-decoration: none; }
+.tbl-ownt__round b { color: var(--heading); }
+.tbl-ownt__round .bgv-icon { color: var(--warning); }
+.tbl-ownt__mini { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13.5px; }
+.tbl-ownt__mini li { display: grid; grid-template-columns: 24px 1fr auto; gap: var(--space-2); }
+.tbl-ownt__mini li > span { color: var(--text-muted); font-weight: 700; }
+.tbl-ownt__mini li.is-you { font-weight: 900; color: var(--heading); }
+/* chess between rounds (design/games/chess P16) */
+.tbl-rounds { display: grid; gap: var(--space-3); align-content: start; padding: var(--space-3); overflow: auto; max-inline-size: 560px; inline-size: 100%; margin-inline: auto; }
+.tbl-rounds__card { display: grid; gap: var(--space-3); background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card), var(--shadow-ring); padding: var(--space-4); }
+.tbl-rounds__head { margin: 0; display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text); }
+.tbl-rounds__head b { color: var(--heading); }
+.tbl-rounds__head .bgv-icon { color: var(--warning); }
+.tbl-rounds__next { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); box-shadow: var(--shadow-ring); }
+.tbl-rounds__next > div { display: grid; gap: 2px; }
+.tbl-rounds__next b { color: var(--heading); }
+.tbl-rounds__count { margin: 0; display: flex; align-items: baseline; justify-content: center; gap: var(--space-2); }
+.tbl-rounds__count b { font: 900 34px/1 var(--font-fa); color: var(--heading); }
+.tbl-rounds__title { margin: 0; font-size: 15px; font-weight: 700; color: var(--heading); }
+.tbl-rounds__table { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); font-size: 14px; }
+.tbl-rounds__table li { display: grid; grid-template-columns: 28px 1fr auto 52px; gap: var(--space-2); }
+.tbl-rounds__table li > span:first-child { color: var(--text-muted); font-weight: 700; }
+.tbl-rounds__table li > span:last-child { color: var(--text-muted); text-align: end; }
+.tbl-rounds__table li.is-you { font-weight: 900; color: var(--heading); }
+.tbl-rounds__links { display: flex; justify-content: center; gap: var(--space-2); flex-wrap: wrap; }

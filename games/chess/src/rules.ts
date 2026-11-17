@@ -58,7 +58,10 @@ export interface ChessState {
 const square = z.string().regex(/^[a-h][1-8]$/);
 export const chessAction = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('move'), from: square, to: square, promotion: z.enum(['Q', 'R', 'B', 'N']).optional(), offerDraw: z.boolean().optional() }),
+  // D7 (owner decision): either player offers, accepts or declines a draw at any time, not only on their own turn.
+  z.strictObject({ type: z.literal('offerDraw') }),
   z.strictObject({ type: z.literal('acceptDraw') }),
+  z.strictObject({ type: z.literal('declineDraw') }),
   z.strictObject({ type: z.literal('claimDraw') }),
   z.strictObject({ type: z.literal('resign') })
 ]);
@@ -270,6 +273,11 @@ export function canMate(board: (Piece | null)[], c: Color): boolean {
   const own = board.filter((p) => p && colorOf(p) === c && typeOf(p) !== 'K') as Piece[];
   if (own.length === 0) return false;
   if (own.length === 1 && (typeOf(own[0]!) === 'B' || typeOf(own[0]!) === 'N')) return false;
+  // Bishops only, all on one square colour (after under-promotion): they can never mate a bare king (X5).
+  if (own.every((p) => typeOf(p) === 'B')) {
+    const shades = new Set(board.flatMap((p, i) => (p && colorOf(p) === c && typeOf(p) === 'B' ? [(fileOf(i) + rankOf(i)) % 2] : [])));
+    if (shades.size === 1) return false;
+  }
   return true;
 }
 
@@ -312,8 +320,14 @@ const drawOutcome = (s: ChessState): Outcome =>
 
 /** Draw by agreement allowed now? (`plies` = moves made so far, including the one being played when offering.) */
 const agreementAllowed = (s: ChessState, plies: number) => !optsOf(s).armageddon && Math.floor(plies / 2) >= optsOf(s).minDrawMove;
-const offerAllowed = (s: ChessState, seat: number) =>
-  agreementAllowed(s, s.history.length + 1) && s.history.length - (s.lastOffer?.[seat] ?? -OFFER_EVERY_PLIES) >= OFFER_EVERY_PLIES;
+const offerAllowed = (s: ChessState, seat: number, plies = s.history.length + 1) =>
+  agreementAllowed(s, plies) && s.history.length - (s.lastOffer?.[seat] ?? -OFFER_EVERY_PLIES) >= OFFER_EVERY_PLIES;
+/** Why a standalone offer (D7) is not possible now, or null when it is. */
+const offerBlock = (s: ChessState, seat: number): string | null =>
+  optsOf(s).armageddon ? 'DRAW_NOT_ALLOWED'
+    : s.drawOffer !== null ? 'DRAW_OFFER_PENDING'
+      : !agreementAllowed(s, s.history.length) ? 'DRAW_TOO_EARLY'
+        : !offerAllowed(s, seat, s.history.length) ? 'DRAW_OFFER_COOLDOWN' : null;
 /** FIDE claim: the side to move may claim when the position stands for the third time or 50 moves passed without a pawn move or capture. */
 const claimable = (s: ChessState): 'repetition' | 'fiftyMove' | null =>
   !optsOf(s).fideClaims ? null : (s.seen[positionKey(s.pos)] ?? 0) >= 3 ? 'repetition' : s.pos.halfmove >= 100 ? 'fiftyMove' : null;
@@ -347,11 +361,12 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     if (s.outcome) return { ok: false, errorCode: 'GAME_FINISHED' };
     if (actor.kind !== 'player' || (actor.seat !== 0 && actor.seat !== 1)) return { ok: false, errorCode: 'NOT_A_PLAYER' };
     if (a.type === 'resign') return { ok: true };
-    if (s.colors[actor.seat] !== s.pos.turn) return { ok: false, errorCode: 'NOT_YOUR_TURN' };
-    if (a.type === 'acceptDraw') {
+    if (a.type === 'offerDraw') { const block = offerBlock(s, actor.seat); return block ? { ok: false, errorCode: block } : { ok: true }; }
+    if (a.type === 'acceptDraw' || a.type === 'declineDraw') {
       if (s.drawOffer !== 1 - actor.seat) return { ok: false, errorCode: 'NO_DRAW_OFFER' };
-      return agreementAllowed(s, s.history.length) ? { ok: true } : { ok: false, errorCode: 'DRAW_TOO_EARLY' };
+      return a.type === 'declineDraw' || agreementAllowed(s, s.history.length) ? { ok: true } : { ok: false, errorCode: 'DRAW_TOO_EARLY' };
     }
+    if (s.colors[actor.seat] !== s.pos.turn) return { ok: false, errorCode: 'NOT_YOUR_TURN' };
     if (a.type === 'claimDraw') return claimable(s) ? { ok: true } : { ok: false, errorCode: 'DRAW_CLAIM_NOT_ALLOWED' };
     const piece = s.pos.board[sqIndex(a.from)];
     if (!piece || colorOf(piece) !== s.pos.turn) return { ok: false, errorCode: 'NOT_YOUR_PIECE' };
@@ -367,6 +382,16 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
       s.end = { kind: 'resign' };
       s.outcome = winOutcome(1 - seat, 'resign');
       return finish(s, [{ type: 'resigned', seat }]);
+    }
+    if (a.type === 'offerDraw') {
+      s.drawOffer = seat;
+      s.lastOffer = [...(s.lastOffer ?? [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES])] as [number, number];
+      s.lastOffer[seat] = s.history.length;
+      return { nextState: s, internalEvents: [{ type: 'drawOffered', seat }], scheduleChanges: [] };
+    }
+    if (a.type === 'declineDraw') {
+      s.drawOffer = null;
+      return { nextState: s, internalEvents: [{ type: 'drawDeclined', seat }], scheduleChanges: [] };
     }
     if (a.type === 'acceptDraw') {
       s.end = { kind: 'draw', draw: 'agreement' };
@@ -385,10 +410,11 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     s.pos = makeMove(before, m);
     s.history.push({ san: notation, from: a.from, to: a.to, color: before.turn });
     s.timeouts[seat] = 0;
-    // A pending offer lapses when its receiver moves instead of accepting; a new one goes with this move.
-    // A draw offer goes with a move, and only when the table's rules allow one now (see `canOfferDraw`).
-    const offer = !!a.offerDraw && offerAllowed({ ...s, history: s.history.slice(0, -1) }, seat);
-    s.drawOffer = offer ? seat : null;
+    // A pending offer lapses when its receiver moves instead of accepting (the offerer's own move keeps it).
+    // An offer can still ride on a move (older clients), when the table's rules allow one now (see `canOfferDraw`).
+    const offer = !!a.offerDraw && s.drawOffer === null && offerAllowed({ ...s, history: s.history.slice(0, -1) }, seat);
+    if (s.drawOffer === 1 - seat) s.drawOffer = null;
+    if (offer) s.drawOffer = seat;
     if (offer) { s.lastOffer = [...(s.lastOffer ?? [-OFFER_EVERY_PLIES, -OFFER_EVERY_PLIES])] as [number, number]; s.lastOffer[seat] = s.history.length - 1; }
     const key = positionKey(s.pos);
     s.seen[key] = (s.seen[key] ?? 0) + 1;
@@ -433,8 +459,15 @@ export const chessModule: GameModule<ChessState, ChessAction, ChessView> = {
     const out: ActionHint[] = [];
     if (s.colors[viewer.seat] === s.pos.turn) {
       for (const m of legalMoves(s.pos)) out.push({ type: 'move', from: sqName(m.from), to: sqName(m.to), ...(m.promo ? { promotion: m.promo } : {}) });
-      if (s.drawOffer === 1 - viewer.seat && agreementAllowed(s, s.history.length)) out.push({ type: 'acceptDraw' });
       if (claimable(s)) out.push({ type: 'claimDraw' });
+    }
+    // D7: both seats, any turn. A blocked offer is still listed (disabled + reason) so the draw button can say why.
+    if (s.drawOffer === 1 - viewer.seat) {
+      if (agreementAllowed(s, s.history.length)) out.push({ type: 'acceptDraw' });
+      out.push({ type: 'declineDraw' });
+    } else {
+      const block = offerBlock(s, viewer.seat);
+      out.push({ type: 'offerDraw', ...(block ? { disabled: true, reason: block } : {}) });
     }
     out.push({ type: 'resign' });
     return out;

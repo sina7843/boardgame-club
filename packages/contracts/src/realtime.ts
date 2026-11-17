@@ -48,12 +48,16 @@ export const ClientEvents = {
  * `turn.critical` (last 10 s live / last hour turn-based) are NOT server events: clients derive them from
  * `dueAt` (no per-table timers on the server). See `turnThresholds`.
  */
-export interface TurnStartedEvent { tableId: string; revision: number; seats: number[]; dueAt: string; turnSeconds: number; pace: 'live' | 'turn'; serverTime: string }
+export interface TurnStartedEvent { tableId: string; revision: number; seats: number[]; dueAt: string; turnSeconds: number; pace: 'live' | 'turn'; serverTime: string;
+  /** Chess-clock tables: the starting bank (s); thresholds then follow the clock, not the per-move time. */
+  clockBaseSeconds?: number }
 /** The server timed out these seats and played for them at `revision`. */
 export interface TurnAutoMovedEvent { tableId: string; revision: number; seats: number[] }
 /** Seconds before dueAt at which the client raises warning / critical. */
-export const turnThresholds = (pace: 'live' | 'turn', turnSeconds: number) =>
-  ({ warningLeft: Math.floor(turnSeconds / 2), criticalLeft: pace === 'live' ? 10 : 3600 });
+export const turnThresholds = (pace: 'live' | 'turn', turnSeconds: number, clockBaseSeconds?: number) =>
+  clockBaseSeconds ? clockThresholds(clockBaseSeconds) : ({ warningLeft: Math.floor(turnSeconds / 2), criticalLeft: pace === 'live' ? 10 : 3600 });
+/** Chess clock (design/games/chess ENGINE.md P2): warning at max(20% of the base, 20 s) left, critical at 10 s. */
+export const clockThresholds = (baseSeconds: number) => ({ warningLeft: Math.max(Math.round(baseSeconds * 0.2), 20), criticalLeft: 10 });
 
 export const typingPayload = z.strictObject({ conversationId: z.uuid() });
 /** Pushed to members: someone is typing (clients show it for a few seconds). */

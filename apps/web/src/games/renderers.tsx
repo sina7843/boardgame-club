@@ -153,6 +153,8 @@ export const RENDERERS: Record<string, ComponentType<GameRendererProps<never>>> 
  */
 /** Renderers with their own «تأیید» step: their moves skip the shell's undo window (undo happens before confirm). */
 export const CONFIRMS_IN_RENDERER = new Set(['gaia-project@1.0.0']);
+/** Games that draw their own table frame (design/games/chess): the shell passes `frame` and keeps only the game bar and chat. */
+export const OWN_FRAME = new Set(['chess@1.0.0']);
 
 export const SEAT_CARDS: Record<string, (seat: PublicSummaryView['seats'][number], turn: boolean) => Partial<PlayerCardProps>> = {
   'gaia-project@1.0.0': gaiaSeatCard

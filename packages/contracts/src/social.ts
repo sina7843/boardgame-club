@@ -9,7 +9,12 @@ export const enqueueBody = z.strictObject({
   pace: paceSchema,
   competition: competitionSchema.default('friendly'),
   playerCount: z.number().int().min(1).max(16),
-  turnSeconds: z.number().int().positive()
+  turnSeconds: z.number().int().positive(),
+  /**
+   * Live games with a clock option (chess): queue for this «m+0» control instead of a per-move time. The queue is keyed
+   * by the bank (turnSeconds = m × 60) and the matched table gets the clock (see createMatchTable).
+   */
+  clock: z.string().regex(/^\d{1,2}\+0$/).optional()
 });
 export type EnqueueBody = z.infer<typeof enqueueBody>;
 

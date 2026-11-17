@@ -90,6 +90,8 @@ export const seatView = z.object({
   /** Chosen «لقب» (catalogue key) and this season's league in this game and pace, when placed. */
   titleKey: z.string().nullable().optional(),
   league: leagueSchema.nullable().optional(),
+  /** Current rating in this game and mode (rating mode of the table), when the player has one. */
+  rating: z.number().int().nullable().optional(),
   ready: z.boolean(),
   /** Bot seats only. */
   bot: z.object({ level: botLevelSchema, nameFa: z.string(), avatarKey: avatarKeySchema, style: botStyleSchema }).optional()
@@ -167,7 +169,11 @@ export const tableSnapshot = z.object({
     summary: publicSummarySchema.nullable(),
     deadline: z.object({ dueAt: z.iso.datetime(), frozen: z.boolean() }).nullable(),
     /** Chess-clock tables: each seat's remaining ms as of `since`; the clock of `running` counts down from then. */
-    clocks: z.object({ left: z.array(z.number()), since: z.iso.datetime(), running: z.number().int().nullable(), initialMs: z.number().int() }).nullable().optional(),
+    clocks: z.object({ left: z.array(z.number()), since: z.iso.datetime(), running: z.number().int().nullable(), initialMs: z.number().int(),
+      /** The running seat has not made its first move: its bank waits, a short first-move countdown runs instead. */
+      first: z.boolean().optional(),
+      /** Nobody moved in time at the start: the game was aborted (no result, no rating change). */
+      aborted: z.boolean().optional() }).nullable().optional(),
     result: outcomeSchema.nullable(),
     tutorial: z.object({
       step: z.number().int(), total: z.number().int(), instructionFa: z.string(), introFa: z.string(),

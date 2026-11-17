@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
-import { BOT_LEVEL_FA, BOT_STYLE_FA, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
-import { DockSlotHost, useOnline, useToast } from '@bg/ui';
+import { type TournamentDetail, BOT_LEVEL_FA, BOT_STYLE_FA, clockClass, clockThresholds, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, RATING_MODE_FA, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
+import { DockSlotHost, useOnline, useToast, type FrameClockState, type TableFrame } from '@bg/ui';
 import {
-  ActionDock, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
+  ActionDock, Avatar, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   LoginSheet, ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill, emojify,
   type AvatarProps, type ClockState, type PlayerCardProps, type RewardProps, type SeatNo
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
-import { CONFIRMS_IN_RENDERER, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
+import { CONFIRMS_IN_RENDERER, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt, frameProps } from '../lib/bgv.tsx';
 import { durationFa, faNum, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
@@ -791,6 +791,293 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   );
 }
 
+/** «بلیتس ۵ دقیقه»، «بلیتس ۳ + ۲» from the table's chess clock option. */
+function timeLabel(t: Lobby): string | null {
+  const v = (t.settings as { options?: { clock?: unknown } }).options?.clock;
+  const cls = clockClass(v);
+  const m = typeof v === 'string' ? /^(\d+)(?:\/\d+)?\+(\d+)$/.exec(v) : null;
+  if (!cls || !m) return null;
+  return `${RATING_MODE_FA[cls]} ${m[2] === '0' ? `${faNum(Number(m[1]))} دقیقه` : `${faNum(Number(m[1]))} + ${faNum(Number(m[2]))}`}`;
+}
+
+/**
+ * Table for games that draw their own frame (chess, design/games/chess): game bar + the renderer (rail and felt with
+ * player bars, clocks and the phone dock) + the docked chat (≥1200) or a chat sheet. The shell only passes platform
+ * data through `frame`; the server stays the authority for time, result and eligibility.
+ */
+function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
+  useImmersive();
+  const snap = s.snapshot!;
+  const t = snap.table;
+  const g = snap.game!;
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { act } = s;
+  const onAction = useCallback((a: Parameters<typeof act>[0]) => act(a, false), [act]);
+  const Renderer = RENDERERS[t.clientBundleRef];
+  const name = seatNameOf(t);
+  const finished = t.status === 'finished';
+  const aborted = t.status === 'cancelled' && !!g.clocks?.aborted;
+  const isPlayer = t.mySeat !== null;
+  const netOnline = useOnline();
+  const live = s.live && netOnline;
+  const busy = !!s.pending || !!s.queued || t.status !== 'active' || !!snap.incident || !netOnline;
+  const wide = useWide();
+  const [chat, setChat] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [showBoard, setShowBoard] = useState(false);
+  const { unread } = useTableChatAlerts(t.id, chat || wide);
+  useTurnAlerts(t.id, t.mySeat);
+  const online = usePresence(finished || aborted ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
+  const myTurn = t.mySeat !== null && g.pendingSeats.includes(t.mySeat);
+  // Tournament players: the page being hidden/shown is recorded for fair-play review (stated in the tournament rules).
+  const inTournament = !!t.settings.tournament;
+  useEffect(() => {
+    if (!inTournament || t.mySeat === null || t.status !== 'active') return;
+    const send = () => { api(`/tables/${t.id}/focus`, { method: 'POST', body: { hidden: document.hidden } }).catch(() => undefined); };
+    document.addEventListener('visibilitychange', send);
+    return () => document.removeEventListener('visibilitychange', send);
+  }, [t.id, inTournament, t.mySeat, t.status]);
+  // Escape cancels a move inside its undo window, and closes the chat sheet.
+  const { queued, cancelQueued } = s;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key !== 'Escape') return; if (queued) cancelQueued(); setChat(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [queued, cancelQueued]);
+
+  // Clocks (ENGINE.md §2): the server holds the banks; the running one is predicted from its deadline (server time).
+  const fast = useRef(false);
+  const now = useNow(fast.current ? 100 : 250);
+  const c = g.clocks;
+  const dueMs = g.deadline ? new Date(g.deadline.dueAt).getTime() - s.clockOffset - now : null;
+  const view = g.view as { end?: { kind: string } | null; colors?: string[]; turn?: string } | null;
+  const flaggedSeat = view?.end?.kind === 'timeout' && view.colors && view.turn ? view.colors.indexOf(view.turn) : null;
+  const warnMs = c ? clockThresholds(c.initialMs / 1000).warningLeft * 1000 : 0;
+  const clocks: TableFrame['clocks'] = c ? t.seats.map((x) => {
+    const running = c.running === x.seat && t.status === 'active';
+    const first = running && !!c.first;
+    const ms = running && !first && dueMs !== null ? Math.max(0, dueMs) : c.left[x.seat] ?? 0;
+    const off = !finished && !aborted && x.seat !== t.mySeat && !!x.user && !!online[x.user.id] && !online[x.user.id]!.online;
+    const state: FrameClockState = flaggedSeat === x.seat ? 'flag' : off ? 'off' : aborted || first ? 'pre'
+      : !running ? 'idle' : ms <= 10_000 ? 'crit' : ms <= warnMs ? 'warn' : 'run';
+    return { ms, state, ...(first ? { first: true, firstMs: Math.max(0, dueMs ?? 0) } : {}) };
+  }) : null;
+  fast.current = !!clocks?.some((x) => x.state === 'crit');
+
+  const frame: TableFrame = {
+    seats: t.seats.map((x) => {
+      const n = name(x.seat);
+      return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
+        offline: !finished && x.seat !== t.mySeat && !!x.user && !!online[x.user.id] && !online[x.user.id]!.online };
+    }),
+    clocks, live, finished, aborted,
+    timeLabel: timeLabel(t) ?? undefined,
+    result: (finished || aborted) ? <OwnFrameResult snap={snap} onSnap={s.accept} onReport={() => setReporting(true)} toast={toast} /> : undefined,
+    openChat: wide ? undefined : () => setChat(true),
+    unread,
+    tournament: t.settings.tournament ? <OwnFrameTournament id={t.settings.tournament.id} round={t.settings.tournament.round} meId={t.seats.find((x) => x.seat === t.mySeat)?.user?.id} /> : undefined
+  };
+
+  const chatPanel = (props: { sheet?: boolean; onClose?: () => void; className: string }): ReactNode =>
+    <ChatPanel {...props} load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" quick={isPlayer} readOnly={!isPlayer}
+      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)}
+      quickOnly={QUICK_CHAT.map((q) => q.id).filter((id) => (id === 'your_turn' ? !myTurn && !finished : id === 'gg' || id === 'rematch' ? finished : id === 'thinking' ? myTurn : true))}
+      sub={isPlayer ? `${faNum(t.seats.length)} بازیکن${t.spectators ? `، ${faNum(t.spectators)} تماشاچی` : ''}` : 'شما تماشاچی هستید'} />;
+
+  return (
+    <div className="tbl tbl-own">
+      <GameBar title={t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
+        meta={[...(frame.timeLabel ? [frame.timeLabel] : []), COMPETITION_FA[t.competition],
+          ...(finished || aborted ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>] : []),
+          ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []),
+          ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
+          ...(!live && !finished && !aborted ? [<Connection key="c" state="lost" label="در حال اتصال" />] : [])]}
+        actions={<>
+          {!isPlayer && !finished && <Button variant="leave" size="sm" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>}
+          {!wide && <Button className="tbl-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
+            aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>}
+          {isPlayer && !t.isTutorial && <Button variant="ghost" iconOnly icon="flag" onClick={() => setReporting(true)}>گزارش این میز</Button>}
+        </>} />
+      {(snap.incident || s.notice || s.pending) && (
+        <div className="tbl-pops tbl-pops--own">
+          {snap.incident && <Banner tone="warning" icon="lock" title="توقف سراسری" text={`${snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.`} />}
+          {s.notice && <Banner tone="danger" text={s.notice} action={<Button variant="secondary" size="sm" onClick={() => s.setNotice(null)}>باشه</Button>} />}
+          {s.pending && s.pending.status !== 'sending' && <Banner tone="warning" icon="clock" text="در انتظار تأیید: پاسخ سرور نرسید."
+            action={<span className="bgv-row"><Button size="sm" variant="secondary" onClick={s.resendPending}>ارسال دوباره</Button><Button size="sm" variant="ghost" onClick={s.dropPending}>نمایش آخرین وضعیت</Button></span>} />}
+        </div>
+      )}
+      <div className={wide ? 'tbl-own__body tbl-own__body--chat' : 'tbl-own__body'} data-game={t.gameId}>
+        {finished && isPlayer && t.settings.tournament && !showBoard
+          ? <BetweenRounds tournamentId={t.settings.tournament.id} round={t.settings.tournament.round} tableId={t.id} meId={t.seats.find((x) => x.seat === t.mySeat)?.user?.id} onBoard={() => setShowBoard(true)} />
+          : Renderer
+          ? <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction}
+              expected={null} queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} frame={frame} />
+          : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
+        {wide && chatPanel({ className: 'tbl-chat tbl-own__chat' })}
+      </div>
+      {chat && !wide && (
+        <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setChat(false); }}>
+          {chatPanel({ sheet: true, onClose: () => setChat(false), className: 'tbl-chatsheet' })}
+        </div>
+      )}
+      {isPlayer && t.pace === 'turn' && !finished && <NotifyPrompt />}
+      {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
+    </div>
+  );
+}
+
+/**
+ * Between two rounds (design/games/chess P16): the round's result and my score, the next opponent with board and colour
+ * (when the pairing exists), the countdown to the next round, «آماده‌ام», and the standings. The next table opens by itself.
+ */
+function BetweenRounds({ tournamentId, round, tableId, meId, onBoard }: { tournamentId: string; round: number; tableId: string; meId?: string; onBoard: () => void }) {
+  const navigate = useNavigate();
+  const toast = useToast();
+  const tour = useApi<TournamentDetail>(`/tournaments/${tournamentId}`);
+  const now = useNow();
+  const { reload } = tour;
+  useEffect(() => { const i = setInterval(reload, 5000); return () => clearInterval(i); }, [reload]);
+  const d = tour.data;
+  const nextId = d?.me?.tableId && d.me.tableId !== tableId ? d.me.tableId : null;
+  const next = useApi<TableSnapshot>(nextId ? `/tables/${nextId}` : null);
+  const { reload: reloadNext } = next;
+  useEffect(() => { if (!nextId) return; const i = setInterval(reloadNext, 3000); return () => clearInterval(i); }, [nextId, reloadNext]);
+  useEffect(() => { if (nextId && next.data?.table.status === 'active') navigate(`/tables/${nextId}`); }, [nextId, next.data?.table.status, navigate]);
+  const [busy, setBusy] = useState(false);
+  if (!d) return <StateBlock kind="loading" title="در حال بارگذاری مسابقه…" />;
+  const mine = d.standings.find((s) => s.player.id === meId);
+  const played = mine ? mine.results.filter((r) => r.round <= round).length : round;
+  const nt = next.data?.table;
+  const opp = nt?.seats.find((x) => x.user && x.user.id !== meId);
+  const mySeatNext = nt?.seats.find((x) => x.user?.id === meId);
+  // Colour is known before the start only when the event seats the first player as White.
+  const color = mySeatNext && d.options.firstMove === 'host' ? (mySeatNext.seat === 0 ? 'سفید' : 'سیاه') : null;
+  const board = nextId ? (d.roundsPlayed.find((r) => r.round === round + 1)?.tables.findIndex((x) => x.tableId === nextId) ?? -1) + 1 : 0;
+  const left = d.nextRoundAt ? Math.max(0, Math.ceil((new Date(d.nextRoundAt).getTime() - now) / 1000)) : null;
+  const iAmReady = !!mySeatNext?.ready;
+  const ready = async () => {
+    if (!nextId) return;
+    setBusy(true);
+    try { await api(`/tables/${nextId}/ready`, { method: 'POST', body: { ready: true } }); reloadNext(); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'ثبت نشد.'); } finally { setBusy(false); }
+  };
+  return (
+    <div className="tbl-rounds">
+      <section className="tbl-rounds__card" aria-labelledby="tbl-rounds-h">
+        <p id="tbl-rounds-h" className="tbl-rounds__head"><Icon name="trophy" size="sm" /><span><b>دور {faNum(round)} تمام شد.</b>{mine ? ` امتیاز شما: ${faNum(mine.points)} از ${faNum(played)}` : ''}</span></p>
+        {opp ? (
+          <div className="tbl-rounds__next">
+            <Avatar size="md" {...seatAvatar(opp, opp.user!.displayName)} />
+            <div>
+              <b>دور {faNum(round + 1)}: شما و <bdi>{opp.user!.displayName}</bdi>{typeof opp.rating === 'number' ? ` (${faNum(opp.rating)})` : ''}</b>
+              <span className="t-caption bgv-muted">{[color ? `شما با ${color}` : null, board > 0 ? `میز ${faNum(board)}` : null].filter(Boolean).join('، ')}</span>
+            </div>
+          </div>
+        ) : d.status === 'finished' ? <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>مسابقه تمام شد.</p>
+          : <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>حریف دور بعد بعد از تمام شدن همهٔ میزها مشخص می‌شود.</p>}
+        {left !== null && d.status !== 'finished' && (
+          <p className="tbl-rounds__count"><span className="t-caption bgv-muted">شروع دور بعد تا</span> <b dir="ltr">{faNum(Math.floor(left / 60))}:{faNum(left % 60).padStart(2, '۰')}</b></p>
+        )}
+        {nextId && (iAmReady
+          ? <p className="t-body-sm" role="status" style={{ margin: 0, textAlign: 'center' }}>آماده‌اید؛ میز دور بعد خودش باز می‌شود.</p>
+          : <Button variant="primary" size="lg" icon="check" block loading={busy} onClick={() => void ready()}>آماده‌ام</Button>)}
+      </section>
+      <section className="tbl-rounds__card" aria-labelledby="tbl-rounds-t">
+        <h3 id="tbl-rounds-t" className="tbl-rounds__title">جدول بعد از دور {faNum(round)}</h3>
+        <ol className="tbl-rounds__table">
+          {d.standings.map((s, i) => (
+            <li key={s.player.id} className={s.player.id === meId ? 'is-you' : undefined}>
+              <span>{faNum(i + 1)}</span><bdi>{s.player.displayName}{s.player.id === meId ? ' (شما)' : ''}</bdi><span>{faNum(s.points)}</span><span>{s.startRating !== null ? faNum(s.startRating) : ''}</span>
+            </li>
+          ))}
+        </ol>
+        <div className="tbl-rounds__links">
+          <Button variant="ghost" size="sm" icon="list" href={`/tournaments/${tournamentId}`}>جدول کامل</Button>
+          <Button variant="ghost" size="sm" icon="eye" onClick={onBoard}>دیدن صفحهٔ بازی</Button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/** Tournament card (CX-14): the event, «دور X از Y» and the top of the standings (real data from the tournament). */
+function OwnFrameTournament({ id, round, meId }: { id: string; round: number; meId?: string }) {
+  const { data } = useApi<TournamentDetail>(`/tournaments/${id}`);
+  if (!data) return null;
+  const top = data.standings.slice(0, 4);
+  return (
+    <section className="tbl-ownt" aria-label="مسابقه">
+      <a className="tbl-ownt__round" href={`/tournaments/${id}`}><Icon name="trophy" size="sm" /><span><b>{data.titleFa}</b>، دور {faNum(round)}{data.rounds ? ` از ${faNum(data.rounds)}` : ''}</span></a>
+      {top.length > 0 && (
+        <ol className="tbl-ownt__mini">
+          {top.map((s, i) => <li key={s.player.id} className={s.player.id === meId ? 'is-you' : undefined}><span>{faNum(i + 1)}</span><bdi>{s.player.displayName}</bdi><b>{faNum(s.points)}</b></li>)}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+/** «بازی دوباره» (CX-11): one vote for a rematch with the same time and swapped colours; the server opens the new table. */
+function OwnFrameRematch({ snap, onSnap }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void }) {
+  const t = snap.table;
+  const r = t.rematch;
+  const toast = useToast();
+  const navigate = useNavigate();
+  const now = useNow();
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (r?.newTableId) navigate(`/tables/${r.newTableId}`); }, [r?.newTableId, navigate]);
+  if (!r || t.mySeat === null) return null;
+  const secs = r.deadline ? Math.max(0, Math.ceil((new Date(r.deadline).getTime() - now) / 1000)) : null;
+  const myVote = r.votes.find((v) => v.seat === t.mySeat)?.vote;
+  const declined = r.votes.some((v) => v.seat !== t.mySeat && v.vote === 'no');
+  if (r.closed || secs === 0 || declined) return <p className="tbl-ownres__rating">{declined ? 'حریف بازی دوباره را رد کرد.' : 'مهلت بازی دوباره تمام شد.'}</p>;
+  const vote = async () => {
+    setBusy(true);
+    try { onSnap(await api<TableSnapshot>(`/tables/${t.id}/rematch`, { method: 'POST', body: { vote: 'yes' } })); }
+    catch (e) { toast('error', e instanceof ApiFailure ? e.messageFa : 'درخواست ثبت نشد.'); } finally { setBusy(false); }
+  };
+  return myVote === 'yes'
+    ? <p className="tbl-ownres__rating" role="status">منتظر جواب حریف…{secs !== null ? ` (${faNum(secs)} ثانیه)` : ''}</p>
+    : <Button variant="primary" icon="refresh-cw" loading={busy} onClick={() => void vote()}>بازی دوباره</Button>;
+}
+
+/** The platform half of the chess result (CX-11): my rating change, rematch, new opponent, PGN, share and report. */
+function OwnFrameResult({ snap, onSnap, onReport, toast }: { snap: TableSnapshot; onSnap: (s: TableSnapshot) => void; onReport: () => void; toast: ReturnType<typeof useToast> }) {
+  const t = snap.table;
+  const rewards = useRewards(t.id, t.mySeat !== null && t.status === 'finished');
+  const d = rewards.data;
+  const delta = d?.processed && d.rating ? d.rating.after - d.rating.before : null;
+  const share = async () => {
+    const url = `${location.origin}/tables/${t.id}`;
+    try {
+      if (navigator.share) await navigator.share({ title: t.gameNameFa, url });
+      else { await navigator.clipboard.writeText(url); toast('success', 'لینک بازی کپی شد.'); }
+    } catch { /* share sheet dismissed */ }
+  };
+  return (
+    <div className="tbl-ownres">
+      {t.mySeat !== null && t.status === 'finished' && t.competition === 'ranked' && (
+        d?.processed && d.rating
+          ? <p className="tbl-ownres__rating">رتبهٔ شما: <b>{faNum(d.rating.before)} ← {faNum(d.rating.after)}</b> <span className={delta! >= 0 ? 'tbl-ownres__up' : 'tbl-ownres__down'} dir="ltr">({delta! >= 0 ? '+' : '−'}{faNum(Math.abs(delta!))})</span></p>
+          : <p className="tbl-ownres__rating" role="status">{rewards.gaveUp ? 'تغییر رتبه بعداً در «پیشرفت» نمایش داده می‌شود.' : 'در حال محاسبهٔ رتبه…'}</p>
+      )}
+      {t.competition === 'friendly' && t.status === 'finished' && <p className="tbl-ownres__rating">میز دوستانه روی رتبه اثری ندارد.</p>}
+      <div className="tbl-ownres__btns">
+        {t.status === 'finished' && <OwnFrameRematch snap={snap} onSnap={onSnap} />}
+        <Button variant="secondary" icon="search" href={`/play?game=${t.gameId}`}>حریف جدید</Button>
+      </div>
+      {t.status === 'finished' && (
+        <div className="tbl-ownres__foot">
+          <Button variant="ghost" size="sm" icon="download" href={`/api/tables/${t.id}/record`}>PGN</Button>
+          <Button variant="ghost" size="sm" icon="share-2" onClick={() => void share()}>اشتراک</Button>
+          {t.mySeat !== null && <Button variant="ghost" size="sm" icon="flag" onClick={onReport}>گزارش</Button>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** ≥1200px: the chat is docked beside the felt; below it opens as a sheet (never resizes the table). */
 function useWide(minPx = 1200) {
   const q = `(min-width: ${minPx}px)`;
@@ -839,6 +1126,8 @@ export function TablePage() {
   if (!snap) return <StateBlock kind="loading" title="در حال بارگذاری میز…" />;
 
   const t = snap.table;
+  // Games with their own frame (chess): live and finished games, and a game aborted before the first move (shows why).
+  if (snap.game && OWN_FRAME.has(t.clientBundleRef) && !t.isTutorial && (t.status === 'active' || t.status === 'finished' || (t.status === 'cancelled' && snap.game.clocks?.aborted))) return <OwnFrameView s={s} />;
   if (t.status !== 'cancelled' && t.status !== 'open' && snap.game) return <GameView s={s} />;
   if (t.status === 'cancelled') return <StateBlock kind="empty" title="این میز لغو شده است" action={<Button variant="secondary" href="/">بازگشت</Button>} />;
   if (t.status === 'open') return <LobbyView snap={snap} invite={invite} onChange={s.accept} />;
