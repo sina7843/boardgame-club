@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
-import { type TournamentDetail, BOT_LEVEL_FA, BOT_STYLE_FA, clockClass, clockThresholds, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, RATING_MODE_FA, type MessageItem, type TableSnapshot, type UserCard } from '@bg/contracts';
-import { DockSlotHost, useOnline, useToast, type FrameClockState, type TableFrame } from '@bg/ui';
+import { type TournamentDetail, BOT_LEVEL_FA, BOT_STYLE_FA, clockClass, clockThresholds, cosmetic, EMOTE_BODY, QUICK_CHAT, parseAvatar, RATING_MODE_FA, type MessageItem, type PublicSummaryView, type TableSnapshot, type UserCard } from '@bg/contracts';
+import { DockSlotHost, FrameKindHost, RailSlotHost, useOnline, useToast, type FrameClockState, type TableFrame } from '@bg/ui';
 import {
   ActionDock, Avatar, CritBar, Badge, League, MoveLog, Spectators, Banner, Breadcrumbs, Button, Card, Connection, Dialog, Felt, FeltPlate, GameBar, Hud, Icon, ListItem, LobbySeat, PageHead,
   LoginSheet, ReadyCheck, Rematch, Result, Sheet, StateBlock, TableScreen, TextField, TurnPill, emojify,
@@ -10,7 +10,7 @@ import {
 } from '@bg/ui/bgv';
 import { usePresence } from '../lib/presence.ts';
 import { NotifyPrompt } from '../social/NotifyPrompt.tsx';
-import { CONFIRMS_IN_RENDERER, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
+import { CONFIRMS_IN_RENDERER, GROUP_FRAME, OWN_FRAME, RENDERERS, SEAT_CARDS } from '../games/renderers.tsx';
 import { api, ApiFailure, useApi } from '../lib/api.ts';
 import { AvatarArt, frameProps } from '../lib/bgv.tsx';
 import { durationFa, faNum, PACE_FA, COMPETITION_FA } from '../lib/format.ts';
@@ -458,6 +458,68 @@ function useTurnClock(s: ReturnType<typeof useTableSession>): { time: number; p:
   return { time: left, p, state };
 }
 
+/** Move notices (incident, errors, undo window, unconfirmed move): float at the top, never push the board around. */
+function Pops({ s, snap }: { s: ReturnType<typeof useTableSession>; snap: TableSnapshot }) {
+  return (
+    <div className="tbl-pops">
+      {snap.incident && <Banner tone="warning" icon="lock" title="توقف سراسری" text={`${snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.`} />}
+      {s.notice && <Banner tone="danger" text={s.notice} action={<Button variant="secondary" size="sm" onClick={() => s.setNotice(null)}>باشه</Button>} />}
+      {s.queued && (
+        <div className="tbl-undo" style={{ ['--undo-ms' as string]: `${s.queued.ms}ms` }}>
+          <Banner tone="info" icon="clock" text="حرکت شما تا لحظه‌ای دیگر ثبت می‌شود." action={<Button size="sm" variant="secondary" onClick={s.cancelQueued}>انصراف</Button>} />
+          <span className="tbl-undo__bar" aria-hidden />
+        </div>
+      )}
+      {s.pending && (s.pending.status === 'sending'
+        ? <Banner tone="info" icon="send" text="در حال ارسال حرکت…" />
+        : <Banner tone="warning" icon="clock" text="در انتظار تأیید: پاسخ سرور نرسید. وضعیت حرکت پیگیری می‌شود."
+            action={<span className="bgv-row"><Button size="sm" variant="secondary" onClick={s.resendPending}>ارسال دوباره همین حرکت</Button><Button size="sm" variant="ghost" onClick={s.dropPending}>نمایش آخرین وضعیت</Button></span>} />)}
+    </div>
+  );
+}
+
+/** One seat in a sheet: league, title, score and public stats from the game summary. */
+function SeatSheet({ t, sum, seat, name, onClose, onReport }: { t: Lobby; sum: PublicSummaryView | null | undefined; seat: number; name: (seat: number) => string; onClose: () => void; onReport: () => void }) {
+  const x = t.seats.find((y) => y.seat === seat);
+  const ss = sum?.seats.find((y) => y.seat === seat);
+  if (!x) return null;
+  const n = name(x.seat);
+  return (
+    <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <Sheet className="tbl-playersheet" title={<bdi>{n}</bdi>} onClose={onClose} closeLabel="بستن"
+        footer={x.user && x.seat !== t.mySeat ? <>
+          <Button size="sm" icon="user" href={`/users/${x.user.id}`}>پروفایل</Button>
+          <Button size="sm" variant="ghost" icon="flag" onClick={onReport}>گزارش</Button>
+        </> : undefined}>
+        <div className="bgv-stack" style={{ gap: 'var(--space-3)' }}>
+          <div className="bgv-row" style={{ gap: 8 }}>
+            {x.league && <League tier={x.league} />}
+            {x.titleKey && cosmetic(x.titleKey) && <Badge size="sm">{cosmetic(x.titleKey)!.nameFa}</Badge>}
+            {x.bot && <Badge size="sm" icon="bot">ربات {BOT_LEVEL_FA[x.bot.level]}</Badge>}
+            {x.seat === t.mySeat && <Badge tone="you" size="sm">شما</Badge>}
+          </div>
+          {ss?.primary && <div className="tbl-sheetrow"><span>{ss.primary.label}</span><b className="bgv-num">{faNum(ss.primary.value)}{ss.primary.target !== undefined ? ` از ${faNum(ss.primary.target)}` : ''}</b></div>}
+          {ss?.stats?.map((st) => <div key={st.key} className="tbl-sheetrow"><span>{st.label}</span><b className="bgv-num">{typeof st.value === 'number' ? faNum(st.value) : st.value}</b></div>)}
+          {ss?.strikes !== undefined && sum?.strikesMax ? <div className="tbl-sheetrow"><span>اخطار زمان</span><b>{faNum(ss.strikes)} از {faNum(sum.strikesMax)}</b></div> : null}
+          {ss?.badges?.length ? <div className="bgv-row">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</div> : null}
+          {!ss && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>این بازی خلاصهٔ عمومی بازیکن ندارد.</p>}
+        </div>
+      </Sheet>
+    </div>
+  );
+}
+
+/** Tournament players: the page being hidden/shown is recorded for fair-play review (stated in the tournament rules). */
+function useTournamentFocus(t: Lobby) {
+  const inTournament = !!t.settings.tournament;
+  useEffect(() => {
+    if (!inTournament || t.mySeat === null || t.status !== 'active') return;
+    const send = () => { api(`/tables/${t.id}/focus`, { method: 'POST', body: { hidden: document.hidden } }).catch(() => undefined); };
+    document.addEventListener('visibilitychange', send);
+    return () => document.removeEventListener('visibilitychange', send);
+  }, [t.id, inTournament, t.mySeat, t.status]);
+}
+
 function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   useImmersive();
   const snap = s.snapshot!;
@@ -615,22 +677,7 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   });
   const shared = sum?.shared ?? [];
 
-  const pops = (
-    <div className="tbl-pops">
-      {snap.incident && <Banner tone="warning" icon="lock" title="توقف سراسری" text={`${snap.incident.reasonFa}. موعدها پس از رفع مشکل جبران می‌شوند.`} />}
-      {s.notice && <Banner tone="danger" text={s.notice} action={<Button variant="secondary" size="sm" onClick={() => s.setNotice(null)}>باشه</Button>} />}
-      {s.queued && (
-        <div className="tbl-undo" style={{ ['--undo-ms' as string]: `${s.queued.ms}ms` }}>
-          <Banner tone="info" icon="clock" text="حرکت شما تا لحظه‌ای دیگر ثبت می‌شود." action={<Button size="sm" variant="secondary" onClick={s.cancelQueued}>انصراف</Button>} />
-          <span className="tbl-undo__bar" aria-hidden />
-        </div>
-      )}
-      {s.pending && (s.pending.status === 'sending'
-        ? <Banner tone="info" icon="send" text="در حال ارسال حرکت…" />
-        : <Banner tone="warning" icon="clock" text="در انتظار تأیید: پاسخ سرور نرسید. وضعیت حرکت پیگیری می‌شود."
-            action={<span className="bgv-row"><Button size="sm" variant="secondary" onClick={s.resendPending}>ارسال دوباره همین حرکت</Button><Button size="sm" variant="ghost" onClick={s.dropPending}>نمایش آخرین وضعیت</Button></span>} />)}
-    </div>
-  );
+  const pops = <Pops s={s} snap={snap} />;
 
   const chatPanel = (props: { sheet?: boolean; onClose?: () => void; className: string }): ReactNode =>
     <ChatPanel {...props} load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" quick={isPlayer} readOnly={!isPlayer}
@@ -750,35 +797,302 @@ function GameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         </div>
       )}
       {isPlayer && t.pace === 'turn' && !finished && !t.isTutorial && <NotifyPrompt />}
-      {sheetSeat !== null && (() => {
-        const x = t.seats.find((y) => y.seat === sheetSeat);
-        const ss = sum?.seats.find((y) => y.seat === sheetSeat);
-        if (!x) return null;
-        const n = name(x.seat);
+      {sheetSeat !== null && <SeatSheet t={t} sum={sum} seat={sheetSeat} name={name} onClose={() => setSheetSeat(null)} onReport={() => { setSheetSeat(null); setReporting(true); }} />}
+      {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
+      {confirmResign && (
+        <Dialog modal danger icon="flag" title="انصراف از بازی؟" onClose={() => setConfirmResign(false)}
+          footer={<><Button variant="secondary" onClick={() => setConfirmResign(false)}>ادامه بازی</Button>
+            <Button variant="leave" onClick={() => { setConfirmResign(false); s.act({ type: 'resign' }, true); }}>انصراف قطعی</Button></>}>
+          {t.policies.resignFa} این کار قابل بازگشت نیست.
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
+/** Turn-clock state → clock look of the shared frame (chess clock vocabulary). */
+const FRAME_CLOCK: Record<ClockState, string> = { calm: 'run', warn: 'warn', critical: 'crit', stale: 'off', frozen: 'idle', paused: 'idle' };
+const fmtClock = (sec: number) => {
+  const d = (n: number) => n.toLocaleString('fa-IR', { minimumIntegerDigits: 2, useGrouping: false });
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${faNum(h)}:${d(m)}:${d(sec % 60)}` : `${faNum(m)}:${d(sec % 60)}`;
+};
+function FrameClock({ sec, state, sm }: { sec: number; state: string; sm?: boolean }) {
+  return (
+    <span className={sm ? 'gf-clock gf-clock--sm' : 'gf-clock'} data-state={state} role="timer" aria-label={state === 'off' ? 'در حال اتصال دوباره' : 'زمان'}>
+      {state === 'off' ? <Icon name="wifi-off" size="sm" /> : <span className="gf-clock__tick" aria-hidden />}
+      <span className="gf-clock__t">{fmtClock(sec)}</span>
+    </span>
+  );
+}
+
+/**
+ * Shared table frame of groups A–D (design/games/group-a…d, 62 games): game bar | rail (status, guide card, events, actions)
+ * | felt (player bars or opponent strip around the renderer) | chat. The renderer draws only the game's own area; the
+ * platform data (seats, clocks, summary, result, banners) is the shell's. Renderers learn they are inside through
+ * `useInFrame()` and fill the rail's guide card through `<RailSlot>` (packages/ui/src/dock.tsx).
+ */
+function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>; kind: 'duel' | 'seats' }) {
+  useImmersive();
+  const snap = s.snapshot!;
+  const t = snap.table;
+  const g = snap.game!;
+  const navigate = useNavigate();
+  const { act } = s;
+  const confirmsInRenderer = CONFIRMS_IN_RENDERER.has(t.clientBundleRef);
+  const onAction = useCallback((a: Parameters<typeof act>[0]) => act(a, confirmsInRenderer), [act, confirmsInRenderer]);
+  const [dockNode, setDockNode] = useState<HTMLSpanElement | null>(null);
+  const [railNode, setRailNode] = useState<HTMLDivElement | null>(null);
+  const toDock = useCallback((node: ReactNode) => (dockNode ? createPortal(node, dockNode) : node), [dockNode]);
+  const toRail = useCallback((node: ReactNode) => (railNode ? createPortal(node, railNode) : null), [railNode]);
+  const [chat, setChat] = useState(false);
+  const [sheet, setSheet] = useState<'rules' | 'events' | null>(null);
+  const [sheetSeat, setSheetSeat] = useState<number | null>(null);
+  const [reporting, setReporting] = useState(false);
+  const [confirmResign, setConfirmResign] = useState(false);
+  const [hideResult, setHideResult] = useState(false);
+  const Renderer = RENDERERS[t.clientBundleRef];
+  const name = seatNameOf(t);
+  const finished = t.status === 'finished';
+  const canResign = !finished && g.legalActions.some((a) => a.type === 'resign');
+  const myTurn = t.mySeat !== null && g.pendingSeats.includes(t.mySeat);
+  const isPlayer = t.mySeat !== null;
+  const netOnline = useOnline();
+  const busy = !!s.pending || !!s.queued || t.status !== 'active' || !!snap.incident || !netOnline;
+  const waitingFor = g.pendingSeats.filter((x) => x !== t.mySeat).map(name);
+  const wide = useWide();
+  const notPhone = useWide(900);
+  const { unread, said } = useTableChatAlerts(t.id, chat || wide);
+  const gameRef = useRef<HTMLDivElement>(null);
+  const full = useFullscreen(gameRef);
+  const clock = useTurnClock(s);
+  useTurnAlerts(t.id, t.mySeat);
+  useTournamentFocus(t);
+  const online = usePresence(finished ? [] : t.seats.map((x) => (x.seat === t.mySeat ? null : x.user?.id)));
+  const sum = g.summary;
+  const kind = wanted === 'duel' && t.seats.length === 2 ? 'duel' : 'seats';
+
+  const { queued, cancelQueued } = s;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key !== 'Escape') return; if (queued) cancelQueued(); setChat(false); setSheet(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [queued, cancelQueued]);
+  // Events log: newest at the bottom, kept in view.
+  const logRef = useRef<HTMLDivElement>(null);
+  const moveCount = sum?.moves?.length ?? 0;
+  useEffect(() => { const el = logRef.current; if (el) el.scrollTop = el.scrollHeight; }, [moveCount, notPhone, sheet]);
+
+  const statusText = finished ? 'بازی تمام شد' : !netOnline ? 'کنش‌ها تا اتصال دوباره قفل است'
+    : myTurn ? 'حرکت با شماست' : waitingFor.length ? `منتظر حرکت ${waitingFor.join('، ')}` : 'منتظر حرکت دیگران';
+  const quickFor = QUICK_CHAT.map((q) => q.id).filter((id) => (id === 'your_turn' ? !myTurn && !finished : id === 'gg' || id === 'rematch' ? finished : id === 'thinking' ? myTurn : true));
+  const leave = () => (canResign ? setConfirmResign(true) : navigate('/tables'));
+  const offlineOf = (x: Seat) => s.live && netOnline && !finished && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online));
+
+  /** Clock of a seat: the chess-style bank when the table has one, else the turn timer on the seat(s) to move. */
+  const clockOf = (seat: number): { sec: number; state: string } | null => {
+    const c = g.clocks;
+    const active = g.pendingSeats.includes(seat) && t.status === 'active';
+    if (c) {
+      const running = c.running === seat && t.status === 'active';
+      const sec = Math.max(0, Math.ceil((running ? (clock?.time ?? 0) * 1000 : c.left[seat] ?? 0) / 1000));
+      return { sec, state: running ? FRAME_CLOCK[clock?.state ?? 'calm'] : 'idle' };
+    }
+    return active && clock ? { sec: clock.time, state: FRAME_CLOCK[clock.state] } : null;
+  };
+  const placeOf = (seat: number) => g.result?.placements.find((p) => p.seat === seat);
+  const bubble = (x: Seat) => {
+    const words = x.user ? said[x.user.id] : undefined;
+    if (!words) return null;
+    const b = seatArt(x, 'chatBubble');
+    return <span className="bgv-bubble-float tbl-said" aria-hidden style={b ? { '--tbl-bubble': b[0], '--tbl-bubble-ink': b[1] ?? 'inherit' } as React.CSSProperties : undefined}>{emojify(words)}</span>;
+  };
+  /** Public stats of a seat from the game summary: primary, stats, badges, status, strikes, result. */
+  const metaOf = (x: Seat): ReactNode[] => {
+    const ss = sum?.seats.find((y) => y.seat === x.seat);
+    const place = placeOf(x.seat);
+    const out: ReactNode[] = [];
+    if (place) out.push(<Badge key="pl" size="sm" tone={place.place === 1 ? 'success' : 'neutral'} {...(place.place === 1 ? { icon: 'trophy' as const } : {})}>{place.place === 1 ? 'برنده' : `رتبه ${faNum(place.place)}`}</Badge>);
+    if (ss?.primary) out.push(<span key="p" className="gf-stat"><b>{faNum(ss.primary.value)}{ss.primary.target !== undefined ? `/${faNum(ss.primary.target)}` : ''}</b> {ss.primary.label}</span>);
+    for (const st of ss?.stats ?? []) out.push(<span key={st.key} className="gf-stat"><b>{typeof st.value === 'number' ? faNum(st.value) : st.value}</b> {st.label}</span>);
+    for (const b of ss?.badges ?? []) out.push(<Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>);
+    if (ss?.status === 'out') out.push(<Badge key="out" size="sm">حذف شد</Badge>);
+    if (ss?.status === 'passed') out.push(<Badge key="pass" size="sm">پاس داد</Badge>);
+    if (ss?.status === 'done') out.push(<Badge key="done" size="sm" tone="success">آماده</Badge>);
+    if (sum?.leaderSeat === x.seat && !place) out.push(<Badge key="lead" size="sm" icon="trophy">پیشتاز</Badge>);
+    if (ss?.strikes && sum?.strikesMax) out.push(<Badge key="st" size="sm" tone="danger" icon="alarm-clock">{faNum(ss.strikes)}/{faNum(sum.strikesMax)}</Badge>);
+    return out;
+  };
+  const avatarOf = (x: Seat, size: 'sm' | 'md') => (
+    <Avatar size={size} {...seatAvatar(x, name(x.seat))} seat={seatNo(x.seat)} onFelt
+      turn={g.pendingSeats.includes(x.seat) && t.status === 'active'} />
+  );
+  /** Player bar (duel, and «you» in seat games): avatar with seat ring, name, rating, league, stats, clock. */
+  const bar = (x: Seat) => {
+    const c = clockOf(x.seat);
+    const turn = g.pendingSeats.includes(x.seat) && t.status === 'active';
+    const gone = sum?.seats.find((y) => y.seat === x.seat)?.status === 'out';
+    return (
+      <div className={`gf-bar${turn ? ' is-turn' : ''}${gone ? ' is-out' : ''}`} data-seat={x.seat} data-turn={turn || undefined}>
+        {avatarOf(x, 'md')}
+        <div className="gf-bar__id">
+          <span className="gf-bar__name">
+            <b><bdi>{name(x.seat)}</bdi></b>
+            {x.seat === t.mySeat && <Badge tone="you" size="sm">شما</Badge>}
+            {x.bot && <Badge size="sm" icon="bot">ربات</Badge>}
+            {x.league && <League tier={x.league} />}
+            {typeof x.rating === 'number' && <span className="gf-rating">{faNum(x.rating)}</span>}
+            {offlineOf(x) && <span className="gf-pill"><Icon name="wifi-off" size="sm" />آفلاین</span>}
+          </span>
+          <span className="gf-bar__meta">{metaOf(x)}{bubble(x)}</span>
+        </div>
+        {c && <FrameClock sec={c.sec} state={c.state} />}
+      </div>
+    );
+  };
+  const opponents = t.seats.filter((x) => x.seat !== t.mySeat);
+  const strip = (
+    <ul className="gf-opps" aria-label="بازیکنان دیگر">
+      {opponents.map((x) => {
+        const c = clockOf(x.seat);
+        const turn = g.pendingSeats.includes(x.seat) && t.status === 'active';
+        const gone = sum?.seats.find((y) => y.seat === x.seat)?.status === 'out';
         return (
-          <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setSheetSeat(null); }}>
-            <Sheet className="tbl-playersheet" title={<bdi>{n}</bdi>} onClose={() => setSheetSeat(null)} closeLabel="بستن"
-              footer={x.user && x.seat !== t.mySeat ? <>
-                <Button size="sm" icon="user" href={`/users/${x.user.id}`}>پروفایل</Button>
-                <Button size="sm" variant="ghost" icon="flag" onClick={() => { setSheetSeat(null); setReporting(true); }}>گزارش</Button>
-              </> : undefined}>
-              <div className="bgv-stack" style={{ gap: 'var(--space-3)' }}>
-                <div className="bgv-row" style={{ gap: 8 }}>
-                  {x.league && <League tier={x.league} />}
-                  {x.titleKey && cosmetic(x.titleKey) && <Badge size="sm">{cosmetic(x.titleKey)!.nameFa}</Badge>}
-                  {x.bot && <Badge size="sm" icon="bot">ربات {BOT_LEVEL_FA[x.bot.level]}</Badge>}
-                  {x.seat === t.mySeat && <Badge tone="you" size="sm">شما</Badge>}
-                </div>
-                {ss?.primary && <div className="tbl-sheetrow"><span>{ss.primary.label}</span><b className="bgv-num">{faNum(ss.primary.value)}{ss.primary.target !== undefined ? ` از ${faNum(ss.primary.target)}` : ''}</b></div>}
-                {ss?.stats?.map((st) => <div key={st.key} className="tbl-sheetrow"><span>{st.label}</span><b className="bgv-num">{typeof st.value === 'number' ? faNum(st.value) : st.value}</b></div>)}
-                {ss?.strikes !== undefined && sum?.strikesMax ? <div className="tbl-sheetrow"><span>اخطار زمان</span><b>{faNum(ss.strikes)} از {faNum(sum.strikesMax)}</b></div> : null}
-                {ss?.badges?.length ? <div className="bgv-row">{ss.badges.map((b) => <Badge key={b.key} size="sm" tone={b.tone ?? 'neutral'}>{b.label}</Badge>)}</div> : null}
-                {!ss && <p className="t-body-sm bgv-muted" style={{ margin: 0 }}>این بازی خلاصهٔ عمومی بازیکن ندارد.</p>}
-              </div>
-            </Sheet>
-          </div>
+          <li key={x.seat}>
+            <button type="button" className={`gf-seat${turn ? ' is-turn' : ''}${gone ? ' is-out' : ''}`} data-seat={x.seat} data-turn={turn || undefined} onClick={() => setSheetSeat(x.seat)}
+              aria-label={`${name(x.seat)}${turn ? '، نوبت اوست' : ''}`}>
+              {avatarOf(x, 'sm')}
+              <span className="gf-seat__name"><bdi>{name(x.seat)}</bdi></span>
+              {c && <FrameClock sec={c.sec} state={c.state} sm />}
+              <span className="gf-seat__meta">
+                {offlineOf(x) && <span className="gf-pill"><Icon name="wifi-off" size="sm" />آفلاین</span>}
+                {metaOf(x)}{bubble(x)}
+              </span>
+            </button>
+          </li>
         );
-      })()}
+      })}
+    </ul>
+  );
+  const meSeat = t.seats.find((x) => x.seat === t.mySeat);
+  const duelOpp = kind === 'duel' ? (t.seats.find((x) => x.seat !== (t.mySeat ?? 0)) ?? t.seats[1]!) : null;
+  const duelMe = kind === 'duel' ? (meSeat ?? t.seats[0]!) : meSeat;
+
+  const turnRow = (
+    <div className="gf-turnrow tbl-dock">
+      <span ref={setDockNode} className="gf-turn" />
+      {finished && hideResult && g.result && <Button className="gf-peek" size="sm" variant="secondary" icon="trophy" onClick={() => setHideResult(false)}>نتیجهٔ بازی</Button>}
+    </div>
+  );
+  const rulesBtn = <Button variant="secondary" icon="shield" onClick={() => setSheet('rules')}>قوانین</Button>;
+  const leaveBtn = isPlayer
+    ? <Button variant="leave" icon="log-out" onClick={leave}>ترک میز</Button>
+    : <Button variant="leave" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>;
+  const events = sum?.moves && (
+    <MoveLog className="tbl-moves" label="رویدادها" items={sum.moves.map((m, i) => ({ seat: seatNo(m.seat), name: <bdi>{name(m.seat)}</bdi>, text: <bdi>{m.text}</bdi>, isNew: i === sum.moves!.length - 1 }))} />
+  );
+  const turnSeat = g.pendingSeats.length === 1 ? g.pendingSeats[0]! : null;
+  const statusLine = (
+    <span className="gf-status__t"><i className={myTurn ? 'gf-dot is-mine' : 'gf-dot'} aria-hidden />
+      {turnSeat !== null && !myTurn && !finished && netOnline ? <>نوبت <b><bdi>{name(turnSeat)}</bdi></b></> : <b>{statusText}</b>}</span>
+  );
+  const strikesN = sum?.seats.find((x) => x.seat === t.mySeat)?.strikes ?? 0;
+  const chatPanel = (props: { sheet?: boolean; onClose?: () => void; className: string }): ReactNode =>
+    <ChatPanel {...props} load={`/tables/${t.id}/chat`} post={`/tables/${t.id}/chat`} title="گفت‌وگوی میز" quick={isPlayer} readOnly={!isPlayer}
+      people={t.seats.filter((x) => x.user).map((x) => x.user!.displayName)} quickOnly={quickFor}
+      sub={isPlayer ? `${faNum(t.seats.length)} بازیکن${t.spectators ? `، ${faNum(t.spectators)} تماشاگر` : ''}` : 'شما تماشاگرید'} />;
+
+  const rail = (
+    <aside className="gf-rail" aria-label="وضعیت و رویدادها">
+      <section className="gf-card" role="status" aria-live="polite">{statusLine}</section>
+      <div ref={setRailNode} className="gf-guide" />
+      {events && (
+        <section className="gf-card gf-card--fill" aria-label="رویدادها">
+          <h3>رویدادها</h3>
+          <div ref={logRef} className="gf-log">{sum!.moves!.length ? events : <p className="gf-note">هنوز حرکتی ثبت نشده است.</p>}</div>
+        </section>
+      )}
+      {finished && isPlayer && !t.isTutorial && <PostGame snap={snap} onReport={() => setReporting(true)} />}
+      {turnRow}
+      <div className="gf-actions">{leaveBtn}{rulesBtn}
+        <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
+      </div>
+    </aside>
+  );
+
+  return (
+    <div ref={gameRef} className={full.max ? 'tbl tbl-gf tbl--max' : 'tbl tbl-gf'} data-frame={kind}>
+      <GameBar title={t.gameNameFa} latin={t.gameNameOriginal} onBack={() => navigate('/')} backLabel="بازگشت به خانه"
+        meta={[...(!s.live && !finished ? [<Connection key="c" state="lost" label="قطع" />] : []),
+          ...(finished ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>, COMPETITION_FA[t.competition]] : []),
+          ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []), ...(finished ? [] : tableMeta(t)),
+          ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
+          ...(s.live && !finished ? [<Connection key="c" state="ok" label="متصل" />] : [])]}
+        actions={<>
+          {isPlayer && <QuickChatButton post={`/tables/${t.id}/chat`} only={quickFor} />}
+          {!notPhone && <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>}
+          <Button className="tbl-chatbtn gf-chatbtn" variant="ghost" iconOnly icon="message-circle" count={unread} onClick={() => setChat(true)}
+            aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}>گفت‌وگوی میز</Button>
+        </>} />
+      <div className="gf-banners">
+        {!netOnline && !finished && <Banner className="tbl-offline" tone="danger" icon="wifi-off" title="اتصال شما قطع شد"
+          text="کنش‌ها تا اتصال دوباره قفل است؛ ساعت آخرین زمان تأییدشده را نشان می‌دهد."
+          action={<Button size="sm" variant="secondary" icon="refresh-cw" onClick={() => window.location.reload()}>تلاش دوباره</Button>} />}
+        {!finished && strikesN > 0 && sum?.strikesMax ? <Banner className="tbl-strikes" tone="danger" icon="alarm-clock" text={`اخطار زمان ${faNum(strikesN)} از ${faNum(sum.strikesMax)}`} /> : null}
+      </div>
+      <div className={`gf-body${wide ? ' gf-body--chat' : ''}`}>
+        {notPhone && rail}
+        <main className="gf-felt" aria-label={`صفحهٔ بازی ${t.gameNameFa}`}>
+          <div className="gf-top">{kind === 'duel' ? bar(duelOpp!) : strip}</div>
+          <div data-theme="dark" data-game={t.gameId} data-frame={kind} className={myTurn ? 'table-night gf-stage gf-stage--mine' : 'table-night gf-stage'}>
+            {Renderer
+              ? <FrameKindHost value={kind}><RailSlotHost value={toRail}><DockSlotHost value={toDock}>
+                  <Renderer view={g.view as never} legalActions={g.legalActions} mySeat={t.mySeat} seatName={name} busy={busy} onAction={onAction} expected={null}
+                    queued={s.queued?.cmd.action ?? s.pending?.action ?? null} sending={s.pending?.action ?? null} />
+                </DockSlotHost></RailSlotHost></FrameKindHost>
+              : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
+          </div>
+          {!notPhone && <>
+            <div className="gf-mstatus" role="status" aria-live="polite">{statusLine}<div ref={setRailNode} className="gf-guide" /></div>
+            {turnRow}
+          </>}
+          {duelMe && (kind === 'duel' || isPlayer) && <div className="gf-bottom">{bar(duelMe)}</div>}
+          {finished && g.result && !hideResult && <div className="gf-over"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
+        </main>
+        {wide && chatPanel({ className: 'tbl-chat gf-chat' })}
+      </div>
+      {!notPhone && (
+        <nav className="gf-dock" aria-label="میز">
+          <button type="button" onClick={() => setChat(true)} aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}><Icon name="message-circle" size="md" /><span aria-hidden>گفت‌وگو</span>{unread > 0 && <Badge tone="count" size="sm">{faNum(unread)}</Badge>}</button>
+          <button type="button" onClick={() => setSheet('events')}><Icon name="list" size="md" /><span>رویدادها</span></button>
+          <button type="button" onClick={() => setSheet('rules')}><Icon name="shield" size="md" /><span>قوانین</span></button>
+          <button type="button" onClick={isPlayer ? leave : () => navigate('/tables')}><Icon name="log-out" size="md" /><span>{isPlayer ? 'ترک میز' : 'ترک تماشا'}</span></button>
+        </nav>
+      )}
+
+      {createPortal(<Pops s={s} snap={snap} />, (full.on && document.fullscreenElement) || document.body)}
+      {myTurn && t.pace === 'live' && clock?.state === 'critical' && <CritBar seconds={clock.time} total={10} />}
+      {chat && !wide && (
+        <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setChat(false); }}>
+          {chatPanel({ sheet: true, onClose: () => setChat(false), className: 'tbl-chatsheet' })}
+        </div>
+      )}
+      {sheet && (
+        <div className="tbl-overlay" onClick={(e) => { if (e.target === e.currentTarget) setSheet(null); }}>
+          <Sheet className="gf-sheet" title={sheet === 'rules' ? 'قوانین و ترک میز' : 'رویدادها'} icon={sheet === 'rules' ? 'shield' : 'list'} onClose={() => setSheet(null)} closeLabel="بستن">
+            {sheet === 'rules' ? (
+              <div className="bgv-stack">
+                <Policies table={t} />
+                {finished && isPlayer && !t.isTutorial && <PostGame snap={snap} onReport={() => { setSheet(null); setReporting(true); }} />}
+                {canResign && <Button variant="leave" icon="flag" block onClick={() => { setSheet(null); setConfirmResign(true); }}>انصراف از بازی</Button>}
+                {isPlayer && !t.isTutorial && <Button variant="ghost" icon="flag" block onClick={() => { setSheet(null); setReporting(true); }}>گزارش این میز</Button>}
+              </div>
+            ) : <div ref={logRef} className="gf-log gf-log--sheet">{moveCount ? events : <p className="gf-note">هنوز حرکتی ثبت نشده است.</p>}</div>}
+          </Sheet>
+        </div>
+      )}
+      {isPlayer && t.pace === 'turn' && !finished && <NotifyPrompt />}
+      {sheetSeat !== null && <SeatSheet t={t} sum={sum} seat={sheetSeat} name={name} onClose={() => setSheetSeat(null)} onReport={() => { setSheetSeat(null); setReporting(true); }} />}
       {reporting && <ReportDialog targetType="table" targetId={t.id} label="میز" onClose={() => setReporting(false)} />}
       {confirmResign && (
         <Dialog modal danger icon="flag" title="انصراف از بازی؟" onClose={() => setConfirmResign(false)}
@@ -1130,6 +1444,9 @@ export function TablePage() {
   const t = snap.table;
   // Games with their own frame (chess): live and finished games, and a game aborted before the first move (shows why).
   if (snap.game && OWN_FRAME.has(t.clientBundleRef) && !t.isTutorial && (t.status === 'active' || t.status === 'finished' || (t.status === 'cancelled' && snap.game.clocks?.aborted))) return <OwnFrameView s={s} />;
+  // Groups A–D share one frame (live and finished games; tutorials keep the generic view).
+  const frameKind = GROUP_FRAME[t.gameId];
+  if (snap.game && frameKind && !t.isTutorial && (t.status === 'active' || t.status === 'finished')) return <FrameView s={s} kind={frameKind} />;
   if (t.status !== 'cancelled' && t.status !== 'open' && snap.game) return <GameView s={s} />;
   if (t.status === 'cancelled') return <StateBlock kind="empty" title="این میز لغو شده است" action={<Button variant="secondary" href="/">بازگشت</Button>} />;
   if (t.status === 'open') return <LobbyView snap={snap} invite={invite} onChange={s.accept} />;

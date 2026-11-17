@@ -2,7 +2,7 @@
 // own hand within thumb reach. Shows only the projection; other hands are counts, never cards.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
 import { COLORS, type Card, type Color, type LogEntry, type UnoView } from './rules.ts';
 import { CardBack, CardFace, cardLabel, COLOR_FA } from './cards.tsx';
 
@@ -87,20 +87,33 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   else if (myTurn) status = { tone: 'mine', text: playableIds.size ? 'نوبت شماست: کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید' : 'کارت مناسبی ندارید؛ یک کارت بکشید' };
   else status = { tone: 'wait', text: `نوبت ${seatName(view.current)}${view.phase === 'wd4' ? '، تصمیم درباره +۴' : ''}` };
 
+  // Inside the shared table frame the shell draws the seat strip, scores, events and whose-turn; the hint goes to the rail's guide card.
+  const framed = useInFrame() !== null;
+
   return (
     <div className="uno" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
-      <div className="uno__meta">
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>کارت هم‌رنگ، هم‌عدد یا هم‌نماد بگذارید؛ «رنگی» و «+۴» همیشه مجازند.{view.color ? ` رنگ فعال: ${COLOR_FA[view.color]}.` : ''} {view.direction === 1 ? 'جهت عادی' : 'جهت برعکس'}، دست {fa(view.hand)}{view.target ? `، هدف ${fa(view.target)} امتیاز` : ''}.</p>
+        </RailSlot>
+      )}
+      {framed && catchSeat !== undefined && (
+        <DockSlot><Button variant="danger" disabled={busy} onClick={() => onAction({ type: 'catch', seat: catchSeat })}>اونو نگفت! بگیر: {seatName(catchSeat)}</Button></DockSlot>
+      )}
+
+      {!framed && <div className="uno__meta">
         <span>دست {fa(view.hand)}{view.target ? ` · هدف ${fa(view.target)} امتیاز` : ' · یک‌دسته'}</span>
         {view.color && <span className={`uno-pill uno-pill--${view.color}`}>رنگ: {COLOR_FA[view.color]}</span>}
         <span className="uno-dir" aria-label={view.direction === 1 ? 'جهت بازی: عادی' : 'جهت بازی: برعکس'}>
           <span aria-hidden="true" className={view.direction === 1 ? 'uno-dir__icon' : 'uno-dir__icon uno-dir__icon--rev'}>↻</span>
           {view.direction === 1 ? 'جهت عادی' : 'جهت برعکس'}
         </span>
-      </div>
+      </div>}
 
-      <ul className="uno-rail" aria-label="بازیکنان دیگر">
+      {!framed && <ul className="uno-rail" aria-label="بازیکنان دیگر">
         {others.map((s) => {
           const active = view.current === s && !view.outcome;
           return (
@@ -118,7 +131,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             </li>
           );
         })}
-      </ul>
+      </ul>}
 
       <div className={`uno-table ${colorClass}`}>
         <button type="button" data-flip-anchor="deck" className="uno-pile uno-pile--draw" onClick={() => canDraw && !busy && onAction({ type: 'draw' })}
@@ -143,7 +156,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         </div>
       </div>
 
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {canCallUno && (
         <div className="uno-alert" role="alert">
@@ -206,7 +219,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         </section>
       )}
 
-      {view.target && (
+      {!framed && view.target && (
         <details className="uno-scores">
           <summary>امتیازها</summary>
           <table className="table">
@@ -219,10 +232,10 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
         </details>
       )}
 
-      <details className="uno-log" open>
+      {!framed && <details className="uno-log" open>
         <summary>رویدادها</summary>
         <ol>{view.log.slice(-6).reverse().map((e) => <li key={e.seq}>{describe(e, seatName)}</li>)}</ol>
-      </details>
+      </details>}
     </div>
   );
 }

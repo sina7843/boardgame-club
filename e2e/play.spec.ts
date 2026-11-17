@@ -143,7 +143,7 @@ test('undo window cancels a tapped move; table chat alerts the other player', as
   await mover.getByRole('button', { name: 'تمام‌صفحه', exact: true }).click();
   await expect.poll(() => mover.evaluate(() => document.fullscreenElement?.classList.contains('tbl') ?? false)).toBe(true);
   await mover.locator('.tbl').evaluate((el) => { el.scrollTop = el.scrollHeight; });
-  await expect(mover.locator('.tbl-felt')).toBeInViewport();
+  await expect(mover.locator('.tbl-felt, .gf-felt')).toBeInViewport();
   await mover.screenshot({ path: shot('fullscreen', info.project.name) });
   await mover.getByRole('button', { name: 'خروج از تمام‌صفحه' }).click();
   await expect.poll(() => mover.evaluate(() => document.fullscreenElement)).toBeNull();

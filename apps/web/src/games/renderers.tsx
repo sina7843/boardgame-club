@@ -159,3 +159,22 @@ export const OWN_FRAME = new Set(['chess@1.0.0']);
 export const SEAT_CARDS: Record<string, (seat: PublicSummaryView['seats'][number], turn: boolean) => Partial<PlayerCardProps>> = {
   'gaia-project@1.0.0': gaiaSeatCard
 };
+
+/**
+ * Games on the shared table frame of design/games/group-a…d (Table.tsx FrameView), keyed by game id (= folder slug).
+ * 'duel' = two player bars around the board (two-player board games); 'seats' = opponent seat strip on top. A 'duel'
+ * game at a table with more than two seats (Quoridor for four) falls back to 'seats'. To put a game on the frame, add
+ * its id here; its renderer then keeps only the game's own area (see `useInFrame`, `RailSlot` in @bg/ui).
+ */
+const GROUP_A = ['abalone', 'backgammon', 'checkers', 'go', 'hive', 'line-three', 'onitama', 'othello', 'quoridor', 'santorini', 'tak'];
+const GROUP_BCD = [
+  'amlak', 'battleship', 'camel-up', 'ludo', 'risk', 'snakes-ladders', 'yahtzee',
+  'bohnanza', 'cockroach-poker', 'coup', 'crew-deep-sea', 'for-sale', 'hanabi', 'high-society', 'jaipur', 'lost-cities', 'love-letter', 'no-thanks', 'point-salad',
+  'scout', 'sea-salt-paper', 'sealed-bids', 'set', 'six-nimmt', 'skull', 'sushi-go', 'the-crew', 'the-mind', 'uno',
+  'azul', 'carcassonne', 'catan', 'century', 'citadels', 'cryptid', 'dice-throne', 'dominion', 'el-dorado', 'heat', 'king-of-tokyo', 'kingdomino', 'machi-koro',
+  'patchwork', 'race-galaxy', 'res-arcana', 'space-base', 'splendor', 'star-realms', 'ticket-to-ride', 'unmatched', 'wonders-duel'
+];
+export const GROUP_FRAME: Record<string, 'duel' | 'seats'> = {
+  ...Object.fromEntries(GROUP_A.map((id) => [id, 'duel' as const])),
+  ...Object.fromEntries(GROUP_BCD.map((id) => [id, 'seats' as const]))
+};

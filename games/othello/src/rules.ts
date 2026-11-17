@@ -165,6 +165,7 @@ export const othelloModule: GameModule<OthelloState, OthelloAction, OthelloView>
         strikes: s.timeouts[seat]!
       })),
       strikesMax: MAX_TIMEOUTS,
+      moves: s.history.slice(-40).map((h) => ({ seat: h.seat, text: `${'abcdefgh'[h.sq % 8]}${Math.floor(h.sq / 8) + 1}، ${h.flipped.length.toLocaleString('fa-IR')} مهره برگشت` })),
       ...(sc[0] !== sc[1] ? { leaderSeat: sc[0]! > sc[1]! ? 0 : 1 } : {})
     };
   },

@@ -46,3 +46,7 @@
 }
 :root[data-motion='reduce'] .oth-flip__new, :root[data-motion='reduce'] .oth-sq--hint .oth-dot { animation: none; }
 :root[data-motion='reduce'] .oth-flip__old, :root[data-motion='reduce'] .oth-lift { animation: none; opacity: 0; }
+
+/* Inside the shared table frame (useInFrame): the board takes the frame's square edge. */
+.oth-board { max-inline-size: min(720px, var(--gf-b, 720px)); }
+.oth > .zb { justify-self: stretch; }

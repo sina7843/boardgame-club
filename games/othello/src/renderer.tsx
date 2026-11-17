@@ -2,7 +2,7 @@
 // the outflanked discs turn over one after another, rippling out from the new disc.
 import './renderer.css';
 import { Fragment, useId, useRef } from 'react';
-import { TurnIndicator, ZoomBoard, usePop, type GameRendererProps } from '@bg/ui';
+import { RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import discB from './art/disc-b.webp';
 import discW from './art/disc-w.webp';
 import texBaize from './art/tex-baize.webp';
@@ -58,6 +58,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
     ? (lastPass.seat === mySeat ? 'حرکتی نداشتید؛ نوبت شما رد شد' : `${seatName(lastPass.seat)} حرکتی نداشت؛ نوبت دوباره با ${who(view.turn)}`)
     : null;
 
+  const framed = useInFrame() !== null; // inside the shared table frame the shell draws players, scores and whose-turn
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
@@ -66,8 +67,15 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
 
   return (
     <div className="oth" data-moves={view.history.length}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <div className="oth__score" role="group" aria-label={`سیاه ${fa(view.counts.b)}، سفید ${fa(view.counts.w)}`}>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>هر حرکت باید دست‌کم یک ردیف مهرهٔ حریف را بین مهرهٔ تازه و مهرهٔ دیگری از شما بگیرد؛ همهٔ مهره‌های گیرافتاده برمی‌گردند.</p>
+          {passNote && <p role="status">{passNote}</p>}
+        </RailSlot>
+      )}
+      {!framed && <div className="oth__score" role="group" aria-label={`سیاه ${fa(view.counts.b)}، سفید ${fa(view.counts.w)}`}>
         {(['b', 'w'] as Disc[]).map((d) => (
           <div key={d} className={['oth-side', `oth-side--${d}`, view.turn === d && !view.outcome ? 'oth-side--turn' : ''].join(' ')}>
             <img className="oth-side__disc" src={DISC[d]} alt="" aria-hidden="true" />
@@ -76,7 +84,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
           </div>
         ))}
         <div className="oth__bar" aria-hidden="true"><span style={{ inlineSize: `${(view.counts.b / Math.max(1, total)) * 100}%` }} /></div>
-      </div>
+      </div>}
 
       <ZoomBoard label="صفحه اتللو">
         <svg className="oth-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه اتللو" style={{ direction: 'ltr' }}>
@@ -144,7 +152,7 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
         </svg>
       </ZoomBoard>
 
-      {passNote && <p className="oth__note" role="status">{passNote}</p>}
+      {!framed && passNote && <p className="oth__note" role="status">{passNote}</p>}
       {view.end?.kind === 'board' && view.end.score && (
         <p className="oth__end" role="status">نتیجه نهایی (خانه‌های خالی به برنده می‌رسد): <bdi>{seatName(0)}</bdi> {fa(view.end.score[0])} — <bdi>{seatName(1)}</bdi> {fa(view.end.score[1])}</p>
       )}
