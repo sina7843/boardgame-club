@@ -10,6 +10,7 @@ import tileRed from './art/azul-tile-5.png';
 import tileBlack from './art/azul-tile-1.png';
 import tileTeal from './art/azul-tile-2.png';
 import tileFirst from './art/azul-tile-0.png';
+import bagArt from './art/azul-bag.png';
 import { FLOOR, endBonus, floorPenalty, wallColor, type AzulView, type Board, type Color } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -160,22 +161,28 @@ export default function AzulRenderer({ view: real, legalActions, mySeat, seatNam
       {!framed && !view.outcome && <p className="az__round" data-flip-anchor="bag">دور {fa(view.round)}، کیسه: {fa(view.bagCount)} کاشی</p>}
 
       {!view.outcome && (
+        <div className="az__mkt">
         <section className="az__market" aria-label="کارگاه‌ها">
-          {view.factories.map((f, i) => (
-            <div key={i} data-flip-anchor={`fac-${i}`} className={`az-factory ${f.length ? '' : 'az-factory--empty'}`} role="group" aria-label={`کارگاه ${fa(i + 1)}`}>
+          {view.factories.map((f, i) => {
+            const a = (-90 + (360 * i) / view.factories.length) * (Math.PI / 180); // factories sit on a ring around the centre pool
+            return (
+            <div key={i} data-flip-anchor={`fac-${i}`} style={{ left: `${50 + 39 * Math.cos(a)}%`, top: `${50 + 39 * Math.sin(a)}%` }} className={`az-factory ${f.length ? '' : 'az-factory--empty'}`} role="group" aria-label={`کارگاه ${fa(i + 1)}`}>
               {f.map((c, k) => (
                 <button key={k} type="button" disabled={!myTurn || busy} onClick={() => tap(i, c)} aria-pressed={isPicked(i, c)}
                   className={['az-grp', 'az-ftile', isPicked(i, c) ? 'az-grp--on' : '', isHint(i, c) && f.indexOf(c) === k ? 'az-hint' : ''].join(' ')}
                   aria-label={`${fa(f.filter((x) => x === c).length)} کاشی ${COLOR_FA[c]}`}><Tile c={c} flip={ids.fac[i]?.[k]} from="bag" /></button>
               ))}
             </div>
-          ))}
+            );
+          })}
           <div className="az-center" aria-label="وسط میز" data-flip-anchor="center">
             {view.firstInCenter && <Tile c="first" flip="first" />}
             {group('center', view.center)}
             {!view.center.length && !view.firstInCenter && <span className="az-center__empty">وسط خالی</span>}
           </div>
         </section>
+        {framed && <p className="az__bag" data-flip-anchor="bag"><img src={bagArt} alt="" draggable={false} /><span>کیسه: {fa(view.bagCount)} کاشی<small>دور {fa(view.round)}</small></span></p>}
+        </div>
       )}
 
       {roundGains && !view.outcome && (

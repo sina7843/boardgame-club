@@ -52,3 +52,18 @@
 }
 @keyframes ed-pulse { 50% { opacity: 0.6; } }
 @media (prefers-reduced-motion: reduce) { .ed * { animation: none !important; transition: none !important; } }
+
+/* Framed: map beside the market (all 16 card types, 8 per row) and your hand; hand cards wrap instead of overlapping under your bar. */
+.ed--framed .ed-hand { flex-wrap: wrap; gap: var(--space-2); padding-block-start: var(--space-2); }
+.ed--framed .ed-slot, .ed--framed .ed-slot:first-child { margin-inline-start: 0; }
+.ed--framed .ed-card { inline-size: 84px; }
+.ed--framed .ed-market { inline-size: 100%; }
+.ed--framed .ed-market__row { grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); inline-size: 100%; justify-items: center; gap: var(--space-3) var(--space-2); }
+.ed--framed .ed-buy small { inset-block-start: 2px; inset-inline-end: 2px; }
+@media (min-width: 900px) {
+  .ed--framed { grid-template-columns: auto minmax(0, 1fr); align-items: start; column-gap: var(--space-4); }
+  .ed--framed > .ed-board { grid-column: 1; grid-row: 1 / span 3; inline-size: min(372px, max(240px, calc((var(--gf-b, 600px) - 24px) * 0.67))); }
+  .ed--framed > .ed-market { grid-column: 2; grid-row: 1; }
+  .ed--framed > .ed-me { grid-column: 2; grid-row: 2; }
+  .ed--framed > :not(.ed-board):not(.ed-market):not(.ed-me) { grid-column: 1 / -1; }
+}

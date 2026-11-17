@@ -73,3 +73,14 @@ button.sn-card { min-inline-size: 44px; }
 .sn--framed .sn-row--take, .sn--framed .sn-card--hint { box-shadow: 0 0 0 2px var(--felt-gold); }
 .sn--framed .sn-card--up { box-shadow: 0 0 0 3px var(--felt-gold); }
 .sn--framed .sn-row__heads, .sn--framed .sn-rev, .sn--framed .sn-rev--took small { color: var(--felt-muted); }
+
+/* Framed desktop (reference): this turn's cards as a column at the inline-start, the four rows filling the rest, hand below. */
+@media (min-width: 900px) {
+  .sn--framed { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'rev rows' 'hand hand'; align-items: start; column-gap: var(--space-4); }
+  .sn--framed .sn__rows { grid-area: rows; }
+  .sn--framed .sn__reveal { grid-area: rev; flex-direction: column; flex-wrap: nowrap; align-items: center; }
+  .sn--framed .sn__hand { grid-area: hand; }
+  .sn--framed .sn-row .sn-card--small, .sn--framed .sn-slot { inline-size: 3.6rem; block-size: 5rem; }
+  .sn--framed .sn-row { justify-content: flex-start; padding: var(--space-2); }
+  .sn--framed .sn-rev .sn-card--small { inline-size: 3.2rem; block-size: 4.4rem; }
+}

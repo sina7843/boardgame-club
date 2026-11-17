@@ -152,6 +152,20 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
 
       <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
 
+      <div className="sp__table">
+      <section className="sp__bank" aria-label="بانک گوهر">
+          {(['w', 'u', 'g', 'r', 'k', 'o'] as Token[]).map((t) => {
+            const n = sel.filter((x) => x === t).length;
+            const can = t !== 'o' && (take?.colors.includes(t as Gem) || pairs.has(t as Gem)) && !busy;
+            return (
+              <button key={t} type="button" data-flip-anchor={`bank-${t}`} className={['sp-bankgem', n ? 'sp-bankgem--on' : '', hint?.type === 'take' && hint.gems?.includes(t as Gem) && !n ? 'sp-hint' : ''].join(' ')}
+                disabled={!can} onClick={() => tapGem(t as Gem)} aria-pressed={n > 0}>
+                <Chip t={t} n={view.bank[t]} />{n > 0 && <span className="sp-bankgem__sel">{n > 1 ? '×۲' : '✓'}</span>}
+              </button>
+            );
+          })}
+          {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${last.seat}-${g}-${i}`, `seat-${last.seat}`))}
+        </section>
       <section className="sp__market" aria-label="کارت‌ها">
         {[2, 1, 0].map((l) => (
           <div key={l} className="sp__row">
@@ -163,6 +177,7 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
           </div>
         ))}
       </section>
+      </div>
 
       {card !== null && (
         <div className="sp__cardbar" role="group" aria-label="کارت انتخاب‌شده">
@@ -172,19 +187,7 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
         </div>
       )}
 
-      <section className="sp__bank" aria-label="بانک گوهر">
-        {(['w', 'u', 'g', 'r', 'k', 'o'] as Token[]).map((t) => {
-          const n = sel.filter((x) => x === t).length;
-          const can = t !== 'o' && (take?.colors.includes(t as Gem) || pairs.has(t as Gem)) && !busy;
-          return (
-            <button key={t} type="button" data-flip-anchor={`bank-${t}`} className={['sp-bankgem', n ? 'sp-bankgem--on' : '', hint?.type === 'take' && hint.gems?.includes(t as Gem) && !n ? 'sp-hint' : ''].join(' ')}
-              disabled={!can} onClick={() => tapGem(t as Gem)} aria-pressed={n > 0}>
-              <Chip t={t} n={view.bank[t]} />{n > 0 && <span className="sp-bankgem__sel">{n > 1 ? '×۲' : '✓'}</span>}
-            </button>
-          );
-        })}
-        {last?.kind === 'return' && last.gems?.map((g, i) => gemImg(g, `back-${last.seat}-${g}-${i}`, `seat-${last.seat}`))}
-      </section>
+      
       {(take || pairs.size > 0) && (
         <div className="sp__takebar">
           <Button size="sm" disabled={!takeOk || busy} className={hint?.type === 'take' && takeOk ? 'sp-hint' : ''} onClick={() => onAction({ type: 'take', gems: sel })}>

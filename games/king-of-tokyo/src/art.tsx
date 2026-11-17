@@ -7,12 +7,15 @@ import gorilla from './art/m-gorilla.webp';
 import sea from './art/m-sea.webp';
 import bat from './art/m-bat.webp';
 import dino from './art/m-dino.webp';
+import figGorilla from './art/kot-mfig-4.png';
 
 // Monster figures are the BGA King of Tokyo client art; the city backdrop is cut from a generated sheet (see DECISIONS.md).
 const PORTRAITS = [dragon, robot, gorilla, sea, bat, dino]; // renderer MONSTERS order
 
 export function Monster({ k, className = '' }: { k: number; className?: string }) {
-  return <img src={PORTRAITS[k % 6]} className={`kt-art ${className}`} alt="" aria-hidden="true" draggable={false} />;
+  // Only the gorilla has handoff figure art (kot-mfig-4); the other monsters keep their portraits until their figures are supplied.
+  const fig = k % 6 === 2;
+  return <img src={fig ? figGorilla : PORTRAITS[k % 6]} className={`kt-art ${fig ? 'kt-art--fig' : ''} ${className}`} alt="" aria-hidden="true" draggable={false} />;
 }
 
 import die1 from './art/kot-die-1.png'; import die2 from './art/kot-die-2.png'; import die3 from './art/kot-die-3.png';

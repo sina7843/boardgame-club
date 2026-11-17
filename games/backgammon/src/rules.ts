@@ -10,6 +10,7 @@ import type { Actor, ActionHint, EngineRng, GameModule, Outcome, Transition } fr
 import { backgammon } from './definition.ts';
 
 export const CHECKERS = 15;
+const fa = (n: number) => n.toLocaleString('fa-IR');
 const MAX_TIMEOUTS = 3;
 
 export type From = number | 'bar';
@@ -82,7 +83,7 @@ function logText(e: LogEntry): string {
   const pt = (x: From | 'off', seat: number) => (x === 'bar' ? 'بار' : x === 'off' ? 'بیرون' : String(pipOf(x, seat)));
   switch (e.t) {
     case 'opening': return `شروع ${e.dice[0]}-${e.dice[1]}`;
-    case 'roll': return `تاس ${e.dice[0]}-${e.dice[1]}`;
+    case 'roll': return `تاس ${fa(e.dice[0])} و ${fa(e.dice[1])}`;
     case 'play': return e.moves.map((m) => `${pt(m.from, e.seat)}/${pt(m.to, e.seat)}${m.hit ? '*' : ''}`).join(' ');
     case 'pass': return 'بدون حرکت';
     case 'double': return `دوبل ×${e.value}`;

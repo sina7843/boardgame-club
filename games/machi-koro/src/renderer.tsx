@@ -192,7 +192,7 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
       )}
 
       <ul className="mk__players" aria-label="شهرها">
-        {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
+        {(view.outcome ? view.outcome.placements.map((x) => x.seat) : [...others, ...(me >= 0 ? [me] : [])]).map((s) => (
           <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
             {!framed ? <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><Coins n={view.coins[s]!} /></div> : s === me && <div className="mk-pl__head"><Coins n={view.coins[s]!} /></div>}
             <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key][view.landmarks[s]![l.key] ? 1 : 0]} alt={`${LANDMARK_FA[l.key]}${view.landmarks[s]![l.key] ? '، ساخته شده' : ''}`} draggable={false} /></span>)}</div>

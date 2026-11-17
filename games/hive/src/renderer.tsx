@@ -134,7 +134,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
           {lastPass && !view.outcome && <p role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت؛ نوبتش رد شد`}</p>}
         </RailSlot>
       )}
-      {!framed && <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />}
+      <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />
 
       <ZoomBoard label="کندو">
         <svg className="hv-board" viewBox={vb} role="grid" aria-label="کندو" style={{ direction: 'ltr' }}>

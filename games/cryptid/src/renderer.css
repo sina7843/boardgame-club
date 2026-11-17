@@ -71,3 +71,8 @@ button.cr-hint, .cr-confirm.cr-hint { animation: cr-pulse 1s ease-in-out infinit
 .cr-log ol { margin: 0; padding-inline-start: 1.2rem; display: grid; gap: 0.15rem; max-block-size: 10rem; overflow-y: auto; }
 
 @media (prefers-reduced-motion: reduce) { .cr-pop, .cr-hint .cr-hex, button.cr-hint { animation: none; } }
+
+/* Framed: the felt and seat strip are the shell's; the whole 12×9 map (rows 1–9) fits the stage height. */
+.cr--framed { padding: 0; background: none; box-shadow: none; border-radius: 0; color: var(--felt-ink); gap: var(--space-2); }
+.cr--framed .cr-zoom { max-inline-size: 100%; }
+@media (min-width: 900px) { .cr--framed .cr-zoom { max-inline-size: min(52rem, max(300px, calc((var(--gf-b, 600px) - 150px) * 1.117))); } }

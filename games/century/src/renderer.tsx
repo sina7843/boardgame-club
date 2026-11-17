@@ -208,9 +208,9 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
               {!framed && <Bump className="ct-pl__score" v={view.scores[s]}>{fa(view.scores[s]!)} امتیاز</Bump>}
             </div>
             <div className="ct-pl__board">
-              <div className="ct-pl__card">
+              <div className={framed ? 'ct-pl__card ct-pl__card--mini' : 'ct-pl__card'}>
                 <small className="ct-pl__cap">کاروان <Bump className="ct-caravan__n" v={view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b}>{fa(view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b)}/۱۰</Bump></small>
-                <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />
+                {framed ? <Cubes bag={view.cubes[s]!} size="sm" fid={`cv${s}`} /> : <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />}
               </div>
               <div className="ct-pl__side">
                 <span className="ct-pl__orders" title="سفارش‌های تحویل‌شده"><b>{fa(view.won[s]!.length)}</b> سفارش<span className="bgv-sep" /> {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>

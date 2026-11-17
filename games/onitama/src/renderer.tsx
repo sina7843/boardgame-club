@@ -178,27 +178,14 @@ function Token({ x, y, p }: { x: number; y: number; p: Piece }) {
 
 function MoveCard({ id, upside, selectable, selected, onSelect }: { id: string; upside?: boolean; selectable?: boolean; selected?: boolean; onSelect?: () => void }) {
   const c = cardById(id);
-  const cells = new Set(c.moves.map(([dx, dy]) => `${dx},${dy}`));
   const art = CARD_ART[id];
   const body = art ? (
     <>
       <img src={art} alt="" draggable={false} />
       <span className="oni-card__cap">{c.nameFa}</span>
     </>
-  ) : (
-    <>
-      <span className={`oni-card__stamp oni-card__stamp--${c.color}`} aria-hidden="true" />
-      <strong className="oni-card__name">{c.nameFa}</strong>
-      <span className="oni-card__en"><bdi>{c.nameEn}</bdi></span>
-      <span className="oni-card__grid" aria-hidden="true">
-        {Array.from({ length: 25 }, (_, k) => {
-          const dx = (k % 5) - 2, dy = 2 - Math.floor(k / 5);
-          return <i key={k} className={dx === 0 && dy === 0 ? 'is-me' : cells.has(`${dx},${dy}`) ? `is-move is-${c.color}` : ''} />;
-        })}
-      </span>
-    </>
-  );
-  const cls = ['oni-card', art ? 'oni-card--art' : '', upside ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
+  ) : <strong className="oni-card__name">{c.nameFa}</strong>;
+  const cls = ['oni-card', art ? 'oni-card--art' : '', upside && art ? 'oni-card--upside' : '', selected ? 'oni-card--sel' : ''].join(' ');
   const label = `کارت ${c.nameFa}: ${c.moves.map(([dx, dy]) => `${dy > 0 ? `${dy} جلو` : dy < 0 ? `${-dy} عقب` : ''}${dx ? ` ${Math.abs(dx)} ${dx > 0 ? 'راست' : 'چپ'}` : ''}`.trim()).join('، ')}`;
   return selectable
     ? <button type="button" data-flip={`card-${id}`} className={cls} aria-pressed={selected} aria-label={label} onClick={onSelect}>{body}</button>

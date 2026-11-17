@@ -4,7 +4,7 @@
 .ct {
   --ct-ink: #2a2520; --ct-token: #f6efdc; --ct-hot: #b3261e; --ct-sea: #2a6f97;
   --ct-brick: #c4683b; --ct-lumber: #2f6b3a; --ct-wool: #93c463; --ct-grain: #e3bf4a; --ct-ore: #8b919c;
-  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size;
+  display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size;
 }
 .ct__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); color: var(--text-2); font-size: var(--fs-sm); }
 .ct-help { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
@@ -235,3 +235,12 @@
 .ct-die--img { inline-size: 2rem; block-size: 2rem; display: inline-block; object-fit: contain; background: none; box-shadow: none; }
 .ct-costcard { inline-size: min(100%, 22rem); block-size: auto; display: block; margin-inline: auto; }
 .ct--framed { color: var(--felt-ink); }
+
+/* Framed: the island fits the felt (never taller than the stage), the bank is a column beside it. */
+.ct--framed { gap: var(--space-2); }
+.ct--framed .ct-board-wrap { grid-template-columns: minmax(0, 1fr) auto; align-items: start; justify-items: center; }
+.ct--framed .ct-board { max-inline-size: min(720px, 100%); }
+@media (min-width: 900px) { .ct--framed .ct-board { max-inline-size: min(720px, max(280px, calc(var(--gf-b, 720px) - 130px))); } }
+.ct--framed .ct-bank { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-md); background: var(--felt-plate); font-size: var(--fs-sm); }
+.ct--framed .ct-bank .ct-mini { justify-content: space-between; gap: var(--space-2); }
+.ct--framed .ct-costcard { margin: 0; }

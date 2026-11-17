@@ -456,8 +456,8 @@ function validateAction(s: AmlakState, seat: number, a: AmlakAction): string | n
     case 'bid': return s.phase !== 'auction' ? 'WRONG_PHASE' : a.amount <= s.auction!.high ? 'BID_TOO_LOW' : a.amount > p.cash ? 'NOT_ENOUGH_CASH' : null;
     case 'pass': return s.phase === 'auction' ? null : 'WRONG_PHASE';
     case 'build': return own ? canBuild(s, seat, a.sq) : 'WRONG_PHASE';
-    case 'sell': return own || s.phase === 'debt' ? canSell(s, seat, a.sq) : 'WRONG_PHASE';
-    case 'mortgage': return own || s.phase === 'debt' ? canMortgage(s, seat, a.sq) : 'WRONG_PHASE';
+    case 'sell': return own || s.phase === 'buy' || s.phase === 'debt' ? canSell(s, seat, a.sq) : 'WRONG_PHASE';
+    case 'mortgage': return own || s.phase === 'buy' || s.phase === 'debt' ? canMortgage(s, seat, a.sq) : 'WRONG_PHASE';
     case 'unmortgage': return own ? canUnmortgage(s, seat, a.sq) : 'WRONG_PHASE';
     case 'offer': return own ? checkTrade(s, { from: seat, to: a.to, give: a.give, get: a.get }) : 'WRONG_PHASE';
     case 'bankrupt': return s.phase === 'debt' ? null : 'WRONG_PHASE';

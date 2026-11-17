@@ -115,7 +115,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
   const winner = view.outcome?.placements.find((p) => p.place === 1)?.seat;
 
   return (
-    <div className="cr" ref={root} data-seq={view.seq} data-phase={view.phase}>
+    <div className={framed ? 'cr cr--framed' : 'cr'} ref={root} data-seq={view.seq} data-phase={view.phase}>
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}

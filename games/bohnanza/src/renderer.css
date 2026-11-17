@@ -131,3 +131,9 @@ button.bn-plot--buy:focus-visible { outline: 3px solid #ffe1a0; outline-offset: 
 .bn-treasury--lg .bn-treasury__stack img:first-child { margin-block-start: 0; }
 .bn-deck { background-size: 100% 100%; background-repeat: no-repeat; }
 .bn-deck b, .bn-deck small { text-shadow: 0 0 3px #000, 0 0 2px #000; }
+
+/* Own hand and pending cards are full size on desktop (reference), compact on phones. */
+@media (min-width: 900px) {
+  .bn__hand .bn-card--sm.bn-card--art, .bn__pending .bn-card--sm.bn-card--art { inline-size: 4.6rem; block-size: 6.45rem; }
+  .bn__hand { gap: 0.4rem; }
+}

@@ -143,3 +143,13 @@
 
 /* Inside the shared table frame the felt is the table: no velvet panel of our own. */
 .sp--framed { background: none; box-shadow: none; padding: 0; }
+
+/* Layout: gem bank as a vertical column beside the market; smaller market cards; deck count sits at the foot of the card back, clear of the logo. */
+.sp__table { display: flex; gap: var(--space-3); align-items: flex-start; justify-content: center; min-inline-size: 0; }
+.sp__table > .sp__bank { flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: var(--space-1); padding: var(--space-2); border-radius: var(--radius-lg); inline-size: auto; }
+.sp__table > .sp__market { inline-size: min(100%, 24rem); flex: 0 1 24rem; min-inline-size: 0; }
+.sp-chip--md img { inline-size: 2rem; block-size: 2rem; }
+.sp-deck { align-content: end; padding-block-end: 0.2rem; }
+.sp-deck:not(.sp-deck--sm) span { display: none; }
+.sp-deck b { font-size: 0.8rem; }
+@media (max-width: 520px) { .sp__table { gap: var(--space-2); } .sp__table > .sp__bank { padding: var(--space-1); } .sp-chip--md img { inline-size: 1.6rem; block-size: 1.6rem; } }

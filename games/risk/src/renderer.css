@@ -3,7 +3,7 @@
    #3a2a16 on ivory halos or continent tints (>= 9:1); panel text uses the theme tokens. */
 .rk {
   --rk-ink: #3a2a16; --rk-ivory: #f6efdc; --rk-gold: #d9a62e;
-  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size;
+  display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size;
 }
 .rk__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); color: var(--text-2); font-size: var(--fs-sm); }
 .rk-chipmeta { padding: 2px 10px; border-radius: 999px; font-size: var(--fs-xs); border: 1px solid color-mix(in srgb, var(--rk-gold) 38%, transparent); background: color-mix(in srgb, var(--surface-2) 70%, transparent); }

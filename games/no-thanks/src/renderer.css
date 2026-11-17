@@ -21,15 +21,7 @@
 .nt-pot b { position: relative; z-index: 1; margin-block-end: 3rem; padding: 0.05rem 0.45rem; border-radius: 999px; background: #2a1a0d; color: #ffd27a; font-size: 0.85rem; }
 
 .nt__actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-block-start: 0.6rem; }
-.nt-btn { display: grid; gap: 0.15rem; min-inline-size: 9rem; padding: 0.7rem 1.2rem; border-radius: 16px; border: 0; font: inherit; font-weight: 900; font-size: 1.05rem; cursor: pointer;
-  box-shadow: 0 6px 0 rgb(0 0 0 / 0.35), 0 10px 18px -8px rgb(0 0 0 / 0.6); transition: transform 0.1s; }
-.nt-btn small { font-weight: 600; font-size: 0.75rem; opacity: 0.85; }
-.nt-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 rgb(0 0 0 / 0.35); }
-.nt-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.nt-btn--take { background: #f3e2b8; color: #2a1a0d; }
-.nt-btn--pass { background: #c0392b; color: #fff; }
-.nt-btn--hint { outline: 3px solid #ffd27a; outline-offset: 3px; animation: nt-pulse 1s ease-in-out infinite; }
-.nt-btn:focus-visible { outline: 3px solid #ffd27a; outline-offset: 3px; }
+.nt-btn--hint { outline: 3px solid var(--focus); outline-offset: 3px; animation: nt-pulse 1s ease-in-out infinite; }
 
 .nt__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
 .nt-pl { display: grid; gap: 0.45rem; padding: 0.6rem 0.75rem; border-radius: 14px; background: rgb(0 0 0 / 0.25); border: 1px solid rgb(255 255 255 / 0.08); text-align: start; }
@@ -58,8 +50,6 @@
 .nt-card--art { background-size: 1000% 400%; background-repeat: no-repeat; background-color: #fcefcb; }
 .nt-card--art .nt-card__corner, .nt-card--art .nt-card__n { visibility: hidden; }
 
-/* Inside the shared table frame: 44px touch targets. */
-.nt-btn { min-block-size: 2.75rem; }
 
 /* Delivered art: card back, chips (images set inline from src/art/gc). */
 .nt-deck__card { background-color: transparent; background-size: 100% 100%; border: 0; }

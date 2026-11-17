@@ -176,7 +176,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
         })}
         <div className="cu-centre">
           <div className="cu-centre__dice" aria-label={`تاس‌های مانده در هرم: ${fa(view.diceLeft)}`}>
-            {CAMELS.map((c) => { const fresh = freshRoll && last?.camel === c; return <Die key={fresh ? `${c}-${view.seq}` : c} c={c} v={rolled.get(c)} roll={fresh} />; })}
+            {CAMELS.filter((c) => rolled.has(c)).map((c) => { const fresh = freshRoll && last?.camel === c; return <Die key={fresh ? `${c}-${view.seq}` : c} c={c} v={rolled.get(c)} roll={fresh} />; })}
             {rollPending && <Die c={null} />}
           </div>
           {lastRoll && !rollPending && (
@@ -184,12 +184,15 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
               {last?.kind === 'roll' ? <bdi>{who(last.seat)}</bdi> : 'آخرین تاس'} <CamelIcon c={lastRoll.camel} size={1.2} /> <b>{fa(lastRoll.value)}</b>
             </p>
           )}
-          <small className="cu-centre__leg">مرحلهٔ {fa(view.leg)}</small>
+          {!framed && <small className="cu-centre__leg">مرحلهٔ {fa(view.leg)}</small>}
         </div>
       </section>
 
+      <div className="cu__bar">
       {!view.outcome && (
-        <section className="cu__bets" aria-label="شرط مرحله">
+        <section className="cu__bets cu__grp" aria-label="شرط مرحله">
+          <h3 className="cu__cap">شرط مرحله</h3>
+          <div className="cu__grpbody">
           {CAMELS.map((c) => {
             const v = view.legTiles[c][0];
             const left = view.legTiles[c].length;
@@ -197,23 +200,37 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
               <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
                 disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
                 {v && BET_ART[`${c}-${v}`] ? <img src={BET_ART[`${c}-${v}`]} alt="" className="cu-legtile__art" draggable={false} /> : <><CamelIcon c={c} size={1.9} /><b>{v ? fa(v) : '—'}</b></>}
+                <small className="cu-legtile__left">{fa(left)} مانده</small>
               </button>
             );
           })}
+          </div>
         </section>
       )}
 
       {myTurn && (
-        <div className="cu__actions">
-          <DockSlot><Button size="sm" disabled={busy} className={['cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button></DockSlot>
-          {desert && <Button size="sm" variant="secondary" className={placing === 'oasis' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}>واحه +۱</Button>}
-          {desert && <Button size="sm" variant="secondary" className={placing === 'mirage' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}>سراب −۱</Button>}
-        </div>
+        <>
+        <section className="cu__actions cu__grp" aria-label="کاشی بیابان">
+          <h3 className="cu__cap">کاشی بیابان</h3>
+          <div className="cu__grpbody">
+          {desert && <Button size="sm" variant="secondary" className={placing === 'oasis' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}><img src={oasisArt} alt="" className="cu-pyramid" draggable={false} />واحه +۱</Button>}
+          {desert && <Button size="sm" variant="secondary" className={placing === 'mirage' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}><img src={mirageArt} alt="" className="cu-pyramid" draggable={false} />سراب −۱</Button>}
+          {!desert && <small>کاشی شما روی مسیر است</small>}
+          </div>
+        </section>
+        <section className="cu__grp" aria-label="تاس از هرم">
+          <h3 className="cu__cap">تاس از هرم</h3>
+          <div className="cu__grpbody">
+            <DockSlot><Button size="sm" disabled={busy} className={['cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button></DockSlot>
+            <small>{fa(view.diceLeft)} مانده</small>
+          </div>
+        </section>
+        </>
       )}
 
       {myTurn && overall && (
-        <section className="cu__overall" aria-label="شرط نهایی">
-          <h3>شرط مخفی نهایی <small>برنده {fa(view.winnerCount)}، بازنده {fa(view.loserCount)}</small></h3>
+        <section className="cu__overall cu__grp" aria-label="شرط نهایی">
+          <h3 className="cu__cap">شرط نهایی <small>برنده {fa(view.winnerCount)} مانده، بازنده {fa(view.loserCount)} مانده</small></h3>
           <div className="cu__ovlist">
             {overall.cards.filter((c) => !(q?.type === 'overall' && q.camel === c)).map((c) => (
               <span key={c} className={`cu-ov cu-c--${c}`}>
@@ -225,6 +242,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
           </div>
         </section>
       )}
+      </div>
 
       {!framed && <ul className="cu__players" aria-label="تماشاگران">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (

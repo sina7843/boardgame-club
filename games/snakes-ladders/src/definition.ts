@@ -27,7 +27,7 @@ export const snakesLadders = defineGame({
   },
   catalog: {
     nameFa: 'مارپله',
-    nameOriginal: 'Snakes and Ladders',
+    nameOriginal: 'Snakes & Ladders',
     summaryFa: 'بازی شانسی ۲ تا ۶ نفره؛ تاس بریزید، از نردبان‌ها بالا بروید، از مارها فرار کنید و اول به ۱۰۰ برسید.',
     rulesFa: [
       '## هدف',

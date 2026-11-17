@@ -94,3 +94,18 @@
 .ct-cube { inline-size: 1rem; block-size: 1rem; object-fit: contain; background: none; box-shadow: none; border-radius: 0; }
 .ct--framed { color: var(--felt-ink); }
 .ct-slot { min-block-size: 44px; }
+
+/* Framed: small summary cards under the market (no big caravan boards); your hand stays at the bottom. */
+.ct--framed .ct__players { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--space-2); }
+.ct--framed .ct-pl { padding: var(--space-2); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.ct--framed .ct-pl--me { grid-column: auto; }
+.ct--framed .ct-pl__board { flex-direction: column; gap: var(--space-1); }
+.ct--framed .ct-pl__card--mini { background: none; box-shadow: none; padding: 0; color: var(--felt-ink); }
+.ct--framed .ct-pl__cap, .ct--framed .ct-pl__cap .ct-caravan__n { color: var(--felt-ink); }
+.ct--framed .ct-pl--me .ct-pl__card--mini .ct-cube { inline-size: 1.25rem; block-size: 1.25rem; }
+.ct--framed .ct-pl__side { justify-items: center; }
+.ct--framed .ct__orders, .ct--framed .ct__market { inline-size: 100%; }
+/* Gold and silver coins use the handoff coin art. */
+.ct-coin--gold, .ct-coin--silver { background-color: transparent; background-position: center; background-size: contain; background-repeat: no-repeat; box-shadow: none; min-inline-size: 1.5rem; block-size: 1.5rem; color: var(--ink); }
+.ct-coin--gold { background-image: url('./art/century-gold.png'); }
+.ct-coin--silver { background-image: url('./art/century-silver.png'); }

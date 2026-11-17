@@ -38,3 +38,12 @@
 :root[data-motion='reduce'] .sb__history tbody tr:last-child { animation: none; }
 .sb-chip__star { position: absolute; inset-block-start: -10px; inset-inline-end: -6px; font-size: 1.1rem; color: var(--felt-gold); text-shadow: 0 1px 2px #000; }
 .sb .num > .bg-pop { display: inline-block; }
+
+/* Five-round prize strip: past rounds dimmed with their winner, the current round large, the rest «بعدی». */
+.sb-prizes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; align-items: end; }
+.sb-prize { display: grid; justify-items: center; gap: var(--space-1); font-size: 0.75rem; color: var(--felt-muted); }
+.sb-prize .sb-plaque { inline-size: 5.5rem; }
+.sb-prize--done .sb-plaque { opacity: 0.45; filter: grayscale(1); }
+.sb-prize--now .sb-plaque { inline-size: min(10rem, 40vw); }
+.sb-prize--now .sb-prize__cap { color: var(--felt-gold); font-weight: 800; }
+@media (max-width: 600px) { .sb-prize .sb-plaque { inline-size: 3.5rem; } }

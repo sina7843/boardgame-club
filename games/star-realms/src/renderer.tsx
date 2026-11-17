@@ -142,7 +142,7 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
         <div className="sr-side__head">
           {!framed && <bdi className="sr-side__name">{who(opp)}</bdi>}
           {!framed && <Num n={theirs.authority} hit className="sr-auth" />}
-          <small>دسته <Num n={theirs.deck} /> · دست <Num n={theirs.hand} /> · <span data-flip-anchor={`discard-${opp}`}>دورریز <Num n={theirs.discard} /></span></small>
+          <small>دسته <Num n={theirs.deck} /> <span className="bgv-sep" /> دست <Num n={theirs.hand} />  <span className="bgv-sep" /> <span data-flip-anchor={`discard-${opp}`}>دورریز <Num n={theirs.discard} /></span></small>
           {chip(opp)}
           {attackable.has(-1) && <Button size="sm" disabled={busy} className={hint?.type === 'attack' && hint.base === -1 ? 'sr-hint' : ''} onClick={() => onAction({ type: 'attack', base: -1 })}>حمله ({fa(view.pool.combat)})</Button>}
         </div>
@@ -198,7 +198,7 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
         <div className="sr-side__head">
           {!framed && <bdi className="sr-side__name">{who(me)}</bdi>}
           {!framed && <Num n={mine.authority} hit className="sr-auth sr-auth--me" />}
-          <small><span data-flip-anchor={`deck-${me}`}>دسته <Num n={mine.deck} /></span> · <span data-flip-anchor={`discard-${me}`}>دورریز <Num n={mine.discard} /></span></small>
+          <small><span data-flip-anchor={`deck-${me}`}>دسته <Num n={mine.deck} /></span> <span className="bgv-sep" /> <span data-flip-anchor={`discard-${me}`}>دورریز <Num n={mine.discard} /></span></small>
           {chip(me)}
         </div>
         {view.hand && !view.outcome && (

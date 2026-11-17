@@ -20,6 +20,8 @@ import flameArt from './art/ht-heat.png';
 import stressArt from './art/ht-stress.png';
 import flagArt from './art/flag.webp';
 import gearArt from './art/ht-gear1.png';
+import s1 from './art/ht-s1.png'; import s2 from './art/ht-s2.png'; import s3 from './art/ht-s3.png'; import s4 from './art/ht-s4.png';
+import gBrakes from './art/ht-g-brakes.png'; import gCooler from './art/ht-g-cooler.png'; import gTurbo from './art/ht-g-turbo.png';
 import { GARAGE, GEAR_COOL, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
 import { pointAt, trackOf, type TrackId } from './tracks.ts';
 
@@ -51,7 +53,14 @@ export function cardLabel(c: Card): string {
   return `سرعت ${fa(c.v ?? 0)}${c.up ? ' (ارتقای شروع)' : ''}`;
 }
 
+/** Printed card faces from the handoff: speed 1–4, heat, stress and the three garage upgrades that have art; the rest stay numeric tiles. */
+const FACE_SPEED: Record<number, string> = { 1: s1, 2: s2, 3: s3, 4: s4 };
+const FACE_GARAGE: Partial<Record<string, string>> = { brakes: gBrakes, cooler: gCooler, turbo: gTurbo };
+const faceOf = (c: Card) => c.k === 'heat' ? flameArt : c.k === 'stress' ? stressArt : c.k === 'speed' ? FACE_SPEED[c.v ?? 0] : FACE_GARAGE[c.g!];
+
 export function HeatCard({ c, size = 'md' }: { c: Card; size?: 'sm' | 'md' }) {
+  const face = faceOf(c);
+  if (face) return <span className={`ht-card ht-card--face ht-card--${size}${c.up ? ' ht-card--up' : ''}`} aria-label={cardLabel(c)}><img src={face} alt="" draggable={false} /></span>;
   return (
     <span className={`ht-card ht-card--${c.k} ht-card--${size}${c.up ? ' ht-card--up' : ''}`} aria-label={cardLabel(c)}>
       {c.k === 'heat' ? <img src={flameArt} alt="" draggable={false} />
@@ -65,7 +74,7 @@ function where(view: HeatView, pos: number) {
   const L = trackOf(view.track).length;
   if (pos < 0) return 'پشت خط شروع';
   const lap = Math.min(Math.floor(pos / L) + 1, view.laps);
-  return `دور ${fa(lap)} از ${fa(view.laps)} · خانهٔ ${fa(pos - (lap - 1) * L)}`;
+  return `دور ${fa(lap)} از ${fa(view.laps)}، خانهٔ ${fa(pos - (lap - 1) * L)}`;
 }
 
 function logText(e: LogEntry, who: (s: number) => string): string {
@@ -143,7 +152,7 @@ function Track({ view, who }: { view: HeatView; who: (s: number) => string }) {
         const lim = Math.max(1, c.limit + (road === 'up' ? 1 : road === 'down' ? -1 : 0));
         return (
           <g key={i} className="ht-corner">
-            <title>{`پیچ ${fa(i + 1)} (خانهٔ ${fa(c.at)}): محدودیت سرعت ${fa(lim)}${road ? ` · ${ROAD_FA[road]}` : ''}`}</title>
+            <title>{`پیچ ${fa(i + 1)} (خانهٔ ${fa(c.at)}): محدودیت سرعت ${fa(lim)}${road ? `، ${ROAD_FA[road]}` : ''}`}</title>
             <line {...{ x1: a.x1, y1: a.y1, x2: a.x2, y2: a.y2 }} className="ht-corner__line" />
             <circle cx={b.x1} cy={b.y1} r="26" className="ht-corner__badge" />
             <text x={b.x1} y={b.y1 + 10} className="ht-corner__lim">{fa(lim)}</text>
@@ -320,8 +329,8 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
                   {view.races > 1 && <span className="ht-tag">{fa(r.points)} امتیاز</span>}
                 </div>
                 <div className="ht-racer__sub">
-                  {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد · ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
-                  {!onMat && <span className="ht-racer__counts"> · دست {fa(r.hand)} · <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> · <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>}
+                  {r.resigned ? 'انصراف داده' : r.finished ? `تمام کرد، ${fa(r.finished.over)} خانه بعد از خط` : where(view, r.pos)}
+                  {!onMat && <span className="ht-racer__counts"> <span className="bgv-sep" /> دست {fa(r.hand)} <span className="bgv-sep" /> <span data-flip-anchor={`deck-${s}`}>دسته {fa(r.deck)}</span> <span className="bgv-sep" /> <span data-flip-anchor={`discard-${s}`}>دورریز {fa(r.discard)}</span></span>}
                 </div>
                 {r.revealed && !onMat && <Play r={r} s={s} />}
                 {r.revealed && onMat && <div className="ht-racer__play"><b key={r.speed} className="ht-speed bg-pop">سرعت {fa(r.speed)}</b></div>}
@@ -397,7 +406,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
               )}
               <button type="button" className={['ht-toggle', slip && slipOk ? 'ht-toggle--on' : '', hint?.type === 'react' && hint.slipstream && !(slip && slipOk) && slipOk ? 'ht-hint' : ''].join(' ')}
                 aria-pressed={slip && slipOk} disabled={!slipOk || busy} onClick={() => setSlip(!slip)}>مکش +۲</button>
-              <span className="ht__note">خنک‌سازی خودکار: {fa(react.cooldown)}{disc.length ? ` · دور ریختن ${fa(disc.length)} کارت` : ''}</span>
+              <span className="ht__note">خنک‌سازی خودکار: {fa(react.cooldown)}{disc.length ? `، دور ریختن ${fa(disc.length)} کارت` : ''}</span>
               <Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}>پایان نوبت</Button>
             </div>
           )}

@@ -42,7 +42,7 @@ export function SetCard({ id }: { id: number }) {
 /** Wrong claims shake the seat's line (only when the count really went up). */
 function Meta({ sets, penalties }: { sets: number; penalties: number }) {
   const hit = usePop(penalties) ? 'bg-hit' : '';
-  return <span key={penalties} className={`muted set-seat__meta ${hit}`}>{fa(sets)} ست{penalties ? ` · ${fa(penalties)} اشتباه` : ''}</span>;
+  return <span key={penalties} className={`muted set-seat__meta ${hit}`}>{fa(sets)} ست{penalties ? `، ${fa(penalties)} اشتباه` : ''}</span>;
 }
 
 export default function SetRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<SetView>) {
@@ -99,7 +99,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
         )}
         <span className="set__deck" aria-label={`${fa(view.deckCount)} کارت در دسته، ${fa(view.table.length)} کارت روی میز`}>
           {framed ? <img className="set__deck-img" data-flip-anchor="deck" src={DECK} alt="" draggable={false} /> : <span className="set__deck-stack" data-flip-anchor="deck" aria-hidden="true" />} دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
-          <span className="muted"> · روی میز: {fa(view.table.length)}</span>
+          <span className="bgv-sep" aria-hidden="true" /><span className="muted">روی میز: {fa(view.table.length)}</span>
         </span>
       </div>
 

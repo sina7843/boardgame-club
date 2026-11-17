@@ -1,5 +1,5 @@
 /* Ludo (منچ). The board keeps its own physical palette (wood frame, card stock) in both themes; pieces show a number as well as colour. */
-.ld { display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+.ld { display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size; }
 .ld-main { display: grid; gap: var(--sp-4); }
 @container (min-width: 820px) { .ld-main { grid-template-columns: minmax(0, 560px) minmax(220px, 1fr); align-items: start; } }
 .ld-board { inline-size: min(100%, 560px); block-size: auto; touch-action: manipulation; }

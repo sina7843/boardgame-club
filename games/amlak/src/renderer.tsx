@@ -192,6 +192,19 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
             </section>
           )}
 
+          {mine && !view.trade && view.phase === 'buy' && myProps.some((i) => manage.has(i)) && (
+            <details className="am-panel">
+              <summary>رهن یا فروش برای تأمین پول خرید</summary>
+              <ManageList view={view} props={myProps} manage={manage} busy={busy} send={send} />
+            </details>
+          )}
+
+          {framed && myProps.length > 0 && (
+            <section className="am-hand" aria-label="سندهای شما">
+              {myProps.map((i) => <Deed key={i} view={view} i={i} seatName={seatName} compact />)}
+            </section>
+          )}
+
           {mine && !view.trade && (view.phase === 'roll' || view.phase === 'end') && (
             <>
               {myProps.length > 0 && (

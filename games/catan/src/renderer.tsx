@@ -37,7 +37,7 @@ function describe(e: LogEntry, view: CatanView, name: (s: number) => string): st
     case 'roll': return `${name(e.seat)} تاس ریخت: ${fa(e.dice[0])} + ${fa(e.dice[1])} = ${fa(e.dice[0] + e.dice[1])}.`;
     case 'produce': {
       const parts = e.gains.flatMap((g, s) => (Object.values(g).some((x) => x > 0) ? [`${name(s)}: ${handText(g)}`] : []));
-      return `${e.setup ? 'منابع آغازین' : 'تولید'} — ${parts.join(' · ') || 'هیچ'}.`;
+      return `${e.setup ? 'منابع آغازین' : 'تولید'} — ${parts.join('، ') || 'هیچ'}.`;
     }
     case 'shortage': return `بانک ${RES_FA[e.res]} کافی نداشت؛ کسی ${RES_FA[e.res]} نگرفت.`;
     case 'discard': return `${name(e.seat)} ${handText(e.cards)} دور ریخت.`;
@@ -367,12 +367,15 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   }, {});
   const playType: Record<Dev, string | null> = { knight: 'playKnight', road: 'playRoadBuilding', plenty: 'playPlenty', monopoly: 'playMonopoly', vp: null };
 
+  const bank = <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>;
+
   return (
     <div className={framed ? 'ct ct--framed' : 'ct'} ref={root}>
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
           <p>آبادی ۱ امتیاز، شهر ۲، طولانی‌ترین جاده و بزرگ‌ترین ارتش هر کدام ۲ امتیاز؛ با {fa(10)} امتیاز برنده‌اید. تاس ۷: بیش از {fa(7)} کارت را نصف کنید و راهزن را ببرید.</p>
+          {view.myHand && <CostCard />}
         </RailSlot>
       )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
@@ -388,10 +391,9 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
           </span>
         )}
         <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
-        <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>
+        {!framed && bank}
       </div>
 
-      {framed && view.myHand && <CostCard />}
       {!framed && <ul className="ct-players" aria-label="بازیکنان">
         {(mySeat === null ? [] : [mySeat]).concat(Array.from({ length: view.players }, (_, s) => s).filter((s) => s !== mySeat)).map((s) => {
           const turn = view.current === s && !view.outcome;
@@ -439,6 +441,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       <div className="ct-main">
         <div className="ct-board-wrap">
           <ZoomBoard label="نقشه جزیره کاتان"><Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} /></ZoomBoard>
+          {framed && bank}
         </div>
 
         <div className="ct-side">

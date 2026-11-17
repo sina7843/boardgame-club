@@ -23,7 +23,7 @@ export const unmatched = defineGame({
   },
   catalog: {
     nameFa: 'آنمچد',
-    nameOriginal: 'Unmatched: Battle of Legends Vol. 1 + Cobble & Fog',
+    nameOriginal: 'Unmatched',
     summaryFa: 'نبرد تاکتیکی ۲ تا ۴ نفره روی صفحه‌ای از خانه‌ها و منطقه‌های رنگی. هر بازیکن قهرمانی افسانه‌ای با یاورها و دستهٔ ۳۰ کارتی مخصوص خودش دارد؛ با مانور، نقشه و حمله، و با کارت‌هایی که هم حمله‌اند و هم تقویت، قهرمان حریف را شکست دهید.',
     rulesFa: [
       '## هدف',

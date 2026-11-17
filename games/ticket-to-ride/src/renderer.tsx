@@ -94,7 +94,7 @@ const MapArt = memo(function MapArt({ map, title }: { map: MapId; title: string 
         {[[0.2, 0.3, 0.35], [0.78, 0.2, 0.3], [0.6, 0.85, 0.4], [0.1, 0.9, 0.28]].map(([x, y, s], i) => <ellipse key={i} cx={x! * L.w} cy={y! * L.h} rx={s! * L.w} ry={s! * L.h * 0.8} fill="url(#ttr-stain1)" />)}
         <rect width={L.w} height={L.h} fill="url(#ttr-vignette)" />
         <g transform={`translate(${cx} ${cy})`}><Compass /></g>
-        <g transform={`translate(${tx} ${ty})`}><Cartouche title={title} sub="تیکت تو راید · نقشه راه‌آهن" /></g>
+        <g transform={`translate(${tx} ${ty})`}><Cartouche title={title} sub="تیکت تو راید، نقشه راه‌آهن" /></g>
       </g>
       <rect x="-1.5" y="-1.5" width={L.w + 3} height={L.h + 3} fill="none" stroke={INK} strokeWidth="2.4" />
     </g>
@@ -507,7 +507,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
           <div className="ttr-duo">
           {hand && !view.outcome && (
             <section className="ttr-hand" aria-label="کارت‌های شما">
-              <h3>کارت‌های شما ({fa(handTotal)}) · واگن‌ها: {fa(view.trains[mySeat!] ?? 0)}</h3>
+              <h3>کارت‌های شما ({fa(handTotal)})، واگن‌ها: {fa(view.trains[mySeat!] ?? 0)}</h3>
               {handTotal === 0 ? <p className="ttr-help">کارتی ندارید.</p> : (
                 <ul className="ttr-handcards">
                   {hand.map((k, c) => (k > 0 ? (
@@ -571,7 +571,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                     <span className="ttr-seal" aria-hidden="true"><img src={SEAT_TRAIN[s]} alt="" /></span>
                     <span className="ttr-player__head">
                       <bdi className="ttr-player__name">{seatName(s)}</bdi>
-                      <span className="ttr-player__color">{SEAT_FA[s]} · صندلی {fa(s + 1)}{s === mySeat ? ' · شما' : ''}</span>
+                      <span className="ttr-player__color">{SEAT_FA[s]}، صندلی {fa(s + 1)}{s === mySeat ? '، شما' : ''}</span>
                     </span>
                     <span className={`ttr-player__score ${pop(before?.routePoints[s], view.routePoints[s])}`} key={`s${view.routePoints[s]}`} aria-label={`${fa(view.routePoints[s] ?? 0)} امتیاز مسیر`}>{fa(view.routePoints[s] ?? 0)}</span>
                   </span>

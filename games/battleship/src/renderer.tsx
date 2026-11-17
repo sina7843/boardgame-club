@@ -20,7 +20,7 @@ import ship4s from './art/ship-4-sunk.png';
 const SHIPS = [ship0, ship1, ship2, ship3, ship4];
 const SHIPS_SUNK = [ship0s, ship1s, ship2s, ship3s, ship4s];
 const SHIP_PX = [272, 222, 172, 172, 122]; // art widths; 72px tall; ~54px per cell
-import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { FLEET, SIZE, cellsOf, validFleet, type BsView, type Dir, type SeaView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -192,7 +192,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
                 <button key={f.key} type="button" aria-pressed={pick === i} disabled={busy}
                   className={['bs-tray__ship', pick === i ? 'is-on' : '', placed ? 'is-placed' : ''].join(' ')}
                   onClick={() => { setPick(i); setDraft(draft.filter((s) => s.ship !== i)); }}>
-                  <span className="bs-tray__len">{Array.from({ length: f.len }, (_, k) => <i key={k} />)}</span>
+                  <img className="bs-tray__art" src={SHIPS[i]} alt="" aria-hidden="true" style={{ inlineSize: `${f.len * 2.1}rem` }} />
                   <small>{f.name}{placed ? ' ✓' : ''}</small>
                 </button>
               );
@@ -201,7 +201,7 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
           <div className="bs-tray__bar">
             <Button size="sm" variant="secondary" disabled={busy} onClick={() => setDir(dir === 'h' ? 'v' : 'h')}>چرخاندن ({dir === 'h' ? 'افقی' : 'عمودی'})</Button>
             <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setDraft(localRandomFleet()); setPick(null); }}>چیدمان تصادفی</Button>
-            <Button size="sm" disabled={busy || !validFleet(draft)} onClick={() => onAction({ type: 'place', ships: draft })}>تأیید چیدمان</Button>
+            <DockSlot><Button size="lg" disabled={busy || !validFleet(draft)} onClick={() => onAction({ type: 'place', ships: draft })}>تأیید چیدمان</Button></DockSlot>
           </div>
         </section>
       )}

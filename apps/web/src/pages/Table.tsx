@@ -898,7 +898,8 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
       const sec = Math.max(0, Math.ceil((running ? (clock?.time ?? 0) * 1000 : c.left[seat] ?? 0) / 1000));
       return { sec, state: running ? FRAME_CLOCK[clock?.state ?? 'calm'] : 'idle' };
     }
-    return active && clock ? { sec: clock.time, state: FRAME_CLOCK[clock.state] } : null;
+    if (active && clock) return { sec: clock.time, state: FRAME_CLOCK[clock.state] };
+    return t.pace === 'live' && t.status === 'active' ? { sec: t.settings.turnSeconds, state: 'idle' } : null;
   };
   const placeOf = (seat: number) => g.result?.placements.find((p) => p.seat === seat);
   const bubble = (x: Seat) => {
@@ -1013,7 +1014,6 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
         </section>
       )}
       {finished && isPlayer && !t.isTutorial && <PostGame snap={snap} onReport={() => setReporting(true)} />}
-      {turnRow}
       <div className="gf-actions">{leaveBtn}{rulesBtn}
         <Button variant="ghost" iconOnly icon={full.on ? 'minimize' : 'maximize'} pressed={full.on} onClick={() => void full.toggle()}>{full.on ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}</Button>
       </div>
@@ -1052,10 +1052,14 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
                 </DockSlotHost></RailSlotHost></FrameKindHost>
               : <StateBlock kind="error" title="رابط این نسخه از بازی در دسترس نیست" text={<>این میز با نسخه <bdi dir="ltr">{t.clientBundleRef}</bdi> شروع شده است که در این نسخه از برنامه وجود ندارد.</>} />}
           </div>
-          {!notPhone && <>
-            <div className="gf-mstatus" role="status" aria-live="polite">{statusLine}<div ref={setRailNode} className="gf-guide" /></div>
-            {turnRow}
-          </>}
+          {!notPhone && (
+            // Phone: one status line; the guide card opens from the (i) toggle.
+            <details className="gf-mstatus">
+              <summary role="status" aria-live="polite">{statusLine}<Icon name="info" size="sm" /></summary>
+              <div ref={setRailNode} className="gf-guide" />
+            </details>
+          )}
+          {turnRow}
           {duelMe && (kind === 'duel' || isPlayer) && <div className="gf-bottom">{bar(duelMe)}</div>}
           {finished && g.result && !hideResult && <div className="gf-over"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
         </main>

@@ -6,11 +6,10 @@
 .fabric-plain { background: repeating-linear-gradient(90deg, #8a7f6e 0 3px, #7d7262 3px 6px); box-shadow: inset 0 0 0 1px #4a4236; }
 .pw-btn { display: inline-block; inline-size: 0.55rem; block-size: 0.55rem; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f3d9a6, #b7863f); box-shadow: inset 0 0 0 1px #6e4a1a; vertical-align: middle; }
 
-.pw-track { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 2px; padding: 0.4rem; border-radius: 12px; background: var(--linen); inline-size: min(100%, 34rem); justify-self: center; }
-.pw-track__sq { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-block-size: 1rem; border-radius: 3px; background: #ddd0b6; }
-.pw-track__sq--inc { background: #c79a4a; box-shadow: inset 0 0 0 2px #8a5f1a; }
-.pw-track__sq--lea { background: #8a5a2b; }
-.pw-pawn-slot { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.pw-track { position: relative; direction: ltr; inline-size: min(100%, 26rem); justify-self: center; aspect-ratio: 1; border-radius: var(--radius-md); background: center / 100% 100% no-repeat; }
+.pw-track__sq { position: absolute; inline-size: 10.5%; block-size: 10.5%; translate: -50% -50%; display: grid; place-items: center; }
+.pw-leather { inline-size: 70%; block-size: 70%; object-fit: contain; }
+.pw-pawn-slot { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; pointer-events: none; }
 .pw-pawn { display: block; inline-size: 70%; block-size: 70%; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
 .pw-pawn--me { background: #2f7fc1; border: 2px solid #fff; }
 .pw-pawn--opp { background: #d2452f; border: 2px solid #fff; translate: 25% 25%; }
@@ -83,3 +82,5 @@ button.pw-cell:focus-visible { outline: 2px solid #2f7fc1; outline-offset: -2px;
 
 .pw-marker { display: block; inline-size: 85%; block-size: 85%; object-fit: contain; filter: drop-shadow(0 2px 3px var(--felt-rim)); }
 .pw-marker--opp { translate: 25% 25%; }
+
+.pw-patch__art { display: block; max-inline-size: 6rem; block-size: auto; }

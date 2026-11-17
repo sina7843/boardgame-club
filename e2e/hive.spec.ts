@@ -70,7 +70,7 @@ test('two players place and move bugs, then one resigns', async ({ browser }, in
   }
   if (!(await host.getByRole('heading', { name: RESULT }).count())) {
     const resign = guest.getByRole('button', { name: 'انصراف از بازی' });
-    if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: 'بازیکنان و قوانین' }).click();
+    if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: 'قوانین', exact: true }).first().click();
     await resign.filter({ visible: true }).first().click();
     await guest.getByRole('button', { name: 'انصراف قطعی' }).click();
   }

@@ -42,10 +42,10 @@ export function Die({ value, rolling, pending }: { value: number | null; rolling
   return (
     <svg className={pending ? 'sl-die bg-tumble' : rolling ? 'sl-die bg-roll' : 'sl-die'} viewBox="0 0 44 44" role="img" aria-label={value ? `تاس: ${fa(value)}` : 'تاس هنوز ریخته نشده'}>
       <rect x="5" y="7" width="36" height="36" rx="9" className="sl-die__shadow" />
-      <rect x="3" y="3" width="36" height="36" rx="9" fill="url(#sl-die-face)" stroke="#8f7f58" strokeWidth="1.2" />
-      <rect x="5" y="5" width="32" height="32" rx="7" fill="none" stroke="url(#sl-bevel)" strokeWidth="2" />
+      <rect x="3" y="3" width="36" height="36" rx="9" fill="#fbf5e4" stroke="#8f7f58" strokeWidth="1.2" />
+      <rect x="5" y="5" width="32" height="32" rx="7" fill="none" stroke="#fff" strokeOpacity="0.7" strokeWidth="2" />
       {pipsOf(value).map(([x, y], i) => (
-        <g key={i}><circle cx={x * 9 + 3} cy={y * 9 + 3} r="3.5" fill="url(#sl-pip)" /><circle cx={x * 9 + 2} cy={y * 9 + 2} r="0.9" fill="#fff" opacity="0.5" /></g>
+        <g key={i}><circle cx={x * 9 + 3} cy={y * 9 + 3} r="3.5" fill="#1b130b" /><circle cx={x * 9 + 2} cy={y * 9 + 2} r="0.9" fill="#fff" opacity="0.5" /></g>
       ))}
     </svg>
   );

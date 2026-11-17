@@ -15,7 +15,7 @@ export const ludo = defineGame({
   },
   catalog: {
     nameFa: 'منچ',
-    nameOriginal: 'Ludo (Mensch ärgere Dich nicht)',
+    nameOriginal: 'Ludo',
     summaryFa: 'بازی خانوادگی تاس و مسابقه برای ۲ تا ۴ نفر: با ۶ مهره‌هایتان را از لانه بیرون بیاورید، یک دور کامل صفحه را بچرخید، مهرهٔ حریف را بزنید تا به لانه برگردد و زودتر از همه هر ۴ مهره را به ستون خانهٔ رنگ خودتان برسانید.',
     rulesFa: [
       '## هدف',

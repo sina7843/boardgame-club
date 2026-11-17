@@ -11,6 +11,21 @@ import artRed from './art/col-red.webp';
 import artGreen from './art/col-green.webp';
 import artYellow from './art/col-yellow.webp';
 import artPurple from './art/col-purple.webp';
+import pAgr from './art/wd-p1.png';
+import pArc from './art/wd-p2.png';
+import pEco from './art/wd-p3.png';
+import pLaw from './art/wd-p4.png';
+import pMas from './art/wd-p5.png';
+import pMat from './art/wd-p6.png';
+import pStr from './art/wd-p8.png';
+import pThe from './art/wd-p9.png';
+import wPyr from './art/wd-w1.png';
+import wCol from './art/wd-w2.png';
+import wMau from './art/wd-w5.png';
+import wLib from './art/wd-w6.png';
+import wZeus from './art/wd-w9.png';
+import pen2 from './art/wd-pen2.png';
+import pen5 from './art/wd-pen5.png';
 import { CARDS, PROGRESS_FA, RES_FA, WONDERS, type Card, type Color, type DuelView, type Progress, type Res } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -18,6 +33,9 @@ export const SCI: Record<string, string> = { wheel: '⚙', compass: '⌖', quill
 const COLOR_FA: Record<Color, string> = { brown: 'مواد خام', grey: 'کالا', blue: 'مدنی', red: 'نظامی', green: 'علمی', yellow: 'تجاری', purple: 'صنف' };
 // One BGA 7 Wonders Duel card picture per card colour (see DECISIONS.md).
 const ART: Record<Color, string> = { brown: artBrown, grey: artGrey, blue: artBlue, red: artRed, green: artGreen, yellow: artYellow, purple: artPurple };
+// Printed art (design/games/group-d/art/wonders-duel). Only the progress tokens and wonders the engine shares with the printed set have art; others keep the text token.
+const PROG_ART: Partial<Record<Progress, string>> = { agriculture: pAgr, architecture: pArc, economy: pEco, law: pLaw, masonry: pMas, mathematics: pMat, strategy: pStr, theology: pThe };
+const WONDER_ART: Record<number, string> = { 8: wPyr, 2: wCol, 6: wMau, 3: wLib, 10: wZeus };
 const RES_LETTER: Record<Res, string> = { W: 'چ', C: 'ر', S: 'س', G: 'ش', P: 'پ' };
 
 export function Cost({ cost, coins }: { cost: string; coins?: number }) {
@@ -41,7 +59,7 @@ export function effectText(c: Card) {
   if (c.gain) out.push(`${fa(c.gain)} سکه`);
   if (c.per) out.push(`سکه برای ${c.per === 'wonder' ? 'شگفتی' : COLOR_FA[c.per]}`);
   if (c.guild) out.push(c.guild === 'wonder' ? 'شگفتی‌ها' : c.guild === 'coins' ? 'ثروت' : c.guild.map((g) => COLOR_FA[g]).join('+'));
-  return out.join(' · ');
+  return out.join('، ');
 }
 
 export function CardFace({ id, size = 'md' }: { id: number; size?: 'sm' | 'md' }) {
@@ -61,11 +79,13 @@ export function WonderPlate({ id, built, size = 'md' }: { id: number; built?: bo
   const w = WONDERS[id]!;
   const fx = [w.vp ? `${fa(w.vp)}★` : '', w.coins ? `${fa(w.coins)} سکه` : '', w.steal ? `حریف −${fa(w.steal)}` : '', w.shields ? '⚔'.repeat(w.shields) : '',
     w.choice ? [...w.choice].map((r) => RES_FA[r as Res]).join('/') : '', w.replay ? 'نوبت دوباره' : '', w.destroy ? `نابودی ${COLOR_FA[w.destroy]}` : '',
-    w.mausoleum ? 'ساخت از دورریز' : '', w.library ? 'نشان پنهان' : ''].filter(Boolean).join(' · ');
+    w.mausoleum ? 'ساخت از دورریز' : '', w.library ? 'نشان پنهان' : ''].filter(Boolean).join('، ');
   return (
     <span className={`wd-wonder wd-wonder--${size} ${built ? 'is-built bg-pop' : ''}`} aria-label={`${w.name}${built ? ' (ساخته‌شده)' : ''}: ${fx}`}>
-      <span className="wd-wonder__name">{w.name}</span>
-      <span className="wd-wonder__fx">{fx}</span>
+      {WONDER_ART[id] ? <img className="wd-wonder__art" src={WONDER_ART[id]} alt="" draggable={false} /> : <>
+        <span className="wd-wonder__name">{w.name}</span>
+        <span className="wd-wonder__fx">{fx}</span>
+      </>}
       {size === 'md' && !built && <Cost cost={w.cost} />}
     </span>
   );
@@ -80,7 +100,7 @@ function City({ view, seat, label, framed }: { view: DuelView; seat: number; lab
       <div className="wd-city__head">
         {!framed && <bdi className="wd-city__name">{label}</bdi>}
         {!framed && <span className={`wd-coin wd-coin--lg ${pop}`} key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>}
-        {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROGRESS_FA[p][0]}</span>)}
+        {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={PROGRESS_FA[p][0]} draggable={false} /> : PROGRESS_FA[p][0]}</span>)}
       </div>
       <div className="wd-city__wonders">{view.wonders[seat]!.map((w) => <span key={w.id} className="wd-fly" data-flip={`w${w.id}`}><WonderPlate id={w.id} built={w.built} size="sm" /></span>)}</div>
       <div className="wd-city__cols">
@@ -171,8 +191,8 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
         <div className="wd-track__lane">
           {Array.from({ length: 19 }, (_, i) => i - 9).map((k) => (
             <span key={k} className={`wd-track__cell ${Math.abs(k) >= 6 ? 'is-far' : Math.abs(k) >= 3 ? 'is-mid' : ''} ${k === 0 ? 'is-zero' : ''}`}>
-              {(k === -3 || k === -6) && !view.milTokens[opp]![k === -3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${opp}${k}`} data-flip-exit={`city-${opp}`}>{k === -3 ? '۲' : '۵'}</i>}
-              {(k === 3 || k === 6) && !view.milTokens[me]![k === 3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${me}${k}`} data-flip-exit={`city-${me}`}>{k === 3 ? '۲' : '۵'}</i>}
+              {(k === -3 || k === -6) && !view.milTokens[opp]![k === -3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${opp}${k}`} data-flip-exit={`city-${opp}`}><img src={k === -3 ? pen2 : pen5} alt={k === -3 ? '۲' : '۵'} draggable={false} /></i>}
+              {(k === 3 || k === 6) && !view.milTokens[me]![k === 3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${me}${k}`} data-flip-exit={`city-${me}`}><img src={k === 3 ? pen2 : pen5} alt={k === 3 ? '۲' : '۵'} draggable={false} /></i>}
             </span>
           ))}
           <span className="wd-pawn" data-flip="pawn" style={{ insetInlineStart: `calc(${(9 - lead) / 19 * 100}% + ${100 / 38}%)` }} aria-hidden />
@@ -184,8 +204,8 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
         {view.progressBoard.map((p) => {
           const can = choosing && (choosing.kind === 'progress') && legalActions.some((a) => a.type === 'progress' && a.token === p);
           return can
-            ? <button key={p} type="button" data-flip={`t${p}`} className={`wd-token ${hint?.token === p ? 'wd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'progress', token: p })} title={PROGRESS_FA[p][1]}><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></button>
-            : <span key={p} data-flip={`t${p}`} className="wd-token" title={PROGRESS_FA[p][1]}><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></span>;
+            ? <button key={p} type="button" data-flip={`t${p}`} className={`wd-token ${hint?.token === p ? 'wd-hint' : ''}`} disabled={busy} onClick={() => onAction({ type: 'progress', token: p })} title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={PROGRESS_FA[p][0]} draggable={false} /> : <><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></>}</button>
+            : <span key={p} data-flip={`t${p}`} className="wd-token" title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={PROGRESS_FA[p][0]} draggable={false} /> : <><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></>}</span>;
         })}
       </div>
 

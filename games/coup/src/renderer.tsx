@@ -100,6 +100,12 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <div className="cp-center" aria-label="میز">
+          <div className="cp-treasury"><span className="cp-treasury__coin" aria-hidden="true" /><b>{fa(Math.max(0, 50 - view.coins.reduce((a, b) => a + b, 0)))}</b><span>سکهٔ خزانه</span></div>
+          <div className="cp-deck"><img className="cp-deck__img" src={cardBack} alt="" draggable={false} /><span>دربار<span className="bgv-sep" />{fa(view.deckCount)} کارت</span></div>
+        </div>
+      )}
       {banner}
       {framed && aim && targets.length > 0 && (
         <div className="cp-resp" role="group" aria-label={`هدف ${ACT_FA[aim]}`}>

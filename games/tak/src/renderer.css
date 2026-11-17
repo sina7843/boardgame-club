@@ -7,7 +7,7 @@
 .tak-side__name { font-weight: 800; }
 .tak-side__stat { color: var(--felt-muted); }
 
-.tak-board { display: block; inline-size: 100%; max-inline-size: min(720px, var(--gf-b, 720px)); block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 10px 14px var(--felt-rim)); }
+.tak-board { display: block; inline-size: min(100%, var(--gf-b, 720px)); block-size: auto; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 10px 14px var(--felt-rim)); }
 .tak-sq { outline: none; }
 .tak-sq__bg { fill: transparent; }
 .tak-sq--lit { cursor: pointer; }

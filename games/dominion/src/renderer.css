@@ -59,3 +59,16 @@
 }
 @keyframes dm-pulse { 50% { opacity: 0.7; } }
 @media (prefers-reduced-motion: reduce) { .dm * { animation: none !important; transition: none !important; } }
+
+/* Count badges sit inside their own card and the grid gaps clear the card frames, so nothing touches a neighbour. */
+.dm-p b { inset-block-start: 4px; inset-inline-end: 4px; }
+.dm-sup { gap: var(--space-4); }
+.dm-base { gap: var(--space-2); }
+.dm-king { gap: var(--space-3) var(--space-2); }
+.dm-pile--can img, .dm-hand--can img { outline-offset: -1px; }
+@media (max-width: 480px) {
+  .dm-sup { gap: var(--space-2); }
+  .dm-king { gap: var(--space-2) 4px; }
+  .dm-base { gap: 4px; }
+  .dm-p b { inset-block-start: 2px; inset-inline-end: 2px; }
+}

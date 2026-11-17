@@ -1,7 +1,6 @@
 /* یاتزی — a walnut dice tray lined with green felt above an ivory paper score sheet. Palette: walnut #5a3218,
    felt #1d5a32, ivory #f6ecd2, ink #2a1c10, brass #d9a441. Dice are ivory with ink pips (pips are code, not art). */
 .yz { --ink: #2a1c10; --brass: #d9a441; display: grid; gap: 0.7rem; inline-size: 100%; padding: 0.4rem; color: var(--ink); }
-.yz > :first-child { justify-self: center; }
 .yz__live { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.2rem 0.8rem; margin: 0; font-size: 0.85rem; color: var(--foreground, inherit); }
 .yz__live span:first-child { font-weight: 800; }
 
@@ -64,3 +63,21 @@
 .yz__padtitle { display: inline-block; margin-inline-end: 0.4rem; padding: 0 0.5rem; border-radius: 6px; background: #fff6e0; color: #8f1d1d; font-weight: 900; }
 .yz-row--section th { position: static !important; text-align: start !important; padding-block: 0.15rem !important; font-size: 0.72rem; font-weight: 900 !important; color: #fff6e0; background: #2a1c10 !important; }
 .yz-col--me { box-shadow: inset 0 -3px 0 #8f1d1d; color: #8f1d1d; }
+
+/* two sheets side by side (upper / lower), tray below with roll + write buttons */
+.yz__sheets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; align-items: start; }
+.yz__roll { flex-wrap: wrap; justify-content: center; }
+.yz__sheets .yz__sheetwrap { min-inline-size: 0; }
+.yz__sheet caption { border-radius: 12px 12px 0 0; }
+@media (max-width: 520px) {
+  .yz { padding: 0; gap: 0.5rem; }
+  .yz__sheets { gap: 0.3rem; }
+  .yz__sheet { font-size: 0.68rem; }
+  .yz__sheet th, .yz__sheet td { padding: 0.15rem 0.2rem; white-space: normal; }
+  .yz__sheet tbody th small { display: none; }
+  .yz-opt { min-inline-size: 1.8rem; min-block-size: 1.6rem; padding: 0 0.2rem; }
+  .yz__tray { padding: 0.4rem; gap: 0.3rem; }
+  .yz__felt { padding: 0.4rem 0.2rem 0.8rem; min-block-size: 3rem; gap: 0.3rem; }
+  .yz__cup { inline-size: 2rem; block-size: 2rem; }
+  .yz__roll { flex-wrap: nowrap; gap: 0.3rem; }
+}

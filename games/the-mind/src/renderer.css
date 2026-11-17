@@ -1,6 +1,5 @@
 /* هم‌فکر: a quiet night table — deep indigo, numbers that warm in hue as they climb, a soft breathing glow. */
-.tm { display: grid; gap: 0.8rem; inline-size: 100%; color: #e9e6ff; text-align: center; border-radius: 18px; padding: 0.4rem;
-  background: radial-gradient(circle at 50% 35%, rgb(120 110 220 / 0.22), transparent 65%); }
+.tm { display: grid; gap: 0.8rem; inline-size: 100%; color: #e9e6ff; text-align: center; border-radius: 18px; padding: 0.4rem; }
 .tm > :first-child { justify-self: center; }
 .tm--oops { animation: tm-oops 0.6s ease-out; }
 .tm__hud { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: center; font-size: 0.9rem; }
@@ -12,18 +11,17 @@
 .tm__under { font-size: 0.8rem; color: #a9a3d8; }
 .tm__empty { color: #a9a3d8; font-size: 0.9rem; }
 .tm__note { margin: 0; padding: 0.4rem 0.9rem; border-radius: 12px; font-size: 0.88rem; animation: tm-drop 0.35s ease-out both; }
-.tm__note--mistake { background: rgb(255 80 110 / 0.18); border: 1px solid rgb(255 107 138 / 0.5); }
-.tm__note--star { background: rgb(159 179 255 / 0.16); border: 1px solid rgb(159 179 255 / 0.45); }
+.tm__note { background: var(--surface); color: var(--text); box-shadow: var(--shadow-ring); }
+.tm__note--mistake { box-shadow: var(--shadow-ring-strong); }
 .tm__lost { display: inline-block; margin-inline: 0.3rem; font-weight: 800; }
 
 .tm__team { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-.tm-mate { display: grid; gap: 0.3rem; justify-items: center; min-inline-size: 7.5rem; padding: 0.5rem 0.7rem; border-radius: 14px; background: rgb(255 255 255 / 0.06); border: 1px solid rgb(255 255 255 / 0.1); }
+.tm-mate { display: grid; gap: 0.3rem; justify-items: center; min-inline-size: 7.5rem; padding: 0.5rem 0.7rem; border-radius: var(--radius-md); box-shadow: var(--shadow-ring-felt); }
 .tm-mate--done { opacity: 0.55; }
 .tm-mate__name { font-weight: 800; font-size: 0.88rem; }
 .tm-mate__cards { display: inline-flex; gap: 3px; min-block-size: 1.6rem; align-items: center; font-size: 0.8rem; color: #a9a3d8; }
 .tm-mate__cards img { inline-size: 1.1rem; aspect-ratio: 5 / 7; object-fit: cover; border-radius: 3px; }
 .tm-mate__vote { display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.75rem; color: #c9d2ff; }
-.tm-mate__vote 
 .tm__me { display: grid; gap: 0.65rem; justify-items: center; padding-block: 0.6rem 0.2rem; border-block-start: 1px dashed rgb(255 255 255 / 0.15); }
 .tm__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; }
 .tm__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
@@ -31,8 +29,8 @@
 
 @keyframes tm-breathe { 50% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.45), 0 0 34px -4px hsl(var(--h) 85% 60%); } }
 @keyframes tm-drop { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes tm-oops { 20% { background-color: rgb(255 60 90 / 0.18); } }
-@keyframes tm-pulse { 50% { box-shadow: 0 0 0 6px rgb(255 210 122 / 0.6); } }
+@keyframes tm-oops { 20% { opacity: 0.85; } }
+@keyframes tm-pulse { 50% { outline: 3px solid var(--focus-on-felt); outline-offset: 3px; } }
 @media (prefers-reduced-motion: reduce) { .tm, .tm *, .tm__note { animation: none !important; transition: none !important; } }
 
 /* Delivered card art: blank card with the number as text. */

@@ -6,10 +6,42 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import { Button, RailSlot, TurnIndicator, motionOff, useFlip, useInFrame, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import boardBlue from './art/patchwork-board-blue.png';
 import boardRed from './art/patchwork-board-red.png';
+import pa1 from './art/patchwork-p1.png';
+import pa3 from './art/patchwork-p3.png';
+import pa5 from './art/patchwork-p5.png';
+import pa8 from './art/patchwork-p8.png';
+import pa9 from './art/patchwork-p9.png';
+import pa12 from './art/patchwork-p12.png';
+import pa14 from './art/patchwork-p14.png';
+import pa18 from './art/patchwork-p18.png';
+import pa19 from './art/patchwork-p19.png';
+import pa20 from './art/patchwork-p20.png';
+import pa25 from './art/patchwork-p25.png';
+import pa28 from './art/patchwork-p28.png';
+import pa31 from './art/patchwork-p31.png';
+import pa33 from './art/patchwork-p33.png';
+import timeBoard from './art/patchwork-time.png';
+import leatherArt from './art/patchwork-leather.png';
 import markerBlue from './art/patchwork-marker-blue.png';
 import markerRed from './art/patchwork-marker-red.png';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
+// Time track: 8×8 spiral printed on patchwork-time.png (square size 63 of 600 px, origin 48). Index 0 is the start strip, 53 the centre star.
+const SPIRAL: [number, number][] = [];
+for (let r = 7; r >= 0; r--) SPIRAL.push([r, 0]);
+for (let c = 1; c <= 7; c++) SPIRAL.push([0, c]);
+for (let r = 1; r <= 6; r++) SPIRAL.push([r, 7]);
+for (let c = 6; c >= 1; c--) SPIRAL.push([6, c]);
+for (let r = 5; r >= 1; r--) SPIRAL.push([r, 1]);
+for (let c = 2; c <= 6; c++) SPIRAL.push([1, c]);
+for (let r = 2; r <= 5; r++) SPIRAL.push([r, 6]);
+for (let c = 5; c >= 2; c--) SPIRAL.push([5, c]);
+for (let r = 4; r >= 2; r--) SPIRAL.push([r, 2]);
+for (let c = 3; c <= 5; c++) SPIRAL.push([2, c]);
+for (let r = 3; r <= 4; r++) SPIRAL.push([r, 5]);
+SPIRAL.push([3.5, 3.5]);
+// Engine patch id -> printed patch face (only where shape matches the engine patch unambiguously; others keep the cloth shape).
+const PATCH_ART: Record<number, string> = { 0: pa1, 1: pa3, 6: pa5, 4: pa8, 3: pa9, 13: pa12, 8: pa14, 10: pa18, 31: pa19, 23: pa20, 17: pa25, 21: pa28, 20: pa31, 27: pa33 };
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 // Fabrics are cut from the BGA Patchwork client art (see DECISIONS.md): fabrics.webp holds one 64 px square from each
 // of its 33 patch pictures (11 × 3); patch id n uses square n, so every cell of a patch shows the same printed cloth.
@@ -117,13 +149,17 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک تکه از سه تکهٔ بعد از مهرهٔ خنثی بخرید یا جلوتر از حریف بروید. خانهٔ خالی در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <section className="pw-track" aria-label="مسیر زمان">
-        {Array.from({ length: END + 1 }, (_, i) => (
-          <span key={i} className={['pw-track__sq', INCOME.includes(i) ? 'pw-track__sq--inc' : '', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')}>
-            {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><img className="pw-marker" src={markerBlue} alt="شما" draggable={false} /></span>}
-            {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><img className="pw-marker pw-marker--opp" src={markerRed} alt={who(opp)} draggable={false} /></span>}
-          </span>
-        ))}
+      <section className="pw-track" aria-label="مسیر زمان" style={{ backgroundImage: `url(${timeBoard})` }}>
+        {Array.from({ length: END + 1 }, (_, i) => {
+          const [r, c] = SPIRAL[i] ?? [0, 0];
+          return (
+            <span key={i} className={['pw-track__sq', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')} style={{ left: `${(48 + 63 * (c + 0.5)) / 6}%`, top: `${(48 + 63 * (r + 0.5)) / 6}%` }}>
+              {view.leatherLeft.includes(i) && <img className="pw-leather" src={leatherArt} alt="تکهٔ چرمی" draggable={false} />}
+              {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><img className="pw-marker" src={markerBlue} alt="شما" draggable={false} /></span>}
+              {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><img className="pw-marker pw-marker--opp" src={markerRed} alt={who(opp)} draggable={false} /></span>}
+            </span>
+          );
+        })}
       </section>
 
       {!view.outcome && (
@@ -135,8 +171,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
               <button key={id} type="button" data-flip={`patch-${id}`} data-flip-exit={view.current === me ? 'quilt-me' : 'quilt-opp'} disabled={!can} aria-pressed={pick === id} onClick={() => { setPick(pick === id ? null : id); setRot(0); setFlip(false); setAt(null); }}
                 className={['pw-patch', offer.has(id) ? 'pw-patch--offer' : '', pick === id ? 'pw-patch--on' : '', hint?.type === 'buy' && hint.patch === id && pick !== id ? 'pw-hint' : ''].join(' ')}
                 aria-label={`تکه: ${fa(p.cost)} دکمه، ${fa(p.time)} زمان، درآمد ${fa(p.buttons)}`}>
-                <Shape id={id} />
-                <span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>{fa(p.time)} زمان</span></span>
+                {PATCH_ART[id] ? <img className="pw-patch__art" src={PATCH_ART[id]} alt="" draggable={false} /> : <><Shape id={id} /><span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>{fa(p.time)} زمان</span></span></>}
               </button>
             );
           })}

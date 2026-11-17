@@ -64,7 +64,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
           <div key={c} className={['go-side', view.turn === c && view.phase === 'play' && !view.outcome ? 'go-side--turn' : ''].join(' ')}>
             <span className={`go-side__stone go-side__stone--${c}`} aria-hidden="true" />
             <bdi className="go-side__name">{who(c)}</bdi>
-            <Pop n={view.captures[c]} className="go-side__stat">اسیر {fa(view.captures[c])}{c === 'w' ? ` · کومی ${fa(view.komi)}` : ''}</Pop>
+            <Pop n={view.captures[c]} className="go-side__stat">اسیر {fa(view.captures[c])}{c === 'w' ? `، کومی ${fa(view.komi)}` : ''}</Pop>
             {(live || view.score) && <Pop n={(live ?? view.score!)[c]} as="strong" className="go-side__score">{fa((live ?? view.score!)[c])}</Pop>}
             {scoring && view.accepted[seatOf(c)] && <span className="go-side__ok">تأیید کرد</span>}
           </div>

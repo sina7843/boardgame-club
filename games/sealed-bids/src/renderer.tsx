@@ -41,12 +41,27 @@ export default function SealedBidsRenderer({ view: real, legalActions, mySeat, s
       <div className="sb__round">
         <div className="sb__prize" aria-label={`دور ${fa(view.round)} از ${fa(ROUNDS)}، جایزه ${fa(view.prize ?? 0)} امتیاز`}>
           <span className="muted">دور {fa(view.round)} از {fa(ROUNDS)}</span>
-          {view.prize !== null && (framed && PLAQUE[view.prize]
-            ? <img key={view.round} className="sb-plaque bg-land" src={PLAQUE[view.prize]} alt={`جایزه ${fa(view.prize)} امتیاز`} />
+          {view.prize !== null && (framed
+            ? <span className="visually-hidden">جایزه {fa(view.prize)} امتیاز</span>
             : <strong key={view.round} className="bg-land">جایزه {fa(view.prize)} امتیاز</strong>)}
         </div>
         {!framed && status && <TurnIndicator tone={queued ? 'wait' : playable.size > 0 ? 'mine' : iSubmitted ? 'done' : 'wait'}>{status}</TurnIndicator>}
       </div>
+
+      {framed && (
+        <ol className="sb-prizes" aria-label="جایزهٔ پنج دور">
+          {Array.from({ length: ROUNDS }, (_, i) => i + 1).map((r) => {
+            const done = view.history.find((h) => h.round === r);
+            const now = !view.outcome && r === view.round;
+            return (
+              <li key={r} className={['sb-prize', now ? 'sb-prize--now' : '', done ? 'sb-prize--done' : ''].join(' ')} aria-current={now ? 'step' : undefined}>
+                <img className={now ? 'sb-plaque bg-land' : 'sb-plaque'} src={PLAQUE[r]} alt={`دور ${fa(r)}، جایزه ${fa(r)} امتیاز`} draggable={false} />
+                <span className="sb-prize__cap">{now ? 'الان' : done ? (done.winner === null ? 'مساوی' : <bdi>{done.winner === mySeat ? 'شما' : seatName(done.winner)}</bdi>) : 'بعدی'}</span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
 
       {framed && (
         <ul className="sb-seats" aria-label="وضعیت ثبت پیشنهاد">

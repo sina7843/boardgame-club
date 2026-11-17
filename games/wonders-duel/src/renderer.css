@@ -20,13 +20,13 @@
 .wd-cost--free { font-size: 0.52rem; color: #fff; text-shadow: 0 0 3px #000; padding-block-end: 0.25rem; }
 .wd-res, .wd-coin { display: inline-grid; place-items: center; inline-size: 0.85rem; block-size: 0.85rem; border-radius: 3px; font-size: 0.5rem; font-style: normal; font-weight: 900; color: #fff; }
 .wd-res--W { background: #8a5a2b; } .wd-res--C { background: #c0622f; } .wd-res--S { background: #7d7d7d; } .wd-res--G { background: #2b95b8; } .wd-res--P { background: #b8a052; }
-.wd-coin { border-radius: 50%; color: #2a1d10; background: radial-gradient(circle at 35% 30%, #fff1b0, var(--gold) 60%, #8a6408); }
+.wd-coin { border-radius: 50%; color: #2a1d10; background: radial-gradient(circle at 35% 30%, #fff1b0, var(--accent) 60%, #8a6408); }
 .wd-coin--lg { inline-size: auto; min-inline-size: 1.6rem; block-size: 1.6rem; padding-inline: 0.3rem; border-radius: 999px; font-size: 0.85rem; }
 .wd-fly { display: inline-flex; line-height: 0; }
 .wd-flipwrap { display: block; }
 
 .wd-wonder { display: grid; gap: 0.1rem; justify-items: center; align-content: center; border-radius: 6px; color: #f6efdf; line-height: 1.25;
-  background: linear-gradient(160deg, #2a4d93, var(--lapis)); box-shadow: inset 0 0 0 1.5px var(--gold), 0 3px 8px -3px #000; }
+  background: linear-gradient(160deg, #2a4d93, var(--lapis)); box-shadow: inset 0 0 0 1.5px var(--accent), 0 3px 8px -3px #000; }
 .wd-wonder--md { inline-size: 8.5rem; padding: 0.35rem 0.4rem; }
 .wd-wonder--sm { inline-size: 5.6rem; padding: 0.2rem 0.25rem; opacity: 0.85; }
 .wd-wonder.is-built { opacity: 1; background: linear-gradient(160deg, #e6b54a, #a87b1e); color: #2a1d10; box-shadow: inset 0 0 0 1.5px #fff1b0, 0 0 10px rgb(230 181 74 / 0.6); }
@@ -36,7 +36,7 @@
 .wd-wonder--sm .wd-wonder__fx { font-size: 0.46rem; }
 
 .wd-city { display: grid; gap: 0.35rem; padding: 0.45rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); transition: box-shadow 0.25s; }
-.wd-city--now { box-shadow: inset 0 0 0 2px var(--gold); }
+.wd-city--now { box-shadow: inset 0 0 0 2px var(--accent); }
 .wd-city__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.5rem; align-items: center; justify-content: center; font-size: 0.82rem; }
 .wd-city__name { font-weight: 800; }
 .wd-city__wonders, .wd-city__cols { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
@@ -50,7 +50,7 @@
 .wd-track__cell.is-mid { background: rgb(230 181 74 / 0.18); }
 .wd-track__cell.is-far { background: rgb(192 57 43 / 0.28); }
 .wd-track__cell.is-zero { background: rgb(246 239 223 / 0.35); }
-.wd-mtok { position: absolute; inset: 2px; display: grid; place-items: center; border-radius: 50%; font-size: 0.5rem; font-style: normal; font-weight: 900; color: #2a1d10; background: var(--gold); }
+.wd-mtok { position: absolute; inset: 2px; display: grid; place-items: center; border-radius: 50%; font-size: 0.5rem; font-style: normal; font-weight: 900; color: #2a1d10; background: var(--accent); }
 .wd-pawn { position: absolute; inset-block: -3px; inline-size: 0.7rem; translate: -50% 0; border-radius: 0.35rem; background: linear-gradient(#ff7a6b, #a81e10); box-shadow: 0 0 0 2px #fff1b0, 0 2px 6px #000; transition: inset-inline-start 0.5s cubic-bezier(.3,1.4,.5,1); }
 
 .wd-progress { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
@@ -104,3 +104,13 @@ button.wd-pickw:hover { transform: translateY(-3px); }
 .wd-back--2 { background: url("./art/wd-back2.png") center / cover; }
 .wd-coin:not(.wd-coin--lg) { background: url("./art/wd-coin.png") center / contain no-repeat; }
 .wd-pawn { background: url("./art/wd-pawn.png") center / contain no-repeat; box-shadow: none; inline-size: 1rem; }
+
+/* Printed art: progress tokens, wonders and military penalty tokens. */
+.wd-token__art { display: block; inline-size: 100%; block-size: auto; border-radius: 50%; }
+.wd-token:has(.wd-token__art) { padding: 0; background: none; box-shadow: none; }
+.wd-token--sm:has(.wd-token__art) { inline-size: 2.2rem; }
+.wd-wonder:has(.wd-wonder__art) { padding: 0; background: none; box-shadow: none; overflow: hidden; }
+.wd-wonder__art { display: block; inline-size: 100%; block-size: auto; border-radius: var(--radius-sm); }
+.wd-wonder.is-built:has(.wd-wonder__art) { box-shadow: 0 0 0 2px var(--accent); }
+.wd-mtok:has(img) { background: none; }
+.wd-mtok img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }

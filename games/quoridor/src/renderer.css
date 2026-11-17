@@ -11,7 +11,7 @@
 .qd-pl__walls i { inline-size: 3px; block-size: 12px; border-radius: 1px; background: var(--felt-gold); }
 .qd-pl__dist { color: var(--felt-muted); font-size: 0.78rem; }
 
-.qd-board { display: block; inline-size: 100%; max-inline-size: min(760px, var(--gf-b, 760px)); block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 10px 14px var(--felt-rim)); }
+.qd-board { display: block; inline-size: min(100%, var(--gf-b, 760px)); block-size: auto; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 10px 14px var(--felt-rim)); }
 .qd-tile { outline: none; }
 .qd-tile__hit { fill: transparent; }
 .qd-tile--lit { cursor: pointer; }

@@ -3,14 +3,14 @@
    see DECISIONS.md). */
 .bs { --paper: #efe2c2; --paper-ink: #6b4a22; --sea-1: #1d5d82; --sea-2: #0d3550; --steel: #9aa7b2; --steel-d: #4f5a66;
   --flame: #ff7a2a; display: grid; gap: 0.6rem; inline-size: 100%; color: #eef3f6; text-align: center; }
-.bs > :first-child { justify-self: center; }
 
 .bs-report { margin: 0; justify-self: center; padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 800; background: rgb(255 255 255 / 0.08);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15); animation: bs-rise 0.35s ease-out both; }
 .bs-report.is-hit { background: color-mix(in srgb, var(--flame) 30%, transparent); box-shadow: inset 0 0 0 1px var(--flame); }
 .bs-report.is-sunk { background: #b8322a; box-shadow: 0 0 18px -4px #ff5a3a; animation: bs-rise 0.35s ease-out both, bs-shake 0.5s 0.1s ease-in-out; }
 
-.bs-seas { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); align-items: start; }
+.bs-seas { margin-inline: auto; inline-size: 100%; max-inline-size: 64rem; display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); align-items: start; }
+.bs-seas > :only-child { max-inline-size: 30rem; justify-self: center; inline-size: 100%; }
 .bs-chart { display: grid; gap: 0.35rem; }
 .bs-chart__head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; padding-inline: 0.2rem; }
 .bs-chart__head b { font-size: 0.95rem; }
@@ -24,7 +24,7 @@
 .bs-grid { stroke: rgb(220 240 250 / 0.22); stroke-width: 0.25; }
 
 .bs-hull { animation: bs-launch 0.4s ease-out both; }
-.bs-hull.is-sunk 
+.bs-hull.is-sunk { filter: saturate(0.6) brightness(0.85); }
 .bs-fx { transform-box: fill-box; transform-origin: center; animation: bs-burst 0.45s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; }
 .bs-fx--hit { filter: drop-shadow(0 0 0.6px rgb(255 122 42 / 0.8)); }
 .bs-ghost { fill: rgb(126 231 160 / 0.35); stroke: #7ee7a0; stroke-width: 0.5; }
@@ -44,6 +44,7 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 .bs-tray__ship.is-on { box-shadow: inset 0 0 0 2px #ffd27a, 0 0 12px -4px #ffd27a; }
 .bs-tray__ship.is-placed:not(.is-on) { opacity: 0.6; }
 .bs-tray__ship small { font-size: 0.68rem; }
+.bs-tray__art { block-size: auto; max-block-size: 2.2rem; object-fit: contain; display: block; }
 .bs-tray__len { display: flex; gap: 2px; }
 .bs-tray__len i { inline-size: 0.8rem; block-size: 0.55rem; border-radius: 2px; background: var(--steel); box-shadow: inset 0 -1.5px 0 var(--steel-d); }
 .bs-tray__len i:last-child { border-start-end-radius: 6px; border-end-end-radius: 6px; }

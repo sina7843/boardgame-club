@@ -1,6 +1,6 @@
 /* Snakes and Ladders. The board is a physical object (wooden frame, printed card) and keeps its own palette in both
    themes: dark ink #3a2a1a on pastel squares ≥ 7:1. Light comes from the top-left. */
-.sl { display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+.sl { display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size; }
 .sl-main { display: grid; gap: var(--sp-4); }
 @container (min-width: 820px) { .sl-main { grid-template-columns: minmax(0, 600px) minmax(220px, 1fr); align-items: start; } }
 .sl-board { inline-size: min(100%, 600px); block-size: auto; display: block; margin-inline: auto; filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.35)); }

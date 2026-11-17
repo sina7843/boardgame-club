@@ -31,16 +31,16 @@ svg.mk-die circle { fill: var(--danger); }
 .mk-buy__cost { font-size: 12px; color: var(--felt-muted); }
 
 .mk__players { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
-.mk-pl { display: grid; gap: var(--space-2); justify-items: center; padding: var(--space-3); border-radius: var(--radius-md); background: var(--felt-control); }
+.mk-pl { display: grid; gap: var(--space-2); justify-items: center; padding: var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); min-inline-size: 0; }
 .mk-pl--me, .mk-pl--turn, .mk-pl--win { box-shadow: var(--shadow-ring-felt); }
 .mk-pl__head { display: flex; gap: var(--space-2); align-items: center; justify-content: center; font-size: 0.85rem; }
 .mk-pl__name { font-weight: 800; }
 .mk-pl__coins { display: inline-flex; align-items: center; padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--felt-gold); color: var(--felt-plate); font-weight: 900; }
-.mk-pl__lms { display: grid; grid-template-columns: repeat(2, auto); gap: 6px; justify-content: center; }
+.mk-pl__lms { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .mk-lm { display: block; }
-.mk-lm img { display: block; block-size: 48px; inline-size: auto; }
+.mk-lm img { display: block; block-size: 40px; inline-size: auto; }
 .mk-lm--on img { filter: drop-shadow(0 0 3px var(--felt-gold)); }
-.mk-pl__cards { display: flex; flex-wrap: wrap; gap: var(--space-2) 6px; justify-content: center; align-items: flex-end; direction: ltr; }
+.mk-pl__cards { display: flex; min-block-size: 80px; flex-wrap: wrap; gap: var(--space-2) 6px; justify-content: center; align-items: flex-end; direction: ltr; }
 .mk-hint { animation: mk-pulse 1s ease-in-out infinite; }
 .mk-hint .mk-card__art { outline: 3px solid var(--felt-gold); }
 

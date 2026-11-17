@@ -1,6 +1,6 @@
 /* Line Three: the board is the design's art (cells are recesses in it). Marks are the design's X / O art. */
 .lt { display: grid; gap: var(--space-4); justify-items: center; }
-.lt__board { container-type: inline-size; inline-size: min(100%, 360px, var(--gf-b, 360px)); aspect-ratio: 372 / 420;
+.lt__board { container-type: inline-size; inline-size: min(100%, var(--gf-b, 572px)); aspect-ratio: 372 / 420;
   background-size: 100% 100%; background-repeat: no-repeat;
   display: grid; grid-template-rows: repeat(3, 1fr); gap: 2.2cqw; padding: 6.7cqw 1.9cqw 8.1cqw 1.6cqw; box-sizing: border-box; }
 .lt__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.2cqw; }

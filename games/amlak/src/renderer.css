@@ -5,7 +5,7 @@
    #0f7f86 (girih), pomegranate #9b1c31 (title), saffron #e2a53b (selection / turn). Ownership is a coloured ribbon plus
    the owner's name in every label and deed — never colour alone. */
 .am { --am-ink: #1f1a14; --am-turq: #0f7f86; --am-anar: #9b1c31; --am-saffron: #e2a53b; --am-paper: #fffaf0;
-  display: grid; gap: var(--sp-4); min-inline-size: 0; container-type: inline-size; }
+  display: grid; gap: var(--sp-4); min-inline-size: 0; inline-size: 100%; container-type: inline-size; }
 .am-main { display: grid; gap: var(--sp-4); }
 @container (min-width: 900px) { .am-main { grid-template-columns: minmax(0, 660px) minmax(280px, 1fr); align-items: start; } }
 .am-boardcol { display: grid; gap: var(--sp-3); min-inline-size: 0; }
@@ -78,7 +78,11 @@
 @keyframes amb-bob { 50% { translate: 0 -4px; } }
 
 /* ---------- panels ---------- */
-.am-panel { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); }
+.am-panel { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+/* the roll button is portalled into the dock: don't leave an empty framed panel behind */
+.am-panel--decide:not(:has(h3, p, label, article, button)) { display: none; }
+.am-hand { display: flex; gap: var(--sp-2); overflow-x: auto; padding-block-end: var(--sp-2); }
+.am-hand > .am-deed { flex: 0 0 150px; }
 .am-panel h3 { margin: 0; font-size: var(--fs-md); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .am-panel p { margin: 0; }
 .am-panel summary { cursor: pointer; font-weight: 800; min-block-size: var(--touch, 44px); display: flex; align-items: center; }

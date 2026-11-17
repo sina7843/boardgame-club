@@ -76,9 +76,16 @@ function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: str
   let r0 = 9, r1 = -1, c0 = 9, c1 = -1;
   k.forEach((row, r) => row.forEach((cell, c) => { if (cell) { r0 = Math.min(r0, r); r1 = Math.max(r1, r); c0 = Math.min(c0, c); c1 = Math.max(c1, c); } }));
   const out = (r: number, c: number) => Math.max(r1, r) - Math.min(r0, r) > 4 || Math.max(c1, c) - Math.min(c0, c) > 4;
+  // Only the occupied window is drawn (castle + built cells + legal/preview cells), not the whole 9×9 field.
+  let w0 = r0, w1 = r1, x0 = c0, x1 = c1;
+  const grow = (r: number, c: number) => { w0 = Math.min(w0, r); w1 = Math.max(w1, r); x0 = Math.min(x0, c); x1 = Math.max(x1, c); };
+  ok?.forEach((key) => { const [r, c] = key.split(',').map(Number); grow(r!, c!); });
+  preview?.forEach((_, key) => { const [r, c] = key.split(',').map(Number); grow(r!, c!); });
+  if (r1 < 0) { w0 = w1 = x0 = x1 = 4; }
   return (
-    <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`} role={onCell ? 'group' : undefined} aria-label="سرزمین ۵×۵">
+    <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`} style={{ gridTemplateColumns: `repeat(${x1 - x0 + 1}, auto)` }} role={onCell ? 'group' : undefined} aria-label="سرزمین ۵×۵">
       {k.map((row, r) => row.map((cell, c) => {
+        if (r < w0 || r > w1 || c < x0 || c > x1) return null;
         const key = `${r},${c}`;
         const pv = preview?.get(key);
         const fresh = !!was && !!cell && !was[r]![c];

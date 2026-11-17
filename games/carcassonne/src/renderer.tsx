@@ -82,14 +82,15 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
   const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
   const [rot, setRot] = useState(0);
   const [meeple, setMeeple] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
+  const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
+  // Framed: tiles match the reference (~100px desktop, ~76px phone); the zoom buttons still adjust.
+  const [zoom, setZoom] = useState(() => (framed ? (typeof window !== 'undefined' && window.innerWidth < 900 ? 1.2 : 1.6) : 1));
   const mapRef = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${!!pending}`);
   const before = usePrevious(view.seq, view);
   useEffect(() => { setSpot(null); setMeeple(null); }, [view.seq]);
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
-  const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
 
   const tiles = Object.entries(view.board).map(([k, p]) => { const [x, y] = k.split(',').map(Number) as [number, number]; return { x, y, p }; });
   const xs = tiles.map((t) => t.x), ys = tiles.map((t) => t.y);
@@ -201,9 +202,14 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
       </div>
 
       <div className="cc__dock">
+        {framed && mySeat !== null && (
+          <ul className="cc__supply" aria-label={`${fa(view.meeplesLeft[mySeat]!)} پیرو در دست شما`}>
+            {Array.from({ length: 7 }, (_, i) => <li key={i} className={i < view.meeplesLeft[mySeat]! ? '' : 'is-used'}><svg viewBox="0 0 18 21" aria-hidden><Meeple color={SEAT_COLORS[mySeat]!} x={9} y={10} /></svg></li>)}
+          </ul>
+        )}
         <div className="cc__zoom">
           <button type="button" onClick={() => setZoom((z) => Math.max(0.6, z - 0.2))} aria-label="کوچک‌نمایی">−</button>
-          <button type="button" onClick={() => setZoom((z) => Math.min(1.6, z + 0.2))} aria-label="بزرگ‌نمایی">+</button>
+          <button type="button" onClick={() => setZoom((z) => Math.min(2.2, z + 0.2))} aria-label="بزرگ‌نمایی">+</button>
         </div>
         {view.tile && (
           <div className="cc__drawn" data-flip-anchor="drawn">

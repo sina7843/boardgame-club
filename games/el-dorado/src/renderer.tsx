@@ -150,7 +150,7 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
   const framed = useInFrame() !== null;
 
   return (
-    <div className="ed" ref={root} data-seq={view.seq}>
+    <div className={framed ? 'ed ed--framed' : 'ed'} ref={root} data-seq={view.seq}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>کارت را بازی کنید تا خانه‌های قابل رفتن روشن شوند؛ عدد هر خانه هزینهٔ ورود است. آوار و اردوگاه با دور ریختن کارت باز می‌شوند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!framed && <ul className="ed-crew" aria-label="گروه‌ها">

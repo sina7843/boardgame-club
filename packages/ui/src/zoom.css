@@ -1,5 +1,5 @@
 /* ZoomBoard: the viewport clips the scaled board; a small toolbar sits above it. */
-.zb { position: relative; min-inline-size: 0; display: flex; flex-direction: column; gap: 6px; }
+.zb { position: relative; inline-size: 100%; min-inline-size: 0; display: flex; flex-direction: column; gap: 6px; }
 .zb__viewport { position: relative; overflow: hidden; touch-action: pan-x pan-y; border-radius: inherit; }
 .zb--zoomed .zb__viewport { touch-action: none; cursor: grab; }
 .zb--zoomed .zb__viewport:active { cursor: grabbing; }

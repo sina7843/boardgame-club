@@ -83,7 +83,7 @@ test('two players exchange moves and pushes, then one resigns', async ({ browser
   }
   // Resign lives in the players-and-rules drawer.
   const resign = guest.getByRole('button', { name: 'انصراف از بازی' });
-  if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: 'بازیکنان و قوانین' }).click();
+  if (!(await resign.first().isVisible())) await guest.getByRole('button', { name: 'قوانین', exact: true }).first().click();
   await resign.filter({ visible: true }).first().click();
   await guest.getByRole('button', { name: 'انصراف قطعی' }).click();
   for (const p of pages) await expect(p.getByRole('heading', { name: RESULT })).toBeVisible();

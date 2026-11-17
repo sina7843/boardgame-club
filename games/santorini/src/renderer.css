@@ -7,7 +7,7 @@
 .sto-side__name { font-weight: 800; }
 .sto__supply { font-size: 0.78rem; color: var(--felt-muted); }
 
-.sto-board { display: block; inline-size: 100%; max-inline-size: min(700px, calc(var(--gf-b, 700px) * 712 / 742)); block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 10px 16px var(--felt-rim)); }
+.sto-board { display: block; inline-size: min(100%, calc(var(--gf-b, 700px) * 712 / 742)); block-size: auto; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 10px 16px var(--felt-rim)); }
 .sto-sq { outline: none; }
 .sto-tile { fill: transparent; }
 .sto-sq--lit { cursor: pointer; }

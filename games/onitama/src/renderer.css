@@ -1,12 +1,21 @@
 /* اونیتاما: the design's board art, pieces and card faces. Board geometry LTR. Hybrid cards: the 9 faces the design lacks use a plain card. */
-.oni { --cw: calc(var(--gf-b, 572px) * 0.27); display: grid; gap: var(--space-2); text-align: center; color: var(--felt-ink); inline-size: min(100%, var(--gf-b, 572px)); margin-inline: auto; }
+.oni { --cw: calc(var(--gf-b, 572px) * 0.22); --hand-h: calc(var(--cw) * 276 / 471 + 24px);
+  display: grid; gap: var(--space-2); text-align: center; color: var(--felt-ink); inline-size: min(100%, var(--gf-b, 572px)); margin-inline: auto; }
 .oni > :first-child { justify-self: center; }
 .oni__hand { display: flex; gap: var(--space-3); justify-content: center; align-items: flex-start; }
 .oni__middle { display: grid; grid-template-columns: minmax(0, 1fr) var(--cw); gap: var(--space-3); align-items: center; }
+/* The board is sized by height: stage minus both hands and the zoom toolbar; never wider than its column. */
+.oni-board { max-inline-size: calc(var(--gf-b, 572px) - 2 * var(--hand-h) - 44px - 3 * var(--space-2)); margin-inline: auto; }
 @media (max-width: 640px) {
-  .oni { --cw: calc(var(--gf-b, 366px) * 0.28); }
+  /* Phone: opponent hand, board, then my two cards and the side card on one row. */
+  .oni { --cw: calc(var(--gf-b, 366px) * 0.3); grid-template-columns: minmax(0, 1fr) var(--cw); column-gap: var(--space-2); }
+  .oni > * { grid-column: 1 / -1; }
+  .oni__middle { display: contents; }
+  .oni-board { max-inline-size: calc(var(--gf-b, 366px) * 0.86); }
+  .oni__hand--mine { grid-column: 1; }
+  .oni__side { grid-column: 2; order: 1; align-self: start; }
+  .oni__choice, .oni__end { order: 2; }
   .oni__hand { gap: var(--space-2); }
-  .oni__middle { gap: var(--space-2); }
 }
 .oni__side { display: grid; gap: var(--space-1); justify-items: center; inline-size: var(--cw); }
 .oni__side-label { font-size: 12px; line-height: 1.5; color: var(--felt-muted); }
@@ -36,20 +45,10 @@ button.oni-card:focus-visible { outline: 3px solid var(--focus-on-felt); outline
 .oni-card--sel.oni-card--art img { outline: 3px solid var(--felt-gold); outline-offset: 2px; }
 .oni-card--sel .oni-card__cap { color: var(--felt-gold); }
 
-/* faces the design lacks: plain card from the move pattern */
-.oni-card:not(.oni-card--art) { grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; gap: 0.15rem 0.5rem; padding: 0.45rem 0.6rem 0.55rem; inline-size: var(--cw); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); box-shadow: var(--shadow-ring); text-align: start; }
-.oni-card:not(.oni-card--art).oni-card--upside { transform: rotate(180deg); }
+/* faces the design lacks (9 of 16): Persian name on a plain tile, upright */
+.oni-card:not(.oni-card--art) { inline-size: var(--cw); aspect-ratio: 471 / 276; align-content: center; border-radius: var(--radius-sm); background: var(--surface); color: var(--text); box-shadow: var(--shadow-ring); }
 .oni-card:not(.oni-card--art).oni-card--sel { box-shadow: 0 0 0 3px var(--felt-gold); }
-.oni-card__stamp { grid-row: 1 / 3; inline-size: 14px; block-size: 14px; border-radius: var(--radius-xs); transform: rotate(45deg); }
-.oni-card__stamp--red { background: var(--danger); }
-.oni-card__stamp--blue { background: var(--info); }
-.oni-card__name { font-weight: 900; font-size: 0.85rem; }
-.oni-card__en { font-size: 0.68rem; color: var(--text-muted); }
-.oni-card__grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-block-start: 0.25rem; direction: ltr; inline-size: 100%; }
-.oni-card__grid i { aspect-ratio: 1; border-radius: 2px; background: var(--line); }
-.oni-card__grid i.is-me { background: var(--heading); }
-.oni-card__grid i.is-red { background: var(--danger); }
-.oni-card__grid i.is-blue { background: var(--info); }
+.oni-card__name { font-weight: 900; font-size: 0.95rem; }
 
 .oni__choice { display: flex; gap: var(--space-2); justify-content: center; align-items: center; flex-wrap: wrap; }
 .oni__end { margin: 0; color: var(--felt-gold); font-weight: 800; }

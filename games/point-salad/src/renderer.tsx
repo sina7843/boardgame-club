@@ -33,8 +33,20 @@ export function RuleText({ rule }: { rule: Rule }) {
   }
 }
 
+/** The delivered art has only six printed rule faces; a card gets its picture when the engine card is exactly one of them. */
+function ruleArt(veg: Veg, r: Rule): string | null {
+  const key = r.k === 'most' && r.veg === 'carrot' && veg === 'cabbage' ? 'cabbage-rule-03'
+    : r.k === 'parity' && r.veg === 'cabbage' && veg === 'carrot' ? 'carrot-rule-02'
+    : r.k === 'each' && veg === 'carrot' && r.terms.length === 2 && r.terms[0]![0] === 'cabbage' && r.terms[0]![1] === 3 && r.terms[1]![0] === 'tomato' && r.terms[1]![1] === -2 ? 'carrot-rule-08'
+    : r.k === 'fewest' && r.veg === 'pepper' && veg === 'lettuce' ? 'lettuce-rule-04'
+    : r.k === 'combo' && veg === 'lettuce' && r.pts === 5 && r.veg.length === 2 && [...r.veg].sort().join() === 'carrot,tomato' ? 'lettuce-rule-14'
+    : r.k === 'most' && r.veg === 'tomato' && veg === 'onion' ? 'onion-rule-03' : null;
+  return key ? (gc(key) as string | undefined) ?? null : null;
+}
+
 export function RuleCard({ id, pts, from, exit }: { id: number; pts?: number; from?: string; exit?: string }) {
-  return <span className="ps-rule" data-flip={from ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit}><RuleText rule={CARDS[id]!.rule} />{pts !== undefined && <b className="ps-rule__pts">{fa(pts)}</b>}</span>;
+  const art = ruleArt(CARDS[id]!.veg, CARDS[id]!.rule);
+  return <span className={art ? 'ps-rule ps-rule--art' : 'ps-rule'} data-flip={from ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit}>{art ? <><img className="ps-vegcard" src={art} alt="" draggable={false} /><span className="visually-hidden"><RuleText rule={CARDS[id]!.rule} /></span></> : <RuleText rule={CARDS[id]!.rule} />}{pts !== undefined && <b className="ps-rule__pts">{fa(pts)}</b>}</span>;
 }
 
 export default function PointSaladRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<PointSaladView>) {
@@ -96,11 +108,11 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
           {[0, 1, 2].map((p) => {
             const top = view.pileTops[p];
             return (
-              <div key={p} className="ps-crate" data-flip-anchor={`crate-${p}`}>
+              <div key={p} className="ps-crate">
                 {top !== null && top !== undefined
-                  ? <button type="button" className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
+                  ? <button type="button" data-flip-anchor={`crate-${p}`} className={['ps-pile', hint?.type === 'rule' && hint.pile === p ? 'ps-hint' : ''].join(' ')} disabled={!piles.has(p) || busy || sel.length > 0}
                     onClick={() => act({ type: 'rule', pile: p, ...extra })} aria-label={`برداشتن دستور دستهٔ ${fa(p + 1)}`}><RuleCard id={top} from={`crate-${p}`} /><small>{fa(view.pileCounts[p]!)} کارت</small></button>
-                  : p === waiting ? <span className="ps-pile ps-pile--empty">…</span> : <span className="ps-pile ps-pile--empty">خالی</span>}
+                  : p === waiting ? <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">…</span> : <span data-flip-anchor={`crate-${p}`} className="ps-pile ps-pile--empty">خالی</span>}
                 <div className="ps-crate__veg">
                   {[p * 2, p * 2 + 1].map((i) => {
                     const id = view.market[i];

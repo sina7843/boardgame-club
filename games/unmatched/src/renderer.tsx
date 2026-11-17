@@ -4,11 +4,21 @@ import { cardPicture } from './card-art.ts';
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import chArt_alice from './art/unmatched-ch-alice.png';
+import chArt_arthur from './art/unmatched-ch-arthur.png';
+import chArt_dracula from './art/unmatched-ch-dracula.png';
+import chArt_holmes from './art/unmatched-ch-holmes.png';
+import chArt_invisible from './art/unmatched-ch-invisible.png';
+import chArt_jekyll from './art/unmatched-ch-jekyll.png';
+import chArt_medusa from './art/unmatched-ch-medusa.png';
+import chArt_sinbad from './art/unmatched-ch-sinbad.png';
 import { CardArt, Emblem, PATHS, PORTRAITS, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
 import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
 import type { CardRef, Fighter, LogEntry, Prompt, UnmatchedView } from './rules.ts';
 
+// Printed character art (design/games/group-d/art/unmatched).
+const HERO_ART: Record<string, string> = { alice: chArt_alice, arthur: chArt_arthur, dracula: chArt_dracula, holmes: chArt_holmes, invisible: chArt_invisible, jekyll: chArt_jekyll, medusa: chArt_medusa, sinbad: chArt_sinbad };
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 type Hint = { type: string; [k: string]: unknown };
 
@@ -587,12 +597,7 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
                     const newSet = i === 0 || HEROES[all[i - 1]!.hero as string]!.set !== hero.set;
                     return (<Fragment key={hero.id}>{newSet && <h4 className="um-heroes__set"><bdi>{hero.set}</bdi></h4>}
                       <button type="button" className={['um-hero', exp?.hero === hero.id ? 'um-hero--hint' : ''].join(' ')} style={{ ['--hc' as string]: hero.color }} disabled={busy} onClick={() => send({ type: 'pickHero', hero: hero.id })}>
-                        <svg className="um-hero__emblem" viewBox="0 0 48 56" aria-hidden="true" focusable="false">
-                          <path d="M24 3 L44 10 V28 C44 40 35 49 24 53 C13 49 4 40 4 28 V10 Z" fill={hero.color} stroke="#2a2520" strokeWidth="2.5" />
-                          <path d="M24 3 L44 10 V28 C44 40 35 49 24 53 Z" fill="#000" fillOpacity="0.18" />
-                          <path d="M10 12 L24 7 L24 30 C16 30 11 22 10 12 Z" fill="#fff" fillOpacity="0.28" />
-                          <circle cx="24" cy="27" r="16" fill="#f6efdc" stroke="#2a2520" strokeWidth="2" /><g transform="translate(24 27) scale(.5)"><Emblem id={hero.id} c={hero.color} /></g>
-                        </svg>
+                        <img className="um-hero__art" src={HERO_ART[hero.id]} alt="" draggable={false} />
                         <strong>{hero.hero.nameFa}</strong>
                         <span className="um-hero__stats">
                           <span className="um-stat"><span aria-hidden="true">♥</span> سلامتی {fa(hero.hero.hp)}</span>
@@ -838,12 +843,12 @@ function PlayerPanel({ view, was, seat, me, name }: { view: UnmatchedView; was?:
               <div className="um-hc__facts">
                 <span className="um-hc__fact"><span aria-hidden="true">➜</span>حرکت <b>{fa(hero.move)}</b></span>
                 <span className="um-hc__fact"><span aria-hidden="true">{hero.hero.ranged ? '➶' : '⚔'}</span>{hero.hero.ranged ? 'دوربرد' : 'نزدیک‌زن'}</span>
-                {notes.length > 0 && <span className="um-hc__note">{notes.join(' · ')}</span>}
+                {notes.length > 0 && <span className="um-hc__note">{notes.join('، ')}</span>}
               </div>
             </div>
             {kicks.length > 0 && (
               <div className="um-hc__kicks">
-                <small>یاور: {hero.sidekick.nameFa} · {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'}</small>
+                <small>یاور: {hero.sidekick.nameFa}، {hero.sidekick.ranged ? 'دوربرد' : 'نزدیک‌زن'}</small>
                 <ul className="um-hp">{kicks.map((f) => <li key={f.id}><HpDial f={f} name={fighterName(view, f.id)} /></li>)}</ul>
               </div>
             )}
@@ -916,7 +921,7 @@ function CombatPanel({ view, mySeat }: { view: UnmatchedView; mySeat: number | n
         </div>
         {c.aVal !== null && <span className="um-combat__dmg" aria-hidden="true">{(c.damage ?? 0) > 0 ? `−${fa(c.damage ?? 0)}` : '۰'}</span>}
       </div>
-      {c.aVal !== null && <p className="um-combat__result">حمله {fa(c.aVal)} − دفاع {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong> · {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
+      {c.aVal !== null && <p className="um-combat__result">حمله {fa(c.aVal)} − دفاع {fa(c.dVal ?? 0)} = <strong>{fa(c.damage ?? 0)} آسیب</strong>، {c.won === 'a' ? 'مهاجم برد' : 'مدافع برد'}</p>}
     </section>
   );
 }

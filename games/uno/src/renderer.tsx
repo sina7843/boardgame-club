@@ -105,7 +105,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
       )}
 
       {!framed && <div className="uno__meta">
-        <span>دست {fa(view.hand)}{view.target ? ` · هدف ${fa(view.target)} امتیاز` : ' · یک‌دسته'}</span>
+        <span>دست {fa(view.hand)}{view.target ? `، هدف ${fa(view.target)} امتیاز` : '، یک‌دسته'}</span>
         {view.color && <span className={`uno-pill uno-pill--${view.color}`}>رنگ: {COLOR_FA[view.color]}</span>}
         <span className="uno-dir" aria-label={view.direction === 1 ? 'جهت بازی: عادی' : 'جهت بازی: برعکس'}>
           <span aria-hidden="true" className={view.direction === 1 ? 'uno-dir__icon' : 'uno-dir__icon uno-dir__icon--rev'}>↻</span>
@@ -123,7 +123,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
               </span>
               <span className="uno-opp__body">
                 <bdi className="uno-opp__name">{seatName(s)}</bdi>
-                <span className="uno-opp__count">{view.active[s] ? `${fa(view.handCounts[s] ?? 0)} کارت` : 'کنار رفته'}{view.target ? ` · ${fa(view.scores[s] ?? 0)} امتیاز` : ''}</span>
+                <span className="uno-opp__count">{view.active[s] ? `${fa(view.handCounts[s] ?? 0)} کارت` : 'کنار رفته'}{view.target ? `، ${fa(view.scores[s] ?? 0)} امتیاز` : ''}</span>
               </span>
               {active && <span className="uno-badge">نوبت</span>}
               {view.called[s] && view.handCounts[s] === 1 && <span className="uno-badge uno-badge--uno">اونو!</span>}
@@ -204,13 +204,10 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
           </div>
           {needsUno && !unoArmed && <p className="uno-hand__tip">یکی‌مانده به آخر! پیش از گذاشتن کارت «اونو!» را بزنید.</p>}
           <div className="uno-hand__cards">
-            {hand.map((c, i) => {
-              const t = i - (hand.length - 1) / 2;
-              const step = Math.min(4, 40 / hand.length);
+            {hand.map((c) => {
               const ok = playableIds.has(c.id) && !busy;
               return (
                 <CardFace key={c.id} card={c} onClick={() => tap(c)} disabled={!ok} flip={`c-${c.id}`} flipFrom="deck"
-                  style={{ ['--fan' as string]: (t * step).toFixed(2), ['--arc' as string]: (t * t * step * 0.14).toFixed(2) }}
                   state={picked === c.id ? 'selected' : ok ? 'playable' : myTurn ? 'dim' : undefined}
                   hint={exp?.type === 'play' && exp.card === c.id} />
               );

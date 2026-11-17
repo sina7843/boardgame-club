@@ -5,6 +5,7 @@ import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePieceIds, type GameRendererProps } from '@bg/ui';
 import coinsArt from './art/coins.webp';
+import deckBack from './art/gc/jaipur-back.png';
 import { GOODS, PRECIOUS, type Card, type Good, type JaipurView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -135,7 +136,7 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
                 disabled={!myTurn || busy || c === 'camel'} aria-pressed={mk.includes(i)} onClick={() => setMk(mk.includes(i) ? mk.filter((x) => x !== i) : [...mk, i])}><GoodCard c={c} flip={`c-${ids[HAND + i]}`} flipFrom={arriveFrom(c)} exit={leaveTo(c)} /></button>
             ))}
           </div>
-          <span className="jp__deck" data-flip-anchor="deck">دسته: {fa(view.deckCount)}</span>
+          <span className="jp__deck" data-flip-anchor="deck"><img src={deckBack} alt="" draggable={false} />دسته: {fa(view.deckCount)}</span>
         </section>
       )}
 

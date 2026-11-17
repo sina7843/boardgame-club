@@ -2,7 +2,7 @@
 // lowest of a run scores), and two big buttons. Others' chip counts are secret until the end.
 import './renderer.css';
 import { useMemo, useRef } from 'react';
-import { DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { cardPoints, runs, type NoThanksView } from './rules.ts';
 import cardsArt from './art/cards.webp';
 
@@ -34,8 +34,6 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
   const last = view.log.at(-1);
   const passer = pending === 'pass' ? mySeat : last?.t === 'pass' ? last.seat : null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
-  const myCards = mySeat !== null ? view.cards[mySeat]! : [];
-  const withCard = view.card !== null && myTurn ? cardPoints([...myCards, view.card]) - cardPoints(myCards) : null;
   const order = mySeat === null ? view.cards.map((_, k) => k) : [mySeat, ...view.cards.map((_, k) => k).filter((k) => k !== mySeat)];
 
   const status = view.outcome ? null
@@ -76,13 +74,12 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
 
       {myTurn && (() => { const btns = (
         <>
-          <button type="button" className={['nt-btn nt-btn--take', hint === 'take' ? 'nt-btn--hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'take' })}>
-            برمی‌دارم{view.pot ? ` (+${fa(view.pot)} ژتون)` : ''}
-            {withCard !== null && <small>{withCard > 0 ? `امتیاز منفی +${fa(withCard)}` : 'به رشته‌تان می‌چسبد'}</small>}
-          </button>
-          <button type="button" className={['nt-btn nt-btn--pass', hint === 'pass' ? 'nt-btn--hint' : ''].join(' ')} disabled={busy || !has('pass')} onClick={() => onAction({ type: 'pass' })}>
-            نه، مرسی!<small>{has('pass') ? '۱ ژتون می‌دهید' : 'ژتون ندارید'}</small>
-          </button>
+          <Button className={hint === 'take' ? 'nt-btn--take nt-btn--hint' : 'nt-btn--take'} disabled={busy} onClick={() => onAction({ type: 'take' })}>
+            برمی‌دارم{view.pot ? ` (${fa(view.pot)} ژتون)` : ''}
+          </Button>
+          <Button variant="secondary" className={hint === 'pass' ? 'nt-btn--pass nt-btn--hint' : 'nt-btn--pass'} disabled={busy || !has('pass')} onClick={() => onAction({ type: 'pass' })}>
+            نه، مرسی! (−{fa(1)})
+          </Button>
         </>
       ); return framed ? <DockSlot>{btns}</DockSlot> : <div className="nt__actions">{btns}</div>; })()}
 

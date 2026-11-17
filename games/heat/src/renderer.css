@@ -152,3 +152,10 @@
   .ht-shifter { grid-column: 1 / -1; }
   .ht-pile, .ht-engine { min-inline-size: 0; inline-size: 100%; }
 }
+
+/* Printed card faces (112×180 art): the image is the card. */
+.ht-card--face { background: none; box-shadow: none; padding: 0; min-block-size: 0; line-height: 0; }
+.ht-card--face.ht-card--md, .ht-card--face.ht-card--md.ht-card--garage { inline-size: 4rem; min-block-size: 0; padding: 0; }
+.ht-card--face.ht-card--sm { inline-size: 2rem; block-size: auto; }
+.ht-card--face img { inline-size: 100%; block-size: auto; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
+@media (max-width: 480px) { .ht-card--face.ht-card--md, .ht-card--face.ht-card--md.ht-card--garage { inline-size: 3.2rem; } }

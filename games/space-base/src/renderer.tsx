@@ -5,6 +5,9 @@ import './renderer.css';
 import ships from './art/ships.webp';
 import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import back1 from './art/sb-back1.png';
+import back50 from './art/sb-back50.png';
+import back99 from './art/sb-back99.png';
 import die2 from './art/sb-die-2.png';
 import die3 from './art/sb-die-3.png';
 import die4 from './art/sb-die-4.png';
@@ -16,6 +19,7 @@ const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const rw = (r: Reward | undefined) => [r?.credits ? `${fa(r.credits)}¢` : '', r?.vp ? `${fa(r.vp)}★` : ''].filter(Boolean).join(' ') || '—';
 // Die faces 2 to 6 ship as art; the 1 face has none yet and stays the pip placeholder.
 const DIE_ART: Record<number, string> = { 2: die2, 3: die3, 4: die4, 5: die5, 6: die6 };
+const DECK_BACK = [back1, back50, back99];
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 
 // Ship paintings are cut from a generated sprite sheet (see DECISIONS.md); picked by cost tier (costs run 0-14).
@@ -115,7 +119,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
   const Bays = ({ seat, compact }: { seat: number; compact?: boolean }) => {
     const b = view.boards[seat]!;
     return (
-      <div className={`sb-bays ${compact ? 'sb-bays--compact' : ''}`} dir="ltr" role="list" aria-label="بخش‌های ۱ تا ۱۲">
+      <div className={`sb-bays ${compact ? 'sb-bays--compact' : 'sb-bays--board'}`} dir="ltr" role="list" aria-label="بخش‌های ۱ تا ۱۲">
         {b.station.map((st, i) => {
           const x = SHIPS[st]!, dep = b.deployed[i]!;
           const label = `بخش ${fa(i + 1)}: ${x.name}، آبی ${rw(x.blue)}${dep.length ? `، ${fa(dep.length)} ناو مستقر، قرمز ${rw(redSum(dep))}` : ''}`;
@@ -204,7 +208,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
       <section className="sb-yard" aria-label="کارگاه ناو">
         {view.shop.map((row, l) => (
           <div key={l} className="sb-yard__row">
-            <small className="sb-yard__lvl" data-flip-anchor={`deck-${l}`}>{['سبک', 'میانه', 'سنگین'][l]}<span className="bgv-sep" />{fa(view.deckCounts[l]!)}</small>
+            <span className="sb-yard__lvl" data-flip-anchor={`deck-${l}`} role="img" aria-label={`دستهٔ ${['سبک', 'میانه', 'سنگین'][l]}، ${fa(view.deckCounts[l]!)} ناو`}><img src={DECK_BACK[l]} alt="" draggable={false} /><b>{fa(view.deckCounts[l]!)}</b></span>
             {row.map((id) => {
               const can = buyable.has(id);
               return <button key={id} type="button" data-flip={`s${id}`} data-flip-from={`deck-${l}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', ship: id })}

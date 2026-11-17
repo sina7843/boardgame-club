@@ -55,7 +55,7 @@ button.kd-pick { cursor: pointer; box-shadow: 0 0 0 2px rgb(255 217 138 / 0.5); 
 .kd-slot--out { opacity: 0.18; }
 button.kd-slot { cursor: pointer; }
 button.kd-slot:focus-visible { outline: 2px solid #2f80c9; outline-offset: 1px; }
-.kd-slot--ok { box-shadow: 0 0 0 2px rgb(46 160 70 / 0.9); }
+.kd-slot--ok { outline: 2px dashed var(--accent, #ffd98a); outline-offset: -2px; }
 .kd-slot--pv { animation: kd-pop 0.25s ease-out; box-shadow: 0 0 0 2px #fff; }
 .kd-tally { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; font-size: 0.74rem; }
 .kd-tally li { display: inline-flex; gap: 0.25rem; align-items: center; padding: 0.1rem 0.45rem; border-radius: 999px; background: rgb(255 250 236 / 0.85); box-shadow: inset 0 0 0 1px rgb(58 46 30 / 0.4); font-weight: 700; }

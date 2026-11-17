@@ -148,7 +148,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
             <span className={`ck-side__chip ck-side__chip--${c}`} aria-hidden="true" />
             <bdi className="ck-side__name">{who(c)}</bdi>
-            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? ` · ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</Stat>
+            <Stat n={view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L']}>{fa(view.counts[c] + view.counts[c.toUpperCase() as 'D' | 'L'])} مهره{view.counts[c.toUpperCase() as 'D' | 'L'] ? `، ${fa(view.counts[c.toUpperCase() as 'D' | 'L'])} شاه` : ''}</Stat>
             <span className="ck-side__caps" aria-label={`${fa(captured[c === 'd' ? 'l' : 'd'])} مهره زده`}>
               <Caps n={captured[c === 'd' ? 'l' : 'd']} color={c === 'd' ? 'l' : 'd'} />
             </span>
