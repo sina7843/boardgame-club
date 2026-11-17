@@ -6,18 +6,14 @@
   border: 1px solid rgb(255 255 255 / 0.08); font-size: 0.85rem; transition: box-shadow 0.25s; }
 .go-side--turn { box-shadow: 0 0 0 2px #c9a46a, 0 6px 18px -6px rgb(201 164 106 / 0.6); }
 .go-side__stone { inline-size: 20px; block-size: 20px; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
-.go-side__stone--b { background: url('./art/stone-b.webp') center / cover; }
-.go-side__stone--w { background: url('./art/stone-w.webp') center / cover; }
+.go-side__stone--b { background: url('./art/go-black.png') center / cover; }
+.go-side__stone--w { background: url('./art/go-white.png') center / cover; }
 .go-side__name { font-weight: 800; }
 .go-side__stat { color: #d9ccb4; }
 .go-side__score { font-size: 1.15rem; }
 .go-side__ok { font-size: 0.75rem; color: #8fe0a3; }
 
-.go-board { display: block; inline-size: 100%; max-inline-size: 760px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
-.go-line line { stroke: #2b1d0e; stroke-width: 2px; }
-.go-edge { fill: none; stroke: #2b1d0e; stroke-width: 3.5px; }
-.go-star { fill: #2b1d0e; }
-.go-coord { font: 700 18px/1 var(--font, sans-serif); fill: #5a3c17; text-anchor: middle; }
+.go-board { display: block; inline-size: 100%; max-inline-size: min(760px, var(--gf-b, 760px)); margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
 .go-pt { outline: none; }
 .go-pt--ok, .go-pt--mark { cursor: pointer; }
 .go-ghost { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
@@ -25,14 +21,7 @@
 .go-pt:focus-visible rect { stroke: #8a2f1b; stroke-width: 4px; }
 .go-pt--hint .go-ghost { opacity: 0.55; animation: go-hint 1s ease-in-out infinite; }
 .go-stone--dead { opacity: 0.45; }
-.go-deadmark { stroke: #c0392b; stroke-width: 5px; stroke-linecap: round; }
-.go-lastmark { fill: none; stroke-width: 3px; }
-.go-lastmark--b { stroke: #f3f1ea; }
-.go-lastmark--w { stroke: #1b1c1e; }
 .go-gone { animation: go-gone 0.5s ease-in forwards; transform-box: fill-box; transform-origin: center; }
-.go-ko { fill: none; stroke: #8a2f1b; stroke-width: 3px; }
-.go-terr--b { fill: rgb(10 10 12 / 0.75); }
-.go-terr--w { fill: rgb(255 255 255 / 0.85); stroke: #8c8676; stroke-width: 1px; }
 
 .go__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; min-block-size: 2.5rem; }
 .go__end { margin: 0; color: #ffd27a; font-weight: 800; }
@@ -44,3 +33,6 @@
   .go-pt--hint .go-ghost { animation: none; }
   .go-gone { animation: none; opacity: 0; }
 }
+
+/* Inside the shared table frame the board takes the frame's square edge. */
+.go > :first-child { justify-self: stretch; }

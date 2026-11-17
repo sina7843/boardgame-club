@@ -195,6 +195,8 @@ export const sealedBidsModule: GameModule<SealedBidsState, SealedBidsAction, Sea
           : !state.outcome && state.pending[seat] !== null ? { status: 'done' as const } : {})
       })),
       shared: [{ key: 'round', label: 'دور', value: Math.min(state.round, ROUNDS), max: ROUNDS }],
+      // Only revealed rounds (public); a tied round has no winner seat, so it is left out.
+      moves: state.history.flatMap((h) => (h.winner === null ? [] : [{ seat: h.winner, text: `دور ${h.round.toLocaleString('fa-IR')}: ${h.prize.toLocaleString('fa-IR')} امتیاز` }])).slice(-40),
       ...(state.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: state.scores.indexOf(top) } : {})
     };
   },

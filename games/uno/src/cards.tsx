@@ -8,6 +8,22 @@ import reverseArt from './art/uno-reverse.webp';
 import draw2Art from './art/uno-draw2.webp';
 import wildArt from './art/uno-wild.webp';
 import wild4Art from './art/uno-wild4.webp';
+import backPng from './art/uno-back.png';
+import bNum8 from './art/uno-b-num-8.png';
+import bRev from './art/uno-b-rev.png';
+import gNum1 from './art/uno-g-num-1.png';
+import gNum5 from './art/uno-g-num-5.png';
+import rNum3 from './art/uno-r-num-3.png';
+import rNum5 from './art/uno-r-num-5.png';
+import rSkip from './art/uno-r-skip.png';
+import wd4Png from './art/uno-wd4.png';
+import wildPng from './art/uno-wild.png';
+import yD2 from './art/uno-y-d2.png';
+
+// Delivered card faces (design/games/group-c/art/uno). The handoff ships only these 10 faces; every other face keeps the
+// vector fallback below until its art arrives (listed in the report).
+const FACE_ART: Record<string, string> = { 'b-num-8': bNum8, 'b-rev': bRev, 'g-num-1': gNum1, 'g-num-5': gNum5, 'r-num-3': rNum3, 'r-num-5': rNum5, 'r-skip': rSkip, wd4: wd4Png, wild: wildPng, 'y-d2': yD2 };
+const faceKey = (c: Card) => (c.kind === 'wild' || c.kind === 'wd4' ? c.kind : `${c.color}-${c.kind === 'num' ? `num-${c.value}` : c.kind}`);
 
 const CENTRE_ART: Partial<Record<Card['kind'], string>> = { skip: skipArt, rev: reverseArt, d2: draw2Art, wild: wildArt, wd4: wild4Art };
 const ACTION_KINDS = new Set<Card['kind']>(['skip', 'rev', 'd2']);
@@ -75,8 +91,9 @@ export function CardFace({ card, size = 'md', state, onClick, disabled, hint, st
   disabled?: boolean;
   hint?: boolean;
 }) {
-  const cls = ['uno-card', `uno-card--${size}`, card.color ? `uno-card--${card.color}` : 'uno-card--wild', state ? `uno-card--${state}` : '', hint ? 'uno-card--hint' : ''].join(' ');
-  const inner = (
+  const art = FACE_ART[faceKey(card)];
+  const cls = ['uno-card', `uno-card--${size}`, art ? 'uno-card--img' : '', card.color ? `uno-card--${card.color}` : 'uno-card--wild', state ? `uno-card--${state}` : '', hint ? 'uno-card--hint' : ''].join(' ');
+  const inner = art ? <img className="uno-face" src={art} alt="" draggable={false} /> : (
     <>
       <span className="uno-card__corner uno-card__corner--start" aria-hidden="true"><Symbol card={card} big={false} /></span>
       <span className={ACTION_KINDS.has(card.kind) ? 'uno-card__oval uno-card__oval--act' : 'uno-card__oval'} aria-hidden="true"><Symbol card={card} big /></span>
@@ -96,8 +113,8 @@ export function CardFace({ card, size = 'md', state, onClick, disabled, hint, st
 
 export function CardBack({ size = 'md', label }: { size?: 'sm' | 'md' | 'lg'; label?: string }) {
   return (
-    <span className={`uno-card uno-card--${size} uno-card--back`} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-      <span className="uno-card__sheen" aria-hidden="true" />
+    <span className={`uno-card uno-card--${size} uno-card--back uno-card--img`} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+      <img className="uno-face" src={backPng} alt="" draggable={false} />
     </span>
   );
 }

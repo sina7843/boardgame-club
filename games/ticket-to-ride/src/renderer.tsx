@@ -3,7 +3,7 @@
 // (colour + locomotives), own hand and tickets, players, final scores and log. Shows only the projection.
 import './renderer.css';
 import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
 import { BOARDS, COLORS, COLOR_FA, LOCO, ROUTE_POINTS, TRAINS, type Board, type MapId } from './board.ts';
 import { CAR_H, CITY_R, layoutOf, type Pt } from './geometry.ts';
 import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SEAT_TRAIN, SHADES, colorIx } from './art.tsx';
@@ -393,16 +393,23 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
   const slots = new Set((marketHint?.slots as number[] | undefined) ?? []);
   const pickedOk = keepHint ? kept.length >= (keepHint.min as number) : false;
 
+  const framed = useInFrame() !== null; // the shell draws players, scores, whose-turn, events and the final table
   return (
     <div className="ttr" ref={root}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>نقشه {board.nameFa}{view.finalLeft && !view.outcome ? `؛ دور پایانی، ${fa(view.finalLeft.length)} نوبت مانده` : ''}. هر نوبت یا ۲ کارت بکشید، یا یک مسیر بسازید، یا بلیت مقصد بگیرید.</p>
+        </RailSlot>
+      )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
-      <div className="ttr__meta">
-        <span className="ttr-chipmeta ttr-chipmeta--turn">نقشه {board.nameFa}{view.phase === 'play' ? ` · نوبت ${fa(view.turn)}` : ''}</span>
+      {!framed && <div className="ttr__meta">
+        <span className="ttr-chipmeta ttr-chipmeta--turn">نقشه {board.nameFa}{view.phase === 'play' ? `، نوبت ${fa(view.turn)}` : ''}</span>
         <span className={`ttr-chipmeta ${pop(before?.deckCount, view.deckCount)}`} key={`d${view.deckCount}`}>کارت در دسته: {fa(view.deckCount)}</span>
         <span className={`ttr-chipmeta ${pop(before?.ticketDeckCount, view.ticketDeckCount)}`} key={`t${view.ticketDeckCount}`}>بلیت در دسته: {fa(view.ticketDeckCount)}</span>
         {view.finalLeft && !view.outcome && <span className="ttr-chipmeta ttr-chipmeta--final">دور پایانی: {fa(view.finalLeft.length)} نوبت مانده</span>}
-      </div>
+      </div>}
 
       <div className="ttr-main">
         <div className="ttr-board-wrap">
@@ -414,7 +421,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
         </div>
 
         <div className="ttr-side">
-          {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+          {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
           {keepHint && view.myOffer && (
             <Panel title={view.phase === 'tickets' ? 'بلیت‌های مقصد آغازین' : 'بلیت‌های مقصد تازه'} tone="decide">
@@ -528,7 +535,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
 
           </div>
 
-          {view.final && (
+          {!framed && view.final && (
             <section className="ttr-final" aria-label="امتیاز پایانی">
               <h3>امتیاز پایانی</h3>
               <table>
@@ -554,7 +561,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
             </section>
           )}
 
-          <ul className="ttr-players" aria-label="بازیکنان">
+          {!framed && <ul className="ttr-players" aria-label="بازیکنان">
             {Array.from({ length: view.players }, (_, s) => {
               const turn = view.phase === 'play' && view.current === s && !view.outcome;
               const trains = view.trains[s] ?? TRAINS;
@@ -586,9 +593,9 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                 </li>
               );
             })}
-          </ul>
+          </ul>}
 
-          <details className="ttr-log" open>
+          {!framed && <details className="ttr-log" open>
             <summary>رویدادها</summary>
             <ol>
               {view.log.slice(-10).reverse().map((e) => {
@@ -601,7 +608,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                 );
               })}
             </ol>
-          </details>
+          </details>}
           <p className="ttr-legend" aria-label="امتیاز مسیرها بر اساس طول">
             {[1, 2, 3, 4, 5, 6, 8].map((n) => (
               <span key={n} className="ttr-legend__i"><span className="ttr-legend__cars" aria-hidden="true">{Array.from({ length: Math.min(n, 4) }, (_, i) => <i key={i} />)}{n > 4 ? <small>×{fa(n)}</small> : null}</span>{fa(ROUTE_POINTS[n] ?? 0)}</span>

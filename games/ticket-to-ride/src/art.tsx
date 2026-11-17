@@ -4,16 +4,16 @@
 // inside an element that carries the label.
 import { useId } from 'react';
 import { COLORS } from './board.ts';
-import carRed from './art/car-red.webp';
-import carOrange from './art/car-orange.webp';
-import carYellow from './art/car-yellow.webp';
-import carGreen from './art/car-green.webp';
-import carBlue from './art/car-blue.webp';
-import carPink from './art/car-pink.webp';
-import carBlack from './art/car-black.webp';
-import carWhite from './art/car-white.webp';
-import carLoco from './art/car-loco.webp';
-import cardBack from './art/card-back.webp';
+import cardBack from './art/ttr-back.png';
+import ttrCard0 from './art/ttr-card-0.png';
+import ttrCard1 from './art/ttr-card-1.png';
+import ttrCard2 from './art/ttr-card-2.png';
+import ttrCard3 from './art/ttr-card-3.png';
+import ttrCard4 from './art/ttr-card-4.png';
+import ttrCard5 from './art/ttr-card-5.png';
+import ttrCard6 from './art/ttr-card-6.png';
+import ttrCard7 from './art/ttr-card-7.png';
+import ttrCard8 from './art/ttr-card-8.png';
 import compassImg from './art/compass.webp';
 import trainRed from './art/train-red.webp';
 import trainBlue from './art/train-blue.webp';
@@ -152,17 +152,18 @@ export function TrainGlyph({ loco, color = '#fff' }: { loco?: boolean; color?: s
   );
 }
 
-const CAR_IMG = [carRed, carOrange, carYellow, carGreen, carBlue, carPink, carBlack, carWhite, carLoco];
+// Design cards (landscape, 125 × 80) in engine colour order: red, orange, yellow, green, blue, pink, black, white, locomotive.
+const CAR_IMG = [ttrCard7, ttrCard5, ttrCard4, ttrCard8, ttrCard3, ttrCard1, ttrCard6, ttrCard2, ttrCard0];
 /** Painted train piece per seat (seat 5, violet, wears the black piece). */
 export const SEAT_TRAIN = [trainRed, trainBlue, trainYellow, trainGreen, trainBlack];
 
 /** Painted card face inside a rounded 48 × 72 card; the matching colour fills the part the square art does not reach. */
 function Painted({ src, fill, uid, full }: { src: string; fill: string; uid: string; full?: boolean }) {
   return (
-    <svg viewBox="0 0 48 72" className="ttr-cardart" aria-hidden="true" focusable="false">
-      <clipPath id={uid}><rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" /></clipPath>
-      <g clipPath={`url(#${uid})`}><rect width="48" height="72" fill={fill} />{full ? <image href={src} width="48" height="72" preserveAspectRatio="none" /> : <image href={src} x="-4" y="8" width="56" height="56" />}</g>
-      <rect x="0.6" y="0.6" width="46.8" height="70.8" rx="5.5" fill="none" stroke="#1d140a" strokeWidth="1.1" />
+    <svg viewBox="0 0 75 48" className="ttr-cardart" aria-hidden="true" focusable="false">
+      <clipPath id={uid}><rect x="0.6" y="0.6" width="73.8" height="46.8" rx="4" /></clipPath>
+      <g clipPath={`url(#${uid})`}><rect width="75" height="48" fill={fill} />{full ? <image href={src} width="75" height="48" preserveAspectRatio="none" /> : <image href={src} x="19" y="-4" width="37" height="56" />}</g>
+      <rect x="0.6" y="0.6" width="73.8" height="46.8" rx="4" fill="none" stroke="#1d140a" strokeWidth="1.1" />
     </svg>
   );
 }

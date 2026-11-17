@@ -365,6 +365,7 @@ export const srModule: GameModule<SrState, SrAction, SrView> = {
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: s.tradeDeck.length }],
+      moves: s.last ? [{ seat: s.last.seat, text: ({ hit: `${(s.last.amount ?? 0).toLocaleString('fa-IR')} ضربه به اقتدار`, destroy: 'پایگاه را نابود کرد', buy: 'کارت خرید', play: 'کارت بازی کرد', scrapSelf: 'کارت را اسقاط کرد', end: 'نوبت را تمام کرد', playAll: 'همه را بازی کرد' } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
       ...(auth[0] !== auth[1] ? { leaderSeat: auth[0]! > auth[1]! ? 0 : 1 } : {})
     };
   },

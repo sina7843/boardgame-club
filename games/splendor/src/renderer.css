@@ -137,6 +137,9 @@
 .sp-card__art { background-size: 600% 600%; background-repeat: no-repeat; }
 .sp-card::after { background: linear-gradient(180deg, transparent 40%, rgb(0 0 0 / 0.45)); }
 .sp-noble__face { display: block; inline-size: 3.2rem; block-size: 3.2rem; border-radius: 6px; background-size: 500% 300%; background-repeat: no-repeat; }
-.sp-deck.sp-l--1 { background: url("./art/back-1.webp") center / cover; }
-.sp-deck.sp-l--2 { background: url("./art/back-2.webp") center / cover; }
-.sp-deck.sp-l--3 { background: url("./art/back-3.webp") center / cover; }
+.sp-deck.sp-l--1 { background: url("./art/splendor-back-1.png") center / cover; }
+.sp-deck.sp-l--2 { background: url("./art/splendor-back-2.png") center / cover; }
+.sp-deck.sp-l--3 { background: url("./art/splendor-back-3.png") center / cover; }
+
+/* Inside the shared table frame the felt is the table: no velvet panel of our own. */
+.sp--framed { background: none; box-shadow: none; padding: 0; }

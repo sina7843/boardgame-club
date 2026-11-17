@@ -287,6 +287,7 @@ export const rgModule: GameModule<RgState, RgAction, RgView> = {
     const vp = s.players.map(vpOf);
     const top = Math.max(...vp);
     return {
+      moves: s.last.slice(-40).map((l) => ({ seat: l.seat, text: ({ explore: 'کاوش کرد', develop: 'پیشرفت گذاشت', settle: 'جهان گذاشت', consume: 'مصرف کرد', produce: 'تولید کرد' } as Record<string, string>)[l.kind] ?? 'حرکت کرد' })),
       seats: s.players.map((e, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: vp[seat]! },

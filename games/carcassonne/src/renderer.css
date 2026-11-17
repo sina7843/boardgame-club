@@ -68,3 +68,15 @@
 @keyframes cc-glow { 50% { transform: scale(1.5); opacity: 0.15; } }
 @media (max-width: 480px) { .cc__map { --cell: 3.2rem; max-block-size: 52vh; } }
 @media (prefers-reduced-motion: reduce) { .cc *, .cc *::before, .cc *::after { animation: none !important; transition: none !important; } }
+
+/* Meeple art is a PNG; the follower tray icon and the stack back are PNG too. */
+.cc__back { inline-size: 1rem; block-size: 1rem; vertical-align: middle; margin-inline-end: 0.25rem; }
+.cc-spot--fit:not(.cc-spot--on)::before { min-inline-size: 0; }
+.cc-player__meeple { inline-size: 1.2rem; block-size: 1.2rem; }
+.cc-chip { min-block-size: 44px; }
+.cc__zoom button { min-inline-size: 44px; min-block-size: 44px; }
+
+/* Inside the shared table frame (useInFrame): the felt is the shell's. */
+.cc--framed .cc__map { background: none; box-shadow: none; padding: 0; max-block-size: none; }
+.cc--framed { color: var(--felt-ink); }
+.cc--framed .cc__drawn { background: none; box-shadow: none; }

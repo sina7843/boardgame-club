@@ -28,6 +28,8 @@ export interface ForSaleState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public move list for the table log (older saved states lack it). */
+  moves?: { seat: number; text: string }[];
 }
 export interface ForSaleView {
   players: number;
@@ -178,9 +180,19 @@ export const forSaleModule: GameModule<ForSaleState, ForSaleAction, ForSaleView>
       return finish(s, [{ type: 'resigned', seat }]);
     }
     s.timeouts[seat] = 0;
-    if (a.type === 'bid') { s.bids[seat] = a.amount; s.seq += 1; s.last = null; nextBidder(s); }
-    else if (a.type === 'pass') pass(s, seat);
-    else { s.chosen[seat] = a.card; if (s.chosen.every((c) => c !== null)) sell(s); }
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const log = (who: number, text: string) => { s.moves = [...(s.moves ?? []), { seat: who, text }].slice(-40); };
+    if (a.type === 'bid') { s.bids[seat] = a.amount; s.seq += 1; s.last = null; log(seat, `پیشنهاد ${fa(a.amount)}`); nextBidder(s); }
+    else if (a.type === 'pass') {
+      const card = s.market[0]!, paid = s.bids[seat]! - Math.floor(s.bids[seat]! / 2);
+      pass(s, seat);
+      log(seat, `کنار کشید، ملک ${fa(card)}${paid ? `، ${fa(paid)} سکه` : ''}`);
+      // The last bidder's forced take replaces `last`; it is public too.
+      if (s.last?.kind === 'take' && s.last.seat !== seat) log(s.last.seat, `ملک ${fa(s.last.card)} را با ${fa(s.last.paid)} سکه برد`);
+    } else {
+      s.chosen[seat] = a.card;
+      if (s.chosen.every((c) => c !== null)) { sell(s); if (s.last?.kind === 'sale') for (const p of s.last.pairs) log(p.seat, `${fa(p.prop)} ← ${p.cheque ? `چک ${fa(p.cheque)}` : 'چک صفر'}`); }
+    }
     return finish(s, [{ type: a.type, seat }]);
   },
 
@@ -212,6 +224,7 @@ export const forSaleModule: GameModule<ForSaleState, ForSaleAction, ForSaleView>
   outcome: (s) => s.outcome,
 
   publicSummary: (s) => ({
+    moves: (s.moves ?? []).slice(-40),
     seats: s.coins.map((coins, seat) => ({
       seat,
       primary: { label: 'سکه', value: coins },

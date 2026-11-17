@@ -14,6 +14,10 @@ export type Kind = (typeof KINDS)[number];
 const COUNT: Record<Kind, number> = { tempura: 14, sashimi: 14, dumpling: 14, maki1: 6, maki2: 12, maki3: 8, salmon: 10, squid: 5, egg: 5, pudding: 10, wasabi: 6, chopsticks: 4 };
 export const NIGIRI: Partial<Record<Kind, number>> = { egg: 1, salmon: 2, squid: 3 };
 export const MAKI: Partial<Record<Kind, number>> = { maki1: 1, maki2: 2, maki3: 3 };
+const KIND_FA: Record<Kind, string> = {
+  tempura: 'تمپورا', sashimi: 'ساشیمی', dumpling: 'دامپلینگ', maki1: 'ماکی ۱', maki2: 'ماکی ۲', maki3: 'ماکی ۳', salmon: 'نیگیری سالمون',
+  squid: 'نیگیری ماهی مرکب', egg: 'نیگیری تخم‌مرغ', pudding: 'پودینگ', wasabi: 'واسابی', chopsticks: 'چاپستیک'
+};
 const HAND: Record<number, number> = { 2: 10, 3: 9, 4: 8, 5: 7 };
 const DUMPLING = [0, 1, 3, 6, 10, 15];
 
@@ -241,6 +245,7 @@ export const sushiGoModule: GameModule<SushiGoState, SushiGoAction, SushiGoView>
         ...(winners.has(seat) ? { status: 'winner' as const } : !s.outcome && s.picks[seat] !== null ? { status: 'done' as const } : {})
       })),
       shared: [{ key: 'round', label: 'دور', value: s.round, max: s.rounds }],
+      moves: s.revealed.flatMap((cards, seat): { seat: number; text: string }[] => (cards.length ? [{ seat, text: `${cards.map((k) => KIND_FA[k]).join(' و ')} را برداشت` }] : [])).slice(-40),
       ...(s.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.scores.indexOf(top) } : {})
     };
   },

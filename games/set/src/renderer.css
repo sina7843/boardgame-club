@@ -45,3 +45,12 @@
 .set-mini svg { inline-size: 100%; block-size: 100%; }
 
 @media (prefers-reduced-motion: reduce) { .set-hint { animation: none; } .set-card, .set-card:not(:disabled):hover { transition: none; transform: none; } }
+
+.set__deck-img { inline-size: 1.6rem; block-size: auto; border-radius: 3px; }
+img.set-card__face { object-fit: contain; border-radius: 6px; }
+/* Inside the table frame the felt and the dock come from the shell. */
+.set--framed .set__board { background: none; box-shadow: none; padding: 0; }
+.set--framed .set-card--on, .set--framed .set-hint { box-shadow: 0 0 0 4px var(--felt-gold) !important; }
+.set--framed .set__bar { position: static; background: none; box-shadow: none; padding: 0; }
+.set--framed .set__deck { color: var(--felt-ink); }
+.set--framed .set__status { justify-content: center; }

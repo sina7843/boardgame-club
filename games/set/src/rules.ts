@@ -225,6 +225,8 @@ export const setModule: GameModule<SetState, SetAction, SetView> = {
         ...(winners.has(seat) && !state.resigned[seat] ? { status: 'winner' as const } : state.resigned[seat] ? { status: 'out' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: state.deck.length }],
+      // The state keeps only the latest public event (no history), so the move list has at most one entry.
+      moves: state.last && state.last.seat !== null ? [{ seat: state.last.seat, text: state.last.kind === 'set' ? 'ست گرفت' : 'اعلام اشتباه' }] : [],
       ...(scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: scores.indexOf(top) } : {})
     };
   },

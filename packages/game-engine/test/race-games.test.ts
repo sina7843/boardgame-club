@@ -102,7 +102,7 @@ describe('ludo (منچ)', () => {
     expect(s.slots).toEqual([0, 2]);
     expect(s.pieces).toEqual([[-1, -1, -1, -1], [-1, -1, -1, -1]]);
     expect(s.tries).toBe(3);
-    expect(trackSquare(2, 0)).toBe(20);
+    expect(trackSquare(2, 0)).toBe(26);
   });
 
   it('entering needs a 6, a 6 rolls again, three failed tries pass the turn', () => {
@@ -122,22 +122,22 @@ describe('ludo (منچ)', () => {
   });
 
   it('captures send the opponent home; own pieces block; the goal needs an exact count without jumping', () => {
-    // Seat 0 piece at 5 rolls 3 onto square 8 where seat 1 (slot 2, start 20) stands at progress 28.
-    let snap = ludoWith(2, { pieces: [[5, -1, -1, -1], [28, -1, -1, -1]], script: [3] });
+    // Seat 0 piece at 5 rolls 3 onto square 8 where seat 1 (slot 2, start 26) stands at progress 34.
+    let snap = ludoWith(2, { pieces: [[5, -1, -1, -1], [34, -1, -1, -1]], script: [3] });
     snap = act(lm, snap, 0, { type: 'roll' }); // single legal move → played automatically
     expect(ls(snap).pieces).toEqual([[8, -1, -1, -1], [-1, -1, -1, -1]]);
     expect(ls(snap).log.some((e) => e.t === 'move' && e.captured?.seat === 1)).toBe(true);
-    const s = ls(ludoWith(2, { pieces: [[10, 12, 38, 41], [-1, -1, -1, -1]] }));
+    const s = ls(ludoWith(2, { pieces: [[10, 12, 50, 53], [-1, -1, -1, -1]] }));
     expect(target(s, 0, 0, 2)).toBeNull(); // own piece on 12
-    expect(target(s, 0, 2, 3)).toBeNull(); // 38+3 = 41 is occupied by own piece
-    expect(target(s, 0, 2, 4)).toBeNull(); // would jump over own piece on 41
-    expect(target(s, 0, 2, 2)).toBe(40);
-    expect(target(s, 0, 3, 3)).toBeNull(); // past the end of the goal
-    expect(target(s, 0, 3, 2)).toBe(43);
+    expect(target(s, 0, 2, 3)).toBeNull(); // 50+3 = 53 is occupied by own piece
+    expect(target(s, 0, 2, 4)).toBeNull(); // would jump over own piece on 53
+    expect(target(s, 0, 2, 2)).toBe(52);
+    expect(target(s, 0, 3, 5)).toBeNull(); // past the centre
+    expect(target(s, 0, 3, 4)).toBe(57); // exact count into the centre
   });
 
   it('first to bring all four home wins; others ranked by progress; resign and timeouts', () => {
-    let snap = ludoWith(3, { pieces: [[41, 42, 43, 38], [10, -1, -1, -1], [20, 5, -1, -1]], script: [2] });
+    let snap = ludoWith(3, { pieces: [[57, 57, 57, 55], [10, -1, -1, -1], [20, 5, -1, -1]], script: [2] });
     snap = act(lm, snap, 0, { type: 'roll' });
     expect(ls(snap).outcome).toEqual({ reason: 'win', placements: [{ seat: 0, place: 1 }, { seat: 1, place: 3 }, { seat: 2, place: 2 }] });
     let r = ludoWith(2, {});
@@ -148,14 +148,13 @@ describe('ludo (منچ)', () => {
     expect(ls(t).outcome?.reason).toBe('resign');
   });
 
-  it('tutorial: forced capture with a bonus 6, a chosen goal entry, a blocked roll, then an exact roll wins', () => {
+  it('tutorial: forced capture with a bonus 6, a chosen centre entry, then a 6 and an exact 5 win', () => {
     const t = ludoModule.tutorial;
     let snap = startGame(lm, { playerCount: 2, seed: t.seed, options: t.options }).snapshot;
     for (const s of t.steps) { snap = act(lm, snap, 0, s.expected); if (s.reply) snap = act(lm, snap, 1, s.reply); }
     expect(ls(snap).outcome?.placements).toEqual([{ seat: 0, place: 1 }, { seat: 1, place: 2 }]);
-    expect(ls(snap).pieces).toEqual([[43, 42, 40, 41], [-1, 31, -1, -1]]);
+    expect(ls(snap).pieces).toEqual([[57, 57, 57, 57], [-1, 7, -1, -1]]);
     expect(ls(snap).log.filter((e) => e.t === 'move' && e.captured)).toHaveLength(1);
-    expect(ls(snap).log.filter((e) => e.t === 'noMove')).toHaveLength(1);
   });
 
   it('random 2–4 player games end, never stack pieces on the track, and replay deterministically', () => {

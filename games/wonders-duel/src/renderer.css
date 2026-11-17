@@ -98,3 +98,9 @@ button.wd-pickw:hover { transform: translateY(-3px); }
 @keyframes wd-rise { from { opacity: 0; transform: translateY(6px); } }
 @keyframes wd-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .wd * { animation: none !important; transition: none !important; } }
+
+/* Design art (design/games/group-d/art/wonders-duel). Age-3 and guild backs and the military-token faces have no design art yet and keep their plain fill. */
+.wd-back--1 { background: url("./art/wd-back1.png") center / cover; }
+.wd-back--2 { background: url("./art/wd-back2.png") center / cover; }
+.wd-coin:not(.wd-coin--lg) { background: url("./art/wd-coin.png") center / contain no-repeat; }
+.wd-pawn { background: url("./art/wd-pawn.png") center / contain no-repeat; box-shadow: none; inline-size: 1rem; }

@@ -62,3 +62,6 @@
 .lc-card--sm .lc-card__art { inset-block-start: -3%; }
 .lc-card__v, .lc-card__g { visibility: hidden; }
 .lc-card__n { position: relative; align-self: end; inline-size: 100%; text-align: center; background: rgb(0 0 0 / 0.55); }
+
+/* Inside the shared table frame: 44px touch targets for hand cards, piles and the deck. */
+.lc-pick, .lc-pile, .lc-deck { min-block-size: 2.75rem; min-inline-size: 2.75rem; }

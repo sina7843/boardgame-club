@@ -1,20 +1,18 @@
 /* کندو: bakelite hex tiles with painted bugs on the felt; the view follows the hive. Geometry LTR. */
 .hv { display: grid; gap: 0.7rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .hv > :first-child { justify-self: center; }
-.hv-board { display: block; inline-size: 100%; max-inline-size: 760px; min-block-size: 280px; max-block-size: 70vh; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.hv-board { display: block; inline-size: 100%; max-inline-size: min(760px, var(--gf-b, 760px)); min-block-size: 280px; max-block-size: 70vh; margin-inline: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
 .hv-cell { outline: none; }
 .hv-cell--mine { cursor: pointer; }
-.hv-cell--sel polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
-.hv-cell--hint polygon:not(.hv-under) { stroke-width: 6px; animation: hv-hint 1s ease-in-out infinite; }
-.hv-cell:focus-visible polygon:not(.hv-under) { stroke: #ffd27a; stroke-width: 6px; }
-.hv-cell--trapped polygon:not(.hv-under) { stroke: #ff6b5b; stroke-width: 7px; animation: hv-hint 0.8s ease-in-out infinite; }
-.hv-under--w { fill: #cfc4ad; }
-.hv-under--b { fill: #22201d; }
+.hv-cell--sel .hv-tile { filter: brightness(1.12) drop-shadow(0 0 6px var(--focus, currentColor)); }
+.hv-cell--hint .hv-tile { animation: hv-hint 1s ease-in-out infinite; }
+.hv-cell:focus-visible .hv-tile { filter: drop-shadow(0 0 6px var(--focus, currentColor)); }
+.hv-cell--trapped .hv-tile { filter: drop-shadow(0 0 7px var(--danger, currentColor)); animation: hv-hint 0.8s ease-in-out infinite; }
+.hv-under { opacity: 0.85; }
 .hv-height { font: 900 20px/1 var(--font, sans-serif); fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; }
 .hv-target { cursor: pointer; outline: none; }
-.hv-target polygon { fill: rgb(255 210 122 / 0.18); stroke: #ffd27a; stroke-width: 3px; stroke-dasharray: 8 6; animation: hv-march 1.1s linear infinite; }
-.hv-target:hover polygon, .hv-target:focus-visible polygon { fill: rgb(255 210 122 / 0.4); }
-.hv-target--hint polygon { fill: rgb(255 210 122 / 0.45); }
+.hv-target:hover image, .hv-target:focus-visible image { filter: brightness(1.4); }
+.hv-target--hint image { animation: hv-hint 1s ease-in-out infinite; }
 
 .hv-reserve { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
 .hv-reserve__item { position: relative; display: grid; place-items: center; inline-size: 3.6rem; block-size: 3.6rem; padding: 0; border-radius: 12px; border: 1px solid rgb(255 255 255 / 0.12);
@@ -31,10 +29,12 @@ button.hv-reserve__item[aria-pressed="true"] { background: rgb(201 164 106 / 0.3
 @media (max-width: 480px) { .hv-reserve__item { inline-size: 3rem; block-size: 3rem; } .hv-reserve__item svg { inline-size: 2.4rem; block-size: 2.4rem; } .hv-reserve { gap: 0.3rem; } }
 .hv__end { margin: 0; color: #ffd27a; font-weight: 800; }
 
-@keyframes hv-march { to { stroke-dashoffset: -28; } }
-@keyframes hv-hint { 50% { stroke: #ffd27a; } }
+@keyframes hv-hint { 50% { opacity: 0.55; } }
 @keyframes hv-pulse { 50% { box-shadow: 0 0 0 3px #ffd27a; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .hv-target polygon, .hv-cell--hint polygon, .hv-cell--trapped polygon, .hv-reserve__item--hint { animation: none; }
+  .hv-target--hint image, .hv-cell--hint .hv-tile, .hv-cell--trapped .hv-tile, .hv-reserve__item--hint { animation: none; }
 }
+
+/* Inside the shared table frame the board fills the felt width. */
+.hv > :first-child { justify-self: stretch; }

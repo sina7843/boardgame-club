@@ -96,3 +96,5 @@
 
 /* v2: BGA ship pictures (sprite of 12 sectors × 4 levels) */
 .sb-ship__art, .sb-station__art { display: block; justify-self: center; background-size: 1200% 400%; background-repeat: no-repeat; }
+
+.sb-die-img { inline-size: 54px; block-size: 54px; filter: drop-shadow(0 3px 4px var(--felt-rim)); }

@@ -4,19 +4,36 @@
 // per camel, the secret overall bets and the spectators' purses follow.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import camelBlue from './art/camel-blue.webp';
-import camelGreen from './art/camel-green.webp';
-import camelOrange from './art/camel-orange.webp';
-import camelYellow from './art/camel-yellow.webp';
-import camelWhite from './art/camel-white.webp';
-import pyramid from './art/pyramid.webp';
+import { Button, MOTION, RailSlot, TurnIndicator, useInFrame, motionOff, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import camelBlue from './art/camel-up-camel-blue.png';
+import camelGreen from './art/camel-up-camel-green.png';
+import camelOrange from './art/camel-up-camel-orange.png';
+import camelYellow from './art/camel-up-camel-yellow.png';
+import camelWhite from './art/camel-up-camel-white.png';
+import pyramid from './art/camel-up-pyramid.png';
+import oasisArt from './art/camel-up-oasis.png';
+import mirageArt from './art/camel-up-mirage.png';
+import dieBlue1 from './art/camel-up-die-blue-1.png';
+import dieBlue2 from './art/camel-up-die-blue-2.png';
+import dieBlue3 from './art/camel-up-die-blue-3.png';
+import bet_blue_3 from './art/camel-up-bet-blue-3.png';
+import bet_blue_5 from './art/camel-up-bet-blue-5.png';
+import bet_green_2 from './art/camel-up-bet-green-2.png';
+import bet_green_3 from './art/camel-up-bet-green-3.png';
+import bet_green_5 from './art/camel-up-bet-green-5.png';
+import bet_orange_3 from './art/camel-up-bet-orange-3.png';
+import bet_orange_5 from './art/camel-up-bet-orange-5.png';
+import bet_white_5 from './art/camel-up-bet-white-5.png';
+import bet_yellow_5 from './art/camel-up-bet-yellow-5.png';
+
+// Leg-bet tile art exists only for these colour/value pairs; the rest keep the CSS tile.
+const BET_ART: Record<string, string> = { 'blue-3': bet_blue_3, 'blue-5': bet_blue_5, 'green-2': bet_green_2, 'green-3': bet_green_3, 'green-5': bet_green_5, 'orange-3': bet_orange_3, 'orange-5': bet_orange_5, 'white-5': bet_white_5, 'yellow-5': bet_yellow_5 };
+const DIE_BLUE: Record<number, string> = { 1: dieBlue1, 2: dieBlue2, 3: dieBlue3 };
 import { CAMELS, TRACK, type Camel, type CamelView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CAMEL_FA: Record<Camel, string> = { blue: 'آبی', green: 'سبز', orange: 'نارنجی', yellow: 'زرد', white: 'سفید' };
 
-// Painted camels and pyramid are cut from a generated sheet (see DECISIONS.md).
 const CAMEL_ART: Record<Camel, string> = { blue: camelBlue, green: camelGreen, orange: camelOrange, yellow: camelYellow, white: camelWhite };
 
 export function CamelIcon({ c, size = 1.6, walk }: { c: Camel; size?: number; walk?: boolean }) {
@@ -33,6 +50,7 @@ function cell(sp: number): [number, number] {
 
 const PIPS: Record<number, [number, number][]> = { 1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]] };
 function Die({ c, v, roll }: { c: Camel | null; v?: number; roll?: boolean }) {
+  if (c === 'blue' && v) return <img src={DIE_BLUE[v]} alt="" draggable={false} className={`cu-die cu-die--art ${roll ? 'bg-roll' : ''}`} aria-hidden="true" />;
   return (
     <svg className={c ? `cu-die cu-c--${c} ${v ? '' : 'cu-die--in'} ${roll ? 'bg-roll' : ''}` : 'cu-die cu-die--pending bg-tumble'} viewBox="-12 -12 24 24" aria-hidden="true">
       <rect x="-11" y="-11" width="22" height="22" rx="5" className="cu-die__body" />
@@ -105,6 +123,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spacesSig]);
+  const framed = useInFrame() !== null;
   const myTurn = legalActions.some((a) => a.type === 'roll');
   const legs = new Map(legalActions.filter((a) => a.type === 'leg').map((a) => [a.camel as Camel, a.value as number]));
   const desert = legalActions.find((a) => a.type === 'desert') as { spaces: number[] } | undefined;
@@ -127,7 +146,14 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
 
   return (
     <div className="cu" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {placing ? <p><b>واحه یک خانه جلو می‌برد و سراب یک خانه عقب؛ نه روی خانهٔ ۱، نه کنار کاشی دیگر.</b></p>
+            : <p><b>در هر نوبت فقط یکی از چهار کار: شرط مرحله، کاشی بیابان، تاس از هرم یا شرط نهایی.</b></p>}
+          <p>شرط مرحله برای شتر اول ۵، ۳ یا ۲ سکه است، برای دوم ۱ و برای بقیه ۱− سکه. شرط نهایی تا پایان بازی مخفی می‌ماند.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="cu__track" aria-label="مسیر مسابقه">
         {Array.from({ length: TRACK }, (_, i) => i + 1).map((sp) => {
@@ -139,7 +165,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
           const inner = (
             <>
               <small className="cu-sp__n">{fa(sp)}</small>
-              {tile >= 0 && <span data-flip={`tile-${tile}`} data-flip-from={`seat-${tile}`} data-flip-exit={`seat-${tile}`} className={`cu-tile ${view.desert[tile]!.oasis ? 'cu-tile--oasis' : 'cu-tile--mirage'}`} title={who(tile)}>{view.desert[tile]!.oasis ? '+۱' : '−۱'}</span>}
+              {tile >= 0 && <span data-flip={`tile-${tile}`} data-flip-from={`seat-${tile}`} data-flip-exit={`seat-${tile}`} className={`cu-tile ${view.desert[tile]!.oasis ? 'cu-tile--oasis' : 'cu-tile--mirage'}`} title={who(tile)}><img src={view.desert[tile]!.oasis ? oasisArt : mirageArt} alt={view.desert[tile]!.oasis ? 'واحه +۱' : 'سراب −۱'} draggable={false} /></span>}
               <span className="cu-stack" style={{ ['--n' as string]: stack.length }}>{stack.slice().reverse().map((c) => <CamelIcon key={c} c={c} walk />)}</span>
             </>
           );
@@ -149,7 +175,6 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
             : <div key={sp} data-sp={sp} className={cls} style={style}>{inner}</div>;
         })}
         <div className="cu-centre">
-          <img src={pyramid} alt="" className="cu-centre__pyr" draggable={false} />
           <div className="cu-centre__dice" aria-label={`تاس‌های مانده در هرم: ${fa(view.diceLeft)}`}>
             {CAMELS.map((c) => { const fresh = freshRoll && last?.camel === c; return <Die key={fresh ? `${c}-${view.seq}` : c} c={c} v={rolled.get(c)} roll={fresh} />; })}
             {rollPending && <Die c={null} />}
@@ -171,7 +196,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
             return (
               <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
                 disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
-                <CamelIcon c={c} size={1.9} /><b>{v ? fa(v) : '—'}</b>
+                {v && BET_ART[`${c}-${v}`] ? <img src={BET_ART[`${c}-${v}`]} alt="" className="cu-legtile__art" draggable={false} /> : <><CamelIcon c={c} size={1.9} /><b>{v ? fa(v) : '—'}</b></>}
               </button>
             );
           })}
@@ -188,7 +213,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
 
       {myTurn && overall && (
         <section className="cu__overall" aria-label="شرط نهایی">
-          <h3>شرط مخفی نهایی <small>برنده {fa(view.winnerCount)} · بازنده {fa(view.loserCount)}</small></h3>
+          <h3>شرط مخفی نهایی <small>برنده {fa(view.winnerCount)}، بازنده {fa(view.loserCount)}</small></h3>
           <div className="cu__ovlist">
             {overall.cards.filter((c) => !(q?.type === 'overall' && q.camel === c)).map((c) => (
               <span key={c} className={`cu-ov cu-c--${c}`}>
@@ -201,7 +226,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
         </section>
       )}
 
-      <ul className="cu__players" aria-label="تماشاگران">
+      {!framed && <ul className="cu__players" aria-label="تماشاگران">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['cu-pl', view.current === s && !view.outcome ? 'cu-pl--turn' : '', s === me ? 'cu-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'cu-pl--win' : ''].join(' ')}>
             <bdi className="cu-pl__name">{who(s)}</bdi>
@@ -212,9 +237,9 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
             </span>
           </li>
         ))}
-      </ul>
+      </ul>}
       {view.myOverall.length > 0 && !view.outcome && <p className="cu__mine">شرط‌های نهایی شما: {view.myOverall.map((b) => `${CAMEL_FA[b.camel]} (${b.which === 'win' ? 'برنده' : 'بازنده'})`).join('، ')}</p>}
-      {view.log.length > 0 && <p className="cu__log">آخرین مرحله: {view.log.at(-1)!.gains.map((g, k) => `${who(k)} ${g >= 0 ? '+' : '−'}${fa(Math.abs(g))}`).join('، ')}</p>}
+      {!framed && view.log.length > 0 && <p className="cu__log">آخرین مرحله: {view.log.at(-1)!.gains.map((g, k) => `${who(k)} ${g >= 0 ? '+' : '−'}${fa(Math.abs(g))}`).join('، ')}</p>}
     </div>
   );
 }

@@ -15,6 +15,7 @@ export type Color = (typeof COLORS)[number];
 /** Colour of wall cell (row, col). */
 export const wallColor = (row: number, col: number) => COLORS[(col - row + 5) % 5]!;
 export const wallCol = (row: number, c: Color) => (COLORS.indexOf(c) + row) % 5;
+const COLOR_NAME: Record<Color, string> = { b: 'آبی', y: 'زرد', r: 'قرمز', k: 'مشکی', w: 'فیروزه‌ای' };
 export const FLOOR = [-1, -1, -2, -2, -2, -3, -3];
 
 export interface Board { lines: { color: Color | null; n: number }[]; wall: boolean[][]; floor: (Color | 'first')[]; score: number }
@@ -33,8 +34,10 @@ export interface AzulState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public take history (newest last, ≤40) for the shell's event log; absent in older saved states. */
+  hist?: { seat: number; text: string }[];
 }
-export type AzulView = Omit<AzulState, 'bag' | 'lid' | 'timeouts'> & { bagCount: number; lidCount: number };
+export type AzulView = Omit<AzulState, 'bag' | 'lid' | 'timeouts' | 'hist'> & { bagCount: number; lidCount: number };
 
 const color = z.enum(COLORS);
 export const azulAction = z.discriminatedUnion('type', [
@@ -209,6 +212,8 @@ export const azulModule: GameModule<AzulState, AzulAction, AzulView> = {
     }
     for (let i = 0; i < rest; i++) { if (b.floor.length < 7) b.floor.push(a.color); else s.lid.push(a.color); }
     s.last = { seat, color: a.color, count: tiles.length, from: a.from, line: a.line };
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    s.hist = [...(s.hist ?? []), { seat, text: `${fa(tiles.length)} ${COLOR_NAME[a.color]} از ${a.from === 'center' ? 'مرکز' : `کارخانهٔ ${fa(a.from + 1)}`}، ${a.line === 'floor' ? 'به کف' : `ردیف ${fa(a.line + 1)}`}` }].slice(-40);
     if (roundOver(s)) tiling(s, ctx.rng);
     else s.current = (seat + 1) % s.players;
     return finish(s, [{ type: 'take', seat }]);
@@ -262,7 +267,8 @@ export const azulModule: GameModule<AzulState, AzulAction, AzulView> = {
         ],
         ...(won === seat ? { status: 'winner' as const } : {})
       })),
-      shared: [{ key: 'round', label: 'دور', value: s.round }, { key: 'bag', label: 'کیسه', value: s.bag.length }],
+      shared: [{ key: 'round', label: 'دور', value: s.round }, { key: 'bag', label: 'کیسه', value: s.bag.length }, { key: 'lid', label: 'جعبه', value: s.lid.length }],
+      moves: (s.hist ?? []).slice(-40),
       ...(leaders.length === 1 ? { leaderSeat: leaders[0]! } : {})
     };
   },

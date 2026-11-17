@@ -3,11 +3,11 @@
 // at either end; the trade row runs through the middle; played ships and bases form your fleet line.
 import './renderer.css';
 import { useRef } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import fed from './art/fac-fed.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import fed from './art/sr-f-fed.png';
 import blob from './art/fac-blob.webp';
-import cult from './art/fac-cult.webp';
-import emp from './art/fac-emp.webp';
+import cult from './art/sr-f-cult.png';
+import emp from './art/sr-f-emp.png';
 import { TYPE, type Faction, type Fx, type SrView } from './rules.ts';
 
 // Faction emblems are cut from a generated sprite sheet (see DECISIONS.md); 'none' keeps the plain glyph.
@@ -83,6 +83,7 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${view.seq}|${q ? JSON.stringify(q) : ''}`);
   const opp = 1 - me;
+  const framed = useInFrame() !== null; // the shell draws players, authority and whose-turn
   const hint = expected as unknown as Hint;
   const has = (t: string) => legalActions.some((a) => a.type === t);
   const attackable = new Set(legalActions.filter((a) => a.type === 'attack').map((a) => a.base as number));
@@ -128,13 +129,19 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
   );
 
   return (
-    <div className="sr" ref={root} data-seq={view.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={framed ? 'sr sr--framed' : 'sr'} ref={root} data-seq={view.seq}>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>تجارت برای خرید و حمله برای ضربه است. پایگاه‌های پاسگاه را باید پیش از اقتدار حریف نابود کرد؛ توانایی هم‌پیمان وقتی فعال می‌شود که کارتی از همان گروه بازی شده باشد.</p>
+        </RailSlot>
+      )}
 
       <section data-flip-anchor={`seat-${opp}`} className={`sr-side sr-side--opp ${view.current === opp && !view.outcome ? 'sr-side--now' : ''}`} aria-label={`ناوگان ${who(opp)}`}>
         <div className="sr-side__head">
-          <bdi className="sr-side__name">{who(opp)}</bdi>
-          <Num n={theirs.authority} hit className="sr-auth" />
+          {!framed && <bdi className="sr-side__name">{who(opp)}</bdi>}
+          {!framed && <Num n={theirs.authority} hit className="sr-auth" />}
           <small>دسته <Num n={theirs.deck} /> · دست <Num n={theirs.hand} /> · <span data-flip-anchor={`discard-${opp}`}>دورریز <Num n={theirs.discard} /></span></small>
           {chip(opp)}
           {attackable.has(-1) && <Button size="sm" disabled={busy} className={hint?.type === 'attack' && hint.base === -1 ? 'sr-hint' : ''} onClick={() => onAction({ type: 'attack', base: -1 })}>حمله ({fa(view.pool.combat)})</Button>}
@@ -189,8 +196,8 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
       <section data-flip-anchor={`seat-${me}`} className={`sr-side sr-side--me ${myTurn ? 'sr-side--now' : ''}`} aria-label="ناوگان شما">
         {mine.bases.length > 0 && <Bases seat={me} />}
         <div className="sr-side__head">
-          <bdi className="sr-side__name">{who(me)}</bdi>
-          <Num n={mine.authority} hit className="sr-auth sr-auth--me" />
+          {!framed && <bdi className="sr-side__name">{who(me)}</bdi>}
+          {!framed && <Num n={mine.authority} hit className="sr-auth sr-auth--me" />}
           <small><span data-flip-anchor={`deck-${me}`}>دسته <Num n={mine.deck} /></span> · <span data-flip-anchor={`discard-${me}`}>دورریز <Num n={mine.discard} /></span></small>
           {chip(me)}
         </div>
@@ -210,7 +217,7 @@ export default function StarRealmsRenderer({ view: served, legalActions, mySeat,
           </div>
         )}
       </section>
-      {view.last && (
+      {!framed && view.last && (
         <p className="sr-last" key={view.seq}><bdi>{who(view.last.seat)}</bdi>: {view.last.kind === 'hit' ? `${fa(view.last.amount!)} ضربه` : view.last.kind === 'destroy' ? `نابودی ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'buy' ? `خرید ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'play' ? `بازی ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'scrapSelf' ? `اسقاط ${TYPE[k(view.last.card!)]!.name}` : view.last.kind === 'end' ? 'پایان نوبت' : 'بازی همه'}{view.last.kind === 'buy' && TYPE[k(view.last.card!)]!.faction !== 'none' ? ` (${FACTION_FA[TYPE[k(view.last.card!)]!.faction]})` : ''}</p>
       )}
     </div>

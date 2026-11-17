@@ -3,7 +3,12 @@
 // you pick a card to place and then the cards that pay for it.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import ph0 from './art/rg-ph0.png';
+import ph1 from './art/rg-ph1.png';
+import ph2 from './art/rg-ph2.png';
+import ph3 from './art/rg-ph3.png';
+import ph4 from './art/rg-ph4.png';
 import goodN from './art/good-n.webp';
 import goodR from './art/good-r.webp';
 import goodG from './art/good-g.webp';
@@ -19,6 +24,7 @@ export const PHASE_FA: Record<Phase, [string, string, string]> = {
   settle: ['استقرار', '🪐', 'یک جهان بگذار (انتخاب‌کننده: یک کارت جایزه)'], consume: ['مصرف', '♻', 'کالاها امتیاز می‌شوند (انتخاب‌کننده: دو برابر)'],
   produce: ['تولید', '⛏', 'جهان‌های تولیدی کالا می‌گیرند (انتخاب‌کننده: بادآورده‌ها هم)']
 };
+const PHASE_ART: Record<Phase, string> = { explore: ph0, develop: ph1, settle: ph2, consume: ph3, produce: ph4 };
 const POWER_FA: Record<string, string> = { devCost: 'توسعه −۱', settleCost: 'استقرار −۱', military: 'نظامی', explore: 'کاوش +۱', consume: 'مصرف +۱' };
 
 export function GalaxyCard({ id, good, size = 'md' }: { id: number; good?: boolean; size?: 'sm' | 'md' }) {
@@ -86,12 +92,14 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
       : keeps.length ? { tone: 'mine' as const, text: 'یکی از کارت‌های کشیده را نگه دارید' }
         : placing ? { tone: 'mine' as const, text: sel === null ? `کارتی برای ${PHASE_FA[view.stage as Phase][0]} انتخاب کنید یا صرف‌نظر کنید` : `${fa(price)} کارت برای پرداخت انتخاب کنید` }
           : { tone: 'wait' as const, text: view.stage === 'select' ? 'منتظر انتخاب دیگران…' : `منتظر بقیه در مرحلهٔ ${PHASE_FA[view.stage as Phase][0]}` };
+  const framed = useInFrame() !== null; // the shell draws the seat strip, scores and whose turn
   const chosenNow = view.stage !== 'select' ? new Set(view.chosen.flat()) : new Set<Phase>();
 
   return (
     <div className="rg" ref={root} data-seq={view.seq} data-stage={view.stage}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="rg-info" data-flip-anchor="deck">دور {fa(view.round)} · بانک امتیاز <Num v={view.pool}>{fa(view.pool)}</Num> · دسته <Num v={view.deckCount}>{fa(view.deckCount)}</Num></p>
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نفر پنهانی یک مرحله انتخاب می‌کند؛ مرحله‌های انتخاب‌شده برای همه اجرا می‌شود و انتخاب‌کننده امتیاز ویژه می‌گیرد. دست بیش از ۱۰ کارت در پایان دور کم می‌شود.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      <p className={framed ? 'visually-hidden' : 'rg-info'} data-flip-anchor="deck">دور {fa(view.round)}<span className="bgv-sep" />بانک امتیاز <Num v={view.pool}>{fa(view.pool)}</Num><span className="bgv-sep" />دسته <Num v={view.deckCount}>{fa(view.deckCount)}</Num></p>
 
       <section className="rg-phases" aria-label="مرحله‌ها">
         {PHASES.map((ph) => {
@@ -100,11 +108,11 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
           const mine = view.myChoice === ph;
           return choosing ? (
             <button key={ph} type="button" disabled={busy} onClick={() => onAction({ type: 'choose', phase: ph })} aria-pressed={picked === ph} className={`rg-phase is-can ${hint?.phase === ph ? 'rg-hint' : ''} ${picked === ph ? 'is-mine' : ''}`}>
-              <b>{PHASE_FA[ph][1]}</b><span>{PHASE_FA[ph][0]}</span><small>{PHASE_FA[ph][2]}</small>
+              <img className="rg-phase__ic" src={PHASE_ART[ph]} alt="" draggable={false} /><span>{PHASE_FA[ph][0]}</span><small>{PHASE_FA[ph][2]}</small>
             </button>
           ) : (
             <span key={`${ph}${on}`} className={['rg-phase', on ? 'is-on bg-flip-in' : 'is-off', active ? 'is-active' : '', mine ? 'is-mine' : ''].join(' ')}>
-              <b>{PHASE_FA[ph][1]}</b><span>{PHASE_FA[ph][0]}</span>
+              <img className="rg-phase__ic" src={PHASE_ART[ph]} alt="" draggable={false} /><span>{PHASE_FA[ph][0]}</span>
               {view.stage !== 'select' && <small>{view.chosen.map((c, k) => (c.includes(ph) ? who(k) : null)).filter(Boolean).join('، ') || '—'}</small>}
             </span>
           );
@@ -114,10 +122,10 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
       <ul className="rg-empires" aria-label="امپراتوری‌ها">
         {view.empires.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['rg-empire', k === me ? 'is-me' : '', (view.stage === 'select' ? !e.chose : !e.done) && !view.outcome ? 'is-waiting' : ''].join(' ')}>
-            <div className="rg-empire__head">
+            {!framed && <div className="rg-empire__head">
               <bdi>{who(k)}</bdi><Num className="rg-vp" v={e.vp}>{fa(e.vp)}★</Num>
-              <small>{fa(e.tableau.length)}/۱۲ کارت · نظامی {fa(e.military)} · {fa(e.chips)} نشان · دست {fa(e.hand)}</small>
-            </div>
+              <small>{fa(e.tableau.length)}/۱۲ کارت<span className="bgv-sep" />نظامی {fa(e.military)}<span className="bgv-sep" />{fa(e.chips)} نشان<span className="bgv-sep" />دست {fa(e.hand)}</small>
+            </div>}
             <div className="rg-row">{e.tableau.map((id) => <span key={id} className="rg-fly" data-flip={`g${id}`} data-flip-from={`seat-${k}`}><GalaxyCard id={id} size="sm" good={e.goods.includes(id)} /></span>)}</div>
           </li>
         ))}
@@ -151,8 +159,8 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
           </div>
           {placing && (
             <div className="rg-bar">
-              {sel !== null && <Button size="sm" disabled={busy || pay.length !== price} className={hint?.type === 'place' && (hint.card ?? -1) >= 0 ? 'rg-hint' : ''} onClick={() => onAction({ type: 'place', card: sel, pay })}>گذاشتن {CARDS[sel]!.name} ({fa(pay.length)}/{fa(price)})</Button>}
-              <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'place', card: -1, pay: [] })}>صرف‌نظر</Button>
+              {sel !== null && <DockSlot><Button size="sm" disabled={busy || pay.length !== price} className={hint?.type === 'place' && (hint.card ?? -1) >= 0 ? 'rg-hint' : ''} onClick={() => onAction({ type: 'place', card: sel, pay })}>گذاشتن {CARDS[sel]!.name} ({fa(pay.length)}/{fa(price)})</Button></DockSlot>}
+              <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'place', card: -1, pay: [] })}>صرف‌نظر</Button></DockSlot>
             </div>
           )}
         </section>

@@ -268,6 +268,7 @@ export const checkersModule: GameModule<CheckersState, CheckersAction, CheckersV
           strikes: s.timeouts[seat]!
         };
       }),
+      moves: s.history.slice(-40).map((h) => ({ seat: h.seat, text: `${h.path.map((i) => `${'abcdefgh'[colOf(i)]}${rowOf(i) + 1}`).join(h.captured.length ? '×' : '-')}${h.crowned ? '، شاه شد' : ''}` })),
       strikesMax: MAX_TIMEOUTS
     };
   },

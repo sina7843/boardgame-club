@@ -3,7 +3,11 @@
 // where its corner goes (a preview shows if it fits), then «بدوز».
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, motionOff, useFlip, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, motionOff, useFlip, useInFrame, usePop, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import boardBlue from './art/patchwork-board-blue.png';
+import boardRed from './art/patchwork-board-red.png';
+import markerBlue from './art/patchwork-marker-blue.png';
+import markerRed from './art/patchwork-marker-red.png';
 import { END, INCOME, PATCHES, emptyCount, fits, offered, orient, score, type PatchworkView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -23,9 +27,9 @@ export function Shape({ id, rot = 0, flip = false, cell = 0.7 }: { id: number; r
   );
 }
 
-function Quilt({ q, was, big, preview, ok, onCell, hintCell, anchor }: { q: (number | null)[][]; was?: (number | null)[][]; big?: boolean; anchor?: string; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
+function Quilt({ board, q, was, big, preview, ok, onCell, hintCell, anchor }: { board?: string; q: (number | null)[][]; was?: (number | null)[][]; big?: boolean; anchor?: string; preview?: Set<string>; ok?: boolean; onCell?: (r: number, c: number) => void; hintCell?: [number, number] | null }) {
   return (
-    <div data-flip-anchor={anchor} className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label="لحاف">
+    <div data-flip-anchor={anchor} style={board ? { backgroundImage: `url(${board})` } : undefined} className={`pw-quilt ${big ? 'pw-quilt--big' : ''}`} role={onCell ? 'grid' : undefined} aria-label="لحاف">
       {q.map((row, r) => row.map((id, c) => {
         const k = `${r},${c}`;
         const fresh = !!was && id !== null && was[r]![c] === null;
@@ -87,6 +91,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
   const hint = expected as unknown as { type: string; patch?: number; row?: number; col?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const q = view.quilts[me]!;
+  const framed = useInFrame() !== null; // the shell draws seat strip, scores, buttons and whose turn
   const cells = pick !== null ? orient(PATCHES[pick]!.cells, rot, flip) : null;
   const preview = useMemo(() => (cells && at ? new Set(cells.map(([r, c]) => `${at[0] + r},${at[1] + c}`)) : undefined), [cells, at]);
   const fitsHere = !!(cells && at && fits(q, cells, at[0], at[1]));
@@ -109,13 +114,14 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
 
   return (
     <div className="pw" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک تکه از سه تکهٔ بعد از مهرهٔ خنثی بخرید یا جلوتر از حریف بروید. خانهٔ خالی در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="pw-track" aria-label="مسیر زمان">
         {Array.from({ length: END + 1 }, (_, i) => (
           <span key={i} className={['pw-track__sq', INCOME.includes(i) ? 'pw-track__sq--inc' : '', view.leatherLeft.includes(i) ? 'pw-track__sq--lea' : ''].join(' ')}>
-            {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><i className="pw-pawn pw-pawn--me" title="شما" /></span>}
-            {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><i className="pw-pawn pw-pawn--opp" title={who(opp)} /></span>}
+            {view.pos[me] === i && <span data-pawn={me} className="pw-pawn-slot"><img className="pw-marker" src={markerBlue} alt="شما" draggable={false} /></span>}
+            {view.pos[opp] === i && <span data-pawn={opp} className="pw-pawn-slot"><img className="pw-marker pw-marker--opp" src={markerRed} alt={who(opp)} draggable={false} /></span>}
           </span>
         ))}
       </section>
@@ -130,7 +136,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
                 className={['pw-patch', offer.has(id) ? 'pw-patch--offer' : '', pick === id ? 'pw-patch--on' : '', hint?.type === 'buy' && hint.patch === id && pick !== id ? 'pw-hint' : ''].join(' ')}
                 aria-label={`تکه: ${fa(p.cost)} دکمه، ${fa(p.time)} زمان، درآمد ${fa(p.buttons)}`}>
                 <Shape id={id} />
-                <span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>⌛{fa(p.time)}</span></span>
+                <span className="pw-patch__meta"><span><b className="pw-btn" />{fa(p.cost)}</span><span>{fa(p.time)} زمان</span></span>
               </button>
             );
           })}
@@ -141,19 +147,19 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
       {pick !== null && (
         <div className="pw__tools">
           <span className="pw__preview"><Shape id={pick} rot={rot} flip={flip} cell={1} /></span>
-          <Button size="sm" variant="secondary" onClick={() => { setRot((rot + 1) % 4); setAt(null); }}>چرخش ↻</Button>
-          <Button size="sm" variant="secondary" onClick={() => { setFlip(!flip); setAt(null); }}>برگرداندن ⇋</Button>
-          <Button size="sm" disabled={!fitsHere || busy} className={hint?.type === 'buy' && fitsHere ? 'pw-hint' : ''} onClick={() => at && onAction({ type: 'buy', patch: pick, rot, flip, row: at[0], col: at[1] })}>بدوز</Button>
+          <Button size="sm" variant="secondary" onClick={() => { setRot((rot + 1) % 4); setAt(null); }}>چرخاندن</Button>
+          <Button size="sm" variant="secondary" onClick={() => { setFlip(!flip); setAt(null); }}>برعکس کردن</Button>
+          <DockSlot><Button size="sm" disabled={!fitsHere || busy} className={hint?.type === 'buy' && fitsHere ? 'pw-hint' : ''} onClick={() => at && onAction({ type: 'buy', patch: pick, rot, flip, row: at[0], col: at[1] })}>بدوز</Button></DockSlot>
         </div>
       )}
 
       <div className="pw__quilts">
         <QuiltBoard view={view} k={me} me name={who(me)} buttonsPop={!!beforeBtns && beforeBtns[me] !== view.buttons[me]}>
-          <Quilt q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
+          <Quilt board={boardBlue} q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}
             hintCell={hint?.type === 'buy' && pick !== null && !at && hint.row !== undefined ? [hint.row, hint.col!] : null} />
         </QuiltBoard>
         <QuiltBoard view={view} k={opp} name={who(opp)} buttonsPop={!!beforeBtns && beforeBtns[opp] !== view.buttons[opp]}>
-          <Quilt q={view.quilts[opp]!} was={before?.[opp]} anchor="quilt-opp" />
+          <Quilt board={boardRed} q={view.quilts[opp]!} was={before?.[opp]} anchor="quilt-opp" />
         </QuiltBoard>
       </div>
 
@@ -198,7 +204,9 @@ function Pop({ n, className, children }: { n: number; className: string; childre
 /** A player's quilt board as on the table: the 9×9 board with its button pocket — buttons, button income, time, the 7×7 tile. */
 function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: PatchworkView; k: number; me?: boolean; name: string; buttonsPop: boolean; children: ReactNode }) {
   // The opponent's board starts folded on phones (tap to open); its pocket stays readable.
-  const [open, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const framed = useInFrame() !== null;
+  const [open0, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const open = open0 || framed;
   const turn = view.current === k && !view.outcome;
   const win = view.outcome?.placements[0]?.seat === k;
   const empty = emptyCount(view.quilts[k]!);
@@ -207,16 +215,16 @@ function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: Patchwo
   const inc = view.income[k]!;
   return (
     <section className={['pw-board', me ? 'pw-board--me' : 'pw-board--opp', turn ? 'pw-board--turn' : '', win ? 'pw-board--win' : ''].join(' ')} aria-label={`لحاف ${name}`}>
-      <header className="pw-board__head">
+      {!framed && <header className="pw-board__head">
         <i className={`pw-pawn ${me ? 'pw-pawn--me' : 'pw-pawn--opp'}`} aria-hidden="true" />
         <bdi className="pw-board__name">{name}</bdi>
         {turn && <span className="pw-board__turn">در نوبت</span>}
         <Pop n={score(view, k)} className="pw-board__score">امتیاز <bdi dir="ltr">{score(view, k) < 0 ? `−${fa(-score(view, k))}` : fa(score(view, k))}</bdi></Pop>
         {!me && <button type="button" className="pw-board__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن لحاف ${name}` : `باز کردن لحاف ${name}`}>{open ? '▴' : '▾'}</button>}
-      </header>
+      </header>}
       <div className="pw-board__body">
         {open && <div className="pw-board__quilt">{children}</div>}
-        <ul className="pw-pocket" aria-label="جیب دکمه">
+        {!framed && <ul className="pw-pocket" aria-label="جیب دکمه">
           <li className="pw-pocket__btns" title="دکمه‌های در دست"><b className="pw-btn pw-btn--big" aria-hidden="true" /><span className={buttonsPop ? 'bg-pop' : ''} key={view.buttons[k]}>{fa(view.buttons[k]!)}</span><small>دکمه</small></li>
           <li className="pw-pocket__inc" title="درآمد دکمه‌ای لحاف در هر خانهٔ درآمد">
             <small>درآمد</small>
@@ -233,7 +241,7 @@ function QuiltBoard({ view, k, me, name, buttonsPop, children }: { view: Patchwo
             title={view.bonus7 === k ? 'کاشی ۷×۷: +۷' : view.bonus7 !== null ? 'کاشی ۷×۷ را حریف گرفت' : 'کاشی ۷×۷ هنوز آزاد است'}>
             <b>۷×۷</b><small>{view.bonus7 === k ? '+۷' : view.bonus7 !== null ? 'رفت' : 'آزاد'}</small>
           </li>
-        </ul>
+        </ul>}
       </div>
     </section>
   );

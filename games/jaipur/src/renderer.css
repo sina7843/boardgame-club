@@ -67,3 +67,7 @@
 .jp-card img, .jp-card--md img, .jp-card--sm img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; filter: none; }
 .jp-card__n { position: relative; inline-size: 100%; padding: 0.05rem 0; background: rgb(0 0 0 / 0.55); color: #fff; text-align: center; }
 .jp-coin { display: inline-block; inline-size: 2rem; block-size: 2rem; border-radius: 50%; background-size: 2400% 100%; background-repeat: no-repeat; box-shadow: 0 1px 3px rgb(0 0 0 / 0.5); }
+
+/* Inside the shared table frame: 44px touch targets for market/hand cards and camel stepper. */
+.jp-pick { min-block-size: 2.75rem; min-inline-size: 2.75rem; }
+.jp__camgive button { min-block-size: 2.75rem; min-inline-size: 2.75rem; }

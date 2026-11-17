@@ -735,7 +735,25 @@ export const amlakModule: GameModule<AmlakState, AmlakAction, AmlakView> = {
     const worth = Array.from({ length: s.players }, (_, seat) => netWorth(s, seat));
     const top = Math.max(...worth.filter((_, seat) => !s.p[seat]!.bankrupt));
     const leaders = worth.map((w, seat) => (!s.p[seat]!.bankrupt && w === top ? seat : -1)).filter((x) => x >= 0);
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const sqn = (i: number) => BOARD[i]!.nameFa;
     return {
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        switch (e.t) {
+          case 'roll': return [{ seat: e.seat, text: `تاس ${fa(e.dice[0])} و ${fa(e.dice[1])}` }];
+          case 'move': return [{ seat: e.seat, text: sqn(e.to) }];
+          case 'buy': return [{ seat: e.seat, text: `خرید ${sqn(e.sq)}` }];
+          case 'decline': return [{ seat: e.seat, text: 'نخرید' }];
+          case 'auctionWon': return e.seat === null ? [] : [{ seat: e.seat, text: `مزایده ${sqn(e.sq)}` }];
+          case 'jail': return [{ seat: e.seat, text: 'به زندان رفت' }];
+          case 'leaveJail': return [{ seat: e.seat, text: 'از زندان آزاد شد' }];
+          case 'build': return [{ seat: e.seat, text: `ساخت در ${sqn(e.sq)}` }];
+          case 'mortgage': return [{ seat: e.seat, text: `${e.on ? 'رهن' : 'فک رهن'} ${sqn(e.sq)}` }];
+          case 'bankrupt': return [{ seat: e.seat, text: 'ورشکست شد' }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          default: return [];
+        }
+      }).slice(-40),
       seats: Array.from({ length: s.players }, (_, seat) => ({
         seat,
         primary: { label: 'نقد', value: s.p[seat]!.cash },

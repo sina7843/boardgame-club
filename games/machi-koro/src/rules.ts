@@ -263,6 +263,11 @@ export const machiModule: GameModule<MachiState, MachiAction, MachiView> = {
   },
 
   publicSummary: (s) => ({
+    // State keeps only the latest event, so the move list is that one line.
+    moves: s.last ? [{ seat: s.last.seat, text: ({
+      roll: `تاس ${(s.last.dice ?? []).map((d) => d.toLocaleString('fa-IR')).join(' و ')}`, tv: 'از ایستگاه تلویزیون گرفت', swap: 'کارت عوض کرد', pass: 'چیزی نساخت',
+      landmark: 'بنای بزرگ ساخت', build: 'کارت ساخت', keep: 'همین تاس را نگه داشت'
+    } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
     seats: s.coins.map((coins, seat) => ({
       seat,
       primary: { label: 'بنا', value: built(s, seat), target: LANDMARKS.length },

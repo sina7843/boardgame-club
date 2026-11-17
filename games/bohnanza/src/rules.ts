@@ -46,6 +46,8 @@ export interface BeanState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public move list for the table log (older saved states lack it). */
+  moves?: { seat: number; text: string }[];
 }
 export type BeanView = Omit<BeanState, 'deck' | 'hands' | 'timeouts'> & { deckCount: number; handCounts: number[]; hand: Bean[] | null };
 
@@ -253,6 +255,13 @@ export const beanModule: GameModule<BeanState, BeanAction, BeanView> = {
         plantInto(s, seat, a.field, s.pending[seat]!.splice(a.card, 1)[0]!);
         break;
     }
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const text = {
+      harvest: s.last?.kind === 'harvest' ? `برداشت: ${s.last.detail.replace(/\d+/g, (d) => fa(Number(d)))}` : '',
+      buyField: 'مزرعهٔ سوم خرید', plant: 'کاشت', plantPending: 'کاشت', flip: 'دو کارت رو کرد',
+      offer: a.type === 'offer' ? (a.want.length ? 'پیشنهاد معامله داد' : 'کارت بخشید') : '', accept: 'معامله را پذیرفت', decline: 'پیشنهاد را رد کرد', endTrade: 'معامله را تمام کرد', resign: ''
+    }[a.type];
+    if (text) s.moves = [...(s.moves ?? []), { seat, text }].slice(-40);
     maybeEndTurn(s);
     return finish(s, [{ type: a.type, seat }]);
   },
@@ -329,6 +338,7 @@ export const beanModule: GameModule<BeanState, BeanAction, BeanView> = {
         ...(won === seat ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }],
+      moves: (s.moves ?? []).slice(-40),
       ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
     };
   },

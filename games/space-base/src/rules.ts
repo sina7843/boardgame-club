@@ -233,6 +233,8 @@ export const sbModule: GameModule<SbState, SbAction, SbView> = {
     const top = Math.max(...vps);
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
     return {
+      // State keeps only the latest event.
+      moves: s.last ? [{ seat: s.last.seat, text: ({ separate: 'دو بخش جدا', sum: 'بخش جمع', buy: 'ناو خرید', pass: 'نوبت را تمام کرد', roll: 'تاس ریخت' } as Record<string, string>)[s.last.kind] ?? 'حرکت کرد' }] : [],
       seats: s.boards.map((b, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: b.vp, target: GOAL },

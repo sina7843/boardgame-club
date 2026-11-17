@@ -3,14 +3,35 @@
 // teammate's card to give a colour or number clue, or one of your cards to play or discard it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import fwR from './art/fw-red.webp';
 import fwY from './art/fw-yellow.webp';
 import fwG from './art/fw-green.webp';
 import fwB from './art/fw-blue.webp';
 import fwW from './art/fw-white.webp';
-import fuse from './art/fuse.webp';
-import clue from './art/clue.webp';
+import fuse from './art/hanabi-fuse-1.png';
+import clue from './art/hanabi-clue.png';
+import d_b1 from './art/hanabi-b1.png';
+import d_b2 from './art/hanabi-b2.png';
+import d_b3 from './art/hanabi-b3.png';
+import d_g1 from './art/hanabi-g1.png';
+import d_g3 from './art/hanabi-g3.png';
+import d_g4 from './art/hanabi-g4.png';
+import d_g5 from './art/hanabi-g5.png';
+import d_r1 from './art/hanabi-r1.png';
+import d_r2 from './art/hanabi-r2.png';
+import d_r3 from './art/hanabi-r3.png';
+import d_r4 from './art/hanabi-r4.png';
+import d_r5 from './art/hanabi-r5.png';
+import d_w1 from './art/hanabi-w1.png';
+import d_w2 from './art/hanabi-w2.png';
+import d_w4 from './art/hanabi-w4.png';
+import d_w5 from './art/hanabi-w5.png';
+import d_y1 from './art/hanabi-y1.png';
+import d_y2 from './art/hanabi-y2.png';
+import d_y4 from './art/hanabi-y4.png';
+import d_y5 from './art/hanabi-y5.png';
+
 import cardsArt from './art/cards.webp';
 import { CARDS, COLORS, type Color, type HanabiView } from './rules.ts';
 
@@ -23,10 +44,13 @@ export const COLOR_FA: Record<Color, string> = { r: 'قرمز', y: 'زرد', g: 
 const ROW: Record<Color, number> = { r: 0, y: 1, g: 2, b: 3, w: 4 };
 const cardArt = (c: Color, n: number | null) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${((n ?? 1) - 1) * 25}% ${(ROW[c] * 100) / 6}%` });
 
+// Design art (design/games/group-c/art/hanabi) where the handoff ships a face; the BGA sprite stays for the rest.
+const FACE: Record<string, string> = { b1: d_b1, b2: d_b2, b3: d_b3, g1: d_g1, g3: d_g3, g4: d_g4, g5: d_g5, r1: d_r1, r2: d_r2, r3: d_r3, r4: d_r4, r5: d_r5, w1: d_w1, w2: d_w2, w4: d_w4, w5: d_w5, y1: d_y1, y2: d_y2, y4: d_y4, y5: d_y5 };
+
 export function Firework({ c, n, size = 'md' }: { c: Color; n: number | null; size?: 'sm' | 'md' }) {
   return (
-    <span className={`hb-card hb-card--${size} hb-c--${c}`} style={cardArt(c, n)} aria-label={`${COLOR_FA[c]} ${n ? fa(n) : ''}`}>
-      {n !== null && <b>{fa(n)}</b>}
+    <span className={`hb-card hb-card--${size} hb-c--${c}`} style={FACE[`${c}${n}`] ? undefined : cardArt(c, n)} aria-label={`${COLOR_FA[c]} ${n ? fa(n) : ''}`}>
+      {FACE[`${c}${n}`] ? <img className="hb-card__art" src={FACE[`${c}${n}`]} alt="" aria-hidden="true" draggable={false} /> : n !== null && <b>{fa(n)}</b>}
     </span>
   );
 }
@@ -85,6 +109,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
     : myTurn ? { tone: 'mine' as const, text: view.finalLeft !== null ? `دسته تمام شد: ${fa(view.finalLeft)} نوبت مانده` : 'سرنخ بدهید، کارت بازی کنید یا دور بیندازید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const last = view.last;
+  const framed = useInFrame() !== null;
   // My played card was waiting face down in the pending spot: it is revealed from there.
   const lastFrom = last ? (last.seat === me ? 'pending' : `seat-${last.seat}`) : undefined;
   const others = view.hands.map((_, k) => k).filter((k) => k !== me);
@@ -94,7 +119,12 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
 
   return (
     <div className="hb" ref={root} data-seq={served.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>سرنخ فقط رنگ یا عدد کارت‌های هم‌تیمی را نشان می‌دهد و یک ژتون خرج می‌کند؛ کارت‌های خودتان را نمی‌بینید.{view.finalLeft !== null ? ` دسته تمام شد؛ ${fa(view.finalLeft)} نوبت مانده.` : ''}</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="hb__sky" aria-label="آتش‌بازی‌ها">
         <div className="hb__tokens">
@@ -104,7 +134,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
           <span className="hb__pending" data-flip-anchor="pending">
             {pendingIdx !== null && myIds[pendingIdx] && <span data-flip={myIds[pendingIdx]} className="hb-mine hb-mine--pending" aria-label="کارت شما در راه"><span className="hb-mine__face">?</span></span>}
           </span>
-          <span className="hb__score">امتیاز <b key={view.score} className="bg-pop">{fa(view.score)}</b> از ۲۵</span>
+          {!framed && <span className="hb__score">امتیاز <b key={view.score} className="bg-pop">{fa(view.score)}</b> از ۲۵</span>}
         </div>
         <div className="hb__stacks">
           {COLORS.map((c) => (
@@ -115,7 +145,7 @@ export default function HanabiRenderer({ view: served, legalActions, mySeat, sea
             </span>
           ))}
         </div>
-        {last && (
+        {!framed && last && (
           <p className="hb__last" role="status" key={view.seq}>
             <bdi>{who(last.seat)}</bdi>{' '}
             {last.kind === 'clue' ? <>به <bdi>{who(last.to!)}</bdi> سرنخ داد: «{last.color ? COLOR_FA[last.color] : fa(last.rank!)}»</>

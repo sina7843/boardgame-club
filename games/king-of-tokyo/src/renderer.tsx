@@ -3,7 +3,7 @@
 // below with prices in energy.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { POWERS, type Face, type KotView } from './rules.ts';
 import { Bolt, DieGlyph, Monster } from './art.tsx';
 
@@ -97,9 +97,11 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
       : myTurn ? { tone: 'mine' as const, text: view.phase === 'roll' ? (view.rolls ? `تاس‌ها را نگه دارید و دوباره بریزید (${fa(3 - view.rolls)} بار مانده) یا حساب کنید` : 'تاس بریزید') : 'کارت بخرید یا نوبت را تمام کنید' }
         : { tone: 'wait' as const, text: view.phase === 'yield' ? `منتظر تصمیم ${who(view.tokyo!)}` : `نوبت ${who(view.current)}` };
 
+  const framed = useInFrame() !== null;
   return (
     <div className="kt" data-seq={view.seq} data-phase={view.phase} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تا سه بار تاس بریزید و تاس‌های دلخواه را نگه دارید. چنگ به همه در شهر (یا بیرون آن) آسیب می‌زند؛ سه تاس هم‌عدد امتیاز می‌دهد. ۲۰ امتیاز یا آخرین غول زنده برنده است.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="kt__arena" aria-label="شهر">
         {view.tokyo !== null
@@ -107,7 +109,8 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
           : <span className="kt__empty">شهر خالی است</span>}
       </section>
 
-      <ul className="kt__monsters" aria-label="صفحه‌های غول">
+      {framed && view.kept.some((ids) => ids.length > 0) && <div className="kt__kept" aria-label="کارت‌های نگه‌داشته">{view.kept.flatMap((ids, k) => ids.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={POWERS[id]!.textFa}><bdi>{who(k)}</bdi>: {POWERS[id]!.nameFa}</small>))}</div>}
+      {!framed && <ul className="kt__monsters" aria-label="صفحه‌های غول">
         {/* My monster board first and full size; the others follow as compact boards. */}
         {(me >= 0 ? [me, ...view.hp.map((_, k) => k).filter((k) => k !== me)] : view.hp.map((_, k) => k)).map((k) => (
           <li key={`${k}-${hitAt[k]}`} data-flip-anchor={`mon-${k}`} className={['kt-mon', k === me ? 'kt-mon--me' : '', hitAt[k] ? 'bg-hit' : '', view.current === k && !view.outcome ? 'kt-mon--turn' : '', !view.alive[k] ? 'kt-mon--dead' : '', view.tokyo === k ? 'kt-mon--tokyo' : '', view.outcome?.placements[0]?.seat === k ? 'kt-mon--win' : ''].join(' ')} style={{ ['--h' as string]: HUE[k % 6] }}>
@@ -122,7 +125,7 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
             {view.kept[k]!.length > 0 && <div className="kt-mon__kept" aria-label="کارت‌های نگه‌داشته">{view.kept[k]!.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={POWERS[id]!.textFa}>{POWERS[id]!.nameFa}</small>)}</div>}
           </li>
         ))}
-      </ul>
+      </ul>}
 
       {(view.dice.length > 0 || rollingKeep) && (
         <section className="kt__dice" aria-label="تاس‌ها">

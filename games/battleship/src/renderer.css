@@ -18,28 +18,13 @@
 .bs-chart--enemy .bs-chart__head b { color: #ffd6b0; }
 
 /* The chart: parchment border with coordinates, a hairline inner rule, compass-rose corner. */
-.bs-chart__frame { display: grid; grid-template-columns: 1.4rem repeat(10, minmax(0, 1fr)); grid-template-rows: 1.3rem repeat(10, auto);
-  padding: 0.35rem 0.45rem 0.45rem; border-radius: 10px; color: var(--paper-ink);
-  background: radial-gradient(120% 90% at 30% 20%, #f6ecd2, var(--paper) 60%, #d9c79c);
-  box-shadow: inset 0 0 0 1.5px #b89a62, inset 0 0 0 4px var(--paper), inset 0 0 0 5px #b89a62, inset 0 0 26px rgb(120 80 30 / 0.35), 0 16px 30px -18px #000; }
-.bs-corner { grid-row: 1; grid-column: 1; background: radial-gradient(circle, #b8322a 0 2px, transparent 3px), conic-gradient(from 45deg, var(--paper-ink) 0 25%, transparent 0 50%, var(--paper-ink) 0 75%, transparent 0) center / 70% 70% no-repeat; border-radius: 50%; opacity: 0.7; }
-.bs-coord { display: grid; place-items: center; font-size: 0.62rem; font-weight: 800; font-family: var(--type-display, inherit); }
-.bs-coord--col { grid-row: 1; }
-.bs-coord--row { grid-column: 1; }
-.bs-sea { position: relative; aspect-ratio: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--paper-ink); }
+.bs-chart__frame { position: relative; aspect-ratio: 532 / 527; background-size: 100% 100%; }
+.bs-sea { position: absolute; inset-block: 5.7% 2.6%; inset-inline: 6.6% 2.6%; }
 .bs-sea__art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
-.bs-sea { background: radial-gradient(120% 120% at 30% 25%, var(--sea-1), var(--sea-2)); }
 .bs-grid { stroke: rgb(220 240 250 / 0.22); stroke-width: 0.25; }
 
-.bs-hull__body { fill: var(--steel); stroke: #26303a; stroke-width: 0.35; }
-.bs-hull__deck { stroke: var(--steel-d); stroke-width: 0.8; stroke-linecap: round; }
-.bs-hull__gun { fill: var(--steel-d); stroke: #1c242c; stroke-width: 0.3; }
-.bs-hull__barrel { stroke: #1c242c; stroke-width: 0.7; stroke-linecap: round; }
-.bs-hull__tower { fill: #c9d3db; stroke: #26303a; stroke-width: 0.3; }
 .bs-hull { animation: bs-launch 0.4s ease-out both; }
-.bs-hull.is-sunk { opacity: 0.75; filter: grayscale(0.6) brightness(0.55); }
-.bs-hull.is-sunk .bs-hull__body { fill: #5a4a46; }
-
+.bs-hull.is-sunk 
 .bs-fx { transform-box: fill-box; transform-origin: center; animation: bs-burst 0.45s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; }
 .bs-fx--hit { filter: drop-shadow(0 0 0.6px rgb(255 122 42 / 0.8)); }
 .bs-ghost { fill: rgb(126 231 160 / 0.35); stroke: #7ee7a0; stroke-width: 0.5; }

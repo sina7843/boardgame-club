@@ -202,7 +202,22 @@ export const bsModule: GameModule<BsState, BsAction, BsView> = {
   publicSummary(s) {
     const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
     const sunkOf = (seat: number) => s.seas[seat]!.ships.filter((x) => isSunk(s.seas[seat]!, x)).length;
+    // Shots alternate from `first`; seas[k].shots are the other seat's shots in order, so the log is rebuilt by interleaving.
+    const A = s.first, B = 1 - s.first;
+    const fromA = s.seas[B]!.shots, fromB = s.seas[A]!.shots;
+    const cellFa = (c: number) => `${'الف ب پ ت ث ج چ ح خ د'.split(' ')[Math.floor(c / SIZE)]}${((c % SIZE) + 1).toLocaleString('fa-IR')}`;
+    const moves: { seat: number; text: string }[] = [];
+    for (let i = 0; i < fromA.length + fromB.length; i++) {
+      const seat = i % 2 === 0 ? A : B, k = Math.floor(i / 2), list = seat === A ? fromA : fromB;
+      const cell = list[k];
+      if (cell === undefined) break;
+      const target = s.seas[1 - seat]!, done = new Set(list.slice(0, k + 1));
+      const hit = target.ships.find((x) => cellsOf(x)!.includes(cell));
+      const sank = hit && cellsOf(hit)!.every((c) => done.has(c));
+      moves.push({ seat, text: `${cellFa(cell)}: ${sank ? `غرق ${FLEET[hit.ship]!.name}` : hit ? 'اصابت' : 'آب'}` });
+    }
     return {
+      moves: moves.slice(-40),
       seats: [0, 1].map((seat) => ({
         seat,
         primary: { label: 'غرق‌شده', value: s.seas[1 - seat]!.ships.length ? sunkOf(1 - seat) : 0, target: FLEET.length },

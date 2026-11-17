@@ -3,13 +3,13 @@
 // cards. Tap gems to pick (three different, or the same gem twice for a pair); tap a card to buy or reserve it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
-import gemW from './art/gem-diamond.webp';
-import gemU from './art/gem-sapphire.webp';
-import gemG from './art/gem-emerald.webp';
-import gemR from './art/gem-ruby.webp';
-import gemK from './art/gem-onyx.webp';
-import gemO from './art/gem-gold.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import gemW from './art/splendor-token-w.png';
+import gemU from './art/splendor-token-u.png';
+import gemG from './art/splendor-token-g.png';
+import gemR from './art/splendor-token-r.png';
+import gemK from './art/splendor-token-k.png';
+import gemO from './art/splendor-token-gold.png';
 import cardsArt from './art/cards.webp';
 import noblesArt from './art/nobles.webp';
 import { CARDS, GEMS, NOBLES, bonuses, payment, type Gem, type SplendorView, type Token } from './rules.ts';
@@ -124,6 +124,7 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
     : ret ? { tone: 'mine' as const, text: `بیش از ده گوهر دارید: ${fa(ret.count)} تا پس بدهید` }
       : myTurn ? { tone: 'mine' as const, text: view.ending ? 'دور آخر! گوهر بردارید یا کارت بخرید/رزرو کنید' : 'گوهر بردارید یا کارت بخرید/رزرو کنید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.current)}${view.ending ? ' (دور آخر)' : ''}` };
+  const framed = useInFrame() !== null; // the shell draws players, points and whose-turn
   const order = mySeat === null ? view.tokens.map((_, k) => k) : [...view.tokens.map((_, k) => k).filter((k) => k !== mySeat), mySeat];
   const cardHint = (id: number) => hint?.type === 'buy' && hint.card === id;
   const last = view.last;
@@ -140,8 +141,14 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
   };
 
   return (
-    <div className="sp" ref={root} data-seq={served.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={framed ? 'sp sp--framed' : 'sp'} ref={root} data-seq={served.seq} data-phase={view.phase}>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>اولین کسی که به ۱۵ اعتبار برسد، پس از پایان دور، برنده است. هر نوبت فقط یک کار: سه گوهر ناهمرنگ، دو گوهر هم‌رنگ، رزرو یا خرید.</p>
+        </RailSlot>
+      )}
 
       <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
 
@@ -196,10 +203,10 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
           return (
             <li key={s} data-flip-anchor={`seat-${s}`} className={['sp-pl', view.current === s && !view.outcome ? 'sp-pl--turn' : '', isMe ? 'sp-pl--me' : '', place === 1 ? 'sp-pl--win' : ''].join(' ')}>
               <div className="sp-pl__head">
-                {place && <b className="sp-pl__place">{fa(place)}</b>}
+                {!framed && place && <b className="sp-pl__place">{fa(place)}</b>}
                 <bdi className="sp-pl__name">{who(s)}</bdi>
-                <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>
-                {view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
+                {!framed && <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>}
+                {!framed && view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
                 {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${s}-${g}-${i}`, `bank-${g}`))}
               </div>
               <div className="sp-pl__grid">

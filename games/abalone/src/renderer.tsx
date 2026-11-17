@@ -2,10 +2,12 @@
 // Tap up to three of your marbles in a line; arrows appear for the legal directions; tap an arrow to move.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, usePop, type GameRendererProps } from '@bg/ui';
-import marbleB from './art/marble-b.webp';
-import marbleW from './art/marble-w.webp';
-import boardArt from './art/board.webp';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import marbleB from './art/abalone-black-marble.png';
+import marbleW from './art/abalone-white-marble.png';
+import marbleSel from './art/abalone-selected-marble.png';
+import arrowArt from './art/abalone-move-arrow.png';
+import boardArt from './art/abalone-board.png';
 import { CELLS, DIRS, WIN, legalMoves, neighbor, tryMove, type AbaloneView, type Color } from './rules.ts';
 
 type Board = (Color | null)[];
@@ -42,6 +44,7 @@ function Tray({ n, color }: { n: number; color: Color }) {
 }
 
 export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<AbaloneView>) {
+  const framed = useInFrame() !== null; // the shell draws players, ejected-marble trays and whose-turn
   const me = mySeat ?? 0;
   const myColor: Color = view.colors[me]!;
   const flip = myColor === 'w';
@@ -71,6 +74,13 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
     // Keep the selection only if it is (part of) a movable line; otherwise start again from this marble.
     setSel(moves.some((mv) => next.every((x) => mv.marbles.includes(x)) && mv.marbles.length >= next.length) ? next : [i]);
   };
+  // Sidestep: several marbles moved across their own line (green arrows in the design).
+  const side = (d: number) => {
+    if (sel.length < 2) return false;
+    const [a, b] = [CELLS[sel[0]!]!, CELLS[sel[1]!]!], [dq, dr] = DIRS[d]!;
+    const ax = b[0] - a[0], ay = b[1] - a[1], n = Math.max(Math.abs(ax), Math.abs(ay), Math.abs(ax + ay));
+    return !((dq * n === ax && dr * n === ay) || (dq * n === -ax && dr * n === -ay));
+  };
   const go = (d: number) => { onAction({ type: 'move', marbles: [...sel].sort((a, b) => a - b), dir: d }); setSel([]); };
 
   // Stable marble ids: each served move carries the ids along its line, so every marble glides one cell (FLIP).
@@ -95,16 +105,17 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
   const status = view.outcome ? null
     : canMove ? { tone: 'mine' as const, text: sel.length ? 'یک فلش را بزنید' : 'گوی‌هایتان را انتخاب کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
-  // Flat-topped tray around the rows of cells (apothem ≈ 7.3 R → circumradius ≈ 8.4 R).
-  const hexPts = Array.from({ length: 6 }, (_, k) => {
-    const a = (Math.PI / 3) * k;
-    return `${CX + Math.cos(a) * R * 8.4},${CY + Math.sin(a) * R * 8.4}`;
-  }).join(' ');
 
   return (
     <div className="abl" data-ply={view.ply} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <div className="abl__bar">
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>۱ تا ۳ گوی هم‌خط را انتخاب کنید. سه گوی تا دو گوی حریف و دو گوی تا یک گوی را هل می‌دهد؛ حرکت از پهلو فقط به خانهٔ خالی. اولین نفری که ۶ گوی حریف را بیرون بیندازد برنده است.</p>
+        </RailSlot>
+      )}
+      {!framed && <div className="abl__bar">
         {(['b', 'w'] as Color[]).map((c) => (
           <div key={c} className={['abl-side', view.turn === c && !view.outcome ? 'abl-side--turn' : ''].join(' ')}>
             <span className={`abl-side__m abl-side__m--${c}`} aria-hidden="true" />
@@ -112,15 +123,13 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
             <Tray n={off[c === 'b' ? 'w' : 'b']} color={c === 'b' ? 'w' : 'b'} />
           </div>
         ))}
-      </div>
+      </div>}
 
       <ZoomBoard label="صفحه ابلون">
         <svg className="abl-board" viewBox={`${BOARD.x} ${BOARD.y} ${BOARD.w} ${BOARD.h}`} role="grid" aria-label="صفحه ابلون" style={{ direction: 'ltr' }}>
           <defs>
-            <radialGradient id="abl-tray" cx=".5" cy=".45" r=".7"><stop offset="0" stopColor="#6b4223" /><stop offset="1" stopColor="#2e1a0b" /></radialGradient>
             <filter id="abl-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity=".55" /></filter>
           </defs>
-          <polygon points={hexPts} fill="url(#abl-tray)" />
           <image href={boardArt} x={BOARD.x} y={BOARD.y} width={BOARD.w} height={BOARD.h} />
           {CELLS.map((_, i) => {
             const { x, y } = xy(i);
@@ -144,7 +153,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
                 <g filter="url(#abl-shadow)">
                   {marbleImg(c, x, y)}
                 </g>
-                {sel.includes(i) && <circle cx={x} cy={y} r={R * 0.92} className="abl-ring" />}
+                {sel.includes(i) && <image href={marbleSel} x={x - R * 0.96} y={y - R * 0.96} width={R * 1.92} height={R * 1.92} />}
               </g>
             );
           })}
@@ -162,8 +171,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
             return (
               <g key={d} role="button" tabIndex={0} aria-label={`حرکت به ${DIR_FA[d]}`} className={isHint ? 'abl-arrow abl-arrow--hint' : 'abl-arrow'}
                 onClick={() => go(d)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(d); } }}>
-                <circle cx={ax} cy={ay} r="26" />
-                <path d="M-10 -9 L10 0 L-10 9 Z" transform={`translate(${ax} ${ay}) rotate(${ang})`} />
+                <image href={arrowArt} x={ax - 26} y={ay - 26} width="52" height="52" transform={`rotate(${ang} ${ax} ${ay})`} className={side(d) ? 'abl-arrow__img abl-arrow__img--side' : 'abl-arrow__img'} />
               </g>
             );
           })}
@@ -172,7 +180,7 @@ export default function AbaloneRenderer({ view, legalActions, mySeat, seatName, 
       <div className="abl__actions">
         {sel.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={() => setSel([])}>انتخاب دوباره</Button>}
       </div>
-      {view.end && <p className="abl__end" role="status">{{ six: 'شش گوی بیرون افتاد!', limit: '۲۰۰ حرکت تمام شد؛ شمارش گوی‌های بیرون‌افتاده', resign: 'انصراف', timeout: 'اتمام زمان' }[view.end.kind]}</p>}
+      {!framed && view.end && <p className="abl__end" role="status">{{ six: 'شش گوی بیرون افتاد!', limit: '۲۰۰ حرکت تمام شد؛ شمارش گوی‌های بیرون‌افتاده', resign: 'انصراف', timeout: 'اتمام زمان' }[view.end.kind]}</p>}
     </div>
   );
 }

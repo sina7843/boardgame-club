@@ -63,3 +63,6 @@
 @keyframes sr-warp { from { opacity: 0; transform: translateY(8px) scale(0.92); filter: blur(2px); } }
 @keyframes sr-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .sr * { animation: none !important; transition: none !important; } }
+
+/* Inside the shared table frame the felt is the table. */
+.sr--framed { background: none; box-shadow: none; padding: 0; }

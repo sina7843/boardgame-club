@@ -284,12 +284,14 @@ export const goModule: GameModule<GoState, GoAction, GoView> = {
         primary: { label: 'اسیر', value: s.captures[c] },
         stats: [
           { key: 'stones', label: 'سنگ', value: s.board.filter((x) => x === c).length },
-          { key: 'color', label: 'رنگ', value: c === 'b' ? 'سیاه' : 'سفید' }
+          { key: 'color', label: 'رنگ', value: c === 'b' ? 'سیاه' : 'سفید' },
+          ...(c === 'w' ? [{ key: 'komi', label: 'کومی', value: s.komi }] : [])
         ],
         ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {}),
         strikes: s.timeouts[seat]!
       };
     }),
+    moves: s.history.slice(-40).map((h) => ({ seat: h.seat, text: h.at === null ? 'پاس' : `${'ABCDEFGHJKLMNOPQRST'[h.at % s.size]}${s.size - Math.floor(h.at / s.size)}${h.captured.length ? `، ${h.captured.length.toLocaleString('fa-IR')} سنگ گرفت` : ''}` })),
     strikesMax: MAX_TIMEOUTS
   }),
 

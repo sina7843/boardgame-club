@@ -203,6 +203,10 @@ export const santoriniModule: GameModule<SantoriniState, SantoriniAction, Santor
         ...(win === seat ? { status: 'winner' as const } : {}),
         strikes: s.timeouts[seat]!
       })),
+      moves: s.history.slice(-40).map((h) => {
+        const n = (i: number) => `${'abcde'[i % 5]}${Math.floor(i / 5) + 1}`;
+        return { seat: h.seat, text: h.from === null ? `گذاشتن ${n(h.to)}` : `${n(h.from)}-${n(h.to)}${h.build !== null ? `، ساخت ${n(h.build)}` : ''}` };
+      }),
       strikesMax: MAX_TIMEOUTS,
       ...(lv[0] !== lv[1] ? { leaderSeat: lv[0]! > lv[1]! ? 0 : 1 } : {})
     };

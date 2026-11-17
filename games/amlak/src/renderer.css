@@ -44,7 +44,7 @@
 
 /* squares */
 .amb-sq { cursor: pointer; }
-.amb-sq__bg { fill: transparent; stroke: var(--am-ink); stroke-width: 2; transition: fill var(--dur, 160ms) var(--ease, ease); }
+.amb-sq__bg { fill: transparent; stroke: transparent; stroke-width: 2; transition: fill var(--dur, 160ms) var(--ease, ease); }
 .amb-sq:hover .amb-sq__bg, .amb-sq:focus-visible .amb-sq__bg { fill: rgb(226 165 59 / 0.18); }
 .amb-sq:focus-visible { outline: none; }
 .amb-sq:focus-visible .amb-sq__bg, .amb-sq--sel .amb-sq__bg { fill: rgb(226 165 59 / 0.28); stroke: var(--am-saffron); stroke-width: 6; }

@@ -4,45 +4,71 @@
 // rubble and camps ask which cards to give up. The market lists every card with price and stock.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import mapArt from './art/ed-map.png';
+import pawn0 from './art/ed-pawn-0.png';
+import pawn1 from './art/ed-pawn-1.png';
+import pawn2 from './art/ed-pawn-2.png';
+import pawn3 from './art/ed-pawn-3.png';
+import adventurer from './art/ed-adventurer.png'; import captain from './art/ed-captain.png'; import cartographer from './art/ed-cartographer.png';
+import chest from './art/ed-chest.png'; import compass from './art/ed-compass.png'; import explorer from './art/ed-explorer.png';
+import jack from './art/ed-jack.png'; import journalist from './art/ed-journalist.png'; import machete from './art/ed-machete.png';
+import millionaire from './art/ed-millionaire.png'; import native from './art/ed-native.png'; import photographer from './art/ed-photographer.png';
+import pioneer from './art/ed-pioneer.png'; import plane from './art/ed-plane.png'; import sailor from './art/ed-sailor.png';
+import scientist from './art/ed-scientist.png'; import scout from './art/ed-scout.png'; import trailblazer from './art/ed-trailblazer.png';
+import traveller from './art/ed-traveller.png';
+
+// Art: design/games/group-d/art/el-dorado (printed map with the hex grid, full card faces, pawns).
+const CARD_ART: Record<string, string> = { adventurer, captain, cartographer, chest, compass, explorer, jack, journalist, machete, millionaire, native, photographer, pioneer, plane, sailor, scientist, scout, trailblazer, traveller };
+const PAWN_ART = [pawn0, pawn1, pawn2, pawn3];
 import { COLS, MAP, ROWS, TYPE, coinValue, type CardType, type EdView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const PAWN = ['#e0473c', '#2f7de1', '#f2c230', '#9b59d0'];
+export const PAWN = ['#e0473c', '#2f7de1', '#f2c230', '#9b59d0']; // fallback dot colours outside the frame
 const KIND_FA: Record<string, string> = { g: 'جنگل', b: 'آب', y: 'روستا', r: 'آوار', c: 'اردوگاه', m: 'کوه', s: 'شروع', E: 'الدورادو' };
 const SYM_FA: Record<string, string> = { g: 'قمه', b: 'پارو', y: 'سکه', any: 'همه‌کاره' };
-const R = 18, W = Math.sqrt(3) * R;
-const center = (i: number) => { const r = Math.floor(i / COLS), c = i % COLS; return [W / 2 + c * W + (r % 2 ? W / 2 : 0) + 2, (ROWS - 1 - r) * R * 1.5 + R + 2] as const; };
-const hexPath = (x: number, y: number) => Array.from({ length: 6 }, (_, k) => { const a = Math.PI / 180 * (60 * k - 30); return `${(x + R * Math.cos(a)).toFixed(1)},${(y + R * Math.sin(a)).toFixed(1)}`; }).join(' ');
+// Hex grid measured on the 372x553 map image: pointy hexes, R 32, column pitch 54.3, row pitch 48, odd rows shifted half a column.
+const R = 32, W = 54.3, MAP_W = 372, MAP_H = 553;
+const center = (i: number) => { const r = Math.floor(i / COLS), c = i % COLS; return [36.75 + c * W + (r % 2 ? W / 2 : 0), 37.6 + (ROWS - 1 - r) * 48] as const; };
+const hexPath = (x: number, y: number) => [[0, -R], [27, -R / 2], [27, R / 2], [0, R], [-27, R / 2], [-27, -R / 2]].map(([dx, dy]) => `${(x + dx!).toFixed(1)},${(y + dy!).toFixed(1)}`).join(' ');
 
 export function EdCard({ t, size = 'md' }: { t: CardType; size?: 'sm' | 'md' }) {
   return (
-    <span className={`ed-card ed-card--${size} ed-s--${t.sym} ed-a--${t.key}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${SYM_FA[t.sym]}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
-      <b className="ed-card__pts">{t.pts ? fa(t.pts) : t.native ? '➜' : `+${fa(t.draw!)}`}</b>
-      <span className="ed-card__name">{t.name}</span>
-      {size === 'md' && <small>{t.pts ? SYM_FA[t.sym] : t.native ? 'یک خانه، بی‌هزینه' : t.trash ? 'کشیدن و حذف' : 'کشیدن کارت'}{t.once ? ' · یک‌بار' : ''}</small>}
+    <span className={`ed-card ed-card--${size}`} aria-label={`${t.name}: ${t.pts ? `${fa(t.pts)} ${SYM_FA[t.sym]}` : t.draw ? `${fa(t.draw)} کارت بکش` : 'حرکت آزاد'}${t.once ? '، یک‌بار مصرف' : ''}`}>
+      <img src={CARD_ART[t.key]} alt="" draggable={false} />
+      <span className="visually-hidden">{t.name}</span>
     </span>
   );
 }
 
 export function MapSvg({ view, targets, onPick, hint }: { view: Pick<EdView, 'explorers'>; targets?: Set<number>; onPick?: (hex: number) => void; hint?: number }) {
   return (
-    <svg className="ed-map" viewBox={`0 0 ${COLS * W + W / 2 + 4} ${(ROWS - 1) * R * 1.5 + 2 * R + 4}`} role="img" aria-label="نقشه">
-      {MAP.map((h, i) => {
-        const [x, y] = center(i);
-        const can = targets?.has(i);
-        return (
-          <g key={i} data-hex={i} className={`ed-hex ed-k--${h.kind} ${can ? 'ed-hex--can' : ''} ${can && hint === i ? 'ed-hint' : ''}`} onClick={can && onPick ? () => onPick(i) : undefined}
-            role={can ? 'button' : undefined} aria-label={can ? `رفتن به ${KIND_FA[h.kind]}${h.cost ? ` ${fa(h.cost)}` : ''}` : undefined} tabIndex={can ? 0 : undefined}
-            onKeyDown={can && onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onPick(i); } : undefined}>
-            <polygon points={hexPath(x, y)} />
-            {h.cost > 0 && <text x={x} y={y + 4} textAnchor="middle">{fa(h.cost)}</text>}
-            {h.kind === 'E' && <text x={x} y={y + 5} textAnchor="middle" className="ed-star">★</text>}
-          </g>
-        );
-      })}
-      {view.explorers.map((e, k) => { const [x, y] = center(e.pos); return <circle key={k} data-seat={k} data-hex={e.pos} className="ed-pawn" cx={x} cy={y - 7} r={6} fill={PAWN[k]} style={{ transform: 'none' }} />; })}
-    </svg>
+    <div className="ed-mapi">
+      <img src={mapArt} alt="" draggable={false} />
+      <svg className="ed-map" viewBox={`0 0 ${MAP_W} ${MAP_H}`} role="img" aria-label="نقشه">
+        {MAP.map((h, i) => {
+          if (!targets?.has(i)) return null;
+          const [x, y] = center(i);
+          return (
+            <g key={i} data-hex={i} className={`ed-hex ed-hex--can ${hint === i ? 'ed-hint' : ''}`} onClick={onPick ? () => onPick(i) : undefined}
+              role="button" aria-label={`رفتن به ${KIND_FA[h.kind]}${h.cost ? ` ${fa(h.cost)}` : ''}`} tabIndex={0}
+              onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onPick(i); } : undefined}>
+              <polygon className="ed-tap" points={hexPath(x, y)} />
+            </g>
+          );
+        })}
+        {view.explorers.map((e, k) => {
+          const [x, y] = center(e.pos);
+          const px = x + (k - 1.5) * 9;
+          return (
+            <g key={k}>
+              <image className="ed-pawn" href={PAWN_ART[k]} x={px - 11} y={y - 11} width={22} height={22} />
+              <circle data-seat={k} data-hex={e.pos} cx={px} cy={y} r={11} fill="none" pointerEvents="none" />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
 
@@ -121,19 +147,21 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
     : myTurn ? { tone: 'mine' as const, text: chosen === null ? 'کارتی برای حرکت انتخاب کنید، بخرید یا نوبت را تمام کنید' : 'یک خانهٔ روشن را انتخاب کنید' }
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const coins = coinValue(hand);
+  const framed = useInFrame() !== null;
 
   return (
     <div className="ed" ref={root} data-seq={view.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <ul className="ed-crew" aria-label="گروه‌ها">
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>کارت را بازی کنید تا خانه‌های قابل رفتن روشن شوند؛ عدد هر خانه هزینهٔ ورود است. آوار و اردوگاه با دور ریختن کارت باز می‌شوند.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && <ul className="ed-crew" aria-label="گروه‌ها">
         {view.explorers.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={`ed-crew__p ${k === view.current && !view.outcome ? 'is-now' : ''}`} style={{ ['--pawn' as string]: PAWN[k] }}>
             <i className="ed-dot" /><bdi>{who(k)}</bdi>
-            <small>{e.arrived ? 'رسید ★' : `دسته ${fa(e.deck)} · دورریز ${fa(e.discard)}`}</small>
+            <small>{e.arrived ? 'رسید ★' : `دسته ${fa(e.deck)}، دورریز ${fa(e.discard)}`}</small>
             {view.last?.kind === 'buy' && view.last.seat === k && view.last.card && <span className="ed-chip" data-flip={`buy-${view.seq}`} data-flip-from={`mk-${view.last.card}`}>{TYPE[view.last.card]?.name}</span>}
           </li>
         ))}
-      </ul>
+      </ul>}
 
       <div className="ed-board">
         <MapSvg view={view} targets={myTurn ? targets : undefined} onPick={busy ? undefined : pick} hint={hint?.type === 'move' ? hint.to : undefined} />
@@ -174,7 +202,7 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
 
       {!view.outcome && (
         <section className="ed-market" aria-label="بازار">
-          <p className="ed-market__title">بازار {canBuy && myTurn ? `· ${fa(coins)} سکه در دست` : view.bought ? '· این نوبت خرید شد' : ''}</p>
+          <p className="ed-market__title">بازار {canBuy && myTurn ? `، ${fa(coins)} سکه در دست` : view.bought ? '، این نوبت خرید شد' : ''}</p>
           <div className="ed-market__row">
             {Object.entries(view.market).map(([k, n]) => {
               const t = TYPE[k]!;
@@ -182,7 +210,7 @@ export default function ElDoradoRenderer({ view: served, legalActions, mySeat, s
               return (
                 <button key={k} type="button" data-flip-anchor={`mk-${k}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', key: k, pay: autoPay(t.cost) })}
                   className={['ed-buy', can ? 'is-can' : '', hint?.type === 'buy' && hint.key === k ? 'ed-hint' : ''].join(' ')}>
-                  <EdCard t={t} size="sm" /><i className="ed-buy__cost">{fa(t.cost)}</i><small key={n} className="bg-pop">×{fa(n)}</small>
+                  <EdCard t={t} size="sm" /><small key={n} className="bg-pop">×{fa(n)}</small>
                 </button>
               );
             })}

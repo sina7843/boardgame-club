@@ -3,7 +3,7 @@
 import { cardPicture } from './card-art.ts';
 import './renderer.css';
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, usePrevious, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
 import { CardArt, Emblem, PATHS, PORTRAITS, Scenery, SIDEKICK_EMBLEM } from './art.tsx';
 import { BOARDS, type Board } from './boards.ts';
 import { HEROES, type CardDef } from './heroes.ts';
@@ -536,21 +536,28 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
   const fromHand = (p?.cards ?? []).every((id) => hand.some((h) => h.id === id));
   const selectedAttack = attacks.find((a) => a.fighter === selFighter && a.target === selTarget && a.card === selCard);
 
+  const framed = useInFrame() !== null; // the shell draws players, health, whose-turn and events
   return (
     <div className="um" data-prompt={promptHash} ref={root}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>میدان {board.nameFa}{view.turnNo > 0 ? `، نوبت ${fa(view.turnNo)}` : ''}. هر نوبت دو اقدام: مانور، نقشه یا حمله؛ قهرمان حریف را به صفر سلامتی برسانید.</p>
+        </RailSlot>
+      )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
-      <div className="um__meta">
+      {!framed && <div className="um__meta">
         <span>میدان: <strong>{board.nameFa}</strong></span>
         {view.turnNo > 0 && <span>نوبت {fa(view.turnNo)}</span>}
         <span>{view.players === 2 ? 'نبرد تن‌به‌تن' : 'همه علیه همه'}</span>
-      </div>
+      </div>}
 
-      <ul className="um-players" aria-label="بازیکنان">
+      {!framed && <ul className="um-players" aria-label="بازیکنان">
         {view.order.map((seat) => <PlayerPanel key={seat} view={view} was={before} seat={seat} me={seat === mySeat} name={seatName(seat)} />)}
-      </ul>
+      </ul>}
 
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="um-main">
         <div className="um-board-wrap">
@@ -770,10 +777,10 @@ export default function UnmatchedRenderer({ view: served, legalActions, mySeat, 
         ))}
       </details>
 
-      <details className="um-log" open>
+      {!framed && <details className="um-log" open>
         <summary>رویدادها</summary>
         <ol>{view.log.slice(-8).reverse().map((e) => <li key={e.seq}>{describe(e, view, seatName)}</li>)}</ol>
-      </details>
+      </details>}
     </div>
   );
 }

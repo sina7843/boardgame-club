@@ -4,11 +4,18 @@
 import './renderer.css';
 import ships from './art/ships.webp';
 import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import die2 from './art/sb-die-2.png';
+import die3 from './art/sb-die-3.png';
+import die4 from './art/sb-die-4.png';
+import die5 from './art/sb-die-5.png';
+import die6 from './art/sb-die-6.png';
 import { GOAL, SHIPS, sectorsFor, type Reward, type SbView, type Ship } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const rw = (r: Reward | undefined) => [r?.credits ? `${fa(r.credits)}¢` : '', r?.vp ? `${fa(r.vp)}★` : ''].filter(Boolean).join(' ') || '—';
+// Die faces 2 to 6 ship as art; the 1 face has none yet and stays the pip placeholder.
+const DIE_ART: Record<number, string> = { 2: die2, 3: die3, 4: die4, 5: die5, 6: die6 };
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 
 // Ship paintings are cut from a generated sprite sheet (see DECISIONS.md); picked by cost tier (costs run 0-14).
@@ -18,6 +25,7 @@ const shipArt = (x: Ship): CSSProperties => ({ backgroundImage: `url(${ships})`,
 
 /** A die; `n` null = the roll is still pending (undo window / server), so it tumbles with no pips. */
 export function Die({ n, i = 0 }: { n: number | null; i?: number }) {
+  if (n !== null && DIE_ART[n]) return <img className="sb-die-img bg-roll" style={{ ['--i' as string]: i }} src={DIE_ART[n]} alt={`تاس ${fa(n)}`} draggable={false} />;
   return <span className={`sb-die ${n === null ? 'bg-tumble' : 'bg-roll'}`} style={{ ['--i' as string]: i }} aria-label={n === null ? 'تاس در حال چرخش' : `تاس ${fa(n)}`}>{Array.from({ length: 9 }, (_, i) => <i key={i} data-pip="" className={n !== null && PIPS[n]!.includes(i) ? 'on' : ''} />)}</span>;
 }
 
@@ -94,6 +102,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
           : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const gain = (s: number) => view.gains.find((g) => g.seat === s);
   const [open] = useState(wideScreen);
+  const framed = useInFrame() !== null; // the shell draws the seat strip, scores, credits and whose turn
 
   // A bought ship keeps its motion id (s<id>) from the shop card to its bay, so it glides into its sector; the station
   // it replaces keeps its id too and slides under the bay as a deployed card. Starting ships share ids across boards and
@@ -162,15 +171,16 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
 
   return (
     <div className="sb" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تاس بریزید و بخش‌ها را فعال کنید؛ آبی در نوبت شما و قرمز در نوبت رقیبان پرداخت می‌شود. اول به {fa(GOAL)} امتیاز برسد می‌برد.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
-      <ul className="sb-rivals" aria-label="بازیکنان">
+      {!framed && <ul className="sb-rivals" aria-label="بازیکنان">
         {view.boards.map((b, k) => (k === me ? null : (
           <li key={k} className={`sb-rival sb-board ${k === view.current && !view.outcome ? 'sb-rival--now' : ''}`}>
             <details className="sb-fold" open={open}>
               <summary className="sb-rival__head">
                 <bdi>{who(k)}</bdi>
-                <span>★ {fa(b.vp)} · {fa(b.credits)}¢ · درآمد {fa(b.income)}</span>
+                <span>★ {fa(b.vp)}<span className="bgv-sep" />{fa(b.credits)}¢<span className="bgv-sep" />درآمد {fa(b.income)}</span>
                 {gain(k) && (gain(k)!.credits || gain(k)!.vp) ? <span className="sb-gain">+{rw(gain(k))}</span> : null}
               </summary>
               <Ledger seat={k} compact />
@@ -178,15 +188,15 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
             </details>
           </li>
         )))}
-      </ul>
+      </ul>}
 
       <section className="sb-console" aria-label="تاس‌ها">
         {rolling ? <span className="sb-dice" key="pending"><Die n={null} /><Die n={null} i={1} /></span>
           : view.dice ? <span className="sb-dice" key={roll.current.n}><Die n={view.dice[0]} /><Die n={view.dice[1]} i={1} /></span> : <small>هنوز تاسی ریخته نشده</small>}
         {has('roll') && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'roll' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'roll' })}>ریختن تاس‌ها</Button></DockSlot>}
         {has('choose') && view.dice && <>
-          <Button size="sm" variant="secondary" disabled={busy} className={hint?.use === 'separate' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'separate' })}>بخش {fa(view.dice[0])} و {fa(view.dice[1])}</Button>
-          <Button size="sm" disabled={busy} className={hint?.use === 'sum' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'sum' })}>بخش {fa(view.dice[0] + view.dice[1])} (جمع)</Button>
+          <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.use === 'separate' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'separate' })}>بخش {fa(view.dice[0])} و {fa(view.dice[1])}</Button></DockSlot>
+          <DockSlot><Button size="sm" disabled={busy} className={hint?.use === 'sum' ? 'sb-hint' : ''} onClick={() => onAction({ type: 'choose', use: 'sum' })}>بخش {fa(view.dice[0] + view.dice[1])} (جمع)</Button></DockSlot>
         </>}
         {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پایان نوبت بدون خرید</Button></DockSlot>}
       </section>
@@ -194,7 +204,7 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
       <section className="sb-yard" aria-label="کارگاه ناو">
         {view.shop.map((row, l) => (
           <div key={l} className="sb-yard__row">
-            <small className="sb-yard__lvl" data-flip-anchor={`deck-${l}`}>{['سبک', 'میانه', 'سنگین'][l]} · {fa(view.deckCounts[l]!)}</small>
+            <small className="sb-yard__lvl" data-flip-anchor={`deck-${l}`}>{['سبک', 'میانه', 'سنگین'][l]}<span className="bgv-sep" />{fa(view.deckCounts[l]!)}</small>
             {row.map((id) => {
               const can = buyable.has(id);
               return <button key={id} type="button" data-flip={`s${id}`} data-flip-from={`deck-${l}`} disabled={busy || !can} onClick={() => onAction({ type: 'buy', ship: id })}
@@ -205,11 +215,11 @@ export default function SpaceBaseRenderer({ view: served, legalActions, mySeat, 
       </section>
 
       <section className={`sb-me sb-board ${view.current === me && !view.outcome ? 'sb-me--now' : ''}`} aria-label="پایگاه شما">
-        <div className="sb-me__head">
+        {!framed && <div className="sb-me__head">
           <bdi>{who(me)}</bdi>
-          <small>آبی: در نوبت شما · قرمز: در نوبت رقیبان</small>
-        </div>
-        <Ledger seat={me} />
+          <small>آبی: در نوبت شما<span className="bgv-sep" />قرمز: در نوبت رقیبان</small>
+        </div>}
+        {!framed && <Ledger seat={me} />}
         <Bays seat={me} />
       </section>
     </div>

@@ -29,8 +29,10 @@ export interface HanabiState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public move list for the table log (older saved states lack it). */
+  moves?: { seat: number; text: string }[];
 }
-export interface HanabiView extends Omit<HanabiState, 'deck' | 'hands' | 'timeouts'> {
+export interface HanabiView extends Omit<HanabiState, 'deck' | 'hands' | 'timeouts' | 'moves'> {
   deckCount: number;
   /** Other hands with their cards; own hand with clue knowledge only (id null). */
   hands: (HandCard & { card: { c: Color; r: number } | null })[][];
@@ -149,6 +151,13 @@ export const hanabiModule: GameModule<HanabiState, HanabiAction, HanabiView> = {
       } else { s.discard.push(h!.id); s.fuses -= 1; s.last = { seat, kind: 'play', card: h!.id, ok: false }; }
       draw(s, seat);
     }
+    const L = s.last!;
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const CF = { r: 'قرمز', y: 'زرد', g: 'سبز', b: 'آبی', w: 'سفید' };
+    const text = L.kind === 'clue' ? `سرنخ ${L.color ? CF[L.color] : fa(L.rank!)} به صندلی ${fa(L.to! + 1)}`
+      : L.kind === 'discard' ? `دور انداخت: ${CF[CARDS[L.card!]!.c]} ${fa(CARDS[L.card!]!.r)}`
+      : `${L.ok ? 'بازی کرد' : 'فیوز سوخت'}: ${CF[CARDS[L.card!]!.c]} ${fa(CARDS[L.card!]!.r)}`;
+    s.moves = [...(s.moves ?? []), { seat, text }].slice(-40);
     endTurn(s);
     return finish(s, [{ type: a.type, seat }]);
   },
@@ -192,6 +201,7 @@ export const hanabiModule: GameModule<HanabiState, HanabiAction, HanabiView> = {
     seats: s.hands.map((h, seat) => ({
       seat,
       primary: { label: 'کارت', value: h.length },
+      stats: [{ key: 'known', label: 'سرنخ‌دار', value: h.filter((c) => c.color || c.rank).length, icon: 'layers' }],
       ...(s.outcome && s.outcome.placements[0]?.place === 1 ? { status: 'winner' as const } : {})
     })),
     shared: [
@@ -199,7 +209,8 @@ export const hanabiModule: GameModule<HanabiState, HanabiAction, HanabiView> = {
       { key: 'clues', label: 'نشانه', value: s.clues, max: 8 },
       { key: 'fuses', label: 'فیوز', value: s.fuses, max: 3 },
       { key: 'deck', label: 'دسته', value: s.deck.length }
-    ]
+    ],
+    moves: (s.moves ?? []).slice(-40)
   }),
 
   pendingSeats: (s) => (s.outcome ? [] : [s.current]),

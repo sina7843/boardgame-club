@@ -220,6 +220,7 @@ export const abaloneModule: GameModule<AbaloneState, AbaloneAction, AbaloneView>
         ...(won === seat ? { status: 'winner' as const } : {}),
         strikes: s.timeouts[seat]!
       })),
+      moves: s.history.slice(-40).map((h) => ({ seat: h.seat, text: `${h.marbles.length.toLocaleString('fa-IR')} گوی به ${['راست', 'بالا راست', 'بالا چپ', 'چپ', 'پایین چپ', 'پایین راست'][h.dir]}${h.lost ? '، یک گوی بیرون افتاد' : ''}` })),
       strikesMax: MAX_TIMEOUTS,
       ...(pts[0] !== pts[1] ? { leaderSeat: pts[0]! > pts[1]! ? 0 : 1 } : {})
     };

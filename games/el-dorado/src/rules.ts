@@ -59,6 +59,8 @@ export interface EdState {
   bought: boolean;
   removed: number;
   last: { seat: number; kind: string; card?: string } | null;
+  /** Public move list for the table frame (all of it is already visible to every seat). */
+  log?: { seat: number; text: string }[];
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
@@ -209,6 +211,7 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
         p.pos = a.to;
         if (hex.kind === 'E') { p.arrived = true; s.active = null; }
         s.last = { seat, kind: 'move' };
+        s.log = [...(s.log ?? []), { seat, text: hex.kind === 'E' ? 'به الدورادو رسید' : `حرکت به ${({ g: 'جنگل', b: 'آب', y: 'روستا', r: 'آوار', c: 'اردوگاه', m: 'کوه', s: 'شروع' } as Record<string, string>)[hex.kind]}` }].slice(-40);
         break;
       }
       case 'buy': {
@@ -217,6 +220,7 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
         p.discard.push(a.key);
         s.bought = true;
         s.last = { seat, kind: 'buy', card: a.key };
+        s.log = [...(s.log ?? []), { seat, text: `خرید ${TYPE[a.key]!.name}` }].slice(-40);
         break;
       }
       case 'use': {
@@ -227,6 +231,7 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
         if (trashKey) { p.hand.splice(p.hand.indexOf(trashKey), 1); s.removed += 1; }
         draw(p, t.draw ?? 0, ctx.rng);
         s.last = { seat, kind: 'use', card: key };
+        s.log = [...(s.log ?? []), { seat, text: `استفاده از ${t.name}` }].slice(-40);
         break;
       }
       case 'endTurn': {
@@ -236,6 +241,7 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
         s.current = (seat + 1) % s.players.length;
         if (s.current === s.firstSeat && s.players.some((x) => x.arrived)) s.outcome = { placements: rank(s, s.players.map((_, k) => k)), reason: 'score' };
         s.last = { seat, kind: 'end' };
+        s.log = [...(s.log ?? []), { seat, text: 'پایان نوبت' }].slice(-40);
         break;
       }
     }
@@ -297,7 +303,8 @@ export const edModule: GameModule<EdState, EdAction, EdView> = {
         ],
         badges: p.arrived ? [{ key: 'arrived', label: 'رسید', tone: 'success' as const }] : [],
         ...(winners.has(seat) ? { status: 'winner' as const } : p.arrived ? { status: 'done' as const } : {})
-      }))
+      })),
+      moves: s.log ?? []
     };
   },
 

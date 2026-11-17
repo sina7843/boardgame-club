@@ -24,7 +24,7 @@ export const theCrew = defineGame({
     assetsRef: 'the-crew/1'
   },
   catalog: {
-    nameFa: 'کرو',
+    nameFa: 'کرو: در جستجوی سیارهٔ نهم',
     nameOriginal: 'The Crew: The Quest for Planet Nine',
     summaryFa: 'بازی دست‌گیری همکاری ۳ تا ۵ نفره: همهٔ خدمه با هم می‌برند یا با هم می‌بازند. هر کس باید دست‌هایی را ببرد که کارت‌های وظیفهٔ خودش در آن‌هاست، بی‌آنکه دربارهٔ کارت‌هایش حرف بزند؛ فقط یک بار در ماموریت می‌تواند یک کارت را نشان دهد.',
     rulesFa: [

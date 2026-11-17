@@ -3,9 +3,9 @@
 // other players' hands and development cards are counts, never contents.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
-import { EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
-import { BoardDefs, CARD_BACK, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { BEGINNER_HARBORS, BEGINNER_MAP, EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
+import { BOARD_PNG, BoardDefs, COST_PNG, CARD_BACK, pieceArt, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
 import { COST, LIMITS, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -78,12 +78,15 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
     return hexCorners(h).map((p) => `${(c.x + (p.x - c.x) * k).toFixed(1)},${(c.y + (p.y - c.y) * k).toFixed(1)}`).join(' ');
   };
   const R = HEX_SIZE;
+  // The handoff board image is the beginner island; random maps keep the per-hex composition.
+  const beginner = view.hexes.every((h, i) => h.terrain === BEGINNER_MAP[i]!.terrain && h.number === BEGINNER_MAP[i]!.number) && view.harbors.every((h, i) => h.kind === BEGINNER_HARBORS[i]);
   // Pieces placed by the latest change drop in (bg-land); everything else is static.
   const fresh = useFresh([...view.roads.flatMap((o, i) => (o === null || o === undefined ? [] : [`e${i}`])), ...view.buildings.flatMap((b, i) => (b ? [`v${i}${b.city ? 'c' : 'h'}`] : []))]);
   return (
     <svg className="ct-board" viewBox="-320 -316 640 632" role="group" aria-label="نقشه جزیره کاتان" style={{ direction: 'ltr' }}>
       <BoardDefs />
-      <g aria-hidden="true" pointerEvents="none">
+      {beginner && <image href={BOARD_PNG} x="-320" y="-316" width="640" height="632" aria-hidden="true" pointerEvents="none" />}
+      {!beginner && <><g aria-hidden="true" pointerEvents="none">
         <polygon className="ct-frame" points={ptsOf(FRAME)} fill="url(#ctb-wood)" />
         <polygon points={ptsOf(FRAME)} fill="url(#ctb-grain)" />
         {FRAME.map(([x, y], i) => <line key={i} className="ct-frame__miter" x1={x} y1={y} x2={SEA[i]![0]} y2={SEA[i]![1]} />)}
@@ -111,17 +114,17 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
       })}
       <g aria-hidden="true" pointerEvents="none">
         {view.hexes.map((_, i) => <polygon key={`b${i}`} points={pts(i, 1.13)} className="ct-shore" strokeLinejoin="round" />)}
-      </g>
+      </g></>}
       {view.hexes.map((h, i) => {
         const c = hexCenter(i);
         const target = t.hexes.has(i);
         return (
           <g key={`x${i}`} className={['ct-hex', target ? 'ct-target' : '', is(t.sel, 'hex', i) ? 'ct-selected' : '', is(t.hint, 'hex', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'hex', id: i }, `${hexLabel(view, i)}، راهزن را اینجا ببرید`) : { role: 'img', 'aria-label': `${hexLabel(view, i)}${view.robber === i ? '، راهزن اینجاست' : ''}` })}>
-            <HexArt terrain={h.terrain} cx={c.x} cy={c.y} r={R} className="ct-hex__art" />
+            {!beginner && <HexArt terrain={h.terrain} cx={c.x} cy={c.y} r={R} className="ct-hex__art" />}
             <polygon points={pts(i)} fill="#000" fillOpacity="0.001" className="ct-hex__tile" />
-            <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>
-            {h.number !== null && (
+            {!beginner && <text x={c.x} y={c.y - R * 0.5} className="ct-hex__name">{TERRAIN_FA[h.terrain]}</text>}
+            {!beginner && h.number !== null && (
               <g className={h.number === 6 || h.number === 8 ? 'ct-token ct-token--hot' : 'ct-token'}>
                 <circle className="ct-token__disc" cx={c.x} cy={c.y + 4} r="17" fill="url(#ctb-token)" filter="url(#ctb-soft)" />
                 <circle className="ct-token__ring" cx={c.x} cy={c.y + 4} r="14" />
@@ -145,10 +148,12 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
             {...(target ? btn({ kind: 'edge', id: i }, `${edgeLabel(view, i)}، ساخت جاده`) : { role: 'img', 'aria-label': `جاده ${SEAT_FA[owner!]}` })}>
             {owner !== null && (
               <g className={fresh.has(`e${i}`) ? 'ct-plank bg-land' : 'ct-plank'}>
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__shadow" />
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__edge" />
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road" stroke={SEAT_COLOR[owner]} />
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="ct-road__hl" transform="translate(-1 -1.5)" />
+                {(() => {
+                  let ang = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+                  if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+                  const p = pieceArt(owner, 'road');
+                  return <image href={p.src} x="-24" y="-14" width="48" height="28" style={p.style} transform={`translate(${(a.x + b.x) / 2} ${(a.y + b.y) / 2}) rotate(${ang})`} />;
+                })()}
               </g>
             )}
             {target && <rect x={-HEX_SIZE / 2 + 9} y="-7" width={HEX_SIZE - 18} height="14" rx="7" className="ct-edge__hit"
@@ -161,18 +166,13 @@ function Island({ view, t, onPick, mySeat }: { view: CatanView; t: Targets; onPi
         const target = t.vertices.has(i);
         if (!bld && !target) return null;
         const label = bld ? `${bld.city ? 'شهر' : 'آبادی'} ${SEAT_FA[bld.seat]}${bld.seat === mySeat ? ' (شما)' : ''}، ${vertexLabel(view, i)}` : vertexLabel(view, i);
-        const shape = bld?.city ? CITY : HOUSE;
         return (
           <g key={`v${i}`} transform={`translate(${v.x}, ${v.y})`} className={['ct-vertex', target ? 'ct-target' : '', is(t.sel, 'vertex', i) ? 'ct-selected' : '', is(t.hint, 'vertex', i) ? 'ct-hint' : ''].join(' ')}
             {...(target ? btn({ kind: 'vertex', id: i }, `${label}، ${bld ? 'تبدیل به شهر' : 'ساخت آبادی'}`) : { role: 'img', 'aria-label': label })}>
             {target && <circle r="16" className="ct-vertex__ring" />}
             {bld && (
               <g className={fresh.has(`v${i}${bld.city ? 'c' : 'h'}`) ? 'ct-bld bg-land' : 'ct-bld'} key={bld.city ? 'city' : 'house'}>
-                <ellipse cx="1" cy="8.8" rx={bld.city ? 15 : 12} ry="3.1" className="ct-piece__shadow" />
-                {shape.map((d) => <path key={d} d={d} fill={SEAT_COLOR[bld.seat]} className="ct-piece" />)}
-                {shape.map((d) => <path key={`s${d}`} d={d} fill="url(#ctb-shine)" pointerEvents="none" />)}
-                <path d={shape[shape.length - 1]} className="ct-roof" />
-                <text x={bld.city ? 4.5 : 0} y="6.2" className={bld.seat === 2 ? 'ct-piece__n ct-piece__n--dark' : 'ct-piece__n'}>{fa(bld.seat + 1)}</text>
+                {(() => { const p = pieceArt(bld.seat, bld.city ? 'city' : 'set'); return <image href={p.src} x="-21" y="-22" width="42" height="39" style={p.style} />; })()}
               </g>
             )}
           </g>
@@ -197,29 +197,9 @@ function Piece({ kind, seat }: { kind: 'road' | 'settlement' | 'city'; seat: num
   );
 }
 
-/** The printed building-cost card: each build with its resources (icons + names) and what it scores. */
+/** The printed building-cost card (handoff art). */
 function CostCard() {
-  const rows = [['road', 'جاده', '۰'], ['settlement', 'آبادی', '۱'], ['city', 'شهر', '۲'], ['dev', 'کارت توسعه', '؟']] as const;
-  return (
-    <table className="ct-costcard">
-      <caption>هزینهٔ ساخت</caption>
-      <thead><tr><th scope="col">ساخت</th><th scope="col">منابع</th><th scope="col">امتیاز</th></tr></thead>
-      <tbody>
-        {rows.map(([k, label, vp]) => (
-          <tr key={k}>
-            <th scope="row">{label}</th>
-            <td>
-              <span className="ct-costcard__icons" aria-hidden="true">
-                {RESOURCES.flatMap((r) => Array.from({ length: COST[k][r] ?? 0 }, (_, i) => <span key={`${r}${i}`} className={`ct-costcard__res ct-res--${r}`}><ResIcon r={r} /></span>))}
-              </span>
-              <small>{handText(COST[k])}</small>
-            </td>
-            <td>{vp}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  return <img className="ct-costcard" src={COST_PNG} alt="هزینهٔ ساخت: جاده یک چوب و یک خشت؛ آبادی یک چوب، خشت، پشم و گندم؛ شهر دو گندم و سه سنگ؛ کارت توسعه یک پشم، گندم و سنگ" draggable={false} />;
 }
 
 // ---------- small controls ----------
@@ -378,6 +358,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
     }[view.phase] };
   }
 
+  const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
   const bankRate = (r: Res) => legal.bank.find((h) => h.give === r)?.rate;
   const tradeOk = sum(give) > 0 && sum(get) > 0 && RESOURCES.every((r) => !(give[r] > 0 && get[r] > 0));
   const devCounts = (view.myDevs ?? []).reduce<Record<string, { n: number; fresh: number }>>((a, d) => {
@@ -387,11 +368,17 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   const playType: Record<Dev, string | null> = { knight: 'playKnight', road: 'playRoadBuilding', plenty: 'playPlenty', monopoly: 'playMonopoly', vp: null };
 
   return (
-    <div className="ct" ref={root}>
+    <div className={framed ? 'ct ct--framed' : 'ct'} ref={root}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>آبادی ۱ امتیاز، شهر ۲، طولانی‌ترین جاده و بزرگ‌ترین ارتش هر کدام ۲ امتیاز؛ با {fa(10)} امتیاز برنده‌اید. تاس ۷: بیش از {fa(7)} کارت را نصف کنید و راهزن را ببرید.</p>
+        </RailSlot>
+      )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       <div className="ct__meta">
-        <span>نوبت {fa(view.turn)}</span>
+        {!framed && <span>نوبت {fa(view.turn)}</span>}
         {rolling ? (
           <span key="rolling" className="ct-dice" aria-label="تاس‌ها در حال چرخیدن"><DieFace value={6} pending /><DieFace value={6} red pending /></span>
         ) : view.dice && (
@@ -404,7 +391,8 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
         <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>
       </div>
 
-      <ul className="ct-players" aria-label="بازیکنان">
+      {framed && view.myHand && <CostCard />}
+      {!framed && <ul className="ct-players" aria-label="بازیکنان">
         {(mySeat === null ? [] : [mySeat]).concat(Array.from({ length: view.players }, (_, s) => s).filter((s) => s !== mySeat)).map((s) => {
           const turn = view.current === s && !view.outcome;
           const vp = s === mySeat && view.myVp !== null ? view.myVp : view.publicVp[s]! + (view.vpCards?.[s] ?? 0);
@@ -446,7 +434,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
             </li>
           );
         })}
-      </ul>
+      </ul>}
 
       <div className="ct-main">
         <div className="ct-board-wrap">
@@ -454,7 +442,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
         </div>
 
         <div className="ct-side">
-          {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+          {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
           {has('discard') && (
             <Panel title={`دور ریختن ${fa(owed)} کارت`} tone="decide">
@@ -597,10 +585,10 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
 
           {myTurn && has('endTurn') && <DockSlot><Button variant="secondary" disabled={busy} onClick={() => act({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
 
-          <details className="ct-log" open>
+          {!framed && <details className="ct-log" open>
             <summary>رویدادها</summary>
             <ol>{view.log.slice(-8).reverse().map((e) => <li key={e.seq}>{describe(e, view, seatName)}</li>)}</ol>
-          </details>
+          </details>}
         </div>
       </div>
     </div>

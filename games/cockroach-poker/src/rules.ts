@@ -22,6 +22,8 @@ export interface CockroachState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public move list for the table log (older saved states lack it). */
+  moves?: { seat: number; text: string }[];
 }
 export interface CockroachView {
   players: number;
@@ -51,6 +53,7 @@ function shuffle<T>(rng: EngineRng, xs: T[]) {
   return a;
 }
 const sortHand = (h: Creature[]) => h.sort((a, b) => CREATURES.indexOf(a) - CREATURES.indexOf(b));
+export const CREATURE_NAME: Record<Creature, string> = { cockroach: 'سوسک', bat: 'خفاش', fly: 'مگس', toad: 'وزغ', rat: 'موش', scorpion: 'عقرب', spider: 'عنکبوت', stinkbug: 'سن' };
 export const passTargets = (s: Pick<CockroachState, 'players' | 'chain'>) => (s.chain ? Array.from({ length: s.players }, (_, k) => k).filter((k) => !s.chain!.seen.includes(k) && k !== s.chain!.to) : []);
 const lose = (s: CockroachState, loser: number): Outcome => ({ placements: s.hands.map((_, seat) => ({ seat, place: seat === loser ? 2 : 1 })), reason: 'win' });
 
@@ -130,6 +133,11 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
       if (s.table[taker]!.filter((x) => x === c.card).length >= 4) s.outcome = lose(s, taker);
       else if (!s.hands[taker]!.length) s.outcome = lose(s, taker);
     }
+    const L = s.last;
+    const text = a.type === 'peek' ? 'کارت را دید'
+      : L && L.kind !== 'call' ? `${L.kind === 'give' ? 'داد' : 'رد کرد'}: «${CREATURE_NAME[L.claim]}» به صندلی ${(L.to + 1).toLocaleString('fa-IR')}`
+      : L ? `${L.truth ? 'راست' : 'دروغ'} گفت؛ ${CREATURE_NAME[L.card]} بود` : '';
+    if (text) s.moves = [...(s.moves ?? []), { seat, text }].slice(-40);
     return finish(s, [{ type: a.type, seat }]);
   },
 
@@ -187,7 +195,8 @@ export const cockroachModule: GameModule<CockroachState, CockroachAction, Cockro
           badges: !s.outcome && worst >= 3 ? [{ key: 'danger', label: 'خطر', tone: 'danger' as const }] : [],
           ...(s.outcome ? { status: place.get(seat) === 1 ? ('winner' as const) : ('out' as const) } : {})
         };
-      })
+      }),
+      moves: (s.moves ?? []).slice(-40)
     };
   },
 

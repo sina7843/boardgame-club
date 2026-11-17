@@ -390,7 +390,18 @@ export const cryptidModule: GameModule<CryptidState, CryptidAction, CryptidView>
         ...(winners.has(seat) ? { status: 'winner' as const } : !on ? { status: 'out' as const } : {}),
         strikes: s.misses[seat]!
       })),
-      strikesMax: 2
+      strikesMax: 2,
+      moves: s.log.slice(-40).map((e): { seat: number; text: string } => {
+        const fa = (n: number) => n.toLocaleString('fa-IR');
+        const cell = (i: number) => `${fa((i % COLS) + 1)}،${fa(Math.floor(i / COLS) + 1)}`;
+        switch (e.t) {
+          case 'cube': return { seat: e.seat, text: `مکعب در ${cell(e.cell)}` };
+          case 'question': return { seat: e.seat, text: `پرسش از ${fa(e.target + 1)}‌ام در ${cell(e.cell)}: ${e.yes ? 'بله' : 'نه'}` };
+          case 'search': return { seat: e.seat, text: `جست‌وجوی ${cell(e.cell)}${e.results.every((r) => r.yes) ? '، پیدا شد' : ''}` };
+          case 'skip': return { seat: e.seat, text: 'نوبت رد شد' };
+          case 'out': return { seat: e.seat, text: 'بیرون رفت' };
+        }
+      })
     };
   },
 

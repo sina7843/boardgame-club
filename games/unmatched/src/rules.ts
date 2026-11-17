@@ -1770,7 +1770,19 @@ export const unmatchedModule: GameModule<UnmatchedState, UnmatchedAction, Unmatc
           strikes: s.timeouts[seat] ?? 0
         };
       }),
-      strikesMax: MAX_TIMEOUTS
+      strikesMax: MAX_TIMEOUTS,
+      moves: s.log.slice(-40).flatMap((e): { seat: number; text: string }[] => {
+        const own = (f: string) => Number.parseInt(f, 10);
+        switch (e.t) {
+          case 'pick': return [{ seat: e.seat, text: 'قهرمان برگزید' }];
+          case 'maneuver': return [{ seat: e.seat, text: 'مانور' }];
+          case 'attack': return [{ seat: own(e.fighter), text: 'حمله کرد' }];
+          case 'scheme': return [{ seat: own(e.fighter), text: 'نقشه بازی کرد' }];
+          case 'eliminated': return [{ seat: e.seat, text: 'حذف شد' }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          default: return [];
+        }
+      })
     };
   },
 

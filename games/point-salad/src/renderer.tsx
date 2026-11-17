@@ -3,13 +3,7 @@
 // Tap a pile's rule, or one or two vegetables; tap one of your rules first to flip it into a vegetable this turn.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameAction, type GameRendererProps } from '@bg/ui';
-import tomato from './art/tomato.webp';
-import lettuce from './art/lettuce.webp';
-import carrot from './art/carrot.webp';
-import cabbage from './art/cabbage.webp';
-import pepper from './art/pepper.webp';
-import onion from './art/onion.webp';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameAction, type GameRendererProps } from '@bg/ui';
 import { CARDS, VEG, counts, ruleScore, scores, type PointSaladView, type Rule, type Veg } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -17,7 +11,10 @@ export const VEG_FA: Record<Veg, string> = { tomato: 'گوجه', lettuce: 'کا�
 const sign = (n: number) => (n > 0 ? `+${fa(n)}` : `−${fa(-n)}`);
 
 // Vegetable discs are the BGA Point Salad client art (see DECISIONS.md).
-const ART: Record<Veg, string> = { tomato, lettuce, carrot, cabbage, pepper, onion };
+const GC = import.meta.glob('./art/gc/point-salad-*.png', { eager: true, import: 'default' });
+const gc = (n: string) => GC[`./art/gc/point-salad-${n}.png`]!;
+const ART = Object.fromEntries(VEG.map((v) => [v, gc(`sym-${v}`)])) as Record<Veg, string>;
+const CARD_ART = Object.fromEntries(VEG.map((v) => [v, gc(v)])) as Record<Veg, string>;
 
 export function VegIcon({ v, size = 1.4 }: { v: Veg; size?: number }) {
   return <img src={ART[v]} alt={VEG_FA[v]} draggable={false} style={{ inlineSize: `${size}rem`, blockSize: `${size}rem` }} className={`ps-veg ps-v--${v}`} />;
@@ -82,9 +79,17 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}` };
   const order = mySeat === null ? view.rules.map((_, k) => k) : [mySeat, ...view.rules.map((_, k) => k).filter((k) => k !== mySeat)];
 
+  const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
+
   return (
     <div className="ps" ref={root} data-seq={served.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>یا یک دستور از بالای دسته بردارید، یا تا دو سبزی از بازار. هر دستور را می‌توانید به یک سبزی تبدیل کنید. دستورها در پایان بازی امتیاز می‌دهند.</p>
+        </RailSlot>
+      )}
 
       {!view.outcome && (
         <section className="ps__market" aria-label="بازار">
@@ -104,7 +109,7 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
                     return (
                       <button key={i} type="button" className={['ps-slot', on ? 'ps-slot--on' : '', hint?.type === 'veg' && hint.slots?.includes(i) && !on ? 'ps-hint' : ''].join(' ')}
                         disabled={!vegHint || busy} aria-pressed={on} onClick={() => setSel(on ? sel.filter((x) => x !== i) : [...sel, i].slice(-2))}>
-                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><VegIcon v={CARDS[id]!.veg} size={2.2} /></span>
+                        <span data-flip={`c-${id}`} data-flip-from={`crate-${p}`} data-flip-exit={`seat-${view.current}`} style={{ display: 'inline-flex' }}><img src={CARD_ART[CARDS[id]!.veg]} alt={VEG_FA[CARDS[id]!.veg]} draggable={false} className="ps-vegcard" /></span>
                       </button>
                     );
                   })}
@@ -114,18 +119,21 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
           })}
         </section>
       )}
-      {vegHint && !view.outcome && (
-        <div className="ps__bar">
-          <Button size="sm" disabled={busy || sel.length !== vegHint.need} className={hint?.type === 'veg' && sel.length === vegHint.need ? 'ps-hint' : ''}
-            onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
-          {flip !== null && <span className="ps__flipnote">این نوبت یک دستور به سبزی تبدیل می‌شود</span>}
-        </div>
-      )}
+      {vegHint && !view.outcome && (() => {
+        const bar = (
+          <>
+            <Button size="sm" disabled={busy || sel.length !== vegHint.need} className={hint?.type === 'veg' && sel.length === vegHint.need ? 'ps-hint' : ''}
+              onClick={() => act({ type: 'veg', slots: sel.slice().sort((a, b) => a - b), ...extra })}>برداشتن {fa(sel.length)} سبزی</Button>
+            {flip !== null && <span className="ps__flipnote">این نوبت یک دستور به سبزی تبدیل می‌شود</span>}
+          </>
+        );
+        return framed ? <DockSlot>{bar}</DockSlot> : <div className="ps__bar">{bar}</div>;
+      })()}
 
       <ul className="ps__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['ps-pl', view.current === s && !view.outcome ? 'ps-pl--turn' : '', s === mySeat ? 'ps-pl--me' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'ps-pl--win' : ''].join(' ')}>
-            <div className="ps-pl__head"><bdi className="ps-pl__name">{who(s)}</bdi><span className="ps-pl__score bg-pop" key={sc[s]}>{fa(sc[s]!)} امتیاز</span></div>
+            <div className="ps-pl__head"><bdi className="ps-pl__name">{who(s)}</bdi>{!framed && <span className="ps-pl__score bg-pop" key={sc[s]}>{fa(sc[s]!)} امتیاز</span>}</div>
             <div className="ps-pl__veg">{VEG.map((x) => <span key={x} className={all[s]![x] ? '' : 'ps-zero'}><VegIcon v={x} size={1.2} /><b className="bg-pop" key={all[s]![x]}>{fa(all[s]![x])}</b></span>)}</div>
             <div className="ps-pl__rules">
               {view.rules[s]!.map((id) => {

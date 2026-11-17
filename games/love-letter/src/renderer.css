@@ -55,3 +55,14 @@ button.ll-card:hover, button.ll-card:focus-visible { transform: translateY(-8px)
 @keyframes ll-pulse { 50% { box-shadow: 0 0 0 4px #ffd27a; } }
 @media (max-width: 480px) { .ll-card--md { inline-size: 6.8rem; block-size: 10rem; } }
 @media (prefers-reduced-motion: reduce) { .ll-card--hint, .ll__seen, .ll-guess--hint, .ll-target--hint { animation: none; } }
+
+/* Inside the shared table frame: 44px touch targets for guess chips. */
+.ll-guess { min-block-size: 2.75rem; min-inline-size: 2.75rem; }
+
+/* Delivered card art: the PNG is the whole card face (value, name and picture are printed on it). */
+.ll-card.ll-card--md, .ll-card.ll-card--sm { padding: 0; background: none; border: 0; box-shadow: none; overflow: hidden; border-radius: 8px; }
+.ll-card--md { inline-size: 7.5rem; block-size: auto; aspect-ratio: 139 / 187; }
+.ll-card--sm { inline-size: 3.2rem; block-size: auto; aspect-ratio: 139 / 187; }
+.ll-card__img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.ll-deck__back { display: block; inline-size: 3.2rem; aspect-ratio: 139 / 187; object-fit: contain; }
+.ll-guess img { vertical-align: middle; margin-inline-end: 0.25rem; }

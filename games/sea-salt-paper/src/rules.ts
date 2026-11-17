@@ -343,6 +343,9 @@ export const sspModule: GameModule<SspState, SspAction, SspView> = {
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round }],
+      // The state keeps only the latest public move (no history), so the move list has at most one entry.
+      moves: s.last && ({ draw: 'دو کارت کشید', keep: 'یک کارت نگه داشت', take: 'از کپه برداشت', duo: 'جفت بازی کرد', stop: 'بس گفت', last: 'آخرین فرصت' } as Record<string, string>)[s.last.kind]
+        ? [{ seat: s.last.seat, text: ({ draw: 'دو کارت کشید', keep: 'یک کارت نگه داشت', take: 'از کپه برداشت', duo: 'جفت بازی کرد', stop: 'بس گفت', last: 'آخرین فرصت' } as Record<string, string>)[s.last.kind]! }] : [],
       ...(s.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.scores.indexOf(top) } : {})
     };
   },

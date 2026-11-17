@@ -59,8 +59,10 @@ export interface CenturyState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public action history (newest last, at most 40) for the shell event log; absent in older saved states. */
+  hist?: { seat: number; text: string }[];
 }
-export type CenturyView = Omit<CenturyState, 'mdeck' | 'odeck' | 'timeouts'> & { mdeckCount: number; odeckCount: number; scores: number[] };
+export type CenturyView = Omit<CenturyState, 'mdeck' | 'odeck' | 'timeouts' | 'hist'> & { mdeckCount: number; odeckCount: number; scores: number[] };
 
 const spice = z.enum(SPICES);
 export const centuryAction = z.discriminatedUnion('type', [
@@ -240,12 +242,16 @@ export const centuryModule: GameModule<CenturyState, CenturyAction, CenturyView>
       }
     }
     s.last = { seat, kind: a.type, ...('card' in a ? { card: a.card } : {}) };
+    {
+      const kindFa: Record<string, string> = { play: 'کارت بازی کرد', rest: 'استراحت کرد', acquire: 'تاجر خرید', claim: 'سفارش گرفت', discard: 'ادویه کنار گذاشت' };
+      s.hist = [...(s.hist ?? []), { seat, text: kindFa[a.type] ?? a.type }].slice(-40);
+    }
     endTurn(s);
     return finish(s, [{ type: a.type, seat }]);
   },
 
   project(s) {
-    const { mdeck, odeck, timeouts: _t, ...rest } = structuredClone(s);
+    const { mdeck, odeck, timeouts: _t, hist: _h, ...rest } = structuredClone(s);
     return { ...rest, mdeckCount: mdeck.length, odeckCount: odeck.length, scores: s.cubes.map((_, k) => scoreOf(s, k)) };
   },
 
@@ -287,11 +293,14 @@ export const centuryModule: GameModule<CenturyState, CenturyAction, CenturyView>
         primary: { label: 'امتیاز', value: score },
         stats: [
           { key: 'cubes', label: 'ادویه', value: total(s.cubes[seat]!), icon: 'gem' },
-          { key: 'orders', label: 'سفارش', value: s.won[seat]!.length, icon: 'trophy' }
+          { key: 'orders', label: 'سفارش', value: s.won[seat]!.length, icon: 'trophy' },
+          { key: 'gold', label: 'طلا', value: s.coins[seat]!.gold },
+          { key: 'silver', label: 'نقره', value: s.coins[seat]!.silver }
         ],
         ...(won === seat ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'orders', label: 'دسته سفارش', value: s.odeck.length }],
+      moves: (s.hist ?? []).slice(-40),
       ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
     };
   },

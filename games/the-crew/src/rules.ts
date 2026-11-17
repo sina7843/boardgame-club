@@ -7,7 +7,7 @@
 import { z } from 'zod';
 import type { Actor, ActionHint, EngineRng, GameManifest, GameModule, Outcome, TutorialScript, Transition, Viewer } from '@bg/game-sdk';
 import { theCrew } from './definition.ts';
-import { DECK, commKind, deal, handsEmpty, legalCards, playCard, shuffle, sortHand, suit, type Play, type TrickCore } from './trick.ts';
+import { DECK, cardFa, commKind, deal, handsEmpty, legalCards, playCard, shuffle, sortHand, suit, type Play, type TrickCore } from './trick.ts';
 
 export type TaskStatus = 'open' | 'done' | 'failed';
 export interface CrewTask { id: number; owner: number | null; status: TaskStatus; card?: string; order?: number | 'last'; cond?: string; arg?: string; n?: number; difficulty?: number }
@@ -151,7 +151,13 @@ export function crewModule(manifest: GameManifest, edition: Edition): GameModule
           stats: [{ key: 'tasks', label: 'وظیفه', value: s.tasks.filter((x) => x.owner === seat && x.status === 'open').length, icon: 'flag' }],
           ...(winners.has(seat) ? { status: 'winner' as const } : {})
         })),
-        shared: [{ key: 'tasks', label: 'وظایف', value: s.tasks.filter((x) => x.status === 'done').length, max: s.tasks.length }]
+        shared: [{ key: 'tasks', label: 'وظایف', value: s.tasks.filter((x) => x.status === 'done').length, max: s.tasks.length }],
+        // The state keeps no event log: moves are rebuilt from public state (last trick, shown cards, trick in progress).
+        moves: [
+          ...(s.lastTrick ? [{ seat: s.lastTrick.winner, text: 'دست قبل را برد' }] : []),
+          ...s.comms.flatMap((m, seat) => (m ? [{ seat, text: `${cardFa(m.card)} را نشان داد` }] : [])),
+          ...s.trick.map((p) => ({ seat: p.seat, text: `${cardFa(p.card)} را بازی کرد` }))
+        ].slice(-40)
       };
     },
     tutorial: edition.tutorial

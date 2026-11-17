@@ -102,10 +102,10 @@
 .ttr-card:disabled .ttr-cardart { filter: saturate(0.8) brightness(0.95) drop-shadow(0 3px 4px rgb(0 0 0 / 0.4)); }
 .ttr-card:not(:disabled):hover { transform: translateY(-6px) rotate(-1.5deg); }
 .ttr-card:not(:disabled) .ttr-cardart { filter: drop-shadow(0 0 0 #ffd34d) drop-shadow(0 4px 5px rgb(0 0 0 / 0.45)); }
-.ttr-card--empty { display: block; aspect-ratio: 2 / 3; border-radius: 8px; border: 2px dashed rgb(255 230 190 / 0.4); }
+.ttr-card--empty { display: block; aspect-ratio: 25 / 16; border-radius: 8px; border: 2px dashed rgb(255 230 190 / 0.4); }
 .ttr-cardart { inline-size: 100%; max-inline-size: 84px; block-size: auto; display: block; filter: drop-shadow(0 4px 5px rgb(0 0 0 / 0.45)); }
 .ttr-card__name { font-size: 0.68rem; font-weight: 800; text-align: center; line-height: 1.2; text-shadow: 0 1px 1px #000; }
-.ttr-deck { position: relative; display: block; inline-size: 100%; max-inline-size: 84px; aspect-ratio: 2 / 3; }
+.ttr-deck { position: relative; display: block; inline-size: 100%; max-inline-size: 84px; aspect-ratio: 25 / 16; }
 .ttr-deck .ttr-cardart { position: absolute; inset: 0; }
 .ttr-deck .ttr-cardart:nth-child(1) { transform: translate(4px, 4px) rotate(3deg); }
 .ttr-deck .ttr-cardart:nth-child(2) { transform: translate(2px, 2px) rotate(1.5deg); }

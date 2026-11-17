@@ -51,3 +51,9 @@
 .ps-slot .ps-veg { inline-size: 75% !important; block-size: 75% !important; }
 
 .ps-pl__veg b { display: inline-block; font-weight: inherit; }
+
+/* Inside the shared table frame: 44px touch targets for market veg, piles and flippable rules. */
+.ps-slot, .ps-pile, .ps-flip { min-block-size: 2.75rem; min-inline-size: 2.75rem; }
+
+/* Delivered veg card art in the market (112 x 152). */
+.ps-vegcard { display: block; inline-size: 4.2rem; block-size: auto; aspect-ratio: 112 / 152; border-radius: 6px; }

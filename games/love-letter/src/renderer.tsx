@@ -2,15 +2,7 @@
 // protection and discards; your two cards — tap one, then (if needed) a target and, for the Guard, a guess.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
-import guard from './art/ll-guard.webp';
-import priest from './art/ll-priest.webp';
-import baron from './art/ll-baron.webp';
-import handmaid from './art/ll-handmaid.webp';
-import prince from './art/ll-prince.webp';
-import king from './art/ll-king.webp';
-import countess from './art/ll-countess.webp';
-import princess from './art/ll-princess.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { CARD_FA, type LogEntry, type LoveLetterView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -20,17 +12,13 @@ const EFFECT_FA: Record<number, string> = {
 };
 
 // Portraits are cut from the BGA Love Letter client art (see DECISIONS.md); decorative, the card name and value stay as text.
-const ART: Record<number, string> = { 1: guard, 2: priest, 3: baron, 4: handmaid, 5: prince, 6: king, 7: countess, 8: princess };
+const GC = import.meta.glob<string>('./art/gc/love-letter-*.png', { eager: true, import: 'default' });
+const gc = (n: string) => GC[`./art/gc/love-letter-${n}.png`]!;
+const ART = (v: number) => gc(`role-${v}`);
 
 function LLCard({ v, size = 'md', onClick, selected, hint, disabled, flip, flipFrom }: { flip?: string; flipFrom?: string; v: number; size?: 'sm' | 'md'; onClick?: () => void; selected?: boolean; hint?: boolean; disabled?: boolean }) {
   const body = (
-    <>
-      <span className="ll-card__v">{fa(v)}</span>
-      <img className="ll-card__art" src={ART[v] ?? princess} alt="" aria-hidden="true" />
-      <strong className="ll-card__name">{CARD_FA[v]}</strong>
-      {size === 'md' && <small className="ll-card__fx">{EFFECT_FA[v]}</small>}
-      <span className="ll-card__seal" aria-hidden="true" />
-    </>
+    <img className="ll-card__img" src={ART(v)} alt="" aria-hidden="true" draggable={false} />
   );
   const cls = ['ll-card', `ll-card--${size}`, `ll-card--v${v}`, selected ? 'll-card--sel' : '', hint ? 'll-card--hint' : ''].join(' ');
   return onClick
@@ -90,6 +78,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
     : myTurn ? { tone: 'mine' as const, text: card === null ? 'یک کارت را بازی کنید' : target === null ? 'هدف را انتخاب کنید' : 'کارت او را حدس بزنید' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
 
+  const framed = useInFrame() !== null; // the shell draws seats, tokens, whose-turn and the events log
   const describe = (e: LogEntry) => {
     if (e.t === 'play') {
       const base = `${who(e.seat)} «${CARD_FA[e.card]}» بازی کرد${e.target !== null ? ` روی ${who(e.target)}` : ''}`;
@@ -105,21 +94,27 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
 
   return (
     <div className="ll" ref={root} data-seq={lastSeq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>{card !== null ? EFFECT_FA[card] : 'یک کارت بازی کنید و اثرش را اجرا کنید؛ در پایان دور بالاترین کارت می‌برد. با شاهزاده یا شاه، شاهزاده‌خانم را هرگز نگه ندارید.'}</p>
+        </RailSlot>
+      )}
 
       <ul className="ll__players" aria-label="بازیکنان">
         {view.tokens.map((t, s) => {
           const targetable = card !== null && chosen?.targets.includes(s) && target === null;
           return (
             <li key={s} data-flip-anchor={s === mySeat ? 'hand' : `seat-${s}`} className={['ll-pl', s === knocked ? 'bg-hit' : '', s === view.current && !view.outcome ? 'll-pl--turn' : '', view.inRound[s] ? '' : 'll-pl--out', s === mySeat ? 'll-pl--me' : ''].join(' ')}>
-              <div className="ll-pl__head">
+              {framed ? <bdi className="ll-pl__name">{who(s)}</bdi> : <div className="ll-pl__head">
                 <bdi className="ll-pl__name">{who(s)}</bdi>
                 {view.protectedSeats[s] && <span className="ll-pl__shield" title="در امان">🛡</span>}
                 {!view.inRound[s] && view.active[s] && <span className="ll-pl__state">بیرون از دور</span>}
                 <span className="ll-pl__tokens" aria-label={`${fa(t)} نشان از ${fa(view.goal)}`}>
                   {Array.from({ length: view.goal }, (_, k) => <i key={`${k}-${k < t}`} className={k < t ? 'on bg-pop' : ''} />)}
                 </span>
-              </div>
+              </div>}
               <div className="ll-pl__discards">{view.discards[s]!.map((c, k) => <LLCard key={k} v={c} size="sm" flip={discardId(s, k)} flipFrom={s === mySeat ? 'hand' : `seat-${s}`} />)}</div>
               {targetable && (
                 <Button size="sm" className={hint?.target === s ? 'll-target--hint' : ''} disabled={busy} onClick={() => pickTarget(s)}>
@@ -133,7 +128,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
 
       <div className="ll__table">
         <div className="ll-deck" data-flip-anchor="deck" aria-label={`${fa(view.deckCount)} کارت در دسته`}>
-          <span className="ll-deck__back" /><span className="ll-deck__n">{fa(view.deckCount)}</span>
+          <img className="ll-deck__back" src={gc('back')} alt="" aria-hidden="true" /><span className="ll-deck__n">{fa(view.deckCount)}</span>
         </div>
         {view.faceUp.length > 0 && <div className="ll__faceup" aria-label="کارت‌های رو کنار گذاشته">{view.faceUp.map((c, k) => <LLCard key={k} v={c} size="sm" flip={`f-${view.round}-${k}`} flipFrom="deck" />)}</div>}
       </div>
@@ -148,7 +143,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
         <div className="ll__guess" role="group" aria-label="حدس کارت">
           {[2, 3, 4, 5, 6, 7, 8].map((g) => (
             <button key={g} type="button" className={hint?.guess === g ? 'll-guess ll-guess--hint' : 'll-guess'} disabled={busy} onClick={() => send(1, target, g)}>
-              {fa(g)} {CARD_FA[g]}
+              <img src={gc(`guess-${g}`)} alt="" aria-hidden="true" width={28} height={28} />{fa(g)} {CARD_FA[g]}
             </button>
           ))}
         </div>
@@ -164,7 +159,7 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
         </div>
       )}
 
-      <ol className="ll__log" aria-label="رویدادها">{view.log.slice(-4).map((e) => <li key={e.seq}>{describe(e)}</li>)}</ol>
+      {!framed && <ol className="ll__log" aria-label="رویدادها">{view.log.slice(-4).map((e) => <li key={e.seq}>{describe(e)}</li>)}</ol>}
     </div>
   );
 }

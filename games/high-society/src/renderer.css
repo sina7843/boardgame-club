@@ -67,3 +67,15 @@
 @keyframes hs-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .hs *, .hs__last { animation: none !important; transition: none !important; } }
 .hs-pl__money { display: inline-block; }
+
+/* Inside the shared table frame: 44px touch targets for the banknote fan. */
+.hs-pick { min-block-size: 2.75rem; min-inline-size: 2.75rem; display: inline-grid; place-items: center; }
+
+/* Delivered art: status cards (116 x 153) and banknotes (66 x 46) are whole pictures. */
+.hs-card.hs-card--img { background: none; box-shadow: none; overflow: visible; }
+.hs-card--img::after { display: none; }
+.hs-card__face { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.hs-note.hs-note--img { background: none; box-shadow: none; border-radius: 0; }
+.hs-note--img img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.hs-note--img.hs-note--md { inline-size: 3.6rem; block-size: auto; aspect-ratio: 66 / 46; }
+.hs-note--img.hs-note--sm { inline-size: 2.2rem; block-size: auto; aspect-ratio: 66 / 46; }

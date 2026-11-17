@@ -3,29 +3,29 @@
 // player and a claim. Respond: «راست می‌گوید» / «دروغ می‌گوید», or look at it and pass it on with a new claim.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
-import cockroach from './art/cockroach.webp';
-import bat from './art/bat.webp';
-import fly from './art/fly.webp';
-import toad from './art/toad.webp';
-import rat from './art/rat.webp';
-import scorpion from './art/scorpion.webp';
-import spider from './art/spider.webp';
-import stinkbug from './art/stinkbug.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import cockroach from './art/cockroach-poker-cockroach.png';
+import bat from './art/cockroach-poker-bat.png';
+import fly from './art/cockroach-poker-fly.png';
+import toad from './art/cockroach-poker-toad.png';
+import rat from './art/cockroach-poker-rat.png';
+import scorpion from './art/cockroach-poker-scorpion.png';
+import spider from './art/cockroach-poker-spider.png';
+import stinkbug from './art/cockroach-poker-stinkbug.png';
+import backArt from './art/cockroach-poker-back.png';
 import { CREATURES, type CockroachView, type Creature } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CREATURE_FA: Record<Creature, string> = { cockroach: 'سوسک', bat: 'خفاش', fly: 'مگس', toad: 'وزغ', rat: 'موش', scorpion: 'عقرب', spider: 'عنکبوت', stinkbug: 'سن' };
 
-// Creature art is cut from a generated sprite sheet (see DECISIONS.md).
+// Printed card faces and back from design/games/group-c/art/cockroach-poker; the whole picture is the card.
 const ART: Record<Creature, string> = { cockroach, bat, fly, toad, rat, scorpion, spider, stinkbug };
 
 export function CritterCard({ c, size = 'md', back, flip, flipFrom, cls = '' }: { c?: Creature | null; size?: 'sm' | 'md' | 'lg'; back?: boolean; flip?: string; flipFrom?: string; cls?: string }) {
-  if (back || !c) return <span className={`cr-card cr-card--${size} cr-card--back ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label="کارت پشت‌ورو" />;
+  if (back || !c) return <span className={`cr-card cr-card--art cr-card--${size} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label="کارت پشت‌ورو"><img src={backArt} alt="" aria-hidden="true" draggable={false} /></span>;
   return (
-    <span className={`cr-card cr-card--${size} cr-c--${c} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={CREATURE_FA[c]}>
+    <span className={`cr-card cr-card--art cr-card--${size} cr-c--${c} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={CREATURE_FA[c]}>
       <img src={ART[c]} alt="" aria-hidden="true" draggable={false} />
-      {size !== 'sm' && <span className="cr-card__n">{CREATURE_FA[c]}</span>}
     </span>
   );
 }
@@ -77,11 +77,17 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
   const last = view.last;
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
+  const framed = useInFrame() !== null;
   const loser = view.outcome?.placements.find((x) => x.place === 2)?.seat;
 
   return (
     <div className="cr" ref={root} data-seq={served.seq}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>{ch?.peeked ? 'کارت را دیده‌اید؛ باید با ادعای تازه به کسی که ندیده رد کنید.' : 'گیرنده حدس می‌زند ادعا راست است یا دروغ؛ حدس درست کارت را جلوی دهنده می‌گذارد. چهار کارت هم‌نوع جلوی خود یعنی باخت.'}</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {ch && !view.outcome && (
         <section className="cr__play" data-flip-anchor="play" aria-label="کارت در جریان">
@@ -90,7 +96,7 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
           {ch.seen.length > 1 && <div className="cr__path">دیده‌اند: {ch.seen.map((k) => who(k)).join('، ')}</div>}
         </section>
       )}
-      {last?.kind === 'call' && !ch && (
+      {!framed && last?.kind === 'call' && !ch && (
         <p className="cr__last" data-flip-anchor="play" role="status" key={view.seq}>
           <CritterCard c={last.card} size="sm" cls="bg-flip-in" />{' '}
           <bdi>{who(last.seat)}</bdi> گفت «{last.truth ? 'راست' : 'دروغ'}». کارت {CREATURE_FA[last.card]} بود ({last.card === last.claim ? 'راست' : 'بلوف'}) و جلوی <bdi>{who(last.taker)}</bdi> ماند.

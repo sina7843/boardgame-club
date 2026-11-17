@@ -681,6 +681,12 @@ export const heatModule: GameModule<HeatState, HeatAction, HeatView> = {
       ],
       ...(s.outcome ? (s.outcome.placements.some((p) => p.seat === seat && p.place === 1) ? { status: 'winner' as const } : {}) : r.resigned !== null ? { status: 'out' as const } : r.finished || (s.phase === 'plan' && r.plan) ? { status: 'done' as const } : {})
     })),
+    moves: s.log.map((e) => {
+      const fa = (n: number) => n.toLocaleString('fa-IR');
+      const t = { shift: `دنده ${fa(e.n ?? 0)}`, move: `حرکت با سرعت ${fa(e.n ?? 0)}`, stress: `استرس ${fa(e.n ?? 0)}`, boost: `بوست ${fa(e.n ?? 0)}`, adrenaline: 'آدرنالین', cool: `خنک‌سازی ${fa(e.n ?? 0)}`,
+        slip: `مکش ${fa(e.n ?? 0)} خانه`, corner: `پیچ، ${fa(e.n ?? 0)} گرما`, spin: 'چرخید', finish: 'از خط پایان گذشت', scrap: `دور ریختن ${fa(e.n ?? 0)} کارت`, pick: 'کارت ارتقا', timeout: 'زمانش تمام شد', resign: 'انصراف داد' }[e.e];
+      return { seat: e.seat, text: t.slice(0, 40) };
+    }).slice(-40),
     shared: [{ key: 'round', label: 'دور', value: s.round }, ...(s.opts.races > 1 ? [{ key: 'race', label: 'مسابقه', value: s.race + 1, max: s.tracks.length }] : [])]
   }),
 

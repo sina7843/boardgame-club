@@ -3,18 +3,62 @@
 // Rotate the domino, tap where its first half goes, choose your next domino, confirm.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useInFrame, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
 import { DIRS, DOMINOES, canPlace, scoreKingdom, type Cell, type Half, type KingdominoView, type Terrain } from './rules.ts';
 
+import d01 from './art/kingdomino-d01.png';
+import d02 from './art/kingdomino-d02.png';
+import d03 from './art/kingdomino-d03.png';
+import d04 from './art/kingdomino-d04.png';
+import d07 from './art/kingdomino-d07.png';
+import d08 from './art/kingdomino-d08.png';
+import d09 from './art/kingdomino-d09.png';
+import d10 from './art/kingdomino-d10.png';
+import d11 from './art/kingdomino-d11.png';
+import d12 from './art/kingdomino-d12.png';
+import d13 from './art/kingdomino-d13.png';
+import d14 from './art/kingdomino-d14.png';
+import d16 from './art/kingdomino-d16.png';
+import d19 from './art/kingdomino-d19.png';
+import d20 from './art/kingdomino-d20.png';
+import d21 from './art/kingdomino-d21.png';
+import d23 from './art/kingdomino-d23.png';
+import d24 from './art/kingdomino-d24.png';
+import d25 from './art/kingdomino-d25.png';
+import d26 from './art/kingdomino-d26.png';
+import d27 from './art/kingdomino-d27.png';
+import d28 from './art/kingdomino-d28.png';
+import d29 from './art/kingdomino-d29.png';
+import d30 from './art/kingdomino-d30.png';
+import d31 from './art/kingdomino-d31.png';
+import d33 from './art/kingdomino-d33.png';
+import d34 from './art/kingdomino-d34.png';
+import d35 from './art/kingdomino-d35.png';
+import d36 from './art/kingdomino-d36.png';
+import d37 from './art/kingdomino-d37.png';
+import d38 from './art/kingdomino-d38.png';
+import d39 from './art/kingdomino-d39.png';
+import d40 from './art/kingdomino-d40.png';
+import d41 from './art/kingdomino-d41.png';
+import d42 from './art/kingdomino-d42.png';
+import d43 from './art/kingdomino-d43.png';
+import d46 from './art/kingdomino-d46.png';
+import d48 from './art/kingdomino-d48.png';
+import castlePink from './art/kingdomino-castle-pink.png'; import castleBlue from './art/kingdomino-castle-blue.png'; import castleOrange from './art/kingdomino-castle-orange.png'; import castleGreen from './art/kingdomino-castle-green.png';
+import kingPink from './art/kingdomino-king-pink.png'; import kingBlue from './art/kingdomino-king-blue.png'; import kingOrange from './art/kingdomino-king-orange.png'; import kingGreen from './art/kingdomino-king-green.png';
+// Art: design/games/group-d/art/kingdomino. Only 42 of the 48 domino faces are delivered (missing numbers fall back to two terrain squares); terrain squares inside kingdoms stay the older terrain textures.
+const DOM_ART: Record<number, string> = { 1: d01, 2: d02, 3: d03, 4: d04, 7: d07, 8: d08, 9: d09, 10: d10, 11: d11, 12: d12, 13: d13, 14: d14, 16: d16, 19: d19, 20: d20, 21: d21, 23: d23, 24: d24, 25: d25, 26: d26, 27: d27, 28: d28, 29: d29, 30: d30, 31: d31, 33: d33, 34: d34, 35: d35, 36: d36, 37: d37, 38: d38, 39: d39, 40: d40, 41: d41, 42: d42, 43: d43, 46: d46, 48: d48 };
+const CASTLE = [castlePink, castleBlue, castleOrange, castleGreen];
+const KING = [kingPink, kingBlue, kingOrange, kingGreen];
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const TERRAIN_FA: Record<Terrain | 'C', string> = { W: 'گندم‌زار', F: 'جنگل', L: 'دریاچه', G: 'چمنزار', S: 'باتلاق', M: 'معدن', C: 'قلعه' };
 const SEAT = ['#d1495b', '#2f80c9', '#e0a526', '#8e5bd1'];
 
-export function Square({ cell, size = 'md' }: { cell: Cell | Half | null; size?: 'sm' | 'md' }) {
+export function Square({ cell, size = 'md', seat }: { cell: Cell | Half | null; size?: 'sm' | 'md'; seat?: number }) {
   if (!cell) return <span className={`kd-sq kd-sq--${size} kd-sq--empty`} />;
   return (
     <span className={`kd-sq kd-sq--${size} kd-t--${cell.t}`} aria-label={`${TERRAIN_FA[cell.t]}${cell.c ? `، ${fa(cell.c)} تاج` : ''}`}>
-      {cell.t === 'C' ? <svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="M-7 7 V-3 H-5 V-6 H-2 V-3 H2 V-6 H5 V-3 H7 V7 Z" className="kd-castle" /></svg>
+      {cell.t === 'C' ? <img className="kd-castle-img" src={CASTLE[(seat ?? 0) % 4]} alt="" draggable={false} />
         : cell.c > 0 && <span className="kd-crowns">{Array.from({ length: cell.c }, (_, i) => <i key={i} />)}</span>}
     </span>
   );
@@ -22,6 +66,7 @@ export function Square({ cell, size = 'md' }: { cell: Cell | Half | null; size?:
 
 export function Domino({ dom, size = 'md' }: { dom: number; size?: 'sm' | 'md' }) {
   const [a, b] = DOMINOES[dom]!;
+  if (DOM_ART[dom + 1]) return <span className={`kd-dom kd-dom--img kd-dom--${size}`} aria-label={`دومینو ${fa(dom + 1)}`}><img src={DOM_ART[dom + 1]} alt="" draggable={false} /><b className="kd-dom__n visually-hidden">{fa(dom + 1)}</b></span>;
   return <span className={`kd-dom kd-dom--${size}`}><Square cell={a} size={size} /><Square cell={b} size={size} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
 }
 
@@ -39,7 +84,7 @@ function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: str
         const fresh = !!was && !!cell && !was[r]![c];
         const cls = ['kd-slot', !cell && !pv && out(r, c) ? 'kd-slot--out' : '', ok?.has(key) ? 'kd-slot--ok' : '', pv ? 'kd-slot--pv' : '', hint && hint[0] === r && hint[1] === c ? 'kd-hint' : '', fresh ? 'bg-land' : ''].join(' ');
         const style = fresh ? { ['--i' as string]: n++ } : undefined;
-        const inner = <Square cell={pv ?? cell} size={big ? 'md' : 'sm'} />;
+        const inner = <Square cell={pv ?? cell} size={big ? 'md' : 'sm'} seat={Number(id.slice(1))} />;
         return onCell && !cell
           ? <button key={key} type="button" className={cls} data-ok={ok?.has(key) ? '1' : undefined} style={style} onClick={() => onCell(r, c)} aria-label={`خانهٔ ${fa(r + 1)}، ${fa(c + 1)}`}>{inner}</button>
           : <span key={key} className={cls} style={style} {...(cell ? { 'data-flip': `${id}-${key}` } : {})} {...(fresh && from ? { 'data-flip-from': from, 'data-flip-exit': from } : {})}>{inner}</span>;
@@ -135,9 +180,11 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
     </div>
   );
 
+  const framed = useInFrame() !== null;
   return (
     <div className="kd" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>دومینو را کنار زمین‌های هم‌نوع بگذارید (یا کنار قلعه)؛ سرزمین ۵ در ۵ است. امتیاز هر ناحیه خانه‌ها ضربدر تاج‌هاست.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!view.outcome && (
         <section className="kd__lines" aria-label="دومینوها">
           {view.phase === 'play' && line(view.current, 'cur')}
@@ -175,25 +222,26 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
 function Realm({ s, name, k, me, turn, place, children }: { s: number; name: string; k: (Cell | null)[][]; me?: boolean; turn: boolean; place?: number; children: ReactNode }) {
   // Rivals' kingdoms start folded on phones (tap to open); the tally stays visible.
   const [open, setOpen] = useState(() => !!me || typeof window === 'undefined' || window.matchMedia('(min-width: 40rem)').matches);
+  const framed = useInFrame() !== null;
   const sc = scoreKingdom(k);
   const filled = k.flat().filter((x) => x && x.t !== 'C').length;
   return (
     <section className={['kd-player', me ? 'kd-player--me' : '', turn ? 'kd-player--turn' : '', place === 1 ? 'kd-player--win' : ''].join(' ')} style={{ ['--seat' as string]: SEAT[s % 4] }}
       aria-label={me ? 'سرزمین شما' : `سرزمین ${name}`} data-flip-anchor={`realm-${s}`}>
       <div className="kd-player__head">
-        <i className="kd-king" data-flip-anchor={`seat-${s}`} style={{ background: SEAT[s % 4] }} aria-hidden="true" />
+        <img className="kd-king" data-flip-anchor={`seat-${s}`} src={KING[s % 4]} alt="" aria-hidden="true" draggable={false} />
         <bdi>{name}</bdi>
-        {turn && <span className="kd-player__turn">در نوبت</span>}
-        {place !== undefined && <span className="kd-player__place">رتبهٔ {fa(place)}</span>}
-        <Score v={sc.total} suffix=" امتیاز" />
+        {!framed && turn && <span className="kd-player__turn">در نوبت</span>}
+        {!framed && place !== undefined && <span className="kd-player__place">رتبهٔ {fa(place)}</span>}
+        {!framed && <Score v={sc.total} suffix=" امتیاز" />}
         {!me && <button type="button" className="kd-player__fold" aria-expanded={open} onClick={() => setOpen(!open)} aria-label={open ? `بستن سرزمین ${name}` : `باز کردن سرزمین ${name}`}>{open ? '▴' : '▾'}</button>}
       </div>
       {open && children}
-      <ul className="kd-tally" aria-label="شمارش">
+      {!framed && <ul className="kd-tally" aria-label="شمارش">
         <li title="تاج‌ها"><span className="kd-crowns kd-crowns--tally" aria-hidden="true"><i /></span>تاج <b>{fa(sc.crowns)}</b></li>
         <li title="بزرگ‌ترین ناحیه">بزرگ‌ترین ناحیه <b>{fa(sc.largest)}</b></li>
         <li title="خانه‌های پر از ۲۴">زمین <b>{fa(filled)}/۲۴</b></li>
-      </ul>
+      </ul>}
     </section>
   );
 }

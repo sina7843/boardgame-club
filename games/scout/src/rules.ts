@@ -256,9 +256,12 @@ export const scoutModule: GameModule<ScoutState, ScoutAction, ScoutView> = {
           { key: 'captured', label: 'برده', value: s.captured[seat]! },
           { key: 'chips', label: 'ژتون', value: s.chips[seat]!, icon: 'coins' }
         ],
+        ...(!s.usedSS[seat] ? { badges: [{ key: 'ss', label: 'دیدبانی و نمایش' }] } : {}),
         ...(winners.has(seat) ? { status: 'winner' as const } : s.phase === 'orient' && s.oriented[seat] ? { status: 'done' as const } : {})
       })),
       shared: [{ key: 'round', label: 'دور', value: s.round, max: s.rounds }],
+      // The state keeps only the latest public move (no history), so the move list has at most one entry.
+      moves: s.last ? [{ seat: s.last.seat, text: s.last.kind === 'show' ? `نمایش ${s.last.cards?.length ?? ''} کارت`.replace(/\d+/, (n) => Number(n).toLocaleString('fa-IR')) : 'دیدبانی' }] : [],
       ...(s.scores.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.scores.indexOf(top) } : {})
     };
   },

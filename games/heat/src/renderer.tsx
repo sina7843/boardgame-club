@@ -4,22 +4,22 @@
 // slipstream and discards. Everything secret (hands, decks, plans) is only ever shown to its owner.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
-import car0 from './art/car-0.webp';
-import car1 from './art/car-1.webp';
-import car2 from './art/car-2.webp';
+import { Button, MOTION, RailSlot, useInFrame, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import car0 from './art/ht-car-b.png';
+import car1 from './art/ht-car-g.png';
+import car2 from './art/ht-car-y.png';
 import car3 from './art/car-3.webp';
 import car4 from './art/car-4.webp';
 import car5 from './art/car-5.webp';
-import wSun from './art/w-sun.webp';
-import wRain from './art/w-rain.webp';
-import wFog from './art/w-fog.webp';
-import wCold from './art/w-cold.webp';
-import wHeat from './art/w-heatwave.webp';
-import flameArt from './art/heat.webp';
-import stressArt from './art/stress.webp';
+import wSun from './art/ht-tok-weather.png';
+import wRain from './art/ht-wcard-rain.png';
+import wFog from './art/ht-tok-weather.png';
+import wCold from './art/ht-tok-weather.png';
+import wHeat from './art/ht-tok-weather.png';
+import flameArt from './art/ht-heat.png';
+import stressArt from './art/ht-stress.png';
 import flagArt from './art/flag.webp';
-import gearArt from './art/gear.webp';
+import gearArt from './art/ht-gear1.png';
 import { GARAGE, GEAR_COOL, type Card, type HeatView, type LogEntry, type RoadId, type WeatherId } from './rules.ts';
 import { pointAt, trackOf, type TrackId } from './tracks.ts';
 
@@ -269,9 +269,11 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
       return rb.pos - ra.pos || ra.lane - rb.lane;
     });
 
+  const framed = useInFrame() !== null;
   return (
     <div className="ht" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر دور همه هم‌زمان دنده و کارت را پنهانی انتخاب می‌کنند؛ بعد کارت‌ها رو می‌شود و ماشین‌ها به ترتیب مسابقه حرکت می‌کنند. در پیچ، سرعت بیش از حد گرما می‌خواهد.</p></RailSlot>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <div className="ht__bar">
         <span className="ht-chip">پیست {TRACK_FA[view.track]}</span>
@@ -299,7 +301,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
       )}
 
       <ol className="ht__racers" aria-label="ترتیب مسابقه">
-        {order.map((s) => {
+        {order.filter((s) => !framed || mySeat === null || s === mySeat).map((s) => {
           const r = view.racers[s]!;
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           // My own piles and played cards live on my car mat below (one home per motion id / anchor).
@@ -402,7 +404,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
         </section>
       )}
 
-      {view.log.length > 0 && (
+      {!framed && view.log.length > 0 && (
         <ul className="ht__log" aria-label="رویدادهای این دور" aria-live="polite">
           {view.log.slice(-8).map((e, i) => <li key={`${view.seq}-${i}`}>{logText(e, who)}</li>)}
         </ul>

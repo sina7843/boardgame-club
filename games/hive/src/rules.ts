@@ -13,6 +13,7 @@ export type Color = 'w' | 'b';
 export type Bug = 'Q' | 'S' | 'B' | 'G' | 'A';
 export interface Piece { c: Color; t: Bug }
 export type Hex = [number, number];
+const BUG_NAME: Record<Bug, string> = { Q: 'ملکه', S: 'عنکبوت', B: 'سوسک', G: 'ملخ', A: 'مورچه' };
 export const START_RESERVE: Record<Bug, number> = { Q: 1, S: 2, B: 2, G: 3, A: 3 };
 export const DIRS: Hex[] = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
 const MAX_TURNS = 300;
@@ -301,6 +302,7 @@ export const hiveModule: GameModule<HiveState, HiveAction, HiveView> = {
       };
     }),
     shared: [{ key: 'turn', label: 'نوبت', value: s.turnNo }],
+    moves: s.history.slice(-40).map((h) => ({ seat: h.seat, text: h.t === 'pass' ? 'رد نوبت' : h.t === 'place' ? `گذاشتن ${BUG_NAME[h.bug]} در ${h.to[0]}،${h.to[1]}` : `حرکت از ${h.from[0]}،${h.from[1]} به ${h.to[0]}،${h.to[1]}` })).map((m) => ({ ...m, text: m.text.replace(/\d+/g, (d) => Number(d).toLocaleString('fa-IR')) })),
     strikesMax: MAX_TIMEOUTS
   }),
 

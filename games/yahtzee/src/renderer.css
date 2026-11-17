@@ -6,9 +6,8 @@
 .yz__live span:first-child { font-weight: 800; }
 
 .yz__tray { display: grid; gap: 0.6rem; justify-items: center; padding: 0.7rem; border-radius: 18px;
-  background: url('./art/wood.webp') center / 320px #5a3218; box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.2), inset 0 -3px 6px rgb(0 0 0 / 0.4), 0 6px 14px rgb(0 0 0 / 0.3); }
-.yz__felt { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem; inline-size: 100%; min-block-size: 6rem; padding: 0.9rem 0.5rem 1.2rem; border-radius: 12px;
-  background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.08), rgb(0 0 0 / 0.35)), url('./art/felt.webp') center / 260px #1d5a32; box-shadow: inset 0 3px 10px rgb(0 0 0 / 0.55); }
+  background: url('./art/yahtzee-tray.png') center / 100% 100% no-repeat; filter: drop-shadow(0 8px 12px rgb(0 0 0 / 0.5)); }
+.yz__felt { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem; inline-size: 100%; min-block-size: 6rem; padding: 0.9rem 0.5rem 1.2rem; border-radius: 12px; background: none; }
 .yz__empty { color: #d8ecd9; font-size: 0.9rem; }
 .yz-keep { position: relative; display: grid; justify-items: center; padding: 0; border: 0; background: transparent; color: #fff4d2; line-height: 0; cursor: pointer; border-radius: 14px; transition: transform 0.15s; }
 .yz-keep:disabled { cursor: default; }
@@ -16,8 +15,12 @@
 .yz-keep__die { display: block; }
 .yz-keep small { position: absolute; inset-block-end: -1rem; font-size: 0.65rem; font-weight: 800; line-height: 1; }
 .yz-keep--on { transform: translateY(-6px); }
-.yz-keep--on .yz-die__body { stroke: var(--brass); stroke-width: 4; }
+.yz-keep--on .yz-die--art { object-fit: contain; border-radius: 12%; }
+.yz-keep--on .yz-die--art { outline: 3px solid var(--brass); outline-offset: 1px; }
+.yz-die__body { stroke: var(--brass); stroke-width: 4; }
 .yz-die { inline-size: 3.1rem; block-size: 3.1rem; filter: drop-shadow(2px 4px 2px rgb(0 0 0 / 0.45)); }
+.yz-die--art { object-fit: contain; border-radius: 12%; }
+.yz-keep--on .yz-die--art { outline: 3px solid var(--brass); outline-offset: 1px; }
 .yz-die__body { fill: #fbf5e4; stroke: #c9b78a; stroke-width: 2; }
 .yz-die__pip { fill: var(--ink); }
 .yz__roll { display: flex; align-items: center; gap: 0.6rem; }

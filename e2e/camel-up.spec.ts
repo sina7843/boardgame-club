@@ -85,7 +85,7 @@ test('undo window: a leg bet flies to your bets at once and back on undo; an ins
   await p.waitForTimeout(800);
   await motionLog(p);
   const undo = p.getByRole('button', { name: 'انصراف', exact: true });
-  const chip = p.locator('.cu-pl--me .cu-chip');
+  const chip = p.locator('.gf-seat, .cu-pl--me').locator('.cu-chip');
   await p.locator('.cu-legtile.cu-hint').click();
   await expect(undo).toBeVisible();
   await expect(chip).toHaveCount(1);

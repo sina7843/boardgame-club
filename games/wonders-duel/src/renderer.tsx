@@ -3,7 +3,7 @@
 // cities runs the conflict track with its pawn and coin tokens; progress tokens sit on discs above it.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, useFresh, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useFresh, useInFrame, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import artBrown from './art/col-brown.webp';
 import artGrey from './art/col-grey.webp';
 import artBlue from './art/col-blue.webp';
@@ -71,15 +71,15 @@ export function WonderPlate({ id, built, size = 'md' }: { id: number; built?: bo
   );
 }
 
-function City({ view, seat, label }: { view: DuelView; seat: number; label: string }) {
+function City({ view, seat, label, framed }: { view: DuelView; seat: number; label: string; framed: boolean }) {
   const cards = view.cities[seat]!.map((id) => CARDS[id]!);
   const colors: Color[] = ['brown', 'grey', 'yellow', 'blue', 'red', 'green', 'purple'];
   const pop = usePop(view.coins[seat]);
   return (
     <section className={`wd-city ${view.current === seat && !view.outcome ? 'wd-city--now' : ''}`} aria-label={`شهر ${label}`} data-flip-anchor={`city-${seat}`}>
       <div className="wd-city__head">
-        <bdi className="wd-city__name">{label}</bdi>
-        <span className={`wd-coin wd-coin--lg ${pop}`} key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>
+        {!framed && <bdi className="wd-city__name">{label}</bdi>}
+        {!framed && <span className={`wd-coin wd-coin--lg ${pop}`} key={view.coins[seat]}>{fa(view.coins[seat]!)}</span>}
         {view.progress[seat]!.map((p) => <span key={p} data-flip={`t${p}`} className="wd-token wd-token--sm" title={PROGRESS_FA[p][1]}>{PROGRESS_FA[p][0]}</span>)}
       </div>
       <div className="wd-city__wonders">{view.wonders[seat]!.map((w) => <span key={w.id} className="wd-fly" data-flip={`w${w.id}`}><WonderPlate id={w.id} built={w.built} size="sm" /></span>)}</div>
@@ -150,14 +150,21 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
         : myTurn ? { tone: 'mine' as const, text: sel === null ? 'یک کارت آزاد از هرم بردارید' : 'بسازید، بفروشید یا شگفتی بنا کنید' }
           : { tone: 'wait' as const, text: view.phase === 'draft' ? `${seatName(1 - me)} شگفتی انتخاب می‌کند` : `نوبت ${seatName(view.current)}` };
 
+  const framed = useInFrame() !== null; // the shell draws players, coins, whose-turn
   const lead = me === 0 ? view.military : -view.military;
   const maxX = Math.max(...view.structure.map((x) => x.x)) + 2;
   const rows = Math.max(...view.structure.map((x) => x.row), 0) + 1;
 
   return (
     <div className="wd" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <City view={view} seat={opp} label={who(opp)} />
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>با نبرد ۹ خانه‌ای، ۶ نشان علمی متفاوت یا امتیاز پایانی بالاتر برنده شوید. هر نوبت یک کارت آزاد را بسازید، بفروشید یا برای شگفتی بنا کنید.</p>
+        </RailSlot>
+      )}
+      <City view={view} seat={opp} label={who(opp)} framed={framed} />
 
       <section className="wd-track" dir="ltr" aria-label={`نبرد: ${lead > 0 ? `شما ${fa(lead)} خانه جلوترید` : lead < 0 ? `حریف ${fa(-lead)} خانه جلوتر است` : 'برابر'}`}>
         <span className="wd-track__cap">⛫</span>
@@ -227,10 +234,10 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
         <div className="wd-acts">{(choosing.options as number[]).map((id) => <button key={id} type="button" className="wd-pickw" disabled={busy} onClick={() => onAction({ type: choosing.kind, card: id })}><CardFace id={id} /></button>)}</div>
       )}
 
-      {view.last && view.last.kind !== 'draft' && view.phase !== 'draft' && (
+      {!framed && view.last && view.last.kind !== 'draft' && view.phase !== 'draft' && (
         <p className="wd-last" key={view.seq}><bdi>{who(view.last.seat)}</bdi>: {view.last.kind === 'build' ? `ساختن ${CARDS[view.last.card!]!.name}` : view.last.kind === 'discard' ? `فروش ${CARDS[view.last.card!]!.name} (+${fa(view.last.coins!)})` : view.last.kind === 'wonder' ? `بنای ${WONDERS[view.last.wonder!]!.name}` : view.last.kind === 'progress' ? 'گرفتن نشان پیشرفت' : view.last.kind === 'destroy' ? `نابودی ${CARDS[view.last.card!]!.name}` : `ساختن از دورریز: ${CARDS[view.last.card!]!.name}`}</p>
       )}
-      <City view={view} seat={me} label={who(me)} />
+      <City view={view} seat={me} label={who(me)} framed={framed} />
     </div>
   );
 }

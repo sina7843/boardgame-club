@@ -2,9 +2,12 @@
 // lowest of a run scores), and two big buttons. Others' chip counts are secret until the end.
 import './renderer.css';
 import { useMemo, useRef } from 'react';
-import { TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { cardPoints, runs, type NoThanksView } from './rules.ts';
 import cardsArt from './art/cards.webp';
+
+const GC = import.meta.glob<string>('./art/gc/no-thanks-*.png', { eager: true, import: 'default' });
+const gc = (n: string | number) => GC[`./art/gc/no-thanks-${n}.png`];
 
 /** cards.webp (BGA No Thanks! client art): 10 × 4 cells, card n at cell n (cell 0 is the back). */
 const cardArt = (n: number) => ({ backgroundImage: `url(${cardsArt})`, backgroundPosition: `${((n % 10) / 9) * 100}% ${(Math.floor(n / 10) / 3) * 100}%` });
@@ -41,21 +44,29 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
     : myTurn ? { tone: 'mine' as const, text: 'نوبت شما: بردارید یا رد کنید' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : seatName(view.current)}` };
 
+  const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
+
   return (
     <div className="nt" ref={root} data-seq={last?.seq ?? 0}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>کارت‌ها امتیاز منفی‌اند. از هر رشتهٔ عدد پشت‌سرهم فقط کوچک‌ترین کارت حساب می‌شود و هر ژتون یک امتیاز کم می‌کند. ژتون‌های دیگران مخفی است.</p>
+        </RailSlot>
+      )}
 
       <div className="nt__middle">
         <div className="nt-deck" data-flip-anchor="deck" aria-label={`${fa(view.deckCount)} کارت در دسته`}>
-          {Array.from({ length: Math.min(5, view.deckCount) }, (_, k) => <span key={k} className="nt-deck__card" style={{ ['--k' as string]: k }} />)}
+          {Array.from({ length: Math.min(5, view.deckCount) }, (_, k) => <span key={k} className="nt-deck__card" style={{ ['--k' as string]: k, backgroundImage: `url(${gc('back')})` }} />)}
           <span className="nt-deck__n">{fa(view.deckCount)}</span>
         </div>
         {view.card !== null ? (
-          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...cardArt(view.card) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ژتون رویش`}>
+          <div key={view.card} data-flip={`c-${view.card}`} data-flip-from="deck" className="nt-card nt-card--big nt-card--art" style={{ ['--h' as string]: hue(view.card), ...(gc(view.card) ? { backgroundImage: `url(${gc(view.card)})`, backgroundSize: '100% 100%', backgroundPosition: 'center' } : cardArt(view.card)) }} aria-label={`کارت ${fa(view.card)} با ${fa(view.pot)} ژتون رویش`}>
             <span className="nt-card__corner">{fa(view.card)}</span>
             <strong className="nt-card__n">{fa(view.card)}</strong>
             <span className="nt-pot" aria-hidden="true">
-              {Array.from({ length: Math.min(view.pot, 12) }, (_, k) => <i key={k} style={{ ['--k' as string]: k }} data-flip={`chip-${k}`}
+              {Array.from({ length: Math.min(view.pot, 12) }, (_, k) => <i key={k} style={{ ['--k' as string]: k, backgroundImage: `url(${gc('chip')})` }} data-flip={`chip-${k}`}
                 data-flip-from={passer !== null && k === view.pot - 1 ? `seat-${passer}` : undefined} data-flip-exit={view.current === null ? 'drop' : `seat-${view.current}`} />)}
               {view.pot > 0 && <b key={view.pot} className="bg-pop">{fa(view.pot)}</b>}
             </span>
@@ -63,8 +74,8 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
         ) : <div className="nt-card nt-card--empty">{pending ? '' : 'پایان'}</div>}
       </div>
 
-      {myTurn && (
-        <div className="nt__actions">
+      {myTurn && (() => { const btns = (
+        <>
           <button type="button" className={['nt-btn nt-btn--take', hint === 'take' ? 'nt-btn--hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'take' })}>
             برمی‌دارم{view.pot ? ` (+${fa(view.pot)} ژتون)` : ''}
             {withCard !== null && <small>{withCard > 0 ? `امتیاز منفی +${fa(withCard)}` : 'به رشته‌تان می‌چسبد'}</small>}
@@ -72,8 +83,8 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
           <button type="button" className={['nt-btn nt-btn--pass', hint === 'pass' ? 'nt-btn--hint' : ''].join(' ')} disabled={busy || !has('pass')} onClick={() => onAction({ type: 'pass' })}>
             نه، مرسی!<small>{has('pass') ? '۱ ژتون می‌دهید' : 'ژتون ندارید'}</small>
           </button>
-        </div>
-      )}
+        </>
+      ); return framed ? <DockSlot>{btns}</DockSlot> : <div className="nt__actions">{btns}</div>; })()}
 
       <ul className="nt__players" aria-label="بازیکنان">
         {order.map((s) => {
@@ -83,15 +94,15 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
             <li key={s} data-flip-anchor={`seat-${s}`} className={['nt-pl', s === view.current && !view.outcome ? 'nt-pl--turn' : '', view.active[s] ? '' : 'nt-pl--out', s === mySeat ? 'nt-pl--me' : ''].join(' ')}>
               <div className="nt-pl__head">
                 <bdi className="nt-pl__name">{who(s)}</bdi>
-                <span className="nt-pl__chips bg-pop" key={`h${view.chips[s]}`} aria-label={view.chips[s] === null ? 'ژتون‌ها مخفی' : `${fa(view.chips[s]!)} ژتون`}><i aria-hidden="true" />{view.chips[s] === null ? '؟' : fa(view.chips[s]!)}</span>
-                <span className="nt-pl__pts">امتیاز کارت‌ها {fa(pts)}</span>
+                <span className="nt-pl__chips bg-pop" key={`h${view.chips[s]}`} aria-label={view.chips[s] === null ? 'ژتون‌ها مخفی' : `${fa(view.chips[s]!)} ژتون`}><img src={gc('chip')} alt="" aria-hidden="true" width={16} />{view.chips[s] === null ? '؟' : fa(view.chips[s]!)}</span>
+                {!framed && <span className="nt-pl__pts">امتیاز کارت‌ها {fa(pts)}</span>}
                 {view.scores && <strong className="nt-pl__score">نهایی {fa(view.scores[s]!)}</strong>}
               </div>
               <div className="nt-pl__runs">
                 {runs(cs).map((run) => (
                   <span key={run[0]} className="nt-run">
                     {run.map((c, k) => (
-                      <span key={c} className={['nt-card', 'nt-card--small', k === 0 ? 'nt-card--counts' : ''].join(' ')} data-flip={`c-${c}`} style={{ ['--h' as string]: hue(c) }}>{fa(c)}</span>
+                      <span key={c} className={['nt-card', 'nt-card--small', k === 0 ? 'nt-card--counts' : ''].join(' ')} data-flip={`c-${c}`} style={{ ['--h' as string]: hue(c), ...(gc(c) ? { backgroundImage: `url(${gc(c)})`, backgroundSize: '100% 100%', color: 'transparent' } : {}) }}>{fa(c)}</span>
                     ))}
                   </span>
                 ))}
@@ -101,7 +112,7 @@ export default function NoThanksRenderer({ view: real, legalActions, mySeat, sea
           );
         })}
       </ul>
-      {last && !view.outcome && <p className="nt__last" role="status">{last.t === 'take' ? `${who(last.seat)} ${fa(last.card!)} را برداشت` : last.t === 'pass' || last.t === 'timeout' ? `${who(last.seat)}: «نه، مرسی!»` : `${who(last.seat)} کنار رفت`}</p>}
+      {!framed && last && !view.outcome && <p className="nt__last" role="status">{last.t === 'take' ? `${who(last.seat)} ${fa(last.card!)} را برداشت` : last.t === 'pass' || last.t === 'timeout' ? `${who(last.seat)}: «نه، مرسی!»` : `${who(last.seat)} کنار رفت`}</p>}
     </div>
   );
 }

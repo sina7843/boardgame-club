@@ -54,3 +54,25 @@
 
 /* v2: BGA origami photos (sprite of 10 × 6 squares) */
 .sp2-card__art { display: block; background-size: 1000% 600%; background-repeat: no-repeat; }
+
+.sp2-card--face { background: none; box-shadow: none; display: inline-block; line-height: 0; }
+.sp2-card--face img { display: block; inline-size: 100%; block-size: auto; border-radius: 6px; box-shadow: 0 2px 0 rgb(0 0 0 / 0.3), 0 10px 16px -8px rgb(0 0 0 / 0.6); }
+.sp2-card--face.sp2-card--md { inline-size: 4.4rem; block-size: auto; }
+.sp2-card--face.sp2-card--sm { inline-size: 1.6rem; block-size: auto; }
+.sp2-deck__img { inline-size: 4.4rem; block-size: auto; border-radius: 6px; box-shadow: 0 2px 0 rgb(0 0 0 / 0.3), 0 10px 16px -8px rgb(0 0 0 / 0.6); }
+
+/* Inside the table frame: the felt, seat strip, scores and log are the shell's. */
+.sp2--framed { color: var(--felt-ink); }
+.sp2--framed .sp2__sea { background: none; box-shadow: none; padding: 0; gap: 1.2rem; }
+.sp2--framed .sp2-deck, .sp2--framed .sp2-pile { background: none; color: var(--felt-muted); min-block-size: 44px; }
+.sp2--framed .sp2-pile--can { box-shadow: 0 0 0 3px var(--felt-gold); }
+.sp2--framed .sp2-pick--on { box-shadow: 0 0 0 3px var(--felt-gold); }
+.sp2--framed .sp2-pl { background: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.4rem; padding: 0; }
+.sp2--framed .sp2__players--framed { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; justify-content: center; }
+.sp2--framed .sp2__choice { background: rgb(250 245 236 / 0.07); box-shadow: inset 0 0 0 1.5px var(--felt-gold); }
+.sp2--framed .sp2__note, .sp2--framed .sp2__pts { color: var(--felt-muted); }
+.sp2--framed .sp2__pts b { color: var(--felt-gold); }
+.sp2--framed .sp2__me { border-block-start: 0; }
+.sp2--framed .sp2-hint { box-shadow: 0 0 0 3px var(--felt-gold) !important; }
+.sp2--framed .sp2-pick { min-inline-size: 44px; min-block-size: 44px; }
+@media (max-width: 600px) { .sp2--framed .sp2-card--face.sp2-card--md, .sp2--framed .sp2-deck__img { inline-size: 3.2rem; } }

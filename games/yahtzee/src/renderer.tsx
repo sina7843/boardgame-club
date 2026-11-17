@@ -3,9 +3,16 @@
 // the points the current dice would score; a box is chosen and then confirmed with «ثبت».
 import './renderer.css';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps } from '@bg/ui';
 import { CATS, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
 import cup from './art/cup.webp';
+import die1 from './art/yahtzee-die-1.png';
+import die3 from './art/yahtzee-die-3.png';
+import die4 from './art/yahtzee-die-4.png';
+import die5 from './art/yahtzee-die-5.png';
+import die6 from './art/yahtzee-die-6.png';
+// The handoff art has no face 2: that face keeps the SVG die below.
+const DIE_ART: Record<number, string> = { 1: die1, 3: die3, 4: die4, 5: die5, 6: die6 };
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const CAT_FA: Record<Cat, string> = {
@@ -20,6 +27,7 @@ const CAT_HINT: Record<Cat, string> = {
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 
 export function Die({ v }: { v: number }) {
+  if (DIE_ART[v]) return <img src={DIE_ART[v]} className="yz-die yz-die--art" role="img" aria-label={`تاس ${fa(v)}`} draggable={false} />;
   return (
     <svg viewBox="0 0 60 60" className="yz-die" role="img" aria-label={`تاس ${fa(v)}`}>
       <rect x="2" y="2" width="56" height="56" rx="11" className="yz-die__body" />
@@ -67,14 +75,23 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)} (${fa(view.rolls)} از ۳ ریختن)` };
   const round = Math.min(13, Object.keys(view.sheets[view.current] ?? {}).length + 1);
   const last = view.last;
+  const framed = useInFrame() !== null;
 
   return (
     <div className="yz" data-seq={view.seq} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p><b>{myTurn && view.rolls > 0 && view.rolls < 3 ? 'تاس‌هایی را نگه دارید و بقیه را دوباره بریزید، یا یک خانه را پر کنید.' : 'هر نوبت تا ۳ بار می‌ریزید و بعد یک خانهٔ خالی را پر می‌کنید.'}</b></p>
+          <p>جمع بخش بالا از ۶۳ بگذرد، ۳۵ امتیاز پاداش می‌گیرید. یاتزی ۵۰ امتیاز است.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && (
       <p className="yz__live" aria-live="polite">
         {!view.outcome && <span>دور {fa(round)} از ۱۳</span>}
         {last && <span key={view.seq}><bdi>{who(last.seat)}</bdi> در «{CAT_FA[last.cat]}» {fa(last.points)} امتیاز نوشت{last.bonus ? ' و ۱۰۰ امتیاز پاداش یاتزی گرفت' : ''}.</span>}
       </p>
+      )}
 
       <section className="yz__tray" aria-label="تاس‌ها">
         <div className="yz__felt">

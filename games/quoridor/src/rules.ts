@@ -238,6 +238,12 @@ export const quoridorModule: GameModule<QuoridorState, QuoridorAction, QuoridorV
       ...(!s.active[seat] ? { status: 'out' as const } : s.winner === seat ? { status: 'winner' as const } : {}),
       strikes: s.timeouts[seat]!
     })),
+    moves: s.log.slice(-40).map((e) => {
+      const sqn = (i: number) => `${'abcdefghi'[i % 9]}${Math.floor(i / 9) + 1}`;
+      if (e.t === 'move') return { seat: e.seat, text: sqn(e.to) };
+      if (e.t === 'wall') return { seat: e.seat, text: `دیوار ${'abcdefghi'[e.wall.c]}${e.wall.r + 1}${e.wall.o}` };
+      return { seat: e.seat, text: e.why === 'timeout' ? 'زمانش تمام شد' : 'انصراف' };
+    }),
     strikesMax: MAX_TIMEOUTS
   }),
 

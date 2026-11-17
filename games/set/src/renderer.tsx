@@ -2,7 +2,8 @@
 // code). Tap three cards (or focus + Enter/Space), then «ست!». Found sets fly to the finder's tray; new cards flip in.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { DECK, FACE } from './art.ts';
 import { attrs, isSet, type SetView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -23,6 +24,9 @@ export const cardLabel = (id: number) => {
 };
 
 export function SetCard({ id }: { id: number }) {
+  const face = FACE[id];
+  // Only 15 faces are published as images; every other card keeps the rules-geometry SVG below.
+  if (face) return <img className="set-card__face" src={face} alt="" draggable={false} />;
   const [n, s, c, f] = attrs(id);
   const k = n + 1, top = (150 - (k * 44 + (k - 1) * 10)) / 2;
   const fill = f === 0 ? INK[c] : f === 1 ? `url(#set-stripe-${c})` : 'none';
@@ -49,6 +53,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
     ...served, table: served.table.filter((c) => !claimed.includes(c)),
     sets: served.sets.map((g, k) => (k === mySeat ? [...g, claimed] : g)), scores: served.scores.map((n, k) => (k === mySeat ? n + 1 : n))
   } : served;
+  const framed = useInFrame() !== null;
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${served.seq}|${queued ? JSON.stringify(queued) : ''}`);
   const canClaim = legalActions.some((a) => a.type === 'claim');
@@ -67,7 +72,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
         : `مهلت تمام شد؛ این ست بدون امتیاز کنار رفت: ${last.cards.map(cardLabel).join('، ')}.`;
 
   return (
-    <div className="set" ref={root} data-seq={view.seq}>
+    <div className={`set${framed ? ' set--framed' : ''}`} ref={root} data-seq={view.seq}>
       <svg className="set__defs" aria-hidden="true" focusable="false">
         <defs>
           {INK.map((ink, i) => (
@@ -78,8 +83,14 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
         </defs>
       </svg>
 
+      {framed && (
+        <RailSlot>
+          <p><b>{canClaim ? 'همه هم‌زمان: سه کارت ست را پیدا کنید' : 'بازی در جریان است'}</b></p>
+          <p>سه کارت ست‌اند اگر در هر ویژگی (تعداد، شکل، رنگ، پرشدگی) یا همه یکسان باشند یا همه متفاوت. اعلام اشتباه ۱ امتیاز کم می‌کند.</p>
+        </RailSlot>
+      )}
       <div className="set__status">
-        {!view.outcome && (
+        {!framed && !view.outcome && (
           <TurnIndicator tone={canClaim && !queued ? 'mine' : 'wait'}>
             {queued ? 'حرکت شما در حال ثبت است…' : canClaim ? 'همه هم‌زمان: سه کارت ست را پیدا کنید'
               : mySeat !== null && view.locked[mySeat] ? 'اعلام اشتباه: تا برداشته شدن ست بعدی نمی‌توانید اعلام کنید'
@@ -87,12 +98,12 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
           </TurnIndicator>
         )}
         <span className="set__deck" aria-label={`${fa(view.deckCount)} کارت در دسته، ${fa(view.table.length)} کارت روی میز`}>
-          <span className="set__deck-stack" data-flip-anchor="deck" aria-hidden="true" /> دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
+          {framed ? <img className="set__deck-img" data-flip-anchor="deck" src={DECK} alt="" draggable={false} /> : <span className="set__deck-stack" data-flip-anchor="deck" aria-hidden="true" />} دسته: <b key={view.deckCount} className="bg-pop">{fa(view.deckCount)}</b>
           <span className="muted"> · روی میز: {fa(view.table.length)}</span>
         </span>
       </div>
 
-      {lastText && <p key={view.seq} className={`set__last set__last--${last!.kind} bg-land`} role="status" aria-live="assertive">{lastText}</p>}
+      {lastText && <p key={view.seq} className={`set__last set__last--${last!.kind} bg-land${framed ? ' visually-hidden' : ''}`} role="status" aria-live="assertive">{lastText}</p>}
 
       <div className="set__board" role="group" aria-label="کارت‌های روی میز">
         {view.table.map((c, i) => {
@@ -108,14 +119,14 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
       </div>
 
       {canClaim && !view.outcome && (
-        <div className="set__bar">
+        <DockSlot><div className="set__bar">
           <span className="muted" aria-live="polite">{sel.length ? `${fa(sel.length)} از ۳ کارت انتخاب شد` : 'سه کارت انتخاب کنید'}</span>
           <Button variant="secondary" disabled={!sel.length || busy} onClick={() => setSel([])}>پاک کردن</Button>
           <Button className={['set-claim', hint ? 'set-hint' : ''].join(' ')} disabled={sel.length !== 3 || busy} onClick={claim}>ست!</Button>
-        </div>
+        </div></DockSlot>
       )}
 
-      <div className="set__players">
+      {!framed && <div className="set__players">
         {seats.map((s) => (
           <section key={s} className={['set-seat', s === mySeat ? 'set-seat--me' : '', view.resigned[s] ? 'set-seat--out' : ''].join(' ')}
             aria-label={`${seatName(s)}: ${fa(view.scores[s]!)} امتیاز، ${fa(view.sets[s]!.length)} ست، ${fa(view.penalties[s]!)} اعلام اشتباه`}>
@@ -129,7 +140,7 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
             </div>
           </section>
         ))}
-      </div>
+      </div>}
     </div>
   );
 }

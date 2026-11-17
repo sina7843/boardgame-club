@@ -65,3 +65,12 @@ button.ct2-pick { cursor: pointer; }
 .ct2-thumb { inline-size: 1.4rem; block-size: 1.4rem; margin-inline-end: 0.3rem; vertical-align: middle; object-fit: cover; border-radius: 50%; }
 
 .ct2-score { display: inline-block; }
+
+/* Handoff art: district and character cards are full printed faces. */
+.ct2-d { background: none; box-shadow: none; padding: 0; }
+.ct2-d__face { inline-size: 100%; block-size: auto; display: block; }
+.ct2-d--md { inline-size: 4.2rem; block-size: auto; }
+.ct2-d--sm { inline-size: 2.9rem; block-size: auto; }
+.ct2-ch__art { inline-size: 100%; aspect-ratio: auto; object-fit: contain; border-radius: 0; box-shadow: none; }
+.ct2-ch b, .ct2-ch small { display: none; }
+.ct2-pick, .ct2-ability button { min-block-size: 44px; }

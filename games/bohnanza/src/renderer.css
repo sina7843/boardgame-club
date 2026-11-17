@@ -41,7 +41,7 @@
 .bn__market { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center; padding: 0.6rem; border-radius: 14px;
   background: repeating-linear-gradient(45deg, #9a7a4c 0 3px, #8a6b40 3px 6px); box-shadow: inset 0 0 0 2px #6b4f2a, inset 0 0 20px rgb(0 0 0 / 0.35); }
 .bn-deck { display: grid; place-items: center; inline-size: 3.2rem; block-size: 4.2rem; border-radius: 8px; color: #ffe1a0;
-  background: repeating-linear-gradient(135deg, #3a5a2a 0 5px, #2f4a22 5px 10px); box-shadow: inset 0 0 0 2px #e8b931, 2px 3px 0 #2a1d10; }
+  background: #2f4a22; box-shadow: 2px 3px 0 #2a1d10; }
 .bn-deck b { font-size: 1rem; }
 .bn-deck small { font-size: 0.6rem; }
 .bn__faceup { display: flex; gap: 0.4rem; min-block-size: 6rem; align-items: center; }
@@ -117,3 +117,17 @@ button.bn-plot--buy:focus-visible { outline: 3px solid #ffe1a0; outline-offset: 
 
 /* v2: beans are the printed card pictures (squares), so round them like a card window */
 .bn-bean { border-radius: 6px; filter: none; box-shadow: 0 1px 2px rgb(0 0 0 / 0.3); }
+
+@media (pointer: coarse) { .bn-chip, .bn-link { min-block-size: 44px; } button.bn-pick { min-inline-size: 44px; } }
+
+/* Design art: the printed card is the picture; sizes keep the 84:118 ratio. */
+.bn-card--art { display: inline-block; padding: 0; background: none; border: 0; box-shadow: none; }
+.bn-card--md.bn-card--art { inline-size: 4.2rem; block-size: 5.9rem; }
+.bn-card--sm.bn-card--art { inline-size: 2.9rem; block-size: 4.1rem; }
+.bn-card__img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.bn-treasury__stack img { inline-size: 1.6rem; block-size: 1.6rem; margin-block-start: -1.2rem; }
+.bn-treasury__stack img:first-child { margin-block-start: 0; }
+.bn-treasury--lg .bn-treasury__stack img { inline-size: 2.2rem; block-size: 2.2rem; margin-block-start: -1.7rem; }
+.bn-treasury--lg .bn-treasury__stack img:first-child { margin-block-start: 0; }
+.bn-deck { background-size: 100% 100%; background-repeat: no-repeat; }
+.bn-deck b, .bn-deck small { text-shadow: 0 0 3px #000, 0 0 2px #000; }

@@ -15,7 +15,7 @@
 .fs-pl__flag--ok { color: #9be0a6; }
 
 .fs-coins { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0 0.45rem 0 0.25rem; border-radius: 999px; background: rgb(0 0 0 / 0.35); font-weight: 900; color: #ffe2a0; }
-.fs-coins i { inline-size: 0.9rem; block-size: 0.9rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1c2, #e3bd6b 45%, #9a6f1f); box-shadow: inset 0 0 0 1.5px #7a5410; }
+.fs-coins i { inline-size: 0.9rem; block-size: 0.9rem; border-radius: 50%; }
 .fs-coins b { display: inline-block; }
 
 .fs__market { display: grid; gap: 0.5rem; justify-items: center; padding: 0.7rem 0.5rem 0.8rem; border-radius: 16px;
@@ -72,3 +72,10 @@ button.fs-sell:hover, button.fs-sell:focus-visible { box-shadow: 0 0 0 3px #ffd9
 @media (prefers-reduced-motion: reduce) { .fs *, .fs__last { animation: none !important; transition: none !important; } }
 .fs-pl__got { position: absolute; inset: 0; pointer-events: none; }
 .fs-pl, .fs__mywon { position: relative; }
+
+/* Design art: printed property / cheque cards (100:155) are the picture. */
+.fs-coins img { inline-size: 1rem; block-size: 1rem; object-fit: contain; }
+.fs-card--art img { display: block; object-fit: contain; }
+.fs-card--art.fs-card--md img { inline-size: 5rem; block-size: 7.75rem; }
+.fs-card--art.fs-card--sm img { inline-size: 3.3rem; block-size: 5.1rem; }
+@media (pointer: coarse) { .fs-bid__step, button.fs-sell { min-block-size: 44px; min-inline-size: 44px; } }

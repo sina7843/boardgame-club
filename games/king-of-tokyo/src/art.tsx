@@ -15,8 +15,14 @@ export function Monster({ k, className = '' }: { k: number; className?: string }
   return <img src={PORTRAITS[k % 6]} className={`kt-art ${className}`} alt="" aria-hidden="true" draggable={false} />;
 }
 
+import die1 from './art/kot-die-1.png'; import die2 from './art/kot-die-2.png'; import die3 from './art/kot-die-3.png';
+import dieBolt from './art/kot-die-bolt.png'; import dieClaw from './art/kot-die-claw.png'; import dieHeart from './art/kot-die-heart.png';
+import energy from './art/kot-energy.png';
+// Dice and the energy cube are the design art (design/games/group-d/art/king-of-tokyo). Monster figures stay the older portraits until the mapping to mfig/mboard art is decided.
+const DIE_ART: Record<Face, string> = { '1': die1, '2': die2, '3': die3, bolt: dieBolt, claw: dieClaw, heart: dieHeart };
 const num = (n: string, c: string) => <text x="32" y="46" textAnchor="middle" className={`d-num ${c}`}>{n}</text>;
-const GLYPH: Record<Face, ReactNode> = {
+// (vector glyphs below are no longer used by the dice; kept only until the monster art lands)
+const _GLYPH: Record<Face, ReactNode> = {
   '1': num('۱', 'd-ink'), '2': num('۲', 'd-ink'), '3': num('۳', 'd-ink'),
   heart: <path d="M32 54C10 38 12 16 24 16c5 0 8 3 8 6 0-3 3-6 8-6 12 0 14 22-8 38Z" className="d-heart" />,
   bolt: <path d="M37 8 16 36h12l-4 20 24-30H35Z" className="d-bolt" />,
@@ -24,7 +30,7 @@ const GLYPH: Record<Face, ReactNode> = {
 };
 
 export function DieGlyph({ f }: { f: Face }) {
-  return <svg viewBox="0 0 64 64" className="kt-glyph" data-pip aria-hidden="true">{GLYPH[f]}</svg>;
+  return <img src={DIE_ART[f]} className="kt-glyph" data-pip alt="" aria-hidden="true" draggable={false} />;
 }
 
-export const Bolt = () => <svg viewBox="0 0 24 24" className="kt-bolt" aria-hidden="true"><path d="M14 2 5 14h6l-2 8 10-13h-6Z" fill="currentColor" stroke="#14102a" strokeWidth="1.6" strokeLinejoin="round" /></svg>;
+export const Bolt = () => <img src={energy} className="kt-bolt" alt="" aria-hidden="true" draggable={false} />;

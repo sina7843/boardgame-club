@@ -64,3 +64,5 @@
 @keyframes rg-pulse-soft { 50% { box-shadow: inset 0 0 0 2px #9c8cff, 0 0 6px -4px #9c8cff; } }
 @keyframes rg-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .rg * { animation: none !important; transition: none !important; } }
+
+.rg-phase__ic { inline-size: 35px; block-size: 35px; }

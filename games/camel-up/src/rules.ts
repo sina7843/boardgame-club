@@ -236,11 +236,20 @@ export const camelModule: GameModule<CamelState, CamelAction, CamelView> = {
     const top = Math.max(...s.coins);
     const leaders = s.coins.map((v, k) => (v === top ? k : -1)).filter((k) => k >= 0);
     const won = s.outcome && s.outcome.reason !== 'draw' ? s.outcome.placements.find((p) => p.place === 1)?.seat : undefined;
+    const fa = (n: number) => n.toLocaleString('fa-IR');
+    const fas: Record<Camel, string> = { blue: 'آبی', green: 'سبز', orange: 'نارنجی', yellow: 'زرد', white: 'سفید' };
+    const l = s.last;
+    const text = !l ? '' : l.kind === 'roll' ? `تاس ${fas[l.camel!]} ${fa(l.value!)}` : l.kind === 'leg' ? `شرط مرحله ${fas[l.camel!]}`
+      : l.kind === 'overall' ? 'شرط نهایی' : `${l.kind === 'oasis' ? 'واحه' : 'سراب'} روی ${fa(l.to!)}`;
     return {
+      moves: l ? [{ seat: l.seat, text }] : [],
       seats: s.coins.map((coins, seat) => ({
         seat,
         primary: { label: 'سکه', value: coins },
-        stats: [{ key: 'legBets', label: 'شرط مرحله', value: s.legBets[seat]!.length, icon: 'flag' }],
+        stats: [
+          { key: 'legBets', label: 'شرط مرحله', value: s.legBets[seat]!.length, icon: 'flag' },
+          { key: 'pyramid', label: 'تاس هرم', value: s.pyramid[seat]!, icon: 'dice' }
+        ],
         ...(won === seat ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'leg', label: 'مرحله', value: s.leg }, { key: 'dice', label: 'تاس', value: s.dice.length, max: CAMELS.length }],

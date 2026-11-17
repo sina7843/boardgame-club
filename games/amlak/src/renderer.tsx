@@ -2,7 +2,7 @@
 // the phase; property management, trade composer and responder; players and log. All state shown is public.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
 import { AmlakBoard, Landmarks, SEAT_COLORS, Token } from './board-art.tsx';
 import { BOARD, BAIL, GROUP_COLOR, GROUP_FA, STATION_RENT, cardById, priceOf } from './board.ts';
 import { unmortgageCost, type AmlakView, type LogEntry, type TradeSide } from './rules.ts';
@@ -89,6 +89,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
 
   const waiting = view.trade ? view.trade.to : view.phase === 'auction' ? view.auction!.turn : view.phase === 'debt' ? view.debts[0]!.seat : view.current;
   const mine = mySeat !== null && waiting === mySeat && !view.outcome;
+  const framed = useInFrame() !== null;
   const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : mine
     ? { tone: 'mine' as const, text: view.trade ? 'پیشنهاد معامله برای شما' : view.phase === 'auction' ? 'مزایده: نوبت پیشنهاد شما' : view.phase === 'debt' ? 'بدهی دارید: پول جور کنید' : view.phase === 'buy' ? 'خرید یا مزایده؟' : view.phase === 'end' ? 'کارهای نوبت را انجام دهید یا نوبت را تمام کنید' : 'نوبت شماست: تاس بریزید' }
     : { tone: 'wait' as const, text: `در انتظار ${seatName(waiting)}${view.phase === 'auction' ? ' (مزایده)' : view.phase === 'debt' ? ' (بدهی)' : view.trade ? ' (پاسخ معامله)' : ''}` };
@@ -109,7 +110,13 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
   return (
     <div className="am" ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>ملک بی‌صاحب را بخرید یا به مزایده بروید. ساخت باید یکنواخت باشد. خانه‌های بانک {fa(view.housesLeft)}، هتل‌ها {fa(view.hotelsLeft)}.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="am-main">
         <div className="am-boardcol">
           <ZoomBoard label="صفحه املاک">
@@ -202,7 +209,7 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
             </>
           )}
 
-          <ul className="am-wallets" aria-label="بازیکنان">
+          {!framed && <ul className="am-wallets" aria-label="بازیکنان">
             {view.order.map((seat) => {
               const pl = view.p[seat]!;
               const owned = view.owner.map((o, i) => (o === seat ? i : -1)).filter((i) => i >= 0);
@@ -228,13 +235,13 @@ export default function AmlakRenderer({ view: real, legalActions, mySeat, seatNa
                 </li>
               );
             })}
-          </ul>
-          <p className="am-help">دور {fa(view.round)}{view.rules.rounds ? ` از ${fa(view.rules.rounds)}` : ''} · خانه‌های بانک {fa(view.housesLeft)} · هتل‌ها {fa(view.hotelsLeft)}</p>
+          </ul>}
+          {!framed && <p className="am-help">دور {fa(view.round)}{view.rules.rounds ? ` از ${fa(view.rules.rounds)}` : ''}، خانه‌های بانک {fa(view.housesLeft)}، هتل‌ها {fa(view.hotelsLeft)}</p>}
 
-          <details className="am-log" open>
+          {!framed && <details className="am-log" open>
             <summary>رویدادها</summary>
             <ol>{view.log.slice(-8).reverse().map((e) => <li key={e.seq}>{describe(e, seatName)}</li>)}</ol>
-          </details>
+          </details>}
         </div>
       </div>
     </div>

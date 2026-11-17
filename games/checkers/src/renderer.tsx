@@ -1,14 +1,13 @@
 // چکرز renderer: an inlaid maple/walnut board (SVG, LTR geometry), seen from the viewer's side. Tap a ringed piece;
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, TurnIndicator, ZoomBoard, motionOff, useFresh, usePop, type GameRendererProps } from '@bg/ui';
-import manD from './art/man-d.webp';
-import kingD from './art/king-d.webp';
-import manL from './art/man-l.webp';
-import kingL from './art/king-l.webp';
-import texWalnut from './art/tex-walnut.webp';
-import texMaple from './art/tex-maple.webp';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFresh, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import manD from './art/checkers-black-man.png';
+import kingD from './art/checkers-black-king.png';
+import manL from './art/checkers-white-man.png';
+import kingL from './art/checkers-white-king.png';
+import boardArt from './art/checkers-board.png';
 import { colOf, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
 
 /** My queued move applied locally (undo window): the path is mine, captures are the pieces jumped, a man ending on the last row crowns. */
@@ -31,7 +30,8 @@ function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]
 const HOP = 380;
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-const S = 100, M = 34, SIZE = 8 * S + 2 * M;
+// The board PNG has a 2.67 % frame; 8 squares of S fill the rest (SIZE = 8·S / (1 − 2·0.0267)).
+const S = 100, M = 22.5, SIZE = 8 * S + 2 * M;
 // Pieces and board woods are cut from a generated sheet (see DECISIONS.md).
 const PIECE: Record<Piece, string> = { d: manD, D: kingD, l: manL, L: kingL };
 const FILES = 'abcdefgh';
@@ -48,8 +48,8 @@ function Stat({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CheckersView>) {
+  const framed = useInFrame() !== null; // the shell draws players, piece counts, turn and the move list
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
-  const uid = useId().replace(/:/g, '');
   const flip = myColor === 'l';
   const xy = (i: number) => {
     const c = flip ? 7 - colOf(i) : colOf(i);
@@ -136,8 +136,14 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
 
   return (
     <div className="ck" data-moves={moveCount}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <div className="ck__bar">
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>{view.variant === 'brazilian' ? 'مهره و شاه به عقب هم می‌زنند و شاه پرنده است؛ زدن بیشترین مهره اجباری است.' : 'مهره فقط به جلو و مورب می‌رود و زدن اجباری است. مهره‌ای که به ردیف آخر برسد شاه می‌شود و نوبت تمام می‌شود.'}</p>
+        </RailSlot>
+      )}
+      {!framed && <div className="ck__bar">
         {(['d', 'l'] as Color[]).map((c) => (
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
             <span className={`ck-side__chip ck-side__chip--${c}`} aria-hidden="true" />
@@ -149,19 +155,14 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
           </div>
         ))}
         <span className="ck__variant">{view.variant === 'brazilian' ? 'قوانین برزیلی' : 'قوانین انگلیسی'}</span>
-      </div>
+      </div>}
 
       <ZoomBoard label="صفحه چکرز">
         <svg ref={svg} className="ck-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه چکرز" style={{ direction: 'ltr' }}>
           <defs>
-            <linearGradient id="ck-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6b4223" /><stop offset=".5" stopColor="#3f2511" /><stop offset="1" stopColor="#5d3a1d" /></linearGradient>
-            {([['walnut', texWalnut], ['maple', texMaple]] as const).map(([id, src]) => (
-              <pattern key={id} id={`ck-${id}-${uid}`} x={M} y={M} width={S * 2} height={S * 2} patternUnits="userSpaceOnUse"><image href={src} width={S * 2} height={S * 2} preserveAspectRatio="xMidYMid slice" /></pattern>
-            ))}
             <filter id="ck-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".5" /></filter>
           </defs>
-          <rect width={SIZE} height={SIZE} rx="20" fill="url(#ck-frame)" />
-          <rect x={M - 6} y={M - 6} width={8 * S + 12} height={8 * S + 12} rx="6" fill="none" stroke="#c9a46a" strokeWidth="3" />
+          <image href={boardArt} width={SIZE} height={SIZE} />
 
           {Array.from({ length: 64 }, (_, i) => {
             const { x, y } = xy(i);
@@ -175,9 +176,9 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
                 tabIndex={dark && (isMovable || isNext) ? 0 : -1}
                 className={['ck-sq', isMovable ? 'ck-sq--movable' : '', isNext ? 'ck-sq--next' : '', prefix.includes(i) ? 'ck-sq--path' : '', isHint ? 'ck-sq--hint' : ''].join(' ')}
                 onClick={() => dark && tap(i)} onKeyDown={(e) => { if (dark && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap(i); } }}>
-                <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill={`url(#ck-${dark ? 'walnut' : 'maple'}-${uid})`} />
+                <rect x={x - S / 2} y={y - S / 2} width={S} height={S} fill="transparent" />
                 {isLast && <rect x={x - S / 2} y={y - S / 2} width={S} height={S} className="ck-last" />}
-                {isNext && <circle cx={x} cy={y} r={S * 0.2} className="ck-dot" />}
+                {isNext && <circle cx={x} cy={y} r={S * 0.15} className="ck-dot" />}
               </g>
             );
           })}
@@ -187,8 +188,8 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
             const rank = flip ? k + 1 : 8 - k;
             return (
               <g key={k} className="ck-coord">
-                <text x={M + k * S + S / 2} y={SIZE - 10}>{FILES[file]}</text>
-                <text x={16} y={M + k * S + S / 2 + 6}>{rank}</text>
+                <text x={M + k * S + S / 2} y={SIZE - 6}>{FILES[file]}</text>
+                <text x={6} y={M + k * S + S / 2 + 6}>{rank}</text>
               </g>
             );
           })}
@@ -225,12 +226,12 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
         {view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome && <span className="ck__note">پیشنهاد تساوی شما ارسال شد</span>}
         {prefix.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</Button>}
       </div>
-      {endText && <p className="ck__end" role="status">{endText}</p>}
-      <ol className="ck__history" aria-label="حرکت‌ها">
+      {!framed && endText && <p className="ck__end" role="status">{endText}</p>}
+      {!framed && <ol className="ck__history" aria-label="حرکت‌ها">
         {view.history.slice(-8).map((h, k) => (
           <li key={view.history.length - 8 + k}><bdi dir="ltr">{h.path.map(name).join(h.captured.length ? '×' : '-')}{h.crowned ? ' ♛' : ''}</bdi></li>
         ))}
-      </ol>
+      </ol>}
     </div>
   );
 }
@@ -238,7 +239,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
 const pieceFa = (p: Piece, mine: Color) => `${(p.toLowerCase() === mine) ? 'مهره شما' : 'مهره حریف'}${p === 'D' || p === 'L' ? ' (شاه)' : ''}`;
 
 function Disc({ x, y, p }: { x: number; y: number; p: Piece }) {
-  const w = S * 0.84;
+  const w = S * 0.82;
   return (
     <g filter="url(#ck-shadow)">
       <image href={PIECE[p]} x={x - w / 2} y={y - w / 2} width={w} height={w} className={p === 'D' || p === 'L' ? 'ck-crown' : undefined} />

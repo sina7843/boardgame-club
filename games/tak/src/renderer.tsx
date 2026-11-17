@@ -3,21 +3,25 @@
 // squares along one line — tap the current square again to drop another stone there; the move is sent when the
 // hand is empty.
 import './renderer.css';
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, ZoomBoard, useFlip, useFresh, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
-import bF from './art/b-F.webp';
-import bS from './art/b-S.webp';
-import bC from './art/b-C.webp';
-import wF from './art/w-F.webp';
-import wS from './art/w-S.webp';
-import wC from './art/w-C.webp';
-import texWalnut from './art/tex-walnut.webp';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
+// Board and stones: design/games/group-a/art/tak, copied as-is.
+import bF from './art/tak-b-F.png';
+import bS from './art/tak-b-S.png';
+import bC from './art/tak-b-C.png';
+import wF from './art/tak-w-F.png';
+import wS from './art/tak-w-S.png';
+import wC from './art/tak-w-C.png';
+import board4 from './art/tak-board-4.png';
+import board5 from './art/tak-board-5.png';
+import board6 from './art/tak-board-6.png';
 import { allMoves, step, type Color, type Dir, type Kind, type Stone, type TakView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-const S = 130, M = 36;
+// Geometry in the board art's own pixels (652x652): the n x n grid is inset 5.75% on every side.
+const W = 652, X0 = 0.0575 * W;
+const BOARD: Record<number, string> = { 4: board4, 5: board5, 6: board6 };
 const K = 48; // stone slots per square for identity tracking (ponytail: a taller stack is not tracked above this)
-// Stone and walnut art are cut from a generated sheet (see DECISIONS.md).
 const STONE: Record<Color, Record<Kind, string>> = { w: { F: wF, S: wS, C: wC }, b: { F: bF, S: bS, C: bC } };
 const KIND_FA: Record<Kind, string> = { F: 'سنگ تخت', S: 'دیوار', C: 'سرستون' };
 
@@ -48,17 +52,17 @@ function preview(v: TakView, q: Queued | null | undefined): TakView {
 }
 
 export default function TakRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<TakView>) {
-  const walnut = `${useId()}-walnut`;
+  const framed = useInFrame() !== null; // the shell draws players, reserves and the move log
   const q = queued as Queued | null | undefined;
   const view = preview(served, q);
   const n = view.size;
-  const SIZE = n * S + 2 * M;
+  const S = (W - 2 * X0) / n; // one square
   const me = mySeat ?? 0;
   const myColor: Color = view.colors[me]!;
   const flip = myColor === 'b';
   const xy = (i: number) => {
     const r = Math.floor(i / n), c = i % n;
-    return { x: M + (flip ? n - 1 - c : c) * S + S / 2, y: M + (flip ? r : n - 1 - r) * S + S / 2 };
+    return { x: X0 + (flip ? n - 1 - c : c) * S + S / 2, y: X0 + (flip ? r : n - 1 - r) * S + S / 2 };
   };
   const canPlace = legalActions.some((a) => a.type === 'place') && !busy;
   const canMove = legalActions.some((a) => a.type === 'move') && !busy;
@@ -128,25 +132,29 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
 
   return (
     <div className="tak" data-ply={view.ply} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <div className="tak__bar">
-        {(['w', 'b'] as Color[]).map((c) => (
-          <div key={c} className={['tak-side', view.turn === c && !view.outcome ? 'tak-side--turn' : ''].join(' ')}>
-            <span className={`tak-side__chip tak-side__chip--${c}`} aria-hidden="true" />
-            <bdi className="tak-side__name">{who(c)}</bdi>
-            <Stat n={view.reserve[c].stones * 100 + view.reserve[c].caps}>{fa(view.reserve[c].stones)} سنگ{view.reserve[c].caps ? ` · ${fa(view.reserve[c].caps)} سرستون` : ''}</Stat>
-          </div>
-        ))}
-      </div>
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>{opening ? <>اولین نوبت: یک <b>سنگ تخت حریف</b> را بگذارید.</>
+            : sel ? <>سنگ‌ها را در یک خط پخش کنید؛ <b>هر خانه دست‌کم یک سنگ</b> می‌گیرد.</>
+              : <>جاده‌ای از دو لبهٔ روبه‌رو با سنگ‌های تخت و سرستون بسازید. دیوار جاده نیست و روی آن فقط سرستون می‌نشیند.</>}</p>
+        </RailSlot>
+      )}
+      {!framed && (
+        <div className="tak__bar">
+          {(['w', 'b'] as Color[]).map((c) => (
+            <div key={c} className={['tak-side', view.turn === c && !view.outcome ? 'tak-side--turn' : ''].join(' ')}>
+              <img className="tak-side__chip" src={STONE[c].F} alt="" aria-hidden="true" />
+              <bdi className="tak-side__name">{who(c)}</bdi>
+              <Stat n={view.reserve[c].stones * 100 + view.reserve[c].caps}>{fa(view.reserve[c].stones)} سنگ{view.reserve[c].caps ? <><span className="bgv-sep" />{fa(view.reserve[c].caps)} سرستون</> : null}</Stat>
+            </div>
+          ))}
+        </div>
+      )}
 
       <ZoomBoard label="صفحه تاک">
-        <svg className="tak-board" viewBox={`0 0 ${SIZE} ${SIZE}`} role="grid" aria-label="صفحه تاک" style={{ direction: 'ltr' }}>
-          <defs>
-            <linearGradient id="tak-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#5b3a1e" /><stop offset="1" stopColor="#2b190c" /></linearGradient>
-            <pattern id={walnut} patternUnits="userSpaceOnUse" width="256" height="256"><image href={texWalnut} width="256" height="256" /></pattern>
-            <filter id="tak-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity=".45" /></filter>
-          </defs>
-          <rect width={SIZE} height={SIZE} rx="20" fill="url(#tak-frame)" />
+        <svg className="tak-board" viewBox={`0 0 ${W} ${W}`} role="grid" aria-label="صفحه تاک" style={{ direction: 'ltr' }}>
+          <image href={BOARD[n] ?? board5} x="0" y="0" width={W} height={W} />
           {view.board.map((stack, i) => {
             const { x, y } = xy(i);
             const lit = moveTargets.has(i) || (!sel && ((canPlace && !stack.length) || (canMove && movable.has(i))));
@@ -157,9 +165,10 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
                 className={['tak-sq', lit ? 'tak-sq--lit' : '', moveTargets.has(i) ? 'tak-sq--drop' : '', sel?.from === i ? 'tak-sq--sel' : '', road.has(i) ? 'tak-sq--road' : '', isHint ? 'tak-sq--hint' : '',
                   last && ((last.t === 'place' && last.at === i) || (last.t === 'move' && last.from === i)) ? 'tak-sq--last' : ''].join(' ')}
                 onClick={() => tap(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(i); } }}>
-                <rect x={x - S / 2 + 5} y={y - S / 2 + 5} width={S - 10} height={S - 10} rx="10" fill={`url(#${walnut})`} className="tak-sq__bg" />
-                <StackShape x={x} y={y} stack={stack} ids={ids.slice(i * K, i * K + K)} fresh={fresh} lifted={sel?.from === i ? sel.lift : 0} />
-                {stack.length > 1 && <text x={x + S / 2 - 18} y={y + S / 2 - 14} className="tak-height">{fa(stack.length)}</text>}
+                <rect x={x - S / 2 + 0.03 * S} y={y - S / 2 + 0.03 * S} width={0.94 * S} height={0.94 * S} rx="8" className="tak-sq__bg" />
+                <StackShape x={x} y={y} sz={0.94 * S} stack={stack} ids={ids.slice(i * K, i * K + K)} fresh={fresh} lifted={sel?.from === i ? sel.lift : 0} />
+                {!stack.length && lit && !sel && <circle cx={x} cy={y} r={S * 0.1} className="tak-dot" />}
+                {stack.length > 1 && <text x={x - S / 2 + 0.12 * S} y={y - S / 2 + 0.22 * S} className="tak-height">{fa(stack.length)}</text>}
               </g>
             );
           })}
@@ -198,21 +207,21 @@ function Stat({ n, children }: { n: number; children: ReactNode }) {
   return <span key={n} className={`tak-side__stat ${usePop(n)}`}>{children}</span>;
 }
 
-function StackShape({ x, y, stack, ids, fresh, lifted }: { x: number; y: number; stack: Stone[]; ids: (string | null)[]; fresh: ReadonlySet<string>; lifted: number }) {
+function StackShape({ x, y, sz, stack, ids, fresh, lifted }: { x: number; y: number; sz: number; stack: Stone[]; ids: (string | null)[]; fresh: ReadonlySet<string>; lifted: number }) {
   if (!stack.length) return null;
   const shown = stack.slice(-7);
   const base = stack.length - shown.length;
   return (
-    <g filter="url(#tak-shadow)" pointerEvents="none">
+    <g className="tak-stack" pointerEvents="none">
       {shown.map((st, k) => {
         const idx = base + k;
         // Each layer sits a little higher so the stack reads as a pile.
-        const up = k * 8 + (idx >= stack.length - lifted ? 18 : 0);
-        const cy = y + 10 - up;
+        const up = k * 0.09 * sz + (idx >= stack.length - lifted ? 0.16 * sz : 0);
+        const cy = y - up;
         const isTop = k === shown.length - 1;
         // Only the top stone shows its kind; everything beneath reads as a flat.
         const id = ids[idx] ?? `s${idx}`;
-        return <g key={id} data-flip={id} data-flip-enter="none"><image href={STONE[st.c][isTop ? st.t : 'F']} x={x - 56} y={cy - 62} width="112" height="112" className={fresh.has(id) ? 'bg-land' : undefined} /></g>;
+        return <g key={id} data-flip={id} data-flip-enter="none"><image href={STONE[st.c][isTop ? st.t : 'F']} x={x - sz / 2} y={cy - sz / 2} width={sz} height={sz} className={fresh.has(id) ? 'bg-land' : undefined} /></g>;
       })}
     </g>
   );

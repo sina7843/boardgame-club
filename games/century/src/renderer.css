@@ -73,7 +73,7 @@
 /* Player board: the caravan card (sand cloth, ten cube slots in two rows) beside the won-orders stack and coins. */
 .ct-pl__board { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; }
 .ct-pl__card { display: grid; gap: 0.2rem; justify-items: center; padding: 0.35rem 0.5rem 0.5rem; border-radius: 10px; color: var(--ink);
-  background: linear-gradient(rgb(255 248 230 / 0.25), rgb(120 70 20 / 0.15)), url('./art/caravan-sand.webp') center / cover #d9a868;
+  background: linear-gradient(rgb(255 248 230 / 0.25), rgb(120 70 20 / 0.15)), url('./art/century-caravan.png') center / 100% 100% no-repeat #d9a868;
   box-shadow: inset 0 0 0 2px #7a4a1a, inset 0 0 0 4px rgb(255 240 200 / 0.5), 0 4px 8px -4px #000; }
 .ct-pl__cap { font-size: 0.68rem; font-weight: 900; color: #4a2a0a; }
 .ct-pl__cap .ct-caravan__n { color: #4a2a0a; font-size: inherit; }
@@ -89,3 +89,8 @@
 .ct-pl__coins small { margin-inline-end: 0.3rem; color: #e3d2b2; }
 .ct-pl__cards { color: #e3d2b2; }
 .ct-pl--me { grid-column: 1 / -1; }
+
+/* Handoff art: small cubes are images; inside the shared frame the felt and seat strip are the shell's. */
+.ct-cube { inline-size: 1rem; block-size: 1rem; object-fit: contain; background: none; box-shadow: none; border-radius: 0; }
+.ct--framed { color: var(--felt-ink); }
+.ct-slot { min-block-size: 44px; }

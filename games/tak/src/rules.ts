@@ -268,7 +268,14 @@ export const takModule: GameModule<TakState, TakAction, TakView> = {
     const f = flats(s.board);
     const win = s.outcome?.placements.find((p) => p.place === 1 && s.outcome!.reason !== 'draw')?.seat;
     const mine = [f[s.colors[0]], f[s.colors[1]]];
+    const sqn = (i: number) => `${'abcdef'[i % s.size]}${Math.floor(i / s.size) + 1}`;
+    const SYM = { n: '+', s: '-', e: '>', w: '<' } as const;
     return {
+      // Tak notation (PTN): Sc3 = wall on c3, 3c3>21 = lift 3 from c3 and drop 2, 1 eastwards.
+      moves: s.history.slice(-40).map((h) => ({
+        seat: h.seat,
+        text: h.t === 'place' ? `${h.kind === 'F' ? '' : h.kind}${sqn(h.at)}` : (() => { const lift = h.drops.reduce((a, b) => a + b, 0); return `${lift > 1 ? lift : ''}${sqn(h.from)}${SYM[h.dir]}${h.drops.length > 1 ? h.drops.join('') : ''}`; })()
+      })),
       seats: [0, 1].map((seat) => {
         const r = s.reserve[s.colors[seat]!];
         return {

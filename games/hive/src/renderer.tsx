@@ -1,26 +1,40 @@
 // کندو renderer: hexagonal tiles with drawn bugs on a felt table; the view fits the hive as it grows.
 // Place: tap a bug in your reserve, then a lit spot. Move: tap one of your pieces, then a lit destination.
 import './renderer.css';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { TurnIndicator, ZoomBoard, useFlip, useFresh, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
-import bugQ from './art/bug-Q.webp';
-import bugS from './art/bug-S.webp';
-import bugB from './art/bug-B.webp';
-import bugG from './art/bug-G.webp';
-import bugA from './art/bug-A.webp';
-import texFelt from './art/tex-felt.webp';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
+import tileWQ from './art/hive-white-queen.png';
+import iconWQ from './art/hive-white-queen-icon.png';
+import tileWS from './art/hive-white-spider.png';
+import iconWS from './art/hive-white-spider-icon.png';
+import tileWB from './art/hive-white-beetle.png';
+import iconWB from './art/hive-white-beetle-icon.png';
+import tileWG from './art/hive-white-grasshopper.png';
+import iconWG from './art/hive-white-grasshopper-icon.png';
+import tileWA from './art/hive-white-ant.png';
+import iconWA from './art/hive-white-ant-icon.png';
+import tileBQ from './art/hive-black-queen.png';
+import iconBQ from './art/hive-black-queen-icon.png';
+import tileBS from './art/hive-black-spider.png';
+import iconBS from './art/hive-black-spider-icon.png';
+import tileBB from './art/hive-black-beetle.png';
+import iconBB from './art/hive-black-beetle-icon.png';
+import tileBG from './art/hive-black-grasshopper.png';
+import iconBG from './art/hive-black-grasshopper-icon.png';
+import tileBA from './art/hive-black-ant.png';
+import iconBA from './art/hive-black-ant-icon.png';
+import possibleArt from './art/hive-possible-placement.png';
+import selectedArt from './art/hive-selected-placement.png';
 import { DIRS, START_RESERVE, destinations, key, parse, placements, type Bug, type Color, type Hex, type HiveView, type Piece } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const R = 46;
 const BUG_FA: Record<Bug, string> = { Q: 'ملکه زنبور', S: 'عنکبوت', B: 'سوسک', G: 'ملخ', A: 'مورچه' };
-// Bug icons are the BGA Hive client art; the felt is cut from a generated sheet (see DECISIONS.md).
-const BUG_IMG: Record<Bug, string> = { Q: bugQ, S: bugS, B: bugB, G: bugG, A: bugA };
+const TILE: Record<Color, Record<Bug, string>> = { w: { Q: tileWQ, S: tileWS, B: tileWB, G: tileWG, A: tileWA }, b: { Q: tileBQ, S: tileBS, B: tileBB, G: tileBG, A: tileBA } };
+const ICON: Record<Color, Record<Bug, string>> = { w: { Q: iconWQ, S: iconWS, B: iconWB, G: iconWG, A: iconWA }, b: { Q: iconBQ, S: iconBS, B: iconBB, G: iconBG, A: iconBA } };
+// Tile art is 130 px with the hexagon ≈ 0.585 of it wide; neighbours are √3·R apart, so the image is √3·R / 0.585 across.
+const TILE_PX = (R * Math.sqrt(3)) / 0.585;
 const px = ([q, r]: Hex) => ({ x: R * Math.sqrt(3) * (q + r / 2), y: R * 1.5 * r });
-const hexPoints = (x: number, y: number, rr: number) => Array.from({ length: 6 }, (_, k) => {
-  const a = (Math.PI / 3) * k + Math.PI / 6;
-  return `${x + Math.cos(a) * rr},${y + Math.sin(a) * rr}`;
-}).join(' ');
 
 type Queued = { type: string; bug?: Bug; from?: Hex; to?: Hex };
 
@@ -49,7 +63,7 @@ const hexDist = (a: string, b: string) => {
 };
 
 export default function HiveRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HiveView>) {
-  const felt = `${useId()}-felt`;
+  const framed = useInFrame() !== null; // the shell draws players, the opponent's reserve count, turn number and whose-turn
   const me = mySeat ?? 0;
   const myColor: Color = served.colors[me]!;
   const q = queued as Queued | null | undefined;
@@ -112,18 +126,21 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
 
   return (
     <div className="hv" data-turn={view.turnNo} ref={root}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>{mustQueen ? 'نوبت چهارم شماست: ملکه را باید همین حالا بگذارید.' : 'هر نوبت یا یک مهرهٔ تازه می‌گذارید (کنار مهره‌های خودتان، نه کنار حریف) یا یک مهره را حرکت می‌دهید؛ کندو نباید دو تکه شود، و تا ملکه روی میز نیست مهره‌ای حرکت نمی‌کند.'}</p>
+          {lastPass && !view.outcome && <p role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت؛ نوبتش رد شد`}</p>}
+        </RailSlot>
+      )}
+      {!framed && <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />}
 
       <ZoomBoard label="کندو">
         <svg className="hv-board" viewBox={vb} role="grid" aria-label="کندو" style={{ direction: 'ltr' }}>
           <defs>
-            <pattern id={felt} patternUnits="userSpaceOnUse" width="256" height="256"><image href={texFelt} width="256" height="256" /></pattern>
-            <linearGradient id="hv-w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fffaf0" /><stop offset="1" stopColor="#ddd2bc" /></linearGradient>
-            <linearGradient id="hv-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#77716a" /><stop offset="1" stopColor="#45403a" /></linearGradient>
             <filter id="hv-shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".5" /></filter>
           </defs>
-          <rect x={(minX + maxX) / 2 - w / 2} y={(minY + maxY) / 2 - h / 2} width={w} height={h} fill={`url(#${felt})`} />
           {[...targets.values()].map((hx) => {
             const { x, y } = px(hx);
             const isHint = hint && key(hint.to) === key(hx);
@@ -131,7 +148,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
               <g key={`t${key(hx)}`} role="button" tabIndex={0} aria-label={`خانه ${key(hx)}، ${bug ? 'جای گذاشتن' : 'مقصد'}`}
                 className={isHint ? 'hv-target hv-target--hint' : 'hv-target'} onClick={() => tapCell(hx)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
-                <polygon points={hexPoints(x, y, R * 0.92)} />
+                <image href={isHint ? selectedArt : possibleArt} x={x - R * 0.86} y={y - R * 0.86} width={R * 1.72} height={R * 1.72} transform={`rotate(30 ${x} ${y})`} />
               </g>
             );
           })}
@@ -148,7 +165,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
                 className={['hv-cell', mine ? 'hv-cell--mine' : '', isSel ? 'hv-cell--sel' : '', isHint ? 'hv-cell--hint' : '',
                   topPiece.t === 'Q' && surrounded.has(topPiece.c) ? 'hv-cell--trapped' : ''].join(' ')}
                 onClick={() => tapCell(hx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tapCell(hx); } }}>
-                {stack.length > 1 && <polygon points={hexPoints(x + 5, y + 7, R * 0.9)} className={`hv-under hv-under--${stack.at(-2)!.c}`} />}
+                {stack.length > 1 && <image href={TILE[stack.at(-2)!.c][stack.at(-2)!.t]} x={x + 5 - TILE_PX / 2} y={y + 7 - TILE_PX / 2} width={TILE_PX} height={TILE_PX} className="hv-under" />}
                 <g data-flip={idAt(k, stack.length - 1)} data-flip-from={placed.has(idAt(k, stack.length - 1) ?? '') ? `res-${topPiece.c}-${topPiece.t}` : undefined}>
                   <Tile x={x} y={y} p={topPiece} />
                   {stack.length > 1 && <text x={x + R * 0.55} y={y - R * 0.45} className="hv-height">{fa(stack.length)}</text>}
@@ -161,8 +178,8 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
 
       <Reserve view={view} color={myColor} label="ذخیره شما" selected={bug} onPick={canPlace ? (b) => { setFrom(null); setBug(bug === b ? null : b); } : undefined}
         only={mustQueen ? 'Q' : undefined} hint={hint?.type === 'place' ? hint.bug : undefined} />
-      {lastPass && !view.outcome && <p className="hv__note" role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت و نوبتش رد شد`}</p>}
-      {view.end && <p className="hv__end" role="status">{{ queen: 'ملکه محاصره شد!', draw: 'مساوی', resign: 'انصراف', timeout: 'اتمام زمان', limit: '۳۰۰ نوبت بدون نتیجه — مساوی' }[view.end.kind]}</p>}
+      {!framed && lastPass && !view.outcome && <p className="hv__note" role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت و نوبتش رد شد`}</p>}
+      {!framed && view.end && <p className="hv__end" role="status">{{ queen: 'ملکه محاصره شد!', draw: 'مساوی', resign: 'انصراف', timeout: 'اتمام زمان', limit: '۳۰۰ نوبت بدون نتیجه — مساوی' }[view.end.kind]}</p>}
     </div>
   );
 }
@@ -175,7 +192,7 @@ function Reserve({ view, color, label, selected, onPick, only, hint, small }: { 
         const enabled = !!onPick && n > 0 && (!only || only === b);
         const body = (
           <>
-            <svg viewBox="-50 -50 100 100" aria-hidden="true" data-flip-anchor={`res-${color}-${b}`}><Tile x={0} y={0} p={{ c: color, t: b }} /></svg>
+            <svg viewBox="-50 -50 100 100" aria-hidden="true" data-flip-anchor={`res-${color}-${b}`}><image href={ICON[color][b]} x="-50" y="-50" width="100" height="100" /></svg>
             <Count n={n} />
           </>
         );
@@ -193,9 +210,8 @@ function Count({ n }: { n: number }) {
 
 function Tile({ x, y, p }: { x: number; y: number; p: Piece }) {
   return (
-    <g filter="url(#hv-shadow)">
-      <polygon points={hexPoints(x, y, R * 0.9)} fill={p.c === 'w' ? 'url(#hv-w)' : 'url(#hv-b)'} stroke={p.c === 'w' ? '#a99b80' : '#000'} strokeWidth="2.5" strokeLinejoin="round" />
-      <image href={BUG_IMG[p.t]} x={x - 33} y={y - 33} width="66" height="66" />
+    <g filter="url(#hv-shadow)" className="hv-tile">
+      <image href={TILE[p.c][p.t]} x={x - TILE_PX / 2} y={y - TILE_PX / 2} width={TILE_PX} height={TILE_PX} />
     </g>
   );
 }

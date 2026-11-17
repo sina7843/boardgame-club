@@ -3,7 +3,9 @@
 // into a bid.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+const GC = import.meta.glob<string>('./art/gc/high-society-*.png', { eager: true, import: 'default' });
+const gc = (n: string | number) => GC[`./art/gc/high-society-${n}.png`];
 import luxuryArt from './art/luxury.webp';
 import prestigeArt from './art/prestige.webp';
 import disgraceArt from './art/disgrace.webp';
@@ -22,6 +24,8 @@ export function Card({ c, size = 'md', flip, flipFrom, exit }: { c: StatusCard; 
   const v = lux(c);
   const sp = SPECIAL[c];
   const kind = v ? 'lux' : isDisgrace(c) ? 'bad' : 'good';
+  const face = gc(v ? `l${v}` : c);
+  if (face) return <span className={['hs-card', 'hs-card--img', `hs-card--${size}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit} aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}><img className="hs-card__face" src={face} alt="" draggable={false} /></span>;
   return (
     <span className={['hs-card', `hs-card--${size}`, `hs-card--${kind}`, isRed(c) ? 'hs-card--red' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}
       aria-label={v ? `${LUX[v]} (${fa(v)})` : sp!.name}>
@@ -32,7 +36,10 @@ export function Card({ c, size = 'md', flip, flipFrom, exit }: { c: StatusCard; 
   );
 }
 
-const Note = ({ v, size = 'md', flip, flipFrom, exit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) => <span className={`hs-note hs-note--${size}`} data-v={v} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}><b>{fa(v)}</b></span>;
+const Note = ({ v, size = 'md', flip, flipFrom, exit }: { v: number; size?: 'sm' | 'md'; flip?: string; flipFrom?: string; exit?: string }) => {
+  const img = gc(`money-${v}`); // money-6 and money-12 are not delivered: CSS banknote fallback
+  return <span className={`hs-note hs-note--${size} ${img ? 'hs-note--img' : ''}`} data-v={v} aria-label={img ? fa(v) : undefined} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>{img ? <img src={img} alt="" draggable={false} /> : null}{!img && <b>{fa(v)}</b>}</span>;
+};
 
 /** My queued bid / pass applied to the view: banknotes move between hand and bid row (all known to me). */
 function preview(v: HighSocietyView, q: { type: string; cards?: number[] } | null | undefined, me: number | null): HighSocietyView {
@@ -78,10 +85,17 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
     : myTurn ? { tone: 'mine' as const, text: disgrace ? 'پول بگذارید یا کنار بکشید و رسوایی را بپذیرید' : 'پیشنهاد بالاتر بدهید یا کنار بکشید' }
       : { tone: 'wait' as const, text: `نوبت ${view.current === null ? '' : who(view.current)}` };
   const last = view.last;
+  const framed = useInFrame() !== null; // the shell draws seats, scores, whose-turn and the events log
 
   return (
     <div className="hs" ref={root} data-seq={view.seq}>
-      {status_ && <TurnIndicator tone={status_.tone}>{status_.text}</TurnIndicator>}
+      {!framed && status_ && <TurnIndicator tone={status_.tone}>{status_.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          {status_ && <p><b>{status_.text}</b></p>}
+          <p>{disgrace ? 'کارت بد برعکس مزایده می‌شود: اولین کسی که کنار بکشد کارت را می‌گیرد و پولش را پس می‌گیرد.' : 'اسکناس‌ها خرد نمی‌شوند؛ جمع پیشنهادتان باید از بالاترین پیشنهاد بیشتر شود. با چهارمین کارت قاب‌قرمز بازی تمام می‌شود و کم‌پول‌ترین کنار می‌رود.'}</p>
+        </RailSlot>
+      )}
 
       {!view.outcome && view.card && (
         <section data-flip-anchor="stage" className={`hs__stage ${disgrace ? 'hs__stage--bad' : ''}`} aria-label="کارت مزایده">
@@ -95,7 +109,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
         </section>
       )}
 
-      {last && !view.outcome && (
+      {!framed && last && !view.outcome && (
         <p className="hs__last" role="status" key={view.seq}>
           <bdi>{who(last.seat)}</bdi> «{lux(last.card) ? LUX[lux(last.card)] : SPECIAL[last.card]!.name}» را {isDisgrace(last.card) ? 'گرفت' : 'برد'}{last.paid ? ` (${fa(last.paid)} داد)` : ''}{last.lost ? ` و «${LUX[lux(last.lost)]}» را از دست داد` : ''}
         </p>
@@ -107,7 +121,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
           const poorest = view.money ? view.money[s] === Math.min(...view.money) && new Set(view.money).size > 1 : false;
           return (
             <li key={s} data-flip-anchor={`seat-${s}`} className={['hs-pl', view.current === s ? 'hs-pl--turn' : '', view.passed[s] ? 'hs-pl--passed' : '', s === mySeat ? 'hs-pl--me' : '', place === 1 ? 'hs-pl--win' : ''].join(' ')}>
-              <div className="hs-pl__head">
+              {framed ? <bdi className="hs-pl__name">{who(s)}</bdi> : <div className="hs-pl__head">
                 {place && <b className="hs-pl__place">{fa(place)}</b>}
                 <bdi className="hs-pl__name">{who(s)}</bdi>
                 <span className="hs-pl__status" title="امتیاز">★ {fmtStatus(status(view.won[s]!))}</span>
@@ -115,7 +129,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
                   : <span className="hs-pl__meta">{fa(view.handCount[s]!)} اسکناس</span>}
                 {view.faux[s] && <span className="hs-pl__flag">گاف در انتظار</span>}
                 {!view.outcome && view.passed[s] && <span className="hs-pl__flag">کنار کشید</span>}
-              </div>
+              </div>}
               {!view.outcome && view.bids[s]!.length > 0 && <div className="hs-pl__bid">{view.bids[s]!.map((v) => <Note key={v} v={v} size="sm" flip={`n-${s}-${v}`} flipFrom={`seat-${s}`} exit="drop" />)}</div>}
               {view.won[s]!.length > 0 && <div className="hs-pl__won">{view.won[s]!.map((c, i) => <Card key={i} c={c} size="sm" flip={c === 'prestige' ? `w${s}-prestige.${view.won[s]!.slice(0, i).filter((x) => x === c).length}` : `c-${c}`} flipFrom={last?.card === c && last.seat === s ? 'stage' : undefined} exit="drop" />)}</div>}
             </li>

@@ -3,32 +3,26 @@
 // you lose" choice and the Ambassador's exchange.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameRendererProps } from '@bg/ui';
-import duke from './art/coup-duke.webp';
-import assassin from './art/coup-assassin.webp';
-import captain from './art/coup-captain.webp';
-import ambassador from './art/coup-ambassador.webp';
-import contessa from './art/coup-contessa.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import duke from './art/coup-duke.png';
+import assassin from './art/coup-assassin.png';
+import captain from './art/coup-captain.png';
+import ambassador from './art/coup-ambassador.png';
+import contessa from './art/coup-contessa.png';
+import cardBack from './art/coup-back.png';
 import { ACT_FA, CLAIM, ROLE_FA, type Act, type Card as Influence, type CoupView, type Role } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const ACTS: Act[] = ['income', 'foreignAid', 'tax', 'steal', 'exchange', 'assassinate', 'coup'];
 const ACT_NOTE: Record<Act, string> = { income: '+۱ سکه', foreignAid: '+۲ سکه', coup: '۷ سکه', tax: '+۳ سکه', assassinate: '۳ سکه', steal: '۲ سکه از حریف', exchange: '۲ کارت از دسته' };
 
-// Portraits are the BGA Coup client art (see DECISIONS.md); decorative, the role name stays as text.
+// Printed cards from design/games/group-c/art/coup (the whole card, back included).
 const ART: Record<Role, string> = { duke, assassin, captain, ambassador, contessa };
 
 function Card({ role, lost, size = 'md', fresh, flip, flipFrom, exit }: { role: Role | null; lost?: boolean; size?: 'sm' | 'md'; fresh?: boolean; flip?: string; flipFrom?: string; exit?: string }) {
   return (
     <span className={['cp-card', `cp-card--${size}`, role ? `cp-card--${role}` : 'cp-card--back', lost ? 'cp-card--lost' : '', fresh ? 'bg-flip-in' : ''].join(' ')} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flip && exit ? exit : undefined}>
-      <svg viewBox="-35 -50 70 100" aria-hidden="true">
-        <rect x="-33" y="-48" width="66" height="96" rx="7" className="cp-card__bg" />
-        {role && <image href={ART[role]} x="-28" y="-43" width="56" height="56" preserveAspectRatio="xMidYMid slice" />}
-        <rect x="-28" y="-43" width="56" height="86" rx="4" fill="none" className="cp-card__frame" />
-        {role ? <rect x="-28" y="13" width="56" height="1.6" className="cp-card__frame" fill="var(--gold)" />
-          : <path d="M0 -26 L20 0 L0 26 L-20 0 Z M0 -14 L10 0 L0 14 L-10 0 Z" className="cp-card__mark" fillRule="evenodd" />}
-      </svg>
-      {role && <span className="cp-card__name">{ROLE_FA[role]}</span>}
+      <img className="cp-card__img" src={role ? ART[role] : cardBack} alt={role ? ROLE_FA[role] : 'کارت پشت‌ورو'} draggable={false} />
       {lost && <span className="cp-card__x" aria-hidden="true" />}
     </span>
   );
@@ -65,6 +59,7 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
   const p = view.pending;
   const root = useRef<HTMLDivElement>(null);
   useFlip(root, `${lastSeq}|${q ? JSON.stringify(q) : ''}`);
+  const framed = useInFrame() !== null;
   const lastReveal = view.log.at(-1)?.t === 'reveal' ? view.log.at(-1) : null;
 
   const pick = (a: Act) => {
@@ -99,10 +94,20 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
 
   return (
     <div className="cp" ref={root} data-seq={lastSeq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>هر ادعا را می‌شود به چالش کشید؛ ادعای دروغ یک نفوذ هزینه دارد. با ۱۰ سکه کودتا اجباری است.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {banner}
+      {framed && aim && targets.length > 0 && (
+        <div className="cp-resp" role="group" aria-label={`هدف ${ACT_FA[aim]}`}>
+          {targets.map((s) => <button key={s} type="button" className={['cp-resp__btn', hint?.type === 'act' && hint.target === s ? 'cp-hint' : ''].join(' ')} disabled={busy} onClick={() => onAction({ type: 'act', act: aim, target: s })}><bdi>{who(s)}</bdi></button>)}
+        </div>
+      )}
 
-      <ul className="cp__court" aria-label="درباریان">
+      {!framed && <ul className="cp__court" aria-label="درباریان">
         {order.filter((s) => s !== mySeat).map((s) => {
           const c = view.cards[s]!;
           const out = c.hidden === 0;
@@ -124,11 +129,11 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
             </li>
           );
         })}
-      </ul>
+      </ul>}
 
       {mySeat !== null && view.myCards && (
         <section className="cp__me" aria-label="دست شما">
-          <div className="cp-me__head" data-flip-anchor="deck"><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck">دسته دربار: {fa(view.deckCount)}</span></div>
+          <div className="cp-me__head" data-flip-anchor="deck" hidden={framed}><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck">دسته دربار: {fa(view.deckCount)}</span></div>
           <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label="کارت‌های نفوذ شما">
             {view.myCards.map((c, i) => loseCards.has(i)
               ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`از دست دادن ${ROLE_FA[c.role]}`}><Card role={c.role} /><span className="cp-lose__cta">رو کن</span></button>
@@ -173,7 +178,7 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
         </section>
       )}
 
-      {view.log.length > 0 && (
+      {!framed && view.log.length > 0 && (
         <ol className="cp-log" aria-label="رویدادها">
           {view.log.filter((e) => e.t !== 'resolve').slice(-5).reverse().map((e) => <li key={e.seq}>{line(e, who)}</li>)}
         </ol>

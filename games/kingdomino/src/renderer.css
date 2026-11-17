@@ -70,3 +70,10 @@ button.kd-slot:focus-visible { outline: 2px solid #2f80c9; outline-offset: 1px; 
 @keyframes kd-pop { from { transform: scale(0.6); } }
 @keyframes kd-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
 @media (prefers-reduced-motion: reduce) { .kd * { animation: none !important; transition: none !important; } }
+
+/* Design art: whole domino faces (200x100), castle and king pieces. */
+.kd-dom--img { display: inline-flex; line-height: 0; position: relative; }
+.kd-dom--img img { display: block; inline-size: 84px; block-size: auto; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
+.kd-dom--sm.kd-dom--img img { inline-size: 56px; }
+img.kd-king { inline-size: 24px; block-size: 24px; object-fit: contain; background: none; }
+.kd-castle-img { inline-size: 100%; block-size: 100%; object-fit: contain; }

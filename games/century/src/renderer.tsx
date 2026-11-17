@@ -4,18 +4,23 @@
 // paid along the row), tap an order to deliver it.
 import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button, TurnIndicator, useFlip, usePop, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
-import spiceY from './art/spice-y.webp';
-import spiceR from './art/spice-r.webp';
-import spiceG from './art/spice-g.webp';
-import spiceB from './art/spice-b.webp';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameAction, type GameRendererProps, DockSlot } from '@bg/ui';
+import spiceY from './art/century-spice-y.png';
+import spiceR from './art/century-spice-r.png';
+import spiceG from './art/century-spice-g.png';
+import spiceB from './art/century-spice-b.png';
+import cubeY from './art/century-cube-y.png';
+import cubeR from './art/century-cube-r.png';
+import cubeG from './art/century-cube-g.png';
+import cubeB from './art/century-cube-b.png';
 import { MERCHANTS, ORDERS, SPICES, scoreOf, upgrade, type Bag, type CenturyView, type Spice } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const SPICE_FA: Record<Spice, string> = { y: 'زردچوبه', r: 'زعفران', g: 'هل', b: 'دارچین' };
 
-// Spice art is cut from a generated sheet (see DECISIONS.md). Tiny (sm) glyphs stay coloured cubes.
+// Handoff art: spice cubes (large) and small cubes (for costs and trades).
 const ART: Record<Spice, string> = { y: spiceY, r: spiceR, g: spiceG, b: spiceB };
+const CUBE: Record<Spice, string> = { y: cubeY, r: cubeR, g: cubeG, b: cubeB };
 
 /**
  * `fid` makes each cube a motion piece (id = fid + spice + index); `from` is the anchor a newly added cube flies in from,
@@ -25,7 +30,7 @@ export function Cubes({ bag, size = 'md', fid, from, exit }: { bag: Bag; size?: 
   return (
     <span className={`ct-cubes ct-cubes--${size}`}>
       {SPICES.flatMap((s) => Array.from({ length: bag[s] }, (_, i) => size === 'sm'
-        ? <i key={`${s}${i}`} className={`ct-cube ct-s--${s}`} title={SPICE_FA[s]} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />
+        ? <img key={`${s}${i}`} className="ct-cube" src={CUBE[s]} alt={SPICE_FA[s]} draggable={false} title={SPICE_FA[s]} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />
         : <img key={`${s}${i}`} className="ct-spice" src={ART[s]} alt={SPICE_FA[s]} title={SPICE_FA[s]} draggable={false} data-flip={fid ? `${fid}-${s}${i}` : undefined} data-flip-from={from} data-flip-exit={exit} />))}
     </span>
   );
@@ -138,6 +143,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
   const onAction = (a: GameAction) => { setPick(null); send(a); };
   const hint = expected as unknown as { type: string; card?: number; slot?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
+  const framed = useInFrame() !== null; // the shell draws seats, scores, turn and events
   const myCubes = me >= 0 ? view.cubes[me]! : null;
   const myTurn = plays.size > 0 || acquire.size > 0 || canRest || claims.size > 0 || !!disc;
   const status = view.outcome ? null
@@ -160,8 +166,14 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
   const upPreview = myCubes && ups.length ? upgrade(myCubes, ups) : null;
 
   return (
-    <div className="ct" ref={root} data-seq={served.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+    <div className={framed ? 'ct ct--framed' : 'ct'} ref={root} data-seq={served.seq} data-phase={view.phase}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>هر نوبت یک کار: کارت بازی کنید، تاجر بخرید (روی هر کارت قبلی یک ادویه می‌گذارید)، سفارش تحویل دهید یا استراحت کنید. کاروان بیش از {fa(10)} ادویه جا ندارد. بازی با ششمین سفارش یک نفر وارد دور آخر می‌شود.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {!view.outcome && (
         <>
@@ -193,7 +205,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
           <li key={s} data-flip-anchor={`seat-${s}`} className={['ct-pl', view.current === s && !view.outcome ? 'ct-pl--turn' : '', s === mySeat ? 'ct-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'ct-pl--win' : ''].join(' ')}>
             <div className="ct-pl__head">
               <bdi className="ct-pl__name">{who(s)}</bdi>
-              <Bump className="ct-pl__score" v={view.scores[s]}>{fa(view.scores[s]!)} امتیاز</Bump>
+              {!framed && <Bump className="ct-pl__score" v={view.scores[s]}>{fa(view.scores[s]!)} امتیاز</Bump>}
             </div>
             <div className="ct-pl__board">
               <div className="ct-pl__card">
@@ -201,12 +213,12 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
                 <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />
               </div>
               <div className="ct-pl__side">
-                <span className="ct-pl__orders" title="سفارش‌های تحویل‌شده"><b>{fa(view.won[s]!.length)}</b> سفارش · {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>
+                <span className="ct-pl__orders" title="سفارش‌های تحویل‌شده"><b>{fa(view.won[s]!.length)}</b> سفارش<span className="bgv-sep" /> {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>
                 <span className="ct-pl__coins">
                   <Bump className="ct-coin ct-coin--gold" v={view.coins[s]!.gold}>{fa(view.coins[s]!.gold)}</Bump><small>طلا</small>
                   <Bump className="ct-coin ct-coin--silver" v={view.coins[s]!.silver}>{fa(view.coins[s]!.silver)}</Bump><small>نقره</small>
                 </span>
-                <span className="ct-pl__cards">{fa(view.hands[s]!.length)} در دست · {fa(view.played[s]!.length)} بازی‌شده</span>
+                <span className="ct-pl__cards">{fa(view.hands[s]!.length)} در دست<span className="bgv-sep" /> {fa(view.played[s]!.length)} بازی‌شده</span>
               </div>
             </div>
           </li>

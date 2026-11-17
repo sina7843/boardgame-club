@@ -3,7 +3,8 @@
 // points «بس!» and «آخرین فرصت» appear.
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps, DockSlot, RailSlot, useInFrame } from '@bg/ui';
+import { BACK, FACE } from './art.ts';
 import photos from './art/photos.webp';
 import { CARDS, duoKind, type Kind, type SspView } from './rules.ts';
 
@@ -22,6 +23,9 @@ const photo = (kind: Kind, color: string) => {
 
 export function PaperCard({ id, size = 'md', from, exit, flip = true }: { id: number; size?: 'sm' | 'md'; from?: string; exit?: string; flip?: boolean }) {
   const c = CARDS[id]!;
+  const face = FACE[PHOTO[`${c.kind}/${c.color}`] ?? -1];
+  // Printed faces exist for 14 cards only; the others keep the sprite picture in a coloured frame.
+  if (face) return <span className={`sp2-card sp2-card--${size} sp2-card--face`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={KIND_FA[c.kind]}><img src={face} alt="" draggable={false} /></span>;
   return (
     <span className={`sp2-card sp2-card--${size} sp2-c--${c.color}`} data-flip={flip ? `c-${id}` : undefined} data-flip-from={from} data-flip-exit={exit} aria-label={KIND_FA[c.kind]}>
       <span className="sp2-card__art" style={photo(c.kind, c.color)} aria-hidden="true" />
@@ -32,6 +36,7 @@ export function PaperCard({ id, size = 'md', from, exit, flip = true }: { id: nu
 
 export default function SspRenderer({ view, legalActions, mySeat, seatName, busy: sending, onAction, expected, queued }: GameRendererProps<SspView>) {
   const me = mySeat ?? -1;
+  const framed = useInFrame() !== null;
   const isQueued = !!queued;
   const busy = sending || isQueued;
   const has = (t: string, call?: string) => legalActions.some((a) => a.type === t && (call === undefined || a.call === call));
@@ -91,11 +96,27 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
       : { tone: 'wait' as const, text: `نوبت ${who(view.current)}${view.lastChance ? ` (آخرین فرصتِ ${who(view.lastChance.caller)})` : ''}` };
 
   return (
-    <div className="sp2" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
-      <p className="sp2__round">دست {fa(view.round)}، هدف {fa(view.target)} امتیاز</p>
+    <div className={`sp2${framed ? ' sp2--framed' : ''}`} ref={root} data-seq={view.seq} data-phase={view.phase}>
+      {framed && (
+        <RailSlot>
+          {status && <p><b>{status.text}</b></p>}
+          <p>اول دو کارت از دسته بکشید (یکی را نگه دارید) یا یک کارت از کپه بردارید؛ بعد جفت‌ها را بازی کنید. با ۷ امتیاز «بس» یا «آخرین فرصت» را بزنید. هدف {fa(view.target)} امتیاز است.</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {!framed && <p className="sp2__round">دست {fa(view.round)}، هدف {fa(view.target)} امتیاز</p>}
 
-      <ul className="sp2__players" aria-label="بازیکنان">
+      {framed ? (
+        <ul className="sp2__players sp2__players--framed" aria-label="جفت‌های بازی‌شده">
+          {view.scores.map((_, s) => s).filter((s) => played[s]!.length > 0 || (s !== me && view.last?.seat === s && view.last.kind === 'take')).map((s) => (
+            <li key={s} data-flip-anchor={`seat-${s}`} className="sp2-pl">
+              <bdi className="sp2-pl__name">{who(s)}</bdi>
+              {s !== me && view.last?.seat === s && view.last.kind === 'take' && <span className="sp2-pl__took" aria-label="از کپه برداشت"><PaperCard id={Number(view.last.detail)} size="sm" /></span>}
+              {played[s]!.length > 0 && <div className="sp2-pl__played">{played[s]!.map((id) => <PaperCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} />)}</div>}
+            </li>
+          ))}
+        </ul>
+      ) : <ul className="sp2__players" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.scores.map((_, k) => k)).map((s) => (
           <li key={s} data-flip-anchor={`seat-${s}`} className={['sp2-pl', view.current === s && !view.outcome ? 'sp2-pl--turn' : '', s === mySeat ? 'sp2-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'sp2-pl--win' : ''].join(' ')}>
             <div className="sp2-pl__head"><bdi className="sp2-pl__name">{who(s)}</bdi><span className="sp2-pl__score bg-pop" key={view.scores[s]}>{fa(view.scores[s]!)}</span><span key={`h${view.handCount[s]}`} className={prevHands && prevHands[s] !== view.handCount[s] ? 'bg-pop' : ''}>{fa(view.handCount[s]!)} کارت در دست</span></div>
@@ -103,12 +124,12 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
             {played[s]!.length > 0 && <div className="sp2-pl__played">{played[s]!.map((id) => <PaperCard key={id} id={id} size="sm" from={s === me ? 'hand' : `seat-${s}`} />)}</div>}
           </li>
         ))}
-      </ul>
+      </ul>}
 
       {!view.outcome && (
         <section className="sp2__sea" aria-label="دسته و کپه‌ها">
           <button type="button" data-flip-anchor="deck" className={['sp2-deck', hint?.type === 'draw' ? 'sp2-hint' : ''].join(' ')} disabled={!has('draw') || busy} onClick={() => onAction({ type: 'draw' })}>
-            <span className="sp2-deck__back" /><span>دسته: {fa(view.deckCount)}</span>
+            {framed ? <img className="sp2-deck__img" src={BACK} alt="" draggable={false} /> : <span className="sp2-deck__back" />}<span>دسته: {fa(view.deckCount)}</span>
           </button>
           {([0, 1] as const).map((pile) => {
             const top = piles[pile];
@@ -152,11 +173,11 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
             {!hand.length && <span className="sp2__note">دستتان خالی است</span>}
           </div>
           {has('duo') && duo && (
-            <div className="sp2__bar">
+            <DockSlot><div className="sp2__bar">
               {duo === 'crab' && ([0, 1] as const).map((pile) => <Button key={pile} size="sm" disabled={busy || !view.pileCounts[pile]} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!], pile })}>خرچنگ‌ها: کپهٔ {fa(pile + 1)}</Button>)}
               {duo === 'shark' && view.scores.map((_, k) => k).filter((k) => k !== me && view.handCount[k]).map((k) => <Button key={k} size="sm" disabled={busy} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!], target: k })}>دزدی از <bdi>{who(k)}</bdi></Button>)}
               {(duo === 'boat' || duo === 'fish') && <Button size="sm" disabled={busy || (duo === 'fish' && !view.deckCount)} onClick={() => onAction({ type: 'duo', cards: [sel[0]!, sel[1]!] })}>بازی جفت {duo === 'boat' ? '(نوبت اضافه)' : '(یک کارت از دسته)'}</Button>}
-            </div>
+            </div></DockSlot>
           )}
           {view.phase === 'act' && myTurn && (
             <div className="sp2__bar">
@@ -168,7 +189,7 @@ export default function SspRenderer({ view, legalActions, mySeat, seatName, busy
         </section>
       )}
 
-      {view.roundLog.length > 0 && (
+      {!framed && view.roundLog.length > 0 && (
         <table className="sp2__log"><thead><tr><th scope="col">دست</th>{view.scores.map((_, k) => <th key={k} scope="col"><bdi>{who(k)}</bdi></th>)}</tr></thead>
           <tbody>{view.roundLog.map((r, i) => <tr key={i}><th scope="row">{fa(i + 1)} {r.call === 'stop' ? 'بس' : r.call === 'last' ? 'آخرین فرصت' : 'دسته تمام شد'}</th>{r.gains.map((g, k) => <td key={k}>{fa(g)}</td>)}</tr>)}</tbody></table>
       )}

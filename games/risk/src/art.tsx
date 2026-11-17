@@ -5,16 +5,39 @@ import type { CardKind, ContinentId } from './board.ts';
 import infantry from './art/infantry.webp';
 import cavalry from './art/cavalry.webp';
 import artillery from './art/artillery.webp';
-import cardBack from './art/card-back.webp';
-import parchment from './art/bd-parchment.webp';
+import cardBack from './art/risk-card-back.png';
+import mapClean from './art/risk-map-clean.png';
+import army0 from './art/risk-army-0.png';
+import army1 from './art/risk-army-1.png';
+import army2 from './art/risk-army-2.png';
+import armyPlate from './art/risk-army-count-plate.png';
+import att1 from './art/risk-att-1.png';
+import att4 from './art/risk-att-4.png';
+import att6 from './art/risk-att-6.png';
+import def3 from './art/risk-def-3.png';
+import def6 from './art/risk-def-6.png';
 
-// The miniatures, card back and parchment sea are painted WebP cut from a generated sheet (see DECISIONS.md).
+// Miniatures (card icons) are painted WebP; the map, army tokens (seats 1-3 only), dice (only some faces) and card back are the handoff PNGs.
 const MINI: Record<'infantry' | 'cavalry' | 'artillery', string> = { infantry, cavalry, artillery };
 export const CARD_BACK = cardBack;
-/** The aged world-map parchment that lies under the territories (decorative). */
-export function Parchment({ w, h }: { w: number; h: number }) {
-  return <image href={parchment} width={w} height={h} preserveAspectRatio="xMidYMid slice" />;
+/** The handoff map (frame, land, borders, compass, ships); drawn under the territory hit areas, fitted to the padded viewBox. */
+export function MapImage({ x, y, w, h }: { x: number; y: number; w: number; h: number }) {
+  return <image href={mapClean} x={x} y={y} width={w} height={h} preserveAspectRatio="none" />;
 }
+const ARMY_ART = [army0, army1, army2];
+/** Handoff card faces exist only for some territories (card-<id>); the rest keep the CSS card. */
+import card0 from './art/risk-card-0.png';
+import card1 from './art/risk-card-1.png';
+import card2 from './art/risk-card-2.png';
+import card12 from './art/risk-card-12.png';
+import card16 from './art/risk-card-16.png';
+import card19 from './art/risk-card-19.png';
+import card21 from './art/risk-card-21.png';
+import card24 from './art/risk-card-24.png';
+import card29 from './art/risk-card-29.png';
+import card35 from './art/risk-card-35.png';
+import card42 from './art/risk-card-42.png';
+export const CARD_ART: Record<number, string> = { 0: card0, 1: card1, 2: card2, 12: card12, 16: card16, 19: card19, 21: card21, 24: card24, 29: card29, 35: card35, 42: card42 };
 
 /** Seat colours (always shown with the seat number and the colour name in text): [light, base, dark]. */
 export const SEAT_SHADES: [string, string, string][] = [
@@ -126,6 +149,19 @@ export function Serpent() {
 export function ArmyToken({ seat, n, r = 14, lift = false }: { seat: number; n: number; r?: number; lift?: boolean }) {
   const dark = SEAT_SHADES[seat]?.[2] ?? '#333';
   const mini = MINI[n >= 10 ? 'artillery' : n >= 5 ? 'cavalry' : 'infantry'];
+  const art = ARMY_ART[seat];
+  const fa = n.toLocaleString('fa-IR').replace(/٬/g, ',');
+  if (art) {
+    // Handoff token: 92/1612 of the map in the design; a little smaller here so neighbouring tokens do not collide.
+    const w = r * 3.2, pw = w * 0.62;
+    return (
+      <g className="rk-token" transform={lift ? `translate(0 ${(-r * 0.25).toFixed(1)})` : undefined}>
+        <image href={art} x={-w / 2} y={-w / 2} width={w} height={w} />
+        <image href={armyPlate} x={-pw / 2} y={w * 0.176 - pw / 2} width={pw} height={pw} />
+        <text y={w * 0.176 + w * 0.08} fontSize={w * 0.22} className="rk-token__n" fill={INK}>{fa}</text>
+      </g>
+    );
+  }
   return (
     <g className="rk-token" transform={lift ? `translate(0 ${(-r * 0.25).toFixed(1)})` : undefined}>
       <ellipse cx={r * 0.12} cy={r * 0.82 + 2} rx={r * 1.05} ry={r * 0.45} fill="#1c1208" opacity="0.4" />
@@ -170,7 +206,10 @@ export function StatIcon({ kind }: { kind: 'terr' | 'army' | 'card' }) {
 
 const PIPS: Record<number, number[]> = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 /** CSS die with visible thickness; attacker dice are red, defender dice ivory. Decorative: the tray carries the label. */
+const DIE_ART: Record<string, string> = { 'att1': att1, 'att4': att4, 'att6': att6, 'def3': def3, 'def6': def6 };
 export function DieFace({ value, side }: { value: number; side: 'att' | 'def' }) {
+  const art = DIE_ART[`${side}${value}`];
+  if (art) return <img src={art} alt="" aria-hidden="true" className="rk-die-img" draggable={false} />;
   return (
     <span aria-hidden="true" className={`rk-die rk-die--${side}`}>
       {Array.from({ length: 9 }, (_, k) => (PIPS[value]?.includes(k) ? <i key={k} className="rk-die__pip" data-pip /> : <i key={k} />))}

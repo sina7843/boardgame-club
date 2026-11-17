@@ -4,7 +4,7 @@
 // Bean pictures are the printed (German edition) card art from github.com/Alyarafa20/bohnanza-demo-gui (see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TurnIndicator, useFlip, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePrevious, type GameRendererProps } from '@bg/ui';
 import coffee from './art/coffee.webp';
 import wax from './art/wax.webp';
 import blue from './art/blue.webp';
@@ -15,6 +15,17 @@ import soy from './art/soy.webp';
 import blackeye from './art/blackeye.webp';
 import red from './art/red.webp';
 import garden from './art/garden.webp';
+import d_blue from './art/bohnanza-blue.png';
+import d_chili from './art/bohnanza-chili.png';
+import d_coffee from './art/bohnanza-coffee.png';
+import d_garden from './art/bohnanza-garden.png';
+import d_green from './art/bohnanza-green.png';
+import d_red from './art/bohnanza-red.png';
+import d_soy from './art/bohnanza-soy.png';
+import d_stink from './art/bohnanza-stink.png';
+import d_wax from './art/bohnanza-wax.png';
+import thaler from './art/bohnanza-thaler.png';
+import deckArt from './art/bohnanza-deck.png';
 import { BEANS, BEAN_INFO, payout, type Bean, type BeanView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -50,8 +61,17 @@ function useQueueIds(list: readonly string[], prefix: string): string[] {
   return r.current.ids;
 }
 
+// Printed card faces from design/games/group-c/art/bohnanza; «چشم‌بلبلی» has no file there, so it keeps the older art.
+const FACE: Partial<Record<Bean, string>> = { blue: d_blue, chili: d_chili, coffee: d_coffee, garden: d_garden, green: d_green, red: d_red, soy: d_soy, stink: d_stink, wax: d_wax };
+
 export function BeanCard({ b, size = 'md', count, flip, flipFrom, flipExit }: { b: Bean; size?: 'sm' | 'md'; count?: number; flip?: string; flipFrom?: string; flipExit?: string }) {
   const info = BEAN_INFO[b];
+  if (FACE[b]) return (
+    <span className={`bn-card bn-card--art bn-card--${size}`} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
+      <img src={FACE[b]} className="bn-card__img" alt="" aria-hidden="true" draggable={false} />
+      {count !== undefined && <b className="bn-card__count bg-pop" key={count}>{fa(count)}</b>}
+    </span>
+  );
   return (
     <span className={`bn-card bn-card--${size}`} style={{ ['--seed' as string]: SEED[b] }} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={flipExit} aria-label={`لوبیای ${info.name}${count ? `، ${fa(count)} عدد` : ''}`}>
       <span className="bn-card__name">{info.name}</span>
@@ -97,6 +117,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
   const handIds = useQueueIds(view.hand ?? [], 'h');
   const faceIds = useQueueIds(view.faceUp, 'u');
   const pendIds = useQueueIds(view.pending[me] ?? [], 'p');
+  const framed = useInFrame() !== null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const others = view.coins.map((_, k) => k).filter((k) => k !== me);
   const target = to !== null && to !== me && to < view.players ? to : others[0] ?? 0;
@@ -152,7 +173,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
   // The treasury: harvested bean cards turned over as coins, stacked on the mat.
   const treasury = (s: number, lg: boolean) => (
     <span className={`bn-treasury ${lg ? 'bn-treasury--lg' : ''}`} role="img" aria-label={`خزانه: ${fa(view.coins[s]!)} سکه`}>
-      <span className="bn-treasury__stack" aria-hidden="true">{Array.from({ length: Math.min(view.coins[s]!, 8) }, (_, i) => <i key={i} />)}</span>
+      <span className="bn-treasury__stack" aria-hidden="true">{Array.from({ length: Math.min(view.coins[s]!, 8) }, (_, i) => <img key={i} src={thaler} alt="" draggable={false} />)}</span>
       <span className={`bn-coin ${lg ? 'bn-coin--lg' : ''} bg-pop`} key={view.coins[s]} data-flip-anchor={`coins-${s}`}>{fa(view.coins[s]!)}</span>
       <small>سکه</small>
     </span>
@@ -160,7 +181,12 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
 
   return (
     <div className="bn" ref={root} data-seq={view.seq} data-phase={view.phase}>
-      {status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
+      {framed && (
+        <RailSlot>
+          <p>کارت اول دست را باید بکارید و دوم اختیاری است. هر مزرعه یک نوع لوبیا می‌گیرد؛ ترتیب دست عوض نمی‌شود.{blocked ? ' جایی برای کاشتن نیست: اول یک مزرعه را برداشت کنید.' : ''}</p>
+        </RailSlot>
+      )}
+      {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <ul className="bn__rivals" aria-label="بازیکنان">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : others).map((s) => (
@@ -179,7 +205,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
       </ul>
 
       <section className="bn__market" data-flip-anchor="market" aria-label="میز معامله">
-        <span className="bn-deck" data-flip-anchor="deck"><b>{fa(view.deckCount)}</b><small>دسته</small></span>
+        <span className="bn-deck" data-flip-anchor="deck" style={{ backgroundImage: `url(${deckArt})` }}><b>{fa(view.deckCount)}</b><small>دسته</small></span>
         <div className="bn__faceup">
           {view.faceUp.length ? view.faceUp.map((b, i) => (
             offering ? (
@@ -187,7 +213,7 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
             ) : <span key={i} className="bn-pick"><BeanCard b={b} flip={faceIds[i]} flipFrom="deck" flipExit={faceExit(i)} /></span>
           )) : <small className="bn__cloth">{view.phase === 'plant' ? 'کارت‌ها بعد از کاشتن رو می‌شوند' : 'میز معامله خالی است'}</small>}
         </div>
-        {view.last && <small className="bn__last" key={view.seq}><bdi>{who(view.last.seat)}</bdi> {view.last.kind === 'harvest' ? `برداشت کرد: ${view.last.detail.replace(/\d+/g, (d) => fa(Number(d)))}` : view.last.kind === 'trade' ? 'معامله را پذیرفت' : view.last.kind === 'decline' ? 'پیشنهاد را رد کرد' : 'مزرعهٔ سوم خرید'}</small>}
+        {!framed && view.last && <small className="bn__last" key={view.seq}><bdi>{who(view.last.seat)}</bdi> {view.last.kind === 'harvest' ? `برداشت کرد: ${view.last.detail.replace(/\d+/g, (d) => fa(Number(d)))}` : view.last.kind === 'trade' ? 'معامله را پذیرفت' : view.last.kind === 'decline' ? 'پیشنهاد را رد کرد' : 'مزرعهٔ سوم خرید'}</small>}
       </section>
 
       {offering && (

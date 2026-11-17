@@ -187,7 +187,8 @@ export const theMindModule: GameModule<TheMindState, TheMindAction, TheMindView>
         { key: 'level', label: 'مرحله', value: s.level, max: s.levels },
         { key: 'lives', label: 'جان', value: s.lives, max: 5 },
         { key: 'stars', label: 'ستاره', value: s.stars, max: 3 }
-      ]
+      ],
+      moves: s.last ? [{ seat: s.last.seat ?? 0, text: ({ play: `${s.last.card?.toLocaleString('fa-IR')} را گذاشت`, mistake: 'اشتباه کرد؛ یک جان رفت', star: 'ستاره پرتاب شد', level: 'مرحلهٔ تازه شروع شد' } as Record<string, string>)[s.last.kind]! }] : []
     };
   },
 

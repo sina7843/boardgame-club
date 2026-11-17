@@ -6,18 +6,11 @@
 .tm__hud { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: center; font-size: 0.9rem; }
 .tm__level b { font-size: 1.3rem; color: #fff; }
 .tm__lives, .tm__stars { display: inline-flex; gap: 0.15rem; }
-.tm-ico { inline-size: 1.4rem; block-size: 1.4rem; object-fit: contain; opacity: 0.25; filter: grayscale(1); }
-.tm-ico.on { opacity: 1; filter: drop-shadow(0 0 4px rgb(159 179 255 / 0.6)); }
 
 .tm__center { display: grid; gap: 0.5rem; justify-items: center; }
 .tm__pile { display: grid; gap: 0.4rem; justify-items: center; min-block-size: 9.5rem; align-content: center; }
 .tm__under { font-size: 0.8rem; color: #a9a3d8; }
 .tm__empty { color: #a9a3d8; font-size: 0.9rem; }
-.tm-card { display: inline-grid; place-items: center; border-radius: 12px; color: #fff; font-weight: 900;
-  background: radial-gradient(circle at 50% 30%, hsl(var(--h) 75% 62%), hsl(var(--h) 60% 34%)); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.35), 0 8px 18px -8px hsl(var(--h) 80% 40%); }
-.tm-card--lg { inline-size: 6.2rem; block-size: 8.6rem; font-size: 3rem; animation: tm-breathe 3.2s ease-in-out infinite; }
-.tm-card--md { inline-size: 3.6rem; block-size: 5rem; font-size: 1.6rem; }
-.tm-card--sm { inline-size: 2.6rem; block-size: 3.6rem; font-size: 1.05rem; opacity: 0.85; }
 .tm__note { margin: 0; padding: 0.4rem 0.9rem; border-radius: 12px; font-size: 0.88rem; animation: tm-drop 0.35s ease-out both; }
 .tm__note--mistake { background: rgb(255 80 110 / 0.18); border: 1px solid rgb(255 107 138 / 0.5); }
 .tm__note--star { background: rgb(159 179 255 / 0.16); border: 1px solid rgb(159 179 255 / 0.45); }
@@ -30,19 +23,10 @@
 .tm-mate__cards { display: inline-flex; gap: 3px; min-block-size: 1.6rem; align-items: center; font-size: 0.8rem; color: #a9a3d8; }
 .tm-mate__cards img { inline-size: 1.1rem; aspect-ratio: 5 / 7; object-fit: cover; border-radius: 3px; }
 .tm-mate__vote { display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.75rem; color: #c9d2ff; }
-.tm-mate__vote .tm-ico { inline-size: 0.95rem; block-size: 0.95rem; }
-
+.tm-mate__vote 
 .tm__me { display: grid; gap: 0.65rem; justify-items: center; padding-block: 0.6rem 0.2rem; border-block-start: 1px dashed rgb(255 255 255 / 0.15); }
 .tm__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; justify-content: center; }
 .tm__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-.tm-play { min-inline-size: 9rem; min-block-size: 3rem; padding: 0.5rem 1.4rem; border: 0; border-radius: 999px; font: inherit; font-size: 1.1rem; font-weight: 900; color: #16133a; cursor: pointer;
-  background: linear-gradient(180deg, #f2efff, #c8c1ff); box-shadow: 0 0 0 2px rgb(255 255 255 / 0.6), 0 10px 24px -10px #8f86ff; transition: filter 0.15s, box-shadow 0.15s; }
-.tm-play b { font-size: 1.35rem; }
-.tm-play:hover:not(:disabled), .tm-play:focus-visible { filter: brightness(1.05); box-shadow: 0 0 0 3px #fff, 0 10px 28px -8px #8f86ff; outline: none; }
-.tm-play:disabled { opacity: 0.5; cursor: default; }
-.tm-star { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid rgb(159 179 255 / 0.5); background: rgb(159 179 255 / 0.1); color: #dfe5ff; font: inherit; font-weight: 800; cursor: pointer; }
-.tm-star--on { background: rgb(159 179 255 / 0.35); }
-.tm-star .tm-ico { inline-size: 1rem; block-size: 1rem; }
 .tm-hint { animation: tm-pulse 1s ease-in-out infinite; }
 
 @keyframes tm-breathe { 50% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.45), 0 0 34px -4px hsl(var(--h) 85% 60%); } }
@@ -50,3 +34,17 @@
 @keyframes tm-oops { 20% { background-color: rgb(255 60 90 / 0.18); } }
 @keyframes tm-pulse { 50% { box-shadow: 0 0 0 6px rgb(255 210 122 / 0.6); } }
 @media (prefers-reduced-motion: reduce) { .tm, .tm *, .tm__note { animation: none !important; transition: none !important; } }
+
+/* Delivered card art: blank card with the number as text. */
+.tm-card { position: relative; display: block; container-type: inline-size; direction: ltr; user-select: none; color: var(--brand-ink); }
+.tm-card img { display: block; inline-size: 100%; block-size: auto; filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.4)); }
+.tm-card b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 46cqi; font-weight: 900; line-height: 1; color: var(--text); -webkit-text-stroke: 0.6cqi var(--surface); paint-order: stroke fill; }
+.tm-k { position: absolute; font-style: normal; font-size: 13cqi; font-weight: 700; line-height: 1; color: var(--surface); }
+.tm-k--a { inset-block-start: 5cqi; inset-inline-start: 7cqi; } .tm-k--b { inset-block-start: 5cqi; inset-inline-end: 7cqi; }
+.tm-k--c { inset-block-end: 5cqi; inset-inline-start: 7cqi; rotate: 180deg; } .tm-k--d { inset-block-end: 5cqi; inset-inline-end: 7cqi; rotate: 180deg; }
+.tm-card--lg { inline-size: 120px; } .tm-card--md { inline-size: 84px; } .tm-card--sm { inline-size: 64px; }
+.tm-ico { inline-size: 40px; block-size: 40px; object-fit: contain; margin-inline: -7px; }
+.tm__lives, .tm__stars { gap: 0; }
+.tm-mate__vote .tm-ico { inline-size: 24px; block-size: 24px; }
+.tm-play, .tm-star { min-block-size: 44px; }
+@media (max-width: 480px) { .tm-card--lg { inline-size: 96px; } .tm-card--md { inline-size: 70px; } .tm-card--sm { inline-size: 56px; } }

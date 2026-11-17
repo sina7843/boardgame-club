@@ -5,27 +5,26 @@
 .abl-side { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.8rem; border-radius: 999px; background: rgb(0 0 0 / 0.28); border: 1px solid rgb(255 255 255 / 0.08); }
 .abl-side--turn { box-shadow: 0 0 0 2px #c9a46a, 0 6px 18px -6px rgb(201 164 106 / 0.6); }
 .abl-side__m { inline-size: 18px; block-size: 18px; border-radius: 50%; box-shadow: 0 2px 3px rgb(0 0 0 / 0.5); }
-.abl-side__m--b { background: url('./art/marble-b.webp') center / cover; }
-.abl-side__m--w { background: url('./art/marble-w.webp') center / cover; }
+.abl-side__m--b { background: url('./art/abalone-black-marble.png') center / cover; }
+.abl-side__m--w { background: url('./art/abalone-white-marble.png') center / cover; }
 .abl-side__name { font-weight: 800; }
 .abl-side__tray { display: inline-flex; gap: 3px; padding: 3px 5px; border-radius: 999px; background: rgb(0 0 0 / 0.35); }
 .abl-side__tray i { inline-size: 10px; block-size: 10px; border-radius: 50%; background: rgb(255 255 255 / 0.12); }
-.abl-side__tray i.is-b { background: url('./art/marble-b.webp') center / cover; }
-.abl-side__tray i.is-w { background: url('./art/marble-w.webp') center / cover; }
+.abl-side__tray i.is-b { background: url('./art/abalone-black-marble.png') center / cover; }
+.abl-side__tray i.is-w { background: url('./art/abalone-white-marble.png') center / cover; }
 
-.abl-board { display: block; inline-size: 100%; max-inline-size: 720px; margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
+.abl-board { display: block; inline-size: 100%; max-inline-size: min(720px, var(--gf-b, 720px)); margin-inline: auto; block-size: auto; user-select: none; -webkit-tap-highlight-color: transparent; }
 .abl-cell { outline: none; }
 .abl-cell--mine { cursor: pointer; }
 .abl-cell:focus-visible circle { stroke: #ffd27a; stroke-width: 4px; }
 .abl-cell--hint circle { stroke: #ffd27a; stroke-width: 4px; animation: abl-pulse 1s ease-in-out infinite; }
-.abl-ring { fill: none; stroke: #ffd27a; stroke-width: 5px; filter: drop-shadow(0 0 6px rgb(255 210 122 / 0.9)); }
 .abl-m--sel { transform-box: fill-box; transform-origin: center; transform: translateY(-4px); }
 .abl-lost { opacity: 0; animation: abl-fall 0.8s ease-in both; transform-box: fill-box; transform-origin: center; }
 .abl-arrow { cursor: pointer; outline: none; }
-.abl-arrow circle { fill: #c9a46a; stroke: #fff3c4; stroke-width: 3px; filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.5)); }
-.abl-arrow path { fill: #2a1a0d; }
-.abl-arrow:hover circle, .abl-arrow:focus-visible circle { fill: #ffd27a; }
-.abl-arrow--hint circle { animation: abl-pulse 0.9s ease-in-out infinite; fill: #ffd27a; }
+.abl-arrow__img { opacity: 0.8; }
+.abl-arrow__img--side { filter: hue-rotate(95deg) saturate(1.6); opacity: 1; }
+.abl-arrow:hover .abl-arrow__img, .abl-arrow:focus-visible .abl-arrow__img, .abl-arrow--hint .abl-arrow__img { opacity: 1; filter: drop-shadow(0 0 4px rgb(255 255 255 / 0.9)); }
+.abl-arrow--hint .abl-arrow__img { animation: abl-pulse 0.9s ease-in-out infinite; }
 
 .abl__actions { display: flex; justify-content: center; min-block-size: 2.25rem; }
 .abl__end { margin: 0; color: #ffd27a; font-weight: 800; }
@@ -34,6 +33,9 @@
 @keyframes abl-pulse { 50% { opacity: 0.55; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .abl-arrow--hint circle, .abl-cell--hint circle { animation: none; }
+  .abl-arrow--hint .abl-arrow__img, .abl-cell--hint circle { animation: none; }
   .abl-lost { animation: none; }
 }
+
+/* Inside the shared table frame the board takes the frame's square edge. */
+.abl > :first-child { justify-self: stretch; }

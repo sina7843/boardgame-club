@@ -15,6 +15,7 @@ export type Cat = (typeof CATS)[number];
 export const UPPER = CATS.slice(0, 6) as Cat[];
 export const LOWER = CATS.slice(6) as Cat[];
 export const UPPER_BONUS = 35, UPPER_TARGET = 63, YAHTZEE_BONUS = 100;
+const CAT_NAME: Record<Cat, string> = { ones: 'یک‌ها', twos: 'دوها', threes: 'سه‌ها', fours: 'چهارها', fives: 'پنج‌ها', sixes: 'شش‌ها', threeKind: 'سه‌تایی', fourKind: 'چهارتایی', fullHouse: 'فول‌هاوس', smallStraight: 'ردیف کوچک', largeStraight: 'ردیف بزرگ', yahtzee: 'یاتزی', chance: 'شانس' };
 export type Sheet = Partial<Record<Cat, number>>;
 
 export interface YahtzeeState {
@@ -203,7 +204,9 @@ export const yahtzeeModule: GameModule<YahtzeeState, YahtzeeAction, YahtzeeView>
     const top = Math.max(...pts);
     const winners = new Set((s.outcome?.placements ?? []).filter((p) => p.place === 1).map((p) => p.seat));
     const filled = s.sheets.map((x) => CATS.filter((k) => x[k] !== undefined).length);
+    const l = s.last;
     return {
+      moves: l ? [{ seat: l.seat, text: `${CAT_NAME[l.cat]}: ${l.points.toLocaleString('fa-IR')}${l.bonus ? '، پاداش ۱۰۰' : ''}` }] : [],
       seats: s.sheets.map((_, seat) => ({
         seat,
         primary: { label: 'امتیاز', value: pts[seat]! },

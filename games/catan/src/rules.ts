@@ -933,6 +933,25 @@ export const catanModule: GameModule<CatanState, CatanAction, CatanView> = {
         };
       }),
       shared: [{ key: 'deck', label: 'دسته', value: s.devDeck.length }],
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        const fa = (n: number) => n.toLocaleString('fa-IR');
+        const RN: Record<string, string> = { brick: 'خشت', lumber: 'چوب', wool: 'پشم', grain: 'گندم', ore: 'سنگ' };
+        switch (e.t) {
+          case 'build': return [{ seat: e.seat, text: `${{ road: 'جاده', settlement: 'آبادی', city: 'شهر' }[e.piece]} ساخت` }];
+          case 'roll': return [{ seat: e.seat, text: `تاس ${fa(e.dice[0] + e.dice[1])}` }];
+          case 'robber': return [{ seat: e.seat, text: 'راهزن را جابه‌جا کرد' }];
+          case 'steal': return [{ seat: e.seat, text: 'یک کارت دزدید' }];
+          case 'discard': return [{ seat: e.seat, text: 'کارت دور ریخت' }];
+          case 'bank': return [{ seat: e.seat, text: `${fa(e.n)} ${RN[e.give]} به ۱ ${RN[e.get]}` }];
+          case 'offer': return [{ seat: e.seat, text: 'پیشنهاد معامله داد' }];
+          case 'trade': return [{ seat: e.seat, text: 'معامله کرد' }];
+          case 'buy': return [{ seat: e.seat, text: 'کارت توسعه خرید' }];
+          case 'dev': return [{ seat: e.seat, text: `کارت ${{ knight: 'شوالیه', road: 'جاده‌سازی', plenty: 'سال فراوانی', monopoly: 'انحصار' }[e.card]}` }];
+          case 'award': return e.seat === null ? [] : [{ seat: e.seat, text: e.kind === 'road' ? 'بلندترین جاده' : 'بزرگ‌ترین ارتش' }];
+          case 'win': return [{ seat: e.seat, text: `با ${fa(e.vp)} امتیاز برد` }];
+          default: return [];
+        }
+      }).slice(-40),
       strikesMax: MAX_TIMEOUTS,
       ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
     };

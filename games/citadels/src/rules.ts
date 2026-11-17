@@ -53,8 +53,10 @@ export interface CitadelsState {
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
+  /** Public action history (newest last, at most 40) for the shell event log; absent in older saved states. */
+  hist?: { seat: number; text: string }[];
 }
-export interface CitadelsView extends Omit<CitadelsState, 'deck' | 'hands' | 'pool' | 'faceDown' | 'picks' | 'drawn' | 'timeouts'> {
+export interface CitadelsView extends Omit<CitadelsState, 'deck' | 'hands' | 'pool' | 'faceDown' | 'picks' | 'drawn' | 'timeouts' | 'hist'> {
   deckCount: number;
   hand: number[] | null;
   handCount: number[];
@@ -273,6 +275,11 @@ export const citadelsModule: GameModule<CitadelsState, CitadelsAction, CitadelsV
         break;
       case 'end': s.last = { seat, kind: 'end' }; callNext(s, ctx.rng); break;
     }
+    if (s.last) {
+      const t: Record<string, string> = { pick: 'شخصیت برداشت', gold: '۲ طلا گرفت', cards: 'دو کارت کشید', keep: 'یک کارت نگه داشت', build: 'محله ساخت', kill: 'آدم‌کش را به کار گرفت', rob: 'دزدی کرد', swap: 'دست عوض کرد', redraw: 'کارت عوض کرد', destroy: 'محله‌ای را خراب کرد', end: 'نوبت را تمام کرد' };
+      const text = `${t[s.last.kind] ?? s.last.kind}${s.last.detail && s.last.kind !== 'rob' && s.last.kind !== 'kill' ? `: ${s.last.detail}` : ''}`;
+      s.hist = [...(s.hist ?? []), { seat: s.last.seat, text }].slice(-40);
+    }
     return finish(s, [{ type: a.type, seat }]);
   },
 
@@ -281,7 +288,7 @@ export const citadelsModule: GameModule<CitadelsState, CitadelsAction, CitadelsV
     const holders: Record<number, number> = {};
     for (const c of s.revealed) holders[c] = holder(s, c);
     const cur = current(s);
-    const { deck, hands, pool, faceDown: _f, picks, drawn, timeouts: _t, ...rest } = structuredClone(s);
+    const { deck, hands, pool, faceDown: _f, picks, drawn, timeouts: _t, hist: _h, ...rest } = structuredClone(s);
     return {
       ...rest, deckCount: deck.length, hand: me >= 0 ? hands[me]! : null, handCount: hands.map((h) => h.length), pool: s.phase === 'draft' && cur === me ? pool : null,
       myPicks: me >= 0 ? picks[me]! : [], pickCounts: picks.map((p) => p.length), drawn: cur === me && drawn.length ? drawn : null, holders,
@@ -345,6 +352,7 @@ export const citadelsModule: GameModule<CitadelsState, CitadelsAction, CitadelsV
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
       shared: [{ key: 'round', label: 'دور', value: s.round }, { key: 'deck', label: 'دسته', value: s.deck.length }],
+      moves: (s.hist ?? []).slice(-40),
       ...(leaders.length === 1 && top > 0 ? { leaderSeat: leaders[0]! } : {})
     };
   },

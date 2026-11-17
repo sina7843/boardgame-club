@@ -288,6 +288,20 @@ export const skullModule: GameModule<SkullState, SkullAction, SkullView> = {
           : s.phase === 'bid' && s.passed[seat] ? { status: 'passed' as const } : {})
       })),
       shared: [{ key: 'table', label: 'روی میز', value: onTable(s) }],
+      moves: s.log.flatMap((e): { seat: number; text: string }[] => {
+        const fa = (n: number) => n.toLocaleString('fa-IR');
+        switch (e.t) {
+          case 'place': return [{ seat: e.seat, text: 'یک دیسک گذاشت' }];
+          case 'bid': return [{ seat: e.seat, text: `پیشنهاد ${fa(e.n)}` }];
+          case 'pass': return [{ seat: e.seat, text: 'کنار کشید' }];
+          case 'flip': return [{ seat: e.seat, text: `${e.disc === 'skull' ? 'جمجمه' : 'گل'} رو شد` }];
+          case 'win-challenge': return [{ seat: e.seat, text: 'چالش را برد' }];
+          case 'lose-disc': return [{ seat: e.seat, text: e.eliminated ? 'بیرون رفت' : 'یک دیسک از دست داد' }];
+          case 'timeout': return [{ seat: e.seat, text: 'زمانش تمام شد' }];
+          case 'resign': return [{ seat: e.seat, text: 'کنار رفت' }];
+          default: return [];
+        }
+      }).slice(-40),
       ...(s.points.filter((v) => v === top).length === 1 && top > 0 ? { leaderSeat: s.points.indexOf(top) } : {})
     };
   },

@@ -47,6 +47,8 @@ export interface DomState {
   militia: number[];
   turns: number[];
   last: { seat: number; kind: string; card?: CardId } | null;
+  /** Public move list for the table frame (every entry is already visible to all seats). */
+  log?: { seat: number; text: string }[];
   seq: number;
   timeouts: number[];
   outcome: Outcome | null;
@@ -242,23 +244,26 @@ export const domModule: GameModule<DomState, DomAction, DomView> = {
       return finish(s, [{ type: 'resigned', seat }]);
     }
     s.timeouts[seat] = 0;
+    const note = (text: string) => { s.log = [...(s.log ?? []), { seat, text }].slice(-40); };
     switch (a.type) {
       case 'militiaDiscard': {
         const p = s.players[seat]!;
         p.discard.push(...a.discard.map((i) => p.hand[i]!));
         p.hand = p.hand.filter((_, i) => !a.discard.includes(i));
         s.militia[seat] = 0;
+        note(`دور ریخت ${a.discard.length.toLocaleString('fa-IR')} کارت`);
         break;
       }
-      case 'play': s.last = { seat, kind: 'play', card: s.players[seat]!.hand[a.index]! }; play(s, seat, a, ctx.rng); break;
-      case 'treasures': playTreasures(s, seat); break;
+      case 'play': s.last = { seat, kind: 'play', card: s.players[seat]!.hand[a.index]! }; note(`بازی ${CARDS[s.last.card!].name}`); play(s, seat, a, ctx.rng); break;
+      case 'treasures': playTreasures(s, seat); note('گنج‌ها را رو کرد'); break;
       case 'buy':
         s.phase = 'buy';
         s.coins -= CARDS[a.card].cost; s.buys -= 1;
         gain(s, s.players[seat]!.discard, a.card);
         s.last = { seat, kind: 'buy', card: a.card };
+        note(`خرید ${CARDS[a.card].name}`);
         break;
-      case 'endTurn': cleanup(s, seat, ctx.rng); break;
+      case 'endTurn': note('پایان نوبت'); cleanup(s, seat, ctx.rng); break;
     }
     return finish(s, [{ type: a.type, seat }]);
   },
@@ -315,6 +320,7 @@ export const domModule: GameModule<DomState, DomAction, DomView> = {
         ],
         ...(winners.has(seat) ? { status: 'winner' as const } : {})
       })),
+      moves: s.log ?? [],
       shared: [{ key: 'province', label: 'ایالت', value: s.supply.province }]
     };
   },

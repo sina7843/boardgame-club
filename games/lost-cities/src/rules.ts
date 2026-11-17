@@ -230,11 +230,12 @@ export const lostCitiesModule: GameModule<LostCitiesState, LostCitiesAction, Los
   publicSummary: (s) => ({
     seats: s.scores.map((sc, seat) => ({
       seat,
-      primary: { label: 'امتیاز', value: sc },
+      primary: { label: 'امتیاز', value: sc + (s.outcome ? 0 : COLORS.reduce((a, c) => a + expScore(s.exp[seat]![c]), 0)) },
       stats: [{ key: 'hand', label: 'کارت', value: s.hands[seat]!.length, icon: 'layers' }],
       ...(s.outcome && s.outcome.placements.some((p) => p.seat === seat && p.place === 1) && s.outcome.placements.some((p) => p.place > 1) ? { status: 'winner' as const } : {})
     })),
     shared: [{ key: 'deck', label: 'دسته', value: s.deck.length }, { key: 'round', label: 'دور', value: s.round, max: s.rounds }],
+    moves: s.last ? [{ seat: s.last.seat, text: `${s.last.kind === 'play' ? 'روی سفر گذاشت' : s.last.kind === 'discard' ? 'دور انداخت' : s.last.from === 'deck' ? 'از دسته برداشت' : 'از کپه برداشت'}${s.last.card && s.last.kind !== 'draw' ? `: ${({ y: 'صحرا', b: 'دریا', w: 'ویرانه', g: 'جنگل', r: 'دره' } as Record<string, string>)[s.last.card[0]!]} ${Number(s.last.card.slice(1)) ? Number(s.last.card.slice(1)).toLocaleString('fa-IR') : 'شرط'}` : ''}`.slice(0, 40) }] : [],
     ...(s.scores[0] !== s.scores[1] ? { leaderSeat: s.scores[0]! > s.scores[1]! ? 0 : 1 } : {})
   }),
 

@@ -1,68 +1,46 @@
-/* جمجمه: tavern coasters — painted faces with a rose or a skull, patterned backs in the seat colour. */
-.sk { display: grid; gap: 0.8rem; text-align: center; color: #f3eadb; inline-size: 100%; }
-.sk > :first-child { justify-self: center; }
-.sk__bid { margin: 0; font-size: 1rem; }
-.sk__bid strong { font-size: 1.4rem; color: #ffd27a; }
-.sk__table { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
-.sk-pl { border-radius: 16px; background: radial-gradient(circle at 50% 0%, rgb(255 255 255 / 0.06), rgb(0 0 0 / 0.32)); border: 1px solid rgb(255 255 255 / 0.08); }
-.sk-pl > *:not(button), .sk-pl__flip { padding: 0.55rem 0.7rem; }
-.sk-pl--turn { box-shadow: 0 0 0 2px #c9a46a, 0 8px 20px -8px rgb(201 164 106 / 0.6); }
-.sk-pl--me { background: radial-gradient(circle at 50% 0%, rgb(201 164 106 / 0.18), rgb(0 0 0 / 0.32)); }
-.sk-pl__flip { display: grid; gap: 0.35rem; inline-size: 100%; border: 0; border-radius: inherit; background: rgb(255 210 122 / 0.12); color: inherit; font: inherit; cursor: pointer; box-shadow: inset 0 0 0 2px #ffd27a; }
-.sk-pl__flip:hover, .sk-pl__flip:focus-visible { background: rgb(255 210 122 / 0.25); outline: none; }
-.sk-pl__cta { font-weight: 900; color: #ffd27a; }
-.sk-pl__name { font-weight: 800; }
-.sk-pl__owned { color: #d9ccb4; }
-.sk-pl__out { color: #ff8f80; font-weight: 800; }
-.sk-pl__pass { color: #a89a80; }
-.sk-peek { position: absolute; inset-block-start: -0.5rem; inset-inline-start: 50%; transform: translateX(50%); font-size: 0.6rem; padding: 0 0.3rem; border-radius: 999px; background: #2a1d12; color: #f3eadb; white-space: nowrap; }
-.sk-peek--skull { background: #f2ead8; color: #2a1d12; }
-
-.sk-disc { display: inline-block; filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.55)); }
-.sk-disc svg { display: block; }
-.sk-disc--md svg { inline-size: 3.8rem; block-size: 3.8rem; }
-.sk-disc--sm svg { inline-size: 2.4rem; block-size: 2.4rem; }
-.sk-disc__back { fill: var(--seat); stroke: #1a120b; stroke-width: 3; }
-
-.sk__mine { display: grid; gap: 0.6rem; justify-items: center; padding-block: 0.5rem 0.2rem; border-block-start: 1px dashed rgb(255 255 255 / 0.15); }
-.sk__hand { display: flex; gap: 0.5rem; }
-.sk-handdisc { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 50%; transition: transform 0.15s; }
-.sk-handdisc:hover:not(:disabled), .sk-handdisc:focus-visible { transform: translateY(-8px); outline: none; }
+/* جمجمه: the handoff mats, stacks and discs (art) on the shell's felt. Only DS tokens for UI chrome. */
+.sk { display: grid; gap: var(--space-3); justify-items: center; text-align: center; color: var(--felt-ink); inline-size: 100%; }
+.sk-mats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center; }
+.sk-mat { display: grid; justify-items: center; gap: var(--space-2); color: var(--felt-muted); font-size: 0.78rem; }
+.sk-mat__btn { all: unset; box-sizing: border-box; display: grid; justify-items: center; gap: var(--space-2); cursor: pointer; min-block-size: 44px; border-radius: var(--radius-md); }
+.sk-mat__btn:focus-visible { outline: 3px solid var(--focus-on-felt); outline-offset: 3px; }
+.sk-mat__bg { position: relative; display: grid; place-items: center; inline-size: 148px; block-size: 148px; }
+.sk-mat__img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; border-radius: var(--radius-sm); object-fit: contain; }
+.sk-stack { position: relative; display: grid; grid-template-areas: 'a'; }
+.sk-slot { grid-area: a; transform: translateY(calc(var(--k) * -5px)); }
+.sk-disc { display: block; border-radius: 50%; object-fit: contain; }
+.sk-disc--md { inline-size: 108px; block-size: 108px; }
+.sk-disc--sm { inline-size: 56px; block-size: 56px; }
+.sk-ph { display: grid; place-items: center; background: var(--surface-sunken); color: var(--text-muted); box-shadow: var(--shadow-ring); font-size: 0.75rem; }
+.sk-mat__img.sk-ph { border-radius: var(--radius-sm); }
+.sk-mat__l b { color: var(--felt-ink); }
+.sk-mat__l em { font-style: normal; color: var(--felt-gold); font-weight: 700; }
+.sk-mat.is-me .sk-mat__bg { box-shadow: var(--shadow-ring-strong); border-radius: var(--radius-md); }
+.sk-mat.is-turn .sk-mat__bg { box-shadow: var(--shadow-ring-felt); border-radius: var(--radius-md); }
+.sk-mat.is-click .sk-mat__bg { box-shadow: var(--shadow-ring-strong); border-radius: var(--radius-md); }
+.sk-mat.is-pass { opacity: 0.7; }
+.sk-mat__cta { font-weight: 900; color: var(--felt-gold); }
+.sk-banner { margin: 0; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink); font-size: 0.82rem; line-height: 1.5; }
+.sk-banner small { color: var(--felt-muted); }
+.sk-banner__n { display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: 50%; background: var(--felt-gold); color: var(--brand-ink); font-size: 1.5rem; font-weight: 900; }
+.sk__mine { display: grid; gap: var(--space-3); justify-items: center; }
+.sk__hand { display: flex; gap: var(--space-3); }
+.sk-handdisc { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 50%; min-inline-size: 44px; min-block-size: 44px; }
+.sk-handdisc:focus-visible { outline: 3px solid var(--focus-on-felt); outline-offset: 3px; }
 .sk-handdisc:disabled { cursor: default; opacity: 0.7; }
-.sk__bidbar { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; align-items: center; }
-.sk-num { min-inline-size: 2.4rem; padding: 0.35rem 0.5rem; border-radius: 10px; border: 1px solid #c9a46a; background: rgb(0 0 0 / 0.3); color: #f3eadb; font: inherit; font-weight: 900; cursor: pointer; }
-.sk-num--on { background: #c9a46a; color: #1a120b; }
-.sk-hint { animation: sk-pulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #ffd27a; }
-.sk__lost { margin: 0; color: #ff8f80; font-weight: 700; }
-
-@keyframes sk-pulse { 50% { box-shadow: 0 0 0 3px transparent; } }
+.sk-bid { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-md); color: var(--felt-ink); }
+.sk-n { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: 50%; background: var(--felt-control); color: var(--brand-ink); font-size: 1.1rem; font-weight: 800; }
+.sk-n.is-sel { background: var(--felt-gold); }
+.sk-n:focus-visible { outline: 3px solid var(--focus-on-felt); outline-offset: 2px; }
+.sk-hint { animation: sk-pulse 1s ease-in-out infinite; outline: 3px solid var(--felt-gold); outline-offset: 2px; }
+.sk__lost { margin: 0; color: var(--danger); font-weight: 700; }
+@keyframes sk-pulse { 50% { outline-color: transparent; } }
 @media (prefers-reduced-motion: reduce) { .sk-hint { animation: none; } }
-
-/* Player mat: a round leather coaster mat rimmed in the seat colour. Plain side until the first won challenge, then
-   the point side (gold ring, skull emblem). The placed stack fans out across it; owned discs and points sit below. */
-.sk-pl { display: grid; justify-items: center; }
-.sk-pl__flip { justify-items: center; }
-.sk-pl__head { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; justify-content: center; font-size: 0.9rem; }
-.sk-mat { --d: 10.5rem; position: relative; display: grid; place-items: center; inline-size: var(--d); block-size: var(--d); border-radius: 50%;
-  background: radial-gradient(circle, transparent 52%, rgb(0 0 0 / 0.45) 100%), url('./art/mat-leather.webp') center / cover #4a1c1c;
-  box-shadow: 0 0 0 5px var(--seat), 0 0 0 7px #1a120b, 0 10px 18px -6px rgb(0 0 0 / 0.7), inset 0 0 0 2px rgb(255 255 255 / 0.12); margin-block: 0.4rem; }
-.sk-mat::before { content: ''; position: absolute; inset: 12%; border-radius: 50%; border: 2px dashed rgb(255 240 210 / 0.25); pointer-events: none; }
-.sk-mat--won::before { border: 3px solid #e9c46a; background: url('./art/disc-skull.webp') center / 70% no-repeat; opacity: 0.22; }
-.sk-mat--won { box-shadow: 0 0 0 5px var(--seat), 0 0 0 8px #e9c46a, 0 10px 22px -6px rgb(233 196 106 / 0.6); }
-.sk-pl--me .sk-mat { --d: 12.5rem; }
-.sk-mat__side { position: absolute; inset-block-start: 9%; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.02em; padding: 0 0.45rem; border-radius: 999px; background: rgb(0 0 0 / 0.45); color: #f3eadb; }
-.sk-mat--won .sk-mat__side { background: #e9c46a; color: #1a120b; }
-.sk-pl__stack { position: relative; display: flex; align-items: center; justify-content: center; min-block-size: 4.2rem; }
-.sk-pl__slot { position: relative; margin-inline-start: -2.6rem; }
-.sk-pl__slot:first-child { margin-inline-start: 0; }
-.sk-pl__empty { color: #cdb99a; font-size: 0.75rem; }
-.sk-pl__foot { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; align-items: center; justify-content: center; font-size: 0.8rem; }
-.sk-pl__mat { display: inline-flex; gap: 3px; align-items: center; }
-.sk-pl__mat small { margin-inline-start: 0.25rem; font-size: 0.75rem; color: #e9c46a; font-weight: 800; }
-.sk-pl__mat i { inline-size: 14px; block-size: 14px; border-radius: 50%; border: 2px solid #c9a46a; }
-.sk-pl__mat i.on { background: #e9c46a; border-color: #fff1c4; box-shadow: 0 0 8px #e9c46a; }
-.sk-pl__owned { display: inline-flex; gap: 0.35rem; align-items: center; }
-.sk-own { display: inline-flex; gap: 2px; }
-.sk-own i { inline-size: 9px; block-size: 9px; border-radius: 50%; border: 1px solid #7d6f5a; }
-.sk-own i.on { background: #f3eadb; border-color: #f3eadb; }
-@media (max-width: 420px) { .sk-mat { --d: 9.5rem; } .sk-pl--me .sk-mat { --d: 11rem; } .sk-pl__slot { margin-inline-start: -2.9rem; } }
+@media (max-width: 480px) {
+  .sk-mats { gap: var(--space-2); }
+  .sk-mat { font-size: 0.7rem; max-inline-size: 84px; }
+  .sk-mat__bg { inline-size: 78px; block-size: 78px; }
+  .sk-disc--md { inline-size: 56px; block-size: 56px; }
+  .sk-slot { transform: translateY(calc(var(--k) * -3px)); }
+  .sk-banner { padding-inline: var(--space-3); }
+}
