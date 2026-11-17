@@ -41,7 +41,7 @@ const hold = async (page: Page, sel: string) => { await page.locator(sel).first(
 const setTurnLeft = async (page: Page, seconds: number) => {
   const id = page.url().split('/').pop()?.split('?')[0] ?? '';
   if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error('not a table url');
-  execFileSync('docker', ['exec', 'boardgame-dev-postgres-1', 'psql', '-U', 'boardgame', '-d', 'boardgame', '-c',
+  execFileSync('docker', ['exec', process.env.BGV_QA_PG_CONTAINER ?? 'boardgame-dev-postgres-1', 'psql', '-U', 'boardgame', '-d', 'boardgame', '-c',
     `update scheduled_deadlines set due_at = now() + interval '${seconds} seconds' where table_id = '${id}' and deadline_key = 'turn' and status = 'pending'`]);
   await page.reload(); await page.waitForLoadState('networkidle').catch(() => {}); await page.waitForTimeout(800);
 };
@@ -53,6 +53,7 @@ const PREPARE: Record<string, (page: Page) => Promise<void>> = {
   'Table-ConnectionLost-Mobile': async (page) => { await page.context().setOffline(true); await page.waitForTimeout(4000); },
   'Offline-Mobile': async (page) => { await page.context().setOffline(true); await page.evaluate(() => window.dispatchEvent(new Event('offline'))); await page.waitForTimeout(1500); },
   'Chat-Docked-Desktop': async () => undefined,
+  'Catalog-Phone': async () => undefined, 'Catalog-Phone-Dark': async () => undefined, 'Catalog-Desktop-Dark': async () => undefined, // route-less catalog variants of /games
   'Chat-Sheet-Mobile': chatOpen,
   'Chat-Sheet-Mobile-Dark': chatOpen,
   'Chat-Spectator-Mobile': chatOpen,
@@ -191,16 +192,17 @@ function domAudit(opts: { gameArt: string; minEdgeGap: number; dsColors: string[
   };
 }
 
-for (const s of SCREENS.screens) {
+for (let s of SCREENS.screens) {
   if (ONLY && !ONLY.includes(s.id) && !ONLY.includes(s.page)) continue;
   test(`design-qa ${s.page}/${s.id}`, async ({ browser }) => {
     test.setTimeout(120_000);
     const entry: Record<string, unknown> = { id: s.id, page: s.page, route: s.route, kind: s.kind, capture: s.capture, theme: s.theme, shots: [] };
     audit[s.id] = entry;
     if (s.supersededBy) { entry.status = 'superseded'; entry.supersededBy = s.supersededBy; save(); test.skip(true, `${s.id}: superseded by ${s.supersededBy}`); return; }
+    if (s.id.startsWith('Catalog-') && !s.route) s = { ...s, route: '/games' }; // screens.json has no route for the catalog variants
     if (!s.route || (s.capture === 'manual' && !PREPARE[s.id])) { entry.status = s.kind === 'spec' ? 'spec-only' : 'manual'; save(); test.skip(true, `${s.id}: ${entry.status}`); return; }
     if (QA.roles?.[s.route] && !process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`]) { entry.status = `needs-role:${QA.roles[s.route]}`; save(); test.skip(true, entry.status as string); return; }
-    const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' ? undefined : (() => { const t = tableOf(s); return typeof t === 'object' ? t.storage : undefined; })() ?? await session(browser);
+    const state = QA.roles?.[s.route] ? process.env[`BGV_QA_${String(QA.roles[s.route]).toUpperCase()}_STORAGE`] : s.route === '/login' || /Guest/.test(s.id) ? undefined : (() => { const t = tableOf(s) ?? TABLES[s.id]; return typeof t === 'object' ? t.storage : undefined; })() ?? await session(browser);
     for (const w of s.viewports) {
       const h = s.responsive ? 900 : 844;
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: 'fa-IR', timezoneId: 'Asia/Tehran', reducedMotion: 'reduce', baseURL: QA.baseURL, storageState: state, hasTouch: w < 900 });

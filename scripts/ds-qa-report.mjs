@@ -37,7 +37,7 @@ for (const s of screens) {
     const nonDsFonts = Object.keys(sh.fonts ?? {}).filter((f) => !/Peyda|Vazirmatn|Manrope/i.test(f));
     if (nonDsFonts.length) problems.push(`@${w} fonts outside the DS: ${nonDsFonts.join(', ')}`);
     if (s.kind === 'table' && !sh.shell?.tablescreen && !/^Table-Lobby/.test(s.id ?? s.screen ?? '')) problems.push(`@${w} table screen is not built on .bgv-tablescreen`);
-    if ((s.kind === 'page' || s.kind === 'page-new') && !['/login', '/payments/result'].includes(s.route) && !sh.shell?.app) problems.push(`@${w} page is not inside the canonical .bgv-app shell`);
+    if ((s.kind === 'page' || s.kind === 'page-new') && !['/login', '/payments/result'].includes(s.route) && !(w < 900 && ['/me/studio', '/me/avatar'].includes(s.route)) /* phone task screens are full-screen in the reference */ && !sh.shell?.app) problems.push(`@${w} page is not inside the canonical .bgv-app shell`);
     if (sh.shell?.sidebar) problems.push(`@${w} the retired v1.6 sidebar (.bgv-sidebar) is still rendered — v2.1 uses SiteHeader + AccountMenu (design/MIGRATION-v1.6-to-v2.1.md)`);
     if ((s.kind === 'page' || s.kind === 'page-new') && w >= 900 && sh.shell?.app && !sh.shell?.siteheader) problems.push(`@${w} desktop page has no .bgv-siteheader (v2.1 shell)`);
     if (sh.touching?.length) warnings.push(`@${w} text close to its frame (<${cfg.qa?.thresholds?.minEdgeGapPx ?? 6}px): ${sh.touching.slice(0, 3).join(' | ')}`);
