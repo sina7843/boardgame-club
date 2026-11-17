@@ -104,15 +104,20 @@ export function ChessLobby() {
       <h3>دنبال حریف می‌گردیم…</h3>
       <p>{tileFa(clock)}، {CLS_FA[cls]}، {competition === 'ranked' ? 'رتبه‌دار' : 'دوستانه'}</p>
       <span className="chl-seek__t" dir="ltr">{faNum(Math.floor((now - seek.since) / 60000))}:{faNum(Math.floor(((now - seek.since) / 1000) % 60)).padStart(2, '۰')}</span>
+      <span className="chl-seek__cancel"><Button variant="secondary" icon="x" block onClick={() => void cancel()}>لغو</Button></span>
     </div>
   );
 
   return (
-    <div className="chl">
+    <div className={seek ? 'chl chl--seeking' : 'chl'}>
       <GameBar title="شطرنج" latin="Chess" onBack={() => navigate('/games/chess')} backLabel="بازگشت به صفحهٔ شطرنج" meta={['شطرنج', 'بازی جدید']} />
       <div className="chl__body">
         <section className="chl__side" aria-labelledby="chl-h">
-          <h1 id="chl-h" className="chl-h">بازی جدید شطرنج</h1>
+          <span className="chl-handle" aria-hidden="true" />
+          <div className="chl-row chl-row--between">
+            <h1 id="chl-h" className="chl-h">بازی جدید شطرنج</h1>
+            <span className="chl-close"><Button variant="ghost" iconOnly icon="x" onClick={() => navigate('/games/chess')}>بستن</Button></span>
+          </div>
           <Segmented label="نوع بازی" block value={mode} onChange={(v) => !seek && setMode(v as Mode)}
             options={[{ value: 'online', label: 'آنلاین', icon: 'globe' }, { value: 'friend', label: 'با دوست', icon: 'users' }, { value: 'bot', label: 'با ربات', icon: 'bot' }]} />
           {mode !== 'bot' ? (
@@ -155,7 +160,6 @@ export function ChessLobby() {
               ? <Button variant="secondary" size="lg" icon="x" block onClick={() => void cancel()}>لغو</Button>
               : <Button variant="primary" size="lg" icon="zap" block loading={busy} onClick={() => void play()}>بازی کن</Button>}
           </div>
-          <div className="chl-phone-seek">{search}</div>
         </section>
         <div className="chl__stage" aria-hidden={!seek}>{search}</div>
       </div>

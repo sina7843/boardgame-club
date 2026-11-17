@@ -285,13 +285,19 @@
 .chl-ring { inline-size: 72px; block-size: 72px; border-radius: 50%; border: 6px solid var(--felt-line); border-block-start-color: var(--felt-gold); animation: chl-spin 1.1s linear infinite; }
 @keyframes chl-spin { to { transform: rotate(1turn); } }
 @media (prefers-reduced-motion: reduce) { .chl-ring { animation: none; } }
-.chl-phone-seek { display: none; }
+.chl-handle, .chl-close, .chl-seek__cancel { display: none; }
 @media (max-width: 899px) {
-  .chl { position: static; min-block-size: 100dvh; }
-  .chl__body { grid-template-columns: minmax(0, 1fr); }
+  /* P01: the new game is a bottom sheet over the felt; P02: searching shows only the felt and the search card. */
+  .chl__body { display: flex; flex-direction: column; justify-content: flex-end; background: var(--felt); }
   .chl__stage { display: none; }
-  .chl__side { padding: var(--space-4); border: 0; }
-  .chl-tc__row { grid-template-columns: 64px minmax(0, 1fr); }
-  .chl-tc__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .chl-phone-seek { display: block; }
+  .chl__side { padding: var(--space-3) var(--space-4) var(--space-4); border: 0; border-start-start-radius: var(--radius-xl); border-start-end-radius: var(--radius-xl); box-shadow: var(--shadow-float); max-block-size: calc(100dvh - var(--gamebar-h)); gap: var(--space-3); }
+  .chl-handle { display: block; inline-size: 40px; block-size: 4px; border-radius: var(--radius-pill); background: var(--line); align-self: center; }
+  .chl-close { display: inline-flex; }
+  .chl-tc__row { grid-template-columns: 60px minmax(0, 1fr); gap: var(--space-2); }
+  .chl-tc__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
+  .chl-tile { block-size: 52px; padding: 4px; }
+  .chl-tile b { font-size: 14px; }
+  .chl--seeking .chl__side { display: none; }
+  .chl--seeking .chl__stage { display: grid; flex: 1; }
+  .chl-seek__cancel { display: block; inline-size: 100%; }
 }

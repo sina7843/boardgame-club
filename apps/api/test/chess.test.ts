@@ -64,6 +64,26 @@ describe('chess through the platform', () => {
     expect(end.game.result.placements.find((p: { place: number }) => p.place === 1).seat).toBe(white);
   });
 
+  it('a draw offer or decline on any turn leaves the running clock running', async () => {
+    const t = await startTable(ctx, 'chess', 2, { options: { clock: '3+2' } });
+    const bySeat = await seatsOf(ctx, t.tableId, t.players);
+    let v = await view(ctx, t.players[0]!, t.tableId);
+    const white = v.game.view.colors.indexOf('w') as number;
+    await command(ctx, bySeat(white), t.tableId, v.game.revision, { type: 'move', from: 'e2', to: 'e4' });
+    v = await view(ctx, t.players[0]!, t.tableId);
+    await command(ctx, bySeat(1 - white), t.tableId, v.game.revision, { type: 'move', from: 'e7', to: 'e5' });
+    v = await view(ctx, t.players[0]!, t.tableId);
+    expect(v.game.clocks.running).toBe(white);
+    // White (to move) offers, Black (not to move) declines: White's clock keeps running throughout.
+    expect((await command(ctx, bySeat(white), t.tableId, v.game.revision, { type: 'offerDraw' })).json().status).toBe('accepted');
+    v = await view(ctx, t.players[0]!, t.tableId);
+    expect(v.game.clocks.running).toBe(white);
+    expect((await command(ctx, bySeat(1 - white), t.tableId, v.game.revision, { type: 'declineDraw' })).json().status).toBe('accepted');
+    v = await view(ctx, t.players[0]!, t.tableId);
+    expect(v.game.clocks.running).toBe(white);
+    expect(v.game.view.drawOffer).toBeNull();
+  });
+
   it('quick pairing on a clock: the queue is keyed by the bank and the matched table plays on that clock', async () => {
     const [a, b] = await users(ctx, 2);
     const q = (u: typeof a, clock: string) => call(ctx, 'POST', '/api/matchmaking/tickets', u, { gameId: 'chess', pace: 'live', competition: 'ranked', playerCount: 2, turnSeconds: 60, clock });

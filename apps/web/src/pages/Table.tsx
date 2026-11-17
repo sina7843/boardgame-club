@@ -857,8 +857,9 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
   const clocks: TableFrame['clocks'] = c ? t.seats.map((x) => {
     const running = c.running === x.seat && t.status === 'active';
     const first = running && !!c.first;
-    const ms = running && !first && dueMs !== null ? Math.max(0, dueMs) : c.left[x.seat] ?? 0;
-    const off = !finished && !aborted && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online));
+    const ms = flaggedSeat === x.seat ? 0 : running && !first && dueMs !== null ? Math.max(0, dueMs) : c.left[x.seat] ?? 0;
+    // Only while my own connection is live: when I am the one offline, the others' status is stale.
+    const off = live && !finished && !aborted && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online));
     const state: FrameClockState = flaggedSeat === x.seat ? 'flag' : off ? 'off' : aborted || first ? 'pre'
       : !running ? 'idle' : ms <= 10_000 ? 'crit' : ms <= warnMs ? 'warn' : 'run';
     return { ms, state, ...(first ? { first: true, firstMs: Math.max(0, dueMs ?? 0) } : {}) };
@@ -869,10 +870,11 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
     seats: t.seats.map((x) => {
       const n = name(x.seat);
       return { seat: x.seat, name: n, avatar: <Avatar size="md" {...seatAvatar(x, n)} />, rating: x.rating ?? null, league: x.league ?? null, bot: !!x.bot,
-        offline: !finished && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online)) };
+        offline: live && !finished && x.seat !== t.mySeat && !!x.user && (x.connected === false || (!!online[x.user.id] && !online[x.user.id]!.online)) };
     }),
     clocks, live, finished, aborted,
     timeLabel: timeLabel(t) ?? undefined,
+    recordHref: finished ? `/api/tables/${t.id}/record` : undefined,
     result: (finished || aborted) ? <OwnFrameResult snap={snap} onSnap={s.accept} onReport={() => setReporting(true)} toast={toast} /> : undefined,
     openChat: wide ? undefined : () => setChat(true),
     unread,
@@ -891,7 +893,7 @@ function OwnFrameView({ s }: { s: ReturnType<typeof useTableSession> }) {
         meta={[...(frame.timeLabel ? [frame.timeLabel] : []), COMPETITION_FA[t.competition],
           ...(finished || aborted ? [<Badge key="end" size="sm" icon="flag">بازی تمام شد</Badge>] : []),
           ...(!isPlayer && !finished ? [<Badge key="w" size="sm" icon="eye">تماشا</Badge>] : []),
-          ...(t.spectators > 0 ? [<Spectators key="sp" count={t.spectators} showLabel />] : []),
+          ...(t.spectators > 0 ? [<span key="sp" className="bgv-row"><Spectators count={t.spectators} aria-label={`${faNum(t.spectators)} تماشاچی`} />تماشاچی</span>] : []),
           ...(!live && !finished && !aborted ? [<Connection key="c" state="lost" label="در حال اتصال" />] : [])]}
         actions={<>
           {!isPlayer && !finished && <Button variant="leave" size="sm" icon="log-out" onClick={() => navigate('/tables')}>ترک تماشا</Button>}

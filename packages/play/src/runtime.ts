@@ -159,8 +159,9 @@ export async function persistStep(tx: Tx, locked: LockedTable, step: StepResult,
   ]);
   await tx.update(gameTables).set({ revision }).where(eq(gameTables.id, table.id));
   table.revision = revision;
-  // The mover's clock stops now (also on the move that ends the game, so the record has its final time).
-  const charged = input.kind === 'action' && !table.isTutorial ? chargeClock(table, input.seat, input.lagMs ?? 0) : null;
+  // The mover's clock stops now (also on the move that ends the game, so the record has its final time). An action that
+  // keeps the turn (no deadline change: a chess draw offer or decline) leaves the running clock alone.
+  const charged = input.kind === 'action' && !table.isTutorial && step.scheduleChanges.length > 0 ? chargeClock(table, input.seat, input.lagMs ?? 0) : null;
   if (input.kind === 'action') await recordMoveTime(tx, table, revision, input, charged);
 
   if (step.scheduleChanges.length === 0) {

@@ -2,6 +2,7 @@
 
 /* A live game hides the app shell (Table.tsx sets html[data-immersive]); the table is the whole screen. */
 html[data-immersive] .bgv-app { display: block; padding: 0; }
+html[data-immersive] .bgv-app__main { padding-block: 0 !important; } /* the site dock is hidden, so its reserved space goes too (same specificity issue as above) */
 /* !important: the DS shell's own responsive rules (several :not() classes) are more specific than any sane selector here. */
 html[data-immersive] :is(.bgv-app > .bgv-siteheader, .bgv-app__top, .bgv-app__dock, .app-page__foot, .app-page > .bgv-banner) { display: none !important; }
 html[data-immersive] .bgv-app__main { max-inline-size: none; }
@@ -185,7 +186,10 @@ html[data-immersive] .app-page { gap: 0; }
 .tbl-own__chat { position: static; max-block-size: none; min-block-size: 0; border-radius: 0; border-inline-start: 1px solid var(--line); }
 .tbl-own__body > .ch { min-block-size: 0; }
 @media (max-width: 899px) {
-  .tbl-own { position: static; block-size: auto; min-block-size: 100dvh; overflow: visible; }
+  /* Phone: game bar + a felt that fills the rest of the screen (the dock is fixed at the bottom edge). */
+  .tbl-own { position: static; display: flex; flex-direction: column; block-size: auto; min-block-size: 100dvh; overflow: visible; background: var(--felt); }
+  .tbl-own__body { flex: 1; display: flex; flex-direction: column; min-block-size: 0; }
+  .tbl-own__body > .ch { flex: 1; }
 }
 .tbl-ownres { display: grid; gap: var(--space-3); padding: 0 20px var(--space-3); }
 .tbl-ownres__rating { margin: 0; text-align: center; font-size: 14px; color: var(--text); }

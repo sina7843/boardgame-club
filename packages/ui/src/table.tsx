@@ -91,6 +91,8 @@ export interface TableFrame {
   /** Shell-built panels the frame places: the result (rematch, rating change, PGN, share, report) and tournament card. */
   result?: ReactNode;
   tournament?: ReactNode;
+  /** Record download (chess PGN), when the game has one. */
+  recordHref?: string;
   /** Opens the table chat sheet (phones / narrow desktop). */
   openChat?: () => void;
   unread?: number;

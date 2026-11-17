@@ -259,11 +259,17 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     send(legal.find((m) => m.promotion === 'Q') ?? legal[0]!); // a premove promotion is always a queen
   }, [myTurn, premove, moves, busy, send]);
   useEffect(() => { if (over) setPremove(null); }, [over]);
+  useEffect(() => {
+    if (!confirmResign && !settings && !options) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setConfirmResign(false); setSettings(false); setOptions(false); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [confirmResign, settings, options]);
 
   // Drag (CX-1): press a piece, move, drop on a target; a press without movement is a click.
   const boardRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ from: string; x: number; y: number; moved: boolean } | null>(null);
-  const [ghost, setGhost] = useState<{ piece: Piece; x: number; y: number } | null>(null);
+  const [ghost, setGhost] = useState<{ piece: Piece; x: number; y: number; size: number } | null>(null);
   const squareAt = (x: number, y: number) => (document.elementFromPoint(x, y)?.closest('[data-sq]') as HTMLElement | null)?.dataset.sq ?? null;
   const onPointerDown = (e: RPointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
@@ -279,7 +285,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5) return;
     // Capture only once it is a drag: capturing on press would retarget the click of a plain tap to the board.
     if (!d.moved) { d.moved = true; setSelected(d.from); setPromoTo(null); boardRef.current?.setPointerCapture(e.pointerId); }
-    setGhost({ piece: liveView.board[idx(d.from)]!, x: e.clientX, y: e.clientY });
+    setGhost({ piece: liveView.board[idx(d.from)]!, x: e.clientX, y: e.clientY, size: (boardRef.current?.clientWidth ?? 384) / 8 });
     setHover(squareAt(e.clientX, e.clientY));
   };
   const onPointerUp = (e: RPointerEvent<HTMLDivElement>) => {
@@ -387,7 +393,20 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
     ? <button type="button" className={m.i === cur - 1 ? 'ch-ml__m is-cur' : 'ch-ml__m'} aria-current={m.i === cur - 1 || undefined} disabled={!boards} onClick={() => go(m.i + 1)} dir="ltr">{m.san}</button>
     : <span className="ch-ml__m ch-ml__m--empty" dir="ltr">{empty}</span>;
   const listRef = useRef<HTMLOListElement>(null);
-  useEffect(() => { if (ply === null) listRef.current?.lastElementChild?.scrollIntoView({ block: 'nearest' }); }, [total, ply]);
+  const stripRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    if (ply === null) listRef.current?.lastElementChild?.scrollIntoView({ block: 'nearest' });
+    // CX-8: the strip reads left to right; the latest (or reviewed) move stays at the visible end.
+    const strip = stripRef.current;
+    if (!strip) return;
+    const toEnd = () => {
+      const cur = strip.querySelector<HTMLElement>('.is-cur');
+      strip.scrollLeft = cur ? Math.max(0, cur.offsetLeft + cur.offsetWidth + 16 - strip.clientWidth) : strip.scrollWidth;
+    };
+    toEnd();
+    const raf = requestAnimationFrame(toEnd); // after fonts/layout settle
+    return () => cancelAnimationFrame(raf);
+  }, [total, ply, phone]);
   const nav = (
     <div className="ch-nav" role="toolbar" aria-label="مرور حرکت‌ها" dir="ltr">
       <Button variant="ghost" size="sm" iconOnly icon="chevron-left" disabled={!boards || cur === 0} onClick={() => go(0)} aria-label="اولین حرکت">اولین حرکت</Button>
@@ -396,15 +415,20 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
       <Button variant="ghost" size="sm" iconOnly icon="chevron-right" disabled={ply === null} onClick={() => go(null)} aria-label="آخرین حرکت">آخرین حرکت</Button>
     </div>
   );
-  const moveList = (
-    <section className="ch-card ch-card--fill" aria-labelledby="ch-moves-h">
-      <h3 id="ch-moves-h">حرکت‌ها</h3>
+  const moveTable = (
+    <>
       <div className="ch-mlhead" aria-hidden="true"><span>#</span><span>{COLOR_FA.w}</span><span>{COLOR_FA.b}</span></div>
       {pairs.length ? (
         <ol className="ch-moves" ref={listRef}>
           {pairs.map((p) => <li key={p.n} className="ch-ml__row"><span className="ch-ml__n">{faNum(p.n)}.</span>{moveBtn(p.w, '…')}{moveBtn(p.b, '')}</li>)}
         </ol>
       ) : <p className="ch-note">هنوز حرکتی انجام نشده است.</p>}
+    </>
+  );
+  const moveList = (
+    <section className="ch-card ch-card--fill" aria-labelledby="ch-moves-h">
+      <h3 id="ch-moves-h">حرکت‌ها</h3>
+      {moveTable}
       {nav}
     </section>
   );
@@ -462,17 +486,17 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
             </div>
           </>
         )}
-        {ghost && <img className="ch-ghost" src={pieceSrc(ghost.piece[1] as PieceType, ghost.piece[0] as Color, prefs.set)} alt="" style={{ insetInlineStart: ghost.x, insetBlockStart: ghost.y }} />}
+        {ghost && <img className="ch-ghost" src={pieceSrc(ghost.piece[1] as PieceType, ghost.piece[0] as Color, prefs.set)} alt="" style={{ left: ghost.x, top: ghost.y, inlineSize: ghost.size, blockSize: ghost.size }} />}
       </div>
       {/* CX-12: on top of the board, never over a player bar or clock. */}
-      {!live && !over && (
+      {!live && !over && !promoTo && (
         <div className="ch-banner ch-banner--lost" role="status">
           <span className="ch-spin" aria-hidden="true" />
           <span>{phone ? 'اتصال قطع شد. در حال وصل شدن دوباره…' : <><b>اتصال شما قطع شد.</b> در حال وصل شدن دوباره… ساعت شما همچنان کار می‌کند.</>}</span>
           {!phone && <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>تلاش دوباره</Button>}
         </div>
       )}
-      {live && opponentOff && (
+      {live && opponentOff && !promoTo && (
         <div className="ch-banner ch-banner--retry" role="status">
           <Icon name="wifi-off" size={18} />
           <span><b><bdi>{seatName(1 - mySeat!)}</bdi> قطع شد.</b> ساعتش کار می‌کند؛ اگر وقتش تمام شود، شما می‌برید.</span>
@@ -502,26 +526,28 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
   const dialogs = (
     <>
       {confirmResign && (phone
-        ? <Sheet title="تسلیم می‌شوید؟" icon="flag" onClose={() => setConfirmResign(false)}
+        ? <Overlay onClose={() => setConfirmResign(false)}><Sheet handle title="تسلیم می‌شوید؟" icon="flag" onClose={() => setConfirmResign(false)}
             footer={<div className="ch-sheetbtns"><Button variant="danger" icon="flag" block onClick={() => { setConfirmResign(false); onAction({ type: 'resign' }); }}>تسلیم</Button><Button variant="secondary" block onClick={() => setConfirmResign(false)}>ادامهٔ بازی</Button></div>}>
             <p className="ch-note">بازی را می‌بازید.</p>
-          </Sheet>
-        : <Dialog title="تسلیم می‌شوید؟" icon="flag" danger onClose={() => setConfirmResign(false)}
+          </Sheet></Overlay>
+        : <Dialog modal title="تسلیم می‌شوید؟" icon="flag" danger onClose={() => setConfirmResign(false)}
             footer={<><Button variant="secondary" onClick={() => setConfirmResign(false)}>ادامهٔ بازی</Button><Button variant="danger" icon="flag" onClick={() => { setConfirmResign(false); onAction({ type: 'resign' }); }}>تسلیم</Button></>}>
             <p className="ch-note">بازی را می‌بازید.</p>
           </Dialog>)}
       {settings && <SettingsPanel phone={phone} prefs={prefs} setPrefs={setPrefs} onClose={() => setSettings(false)} />}
       {options && (
-        <Sheet title="حرکت‌ها" icon="list" onClose={() => setOptions(false)}>
-          <div className="ch-optsheet">
-            {moveList}
-            <div className="ch-optrow">
-              <Button variant="secondary" icon="rotate-ccw" onClick={() => { setFlipped((f) => !f); setOptions(false); }}>چرخاندن صفحه</Button>
-              <Button variant="secondary" icon="settings" onClick={() => { setOptions(false); setSettings(true); }}>تنظیمات</Button>
-              {frame?.openChat && <Button variant="secondary" icon="message-circle" count={frame.unread} onClick={() => { setOptions(false); frame.openChat!(); }}>گفت‌وگو</Button>}
+        <Overlay onClose={() => setOptions(false)}>
+          <Sheet handle title="حرکت‌ها" onClose={() => setOptions(false)}>
+            <div className="ch-optsheet">
+              <div className="ch-optsheet__list">{moveTable}</div>
+              <div className="ch-optrow">
+                <Button variant="secondary" icon="rotate-ccw" onClick={() => { setFlipped((f) => !f); setOptions(false); }}>چرخاندن صفحه</Button>
+                <Button variant="secondary" icon="settings" onClick={() => { setOptions(false); setSettings(true); }}>تنظیمات</Button>
+                {frame?.recordHref && <Button variant="secondary" icon="download" href={frame.recordHref}>PGN</Button>}
+              </div>
             </div>
-          </div>
-        </Sheet>
+          </Sheet>
+        </Overlay>
       )}
     </>
   );
@@ -534,19 +560,24 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
         {bar(topSeat, true)}
         {board}
         {bar(bottomSeat, true)}
-        {offerCard}
-        {statusCard}
+        {offerCard ?? statusCard /* P08: the offer card takes the status slot */}
         {claim && canAct && <Button variant="secondary" icon="handshake" block onClick={() => onAction({ type: 'claimDraw' })}>ادعای مساوی (تکرار سه‌باره / ۵۰ حرکت)</Button>}
         {frame?.tournament}
         {pairs.length > 0 && (
-          <ol className="ch-strip ch-moves" dir="ltr" aria-label="حرکت‌ها">
+          <ol ref={stripRef} className="ch-strip ch-moves" dir="ltr" aria-label="حرکت‌ها">
             {pairs.map((p) => <li key={p.n}><span className="ch-ml__n">{faNum(p.n)}.</span>{moveBtn(p.w, '…')}{p.b && moveBtn(p.b, '')}</li>)}
           </ol>
         )}
         <nav className="ch-pdock" aria-label="کنش‌های میز">
-          <button type="button" onClick={() => setOptions(true)}><Icon name="more-vertical" size={22} /><span>گزینه‌ها</span></button>
-          <button type="button" disabled={drawDisabled} onClick={() => onAction({ type: 'offerDraw' })}><Icon name="handshake" size={22} /><span>{drawSent ? 'فرستاده شد' : 'مساوی'}</span></button>
-          <button type="button" disabled={busy || !live || over || mySeat === null} onClick={() => setConfirmResign(true)}><Icon name="flag" size={22} /><span>تسلیم</span></button>
+          {mySeat === null ? <>
+            <button type="button" onClick={() => setOptions(true)}><Icon name="list" size={22} /><span>حرکت‌ها</span></button>
+            <button type="button" aria-pressed={flipped} onClick={() => setFlipped((f) => !f)}><Icon name="rotate-ccw" size={22} /><span>چرخاندن</span></button>
+            <button type="button" disabled={!frame?.openChat} onClick={() => frame?.openChat?.()}><Icon name="message-circle" size={22} /><span>گفت‌وگو</span></button>
+          </> : <>
+            <button type="button" onClick={() => setOptions(true)}><Icon name="more-vertical" size={22} /><span>گزینه‌ها</span></button>
+            <button type="button" disabled={drawDisabled} onClick={() => onAction({ type: 'offerDraw' })}><Icon name="handshake" size={22} /><span>{drawSent ? 'فرستاده شد' : 'مساوی'}</span></button>
+            <button type="button" disabled={busy || !live || over} onClick={() => setConfirmResign(true)}><Icon name="flag" size={22} /><span>تسلیم</span></button>
+          </>}
           <button type="button" disabled={!boards || cur === 0} onClick={() => go(cur - 1)}><Icon name="chevron-right" size={22} /><span>قبلی</span></button>
           <button type="button" disabled={ply === null} onClick={() => go(cur + 1)}><Icon name="chevron-left" size={22} /><span>بعدی</span></button>
         </nav>
@@ -569,7 +600,7 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
         {claim && canAct && <Button variant="secondary" icon="handshake" block onClick={() => onAction({ type: 'claimDraw' })}>ادعای مساوی (تکرار سه‌باره / ۵۰ حرکت)</Button>}
         {frame?.tournament}
         {moveList}
-        <div className="ch-actions">{drawBtn()}{resignBtn()}{flipBtn}{settingsBtn}</div>
+        <div className={mySeat === null ? 'ch-actions ch-actions--watch' : 'ch-actions'}>{mySeat !== null && <>{drawBtn()}{resignBtn()}</>}{flipBtn}{settingsBtn}</div>
       </aside>
       <main className="ch-felt" aria-label="صفحهٔ بازی">
         {bar(topSeat)}
@@ -579,6 +610,11 @@ export default function ChessRenderer({ view: real, legalActions, mySeat, seatNa
       {dialogs}
     </div>
   );
+}
+
+/** A fixed scrim for phone sheets (DS Sheet is the panel; the scrim closes it). */
+function Overlay({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  return <div className="ch-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>{children}</div>;
 }
 
 function EndPanel({ view, mySeat, words, seatName, seatInfo, frame }: {
@@ -654,6 +690,6 @@ function SettingsPanel({ phone, prefs, setPrefs, onClose }: { phone: boolean; pr
     </div>
   );
   return phone
-    ? <Sheet title="تنظیمات صفحه" icon="settings" onClose={onClose}>{body}</Sheet>
-    : <Dialog title="تنظیمات صفحه" icon="settings" onClose={onClose} footer={<Button variant="primary" onClick={onClose}>باشه</Button>}>{body}</Dialog>;
+    ? <Overlay onClose={onClose}><Sheet handle title="تنظیمات صفحه" icon="settings" onClose={onClose}>{body}</Sheet></Overlay>
+    : <Dialog modal title="تنظیمات صفحه" icon="settings" onClose={onClose} footer={<Button variant="primary" onClick={onClose}>باشه</Button>}>{body}</Dialog>;
 }
