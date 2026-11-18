@@ -4,7 +4,7 @@
 // (WebP cut from a generated sheet, see DECISIONS.md).
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
 import board from './art/board.png';
 import dieArt from './art/die-6.png';
 import pawnRed from './art/pawn-red.png';
@@ -92,7 +92,13 @@ function Die({ value, rolling, pending }: { value: number | null; rolling?: bool
 
 /** Painted pawn, centred on the origin (aria-hidden: the piece group carries the label). */
 function Pawn({ slot }: { slot: number }) {
-  return <image className="ld-pawn" href={PAWN_ART[slot]} x="-18.5" y="-18.5" width="37" height="37" aria-hidden="true" />;
+  // Plain disc (~30px) in a dark ring, as the design shows; the piece number stays in the accessible label only.
+  return (
+    <g className="ld-pawn" aria-hidden="true">
+      <image href={PAWN_ART[slot]} x="-20" y="-20" width="40" height="40" />
+      <circle r="18.5" className="ld-pawn__ring" />
+    </g>
+  );
 }
 
 export default function LudoRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<LudoView>) {
@@ -135,6 +141,7 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
   }, [shownSig]);
 
   const framed = useInFrame() !== null;
+  const dieNow = view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null);
   const mine = mySeat !== null ? view.slots[mySeat]! : null;
   const status = view.outcome ? null : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' } : canRoll
     ? { tone: 'mine' as const, text: view.tries > 1 ? `نوبت شماست: تاس بریزید (${fa(view.tries)} فرصت برای ۶)` : 'نوبت شماست: تاس بریزید' }
@@ -146,14 +153,27 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {framed && (
         <RailSlot>
-          <p><b>{moves.length ? 'مهرهٔ روی صفحه یا یکی از دکمه‌ها را بزنید؛ اگر روی مهرهٔ حریف بایستید او به لانه برمی‌گردد.' : 'با ۶ مهره وارد می‌شود و ۶ یک تاس جایزه دارد.'}</b></p>
-          <p>برای رفتن به ستون خانه تعداد تاس باید دقیق باشد. اگر مهره‌ای بدون ۶ نتواند حرکت کند، سه بار تاس می‌ریزید.</p>
+          {mySeat !== null && mine !== null && (
+            <section className="ld-rail" aria-label="مهره‌های شما">
+              <h3>مهره‌های شما<span className="ld-rail__note">{SLOT_FA[mine]}</span></h3>
+              <div className="ld-rail__pills">
+                <span className="bgv-chip">در خانه: {fa(view.pieces[mySeat]!.filter((p) => p >= FINAL).length)} از ۴</span>
+                <span className="bgv-chip">در لانه: {fa(view.pieces[mySeat]!.filter((p) => p < 0).length)}</span>
+                {moves.length > 0 && <span className="bgv-chip">{fa(moves.length)} حرکت ممکن</span>}
+              </div>
+            </section>
+          )}
+          <p className="ld-rail__tip"><Icon name="book" size={18} />
+            <span>{moves.length ? 'مهرهٔ روی صفحه یا یکی از دکمه‌ها را بزنید؛ اگر دقیقاً روی مهرهٔ حریف بنشینید، به لانه‌اش برمی‌گردد.' : 'مهرهٔ لانه فقط با ۶ بیرون می‌آید و ۶ یک تاس جایزه دارد.'} ورود به ستون خانه با عدد دقیق است.</span>
+          </p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <div className="ld-main">
         <ZoomBoard label="صفحه منچ">
         <svg className="ld-board" viewBox="0 0 750 750" role="group" aria-label="صفحه منچ" style={{ direction: 'ltr' }}>
+          {/* The printed board art has transparent track cells: they sit on white card stock, as the design shows. */}
+          <rect width="750" height="750" fill="#fff" aria-hidden="true" />
           <image href={board} width="750" height="750" aria-hidden="true" />
           {YARD_XY.map((_, slot) => {
             const turn = !view.outcome && view.slots[view.current] === slot;
@@ -173,7 +193,6 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
                 {...(move ? { role: 'button', tabIndex: 0, 'aria-label': label, onClick: act, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } } } : { role: 'img', 'aria-label': label })}>
                 <circle r="24" className="ld-piece__ring" />
                 <Pawn slot={slot} />
-                <text y="6" aria-hidden="true">{fa(i + 1)}</text>
               </g></g>
             );
           }))}
@@ -181,16 +200,37 @@ export default function LudoRenderer({ view, legalActions, mySeat, seatName, bus
         </ZoomBoard>
 
         <div className="ld-side">
-          <div className="ld-roll">
-            {rollPending
-              ? <Die key="pending" value={null} pending />
-              : <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} />}
-            {canRoll && <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>}
-          </div>
-          {moves.length > 0 && (
-            <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
-              {moves.map((m) => <Button key={m.piece} variant="secondary" disabled={busy} onClick={() => onAction({ type: 'move', piece: m.piece })}>مهره {fa(m.piece + 1)}: {placeFa(view.pieces[mySeat!]![m.piece]!)} ← {placeFa(m.to)}</Button>)}
+          {framed ? (
+            // Frame: one turn card in the dock row (die, what to do, roll or the movable pieces); no blank die before a roll.
+            (rollPending || canRoll || moves.length > 0 || !!dieNow) && (
+              <DockSlot>
+                <div className="ld-turn">
+                  {rollPending ? <Die key="pending" value={null} pending />
+                    : dieNow ? <Die key={lastRoll?.seq} value={dieNow} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} /> : null}
+                  <p className="ld-turn__t">{status?.text ?? (lastRoll ? describe(lastRoll, seatName) : '')}</p>
+                  {canRoll && <Button disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button>}
+                  {moves.length > 0 && (
+                    <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
+                      {moves.map((m) => <Button key={m.piece} variant="secondary" disabled={busy} onClick={() => onAction({ type: 'move', piece: m.piece })}>مهره {fa(m.piece + 1)}: {placeFa(view.pieces[mySeat!]![m.piece]!)} ← {placeFa(m.to)}</Button>)}
+                    </div>
+                  )}
+                </div>
+              </DockSlot>
+            )
+          ) : (
+            <>
+            <div className="ld-roll">
+              {rollPending
+                ? <Die key="pending" value={null} pending />
+                : <Die key={lastRoll?.seq} value={view.die ?? (lastRoll && lastRoll.t === 'roll' ? lastRoll.die : null)} rolling={!!lastRoll && lastRoll.seq !== firstRoll.current} />}
+              {canRoll && <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="ld-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>}
             </div>
+            {moves.length > 0 && (
+              <div className="ld-choices" role="group" aria-label="مهره‌های قابل حرکت">
+                {moves.map((m) => <Button key={m.piece} variant="secondary" disabled={busy} onClick={() => onAction({ type: 'move', piece: m.piece })}>مهره {fa(m.piece + 1)}: {placeFa(view.pieces[mySeat!]![m.piece]!)} ← {placeFa(m.to)}</Button>)}
+              </div>
+            )}
+            </>
           )}
           {!framed && <ul className="ld-players" aria-label="بازیکنان">
             {view.slots.map((slot, seat) => (

@@ -300,3 +300,16 @@ button.um-card--playable:hover, button.um-card--playable:focus-visible { --ty: -
 
 /* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
 .um { --zb-aspect: 1.54; }
+
+/* Round 2 (reference §4): the waiting hero gallery shows each hero's printed character card (handoff art) with its
+   name, on the felt; a taken hero turns grey. No flat colour tiles. */
+.um-gallery { grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); background: none; border: 0; box-shadow: none; padding: 0; }
+.um-gallery__hero { justify-items: center; text-align: center; padding: var(--space-2); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink); text-shadow: none; border-block-end: 3px solid var(--hc); }
+.um-gallery__hero span { color: var(--felt-muted); font-size: 12px; }
+.um-gallery__art { inline-size: 100%; max-inline-size: 7rem; block-size: auto; aspect-ratio: 440 / 513; object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--shadow-piece); }
+.um-gallery__hero--taken { opacity: 1; }
+.um-gallery__hero--taken .um-gallery__art { filter: grayscale(1); opacity: 0.55; }
+
+/* Round 4: hero pick dialog — wide enough for two hero columns, scrolls inside itself, never past the screen. */
+.um-pickdlg { inline-size: min(760px, calc(100vw - 32px)); max-block-size: calc(100dvh - 48px); overflow: auto; }
+.um-pickdlg .um-panel--decide { border: 0; box-shadow: none; background: none; }

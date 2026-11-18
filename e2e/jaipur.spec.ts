@@ -15,10 +15,10 @@ test('interactive tutorial: camels, exchange, sell three, take silver, sell the 
   const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
   const sell = async (n: number) => {
     for (let i = 0; i < n; i++) await p.locator('.jp__hand .jp-pick.jp-hint').first().click();
-    await p.getByRole('button', { name: /^فروش/ }).click();
+    await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   };
   await at('۱');
-  await p.getByRole('button', { name: /^همهٔ شترها/ }).click();
+  await p.getByRole('button', { name: /^شترها/ }).click(); await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await at('۲');
   // Exchange: both spices from the market, the cloth from the hand plus one camel.
   const spices = p.locator('.jp__carpet .jp-pick').filter({ has: p.locator('.jp-card[aria-label="ادویه"]') });
@@ -26,12 +26,12 @@ test('interactive tutorial: camels, exchange, sell three, take silver, sell the 
   await spices.nth(1).click();
   await p.locator('.jp__hand .jp-pick').filter({ has: p.locator('.jp-card[aria-label="پارچه"]') }).first().click();
   await p.locator('.jp__camgive button').last().click();
-  await p.getByRole('button', { name: /^معاوضهٔ/ }).click();
+  await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await at('۳');
   await sell(3);
   await at('۴');
   await p.locator('.jp-pick.jp-hint').click();
-  await p.getByRole('button', { name: /^برداشتن/ }).click();
+  await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await at('۵');
   await sell(2);
   await p.screenshot({ path: shot(info.project.name, 'tutorial-sell'), fullPage: true });
@@ -40,7 +40,9 @@ test('interactive tutorial: camels, exchange, sell three, take silver, sell the 
 });
 
 async function turn(p: Page, n: number): Promise<boolean> {
-  const camels = p.getByRole('button', { name: /^همهٔ شترها/ });
+  // Action row: the «شترها» chip (disabled with no camel in the market), then «تأیید».
+  const camels = p.getByRole('button', { name: /^شترها/ });
+  const takeCamels = async () => { await camels.click(); await p.getByRole('button', { name: 'تأیید', exact: true }).click(); };
   if (!(await camels.count())) {
     // Not our turn unless a hand/market card is enabled.
     if (!(await p.locator('.jp__hand .jp-pick:not([disabled]), .jp__carpet .jp-pick:not([disabled])').count())) return false;
@@ -53,17 +55,17 @@ async function turn(p: Page, n: number): Promise<boolean> {
   if (sellable.length && (n % 3 === 0 || labels.length >= 7)) {
     const [l] = sellable[0]!;
     for (let i = 0; i < labels.length; i++) if (labels[i] === l) await p.locator('.jp__hand .jp-pick').nth(i).click();
-    await p.getByRole('button', { name: /^فروش/ }).click();
+    await p.getByRole('button', { name: 'تأیید', exact: true }).click();
     return true;
   }
-  if (await camels.count() && n % 4 === 0) { await camels.click(); return true; }
+  if (await camels.count() && await camels.isEnabled() && n % 4 === 0) { await takeCamels(); return true; }
   const market = p.locator('.jp__carpet .jp-pick:not([disabled])');
   if (labels.length < 7 && await market.count()) {
     await market.nth(n % (await market.count())).click();
-    await p.getByRole('button', { name: /^برداشتن/ }).click();
+    await p.getByRole('button', { name: 'تأیید', exact: true }).click();
     return true;
   }
-  if (await camels.count()) { await camels.click(); return true; }
+  if (await camels.count() && await camels.isEnabled()) { await takeCamels(); return true; }
   return false;
 }
 
@@ -107,17 +109,17 @@ test('undo window: the taken card flies from the market into the hand at once, a
   await p.getByRole('button', { name: 'آموزش تعاملی' }).click();
   const at = (n: string) => expect(p.getByText(new RegExp(`آموزش: مرحله ${n} از ۵`))).toBeVisible();
   await at('۱');
-  await p.getByRole('button', { name: /^همهٔ شترها/ }).click();
+  await p.getByRole('button', { name: /^شترها/ }).click(); await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await at('۲');
   const spices = p.locator('.jp__carpet .jp-pick').filter({ has: p.locator('.jp-card[aria-label="ادویه"]') });
   await spices.nth(0).click();
   await spices.nth(1).click();
   await p.locator('.jp__hand .jp-pick').filter({ has: p.locator('.jp-card[aria-label="پارچه"]') }).first().click();
   await p.locator('.jp__camgive button').last().click();
-  await p.getByRole('button', { name: /^معاوضهٔ/ }).click();
+  await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await at('۳');
   for (let i = 0; i < 3; i++) await p.locator('.jp__hand .jp-pick.jp-hint').first().click();
-  await p.getByRole('button', { name: /^فروش/ }).click();
+  await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await at('۴');
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
@@ -126,7 +128,7 @@ test('undo window: the taken card flies from the market into the hand at once, a
   const inMarket = p.locator(`.jp__carpet [data-flip="${id}"]`);
   const inHand = p.locator(`.jp__hand [data-flip="${id}"]`);
   await p.locator('.jp-pick.jp-hint').click();
-  await p.getByRole('button', { name: /^برداشتن/ }).click();
+  await p.getByRole('button', { name: 'تأیید', exact: true }).click();
   await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
   await expect(inHand).toBeVisible();
   await expect(inMarket).toHaveCount(0);

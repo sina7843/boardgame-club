@@ -39,3 +39,20 @@
 @media (orientation: landscape) and (max-height: 560px) {
   .sl-main { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
 }
+
+/* Shared frame: pawn discs (design art) with a gold halo for yours; one turn card in the dock row. */
+.sl-walk.is-me image { filter: drop-shadow(0 0 3px #e8a642); }
+.sl-turn { display: flex; align-items: center; gap: var(--space-3); inline-size: min(100%, 700px); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink); box-sizing: border-box; }
+.sl-turn .sl-die { inline-size: 48px; block-size: 48px; flex: none; }
+.sl-turn__t { margin: 0; flex: 1; min-inline-size: 0; font-size: 14px; line-height: 1.6; color: var(--felt-ink); text-align: start; }
+.sl-turn .bgv-btn, .sl-turn button { flex: none; margin-inline-start: auto; }
+.sl-main:not(:has(.sl-side > *)) { display: block; }
+/* Rail card «مسیر شما» (design §1): heading + your pawn, chips, the rule tip in an inset box. */
+.sl-rail { display: grid; gap: var(--space-2); }
+.sl-rail h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; color: var(--heading); }
+.sl-rail__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.sl-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.sl-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.sl-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+.sl-rail h3 { font-weight: 800; }

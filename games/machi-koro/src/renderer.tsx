@@ -140,15 +140,25 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
   const swapOk = give && take && target >= 0;
   const framed = useInFrame() !== null; // the shell draws turn text, coins and the seat strip; the hint goes to the rail card
 
+  const city = (s: number) => (
+          <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
+            <div className="mk-pl__head"><bdi className="mk-pl__name">{s === me ? 'شهر شما' : who(s)}</bdi><Coins n={view.coins[s]!} /></div>
+            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key][view.landmarks[s]![l.key] ? 1 : 0]} alt={`${LANDMARK_FA[l.key]}${view.landmarks[s]![l.key] ? '، ساخته شده' : ''}`} draggable={false} /></span>)}</div>
+            <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} flip={flipOf(s, d.key)} />)}</div>
+          </li>
+  );
+  // Desktop frame (reference): rivals' cities stand in a column beside the market; yours stays below it.
+  const side = framed && !view.outcome && others.length > 0 && typeof window !== 'undefined' && window.matchMedia('(min-width: 900px)').matches;
+
   return (
-    <div className="mk" data-seq={view.seq} data-phase={view.phase} ref={root}>
+    <div className={framed ? 'mk mk--framed' : 'mk'} data-seq={view.seq} data-phase={view.phase} ref={root}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تاس بریزید، درآمد کارت‌ها پرداخت می‌شود، بعد یک کارت یا بنای بزرگ بسازید. اولین نفری که هر چهار بنا را بسازد می‌برد.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       <section className="mk__dice" aria-label="تاس‌ها">
         {rolling
           ? <span className="mk__diceRow" key="tumble">{Array.from({ length: rolling }, (_, i) => <Die key={i} v={1} i={i} tumble />)}</span>
-          : <span className="mk__diceRow" key={rollAt.current}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} i={i} />) : <span className="mk__noDice">—</span>}</span>}
+          : <span className="mk__diceRow" key={rollAt.current}>{view.dice.length ? view.dice.map((v, i) => <Die key={i} v={v} i={i} />) : null}</span>}
         {view.dice.length > 0 && !rolling && <b className="mk__sum">{fa(view.dice.reduce((a, b) => a + b, 0))}</b>}
         {view.dice.length > 0 && !rolling && <span className="mk__income">{view.income.map((g, k) => (g ? <span key={k} className={g > 0 ? 'up' : 'down'}><bdi>{who(k)}</bdi> {g > 0 ? '+' : '−'}{fa(Math.abs(g))}</span> : null))}</span>}
       </section>
@@ -172,16 +182,22 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
         </div>
       )}
 
+      <div className="mk__top">
       {!view.outcome && (
         <section className="mk__supply" aria-label="بازار ساخت">
           {CARD_DEFS.map((d) => (
             <button key={d.key} type="button" data-flip-anchor={`buy-${d.key}`} className={['mk-buy', hint?.card === d.key ? 'mk-hint' : ''].join(' ')} disabled={!builds.has(d.key) || busy}
-              onClick={() => onAction({ type: 'build', card: d.key })} aria-label={`ساختن ${CARD_FA[d.key]} به قیمت ${fa(d.cost)}`}>
-              <TownCard k={d.key} /><span className="mk-buy__cost"><img src={coins} alt="" draggable={false} />{fa(d.cost)}<span className="bgv-sep" />{fa(view.supply[d.key])} مانده</span>
+              onClick={() => onAction({ type: 'build', card: d.key })} aria-label={`ساختن ${CARD_FA[d.key]} به قیمت ${fa(d.cost)}، ${fa(view.supply[d.key])} مانده`}>
+              <TownCard k={d.key} />
+              {/* Reference: the pile count is a corner badge on the card (the cost is printed on the art). */}
+              <i className="mk-buy__left" aria-hidden="true">{fa(view.supply[d.key])}</i>
+              {!framed && <span className="mk-buy__cost"><img src={coins} alt="" draggable={false} />{fa(d.cost)}</span>}
             </button>
           ))}
         </section>
       )}
+      {side && <ul className="mk__players mk__players--side" aria-label="شهر حریف‌ها">{others.map(city)}</ul>}
+      </div>
       {myTurn && view.phase === 'build' && (
         <div className="mk__bar">
           {LANDMARKS.filter((l) => !view.landmarks[me]![l.key]).map((l) => (
@@ -192,13 +208,7 @@ export default function MachiRenderer({ view: served, legalActions, mySeat, seat
       )}
 
       <ul className="mk__players" aria-label="شهرها">
-        {(view.outcome ? view.outcome.placements.map((x) => x.seat) : [...others, ...(me >= 0 ? [me] : [])]).map((s) => (
-          <li key={s} className={['mk-pl', view.current === s && !view.outcome ? 'mk-pl--turn' : '', s === me ? 'mk-pl--me' : '', view.outcome?.placements[0]?.seat === s ? 'mk-pl--win' : ''].join(' ')}>
-            {!framed ? <div className="mk-pl__head"><bdi className="mk-pl__name">{who(s)}</bdi><Coins n={view.coins[s]!} /></div> : s === me && <div className="mk-pl__head"><Coins n={view.coins[s]!} /></div>}
-            <div className="mk-pl__lms">{LANDMARKS.map((l) => <span key={`${l.key}-${view.landmarks[s]![l.key]}`} className={`mk-lm ${view.landmarks[s]![l.key] ? `mk-lm--on${view.seq !== seq0.current ? ' bg-land' : ''}` : ''}`} title={LANDMARK_FA[l.key]}><img src={LM_ART[l.key][view.landmarks[s]![l.key] ? 1 : 0]} alt={`${LANDMARK_FA[l.key]}${view.landmarks[s]![l.key] ? '، ساخته شده' : ''}`} draggable={false} /></span>)}</div>
-            <div className="mk-pl__cards">{CARD_DEFS.filter((d) => view.cards[s]![d.key]).map((d) => <TownCard key={d.key} k={d.key} count={view.cards[s]![d.key]} flip={flipOf(s, d.key)} />)}</div>
-          </li>
-        ))}
+        {(view.outcome ? view.outcome.placements.map((x) => x.seat) : side ? (me >= 0 ? [me] : []) : [...others, ...(me >= 0 ? [me] : [])]).map(city)}
       </ul>
     </div>
   );

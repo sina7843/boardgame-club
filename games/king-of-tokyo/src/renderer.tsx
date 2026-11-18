@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps, DockSlot } from '@bg/ui';
 import { POWERS, type Face, type KotView } from './rules.ts';
 import { Bolt, DieGlyph, Monster } from './art.tsx';
+import cardBack from './art/kot-back.png';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 export const MONSTERS = ['اژدها', 'ربات', 'گوریل', 'هیولای دریا', 'بیگانه', 'دایناسور'];
@@ -99,7 +100,7 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
 
   const framed = useInFrame() !== null;
   return (
-    <div className="kt" data-seq={view.seq} data-phase={view.phase} ref={root}>
+    <div className={framed ? 'kt kt--framed' : 'kt'} data-seq={view.seq} data-phase={view.phase} ref={root}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>تا سه بار تاس بریزید و تاس‌های دلخواه را نگه دارید. چنگ به همه در شهر (یا بیرون آن) آسیب می‌زند؛ سه تاس هم‌عدد امتیاز می‌دهد. ۲۰ امتیاز یا آخرین غول زنده برنده است.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
@@ -109,6 +110,16 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
           : <span className="kt__empty">شهر خالی است</span>}
       </section>
 
+      {/* Framed (reference §1): your monster board — portrait (painted art), health and points dials, energy. */}
+      {framed && me >= 0 && (
+        <section className={['kt__mine', hitAt[me] ? 'bg-hit' : ''].join(' ')} key={`m${hitAt[me]}`} data-flip-anchor={`mon-${me}`} aria-label={`غول شما: ${MONSTERS[me % 6]}`}>
+          <span className="kt__mine-pic" style={{ ['--h' as string]: HUE[me % 6] }}><Monster k={me} /></span>
+          <b className="kt__mine-name">{MONSTERS[me % 6]}</b>
+          <Dial kind="hp" value={view.hp[me]!} max={view.maxHp[me]!} />
+          <Dial kind="vp" value={view.vp[me]!} max={20} />
+          <span className="kt-badge kt-badge--en" role="img" aria-label={`${fa(view.energy[me]!)} انرژی`}><Bolt /><em>{fa(view.energy[me]!)}</em></span>
+        </section>
+      )}
       {framed && view.kept.some((ids) => ids.length > 0) && <div className="kt__kept" aria-label="کارت‌های نگه‌داشته">{view.kept.flatMap((ids, k) => ids.map((id) => <small key={id} data-flip={`card-${id}`} data-flip-from="market" title={POWERS[id]!.textFa}><bdi>{who(k)}</bdi>: {POWERS[id]!.nameFa}</small>))}</div>}
       {!framed && <ul className="kt__monsters" aria-label="صفحه‌های غول">
         {/* My monster board first and full size; the others follow as compact boards. */}
@@ -127,6 +138,10 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
         ))}
       </ul>}
 
+      {/* Reference: the dice tray is on the table before the first roll too (six blank dice). */}
+      {framed && !view.outcome && view.dice.length === 0 && !rollingKeep && (
+        <section className="kt__dice kt__dice--idle" aria-label="تاس‌ها، هنوز ریخته نشده">{Array.from({ length: 6 }, (_, i) => <span key={i} className="kt-keep"><span className="kt-die kt-die--blank" /></span>)}</section>
+      )}
       {(view.dice.length > 0 || rollingKeep) && (
         <section className="kt__dice" aria-label="تاس‌ها">
           {(rollingKeep ? Array.from({ length: 6 }, (_, i) => view.dice[i] ?? '1') : view.dice).map((f, i) => (tumbling(i)
@@ -155,6 +170,7 @@ export default function KotRenderer({ view: served, legalActions, mySeat, seatNa
           {view.market.map((id, i) => (
             <button key={id} type="button" data-flip={`card-${id}`} data-flip-exit="drop" className={['kt-buy', hint?.type === 'buy' && hint.slot === i ? 'kt-hint' : ''].join(' ')} disabled={!buys.has(i) || busy} onClick={() => onAction({ type: 'buy', slot: i })}><PowerCard id={id} /></button>
           ))}
+          <span className="kt__pile" role="img" aria-label={`دستهٔ کارت: ${fa(view.deckCount)}`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.deckCount)}</b></span>
         </section>
       )}
       {(canSweep || canEnd) && (

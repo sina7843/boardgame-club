@@ -46,7 +46,13 @@ button.sn-card:hover, button.sn-card:focus-visible { transform: translateY(-8px)
 .sn-rev__took .sn-card--small .sn-card__n { font-size: 0.8rem; }
 .sn-rev--waiting { opacity: 0.6; }
 .sn-rev--took small { color: #ff8f80; font-weight: 800; }
-.sn__hand { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; direction: ltr; padding-block: 0.6rem 0.2rem; }
+/* Hand: one overlapping fan (QA round 2: it wrapped); the chosen card rises above its neighbours. */
+.sn__hand { --w: 4.2rem; display: flex; justify-content: center; direction: ltr; inline-size: 100%; padding-block: 0.9rem 0.2rem; }
+.sn__hand > .sn-card { position: relative; }
+.sn__hand > .sn-card + .sn-card { margin-inline-start: min(0.35rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.sn__hand > .sn-card:hover, .sn__hand > .sn-card:focus-visible { z-index: 1; }
+.sn__hand > .sn-card--up { z-index: 2; }
+@media (max-width: 480px) { .sn__hand { --w: 3.4rem; } }
 .sn__meta { margin: 0; font-size: 0.78rem; color: #c9b998; }
 
 @keyframes sn-pulse { 50% { box-shadow: 0 0 0 2px transparent; } }
@@ -84,3 +90,14 @@ button.sn-card { min-inline-size: 44px; }
   .sn--framed .sn-row { justify-content: flex-start; padding: var(--space-2); }
   .sn--framed .sn-rev .sn-card--small { inline-size: 3.2rem; block-size: 4.4rem; }
 }
+
+/* QA round 3: the chosen card rises by itself (no ring that made it read larger); phones keep a margin from the felt edge. */
+.sn-card--up, .sn--framed .sn-card--up { transform: translateY(-0.9rem); box-shadow: none; }
+@media (max-width: 600px) { .sn--framed { padding-inline: var(--space-3); box-sizing: border-box; } }
+
+/* QA round 4: a published face lays out as a block filling the card box (as a grid row its image took its own, taller
+   height and stuck out below the row); the hand is an overlapping fan on a felt panel. */
+.sn-card--img { display: block; }
+.sn-card--img > .sn-card__img { inline-size: 100%; block-size: 100%; }
+.sn__hand { box-sizing: border-box; padding: 1.1rem var(--space-3) var(--space-3); border-radius: var(--radius-lg); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.sn__hand > .sn-card + .sn-card { margin-inline-start: min(-1rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }

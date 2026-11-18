@@ -44,3 +44,23 @@
 @media (orientation: landscape) and (max-height: 560px) {
   .ld-main { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
 }
+
+/* Shared frame (design Ludo §1/§3): the board centred on white card stock in a dark frame; one turn card in the dock row. */
+.ld-board { display: block; margin-inline: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-ring-strong); }
+.ld .zb { margin-inline: auto; }
+.ld-main:not(:has(.ld-side > *)) { display: block; }
+.ld-turn { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); inline-size: min(100%, 700px); padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink); box-sizing: border-box; }
+.ld-turn .ld-die { inline-size: 48px; block-size: 48px; flex: none; }
+.ld-turn__t { margin: 0; flex: 1 1 12rem; min-inline-size: 0; font-size: 14px; line-height: 1.6; color: var(--felt-ink); text-align: start; }
+.ld-turn .ld-choices { display: flex; flex-wrap: wrap; gap: var(--space-2); flex: 1 1 100%; justify-content: center; }
+.ld-turn .ld-choices button { white-space: normal; block-size: auto; min-block-size: 44px; }
+.ld-pawn__ring { fill: none; stroke: #1b130b; stroke-width: 3; }
+/* Rail card «مهره‌های شما» (design Ludo §1): heading + your colour, chips, the rule tip in an inset box. */
+.ld-rail { display: grid; gap: var(--space-2); }
+.ld-rail h3 { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font-size: 15px; color: var(--heading); }
+.ld-rail__note { margin-inline-start: auto; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.ld-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.ld-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.ld-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+.ld-rail h3 { font-weight: 800; }

@@ -80,3 +80,21 @@ button.bs-cell:hover, button.bs-cell:focus-visible { background: rgb(255 210 122
 @keyframes bs-flash { 25% { opacity: 1; } }
 @keyframes bs-flash2 { 25% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .bs-shell.is-spent { display: none; } }
+
+/* Shared frame (QA round 2): the charts fit the stage height (desktop stage is a size container; on phones cqb falls back
+   to the viewport and the width wins), so the fleet tray and the fleets row stay inside the felt. The header sits
+   right above its own chart: title, then the afloat count beside it. */
+.bs-chart { inline-size: 100%; max-inline-size: var(--bs-w, none); justify-self: center; }
+.bs-chart__head { justify-content: flex-start; }
+.bs[data-phase="place"] .bs-chart { --bs-w: max(16rem, calc(100cqb - 11rem)); }
+.bs[data-phase="fire"] .bs-seas { align-items: center; }
+.bs[data-phase="fire"] .bs-chart--enemy { --bs-w: max(16rem, calc(100cqb - 9rem)); }
+.bs[data-phase="fire"] .bs-chart--mine { --bs-w: max(12rem, calc((100cqb - 9rem) * 0.6)); }
+@media (min-width: 900px) {
+  .bs[data-phase="fire"] .bs-seas { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+}
+/* Round 3: one row of five ships under the chart (the buttons are in the dock). */
+.bs-tray__ships { flex-wrap: nowrap; overflow-x: auto; justify-content: safe center; scrollbar-width: none; }
+.bs-tray__ship { flex: none; min-block-size: 44px; padding: 0.3rem 0.45rem; }
+.bs-tray__bar { align-items: center; }
+.bs[data-phase="place"] .bs-chart { --bs-w: max(15rem, calc(100cqb - 8.5rem)); }

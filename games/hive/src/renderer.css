@@ -37,3 +37,11 @@ button.hv-reserve__item[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--focus
 
 /* Inside the shared table frame the board fills the felt width. */
 .hv > :first-child { justify-self: stretch; }
+
+/* Rail (shared frame, desktop): both reserves in the guide card, as the reference «ذخیرهٔ شما / حریف» rows. */
+.hv-rres { display: grid; gap: var(--space-2); border-block-start: 1px solid var(--line); padding-block-start: var(--space-2); }
+.hv-rres__row { display: grid; gap: var(--space-1); }
+.hv-rres__lab { font-size: 13.5px; color: var(--text-muted); }
+.hv-rres__lab b { color: var(--heading); }
+.hv-rres .hv-reserve { justify-content: flex-start; padding-inline: 0; }
+.hv-rres button.hv-reserve__item[aria-pressed="true"] { box-shadow: none; outline: 3px solid var(--selected); outline-offset: 2px; }

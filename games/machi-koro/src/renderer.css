@@ -51,3 +51,22 @@ svg.mk-die circle { fill: var(--danger); }
   .mk-card { inline-size: 42px; }
   .mk-lm img { block-size: 30px; }
 }
+
+/* Round 2 (reference §1): market cards stay in full colour (only the green frame marks what you can build), the pile
+   count is a corner badge, rivals' cities stand in a column beside the market on desktop and your city sits below —
+   cards at the reference size so nothing is cut at the stage bottom. */
+.mk-buy:disabled .mk-card__art { filter: none; }
+.mk-buy__left { position: absolute; inset-block-start: -6px; inset-inline-end: -6px; min-inline-size: 22px; block-size: 22px; padding-inline: 4px; box-sizing: border-box; display: grid; place-items: center; border-radius: var(--radius-pill); background: var(--felt-plate); color: var(--felt-ink); font-size: 12px; font-style: normal; line-height: 1; box-shadow: var(--shadow-ring-felt); }
+.mk__top { display: flex; gap: var(--space-4); align-items: flex-start; justify-content: center; inline-size: 100%; }
+.mk__players--side { grid-template-columns: 1fr; inline-size: 15rem; flex: 0 0 auto; }
+.mk__players--side .mk-pl { padding: var(--space-2); }
+.mk__players--side .mk-card { inline-size: 34px; }
+.mk__players--side .mk-pl__cards { min-block-size: 0; }
+.mk__players--side .mk-lm img { block-size: 26px; }
+.mk--framed .mk-buy .mk-card { inline-size: 64px; }
+.mk--framed .mk-pl--me .mk-card { inline-size: 50px; }
+.mk--framed .mk-pl--me .mk-pl__cards { min-block-size: 0; }
+/* Round 3: count badges are dark discs (amber is for the main action only); own city named and its cards readable. */
+.mk-card__count { background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt); }
+.mk--framed .mk-pl--me .mk-card { inline-size: 60px; }
+.mk__dice:not(:has(.mk-die)) { min-block-size: 0; }

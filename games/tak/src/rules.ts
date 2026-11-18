@@ -281,7 +281,8 @@ export const takModule: GameModule<TakState, TakAction, TakView> = {
         return {
           seat,
           primary: { label: 'سطح', value: mine[seat]! },
-          stats: [{ key: 'stones', label: 'مهره', value: r.stones + r.caps, icon: 'layers' }],
+          // Stones and capstones left in the reserve, split as the reference player bars show them.
+          stats: [{ key: 'stones', label: 'سنگ', value: r.stones, icon: 'layers' }, { key: 'caps', label: 'سرستون', value: r.caps, icon: 'crown' }],
           ...(win === seat ? { status: 'winner' as const } : {}),
           strikes: s.timeouts[seat]!
         };

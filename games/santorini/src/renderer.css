@@ -31,3 +31,4 @@
 @media (prefers-reduced-motion: reduce) {
   .sto-litmark, .sto-sq--hint .sto-tile { animation: none; }
 }
+.sto-coord text { font: 800 19px/1 var(--font-latin); fill: var(--felt-ink); paint-order: stroke; stroke: var(--felt-plate); stroke-width: 4px; stroke-linejoin: round; text-anchor: middle; pointer-events: none; }

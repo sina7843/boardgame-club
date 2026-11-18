@@ -109,3 +109,12 @@
 .ct-coin--gold, .ct-coin--silver { background-color: transparent; background-position: center; background-size: contain; background-repeat: no-repeat; box-shadow: none; min-inline-size: 1.5rem; block-size: 1.5rem; color: var(--ink); }
 .ct-coin--gold { background-image: url('./art/century-gold.png'); }
 .ct-coin--silver { background-image: url('./art/century-silver.png'); }
+/* Round 2: market and orders at the reference size (orders ~606px, merchants ~60px wide), index under every merchant,
+   your caravan as the printed 2 × 5 slot grid. */
+.ct--framed .ct__orders { inline-size: min(100%, 38rem); }
+.ct--framed .ct__market { inline-size: min(100%, 30rem); }
+.ct--framed .ct-card, .ct--framed .ct-order { min-block-size: 3.4rem; }
+.ct--framed .ct-cost { font-size: 12px; color: var(--felt-muted); }
+.ct--framed .ct-pl--me .ct-cv { grid-template-columns: repeat(5, 1.5rem); }
+.ct--framed .ct-pl--me .ct-cv__slot { inline-size: 1.5rem; block-size: 1.5rem; }
+.ct--framed .ct-pl--me .ct-cv__slot .ct-spice { inline-size: 1.1rem; block-size: 1.1rem; }

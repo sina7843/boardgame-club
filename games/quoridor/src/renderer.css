@@ -49,3 +49,14 @@
   .qd-step, .qd-tile--hint .qd-tile__hit, .qd-x--hint .qd-x__dot { animation: none; }
   .qd-pawn { transition: none; }
 }
+
+/* Mode bar: DS Segmented (navy selection) + R-key hint, as the reference qd-tools. */
+.qd__hint { font-size: 13px; color: var(--felt-muted); }
+.qd__left { font-size: 12px; opacity: 0.8; }
+@media (max-width: 899px) { .qd__hint { display: none; } }
+/* Walls left as tick marks (rail, light shell). */
+.qd-ticks { list-style: none; margin: 0; padding: var(--space-2) 0 0; display: grid; gap: var(--space-2); border-block-start: 1px solid var(--line); }
+.qd-ticks li { display: flex; align-items: center; gap: var(--space-2); font-size: 13.5px; color: var(--text-muted); }
+.qd-ticks b { color: var(--heading); margin-inline-start: auto; }
+.qd-ticks__row { display: inline-flex; gap: 3px; flex-wrap: wrap; }
+.qd-ticks__row i { inline-size: 4px; block-size: 14px; background: var(--text); }

@@ -26,6 +26,7 @@ import wLib from './art/wd-w6.png';
 import wZeus from './art/wd-w9.png';
 import pen2 from './art/wd-pen2.png';
 import pen5 from './art/wd-pen5.png';
+import boardArt from './art/wd-board.png';
 import { CARDS, PROGRESS_FA, RES_FA, WONDERS, type Card, type Color, type DuelView, type Progress, type Res } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -186,21 +187,16 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
       )}
       <City view={view} seat={opp} label={who(opp)} framed={framed} />
 
-      <section className="wd-track" dir="ltr" aria-label={`نبرد: ${lead > 0 ? `شما ${fa(lead)} خانه جلوترید` : lead < 0 ? `حریف ${fa(-lead)} خانه جلوتر است` : 'برابر'}`}>
-        <span className="wd-track__cap">⛫</span>
-        <div className="wd-track__lane">
-          {Array.from({ length: 19 }, (_, i) => i - 9).map((k) => (
-            <span key={k} className={`wd-track__cell ${Math.abs(k) >= 6 ? 'is-far' : Math.abs(k) >= 3 ? 'is-mid' : ''} ${k === 0 ? 'is-zero' : ''}`}>
-              {(k === -3 || k === -6) && !view.milTokens[opp]![k === -3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${opp}${k}`} data-flip-exit={`city-${opp}`}><img src={k === -3 ? pen2 : pen5} alt={k === -3 ? '۲' : '۵'} draggable={false} /></i>}
-              {(k === 3 || k === 6) && !view.milTokens[me]![k === 3 ? 0 : 1] && <i className="wd-mtok" data-flip={`m${me}${k}`} data-flip-exit={`city-${me}`}><img src={k === 3 ? pen2 : pen5} alt={k === 3 ? '۲' : '۵'} draggable={false} /></i>}
-            </span>
-          ))}
-          <span className="wd-pawn" data-flip="pawn" style={{ insetInlineStart: `calc(${(9 - lead) / 19 * 100}% + ${100 / 38}%)` }} aria-hidden />
-        </div>
-        <span className="wd-track__cap wd-track__cap--me">⛫</span>
-      </section>
+      {/* Printed board (handoff wd-board.png, 1300×367): the conflict track's 19 positions run x 80 → 1218 at y 205
+          (the opponent's capital on the left), the military tokens lie in the bottom slots and the progress tokens in
+          the five circles at the top. Positions are percentages of the art. */}
+      <section className="wd-track wd-board" dir="ltr" style={{ backgroundImage: `url(${boardArt})` }} aria-label={`نبرد: ${lead > 0 ? `شما ${fa(lead)} خانه جلوترید` : lead < 0 ? `حریف ${fa(-lead)} خانه جلوتر است` : 'برابر'}`}>
+        {([[opp, 1, -6, 30.6, pen5, '۵'], [opp, 0, -3, 42.2, pen2, '۲'], [me, 0, 3, 56.8, pen2, '۲'], [me, 1, 6, 69.2, pen5, '۵']] as const).map(([s, i, k, x, src, alt]) => !view.milTokens[s]![i] && (
+          <i key={k} className="wd-mtok wd-board__tok" style={{ left: `${x}%` }} data-flip={`m${s}${k}`} data-flip-exit={`city-${s}`}><img src={src} alt={alt} draggable={false} /></i>
+        ))}
+        <span className="wd-pawn" data-flip="pawn" style={{ left: `${((80 + (9 - lead) * 63.2) / 1300) * 100}%` }} aria-hidden />
 
-      <div className="wd-progress" aria-label="نشان‌های پیشرفت">
+      <div className="wd-progress wd-board__prog" aria-label="نشان‌های پیشرفت">
         {view.progressBoard.map((p) => {
           const can = choosing && (choosing.kind === 'progress') && legalActions.some((a) => a.type === 'progress' && a.token === p);
           return can
@@ -208,6 +204,7 @@ export default function WondersDuelRenderer({ view: served, legalActions, mySeat
             : <span key={p} data-flip={`t${p}`} className="wd-token" title={PROGRESS_FA[p][1]}>{PROG_ART[p] ? <img className="wd-token__art" src={PROG_ART[p]} alt={PROGRESS_FA[p][0]} draggable={false} /> : <><b>{PROGRESS_FA[p][0]}</b><small>{PROGRESS_FA[p][1]}</small></>}</span>;
         })}
       </div>
+      </section>
 
       {drafting.length > 0 || view.phase === 'draft' ? (
         <section className="wd-draft" aria-label="انتخاب شگفتی">

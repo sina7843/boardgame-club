@@ -20,6 +20,7 @@ import cardRabbit from './art/onitama-card-rabbit.png';
 import { cardById, type OnitamaView, type Piece } from './rules.ts';
 
 const CARD_ART: Record<string, string> = { boar: cardBoar, cobra: cardCobra, elephant: cardElephant, frog: cardFrog, mantis: cardMantis, monkey: cardMonkey, rabbit: cardRabbit };
+const fa = (n: number) => n.toLocaleString('fa-IR');
 const S = 120, M = 20, SIZE = 5 * S + 2 * M;
 type Mv = { card: string; from: number; to: number };
 const gridDist = (a: number, b: number) => Math.hypot((a % 5) - (b % 5), Math.floor(a / 5) - Math.floor(b / 5));
@@ -84,6 +85,10 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
   const endText = view.end && { stone: 'استاد زده شد (راه سنگ)', stream: 'استاد به معبد رسید (راه رود)', resign: 'انصراف', timeout: 'اتمام زمان', repetition: 'تکرار سه‌باره — مساوی' }[view.end.kind];
 
+  // Rail card «استاد / شاگرد» (reference): my piece art and the students left on each side.
+  const mine = (t: 'M' | 'S') => `${me === 0 ? 'r' : 'b'}${t}` as Piece;
+  const students = (seat: number) => view.board.filter((p) => p === `${seat === 0 ? 'r' : 'b'}S`).length;
+
   return (
     <div className="oni" data-turn={turnNo} ref={root}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -92,6 +97,10 @@ export default function OnitamaRenderer({ view: served, legalActions, mySeat, se
           <p>{view.current === mySeat && !view.outcome
             ? <>اول <b>یک مهره</b> و بعد یک خانهٔ روشن را بزنید، یا اول <b>کارت</b> را بزنید تا فقط حرکت‌های همان کارت پیدا شود.</>
             : <>برنده کسی است که <b>استاد حریف را بزند</b> یا استاد خود را به <b>معبد حریف</b> برساند.</>}</p>
+          <div className="oni-kinds">
+            <div><img src={ART[mine('M')]} alt="" /><span><b>استاد</b>زدنش یعنی برد</span></div>
+            <div><img src={ART[mine('S')]} alt="" /><span><b>شاگرد</b>{fa(students(me))} شاگرد شما<span className="oni-sep" aria-hidden />{fa(students(1 - me))} شاگرد حریف</span></div>
+          </div>
         </RailSlot>
       )}
 

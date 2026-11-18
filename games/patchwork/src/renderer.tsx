@@ -21,6 +21,8 @@ import pa28 from './art/patchwork-p28.png';
 import pa31 from './art/patchwork-p31.png';
 import pa33 from './art/patchwork-p33.png';
 import timeBoard from './art/patchwork-time.png';
+import pawnArt from './art/patchwork-pawn.png';
+import bonusArt from './art/patchwork-bonus.png';
 import leatherArt from './art/patchwork-leather.png';
 import markerBlue from './art/patchwork-marker-blue.png';
 import markerRed from './art/patchwork-marker-red.png';
@@ -145,7 +147,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
   };
 
   return (
-    <div className="pw" data-seq={view.seq} ref={root}>
+    <div className={framed ? 'pw pw--framed' : 'pw'} data-seq={view.seq} ref={root}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>یک تکه از سه تکهٔ بعد از مهرهٔ خنثی بخرید یا جلوتر از حریف بروید. خانهٔ خالی در پایان ۲ امتیاز کم می‌کند.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
@@ -164,6 +166,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
 
       {!view.outcome && (
         <section className="pw__market" aria-label="تکه‌ها">
+          {framed && <img className="pw-neutral" src={pawnArt} alt="مهرهٔ خنثی" draggable={false} />}
           {upcoming.map((id) => {
             const p = PATCHES[id]!;
             const can = buyable.has(id) && !busy;
@@ -188,6 +191,7 @@ export default function PatchworkRenderer({ view: real, legalActions: realLegal,
         </div>
       )}
 
+      {framed && <span className={['pw-bonus', view.bonus7 !== null ? 'pw-bonus--gone' : ''].join(' ')} title={view.bonus7 === null ? 'کاشی ۷×۷ هنوز آزاد است' : 'کاشی ۷×۷ گرفته شد'}><img src={bonusArt} alt="کاشی ۷×۷" draggable={false} /><small>{view.bonus7 === null ? '۷×۷ آزاد، +۷' : view.bonus7 === me ? '۷×۷ مال شما' : '۷×۷ گرفته شد'}</small></span>}
       <div className="pw__quilts">
         <QuiltBoard view={view} k={me} me name={who(me)} buttonsPop={!!beforeBtns && beforeBtns[me] !== view.buttons[me]}>
           <Quilt board={boardBlue} q={q} was={before?.[me]} anchor="quilt-me" big preview={preview} ok={fitsHere} onCell={myTurn && !view.outcome && (leather || pick !== null) ? onCell : undefined}

@@ -1,6 +1,7 @@
 // گو renderer: kaya wood board with ink lines and star points; slate and shell stones (SVG, LTR geometry).
 // Play: tap an intersection. Scoring: tap a group to mark it dead/alive; territory and the running score are shown.
 import './renderer.css';
+import { useSyncExternalStore } from 'react';
 import { Button, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import stoneB from './art/go-black.png';
 import stoneW from './art/go-white.png';
@@ -17,9 +18,13 @@ import { areaScore, play, type GoView, type Stone } from './rules.ts';
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 const COLS = 'ABCDEFGHJKLMNOPQRST';
 const BOARD_ART: Record<number, string> = { 9: boardArt9, 13: boardArt13, 19: boardArt19 };
+/** Desktop (≥900): game buttons sit in the rail; on phones the rail is folded away, so they go to the dock. */
+const WIDE = '(min-width: 900px)';
+const useWide = () => useSyncExternalStore((f) => { const q = matchMedia(WIDE); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, () => matchMedia(WIDE).matches, () => true);
 
 export default function GoRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<GoView>) {
   const framed = useInFrame() !== null; // the shell draws players, captures, score and whose-turn
+  const wide = useWide();
   const n = real.size;
   // Undo-window preview: the own stone is already on its point and the stones it captures fade away (the client can
   // play the move out itself); undo puts everything back.
@@ -50,6 +55,10 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
       : canPlace ? { tone: 'mine' as const, text: view.passes ? 'حریف پاس داد؛ بگذارید یا پاس بدهید' : 'نوبت شما: روی یک تقاطع بگذارید' }
         : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
+  const passBtn = has('pass') ? <Button key="pass" className="go-passbtn" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پاس</Button> : null;
+  const acceptBtn = has('accept') ? <Button key="acc" disabled={busy} onClick={() => onAction({ type: 'accept' })}>تأیید شمارش</Button> : null;
+  const resumeBtn = has('resume') ? <Button key="res" variant="ghost" disabled={busy} onClick={() => onAction({ type: 'resume' })}>ادامه بازی</Button> : null;
+
   return (
     <div className="go" data-moves={view.history.length} data-phase={view.phase}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -57,9 +66,27 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
           {scoring && (['b', 'w'] as Stone[]).map((c) => view.accepted[seatOf(c)] && <p key={c} className="go-side__ok"><bdi>{who(c)}</bdi> شمارش را تأیید کرد</p>)}
+          <p className="go-pts"><span>کومی سفید <b>{fa(view.komi)}</b></span><span>اسیر <b>{fa(view.captures.b)}</b> سیاه<span className="go-sep" aria-hidden />{fa(view.captures.w)} سفید</span></p>
           <p>{scoring ? 'سنگ‌های مرده را با زدن روی گروهشان علامت بزنید؛ قلمرو و امتیاز با کومی همین حالا شمرده می‌شود. هر دو باید تأیید کنند.' : 'سنگ یا گروهی که آخرین آزادی‌اش پر شود گرفته می‌شود. نمی‌شود وضعیت قبلی صفحه را تکرار کرد (کو). دو پاس پشت‌سرهم شمارش را شروع می‌کند.'}</p>
+          <section className="go-ml" aria-label="حرکت‌ها">
+            <h3>حرکت‌ها<span className="go-ml__note">ستون {COLS[0]} تا {COLS[n - 1]} (بدون I)، ردیف ۱ تا {fa(n)}</span></h3>
+            <div className="go-ml__grid" role="list">
+              <span className="go-ml__h">#</span><span className="go-ml__h">سیاه</span><span className="go-ml__h">سفید</span>
+              {Array.from({ length: Math.ceil(real.history.length / 2) }, (_, r) => [
+                <span key={`n${r}`} className="go-ml__n">{fa(r + 1)}.</span>,
+                ...[0, 1].map((k) => {
+                  const h = real.history[r * 2 + k];
+                  const text = !h ? '' : h.at === null ? 'پاس' : `${COLS[h.at % n]}${n - Math.floor(h.at / n)}`;
+                  return <bdi key={`${r}-${k}`} role="listitem" dir={h?.at === null ? 'rtl' : 'ltr'} className={r * 2 + k === real.history.length - 1 ? 'go-ml__m is-cur' : 'go-ml__m'}>{text}</bdi>;
+                })
+              ]).flat().slice(-90)}
+            </div>
+            {!real.history.length && <p className="go-ml__note">هنوز حرکتی ثبت نشده است.</p>}
+          </section>
+          {wide && passBtn}
         </RailSlot>
       )}
+      {framed && <DockSlot>{!wide && passBtn}{acceptBtn}{resumeBtn}</DockSlot>}
       {!framed && <div className="go__bar">
         {(['b', 'w'] as Stone[]).map((c) => (
           <div key={c} className={['go-side', view.turn === c && view.phase === 'play' && !view.outcome ? 'go-side--turn' : ''].join(' ')}>
@@ -110,11 +137,7 @@ export default function GoRenderer({ view: real, legalActions, mySeat, seatName,
         </svg>
       </ZoomBoard>
 
-      <div className="go__actions">
-        {has('pass') && <DockSlot><Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'pass' })}>پاس</Button></DockSlot>}
-        {has('accept') && <Button size="sm" disabled={busy} onClick={() => onAction({ type: 'accept' })}>تأیید شمارش</Button>}
-        {has('resume') && <Button size="sm" variant="ghost" disabled={busy} onClick={() => onAction({ type: 'resume' })}>ادامه بازی</Button>}
-      </div>
+      {!framed && <div className="go__actions">{passBtn}{acceptBtn}{resumeBtn}</div>}
       {!framed && view.score && view.outcome && (
         <p className="go__end" role="status">سیاه {fa(view.score.b)} — سفید {fa(view.score.w)} (با کومی)</p>
       )}

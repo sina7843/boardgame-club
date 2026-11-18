@@ -14,6 +14,19 @@ import {
 import { ArmyToken, CARD_ART, CARD_BACK, CardIcon, DieFace, INK, MapDefs, MapImage, SEAT_COLOR, SEAT_FA, SEAT_WASH, StatIcon } from './art.tsx';
 import { income, ownsContinent, territoriesOf, type LogEntry, type Phase, type RiskView } from './rules.ts';
 
+/** Desktop frame (≥900): the rail is visible, so your cards can live there; on phones it is a collapsed line. */
+function useWide() {
+  const q = '(min-width: 900px)';
+  const [m, setM] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia?.(q);
+    if (!mq) return;
+    const on = () => setM(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return m;
+}
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Isolate a (possibly Latin) player name inside Persian text. */
 const iso = (s: string) => `⁨${s}⁩`;
@@ -439,8 +452,9 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
   const hand = (view.myHand ?? []).filter((c) => !traded?.has(c));
 
   const framed = useInFrame() !== null;
+  const wide = useWide();
   return (
-    <div className="rk" ref={root}>
+    <div className={framed ? 'rk rk--framed' : 'rk'} ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       {framed && (
@@ -468,6 +482,8 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
         <div className="rk-side">
           {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
+          {/* Frame: the turn panel is the dock row under the map (the map shrinks to fit), your cards go into the rail on desktop. */}
+          {(() => { const turnPanels = (<>
           {myTurn && (view.phase === 'setup' || view.phase === 'reinforce') && (
             <Panel title={view.phase === 'setup' ? 'چیدن ارتش آغازین' : view.elimTrade ? 'معاوضه پس از حذف بازیکن' : 'نیروی کمکی'} tone="decide">
               {view.phase === 'reinforce' && !view.elimTrade && mySeat !== null && (
@@ -557,6 +573,8 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
             </Panel>
           )}
 
+          </>); return framed ? (myTurn && !view.outcome ? <DockSlot><div className="rk-dock">{turnPanels}</div></DockSlot> : null) : turnPanels; })()}
+          {(() => { const handPanel = (<>
           {view.myHand && !view.outcome && (
             <section className="rk-hand" aria-label="کارت‌های شما">
               <h3>کارت‌های شما ({fa(hand.length)})</h3>
@@ -593,6 +611,7 @@ export default function RiskRenderer({ view, legalActions, mySeat, seatName, bus
             </section>
           )}
 
+          </>); return framed && wide ? <RailSlot>{handPanel}</RailSlot> : handPanel; })()}
           {!framed && <ul className="rk-players" aria-label="بازیکنان">
             {Array.from({ length: view.players }, (_, s) => {
               const turn = view.current === s && !view.outcome;

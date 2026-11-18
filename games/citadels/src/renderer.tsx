@@ -99,7 +99,8 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <p className={framed ? 'visually-hidden' : 'ct2__round'} data-flip-anchor="deck">دور {fa(view.round)}، تاج: <bdi>{who(view.crown)}</bdi>، دسته: {fa(view.deckCount)}</p>
 
-      <section className="ct2__track" aria-label="شخصیت‌ها">
+      {/* While you pick, the pool is the character strip; showing the full 1–8 track too duplicated it. */}
+      {!(pick && view.pool) && <section className="ct2__track" aria-label="شخصیت‌ها">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((c) => (
           <span key={c} className={c === view.killed ? 'ct2-slot bg-hit' : 'ct2-slot'}>
             <CharToken c={c} state={charState(c)} />
@@ -107,7 +108,7 @@ export default function CitadelsRenderer({ view: real, legalActions: realLegal, 
             {view.robbed?.char === c && <small className="ct2-slot__tag">دزدیده</small>}
           </span>
         ))}
-      </section>
+      </section>}
 
       {pick && view.pool && (
         <div className="ct2__pool" data-flip-anchor="pool" role="group" aria-label="انتخاب شخصیت">

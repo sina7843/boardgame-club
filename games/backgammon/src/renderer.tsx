@@ -321,13 +321,16 @@ export default function BackgammonRenderer({ view, legalActions, mySeat, seatNam
         </svg>
       </ZoomBoard>
 
+      {/* Turn buttons go to the frame's dock row (they used to push the board below the stage); outside the frame they stay here. */}
       <div className="bgm__actions">
-        {myMove && steps.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={undoStep}>برگرداندن حرکت</Button>}
-        {complete && !busy && !sent && <Button size="sm" onClick={() => send(steps)}>ثبت حرکت</Button>}
-        {has('roll') && <DockSlot><Button disabled={busy} onClick={() => { setRollAsked(true); onAction({ type: 'roll' }); }}>تاس بریز</Button></DockSlot>}
-        {has('double') && <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'double' })}>دوبل (×۲)</Button>}
-        {has('take') && <Button disabled={busy} onClick={() => onAction({ type: 'take' })}>قبول ({fa(view.cube.value * 2)} امتیاز)</Button>}
-        {has('drop') && <Button variant="secondary" disabled={busy} onClick={() => onAction({ type: 'drop' })}>واگذار ({fa(view.cube.value)} امتیاز)</Button>}
+        <DockSlot>
+          {myMove && steps.length > 0 && !busy && <Button key="undo" size="sm" variant="ghost" onClick={undoStep}>برگرداندن حرکت</Button>}
+          {complete && !busy && !sent && <Button key="send" size="sm" onClick={() => send(steps)}>ثبت حرکت</Button>}
+          {has('roll') && <Button key="roll" disabled={busy} onClick={() => { setRollAsked(true); onAction({ type: 'roll' }); }}>تاس بریز</Button>}
+          {has('double') && <Button key="double" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'double' })}>دوبل (×۲)</Button>}
+          {has('take') && <Button key="take" disabled={busy} onClick={() => onAction({ type: 'take' })}>قبول ({fa(view.cube.value * 2)} امتیاز)</Button>}
+          {has('drop') && <Button key="drop" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'drop' })}>واگذار ({fa(view.cube.value)} امتیاز)</Button>}
+        </DockSlot>
         {!framed && myMove && !steps.length && <p className="bgm__help">مهره‌ای را بزنید تا حرکت کند؛ اگر دو مقصد داشته باشد، مقصد روشن را بزنید.</p>}
       </div>
 

@@ -66,3 +66,30 @@
 @media (prefers-reduced-motion: reduce) { .rg * { animation: none !important; transition: none !important; } }
 
 .rg-phase__ic { inline-size: 35px; block-size: 35px; }
+
+/* Round 2: inside the frame the felt is the table (no violet space panel); phase cards on felt plates; the pile and
+   VP-pool chips under them. Phase count stays the engine's five (RULES E4/E7: BGA's seven action cards need the
+   two-bonus explore / consume rules first). */
+.rg--framed { background: none; padding: 0; color: var(--felt-ink); }
+.rg--framed .rg-phase { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.rg--framed .rg-phase.is-can, .rg--framed .rg-phase.is-on { outline: 1.5px solid var(--felt-gold); }
+.rg--framed .rg-empire { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.rg-chips { margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+.rg-chip { padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); font-size: 12.5px; font-weight: 700; color: var(--felt-ink); }
+
+/* Round 3: only the chosen / running phase gets the amber frame (choosable ones keep the felt ring); text inside phase
+   and tableau cards at a readable size; empire rows show name and stats. */
+.rg--framed .rg-phase.is-can, .rg--framed .rg-phase.is-on { outline: 0; }
+.rg--framed .rg-phase.is-mine, .rg--framed .rg-phase.is-active { outline: 2px solid var(--felt-gold); }
+.rg--framed .rg-phase small { font-size: 11px; line-height: 1.4; }
+.rg--framed .rg-phase span { font-size: 13px; }
+.rg--framed .rg-card--sm { inline-size: 4.6rem; }
+.rg--framed .rg-card--md { inline-size: 5.8rem; min-block-size: 6.4rem; }
+.rg--framed .rg-card__name { font-size: 12px; }
+.rg--framed .rg-card--sm .rg-card__name { font-size: 10.5px; }
+.rg--framed .rg-empire__head { color: var(--felt-ink); }
+.rg--framed .rg-empire__head small { color: var(--felt-muted); }
+
+/* Printed face (where it matches the engine card). */
+.rg-card--face { padding: 0; background: none; box-shadow: none; line-height: 0; aspect-ratio: 5 / 7; min-block-size: 0; }
+.rg-card--face > img:first-child { inline-size: 100%; block-size: 100%; object-fit: cover; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }

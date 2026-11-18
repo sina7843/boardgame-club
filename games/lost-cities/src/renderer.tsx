@@ -2,7 +2,7 @@
 // the map in the middle, yours below — each with its running score; the hand underneath. Tap a card, then "play" or
 // "discard"; then draw from the deck or a pile.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import cardsArt from './art/cards.webp';
 
@@ -93,8 +93,8 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
                 disabled={!(canDraw || (placing && sel && color(sel) === c)) || busy}
                 onClick={() => (canDraw ? onAction({ type: 'draw', from: c }) : sel && onAction({ type: 'discard', card: sel }))}
                 aria-label={canDraw ? `برداشتن از کپهٔ ${COLOR_FA[c]}` : `کپهٔ دور ریختهٔ ${COLOR_FA[c]}`}>
-                <svg viewBox="-20 -20 40 40" className="lc-pile__g" aria-hidden="true"><Glyph c={c} /></svg>
-                {top ? <Card id={top} size="sm" key={top + view.discard[c].length} flip={value(top) ? `c-${top}` : `c-${top}.p${view.discard[c].length}`} flipFrom={lastSeat} exit="seat-opp" /> : <span className="lc-pile__name">{COLOR_FA[c]}</span>}
+                {!top && <svg viewBox="-20 -20 40 40" className="lc-pile__g" aria-hidden="true"><Glyph c={c} /></svg>}
+                {top ? <Card id={top} key={top + view.discard[c].length} flip={value(top) ? `c-${top}` : `c-${top}.p${view.discard[c].length}`} flipFrom={lastSeat} exit="seat-opp" /> : <span className="lc-pile__name">{COLOR_FA[c]}</span>}
                 {view.discard[c].length > 1 && <span className="lc-pile__n bg-pop" key={view.discard[c].length}>{fa(view.discard[c].length)}</span>}
               </button>
               <div className="lc-col__exp lc-col__exp--me" aria-label={`سفر ${COLOR_FA[c]} شما`}>
@@ -123,7 +123,7 @@ export default function LostCitiesRenderer({ view: real, legalActions: realLegal
 
       {view.hand && !view.outcome && (
         <section className="lc__me" aria-label="دست شما">
-          <div className="lc__hand" data-flip-anchor="hand-me" role="group" aria-label="کارت‌های دست">
+          <div className="lc__hand" data-flip-anchor="hand-me" role="group" aria-label="کارت‌های دست" style={{ '--n': view.hand.length } as CSSProperties}>
             {view.hand.map((id, i) => (
               <button key={`${id}-${i}`} type="button" aria-pressed={sel === id} disabled={!placing || busy}
                 className={['lc-pick', sel === id ? 'lc-pick--on' : '', hint?.card === id && sel !== id ? 'lc-hint' : '', placing && !canPlay(myExp, id) ? 'lc-pick--dead' : ''].join(' ')}

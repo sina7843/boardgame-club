@@ -139,7 +139,7 @@ export function CrewTable({ view: served, legalActions, mySeat, seatName, busy: 
 
       {view.hand && !view.outcome && (
         <section className="cw-me" aria-label="دست شما">
-          <div className="cw-hand">
+          <div className="cw-hand" style={{ ['--n' as string]: view.hand.length }}>
             {view.hand.map((c) => {
               const can = talk ? speakable.has(c) : playable.has(c);
               return (

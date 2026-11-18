@@ -66,3 +66,45 @@
 
 /* Inside the shared table frame the felt is the table. */
 .sr--framed { background: none; box-shadow: none; padding: 0; }
+
+/* Round 2 (reference §1): authority panels for both sides, trade-deck and scrapped chips beside the trade row,
+   pool chips تجارت / نبرد / نابودی. On phones card names sit under the cost seal (they overlapped it at 390). */
+.sr-authp { display: grid; justify-items: center; gap: 2px; min-inline-size: 5rem; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.sr-authp small { color: var(--felt-muted); font-size: 12px; }
+.sr-authp b { font-size: 28px; line-height: 1.1; color: var(--felt-ink); }
+.sr-rowinfo { display: grid; gap: var(--space-2); align-content: center; justify-items: start; }
+.sr-rowchip { padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); font-size: 12.5px; font-weight: 700; color: var(--felt-ink); }
+.sr-rowinfo small { color: var(--felt-muted); font-size: 11px; }
+.sr-pool__scrap { background: var(--felt-plate); color: var(--felt-ink); }
+.sr--framed .sr-row { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.sr--framed .sr-side { background: none; box-shadow: none; }
+.sr--framed .sr-side--now .sr-authp { outline: 2px solid var(--felt-gold); }
+@media (max-width: 480px) {
+  .sr-card--md { padding-block-start: 1.45rem; }
+  .sr-card--md .sr-card__name { padding-inline-end: 0; }
+  .sr-rowinfo { grid-auto-flow: column; justify-items: center; }
+  .sr-rowinfo small { display: none; }
+}
+
+/* Round 3: printed card faces (handoff art) so names and abilities never overlap; neutral pool chips (amber is for
+   the main action); «نابودی» always shown; deck and discard as piles (back + top card) with counts. */
+.sr-card--face { padding: 0; background: none; box-shadow: none; line-height: 0; overflow: visible; }
+.sr-card--face img { display: block; inline-size: 100%; block-size: auto; border-radius: var(--radius-sm); }
+.sr-card--face.sr-card--md { inline-size: 5.4rem; min-block-size: 0; }
+.sr-card--face.sr-card--sm { inline-size: 3.2rem; min-block-size: 0; }
+.sr--framed .sr-pool span { background: var(--felt-plate); color: var(--felt-ink); box-shadow: var(--shadow-ring-felt); }
+.sr-piles { display: inline-flex; gap: var(--space-3); align-items: flex-end; }
+.sr-pile { display: grid; justify-items: center; gap: 2px; }
+.sr-pile small { color: var(--felt-muted); font-size: 11.5px; }
+.sr-pile__back { display: block; inline-size: 2.4rem; aspect-ratio: 149 / 181; border-radius: var(--radius-xs); background: var(--felt-plate); box-shadow: var(--shadow-piece); }
+.sr-pile__back--empty { box-shadow: var(--shadow-ring-felt); background: none; }
+.sr-pile__top .sr-card--face.sr-card--sm { inline-size: 2.4rem; }
+
+/* Round 4: cards without a delivered face keep their text in a clear top band — the faction emblem is a small mark at
+   the foot, never under the name or abilities; no amber frame on the authority panel. (No card back art was
+   delivered, so the deck stays a plain felt-plate pile.) */
+.sr-card:not(.sr-card--face).sr-card--md { min-block-size: 6.6rem; align-content: start; }
+.sr-card:not(.sr-card--face) .sr-card__emb { inline-size: 1.4rem; block-size: 1.4rem; inset-block-end: 0.25rem; inset-inline-end: 0.25rem; opacity: 0.55; }
+.sr-card:not(.sr-card--face) .sr-card__name, .sr-card:not(.sr-card--face) .sr-card__fx { position: relative; z-index: calc(var(--z-felt) + 1); }
+.sr--framed .sr-side--now .sr-authp { outline: 0; }
+.sr-card--face.sr-card--md { inline-size: 5.8rem; }

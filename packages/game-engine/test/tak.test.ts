@@ -143,16 +143,16 @@ describe('tak rules', () => {
 });
 
 describe('tak publicSummary', () => {
-  it('top flats, stones left, strikes', () => {
+  it('top flats, stones and capstones left (split), strikes', () => {
     let snap = game();
     const sum = takModule.publicSummary!(st(snap));
     expect(sum.seats.map((x) => x.seat)).toEqual([0, 1]);
     expect(sum.strikesMax).toBe(3);
-    expect(sum.seats[0]!.stats![0]!.value).toBe(22);
+    expect(sum.seats[0]!.stats!.map((x) => [x.key, x.value])).toEqual([['stones', 21], ['caps', 1]]);
     snap = act(snap, 0, { type: 'place', at: 0, kind: 'F' });
     const s2 = takModule.publicSummary!(st(snap));
     expect(s2.seats[1]!.primary!.value).toBe(1);
-    expect(s2.seats[1]!.stats![0]!.value).toBe(21);
+    expect(s2.seats[1]!.stats!.map((x) => x.value)).toEqual([20, 1]);
     expect(takModule.publicSummary!(st(applyTimeout(m, snap, 0).snapshot)).seats[1]!.strikes).toBe(1);
   });
 });

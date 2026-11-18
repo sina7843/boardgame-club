@@ -42,17 +42,17 @@ test('two players race to the far edge with walls on the way', async ({ browser 
     let acted = false;
     for (const p of pages) {
       const tiles = p.locator('.qd-tile--lit');
-      const wallBtn = p.getByRole('button', { name: /^دیوار/ });
+      const wallBtn = p.getByRole('radio', { name: /^دیوار افقی/, disabled: false }); // the mode bar is always shown; enabled only on my turn
       if (!(await tiles.count()) && !(await wallBtn.count())) continue;
       const before = await p.locator('.qd').getAttribute('data-seq');
       if (walls < 4 && n % 3 === 1 && await wallBtn.isEnabled()) {
         await wallBtn.click();
-        if (walls % 2) await p.getByRole('button', { name: '┃ عمودی', exact: true }).click();
+        if (walls % 2) await p.getByRole('radio', { name: /^دیوار عمودی/ }).click();
         await p.locator('.qd-x--ok').nth(5 + walls * 9).click();
         walls++;
         if (walls === 2) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `walls-${i}`), fullPage: true });
       } else {
-        await p.getByRole('button', { name: 'حرکت مهره' }).click();
+        await p.getByRole('radio', { name: 'مهره', exact: true }).click();
         // Step along a shortest path (tiles carry their distance to the goal).
         const ds = await tiles.evaluateAll((els) => els.map((e) => Number(e.getAttribute('data-d'))));
         await tiles.nth(ds.indexOf(Math.min(...ds))).click();

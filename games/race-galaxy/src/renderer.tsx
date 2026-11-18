@@ -5,6 +5,7 @@ import './renderer.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import ph0 from './art/rg-ph0.png';
+import faceAsteroid from './art/rg-c42.png';
 import ph1 from './art/rg-ph1.png';
 import ph2 from './art/rg-ph2.png';
 import ph3 from './art/rg-ph3.png';
@@ -27,8 +28,14 @@ export const PHASE_FA: Record<Phase, [string, string, string]> = {
 const PHASE_ART: Record<Phase, string> = { explore: ph0, develop: ph1, settle: ph2, consume: ph3, produce: ph4 };
 const POWER_FA: Record<string, string> = { devCost: 'توسعه −۱', settleCost: 'استقرار −۱', military: 'نظامی', explore: 'کاوش +۱', consume: 'مصرف +۱' };
 
+// Printed BGA faces (art/rg-c*.png) only where the engine card is that card (same name, cost, kind, good and VP);
+// every other engine card is invented (RULES S3/E2) and stays a labelled text card.
+const PRINTED: Record<string, string> = { 'کمربند سیارکی': faceAsteroid };
+
 export function GalaxyCard({ id, good, size = 'md' }: { id: number; good?: boolean; size?: 'sm' | 'md' }) {
   const c = CARDS[id]!;
+  const face = PRINTED[c.name];
+  if (face) return <span className={`rg-card rg-card--${size} rg-card--face`} aria-label={`${c.name}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}><img src={face} alt="" draggable={false} />{good && c.good && <img className="rg-good bg-land" src={GOOD_ART[c.good]} alt="" />}</span>;
   const tag = c.type === 'dev' ? (c.power ? `${POWER_FA[c.power]}${c.mil ? ` +${fa(c.mil)}` : ''}` : 'پیشرفت') : c.kind === 'mil' ? `نظامی ${fa(c.cost)}` : c.kind === 'wind' ? 'بادآورده' : 'تولیدی';
   return (
     <span className={`rg-card rg-card--${size} ${c.type === 'dev' ? 'rg-dev' : `rg-w--${c.good} rg-k--${c.kind}`}`} aria-label={`${c.name}، ${tag}، هزینه ${fa(c.cost)}، ${fa(c.vp)} امتیاز${good ? '، دارای کالا' : ''}`}>
@@ -96,7 +103,7 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
   const chosenNow = view.stage !== 'select' ? new Set(view.chosen.flat()) : new Set<Phase>();
 
   return (
-    <div className="rg" ref={root} data-seq={view.seq} data-stage={view.stage}>
+    <div className={framed ? 'rg rg--framed' : 'rg'} ref={root} data-seq={view.seq} data-stage={view.stage}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نفر پنهانی یک مرحله انتخاب می‌کند؛ مرحله‌های انتخاب‌شده برای همه اجرا می‌شود و انتخاب‌کننده امتیاز ویژه می‌گیرد. دست بیش از ۱۰ کارت در پایان دور کم می‌شود.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       <p className={framed ? 'visually-hidden' : 'rg-info'} data-flip-anchor="deck">دور {fa(view.round)}<span className="bgv-sep" />بانک امتیاز <Num v={view.pool}>{fa(view.pool)}</Num><span className="bgv-sep" />دسته <Num v={view.deckCount}>{fa(view.deckCount)}</Num></p>
@@ -118,14 +125,16 @@ export default function RaceGalaxyRenderer({ view: served, legalActions, mySeat,
           );
         })}
       </section>
+      {/* Reference §1: the pile and VP-pool chips under the phase cards. */}
+      {framed && <p className="rg-chips"><span className="rg-chip">دسته: <Num v={view.deckCount}>{fa(view.deckCount)}</Num></span><span className="rg-chip">دورریخته: <Num v={view.discardCount}>{fa(view.discardCount)}</Num></span><span className="rg-chip">مخزن امتیاز: <Num v={view.pool}>{fa(view.pool)}</Num></span></p>}
 
       <ul className="rg-empires" aria-label="امپراتوری‌ها">
         {view.empires.map((e, k) => (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['rg-empire', k === me ? 'is-me' : '', (view.stage === 'select' ? !e.chose : !e.done) && !view.outcome ? 'is-waiting' : ''].join(' ')}>
-            {!framed && <div className="rg-empire__head">
+            <div className="rg-empire__head">
               <bdi>{who(k)}</bdi><Num className="rg-vp" v={e.vp}>{fa(e.vp)}★</Num>
               <small>{fa(e.tableau.length)}/۱۲ کارت<span className="bgv-sep" />نظامی {fa(e.military)}<span className="bgv-sep" />{fa(e.chips)} نشان<span className="bgv-sep" />دست {fa(e.hand)}</small>
-            </div>}
+            </div>
             <div className="rg-row">{e.tableau.map((id) => <span key={id} className="rg-fly" data-flip={`g${id}`} data-flip-from={`seat-${k}`}><GalaxyCard id={id} size="sm" good={e.goods.includes(id)} /></span>)}</div>
           </li>
         ))}

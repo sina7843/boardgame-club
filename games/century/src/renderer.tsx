@@ -190,10 +190,10 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
           <section className="ct__market" aria-label="تاجرها">
             {view.market.map((x, i) => (
               <button key={x.card} type="button" data-flip={`m${x.card}`} data-flip-exit={`seat-${view.current}`} className={['ct-slot', acquire.has(i) ? 'ct-slot--can' : ''].join(' ')} disabled={!acquire.has(i) || busy}
-                onClick={() => myCubes && onAction({ type: 'acquire', slot: i, pay: cheapest(myCubes, i) })} aria-label={`استخدام تاجر ${fa(i + 1)}`}>
+                onClick={() => myCubes && onAction({ type: 'acquire', slot: i, pay: cheapest(myCubes, i) })} aria-label={`استخدام تاجر ${fa(i + 1)}${i > 0 ? `، ${fa(i)} ادویه` : '، رایگان'}`}>
                 <MerchantCard id={x.card} />
                 {x.cubes.y + x.cubes.r + x.cubes.g + x.cubes.b > 0 && <span className="ct-on"><Cubes bag={x.cubes} size="sm" fid={`mk${x.card}`} from={view.last?.kind === 'acquire' ? `seat-${view.last.seat}` : undefined} /></span>}
-                {i > 0 && <small className="ct-cost">{fa(i)} ادویه</small>}
+                <small className="ct-cost" aria-hidden>{fa(i)}</small>
               </button>
             ))}
           </section>
@@ -210,7 +210,7 @@ export default function CenturyRenderer({ view: served, legalActions, mySeat, se
             <div className="ct-pl__board">
               <div className={framed ? 'ct-pl__card ct-pl__card--mini' : 'ct-pl__card'}>
                 <small className="ct-pl__cap">کاروان <Bump className="ct-caravan__n" v={view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b}>{fa(view.cubes[s]!.y + view.cubes[s]!.r + view.cubes[s]!.g + view.cubes[s]!.b)}/۱۰</Bump></small>
-                {framed ? <Cubes bag={view.cubes[s]!} size="sm" fid={`cv${s}`} /> : <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />}
+                {framed && s !== mySeat ? <Cubes bag={view.cubes[s]!} size="sm" fid={`cv${s}`} /> : <Caravan bag={view.cubes[s]!} fid={`cv${s}`} />}
               </div>
               <div className="ct-pl__side">
                 <span className="ct-pl__orders" title="سفارش‌های تحویل‌شده"><b>{fa(view.won[s]!.length)}</b> سفارش<span className="bgv-sep" /> {fa(view.won[s]!.reduce((a, id) => a + ORDERS[id]!.points, 0))} امتیاز</span>

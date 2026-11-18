@@ -12,7 +12,8 @@ import backArt from './art/cc-back.png';
 import { TILES, feature, groups, key, segments, type CarcView, type Placed } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
-export const SEAT_COLORS = ['#e0473c', '#2f7de1', '#f2c230', '#3aa65a', '#9b59d0'];
+// Seat order follows the shell's seat colours (seat 1 blue, 2 yellow, 3 red, 4 green, 5 purple).
+export const SEAT_COLORS = ['#2f7de1', '#f2c230', '#e0473c', '#3aa65a', '#9b59d0'];
 const DIRS = ['بالا', 'راست', 'پایین', 'چپ'];
 const MID = [[50, 0], [100, 50], [50, 100], [0, 50]] as const;
 
@@ -34,8 +35,8 @@ function anchor(t: string, seg: string): [number, number] {
   return g.length === 2 && (g[0]! + 2) % 4 === g[1] ? [50 + (MID[d]![0] - 50) * 0.45, 50 + (MID[d]![1] - 50) * 0.45] : [50 + (MID[d]![0] - 50) * 0.55, 50 + (MID[d]![1] - 50) * 0.55];
 }
 
-/** Meeple art exists for blue, green and yellow only; seats 0 (red) and 4 (purple) reuse the blue one, hue-shifted — a placeholder until their art arrives. */
-const MEEPLE_ART = [{ src: meepleB, hue: 140 }, { src: meepleB, hue: 0 }, { src: meepleY, hue: 0 }, { src: meepleG, hue: 0 }, { src: meepleB, hue: 60 }];
+/** Meeple art exists for blue, green and yellow only; red (seat 3) is the yellow one and purple (seat 5) the blue one, hue-shifted — a placeholder until their art arrives. */
+const MEEPLE_ART = [{ src: meepleB, hue: 0 }, { src: meepleY, hue: 0 }, { src: meepleY, hue: -45 }, { src: meepleG, hue: 0 }, { src: meepleB, hue: 60 }];
 export function Meeple({ color, x, y }: { color: string; x: number; y: number }) {
   const a = MEEPLE_ART[Math.max(0, SEAT_COLORS.indexOf(color))]!;
   return (
@@ -168,14 +169,20 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>کاشی را طوری بگذارید که لبه‌هایش با همسایه‌ها جور باشد (جاده با جاده، شهر با شهر). شهر کامل برای هر کاشی ۲ امتیاز، جادهٔ کامل ۱ امتیاز و صومعه ۹ امتیاز دارد.</p>
+          <p><b>امتیازها</b></p>
+          <p>جادهٔ کامل: هر کاشی ۱<span className="bgv-sep" />شهر کامل: هر کاشی و هر سپر ۲<span className="bgv-sep" />صومعهٔ کامل (با ۸ کاشی دورش): ۹. آخر بازی، سازهٔ ناقص: جاده و صومعه هر کاشی ۱، شهر هر کاشی و سپر ۱.</p>
           {view.discarded > 0 && <p>{fa(view.discarded)} کاشی بی‌جا کنار رفت.</p>}
         </RailSlot>
       )}
-      {framed && place && spot && view.tile && (
+      {framed && place && view.tile && (
         <DockSlot>
-          <Button variant="secondary" disabled={busy || rots.length < 2} onClick={rotate}>چرخاندن</Button>
-          <Button variant="primary" disabled={busy} onClick={confirm}>گذاشتن کاشی</Button>
+          <Button variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate}>چرخاندن</Button>
+          <Button variant="primary" disabled={busy || !spot} onClick={confirm}>تأیید جا</Button>
+          {mySeat !== null && (
+            <ul className="cc__supply" aria-label={`${fa(view.meeplesLeft[mySeat]!)} پیرو در دست شما`}>
+              {Array.from({ length: 7 }, (_, i) => <li key={i} className={i < view.meeplesLeft[mySeat]! ? '' : 'is-used'}><svg viewBox="0 0 18 21" aria-hidden><Meeple color={SEAT_COLORS[mySeat]!} x={9} y={10} /></svg></li>)}
+            </ul>
+          )}
         </DockSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -202,20 +209,16 @@ export default function CarcassonneRenderer({ view, legalActions, mySeat, seatNa
       </div>
 
       <div className="cc__dock">
-        {framed && mySeat !== null && (
-          <ul className="cc__supply" aria-label={`${fa(view.meeplesLeft[mySeat]!)} پیرو در دست شما`}>
-            {Array.from({ length: 7 }, (_, i) => <li key={i} className={i < view.meeplesLeft[mySeat]! ? '' : 'is-used'}><svg viewBox="0 0 18 21" aria-hidden><Meeple color={SEAT_COLORS[mySeat]!} x={9} y={10} /></svg></li>)}
-          </ul>
-        )}
         <div className="cc__zoom">
           <button type="button" onClick={() => setZoom((z) => Math.max(0.6, z - 0.2))} aria-label="کوچک‌نمایی">−</button>
           <button type="button" onClick={() => setZoom((z) => Math.min(2.2, z + 0.2))} aria-label="بزرگ‌نمایی">+</button>
         </div>
         {view.tile && (
           <div className="cc__drawn" data-flip-anchor="drawn">
+            {framed && <small className="cc__drawn-label">{place ? 'کاشی شما' : `کاشی ${seatName(view.current)}`}</small>}
             {pending ? <span className="cc__drawn-tile" /> : <span className="cc__drawn-tile" data-flip={`drawn-${view.seq}`} data-flip-from="pile"><TileArt t={view.tile} rot={shownRot} title="کاشی کشیده‌شده" /></span>}
             <small data-flip-anchor="pile"><img className="cc__back" src={backArt} alt="" />{fa(view.stackCount)} کاشی مانده</small>
-            {place && !(framed && spot) && <Button size="sm" variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate} className={hint && spot && hint.rot !== shownRot ? 'cc-hint' : ''}>چرخاندن ↻</Button>}
+            {place && !framed && <Button size="sm" variant="secondary" disabled={busy || (spot !== null && rots.length < 2)} onClick={rotate} className={hint && spot && hint.rot !== shownRot ? 'cc-hint' : ''}>چرخاندن ↻</Button>}
           </div>
         )}
         {place && spot && view.tile && (

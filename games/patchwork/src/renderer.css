@@ -84,3 +84,48 @@ button.pw-cell:focus-visible { outline: 2px solid #2f7fc1; outline-offset: -2px;
 .pw-marker--opp { translate: 25% 25%; }
 
 .pw-patch__art { display: block; max-inline-size: 6rem; block-size: auto; }
+
+/* Round 2 (reference §1), desktop frame: patches in a row on top, then the time board (~15rem, it was ~23rem) beside
+   your rival's quilt with its name, then your quilt beside the patch tools — all inside the stage height. */
+@media (min-width: 900px) {
+  .pw--framed { grid-template-columns: auto auto; grid-template-areas: "market market" "track opp" "tools me"; justify-content: center; align-items: center; column-gap: var(--space-5); }
+  .pw--framed > .pw__market { grid-area: market; }
+  .pw--framed > .pw-track { grid-area: track; inline-size: 15rem; }
+  .pw--framed > .pw__quilts { display: contents; }
+  .pw--framed .pw-board--opp { grid-area: opp; }
+  .pw--framed .pw-board--me { grid-area: me; }
+  .pw--framed > .pw__tools { grid-area: tools; flex-direction: column; }
+  .pw--framed > .pw__actions:empty { display: none; }
+  .pw--framed .pw-board--opp .pw-quilt { inline-size: 9.5rem; }
+  .pw--framed .pw-quilt--big { inline-size: 15rem; }
+  .pw--framed .pw-patch__art { max-inline-size: 4.5rem; }
+}
+.pw--framed .pw-board--opp::before { content: attr(aria-label); color: var(--felt-ink); font-size: 12.5px; font-weight: 700; }
+.pw--framed .pw-board { background: none; box-shadow: none; outline: 0; padding: 0; color: var(--felt-ink); }
+.pw--framed .pw-board--turn .pw-quilt { outline: 2px solid var(--felt-gold); }
+
+/* Round 3 (reference §1): patches ~60px tall in the row after the neutral pawn, the 7×7 bonus tile beside the time
+   board, and «لحاف شما» over your quilt too. */
+.pw-neutral { inline-size: 1.6rem; block-size: auto; align-self: center; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.45)); }
+.pw--framed .pw-patch { padding: var(--space-1); background: none; border: 0; }
+.pw--framed .pw-patch__art { block-size: 3.75rem; inline-size: auto; max-inline-size: 7rem; }
+.pw-bonus { display: grid; justify-items: center; gap: 2px; color: var(--felt-muted); font-size: 12px; }
+.pw-bonus img { inline-size: 3.2rem; block-size: auto; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.45)); }
+.pw-bonus--gone img { opacity: 0.4; }
+.pw--framed .pw-board--me::before { content: attr(aria-label); color: var(--felt-ink); font-size: 12.5px; font-weight: 700; }
+@media (min-width: 900px) {
+  .pw--framed { grid-template-areas: "market market" "track opp" "tools me" "bonus me"; }
+  .pw--framed > .pw-bonus { grid-area: bonus; align-self: start; }
+}
+.pw--framed .pw-patch .pw-shape { zoom: 1.5; }
+
+/* Round 4: everything inside the stage height — time board 13rem, rival quilt 8.5rem, own quilt 13rem; the 7×7 tile
+   sits beside the rival's quilt instead of on an extra row; patch pictures 60px tall without distortion. */
+@media (min-width: 900px) {
+  .pw--framed { grid-template-columns: auto auto auto; grid-template-areas: "market market market" "track opp bonus" "tools me me"; row-gap: var(--space-2); }
+  .pw--framed > .pw-track { inline-size: 13rem; }
+  .pw--framed .pw-board--opp .pw-quilt { inline-size: 8.5rem; }
+  .pw--framed .pw-quilt--big { inline-size: 13rem; }
+  .pw--framed > .pw-bonus { align-self: center; }
+}
+.pw--framed .pw-patch__art { object-fit: contain; }

@@ -155,13 +155,14 @@ export function Die({ v, x, y, rot, rollKey, i, pending }: { v: number; x: numbe
 }
 
 /** Where a seat's token stands now (several tokens on one square spread out; jail splits prisoners and visitors). */
+const PAWN_SCALE = 1.7;
 function tokenXY(view: AmlakView, seat: number): [number, number] {
   const pl = view.p[seat]!, i = pl.pos, g = geo(i);
   const here = view.p.map((q, s) => ({ q, s })).filter((t) => !t.q.bankrupt && t.q.pos === i);
   const k = here.findIndex((t) => t.s === seat), n = here.length;
   const [bx, by] = i === 10 ? (pl.inJail ? [g.x + 94, g.y + 66] : [g.x + 24, g.y + 74]) : [g.x + g.w / 2, g.y + g.h / 2 + 18];
-  const tx = bx + (n > 1 && i !== 10 ? ((k % 3) - (Math.min(n, 3) - 1) / 2) * 24 : i === 10 ? (k % 2) * 18 - 9 : 0);
-  const ty = by + (n > 3 && i !== 10 ? (Math.floor(k / 3) - 0.5) * 24 : i === 10 ? Math.floor(k / 2) * 20 - 10 : 0);
+  const tx = bx + (n > 1 && i !== 10 ? ((k % 3) - (Math.min(n, 3) - 1) / 2) * 40 : i === 10 ? ((k % 2) * 18 - 9) * 1.6 : 0);
+  const ty = by + (n > 3 && i !== 10 ? (Math.floor(k / 3) - 0.5) * 40 : i === 10 ? (Math.floor(k / 2) * 20 - 10) * 1.6 : 0);
   return [tx, ty];
 }
 const centre = (i: number): [number, number] => { const g = geo(i); return [g.x + g.w / 2, g.y + g.h / 2 + 18]; };
@@ -265,9 +266,12 @@ export function AmlakBoard({ view, selected, onSelect, seatName, rollKey, rollin
               return (
                 <g key={t.seat} transform={`translate(${tx} ${ty})`}>
                   <g data-pawn={t.seat} className={t.seat === view.current && !view.outcome ? 'amb-pawn amb-pawn--turn' : 'amb-pawn'}>
-                    <ellipse cx="1" cy="14" rx="16" ry="5" className="amb-pawn__shadow" />
-                    <Token seat={t.seat} shine />
-                    <g transform="translate(13 -12)"><circle r="8" className="amb-pawn__badge" /><text y="4" className="amb-pawn__n">{fa(t.seat + 1)}</text></g>
+                    {/* QA round 3: pawns at the reference size (~30px on a ~580px board), not 18px specks lost in the square art. */}
+                    <g transform={`scale(${PAWN_SCALE})`}>
+                      <ellipse cx="1" cy="14" rx="16" ry="5" className="amb-pawn__shadow" />
+                      <Token seat={t.seat} shine />
+                      <g transform="translate(13 -12)"><circle r="8" className="amb-pawn__badge" /><text y="4" className="amb-pawn__n">{fa(t.seat + 1)}</text></g>
+                    </g>
                   </g>
                 </g>
               );

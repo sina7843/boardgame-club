@@ -28,7 +28,7 @@ test('interactive tutorial: place, rotate, pick the next domino, confirm', async
 
 async function turn(p: Page): Promise<boolean> {
   const free = p.locator('button.kd-dom--free');
-  const confirm = p.getByRole('button', { name: /^(تأیید|دور انداختن)$/ });
+  const confirm = p.getByRole('button', { name: /^(تأیید|تأیید جا|دور انداختن)$/ });
   if (!(await confirm.count())) {
     if (await free.count()) { await free.first().click(); return true; }
     return false;

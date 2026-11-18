@@ -202,7 +202,7 @@
 
 /* Phones: let the map bleed into the table padding so it is as wide as possible. */
 @media (max-width: 640px) {
-  .rk-board-wrap { margin-inline: -12px; }
+  .rk:not(.rk--framed) .rk-board-wrap { margin-inline: -12px; }
   .rk-card { inline-size: 70px; }
   .rk-card__art { inline-size: 56px; block-size: 44px; }
 }
@@ -219,3 +219,33 @@
 
 /* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
 .rk { --zb-aspect: 1.6; }
+
+/* Shared frame (QA round 2): the map never bleeds past the felt padding (phone frame clipping), the turn panel is the
+   dock row under the map (the ZoomBoard cap shrinks the map to fit), and a long draft list scrolls inside the panel. */
+.rk--framed .rk-main { grid-template-columns: minmax(0, 1fr); }
+.rk--framed .rk-board-wrap { justify-items: center; }
+.rk--framed .rk-side:empty { display: none; }
+.rk-dock { display: grid; gap: var(--space-2); inline-size: min(100%, 700px); }
+.rk-dock:empty { display: none; }
+.rk-dock .rk-panel { padding: var(--space-2) var(--space-3); }
+.rk-dock .rk-draftlist { max-block-size: 7.5rem; overflow-y: auto; }
+.rk-dock .rk-medal { inline-size: 52px; block-size: 52px; }
+.rk-dock .rk-medal strong { font-size: 1.35rem; }
+.rk-dock .row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+/* Round 3: panels use the DS spacing (the legacy --sp-* may be unset, which left «کارت‌های شما» without padding). */
+.rk-panel, .rk-tray, .rk-hand { gap: var(--space-2); padding: var(--space-3) var(--space-4); }
+.rk-hand h3 { font-size: 15px; }
+.rk-hand .rk-cards { padding: var(--space-4) var(--space-2) var(--space-1); }
+/* Round 4: the turn panel lives in the dock row, outside .rk and outside the dark stage, so it sets the felt colours
+   itself (light theme text was the page ink on felt); in the rail the cards section is flat (no box inside the card). */
+.rk-dock .rk-panel { background: var(--felt-plate); color: var(--felt-ink); border: 0; box-shadow: var(--shadow-ring-felt); }
+.rk-dock .rk-panel h3, .rk-dock .rk-big, .rk-dock .rk-big strong, .rk-dock .rk-draftlist { color: var(--felt-ink); }
+.rk-dock .rk-help, .rk-dock .rk-dice-pick legend { color: var(--felt-muted); }
+.rk-dock .rk-panel h3::before { background: var(--felt-gold); }
+.gf-guide .rk-hand { padding: 0; background: none; border: 0; box-shadow: none; }
+.gf-guide .rk-hand h3 { font-weight: 800; }
+@media (max-width: 899px) {
+  .rk--framed { padding-block-end: var(--space-4); }
+  .rk--framed .rk-hand { color: var(--felt-ink); background: var(--felt-plate); border: 0; box-shadow: var(--shadow-ring-felt); }
+  .rk--framed .rk-hand .rk-help { color: var(--felt-muted); }
+}

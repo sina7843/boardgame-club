@@ -192,17 +192,20 @@ export default function BattleshipRenderer({ view, legalActions, mySeat, seatNam
                 <button key={f.key} type="button" aria-pressed={pick === i} disabled={busy}
                   className={['bs-tray__ship', pick === i ? 'is-on' : '', placed ? 'is-placed' : ''].join(' ')}
                   onClick={() => { setPick(i); setDraft(draft.filter((s) => s.ship !== i)); }}>
-                  <img className="bs-tray__art" src={SHIPS[i]} alt="" aria-hidden="true" style={{ inlineSize: `${f.len * 2.1}rem` }} />
+                  <img className="bs-tray__art" src={SHIPS[i]} alt="" aria-hidden="true" style={{ inlineSize: `${f.len * 1.4}rem` }} />
                   <small>{f.name}{placed ? ' ✓' : ''}</small>
                 </button>
               );
             })}
           </div>
-          <div className="bs-tray__bar">
-            <Button size="sm" variant="secondary" disabled={busy} onClick={() => setDir(dir === 'h' ? 'v' : 'h')}>چرخاندن ({dir === 'h' ? 'افقی' : 'عمودی'})</Button>
-            <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setDraft(localRandomFleet()); setPick(null); }}>چیدمان تصادفی</Button>
-            <DockSlot><Button size="lg" disabled={busy || !validFleet(draft)} onClick={() => onAction({ type: 'place', ships: draft })}>تأیید چیدمان</Button></DockSlot>
-          </div>
+          {/* Rotate / random / confirm are the dock row (QA round 3: visible at 1440 and above the phone dock). */}
+          <DockSlot>
+            <div className="bs-tray__bar">
+              <Button size="sm" variant="secondary" disabled={busy} aria-pressed={dir === 'v'} onClick={() => setDir(dir === 'h' ? 'v' : 'h')}>چرخاندن ({dir === 'h' ? 'افقی' : 'عمودی'})</Button>
+              <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setDraft(localRandomFleet()); setPick(null); }}>چیدمان تصادفی</Button>
+              <Button disabled={busy || !validFleet(draft)} onClick={() => onAction({ type: 'place', ships: draft })}>تأیید چیدمان</Button>
+            </div>
+          </DockSlot>
         </section>
       )}
 

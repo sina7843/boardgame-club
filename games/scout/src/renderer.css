@@ -66,3 +66,37 @@
 .sc--framed .sc__me { border-block-start: 0; }
 .sc--framed .sc-hint { box-shadow: 0 0 0 3px var(--felt-gold) !important; }
 @media (max-width: 600px) { .sc--framed .sc-card--md { inline-size: 2.6rem; } .sc--framed .sc__hand { gap: 0.1rem; } }
+
+/* Hands are one overlapping row (QA round 2: wrapped hands pushed the controls under the own plate on phones).
+   While scouting, the «+» gaps need room, so that hand may wrap. */
+.sc__hand { --w: 3.4rem; flex-wrap: nowrap; inline-size: 100%; }
+.sc--framed .sc__hand { --w: 4.2rem; }
+.sc__hand > * { flex: none; position: relative; }
+.sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.sc__hand--gaps { flex-wrap: wrap; }
+.sc__hand .sc-pick--on { z-index: 1; }
+@media (max-width: 600px) {
+  .sc--framed .sc__hand { --w: 2.75rem; }
+  .sc--framed .sc__ring { min-block-size: 0; padding: var(--space-2); }
+}
+
+/* QA round 3: the orientation block is centred in `.sc__me`, so it shrank to its content and the 100%-based overlap left one
+   card and slivers. It stretches now, and a card never hides more than 60% under its neighbour (the hand wraps first). */
+.sc__orient { justify-self: stretch; inline-size: 100%; }
+.sc__hand:not(.sc__hand--gaps) { flex-wrap: wrap; row-gap: 0.4rem; }
+.sc__hand:not(.sc__hand--gaps) > * + * { margin-inline-start: max(calc(var(--w) * -0.6), min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w)))); }
+
+/* QA round 4. Only 13 of the 45 faces are delivered; every other face is a labelled placeholder coloured like the printed
+   suit of each value (sampled from the delivered faces; 9 interpolated): the top half in the top value's colour with the
+   number at the reading corner (it stays visible in an overlapping row), the bottom band in the other value's colour. */
+.sc-t--1 { --ct: #38a0d4; } .sc-t--2 { --ct: #39d5d5; } .sc-t--3 { --ct: #38d29f; } .sc-t--4 { --ct: #9ae6a7; } .sc-t--5 { --ct: #78d138; }
+.sc-t--6 { --ct: #d1b838; } .sc-t--7 { --ct: #d58c39; } .sc-t--8 { --ct: #d05e37; } .sc-t--9 { --ct: #d5397a; } .sc-t--10 { --ct: #d539d5; }
+.sc-b--1 { --cb: #38a0d4; } .sc-b--2 { --cb: #39d5d5; } .sc-b--3 { --cb: #38d29f; } .sc-b--4 { --cb: #9ae6a7; } .sc-b--5 { --cb: #78d138; }
+.sc-b--6 { --cb: #d1b838; } .sc-b--7 { --cb: #d58c39; } .sc-b--8 { --cb: #d05e37; } .sc-b--9 { --cb: #d5397a; } .sc-b--10 { --cb: #d539d5; }
+.sc-card--ph { grid-template-rows: 1fr auto; align-content: stretch; justify-items: stretch; padding: 0; overflow: hidden; border-radius: 6px; background: var(--ct); color: #1a1410; box-shadow: inset 0 0 0 1.5px #fff; }
+.sc-card--ph .sc-card__top { justify-self: start; align-self: start; padding: 0.15rem 0.3rem; font-size: 1.2rem; }
+.sc-card--ph .sc-card__bot { display: block; padding-block: 0.15rem; text-align: center; background: var(--cb); opacity: 1; }
+/* One row per orientation preview (overlap, no wrap) and a margin from the felt edge. */
+.sc__orient .sc__hand { flex-wrap: nowrap; }
+.sc__orient .sc__hand > * + * { margin-inline-start: min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.sc--framed { padding-inline: var(--space-3); box-sizing: border-box; }

@@ -6,6 +6,8 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNod
 import { Button, RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import { BEGINNER_HARBORS, BEGINNER_MAP, EDGES, HEX_SIZE, RESOURCES, RES_FA, TERRAIN_FA, VERTICES, hexCenter, hexCorners, pips, type HarborKind, type Res } from './board.ts';
 import { BOARD_PNG, BoardDefs, COST_PNG, CARD_BACK, pieceArt, DEV_ART, DieFace, HarborArt, HexArt, Ocean, ResIcon, RobberPawn } from './art.tsx';
+import awardRoad from './art/catan-award-road.png';
+import awardArmy from './art/catan-award-army.png';
 import { COST, LIMITS, type CatanView, type Dev, type Hand, type LogEntry } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -368,6 +370,29 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
   const playType: Record<Dev, string | null> = { knight: 'playKnight', road: 'playRoadBuilding', plenty: 'playPlenty', monopoly: 'playMonopoly', vp: null };
 
   const bank = <span className="ct-bank" aria-label={`بانک: ${handText(view.bank)}`}>بانک: {RESOURCES.map((r) => <span key={r} className={`ct-mini ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span>{fa(view.bank[r])}</span>)}</span>;
+  const diceEl = rolling ? (
+    <span key="rolling" className="ct-dice" aria-label="تاس‌ها در حال چرخیدن"><DieFace value={6} pending /><DieFace value={6} red pending /></span>
+  ) : view.dice && (
+    <span key={rollSeq} className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
+      <DieFace value={view.dice[0]} /><DieFace value={view.dice[1]} red />
+      <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
+    </span>
+  );
+  // Framed side column (reference §1): the bank as a 2 × 3 grid of cards (five resources + the development deck),
+  // the dice, and the two award cards with their holder.
+  const side = (
+    <div className="ct-side">
+      <ul className="ct-bankgrid" aria-label={`بانک: ${handText(view.bank)}، کارت توسعه: ${fa(view.devDeckCount)}`}>
+        {RESOURCES.map((r) => <li key={r} className={`ct-bankcard ct-res--${r}`}><span aria-hidden="true"><ResIcon r={r} /></span><b>{fa(view.bank[r])}</b></li>)}
+        <li className="ct-bankcard" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" draggable={false} /><b>{fa(view.devDeckCount)}</b></li>
+      </ul>
+      {diceEl || <span className="ct-dice" aria-label="تاس هنوز ریخته نشده"><span className="ct-die ct-die--blank" aria-hidden="true" /><span className="ct-die ct-die--blank" aria-hidden="true" /></span>}
+      <div className="ct-awards">
+        <span className="ct-award"><img src={awardRoad} alt="" draggable={false} /><small>جاده: {view.longestRoad === null ? 'هنوز کسی' : <bdi>{view.longestRoad === mySeat ? 'شما' : seatName(view.longestRoad)}</bdi>}</small></span>
+        <span className="ct-award"><img src={awardArmy} alt="" draggable={false} /><small>ارتش: {view.largestArmy === null ? 'هنوز کسی' : <bdi>{view.largestArmy === mySeat ? 'شما' : seatName(view.largestArmy)}</bdi>}</small></span>
+      </div>
+    </div>
+  );
 
   return (
     <div className={framed ? 'ct ct--framed' : 'ct'} ref={root}>
@@ -382,15 +407,8 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
 
       <div className="ct__meta">
         {!framed && <span>نوبت {fa(view.turn)}</span>}
-        {rolling ? (
-          <span key="rolling" className="ct-dice" aria-label="تاس‌ها در حال چرخیدن"><DieFace value={6} pending /><DieFace value={6} red pending /></span>
-        ) : view.dice && (
-          <span key={rollSeq} className="ct-dice" aria-label={`تاس: ${fa(view.dice[0])} و ${fa(view.dice[1])}، جمع ${fa(view.dice[0] + view.dice[1])}`}>
-            <DieFace value={view.dice[0]} /><DieFace value={view.dice[1]} red />
-            <strong aria-hidden="true">= {fa(view.dice[0] + view.dice[1])}</strong>
-          </span>
-        )}
-        <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>
+        {!framed && diceEl}
+        {!framed && <span className="ct-deck" data-flip-anchor="devdeck"><img src={CARD_BACK} alt="" aria-hidden="true" draggable={false} />کارت توسعه در دسته: {fa(view.devDeckCount)}</span>}
         {!framed && bank}
       </div>
 
@@ -441,7 +459,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
       <div className="ct-main">
         <div className="ct-board-wrap">
           <ZoomBoard label="نقشه جزیره کاتان"><Island view={view} t={targets} onPick={pickTarget} mySeat={mySeat} /></ZoomBoard>
-          {framed && bank}
+          {framed && side}
         </div>
 
         <div className="ct-side">
@@ -534,7 +552,7 @@ export default function CatanRenderer({ view: real, legalActions, mySeat, seatNa
               <h3>منابع شما ({fa(sum(hand))})</h3>
               <ul className="ct-cards">
                 {RESOURCES.map((r) => (
-                  <li key={r} className={`ct-card ct-res--${r}${hand[r] === 0 ? ' ct-card--empty' : ''}`} aria-label={`${RES_FA[r]}: ${fa(hand[r])}`}>
+                  <li key={r} className={`ct-card ct-res--${r}${hand[r] === 0 ? ' ct-card--empty' : ''}`} hidden={framed && hand[r] === 0} aria-label={`${RES_FA[r]}: ${fa(hand[r])}`}>
                     <span aria-hidden="true" className="ct-card__icon"><ResIcon r={r} /></span>
                     <span className="ct-card__name">{RES_FA[r]}</span>
                     <Pop v={hand[r]} text={fa(hand[r])} className="ct-card__n" />

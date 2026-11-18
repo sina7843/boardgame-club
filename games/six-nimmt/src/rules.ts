@@ -9,6 +9,7 @@ import { z } from 'zod';
 import type { Actor, ActionHint, EngineRng, GameModule, Outcome, Transition, Viewer } from '@bg/game-sdk';
 import { sixNimmt } from './definition.ts';
 
+const faN = (n: number) => n.toLocaleString('fa-IR');
 export const bullheads = (c: number) => (c === 55 ? 7 : c % 11 === 0 ? 5 : c % 10 === 0 ? 3 : c % 5 === 0 ? 2 : 1);
 const LIMIT = 66;
 
@@ -228,6 +229,8 @@ export const sixNimmtModule: GameModule<SixNimmtState, SixNimmtAction, SixNimmtV
         ...(winners.has(seat) ? { status: 'winner' as const } : !s.outcome && s.phase === 'choose' && s.chosen[seat] !== null ? { status: 'done' as const } : {})
       })),
       shared: [{ key: 'round', label: 'دست', value: s.round }],
+      // The frame's events card (QA round 2: without it the rail buttons floated under the guide): this turn's revealed cards.
+      moves: s.reveal.map((r) => ({ seat: r.seat, text: r.took ? `${faN(r.card)} را گذاشت و ${faN(r.took.length)} کارت (${faN(r.took.reduce((a, c) => a + bullheads(c), 0))} گاو) برداشت` : `${faN(r.card)} را گذاشت` })),
       ...(s.totals.filter((v) => v === low).length === 1 && Math.max(...s.totals) > 0 ? { leaderSeat: s.totals.indexOf(low) } : {})
     };
   },

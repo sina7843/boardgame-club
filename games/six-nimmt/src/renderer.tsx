@@ -1,7 +1,7 @@
 // گاو شش renderer: four rows of numbered cards (bull heads show the penalty), a fan of your cards to tap, the
 // revealed choices in order, and rows that become buttons when you must take one.
 import './renderer.css';
-import { useRef } from 'react';
+import { useRef, type CSSProperties } from 'react';
 import { RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { FACE, LAST_SLOT, ROW_INDICATOR, ROW_SLOT } from './art.ts';
 import bull from './art/bull.webp';
@@ -117,12 +117,12 @@ export default function SixNimmtRenderer({ view, legalActions, mySeat, seatName,
       )}
 
       {view.hand && !view.outcome && (
-        <div className="sn__hand" role="group" aria-label="دست شما">
-          {view.hand.map((c) => (
+        <div className="sn__hand" role="group" aria-label="دست شما" style={{ '--n': view.hand.length + (typeof myChoice === 'number' && !view.hand.includes(myChoice) ? 1 : 0) } as CSSProperties}>
+          {/* The chosen card stays in its place in the sorted hand and only rises (QA round 3: it moved to the end and looked bigger). */}
+          {[...view.hand, ...(typeof myChoice === 'number' && !view.hand.includes(myChoice) ? [myChoice] : [])].sort((x, y) => x - y).map((c) => (
             <Card key={c} c={c} flip={`c-${c}`} flipFrom="deck" state={myChoice === c ? 'up' : undefined} hint={hintCard === c}
-              onClick={playable.has(c) && !busy ? () => onAction({ type: 'play', card: c }) : undefined} />
+              onClick={view.hand!.includes(c) && playable.has(c) && !busy ? () => onAction({ type: 'play', card: c }) : undefined} />
           ))}
-          {typeof myChoice === 'number' && !view.hand.includes(myChoice) && <Card c={myChoice} state="up" flip={`c-${myChoice}`} />}
         </div>
       )}
       {!framed && <p className="sn__meta">{view.oneRound ? 'یک دست' : `دست ${fa(view.round)} — تا ۶۶ گاو`}</p>}

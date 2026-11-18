@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkersModule, legalMoves, startBoard, type CheckersState, type CheckersView, type Piece } from '@bg/game-checkers';
+import { checkersModule, legalMoves, notation, squareNo, startBoard, type CheckersState, type CheckersView, type Piece } from '@bg/game-checkers';
 import { applyAction, applyTimeout, createRng, projectFor, replay, startGame, type EngineSnapshot, type StepResult } from '../src/index.ts';
 
 const m = checkersModule as never;
@@ -25,6 +25,16 @@ const board = (pieces: Record<string, Piece>) => {
 const paths = (b: (Piece | null)[], turn: 'd' | 'l', variant: 'english' | 'brazilian' = 'english') => legalMoves(b, turn, variant).map((mv) => mv.path).sort();
 
 describe('checkers rules', () => {
+  it('printed notation: dark men on 1–12, light on 21–32, double corner 28/32; captures with x', () => {
+    const b = startBoard();
+    expect(b.flatMap((x, i) => (x === 'd' ? [squareNo(i)] : [])).sort((a, c) => a - c)).toEqual(Array.from({ length: 12 }, (_, k) => k + 1));
+    expect(b.flatMap((x, i) => (x === 'l' ? [squareNo(i)] : [])).sort((a, c) => a - c)).toEqual(Array.from({ length: 12 }, (_, k) => k + 21));
+    expect(squareNo(sq('a7'))).toBe(28);
+    expect(squareNo(sq('b8'))).toBe(32);
+    expect(squareNo(sq('a1'))).toBe(4);
+    expect(notation({ path: [sq('c3'), sq('d4')], captured: [] })).toBe('11-15');
+    expect(notation({ path: [sq('c3'), sq('e5'), sq('g7')], captured: [1, 2] })).toBe('11x18x25');
+  });
   it('start: 12 men each on dark squares; dark moves first with 7 moves', () => {
     const b = startBoard();
     expect(b.filter((x) => x === 'd')).toHaveLength(12);

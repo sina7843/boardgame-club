@@ -186,3 +186,18 @@ button.uno-card:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .uno-card--img { background: none; border: 0; box-shadow: none; overflow: visible; }
 .uno-card--img .uno-face { inline-size: 100%; block-size: 100%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.4)); }
 .uno-card--img.uno-card--playable, .uno-card--img.uno-card--selected { box-shadow: 0 0 0 3px var(--felt-gold); border-radius: calc(var(--w) * 0.1); }
+
+/* Phone (QA round 2): no direction arc around the discard (it overflowed and covered the pile; the «جهت بازی» pill keeps the
+   direction), and the hand is one overlapping fan that fits the width instead of a scroller that clipped the first card. */
+@media (max-width: 899px) {
+  .uno-ring { display: none; }
+  .uno-hand__cards { overflow: visible; padding-inline: 0; justify-content: center; }
+  .uno-hand__cards > .uno-card { position: relative; }
+  .uno-hand__cards > .uno-card + .uno-card { margin-inline-start: min(-16px, calc((100% - var(--card-w)) / max(var(--n) - 1, 1) - var(--card-w))); }
+}
+
+/* QA round 3: no arc at any width (a small ↻ in the colour pill shows the direction); inside the frame the hand panel is
+   not sticky, so on phones it no longer slides over the colour pill (the frame's own bar is sticky already). */
+.uno-ring { display: none; }
+.uno-pile__label { display: inline-flex; align-items: center; gap: 6px; position: relative; z-index: 1; white-space: nowrap; }
+.uno--framed .uno-hand { position: static; }

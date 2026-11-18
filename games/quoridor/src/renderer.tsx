@@ -1,8 +1,9 @@
 // کوریدور renderer: the design's board art with pawns and walls laid on it (SVG overlay in the art's own pixels). The board is turned so the viewer's start edge is at the bottom.
 // Move mode: tap a lit tile. Wall mode: tap a groove crossing to drop a wall there (preview on hover/focus).
 import './renderer.css';
+import { Segmented } from '@bg/ui/bgv';
 import { useEffect, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { DockSlot, RailSlot, TurnIndicator, ZoomBoard, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import { BOARD, PAWN_SRC, WALL_H, WALL_V } from './pieces.ts';
 import { distance, N, wallOk, type Orient, type QuoridorView, type Side, type Wall } from './rules.ts';
 
@@ -55,6 +56,18 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
   // Each turn starts in move mode (the tutorial switches to wall mode when it expects a wall).
   useEffect(() => { setHover(null); if (!hintWall) setMode('move'); }, [seq]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // R turns the wall (horizontal / vertical) on my turn; typing in the chat is left alone.
+  useEffect(() => {
+    if (!canWall || busy) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.key.toLowerCase() !== 'r' || e.ctrlKey || e.metaKey || e.altKey || (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))) return;
+      setMode('wall'); setLook((l) => (l === 'h' ? 'v' : 'h'));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [canWall, busy]);
+
   const place = (w: Wall) => { if (!busy) onAction({ type: 'wall', ...w }); setHover(null); };
   const qw = queued?.type === 'wall' ? (queued as unknown as Wall) : null;
   const lastWall = qw ? { t: 'wall' as const, wall: qw } : [...view.log].reverse().find((e) => e.t === 'wall');
@@ -73,6 +86,33 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
       : side === 'left' ? { x: x1 + 6, y: y0, width: t, height: y1 - y0 } : { x: x0 - t - 8, y: y0, width: t, height: y1 - y0 };
   };
 
+  // Mode bar (reference): ONE segmented control «مهره | دیوار افقی | دیوار عمودی», navy selection, plus the R-key hint.
+  const off = !myTurn || busy;
+  const segValue = mode === 'move' ? 'move' : look === 'h' ? 'wh' : 'wv';
+  const pick = (v: string) => { if (v === 'move') setMode('move'); else { setMode('wall'); setLook(v === 'wh' ? 'h' : 'v'); } };
+  const wallsLabel = `(${fa(view.wallsLeft[me] ?? 0)})`;
+  const tools = (
+    <div className="qd__tools" role="toolbar" aria-label="نوع حرکت">
+      <Segmented label="نوع حرکت" value={segValue} onChange={pick} options={[
+        { value: 'move', label: 'مهره', disabled: off },
+        { value: 'wh', label: <>دیوار افقی <span className="qd__left">{wallsLabel}</span></>, disabled: off || !canWall },
+        { value: 'wv', label: <>دیوار عمودی <span className="qd__left">{wallsLabel}</span></>, disabled: off || !canWall }
+      ]} />
+      <span className="qd__hint">کلید R: چرخاندن دیوار</span>
+    </div>
+  );
+
+  // Walls left as tick marks (reference seat display), one row per seat.
+  const ticks = (
+    <ul className="qd-ticks" aria-label="دیوارهای باقی‌مانده">
+      {view.wallsLeft.map((n, seat) => (
+        <li key={seat}><bdi>{who(seat)}</bdi>
+          <span className="qd-ticks__row" role="img" aria-label={`${fa(n)} دیوار`}>{Array.from({ length: n }, (_, k) => <i key={k} />)}</span>
+          <b>{fa(n)}</b></li>
+      ))}
+    </ul>
+  );
+
   return (
     <div className="qd" data-seq={seq}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -81,6 +121,7 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
           <p>{mode === 'wall' && myTurn
             ? <>نقطهٔ روی شیار را بزنید تا <b>دیوار دوخانه‌ای</b> بیفتد؛ دیوار نباید همهٔ راه‌های یک مهره را ببندد.</>
             : <>هر نوبت یا <b>یک خانه</b> حرکت کنید یا یک دیوار بگذارید. اگر پشت مهرهٔ حریف دیوار باشد، <b>کناری</b> می‌پرید.</>}</p>
+          {ticks}
         </RailSlot>
       )}
       {!framed && (
@@ -163,18 +204,8 @@ export default function QuoridorRenderer({ view: served, legalActions, mySeat, s
         </svg>
       </ZoomBoard>
 
-      {myTurn && !view.outcome && (
-        <div className="qd__tools" role="toolbar" aria-label="نوع حرکت">
-          <Button size="sm" variant={mode === 'move' ? 'primary' : 'secondary'} disabled={busy} onClick={() => setMode('move')}>حرکت مهره</Button>
-          <Button size="sm" variant={mode === 'wall' ? 'primary' : 'secondary'} disabled={busy || !canWall} onClick={() => setMode('wall')}>دیوار ({fa(view.wallsLeft[me] ?? 0)})</Button>
-          {mode === 'wall' && (
-            <span className="qd__orient" role="group" aria-label="جهت دیوار">
-              <button type="button" aria-pressed={look === 'h'} onClick={() => setLook('h')}>━ افقی</button>
-              <button type="button" aria-pressed={look === 'v'} onClick={() => setLook('v')}>┃ عمودی</button>
-            </span>
-          )}
-        </div>
-      )}
+      {/* Mode bar stays in view on the opponent's turn too (disabled), in the frame's dock row so it never pushes the board below the stage. */}
+      {!view.outcome && (framed ? <DockSlot>{tools}</DockSlot> : tools)}
       {view.winner !== null && !framed && <p className="qd__end" role="status">{view.winner === mySeat ? 'به هدف رسیدید!' : <><bdi>{seatName(view.winner)}</bdi> به هدف رسید</>}</p>}
     </div>
   );

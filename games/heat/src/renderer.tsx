@@ -4,7 +4,7 @@
 // slipstream and discards. Everything secret (hands, decks, plans) is only ever shown to its owner.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, MOTION, RailSlot, useInFrame, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, MOTION, RailSlot, useInFrame, TurnIndicator, ZoomBoard, motionOff, useFlip, usePop, type GameAction, type GameRendererProps } from '@bg/ui';
 import car0 from './art/ht-car-b.png';
 import car1 from './art/ht-car-g.png';
 import car2 from './art/ht-car-y.png';
@@ -65,7 +65,7 @@ export function HeatCard({ c, size = 'md' }: { c: Card; size?: 'sm' | 'md' }) {
     <span className={`ht-card ht-card--${c.k} ht-card--${size}${c.up ? ' ht-card--up' : ''}`} aria-label={cardLabel(c)}>
       {c.k === 'heat' ? <img src={flameArt} alt="" draggable={false} />
         : c.k === 'stress' ? <><img src={stressArt} alt="" draggable={false} /><b>؟</b></>
-          : <><b className="ht-card__v">{fa(c.v ?? 0)}</b>{c.k === 'garage' && size === 'md' && <small className="ht-card__g">{GARAGE[c.g!].nameFa}<br />{garageText(c)}</small>}</>}
+          : <><b className="ht-card__v">{fa(c.v ?? 0)}</b>{c.k === 'speed' && <small className="ht-card__ph">{c.up ? 'ارتقای آغازین' : 'سرعت'}</small>}{c.k === 'garage' && size === 'md' && <small className="ht-card__g">{GARAGE[c.g!].nameFa}<br />{garageText(c)}</small>}</>}
     </span>
   );
 }
@@ -394,8 +394,8 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
           {me.plan && <p className="ht__note">انتخاب ثبت‌شده: دندهٔ {fa(me.plan.gear)} و {fa(me.plan.cards.length)} کارت</p>}
           {plan && (
             <div className="ht__actions">
-              <Button size="sm" disabled={!planOk || busy} className={`ht-submit${planOk && isHint({ type: 'plan', gear: g, cards: sorted(sel) }) ? ' ht-hint' : ''}`}
-                onClick={() => onAction({ type: 'plan', gear: g, cards: sorted(sel) })}>ثبت دندهٔ {fa(g)} و {fa(sel.length)} کارت{gOpt?.cost ? ' (۱ گرما)' : ''}</Button>
+              <DockSlot><Button size="sm" disabled={!planOk || busy} className={`ht-submit${planOk && isHint({ type: 'plan', gear: g, cards: sorted(sel) }) ? ' ht-hint' : ''}`}
+                onClick={() => onAction({ type: 'plan', gear: g, cards: sorted(sel) })}>ثبت دندهٔ {fa(g)} و {fa(sel.length)} کارت{gOpt?.cost ? ' (۱ گرما)' : ''}</Button></DockSlot>
             </div>
           )}
           {react && (
@@ -407,7 +407,7 @@ export default function HeatRenderer({ view: served, legalActions: legal, mySeat
               <button type="button" className={['ht-toggle', slip && slipOk ? 'ht-toggle--on' : '', hint?.type === 'react' && hint.slipstream && !(slip && slipOk) && slipOk ? 'ht-hint' : ''].join(' ')}
                 aria-pressed={slip && slipOk} disabled={!slipOk || busy} onClick={() => setSlip(!slip)}>مکش +۲</button>
               <span className="ht__note">خنک‌سازی خودکار: {fa(react.cooldown)}{disc.length ? `، دور ریختن ${fa(disc.length)} کارت` : ''}</span>
-              <Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}>پایان نوبت</Button>
+              <DockSlot><Button size="sm" disabled={busy} className={`ht-end${isHint(reactAction) ? ' ht-hint' : ''}`} onClick={() => onAction(reactAction)}>پایان نوبت</Button></DockSlot>
             </div>
           )}
         </section>

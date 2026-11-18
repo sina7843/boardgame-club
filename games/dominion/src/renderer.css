@@ -72,3 +72,20 @@
   .dm-base { gap: 4px; }
   .dm-p b { inset-block-start: 2px; inset-inline-end: 2px; }
 }
+
+/* Round 2 (reference §1): opponents' panels beside the supply, an always-visible «در بازی» zone, and one row with
+   actions / buys / coins and your deck and discard piles. */
+.dm__top { display: flex; gap: var(--space-4); align-items: flex-start; justify-content: center; inline-size: 100%; }
+.dm__top > .dm__supply { inline-size: auto; }
+.dm__opps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); align-content: start; }
+.dm-opp { display: grid; gap: 2px; justify-items: start; padding: var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); font-size: 12.5px; color: var(--felt-muted); }
+.dm-opp--now { outline: 2px solid var(--felt-gold); }
+.dm__play-label { color: var(--felt-muted); margin-inline-end: var(--space-2); direction: rtl; }
+.dm__play--empty small { color: var(--felt-muted); direction: rtl; }
+.dm__row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: center; }
+.dm__mine { margin: 0; display: flex; gap: var(--space-2); }
+.dm__pile-mini { position: relative; display: block; inline-size: 30px; line-height: 0; }
+.dm__pile-mini img, .dm__pile-mini i { display: block; inline-size: 100%; aspect-ratio: 5 / 8; object-fit: cover; border-radius: var(--radius-xs); box-shadow: var(--shadow-piece); }
+.dm__pile-mini i { box-shadow: var(--shadow-ring-felt); }
+.dm__pile-mini b { position: absolute; inset-block-end: -4px; inset-inline-start: -8px; min-inline-size: 18px; block-size: 18px; padding-inline: 3px; box-sizing: border-box; border-radius: var(--radius-pill); display: grid; place-items: center; background: var(--felt-plate); color: var(--felt-ink); font-size: 11px; line-height: 1; box-shadow: var(--shadow-ring-felt); }
+@media (max-width: 899px) { .dm__top { flex-direction: column; align-items: center; } .dm__opps { display: none; } }

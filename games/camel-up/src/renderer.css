@@ -52,16 +52,19 @@
 
 /* ---------- leg-bet tiles: a stack per camel, its height shows how many are left ---------- */
 .cu__bets { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; padding-block-end: 0.4rem; }
-.cu-legtile {
-  position: relative; display: grid; justify-items: center; gap: 0.05rem; inline-size: 4.6rem; padding: 0.35rem 0.3rem 0.4rem; border: 0; border-radius: 12px; font: inherit; cursor: pointer; color: var(--ink);
+.cu-legtile { position: relative; display: grid; justify-items: center; gap: 0.2rem; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; color: var(--felt-ink, #fbf1df); }
+.cu-legtile__face {
+  display: grid; justify-items: center; gap: 0.05rem; inline-size: 3.2rem; padding: 0.25rem; border-radius: 10px; color: var(--ink);
   background: linear-gradient(170deg, color-mix(in srgb, var(--c) 35%, #fff8e6), color-mix(in srgb, var(--c) 70%, #fff8e6));
-  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.65), 0 calc(min(var(--left, 1), 4) * 2px) 0 var(--c-dk), 0 calc(min(var(--left, 1), 4) * 2px + 6px) 10px -6px #000;
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.65), 0 calc(min(var(--left, 1), 4) * 2px) 0 var(--c-dk);
   transition: transform 0.15s ease;
 }
-.cu-legtile:not(:disabled):hover { transform: translateY(-2px); }
-.cu-legtile b { display: grid; place-items: center; inline-size: 1.7rem; block-size: 1.7rem; border-radius: 50%; font-size: 1rem; background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.cu-legtile:not(:disabled):hover .cu-legtile__face { transform: translateY(-2px); }
+.cu-legtile:focus-visible { outline: 2px solid var(--focus-on-felt, #ffd27a); outline-offset: 2px; border-radius: 10px; }
+.cu-legtile b { display: grid; place-items: center; inline-size: 1.5rem; block-size: 1.5rem; border-radius: 50%; font-size: 0.9rem; background: radial-gradient(circle at 35% 30%, #fff1b8, var(--gold) 60%, #b8862a); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
 .cu-legtile__art { inline-size: 100%; block-size: auto; display: block; }
-.cu-legtile:disabled { opacity: 0.78; cursor: default; filter: saturate(0.75); }
+.cu-legtile:disabled { cursor: default; }
+.cu-legtile:disabled .cu-legtile__face { opacity: 0.78; filter: saturate(0.75); }
 
 .cu__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
 .cu-on { box-shadow: 0 0 0 3px var(--gold) !important; }
@@ -111,10 +114,51 @@
 @keyframes cu-glow { 50% { outline-color: rgb(47 127 193 / 0.35); } }
 @media (prefers-reduced-motion: reduce) { .cu * { animation: none !important; transition: none !important; } }
 
-/* bottom bar: four groups (leg bet | desert tile | pyramid die | final bet) */
-.cu__bar { display: flex; flex-wrap: wrap; gap: var(--sp-3); justify-content: center; align-items: stretch; }
-.cu__grp { display: grid; gap: 0.35rem; align-content: start; padding: 0.5rem 0.65rem; border-radius: 14px; background: rgb(255 236 200 / 0.06); box-shadow: inset 0 0 0 1px rgb(255 236 200 / 0.15); }
-.cu__cap { margin: 0; font-size: 0.78rem; color: var(--coin); }
+/* One action bar (design §1/§3): four groups on one felt plate, split by hairlines; in the frame it is the dock row. */
+.cu__bar { display: flex; flex-wrap: wrap; gap: var(--space-2) 0; justify-content: center; align-items: stretch; inline-size: min(100%, 52rem); margin-inline: auto;
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate, rgb(0 0 0 / 0.2)); box-shadow: var(--shadow-ring-felt); box-sizing: border-box; }
+.cu__grp { display: grid; gap: 0.35rem; align-content: start; padding-inline: var(--space-3); }
+.cu__grp + .cu__grp { border-inline-start: 1px solid var(--felt-line, rgb(255 236 200 / 0.15)); }
+.cu__cap { margin: 0; font-size: 0.78rem; font-weight: 700; color: var(--felt-ink, #fbf1df); text-align: start; }
+.cu__cap small { margin-inline-start: 0.35rem; font-weight: 600; color: var(--felt-muted, #e8d8b8); }
 .cu__grpbody { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; justify-content: center; }
-.cu__grp small { font-size: 0.7rem; color: #e8d8b8; }
-.cu-legtile__left { font-size: 0.62rem; font-weight: 800; }
+.cu__grp small { font-size: 0.72rem; color: var(--felt-muted, #e8d8b8); }
+.cu-legtile__left { font-size: 0.7rem; font-weight: 700; color: var(--felt-muted, #e8d8b8); }
+.cu__bets { padding-block-end: 0; }
+.cu__overall { padding-block: 0; background: none; box-shadow: none; border-radius: 0; }
+.cu__ovpick { flex: 0 0 100%; display: grid; gap: var(--space-2); padding-block-start: var(--space-2); border-block-start: 1px solid var(--felt-line, rgb(255 236 200 / 0.15)); }
+.cu__ovpick .cu__cap { text-align: center; }
+.cu__ovpick .cu-ov { padding: 0; background: none; box-shadow: none; }
+.cu__ovpick .cu-ov button { display: grid; place-items: center; min-inline-size: 44px; min-block-size: 44px; padding: 0.2rem; border-radius: var(--radius-sm); background: var(--felt-plate, rgb(0 0 0 / 0.25)); box-shadow: inset 0 0 0 2px var(--c); }
+.cu__ovpick .cu-ov button:disabled { opacity: 0.35; cursor: default; }
+.cu__ovpick .cu-ov button:hover:not(:disabled) { background: var(--c); }
+/* Desktop stage is a size container: the course fits its height (aspect 772 / 447) instead of pushing the bar out. */
+.cu__track { max-inline-size: calc((100cqb - 2.5rem) * 772 / 447); }
+@media (max-width: 480px) {
+  .cu__grp { padding-inline: var(--space-2); }
+  .cu-legtile__face { inline-size: 2.6rem; }
+}
+
+/* Round 3: one row of square tiles (~60px) on the bar; the dock portal sits outside .cu, so the bar carries its own vars
+   and the captions use the felt ink in both themes. */
+.cu__bar { --ink: #3a2410; --gold: #f2c35b; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; inline-size: auto; max-inline-size: 100%; }
+.cu__bar .cu__cap, .cu__bar .cu__overall h3 { color: var(--felt-ink); white-space: nowrap; }
+.cu__grp { flex: none; }
+.cu__grpbody { flex-wrap: nowrap; }
+.cu__bar .cu-tilebtn { display: inline-grid; justify-items: center; align-content: center; gap: 2px; inline-size: 3.75rem; block-size: 3.75rem; min-block-size: 44px; padding: 0.2rem; white-space: nowrap; font-size: 0.72rem; line-height: 1.2; }
+.cu__bar .cu-tilebtn .cu-pyramid { margin: 0; inline-size: 1.6rem; block-size: 1.6rem; }
+.cu__bar .cu-tilebtn svg { margin: 0; }
+.cu__bar .cu-legtile__face { inline-size: 2.8rem; }
+.cu__ovpick { --ink: #3a2410; inline-size: min(100%, 52rem); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); border: 0; background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); box-sizing: border-box; }
+.cu__ovpick .cu__cap { color: var(--felt-ink); }
+.cu__ovpick .cu__cap small { color: var(--felt-muted); }
+/* Round 4: square tiles (radius-sm, not the pill button shape), the pyramid tile is a white secondary token; phones wrap
+   the bar into two rows (as the reference) so nothing overflows the 390 viewport. */
+.cu__bar .cu-tilebtn { border-radius: var(--radius-sm); }
+.cu__bar { min-inline-size: 0; }
+@media (max-width: 899px) {
+  .cu__bar { flex-wrap: wrap; inline-size: 100%; overflow-x: visible; row-gap: var(--space-3); }
+  .cu__grp + .cu__grp { border-inline-start: 0; }
+  .cu__bets { flex: 1 1 100%; }
+  .cu__track { inline-size: 100%; }
+}

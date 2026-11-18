@@ -3,6 +3,7 @@
 import './renderer.css';
 import { useRef, type KeyboardEvent } from 'react';
 import { ActionBar, RailSlot, TurnIndicator, useFlip, useFresh, useInFrame, type GameRendererProps } from '@bg/ui';
+import { Badge } from '@bg/ui/bgv';
 import type { LineThreeView } from './rules.ts';
 // Board and marks: design/games/group-a/art/line-three, copied as-is.
 import markX from './art/line-three-x.png';
@@ -45,10 +46,18 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
       {!framed && status && <TurnIndicator tone={myTurn ? 'mine' : 'wait'}>{status}</TurnIndicator>}
       {framed && (
         <RailSlot>
+          <Badge size="sm" tone="test" icon="triangle-alert" className="lt-tag">بازی آزمایشی</Badge>
+          <ul className="lt-sym" aria-label="نشان بازیکنان">
+            {([0, 1] as const).map((seat) => { const sym = view.symbols[seat]; return (
+              <li key={seat}><img src={sym === 'X' ? markX : markO} alt={sym} draggable={false} />
+                <span><b><bdi>{seat === mySeat ? 'شما' : seatName(seat)}</bdi></b> <bdi dir="ltr">{sym}</bdi>، {sym === 'X' ? 'شروع‌کننده' : 'نفر دوم'}</span></li>
+            ); })}
+          </ul>
           <p>هر کس زودتر <b>سه نشان</b> خود را در یک ردیف، ستون یا قطر بچیند برنده است؛ جدول پر شود و خطی کامل نشود، مساوی است.</p>
         </RailSlot>
       )}
       <div className="lt__board" role="grid" aria-label="جدول سه‌در‌سه" dir="ltr" style={{ backgroundImage: `url(${boardArt})` }}>
+        <div className="lt__grid">
         {[0, 1, 2].map((r) => (
           <div role="row" key={r} className="lt__row">
             {[0, 1, 2].map((c) => {
@@ -71,6 +80,7 @@ export default function LineThreeRenderer({ view, legalActions, mySeat, seatName
             })}
           </div>
         ))}
+        </div>
       </div>
       {!framed && myTurn && !busy && qCell === null && (
         <ActionBar>

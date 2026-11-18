@@ -91,7 +91,7 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
       : { tone: 'wait' as const, text: `نوبت ${seatName(view.current)}` };
 
   return (
-    <div className="ra" ref={root} data-seq={view.seq}>
+    <div className={framed ? 'ra ra--framed' : 'ra'} ref={root} data-seq={view.seq}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>هر نوبت یک کار: بازی کردن کارت، خریدن مکان قدرت یا بنا، فعال کردن قدرت، یا دور انداختن کارت برای جوهر. با «رد کردن» از این دور بیرون می‌روید. اول به ۱۰ امتیاز برسد می‌برد.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!framed && <p className="ra-round">دور {fa(view.round)}</p>}
@@ -99,13 +99,14 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
       <ul className="ra-rivals" aria-label="جادوگران">
         {view.mages.map((g, k) => (k === me ? null : (
           <li key={k} data-flip-anchor={`seat-${k}`} className={['ra-rival', k === view.current && !view.outcome ? 'is-now' : '', g.passed ? 'is-passed' : ''].join(' ')}>
-            <div className={framed ? 'ra-rival__head visually-hidden' : 'ra-rival__head'}><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty="بی‌جوهر" pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
+            <div className="ra-rival__head"><bdi>{who(k)}</bdi><Num className="ra-vp" v={g.vp}>{fa(g.vp)}★</Num><Gems pile={g.ess} empty="بی‌جوهر" pop />{burst(k)}<small>{g.passed ? 'رد کرد' : `${fa(g.hand)} کارت`}</small></div>
             <div className="ra-row">{g.table.map((id) => <span key={id} data-flip={`a${id}`} data-flip-from={`seat-${k}`} data-flip-anchor={`c${id}`} className={view.tapped.includes(id) ? 'is-tapped' : ''}><ArcCard id={id} size="sm" /></span>)}</div>
           </li>
         )))}
       </ul>
 
       <section className="ra-shelf" aria-label="مکان‌های قدرت و بناها">
+        {framed && <h3 className="ra-label">مکان‌های قدرت و بناها</h3>}
         {[...view.places, ...view.monuments].map((id) => {
           const ok = can('buy', id);
           return (
@@ -117,6 +118,7 @@ export default function ResArcanaRenderer({ view: served, legalActions, mySeat, 
       </section>
 
       <section data-flip-anchor={`seat-${me}`} className={`ra-me ${myTurn ? 'is-now' : ''}`} aria-label="میز شما">
+        {framed && <h3 className="ra-label">میز شما</h3>}
         <div className={framed ? 'ra-me__head ra-me__head--framed' : 'ra-me__head'}><bdi>{who(me)}</bdi><Num className="ra-vp ra-vp--lg" v={mine.vp}>{fa(mine.vp)} از ۱۰ ★</Num><Gems pile={mine.ess} empty="بی‌جوهر" pop />{burst(me)}</div>
         <div className="ra-row">
           {mine.table.map((id) => {

@@ -263,15 +263,15 @@ export default function BohnanzaRenderer({ view: served, legalActions: servedLeg
             </div>
           )}
           {has('flip') && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'flip' ? 'bn-hint' : ''} onClick={() => onAction({ type: 'flip' })}>رو کردن دو کارت</Button>}
-          <div className="bn__hand" data-flip-anchor="hand" aria-label="دست شما (به ترتیب)">
+          <div className="bn__hand" data-flip-anchor="hand" aria-label="دست شما (به ترتیب)" style={{ ['--n' as string]: view.hand.length }}>
             {view.hand.map((b, i) => {
               const hid = handIds[i]!;
               const exit = view.offer?.from === me && view.offer.hand.includes(i) ? `seat-${view.offer.to}` : 'bn-planted';
               const from = shrank >= 0 ? 'bn-unplant' : 'deck';
               return (
               offering ? (
-                <button key={i} type="button" className={`bn-pick ${giveHand.includes(i) ? 'bn-pick--on' : ''}`} aria-pressed={giveHand.includes(i)} onClick={() => toggle(giveHand, i, setGiveHand)}><BeanCard b={b} size="sm" flip={hid} flipFrom={from} flipExit={exit} /></button>
-              ) : <span key={i} className={`bn-pick ${i === 0 ? 'bn-pick--first' : ''}`}><BeanCard b={b} size="sm" flip={hid} flipFrom={from} flipExit={exit} /></span>
+                <button key={i} type="button" className={`bn-pick ${giveHand.includes(i) ? 'bn-pick--on' : ''}`} aria-pressed={giveHand.includes(i)} onClick={() => toggle(giveHand, i, setGiveHand)}><BeanCard b={b} size="md" flip={hid} flipFrom={from} flipExit={exit} /></button>
+              ) : <span key={i} className={`bn-pick ${i === 0 ? 'bn-pick--first' : ''}`}><BeanCard b={b} size="md" flip={hid} flipFrom={from} flipExit={exit} /></span>
               );
             })}
             {!view.hand.length && <small>دستتان خالی است</small>}

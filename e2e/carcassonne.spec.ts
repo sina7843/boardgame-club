@@ -34,7 +34,7 @@ async function turn(p: Page, n: number): Promise<boolean> {
   await spots.nth(n % k).dispatchEvent('click'); // the zoomed board can hold spots outside the visible window
   const chips = p.locator('.cc__follow .cc-chip:not([disabled])');
   if (n % 3 === 0 && (await chips.count()) > 1) await chips.nth(1).click();
-  await p.getByRole('button', { name: 'گذاشتن کاشی' }).click();
+  await p.getByRole('button', { name: /^(گذاشتن کاشی|تأیید جا)$/ }).click();
   return true;
 }
 

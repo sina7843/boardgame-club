@@ -140,6 +140,45 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
     );
   };
 
+  // Rivals' ledgers move beside the bank on desktop frames only (phones keep them in the list under the market).
+  const side = framed && !view.outcome && order.some((k) => k !== mySeat) && typeof window !== 'undefined' && window.matchMedia('(min-width: 900px)').matches;
+  const ledger = (s: number) => {
+          const b = bonuses(view.bought[s]!);
+          const t = view.tokens[s]!;
+          const isMe = s === mySeat;
+          const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
+          return (
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['sp-pl', view.current === s && !view.outcome ? 'sp-pl--turn' : '', isMe ? 'sp-pl--me' : '', place === 1 ? 'sp-pl--win' : ''].join(' ')}>
+              <div className="sp-pl__head">
+                {!framed && place && <b className="sp-pl__place">{fa(place)}</b>}
+                <bdi className="sp-pl__name">{who(s)}</bdi>
+                {!framed && <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>}
+                {!framed && view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
+                {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${s}-${g}-${i}`, `bank-${g}`))}
+              </div>
+              <div className="sp-pl__grid">
+                <span className="sp-col sp-col--lbl" aria-hidden="true"><small>کارت</small><small>ژتون</small></span>
+                {GEMS.map((g) => (
+                  <span key={g} className={`sp-col sp-t--${g}`}>
+                    <span className="sp-col__bonus" title="کارت" data-flip={bought !== undefined && last?.seat === s && CARDS[bought]!.color === g ? `card-${bought}` : undefined}>{fa(b[g])}</span>
+                    {isMe && ret && t[g] > 0
+                      ? <button type="button" className={`sp-col__tok sp-col__tok--btn ${back.filter((x) => x === g).length ? 'on' : ''}`} disabled={back.filter((x) => x === g).length >= t[g]} aria-label={`پس دادن ${GEM_FA[g]}، ${fa(t[g] - back.filter((x) => x === g).length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === g).length < t[g] ? [...back, g] : back)}>{fa(t[g] - back.filter((x) => x === g).length)}</button>
+                      : <span className="sp-col__tok bg-pop" key={t[g]}>{fa(t[g])}</span>}
+                  </span>
+                ))}
+                <span className="sp-col sp-t--o"><span className="sp-col__bonus">&nbsp;</span>
+                  {isMe && ret && t.o > 0 ? <button type="button" className="sp-col__tok sp-col__tok--btn" disabled={back.filter((x) => x === 'o').length >= t.o} aria-label={`پس دادن ${GEM_FA.o}، ${fa(t.o - back.filter((x) => x === 'o').length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === 'o').length < t.o ? [...back, 'o'] : back)}>{fa(t.o - back.filter((x) => x === 'o').length)}</button> : <span className="sp-col__tok">{fa(t.o)}</span>}</span>
+              </div>
+              {view.reserved[s]!.length > 0 && (
+                <div className="sp-pl__res" aria-label="رزروها">
+                  {view.reserved[s]!.map((r, i) => (typeof r === 'number'
+                    ? (isMe ? cardBtn(r) : <span key={i} data-flip={`card-${r}`} data-flip-from={`deck-${CARDS[r]!.level}`}><DevCard id={r} size="sm" /></span>)
+                    : <span key={i} data-flip={`blind-${s}-${i}`} data-flip-from={`deck-${r.level}`} className={`sp-deck sp-deck--sm sp-l--${r.level}`}><span>{LEVEL_FA[r.level]}</span></span>))}
+                </div>
+              )}
+            </li>
+          );
+        };
   return (
     <div className={framed ? 'sp sp--framed' : 'sp'} ref={root} data-seq={served.seq} data-phase={view.phase}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -153,6 +192,7 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
       <div className="sp__nobles" aria-label="بزرگان">{view.nobles.map((n) => <span key={n} data-flip={`noble-${n}`}><NobleTile id={n} /></span>)}</div>
 
       <div className="sp__table">
+      {side && <ul className="sp__players sp__players--side" aria-label="حریف‌ها">{order.filter((k) => k !== mySeat).map(ledger)}</ul>}
       <section className="sp__bank" aria-label="بانک گوهر">
           {(['w', 'u', 'g', 'r', 'k', 'o'] as Token[]).map((t) => {
             const n = sel.filter((x) => x === t).length;
@@ -197,44 +237,12 @@ export default function SplendorRenderer({ view: served, legalActions, mySeat, s
         </div>
       )}
 
-      <ul className="sp__players" aria-label="بازیکنان">
-        {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => {
-          const b = bonuses(view.bought[s]!);
-          const t = view.tokens[s]!;
-          const isMe = s === mySeat;
-          const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
-          return (
-            <li key={s} data-flip-anchor={`seat-${s}`} className={['sp-pl', view.current === s && !view.outcome ? 'sp-pl--turn' : '', isMe ? 'sp-pl--me' : '', place === 1 ? 'sp-pl--win' : ''].join(' ')}>
-              <div className="sp-pl__head">
-                {!framed && place && <b className="sp-pl__place">{fa(place)}</b>}
-                <bdi className="sp-pl__name">{who(s)}</bdi>
-                {!framed && <span className="sp-pl__pts bg-pop" key={view.points[s]}>{fa(view.points[s]!)} اعتبار</span>}
-                {!framed && view.visited[s]!.length > 0 && <span className="sp-pl__nob" data-flip={last?.seat === s && last.noble !== undefined ? `noble-${last.noble}` : undefined}>{fa(view.visited[s]!.length)} بزرگ</span>}
-                {last?.kind === 'take' && last.seat === s && last.gems?.map((g, i) => gemImg(g, `took-${s}-${g}-${i}`, `bank-${g}`))}
-              </div>
-              <div className="sp-pl__grid">
-                {GEMS.map((g) => (
-                  <span key={g} className={`sp-col sp-t--${g}`}>
-                    <span className="sp-col__bonus" title="کارت" data-flip={bought !== undefined && last?.seat === s && CARDS[bought]!.color === g ? `card-${bought}` : undefined}>{fa(b[g])}</span>
-                    {isMe && ret && t[g] > 0
-                      ? <button type="button" className={`sp-col__tok sp-col__tok--btn ${back.filter((x) => x === g).length ? 'on' : ''}`} disabled={back.filter((x) => x === g).length >= t[g]} aria-label={`پس دادن ${GEM_FA[g]}، ${fa(t[g] - back.filter((x) => x === g).length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === g).length < t[g] ? [...back, g] : back)}>{fa(t[g] - back.filter((x) => x === g).length)}</button>
-                      : <span className="sp-col__tok bg-pop" key={t[g]}>{fa(t[g])}</span>}
-                  </span>
-                ))}
-                <span className="sp-col sp-t--o"><span className="sp-col__bonus">&nbsp;</span>
-                  {isMe && ret && t.o > 0 ? <button type="button" className="sp-col__tok sp-col__tok--btn" disabled={back.filter((x) => x === 'o').length >= t.o} aria-label={`پس دادن ${GEM_FA.o}، ${fa(t.o - back.filter((x) => x === 'o').length)} مانده`} onClick={() => setBack(back.length < ret.count && back.filter((x) => x === 'o').length < t.o ? [...back, 'o'] : back)}>{fa(t.o - back.filter((x) => x === 'o').length)}</button> : <span className="sp-col__tok">{fa(t.o)}</span>}</span>
-              </div>
-              {view.reserved[s]!.length > 0 && (
-                <div className="sp-pl__res" aria-label="رزروها">
-                  {view.reserved[s]!.map((r, i) => (typeof r === 'number'
-                    ? (isMe ? cardBtn(r) : <span key={i} data-flip={`card-${r}`} data-flip-from={`deck-${CARDS[r]!.level}`}><DevCard id={r} size="sm" /></span>)
-                    : <span key={i} data-flip={`blind-${s}-${i}`} data-flip-from={`deck-${r.level}`} className={`sp-deck sp-deck--sm sp-l--${r.level}`}><span>{LEVEL_FA[r.level]}</span></span>))}
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      {(() => {
+        const list = view.outcome ? view.outcome.placements.map((x) => x.seat) : order;
+        // Framed (reference): rivals' ledgers stand in a column beside the bank; yours stays under the market.
+        const below = side ? list.filter((k) => k === mySeat) : list;
+        return below.length > 0 && <ul className="sp__players" aria-label="بازیکنان">{below.map(ledger)}</ul>;
+      })()}
 
       {ret && (
         <div className="sp__takebar">

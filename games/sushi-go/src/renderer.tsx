@@ -49,9 +49,9 @@ function Tableau({ t, fresh, seat, from, mine, sum }: { sum?: boolean; mine?: bo
   const groups = ORDER.map((k) => ({ k, items: t.filter((c) => c.kind === k) })).filter((g) => g.items.length);
   const real = t.filter((c) => !c.pending);
   const maki = real.reduce((a, c) => a + (MAKI[c.kind] ?? 0), 0);
-  if (!t.length) return <div className="sg-tab sg-tab--empty">—</div>;
+  // Every tableau sits on the printed mat, also before the first plate (QA round 2: empty «—» tableaus, mat art unused).
   return (
-    <div className={mine ? 'sg-tab sg-tab--mat' : 'sg-tab'} style={mine ? { ['--mat' as string]: `url(${mat})` } : undefined}>
+    <div className={['sg-tab', 'sg-tab--mat', mine ? 'sg-tab--me' : ''].join(' ')} style={{ ['--mat' as string]: `url(${mat})` }}>
       {groups.map(({ k, items }) => (
         <span key={k} className="sg-tab__g" title={NAME[k]}>
           {items.map((c, i) => <Plate key={i} k={k} size="sm" wasabi={c.wasabi} pending={c.pending} fresh={!c.pending && fresh.includes(k) && i === items.length - 1}
@@ -158,7 +158,7 @@ export default function SushiGoRenderer({ view, legalActions, mySeat, seatName, 
         <section className="sg__me" aria-label="دست شما">
           {Array.isArray(myPick) && <p className="sg__picked">انتخاب شما: {myPick.map((k) => NAME[k]).join(' و ')} — منتظر بقیه</p>}
           {canChop && <button type="button" className={`sg-chop ${chop ? 'sg-chop--on' : ''}`} aria-pressed={chop} onClick={() => { setChop(!chop); setFirst(null); }}>چاپستیک: دو کارت بردار</button>}
-          <div className={`sg-belt ${myPick === false ? '' : 'sg-belt--done'}`} role="group" aria-label="کارت‌های دست" data-flip-anchor="hand">
+          <div className={`sg-belt ${myPick === false ? '' : 'sg-belt--done'}`} role="group" aria-label="کارت‌های دست" data-flip-anchor="hand" style={{ ['--n' as string]: handShown.length, ['--cols' as string]: Math.ceil(handShown.length / 2) }}>
             {handShown.map(({ k, i, id }) => (
               <button key={id} type="button" data-flip={id} data-flip-from={`seat-${(me - 1 + view.players) % view.players}`} data-flip-exit={`seat-${(me + 1) % view.players}`} className={['sg-pick', first === i ? 'sg-pick--on' : '', hint?.type === 'pick' && hint.card === k ? 'sg-hint' : ''].join(' ')}
                 disabled={busy || !can.has(k)} onClick={() => tap(i)} aria-label={`برداشتن ${NAME[k]}`} style={{ ['--i' as string]: i }}>

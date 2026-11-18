@@ -8,6 +8,7 @@ import { BOARDS, COLORS, COLOR_FA, LOCO, ROUTE_POINTS, TRAINS, type Board, type 
 import { CAR_H, CITY_R, layoutOf, type Pt } from './geometry.ts';
 import { Car, CardArt, CardBack, Cartouche, Compass, GRAY, INK, MapDefs, ON, SEAT_COLOR, SEAT_FA, SEAT_INK, SEAT_TRAIN, SHADES, colorIx } from './art.tsx';
 import type { LogEntry, TtrView } from './rules.ts';
+import { Dialog } from '@bg/ui/bgv';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 /** Isolate a (possibly Latin) player name inside Persian text. */
@@ -399,7 +400,11 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>نقشه {board.nameFa}{view.finalLeft && !view.outcome ? `؛ دور پایانی، ${fa(view.finalLeft.length)} نوبت مانده` : ''}. هر نوبت یا ۲ کارت بکشید، یا یک مسیر بسازید، یا بلیت مقصد بگیرید.</p>
+          <p><b>امتیاز مسیرها</b></p>
+          <span className="ttr-pts" aria-label="امتیاز مسیرها بر اساس طول">
+            {[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className="ttr-pts__i"><small>{fa(n)} واگن</small><b>{fa(ROUTE_POINTS[n] ?? 0)}</b></span>)}
+          </span>
+          <p>نقشه {board.nameFa}{view.finalLeft && !view.outcome ? `؛ دور پایانی، ${fa(view.finalLeft.length)} نوبت مانده` : ''}. هر نوبت یا ۲ کارت بکشید، یا یک مسیر بسازید، یا بلیت مقصد بگیرید. حلقهٔ سبز: شهر بلیت کامل‌شده، حلقهٔ طلایی: شهر بلیت باز.</p>
         </RailSlot>
       )}
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
@@ -417,26 +422,44 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
             <TtrMap view={view} board={board} claimable={myTurn && view.drew === 0 ? new Set(claims.keys()) : new Set()} selected={sel} hinted={hintedRoute}
               cityMarks={cityMarks} label={routeLabel} onPick={pickRoute} seatName={seatName} wasOwner={before?.owner} />
           </ZoomBoard>
-          <p className="ttr-help">مسیرهای قابل ساخت برجسته‌اند؛ روی یکی بزنید. حلقه سبز: شهر بلیت کامل‌شده شما، حلقه طلایی: شهر بلیت باز.</p>
+          {!framed && <p className="ttr-help">مسیرهای قابل ساخت برجسته‌اند؛ روی یکی بزنید. حلقه سبز: شهر بلیت کامل‌شده شما، حلقه طلایی: شهر بلیت باز.</p>}
         </div>
 
         <div className="ttr-side">
           {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
           {keepHint && view.myOffer && (
-            <Panel title={view.phase === 'tickets' ? 'بلیت‌های مقصد آغازین' : 'بلیت‌های مقصد تازه'} tone="decide">
-              <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
-              <div className="ttr-tickets">
-                {view.myOffer.map((id) => (
-                  <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" exit="tickets" checked={kept.includes(id)} disabled={busy}
-                    onToggle={() => { setKept((k) => (k.includes(id) ? k.filter((x) => x !== id) : [...k, id])); setFocusTicket(id); }} />
-                ))}
-              </div>
-              <Button className={exp?.type === 'keep' ? 'ttr-hintbtn' : ''} disabled={busy || !pickedOk}
-                onClick={() => { act({ type: 'keep', keep: view.myOffer!.filter((t) => kept.includes(t)) }); setFocusTicket(null); }}>
-                نگه داشتن {fa(kept.length)} بلیت
-              </Button>
-            </Panel>
+            framed ? (
+              // Reference: the ticket choice is a centred dialog over the (dimmed) map.
+              <Dialog modal className="ttr-ticketdlg" title={view.phase === 'tickets' ? 'بلیت‌های مقصد آغازین' : 'بلیت‌های مقصد تازه'} footer={<>
+                <Button className={exp?.type === 'keep' ? 'ttr-hintbtn' : ''} disabled={busy || !pickedOk}
+                  onClick={() => { act({ type: 'keep', keep: view.myOffer!.filter((t) => kept.includes(t)) }); setFocusTicket(null); }}>
+                  نگه داشتن {fa(kept.length)} بلیت
+                </Button>
+              </>}>
+                <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
+                <div className="ttr-tickets">
+                  {view.myOffer.map((id) => (
+                    <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" exit="tickets" checked={kept.includes(id)} disabled={busy}
+                      onToggle={() => { setKept((k) => (k.includes(id) ? k.filter((x) => x !== id) : [...k, id])); setFocusTicket(id); }} />
+                  ))}
+                </div>
+              </Dialog>
+            ) : (
+              <Panel title={view.phase === 'tickets' ? 'بلیت‌های مقصد آغازین' : 'بلیت‌های مقصد تازه'} tone="decide">
+                <p className="ttr-help">بلیت کامل‌شده امتیازش اضافه و بلیت ناقص در پایان کم می‌شود. دست‌کم {fa(keepHint.min as number)} را نگه دارید؛ بقیه زیر دسته می‌رود.</p>
+                <div className="ttr-tickets">
+                  {view.myOffer.map((id) => (
+                    <Ticket key={id} board={board} id={id} flip={`tk-${id}`} from="tickets" exit="tickets" checked={kept.includes(id)} disabled={busy}
+                      onToggle={() => { setKept((k) => (k.includes(id) ? k.filter((x) => x !== id) : [...k, id])); setFocusTicket(id); }} />
+                  ))}
+                </div>
+                <Button className={exp?.type === 'keep' ? 'ttr-hintbtn' : ''} disabled={busy || !pickedOk}
+                  onClick={() => { act({ type: 'keep', keep: view.myOffer!.filter((t) => kept.includes(t)) }); setFocusTicket(null); }}>
+                  نگه داشتن {fa(kept.length)} بلیت
+                </Button>
+              </Panel>
+            )
           )}
 
           {myTurn && !keepHint && sel !== null && (
@@ -476,7 +499,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
             </Panel>
           )}
 
-          {view.phase === 'play' && !view.outcome && (
+          {(view.phase === 'play' || view.phase === 'tickets') && !view.outcome && (
             <section className="ttr-market" aria-label="کارت‌های رو و دسته">
               <h3>کارت‌های رو</h3>
               <ul className="ttr-cards" data-flip-anchor="market">
@@ -498,7 +521,7 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
                 </li>
               </ul>
               <div className="row" data-flip-anchor="tickets">
-                <DockSlot><Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}>کشیدن ۳ بلیت مقصد</Button></DockSlot>
+                {view.phase === 'play' && <DockSlot><Button size="sm" variant="secondary" disabled={busy || !has('drawTickets')} onClick={() => act({ type: 'drawTickets' })}>کشیدن ۳ بلیت مقصد</Button></DockSlot>}
                 {has('pass') && <DockSlot><Button size="sm" variant="ghost" disabled={busy} onClick={() => act({ type: 'pass' })}>گذشتن از نوبت</Button></DockSlot>}
               </div>
             </section>
@@ -609,11 +632,11 @@ export default function TtrRenderer({ view: served, legalActions, mySeat, seatNa
               })}
             </ol>
           </details>}
-          <p className="ttr-legend" aria-label="امتیاز مسیرها بر اساس طول">
+          {!framed && <p className="ttr-legend" aria-label="امتیاز مسیرها بر اساس طول">
             {[1, 2, 3, 4, 5, 6, 8].map((n) => (
               <span key={n} className="ttr-legend__i"><span className="ttr-legend__cars" aria-hidden="true">{Array.from({ length: Math.min(n, 4) }, (_, i) => <i key={i} />)}{n > 4 ? <small>×{fa(n)}</small> : null}</span>{fa(ROUTE_POINTS[n] ?? 0)}</span>
             ))}
-          </p>
+          </p>}
         </div>
       </div>
     </div>

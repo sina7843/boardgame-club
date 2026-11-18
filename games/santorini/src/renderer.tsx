@@ -132,6 +132,12 @@ export default function SantoriniRenderer({ view: served, legalActions, mySeat, 
             );
           })}
 
+          {/* Coordinates on the island's rim (reference: files a–e along the near edge, ranks 1–5 on the side), from the viewer's side. */}
+          <g className="sto-coord" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, k) => <text key={`f${k}`} x={xy(k).x} y={H - 12}>{'abcde'[k]}</text>)}
+            {Array.from({ length: 5 }, (_, k) => <text key={`r${k}`} x={22} y={xy(k * 5).y + 5}>{k + 1}</text>)}
+          </g>
+
           {[0, 1].flatMap((seat) => moved.workers[seat as 0 | 1].map((w, k) => {
             const { x, y } = xy(w);
             const lift = (0.16 + Math.min(view.height[w]!, 3) * 0.08) * S;

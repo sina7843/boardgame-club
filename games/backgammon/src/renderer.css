@@ -44,6 +44,7 @@
 .bgm-passnote { font: 800 20px/1 var(--font, sans-serif); fill: #ffd27a; text-anchor: middle; }
 
 .bgm__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; min-block-size: 2.75rem; }
+.bgm__actions:empty { display: none; } /* in the frame the buttons live in the dock row */
 .bgm__help { margin: 0; font-size: 0.85rem; color: #d9ccb4; text-align: center; }
 .bgm__win { margin: 0; font-weight: 800; font-size: 1.1rem; color: #ffd27a; }
 

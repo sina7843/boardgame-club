@@ -19,9 +19,9 @@ test('interactive tutorial: two calls, a bluff, then the truth', async ({ browse
   }
   for (const step of ['۳', '۴']) {
     await expect(p.getByText(new RegExp(`آموزش: مرحله ${step} از ۴`))).toBeVisible();
-    await p.locator('.cr-pick.cr-hint').click();
-    await p.locator('.cr-target.cr-hint').click();
-    await p.locator('.cr-claim.cr-hint').click();
+    await p.locator('.crp-pick.crp-hint').click();
+    await p.locator('.crp-target.crp-hint').click();
+    await p.locator('.crp-claim.crp-hint').click();
     if (step === '۴') await p.screenshot({ path: shot(info.project.name, 'tutorial-truth'), fullPage: true });
     await p.getByRole('button', { name: 'دادن کارت' }).click();
   }
@@ -40,11 +40,11 @@ async function turn(p: Page, n: number): Promise<boolean> {
     return true;
   }
   if (!(await giveBtn.count()) && !(await passBtn.count())) return false;
-  const picks = p.locator('button.cr-pick');
+  const picks = p.locator('button.crp-pick');
   if (await picks.count()) await picks.nth(n % (await picks.count())).click();
-  const targets = p.locator('.cr-target');
+  const targets = p.locator('.crp-target');
   await targets.nth(n % (await targets.count())).click();
-  await p.locator('.cr-claim').nth(n % 8).click();
+  await p.locator('.crp-claim').nth(n % 8).click();
   await (await giveBtn.count() ? giveBtn : passBtn).click();
   return true;
 }
@@ -61,15 +61,15 @@ test('three players play «بلوف حشره‌ها» to the result', async ({ b
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.cr__players')).toBeVisible();
+  await expect(host.locator('.crp__players')).toBeVisible();
 
   for (let n = 0; n < 400; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;
     let acted = false;
     for (const p of pages) {
-      const before = await p.locator('.cr').getAttribute('data-seq');
+      const before = await p.locator('.crp').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
-      await expect.poll(() => p.locator('.cr').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+      await expect.poll(() => p.locator('.crp').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
       if (n === 8) for (const [i, q] of pages.entries()) await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: true });
       acted = true;
       break;
@@ -94,21 +94,21 @@ test('undo window: the given card flies to the middle with its claim at once, an
   await expect(p.getByText(/آموزش: مرحله ۳ از ۴/)).toBeVisible();
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
-  const inPlay = p.locator('.cr .cr__play [data-flip^="play-"]');
+  const inPlay = p.locator('.crp .crp__play [data-flip^="play-"]');
   await expect(inPlay).toHaveCount(0);
-  const hand = await p.locator('.cr .cr__hand').innerText();
-  await p.locator('.cr .cr-pick.cr-hint').click();
-  await p.locator('.cr .cr-target.cr-hint').click();
-  await p.locator('.cr .cr-claim.cr-hint').click();
+  const hand = await p.locator('.crp .crp__hand').innerText();
+  await p.locator('.crp .crp-pick.crp-hint').click();
+  await p.locator('.crp .crp-target.crp-hint').click();
+  await p.locator('.crp .crp-claim.crp-hint').click();
   await motionLog(p);
   await p.getByRole('button', { name: 'دادن کارت' }).click();
   await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
   await expect(inPlay).toBeVisible();
-  expect(await p.locator('.cr .cr__hand').innerText()).not.toBe(hand);
+  expect(await p.locator('.crp .crp__hand').innerText()).not.toBe(hand);
   await p.waitForTimeout(800);
   expect((await motionLog(p)).some((m) => m.ghost === 'fly')).toBe(true);
   await p.getByRole('button', { name: 'انصراف', exact: true }).click();
   await expect(inPlay).toHaveCount(0);
-  await expect.poll(() => p.locator('.cr .cr__hand').innerText()).toBe(hand);
+  await expect.poll(() => p.locator('.crp .crp__hand').innerText()).toBe(hand);
   await p.context().close();
 });

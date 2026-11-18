@@ -2,7 +2,7 @@
 // over it on a painted jungle backdrop (WebP cut from a generated sheet, see DECISIONS.md), numbered player tokens (colour + number, never colour alone), die and roll button.
 import './renderer.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
+import { Button, Icon, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFlip, useInFrame, usePop, type GameRendererProps, DockSlot } from '@bg/ui';
 import board from './art/board.png';
 import dieArt from './art/die-6.png';
 import pawn1 from './art/pawn-1.png';
@@ -10,8 +10,8 @@ import pawn2 from './art/pawn-2.png';
 import pawn3 from './art/pawn-3.png';
 import pawn4 from './art/pawn-4.png';
 
-const PAWNS = [pawn1, pawn2, pawn3, pawn4]; // art has four pawns; seats 5 and 6 reuse them (the number badge tells them apart)
-import { pipsOf } from './art.tsx';
+const PAWNS = [pawn1, pawn2, pawn3, pawn4]; // numbered pawn discs for seats 1–4 (design art); seats 5–6 get a labelled disc
+import { BoardDefs, PawnArt, pipsOf } from './art.tsx';
 import { type LogEntry, type SnakesView } from './rules.ts';
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
@@ -126,8 +126,23 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
       {framed && (
         <RailSlot>
-          <p><b>تاس را بریزید؛ پای نردبان بالا می‌روید و روی سر مار پایین می‌آیید.</b></p>
-          <p>برای رسیدن به ۱۰۰ عدد دقیق لازم است. با ۶ دوباره تاس می‌ریزید.</p>
+          {mySeat !== null && (() => {
+            const at = view.pos[mySeat]!;
+            const ahead = view.pos.filter((p, s) => s !== mySeat && view.active[s] && p > at).length;
+            return (
+              <section className="sl-rail" aria-label="مسیر شما">
+                <h3>مسیر شما<span className="sl-rail__note">مهرهٔ {fa(mySeat + 1)}</span></h3>
+                <div className="sl-rail__pills">
+                  <span className="bgv-chip">الان: {at ? fa(at) : 'شروع'}</span>
+                  <span className="bgv-chip">تا ۱۰۰: {fa(100 - at)} خانه</span>
+                  <span className="bgv-chip">{ahead === 0 ? 'جلوتر از همه' : `${fa(ahead)} نفر جلوتر`}</span>
+                </div>
+              </section>
+            );
+          })()}
+          <p className="sl-rail__tip"><Icon name="book" size={18} />
+            <span>فقط جایی که حرکت تمام می‌شود مهم است: پای نردبان بالا می‌برد و سر مار پایین. {view.finish === 'bounce' ? 'اگر تاس از ۱۰۰ بگذرد، اضافه‌ها به عقب شمرده می‌شود.' : 'برای ۱۰۰ عدد دقیق لازم است؛ تاس بزرگ‌تر یعنی این نوبت حرکت نمی‌کنید.'}</span>
+          </p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -135,6 +150,7 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
       <div className="sl-main">
         <ZoomBoard label="صفحه مارپله">
         <svg className="sl-board" viewBox="-24 -24 648 648" role="img" aria-label={`صفحه مارپله؛ ${view.pos.map((p, s) => `${seatName(s)} روی ${p ? `خانه ${fa(p)}` : 'شروع'}`).join('، ')}`} style={{ direction: 'ltr' }}>
+          <BoardDefs />
           <image href={board} x="-24" y="-24" width="648" height="648" aria-hidden="true" />
           {[...bySquare.entries()].flatMap(([sq, seats]) => seats.map((seat, k) => {
             const [cx, cy] = center(sq);
@@ -142,7 +158,12 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
             const r = seats.length > 1 ? 12 : 0;
             return (
               <g key={seat} className="sl-token" style={{ transform: `translate(${cx + Math.cos(angle) * r}px, ${cy + Math.sin(angle) * r}px)` }}>
-                <g data-token={seat} className="sl-walk"><image href={PAWNS[seat % 4]} x="-14" y="-22" width="28" height="32" aria-hidden="true" /><text y="2" className="sl-token__n">{fa(seat + 1)}</text></g>
+                <g data-token={seat} className={seat === mySeat ? 'sl-walk is-me' : 'sl-walk'}>
+                  {/* Pawn discs from the design art carry their number (1–4); seats 5–6 have no art: a labelled disc. */}
+                  {seat < PAWNS.length
+                    ? <image href={PAWNS[seat]} x="-42" y="-56" width="83" height="95" aria-hidden="true" />
+                    : <g transform="scale(1.4)"><PawnArt color={TOKEN_COLORS[seat]!} label={fa(seat + 1)} /></g>}
+                </g>
               </g>
             );
           }))}
@@ -150,12 +171,25 @@ export default function SnakesRenderer({ view, legalActions, mySeat, seatName, b
         </ZoomBoard>
 
         <div className="sl-side">
-          <div className="sl-roll">
-            {rollPending ? <Die key="pending" value={null} pending /> : <Die key={lastRoll?.seq ?? 0} value={view.lastDie} rolling={rolling} />}
-            {canRoll && (
-              <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>
-            )}
-          </div>
+          {framed ? (
+            // Frame: one turn card in the dock row (die, what the last roll did, the roll button); no empty die before the first roll.
+            (rollPending || view.lastDie || canRoll) && (
+              <DockSlot>
+                <div className="sl-turn">
+                  {rollPending ? <Die key="pending" value={null} pending /> : view.lastDie ? <Die key={lastRoll?.seq ?? 0} value={view.lastDie} rolling={rolling} /> : null}
+                  {lastRoll && !rollPending && <p className="sl-turn__t">{describe(lastRoll, (x) => (x === mySeat ? 'شما' : seatName(x)))}</p>}
+                  {canRoll && <Button icon="turn" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}>ریختن تاس</Button>}
+                </div>
+              </DockSlot>
+            )
+          ) : (
+            <div className="sl-roll">
+              {rollPending ? <Die key="pending" value={null} pending /> : <Die key={lastRoll?.seq ?? 0} value={view.lastDie} rolling={rolling} />}
+              {canRoll && (
+                <DockSlot><Button size="lg" disabled={busy} variant={expected?.type === 'roll' ? 'brand' : 'primary'} onClick={() => { setRollSent(latest?.seq ?? 0); onAction({ type: 'roll' }); }}><img className="sl-btn-die" src={dieArt} alt="" aria-hidden="true" />تاس بریز</Button></DockSlot>
+              )}
+            </div>
+          )}
           {!framed && <ul className="sl-players" aria-label="بازیکنان">
             {view.pos.map((p, seat) => (
               <li key={seat} className={[view.current === seat && !view.outcome ? 'sl-player--turn' : '', view.active[seat] ? '' : 'sl-player--out'].join(' ')}>

@@ -130,6 +130,32 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
     : canPlace ? { tone: 'mine' as const, text: opening ? 'اولین نوبت: یک سنگ تخت حریف را بگذارید' : sel ? (sel.dir ? `${fa(sel.lift - sel.drops.reduce((a, b) => a + b, 0))} سنگ در دست؛ خانه بعدی را بزنید` : 'تعداد را انتخاب کنید و جهت را بزنید') : 'نوبت شما: بگذارید یا پشته‌ای را جابه‌جا کنید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
+  // Piece-type bar (reference: «گذاشتن» تخت / دیوار / سرستون and «برداشتن» ۱…n) is always shown, disabled when it does not
+  // apply, so the reserve split and the choice stay in view; it sits directly under the board (reference).
+  const kindsOn = canPlace && !opening && !sel;
+  const firstTurn = canPlace && opening; // the opening placement is always the opponent's flat: only «تخت» is lit
+  const tools = (
+    <div className="tak__tools" role="toolbar" aria-label="نوع سنگ و تعداد برداشتن">
+      <span className="tak__kinds" role="group" aria-label="گذاشتن">
+        {(['F', 'S', 'C'] as Kind[]).map((k) => (
+          <button key={k} type="button" aria-pressed={(kindsOn && kind === k) || (firstTurn && k === 'F')} disabled={firstTurn ? k !== 'F' : !kindsOn || (k === 'C' ? !reserve.caps : !reserve.stones)} onClick={() => setKind(k)}>
+            <img className="tak-kind" src={STONE[myColor][k]} alt="" aria-hidden="true" />{KIND_FA[k]}
+            <span className="tak__left">{fa(k === 'C' ? reserve.caps : reserve.stones)}</span>
+          </button>
+        ))}
+      </span>
+      {sel && !sel.dir && (
+        <span className="tak__lift" role="group" aria-label="برداشتن از پشته">
+          برداشتن
+          {Array.from({ length: Math.min(view.board[sel.from]!.length, n) }, (_, k) => k + 1).filter((k) => moves.some((m) => m.from === sel.from && m.drops.reduce((a, b) => a + b, 0) === k)).map((k) => (
+            <button key={k} type="button" aria-pressed={sel.lift === k} onClick={() => setSel({ ...sel, lift: k })}>{fa(k)}</button>
+          ))}
+        </span>
+      )}
+      {sel && <Button size="sm" variant="ghost" onClick={() => setSel(null)}>انصراف</Button>}
+    </div>
+  );
+
   return (
     <div className="tak" data-ply={view.ply} ref={root}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -175,29 +201,7 @@ export default function TakRenderer({ view: served, legalActions, mySeat, seatNa
         </svg>
       </ZoomBoard>
 
-      <div className="tak__tools">
-        {sel ? (
-          <>
-            {!sel.dir && (
-              <span className="tak__lift" role="group" aria-label="تعداد سنگ برای برداشتن">
-                برداشتن:
-                {Array.from({ length: Math.min(view.board[sel.from]!.length, n) }, (_, k) => k + 1).filter((k) => moves.some((m) => m.from === sel.from && m.drops.reduce((a, b) => a + b, 0) === k)).map((k) => (
-                  <button key={k} type="button" aria-pressed={sel.lift === k} onClick={() => setSel({ ...sel, lift: k })}>{fa(k)}</button>
-                ))}
-              </span>
-            )}
-            <Button size="sm" variant="ghost" onClick={() => setSel(null)}>انصراف</Button>
-          </>
-        ) : canPlace && !opening && (
-          <span className="tak__kinds" role="group" aria-label="نوع سنگ">
-            {(['F', 'S', 'C'] as Kind[]).map((k) => (
-              <button key={k} type="button" aria-pressed={kind === k} disabled={k === 'C' ? !reserve.caps : !reserve.stones} onClick={() => setKind(k)}>
-                <img className="tak-kind" src={STONE[myColor][k]} alt="" aria-hidden="true" />{KIND_FA[k]}
-              </button>
-            ))}
-          </span>
-        )}
-      </div>
+      {tools}
       {view.end && <p className="tak__end" role="status">{view.end.kind === 'road' ? 'جاده کامل شد!' : view.end.kind === 'flats' ? `شمارش سنگ‌های تخت: سفید ${fa(view.end.flats!.w)} — سیاه ${fa(view.end.flats!.b)}` : view.end.kind === 'resign' ? 'انصراف' : 'اتمام زمان'}</p>}
     </div>
   );

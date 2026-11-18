@@ -2,8 +2,8 @@
 // rival's stall (cards in hand, camels, earnings) and your hand with your herd. Select market and/or hand cards and
 // the action bar offers what the selection means: take, exchange or sell; camels have their own button.
 import './renderer.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, usePieceIds, type GameRendererProps } from '@bg/ui';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePieceIds, type GameRendererProps } from '@bg/ui';
 import coinsArt from './art/coins.webp';
 import deckBack from './art/gc/jaipur-back.png';
 import { GOODS, PRECIOUS, type Card, type Good, type JaipurView } from './rules.ts';
@@ -53,6 +53,9 @@ function preview(v: JaipurView, q: Record<string, unknown> | null | undefined, m
   return v;
 }
 
+type Mode = 'take' | 'camels' | 'exchange' | 'sell';
+const MODES: [Mode, string][] = [['take', 'یک کالا'], ['camels', 'شترها'], ['exchange', 'معاوضه'], ['sell', 'فروش']];
+
 export default function JaipurRenderer({ view: real, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<JaipurView>) {
   const me = mySeat ?? 0;
   // Undo-window preview: taken cards are already in the hand, camels in the herd, sold cards gone; undo returns them.
@@ -63,7 +66,8 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
   const [mk, setMk] = useState<number[]>([]);
   const [hd, setHd] = useState<number[]>([]);
   const [cam, setCam] = useState(0);
-  useEffect(() => { setMk([]); setHd([]); setCam(0); }, [view.seq]);
+  const [mode, setMode] = useState<Mode | null>(null);
+  useEffect(() => { setMk([]); setHd([]); setCam(0); setMode(null); }, [view.seq]);
   const hint = expected as unknown as { type: string; good?: Good; count?: number } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const hand = view.hand ?? [];
@@ -78,6 +82,12 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
     if (sellGood && (!PRECIOUS.has(sellGood) || give.length >= 2)) return { label: `فروش ${fa(give.length)} ${CARD_FA[sellGood]}`, a: { type: 'sell', good: sellGood, count: give.length } };
     return null;
   })();
+  // Action row (reference §1): a mode chip, a short summary and one «تأیید». The chip follows the selection unless picked.
+  const shownMode: Mode | null = mode ?? (action?.a.type as Mode | undefined) ?? null;
+  const confirm = mode === 'camels' ? (canCamels ? { type: 'camels' } : null) : action && (!mode || action.a.type === mode) ? action.a : null;
+  const summary = mode === 'camels' ? `همهٔ شترهای بازار (${fa(view.market.filter((c) => c === 'camel').length)})`
+    : confirm?.type === 'exchange' ? `${takeG.map((g) => CARD_FA[g]).join(' و ')} ← ${[...give.map((g) => CARD_FA[g]), ...Array<string>(cam).fill(CARD_FA.camel)].join(' و ')}`
+      : action?.label ?? '';
   const status = view.outcome ? null
     // My own move is queued or in flight: the legal actions are stale, so it is not "my turn" until the result.
     : queued ? { tone: 'wait' as const, text: 'حرکت شما در حال ثبت است…' }
@@ -112,11 +122,16 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
         {GOODS.map((g) => (
           <span key={g} className={`jp-stack jp-c--${g} ${view.tokens[g].length ? '' : 'jp-stack--out'}`} aria-label={`${CARD_FA[g]}: ${fa(view.tokens[g].length)} سکه`}>
             <i className="jp-coin" style={coinArt(g, view.tokens[g][0])} aria-hidden="true" />
-            <b className="bg-pop" key={view.tokens[g].length}>{view.tokens[g].length ? fa(view.tokens[g][0]!) : '×'}</b>
-            <small>{fa(view.tokens[g].length)}</small>
+            <small className="bg-pop" key={view.tokens[g].length}>{fa(view.tokens[g].length)}</small>
           </span>
         ))}
-        <span className="jp-stack jp-stack--bonus" aria-label="سکه‌های پاداش">پاداش ۳/۴/۵: {fa(view.bonusLeft[3])}/{fa(view.bonusLeft[4])}/{fa(view.bonusLeft[5])}</span>
+        {/* The three bonus stacks (3, 4 and 5 cards sold) with their printed tokens (QA round 3). */}
+        {([3, 4, 5] as const).map((b, i) => (
+          <span key={b} className={['jp-stack', i === 0 ? 'jp-stack--first-bonus' : '', view.bonusLeft[b] ? '' : 'jp-stack--out'].join(' ')} aria-label={`پاداش ${fa(b)} کارت: ${fa(view.bonusLeft[b])} سکه`}>
+            <img className="jp-coin" src={gc(`bonus-${b}`)} alt="" draggable={false} />
+            <small className="bg-pop" key={view.bonusLeft[b]}>{fa(view.bonusLeft[b])}</small>
+          </span>
+        ))}
       </section>
 
       {(framed ? [] : view.outcome ? [me, opp] : [opp]).map((k) => (
@@ -155,7 +170,7 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
 
       {view.hand && !view.outcome && (
         <section className="jp__me" aria-label="دست شما">
-          <div className="jp__hand" data-flip-anchor="hand-me">
+          <div className="jp__hand" data-flip-anchor="hand-me" style={{ '--n': hand.length } as CSSProperties}>
             {hand.map((g, i) => (
               <button key={ids[i]} type="button" className={['jp-pick', hd.includes(i) ? 'jp-pick--on' : '', hint?.type === 'sell' && hint.good === g && !hd.includes(i) ? 'jp-hint' : ''].join(' ')}
                 disabled={!myTurn || busy} aria-pressed={hd.includes(i)} onClick={() => setHd(hd.includes(i) ? hd.filter((x) => x !== i) : [...hd, i])}><GoodCard c={g} flip={`c-${ids[i]}`} flipFrom="market" exit="tokens" /></button>
@@ -172,15 +187,18 @@ export default function JaipurRenderer({ view: real, legalActions, mySeat, seatN
             )}
             <span className="jp__earn">درآمد: <b className="bg-pop" key={earned(me)}>{fa(earned(me))}</b></span>
           </div>
-          {myTurn && (() => {
-            const btns = (
-              <>
-                {action && <Button size="sm" disabled={busy} className={hint && hint.type === action.a.type ? 'jp-hint' : ''} onClick={() => onAction(action.a)}>{action.label}</Button>}
-                {canCamels && <Button size="sm" variant="secondary" disabled={busy || mk.length > 0 || hd.length > 0} onClick={() => onAction({ type: 'camels' })}>همهٔ شترها ({fa(camelsInMarket)})</Button>}
-              </>
-            );
-            return framed ? <DockSlot>{btns}</DockSlot> : <div className="jp__actions">{btns}</div>;
-          })()}
+          {myTurn && (
+            <div className="jp__actions" role="group" aria-label="کار این نوبت">
+              {MODES.map(([m, label]) => (
+                <button key={m} type="button" className="jp-mode" aria-pressed={shownMode === m} disabled={busy || (m === 'camels' && !canCamels)}
+                  onClick={() => { setMode(mode === m ? null : m); if (m === 'camels') { setMk([]); setHd([]); setCam(0); } }}>
+                  {m === 'camels' ? `${label} (${fa(camelsInMarket)})` : label}
+                </button>
+              ))}
+              {summary && <span className="jp__summary">{summary}</span>}
+              <Button size="sm" disabled={busy || !confirm} className={['jp-confirm', hint && confirm && hint.type === confirm.type ? 'jp-hint' : ''].join(' ')} onClick={() => confirm && onAction(confirm)}>تأیید</Button>
+            </div>
+          )}
         </section>
       )}
     </div>

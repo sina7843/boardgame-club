@@ -114,3 +114,13 @@ button.wd-pickw:hover { transform: translateY(-3px); }
 .wd-wonder.is-built:has(.wd-wonder__art) { box-shadow: 0 0 0 2px var(--accent); }
 .wd-mtok:has(img) { background: none; }
 .wd-mtok img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+
+/* Round 2: the conflict track and progress tokens on the printed board art (wd-board.png 1300×367), replacing the
+   CSS lane. Percentages are measured on the art. */
+.wd-board { position: relative; display: block; inline-size: min(100%, 44rem); justify-self: center; aspect-ratio: 1300 / 367; background: center / 100% 100% no-repeat; }
+.wd-board .wd-pawn { position: absolute; inset-block: auto; top: 55.9%; inline-size: 3.6%; block-size: 22%; translate: -50% -50%; transition: left var(--dur-slow, 0.5s) var(--ease-out, ease-out); }
+.wd-board__tok { position: absolute; inset: auto; top: 81.5%; inline-size: 7.5%; block-size: 13%; translate: -50% -50%; border-radius: 0; }
+.wd-board__prog { position: absolute; top: 3.5%; inset-inline-start: 26.2%; inline-size: 49.5%; block-size: 31%; display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center; gap: 0; }
+.wd-board__prog .wd-token { inline-size: 17%; min-block-size: 0; block-size: auto; aspect-ratio: 1; padding: 0; }
+.wd-board__prog .wd-token small { display: none; }
+@media (prefers-reduced-motion: reduce) { .wd-board .wd-pawn { transition: none; } }

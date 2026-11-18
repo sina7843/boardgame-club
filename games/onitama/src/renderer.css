@@ -1,19 +1,27 @@
 /* اونیتاما: the design's board art, pieces and card faces. Board geometry LTR. Hybrid cards: the 9 faces the design lacks use a plain card. */
 .oni { --cw: calc(var(--gf-b, 572px) * 0.22); --hand-h: calc(var(--cw) * 276 / 471 + 24px);
-  display: grid; gap: var(--space-2); text-align: center; color: var(--felt-ink); inline-size: min(100%, var(--gf-b, 572px)); margin-inline: auto; }
+  display: grid; gap: var(--space-2); text-align: center; color: var(--felt-ink); inline-size: min(100%, calc(var(--gf-b, 572px) + 2 * var(--cw) + 2 * var(--space-3))); margin-inline: auto; }
 .oni > :first-child { justify-self: center; }
 .oni__hand { display: flex; gap: var(--space-3); justify-content: center; align-items: flex-start; }
-.oni__middle { display: grid; grid-template-columns: minmax(0, 1fr) var(--cw); gap: var(--space-3); align-items: center; }
+/* Side card beside the board on the rail side (inline-start, as the reference); an empty column on the other side keeps the board centred under the hands. */
+.oni__middle { display: grid; grid-template-columns: var(--cw) minmax(0, 1fr) var(--cw); gap: var(--space-3); align-items: center; }
+.oni__middle > .zb { grid-column: 2; grid-row: 1; }
+.oni__middle > .oni__side { grid-column: 1; grid-row: 1; }
 /* The board is sized by height: stage minus both hands and the zoom toolbar; never wider than its column. */
 .oni-board { max-inline-size: calc(var(--gf-b, 572px) - 2 * var(--hand-h) - 44px - 3 * var(--space-2)); margin-inline: auto; }
-@media (max-width: 640px) {
-  /* Phone: opponent hand, board, then my two cards and the side card on one row. */
-  .oni { --cw: calc(var(--gf-b, 366px) * 0.3); grid-template-columns: minmax(0, 1fr) var(--cw); column-gap: var(--space-2); }
+@media (max-width: 899px) {
+  /* Phone (reference §3): opponent hand, the board at full width, then one row of three equal cards: my two and the side card.
+     The phone frame sets --gf-b to 100 %, so card widths here are fractions of their own row, not of --gf-b. */
+  .oni { --cw: 30%; inline-size: 100%; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: var(--space-2); }
   .oni > * { grid-column: 1 / -1; }
   .oni__middle { display: contents; }
-  .oni-board { max-inline-size: calc(var(--gf-b, 366px) * 0.86); }
+  .oni__middle > .zb { grid-column: 1 / -1; grid-row: auto; }
+  .oni-board { max-inline-size: 100%; }
   .oni__hand--mine { grid-column: 1; }
-  .oni__side { grid-column: 2; order: 1; align-self: start; }
+  .oni .oni__hand--mine > .oni-card { flex: 1 1 0; inline-size: auto; min-inline-size: 0; }
+  .oni__middle > .oni__side { grid-column: 2; grid-row: auto; order: 1; align-self: start; inline-size: auto; }
+  .oni .oni__side .oni-card { inline-size: 100%; }
+  .oni__side-label { display: none; }
   .oni__choice, .oni__end { order: 2; }
   .oni__hand { gap: var(--space-2); }
 }
@@ -62,3 +70,18 @@ button.oni-card:focus-visible { outline: 3px solid var(--focus-on-felt); outline
 }
 :root[data-motion='reduce'] .oni-sq--hint rect:first-child { animation: none; }
 :root[data-motion='reduce'] .oni-gone { animation: none; opacity: 0; }
+
+/* Desktop frame (QA round 3): fill the stage height. Cards are a share of the stage width (capped), the board takes what the
+   two hands leave of the stage height; the 5×5 board needs no zoom buttons at this size, so they are hidden here (phone keeps them). */
+@media (min-width: 900px) {
+  .gf-stage .oni { --cw: min(140px, 18cqi); --hand-h: calc(var(--cw) * 276 / 471 + 24px); inline-size: 100%; }
+  .gf-stage .oni-board { max-inline-size: calc(100cqb - 2 * var(--hand-h) - 2 * var(--space-2) - var(--space-3)); }
+  .gf-stage .oni .zb__controls { display: none; }
+}
+
+/* Rail card «استاد / شاگرد» (light shell). */
+.oni-kinds { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); border-block-start: 1px solid var(--line); padding-block-start: var(--space-2); }
+.oni-kinds > div { display: flex; align-items: center; gap: var(--space-2); font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.oni-kinds img { inline-size: 28px; block-size: 28px; object-fit: contain; flex: none; }
+.oni-kinds b { display: block; font-size: 14.5px; color: var(--heading); }
+.oni-sep { display: inline-block; inline-size: 1px; block-size: 0.9em; margin-inline: var(--space-1); background: var(--line); vertical-align: middle; }

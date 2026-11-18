@@ -1,8 +1,12 @@
 /* Line Three: the board is the design's art (cells are recesses in it). Marks are the design's X / O art. */
 .lt { display: grid; gap: var(--space-4); justify-items: center; }
-.lt__board { container-type: inline-size; inline-size: min(100%, var(--gf-b, 572px)); aspect-ratio: 372 / 420;
-  background-size: 100% 100%; background-repeat: no-repeat;
-  display: grid; grid-template-rows: repeat(3, 1fr); gap: 2.2cqw; padding: 6.7cqw 1.9cqw 8.1cqw 1.6cqw; box-sizing: border-box; }
+/* The board art is taller than wide (372 × 420, the bottom shelf included), so its width is the frame's square edge × 372/420
+   and, on desktop, never more than the stage height allows (the shelf stayed cut at 1440, QA round 2). */
+.lt__board { position: relative; container-type: inline-size; inline-size: min(100%, calc(var(--gf-b, 572px) * 372 / 420)); aspect-ratio: 372 / 420;
+  background-size: 100% 100%; background-repeat: no-repeat; box-sizing: border-box; }
+@media (min-width: 900px) { .gf-stage .lt__board { inline-size: min(100%, calc(var(--gf-b, 572px) * 372 / 420), calc(100cqb * 372 / 420)); } }
+/* The recess grid; its inset is in board widths (cqw of .lt__board), so it sits on the art's recesses at any size. */
+.lt__grid { position: absolute; inset: 6.7cqw 1.9cqw 8.1cqw 1.6cqw; display: grid; grid-template-rows: repeat(3, 1fr); gap: 2.2cqw; }
 .lt__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.2cqw; }
 .lt__row > [role='gridcell'] { display: grid; min-inline-size: 0; }
 .lt__cell { position: relative; inline-size: 100%; block-size: 100%; min-block-size: 44px; border-radius: var(--radius-sm); border: 0; padding: 0; cursor: pointer;
@@ -27,3 +31,10 @@
   .lt__cell:not([aria-disabled='true']):active { transform: none; }
 }
 :root[data-motion='reduce'] .lt__cell--win { animation: none; }
+
+/* Rail (shared frame, light shell): test-game tag and who plays X / O, as the reference card. */
+.lt-tag { justify-self: start; }
+.lt-sym { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.lt-sym li { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text-muted); }
+.lt-sym b { color: var(--heading); }
+.lt-sym img { inline-size: 28px; block-size: 28px; object-fit: contain; flex: none; }

@@ -105,6 +105,8 @@ export default function LoveLetterRenderer({ view: served, legalActions, mySeat,
       <ul className="ll__players" aria-label="بازیکنان">
         {view.tokens.map((t, s) => {
           const targetable = card !== null && chosen?.targets.includes(s) && target === null;
+          // In the frame the seat plates carry name, tokens and protection: a band with no discard to show stays out (QA round 2).
+          if (framed && !targetable && !view.discards[s]!.length) return null;
           return (
             <li key={s} data-flip-anchor={s === mySeat ? 'hand' : `seat-${s}`} className={['ll-pl', s === knocked ? 'bg-hit' : '', s === view.current && !view.outcome ? 'll-pl--turn' : '', view.inRound[s] ? '' : 'll-pl--out', s === mySeat ? 'll-pl--me' : ''].join(' ')}>
               {framed ? <bdi className="ll-pl__name">{who(s)}</bdi> : <div className="ll-pl__head">

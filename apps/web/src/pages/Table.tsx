@@ -1074,19 +1074,22 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
               <div ref={setRailNode} className="gf-guide" />
             </details>
           )}
-          {turnRow}
-          {duelMe && (kind === 'duel' || isPlayer) && <div className="gf-bottom">{bar(duelMe)}</div>}
+          {notPhone && turnRow}
+          {notPhone && duelMe && (kind === 'duel' || isPlayer) && <div className="gf-bottom">{bar(duelMe)}</div>}
           {finished && g.result && !hideResult && <div className="gf-over"><ResultCard snap={snap} onHide={() => setHideResult(true)} onSnap={s.accept} /></div>}
         </main>
         {wide && chatPanel({ className: 'tbl-chat gf-chat' })}
       </div>
       {!notPhone && (
+        <div className="gf-dockwrap">
+        {turnRow /* phone: the game's actions, then the own bar, then the dock (references) */}
+        {duelMe && (kind === 'duel' || isPlayer) && <div className="gf-bottom">{bar(duelMe)}</div>}
         <nav className="gf-dock" aria-label="میز">
           <button type="button" onClick={() => setChat(true)} aria-label={`گفت‌وگوی میز${isPlayer ? '' : ' (فقط خواندنی)'}${unread > 0 ? `، ${faNum(unread)} پیام تازه` : ''}`}><Icon name="message-circle" size="md" /><span aria-hidden>گفت‌وگو</span>{unread > 0 && <Badge tone="count" size="sm">{faNum(unread)}</Badge>}</button>
           <button type="button" onClick={() => setSheet('events')}><Icon name="list" size="md" /><span>رویدادها</span></button>
-          <button type="button" onClick={() => setSheet('rules')}><Icon name="shield" size="md" /><span>قوانین</span></button>
-          <button type="button" onClick={isPlayer ? leave : () => navigate('/tables')}><Icon name="log-out" size="md" /><span>{isPlayer ? 'ترک میز' : 'ترک تماشا'}</span></button>
+          <button type="button" onClick={() => setSheet('rules')}><Icon name="more-horizontal" size="md" /><span>گزینه‌ها</span></button>
         </nav>
+        </div>
       )}
 
       {createPortal(<Pops s={s} snap={snap} />, (full.on && document.fullscreenElement) || document.body)}
@@ -1105,6 +1108,7 @@ function FrameView({ s, kind: wanted }: { s: ReturnType<typeof useTableSession>;
                 {finished && isPlayer && !t.isTutorial && <PostGame snap={snap} onReport={() => { setSheet(null); setReporting(true); }} />}
                 {canResign && <Button variant="leave" icon="flag" block onClick={() => { setSheet(null); setConfirmResign(true); }}>انصراف از بازی</Button>}
                 {isPlayer && !t.isTutorial && <Button variant="ghost" icon="flag" block onClick={() => { setSheet(null); setReporting(true); }}>گزارش این میز</Button>}
+                <Button variant="leave" icon="log-out" block onClick={() => { setSheet(null); if (isPlayer) leave(); else navigate('/tables'); }}>{isPlayer ? 'ترک میز' : 'ترک تماشا'}</Button>
               </div>
             ) : <div ref={logRef} className="gf-log gf-log--sheet">{moveCount ? events : <p className="gf-note">هنوز حرکتی ثبت نشده است.</p>}</div>}
           </Sheet>

@@ -140,12 +140,6 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
       {mySeat !== null && view.myCards && (
         <section className="cp__me" aria-label="دست شما">
           <div className="cp-me__head" data-flip-anchor="deck" hidden={framed}><bdi className="cp-pl__name">شما</bdi><Coins n={view.coins[mySeat]!} /><span className="cp-me__deck">دسته دربار: {fa(view.deckCount)}</span></div>
-          <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label="کارت‌های نفوذ شما">
-            {view.myCards.map((c, i) => loseCards.has(i)
-              ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`از دست دادن ${ROLE_FA[c.role]}`}><Card role={c.role} /><span className="cp-lose__cta">رو کن</span></button>
-              : <Card key={i} role={c.role} lost={c.revealed} flip={c.flip} fresh={c.revealed && ((lastReveal?.seat === mySeat && lastReveal.role === c.role) || (q?.type === 'lose' && q.card === i))} />)}
-          </div>
-
           {keepHint && q?.type !== 'keep' && (
             <div className="cp-ex" role="group" aria-label="مبادله">
               <div className="cp-ex__cards">
@@ -181,6 +175,13 @@ export default function CoupRenderer({ view: served, legalActions, mySeat, seatN
               })}
             </div>
           )}
+          {/* Own influence cards sit under the actions, as in the reference (QA round 2). */}
+          <div className={['cp-me__cards', lastReveal?.seat === mySeat ? 'bg-hit' : ''].join(' ')} key={lastReveal?.seat === mySeat ? lastSeq : 'm'} role="group" aria-label="کارت‌های نفوذ شما">
+            {view.myCards.map((c, i) => loseCards.has(i)
+              ? <button key={i} type="button" className="cp-lose" disabled={busy} onClick={() => onAction({ type: 'lose', card: i })} aria-label={`از دست دادن ${ROLE_FA[c.role]}`}><Card role={c.role} /><span className="cp-lose__cta">رو کن</span></button>
+              : <Card key={i} role={c.role} lost={c.revealed} flip={c.flip} fresh={c.revealed && ((lastReveal?.seat === mySeat && lastReveal.role === c.role) || (q?.type === 'lose' && q.card === i))} />)}
+          </div>
+
         </section>
       )}
 

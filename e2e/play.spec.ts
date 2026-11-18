@@ -198,7 +198,7 @@ test('sealed-bids undo window: the tapped token is sealed in the envelope at onc
   await p.evaluate(() => localStorage.setItem('bg.undoMs', '4000'));
   await p.waitForTimeout(800);
   await motionLog(p);
-  const envelope = p.locator('.sb .sb-env');
+  const envelope = p.locator('.sb-bids .sb-env');
   await p.getByRole('button', { name: 'ژتون ۱', exact: true }).click();
   await expect(p.getByRole('button', { name: 'انصراف', exact: true })).toBeVisible();
   await expect(envelope).toBeVisible();

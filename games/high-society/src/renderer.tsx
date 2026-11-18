@@ -2,7 +2,7 @@
 // beside it; rivals show their open bids as banknote chips and their collection; your banknotes are a fan to tap
 // into a bid.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps, DockSlot } from '@bg/ui';
 const GC = import.meta.glob<string>('./art/gc/high-society-*.png', { eager: true, import: 'default' });
 const gc = (n: string | number) => GC[`./art/gc/high-society-${n}.png`];
@@ -119,6 +119,8 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : order).map((s) => {
           const place = view.outcome?.placements.find((x) => x.seat === s)?.place;
           const poorest = view.money ? view.money[s] === Math.min(...view.money) && new Set(view.money).size > 1 : false;
+          // In the frame the seat plates carry name, money and flags: a band with no bid and no card would be empty (QA round 2).
+          if (framed && !view.outcome && !view.bids[s]!.length && !view.won[s]!.length) return null;
           return (
             <li key={s} data-flip-anchor={`seat-${s}`} className={['hs-pl', view.current === s ? 'hs-pl--turn' : '', view.passed[s] ? 'hs-pl--passed' : '', s === mySeat ? 'hs-pl--me' : '', place === 1 ? 'hs-pl--win' : ''].join(' ')}>
               {framed ? <bdi className="hs-pl__name">{who(s)}</bdi> : <div className="hs-pl__head">
@@ -139,7 +141,7 @@ export default function HighSocietyRenderer({ view: served, legalActions, mySeat
 
       {view.hand && !view.outcome && (
         <section className="hs__me" aria-label="اسکناس‌های شما">
-          <div className="hs__fan" role="group" aria-label="اسکناس‌ها">
+          <div className="hs__fan" role="group" aria-label="اسکناس‌ها" style={{ '--n': view.hand.length, '--cols': Math.ceil(view.hand.length / 2) } as CSSProperties}>
             {view.hand.map((v, i) => (
               <button key={`${v}-${i}`} type="button" aria-pressed={sel.includes(i)} disabled={busy || !bidHint}
                 className={['hs-pick', sel.includes(i) ? 'hs-pick--on' : '', hint?.type === 'bid' && hint.cards?.includes(v) && !sel.includes(i) ? 'hs-hint' : ''].join(' ')}

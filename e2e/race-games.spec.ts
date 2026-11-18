@@ -56,7 +56,7 @@ test('three players race to 100 in Snakes and Ladders', async ({ browser }, info
   only(info);
   const pages = await table(browser, info, 'snakes-ladders', 3);
   await playOut(pages, info, 'snakes', '.sl-board', async (p) => {
-    const roll = p.locator('.sl, .tbl-dock').getByRole('button', { name: 'تاس بریز' });
+    const roll = p.locator('.sl, .tbl-dock').getByRole('button', { name: /^(تاس بریز|ریختن تاس)$/ });
     return (await enabled(roll)) ? roll.first() : null;
   });
 });

@@ -29,10 +29,10 @@
 .ps__flipnote { font-size: 0.78rem; }
 
 .ps__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
-.ps-pl { display: grid; gap: 0.4rem; padding: 0.5rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
-.ps-pl--me { background: var(--surface-sunken); }
+/* Player plates on the felt (QA round 2: no near-black «شما» box; the same plate for everyone). */
+.ps-pl { display: grid; gap: 0.4rem; padding: var(--space-2); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); color: var(--felt-ink); }
 .ps-pl--turn { box-shadow: var(--shadow-ring-strong); }
-.ps-pl--win { box-shadow: var(--shadow-ring-strong); background: var(--surface-sunken); }
+.ps-pl--win { box-shadow: var(--shadow-ring-strong); }
 .ps-pl__head { display: flex; gap: 0.5rem; align-items: center; justify-content: center; font-size: 0.88rem; }
 .ps-pl__name { font-weight: 800; }
 .ps-pl__score { padding: 0 0.55rem; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 900; display: inline-block; }
@@ -55,3 +55,10 @@
 
 /* Delivered veg card art in the market (112 x 152). */
 .ps-vegcard { display: block; inline-size: 4.2rem; block-size: auto; aspect-ratio: 112 / 152; border-radius: 6px; }
+
+/* Phone (QA round 2): smaller market cards and one-line player plates, so the felt fits above the dock and the own plate stays in view. */
+@media (max-width: 899px) {
+  .ps-vegcard, .ps-slot--empty, .ps-pile--empty { inline-size: 3.3rem; }
+  .ps__market { gap: var(--space-1); }
+  .ps-pl { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-1) var(--space-3); padding: var(--space-1) var(--space-2); }
+}

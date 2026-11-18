@@ -36,7 +36,7 @@ export default function SealedBidsRenderer({ view: real, legalActions, mySeat, s
         : `دور ${fa(view.round)} در جریان است`;
 
   return (
-    <div className="sb" ref={root}>
+    <div className="sb-bids" ref={root}>
       {framed && status && <RailSlot><p><b>{status}</b></p><p>هر دور همه هم‌زمان یک ژتون را پنهانی مهر می‌کنند؛ بالاترین پیشنهاد یکتا امتیاز دور را می‌برد و پیشنهاد برابر هیچ‌کس را برنده نمی‌کند. هر ژتون یک بار مصرف می‌شود.</p></RailSlot>}
       <div className="sb__round">
         <div className="sb__prize" aria-label={`دور ${fa(view.round)} از ${fa(ROUNDS)}، جایزه ${fa(view.prize ?? 0)} امتیاز`}>

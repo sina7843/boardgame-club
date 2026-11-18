@@ -54,8 +54,13 @@
 .hs-pl__bid { display: flex; flex-wrap: wrap; gap: 0.2rem; justify-content: center; }
 .hs-pl__won { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
 
-.hs__me { display: grid; gap: 0.6rem; justify-items: center; padding-block: 0.6rem 0.2rem; border-block-start: 1px dashed rgb(217 181 106 / 0.35); }
-.hs__fan { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+.hs__me { display: grid; gap: 0.6rem; justify-items: center; padding-block: 0.6rem 0.2rem; }
+/* Banknotes (QA round 3): the value is printed across the middle of the note, so notes overlap by at most a quarter and wrap
+   to a second row before that; a picked note rises without being lifted above its neighbours. Desktop keeps a tight row. */
+.hs__fan { --w: 3.6rem; display: flex; flex-wrap: wrap; row-gap: 0.7rem; justify-content: center; inline-size: 100%; padding-block-start: 0.6rem; }
+.hs__fan > .hs-pick { flex: none; position: relative; min-inline-size: 0; }
+.hs__fan > .hs-pick + .hs-pick { margin-inline-start: max(-0.9rem, min(0.2rem, calc((100% - var(--w)) / max(var(--n) - 1, 1) - var(--w)))); }
+@media (max-width: 600px) { .hs__fan { --w: 3rem; } .hs__fan .hs-note--img.hs-note--md { inline-size: 3rem; } }
 .hs-pick { padding: 0; border: 0; background: transparent; border-radius: 7px; line-height: 0; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
 .hs-pick:disabled { cursor: default; opacity: 0.8; }
 .hs-pick--on { transform: translateY(-8px); box-shadow: 0 0 0 3px var(--gold), 0 8px 14px -6px rgb(217 181 106 / 0.8); }
@@ -79,3 +84,12 @@
 .hs-note--img img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
 .hs-note--img.hs-note--md { inline-size: 3.6rem; block-size: auto; aspect-ratio: 66 / 46; }
 .hs-note--img.hs-note--sm { inline-size: 2.2rem; block-size: auto; aspect-ratio: 66 / 46; }
+
+/* QA round 4: desktop = one tight row of touching notes; phones = two balanced rows with no overlap (every value readable,
+   no lone note on a second row). A picked or hinted note rises with an inner ring, never a ring that enlarges it. */
+.hs__fan > .hs-pick + .hs-pick { margin-inline-start: 0; }
+.hs__fan .hs-pick--on { box-shadow: none; outline: 2px solid var(--felt-gold); outline-offset: -2px; }
+.hs__fan .hs-hint { box-shadow: none; outline: 2px dashed var(--felt-gold); outline-offset: -2px; animation: none; }
+@media (max-width: 600px) {
+  .hs__fan { display: grid; grid-template-columns: repeat(var(--cols), auto); gap: 0.6rem 0.3rem; justify-content: center; }
+}

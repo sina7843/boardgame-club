@@ -245,7 +245,10 @@ html[data-immersive] .app-page { gap: 0; }
    game bar | rail 380 | felt (bars or seat strip around the renderer) | chat 340. Phone: one column + 4-item dock. */
 .tbl-gf { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; position: fixed; inset: 0; z-index: var(--z-felt); min-block-size: 0; overflow: hidden; }
 .tbl-gf.tbl--max { z-index: var(--z-dialog); overflow: hidden; }
-.tbl-gf > .bgv-gamebar { grid-row: 1; } .gf-banners { grid-row: 2; } .gf-body { grid-row: 3; } .gf-dock { grid-row: 4; }
+.tbl-gf > .bgv-gamebar { grid-row: 1; } .gf-banners { grid-row: 2; } .gf-body { grid-row: 3; } .gf-dock, .gf-dockwrap { grid-row: 4; }
+.gf-dockwrap > .gf-bottom { background: var(--felt); padding: var(--space-1) var(--space-2); }
+.gf-dockwrap > .gf-turnrow { background: var(--felt); padding: var(--space-2); justify-content: center; }
+.gf-dockwrap > .gf-turnrow:not(:has(.gf-turn > *)):not(:has(.gf-peek)) { display: none; }
 .gf-banners { display: grid; gap: var(--space-2); padding-inline: var(--space-3); padding-block-start: var(--space-2); }
 .gf-banners:empty { display: none; }
 .gf-body { min-block-size: 0; min-inline-size: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
@@ -356,7 +359,7 @@ html[data-immersive] .app-page { gap: 0; }
 .gf-mstatus .gf-status__t, .gf-mstatus .gf-status__t b { color: var(--felt-ink); font-size: 14px; }
 .gf-mstatus .gf-guide:not(:empty) { background: none; box-shadow: none; padding: 0; color: var(--felt-muted); font-size: 13px; }
 .gf-mstatus .gf-guide b { color: var(--felt-ink); }
-.gf-dock { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface-chrome); border-block-start: 1px solid var(--line); padding-block-end: env(safe-area-inset-bottom); }
+.gf-dock { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-chrome); border-block-start: 1px solid var(--line); padding-block-end: env(safe-area-inset-bottom); }
 .gf-dock button { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-block-size: 56px; min-inline-size: 44px; padding: var(--space-1); border: 0; background: none; color: var(--text); font: 700 12px/1.2 var(--font-fa); cursor: pointer; }
 .gf-dock button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .gf-dock .bgv-badge { position: absolute; inset-block-start: 4px; inset-inline-end: calc(50% - 30px); }
@@ -369,7 +372,7 @@ html[data-immersive] .app-page { gap: 0; }
   .gf-felt > * { --gf-b: 100%; }
   .gf-bar { inline-size: 100%; }
   .gf-opps { padding-inline: var(--space-3); max-inline-size: none; }
-  .gf-opps > li { flex: none; min-inline-size: 160px; }
+  .gf-opps > li { flex: 1 1 0; min-inline-size: 140px; } /* two opponents fit a 360–390 screen; more scroll */
   .gf-over { position: fixed; z-index: var(--z-sheet); }
   .gf-turnrow { justify-content: center; }
   .gf-clock { --w: 104px; block-size: 38px; }

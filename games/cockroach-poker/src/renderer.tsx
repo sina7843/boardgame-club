@@ -2,7 +2,7 @@
 // the path it has travelled; each player's face-up creatures are grouped with danger at three. Give: pick a card, a
 // player and a claim. Respond: «راست می‌گوید» / «دروغ می‌گوید», or look at it and pass it on with a new claim.
 import './renderer.css';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, RailSlot, TurnIndicator, useFlip, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
 import cockroach from './art/cockroach-poker-cockroach.png';
 import bat from './art/cockroach-poker-bat.png';
@@ -22,9 +22,9 @@ export const CREATURE_FA: Record<Creature, string> = { cockroach: 'سوسک', ba
 const ART: Record<Creature, string> = { cockroach, bat, fly, toad, rat, scorpion, spider, stinkbug };
 
 export function CritterCard({ c, size = 'md', back, flip, flipFrom, cls = '' }: { c?: Creature | null; size?: 'sm' | 'md' | 'lg'; back?: boolean; flip?: string; flipFrom?: string; cls?: string }) {
-  if (back || !c) return <span className={`cr-card cr-card--art cr-card--${size} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label="کارت پشت‌ورو"><img src={backArt} alt="" aria-hidden="true" draggable={false} /></span>;
+  if (back || !c) return <span className={`crp-card crp-card--art crp-card--${size} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label="کارت پشت‌ورو"><img src={backArt} alt="" aria-hidden="true" draggable={false} /></span>;
   return (
-    <span className={`cr-card cr-card--art cr-card--${size} cr-c--${c} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={CREATURE_FA[c]}>
+    <span className={`crp-card crp-card--art crp-card--${size} crp-c--${c} ${cls}`} data-flip={flip} data-flip-from={flipFrom} aria-label={CREATURE_FA[c]}>
       <img src={ART[c]} alt="" aria-hidden="true" draggable={false} />
     </span>
   );
@@ -81,7 +81,7 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
   const loser = view.outcome?.placements.find((x) => x.place === 2)?.seat;
 
   return (
-    <div className="cr" ref={root} data-seq={served.seq}>
+    <div className="crp" ref={root} data-seq={served.seq}>
       {framed && (
         <RailSlot>
           <p>{ch?.peeked ? 'کارت را دیده‌اید؛ باید با ادعای تازه به کسی که ندیده رد کنید.' : 'گیرنده حدس می‌زند ادعا راست است یا دروغ؛ حدس درست کارت را جلوی دهنده می‌گذارد. چهار کارت هم‌نوع جلوی خود یعنی باخت.'}</p>
@@ -90,77 +90,78 @@ export default function CockroachRenderer({ view: served, legalActions, mySeat, 
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
 
       {ch && !view.outcome && (
-        <section className="cr__play" data-flip-anchor="play" aria-label="کارت در جریان">
+        <section className="crp__play" data-flip-anchor="play" aria-label="کارت در جریان">
           <CritterCard key={`${ch.from}-${ch.to}-${ch.seen.length}`} c={ch.card} back={!ch.card} size="lg" flip={`play-${ch.from}-${ch.to}-${ch.seen.length}`} flipFrom={ch.from === mySeat ? 'hand' : `seat-${ch.from}`} />
-          <div className="cr__bubble"><bdi>{who(ch.from)}</bdi> به <bdi>{who(ch.to)}</bdi>: «این یک <b>{CREATURE_FA[ch.claim]}</b> است»</div>
-          {ch.seen.length > 1 && <div className="cr__path">دیده‌اند: {ch.seen.map((k) => who(k)).join('، ')}</div>}
+          <div className="crp__bubble"><bdi>{who(ch.from)}</bdi> به <bdi>{who(ch.to)}</bdi>: «این یک <b>{CREATURE_FA[ch.claim]}</b> است»</div>
+          {ch.seen.length > 1 && <div className="crp__path">دیده‌اند: {ch.seen.map((k) => who(k)).join('، ')}</div>}
         </section>
       )}
       {!framed && last?.kind === 'call' && !ch && (
-        <p className="cr__last" data-flip-anchor="play" role="status" key={view.seq}>
+        <p className="crp__last" data-flip-anchor="play" role="status" key={view.seq}>
           <CritterCard c={last.card} size="sm" cls="bg-flip-in" />{' '}
           <bdi>{who(last.seat)}</bdi> گفت «{last.truth ? 'راست' : 'دروغ'}». کارت {CREATURE_FA[last.card]} بود ({last.card === last.claim ? 'راست' : 'بلوف'}) و جلوی <bdi>{who(last.taker)}</bdi> ماند.
         </p>
       )}
 
-      <ul className="cr__players" aria-label="بازیکنان">
+      <ul className="crp__players" aria-label="بازیکنان">
         {order.map((s) => {
           const groups = CREATURES.map((c) => ({ c, n: view.table[s]!.filter((x) => x === c).length })).filter((g) => g.n);
           const canTarget = targets.includes(s) && !busy;
           return (
-            <li key={s} data-flip-anchor={`seat-${s}`} className={['cr-pl', last?.kind === 'call' && !ch && last.taker === s ? 'bg-hit' : '', (ch ? ch.to : view.current) === s && !view.outcome ? 'cr-pl--turn' : '', s === mySeat ? 'cr-pl--me' : '', loser === s ? 'cr-pl--lost' : ''].join(' ')}>
-              <div className="cr-pl__head">
-                <bdi className="cr-pl__name">{who(s)}</bdi>
-                <Bump v={view.handCount[s]} className="cr-pl__hand">{fa(view.handCount[s]!)} کارت</Bump>
-                {loser === s && <span className="cr-pl__out">باخت</span>}
+            <li key={s} data-flip-anchor={`seat-${s}`} className={['crp-pl', last?.kind === 'call' && !ch && last.taker === s ? 'bg-hit' : '', (ch ? ch.to : view.current) === s && !view.outcome ? 'crp-pl--turn' : '', s === mySeat ? 'crp-pl--me' : '', loser === s ? 'crp-pl--lost' : ''].join(' ')}>
+              <div className="crp-pl__head">
+                <bdi className="crp-pl__name">{who(s)}</bdi>
+                <Bump v={view.handCount[s]} className="crp-pl__hand">{fa(view.handCount[s]!)} کارت</Bump>
+                {loser === s && <span className="crp-pl__out">باخت</span>}
                 {canTarget && (
-                  <button type="button" className={['cr-target', to === s ? 'cr-target--on' : '', hint?.to === s && to !== s ? 'cr-hint' : ''].join(' ')} onClick={() => setTo(to === s ? null : s)} aria-pressed={to === s}>
+                  <button type="button" className={['crp-target', to === s ? 'crp-target--on' : '', hint?.to === s && to !== s ? 'crp-hint' : ''].join(' ')} onClick={() => setTo(to === s ? null : s)} aria-pressed={to === s}>
                     {give ? 'به او بده' : 'به او رد کن'}
                   </button>
                 )}
               </div>
-              <div className="cr-pl__table">
-                {groups.map((g) => <span key={g.c} className={`cr-stack ${g.n >= 3 ? 'cr-stack--danger' : ''}`}><CritterCard key={g.n} c={g.c} size="sm" flip={`tb-${s}-${g.c}-${g.n}`} flipFrom="play" /><Bump v={g.n} className="cr-stack__n">×{fa(g.n)}</Bump></span>)}
-                {!groups.length && <span className="cr-empty">—</span>}
-              </div>
+              {groups.length > 0 && (
+                <div className="crp-pl__table">
+                  {groups.map((g) => <span key={g.c} className={`crp-stack ${g.n >= 3 ? 'crp-stack--danger' : ''}`}><CritterCard key={g.n} c={g.c} size="sm" flip={`tb-${s}-${g.c}-${g.n}`} flipFrom="play" /><Bump v={g.n} className="crp-stack__n">×{fa(g.n)}</Bump></span>)}
+                </div>
+              )}
             </li>
           );
         })}
       </ul>
 
       {view.hand && !view.outcome && (
-        <section className="cr__me" aria-label="دست شما">
+        <section className="crp__me" aria-label="دست شما">
           {(canCall || canPeek) && (
-            <div className="cr__respond">
-              {canCall && <Button size="sm" disabled={busy} className={hint?.type === 'call' && hint.truth ? 'cr-hint' : ''} onClick={() => onAction({ type: 'call', truth: true })}>راست می‌گوید</Button>}
-              {canCall && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'call' && hint.truth === false ? 'cr-hint' : ''} onClick={() => onAction({ type: 'call', truth: false })}>دروغ می‌گوید</Button>}
+            <div className="crp__respond">
+              {canCall && <Button size="sm" disabled={busy} className={hint?.type === 'call' && hint.truth ? 'crp-hint' : ''} onClick={() => onAction({ type: 'call', truth: true })}>راست می‌گوید</Button>}
+              {canCall && <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'call' && hint.truth === false ? 'crp-hint' : ''} onClick={() => onAction({ type: 'call', truth: false })}>دروغ می‌گوید</Button>}
               {canPeek && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'peek' })}>نگاه کن و رد کن</Button>}
             </div>
           )}
           {(give || passing) && (
-            <div className="cr__claims" role="group" aria-label="ادعا">
+            <div className="crp__claims" role="group" aria-label="ادعا">
               <span>ادعا:</span>
               {CREATURES.map((c) => (
-                <button key={c} type="button" className={['cr-claim', claim === c ? 'cr-claim--on' : '', hint?.claim === c && claim !== c ? 'cr-hint' : ''].join(' ')} aria-pressed={claim === c} onClick={() => setClaim(claim === c ? null : c)}>
+                <button key={c} type="button" className={['crp-claim', claim === c ? 'crp-claim--on' : '', hint?.claim === c && claim !== c ? 'crp-hint' : ''].join(' ')} aria-pressed={claim === c} onClick={() => setClaim(claim === c ? null : c)}>
                   <CritterCard c={c} size="sm" /><small>{CREATURE_FA[c]}</small>
                 </button>
               ))}
             </div>
           )}
           {(give || passing) && (
-            <Button size="sm" disabled={!ready || busy} className={hint && (hint.type === 'give' || hint.type === 'pass') && ready ? 'cr-hint' : ''}
+            <Button size="sm" disabled={!ready || busy} className={hint && (hint.type === 'give' || hint.type === 'pass') && ready ? 'crp-hint' : ''}
               onClick={() => onAction(give ? { type: 'give', card: card!, to: to!, claim: claim! } : { type: 'pass', to: to!, claim: claim! })}>
               {give ? 'دادن کارت' : 'رد کردن کارت'}
             </Button>
           )}
-          <div className="cr__hand" data-flip-anchor="hand" role="group" aria-label="کارت‌های دست">
-            {CREATURES.map((c) => {
-              const n = view.hand!.filter((x) => x === c).length;
-              if (!n) return null;
+          {/* Overlapping fan, one card per card held, grouped by creature; the picked card rises (QA round 2). */}
+          <div className="crp__hand" data-flip-anchor="hand" role="group" aria-label="کارت‌های دست" style={{ '--n': view.hand.length } as CSSProperties}>
+            {CREATURES.flatMap((c) => view.hand!.filter((x) => x === c).map((_, k) => {
+              const on = card === c && k === 0, label = <span className="visually-hidden">{CREATURE_FA[c]}</span>;
               return give
-                ? <button key={c} type="button" data-flip={`hand-${c}`} className={['cr-pick', card === c ? 'cr-pick--on' : '', hint?.card === c && card !== c ? 'cr-hint' : ''].join(' ')} aria-pressed={card === c} onClick={() => setCard(card === c ? null : c)}><CritterCard c={c} /><b>×{fa(n)}</b></button>
-                : <span key={c} data-flip={`hand-${c}`} className="cr-pick"><CritterCard c={c} /><b>×{fa(n)}</b></span>;
-            })}
+                ? <button key={`${c}-${k}`} type="button" data-flip={`hand-${c}-${k}`} className={['crp-pick', on ? 'crp-pick--on' : '', hint?.card === c && card !== c && k === 0 ? 'crp-hint' : ''].join(' ')} aria-pressed={card === c} onClick={() => setCard(card === c ? null : c)}><CritterCard c={c} />{label}</button>
+                : <span key={`${c}-${k}`} data-flip={`hand-${c}-${k}`} className="crp-pick"><CritterCard c={c} />{label}</span>;
+            }))}
           </div>
         </section>
       )}

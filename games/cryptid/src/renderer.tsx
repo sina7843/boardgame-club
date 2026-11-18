@@ -120,6 +120,12 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
           {view.outcome && <p><b>{winner === mySeat ? 'شما جانور را پیدا کردید!' : `${who(winner!)} برنده شد`}</b></p>}
+          <p><b>بازیکنان</b></p>
+          <ul className="cr-railpl" aria-label="بازیکنان">
+            {Array.from({ length: view.players }, (_, s) => (
+              <li key={s}><bdi>{who(s)}</bdi><span className="cr-dot" style={{ background: SEAT_COLOR[s] }} title={SEAT_FA[s]} /><span>{fa(view.discs.filter((d) => d.includes(s)).length)} دیسک<span className="bgv-sep" />{fa(view.cubes.filter((c) => c === s).length)} مکعب</span></li>
+            ))}
+          </ul>
           <p>جواب «بله» دیسک و جواب «نه» مکعب است. جانور جایی است که همهٔ سرنخ‌ها قبولش دارند؛ با جست‌وجو و پرسش، سرنخ بقیه را بفهمید.</p>
         </RailSlot>
       )}
@@ -223,7 +229,8 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
         </svg>
       </ZoomBoard></div>
 
-      <ul className="cr-legend" aria-label="راهنمای نقشه">
+      {/* Framed: the legend is in the rules sheet; the rail card lists the players' markers (reference §1). */}
+      {!framed && <ul className="cr-legend" aria-label="راهنمای نقشه">
         {TERRAINS.map((t) => <li key={t}><img src={TERRAIN_ART[t]} alt="" className="cr-swatch" />{TERRAIN_FA[t]}</li>)}
         <li><img src={artBear} alt="" className="cr-swatch cr-swatch--icon" />قلمرو خرس (خط‌چین قهوه‌ای)</li>
         <li><img src={artCougar} alt="" className="cr-swatch cr-swatch--icon" />قلمرو پوما (خط‌چین نارنجی)</li>
@@ -232,7 +239,7 @@ export default function CryptidRenderer({ view: served, legalActions: legal, myS
         {(view.advanced ? COLORS : COLORS.slice(0, 3)).map((c) => <li key={c}><svg className="cr-key cr-key--svg" viewBox="-6 -6 12 12" aria-hidden="true"><rect x="-6" y="-6" width="12" height="12" fill={COLOR_HEX[c]} />{colorMark(c, 0, 0)}</svg>سازهٔ {COLOR_FA[c]}</li>)}
         <li><img className="cr-swatch cr-swatch--icon" src={discB} alt="" />دیسک = بله</li>
         <li><img className="cr-swatch cr-swatch--icon" src={cubeB} alt="" />مکعب = نه</li>
-      </ul>
+      </ul>}
 
       {!framed && <ul className="cr-players" aria-label="بازیکنان">
         {Array.from({ length: view.players }, (_, s) => {

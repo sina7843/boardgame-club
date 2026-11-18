@@ -2,9 +2,8 @@
 .ll { display: grid; gap: 0.8rem; text-align: center; color: #f6efe2; inline-size: 100%; }
 .ll > :first-child { justify-self: center; }
 .ll__players { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
-.ll-pl { display: grid; gap: 0.4rem; padding: 0.55rem 0.7rem; border-radius: 14px; background: rgb(0 0 0 / 0.25); border: 1px solid rgb(255 255 255 / 0.08); text-align: start; }
+.ll-pl { display: grid; gap: 0.4rem; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); text-align: start; }
 .ll-pl--turn { box-shadow: 0 0 0 2px #c9a46a, 0 8px 20px -8px rgb(201 164 106 / 0.6); }
-.ll-pl--me { background: rgb(155 34 66 / 0.18); }
 .ll-pl--out { opacity: 0.55; }
 .ll-pl__head { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; font-size: 0.85rem; }
 .ll-pl__name { font-weight: 800; }
@@ -12,7 +11,7 @@
 .ll-pl__tokens { display: inline-flex; gap: 2px; margin-inline-start: auto; }
 .ll-pl__tokens i { inline-size: 12px; block-size: 11px; background: rgb(255 255 255 / 0.15); clip-path: path('M6 11 C1 7 0 4 2 2 C4 0 6 2 6 3 C6 2 8 0 10 2 C12 4 11 7 6 11 Z'); }
 .ll-pl__tokens i.on { background: #e0475f; }
-.ll-pl__discards { display: flex; flex-wrap: wrap; gap: 0.25rem; min-block-size: 2.4rem; }
+.ll-pl__discards { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 
 .ll__table { display: flex; gap: 1rem; justify-content: center; align-items: center; }
 .ll-deck { position: relative; inline-size: 3.6rem; block-size: 5rem; }

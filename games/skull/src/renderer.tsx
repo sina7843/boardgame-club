@@ -111,7 +111,8 @@ export default function SkullRenderer({ view: real, legalActions: allActions, my
           const canFlip = flippable.has(s) && !busy;
           const won = view.points[s]!;
           const owned = view.owned[s]!;
-          const mat = ART[`mat${won > 0 ? 1 : 0}-${s + 1}`];
+          // A player's mat: the matching side if delivered, else that player's other printed side (never a placeholder when the player's art exists).
+          const mat = ART[`mat${won > 0 ? 1 : 0}-${s + 1}`] ?? ART[`mat${won > 0 ? 0 : 1}-${s + 1}`];
           const body = (
             <>
               <span className="sk-mat__bg">

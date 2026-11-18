@@ -1,7 +1,7 @@
 // کندو renderer: hexagonal tiles with drawn bugs on a felt table; the view fits the hive as it grows.
 // Place: tap a bug in your reserve, then a lit spot. Move: tap one of your pieces, then a lit destination.
 import './renderer.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { RailSlot, TurnIndicator, ZoomBoard, useFlip, useFresh, useInFrame, usePieceIds, usePop, type GameRendererProps } from '@bg/ui';
 import tileWQ from './art/hive-white-queen.png';
 import iconWQ from './art/hive-white-queen-icon.png';
@@ -62,8 +62,14 @@ const hexDist = (a: string, b: string) => {
   return (Math.abs(dq) + Math.abs(dr) + Math.abs(dq + dr)) / 2 + Math.abs(al! - bl!);
 };
 
+/** Desktop (≥900): both reserves sit in the rail card (reference); on phones only mine stays on the felt under the board. */
+const WIDE = '(min-width: 900px)';
+const useWide = () => useSyncExternalStore((f) => { const q = matchMedia(WIDE); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, () => matchMedia(WIDE).matches, () => true);
+
 export default function HiveRenderer({ view: served, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<HiveView>) {
   const framed = useInFrame() !== null; // the shell draws players, the opponent's reserve count, turn number and whose-turn
+  const wide = useWide();
+  const inRail = framed && wide;
   const me = mySeat ?? 0;
   const myColor: Color = served.colors[me]!;
   const q = queued as Queued | null | undefined;
@@ -124,6 +130,10 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
     : canPlace || canMove ? { tone: 'mine' as const, text: mustQueen ? 'نوبت چهارم: باید ملکه را بگذارید' : bug ? `جای ${BUG_FA[bug]} را انتخاب کنید` : from ? 'مقصد را بزنید' : 'نوبت شما: بگذارید یا حرکت دهید' }
       : { tone: 'wait' as const, text: `نوبت ${who(view.turn)}` };
 
+  const myReserve = <Reserve view={view} color={myColor} label="ذخیره شما" selected={bug} onPick={canPlace ? (b) => { setFrom(null); setBug(bug === b ? null : b); } : undefined}
+    only={mustQueen ? 'Q' : undefined} hint={hint?.type === 'place' ? hint.bug : undefined} />;
+  const left = (c: Color) => (Object.values(view.reserve[c]) as number[]).reduce((a, b) => a + b, 0);
+
   return (
     <div className="hv" data-turn={view.turnNo} ref={root}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -132,9 +142,14 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
           {status && <p><b>{status.text}</b></p>}
           <p>{mustQueen ? 'نوبت چهارم شماست: ملکه را باید همین حالا بگذارید.' : 'هر نوبت یا یک مهرهٔ تازه می‌گذارید (کنار مهره‌های خودتان، نه کنار حریف) یا یک مهره را حرکت می‌دهید؛ کندو نباید دو تکه شود، و تا ملکه روی میز نیست مهره‌ای حرکت نمی‌کند.'}</p>
           {lastPass && !view.outcome && <p role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت؛ نوبتش رد شد`}</p>}
+          {inRail && <div className="hv-rres">
+            <div className="hv-rres__row"><span className="hv-rres__lab">ذخیرهٔ شما <b>{fa(left(myColor))}</b></span>{myReserve}</div>
+            <div className="hv-rres__row"><span className="hv-rres__lab"><bdi>{who(myColor === 'w' ? 'b' : 'w')}</bdi> <b>{fa(left(myColor === 'w' ? 'b' : 'w'))}</b></span>
+              <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small /></div>
+          </div>}
         </RailSlot>
       )}
-      <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />
+      {!framed && <Reserve view={view} color={myColor === 'w' ? 'b' : 'w'} label={`ذخیره ${who(myColor === 'w' ? 'b' : 'w')}`} small />}
 
       <ZoomBoard label="کندو">
         <svg className="hv-board" viewBox={vb} role="grid" aria-label="کندو" style={{ direction: 'ltr' }}>
@@ -176,8 +191,7 @@ export default function HiveRenderer({ view: served, legalActions, mySeat, seatN
         </svg>
       </ZoomBoard>
 
-      <Reserve view={view} color={myColor} label="ذخیره شما" selected={bug} onPick={canPlace ? (b) => { setFrom(null); setBug(bug === b ? null : b); } : undefined}
-        only={mustQueen ? 'Q' : undefined} hint={hint?.type === 'place' ? hint.bug : undefined} />
+      {!inRail && myReserve}
       {!framed && lastPass && !view.outcome && <p className="hv__note" role="status">{lastPass.seat === mySeat ? 'کاری نداشتید؛ نوبتتان رد شد' : `${seatName(lastPass.seat)} کاری نداشت و نوبتش رد شد`}</p>}
       {!framed && view.end && <p className="hv__end" role="status">{{ queen: 'ملکه محاصره شد!', draw: 'مساوی', resign: 'انصراف', timeout: 'اتمام زمان', limit: '۳۰۰ نوبت بدون نتیجه — مساوی' }[view.end.kind]}</p>}
     </div>

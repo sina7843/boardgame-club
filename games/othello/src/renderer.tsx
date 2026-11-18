@@ -91,7 +91,8 @@ export default function OthelloRenderer({ view: real, legalActions, mySeat, seat
             <filter id="oth-shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="3.5" floodOpacity=".55" /></filter>
           </defs>
           <image href={boardArt} x="0" y="0" width={SIZE} height={SIZE} preserveAspectRatio="none" />
-          {Array.from({ length: 8 }, (_, k) => (
+          {/* The reference board has no coordinate labels; they stay only outside the frame (tutorial). */}
+          {!framed && Array.from({ length: 8 }, (_, k) => (
             <g key={k} className="oth-coord">
               <text x={M + k * S + S / 2} y={SIZE - 14}>{FILES[k]}</text>
               <text x={22} y={M + k * S + S / 2 + 6}>{8 - k}</text>

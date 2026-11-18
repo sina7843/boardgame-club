@@ -153,6 +153,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
         ))}
       </ul>}
 
+      <div className="dm__top">
       <section className="dm__supply" aria-label="بازار">
         <div className="dm-sup">
         {piles.map((row, r) => (
@@ -172,9 +173,23 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
         ))}
       </div>
       </section>
+      {/* Reference: opponents' deck / hand / discard panels beside the supply (the seat strip only shows names and clocks). */}
+      {framed && view.others.length > 1 && (
+        <ul className="dm__opps" aria-label="حریف‌ها">
+          {view.others.map((o, k) => k === me ? null : (
+            <li key={k} data-flip-anchor={`seat-${k}`} className={['dm-opp', k === view.current && !view.outcome ? 'dm-opp--now' : ''].join(' ')}>
+              <bdi className="dm-player__name">{who(k)}</bdi>
+              <span><img className="dm-ico dm-ico--back" src={cardBack} alt="" draggable={false} />{fa(o.deck)} دسته</span>
+              <span>{fa(o.hand)} دست</span>
+              <span>{o.top ? <img className="dm-ico dm-ico--back" src={ART[o.top]} alt={CARDS[o.top].name} draggable={false} /> : null}{fa(o.discard)} دورریخته</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      </div>
 
-      {view.inPlay.length > 0 && (
-        <div className="dm__play" aria-label="کارت‌های بازی‌شده">{view.inPlay.map((c, i) => {
+      {(framed || view.inPlay.length > 0) && (
+        <div className={view.inPlay.length ? 'dm__play' : 'dm__play dm__play--empty'} aria-label="کارت‌های بازی‌شده">{framed && <small className="dm__play-label">در بازی</small>}{!view.inPlay.length && <small>هنوز کارتی بازی نشده</small>}{view.inPlay.map((c, i) => {
           const mine = view.current === me;
           const id = flipId(mine ? `me${gen(me)}-` : `p${view.current}t${gen(view.current)}-`, c);
           return <span key={i} className="dm__play-card" data-flip={id} data-flip-from={mine ? undefined : `seat-${view.current}`} data-flip-exit={`seat-${view.current}`}><DomCard c={c} size="sm" /></span>;
@@ -183,7 +198,17 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
 
       {view.hand && !view.outcome && (
         <section className="dm__me" aria-label="دست شما">
-          {myTurn && <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins bg-pop" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>}
+          {(myTurn || framed) && (
+            <div className="dm__row">
+              <p className="dm__tally"><span>کنش {fa(view.actions)}</span><span>خرید {fa(view.buys)}</span><span className="dm-coins bg-pop" key={view.coins}><img className="dm-ico" src={coin} alt="" draggable={false} />{fa(view.coins)} سکه</span></p>
+              {framed && me >= 0 && view.others[me] && (
+                <p className="dm__mine" data-flip-anchor={`seat-${me}`}>
+                  <span className="dm__pile-mini" aria-label={`دستهٔ شما: ${fa(view.others[me]!.deck)} کارت`}><img src={cardBack} alt="" draggable={false} /><b>{fa(view.others[me]!.deck)}</b></span>
+                  <span className="dm__pile-mini" aria-label={`دورریختهٔ شما: ${fa(view.others[me]!.discard)} کارت`}>{view.others[me]!.top ? <img src={ART[view.others[me]!.top!]} alt="" draggable={false} /> : <i />}<b>{fa(view.others[me]!.discard)}</b></span>
+                </p>
+              )}
+            </div>
+          )}
           <div className="dm__hand">
             {hand.map((c, i) => {
               const sel = picked.includes(i) || mode?.index === i;
@@ -204,7 +229,7 @@ export default function DominionRenderer({ view: real, legalActions, mySeat, sea
               <Button size="sm" disabled={busy || !ready} onClick={send}>بازی {CARDS[mode.card].name}</Button>
               <Button size="sm" variant="secondary" disabled={busy} onClick={() => { setMode(null); setPicked([]); setGain(null); }}>انصراف</Button>
             </>}
-            {!mode && !militia && canTreasures && <Button size="sm" disabled={busy} className={hint?.type === 'treasures' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'treasures' })}>رو کردن گنج‌ها</Button>}
+            {!mode && !militia && canTreasures && <DockSlot><Button size="sm" disabled={busy} className={hint?.type === 'treasures' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'treasures' })}>رو کردن گنج‌ها</Button></DockSlot>}
             {!mode && !militia && canEnd && <DockSlot><Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'endTurn' ? 'dm-hint' : ''} onClick={() => onAction({ type: 'endTurn' })}>پایان نوبت</Button></DockSlot>}
           </div>
         </section>

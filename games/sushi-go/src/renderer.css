@@ -24,7 +24,6 @@
 .sg-pl__flag--ok { color: #a7e08a; }
 .sg-tab { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; justify-content: center; min-block-size: 2.2rem; padding: 0.3rem; border-radius: 8px;
   box-shadow: var(--shadow-ring-felt); }
-.sg-tab--empty { color: rgb(0 0 0 / 0.4); }
 .sg-tab__g { display: inline-flex; }
 .sg-tab__g > * + * { margin-inline-start: -0.7rem; }
 .sg-tab__sum { inline-size: 100%; font-size: 0.72rem; font-weight: 800; color: var(--ink); }
@@ -38,8 +37,13 @@
 .sg__picked { margin: 0; color: #a7e08a; font-size: 0.85rem; }
 .sg-chop { padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid #4fa3c7; background: rgb(79 163 199 / 0.15); color: #d9f0fa; font: inherit; font-weight: 800; cursor: pointer; }
 .sg-chop--on { background: #4fa3c7; color: #08222e; }
-.sg-belt { position: relative; inline-size: 100%; display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; justify-content: center; padding: 0.7rem 0.4rem 0.9rem; border-radius: 16px;
-  box-shadow: var(--shadow-ring-felt); }
+/* Hand: one overlapping fan (QA round 2: it was a grid); the picked card rises. */
+.sg-belt { --w: calc(72px + 0.3rem); position: relative; inline-size: 100%; display: flex; justify-content: center; padding: 1rem 0.4rem 0.4rem; }
+.sg-belt > .sg-pick { position: relative; flex: none; }
+.sg-belt > .sg-pick + .sg-pick { margin-inline-start: min(0.4rem, calc((100% - 0.8rem - var(--w)) / max(var(--n) - 1, 1) - var(--w))); }
+.sg-belt > .sg-pick:hover, .sg-belt > .sg-pick:focus-visible { z-index: 1; }
+.sg-belt > .sg-pick--on { z-index: 2; transform: translateY(-0.8rem); }
+@media (max-width: 480px) { .sg-belt { --w: calc(56px + 0.3rem); } }
 .sg-belt--done { opacity: 0.75; }
 .sg-pick { padding: 0.15rem; border: 0; background: transparent; color: inherit; font: inherit; border-radius: 12px; cursor: pointer; transition: box-shadow 0.15s; }
 .sg-pick:hover:not(:disabled), .sg-pick:focus-visible { box-shadow: 0 0 0 3px #f2c14e; outline: none; }
@@ -60,6 +64,25 @@
 .sg-ph { display: grid; place-items: center; padding: var(--space-1); background: var(--surface-sunken); color: var(--text-muted); box-shadow: var(--shadow-ring); font-size: 0.65rem; line-height: 1.3; text-align: center; filter: none; }
 .sg-plate--wasabi .sg-plate__img { box-shadow: 0 0 0 3px var(--felt-gold); }
 .sg-pud-ic { inline-size: 18px; block-size: 18px; }
-.sg-tab--mat { background: var(--mat) center / cover; box-shadow: var(--shadow-ring-strong); }
+.sg-tab--mat { aspect-ratio: 1100 / 350; inline-size: min(100%, 26rem); justify-self: center; align-content: center; background: var(--mat) center / 100% 100% no-repeat; box-shadow: none; }
+.sg-tab--me { box-shadow: var(--shadow-ring-strong); }
 .sg-pick { min-inline-size: 44px; min-block-size: 44px; }
 @media (max-width: 480px) { .sg-plate--md .sg-plate__img { inline-size: 56px; block-size: 81px; } .sg-plate--sm .sg-plate__img { inline-size: 40px; block-size: 58px; } }
+
+/* QA round 3: a missing-art tile is its own framed tile with a readable label; a group holding one does not overlap. */
+.sg-tab__g:has(.sg-ph) > * + * { margin-inline-start: var(--space-1); }
+.sg-ph { border-radius: var(--radius-xs); text-align: center; overflow-wrap: anywhere; hyphens: auto; }
+.sg-plate--sm .sg-ph { font-size: 0.6rem; line-height: 1.3; }
+/* Phones: the hand fan overlaps, so the per-card captions would run into each other; the card names stay in aria-labels. */
+@media (max-width: 600px) { .sg-belt .sg-plate__note { display: none; } }
+
+/* QA round 4: hand cards never overlap — a small gap in one row on desktop, two balanced rows on phones; a missing-art tile
+   is a framed card (white stock, ink frame) with its label, distinct from the picture cards around it. */
+.sg-belt { flex-wrap: wrap; row-gap: var(--space-2); }
+.sg-belt > .sg-pick + .sg-pick { margin-inline-start: var(--space-1); }
+.sg-belt > .sg-pick--on { transform: translateY(-0.5rem); }
+@media (max-width: 600px) {
+  .sg-belt { display: grid; grid-template-columns: repeat(var(--cols), auto); gap: var(--space-2) var(--space-1); justify-content: center; }
+  .sg-belt > .sg-pick + .sg-pick { margin-inline-start: 0; }
+}
+.sg-ph { background: var(--surface); color: var(--text); border: 1.5px solid var(--ink-btn); box-shadow: none; font-weight: 700; }

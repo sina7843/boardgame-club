@@ -69,14 +69,15 @@ b.cp-tag { padding: 0 0.4rem; border-radius: 6px; background: var(--role); color
 .cp-resp__btn--block { background: var(--role); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.25); }
 .cp-resp__btn--pass { background: rgb(255 255 255 / 0.12); color: #f4ead8; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
 
-.cp-acts { display: grid; gap: 0.4rem; inline-size: min(100%, 34rem); grid-template-columns: repeat(auto-fit, minmax(7.2rem, 1fr)); }
-.cp-act { display: grid; gap: 0.1rem; padding: 0.45rem 0.5rem; border-radius: 12px; border: 0; font: inherit; color: #fff; cursor: pointer; text-align: center;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--role) 85%, white 15%), var(--role)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 4px 10px -6px #000; transition: filter 0.12s, box-shadow 0.12s; }
-.cp-act--plain { --role: #6b5a3e; }
-.cp-act--coup { --role: #8c1c2b; }
-.cp-act:hover:not(:disabled), .cp-act:focus-visible { filter: brightness(1.15); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2), 0 0 0 2px rgb(255 255 255 / 0.55); outline: none; }
-.cp-act:disabled { opacity: 0.35; cursor: default; filter: grayscale(0.5); }
-.cp-act--on { box-shadow: 0 0 0 3px var(--gold); }
+.cp-acts { display: grid; gap: var(--space-2); inline-size: 100%; grid-template-columns: repeat(auto-fit, minmax(6.4rem, 1fr)); }
+/* Action tiles (QA round 2): printed white tokens; the picked one amber, the ones you cannot take grey. */
+.cp-act { display: grid; gap: 0.1rem; padding: var(--space-2); border-radius: var(--radius-sm); border: 1.5px solid var(--ink-btn); font: inherit; color: var(--text); cursor: pointer; text-align: center;
+  background: var(--surface); box-shadow: var(--shadow-tile-sm); transition: transform var(--dur-fast) var(--ease-out); }
+@media (hover: hover) { .cp-act:hover:not(:disabled) { transform: translateY(-1px); } }
+.cp-act:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.cp-act:focus-visible { outline: 2px solid var(--focus-on-felt); outline-offset: 2px; }
+.cp-act:disabled { cursor: default; background: var(--surface-sunken); color: var(--text-muted); border-color: transparent; box-shadow: none; }
+.cp-act--on { background: var(--primary); color: var(--on-primary); border-color: var(--ink-btn-primary); }
 .cp-act__name { font-weight: 900; }
 .cp-act__note { font-size: 0.7rem; opacity: 0.85; }
 

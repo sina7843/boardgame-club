@@ -3,7 +3,7 @@
 // the points the current dice would score; a box is chosen and then confirmed with «ثبت».
 import './renderer.css';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Button, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, Icon, RailSlot, TurnIndicator, useInFrame, useFlip, type GameRendererProps } from '@bg/ui';
 import { LOWER, UPPER, UPPER_TARGET, isYahtzee, type Cat, type YahtzeeView } from './rules.ts';
 import cup from './art/cup.webp';
 import die1 from './art/yahtzee-die-1.png';
@@ -81,11 +81,21 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
   const framed = useInFrame() !== null;
 
   return (
-    <div className="yz" data-seq={view.seq} ref={root}>
+    <div className={framed ? 'yz yz--framed' : 'yz'} data-seq={view.seq} ref={root}>
       {framed && (
         <RailSlot>
-          <p><b>{myTurn && view.rolls > 0 && view.rolls < 3 ? 'تاس‌هایی را نگه دارید و بقیه را دوباره بریزید، یا یک خانه را پر کنید.' : 'هر نوبت تا ۳ بار می‌ریزید و بعد یک خانهٔ خالی را پر می‌کنید.'}</b></p>
-          <p>جمع بخش بالا از ۶۳ بگذرد، ۳۵ امتیاز پاداش می‌گیرید. یاتزی ۵۰ امتیاز است.</p>
+          {mySeat !== null && view.totals[mySeat] && (
+            <section className="yz-rail" aria-label="پاداش بخش بالا">
+              <h3>پاداش بخش بالا</h3>
+              <div className="yz-rail__pills">
+                <span className="bgv-chip">جمع بالا: {fa(view.totals[mySeat]!.upper)} از {fa(UPPER_TARGET)}</span>
+                <span className="bgv-chip">{view.totals[mySeat]!.upperBonus ? 'پاداش گرفتید' : `${fa(Math.max(0, UPPER_TARGET - view.totals[mySeat]!.upper))} تا پاداش`}</span>
+              </div>
+            </section>
+          )}
+          <p className="yz-rail__tip"><Icon name="book" size={18} />
+            <span>{myTurn && view.rolls > 0 && view.rolls < 3 ? 'تاس‌هایی را که می‌خواهید نگه دارید و بقیه را دوباره بریزید، یا همین حالا یک خانه را پر کنید.' : 'هر نوبت تا ۳ بار می‌ریزید و با پر کردن یک خانه نوبت تمام می‌شود.'} جمع بالای ۶۳ یعنی ۳۵ امتیاز پاداش.</span>
+          </p>
         </RailSlot>
       )}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
@@ -100,9 +110,11 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
       <div className="yz__sheets">
         <div className="yz__sheetwrap">
           <table className="yz__sheet">
-            <caption><span className="yz__padtitle">بخش بالا</span></caption>
-            <thead><tr><th scope="col">خانه</th>{head}</tr></thead>
+            <caption className="visually-hidden">بخش بالا</caption>
+            <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
+            <thead><tr className="yz-row--names"><th scope="col"><span className="visually-hidden">خانه</span></th>{head}</tr></thead>
             <tbody>
+              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش بالا</th></tr>
               {UPPER.map((cat) => (
                 <Fragment key={cat}>
               <tr >
@@ -136,9 +148,11 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
         </div>
         <div className="yz__sheetwrap">
           <table className="yz__sheet">
-            <caption><span className="yz__padtitle">بخش پایین</span></caption>
-            <thead><tr><th scope="col">خانه</th>{head}</tr></thead>
+            <caption className="visually-hidden">بخش پایین</caption>
+            <colgroup><col />{view.sheets.map((_, k) => <col key={k} className={k === me ? 'yz-colbg--me' : undefined} />)}</colgroup>
+            <thead><tr className="yz-row--names"><th scope="col"><span className="visually-hidden">خانه</span></th>{head}</tr></thead>
             <tbody>
+              <tr className="yz-row--section"><th scope="colgroup" colSpan={view.sheets.length + 1}>بخش پایین</th></tr>
               {LOWER.map((cat) => (
                 <Fragment key={cat}>
               <tr >
@@ -173,7 +187,9 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
         </div>
       </div>
 
-      <section className="yz__tray" aria-label="تاس‌ها">
+      {/* Frame: the dice tray with the roll / record buttons is the dock row under the score sheets (design §1/§3). */}
+      {(() => { const trayEl = (
+      <section className={framed ? 'yz__tray yz__tray--dock' : 'yz__tray'} aria-label="تاس‌ها">
         <div className="yz__felt">
           {view.dice.length === 0 && !rollingKeep
             ? <span className="yz__empty">هنوز تاسی ریخته نشده</span>
@@ -192,18 +208,19 @@ export default function YahtzeeRenderer({ view, legalActions, mySeat, seatName, 
         <div className="yz__roll">
           {canRoll && (<>
             <img src={cup} alt="" aria-hidden="true" className="yz__cup" draggable={false} />
-            <Button size="sm" disabled={busy || !!queued} className={hint?.type === 'roll' && keepDone ? 'yz-hint' : ''}
+            <Button icon="turn" disabled={busy || !!queued} className={hint?.type === 'roll' && keepDone ? 'yz-hint yz-rollbtn' : 'yz-rollbtn'}
               onClick={() => roll(view.rolls ? keep : [false, false, false, false, false])}>
               {view.rolls ? 'دوباره بریز' : 'بریز'} ({fa(view.rolls + 1)} از ۳)
             </Button></>)}
-          {myTurn && options.size > 0 && (
-            <Button size="sm" disabled={busy || !pick || !!queued} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
+          {myTurn && (
+            <Button size="sm" variant={canRoll ? 'secondary' : 'primary'} disabled={busy || !pick || !!queued || options.size === 0} className={pick && hint?.type === 'score' && hint.cat === pick ? 'yz-hint yz-submit' : 'yz-submit'}
               onClick={() => pick && onAction({ type: 'score', cat: pick })}>
-              {pick ? `ثبت در جدول: ${fa(options.get(pick) ?? 0)} در «${CAT_FA[pick]}»` : 'ثبت در جدول (یک خانه را انتخاب کنید)'}
+              {pick ? `ثبت در جدول: ${fa(options.get(pick) ?? 0)} در «${CAT_FA[pick]}»` : options.size ? 'ثبت در جدول (یک خانه را انتخاب کنید)' : 'ثبت در جدول'}
             </Button>
           )}
         </div>
       </section>
+      ); return framed ? <DockSlot>{trayEl}</DockSlot> : trayEl; })()}
 
 
       {myTurn && view.rolls > 0 && isYahtzee(view.dice) && view.sheets[me]?.yahtzee !== undefined && (

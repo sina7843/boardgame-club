@@ -77,3 +77,43 @@ button.kd-slot:focus-visible { outline: 2px solid #2f80c9; outline-offset: 1px; 
 .kd-dom--sm.kd-dom--img img { inline-size: 56px; }
 img.kd-king { inline-size: 24px; block-size: 24px; object-fit: contain; background: none; }
 .kd-castle-img { inline-size: 100%; block-size: 100%; object-fit: contain; }
+
+/* Framed (reference §1): domino columns «این دور / دور بعد» with their numbers, rivals' small 5×5 kingdoms in a column
+   at the inline end, your 5×5 kingdom with dashed target cells, and «دومینوی شما» beside it. */
+.kd-line .kd-dom--img .kd-dom__n { position: static; translate: none; align-self: center; margin-inline: var(--space-1); background: none; color: var(--felt-ink); font-size: 12px; }
+.kd-line .kd-dom--img { flex-direction: row-reverse; align-items: center; }
+.kd__mine .kd-dom__n, .kd-player .kd-dom__n { display: none; }
+.kd--framed { color: var(--felt-ink); grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "lines others" "tools me"; align-items: start; column-gap: var(--space-5); }
+.kd--framed > .kd__lines { grid-area: lines; grid-auto-flow: column; align-items: start; justify-content: center; gap: var(--space-4); }
+.kd--framed > .kd__lines .kd__deck { grid-column: 1 / -1; grid-row: 2; }
+.kd--framed .kd-line { flex-direction: column; flex-wrap: nowrap; background: none; padding: 0; }
+.kd--framed .kd-line__label { color: var(--felt-ink); font-weight: 700; }
+.kd--framed > .kd__tools { grid-area: tools; flex-direction: column; align-self: center; }
+.kd__mine-label { color: var(--felt-muted); font-size: 12px; }
+.kd--framed .kd__mine { background: none; }
+.kd--framed > .kd__realm { display: contents; }
+.kd--framed .kd-player--me { grid-area: me; }
+.kd--framed .kd__others { grid-area: others; flex-direction: column; flex-wrap: nowrap; }
+.kd--framed .kd-player { background: none; box-shadow: none; padding: 0; color: var(--felt-ink); }
+.kd--framed .kd-player__head { background: none; box-shadow: none; color: var(--felt-ink); }
+.kd--framed .kd-player--turn .kd-player__head { outline: 2px solid var(--felt-gold); }
+.kd--framed .kd-kingdom { background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
+.kd--framed .kd-player--me .kd-sq--md { inline-size: 2.75rem; block-size: 2.75rem; }
+.kd--framed .kd__others .kd-sq--sm { inline-size: 1.2rem; block-size: 1.2rem; }
+.kd--framed .kd-kingdom .kd-sq--empty { background: none; }
+@media (max-width: 899px) {
+  .kd--framed { grid-template-columns: 1fr; grid-template-areas: "lines" "tools" "me" "others"; }
+  .kd--framed > .kd__lines { grid-auto-flow: row; }
+  .kd--framed .kd-line { flex-direction: row; flex-wrap: wrap; }
+  .kd--framed > .kd__tools { flex-direction: row; }
+  .kd--framed .kd__others { flex-direction: row; flex-wrap: wrap; }
+  .kd--framed .kd-player--me .kd-sq--md { inline-size: 2.4rem; block-size: 2.4rem; }
+}
+
+/* Round 4: a domino without delivered face art (e.g. ۳۴) is drawn from its two terrain squares at the same 84×42 size
+   as the art ones, with its number beside it; no amber frame on the turn player's label (amber = main action only). */
+.kd-dom:not(.kd-dom--img).kd-dom--md { padding: 0; gap: 0; background: none; box-shadow: var(--shadow-piece); border-radius: var(--radius-xs); }
+.kd-dom:not(.kd-dom--img).kd-dom--md .kd-sq--md { inline-size: 42px; block-size: 42px; border-radius: 0; }
+.kd-line .kd-dom:not(.kd-dom--img) { align-items: center; }
+.kd-line .kd-dom:not(.kd-dom--img) .kd-dom__n { position: static; translate: none; order: -1; margin-inline: var(--space-1); background: none; color: var(--felt-ink); font-size: 12px; }
+.kd--framed .kd-player--turn .kd-player__head { outline: 0; }

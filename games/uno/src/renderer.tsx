@@ -91,7 +91,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
   const framed = useInFrame() !== null;
 
   return (
-    <div className="uno" ref={root}>
+    <div className={framed ? 'uno uno--framed' : 'uno'} ref={root}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
 
       {framed && (
@@ -152,7 +152,11 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
           <span className="uno-under" aria-hidden="true"><span /><span /></span>
           {view.top && <span key={lastPlaySeq} className="uno-pile__top" style={{ ['--rot' as string]: `${((lastPlaySeq * 37) % 17) - 8}deg` }}><CardFace card={view.top} size="lg" flip={`c-${view.top.id}`} flipFrom={lastPlayer !== null && lastPlayer !== mySeat ? `seat-${lastPlayer}` : 'deck'} /></span>}
           {pendingPlay && <span className="uno-pile__top" style={{ ['--rot' as string]: '3deg' }}><CardFace card={pendingPlay} size="lg" flip={`c-${pendingPlay.id}`} /></span>}
-          <span className="uno-pile__label">{view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}</span>
+          <span className="uno-pile__label">
+            {/* Small direction mark instead of the big arc (QA round 3). */}
+            <span className={view.direction === 1 ? 'uno-dir__icon' : 'uno-dir__icon uno-dir__icon--rev'} role="img" aria-label={view.direction === 1 ? 'جهت بازی: عادی' : 'جهت بازی: برعکس'}>↻</span>
+            {view.color ? `رنگ فعال: ${COLOR_FA[view.color]}` : 'رنگ انتخاب نشده'}
+          </span>
         </div>
       </div>
 
@@ -203,7 +207,7 @@ export default function UnoRenderer({ view, legalActions, mySeat, seatName, busy
             {selected?.color && <Button size="sm" disabled={busy} onClick={() => play(selected)}>بازی {cardLabel(selected)}</Button>}
           </div>
           {needsUno && !unoArmed && <p className="uno-hand__tip">یکی‌مانده به آخر! پیش از گذاشتن کارت «اونو!» را بزنید.</p>}
-          <div className="uno-hand__cards">
+          <div className="uno-hand__cards" style={{ ['--n' as string]: hand.length }}>
             {hand.map((c) => {
               const ok = playableIds.has(c.id) && !busy;
               return (

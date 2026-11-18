@@ -162,3 +162,27 @@
 
 /* Board aspect for the frame stage height cap (apps/web table.css .gf-stage .zb). */
 .ht { --zb-aspect: 1.58; }
+
+/* Round 3: the zoom viewport shrank to a strip (an overflow-hidden flex child may shrink to 0 inside the height-capped
+   grid). It keeps its size now, the board is capped so the car mat still fits under it, and the grass sits on the
+   viewport so the zoom toolbar stays above the board instead of on it. */
+.ht .zb__viewport { flex: none; }
+.ht__board { overflow: visible; background: none; box-shadow: none; }
+.ht__board .zb__viewport { border-radius: var(--radius-md); background: url('./art/grass.webp') 0 0 / 160px 160px, var(--felt); box-shadow: var(--shadow-ring-felt); }
+@media (min-width: 900px) {
+  .gf-stage .ht .ht__board { max-inline-size: max(20rem, calc((100cqb - 3.5rem - 21rem) * var(--zb-aspect, 1))); margin-inline: auto; }
+}
+
+/* Round 4: speed 0 / 5 starting upgrades have no delivered face art — a labelled placeholder at the face-card size
+   (not a blank white card). The hand row is smaller so it fits the desktop felt; on phones the car mat stays in the
+   scrolling felt. */
+.ht-card--speed:not(.ht-card--face) { background: var(--surface); color: var(--text); box-shadow: var(--shadow-ring); }
+.ht-card--speed.ht-card--md:not(.ht-card--face) { inline-size: 4rem; min-block-size: 0; aspect-ratio: 5 / 7; padding: var(--space-1); }
+.ht-card__v { font-size: 1.5rem; }
+.ht-card__ph { font-size: 10px; line-height: 1.2; text-align: center; color: var(--text-muted); }
+@media (min-width: 900px) {
+  .ht .ht-card--face.ht-card--md, .ht .ht-card--speed.ht-card--md:not(.ht-card--face) { inline-size: 3.3rem; }
+  .gf-stage .ht .ht__board { max-inline-size: max(18rem, calc((100cqb - 3.5rem - 24rem) * var(--zb-aspect, 1))); }
+}
+/* Phones: your car mat (gear, engine, hand) comes right under the chips, before the circuit, so it is on screen. */
+@media (max-width: 899px) { .ht > .ht__cockpit { order: -1; } .ht > .ht__bar { order: -2; } }

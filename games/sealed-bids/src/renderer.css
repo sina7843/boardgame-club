@@ -1,6 +1,6 @@
-/* Sealed Bids: bid chips, envelopes and prize plaques are the published art; this file only lays them out. */
-.sb { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
-.sb > * { min-inline-size: 0; }
+/* Sealed Bids (root `.sb-bids`: the bare `.sb` collided with space-base, which painted its nebula here; QA round 2): bid chips, envelopes and prize plaques are the published art; this file only lays them out. */
+.sb-bids { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+.sb-bids > * { min-inline-size: 0; }
 .sb__round { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .sb__prize { display: grid; }
 .sb__prize strong { font-size: var(--text-xl, 1.25rem); color: var(--felt-gold); }
@@ -11,13 +11,13 @@
 .sb-tok:disabled { cursor: default; filter: grayscale(0.7); opacity: 0.55; }
 .sb-tok:focus-visible { outline: 3px solid var(--focus-on-felt); outline-offset: 3px; }
 .sb-chip__img { display: block; inline-size: 3.75rem; block-size: 3.75rem; }
-.sb .hand { gap: 10px; padding-block: 10px 4px; }
+.sb-bids .hand { gap: 10px; padding-block: 10px 4px; }
 .sb-slot { display: inline-flex; }
 .sb-plaque { display: block; inline-size: min(10rem, 100%); block-size: auto; }
 .sb-seats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; }
 .sb-seat { display: grid; justify-items: center; gap: var(--space-1); min-inline-size: 4.5rem; color: var(--felt-ink); font-size: 0.85rem; }
 .sb-seat__env, .sb-seat__empty { inline-size: 4.25rem; block-size: 3.25rem; }
-.sb-seat__empty { border: 1.5px dashed var(--felt-muted); border-radius: var(--radius-xs); }
+.sb-seat__empty { border-radius: var(--radius-xs); background: var(--felt-plate); box-shadow: var(--shadow-ring-felt); }
 
 /* Revealed round: chips flip in from the sealed envelopes; the winner sits on a gold ring with a star. */
 .sb-reveal { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); padding: var(--space-3); }
@@ -37,7 +37,7 @@
 }
 :root[data-motion='reduce'] .sb__history tbody tr:last-child { animation: none; }
 .sb-chip__star { position: absolute; inset-block-start: -10px; inset-inline-end: -6px; font-size: 1.1rem; color: var(--felt-gold); text-shadow: 0 1px 2px #000; }
-.sb .num > .bg-pop { display: inline-block; }
+.sb-bids .num > .bg-pop { display: inline-block; }
 
 /* Five-round prize strip: past rounds dimmed with their winner, the current round large, the rest «بعدی». */
 .sb-prizes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; align-items: end; }

@@ -1,14 +1,15 @@
 // چکرز renderer: an inlaid maple/walnut board (SVG, LTR geometry), seen from the viewer's side. Tap a ringed piece;
 // if it has one move it plays at once, otherwise tap the highlighted squares (jump by jump) until the move is unique.
 import './renderer.css';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFresh, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Button, DockSlot, MOTION, RailSlot, TurnIndicator, ZoomBoard, motionOff, useFresh, useInFrame, usePop, type GameRendererProps } from '@bg/ui';
+import { Button as DsButton } from '@bg/ui/bgv';
 import manD from './art/checkers-black-man.png';
 import kingD from './art/checkers-black-king.png';
 import manL from './art/checkers-white-man.png';
 import kingL from './art/checkers-white-king.png';
 import boardArt from './art/checkers-board.png';
-import { colOf, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
+import { colOf, notation, rowOf, type CheckersView, type Color, type Move, type Piece } from './rules.ts';
 
 /** My queued move applied locally (undo window): the path is mine, captures are the pieces jumped, a man ending on the last row crowns. */
 function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]; last: Move } | null {
@@ -28,6 +29,9 @@ function previewMove(v: CheckersView, path: number[]): { board: (Piece | null)[]
   return { board, last: { path, captured, crowned } };
 }
 const HOP = 380;
+/** Desktop (≥900): game buttons sit in the rail; on phones the rail is folded away, so they go to the dock. */
+const WIDE = '(min-width: 900px)';
+const useWide = () => useSyncExternalStore((f) => { const q = matchMedia(WIDE); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, () => matchMedia(WIDE).matches, () => true);
 
 const fa = (n: number) => n.toLocaleString('fa-IR').replace(/٬/g, ',');
 // The board PNG has a 2.67 % frame; 8 squares of S fill the rest (SIZE = 8·S / (1 − 2·0.0267)).
@@ -49,6 +53,7 @@ function Stat({ n, children }: { n: number; children: React.ReactNode }) {
 
 export default function CheckersRenderer({ view, legalActions, mySeat, seatName, busy, onAction, expected, queued }: GameRendererProps<CheckersView>) {
   const framed = useInFrame() !== null; // the shell draws players, piece counts, turn and the move list
+  const wide = useWide();
   const myColor: Color = mySeat === null ? 'd' : view.colors[mySeat]!;
   const flip = myColor === 'l';
   const xy = (i: number) => {
@@ -134,15 +139,35 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
     draw: view.end.draw === 'repetition' ? 'تکرار سه‌باره — مساوی' : view.end.draw === 'quiet' ? '۴۰ حرکت بدون زدن — مساوی' : 'توافق — مساوی'
   }[view.end.kind];
 
+  // Draw offer travels with my next move (the engine has no stand-alone offer), so «مساوی» is a toggle.
+  const drawBtn = myTurn && !busy && !view.outcome
+    ? <DsButton key="draw" className="ck-drawbtn" variant="secondary" icon="handshake" pressed={offer} onClick={() => setOffer(!offer)}>{offer ? 'مساوی با حرکت بعد' : 'مساوی'}</DsButton>
+    : view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome ? <span key="draw" className="ck-ml__note">پیشنهاد مساوی شما ارسال شد</span> : null;
+  const acceptBtn = legalActions.some((a) => a.type === 'acceptDraw') ? <DsButton key="acc" disabled={busy} icon="handshake" onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن مساوی</DsButton> : null;
+  const redoBtn = prefix.length > 0 && !busy ? <DsButton key="redo" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</DsButton> : null;
+
   return (
     <div className="ck" data-moves={moveCount}>
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {framed && (
         <RailSlot>
           {status && <p><b>{status.text}</b></p>}
-          <p>{view.variant === 'brazilian' ? 'مهره و شاه به عقب هم می‌زنند و شاه پرنده است؛ زدن بیشترین مهره اجباری است.' : 'مهره فقط به جلو و مورب می‌رود و زدن اجباری است. مهره‌ای که به ردیف آخر برسد شاه می‌شود و نوبت تمام می‌شود.'}</p>
+          <p>{view.variant === 'brazilian' ? <><b>قوانین برزیلی:</b> مهره و شاه به عقب هم می‌زنند و شاه پرنده است؛ زدن بیشترین مهره اجباری است.</> : <><b>قوانین انگلیسی: گرفتن اجباری است.</b> مهره فقط به جلو و مورب می‌رود. مهره‌ای که به ردیف آخر برسد شاه می‌شود و نوبت تمام می‌شود.</>}</p>
+          <section className="ck-ml" aria-label="حرکت‌ها">
+            <h3>حرکت‌ها<span className="ck-ml__note">شمارهٔ خانه‌ها ۱ تا ۳۲</span></h3>
+            <div className="ck-ml__grid" role="list">
+              <span className="ck-ml__h">#</span><span className="ck-ml__h">سیاه</span><span className="ck-ml__h">سفید</span>
+              {Array.from({ length: Math.ceil(moveCount / 2) }, (_, r) => [
+                <span key={`n${r}`} className="ck-ml__n">{fa(r + 1)}.</span>,
+                ...[0, 1].map((k) => { const h = view.history[r * 2 + k]; return <bdi key={`${r}-${k}`} role="listitem" dir="ltr" className={r * 2 + k === moveCount - 1 ? 'ck-ml__m is-cur' : 'ck-ml__m'}>{h ? notation(h) : ''}</bdi>; })
+              ]).flat().slice(-90)}
+            </div>
+            {!moveCount && <p className="ck-ml__note">هنوز حرکتی ثبت نشده است.</p>}
+          </section>
+          {wide && drawBtn}
         </RailSlot>
       )}
+      {framed && (!wide ? <DockSlot>{drawBtn}{acceptBtn}{redoBtn}</DockSlot> : <DockSlot>{acceptBtn}{redoBtn}</DockSlot>)}
       {!framed && <div className="ck__bar">
         {(['d', 'l'] as Color[]).map((c) => (
           <div key={c} className={['ck-side', view.turn === c && !view.outcome ? 'ck-side--turn' : ''].join(' ')}>
@@ -183,7 +208,7 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
             );
           })}
           {/* Coordinates on the frame. */}
-          {Array.from({ length: 8 }, (_, k) => {
+          {!framed && Array.from({ length: 8 }, (_, k) => {
             const file = flip ? 7 - k : k;
             const rank = flip ? k + 1 : 8 - k;
             return (
@@ -218,14 +243,14 @@ export default function CheckersRenderer({ view, legalActions, mySeat, seatName,
         </svg>
       </ZoomBoard>
 
-      <div className="ck__actions">
+      {!framed && <div className="ck__actions">
         {myTurn && !busy && (
           <label className="ck-offer"><input type="checkbox" checked={offer} onChange={(e) => setOffer(e.target.checked)} /> پیشنهاد تساوی همراه حرکت</label>
         )}
         {legalActions.some((a) => a.type === 'acceptDraw') && <Button size="sm" variant="secondary" disabled={busy} onClick={() => onAction({ type: 'acceptDraw' })}>پذیرفتن تساوی</Button>}
         {view.drawOffer !== null && view.drawOffer === mySeat && !view.outcome && <span className="ck__note">پیشنهاد تساوی شما ارسال شد</span>}
         {prefix.length > 0 && !busy && <Button size="sm" variant="ghost" onClick={() => setPrefix([])}>انتخاب دوباره</Button>}
-      </div>
+      </div>}
       {!framed && endText && <p className="ck__end" role="status">{endText}</p>}
       {!framed && <ol className="ck__history" aria-label="حرکت‌ها">
         {view.history.slice(-8).map((h, k) => (

@@ -58,3 +58,18 @@ img.set-card__face { object-fit: contain; border-radius: 6px; }
 
 .set__status { padding-inline: var(--space-3); }
 .set--framed .set__bar { padding-inline: var(--space-3); }
+
+/* A printed card face is already a card: no second white frame around it (QA round 2: nested card frames). */
+.set-card:has(> img.set-card__face) { padding: 0; background: none; box-shadow: none; }
+.set__count { margin: 0; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+.set--framed .set__count { color: var(--felt-muted); }
+
+/* QA round 3: every card fills the same 5 : 6.2 slot (a printed face is stretched to the slot, not letterboxed), and on
+   phones the board keeps a margin from the felt edge. */
+.set-card > img.set-card__face { inline-size: 100%; block-size: 100%; object-fit: fill; border-radius: 10px; }
+@media (max-width: 600px) { .set--framed .set__board { inline-size: calc(100% - 2 * var(--space-3)); } }
+
+/* QA round 4: the printed PNG (132 x 162) has a 6px transparent shadow margin around the card, so it read smaller than the
+   drawn cards. It is scaled by exactly that margin (120 -> 132, 150 -> 162) and clipped to the same box. */
+.set-card:has(> img.set-card__face) { overflow: hidden; background: #fbfaf6; } /* ds-check-ignore: card stock colour of the printed face */
+.set-card > img.set-card__face { scale: 1.1 1.08; }

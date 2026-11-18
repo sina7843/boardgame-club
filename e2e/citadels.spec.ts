@@ -57,7 +57,7 @@ test('three players play «ارگ‌ها» to the result', async ({ browser }, i
   const invite = (await host.getByRole('textbox', { name: 'لینک دعوت' }).inputValue()).replace(/^https?:\/\/[^/]+/, '');
   for (const g of pages.slice(1)) { await g.goto(invite); await g.getByRole('button', { name: 'پیوستن به میز' }).click(); }
   await pages[0]!.getByRole('button', { name: 'آماده‌ام' }).click(); // joiners already sit ready
-  await expect(host.locator('.ct2__track')).toBeVisible();
+  await expect(host.locator('.ct2')).toBeVisible();
 
   for (let n = 0; n < 900; n++) {
     if (await host.getByRole('heading', { name: RESULT }).count()) break;

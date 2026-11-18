@@ -2,7 +2,7 @@
 // the show in the ring belongs to its owner; your hand keeps its order. Show: tap the first and last card of a run
 // of neighbours. Scout: tap an end card of the ring's show (flip it if you like), then the gap where it goes.
 import './renderer.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button, DockSlot, RailSlot, TurnIndicator, useFlip, useInFrame, type GameRendererProps } from '@bg/ui';
 import { ART } from './art.ts';
 import { down, type HandCard, type ScoutView } from './rules.ts';
@@ -16,7 +16,7 @@ export function Act({ c, size = 'md', flipped, flip, flipFrom, exit }: { c: Hand
   const label = `${fa(top)} (پشت: ${fa(bot)})`;
   // Only the faces in design/games/group-c/art/scout exist as images; any other face is a plain numbered placeholder.
   return (
-    <span className={`sc-card sc-card--${size}${img ? '' : ' sc-card--ph'}`} aria-label={label} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
+    <span className={`sc-card sc-card--${size}${img ? '' : ` sc-card--ph sc-t--${top} sc-b--${bot}`}`} aria-label={label} data-flip={flip} data-flip-from={flipFrom} data-flip-exit={exit}>
       {img ? <img src={img} alt="" draggable={false} /> : <><b className="sc-card__top">{fa(top)}</b><small className="sc-card__bot">{fa(bot)}</small></>}
     </span>
   );
@@ -129,14 +129,22 @@ export default function ScoutRenderer({ view, legalActions, mySeat, seatName, bu
         <section className="sc__me" aria-label="دست شما">
           {orient && (
             <div className="sc__orient">
-              <div className="sc__hand">{hand.map((c, i) => <Act key={i} c={c} />)}</div>
-              <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'orient' && hint.flip === false ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: false })}>همین‌طور</Button>
-              <div className="sc__hand">{hand.slice().reverse().map((c, i) => <Act key={i} c={c} flipped />)}</div>
-              <Button size="sm" disabled={busy} className={hint?.type === 'orient' && hint.flip ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: true })}>برگرداندن دست</Button>
+              {/* Both orientations as one-row fans; the two choices sit in the dock row so they stay above the own plate (QA round 2). */}
+              <div className="sc__hand" style={{ '--n': hand.length } as CSSProperties} role="group" aria-label="همین‌طور">{hand.map((c, i) => <Act key={i} c={c} />)}</div>
+              <div className="sc__hand" style={{ '--n': hand.length } as CSSProperties} role="group" aria-label="برگردانده">{hand.slice().reverse().map((c, i) => <Act key={i} c={c} flipped />)}</div>
+              {(() => {
+                const btns = (
+                  <>
+                    <Button size="sm" variant="secondary" disabled={busy} className={hint?.type === 'orient' && hint.flip === false ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: false })}>همین‌طور</Button>
+                    <Button size="sm" disabled={busy} className={hint?.type === 'orient' && hint.flip ? 'sc-hint' : ''} onClick={() => onAction({ type: 'orient', flip: true })}>برگرداندن دست</Button>
+                  </>
+                );
+                return framed ? <DockSlot>{btns}</DockSlot> : <div className="sc__bar">{btns}</div>;
+              })()}
             </div>
           )}
           {!orient && (
-            <div className="sc__hand sc__hand--play" role="group" aria-label="کارت‌های دست" data-shows={showHint ? showHint.options.map((o) => `${o.from}:${o.count}`).join(' ') : undefined}>
+            <div className={`sc__hand sc__hand--play${end ? ' sc__hand--gaps' : ''}`} style={{ '--n': hand.length } as CSSProperties} role="group" aria-label="کارت‌های دست" data-shows={showHint ? showHint.options.map((o) => `${o.from}:${o.count}`).join(' ') : undefined}>
               {hand.map((c, i) => (
                 <span key={`${c.id}`} className="sc-slot">
                   {end && <button type="button" className="sc-gap" disabled={busy} onClick={() => onAction({ type: 'scout', end, flip, at: i, ...(andShow ? { andShow: true } : {}) })} aria-label={`گذاشتن قبل از کارت ${fa(i + 1)}`}>+</button>}

@@ -147,15 +147,14 @@ export default function PointSaladRenderer({ view: served, legalActions, mySeat,
           <li key={s} data-flip-anchor={`seat-${s}`} className={['ps-pl', view.current === s && !view.outcome ? 'ps-pl--turn' : '', s === mySeat ? 'ps-pl--me' : '', view.outcome?.placements.find((x) => x.seat === s)?.place === 1 ? 'ps-pl--win' : ''].join(' ')}>
             <div className="ps-pl__head"><bdi className="ps-pl__name">{who(s)}</bdi>{!framed && <span className="ps-pl__score bg-pop" key={sc[s]}>{fa(sc[s]!)} امتیاز</span>}</div>
             <div className="ps-pl__veg">{VEG.map((x) => <span key={x} className={all[s]![x] ? '' : 'ps-zero'}><VegIcon v={x} size={1.2} /><b className="bg-pop" key={all[s]![x]}>{fa(all[s]![x])}</b></span>)}</div>
-            <div className="ps-pl__rules">
+            {view.rules[s]!.length > 0 && <div className="ps-pl__rules">
               {view.rules[s]!.map((id) => {
                 const pts = ruleScore(CARDS[id]!.rule, s, all);
                 return s === me && myTurn && !view.outcome
                   ? <button key={id} type="button" className={`ps-flip ${flip === id ? 'ps-flip--on' : ''}`} aria-pressed={flip === id} onClick={() => setFlip(flip === id ? null : id)} title="برگرداندن به سبزی"><RuleCard id={id} pts={pts} from={`seat-${s}`} exit="drop" /></button>
                   : <RuleCard key={id} id={id} pts={pts} from={`seat-${s}`} exit="drop" />;
               })}
-              {!view.rules[s]!.length && <span className="ps-zero">بدون دستور</span>}
-            </div>
+            </div>}
           </li>
         ))}
       </ul>

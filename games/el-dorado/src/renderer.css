@@ -67,3 +67,22 @@
   .ed--framed > .ed-me { grid-column: 2; grid-row: 2; }
   .ed--framed > :not(.ed-board):not(.ed-market):not(.ed-me) { grid-column: 1 / -1; }
 }
+
+/* Round 3 regression: the framed hand size (84px) also hit the market's small cards, so six wide columns overflowed
+   the felt. Market cards stay small and the grid fits its column. */
+.ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { inline-size: 56px; }
+.ed--framed .ed-market__row { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); min-inline-size: 0; }
+@media (min-width: 900px) { .ed--framed > .ed-market { min-inline-size: 0; overflow: hidden; } }
+
+/* Round 4: the market is two rows of 8 (no lone 16th card spilling onto the hand), the hand one row of 4; phones
+   stack map, market and hand in the scrolling felt. */
+.ed--framed .ed-market__row { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--space-2) 4px; }
+.ed--framed .ed-market .ed-card, .ed--framed .ed-market .ed-card--sm { inline-size: 100%; max-inline-size: 56px; }
+@media (min-width: 900px) { .ed--framed > .ed-market { overflow: visible; } }
+.ed--framed .ed-hand { flex-wrap: nowrap; justify-content: center; }
+.ed--framed .ed-hand .ed-card { inline-size: 76px; }
+@media (max-width: 899px) {
+  .ed--framed { grid-template-columns: 1fr; }
+  .ed--framed > * { grid-column: 1; grid-row: auto; }
+  .ed--framed .ed-hand .ed-card { inline-size: 64px; }
+}

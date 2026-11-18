@@ -81,3 +81,60 @@
   .yz__cup { inline-size: 2rem; block-size: 2rem; }
   .yz__roll { flex-wrap: nowrap; gap: 0.3rem; }
 }
+
+/* Shared frame (design §1/§3): the score sheets fill the stage with compact rows; the tray with the roll / record
+   buttons is the dock row (tray art around the dice, buttons stacked beside it). */
+.yz--framed { padding: 0; gap: var(--space-2); }
+.yz--framed .yz__sheet { font-size: 0.8rem; }
+.yz--framed .yz__sheet th, .yz--framed .yz__sheet td { padding-block: 0.1rem; }
+.yz--framed .yz__sheet tbody th small { display: inline; margin-inline-start: 0.35rem; font-size: 0.62rem; }
+.yz--framed .yz__sheet tbody th span { display: inline; }
+.yz--framed .yz-opt { min-block-size: 1.6rem; }
+.yz__tray--dock { display: flex; flex-direction: row; align-items: center; gap: var(--space-3); inline-size: min(100%, 700px); padding: 0; border-radius: 0; background: none; filter: none; }
+.yz__tray--dock .yz__felt { flex: 1 1 auto; min-block-size: 4.6rem; padding: 0.7rem 1rem 1rem; border-radius: 12px;
+  background: url('./art/yahtzee-tray.png') center / 100% 100% no-repeat; filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.45)); }
+.yz__tray--dock .yz-die { inline-size: 2.6rem; block-size: 2.6rem; }
+.yz__tray--dock .yz__roll { flex: none; flex-direction: column; align-items: stretch; gap: var(--space-2); }
+.yz__tray--dock .yz__cup { display: none; }
+.yz__tray--dock .yz-submit { white-space: normal; block-size: auto; min-block-size: 2.25rem; max-inline-size: 13rem; }
+@media (max-width: 520px) {
+  .yz__tray--dock { flex-direction: column; }
+  .yz__tray--dock .yz__felt { inline-size: 100%; }
+  .yz__tray--dock .yz__roll { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .yz__tray--dock .yz-die { inline-size: 2.3rem; block-size: 2.3rem; }
+}
+
+/* Round 3 (design §1/§3): player names in the red header row, a dark band per section, roll = wide token with an icon. */
+.yz__sheet thead .yz-row--names th, .yz__sheet thead .yz-row--names th:first-child { background: #8f1d1d; color: #fff6e0; border-block-end: 0; font-size: 0.78rem; }
+.yz__sheet thead .yz-row--names .yz-col--me { background: #e8a642; color: #2a1c10; box-shadow: none; }
+.yz__sheet thead .yz-row--names .yz-col--turn:not(.yz-col--me) { box-shadow: inset 0 -3px 0 #e8a642; }
+.yz__sheetwrap { border-radius: var(--radius-md); }
+.yz__tray--dock .yz-rollbtn { min-inline-size: 11rem; }
+/* Rail card «پاداش بخش بالا». */
+.yz-rail { display: grid; gap: var(--space-2); }
+.yz-rail h3 { margin: 0; font-size: 15px; color: var(--heading); }
+.yz-rail__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.yz-rail__tip { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: 13.5px; line-height: 1.8; color: var(--text); }
+.yz-rail__tip > svg { flex: none; color: var(--info); margin-block-start: 4px; }
+/* Phones: one sheet per row so each label stays on one line and no column runs off the edge. */
+@media (max-width: 520px) {
+  .yz__sheets { grid-template-columns: minmax(0, 1fr); }
+  .yz__sheet { font-size: 0.78rem; }
+  .yz__sheet th, .yz__sheet td { white-space: nowrap; }
+  .yz--framed .yz__sheet tbody th small { display: none; }
+  .yz__tray--dock .yz-rollbtn { min-inline-size: 0; flex: 1 1 auto; }
+}
+/* Round 4: your column body is tinted; on phones the two halves read as one sheet and the tray sits beside the buttons. */
+.yz-colbg--me { background: rgb(232 166 66 / 0.18); }
+@media (max-width: 520px) {
+  .yz__sheets { gap: 0; }
+  .yz__sheets .yz__sheetwrap:first-child { border-end-start-radius: 0; border-end-end-radius: 0; box-shadow: none; }
+  .yz__sheets .yz__sheetwrap + .yz__sheetwrap { border-start-start-radius: 0; border-start-end-radius: 0; }
+  .yz__sheets .yz__sheetwrap + .yz__sheetwrap thead { display: none; }
+  .yz__tray--dock { flex-direction: row; gap: var(--space-2); }
+  .yz__tray--dock .yz__felt { inline-size: auto; flex: 1 1 auto; min-inline-size: 0; padding: 0.5rem 0.4rem 0.8rem; gap: 0.25rem; }
+  .yz__tray--dock .yz-die { inline-size: 2rem; block-size: 2rem; }
+  .yz__tray--dock .yz__roll { flex-direction: column; flex-wrap: nowrap; flex: 0 1 9rem; }
+  .yz__tray--dock .yz__roll .bgv-btn, .yz__tray--dock .yz__roll button { white-space: normal; block-size: auto; min-block-size: 44px; font-size: 0.8rem; }
+}
+.yz-rail h3 { font-weight: 800; }

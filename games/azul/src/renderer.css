@@ -171,3 +171,11 @@ button.az-floor:hover, button.az-floor:focus-visible { box-shadow: 0 0 0 3px #ff
 .az--framed .az-board--me { grid-column: 1 / -1; grid-row: 4; inline-size: min(100%, 38rem); justify-self: center; }
 .az--framed .az-board--opp .az-board__head { font-size: 0.75rem; }
 .az--framed .az-board--opp .az-board__head, .az--framed .az-board--me .az-board__head { justify-self: start; }
+
+/* Round 2: fit to the stage height (reference: ring ~21rem, own board ~29rem wide). The own board's width follows the
+   stage height left under the ring and the action row, so its wall and floor are never cut at the bottom. */
+@media (min-width: 900px) {
+  .az--framed > .az__mkt { inline-size: min(100%, 20rem); }
+  .az--framed .az-board--me { inline-size: min(100%, 29rem, max(18rem, calc((var(--gf-b, 46rem) - 24rem) * 1.5))); }
+  .az--framed .az-board--opp { inline-size: min(100%, 14rem); justify-self: center; }
+}

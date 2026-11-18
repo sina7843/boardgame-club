@@ -3,7 +3,7 @@
 // Rotate the domino, tap where its first half goes, choose your next domino, confirm.
 import './renderer.css';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, RailSlot, TurnIndicator, useInFrame, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
+import { Button, DockSlot, RailSlot, TurnIndicator, useInFrame, useFlip, usePop, usePrevious, type GameRendererProps } from '@bg/ui';
 import { DIRS, DOMINOES, canPlace, scoreKingdom, type Cell, type Half, type KingdominoView, type Terrain } from './rules.ts';
 
 import d01 from './art/kingdomino-d01.png';
@@ -66,7 +66,7 @@ export function Square({ cell, size = 'md', seat }: { cell: Cell | Half | null; 
 
 export function Domino({ dom, size = 'md' }: { dom: number; size?: 'sm' | 'md' }) {
   const [a, b] = DOMINOES[dom]!;
-  if (DOM_ART[dom + 1]) return <span className={`kd-dom kd-dom--img kd-dom--${size}`} aria-label={`دومینو ${fa(dom + 1)}`}><img src={DOM_ART[dom + 1]} alt="" draggable={false} /><b className="kd-dom__n visually-hidden">{fa(dom + 1)}</b></span>;
+  if (DOM_ART[dom + 1]) return <span className={`kd-dom kd-dom--img kd-dom--${size}`} aria-label={`دومینو ${fa(dom + 1)}`}><img src={DOM_ART[dom + 1]} alt="" draggable={false} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
   return <span className={`kd-dom kd-dom--${size}`}><Square cell={a} size={size} /><Square cell={b} size={size} /><b className="kd-dom__n">{fa(dom + 1)}</b></span>;
 }
 
@@ -82,6 +82,14 @@ function Kingdom({ id, k, was, from, big, onCell, ok, preview, hint }: { id: str
   ok?.forEach((key) => { const [r, c] = key.split(',').map(Number); grow(r!, c!); });
   preview?.forEach((_, key) => { const [r, c] = key.split(',').map(Number); grow(r!, c!); });
   if (r1 < 0) { w0 = w1 = x0 = x1 = 4; }
+  // Always show at least the 5×5 frame (reference: the kingdom grid with its empty target cells), padded around the
+  // built area and kept inside the 9×9 field.
+  const pad = (a: number, b: number): [number, number] => {
+    let lo = a, hi = b;
+    while (hi - lo < 4) { if (lo > 0 && (hi - lo) % 2 === 0) lo--; else if (hi < 8) hi++; else lo--; }
+    return [lo, hi];
+  };
+  [w0, w1] = pad(w0, w1); [x0, x1] = pad(x0, x1);
   return (
     <div className={`kd-kingdom ${big ? 'kd-kingdom--big' : ''}`} style={{ gridTemplateColumns: `repeat(${x1 - x0 + 1}, auto)` }} role={onCell ? 'group' : undefined} aria-label="سرزمین ۵×۵">
       {k.map((row, r) => row.map((cell, c) => {
@@ -189,7 +197,7 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
 
   const framed = useInFrame() !== null;
   return (
-    <div className="kd" data-seq={view.seq} ref={root}>
+    <div className={framed ? 'kd kd--framed' : 'kd'} data-seq={view.seq} ref={root}>
       {framed && <RailSlot>{status && <p><b>{status.text}</b></p>}<p>دومینو را کنار زمین‌های هم‌نوع بگذارید (یا کنار قلعه)؛ سرزمین ۵ در ۵ است. امتیاز هر ناحیه خانه‌ها ضربدر تاج‌هاست.</p></RailSlot>}
       {!framed && status && <TurnIndicator tone={status.tone}>{status.text}</TurnIndicator>}
       {!view.outcome && (
@@ -202,9 +210,17 @@ export default function KingdominoRenderer({ view: real, legalActions, mySeat, s
 
       {playHint && (
         <div className="kd__tools">
+          {framed && <small className="kd__mine-label">دومینوی شما</small>}
           <span className="kd__mine"><Domino dom={playHint.dom} /></span>
-          {playHint.canPlace && <Button size="sm" variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}>چرخش ↻</Button>}
-          <Button size="sm" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید' : 'دور انداختن'}</Button>
+          {framed ? (
+            <DockSlot>
+              {playHint.canPlace && <Button variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}>چرخاندن</Button>}
+              <Button variant="primary" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید جا' : 'دور انداختن'}</Button>
+            </DockSlot>
+          ) : <>
+            {playHint.canPlace && <Button size="sm" variant="secondary" className={`kd-rot ${rotHint ? 'kd-hint' : ''}`} onClick={() => { setDir((dir + 1) % 4); setAt(null); }}>چرخش ↻</Button>}
+            <Button size="sm" disabled={!ready || busy} className={hint?.type === 'play' && ready ? 'kd-hint' : ''} onClick={send}>{playHint.canPlace ? 'تأیید' : 'دور انداختن'}</Button>
+          </>}
         </div>
       )}
 

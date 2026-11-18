@@ -129,7 +129,8 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
   const desert = legalActions.find((a) => a.type === 'desert') as { spaces: number[] } | undefined;
   const overall = legalActions.find((a) => a.type === 'overall') as { cards: Camel[] } | undefined;
   const [placing, setPlacing] = useState<null | 'oasis' | 'mirage'>(null);
-  useEffect(() => { setPlacing(null); }, [view.seq]);
+  const [ovWhich, setOvWhich] = useState<null | 'win' | 'lose'>(null);
+  useEffect(() => { setPlacing(null); setOvWhich(null); }, [view.seq]);
   const hint = expected as unknown as { type: string; camel?: Camel; which?: string } | null;
   const who = (s: number) => (s === mySeat ? 'شما' : seatName(s));
   const status = view.outcome ? null
@@ -188,61 +189,81 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
         </div>
       </section>
 
-      <div className="cu__bar">
-      {!view.outcome && (
-        <section className="cu__bets cu__grp" aria-label="شرط مرحله">
-          <h3 className="cu__cap">شرط مرحله</h3>
-          <div className="cu__grpbody">
-          {CAMELS.map((c) => {
-            const v = view.legTiles[c][0];
-            const left = view.legTiles[c].length;
-            return (
-              <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
-                disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
-                {v && BET_ART[`${c}-${v}`] ? <img src={BET_ART[`${c}-${v}`]} alt="" className="cu-legtile__art" draggable={false} /> : <><CamelIcon c={c} size={1.9} /><b>{v ? fa(v) : '—'}</b></>}
-                <small className="cu-legtile__left">{fa(left)} مانده</small>
-              </button>
-            );
-          })}
+      {(() => {
+        // One action bar (design §1/§3): leg bet | desert tile | pyramid die | final bet; in the frame it is the dock row.
+        // The final bet picks «برنده»/«بازنده» first, then one of your camel cards (§4).
+        const ovOpen = myTurn && overall ? (ovWhich ?? (hint?.type === 'overall' ? (hint.which as 'win' | 'lose') : null)) : null;
+        const bar = (
+          <div className="cu__bar" role="group" aria-label="کارهای نوبت">
+            {!view.outcome && (
+              <section className="cu__bets cu__grp" aria-label="شرط مرحله">
+                <h3 className="cu__cap">شرط مرحله</h3>
+                <div className="cu__grpbody">
+                  {CAMELS.map((c) => {
+                    const v = view.legTiles[c][0];
+                    const left = view.legTiles[c].length;
+                    return (
+                      <button key={c} type="button" data-flip-anchor={`leg-${c}`} className={['cu-legtile', `cu-c--${c}`, hint?.type === 'leg' && hint.camel === c ? 'cu-hint' : ''].join(' ')} style={{ ['--left' as string]: left }}
+                        disabled={!legs.has(c) || busy} onClick={() => onAction({ type: 'leg', camel: c })} aria-label={`شرط مرحله روی ${CAMEL_FA[c]}${v ? `، ${fa(v)} سکه` : '، تمام شده'}`}>
+                        <span className="cu-legtile__face">
+                          {v && BET_ART[`${c}-${v}`] ? <img src={BET_ART[`${c}-${v}`]} alt="" className="cu-legtile__art" draggable={false} /> : <><CamelIcon c={c} size={1.5} /><b>{v ? fa(v) : '—'}</b></>}
+                        </span>
+                        <small className="cu-legtile__left">{fa(left)} مانده</small>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+            {myTurn && (
+              <>
+                <section className="cu__actions cu__grp" aria-label="کاشی بیابان">
+                  <h3 className="cu__cap">کاشی بیابان</h3>
+                  <div className="cu__grpbody">
+                    {desert && <Button size="sm" variant="secondary" aria-pressed={placing === 'oasis'} className={placing === 'oasis' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}><img src={oasisArt} alt="" className="cu-pyramid" draggable={false} />واحه +۱</Button>}
+                    {desert && <Button size="sm" variant="secondary" aria-pressed={placing === 'mirage'} className={placing === 'mirage' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}><img src={mirageArt} alt="" className="cu-pyramid" draggable={false} />سراب −۱</Button>}
+                    {!desert && <small>کاشی شما روی مسیر است</small>}
+                  </div>
+                </section>
+                <section className="cu__grp" aria-label="تاس از هرم">
+                  <h3 className="cu__cap">تاس از هرم <small>{fa(view.diceLeft)} مانده</small></h3>
+                  <div className="cu__grpbody">
+                    <Button size="sm" variant="secondary" disabled={busy} aria-label="تاس از هرم (+۱ سکه)" className={['cu-tilebtn', 'cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />+۱ سکه</Button>
+                  </div>
+                </section>
+                {overall && (
+                  <section className="cu__overall cu__grp" aria-label="شرط نهایی">
+                    <h3 className="cu__cap">شرط نهایی</h3>
+                    <div className="cu__grpbody">
+                      <Button size="sm" variant="secondary" icon="crown" aria-pressed={ovOpen === 'win'} className={ovOpen === 'win' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} disabled={busy} onClick={() => setOvWhich(ovOpen === 'win' ? null : 'win')}>برنده</Button>
+                      <Button size="sm" variant="secondary" aria-pressed={ovOpen === 'lose'} className={ovOpen === 'lose' ? 'cu-tilebtn cu-on' : 'cu-tilebtn'} disabled={busy} onClick={() => setOvWhich(ovOpen === 'lose' ? null : 'lose')}>بازنده</Button>
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
           </div>
-        </section>
-      )}
-
-      {myTurn && (
-        <>
-        <section className="cu__actions cu__grp" aria-label="کاشی بیابان">
-          <h3 className="cu__cap">کاشی بیابان</h3>
-          <div className="cu__grpbody">
-          {desert && <Button size="sm" variant="secondary" className={placing === 'oasis' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'oasis' ? null : 'oasis')}><img src={oasisArt} alt="" className="cu-pyramid" draggable={false} />واحه +۱</Button>}
-          {desert && <Button size="sm" variant="secondary" className={placing === 'mirage' ? 'cu-on' : ''} onClick={() => setPlacing(placing === 'mirage' ? null : 'mirage')}><img src={mirageArt} alt="" className="cu-pyramid" draggable={false} />سراب −۱</Button>}
-          {!desert && <small>کاشی شما روی مسیر است</small>}
-          </div>
-        </section>
-        <section className="cu__grp" aria-label="تاس از هرم">
-          <h3 className="cu__cap">تاس از هرم</h3>
-          <div className="cu__grpbody">
-            <DockSlot><Button size="sm" disabled={busy} className={['cu-rollbtn', hint?.type === 'roll' ? 'cu-hint' : ''].join(' ')} onClick={() => { setRollSent(real.seq); onAction({ type: 'roll' }); }}><img src={pyramid} alt="" className="cu-pyramid" draggable={false} />تاس از هرم (+۱ سکه)</Button></DockSlot>
-            <small>{fa(view.diceLeft)} مانده</small>
-          </div>
-        </section>
-        </>
-      )}
-
-      {myTurn && overall && (
-        <section className="cu__overall cu__grp" aria-label="شرط نهایی">
-          <h3 className="cu__cap">شرط نهایی <small>برنده {fa(view.winnerCount)} مانده، بازنده {fa(view.loserCount)} مانده</small></h3>
-          <div className="cu__ovlist">
-            {overall.cards.filter((c) => !(q?.type === 'overall' && q.camel === c)).map((c) => (
-              <span key={c} className={`cu-ov cu-c--${c}`}>
-                <CamelIcon c={c} size={1.5} />
-                <button type="button" className={hint?.type === 'overall' && hint.camel === c && hint.which === 'win' ? 'cu-hint' : ''} disabled={busy} onClick={() => onAction({ type: 'overall', camel: c, which: 'win' })}>برنده</button>
-                <button type="button" disabled={busy} onClick={() => onAction({ type: 'overall', camel: c, which: 'lose' })}>بازنده</button>
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-      </div>
+        );
+        const pick = ovOpen && overall ? (
+              <section className="cu__ovpick" aria-label={`کارت شتر برای شرط ${ovOpen === 'win' ? 'برنده' : 'بازنده'}`}>
+                <p className="cu__cap">کارت شتر را برای شرط {ovOpen === 'win' ? 'برندهٔ' : 'بازندهٔ'} نهایی انتخاب کنید <small>برنده {fa(view.winnerCount)} مانده، بازنده {fa(view.loserCount)} مانده</small></p>
+                <div className="cu__ovlist">
+                  {CAMELS.map((c) => {
+                    const ok = overall.cards.includes(c) && !(q?.type === 'overall' && q.camel === c);
+                    return (
+                      <span key={c} className={`cu-ov cu-c--${c}`}>
+                        <button type="button" className={hint?.type === 'overall' && hint.camel === c && hint.which === ovOpen ? 'cu-hint' : ''} disabled={busy || !ok}
+                          onClick={() => { setOvWhich(null); onAction({ type: 'overall', camel: c, which: ovOpen }); }} aria-label={`شتر ${CAMEL_FA[c]}${ok ? '' : '، کارت مصرف شده'}`}>
+                          <CamelIcon c={c} size={1.8} />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              </section>
+        ) : null;
+        return framed ? (myTurn || !view.outcome ? <DockSlot>{bar}{pick}</DockSlot> : null) : <>{bar}{pick}</>;
+      })()}
 
       {!framed && <ul className="cu__players" aria-label="تماشاگران">
         {(view.outcome ? view.outcome.placements.map((x) => x.seat) : view.coins.map((_, k) => k)).map((s) => (
@@ -257,7 +278,7 @@ export default function CamelRenderer({ view: real, legalActions, mySeat, seatNa
         ))}
       </ul>}
       {view.myOverall.length > 0 && !view.outcome && <p className="cu__mine">شرط‌های نهایی شما: {view.myOverall.map((b) => `${CAMEL_FA[b.camel]} (${b.which === 'win' ? 'برنده' : 'بازنده'})`).join('، ')}</p>}
-      {!framed && view.log.length > 0 && <p className="cu__log">آخرین مرحله: {view.log.at(-1)!.gains.map((g, k) => `${who(k)} ${g >= 0 ? '+' : '−'}${fa(Math.abs(g))}`).join('، ')}</p>}
+      {!framed && view.log.length > 0 && <p className="cu__log">آخرین مرحله: {view.log.at(-1)!.gains.map((g, k) => <span key={k}>{k > 0 && '، '}<bdi>{who(k)}</bdi> {g >= 0 ? '+' : '−'}{fa(Math.abs(g))}</span>)}</p>}
     </div>
   );
 }

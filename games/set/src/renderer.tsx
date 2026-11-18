@@ -119,11 +119,19 @@ export default function SetRenderer({ view: served, legalActions, mySeat, seatNa
       </div>
 
       {canClaim && !view.outcome && (
-        <DockSlot><div className="set__bar">
-          <span className="muted" aria-live="polite">{sel.length ? `${fa(sel.length)} از ۳ کارت انتخاب شد` : 'سه کارت انتخاب کنید'}</span>
-          <Button variant="secondary" disabled={!sel.length || busy} onClick={() => setSel([])}>پاک کردن</Button>
-          <Button className={['set-claim', hint ? 'set-hint' : ''].join(' ')} disabled={sel.length !== 3 || busy} onClick={claim}>ست!</Button>
-        </div></DockSlot>
+        <>
+          {/* The count stays on the felt; only the two buttons go to the dock row (QA round 2: the text spilled out of the dock pill). */}
+          <p className="set__count" aria-live="polite">{sel.length ? `${fa(sel.length)} از ۳ کارت انتخاب شد` : 'سه کارت انتخاب کنید'}</p>
+          {(() => {
+            const btns = (
+              <>
+                <Button variant="secondary" disabled={!sel.length || busy} onClick={() => setSel([])}>پاک کردن</Button>
+                <Button className={['set-claim', hint ? 'set-hint' : ''].join(' ')} disabled={sel.length !== 3 || busy} onClick={claim}>ست!</Button>
+              </>
+            );
+            return framed ? <DockSlot>{btns}</DockSlot> : <div className="set__bar">{btns}</div>;
+          })()}
+        </>
       )}
 
       {!framed && <div className="set__players">
