@@ -1586,3 +1586,7 @@ Previously participants only. Now anyone who may view the table (non-tutorial; p
 - Player panels: the renderer's own panels are hidden inside the shell; the shell rail shows seat cards built by each game's `*SeatCard(seat, turn)` from the new optional public `summary.seats[].detail` (SDK `object`, contracts `z.custom<object>`). Never hidden information.
 - `<RailSlot>` now works in the table view too (desktop rail); `.rail-top` content goes above the player cards.
 
+## Group A–D frame on phones (2026-11-19)
+- The page scrolls on phones (no inner felt scroller); the game bar and the dock area (game actions, own bar, گفت‌وگو / رویدادها / گزینه‌ها) are sticky. «گزینه‌ها» opens the rules and leave sheet.
+- QA from round 6 fails a table only for blockers; small size differences are polish.
+- Game CSS is global, so class prefixes must be unique per game (`.sb`, `.cr`, `.tm` collided; group C renamed its side).

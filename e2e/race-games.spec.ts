@@ -101,7 +101,7 @@ test('ludo: an instant roll (no undo) tumbles without pips while in flight until
   expect(log.some((m) => m.ghost === 'die')).toBe(true);
   expect(log.some((m) => m.cls.includes('ld-piece'))).toBe(true);
   await roll.click();
-  await expect(p.getByRole('img', { name: 'تاس: ۵' })).toBeVisible({ timeout: 10_000 });
+  await expect(p.getByRole('img', { name: 'تاس: ۴' })).toBeVisible({ timeout: 10_000 }); // the tutorial's scripted second roll
   await p.waitForTimeout(1200);
   // Queued move: the piece walks to its target at once; undo walks it back.
   const piece = p.locator('[data-pawn="0-3"]');

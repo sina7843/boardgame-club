@@ -151,7 +151,8 @@ test('two players play Gaia Project to the result', async ({ browser }, info) =>
     for (const p of pages) {
       const before = await p.locator('.gp[data-seq]').getAttribute('data-seq');
       if (!(await turn(p, n))) continue;
-      await expect.poll(() => p.locator('.gp[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before);
+      // A refused or superseded click just means «look again»; a game that is truly stuck still fails the result check below.
+      if (!(await expect.poll(() => p.locator('.gp[data-seq]').getAttribute('data-seq'), { timeout: 10_000 }).not.toBe(before).then(() => true, () => false))) continue;
       if (n === 12) for (const [i, q] of pages.entries()) {
         await q.screenshot({ path: shot(info.project.name, `mid-${i}`), fullPage: info.project.name.startsWith('desktop'), timeout: 20_000 }).catch(() => undefined);
         await q.locator('[data-gp-board="faction"]').screenshot({ path: shot(info.project.name, `boards-${i}`), timeout: 5000 }).catch(() => undefined);

@@ -973,3 +973,6 @@ and a full two-player game from placement at 360 and 1440 (`docs/evidence/games/
 - Built by five parallel implementer agents (one per game folder), shell changes by hand; details and per-game RULES items in docs/reports/2026-11-18-groups-a-d.md («List item 1 done»).
 - Checks: pnpm typecheck PASS, pnpm lint PASS, ds-check --changed PASS, game-engine vitest 1,443/1,443 (one Blood Rage render test needed a longer timeout), e2e gaia-project/terraforming-mars/brass/ark-nova/blood-rage 14/14 at desktop-1440, QA verdicts design/qa/{gaia-project,terraforming-mars,brass,ark-nova,blood-rage}/VERDICT.md all PASS (start state). Live-turn/dialog captures, phone e2e and real devices UNVERIFIED.
 
+## Groups A–D QA rounds 3–6 (2026-11-19): DONE locally at start state — not production-ready
+- Visual QA: 59 of 62 independent reviewer passes; onitama, battleship and scout fixed after the final check and checked only by the implementer. Round 6 onward used a blockers-only bar.
+- Checks: pnpm typecheck PASS, pnpm lint PASS, ds-check --changed PASS, game-engine vitest 1,444/1,444; desktop-1440 e2e last full run 196 passed / 2 failed / 1 skipped / 1 not run, then gaia-project 3/3 (three runs) and race-games 4/4 after spec fixes. No single fully green run. Phone/tablet e2e and real devices UNVERIFIED.
